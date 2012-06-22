@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
 #
 # Astropy documentation build configuration file, created by
 # sphinx-quickstart on Tue Jul 26 02:59:34 2011.
@@ -11,11 +12,8 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
-import os
-import sys
-
-# Load all of the global Astropy configuration
-from astropy.sphinx.conf import *
+#some of the docs require the autodoc special-members option, in 1.1
+needs_sphinx = '1.1'
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -31,13 +29,17 @@ from astropy.sphinx.conf import *
 # Thus, any C-extensions that are needed to build the documentation will *not*
 # be accessible, and the documentation will not build correctly.
 
+# Load all of the global Astropy configuration
+from astropy.sphinx.conf import *
+
+
 # -- General configuration -----------------------------------------------------
 
 # General information about the project.
 
 # This does not *have* to match the package name, but typically does
 project = u'packagename' 
-copyright = u'2011'
+copyright = u'2012'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -69,14 +71,24 @@ pygments_style = 'sphinx'
 
 # -- Options for HTML output ---------------------------------------------------
 
-# The name of an image file (relative to this directory) to place at the top
-# of the sidebar.
-# html_logo = ''
+import sys
+import os
+sys.path.append(os.path.abspath('_themes'))
+html_theme_path = ['_themes']
+
+# The theme to use for HTML and HTML Help pages.  See the documentation for
+# a list of builtin themes.
+html_theme = 'bootstrap-astropy'
+html_sidebars = {'**': ['localtoc.html']}
+
+# The name for this set of Sphinx documents.  If None, it defaults to
+# "<project> v<release> documentation".
+html_title = '{0} v{1}'.format(project, release)
 
 # The name of an image file (within the static path) to use as favicon of the
 # docs.  This file should be a Windows icon file (.ico) being 16x16 or 32x32
 # pixels large.
-# html_favicon = ''
+html_favicon = 'astropylogo.ico' # included in the bootstrap-astropy theme
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
@@ -86,14 +98,17 @@ html_static_path = ['_static']
 # Output file base name for HTML help builder.
 htmlhelp_basename = ''
 
+# Format for date last built.
+html_last_updated_fmt = '%d %b %Y'
+
 
 # -- Options for LaTeX output --------------------------------------------------
 
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'Astropy.tex', u'Astropy Documentation',
-   u'Erik Tollerud, Thomas Robitaille, Perry Greenfield, and the Astropy Collaboration', 'manual'),
+  ('index', 'packagename.tex', u'Packagename Documentation',
+   u'Packagename Developers', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -106,8 +121,8 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'astropy', u'Astropy Documentation',
-     [u'Erik Tollerud, Thomas Robitaille, Perry Greenfield, and the Astropy Collaboration'], 1)
+    ('index', 'packagename', u'Packagename Documentation',
+     [u'Packagename Developers'], 1)
 ]
 
 # This is added to the end of RST files - a good place to put substitutions to
