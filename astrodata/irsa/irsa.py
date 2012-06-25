@@ -97,26 +97,66 @@ If onlist=0, the following parameters are required:
                         constraints.
 '''
 
-__all__ = ['query_gator', 'list_gator_catalogs']
+__all__ = ['query_gator_cone', 'query_gator_box', 'query_gator_polygon',
+           'query_gator_all_sky', 'list_gator_catalogs']
 
 GATOR_URL = 'http://irsa.ipac.caltech.edu/cgi-bin/Gator/nph-query'
 GATOR_LIST_URL = 'http://irsa.ipac.caltech.edu/cgi-bin/Gator/nph-scan?mode=xml'
 
 
-def query_gator(spatial, catalog, objstr=None, radius=None,
-                units='arcsec', size=None, polygon=None):
+def query_gator_cone(catalog, object, radius, units='arcsec'):
     '''
     Query the NASA/IPAC Infrared Science Archive (IRSA)
 
     Parameters
     ----------
-    spatial : {'Cone', 'Box', 'Polygon'}
-        The type of query to execute
 
     catalog : str
         One of the catalogs listed by ``astrodata.irsa.list_gator_catalogs()``
 
-    objstr : str
+    object : str, optional
+        This string gives the position of the center of the cone or box if
+        performing a cone or box search. The string can give coordinates
+        in various coordinate systems, or the name of a source that will
+        be resolved on the server (see `here
+        <http://irsa.ipac.caltech.edu/search_help.html>`_ for more
+        details).
+
+    radius : float
+        The radius for the cone search.
+
+    units : {'arcsec', 'arcmin', 'deg'}, optional
+        The units for the cone search radius. Defaults to 'arcsec'.
+     '''
+
+    # Set basic options
+    options = {}
+    options['spatial'] = 'Cone'
+    options['catalog'] = catalog
+    options['outfmt'] = 3  # use VO table format
+
+    options['objstr'] = object
+
+    options['radius'] = radius
+
+    if units not in ['arcsec', 'arcmin', 'deg']:
+        raise ValueError("units should be one of arcsec/arcmin/deg")
+    options['radunits'] = units
+
+    return _query_gator(options)
+
+
+def query_gator_box(catalog, object, size):
+    '''
+    Query the NASA/IPAC Infrared Science Archive (IRSA)
+
+    Parameters
+    ----------
+
+    catalog : str
+        One of the catalogs listed by ``astrodata.irsa.list_gator_catalogs()``
+
+    object : str
         This string gives the position of the center of the cone or box if
         performing a cone or box search. The string can give coordinates
         in various coordinate systems, or the name of a source that will
@@ -124,75 +164,75 @@ def query_gator(spatial, catalog, objstr=None, radius=None,
         <http://irsa.ipac.caltech.edu/search_help.html>`_ for more
         details). Required if spatial is 'Cone' or 'Box'.
 
-    radius : float
-        The radius for the cone search. Required if spatial is 'Cone'
-
-    units : {'arcsec', 'arcmin', 'deg'}
-        The units for the cone search radius. Defaults to 'arcsec'.
-
     size : float
-        The size of the box to search in arcseconds. Required if spatial
-        is 'Box'.
-
-    polygon : list
-        The list of (ra, dec) pairs (as tuples), in decimal degrees,
-        outlinining the polygon to search in. Required if spatial is 'Polygon'
-     '''
-
-    # Convert to lowercase with first uppercase letter
-    spatial = spatial.capitalize()
+        The size of the box to search in arcseconds.
+    '''
 
     # Set basic options
     options = {}
-    options['spatial'] = spatial
+    options['spatial'] = 'Box'
     options['catalog'] = catalog
     options['outfmt'] = 3  # use VO table format
 
-    if spatial == "Cone":
+    options['objstr'] = object
 
-        if not radius:
-            raise ValueError("radius is required for Cone search")
-        options['radius'] = radius
+    options['size'] = size
 
-        if not units:
-            raise ValueError("units is required for Cone search")
-        if units not in ['arcsec', 'arcmin', 'deg']:
-            raise ValueError("units should be one of arcsec/arcmin/deg")
-        options['radunits'] = units
+    return _query_gator(options)
 
-        if not objstr:
-            raise ValueError("objstr is required for Cone search")
-        options['objstr'] = objstr
 
-    elif spatial == "Box":
+def query_gator_polygon(catalog, polygon):
+    '''
+    Query the NASA/IPAC Infrared Science Archive (IRSA)
 
-        if not size:
-            raise ValueError("size is required for Box search")
-        options['size'] = size
+    Parameters
+    ----------
+    catalog : str
+        One of the catalogs listed by ``astrodata.irsa.list_gator_catalogs()``
 
-        if not objstr:
-            raise ValueError("objstr is required for Cone search")
-        options['objstr'] = objstr
+    polygon : list
+        The list of (ra, dec) pairs (as tuples), in decimal degrees,
+        outlinining the polygon to search in.
+     '''
 
-    elif spatial == "Polygon":
+    # Set basic options
+    options = {}
+    options['spatial'] = 'Polygon'
+    options['catalog'] = catalog
+    options['outfmt'] = 3  # use VO table format
 
-        if not polygon:
-            raise ValueError("polygon is required for Polygon search")
-        pairs = []
-        for pair in polygon:
-            if pair[1] > 0:
-                pairs.append(str(pair[0]) + '+' + str(pair[1]))
-            else:
-                pairs.append(str(pair[0]) + str(pair[1]))
-        options['polygon'] = string.join(pairs, ',')
+    pairs = []
+    for pair in polygon:
+        if pair[1] > 0:
+            pairs.append(str(pair[0]) + '+' + str(pair[1]))
+        else:
+            pairs.append(str(pair[0]) + str(pair[1]))
+    options['polygon'] = string.join(pairs, ',')
 
-    elif spatial == "None":
+    return _query_gator(options)
 
-        options['spatial'] = 'NONE'
 
-    else:
+def query_gator_all_sky(catalog):
+    '''
+    Query the NASA/IPAC Infrared Science Archive (IRSA)
 
-        raise Exception("spatial should be one of cone/box/polygon/none")
+    Parameters
+    ----------
+
+    catalog : str
+        One of the catalogs listed by ``astrodata.irsa.list_gator_catalogs()``
+     '''
+
+    # Set basic options
+    options = {}
+    options['spatial'] = 'NONE'
+    options['catalog'] = catalog
+    options['outfmt'] = 3  # use VO table format
+
+    return _query_gator(options)
+
+
+def _query_gator(options):
 
     # Construct query URL
     url = GATOR_URL + "?" + \
@@ -222,7 +262,7 @@ def query_gator(spatial, catalog, objstr=None, radius=None,
 
     # Read it in using the astropy VO table reader
     table = parse(output.name, pedantic=False).get_first_table()
-    
+
     # Check if table is empty
     if len(table) == 0:
         warnings.warn("Query returned no results, so the table will be empty")
