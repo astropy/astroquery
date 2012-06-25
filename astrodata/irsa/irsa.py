@@ -7,6 +7,7 @@ import tempfile
 import string
 from xml.etree.ElementTree import ElementTree
 
+from astropy.table import Table
 from astropy.io.vo.table import parse
 
 '''
@@ -98,7 +99,8 @@ If onlist=0, the following parameters are required:
 '''
 
 __all__ = ['query_gator_cone', 'query_gator_box', 'query_gator_polygon',
-           'query_gator_all_sky', 'list_gator_catalogs']
+           'query_gator_all_sky', 'print_gator_catalogs',
+           'list_gator_catalogs']
 
 GATOR_URL = 'http://irsa.ipac.caltech.edu/cgi-bin/Gator/nph-query'
 GATOR_LIST_URL = 'http://irsa.ipac.caltech.edu/cgi-bin/Gator/nph-scan?mode=xml'
@@ -261,7 +263,10 @@ def _query_gator(options):
     output.flush()
 
     # Read it in using the astropy VO table reader
-    table = parse(output.name, pedantic=False).get_first_table()
+    array = parse(output.name, pedantic=False).get_first_table().array
+
+    # Convert to astropy.table.Table instance
+    table = Table(array)
 
     # Check if table is empty
     if len(table) == 0:
@@ -273,14 +278,29 @@ def _query_gator(options):
     return table
 
 
+def print_gator_catalogs():
+    '''
+    Display a table of the available catalogs
+    '''
+    catalogs = list_gator_catalogs()
+    for catname in catalogs:
+        print("%30s  %s" % (catname, catalogs[catname]))
+
+
 def list_gator_catalogs():
+    '''
+    Return a dictionary of the available catalogs
+    '''
 
     req = urllib2.Request(GATOR_LIST_URL)
     response = urllib2.urlopen(req)
 
     tree = ElementTree()
 
+    catalogs = {}
     for catalog in tree.parse(response).findall('catalog'):
         catname = catalog.find('catname').text
         desc = catalog.find('desc').text
-        print("%30s  %s" % (catname, desc))
+        catalogs[catname] = desc
+
+    return catalogs
