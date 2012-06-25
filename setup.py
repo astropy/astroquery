@@ -12,13 +12,9 @@ from astropy import setup_helpers
 from astropy.version_helper import get_git_devstr, generate_version_py
 
 # Set affiliated package-specific settings
-PACKAGENAME = 'packagename'
-DESCRIPTION = 'Astropy affiliated package'
-LONG_DESCRIPTION = ''
-AUTHOR = ''
-AUTHOR_EMAIL = ''
+PACKAGENAME = 'astrodata'
+DESCRIPTION = 'Functions and classes to access online data resources'
 LICENSE = 'BSD'
-URL = 'http://astropy.org'
 
 #version should be PEP386 compatible (http://www.python.org/dev/peps/pep-0386)
 version = '0.0.dev'
@@ -91,11 +87,7 @@ setup(name=PACKAGENAME,
       requires=['astropy'],
       install_requires=['astropy'],
       provides=[PACKAGENAME],
-      author=AUTHOR,
-      author_email=AUTHOR_EMAIL,
       license=LICENSE,
-      url=URL,
-      long_description=LONG_DESCRIPTION,
       cmdclass=cmdclassd,
       zip_safe=False,
       use_2to3=True
