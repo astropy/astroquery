@@ -36,18 +36,18 @@ from astropy.sphinx.conf import *
 # General information about the project.
 
 # This does not *have* to match the package name, but typically does
-project = u'packagename' 
-copyright = u'2011'
+project = u'astrodata' 
+copyright = u'2012'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 
-import packagename
+import astrodata
 # The short X.Y version.
-version = packagename.__version__.split('-', 1)[0]
+version = astrodata.__version__.split('-', 1)[0]
 # The full version, including alpha/beta/rc tags.
-release = packagename.__version__
+release = astrodata.__version__
 
 # If true, '()' will be appended to :func: etc. cross-reference text.
 #add_function_parentheses = True
@@ -86,31 +86,3 @@ html_static_path = ['_static']
 # Output file base name for HTML help builder.
 htmlhelp_basename = ''
 
-
-# -- Options for LaTeX output --------------------------------------------------
-
-# Grouping the document tree into LaTeX files. List of tuples
-# (source start file, target name, title, author, documentclass [howto/manual]).
-latex_documents = [
-  ('index', 'Astropy.tex', u'Astropy Documentation',
-   u'Erik Tollerud, Thomas Robitaille, Perry Greenfield, and the Astropy Collaboration', 'manual'),
-]
-
-# The name of an image file (relative to this directory) to place at the top of
-# the title page.
-#latex_logo = None
-
-
-# -- Options for manual page output --------------------------------------------
-
-# One entry per manual page. List of tuples
-# (source start file, name, description, authors, manual section).
-man_pages = [
-    ('index', 'astropy', u'Astropy Documentation',
-     [u'Erik Tollerud, Thomas Robitaille, Perry Greenfield, and the Astropy Collaboration'], 1)
-]
-
-# This is added to the end of RST files - a good place to put substitutions to
-# be used globally.
-rst_epilog += """
-"""
