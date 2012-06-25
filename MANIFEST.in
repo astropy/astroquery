@@ -1,7 +1,7 @@
 include README.rst
 
 include distribute_setup.py
-recursive-include packagename *.pyx *.c
+recursive-include astrodata *.pyx *.c
 
 recursive-include docs *
 recursive-include licenses *
