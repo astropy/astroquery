@@ -12,10 +12,7 @@ import htmllib
 import formatter
 import os
 import sys
-try: 
-    import astropy.io.fits as pyfits
-except ImportError:
-    import pyfits
+import astropy.io.fits as pyfits
 from math import cos, radians
 import multiprocessing as mp
 import time
@@ -24,7 +21,7 @@ import StringIO
 
 url_gpscutout  = "http://third.ucllnl.org/cgi-bin/gpscutout"
 
-__all__ = ['get_image_gal']
+__all__ = ['get_magpis_image_gal']
 
 surveys = ["gps6epoch3",
     "gps6epoch4",
@@ -41,7 +38,7 @@ surveys = ["gps6epoch3",
     "bolocam"]
 
 
-def get_image_gal(glon, glat, survey='bolocam', size=1.0, 
+def get_magpis_image_gal(glon, glat, survey='bolocam', size=1.0, 
         verbose=False, savename=None, save=True,
         overwrite=False):
     """
