@@ -7,7 +7,7 @@ UKIDSS Queries (`astrodata.ukidss`)
 Getting started
 ===============
 
-The following example illustrates an ukidss Gator query::
+The following example illustrates an UKIDSS catalog/image query::
 
     >>> from astrodata import ukidss
     >>> R = ukidss.Request()
