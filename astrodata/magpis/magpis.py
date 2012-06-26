@@ -24,6 +24,7 @@ import StringIO
 
 url_gpscutout  = "http://third.ucllnl.org/cgi-bin/gpscutout"
 
+__all__ = ['get_image_gal']
 
 surveys = ["gps6epoch3",
     "gps6epoch4",
@@ -69,8 +70,7 @@ def get_image_gal(glon, glat, survey='bolocam', size=1.0,
 
     Examples
     --------
-    >>> R = Request()
-    >>> fitsfile = R.get_image_gal(10.5,0.0)
+    >>> fitsfile = get_image_gal(10.5,0.0)
     """
 
     if survey not in surveys:
