@@ -12,13 +12,15 @@ import htmllib
 import formatter
 import os
 import sys
-import pyfits
+import astropy.io.fits as pyfits
 from math import cos, radians
 import multiprocessing as mp
 import time
 import tempfile
+import numpy as np
 
-__all__ = ['Query']
+
+__all__ = ['UKIDSSQuery']
 
 class LinksExtractor(htmllib.HTMLParser):  # derive new HTML parser
 
@@ -90,11 +92,6 @@ class UKIDSSQuery():
             if c.is_expired():
                 return False
         return True
-
-        # Teporary - write out login result page to HTML
-##        f = file('login.html','wb')
-##        f.write(page.read())
-##        f.close()
 
     def get_image_gal(self, glon, glat, filter='all', frametype='stack',
             directory=None, size=1.0, verbose=False, save=True,
@@ -450,8 +447,6 @@ def clean_catalog(ukidss_catalog, clean_band='K_1', badclass=-9999, maxerrbits=4
     Examples
     --------
     """
-
-    import numpy as np
 
     band = clean_band
     mask = ((ukidss_catalog.data[band + 'CLASS'] != badclass)
