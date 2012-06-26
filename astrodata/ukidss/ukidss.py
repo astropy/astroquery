@@ -18,6 +18,7 @@ import multiprocessing as mp
 import time
 import tempfile
 
+__all__ = ['Request']
 
 class LinksExtractor(htmllib.HTMLParser):  # derive new HTML parser
 
