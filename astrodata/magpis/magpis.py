@@ -67,7 +67,7 @@ def get_magpis_image_gal(glon, glat, survey='bolocam', size=1.0,
 
     Examples
     --------
-    >>> fitsfile = get_image_gal(10.5,0.0)
+    >>> fitsfile = get_magpis_image_gal(10.5,0.0)
     """
 
     if survey not in surveys:
