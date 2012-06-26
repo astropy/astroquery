@@ -1,3 +1,10 @@
+"""
+UKIDSS Image and Catalog Query Tool
+-----------------------------------
+
+:Author: Thomas Robitalle (thomas.robitaille@gmail.com)
+:Author: Adam Ginsburg (adam.g.ginsburg@gmail.com)
+"""
 import cookielib,urllib2,urllib,htmllib,formatter,os,sys
 import pyfits
 from math import cos,radians
@@ -29,6 +36,11 @@ url_getcatalog = "http://surveys.roe.ac.uk:8080/wsa/WSASQL?"
 frame_types = ['stack','normal','interleave','deep%stack','confidence','difference','all']
 
 class Request():
+    """
+    The Request class.  Must instantiate this class in order to make any
+    queries.  Allows registered users to login, but defaults to using the
+    public UKIDSS data sets.
+    """
 
     def __init__(self):
         self.opener = urllib2.build_opener()
@@ -409,7 +421,7 @@ def clean_catalog(ukidss_catalog, clean_band='K_1', badclass=-9999, maxerrbits=4
     """
     Attempt to remove 'bad' entries in a catalog
 
-    Paramaters
+    Parameters
     ----------
     ukidss_catalog : astropy.io.fits.hdu.table.BinTableHDU
         A FITS binary table instance from the UKIDSS survey
@@ -422,6 +434,9 @@ def clean_catalog(ukidss_catalog, clean_band='K_1', badclass=-9999, maxerrbits=4
         Inside this range is the accepted # of error bits
     maxpperrbits : int
         Exclude this type of error bit 
+
+    Examples
+    --------
     """
     
     import numpy as np
