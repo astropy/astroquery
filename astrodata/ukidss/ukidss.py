@@ -18,7 +18,7 @@ import multiprocessing as mp
 import time
 import tempfile
 
-__all__ = ['Request']
+__all__ = ['Query']
 
 class LinksExtractor(htmllib.HTMLParser):  # derive new HTML parser
 
@@ -46,9 +46,9 @@ frame_types = ['stack', 'normal', 'interleave', 'deep%stack', 'confidence',
     'difference', 'all']
 
 
-class Request():
+class UKIDSSQuery():
     """
-    The Request class.  Must instantiate this class in order to make any
+    The Query class.  Must instantiate this class in order to make any
     queries.  Allows registered users to login, but defaults to using the
     public UKIDSS data sets.
     """
@@ -124,7 +124,7 @@ class Request():
 
         Examples
         --------
-        >>> R = Request()
+        >>> R = Query()
         >>> fitsfile = R.get_image_gal(10.5,0.0)
         """
 
@@ -241,7 +241,7 @@ class Request():
 
         Examples
         --------
-        >>> R = Request()
+        >>> R = Query()
         >>> fitsfile = R.get_image_gal(10.5,0.0)
         """
 
@@ -365,7 +365,7 @@ class Request():
 
         Example
         -------
-        >>> R = Request()
+        >>> R = Query()
         >>> data = R.get_catalog_gal(10.625,-0.38,radius=0.1)
         >>> bintable = data[0][1]
         """
