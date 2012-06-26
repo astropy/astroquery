@@ -5,25 +5,33 @@ UKIDSS Image and Catalog Query Tool
 :Author: Thomas Robitalle (thomas.robitaille@gmail.com)
 :Author: Adam Ginsburg (adam.g.ginsburg@gmail.com)
 """
-import cookielib,urllib2,urllib,htmllib,formatter,os,sys
+import cookielib
+import urllib2
+import urllib
+import htmllib
+import formatter
+import os
+import sys
 import pyfits
-from math import cos,radians
+from math import cos, radians
 import multiprocessing as mp
 import time
 import tempfile
 
-class LinksExtractor(htmllib.HTMLParser): # derive new HTML parser
 
-    def __init__(self, formatter) :        # class constructor
+class LinksExtractor(htmllib.HTMLParser):  # derive new HTML parser
+
+    def __init__(self, formatter):        # class constructor
         htmllib.HTMLParser.__init__(self, formatter)  # base class constructor
         self.links = []        # create an empty list for storing hyperlinks
 
     def start_a(self, attrs):  # override handler of <A ...>...</A> tags
         # process the attributes
-        if len(attrs) > 0 :
-            for attr in attrs :
-                if attr[0] == "href" :         # ignore all non HREF attributes
-                    self.links.append(attr[1]) # save the link info in the list
+        if len(attrs) > 0:
+            for attr in attrs:
+                if attr[0] == "href":         # ignore all non HREF attributes
+                    self.links.append(
+                        attr[1])  # save the link info in the list
 
     def get_links(self):
         return self.links
@@ -33,7 +41,9 @@ url_getimage   = "http://surveys.roe.ac.uk:8080/wsa/GetImage"
 url_getimages  = "http://surveys.roe.ac.uk:8080/wsa/ImageList"
 url_getcatalog = "http://surveys.roe.ac.uk:8080/wsa/WSASQL?"
 
-frame_types = ['stack','normal','interleave','deep%stack','confidence','difference','all']
+frame_types = ['stack', 'normal', 'interleave', 'deep%stack', 'confidence',
+    'difference', 'all']
+
 
 class Request():
     """
@@ -46,11 +56,11 @@ class Request():
         self.opener = urllib2.build_opener()
         self.database = 'UKIDSSDR7PLUS'
         self.programmeID = 102  # GPS
-        self.filters = {'all':'all','J':'3','H':'4','K':'5'}
+        self.filters = {'all': 'all', 'J': '3', 'H': '4', 'K': '5'}
         self.directory = './'
         self.cj = None
 
-    def login(self,username,password,community):
+    def login(self, username, password, community):
         """
         Login to non-public data as a known user
 
@@ -63,9 +73,11 @@ class Request():
 
         # Construct cookie holder, URL openenr, and retrieve login page
         self.cj = cookielib.CookieJar()
-        self.opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(self.cj))
-        credentials = {'user':username,'passwd':password,'community':' ','community2':community}
-        page = self.opener.open(url_login,urllib.urlencode(credentials))
+        self.opener = urllib2.build_opener(
+            urllib2.HTTPCookieProcessor(self.cj))
+        credentials = {'user': username, 'passwd': password,
+            'community': ' ', 'community2': community}
+        page = self.opener.open(url_login, urllib.urlencode(credentials))
 
     def logged_in(self):
         """
@@ -95,12 +107,12 @@ class Request():
         glat : float
             Galactic latitude and longitude at the center
         filter : ['all','J','H','K']
-            The color filter to download. 
+            The color filter to download.
         frametype : ['stack','normal','interleave','deep%stack','confidence','difference','all']
             The type of image
         directory : None or string
             Directory to download files into.  Defaults to self.directory
-        size : float    
+        size : float
             Size of cutout (symmetric) in arcminutes
         verbose : bool
             Print out extra error messages?
@@ -114,7 +126,6 @@ class Request():
         >>> R = Request()
         >>> fitsfile = R.get_image_gal(10.5,0.0)
         """
-
 
         # Check for validity of requested frame_type
         if frametype not in frame_types:
@@ -139,10 +150,10 @@ class Request():
         request['mfid']        = ''
 
         if directory is None:
-            directory = self.directory 
+            directory = self.directory
 
         # Retrieve page
-        page = self.opener.open(url_getimage,urllib.urlencode(request))
+        page = self.opener.open(url_getimage, urllib.urlencode(request))
         results = page.read()
 
         # Parse results for links
@@ -161,15 +172,17 @@ class Request():
 
             if not os.path.exists(directory):
                 os.mkdir(directory)
-            if not os.path.exists(directory+'/'+frametype):
-                os.mkdir(directory+'/'+frametype)
+            if not os.path.exists(directory + '/' + frametype):
+                os.mkdir(directory + '/' + frametype)
 
             # Get image filename
-            basename = os.path.basename(link.split("&")[0]).replace('.fit','.fits.gz')
-            temp_file  = directory+'/'+frametype+'/'+basename
+            basename = os.path.basename(
+                link.split("&")[0]).replace('.fit', '.fits.gz')
+            temp_file = directory + '/' + frametype + '/' + basename
 
             # Get the file, and store temporarily
-            urllib.urlretrieve(link.replace("getImage","getFImage"),temp_file)
+            urllib.urlretrieve(
+                link.replace("getImage", "getFImage"), temp_file)
 
             # Get Multiframe ID from the header
             fitsfile = pyfits.open(temp_file)
@@ -178,11 +191,11 @@ class Request():
             if save:
                 h0 = fitsfile[0].header
                 filt = str(h0['FILTER']).strip()
-                obj = filt+"_"+str(h0['OBJECT']).strip().replace(":",".")
+                obj = filt + "_" + str(h0['OBJECT']).strip().replace(":", ".")
 
                 # Set final directory and file names
-                final_dir  = directory+'/'+frametype+'/'+obj
-                final_file = final_dir+'/'+basename
+                final_dir = directory + '/' + frametype + '/' + obj
+                final_file = final_dir + '/' + basename
 
                 # Create MFID directory if not existent
                 if not os.path.exists(final_dir):
@@ -191,12 +204,11 @@ class Request():
                 if not overwrite:
                     # Check that the final file doesn't already exist
                     if os.path.exists(final_file):
-                        raise IOError("File exists : "+final_file)
+                        raise IOError("File exists : " + final_file)
 
-                os.rename(temp_file,final_file)
+                os.rename(temp_file, final_file)
 
         return fitsfile
-
 
     def get_images_radius(self, ra, dec, radius, filter='all',
             frametype='stack', directory=None, n_concurrent=1, save=True,
@@ -209,10 +221,10 @@ class Request():
         ra  : float
         dec : float
             ra/dec center to search around
-        radius : float    
+        radius : float
             Radius of circle to search within
         filter : ['all','J','H','K']
-            The color filter to download. 
+            The color filter to download.
         frametype : ['stack','normal','interleave','deep%stack','confidence','difference','all']
             The type of image
         directory : None or string
@@ -231,7 +243,7 @@ class Request():
         >>> R = Request()
         >>> fitsfile = R.get_image_gal(10.5,0.0)
         """
-        
+
         # Check for validity of requested frame_type
         if frametype not in frame_types:
             raise ValueError("Invalide frame type.  Valid frame types are: %s"
@@ -239,7 +251,6 @@ class Request():
         if filter not in self.filters:
             raise ValueError("Invalide filter.  Valid filters are: %s"
                     % self.filters.keys())
-
 
         # Construct request
         request = {}
@@ -277,7 +288,7 @@ class Request():
         request['rows'] = 1000
 
         # Retrieve page
-        page = self.opener.open(url_getimages,urllib.urlencode(request))
+        page = self.opener.open(url_getimages, urllib.urlencode(request))
         results = page.read()
 
         # Parse results for links
@@ -292,18 +303,19 @@ class Request():
 
             if not os.path.exists(directory):
                 os.mkdir(directory)
-            if not os.path.exists(directory+'/'+frametype):
-                os.mkdir(directory+'/'+frametype)
+            if not os.path.exists(directory + '/' + frametype):
+                os.mkdir(directory + '/' + frametype)
 
             if 'fits_download' in link and '_cat.fits' not in link and '_two.fit' not in link:
 
                 # Get image filename
                 basename = os.path.basename(link.split("&")[0])
-                temp_file  = directory+'/'+frametype+'/'+basename
+                temp_file = directory + '/' + frametype + '/' + basename
 
                 print "Downloading %s..." % basename
 
-                p = mp.Process(target=urllib.urlretrieve, args=(link, temp_file))
+                p = mp.Process(
+                    target=urllib.urlretrieve, args=(link, temp_file))
                 p.start()
 
                 while True:
@@ -332,11 +344,10 @@ class Request():
                 #
                 # os.rename(temp_file,final_file)
 
-
     def get_catalog_gal(self, glon, glat, directory=None, radius=1, save=False):
         """
         Get all sources in the catalog within some radius
-    
+
         Parameters
         ----------
         glon : float
@@ -360,7 +371,7 @@ class Request():
 
         # Construct request
         request = {}
-        request['database']    = self.database
+        request['database'] = self.database
         request['programmeID'] = self.programmeID
         request['from'] = 'source'
         request['formaction'] = 'region'
@@ -370,7 +381,7 @@ class Request():
         request['radius'] = radius
         request['xSize'] = ''
         request['ySize'] = ''
-        request['boxAlignment']='RADec'
+        request['boxAlignment'] = 'RADec'
         request['emailAddress'] = ''
         request['format'] = 'FITS'
         request['compress'] = 'GZIP'
@@ -379,10 +390,10 @@ class Request():
         request['where'] = ''
 
         if directory is None:
-            directory = self.directory 
+            directory = self.directory
 
         # Retrieve page
-        page = self.opener.open(url_getcatalog+urllib.urlencode(request))
+        page = self.opener.open(url_getcatalog + urllib.urlencode(request))
         results = page.read()
 
         # Parse results for links
@@ -403,11 +414,11 @@ class Request():
                     os.mkdir(directory)
 
                 if save:
-                    filename = directory+"/catalog_"+str(c)+".fits.gz"
+                    filename = directory + "/catalog_" + str(c) + ".fits.gz"
                 else:
                     outfile = tempfile.NamedTemporaryFile()
                     filename = outfile.name
-                urllib.urlretrieve(link,filename)
+                urllib.urlretrieve(link, filename)
 
                 data.append(pyfits.open(filename))
                 if not save:
@@ -433,21 +444,21 @@ def clean_catalog(ukidss_catalog, clean_band='K_1', badclass=-9999, maxerrbits=4
     maxerrbits : int
         Inside this range is the accepted # of error bits
     maxpperrbits : int
-        Exclude this type of error bit 
+        Exclude this type of error bit
 
     Examples
     --------
     """
-    
+
     import numpy as np
 
-    band=clean_band
-    mask = ((ukidss_catalog.data[band+'CLASS']!=badclass) 
-            * (ukidss_catalog.data[band+'ERRBITS'] <= maxerrbits) 
-            * (ukidss_catalog.data[band+'ERRBITS'] >= minerrbits) 
-            * ((ukidss_catalog.data['PRIORSEC'] == ukidss_catalog.data['FRAMESETID']) 
-                + (ukidss_catalog.data['PRIORSEC']==0))
-            * (ukidss_catalog.data[band+'PPERRBITS'] < maxpperrbits)
+    band = clean_band
+    mask = ((ukidss_catalog.data[band + 'CLASS'] != badclass)
+            * (ukidss_catalog.data[band + 'ERRBITS'] <= maxerrbits)
+            * (ukidss_catalog.data[band + 'ERRBITS'] >= minerrbits)
+            * ((ukidss_catalog.data['PRIORSEC'] == ukidss_catalog.data['FRAMESETID'])
+                + (ukidss_catalog.data['PRIORSEC'] == 0))
+            * (ukidss_catalog.data[band + 'PPERRBITS'] < maxpperrbits)
         )
 
     return ukidss_catalog.data[mask]
