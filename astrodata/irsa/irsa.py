@@ -108,27 +108,46 @@ GATOR_LIST_URL = 'http://irsa.ipac.caltech.edu/cgi-bin/Gator/nph-scan?mode=xml'
 
 def query_gator_cone(catalog, object, radius, units='arcsec'):
     '''
-    Query the NASA/IPAC Infrared Science Archive (IRSA)
+    IRSA Gator cone search query.
+
+    This function can be used to perform a cone search in the catalogs hosted
+    by the NASA/IPAC Infrared Science Archive (IRSA).
 
     Parameters
     ----------
-
     catalog : str
-        One of the catalogs listed by ``astrodata.irsa.list_gator_catalogs()``
-
-    object : str, optional
+        The catalog to be used (see the *Notes* section below).
+    object : str
         This string gives the position of the center of the cone or box if
         performing a cone or box search. The string can give coordinates
         in various coordinate systems, or the name of a source that will
         be resolved on the server (see `here
         <http://irsa.ipac.caltech.edu/search_help.html>`_ for more
         details).
-
     radius : float
         The radius for the cone search.
-
     units : {'arcsec', 'arcmin', 'deg'}, optional
         The units for the cone search radius. Defaults to 'arcsec'.
+
+    Returns
+    -------
+    table : `~astropy.table.Table`
+        A table containing the results of the query
+
+    Notes
+    -----
+    The ``catalog`` value to be used can be found with::
+
+        >>> from astrodata.irsa import list_gator_catalogs
+        >>> catalogs = list_gator_catalogs()
+
+    which returns a dictionary of available catalogs. Alternatively, one can
+    also use::
+
+        >>> from astrodata.irsa import print_gator_catalogs
+        >>> print_gator_catalogs()
+
+    to simply print these rather than return a dictionary.
      '''
 
     # Set basic options
@@ -150,14 +169,15 @@ def query_gator_cone(catalog, object, radius, units='arcsec'):
 
 def query_gator_box(catalog, object, size):
     '''
-    Query the NASA/IPAC Infrared Science Archive (IRSA)
+    IRSA Gator box search query.
+
+    This function can be used to perform a box search in the catalogs hosted
+    by the NASA/IPAC Infrared Science Archive (IRSA).
 
     Parameters
     ----------
-
     catalog : str
-        One of the catalogs listed by ``astrodata.irsa.list_gator_catalogs()``
-
+        The catalog to be used (see the *Notes* section below).
     object : str
         This string gives the position of the center of the cone or box if
         performing a cone or box search. The string can give coordinates
@@ -165,9 +185,28 @@ def query_gator_box(catalog, object, size):
         be resolved on the server (see `here
         <http://irsa.ipac.caltech.edu/search_help.html>`_ for more
         details). Required if spatial is 'Cone' or 'Box'.
-
     size : float
         The size of the box to search in arcseconds.
+
+    Returns
+    -------
+    table : `~astropy.table.Table`
+        A table containing the results of the query
+
+    Notes
+    -----
+    The ``catalog`` value to be used can be found with::
+
+        >>> from astrodata.irsa import list_gator_catalogs
+        >>> catalogs = list_gator_catalogs()
+
+    which returns a dictionary of available catalogs. Alternatively, one can
+    also use::
+
+        >>> from astrodata.irsa import print_gator_catalogs
+        >>> print_gator_catalogs()
+
+    to simply print these rather than return a dictionary.
     '''
 
     # Set basic options
@@ -185,16 +224,38 @@ def query_gator_box(catalog, object, size):
 
 def query_gator_polygon(catalog, polygon):
     '''
-    Query the NASA/IPAC Infrared Science Archive (IRSA)
+    IRSA Gator polygon search query.
+
+    This function can be used to perform a polygon search in the catalogs hosted
+    by the NASA/IPAC Infrared Science Archive (IRSA).
 
     Parameters
     ----------
     catalog : str
-        One of the catalogs listed by ``astrodata.irsa.list_gator_catalogs()``
-
+        The catalog to used (see the *Notes* section below).
     polygon : list
-        The list of (ra, dec) pairs (as tuples), in decimal degrees,
+        A list of ``(ra, dec)`` pairs (as tuples), in decimal degrees,
         outlinining the polygon to search in.
+
+    Returns
+    -------
+    table : `~astropy.table.Table`
+        A table containing the results of the query
+
+    Notes
+    -----
+    The ``catalog`` value to be used can be found with::
+
+        >>> from astrodata.irsa import list_gator_catalogs
+        >>> catalogs = list_gator_catalogs()
+
+    which returns a dictionary of available catalogs. Alternatively, one can
+    also use::
+
+        >>> from astrodata.irsa import print_gator_catalogs
+        >>> print_gator_catalogs()
+
+    to simply print these rather than return a dictionary.
      '''
 
     # Set basic options
@@ -216,13 +277,35 @@ def query_gator_polygon(catalog, polygon):
 
 def query_gator_all_sky(catalog):
     '''
-    Query the NASA/IPAC Infrared Science Archive (IRSA)
+    IRSA Gator all-sky search query.
+
+    This function can be used to perform an all-sky search in the catalogs hosted
+    by the NASA/IPAC Infrared Science Archive (IRSA).
 
     Parameters
     ----------
-
     catalog : str
-        One of the catalogs listed by ``astrodata.irsa.list_gator_catalogs()``
+        The catalog to used (see the *Notes* section below).
+
+    Returns
+    -------
+    table : `~astropy.table.Table`
+        A table containing the results of the query
+
+    Notes
+    -----
+    The ``catalog`` value to be used can be found with::
+
+        >>> from astrodata.irsa import list_gator_catalogs
+        >>> catalogs = list_gator_catalogs()
+
+    which returns a dictionary of available catalogs. Alternatively, one can
+    also use::
+
+        >>> from astrodata.irsa import print_gator_catalogs
+        >>> print_gator_catalogs()
+
+    to simply print these rather than return a dictionary.
      '''
 
     # Set basic options
@@ -280,7 +363,7 @@ def _query_gator(options):
 
 def print_gator_catalogs():
     '''
-    Display a table of the available catalogs
+    Display a table of the catalogs in the IRSA Gator tool.
     '''
     catalogs = list_gator_catalogs()
     for catname in catalogs:
@@ -289,7 +372,14 @@ def print_gator_catalogs():
 
 def list_gator_catalogs():
     '''
-    Return a dictionary of the available catalogs
+    Return a dictionary of the catalogs in the IRSA Gator tool.
+
+    Returns
+    -------
+    catalogs : dict
+        A dictionary of catalogs where the key indicates the catalog name to
+        be used in query functions, and the value is the verbose description
+        of the catalog.
     '''
 
     req = urllib2.Request(GATOR_LIST_URL)
