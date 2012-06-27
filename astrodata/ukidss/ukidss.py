@@ -10,6 +10,7 @@ import urllib2
 import urllib
 import htmllib
 import formatter
+import gzip
 import os
 import sys
 import astropy.io.fits as pyfits
@@ -19,6 +20,7 @@ import time
 import tempfile
 import numpy as np
 import shutil
+import StringIO
 from astrodata.utils import progressbar
 
 __all__ = ['UKIDSSQuery','clean_catalog']
@@ -159,6 +161,7 @@ class UKIDSSQuery():
         # Retrieve page
         page = self.opener.open(url_getimage, urllib.urlencode(request))
         if verbose:
+            print "Loading page..."
             results = progressbar.chunk_read(page, report_hook=progressbar.chunk_report)
         else:
             results = page.read()
@@ -188,11 +191,12 @@ class UKIDSSQuery():
             # Get the file
             U = self.opener.open(link.replace("getImage", "getFImage"))
             if verbose:
+                print "Downloading image from %s" % link
                 results = progressbar.chunk_read(U, report_hook=progressbar.chunk_report)
             else:
                 results = U.read()
             S = StringIO.StringIO(results)
-            fitsfile = pyfits.open(S)
+            fitsfile = pyfits.open(S,ignore_missing_end=True)
 
             # Get Multiframe ID from the header
             images.append(fitsfile)
@@ -297,6 +301,7 @@ class UKIDSSQuery():
         # Retrieve page
         page = self.opener.open(url_getimages, urllib.urlencode(request))
         if verbose:
+            print "Loading page..."
             results = progressbar.chunk_read(page, report_hook=progressbar.chunk_report)
         else:
             results = page.read()
@@ -335,7 +340,7 @@ class UKIDSSQuery():
                     time.sleep(0.1)
 
     def get_catalog_gal(self, glon, glat, directory=None, radius=1, save=False,
-            verbose=True, savename=None):
+            verbose=True, savename=None, overwrite=False):
         """
         Get all sources in the catalog within some radius
 
@@ -390,6 +395,7 @@ class UKIDSSQuery():
         # Retrieve page
         page = self.opener.open(url_getcatalog + urllib.urlencode(request))
         if verbose:
+            print "Loading page..."
             results = progressbar.chunk_read(page, report_hook=progressbar.chunk_report)
         else:
             results = page.read()
@@ -418,15 +424,22 @@ class UKIDSSQuery():
                 
                 U = self.opener.open(link)
                 if verbose:
+                    print "Downloading catalog %s" % link
                     results = progressbar.chunk_read(U, report_hook=progressbar.chunk_report)
                 else:
                     results = U.read()
                 S = StringIO.StringIO(results)
-                fitsfile = pyfits.open(S)
+                try: 
+                    fitsfile = pyfits.open(S,ignore_missing_end=True)
+                except IOError:
+                    S.seek(0)
+                    G = gzip.GzipFile(fileobj=S)
+                    fitsfile = pyfits.open(G,ignore_missing_end=True)
+
 
                 data.append(fitsfile)
                 if save: 
-                    fitsfile.writeto(filename, clobber=overwrite)
+                    fitsfile.writeto(filename.rstrip(".gz"), clobber=overwrite)
 
         return data
 
