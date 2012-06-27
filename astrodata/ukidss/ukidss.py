@@ -18,9 +18,10 @@ import multiprocessing as mp
 import time
 import tempfile
 import numpy as np
+import shutil
+from astrodata.utils import progressbar
 
-
-__all__ = ['UKIDSSQuery']
+__all__ = ['UKIDSSQuery','clean_catalog']
 
 class LinksExtractor(htmllib.HTMLParser):  # derive new HTML parser
 
@@ -94,7 +95,7 @@ class UKIDSSQuery():
         return True
 
     def get_image_gal(self, glon, glat, filter='all', frametype='stack',
-            directory=None, size=1.0, verbose=False, save=True,
+            directory=None, size=1.0, verbose=True, save=True, savename=None,
             overwrite=False):
         """
         Get an image at a specified glon/glat.  Size can be specified
@@ -116,6 +117,11 @@ class UKIDSSQuery():
             Print out extra error messages?
         save : bool
             Save FITS file?
+        savename : string or None
+            The file name to save the catalog to.  If unspecified, will save as
+            UKIDSS_[band]_G###.###-###.###_[obj].fits.gz, where the #'s
+            indicate galactic lon/lat and [band] and [obj] refer to the filter
+            and the object name
         overwrite : bool
             Overwrite if file already exists?
 
@@ -152,7 +158,10 @@ class UKIDSSQuery():
 
         # Retrieve page
         page = self.opener.open(url_getimage, urllib.urlencode(request))
-        results = page.read()
+        if verbose:
+            results = progressbar.chunk_read(page, report_hook=progressbar.chunk_report)
+        else:
+            results = page.read()
 
         # Parse results for links
         format = formatter.NullFormatter()
@@ -170,20 +179,22 @@ class UKIDSSQuery():
 
             if not os.path.exists(directory):
                 os.mkdir(directory)
-            if not os.path.exists(directory + '/' + frametype):
-                os.mkdir(directory + '/' + frametype)
 
             # Get image filename
             basename = os.path.basename(
                 link.split("&")[0]).replace('.fit', '.fits.gz')
-            temp_file = directory + '/' + frametype + '/' + basename
+            temp_file = tempfile.NamedTemporaryFile()
 
-            # Get the file, and store temporarily
-            urllib.urlretrieve(
-                link.replace("getImage", "getFImage"), temp_file)
+            # Get the file
+            U = self.opener.open(link.replace("getImage", "getFImage"))
+            if verbose:
+                results = progressbar.chunk_read(U, report_hook=progressbar.chunk_report)
+            else:
+                results = U.read()
+            S = StringIO.StringIO(results)
+            fitsfile = pyfits.open(S)
 
             # Get Multiframe ID from the header
-            fitsfile = pyfits.open(temp_file)
             images.append(fitsfile)
 
             if save:
@@ -191,26 +202,24 @@ class UKIDSSQuery():
                 filt = str(h0['FILTER']).strip()
                 obj = filt + "_" + str(h0['OBJECT']).strip().replace(":", ".")
 
-                # Set final directory and file names
-                final_dir = directory + '/' + frametype + '/' + obj
-                final_file = final_dir + '/' + basename
+                if savename is None:
+                    savename = "UKIDSS_%s_G%07.3f%+08.3f_%s.fits" % (filt,glon,glat,obj)
 
-                # Create MFID directory if not existent
-                if not os.path.exists(final_dir):
-                    os.mkdir(final_dir)
+                # Set final directory and file names
+                final_file = directory + '/' + savename
 
                 if not overwrite:
                     # Check that the final file doesn't already exist
                     if os.path.exists(final_file):
                         raise IOError("File exists : " + final_file)
 
-                os.rename(temp_file, final_file)
+                shutil.copy(temp_file.name, final_file)
 
         return fitsfile
 
     def get_images_radius(self, ra, dec, radius, filter='all',
             frametype='stack', directory=None, n_concurrent=1, save=True,
-            verbose=False, overwrite=False):
+            verbose=True, overwrite=False):
         """
         Get all images within some radius of a specified RA/Dec
 
@@ -287,7 +296,10 @@ class UKIDSSQuery():
 
         # Retrieve page
         page = self.opener.open(url_getimages, urllib.urlencode(request))
-        results = page.read()
+        if verbose:
+            results = progressbar.chunk_read(page, report_hook=progressbar.chunk_report)
+        else:
+            results = page.read()
 
         # Parse results for links
         format = formatter.NullFormatter()
@@ -310,7 +322,8 @@ class UKIDSSQuery():
                 basename = os.path.basename(link.split("&")[0])
                 temp_file = directory + '/' + frametype + '/' + basename
 
-                print "Downloading %s..." % basename
+                if verbose:
+                    print "Downloading %s..." % basename
 
                 p = mp.Process(
                     target=urllib.urlretrieve, args=(link, temp_file))
@@ -321,28 +334,8 @@ class UKIDSSQuery():
                         break
                     time.sleep(0.1)
 
-                # urllib.urlretrieve(link, temp_file)
-
-                # # Get Multiframe ID from the header
-                # h0 = pyfits.getheader(temp_file)
-                # filt = str(h0['FILTER']).strip()
-                # obj = filt+"_"+str(h0['OBJECT']).strip().replace(":",".")
-                #
-                # # Set final directory and file names
-                # final_dir  = directory+'/'+frametype+'/'+obj
-                # final_file = final_dir+'/'+basename
-                #
-                # # Create MFID directory if not existent
-                # if not os.path.exists(final_dir):
-                #     os.mkdir(final_dir)
-                #
-                # # Check that the final file doesn't already exist
-                # if os.path.exists(final_file):
-                #     sys.exit("File exists : "+final_file)
-                #
-                # os.rename(temp_file,final_file)
-
-    def get_catalog_gal(self, glon, glat, directory=None, radius=1, save=False):
+    def get_catalog_gal(self, glon, glat, directory=None, radius=1, save=False,
+            verbose=True, savename=None):
         """
         Get all sources in the catalog within some radius
 
@@ -355,6 +348,10 @@ class UKIDSSQuery():
             Directory to download files into.  Defaults to self.directory
         radius : float
             Radius in which to search for catalog entries in arcminutes
+        savename : string or None
+            The file name to save the catalog to.  If unspecified, will save as
+            UKIDSS_catalog_G###.###-###.###_r###.fits.gz, where the #'s indicate
+            galactic lon/lat and radius
 
         Returns
         -------
@@ -392,7 +389,10 @@ class UKIDSSQuery():
 
         # Retrieve page
         page = self.opener.open(url_getcatalog + urllib.urlencode(request))
-        results = page.read()
+        if verbose:
+            results = progressbar.chunk_read(page, report_hook=progressbar.chunk_report)
+        else:
+            results = page.read()
 
         # Parse results for links
         format = formatter.NullFormatter()           # create default formatter
@@ -412,15 +412,21 @@ class UKIDSSQuery():
                     os.mkdir(directory)
 
                 if save:
-                    filename = directory + "/catalog_" + str(c) + ".fits.gz"
+                    if savename is None:
+                        savename = "UKIDSS_catalog_G%07.3f%+08.3f_r%03i.fits.gz" % (glon,glat,radius)
+                    filename = directory + "/" + savename
+                
+                U = self.opener.open(link)
+                if verbose:
+                    results = progressbar.chunk_read(U, report_hook=progressbar.chunk_report)
                 else:
-                    outfile = tempfile.NamedTemporaryFile()
-                    filename = outfile.name
-                urllib.urlretrieve(link, filename)
+                    results = U.read()
+                S = StringIO.StringIO(results)
+                fitsfile = pyfits.open(S)
 
-                data.append(pyfits.open(filename))
-                if not save:
-                    outfile.close()
+                data.append(fitsfile)
+                if save: 
+                    fitsfile.writeto(filename, clobber=overwrite)
 
         return data
 

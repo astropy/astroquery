@@ -18,6 +18,7 @@ import multiprocessing as mp
 import time
 import tempfile
 import StringIO
+from astrodata.utils import progressbar
 
 url_gpscutout  = "http://third.ucllnl.org/cgi-bin/gpscutout"
 
@@ -92,8 +93,10 @@ def get_magpis_image_gal(glon, glat, survey='bolocam', size=1.0,
     request = urllib.urlencode(request)
     # load the URL as text
     U = urllib.urlopen(url_gpscutout, request)
+    # read results with progressbar
+    results = progressbar.chunk_read(U, report_hook=progressbar.chunk_report)
     # turn the text into a StringIO object for FITS reading
-    S = StringIO.StringIO(U.read())
+    S = StringIO.StringIO(results)
     fitsfile = pyfits.open(S)
 
     if save:
