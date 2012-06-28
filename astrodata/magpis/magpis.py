@@ -2,7 +2,6 @@
 MAGPIS Image and Catalog Query Tool
 -----------------------------------
 
-:Author: Thomas Robitalle (thomas.robitaille@gmail.com)
 :Author: Adam Ginsburg (adam.g.ginsburg@gmail.com)
 """
 import cookielib
