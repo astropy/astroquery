@@ -6,12 +6,16 @@ http://model.obs-besancon.fr/
 
 :Author: Adam Ginsburg (adam.g.ginsburg@gmail.com)
 """
-import urllib,urllib2
+import urllib
+import urllib2
+import socket
 import time
 import copy
 from astrodata.utils import progressbar
 import sys
 import re
+
+__all__ = ['get_besancon_model_file','request_besancon']
 
 keyword_defaults = {
     'rinf':0.000000,
@@ -34,7 +38,7 @@ keyword_defaults = {
     'ev':[""]*24,
     'di':[""]*24,
     'oo':[-7]+[-99]*12,
-    'ff':[20]+[99]*12,
+    'ff':[15]+[99]*12,
     'spectyp_min':1,
     'subspectyp_min': 0,
     'spectyp_max':9,
@@ -93,11 +97,12 @@ def parse_errors(text):
     try:
         errors = re.compile(r"""<div\ class="?errorpar"?>\s*
                         <ol>\s*
-                        (<li>([a-zA-Z0-9 \s_-]*)</li>\s*)*\s*
+                        (<li>([a-zA-Z0-9):( \s_-]*)</li>\s*)*\s*
                         </ol>\s*
                         </div>""", re.X)
         text = errors.search(text).group()
     except AttributeError:
+        likely_errors = text.split('\n')[132:150]
         raise ValueError("Regular expression matching to error message failed.")
     text_items = re.split("<li>|</li>|\n",errors.search(text).group())
     text_items = [t for t in text_items if t != ""]
@@ -105,13 +110,13 @@ def parse_errors(text):
     return error_list
 
     
-colors_limits = {"J-H":(99,-99),"H-K":(99,-99),"J-K":(99,-99),"V-K":(99,-99)}
-mag_limits = {'U':(99,-99), 'B':(99,-99), 'V':(99,-99), 'R':(99,-99),
-    'I':(99,-99), 'J':(99,-99), 'H':(99,-99), 'K':(99,-99), 'L':(99,-99)}
+colors_limits = {"J-H":(-99,99),"H-K":(-99,99),"J-K":(-99,99),"V-K":(-99,99)}
+mag_limits = {'U':(-99,99), 'B':(-99,99), 'V':(-5,20), 'R':(-99,99),
+    'I':(-99,99), 'J':(-99,99), 'H':(-99,99), 'K':(-99,99), 'L':(-99,99)}
 mag_order = "U","B","V","R","I","J","H","K","L"
 
 def request_besancon(email, glon, glat, smallfield=True, extinction=0.7,
-        area=0.0001, verbose=False, clouds=None, absmag_limits=(-7,20),
+        area=0.0001, verbose=True, clouds=None, absmag_limits=(-7,15),
         mag_limits=copy.copy(mag_limits),
         colors_limits=copy.copy(colors_limits), 
         retrieve_file=True, **kwargs):
@@ -134,12 +139,12 @@ def request_besancon(email, glon, glat, smallfield=True, extinction=0.7,
     area : float
         Area in square degrees 
     absmag_limits : (float,float)
-        Absolute magnitude upper,lower limits
+        Absolute magnitude lower,upper limits
     colors_limits : dict of (float,float)
         Should contain 4 elements listing color differences in the valid bands, e.g.:
             {"J-H":(99,-99),"H-K":(99,-99),"J-K":(99,-99),"V-K":(99,-99)}
     mag_limits = dict of (float,float) 
-        Upper and Lower magnitude difference limits for each magnitude band
+        Lower and Upper magnitude difference limits for each magnitude band
         U B V R I J H K L
     clouds : list of 2-tuples
         Up to 25 line-of-sight clouds can be specified in pairs of (A_V,
@@ -173,7 +178,7 @@ def request_besancon(email, glon, glat, smallfield=True, extinction=0.7,
     kwd['oo'][0] = absmag_limits[0]
     kwd['ff'][0] = absmag_limits[1]
 
-    for ii,(key,val) in enumerate(colors_limits):
+    for ii,(key,val) in enumerate(colors_limits.items()):
         if key[0] in mag_order and key[1] == '-' and key[2] in mag_order:
             kwd['colind'][ii] = key
             kwd['oo'][ii+9] = val[0]
@@ -181,7 +186,7 @@ def request_besancon(email, glon, glat, smallfield=True, extinction=0.7,
         else:
             raise ValueError('Invalid color %s' % key)
 
-    for (key,val) in (mag_limits):
+    for (key,val) in mag_limits.iteritems():
         if key in mag_order:
             kwd['band0'][mag_order.index(key)] = val[0]
             kwd['bandf'][mag_order.index(key)] = val[1]
@@ -213,7 +218,7 @@ def request_besancon(email, glon, glat, smallfield=True, extinction=0.7,
         print "File is %s" % filename
 
     if retrieve_file:
-        return get_besancon_file(filename)
+        return get_besancon_model_file(filename)
     else:
         return filename
 
@@ -244,6 +249,7 @@ def get_besancon_model_file(filename, verbose=True, save=True, savename=None, ov
 
     sys.stdout.write("\n")
     while 1:
+        sys.stdout.write(u"\r")
         try:
             U = urllib2.urlopen(url,timeout=5)
             if verbose:
@@ -253,11 +259,17 @@ def get_besancon_model_file(filename, verbose=True, save=True, savename=None, ov
             else:
                 results = page.read()
             break
-        except URLError:
-            sys.stdout.write("Waiting 30s for model to finish (elapsed wait time %is, total %i)\r" % (elapsed_time,time.time()-t0))
+        except urllib2.URLError:
+            sys.stdout.write(u"Waiting 30s for model to finish (elapsed wait time %is, total %i)\r" % (elapsed_time,time.time()-t0))
             time.sleep(30)
             elapsed_time += 30
             continue
+        except socket.timeout:
+            sys.stdout.write(u"Waiting 30s for model to finish (elapsed wait time %is, total %i)\r" % (elapsed_time,time.time()-t0))
+            time.sleep(30)
+            elapsed_time += 30
+            continue
+
 
     if save:
         if savename is None:
@@ -269,5 +281,4 @@ def get_besancon_model_file(filename, verbose=True, save=True, savename=None, ov
         outf.close()
 
     return results
-
 
