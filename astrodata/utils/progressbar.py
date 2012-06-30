@@ -6,8 +6,8 @@ def chunk_report(bytes_so_far, chunk_size, total_size):
     if total_size > 0:
         percent = float(bytes_so_far) / total_size
         percent = round(percent*100, 2)
-        sys.stdout.write(u"Downloaded %12d of %12d bytes (%6.2f%%)\r" % 
-            (bytes_so_far, total_size, percent))
+        sys.stdout.write(u"Downloaded %12.2g of %12.2g Mb (%6.2f%%)\r" % 
+            (bytes_so_far / 1024.**2, total_size / 1024.**2, percent))
     else:
         sys.stdout.write(u"Downloaded %10.2g Mb\r" % 
             (bytes_so_far / 1024.**2))
