@@ -196,7 +196,12 @@ class UKIDSSQuery():
             else:
                 results = U.read()
             S = StringIO.StringIO(results)
-            fitsfile = pyfits.open(S,ignore_missing_end=True)
+            try: 
+                fitsfile = pyfits.open(S,ignore_missing_end=True)
+            except IOError:
+                S.seek(0)
+                G = gzip.GzipFile(fileobj=S)
+                fitsfile = pyfits.open(G,ignore_missing_end=True)
 
             # Get Multiframe ID from the header
             images.append(fitsfile)
