@@ -1,7 +1,7 @@
-.. _astrodata.irsa:
+.. _astroquery.irsa:
 
 *****************************************
-IRSA Queries (`astrodata.irsa`)
+IRSA Queries (`astroquery.irsa`)
 *****************************************
 
 Getting started
@@ -9,7 +9,7 @@ Getting started
 
 The following example illustrates an IRSA Gator query::
 
-    >>> from astrodata import irsa
+    >>> from astroquery import irsa
     >>> t = irsa.query_gator_cone('fp_psc', 'm31', 10.)
     >>> print t
        ra     dec       clon         clat     err_maj err_min ...   angle     j_h   h_k    j_k   id
@@ -25,5 +25,5 @@ The following example illustrates an IRSA Gator query::
 Reference/API
 =============
 
-.. automodapi:: astrodata.irsa
+.. automodapi:: astroquery.irsa
     :no-inheritance-diagram:

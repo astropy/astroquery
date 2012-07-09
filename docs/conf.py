@@ -36,18 +36,18 @@ from astropy.sphinx.conf import *
 # General information about the project.
 
 # This does not *have* to match the package name, but typically does
-project = u'astrodata' 
+project = u'astroquery' 
 copyright = u'2012'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 
-import astrodata
+import astroquery
 # The short X.Y version.
-version = astrodata.__version__.split('-', 1)[0]
+version = astroquery.__version__.split('-', 1)[0]
 # The full version, including alpha/beta/rc tags.
-release = astrodata.__version__
+release = astroquery.__version__
 
 # If true, '()' will be appended to :func: etc. cross-reference text.
 #add_function_parentheses = True

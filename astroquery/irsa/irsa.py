@@ -138,13 +138,13 @@ def query_gator_cone(catalog, object, radius, units='arcsec'):
     -----
     The ``catalog`` value to be used can be found with::
 
-        >>> from astrodata.irsa import list_gator_catalogs
+        >>> from astroquery.irsa import list_gator_catalogs
         >>> catalogs = list_gator_catalogs()
 
     which returns a dictionary of available catalogs. Alternatively, one can
     also use::
 
-        >>> from astrodata.irsa import print_gator_catalogs
+        >>> from astroquery.irsa import print_gator_catalogs
         >>> print_gator_catalogs()
 
     to simply print these rather than return a dictionary.
@@ -197,13 +197,13 @@ def query_gator_box(catalog, object, size):
     -----
     The ``catalog`` value to be used can be found with::
 
-        >>> from astrodata.irsa import list_gator_catalogs
+        >>> from astroquery.irsa import list_gator_catalogs
         >>> catalogs = list_gator_catalogs()
 
     which returns a dictionary of available catalogs. Alternatively, one can
     also use::
 
-        >>> from astrodata.irsa import print_gator_catalogs
+        >>> from astroquery.irsa import print_gator_catalogs
         >>> print_gator_catalogs()
 
     to simply print these rather than return a dictionary.
@@ -246,13 +246,13 @@ def query_gator_polygon(catalog, polygon):
     -----
     The ``catalog`` value to be used can be found with::
 
-        >>> from astrodata.irsa import list_gator_catalogs
+        >>> from astroquery.irsa import list_gator_catalogs
         >>> catalogs = list_gator_catalogs()
 
     which returns a dictionary of available catalogs. Alternatively, one can
     also use::
 
-        >>> from astrodata.irsa import print_gator_catalogs
+        >>> from astroquery.irsa import print_gator_catalogs
         >>> print_gator_catalogs()
 
     to simply print these rather than return a dictionary.
@@ -296,13 +296,13 @@ def query_gator_all_sky(catalog):
     -----
     The ``catalog`` value to be used can be found with::
 
-        >>> from astrodata.irsa import list_gator_catalogs
+        >>> from astroquery.irsa import list_gator_catalogs
         >>> catalogs = list_gator_catalogs()
 
     which returns a dictionary of available catalogs. Alternatively, one can
     also use::
 
-        >>> from astrodata.irsa import print_gator_catalogs
+        >>> from astroquery.irsa import print_gator_catalogs
         >>> print_gator_catalogs()
 
     to simply print these rather than return a dictionary.

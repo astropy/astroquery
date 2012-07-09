@@ -7,4 +7,4 @@ and functions to access online Astronomical data. Each web service has
 its own sub-package. For example, to interface with the IRSA website, 
 use the ``irsa`` sub-package:
 
-    from astrodata import irsa
+    from astroquery import irsa

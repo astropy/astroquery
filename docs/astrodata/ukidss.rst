@@ -1,7 +1,7 @@
-.. _astrodata.ukidss:
+.. _astroquery.ukidss:
 
 *****************************************
-UKIDSS Queries (`astrodata.ukidss`)
+UKIDSS Queries (`astroquery.ukidss`)
 *****************************************
 
 Getting started
@@ -9,7 +9,7 @@ Getting started
 
 The following example illustrates an UKIDSS catalog/image query::
 
-    >>> from astrodata import ukidss
+    >>> from astroquery import ukidss
     >>> Q = ukidss.UKIDSSQuery()
     >>> fitsfile = Q.get_image_gal(10.5,0.0)
     >>> fitsfile = Q.get_image_gal(10.5,0.0)
@@ -20,5 +20,5 @@ The following example illustrates an UKIDSS catalog/image query::
 Reference/API
 =============
 
-.. automodapi:: astrodata.ukidss
+.. automodapi:: astroquery.ukidss
     :no-inheritance-diagram:
