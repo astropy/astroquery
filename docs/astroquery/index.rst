@@ -1,5 +1,5 @@
-Template package
-================
+AstroQuery
+==========
 
 This is the documentation for the affiliated package.
 
