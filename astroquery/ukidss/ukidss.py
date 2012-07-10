@@ -21,7 +21,7 @@ import tempfile
 import numpy as np
 import shutil
 import StringIO
-from astrodata.utils import progressbar
+from astroquery.utils import progressbar
 
 __all__ = ['UKIDSSQuery','clean_catalog']
 

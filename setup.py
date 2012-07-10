@@ -12,7 +12,7 @@ from astropy import setup_helpers
 from astropy.version_helper import get_git_devstr, generate_version_py
 
 # Set affiliated package-specific settings
-PACKAGENAME = 'astrodata'
+PACKAGENAME = 'astroquery'
 DESCRIPTION = 'Functions and classes to access online data resources'
 LICENSE = 'BSD'
 

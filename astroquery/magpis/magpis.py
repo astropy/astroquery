@@ -17,7 +17,7 @@ import multiprocessing as mp
 import time
 import tempfile
 import StringIO
-from astrodata.utils import progressbar
+from astroquery.utils import progressbar
 
 url_gpscutout  = "http://third.ucllnl.org/cgi-bin/gpscutout"
 
