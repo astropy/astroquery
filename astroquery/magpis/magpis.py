@@ -40,7 +40,7 @@ surveys = ["gps6epoch3",
 
 def get_magpis_image_gal(glon, glat, survey='bolocam', size=1.0, 
         verbose=False, savename=None, save=True,
-        overwrite=False):
+        overwrite=False, directory='./'):
     """
     Get an image at a specified glon/glat.  Size can be specified
     WARNING: MAGPIS has a maxmimum image size of about 2048x2048
@@ -64,6 +64,8 @@ def get_magpis_image_gal(glon, glat, survey='bolocam', size=1.0,
         Save FITS file?
     overwrite : bool
         Overwrite if file already exists?
+    directory : string
+        Directory to store file in.  Defaults to './'.  
 
     Examples
     --------
@@ -101,7 +103,9 @@ def get_magpis_image_gal(glon, glat, survey='bolocam', size=1.0,
     if save:
         if savename is None:
             savename = "G%08.4f%+09.4f_%s.fits" % (glon,glat,survey)
-        fitsfile.writeto(savename, clobber=overwrite)
+        if directory[-1] != '/':
+            directory += '/'
+        fitsfile.writeto(directory+savename, clobber=overwrite)
 
     return fitsfile
 
