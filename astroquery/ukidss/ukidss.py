@@ -186,7 +186,6 @@ class UKIDSSQuery():
             # Get image filename
             basename = os.path.basename(
                 link.split("&")[0]).replace('.fit', '.fits.gz')
-            temp_file = tempfile.NamedTemporaryFile()
 
             # Get the file
             U = self.opener.open(link.replace("getImage", "getFImage"))
@@ -196,7 +195,12 @@ class UKIDSSQuery():
             else:
                 results = U.read()
             S = StringIO.StringIO(results)
-            fitsfile = pyfits.open(S,ignore_missing_end=True)
+            try: 
+                fitsfile = pyfits.open(S,ignore_missing_end=True)
+            except IOError:
+                S.seek(0)
+                G = gzip.GzipFile(fileobj=S)
+                fitsfile = pyfits.open(G,ignore_missing_end=True)
 
             # Get Multiframe ID from the header
             images.append(fitsfile)
@@ -207,19 +211,19 @@ class UKIDSSQuery():
                 obj = filt + "_" + str(h0['OBJECT']).strip().replace(":", ".")
 
                 if savename is None:
-                    savename = "UKIDSS_%s_G%07.3f%+08.3f_%s.fits" % (filt,glon,glat,obj)
+                    filename = "UKIDSS_%s_G%07.3f%+08.3f_%s.fits" % (filt,glon,glat,obj)
+                else:
+                    filename = savename
 
                 # Set final directory and file names
-                final_file = directory + '/' + savename
+                final_file = directory + '/' + filename
 
-                if not overwrite:
-                    # Check that the final file doesn't already exist
-                    if os.path.exists(final_file):
-                        raise IOError("File exists : " + final_file)
+                if verbose:
+                    print "Saving file %s" % final_file
 
-                shutil.copy(temp_file.name, final_file)
+                fitsfile.writeto(final_file, clobber=overwrite)
 
-        return fitsfile
+        return images
 
     def get_images_radius(self, ra, dec, radius, filter='all',
             frametype='stack', directory=None, n_concurrent=1, save=True,
