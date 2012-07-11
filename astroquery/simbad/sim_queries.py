@@ -272,7 +272,10 @@ def execute_query(query, votabledef, limit, pedantic):
     from . import baseurl
     req_str = baseurl + script
     response = urllib2.urlopen(req_str)
-    result = ''.join(response.readlines())
+    result = b''.join(response.readlines())
+    result = result.decode('utf-8')
     response.close()
+    if not result:
+        raise TypeError
     return SimbadResult(result, pedantic=pedantic)
 

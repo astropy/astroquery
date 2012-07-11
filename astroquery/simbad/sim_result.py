@@ -1,11 +1,12 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
 import re
+import tempfile
 import StringIO
 from collections import namedtuple
 import warnings
 
-from astropy.io import vo
+from astropy.io.vo.table import parse
 from astropy.table import Table
 
 __all__ = ['SimbadResult',
@@ -32,6 +33,7 @@ class SimbadResult(object):
         self.__split_sections()
         self.__parse_console_section()
         self.__warn()
+        self.__file = None
 
     def __split_sections(self):
         for section in self.__sections:
@@ -102,10 +104,12 @@ class SimbadResult(object):
 
     @property
     def table(self):
-        if self.__stringio is None:
-            self.__stringio = StringIO.StringIO(self.data)
-            votable = vo.table.parse_single_table(self.__stringio,
-                                                    pedantic=self.__pedantic)
-            self.__table = Table(votable.array)
+        if self.__file is None:
+            self.__file = tempfile.NamedTemporaryFile()
+            self.__file.write(self.data.encode('utf-8'))
+            self.__file.flush()
+            array = parse(self.__file,
+                            pedantic=self.__pedantic).get_first_table().array
+            self.__table = Table(array)
         return self.__table
 
