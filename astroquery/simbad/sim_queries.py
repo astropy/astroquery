@@ -216,32 +216,32 @@ class QueryMulti(_Query):
 
     def __init__(self, queries=None, radius=None, frame=None, epoch=None,
                                                                 equinox=None):
-    """ A type of Query used to aggregate the values of multiple simple 
-    queries into a single result.
+        """ A type of Query used to aggregate the values of multiple simple 
+        queries into a single result.
 
-    Parameters
-    ----------
-    queries: iterable of Query objects
-        The list of Query objects to aggregate results for.
+        Parameters
+        ----------
+        queries: iterable of Query objects
+            The list of Query objects to aggregate results for.
 
-    radius: string, optional
-        The value of the cone search radius. The value must be suffixed by
-        'd' (degrees), 'm' (arcminutes) or 's' (arcseconds).
-        If set to None the default value will be used.
+        radius: string, optional
+            The value of the cone search radius. The value must be suffixed by
+            'd' (degrees), 'm' (arcminutes) or 's' (arcseconds).
+            If set to None the default value will be used.
 
-    frame: string, optional
-        Frame of input coordinates.
+        frame: string, optional
+            Frame of input coordinates.
 
-    equinox: string optional
-        Equinox of input coordinates.
+        equinox: string optional
+            Equinox of input coordinates.
 
-    epoch:  string, optional
-        Epoch of input coordinates.
+        epoch:  string, optional
+            Epoch of input coordinates.
 
-    .. note:: Each of the *radius*, *frame*, *equinox* et *epoch* arguments
-                acts as a default value for the whole MultiQuery object.
-                Individual queries may override these.
-    """
+        .. note:: Each of the *radius*, *frame*, *equinox* et *epoch* arguments
+                    acts as a default value for the whole MultiQuery object.
+                    Individual queries may override these.
+        """
 
         self.radius = radius
         self.frame = frame
