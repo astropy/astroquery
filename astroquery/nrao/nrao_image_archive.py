@@ -22,40 +22,13 @@ import formatter
 import re
 
 imfits_re = re.compile("http://[^\"]*\\.imfits")
+uvfits_re = re.compile("http://[^\"]*\\.uvfits")
+config_re = re.compile("([ABCD]/[ABCD])&nbsp;configuration")
 
 request_URL = "https://webtest.aoc.nrao.edu/cgi-bin/lsjouwer/archive-pos.pl"
 
 __all__ = ['get_nrao_image']
 
-class LinksExtractor(htmllib.HTMLParser):  # derive new HTML parser
-
-    def __init__(self, formatter):        # class constructor
-        htmllib.HTMLParser.__init__(self, formatter)  # base class constructor
-        self.links = []        # create an empty list for storing hyperlinks
-
-    def start_a(self, attrs):  # override handler of <A ...>...</A> tags
-        # process the attributes
-        if len(attrs) > 0:
-            for attr in attrs:
-                if attr[0] == "href":         # ignore all non HREF attributes
-                    self.links.append(
-                        attr[1])  # save the link info in the list
-
-    def get_links(self):
-        return self.links
-
-def get_imfits_links(html):
-    """
-    Get all links from an HTML web page that have 'imfits' in the url
-    """
-
-    format = formatter.NullFormatter()
-    htmlparser = LinksExtractor(format)
-    htmlparser.feed(html)
-    htmlparser.close()
-    links = htmlparser.get_links()
-
-    return [L for L in links if "imfits" in L]
 
 valid_bands = ["","L","C","X","U","K","Q"]
 
@@ -78,7 +51,7 @@ band_freqs = {
 
 def get_nrao_image(lon, lat, system='galactic', epoch='J2000', size=1.0,
         max_rms=1e4, band="", verbose=True, savename=None, save=True,
-        overwrite=False, directory='./'):
+        overwrite=False, directory='./', get_uvfits=False):
     """
     Search for and download
 
@@ -106,6 +79,8 @@ def get_nrao_image(lon, lat, system='galactic', epoch='J2000', size=1.0,
         Overwrite if file already exists?
     directory : string
         Directory to store file in.  Defaults to './'.  
+    get_uvfits : bool
+        Get the UVfits files instead of the IMfits files?
 
     Examples
     --------
@@ -135,13 +110,20 @@ def get_nrao_image(lon, lat, system='galactic', epoch='J2000', size=1.0,
     # read results with progressbar
     results = progressbar.chunk_read(U, report_hook=progressbar.chunk_report)
 
-    #links = get_imfits_links(results)
-    links = imfits_re.findall(results)
+    if get_uvfits:
+        links = uvfits_re.findall(results)
+    else:
+        links = imfits_re.findall(results)
+    configurations = config_re.findall(results)
             
     if len(links) == 0:
         if verbose:
             print "No matches found at ra,dec = %s." % (radecstr)
         return []
+
+    if verbose > 1:
+        print "Configurations: "
+        print "\n".join(["%40s: %20s" % (L,C) for L,C in zip(links,configurations)])
 
     if save and not os.path.exists(directory):
         os.mkdir(directory)
@@ -153,7 +135,7 @@ def get_nrao_image(lon, lat, system='galactic', epoch='J2000', size=1.0,
 
     images = []
 
-    for link in links:
+    for link,config in zip(links,configurations):
 
         # Get image filename
         basename = os.path.basename(link)
@@ -184,9 +166,13 @@ def get_nrao_image(lon, lat, system='galactic', epoch='J2000', size=1.0,
                     bandname = bn
             obj = str(h0['OBJECT']).strip()
             program = h0['OBSERVER'].strip()
+            h0['CONFIG'] = config
 
             if savename is None:
-                filename = "VLA_%s_G%07.3f%+08.3f_%s_%s.fits" % (bandname,glon,glat,obj,program)
+                if get_uvfits:
+                    filename = "VLA_%s_G%07.3f%+08.3f_%s_%s.uvfits" % (bandname,glon,glat,obj,program)
+                else:
+                    filename = "VLA_%s_G%07.3f%+08.3f_%s_%s.fits" % (bandname,glon,glat,obj,program)
             else:
                 filename = savename
 
