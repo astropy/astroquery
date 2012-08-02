@@ -159,6 +159,11 @@ def request_besancon(email, glon, glat, smallfield=True, extinction=0.7,
         Can override any argument in the request if you know the name of the
         POST keyword.
 
+    Returns
+    -------
+    Either the filename or the table depending on whether 'retrieve file' is
+    specified
+
     """
 
     # create a new keyword dict based on inputs + defaults
@@ -215,7 +220,7 @@ def request_besancon(email, glon, glat, smallfield=True, extinction=0.7,
         raise ValueError("Errors: "+"\n".join(errors))
 
     if verbose:
-        print "File is %s" % filename
+        print "File is %s and can be aquired from %s" % (filename, url_download+filename)
 
     if retrieve_file:
         return get_besancon_model_file(filename)
@@ -280,5 +285,23 @@ def get_besancon_model_file(filename, verbose=True, save=True, savename=None, ov
         print >>outf,results
         outf.close()
 
-    return results
+    return parse_besancon_model_string(results)
+
+def parse_besancon_model_string(bms,):
+    import astropy.io.ascii as asciireader
+
+    besancon_table = asciireader.read(bms, Reader=asciireader.FixedWidth,
+            header_start=None, data_start=81,
+            names=bms.split('\n')[80].split(),
+            col_starts=(0,7,13,16,21,27,33,36,41,49,56,62,69,76,82,92,102,109),
+            col_ends=(6,12,15,20,26,32,35,39,48,55,61,68,75,81,91,101,108,115),
+            data_end=-7)
+
+    for cn in besancon_table.columns:
+        if besancon_table[cn].dtype.kind in ('s','S'):
+            print "WARNING: The Besancon table did not parse properly.  Some columns are likely to have invalid values and others incorrect values.  Please report this error."
+            break
+
+    return besancon_table
+
 
