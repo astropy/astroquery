@@ -53,7 +53,7 @@ frame_types = ['stack', 'normal', 'interleave', 'deep%stack', 'confidence',
 
 class UKIDSSQuery():
     """
-    The Query class.  Must instantiate this class in order to make any
+    The UKIDSSQuery class.  Must instantiate this class in order to make any
     queries.  Allows registered users to login, but defaults to using the
     public UKIDSS data sets.
     """
@@ -62,7 +62,8 @@ class UKIDSSQuery():
         self.opener = urllib2.build_opener()
         self.database = 'UKIDSSDR7PLUS'
         self.programmeID = 102  # GPS
-        self.filters = {'all': 'all', 'J': '3', 'H': '4', 'K': '5'}
+        self.filters = {'all': 'all', 'J': '3', 'H': '4', 'K': '5', 'Y': 2,
+                'Z': 1, 'H2': 6, 'Br': 7}
         self.directory = './'
         self.cj = None
 
@@ -107,7 +108,7 @@ class UKIDSSQuery():
         glon : float
         glat : float
             Galactic latitude and longitude at the center
-        filter : ['all','J','H','K']
+        filter : ['all','J','H','K','H2','Z','Y','Br']
             The color filter to download.
         frametype : ['stack','normal','interleave','deep%stack','confidence','difference','leavstack','all']
             The type of image
@@ -129,7 +130,7 @@ class UKIDSSQuery():
 
         Examples
         --------
-        >>> R = Query()
+        >>> R = UKIDSSQuery()
         >>> fitsfile = R.get_image_gal(10.5,0.0)
         """
 
@@ -256,7 +257,7 @@ class UKIDSSQuery():
 
         Examples
         --------
-        >>> R = Query()
+        >>> R = UKIDSSQuery()
         >>> fitsfile = R.get_image_gal(10.5,0.0)
         """
 
@@ -369,7 +370,7 @@ class UKIDSSQuery():
 
         Example
         -------
-        >>> R = Query()
+        >>> R = UKIDSSQuery()
         >>> data = R.get_catalog_gal(10.625,-0.38,radius=0.1)
         >>> bintable = data[0][1]
         """
