@@ -48,7 +48,7 @@ url_getimages  = "http://surveys.roe.ac.uk:8080/wsa/ImageList"
 url_getcatalog = "http://surveys.roe.ac.uk:8080/wsa/WSASQL?"
 
 frame_types = ['stack', 'normal', 'interleave', 'deep%stack', 'confidence',
-    'difference', 'all']
+    'difference', 'leavstack', 'all']
 
 
 class UKIDSSQuery():
@@ -109,7 +109,7 @@ class UKIDSSQuery():
             Galactic latitude and longitude at the center
         filter : ['all','J','H','K']
             The color filter to download.
-        frametype : ['stack','normal','interleave','deep%stack','confidence','difference','all']
+        frametype : ['stack','normal','interleave','deep%stack','confidence','difference','leavstack','all']
             The type of image
         directory : None or string
             Directory to download files into.  Defaults to self.directory
@@ -240,7 +240,8 @@ class UKIDSSQuery():
             Radius of circle to search within
         filter : ['all','J','H','K']
             The color filter to download.
-        frametype : ['stack','normal','interleave','deep%stack','confidence','difference','all']
+        frametype : ['stack', 'normal', 'interleave', 'deep%stack',
+            'confidence', 'difference', 'leavstack', 'all']
             The type of image
         directory : None or string
             Directory to download files into.  Defaults to self.directory
