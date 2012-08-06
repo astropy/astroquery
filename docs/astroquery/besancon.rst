@@ -1,7 +1,7 @@
-.. _astrodata.besancon:
+.. _astroquery.besancon:
 
 *****************************************
-Besancon Queries (`astrodata.besancon`)
+Besancon Queries (`astroquery.besancon`)
 *****************************************
 
 Getting started
@@ -10,7 +10,7 @@ Getting started
 The following example illustrates an Besancon catalog/image query.  The API describes the
 relevant keyword arguments (of which there are many) ::
 
-    >>> from astrodata import besancon
+    >>> from astroquery import besancon
     >>> besancon_model = besancon.request_besancon('your@email.net',10.5,0.0)
     >>> import astropy.io.ascii as asciitable
     >>> from astropy.io.ascii import besancon as besancon_reader
@@ -68,5 +68,5 @@ A successful run should look something like this::
 Reference/API
 =============
 
-.. automodapi:: astrodata.besancon
+.. automodapi:: astroquery.besancon
     :no-inheritance-diagram:
