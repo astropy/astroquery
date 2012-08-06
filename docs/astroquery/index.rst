@@ -9,3 +9,6 @@ This is the documentation for the affiliated package.
   irsa.rst
   ukidss.rst
   magpis.rst
+  nrao.rst
+  simbad.rst
+  besancon.rst
