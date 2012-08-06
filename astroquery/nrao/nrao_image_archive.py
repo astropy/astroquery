@@ -3,6 +3,10 @@
 NRAO Image Archive Query Tool
 -----------------------------------
 
+REQUIRES either astropy.coords (as of 8/5/2012, not implemented) or STSCI's 'coords' package:
+    http://stsdas.stsci.edu/astrolib/coords_api/index.html
+    https://trac.assembla.com/astrolib
+
 :Author: Adam Ginsburg (adam.g.ginsburg@gmail.com)
 """
 import urllib2
@@ -16,7 +20,10 @@ import time
 import tempfile
 import StringIO
 from astroquery.utils import progressbar
-import coords
+try:
+    import coords
+except ImportError:
+    import astropy.coords
 import htmllib
 import formatter
 import re
