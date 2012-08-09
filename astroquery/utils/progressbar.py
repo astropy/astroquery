@@ -42,6 +42,29 @@ def chunk_read(response, chunk_size=1024, report_hook=None):
   
     return result_string
 
+def retrieve(url, outfile, opener=None):
+    """
+    "retrieve" (i.e., download to file) a URL. 
+    """
+
+    if opener is None:
+        opener = urllib2.build_opener()
+
+    page = opener.open(url)
+
+    results = progressbar.chunk_read(page, report_hook=chunk_report)
+
+    S = StringIO.StringIO(results)
+    try: 
+        fitsfile = pyfits.open(S,ignore_missing_end=True)
+    except IOError:
+        S.seek(0)
+        G = gzip.GzipFile(fileobj=S)
+        fitsfile = pyfits.open(G,ignore_missing_end=True)
+
+    fitsfile.writeto(outfile, clobber=overwrite)
+
+
 if __name__ == '__main__':
    response = urllib2.urlopen('http://www.ebay.com')
    C = chunk_read(response, report_hook=chunk_report)

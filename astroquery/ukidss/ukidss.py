@@ -132,6 +132,11 @@ class UKIDSSQuery():
         --------
         >>> R = UKIDSSQuery()
         >>> fitsfile = R.get_image_gal(10.5,0.0)
+        
+        # get UWISH2 data (as per http://astro.kent.ac.uk/uwish2/main.html)
+        >>> R.database='U09B8v20120403'
+        >>> R.login(username='U09B8',password='uwish2',community='nonSurvey')
+        >>> R.get_image_gal(49.489,-0.27,frametype='leavstack',size=20,filter='H2')
         """
 
         # Check for validity of requested frame_type
@@ -269,6 +274,9 @@ class UKIDSSQuery():
             raise ValueError("Invalide filter.  Valid filters are: %s"
                     % self.filters.keys())
 
+        if directory is None:
+            directory = self.directory
+
         # Construct request
         request = {}
 
@@ -335,9 +343,11 @@ class UKIDSSQuery():
 
                 if verbose:
                     print "Downloading %s..." % basename
-
-                p = mp.Process(
-                    target=urllib.urlretrieve, args=(link, temp_file))
+                    p = mp.Process(
+                        target=progressbar.retrieve, args=(link, temp_file, self.opener))
+                else:
+                    p = mp.Process(
+                        target=urllib.urlretrieve, args=(link, temp_file))
                 p.start()
 
                 while True:
