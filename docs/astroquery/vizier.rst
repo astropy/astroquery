@@ -7,7 +7,7 @@ VizieR Queries (`astroquery.vizier`)
 Getting started
 ===============
 
-The following example illustrates a VizieR query of the VŽron & Cetty catalogue::
+The following example illustrates a VizieR query of the Veron & Cetty catalogue::
 
     >>> from astroquery import vizier
     >>> query = {}
