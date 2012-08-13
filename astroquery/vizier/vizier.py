@@ -12,7 +12,7 @@ import numpy
 from astropy.io.vo.table import parse
 from astropy.table import Table
 
-def vizquery(query, server="vizier.cfa.harvard.edu"):
+def vizquery(query, server="vizier.u-strasbg.fr"):
     """
     ## Documentation
     #
