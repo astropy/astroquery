@@ -14,10 +14,33 @@ from astropy.table import Table
 
 def vizquery(query, server="vizier.u-strasbg.fr"):
     """
-    ## Documentation
-    #
-    # * http://vizier.u-strasbg.fr/doc/asu-summary.htx
-    # * http://vizier.u-strasbg.fr/vizier/vizHelp/menu.htx
+    VizieR search query.
+    
+    This function can be used to search all the catalogs available through the VizieR service.
+    
+    Parameters
+    ----------
+    query: dict
+        A dictionary specifying the query.
+        For acceptable keys, refer to the links given in the references section.
+        The dictionary values can be any of the following types:
+           * string
+           * list of string
+           * astropy.table.Table (containing columns "_RAJ2000" and "_DEJ2000" in degrees)
+    server: str, optional
+        The VizieR server to use. (See VizieR mirrors at http://vizier.u-strasbg.fr)
+        Defaults to "vizier.u-strasbg.fr".
+
+    Returns
+    -------
+    table : `~astropy.table.Table`
+        A table containing the results of the query
+    
+    References
+    ----------
+    * http://vizier.u-strasbg.fr/doc/asu-summary.htx
+    * http://vizier.u-strasbg.fr/vizier/vizHelp/menu.htx
+    
     """
     
     # Always add calculated _RAJ2000 & _DEJ2000 to the query.
