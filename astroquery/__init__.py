@@ -3,9 +3,13 @@
 try:
     from .version import version as __version__
 except ImportError:
-    # TODO: Issue a warning...
+    # TODO: Issue a warning using the logging framework
     __version__ = ''
-# The version number can be found in the "version" variable of version.py
+try:
+    from .version import githash as __githash__
+except ImportError:
+    # TODO: Issue a warning using the logging framework
+    __githash__ = ''
 
 # set up the test command
 _test_runner = None
@@ -15,7 +19,7 @@ def _get_test_runner():
 
 def test(package=None, test_path=None, args=None, plugins=None,
          verbose=False, pastebin=None, remote_data=False, pep8=False,
-         pdb=False):
+         pdb=False, coverage=False):
     """
     Run the tests using py.test. A proper set of arguments is constructed and
     passed to `pytest.main`.
@@ -61,6 +65,10 @@ def test(package=None, test_path=None, args=None, plugins=None,
         Turn on PDB post-mortem analysis for failing tests. Same as
         specifying `--pdb` in `args`.
 
+    coverage : bool, optional
+        Generate a test coverage report.  The result will be placed in
+        the directory htmlcov.
+
     See Also
     --------
     pytest.main : py.test function wrapped by `run_tests`.
@@ -70,4 +78,5 @@ def test(package=None, test_path=None, args=None, plugins=None,
     return test_runner.run_tests(
         package=package, test_path=test_path, args=args,
         plugins=plugins, verbose=verbose, pastebin=pastebin,
-        remote_data=remote_data, pep8=pep8, pdb=pdb)
+        remote_data=remote_data, pep8=pep8, pdb=pdb,
+        coverage=coverage)
