@@ -3,12 +3,10 @@
 try:
     from .version import version as __version__
 except ImportError:
-    # TODO: Issue a warning using the logging framework
     __version__ = ''
 try:
     from .version import githash as __githash__
 except ImportError:
-    # TODO: Issue a warning using the logging framework
     __githash__ = ''
 
 # set up the test command
