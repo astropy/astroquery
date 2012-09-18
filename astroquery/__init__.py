@@ -10,7 +10,6 @@ except ImportError:
     __githash__ = ''
 
 # set up the test command
-_test_runner = None
 def _get_test_runner():
     from astropy.tests.helper import TestRunner
     return TestRunner(__path__[0])
