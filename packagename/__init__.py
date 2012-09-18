@@ -17,7 +17,7 @@ def _get_test_runner():
 
 def test(package=None, test_path=None, args=None, plugins=None,
          verbose=False, pastebin=None, remote_data=False, pep8=False,
-         pdb=False, coverage=False):
+         pdb=False, coverage=False, **kwargs):
     """
     Run the tests using py.test. A proper set of arguments is constructed and
     passed to `pytest.main`.
@@ -67,6 +67,12 @@ def test(package=None, test_path=None, args=None, plugins=None,
         Generate a test coverage report.  The result will be placed in
         the directory htmlcov.
 
+    kwargs
+        Any additional keywords passed into this function will be passed
+        on to the astropy test runner.  This allows use of test-related
+        functionality implemented in later versions of astropy without
+        explicitly updating the package template.
+
     See Also
     --------
     pytest.main : py.test function wrapped by `run_tests`.
@@ -77,4 +83,4 @@ def test(package=None, test_path=None, args=None, plugins=None,
         package=package, test_path=test_path, args=args,
         plugins=plugins, verbose=verbose, pastebin=pastebin,
         remote_data=remote_data, pep8=pep8, pdb=pdb,
-        coverage=coverage)
+        coverage=coverage, **kwargs)
