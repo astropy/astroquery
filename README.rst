@@ -105,7 +105,6 @@ will be clear from context what to do with your particular VCS.
         # The full version, including alpha/beta/rc tags.
         release = packagename.__version__
 
-
      to::
 
         import yourpkg
@@ -116,12 +115,7 @@ will be clear from context what to do with your particular VCS.
 
      where ``yourpkg`` is the name of your package.
 
-  3. Update the ``copyright`` variable for the current year, and also your name
-     or the name of your collaboration (e.g.,"2011, John Doe and the
-     Amazing Package Collaboration.")
-  4. If you ever expect to output your docs in LaTeX or as a man page, you'll
-     also want to update the `latex_documents` and `man_pages` variables to
-     reflect your project, name, and author list.
+  3. Update the ``copyright`` variable for the current year.
 
 * Pass these changes on to git::
 
