@@ -97,7 +97,9 @@ will be clear from context what to do with your particular VCS.
   1. Change the ``project`` variable to your project's name (note that this does
      not *need* to be exactly the same as the package name, but that's a
      common convention).
-  2. Change the following lines::
+  2. Update the ``author`` variable with your name or the name of your collaboration.
+  3. Update the ``copyright`` variable for the current year.
+  4. Change the following lines::
 
         import packagename
         # The short X.Y version.
@@ -114,8 +116,7 @@ will be clear from context what to do with your particular VCS.
         release = yourpkg.__version__
 
      where ``yourpkg`` is the name of your package.
-
-  3. Update the ``copyright`` variable for the current year.
+  
 
 * Pass these changes on to git::
 
