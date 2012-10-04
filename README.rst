@@ -97,14 +97,15 @@ will be clear from context what to do with your particular VCS.
   1. Change the ``project`` variable to your project's name (note that this does
      not *need* to be exactly the same as the package name, but that's a
      common convention).
-  2. Change the following lines::
+  2. Update the ``author`` variable with your name or the name of your collaboration.
+  3. Update the ``copyright`` variable for the current year.
+  4. Change the following lines::
 
         import packagename
         # The short X.Y version.
         version = packagename.__version__.split('-', 1)[0]
         # The full version, including alpha/beta/rc tags.
         release = packagename.__version__
-
 
      to::
 
@@ -115,13 +116,7 @@ will be clear from context what to do with your particular VCS.
         release = yourpkg.__version__
 
      where ``yourpkg`` is the name of your package.
-
-  3. Update the ``copyright`` variable for the current year, and also your name
-     or the name of your collaboration (e.g.,"2011, John Doe and the
-     Amazing Package Collaboration.")
-  4. If you ever expect to output your docs in LaTeX or as a man page, you'll
-     also want to update the `latex_documents` and `man_pages` variables to
-     reflect your project, name, and author list.
+  
 
 * Pass these changes on to git::
 
