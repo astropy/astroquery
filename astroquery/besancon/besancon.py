@@ -11,7 +11,7 @@ import urllib2
 import socket
 import time
 import copy
-from astrodata.utils import progressbar
+from astroquery.utils import progressbar
 import sys
 import re
 
