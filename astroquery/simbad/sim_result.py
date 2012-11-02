@@ -6,7 +6,10 @@ import StringIO
 from collections import namedtuple
 import warnings
 
-from astropy.io.vo.table import parse
+try:
+    from astropy.io.vo.table import parse
+except ImportError:
+    from astropy.io.votable import parse
 from astropy.table import Table
 
 __all__ = ['SimbadResult',
