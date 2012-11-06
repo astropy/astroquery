@@ -61,7 +61,7 @@ class UKIDSSQuery():
     def __init__(self):
         self.opener = urllib2.build_opener()
         self.database = 'UKIDSSDR7PLUS'
-        self.programmeID = 102  # GPS
+        self.programmeID = 'all' # 102 = GPS
         self.filters = {'all': 'all', 'J': '3', 'H': '4', 'K': '5', 'Y': 2,
                 'Z': 1, 'H2': 6, 'Br': 7}
         self.directory = './'
@@ -164,6 +164,8 @@ class UKIDSSQuery():
         if verbose:
             print "Loading page..."
             results = progressbar.chunk_read(page, report_hook=progressbar.chunk_report)
+            if verbose == 'debug':
+                print url_getimage, urllib.urlencode(request)
         else:
             results = page.read()
 
