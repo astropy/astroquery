@@ -8,7 +8,10 @@ import string
 from xml.etree.ElementTree import ElementTree
 
 from astropy.table import Table
-from astropy.io.vo.table import parse
+try:
+    from astropy.io.vo.table import parse
+except ImportError:
+    from astropy.io.votable import parse
 
 '''
 
