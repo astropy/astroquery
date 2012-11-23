@@ -9,7 +9,10 @@ VizieR Query Tool
 import httplib
 import cStringIO
 import numpy
-from astropy.io.vo.table import parse
+try:
+    from astropy.io.vo.table import parse
+except ImportError:
+    from astropy.io.votable import parse
 from astropy.table import Table
 
 def vizquery(query, server="vizier.u-strasbg.fr"):
