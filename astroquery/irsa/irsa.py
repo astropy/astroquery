@@ -109,6 +109,10 @@ GATOR_URL = 'http://irsa.ipac.caltech.edu/cgi-bin/Gator/nph-query'
 GATOR_LIST_URL = 'http://irsa.ipac.caltech.edu/cgi-bin/Gator/nph-scan?mode=xml'
 
 
+default_options={
+        'outfmt':3
+        }# use VO table format
+
 def query_gator_cone(catalog, object, radius, units='arcsec'):
     '''
     IRSA Gator cone search query.
@@ -320,11 +324,13 @@ def query_gator_all_sky(catalog):
     return _query_gator(options)
 
 
-def _query_gator(options):
+def _query_gator(options, debug=False):
 
     # Construct query URL
     url = GATOR_URL + "?" + \
           string.join(["%s=%s" % (x, urllib.quote_plus(str(options[x]))) for x in options], "&")
+    if debug:
+      print(url)
 
     # Request page
     req = urllib2.Request(url)
@@ -349,7 +355,13 @@ def _query_gator(options):
     output.flush()
 
     # Read it in using the astropy VO table reader
-    array = parse(output.name, pedantic=False).get_first_table().array
+    try:
+        firsttable = parse(output.name, pedantic=False).get_first_table()
+        array = firsttable.array
+    except Exception as ex:
+        print("Failed to parse votable!  Returning output file instead.")
+        print(ex)
+        return open(output.name,'r')
 
     # Convert to astropy.table.Table instance
     table = Table(array)
