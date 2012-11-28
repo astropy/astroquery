@@ -58,13 +58,14 @@ class UKIDSSQuery():
     public UKIDSS data sets.
     """
 
-    def __init__(self):
+    def __init__(self, database='UKIDSSDR7PLUS', programmeID='all',
+            directory='./'):
         self.opener = urllib2.build_opener()
-        self.database = 'UKIDSSDR7PLUS'
-        self.programmeID = 'all' # 102 = GPS
+        self.database = database
+        self.programmeID = programmeID # 102 = GPS
         self.filters = {'all': 'all', 'J': '3', 'H': '4', 'K': '5', 'Y': 2,
                 'Z': 1, 'H2': 6, 'Br': 7}
-        self.directory = './'
+        self.directory = directory
         self.cj = None
 
     def login(self, username, password, community):
@@ -356,6 +357,115 @@ class UKIDSSQuery():
                     if len(mp.active_children()) < n_concurrent:
                         break
                     time.sleep(0.1)
+
+    def get_region(self, lon, lat, directory=None, radius=1, save=False,
+            verbose=True, savename=None, overwrite=False, sys='J'):
+        """
+        Get all sources in the catalog within some radius
+
+        Parameters
+        ----------
+        lon : float
+        lat : float
+            latitude and longitude at the center
+        sys : str
+            System of lat/lon.  'J' for J2000, 'G' for Galactic
+        directory : None or string
+            Directory to download files into.  Defaults to self.directory
+        radius : float
+            Radius in which to search for catalog entries in arcminutes
+        savename : string or None
+            The file name to save the catalog to.  If unspecified, will save as
+            UKIDSS_catalog_G###.###-###.###_r###.fits.gz, where the #'s indicate
+            galactic lon/lat and radius
+
+        Returns
+        -------
+        List of pyfits.primaryHDU instances containing FITS tables
+
+        Example
+        -------
+        >>> R = UKIDSSQuery()
+        >>> data = R.get_catalog_gal(10.625,-0.38,radius=0.1)
+        >>> bintable = data[0][1]
+        """
+        #database:UKIDSSDR8PLUS
+        #programmeID:103 # DR8
+
+        # Construct request
+        request = {}
+        request['database'] = self.database
+        request['programmeID'] = self.programmeID
+        request['from'] = 'source'
+        request['formaction'] = 'region'
+        request['ra'] = glon
+        request['dec'] = glat
+        request['sys'] = sys
+        request['radius'] = radius
+        request['xSize'] = ''
+        request['ySize'] = ''
+        request['boxAlignment'] = 'RADec'
+        request['emailAddress'] = ''
+        request['format'] = 'FITS'
+        request['compress'] = 'GZIP'
+        request['rows'] = 1
+        request['select'] = '*'
+        request['where'] = ''
+
+        if directory is None:
+            directory = self.directory
+
+        # Retrieve page
+        page = self.opener.open(url_getcatalog + urllib.urlencode(request))
+        if verbose:
+            print "Loading page..."
+            results = progressbar.chunk_read(page, report_hook=progressbar.chunk_report)
+        else:
+            results = page.read()
+
+        # Parse results for links
+        format = formatter.NullFormatter()           # create default formatter
+        htmlparser = LinksExtractor(format)        # create new parser object
+        htmlparser.feed(results)
+        htmlparser.close()
+        links = list(set(htmlparser.get_links()))
+
+        # Loop through links and retrieve FITS tables
+        c = 0
+        data = []
+        for link in links:
+            if not "8080" in link:
+                c = c + 1
+
+                if not os.path.exists(directory):
+                    os.mkdir(directory)
+
+                if save:
+                    if savename is None:
+                        savename = "UKIDSS_catalog_G%07.3f%+08.3f_r%03i.fits.gz" % (glon,glat,radius)
+                    filename = directory + "/" + savename
+                
+                U = self.opener.open(link)
+                if verbose:
+                    print "Downloading catalog %s" % link
+                    results = progressbar.chunk_read(U, report_hook=progressbar.chunk_report)
+                else:
+                    results = U.read()
+                S = StringIO.StringIO(results)
+                try: 
+                    fitsfile = pyfits.open(S,ignore_missing_end=True)
+                except IOError:
+                    S.seek(0)
+                    G = gzip.GzipFile(fileobj=S)
+                    fitsfile = pyfits.open(G,ignore_missing_end=True)
+
+
+                data.append(fitsfile)
+                if save: 
+                    fitsfile.writeto(filename.rstrip(".gz"), clobber=overwrite)
+
+        return data
+
 
     def get_catalog_gal(self, glon, glat, directory=None, radius=1, save=False,
             verbose=True, savename=None, overwrite=False):
