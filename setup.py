@@ -77,7 +77,7 @@ if setup_helpers.HAVE_CYTHON and not release:
 else:
     cmdclassd['build_ext'] = setup_helpers.wrap_build_ext()
 
-if setup_helpers.AstropyBuildSphinx is not None:
+if hasattr(setup_helpers,'AstropyBuildSphinx') and setup_helpers.AstropyBuildSphinx is not None:
     cmdclassd['build_sphinx'] = setup_helpers.AstropyBuildSphinx
 
 # Set our custom command class mapping in setup_helpers, so that
