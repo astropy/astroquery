@@ -12,18 +12,14 @@ import htmllib
 import formatter
 import gzip
 import os
-import sys
 import astropy.io.fits as pyfits
 from math import cos, radians
 import multiprocessing as mp
 import time
-import tempfile
-import numpy as np
-import shutil
 import StringIO
 from astroquery.utils import progressbar
 
-__all__ = ['UKIDSSQuery','clean_catalog']
+__all__ = ['UKIDSSQuery','clean_catalog','ukidss_programs_short','ukidss_programs_long']
 
 class LinksExtractor(htmllib.HTMLParser):  # derive new HTML parser
 
@@ -50,6 +46,17 @@ url_getcatalog = "http://surveys.roe.ac.uk:8080/wsa/WSASQL?"
 frame_types = ['stack', 'normal', 'interleave', 'deep%stack', 'confidence',
     'difference', 'leavstack', 'all']
 
+ukidss_programs_short = {'LAS': 101,
+                         'GPS': 102,
+                         'GCS': 103,
+                         'DXS': 104,
+                         'UDS': 105,}
+
+ukidss_programs_long = {'Large Area Survey': 101,
+                        'Galactic Plane Survey': 102,
+                        'Galactic Clusters Survey': 103,
+                        'Deep Extragalactic Survey': 104,
+                        'Ultra Deep Survey': 105}
 
 class UKIDSSQuery():
     """
@@ -85,7 +92,7 @@ class UKIDSSQuery():
             urllib2.HTTPCookieProcessor(self.cj))
         credentials = {'user': username, 'passwd': password,
             'community': ' ', 'community2': community}
-        page = self.opener.open(url_login, urllib.urlencode(credentials))
+        self._login_page = self.opener.open(url_login, urllib.urlencode(credentials))
 
     def logged_in(self):
         """
@@ -149,29 +156,30 @@ class UKIDSSQuery():
                     % self.filters.keys())
 
         # Construct request
-        request = {}
-        request['database']    = self.database
-        request['programmeID'] = self.programmeID
-        request['ra']          = glon
-        request['dec']         = glat
-        request['sys']         = 'G'
-        request['filterID']    = self.filters[filter]
-        request['xsize']       = size
-        request['ysize']       = size
-        request['obsType']     = 'object'
-        request['frameType']   = frametype
-        request['mfid']        = ''
+        self.request = {}
+        self.request['database']    = self.database
+        self.request['programmeID'] = verify_programme_id(self.programmeID,querytype='image')
+        self.request['ra']          = glon
+        self.request['dec']         = glat
+        self.request['sys']         = 'G'
+        self.request['filterID']    = self.filters[filter]
+        self.request['xsize']       = size
+        self.request['ysize']       = size
+        self.request['obsType']     = 'object'
+        self.request['frameType']   = frametype
+        self.request['mfid']        = ''
+        self.query_str = url_getimage + urllib.urlencode(self.request)
 
         if directory is None:
             directory = self.directory
 
         # Retrieve page
-        page = self.opener.open(url_getimage, urllib.urlencode(request))
+        page = self.opener.open(url_getimage, urllib.urlencode(self.request))
         if verbose:
             print "Loading page..."
             results = progressbar.chunk_read(page, report_hook=progressbar.chunk_report)
             if verbose == 'debug':
-                print url_getimage, urllib.urlencode(request)
+                print url_getimage, urllib.urlencode(self.request)
         else:
             results = page.read()
 
@@ -280,43 +288,44 @@ class UKIDSSQuery():
         if directory is None:
             directory = self.directory
 
-        # Construct request
-        request = {}
+        # Construct self.request
+        self.request = {}
 
-        request['database']    = self.database
-        request['programmeID'] = self.programmeID
-        request['userSelect'] = 'default'
+        self.request['database']    = self.database
+        self.request['programmeID'] = verify_programme_id(self.programmeID,querytype='catalog')
+        self.request['userSelect'] = 'default'
 
-        request['obsType']     = 'object'
-        request['frameType']   = frametype
-        request['filterID']    = self.filters[filter]
+        self.request['obsType']     = 'object'
+        self.request['frameType']   = frametype
+        self.request['filterID']    = self.filters[filter]
 
-        request['minRA']       = str(round(ra - radius / cos(radians(dec)),2))
-        request['maxRA']       = str(round(ra + radius / cos(radians(dec)),2))
-        request['formatRA']    = 'degrees'
+        self.request['minRA']       = str(round(ra - radius / cos(radians(dec)),2))
+        self.request['maxRA']       = str(round(ra + radius / cos(radians(dec)),2))
+        self.request['formatRA']    = 'degrees'
 
-        request['minDec']       = str(dec - radius)
-        request['maxDec']       = str(dec + radius)
-        request['formatDec']    = 'degrees'
+        self.request['minDec']       = str(dec - radius)
+        self.request['maxDec']       = str(dec + radius)
+        self.request['formatDec']    = 'degrees'
 
-        request['startDay'] = 0
-        request['startMonth'] = 0
-        request['startYear'] = 0
+        self.request['startDay'] = 0
+        self.request['startMonth'] = 0
+        self.request['startYear'] = 0
 
-        request['endDay'] = 0
-        request['endMonth'] = 0
-        request['endYear'] = 0
+        self.request['endDay'] = 0
+        self.request['endMonth'] = 0
+        self.request['endYear'] = 0
 
-        request['dep'] = 0
+        self.request['dep'] = 0
 
-        request['mfid'] = ''
-        request['lmfid'] = ''
-        request['fsid'] = ''
+        self.request['mfid'] = ''
+        self.request['lmfid'] = ''
+        self.request['fsid'] = ''
 
-        request['rows'] = 1000
+        self.request['rows'] = 1000
+        self.query_str = url_getimages + urllib.urlencode(self.request)
 
         # Retrieve page
-        page = self.opener.open(url_getimages, urllib.urlencode(request))
+        page = self.opener.open(url_getimages, urllib.urlencode(self.request))
         if verbose:
             print "Loading page..."
             results = progressbar.chunk_read(page, report_hook=progressbar.chunk_report)
@@ -392,31 +401,33 @@ class UKIDSSQuery():
         #database:UKIDSSDR8PLUS
         #programmeID:103 # DR8
 
+
         # Construct request
-        request = {}
-        request['database'] = self.database
-        request['programmeID'] = self.programmeID
-        request['from'] = 'source'
-        request['formaction'] = 'region'
-        request['ra'] = glon
-        request['dec'] = glat
-        request['sys'] = sys
-        request['radius'] = radius
-        request['xSize'] = ''
-        request['ySize'] = ''
-        request['boxAlignment'] = 'RADec'
-        request['emailAddress'] = ''
-        request['format'] = 'FITS'
-        request['compress'] = 'GZIP'
-        request['rows'] = 1
-        request['select'] = '*'
-        request['where'] = ''
+        self.request = {}
+        self.request['database'] = self.database
+        self.request['programmeID'] = verify_programme_id(self.programmeID,querytype='catalog')
+        self.request['from'] = 'source'
+        self.request['formaction'] = 'region'
+        self.request['ra'] = glon
+        self.request['dec'] = glat
+        self.request['sys'] = sys
+        self.request['radius'] = radius
+        self.request['xSize'] = ''
+        self.request['ySize'] = ''
+        self.request['boxAlignment'] = 'RADec'
+        self.request['emailAddress'] = ''
+        self.request['format'] = 'FITS'
+        self.request['compress'] = 'GZIP'
+        self.request['rows'] = 1
+        self.request['select'] = '*'
+        self.request['where'] = ''
+        self.query_str = url_getcatalog + urllib.urlencode(self.request)
 
         if directory is None:
             directory = self.directory
 
         # Retrieve page
-        page = self.opener.open(url_getcatalog + urllib.urlencode(request))
+        page = self.opener.open(url_getcatalog + urllib.urlencode(self.request))
         if verbose:
             print "Loading page..."
             results = progressbar.chunk_read(page, report_hook=progressbar.chunk_report)
@@ -498,30 +509,31 @@ class UKIDSSQuery():
         """
 
         # Construct request
-        request = {}
-        request['database'] = self.database
-        request['programmeID'] = self.programmeID
-        request['from'] = 'source'
-        request['formaction'] = 'region'
-        request['ra'] = glon
-        request['dec'] = glat
-        request['sys'] = 'G'
-        request['radius'] = radius
-        request['xSize'] = ''
-        request['ySize'] = ''
-        request['boxAlignment'] = 'RADec'
-        request['emailAddress'] = ''
-        request['format'] = 'FITS'
-        request['compress'] = 'GZIP'
-        request['rows'] = 1
-        request['select'] = '*'
-        request['where'] = ''
+        self.request = {}
+        self.request['database'] = self.database
+        self.request['programmeID'] = verify_programme_id(self.programmeID,querytype='catalog')
+        self.request['from'] = 'source'
+        self.request['formaction'] = 'region'
+        self.request['ra'] = glon
+        self.request['dec'] = glat
+        self.request['sys'] = 'G'
+        self.request['radius'] = radius
+        self.request['xSize'] = ''
+        self.request['ySize'] = ''
+        self.request['boxAlignment'] = 'RADec'
+        self.request['emailAddress'] = ''
+        self.request['format'] = 'FITS'
+        self.request['compress'] = 'GZIP'
+        self.request['rows'] = 1
+        self.request['select'] = '*'
+        self.request['where'] = ''
+        self.query_str = url_getcatalog + urllib.urlencode(self.request)
 
         if directory is None:
             directory = self.directory
 
         # Retrieve page
-        page = self.opener.open(url_getcatalog + urllib.urlencode(request))
+        page = self.opener.open(url_getcatalog + urllib.urlencode(self.request))
         if verbose:
             print "Loading page..."
             results = progressbar.chunk_read(page, report_hook=progressbar.chunk_report)
@@ -605,3 +617,34 @@ def clean_catalog(ukidss_catalog, clean_band='K_1', badclass=-9999, maxerrbits=4
         )
 
     return ukidss_catalog.data[mask]
+
+def verify_programme_id(pid, querytype='catalog'):
+    """
+    Verify the programme ID is valid for the query being executed
+
+    Parameters
+    ----------
+    pid : int or str
+        The programme ID, either an integer (i.e., the # that will get passed
+        to the URL) or a string using the three-letter acronym for the
+        programme or its long name
+
+    Returns
+    -------
+    pid : int
+        Returns the integer version of the programme ID
+
+    Raises
+    ------
+    ValueError if the pid is 'all' and the query type is a catalog.  You can query
+    all surveys for images, but not all catalogs.
+    """
+    if pid == 'all' and querytype == 'catalog':
+        raise ValueError("Cannot query all catalogs at once. Valid catalogs are: {0}.  Change programmeID to one of these.".format(
+            ",".join(ukidss_programs_short.keys())))
+    elif pid in ukidss_programs_long:
+        return ukidss_programs_long[pid]
+    elif pid in ukidss_programs_short:
+        return ukidss_programs_short[pid]
+    else:
+        raise ValueError("ProgrammeID {0} not recognized".format(pid))
