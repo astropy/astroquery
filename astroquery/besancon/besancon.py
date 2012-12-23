@@ -212,7 +212,8 @@ def request_besancon(email, glon, glat, smallfield=True, extinction=0.7,
     # load the URL as text
     U = urllib.urlopen(url_request, request)
     # keep the text stored for possible later use
-    text = U.read()
+    with aud.get_readable_fileobj(U) as f:
+        text = f.read()
     try:
         filename = result_re.search(text).group()
     except AttributeError: # if there are no matches
@@ -257,12 +258,8 @@ def get_besancon_model_file(filename, verbose=True, save=True, savename=None, ov
         sys.stdout.write(u"\r")
         try:
             U = urllib2.urlopen(url,timeout=5)
-            if verbose:
-                print ""
-                print "Loading page..."
-                results = progressbar.chunk_read(U, report_hook=progressbar.chunk_report)
-            else:
-                results = U.read()
+            with aud.get_readable_fileobj(U) as f:
+                results = f.read()
             break
         except urllib2.URLError:
             sys.stdout.write(u"Waiting 30s for model to finish (elapsed wait time %is, total %i)\r" % (elapsed_time,time.time()-t0))

@@ -340,7 +340,8 @@ def query_ned_by_refcode(refcode='2011ApJS..193...18W',
 
     # Write the data to a file, flush it to get the proper VO table format, and read it into an Astropy table
 
-    R = U.read()
+    with aud.get_readable_fileobj(U) as f:
+        R = f.read()
     U.close()
     # Check to see if NED returns a valid query
 
@@ -396,7 +397,8 @@ def query_ned_names(objname='M31',
 
     # Write the data to a file, flush it to get the proper VO table format, and read it into an Astropy table
 
-    R = U.read()
+    with aud.get_readable_fileobj(U) as f:
+        R = f.read()
     U.close()
     # Check to see if NED returns a valid query
 

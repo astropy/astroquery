@@ -1,4 +1,3 @@
-
 """
 NRAO Image Archive Query Tool
 -----------------------------------
@@ -20,6 +19,7 @@ from astroquery.utils import progressbar
 # from astropy import coordinates as coord
 import coords
 import re
+import astropy.utils.data as aud
 
 imfits_re = re.compile("http://[^\"]*\\.imfits")
 uvfits_re = re.compile("http://[^\"]*\\.uvfits")
@@ -139,11 +139,8 @@ def get_nrao_image(lon, lat, system='galactic', epoch='J2000', size=1.0,
 
         # Get the file
         U = opener.open(link)
-        if verbose:
-            print "Downloading image from %s" % link
-            results = progressbar.chunk_read(U, report_hook=progressbar.chunk_report)
-        else:
-            results = U.read()
+        with aud.get_readable_fileobj(U) as f:
+            results = f.read()
         S = StringIO.StringIO(results)
         try: 
             fitsfile = fits.open(S,ignore_missing_end=True)

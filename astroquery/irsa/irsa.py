@@ -335,7 +335,8 @@ def _query_gator(options, debug=False):
     # Request page
     req = urllib2.Request(url)
     response = urllib2.urlopen(req)
-    result = response.read()
+    with aud.get_readable_fileobj(response) as f:
+        result = result.read()
 
     # Check if results were returned
     if 'The catalog is not on the list' in result:
