@@ -292,7 +292,7 @@ class UKIDSSQuery():
         self.request = {}
 
         self.request['database']    = self.database
-        self.request['programmeID'] = verify_programme_id(self.programmeID,querytype='catalog')
+        self.request['programmeID'] = verify_programme_id(self.programmeID,querytype='image')
         self.request['userSelect'] = 'default'
 
         self.request['obsType']     = 'object'
@@ -646,5 +646,5 @@ def verify_programme_id(pid, querytype='catalog'):
         return ukidss_programs_long[pid]
     elif pid in ukidss_programs_short:
         return ukidss_programs_short[pid]
-    else:
+    elif querytype != 'image':
         raise ValueError("ProgrammeID {0} not recognized".format(pid))
