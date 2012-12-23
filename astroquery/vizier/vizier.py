@@ -10,9 +10,9 @@ import httplib
 import cStringIO
 import numpy
 try:
-    from astropy.io.vo.table import parse
+    import astropy.io.vo.table as votable
 except ImportError:
-    from astropy.io.votable import parse
+    import astropy.io.votable as votable
 from astropy.table import Table
 
 def vizquery(query, server="vizier.u-strasbg.fr"):
@@ -74,7 +74,7 @@ def vizquery(query, server="vizier.u-strasbg.fr"):
     http = httplib.HTTPConnection(server)
     http.request("POST", "/viz-bin/votable", body=body)
     resp = http.getresponse()
-    voTable = parse(cStringIO.StringIO(resp.read()), pedantic=False)
+    voTable = votable.parse(cStringIO.StringIO(resp.read()), pedantic=False)
     
     # Convert VOTABLE into a list of astropy Table.
     tableList = []
