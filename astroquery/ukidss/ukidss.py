@@ -18,6 +18,7 @@ import multiprocessing as mp
 import time
 import StringIO
 from astroquery.utils import progressbar
+import astropy.utils.data as aud
 
 __all__ = ['UKIDSSQuery','clean_catalog','ukidss_programs_short','ukidss_programs_long']
 
@@ -174,14 +175,9 @@ class UKIDSSQuery():
             directory = self.directory
 
         # Retrieve page
-        page = self.opener.open(url_getimage, urllib.urlencode(self.request))
-        if verbose:
-            print "Loading page..."
-            results = progressbar.chunk_read(page, report_hook=progressbar.chunk_report)
-            if verbose == 'debug':
-                print url_getimage, urllib.urlencode(self.request)
-        else:
-            results = page.read()
+        page = self.opener.open(url_getcatalog + urllib.urlencode(self.request))
+        with aud.get_readable_fileobj(page) as f:
+            results = f.read()
 
         # Parse results for links
         format = formatter.NullFormatter()
@@ -202,15 +198,16 @@ class UKIDSSQuery():
 
             # Get the file
             U = self.opener.open(link.replace("getImage", "getFImage"))
-            if verbose:
-                print "Downloading image from %s" % link
-                results = progressbar.chunk_read(U, report_hook=progressbar.chunk_report)
-            else:
-                results = U.read()
+            with aud.get_readable_fileobj(U) as f:
+                results = f.read()
             S = StringIO.StringIO(results)
+
             try: 
-                fitsfile = fits.open(S,ignore_missing_end=True)
+                # try to open as a fits file
+                fitsfile = pyfits.open(S,ignore_missing_end=True)
             except IOError:
+                # if that fails, try to open as a gzip'd fits file
+                # have to rewind to the start
                 S.seek(0)
                 G = gzip.GzipFile(fileobj=S)
                 fitsfile = fits.open(G,ignore_missing_end=True)
@@ -321,12 +318,9 @@ class UKIDSSQuery():
         self.query_str = url_getimages + urllib.urlencode(self.request)
 
         # Retrieve page
-        page = self.opener.open(url_getimages, urllib.urlencode(self.request))
-        if verbose:
-            print "Loading page..."
-            results = progressbar.chunk_read(page, report_hook=progressbar.chunk_report)
-        else:
-            results = page.read()
+        page = self.opener.open(url_getcatalog + urllib.urlencode(self.request))
+        with aud.get_readable_fileobj(page) as f:
+            results = f.read()
 
         # Parse results for links
         format = formatter.NullFormatter()
@@ -531,11 +525,8 @@ class UKIDSSQuery():
 
         # Retrieve page
         page = self.opener.open(url_getcatalog + urllib.urlencode(self.request))
-        if verbose:
-            print "Loading page..."
-            results = progressbar.chunk_read(page, report_hook=progressbar.chunk_report)
-        else:
-            results = page.read()
+        with aud.get_readable_fileobj(page) as f:
+            results = f.read()
 
         # Parse results for links
         format = formatter.NullFormatter()           # create default formatter
@@ -560,11 +551,9 @@ class UKIDSSQuery():
                     filename = directory + "/" + savename
                 
                 U = self.opener.open(link)
-                if verbose:
-                    print "Downloading catalog %s" % link
-                    results = progressbar.chunk_read(U, report_hook=progressbar.chunk_report)
-                else:
-                    results = U.read()
+                with aud.get_readable_fileobj(U) as f:
+                    results = f.read()
+
                 S = StringIO.StringIO(results)
                 try: 
                     fitsfile = fits.open(S,ignore_missing_end=True)

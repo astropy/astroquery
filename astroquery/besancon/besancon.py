@@ -15,6 +15,7 @@ import os
 from astroquery.utils import progressbar
 import sys
 import re
+import astropy.utils.data as aud
 
 __all__ = ['get_besancon_model_file','request_besancon']
 

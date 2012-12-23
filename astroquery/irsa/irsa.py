@@ -12,6 +12,7 @@ try:
     import astropy.io.vo.table as votable
 except ImportError:
     import astropy.io.votable as votable
+import astropy.utils.data as aud
 
 '''
 
@@ -336,7 +337,7 @@ def _query_gator(options, debug=False):
     req = urllib2.Request(url)
     response = urllib2.urlopen(req)
     with aud.get_readable_fileobj(response) as f:
-        result = result.read()
+        result = f.read()
 
     # Check if results were returned
     if 'The catalog is not on the list' in result:

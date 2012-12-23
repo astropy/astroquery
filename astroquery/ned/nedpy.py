@@ -38,6 +38,7 @@ Originally written by K. Willett, Jun 2011
 
 import urllib,urllib2
 import tempfile
+import astropy.utils.data as aud
 from xml.dom.minidom import parseString
 
 from astropy.table import Table
