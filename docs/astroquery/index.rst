@@ -1,7 +1,9 @@
 AstroQuery
 ==========
 
-This is the documentation for the affiliated package.
+This is the documentation for the AstroQuery affiliated package of astropy.
+
+AstroQuery is a set of tools for querying astronomical web forms and databases.
 
 .. toctree::
   :maxdepth: 2
