@@ -15,3 +15,5 @@ AstroQuery is a set of tools for querying astronomical web forms and databases.
   simbad.rst
   besancon.rst
   vizier.rst
+  ned.rst
+  nist.rst
