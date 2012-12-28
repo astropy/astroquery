@@ -1,7 +1,10 @@
 import urllib2
 import urllib
 import re
-import asciitable
+try:
+    import astropy.io.ascii as asciitable
+except ImportError:
+    import asciitable
 import bs4
 import numpy as np
 
