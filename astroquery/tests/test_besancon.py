@@ -1,13 +1,15 @@
 from astroquery import besancon
 import asciitable
 import pytest
+import os
 
 from astropy.io.ascii.tests.common import (raises,
                      assert_equal, assert_almost_equal, assert_true,
                      setup_function, teardown_function, has_isnan)
 
 def test_besancon_reader():
-    B = asciitable.read('besancon_test.txt',Reader=besancon.BesanconFixed,guess=False)
+    #assert os.path.exists('besancon_test.txt')
+    B = asciitable.read('t/besancon_test.txt',Reader=besancon.BesanconFixed,guess=False)
     assert_equal(len(B),12)
 
 def test_basic():
