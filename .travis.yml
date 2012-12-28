@@ -25,7 +25,7 @@ install:
    - export PYTHONIOENCODING=UTF8 # just in case
    - pip install "numpy==$NUMPY_VERSION" --use-mirrors
    - pip -q install Cython --use-mirrors
-   - pip install atpy --use-mirrors
+   - pip install atpy --use-mirrors # for NED
    - pip install asciitable --use-mirrors
    - pip install beautifulsoup4 --use-mirrors # for NIST
    - pip install vo --use-mirrors # for NED
