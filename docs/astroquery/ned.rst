@@ -37,3 +37,9 @@ Note: two of the search functions described by Mazzarella et al. did not work as
 
 Written by K. Willett, Jun 2011
 
+
+Reference/API
+=============
+
+.. automodapi:: astroquery.ned
+    :no-inheritance-diagram:
