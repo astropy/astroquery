@@ -1,5 +1,6 @@
 import astroquery.irsa
 
+@pytest.mark.skipif(dv.StrictVersion(np.__version__) <= dv.StrictVersion("1.4.1"))
 def test_trivial():
     """ just make sure it doesn't raise anything 
     takes about 3-5 seconds"""
