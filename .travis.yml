@@ -27,6 +27,9 @@ install:
    - pip -q install Cython --use-mirrors
    - pip install atpy --use-mirrors
    - pip install asciitable --use-mirrors
+   - pip install beautifulsoup4 --use-mirrors # for NIST
+   - pip install vo --use-mirrors # for NED
+   - pip install coords --use-mirrors # for NRAO
    - pip install -e git+http://github.com/astropy/astropy.git#egg=astropy
 script: python setup.py test
 
