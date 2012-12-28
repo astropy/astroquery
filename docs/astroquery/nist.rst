@@ -12,3 +12,8 @@ Example
 >>> Q = NISTAtomicLinesQuery()
 >>> Q.query_line('H I',4000,7000,wavelength_unit='A',energy_level_unit='eV')
 
+Reference/API
+=============
+
+.. automodapi:: astroquery.nist
+    :no-inheritance-diagram:

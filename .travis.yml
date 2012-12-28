@@ -25,6 +25,7 @@ install:
    - export PYTHONIOENCODING=UTF8 # just in case
    - pip install "numpy==$NUMPY_VERSION" --use-mirrors
    - pip -q install Cython --use-mirrors
+   - pip install atpy --use-mirrors
    - pip install -e git+http://github.com/astropy/astropy.git#egg=astropy
 script: python setup.py test
 

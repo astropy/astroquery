@@ -36,7 +36,7 @@ class NISTAtomicLinesQuery(object):
         =======
 
         >>> Q = NISTAtomicLinesQuery()
-        >>> Q.query_line('H I',4000,7000,wavelength_unit='A',energy_level_unit='eV')
+        >>> Q.query_line_ascii('H I',4000,7000,wavelength_unit='A',energy_level_unit='eV')
         """
 
 
@@ -105,7 +105,7 @@ class NISTAtomicLinesQuery(object):
         =======
 
         >>> Q = NISTAtomicLinesQuery()
-        >>> Q.query_line('H I',4000,7000,wavelength_unit='A',energy_level_unit='eV')
+        >>> Q.query_line_html('H I',4000,7000,wavelength_unit='A',energy_level_unit='eV')
         """
 
 

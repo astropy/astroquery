@@ -14,7 +14,7 @@ relevant keyword arguments (of which there are many) ::
     >>> besancon_model = besancon.request_besancon('your@email.net',10.5,0.0)
     >>> import astropy.io.ascii as asciitable
     >>> from astropy.io.ascii import besancon as besancon_reader
-    >>> B = asciitable.read(besancon_model,Reader=asciitable.besancon.BesanconFixed,guess=False)
+    >>> B = asciitable.read(besancon_model,Reader=besancon_reader.BesanconFixed,guess=False)
     >>> B.pprint()
 
 A successful run should look something like this::
