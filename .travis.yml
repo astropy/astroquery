@@ -28,8 +28,9 @@ install:
    - pip install atpy --use-mirrors # for NED
    - pip install asciitable --use-mirrors
    - pip install beautifulsoup4 --use-mirrors # for NIST
-   - pip install http://stsdas.stsci.edu/astrolib/vo-0.8.tar.gz
-   - pip install coords --use-mirrors # for NRAO
+   # astrolib is really hard to find via google...
+   - pip install http://stsdas.stsci.edu/astrolib/vo-0.8.tar.gz # for NED / atpy
+   - pip install http://stsdas.stsci.edu/astrolib/coords-0.37.tar.gz # for NRAO
    - pip install -e git+http://github.com/astropy/astropy.git#egg=astropy
 script: python setup.py test
 
