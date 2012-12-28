@@ -2,7 +2,6 @@ from astroquery import besancon
 from astropy.io.ascii import besancon as besancon_reader
 import asciitable
 import pytest
-from astropy.test
 
 from astropy.io.ascii.tests.common import (raises,
                      assert_equal, assert_almost_equal, assert_true,
