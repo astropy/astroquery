@@ -1,4 +1,4 @@
-from astroquery import vizier
+from astroquery import vizquery
 
 def test_simple():
     query = {}

@@ -6,11 +6,11 @@ def test_objname():
 def test_nearname():
     result = ned.query_ned_nearname()
 
-def test_neariauname():
-    result = ned.query_ned_neariauname()
+def test_near_iauname():
+    result = ned.query_ned_near_iauname()
 
-def test_refcode():
-    result = ned.query_ned_refcode()
+def test_by_refcode():
+    result = ned.query_ned_by_refcode()
 
 def test_names():
     result = ned.query_ned_names()
@@ -34,11 +34,11 @@ def test_ned_redshifts():
     result = ned.query_ned_redshifts()
 
 def test_ned_notes():
-    result = ned.query_ned_ned_notes()
+    result = ned.query_ned_notes()
 
 def test_ned_position():
-    result = ned.query_ned_ned_position()
+    result = ned.query_ned_position()
 
 def test_ned_nearpos():
-    result = ned.query_ned_ned_nearpos()
+    result = ned.query_ned_nearpos()
 
