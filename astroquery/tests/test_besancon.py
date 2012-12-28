@@ -1,5 +1,6 @@
 from astroquery import besancon
 from astropy.io.ascii import besancon as besancon_reader
+import asciitable
 import pytest
 
 def test_basic():
