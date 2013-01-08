@@ -336,7 +336,7 @@ def _query_gator(options, debug=False):
     # Request page
     req = urllib2.Request(url)
     response = urllib2.urlopen(req)
-    with aud.get_readable_fileobj(response) as f:
+    with aud.get_readable_fileobj(response, cache=True) as f:
         result = f.read()
 
     # Check if results were returned

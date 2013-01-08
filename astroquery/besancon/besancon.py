@@ -259,7 +259,7 @@ def get_besancon_model_file(filename, verbose=True, save=True, savename=None, ov
         sys.stdout.write(u"\r")
         try:
             U = urllib2.urlopen(url,timeout=5)
-            with aud.get_readable_fileobj(U) as f:
+            with aud.get_readable_fileobj(U, cache=True) as f:
                 results = f.read()
             break
         except urllib2.URLError:

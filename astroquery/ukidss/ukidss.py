@@ -198,7 +198,7 @@ class UKIDSSQuery():
 
             # Get the file
             U = self.opener.open(link.replace("getImage", "getFImage"))
-            with aud.get_readable_fileobj(U) as f:
+            with aud.get_readable_fileobj(U, cache=True) as f:
                 results = f.read()
             S = StringIO.StringIO(results)
 
@@ -551,7 +551,7 @@ class UKIDSSQuery():
                     filename = directory + "/" + savename
                 
                 U = self.opener.open(link)
-                with aud.get_readable_fileobj(U) as f:
+                with aud.get_readable_fileobj(U, cache=True) as f:
                     results = f.read()
 
                 S = StringIO.StringIO(results)
