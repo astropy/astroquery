@@ -1,1 +1,1 @@
-from .splataglogue import *
+from .splatalogue import *
