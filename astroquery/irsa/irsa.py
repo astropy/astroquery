@@ -330,7 +330,7 @@ def _query_gator(options, debug=False):
     url = GATOR_URL + "?" + \
           string.join(["%s=%s" % (x, urllib.quote_plus(str(options[x]))) for x in options], "&")
     if debug:
-      print(url)
+        print(url)
 
     # Request page
     req = urllib2.Request(url)

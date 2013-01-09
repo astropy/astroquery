@@ -11,6 +11,7 @@ import urllib2
 import socket
 import time
 import copy
+import os
 from astroquery.utils import progressbar
 import sys
 import re
@@ -102,7 +103,6 @@ def parse_errors(text):
                         </div>""", re.X)
         text = errors.search(text).group()
     except AttributeError:
-        likely_errors = text.split('\n')[132:150]
         raise ValueError("Regular expression matching to error message failed.")
     text_items = re.split("<li>|</li>|\n",errors.search(text).group())
     text_items = [t for t in text_items if t != ""]
@@ -200,7 +200,7 @@ def request_besancon(email, glon, glat, smallfield=True, extinction=0.7,
 
     if clouds is not None:
         for ii,(AV,di) in enumerate(clouds):
-            kwd[ev][ii] = AV
+            kwd[AV][ii] = AV
             kwd[di][ii] = di
 
     # parse the default dictionary
@@ -262,7 +262,7 @@ def get_besancon_model_file(filename, verbose=True, save=True, savename=None, ov
                 print "Loading page..."
                 results = progressbar.chunk_read(U, report_hook=progressbar.chunk_report)
             else:
-                results = page.read()
+                results = U.read()
             break
         except urllib2.URLError:
             sys.stdout.write(u"Waiting 30s for model to finish (elapsed wait time %is, total %i)\r" % (elapsed_time,time.time()-t0))

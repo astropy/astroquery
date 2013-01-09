@@ -1,5 +1,4 @@
 import astroquery.irsa
-import pytest
 
 def test_trivial():
     """ just make sure it doesn't raise anything 

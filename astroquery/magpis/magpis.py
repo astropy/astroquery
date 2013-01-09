@@ -4,18 +4,8 @@ MAGPIS Image and Catalog Query Tool
 
 :Author: Adam Ginsburg (adam.g.ginsburg@gmail.com)
 """
-import cookielib
-import urllib2
 import urllib
-import htmllib
-import formatter
-import os
-import sys
-import astropy.io.fits as pyfits
-from math import cos, radians
-import multiprocessing as mp
-import time
-import tempfile
+from astropy.io import fits
 import StringIO
 from astroquery.utils import progressbar
 
@@ -98,7 +88,7 @@ def get_magpis_image_gal(glon, glat, survey='bolocam', size=1.0,
     results = progressbar.chunk_read(U, report_hook=progressbar.chunk_report)
     # turn the text into a StringIO object for FITS reading
     S = StringIO.StringIO(results)
-    fitsfile = pyfits.open(S)
+    fitsfile = fits.open(S)
 
     if save:
         if savename is None:

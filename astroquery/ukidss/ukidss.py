@@ -12,7 +12,7 @@ import htmllib
 import formatter
 import gzip
 import os
-import astropy.io.fits as pyfits
+from astropy.io import fits
 from math import cos, radians
 import multiprocessing as mp
 import time
@@ -200,10 +200,6 @@ class UKIDSSQuery():
             if not os.path.exists(directory):
                 os.mkdir(directory)
 
-            # Get image filename
-            basename = os.path.basename(
-                link.split("&")[0]).replace('.fit', '.fits.gz')
-
             # Get the file
             U = self.opener.open(link.replace("getImage", "getFImage"))
             if verbose:
@@ -213,11 +209,11 @@ class UKIDSSQuery():
                 results = U.read()
             S = StringIO.StringIO(results)
             try: 
-                fitsfile = pyfits.open(S,ignore_missing_end=True)
+                fitsfile = fits.open(S,ignore_missing_end=True)
             except IOError:
                 S.seek(0)
                 G = gzip.GzipFile(fileobj=S)
-                fitsfile = pyfits.open(G,ignore_missing_end=True)
+                fitsfile = fits.open(G,ignore_missing_end=True)
 
             # Get Multiframe ID from the header
             images.append(fitsfile)
@@ -390,7 +386,7 @@ class UKIDSSQuery():
 
         Returns
         -------
-        List of pyfits.primaryHDU instances containing FITS tables
+        List of fits.primaryHDU instances containing FITS tables
 
         Example
         -------
@@ -408,8 +404,8 @@ class UKIDSSQuery():
         self.request['programmeID'] = verify_programme_id(self.programmeID,querytype='catalog')
         self.request['from'] = 'source'
         self.request['formaction'] = 'region'
-        self.request['ra'] = glon
-        self.request['dec'] = glat
+        self.request['ra'] = lon
+        self.request['dec'] = lat
         self.request['sys'] = sys
         self.request['radius'] = radius
         self.request['xSize'] = ''
@@ -453,7 +449,8 @@ class UKIDSSQuery():
 
                 if save:
                     if savename is None:
-                        savename = "UKIDSS_catalog_G%07.3f%+08.3f_r%03i.fits.gz" % (glon,glat,radius)
+                        savename = ("UKIDSS_catalog_G%07.3f%+08.3f_r%03i.fits.gz" %
+                                    (lon, lat, radius))
                     filename = directory + "/" + savename
                 
                 U = self.opener.open(link)
@@ -464,11 +461,11 @@ class UKIDSSQuery():
                     results = U.read()
                 S = StringIO.StringIO(results)
                 try: 
-                    fitsfile = pyfits.open(S,ignore_missing_end=True)
+                    fitsfile = fits.open(S,ignore_missing_end=True)
                 except IOError:
                     S.seek(0)
                     G = gzip.GzipFile(fileobj=S)
-                    fitsfile = pyfits.open(G,ignore_missing_end=True)
+                    fitsfile = fits.open(G,ignore_missing_end=True)
 
 
                 data.append(fitsfile)
@@ -499,7 +496,7 @@ class UKIDSSQuery():
 
         Returns
         -------
-        List of pyfits.primaryHDU instances containing FITS tables
+        List of fits.primaryHDU instances containing FITS tables
 
         Example
         -------
@@ -570,11 +567,11 @@ class UKIDSSQuery():
                     results = U.read()
                 S = StringIO.StringIO(results)
                 try: 
-                    fitsfile = pyfits.open(S,ignore_missing_end=True)
+                    fitsfile = fits.open(S,ignore_missing_end=True)
                 except IOError:
                     S.seek(0)
                     G = gzip.GzipFile(fileobj=S)
-                    fitsfile = pyfits.open(G,ignore_missing_end=True)
+                    fitsfile = fits.open(G,ignore_missing_end=True)
 
 
                 data.append(fitsfile)

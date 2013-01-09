@@ -12,20 +12,13 @@ REQUIRES either astropy.coords (as of 8/5/2012, not implemented) or STSCI's 'coo
 import urllib2
 import urllib
 import os
-import sys
-import astropy.io.fits as pyfits
-from math import cos, radians
-import multiprocessing as mp
-import time
-import tempfile
+import gzip
 import StringIO
+from astropy.io import fits
 from astroquery.utils import progressbar
-try:
-    import coords
-except ImportError:
-    import astropy.coords
-import htmllib
-import formatter
+# TODO: Change to astropy
+# from astropy import coordinates as coord
+import coords
 import re
 
 imfits_re = re.compile("http://[^\"]*\\.imfits")
@@ -144,9 +137,6 @@ def get_nrao_image(lon, lat, system='galactic', epoch='J2000', size=1.0,
 
     for link,config in zip(links,configurations):
 
-        # Get image filename
-        basename = os.path.basename(link)
-
         # Get the file
         U = opener.open(link)
         if verbose:
@@ -156,11 +146,11 @@ def get_nrao_image(lon, lat, system='galactic', epoch='J2000', size=1.0,
             results = U.read()
         S = StringIO.StringIO(results)
         try: 
-            fitsfile = pyfits.open(S,ignore_missing_end=True)
+            fitsfile = fits.open(S,ignore_missing_end=True)
         except IOError:
             S.seek(0)
             G = gzip.GzipFile(fileobj=S)
-            fitsfile = pyfits.open(G,ignore_missing_end=True)
+            fitsfile = fits.open(G,ignore_missing_end=True)
 
         # Get Multiframe ID from the header
         images.append(fitsfile)
