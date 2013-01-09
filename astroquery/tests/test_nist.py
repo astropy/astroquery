@@ -1,5 +1,4 @@
 from astroquery import nist
-import pytest
 
 def test_html():
     Q = nist.NISTAtomicLinesQuery()

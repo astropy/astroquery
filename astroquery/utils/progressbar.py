@@ -1,4 +1,8 @@
-import urllib2, sys
+import urllib2
+import gzip
+import sys
+import StringIO
+from astropy.io import fits
 
 __all__ = ['chunk_report','chunk_read']
 
@@ -28,21 +32,21 @@ def chunk_read(response, chunk_size=1024, report_hook=None):
     #sys.stdout.write("Beginning download.\n")
   
     while 1:
-       chunk = response.read(chunk_size)
-       result_string += chunk
-       bytes_so_far += len(chunk)
-  
-       if not chunk:
-           if report_hook: 
-               sys.stdout.write('\n')
-           break
-  
-       if report_hook:
-          report_hook(bytes_so_far, chunk_size, total_size)
+        chunk = response.read(chunk_size)
+        result_string += chunk
+        bytes_so_far += len(chunk)
+
+        if not chunk:
+            if report_hook: 
+                sys.stdout.write('\n')
+            break
+
+        if report_hook:
+            report_hook(bytes_so_far, chunk_size, total_size)
   
     return result_string
 
-def retrieve(url, outfile, opener=None):
+def retrieve(url, outfile, opener=None, overwrite=False):
     """
     "retrieve" (i.e., download to file) a URL. 
     """
@@ -52,20 +56,19 @@ def retrieve(url, outfile, opener=None):
 
     page = opener.open(url)
 
-    results = progressbar.chunk_read(page, report_hook=chunk_report)
+    results = chunk_read(page, report_hook=chunk_report)
 
     S = StringIO.StringIO(results)
     try: 
-        fitsfile = pyfits.open(S,ignore_missing_end=True)
+        fitsfile = fits.open(S,ignore_missing_end=True)
     except IOError:
         S.seek(0)
         G = gzip.GzipFile(fileobj=S)
-        fitsfile = pyfits.open(G,ignore_missing_end=True)
+        fitsfile = fits.open(G,ignore_missing_end=True)
 
     fitsfile.writeto(outfile, clobber=overwrite)
 
 
 if __name__ == '__main__':
-   response = urllib2.urlopen('http://www.ebay.com')
-   C = chunk_read(response, report_hook=chunk_report)
-
+    response = urllib2.urlopen('http://www.ebay.com')
+    C = chunk_read(response, report_hook=chunk_report)

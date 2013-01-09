@@ -31,7 +31,6 @@ besancon.py:
 
 from astropy.io.ascii import core
 from astropy.io.ascii import fixedwidth
-import re
 
 __all__ = ['BesanconFixed','BesanconFixedWidthHeader','BesanconFixedWidthData']
 

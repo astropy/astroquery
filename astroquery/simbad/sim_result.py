@@ -2,7 +2,6 @@
 
 import re
 import tempfile
-import StringIO
 from collections import namedtuple
 import warnings
 
