@@ -11,14 +11,14 @@ The following example illustrates an Besancon catalog/image query.  The API desc
 relevant keyword arguments (of which there are many) ::
 
     >>> from astroquery import besancon
-    >>> besancon_model = besancon.request_besancon('your@email.net',10.5,0.0)
+    >>> # besancon_model = besancon.request_besancon('your@email.net',10.5,0.0)
     >>> import astropy.io.ascii as asciitable
     >>> from astropy.io.ascii import besancon as besancon_reader
     >>> B = asciitable.read(besancon_model,Reader=besancon_reader.BesanconFixed,guess=False)
     >>> B.pprint()
 
 A successful run should look something like this::
-    >>> besancon_model = request_besancon('your@email.net',10.5,0.0)
+    >>> # besancon_model = request_besancon('your@email.net',10.5,0.0)
 
     Waiting 30s for model to finish (elapsed wait time 30s, total 32)
     Loading page...
@@ -30,7 +30,7 @@ A successful run should look something like this::
     Loading page...
     Downloaded        74752 of     11029183 bytes (  0.68%)
 
-    >>> B.pprint()
+    >>> # B.pprint()
      Dist  Mv   CL Typ   LTef logg Age Mass  J-K   J-H   V-K    H-K    K    [Fe/H]   l     b     Av   Mbol 
     ----- ---- --- ---- ----- ---- --- ---- ----- ----- ------ ----- ------ ------ ----- ----- ----- ------
      0.87 12.5   5  7.5 3.515 4.99   5 0.24 0.966 0.649  5.408 0.318  17.44  -0.02 10.62 -0.38 0.637 10.844
@@ -63,6 +63,10 @@ A successful run should look something like this::
     48.05  5.2   5 4.82 3.786 4.54   9 0.74  2.42 1.563 11.919 0.857 23.548  -1.45 10.62 -0.38  11.8   5.08
     49.39 16.9   6  9.0 3.542 8.19   9  0.7 1.893 1.301 11.436 0.592 35.813  -1.19 10.62 -0.38  11.8    0.0
     
+.. note::
+    These tests are commented out (and will fail) because I don't want to put
+    unnecessary strain on the Besancon servers by running queries every time we
+    test.  Also I think the example must be wrong.
 
 
 Reference/API
