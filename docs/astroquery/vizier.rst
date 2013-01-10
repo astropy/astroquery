@@ -7,8 +7,9 @@ VizieR Queries (`astroquery.vizier`)
 Getting started
 ===============
 
-The following example illustrates a VizieR query of the Veron & Cetty catalogue::
+The following example illustrates a VizieR query of the Veron & Cetty catalogue
 
+.. code-block:: python
     >>> from astroquery import vizier
     >>> query = {}
     >>> query["-source"] = "VII/258/vv10"
@@ -35,8 +36,9 @@ The following example illustrates a VizieR query of the Veron & Cetty catalogue:
     192.7196  41.1194      NGC 4736    S 10.85
     208.3612  40.2831      NGC 5353   S? 10.91
 
-The resulting "table1" can be reused as an input for another search, here in 2MASS::
+The resulting "table1" can be reused as an input for another search, here in 2MASS
 
+.. code-block:: python
     >>> query = {}
     >>> query["-source"] = "II/246/out"
     >>> query["-out"] = ["RAJ2000", "DEJ2000", "2MASS", "Kmag"]

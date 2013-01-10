@@ -7,8 +7,9 @@ SIMBAD Queries (`astroquery.simbad`)
 Getting started
 ===============
 
-The following example illustrates a SIMBAD query::
+The following example illustrates a SIMBAD query.
 
+.. code-block:: python
     >>> from astroquery import simbad
     >>> r = simbad.QueryAroundId('m31', radius='0.5s').execute()
     >>> print r.table
