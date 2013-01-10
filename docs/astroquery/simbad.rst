@@ -10,7 +10,7 @@ Getting started
 The following example illustrates a SIMBAD query::
 
     >>> from astroquery import simbad
-    >>> r = simbad.QueryAroundId('m31', radius='0.5s')
+    >>> r = simbad.QueryAroundId('m31', radius='0.5s').execute()
     >>> print r.table
 
                MAIN_ID                 RA          DEC      RA_PREC DEC_PREC COO_ERR_MAJA COO_ERR_MINA COO_ERR_ANGLE COO_QUAL COO_WAVELENGTH     COO_BIBCODE    
