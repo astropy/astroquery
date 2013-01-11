@@ -25,8 +25,13 @@ install:
    - export PYTHONIOENCODING=UTF8 # just in case
    - pip install "numpy==$NUMPY_VERSION" --use-mirrors
    - pip -q install Cython --use-mirrors
-   - pip install atpy --use-mirrors
+   - pip install atpy --use-mirrors # for NED
    - pip install asciitable --use-mirrors
+   - pip install beautifulsoup4 --use-mirrors # for NIST
+   # astrolib is really hard to find via google...
+   - pip install http://stsdas.stsci.edu/astrolib/vo-0.8.tar.gz # for NED / atpy
+   - pip install http://stsdas.stsci.edu/astrolib/coords-0.37.tar.gz # for NRAO
+   - pip install http://cxc.harvard.edu/contrib/asciitable/downloads/asciitable.tar.gz # besancon 
    - pip install -e git+http://github.com/astropy/astropy.git#egg=astropy
 script: python setup.py test
 

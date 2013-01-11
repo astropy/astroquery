@@ -7,8 +7,9 @@ UKIDSS Queries (`astroquery.ukidss`)
 Getting started
 ===============
 
-The following example illustrates an UKIDSS catalog/image query::
+The following example illustrates an UKIDSS catalog/image query
 
+.. code-block:: python
     >>> from astroquery import ukidss
     >>> Q = ukidss.UKIDSSQuery()
     >>> fitsfile = Q.get_image_gal(10.5,0.0)
