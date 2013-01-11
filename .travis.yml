@@ -27,6 +27,7 @@ install:
    - pip -q install Cython --use-mirrors
    - pip install atpy --use-mirrors # for NED
    - pip install asciitable --use-mirrors
+   - pip install pytest --use-mirrors
    - pip install beautifulsoup4 --use-mirrors # for NIST
    # astrolib is really hard to find via google...
    - pip install http://stsdas.stsci.edu/astrolib/vo-0.8.tar.gz # for NED / atpy
