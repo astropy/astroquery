@@ -18,3 +18,5 @@ def test_simple():
     print(table1)
     print(table2)
 
+# get this error from Table(data,names)...
+# ValueError: masked should be one of True, False, None
