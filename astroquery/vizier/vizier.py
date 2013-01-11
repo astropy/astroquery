@@ -87,7 +87,7 @@ def vizquery(query, server="vizier.u-strasbg.fr"):
             # Table data come from the VOTABLE record array
             data = voTreeTable.array
             # Add Table to the list
-            tableList += [Table(data, names)] 
+            tableList += [Table(data=data, names=names)] 
     
     # Merge the Table list
     table = tableList[0]
