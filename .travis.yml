@@ -33,7 +33,7 @@ install:
    - pip install http://stsdas.stsci.edu/astrolib/vo-0.8.tar.gz # for NED / atpy
    - pip install http://stsdas.stsci.edu/astrolib/coords-0.37.tar.gz # for NRAO
    - pip install http://cxc.harvard.edu/contrib/asciitable/downloads/asciitable.tar.gz # besancon 
-   - pip install -e git+http://github.com/astropy/astropy.git#egg=astropy
+   - pip install https://github.com/astropy/astropy/archive/v0.2b1.tar.gz
    - pip install http://stsdas.stsci.edu/astrolib/vo-0.8.tar.gz
 script: python setup.py test
 
