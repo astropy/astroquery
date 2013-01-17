@@ -24,8 +24,8 @@ before_install:
 install:
    - export PYTHONIOENCODING=UTF8 # just in case
    - pip install "numpy==$NUMPY_VERSION" --use-mirrors
-   #- pip -q install Cython --use-mirrors
-   - pip install -e git+http://github.com/cython/cython.git
+   - pip -q install Cython --use-mirrors
+   #- pip install -e git+http://github.com/cython/cython.git
    - pip install atpy --use-mirrors # for NED
    - pip install asciitable --use-mirrors
    - pip install pytest --use-mirrors
