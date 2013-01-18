@@ -10,7 +10,7 @@ env:
     - NUMPY_VERSION=1.4.1
 
 matrix:
-    exclude:
+    exclude: 
         - python: 3.2
           env: NUMPY_VERSION=1.5.1
         - python: 3.2
