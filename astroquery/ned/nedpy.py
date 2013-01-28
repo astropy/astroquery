@@ -32,10 +32,7 @@ Note: two of the search functions described by Mazzarella et al. did not work as
     7.  query_ned_basic      - retrieve basic data for an NED object
     14. query_ned_references - retrieve reference data for an NED object
 
-Written by K. Willett, Jun 2011
-Added check_ned_valid function to validate the input from NED server. All query
-    routines except for allsky, nearpos, and refcode use this now. 
-    Additional error checks written into the remaining functions. - K. Willett, Jan 2013
+Originally written by K. Willett, Jun 2011
 
 """
 
@@ -95,6 +92,28 @@ def query_ned_by_objname(objname='M31',
 
     R = U.read()
     U.close()
+
+    """
+    There should be 91 columns in the Derived Values table, based on the headers. The data here are
+        cosmological values based on the redshift. 
+
+    For non-extragalactic objects, these are all blank; however, there seems to be an error in the
+        tables in that only 88 blank cells are supplied, instead of the required 91. This results
+        in an error when atpy.Table tries to parse the XML string. This crude kluge adds empty
+        cells to the table so it can be read properly. 
+    """
+
+    tid_derived = 3
+    tdparts = R.split('<TABLEDATA>',tid_derived+1)
+    if len(tdparts) > tid_derived+1:
+        tdind = len(R) - len(tdparts[-1]) - len('<TABLEDATA>')
+        rseg = R[tdind:tdind+R[tdind:].find('</TABLEDATA>')]
+        cellcount = rseg.count('TD')/2
+        if cellcount < 91:
+            nrepeats = 91 - cellcount
+            newseg = rseg[:-6] + '<TD></TD>'*nrepeats + rseg[-6:]
+            newR = R[:tdind] + newseg + R[tdind+R[tdind:].find('</TABLEDATA>'):]
+            R = newR
 
     # Check to see if NED returns a valid query
 
@@ -501,49 +520,6 @@ def query_ned_basic_posn(objname='M31',
 
         return None
 
-"""
-def query_ned_basic(objname='M31', 
-        root_url='http://nedwww.ipac.caltech.edu/cgi-bin/nph-objsearch'):
-
-    Retrieve basic data from NED for a particular target
-
-	** Deprecated - returns error of "two fields with same name"
-
-    keywords:
-    	objname - astronomical object to search for
-
-
-
-    # Create dictionary of search parameters, then parse into query URL
-    request_dict = {'extend':'no','of':'xml_basic','objname':objname}
-    query_url = "%s?%s" % (root_url,urllib.urlencode(request_dict))
-
-    # Retrieve handler object from NED
-    U = urllib2.urlopen(query_url)
-
-    # Write the data to a file, flush it to get the proper VO table format, and read it into an atpy table
-
-    R = U.read()
-    U.close()
-    # Check to see if NED returns a valid query
-
-    validtable = check_ned_valid(R)
-    
-    if validtable:
-        tf = tempfile.NamedTemporaryFile()
-        print >>tf,R
-        tf.file.flush()
-        t = atpy.Table(tf.name,type='vo',verbose=False)
-
-        # Return atpy table
-
-        return t
-
-    else:
-        return None
-
-"""
-
 def query_ned_external(objname='M31', 
         root_url='http://nedwww.ipac.caltech.edu/cgi-bin/nph-objsearch'):
     """
@@ -603,7 +579,6 @@ def query_ned_external(objname='M31',
         print ""
 
         return None
-
 
 def query_ned_allsky(ra_constraint='Unconstrained', ra_1='', ra_2='', 
 	dec_constraint='Unconstrained', dec_1='', dec_2='', 
@@ -742,7 +717,6 @@ def query_ned_allsky(ra_constraint='Unconstrained', ra_1='', ra_2='',
 
     return t
 
-
 def query_ned_photometry(objname='M31',
         root_url='http://nedwww.ipac.caltech.edu/cgi-bin/nph-datasearch'):
     """
@@ -812,7 +786,6 @@ def query_ned_photometry(objname='M31',
         print ""
 
         return None
-
 
 def query_ned_diameters(objname='M31',
         root_url='http://nedwww.ipac.caltech.edu/cgi-bin/nph-datasearch'):
@@ -917,7 +890,6 @@ def query_ned_diameters(objname='M31',
 
         return None
 
-
 def query_ned_redshifts(objname='M31',
         root_url='http://nedwww.ipac.caltech.edu/cgi-bin/nph-datasearch'):
     """
@@ -968,10 +940,25 @@ def query_ned_redshifts(objname='M31',
 
     R = U.read()
     U.close()
+
+    # Check to see if there is a valid redshift frame for this object
+
+    strdom = parseString(R)
+    p = strdom.getElementsByTagName('PARAM')
+    if len(p) > 1:
+        if 'value' in p[1].attributes.keys():
+            n = p[1].attributes['value']
+            errstr = n.value
+
+            if errstr == ' No redshift data frame found.':
+                print ""
+                print "No redshift data frame found for this object."
+                print ""
+                return None
+
     # Check to see if NED returns a valid query
 
     validtable = check_ned_valid(R)
-    
     if validtable:
         tf = tempfile.NamedTemporaryFile()
         print >>tf,R
@@ -996,43 +983,6 @@ def query_ned_redshifts(objname='M31',
 
         return None
 
-
-"""
-def query_ned_references(objname='M31',
-        root_url='http://nedwww.ipac.caltech.edu/cgi-bin/nph-datasearch'):
-	Query NED for references to a particular object.
-
-	Not currently working with NED; returns empty VOTable saying no reference found. - KW, Jun 2011
-
-    # Create dictionary of search parameters, then parse into query URL
-    request_dict = {'search_type':'Reference','of':'xml_main','objname':objname}
-    query_url = "%s?%s" % (root_url,urllib.urlencode(request_dict))
-
-    # Retrieve handler object from NED
-    U = urllib2.urlopen(query_url)
-
-    # Write the data to a file, flush it to get the proper VO table format, and read it into an atpy table
-
-    R = U.read()
-    U.close()
-    # Check to see if NED returns a valid query
-
-    validtable = check_ned_valid(R)
-    
-    if validtable:
-        tf = tempfile.NamedTemporaryFile()
-        print >>tf,R
-        tf.file.flush()
-        t = atpy.Table(tf.name,type='vo',verbose=False)
-
-        # Return atpy table
-
-        return t
-
-    else:
-        return None
-
-"""
 
 def query_ned_notes(objname='M31',
         root_url='http://nedwww.ipac.caltech.edu/cgi-bin/nph-datasearch'):
@@ -1063,10 +1013,25 @@ def query_ned_notes(objname='M31',
 
     R = U.read()
     U.close()
+
+    # Check to see if there is a note for this object
+
+    strdom = parseString(R)
+    p = strdom.getElementsByTagName('PARAM')
+    if len(p) > 1:
+        if 'value' in p[1].attributes.keys():
+            n = p[1].attributes['value']
+            errstr = n.value
+
+            if errstr == ' No note found.':
+                print ""
+                print "No note found for this object."
+                print ""
+                return None
+
     # Check to see if NED returns a valid query
 
     validtable = check_ned_valid(R)
-    
     if validtable:
         tf = tempfile.NamedTemporaryFile()
         print >>tf,R
@@ -1090,7 +1055,6 @@ def query_ned_notes(objname='M31',
         print ""
 
         return None
-
 
 def query_ned_position(objname='M31',
         root_url='http://nedwww.ipac.caltech.edu/cgi-bin/nph-datasearch'):
@@ -1166,7 +1130,6 @@ def query_ned_position(objname='M31',
         print ""
 
         return None
-
 
 def query_ned_nearpos(ra=0.000,dec=0.000,sr=2.0,
         root_url='http://nedwww.ipac.caltech.edu/cgi-bin/nph-objsearch'):
@@ -1244,3 +1207,80 @@ def query_ned_nearpos(ra=0.000,dec=0.000,sr=2.0,
 
         return None
 
+"""
+def query_ned_basic(objname='M31', 
+        root_url='http://nedwww.ipac.caltech.edu/cgi-bin/nph-objsearch'):
+
+    Retrieve basic data from NED for a particular target
+
+	** Deprecated - returns error of "two fields with same name"
+
+    keywords:
+    	objname - astronomical object to search for
+
+
+
+    # Create dictionary of search parameters, then parse into query URL
+    request_dict = {'extend':'no','of':'xml_basic','objname':objname}
+    query_url = "%s?%s" % (root_url,urllib.urlencode(request_dict))
+
+    # Retrieve handler object from NED
+    U = urllib2.urlopen(query_url)
+
+    # Write the data to a file, flush it to get the proper VO table format, and read it into an atpy table
+
+    R = U.read()
+    U.close()
+    # Check to see if NED returns a valid query
+
+    validtable = check_ned_valid(R)
+    
+    if validtable:
+        tf = tempfile.NamedTemporaryFile()
+        print >>tf,R
+        tf.file.flush()
+        t = atpy.Table(tf.name,type='vo',verbose=False)
+
+        # Return atpy table
+
+        return t
+
+    else:
+        return None
+"""
+
+"""
+def query_ned_references(objname='M31',
+        root_url='http://nedwww.ipac.caltech.edu/cgi-bin/nph-datasearch'):
+	Query NED for references to a particular object.
+
+	Not currently working with NED; returns empty VOTable saying no reference found. - KW, Jun 2011
+
+    # Create dictionary of search parameters, then parse into query URL
+    request_dict = {'search_type':'Reference','of':'xml_main','objname':objname}
+    query_url = "%s?%s" % (root_url,urllib.urlencode(request_dict))
+
+    # Retrieve handler object from NED
+    U = urllib2.urlopen(query_url)
+
+    # Write the data to a file, flush it to get the proper VO table format, and read it into an atpy table
+
+    R = U.read()
+    U.close()
+    # Check to see if NED returns a valid query
+
+    validtable = check_ned_valid(R)
+    
+    if validtable:
+        tf = tempfile.NamedTemporaryFile()
+        print >>tf,R
+        tf.file.flush()
+        t = atpy.Table(tf.name,type='vo',verbose=False)
+
+        # Return atpy table
+
+        return t
+
+    else:
+        return None
+"""
