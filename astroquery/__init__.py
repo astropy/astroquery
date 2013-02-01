@@ -1,5 +1,17 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
+#this indicates whether or not we are in the package's setup.py
+try:
+    _PACKAGE_SETUP_
+except NameError:
+    from sys import version_info
+    if version_info[0] >= 3:
+        import builtins
+    else:
+        import __builtin__ as builtins
+    builtins._PACKAGE_SETUP_ = False
+    del version_info
+
 try:
     from .version import version as __version__
 except ImportError:
@@ -83,3 +95,23 @@ def test(package=None, test_path=None, args=None, plugins=None,
         plugins=plugins, verbose=verbose, pastebin=pastebin,
         remote_data=remote_data, pep8=pep8, pdb=pdb,
         coverage=coverage, **kwargs)
+
+if not _PACKAGE_SETUP_:
+
+    import os
+    from warnings import warn
+    from astropy import config
+
+    # add these here so we only need to cleanup the namespace at the end
+    config_dir = e = None
+
+    if not os.environ.get('ASTROPY_SKIP_CONFIG_UPDATE', False):
+        config_dir = os.path.dirname(__file__)
+        try:
+            config.configuration.update_default_config(__package__, config_dir)
+        except config.configuration.ConfigurationDefaultMissingError as e:
+            wmsg = (e.args[0] + " Cannot install default profile. If you are "
+                    "importing from source, this is expected.")
+            warn(config.configuration.ConfigurationDefaultMissingWarning(wmsg))
+
+    del os, warn, config_dir, e  # clean up namespace
