@@ -2,37 +2,21 @@
 Splatalogue Catalog Query Tool
 -----------------------------------
 
-REQUIRES mechanize
+REQUIRES mechanize (and astropy)
 
 :Author: Magnus Vilehlm Persson (magnusp@vilhelm.nu)
 """
 
-#~ import cookielib
-#~ import urllib2
-#~ import urllib
-#~ import htmllib
-#~ import formatter
-#~ import gzip
-#~ import os
-#~ import astropy.io.fits as pyfits
-#~ from math import cos, radians
-#~ import multiprocessing as mp
-#~ import time
-#~ import StringIO
-#~ from astroquery.utils import progressbar
-
 
 SPLAT_FORM_URL = "http://www.cv.nrao.edu/php/splat/b.php"
 
-__all__ = ['search_splatalogue']
+__all__ = ['search']
 
 try:
     import mechanize
 except (ImportError):
     print "You need the \'mechanize\' module"
 
-# since it is suppose to be part of astropy
-# no need to check if it is installed
 from astropy.table import Table
 
 from scipy import array, where, arange
@@ -48,8 +32,8 @@ TODO : improve searchable parameters e.g. molecule ID,
 """
 
 
-def search_splatalogue(
-            freq = [203.4, 203.5],
+def search(
+            freq = [203.4, 203.42],
             fwidth = None,
             funit = 'GHz',
             linelist = ['lovas', 'slaim', 'jpl', 'cdms', 'toyama', 'osu', 'recomb', 'lisa', 'rfi'],
@@ -107,18 +91,43 @@ def search_splatalogue(
            Available formats : 'cdms_jpl', 'sijmu2', 'aij'
            Example: lill = [-5, 'cdms_jpl'] for 
            CDMS/JPL Intensity of 10^(-5)
-    
-    
-    Parameters
-    ----------
-    
+   
+   Extra parameters:
+   transition : search (just like on Splatalogue.net) for a specific 
+                transition, e.g., "1-0"
+   
     
     Returns
     -------
+    A astropy.table table, with column names, units and description.
     
     
     Notes
     -----
+    The naming of the columns in the results table, and the units is 
+    not complete. The names should be optimized and the units (at 
+    least some) should be taken from the input and/or results. 
+    So beware.
+    The column descriptions is not done either, so it is empty.
+    
+    It queries splatalogue.net over http (mechanize/urllib), so don't 
+    write a script that queries their server too often.
+    
+    Example
+    -------
+    In : from astroquery import splatalogue
+    In : results = splatalogue.search()
+    
+    and e.g.
+    
+    In : results['Freq-GHz'][results['Chemical Name'] == 'UNIDENTIFIED']
+    Out : <Column name='Freq-GHz' units='GHz?' format=None description=None> array([ 203.4127])
+    
+    to get the frequency of the unidentified line(s)
+    
+    (It will search between 203.4 and 203.42 GHz by default, giving
+    about 69 hits.)
+    
     
     
     """
