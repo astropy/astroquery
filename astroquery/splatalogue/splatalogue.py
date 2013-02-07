@@ -38,6 +38,15 @@ from astropy.table import Table
 from scipy import array, where, arange
 
 
+"""
+TODO : fix consistent naming (resultform vs result_table)
+TODO : improve the parsing, i.e., the astropy.table output
+TODO : create pretty printing for on screen results?
+TODO : improve searchable parameters e.g. molecule ID, 
+       frequency error limit
+
+"""
+
 
 def search_splatalogue(
             freq = [203.4, 203.5],
@@ -46,7 +55,7 @@ def search_splatalogue(
             linelist = ['lovas', 'slaim', 'jpl', 'cdms', 'toyama', 'osu', 'recomb', 'lisa', 'rfi'],
             efrom = None,
             eto = None,
-            etype = None,    # 'el_cm1', 'eu_cm1', 'el_k', 'eu_k'
+            eunit = None,    # 'el_cm1', 'eu_cm1', 'el_k', 'eu_k'
             transition = None,
             lill = None,    # line intensity lower limits, 'cdms_jpl', 'sijmu2', 'aij'
              **settings):
@@ -113,10 +122,53 @@ def search_splatalogue(
     
     
     """
-
+    # Get the form from the server
     form = _get_form()
+    # Frequency
+    form = _parse_frequency(form, freq, fwidth, funit)
+    # Molecular species
+    #Get species molecular number, ordered by mass
+    # PLACEHOLDER for future implementation
+    # get the avaliable species from the form
+    #~ sel_species = [i.attrs for i in form.find_control('sid[]').items]
+    form = _parse_molecular_species(form)
+    # Line list
+    form = _parse_linelist(form, linelist)
+    # Energy range
+    form = _parse_enrgy_range(form, efrom, eto, eunit)
+    # Specify transition
+    form = _parse_transition(form, settings)
+    # Line intensity lower limit
+    form = _parse_line_intensity(form, lill)
+    # Frequency error limit
+    form = _parse_frequency_error_limit(form)
+    # Other settings
+    form = _set_settings(form)
+    # Press search and get the result
+    data = _get_results(form)
+    # Parse the data into a astropy.table
+    results = _parse_result(data, output='astropy.table')
     
+    # at the moment just returns the results astropy.table
+    return results
+
+
+def _get_form():
+    # GET SERVER RESPONSE
+    try:
+        response = mechanize.urlopen(SPLAT_FORM_URL)
+    except mechanize.URLError, e:
+        raise Exception('No reponse from server : {0}'.format(splatalogue_url))
     
+    # PARSE SERVER RESPONSE
+    forms = mechanize.ParseResponse(response, backwards_compat = False)
+    response.close()
+    
+    # GET FORM
+    form = forms[0]
+    return form
+
+def _parse_frequency(form, freq, fwidth, funit):
     #### FREQUENCY
     # Two casees:
     #   1. A list with length two
@@ -133,9 +185,9 @@ def search_splatalogue(
         # If not a list, should be a float, and fwidth given
         try:
             freq = float(freq)
-        except (ValueError)
+        except (ValueError):
             raise (Exception, 'Wrong format for frequency. Need list or float')
-        if dfreq not in [0, 0.0, None]:
+        if fwidth not in [0, 0.0, None]:
             # with freq and fwidth given, we can calculate start and end
             f1, f2 = freq + array([-1,1]) * fwidth / 2.
             form['from'] = str(f1)
@@ -154,71 +206,13 @@ def search_splatalogue(
     elif not funit in [0, None]:
         funit = 'GHz'
         form['frequency_units'] = ['GHz']
-        
-        
-    ####################################################################
-    ####################################################################
-    ####################################################################
-    # OLD, copy from below and change above to better code
-    if arg.has_key('freq'):
-        if type(arg['freq']) == type([1,2]):
-            if len(arg['freq']) == 1:
-                raise ParError(arg['freq'])
-            f1, f2 = arg['freq']
-            form['from'] = str(f1)
-            form['to'] = str(f2)
-        elif type(arg['freq']) == type(1) or type(arg['freq']) == type(1.):
-            if type(arg['freq']) == type(1):
-                arg['freq'] = float(arg['freq'])
-            if not arg.has_key('dfreq'):
-                print 'Please either give a frequency interval (freq=[f1,f2])\n\
-                OR a center frequency and a bandwidth (freq=f, dfreq=df)'
-                raise ParError('freq='+str(arg['freq'])+' and dfreq=None')
-            elif arg.has_key('dfreq'):
-                f1, f2 = arg['freq']+array([-1,1])*arg['dfreq']/2.
-            else:
-                raise ParError(arg['dfreq'])
-            form['from'] = str(f1)
-            form['to'] = str(f2)
-    elif not arg.has_key('freq') and arg.has_key('dfreq'):
-        print 'Only delta-frequency (dfreq) given, no frequency to look for'
-        raise ParError('freq=None and dfreq='+str(arg['dfreq']))
-    elif not arg.has_key('freq') and not arg.has_key('dfreq') and len(arg.keys()) != 0:
-        # no frequency given, but other parameters
-        #tmp = str(raw_input('No frequency limits given, continue? Press Enter to continue, Ctrl+C to abort.'))
-        f1 = ''
-        f2 = ''
-    else:
-        # if no frequency is given, just run example
-        # this is not visible when running from outside python
-        # check "if __main__ ..." part
-        print stylify('Example run... setting f1,f2 = 203.406, 203.409 GHz',fg='m')
-        form['from'] = '203.406'
-        form['to'] = '203.409'
-    #
-    #### FREQUENCY UNIT
-    #
-    if arg.has_key('funit'):
-        if arg['funit'].lower() in ['ghz', 'mhz']:
-            form['frequency_units'] = [arg['funit']]
-        else:
-            print 'Allowed frequency units : \'GHz\' or \'MHz\''
-    elif not arg.has_key('funit'):
-        arg['funit'] = 'GHz'
-        form['frequency_units'] = ['GHz']
-    #
-    #### MOLECULAR SPECIES
-    #
-    #Get species molecular number, ordered by mass
-    # TODO : perhaps be able to search in this one
-    #        either by mass or by species, text of chem formula
-    # TODO : after getting it, should sort the list of dictionaries
-    #        clean it up a bit
-    # get the avaliable species from the form
-    #~ sel_species = [i.attrs for i in form.find_control('sid[]').items]
-    #
+    return form
+
+def _parse_molecular_species(form):
+    return form
+    
+def _parse_linelist(form, linelist):
     #### LINE LIST
-    #
     # define a reference list of names
     mylinelist = ['lovas', 'slaim', 'jpl', 'cdms', 'toyama', 'osu', \
     'recomb', 'lisa', 'rfi']
@@ -226,88 +220,93 @@ def search_splatalogue(
     formcontrol_linelist = ["displayLovas", "displaySLAIM", \
     "displayJPL", "displayCDMS", "displayToyaMA", "displayOSU", \
     "displayRecomb", "displayLisa", "displayRFI"]
-    if arg.has_key('linelist'):
-        if type(arg['linelist'])==type('string'):
-            # if linelist is given as linelist='all'
-            if arg['linelist'].lower() == 'all':
-                # if we want to set all, just copy mylinelist
-                arg['linelist'] = mylinelist
-            else:
-                print 'Linelist input not understood'
-                raise ParError(arg['linelist'])
-        elif type(arg['linelist'])==type(['list']):
-            # get all values to lower case, to accept capitals
-            arg['linelist'] = [x.lower() for x in arg['linelist']]
+    if type(linelist) == type('string'):
+        # if linelist is given as linelist='all'
+        if linelist.lower() == 'all':
+            # if we want to set all, just copy mylinelist
+            linelist = mylinelist
         else:
             print 'Linelist input not understood'
-            raise ParError(arg['linelist'])
+            raise Exception('bad input : \'linelist\'')
+    elif type(linelist) == type(['list']):
+        # get all values to lower case, to accept capitals
+        linelist = [x.lower() for x in linelist]
     else:
-        # if none given, search with all
-        arg['linelist'] = mylinelist
+        raise Exception('something is wrong with the linelist input/parsing')
 
     # now set the linelist search form
     # check for every linelist, if it exists in the input linelist
     for i,j in zip(mylinelist, formcontrol_linelist):
-        if i in arg['linelist']:
+        if i in linelist:
             form.find_control(j).get().selected = True
         else:
             form.find_control(j).get().selected = False
-    # ['Lovas', 'SLAIM', 'JPL', 'CDMS', 'ToyaMA', 'OSU', \
-    #'Recomb', 'Lisa', 'RFI']
-    # Figure out prettier printing here...
-    #    web-adresses?
-    #
+
+    return form
+
+def _parse_enrgy_range(form, efrom, eto, eunit):
     ### Energy Range
-    #
     # form['energy_range_from/to'] is a text field in the form
     # while it is called e_from/to in the function
-    #
-    if arg.has_key('e_from') or arg.has_key('e_to'):
-        e_type_ref = ['el_cm1', 'eu_cm1', 'el_k', 'eu_k']
+    
+    if efrom == None and eto == None and eunit != None:
+        print 'You gave the Enery range type keyword, but no energy range...'
+        raise Exception('energy range keywords malformed')
+    #~ if (efrom not None) or (eto not None):
+    eunit_ref = ['el_cm1', 'eu_cm1', 'el_k', 'eu_k']
         # check that unit is given, and correct
         # or set default (eu_k)
+    # set efrom if supplied
+    if efrom != None:
+        form['energy_rangefrom'] = str(efrom)
+    # set eto if supplied
+    if eto != None:
+        form['energy_rangeto'] = str(eto)
+    # check if eunit is given, and tick the corresponding radio
+    # button, if none then assume Kelvin
+    if eunit != None: #arg.has_key('efrom') or arg.has_key('eto'):
+        if eunit.lower() in eunit_ref:
+            pass
+        else:
+            print 'Energy range unit keyword \'eunit\' malformed.'
+            raise Exception('eunit keyword malformed')
+        eunit_default = 0
+    else:
+       # no value, assuming its in Kelvin (i.e. Eu/kb)
+       eunit_default = 1
+       eunit = 'eu_k'
+    # now set the eunit radio button
+    form.find_control('energy_range_type').toggle(eunit.lower())   
+    return form
 
-        if arg.has_key('e_from'):
-            form['energy_range_from'] = str(arg['e_from'])
-        if arg.has_key('e_to'):
-            form['energy_range_to'] = str(arg['e_to'])
-        if arg.has_key('e_from') or arg.has_key('e_to'):
-            if arg.has_key('e_type'):
-                if arg['e_type'].lower() in e_type_ref:
-                    pass
-                else:
-                    print 'Energy range type keyword \'e_type\' malformed.'
-                    raise ParError(arg['e_type'])
-                e_type_default = 0
-            else:
-                e_type_default = 1
-                arg['e_type'] = 'eu_k'
-            # now set the radio button to the correct value
-            form.find_control('energy_range_type').toggle(arg['e_type'].lower())
-        if not arg.has_key('e_from') and not arg.has_key('e_to') and arg.has_key('e_type'):
-            print 'You gave the Enery range type keyword, but no energy range...'
-            raise ParError(arg['e_type'])
-    #
+def  _parse_transition(form, arg):
     ### Specify Transition
     #
     if arg.has_key('transition'):
         form['tran'] = str(arg['transition'])
-    #
-    ### Line Intensity Lower Limits
-    if arg.has_key('lill'):
-        if arg['lill'][1].lower() == 'cdms_jpl':
-            form.find_control('lill_cdms_jpl').disabled = False
-            form['lill_cdms_jpl'] = str(arg['lill'][0])
-        elif arg['lill'][1].lower() == 'sijmu2':
-            form.find_control('lill_sijmu2').disabled = False
-            form['lill_sijmu2'] = str(arg['lill'][0])
-        elif arg['lill'][1].lower() == 'aij':
-            form.find_control('lill_aij').disabled = False
-            form['lill_aij'] = str(arg['lill'][0])
-    #
-    ### FREQUENCY ERROR LIMIT
-    #
+    return form
 
+def _parse_line_intensity(form, lill):
+    ### Line Intensity Lower Limits
+    if lill != None:
+        if lill[1].lower() == 'cdms_jpl':
+            form.find_control('lill_cdms_jpl').disabled = False
+            form['lill_cdms_jpl'] = str(lill[0])
+        elif lill[1].lower() == 'sijmu2':
+            form.find_control('lill_sijmu2').disabled = False
+            form['lill_sijmu2'] = str(lill[0])
+        elif lill[1].lower() == 'aij':
+            form.find_control('lill_aij').disabled = False
+            form['lill_aij'] = str(lill[0])
+    return form
+
+def _parse_frequency_error_limit(form):
+    return form
+
+def _set_settings(form):
+    # these settings are so that everything will be displayed in the 
+    # table then we get everything, and the user can choose AFTER if 
+    # they want it or not
     #### Line Strength Display
     form.find_control("ls1").get().selected = True
     form.find_control("ls2").get().selected = True
@@ -324,69 +323,76 @@ def search_splatalogue(
     form.find_control("show_upper_degeneracy").get().selected = True
     form.find_control("show_molecule_tag").get().selected = True
     form.find_control("show_qn_code").get().selected = True
-    
-
-    return None
-
-
-def _get_form():
-    # GET SERVER RESPONSE
-    try:
-        response = mechanize.urlopen(SPLAT_FORM_URL)
-    except mechanize.URLError, e:
-        raise Exception('No reponse from server : {0}'.format(splatalogue_url))
-    
-    # PARSE SERVER RESPONSE
-    forms = mechanize.ParseResponse(response, backwards_compat = False)
-    response.close()
-    
-    # GET FORM
-    form = forms[0]
     return form
 
+def _get_results(form, dbg = False):
+    # click the form
+    clicked_form = form.click()
+    # then get the results page
+    result = mechanize.urlopen(clicked_form)
 
-def _parse_input_form(form):
-    # PARSE INPUT AND FILL IN FORM
+    #### EXPORTING RESULTS FILE
+    # so what I do is that I fetch the first results page,
+    # click the form/link to get all hits as a colon separated
+    # ascii table file
+    
+    # get the form
+    resultform = mechanize.ParseResponse(result, backwards_compat=False)
+    result.close()
+    resultform = resultform[0]
+    # set colon as dilimeter of the table (could use anything I guess)
+    #~ resultform.find_control('export_delimiter').items[1].selected =  True
+    resultform.find_control('export_delimiter').toggle('colon')
+    resultform_clicked = resultform.click()
+    result_table = mechanize.urlopen(resultform_clicked)
+    data = result_table.read()
+    result_table.close()
+    if dbg:
+        return resultform, result_table, data
+    else:
+        return data
 
-    return None
+def _parse_result(data, output='astropy.table'):
+    """
+    Only one output type at the moment    
+    """
+    if output == 'astropy.table':
+        # get each line (i.e. each molecule)
+        rows = data.split('\n')
+        # get the names of the columns
+        column_names = rows[0]
+        column_names = column_names.split(':')
+        
+        for i in arange(len(column_names)):
+            column_names[i] = column_names[i].replace('<br>', ' ')
+            column_names[i] = column_names[i].replace('<sub>', '_')
+            column_names[i] = column_names[i].replace('<sup>', '^')
+            column_names[i] = column_names[i].replace('</sup>', '')
+            column_names[i] = column_names[i].replace('</sub>', '')
+            column_names[i] = column_names[i].replace('&#956;', 'mu')
+            column_names[i] = column_names[i].replace('sid[0] is null', '')
+        rows = rows[1:-1]
+        rows = [i.split(':') for i in rows]
+        rows = array(rows)
+        rows[rows == ''] = 'nan'
+        
+        #~ columns = rows.transpose()
 
+        column_dtypes = ['str', 'str', 'float', 'float', 'float' , 'float' ,
+                        'str', 'str', 'float',
+                        'float', 'float', 'float', 'str', 'float', 'float',
+                        'float', 'float', 'float', 'float','float','str']
+        column_units = [None, None, 'GHz?', 'GHz?', 'GHz?', 'GHz?', None, 
+                        None, '?', 'Debye^2', '?', 'log10(Aij)', '?', 
+                        'cm^-1', 'K', 'cm^-1', 'K', None, None, None, None]
+        
+        #~ results = Table(names = column_names, dtypes = column_dtypes)
+        #~ 
+        results = Table(data = rows , 
+                        names = column_names, 
+                        dtypes = column_dtypes)
+        
+        for i in arange(len(column_units)):
+            results.field(i).units = column_units[i]
+        return results
 
-
-
-# Get/Parse form
-# Fill in form
-# Submit form
-# Get/Parse results
-# Return results in a given structure (astrpy.table.Table?)
-
-
-
-
-
-
-"""
-from astro import table as _table
-
-_table.Table()
-
-Parameters
-----------
-data : numpy ndarray, dict, list, or Table, optional
-    Data to initialize table.
-names : list, optional
-    Specify column names
-dtypes : list, optional
-    Specify column data types
-meta : dict, optional
-    Metadata associated with the table
-copy : boolean, optional
-    Copy the input data (default=True).
-Constructor information:
- Definition:table.Table(self, data=None, names=None, dtypes=None, meta=None, copy=True)
-
-for example:
-
-t = table.Table(data=array([['line1',10],['line2',40]]), names=['name', 'value'], dtypes=['str', 'float'])
-
-
-"""
