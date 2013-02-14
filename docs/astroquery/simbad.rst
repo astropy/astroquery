@@ -22,6 +22,16 @@ The following example illustrates a SIMBAD query.
     [BFS98] J004244.362+411607.20 00 42 44.362 +41 16 07.20       7        7          nan          nan             0        D                1998ApJ...504..113B
     [BFS98] J004244.303+411607.14 00 42 44.303 +41 16 07.14       7        7          nan          nan             0        D                1998ApJ...504..113B
 
+Multi-query example:
+
+.. code-block:: python
+    >>> from astroquery import simbad
+    >>> targets = ['m31','m51','omc1','notatarget']
+    >>> queries = [simbad.QueryId(x) for x in targets]
+    >>> result = simbad.QueryMulti(queries).execute()
+    >>> print result.table
+
+
 Reference/API
 =============
 
