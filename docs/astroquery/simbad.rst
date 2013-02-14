@@ -28,7 +28,7 @@ Multi-query example:
     >>> from astroquery import simbad
     >>> targets = ['m31','m51','omc1','notatarget']
     >>> queries = [simbad.QueryId(x) for x in targets]
-    >>> result = simbad.QueryMulti(queries).execute()
+    >>> result = simbad.QueryMulti(queries).execute(mirror='harvard')
     >>> print result.table
 
      MAIN_ID        RA          DEC      RA_PREC DEC_PREC COO_ERR_MAJA COO_ERR_MINA COO_ERR_ANGLE COO_QUAL COO_WAVELENGTH     COO_BIBCODE    
