@@ -36,7 +36,8 @@ install:
    #- pip install -e git+http://github.com/astropy/astropy.git@v0.2.x#egg=astropy
    #- pip install -e git+http://github.com/astropy/astropy.git#egg=astropy
    # taldcroft's fix for rows - pip install -e git+http://github.com/taldcroft/astropy.git@table-add-masked-row#egg=astropy
-   - pip install git+git://github.com/eteq/astropy.git@6324bf0#egg=astropy # eteq's fix for configs
+   #- pip install git+git://github.com/eteq/astropy.git@6324bf0#egg=astropy # eteq's fix for configs
+   - pip install -i http://stsdas.stsci.edu/download/packages/index astropy==0.2rc1 
    #- touch /home/travis/virtualenv/python2.7/src/astropy/astropy/config/astropy.cfg # HACK until @eteq fixes
    - pip install http://stsdas.stsci.edu/astrolib/vo-0.8.tar.gz
 script: python setup.py test
