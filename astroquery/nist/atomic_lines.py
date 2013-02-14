@@ -5,7 +5,6 @@ try:
     import astropy.io.ascii as asciitable
 except ImportError:
     import asciitable
-import bs4
 import numpy as np
 
 url_lines = "http://physics.nist.gov/cgi-bin/ASD/lines1.pl"
@@ -111,6 +110,7 @@ class NISTAtomicLinesQuery(object):
         >>> Q.query_line_html('H I',4000,7000,wavelength_unit='A',energy_level_unit='eV')
         """
 
+        import bs4
 
 
         unit_code = {'A':0,'angstrom':0,
