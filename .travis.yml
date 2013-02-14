@@ -10,7 +10,7 @@ env:
     - NUMPY_VERSION=1.4.1
 
 matrix:
-    exclude:
+    exclude: 
         - python: 3.2
           env: NUMPY_VERSION=1.5.1
         - python: 3.2
@@ -27,11 +27,18 @@ install:
    - pip -q install Cython --use-mirrors
    - pip install atpy --use-mirrors # for NED
    - pip install asciitable --use-mirrors
+   - pip install pytest --use-mirrors
    - pip install beautifulsoup4 --use-mirrors # for NIST
    # astrolib is really hard to find via google...
    - pip install http://stsdas.stsci.edu/astrolib/vo-0.8.tar.gz # for NED / atpy
    - pip install http://stsdas.stsci.edu/astrolib/coords-0.37.tar.gz # for NRAO
    - pip install http://cxc.harvard.edu/contrib/asciitable/downloads/asciitable.tar.gz # besancon 
-   - pip install -e git+http://github.com/astropy/astropy.git#egg=astropy
+   #- pip install -e git+http://github.com/astropy/astropy.git@v0.2.x#egg=astropy
+   #- pip install -e git+http://github.com/astropy/astropy.git#egg=astropy
+   # taldcroft's fix for rows - pip install -e git+http://github.com/taldcroft/astropy.git@table-add-masked-row#egg=astropy
+   #- pip install git+git://github.com/eteq/astropy.git@6324bf0#egg=astropy # eteq's fix for configs
+   - pip install -i http://stsdas.stsci.edu/download/packages/index astropy==0.2rc1 
+   #- touch /home/travis/virtualenv/python2.7/src/astropy/astropy/config/astropy.cfg # HACK until @eteq fixes
+   - pip install http://stsdas.stsci.edu/astrolib/vo-0.8.tar.gz
 script: python setup.py test
 
