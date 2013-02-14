@@ -17,7 +17,7 @@ __all__ = ['QueryId',
 
 
 class _Query(object):
-    def execute(self, votabledef=None, limit=None, pedantic=False):
+    def execute(self, votabledef=None, limit=None, pedantic=False, mirror='strasbourg'):
         """ Execute the query, returning a :class:`SimbadResult` object.
 
         Parameters
@@ -35,7 +35,7 @@ class _Query(object):
         """
 
         return execute_query(self, votabledef=votabledef, limit=limit,
-                                                            pedantic=pedantic)
+                pedantic=pedantic, mirror=mirror)
 
 
 @ValidatedAttribute('wildcard', _ScriptParameterWildcard)
@@ -289,7 +289,7 @@ class QueryMulti(_Query):
         return repr(self.queries)
 
 
-def execute_query(query, votabledef, limit, pedantic):
+def execute_query(query, votabledef, limit, pedantic, mirror='strasbourg'):
     limit2 = _ScriptParameterRowLimit(limit)
 
     if votabledef is None:
@@ -314,8 +314,8 @@ def execute_query(query, votabledef, limit, pedantic):
     script += votabledef.close_str
     script = urllib.quote(script)
 
-    from . import baseurl
-    req_str = baseurl + script
+    from . import mirrors
+    req_str = mirrors[mirror] + script
     response = urllib2.urlopen(req_str)
     result = b''.join(response.readlines())
     result = result.decode('utf-8')
