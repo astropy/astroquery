@@ -68,6 +68,27 @@ class QueryId(_Query):
                             repr(self.identifier), repr(self.wildcard.value))
 
 
+#class QueryBasic(_Query):
+#    """ Basic Query
+#
+#    Parameters
+#    ----------
+#    anything : string
+#        The identifier, coordinate, or bibcode to search for
+#    """
+#
+#    __command = 'query basic '
+#
+#    def __init__(self, qstring):
+#        self.Ident = qstring
+#
+#    def __str__(self):
+#        return self.__command + str(self.Ident) + '\n'
+#
+#    def __repr__(self):
+#        return '{%s(Ident=%s)}' % (self.__class__.__name__,
+#                            repr(self.Ident))
+
 @ValidatedAttribute('radius', _ScriptParameterRadius)
 class QueryAroundId(_Query):
     """ Query around identifier.
@@ -212,7 +233,6 @@ class QueryBibobj(_Query):
 @ValidatedAttribute('equinox', _ScriptParameterEquinox)
 class QueryMulti(_Query):
     __command_ids = ('radius', 'frame', 'epoch', 'equinox')
-    __queries = []
 
     def __init__(self, queries=None, radius=None, frame=None, epoch=None,
                                                                 equinox=None):
@@ -243,17 +263,22 @@ class QueryMulti(_Query):
                     Individual queries may override these.
         """
 
+        self.queries = []
         self.radius = radius
         self.frame = frame
         self.epoch = epoch
         self.equinox = equinox
         if queries is not None:
-            if isinstance(queries, _Query) and \
-                                        not isinstance(queries, QueryMulti):
+            if (isinstance(queries, _Query) and not isinstance(queries,
+                    QueryMulti)):
                 self.queries.append(queries)
             elif iter(queries):
                 for query in queries:
-                    self.queries.append(query)
+                    if isinstance(query,_Query):
+                        self.queries.append(query)
+                    else:
+                        raise ValueError("Queries must be simbad.Query instances")
+                        #self.queries.append(BasicQuery(query))
             elif isinstance(queries, QueryMulti):
                 for query in queries.queries:
                     self.queries.append(query)
@@ -270,10 +295,6 @@ class QueryMulti(_Query):
         for comm in self.__commands:
             s += 'set %s %s\n' % (comm, str(getattr(self, comm)))
         return s
-
-    @property
-    def queries(self):
-        return self.__queries
 
     @property
     def __queries_string(self):
