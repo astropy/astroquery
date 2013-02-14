@@ -1,47 +1,67 @@
 """
 Module containing a series of functions that execute queries to the NASA Extragalactic Database (NED): 
 
-	query_ned_by_objname()		- return one of several data tables based on object name 
-	query_ned_nearname()		- return data on objects within a specified angular 
-						distance to a target
-	query_ned_near_iauname()	- return data on objects within a specified angular 
-						distance to a target (IAU naming convention)
-	query_ned_by_refcode()		- return data on objects cited in a given reference
-	query_ned_names()		- return multi-wavelength cross-IDs of a given target
-	query_ned_basic_posn()		- return basic position information on a given target
-	query_ned_external()		- return external web references to other databases 
-						for a given target
-	query_ned_allsky()		- return data for all-sky search criteria constraining 
-						redshift, position, fluxes, object type, survey
-	query_ned_photometry()		- return photometry for data on a given target
-	query_ned_diameters()		- return angular diameter data for a given target
-	query_ned_redshifts()		- return redshift data for a given target
-	query_ned_notes()		- return detailed notes on a given target
-	query_ned_position()		- return multi-wavelength position information on a 
-						given target
-	query_ned_nearpos()		- return data on objects on a cone search around given
-						position
+    query_ned_by_objname()   - return one of several data tables based on object name 
+    query_ned_nearname()     - return data on objects within a specified angular 
+                                  distance to a target
+    query_ned_near_iauname() - return data on objects within a specified angular 
+                                  distance to a target (IAU naming convention)
+    query_ned_by_refcode()   - return data on objects cited in a given reference
+    query_ned_names()        - return multi-wavelength cross-IDs of a given target
+    query_ned_basic_posn()   - return basic position information on a given target
+    query_ned_external()     - return external web references to other databases 
+    					          for a given target
+    query_ned_allsky()       - return data for all-sky search criteria constraining 
+                                  redshift, position, fluxes, object type, survey
+    query_ned_photometry()   - return photometry for data on a given target
+    query_ned_diameters()    - return angular diameter data for a given target
+    query_ned_redshifts()    - return redshift data for a given target
+    query_ned_notes()        - return detailed notes on a given target
+    query_ned_position()     - return multi-wavelength position information on a 
+    					          given target
+    query_ned_nearpos()      - return data on objects on a cone search around given
+						          position
 
 Based off Adam Ginsburg's Splatalogue search routine: 
-	http://code.google.com/p/agpy/source/browse/trunk/agpy/query_splatalogue.py
+    http://code.google.com/p/agpy/source/browse/trunk/agpy/query_splatalogue.py
 Service URLs to acquire the VO Tables are taken from Mazzarella et al. (2007) 
-	in The National Virtual Observatory: Tools and Techniques for Astronomical Research, 
-	ASP Conference Series, Vol. 382., p.165
+    in The National Virtual Observatory: Tools and Techniques for Astronomical Research, 
+    ASP Conference Series, Vol. 382., p.165
 
 Note: two of the search functions described by Mazzarella et al. did not work as of June 2011:
-	7.  query_ned_basic 		- retrieve basic data for an NED object
-	14. query_ned_references	- retrieve reference data for an NED object
+    7.  query_ned_basic      - retrieve basic data for an NED object
+    14. query_ned_references - retrieve reference data for an NED object
 
-Written by K. Willett, Jun 2011
+Originally written by K. Willett, Jun 2011
+
 """
 
 import atpy
 import urllib,urllib2
 import tempfile
+from xml.dom.minidom import parseString
+
+def check_ned_valid(str):
+
+    # Routine assumes input is valid Table unless error parameter is found. 
+    retval = True
+
+    strdom = parseString(str)
+    p = strdom.getElementsByTagName('PARAM')
+
+    if len(p) > 1:
+        if 'name' in p[1].attributes.keys():
+            n = p[1].attributes['name']
+            errstr = n.value
+
+            if errstr == 'Error':
+                retval = False
+
+    return retval
 
 def query_ned_by_objname(objname='M31',
-        root_url='http://nedwww.ipac.caltech.edu/cgi-bin/nph-objsearch',
-	tid=0):
+                         root_url='http://nedwww.ipac.caltech.edu/cgi-bin/nph-objsearch',
+                         TID=0):
     """
     Acquire an atpy table of NED basic data for a celestial object
 
@@ -72,14 +92,56 @@ def query_ned_by_objname(objname='M31',
 
     R = U.read()
     U.close()
-    tf = tempfile.NamedTemporaryFile()
-    print >>tf,R
-    tf.file.flush()
-    t = atpy.Table(tf.name,type='vo',tid=tid,verbose=False)
 
-    # Return atpy table
+    """
+    There should be 91 columns in the Derived Values table, based on the headers. The data here are
+        cosmological values based on the redshift. 
 
-    return t
+    For non-extragalactic objects, these are all blank; however, there seems to be an error in the
+        tables in that only 88 blank cells are supplied, instead of the required 91. This results
+        in an error when atpy.Table tries to parse the XML string. This crude kluge adds empty
+        cells to the table so it can be read properly. 
+    """
+
+    tid_derived = 3
+    tdparts = R.split('<TABLEDATA>',tid_derived+1)
+    if len(tdparts) > tid_derived+1:
+        tdind = len(R) - len(tdparts[-1]) - len('<TABLEDATA>')
+        rseg = R[tdind:tdind+R[tdind:].find('</TABLEDATA>')]
+        cellcount = rseg.count('TD')/2
+        if cellcount < 91:
+            nrepeats = 91 - cellcount
+            newseg = rseg[:-6] + '<TD></TD>'*nrepeats + rseg[-6:]
+            newR = R[:tdind] + newseg + R[tdind+R[tdind:].find('</TABLEDATA>'):]
+            R = newR
+
+    # Check to see if NED returns a valid query
+
+    validtable = check_ned_valid(R)
+    
+    if validtable:
+        tf = tempfile.NamedTemporaryFile()
+        print >>tf,R
+        tf.file.flush()
+        t = atpy.Table(tf.name,type='vo',tid=TID,verbose=False)
+
+        # Return atpy table
+
+        return t
+
+    else:
+        print ""
+        print "The object name that you submitted is not currently recognized"
+        print "by the NED name interpreter."
+        print ""
+        print "In general, naming conventions employ a prefix (usually an"
+        print "acronym for the first author(s) or the survey name) followed"
+        print "by a numerical string based on a tabular sequence or a position"
+        print "on the sky. For more specifics, see the document at"
+        print "http://vizier.u-strasbg.fr/Dic/iau-spec.htx"
+        print ""
+
+        return None
 
 def query_ned_nearname(objname='M31',radius=2.0,
         root_url='http://nedwww.ipac.caltech.edu/cgi-bin/nph-objsearch'):
@@ -128,14 +190,33 @@ def query_ned_nearname(objname='M31',radius=2.0,
 
     R = U.read()
     U.close()
-    tf = tempfile.NamedTemporaryFile()
-    print >>tf,R
-    tf.file.flush()
-    t = atpy.Table(tf.name,type='vo',verbose=False)
+    # Check to see if NED returns a valid query
 
-    # Return atpy table
+    validtable = check_ned_valid(R)
+    
+    if validtable:
+        tf = tempfile.NamedTemporaryFile()
+        print >>tf,R
+        tf.file.flush()
+        t = atpy.Table(tf.name,type='vo',verbose=False)
 
-    return t
+        # Return atpy table
+
+        return t
+
+    else:
+        print ""
+        print "The object name that you submitted is not currently recognized"
+        print "by the NED name interpreter."
+        print ""
+        print "In general, naming conventions employ a prefix (usually an"
+        print "acronym for the first author(s) or the survey name) followed"
+        print "by a numerical string based on a tabular sequence or a position"
+        print "on the sky. For more specifics, see the document at"
+        print "http://vizier.u-strasbg.fr/Dic/iau-spec.htx"
+        print ""
+
+        return None
 
 def query_ned_near_iauname(iauname='1234-423',radius=2.0,
         root_url='http://nedwww.ipac.caltech.edu/cgi-bin/nph-objsearch'):
@@ -184,14 +265,37 @@ def query_ned_near_iauname(iauname='1234-423',radius=2.0,
 
     R = U.read()
     U.close()
-    tf = tempfile.NamedTemporaryFile()
-    print >>tf,R
-    tf.file.flush()
-    t = atpy.Table(tf.name,type='vo',verbose=False)
+    # Check to see if NED returns a valid query
 
-    # Return atpy table
+    validtable = check_ned_valid(R)
+    
+    if validtable:
+        tf = tempfile.NamedTemporaryFile()
+        print >>tf,R
+        tf.file.flush()
+        t = atpy.Table(tf.name,type='vo',verbose=False)
 
-    return t
+        # Return atpy table
+
+        return t
+
+    else:
+        print ""
+        print "The object name that you submitted is not currently recognized"
+        print "by the NED name interpreter."
+        print ""
+    	print "This function requires an IAU coordinate-based name of the target on which search is centered."
+        print "Example: query_ned_near_iauname(iauname = '1234-423')"
+        print "The definition of IAU coordinates is found at http://cdsweb.u-strasbg.fr/Dic/iau-spec.html"
+        print ""
+        print "In general, naming conventions employ a prefix (usually an"
+        print "acronym for the first author(s) or the survey name) followed"
+        print "by a numerical string based on a tabular sequence or a position"
+        print "on the sky. For more specifics, see the document at"
+        print "http://vizier.u-strasbg.fr/Dic/iau-spec.htx"
+        print ""
+
+        return None
 
 def query_ned_by_refcode(refcode='2011ApJS..193...18W',
         root_url='http://nedwww.ipac.caltech.edu/cgi-bin/nph-objsearch'):
@@ -239,6 +343,22 @@ def query_ned_by_refcode(refcode='2011ApJS..193...18W',
 
     R = U.read()
     U.close()
+    # Check to see if NED returns a valid query
+
+    try:
+       parseString(R)
+    except:
+        print ""
+        print "The refcode that you submitted was not recognized by the NED interpreter."
+        print ""
+        print "refcode: %s" % refcode
+        print ""
+    	print "A valid refcode is a 19-digit string for a unique journal article."
+        print "Example: 2011ApJS..193...18W is the refcode for Willett et al. (2011), ApJS, 193, 18"
+        print ""
+        
+        return None
+
     tf = tempfile.NamedTemporaryFile()
     print >>tf,R
     tf.file.flush()
@@ -279,14 +399,33 @@ def query_ned_names(objname='M31',
 
     R = U.read()
     U.close()
-    tf = tempfile.NamedTemporaryFile()
-    print >>tf,R
-    tf.file.flush()
-    t = atpy.Table(tf.name,type='vo',verbose=False)
+    # Check to see if NED returns a valid query
 
-    # Return atpy table
+    validtable = check_ned_valid(R)
+    
+    if validtable:
+        tf = tempfile.NamedTemporaryFile()
+        print >>tf,R
+        tf.file.flush()
+        t = atpy.Table(tf.name,type='vo',verbose=False)
 
-    return t
+        # Return atpy table
+
+        return t
+
+    else:
+        print ""
+        print "The object name that you submitted is not currently recognized"
+        print "by the NED name interpreter."
+        print ""
+        print "In general, naming conventions employ a prefix (usually an"
+        print "acronym for the first author(s) or the survey name) followed"
+        print "by a numerical string based on a tabular sequence or a position"
+        print "on the sky. For more specifics, see the document at"
+        print "http://vizier.u-strasbg.fr/Dic/iau-spec.htx"
+        print ""
+
+        return None
 
 def query_ned_basic_posn(objname='M31', 
         root_url='http://nedwww.ipac.caltech.edu/cgi-bin/nph-objsearch'):
@@ -352,48 +491,34 @@ def query_ned_basic_posn(objname='M31',
 
     R = U.read()
     U.close()
-    tf = tempfile.NamedTemporaryFile()
-    print >>tf,R
-    tf.file.flush()
-    t = atpy.Table(tf.name,type='vo',verbose=False)
 
-    # Return atpy table
+    # Check to see if NED returns a valid query
 
-    return t
+    validtable = check_ned_valid(R)
+    
+    if validtable:
+        tf = tempfile.NamedTemporaryFile()
+        print >>tf,R
+        tf.file.flush()
+        t = atpy.Table(tf.name,type='vo',verbose=False)
 
-"""
-def query_ned_basic(objname='M31', 
-        root_url='http://nedwww.ipac.caltech.edu/cgi-bin/nph-objsearch'):
+        # Return atpy table
 
-    Retrieve basic data from NED for a particular target
+        return t
 
-	** Deprecated - returns error of "two fields with same name"
+    else:
+        print ""
+        print "The object name that you submitted is not currently recognized"
+        print "by the NED name interpreter."
+        print ""
+        print "In general, naming conventions employ a prefix (usually an"
+        print "acronym for the first author(s) or the survey name) followed"
+        print "by a numerical string based on a tabular sequence or a position"
+        print "on the sky. For more specifics, see the document at"
+        print "http://vizier.u-strasbg.fr/Dic/iau-spec.htx"
+        print ""
 
-    keywords:
-    	objname - astronomical object to search for
-
-
-
-    # Create dictionary of search parameters, then parse into query URL
-    request_dict = {'extend':'no','of':'xml_basic','objname':objname}
-    query_url = "%s?%s" % (root_url,urllib.urlencode(request_dict))
-
-    # Retrieve handler object from NED
-    U = urllib2.urlopen(query_url)
-
-    # Write the data to a file, flush it to get the proper VO table format, and read it into an atpy table
-
-    R = U.read()
-    U.close()
-    tf = tempfile.NamedTemporaryFile()
-    print >>tf,R
-    tf.file.flush()
-    t = atpy.Table(tf.name,type='vo',verbose=False)
-
-    # Return atpy table
-
-    return t
-"""
+        return None
 
 def query_ned_external(objname='M31', 
         root_url='http://nedwww.ipac.caltech.edu/cgi-bin/nph-objsearch'):
@@ -427,14 +552,33 @@ def query_ned_external(objname='M31',
 
     R = U.read()
     U.close()
-    tf = tempfile.NamedTemporaryFile()
-    print >>tf,R
-    tf.file.flush()
-    t = atpy.Table(tf.name,type='vo',verbose=False)
+    # Check to see if NED returns a valid query
 
-    # Return atpy table
+    validtable = check_ned_valid(R)
+    
+    if validtable:
+        tf = tempfile.NamedTemporaryFile()
+        print >>tf,R
+        tf.file.flush()
+        t = atpy.Table(tf.name,type='vo',verbose=False)
 
-    return t
+        # Return atpy table
+
+        return t
+
+    else:
+        print ""
+        print "The object name that you submitted is not currently recognized"
+        print "by the NED name interpreter."
+        print ""
+        print "In general, naming conventions employ a prefix (usually an"
+        print "acronym for the first author(s) or the survey name) followed"
+        print "by a numerical string based on a tabular sequence or a position"
+        print "on the sky. For more specifics, see the document at"
+        print "http://vizier.u-strasbg.fr/Dic/iau-spec.htx"
+        print ""
+
+        return None
 
 def query_ned_allsky(ra_constraint='Unconstrained', ra_1='', ra_2='', 
 	dec_constraint='Unconstrained', dec_1='', dec_2='', 
@@ -543,10 +687,6 @@ def query_ned_allsky(ra_constraint='Unconstrained', ra_1='', ra_2='',
     if name_prefix4 is not None: request_dict['name_prefix4']=name_prefix4
     query_url = "%s?%s" % (root_url,urllib.urlencode(request_dict,doseq=1))
 
-    print ""
-    print request_dict
-    print query_url
-    print ""
     # Retrieve handler object from NED
     U = urllib2.urlopen(query_url)
 
@@ -554,6 +694,20 @@ def query_ned_allsky(ra_constraint='Unconstrained', ra_1='', ra_2='',
 
     R = U.read()
     U.close()
+
+    try:
+       parseString(R)
+    except:
+        print ""
+        print "The constraints that you submitted were not recognized by the NED interpreter."
+        print ""
+        print "constraints: %s" % request_dict
+        print ""
+        print "See the header of this function for permitted formats for constraints."
+        print ""
+        
+        return None
+
     tf = tempfile.NamedTemporaryFile()
     print >>tf,R
     tf.file.flush()
@@ -605,14 +759,33 @@ def query_ned_photometry(objname='M31',
 
     R = U.read()
     U.close()
-    tf = tempfile.NamedTemporaryFile()
-    print >>tf,R
-    tf.file.flush()
-    t = atpy.Table(tf.name,type='vo',verbose=False)
+    # Check to see if NED returns a valid query
 
-    # Return atpy table
+    validtable = check_ned_valid(R)
+    
+    if validtable:
+        tf = tempfile.NamedTemporaryFile()
+        print >>tf,R
+        tf.file.flush()
+        t = atpy.Table(tf.name,type='vo',verbose=False)
 
-    return t
+        # Return atpy table
+
+        return t
+
+    else:
+        print ""
+        print "The object name that you submitted is not currently recognized"
+        print "by the NED name interpreter."
+        print ""
+        print "In general, naming conventions employ a prefix (usually an"
+        print "acronym for the first author(s) or the survey name) followed"
+        print "by a numerical string based on a tabular sequence or a position"
+        print "on the sky. For more specifics, see the document at"
+        print "http://vizier.u-strasbg.fr/Dic/iau-spec.htx"
+        print ""
+
+        return None
 
 def query_ned_diameters(objname='M31',
         root_url='http://nedwww.ipac.caltech.edu/cgi-bin/nph-datasearch'):
@@ -689,14 +862,33 @@ def query_ned_diameters(objname='M31',
 
     R = U.read()
     U.close()
-    tf = tempfile.NamedTemporaryFile()
-    print >>tf,R
-    tf.file.flush()
-    t = atpy.Table(tf.name,type='vo',verbose=False)
+    # Check to see if NED returns a valid query
 
-    # Return atpy table
+    validtable = check_ned_valid(R)
+    
+    if validtable:
+        tf = tempfile.NamedTemporaryFile()
+        print >>tf,R
+        tf.file.flush()
+        t = atpy.Table(tf.name,type='vo',verbose=False)
 
-    return t
+        # Return atpy table
+
+        return t
+
+    else:
+        print ""
+        print "The object name that you submitted is not currently recognized"
+        print "by the NED name interpreter."
+        print ""
+        print "In general, naming conventions employ a prefix (usually an"
+        print "acronym for the first author(s) or the survey name) followed"
+        print "by a numerical string based on a tabular sequence or a position"
+        print "on the sky. For more specifics, see the document at"
+        print "http://vizier.u-strasbg.fr/Dic/iau-spec.htx"
+        print ""
+
+        return None
 
 def query_ned_redshifts(objname='M31',
         root_url='http://nedwww.ipac.caltech.edu/cgi-bin/nph-datasearch'):
@@ -748,42 +940,49 @@ def query_ned_redshifts(objname='M31',
 
     R = U.read()
     U.close()
-    tf = tempfile.NamedTemporaryFile()
-    print >>tf,R
-    tf.file.flush()
-    t = atpy.Table(tf.name,type='vo',verbose=False)
 
-    # Return atpy table
+    # Check to see if there is a valid redshift frame for this object
 
-    return t
+    strdom = parseString(R)
+    p = strdom.getElementsByTagName('PARAM')
+    if len(p) > 1:
+        if 'value' in p[1].attributes.keys():
+            n = p[1].attributes['value']
+            errstr = n.value
 
-"""
-def query_ned_references(objname='M31',
-        root_url='http://nedwww.ipac.caltech.edu/cgi-bin/nph-datasearch'):
-	Query NED for references to a particular object.
+            if errstr == ' No redshift data frame found.':
+                print ""
+                print "No redshift data frame found for this object."
+                print ""
+                return None
 
-	Not currently working with NED; returns empty VOTable saying no reference found. - KW, Jun 2011
+    # Check to see if NED returns a valid query
 
-    # Create dictionary of search parameters, then parse into query URL
-    request_dict = {'search_type':'Reference','of':'xml_main','objname':objname}
-    query_url = "%s?%s" % (root_url,urllib.urlencode(request_dict))
+    validtable = check_ned_valid(R)
+    if validtable:
+        tf = tempfile.NamedTemporaryFile()
+        print >>tf,R
+        tf.file.flush()
+        t = atpy.Table(tf.name,type='vo',verbose=False)
 
-    # Retrieve handler object from NED
-    U = urllib2.urlopen(query_url)
+        # Return atpy table
 
-    # Write the data to a file, flush it to get the proper VO table format, and read it into an atpy table
+        return t
 
-    R = U.read()
-    U.close()
-    tf = tempfile.NamedTemporaryFile()
-    print >>tf,R
-    tf.file.flush()
-    t = atpy.Table(tf.name,type='vo',verbose=False)
+    else:
+        print ""
+        print "The object name that you submitted is not currently recognized"
+        print "by the NED name interpreter."
+        print ""
+        print "In general, naming conventions employ a prefix (usually an"
+        print "acronym for the first author(s) or the survey name) followed"
+        print "by a numerical string based on a tabular sequence or a position"
+        print "on the sky. For more specifics, see the document at"
+        print "http://vizier.u-strasbg.fr/Dic/iau-spec.htx"
+        print ""
 
-    # Return atpy table
+        return None
 
-    return t
-"""
 
 def query_ned_notes(objname='M31',
         root_url='http://nedwww.ipac.caltech.edu/cgi-bin/nph-datasearch'):
@@ -814,14 +1013,48 @@ def query_ned_notes(objname='M31',
 
     R = U.read()
     U.close()
-    tf = tempfile.NamedTemporaryFile()
-    print >>tf,R
-    tf.file.flush()
-    t = atpy.Table(tf.name,type='vo',verbose=False)
 
-    # Return atpy table
+    # Check to see if there is a note for this object
 
-    return t
+    strdom = parseString(R)
+    p = strdom.getElementsByTagName('PARAM')
+    if len(p) > 1:
+        if 'value' in p[1].attributes.keys():
+            n = p[1].attributes['value']
+            errstr = n.value
+
+            if errstr == ' No note found.':
+                print ""
+                print "No note found for this object."
+                print ""
+                return None
+
+    # Check to see if NED returns a valid query
+
+    validtable = check_ned_valid(R)
+    if validtable:
+        tf = tempfile.NamedTemporaryFile()
+        print >>tf,R
+        tf.file.flush()
+        t = atpy.Table(tf.name,type='vo',verbose=False)
+
+        # Return atpy table
+
+        return t
+
+    else:
+        print ""
+        print "The object name that you submitted is not currently recognized"
+        print "by the NED name interpreter."
+        print ""
+        print "In general, naming conventions employ a prefix (usually an"
+        print "acronym for the first author(s) or the survey name) followed"
+        print "by a numerical string based on a tabular sequence or a position"
+        print "on the sky. For more specifics, see the document at"
+        print "http://vizier.u-strasbg.fr/Dic/iau-spec.htx"
+        print ""
+
+        return None
 
 def query_ned_position(objname='M31',
         root_url='http://nedwww.ipac.caltech.edu/cgi-bin/nph-datasearch'):
@@ -870,14 +1103,33 @@ def query_ned_position(objname='M31',
 
     R = U.read()
     U.close()
-    tf = tempfile.NamedTemporaryFile()
-    print >>tf,R
-    tf.file.flush()
-    t = atpy.Table(tf.name,type='vo',verbose=False)
+    # Check to see if NED returns a valid query
 
-    # Return atpy table
+    validtable = check_ned_valid(R)
+    
+    if validtable:
+        tf = tempfile.NamedTemporaryFile()
+        print >>tf,R
+        tf.file.flush()
+        t = atpy.Table(tf.name,type='vo',verbose=False)
 
-    return t
+        # Return atpy table
+
+        return t
+
+    else:
+        print ""
+        print "The object name that you submitted is not currently recognized"
+        print "by the NED name interpreter."
+        print ""
+        print "In general, naming conventions employ a prefix (usually an"
+        print "acronym for the first author(s) or the survey name) followed"
+        print "by a numerical string based on a tabular sequence or a position"
+        print "on the sky. For more specifics, see the document at"
+        print "http://vizier.u-strasbg.fr/Dic/iau-spec.htx"
+        print ""
+
+        return None
 
 def query_ned_nearpos(ra=0.000,dec=0.000,sr=2.0,
         root_url='http://nedwww.ipac.caltech.edu/cgi-bin/nph-objsearch'):
@@ -917,6 +1169,8 @@ def query_ned_nearpos(ra=0.000,dec=0.000,sr=2.0,
     
     """
 
+    assert type(sr) in (int,float), \
+        "Search radius must be either a float or an integer"
     sr_deg = sr / 60.
 
     # Create dictionary of search parameters, then parse into query URL
@@ -930,12 +1184,103 @@ def query_ned_nearpos(ra=0.000,dec=0.000,sr=2.0,
 
     R = U.read()
     U.close()
-    tf = tempfile.NamedTemporaryFile()
-    print >>tf,R
-    tf.file.flush()
-    t = atpy.Table(tf.name,type='vo',verbose=False)
 
-    # Return atpy table
+    # Check to see if NED returns a valid query
 
-    return t
+    validtable = check_ned_valid(R)
+    
+    if validtable:
+        tf = tempfile.NamedTemporaryFile()
+        print >>tf,R
+        tf.file.flush()
+        t = atpy.Table(tf.name,type='vo',verbose=False)
 
+        # Return atpy table
+
+        return t
+
+    else:
+        print ""
+        print "No objects found within %f arcmin of position RA = %f, dec = %f" % (sr,ra,dec)
+        print "by NED. Try either changing the position or using a larger search radius."
+        print ""
+
+        return None
+
+"""
+def query_ned_basic(objname='M31', 
+        root_url='http://nedwww.ipac.caltech.edu/cgi-bin/nph-objsearch'):
+
+    Retrieve basic data from NED for a particular target
+
+	** Deprecated - returns error of "two fields with same name"
+
+    keywords:
+    	objname - astronomical object to search for
+
+
+
+    # Create dictionary of search parameters, then parse into query URL
+    request_dict = {'extend':'no','of':'xml_basic','objname':objname}
+    query_url = "%s?%s" % (root_url,urllib.urlencode(request_dict))
+
+    # Retrieve handler object from NED
+    U = urllib2.urlopen(query_url)
+
+    # Write the data to a file, flush it to get the proper VO table format, and read it into an atpy table
+
+    R = U.read()
+    U.close()
+    # Check to see if NED returns a valid query
+
+    validtable = check_ned_valid(R)
+    
+    if validtable:
+        tf = tempfile.NamedTemporaryFile()
+        print >>tf,R
+        tf.file.flush()
+        t = atpy.Table(tf.name,type='vo',verbose=False)
+
+        # Return atpy table
+
+        return t
+
+    else:
+        return None
+"""
+
+"""
+def query_ned_references(objname='M31',
+        root_url='http://nedwww.ipac.caltech.edu/cgi-bin/nph-datasearch'):
+	Query NED for references to a particular object.
+
+	Not currently working with NED; returns empty VOTable saying no reference found. - KW, Jun 2011
+
+    # Create dictionary of search parameters, then parse into query URL
+    request_dict = {'search_type':'Reference','of':'xml_main','objname':objname}
+    query_url = "%s?%s" % (root_url,urllib.urlencode(request_dict))
+
+    # Retrieve handler object from NED
+    U = urllib2.urlopen(query_url)
+
+    # Write the data to a file, flush it to get the proper VO table format, and read it into an atpy table
+
+    R = U.read()
+    U.close()
+    # Check to see if NED returns a valid query
+
+    validtable = check_ned_valid(R)
+    
+    if validtable:
+        tf = tempfile.NamedTemporaryFile()
+        print >>tf,R
+        tf.file.flush()
+        t = atpy.Table(tf.name,type='vo',verbose=False)
+
+        # Return atpy table
+
+        return t
+
+    else:
+        return None
+"""
