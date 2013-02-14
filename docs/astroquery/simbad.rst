@@ -31,6 +31,13 @@ Multi-query example:
     >>> result = simbad.QueryMulti(queries).execute()
     >>> print result.table
 
+     MAIN_ID        RA          DEC      RA_PREC DEC_PREC COO_ERR_MAJA COO_ERR_MINA COO_ERR_ANGLE COO_QUAL COO_WAVELENGTH     COO_BIBCODE    
+    ---------- ------------ ------------ ------- -------- ------------ ------------ ------------- -------- -------------- -------------------
+         M  31 00 42 44.330 +41 16 07.50       7        7           --           --             0        B              I 2006AJ....131.1163S
+         M  51 13 29 52.698 +47 11 42.93       7        7           --           --             0        B              I 2006AJ....131.1163S
+    NAME OMC-1     05 35 14     -05 22.4       4        4      18000.0      18000.0           175        E                             
+ 
+
 
 Reference/API
 =============
