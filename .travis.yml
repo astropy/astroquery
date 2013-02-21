@@ -3,7 +3,7 @@ language: python
 python:
     - 2.7
     - 2.6
-    - 3.2
+#    - 3.2
 env:
     - NUMPY_VERSION=1.6.2
     - NUMPY_VERSION=1.5.1
