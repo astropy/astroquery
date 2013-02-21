@@ -7,7 +7,7 @@ python:
 env:
     - NUMPY_VERSION=1.6.2
     - NUMPY_VERSION=1.5.1
-    - NUMPY_VERSION=1.4.1
+#    - NUMPY_VERSION=1.4.1
 
 matrix:
     exclude:
