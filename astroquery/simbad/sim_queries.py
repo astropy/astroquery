@@ -17,7 +17,7 @@ __all__ = ['QueryId',
 
 
 class _Query(object):
-    def execute(self, votabledef=None, limit=None, pedantic=False):
+    def execute(self, votabledef=None, limit=None, pedantic=False, mirror='strasbourg'):
         """ Execute the query, returning a :class:`SimbadResult` object.
 
         Parameters
@@ -35,7 +35,7 @@ class _Query(object):
         """
 
         return execute_query(self, votabledef=votabledef, limit=limit,
-                                                            pedantic=pedantic)
+                pedantic=pedantic, mirror=mirror)
 
 
 @ValidatedAttribute('wildcard', _ScriptParameterWildcard)
@@ -67,6 +67,27 @@ class QueryId(_Query):
         return '{%s(identifier=%s, wildcard=%s)}' % (self.__class__.__name__,
                             repr(self.identifier), repr(self.wildcard.value))
 
+
+#class QueryBasic(_Query):
+#    """ Basic Query
+#
+#    Parameters
+#    ----------
+#    anything : string
+#        The identifier, coordinate, or bibcode to search for
+#    """
+#
+#    __command = 'query basic '
+#
+#    def __init__(self, qstring):
+#        self.Ident = qstring
+#
+#    def __str__(self):
+#        return self.__command + str(self.Ident) + '\n'
+#
+#    def __repr__(self):
+#        return '{%s(Ident=%s)}' % (self.__class__.__name__,
+#                            repr(self.Ident))
 
 @ValidatedAttribute('radius', _ScriptParameterRadius)
 class QueryAroundId(_Query):
@@ -212,7 +233,6 @@ class QueryBibobj(_Query):
 @ValidatedAttribute('equinox', _ScriptParameterEquinox)
 class QueryMulti(_Query):
     __command_ids = ('radius', 'frame', 'epoch', 'equinox')
-    __queries = []
 
     def __init__(self, queries=None, radius=None, frame=None, epoch=None,
                                                                 equinox=None):
@@ -243,17 +263,22 @@ class QueryMulti(_Query):
                     Individual queries may override these.
         """
 
+        self.queries = []
         self.radius = radius
         self.frame = frame
         self.epoch = epoch
         self.equinox = equinox
         if queries is not None:
-            if isinstance(queries, _Query) and \
-                                        not isinstance(queries, QueryMulti):
+            if (isinstance(queries, _Query) and not isinstance(queries,
+                    QueryMulti)):
                 self.queries.append(queries)
             elif iter(queries):
                 for query in queries:
-                    self.queries.append(query)
+                    if isinstance(query,_Query):
+                        self.queries.append(query)
+                    else:
+                        raise ValueError("Queries must be simbad.Query instances")
+                        #self.queries.append(BasicQuery(query))
             elif isinstance(queries, QueryMulti):
                 for query in queries.queries:
                     self.queries.append(query)
@@ -272,10 +297,6 @@ class QueryMulti(_Query):
         return s
 
     @property
-    def queries(self):
-        return self.__queries
-
-    @property
     def __queries_string(self):
         s = ''
         for query in self.queries:
@@ -289,7 +310,7 @@ class QueryMulti(_Query):
         return repr(self.queries)
 
 
-def execute_query(query, votabledef, limit, pedantic):
+def execute_query(query, votabledef, limit, pedantic, mirror='strasbourg'):
     limit2 = _ScriptParameterRowLimit(limit)
 
     if votabledef is None:
@@ -314,8 +335,8 @@ def execute_query(query, votabledef, limit, pedantic):
     script += votabledef.close_str
     script = urllib.quote(script)
 
-    from . import baseurl
-    req_str = baseurl + script
+    from . import mirrors
+    req_str = mirrors[mirror] + script
     response = urllib2.urlopen(req_str)
     result = b''.join(response.readlines())
     result = result.decode('utf-8')
