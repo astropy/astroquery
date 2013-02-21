@@ -1,4 +1,5 @@
 import astroquery.irsa
+import distutils.version as dv
 import pytest
 
 @pytest.mark.skipif(dv.StrictVersion(np.__version__) <= dv.StrictVersion("1.4.1"))
