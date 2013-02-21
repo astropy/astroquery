@@ -1,4 +1,5 @@
 import astroquery.irsa
+import numpy as np
 import distutils.version as dv
 import pytest
 
