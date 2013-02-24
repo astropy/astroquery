@@ -175,7 +175,7 @@ class UKIDSSQuery():
             directory = self.directory
 
         # Retrieve page
-        page = self.opener.open(url_getcatalog + urllib.urlencode(self.request))
+        page = self.opener.open(self.query_str)
         with aud.get_readable_fileobj(page) as f:
             results = f.read()
 
@@ -318,7 +318,7 @@ class UKIDSSQuery():
         self.query_str = url_getimages + urllib.urlencode(self.request)
 
         # Retrieve page
-        page = self.opener.open(url_getcatalog + urllib.urlencode(self.request))
+        page = self.opener.open(self.query_str)
         with aud.get_readable_fileobj(page) as f:
             results = f.read()
 
@@ -417,7 +417,7 @@ class UKIDSSQuery():
             directory = self.directory
 
         # Retrieve page
-        page = self.opener.open(url_getcatalog + urllib.urlencode(self.request))
+        page = self.opener.open(self.query_str)
         if verbose:
             print "Loading page..."
             results = progressbar.chunk_read(page, report_hook=progressbar.chunk_report)
@@ -524,7 +524,7 @@ class UKIDSSQuery():
             directory = self.directory
 
         # Retrieve page
-        page = self.opener.open(url_getcatalog + urllib.urlencode(self.request))
+        page = self.opener.open(self.query_str)
         with aud.get_readable_fileobj(page) as f:
             results = f.read()
 
