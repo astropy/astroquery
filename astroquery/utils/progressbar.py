@@ -18,7 +18,7 @@ def chunk_report(bytes_so_far, chunk_size, total_size):
   
 
 def chunk_read(response, chunk_size=1024, report_hook=None):
-    content_length = response.info().getheader('Content-Length')
+    content_length = response.info().get('Content-Length')
     if content_length is None:
         total_size = 0
     else:
@@ -27,7 +27,7 @@ def chunk_read(response, chunk_size=1024, report_hook=None):
 
     bytes_so_far = 0
   
-    result_string = ""
+    result_string = b""
 
     #sys.stdout.write("Beginning download.\n")
   
