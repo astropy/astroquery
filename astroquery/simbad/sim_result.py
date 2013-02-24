@@ -6,10 +6,9 @@ from collections import namedtuple
 import warnings
 
 try:
-    from astropy.io.vo.table import parse
+    import astropy.io.vo.table as votable
 except ImportError:
-    from astropy.io.votable import parse
-from astropy.table import Table
+    import astropy.io.votable as votable
 
 __all__ = ['SimbadResult',
             ]
@@ -110,8 +109,8 @@ class SimbadResult(object):
             self.__file = tempfile.NamedTemporaryFile()
             self.__file.write(self.data.encode('utf-8'))
             self.__file.flush()
-            array = parse(self.__file,
+            array = votable.parse(self.__file,
                             pedantic=self.__pedantic).get_first_table().array
-            self.__table = Table(array)
+            self.__table = array.to_table()
         return self.__table
 

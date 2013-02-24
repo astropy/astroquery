@@ -9,9 +9,9 @@ from xml.etree.ElementTree import ElementTree
 
 from astropy.table import Table
 try:
-    from astropy.io.vo.table import parse
+    import astropy.io.vo.table as votable
 except ImportError:
-    from astropy.io.votable import parse
+    import astropy.io.votable as votable
 
 '''
 
@@ -356,7 +356,7 @@ def _query_gator(options, debug=False):
 
     # Read it in using the astropy VO table reader
     try:
-        firsttable = parse(output.name, pedantic=False).get_first_table()
+        firsttable = votable.parse(output.name, pedantic=False).get_first_table()
         array = firsttable.array
     except Exception as ex:
         print("Failed to parse votable!  Returning output file instead.")
@@ -364,7 +364,7 @@ def _query_gator(options, debug=False):
         return open(output.name,'r')
 
     # Convert to astropy.table.Table instance
-    table = Table(array)
+    table = array.to_table()
 
     # Check if table is empty
     if len(table) == 0:
