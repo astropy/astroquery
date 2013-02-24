@@ -11,6 +11,7 @@ The following example illustrates an Besancon catalog/image query.  The API desc
 relevant keyword arguments (of which there are many) 
 
 .. code-block:: python
+
     >>> from astroquery import besancon
     >>> # besancon_model = besancon.request_besancon('your@email.net',10.5,0.0)
     >>> import astropy.io.ascii as asciitable
@@ -21,6 +22,7 @@ relevant keyword arguments (of which there are many)
 A successful run should look something like this
 
 .. code-block:: python
+
     >>> besancon_model = request_besancon('your@email.net',10.5,0.0)
 
     Waiting 30s for model to finish (elapsed wait time 30s, total 32)

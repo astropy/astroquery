@@ -15,6 +15,7 @@ __all__ = ['QueryId',
             'QueryMulti',
             ]
 
+import astropy.utils.data as aud
 
 class _Query(object):
     def execute(self, votabledef=None, limit=None, pedantic=False, mirror='strasbourg'):
@@ -340,7 +341,6 @@ def execute_query(query, votabledef, limit, pedantic, mirror='strasbourg'):
     response = urllib2.urlopen(req_str)
     result = b''.join(response.readlines())
     result = result.decode('utf-8')
-    response.close()
     if not result:
         raise TypeError
     return SimbadResult(result, pedantic=pedantic)
