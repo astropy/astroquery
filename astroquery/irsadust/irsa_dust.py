@@ -20,6 +20,7 @@ import types
 import time
 import warnings
 import io
+import sys
 
 __all__ = ["DustResults", "SingleDustResult", "query"]
 
@@ -465,7 +466,11 @@ class SingleDustResult(object):
         """
         table_url = self._ext_section.table_url
         response = utils.ext_detail_table(table_url)
-        table = Table.read(response, format="ipac")
+        if sys.version_info > (3, 0):
+            read_response = response.read().decode("utf-8")
+        else:
+            read_response = response.read()
+        table = Table.read(read_response, format="ipac")
         return table
 
     def image(self, section):
