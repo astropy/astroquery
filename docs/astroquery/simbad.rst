@@ -10,6 +10,7 @@ Getting started
 The following example illustrates a SIMBAD query.
 
 .. code-block:: python
+
     >>> from astroquery import simbad
     >>> r = simbad.QueryAroundId('m31', radius='0.5s').execute()
     >>> print r.table
@@ -25,6 +26,7 @@ The following example illustrates a SIMBAD query.
 Multi-query example:
 
 .. code-block:: python
+
     >>> from astroquery import simbad
     >>> targets = ['m31','m51','omc1','notatarget']
     >>> queries = [simbad.QueryId(x) for x in targets]

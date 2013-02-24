@@ -10,6 +10,7 @@ Getting started
 The following example illustrates an NRAO VLA archive image query
 
 .. code-block:: python
+
     >>> from astroquery import nrao
     >>> fitsfiles = nrao.get_nrao_image(10.5,0.0)
 
