@@ -42,7 +42,7 @@ class LinksExtractor(htmllib.HTMLParser):  # derive new HTML parser
 url_login      = "http://surveys.roe.ac.uk:8080/wsa/DBLogin"
 url_getimage   = "http://surveys.roe.ac.uk:8080/wsa/GetImage"
 url_getimages  = "http://surveys.roe.ac.uk:8080/wsa/ImageList"
-url_getcatalog = "http://surveys.roe.ac.uk:8080/wsa/WSASQL?"
+url_getcatalog = "http://surveys.roe.ac.uk:8080/wsa/WSASQL"
 
 frame_types = ['stack', 'normal', 'interleave', 'deep%stack', 'confidence',
     'difference', 'leavstack', 'all']
@@ -169,13 +169,13 @@ class UKIDSSQuery():
         self.request['obsType']     = 'object'
         self.request['frameType']   = frametype
         self.request['mfid']        = ''
-        self.query_str = url_getimage + urllib.urlencode(self.request)
+        self.query_str = url_getimage +"?"+ urllib.urlencode(self.request)
 
         if directory is None:
             directory = self.directory
 
         # Retrieve page
-        page = self.opener.open(self.query_str)
+        page = self.opener.open(url_getimage, urllib.urlencode(self.request))
         with aud.get_readable_fileobj(page) as f:
             results = f.read()
 
@@ -315,10 +315,10 @@ class UKIDSSQuery():
         self.request['fsid'] = ''
 
         self.request['rows'] = 1000
-        self.query_str = url_getimages + urllib.urlencode(self.request)
+        self.query_str = url_getimages +"?"+ urllib.urlencode(self.request)
 
         # Retrieve page
-        page = self.opener.open(self.query_str)
+        page = self.opener.open(url_getimages, urllib.urlencode(self.request))
         with aud.get_readable_fileobj(page) as f:
             results = f.read()
 
@@ -411,13 +411,13 @@ class UKIDSSQuery():
         self.request['rows'] = 1
         self.request['select'] = '*'
         self.request['where'] = ''
-        self.query_str = url_getcatalog + urllib.urlencode(self.request)
+        self.query_str = url_getcatalog +"?"+ urllib.urlencode(self.request)
 
         if directory is None:
             directory = self.directory
 
         # Retrieve page
-        page = self.opener.open(self.query_str)
+        page = self.opener.open(url_getcatalog, urllib.urlencode(self.request))
         if verbose:
             print "Loading page..."
             results = progressbar.chunk_read(page, report_hook=progressbar.chunk_report)
@@ -518,13 +518,13 @@ class UKIDSSQuery():
         self.request['rows'] = 1
         self.request['select'] = '*'
         self.request['where'] = ''
-        self.query_str = url_getcatalog + urllib.urlencode(self.request)
+        self.query_str = url_getcatalog +"?"+ urllib.urlencode(self.request)
 
         if directory is None:
             directory = self.directory
 
         # Retrieve page
-        page = self.opener.open(self.query_str)
+        page = self.opener.open(url_getcatalog, urllib.urlencode(self.request))
         with aud.get_readable_fileobj(page) as f:
             results = f.read()
 
