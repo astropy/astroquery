@@ -8,6 +8,7 @@ import urllib
 from astropy.io import fits
 import StringIO
 from astroquery.utils import progressbar
+import astropy.utils.data as aud
 
 url_gpscutout  = "http://third.ucllnl.org/cgi-bin/gpscutout"
 
@@ -85,7 +86,8 @@ def get_magpis_image_gal(glon, glat, survey='bolocam', size=1.0,
     # load the URL as text
     U = urllib.urlopen(url_gpscutout, request)
     # read results with progressbar
-    results = progressbar.chunk_read(U, report_hook=progressbar.chunk_report)
+    with aud.get_readable_fileobj(U) as f:
+        results = f.read()
     # turn the text into a StringIO object for FITS reading
     S = StringIO.StringIO(results)
     fitsfile = fits.open(S)

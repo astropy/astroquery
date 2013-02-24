@@ -18,6 +18,7 @@ import multiprocessing as mp
 import time
 import StringIO
 from astroquery.utils import progressbar
+import astropy.utils.data as aud
 
 __all__ = ['UKIDSSQuery','clean_catalog','ukidss_programs_short','ukidss_programs_long']
 
@@ -41,7 +42,7 @@ class LinksExtractor(htmllib.HTMLParser):  # derive new HTML parser
 url_login      = "http://surveys.roe.ac.uk:8080/wsa/DBLogin"
 url_getimage   = "http://surveys.roe.ac.uk:8080/wsa/GetImage"
 url_getimages  = "http://surveys.roe.ac.uk:8080/wsa/ImageList"
-url_getcatalog = "http://surveys.roe.ac.uk:8080/wsa/WSASQL?"
+url_getcatalog = "http://surveys.roe.ac.uk:8080/wsa/WSASQL"
 
 frame_types = ['stack', 'normal', 'interleave', 'deep%stack', 'confidence',
     'difference', 'leavstack', 'all']
@@ -168,20 +169,15 @@ class UKIDSSQuery():
         self.request['obsType']     = 'object'
         self.request['frameType']   = frametype
         self.request['mfid']        = ''
-        self.query_str = url_getimage + urllib.urlencode(self.request)
+        self.query_str = url_getimage +"?"+ urllib.urlencode(self.request)
 
         if directory is None:
             directory = self.directory
 
         # Retrieve page
         page = self.opener.open(url_getimage, urllib.urlencode(self.request))
-        if verbose:
-            print "Loading page..."
-            results = progressbar.chunk_read(page, report_hook=progressbar.chunk_report)
-            if verbose == 'debug':
-                print url_getimage, urllib.urlencode(self.request)
-        else:
-            results = page.read()
+        with aud.get_readable_fileobj(page) as f:
+            results = f.read()
 
         # Parse results for links
         format = formatter.NullFormatter()
@@ -202,15 +198,16 @@ class UKIDSSQuery():
 
             # Get the file
             U = self.opener.open(link.replace("getImage", "getFImage"))
-            if verbose:
-                print "Downloading image from %s" % link
-                results = progressbar.chunk_read(U, report_hook=progressbar.chunk_report)
-            else:
-                results = U.read()
+            with aud.get_readable_fileobj(U, cache=True) as f:
+                results = f.read()
             S = StringIO.StringIO(results)
+
             try: 
+                # try to open as a fits file
                 fitsfile = fits.open(S,ignore_missing_end=True)
             except IOError:
+                # if that fails, try to open as a gzip'd fits file
+                # have to rewind to the start
                 S.seek(0)
                 G = gzip.GzipFile(fileobj=S)
                 fitsfile = fits.open(G,ignore_missing_end=True)
@@ -318,15 +315,12 @@ class UKIDSSQuery():
         self.request['fsid'] = ''
 
         self.request['rows'] = 1000
-        self.query_str = url_getimages + urllib.urlencode(self.request)
+        self.query_str = url_getimages +"?"+ urllib.urlencode(self.request)
 
         # Retrieve page
         page = self.opener.open(url_getimages, urllib.urlencode(self.request))
-        if verbose:
-            print "Loading page..."
-            results = progressbar.chunk_read(page, report_hook=progressbar.chunk_report)
-        else:
-            results = page.read()
+        with aud.get_readable_fileobj(page) as f:
+            results = f.read()
 
         # Parse results for links
         format = formatter.NullFormatter()
@@ -390,7 +384,7 @@ class UKIDSSQuery():
 
         Example
         -------
-        >>> R = UKIDSSQuery()
+        >>> R = UKIDSSQuery(programmeID='GPS')
         >>> data = R.get_catalog_gal(10.625,-0.38,radius=0.1)
         >>> bintable = data[0][1]
         """
@@ -417,13 +411,13 @@ class UKIDSSQuery():
         self.request['rows'] = 1
         self.request['select'] = '*'
         self.request['where'] = ''
-        self.query_str = url_getcatalog + urllib.urlencode(self.request)
+        self.query_str = url_getcatalog +"?"+ urllib.urlencode(self.request)
 
         if directory is None:
             directory = self.directory
 
         # Retrieve page
-        page = self.opener.open(url_getcatalog + urllib.urlencode(self.request))
+        page = self.opener.open(url_getcatalog, urllib.urlencode(self.request))
         if verbose:
             print "Loading page..."
             results = progressbar.chunk_read(page, report_hook=progressbar.chunk_report)
@@ -524,18 +518,15 @@ class UKIDSSQuery():
         self.request['rows'] = 1
         self.request['select'] = '*'
         self.request['where'] = ''
-        self.query_str = url_getcatalog + urllib.urlencode(self.request)
+        self.query_str = url_getcatalog +"?"+ urllib.urlencode(self.request)
 
         if directory is None:
             directory = self.directory
 
         # Retrieve page
-        page = self.opener.open(url_getcatalog + urllib.urlencode(self.request))
-        if verbose:
-            print "Loading page..."
-            results = progressbar.chunk_read(page, report_hook=progressbar.chunk_report)
-        else:
-            results = page.read()
+        page = self.opener.open(url_getcatalog, urllib.urlencode(self.request))
+        with aud.get_readable_fileobj(page) as f:
+            results = f.read()
 
         # Parse results for links
         format = formatter.NullFormatter()           # create default formatter
@@ -560,11 +551,9 @@ class UKIDSSQuery():
                     filename = directory + "/" + savename
                 
                 U = self.opener.open(link)
-                if verbose:
-                    print "Downloading catalog %s" % link
-                    results = progressbar.chunk_read(U, report_hook=progressbar.chunk_report)
-                else:
-                    results = U.read()
+                with aud.get_readable_fileobj(U, cache=True) as f:
+                    results = f.read()
+
                 S = StringIO.StringIO(results)
                 try: 
                     fitsfile = fits.open(S,ignore_missing_end=True)
