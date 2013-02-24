@@ -204,7 +204,7 @@ class UKIDSSQuery():
 
             try: 
                 # try to open as a fits file
-                fitsfile = pyfits.open(S,ignore_missing_end=True)
+                fitsfile = fits.open(S,ignore_missing_end=True)
             except IOError:
                 # if that fails, try to open as a gzip'd fits file
                 # have to rewind to the start
@@ -384,7 +384,7 @@ class UKIDSSQuery():
 
         Example
         -------
-        >>> R = UKIDSSQuery()
+        >>> R = UKIDSSQuery(programmeID='GPS')
         >>> data = R.get_catalog_gal(10.625,-0.38,radius=0.1)
         >>> bintable = data[0][1]
         """
