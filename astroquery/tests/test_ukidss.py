@@ -19,7 +19,7 @@ def test_ukidss_catalog():
     assert bintable.size == 5130
 
 def test_ukidss_get_image_gal():
-    R = UKIDSSQuery()
+    R = ukidss.UKIDSSQuery()
     fitsfile = R.get_image_gal(10.5,0.0)
 
     # get UWISH2 data (as per http://astro.kent.ac.uk/uwish2/main.html)
