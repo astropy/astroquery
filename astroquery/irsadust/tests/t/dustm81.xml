@@ -1,0 +1,102 @@
+<?xml version="1.0"?>
+<results status="ok">
+  <input>
+    <objname>      148.888220 69.065290 equ J2000    </objname>
+    <regSize>
+      5.0 deg
+    </regSize>
+  </input>
+  <result>
+    <desc>
+      E(B-V) Reddening
+    </desc>
+    <data>
+      <image>
+        http://irsa.ipac.caltech.edu//workspace/TMP_0fVHXe_17371/DUST/m81.v0001/p414Dust.fits
+      </image>
+      <table>
+        http://irsa.ipac.caltech.edu//workspace/TMP_0fVHXe_17371/DUST/m81.v0001/extinction.tbl
+      </table>
+    </data>
+    <statistics>
+      <refPixelValue>
+             0.0802 (mag)
+      </refPixelValue>
+      <refCoordinate>
+        148.888220 69.065290 equ J2000
+      </refCoordinate>
+      <meanValue>
+           0.0801 (mag)
+      </meanValue>
+      <std>
+           0.0001 (mag)
+      </std>
+      <maxValue>
+           0.0803 (mag)
+      </maxValue>
+      <minValue>
+           0.0798 (mag)
+      </minValue>
+    </statistics>
+  </result>
+  <result>
+    <desc>
+      100 Micron Emission
+    </desc>
+    <data>
+      <image>
+        http://irsa.ipac.caltech.edu//workspace/TMP_0fVHXe_17371/DUST/m81.v0001/p414i100.fits
+      </image>
+    </data>
+    <statistics>
+      <refPixelValue>
+           2.7230 (MJy/sr)
+      </refPixelValue>
+      <refCoordinate>
+        148.888220 69.065290 equ J2000
+      </refCoordinate>
+      <meanValue>
+         2.7229 (MJy/sr)
+      </meanValue>
+      <std>
+         0.0039 (MJy/sr)
+      </std>
+      <maxValue>
+         2.7302 (MJy/sr)
+      </maxValue>
+      <minValue>
+         2.7157 (MJy/sr)
+      </minValue>
+    </statistics>
+  </result>
+  <result>
+    <desc>
+      Dust Temperature
+    </desc>
+    <data>
+      <image>
+        http://irsa.ipac.caltech.edu//workspace/TMP_0fVHXe_17371/DUST/m81.v0001/p414temp.fits
+      </image>
+    </data>
+    <statistics>
+      <refPixelValue>
+          17.1522 (K)
+      </refPixelValue>
+      <refCoordinate>
+        148.888220 69.065290 equ J2000
+      </refCoordinate>
+      <meanValue>
+        17.1570 (K)
+      </meanValue>
+      <std>
+         0.0069 (K)
+      </std>
+      <maxValue>
+        17.1796 (K)
+      </maxValue>
+      <minValue>
+        17.1522 (K)
+      </minValue>
+    </statistics>
+  </result>
+</results>

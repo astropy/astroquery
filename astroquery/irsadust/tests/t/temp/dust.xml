@@ -1,0 +1,102 @@
+<?xml version="1.0"?>
+<results status="ok">
+  <input>
+    <objname>      10.684790 41.269060 equ J2000    </objname>
+    <regSize>
+      2.9 deg
+    </regSize>
+  </input>
+  <result>
+    <desc>
+      E(B-V) Reddening
+    </desc>
+    <data>
+      <image>
+        test.fits
+      </image>
+      <table>
+        dust_ext_detail.tbl
+      </table>
+    </data>
+    <statistics>
+      <refPixelValue>
+             0.6943 (mag)
+      </refPixelValue>
+      <refCoordinate>
+        10.684790 41.269060 equ J2000
+      </refCoordinate>
+      <meanValue>
+           0.5827 (mag)
+      </meanValue>
+      <std>
+           0.1088 (mag)
+      </std>
+      <maxValue>
+           0.7419 (mag)
+      </maxValue>
+      <minValue>
+           0.3541 (mag)
+      </minValue>
+    </statistics>
+  </result>
+  <result>
+    <desc>
+      100 Micron Emission
+    </desc>
+    <data>
+      <image>
+        test.fits
+      </image>
+    </data>
+    <statistics>
+      <refPixelValue>
+          29.3641 (MJy/sr)
+      </refPixelValue>
+      <refCoordinate>
+        10.684790 41.269060 equ J2000
+      </refCoordinate>
+      <meanValue>
+        24.6406 (MJy/sr)
+      </meanValue>
+      <std>
+         4.6271 (MJy/sr)
+      </std>
+      <maxValue>
+        31.4151 (MJy/sr)
+      </maxValue>
+      <minValue>
+        14.9214 (MJy/sr)
+      </minValue>
+    </statistics>
+  </result>
+  <result>
+    <desc>
+      Dust Temperature
+    </desc>
+    <data>
+      <image>
+        test.fits
+      </image>
+    </data>
+    <statistics>
+      <refPixelValue>
+          17.6190 (K)
+      </refPixelValue>
+      <refCoordinate>
+        10.684790 41.269060 equ J2000
+      </refCoordinate>
+      <meanValue>
+        17.6202 (K)
+      </meanValue>
+      <std>
+         0.0028 (K)
+      </std>
+      <maxValue>
+        17.6257 (K)
+      </maxValue>
+      <minValue>
+        17.6152 (K)
+      </minValue>
+    </statistics>
+  </result>
+</results>
