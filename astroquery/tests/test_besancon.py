@@ -1,6 +1,6 @@
-from astroquery import besancon
-import asciitable
-from astropy.io.ascii.tests.common import assert_equal
+#from astroquery import besancon
+#import asciitable
+#from astropy.io.ascii.tests.common import assert_equal
 
 # SKIP - don't run tests because Besancon folks don't want them (based on the fact that your@email.net is now rejected)
 # def test_besancon_reader():
