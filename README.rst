@@ -94,8 +94,8 @@ will be clear from context what to do with your particular VCS.
 * Adjust the information in the documentation to match your new project by
   editing the ``docs/conf.py`` file.
 
-  1. Change the ``project`` variable to your project's name (note that this does
-     not *need* to be exactly the same as the package name, but that's a
+  1. Change the ``project`` variable to your project's name (note that this 
+     does not *need* to be exactly the same as the package name, but that's a
      common convention).
   2. Update the ``author`` variable with your name or the name of your collaboration.
   3. Update the ``copyright`` variable for the current year.
@@ -116,6 +116,12 @@ will be clear from context what to do with your particular VCS.
         release = yourpkg.__version__
 
      where ``yourpkg`` is the name of your package.
+  5. (optional) If you're hosting your source code on github, you can
+     enable a sphinx extension that will link documentation pages 
+     directly to github's web site. To do this, uncomment the code in 
+     the "edit_on_github" section at the bottom of ``docs/conf.py``, 
+     and replace ``packagename`` and ``reponame`` in that section with
+     the name of your package and github repository.
   
 
 * Pass these changes on to git::
