@@ -22,7 +22,19 @@ Standard usage should be along these lines:
 In order for this all to work, we will need to utilize some coordinate parsing,
 which has only just been decided on (April 13, 2013).
 
+For tools in which multiple catalogs can be queried, e.g. as in the last UKIDSS
+example, they must be specified.  There should also be a `list_catalogs`
+function that returns a `list` of catalog name strings:
+
+.. code-block:: python
+
+    print ukidss.list_catalogs()
+
+Present Implementations (April 2013)
+------------------------------------
+
 There are a few current implementations that differ from the above proposal.
+They will need to be refactored.
 
 1. The UKIDSS model
 
@@ -37,7 +49,7 @@ There are a few current implementations that differ from the above proposal.
 
 i.e., you create a `Query` object and use its various methods.  
 
-2. The `nedpy` model
+2. The `nedpy` model (individual functions for each query type)
 
 .. code-block:: python
     from astroquery import ned
