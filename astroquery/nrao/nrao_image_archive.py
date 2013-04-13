@@ -2,10 +2,6 @@
 NRAO Image Archive Query Tool
 -----------------------------------
 
-REQUIRES either astropy.coords (as of 8/5/2012, not implemented) or STSCI's 'coords' package:
-    http://stsdas.stsci.edu/astrolib/coords_api/index.html
-    https://trac.assembla.com/astrolib
-
 :Author: Adam Ginsburg (adam.g.ginsburg@gmail.com)
 """
 import urllib2
@@ -15,9 +11,7 @@ import gzip
 import StringIO
 from astropy.io import fits
 from astroquery.utils import progressbar
-# TODO: Change to astropy
-# from astropy import coordinates as coord
-import coords
+from astropy import coordinates as coord
 import re
 import astropy.utils.data as aud
 
@@ -62,7 +56,7 @@ def get_nrao_image(lon, lat, system='galactic', epoch='J2000', size=1.0,
         Right ascension and declination or glon/glat
     system : ['celestial','galactic']
         System of lon/lat.  Can be any valid coordinate system supported by the
-        coords package
+        astropy.coordinates package
     epoch : string
         Epoch of the coordinate system (e.g., B1950, J2000)
     savename : None or string
@@ -90,9 +84,15 @@ def get_nrao_image(lon, lat, system='galactic', epoch='J2000', size=1.0,
     if band not in valid_bands:
         raise ValueError("Invalid band.  Valid bands are: %s" % valid_bands)
 
-    ra,dec = coords.Position([lon,lat],system=system,equinox=epoch).j2000()
-    radecstr = coords.Position([ra,dec],system='celestial',equinox='J2000').hmsdms().replace(":"," ")
-    glon,glat = coords.Position([ra,dec],system='celestial',equinox='J2000').galactic()
+    if system == 'celestial':
+        radec = coord.FK5Coordinates(lon, lat, unit=('deg', 'deg'))
+        galactic = radec.galactic
+    elif system == 'galactic':
+        galactic = coord.GalacticCoordinates(lon, lat, unit=('deg', 'deg'))
+        radec = galactic.fk5
+    
+    radecstr = radec.ra.format(sep=' ') + ' ' + radec.dec.format(sep=' ') 
+    glon, glat = galactic.lonangle.degrees, galactic.latangle.degrees
 
     # Construct request
     request = {}
