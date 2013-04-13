@@ -1,9 +1,6 @@
 import astroquery.irsadust as dust
 import xml.etree.ElementTree as tree
-from astropy.units import * 
-import warnings
 from . import DustTestCase
-import os
 
 M31_XML = "dustm31.xml"
 M81_XML = "dustm81.xml"
