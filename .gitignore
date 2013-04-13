@@ -37,5 +37,6 @@ distribute-*.tar.gz
 .DS_Store
 
 # Eclipse
+.settings
 .project
 .pydevproject
