@@ -3,6 +3,7 @@ import astropy.io.fits as fits
 import re
 import string
 import astropy.coordinates as coord
+import astropy.utils.data as aud
 
 whitespace_re = re.compile("\s")
 valid_chars = "-_.()%s%s" % (string.ascii_letters, string.digits)
