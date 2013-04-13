@@ -1,5 +1,6 @@
-import astroquery.irsadust as dust
 import xml.etree.ElementTree as tree
+import astropy.units as u
+import astroquery.irsadust as dust
 from . import DustTestCase
 
 M31_XML = "dustm31.xml"
@@ -21,7 +22,7 @@ class TestDust(DustTestCase):
 
     def test_parse_units(self):
         string = "-6.273 (mJy/sr)"
-        expected_units = format.Generic().parse("mJy/sr")
+        expected_units = u.format.Generic().parse("mJy/sr")
         actual_units = dust.utils.parse_units(string)
         assert expected_units == actual_units
 
