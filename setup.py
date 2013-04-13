@@ -25,7 +25,7 @@ if sys.version_info[0] >= 3:
     import builtins
 else:
     import __builtin__ as builtins
-builtins._PACKAGE_SETUP_ = True
+builtins._ASTROPY_SETUP_ = True
 
 import astropy
 from astropy.setup_helpers import (register_commands, adjust_compiler,
@@ -64,7 +64,7 @@ packagenames = filter_packages(find_packages())
 
 # Treat everything in scripts except README.rst as a script to be installed
 scripts = [fname for fname in glob.glob(os.path.join('scripts', '*'))
-           if fname != 'README.rst']
+           if os.path.basename(fname) != 'README.rst']
 
 # Additional C extensions that are not Cython-based should be added here.
 extensions = []
