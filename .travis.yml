@@ -1,0 +1,34 @@
+language: python
+
+python:
+    - 2.6
+    - 2.7
+    - 3.2
+    - 3.3
+
+env:
+    - ASTROPY_VERSION=stable
+    - ASTROPY_VERSION=development
+    # TODO: multiple numpy versions?
+
+before_install:
+   # We do this to make sure we get the dependencies so pip works below
+   - sudo apt-get update -qq
+   - sudo apt-get install -qq python-numpy python-sphinx cython libatlas-dev liblapack-dev gfortran
+
+install:
+   - export PYTHONIOENCODING=UTF8 # just in case
+   - pip -q install --upgrade numpy --use-mirrors
+   - pip -q install --upgrade Cython --use-mirrors
+   - pip -q install --upgrade sphinx --use-mirrors
+
+   - if [[ $ASTROPY_VERSION == stable ]]; then pip -q install astropy --use-mirrors; fi
+   - if [[ $ASTROPY_VERSION == development ]]; then pip -q install git+http://github.com/astropy/astropy.git#egg=astropy --use-mirrors; fi
+
+script:
+   # Run unit tests
+   - python setup.py test
+
+   # Test the sphinx documentation build
+   - python setup.py build_sphinx
+
