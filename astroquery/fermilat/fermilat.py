@@ -1,11 +1,12 @@
 import requests
+import urllib
 import re
-
-result_url_re = re.compile('The results of your query may be found at <a href="(http://fermi.gsfc.nasa.gov/.*?)"')
+import time
 
 class FermiLAT_Query(object):
 
     request_url = 'http://fermi.gsfc.nasa.gov/cgi-bin/ssc/LAT/LATDataQuery.cgi'
+    result_url_re = re.compile('The results of your query may be found at <a href="(http://fermi.gsfc.nasa.gov/.*?)"')
 
     def __call__(self, name_or_coords, coordsys='J2000', searchradius='', obsdates='', timesys='Gregorian',
             energyrange_MeV='', LATdatatype='Photon', spacecraftdata=True):
@@ -47,7 +48,7 @@ class FermiLAT_Query(object):
 
         result = requests.post(self.request_url, data=payload)
 
-        re_result = result_url_re.findall(result)
+        re_result = self.result_url_re.findall(result)
 
         if len(re_result) == 0:
             raise ValueError("Results did not contain a result url... something went awry (that hasn't been tested yet)")
@@ -55,3 +56,42 @@ class FermiLAT_Query(object):
             result_url = re_result[0]
 
         return result_url
+
+class FermiLAT_DelayedQuery(object):
+
+    fitsfile_re = re.compile('<a href="(.*?)">Available</a>')
+
+    timeout = 30 # minutes
+
+    check_frequency = 1 # minutes
+
+    def __call__(self, result_url, check_frequency=1, verbose=False):
+        self.result_url = result_url
+        
+        page_loaded = False
+
+        elapsed_time = 0
+
+        while not(page_loaded):
+            page_loaded = fitsfile_urls = self._check_page()
+            time.sleep(check_frequency * 60)
+            elapsed_time += check_frequency
+            # update progressbar here...
+
+        if verbose:
+            print "Query completed in %0.1f minutes" % (elapsed_time)
+
+        return fitsfile_urls
+
+    def _check_page(self):
+        result_page = urllib.urlopen(result_url)
+
+        pagedata = result_page.read()
+
+        fitsfile_urls = self.fitsfile_re.findall(pagedata)
+
+        if len(fitsfile_urls) == 0:
+            return False
+        else:
+            return fitsfile_urls
+
