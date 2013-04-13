@@ -51,7 +51,6 @@ install:
    - pip install asciitable --use-mirrors
    - pip install beautifulsoup4 --use-mirrors # for NIST
    - pip install http://stsdas.stsci.edu/astrolib/vo-0.8.tar.gz # for NED / atpy
-   - pip install http://stsdas.stsci.edu/astrolib/coords-0.37.tar.gz # for NRAO
 
 script:
    - python setup.py $SETUP_CMD
