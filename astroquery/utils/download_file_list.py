@@ -24,6 +24,20 @@ def download_list_of_fitsfiles(linklist, output_directory=None,
     """
     Given a list of file URLs, download them and (optionally) rename them
 
+    example:
+    download_list_of_fitsfiles(
+        ['http://fermi.gsfc.nasa.gov/FTP/fermi/data/lat/queries/L130413170713F15B52BC06_PH00.fits',
+         'http://fermi.gsfc.nasa.gov/FTP/fermi/data/lat/queries/L130413170713F15B52BC06_PH01.fits',
+         'http://fermi.gsfc.nasa.gov/FTP/fermi/data/lat/queries/L130413170713F15B52BC06_SC00.fits'],
+         output_directory='fermi_m31',
+         output_prefix='FermiLAT',
+         save=True,
+         overwrite=False,
+         verbose=True,
+         output_coord_format=None, # FITS tables don't have crval/crpix, good one is: "%08.3g%+08.3g",
+         filename_header_keywords=None, # couldn't find any useful ones
+         include_input_filename=True)
+
     """
     # Loop through links and retrieve FITS images
     images = {}
