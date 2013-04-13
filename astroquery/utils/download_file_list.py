@@ -4,6 +4,7 @@ import re
 import string
 import astropy.coordinates as coord
 import astropy.utils.data as aud
+import os
 
 whitespace_re = re.compile("\s")
 valid_chars = "-_.()%s%s" % (string.ascii_letters, string.digits)
@@ -94,7 +95,7 @@ def download_list_of_fitsfiles(linklist, output_directory=None,
                     coordstr = output_coord_format % (lon,lat)
                 nametxt += "_" + coordstr
 
-            if include_original_filename:
+            if include_input_filename:
                 filename_root = os.path.split(link)[1]
             else:
                 filename_root = ""
@@ -104,7 +105,7 @@ def download_list_of_fitsfiles(linklist, output_directory=None,
             savename += "_" + filename_root
 
             # Set final directory and file names
-            final_file = output_directory + filename
+            final_file = output_directory + savename
 
             if verbose:
                 print "Saving file %s" % final_file
