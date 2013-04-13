@@ -50,6 +50,7 @@ install:
    - pip install atpy --use-mirrors # for NED
    - pip install asciitable --use-mirrors
    - pip install beautifulsoup4 --use-mirrors # for NIST
+   - pip install mechanize --use-mirrors # for splatalogue
    - pip install http://stsdas.stsci.edu/astrolib/vo-0.8.tar.gz # for NED / atpy
 
 script:

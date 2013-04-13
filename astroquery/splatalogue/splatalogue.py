@@ -4,6 +4,9 @@ Splatalogue Catalog Query Tool
 
 REQUIRES mechanize (and astropy)
 
+.. TODO::
+    Replace mechanize with standard module
+
 :Author: Magnus Vilehlm Persson (magnusp@vilhelm.nu)
 """
 
