@@ -7,9 +7,29 @@ python:
     - 3.3
 
 env:
-    - ASTROPY_VERSION=stable
-    - ASTROPY_VERSION=development
-    # TODO: multiple numpy versions?
+    # try all python versions with the latest stable numpy and astropy
+    - ASTROPY_VERSION=stable NUMPY_VERSION=1.7.1 SETUP_CMD='test'
+
+matrix:
+    include:
+        - python: 2.7
+          # opdeps needed because the matplotlib sphinx extension requires them
+          env: ASTROPY_VERSION=development NUMPY_VERSION=1.7.1 SETUP_CMD='build_sphinx -w -n'
+
+        # try alternate numpy versions with the latest stable astropy
+        - python: 2.7
+          env: ASTROPY_VERSION=stable NUMPY_VERSION=1.6.2 SETUP_CMD='test'
+        - python: 2.7
+          env: ASTROPY_VERSION=stable NUMPY_VERSION=1.5.1 SETUP_CMD='test'
+        - python: 3.2
+          env: ASTROPY_VERSION=stable NUMPY_VERSION=1.6.2 SETUP_CMD='test'
+        # numpy < 1.6 does not work on py 3.x
+
+        # try latest developer version of astropy
+        - python: 2.7
+          env: ASTROPY_VERSION=development NUMPY_VERSION=1.7.1 SETUP_CMD='test'
+        - python: 3.3
+          env: ASTROPY_VERSION=development NUMPY_VERSION=1.7.1 SETUP_CMD='test'
 
 before_install:
    # We do this to make sure we get the dependencies so pip works below
@@ -18,17 +38,14 @@ before_install:
 
 install:
    - export PYTHONIOENCODING=UTF8 # just in case
-   - pip -q install --upgrade numpy --use-mirrors
+   - pip -q install --upgrade "numpy==$NUMPY_VERSION" --use-mirrors
    - pip -q install --upgrade Cython --use-mirrors
-   - pip -q install --upgrade sphinx --use-mirrors
+   - if [[ $SETUP_CMD == build_sphinx* ]]; then pip -q install sphinx==1.1.3 --use-mirrors; fi
+   - if [[ $SETUP_CMD == build_sphinx* ]]; then pip -q install matplotlib --use-mirrors; fi
 
    - if [[ $ASTROPY_VERSION == stable ]]; then pip -q install astropy --use-mirrors; fi
    - if [[ $ASTROPY_VERSION == development ]]; then pip -q install git+http://github.com/astropy/astropy.git#egg=astropy --use-mirrors; fi
 
 script:
-   # Run unit tests
-   - python setup.py test
-
-   # Test the sphinx documentation build
-   - python setup.py build_sphinx
+   - python setup.py $SETUP_CMD
 
