@@ -14,12 +14,12 @@ __all__ = ['search']
 
 try:
     import mechanize
-except (ImportError):
+except ImportError:
     print "You need the \'mechanize\' module"
 
 from astropy.table import Table
 
-from scipy import array, where, arange
+from numpy import array, arange
 
 
 """
@@ -30,7 +30,6 @@ TODO : improve searchable parameters e.g. molecule ID,
        frequency error limit
 
 """
-
 
 def search(
             freq = [203.4, 203.42],
@@ -166,8 +165,8 @@ def _get_form():
     # GET SERVER RESPONSE
     try:
         response = mechanize.urlopen(SPLAT_FORM_URL)
-    except mechanize.URLError, e:
-        raise Exception('No reponse from server : {0}'.format(splatalogue_url))
+    except mechanize.URLError:
+        raise Exception('No reponse from server : {0}'.format(SPLAT_FORM_URL))
     
     # PARSE SERVER RESPONSE
     forms = mechanize.ParseResponse(response, backwards_compat = False)
@@ -279,11 +278,9 @@ def _parse_enrgy_range(form, efrom, eto, eunit):
         else:
             print 'Energy range unit keyword \'eunit\' malformed.'
             raise Exception('eunit keyword malformed')
-        eunit_default = 0
     else:
-       # no value, assuming its in Kelvin (i.e. Eu/kb)
-       eunit_default = 1
-       eunit = 'eu_k'
+        # no value, assuming its in Kelvin (i.e. Eu/kb)
+        eunit = 'eu_k'
     # now set the eunit radio button
     form.find_control('energy_range_type').toggle(eunit.lower())   
     return form
@@ -385,8 +382,6 @@ def _parse_result(data, output='astropy.table'):
         rows = array(rows)
         rows[rows == ''] = 'nan'
         
-        #~ columns = rows.transpose()
-
         column_dtypes = ['str', 'str', 'float', 'float', 'float' , 'float' ,
                         'str', 'str', 'float',
                         'float', 'float', 'float', 'str', 'float', 'float',
@@ -395,8 +390,6 @@ def _parse_result(data, output='astropy.table'):
                         None, '?', 'Debye^2', '?', 'log10(Aij)', '?', 
                         'cm^-1', 'K', 'cm^-1', 'K', None, None, None, None]
         
-        #~ results = Table(names = column_names, dtypes = column_dtypes)
-        #~ 
         results = Table(data = rows , 
                         names = column_names, 
                         dtypes = column_dtypes)
