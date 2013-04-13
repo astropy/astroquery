@@ -6,7 +6,6 @@ import urllib
 import urllib2
 import astropy.units as u
 import re
-import string as s
 from astroquery.utils import progressbar
 
 def parse_number(string):
