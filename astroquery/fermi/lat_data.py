@@ -51,7 +51,6 @@ class FermiLAT_Query(object):
                    'spacecraft':'on' if spacecraftdata else 'off'}
 
         result = requests.post(self.request_url, data=payload)
-
         re_result = self.result_url_re.findall(result)
 
         if len(re_result) == 0:
@@ -88,7 +87,7 @@ class FermiLAT_DelayedQuery(object):
         return fitsfile_urls
 
     def _check_page(self):
-        result_page = urllib.urlopen(result_url)
+        result_page = urllib.urlopen(self.result_url)
 
         pagedata = result_page.read()
 
