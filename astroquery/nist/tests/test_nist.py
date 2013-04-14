@@ -1,4 +1,5 @@
-from astroquery import nist
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
+from ... import nist
 
 def test_html():
     Q = nist.NISTAtomicLinesQuery()
