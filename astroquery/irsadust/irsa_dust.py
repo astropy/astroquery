@@ -168,12 +168,13 @@ class DustResults(object):
         section : str
             When missing or `all`, returns the full table. When the name
             of a section is given, only that portion of the table is returned.
-            The following values are accepted:
+            The following values are accepted::
+
                 'all'
                 'location', 'loc', 'l',
                 'reddening', 'red', 'r',
                 'emission', 'em', 'e',
-                'temperature', 'temp', 't'.
+                'temperature', 'temp', 't'
         
         Returns
         -------
@@ -195,7 +196,7 @@ class DustResults(object):
         Fetch the extinction detail table specfied in the given query result.
         
         Parameters
-        ---------
+        ----------
         row : int 
             the index of the dust result within the list of results
             The list of results has the same order as the list of locations specified
@@ -610,7 +611,7 @@ class NumberNode(BaseDustNode):
         """
         BaseDustNode.__init__(self, xml_node)
         self._value = utils.parse_number(xml_node.text)
-        self._columns = [Column(col_name, units=units)]
+        self._columns = [Column(name=col_name, units=units)]
 
     def __str__(self):
         """Return a string representation of the item."""
@@ -637,9 +638,9 @@ class CoordNode(BaseDustNode):
         BaseDustNode.__init__(self, xml_node)
         self._value = utils.parse_coords(xml_node.text)
         units = u.deg
-        self._columns = [Column(col_names[0], units=units),
-                        Column(col_names[1], units=units),
-                        Column(col_names[2], dtype="S25")]
+        self._columns = [Column(name=col_names[0], units=units),
+                        Column(name=col_names[1], units=units),
+                        Column(name=col_names[2], dtype="S25")]
 
     def __str__(self):
         """Return a string representation of the item."""

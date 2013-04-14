@@ -4,7 +4,7 @@
 NIST Queries (`astroquery.nist`)
 ********************************
 
-Tool to query the NIST Atomic Lines database (`http://physics.nist.gov/cgi-bin/ASD/lines1.pl`_).
+Tool to query the NIST Atomic Lines database (http://physics.nist.gov/cgi-bin/ASD/lines1.pl).
 
 Example
 =======
