@@ -1,7 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
-__all__ = ['VoTableDef',
-            ]
+__all__ = ['VoTableDef']
 
 class VoTableDef(object):
     def __init__(self, *args, **kwargs):

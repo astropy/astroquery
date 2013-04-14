@@ -10,8 +10,7 @@ try:
 except ImportError:
     import astropy.io.votable as votable
 
-__all__ = ['SimbadResult',
-            ]
+__all__ = ['SimbadResult']
 
 
 error_regex = re.compile(r'(?ms)\[(?P<line>\d+)\]\s?(?P<msg>.+?)(\[|\Z)')

@@ -2,10 +2,10 @@
 
 import urllib
 import urllib2
-
-from .sim_parameters import *
-from .sim_result import *
-from .sim_votable import *
+from .parameters import ValidatedAttribute
+from . import parameters
+from .result import *
+from .votable import *
 
 __all__ = ['QueryId',
             'QueryAroundId',
@@ -15,7 +15,6 @@ __all__ = ['QueryId',
             'QueryMulti',
             ]
 
-import astropy.utils.data as aud
 
 class _Query(object):
     def execute(self, votabledef=None, limit=None, pedantic=False, mirror='strasbourg'):
@@ -39,7 +38,7 @@ class _Query(object):
                 pedantic=pedantic, mirror=mirror)
 
 
-@ValidatedAttribute('wildcard', _ScriptParameterWildcard)
+@ValidatedAttribute('wildcard', parameters._ScriptParameterWildcard)
 class QueryId(_Query):
     """ Query by identifier.
 
@@ -90,7 +89,7 @@ class QueryId(_Query):
 #        return '{%s(Ident=%s)}' % (self.__class__.__name__,
 #                            repr(self.Ident))
 
-@ValidatedAttribute('radius', _ScriptParameterRadius)
+@ValidatedAttribute('radius', parameters._ScriptParameterRadius)
 class QueryAroundId(_Query):
     """ Query around identifier.
 
@@ -147,10 +146,10 @@ class QueryCat(_Query):
                                                         repr(self.catalog))
 
 
-@ValidatedAttribute('radius', _ScriptParameterRadius)
-@ValidatedAttribute('frame', _ScriptParameterFrame)
-@ValidatedAttribute('equinox', _ScriptParameterEquinox)
-@ValidatedAttribute('epoch', _ScriptParameterEpoch)
+@ValidatedAttribute('radius', parameters._ScriptParameterRadius)
+@ValidatedAttribute('frame', parameters._ScriptParameterFrame)
+@ValidatedAttribute('equinox', parameters._ScriptParameterEquinox)
+@ValidatedAttribute('epoch', parameters._ScriptParameterEpoch)
 class QueryCoord(_Query):
     """ Query by coordinates.
 
@@ -228,10 +227,10 @@ class QueryBibobj(_Query):
                                                             repr(self.bibcode))
 
 
-@ValidatedAttribute('radius', _ScriptParameterRadius)
-@ValidatedAttribute('frame', _ScriptParameterFrame)
-@ValidatedAttribute('epoch', _ScriptParameterEpoch)
-@ValidatedAttribute('equinox', _ScriptParameterEquinox)
+@ValidatedAttribute('radius', parameters._ScriptParameterRadius)
+@ValidatedAttribute('frame', parameters._ScriptParameterFrame)
+@ValidatedAttribute('epoch', parameters._ScriptParameterEpoch)
+@ValidatedAttribute('equinox', parameters._ScriptParameterEquinox)
 class QueryMulti(_Query):
     __command_ids = ('radius', 'frame', 'epoch', 'equinox')
 
@@ -312,7 +311,7 @@ class QueryMulti(_Query):
 
 
 def execute_query(query, votabledef, limit, pedantic, mirror='strasbourg'):
-    limit2 = _ScriptParameterRowLimit(limit)
+    limit2 = parameters._ScriptParameterRowLimit(limit)
 
     if votabledef is None:
         # votabledef is None, use the module level default one
