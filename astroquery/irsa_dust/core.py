@@ -66,7 +66,7 @@ def query(location, reg_size=None, delay=DELAY, verbose=False, url=DUST_SERVICE_
 
     Returns
     -------
-    result : `astroquery.irsadust.DustResults`
+    result : `astroquery.irsa_dust.DustResults`
         object containing the results of the query
 
     Examples
@@ -255,7 +255,7 @@ class DustResults(object):
 
         Parameters
         ----------
-        dust_results2 : `astroquery.irsadust.DustResults`
+        dust_results2 : `astroquery.irsa_dust.DustResults`
             the results to append
         """
         #self._result_set.extend(dust_results2.result_set)
