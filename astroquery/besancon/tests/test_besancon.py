@@ -1,4 +1,7 @@
-#from astroquery import besancon
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
+
+from ... import besancon
+
 #import asciitable
 #from astropy.io.ascii.tests.common import assert_equal
 

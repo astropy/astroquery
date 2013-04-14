@@ -1,3 +1,4 @@
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
 """
 Besancon Query Tool
 -------------------
@@ -12,7 +13,6 @@ import socket
 import time
 import copy
 import os
-from astroquery.utils import progressbar
 import sys
 import re
 import astropy.utils.data as aud
