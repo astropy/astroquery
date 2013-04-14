@@ -71,9 +71,9 @@ def vizquery(query, server="vizier.u-strasbg.fr"):
     body = "\r\n".join(body)
 
     # Fetch the VOTABLE corresponding to the query 
-    http = httplib.HTTPConnection(server)
-    http.request("POST", "/viz-bin/votable", body=body)
-    resp = http.getresponse()
+    h = httplib.HTTPConnection(server)
+    h.request("POST", "/viz-bin/votable", body=body)
+    resp = h.getresponse()
     voTable = votable.parse(cStringIO.StringIO(resp.read()), pedantic=False)
     
     # Convert VOTABLE into a list of astropy Table.
