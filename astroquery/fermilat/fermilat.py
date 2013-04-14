@@ -1,7 +1,10 @@
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
 import requests
 import urllib
 import re
 import time
+
+__all__ = ['FermiLAT_Query', 'FermiLAT_DelayedQuery']
 
 class FermiLAT_Query(object):
 
