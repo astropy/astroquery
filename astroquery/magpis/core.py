@@ -1,13 +1,7 @@
-"""
-MAGPIS Image and Catalog Query Tool
------------------------------------
-
-:Author: Adam Ginsburg (adam.g.ginsburg@gmail.com)
-"""
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
 import urllib
 from astropy.io import fits
 import StringIO
-from astroquery.utils import progressbar
 import astropy.utils.data as aud
 
 url_gpscutout  = "http://third.ucllnl.org/cgi-bin/gpscutout"
