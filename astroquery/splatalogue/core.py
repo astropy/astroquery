@@ -1,29 +1,12 @@
-"""
-Splatalogue Catalog Query Tool
------------------------------------
-
-REQUIRES mechanize (and astropy)
-
-.. TODO::
-    Replace mechanize with standard module
-
-:Author: Magnus Vilehlm Persson (magnusp@vilhelm.nu)
-"""
-
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
 
 SPLAT_FORM_URL = "http://www.cv.nrao.edu/php/splat/b.php"
 
 __all__ = ['search']
 
-try:
-    import mechanize
-except ImportError:
-    print "You need the \'mechanize\' module"
-
-from astropy.table import Table
-
+import mechanize
 from numpy import array, arange
-
+from astropy.table import Table
 
 """
 TODO : fix consistent naming (resultform vs result_table)
