@@ -30,12 +30,14 @@ Multi-query example:
     http://irsa.ipac.caltech.edu/cgi-bin/DUST/nph-dust?locstr=m101
     http://irsa.ipac.caltech.edu/cgi-bin/DUST/nph-dust?locstr=m33
     http://irsa.ipac.caltech.edu/cgi-bin/DUST/nph-dust?locstr=m15
-    RA      Dec    coord sys regSize     ext desc     ... temp ref coord sys temp mean temp std temp max temp min
+    RA      Dec    coord sys regSize     ext desc         ... temp ref coord sys temp mean temp std temp max temp min
     --------- -------- --------- ------- ---------------- ... ------------------ --------- -------- -------- --------
     210.80227 54.34895 equ J2000     5.0 E(B-V) Reddening ...          equ J2000   18.0045   0.0068  18.0267  18.0016
- 23.46204 30.66022 equ J2000     5.0 E(B-V) Reddening ...          equ J2000     17.72   0.0148  17.7419  17.6914
+    023.46204 30.66022 equ J2000     5.0 E(B-V) Reddening ...          equ J2000     17.72   0.0148  17.7419  17.6914
     322.49304   12.167 equ J2000     5.0 E(B-V) Reddening ...          equ J2000   18.1562   0.0026  18.1619  18.
 
+.. leading spaces in tables lead to indentation errors (so I added 0 in front of 23.46204 above)
+    This is problematic, since it will break doctests
 
 Fetch extinction detail table and fits images from links in initial response:
 .. code-block:: python

@@ -1,25 +1,25 @@
 """
 Module containing a series of functions that execute queries to the NASA Extragalactic Database (NED):
 
-    query_ned_by_objname()   - return one of several data tables based on object name
-    query_ned_nearname()     - return data on objects within a specified angular
+*    query_ned_by_objname()   - return one of several data tables based on object name
+*    query_ned_nearname()     - return data on objects within a specified angular
                                   distance to a target
-    query_ned_near_iauname() - return data on objects within a specified angular
+*    query_ned_near_iauname() - return data on objects within a specified angular
                                   distance to a target (IAU naming convention)
-    query_ned_by_refcode()   - return data on objects cited in a given reference
-    query_ned_names()        - return multi-wavelength cross-IDs of a given target
-    query_ned_basic_posn()   - return basic position information on a given target
-    query_ned_external()     - return external web references to other databases
+*    query_ned_by_refcode()   - return data on objects cited in a given reference
+*    query_ned_names()        - return multi-wavelength cross-IDs of a given target
+*    query_ned_basic_posn()   - return basic position information on a given target
+*    query_ned_external()     - return external web references to other databases
                                   for a given target
-    query_ned_allsky()       - return data for all-sky search criteria constraining
+*    query_ned_allsky()       - return data for all-sky search criteria constraining
                                   redshift, position, fluxes, object type, survey
-    query_ned_photometry()   - return photometry for data on a given target
-    query_ned_diameters()    - return angular diameter data for a given target
-    query_ned_redshifts()    - return redshift data for a given target
-    query_ned_notes()        - return detailed notes on a given target
-    query_ned_position()     - return multi-wavelength position information on a
+*    query_ned_photometry()   - return photometry for data on a given target
+*    query_ned_diameters()    - return angular diameter data for a given target
+*    query_ned_redshifts()    - return redshift data for a given target
+*    query_ned_notes()        - return detailed notes on a given target
+*    query_ned_position()     - return multi-wavelength position information on a
                                   given target
-    query_ned_nearpos()      - return data on objects on a cone search around given
+*    query_ned_nearpos()      - return data on objects on a cone search around given
                                   position
 
 Based off Adam Ginsburg's Splatalogue search routine:
@@ -29,8 +29,8 @@ Service URLs to acquire the VO Tables are taken from Mazzarella et al. (2007)
     ASP Conference Series, Vol. 382., p.165
 
 Note: two of the search functions described by Mazzarella et al. did not work as of June 2011:
-    7.  query_ned_basic      - retrieve basic data for an NED object
-    14. query_ned_references - retrieve reference data for an NED object
+*    7.  query_ned_basic      - retrieve basic data for an NED object
+*    14. query_ned_references - retrieve reference data for an NED object
 
 Originally written by K. Willett, Jun 2011
 
@@ -155,27 +155,29 @@ def query_ned_nearname(objname='M31',radius=2.0,
 
     Returns NED_MainTable with the following information for each target within the search radius:
 
-    -----------------------------------------------------
-    |                 Name |    Unit |    Type | Format |
-    -----------------------------------------------------
-    |                  No. |    None |   int32 |    12i |
-    |          Object Name |    None |    |S30 |    30s |
-    |              RA(deg) | degrees | float64 | 25.17e |
-    |             DEC(deg) | degrees | float64 | 25.17e |
-    |                 Type |    None |     |S6 |     6s |
-    |             Velocity |  km/sec | float64 | 25.17e |
-    |             Redshift |    None | float64 | 25.17e |
-    |        Redshift Flag |    None |     |S4 |     4s |
-    | Magnitude and Filter |    None |     |S5 |     5s |
-    |    Distance (arcmin) |  arcmin | float64 | 25.17e |
-    |           References |    None |   int32 |    12i |
-    |                Notes |    None |   int32 |    12i |
-    |    Photometry Points |    None |   int32 |    12i |
-    |            Positions |    None |   int32 |    12i |
-    |      Redshift Points |    None |   int32 |    12i |
-    |      Diameter Points |    None |   int32 |    12i |
-    |         Associations |    None |   int32 |    12i |
-    -----------------------------------------------------
+    ::
+
+        -----------------------------------------------------
+        |                 Name |    Unit |    Type | Format |
+        -----------------------------------------------------
+        |                  No. |    None |   int32 |    12i |
+        |          Object Name |    None |    |S30 |    30s |
+        |              RA(deg) | degrees | float64 | 25.17e |
+        |             DEC(deg) | degrees | float64 | 25.17e |
+        |                 Type |    None |     |S6 |     6s |
+        |             Velocity |  km/sec | float64 | 25.17e |
+        |             Redshift |    None | float64 | 25.17e |
+        |        Redshift Flag |    None |     |S4 |     4s |
+        | Magnitude and Filter |    None |     |S5 |     5s |
+        |    Distance (arcmin) |  arcmin | float64 | 25.17e |
+        |           References |    None |   int32 |    12i |
+        |                Notes |    None |   int32 |    12i |
+        |    Photometry Points |    None |   int32 |    12i |
+        |            Positions |    None |   int32 |    12i |
+        |      Redshift Points |    None |   int32 |    12i |
+        |      Diameter Points |    None |   int32 |    12i |
+        |         Associations |    None |   int32 |    12i |
+        -----------------------------------------------------
 
     """
 
@@ -230,27 +232,29 @@ def query_ned_near_iauname(iauname='1234-423',radius=2.0,
 
     Returns NED_MainTable with the following information for each target within the search radius:
 
-    -----------------------------------------------------
-    |                 Name |    Unit |    Type | Format |
-    -----------------------------------------------------
-    |                  No. |    None |   int32 |    12i |
-    |          Object Name |    None |    |S30 |    30s |
-    |              RA(deg) | degrees | float64 | 25.17e |
-    |             DEC(deg) | degrees | float64 | 25.17e |
-    |                 Type |    None |     |S6 |     6s |
-    |             Velocity |  km/sec | float64 | 25.17e |
-    |             Redshift |    None | float64 | 25.17e |
-    |        Redshift Flag |    None |     |S4 |     4s |
-    | Magnitude and Filter |    None |     |S5 |     5s |
-    |    Distance (arcmin) |  arcmin | float64 | 25.17e |
-    |           References |    None |   int32 |    12i |
-    |                Notes |    None |   int32 |    12i |
-    |    Photometry Points |    None |   int32 |    12i |
-    |            Positions |    None |   int32 |    12i |
-    |      Redshift Points |    None |   int32 |    12i |
-    |      Diameter Points |    None |   int32 |    12i |
-    |         Associations |    None |   int32 |    12i |
-    -----------------------------------------------------
+    ::
+
+        -----------------------------------------------------
+        |                 Name |    Unit |    Type | Format |
+        -----------------------------------------------------
+        |                  No. |    None |   int32 |    12i |
+        |          Object Name |    None |    |S30 |    30s |
+        |              RA(deg) | degrees | float64 | 25.17e |
+        |             DEC(deg) | degrees | float64 | 25.17e |
+        |                 Type |    None |     |S6 |     6s |
+        |             Velocity |  km/sec | float64 | 25.17e |
+        |             Redshift |    None | float64 | 25.17e |
+        |        Redshift Flag |    None |     |S4 |     4s |
+        | Magnitude and Filter |    None |     |S5 |     5s |
+        |    Distance (arcmin) |  arcmin | float64 | 25.17e |
+        |           References |    None |   int32 |    12i |
+        |                Notes |    None |   int32 |    12i |
+        |    Photometry Points |    None |   int32 |    12i |
+        |            Positions |    None |   int32 |    12i |
+        |      Redshift Points |    None |   int32 |    12i |
+        |      Diameter Points |    None |   int32 |    12i |
+        |         Associations |    None |   int32 |    12i |
+        -----------------------------------------------------
 
     """
 
@@ -308,27 +312,29 @@ def query_ned_by_refcode(refcode='2011ApJS..193...18W',
 
     Returns NED_MainTable with the following information for each target within the search radius:
 
-    -----------------------------------------------------
-    |                 Name |    Unit |    Type | Format |
-    -----------------------------------------------------
-    |                  No. |    None |   int32 |    12i |
-    |          Object Name |    None |    |S30 |    30s |
-    |              RA(deg) | degrees | float64 | 25.17e |
-    |             DEC(deg) | degrees | float64 | 25.17e |
-    |                 Type |    None |     |S6 |     6s |
-    |             Velocity |  km/sec | float64 | 25.17e |
-    |             Redshift |    None | float64 | 25.17e |
-    |        Redshift Flag |    None |     |S4 |     4s |
-    | Magnitude and Filter |    None |     |S5 |     5s |
-    |    Distance (arcmin) |  arcmin | float64 | 25.17e |
-    |           References |    None |   int32 |    12i |
-    |                Notes |    None |   int32 |    12i |
-    |    Photometry Points |    None |   int32 |    12i |
-    |            Positions |    None |   int32 |    12i |
-    |      Redshift Points |    None |   int32 |    12i |
-    |      Diameter Points |    None |   int32 |    12i |
-    |         Associations |    None |   int32 |    12i |
-    -----------------------------------------------------
+    ::
+
+        -----------------------------------------------------
+        |                 Name |    Unit |    Type | Format |
+        -----------------------------------------------------
+        |                  No. |    None |   int32 |    12i |
+        |          Object Name |    None |    |S30 |    30s |
+        |              RA(deg) | degrees | float64 | 25.17e |
+        |             DEC(deg) | degrees | float64 | 25.17e |
+        |                 Type |    None |     |S6 |     6s |
+        |             Velocity |  km/sec | float64 | 25.17e |
+        |             Redshift |    None | float64 | 25.17e |
+        |        Redshift Flag |    None |     |S4 |     4s |
+        | Magnitude and Filter |    None |     |S5 |     5s |
+        |    Distance (arcmin) |  arcmin | float64 | 25.17e |
+        |           References |    None |   int32 |    12i |
+        |                Notes |    None |   int32 |    12i |
+        |    Photometry Points |    None |   int32 |    12i |
+        |            Positions |    None |   int32 |    12i |
+        |      Redshift Points |    None |   int32 |    12i |
+        |      Diameter Points |    None |   int32 |    12i |
+        |         Associations |    None |   int32 |    12i |
+        -----------------------------------------------------
 
     """
 
@@ -380,12 +386,14 @@ def query_ned_names(objname='M31',
 
     Returns NED_NamesTable with the following information:
 
-    ----------------------------------
-    |    Name | Unit | Type | Format |
-    ----------------------------------
-    | objname | None | |S30 |    30s |
-    | objtype | None |  |S6 |     6s |
-    ----------------------------------
+    ::
+
+        ----------------------------------
+        |    Name | Unit | Type | Format |
+        ----------------------------------
+        | objname | None | |S30 |    30s |
+        | objtype | None |  |S6 |     6s |
+        ----------------------------------
 
     """
 
@@ -440,45 +448,47 @@ def query_ned_basic_posn(objname='M31',
 
     Returns NED_PositionDataTable with the following information:
 
-    -----------------------------------------------------------
-    |                    Name |       Unit |    Type | Format |
-    -----------------------------------------------------------
-    |                 pos_ref |       None |    |S19 |    19s |
-    |      pos_ra_equ_B1950_d |    degrees | float64 | 25.17e |
-    |     pos_dec_equ_B1950_d |    degrees | float64 | 25.17e |
-    |      pos_ra_equ_B1950_s |       None |    |S14 |    14s |
-    |     pos_dec_equ_B1950_s |       None |    |S14 |    14s |
-    |  maj_axis_unc_equ_B1950 | arcseconds | float64 | 25.17e |
-    |  min_axis_unc_equ_B1950 | arcseconds | float64 | 25.17e |
-    | pos_angle_unc_equ_B1950 | arcseconds | float64 | 25.17e |
-    |      pos_ra_equ_J2000_d |    degrees | float64 | 25.17e |
-    |     pos_dec_equ_J2000_d |    degrees | float64 | 25.17e |
-    |      pos_ra_equ_J2000_s |       None |    |S14 |    14s |
-    |     pos_dec_equ_J2000_s |       None |    |S14 |    14s |
-    |  maj_axis_unc_equ_J2000 | arcseconds | float64 | 25.17e |
-    |  min_axis_unc_equ_J2000 | arcseconds | float64 | 25.17e |
-    | pos_angle_unc_equ_J2000 | arcseconds | float64 | 25.17e |
-    |     pos_lon_ecl_B1950_d |    degrees | float64 | 25.17e |
-    |     pos_lat_ecl_B1950_d |    degrees | float64 | 25.17e |
-    |  maj_axis_unc_ecl_B1950 | arcseconds | float64 | 25.17e |
-    |  min_axis_unc_ecl_B1950 | arcseconds | float64 | 25.17e |
-    | pos_angle_unc_ecl_B1950 | arcseconds | float64 | 25.17e |
-    |     pos_lon_ecl_J2000_d |    degrees | float64 | 25.17e |
-    |     pos_lat_ecl_J2000_d |    degrees | float64 | 25.17e |
-    |  maj_axis_unc_ecl_J2000 | arcseconds | float64 | 25.17e |
-    |  min_axis_unc_ecl_J2000 | arcseconds | float64 | 25.17e |
-    | pos_angle_unc_ecl_J2000 | arcseconds | float64 | 25.17e |
-    |           pos_lon_gal_d |    degrees | float64 | 25.17e |
-    |           pos_lat_gal_d |    degrees | float64 | 25.17e |
-    |        maj_axis_unc_gal | arcseconds | float64 | 25.17e |
-    |        min_axis_unc_gal | arcseconds | float64 | 25.17e |
-    |       pos_angle_unc_gal | arcseconds | float64 | 25.17e |
-    |       pos_lon_sup_gal_d |    degrees | float64 | 25.17e |
-    |       pos_lat_sup_gal_d |    degrees | float64 | 25.17e |
-    |     maj_axis_unc_supgal | arcseconds | float64 | 25.17e |
-    |    min_axis_unc_sup_gal | arcseconds | float64 | 25.17e |
-    |   pos_angle_unc_sup_gal | arcseconds | float64 | 25.17e |
-    -----------------------------------------------------------
+    ::
+
+        -----------------------------------------------------------
+        |                    Name |       Unit |    Type | Format |
+        -----------------------------------------------------------
+        |                 pos_ref |       None |    |S19 |    19s |
+        |      pos_ra_equ_B1950_d |    degrees | float64 | 25.17e |
+        |     pos_dec_equ_B1950_d |    degrees | float64 | 25.17e |
+        |      pos_ra_equ_B1950_s |       None |    |S14 |    14s |
+        |     pos_dec_equ_B1950_s |       None |    |S14 |    14s |
+        |  maj_axis_unc_equ_B1950 | arcseconds | float64 | 25.17e |
+        |  min_axis_unc_equ_B1950 | arcseconds | float64 | 25.17e |
+        | pos_angle_unc_equ_B1950 | arcseconds | float64 | 25.17e |
+        |      pos_ra_equ_J2000_d |    degrees | float64 | 25.17e |
+        |     pos_dec_equ_J2000_d |    degrees | float64 | 25.17e |
+        |      pos_ra_equ_J2000_s |       None |    |S14 |    14s |
+        |     pos_dec_equ_J2000_s |       None |    |S14 |    14s |
+        |  maj_axis_unc_equ_J2000 | arcseconds | float64 | 25.17e |
+        |  min_axis_unc_equ_J2000 | arcseconds | float64 | 25.17e |
+        | pos_angle_unc_equ_J2000 | arcseconds | float64 | 25.17e |
+        |     pos_lon_ecl_B1950_d |    degrees | float64 | 25.17e |
+        |     pos_lat_ecl_B1950_d |    degrees | float64 | 25.17e |
+        |  maj_axis_unc_ecl_B1950 | arcseconds | float64 | 25.17e |
+        |  min_axis_unc_ecl_B1950 | arcseconds | float64 | 25.17e |
+        | pos_angle_unc_ecl_B1950 | arcseconds | float64 | 25.17e |
+        |     pos_lon_ecl_J2000_d |    degrees | float64 | 25.17e |
+        |     pos_lat_ecl_J2000_d |    degrees | float64 | 25.17e |
+        |  maj_axis_unc_ecl_J2000 | arcseconds | float64 | 25.17e |
+        |  min_axis_unc_ecl_J2000 | arcseconds | float64 | 25.17e |
+        | pos_angle_unc_ecl_J2000 | arcseconds | float64 | 25.17e |
+        |           pos_lon_gal_d |    degrees | float64 | 25.17e |
+        |           pos_lat_gal_d |    degrees | float64 | 25.17e |
+        |        maj_axis_unc_gal | arcseconds | float64 | 25.17e |
+        |        min_axis_unc_gal | arcseconds | float64 | 25.17e |
+        |       pos_angle_unc_gal | arcseconds | float64 | 25.17e |
+        |       pos_lon_sup_gal_d |    degrees | float64 | 25.17e |
+        |       pos_lat_sup_gal_d |    degrees | float64 | 25.17e |
+        |     maj_axis_unc_supgal | arcseconds | float64 | 25.17e |
+        |    min_axis_unc_sup_gal | arcseconds | float64 | 25.17e |
+        |   pos_angle_unc_sup_gal | arcseconds | float64 | 25.17e |
+        -----------------------------------------------------------
 
     """
 
@@ -533,13 +543,15 @@ def query_ned_external(objname='M31',
 
     Returns NED_ExternalLinksTable with the following information:
 
-    ------------------------------------------------
-    |                 Name | Unit |  Type | Format |
-    ------------------------------------------------
-    |   external_query_url | None | |S871 |   871s |
-    |             location | None |  |S30 |    30s |
-    | external_service_url | None |  |S48 |    48s |
-    ------------------------------------------------
+    ::
+
+        ------------------------------------------------
+        |                 Name | Unit |  Type | Format |
+        ------------------------------------------------
+        |   external_query_url | None | |S871 |   871s |
+        |             location | None |  |S30 |    30s |
+        | external_service_url | None |  |S48 |    48s |
+        ------------------------------------------------
 
     """
 
@@ -726,27 +738,29 @@ def query_ned_photometry(objname='M31',
 
     Returns NED_PhotometricData table with following information:
 
-    --------------------------------------------------------
-    |                       Name | Unit |    Type | Format |
-    --------------------------------------------------------
-    |                        No. | None |   int32 |    12i |
-    |          Observed Passband | None |    |S20 |    20s |
-    |     Photometry Measurement | None | float64 | 25.17e |
-    |                Uncertainty | None |    |S11 |    11s |
-    |                      Units | None |    |S20 |    20s |
-    |                  Frequency |   Hz | float64 | 25.17e |
-    | NED Photometry Measurement |   Jy | float64 | 25.17e |
-    |            NED Uncertainty | None |    |S11 |    11s |
-    |                  NED Units | None |     |S2 |     2s |
-    |                    Refcode | None |    |S19 |    19s |
-    |               Significance | None |    |S23 |    23s |
-    |        Published frequency | None |    |S17 |    17s |
-    |             Frequency Mode | None |    |S71 |    71s |
-    |       Coordinates Targeted | None |    |S31 |    31s |
-    |               Spatial Mode | None |    |S24 |    24s |
-    |                 Qualifiers | None |    |S40 |    40s |
-    |                   Comments | None |   |S161 |   161s |
-    --------------------------------------------------------
+    ::
+
+        --------------------------------------------------------
+        |                       Name | Unit |    Type | Format |
+        --------------------------------------------------------
+        |                        No. | None |   int32 |    12i |
+        |          Observed Passband | None |    |S20 |    20s |
+        |     Photometry Measurement | None | float64 | 25.17e |
+        |                Uncertainty | None |    |S11 |    11s |
+        |                      Units | None |    |S20 |    20s |
+        |                  Frequency |   Hz | float64 | 25.17e |
+        | NED Photometry Measurement |   Jy | float64 | 25.17e |
+        |            NED Uncertainty | None |    |S11 |    11s |
+        |                  NED Units | None |     |S2 |     2s |
+        |                    Refcode | None |    |S19 |    19s |
+        |               Significance | None |    |S23 |    23s |
+        |        Published frequency | None |    |S17 |    17s |
+        |             Frequency Mode | None |    |S71 |    71s |
+        |       Coordinates Targeted | None |    |S31 |    31s |
+        |               Spatial Mode | None |    |S24 |    24s |
+        |                 Qualifiers | None |    |S40 |    40s |
+        |                   Comments | None |   |S161 |   161s |
+        --------------------------------------------------------
 
     """
 
@@ -796,60 +810,62 @@ def query_ned_diameters(objname='M31',
 
     Returns NED_Diameters_Data table with following information:
 
-    --------------------------------------------------------------
-    |                           Name |   Unit |    Type | Format |
-    --------------------------------------------------------------
-    |                            No. |   None |   int32 |    12i |
-    |             Frequency targeted |   None |    |S25 |    25s |
-    |                        Refcode |   None |    |S19 |    19s |
-    |                     Major Axis |   None | float64 | 25.17e |
-    |                Major Axis Flag |   None |     |S3 |     3s |
-    |                Major Axis Unit |   None |    |S11 |    11s |
-    |                     Minor Axis |   None | float64 | 25.17e |
-    |                Minor Axis Flag |   None |     |S4 |     4s |
-    |                Minor Axis Unit |   None |     |S6 |     6s |
-    |                     Axis Ratio |   None | float64 | 25.17e |
-    |                Axis Ratio Flag |   None |     |S8 |     8s |
-    |         Major Axis Uncertainty |   None | float64 | 25.17e |
-    |                    Ellipticity |   None | float64 | 25.17e |
-    |                   Eccentricity |   None | float64 | 25.17e |
-    |                 Position Angle |    deg | float64 | 25.17e |
-    |                        Equinox |   None |     |S5 |     5s |
-    |                Reference Level |   None |    |S30 |    30s |
-    |                  NED Frequency |  hertz | float64 | 25.17e |
-    |                 NED Major Axis | arcsec | float64 | 25.17e |
-    |     NED Major Axis Uncertainty | arcsec | float64 | 25.17e |
-    |                 NED Axis Ratio |   None | float64 | 25.17e |
-    |                NED Ellipticity |   None | float64 | 25.17e |
-    |               NED Eccentricity |   None | float64 | 25.17e |
-    |           NED cos-1_axis_ratio |   None | float64 | 25.17e |
-    |             NED Position Angle |    deg | float64 | 25.17e |
-    |                 NED Minor Axis | arcsec | float64 | 25.17e |
-    |         Minor Axis Uncertainty |   None | float64 | 25.17e |
-    |     NED Minor Axis Uncertainty | arcsec | float64 | 25.17e |
-    |         Axis Ratio Uncertainty |   None | float64 | 25.17e |
-    |     NED Axis Ratio Uncertainty |   None | float64 | 25.17e |
-    |        Ellipticity Uncertainty |   None | float64 | 25.17e |
-    |    NED Ellipticity Uncertainty |   None | float64 | 25.17e |
-    |       Eccentricity Uncertainty |   None | float64 | 25.17e |
-    |   NED Eccentricity Uncertainty |   None | float64 | 25.17e |
-    |     Position Angle Uncertainty |   None | float64 | 25.17e |
-    | NED Position Angle Uncertainty |    deg | float64 | 25.17e |
-    |                   Significance |   None |    |S23 |    23s |
-    |                      Frequency |   None | float64 | 25.17e |
-    |                 Frequency Unit |   None |     |S7 |     7s |
-    |                 Frequency Mode |   None |    |S45 |    45s |
-    |                  Detector Type |   None |    |S34 |    34s |
-    |              Fitting Technique |   None |    |S24 |    24s |
-    |                       Features |   None |     |S4 |     4s |
-    |              Measured Quantity |   None |    |S18 |    18s |
-    |         Measurement Qualifiers |   None |    |S44 |    44s |
-    |                    Targeted RA |   None |     |S9 |     9s |
-    |                   Targeted DEC |   None |     |S9 |     9s |
-    |               Targeted Equinox |   None |     |S5 |     5s |
-    |                 NED Qualifiers |   None |    |S42 |    42s |
-    |                    NED Comment |   None |    |S37 |    37s |
-    --------------------------------------------------------------
+    ::
+
+        --------------------------------------------------------------
+        |                           Name |   Unit |    Type | Format |
+        --------------------------------------------------------------
+        |                            No. |   None |   int32 |    12i |
+        |             Frequency targeted |   None |    |S25 |    25s |
+        |                        Refcode |   None |    |S19 |    19s |
+        |                     Major Axis |   None | float64 | 25.17e |
+        |                Major Axis Flag |   None |     |S3 |     3s |
+        |                Major Axis Unit |   None |    |S11 |    11s |
+        |                     Minor Axis |   None | float64 | 25.17e |
+        |                Minor Axis Flag |   None |     |S4 |     4s |
+        |                Minor Axis Unit |   None |     |S6 |     6s |
+        |                     Axis Ratio |   None | float64 | 25.17e |
+        |                Axis Ratio Flag |   None |     |S8 |     8s |
+        |         Major Axis Uncertainty |   None | float64 | 25.17e |
+        |                    Ellipticity |   None | float64 | 25.17e |
+        |                   Eccentricity |   None | float64 | 25.17e |
+        |                 Position Angle |    deg | float64 | 25.17e |
+        |                        Equinox |   None |     |S5 |     5s |
+        |                Reference Level |   None |    |S30 |    30s |
+        |                  NED Frequency |  hertz | float64 | 25.17e |
+        |                 NED Major Axis | arcsec | float64 | 25.17e |
+        |     NED Major Axis Uncertainty | arcsec | float64 | 25.17e |
+        |                 NED Axis Ratio |   None | float64 | 25.17e |
+        |                NED Ellipticity |   None | float64 | 25.17e |
+        |               NED Eccentricity |   None | float64 | 25.17e |
+        |           NED cos-1_axis_ratio |   None | float64 | 25.17e |
+        |             NED Position Angle |    deg | float64 | 25.17e |
+        |                 NED Minor Axis | arcsec | float64 | 25.17e |
+        |         Minor Axis Uncertainty |   None | float64 | 25.17e |
+        |     NED Minor Axis Uncertainty | arcsec | float64 | 25.17e |
+        |         Axis Ratio Uncertainty |   None | float64 | 25.17e |
+        |     NED Axis Ratio Uncertainty |   None | float64 | 25.17e |
+        |        Ellipticity Uncertainty |   None | float64 | 25.17e |
+        |    NED Ellipticity Uncertainty |   None | float64 | 25.17e |
+        |       Eccentricity Uncertainty |   None | float64 | 25.17e |
+        |   NED Eccentricity Uncertainty |   None | float64 | 25.17e |
+        |     Position Angle Uncertainty |   None | float64 | 25.17e |
+        | NED Position Angle Uncertainty |    deg | float64 | 25.17e |
+        |                   Significance |   None |    |S23 |    23s |
+        |                      Frequency |   None | float64 | 25.17e |
+        |                 Frequency Unit |   None |     |S7 |     7s |
+        |                 Frequency Mode |   None |    |S45 |    45s |
+        |                  Detector Type |   None |    |S34 |    34s |
+        |              Fitting Technique |   None |    |S24 |    24s |
+        |                       Features |   None |     |S4 |     4s |
+        |              Measured Quantity |   None |    |S18 |    18s |
+        |         Measurement Qualifiers |   None |    |S44 |    44s |
+        |                    Targeted RA |   None |     |S9 |     9s |
+        |                   Targeted DEC |   None |     |S9 |     9s |
+        |               Targeted Equinox |   None |     |S5 |     5s |
+        |                 NED Qualifiers |   None |    |S42 |    42s |
+        |                    NED Comment |   None |    |S37 |    37s |
+        --------------------------------------------------------------
 
     """
 
