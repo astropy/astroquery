@@ -12,6 +12,8 @@ except ImportError:
     import astropy.io.votable as votable
 from astropy.table import Table
 
+__all__ = ['vizquery']
+
 def vizquery(query, server="vizier.u-strasbg.fr"):
     """
     VizieR search query.
@@ -94,25 +96,3 @@ def vizquery(query, server="vizier.u-strasbg.fr"):
                     table.add_row(row)
     
     return table
-
-
-if __name__ == '__main__':
-    
-    #Find all AGNs in Veron & Cetty with Vmag in [5.0; 11.0]
-    query = {}
-    query["-source"] = "VII/258/vv10"
-    query["-out"] = ["Name", "Sp", "Vmag"]
-    query["Vmag"] = "5.0..11.0"
-    table1 = vizquery(query)
-    
-    #Find sources in 2MASS matching the AGNs positions to within 2 arcsec
-    query = {}
-    query["-source"] = "II/246/out"
-    query["-out"] = ["RAJ2000", "DEJ2000", "2MASS", "Kmag"]
-    query["-c.rs"] = "2"
-    query["-c"] = table1
-    table2 = vizquery(query)
-    
-    print(table1)
-    print(table2)
-

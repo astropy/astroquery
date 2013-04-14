@@ -1,15 +1,16 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
-from .. import vizier
+from ... import vizier
 
 def test_simple():
+    # Find all AGNs in Veron & Cetty with Vmag in [5.0; 11.0]
     query = {}
     query["-source"] = "VII/258/vv10"
     query["-out"] = ["Name", "Sp", "Vmag"]
     query["Vmag"] = "5.0..11.0"
     table1 = vizier.vizquery(query)
     
-    #Find sources in 2MASS matching the AGNs positions to within 2 arcsec
+    # Find sources in 2MASS matching the AGNs positions to within 2 arcsec
     query = {}
     query["-source"] = "II/246/out"
     query["-out"] = ["RAJ2000", "DEJ2000", "2MASS", "Kmag"]

@@ -2,7 +2,7 @@
 import os
 import xml.etree.ElementTree as tree
 import astropy.units as u
-from ... import irsadust
+from ... import irsa_dust
 
 M31_XML = "dustm31.xml"
 M81_XML = "dustm81.xml"
