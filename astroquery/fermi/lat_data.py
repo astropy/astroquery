@@ -54,7 +54,7 @@ class FermiLAT_Query(object):
                    'spacecraft':'on' if spacecraftdata else 'off'}
 
         result = requests.post(self.request_url, data=payload)
-        re_result = self.result_url_re.findall(result._content)
+        re_result = self.result_url_re.findall(result.content)
 
         if len(re_result) == 0:
             raise ValueError("Results did not contain a result url... something went awry (that hasn't been tested yet)")
