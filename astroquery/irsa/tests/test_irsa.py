@@ -1,4 +1,6 @@
-import astroquery.irsa
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
+
+from ... import irsa
 import numpy as np
 import distutils.version as dv
 import pytest
