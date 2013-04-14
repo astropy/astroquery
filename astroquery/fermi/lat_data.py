@@ -8,6 +8,9 @@ import time
 __all__ = ['FermiLAT_Query', 'FermiLAT_DelayedQuery']
 
 class FermiLAT_Query(object):
+    """
+    TODO: document
+    """
 
     request_url = 'http://fermi.gsfc.nasa.gov/cgi-bin/ssc/LAT/LATDataQuery.cgi'
     result_url_re = re.compile('The results of your query may be found at <a href="(http://fermi.gsfc.nasa.gov/.*?)"')
@@ -61,6 +64,9 @@ class FermiLAT_Query(object):
         return result_url
 
 class FermiLAT_DelayedQuery(object):
+    """
+    TODO: document
+    """
 
     fitsfile_re = re.compile('<a href="(.*?)">Available</a>')
 
