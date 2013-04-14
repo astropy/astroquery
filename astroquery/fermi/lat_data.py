@@ -93,9 +93,9 @@ class FermiLAT_DelayedQuery(object):
         return fitsfile_urls
 
     def _check_page(self):
-        result_page = urllib.urlopen(self.result_url)
+        result_page = requests.post(self.result_url)
 
-        pagedata = result_page.read()
+        pagedata = result_page.content
 
         fitsfile_urls = self.fitsfile_re.findall(pagedata)
 
