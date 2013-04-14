@@ -7,7 +7,7 @@ import time
 
 __all__ = ['FermiLAT_Query', 'FermiLAT_DelayedQuery']
 
-class FermiLAT_Query(object):
+class FermiLAT_QueryClass(object):
     """
     TODO: document
     """
@@ -63,7 +63,9 @@ class FermiLAT_Query(object):
 
         return result_url
 
-class FermiLAT_DelayedQuery(object):
+FermiLAT_Query = FermiLAT_QueryClass()
+
+class FermiLAT_DelayedQueryClass(object):
     """
     TODO: document
     """
@@ -104,3 +106,4 @@ class FermiLAT_DelayedQuery(object):
         else:
             return fitsfile_urls
 
+FermiLAT_DelayedQuery = FermiLAT_DelayedQueryClass()
