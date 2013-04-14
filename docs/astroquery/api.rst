@@ -40,9 +40,11 @@ Directory Structure::
     module/core.py
     module/tests/test_module.py
 
-`core.py`:
 
-.. code-block:: python 
+`core.py` would contain:
+
+
+.. code-block:: python
 
     def query(*args):
         """ Wrapper for simple queries """
@@ -55,6 +57,7 @@ Directory Structure::
 
         def __init__(self, *args):
             """ set some parameters """
+            # do login here
             self.request_data = {}
             pass
 
@@ -71,6 +74,16 @@ Directory Structure::
         def parse_result(self, result):
             # do something, probably with regexp's
             pass
+
+For multiple parallel queries logged in to the same object, you could do:
+
+.. code-block:: python
+
+    from astroquery import module
+
+    module_query = QueryClass(login_information)
+
+    results = parallel_map(module_query,['m31','m51','m17'])
 
 
 Present Implementations (April 2013)
