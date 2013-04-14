@@ -1,19 +1,14 @@
-"""
-NRAO Image Archive Query Tool
------------------------------------
-
-:Author: Adam Ginsburg (adam.g.ginsburg@gmail.com)
-"""
-import urllib2
-import urllib
-import os
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
 import gzip
-import StringIO
-from astropy.io import fits
-from astroquery.utils import progressbar
-from astropy import coordinates as coord
+import os
 import re
+import StringIO
+import urllib
+import urllib2
+from astropy.io import fits
+from astropy import coordinates as coord
 import astropy.utils.data as aud
+from ..utils import progressbar
 
 imfits_re = re.compile("http://[^\"]*\\.imfits")
 uvfits_re = re.compile("http://[^\"]*\\.uvfits")
