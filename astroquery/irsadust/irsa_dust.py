@@ -168,12 +168,13 @@ class DustResults(object):
         section : str
             When missing or `all`, returns the full table. When the name
             of a section is given, only that portion of the table is returned.
-            The following values are accepted:
+            The following values are accepted::
+
                 'all'
                 'location', 'loc', 'l',
                 'reddening', 'red', 'r',
                 'emission', 'em', 'e',
-                'temperature', 'temp', 't'.
+                'temperature', 'temp', 't'
         
         Returns
         -------
@@ -195,7 +196,7 @@ class DustResults(object):
         Fetch the extinction detail table specfied in the given query result.
         
         Parameters
-        ---------
+        ----------
         row : int 
             the index of the dust result within the list of results
             The list of results has the same order as the list of locations specified

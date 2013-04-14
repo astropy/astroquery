@@ -69,6 +69,8 @@ def query_ned_by_objname(objname='M31',
 
     The table ID number (tid) determines the data product returned from NED:
 
+    Parameters
+    ----------
     tid=0 : Main Information Table for object (default)
     tid=1 : Table of all names in NED for object
         All aliases available from the NED name resolver service
@@ -76,8 +78,8 @@ def query_ned_by_objname(objname='M31',
         Data available in variety of coordinate systems and epochs
     tid=3 : Table of Derived Values in NED for object
         Includes velocities, distances, distance moduli, cosmology dependent parameters
-    ** tid=4 : Table of Basic Data in NED for object.
-        Doesn't currently work; error of "two fields with the same name"
+    tid=4 : Table of Basic Data in NED for object.
+        .. warning:: Doesn't currently work; error of "two fields with the same name"
     tid=5 : Table of External Links for the object
         Vizier, IRSA, Simbad, etc. Some links appear to be deprecated
 
@@ -96,13 +98,14 @@ def query_ned_by_objname(objname='M31',
     U.close()
 
     """
-    There should be 91 columns in the Derived Values table, based on the headers. The data here are
-        cosmological values based on the redshift.
+    There should be 91 columns in the Derived Values table, based on the
+    headers. The data here are cosmological values based on the redshift.
 
-    For non-extragalactic objects, these are all blank; however, there seems to be an error in the
-        tables in that only 88 blank cells are supplied, instead of the required 91. This results
-        in an error when astropy.io.votable tries to parse the XML string. This crude kluge adds empty
-        cells to the table so it can be read properly.
+    For non-extragalactic objects, these are all blank; however, there seems to
+    be an error in the tables in that only 88 blank cells are supplied, instead
+    of the required 91. This results in an error when astropy.io.votable tries
+    to parse the XML string. This crude kluge adds empty cells to the table so
+    it can be read properly.
     """
 
     tid_derived = 3
@@ -148,15 +151,21 @@ def query_ned_nearname(objname='M31',radius=2.0,
     """
     Query objects within a specified angular distance of another target
 
-    keywords:
-        objname - target on which the position search is centered
+    Parameters
+    ----------
+    objname : str
+        target on which the position search is centered
+    radius : float
+        radius (in arcminutes) within which to search
 
-        radius - radius (in arcminutes) within which to search
+    Returns
+    -------
+    NED_MainTable with the following information for each target within the
+    search radius.
 
-    Returns NED_MainTable with the following information for each target within the search radius:
-
-    ::
-
+    Examples
+    --------
+    >>> print query_ned_nearname()
         -----------------------------------------------------
         |                 Name |    Unit |    Type | Format |
         -----------------------------------------------------
@@ -178,6 +187,7 @@ def query_ned_nearname(objname='M31',radius=2.0,
         |      Diameter Points |    None |   int32 |    12i |
         |         Associations |    None |   int32 |    12i |
         -----------------------------------------------------
+
 
     """
 
@@ -225,13 +235,17 @@ def query_ned_near_iauname(iauname='1234-423',radius=2.0,
     """
     Query objects near another target based on IAU name (truncated coordinates).
 
-    keywords:
-        iauname - IAU coordinate-based name of target on which search is centered. Definition of IAU coordinates at http://cdsweb.u-strasbg.fr/Dic/iau-spec.html
+    Parameters
+    ----------
+    iauname : str
+        IAU coordinate-based name of target on which search is centered. Definition of IAU coordinates at http://cdsweb.u-strasbg.fr/Dic/iau-spec.html
+    radius : str
+        radius (in arcminutes) within which to search
 
-        radius - radius (in arcminutes) within which to search
-
-    Returns NED_MainTable with the following information for each target within the search radius:
-
+    Returns
+    NED_MainTable with the following information for each target within the
+    search radius:
+    
     ::
 
         -----------------------------------------------------
@@ -306,13 +320,15 @@ def query_ned_by_refcode(refcode='2011ApJS..193...18W',
     """
     Query NED for basic data on objects cited in a particular reference.
 
-    keywords:
-        refcode - 19-digit reference code for journal article.
+    Parameters
+    ----------
+    refcode : str
+        19-digit reference code for journal article.
         Example: 2011ApJS..193...18W is the reference code for Willett et al. (2011), ApJS, 193, 18
 
-    Returns NED_MainTable with the following information for each target within the search radius:
-
-    ::
+    Returns
+    -------
+    NED_MainTable with the following information for each target within the search radius:
 
         -----------------------------------------------------
         |                 Name |    Unit |    Type | Format |
@@ -615,60 +631,99 @@ def query_ned_allsky(ra_constraint='Unconstrained', ra_1='', ra_2='',
     of='xml_main',
         root_url='http://nedwww.ipac.caltech.edu/cgi-bin/nph-allsky'):
     """
-    Query objects with joint constraints on redshift, sky area, object types, survey names, and flux density/magnitude to construct galaxy samples
+    Query objects with joint constraints on redshift, sky area, object types,
+    survey names, and flux density/magnitude to construct galaxy samples
 
-    keywords:
-    ra_constraint - constraint on right ascension. Options are 'Unconstrained','Between'
-    ra_1,ra_2 - limits for RA in J2000 equatorial coordinates. Acceptable format includes '00h00m00.0'.
-    dec_constraint - constraint on declination. Options are 'Unconstrained','Between'
-    dec_1,dec2 - limits for declination in J2000 equatorial coordinates. Acceptable format includes '00d00m00.0'
-
-    glon_constraint - constraint on Galactic longitude. Options are 'Unconstrained','Between'
-    glon_1,glon_2 - limits for RA in J2000 equatorial coordinates. Acceptable format includes '00h00m00.0'.
-    glat_constraint - constraint on Galactic latitude. Options are 'Unconstrained','Between'
-    glat_1,glat2 - limits for declination in J2000 equatorial coordinates. Acceptable format includes '00d00m00.0'
-
-    hconst - Hubble constant. Default is 70.5 km/s/Mpc (WMAP5)
-    omegam - Omega_matter. Default is 0.27 (WMAP5)
-    omegav - Omega_vacuum. Default is 0.73 (WMAP5)
-    corr_z - integer keyword for correcting redshift to various velocity frames. Available frames are:
-        1: reference frame defined by 3K CMB (default)
-        2: reference frame defined by the Virgo Infall
-        3: reference frame defined by the Virgo Infall + Great Attractor
-        4: reference frame defined by the Virgo Infall + Great Attractor + Shapley Supercluster
-
-        z_constraint - constraint on redshift. Options are 'Unconstrained','Available','Unavailable','Larger Than','Less Than','Between','Not Between'
-        z_value1,zvalue2 - upper and lower boundaries for z_constraint. If 'Larger Than' or 'Less Than' are specified, only set z_value1
-    z_unit - units of redshift constraint. Options are 'z' or 'km/s'
-
-    flux_constraint - constraints on flux density. Options are 'Unconstrained','Available','Brighter Than','Fainter Than','Between','Not Between'
-    flux_value1,flux_value2 - limits for flux density. If 'Brighter Than' or 'Fainter Than' is specified, only set flux_value1
-    flux_unit - units of the flux density constraint. Options are 'Jy','mJy','mag','Wm2Hz'
-    flux_band - specify a particular band of flux density to constrain search. Example: flux_band='HST-WFPC2-F814' searches the F814W channel (7937 AA) on WFPC2 on Hubble.
-        Setting this keyword searches for objects with any data in the bandpass frequency range; it is not limited to the particular instrument.
-
-    frat_constraint - option for specifying a flux ratio. Not currently enabled in the web version of NED; implementation here is uncertain.
-
-    in_objtypes1 - list of classified extragalactic object types to include. Options are galaxies ('G'), galaxy pairs, triples, groups, clusters ('GPair','GTrpl','GGroup','GClstr'), QSOs and QSO groups ('QSO','QGroup'), gravitational lenses ('GravLens'), absorption line systems ('AbLS'), emission line sources ('EmLS')
-    in_objtypes2 - list of unclassified extragalactic candidates to include. Options are sources detected in the radio ('RadioS'), sub-mm ('SmmS'), infrared ('IrS'), visual ('VisS'), ultraviolet excess ('UvES'), X-ray ('XrayS'), gamma-ray ('GammaS')
-    in_objtypes3 - list of components of galaxies to include. Options are supernovae ('SN'), HII regions ('HII'), planetary nebulae ('PN'), supernova remnants ('SNR'), stellar associations ('*Ass'), star clusters ('*Cl'), molecular clouds ('MCld'), novae ('Nova'), variable stars ('V*'), and Wolf-Rayet stars ('WR*')
-    ot_include - option for selection of included object types. Options are 'ANY' (default) or 'ALL'
-    ex_objtypes1 - list of classified extragalactic object types to exclude. Options are the same as for in_objtypes1.
-    ex_objtypes2 - list of unclassified extragalactic candidates to exclude. Options are the same as for in_objtypes2.
-    ex_objtypes3 - list of components of galaxies to exclude. Options are the same as for in_objtypes3.
-
-    nmp_op - option for selection of name prefixes. Options are 'ANY' (default) or 'ALL'. Full list of prefixes available at http://ned.ipac.caltech.edu/samples/NEDmdb.html
-    name_prefix1 - list of name prefixes from ABELLPN - GB
-    name_prefix2 - list of name prefixes from GB1 - PISCES
-    name_prefix3 - list of name prefixes from Pisces Austrinus - 87GB[BWE91]
-    name_prefix4 - list of name prefixes from [A2001] - [ZZL96]
-
-    out_csys - output format for coordinate system. Options are 'Equatorial' (default), 'Ecliptic', 'Galactic', 'SuperGalactic'
-    out_equinox - output format for equinox. Options are 'B1950.0','J2000.0' (default)
-    obj_sort - format for sorting the output list. Options are 'RA or Longitude' (default), 'DEC or Latitude', 'Galactic Longitude', 'Galactic Latitude', 'Redshift - ascending', 'Redshift - descending'
-    of - VOTable format of data. Options include 'xml_main' (default),'xml_names','xml_posn','xml_extern','xml_basic','xml_dervd'
-    zv_breaker - velocity will be displayed as a lower limit when above this value. Default is 30000.0 km/s
-    list_limit - lists with fewer than this number will return detailed information. Default is 5.
+    Parameters
+    ----------
+    ra_constraint : 
+		constraint on right ascension. Options are 'Unconstrained','Between'
+    ra_1,ra_2 : 
+		limits for RA in J2000 equatorial coordinates. Acceptable format includes '00h00m00.0'.
+    dec_constraint : 
+		constraint on declination. Options are 'Unconstrained','Between'
+    dec_1,dec2 : 
+		limits for declination in J2000 equatorial coordinates. Acceptable format includes '00d00m00.0'
+    glon_constraint : 
+		constraint on Galactic longitude. Options are 'Unconstrained','Between'
+    glon_1,glon_2 : 
+		limits for RA in J2000 equatorial coordinates. Acceptable format includes '00h00m00.0'.
+    glat_constraint : 
+		constraint on Galactic latitude. Options are 'Unconstrained','Between'
+    glat_1,glat2 : 
+		limits for declination in J2000 equatorial coordinates. Acceptable format includes '00d00m00.0'
+    hconst : 
+		Hubble constant. Default is 70.5 km/s/Mpc (WMAP5)
+    omegam : 
+		Omega_matter. Default is 0.27 (WMAP5)
+    omegav : 
+		Omega_vacuum. Default is 0.73 (WMAP5)
+    corr_z : 
+		integer keyword for correcting redshift to various velocity frames. Available frames are:
+            1: reference frame defined by 3K CMB (default)
+            2: reference frame defined by the Virgo Infall
+            3: reference frame defined by the Virgo Infall + Great Attractor
+            4: reference frame defined by the Virgo Infall + Great Attractor + Shapley Supercluster
+    z_constraint : 
+        constraint on redshift. Options are 'Unconstrained','Available','Unavailable','Larger Than','Less Than','Between','Not Between'
+    z_value1,zvalue2 : 
+        upper and lower boundaries for z_constraint. If 'Larger Than' or 'Less Than' are specified, only set z_value1
+    z_unit : 
+		units of redshift constraint. Options are 'z' or 'km/s'
+    flux_constraint : 
+		constraints on flux density. Options are 'Unconstrained','Available','Brighter Than','Fainter Than','Between','Not Between'
+    flux_value1,flux_value2 : 
+		limits for flux density. If 'Brighter Than' or 'Fainter Than' is specified, only set flux_value1
+    flux_unit : 
+		units of the flux density constraint. Options are 'Jy','mJy','mag','Wm2Hz'
+    flux_band : 
+        specify a particular band of flux density to constrain search.
+        Example: flux_band='HST-WFPC2-F814' searches the F814W channel (7937
+        AA) on WFPC2 on Hubble.  Setting this keyword searches for objects with
+        any data in the bandpass frequency range; it is not limited to the
+        particular instrument.
+    frat_constraint : 
+		option for specifying a flux ratio. Not currently enabled in the web version of NED; implementation here is uncertain.
+    in_objtypes1 : 
+        list of classified extragalactic object types to include. Options are
+        galaxies ('G'), galaxy pairs, triples, groups, clusters
+        ('GPair','GTrpl','GGroup','GClstr'), QSOs and QSO groups
+        ('QSO','QGroup'), gravitational lenses ('GravLens'), absorption line
+        systems ('AbLS'), emission line sources ('EmLS')
+    in_objtypes2 : 
+		list of unclassified extragalactic candidates to include. Options are sources detected in the radio ('RadioS'), sub-mm ('SmmS'), infrared ('IrS'), visual ('VisS'), ultraviolet excess ('UvES'), X-ray ('XrayS'), gamma-ray ('GammaS')
+    in_objtypes3 : 
+		list of components of galaxies to include. Options are supernovae ('SN'), HII regions ('HII'), planetary nebulae ('PN'), supernova remnants ('SNR'), stellar associations ('\*Ass'), star clusters ('\*Cl'), molecular clouds ('MCld'), novae ('Nova'), variable stars ('V\*'), and Wolf-Rayet stars ('WR\*')
+    ot_include : 
+		option for selection of included object types. Options are 'ANY' (default) or 'ALL'
+    ex_objtypes1 : 
+		list of classified extragalactic object types to exclude. Options are the same as for in_objtypes1.
+    ex_objtypes2 : 
+		list of unclassified extragalactic candidates to exclude. Options are the same as for in_objtypes2.
+    ex_objtypes3 : 
+		list of components of galaxies to exclude. Options are the same as for in_objtypes3.
+    nmp_op : 
+		option for selection of name prefixes. Options are 'ANY' (default) or 'ALL'. Full list of prefixes available at http://ned.ipac.caltech.edu/samples/NEDmdb.html
+    name_prefix1 : 
+		list of name prefixes from ABELLPN - GB
+    name_prefix2 : 
+		list of name prefixes from GB1 - PISCES
+    name_prefix3 : 
+		list of name prefixes from Pisces Austrinus - 87GB[BWE91]
+    name_prefix4 : 
+		list of name prefixes from [A2001] - [ZZL96]
+    out_csys : 
+		output format for coordinate system. Options are 'Equatorial' (default), 'Ecliptic', 'Galactic', 'SuperGalactic'
+    out_equinox : 
+		output format for equinox. Options are 'B1950.0','J2000.0' (default)
+    obj_sort : 
+		format for sorting the output list. Options are 'RA or Longitude' (default), 'DEC or Latitude', 'Galactic Longitude', 'Galactic Latitude', 'Redshift - ascending', 'Redshift - descending'
+    of : 
+		VOTable format of data. Options include 'xml_main' (default),'xml_names','xml_posn','xml_extern','xml_basic','xml_dervd'
+    zv_breaker : 
+		velocity will be displayed as a lower limit when above this value. Default is 30000.0 km/s
+    list_limit : 
+		lists with fewer than this number will return detailed information. Default is 5.
 
     """
 
