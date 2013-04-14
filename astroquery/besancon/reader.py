@@ -1,10 +1,4 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-"""
-besancon.py:
-  Classes to read Besancon galaxy model
-
-:Author: Adam Ginsburg (adam.g.ginsburg@gmail.com)
-"""
 
 ##
 ## Redistribution and use in source and binary forms, with or without
