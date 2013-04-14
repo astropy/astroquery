@@ -1,4 +1,5 @@
-from astroquery import fermi
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
+from ... import fermi
 
 def test_FermiLAT_Query():
     
@@ -7,7 +8,8 @@ def test_FermiLAT_Query():
     print result
 
 def test_FermiLAT_DelayedQuery():
-    query = fermi.FermiLAT_DelayedQuery()
+    result_url = 'TODO'
+    query = fermi.FermiLAT_DelayedQuery(result_url)
     # TODO
     print query
 
