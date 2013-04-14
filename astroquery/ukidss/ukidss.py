@@ -8,7 +8,11 @@ UKIDSS Image and Catalog Query Tool
 import cookielib
 import urllib2
 import urllib
-import htmllib
+try:
+    import htmllib
+except ImportError:
+    # python 3 compatibility
+    import HTMLParser as htmllib
 import formatter
 import gzip
 import os
