@@ -31,11 +31,53 @@ function that returns a `list` of catalog name strings:
 
     print ukidss.list_catalogs()
 
+Outline of an Example Module
+-----------------------------
+Directory Structure::
+
+    module/
+    module/__init__.py
+    module/core.py
+    module/tests/test_module.py
+
+`core.py`:
+
+.. code-block:: python 
+
+    def query(*args):
+        """ Wrapper for simple queries """
+        QueryTool = QueryClass(*args)
+        return QueryTool.execute()
+
+    class QueryClass(astroquery.Query):
+
+        url = 'http://static_url'
+
+        def __init__(self, *args):
+            """ set some parameters """
+            self.request_data = {}
+            pass
+
+        def __call__(self, **kwargs):
+            return self.execute(**kwargs)
+
+        def execute(self, timeout=1):
+
+            self.result = requests.post(url, data=self.request_data)
+
+            return self.parse_result(self.result)
+
+
+        def parse_result(self, result):
+            # do something, probably with regexp's
+            pass
+
+
 Present Implementations (April 2013)
 ------------------------------------
 
 There are a few current implementations that differ from the above proposal.
-They will need to be refactored.
+They will need to be refactored.  However, they provide useful comparison.
 
 1. The UKIDSS model
 
