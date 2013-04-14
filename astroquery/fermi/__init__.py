@@ -1,7 +1,8 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 """
-This module helps you download data from the 
-Fermi Large Area Telescope (LAT)
+Access to Fermi Gamma-ray Space Telescope data.
+
+http://fermi.gsfc.nasa.gov
 http://fermi.gsfc.nasa.gov/ssc/data/ 
 """
-from fermilat import *
+from lat_data import *
