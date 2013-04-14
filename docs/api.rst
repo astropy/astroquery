@@ -4,6 +4,7 @@ Astroquery API Specification
 Standard usage should be along these lines:
 
 .. code-block:: python
+
     from astroquery import simbad
 
     result = simbad.query("M 31")
@@ -39,6 +40,7 @@ They will need to be refactored.
 1. The UKIDSS model
 
 .. code-block:: python
+
     from astroquery import ukidss
 
     q = ukidss.Query()
