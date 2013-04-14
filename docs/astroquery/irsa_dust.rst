@@ -9,6 +9,7 @@ Getting started
 
 Basic IRSA dust extinction service query:
 .. code-block:: python
+
     >>> from astroquery import irsadust
     >>> dust_result = irsadust.query('m81', reg_size=2.2)
     >>> table = dust_result.table()
@@ -21,6 +22,7 @@ Basic IRSA dust extinction service query:
 
 Multi-query example:
 .. code-block:: python
+
     Query multiple objects with a single command:
     >>> dust_result = irsadust.query(['m101', 'm33', 'm15'])
     >>> table = dust_result.table()
@@ -37,6 +39,7 @@ Multi-query example:
 
 Fetch extinction detail table and fits images from links in initial response:
 .. code-block:: python
+
     >>> dust_result = irsadust.query('266.12 -61.89 equ j2000')
     >>> detail_table = dust_result.ext_detail_table()
     >>> emission_image = dust_result.image('emission')
