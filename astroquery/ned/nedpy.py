@@ -899,35 +899,37 @@ def query_ned_redshifts(objname='M31',
 
     Returns NED_Redshifts_Data table with following information:
 
-    --------------------------------------------------------------
-    |                           Name |   Unit |    Type | Format |
-    --------------------------------------------------------------
-    |                            No. |   None |   int32 |    12i |
-    |             Frequency Targeted |   None |    |S13 |    13s |
-    |             Published Velocity | km/sec |   int32 |    12i |
-    | Published Velocity Uncertainty | km/sec |   int32 |    12i |
-    |             Published Redshift |   None | float64 | 25.17e |
-    | Published Redshift Uncertainty |   None | float64 | 25.17e |
-    |                        Refcode |   None |    |S19 |    19s |
-    |            Name in publication |   None |    |S20 |    20s |
-    |                   Published RA |   None |     |S8 |     8s |
-    |                  Published Dec |   None |     |S8 |     8s |
-    |              Published Equinox |   None |     |S5 |     5s |
-    |              Unc. Significance |   None |    |S17 |    17s |
-    |                 Spectral Range |   None |     |S7 |     7s |
-    |                   Spectrograph |   None |    |S18 |    18s |
-    |      Measurement Mode Features |   None |    |S34 |    34s |
-    |     Measurement Mode Technique |   None |    |S42 |    42s |
-    |                   Spatial Mode |   None |    |S28 |    28s |
-    |                          Epoch |   None |     |S4 |     4s |
-    |                Reference Frame |   None |    |S33 |    33s |
-    |                           Apex |   None |     |S4 |     4s |
-    |          Longitude of the Apex |   None |     |S4 |     4s |
-    |           Latitude of the Apex |   None |     |S4 |     4s |
-    |         Apex Coordinate System |   None |     |S4 |     4s |
-    |                     Qualifiers |   None |    |S50 |    50s |
-    |                       Comments |   None |    |S24 |    24s |
-    --------------------------------------------------------------
+    ::
+
+        --------------------------------------------------------------
+        |                           Name |   Unit |    Type | Format |
+        --------------------------------------------------------------
+        |                            No. |   None |   int32 |    12i |
+        |             Frequency Targeted |   None |    |S13 |    13s |
+        |             Published Velocity | km/sec |   int32 |    12i |
+        | Published Velocity Uncertainty | km/sec |   int32 |    12i |
+        |             Published Redshift |   None | float64 | 25.17e |
+        | Published Redshift Uncertainty |   None | float64 | 25.17e |
+        |                        Refcode |   None |    |S19 |    19s |
+        |            Name in publication |   None |    |S20 |    20s |
+        |                   Published RA |   None |     |S8 |     8s |
+        |                  Published Dec |   None |     |S8 |     8s |
+        |              Published Equinox |   None |     |S5 |     5s |
+        |              Unc. Significance |   None |    |S17 |    17s |
+        |                 Spectral Range |   None |     |S7 |     7s |
+        |                   Spectrograph |   None |    |S18 |    18s |
+        |      Measurement Mode Features |   None |    |S34 |    34s |
+        |     Measurement Mode Technique |   None |    |S42 |    42s |
+        |                   Spatial Mode |   None |    |S28 |    28s |
+        |                          Epoch |   None |     |S4 |     4s |
+        |                Reference Frame |   None |    |S33 |    33s |
+        |                           Apex |   None |     |S4 |     4s |
+        |          Longitude of the Apex |   None |     |S4 |     4s |
+        |           Latitude of the Apex |   None |     |S4 |     4s |
+        |         Apex Coordinate System |   None |     |S4 |     4s |
+        |                     Qualifiers |   None |    |S50 |    50s |
+        |                       Comments |   None |    |S24 |    24s |
+        --------------------------------------------------------------
 
     """
 
@@ -993,14 +995,16 @@ def query_ned_notes(objname='M31',
 
     Returns NED_Note_Data table with following information:
 
-    ----------------------------------------
-    |        Name | Unit |   Type | Format |
-    ----------------------------------------
-    |         No. | None |  int32 |    12i |
-    |     Refcode | None |   |S19 |    19s |
-    | Object Name | None |   |S21 |    21s |
-    |        Note | None | |S3556 |  3556s |
-    ----------------------------------------
+    ::
+
+        ----------------------------------------
+        |        Name | Unit |   Type | Format |
+        ----------------------------------------
+        |         No. | None |  int32 |    12i |
+        |     Refcode | None |   |S19 |    19s |
+        | Object Name | None |   |S21 |    21s |
+        |        Note | None | |S3556 |  3556s |
+        ----------------------------------------
 
     """
 
@@ -1063,33 +1067,35 @@ def query_ned_position(objname='M31',
 
     Returns NED_Positions_Data table with following information:
 
-    -------------------------------------------------------------------
-    |                                Name |   Unit |    Type | Format |
-    -------------------------------------------------------------------
-    |                                 No. |   None |   int32 |    12i |
-    |                                  RA |   None |    |S14 |    14s |
-    |                                 DEC |   None |    |S14 |    14s |
-    |                           Frequency |   None |    |S18 |    18s |
-    | Uncertainty Ellipse Semi-Major Axis | arcsec | float64 | 25.17e |
-    | Uncertainty Ellipse Semi-Minor Axis | arcsec | float64 | 25.17e |
-    |              Uncertainty Ellipse PA |   None |     |S2 |     2s |
-    |                             Refcode |   None |    |S19 |    19s |
-    |                      Published Name |   None |    |S21 |    21s |
-    |                        Published RA |   None |     |S8 |     8s |
-    |                       Published Dec |   None |     |S8 |     8s |
-    |            Published RA Uncertainty |   None |     |S3 |     3s |
-    |           Published Dec Uncertainty |   None |     |S4 |     4s |
-    |            Published PA Uncertainty |   None |     |S2 |     2s |
-    |            Uncertainty Significance |   None |    |S59 |    59s |
-    |                   Published Equinox |   None |     |S7 |     7s |
-    |                     Published Epoch |   None |     |S6 |     6s |
-    |                       NED Frequency |     Hz | float64 | 25.17e |
-    |         Published System Coordinate |   None |    |S10 |    10s |
-    |                      Published Unit |   None |    |S11 |    11s |
-    |                     Published Frame |   None |     |S3 |     3s |
-    |            Published Frequence Mode |   None |    |S22 |    22s |
-    |                          Qualifiers |   None |    |S42 |    42s |
-    -------------------------------------------------------------------
+    ::
+
+        -------------------------------------------------------------------
+        |                                Name |   Unit |    Type | Format |
+        -------------------------------------------------------------------
+        |                                 No. |   None |   int32 |    12i |
+        |                                  RA |   None |    |S14 |    14s |
+        |                                 DEC |   None |    |S14 |    14s |
+        |                           Frequency |   None |    |S18 |    18s |
+        | Uncertainty Ellipse Semi-Major Axis | arcsec | float64 | 25.17e |
+        | Uncertainty Ellipse Semi-Minor Axis | arcsec | float64 | 25.17e |
+        |              Uncertainty Ellipse PA |   None |     |S2 |     2s |
+        |                             Refcode |   None |    |S19 |    19s |
+        |                      Published Name |   None |    |S21 |    21s |
+        |                        Published RA |   None |     |S8 |     8s |
+        |                       Published Dec |   None |     |S8 |     8s |
+        |            Published RA Uncertainty |   None |     |S3 |     3s |
+        |           Published Dec Uncertainty |   None |     |S4 |     4s |
+        |            Published PA Uncertainty |   None |     |S2 |     2s |
+        |            Uncertainty Significance |   None |    |S59 |    59s |
+        |                   Published Equinox |   None |     |S7 |     7s |
+        |                     Published Epoch |   None |     |S6 |     6s |
+        |                       NED Frequency |     Hz | float64 | 25.17e |
+        |         Published System Coordinate |   None |    |S10 |    10s |
+        |                      Published Unit |   None |    |S11 |    11s |
+        |                     Published Frame |   None |     |S3 |     3s |
+        |            Published Frequence Mode |   None |    |S22 |    22s |
+        |                          Qualifiers |   None |    |S42 |    42s |
+        -------------------------------------------------------------------
     """
 
     # Create dictionary of search parameters, then parse into query URL
@@ -1145,27 +1151,29 @@ def query_ned_nearpos(ra=0.000,dec=0.000,sr=2.0,
 
     Returns NED_MainTable with the following information for each target within the search radius:
 
-    -----------------------------------------------------
-    |                 Name |    Unit |    Type | Format |
-    -----------------------------------------------------
-    |                  No. |    None |   int32 |    12i |
-    |          Object Name |    None |    |S30 |    30s |
-    |              RA(deg) | degrees | float64 | 25.17e |
-    |             DEC(deg) | degrees | float64 | 25.17e |
-    |                 Type |    None |     |S6 |     6s |
-    |             Velocity |  km/sec | float64 | 25.17e |
-    |             Redshift |    None | float64 | 25.17e |
-    |        Redshift Flag |    None |     |S4 |     4s |
-    | Magnitude and Filter |    None |     |S5 |     5s |
-    |    Distance (arcmin) |  arcmin | float64 | 25.17e |
-    |           References |    None |   int32 |    12i |
-    |                Notes |    None |   int32 |    12i |
-    |    Photometry Points |    None |   int32 |    12i |
-    |            Positions |    None |   int32 |    12i |
-    |      Redshift Points |    None |   int32 |    12i |
-    |      Diameter Points |    None |   int32 |    12i |
-    |         Associations |    None |   int32 |    12i |
-    -----------------------------------------------------
+    ::
+
+        -----------------------------------------------------
+        |                 Name |    Unit |    Type | Format |
+        -----------------------------------------------------
+        |                  No. |    None |   int32 |    12i |
+        |          Object Name |    None |    |S30 |    30s |
+        |              RA(deg) | degrees | float64 | 25.17e |
+        |             DEC(deg) | degrees | float64 | 25.17e |
+        |                 Type |    None |     |S6 |     6s |
+        |             Velocity |  km/sec | float64 | 25.17e |
+        |             Redshift |    None | float64 | 25.17e |
+        |        Redshift Flag |    None |     |S4 |     4s |
+        | Magnitude and Filter |    None |     |S5 |     5s |
+        |    Distance (arcmin) |  arcmin | float64 | 25.17e |
+        |           References |    None |   int32 |    12i |
+        |                Notes |    None |   int32 |    12i |
+        |    Photometry Points |    None |   int32 |    12i |
+        |            Positions |    None |   int32 |    12i |
+        |      Redshift Points |    None |   int32 |    12i |
+        |      Diameter Points |    None |   int32 |    12i |
+        |         Associations |    None |   int32 |    12i |
+        -----------------------------------------------------
 
     """
 
