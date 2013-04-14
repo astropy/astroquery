@@ -1,12 +1,13 @@
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
 """
 Utilities used by irsa_dust.py to query the dust service and parse the results.
 """
+import re
 import xml.etree.ElementTree as tree
 import urllib
 import urllib2
 import astropy.units as u
-import re
-from astroquery.utils import progressbar
+from ..utils import progressbar
 
 def parse_number(string):
     """

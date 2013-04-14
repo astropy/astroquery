@@ -1,10 +1,9 @@
-"""
-IRSA Galactic Dust Reddening and Extinction Query Tool
-------------------------------------------------------
-
-:Author: David Shiga (dshiga.dev@gmail.com)
-
-"""
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
+import types
+import time
+import warnings
+import io
+import sys
 import urllib
 import urllib2
 import StringIO
@@ -14,13 +13,7 @@ from xml.etree.ElementTree import ElementTree
 from astropy.table import Table, Column
 import astropy.units as u
 from astropy.io import fits
-from astroquery.utils import progressbar
 from . import utils
-import types
-import time
-import warnings
-import io
-import sys
 
 __all__ = ["DustResults", "SingleDustResult", "query"]
 
