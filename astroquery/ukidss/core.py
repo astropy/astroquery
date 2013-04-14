@@ -1,10 +1,4 @@
-"""
-UKIDSS Image and Catalog Query Tool
------------------------------------
-
-:Author: Thomas Robitalle (thomas.robitaille@gmail.com)
-:Author: Adam Ginsburg (adam.g.ginsburg@gmail.com)
-"""
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
 import cookielib
 import urllib2
 import urllib
@@ -16,13 +10,13 @@ except ImportError:
 import formatter
 import gzip
 import os
-from astropy.io import fits
 from math import cos, radians
 import multiprocessing as mp
 import time
 import StringIO
-from astroquery.utils import progressbar
+from astropy.io import fits
 import astropy.utils.data as aud
+from ..utils import progressbar
 
 __all__ = ['UKIDSSQuery','clean_catalog','ukidss_programs_short','ukidss_programs_long']
 
