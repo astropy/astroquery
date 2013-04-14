@@ -6,8 +6,12 @@ VizieR Query Tool
 :Author: Julien Woillez (jwoillez@gmail.com)
 """
 
+import sys
 import httplib
-import cStringIO
+if sys.version_info[0] >= 3:
+    from io import BytesIO as StringIO
+else:
+    from cStringIO import StringIO
 import numpy
 try:
     import astropy.io.vo.table as votable
@@ -74,7 +78,8 @@ def vizquery(query, server="vizier.u-strasbg.fr"):
     h = httplib.HTTPConnection(server)
     h.request("POST", "/viz-bin/votable", body=body)
     resp = h.getresponse()
-    voTable = votable.parse(cStringIO.StringIO(resp.read()), pedantic=False)
+    s = StringIO(resp.read())
+    voTable = votable.parse(s, pedantic=False)
     
     # Convert VOTABLE into a list of astropy Table.
     tableList = []
@@ -85,9 +90,7 @@ def vizquery(query, server="vizier.u-strasbg.fr"):
             for field in voTreeTable.fields:
                 names += [field.name.encode('ascii')]
             # Table data come from the VOTABLE record array
-            data = voTreeTable.array
-            # Add Table to the list
-            tableList += [Table(data=data, names=names)] 
+            tableList += [voTreeTable.to_table()]
     
     # Merge the Table list
     table = tableList[0]

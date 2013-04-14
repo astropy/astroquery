@@ -90,12 +90,9 @@ def query_ned_by_objname(objname='M31',
     query_url = "%s?%s" % (root_url,urllib.urlencode(request_dict))
 
     # Retrieve handler object from NED
-    U = urllib2.urlopen(query_url)
-
-    # Write the data to a file, flush it to get the proper VO table format, and read it into an Astropy Table
-
-    R = U.read()
-    U.close()
+    # Write the data to a file, flush it to get the proper VO table format, and read it into an Astropy table
+    with aud.get_readable_fileobj(query_url) as f:
+        R = f.read().encode('utf-8')
 
     """
     There should be 91 columns in the Derived Values table, based on the
@@ -109,15 +106,15 @@ def query_ned_by_objname(objname='M31',
     """
 
     tid_derived = 3
-    tdparts = R.split('<TABLEDATA>',tid_derived+1)
+    tdparts = R.split(b'<TABLEDATA>',tid_derived+1)
     if len(tdparts) > tid_derived+1:
-        tdind = len(R) - len(tdparts[-1]) - len('<TABLEDATA>')
-        rseg = R[tdind:tdind+R[tdind:].find('</TABLEDATA>')]
-        cellcount = rseg.count('TD')/2
+        tdind = len(R) - len(tdparts[-1]) - len(b'<TABLEDATA>')
+        rseg = R[tdind:tdind+R[tdind:].find(b'</TABLEDATA>')]
+        cellcount = rseg.count(b'TD')/2
         if cellcount < 91:
             nrepeats = 91 - cellcount
-            newseg = rseg[:-6] + '<TD></TD>'*nrepeats + rseg[-6:]
-            newR = R[:tdind] + newseg + R[tdind+R[tdind:].find('</TABLEDATA>'):]
+            newseg = rseg[:-6] + b'<TD></TD>'*nrepeats + rseg[-6:]
+            newR = R[:tdind] + newseg + R[tdind+R[tdind:].find(b'</TABLEDATA>'):]
             R = newR
 
     # Check to see if NED returns a valid query
@@ -126,7 +123,7 @@ def query_ned_by_objname(objname='M31',
 
     if validtable:
         tf = tempfile.NamedTemporaryFile()
-        print >>tf,R
+        tf.write(R)
         tf.file.flush()
         t = Table.read(tf.name, format='votable', table_id=TID)
 
@@ -196,19 +193,15 @@ def query_ned_nearname(objname='M31',radius=2.0,
     query_url = "%s?%s" % (root_url,urllib.urlencode(request_dict))
 
     # Retrieve handler object from NED
-    U = urllib2.urlopen(query_url)
-
-    # Write the data to a file, flush it to get the proper VO table format, and read it into an Astropy Table
-
-    R = U.read()
-    U.close()
-    # Check to see if NED returns a valid query
+    # Write the data to a file, flush it to get the proper VO table format, and read it into an Astropy table
+    with aud.get_readable_fileobj(query_url) as f:
+        R = f.read().encode('utf-8')
 
     validtable = check_ned_valid(R)
 
     if validtable:
         tf = tempfile.NamedTemporaryFile()
-        print >>tf,R
+        tf.write(R)
         tf.file.flush()
         t = Table.read(tf.name, format='votable')
 
@@ -277,19 +270,15 @@ def query_ned_near_iauname(iauname='1234-423',radius=2.0,
     query_url = "%s?%s" % (root_url,urllib.urlencode(request_dict))
 
     # Retrieve handler object from NED
-    U = urllib2.urlopen(query_url)
-
-    # Write the data to a file, flush it to get the proper VO table format, and read it into an Astropy Table
-
-    R = U.read()
-    U.close()
-    # Check to see if NED returns a valid query
+    # Write the data to a file, flush it to get the proper VO table format, and read it into an Astropy table
+    with aud.get_readable_fileobj(query_url) as f:
+        R = f.read().encode('utf-8')
 
     validtable = check_ned_valid(R)
 
     if validtable:
         tf = tempfile.NamedTemporaryFile()
-        print >>tf,R
+        tf.write(R)
         tf.file.flush()
         t = Table.read(tf.name, format='votable')
 
@@ -358,15 +347,10 @@ def query_ned_by_refcode(refcode='2011ApJS..193...18W',
     request_dict = {'search_type':'Search','refcode':refcode,'of':'xml_main'}
     query_url = "%s?%s" % (root_url,urllib.urlencode(request_dict))
 
-    # Retrieve handler object from NED
-    U = urllib2.urlopen(query_url)
-
-    # Write the data to a file, flush it to get the proper VO table format, and read it into an Astropy table
-
-    with aud.get_readable_fileobj(U) as f:
-        R = f.read()
-    U.close()
     # Check to see if NED returns a valid query
+    # Write the data to a file, flush it to get the proper VO table format, and read it into an Astropy table
+    with aud.get_readable_fileobj(query_url) as f:
+        R = f.read().encode('utf-8')
 
     try:
         parseString(R)
@@ -383,7 +367,7 @@ def query_ned_by_refcode(refcode='2011ApJS..193...18W',
         return None
 
     tf = tempfile.NamedTemporaryFile()
-    print >>tf,R
+    tf.write(R)
     tf.file.flush()
     t = Table.read(tf.name, format='votable')
 
@@ -417,21 +401,16 @@ def query_ned_names(objname='M31',
     request_dict = {'extend':'no','of':'xml_names','objname':objname}
     query_url = "%s?%s" % (root_url,urllib.urlencode(request_dict))
 
-    # Retrieve handler object from NED
-    U = urllib2.urlopen(query_url)
-
-    # Write the data to a file, flush it to get the proper VO table format, and read it into an Astropy table
-
-    with aud.get_readable_fileobj(U) as f:
-        R = f.read()
-    U.close()
     # Check to see if NED returns a valid query
+    # Write the data to a file, flush it to get the proper VO table format, and read it into an Astropy table
+    with aud.get_readable_fileobj(query_url) as f:
+        R = f.read().encode('utf-8')
 
     validtable = check_ned_valid(R)
 
     if validtable:
         tf = tempfile.NamedTemporaryFile()
-        print >>tf,R
+        tf.write(R)
         tf.file.flush()
         t = Table.read(tf.name, format='votable')
 
@@ -513,12 +492,9 @@ def query_ned_basic_posn(objname='M31',
     query_url = "%s?%s" % (root_url,urllib.urlencode(request_dict))
 
     # Retrieve handler object from NED
-    U = urllib2.urlopen(query_url)
-
     # Write the data to a file, flush it to get the proper VO table format, and read it into an Astropy table
-
-    R = U.read()
-    U.close()
+    with aud.get_readable_fileobj(query_url) as f:
+        R = f.read().encode('utf-8')
 
     # Check to see if NED returns a valid query
 
@@ -526,7 +502,7 @@ def query_ned_basic_posn(objname='M31',
 
     if validtable:
         tf = tempfile.NamedTemporaryFile()
-        print >>tf,R
+        tf.write(R)
         tf.file.flush()
         t = Table.read(tf.name, format='votable')
 
@@ -576,19 +552,17 @@ def query_ned_external(objname='M31',
     query_url = "%s?%s" % (root_url,urllib.urlencode(request_dict))
 
     # Retrieve handler object from NED
-    U = urllib2.urlopen(query_url)
-
     # Write the data to a file, flush it to get the proper VO table format, and read it into an Astropy table
+    with aud.get_readable_fileobj(query_url) as f:
+        R = f.read().encode('utf-8')
 
-    R = U.read()
-    U.close()
     # Check to see if NED returns a valid query
 
     validtable = check_ned_valid(R)
 
     if validtable:
         tf = tempfile.NamedTemporaryFile()
-        print >>tf,R
+        tf.write(R)
         tf.file.flush()
         t = Table.read(tf.name, format='votable')
 
@@ -757,12 +731,9 @@ def query_ned_allsky(ra_constraint='Unconstrained', ra_1='', ra_2='',
     query_url = "%s?%s" % (root_url,urllib.urlencode(request_dict,doseq=1))
 
     # Retrieve handler object from NED
-    U = urllib2.urlopen(query_url)
-
     # Write the data to a file, flush it to get the proper VO table format, and read it into an Astropy table
-
-    R = U.read()
-    U.close()
+    with aud.get_readable_fileobj(query_url) as f:
+        R = f.read().encode('utf-8')
 
     try:
         parseString(R)
@@ -778,7 +749,7 @@ def query_ned_allsky(ra_constraint='Unconstrained', ra_1='', ra_2='',
         return None
 
     tf = tempfile.NamedTemporaryFile()
-    print >>tf,R
+    tf.write(R)
     tf.file.flush()
     t = Table.read(tf.name, format='votable')
 
@@ -824,19 +795,17 @@ def query_ned_photometry(objname='M31',
     query_url = "%s?%s" % (root_url,urllib.urlencode(request_dict))
 
     # Retrieve handler object from NED
-    U = urllib2.urlopen(query_url)
-
     # Write the data to a file, flush it to get the proper VO table format, and read it into an Astropy table
+    with aud.get_readable_fileobj(query_url) as f:
+        R = f.read().encode('utf-8')
 
-    R = U.read()
-    U.close()
     # Check to see if NED returns a valid query
 
     validtable = check_ned_valid(R)
 
     if validtable:
         tf = tempfile.NamedTemporaryFile()
-        print >>tf,R
+        tf.write(R)
         tf.file.flush()
         t = Table.read(tf.name, format='votable')
 
@@ -929,19 +898,17 @@ def query_ned_diameters(objname='M31',
     query_url = "%s?%s" % (root_url,urllib.urlencode(request_dict))
 
     # Retrieve handler object from NED
-    U = urllib2.urlopen(query_url)
+    # Write the data to a file, flush it to get the proper VO table format, and read it into an Astropy table
+    with aud.get_readable_fileobj(query_url) as f:
+        R = f.read().encode('utf-8')
 
-    # Write the data to a file, flush it to get the proper VO table format, and read it into an Astropy Table
-
-    R = U.read()
-    U.close()
     # Check to see if NED returns a valid query
 
     validtable = check_ned_valid(R)
 
     if validtable:
         tf = tempfile.NamedTemporaryFile()
-        print >>tf,R
+        tf.write(R)
         tf.file.flush()
         t = Table.read(tf.name, format='votable')
 
@@ -1009,12 +976,9 @@ def query_ned_redshifts(objname='M31',
     query_url = "%s?%s" % (root_url,urllib.urlencode(request_dict))
 
     # Retrieve handler object from NED
-    U = urllib2.urlopen(query_url)
-
     # Write the data to a file, flush it to get the proper VO table format, and read it into an Astropy table
-
-    R = U.read()
-    U.close()
+    with aud.get_readable_fileobj(query_url) as f:
+        R = f.read().encode('utf-8')
 
     # Check to see if there is a valid redshift frame for this object
 
@@ -1036,7 +1000,7 @@ def query_ned_redshifts(objname='M31',
     validtable = check_ned_valid(R)
     if validtable:
         tf = tempfile.NamedTemporaryFile()
-        print >>tf,R
+        tf.write(R)
         tf.file.flush()
         t = Table.read(tf.name, format='votable')
 
@@ -1084,12 +1048,9 @@ def query_ned_notes(objname='M31',
     query_url = "%s?%s" % (root_url,urllib.urlencode(request_dict))
 
     # Retrieve handler object from NED
-    U = urllib2.urlopen(query_url)
-
-    # Write the data to a file, flush it to get the proper VO table format, and read it into an Astropy Table
-
-    R = U.read()
-    U.close()
+    # Write the data to a file, flush it to get the proper VO table format, and read it into an Astropy table
+    with aud.get_readable_fileobj(query_url) as f:
+        R = f.read().encode('utf-8')
 
     # Check to see if there is a note for this object
 
@@ -1111,7 +1072,7 @@ def query_ned_notes(objname='M31',
     validtable = check_ned_valid(R)
     if validtable:
         tf = tempfile.NamedTemporaryFile()
-        print >>tf,R
+        tf.write(R)
         tf.file.flush()
         t = Table.read(tf.name, format='votable')
 
@@ -1174,19 +1135,17 @@ def query_ned_position(objname='M31',
     query_url = "%s?%s" % (root_url,urllib.urlencode(request_dict))
 
     # Retrieve handler object from NED
-    U = urllib2.urlopen(query_url)
-
     # Write the data to a file, flush it to get the proper VO table format, and read it into an Astropy table
+    with aud.get_readable_fileobj(query_url) as f:
+        R = f.read().encode('utf-8')
 
-    R = U.read()
-    U.close()
     # Check to see if NED returns a valid query
 
     validtable = check_ned_valid(R)
 
     if validtable:
         tf = tempfile.NamedTemporaryFile()
-        print >>tf,R
+        tf.write(R)
         tf.file.flush()
         t = Table.read(tf.name, format='votable')
 
@@ -1257,12 +1216,9 @@ def query_ned_nearpos(ra=0.000,dec=0.000,sr=2.0,
     query_url = "%s?%s" % (root_url,urllib.urlencode(request_dict))
 
     # Retrieve handler object from NED
-    U = urllib2.urlopen(query_url)
-
     # Write the data to a file, flush it to get the proper VO table format, and read it into an Astropy table
-
-    R = U.read()
-    U.close()
+    with aud.get_readable_fileobj(query_url) as f:
+        R = f.read().encode('utf-8')
 
     # Check to see if NED returns a valid query
 
@@ -1270,7 +1226,7 @@ def query_ned_nearpos(ra=0.000,dec=0.000,sr=2.0,
 
     if validtable:
         tf = tempfile.NamedTemporaryFile()
-        print >>tf,R
+        tf.write(R)
         tf.file.flush()
         t = Table.read(tf.name, format='votable')
 
@@ -1316,7 +1272,7 @@ def query_ned_basic(objname='M31',
 
     if validtable:
         tf = tempfile.NamedTemporaryFile()
-        print >>tf,R
+        tf.write(R)
         tf.file.flush()
         t = Table.read(tf.name, format='votable')
 
@@ -1352,7 +1308,7 @@ def query_ned_references(objname='M31',
 
     if validtable:
         tf = tempfile.NamedTemporaryFile()
-        print >>tf,R
+        tf.write(R)
         tf.file.flush()
         t = Table.read(tf.name, format='votable')
 
