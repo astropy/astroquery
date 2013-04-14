@@ -1,11 +1,4 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-"""
-VizieR Query Tool
------------------
-
-:Author: Julien Woillez (jwoillez@gmail.com)
-"""
-
 import sys
 import httplib
 if sys.version_info[0] >= 3:
