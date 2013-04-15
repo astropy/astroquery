@@ -6,6 +6,7 @@ import time
 
 __all__ = ['FermiLAT_Query', 'FermiLAT_DelayedQuery']
 
+
 class FermiLAT_QueryClass(object):
     """
     TODO: document
@@ -28,10 +29,10 @@ class FermiLAT_QueryClass(object):
         searchradius : str
             The search radius around the object/coordinates specified (will be
             converted to string if specified as number)
-            .. warning:: 
+            .. warning::
                 Defaults to 1 degree if left blank
         obsdates : str
-            Observation dates.  
+            Observation dates.
         timesys: 'Gregorian' or 'MET' or 'MJD'
             Time system associated with obsdates
         energyrange_MeV: str
@@ -42,15 +43,15 @@ class FermiLAT_QueryClass(object):
         The URL of the page with the results (still need to scrape this page to download the data: easy for wget)
         """
 
-        payload = {'shapefield':str(searchradius),
-                   'coordsystem':coordsys,
-                   'coordfield':name_or_coords,
-                   'destination':'query',
-                   'timefield':obsdates,
+        payload = {'shapefield': str(searchradius),
+                   'coordsystem': coordsys,
+                   'coordfield': name_or_coords,
+                   'destination': 'query',
+                   'timefield': obsdates,
                    'timetype': timesys,
-                   'energyfield':energyrange_MeV,
+                   'energyfield': energyrange_MeV,
                    'photonOrExtendedOrNone': LATdatatype,
-                   'spacecraft':'on' if spacecraftdata else 'off'}
+                   'spacecraft': 'on' if spacecraftdata else 'off'}
 
         result = requests.post(self.request_url, data=payload)
         re_result = self.result_url_re.findall(result.content)
@@ -64,6 +65,7 @@ class FermiLAT_QueryClass(object):
 
 FermiLAT_Query = FermiLAT_QueryClass()
 
+
 class FermiLAT_DelayedQueryClass(object):
     """
     TODO: document
@@ -71,13 +73,13 @@ class FermiLAT_DelayedQueryClass(object):
 
     fitsfile_re = re.compile('<a href="(.*?)">Available</a>')
 
-    timeout = 30 # minutes
+    timeout = 30  # minutes
 
-    check_frequency = 1 # minutes
+    check_frequency = 1  # minutes
 
     def __call__(self, result_url, check_frequency=1, verbose=False):
         self.result_url = result_url
-        
+
         page_loaded = False
 
         elapsed_time = 0

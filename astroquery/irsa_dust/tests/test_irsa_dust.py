@@ -8,10 +8,12 @@ M31_XML = "dustm31.xml"
 M81_XML = "dustm81.xml"
 M101_XML = "dustm101.xml"
 
+
 class DustTestCase(object):
     def data(self, filename):
         data_dir = os.path.join(os.path.dirname(__file__), 'data')
         return os.path.join(data_dir, filename)
+
 
 class TestDust(DustTestCase):
     def test_parse_number(self):
@@ -99,8 +101,8 @@ class TestDust(DustTestCase):
 
         # Append second to first
         results_a.append(results_b)
-       
-        # Verify 
+
+        # Verify
         assert len(results_a.table()) == 3
         assert results_a.result_set[2].query_loc == "m101"
         assert results_a.table()[2]["Dec"] == float("54.348950")
@@ -140,7 +142,7 @@ class TestDust(DustTestCase):
 
         results = irsa_dust.DustResults([result1, result2, result3])
         table = results.table()
-        
+
         assert table != None
 
         table = results.table("location")
@@ -163,7 +165,7 @@ class TestDust(DustTestCase):
         image = results.image("red", 2)
         assert image != None
 
-        # When row is out of bounds, make sure correct exception is raised 
+        # When row is out of bounds, make sure correct exception is raised
         try:
             image = results.image("temp", 3)
         except IndexError as e:

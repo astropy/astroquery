@@ -4,7 +4,7 @@ from astropy.io import fits
 import StringIO
 import astropy.utils.data as aud
 
-url_gpscutout  = "http://third.ucllnl.org/cgi-bin/gpscutout"
+url_gpscutout = "http://third.ucllnl.org/cgi-bin/gpscutout"
 
 __all__ = ['get_magpis_image_gal']
 
@@ -23,7 +23,7 @@ surveys = ["gps6epoch3",
     "bolocam"]
 
 
-def get_magpis_image_gal(glon, glat, survey='bolocam', size=1.0, 
+def get_magpis_image_gal(glon, glat, survey='bolocam', size=1.0,
         verbose=False, savename=None, save=True,
         overwrite=False, directory='./'):
     """
@@ -50,7 +50,7 @@ def get_magpis_image_gal(glon, glat, survey='bolocam', size=1.0,
     overwrite : bool
         Overwrite if file already exists?
     directory : string
-        Directory to store file in.  Defaults to './'.  
+        Directory to store file in.  Defaults to './'.
 
     Examples
     --------
@@ -62,18 +62,18 @@ def get_magpis_image_gal(glon, glat, survey='bolocam', size=1.0,
 
     # Construct request
     request = {}
-    request["Survey"] = survey 
+    request["Survey"] = survey
     # NOTE: RA is passed as a 2-part string, DEC is not used.  Whoops!
-    request["RA"] = "%s %s" % (glon,glat)
-    # request["Dec"] = 
+    request["RA"] = "%s %s" % (glon, glat)
+    # request["Dec"] =
     request["Equinox"] = "Galactic"
     request["ImageSize"] = size
     request["ImageType"] = "FITS"
 
     # these options are not used
     # optional request["MaxInt"] = 10
-    # optional request["Epochs"] = 
-    # optional request["Fieldname"] = 
+    # optional request["Epochs"] =
+    # optional request["Fieldname"] =
 
     # create the request header data
     request = urllib.urlencode(request)
@@ -88,10 +88,9 @@ def get_magpis_image_gal(glon, glat, survey='bolocam', size=1.0,
 
     if save:
         if savename is None:
-            savename = "G%08.4f%+09.4f_%s.fits" % (glon,glat,survey)
+            savename = "G%08.4f%+09.4f_%s.fits" % (glon, glat, survey)
         if directory[-1] != '/':
             directory += '/'
-        fitsfile.writeto(directory+savename, clobber=overwrite)
+        fitsfile.writeto(directory + savename, clobber=overwrite)
 
     return fitsfile
-

@@ -48,4 +48,3 @@ except ImportError:
 
     def test_ned_nearpos():
         result = ned.query_ned_nearpos()
-

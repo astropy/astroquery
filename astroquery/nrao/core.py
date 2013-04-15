@@ -19,23 +19,23 @@ request_URL = "https://webtest.aoc.nrao.edu/cgi-bin/lsjouwer/archive-pos.pl"
 __all__ = ['get_nrao_image']
 
 
-valid_bands = ["","L","C","X","U","K","Q"]
+valid_bands = ["", "L", "C", "X", "U", "K", "Q"]
 
 band_freqs = {
-    "L":	(1,2),
-    "S":	(2,4),
-    "C":	(4,8),
-    "X":	(8,12),
-    "U":	(12,18),
-    "K":	(18,26.5),
-    "Ka":	(26.5,40),
-    "Q":	(30,50),
-    "V":	(50,75),
-    "E":	(60,90),
-    "W":	(75,110),
-    "F":	(90,140),
-    "D":	(110,170),
-    }
+    "L": (1, 2),
+    "S": (2, 4),
+    "C": (4, 8),
+    "X": (8, 12),
+    "U": (12, 18),
+    "K": (18, 26.5),
+    "Ka": (26.5, 40),
+    "Q": (30, 50),
+    "V": (50, 75),
+    "E": (60, 90),
+    "W": (75, 110),
+    "F": (90, 140),
+    "D": (110, 170),
+}
 
 
 def get_nrao_image(lon, lat, system='galactic', epoch='J2000', size=1.0,
@@ -67,7 +67,7 @@ def get_nrao_image(lon, lat, system='galactic', epoch='J2000', size=1.0,
     overwrite : bool
         Overwrite if file already exists?
     directory : string
-        Directory to store file in.  Defaults to './'.  
+        Directory to store file in.  Defaults to './'.
     get_uvfits : bool
         Get the UVfits files instead of the IMfits files?
 
@@ -85,8 +85,8 @@ def get_nrao_image(lon, lat, system='galactic', epoch='J2000', size=1.0,
     elif system == 'galactic':
         galactic = coord.GalacticCoordinates(lon, lat, unit=('deg', 'deg'))
         radec = galactic.fk5
-    
-    radecstr = radec.ra.format(sep=' ') + ' ' + radec.dec.format(sep=' ') 
+
+    radecstr = radec.ra.format(sep=' ') + ' ' + radec.dec.format(sep=' ')
     glon, glat = galactic.lonangle.degrees, galactic.latangle.degrees
 
     # Construct request
@@ -110,7 +110,7 @@ def get_nrao_image(lon, lat, system='galactic', epoch='J2000', size=1.0,
     else:
         links = imfits_re.findall(results)
     configurations = config_re.findall(results)
-            
+
     if len(links) == 0:
         if verbose:
             print "No matches found at ra,dec = %s." % (radecstr)
@@ -118,7 +118,7 @@ def get_nrao_image(lon, lat, system='galactic', epoch='J2000', size=1.0,
 
     if verbose > 1:
         print "Configurations: "
-        print "\n".join(["%40s: %20s" % (L,C) for L,C in zip(links,configurations)])
+        print "\n".join(["%40s: %20s" % (L, C) for L, C in zip(links, configurations)])
 
     if save and not os.path.exists(directory):
         os.mkdir(directory)
@@ -130,19 +130,19 @@ def get_nrao_image(lon, lat, system='galactic', epoch='J2000', size=1.0,
 
     images = []
 
-    for link,config in zip(links,configurations):
+    for link, config in zip(links, configurations):
 
         # Get the file
         U = opener.open(link)
         with aud.get_readable_fileobj(U) as f:
             results = f.read()
         S = StringIO.StringIO(results)
-        try: 
-            fitsfile = fits.open(S,ignore_missing_end=True)
+        try:
+            fitsfile = fits.open(S, ignore_missing_end=True)
         except IOError:
             S.seek(0)
             G = gzip.GzipFile(fileobj=S)
-            fitsfile = fits.open(G,ignore_missing_end=True)
+            fitsfile = fits.open(G, ignore_missing_end=True)
 
         # Get Multiframe ID from the header
         images.append(fitsfile)
@@ -159,9 +159,9 @@ def get_nrao_image(lon, lat, system='galactic', epoch='J2000', size=1.0,
 
             if savename is None:
                 if get_uvfits:
-                    filename = "VLA_%s_G%07.3f%+08.3f_%s_%s.uvfits" % (bandname,glon,glat,obj,program)
+                    filename = "VLA_%s_G%07.3f%+08.3f_%s_%s.uvfits" % (bandname, glon, glat, obj, program)
                 else:
-                    filename = "VLA_%s_G%07.3f%+08.3f_%s_%s.fits" % (bandname,glon,glat,obj,program)
+                    filename = "VLA_%s_G%07.3f%+08.3f_%s_%s.fits" % (bandname, glon, glat, obj, program)
             else:
                 filename = savename
 
@@ -174,5 +174,3 @@ def get_nrao_image(lon, lat, system='galactic', epoch='J2000', size=1.0,
             fitsfile.writeto(final_file, clobber=overwrite)
 
     return images
-
-

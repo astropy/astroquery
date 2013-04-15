@@ -37,17 +37,17 @@ class SimbadResult(object):
 
     def __split_sections(self):
         for section in self.__sections:
-            match = re.search(r'(?ims)^::%s:+?$(?P<content>.*?)(^::|\Z)' % \
-                                                        section, self.__txt)
+            match = re.search(r'(?ims)^::%s:+?$(?P<content>.*?)(^::|\Z)' %
+                section, self.__txt)
             if match:
                 self.__indexes[section] = (match.start('content'),
-                                                        match.end('content'))
+                                          match.end('content'))
 
     def __parse_console_section(self):
         if self.console is None:
             return
         m = re.search(r'(?ims)total execution time: ([.\d]+?)\s*?secs',
-                                                                self.console)
+                     self.console)
         if m:
             try:
                 self.exectime = float(m.group(1))
@@ -55,20 +55,20 @@ class SimbadResult(object):
                 # TODO: do something useful here.
                 pass
         m = re.search(r'(?ms)SIMBAD(\d) rel (\d)[.](\d+)([^\d^\s])?',
-                                                                self.console)
+                     self.console)
         if m:
             self.sim_version = VersionInfo(*m.groups(None))
 
     def __warn(self):
         for error in self.errors:
             warnings.warn("Warning: The script line number %i raised "
-                            "the error: %s." %\
-                            (error.line, error.msg))
+                         "the error: %s." %
+                         (error.line, error.msg))
 
     def __get_section(self, section_name):
         if section_name in self.__indexes:
-            return self.__txt[self.__indexes[section_name][0]:\
-                                    self.__indexes[section_name][1]].strip()
+            return self.__txt[self.__indexes[section_name][0]:
+                             self.__indexes[section_name][1]].strip()
 
     @property
     def script(self):
@@ -93,7 +93,7 @@ class SimbadResult(object):
             return result
         for err in error_regex.finditer(self.error_raw):
             result.append(SimbadError(int(err.group('line')),
-                                        err.group('msg').replace('\n', ' ')))
+                         err.group('msg').replace('\n', ' ')))
         return result
 
     @property
@@ -112,4 +112,3 @@ class SimbadResult(object):
                             pedantic=self.__pedantic).get_first_table().array
             self.__table = array.to_table()
         return self.__table
-

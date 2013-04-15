@@ -9,15 +9,16 @@ import urllib2
 import astropy.units as u
 from ..utils import progressbar
 
+
 def parse_number(string):
     """
     Retrieve a number from the string.
-    
+
     Parameters
     ----------
     string : str
         the string to parse
-    
+
     Returns
     -------
     number : float
@@ -27,6 +28,7 @@ def parse_number(string):
     number = float(num_str)
     return number
 
+
 def parse_coords(string):
     """
     Retrieve coordinates from the string.
@@ -35,7 +37,7 @@ def parse_coords(string):
     ----------
     string : str
         the string to parse
-    
+
     Returns
     -------
     coords : list(float, float, str)
@@ -46,6 +48,7 @@ def parse_coords(string):
     coord_sys = string.split(None, 2)[2].strip()
     coords = [ra, dec, coord_sys]
     return coords
+
 
 def parse_units(string):
     """
@@ -66,8 +69,9 @@ def parse_units(string):
     units = u.format.Generic().parse(unit_str)
     return units
 
+
 def find_result_node(desc, xml_tree):
-    """ 
+    """
     Returns the <result> node with a <desc> child matching the given text.
     Eg: if desc = "text to match", this function will find the following
         result node:
@@ -79,7 +83,7 @@ def find_result_node(desc, xml_tree):
     -----
     xmlTree : the xml tree to search for the <result> node
     desc : the text contained in the desc node
-    
+
     Returns
     -----
     node : the <result> node containing the child with the given desc
@@ -92,10 +96,11 @@ def find_result_node(desc, xml_tree):
             return result_node
     return None
 
+
 def query(options, url, debug=False):
     """
     Performs the actual IRSA dust service query and returns the raw xml response.
-    
+
     Parameters
     ----------
     options : dictionary
@@ -110,7 +115,7 @@ def query(options, url, debug=False):
     xmlTree : `xml.etree.ElementTree`
         the raw xml query response
     """
-    
+
     url += "?" + "&".join(["%s=%s" % (x, urllib.quote_plus(str(options[x]))) for x in options])
     if debug:
         print(url)
@@ -126,10 +131,11 @@ def query(options, url, debug=False):
                         + url + "\n" + str(error))
     return response
 
+
 def xml(response):
     """
     Parse raw xml and return as an xml tree. If status is not `ok`, raise an exception.
-    
+
     Parameters
     ----------
     response : file like object
@@ -150,8 +156,9 @@ def xml(response):
 
     return xml
 
+
 def ext_detail_table(detail_table_url):
-    """ 
+    """
     Get the detailed extinction table located at the given url.
 
     Parameters
@@ -174,25 +181,26 @@ def ext_detail_table(detail_table_url):
     except urllib2.HTTPError as error:
         raise Exception("Failed to retrieve detail table: " + str(error))
 
+
 def image(image_url):
     """
     Retrieve the FITS image located at the given url.
-    
+
     Parameters
     ----------
     image_url : str
         the url where the image can be found
-    
+
     Returns
     -------
     content : the raw response to the http get request
     """
-    #if image_url == "test_url":
+    # if image_url == "test_url":
     #    req = "file:tests/t/test.fits"
-        #req = DustTestCase().data("test.fits")
-    #else:
+        # req = DustTestCase().data("test.fits")
+    # else:
     req = urllib2.Request(image_url)
-    
+
     try:
         response = urllib2.urlopen(req)
         content = progressbar.chunk_read(response, report_hook=progressbar.chunk_report)
@@ -203,4 +211,3 @@ def image(image_url):
                         + "Check your internet connection.")
     except urllib2.HTTPError as error:
         raise Exception("Failed to retrieve image: " + str(error))
-

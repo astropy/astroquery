@@ -42,22 +42,23 @@ DATA_TABLE = "./data/table"
 
 DELAY = 1
 
+
 def query(location, reg_size=None, delay=DELAY, verbose=False, url=DUST_SERVICE_URL):
     """
     Queries the IRSA Galactic Dust Reddening and Extinction service
     and returns the results.
-    
+
     Parameters
     ----------
     location : str
         Can be either the name of an object or a coordinate string
         If a name, must be resolveable by NED, SIMBAD, 2MASS, or SWAS.
         Examples of acceptable coordinate strings, can be found here:
-        http://irsa.ipac.caltech.edu/applications/DUST/docs/coordinate.html 
+        http://irsa.ipac.caltech.edu/applications/DUST/docs/coordinate.html
     reg_size : Number
         (optional) the size of the region to include in the dust query, in degrees
         Defaults to 5 degrees.
-    delay : int 
+    delay : int
         (optional) wait time between queries in seconds. Default is 1 second. Included in case
         rapid fire queries are considered obnoxious behavior by the server.
     url : str
@@ -80,7 +81,7 @@ def query(location, reg_size=None, delay=DELAY, verbose=False, url=DUST_SERVICE_
     >>> dust_result = query(['m101', 'm33', 'm15'])
     >>> table = dust_result.table()
     >>> table.pprint()
-    
+
     Query a single object by coordinates, then get extinction detail table
     and FITS emission image:
     >>> dust_result = query('266.12 -61.89 equ j2000')
@@ -91,11 +92,11 @@ def query(location, reg_size=None, delay=DELAY, verbose=False, url=DUST_SERVICE_
     if not isinstance(location, types.ListType):
         location = [location]
 
-    # Query each location, one by one. 
+    # Query each location, one by one.
     result_set = []
     index = 1
     for loc in location:
-        options = {"locstr" : loc}
+        options = {"locstr": loc}
         if reg_size != None:
             options["regSize"] = reg_size
 
@@ -112,12 +113,12 @@ def query(location, reg_size=None, delay=DELAY, verbose=False, url=DUST_SERVICE_
             continue
 
         # Parse the results
-        #try:
+        # try:
         result = SingleDustResult(xml_tree, loc)
         result_set.append(result)
         if verbose:
             print("Success.")
-        #except Exception as ex:
+        # except Exception as ex:
         #    warnings.warn("Could not parse results of query for location " + loc + ".\n" + str(ex))
         #    continue
 
@@ -132,6 +133,7 @@ def query(location, reg_size=None, delay=DELAY, verbose=False, url=DUST_SERVICE_
 
     dust_results = DustResults(result_set)
     return dust_results
+
 
 class DustResults(object):
     """
@@ -152,7 +154,7 @@ class DustResults(object):
     def table(self, section=None):
         """
         Create and return an astropy Table representing the query response(s).
-        When `section` is missing or `all`, returns the full table. When a 
+        When `section` is missing or `all`, returns the full table. When a
         section is specified (`location`, `extinction`, `emission`, or `temperature`),
         only that portion of the table is returned.
 
@@ -168,7 +170,7 @@ class DustResults(object):
                 'reddening', 'red', 'r',
                 'emission', 'em', 'e',
                 'temperature', 'temp', 't'
-        
+
         Returns
         -------
         table : `astropy.table.Table`
@@ -187,10 +189,10 @@ class DustResults(object):
     def ext_detail_table(self, row=1):
         """
         Fetch the extinction detail table specfied in the given query result.
-        
+
         Parameters
         ----------
-        row : int 
+        row : int
             the index of the dust result within the list of results
             The list of results has the same order as the list of locations specified
             in the query.
@@ -200,27 +202,27 @@ class DustResults(object):
         the extinction detail table, in `astropy.io.ascii.Ipac` format
         """
         if row < 1 or row > len(self._result_set):
-            raise IndexError("Row " + str(row)  + " is out of bounds for this table of length "
+            raise IndexError("Row " + str(row) + " is out of bounds for this table of length "
                             + str(len(self._result_set)) + ".")
-        return self._result_set[row-1].ext_detail_table()
+        return self._result_set[row - 1].ext_detail_table()
 
     def image(self, section, row=1):
         """
         Return the image associated wtih the given section and row.
-        
+
         Parameters
         ----------
         section : str
             the name or abbreviation for the section (extinction, emission, temperature)
-        row : int 
+        row : int
             the index of the dust result within the list of results
             The list of results has the same order as the list of locations specified
             in the query.
         """
         if row < 1 or row > len(self._result_set):
-            raise IndexError("Row " + str(row)  + " is out of bounds for this table of length "
+            raise IndexError("Row " + str(row) + " is out of bounds for this table of length "
                             + str(len(self._result_set)) + ".")
-        return self._result_set[row-1].image(section)
+        return self._result_set[row - 1].image(section)
 
     def query_loc(self, row=1):
         """
@@ -234,9 +236,9 @@ class DustResults(object):
             in the query.
         """
         if row < 1 or row > len(self._result_set):
-            raise IndexError("Row " + str(row)  + " is out of bounds for this table of length "
+            raise IndexError("Row " + str(row) + " is out of bounds for this table of length "
                             + str(len(self._result_set)) + ".")
-        location = self._result_set[row-1].query_loc
+        location = self._result_set[row - 1].query_loc
         return location
 
     @property
@@ -258,7 +260,7 @@ class DustResults(object):
         dust_results2 : `astroquery.irsa_dust.DustResults`
             the results to append
         """
-        #self._result_set.extend(dust_results2.result_set)
+        # self._result_set.extend(dust_results2.result_set)
         result_set2_copy = []
         for result in dust_results2.result_set:
             single_result_copy = SingleDustResult(result.xml, result.query_loc)
@@ -297,10 +299,10 @@ class SingleDustResult(object):
 
         ext_node = utils.find_result_node(EXT_DESC, xml_tree)
         self._ext_section = ExtinctionSection(ext_node)
-        
+
         em_node = utils.find_result_node(EM_DESC, xml_tree)
         self._em_section = EmissionSection(em_node)
- 
+
         temp_node = utils.find_result_node(TEMP_DESC, xml_tree)
         self._temp_section = TemperatureSection(temp_node)
 
@@ -360,7 +362,7 @@ class SingleDustResult(object):
         ----------
         section : str
             the name or abbreviated name of the section
-        
+
         Returns
         -------
             str: a one-letter code identifying the section.
@@ -391,7 +393,7 @@ class SingleDustResult(object):
         ----------
         code : str
             the one-letter code name of the section
-        
+
         Returns
         -------
         The section corresponding to the code, or a list containing all sections if
@@ -405,7 +407,7 @@ class SingleDustResult(object):
             return [self._em_section]
         elif code == 't':
             return [self._temp_section]
-        return [self._location_section, self._ext_section, self._em_section, self._temp_section] 
+        return [self._location_section, self._ext_section, self._em_section, self._temp_section]
 
     def _table_all(self):
         """
@@ -418,12 +420,12 @@ class SingleDustResult(object):
             table containing the data from the query response
         """
         columns = (self._location_section.columns + self._ext_section.columns
-                    + self._em_section.columns + self._temp_section.columns)
+                  + self._em_section.columns + self._temp_section.columns)
         table = Table(data=columns)
 
         values = self.values()
         table.add_row(vals=values)
-        return table 
+        return table
 
     def _table(self, section):
         """
@@ -437,7 +439,7 @@ class SingleDustResult(object):
         """
         # Get the specified section
         section_object = self._sections(section)[0]
-        
+
         # Create the table
         columns = section_object.columns
         table = Table(data=columns)
@@ -452,7 +454,7 @@ class SingleDustResult(object):
         """
         Get the additional, detailed table of extinction data for various filters.
         There is a url for this table given in the initial response to the query.
-        
+
         Returns
         -------
         table : `astropy.io.ascii.Ipac`
@@ -481,7 +483,7 @@ class SingleDustResult(object):
         Returns
         -------
         image : `astropy.io.fits.hdu.HDUList`
-            the HDUList representing the image data 
+            the HDUList representing the image data
         """
         # Get the url of the image for the given section
         image_url = None
@@ -498,13 +500,13 @@ class SingleDustResult(object):
                     'emission', 'em', 'e',
                     'temperature', 'temp', 't'"""
             raise ValueError(msg)
-        
+
         response = utils.image(image_url)
 
         S = io.BytesIO(response)
         image = fits.open(S)
-        return image 
-       
+        return image
+
     def __str__(self):
         """Return a string representation of the table."""
         string = "[DustResult: \n\t"
@@ -538,7 +540,7 @@ class BaseDustNode(object):
     def name(self):
         """Return the xml node name."""
         return self._name
-        
+
     @property
     def value(self):
         """Return the value extracted from the node."""
@@ -558,6 +560,7 @@ class BaseDustNode(object):
         string = "name: " + self._name + ", " + col_str + "]"
         return string
 
+
 class StringNode(BaseDustNode):
     """
     A node that contains text.
@@ -566,17 +569,17 @@ class StringNode(BaseDustNode):
         """
         Parameters
         ----------
-        xml_node : `xml.etree.ElementTree` 
+        xml_node : `xml.etree.ElementTree`
             the xml node that provides the raw data for this DustNode
         col_name : str
             the name of the column associated with this item
-        length : int 
+        length : int
             the size of the column associated with this item
         """
         BaseDustNode.__init__(self, xml_node)
-        
+
         self._value = xml_node.text.strip()
-        
+
         self._length = length
         self._columns = [Column(name=col_name, dtype="S" + str(length))]
 
@@ -584,8 +587,9 @@ class StringNode(BaseDustNode):
         """Return a string representation of this item."""
         base_string = BaseDustNode.__str__(self)
         string = ("[StringNode: " + base_string
-                 + ", value: " + self._value  + "]")
+                 + ", value: " + self._value + "]")
         return string
+
 
 class NumberNode(BaseDustNode):
     """
@@ -595,7 +599,7 @@ class NumberNode(BaseDustNode):
         """
         Parameters
         ----------
-        xml_node : `xml.etree.ElementTree` 
+        xml_node : `xml.etree.ElementTree`
             the xml node that provides the raw data for this DustNode
         col_name : str
             the name of the column associated with this item
@@ -611,8 +615,9 @@ class NumberNode(BaseDustNode):
         base_string = BaseDustNode.__str__(self)
 
         string = ("[NumberNode: " + base_string
-                    + ", value: " + str(self._value) + "]")
+                 + ", value: " + str(self._value) + "]")
         return string
+
 
 class CoordNode(BaseDustNode):
     """
@@ -623,7 +628,7 @@ class CoordNode(BaseDustNode):
         """
         Parameters
         ----------
-        xml_node : `xml.etree.ElementTree` 
+        xml_node : `xml.etree.ElementTree`
             the xml node that provides the raw data for this DustNode
         col_names : str
             the names of the columns associated with this item
@@ -640,8 +645,9 @@ class CoordNode(BaseDustNode):
         base_string = BaseDustNode.__str__(self)
         values_str = ("values: " + str(self._value[0]) + ", " + str(self._value[1])
                     + ", " + str(self._value[2]))
-        string = ("[CoordNode: " + base_string + ", " + values_str  + "]")
+        string = ("[CoordNode: " + base_string + ", " + values_str + "]")
         return string
+
 
 class BaseResultSection(object):
     """
@@ -689,7 +695,7 @@ class BaseResultSection(object):
                 columns.append(dust_node._columns)
         self._columns = columns
 
-    @property 
+    @property
     def columns(self):
         """Return the list of columns associated with this section."""
         return self._columns
@@ -713,10 +719,11 @@ class BaseResultSection(object):
                 string += ",\n\t\t"
             string += dust_node.__str__()
         return string
- 
+
+
 class LocationSection(BaseResultSection):
     """
-    The location section of the DustResults object.  
+    The location section of the DustResults object.
     """
     def __init__(self, xml_root):
         """
@@ -728,13 +735,13 @@ class LocationSection(BaseResultSection):
         location_node = xml_root.find(INPUT)
         names = [OBJ_NAME, REG_SIZE]
         xml_nodes = self.node_dict(names, location_node)
-        
+
         # Create the section's DustNodes
         self._dust_nodes = [CoordNode(xml_nodes[OBJ_NAME], col_names=["RA", "Dec", "coord sys"]),
                     NumberNode(xml_nodes[REG_SIZE], REG_SIZE, u.deg)]
- 
+
         self.create_columns()
-        
+
     def __str__(self):
         """Return a string representation of the section."""
         base_string = BaseResultSection.__str__(self)
@@ -767,7 +774,7 @@ class StatsSection(BaseResultSection):
                         NumberNode(xml_nodes[STD], col_prefix + " std"),
                         NumberNode(xml_nodes[MAX_VALUE], col_prefix + " max"),
                         NumberNode(xml_nodes[MIN_VALUE], col_prefix + " min")]
-        
+
         self._units = utils.parse_units(xml_nodes[REF_PIXEL_VALUE].text)
 
         self.create_columns()
@@ -790,7 +797,7 @@ class StatsSection(BaseResultSection):
                 base_string += ",\n\t\t\t\t"
             base_string += dust_node.__str__()
         string = "\n\t\t\t[StatisticsSection: " + base_string + "]"
-        return string 
+        return string
 
 
 class ExtinctionSection(BaseResultSection):
@@ -812,7 +819,7 @@ class ExtinctionSection(BaseResultSection):
         self._dust_nodes = [StringNode(xml_nodes[DESC], "ext desc", 100),
                 StringNode(xml_nodes[DATA_IMAGE], "ext image", 255),
                 StringNode(xml_nodes[DATA_TABLE], "ext table", 255)]
-        
+
         # Create statistics subsection
         self._stats = StatsSection(xml_nodes[STATISTICS], "ext")
 
@@ -850,7 +857,7 @@ class ExtinctionSection(BaseResultSection):
 
 class EmissionSection(BaseResultSection):
     """
-    The emission section in a DustResults object. 
+    The emission section in a DustResults object.
     """
     def __init__(self, xml_root):
         """
@@ -862,13 +869,13 @@ class EmissionSection(BaseResultSection):
         names = [DESC, DATA_IMAGE, STATISTICS]
         xml_nodes = self.node_dict(names, xml_root)
 
-        # Create the DustNodes 
+        # Create the DustNodes
         self._dust_nodes = [StringNode(xml_nodes[DESC], "em desc", 100),
                 StringNode(xml_nodes[DATA_IMAGE], "em image", 255)]
-        
+
         # Create the statistics subsection
         self._stats = StatsSection(xml_nodes[STATISTICS], "em")
-        
+
         self.create_columns()
 
     def create_columns(self):
@@ -897,7 +904,7 @@ class EmissionSection(BaseResultSection):
 
 class TemperatureSection(BaseResultSection):
     """
-    The temperature section in a DustResults object. 
+    The temperature section in a DustResults object.
     """
     def __init__(self, xml_root):
         """
@@ -912,10 +919,10 @@ class TemperatureSection(BaseResultSection):
         # Create the DustNodes
         self._dust_nodes = [StringNode(xml_nodes[DESC], "temp desc", 100),
                 StringNode(xml_nodes[DATA_IMAGE], "temp image", 255)]
-       
-        # Create the statistics subsection 
+
+        # Create the statistics subsection
         self._stats = StatsSection(xml_nodes[STATISTICS], "temp")
-        
+
         self.create_columns()
 
     def create_columns(self):

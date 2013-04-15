@@ -5,6 +5,7 @@ from xml.dom.minidom import parseString
 import astropy.utils.data as aud
 from astropy.table import Table
 
+
 def check_ned_valid(str):
 
     # Routine assumes input is valid Table unless error parameter is found.
@@ -22,6 +23,7 @@ def check_ned_valid(str):
                 retval = False
 
     return retval
+
 
 def query_ned_by_objname(objname='M31',
                          root_url='http://nedwww.ipac.caltech.edu/cgi-bin/nph-objsearch',
@@ -48,8 +50,8 @@ def query_ned_by_objname(objname='M31',
     """
 
     # Create dictionary of search parameters, then parse into query URL
-    request_dict = {'extend':'no','of':'xml_all','objname':objname}
-    query_url = "%s?%s" % (root_url,urllib.urlencode(request_dict))
+    request_dict = {'extend': 'no', 'of': 'xml_all', 'objname': objname}
+    query_url = "%s?%s" % (root_url, urllib.urlencode(request_dict))
 
     # Retrieve handler object from NED
     # Write the data to a file, flush it to get the proper VO table format, and read it into an Astropy table
@@ -68,15 +70,15 @@ def query_ned_by_objname(objname='M31',
     """
 
     tid_derived = 3
-    tdparts = R.split(b'<TABLEDATA>',tid_derived+1)
-    if len(tdparts) > tid_derived+1:
+    tdparts = R.split(b'<TABLEDATA>', tid_derived + 1)
+    if len(tdparts) > tid_derived + 1:
         tdind = len(R) - len(tdparts[-1]) - len(b'<TABLEDATA>')
-        rseg = R[tdind:tdind+R[tdind:].find(b'</TABLEDATA>')]
-        cellcount = rseg.count(b'TD')/2
+        rseg = R[tdind:tdind + R[tdind:].find(b'</TABLEDATA>')]
+        cellcount = rseg.count(b'TD') / 2
         if cellcount < 91:
             nrepeats = 91 - cellcount
-            newseg = rseg[:-6] + b'<TD></TD>'*nrepeats + rseg[-6:]
-            newR = R[:tdind] + newseg + R[tdind+R[tdind:].find(b'</TABLEDATA>'):]
+            newseg = rseg[:-6] + b'<TD></TD>' * nrepeats + rseg[-6:]
+            newR = R[:tdind] + newseg + R[tdind + R[tdind:].find(b'</TABLEDATA>'):]
             R = newR
 
     # Check to see if NED returns a valid query
@@ -105,7 +107,8 @@ def query_ned_by_objname(objname='M31',
 
         return None
 
-def query_ned_nearname(objname='M31',radius=2.0,
+
+def query_ned_nearname(objname='M31', radius=2.0,
         root_url='http://nedwww.ipac.caltech.edu/cgi-bin/nph-objsearch'):
     """
     Query objects within a specified angular distance of another target
@@ -151,8 +154,8 @@ def query_ned_nearname(objname='M31',radius=2.0,
     """
 
     # Create dictionary of search parameters, then parse into query URL
-    request_dict = {'search_type':'Near Name Search','radius':'%f' % radius,'of':'xml_main','objname':objname}
-    query_url = "%s?%s" % (root_url,urllib.urlencode(request_dict))
+    request_dict = {'search_type': 'Near Name Search', 'radius': '%f' % radius, 'of': 'xml_main', 'objname': objname}
+    query_url = "%s?%s" % (root_url, urllib.urlencode(request_dict))
 
     # Retrieve handler object from NED
     # Write the data to a file, flush it to get the proper VO table format, and read it into an Astropy table
@@ -185,7 +188,8 @@ def query_ned_nearname(objname='M31',radius=2.0,
 
         return None
 
-def query_ned_near_iauname(iauname='1234-423',radius=2.0,
+
+def query_ned_near_iauname(iauname='1234-423', radius=2.0,
         root_url='http://nedwww.ipac.caltech.edu/cgi-bin/nph-objsearch'):
     """
     Query objects near another target based on IAU name (truncated coordinates).
@@ -200,7 +204,7 @@ def query_ned_near_iauname(iauname='1234-423',radius=2.0,
     Returns
     NED_MainTable with the following information for each target within the
     search radius:
-    
+
     ::
 
         -----------------------------------------------------
@@ -228,8 +232,8 @@ def query_ned_near_iauname(iauname='1234-423',radius=2.0,
     """
 
     # Create dictionary of search parameters, then parse into query URL
-    request_dict = {'search_type':'IAU Search','iau_name':iauname,'radius':'%f' % radius,'of':'xml_main'}
-    query_url = "%s?%s" % (root_url,urllib.urlencode(request_dict))
+    request_dict = {'search_type': 'IAU Search', 'iau_name': iauname, 'radius': '%f' % radius, 'of': 'xml_main'}
+    query_url = "%s?%s" % (root_url, urllib.urlencode(request_dict))
 
     # Retrieve handler object from NED
     # Write the data to a file, flush it to get the proper VO table format, and read it into an Astropy table
@@ -265,6 +269,7 @@ def query_ned_near_iauname(iauname='1234-423',radius=2.0,
         print ""
 
         return None
+
 
 def query_ned_by_refcode(refcode='2011ApJS..193...18W',
         root_url='http://nedwww.ipac.caltech.edu/cgi-bin/nph-objsearch'):
@@ -306,8 +311,8 @@ def query_ned_by_refcode(refcode='2011ApJS..193...18W',
     """
 
     # Create dictionary of search parameters, then parse into query URL
-    request_dict = {'search_type':'Search','refcode':refcode,'of':'xml_main'}
-    query_url = "%s?%s" % (root_url,urllib.urlencode(request_dict))
+    request_dict = {'search_type': 'Search', 'refcode': refcode, 'of': 'xml_main'}
+    query_url = "%s?%s" % (root_url, urllib.urlencode(request_dict))
 
     # Check to see if NED returns a valid query
     # Write the data to a file, flush it to get the proper VO table format, and read it into an Astropy table
@@ -337,6 +342,7 @@ def query_ned_by_refcode(refcode='2011ApJS..193...18W',
 
     return t
 
+
 def query_ned_names(objname='M31',
         root_url='http://nedwww.ipac.caltech.edu/cgi-bin/nph-objsearch'):
     """
@@ -360,8 +366,8 @@ def query_ned_names(objname='M31',
     """
 
     # Create dictionary of search parameters, then parse into query URL
-    request_dict = {'extend':'no','of':'xml_names','objname':objname}
-    query_url = "%s?%s" % (root_url,urllib.urlencode(request_dict))
+    request_dict = {'extend': 'no', 'of': 'xml_names', 'objname': objname}
+    query_url = "%s?%s" % (root_url, urllib.urlencode(request_dict))
 
     # Check to see if NED returns a valid query
     # Write the data to a file, flush it to get the proper VO table format, and read it into an Astropy table
@@ -393,6 +399,7 @@ def query_ned_names(objname='M31',
         print ""
 
         return None
+
 
 def query_ned_basic_posn(objname='M31',
         root_url='http://nedwww.ipac.caltech.edu/cgi-bin/nph-objsearch'):
@@ -450,8 +457,8 @@ def query_ned_basic_posn(objname='M31',
     """
 
     # Create dictionary of search parameters, then parse into query URL
-    request_dict = {'extend':'no','of':'xml_posn','objname':objname}
-    query_url = "%s?%s" % (root_url,urllib.urlencode(request_dict))
+    request_dict = {'extend': 'no', 'of': 'xml_posn', 'objname': objname}
+    query_url = "%s?%s" % (root_url, urllib.urlencode(request_dict))
 
     # Retrieve handler object from NED
     # Write the data to a file, flush it to get the proper VO table format, and read it into an Astropy table
@@ -485,6 +492,7 @@ def query_ned_basic_posn(objname='M31',
         print ""
 
         return None
+
 
 def query_ned_external(objname='M31',
         root_url='http://nedwww.ipac.caltech.edu/cgi-bin/nph-objsearch'):
@@ -510,8 +518,8 @@ def query_ned_external(objname='M31',
     """
 
     # Create dictionary of search parameters, then parse into query URL
-    request_dict = {'extend':'no','of':'xml_extern','objname':objname}
-    query_url = "%s?%s" % (root_url,urllib.urlencode(request_dict))
+    request_dict = {'extend': 'no', 'of': 'xml_extern', 'objname': objname}
+    query_url = "%s?%s" % (root_url, urllib.urlencode(request_dict))
 
     # Retrieve handler object from NED
     # Write the data to a file, flush it to get the proper VO table format, and read it into an Astropy table
@@ -546,20 +554,21 @@ def query_ned_external(objname='M31',
 
         return None
 
+
 def query_ned_allsky(ra_constraint='Unconstrained', ra_1='', ra_2='',
     dec_constraint='Unconstrained', dec_1='', dec_2='',
     glon_constraint='Unconstrained', glon_1='', glon_2='',
     glat_constraint='Unconstrained', glat_1='', glat_2='',
     hconst='70.5', omegam='0.27', omegav='0.73', corr_z='1',
-        z_constraint='Unconstrained',z_value1='',z_value2='',z_unit='z',
-    flux_constraint='Unconstrained', flux_value1='', flux_value2='',flux_unit='Jy',
+        z_constraint='Unconstrained', z_value1='', z_value2='', z_unit='z',
+    flux_constraint='Unconstrained', flux_value1='', flux_value2='', flux_unit='Jy',
     flux_band=None,
     frat_constraint='Unconstrained',
     ot_include='ANY',
-    in_objtypes1=None,in_objtypes2=None,in_objtypes3=None,
-    ex_objtypes1=None,ex_objtypes2=None,ex_objtypes3=None,
+    in_objtypes1=None, in_objtypes2=None, in_objtypes3=None,
+    ex_objtypes1=None, ex_objtypes2=None, ex_objtypes3=None,
     nmp_op='ANY',
-    name_prefix1=None,name_prefix2=None,name_prefix3=None,name_prefix4=None,
+    name_prefix1=None, name_prefix2=None, name_prefix3=None, name_prefix4=None,
     out_csys='Equatorial', out_equinox='J2000.0',
     obj_sort='RA or Longitude',
     zv_breaker='30000.0',
@@ -572,125 +581,136 @@ def query_ned_allsky(ra_constraint='Unconstrained', ra_1='', ra_2='',
 
     Parameters
     ----------
-    ra_constraint : 
-		constraint on right ascension. Options are 'Unconstrained','Between'
-    ra_1,ra_2 : 
-		limits for RA in J2000 equatorial coordinates. Acceptable format includes '00h00m00.0'.
-    dec_constraint : 
-		constraint on declination. Options are 'Unconstrained','Between'
-    dec_1,dec2 : 
-		limits for declination in J2000 equatorial coordinates. Acceptable format includes '00d00m00.0'
-    glon_constraint : 
-		constraint on Galactic longitude. Options are 'Unconstrained','Between'
-    glon_1,glon_2 : 
-		limits for RA in J2000 equatorial coordinates. Acceptable format includes '00h00m00.0'.
-    glat_constraint : 
-		constraint on Galactic latitude. Options are 'Unconstrained','Between'
-    glat_1,glat2 : 
-		limits for declination in J2000 equatorial coordinates. Acceptable format includes '00d00m00.0'
-    hconst : 
-		Hubble constant. Default is 70.5 km/s/Mpc (WMAP5)
-    omegam : 
-		Omega_matter. Default is 0.27 (WMAP5)
-    omegav : 
-		Omega_vacuum. Default is 0.73 (WMAP5)
-    corr_z : 
-		integer keyword for correcting redshift to various velocity frames. Available frames are:
+    ra_constraint :
+                constraint on right ascension. Options are 'Unconstrained','Between'
+    ra_1,ra_2 :
+                limits for RA in J2000 equatorial coordinates. Acceptable format includes '00h00m00.0'.
+    dec_constraint :
+                constraint on declination. Options are 'Unconstrained','Between'
+    dec_1,dec2 :
+                limits for declination in J2000 equatorial coordinates. Acceptable format includes '00d00m00.0'
+    glon_constraint :
+                constraint on Galactic longitude. Options are 'Unconstrained','Between'
+    glon_1,glon_2 :
+                limits for RA in J2000 equatorial coordinates. Acceptable format includes '00h00m00.0'.
+    glat_constraint :
+                constraint on Galactic latitude. Options are 'Unconstrained','Between'
+    glat_1,glat2 :
+                limits for declination in J2000 equatorial coordinates. Acceptable format includes '00d00m00.0'
+    hconst :
+                Hubble constant. Default is 70.5 km/s/Mpc (WMAP5)
+    omegam :
+                Omega_matter. Default is 0.27 (WMAP5)
+    omegav :
+                Omega_vacuum. Default is 0.73 (WMAP5)
+    corr_z :
+                integer keyword for correcting redshift to various velocity frames. Available frames are:
             1: reference frame defined by 3K CMB (default)
             2: reference frame defined by the Virgo Infall
             3: reference frame defined by the Virgo Infall + Great Attractor
             4: reference frame defined by the Virgo Infall + Great Attractor + Shapley Supercluster
-    z_constraint : 
+    z_constraint :
         constraint on redshift. Options are 'Unconstrained','Available','Unavailable','Larger Than','Less Than','Between','Not Between'
-    z_value1,zvalue2 : 
+    z_value1,zvalue2 :
         upper and lower boundaries for z_constraint. If 'Larger Than' or 'Less Than' are specified, only set z_value1
-    z_unit : 
-		units of redshift constraint. Options are 'z' or 'km/s'
-    flux_constraint : 
-		constraints on flux density. Options are 'Unconstrained','Available','Brighter Than','Fainter Than','Between','Not Between'
-    flux_value1,flux_value2 : 
-		limits for flux density. If 'Brighter Than' or 'Fainter Than' is specified, only set flux_value1
-    flux_unit : 
-		units of the flux density constraint. Options are 'Jy','mJy','mag','Wm2Hz'
-    flux_band : 
+    z_unit :
+                units of redshift constraint. Options are 'z' or 'km/s'
+    flux_constraint :
+                constraints on flux density. Options are 'Unconstrained','Available','Brighter Than','Fainter Than','Between','Not Between'
+    flux_value1,flux_value2 :
+                limits for flux density. If 'Brighter Than' or 'Fainter Than' is specified, only set flux_value1
+    flux_unit :
+                units of the flux density constraint. Options are 'Jy','mJy','mag','Wm2Hz'
+    flux_band :
         specify a particular band of flux density to constrain search.
         Example: flux_band='HST-WFPC2-F814' searches the F814W channel (7937
         AA) on WFPC2 on Hubble.  Setting this keyword searches for objects with
         any data in the bandpass frequency range; it is not limited to the
         particular instrument.
-    frat_constraint : 
-		option for specifying a flux ratio. Not currently enabled in the web version of NED; implementation here is uncertain.
-    in_objtypes1 : 
+    frat_constraint :
+                option for specifying a flux ratio. Not currently enabled in the web version of NED; implementation here is uncertain.
+    in_objtypes1 :
         list of classified extragalactic object types to include. Options are
         galaxies ('G'), galaxy pairs, triples, groups, clusters
         ('GPair','GTrpl','GGroup','GClstr'), QSOs and QSO groups
         ('QSO','QGroup'), gravitational lenses ('GravLens'), absorption line
         systems ('AbLS'), emission line sources ('EmLS')
-    in_objtypes2 : 
-		list of unclassified extragalactic candidates to include. Options are sources detected in the radio ('RadioS'), sub-mm ('SmmS'), infrared ('IrS'), visual ('VisS'), ultraviolet excess ('UvES'), X-ray ('XrayS'), gamma-ray ('GammaS')
-    in_objtypes3 : 
-		list of components of galaxies to include. Options are supernovae ('SN'), HII regions ('HII'), planetary nebulae ('PN'), supernova remnants ('SNR'), stellar associations ('\*Ass'), star clusters ('\*Cl'), molecular clouds ('MCld'), novae ('Nova'), variable stars ('V\*'), and Wolf-Rayet stars ('WR\*')
-    ot_include : 
-		option for selection of included object types. Options are 'ANY' (default) or 'ALL'
-    ex_objtypes1 : 
-		list of classified extragalactic object types to exclude. Options are the same as for in_objtypes1.
-    ex_objtypes2 : 
-		list of unclassified extragalactic candidates to exclude. Options are the same as for in_objtypes2.
-    ex_objtypes3 : 
-		list of components of galaxies to exclude. Options are the same as for in_objtypes3.
-    nmp_op : 
-		option for selection of name prefixes. Options are 'ANY' (default) or 'ALL'. Full list of prefixes available at http://ned.ipac.caltech.edu/samples/NEDmdb.html
-    name_prefix1 : 
-		list of name prefixes from ABELLPN - GB
-    name_prefix2 : 
-		list of name prefixes from GB1 - PISCES
-    name_prefix3 : 
-		list of name prefixes from Pisces Austrinus - 87GB[BWE91]
-    name_prefix4 : 
-		list of name prefixes from [A2001] - [ZZL96]
-    out_csys : 
-		output format for coordinate system. Options are 'Equatorial' (default), 'Ecliptic', 'Galactic', 'SuperGalactic'
-    out_equinox : 
-		output format for equinox. Options are 'B1950.0','J2000.0' (default)
-    obj_sort : 
-		format for sorting the output list. Options are 'RA or Longitude' (default), 'DEC or Latitude', 'Galactic Longitude', 'Galactic Latitude', 'Redshift - ascending', 'Redshift - descending'
-    of : 
-		VOTable format of data. Options include 'xml_main' (default),'xml_names','xml_posn','xml_extern','xml_basic','xml_dervd'
-    zv_breaker : 
-		velocity will be displayed as a lower limit when above this value. Default is 30000.0 km/s
-    list_limit : 
-		lists with fewer than this number will return detailed information. Default is 5.
+    in_objtypes2 :
+                list of unclassified extragalactic candidates to include. Options are sources detected in the radio ('RadioS'), sub-mm ('SmmS'), infrared ('IrS'), visual ('VisS'), ultraviolet excess ('UvES'), X-ray ('XrayS'), gamma-ray ('GammaS')
+    in_objtypes3 :
+                list of components of galaxies to include. Options are supernovae ('SN'), HII regions ('HII'), planetary nebulae ('PN'), supernova remnants ('SNR'), stellar associations ('\*Ass'), star clusters ('\*Cl'), molecular clouds ('MCld'), novae ('Nova'), variable stars ('V\*'), and Wolf-Rayet stars ('WR\*')
+    ot_include :
+                option for selection of included object types. Options are 'ANY' (default) or 'ALL'
+    ex_objtypes1 :
+                list of classified extragalactic object types to exclude. Options are the same as for in_objtypes1.
+    ex_objtypes2 :
+                list of unclassified extragalactic candidates to exclude. Options are the same as for in_objtypes2.
+    ex_objtypes3 :
+                list of components of galaxies to exclude. Options are the same as for in_objtypes3.
+    nmp_op :
+                option for selection of name prefixes. Options are 'ANY' (default) or 'ALL'. Full list of prefixes available at http://ned.ipac.caltech.edu/samples/NEDmdb.html
+    name_prefix1 :
+                list of name prefixes from ABELLPN - GB
+    name_prefix2 :
+                list of name prefixes from GB1 - PISCES
+    name_prefix3 :
+                list of name prefixes from Pisces Austrinus - 87GB[BWE91]
+    name_prefix4 :
+                list of name prefixes from [A2001] - [ZZL96]
+    out_csys :
+                output format for coordinate system. Options are 'Equatorial' (default), 'Ecliptic', 'Galactic', 'SuperGalactic'
+    out_equinox :
+                output format for equinox. Options are 'B1950.0','J2000.0' (default)
+    obj_sort :
+                format for sorting the output list. Options are 'RA or Longitude' (default), 'DEC or Latitude', 'Galactic Longitude', 'Galactic Latitude', 'Redshift - ascending', 'Redshift - descending'
+    of :
+                VOTable format of data. Options include 'xml_main' (default),'xml_names','xml_posn','xml_extern','xml_basic','xml_dervd'
+    zv_breaker :
+                velocity will be displayed as a lower limit when above this value. Default is 30000.0 km/s
+    list_limit :
+                lists with fewer than this number will return detailed information. Default is 5.
 
     """
 
     # Create dictionary of search parameters, then parse into query URL
-    request_dict = {'ra_constraint':ra_constraint, 'ra_1':ra_1, 'ra_2':ra_2,
-    'dec_constraint':dec_constraint, 'dec_1':dec_1, 'dec_2':dec_2,
-    'glon_constraint':glon_constraint, 'glon_1':glon_1, 'glon_2':glon_2,
-    'glat_constraint':glat_constraint, 'glat_1':glat_1, 'glat_2':glat_2,
-    'hconst':hconst, 'omegam':omegam, 'omegav':omegav, 'corr_z':corr_z,
-        'z_constraint':z_constraint,'z_value1':z_value1,'z_value2':z_value2,'z_unit':z_unit,
-    'flux_constraint':flux_constraint, 'flux_value1':flux_value1, 'flux_value2':flux_value2,'flux_unit':flux_unit,
-    'ot_include':ot_include,
-    'nmp_op':nmp_op,
-    'out_csys':out_csys, 'out_equinox':out_equinox,
-    'obj_sort':obj_sort,
-    'zv_breaker':zv_breaker,
-    'list_limit':list_limit,
-    'img_stamp':'NO',
-    'of':of}
-    if flux_band is not None: request_dict['flux_band']=flux_band
-    if in_objtypes1 is not None: request_dict['in_objtypes1']=in_objtypes1
-    if in_objtypes2 is not None: request_dict['in_objtypes2']=in_objtypes2
-    if in_objtypes3 is not None: request_dict['in_objtypes3']=in_objtypes3
-    if ex_objtypes1 is not None: request_dict['ex_objtypes1']=ex_objtypes1
-    if ex_objtypes2 is not None: request_dict['ex_objtypes2']=ex_objtypes2
-    if ex_objtypes3 is not None: request_dict['ex_objtypes3']=ex_objtypes3
-    if name_prefix1 is not None: request_dict['name_prefix1']=name_prefix1
-    if name_prefix2 is not None: request_dict['name_prefix2']=name_prefix2
-    if name_prefix3 is not None: request_dict['name_prefix3']=name_prefix3
-    if name_prefix4 is not None: request_dict['name_prefix4']=name_prefix4
-    query_url = "%s?%s" % (root_url,urllib.urlencode(request_dict,doseq=1))
+    request_dict = {'ra_constraint': ra_constraint, 'ra_1': ra_1, 'ra_2': ra_2,
+    'dec_constraint': dec_constraint, 'dec_1': dec_1, 'dec_2': dec_2,
+    'glon_constraint': glon_constraint, 'glon_1': glon_1, 'glon_2': glon_2,
+    'glat_constraint': glat_constraint, 'glat_1': glat_1, 'glat_2': glat_2,
+    'hconst': hconst, 'omegam': omegam, 'omegav': omegav, 'corr_z': corr_z,
+        'z_constraint': z_constraint, 'z_value1': z_value1, 'z_value2': z_value2, 'z_unit': z_unit,
+    'flux_constraint': flux_constraint, 'flux_value1': flux_value1, 'flux_value2': flux_value2, 'flux_unit': flux_unit,
+    'ot_include': ot_include,
+    'nmp_op': nmp_op,
+    'out_csys': out_csys, 'out_equinox': out_equinox,
+    'obj_sort': obj_sort,
+    'zv_breaker': zv_breaker,
+    'list_limit': list_limit,
+    'img_stamp': 'NO',
+    'of': of}
+    if flux_band is not None:
+        request_dict['flux_band'] = flux_band
+    if in_objtypes1 is not None:
+        request_dict['in_objtypes1'] = in_objtypes1
+    if in_objtypes2 is not None:
+        request_dict['in_objtypes2'] = in_objtypes2
+    if in_objtypes3 is not None:
+        request_dict['in_objtypes3'] = in_objtypes3
+    if ex_objtypes1 is not None:
+        request_dict['ex_objtypes1'] = ex_objtypes1
+    if ex_objtypes2 is not None:
+        request_dict['ex_objtypes2'] = ex_objtypes2
+    if ex_objtypes3 is not None:
+        request_dict['ex_objtypes3'] = ex_objtypes3
+    if name_prefix1 is not None:
+        request_dict['name_prefix1'] = name_prefix1
+    if name_prefix2 is not None:
+        request_dict['name_prefix2'] = name_prefix2
+    if name_prefix3 is not None:
+        request_dict['name_prefix3'] = name_prefix3
+    if name_prefix4 is not None:
+        request_dict['name_prefix4'] = name_prefix4
+    query_url = "%s?%s" % (root_url, urllib.urlencode(request_dict, doseq=1))
 
     # Retrieve handler object from NED
     # Write the data to a file, flush it to get the proper VO table format, and read it into an Astropy table
@@ -718,6 +738,7 @@ def query_ned_allsky(ra_constraint='Unconstrained', ra_1='', ra_2='',
     # Return Astropy Table
 
     return t
+
 
 def query_ned_photometry(objname='M31',
         root_url='http://nedwww.ipac.caltech.edu/cgi-bin/nph-datasearch'):
@@ -753,8 +774,8 @@ def query_ned_photometry(objname='M31',
     """
 
     # Create dictionary of search parameters, then parse into query URL
-    request_dict = {'search_type':'Photometry','of':'xml_main','objname':objname}
-    query_url = "%s?%s" % (root_url,urllib.urlencode(request_dict))
+    request_dict = {'search_type': 'Photometry', 'of': 'xml_main', 'objname': objname}
+    query_url = "%s?%s" % (root_url, urllib.urlencode(request_dict))
 
     # Retrieve handler object from NED
     # Write the data to a file, flush it to get the proper VO table format, and read it into an Astropy table
@@ -788,6 +809,7 @@ def query_ned_photometry(objname='M31',
         print ""
 
         return None
+
 
 def query_ned_diameters(objname='M31',
         root_url='http://nedwww.ipac.caltech.edu/cgi-bin/nph-datasearch'):
@@ -856,8 +878,8 @@ def query_ned_diameters(objname='M31',
     """
 
     # Create dictionary of search parameters, then parse into query URL
-    request_dict = {'search_type':'Diameters','of':'xml_main','objname':objname}
-    query_url = "%s?%s" % (root_url,urllib.urlencode(request_dict))
+    request_dict = {'search_type': 'Diameters', 'of': 'xml_main', 'objname': objname}
+    query_url = "%s?%s" % (root_url, urllib.urlencode(request_dict))
 
     # Retrieve handler object from NED
     # Write the data to a file, flush it to get the proper VO table format, and read it into an Astropy table
@@ -891,6 +913,7 @@ def query_ned_diameters(objname='M31',
         print ""
 
         return None
+
 
 def query_ned_redshifts(objname='M31',
         root_url='http://nedwww.ipac.caltech.edu/cgi-bin/nph-datasearch'):
@@ -934,8 +957,8 @@ def query_ned_redshifts(objname='M31',
     """
 
     # Create dictionary of search parameters, then parse into query URL
-    request_dict = {'search_type':'Redshifts','of':'xml_main','objname':objname}
-    query_url = "%s?%s" % (root_url,urllib.urlencode(request_dict))
+    request_dict = {'search_type': 'Redshifts', 'of': 'xml_main', 'objname': objname}
+    query_url = "%s?%s" % (root_url, urllib.urlencode(request_dict))
 
     # Retrieve handler object from NED
     # Write the data to a file, flush it to get the proper VO table format, and read it into an Astropy table
@@ -1006,8 +1029,8 @@ def query_ned_notes(objname='M31',
     """
 
     # Create dictionary of search parameters, then parse into query URL
-    request_dict = {'search_type':'Notes','of':'xml_main','objname':objname}
-    query_url = "%s?%s" % (root_url,urllib.urlencode(request_dict))
+    request_dict = {'search_type': 'Notes', 'of': 'xml_main', 'objname': objname}
+    query_url = "%s?%s" % (root_url, urllib.urlencode(request_dict))
 
     # Retrieve handler object from NED
     # Write the data to a file, flush it to get the proper VO table format, and read it into an Astropy table
@@ -1054,6 +1077,7 @@ def query_ned_notes(objname='M31',
 
         return None
 
+
 def query_ned_position(objname='M31',
         root_url='http://nedwww.ipac.caltech.edu/cgi-bin/nph-datasearch'):
     """
@@ -1093,8 +1117,8 @@ def query_ned_position(objname='M31',
     """
 
     # Create dictionary of search parameters, then parse into query URL
-    request_dict = {'search_type':'Positions','of':'xml_main','objname':objname}
-    query_url = "%s?%s" % (root_url,urllib.urlencode(request_dict))
+    request_dict = {'search_type': 'Positions', 'of': 'xml_main', 'objname': objname}
+    query_url = "%s?%s" % (root_url, urllib.urlencode(request_dict))
 
     # Retrieve handler object from NED
     # Write the data to a file, flush it to get the proper VO table format, and read it into an Astropy table
@@ -1129,7 +1153,8 @@ def query_ned_position(objname='M31',
 
         return None
 
-def query_ned_nearpos(ra=0.000,dec=0.000,sr=2.0,
+
+def query_ned_nearpos(ra=0.000, dec=0.000, sr=2.0,
         root_url='http://nedwww.ipac.caltech.edu/cgi-bin/nph-objsearch'):
     """
     Query objects within a specified angular distance of a position on the sky
@@ -1169,13 +1194,13 @@ def query_ned_nearpos(ra=0.000,dec=0.000,sr=2.0,
 
     """
 
-    assert type(sr) in (int,float), \
+    assert type(sr) in (int, float), \
         "Search radius must be either a float or an integer"
     sr_deg = sr / 60.
 
     # Create dictionary of search parameters, then parse into query URL
-    request_dict = {'search_type':'Near Position Search','of':'xml_main','RA':'%f' % ra, 'DEC':'%f' % dec, 'SR':'%f' % sr_deg,}
-    query_url = "%s?%s" % (root_url,urllib.urlencode(request_dict))
+    request_dict = {'search_type': 'Near Position Search', 'of': 'xml_main', 'RA': '%f' % ra, 'DEC': '%f' % dec, 'SR': '%f' % sr_deg, }
+    query_url = "%s?%s" % (root_url, urllib.urlencode(request_dict))
 
     # Retrieve handler object from NED
     # Write the data to a file, flush it to get the proper VO table format, and read it into an Astropy table
@@ -1198,7 +1223,7 @@ def query_ned_nearpos(ra=0.000,dec=0.000,sr=2.0,
 
     else:
         print ""
-        print "No objects found within %f arcmin of position RA = %f, dec = %f" % (sr,ra,dec)
+        print "No objects found within %f arcmin of position RA = %f, dec = %f" % (sr, ra, dec)
         print "by NED. Try either changing the position or using a larger search radius."
         print ""
 

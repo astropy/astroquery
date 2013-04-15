@@ -18,7 +18,8 @@ from astropy.io import fits
 import astropy.utils.data as aud
 from ..utils import progressbar
 
-__all__ = ['UKIDSSQuery','clean_catalog','ukidss_programs_short','ukidss_programs_long']
+__all__ = ['UKIDSSQuery', 'clean_catalog', 'ukidss_programs_short', 'ukidss_programs_long']
+
 
 class LinksExtractor(htmllib.HTMLParser):  # derive new HTML parser
 
@@ -37,9 +38,9 @@ class LinksExtractor(htmllib.HTMLParser):  # derive new HTML parser
     def get_links(self):
         return self.links
 
-url_login      = "http://surveys.roe.ac.uk:8080/wsa/DBLogin"
-url_getimage   = "http://surveys.roe.ac.uk:8080/wsa/GetImage"
-url_getimages  = "http://surveys.roe.ac.uk:8080/wsa/ImageList"
+url_login = "http://surveys.roe.ac.uk:8080/wsa/DBLogin"
+url_getimage = "http://surveys.roe.ac.uk:8080/wsa/GetImage"
+url_getimages = "http://surveys.roe.ac.uk:8080/wsa/ImageList"
 url_getcatalog = "http://surveys.roe.ac.uk:8080/wsa/WSASQL"
 
 frame_types = ['stack', 'normal', 'interleave', 'deep%stack', 'confidence',
@@ -49,13 +50,14 @@ ukidss_programs_short = {'LAS': 101,
                          'GPS': 102,
                          'GCS': 103,
                          'DXS': 104,
-                         'UDS': 105,}
+                         'UDS': 105, }
 
 ukidss_programs_long = {'Large Area Survey': 101,
                         'Galactic Plane Survey': 102,
                         'Galactic Clusters Survey': 103,
                         'Deep Extragalactic Survey': 104,
                         'Ultra Deep Survey': 105}
+
 
 class UKIDSSQuery():
     """
@@ -68,7 +70,7 @@ class UKIDSSQuery():
             directory='./'):
         self.opener = urllib2.build_opener()
         self.database = database
-        self.programmeID = programmeID # 102 = GPS
+        self.programmeID = programmeID  # 102 = GPS
         self.filters = {'all': 'all', 'J': '3', 'H': '4', 'K': '5', 'Y': 2,
                 'Z': 1, 'H2': 6, 'Br': 7}
         self.directory = directory
@@ -139,7 +141,7 @@ class UKIDSSQuery():
         --------
         >>> R = UKIDSSQuery()
         >>> fitsfile = R.get_image_gal(10.5,0.0)
-        
+
         # get UWISH2 data (as per http://astro.kent.ac.uk/uwish2/main.html)
         >>> R.database='U09B8v20120403'
         >>> R.login(username='U09B8',password='uwish2',community='nonSurvey')
@@ -156,18 +158,18 @@ class UKIDSSQuery():
 
         # Construct request
         self.request = {}
-        self.request['database']    = self.database
-        self.request['programmeID'] = verify_programme_id(self.programmeID,querytype='image')
-        self.request['ra']          = glon
-        self.request['dec']         = glat
-        self.request['sys']         = 'G'
-        self.request['filterID']    = self.filters[filter]
-        self.request['xsize']       = size
-        self.request['ysize']       = size
-        self.request['obsType']     = 'object'
-        self.request['frameType']   = frametype
-        self.request['mfid']        = ''
-        self.query_str = url_getimage +"?"+ urllib.urlencode(self.request)
+        self.request['database'] = self.database
+        self.request['programmeID'] = verify_programme_id(self.programmeID, querytype='image')
+        self.request['ra'] = glon
+        self.request['dec'] = glat
+        self.request['sys'] = 'G'
+        self.request['filterID'] = self.filters[filter]
+        self.request['xsize'] = size
+        self.request['ysize'] = size
+        self.request['obsType'] = 'object'
+        self.request['frameType'] = frametype
+        self.request['mfid'] = ''
+        self.query_str = url_getimage + "?" + urllib.urlencode(self.request)
 
         if directory is None:
             directory = self.directory
@@ -200,15 +202,15 @@ class UKIDSSQuery():
                 results = f.read()
             S = StringIO.StringIO(results)
 
-            try: 
+            try:
                 # try to open as a fits file
-                fitsfile = fits.open(S,ignore_missing_end=True)
+                fitsfile = fits.open(S, ignore_missing_end=True)
             except IOError:
                 # if that fails, try to open as a gzip'd fits file
                 # have to rewind to the start
                 S.seek(0)
                 G = gzip.GzipFile(fileobj=S)
-                fitsfile = fits.open(G,ignore_missing_end=True)
+                fitsfile = fits.open(G, ignore_missing_end=True)
 
             # Get Multiframe ID from the header
             images.append(fitsfile)
@@ -219,7 +221,7 @@ class UKIDSSQuery():
                 obj = filt + "_" + str(h0['OBJECT']).strip().replace(":", ".")
 
                 if savename is None:
-                    filename = "UKIDSS_%s_G%07.3f%+08.3f_%s.fits" % (filt,glon,glat,obj)
+                    filename = "UKIDSS_%s_G%07.3f%+08.3f_%s.fits" % (filt, glon, glat, obj)
                 else:
                     filename = savename
 
@@ -282,21 +284,21 @@ class UKIDSSQuery():
         # Construct self.request
         self.request = {}
 
-        self.request['database']    = self.database
-        self.request['programmeID'] = verify_programme_id(self.programmeID,querytype='image')
+        self.request['database'] = self.database
+        self.request['programmeID'] = verify_programme_id(self.programmeID, querytype='image')
         self.request['userSelect'] = 'default'
 
-        self.request['obsType']     = 'object'
-        self.request['frameType']   = frametype
-        self.request['filterID']    = self.filters[filter]
+        self.request['obsType'] = 'object'
+        self.request['frameType'] = frametype
+        self.request['filterID'] = self.filters[filter]
 
-        self.request['minRA']       = str(round(ra - radius / cos(radians(dec)),2))
-        self.request['maxRA']       = str(round(ra + radius / cos(radians(dec)),2))
-        self.request['formatRA']    = 'degrees'
+        self.request['minRA'] = str(round(ra - radius / cos(radians(dec)), 2))
+        self.request['maxRA'] = str(round(ra + radius / cos(radians(dec)), 2))
+        self.request['formatRA'] = 'degrees'
 
-        self.request['minDec']       = str(dec - radius)
-        self.request['maxDec']       = str(dec + radius)
-        self.request['formatDec']    = 'degrees'
+        self.request['minDec'] = str(dec - radius)
+        self.request['maxDec'] = str(dec + radius)
+        self.request['formatDec'] = 'degrees'
 
         self.request['startDay'] = 0
         self.request['startMonth'] = 0
@@ -313,7 +315,7 @@ class UKIDSSQuery():
         self.request['fsid'] = ''
 
         self.request['rows'] = 1000
-        self.query_str = url_getimages +"?"+ urllib.urlencode(self.request)
+        self.query_str = url_getimages + "?" + urllib.urlencode(self.request)
 
         # Retrieve page
         page = self.opener.open(url_getimages, urllib.urlencode(self.request))
@@ -386,14 +388,13 @@ class UKIDSSQuery():
         >>> data = R.get_catalog_gal(10.625,-0.38,radius=0.1)
         >>> bintable = data[0][1]
         """
-        #database:UKIDSSDR8PLUS
-        #programmeID:103 # DR8
-
+        # database:UKIDSSDR8PLUS
+        # programmeID:103 # DR8
 
         # Construct request
         self.request = {}
         self.request['database'] = self.database
-        self.request['programmeID'] = verify_programme_id(self.programmeID,querytype='catalog')
+        self.request['programmeID'] = verify_programme_id(self.programmeID, querytype='catalog')
         self.request['from'] = 'source'
         self.request['formaction'] = 'region'
         self.request['ra'] = lon
@@ -409,7 +410,7 @@ class UKIDSSQuery():
         self.request['rows'] = 1
         self.request['select'] = '*'
         self.request['where'] = ''
-        self.query_str = url_getcatalog +"?"+ urllib.urlencode(self.request)
+        self.query_str = url_getcatalog + "?" + urllib.urlencode(self.request)
 
         if directory is None:
             directory = self.directory
@@ -444,7 +445,7 @@ class UKIDSSQuery():
                         savename = ("UKIDSS_catalog_G%07.3f%+08.3f_r%03i.fits.gz" %
                                     (lon, lat, radius))
                     filename = directory + "/" + savename
-                
+
                 U = self.opener.open(link)
                 if verbose:
                     print "Downloading catalog %s" % link
@@ -452,20 +453,18 @@ class UKIDSSQuery():
                 else:
                     results = U.read()
                 S = StringIO.StringIO(results)
-                try: 
-                    fitsfile = fits.open(S,ignore_missing_end=True)
+                try:
+                    fitsfile = fits.open(S, ignore_missing_end=True)
                 except IOError:
                     S.seek(0)
                     G = gzip.GzipFile(fileobj=S)
-                    fitsfile = fits.open(G,ignore_missing_end=True)
-
+                    fitsfile = fits.open(G, ignore_missing_end=True)
 
                 data.append(fitsfile)
-                if save: 
+                if save:
                     fitsfile.writeto(filename.rstrip(".gz"), clobber=overwrite)
 
         return data
-
 
     def get_catalog_gal(self, glon, glat, directory=None, radius=1, save=False,
             verbose=True, savename=None, overwrite=False):
@@ -500,7 +499,7 @@ class UKIDSSQuery():
         # Construct request
         self.request = {}
         self.request['database'] = self.database
-        self.request['programmeID'] = verify_programme_id(self.programmeID,querytype='catalog')
+        self.request['programmeID'] = verify_programme_id(self.programmeID, querytype='catalog')
         self.request['from'] = 'source'
         self.request['formaction'] = 'region'
         self.request['ra'] = glon
@@ -516,7 +515,7 @@ class UKIDSSQuery():
         self.request['rows'] = 1
         self.request['select'] = '*'
         self.request['where'] = ''
-        self.query_str = url_getcatalog +"?"+ urllib.urlencode(self.request)
+        self.query_str = url_getcatalog + "?" + urllib.urlencode(self.request)
 
         if directory is None:
             directory = self.directory
@@ -545,24 +544,23 @@ class UKIDSSQuery():
 
                 if save:
                     if savename is None:
-                        savename = "UKIDSS_catalog_G%07.3f%+08.3f_r%03i.fits.gz" % (glon,glat,radius)
+                        savename = "UKIDSS_catalog_G%07.3f%+08.3f_r%03i.fits.gz" % (glon, glat, radius)
                     filename = directory + "/" + savename
-                
+
                 U = self.opener.open(link)
                 with aud.get_readable_fileobj(U, cache=True) as f:
                     results = f.read()
 
                 S = StringIO.StringIO(results)
-                try: 
-                    fitsfile = fits.open(S,ignore_missing_end=True)
+                try:
+                    fitsfile = fits.open(S, ignore_missing_end=True)
                 except IOError:
                     S.seek(0)
                     G = gzip.GzipFile(fileobj=S)
-                    fitsfile = fits.open(G,ignore_missing_end=True)
-
+                    fitsfile = fits.open(G, ignore_missing_end=True)
 
                 data.append(fitsfile)
-                if save: 
+                if save:
                     fitsfile.writeto(filename.rstrip(".gz"), clobber=overwrite)
 
         return data
@@ -598,9 +596,10 @@ def clean_catalog(ukidss_catalog, clean_band='K_1', badclass=-9999, maxerrbits=4
             * ((ukidss_catalog.data['PRIORSEC'] == ukidss_catalog.data['FRAMESETID'])
                 + (ukidss_catalog.data['PRIORSEC'] == 0))
             * (ukidss_catalog.data[band + 'PPERRBITS'] < maxpperrbits)
-        )
+            )
 
     return ukidss_catalog.data[mask]
+
 
 def verify_programme_id(pid, querytype='catalog'):
     """

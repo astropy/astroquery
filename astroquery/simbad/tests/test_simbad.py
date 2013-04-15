@@ -15,4 +15,3 @@ def test_multi():
     table = result.execute().table
     assert "M  31" in table["MAIN_ID"]
     assert "M  51" in table["MAIN_ID"]
-
