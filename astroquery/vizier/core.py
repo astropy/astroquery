@@ -5,7 +5,7 @@ if sys.version_info[0] >= 3:
     from io import BytesIO as StringIO
 else:
     from cStringIO import StringIO
-import numpy
+import numpy as np
 try:
     import astropy.io.vo.table as votable
 except ImportError:
@@ -59,7 +59,7 @@ def vizquery(query, server="vizier.u-strasbg.fr"):
             body += ["%s=%s"%(key, value)]
         elif type(value) is Table: # Value is a table, convert it to a string, list of positions
             pos = []
-            for elem in numpy.array(value, copy=False):
+            for elem in np.array(value, copy=False):
                 pos += ["%.8f%+.8f"%(elem['_RAJ2000'],elem['_DEJ2000'])] # Position with the format: _RAJ2000+_DEJ2000
             body += ["-out.add=_q"] # This calculated index is a reference to the input table
             body += ["%s=%s"%(key, "<<;"+";".join(pos))] # The proper convention: <<;pos1;pos2;pos3

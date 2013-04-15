@@ -4,8 +4,8 @@ SPLAT_FORM_URL = "http://www.cv.nrao.edu/php/splat/b.php"
 
 __all__ = ['search']
 
+import numpy as np
 import mechanize
-from numpy import array, arange
 from astropy.table import Table
 
 """
@@ -183,7 +183,7 @@ def _parse_frequency(form, freq, fwidth, funit):
             raise (Exception, 'Wrong format for frequency. Need list or float')
         if fwidth not in [0, 0.0, None]:
             # with freq and fwidth given, we can calculate start and end
-            f1, f2 = freq + array([-1,1]) * fwidth / 2.
+            f1, f2 = freq + np.array([-1,1]) * fwidth / 2.
             form['from'] = str(f1)
             form['to'] = str(f2)
         else:
@@ -355,7 +355,7 @@ def _parse_result(data, output='astropy.table'):
         column_names = rows[0]
         column_names = column_names.split(':')
         
-        for i in arange(len(column_names)):
+        for i in np.arange(len(column_names)):
             column_names[i] = column_names[i].replace('<br>', ' ')
             column_names[i] = column_names[i].replace('<sub>', '_')
             column_names[i] = column_names[i].replace('<sup>', '^')
@@ -365,7 +365,7 @@ def _parse_result(data, output='astropy.table'):
             column_names[i] = column_names[i].replace('sid[0] is null', '')
         rows = rows[1:-1]
         rows = [i.split(':') for i in rows]
-        rows = array(rows)
+        rows = np.array(rows)
         rows[rows == ''] = 'nan'
         
         column_dtypes = ['str', 'str', 'float', 'float', 'float' , 'float' ,
@@ -380,7 +380,7 @@ def _parse_result(data, output='astropy.table'):
                         names = column_names, 
                         dtypes = column_dtypes)
         
-        for i in arange(len(column_units)):
+        for i in np.arange(len(column_units)):
             results.field(i).units = column_units[i]
         return results
 
