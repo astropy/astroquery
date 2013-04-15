@@ -111,9 +111,10 @@ GATOR_URL = 'http://irsa.ipac.caltech.edu/cgi-bin/Gator/nph-query'
 GATOR_LIST_URL = 'http://irsa.ipac.caltech.edu/cgi-bin/Gator/nph-scan?mode=xml'
 
 
-default_options={
-        'outfmt':3
-        }# use VO table format
+default_options = {
+        'outfmt': 3
+}  # use VO table format
+
 
 def query_gator_cone(catalog, object, radius, units='arcsec'):
     '''
@@ -330,7 +331,7 @@ def _query_gator(options, debug=False):
 
     # Construct query URL
     url = GATOR_URL + "?" + \
-          string.join(["%s=%s" % (x, urllib.quote_plus(str(options[x]))) for x in options], "&")
+        string.join(["%s=%s" % (x, urllib.quote_plus(str(options[x]))) for x in options], "&")
     if debug:
         print(url)
 
@@ -364,7 +365,7 @@ def _query_gator(options, debug=False):
     except Exception as ex:
         print("Failed to parse votable!  Returning output file instead.")
         print(ex)
-        return open(output.name,'r')
+        return open(output.name, 'r')
 
     # Convert to astropy.table.Table instance
     table = array.to_table()

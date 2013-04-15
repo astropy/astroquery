@@ -8,12 +8,12 @@ from .result import SimbadResult
 from .simbad_votable import VoTableDef
 
 __all__ = ['QueryId',
-            'QueryAroundId',
-            'QueryCat',
-            'QueryCoord',
-            'QueryBibobj',
-            'QueryMulti',
-            ]
+          'QueryAroundId',
+          'QueryCat',
+          'QueryCoord',
+          'QueryBibobj',
+          'QueryMulti',
+           ]
 
 
 class _Query(object):
@@ -26,11 +26,11 @@ class _Query(object):
             Definition object for the output.
 
         limit: int, optional
-            Limits the number of rows returned. None sets the limit to 
+            Limits the number of rows returned. None sets the limit to
             SIMBAD's server maximum.
 
         pedantic: bool, optional
-            The value to pass to the votable parser for the *pedantic* 
+            The value to pass to the votable parser for the *pedantic*
             parameters.
         """
 
@@ -48,7 +48,7 @@ class QueryId(_Query):
         The identifier to query for.
 
     wildcard: bool, optional
-        If True, specifies that `identifier` should be understood as an 
+        If True, specifies that `identifier` should be understood as an
         expression with wildcards.
 
     """
@@ -61,14 +61,14 @@ class QueryId(_Query):
 
     def __str__(self):
         return self.__command + (self.wildcard and 'wildcard ' or '') + \
-                                                    str(self.identifier) + '\n'
+            str(self.identifier) + '\n'
 
     def __repr__(self):
         return '{%s(identifier=%s, wildcard=%s)}' % (self.__class__.__name__,
                             repr(self.identifier), repr(self.wildcard.value))
 
 
-#class QueryBasic(_Query):
+# class QueryBasic(_Query):
 #    """ Basic Query
 #
 #    Parameters
@@ -143,7 +143,7 @@ class QueryCat(_Query):
 
     def __repr__(self):
         return '{%s(catalog=%s)}' % (self.__class__.__name__,
-                                                        repr(self.catalog))
+                   repr(self.catalog))
 
 
 @ValidatedAttribute('radius', parameters._ScriptParameterRadius)
@@ -180,7 +180,7 @@ class QueryCoord(_Query):
     __command = 'query coo '
 
     def __init__(self, ra, dec, radius=None, frame=None, equinox=None,
-                                                                epoch=None):
+                epoch=None):
         self.ra = ra
         self.dec = dec
         self.radius = radius
@@ -197,14 +197,14 @@ class QueryCoord(_Query):
 
     def __repr__(self):
         return '{%s(ra=%s, dec=%s, radius=%s, frame=%s, equinox=%s, ' \
-                    'epoch=%s)}' % \
-                    (self.__class__.__name__, repr(self.ra), repr(self.dec),
-                    repr(self.radius), repr(self.frame), repr(self.equinox),
-                    repr(self.epoch))
+            'epoch=%s)}' % \
+            (self.__class__.__name__, repr(self.ra), repr(self.dec),
+            repr(self.radius), repr(self.frame), repr(self.equinox),
+            repr(self.epoch))
 
 
 class QueryBibobj(_Query):
-    """ Query by bibcode objects. Used to fetch objects contained in the 
+    """ Query by bibcode objects. Used to fetch objects contained in the
     given article.
 
     Parameters
@@ -224,7 +224,7 @@ class QueryBibobj(_Query):
 
     def __repr__(self):
         return '{%s(bibcode=%s)}' % (self.__class__.__name__,
-                                                            repr(self.bibcode))
+                   repr(self.bibcode))
 
 
 @ValidatedAttribute('radius', parameters._ScriptParameterRadius)
@@ -235,8 +235,8 @@ class QueryMulti(_Query):
     __command_ids = ('radius', 'frame', 'epoch', 'equinox')
 
     def __init__(self, queries=None, radius=None, frame=None, epoch=None,
-                                                                equinox=None):
-        """ A type of Query used to aggregate the values of multiple simple 
+                equinox=None):
+        """ A type of Query used to aggregate the values of multiple simple
         queries into a single result.
 
         Parameters
@@ -274,11 +274,11 @@ class QueryMulti(_Query):
                 self.queries.append(queries)
             elif iter(queries):
                 for query in queries:
-                    if isinstance(query,_Query):
+                    if isinstance(query, _Query):
                         self.queries.append(query)
                     else:
                         raise ValueError("Queries must be simbad.Query instances")
-                        #self.queries.append(BasicQuery(query))
+                        # self.queries.append(BasicQuery(query))
             elif isinstance(queries, QueryMulti):
                 for query in queries.queries:
                     self.queries.append(query)
@@ -343,4 +343,3 @@ def execute_query(query, votabledef, limit, pedantic, mirror='strasbourg'):
     if not result:
         raise TypeError
     return SimbadResult(result, pedantic=pedantic)
-

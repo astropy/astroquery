@@ -2,6 +2,7 @@
 
 __all__ = ['VoTableDef']
 
+
 class VoTableDef(object):
     def __init__(self, *args, **kwargs):
         self.__fields = []

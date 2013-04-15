@@ -2,6 +2,7 @@
 
 from ... import vizier
 
+
 def test_simple():
     # Find all AGNs in Veron & Cetty with Vmag in [5.0; 11.0]
     query = {}
@@ -9,7 +10,7 @@ def test_simple():
     query["-out"] = ["Name", "Sp", "Vmag"]
     query["Vmag"] = "5.0..11.0"
     table1 = vizier.vizquery(query)
-    
+
     # Find sources in 2MASS matching the AGNs positions to within 2 arcsec
     query = {}
     query["-source"] = "II/246/out"
@@ -17,7 +18,7 @@ def test_simple():
     query["-c.rs"] = "2"
     query["-c"] = table1
     table2 = vizier.vizquery(query)
-    
+
     print(table1)
     print(table2)
 
