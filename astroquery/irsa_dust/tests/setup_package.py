@@ -2,8 +2,8 @@
 import os
 
 def get_package_data():
-    paths = [os.path.join('t', '*.xml'),
-             os.path.join('t', '*.fits'),
-             os.path.join('t', '*.tbl'),
-             os.path.join('t', '*.txt')]
+    paths = [os.path.join('data', '*.xml'),
+             os.path.join('data', '*.fits'),
+             os.path.join('data', '*.tbl'),
+             os.path.join('data', '*.txt')]
     return { 'astroquery.irsa_dust.tests': paths}

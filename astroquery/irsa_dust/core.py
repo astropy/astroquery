@@ -578,7 +578,7 @@ class StringNode(BaseDustNode):
         self._value = xml_node.text.strip()
         
         self._length = length
-        self._columns = [Column(col_name, dtype="S" + str(length))]
+        self._columns = [Column(name=col_name, dtype="S" + str(length))]
 
     def __str__(self):
         """Return a string representation of this item."""
