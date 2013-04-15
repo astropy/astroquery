@@ -4,8 +4,8 @@ import urllib
 import urllib2
 from .parameters import ValidatedAttribute
 from . import parameters
-from .result import *
-from .votable import *
+from .result import SimbadResult
+from .simbad_votable import VoTableDef
 
 __all__ = ['QueryId',
             'QueryAroundId',
