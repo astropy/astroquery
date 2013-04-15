@@ -67,8 +67,3 @@ def retrieve(url, outfile, opener=None, overwrite=False):
         fitsfile = fits.open(G,ignore_missing_end=True)
 
     fitsfile.writeto(outfile, clobber=overwrite)
-
-
-if __name__ == '__main__':
-    response = urllib2.urlopen('http://www.ebay.com')
-    C = chunk_read(response, report_hook=chunk_report)
