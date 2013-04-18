@@ -47,7 +47,7 @@ rst_epilog += """
 
 # This does not *have* to match the package name, but typically does
 project = u'astroquery' 
-author = u''
+author = u'Adam Ginsburg (maintainer) and Tom Robitaille'
 copyright = u'2012, ' + author
 
 # The version info for the project you're documenting, acts as replacement for
@@ -69,6 +69,12 @@ release = astroquery.__version__
 # the options for this theme can be modified by overriding some of the
 # variables set in the global configuration. The variables set in the
 # global configuration are listed below, commented out.
+
+html_theme_options = {
+    'logotext1': 'astro',  # white,  semi-bold
+    'logotext2': 'query',  # orange, light
+    'logotext3': ':docs'   # white,  light
+    }
 
 # Add any paths that contain custom themes here, relative to this directory.
 # To use a different custom theme, add the directory containing the theme.
