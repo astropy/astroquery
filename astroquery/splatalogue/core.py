@@ -17,8 +17,7 @@ TODO : improve searchable parameters e.g. molecule ID,
 
 """
 
-def search(
-            freq = [203.4, 203.42],
+def search( freq = [203.4, 203.42],
             fwidth = None,
             funit = 'GHz',
             linelist = ['lovas', 'slaim', 'jpl', 'cdms', 'toyama', 'osu', 'recomb', 'lisa', 'rfi'],
