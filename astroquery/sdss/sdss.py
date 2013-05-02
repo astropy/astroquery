@@ -22,8 +22,21 @@ from astropy import coordinates as coord
 photoobj_defs = ['ra', 'dec', 'objid', 'run', 'rerun', 'camcol', 'field']
 specobj_defs = ['z', 'plate', 'mjd', 'fiberID', 'specobjid', 'specClass']
 
+# Cross-correlation templates from DR-5
+spec_templates = \
+    {'star_O': 0, 'star_OB': 1, 'star_B': 2, 'star_A': [3,4],
+     'star_FA': 5, 'star_F': [6,7], 'star_G': [8,9],
+     'star_K': 10, 'star_M1': 11, 'star_M3': 12, 'star_M5': 13,
+     'star_M8': 14, 'star_L1': 15, 'star_wd': [16,20,21],
+     'star_carbon': [17,18,19], 'star_Ksubdwarf': 22,
+     'galaxy_early': 23, 'galaxy': [24,25,26], 'galaxy_late': 27,
+     'galaxy_lrg': 28, 'qso': 29, 'qso_bal': [30,31], 
+     'qso_bright': 32 
+     }
+          
 spectro1d_prefix = 'http://das.sdss.org/spectro/1d_26'
 images_prefix = 'http://das.sdss.org/www/cgi-bin/drC'
+template_prefix = 'http://www.sdss.org/dr5/algorithms/spectemplates/spDR2'
 
 sdss_arcsec_per_pixel = 0.396
 
@@ -35,13 +48,18 @@ def crossID(ra, dec, unit=None, dr=2., fields=None):
     
     Parameters
     ----------
-    ra = An object that represents a right ascension angle.
-    dec = An object that represents a declination angle.
-    unit = The unit of the value specified for the angle
-    dr = Radius of region to perform object cross-ID (arcseconds).
-    fields = SDSS PhotoObj or SpecObj quantities to return. If None, defaults
-             to quantities required to find corresponding spectra and images
-             of matched objects (e.g. plate, fiberID, mjd, etc.).
+    ra : float, int, str, tuple
+        An object that represents a right ascension angle.
+    dec : float, int, str, tuple
+        An object that represents a declination angle.
+    unit : `~astropy.units.UnitBase`, str
+        The unit of the value specified for the angle
+    dr : int, float
+        Radius of region to perform object cross-ID (arcseconds).
+    fields : list, optional
+        SDSS PhotoObj or SpecObj quantities to return. If None, defaults
+        to quantities required to find corresponding spectra and images
+        of matched objects (e.g. plate, fiberID, mjd, etc.).
              
     See documentation for astropy.coordinates.angles for more information 
     about ('ra', 'dec', 'unit') parameters.
@@ -119,8 +137,11 @@ def get_spectrum(crossID=None, plate=None, fiberID=None, mjd=None):
     
     Parameters
     ----------
-    crossID = dictionary that must contain the plate, fiberID, and mjd. These
-              parameters can be passed separately as well. All are required.
+    crossID : dict
+        Dictionary that must contain the plate, fiberID, and mjd of desired
+        spectrum. These parameters can be passed separately as well. All are 
+        required. Most convenient to pass the result of function
+        astroquery.sdss.crossID.
     
     Examples
     --------
@@ -137,6 +158,10 @@ def get_spectrum(crossID=None, plate=None, fiberID=None, mjd=None):
     well as the FITS header in dictionary form.
     """
     
+    safe_to_rm = True
+    if os.path.exists('spectro'):
+        safe_to_rm = False
+    
     if crossID is not None:
         plate = crossID['plate']
         fiberID = crossID['fiberID']
@@ -152,8 +177,9 @@ def get_spectrum(crossID=None, plate=None, fiberID=None, mjd=None):
     
     hdulist = fits.open('spectro/1d_26/%s/1d/spSpec-%s-%s-%s.fit' % (plate, 
         mjd, plate, fiber), ignore_missing_end=True)
-            
-    os.system('rm -rf spectro')
+          
+    if safe_to_rm:        
+        os.system('rm -rf spectro')
     
     return Spectrum(hdulist)
             
@@ -167,10 +193,13 @@ def get_image(crossID=None, run=None, rerun=None, camcol=None,
     
     Parameters
     ----------
-    crossID = dictionary that must contain the run, rerun, camcol, and field. 
-              These parameters can be passed separately as well. All are 
-              required.
-    band = u, g, r, i, or z          
+    crossID : dict 
+        Dictionary that must contain the run, rerun, camcol, and field for
+        desired image. These parameters can be passed separately as well. All 
+        are required. Most convenient to pass the result of function
+        astroquery.sdss.crossID.
+    band : str, list 
+        Could be individual band, or list of bands. Options: u, g, r, i, or z          
     
     Examples
     --------
@@ -184,10 +213,14 @@ def get_image(crossID=None, run=None, rerun=None, camcol=None,
     
     Returns
     -------
-    Instance of Image class, whose main attribute is a PyFITS HDUList.
-    Also contains properties to return data and error arrays, as 
-    well as the FITS header in dictionary form.
+    Instance of Image class, whose main attribute is a PyFITS HDUList. Also 
+    contains properties to return data and error arrays, as well as the FITS 
+    header in dictionary form.
     """   
+    
+    safe_to_rm = True
+    if os.path.exists('imaging') or os.path.exists('www'):
+        safe_to_rm = False
             
     if crossID is not None:
         run = crossID['run']
@@ -209,11 +242,69 @@ def get_image(crossID=None, run=None, rerun=None, camcol=None,
     
     hdulist = fits.open(path_to_img, ignore_missing_end=True) 
  
-    # Erase download directory tree    
-    os.system('rm -rf www')    
-    os.system('rm -rf imaging')    
+    # Erase download directory tree   
+    if safe_to_rm: 
+        os.system('rm -rf www')    
+        os.system('rm -rf imaging')    
     
     return Image(hdulist)
+    
+def get_spectral_template(kind='qso'):
+    """
+    Download spectral templates from SDSS DR-2, which are located here: 
+    
+        http://www.sdss.org/dr5/algorithms/spectemplates/
+    
+    There 32 spectral templates available from DR-2, from stellar spectra,
+    to galaxies, to quasars. To see the available templates, do:
+    
+        from astroquery import sdss
+        print sdss.spec_templates.keys()
+    
+    Parameters
+    ----------
+    kind : str, list
+        Which spectral template to download? Options are stored in the 
+        dictionary astroquery.sdss.spec_templates.
+    
+    Examples
+    --------
+    qso = sdss.get_spectral_template(kind='qso')
+    Astar = sdss.get_spectral_template(kind='star_A')
+    Fstar = sdss.get_spectral_template(kind='star_F')
+
+    Returns
+    -------
+    List of Spectrum class instances, whose main attribute is a PyFITS HDUList.
+    The reason for returning a list is that there are multiple templates 
+    available for some spectral types.
+    """   
+    
+    safe_to_rm = True
+    if os.path.exists('dr5'):
+        safe_to_rm = False
+    
+    if kind == 'all':
+        indices = list(np.arange(33))
+    
+    else:    
+        indices = spec_templates[kind]
+        if type(indices) is not list:
+            indices = [indices]
+        
+    spectra = []
+    for index in indices:
+        name = str(index).zfill(3)
+        web = '%s-%s.fit' % (template_prefix, name)        
+        os.system('wget -x -nH -nv -q %s' % web)
+        hdulist = fits.open('dr5/algorithms/spectemplates/spDR2-%s.fit' % name) 
+        spectra.append(Spectrum(hdulist)) 
+        del hdulist
+                
+    if safe_to_rm:
+        os.system('rm -rf dr5')
+    
+    return spectra
     
 class Spectrum:
     def __init__(self, hdulist):
@@ -223,8 +314,8 @@ class Spectrum:
     def hdr(self):
         if not hasattr(self, '_hdr'):
             self._hdr = {}  
-            for key in self.hdulist[0].header.keys(): 
-                self._hdr[key] = self.hdulist[0].header[key]
+            for key in self.header.keys(): 
+                self._hdr[key] = self.header.get(key)
         return self._hdr
     
     @property
