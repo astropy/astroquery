@@ -3,6 +3,6 @@
 SDSS Spectra/Image/SpectralTemplate Archive Query Tool
 -----------------------------------
 
-:Author: Jordan Mirocha (adam.g.ginsburg@gmail.com)
+:Author: Jordan Mirocha (mirochaj@gmail.com)
 """
 from core import *
