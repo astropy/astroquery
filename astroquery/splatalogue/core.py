@@ -1,11 +1,17 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
+try:
+    import mechanize
+except ImportError:
+    import warnings
+    warnings.warn("Could not import mechanize; splatalogue will not work")
+
+
 SPLAT_FORM_URL = "http://www.cv.nrao.edu/php/splat/b.php"
 
 __all__ = ['search']
 
 import numpy as np
-import mechanize
 from astropy.table import Table
 
 """
