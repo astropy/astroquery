@@ -1,3 +1,4 @@
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
 """
 
 sdss.py
@@ -33,7 +34,8 @@ spec_templates = \
      'galaxy_lrg': 28, 'qso': 29, 'qso_bal': [30,31], 
      'qso_bright': 32 
      }
-          
+
+# Some website prefixes we need          
 spectro1d_prefix = 'http://das.sdss.org/spectro/1d_26'
 images_prefix = 'http://das.sdss.org/www/cgi-bin/drC'
 template_prefix = 'http://www.sdss.org/dr5/algorithms/spectemplates/spDR2'
@@ -44,7 +46,8 @@ def crossID(ra, dec, unit=None, dr=2., fields=None):
     """
     Perform object cross-ID in SDSS using SQL.
     
-    Search for objects near position (ra, dec) within some radius.
+    Search for objects near position (ra, dec) within some radius using
+    Tamas Budavari's SQL tool (sqlcl.py).
     
     Parameters
     ----------
