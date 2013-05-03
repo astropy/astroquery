@@ -110,6 +110,6 @@ class SimbadResult(object):
             self.__file.flush()
             array = votable.parse(self.__file,
                             pedantic=self.__pedantic).get_first_table().array
-            self.__table = array.to_table()
+            self.__table = array # .to_table()
         return self.__table
 

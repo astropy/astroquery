@@ -15,9 +15,10 @@ spectra and images using wget.
 
 import numpy as np
 import astropy.wcs as wcs
-import os, re, sqlcl, math
+import os, re, math
 from astropy.io import fits
 from astropy import coordinates as coord
+from . import sqlcl
 
 # Default photometric and spectroscopic quantities to retrieve.
 photoobj_defs = ['ra', 'dec', 'objid', 'run', 'rerun', 'camcol', 'field']
