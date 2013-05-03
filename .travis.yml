@@ -1,39 +1,58 @@
 language: python
 
 python:
-    - 2.7
     - 2.6
-#    - 3.2
+    - 2.7
+    - 3.2
+    - 3.3
+
 env:
-    - NUMPY_VERSION=1.6.2
-    - NUMPY_VERSION=1.5.1
-#    - NUMPY_VERSION=1.4.1
+    # try all python versions with the latest stable numpy and astropy
+    - ASTROPY_VERSION=stable NUMPY_VERSION=1.7.1 SETUP_CMD='test'
 
 matrix:
-    exclude:
-        - python: 3.2
-          env: NUMPY_VERSION=1.5.1
-        - python: 3.2
-          env: NUMPY_VERSION=1.4.1
+    include:
+        - python: 2.7
+          # opdeps needed because the matplotlib sphinx extension requires them
+          env: ASTROPY_VERSION=development NUMPY_VERSION=1.7.1 SETUP_CMD='build_sphinx -w -n'
 
+        # try alternate numpy versions with the latest stable astropy
+        - python: 2.7
+          env: ASTROPY_VERSION=stable NUMPY_VERSION=1.6.2 SETUP_CMD='test'
+        - python: 2.7
+          env: ASTROPY_VERSION=stable NUMPY_VERSION=1.5.1 SETUP_CMD='test'
+        - python: 3.2
+          env: ASTROPY_VERSION=stable NUMPY_VERSION=1.6.2 SETUP_CMD='test'
+        # numpy < 1.6 does not work on py 3.x
+
+        # try latest developer version of astropy
+        - python: 2.7
+          env: ASTROPY_VERSION=development NUMPY_VERSION=1.7.1 SETUP_CMD='test'
+        - python: 3.3
+          env: ASTROPY_VERSION=development NUMPY_VERSION=1.7.1 SETUP_CMD='test'
 
 before_install:
    # We do this to make sure we get the dependencies so pip works below
    - sudo apt-get update -qq
-   - sudo apt-get install -qq python-numpy python-scipy cython libatlas-dev liblapack-dev gfortran
+   - sudo apt-get install -qq python-numpy python-sphinx cython libatlas-dev liblapack-dev gfortran
+   - if [[ $SETUP_CMD == build_sphinx* ]]; then sudo apt-get install -qq python-sphinx graphviz texlive-latex-extra dvipng python-matplotlib; fi
+
 install:
    - export PYTHONIOENCODING=UTF8 # just in case
-   - pip install "numpy==$NUMPY_VERSION" --use-mirrors
-   - pip -q install Cython --use-mirrors
-   - pip install atpy --use-mirrors # for NED
-   - pip install asciitable --use-mirrors
-   - pip install beautifulsoup4 --use-mirrors # for NIST
-   # astrolib is really hard to find via google...
-   - pip install http://stsdas.stsci.edu/astrolib/vo-0.8.tar.gz # for NED / atpy
-   - pip install http://stsdas.stsci.edu/astrolib/coords-0.37.tar.gz # for NRAO
-   - pip install http://cxc.harvard.edu/contrib/asciitable/downloads/asciitable.tar.gz # besancon 
-   - pip install -e git+http://github.com/astropy/astropy.git#egg=astropy
-   # - pip install -i http://stsdas.stsci.edu/download/packages/index astropy==0.2rc1 
+   - pip -q install --upgrade "numpy==$NUMPY_VERSION" --use-mirrors
+   - pip -q install --upgrade Cython --use-mirrors
+   - pip -q install --upgrade requests # needed for multipart queries (fermilat)
+   - if [[ $SETUP_CMD == build_sphinx* ]]; then pip -q install sphinx==1.1.3 --use-mirrors; fi
+   - if [[ $SETUP_CMD == build_sphinx* ]]; then pip -q install matplotlib --use-mirrors; fi
 
-script: python setup.py test
+   - if [[ $ASTROPY_VERSION == stable ]]; then pip -q install astropy --use-mirrors; fi
+   - if [[ $ASTROPY_VERSION == development ]]; then pip -q install git+http://github.com/astropy/astropy.git#egg=astropy --use-mirrors; fi
+
+   - pip install asciitable --use-mirrors # for NIST 
+   - pip install beautifulsoup4 --use-mirrors # for NIST
+   - pip install mechanize --use-mirrors # for splatalogue
+   - pip install http://stsdas.stsci.edu/astrolib/vo-0.8.tar.gz # for NED / atpy
+
+script:
+   - python setup.py $SETUP_CMD
 

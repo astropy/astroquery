@@ -10,6 +10,7 @@ Getting started
 The following example illustrates a VizieR query of the Veron & Cetty catalogue
 
 .. code-block:: python
+
     >>> from astroquery import vizier
     >>> query = {}
     >>> query["-source"] = "VII/258/vv10"
@@ -39,6 +40,7 @@ The following example illustrates a VizieR query of the Veron & Cetty catalogue
 The resulting "table1" can be reused as an input for another search, here in 2MASS
 
 .. code-block:: python
+
     >>> query = {}
     >>> query["-source"] = "II/246/out"
     >>> query["-out"] = ["RAJ2000", "DEJ2000", "2MASS", "Kmag"]
