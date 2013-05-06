@@ -26,4 +26,4 @@ def test_ukidss_get_image_gal():
     # get UWISH2 data (as per http://astro.kent.ac.uk/uwish2/main.html)
     R.database='U09B8v20120403'
     R.login(username='U09B8',password='uwish2',community='nonSurvey')
-    R.get_image_gal(49.489,-0.27,frametype='leavstack',size=5,filter='H2')
+    R.get_image_gal(49.489,-0.27,frametype='leavstack',size=5,filter='H2',save=False)

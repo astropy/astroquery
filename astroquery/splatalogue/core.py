@@ -1,11 +1,17 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
+try:
+    import mechanize
+except ImportError:
+    import warnings
+    warnings.warn("Could not import mechanize; splatalogue will not work")
+
+
 SPLAT_FORM_URL = "http://www.cv.nrao.edu/php/splat/b.php"
 
 __all__ = ['search']
 
 import numpy as np
-import mechanize
 from astropy.table import Table
 
 """
@@ -17,8 +23,7 @@ TODO : improve searchable parameters e.g. molecule ID,
 
 """
 
-def search(
-            freq = [203.4, 203.42],
+def search( freq = [203.4, 203.42],
             fwidth = None,
             funit = 'GHz',
             linelist = ['lovas', 'slaim', 'jpl', 'cdms', 'toyama', 'osu', 'recomb', 'lisa', 'rfi'],

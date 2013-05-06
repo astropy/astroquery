@@ -16,3 +16,6 @@ def test_multi():
     assert "M  31" in table["MAIN_ID"]
     assert "M  51" in table["MAIN_ID"]
 
+if __name__ == "__main__":
+    test_simbad()
+    test_multi()
