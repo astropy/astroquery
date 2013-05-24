@@ -3,6 +3,7 @@ import urllib
 from astropy.io import fits
 import StringIO
 import astropy.utils.data as aud
+import requests
 
 url_gpscutout  = "http://third.ucllnl.org/cgi-bin/gpscutout"
 
@@ -75,15 +76,11 @@ def get_magpis_image_gal(glon, glat, survey='bolocam', size=1.0,
     # optional request["Epochs"] = 
     # optional request["Fieldname"] = 
 
-    # create the request header data
-    request = urllib.urlencode(request)
-    # load the URL as text
-    U = urllib.urlopen(url_gpscutout, request)
-    # read results with progressbar
-    with aud.get_readable_fileobj(U) as f:
-        results = f.read()
+    result = requests.post(url_gpscutout, data=request)
+
     # turn the text into a StringIO object for FITS reading
-    S = StringIO.StringIO(results)
+    S = StringIO.StringIO(result.content)
+
     fitsfile = fits.open(S)
 
     if save:

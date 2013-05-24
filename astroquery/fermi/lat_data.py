@@ -26,8 +26,9 @@ class FermiLAT_QueryClass(object):
         coordsys : 'J2000' or 'B1950' or 'Galactic'
             The coordinate system associated with name
         searchradius : str
-            The search radius around the object/coordinates specified (will be
-            converted to string if specified as number)
+            The search radius in degrees around the object/coordinates
+            specified (will be converted to string if specified as number).
+            Must be in the range [1,60]
             .. warning:: 
                 Defaults to 1 degree if left blank
         obsdates : str
@@ -53,7 +54,7 @@ class FermiLAT_QueryClass(object):
                    'spacecraft':'on' if spacecraftdata else 'off'}
 
         result = requests.post(self.request_url, data=payload)
-        re_result = self.result_url_re.findall(result.content)
+        re_result = self.result_url_re.findall(result.content.decode('utf-8'))
 
         if len(re_result) == 0:
             raise ValueError("Results did not contain a result url... something went awry (that hasn't been tested yet)")
