@@ -79,8 +79,9 @@ def get_magpis_image_gal(glon, glat, survey='bolocam', size=1.0,
     result = requests.post(url_gpscutout, data=request)
 
     # turn the text into a StringIO object for FITS reading
-    # python 3 requires utf-8, not byte.  
-    S = StringIO.StringIO(result.content.decode('utf-8'))
+    # python 3 requires utf-8, not byte.  But you can't pass unicode to the
+    # python 2 version? 
+    S = StringIO.StringIO(result.content)
 
     fitsfile = fits.open(S)
 
