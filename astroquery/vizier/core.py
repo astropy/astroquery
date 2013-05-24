@@ -67,7 +67,7 @@ def vizquery(query, server="vizier.u-strasbg.fr"):
         elif type(value) is list: # Value is a list, join it with commas
             body += ["%s=%s"%(key, ",".join(value))]
         else:
-            raise Exception, "Don't know how to handle %s"%repr(value)
+            raise Exception("Don't know how to handle %s"%repr(value))
     body = "\r\n".join(body)
 
     # Fetch the VOTABLE corresponding to the query 
