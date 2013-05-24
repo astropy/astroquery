@@ -1,11 +1,10 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import sys
+import httplib
 if sys.version_info[0] >= 3:
     from io import BytesIO as StringIO
-    import http.client as httplib
 else:
     from cStringIO import StringIO
-    import httplib
 import numpy as np
 try:
     import astropy.io.vo.table as votable
