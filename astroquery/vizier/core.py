@@ -47,7 +47,7 @@ def vizquery(query, server="vizier.u-strasbg.fr"):
     
     # Always add calculated _RAJ2000 & _DEJ2000 to the query.
     # This is used for cross correlations between queries
-    if query.has_key('-out.add'):
+    if '-out.add' in query:
         query["-out.add"] += ['_RAJ2000', '_DEJ2000']
     else:
         query["-out.add"]  = ['_RAJ2000', '_DEJ2000']
@@ -66,7 +66,7 @@ def vizquery(query, server="vizier.u-strasbg.fr"):
         elif type(value) is list: # Value is a list, join it with commas
             body += ["%s=%s"%(key, ",".join(value))]
         else:
-            raise Exception, "Don't know how to handle %s"%repr(value)
+            raise Exception("Don't know how to handle %s"%repr(value))
     body = "\r\n".join(body)
 
     # Fetch the VOTABLE corresponding to the query 
