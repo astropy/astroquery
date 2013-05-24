@@ -48,7 +48,7 @@ def vizquery(query, server="vizier.u-strasbg.fr"):
     
     # Always add calculated _RAJ2000 & _DEJ2000 to the query.
     # This is used for cross correlations between queries
-    if query.has_key('-out.add'):
+    if '-out.add' in query:
         query["-out.add"] += ['_RAJ2000', '_DEJ2000']
     else:
         query["-out.add"]  = ['_RAJ2000', '_DEJ2000']
