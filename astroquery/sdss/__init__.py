@@ -5,4 +5,4 @@ SDSS Spectra/Image/SpectralTemplate Archive Query Tool
 
 :Author: Jordan Mirocha (mirochaj@gmail.com)
 """
-from core import *
+from .core import *

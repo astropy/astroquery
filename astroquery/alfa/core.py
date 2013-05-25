@@ -27,11 +27,19 @@ def get_catalog():
     """
     Download catalog of ALFALFA source properties.
     
+    Notes
+    -----
+    This catalog has ~15,000 entries, so after it's downloaded, it is made
+    global to save some time later.
+    
     Returns
     -------
     Dictionary of results, each element is a masked array.
     
     """
+    
+    if 'ALFALFACAT' in globals():
+        return ALFALFACAT
     
     f = urllib.urlopen(propert_path)
 
@@ -87,12 +95,21 @@ def get_spectrum(agc=None, ra=None, dec=None, unit=None, counterpart=False,
     counterpart : bool
         Do supplied ra and dec refer to HI source or optical counterpart?
         
+    Notes
+    -----
+    If AGC number is not supplied, will download entire ALFALFA catalog and
+    do a cross-ID with supplied RA and DEC.     
+        
     Returns
     -------
     If ascii == False, returns Spectrum instance, which contains FITS hdulist
     and properties for x and y axes. If ascii == True, returns a tuple of 4
     arrays: velocity [km/s], frequency [MHz], flux density [mJy], and baseline 
     fit [mJy], respectively.
+    
+    See Also
+    --------
+    get_catalog : method that downloads ALFALFA catalog
     
     """
         
@@ -127,7 +144,7 @@ def get_spectrum(agc=None, ra=None, dec=None, unit=None, counterpart=False,
         
         agc = cat['AGCNr'][np.argmin(dr)]
                 
-        print 'Found HI source %i %g arcseconds from supplied position.' \
+        print 'Found HI source AGC #%i %g arcseconds from supplied position.' \
             % (agc, dr.min() * 3600.)        
             
     if ascii:
@@ -192,9 +209,9 @@ class Spectrum:
         return self.hdulist[0].header    
         
     @property
-    def xarr(self):
+    def freq(self):
         """ Return xarr in units of MHz. """
-        if not hasattr(self, '_xarr'):
+        if not hasattr(self, '_freq'):
             for item in self.hdulist:
                 if item.name == 'PRIMARY':
                     continue
@@ -202,10 +219,26 @@ class Spectrum:
                     
             for i, col in enumerate(item.columns):
                 if col.name == 'FREQ':
-                    self._xarr = item.data[0][i]
+                    self._freq = item.data[0][i]
                     break
             
-        return self._xarr
+        return self._freq
+    
+    @property
+    def varr(self):
+        """ Return xarr in units of helio-centric velocity (km/s). """
+        if not hasattr(self, '_varr'):
+            for item in self.hdulist:
+                if item.name == 'PRIMARY':
+                    continue
+                break    
+                    
+            for i, col in enumerate(item.columns):
+                if col.name == 'VHELIO':
+                    self._varr = item.data[0][i]
+                    break
+            
+        return self._varr
         
     @property
     def data(self):

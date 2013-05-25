@@ -12,7 +12,11 @@ def test_sdss_image():
     xid = sdss.crossID(ra=RA, dec=DEC)
     img = sdss.get_image(crossID=xid[0])
     
+def test_sdss_template():
+    template = sdss.get_spectral_template('qso')
+    
 if __name__ == '__main__':
     test_sdss_spectrum()
     test_sdss_image()
+    test_sdss_template()
     
