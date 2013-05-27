@@ -1,26 +1,16 @@
-"""
-=====
-LAMDA
-=====
-
-Query atomic and molecular data from the Leiden Atomica and Molecular Database
-(LAMDA).
-
-Licensed under a 3-clause BSD style license - see LICENSE.rst
-
-"""
-
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import urllib2
 import urllib
 import re
-try:
-    from astropy.table import Table
-try:
-    import astropy.io.ascii as asciitable
-except ImportError:
-    import asciitable
 import numpy as np
+from astropy.table import Table
+if sys.version_info[0] >= 3:
+    from io import BytesIO as StringIO
+else:
+    from cStringIO import StringIO
+
+# TODO make correct method name
+__all__ = ['lamdaquery']
 
 class URLs(object):
     """
@@ -31,8 +21,32 @@ class URLs(object):
         self.data_file = "datafiles/{}.dat"
 urls = URLs()
 
-class LAMDAPrintMolecules(object):
+class LAMDAMolecules(object):
+    """
+    LAMDA molecules base class container
+    """
+    def __init__(self):
+        self.mols = {# Atoms
+                     'C': ['catom'],
+                     'C+': ['c+', 'c+@uv'],
+                     'O': ['oatom'],
+                     # Molecules
+                     'CO': [],
+                     'CS': [],
+                     'HCl': [],
+                     'OCS': [],
+                }
+    def print_molecules(self):
+        pass
+    pass
 
+class LAMDAQuery(object)
+    """
+    LAMDA query base class
+    """
+    def __init__(self):
+        pass
+    pass
 
 # extract stuff within <pre> tag
 pre_re = re.compile("<pre>(.*)</pre>",flags=re.DOTALL)
