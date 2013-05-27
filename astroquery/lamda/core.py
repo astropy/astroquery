@@ -1,14 +1,38 @@
+"""
+=====
+LAMDA
+=====
+
+Query atomic and molecular data from the Leiden Atomica and Molecular Database
+(LAMDA).
+
+Licensed under a 3-clause BSD style license - see LICENSE.rst
+
+"""
+
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import urllib2
 import urllib
 import re
+try:
+    from astropy.table import Table
 try:
     import astropy.io.ascii as asciitable
 except ImportError:
     import asciitable
 import numpy as np
 
-url_lines = "http://physics.nist.gov/cgi-bin/ASD/lines1.pl"
+class URLs(object):
+    """
+    URLs on the Leiden University site for data files.
+    """
+    def __init__(self):
+        self.top_level = "http://home.strw.leidenuniv.nl/~moldata/"
+        self.data_file = "datafiles/{}.dat"
+urls = URLs()
+
+class LAMDAPrintMolecules(object):
+
 
 # extract stuff within <pre> tag
 pre_re = re.compile("<pre>(.*)</pre>",flags=re.DOTALL)
@@ -218,8 +242,10 @@ def parse_nist_table(table):
 
 
 if __name__ == "__main__":
-    pass
+    # TODO add test query when classes completed
     #test query
-    Q = NISTAtomicLinesQuery()
-    NIST_Table = Q.query_line_html('H I',4000,7000,wavelength_unit='A',energy_level_unit='eV')
-    #T = Q.query_line_ascii('H I',4000,7000,wavelength_unit='A',energy_level_unit='eV')
+    #Q = LAMDAMolQuery()
+    #LAMDA_Table = Q.query_mol('H I',4000,7000,wavelength_unit='A',energy_level_unit='eV')
+    pass
+
+
