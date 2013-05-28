@@ -18,7 +18,6 @@ import os, re, math
 from astropy.io import fits
 from astropy import coordinates as coord
 import requests
-import io
 
 # Default photometric and spectroscopic quantities to retrieve.
 photoobj_defs = ['ra', 'dec', 'objid', 'run', 'rerun', 'camcol', 'field']
@@ -109,19 +108,17 @@ def crossID(ra, dec, unit=None, dr=2., fields=None):
     
     sql = "%s%s%s%s" % (q_select, q_from, q_join, q_where)
     r = requests.get('http://cas.sdss.org/public/en/tools/search/x_sql.asp', params={'cmd': sql, 'format': 'csv'})
-    q = io.StringIO(r.text)    
-
     
     results = []
-    cols = q.readline()
-    while True:
-        line = q.readline().replace('\n', '').split(',')
+    (cols, data) = r.text.split('\n',1)
+    for line in data.split('\n'):
+        items = line.split(',')
         
-        if len(line) == 1:
+        if len(items) == 1:
             break
         
         tmp = {}
-        for i, val in enumerate(line):
+        for i, val in enumerate(items):
             
             field = fields[i]
             
