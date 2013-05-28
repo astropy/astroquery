@@ -1,6 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-import urllib2
 import urllib
+import urllib2
 import re
 try:
     import astropy.io.ascii as asciitable
