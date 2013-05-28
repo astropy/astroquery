@@ -40,6 +40,18 @@ Multi-query example:
     NAME OMC-1     05 35 14     -05 22.4       4        4      18000.0      18000.0           175        E                             
  
 
+Advanced example: Get all flux data available for a given object.
+
+.. code-block:: python
+
+    >>> from astroquery import simbad
+    >>> from astroquery.simbad import VoTableDef
+    >>> bands = 'UBVRIJHKugriz'
+    >>> votabledef = VoTableDef("main_id, coordinates, "+", ".join(["Flux({})".format(x) for x in bands]))
+    >>> r = simbad.QueryId('HD 163629').execute(votabledef=votabledef)
+    >>> print r.table
+
+    [ ('HD 163629', '17 57 51.2369', '-17 07 54.600', 8, 8, 34.279998779296875, 27.34000015258789, 0, 'B', '', '1998A&A...335L..65H', --, 10.59000015258789, 9.819999694824219, --, --, 8.251999855041504, 7.940999984741211, 7.76200008392334, --, --, --, --, --)]
 
 Reference/API
 =============
