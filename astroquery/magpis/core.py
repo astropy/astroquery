@@ -1,8 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-import urllib
 from astropy.io import fits
-import StringIO
-import astropy.utils.data as aud
+from io import BytesIO
+# not used any more, but needs to be eventually import astropy.utils.data as aud
 import requests
 
 url_gpscutout  = "http://third.ucllnl.org/cgi-bin/gpscutout"
@@ -79,9 +78,7 @@ def get_magpis_image_gal(glon, glat, survey='bolocam', size=1.0,
     result = requests.post(url_gpscutout, data=request)
 
     # turn the text into a StringIO object for FITS reading
-    # python 3 requires utf-8, not byte.  But you can't pass unicode to the
-    # python 2 version? 
-    S = StringIO.StringIO(result.content)
+    S = BytesIO(result.content)
 
     fitsfile = fits.open(S)
 

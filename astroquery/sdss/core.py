@@ -7,18 +7,17 @@ Author: Jordan Mirocha
 Affiliation: University of Colorado at Boulder
 Created on: Sun Apr 14 19:18:43 2013
 
-Description: Access Sloan Digital Sky Survey database online via Tamas 
-Budavari's SQL tool (included). Higher level wrappers provided to download
+Description: Access Sloan Digital Sky Survey database online. Higher level wrappers provided to download
 spectra and images using wget.
 
 """
 
 import numpy as np
 import astropy.wcs as wcs
-import os, re, math
+import math
 from astropy.io import fits
 from astropy import coordinates as coord
-from . import sqlcl
+import requests
 
 # Default photometric and spectroscopic quantities to retrieve.
 photoobj_defs = ['ra', 'dec', 'objid', 'run', 'rerun', 'camcol', 'field']
@@ -36,7 +35,7 @@ spec_templates = \
      'qso_bright': 32 
      }
 
-# Some website prefixes we need          
+# Some website prefixes we need
 spectro1d_prefix = 'http://das.sdss.org/spectro/1d_26'
 images_prefix = 'http://das.sdss.org/www/cgi-bin/drC'
 template_prefix = 'http://www.sdss.org/dr5/algorithms/spectemplates/spDR2'
@@ -47,8 +46,7 @@ def crossID(ra, dec, unit=None, dr=2., fields=None):
     """
     Perform object cross-ID in SDSS using SQL.
     
-    Search for objects near position (ra, dec) within some radius using
-    Tamas Budavari's SQL tool (sqlcl.py).
+    Search for objects near position (ra, dec) within some radius.
     
     Parameters
     ----------
@@ -108,18 +106,19 @@ def crossID(ra, dec, unit=None, dr=2., fields=None):
     q_where = 'WHERE (p.ra between %g and %g) and (p.dec between %g and %g)' \
         % (ra.degrees-dr, ra.degrees+dr, dec.degrees-dr, dec.degrees+dr)
     
-    q = sqlcl.query("%s%s%s%s" % (q_select, q_from, q_join, q_where))
+    sql = "%s%s%s%s" % (q_select, q_from, q_join, q_where)
+    r = requests.get('http://cas.sdss.org/public/en/tools/search/x_sql.asp', params={'cmd': sql, 'format': 'csv'})
     
     results = []
-    cols = q.readline()
-    while True:
-        line = q.readline().replace('\n', '').split(',')
+    (cols, data) = r.text.split('\n',1)
+    for line in data.split('\n'):
+        items = line.split(',')
         
-        if len(line) == 1:
+        if len(items) == 1:
             break
         
         tmp = {}
-        for i, val in enumerate(line):
+        for i, val in enumerate(items):
             
             field = fields[i]
             
@@ -162,10 +161,6 @@ def get_spectrum(crossID=None, plate=None, fiberID=None, mjd=None):
     well as the FITS header in dictionary form.
     """
     
-    safe_to_rm = True
-    if os.path.exists('spectro'):
-        safe_to_rm = False
-    
     if crossID is not None:
         plate = crossID['plate']
         fiberID = crossID['fiberID']
@@ -174,17 +169,11 @@ def get_spectrum(crossID=None, plate=None, fiberID=None, mjd=None):
     plate = str(plate).zfill(4)
     fiber = str(fiberID).zfill(3)
     mjd = str(mjd)        
-    web = '%s/%s/1d/spSpec-%s-%s-%s.fit' % (spectro1d_prefix, plate, mjd, 
+    link = '%s/%s/1d/spSpec-%s-%s-%s.fit' % (spectro1d_prefix, plate, mjd, 
         plate, fiber)
-    
-    os.system('wget -x -nH -nv -q %s' % web)
-    
-    hdulist = fits.open('spectro/1d_26/%s/1d/spSpec-%s-%s-%s.fit' % (plate, 
-        mjd, plate, fiber), ignore_missing_end=True)
-          
-    if safe_to_rm:        
-        os.system('rm -rf spectro')
-    
+              
+    hdulist = fits.open(link, ignore_missing_end=True)
+
     return Spectrum(hdulist)
             
 def get_image(crossID=None, run=None, rerun=None, camcol=None, 
@@ -222,10 +211,6 @@ def get_image(crossID=None, run=None, rerun=None, camcol=None,
     header in dictionary form.
     """   
     
-    safe_to_rm = True
-    if os.path.exists('imaging') or os.path.exists('www'):
-        safe_to_rm = False
-            
     if crossID is not None:
         run = crossID['run']
         rerun = crossID['rerun']
@@ -239,18 +224,9 @@ def get_image(crossID=None, run=None, rerun=None, camcol=None,
     # Download and read in image data
     link = '%s?RUN=%i&RERUN=%i&CAMCOL=%i&FIELD=%s&FILTER=%s' % (images_prefix, 
         run, rerun, camcol, field, band)            
-    path_to_img = 'www/cgi-bin/drC?RUN=%i&RERUN=%i&CAMCOL=%i&FIELD=%s&FILTER=%s' % (run, 
-        rerun, camcol, field, band)
-                
-    os.system('wget -x -nH -nv -q \'%s\'' % link)
-    
-    hdulist = fits.open(path_to_img, ignore_missing_end=True) 
- 
-    # Erase download directory tree   
-    if safe_to_rm: 
-        os.system('rm -rf www')    
-        os.system('rm -rf imaging')    
-    
+
+    hdulist = fits.open(link, ignore_missing_end=True)
+     
     return Image(hdulist)
     
 def get_spectral_template(kind='qso'):
@@ -284,13 +260,8 @@ def get_spectral_template(kind='qso'):
     available for some spectral types.
     """   
     
-    safe_to_rm = True
-    if os.path.exists('dr5'):
-        safe_to_rm = False
-    
     if kind == 'all':
         indices = list(np.arange(33))
-    
     else:    
         indices = spec_templates[kind]
         if type(indices) is not list:
@@ -299,15 +270,11 @@ def get_spectral_template(kind='qso'):
     spectra = []
     for index in indices:
         name = str(index).zfill(3)
-        web = '%s-%s.fit' % (template_prefix, name)        
-        os.system('wget -x -nH -nv -q %s' % web)
-        hdulist = fits.open('dr5/algorithms/spectemplates/spDR2-%s.fit' % name) 
+        link = '%s-%s.fit' % (template_prefix, name)        
+        hdulist = fits.open(link, ignore_missing_end=True)
         spectra.append(Spectrum(hdulist)) 
         del hdulist
                 
-    if safe_to_rm:
-        os.system('rm -rf dr5')
-    
     return spectra
     
 class Spectrum:
