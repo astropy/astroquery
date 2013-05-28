@@ -26,16 +26,44 @@ class LAMDAMolecules(object):
     LAMDA molecules base class container
     """
     def __init__(self):
-        self.mols = {# Atoms
-                     'C': ['catom'],
-                     'C+': ['c+', 'c+@uv'],
-                     'O': ['oatom'],
-                     # Molecules
-                     'CO': [],
-                     'CS': [],
-                     'HCl': [],
-                     'OCS': [],
-                }
+        self.mols = {
+            # Atoms
+            'C': ['catom'],
+            'C+': ['c+', 'c+@uv'],
+            'O': ['oatom'],
+            # Molecules
+            'CO': ['co', '13co', 'c17o', 'c18o', 'co@neufold'],
+            'CS': ['cs@xpol', '13cs@xpol', 'c34s@xpol'],
+            'HCl': ['hcl', 'hcl@hfs'],
+            'OCS': ['ocs@xpol'],
+            'SO': ['so'],
+            'SO2': ['so2@xpol'],
+            'SiO': ['sio', '29sio'],
+            'SiS': ['sis@xpol'],
+            'SiC2': ['o-sic2'],
+            'HCO+': ['hco+@xpol', 'h13co+@xpol', 'hc17o+@xpol', 'hc18o+@xpol',
+                'dco+@xpol'],
+            'N2H+': ['n2h+@xpol', 'n2h+_hfs'],
+            'HCS+': ['hcs+@xpol'],
+            'HC3N': ['hc3n'],
+            'HCN': ['hcn', 'hcn@xpol', 'hcn@hfs', 'h13cn@xpol', 'hc15n@xpol'],
+            'HNC': ['hnc'],
+            'C3H2': ['p-c3h2', 'o-c3h2'],
+            'H2O': ['ph2o@daniel', 'oh2o@daniel', 'ph2o@rovib', 'oh2o@rovib'],
+            'H2CO': ['p-h2co', 'o-h2co'],
+            'OH': ['oh', 'oh@hfs'],
+            'CH3OH': ['e-ch3oh', 'a-ch3oh'],
+            'NH3': ['p-nh3', 'o-nh3'],
+            'HDO': ['hdo'],
+            'H3O+': ['p-h3o+', 'o-h3o+'],
+            'HNCO': ['hnco'],
+            'NO': ['no'],
+            'CN': ['cn'],
+            'CH3CN': ['ch3cn'],
+            'O2': ['o2'],
+            'HF': ['hf']
+             }
+
     def print_molecules(self):
         pass
     pass
