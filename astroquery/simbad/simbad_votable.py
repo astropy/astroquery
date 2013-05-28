@@ -3,6 +3,14 @@
 __all__ = ['VoTableDef']
 
 class VoTableDef(object):
+    """
+    Define a votable object.  Default input parameters are:
+
+        votabledef = 'main_id, coordinates'
+
+    The available fields are specified at:
+    `<http://simbad.u-strasbg.fr/simbad/sim-help?Page=sim-fscript#VotableFields>`__
+    """
     def __init__(self, *args, **kwargs):
         self.__fields = []
         for value in args:
