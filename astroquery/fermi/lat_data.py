@@ -1,5 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 """Download of Fermi LAT (Large Area Telescope) data"""
+from __future__ import print_function
 import requests
 import re
 import time
@@ -56,7 +57,7 @@ class FermiLAT_QueryClass(object):
         result = requests.post(self.request_url, data=payload)
 
         # text returns unicode, content returns unencoded (?)
-        re_result = self.result_url_re.findall(result.text.decode('utf-8'))
+        re_result = self.result_url_re.findall(result.text)
 
         if len(re_result) == 0:
             raise ValueError("Results did not contain a result url... something went awry (that hasn't been tested yet)")
@@ -92,7 +93,7 @@ class FermiLAT_DelayedQueryClass(object):
             # update progressbar here...
 
         if verbose:
-            print "Query completed in %0.1f minutes" % (elapsed_time)
+            print("Query completed in %0.1f minutes" % (elapsed_time))
 
         return fitsfile_urls
 

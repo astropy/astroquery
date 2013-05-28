@@ -1,13 +1,13 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from __future__ import print_function
 import urllib
-import urllib.parse
-import requests
+# not yet... import requests 
 try:
     import htmllib
     import urllib2
 except ImportError:
     # python 3 compatibility
+    import urllib.parse
     import html.parser as htmllib
     import urllib as urllib2
 try:

@@ -172,7 +172,7 @@ def get_spectrum(crossID=None, plate=None, fiberID=None, mjd=None):
     link = '%s/%s/1d/spSpec-%s-%s-%s.fit' % (spectro1d_prefix, plate, mjd, 
         plate, fiber)
               
-    hdulist = fits.open(urllib.urlopen(link).url, ignore_missing_end=True)
+    hdulist = fits.open(link, ignore_missing_end=True)
 
     return Spectrum(hdulist)
             
@@ -225,7 +225,7 @@ def get_image(crossID=None, run=None, rerun=None, camcol=None,
     link = '%s?RUN=%i&RERUN=%i&CAMCOL=%i&FIELD=%s&FILTER=%s' % (images_prefix, 
         run, rerun, camcol, field, band)            
 
-    hdulist = fits.open(urllib.urlopen(link).url, ignore_missing_end=True)
+    hdulist = fits.open(link, ignore_missing_end=True)
      
     return Image(hdulist)
     
@@ -271,7 +271,7 @@ def get_spectral_template(kind='qso'):
     for index in indices:
         name = str(index).zfill(3)
         link = '%s-%s.fit' % (template_prefix, name)        
-        hdulist = fits.open(urllib.urlopen(link).url, ignore_missing_end=True)
+        hdulist = fits.open(link, ignore_missing_end=True)
         spectra.append(Spectrum(hdulist)) 
         del hdulist
                 
