@@ -176,20 +176,6 @@ def get_spectrum(agc=None, ra=None, dec=None, unit=None, counterpart=False,
     hdulist = fits.open(link, ignore_missing_end=True)
     return Spectrum(hdulist)    
     
-def match_object(ra, dec, ra_ref, dec_ref):
-    """
-    Assumes everything is in degrees.  Supply ra and dec of single object being considered, as well as reference
-    arrays of RA and DEC for some sample.  Returns index of match in reference arrays.
-    """    
-            
-    return
-
-    # what is dr supposed to be?
-    #if min(dr) < maxsep: 
-    #    return np.argmin(dr)                      
-    #else:
-    #    return placeholder        
-    
 
 class Spectrum:
     def __init__(self, hdulist):
