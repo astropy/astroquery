@@ -14,9 +14,8 @@ spectra and images using wget.
 
 import numpy as np
 import astropy.wcs as wcs
-import os, re, math
+import math
 from astropy.io import fits
-import re, sqlcl, math, urllib
 from astropy import coordinates as coord
 import requests
 
