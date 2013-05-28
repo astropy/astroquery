@@ -45,7 +45,7 @@ def get_catalog():
     iterable_lines = result.iter_lines()
 
     # Read header
-    cols = iterable_lines.next().rstrip(b'\n').split(b',')
+    cols = next(iterable_lines).rstrip(b'\n').split(b',')
 
     catalog = {}
     for col in cols:
