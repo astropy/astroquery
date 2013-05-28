@@ -7,8 +7,7 @@ Author: Jordan Mirocha
 Affiliation: University of Colorado at Boulder
 Created on: Sun Apr 14 19:18:43 2013
 
-Description: Access Sloan Digital Sky Survey database online via Tamas 
-Budavari's SQL tool (included). Higher level wrappers provided to download
+Description: Access Sloan Digital Sky Survey database online. Higher level wrappers provided to download
 spectra and images using wget.
 
 """
@@ -18,7 +17,8 @@ import astropy.wcs as wcs
 import os, re, math
 from astropy.io import fits
 from astropy import coordinates as coord
-from . import sqlcl
+import requests
+import io
 
 # Default photometric and spectroscopic quantities to retrieve.
 photoobj_defs = ['ra', 'dec', 'objid', 'run', 'rerun', 'camcol', 'field']
@@ -47,8 +47,7 @@ def crossID(ra, dec, unit=None, dr=2., fields=None):
     """
     Perform object cross-ID in SDSS using SQL.
     
-    Search for objects near position (ra, dec) within some radius using
-    Tamas Budavari's SQL tool (sqlcl.py).
+    Search for objects near position (ra, dec) within some radius.
     
     Parameters
     ----------
@@ -108,7 +107,10 @@ def crossID(ra, dec, unit=None, dr=2., fields=None):
     q_where = 'WHERE (p.ra between %g and %g) and (p.dec between %g and %g)' \
         % (ra.degrees-dr, ra.degrees+dr, dec.degrees-dr, dec.degrees+dr)
     
-    q = sqlcl.query("%s%s%s%s" % (q_select, q_from, q_join, q_where))
+    sql = "%s%s%s%s" % (q_select, q_from, q_join, q_where)
+    r = requests.get('http://cas.sdss.org/public/en/tools/search/x_sql.asp', params={'cmd': sql, 'format': 'csv'})
+    q = io.StringIO(r.text)    
+
     
     results = []
     cols = q.readline()
