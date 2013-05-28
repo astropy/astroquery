@@ -11,6 +11,7 @@ Description:
 
 """
 
+from __future__ import print_function
 import requests
 import numpy as np
 import numpy.ma as ma
@@ -45,7 +46,7 @@ def get_catalog():
     iterable_lines = result.iter_lines()
 
     # Read header
-    cols = next(iterable_lines).rstrip(b'\n').split(b',')
+    cols = [col.decode() for col in next(iterable_lines).rstrip(b'\n').split(b',')]
 
     catalog = {}
     for col in cols:
@@ -53,14 +54,15 @@ def get_catalog():
 
     # Parse result
     for line in iterable_lines:
-        l = line.rstrip(b'\n').split(b',')
+        line = line.decode()
+        l = line.rstrip('\n').split(',')
         for i, col in enumerate(cols):
             item = l[i].strip()
-            if item == b'\"\"':
+            if item == '\"\"':
                 catalog[col].append(placeholder)
             elif item.isdigit():
                 catalog[col].append(int(item))
-            elif item.replace(b'.', b'').isdigit():
+            elif item.replace('.', '').isdigit():
                 catalog[col].append(float(item))
             else:
                 catalog[col].append(item)
@@ -147,8 +149,8 @@ def get_spectrum(agc=None, ra=None, dec=None, unit=None, counterpart=False,
         
         agc = cat['AGCNr'][np.argmin(dr)]
                 
-        print 'Found HI source AGC #%i %g arcseconds from supplied position.' \
-            % (agc, dr.min() * 3600.)        
+        print('Found HI source AGC #%i %g arcseconds from supplied position.' 
+            % (agc, dr.min() * 3600.))
             
     if ascii:
         link = "%s/A%s.txt" % (ascii_prefix, agc)
