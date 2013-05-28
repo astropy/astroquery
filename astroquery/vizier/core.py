@@ -1,10 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-import sys
-import httplib
-if sys.version_info[0] >= 3:
-    from io import BytesIO as StringIO
-else:
-    from cStringIO import StringIO
+import requests
+import io
 import numpy as np
 try:
     import astropy.io.vo.table as votable
@@ -70,10 +66,8 @@ def vizquery(query, server="vizier.u-strasbg.fr"):
     body = "\r\n".join(body)
 
     # Fetch the VOTABLE corresponding to the query 
-    h = httplib.HTTPConnection(server)
-    h.request("POST", "/viz-bin/votable", body=body)
-    resp = h.getresponse()
-    s = StringIO(resp.read())
+    r = requests.post("http://"+server+"/viz-bin/votable", data=body)
+    s = io.BytesIO(r.content)
     voTable = votable.parse(s, pedantic=False)
     
     # Convert VOTABLE into a list of astropy Table.
