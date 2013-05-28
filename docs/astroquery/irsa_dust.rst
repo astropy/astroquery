@@ -1,8 +1,8 @@
-.. _astroquery.irsadust:
+.. _astroquery.irsa_dust:
 
-************************************************************
-IRSA Dust Extinction Service Queries (`astroquery.irsadust`)
-************************************************************
+*************************************************************
+IRSA Dust Extinction Service Queries (`astroquery.irsa_dust`)
+*************************************************************
 
 Getting started
 ===============
@@ -11,8 +11,8 @@ Basic IRSA dust extinction service query:
 
 .. code-block:: python
 
-    >>> from astroquery import irsadust
-    >>> dust_result = irsadust.query('m81', reg_size=2.2)
+    >>> from astroquery import irsa_dust
+    >>> dust_result = irsa_dust.query('m81', reg_size=2.2)
     >>> table = dust_result.table()
     >>> table.pprint()
 
@@ -27,7 +27,7 @@ Multi-query example:
 .. code-block:: python
 
     Query multiple objects with a single command:
-    >>> dust_result = irsadust.query(['m101', 'm33', 'm15'])
+    >>> dust_result = irsa_dust.query(['m101', 'm33', 'm15'])
     >>> table = dust_result.table()
     >>> table.pprint()
 
@@ -46,7 +46,7 @@ Multi-query example:
 Fetch extinction detail table and fits images from links in initial response:
 .. code-block:: python
 
-    >>> dust_result = irsadust.query('266.12 -61.89 equ j2000')
+    >>> dust_result = irsa_dust.query('266.12 -61.89 equ j2000')
     >>> detail_table = dust_result.ext_detail_table()
     >>> emission_image = dust_result.image('emission')
     >>> emission_image.writeto("image1.fits")
@@ -56,5 +56,5 @@ Fetch extinction detail table and fits images from links in initial response:
 Reference/API
 =============
 
-.. automodapi:: astroquery.irsadust
+.. automodapi:: astroquery.irsa_dust
     :no-inheritance-diagram:

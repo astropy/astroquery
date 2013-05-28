@@ -1,7 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 """Download of Fermi LAT (Large Area Telescope) data"""
 import requests
-import urllib
 import re
 import time
 

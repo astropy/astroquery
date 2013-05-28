@@ -75,6 +75,7 @@ Directory Structure::
             # do something, probably with regexp's
             pass
 
+
 For multiple parallel queries logged in to the same object, you could do:
 
 .. code-block:: python
@@ -109,6 +110,7 @@ i.e., you create a `Query` object and use its various methods.
 2. The `nedpy` model (individual functions for each query type)
 
 .. code-block:: python
+
     from astroquery import ned
 
     result = ned.query_object_name('M 31')
@@ -135,3 +137,5 @@ Details & Questions
   tapes have been read.  For these sorts of queries, it may be possible to
   do a check for completion every 5-30 minutes rather than requiring user input.
   
+* Some services return similar / identical data (see issue #82), and care
+  should be taken that these return the same objects if the data are identical
