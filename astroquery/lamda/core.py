@@ -74,18 +74,64 @@ class LAMDAQuery(object):
             print '-- {} :'.format(mol_family)
             print mols[mol_family]
 
-    def parse_datafile(self, datafile):
+    def lamda_query(self, mol, query_type=None, coll_partner=None):
+        """
+        Query the LAMDA database.
+
+        Parameters
+        ----------
+        mol : string
+            Molecule designation
+        query_type : string
+            energy levels, transitions, rates
+        coll_partner : string
+
+        Returns
+        -------
+        table : Table
+        """
+        if query_type not in self.query_types.keys():
+            raise ValueError
+        query_identifier = self.query_types[query_type]
+        # Send HTTP request to open URL
+        datafile = np.array([s.strip() for s in
+            urllib.urlopen(self.url.format(mol)).readlines()])
+        # Parse datafile string
+        table = parse_datafile(datafile, query_type=query_type,
+            coll_partner=coll_partner)
+        # print exception if query type not in data file
+        return table
+
+    def parse_datafile(self, datafile, query_type=None, coll_partner=None):
         """
         """
+        query_identifier = self.query_types[query_type]
+        sections = np.argwhere(np.in1d(datafile, query_identifier))[0]
+        if coll_partner is None:
+            i = 0
+        else:
+            i = np.argwhere(np.in1d(datafile[sections + 1],
+                self.coll_partners[coll_partner]))[0][0]
+        data, col_names = select_fn(data, i)
+        table = Table(coll_trans, names=col_names)
+        return table
+
+    def select_coll_rates(self, data, i):
+        """
+        """
+        coll_type_descrip = data[i + 1]
+        num_coll_trans = int(data[i + 3])
+        num_coll_temps = int(data[i + 5])
+        coll_temps = data[i + 7].split()
+        coll_trans = [data[i + j].split() for j in xrange(i,
+            num_coll_trans)]
+        col_names = ['trans', 'up', 'low'] + coll_temps
+        return data, col_names
+
+    def pars_trans():
         pass
 
-    def lamda_query(self, mol):
-        """
-        """
-        # Send HTTP request to open URL
-        datafile = urllib.urlopen(self.url.format(mol))
-        # Parse datafile string
-        # break and print exception if query type not in data file
+    def pars_erg_levels():
         pass
 
 # extract stuff within <pre> tag
