@@ -1,11 +1,12 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-import re
 import urllib
 import numpy as np
 from astropy.table import Table
+import ipdb as pdb
 
-# TODO make correct method name
-__all__ = ['lamdaquery']
+# TODO rovib in H2O has wrong format for header
+# TODO convert string elements in table to floats
+__all__ = ['LAMDAQuery']
 
 class LAMDAQuery(object):
     """
@@ -51,9 +52,9 @@ class LAMDAQuery(object):
             'HF': ['hf']
              }
         self.query_types = {
-             'erg_levels': 'NUMBER OF ENERGY LEVELS',
-             'rad_trans': 'NUMBER OF RADIATIVE TRANSITIONS',
-             'coll_rates': 'COLLISIONS BETWEEN'
+             'erg_levels': '!NUMBER OF ENERGY LEVELS',
+             'rad_trans': '!NUMBER OF RADIATIVE TRANSITIONS',
+             'coll_rates': '!COLLISIONS BETWEEN'
              }
 
     def print_mols(self):
@@ -63,7 +64,7 @@ class LAMDAQuery(object):
         mols = self.mols
         for mol_family in mols.keys():
             print '-- {} :'.format(mol_family)
-            print mols[mol_family]
+            print mols[mol_family], '\n'
 
     def lamda_query(self, mol, query_type, coll_partner_index=0):
         """
@@ -75,11 +76,21 @@ class LAMDAQuery(object):
             Molecule designation
         query_type : string
             energy levels, transitions, rates
-        coll_partner : string
+        coll_partner_index : string
 
         Returns
         -------
         table : Table
+
+        Examples
+        --------
+        >>> t = lamda_query(mol='co', query_type='erg_levels')
+        >>> t.pprint()
+        LEVEL ENERGIES(cm^-1) WEIGHT  J
+        ----- --------------- ------ ---
+            2     3.845033413    3.0   1
+            3    11.534919938    5.0   2
+          ...             ...    ... ...
         """
         if query_type not in self.query_types.keys():
             raise ValueError
@@ -88,52 +99,75 @@ class LAMDAQuery(object):
         datafile = np.array([s.strip() for s in
             urllib.urlopen(self.url.format(mol)).readlines()])
         # Parse datafile string list and return a table
-        table = parse_datafile(datafile, query_type=query_type,
+        table = self.parse_datafile(datafile, query_type=query_type,
             coll_partner_index=coll_partner_index)
-        # print exception if query type not in data file
         return table
 
     def parse_datafile(self, datafile, query_type, coll_partner_index=0):
         """
         """
+        # TODO add docstring
         query_identifier = self.query_types[query_type]
         if query_type == 'coll_rates':
             i = coll_partner_index
         else:
             i = 0
-        start_index = np.argwhere(np.in1d(datafile, query_identifier))[i][0]
-        data, col_names = select_data(data, start_index, query_type=query_type)
-        table = Table(coll_trans, names=col_names)
+        sections = np.argwhere(np.in1d(datafile, query_identifier))
+        if len(sections) == 0:
+            raise Exception('Query data not found in file.')
+        start_index = sections[i][0]
+        data, col_names = self.select_data(datafile, start_index,
+            query_type=query_type)
+        table = Table(data, names=col_names)
         return table
 
     def select_data(self, data, i, query_type):
         """
         """
-        if query_type == 'coll_rates':
+        # TODO add docstring
+        if query_type == 'erg_levels':
+            num_erg_levels = int(data[i + 1])
+            col_names = [s.strip() for s in data[i + 2][1:].split('+')]
+            erg_levels = [data[i + j].split() for j in xrange(i,
+                num_erg_levels)]
+            return np.array(erg_levels), col_names
+        elif query_type == 'rad_trans':
+            num_trans = int(data[i + 1])
+            col_names = [s.strip() for s in data[i + 2][1:].split('+')]
+            rad_trans = [data[i + j].split() for j in xrange(i,
+                num_trans)]
+            return np.array(rad_trans), col_names
+        elif query_type == 'coll_rates':
             coll_type_descrip = data[i + 1]
             num_coll_trans = int(data[i + 3])
             num_coll_temps = int(data[i + 5])
             coll_temps = data[i + 7].split()
             coll_trans = [data[i + j].split() for j in xrange(i,
                 num_coll_trans)]
-            col_names = ['trans', 'up', 'low'] + coll_temps
-            return data, col_names
-        # TODO
-        elif query_type == 'rad_trans':
-            return data, col_names
-        elif query_type == 'erg_levels':
-            return data, col_names
+            col_names = ['TRANS', 'UP', 'LOW'] + coll_temps
+            return np.array(coll_trans), col_names
         else:
             raise ValueError('Unknown query type.')
+
+    def cols2floats(self, table):
+        """
+        """
+        # TODO add doc-string
+        for i, col in enumerate(columns):
+            try:
+                col[col==''] = np.nan
+                col = col.astype('float')
+                columns[ii] = col
+            except ValueError:
+                pass
+        return table
 
     def print_mol_notes():
         # TODO
         pass
 
-# extract stuff within <pre> tag
-pre_re = re.compile("<pre>(.*)</pre>",flags=re.DOTALL)
-numbersletters = re.compile("[0-9A-Za-z]")
 
+# OLD NIST stuff for template
 def strip_blanks(table):
     """
     Remove blank lines from table (included for "human readability" but useless to us...
@@ -333,10 +367,7 @@ def parse_nist_table(table):
 
 
 if __name__ == "__main__":
-    # TODO add test query when classes completed
     #test query
-    #Q = LAMDAQuery()
-    #LAMDA_Table = Q.query_mol('H I',4000,7000,wavelength_unit='A',energy_level_unit='eV')
-    pass
+    Q = LAMDAQuery()
 
 
