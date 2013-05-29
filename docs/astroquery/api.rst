@@ -120,7 +120,11 @@ Details & Questions
 -------------------
 
 * What type of objects are returned by these functions?
-  Catalog queries should return `astropy.Table` instances
+
+  * Catalog queries should return `astropy.Table` instances
+  * All returned objects should have a `.save` or `.write` attribute (this needs discussion)
+  * Returned objects must be indexable like dictionaries (?)
+  * image_query functions should return astropy.io.fits.HDUList objects (?) or astropy.ndarray objects (?)
 
 
 * What errors should be thrown if queries fail?
