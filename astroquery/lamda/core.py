@@ -118,7 +118,8 @@ class LAMDAQuery(object):
         start_index = sections[i][0]
         data, col_names = self.select_data(datafile, start_index,
             query_type=query_type)
-        table = Table(data, names=col_names)
+        col_dtypes = self.check_dtypes(data)
+        table = Table(data, names=col_names, dtypes=col_dtypes)
         return table
 
     def select_data(self, data, i, query_type):
@@ -149,18 +150,18 @@ class LAMDAQuery(object):
         else:
             raise ValueError('Unknown query type.')
 
-    def cols2floats(self, table):
+    def check_dtypes(self, data):
         """
         """
         # TODO add doc-string
-        for i, col in enumerate(columns):
+        dtypes = []
+        for i in xrange(data.shape[1]):
             try:
-                col[col==''] = np.nan
-                col = col.astype('float')
-                columns[ii] = col
+                data[:,i].astype('float')
+                dtypes.append('<f8')
             except ValueError:
-                pass
-        return table
+                dtypes.append('|S14')
+        return dtypes
 
     def print_mol_notes():
         # TODO
