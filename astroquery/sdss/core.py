@@ -7,8 +7,7 @@ Author: Jordan Mirocha
 Affiliation: University of Colorado at Boulder
 Created on: Sun Apr 14 19:18:43 2013
 
-Description: Access Sloan Digital Sky Survey database online via Tamas 
-Budavari's SQL tool (included). Higher level wrappers provided to download
+Description: Access Sloan Digital Sky Survey database online. Higher level wrappers provided to download
 spectra and images using wget.
 
 """
@@ -19,7 +18,7 @@ import os, re, math
 from astropy.io import fits
 import re, sqlcl, math, urllib
 from astropy import coordinates as coord
-from . import sqlcl
+import requests
 
 # Default photometric and spectroscopic quantities to retrieve.
 photoobj_defs = ['ra', 'dec', 'objid', 'run', 'rerun', 'camcol', 'field']
@@ -48,8 +47,7 @@ def crossID(ra, dec, unit=None, dr=2., fields=None):
     """
     Perform object cross-ID in SDSS using SQL.
     
-    Search for objects near position (ra, dec) within some radius using
-    Tamas Budavari's SQL tool (sqlcl.py).
+    Search for objects near position (ra, dec) within some radius.
     
     Parameters
     ----------
@@ -109,18 +107,19 @@ def crossID(ra, dec, unit=None, dr=2., fields=None):
     q_where = 'WHERE (p.ra between %g and %g) and (p.dec between %g and %g)' \
         % (ra.degrees-dr, ra.degrees+dr, dec.degrees-dr, dec.degrees+dr)
     
-    q = sqlcl.query("%s%s%s%s" % (q_select, q_from, q_join, q_where))
+    sql = "%s%s%s%s" % (q_select, q_from, q_join, q_where)
+    r = requests.get('http://cas.sdss.org/public/en/tools/search/x_sql.asp', params={'cmd': sql, 'format': 'csv'})
     
     results = []
-    cols = q.readline()
-    while True:
-        line = q.readline().replace('\n', '').split(',')
+    (cols, data) = r.text.split('\n',1)
+    for line in data.split('\n'):
+        items = line.split(',')
         
-        if len(line) == 1:
+        if len(items) == 1:
             break
         
         tmp = {}
-        for i, val in enumerate(line):
+        for i, val in enumerate(items):
             
             field = fields[i]
             
