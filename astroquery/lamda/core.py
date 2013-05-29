@@ -51,18 +51,9 @@ class LAMDAQuery(object):
             'HF': ['hf']
              }
         self.query_types = {
-             'description': 'MOLECULE',
-             'mol_weight': 'MOLECULAR WEIGHT',
-             'num_energy_levels': ' NUMBER OF ENERGY LEVELS',
-             'energy_levels': 'LEVEL',
-             'num_radiative_trans': ' NUMBER OF RADIATIVE TRANSITIONS',
-             'radiative_trans': 'TRANS',
-             'coll_partners': 'NUMBER OF COLLISION PARTNERS',
-             'coll_between': 'COLLISIONS BETWEEN',
-             'num_coll_trans': 'NUMBER OF COLL TRANS',
-             'num_coll_temps': 'NUMBER OF COLL TEMPS',
-             'coll_temps': 'COLL TEMPS',
-             'coll_rates': 'COLLRATES'
+             'erg_levels': 'NUMBER OF ENERGY LEVELS',
+             'rad_trans': 'NUMBER OF RADIATIVE TRANSITIONS',
+             'coll_rates': 'COLLISIONS BETWEEN'
              }
 
     def print_mols(self):
@@ -74,7 +65,7 @@ class LAMDAQuery(object):
             print '-- {} :'.format(mol_family)
             print mols[mol_family]
 
-    def lamda_query(self, mol, query_type=None, coll_partner=None):
+    def lamda_query(self, mol, query_type, coll_partner_index=0):
         """
         Query the LAMDA database.
 
@@ -96,42 +87,47 @@ class LAMDAQuery(object):
         # Send HTTP request to open URL
         datafile = np.array([s.strip() for s in
             urllib.urlopen(self.url.format(mol)).readlines()])
-        # Parse datafile string
+        # Parse datafile string list and return a table
         table = parse_datafile(datafile, query_type=query_type,
-            coll_partner=coll_partner)
+            coll_partner_index=coll_partner_index)
         # print exception if query type not in data file
         return table
 
-    def parse_datafile(self, datafile, query_type=None, coll_partner=None):
+    def parse_datafile(self, datafile, query_type, coll_partner_index=0):
         """
         """
         query_identifier = self.query_types[query_type]
-        sections = np.argwhere(np.in1d(datafile, query_identifier))[0]
-        if coll_partner is None:
-            i = 0
+        if query_type == 'coll_rates':
+            i = coll_partner_index
         else:
-            i = np.argwhere(np.in1d(datafile[sections + 1],
-                self.coll_partners[coll_partner]))[0][0]
-        data, col_names = select_fn(data, i)
+            i = 0
+        start_index = np.argwhere(np.in1d(datafile, query_identifier))[i][0]
+        data, col_names = select_data(data, start_index, query_type=query_type)
         table = Table(coll_trans, names=col_names)
         return table
 
-    def select_coll_rates(self, data, i):
+    def select_data(self, data, i, query_type):
         """
         """
-        coll_type_descrip = data[i + 1]
-        num_coll_trans = int(data[i + 3])
-        num_coll_temps = int(data[i + 5])
-        coll_temps = data[i + 7].split()
-        coll_trans = [data[i + j].split() for j in xrange(i,
-            num_coll_trans)]
-        col_names = ['trans', 'up', 'low'] + coll_temps
-        return data, col_names
+        if query_type == 'coll_rates':
+            coll_type_descrip = data[i + 1]
+            num_coll_trans = int(data[i + 3])
+            num_coll_temps = int(data[i + 5])
+            coll_temps = data[i + 7].split()
+            coll_trans = [data[i + j].split() for j in xrange(i,
+                num_coll_trans)]
+            col_names = ['trans', 'up', 'low'] + coll_temps
+            return data, col_names
+        # TODO
+        elif query_type == 'rad_trans':
+            return data, col_names
+        elif query_type == 'erg_levels':
+            return data, col_names
+        else:
+            raise ValueError('Unknown query type.')
 
-    def pars_trans():
-        pass
-
-    def pars_erg_levels():
+    def print_mol_notes():
+        # TODO
         pass
 
 # extract stuff within <pre> tag
