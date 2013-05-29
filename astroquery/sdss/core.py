@@ -18,6 +18,7 @@ import math
 from astropy.io import fits
 from astropy import coordinates as coord
 import requests
+import io
 
 # Default photometric and spectroscopic quantities to retrieve.
 photoobj_defs = ['ra', 'dec', 'objid', 'run', 'rerun', 'camcol', 'field']
@@ -109,30 +110,7 @@ def crossID(ra, dec, unit=None, dr=2., fields=None):
     sql = "%s%s%s%s" % (q_select, q_from, q_join, q_where)
     r = requests.get('http://cas.sdss.org/public/en/tools/search/x_sql.asp', params={'cmd': sql, 'format': 'csv'})
     
-    results = []
-    (cols, data) = r.text.split('\n',1)
-    for line in data.split('\n'):
-        items = line.split(',')
-        
-        if len(items) == 1:
-            break
-        
-        tmp = {}
-        for i, val in enumerate(items):
-            
-            field = fields[i]
-            
-            if val.isdigit(): 
-                tmp[field] = int(val)
-            else:
-                try: 
-                    tmp[field] = float(val)
-                except ValueError: 
-                    tmp[field] = str(val)
-                    
-        results.append(tmp)            
-
-    return results
+    return np.atleast_1d(np.genfromtxt(io.BytesIO(r.content), names=True, dtype=None, delimiter=','))
     
 def get_spectrum(crossID=None, plate=None, fiberID=None, mjd=None):  
     """
