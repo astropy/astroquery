@@ -1,31 +1,18 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-import urllib2
-import urllib
 import re
+import urllib
 import numpy as np
 from astropy.table import Table
-if sys.version_info[0] >= 3:
-    from io import BytesIO as StringIO
-else:
-    from cStringIO import StringIO
 
 # TODO make correct method name
 __all__ = ['lamdaquery']
 
-class URLs(object):
+class LAMDAQuery(object):
     """
-    URLs on the Leiden University site for data files.
-    """
-    def __init__(self):
-        self.top_level = "http://home.strw.leidenuniv.nl/~moldata/"
-        self.data_file = "datafiles/{}.dat"
-urls = URLs()
-
-class LAMDAMolecules(object):
-    """
-    LAMDA molecules base class container
+    LAMDA query base class
     """
     def __init__(self):
+        self.url = "http://home.strw.leidenuniv.nl/~moldata/datafiles/{}.dat"
         self.mols = {
             # Atoms
             'C': ['catom'],
@@ -63,18 +50,43 @@ class LAMDAMolecules(object):
             'O2': ['o2'],
             'HF': ['hf']
              }
+        self.query_types = {
+             'description': 'MOLECULE',
+             'mol_weight': 'MOLECULAR WEIGHT',
+             'num_energy_levels': ' NUMBER OF ENERGY LEVELS',
+             'energy_levels': 'LEVEL',
+             'num_radiative_trans': ' NUMBER OF RADIATIVE TRANSITIONS',
+             'radiative_trans': 'TRANS',
+             'coll_partners': 'NUMBER OF COLLISION PARTNERS',
+             'coll_between': 'COLLISIONS BETWEEN',
+             'num_coll_trans': 'NUMBER OF COLL TRANS',
+             'num_coll_temps': 'NUMBER OF COLL TEMPS',
+             'coll_temps': 'COLL TEMPS',
+             'coll_rates': 'COLLRATES'
+             }
 
-    def print_molecules(self):
-        pass
-    pass
+    def print_mols(self):
+        """
+        Print molecule names available for query.
+        """
+        mols = self.mols
+        for mol_family in mols.keys():
+            print '-- {} :'.format(mol_family)
+            print mols[mol_family]
 
-class LAMDAQuery(object)
-    """
-    LAMDA query base class
-    """
-    def __init__(self):
+    def parse_datafile(self, datafile):
+        """
+        """
         pass
-    pass
+
+    def lamda_query(self, mol):
+        """
+        """
+        # Send HTTP request to open URL
+        datafile = urllib.urlopen(self.url.format(mol))
+        # Parse datafile string
+        # break and print exception if query type not in data file
+        pass
 
 # extract stuff within <pre> tag
 pre_re = re.compile("<pre>(.*)</pre>",flags=re.DOTALL)
@@ -276,17 +288,12 @@ def parse_nist_table(table):
         blankarr[H] = col
 
     return blankarr
-    #try:
-    #    tblarr = np.recarray(columns, names=header, dtype=dtypes)
-    #    return tblarr
-    #except:
-    #    return header,result
 
 
 if __name__ == "__main__":
     # TODO add test query when classes completed
     #test query
-    #Q = LAMDAMolQuery()
+    #Q = LAMDAQuery()
     #LAMDA_Table = Q.query_mol('H I',4000,7000,wavelength_unit='A',energy_level_unit='eV')
     pass
 
