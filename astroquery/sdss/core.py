@@ -110,7 +110,7 @@ def crossID(ra, dec, unit=None, dr=2., fields=None):
     sql = "%s%s%s%s" % (q_select, q_from, q_join, q_where)
     r = requests.get('http://cas.sdss.org/public/en/tools/search/x_sql.asp', params={'cmd': sql, 'format': 'csv'})
     
-    return np.genfromtxt(io.BytesIO(r.content), names=True, dtype=None, delimiter=',')
+    return np.atleast_1d(np.genfromtxt(io.BytesIO(r.content), names=True, dtype=None, delimiter=','))
     
 def get_spectrum(crossID=None, plate=None, fiberID=None, mjd=None):  
     """
