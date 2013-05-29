@@ -11,7 +11,8 @@ Description:
 
 """
 
-import urllib
+from __future__ import print_function
+import requests
 import numpy as np
 import numpy.ma as ma
 from astropy.io import fits
@@ -41,17 +42,19 @@ def get_catalog():
     if 'ALFALFACAT' in globals():
         return ALFALFACAT
     
-    f = urllib.urlopen(propert_path)
+    result = requests.get(propert_path)
+    iterable_lines = result.iter_lines()
 
     # Read header
-    cols = f.readline().rstrip('\n').split(',')
+    cols = [col.decode() for col in next(iterable_lines).rstrip(b'\n').split(b',')]
 
     catalog = {}
     for col in cols:
         catalog[col] = []
 
     # Parse result
-    for line in f:
+    for line in iterable_lines:
+        line = line.decode()
         l = line.rstrip('\n').split(',')
         for i, col in enumerate(cols):
             item = l[i].strip()
@@ -63,6 +66,8 @@ def get_catalog():
                 catalog[col].append(float(item))
             else:
                 catalog[col].append(item)
+
+    result.close()
         
     # Mask out blank elements    
     for col in cols:
@@ -144,18 +149,18 @@ def get_spectrum(agc=None, ra=None, dec=None, unit=None, counterpart=False,
         
         agc = cat['AGCNr'][np.argmin(dr)]
                 
-        print 'Found HI source AGC #%i %g arcseconds from supplied position.' \
-            % (agc, dr.min() * 3600.)        
+        print('Found HI source AGC #%i %g arcseconds from supplied position.' 
+            % (agc, dr.min() * 3600.))
             
     if ascii:
         link = "%s/A%s.txt" % (ascii_prefix, agc)
-        f = urllib.urlopen(link)
+        result = requests.get(link)
     
         vel = []
         freq = []
         flux = []
         baseline = [] 
-        for i, line in enumerate(f):
+        for i, line in enumerate(result.iter_line()):
             if i <= 30: continue
             
             data = line.split()
@@ -165,25 +170,13 @@ def get_spectrum(agc=None, ra=None, dec=None, unit=None, counterpart=False,
             flux.append(float(data[2]))
             baseline.append(float(data[3]))
         
-        f.close()
+        result.close()
             
         return np.array(vel), np.array(freq), np.array(flux), np.array(baseline)
       
     link = "%s/A%s.fits" % (fits_prefix, agc)    
-    hdulist = fits.open(urllib.urlopen(link).url, ignore_missing_end=True)
+    hdulist = fits.open(link, ignore_missing_end=True)
     return Spectrum(hdulist)    
-    
-def match_object(ra, dec, ra_ref, dec_ref):
-    """
-    Assumes everything is in degrees.  Supply ra and dec of single object being considered, as well as reference
-    arrays of RA and DEC for some sample.  Returns index of match in reference arrays.
-    """    
-            
-    
-    if min(dr) < maxsep: 
-        return np.argmin(dr)                      
-    else:
-        return placeholder        
     
 
 class Spectrum:
