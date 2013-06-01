@@ -1,6 +1,5 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 # TODO rovib in H2O has wrong format for header
-import urllib
 import requests
 import numpy as np
 from astropy.table import Table
@@ -91,7 +90,8 @@ class LAMDAQuery(object):
 
         Examples
         --------
-        >>> t = lamda_query(mol='co', query_type='erg_levels')
+        >>> Q = LAMDAQuery()
+        >>> t = Q.lamda_query(mol='co', query_type='erg_levels')
         >>> t.pprint()
         LEVEL ENERGIES(cm^-1) WEIGHT  J
         ----- --------------- ------ ---
@@ -103,7 +103,7 @@ class LAMDAQuery(object):
             raise ValueError
         # Send HTTP request to open URL
         datafile = np.array([s.strip() for s in
-            urllib.urlopen(self.url.format(mol)).readlines()])
+            requests.get(self.url.format(mol)).iter_lines()])
         # Parse datafile string list and return a table
         table = self._parse_datafile(datafile, query_type=query_type,
             coll_partner_index=coll_partner_index)
