@@ -1,11 +1,12 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
+# TODO rovib in H2O has wrong format for header
 import urllib
+import requests
 import numpy as np
 from astropy.table import Table
 
-# TODO rovib in H2O has wrong format for header
-
 __all__ = ['LAMDAQuery']
+
 
 class LAMDAQuery(object):
     """
@@ -73,7 +74,7 @@ class LAMDAQuery(object):
         ----------
         mol : string
             Molecule or atom designation. For a list of valid designations see
-            the ``print_mols'' method.
+            the :meth:``print_mols`` method.
         query_type : string
             Query type to execute. Valid options:
                 'erg_levels' -> Energy Levels
@@ -86,7 +87,7 @@ class LAMDAQuery(object):
 
         Returns
         -------
-        table : Table
+        table : astropy.table.Table
 
         Examples
         --------
@@ -100,7 +101,6 @@ class LAMDAQuery(object):
         """
         if query_type not in self.query_types.keys():
             raise ValueError
-        query_identifier = self.query_types[query_type]
         # Send HTTP request to open URL
         datafile = np.array([s.strip() for s in
             urllib.urlopen(self.url.format(mol)).readlines()])
@@ -125,7 +125,7 @@ class LAMDAQuery(object):
 
         Returns
         -------
-        table : Table
+        table : astropy.table.Table
         """
         query_identifier = self.query_types[query_type]
         if query_type == 'coll_rates':
