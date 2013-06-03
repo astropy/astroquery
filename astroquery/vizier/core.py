@@ -1,4 +1,16 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
+from astropy.config import ConfigurationItem
+
+VIZIER_SERVER = ConfigurationItem('vizier_server', ['vizier.u-strasbg.fr',
+                                                    'vizier.nao.ac.jp',
+                                                    'vizier.hia.nrc.ca',
+                                                    'vizier.ast.cam.ac.uk',
+                                                    'vizier.cfa.harvard.edu',
+                                                    'www.ukirt.jach.hawaii.edu',
+                                                    'vizier.iucaa.ernet.in',
+                                                    'vizier.china-vo.org'], 'Name of the VizieR mirror to use.')
+
+
 import requests
 import io
 import numpy as np
@@ -10,7 +22,8 @@ from astropy.table import Table
 
 __all__ = ['vizquery']
 
-def vizquery(query, server="vizier.u-strasbg.fr"):
+
+def vizquery(query, server=None):
     """
     VizieR search query.
     
@@ -27,7 +40,7 @@ def vizquery(query, server="vizier.u-strasbg.fr"):
            * astropy.table.Table (containing columns "_RAJ2000" and "_DEJ2000" in degrees)
     server: str, optional
         The VizieR server to use. (See VizieR mirrors at http://vizier.u-strasbg.fr)
-        Defaults to "vizier.u-strasbg.fr".
+        If not specified, `server` is set by the `VIZIER_SERVER` configuration item.
 
     Returns
     -------
@@ -40,6 +53,9 @@ def vizquery(query, server="vizier.u-strasbg.fr"):
     * http://vizier.u-strasbg.fr/vizier/vizHelp/menu.htx
     
     """
+    
+    #Check VizieR server
+    server = (VIZIER_SERVER() if server is None else server)
     
     # Always add calculated _RAJ2000 & _DEJ2000 to the query.
     # This is used for cross correlations between queries
