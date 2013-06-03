@@ -2,8 +2,8 @@
 from ... import lamda
 
 def test_query():
-    Q = lamda.core.LAMDAQuery()
-    Q.lamda_query(mol='co', query_type='erg_levels')
-    Q.lamda_query(mol='co', query_type='rad_trans')
-    Q.lamda_query(mol='co', query_type='coll_rates')
+    lamda.print_mols()
+    lamda.query(mol='co', query_type='erg_levels')
+    lamda.query(mol='co', query_type='rad_trans')
+    lamda.query(mol='co', query_type='coll_rates', coll_partner_index=1)
 
