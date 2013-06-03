@@ -29,14 +29,14 @@ Downloading data
 If we'd like to download spectra and/or images for our match, we have all
 the information we need in the elements of "xid" from the above example. 
 
-..code-block:: python
+.. code-block:: python
 
     >>> sp = sdss.get_spectrum(crossID=xid[0])
     >>> im = sdss.get_image(crossID=xid[0], band='g')
 
 or equivalently,
 
-..code-block:: python
+.. code-block:: python
 
     >>> sp = sdss.get_spectrum(plate=xid[0]['plate'], fiberID=xid[0]['fiberID'],
     >>>     mjd=xid[0]['mjd'])
@@ -47,7 +47,7 @@ The variables "sp" and "im" are simple objects which give users access to the
 FITS files, and contain a few convenience properties to access the data quickly.
 For example,
 
-..code-block:: python
+.. code-block:: python
 
     >>> sp.hdulist
     >>> sp.data.mean(), sp.header.get('BUNIT')
@@ -59,7 +59,7 @@ In SDSS, image downloads retrieve the entire plate, we've included a simple
 method to make "postage-stamp" images. To view a region 30x30 arcseconds
 centered on our matched object, do
 
-..code-block:: python
+.. code-block:: python
 
     >>> pstamp = im.cutout(ra=xid[0]['ra'], dec=xid[0]['dec'], dr=30)
     
@@ -68,14 +68,14 @@ Spectral templates
 It is also possible to download spectral templates from SDSS. To see what is 
 available, do
 
-..code-block:: python
+.. code-block:: python
     
     >>> from astroquery import sdss
     >>> print sdss.spec_templates.keys()
     
 Then, to download your favorite template, do something like
 
-..code-block:: python
+.. code-block:: python
 
     >>> template = sdss.get_spectral_template('qso')
 
