@@ -53,6 +53,13 @@ def query(ra=None, dec=None, size=None, naifid=None, pid=None,
     -------
     table : astropy.table.Table
 
+    Examples
+    --------
+    >>> pos_t = sha.query(ra=163.6136, dec=-11.784, size=0.5)
+    >>> nid_t = sha.query(naifid=2003226)
+    >>> pid_t = sha.query(pid=30080)
+    >>> rqk_t = sha.query(reqkey=21641216)
+
     Notes
     -----
     For column descriptions, metadata, and other information visit the SHA
