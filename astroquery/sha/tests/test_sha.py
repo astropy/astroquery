@@ -3,9 +3,15 @@ from ... import sha
 
 def test_query():
     # Example queries for SHA API help page
-    sha.query(ra=163.6136, dec=-11.784, size=0.5)
-    sha.query(naifid=2003226)
-    sha.query(pid=30080)
-    sha.query(reqkey=21641216)
+    pos_t = sha.query(ra=163.6136, dec=-11.784, size=0.5)
+    nid_t = sha.query(naifid=2003226)
+    pid_t = sha.query(pid=30080)
+    rqk_t = sha.query(reqkey=21641216)
+    # Get table and fits URLs
+    table_url = pid_t['accessUrl'][10]
+    image_url = pid_t['accessUrl'][16]
+    # Not implemented because running will download file
+    #sha.get_img(table_url)
+    #sha.get_img(image_url)
 
 
