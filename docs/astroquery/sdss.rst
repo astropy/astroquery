@@ -55,7 +55,7 @@ For example,
 will show the contents of the FITS file we downloaded, and then print the mean 
 flux in the spectrum and its units.
 
-In SDSS, image downloads retrieve the entire plate, we've included a simple 
+In SDSS, image downloads retrieve the entire plate, so we've included a simple 
 method to make "postage-stamp" images. To view a region 30x30 arcseconds
 centered on our matched object, do
 
@@ -80,7 +80,9 @@ Then, to download your favorite template, do something like
     >>> template = sdss.get_spectral_template('qso')
 
 The variable "template" is a list of astroquery.sdss.core.Spectrum instances
-(same object as "sp" in the above example). 
+(same object as "sp" in the above example). In this case there is only one
+result, but in a few cases there are multiple templates available to choose
+from (e.g. the "galaxy" spectral template will actually return 3 templates).
 
 Reference/API
 =============
