@@ -20,6 +20,8 @@ from astropy import coordinates as coord
 import requests
 import io
 
+__all__ = ['crossID','get_image','get_spectral_template']
+
 # Default photometric and spectroscopic quantities to retrieve.
 photoobj_defs = ['ra', 'dec', 'objid', 'run', 'rerun', 'camcol', 'field']
 specobj_defs = ['z', 'plate', 'mjd', 'fiberID', 'specobjid', 'specClass']
@@ -255,7 +257,8 @@ def get_spectral_template(kind='qso'):
                 
     return spectra
     
-class Spectrum:
+class Spectrum(object):
+    """ TODO: document """
     def __init__(self, hdulist):
         self.hdulist = hdulist
         
@@ -290,7 +293,8 @@ class Spectrum:
             self._err = self.hdulist[0].data[2]
         return self._err     
     
-class Image:
+class Image(object):
+    """ TODO: document """
     def __init__(self, hdulist):
         self.hdulist = hdulist
         self.w = wcs.WCS(self.header)
