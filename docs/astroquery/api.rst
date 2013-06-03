@@ -93,6 +93,12 @@ serve as guidelines for when the above rules can be broken:
  2. Support for a large variety of different web tools (both astronomical
     catalogs corresponding to sky positions and other catalogs that do not)
 
+These high-level functions are wrappers; they may instantiate classes but will
+not return them by default.  For both debugging and reproducibility purposes,
+however, these functions should have a `return_query_payload` and
+`return_class` method that would return the HTML POST data as a dict and the
+created class, respectively.  
+
 Deeper / Tool-Specific API
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 For many tools, there are special features implemented in the web API that
@@ -110,7 +116,9 @@ There are different reasons one would want to use the API directly:
 
     from astroquery import simbad
 
-    simbad.api.reference_query('2012ASPC..461..407M')
+    # simply get the web page returned from this query, i.e. it would be 
+    # what is returned from the requests.post command
+    web_result = simbad.api.reference_query('2012ASPC..461..407M')
 
 
 General rules for API queries:
@@ -145,6 +153,10 @@ Directory Structure::
         QueryTool = QueryClass(*args)
         return QueryTool.execute()
 
+    def query(*args):
+        """ Wrapper for simple queries (using static_or_instance approach)"""
+        return QueryClass.execute(*args)
+
     class QueryClass(astroquery.Query):
 
         url = 'http://static_url'
@@ -152,13 +164,17 @@ Directory Structure::
         def __init__(self, *args):
             """ set some parameters """
             # do login here
+            # set up the query here as well (e.g., coordinates, object name)
             self.request_data = {}
             pass
 
         def __call__(self, **kwargs):
             return self.execute(**kwargs)
 
-        def execute(self, timeout=1):
+        @static_or_instance
+        def execute(self, timeout=1, *args):
+
+            # Parse arguments here if being run as classmethod
 
             self.result = requests.post(url, data=self.request_data)
 
@@ -167,7 +183,9 @@ Directory Structure::
 
         def parse_result(self, result):
             # do something, probably with regexp's
-            pass
+            return astropy.table.Table(tabular_data)
+
+
 
 
 For multiple parallel queries logged in to the same object, you could do:
@@ -179,6 +197,10 @@ For multiple parallel queries logged in to the same object, you could do:
     module_query = QueryClass(login_information)
 
     results = parallel_map(module_query,['m31','m51','m17'])
+
+.. TODO:: 
+    
+    Include a `parallel_map` function in `astroquery.utils`
 
 
 Present Implementations (April 2013)
@@ -237,3 +259,65 @@ Details & Questions
   
 * Some services return similar / identical data (see issue #82), and care
   should be taken that these return the same objects if the data are identical
+
+
+ALTERNATIVE API SUGGESTIONS
+===========================
+
+Pseudocode example based on @astrofrog's suggestion:
+
+.. code-block:: python
+
+
+    class static_or_instance(object):
+        def __init__(self, func):
+            self.func = func
+
+        def __get__(self, instance, owner):
+            return functools.partial(self.func, instance)
+
+
+    class QueryClass(astroquery.Query):
+
+        url = 'http://static_url'
+
+        def __init__(self, *args):
+            """ set some parameters """
+            # do login here
+            # DO NOT set up the query here 
+            self.request_data = {}
+            pass
+
+        def __call__(self, **kwargs):
+            return self.execute(**kwargs)
+
+        @static_or_instance
+        def query(self, timeout=1, *args):
+
+            # THIS method defines the query
+            self.request_data = parse_args_to_request_data(*args)
+
+            self.result = requests.post(url, data=self.request_data)
+
+            return self.parse_result(self.result)
+
+
+        def parse_result(self, result):
+            # do something, probably with regexp's
+            return astropy.table.Table(tabular_data)
+
+This suggestion allows the user to perform queries in two ways:
+
+.. code-block:: python
+
+    from astroquery import QueryClass
+    QueryClass.query()
+
+for simple queries, or
+
+.. code-block:: python
+
+    from astroquery import QueryClass
+    q = QueryClass()
+    q.query(...)
+
