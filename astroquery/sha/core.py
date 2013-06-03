@@ -1,16 +1,15 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
+import struct
 import requests
 import numpy as np
 from astropy.table import Table
+from astropy.io import fits
+
 
 __all__ = ['query']
 
 
-url = 'http://sha.ipac.caltech.edu/applications/Spitzer/SHA/servlet/DataService?{query}&VERB={verb}&DATASET=ivo%3A%2F%2Firsa.ipac%2Fspitzer.level{dataset}'
-query_forms = {'position': 'RA={}&DEC={}&SIZE={}',
-               'naifid': 'NAIFID={}',
-               'pid': 'PID={}',
-               'reqkey': 'REQKEY={}'}
+uri = 'http://sha.ipac.caltech.edu/applications/Spitzer/SHA/servlet/DataService?'
 
 def query(query_type, ra=None, dec=None, size=None, naifid=None, pid=None,
     reqkey=None, dataset=2, verbosity=3):
@@ -49,32 +48,35 @@ def query(query_type, ra=None, dec=None, size=None, naifid=None, pid=None,
     Returns
     -------
     table : astropy.table.Table
+
+    Notes
+    -----
+    For column descriptions, metadata, and other information visit the SHA
+    query API_ help page:
+    .. _API: http://sha.ipac.caltech.edu/applications/Spitzer/SHA/help/doc/api.html
     """
-    if query_type not in query_forms.keys():
-        raise ValueError('Invalid query type : {}.'.format(query_type))
-    # Create the query strings from arguments
-    # query_type <- position
-    if query_type == 'position':
-        if not all([isinstance(x, (float, int) for x in [ra, dec, size])]):
-            raise ValueError('Ra, Dec, and Size must be in decimal degrees.')
-        query_string = query_forms[query_type].format(ra, dec, size)
-    # query_type <- naifid
-    elif query_type == 'naifid':
-        if not isinstance(naifid, (int, float)):
-            raise ValueError('NAIFID must be a number.')
-        query_string = query_forms[query_type].format(naifid)
-    # query_type <- pid
-    elif query_type == 'pid':
-        if not isinstance(pid, (int, float)):
-            raise ValueError('PID must be a number.')
-        query_string = query_forms[query_type].format(pid)
-    # query_type <- reqkey
-    elif query_type == 'reqkey':
-        if not isinstance(reqkey, (int, float)):
-            raise ValueError('REQKEY must be a number.')
-        query_string = query_forms[query_type].format(reqkey)
-    else:
-        raise Exception('Unexpected error')
+    # Query parameters
+    payload = {'RA': ra,
+               'DEC': dec,
+               'SIZE': size,
+               'NAIFID': naifid,
+               'PID': pid,
+               'REQKEY': reqkey,
+               'VERB': verbosity,
+               'DATASET': 'ivo://irsa.ipac.spitzer.level{}'.format(dataset)}
+    # Make request
+    response = requests.get(uri, params=payload)
+    response.raise_for_status()
+    # Parse output
+    raw_data = response.text.split('\n')
+    field_widths = [len(s) for s in raw_data[0].split('|')]
+    col_names = [s.strip() for s in raw_data[0].split('|')]
+    type_names = [s.strip() for s in raw_data[1].split('|')]
+    # Line parser for fixed width
+    fmtstring = ''.join('%ds' % width for width in field_widths)
+    line_parse = struct.Struct(fmtstring).unpack_from
+    data = [line_parse(row) for row in raw_data[4:]]
+    # To table
     return
 
 
