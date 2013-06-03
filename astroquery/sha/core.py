@@ -4,6 +4,7 @@ import requests
 import numpy as np
 from astropy.table import Table
 from astropy.io import fits
+import ipdb as pdb
 
 
 __all__ = ['query']
@@ -11,21 +12,26 @@ __all__ = ['query']
 
 uri = 'http://sha.ipac.caltech.edu/applications/Spitzer/SHA/servlet/DataService?'
 
-def query(query_type, ra=None, dec=None, size=None, naifid=None, pid=None,
+def query(ra=None, dec=None, size=None, naifid=None, pid=None,
     reqkey=None, dataset=2, verbosity=3):
     """
     Query the Spitzer Heritage Archive (SHA).
 
+    Four query types are valid to search by position, NAIFID, PID, and ReqKey.
+        position -> search a region
+        naifid   -> NAIF ID, which is a unique number allocated to solar
+                    system objects (e.g. planets, asteroids, comets,
+                    spacecraft) by the NAIF at JPL.
+        pid      -> program ID
+        reqkey   -> AOR ID: Astronomical Observation Request ID
+    For a valid query, enter only parameters related to a single query type:
+        position -> ra, dec, size
+        naifid   -> naifid
+        pid      -> pid
+        reqkey   -> reqkey
+
     Parameters
     ----------
-    query_type : string
-        Query type. Valid options:
-            position -> search a region
-            naifid   -> NAIF ID, which is a unique number allocated to solar
-                        system objects (e.g. planets, asteroids, comets,
-                        spacecraft) by the NAIF at JPL.
-            pid      -> program ID
-            reqkey   -> AOR ID: Astronomical Observation Request ID
     ra : number
         Right ascension in degrees
     dec : number
@@ -68,16 +74,19 @@ def query(query_type, ra=None, dec=None, size=None, naifid=None, pid=None,
     response = requests.get(uri, params=payload)
     response.raise_for_status()
     # Parse output
-    raw_data = response.text.split('\n')
-    field_widths = [len(s) for s in raw_data[0].split('|')]
-    col_names = [s.strip() for s in raw_data[0].split('|')]
-    type_names = [s.strip() for s in raw_data[1].split('|')]
+    raw_data = [line.encode('ascii') for line in response.text.split('\n')]
+    field_widths = [len(s) + 1 for s in raw_data[0].split('|')][1:-1]
+    col_names = [s.strip() for s in raw_data[0].split('|')][1:-1]
+    type_names = [s.strip() for s in raw_data[1].split('|')][1:-1]
     # Line parser for fixed width
     fmtstring = ''.join('%ds' % width for width in field_widths)
     line_parse = struct.Struct(fmtstring).unpack_from
-    data = [line_parse(row) for row in raw_data[4:]]
+    data = [[el.strip() for el in line_parse(row)] for row in raw_data[4:-1]]
+    # Parse type names
+    dtypes = _map_dtypes(type_names, field_widths)
     # To table
-    return
+    t = Table(zip(*data), names=col_names, dtypes=dtypes)
+    return t
 
 
 def get_image(path):
@@ -87,14 +96,16 @@ def get_image(path):
     return
 
 
-def _check_dtypes(data):
+def _map_dtypes(type_names, field_widths):
     """
-    Check the data types of each column. If a column cannot be converted to a
-    float, fall-back to a string.
+    Create dtype string based on column lengths and field type names.
 
     Parameters
     ----------
-    data : np.narray
+    type_names : list
+        List of type names from file header
+    field_widths : list
+        List of field width values
 
     Returns
     -------
@@ -102,14 +113,19 @@ def _check_dtypes(data):
         List of dtype for each column in data
     """
     dtypes = []
-    for i in xrange(data.shape[1]):
-        try:
-            data[:,i].astype('float')
-            dtypes.append('<f8')
-        except ValueError:
-            # TODO some columns may be more than 14 char long, change
-            # dynamically
-            dtypes.append('|S14')
+    for i, name in enumerate(type_names):
+        if name == 'int':
+            dtypes.append('i8')
+        elif name == 'double':
+            dtypes.append('f8')
+        elif name == 'char':
+            dtypes.append('a{}'.format(field_widths[i]))
+        else:
+            raise ValueError('Unexpected type name: {}.'.format(name))
     return dtypes
+
+
+if __name__ == "__main__":
+    pass
 
 
