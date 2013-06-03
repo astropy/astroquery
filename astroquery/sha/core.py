@@ -1,10 +1,12 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import re
 import os
+import io
 import struct
 import requests
 import numpy as np
 from astropy.table import Table
+import astropy.io.fits as fits
 
 
 __all__ = ['query']
@@ -100,7 +102,7 @@ def query(ra=None, dec=None, size=None, naifid=None, pid=None,
     return t
 
 
-def get_img(url, out_dir='sha_tmp/', out_name=None):
+def save_file(url, out_dir='sha_tmp/', out_name=None):
     """
     Download image to output directory given a URL from a SHA query.
 
@@ -111,7 +113,7 @@ def get_img(url, out_dir='sha_tmp/', out_name=None):
         SHA query include columns:
             accessUrl -> The URL to be used to retrieve an image or table
             withAnc1  -> The URL to be used to retrive the image or spectra
-                         with important ancillar products (mask, uncertainty,
+                         with important ancillary products (mask, uncertainty,
                          etc.) as a zip archive
     out_dir : string
         Path for output table or image
@@ -121,7 +123,7 @@ def get_img(url, out_dir='sha_tmp/', out_name=None):
     Examples
     --------
     >>> url = sha.query(pid=30080)['accessUrl'][0]
-    >>> sha.get_img(url)
+    >>> sha.save_file(url)
     """
     exten_types = {'image/fits': '.fits', 'text/plain; charset=UTF-8': '.tbl',
         'application/zip': '.zip'}
@@ -141,6 +143,43 @@ def get_img(url, out_dir='sha_tmp/', out_name=None):
         for block in response.iter_content(1024):
             f.write(block)
     return
+
+def get_file(url):
+    """
+    Return object from SHA query URL. Currently only supports fits files.
+
+    Parameters
+    ----------
+    url : string
+        Access URL from SHA query. Requires complete URL, valid URLs from the
+        SHA query include columns:
+            accessUrl -> The URL to be used to retrieve an image or table
+            withAnc1  -> The URL to be used to retrive the image or spectra
+                         with important ancillary products (mask, uncertainty,
+                         etc.) as a zip archive
+
+    Returns
+    -------
+    obj : astropy.table.Table, astropy.io.fits, list
+        Return object depending if link points to a table, fits image, or zip
+        file of products.
+
+    Examples
+    --------
+    >>> url = sha.query(pid=30080)['accessUrl'][0]
+    >>> img = sha.get_file(url)
+    """
+    # Make request
+    response = requests.get(url, stream=True)
+    response.raise_for_status()
+    # Read fits
+    iofile = io.BytesIO(response.content)
+    content_type = response.headers['content-type']
+    if content_type == 'image/fits':
+        obj = fits.open(iofile)
+    else:
+        raise Exception('Unknown content type: {}.'.format(content_type))
+    return obj
 
 
 def _map_dtypes(type_names, field_widths):
