@@ -89,13 +89,6 @@ def query(ra=None, dec=None, size=None, naifid=None, pid=None,
     return t
 
 
-def get_image(path):
-    """
-    Download a FITS image from the SHA
-    """
-    return
-
-
 def _map_dtypes(type_names, field_widths):
     """
     Create dtype string based on column lengths and field type names.
