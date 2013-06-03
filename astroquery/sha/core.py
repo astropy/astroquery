@@ -3,8 +3,6 @@ import struct
 import requests
 import numpy as np
 from astropy.table import Table
-from astropy.io import fits
-import ipdb as pdb
 
 
 __all__ = ['query']
@@ -74,6 +72,8 @@ def query(ra=None, dec=None, size=None, naifid=None, pid=None,
     response = requests.get(uri, params=payload)
     response.raise_for_status()
     # Parse output
+    # requests returns unicde strings, encode back to ascii
+    # because of '|foo|bar|' delimeters, remove first and last empty columns
     raw_data = [line.encode('ascii') for line in response.text.split('\n')]
     field_widths = [len(s) + 1 for s in raw_data[0].split('|')][1:-1]
     col_names = [s.strip() for s in raw_data[0].split('|')][1:-1]
@@ -85,6 +85,7 @@ def query(ra=None, dec=None, size=None, naifid=None, pid=None,
     # Parse type names
     dtypes = _map_dtypes(type_names, field_widths)
     # To table
+    # transpose data for appropriate table instance handling
     t = Table(zip(*data), names=col_names, dtypes=dtypes)
     return t
 
