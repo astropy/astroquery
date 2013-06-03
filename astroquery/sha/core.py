@@ -123,7 +123,8 @@ def get_img(url, out_dir='sha_tmp/', out_name=None):
     >>> url = sha.query(pid=30080)['accessUrl'][0]
     >>> sha.get_img(url)
     """
-    exten_types = {'image/fits': '.fits', 'text/plain; charset=UTF-8': '.tbl'}
+    exten_types = {'image/fits': '.fits', 'text/plain; charset=UTF-8': '.tbl',
+        'application/zip': '.zip'}
     # Make request
     response = requests.get(url, stream=True)
     response.raise_for_status()
