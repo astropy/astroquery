@@ -31,8 +31,102 @@ function that returns a `list` of catalog name strings:
 
     print ukidss.list_catalogs()
 
+Two Levels of API
+-----------------
+There will be two different levels of API, exposed to the user via different imports.
+
+User Friendly / Common API
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+The "user-friendly" API will be as uniform as possible across all query tools.
+Each service will have `query_object` and `query_region` functions if they are
+interfaces to astronomical catalogs.  For non-object-catalog services (e.g.
+NIST, LAMDA, Splatalogue), there will just be a `query` function.
+
+"Query" methods will return `astropy.table.Table` objects.  
+
+.. note:: 
+
+    Point for discussion: should we allow query methods to return anything
+    else, or should other return types be restricted to the tool-specific API
+    methods (below)?
+
+To support image servers, there will also be a `get_images` that will return a
+list of `astropy.io.fits.HDUList` objects.
+
+.. note::
+
+    Alternative: 
+
+     * `get_images` will return a list of `astropy.nddata` objects
+        with correct associated metadata.
+     * `get_spectra` will do the same for spectra services
+     * `get_data` will be a more generic tool to grab any data type,
+       and will return it in the raw format returned by the website
+       (this approach allows for unparseable data to be acquired)
+       
+Examples:
+
+.. code-block:: python
+
+    from astroquery import simbad,NIST,irsa
+
+    M31 = simbad.query_object('M 31')
+    OrionObjects = simbad.query_region('M 42', radius='1 degree', region='circle')
+
+    hydrogen = NIST.query(linename='H I', minwav=4000, maxwav=7000,
+                wavelength_unit='A', energy_level_unit='eV')
+
+    irsa.get_images(object='M 42', survey='2MASS', bands='all')
+
+As shown in this example, objects can be queried by name.  Queries by coordinate will also
+be allowed with the normal coordinates interface:
+
+.. code-block:: python
+
+    irsa.get_images(coordinates.FK5(083.8221,-05.3911,units='deg,deg'))
+
+There are two driving motivations behind this overall approach, which should
+serve as guidelines for when the above rules can be broken:
+
+ 1. Simplicity for the end-user - astroquery tools should all look as much the
+    same as possible
+ 2. Support for a large variety of different web tools (both astronomical
+    catalogs corresponding to sky positions and other catalogs that do not)
+
+Deeper / Tool-Specific API
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+For many tools, there are special features implemented in the web API that
+should be available to the user, but should not be the default interface.
+
+There are different reasons one would want to use the API directly:
+
+ 1. The data type returned by the query is non-standard (e.g., a URL)
+ 2. The returned web page from a query contains important information
+    that cannot/should not be parsed by astroquery (e.g., an NRAO query for
+    ALMA data that requires security for the next stage of downloads?)
+ 3. Debugging when trying to implement the user-friendly interface...
+
+.. code-block:: python
+
+    from astroquery import simbad
+
+    simbad.api.reference_query('2012ASPC..461..407M')
+
+
+General rules for API queries:
+
+ 1. The naming scheme should reflect the parent website
+ 2. The raw return and the parser should be in different functions (i.e., if
+    query sends you to a web page that contains a table, there should be a
+    separate function to parse the table)
+ 3. All options available on the website should be made available to the user
+ 4. An effort should be made to catch invalid queries prior to submission to
+    the website (invalid input types for fields, invalid combinations of
+    fields).  
+
+
 Outline of an Example Module
------------------------------
+----------------------------
 Directory Structure::
 
     module/
