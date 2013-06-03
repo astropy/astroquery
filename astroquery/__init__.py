@@ -121,3 +121,5 @@ if not _ASTROPY_SETUP_:
             del e
 
     del os, warn, config_dir  # clean up namespace
+
+    from name_parser import name_parser
