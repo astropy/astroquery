@@ -11,7 +11,8 @@ def test_query():
     table_url = pid_t['accessUrl'][10]
     image_url = pid_t['accessUrl'][16]
     # Not implemented because running will download file
-    #sha.get_img(table_url)
-    #sha.get_img(image_url)
+    #sha.save_file(table_url)
+    #sha.save_file(image_url)
+    img = sha.get_file(image_url)
 
 
