@@ -1,4 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
+import re
+import os
 import struct
 import requests
 import numpy as np
@@ -6,6 +8,7 @@ from astropy.table import Table
 
 
 __all__ = ['query']
+id_parse = re.compile('ID\=(\d+)')
 
 
 uri = 'http://sha.ipac.caltech.edu/applications/Spitzer/SHA/servlet/DataService?'
@@ -95,6 +98,48 @@ def query(ra=None, dec=None, size=None, naifid=None, pid=None,
     # transpose data for appropriate table instance handling
     t = Table(zip(*data), names=col_names, dtypes=dtypes)
     return t
+
+
+def get_img(url, out_dir='sha_tmp/', out_name=None):
+    """
+    Download image to output directory given a URL from a SHA query.
+
+    Parameters
+    ----------
+    url : string
+        Access URL from SHA query. Requires complete URL, valid URLs from the
+        SHA query include columns:
+            accessUrl -> The URL to be used to retrieve an image or table
+            withAnc1  -> The URL to be used to retrive the image or spectra
+                         with important ancillar products (mask, uncertainty,
+                         etc.) as a zip archive
+    out_dir : string
+        Path for output table or image
+    out_name : string
+        Name for output table or image, if None use the file ID as name.
+
+    Examples
+    --------
+    >>> url = sha.query(pid=30080)['accessUrl'][0]
+    >>> sha.get_img(url)
+    """
+    exten_types = {'image/fits': '.fits', 'text/plain; charset=UTF-8': '.tbl'}
+    # Make request
+    response = requests.get(url, stream=True)
+    response.raise_for_status()
+    # Name file using ID at end
+    if out_name is None:
+        out_name = 'shaID_' + id_parse.findall(url)[0]
+    # Determine extension
+    exten = exten_types[response.headers['content-type']]
+    # Check if path exists
+    if not os.path.exists(out_dir):
+        os.makedirs(out_dir)
+    # Write file
+    with open(out_dir + out_name + exten, 'wb') as f:
+        for block in response.iter_content(1024):
+            f.write(block)
+    return
 
 
 def _map_dtypes(type_names, field_widths):
