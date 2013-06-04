@@ -37,6 +37,15 @@ respectively via
 .. code-block:: python
 
     >>> sp.freq, sp.varr, sp.data
+    
+If we want to have a look at the entire ALFALFA catalog, we can do that too:
+
+.. code-block:: python
+
+    >>> cat = alfalfa.get_catalog()
+    
+which returns a dictionary containing HI measurements for nearly 16,000
+objects.
 
 Reference/API
 =============
