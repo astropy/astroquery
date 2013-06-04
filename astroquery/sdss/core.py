@@ -71,15 +71,15 @@ def crossID(ra, dec, unit=None, dr=2., fields=None):
     
     Examples
     --------
-    xid = sdss.crossID(ra='0h8m05.63s', dec='14d50m23.3s')
-    
-    for match in xid:
-        print match['ra'], match['dec'], match['objid']
+    >>> xid = sdss.crossID(ra='0h8m05.63s', dec='14d50m23.3s')
+    >>> for match in xid:
+    >>>     print match['ra'], match['dec'], match['objid']
 
     Returns
     -------
     List of all objects found within search radius. Each element of list is 
     a dictionary containing information about each matched object.
+    
     """
     
     if not isinstance(ra, coord.angles.RA):
