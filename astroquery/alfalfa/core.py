@@ -25,6 +25,8 @@ propert_path = "http://egg.astro.cornell.edu/alfalfa/data/a40files/a40.datafile1
 placeholder = -999999
 ALFALFACAT = None
 
+__all__ = ['get_catalog','crossID','get_spectrum','Spectrum']
+
 def get_catalog():
     """
     Download catalog of ALFALFA source properties.
