@@ -17,7 +17,7 @@ __all__ = ['QueryId',
 
 
 class _Query(object):
-    def execute(self, votabledef=None, limit=None, pedantic=False, mirror='strasbourg'):
+    def execute(self, votabledef=None, limit=None, pedantic=False, mirror=None):
         """ Execute the query, returning a :class:`SimbadResult` object.
 
         Parameters
@@ -310,7 +310,7 @@ class QueryMulti(_Query):
         return repr(self.queries)
 
 
-def execute_query(query, votabledef, limit, pedantic, mirror='strasbourg'):
+def execute_query(query, votabledef, limit, pedantic, mirror=None):
     limit2 = parameters._ScriptParameterRowLimit(limit)
 
     if votabledef is None:
@@ -334,9 +334,10 @@ def execute_query(query, votabledef, limit, pedantic, mirror='strasbourg'):
     script += str(query)
     script += votabledef.close_str
     script = urllib.quote(script)
-
-    from . import mirrors
-    req_str = mirrors[mirror] + script
+    
+    from . import SIMBAD_SERVER 
+    server = (SIMBAD_SERVER() if mirror is None else mirror)
+    req_str = 'http://' + server + '/simbad/sim-script?script=' + script
     response = urllib2.urlopen(req_str)
     result = b''.join(response.readlines())
     result = result.decode('utf-8')
