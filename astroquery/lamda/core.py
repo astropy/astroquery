@@ -4,7 +4,7 @@ import requests
 import numpy as np
 from astropy.table import Table
 
-__all__ = ['query']
+__all__ = ['query', 'print_mols']
 
 
 url = "http://home.strw.leidenuniv.nl/~moldata/datafiles/{}.dat"
