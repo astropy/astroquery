@@ -1,16 +1,4 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-from astropy.config import ConfigurationItem
-
-VIZIER_SERVER = ConfigurationItem('vizier_server', ['vizier.u-strasbg.fr',
-                                                    'vizier.nao.ac.jp',
-                                                    'vizier.hia.nrc.ca',
-                                                    'vizier.ast.cam.ac.uk',
-                                                    'vizier.cfa.harvard.edu',
-                                                    'www.ukirt.jach.hawaii.edu',
-                                                    'vizier.iucaa.ernet.in',
-                                                    'vizier.china-vo.org'], 'Name of the VizieR mirror to use.')
-
-
 import requests
 import io
 import numpy as np
@@ -19,6 +7,8 @@ try:
 except ImportError:
     import astropy.io.votable as votable
 from astropy.table import Table
+
+from . import VIZIER_SERVER
 
 __all__ = ['vizquery']
 
