@@ -8,9 +8,12 @@ except ImportError:
     import astropy.io.votable as votable
 from astropy.table import Table
 
+from . import VIZIER_SERVER
+
 __all__ = ['vizquery']
 
-def vizquery(query, server="vizier.u-strasbg.fr"):
+
+def vizquery(query, server=None):
     """
     VizieR search query.
     
@@ -27,7 +30,7 @@ def vizquery(query, server="vizier.u-strasbg.fr"):
            * astropy.table.Table (containing columns "_RAJ2000" and "_DEJ2000" in degrees)
     server: str, optional
         The VizieR server to use. (See VizieR mirrors at http://vizier.u-strasbg.fr)
-        Defaults to "vizier.u-strasbg.fr".
+        If not specified, `server` is set by the `VIZIER_SERVER` configuration item.
 
     Returns
     -------
@@ -40,6 +43,9 @@ def vizquery(query, server="vizier.u-strasbg.fr"):
     * http://vizier.u-strasbg.fr/vizier/vizHelp/menu.htx
     
     """
+    
+    #Check VizieR server
+    server = (VIZIER_SERVER() if server is None else server)
     
     # Always add calculated _RAJ2000 & _DEJ2000 to the query.
     # This is used for cross correlations between queries
