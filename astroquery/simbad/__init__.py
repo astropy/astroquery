@@ -2,10 +2,13 @@
 """
 TODO: add short description
 """
+from astropy.config import ConfigurationItem
+
+SIMBAD_SERVER = ConfigurationItem('simbad_server', ['simbad.u-strasbg.fr',
+                                                    'simbad.harvard.edu'], 'Name of the SIMBAD mirror to use.')
+
 from .queries import *
 from .result import *
 from .simbad_votable import *
 
-mirrors = {'harvard': 'http://simbad.harvard.edu/simbad/sim-script?script=',
-           'strasbourg': 'http://simbad.u-strasbg.fr/simbad/sim-script?script='}
 votabledef = 'main_id, coordinates'
