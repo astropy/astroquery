@@ -67,7 +67,7 @@ that overlap with a specified coordinate.
 
 (query)_async
 `````````````
-Includes `get_images_async`, `query_coordinates_async`, `query_object_async`
+Includes `get_images_async`, `query_region_async`, `query_object_async`
 
 Same as the above query tools, but returns a list of readable file objects instead of a parsed
 object so that the data is not downloaded until `result.get_data()` is run.
@@ -126,7 +126,7 @@ Directory Structure::
 
     class QueryClass(astroquery.BaseQuery):
 
-        server = VIZIER_SERVER()
+        server = SERVER()
 
         def __init__(self, *args):
             """ set some parameters """
@@ -135,23 +135,67 @@ Directory Structure::
 
         @static_or_instance
         def query_region(self, *args):
-
-            # Parse arguments here if being run as classmethod
-
-            result = requests.post(url, data=self.request_data)
+            result = self.query_region_async(*args)
 
             try:
                 self.parse_result(result)
             except:
                 return result
 
+        @static_or_instance
+        def query_region_async(self, *args):
+
+            request_payload = self.args_to_payload(*args)
+
+            result = requests.post(url, data=request_payload)
+
+            return result
+
+        @static_or_instance
+        def get_images_async(self, *args):
+            readable_objs = self.get_images_async(*args)
+            return [fits.open(obj) for obj in readable_objs]
+
+        @static_or_instance
+        def get_images_async(self, *args):
+            image_urls = self.get_image_list(*args)
+            return [get_readable_fileobj(U) for U in image_urls]
+
+        @static_or_instance
+        def get_image_list(self, *args):
+
+            request_payload = self.args_to_payload(*args)
+
+            result = requests.post(url, data=request_payload)
+
+            return self.extract_image_urls(result)
+
         def parse_result(self, result):
             # do something, probably with regexp's
             return astropy.table.Table(tabular_data)
 
+        def args_to_payload(self, *args):
+            # convert arguments to a valid requests payload
+
+            return dict
 
 
+Support Code for classmethod overloading
+----------------------------------------
 
+.. code-block:: python
+
+
+    class static_or_instance(object):
+        def __init__(self, func):
+            self.func = func
+
+        def __get__(self, instance, owner):
+            return functools.partial(self.func, instance)
+
+
+Parallel Queries
+----------------
 For multiple parallel queries logged in to the same object, you could do:
 
 .. code-block:: python
@@ -212,20 +256,6 @@ Exceptions
   Timeouts should raise a `TimeoutError`.  
   
 
-Support Code for classmethod overloading
-----------------------------------------
-
-Pseudocode example based on @astrofrog's suggestion:
-
-.. code-block:: python
-
-
-    class static_or_instance(object):
-        def __init__(self, func):
-            self.func = func
-
-        def __get__(self, instance, owner):
-            return functools.partial(self.func, instance)
 
 
 Examples
