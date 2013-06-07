@@ -354,8 +354,7 @@ result object
         def write(self, savepath, **kwargs):
             if self._data is None:
                 self.get_data()
-            else:
-                self._data.write(savepath)
+            self._data.write(savepath)
 
 savepath keyword
 ````````````````
