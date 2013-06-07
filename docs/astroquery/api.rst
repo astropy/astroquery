@@ -160,6 +160,7 @@ Directory Structure::
         def get_images_async(self, *args):
             image_urls = self.get_image_list(*args)
             return [get_readable_fileobj(U) for U in image_urls]
+            # get_readable_fileobj returns need a "get_data()" method?
 
         @static_or_instance
         def get_image_list(self, *args):
@@ -319,6 +320,52 @@ Storing Data Locally
 
 How will data be stored locally?  What is the interface to determine whether
 and where it will be stored permanently?
+
+Proposals
+#########
+
+result object
+`````````````
+
+.. code-block:: python
+
+    class Result(object):
+        def __init__(self, URL):
+            self.URL = URL
+            self.data = None
+
+        def get_data(self, timeout=10):
+
+            if self._data is None:
+                success = False
+                t0 = time.time()
+                while not success:
+                    try:
+                        with astropy.utils.data.get_readable_fileobj(URL) as f:
+                            self._data = f.read()
+                    except URLError:
+                        continue
+                    except IOError:
+                        raise IOError("Not a valid URL: "+str(self.URL))
+                    if time.time() - t0 > timeout:
+                        raise TimeoutError("Elapse time exceeded %i seconds" % timeout)
+            return self._data
+
+        def write(self, savepath, **kwargs):
+            if self._data is None:
+                self.get_data()
+            else:
+                self._data.write(savepath)
+
+savepath keyword
+````````````````
+
+.. code-block:: python
+
+    from astroquery import Service
+
+    result = Service.query_object('M31', radius='1 degree', savepath='Service_M31_1degree.ipac')
+             
 
 Unparseable Data
 ~~~~~~~~~~~~~~~~
