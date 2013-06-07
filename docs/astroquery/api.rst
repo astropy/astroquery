@@ -12,6 +12,10 @@ Standard usage should be along these lines:
     from astroquery import irsa
 
     images = irsa.get_images("M 31","5 arcmin")
+    # searches for images in a 5-arcminute circle around M 31
+
+    images = irsa.get_images("M 31")
+    # searches for images overlapping with the SIMBAD position of M 31, if supported by the service?
 
     from astroquery import ukidss
 
