@@ -364,6 +364,10 @@ savepath keyword
     from astroquery import Service
 
     result = Service.query_object('M31', radius='1 degree', savepath='Service_M31_1degree.ipac')
+    # expect to use astropy.Table.write to make an .ipac file
+
+    result = Service.query_object('M31', radius='1 degree', savepath='Service_M31_1degree.xml')
+    # expect to write the data exactly as downloaded
              
 
 Unparseable Data
