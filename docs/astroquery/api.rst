@@ -20,6 +20,11 @@ Standard usage should be along these lines:
     result = ukidss.query_region("5.0 0.0 gal", catalog='GPS')
     # radius is implicitly 1' circle
 
+    import astropy.coordinates as coords
+    import astropy.units as u
+    result = ukidss.query_region(coords.GalacticCoordinates(5,0,unit=('deg','deg')),
+        catalog='GPS', region='circle', radius=5*u.arcmin)
+
 
 In order for this all to work, we will need to utilize some coordinate parsing,
 which has only just been decided on (April 13, 2013).
