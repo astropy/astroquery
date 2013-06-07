@@ -1,146 +1,102 @@
 Astroquery API Specification
 ============================
 
-Standard usage should be along these lines:
+
+Service Class
+-------------
+The query tools will be implemented as class methods, so that the standard approach
+for a given web service (e.g., IRSA, UKIDSS, SIMBAD) will be
 
 .. code-block:: python
 
-    from astroquery import simbad
+    from astroquery import Service
 
-    result = simbad.query_object("M 31")
+    result = Service.query_object('M 31')
 
-    from astroquery import irsa
-
-    images = irsa.get_images("M 31","5 arcmin")
-    # searches for images in a 5-arcminute circle around M 31
-
-    images = irsa.get_images("M 31")
-    # searches for images overlapping with the SIMBAD position of M 31, if supported by the service?
-
-    from astroquery import ukidss
-
-    ukidss.login(username, password)
-
-    result = ukidss.query_region("5.0 0.0 gal", catalog='GPS')
-    # radius is implicitly 1' circle
-
-    import astropy.coordinates as coords
-    import astropy.units as u
-    result = ukidss.query_region(coords.GalacticCoordinates(5,0,unit=('deg','deg')),
-        catalog='GPS', region='circle', radius=5*u.arcmin)
-
-
-In order for this all to work, we will need to utilize some coordinate parsing,
-which has only just been decided on (April 13, 2013).
-
-For tools in which multiple catalogs can be queried, e.g. as in the last UKIDSS
-example, they must be specified.  There should also be a `list_catalogs`
-function that returns a `list` of catalog name strings:
+for services that do not require login, and  
 
 .. code-block:: python
 
-    print ukidss.list_catalogs()
+    from astroquery import Service
 
-Two Levels of API
------------------
-There will be two different levels of API, exposed to the user via different imports.
+    S = Service(user='username',password='password')
+    result = S.query_object('M 31')
 
-User Friendly / Common API
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-The "user-friendly" API will be as uniform as possible across all query tools.
-Each service will have `query_object` and `query_region` functions if they are
-interfaces to astronomical catalogs.  For non-object-catalog services (e.g.
-NIST, LAMDA, Splatalogue), there will just be a `query` function.
+for services that do.
 
-"Query" methods will return `astropy.table.Table` objects.  
-
-.. note:: 
-
-    Point for discussion: should we allow query methods to return anything
-    else, or should other return types be restricted to the tool-specific API
-    methods (below)?
-
-To support image servers, there will also be a `get_images` that will return a
-list of `astropy.io.fits.HDUList` objects.
-
-.. note::
-
-    Alternative: 
-
-     * `get_images` will return a list of `astropy.nddata` objects
-        with correct associated metadata.
-     * `get_spectra` will do the same for spectra services
-     * `get_data` will be a more generic tool to grab any data type,
-       and will return it in the raw format returned by the website
-       (this approach allows for unparseable data to be acquired)
-       
-Examples:
+Query Methods
+~~~~~~~~~~~~~
+The classes will have the following methods where appropriate:
 
 .. code-block:: python
 
-    from astroquery import simbad,NIST,irsa
+    query_object(objectname, ...)
+    query_region(coordinate, radius=, width=) 
+    get_images(coordinate)
 
-    M31 = simbad.query_object('M 31')
-    OrionObjects = simbad.query_region('M 42', radius='1 degree', region='circle')
+They may also have other methods for querying non-standard data types (e.g.,
+ADS queries that may return a `bibtex` text block).
 
-    hydrogen = NIST.query(linename='H I', minwav=4000, maxwav=7000,
-                wavelength_unit='A', energy_level_unit='eV')
+query_object
+````````````
+Will use `astropy.coordinates.name_resolve` to convert the object name to coordinates,
+but otherwise is the same as `query_region`.
 
-    irsa.get_images(object='M 42', survey='2MASS', bands='all')
 
-As shown in this example, objects can be queried by name.  Queries by coordinate will also
-be allowed with the normal coordinates interface:
+query_region
+````````````
+Query a region around a coordinate.
+
+One of these keywords *must* be specified (no default is assumed)::
+
+    radius - an astropy Quantity object, or a string that can be parsed into one.  e.g., '1 degree' or 1*u.degree.
+        If radius is specified, the shape is assumed to be a circle
+    width - a Quantity.  Specifies the edge length of a square box
+    height - a Quantity.  Specifies the height of a rectangular box.  Must be passed with width.
+
+Returns an `astropy.Table`
+
+get_images
+``````````
+Perform a coordinate-based query to acquire images.
+
+Returns a list of `astropy.io.fits.HDUList`s.  
+
+Shape keywords are optional - some query services allow searches for images
+that overlap with a specified coordinate.
+
+(query)_async
+`````````````
+Includes `get_images_async`, `query_coordinates_async`, `query_object_async`
+
+Same as the above query tools, but returns a list of readable file objects instead of a parsed
+object so that the data is not downloaded until `result.get_data()` is run.
+
+
+Common Keywords
+```````````````
+These keywords are common to all query methods::
+    
+    return_query_payload - Return the POST data that will be submitted as a dictionary
+    savename - [optional - see discussion below] File path to save the downloaded query to
+    timeout - timeout in seconds
+
+
+
+
+Asynchronous Queries
+--------------------
+Some services require asynchronous query submission & download, e.g. Besancon,
+the NRAO Archive, the Fermi archive, etc.  The data needs to be "staged" on the
+remote server before it can be downloaded.  For these queries, the approach is
 
 .. code-block:: python
 
-    irsa.get_images(coordinates.FK5(083.8221,-05.3911,units='deg,deg'))
+    result = Service.query_region_async(coordinate)
 
-There are two driving motivations behind this overall approach, which should
-serve as guidelines for when the above rules can be broken:
+    data = result.get_data()
+    # this will periodically check whether the data is available at the specified URL
 
- 1. Simplicity for the end-user - astroquery tools should all look as much the
-    same as possible
- 2. Support for a large variety of different web tools (both astronomical
-    catalogs corresponding to sky positions and other catalogs that do not)
-
-These high-level functions are wrappers; they may instantiate classes but will
-not return them by default.  For both debugging and reproducibility purposes,
-however, these functions should have a `return_query_payload` and
-`return_class` method that would return the HTML POST data as a dict and the
-created class, respectively.  
-
-Deeper / Tool-Specific API
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-For many tools, there are special features implemented in the web API that
-should be available to the user, but should not be the default interface.
-
-There are different reasons one would want to use the API directly:
-
- 1. The data type returned by the query is non-standard (e.g., a URL)
- 2. The returned web page from a query contains important information
-    that cannot/should not be parsed by astroquery (e.g., an NRAO query for
-    ALMA data that requires security for the next stage of downloads?)
- 3. Debugging when trying to implement the user-friendly interface...
-
-.. code-block:: python
-
-    from astroquery import simbad
-
-    # simply get the web page returned from this query, i.e. it would be 
-    # what is returned from the requests.post command
-    web_result = simbad.api.reference_query('2012ASPC..461..407M')
-
-
-General rules for API queries:
-
- 1. The naming scheme should reflect the parent website
- 2. The raw return and the parser should be in different functions (i.e., if
-    query sends you to a web page that contains a table, there should be a
-    separate function to parse the table)
- 3. All options available on the website should be made available to the user
- 4. An effort should be made to catch invalid queries prior to submission to
-    the website (invalid input types for fields, invalid combinations of
-    fields).  
 
 
 Outline of an Example Module
@@ -152,44 +108,42 @@ Directory Structure::
     module/core.py
     module/tests/test_module.py
 
-
-`core.py` would contain:
-
+``__init__.py`` contains:
 
 .. code-block:: python
 
-    def query(*args):
-        """ Wrapper for simple queries """
-        QueryTool = QueryClass(*args)
-        return QueryTool.execute()
+    from astropy.config import ConfigurationItem
 
-    def query(*args):
-        """ Wrapper for simple queries (using static_or_instance approach)"""
-        return QueryClass.execute(*args)
+    SERVER = ConfigurationItem('Service_server', ['url1','url2'])
 
-    class QueryClass(astroquery.Query):
+    from .core import *
 
-        url = 'http://static_url'
+
+``core.py`` contains:
+
+.. code-block:: python
+
+
+    class QueryClass(astroquery.BaseQuery):
+
+        server = VIZIER_SERVER()
 
         def __init__(self, *args):
             """ set some parameters """
             # do login here
-            # set up the query here as well (e.g., coordinates, object name)
-            self.request_data = {}
             pass
 
-        def __call__(self, **kwargs):
-            return self.execute(**kwargs)
-
         @static_or_instance
-        def execute(self, timeout=1, *args):
+        def query_region(self, *args):
 
             # Parse arguments here if being run as classmethod
 
-            self.result = requests.post(url, data=self.request_data)
+            result = requests.post(url, data=self.request_data)
 
-            return self.parse_result(self.result)
-
+            try:
+                self.parse_result(result)
+            except:
+                return result
 
         def parse_result(self, result):
             # do something, probably with regexp's
@@ -204,9 +158,12 @@ For multiple parallel queries logged in to the same object, you could do:
 
     from astroquery import module
 
-    module_query = QueryClass(login_information)
+    QC = QueryClass(login_information)
 
-    results = parallel_map(module_query,['m31','m51','m17'])
+    results = parallel_map(QC.query_object,['m31','m51','m17'],radius=['1"','1"','1"'])
+
+    results = [QC.query_object_async(obj, radius=r) 
+        for obj,r in zip(['m31','m51','m17'],['1"','1"','1"'])]
 
 .. TODO:: 
     
@@ -242,16 +199,9 @@ i.e., you create a `Query` object and use its various methods.
     result = ned.query_object_name('M 31')
     result = ned.query_object_coordinate(ra,dec)
 
-Details & Questions
--------------------
 
-* What type of objects are returned by these functions?
-
-  * Catalog queries should return `astropy.Table` instances
-  * All returned objects should have a `.save` or `.write` attribute (this needs discussion)
-  * Returned objects must be indexable like dictionaries (?)
-  * image_query functions should return astropy.io.fits.HDUList objects (?) or astropy.ndarray objects (?)
-
+Exceptions
+----------
 
 * What errors should be thrown if queries fail?
   Failed queries should raise a custom Exception that will include the full
@@ -261,18 +211,9 @@ Details & Questions
 * How should timeouts be handled?
   Timeouts should raise a `TimeoutError`.  
   
-  Note that for some query tools, e.g.
-  the besancon model, and perhaps in the future for archive queries via MAST, 
-  NRAO, etc., the user must wait for a notification from the archive that the
-  tapes have been read.  For these sorts of queries, it may be possible to
-  do a check for completion every 5-30 minutes rather than requiring user input.
-  
-* Some services return similar / identical data (see issue #82), and care
-  should be taken that these return the same objects if the data are identical
 
-
-ALTERNATIVE API SUGGESTIONS
-===========================
+Support Code for classmethod overloading
+----------------------------------------
 
 Pseudocode example based on @astrofrog's suggestion:
 
@@ -287,47 +228,75 @@ Pseudocode example based on @astrofrog's suggestion:
             return functools.partial(self.func, instance)
 
 
-    class QueryClass(astroquery.Query):
-
-        url = 'http://static_url'
-
-        def __init__(self, *args):
-            """ set some parameters """
-            # do login here
-            # DO NOT set up the query here 
-            self.request_data = {}
-            pass
-
-        def __call__(self, **kwargs):
-            return self.execute(**kwargs)
-
-        @static_or_instance
-        def query(self, timeout=1, *args):
-
-            # THIS method defines the query
-            self.request_data = parse_args_to_request_data(*args)
-
-            self.result = requests.post(url, data=self.request_data)
-
-            return self.parse_result(self.result)
-
-
-        def parse_result(self, result):
-            # do something, probably with regexp's
-            return astropy.table.Table(tabular_data)
-
-This suggestion allows the user to perform queries in two ways:
+Examples
+--------
+Standard usage should be along these lines:
 
 .. code-block:: python
 
-    from astroquery import QueryClass
-    QueryClass.query()
+    from astroquery import simbad
 
-for simple queries, or
+    result = simbad.query_object("M 31")
+    # returns astropy.Table object
+
+    from astroquery import irsa
+
+    images = irsa.get_images("M 31","5 arcmin")
+    # searches for images in a 5-arcminute circle around M 31
+    # returns list of HDU objects
+
+    images = irsa.get_images("M 31")
+    # searches for images overlapping with the SIMBAD position of M 31, if supported by the service?
+    # returns list of HDU objects
+
+    from astroquery import ukidss
+
+    ukidss.login(username, password)
+
+    result = ukidss.query_region("5.0 0.0 gal", catalog='GPS')
+    # FAILS: no radius specified!
+    result = ukidss.query_region("5.0 0.0 gal", catalog='GPS', radius=1)
+    # FAILS: no assumed units!
+    result = ukidss.query_region("5.0 0.0 gal", catalog='GPS', radius='1 arcmin')
+    # SUCCEEDS!  returns an astropy.Table
+
+    import astropy.coordinates as coords
+    import astropy.units as u
+    result = ukidss.query_region(coords.GalacticCoordinates(5,0,unit=('deg','deg')),
+        catalog='GPS', region='circle', radius=5*u.arcmin)
+    # returns an astropy.Table
+
+    hydrogen = NIST.query(linename='H I', minwav=4000, maxwav=7000,
+                wavelength_unit='A', energy_level_unit='eV')
+    # returns an astropy.Table
+
+
+For tools in which multiple catalogs can be queried, e.g. as in the UKIDSS
+examples, they must be specified.  There should also be a `list_catalogs`
+function that returns a `list` of catalog name strings:
 
 .. code-block:: python
 
-    from astroquery import QueryClass
-    q = QueryClass()
-    q.query(...)
+    print ukidss.list_catalogs()
+
+
+Remaining Questions
+-------------------
+
+Storing Data Locally
+~~~~~~~~~~~~~~~~~~~~
+(this was left as an open question on the June 7, 2013 telecon)
+
+How will data be stored locally?  What is the interface to determine whether
+and where it will be stored permanently?
+
+Unparseable Data
+~~~~~~~~~~~~~~~~
+(this was not discussed on the June 7, 2013 telecon)
+
+A. If data cannot be parsed into its expected form (`astropy.Table`,
+    `fits.HDU`), the raw unparsed data will be returned and a `Warning` issued.
+B. If data cannot be parsed, an Exception will be raised that identifies where the
+    raw/unparsed data is stored / cached on disk
+       
 
