@@ -7,17 +7,18 @@ Standard usage should be along these lines:
 
     from astroquery import simbad
 
-    result = simbad.query("M 31")
+    result = simbad.query_object("M 31")
 
     from astroquery import irsa
 
-    images = irsa.box_image_query("M 31","5 arcmin")
+    images = irsa.get_images("M 31","5 arcmin")
 
     from astroquery import ukidss
 
     ukidss.login(username, password)
 
-    result = ukidss.query("5.0 0.0 gal", catalog='GPS')
+    result = ukidss.query_region("5.0 0.0 gal", catalog='GPS')
+    # radius is implicitly 1' circle
 
 
 In order for this all to work, we will need to utilize some coordinate parsing,
