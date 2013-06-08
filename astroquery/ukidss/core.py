@@ -19,7 +19,7 @@ import os
 from math import cos, radians
 import multiprocessing as mp
 import time
-from io import StringIO
+from io import BytesIO
 from astropy.io import fits
 import astropy.utils.data as aud
 from ..utils import progressbar
@@ -217,7 +217,7 @@ class UKIDSSQuery(object):
             U = self.opener.open(link.replace("getImage", "getFImage"))
             with aud.get_readable_fileobj(U, cache=True) as f:
                 results = f.read()
-            S = StringIO(results)
+            S = BytesIO(results)
 
             try: 
                 # try to open as a fits file
@@ -470,7 +470,7 @@ class UKIDSSQuery(object):
                     results = progressbar.chunk_read(U, report_hook=progressbar.chunk_report)
                 else:
                     results = U.read()
-                S = StringIO(results)
+                S = BytesIO(results)
                 try: 
                     fitsfile = fits.open(S,ignore_missing_end=True)
                 except IOError:
@@ -571,7 +571,7 @@ class UKIDSSQuery(object):
                 with aud.get_readable_fileobj(U, cache=True) as f:
                     results = f.read()
 
-                S = StringIO(results)
+                S = BytesIO(results)
                 try: 
                     fitsfile = fits.open(S,ignore_missing_end=True)
                 except IOError:
