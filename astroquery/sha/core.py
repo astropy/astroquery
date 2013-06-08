@@ -9,7 +9,7 @@ from astropy.table import Table
 import astropy.io.fits as fits
 
 
-__all__ = ['query']
+__all__ = ['query','get_file']
 id_parse = re.compile('ID\=(\d+)')
 
 
