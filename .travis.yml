@@ -14,7 +14,8 @@ matrix:
     include:
         - python: 2.7
           # opdeps needed because the matplotlib sphinx extension requires them
-          env: ASTROPY_VERSION=development NUMPY_VERSION=1.7.1 SETUP_CMD='build_sphinx -w -n'
+          # env: ASTROPY_VERSION=development NUMPY_VERSION=1.7.1 SETUP_CMD='build_sphinx -w -n'
+          env: ASTROPY_VERSION=development NUMPY_VERSION=1.7.1 SETUP_CMD='build_sphinx'
 
         # try alternate numpy versions with the latest stable astropy
         - python: 2.7
