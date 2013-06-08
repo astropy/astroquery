@@ -7,7 +7,7 @@ from astropy.table import Table
 __all__ = ['query','print_mols']
 
 
-url = "http://home.strw.leidenuniv.nl/~moldata/datafiles/{}.dat"
+url = "http://home.strw.leidenuniv.nl/~moldata/datafiles/{0}.dat"
 mols = {
     # Atoms
     'C': ['catom'],
@@ -57,7 +57,7 @@ def print_mols():
     Print molecule names available for query.
     """
     for mol_family in mols.keys():
-        print '-- {} :'.format(mol_family)
+        print '-- {0} :'.format(mol_family)
         print mols[mol_family], '\n'
 
 

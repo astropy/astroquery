@@ -79,7 +79,7 @@ def query(ra=None, dec=None, size=None, naifid=None, pid=None,
                'PID': pid,
                'REQKEY': reqkey,
                'VERB': verbosity,
-               'DATASET': 'ivo://irsa.ipac.spitzer.level{}'.format(dataset)}
+               'DATASET': 'ivo://irsa.ipac.spitzer.level{0}'.format(dataset)}
     # Make request
     response = requests.get(uri, params=payload)
     response.raise_for_status()
@@ -178,7 +178,7 @@ def get_file(url):
     if content_type == 'image/fits':
         obj = fits.open(iofile)
     else:
-        raise Exception('Unknown content type: {}.'.format(content_type))
+        raise Exception('Unknown content type: {0}.'.format(content_type))
     return obj
 
 
@@ -205,9 +205,9 @@ def _map_dtypes(type_names, field_widths):
         elif name == 'double':
             dtypes.append('f8')
         elif name == 'char':
-            dtypes.append('a{}'.format(field_widths[i]))
+            dtypes.append('a{0}'.format(field_widths[i]))
         else:
-            raise ValueError('Unexpected type name: {}.'.format(name))
+            raise ValueError('Unexpected type name: {0}.'.format(name))
     return dtypes
 
 
