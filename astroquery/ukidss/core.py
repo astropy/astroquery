@@ -70,7 +70,10 @@ def urlencode(d, encoding='ascii'):
     TODO: Change everything here to requests.
     Assumes all keys AND values of dict are strings or stringable!
     """
-    return urllib.urlencode({str(k).encode(encoding):str(d[k]).encode(encoding) for k in d})
+    # Keep for when we cut 2.6 support:
+    # d = {str(k).encode(encoding):str(d[k]).encode(encoding) for k in d}
+    d = dict([(str(k).encode(encoding),str(d[k]).encode(encoding)) for k in d])
+    return urllib.urlencode(d)
 
 class UKIDSSQuery(object):
     """

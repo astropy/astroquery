@@ -1,4 +1,4 @@
-from astroquery import sdss
+from ... import sdss
 
 # Test Case: A Seyfert 1 galaxy
 RA = '0h8m05.63s'
