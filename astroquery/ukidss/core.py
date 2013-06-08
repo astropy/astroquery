@@ -1,7 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from __future__ import print_function
 import urllib
-# not yet... import requests 
 try:
     import htmllib
     import urllib2
@@ -13,7 +12,7 @@ except ImportError:
 try:
     import cookielib
 except ImportError:
-    pass # python3 doesn't have it
+    pass  # python3 doesn't have it
 import formatter
 import gzip
 import os
@@ -50,7 +49,7 @@ url_getimages  = "http://surveys.roe.ac.uk:8080/wsa/ImageList"
 url_getcatalog = "http://surveys.roe.ac.uk:8080/wsa/WSASQL"
 
 frame_types = ['stack', 'normal', 'interleave', 'deep%stack', 'confidence',
-    'difference', 'leavstack', 'all']
+               'difference', 'leavstack', 'all']
 
 ukidss_programs_short = {'LAS': 101,
                          'GPS': 102,
@@ -64,13 +63,14 @@ ukidss_programs_long = {'Large Area Survey': 101,
                         'Deep Extragalactic Survey': 104,
                         'Ultra Deep Survey': 105}
 
+
 def urlencode(d, encoding='ascii'):
     """ 
     Hack: convert all entries of dictionary to ASCII for python-3 compatibility
     TODO: Change everything here to requests.
     Assumes all keys AND values of dict are strings or stringable!
     """
-    return {str(k).encode(encoding):str(d[k]).encode(encoding) for k in d}
+    return urllib.urlencode({str(k).encode(encoding):str(d[k]).encode(encoding) for k in d})
 
 class UKIDSSQuery(object):
     """
