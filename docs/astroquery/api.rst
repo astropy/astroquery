@@ -152,7 +152,7 @@ Directory Structure::
             return result
 
         @static_or_instance
-        def get_images_async(self, *args):
+        def get_images(self, *args):
             readable_objs = self.get_images_async(*args)
             return [fits.open(obj) for obj in readable_objs]
 
