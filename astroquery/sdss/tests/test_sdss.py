@@ -14,9 +14,3 @@ def test_sdss_image():
     
 def test_sdss_template():
     template = sdss.get_spectral_template('qso')
-    
-if __name__ == '__main__':
-    test_sdss_spectrum()
-    test_sdss_image()
-    test_sdss_template()
-    

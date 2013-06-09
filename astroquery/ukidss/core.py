@@ -65,7 +65,7 @@ ukidss_programs_long = {'Large Area Survey': 101,
 
 
 def urlencode(d, encoding='ascii'):
-    """ 
+    """
     Hack: convert all entries of dictionary to ASCII for python-3 compatibility
     TODO: Change everything here to requests.
     Assumes all keys AND values of dict are strings or stringable!
@@ -306,7 +306,7 @@ class UKIDSSQuery(object):
 
         self.request['database']    = self.database
         self.request['programmeID'] = verify_programme_id(self.programmeID,querytype='image')
-        self.request['userSelect'] = 'default'
+        self.request['userSelect']  = 'default'
 
         self.request['obsType']     = 'object'
         self.request['frameType']   = frametype
@@ -335,7 +335,7 @@ class UKIDSSQuery(object):
         self.request['fsid'] = ''
 
         self.request['rows'] = 1000
-        self.query_str = url_getimages +"?"+ urlencode(self.request)
+        self.query_str = url_getimages + "?" + urlencode(self.request)
 
         # Retrieve page
         page = self.opener.open(url_getimages, urlencode(self.request))
@@ -357,7 +357,8 @@ class UKIDSSQuery(object):
             if not os.path.exists(directory + '/' + frametype):
                 os.mkdir(directory + '/' + frametype)
 
-            if 'fits_download' in link and '_cat.fits' not in link and '_two.fit' not in link:
+            if ('fits_download' in link and '_cat.fits' not in link and
+                    '_two.fit' not in link):
 
                 # Get image filename
                 basename = os.path.basename(link.split("&")[0])
@@ -366,7 +367,8 @@ class UKIDSSQuery(object):
                 if verbose:
                     print("Downloading %s..." % basename)
                     p = mp.Process(
-                        target=progressbar.retrieve, args=(link, temp_file, self.opener))
+                        target=progressbar.retrieve,
+                        args=(link, temp_file, self.opener))
                 else:
                     p = mp.Process(
                         target=urllib.urlretrieve, args=(link, temp_file))
@@ -395,8 +397,8 @@ class UKIDSSQuery(object):
             Radius in which to search for catalog entries in arcminutes
         savename : string or None
             The file name to save the catalog to.  If unspecified, will save as
-            UKIDSS_catalog_G###.###-###.###_r###.fits.gz, where the #'s indicate
-            galactic lon/lat and radius
+            UKIDSS_catalog_G###.###-###.###_r###.fits.gz, where the #'s
+            indicate galactic lon/lat and radius
 
         Returns
         -------
