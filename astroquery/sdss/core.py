@@ -14,7 +14,7 @@ wrappers provided to download spectra and images using wget.
 
 import numpy as np
 import astropy.wcs as wcs
-import math
+import math, copy
 from astropy.io import fits
 from astropy import coordinates as coord
 import requests
@@ -45,8 +45,7 @@ template_prefix = 'http://www.sdss.org/dr5/algorithms/spectemplates/spDR2'
 
 sdss_arcsec_per_pixel = 0.396
 
-
-def crossID(ra, dec, unit=None, dr=2., fields=None):
+def crossID(ra, dec, unit=None, dr=2., fields=None, spectro=True):
     """
     Perform object cross-ID in SDSS using SQL.
 
@@ -66,8 +65,12 @@ def crossID(ra, dec, unit=None, dr=2., fields=None):
         SDSS PhotoObj or SpecObj quantities to return. If None, defaults
         to quantities required to find corresponding spectra and images
         of matched objects (e.g. plate, fiberID, mjd, etc.).
-
-    See documentation for astropy.coordinates.angles for more information
+    spectro : bool, optional
+        Look for spectroscopic match in addition to photometric match? If True,
+        objects will only count as a match if photometry *and* spectroscopy
+        exist. Setting spectro=False will look for photometric matches only.
+             
+    See documentation for astropy.coordinates.angles for more information 
     about ('ra', 'dec', 'unit') parameters.
 
     Examples
@@ -89,8 +92,10 @@ def crossID(ra, dec, unit=None, dr=2., fields=None):
         dec = coord.Dec(dec, unit=unit)
 
     if fields is None:
-        fields = photoobj_defs + specobj_defs
-
+        fields = copy.deepcopy(photoobj_defs)
+        if spectro:
+            fields += specobj_defs
+                    
     # Convert arcseconds to degrees
     dr /= 3600.
 
@@ -104,7 +109,10 @@ def crossID(ra, dec, unit=None, dr=2., fields=None):
     q_select += ' '
 
     q_from = 'FROM PhotoObjAll AS p '
-    q_join = 'JOIN SpecObjAll s ON p.objID = s.bestObjID '
+    if spectro:
+        q_join = 'JOIN SpecObjAll s ON p.objID = s.bestObjID '
+    else:
+        q_join = ''
     q_where = 'WHERE (p.ra between %g and %g) and (p.dec between %g and %g)' \
         % (ra.degree-dr, ra.degree+dr, dec.degree-dr, dec.degree+dr)
 
@@ -112,7 +120,6 @@ def crossID(ra, dec, unit=None, dr=2., fields=None):
     r = requests.get('http://cas.sdss.org/public/en/tools/search/x_sql.asp', params={'cmd': sql, 'format': 'csv'})
 
     return np.atleast_1d(np.genfromtxt(io.BytesIO(r.content), names=True, dtype=None, delimiter=','))
-
 
 def get_spectrum(crossID=None, plate=None, fiberID=None, mjd=None):
     """
