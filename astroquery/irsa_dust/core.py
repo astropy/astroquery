@@ -69,7 +69,7 @@ class QueryClass(object):
 class IrsaDust(QueryClass):
 
     def __init__(self, *args):
-        self.coordinate = ""
+        pass
 
     @class_or_instance
     def get_images(self, coordinate, radius=None, timeout=TIMEOUT, get_query_payload=False):
@@ -128,12 +128,12 @@ class IrsaDust(QueryClass):
 
         request_payload = self.args_to_payload(coordinate, radius=radius)
         try:
-            result = requests.post(DUST_SERVICE_URL, data=request_payload, timeout=timeout)
+            response = requests.post(DUST_SERVICE_URL, data=request_payload, timeout=timeout)
         except requests.exceptions.Timeout:
             raise TimeoutError("Query timed out, time elapsed {time}s".format(time=timeout))
         except requests.exceptions.RequestException:
             raise
-        image_urls = self.extract_image_urls(result.text, section=section)
+        image_urls = self.extract_image_urls(response.text, section=section)
         return [aud.get_readable_fileobj(U) for U in image_urls]
 
 
@@ -202,8 +202,7 @@ class IrsaDust(QueryClass):
                 raise ValueError("Radius (in any unit) must be in the"
                                  "range of 2.0 to 37.5 degrees")
             payload["regSize"] = reg_size
-            # also assign this to a coordinate attribute
-            self.coordinate = coordinate
+            
 
         return payload
 
@@ -216,7 +215,7 @@ class IrsaDust(QueryClass):
 
         # get the xml tree from the response
         xml_tree = utils.xml(raw_xml)
-        result = SingleDustResult(xml_tree, self.coordinate)
+        result = SingleDustResult(xml_tree)
 
         if section is None or "all":
             url_list = [result.image(sec) for sec in
@@ -234,7 +233,7 @@ class SingleDustResult(object):
     a detailed extinction table linked to in the initial response. Not intended
     to be instantiated by the end user.
     """
-    def __init__(self, xml_tree, query_loc):
+    def __init__(self, xml_tree, query_loc=None):
         """
         Parameters
         ----------
