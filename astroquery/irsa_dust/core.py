@@ -5,8 +5,7 @@ import requests
 from astropy.table import Table, Column
 import astropy.units as u
 from astropy.io import fits
-#from . import utils
-import utils
+from . import utils
 import astropy.utils.data as aud
 import astropy.coordinates as coord
 
