@@ -12,8 +12,6 @@ import astropy.coordinates as coord
 # TODO Add support for server url from JSON cache
 __all__ = ["IrsaDust"]
 
-DUST_SERVICE_URL = "http://irsa.ipac.caltech.edu/cgi-bin/DUST/nph-dust"
-
 EXT_DESC = "E(B-V) Reddening"
 EM_DESC = "100 Micron Emission"
 TEMP_DESC = "Dust Temperature"
@@ -34,7 +32,7 @@ MIN_VALUE = "minValue"
 
 DATA_IMAGE = "./data/image"
 DATA_TABLE = "./data/table"
-TIMEOUT = 30 # timeout in seconds
+
 
 # support for classmethod overloading
 
@@ -67,7 +65,10 @@ class QueryClass(object):
 
 # This is where the actual module starts
 class IrsaDust(QueryClass):
-
+    
+    DUST_SERVICE_URL = "http://irsa.ipac.caltech.edu/cgi-bin/DUST/nph-dust"
+    TIMEOUT = 30 # todo - make this configurable
+    
     def __init__(self, *args):
         pass
 
@@ -75,7 +76,7 @@ class IrsaDust(QueryClass):
     def get_images(self, coordinate, radius=None, timeout=TIMEOUT, get_query_payload=False):
         """
         gets the image object
-        returns list of astropy.io.fits.HDUList`s
+        returns list of `astropy.io.fits.HDUList`s
         """
 
         if get_query_payload:
@@ -105,9 +106,11 @@ class IrsaDust(QueryClass):
         try:
             response = requests.post(DUST_SERVICE_URL, data=request_payload, timeout=timeout)
         except requests.exceptions.Timeout:
-            raise TimeoutError("Query timed out, time elapsed {time}s".format(time=timeout))
-        except requests.exceptions.RequestException:
-            raise
+            raise TimeoutError("Query for location {loc} timed out, time elapsed {time}s".
+                               format(loc=coordinate, time=timeout))
+        except requests.exceptions.RequestException as ex:
+            raise Exception("Query for location {loc} failed\n".format(loc=coordinate) 
+                            + ex.message)
         return self.extract_image_urls(response.text)
 
     @class_or_instance
@@ -116,8 +119,8 @@ class IrsaDust(QueryClass):
         get only the images for one section - location/emission/reddening
         """
 
-        readable_objs = self.get_section_image_async(coordinate, radius=radius, timeout
-                                                     =timeout, section=section)
+        readable_objs = self.get_section_image_async(coordinate, radius=radius, 
+                                                     timeout=timeout, section=section)
         return [fits.open(obj.__enter__()) for obj in readable_objs]
 
     @class_or_instance
@@ -131,8 +134,9 @@ class IrsaDust(QueryClass):
             response = requests.post(DUST_SERVICE_URL, data=request_payload, timeout=timeout)
         except requests.exceptions.Timeout:
             raise TimeoutError("Query timed out, time elapsed {time}s".format(time=timeout))
-        except requests.exceptions.RequestException:
-            raise
+        except requests.exceptions.RequestException as ex:
+            raise Exception("Query for location {loc} failed\n".format(loc=coordinate) 
+                            + ex.message)
         image_urls = self.extract_image_urls(response.text, section=section)
         return [aud.get_readable_fileobj(U) for U in image_urls]
 
@@ -159,8 +163,9 @@ class IrsaDust(QueryClass):
             response = requests.post(DUST_SERVICE_URL, data=request_payload, timeout=timeout)
         except requests.exceptions.Timeout:
             raise TimeoutError("Query timed out, time elapsed {time}s".format(time=timeout))
-        except requests.exceptions.RequestException:
-            raise
+        except requests.exceptions.RequestException as ex:
+            raise Exception("Query for location {loc} failed\n".format(loc=coordinate) 
+                            + ex.message)
         xml_tree = utils.xml(response.text)
         result = SingleDustResult(xml_tree, coordinate)
         return aud.get_readable_fileobj(result.ext_detail_table())
@@ -176,8 +181,9 @@ class IrsaDust(QueryClass):
             response = requests.post(DUST_SERVICE_URL, data=request_payload, timeout=timeout)
         except requests.exceptions.Timeout:
             raise TimeoutError("Query timed out, time elapsed {time}s".format(time=timeout))
-        except requests.exceptions.RequestException:
-            raise
+        except requests.exceptions.RequestException as ex:
+            raise Exception("Query for location {loc} failed\n".format(loc=coordinate) 
+                            + ex.message)
         xml_tree = utils.xml(response.text)
         result = SingleDustResult(xml_tree, coordinate)
         return result.table(section=section)

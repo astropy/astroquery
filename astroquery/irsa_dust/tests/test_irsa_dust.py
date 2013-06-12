@@ -2,12 +2,15 @@
 import os
 import xml.etree.ElementTree as tree
 import astropy.units as u
+import py
 from ... import irsa_dust
 
 M31_XML = "dustm31.xml"
 M81_XML = "dustm81.xml"
 M101_XML = "dustm101.xml"
-
+ERR_XML = "dust-error.xml"
+EXT_TBL = "dust_ext_detail.tbl"
+ 
 class DustTestCase(object):
     def data(self, filename):
         data_dir = os.path.join(os.path.dirname(__file__), 'data')
@@ -31,18 +34,27 @@ class TestDust(DustTestCase):
         expected_units = u.format.Generic().parse("mJy/sr")
         actual_units = irsa_dust.utils.parse_units(string)
         assert expected_units == actual_units
+    
+    def test_xml_ok(self):
+        data = open(self.data(M31_XML), "r").read()
+        xml_tree = irsa_dust.utils.xml(data)
+        assert xml_tree != None
 
-    def test_get_xml(self):
+    def test_xml_err(self):
+        data = open(self.data(ERR_XML), "r").read()
+        py.test.raises(Exception, "irsa_dust.utils.xml(data)")
+        
+    def test_get_xml(self): #what does it test?
         data = self.data(M31_XML)
         xml_tree = tree.ElementTree().parse(data)
         assert xml_tree != None
 
-    def test_get_image(self):
+    def test_get_image(self):   #remove
         url = "file:" + self.data("test.fits")
         img = irsa_dust.utils.image(url)
         assert img != None
 
-    def test_get_ext_detail_table(self):
+    def test_get_ext_detail_table(self): #remove
         url = "file:" + self.data("dust_ext_detail.tbl")
         table = irsa_dust.utils.ext_detail_table(url)
         assert table != None
@@ -55,7 +67,7 @@ class TestDust(DustTestCase):
         node = irsa_dust.utils.find_result_node(desc, xml_tree)
         assert node != None
 
-    def test_dust_result_table(self):
+    def test_dust_result_table(self): #remove
         data = self.data(M31_XML)
         xml_tree = tree.ElementTree().parse(data)
         result = irsa_dust.SingleDustResult(xml_tree, "m31")
@@ -75,7 +87,7 @@ class TestDust(DustTestCase):
         table = results.table("temp")
         assert table != None
 
-    def test_append_results(self):
+    def test_append_results(self):#remove
         # Build first DustResults, length 1
         data = self.data(M31_XML)
         xml_tree = tree.ElementTree().parse(data)
@@ -105,7 +117,7 @@ class TestDust(DustTestCase):
         assert results_a.result_set[2].query_loc == "m101"
         assert results_a.table()[2]["Dec"] == float("54.348950")
 
-    def test_dust_result_image(self):
+    def test_dust_result_image(self):#remove
         data = self.data(M31_XML)
         xml_tree = tree.ElementTree().parse(data)
         self.set_ext_image_text("file:" + self.data("test.fits"), xml_tree)
@@ -115,7 +127,7 @@ class TestDust(DustTestCase):
         image = results.image("red", row=1)
         assert image != None
 
-    def test_dust_result_ext_detail_table(self):
+    def test_dust_result_ext_detail_table(self):#remove
         data = self.data(M31_XML)
         xml_tree = tree.ElementTree().parse(data)
         self.set_ext_table_text("file:" + self.data("dust_ext_detail.tbl"), xml_tree)
@@ -125,7 +137,7 @@ class TestDust(DustTestCase):
         ext_detail = results.ext_detail_table(row=1)
         assert ext_detail != None
 
-    def test_multi_row_tables(self):
+    def test_multi_row_tables(self):#remove
         data = self.data(M31_XML)
         xml_tree = tree.ElementTree().parse(data)
         result1 = irsa_dust.SingleDustResult(xml_tree, "m31")
@@ -149,7 +161,7 @@ class TestDust(DustTestCase):
         table = results.table("temp")
         assert table != None
 
-    def test_multi_query_images(self):
+    def test_multi_query_images(self):#remove
         data = self.data(M31_XML)
         xml_tree = tree.ElementTree().parse(data)
         result1 = irsa_dust.SingleDustResult(xml_tree, "m31")
@@ -170,7 +182,7 @@ class TestDust(DustTestCase):
             msg = str(e)
         assert msg != None
 
-    def test_multi_query_detail_tables(self):
+    def test_multi_query_detail_tables(self):#remove
         data = self.data(M31_XML)
         xml_tree = tree.ElementTree().parse(data)
         result1 = irsa_dust.SingleDustResult(xml_tree, "m31")
