@@ -5,7 +5,8 @@ import requests
 from astropy.table import Table, Column
 import astropy.units as u
 from astropy.io import fits
-from . import utils
+#from . import utils
+import utils
 import astropy.utils.data as aud
 import astropy.coordinates as coord
 
@@ -104,7 +105,7 @@ class IrsaDust(QueryClass):
 
         request_payload = self.args_to_payload(coordinate, radius=radius)
         try:
-            response = requests.post(DUST_SERVICE_URL, data=request_payload, timeout=timeout)
+            response = requests.post(IrsaDust.DUST_SERVICE_URL, data=request_payload, timeout=timeout)
         except requests.exceptions.Timeout:
             raise TimeoutError("Query for location {loc} timed out, time elapsed {time}s".
                                format(loc=coordinate, time=timeout))
@@ -114,31 +115,56 @@ class IrsaDust(QueryClass):
         return self.extract_image_urls(response.text)
 
     @class_or_instance
-    def get_section_image(self, coordinate, radius=None, timeout=TIMEOUT, section=None):
+    def get_ebv_image(self, coordinate, radius=None, timeout=TIMEOUT):
+        return self._get_section_image(coordinate, "r", radius=radius, timeout=timeout)
+    
+    @class_or_instance
+    def get_ebv_image_async(self, coordinate, radius=None, timeout=TIMEOUT):
+        return self._get_section_image_async(coordinate, "r", radius=radius, timeout=timeout)
+    
+    @class_or_instance
+    def get_100um_image(self, coordinate, radius=None, timeout=TIMEOUT):
+        return self._get_section_image(coordinate, "e", radius=radius, timeout=timeout)
+    
+    @class_or_instance
+    def get_100um_image_async(self, coordinate, radius=None, timeout=TIMEOUT):
+        return self._get_section_image_async(coordinate, "e", radius=radius, timeout=timeout)
+    
+    @class_or_instance
+    def get_extinction_image(self, coordinate, radius=None, timeout=TIMEOUT):
+        return self._get_section_image(coordinate, "t", radius=radius, timeout=timeout)
+    
+    @class_or_instance
+    def get_extinction_image_async(self, coordinate, radius=None, timeout=TIMEOUT):
+        return self._get_section_image_async(coordinate, "t", radius=radius, timeout=timeout)
+    
+    @class_or_instance
+    def _get_section_image(self, coordinate, section, radius=None, timeout=TIMEOUT):
         """
         get only the images for one section - location/emission/reddening
         """
 
-        readable_objs = self.get_section_image_async(coordinate, radius=radius, 
-                                                     timeout=timeout, section=section)
-        return [fits.open(obj.__enter__()) for obj in readable_objs]
+        readable_obj = self._get_section_image_async(coordinate, section, 
+                                                    radius=radius, timeout=timeout)
+        return fits.open(readable_obj.__enter__())
 
     @class_or_instance
-    def get_section_image_async(self, coordinate, radius=None, timeout=TIMEOUT, section=None):
+    def _get_section_image_async(self, coordinate, section, radius=None, timeout=TIMEOUT):
         """
-        get the handlers only for section image
+        get the handler only for the section image
         """
 
         request_payload = self.args_to_payload(coordinate, radius=radius)
         try:
-            response = requests.post(DUST_SERVICE_URL, data=request_payload, timeout=timeout)
+            response = requests.post(IrsaDust.DUST_SERVICE_URL, data=request_payload, timeout=timeout)
         except requests.exceptions.Timeout:
             raise TimeoutError("Query timed out, time elapsed {time}s".format(time=timeout))
         except requests.exceptions.RequestException as ex:
             raise Exception("Query for location {loc} failed\n".format(loc=coordinate) 
                             + ex.message)
         image_urls = self.extract_image_urls(response.text, section=section)
-        return [aud.get_readable_fileobj(U) for U in image_urls]
+        # list with a single element
+        return aud.get_readable_fileobj(image_urls[0])
 
 
 
@@ -160,7 +186,7 @@ class IrsaDust(QueryClass):
 
         request_payload = self.args_to_payload(coordinate, radius=radius)
         try:
-            response = requests.post(DUST_SERVICE_URL, data=request_payload, timeout=timeout)
+            response = requests.post(IrsaDust.DUST_SERVICE_URL, data=request_payload, timeout=timeout)
         except requests.exceptions.Timeout:
             raise TimeoutError("Query timed out, time elapsed {time}s".format(time=timeout))
         except requests.exceptions.RequestException as ex:
@@ -178,7 +204,7 @@ class IrsaDust(QueryClass):
 
         request_payload = self.args_to_payload(coordinate, radius=radius)
         try:
-            response = requests.post(DUST_SERVICE_URL, data=request_payload, timeout=timeout)
+            response = requests.post(IrsaDust.DUST_SERVICE_URL, data=request_payload, timeout=timeout)
         except requests.exceptions.Timeout:
             raise TimeoutError("Query timed out, time elapsed {time}s".format(time=timeout))
         except requests.exceptions.RequestException as ex:
@@ -206,7 +232,7 @@ class IrsaDust(QueryClass):
             # check if radius falls in the acceptable range
             if reg_size < 2 or reg_size > 37.5:
                 raise ValueError("Radius (in any unit) must be in the"
-                                 "range of 2.0 to 37.5 degrees")
+                                 " range of 2.0 to 37.5 degrees")
             payload["regSize"] = reg_size
             
 
@@ -223,7 +249,7 @@ class IrsaDust(QueryClass):
         xml_tree = utils.xml(raw_xml)
         result = SingleDustResult(xml_tree)
 
-        if section is None or "all":
+        if section is None or section == "all":
             url_list = [result.image(sec) for sec in
                         ['r', 'e', 't']]
         else:
