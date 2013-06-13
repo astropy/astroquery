@@ -97,14 +97,14 @@ class IrsaDust(QueryClass):
         return [aud.get_readable_fileobj(U) for U in image_urls]
 
     @class_or_instance
-    def get_image_list(self, coordinate, radius=None, timeout=TIMEOUT):
+    def get_image_list(self, coordinate, radius=None, timeout=TIMEOUT, url=DUST_SERVICE_URL):
         """
         Returns list of urls to FITS images
         """
 
         request_payload = self.args_to_payload(coordinate, radius=radius)
         try:
-            response = requests.post(IrsaDust.DUST_SERVICE_URL, data=request_payload, timeout=timeout)
+            response = requests.post(url, data=request_payload, timeout=timeout)
         except requests.exceptions.Timeout:
             raise TimeoutError("Query for location {loc} timed out, time elapsed {time}s".
                                format(loc=coordinate, time=timeout))
@@ -148,14 +148,14 @@ class IrsaDust(QueryClass):
         return fits.open(readable_obj.__enter__())
 
     @class_or_instance
-    def _get_section_image_async(self, coordinate, section, radius=None, timeout=TIMEOUT):
+    def _get_section_image_async(self, coordinate, section, radius=None, timeout=TIMEOUT, url=DUST_SERVICE_URL):
         """
         get the handler only for the section image
         """
 
         request_payload = self.args_to_payload(coordinate, radius=radius)
         try:
-            response = requests.post(IrsaDust.DUST_SERVICE_URL, data=request_payload, timeout=timeout)
+            response = requests.post(url, data=request_payload, timeout=timeout)
         except requests.exceptions.Timeout:
             raise TimeoutError("Query timed out, time elapsed {time}s".format(time=timeout))
         except requests.exceptions.RequestException as ex:
@@ -178,14 +178,14 @@ class IrsaDust(QueryClass):
         return table
 
     @class_or_instance
-    def get_extinction_table_async(self, coordinate, radius=None, timeout=TIMEOUT):
+    def get_extinction_table_async(self, coordinate, radius=None, timeout=TIMEOUT, url=DUST_SERVICE_URL):
         """
         get handler to extinction table
         """
 
         request_payload = self.args_to_payload(coordinate, radius=radius)
         try:
-            response = requests.post(IrsaDust.DUST_SERVICE_URL, data=request_payload, timeout=timeout)
+            response = requests.post(url, data=request_payload, timeout=timeout)
         except requests.exceptions.Timeout:
             raise TimeoutError("Query timed out, time elapsed {time}s".format(time=timeout))
         except requests.exceptions.RequestException as ex:
@@ -196,14 +196,14 @@ class IrsaDust(QueryClass):
         return aud.get_readable_fileobj(result.ext_detail_table())
 
     @class_or_instance
-    def get_query_table(self, coordinate, radius=None, section=None, timeout=TIMEOUT):
+    def get_query_table(self, coordinate, radius=None, section=None, timeout=TIMEOUT, url=DUST_SERVICE_URL):
         """
         get the xml response of query as astropy.Table
         """
 
         request_payload = self.args_to_payload(coordinate, radius=radius)
         try:
-            response = requests.post(IrsaDust.DUST_SERVICE_URL, data=request_payload, timeout=timeout)
+            response = requests.post(url, data=request_payload, timeout=timeout)
         except requests.exceptions.Timeout:
             raise TimeoutError("Query timed out, time elapsed {time}s".format(time=timeout))
         except requests.exceptions.RequestException as ex:

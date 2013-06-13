@@ -2,7 +2,7 @@
 import os
 import xml.etree.ElementTree as tree
 import astropy.units as u
-import py
+from astropy.tests.helper import pytest # import this since the user may not have pytest installed
 from ... import irsa_dust
 
 M31_XML = "dustm31.xml"
@@ -42,8 +42,131 @@ class TestDust(DustTestCase):
 
     def test_xml_err(self):
         data = open(self.data(ERR_XML), "r").read()
-        py.test.raises(Exception, "irsa_dust.utils.xml(data)")
+        with pytest.raises(Exception) as ex:
+            xml_tree = irsa_dust.utils.xml(data)
         
+    def test_args_to_payload_instance_1(self):
+        payload = irsa_dust.core.IrsaDust().args_to_payload("m81")
+        assert payload == dict(locstr="m81") 
+    
+    def test_args_to_payload_instance_2(self):
+        payload = irsa_dust.core.IrsaDust().args_to_payload("m81", radius = "5 degree")
+        assert payload == dict(locstr="m81", regSize=5.0)
+        with pytest.raises(Exception) as ex:
+            payload = irsa_dust.core.IrsaDust().args_to_payload("m81", radius = "5")
+        assert ex.value.args[0] == "Radius not specified with proper unit."
+        
+    def test_args_to_payload_instance_3(self):
+        errmsg = ("Radius (in any unit) must be in the"
+                  " range of 2.0 to 37.5 degrees")
+        with pytest.raises(ValueError) as ex:
+            payload = irsa_dust.core.IrsaDust().args_to_payload("m81", radius = "1 degree")
+        assert ex.value.args[0] == errmsg
+        with pytest.raises(ValueError) as ex:
+            payload = irsa_dust.core.IrsaDust().args_to_payload("m81", radius = "40 degree")
+        assert ex.value.args[0] == errmsg
+        
+    def test_args_to_payload_class_1(self):
+        payload = irsa_dust.core.IrsaDust.args_to_payload("m81")
+        assert payload == dict(locstr="m81") 
+        
+    def test_args_to_payload_class_2(self):
+        payload = irsa_dust.core.IrsaDust.args_to_payload("m81", radius = "5 degree")
+        assert payload == dict(locstr="m81", regSize=5.0)
+        with pytest.raises(Exception) as ex:
+            payload = irsa_dust.core.IrsaDust.args_to_payload("m81", radius = "5")
+        assert ex.value.args[0] == "Radius not specified with proper unit."
+        
+    def test_args_to_payload_class_3(self):
+        errmsg = ("Radius (in any unit) must be in the"
+                  " range of 2.0 to 37.5 degrees")
+        with pytest.raises(ValueError) as ex:
+            payload = irsa_dust.core.IrsaDust.args_to_payload("m81", radius = "1 degree")
+        assert ex.value.args[0] == errmsg
+        with pytest.raises(ValueError) as ex:
+            payload = irsa_dust.core.IrsaDust.args_to_payload("m81", radius = "40 degree")
+        assert ex.value.args[0] == errmsg
+    
+    def test_extract_image_urls_instance_all(self):
+        raw_xml = open(self.data(M31_XML), "r").read()
+        url_list = irsa_dust.core.IrsaDust().extract_image_urls(raw_xml)
+        assert url_list == [
+        'http://irsa.ipac.caltech.edu//workspace/TMP_0fVHXe_17371/DUST/m31.v0001/p338Dust.fits',
+        'http://irsa.ipac.caltech.edu//workspace/TMP_0fVHXe_17371/DUST/m31.v0001/p338i100.fits',
+        'http://irsa.ipac.caltech.edu//workspace/TMP_0fVHXe_17371/DUST/m31.v0001/p338temp.fits'
+        ]
+        
+    def test_extract_image_urls_instance_e(self):
+        raw_xml = open(self.data(M31_XML), "r").read()
+        for val in ['e', 'em', 'emission']:
+            url_list = irsa_dust.core.IrsaDust().extract_image_urls(raw_xml, section=val)
+            assert url_list == [
+            'http://irsa.ipac.caltech.edu//workspace/TMP_0fVHXe_17371/DUST/m31.v0001/p338i100.fits'
+            ]
+    
+    def test_extract_image_urls_instance_r(self):
+        raw_xml = open(self.data(M31_XML), "r").read()
+        for val in ['r', 'red', 'reddening']:
+            url_list = irsa_dust.core.IrsaDust().extract_image_urls(raw_xml, section=val)
+            assert url_list == [
+            'http://irsa.ipac.caltech.edu//workspace/TMP_0fVHXe_17371/DUST/m31.v0001/p338Dust.fits'
+            ]
+    
+    def test_extract_image_urls_instance_t(self):
+        raw_xml = open(self.data(M31_XML), "r").read()
+        for val in ['t', 'temp', 'temperature']:
+            url_list = irsa_dust.core.IrsaDust().extract_image_urls(raw_xml, section=val)
+            assert url_list == [
+            'http://irsa.ipac.caltech.edu//workspace/TMP_0fVHXe_17371/DUST/m31.v0001/p338temp.fits'
+            ]
+    
+    def test_extract_image_urls_instance__err(self):
+        raw_xml = open(self.data(M31_XML), "r").read()
+        with pytest.raises(ValueError):
+            irsa_dust.core.IrsaDust().extract_image_urls(raw_xml, section="l")
+            
+    def test_extract_image_urls_class_all(self):
+        raw_xml = open(self.data(M31_XML), "r").read()
+        url_list = irsa_dust.core.IrsaDust.extract_image_urls(raw_xml)
+        assert url_list == [
+        'http://irsa.ipac.caltech.edu//workspace/TMP_0fVHXe_17371/DUST/m31.v0001/p338Dust.fits',
+        'http://irsa.ipac.caltech.edu//workspace/TMP_0fVHXe_17371/DUST/m31.v0001/p338i100.fits',
+        'http://irsa.ipac.caltech.edu//workspace/TMP_0fVHXe_17371/DUST/m31.v0001/p338temp.fits'
+        ]
+        
+    def test_extract_image_urls_class_e(self):
+        raw_xml = open(self.data(M31_XML), "r").read()
+        for val in ['e', 'em', 'emission']:
+            url_list = irsa_dust.core.IrsaDust.extract_image_urls(raw_xml, section=val)
+            assert url_list == [
+            'http://irsa.ipac.caltech.edu//workspace/TMP_0fVHXe_17371/DUST/m31.v0001/p338i100.fits'
+            ]
+    
+    def test_extract_image_urls_class_r(self):
+        raw_xml = open(self.data(M31_XML), "r").read()
+        for val in ['r', 'red', 'reddening']:
+            url_list = irsa_dust.core.IrsaDust.extract_image_urls(raw_xml, section=val)
+            assert url_list == [
+            'http://irsa.ipac.caltech.edu//workspace/TMP_0fVHXe_17371/DUST/m31.v0001/p338Dust.fits'
+            ]
+    
+    def test_extract_image_urls_class_t(self):
+        raw_xml = open(self.data(M31_XML), "r").read()
+        for val in ['t', 'temp', 'temperature']:
+            url_list = irsa_dust.core.IrsaDust.extract_image_urls(raw_xml, section=val)
+            assert url_list == [
+            'http://irsa.ipac.caltech.edu//workspace/TMP_0fVHXe_17371/DUST/m31.v0001/p338temp.fits'
+            ]
+    
+    def test_extract_image_urls_class__err(self):
+        raw_xml = open(self.data(M31_XML), "r").read()
+        with pytest.raises(ValueError):
+            irsa_dust.core.IrsaDust.extract_image_urls(raw_xml, section="l")
+    
+    
+
+    
+    """
     def test_get_xml(self): #what does it test?
         data = self.data(M31_XML)
         xml_tree = tree.ElementTree().parse(data)
@@ -195,7 +318,7 @@ class TestDust(DustTestCase):
         results = irsa_dust.DustResults([result1, result2])
         table = results.ext_detail_table(2)
         assert table != None
-
+"""
     def set_ext_table_text(self, text, xml_tree):
         results_node = irsa_dust.utils.find_result_node("E(B-V) Reddening", xml_tree)
         table_node = results_node.find("./data/table")
