@@ -2,6 +2,7 @@
 import os
 import xml.etree.ElementTree as tree
 import astropy.units as u
+import astropy.utils.data as aud
 from astropy.tests.helper import pytest # import this since the user may not have pytest installed
 from ... import irsa_dust
 
@@ -162,9 +163,120 @@ class TestDust(DustTestCase):
         raw_xml = open(self.data(M31_XML), "r").read()
         with pytest.raises(ValueError):
             irsa_dust.core.IrsaDust.extract_image_urls(raw_xml, section="l")
-    
-    
 
+# tests using monkeypatching. TODO: Find how to apply a common patch to a group of functions    
+    def test_query_table_class_all(self, monkeypatch):
+        def mockreturn(url, data, timeout):
+            class MockResponse:
+                    text = open(self.data(M31_XML), "r").read()
+            return MockResponse
+        monkeypatch.setattr(irsa_dust.core, 'send_request', mockreturn)
+        qtable = irsa_dust.core.IrsaDust.get_query_table("m31")
+        assert len(qtable.colnames) == 35
+        qtable = irsa_dust.core.IrsaDust.get_query_table("m31", section="all")
+        assert len(qtable.colnames) == 35
+               
+    def test_query_table_class_e(self, monkeypatch):
+        def mockreturn(url, data, timeout):
+            class MockResponse:
+                    text = open(self.data(M31_XML), "r").read()
+            return MockResponse
+        monkeypatch.setattr(irsa_dust.core, 'send_request', mockreturn)
+        qtable = irsa_dust.core.IrsaDust.get_query_table("m31", section = "e")
+        assert len(qtable.colnames) == 10
+    
+    def test_query_table_class_l(self, monkeypatch):
+        def mockreturn(url, data, timeout):
+            class MockResponse:
+                    text = open(self.data(M31_XML), "r").read()
+            return MockResponse
+        monkeypatch.setattr(irsa_dust.core, 'send_request', mockreturn)
+        qtable = irsa_dust.core.IrsaDust.get_query_table("m31", section = "l")
+        assert len(qtable.colnames) == 4
+    
+    def test_query_table_class_r(self, monkeypatch):
+        def mockreturn(url, data, timeout):
+            class MockResponse:
+                    text = open(self.data(M31_XML), "r").read()
+            return MockResponse
+        monkeypatch.setattr(irsa_dust.core, 'send_request', mockreturn)
+        qtable = irsa_dust.core.IrsaDust.get_query_table("m31", section = "r")
+        assert len(qtable.colnames) == 11
+    
+    def test_query_table_class_t(self, monkeypatch):
+        def mockreturn(url, data, timeout):
+            class MockResponse:
+                    text = open(self.data(M31_XML), "r").read()
+            return MockResponse
+        monkeypatch.setattr(irsa_dust.core, 'send_request', mockreturn)
+        qtable = irsa_dust.core.IrsaDust.get_query_table("m31", section = "t")
+        assert len(qtable.colnames) == 10
+
+    def test_query_table_instance_all(self, monkeypatch):
+        def mockreturn(url, data, timeout):
+            class MockResponse:
+                    text = open(self.data(M31_XML), "r").read()
+            return MockResponse
+        monkeypatch.setattr(irsa_dust.core, 'send_request', mockreturn)
+        qtable = irsa_dust.core.IrsaDust().get_query_table("m31")
+        assert len(qtable.colnames) == 35
+        qtable = irsa_dust.core.IrsaDust().get_query_table("m31", section="all")
+        assert len(qtable.colnames) == 35
+               
+    def test_query_table_instance_e(self, monkeypatch):
+        def mockreturn(url, data, timeout):
+            class MockResponse:
+                    text = open(self.data(M31_XML), "r").read()
+            return MockResponse
+        monkeypatch.setattr(irsa_dust.core, 'send_request', mockreturn)
+        qtable = irsa_dust.core.IrsaDust().get_query_table("m31", section = "e")
+        assert len(qtable.colnames) == 10
+    
+    def test_query_table_instance_l(self, monkeypatch):
+        def mockreturn(url, data, timeout):
+            class MockResponse:
+                    text = open(self.data(M31_XML), "r").read()
+            return MockResponse
+        monkeypatch.setattr(irsa_dust.core, 'send_request', mockreturn)
+        qtable = irsa_dust.core.IrsaDust().get_query_table("m31", section = "l")
+        assert len(qtable.colnames) == 4
+    
+    def test_query_table_instance_r(self, monkeypatch):
+        def mockreturn(url, data, timeout):
+            class MockResponse:
+                    text = open(self.data(M31_XML), "r").read()
+            return MockResponse
+        monkeypatch.setattr(irsa_dust.core, 'send_request', mockreturn)
+        qtable = irsa_dust.core.IrsaDust().get_query_table("m31", section = "r")
+        assert len(qtable.colnames) == 11
+    
+    def test_query_table_instance_t(self, monkeypatch):
+        def mockreturn(url, data, timeout):
+            class MockResponse:
+                    text = open(self.data(M31_XML), "r").read()
+            return MockResponse
+        monkeypatch.setattr(irsa_dust.core, 'send_request', mockreturn)
+        qtable = irsa_dust.core.IrsaDust().get_query_table("m31", section = "t")
+        assert len(qtable.colnames) == 10
+    
+    def test_get_extinction_table_async_class(self, monkeypatch):
+        def mockreturn(url, data, timeout):
+            class MockResponse:
+                    text = open(self.data(M31_XML), "r").read()
+            return MockResponse
+        monkeypatch.setattr(irsa_dust.core, 'send_request', mockreturn)
+        readable_obj = irsa_dust.core.IrsaDust.get_extinction_table_async("m31")
+        assert readable_obj != None
+
+    def test_get_extinction_table_async_instance(self, monkeypatch):
+        def mockreturn(url, data, timeout):
+            class MockResponse:
+                    text = open(self.data(M31_XML), "r").read()
+            return MockResponse
+        monkeypatch.setattr(irsa_dust.core, 'send_request', mockreturn)
+        readable_obj = irsa_dust.core.IrsaDust().get_extinction_table_async("m31")
+        assert readable_obj != None
+    
     
     """
     def test_get_xml(self): #what does it test?

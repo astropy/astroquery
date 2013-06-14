@@ -173,7 +173,6 @@ class IrsaDust(QueryClass):
         """
         get the extinction table as astropy.Table
         """
-
         readable_obj = self.get_extinction_table_async(coordinate, radius=radius, timeout=timeout)
         table = Table.read(readable_obj.__enter__(), format='ipac')
         return table
