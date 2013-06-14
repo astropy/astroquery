@@ -348,7 +348,7 @@ class SingleDustResult(object):
         -------
             str: a one-letter code identifying the section.
         """
-        if section == None:
+        if section == None or section == "all":
             return "all"
         else:
             if section in ["location", "loc", "l"]:
