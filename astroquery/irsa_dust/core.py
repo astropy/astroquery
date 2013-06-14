@@ -62,6 +62,21 @@ class QueryClass(object):
 
     def __call__(self):
         raise Exception("All classes must override this!")
+    
+# wondering if we can abstract this out of the functions and put it here?
+def send_request(url, data, timeout):
+    """ 
+    accepts the url, datadict and timeout
+    returns the requests.Response object
+    """
+    try:
+        response = requests.post(url, data=data, timeout=timeout)
+        return response
+    except requests.exceptions.Timeout:
+            raise TimeoutError("Query timed out, time elapsed {time}s".
+                               format(time=timeout))
+    except requests.exceptions.RequestException as ex:
+            raise Exception("Query failed\n" + ex.message)
 
 # This is where the actual module starts
 class IrsaDust(QueryClass):
@@ -103,14 +118,7 @@ class IrsaDust(QueryClass):
         """
 
         request_payload = self.args_to_payload(coordinate, radius=radius)
-        try:
-            response = requests.post(url, data=request_payload, timeout=timeout)
-        except requests.exceptions.Timeout:
-            raise TimeoutError("Query for location {loc} timed out, time elapsed {time}s".
-                               format(loc=coordinate, time=timeout))
-        except requests.exceptions.RequestException as ex:
-            raise Exception("Query for location {loc} failed\n".format(loc=coordinate) 
-                            + ex.message)
+        response = send_request(url, request_payload, timeout)
         return self.extract_image_urls(response.text)
 
     @class_or_instance
@@ -152,15 +160,8 @@ class IrsaDust(QueryClass):
         """
         get the handler only for the section image
         """
-
         request_payload = self.args_to_payload(coordinate, radius=radius)
-        try:
-            response = requests.post(url, data=request_payload, timeout=timeout)
-        except requests.exceptions.Timeout:
-            raise TimeoutError("Query timed out, time elapsed {time}s".format(time=timeout))
-        except requests.exceptions.RequestException as ex:
-            raise Exception("Query for location {loc} failed\n".format(loc=coordinate) 
-                            + ex.message)
+        response = send_request(url, request_payload, timeout)
         image_urls = self.extract_image_urls(response.text, section=section)
         # list with a single element
         return aud.get_readable_fileobj(image_urls[0])
@@ -184,13 +185,7 @@ class IrsaDust(QueryClass):
         """
 
         request_payload = self.args_to_payload(coordinate, radius=radius)
-        try:
-            response = requests.post(url, data=request_payload, timeout=timeout)
-        except requests.exceptions.Timeout:
-            raise TimeoutError("Query timed out, time elapsed {time}s".format(time=timeout))
-        except requests.exceptions.RequestException as ex:
-            raise Exception("Query for location {loc} failed\n".format(loc=coordinate) 
-                            + ex.message)
+        response = send_request(url, request_payload, timeout)
         xml_tree = utils.xml(response.text)
         result = SingleDustResult(xml_tree, coordinate)
         return aud.get_readable_fileobj(result.ext_detail_table())
@@ -202,13 +197,7 @@ class IrsaDust(QueryClass):
         """
 
         request_payload = self.args_to_payload(coordinate, radius=radius)
-        try:
-            response = requests.post(url, data=request_payload, timeout=timeout)
-        except requests.exceptions.Timeout:
-            raise TimeoutError("Query timed out, time elapsed {time}s".format(time=timeout))
-        except requests.exceptions.RequestException as ex:
-            raise Exception("Query for location {loc} failed\n".format(loc=coordinate) 
-                            + ex.message)
+        response = send_request(url, request_payload, timeout)
         xml_tree = utils.xml(response.text)
         result = SingleDustResult(xml_tree, coordinate)
         return result.table(section=section)
