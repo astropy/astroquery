@@ -62,7 +62,7 @@ class QueryClass(object):
 
     def __call__(self):
         raise Exception("All classes must override this!")
-    
+# This is where the actual module starts
 # wondering if we can abstract this out of the functions and put it here?
 def send_request(url, data, timeout):
     """ 
@@ -78,7 +78,10 @@ def send_request(url, data, timeout):
     except requests.exceptions.RequestException as ex:
             raise Exception("Query failed\n" + ex.message)
 
-# This is where the actual module starts
+#put the parrallel_map outside the class? - not feasible if only class is being imported
+
+    
+
 class IrsaDust(QueryClass):
     
     DUST_SERVICE_URL = "http://irsa.ipac.caltech.edu/cgi-bin/DUST/nph-dust"
@@ -243,6 +246,21 @@ class IrsaDust(QueryClass):
             url_list = [result.image(section)]
 
         return url_list
+    
+    @class_or_instance
+    def parallel_map (self, query_function, coordinate, radius=[None], timeout=[TIMEOUT]):
+        """
+        Performs the various query functions on a list of objects
+        and returns a list of results
+        """
+        if not isinstance(coordinate,types.ListType):
+            raise TypeError("Argument #2 to parallel_map must be a list")
+        if len(coordinate) < len(radius) or len(coordinate) < len(timeout) :
+            raise ValueError("Argument #2 has insufficient number of items in list")
+        # pad all lists with defaults so they are of same length
+        radius.extend(([None]*len(coordinate))[len(radius):])
+        timeout.extend(([IrsaDust.TIMEOUT]*len(coordinate))[len(timeout):])
+        return [query_function(c, r, t) for c, r, t in zip(coordinate, radius, timeout)]
 
 class SingleDustResult(object):
     """
