@@ -11,6 +11,24 @@ M81_XML = "dustm81.xml"
 M101_XML = "dustm101.xml"
 ERR_XML = "dust-error.xml"
 EXT_TBL = "dust_ext_detail.tbl"
+
+M31_URL_ALL = [
+'http://irsa.ipac.caltech.edu//workspace/TMP_0fVHXe_17371/DUST/m31.v0001/p338Dust.fits',
+'http://irsa.ipac.caltech.edu//workspace/TMP_0fVHXe_17371/DUST/m31.v0001/p338i100.fits',
+'http://irsa.ipac.caltech.edu//workspace/TMP_0fVHXe_17371/DUST/m31.v0001/p338temp.fits'
+]
+
+M31_URL_E = [
+'http://irsa.ipac.caltech.edu//workspace/TMP_0fVHXe_17371/DUST/m31.v0001/p338i100.fits'      
+]
+
+M31_URL_R = [
+'http://irsa.ipac.caltech.edu//workspace/TMP_0fVHXe_17371/DUST/m31.v0001/p338Dust.fits'
+]
+
+M31_URL_T = [
+'http://irsa.ipac.caltech.edu//workspace/TMP_0fVHXe_17371/DUST/m31.v0001/p338temp.fits'            
+]
  
 class DustTestCase(object):
     def data(self, filename):
@@ -45,219 +63,128 @@ class TestDust(DustTestCase):
         data = open(self.data(ERR_XML), "r").read()
         with pytest.raises(Exception) as ex:
             xml_tree = irsa_dust.utils.xml(data)
-        
-    def test_args_to_payload_instance_1(self):
-        payload = irsa_dust.core.IrsaDust().args_to_payload("m81")
-        assert payload == dict(locstr="m81") 
-    
+            
+#TODO : Add more examples. Add for "1 degree"-like parameters            
+    @pytest.mark.parametrize(('coordinate', 'radius', 'expected_payload'), [
+("m81", None, dict(locstr="m81")), 
+("m31", "5d", dict(locstr="m31", regSize=5.0))
+])
+    def test_args_to_payload_instance_1(self, coordinate, radius, expected_payload): 
+        payload = irsa_dust.core.IrsaDust().args_to_payload(coordinate, radius=radius)  
+        assert payload == expected_payload
+           
     def test_args_to_payload_instance_2(self):
-        payload = irsa_dust.core.IrsaDust().args_to_payload("m81", radius = "5 degree")
-        assert payload == dict(locstr="m81", regSize=5.0)
         with pytest.raises(Exception) as ex:
             payload = irsa_dust.core.IrsaDust().args_to_payload("m81", radius = "5")
         assert ex.value.args[0] == "Radius not specified with proper unit."
-        
-    def test_args_to_payload_instance_3(self):
+    
+    @pytest.mark.parametrize(('radius'), ['1d', '40d'])    
+    def test_args_to_payload_instance_3(self, radius):
         errmsg = ("Radius (in any unit) must be in the"
                   " range of 2.0 to 37.5 degrees")
         with pytest.raises(ValueError) as ex:
-            payload = irsa_dust.core.IrsaDust().args_to_payload("m81", radius = "1 degree")
+            payload = irsa_dust.core.IrsaDust().args_to_payload("m81", radius=radius)
         assert ex.value.args[0] == errmsg
-        with pytest.raises(ValueError) as ex:
-            payload = irsa_dust.core.IrsaDust().args_to_payload("m81", radius = "40 degree")
-        assert ex.value.args[0] == errmsg
-        
-    def test_args_to_payload_class_1(self):
-        payload = irsa_dust.core.IrsaDust.args_to_payload("m81")
-        assert payload == dict(locstr="m81") 
-        
+    
+    @pytest.mark.parametrize(('coordinate', 'radius', 'expected_payload'), [
+("m81", None, dict(locstr="m81")), 
+("m31", "5d", dict(locstr="m31", regSize=5.0))
+])
+    def test_args_to_payload_class_1(self, coordinate, radius, expected_payload): 
+        payload = irsa_dust.core.IrsaDust.args_to_payload(coordinate, radius=radius)  
+        assert payload == expected_payload
+           
     def test_args_to_payload_class_2(self):
-        payload = irsa_dust.core.IrsaDust.args_to_payload("m81", radius = "5 degree")
-        assert payload == dict(locstr="m81", regSize=5.0)
         with pytest.raises(Exception) as ex:
             payload = irsa_dust.core.IrsaDust.args_to_payload("m81", radius = "5")
         assert ex.value.args[0] == "Radius not specified with proper unit."
-        
-    def test_args_to_payload_class_3(self):
+    
+    @pytest.mark.parametrize(('radius'), ['1d', '40d'])    
+    def test_args_to_payload_class_3(self, radius):
         errmsg = ("Radius (in any unit) must be in the"
                   " range of 2.0 to 37.5 degrees")
         with pytest.raises(ValueError) as ex:
-            payload = irsa_dust.core.IrsaDust.args_to_payload("m81", radius = "1 degree")
-        assert ex.value.args[0] == errmsg
-        with pytest.raises(ValueError) as ex:
-            payload = irsa_dust.core.IrsaDust.args_to_payload("m81", radius = "40 degree")
+            payload = irsa_dust.core.IrsaDust.args_to_payload("m81", radius=radius)
         assert ex.value.args[0] == errmsg
     
-    def test_extract_image_urls_instance_all(self):
+    @pytest.mark.parametrize(('section', 'expected_urls'), [
+(None, M31_URL_ALL),                                                        
+('e', M31_URL_E),
+('em', M31_URL_E),
+('emission', M31_URL_E),
+('r', M31_URL_R),
+('red', M31_URL_R),
+('reddening', M31_URL_R),
+('t', M31_URL_T),
+('temp', M31_URL_T),
+('temperature', M31_URL_T)        
+])  
+    def test_extract_image_urls_instance(self, section, expected_urls):
         raw_xml = open(self.data(M31_XML), "r").read()
-        url_list = irsa_dust.core.IrsaDust().extract_image_urls(raw_xml)
-        assert url_list == [
-        'http://irsa.ipac.caltech.edu//workspace/TMP_0fVHXe_17371/DUST/m31.v0001/p338Dust.fits',
-        'http://irsa.ipac.caltech.edu//workspace/TMP_0fVHXe_17371/DUST/m31.v0001/p338i100.fits',
-        'http://irsa.ipac.caltech.edu//workspace/TMP_0fVHXe_17371/DUST/m31.v0001/p338temp.fits'
-        ]
+        url_list = irsa_dust.core.IrsaDust().extract_image_urls(raw_xml, section=section)
+        assert url_list == expected_urls
         
-    def test_extract_image_urls_instance_e(self):
-        raw_xml = open(self.data(M31_XML), "r").read()
-        for val in ['e', 'em', 'emission']:
-            url_list = irsa_dust.core.IrsaDust().extract_image_urls(raw_xml, section=val)
-            assert url_list == [
-            'http://irsa.ipac.caltech.edu//workspace/TMP_0fVHXe_17371/DUST/m31.v0001/p338i100.fits'
-            ]
-    
-    def test_extract_image_urls_instance_r(self):
-        raw_xml = open(self.data(M31_XML), "r").read()
-        for val in ['r', 'red', 'reddening']:
-            url_list = irsa_dust.core.IrsaDust().extract_image_urls(raw_xml, section=val)
-            assert url_list == [
-            'http://irsa.ipac.caltech.edu//workspace/TMP_0fVHXe_17371/DUST/m31.v0001/p338Dust.fits'
-            ]
-    
-    def test_extract_image_urls_instance_t(self):
-        raw_xml = open(self.data(M31_XML), "r").read()
-        for val in ['t', 'temp', 'temperature']:
-            url_list = irsa_dust.core.IrsaDust().extract_image_urls(raw_xml, section=val)
-            assert url_list == [
-            'http://irsa.ipac.caltech.edu//workspace/TMP_0fVHXe_17371/DUST/m31.v0001/p338temp.fits'
-            ]
-    
     def test_extract_image_urls_instance__err(self):
         raw_xml = open(self.data(M31_XML), "r").read()
         with pytest.raises(ValueError):
             irsa_dust.core.IrsaDust().extract_image_urls(raw_xml, section="l")
             
-    def test_extract_image_urls_class_all(self):
+    @pytest.mark.parametrize(('section', 'expected_urls'), [
+(None, M31_URL_ALL),                                                        
+('e', M31_URL_E),
+('em', M31_URL_E),
+('emission', M31_URL_E),
+('r', M31_URL_R),
+('red', M31_URL_R),
+('reddening', M31_URL_R),
+('t', M31_URL_T),
+('temp', M31_URL_T),
+('temperature', M31_URL_T)        
+])  
+    def test_extract_image_urls_class(self, section, expected_urls):
         raw_xml = open(self.data(M31_XML), "r").read()
-        url_list = irsa_dust.core.IrsaDust.extract_image_urls(raw_xml)
-        assert url_list == [
-        'http://irsa.ipac.caltech.edu//workspace/TMP_0fVHXe_17371/DUST/m31.v0001/p338Dust.fits',
-        'http://irsa.ipac.caltech.edu//workspace/TMP_0fVHXe_17371/DUST/m31.v0001/p338i100.fits',
-        'http://irsa.ipac.caltech.edu//workspace/TMP_0fVHXe_17371/DUST/m31.v0001/p338temp.fits'
-        ]
-        
-    def test_extract_image_urls_class_e(self):
-        raw_xml = open(self.data(M31_XML), "r").read()
-        for val in ['e', 'em', 'emission']:
-            url_list = irsa_dust.core.IrsaDust.extract_image_urls(raw_xml, section=val)
-            assert url_list == [
-            'http://irsa.ipac.caltech.edu//workspace/TMP_0fVHXe_17371/DUST/m31.v0001/p338i100.fits'
-            ]
-    
-    def test_extract_image_urls_class_r(self):
-        raw_xml = open(self.data(M31_XML), "r").read()
-        for val in ['r', 'red', 'reddening']:
-            url_list = irsa_dust.core.IrsaDust.extract_image_urls(raw_xml, section=val)
-            assert url_list == [
-            'http://irsa.ipac.caltech.edu//workspace/TMP_0fVHXe_17371/DUST/m31.v0001/p338Dust.fits'
-            ]
-    
-    def test_extract_image_urls_class_t(self):
-        raw_xml = open(self.data(M31_XML), "r").read()
-        for val in ['t', 'temp', 'temperature']:
-            url_list = irsa_dust.core.IrsaDust.extract_image_urls(raw_xml, section=val)
-            assert url_list == [
-            'http://irsa.ipac.caltech.edu//workspace/TMP_0fVHXe_17371/DUST/m31.v0001/p338temp.fits'
-            ]
+        url_list = irsa_dust.core.IrsaDust.extract_image_urls(raw_xml, section=section)
+        assert url_list == expected_urls
     
     def test_extract_image_urls_class__err(self):
         raw_xml = open(self.data(M31_XML), "r").read()
         with pytest.raises(ValueError):
             irsa_dust.core.IrsaDust.extract_image_urls(raw_xml, section="l")
 
-# tests using monkeypatching. TODO: Find how to apply a common patch to a group of functions    
-    def test_query_table_class_all(self, monkeypatch):
+# tests using monkeypatching. TODO: Find how to apply a common patch to a group of functions
+    @pytest.mark.parametrize(('section', 'expected_length'), [
+(None, 35),
+('all', 35),                                                              
+('e', 10),
+('l', 4),
+('r', 11),
+('t', 10)                                                             
+])  
+    def test_query_table_class(self, monkeypatch, section, expected_length):
         def mockreturn(url, data, timeout):
             class MockResponse:
                     text = open(self.data(M31_XML), "r").read()
             return MockResponse
         monkeypatch.setattr(irsa_dust.core, 'send_request', mockreturn)
-        qtable = irsa_dust.core.IrsaDust.get_query_table("m31")
-        assert len(qtable.colnames) == 35
-        qtable = irsa_dust.core.IrsaDust.get_query_table("m31", section="all")
-        assert len(qtable.colnames) == 35
-               
-    def test_query_table_class_e(self, monkeypatch):
-        def mockreturn(url, data, timeout):
-            class MockResponse:
-                    text = open(self.data(M31_XML), "r").read()
-            return MockResponse
-        monkeypatch.setattr(irsa_dust.core, 'send_request', mockreturn)
-        qtable = irsa_dust.core.IrsaDust.get_query_table("m31", section = "e")
-        assert len(qtable.colnames) == 10
-    
-    def test_query_table_class_l(self, monkeypatch):
-        def mockreturn(url, data, timeout):
-            class MockResponse:
-                    text = open(self.data(M31_XML), "r").read()
-            return MockResponse
-        monkeypatch.setattr(irsa_dust.core, 'send_request', mockreturn)
-        qtable = irsa_dust.core.IrsaDust.get_query_table("m31", section = "l")
-        assert len(qtable.colnames) == 4
-    
-    def test_query_table_class_r(self, monkeypatch):
-        def mockreturn(url, data, timeout):
-            class MockResponse:
-                    text = open(self.data(M31_XML), "r").read()
-            return MockResponse
-        monkeypatch.setattr(irsa_dust.core, 'send_request', mockreturn)
-        qtable = irsa_dust.core.IrsaDust.get_query_table("m31", section = "r")
-        assert len(qtable.colnames) == 11
-    
-    def test_query_table_class_t(self, monkeypatch):
-        def mockreturn(url, data, timeout):
-            class MockResponse:
-                    text = open(self.data(M31_XML), "r").read()
-            return MockResponse
-        monkeypatch.setattr(irsa_dust.core, 'send_request', mockreturn)
-        qtable = irsa_dust.core.IrsaDust.get_query_table("m31", section = "t")
-        assert len(qtable.colnames) == 10
+        qtable = irsa_dust.core.IrsaDust.get_query_table("m31", section=section)
+        assert len(qtable.colnames) == expected_length
 
-    def test_query_table_instance_all(self, monkeypatch):
+    @pytest.mark.parametrize(('section', 'expected_length'), [
+(None, 35),
+('all', 35),                                                              
+('e', 10),
+('l', 4),
+('r', 11),
+('t', 10)                                                             
+])  
+    def test_query_table_instance(self, monkeypatch, section, expected_length):
         def mockreturn(url, data, timeout):
             class MockResponse:
                     text = open(self.data(M31_XML), "r").read()
             return MockResponse
         monkeypatch.setattr(irsa_dust.core, 'send_request', mockreturn)
-        qtable = irsa_dust.core.IrsaDust().get_query_table("m31")
-        assert len(qtable.colnames) == 35
-        qtable = irsa_dust.core.IrsaDust().get_query_table("m31", section="all")
-        assert len(qtable.colnames) == 35
-               
-    def test_query_table_instance_e(self, monkeypatch):
-        def mockreturn(url, data, timeout):
-            class MockResponse:
-                    text = open(self.data(M31_XML), "r").read()
-            return MockResponse
-        monkeypatch.setattr(irsa_dust.core, 'send_request', mockreturn)
-        qtable = irsa_dust.core.IrsaDust().get_query_table("m31", section = "e")
-        assert len(qtable.colnames) == 10
-    
-    def test_query_table_instance_l(self, monkeypatch):
-        def mockreturn(url, data, timeout):
-            class MockResponse:
-                    text = open(self.data(M31_XML), "r").read()
-            return MockResponse
-        monkeypatch.setattr(irsa_dust.core, 'send_request', mockreturn)
-        qtable = irsa_dust.core.IrsaDust().get_query_table("m31", section = "l")
-        assert len(qtable.colnames) == 4
-    
-    def test_query_table_instance_r(self, monkeypatch):
-        def mockreturn(url, data, timeout):
-            class MockResponse:
-                    text = open(self.data(M31_XML), "r").read()
-            return MockResponse
-        monkeypatch.setattr(irsa_dust.core, 'send_request', mockreturn)
-        qtable = irsa_dust.core.IrsaDust().get_query_table("m31", section = "r")
-        assert len(qtable.colnames) == 11
-    
-    def test_query_table_instance_t(self, monkeypatch):
-        def mockreturn(url, data, timeout):
-            class MockResponse:
-                    text = open(self.data(M31_XML), "r").read()
-            return MockResponse
-        monkeypatch.setattr(irsa_dust.core, 'send_request', mockreturn)
-        qtable = irsa_dust.core.IrsaDust().get_query_table("m31", section = "t")
-        assert len(qtable.colnames) == 10
+        qtable = irsa_dust.core.IrsaDust.get_query_table("m31", section=section)
+        assert len(qtable.colnames) == expected_length
     
     def test_get_extinction_table_async_class(self, monkeypatch):
         def mockreturn(url, data, timeout):
