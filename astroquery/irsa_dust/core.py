@@ -75,9 +75,9 @@ def send_request(url, data, timeout):
     except requests.exceptions.Timeout:
             raise TimeoutError("Query timed out, time elapsed {time}s".
                                format(time=timeout))
-    except requests.exceptions.RequestException as ex:
-            raise Exception("Query failed\n" + ex.message)
-
+    except requests.exceptions.RequestException:
+            raise Exception("Query failed\n")
+#ex.message doesn't work if no n/w 
 #put the parrallel_map outside the class? - not feasible if only class is being imported
 
     
@@ -255,7 +255,11 @@ class IrsaDust(QueryClass):
         """
         if not isinstance(coordinate,types.ListType):
             raise TypeError("Argument #2 to parallel_map must be a list")
-        if len(coordinate) < len(radius) or len(coordinate) < len(timeout) :
+        if not isinstance(radius, types.ListType):
+            radius = [radius]
+        if not isinstance(timeout, types.ListType):
+            timeout = [timeout]
+        if len(coordinate) < len(radius) or len(coordinate) < len(timeout):
             raise ValueError("Argument #2 has insufficient number of items in list")
         # pad all lists with defaults so they are of same length
         radius.extend(([None]*len(coordinate))[len(radius):])
