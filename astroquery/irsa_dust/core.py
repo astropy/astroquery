@@ -65,9 +65,23 @@ class QueryClass(object):
 # This is where the actual module starts
 # wondering if we can abstract this out of the functions and put it here?
 def send_request(url, data, timeout):
-    """ 
-    accepts the url, datadict and timeout
-    returns the requests.Response object
+    """
+    A utility function that post HTTP requests to remote server
+    and returns the HTTP response. 
+    
+    Parameters
+    ----------
+    url : str
+        The URL of the remote server
+    data : dict
+        A dictionary representing the payload to be posted via the HTTP request
+    timeout : int
+        Time limit for establishing successful connection with remote server
+    
+    Returns
+    -------
+    response : `requests.Response`
+        Response object returned by the remote server
     """
     try:
         response = requests.post(url, data=data, timeout=timeout)
@@ -93,8 +107,41 @@ class IrsaDust(QueryClass):
     @class_or_instance
     def get_images(self, coordinate, radius=None, timeout=TIMEOUT, get_query_payload=False):
         """
-        gets the image object
-        returns list of `astropy.io.fits.HDUList`s
+        A query function that performs a coordinate-based query to acquire Irsa-Dust images
+        
+        Parameters
+        ----------
+        coordinate : str
+            Can be either the name of an object or a coordinate string
+            If a name, must be resolveable by NED, SIMBAD, 2MASS, or SWAS.
+            Examples of acceptable coordinate strings, can be found here:
+            http://irsa.ipac.caltech.edu/applications/DUST/docs/coordinate.html
+        radius : str, optional
+            The size of the region to include in the dust query, in radian, degree
+            or hour as per format specified by `astropy.coordinates.Angle. Defaults 
+            to 5 degrees.
+        timeout : int, optional
+            Time limit for establishing successful connection with remote server.
+            Defaults to `astroquery.irsa_dust.IrsaDust.TIMEOUT`
+        get_query_payload : bool, optional
+            If true than returns the dictionary of query parameters, posted to
+            remote server. Defaults to `False`
+        
+        Returns
+        -------
+        A list of `astropy.fits.HDUList` objects  
+        
+        Examples
+        ---------
+        Query an object by name with default radius and get a list of
+        astropy.fits.HDUList objects.
+        >>> fits_objects = IrsaDust.get_images('m81')
+        
+        Query an object specifying the coordinates and the radius
+        >>> fits_objects = IrsaDust.get_images('266.12 -61.89 equ j2000', radius='7.5 deg')
+        
+        Only return the dictionary formed from the query parameters
+        >>> query_payload = get_images('34.5565 54.2321 gal', radius='0.13 rad')  
         """
 
         if get_query_payload:
@@ -106,7 +153,31 @@ class IrsaDust(QueryClass):
     @class_or_instance
     def get_images_async(self, coordinate, radius=None, timeout=TIMEOUT, get_query_payload=False):
         """
-        gets the handler but doesn't download the image object
+        A query function similar to `astroquery.irsa_dust.IrsaDust.get_images` but 
+        returns file-handlers to the remote files rather than downloading them. Useful  
+        for asynchronous queries so that the actual download may be performed later.
+        
+        Parameters
+        ----------
+        coordinate : str
+            Can be either the name of an object or a coordinate string
+            If a name, must be resolveable by NED, SIMBAD, 2MASS, or SWAS.
+            Examples of acceptable coordinate strings, can be found here:
+            http://irsa.ipac.caltech.edu/applications/DUST/docs/coordinate.html
+        radius : str, optional
+            The size of the region to include in the dust query, in radian, degree
+            or hour as per format specified by `astropy.coordinates.Angle. Defaults 
+            to 5 degrees.
+        timeout : int, optional
+            Time limit for establishing successful connection with remote server.
+            Defaults to `astroquery.irsa_dust.IrsaDust.TIMEOUT`
+        get_query_payload : bool, optional
+            If true than returns the dictionary of query parameters, posted to
+            remote server. Defaults to `False`
+        
+        Returns
+        --------
+        A list of context-managers that yield readable file-like objects     
         """
 
         if get_query_payload:
@@ -117,43 +188,234 @@ class IrsaDust(QueryClass):
     @class_or_instance
     def get_image_list(self, coordinate, radius=None, timeout=TIMEOUT, url=DUST_SERVICE_URL):
         """
-        Returns list of urls to FITS images
+        Query function that performes coordinate-based query and returns a list of
+        URLs to the Irsa-Dust images
+        
+        Parameters
+        -----------
+        coordinate : str
+            Can be either the name of an object or a coordinate string
+            If a name, must be resolveable by NED, SIMBAD, 2MASS, or SWAS.
+            Examples of acceptable coordinate strings, can be found here:
+            http://irsa.ipac.caltech.edu/applications/DUST/docs/coordinate.html
+        radius : str, optional
+            The size of the region to include in the dust query, in radian, degree
+            or hour as per format specified by `astropy.coordinates.Angle. Defaults 
+            to 5 degrees.
+        timeout : int, optional
+            Time limit for establishing successful connection with remote server.
+            Defaults to `astroquery.irsa_dust.IrsaDust.TIMEOUT`
+        get_query_payload : bool
+            If true than returns the dictionary of query parameters, posted to
+            remote server. Defaults to `False`
+        url : str, optional
+            Only provided for debugging. Should generally not be assigned.
+            Defaults to `astroquery.irsa_dust.IrsaDust.DUST_SERVICE_URL`
+        
+        Returns
+        --------
+        A list of URLs to the FITS images corresponding to the queried object
         """
-
         request_payload = self.args_to_payload(coordinate, radius=radius)
         response = send_request(url, request_payload, timeout)
         return self.extract_image_urls(response.text)
 
     @class_or_instance
     def get_ebv_image(self, coordinate, radius=None, timeout=TIMEOUT):
+        """
+        Query function similar to `astroquery.irsa_dust.IrsaDust.get_images` but
+        returns only the image corresponding to E(B-V) Reddening result set, rather
+        than the images from all the result sets.
+        
+        Parameters
+        ----------
+        coordinate : str
+            Can be either the name of an object or a coordinate string
+            If a name, must be resolveable by NED, SIMBAD, 2MASS, or SWAS.
+            Examples of acceptable coordinate strings, can be found here:
+            http://irsa.ipac.caltech.edu/applications/DUST/docs/coordinate.html
+        radius : str, optional
+            The size of the region to include in the dust query, in radian, degree
+            or hour as per format specified by `astropy.coordinates.Angle. Defaults 
+            to 5 degrees.
+        timeout : int, optional
+            Time limit for establishing successful connection with remote server.
+            Defaults to `astroquery.irsa_dust.IrsaDust.TIMEOUT`
+        
+        Returns
+        --------
+        `astropy.fits.HDUList` object
+        """
         return self._get_section_image(coordinate, "r", radius=radius, timeout=timeout)
     
     @class_or_instance
     def get_ebv_image_async(self, coordinate, radius=None, timeout=TIMEOUT):
+        """
+        Query function similar to `astroquery.irsa_dust.IrsaDust.get_images_async` but
+        returns only the file-handler corresponding to the image in the E(B-V) Reddening 
+        result set, rather than to images from all the result sets.
+        
+        Parameters
+        ----------
+        coordinate : str
+            Can be either the name of an object or a coordinate string
+            If a name, must be resolveable by NED, SIMBAD, 2MASS, or SWAS.
+            Examples of acceptable coordinate strings, can be found here:
+            http://irsa.ipac.caltech.edu/applications/DUST/docs/coordinate.html
+        radius : str, optional
+            The size of the region to include in the dust query, in radian, degree
+            or hour as per format specified by `astropy.coordinates.Angle. Defaults 
+            to 5 degrees.
+        timeout : int, optional
+            Time limit for establishing successful connection with remote server.
+            Defaults to `astroquery.irsa_dust.IrsaDust.TIMEOUT`
+        
+        Returns
+        --------
+        A context manager that yields a readable file like object
+        """
         return self._get_section_image_async(coordinate, "r", radius=radius, timeout=timeout)
     
     @class_or_instance
     def get_100um_image(self, coordinate, radius=None, timeout=TIMEOUT):
+        """
+        Query function similar to `astroquery.irsa_dust.IrsaDust.get_images` but
+        returns only the image corresponding to the 100 Micron emission result set, 
+        rather than the images from all the result sets.
+        
+        Parameters
+        ----------
+        coordinate : str
+            Can be either the name of an object or a coordinate string
+            If a name, must be resolveable by NED, SIMBAD, 2MASS, or SWAS.
+            Examples of acceptable coordinate strings, can be found here:
+            http://irsa.ipac.caltech.edu/applications/DUST/docs/coordinate.html
+        radius : str, optional
+            The size of the region to include in the dust query, in radian, degree
+            or hour as per format specified by `astropy.coordinates.Angle. Defaults 
+            to 5 degrees.
+        timeout : int, optional
+            Time limit for establishing successful connection with remote server.
+            Defaults to `astroquery.irsa_dust.IrsaDust.TIMEOUT`
+        
+        Returns
+        --------
+        `astropy.fits.HDUList` object
+        """
         return self._get_section_image(coordinate, "e", radius=radius, timeout=timeout)
     
     @class_or_instance
     def get_100um_image_async(self, coordinate, radius=None, timeout=TIMEOUT):
+        """
+        Query function similar to `astroquery.irsa_dust.IrsaDust.get_images_async` but
+        returns only the file-handler corresponding to the image in the 100 Micron 
+        emission result set, rather than to images from all the result sets.
+        
+        Parameters
+        ----------
+        coordinate : str
+            Can be either the name of an object or a coordinate string
+            If a name, must be resolveable by NED, SIMBAD, 2MASS, or SWAS.
+            Examples of acceptable coordinate strings, can be found here:
+            http://irsa.ipac.caltech.edu/applications/DUST/docs/coordinate.html
+        radius : str, optional
+            The size of the region to include in the dust query, in radian, degree
+            or hour as per format specified by `astropy.coordinates.Angle. Defaults 
+            to 5 degrees.
+        timeout : int, optional
+            Time limit for establishing successful connection with remote server.
+            Defaults to `astroquery.irsa_dust.IrsaDust.TIMEOUT`
+        
+        Returns
+        --------
+        A context manager that yields a readable file like object
+        """
         return self._get_section_image_async(coordinate, "e", radius=radius, timeout=timeout)
     
     @class_or_instance
     def get_extinction_image(self, coordinate, radius=None, timeout=TIMEOUT):
+        """
+        Query function similar to `astroquery.irsa_dust.IrsaDust.get_images` but
+        returns only the image corresponding to the Dust Temperature result set, 
+        rather than the images from all the result sets.
+        
+        Parameters
+        ----------
+        coordinate : str
+            Can be either the name of an object or a coordinate string
+            If a name, must be resolveable by NED, SIMBAD, 2MASS, or SWAS.
+            Examples of acceptable coordinate strings, can be found here:
+            http://irsa.ipac.caltech.edu/applications/DUST/docs/coordinate.html
+        radius : str, optional
+            The size of the region to include in the dust query, in radian, degree
+            or hour as per format specified by `astropy.coordinates.Angle. Defaults 
+            to 5 degrees.
+        timeout : int, optional
+            Time limit for establishing successful connection with remote server.
+            Defaults to `astroquery.irsa_dust.IrsaDust.TIMEOUT`
+        
+        Returns
+        --------
+        `astropy.fits.HDUList` object
+        """
         return self._get_section_image(coordinate, "t", radius=radius, timeout=timeout)
     
     @class_or_instance
     def get_extinction_image_async(self, coordinate, radius=None, timeout=TIMEOUT):
+        """
+        Query function similar to `astroquery.irsa_dust.IrsaDust.get_images_async` but
+        returns only the file-handler corresponding to the image in the Dust
+        Temperature result set, rather than to images from all the result sets.
+        
+        Parameters
+        ----------
+        coordinate : str
+            Can be either the name of an object or a coordinate string
+            If a name, must be resolveable by NED, SIMBAD, 2MASS, or SWAS.
+            Examples of acceptable coordinate strings, can be found here:
+            http://irsa.ipac.caltech.edu/applications/DUST/docs/coordinate.html
+        radius : str, optional
+            The size of the region to include in the dust query, in radian, degree
+            or hour as per format specified by `astropy.coordinates.Angle. Defaults 
+            to 5 degrees.
+        timeout : int, optional
+            Time limit for establishing successful connection with remote server.
+            Defaults to `astroquery.irsa_dust.IrsaDust.TIMEOUT`
+        
+        Returns
+        --------
+        A context manager that yields a readable file like object
+        """
         return self._get_section_image_async(coordinate, "t", radius=radius, timeout=timeout)
     
     @class_or_instance
     def _get_section_image(self, coordinate, section, radius=None, timeout=TIMEOUT):
         """
-        get only the images for one section - location/emission/reddening
+        Return a FITS image corresponding to the section specified, from the
+        query results. Helper for other functions not intended to be called directly.
+        
+        Parameters
+        ----------
+        coordinate : str
+            Can be either the name of an object or a coordinate string
+            If a name, must be resolveable by NED, SIMBAD, 2MASS, or SWAS.
+            Examples of acceptable coordinate strings, can be found here:
+            http://irsa.ipac.caltech.edu/applications/DUST/docs/coordinate.html
+        section : str
+            Must be one of `emission`, `reddening` or `temperature`
+        radius : str, optional
+            The size of the region to include in the dust query, in radian, degree
+            or hour as per format specified by `astropy.coordinates.Angle. Defaults 
+            to 5 degrees.
+        timeout : int, optional
+            Time limit for establishing successful connection with remote server.
+            Defaults to `astroquery.irsa_dust.IrsaDust.TIMEOUT`
+        
+        Returns
+        -------
+        `astropy.fits.HDUList` object
+        
         """
-
         readable_obj = self._get_section_image_async(coordinate, section, 
                                                     radius=radius, timeout=timeout)
         return fits.open(readable_obj.__enter__())
@@ -161,7 +423,34 @@ class IrsaDust(QueryClass):
     @class_or_instance
     def _get_section_image_async(self, coordinate, section, radius=None, timeout=TIMEOUT, url=DUST_SERVICE_URL):
         """
-        get the handler only for the section image
+        Similar to `astroquery.irsa_dust.IrsaDust._get_section_image` but returns 
+        file-handlers to the remote files rather than downloading them. Useful  
+        for asynchronous queries so that the actual download may be performed later.
+        
+        Parameters
+        ----------
+        coordinate : str
+            Can be either the name of an object or a coordinate string
+            If a name, must be resolveable by NED, SIMBAD, 2MASS, or SWAS.
+            Examples of acceptable coordinate strings, can be found here:
+            http://irsa.ipac.caltech.edu/applications/DUST/docs/coordinate.html
+        section : str
+            Must be one of `emission`, `reddening` or `temperature`
+        radius : str, optional
+            The size of the region to include in the dust query, in radian, degree
+            or hour as per format specified by `astropy.coordinates.Angle. Defaults 
+            to 5 degrees.
+        timeout : int, optional
+            Time limit for establishing successful connection with remote server.
+            Defaults to `astroquery.irsa_dust.IrsaDust.TIMEOUT`
+        url : str, optional
+            Only provided for debugging. Should generally not be assigned.
+            Defaults to `astroquery.irsa_dust.IrsaDust.DUST_SERVICE_URL`
+        
+        Returns
+        --------
+         A context manager that yields a readable file like object
+                
         """
         request_payload = self.args_to_payload(coordinate, radius=radius)
         response = send_request(url, request_payload, timeout)
@@ -174,7 +463,27 @@ class IrsaDust(QueryClass):
     @class_or_instance
     def get_extinction_table(self, coordinate, radius=None, timeout=TIMEOUT):
         """
-        get the extinction table as astropy.Table
+        Query function that fetches the extinction table from the query
+        result
+        
+        Parameters
+        ----------
+        coordinate : str
+            Can be either the name of an object or a coordinate string
+            If a name, must be resolveable by NED, SIMBAD, 2MASS, or SWAS.
+            Examples of acceptable coordinate strings, can be found here:
+            http://irsa.ipac.caltech.edu/applications/DUST/docs/coordinate.html
+        radius : str, optional
+            The size of the region to include in the dust query, in radian, degree
+            or hour as per format specified by `astropy.coordinates.Angle. Defaults 
+            to 5 degrees.
+        timeout : int, optional
+            Time limit for establishing successful connection with remote server.
+            Defaults to `astroquery.irsa_dust.IrsaDust.TIMEOUT`
+        
+        Returns
+        --------
+        table : `astropy.table.Table`
         """
         readable_obj = self.get_extinction_table_async(coordinate, radius=radius, timeout=timeout)
         table = Table.read(readable_obj.__enter__(), format='ipac')
@@ -183,9 +492,32 @@ class IrsaDust(QueryClass):
     @class_or_instance
     def get_extinction_table_async(self, coordinate, radius=None, timeout=TIMEOUT, url=DUST_SERVICE_URL):
         """
-        get handler to extinction table
+        A query function similar to `astroquery.irsa_dust.IrsaDust.get_extinction_table` 
+        but returns a file-handler to the remote files rather than downloading it. 
+        Useful for asynchronous queries so that the actual download may be performed later.
+        
+        Parameters
+        ----------
+        coordinate : str
+            Can be either the name of an object or a coordinate string
+            If a name, must be resolveable by NED, SIMBAD, 2MASS, or SWAS.
+            Examples of acceptable coordinate strings, can be found here:
+            http://irsa.ipac.caltech.edu/applications/DUST/docs/coordinate.html
+        radius : str, optional
+            The size of the region to include in the dust query, in radian, degree
+            or hour as per format specified by `astropy.coordinates.Angle. Defaults 
+            to 5 degrees.
+        timeout : int, optional
+            Time limit for establishing successful connection with remote server.
+            Defaults to `astroquery.irsa_dust.IrsaDust.TIMEOUT`
+        url : str, optional
+            Only provided for debugging. Should generally not be assigned.
+            Defaults to `astroquery.irsa_dust.IrsaDust.DUST_SERVICE_URL`
+        
+        Returns
+        -------
+        A context manager that yields a file like readable object
         """
-
         request_payload = self.args_to_payload(coordinate, radius=radius)
         response = send_request(url, request_payload, timeout)
         xml_tree = utils.xml(response.text)
@@ -195,9 +527,34 @@ class IrsaDust(QueryClass):
     @class_or_instance
     def get_query_table(self, coordinate, radius=None, section=None, timeout=TIMEOUT, url=DUST_SERVICE_URL):
         """
-        get the xml response of query as astropy.Table
+        Create and return an astropy Table representing the query response(s).
+        When `section` is missing or `all`, returns the full table. When a 
+        section is specified (`location`, `extinction`, `emission`, or `temperature`),
+        only that portion of the table is returned.
+        
+        Parameters
+        ----------
+        coordinate : str
+            Can be either the name of an object or a coordinate string
+            If a name, must be resolveable by NED, SIMBAD, 2MASS, or SWAS.
+            Examples of acceptable coordinate strings, can be found here:
+            http://irsa.ipac.caltech.edu/applications/DUST/docs/coordinate.html
+        radius : str, optional
+            The size of the region to include in the dust query, in radian, degree
+            or hour as per format specified by `astropy.coordinates.Angle. Defaults 
+            to 5 degrees.
+        timeout : int, optional
+            Time limit for establishing successful connection with remote server.
+            Defaults to `astroquery.irsa_dust.IrsaDust.TIMEOUT`
+        url : str, optional
+            Only provided for debugging. Should generally not be assigned.
+            Defaults to `astroquery.irsa_dust.IrsaDust.DUST_SERVICE_URL
+        
+        Returns
+        --------
+        table : `astropy.table.Table`
+            table representing the query results, (all or as per section specified)
         """
-
         request_payload = self.args_to_payload(coordinate, radius=radius)
         response = send_request(url, request_payload, timeout)
         xml_tree = utils.xml(response.text)
@@ -207,9 +564,26 @@ class IrsaDust(QueryClass):
     @class_or_instance
     def args_to_payload(self, coordinate, radius=None):
         """
-        convert the query parameters to dict
+        Accepts the query parameters and returns a dictionary
+        suitable to be sent as data via a HTTP POST request
+        
+        Parameters
+        ----------
+        coordinate : str
+            Can be either the name of an object or a coordinate string
+            If a name, must be resolveable by NED, SIMBAD, 2MASS, or SWAS.
+            Examples of acceptable coordinate strings, can be found here:
+            http://irsa.ipac.caltech.edu/applications/DUST/docs/coordinate.html
+        radius : str, optional
+            The size of the region to include in the dust query, in radian, degree
+            or hour as per format specified by `astropy.coordinates.Angle. Defaults 
+            to 5 degrees.
+        
+        Returns
+        -------
+        payload : dict
+            A dictionary that specifies the data for an HTTP POST request
         """
-
         payload = {"locstr" : coordinate} # check if this is resolvable?
         # check if radius is given with proper units
         if radius != None:
@@ -224,17 +598,30 @@ class IrsaDust(QueryClass):
                 raise ValueError("Radius (in any unit) must be in the"
                                  " range of 2.0 to 37.5 degrees")
             payload["regSize"] = reg_size
-            
-
         return payload
 
     @class_or_instance
     def extract_image_urls(self, raw_xml, section=None):
         """
-        extract the image urls from the raw xml response
-        return list of urls
+        Extracts the image URLs from the query results and
+        returns these as a list. If section is missing or 
+        `all` returns all the URLs, otherwise returns URL
+        corresponding to the section specified (`emission`,
+        `reddening`, `temperature`).
+        
+        Parameters
+        ----------
+        raw_xml : str
+            XML response returned by the query as a string
+        section : str, optional
+            One of ``all`, emission`, `reddening` or `temperature`
+            Defaults to `None` in which case all URLs are returned.
+        
+        Returns
+        -------
+        url_list : list
+            list of URLs to images extracted from query results.
         """
-
         # get the xml tree from the response
         xml_tree = utils.xml(raw_xml)
         result = SingleDustResult(xml_tree)
@@ -250,8 +637,55 @@ class IrsaDust(QueryClass):
     @class_or_instance
     def parallel_map (self, query_function, coordinate, radius=[None], timeout=[TIMEOUT]):
         """
-        Performs the various query functions on a list of objects
-        and returns a list of results
+        A wrapper function around various query functions for performing multiple
+        object queries. It takes a list of query objects, applies the specified query 
+        function to each object in the list and returns a list of results
+        
+        Parameters
+        ----------
+        query_function : function
+            Any get_* function defined in `astroquery.irsa_dust.IrsaDust`
+        coordinate : list
+            A list of strings each representing a coordinate/object as
+            described in the get_* functions
+        radius : list, optional
+            A list of strings each representing the size of the region 
+            to be included in the dust query, as described in the get_* 
+            functions. The value at a particular position in the list will
+            be used along with the query object at the same position in the
+            coordinate list. If the list is shorter than the coordinate list,
+            the remaining values will be taken as `None`. Defaults to `None`.
+            Cannot be larger than the coordinate list.
+        timeout : list, optional
+            A list of strings each representing the query timeout to
+            as described in the get_*  functions. The value at a particular 
+            position in the list will be used along with the query object at 
+            the same position in the coordinate list. If the list is shorter 
+            than the coordinate list, the remaining values will be taken 
+            to be`astroquery.IrsaDust.TIMEOUT`. Defaults to `astroquery.
+            IrsaDust.TIMEOUT`. Cannot be larger than the coordinate list.
+        
+        Returns
+        -------
+        A list of the result objects returned by the query function called.
+        
+        Examples
+        --------
+        Perform the `astroquery.irsa_dust.IrsaDust.get_images` on a list
+        of query objects and get a list of list of `astropy.fits.HDUList`
+        >>> results = IrsaDust.parallel_map(IrsaDust.get_images, 
+                                           ['m31', 'm81', '34.5565 54.2321 gal'],
+                                           radius=['5 deg', '0.15 rad'])
+                                           
+        Perform the `astroquery.irsa_dust.IrsaDust.get_images_async` on a
+        list of query objects and get a list of list of file handlers
+        >>> results = IrsaDust.parallel_map(IrsaDust.get_images_async, 
+                                           ['m31', 'm51, 'm81'])
+                                           
+        Perform the `astroquery.irsa_dust.IrsaDust.get_extinction_table` on
+        a list of objects and obtain a list of `astropy.table.Table` objects
+        >>> results = IrsaDust.parallel_map(IrsaDust.get_extinction_table, 
+                                           ['m31', 'm51, 'm81'])
         """
         if not isinstance(coordinate,types.ListType):
             raise TypeError("Argument #2 to parallel_map must be a list")
