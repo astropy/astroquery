@@ -186,7 +186,7 @@ class IrsaDust(QueryClass):
         return [aud.get_readable_fileobj(U) for U in image_urls]
 
     @class_or_instance
-    def get_image_list(self, coordinate, radius=None, timeout=TIMEOUT, url=DUST_SERVICE_URL):
+    def get_image_list(self, coordinate, radius=None, timeout=TIMEOUT):
         """
         Query function that performes coordinate-based query and returns a list of
         URLs to the Irsa-Dust images
@@ -208,14 +208,12 @@ class IrsaDust(QueryClass):
         get_query_payload : bool
             If true than returns the dictionary of query parameters, posted to
             remote server. Defaults to `False`
-        url : str, optional
-            Only provided for debugging. Should generally not be assigned.
-            Defaults to `astroquery.irsa_dust.IrsaDust.DUST_SERVICE_URL`
         
         Returns
         --------
         A list of URLs to the FITS images corresponding to the queried object
         """
+        url = IrsaDust.DUST_SERVICE_URL
         request_payload = self.args_to_payload(coordinate, radius=radius)
         response = send_request(url, request_payload, timeout)
         return self.extract_image_urls(response.text)
@@ -421,7 +419,7 @@ class IrsaDust(QueryClass):
         return fits.open(readable_obj.__enter__())
 
     @class_or_instance
-    def _get_section_image_async(self, coordinate, section, radius=None, timeout=TIMEOUT, url=DUST_SERVICE_URL):
+    def _get_section_image_async(self, coordinate, section, radius=None, timeout=TIMEOUT):
         """
         Similar to `astroquery.irsa_dust.IrsaDust._get_section_image` but returns 
         file-handlers to the remote files rather than downloading them. Useful  
@@ -443,15 +441,13 @@ class IrsaDust(QueryClass):
         timeout : int, optional
             Time limit for establishing successful connection with remote server.
             Defaults to `astroquery.irsa_dust.IrsaDust.TIMEOUT`
-        url : str, optional
-            Only provided for debugging. Should generally not be assigned.
-            Defaults to `astroquery.irsa_dust.IrsaDust.DUST_SERVICE_URL`
-        
+            
         Returns
         --------
          A context manager that yields a readable file like object
                 
         """
+        url = IrsaDust.DUST_SERVICE_URL
         request_payload = self.args_to_payload(coordinate, radius=radius)
         response = send_request(url, request_payload, timeout)
         image_urls = self.extract_image_urls(response.text, section=section)
@@ -490,7 +486,7 @@ class IrsaDust(QueryClass):
         return table
 
     @class_or_instance
-    def get_extinction_table_async(self, coordinate, radius=None, timeout=TIMEOUT, url=DUST_SERVICE_URL):
+    def get_extinction_table_async(self, coordinate, radius=None, timeout=TIMEOUT):
         """
         A query function similar to `astroquery.irsa_dust.IrsaDust.get_extinction_table` 
         but returns a file-handler to the remote files rather than downloading it. 
@@ -510,14 +506,12 @@ class IrsaDust(QueryClass):
         timeout : int, optional
             Time limit for establishing successful connection with remote server.
             Defaults to `astroquery.irsa_dust.IrsaDust.TIMEOUT`
-        url : str, optional
-            Only provided for debugging. Should generally not be assigned.
-            Defaults to `astroquery.irsa_dust.IrsaDust.DUST_SERVICE_URL`
         
         Returns
         -------
         A context manager that yields a file like readable object
         """
+        url = IrsaDust.DUST_SERVICE_URL
         request_payload = self.args_to_payload(coordinate, radius=radius)
         response = send_request(url, request_payload, timeout)
         xml_tree = utils.xml(response.text)
