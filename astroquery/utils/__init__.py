@@ -6,3 +6,4 @@ functions that will ultimately be merged into `astropy.utils`
 
 from .progressbar import *
 from .download_file_list import *
+from .classmethod import *
