@@ -70,12 +70,12 @@ class TestDust(DustTestCase):
 ("m31", "5d", dict(locstr="m31", regSize=5.0))
 ])
     def test_args_to_payload_instance_1(self, coordinate, radius, expected_payload): 
-        payload = irsa_dust.core.IrsaDust().args_to_payload(coordinate, radius=radius)  
+        payload = irsa_dust.core.IrsaDust()._args_to_payload(coordinate, radius=radius)  
         assert payload == expected_payload
            
     def test_args_to_payload_instance_2(self):
         with pytest.raises(Exception) as ex:
-            payload = irsa_dust.core.IrsaDust().args_to_payload("m81", radius = "5")
+            payload = irsa_dust.core.IrsaDust()._args_to_payload("m81", radius = "5")
         assert ex.value.args[0] == "Radius not specified with proper unit."
     
     @pytest.mark.parametrize(('radius'), ['1d', '40d'])    
@@ -83,7 +83,7 @@ class TestDust(DustTestCase):
         errmsg = ("Radius (in any unit) must be in the"
                   " range of 2.0 to 37.5 degrees")
         with pytest.raises(ValueError) as ex:
-            payload = irsa_dust.core.IrsaDust().args_to_payload("m81", radius=radius)
+            payload = irsa_dust.core.IrsaDust()._args_to_payload("m81", radius=radius)
         assert ex.value.args[0] == errmsg
     
     @pytest.mark.parametrize(('coordinate', 'radius', 'expected_payload'), [
@@ -91,12 +91,12 @@ class TestDust(DustTestCase):
 ("m31", "5d", dict(locstr="m31", regSize=5.0))
 ])
     def test_args_to_payload_class_1(self, coordinate, radius, expected_payload): 
-        payload = irsa_dust.core.IrsaDust.args_to_payload(coordinate, radius=radius)  
+        payload = irsa_dust.core.IrsaDust._args_to_payload(coordinate, radius=radius)  
         assert payload == expected_payload
            
     def test_args_to_payload_class_2(self):
         with pytest.raises(Exception) as ex:
-            payload = irsa_dust.core.IrsaDust.args_to_payload("m81", radius = "5")
+            payload = irsa_dust.core.IrsaDust._args_to_payload("m81", radius = "5")
         assert ex.value.args[0] == "Radius not specified with proper unit."
     
     @pytest.mark.parametrize(('radius'), ['1d', '40d'])    
@@ -104,7 +104,7 @@ class TestDust(DustTestCase):
         errmsg = ("Radius (in any unit) must be in the"
                   " range of 2.0 to 37.5 degrees")
         with pytest.raises(ValueError) as ex:
-            payload = irsa_dust.core.IrsaDust.args_to_payload("m81", radius=radius)
+            payload = irsa_dust.core.IrsaDust._args_to_payload("m81", radius=radius)
         assert ex.value.args[0] == errmsg
     
     @pytest.mark.parametrize(('section', 'expected_urls'), [

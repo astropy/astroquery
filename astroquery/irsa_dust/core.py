@@ -145,7 +145,7 @@ class IrsaDust(QueryClass):
         """
 
         if get_query_payload:
-            return self.args_to_payload(coordinate, radius=radius)
+            return self._args_to_payload(coordinate, radius=radius)
         readable_objs = self.get_images_async(coordinate, radius=radius, timeout=timeout,
                                               get_query_payload=get_query_payload)
         return [fits.open(obj.__enter__()) for obj in readable_objs]
@@ -181,7 +181,7 @@ class IrsaDust(QueryClass):
         """
 
         if get_query_payload:
-            return self.args_to_payload(coordinate, radius=radius)
+            return self._args_to_payload(coordinate, radius=radius)
         image_urls = self.get_image_list(coordinate, radius=radius, timeout=timeout)
         return [aud.get_readable_fileobj(U) for U in image_urls]
 
@@ -214,7 +214,7 @@ class IrsaDust(QueryClass):
         A list of URLs to the FITS images corresponding to the queried object
         """
         url = IrsaDust.DUST_SERVICE_URL
-        request_payload = self.args_to_payload(coordinate, radius=radius)
+        request_payload = self._args_to_payload(coordinate, radius=radius)
         response = send_request(url, request_payload, timeout)
         return self.extract_image_urls(response.text)
 
@@ -448,7 +448,7 @@ class IrsaDust(QueryClass):
                 
         """
         url = IrsaDust.DUST_SERVICE_URL
-        request_payload = self.args_to_payload(coordinate, radius=radius)
+        request_payload = self._args_to_payload(coordinate, radius=radius)
         response = send_request(url, request_payload, timeout)
         image_urls = self.extract_image_urls(response.text, section=section)
         # list with a single element
@@ -512,7 +512,7 @@ class IrsaDust(QueryClass):
         A context manager that yields a file like readable object
         """
         url = IrsaDust.DUST_SERVICE_URL
-        request_payload = self.args_to_payload(coordinate, radius=radius)
+        request_payload = self._args_to_payload(coordinate, radius=radius)
         response = send_request(url, request_payload, timeout)
         xml_tree = utils.xml(response.text)
         result = SingleDustResult(xml_tree, coordinate)
@@ -549,14 +549,14 @@ class IrsaDust(QueryClass):
         table : `astropy.table.Table`
             table representing the query results, (all or as per section specified)
         """
-        request_payload = self.args_to_payload(coordinate, radius=radius)
+        request_payload = self._args_to_payload(coordinate, radius=radius)
         response = send_request(url, request_payload, timeout)
         xml_tree = utils.xml(response.text)
         result = SingleDustResult(xml_tree, coordinate)
         return result.table(section=section)
 
     @class_or_instance
-    def args_to_payload(self, coordinate, radius=None):
+    def _args_to_payload(self, coordinate, radius=None):
         """
         Accepts the query parameters and returns a dictionary
         suitable to be sent as data via a HTTP POST request
