@@ -628,72 +628,7 @@ class IrsaDust(QueryClass):
 
         return url_list
     
-    @class_or_instance
-    def parallel_map (self, query_function, coordinate, radius=[None], timeout=[TIMEOUT]):
-        """
-        A wrapper function around various query functions for performing multiple
-        object queries. It takes a list of query objects, applies the specified query 
-        function to each object in the list and returns a list of results
-        
-        Parameters
-        ----------
-        query_function : function
-            Any get_* function defined in `astroquery.irsa_dust.IrsaDust`
-        coordinate : list
-            A list of strings each representing a coordinate/object as
-            described in the get_* functions
-        radius : list, optional
-            A list of strings each representing the size of the region 
-            to be included in the dust query, as described in the get_* 
-            functions. The value at a particular position in the list will
-            be used along with the query object at the same position in the
-            coordinate list. If the list is shorter than the coordinate list,
-            the remaining values will be taken as `None`. Defaults to `None`.
-            Cannot be larger than the coordinate list.
-        timeout : list, optional
-            A list of strings each representing the query timeout to
-            as described in the get_*  functions. The value at a particular 
-            position in the list will be used along with the query object at 
-            the same position in the coordinate list. If the list is shorter 
-            than the coordinate list, the remaining values will be taken 
-            to be`astroquery.IrsaDust.TIMEOUT`. Defaults to `astroquery.
-            IrsaDust.TIMEOUT`. Cannot be larger than the coordinate list.
-        
-        Returns
-        -------
-        A list of the result objects returned by the query function called.
-        
-        Examples
-        --------
-        Perform the `astroquery.irsa_dust.IrsaDust.get_images` on a list
-        of query objects and get a list of list of `astropy.fits.HDUList`
-        >>> results = IrsaDust.parallel_map(IrsaDust.get_images, 
-                                           ['m31', 'm81', '34.5565 54.2321 gal'],
-                                           radius=['5 deg', '0.15 rad'])
-                                           
-        Perform the `astroquery.irsa_dust.IrsaDust.get_images_async` on a
-        list of query objects and get a list of list of file handlers
-        >>> results = IrsaDust.parallel_map(IrsaDust.get_images_async, 
-                                           ['m31', 'm51, 'm81'])
-                                           
-        Perform the `astroquery.irsa_dust.IrsaDust.get_extinction_table` on
-        a list of objects and obtain a list of `astropy.table.Table` objects
-        >>> results = IrsaDust.parallel_map(IrsaDust.get_extinction_table, 
-                                           ['m31', 'm51, 'm81'])
-        """
-        if not isinstance(coordinate,types.ListType):
-            raise TypeError("Argument #2 to parallel_map must be a list")
-        if not isinstance(radius, types.ListType):
-            radius = [radius]
-        if not isinstance(timeout, types.ListType):
-            timeout = [timeout]
-        if len(coordinate) < len(radius) or len(coordinate) < len(timeout):
-            raise ValueError("Argument #2 has insufficient number of items in list")
-        # pad all lists with defaults so they are of same length
-        radius.extend(([None]*len(coordinate))[len(radius):])
-        timeout.extend(([IrsaDust.TIMEOUT]*len(coordinate))[len(timeout):])
-        return [query_function(c, r, t) for c, r, t in zip(coordinate, radius, timeout)]
-
+    
 class SingleDustResult(object):
     """
     Represents the response to a dust query for a single object or location.
