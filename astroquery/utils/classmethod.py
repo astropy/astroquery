@@ -14,6 +14,8 @@ class class_or_instance(object):
 
     def __get__(self, obj, cls):
         if obj is not None:
-            return lambda *args, **kwds: self.fn(obj, *args, **kwds)
+            f = lambda *args, **kwds: self.fn(obj, *args, **kwds)
         else:
-            return lambda *args, **kwds: self.fn(cls, *args, **kwds)
+            f = lambda *args, **kwds: self.fn(cls, *args, **kwds)
+        functools.update_wrapper(f, self.fn)
+        return f
