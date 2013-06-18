@@ -23,4 +23,4 @@ def test_class_or_instance():
     assert SimpleQueryClass.query() == "class"
     U = SimpleQueryClass()
     assert U.query() == "instance"
-    assert SimpleQueryClass.query.__doc__ == "docstring"
+    assert SimpleQueryClass.query.__doc__ == " docstring "
