@@ -55,7 +55,7 @@ class InvalidQueryError(Exception):
     pass
 
 
-class QueryClass(object):
+class BaseQuery(object):
 
     def login(self, *args):
         pass
@@ -96,7 +96,7 @@ def send_request(url, data, timeout):
 
     
 
-class IrsaDust(QueryClass):
+class IrsaDust(BaseQuery):
     
     DUST_SERVICE_URL = "http://irsa.ipac.caltech.edu/cgi-bin/DUST/nph-dust"
     TIMEOUT = 30 # todo - make this configurable
