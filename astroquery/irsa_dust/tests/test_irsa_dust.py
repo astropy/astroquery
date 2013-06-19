@@ -107,58 +107,45 @@ class TestDust(DustTestCase):
             payload = irsa_dust.core.IrsaDust._args_to_payload("m81", radius=radius)
         assert ex.value.args[0] == errmsg
     
-    @pytest.mark.parametrize(('section', 'expected_urls'),
+    @pytest.mark.parametrize(('image_type', 'expected_urls'),
                              [(None, M31_URL_ALL),                                                                                   
-                              ('e', M31_URL_E),
-                              ('em', M31_URL_E),
-                              ('emission', M31_URL_E),
-                              ('r', M31_URL_R),
-                              ('red', M31_URL_R),
-                              ('reddening', M31_URL_R),
-                              ('t', M31_URL_T),
-                              ('temp', M31_URL_T),
-                              ('temperature', M31_URL_T)        
+                              ('100um', M31_URL_E),
+                              ('ebv', M31_URL_R),
+                              ('extinction', M31_URL_T),       
                               ])  
-    def test_extract_image_urls_instance(self, section, expected_urls):
+    def test_extract_image_urls_instance(self, image_type, expected_urls):
         raw_xml = open(self.data(M31_XML), "r").read()
-        url_list = irsa_dust.core.IrsaDust().extract_image_urls(raw_xml, section=section)
+        url_list = irsa_dust.core.IrsaDust().extract_image_urls(raw_xml, image_type=image_type)
         assert url_list == expected_urls
         
     def test_extract_image_urls_instance__err(self):
         raw_xml = open(self.data(M31_XML), "r").read()
         with pytest.raises(ValueError):
-            irsa_dust.core.IrsaDust().extract_image_urls(raw_xml, section="l")
+            irsa_dust.core.IrsaDust().extract_image_urls(raw_xml, image_type="l")
             
-    @pytest.mark.parametrize(('section', 'expected_urls'), 
+    @pytest.mark.parametrize(('image_type', 'expected_urls'), 
                              [(None, M31_URL_ALL),                                                        
-                              ('e', M31_URL_E),
-                              ('em', M31_URL_E),
-                              ('emission', M31_URL_E),
-                              ('r', M31_URL_R),
-                              ('red', M31_URL_R),
-                              ('reddening', M31_URL_R),
-                              ('t', M31_URL_T),
-                              ('temp', M31_URL_T),
-                              ('temperature', M31_URL_T)        
+                              ('100um', M31_URL_E),
+                              ('ebv', M31_URL_R),
+                              ('extinction', M31_URL_T),
                               ])  
-    def test_extract_image_urls_class(self, section, expected_urls):
+    def test_extract_image_urls_class(self, image_type, expected_urls):
         raw_xml = open(self.data(M31_XML), "r").read()
-        url_list = irsa_dust.core.IrsaDust.extract_image_urls(raw_xml, section=section)
+        url_list = irsa_dust.core.IrsaDust.extract_image_urls(raw_xml, image_type=image_type)
         assert url_list == expected_urls
     
     def test_extract_image_urls_class__err(self):
         raw_xml = open(self.data(M31_XML), "r").read()
         with pytest.raises(ValueError):
-            irsa_dust.core.IrsaDust.extract_image_urls(raw_xml, section="l")
+            irsa_dust.core.IrsaDust.extract_image_urls(raw_xml, image_type="l")
 
 # tests using monkeypatching. TODO: Find how to apply a common patch to a group of functions
     @pytest.mark.parametrize(('section', 'expected_length'), 
-                             [(None, 35),
-                              ('all', 35),                                                              
-                              ('e', 10),
-                              ('l', 4),
-                              ('r', 11),
-                              ('t', 10)                                                             
+                             [(None, 35),                                                              
+                              ('100um', 10),
+                              ('location', 4),
+                              ('ebv', 11),
+                              ('extinction', 10)                                                             
                               ])  
     def test_query_table_class(self, monkeypatch, section, expected_length):
         def mockreturn(url, data, timeout):
@@ -171,11 +158,10 @@ class TestDust(DustTestCase):
 
     @pytest.mark.parametrize(('section', 'expected_length'), 
                              [(None, 35),
-                              ('all', 35),                                                              
-                              ('e', 10),
-                              ('l', 4),
-                              ('r', 11),
-                              ('t', 10)                                                             
+                              ('100um', 10),
+                              ('location', 4),
+                              ('ebv', 11),
+                              ('extinction', 10)                                                             
                               ])  
     def test_query_table_instance(self, monkeypatch, section, expected_length):
         def mockreturn(url, data, timeout):
