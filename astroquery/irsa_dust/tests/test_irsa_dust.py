@@ -67,7 +67,7 @@ class TestDust(DustTestCase):
 #TODO : Add more examples. Add for "1 degree"-like parameters            
     @pytest.mark.parametrize(('coordinate', 'radius', 'expected_payload'), 
                              [("m81", None, dict(locstr="m81")), 
-                              ("m31", "5d", dict(locstr="m31", regSize=5.0))
+                              ("m31", "5d0m", dict(locstr="m31", regSize=5.0))
                               ])
     def test_args_to_payload_instance_1(self, coordinate, radius, expected_payload): 
         payload = irsa_dust.core.IrsaDust()._args_to_payload(coordinate, radius=radius)  
@@ -78,7 +78,7 @@ class TestDust(DustTestCase):
             payload = irsa_dust.core.IrsaDust()._args_to_payload("m81", radius = "5")
         assert ex.value.args[0] == "Radius not specified with proper unit."
     
-    @pytest.mark.parametrize(('radius'), ['1d', '40d'])    
+    @pytest.mark.parametrize(('radius'), ['1d0m', '40d0m'])    
     def test_args_to_payload_instance_3(self, radius):
         errmsg = ("Radius (in any unit) must be in the"
                   " range of 2.0 to 37.5 degrees")
@@ -88,7 +88,7 @@ class TestDust(DustTestCase):
     
     @pytest.mark.parametrize(('coordinate', 'radius', 'expected_payload'),
                              [("m81", None, dict(locstr="m81")), 
-                              ("m31", "5d", dict(locstr="m31", regSize=5.0))
+                              ("m31", "5d0m", dict(locstr="m31", regSize=5.0))
                               ])
     def test_args_to_payload_class_1(self, coordinate, radius, expected_payload): 
         payload = irsa_dust.core.IrsaDust._args_to_payload(coordinate, radius=radius)  
@@ -99,7 +99,7 @@ class TestDust(DustTestCase):
             payload = irsa_dust.core.IrsaDust._args_to_payload("m81", radius = "5")
         assert ex.value.args[0] == "Radius not specified with proper unit."
     
-    @pytest.mark.parametrize(('radius'), ['1d', '40d'])    
+    @pytest.mark.parametrize(('radius'), ['1d0m', '40d0m'])    
     def test_args_to_payload_class_3(self, radius):
         errmsg = ("Radius (in any unit) must be in the"
                   " range of 2.0 to 37.5 degrees")
