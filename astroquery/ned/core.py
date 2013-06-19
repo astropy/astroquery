@@ -125,9 +125,12 @@ def query_ned_nearname(objname='M31',radius=2.0,
     Examples
     --------
     >>> print query_ned_nearname()
-        -----------------------------------------------------
+
+    :: 
+
+        +----------------------+---------+---------+--------+
         |                 Name |    Unit |    Type | Format |
-        -----------------------------------------------------
+        +======================+=========+=========+========+
         |                  No. |    None |   int32 |    12i |
         |          Object Name |    None |    |S30 |    30s |
         |              RA(deg) | degrees | float64 | 25.17e |
@@ -145,7 +148,7 @@ def query_ned_nearname(objname='M31',radius=2.0,
         |      Redshift Points |    None |   int32 |    12i |
         |      Diameter Points |    None |   int32 |    12i |
         |         Associations |    None |   int32 |    12i |
-        -----------------------------------------------------
+        +----------------------+---------+---------+--------+
 
 
     """
@@ -155,7 +158,8 @@ def query_ned_nearname(objname='M31',radius=2.0,
     query_url = "%s?%s" % (root_url,urllib.urlencode(request_dict))
 
     # Retrieve handler object from NED
-    # Write the data to a file, flush it to get the proper VO table format, and read it into an Astropy table
+    # Write the data to a file, flush it to get the proper VO table format, and
+    # read it into an Astropy table
     with aud.get_readable_fileobj(query_url) as f:
         R = f.read().encode('utf-8')
 
@@ -198,8 +202,12 @@ def query_ned_near_iauname(iauname='1234-423',radius=2.0,
         radius (in arcminutes) within which to search
 
     Returns
+    -------
     NED_MainTable with the following information for each target within the
-    search radius:
+    search radius
+
+    Examples
+    --------
     
     ::
 
@@ -279,7 +287,12 @@ def query_ned_by_refcode(refcode='2011ApJS..193...18W',
 
     Returns
     -------
-    NED_MainTable with the following information for each target within the search radius:
+    NED_MainTable with the following information for each target within the search radius
+    
+    Examples
+    --------
+
+    ::
 
         -----------------------------------------------------
         |                 Name |    Unit |    Type | Format |
@@ -346,7 +359,12 @@ def query_ned_names(objname='M31',
     keywords:
         objname - astronomical object to search for
 
-    Returns NED_NamesTable with the following information:
+    Returns
+    -------
+    NED_NamesTable with the following information
+
+    Examples
+    --------
 
     ::
 
@@ -403,7 +421,12 @@ def query_ned_basic_posn(objname='M31',
     keywords:
         objname - astronomical object to search for
 
-    Returns NED_PositionDataTable with the following information:
+    Returns 
+    -------
+    NED_PositionDataTable with the following information:
+
+    Examples
+    --------
 
     ::
 
@@ -495,7 +518,12 @@ def query_ned_external(objname='M31',
     keywords:
         objname - astronomical object to search for
 
-    Returns NED_ExternalLinksTable with the following information:
+    Returns 
+    -------
+    NED_ExternalLinksTable with the following information:
+
+    Examples
+    --------
 
     ::
 
@@ -547,24 +575,24 @@ def query_ned_external(objname='M31',
         return None
 
 def query_ned_allsky(ra_constraint='Unconstrained', ra_1='', ra_2='',
-    dec_constraint='Unconstrained', dec_1='', dec_2='',
-    glon_constraint='Unconstrained', glon_1='', glon_2='',
-    glat_constraint='Unconstrained', glat_1='', glat_2='',
-    hconst='70.5', omegam='0.27', omegav='0.73', corr_z='1',
+        dec_constraint='Unconstrained', dec_1='', dec_2='',
+        glon_constraint='Unconstrained', glon_1='', glon_2='',
+        glat_constraint='Unconstrained', glat_1='', glat_2='',
+        hconst='70.5', omegam='0.27', omegav='0.73', corr_z='1',
         z_constraint='Unconstrained',z_value1='',z_value2='',z_unit='z',
-    flux_constraint='Unconstrained', flux_value1='', flux_value2='',flux_unit='Jy',
-    flux_band=None,
-    frat_constraint='Unconstrained',
-    ot_include='ANY',
-    in_objtypes1=None,in_objtypes2=None,in_objtypes3=None,
-    ex_objtypes1=None,ex_objtypes2=None,ex_objtypes3=None,
-    nmp_op='ANY',
-    name_prefix1=None,name_prefix2=None,name_prefix3=None,name_prefix4=None,
-    out_csys='Equatorial', out_equinox='J2000.0',
-    obj_sort='RA or Longitude',
-    zv_breaker='30000.0',
-    list_limit='5',
-    of='xml_main',
+        flux_constraint='Unconstrained', flux_value1='', flux_value2='',flux_unit='Jy',
+        flux_band=None,
+        frat_constraint='Unconstrained',
+        ot_include='ANY',
+        in_objtypes1=None,in_objtypes2=None,in_objtypes3=None,
+        ex_objtypes1=None,ex_objtypes2=None,ex_objtypes3=None,
+        nmp_op='ANY',
+        name_prefix1=None,name_prefix2=None,name_prefix3=None,name_prefix4=None,
+        out_csys='Equatorial', out_equinox='J2000.0',
+        obj_sort='RA or Longitude',
+        zv_breaker='30000.0',
+        list_limit='5',
+        of='xml_main',
         root_url='http://nedwww.ipac.caltech.edu/cgi-bin/nph-allsky'):
     """
     Query objects with joint constraints on redshift, sky area, object types,
@@ -724,7 +752,12 @@ def query_ned_photometry(objname='M31',
     """
     Query NED for photometric data on a given object.
 
-    Returns NED_PhotometricData table with following information:
+    Returns
+    -------
+    NED_PhotometricData table with following information:
+
+    Examples
+    --------
 
     ::
 
@@ -794,7 +827,12 @@ def query_ned_diameters(objname='M31',
     """
     Query NED for multi-wavelength diameter (size) data on a given object.
 
-    Returns NED_Diameters_Data table with following information:
+    Returns
+    -------
+    NED_Diameters_Data table with following information:
+
+    Examples
+    --------
 
     ::
 
@@ -897,7 +935,12 @@ def query_ned_redshifts(objname='M31',
     """
     Query NED for multi-wavelength redshift data on a given object.
 
-    Returns NED_Redshifts_Data table with following information:
+    Returns
+    -------
+    NED_Redshifts_Data table with following information:
+
+    Examples
+    --------
 
     ::
 
@@ -990,7 +1033,12 @@ def query_ned_notes(objname='M31',
     """
     Query NED for detailed notes on a given object (often excerpts from a paper).
 
-    Returns NED_Note_Data table with following information:
+    Returns
+    -------
+    NED_Note_Data table with following information:
+
+    Examples
+    --------
 
     ::
 
@@ -1059,7 +1107,12 @@ def query_ned_position(objname='M31',
     """
     Query NED for multi-wavelength position data on a given object.
 
-    Returns NED_Positions_Data table with following information:
+    Returns
+    -------
+    NED_Positions_Data table with following information:
+
+    Examples
+    --------
 
     ::
 
@@ -1141,7 +1194,12 @@ def query_ned_nearpos(ra=0.000,dec=0.000,sr=2.0,
 
         radius - radius (in arcminutes) within which to search
 
-    Returns NED_MainTable with the following information for each target within the search radius:
+    Returns
+    -------
+    NED_MainTable with the following information for each target within the search radius:
+    
+    Examples
+    --------
 
     ::
 

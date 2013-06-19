@@ -12,4 +12,16 @@ acknowledgment would be appreciated::
   This research has made use of the VizieR catalogue access tool, CDS, Strasbourg, France.
   The original description of the VizieR service was published in A&AS 143, 23
 """
+from astropy.config import ConfigurationItem
+
+VIZIER_SERVER = ConfigurationItem('vizier_server', ['vizier.u-strasbg.fr',
+                                                    'vizier.nao.ac.jp',
+                                                    'vizier.hia.nrc.ca',
+                                                    'vizier.ast.cam.ac.uk',
+                                                    'vizier.cfa.harvard.edu',
+                                                    'www.ukirt.jach.hawaii.edu',
+                                                    'vizier.iucaa.ernet.in',
+                                                    'vizier.china-vo.org'], 'Name of the VizieR mirror to use.')
+
+
 from .core import *

@@ -8,6 +8,7 @@ AstroQuery is a set of tools for querying astronomical web forms and databases.
 .. toctree::
   :maxdepth: 2
 
+  api.rst
   irsa.rst
   ukidss.rst
   magpis.rst
@@ -18,3 +19,7 @@ AstroQuery is a set of tools for querying astronomical web forms and databases.
   ned.rst
   nist.rst
   fermi.rst
+  sdss.rst
+  alfalfa.rst
+  sha.rst
+  lamda.rst

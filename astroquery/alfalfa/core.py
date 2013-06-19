@@ -11,7 +11,8 @@ Description:
 
 """
 
-import urllib
+from __future__ import print_function
+import requests
 import numpy as np
 import numpy.ma as ma
 from astropy.io import fits
@@ -22,6 +23,9 @@ fits_prefix = "http://arecibo.tc.cornell.edu/hiarchive/alfalfa/spectraFITS"
 propert_path = "http://egg.astro.cornell.edu/alfalfa/data/a40files/a40.datafile1.csv"
 
 placeholder = -999999
+ALFALFACAT = None
+
+__all__ = ['get_catalog','crossID','get_spectrum','Spectrum']
 
 def get_catalog():
     """
@@ -38,20 +42,24 @@ def get_catalog():
     
     """
     
-    if 'ALFALFACAT' in globals():
+    if ALFALFACAT is not None:
         return ALFALFACAT
+    else:
+        pass
     
-    f = urllib.urlopen(propert_path)
+    result = requests.get(propert_path)
+    iterable_lines = result.iter_lines()
 
     # Read header
-    cols = f.readline().rstrip('\n').split(',')
+    cols = [col.decode() for col in next(iterable_lines).rstrip(b'\n').split(b',')]
 
     catalog = {}
     for col in cols:
         catalog[col] = []
 
     # Parse result
-    for line in f:
+    for line in iterable_lines:
+        line = line.decode()
         l = line.rstrip('\n').split(',')
         for i, col in enumerate(cols):
             item = l[i].strip()
@@ -63,6 +71,8 @@ def get_catalog():
                 catalog[col].append(float(item))
             else:
                 catalog[col].append(item)
+
+    result.close()
         
     # Mask out blank elements    
     for col in cols:
@@ -72,13 +82,80 @@ def get_catalog():
         
     # Make this globally available so we don't have to re-download it 
     # again in this session 
-    global ALFALFACAT
-    ALFALFACAT = catalog
+    _make_cat_global(catalog)
     
     return catalog
     
-def get_spectrum(agc=None, ra=None, dec=None, unit=None, counterpart=False, 
-    ascii=False):
+def _make_cat_global(catalog):
+    global ALFALFACAT
+    ALFALFACAT = catalog    
+    
+def crossID(ra, dec, unit=None, dr=60., optical_counterpart=False):
+    """
+    Perform object cross-ID in ALFALFA.
+    
+    Search for objects near position (ra, dec) within some radius.
+    
+    Parameters
+    ----------
+    ra : float, int, str, tuple
+        An object that represents a right ascension angle.
+    dec : float, int, str, tuple
+        An object that represents a declination angle.
+    unit : `~astropy.units.UnitBase`, str
+        The unit of the value specified for the angle
+    dr : int, float
+        Radius of region to perform object cross-ID (arcseconds).
+    optical_counterpart : bool
+        Search for position match using radio positions or position of
+        any optical counterpart identified by ALFALFA team? Keep in mind that
+        the ALFA beam size is about 3x3 arcminutes.
+             
+    See documentation for astropy.coordinates.angles for more information 
+    about ('ra', 'dec', 'unit') parameters.
+    
+    Examples
+    --------
+    >>> agc = alfalfa.crossID(ra='0h8m05.63s', dec='14d50m23.3s', dr)
+    >>> for match in xid:
+    >>>     print match['ra'], match['dec'], match['objid']
+
+    Returns
+    -------
+    AGC number for object nearest supplied position.
+    
+    """
+    
+    if not isinstance(ra, coord.angles.RA):
+        ra = coord.RA(ra, unit=unit)
+    if not isinstance(ra, coord.angles.Dec):    
+        dec = coord.Dec(dec, unit=unit)    
+    
+    cat = get_catalog()
+    
+    # Use RA and DEC to find appropriate AGC
+    if optical_counterpart:
+        ra_ref = cat['RAdeg_OC']
+        dec_ref = cat['DECdeg_OC']
+    else:
+        ra_ref = cat['RAdeg_HI']
+        dec_ref = cat['Decdeg_HI']
+    
+    dra = np.abs(ra_ref - ra.degrees) \
+        * np.cos(dec.degrees * np.pi / 180.)
+    ddec = np.abs(dec_ref - dec.degrees)
+    sep = np.sqrt(dra**2 + ddec**2)
+    
+    i_minsep = np.argmin(sep)
+    minsep = sep[i_minsep]
+    
+    # Matched object within our search radius?
+    if (minsep * 3600.) < dr:
+        return cat['AGCNr'][i_minsep]
+    else:
+        return None
+   
+def get_spectrum(agc, ascii=False):
     """
     Download spectrum from ALFALFA catalogue.
     
@@ -86,19 +163,8 @@ def get_spectrum(agc=None, ra=None, dec=None, unit=None, counterpart=False,
     ----------
     agc : int
         Identification number for object in ALFALFA catalog.
-    ra : float
-        Right ascension (degrees).
-    dec : float
-        Declination (degrees).
     ascii : bool
         Download spectrum from remote server in ASCII or FITS format?
-    counterpart : bool
-        Do supplied ra and dec refer to HI source or optical counterpart?
-        
-    Notes
-    -----
-    If AGC number is not supplied, will download entire ALFALFA catalog and
-    do a cross-ID with supplied RA and DEC.     
         
     Returns
     -------
@@ -110,53 +176,24 @@ def get_spectrum(agc=None, ra=None, dec=None, unit=None, counterpart=False,
     See Also
     --------
     get_catalog : method that downloads ALFALFA catalog
+    crossID : find object in catalog closest to supplied position (use this
+        to determine AGC number first)
     
     """
         
-    if agc is not None: 
-        agc = str(agc).zfill(6)
-    else:
-        if ra is None and dec is None:
-            raise ValueError('Must supply ra and dec if agc=None!')
-        
-        try:
-            cat = ALFALFACAT
-        except NameError:
-            cat = get_catalog()    
-            
-        if not isinstance(ra, coord.angles.RA):
-            ra = coord.RA(ra, unit=unit)
-        if not isinstance(ra, coord.angles.Dec):    
-            dec = coord.Dec(dec, unit=unit)    
-        
-        # Use RA and DEC to find appropriate AGC
-        if counterpart:
-            ra_ref = cat['RAdeg_OC']
-            dec_ref = cat['DECdeg_OC']
-        else:
-            ra_ref = cat['RAdeg_HI']
-            dec_ref = cat['Decdeg_HI']
-        
-        dra = np.abs(ra_ref - ra.degrees) \
-            * np.cos(dec.degrees * np.pi / 180.)
-        ddec = np.abs(dec_ref - dec.degrees)
-        dr = np.sqrt(dra**2 + ddec**2)
-        
-        agc = cat['AGCNr'][np.argmin(dr)]
-                
-        print 'Found HI source AGC #%i %g arcseconds from supplied position.' \
-            % (agc, dr.min() * 3600.)        
+    agc = str(agc).zfill(6)      
             
     if ascii:
         link = "%s/A%s.txt" % (ascii_prefix, agc)
-        f = urllib.urlopen(link)
+        result = requests.get(link)
     
         vel = []
         freq = []
         flux = []
         baseline = [] 
-        for i, line in enumerate(f):
-            if i <= 30: continue
+        for i, line in enumerate(result.iter_line()):
+            if i <= 30: 
+                continue
             
             data = line.split()
             
@@ -165,27 +202,14 @@ def get_spectrum(agc=None, ra=None, dec=None, unit=None, counterpart=False,
             flux.append(float(data[2]))
             baseline.append(float(data[3]))
         
-        f.close()
+        result.close()
             
         return np.array(vel), np.array(freq), np.array(flux), np.array(baseline)
       
     link = "%s/A%s.fits" % (fits_prefix, agc)    
-    hdulist = fits.open(urllib.urlopen(link).url, ignore_missing_end=True)
+    hdulist = fits.open(link, ignore_missing_end=True)
     return Spectrum(hdulist)    
     
-def match_object(ra, dec, ra_ref, dec_ref):
-    """
-    Assumes everything is in degrees.  Supply ra and dec of single object being considered, as well as reference
-    arrays of RA and DEC for some sample.  Returns index of match in reference arrays.
-    """    
-            
-    
-    if min(dr) < maxsep: 
-        return np.argmin(dr)                      
-    else:
-        return placeholder        
-    
-
 class Spectrum:
     def __init__(self, hdulist):
         self.hdulist = hdulist

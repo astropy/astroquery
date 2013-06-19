@@ -7,19 +7,20 @@ Author: Jordan Mirocha
 Affiliation: University of Colorado at Boulder
 Created on: Sun Apr 14 19:18:43 2013
 
-Description: Access Sloan Digital Sky Survey database online via Tamas 
-Budavari's SQL tool (included). Higher level wrappers provided to download
-spectra and images using wget.
+Description: Access Sloan Digital Sky Survey database online. Higher level
+wrappers provided to download spectra and images using wget.
 
 """
 
 import numpy as np
 import astropy.wcs as wcs
-import os, re, math
+import math
 from astropy.io import fits
-import re, sqlcl, math, urllib
 from astropy import coordinates as coord
-from . import sqlcl
+import requests
+import io
+
+__all__ = ['crossID','get_image','get_spectral_template','get_spectrum']
 
 # Default photometric and spectroscopic quantities to retrieve.
 photoobj_defs = ['ra', 'dec', 'objid', 'run', 'rerun', 'camcol', 'field']
@@ -33,8 +34,8 @@ spec_templates = \
      'star_M8': 14, 'star_L1': 15, 'star_wd': [16,20,21],
      'star_carbon': [17,18,19], 'star_Ksubdwarf': 22,
      'galaxy_early': 23, 'galaxy': [24,25,26], 'galaxy_late': 27,
-     'galaxy_lrg': 28, 'qso': 29, 'qso_bal': [30,31], 
-     'qso_bright': 32 
+     'galaxy_lrg': 28, 'qso': 29, 'qso_bal': [30,31],
+     'qso_bright': 32
      }
 
 # Some website prefixes we need
@@ -47,9 +48,8 @@ sdss_arcsec_per_pixel = 0.396
 def crossID(ra, dec, unit=None, dr=2., fields=None):
     """
     Perform object cross-ID in SDSS using SQL.
-    
-    Search for objects near position (ra, dec) within some radius using
-    Tamas Budavari's SQL tool (sqlcl.py).
+
+    Search for objects near position (ra, dec) within some radius.
     
     Parameters
     ----------
@@ -71,15 +71,15 @@ def crossID(ra, dec, unit=None, dr=2., fields=None):
     
     Examples
     --------
-    xid = sdss.crossID(ra='0h8m05.63s', dec='14d50m23.3s')
-    
-    for match in xid:
-        print match['ra'], match['dec'], match['objid']
+    >>> xid = sdss.crossID(ra='0h8m05.63s', dec='14d50m23.3s')
+    >>> for match in xid:
+    >>>     print match['ra'], match['dec'], match['objid']
 
     Returns
     -------
     List of all objects found within search radius. Each element of list is 
     a dictionary containing information about each matched object.
+    
     """
     
     if not isinstance(ra, coord.angles.RA):
@@ -89,12 +89,10 @@ def crossID(ra, dec, unit=None, dr=2., fields=None):
     
     if fields is None:
         fields = photoobj_defs + specobj_defs
-        
+    
     # Convert arcseconds to degrees
-    dr /= 3600.    
-            
-    Nfields = len(fields)    
-        
+    dr /= 3600.
+    
     q_select = 'SELECT '
     for field in fields:
         if field in photoobj_defs:
@@ -109,33 +107,11 @@ def crossID(ra, dec, unit=None, dr=2., fields=None):
     q_where = 'WHERE (p.ra between %g and %g) and (p.dec between %g and %g)' \
         % (ra.degrees-dr, ra.degrees+dr, dec.degrees-dr, dec.degrees+dr)
     
-    q = sqlcl.query("%s%s%s%s" % (q_select, q_from, q_join, q_where))
+    sql = "%s%s%s%s" % (q_select, q_from, q_join, q_where)
+    r = requests.get('http://cas.sdss.org/public/en/tools/search/x_sql.asp', params={'cmd': sql, 'format': 'csv'})
     
-    results = []
-    cols = q.readline()
-    while True:
-        line = q.readline().replace('\n', '').split(',')
-        
-        if len(line) == 1:
-            break
-        
-        tmp = {}
-        for i, val in enumerate(line):
-            
-            field = fields[i]
-            
-            if val.isdigit(): 
-                tmp[field] = int(val)
-            else:
-                try: 
-                    tmp[field] = float(val)
-                except ValueError: 
-                    tmp[field] = str(val)
-                    
-        results.append(tmp)            
+    return np.atleast_1d(np.genfromtxt(io.BytesIO(r.content), names=True, dtype=None, delimiter=','))
 
-    return results
-    
 def get_spectrum(crossID=None, plate=None, fiberID=None, mjd=None):  
     """
     Download spectrum from SDSS. 
@@ -150,11 +126,11 @@ def get_spectrum(crossID=None, plate=None, fiberID=None, mjd=None):
     
     Examples
     --------
-    xid = sdss.crossID(ra='0h8m05.63s', dec='14d50m23.3s')
-    sp = sdss.get_spectrum(crossID=xid[0])
-    
-    import pylab as pl
-    pl.plot(sp.xarr, sp.data)   # plot the spectrum
+    >>> xid = sdss.crossID(ra='0h8m05.63s', dec='14d50m23.3s')
+    >>> sp = sdss.get_spectrum(crossID=xid[0])
+    >>> 
+    >>> import pylab as pl
+    >>> pl.plot(sp.xarr, sp.data)   # plot the spectrum
     
     Returns
     -------
@@ -170,14 +146,14 @@ def get_spectrum(crossID=None, plate=None, fiberID=None, mjd=None):
                     
     plate = str(plate).zfill(4)
     fiber = str(fiberID).zfill(3)
-    mjd = str(mjd)        
-    link = '%s/%s/1d/spSpec-%s-%s-%s.fit' % (spectro1d_prefix, plate, mjd, 
-        plate, fiber)
+    mjd = str(mjd)
+    link = '%s/%s/1d/spSpec-%s-%s-%s.fit' % (spectro1d_prefix, plate, mjd,
+                                             plate, fiber)
               
-    hdulist = fits.open(urllib.urlopen(link).url, ignore_missing_end=True)
+    hdulist = fits.open(link, ignore_missing_end=True)
 
     return Spectrum(hdulist)
-            
+
 def get_image(crossID=None, run=None, rerun=None, camcol=None, 
     field=None, band='g'):
     """
@@ -188,13 +164,13 @@ def get_image(crossID=None, run=None, rerun=None, camcol=None,
     
     Parameters
     ----------
-    crossID : dict 
+    crossID : dict
         Dictionary that must contain the run, rerun, camcol, and field for
-        desired image. These parameters can be passed separately as well. All 
+        desired image. These parameters can be passed separately as well. All
         are required. Most convenient to pass the result of function
         astroquery.sdss.crossID.
-    band : str, list 
-        Could be individual band, or list of bands. Options: u, g, r, i, or z          
+    band : str, list
+        Could be individual band, or list of bands. Options: u, g, r, i, or z
     
     Examples
     --------
@@ -208,10 +184,10 @@ def get_image(crossID=None, run=None, rerun=None, camcol=None,
     
     Returns
     -------
-    Instance of Image class, whose main attribute is a PyFITS HDUList. Also 
-    contains properties to return data and error arrays, as well as the FITS 
+    Instance of Image class, whose main attribute is a PyFITS HDUList. Also
+    contains properties to return data and error arrays, as well as the FITS
     header in dictionary form.
-    """   
+    """
     
     if crossID is not None:
         run = crossID['run']
@@ -221,19 +197,18 @@ def get_image(crossID=None, run=None, rerun=None, camcol=None,
 
     # Read in and format some information we need
     field = str(field).zfill(4)
-    run_zfill = str(run).zfill(6)
                                 
     # Download and read in image data
     link = '%s?RUN=%i&RERUN=%i&CAMCOL=%i&FIELD=%s&FILTER=%s' % (images_prefix, 
         run, rerun, camcol, field, band)            
 
-    hdulist = fits.open(urllib.urlopen(link).url, ignore_missing_end=True)
+    hdulist = fits.open(link, ignore_missing_end=True)
      
     return Image(hdulist)
     
 def get_spectral_template(kind='qso'):
     """
-    Download spectral templates from SDSS DR-2, which are located here: 
+    Download spectral templates from SDSS DR-2, which are located here:
     
         http://www.sdss.org/dr5/algorithms/spectemplates/
     
@@ -258,13 +233,13 @@ def get_spectral_template(kind='qso'):
     Returns
     -------
     List of Spectrum class instances, whose main attribute is a PyFITS HDUList.
-    The reason for returning a list is that there are multiple templates 
+    The reason for returning a list is that there are multiple templates
     available for some spectral types.
     """   
     
     if kind == 'all':
         indices = list(np.arange(33))
-    else:    
+    else:
         indices = spec_templates[kind]
         if type(indices) is not list:
             indices = [indices]
@@ -272,14 +247,15 @@ def get_spectral_template(kind='qso'):
     spectra = []
     for index in indices:
         name = str(index).zfill(3)
-        link = '%s-%s.fit' % (template_prefix, name)        
-        hdulist = fits.open(urllib.urlopen(link).url, ignore_missing_end=True)
-        spectra.append(Spectrum(hdulist)) 
+        link = '%s-%s.fit' % (template_prefix, name)
+        hdulist = fits.open(link, ignore_missing_end=True)
+        spectra.append(Spectrum(hdulist))
         del hdulist
                 
     return spectra
     
-class Spectrum:
+class Spectrum(object):
+    """ TODO: document """
     def __init__(self, hdulist):
         self.hdulist = hdulist
         
@@ -314,7 +290,8 @@ class Spectrum:
             self._err = self.hdulist[0].data[2]
         return self._err     
     
-class Image:
+class Image(object):
+    """ TODO: document """
     def __init__(self, hdulist):
         self.hdulist = hdulist
         self.w = wcs.WCS(self.header)

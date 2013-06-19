@@ -1,19 +1,25 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-import cookielib
-import urllib2
+from __future__ import print_function
 import urllib
 try:
     import htmllib
+    import urllib2
 except ImportError:
     # python 3 compatibility
-    import HTMLParser as htmllib
+    import urllib.parse
+    import html.parser as htmllib
+    import urllib as urllib2
+try:
+    import cookielib
+except ImportError:
+    pass  # python3 doesn't have it
 import formatter
 import gzip
 import os
 from math import cos, radians
 import multiprocessing as mp
 import time
-import StringIO
+from io import BytesIO
 from astropy.io import fits
 import astropy.utils.data as aud
 from ..utils import progressbar
@@ -43,7 +49,7 @@ url_getimages  = "http://surveys.roe.ac.uk:8080/wsa/ImageList"
 url_getcatalog = "http://surveys.roe.ac.uk:8080/wsa/WSASQL"
 
 frame_types = ['stack', 'normal', 'interleave', 'deep%stack', 'confidence',
-    'difference', 'leavstack', 'all']
+               'difference', 'leavstack', 'all']
 
 ukidss_programs_short = {'LAS': 101,
                          'GPS': 102,
@@ -57,7 +63,19 @@ ukidss_programs_long = {'Large Area Survey': 101,
                         'Deep Extragalactic Survey': 104,
                         'Ultra Deep Survey': 105}
 
-class UKIDSSQuery():
+
+def urlencode(d, encoding='ascii'):
+    """
+    Hack: convert all entries of dictionary to ASCII for python-3 compatibility
+    TODO: Change everything here to requests.
+    Assumes all keys AND values of dict are strings or stringable!
+    """
+    # Keep for when we cut 2.6 support:
+    # d = {str(k).encode(encoding):str(d[k]).encode(encoding) for k in d}
+    d = dict([(str(k).encode(encoding),str(d[k]).encode(encoding)) for k in d])
+    return urllib.urlencode(d)
+
+class UKIDSSQuery(object):
     """
     The UKIDSSQuery class.  Must instantiate this class in order to make any
     queries.  Allows registered users to login, but defaults to using the
@@ -83,6 +101,9 @@ class UKIDSSQuery():
         username : string
         password : string
         community : string
+
+        .. warning:: Python3 doesn't have cookielib, so this function will not
+            work until this package is refactored to use requests
         """
 
         # Construct cookie holder, URL openenr, and retrieve login page
@@ -91,7 +112,8 @@ class UKIDSSQuery():
             urllib2.HTTPCookieProcessor(self.cj))
         credentials = {'user': username, 'passwd': password,
             'community': ' ', 'community2': community}
-        self._login_page = self.opener.open(url_login, urllib.urlencode(credentials))
+
+        self._login_page = self.opener.open(url_login, urlencode(credentials))
 
     def logged_in(self):
         """
@@ -167,13 +189,13 @@ class UKIDSSQuery():
         self.request['obsType']     = 'object'
         self.request['frameType']   = frametype
         self.request['mfid']        = ''
-        self.query_str = url_getimage +"?"+ urllib.urlencode(self.request)
+        self.query_str = url_getimage +"?"+ urlencode(self.request)
 
         if directory is None:
             directory = self.directory
 
         # Retrieve page
-        page = self.opener.open(url_getimage, urllib.urlencode(self.request))
+        page = self.opener.open(url_getimage, urlencode(self.request))
         with aud.get_readable_fileobj(page) as f:
             results = f.read()
 
@@ -185,7 +207,7 @@ class UKIDSSQuery():
         links = htmlparser.get_links()
 
         if verbose:
-            print "Found %i targets" % (len(links))
+            print("Found %i targets" % (len(links)))
 
         # Loop through links and retrieve FITS images
         images = []
@@ -198,7 +220,7 @@ class UKIDSSQuery():
             U = self.opener.open(link.replace("getImage", "getFImage"))
             with aud.get_readable_fileobj(U, cache=True) as f:
                 results = f.read()
-            S = StringIO.StringIO(results)
+            S = BytesIO(results)
 
             try: 
                 # try to open as a fits file
@@ -227,7 +249,7 @@ class UKIDSSQuery():
                 final_file = directory + '/' + filename
 
                 if verbose:
-                    print "Saving file %s" % final_file
+                    print("Saving file %s" % final_file)
 
                 fitsfile.writeto(final_file, clobber=overwrite)
 
@@ -284,7 +306,7 @@ class UKIDSSQuery():
 
         self.request['database']    = self.database
         self.request['programmeID'] = verify_programme_id(self.programmeID,querytype='image')
-        self.request['userSelect'] = 'default'
+        self.request['userSelect']  = 'default'
 
         self.request['obsType']     = 'object'
         self.request['frameType']   = frametype
@@ -313,10 +335,10 @@ class UKIDSSQuery():
         self.request['fsid'] = ''
 
         self.request['rows'] = 1000
-        self.query_str = url_getimages +"?"+ urllib.urlencode(self.request)
+        self.query_str = url_getimages + "?" + urlencode(self.request)
 
         # Retrieve page
-        page = self.opener.open(url_getimages, urllib.urlencode(self.request))
+        page = self.opener.open(url_getimages, urlencode(self.request))
         with aud.get_readable_fileobj(page) as f:
             results = f.read()
 
@@ -335,16 +357,18 @@ class UKIDSSQuery():
             if not os.path.exists(directory + '/' + frametype):
                 os.mkdir(directory + '/' + frametype)
 
-            if 'fits_download' in link and '_cat.fits' not in link and '_two.fit' not in link:
+            if ('fits_download' in link and '_cat.fits' not in link and
+                    '_two.fit' not in link):
 
                 # Get image filename
                 basename = os.path.basename(link.split("&")[0])
                 temp_file = directory + '/' + frametype + '/' + basename
 
                 if verbose:
-                    print "Downloading %s..." % basename
+                    print("Downloading %s..." % basename)
                     p = mp.Process(
-                        target=progressbar.retrieve, args=(link, temp_file, self.opener))
+                        target=progressbar.retrieve,
+                        args=(link, temp_file, self.opener))
                 else:
                     p = mp.Process(
                         target=urllib.urlretrieve, args=(link, temp_file))
@@ -373,8 +397,8 @@ class UKIDSSQuery():
             Radius in which to search for catalog entries in arcminutes
         savename : string or None
             The file name to save the catalog to.  If unspecified, will save as
-            UKIDSS_catalog_G###.###-###.###_r###.fits.gz, where the #'s indicate
-            galactic lon/lat and radius
+            UKIDSS_catalog_G###.###-###.###_r###.fits.gz, where the #'s
+            indicate galactic lon/lat and radius
 
         Returns
         -------
@@ -409,15 +433,15 @@ class UKIDSSQuery():
         self.request['rows'] = 1
         self.request['select'] = '*'
         self.request['where'] = ''
-        self.query_str = url_getcatalog +"?"+ urllib.urlencode(self.request)
+        self.query_str = url_getcatalog +"?"+ urlencode(self.request)
 
         if directory is None:
             directory = self.directory
 
         # Retrieve page
-        page = self.opener.open(url_getcatalog, urllib.urlencode(self.request))
+        page = self.opener.open(url_getcatalog, urlencode(self.request))
         if verbose:
-            print "Loading page..."
+            print("Loading page...")
             results = progressbar.chunk_read(page, report_hook=progressbar.chunk_report)
         else:
             results = page.read()
@@ -447,11 +471,11 @@ class UKIDSSQuery():
                 
                 U = self.opener.open(link)
                 if verbose:
-                    print "Downloading catalog %s" % link
+                    print("Downloading catalog %s" % link)
                     results = progressbar.chunk_read(U, report_hook=progressbar.chunk_report)
                 else:
                     results = U.read()
-                S = StringIO.StringIO(results)
+                S = BytesIO(results)
                 try: 
                     fitsfile = fits.open(S,ignore_missing_end=True)
                 except IOError:
@@ -516,13 +540,13 @@ class UKIDSSQuery():
         self.request['rows'] = 1
         self.request['select'] = '*'
         self.request['where'] = ''
-        self.query_str = url_getcatalog +"?"+ urllib.urlencode(self.request)
+        self.query_str = url_getcatalog +"?"+ urlencode(self.request)
 
         if directory is None:
             directory = self.directory
 
         # Retrieve page
-        page = self.opener.open(url_getcatalog, urllib.urlencode(self.request))
+        page = self.opener.open(url_getcatalog, urlencode(self.request))
         with aud.get_readable_fileobj(page) as f:
             results = f.read()
 
@@ -552,7 +576,7 @@ class UKIDSSQuery():
                 with aud.get_readable_fileobj(U, cache=True) as f:
                     results = f.read()
 
-                S = StringIO.StringIO(results)
+                S = BytesIO(results)
                 try: 
                     fitsfile = fits.open(S,ignore_missing_end=True)
                 except IOError:
