@@ -55,22 +55,6 @@ Advanced example: Get all flux data available for a given object.
 
 Reference/API
 =============
-The SIMBAD query tool creates a `script query
-<http://simbad.u-strasbg.fr/simbad/sim-fscript>`__ that returns VOtable XML
-data that is then parsed into a `astroquery.simbad.result.SimbadResult` object.
-This object then parses the data and returns an `astropy.votable` instance.
-
-The user-available query tools, `QueryId`, `QueryAroundId`, `QueryCoord`,
-`QueryCat`, `QueryBibobj`, `QueryMulti`, all create specific query types
-specifying the object or region to search.
-
-The `_Query.execute` command takes that query - e.g., ``query id`` for
-`QueryId` - and wraps it in the appropriate votable commands.  If you want
-additional fields returned (e.g., those that you can select on the `Output
-Options <http://simbad.u-strasbg.fr/simbad/sim-fout>`__ page), you can specify
-them by passing a `astroquery.simbad.simbad_votable.VoTableDef` object with
-different output options specified (as per
-`Section 5 of the script documents <http://simbad.u-strasbg.fr/simbad/sim-help?Page=sim-fscript#VotableFields`>__).
 
 .. automodapi:: astroquery.simbad
     :no-inheritance-diagram:
