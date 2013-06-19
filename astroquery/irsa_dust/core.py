@@ -404,6 +404,14 @@ class IrsaDust(BaseQuery):
                 raise ValueError(msg)
         return url_list
     
+    @class_or_instance
+    def list_image_types(self):
+        """
+        Returns a list of image_types available in the Irsa Dust
+        query results
+        """
+        return [key for key in IrsaDust.image_type_to_section]
+    
     
 class SingleDustResult(object):
     """
