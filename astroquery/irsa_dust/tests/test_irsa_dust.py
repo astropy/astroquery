@@ -65,10 +65,10 @@ class TestDust(DustTestCase):
             xml_tree = irsa_dust.utils.xml(data)
             
 #TODO : Add more examples. Add for "1 degree"-like parameters            
-    @pytest.mark.parametrize(('coordinate', 'radius', 'expected_payload'), [
-("m81", None, dict(locstr="m81")), 
-("m31", "5d", dict(locstr="m31", regSize=5.0))
-])
+    @pytest.mark.parametrize(('coordinate', 'radius', 'expected_payload'), 
+                             [("m81", None, dict(locstr="m81")), 
+                              ("m31", "5d", dict(locstr="m31", regSize=5.0))
+                              ])
     def test_args_to_payload_instance_1(self, coordinate, radius, expected_payload): 
         payload = irsa_dust.core.IrsaDust()._args_to_payload(coordinate, radius=radius)  
         assert payload == expected_payload
@@ -86,10 +86,10 @@ class TestDust(DustTestCase):
             payload = irsa_dust.core.IrsaDust()._args_to_payload("m81", radius=radius)
         assert ex.value.args[0] == errmsg
     
-    @pytest.mark.parametrize(('coordinate', 'radius', 'expected_payload'), [
-("m81", None, dict(locstr="m81")), 
-("m31", "5d", dict(locstr="m31", regSize=5.0))
-])
+    @pytest.mark.parametrize(('coordinate', 'radius', 'expected_payload'),
+                             [("m81", None, dict(locstr="m81")), 
+                              ("m31", "5d", dict(locstr="m31", regSize=5.0))
+                              ])
     def test_args_to_payload_class_1(self, coordinate, radius, expected_payload): 
         payload = irsa_dust.core.IrsaDust._args_to_payload(coordinate, radius=radius)  
         assert payload == expected_payload
@@ -107,18 +107,18 @@ class TestDust(DustTestCase):
             payload = irsa_dust.core.IrsaDust._args_to_payload("m81", radius=radius)
         assert ex.value.args[0] == errmsg
     
-    @pytest.mark.parametrize(('section', 'expected_urls'), [
-(None, M31_URL_ALL),                                                        
-('e', M31_URL_E),
-('em', M31_URL_E),
-('emission', M31_URL_E),
-('r', M31_URL_R),
-('red', M31_URL_R),
-('reddening', M31_URL_R),
-('t', M31_URL_T),
-('temp', M31_URL_T),
-('temperature', M31_URL_T)        
-])  
+    @pytest.mark.parametrize(('section', 'expected_urls'),
+                             [(None, M31_URL_ALL),                                                                                   
+                              ('e', M31_URL_E),
+                              ('em', M31_URL_E),
+                              ('emission', M31_URL_E),
+                              ('r', M31_URL_R),
+                              ('red', M31_URL_R),
+                              ('reddening', M31_URL_R),
+                              ('t', M31_URL_T),
+                              ('temp', M31_URL_T),
+                              ('temperature', M31_URL_T)        
+                              ])  
     def test_extract_image_urls_instance(self, section, expected_urls):
         raw_xml = open(self.data(M31_XML), "r").read()
         url_list = irsa_dust.core.IrsaDust().extract_image_urls(raw_xml, section=section)
@@ -129,18 +129,18 @@ class TestDust(DustTestCase):
         with pytest.raises(ValueError):
             irsa_dust.core.IrsaDust().extract_image_urls(raw_xml, section="l")
             
-    @pytest.mark.parametrize(('section', 'expected_urls'), [
-(None, M31_URL_ALL),                                                        
-('e', M31_URL_E),
-('em', M31_URL_E),
-('emission', M31_URL_E),
-('r', M31_URL_R),
-('red', M31_URL_R),
-('reddening', M31_URL_R),
-('t', M31_URL_T),
-('temp', M31_URL_T),
-('temperature', M31_URL_T)        
-])  
+    @pytest.mark.parametrize(('section', 'expected_urls'), 
+                             [(None, M31_URL_ALL),                                                        
+                              ('e', M31_URL_E),
+                              ('em', M31_URL_E),
+                              ('emission', M31_URL_E),
+                              ('r', M31_URL_R),
+                              ('red', M31_URL_R),
+                              ('reddening', M31_URL_R),
+                              ('t', M31_URL_T),
+                              ('temp', M31_URL_T),
+                              ('temperature', M31_URL_T)        
+                              ])  
     def test_extract_image_urls_class(self, section, expected_urls):
         raw_xml = open(self.data(M31_XML), "r").read()
         url_list = irsa_dust.core.IrsaDust.extract_image_urls(raw_xml, section=section)
@@ -152,14 +152,14 @@ class TestDust(DustTestCase):
             irsa_dust.core.IrsaDust.extract_image_urls(raw_xml, section="l")
 
 # tests using monkeypatching. TODO: Find how to apply a common patch to a group of functions
-    @pytest.mark.parametrize(('section', 'expected_length'), [
-(None, 35),
-('all', 35),                                                              
-('e', 10),
-('l', 4),
-('r', 11),
-('t', 10)                                                             
-])  
+    @pytest.mark.parametrize(('section', 'expected_length'), 
+                             [(None, 35),
+                              ('all', 35),                                                              
+                              ('e', 10),
+                              ('l', 4),
+                              ('r', 11),
+                              ('t', 10)                                                             
+                              ])  
     def test_query_table_class(self, monkeypatch, section, expected_length):
         def mockreturn(url, data, timeout):
             class MockResponse:
@@ -169,14 +169,14 @@ class TestDust(DustTestCase):
         qtable = irsa_dust.core.IrsaDust.get_query_table("m31", section=section)
         assert len(qtable.colnames) == expected_length
 
-    @pytest.mark.parametrize(('section', 'expected_length'), [
-(None, 35),
-('all', 35),                                                              
-('e', 10),
-('l', 4),
-('r', 11),
-('t', 10)                                                             
-])  
+    @pytest.mark.parametrize(('section', 'expected_length'), 
+                             [(None, 35),
+                              ('all', 35),                                                              
+                              ('e', 10),
+                              ('l', 4),
+                              ('r', 11),
+                              ('t', 10)                                                             
+                              ])  
     def test_query_table_instance(self, monkeypatch, section, expected_length):
         def mockreturn(url, data, timeout):
             class MockResponse:
