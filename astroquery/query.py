@@ -12,7 +12,12 @@ class BaseQuery(object):
 
     __metaclass__ = abc.ABCMeta
 
-    # would it really be necessary for every class to override this?
+
+class QueryWithLogin(BaseQuery):
+    """
+    This is the base class for all the query classes which are required to
+    have a login to access the data.
+    """
     @abc.abstractmethod
     def login(self, **kwargs):
         """
@@ -22,10 +27,5 @@ class BaseQuery(object):
         ----------
         Keyword arguments that can be used to create
         the data payload(dict) sent via `requests.post`
-
         """
-        pass
-
-    @abc.abstractmethod
-    def __call__(self):
         pass
