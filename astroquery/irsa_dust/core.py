@@ -4,10 +4,13 @@ import functools
 import requests
 from astropy.table import Table, Column
 import astropy.units as u
-from astropy.io import fits
-from . import utils
 import astropy.utils.data as aud
 import astropy.coordinates as coord
+from astropy.io import fits
+from . import utils
+from ..utils.class_or_instance import class_or_instance
+from ..exceptions import TimeoutError, InvalidQueryError
+
 
 # TODO Add support for server url from JSON cache
 __all__ = ["IrsaDust"]
@@ -33,28 +36,6 @@ MIN_VALUE = "minValue"
 DATA_IMAGE = "./data/image"
 DATA_TABLE = "./data/table"
 
-
-# support for classmethod overloading
-
-class class_or_instance(object):
-    def __init__(self, fn):
-        self.fn = fn
-    def __get__(self, obj, cls):
-        if obj is not None:
-            return lambda *args, **kwds: self.fn(obj, *args, **kwds)
-        else:
-            return lambda *args, **kwds: self.fn(cls, *args, **kwds)
-
-
-# Needs to be in a separate module
-class TimeoutError(Exception):
-    pass
-
-
-class InvalidQueryError(Exception):
-    pass
-
-
 class BaseQuery(object):
 
     def login(self, *args):
@@ -62,7 +43,7 @@ class BaseQuery(object):
 
     def __call__(self):
         raise Exception("All classes must override this!")
-# This is where the actual module starts
+
 # wondering if we can abstract this out of the functions and put it here?
 def send_request(url, data, timeout):
     """
@@ -91,10 +72,7 @@ def send_request(url, data, timeout):
                                format(time=timeout))
     except requests.exceptions.RequestException:
             raise Exception("Query failed\n")
-#ex.message doesn't work if no n/w 
-#put the parrallel_map outside the class? - not feasible if only class is being imported
 
-    
 
 class IrsaDust(BaseQuery):
     
