@@ -280,8 +280,8 @@ class IrsaDust(BaseQuery):
     def get_query_table(self, coordinate, radius=None, section=None, timeout=TIMEOUT, url=DUST_SERVICE_URL):
         """
         Create and return an astropy Table representing the query response(s).
-        When `section` is missing or `all`, returns the full table. When a 
-        section is specified (`location`, `extinction`, `emission`, or `temperature`),
+        When `section` is missing, returns the full table. When a 
+        section is specified (`location`, `extinction`, `ebv`, or `100um`),
         only that portion of the table is returned.
         
         Parameters
@@ -295,6 +295,10 @@ class IrsaDust(BaseQuery):
             The size of the region to include in the dust query, in radian, degree
             or hour as per format specified by `astropy.coordinates.Angle. Defaults 
             to 5 degrees.
+        section : str, optional
+            When missing, all the sections of the query result are returned. 
+            Otherwise only the specified section (`ebv`, `100um`, extinction`,
+            `location`) is returned. Defaults to `None`
         timeout : int, optional
             Time limit for establishing successful connection with remote server.
             Defaults to `astroquery.irsa_dust.IrsaDust.TIMEOUT`
@@ -305,13 +309,21 @@ class IrsaDust(BaseQuery):
         Returns
         --------
         table : `astropy.table.Table`
-            table representing the query results, (all or as per section specified)
+            table representing the query results, (all or as per  specified)
         """
         request_payload = self._args_to_payload(coordinate, radius=radius)
         response = send_request(url, request_payload, timeout)
         xml_tree = utils.xml(response.text)
         result = SingleDustResult(xml_tree, coordinate)
-        return result.table(section=section)
+        if section is None or section in ["location", "loc", "l"]:
+            return result.table(section=section)
+        try:
+            section = IrsaDust.image_type_to_section[section]
+            return result.table(section=section)
+        except KeyError:
+            msg = ('section must be one of the following:\n'
+                   'ebv, extinction, location or 100um.')
+            raise ValueError(msg)
 
     @class_or_instance
     def _args_to_payload(self, coordinate, radius=None):
