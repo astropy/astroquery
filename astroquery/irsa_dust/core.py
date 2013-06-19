@@ -562,7 +562,7 @@ class IrsaDust(BaseQuery):
             try:
                 a = coord.Angle(radius)
                 reg_size = a.degrees
-            except u.UnitsException as ex:
+            except (u.UnitsException, coord.errors.UnitsError) as ex:
                 raise Exception("Radius not specified with proper unit.")
 
             # check if radius falls in the acceptable range
