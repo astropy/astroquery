@@ -29,6 +29,11 @@ M31_URL_R = [
 M31_URL_T = [
 'http://irsa.ipac.caltech.edu//workspace/TMP_0fVHXe_17371/DUST/m31.v0001/p338temp.fits'            
 ]
+@pytest.fixture
+def patch_request(request):
+    mp = request.getfuncargvalue("monkeypatch")
+    mp.setattr(irsa_dust.core, 'send_request', TestDust().mockreturn)
+    return mp;
  
 class DustTestCase(object):
     def data(self, filename):
@@ -36,6 +41,7 @@ class DustTestCase(object):
         return os.path.join(data_dir, filename)
 
 class TestDust(DustTestCase):
+        
     def test_parse_number(self):
         string = "1.234 (mag)"
         number = irsa_dust.utils.parse_number(string)
@@ -147,12 +153,7 @@ class TestDust(DustTestCase):
                               ('ebv', 11),
                               ('extinction', 10)                                                             
                               ])  
-    def test_query_table_class(self, monkeypatch, section, expected_length):
-        def mockreturn(url, data, timeout):
-            class MockResponse:
-                    text = open(self.data(M31_XML), "r").read()
-            return MockResponse
-        monkeypatch.setattr(irsa_dust.core, 'send_request', mockreturn)
+    def test_query_table_class(self, patch_request, section, expected_length):
         qtable = irsa_dust.core.IrsaDust.get_query_table("m31", section=section)
         assert len(qtable.colnames) == expected_length
 
@@ -163,30 +164,15 @@ class TestDust(DustTestCase):
                               ('ebv', 11),
                               ('extinction', 10)                                                             
                               ])  
-    def test_query_table_instance(self, monkeypatch, section, expected_length):
-        def mockreturn(url, data, timeout):
-            class MockResponse:
-                    text = open(self.data(M31_XML), "r").read()
-            return MockResponse
-        monkeypatch.setattr(irsa_dust.core, 'send_request', mockreturn)
+    def test_query_table_instance(self, patch_request, section, expected_length):
         qtable = irsa_dust.core.IrsaDust.get_query_table("m31", section=section)
         assert len(qtable.colnames) == expected_length
     
-    def test_get_extinction_table_async_class(self, monkeypatch):
-        def mockreturn(url, data, timeout):
-            class MockResponse:
-                    text = open(self.data(M31_XML), "r").read()
-            return MockResponse
-        monkeypatch.setattr(irsa_dust.core, 'send_request', mockreturn)
+    def test_get_extinction_table_async_class(self, patch_request):
         readable_obj = irsa_dust.core.IrsaDust.get_extinction_table_async("m31")
         assert readable_obj != None
 
-    def test_get_extinction_table_async_instance(self, monkeypatch):
-        def mockreturn(url, data, timeout):
-            class MockResponse:
-                    text = open(self.data(M31_XML), "r").read()
-            return MockResponse
-        monkeypatch.setattr(irsa_dust.core, 'send_request', mockreturn)
+    def test_get_extinction_table_async_instance(self, patch_request):
         readable_obj = irsa_dust.core.IrsaDust().get_extinction_table_async("m31")
         assert readable_obj != None
     
@@ -344,6 +330,11 @@ class TestDust(DustTestCase):
         table = results.ext_detail_table(2)
         assert table != None
 """
+    def mockreturn(self,url,data,timeout):
+            class MockResponse:
+                    text = open(self.data(M31_XML), "r").read()
+            return MockResponse
+        
     def set_ext_table_text(self, text, xml_tree):
         results_node = irsa_dust.utils.find_result_node("E(B-V) Reddening", xml_tree)
         table_node = results_node.find("./data/table")
