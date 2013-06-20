@@ -8,6 +8,7 @@ import astropy.utils.data as aud
 import astropy.coordinates as coord
 from astropy.io import fits
 from . import utils
+from . import IRSA_DUST_SERVER, IRSA_DUST_TIMEOUT
 from ..utils.class_or_instance import class_or_instance
 from ..exceptions import TimeoutError, InvalidQueryError
 
@@ -76,8 +77,8 @@ def send_request(url, data, timeout):
 
 class IrsaDust(BaseQuery):
     
-    DUST_SERVICE_URL = "http://irsa.ipac.caltech.edu/cgi-bin/DUST/nph-dust"
-    TIMEOUT = 30 # todo - make this configurable
+    DUST_SERVICE_URL = IRSA_DUST_SERVER()
+    TIMEOUT = IRSA_DUST_TIMEOUT()
     image_type_to_section = {
                              'extinction' : 't',
                              'ebv' : 'r',
