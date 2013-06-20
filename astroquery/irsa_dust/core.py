@@ -11,7 +11,7 @@ from . import utils
 from . import IRSA_DUST_SERVER, IRSA_DUST_TIMEOUT
 from ..utils.class_or_instance import class_or_instance
 from ..exceptions import TimeoutError, InvalidQueryError
-
+from ..query import BaseQuery
 
 # TODO Add support for server url from JSON cache
 __all__ = ["IrsaDust"]
@@ -37,15 +37,7 @@ MIN_VALUE = "minValue"
 DATA_IMAGE = "./data/image"
 DATA_TABLE = "./data/table"
 
-class BaseQuery(object):
-
-    def login(self, *args):
-        pass
-
-    def __call__(self):
-        raise Exception("All classes must override this!")
-
-# wondering if we can abstract this out of the functions and put it here?
+# make generic enough to move to BaseQuery class
 def send_request(url, data, timeout):
     """
     A utility function that post HTTP requests to remote server
