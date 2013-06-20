@@ -4,6 +4,7 @@ import xml.etree.ElementTree as tree
 import astropy.units as u
 import astropy.utils.data as aud
 from astropy.tests.helper import pytest # import this since the user may not have pytest installed
+from astropy.io import fits
 from ... import irsa_dust
 
 M31_XML = "dustm31.xml"
@@ -11,7 +12,7 @@ M81_XML = "dustm81.xml"
 M101_XML = "dustm101.xml"
 ERR_XML = "dust-error.xml"
 EXT_TBL = "dust_ext_detail.tbl"
-
+IMG_FITS = "test.fits"
 M31_URL_ALL = [
 'http://irsa.ipac.caltech.edu//workspace/TMP_0fVHXe_17371/DUST/m31.v0001/p338Dust.fits',
 'http://irsa.ipac.caltech.edu//workspace/TMP_0fVHXe_17371/DUST/m31.v0001/p338i100.fits',
@@ -19,7 +20,7 @@ M31_URL_ALL = [
 ]
 
 M31_URL_E = [
-'http://irsa.ipac.caltech.edu//workspace/TMP_0fVHXe_17371/DUST/m31.v0001/p338i100.fits'      
+'http://irsa.ipac.caltech.edu//workspace/TMP_0fVHXe_17371/DUST/m31.v0001/p338i100.fits'
 ]
 
 M31_URL_R = [
@@ -27,21 +28,22 @@ M31_URL_R = [
 ]
 
 M31_URL_T = [
-'http://irsa.ipac.caltech.edu//workspace/TMP_0fVHXe_17371/DUST/m31.v0001/p338temp.fits'            
+'http://irsa.ipac.caltech.edu//workspace/TMP_0fVHXe_17371/DUST/m31.v0001/p338temp.fits'
 ]
+
 @pytest.fixture
 def patch_request(request):
     mp = request.getfuncargvalue("monkeypatch")
-    mp.setattr(irsa_dust.core, 'send_request', TestDust().mockreturn)
-    return mp;
- 
+    mp.setattr(irsa_dust.core, 'send_request', TestDust().send_request_mockreturn)
+    return mp
+
 class DustTestCase(object):
     def data(self, filename):
         data_dir = os.path.join(os.path.dirname(__file__), 'data')
         return os.path.join(data_dir, filename)
 
 class TestDust(DustTestCase):
-        
+
     def test_parse_number(self):
         string = "1.234 (mag)"
         number = irsa_dust.utils.parse_number(string)
@@ -59,7 +61,7 @@ class TestDust(DustTestCase):
         expected_units = u.format.Generic().parse("mJy/sr")
         actual_units = irsa_dust.utils.parse_units(string)
         assert expected_units == actual_units
-    
+
     def test_xml_ok(self):
         data = open(self.data(M31_XML), "r").read()
         xml_tree = irsa_dust.utils.xml(data)
@@ -69,105 +71,104 @@ class TestDust(DustTestCase):
         data = open(self.data(ERR_XML), "r").read()
         with pytest.raises(Exception) as ex:
             xml_tree = irsa_dust.utils.xml(data)
-            
-#TODO : Add more examples. Add for "1 degree"-like parameters            
-    @pytest.mark.parametrize(('coordinate', 'radius', 'expected_payload'), 
-                             [("m81", None, dict(locstr="m81")), 
+
+#TODO : Add more examples. Add for "1 degree"-like parameters
+    @pytest.mark.parametrize(('coordinate', 'radius', 'expected_payload'),
+                             [("m81", None, dict(locstr="m81")),
                               ("m31", "5d0m", dict(locstr="m31", regSize=5.0))
                               ])
-    def test_args_to_payload_instance_1(self, coordinate, radius, expected_payload): 
-        payload = irsa_dust.core.IrsaDust()._args_to_payload(coordinate, radius=radius)  
+    def test_args_to_payload_instance_1(self, coordinate, radius, expected_payload):
+        payload = irsa_dust.core.IrsaDust()._args_to_payload(coordinate, radius=radius)
         assert payload == expected_payload
-           
+
     def test_args_to_payload_instance_2(self):
         with pytest.raises(Exception) as ex:
             payload = irsa_dust.core.IrsaDust()._args_to_payload("m81", radius = "5")
         assert ex.value.args[0] == "Radius not specified with proper unit."
-    
-    @pytest.mark.parametrize(('radius'), ['1d0m', '40d0m'])    
+
+    @pytest.mark.parametrize(('radius'), ['1d0m', '40d0m'])
     def test_args_to_payload_instance_3(self, radius):
         errmsg = ("Radius (in any unit) must be in the"
                   " range of 2.0 to 37.5 degrees")
         with pytest.raises(ValueError) as ex:
             payload = irsa_dust.core.IrsaDust()._args_to_payload("m81", radius=radius)
         assert ex.value.args[0] == errmsg
-    
+
     @pytest.mark.parametrize(('coordinate', 'radius', 'expected_payload'),
-                             [("m81", None, dict(locstr="m81")), 
+                             [("m81", None, dict(locstr="m81")),
                               ("m31", "5d0m", dict(locstr="m31", regSize=5.0))
                               ])
-    def test_args_to_payload_class_1(self, coordinate, radius, expected_payload): 
-        payload = irsa_dust.core.IrsaDust._args_to_payload(coordinate, radius=radius)  
+    def test_args_to_payload_class_1(self, coordinate, radius, expected_payload):
+        payload = irsa_dust.core.IrsaDust._args_to_payload(coordinate, radius=radius)
         assert payload == expected_payload
-           
+
     def test_args_to_payload_class_2(self):
         with pytest.raises(Exception) as ex:
             payload = irsa_dust.core.IrsaDust._args_to_payload("m81", radius = "5")
         assert ex.value.args[0] == "Radius not specified with proper unit."
-    
-    @pytest.mark.parametrize(('radius'), ['1d0m', '40d0m'])    
+
+    @pytest.mark.parametrize(('radius'), ['1d0m', '40d0m'])
     def test_args_to_payload_class_3(self, radius):
         errmsg = ("Radius (in any unit) must be in the"
                   " range of 2.0 to 37.5 degrees")
         with pytest.raises(ValueError) as ex:
             payload = irsa_dust.core.IrsaDust._args_to_payload("m81", radius=radius)
         assert ex.value.args[0] == errmsg
-    
+
     @pytest.mark.parametrize(('image_type', 'expected_urls'),
-                             [(None, M31_URL_ALL),                                                                                   
+                             [(None, M31_URL_ALL),
                               ('100um', M31_URL_E),
                               ('ebv', M31_URL_R),
-                              ('extinction', M31_URL_T),       
-                              ])  
+                              ('extinction', M31_URL_T),
+                              ])
     def test_extract_image_urls_instance(self, image_type, expected_urls):
         raw_xml = open(self.data(M31_XML), "r").read()
         url_list = irsa_dust.core.IrsaDust().extract_image_urls(raw_xml, image_type=image_type)
         assert url_list == expected_urls
-        
+
     def test_extract_image_urls_instance__err(self):
         raw_xml = open(self.data(M31_XML), "r").read()
         with pytest.raises(ValueError):
             irsa_dust.core.IrsaDust().extract_image_urls(raw_xml, image_type="l")
-            
-    @pytest.mark.parametrize(('image_type', 'expected_urls'), 
-                             [(None, M31_URL_ALL),                                                        
+
+    @pytest.mark.parametrize(('image_type', 'expected_urls'),
+                             [(None, M31_URL_ALL),
                               ('100um', M31_URL_E),
                               ('ebv', M31_URL_R),
                               ('extinction', M31_URL_T),
-                              ])  
+                              ])
     def test_extract_image_urls_class(self, image_type, expected_urls):
         raw_xml = open(self.data(M31_XML), "r").read()
         url_list = irsa_dust.core.IrsaDust.extract_image_urls(raw_xml, image_type=image_type)
         assert url_list == expected_urls
-    
+
     def test_extract_image_urls_class__err(self):
         raw_xml = open(self.data(M31_XML), "r").read()
         with pytest.raises(ValueError):
             irsa_dust.core.IrsaDust.extract_image_urls(raw_xml, image_type="l")
 
-# tests using monkeypatching. TODO: Find how to apply a common patch to a group of functions
-    @pytest.mark.parametrize(('section', 'expected_length'), 
-                             [(None, 35),                                                              
-                              ('100um', 10),
-                              ('location', 4),
-                              ('ebv', 11),
-                              ('extinction', 10)                                                             
-                              ])  
-    def test_query_table_class(self, patch_request, section, expected_length):
-        qtable = irsa_dust.core.IrsaDust.get_query_table("m31", section=section)
-        assert len(qtable.colnames) == expected_length
-
-    @pytest.mark.parametrize(('section', 'expected_length'), 
+    @pytest.mark.parametrize(('section', 'expected_length'),
                              [(None, 35),
                               ('100um', 10),
                               ('location', 4),
                               ('ebv', 11),
-                              ('extinction', 10)                                                             
-                              ])  
+                              ('extinction', 10)
+                              ])
+    def test_query_table_class(self, patch_request, section, expected_length):
+        qtable = irsa_dust.core.IrsaDust.get_query_table("m31", section=section)
+        assert len(qtable.colnames) == expected_length
+
+    @pytest.mark.parametrize(('section', 'expected_length'),
+                             [(None, 35),
+                              ('100um', 10),
+                              ('location', 4),
+                              ('ebv', 11),
+                              ('extinction', 10)
+                              ])
     def test_query_table_instance(self, patch_request, section, expected_length):
         qtable = irsa_dust.core.IrsaDust.get_query_table("m31", section=section)
         assert len(qtable.colnames) == expected_length
-    
+
     def test_get_extinction_table_async_class(self, patch_request):
         readable_obj = irsa_dust.core.IrsaDust.get_extinction_table_async("m31")
         assert readable_obj != None
@@ -175,166 +176,103 @@ class TestDust(DustTestCase):
     def test_get_extinction_table_async_instance(self, patch_request):
         readable_obj = irsa_dust.core.IrsaDust().get_extinction_table_async("m31")
         assert readable_obj != None
-    
-    
-    """
-    def test_get_xml(self): #what does it test?
-        data = self.data(M31_XML)
-        xml_tree = tree.ElementTree().parse(data)
-        assert xml_tree != None
 
-    def test_get_image(self):   #remove
-        url = "file:" + self.data("test.fits")
-        img = irsa_dust.utils.image(url)
-        assert img != None
-
-    def test_get_ext_detail_table(self): #remove
-        url = "file:" + self.data("dust_ext_detail.tbl")
-        table = irsa_dust.utils.ext_detail_table(url)
+    def test_get_extinction_table_class(self, monkeypatch):
+        monkeypatch.setattr(irsa_dust.core.IrsaDust, 'get_extinction_table_async',
+                            self.get_ext_table_async_mockreturn)
+        table = irsa_dust.core.IrsaDust.get_extinction_table("m31")
         assert table != None
 
-    def test_find_result_node(self):
-        data = self.data(M31_XML)
-        xml_tree = tree.ElementTree().parse(data)
-
-        desc = "E(B-V) Reddening"
-        node = irsa_dust.utils.find_result_node(desc, xml_tree)
-        assert node != None
-
-    def test_dust_result_table(self): #remove
-        data = self.data(M31_XML)
-        xml_tree = tree.ElementTree().parse(data)
-        result = irsa_dust.SingleDustResult(xml_tree, "m31")
-        results = irsa_dust.DustResults([result])
-        table = results.table()
+    def test_get_extinction_table_instance(self, monkeypatch):
+        monkeypatch.setattr(irsa_dust.core.IrsaDust, 'get_extinction_table_async',
+                            self.get_ext_table_async_mockreturn)
+        table = irsa_dust.core.IrsaDust().get_extinction_table("m31")
         assert table != None
 
-        table = results.table("loc")
-        assert table != None
+    @pytest.mark.parametrize(('image_type', 'expected_urls'),
+                             [(None, M31_URL_ALL),
+                              ('100um', M31_URL_E),
+                              ('ebv', M31_URL_R),
+                              ('extinction', M31_URL_T),
+                              ])
+    def test_get_image_list_class(self, patch_request, image_type, expected_urls):
+        url_list = irsa_dust.core.IrsaDust.get_image_list("m81", image_type=image_type)
+        assert url_list == expected_urls
 
-        table = results.table("reddening")
-        assert table != None
+    @pytest.mark.parametrize(('image_type', 'expected_urls'),
+                             [(None, M31_URL_ALL),
+                              ('100um', M31_URL_E),
+                              ('ebv', M31_URL_R),
+                              ('extinction', M31_URL_T),
+                              ])
+    def test_get_image_list_instance(self, patch_request, image_type, expected_urls):
+        url_list = irsa_dust.core.IrsaDust().get_image_list("m81", image_type=image_type)
+        assert url_list == expected_urls
 
-        table = results.table("e")
-        assert table != None
+    @pytest.mark.parametrize(('image_type'),
+                             [(None),
+                              ('100um'),
+                              ('ebv'),
+                              ('extinction'),
+                              ])
+    def test_get_images_async_class(self, monkeypatch, image_type):
+        monkeypatch.setattr(irsa_dust.core.IrsaDust, 'get_image_list',
+                            self.get_image_list_mockreturn)
+        readable_objs = irsa_dust.core.IrsaDust.get_images_async("m81",
+                                                                 image_type=image_type)
+        assert readable_objs != None
 
-        table = results.table("temp")
-        assert table != None
+    @pytest.mark.parametrize(('image_type'),
+                             [(None),
+                              ('100um'),
+                              ('ebv'),
+                              ('extinction'),
+                              ])
+    def test_get_images_async_instance(self, monkeypatch, image_type):
+        monkeypatch.setattr(irsa_dust.core.IrsaDust, 'get_image_list',
+                            self.get_image_list_mockreturn)
+        readable_objs = irsa_dust.core.IrsaDust().get_images_async("m81",
+                                                                 image_type=image_type)
+        assert readable_objs != None
 
-    def test_append_results(self):#remove
-        # Build first DustResults, length 1
-        data = self.data(M31_XML)
-        xml_tree = tree.ElementTree().parse(data)
-        result1 = irsa_dust.SingleDustResult(xml_tree, "m31")
-        results_a = irsa_dust.DustResults([result1])
+    def test_get_images_class(self, monkeypatch):
+        monkeypatch.setattr(irsa_dust.core.IrsaDust, 'get_images_async',
+                            self.get_images_async_mockreturn)
+        images = irsa_dust.core.IrsaDust.get_images("m81")
+        assert images != None
 
-        assert len(results_a.table()) == 1
+    def test_get_images_instance(self, monkeypatch):
+        monkeypatch.setattr(irsa_dust.core.IrsaDust, 'get_images_async',
+                            self.get_images_async_mockreturn)
+        images = irsa_dust.core.IrsaDust().get_images("m81")
+        assert images != None
 
-        # Build second DustResults, length 2
-        data = self.data(M81_XML)
-        xml_tree = tree.ElementTree().parse(data)
-        result2 = irsa_dust.SingleDustResult(xml_tree, "m81")
+    def test_list_image_types_class(self):
+        types = irsa_dust.core.IrsaDust.list_image_types()
+        assert types != None
 
-        data = self.data(M101_XML)
-        xml_tree = tree.ElementTree().parse(data)
-        result3 = irsa_dust.SingleDustResult(xml_tree, "m101")
-
-        results_b = irsa_dust.DustResults([result2, result3])
-
-        assert len(results_b.table()) == 2
-
-        # Append second to first
-        results_a.append(results_b)
-       
-        # Verify 
-        assert len(results_a.table()) == 3
-        assert results_a.result_set[2].query_loc == "m101"
-        assert results_a.table()[2]["Dec"] == float("54.348950")
-
-    def test_dust_result_image(self):#remove
-        data = self.data(M31_XML)
-        xml_tree = tree.ElementTree().parse(data)
-        self.set_ext_image_text("file:" + self.data("test.fits"), xml_tree)
-        result = irsa_dust.SingleDustResult(xml_tree, "m31")
-        results = irsa_dust.DustResults([result])
-
-        image = results.image("red", row=1)
-        assert image != None
-
-    def test_dust_result_ext_detail_table(self):#remove
-        data = self.data(M31_XML)
-        xml_tree = tree.ElementTree().parse(data)
-        self.set_ext_table_text("file:" + self.data("dust_ext_detail.tbl"), xml_tree)
-        result = irsa_dust.SingleDustResult(xml_tree, "m31")
-        results = irsa_dust.DustResults([result])
-
-        ext_detail = results.ext_detail_table(row=1)
-        assert ext_detail != None
-
-    def test_multi_row_tables(self):#remove
-        data = self.data(M31_XML)
-        xml_tree = tree.ElementTree().parse(data)
-        result1 = irsa_dust.SingleDustResult(xml_tree, "m31")
-
-        data = self.data(M81_XML)
-        xml_tree = tree.ElementTree().parse(data)
-        result2 = irsa_dust.SingleDustResult(xml_tree, "m81")
-
-        data = self.data(M101_XML)
-        xml_tree = tree.ElementTree().parse(data)
-        result3 = irsa_dust.SingleDustResult(xml_tree, "m101")
-
-        results = irsa_dust.DustResults([result1, result2, result3])
-        table = results.table()
-        
-        assert table != None
-
-        table = results.table("location")
-        assert table != None
-
-        table = results.table("temp")
-        assert table != None
-
-    def test_multi_query_images(self):#remove
-        data = self.data(M31_XML)
-        xml_tree = tree.ElementTree().parse(data)
-        result1 = irsa_dust.SingleDustResult(xml_tree, "m31")
-
-        data = self.data(M81_XML)
-        xml_tree = tree.ElementTree().parse(data)
-        self.set_ext_image_text("file:" + self.data("test.fits"), xml_tree)
-        result2 = irsa_dust.SingleDustResult(xml_tree, "m81")
-
-        results = irsa_dust.DustResults([result1, result2])
-        image = results.image("red", 2)
-        assert image != None
-
-        # When row is out of bounds, make sure correct exception is raised 
-        try:
-            image = results.image("temp", 3)
-        except IndexError as e:
-            msg = str(e)
-        assert msg != None
-
-    def test_multi_query_detail_tables(self):#remove
-        data = self.data(M31_XML)
-        xml_tree = tree.ElementTree().parse(data)
-        result1 = irsa_dust.SingleDustResult(xml_tree, "m31")
-
-        data = self.data(M81_XML)
-        xml_tree = tree.ElementTree().parse(data)
-        self.set_ext_table_text("file:" + self.data("dust_ext_detail.tbl"), xml_tree)
-        result2 = irsa_dust.SingleDustResult(xml_tree, "m81")
-
-        results = irsa_dust.DustResults([result1, result2])
-        table = results.ext_detail_table(2)
-        assert table != None
-"""
-    def mockreturn(self,url,data,timeout):
+    def test_list_image_types_instance(self):
+        types = irsa_dust.core.IrsaDust().list_image_types()
+        assert types != None
+        def send_request_mockreturn(self,url,data,timeout):
             class MockResponse:
-                    text = open(self.data(M31_XML), "r").read()
+                text = open(self.data(M31_XML), "r").read()
             return MockResponse
-        
+
+    def get_ext_table_async_mockreturn(self,coordinate, radius=None,
+                                       timeout=irsa_dust.core.IrsaDust.TIMEOUT):
+        return(aud.get_readable_fileobj(self.data(EXT_TBL)))
+
+    def get_image_list_mockreturn(self, coordinate, radius=None, image_type=None,
+                                  timeout=irsa_dust.core.IrsaDust.TIMEOUT):
+        return [self.data(IMG_FITS)]
+
+    def get_images_async_mockreturn(self, coordinate, radius=None, image_type=None,
+                                    timeout=irsa_dust.core.IrsaDust.TIMEOUT,
+                                    get_query_payload=False):
+        readable_obj = aud.get_readable_fileobj(self.data(IMG_FITS))
+        return [readable_obj]
+
     def set_ext_table_text(self, text, xml_tree):
         results_node = irsa_dust.utils.find_result_node("E(B-V) Reddening", xml_tree)
         table_node = results_node.find("./data/table")
