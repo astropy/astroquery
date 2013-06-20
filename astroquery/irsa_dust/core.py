@@ -37,7 +37,7 @@ MIN_VALUE = "minValue"
 DATA_IMAGE = "./data/image"
 DATA_TABLE = "./data/table"
 
-# make generic enough to move to BaseQuery class
+# make generic enough to move to BaseQuery classf_ar
 def send_request(url, data, timeout):
     """
     A utility function that post HTTP requests to remote server
@@ -91,10 +91,10 @@ class IrsaDust(BaseQuery):
             If a name, must be resolveable by NED, SIMBAD, 2MASS, or SWAS.
             Examples of acceptable coordinate strings, can be found here:
             http://irsa.ipac.caltech.edu/applications/DUST/docs/coordinate.html.
-        radius : str, optional
+        radius : str/astropy.units.Quantity, optional
             The size of the region to include in the dust query, in radian, degree
-            or hour as per format specified by `astropy.coordinates.Angle. Defaults 
-            to 5 degrees.
+            or hour as per format specified by `astropy.coordinates.Angle or `astropy
+            .units.Quantity`. Defaults to 5 degrees.
         image_type : str, optional
             When missing returns for all the images. Otherwise returns only
             for image of the specified type which must be one of `extinction`, `ebv`, 
@@ -117,7 +117,7 @@ class IrsaDust(BaseQuery):
         >>> fits_objects = IrsaDust.get_images('m81')
         
         Query an object specifying the coordinates and the radius
-        >>> fits_objects = IrsaDust.get_images('266.12 -61.89 equ j2000', radius='7.5 deg')
+        >>> fits_objects = IrsaDust.get_images('266.12 -61.89 equ j2000', radius=5 * u.deg)
         
         Only return the dictionary formed from the query parameters
         >>> query_payload = get_images('34.5565 54.2321 gal', radius='0.13 rad')  
@@ -143,10 +143,10 @@ class IrsaDust(BaseQuery):
             If a name, must be resolveable by NED, SIMBAD, 2MASS, or SWAS.
             Examples of acceptable coordinate strings, can be found here:
             http://irsa.ipac.caltech.edu/applications/DUST/docs/coordinate.html
-        radius : str, optional
+        radius : str/astropy.units.Quantity, optional
             The size of the region to include in the dust query, in radian, degree
-            or hour as per format specified by `astropy.coordinates.Angle. Defaults 
-            to 5 degrees.
+            or hour as per format specified by `astropy.coordinates.Angle or `astropy
+            .units.Quantity`. Defaults to 5 degrees.
         image_type : str, optional
             When missing returns for all the images. Otherwise returns only
             for image of the specified type which must be one of `extinction`, `ebv`, 
@@ -182,10 +182,10 @@ class IrsaDust(BaseQuery):
             If a name, must be resolveable by NED, SIMBAD, 2MASS, or SWAS.
             Examples of acceptable coordinate strings, can be found here:
             http://irsa.ipac.caltech.edu/applications/DUST/docs/coordinate.html
-        radius : str, optional
+        radius : str/astropy.units.Quantity, optional
             The size of the region to include in the dust query, in radian, degree
-            or hour as per format specified by `astropy.coordinates.Angle. Defaults 
-            to 5 degrees.
+            or hour as per format specified by `astropy.coordinates.Angle or `astropy
+            .units.Quantity`. Defaults to 5 degrees.
         image_type : str, optional
             When missing returns for all the images. Otherwise returns only
             for image of the specified type which must be one of `extinction`, 
@@ -220,10 +220,10 @@ class IrsaDust(BaseQuery):
             If a name, must be resolveable by NED, SIMBAD, 2MASS, or SWAS.
             Examples of acceptable coordinate strings, can be found here:
             http://irsa.ipac.caltech.edu/applications/DUST/docs/coordinate.html
-        radius : str, optional
+        radius : str/astropy.units.Quantity, optional
             The size of the region to include in the dust query, in radian, degree
-            or hour as per format specified by `astropy.coordinates.Angle. Defaults 
-            to 5 degrees.
+            or hour as per format specified by `astropy.coordinates.Angle or `astropy
+            .units.Quantity`. Defaults to 5 degrees.
         timeout : int, optional
             Time limit for establishing successful connection with remote server.
             Defaults to `astroquery.irsa_dust.IrsaDust.TIMEOUT`
@@ -284,10 +284,10 @@ class IrsaDust(BaseQuery):
             If a name, must be resolveable by NED, SIMBAD, 2MASS, or SWAS.
             Examples of acceptable coordinate strings, can be found here:
             http://irsa.ipac.caltech.edu/applications/DUST/docs/coordinate.html
-        radius : str, optional
+        radius : str/astropy.units.Quantity, optional
             The size of the region to include in the dust query, in radian, degree
-            or hour as per format specified by `astropy.coordinates.Angle. Defaults 
-            to 5 degrees.
+            or hour as per format specified by `astropy.coordinates.Angle or `astropy
+            .units.Quantity`. Defaults to 5 degrees.
         section : str, optional
             When missing, all the sections of the query result are returned. 
             Otherwise only the specified section (`ebv`, `100um`, extinction`,
@@ -331,10 +331,10 @@ class IrsaDust(BaseQuery):
             If a name, must be resolveable by NED, SIMBAD, 2MASS, or SWAS.
             Examples of acceptable coordinate strings, can be found here:
             http://irsa.ipac.caltech.edu/applications/DUST/docs/coordinate.html
-        radius : str, optional
+        radius : str/astropy.units.Quantity, optional
             The size of the region to include in the dust query, in radian, degree
-            or hour as per format specified by `astropy.coordinates.Angle. Defaults 
-            to 5 degrees.
+            or hour as per format specified by `astropy.coordinates.Angle or `astropy
+            .units.Quantity`. Defaults to 5 degrees.
         
         Returns
         -------
@@ -345,18 +345,57 @@ class IrsaDust(BaseQuery):
         # check if radius is given with proper units
         if radius != None:
             try:
-                a = coord.Angle(radius)
-                reg_size = a.degrees
+                if isinstance(radius, basestring):
+                    reg_size = self._parse_as_angle(radius)
+                else:
+                    reg_size = self._parse_as_quantity(radius)
             # astropy v0.2.x throws UnitsError and v>0.2.x throws UnitsException
             except (u.UnitsException, coord.errors.UnitsError) as ex:
                 raise Exception("Radius not specified with proper unit.")
-
             # check if radius falls in the acceptable range
             if reg_size < 2 or reg_size > 37.5:
                 raise ValueError("Radius (in any unit) must be in the"
                                  " range of 2.0 to 37.5 degrees")
             payload["regSize"] = reg_size
         return payload
+    
+    @class_or_instance
+    def _parse_as_angle(self, radius):
+        """
+        Helper function for _args_to_payload, parses the
+        given string as an `astropy.coordinates.Angle` and 
+        returns its value in degrees
+        
+        Parameters
+        ----------
+        radius : str
+            string representing the angle
+        
+        Returns
+        -------
+        int 
+            value of angle in degrees
+        """
+        return coord.Angle(radius).degrees
+    
+    @class_or_instance
+    def _parse_as_quantity(self, radius):
+        """
+        Helper function for _args_to_payload, parses the
+        given string as an `astropy.units.Quantity` and 
+        returns its value in degrees
+        
+        Parameters
+        ----------
+        radius : astropy.units.Quantity
+            representation of the angle
+        
+        Returns
+        -------
+        int 
+            value of angle in degrees
+        """
+        return radius.degree
 
     @class_or_instance
     def extract_image_urls(self, raw_xml, image_type=None):
