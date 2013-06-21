@@ -407,7 +407,7 @@ class IrsaDust(BaseQuery):
         """
         #this works only for astropy v >=0.3
         #return radius.degree
-        return coords.Angle(radius.value, unit=radius.unit).degrees
+        return coord.Angle(radius.value, unit=radius.unit).degrees
 
     @class_or_instance
     def extract_image_urls(self, raw_xml, image_type=None):
