@@ -360,7 +360,7 @@ class IrsaDust(BaseQuery):
                     reg_size = self._parse_as_quantity(radius)
             # astropy v0.2.x throws UnitsError and v>0.2.x throws
             # UnitsException
-            except (u.UnitsException, coord.errors.UnitsError) as ex:
+            except (u.UnitsException, coord.errors.UnitsError, AttributeError):
                 raise Exception("Radius not specified with proper unit.")
             # check if radius falls in the acceptable range
             if reg_size < 2 or reg_size > 37.5:
