@@ -20,8 +20,11 @@ def patch_execute(request):
 
 def execute_query_mockreturn(query, votabledef, limit, pedantic, mirror=None):
     if isinstance(query, simbad.queries.QueryMulti):
-        return open(data(MULTI_DATA), "r").read()
-    return open(data(M31_DATA), "r").read()
+        text = open(data(MULTI_DATA), "r").read()
+    else:
+        text = open(data(M31_DATA), "r").read()
+    return simbad.result.SimbadResult(text)
+
 
 def test_simbad_1(patch_execute):
     r = simbad.QueryAroundId('m31', radius='0.5s').execute()
