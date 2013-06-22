@@ -14,7 +14,7 @@ def data(filename):
 @pytest.fixture
 def patch_post(request):
     mp = request.getfuncargvalue("monkeypatch")
-    mp.setattr(requests, 'post', 'post_mockreturn')
+    mp.setattr(requests, 'post', post_mockreturn)
     return mp
 
 class MockResponse(object):
