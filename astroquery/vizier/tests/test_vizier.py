@@ -7,7 +7,7 @@ from ... import vizier
 VII258_DATA = "vii258.txt"
 II246_DATA = "ii246.txt"
 
-def data(filename):
+def data_path(filename):
     data_dir = os.path.join(os.path.dirname(__file__), 'data')
     return os.path.join(data_dir, filename)
 
@@ -23,9 +23,9 @@ class MockResponse(object):
 
 def post_mockreturn(url, data=None):
     if "258" in data:
-        filename = VII258_DATA
+        filename = data_path(VII258_DATA)
     elif "246" in data:
-        filename = II246_DATA
+        filename = data_path(II246_DATA)
     else:
         raise Exception("Query constructed incorrectly")
     content = open(filename, "r").read()
