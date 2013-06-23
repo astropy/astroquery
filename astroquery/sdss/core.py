@@ -45,7 +45,7 @@ template_prefix = 'http://www.sdss.org/dr5/algorithms/spectemplates/spDR2'
 
 sdss_arcsec_per_pixel = 0.396
 
-def crossID(ra, dec, unit=None, dr=2., fields=None, spectro=True):
+def crossID(ra, dec, unit=None, dr=2., fields=None, spectro=False):
     """
     Perform object cross-ID in SDSS using SQL.
 
@@ -57,8 +57,8 @@ def crossID(ra, dec, unit=None, dr=2., fields=None, spectro=True):
         An object that represents a right ascension angle.
     dec : float, int, str, tuple
         An object that represents a declination angle.
-    unit : `~astropy.units.UnitBase`, str
-        The unit of the value specified for the angle
+    unit : astropy.units.UnitBase, str
+        The unit of the value specified for the angle.
     dr : int, float
         Radius of region to perform object cross-ID (arcseconds).
     fields : list, optional
@@ -68,8 +68,8 @@ def crossID(ra, dec, unit=None, dr=2., fields=None, spectro=True):
     spectro : bool, optional
         Look for spectroscopic match in addition to photometric match? If True,
         objects will only count as a match if photometry *and* spectroscopy
-        exist. Setting spectro=False will look for photometric matches only.
-             
+        exist. If False, will look for photometric matches only.
+
     See documentation for astropy.coordinates.angles for more information 
     about ('ra', 'dec', 'unit') parameters.
 
