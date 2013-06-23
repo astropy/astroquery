@@ -9,13 +9,13 @@ from astropy.table import Table
 import astropy.io.fits as fits
 
 
-__all__ = ['query','get_file']
+__all__ = ['query', 'save_file', 'get_file']
 id_parse = re.compile('ID\=(\d+)')
 
 
 uri = 'http://sha.ipac.caltech.edu/applications/Spitzer/SHA/servlet/DataService?'
 
-def query(ra=None, dec=None, size=None, naifid=None, pid=None,
+def query(coord=None, ra=None, dec=None, size=None, naifid=None, pid=None,
     reqkey=None, dataset=2, verbosity=3):
     """
     Query the Spitzer Heritage Archive (SHA).
@@ -35,18 +35,22 @@ def query(ra=None, dec=None, size=None, naifid=None, pid=None,
 
     Parameters
     ----------
+    coord : astropy.coordinates.builtin_systems
+        Astropy coordinate object. (query_type = 'position')
     ra : number
-        Right ascension in degrees
+        Right ascension in degrees, alternative to using `coord`. (query_type =
+        'position')
     dec : number
-        Declination in degrees
+        Declination in degrees, alternative to using `coord`. (query_type =
+        'position')
     size : number
-        Region size in degrees
+        Region size in degrees. (query_type = 'position')
     naifid : number
-        NAIF ID
+        NAIF ID. (query_type = 'naifid')
     pid : number
-        Program ID
+        Program ID. (query_type = 'pid')
     reqkey : number
-        Astronomical Observation Request ID
+        Astronomical Observation Request ID. (query_type = 'reqkey')
     dataset : number, default 2
         Data set. Valid options:
             1 -> BCD data
@@ -60,9 +64,22 @@ def query(ra=None, dec=None, size=None, naifid=None, pid=None,
 
     Examples
     --------
+    Position query using an astropy coordinate object:
+    >>> import astropy.coordinates as coord
+    >>> import astropy.units as u
+    >>> pos_t = sha.query(coord=coord.FK5(ra=163.6136, dec=-11.784,
+    ... unit=(u.degree, u.degree)), size=0.5)
+
+    Position query with optional `ra` and `dec` paramters:
     >>> pos_t = sha.query(ra=163.6136, dec=-11.784, size=0.5)
+
+    NAIFID query:
     >>> nid_t = sha.query(naifid=2003226)
+
+    PID query:
     >>> pid_t = sha.query(pid=30080)
+
+    ReqKey query:
     >>> rqk_t = sha.query(reqkey=21641216)
 
     Notes
@@ -71,6 +88,13 @@ def query(ra=None, dec=None, size=None, naifid=None, pid=None,
     query API_ help page:
     .. _API: http://sha.ipac.caltech.edu/applications/Spitzer/SHA/help/doc/api.html
     """
+    # Use Coordinate instance if supplied
+    if coord is not None:
+        try:
+            ra = coord.fk5.ra.degrees
+            dec = coord.fk5.dec.degrees
+        except:
+            raise Exception('Cannot parse `coord` variable.')
     # Query parameters
     payload = {'RA': ra,
                'DEC': dec,

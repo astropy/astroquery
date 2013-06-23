@@ -4,7 +4,7 @@ import requests
 import numpy as np
 from astropy.table import Table
 
-__all__ = ['query','print_mols']
+__all__ = ['query', 'print_mols']
 
 
 url = "http://home.strw.leidenuniv.nl/~moldata/datafiles/{0}.dat"
@@ -24,7 +24,7 @@ mols = {
     'SiS': ['sis@xpol'],
     'SiC2': ['o-sic2'],
     'HCO+': ['hco+@xpol', 'h13co+@xpol', 'hc17o+@xpol', 'hc18o+@xpol',
-        'dco+@xpol'],
+             'dco+@xpol'],
     'N2H+': ['n2h+@xpol', 'n2h+_hfs'],
     'HCS+': ['hcs+@xpol'],
     'HC3N': ['hc3n'],
@@ -46,10 +46,10 @@ mols = {
     'HF': ['hf']
      }
 query_types = {
-     'erg_levels': '!NUMBER OF ENERGY LEVELS',
-     'rad_trans': '!NUMBER OF RADIATIVE TRANSITIONS',
-     'coll_rates': '!COLLISIONS BETWEEN'
-     }
+    'erg_levels': '!NUMBER OF ENERGY LEVELS',
+    'rad_trans': '!NUMBER OF RADIATIVE TRANSITIONS',
+    'coll_rates': '!COLLISIONS BETWEEN'
+    }
 
 
 def print_mols():
@@ -98,10 +98,10 @@ def query(mol, query_type, coll_partner_index=0):
         raise ValueError
     # Send HTTP request to open URL
     datafile = [s.strip() for s in
-        requests.get(url.format(mol)).iter_lines()]
+                requests.get(url.format(mol)).iter_lines()]
     # Parse datafile string list and return a table
     table = _parse_datafile(datafile, query_type=query_type,
-        coll_partner_index=coll_partner_index)
+                            coll_partner_index=coll_partner_index)
     return table
 
 
@@ -136,7 +136,7 @@ def _parse_datafile(datafile, query_type, coll_partner_index=0):
     start_index = sections[i][0]
     # Select rows and columns from the raw datafile list
     data, col_names = _select_data(datafile, start_index,
-        query_type=query_type)
+                                   query_type=query_type)
     # Convert columns with string data types to floats if possible
     col_dtypes = _check_dtypes(data)
     table = Table(data, names=col_names, dtypes=col_dtypes)
