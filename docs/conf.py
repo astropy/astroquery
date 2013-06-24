@@ -158,3 +158,19 @@ else:
 
 edit_on_github_source_root = ""
 edit_on_github_doc_root = "docs"
+
+## -- Options for the edit_on_github extension ----------------------------------------
+#
+#extensions += ['astropy.sphinx.ext.edit_on_github']
+#
+## Don't import the module as "version" or it will override the
+## "version" configuration parameter
+#from packagename import version as versionmod
+#edit_on_github_project = "astropy/reponame"
+#if versionmod.release:
+#    edit_on_github_branch = "v" + versionmod.version
+#else:
+#    edit_on_github_branch = "master"
+#
+#edit_on_github_source_root = ""
+#edit_on_github_doc_root = "docs"
