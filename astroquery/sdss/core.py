@@ -20,7 +20,8 @@ from astropy import coordinates as coord
 import requests
 import io
 
-__all__ = ['crossID','get_image','get_spectral_template','get_spectrum']
+__all__ = ['crossID','get_image','get_spectral_template','get_spectrum',
+    'spec_templates']
 
 # Default photometric and spectroscopic quantities to retrieve.
 photoobj_defs = ['ra', 'dec', 'objid', 'run', 'rerun', 'camcol', 'field']
