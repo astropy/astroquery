@@ -9,13 +9,16 @@ Getting started
 
 This example shows how to perform an object cross-ID with SDSS. We'll start
 with the position of a source found in another survey, and search within a 5
-arcsecond radius for optical counterparts in SDSS.
+arcsecond radius for optical counterparts in SDSS. Note use of the keyword
+argument spectro, which requires matches to have spectroscopy, not just 
+photometry:
 
 .. code-block:: python
 
     >>> from astroquery import sdss
-    >>> xid = sdss.crossID(ra='0h8m05.63s', dec='14d50m23.3s', dr=5)
-    >>> print(xid)
+    >>> xid = sdss.crossID(ra='0h8m05.63s', dec='14d50m23.3s', dr=5., 
+    >>>     spectro=True)
+    >>> print xid
     [{'mjd': 52251, 'plate': 751, 'dec': 14.83982059, 'run': 1739, 'specClass': 3, 
     'z': 0.04541, 'field': 315, 'fiberID': 160, 'ra': 2.02344483, 'specobjid': 211612124516974592, 
     'rerun': 40, 'camcol': 3, 'objid': 587727221951234166}]
