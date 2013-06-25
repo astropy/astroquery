@@ -5,10 +5,11 @@ This submodule contains some common functions that are required
 by all query classes
 """
 import requests
+import warnings
 import astropy.units as u
 from astropy import coordinates as coord
-#from ..exceptions import TimeoutError
-from astroquery.exceptions import TimeoutError
+from ..exceptions import TimeoutError
+
 __all__ = ['send_request']
 
 def send_request(url, data, timeout):
@@ -87,18 +88,23 @@ def parse_coordinates(coordinates):
     Raises
     ------
     astropy.units.UnitsException
-    AssertionError
+    TypeError
     """
     if isinstance(coordinates, basestring):
         try:
             c = coord.ICRSCoordinates.from_name(coordinates)
         except coord.name_resolve.NameResolveError:
-            # check if they are coordinates expressed as a string
-            # otherwise UnitsException will be raised
-            c = coord.ICRSCoordinates(coordinates, unit=(None, None))
-    else:
-        # it must be an astropy.coordinates coordinate object
-        assert isinstance(coordinates, coord.SphericalCoordinatesBase)
+            try:
+                c = coord.ICRSCoordinates(coordinates)
+            except u.UnitsException:
+                warnings.warn("Only ICRS coordinates can be entered as strings\n"
+                              "For other systems please use the appropriate "
+                              "astropy.coordinates object")
+                raise u.UnitsException
+    elif:
+        isinstance(coordinates, coord.SphericalCoordinatesBase)
         c = coordinates
+    else:
+        raise TypeError("Argument cannot be parsed as a coordinate")
     return c
 
