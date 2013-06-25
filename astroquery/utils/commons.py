@@ -20,16 +20,16 @@ def send_request(url, data, timeout):
     Parameters
     ----------
     url : str
-    The URL of the remote server
+        The URL of the remote server
     data : dict
-    A dictionary representing the payload to be posted via the HTTP request
+        A dictionary representing the payload to be posted via the HTTP request
     timeout : int
-    Time limit for establishing successful connection with remote server
+        Time limit for establishing successful connection with remote server
 
     Returns
     -------
     response : `requests.Response`
-    Response object returned by the remote server
+        Response object returned by the remote server
     """
     try:
         response = requests.post(url, data=data, timeout=timeout)
@@ -106,4 +106,3 @@ def parse_coordinates(coordinates):
     else:
         raise TypeError("Argument cannot be parsed as a coordinate")
     return c
-
