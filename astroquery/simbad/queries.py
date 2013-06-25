@@ -7,10 +7,10 @@ from . import parameters
 from .result import SimbadResult
 from .simbad_votable import VoTableDef
 #---------------------------- move to a separate core.py-------------------------------------------------
-# TODO  
+# TODO
 # Still need to test all the implementations. None have been tried out yet!
 # Also yet to implement _parse_result and improve validate functions
-
+import requests
 import re
 from ..exceptions import TimeoutError
 from ..query import BaseQuery
@@ -18,7 +18,7 @@ from ..utils.class_or_instance import class_or_instance
 import astropy.units as u
 import astropy.utils.data as aud
 import astropy.coordinates as coord
-from . import SIMBAD_SERVER 
+from . import SIMBAD_SERVER
 __all__ = ['QueryId',
             'QueryAroundId',
             'QueryCat',
@@ -29,7 +29,9 @@ __all__ = ['QueryId',
             ]
 
 # add this to a top level common utils?
-def send_request(url, data, timeout):
+
+#todo make timeout configurable
+def send_request(url, data, timeout=60):
     try:
         response = requests.post(url, data=data, timeout=timeout)
         return response
@@ -38,145 +40,154 @@ def send_request(url, data, timeout):
                                format(time=timeout))
     except requests.exceptions.RequestException:
             raise Exception("Query failed\n")
-        
 
-class Simbad(BaseQuery): 
-    SIMBAD_URL = 'http://' + SIMBAD_SERVER() + '/simbad/sim-script' 
+
+class Simbad(BaseQuery):
+    SIMBAD_URL = 'http://' + SIMBAD_SERVER() + '/simbad/sim-script'
     WILDCARDS = {
-                 '*' : 'Any string of characters (including an empty one)',
-                 '?' : 'Any character (exactly one character)',
-                 '[abc]' : ('Exactly one character taken in the list. '
-                            'Can also be defined by a range of characters: [A-Z]'
-                            ),
-                 '[^0-9]' : 'Any (one) character not in the list.'
-                 
-                 }
-    
-     # query around not included since this is a subcase of query_region
+                '*': 'Any string of characters (including an empty one)',
+                '?': 'Any character (exactly one character)',
+                '[abc]': ('Exactly one character taken in the list. '
+                           'Can also be defined by a range of characters: [A-Z]'
+                           ),
+                '[^0-9]': 'Any (one) character not in the list.'
+
+                }
+
+    # query around not included since this is a subcase of query_region
     _function_to_command = {
-                            'query_object_async' : 'query id',
-                            'query_region_async' : 'query coo',
-                            'query_catalog_async' : 'query cat',
-                            'query_bibcode_async' : 'query bibcode',
-                            'query_bibobj_async' : 'query bibobj'
-                            }
-    
-    # make this configurable
-    # also find a way to fetch the votable fields table from <http://simbad.u-strasbg.fr/simbad/sim-help?Page=sim-fscript#VotableFields>
-    # tried something for this in this ipython nb <http://nbviewer.ipython.org/5851110>
-    VOTABLE_FIELDS = [main_id, coordinates] 
-    
-    
-    ROW_LIMIT = 0 # make this configurable. (0 sets to maximum)
-    
-    
-     @class_or_instance
-     def query_object(self, object_name, wildcard=None):
-         result = self.query_object_async(object_name, wilcard=wildcard)
-         return self._parse_result(result)
-     
-     @class_or_instance
-     def query_object_async(self, object_name, wildcard=None):
-         request_payload = self._args_to_payload(object_name, wildcard=wildcard, caller='query_object_async')
-         response = send_request(SIMBAD_URL, data=request_payload)
-         return result
-     
-     @class_or_instance
-     def query_region(self, coordinates, radius=None, frame=None, equinox=None, epoch=None):
-         # if the identifier is given rather than the coordinates, convert to coordinates
-         result = self.query_region(coordinates, radius=radius, frame=frame, 
-                                    equinox=equinox, epoch=epoch)
-         return self.parse_result(result)
-     
-     @class_or_instance
-     def query_region_async(self, coordinates, radius=None, frame=None, equinox=None, epoch=None):
-         request_payload = self._args_to_payload(coordinates, radius=radius, frame=frame, 
-                                                 equinox=equinox, epoch=epoch, caller='query_region_async')
-         response =  send_request(SIMBAD_URL, data=request_payload)
-         return response
-     
-     @class_or_instance
-     def query_catalog(self, catalog):
-         result = self.query_catalog_async(catalog)
-         return self._parse_result(result)
-     
-     @class_or_instance
-     def query_catalog_async(self, catalog):
-         request_payload = self._args_to_payload(catalog, caller='query_catalog_async')
-         response = send_request(SIMBAD_URL, data=request_payload)
-         return response
-     
-     @class_or_instance
-     def query_bibobj(self, bibcode):
-         result = self.query_bibobj_async(bibcode)
-         return self._parse_result(result)
-     
-     @class_or_instance
-     def query_bibobj_async(self, bibcode):
-         request_payload = self._args_to_payload(bibcode, caller='query_bibobj_async')
-         response = send_request(SIMBAD_URL, data=request_payload)
-         return response
-     
-     @class_or_instance
-     def query_bibcode(self, bibcode, wildcard=None):
-         result = self.query_bibcode_async(bibcode, wildcard=wildcard)
-         return self._parse_result(result)
-     
-     @class_or_instance
-     def query_bibcode_async(self, bibcode, wildcard=None):
-         request_payload = self._args_to_payload(bibcode, wildcard=wildcard, caller='query_bibcode_async' )
-         response = send_request(SIMBAD_URL, data=request_payload)
-         return response
-     
-     @class_or_instance
-     def list_catalogs(self):
-         pass
-     
-     @class_or_instance
-     @_validate_epoch
-     @_validate_equinox
-     def _args_to_payload(self, *args, **kwargs):
-         script=""
-         caller = kwargs[caller]
-         del kwargs[caller]
-         command = self._function_to_command[caller]
-         votable_fields = ','.join(Simbad.VOTABLE_FIELDS)
-         votable_def = "votable {" + votable_fields + "}"
-         votable_open = "votable open"
-         votable_close = "votable close"
-         if Simbad.ROW_LIMIT:
-             script = "set limit "+str(Simbad.ROW_LIMIT)
-         script = "\n".join([script, votable_def, votable_open, command])
-         if kwargs.get('wildcard'):
-             script += " wildcard" #necessary to have a space at the beginning
-             del kwargs['wildcard']
-         # now append args and kwds as per the caller
-         # if caller is query_region_async write coordinates as separate ra dec
-         if caller == 'query_region_async':
-             coordinates = args[0]
-             del args[0]
-             ra, dec, frame = _parse_coordinates(coordinates)
-             args = [ra, dec]
-             kwargs['frame'] = frame
-             if kwargs.get('radius'):
-                 kwargs['radius'] = _parse_radius(kwargs['radius'])
+                           'query_object_async': 'query id',
+                           'query_region_async': 'query coo',
+                           'query_catalog_async': 'query cat',
+                           'query_bibcode_async': 'query bibcode',
+                           'query_bibobj_async': 'query bibobj'
+                           }
+
+   # make this configurable
+   # also find a way to fetch the votable fields table from <http://simbad.u-strasbg.fr/simbad/sim-help?Page=sim-fscript#VotableFields>
+   # tried something for this in this ipython nb
+   # <http://nbviewer.ipython.org/5851110>
+    VOTABLE_FIELDS = ['main_id', 'coordinates']
+
+    ROW_LIMIT = 0  # make this configurable. (0 sets to maximum)
+
+    @class_or_instance
+    def query_object(self, object_name, wildcard=False):
+        result = self.query_object_async(object_name, wildcard=wildcard)
+        return self._parse_result(result)
+
+    @class_or_instance
+    def query_object_async(self, object_name, wildcard=False):
+        request_payload = self._args_to_payload(
+   object_name,
+    wildcard=wildcard,
+    caller='query_object_async')
+        response = send_request(Simbad.SIMBAD_URL, data=request_payload)
+        return response
+
+    @class_or_instance
+    def query_region(self, coordinates, radius=None,
+                     frame=None, equinox=None, epoch=None):
+        # if the identifier is given rather than the coordinates, convert to
+        # coordinates
+        result = self.query_region_async(coordinates, radius=radius, frame=frame,
+                                   equinox=equinox, epoch=epoch)
+        return self.parse_result(result)
+
+    @class_or_instance
+    def query_region_async(
+        self, coordinates, radius=None, frame=None, equinox=None, epoch=None):
+        request_payload = self._args_to_payload(
+            coordinates, radius=radius, frame=frame,
+                                                equinox=equinox, epoch=epoch, caller='query_region_async')
+        response = send_request(Simbad.SIMBAD_URL, data=request_payload)
+        return response
+
+    @class_or_instance
+    def query_catalog(self, catalog):
+        result = self.query_catalog_async(catalog)
+        return self._parse_result(result)
+
+    @class_or_instance
+    def query_catalog_async(self, catalog):
+        request_payload = self._args_to_payload(
+   catalog, caller='query_catalog_async')
+        response = send_request(Simbad.SIMBAD_URL, data=request_payload)
+        return response
+
+    @class_or_instance
+    def query_bibobj(self, bibcode):
+        result = self.query_bibobj_async(bibcode)
+        return self._parse_result(result)
+
+    @class_or_instance
+    def query_bibobj_async(self, bibcode):
+        request_payload = self._args_to_payload(
+            bibcode, caller='query_bibobj_async')
+        response = send_request(Simbad.SIMBAD_URL, data=request_payload)
+        return response
+
+    @class_or_instance
+    def query_bibcode(self, bibcode, wildcard=False):
+        result = self.query_bibcode_async(bibcode, wildcard=wildcard)
+        return self._parse_result(result)
+
+    @class_or_instance
+    def query_bibcode_async(self, bibcode, wildcard=False):
+        request_payload = self._args_to_payload(
+   bibcode,
+    wildcard=wildcard,
+    caller='query_bibcode_async')
+        response = send_request(Simbad.SIMBAD_URL, data=request_payload)
+        return response
+
+    @class_or_instance
+    def list_catalogs(self):
+        pass
+
+    @class_or_instance
+    def _args_to_payload(self, *args, **kwargs):
+        script = ""
+        caller = kwargs['caller']
+        del kwargs['caller']
+        command = self._function_to_command[caller]
+        votable_fields = ','.join(Simbad.VOTABLE_FIELDS)
+        votable_def = "votable {" + votable_fields + "}"
+        votable_open = "votable open"
+        votable_close = "votable close"
+        if Simbad.ROW_LIMIT:
+            script = "set limit " + str(Simbad.ROW_LIMIT)
+        script = "\n".join([script, votable_def, votable_open, command])
+        if kwargs.get('wildcard'):
+            script += " wildcard"  # necessary to have a space at the beginning
+            del kwargs['wildcard']
+        # now append args and kwds as per the caller
+        # if caller is query_region_async write coordinates as separate ra dec
+        if caller == 'query_region_async':
+            coordinates = args[0]
+            args = args[1:]
+            ra, dec, frame = _parse_coordinates(coordinates)
+            args = [ra, dec]
+            kwargs['frame'] = frame
+            if kwargs.get('radius'):
+                kwargs['radius'] = _parse_radius(kwargs['radius'])
         args_str = ' '.join([str(val) for val in args])
         # remove default None from kwargs
         # be compatible with python3
-        for key in list(kwargs.keys()):
+        for key in list(kwargs):
             if not kwargs[key]:
                 del kwargs[key]
         kwargs_str = ' '.join("{key}={value}".format(key=key, value=value) for key,value in kwargs.items())
-        script += ' '.join([" ", args_str, kwargs_str, "\n"]) 
+        script += ' '.join([" ", args_str, kwargs_str, "\n"])
         script += votable_close
         return dict(script=script)
-    
-     @class_or_instance
-     def _parse_result(self, result):
-         pass
+
+    @class_or_instance
+    def _parse_result(self, result):
+        print result.content
 
 
-  
+
 def _parse_coordinates(coordinates):
     # SGAL, ECL not supported by astropy.coordinates yet?
     # check if it is an identifier rather than coordinates
@@ -184,19 +195,19 @@ def _parse_coordinates(coordinates):
         try:
             c = coord.ICRSCoordinates.from_name(coordinates)
         except coord.name_resolve.NameResolveError:
-            #check if they are coordinates expressed as a string
+            # check if they are coordinates expressed as a string
             # otherwise UnitsException will be raised
             c = coord.ICRSCoordinates(coordinates, unit=(None, None))
-     else:
-         # it must be an astropy.coordinates coordinate object
-         assert isinstance(coordinates, coord.SphericalCoordinatesBase)
-         c = coordinates
+    else:
+        # it must be an astropy.coordinates coordinate object
+        assert isinstance(coordinates, coord.SphericalCoordinatesBase)
+        c = coordinates
     # now c has some subclass of astropy.coordinate
     # get ra, dec and frame
     return _get_frame_coords(c)
-    #get ra and dec
-    
-      
+    # get ra and dec
+
+
 def _get_frame_coords(c):
     if isinstance(c, coord.ICRSCoordinates):
         ra = _to_simbad_format(c.ra)
@@ -213,12 +224,12 @@ def _get_frame_coords(c):
     if isinstance(c, coord.FK5Coordinates):
         ra = _to_simbad_format(c.ra)
         dec = _to_simbad_format(c.dec)
-        return 'FK5'       
+        return 'FK5'
 
 def _to_simbad_format(coordinate):
     tup = coordinate.hms
-    h, m, s = int(tup[0]), int(tup[1]), tup[2]
-    return ":".join(h, m, s)
+    h, m, s = str(int(tup[0])), str(int(tup[1])), str(tup[2])
+    return ":".join([h, m, s])
 
 # could use the code in IrsaDust here.
 # keep common utilities for parsing coordinates, angles, etc at top level?
@@ -230,8 +241,8 @@ def _parse_radius(radius):
     value = radius.to(u.degree).value
     return str(value) +'d'
 
-def _validate_epoch(func):
-    
+def validate_epoch(func):
+
     def wrapper(*args, **kwargs):
         if kwargs.get('epoch'):
             value = kwargs['epoch']
@@ -240,19 +251,21 @@ def _validate_epoch(func):
         return func(*args, **kwargs)
     return wrapper
 
-def _validate_equinox(func):
-    
+def validate_equinox(func):
+
     def wrapper(*args, **kwargs):
         if kwargs.get('equinox'):
             value = kwargs['equinox']
             try:
                 float(value)
+            except ValueError:
+                raise("Equinox must be a number")
         return func(*args, **kwargs)
     return wrapper
 
 
 
-#--------------------------------------------------------upto here (core.py)-----------        
+#--------------------------------------------------------upto here (core.py)-----------
 
 class _Query(object):
     def execute(self, votabledef=None, limit=None, pedantic=False, mirror=None):
@@ -264,11 +277,11 @@ class _Query(object):
             Definition object for the output.
 
         limit: int, optional
-            Limits the number of rows returned. None sets the limit to 
+            Limits the number of rows returned. None sets the limit to
             SIMBAD's server maximum.
 
         pedantic: bool, optional
-            The value to pass to the votable parser for the *pedantic* 
+            The value to pass to the votable parser for the *pedantic*
             parameters.
         """
 
@@ -286,7 +299,7 @@ class QueryId(_Query):
         The identifier to query for.
 
     wildcard: bool, optional
-        If True, specifies that `identifier` should be understood as an 
+        If True, specifies that `identifier` should be understood as an
         expression with wildcards.
 
     """
@@ -306,7 +319,7 @@ class QueryId(_Query):
                             repr(self.identifier), repr(self.wildcard.value))
 
 
-#class QueryBasic(_Query):
+# class QueryBasic(_Query):
 #    """ Basic Query
 #
 #    Parameters
@@ -442,7 +455,7 @@ class QueryCoord(_Query):
 
 
 class QueryBibobj(_Query):
-    """ Query by bibcode objects. Used to fetch objects contained in the 
+    """ Query by bibcode objects. Used to fetch objects contained in the
     given article.
 
     Parameters
@@ -474,7 +487,7 @@ class QueryMulti(_Query):
 
     def __init__(self, queries=None, radius=None, frame=None, epoch=None,
                                                                 equinox=None):
-        """ A type of Query used to aggregate the values of multiple simple 
+        """ A type of Query used to aggregate the values of multiple simple
         queries into a single result.
 
         Parameters
@@ -516,7 +529,7 @@ class QueryMulti(_Query):
                         self.queries.append(query)
                     else:
                         raise ValueError("Queries must be simbad.Query instances")
-                        #self.queries.append(BasicQuery(query))
+                        # self.queries.append(BasicQuery(query))
             elif isinstance(queries, QueryMulti):
                 for query in queries.queries:
                     self.queries.append(query)
@@ -572,8 +585,8 @@ def execute_query(query, votabledef, limit, pedantic, mirror=None):
     script += str(query)
     script += votabledef.close_str
     script = urllib.quote(script)
-    
-    from . import SIMBAD_SERVER 
+
+    from . import SIMBAD_SERVER
     server = (SIMBAD_SERVER() if mirror is None else mirror)
     req_str = 'http://' + server + '/simbad/sim-script?script=' + script
     response = urllib2.urlopen(req_str)
@@ -582,4 +595,3 @@ def execute_query(query, votabledef, limit, pedantic, mirror=None):
     if not result:
         raise TypeError
     return SimbadResult(result, pedantic=pedantic)
-
