@@ -101,8 +101,7 @@ def parse_coordinates(coordinates):
                               "For other systems please use the appropriate "
                               "astropy.coordinates object")
                 raise u.UnitsException
-    elif:
-        isinstance(coordinates, coord.SphericalCoordinatesBase)
+    elif isinstance(coordinates, coord.SphericalCoordinatesBase):
         c = coordinates
     else:
         raise TypeError("Argument cannot be parsed as a coordinate")
