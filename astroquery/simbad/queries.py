@@ -13,7 +13,6 @@ from ..exceptions import TimeoutError
 from ..query import BaseQuery
 from ..utils.class_or_instance import class_or_instance
 import astropy.units as u
-import astropy.utils.data as aud
 import astropy.coordinates as coord
 from . import SIMBAD_SERVER, SIMBAD_TIMEOUT, ROW_LIMIT
 __all__ = ['QueryId',
@@ -35,6 +34,7 @@ def send_request(url, data, timeout):
     except requests.exceptions.RequestException:
             raise Exception("Query failed\n")
 
+# need to fix, before they work
 def validate_epoch(func):
 
     def wrapper(*args, **kwargs):
@@ -79,7 +79,6 @@ class Simbad(BaseQuery):
                            'query_bibobj_async': 'query bibobj'
                            }
 
-   # make this configurable
    # also find a way to fetch the votable fields table from <http://simbad.u-strasbg.fr/simbad/sim-help?Page=sim-fscript#VotableFields>
    # tried something for this in this ipython nb
    # <http://nbviewer.ipython.org/5851110>
@@ -88,82 +87,297 @@ class Simbad(BaseQuery):
     ROW_LIMIT = ROW_LIMIT()
     @class_or_instance
     def query_object(self, object_name, wildcard=False):
+        """
+        Queries Simbad for the given object and
+        returns the result as an `astropy.table.Table`. Object
+        names may also be specified with wildcards. See examples
+        below.
+
+        Parameters
+        ----------
+        object_name : str
+            name of object to be queried
+        wildcard : boolean, optional
+            When it is set to `True` it implies that the object is specified
+            with wildcards. Defaults to `False`.
+
+        Returns
+        -------
+        `astropy.table.Table`
+            The results of the query as an `astropy.table.Table`.
+
+        Examples
+        --------
+        Query Simbad for a given object
+        >>> table = Simbad.query_object("m81")
+
+        Query all objects m1 through m9 via a wildcard
+        >>> table = Simbad.query_object("m [1-9]", wildcard=True)
+        """
         result = self.query_object_async(object_name, wildcard=wildcard)
         return self._parse_result(result)
 
     @class_or_instance
     def query_object_async(self, object_name, wildcard=False):
-        request_payload = self._args_to_payload(
-   object_name,
-    wildcard=wildcard,
-    caller='query_object_async')
-        response = send_request(Simbad.SIMBAD_URL, request_payload, Simbad.TIMEOUT)
+        """
+        Serves the same function as `astoquery.simbad.Simbad.query_object`. But
+        only collects the reponse from the Simbad server and returns.
+
+        Parameters
+        ----------
+        object_name : str
+            name of object to be queried
+        wildcard : boolean, optional
+            When it is set to `True` it implies that the object is specified
+            with wildcards. Defaults to `False`.
+
+        Returns
+        -------
+        response : `requests.response`
+            the response of the query from the server
+        """
+        request_payload = self._args_to_payload(object_name, wildcard=wildcard,
+                                                caller='query_object_async')
+        response = send_request(Simbad.SIMBAD_URL, request_payload,
+                                Simbad.TIMEOUT)
         return response
 
     @class_or_instance
     def query_region(self, coordinates, radius=None,
-                     frame=None, equinox=None, epoch=None):
+                     equinox=None, epoch=None):
+        """
+        Queries around an object or coordinates as per the specified
+        radius and returns the results in an `astropy.table.Table.`
+
+        Parameters
+        ----------
+        coordinates : str/`astropy.coordinates`
+            the identifier or coordinates around which to query.
+        radius : str/`astropy.units.Qunatity`, optional
+            the radius of the region. If missing, set to default
+            value of 20 arcmin.
+        equinox : float, optional
+            the equinox of the coordinates. If missing set to
+            default 2000.0.
+        epoch : str, optional
+            the epoch of the input coordiantes. Must be specified as
+            [J|B] <epoch>. If missing, set to default J2000.
+
+        Returns
+        -------
+        `astropy.table.Table`
+            The results of the query as an `astropy.table.Table`.
+
+        Examples
+        --------
+        Query around an identifier with a cone search radius of 5 degrees
+        >>> table = Simbad.query_region("m81", radius=5 * u.deg)
+        >>> table = Simbad.query_region("m81", radius="5d0m0s") # a second way
+
+        Query around coordinates
+        >>> # String arguments only work for ICRS Coordinates!
+        >>> table = Simbad.query_region("00h42m44.3s +41d16m9s", radius="5d0m0s")
+        >>> # For other coordinate systems use an astropy.coordinates object:
+        >>> table = Simbad.query_region(GalacticCoordinates(-76.22237, 74.49108,
+        unit=(u.degree, u.degree)))
+
+        """
         # if the identifier is given rather than the coordinates, convert to
         # coordinates
-        result = self.query_region_async(coordinates, radius=radius, frame=frame,
-                                   equinox=equinox, epoch=epoch)
+        result = self.query_region_async(coordinates, radius=radius,
+                                          equinox=equinox, epoch=epoch)
         return self.parse_result(result)
 
     @class_or_instance
-    def query_region_async(
-        self, coordinates, radius=None, frame=None, equinox=None, epoch=None):
-        request_payload = self._args_to_payload(
-            coordinates, radius=radius, frame=frame,
-                                                equinox=equinox, epoch=epoch, caller='query_region_async')
-        response = send_request(Simbad.SIMBAD_URL, request_payload, Simbad.TIMEOUT)
+    def query_region_async(self, coordinates, radius=None, equinox=None,
+                           epoch=None):
+        """
+        Serves the same function as `astoquery.simbad.Simbad.query_region`. But
+        only collects the reponse from the Simbad server and returns.
+
+        Parameters
+        ----------
+        coordinates : str/`astropy.coordinates`
+            the identifier or coordinates around which to query.
+        radius : str/`astropy.units.Qunatity`, optional
+            the radius of the region. If missing, set to default
+            value of 20 arcmin.
+        equinox : float, optional
+            the equinox of the coordinates. If missing set to
+            default 2000.0.
+        epoch : str, optional
+            the epoch of the input coordiantes. Must be specified as
+            [J|B] <epoch>. If missing, set to default J2000.
+
+        Returns
+        -------
+        response : `requests.response` object
+             the response of the query from the server.
+        """
+        request_payload = self._args_to_payload(coordinates, radius=radius,
+                                                equinox=equinox, epoch=epoch,
+                                                caller='query_region_async')
+        response = send_request(Simbad.SIMBAD_URL, request_payload,
+                                Simbad.TIMEOUT)
         return response
 
     @class_or_instance
     def query_catalog(self, catalog):
+        """
+        Queries a whole catalog. Results may be very large
+        Number of rows should be controlled by configuring
+        `astroquery.simbad.ROW_LIMIT`.
+
+        Parameters
+        ----------
+        catalog : str
+            the name of the catalog.
+
+        Returns
+        -------
+        `astropy.table.Table`
+            The results of the query as an `astropy.table.Table`.
+
+        Examples
+        --------
+        >>> table = Simbad.query_catalog("m")
+        """
         result = self.query_catalog_async(catalog)
         return self._parse_result(result)
 
     @class_or_instance
     def query_catalog_async(self, catalog):
-        request_payload = self._args_to_payload(
-   catalog, caller='query_catalog_async')
-        response = send_request(Simbad.SIMBAD_URL, request_payload, Simbad.TIMEOUT)
+        """
+        Serves the same function as `astoquery.simbad.Simbad.query_catalog`. But
+        only collects the reponse from the Simbad server and returns.
+
+        Parameters
+        ----------
+        catalog : str
+            the name of the catalog.
+
+        Returns
+        -------
+        response : `requests.response` object
+             the response of the query from the server.
+
+        """
+        request_payload = self._args_to_payload(catalog,
+                                                caller='query_catalog_async')
+        response = send_request(Simbad.SIMBAD_URL, request_payload,
+                                Simbad.TIMEOUT)
         return response
 
     @class_or_instance
     def query_bibobj(self, bibcode):
+        """
+        Query all the objects that are contained in the article
+        specified by the bibcode, and return results as an `astropy.table.Table`.
+
+        Parameters
+        ----------
+        bibcode : str
+            the bibcode of the article
+
+        Returns
+        -------
+        `astropy.table.Table`
+            The results of the query as an `astropy.table.Table`.
+
+        Examples
+        --------
+        >>> table = Simbad.query_bibobj("2005A&A.430.165F")
+
+        """
         result = self.query_bibobj_async(bibcode)
         return self._parse_result(result)
 
     @class_or_instance
     def query_bibobj_async(self, bibcode):
+        """
+        Serves the same function as `astoquery.simbad.Simbad.query_bibobj`. But
+        only collects the reponse from the Simbad server and returns.
+
+        Parameters
+        ----------
+        bibcode : str
+            the bibcode of the article
+
+        Returns
+        -------
+        response : `requests.response` object
+             the response of the query from the server.
+
+        """
         request_payload = self._args_to_payload(
             bibcode, caller='query_bibobj_async')
-        response = send_request(Simbad.SIMBAD_URL, request_payload, Simbad.TIMEOUT)
+        response = send_request(Simbad.SIMBAD_URL, request_payload,
+                                Simbad.TIMEOUT)
         return response
 
     @class_or_instance
     def query_bibcode(self, bibcode, wildcard=False):
+        """
+        Queries the references corresponding to a given bibcode, and
+        returns the results in an `astropy.table.Table`. Wildcards
+        may be used to specify bibcodes
+
+        Parameters
+        ----------
+        bibcode : str
+            the bibcode of the article
+        wildcard : boolean, optional
+            When it is set to `True` it implies that the object is specified
+            with wildcards. Defaults to `False`.
+
+        Returns
+        -------
+        `astropy.table.Table`
+            The results of the query as an `astropy.table.Table`.
+
+        Examples
+        --------
+        Fetch all the bibcodes from a given journal for a given year:
+        >>> table = Simbad.query_bibcode("2006ApJ*", wildcard=True)
+
+        """
         result = self.query_bibcode_async(bibcode, wildcard=wildcard)
         return self._parse_result(result)
 
     @class_or_instance
     def query_bibcode_async(self, bibcode, wildcard=False):
-        request_payload = self._args_to_payload(
-   bibcode,
-    wildcard=wildcard,
-    caller='query_bibcode_async')
-        response = send_request(Simbad.SIMBAD_URL, request_payload, Simbad.TIMEOUT)
+        """
+        Serves the same function as `astoquery.simbad.Simbad.query_bibcode`. But
+        only collects the reponse from the Simbad server and returns.
+
+        Parameters
+        ----------
+        bibcode : str
+            the bibcode of the article
+        wildcard : boolean, optional
+            When it is set to `True` it implies that the object is specified
+            with wildcards. Defaults to `False`.
+
+        Returns
+        -------
+        response : `requests.response` object
+             the response of the query from the server.
+
+        """
+        request_payload = self._args_to_payload(bibcode, wildcard=wildcard,
+                                                caller='query_bibcode_async')
+        response = send_request(Simbad.SIMBAD_URL, request_payload,
+                                Simbad.TIMEOUT)
         return response
 
-    @class_or_instance
-    def list_catalogs(self):
-        pass
 
-    @validate_epoch
-    @validate_equinox
     @class_or_instance
     def _args_to_payload(self, *args, **kwargs):
+        """
+        Takes the arguments from all the query functions
+        and returns a dictionary that can be used as the
+        data for an HTTP POST request.
+        """
         script = ""
         caller = kwargs['caller']
         del kwargs['caller']
@@ -194,7 +408,8 @@ class Simbad(BaseQuery):
         for key in list(kwargs):
             if not kwargs[key]:
                 del kwargs[key]
-        kwargs_str = ' '.join("{key}={value}".format(key=key, value=value) for key,value in kwargs.items())
+        kwargs_str = ' '.join("{key}={value}".format(key=key, value=value) for
+                              key, value in kwargs.items())
         script += ' '.join([" ", args_str, kwargs_str, "\n"])
         script += votable_close
         return dict(script=script)
@@ -202,7 +417,6 @@ class Simbad(BaseQuery):
     @class_or_instance
     def _parse_result(self, result):
         parsed_result = SimbadResult(result.content)
-        parsed_result.warn()
         try:
             return parsed_result.table
         except:
@@ -239,23 +453,22 @@ def _get_frame_coords(c):
     if isinstance(c, coord.GalacticCoordinates):
         ra = _to_simbad_format(c.latangle)
         dec = _to_simbad_format(c.lonangle)
-        return 'GAL'
+        return (ra, dec, 'GAL')
     if isinstance(c, coord.FK4Coordinates):
         ra = _to_simbad_format(c.ra)
         dec = _to_simbad_format(c.dec)
-        return 'FK4'
+        return (ra, dec,'FK4')
     if isinstance(c, coord.FK5Coordinates):
         ra = _to_simbad_format(c.ra)
         dec = _to_simbad_format(c.dec)
-        return 'FK5'
+        return (ra, dec, 'FK5')
 
 def _to_simbad_format(coordinate):
     tup = coordinate.hms
     h, m, s = str(int(tup[0])), str(int(tup[1])), str(tup[2])
     return ":".join([h, m, s])
 
-# could use the code in IrsaDust here.
-# keep common utilities for parsing coordinates, angles, etc at top level?
+
 def _parse_radius(radius):
     # do something smarter for choosing 'd', 'm' or 's'
     if isinstance(radius, basestring):

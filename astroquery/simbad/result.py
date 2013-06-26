@@ -59,7 +59,7 @@ class SimbadResult(object):
         if m:
             self.sim_version = VersionInfo(*m.groups(None))
 
-    def warn(self):
+    def __warn(self):
         for error in self.errors:
             warnings.warn("Warning: The script line number %i raised "
                             "the error: %s." %\
