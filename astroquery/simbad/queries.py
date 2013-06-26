@@ -25,10 +25,7 @@ __all__ = ['QueryId',
             'Simbad'
             ]
 
-# add this to a top level common utils?
-
-#todo make timeout configurable
-def send_request(url, data, timeout=60):
+def send_request(url, data, timeout):
     try:
         response = requests.post(url, data=data, timeout=timeout)
         return response
@@ -38,6 +35,27 @@ def send_request(url, data, timeout=60):
     except requests.exceptions.RequestException:
             raise Exception("Query failed\n")
 
+def validate_epoch(func):
+
+    def wrapper(*args, **kwargs):
+        if kwargs.get('epoch'):
+            value = kwargs['epoch']
+            p = re.compile('^[JB]\d+[.]?\d+$', re.IGNORECASE)
+            assert p.match(value) is not None
+        return func(*args, **kwargs)
+    return wrapper
+
+def validate_equinox(func):
+
+    def wrapper(*args, **kwargs):
+        if kwargs.get('equinox'):
+            value = kwargs['equinox']
+            try:
+                float(value)
+            except ValueError:
+                raise("Equinox must be a number")
+        return func(*args, **kwargs)
+    return wrapper
 
 class Simbad(BaseQuery):
     SIMBAD_URL = 'http://' + SIMBAD_SERVER() + '/simbad/sim-script'
@@ -79,7 +97,7 @@ class Simbad(BaseQuery):
    object_name,
     wildcard=wildcard,
     caller='query_object_async')
-        response = send_request(Simbad.SIMBAD_URL, data=request_payload, Simbad.TIMEOUT)
+        response = send_request(Simbad.SIMBAD_URL, request_payload, Simbad.TIMEOUT)
         return response
 
     @class_or_instance
@@ -97,7 +115,7 @@ class Simbad(BaseQuery):
         request_payload = self._args_to_payload(
             coordinates, radius=radius, frame=frame,
                                                 equinox=equinox, epoch=epoch, caller='query_region_async')
-        response = send_request(Simbad.SIMBAD_URL, data=request_payload, Simbad.TIMEOUT)
+        response = send_request(Simbad.SIMBAD_URL, request_payload, Simbad.TIMEOUT)
         return response
 
     @class_or_instance
@@ -109,7 +127,7 @@ class Simbad(BaseQuery):
     def query_catalog_async(self, catalog):
         request_payload = self._args_to_payload(
    catalog, caller='query_catalog_async')
-        response = send_request(Simbad.SIMBAD_URL, data=request_payload, Simbad.TIMEOUT)
+        response = send_request(Simbad.SIMBAD_URL, request_payload, Simbad.TIMEOUT)
         return response
 
     @class_or_instance
@@ -121,7 +139,7 @@ class Simbad(BaseQuery):
     def query_bibobj_async(self, bibcode):
         request_payload = self._args_to_payload(
             bibcode, caller='query_bibobj_async')
-        response = send_request(Simbad.SIMBAD_URL, data=request_payload, Simbad.TIMEOUT)
+        response = send_request(Simbad.SIMBAD_URL, request_payload, Simbad.TIMEOUT)
         return response
 
     @class_or_instance
@@ -135,13 +153,15 @@ class Simbad(BaseQuery):
    bibcode,
     wildcard=wildcard,
     caller='query_bibcode_async')
-        response = send_request(Simbad.SIMBAD_URL, data=request_payload, Simbad.TIMEOUT)
+        response = send_request(Simbad.SIMBAD_URL, request_payload, Simbad.TIMEOUT)
         return response
 
     @class_or_instance
     def list_catalogs(self):
         pass
 
+    @validate_epoch
+    @validate_equinox
     @class_or_instance
     def _args_to_payload(self, *args, **kwargs):
         script = ""
@@ -244,27 +264,7 @@ def _parse_radius(radius):
     value = radius.to(u.degree).value
     return str(value) +'d'
 
-def validate_epoch(func):
 
-    def wrapper(*args, **kwargs):
-        if kwargs.get('epoch'):
-            value = kwargs['epoch']
-            p = re.compile('^[JB]\d+[.]?\d+$', re.IGNORECASE)
-            assert p.match(value) is not None
-        return func(*args, **kwargs)
-    return wrapper
-
-def validate_equinox(func):
-
-    def wrapper(*args, **kwargs):
-        if kwargs.get('equinox'):
-            value = kwargs['equinox']
-            try:
-                float(value)
-            except ValueError:
-                raise("Equinox must be a number")
-        return func(*args, **kwargs)
-    return wrapper
 
 
 
