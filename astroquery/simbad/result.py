@@ -4,7 +4,7 @@ import re
 import tempfile
 from collections import namedtuple
 import warnings
-
+from astropy.table import Table
 try:
     import astropy.io.vo.table as votable
 except ImportError:
@@ -59,7 +59,7 @@ class SimbadResult(object):
         if m:
             self.sim_version = VersionInfo(*m.groups(None))
 
-    def __warn(self):
+    def warn(self):
         for error in self.errors:
             warnings.warn("Warning: The script line number %i raised "
                             "the error: %s." %\
@@ -108,8 +108,5 @@ class SimbadResult(object):
             self.__file = tempfile.NamedTemporaryFile()
             self.__file.write(self.data.encode('utf-8'))
             self.__file.flush()
-            array = votable.parse(self.__file,
-                            pedantic=self.__pedantic).get_first_table().array
-            self.__table = array # .to_table()
+            self.__table = Table.read(self.__file, format="votable")
         return self.__table
-

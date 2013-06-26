@@ -1,5 +1,5 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-
+import warnings
 import urllib
 import urllib2
 from .parameters import ValidatedAttribute
@@ -184,7 +184,13 @@ class Simbad(BaseQuery):
 
     @class_or_instance
     def _parse_result(self, result):
-        print result.content
+        parsed_result = SimbadResult(result.content)
+        parsed_result.warn()
+        try:
+            return parsed_result.table
+        except:
+            warnings.warn("Error in parsing Simbad result."
+                         "Returning raw result instead.")
 
 
 
