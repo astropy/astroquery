@@ -6,10 +6,7 @@ from .parameters import ValidatedAttribute
 from . import parameters
 from .result import SimbadResult
 from .simbad_votable import VoTableDef
-#---------------------------- move to a separate core.py-------------------------------------------------
-# TODO
-# Still need to test all the implementations. None have been tried out yet!
-# Also yet to implement _parse_result and improve validate functions
+#---------------------------- move to a separate core.py------------------------------------------------
 import requests
 import re
 from ..exceptions import TimeoutError
@@ -18,7 +15,7 @@ from ..utils.class_or_instance import class_or_instance
 import astropy.units as u
 import astropy.utils.data as aud
 import astropy.coordinates as coord
-from . import SIMBAD_SERVER
+from . import SIMBAD_SERVER, SIMBAD_TIMEOUT, ROW_LIMIT
 __all__ = ['QueryId',
             'QueryAroundId',
             'QueryCat',
@@ -44,6 +41,7 @@ def send_request(url, data, timeout=60):
 
 class Simbad(BaseQuery):
     SIMBAD_URL = 'http://' + SIMBAD_SERVER() + '/simbad/sim-script'
+    TIMEOUT = SIMBAD_TIMEOUT()
     WILDCARDS = {
                 '*': 'Any string of characters (including an empty one)',
                 '?': 'Any character (exactly one character)',
@@ -69,8 +67,7 @@ class Simbad(BaseQuery):
    # <http://nbviewer.ipython.org/5851110>
     VOTABLE_FIELDS = ['main_id', 'coordinates']
 
-    ROW_LIMIT = 0  # make this configurable. (0 sets to maximum)
-
+    ROW_LIMIT = ROW_LIMIT()
     @class_or_instance
     def query_object(self, object_name, wildcard=False):
         result = self.query_object_async(object_name, wildcard=wildcard)
@@ -82,7 +79,7 @@ class Simbad(BaseQuery):
    object_name,
     wildcard=wildcard,
     caller='query_object_async')
-        response = send_request(Simbad.SIMBAD_URL, data=request_payload)
+        response = send_request(Simbad.SIMBAD_URL, data=request_payload, Simbad.TIMEOUT)
         return response
 
     @class_or_instance
@@ -100,7 +97,7 @@ class Simbad(BaseQuery):
         request_payload = self._args_to_payload(
             coordinates, radius=radius, frame=frame,
                                                 equinox=equinox, epoch=epoch, caller='query_region_async')
-        response = send_request(Simbad.SIMBAD_URL, data=request_payload)
+        response = send_request(Simbad.SIMBAD_URL, data=request_payload, Simbad.TIMEOUT)
         return response
 
     @class_or_instance
@@ -112,7 +109,7 @@ class Simbad(BaseQuery):
     def query_catalog_async(self, catalog):
         request_payload = self._args_to_payload(
    catalog, caller='query_catalog_async')
-        response = send_request(Simbad.SIMBAD_URL, data=request_payload)
+        response = send_request(Simbad.SIMBAD_URL, data=request_payload, Simbad.TIMEOUT)
         return response
 
     @class_or_instance
@@ -124,7 +121,7 @@ class Simbad(BaseQuery):
     def query_bibobj_async(self, bibcode):
         request_payload = self._args_to_payload(
             bibcode, caller='query_bibobj_async')
-        response = send_request(Simbad.SIMBAD_URL, data=request_payload)
+        response = send_request(Simbad.SIMBAD_URL, data=request_payload, Simbad.TIMEOUT)
         return response
 
     @class_or_instance
@@ -138,7 +135,7 @@ class Simbad(BaseQuery):
    bibcode,
     wildcard=wildcard,
     caller='query_bibcode_async')
-        response = send_request(Simbad.SIMBAD_URL, data=request_payload)
+        response = send_request(Simbad.SIMBAD_URL, data=request_payload, Simbad.TIMEOUT)
         return response
 
     @class_or_instance
