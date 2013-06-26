@@ -10,7 +10,9 @@ import astropy.units as u
 from astropy import coordinates as coord
 from ..exceptions import TimeoutError
 
-__all__ = ['send_request']
+__all__ = ['send_request',
+           'parse_coordinates',
+           'parse_radius']
 
 def send_request(url, data, timeout):
     """
