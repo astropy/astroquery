@@ -13,7 +13,6 @@ ALGORITHMS = ['NG', 'NN']
 QUALITIES = ['GOOD', 'ALL']
 RESULT_DTYPE = ['f8', 'f8', 'f8', 'f8', 'f8', 'f8', 'f8', 'f8', 'i8', 'a2',
                 'f8']
-CoordParseError = ValueError('Could not parse `coord` argument.')
 
 def query(coord, algorithm='NG', quality='GOOD', coord_sys='RD'):
     """
@@ -45,7 +44,7 @@ def query(coord, algorithm='NG', quality='GOOD', coord_sys='RD'):
     if quality not in QUALITIES:
         raise ValueError('Quality {0} must be GOOD or ALL'.format(quality))
     # Determine the coord object type and generate list of coordinates
-    lon, lat = _parse_coords(coord)
+    lon, lat = _parse_coords(coord, coord_sys)
     # Generate payload
     query_header = '# {0} {1} {2}\n'.format(coord_sys, algorithm, quality)
     sources = '\n'.join(['{0} {1}'.format(lon, lat) for lon, lat in zip(lon,
@@ -63,7 +62,7 @@ def query(coord, algorithm='NG', quality='GOOD', coord_sys='RD'):
     t = Table(data, names=header, dtypes=RESULT_DTYPE)
     return t
 
-def _parse_coords(coord):
+def _parse_coords(coord, coord_sys):
     """
     Parse single astropy.coordinates instance, list of astropy.coordinate
     instances, or 2xN list of coordinate values.
@@ -71,6 +70,7 @@ def _parse_coords(coord):
     Parameters
     ----------
     coord : list-like
+    coord_sys : string
 
     Returns
     -------
@@ -79,21 +79,22 @@ def _parse_coords(coord):
     lat : list
         Latitude coordinate values
     """
+    CoordParseError = ValueError('Could not parse `coord` argument.')
     if not isinstance(coord, list):
         try:
-            ra = [coord.fk5.ra.hours]
-            dec = [coord.fk5.dec.degrees]
+            lon = [coord.fk5.ra.hours]
+            lat = [coord.fk5.dec.degrees]
         except:
             raise CoordParseError
     elif isinstance(coord, list):
         try:
-            ra = [co.fk5.ra.hours for co in np.array(coord)[:,0]]
-            dec = [co.fk5.ra.degrees for co in np.array(coord)[:,1]]
+            lon = [co.fk5.ra.hours for co in np.array(coord)[:,0]]
+            lat = [co.fk5.ra.degrees for co in np.array(coord)[:,1]]
         except:
             raise CoordParseError
     else:
         raise CoordParseError
-    return ra, dec
+    return lon, lat
 
 def _parse_raw(raw_data):
     """
