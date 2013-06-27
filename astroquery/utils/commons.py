@@ -98,6 +98,7 @@ def parse_coordinates(coordinates):
         except coord.name_resolve.NameResolveError:
             try:
                 c = coord.ICRSCoordinates(coordinates)
+                warnings.warn("Coordinate string is being interpreted as an ICRS coordinate.")
             except u.UnitsException:
                 warnings.warn("Only ICRS coordinates can be entered as strings\n"
                               "For other systems please use the appropriate "
