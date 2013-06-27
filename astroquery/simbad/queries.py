@@ -476,12 +476,22 @@ def _to_simbad_format(coordinate):
 
 
 def _parse_radius(radius):
-    # do something smarter for choosing 'd', 'm' or 's'
     if isinstance(radius, basestring):
-        value = coord.Angle(radius).degrees
-        return str(value) + 'd'
-    value = radius.to(u.degree).value
-    return str(value) +'d'
+        angle = coord.Angle(radius)
+    else:
+        angle = coord.Angle(radius.value, unit=radius.unit)
+    # find the most appropriate unit - d, m or s
+    index = min([i for (i,val) in enumerate(angle.dms) if int(val) > 0])
+    unit = ('d', 'm', 's')[index]
+    if unit == 'd':
+        return str(angle.degrees) + unit
+    if unit == 'm':
+        sec_to_min = angle.dms[2] * u.arcsec.to(u.arcmin)
+        total_min = angle.dms[1] + sec_to_min
+        return str(total_min) + unit
+    if unit == 's':
+        return str(angle.dms[2]) + unit
+
 
 
 
