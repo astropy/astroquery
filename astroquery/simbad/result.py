@@ -14,9 +14,11 @@ __all__ = ['SimbadResult']
 
 
 error_regex = re.compile(r'(?ms)\[(?P<line>\d+)\]\s?(?P<msg>.+?)(\[|\Z)')
+bibcode_regex = re.compile(r'query\s+bibcode\s+(wildcard)?\s+([\w]*)')
 
 SimbadError = namedtuple('SimbadError', ('line', 'msg'))
 VersionInfo = namedtuple('VersionInfo', ('major', 'minor', 'micro', 'patch'))
+
 
 
 class SimbadResult(object):
@@ -108,5 +110,17 @@ class SimbadResult(object):
             self.__file = tempfile.NamedTemporaryFile()
             self.__file.write(self.data.encode('utf-8'))
             self.__file.flush()
-            self.__table = Table.read(self.__file, format="votable")
+            # if bibcode query then first create table from raw data
+            bibcode_match = bibcode_regex.search(self.script)
+            if bibcode_match:
+                self.__table = _create_bibcode_table(self.data, bibcode_match.group(2))
+            else:
+                self.__table = Table.read(self.__file, format="votable")
         return self.__table
+
+def _create_bibcode_table(data, splitter):
+    ref_list = [splitter + ref for ref in data.split(splitter)][1:]
+    table = Table(names=['References'], dtypes=['object'])
+    for ref in ref_list:
+        table.add_row([ref.decode('utf-8')])
+    return table

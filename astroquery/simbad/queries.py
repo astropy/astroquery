@@ -365,7 +365,7 @@ class Simbad(BaseQuery):
 
         """
         request_payload = self._args_to_payload(bibcode, wildcard=wildcard,
-                                                caller='query_bibcode_async')
+                                                caller='query_bibcode_async', get_raw=True)
         response = send_request(Simbad.SIMBAD_URL, request_payload,
                                 Simbad.TIMEOUT)
         return response
@@ -381,11 +381,15 @@ class Simbad(BaseQuery):
         script = ""
         caller = kwargs['caller']
         del kwargs['caller']
+        get_raw = kwargs.get('get_raw', False)
+        if get_raw:
+            del kwargs['get_raw']
         command = self._function_to_command[caller]
         votable_fields = ','.join(Simbad.VOTABLE_FIELDS)
-        votable_def = "votable {" + votable_fields + "}"
-        votable_open = "votable open"
-        votable_close = "votable close"
+        #if get_raw is set then don't fetch as votable
+        votable_def = ("votable {" + votable_fields + "}", "")[get_raw]
+        votable_open = ("votable open", "")[get_raw]
+        votable_close = ("votable close", "")[get_raw]
         if Simbad.ROW_LIMIT:
             script = "set limit " + str(Simbad.ROW_LIMIT)
         script = "\n".join([script, votable_def, votable_open, command])
@@ -416,12 +420,14 @@ class Simbad(BaseQuery):
 
     @class_or_instance
     def _parse_result(self, result):
+
         parsed_result = SimbadResult(result.content)
         try:
             return parsed_result.table
-        except:
-            warnings.warn("Error in parsing Simbad result."
+        except Exception:
+            warnings.warn("Error in parsing Simbad result. "
                          "Returning raw result instead.")
+            return result.content
 
 
 
