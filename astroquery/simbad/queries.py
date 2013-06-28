@@ -9,6 +9,7 @@ from .simbad_votable import VoTableDef
 #---------------------------- move to a separate core.py------------------------------------------------
 import requests
 import re
+from collections import OrderedDict
 from ..exceptions import TimeoutError
 from ..query import BaseQuery
 from ..utils.class_or_instance import class_or_instance
@@ -31,8 +32,8 @@ def send_request(url, data, timeout):
     except requests.exceptions.Timeout:
             raise TimeoutError("Query timed out, time elapsed {time}s".
                                format(time=timeout))
-    except requests.exceptions.RequestException:
-            raise Exception("Query failed\n")
+    except requests.exceptions.RequestException as ex:
+            raise Exception("Query failed\n"+ ex.message)
 
 # need to fix, before they work
 def validate_epoch(func):
@@ -144,7 +145,7 @@ class Simbad(BaseQuery):
 
     @class_or_instance
     def query_region(self, coordinates, radius=None,
-                     equinox=None, epoch=None):
+                     equi=None, epoch=None):
         """
         Queries around an object or coordinates as per the specified
         radius and returns the results in an `astropy.table.Table.`
@@ -156,7 +157,7 @@ class Simbad(BaseQuery):
         radius : str/`astropy.units.Qunatity`, optional
             the radius of the region. If missing, set to default
             value of 20 arcmin.
-        equinox : float, optional
+        equi : float, optional
             the equinox of the coordinates. If missing set to
             default 2000.0.
         epoch : str, optional
@@ -178,18 +179,17 @@ class Simbad(BaseQuery):
         >>> # String arguments only work for ICRS Coordinates!
         >>> table = Simbad.query_region("00h42m44.3s +41d16m9s", radius="5d0m0s")
         >>> # For other coordinate systems use an astropy.coordinates object:
-        >>> table = Simbad.query_region(GalacticCoordinates(-76.22237, 74.49108,
-        unit=(u.degree, u.degree)))
+        >>> table = Simbad.query_region(GalacticCoordinates(-76.22237, 74.49108, unit=(u.degree, u.degree)))
 
         """
         # if the identifier is given rather than the coordinates, convert to
         # coordinates
         result = self.query_region_async(coordinates, radius=radius,
-                                          equinox=equinox, epoch=epoch)
+                                          equi=equi, epoch=epoch)
         return self.parse_result(result)
 
     @class_or_instance
-    def query_region_async(self, coordinates, radius=None, equinox=None,
+    def query_region_async(self, coordinates, radius=None, equi=None,
                            epoch=None):
         """
         Serves the same function as `astoquery.simbad.Simbad.query_region`. But
@@ -202,7 +202,7 @@ class Simbad(BaseQuery):
         radius : str/`astropy.units.Qunatity`, optional
             the radius of the region. If missing, set to default
             value of 20 arcmin.
-        equinox : float, optional
+        equi : float, optional
             the equinox of the coordinates. If missing set to
             default 2000.0.
         epoch : str, optional
@@ -215,7 +215,7 @@ class Simbad(BaseQuery):
              the response of the query from the server.
         """
         request_payload = self._args_to_payload(coordinates, radius=radius,
-                                                equinox=equinox, epoch=epoch,
+                                                equi=equi, epoch=epoch,
                                                 caller='query_region_async')
         response = send_request(Simbad.SIMBAD_URL, request_payload,
                                 Simbad.TIMEOUT)
@@ -412,8 +412,14 @@ class Simbad(BaseQuery):
         for key in list(kwargs):
             if not kwargs[key]:
                 del kwargs[key]
+        #join in the order specified otherwise results in error
+        all_keys = ['radius', 'frame', 'equi', 'epoch']
+        present_keys =[key for key in all_keys if key in kwargs]
+        ordered_kwargs = OrderedDict()
+        for key in present_keys:
+            ordered_kwargs[key] = kwargs[key]
         kwargs_str = ' '.join("{key}={value}".format(key=key, value=value) for
-                              key, value in kwargs.items())
+                              key, value in ordered_kwargs.items())
         script += ' '.join([" ", args_str, kwargs_str, "\n"])
         script += votable_close
         return dict(script=script)
@@ -453,26 +459,23 @@ def _parse_coordinates(coordinates):
 
 def _get_frame_coords(c):
     if isinstance(c, coord.ICRSCoordinates):
-        ra = _to_simbad_format(c.ra)
-        dec = _to_simbad_format(c.dec)
+        ra, dec = _to_simbad_format(c.ra, c.dec)
         return (ra, dec, 'ICRS')
     if isinstance(c, coord.GalacticCoordinates):
-        ra = _to_simbad_format(c.latangle)
-        dec = _to_simbad_format(c.lonangle)
+        ra, dec = _to_simbad_format(c.icrs.ra, c.icrs.dec)
         return (ra, dec, 'GAL')
     if isinstance(c, coord.FK4Coordinates):
-        ra = _to_simbad_format(c.ra)
-        dec = _to_simbad_format(c.dec)
+        ra, dec = _to_simbad_format(c.ra, c.dec)
         return (ra, dec,'FK4')
     if isinstance(c, coord.FK5Coordinates):
-        ra = _to_simbad_format(c.ra)
-        dec = _to_simbad_format(c.dec)
+        ra = _to_simbad_format(c.ra, c.dec)
         return (ra, dec, 'FK5')
 
-def _to_simbad_format(coordinate):
-    tup = coordinate.hms
-    h, m, s = str(int(tup[0])), str(int(tup[1])), str(tup[2])
-    return ":".join([h, m, s])
+def _to_simbad_format(ra, dec):
+    ra = ra.format(u.hour, sep=':')
+    dec = dec.format(u.hour, sep=':', alwayssign='True')
+    return (ra, dec)
+
 
 
 def _parse_radius(radius):
