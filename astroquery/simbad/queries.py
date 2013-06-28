@@ -186,7 +186,7 @@ class Simbad(BaseQuery):
         # coordinates
         result = self.query_region_async(coordinates, radius=radius,
                                           equi=equi, epoch=epoch)
-        return self.parse_result(result)
+        return self._parse_result(result)
 
     @class_or_instance
     def query_region_async(self, coordinates, radius=None, equi=None,
@@ -462,7 +462,7 @@ def _get_frame_coords(c):
         ra, dec = _to_simbad_format(c.ra, c.dec)
         return (ra, dec, 'ICRS')
     if isinstance(c, coord.GalacticCoordinates):
-        ra, dec = _to_simbad_format(c.icrs.ra, c.icrs.dec)
+        ra, dec = _to_simbad_format(c.lonangle, c.latangle)
         return (ra, dec, 'GAL')
     if isinstance(c, coord.FK4Coordinates):
         ra, dec = _to_simbad_format(c.ra, c.dec)
