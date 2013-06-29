@@ -468,7 +468,7 @@ def _get_frame_coords(c):
         ra, dec = _to_simbad_format(c.ra, c.dec)
         return (ra, dec,'FK4')
     if isinstance(c, coord.FK5Coordinates):
-        ra = _to_simbad_format(c.ra, c.dec)
+        ra, dec = _to_simbad_format(c.ra, c.dec)
         return (ra, dec, 'FK5')
 
 def _to_simbad_format(ra, dec):
