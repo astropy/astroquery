@@ -115,7 +115,7 @@ class SimbadResult(object):
             if bibcode_match:
                 self.__table = _create_bibcode_table(self.data, bibcode_match.group(2))
             else:
-                self.__table = Table.read(self.__file, format="votable")
+                self.__table = votable.parse_single_table(self.__file, pedantic=False).to_table()
         return self.__table
 
 def _create_bibcode_table(data, splitter):

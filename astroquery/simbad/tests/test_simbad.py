@@ -23,6 +23,18 @@ DATA_FILES = {
               'bibcode' : 'query_bibcode.data'
              }
 
+class MockResponse(object):
+        query_regex = re.compile(r'query\s+([a-z]+)\s+')
+        def __init__(self, script):
+            self.content = self.get_content(script)
+
+        def get_content(self, script):
+            match = MockResponse.query_regex.search(script)
+            if match:
+                filename = DATA_FILES[match.group(1)]
+                content = open(data_path(filename), "r").read()
+                print filename
+                return content
 
 def data_path(filename):
         data_dir = os.path.join(os.path.dirname(__file__), 'data')
@@ -34,19 +46,7 @@ def patch_post(request):
     mp.setattr(requests, 'post', post_mockreturn)
     return mp
 
-def post_mockreturn(url, data):
-    class MockResponse(object):
-        query_regex = re.compile(r'query\s+([a-z]+)\s+')
-        def __init__(self, script):
-            self.content = self.get_content(script)
-
-        def get_content(self, script):
-            match = MockResponse.query_regex.search(script)
-            if match:
-                filename = DATA_FILES[match.group(1)]
-                content = open(data_path(filename), "w").read()
-                return content
-
+def post_mockreturn(url, data, timeout):
     response = MockResponse(data['script'])
     return response
 
@@ -111,16 +111,92 @@ def test_args_to_payload(args, kwargs, expected_script):
                          [('2006ApJ*', True),
                           ('2005A&A.430.165F', None)
                           ])
-def test_query_bibcode_async(bibcode, wildcard):
+def test_query_bibcode_async(patch_post, bibcode, wildcard):
     response1 = simbad.queries.Simbad.query_bibcode_async(bibcode,
                                                           wildcard=wildcard)
     response2 = simbad.queries.Simbad().query_bibcode_async(bibcode,
                                                           wildcard=wildcard)
     assert response1 is not None and response2 is not None
-    assert response1 == response2
+    assert response1.content  == response2.content
 
 def test_query_bibcode(patch_post):
     result1 = simbad.queries.Simbad.query_bibcode("2006ApJ*", wildcard=True)
-    result2 = simbad.queries.Simbad.query_bibcode("2006ApJ*", wildcard=True)
+    result2 = simbad.queries.Simbad().query_bibcode("2006ApJ*", wildcard=True)
+    assert isinstance(result1, Table)
+    assert isinstance(result2, Table)
+
+def test_query_bibobj_async(patch_post):
+    response1 = simbad.queries.Simbad.query_bibobj_async('2005A&A.430.165F')
+    response2 = simbad.queries.Simbad().query_bibobj_async('2005A&A.430.165F')
+    assert response1 is not None and response2 is not None
+    assert response1.content  == response2.content
+
+def test_query_bibobj(patch_post):
+    result1 = simbad.queries.Simbad.query_bibobj('2005A&A.430.165F')
+    result2 = simbad.queries.Simbad().query_bibobj('2005A&A.430.165F')
+    assert isinstance(result1, Table)
+    assert isinstance(result2, Table)
+
+def test_query_catalog_async(patch_post):
+    response1 = simbad.queries.Simbad.query_catalog_async('m')
+    response2 = simbad.queries.Simbad().query_catalog_async('m')
+    assert response1 is not None and response2 is not None
+    assert response1.content  == response2.content
+
+def test_query_catalog(patch_post):
+    result1 = simbad.queries.Simbad.query_catalog('m')
+    result2 = simbad.queries.Simbad().query_catalog('m')
+    assert isinstance(result1, Table)
+    assert isinstance(result2, Table)
+
+@pytest.mark.parametrize(('coordinates', 'radius', 'equi', 'epoch'),
+                         [(ICRS_COORDS, None, None, None),
+                          (GALACTIC_COORDS, 5 * u.deg, 2000.0, 'J2000'),
+                          (FK4_COORDS, '5d0m0s', None, None),
+                          (FK5_COORDS, None, None, None)
+                          ])
+def test_query_region_async(patch_post, coordinates, radius, equi, epoch):
+    response1 = simbad.queries.Simbad.query_region_async(coordinates, radius=radius,
+                                                         equi=equi, epoch=epoch)
+    response2 = simbad.queries.Simbad().query_region_async(coordinates, radius=radius,
+                                                         equi=equi, epoch=epoch)
+    assert response1 is not None and response2 is not None
+    assert response1.content  == response2.content
+
+@pytest.mark.parametrize(('coordinates', 'radius', 'equi', 'epoch'),
+                         [(ICRS_COORDS, None, None, None),
+                          (GALACTIC_COORDS, 5 * u.deg, 2000.0, 'J2000'),
+                          (FK4_COORDS, '5d0m0s', None, None),
+                          (FK5_COORDS, None, None, None)
+                          ])
+def test_query_region(patch_post, coordinates, radius, equi, epoch):
+    result1 = simbad.queries.Simbad.query_region(coordinates, radius=radius,
+                                                   equi=equi, epoch=epoch)
+    result2 = simbad.queries.Simbad().query_region(coordinates, radius=radius,
+                                                     equi=equi, epoch=epoch)
+    assert isinstance(result1, Table)
+    assert isinstance(result2, Table)
+
+@pytest.mark.parametrize(('object_name', 'wildcard'),
+                         [("m1", None),
+                         ("m [0-9]", True)
+                         ])
+def test_query_object_async(patch_post, object_name, wildcard):
+    response1 = simbad.queries.Simbad.query_object_async(object_name,
+                                                         wildcard=wildcard)
+    response2 = simbad.queries.Simbad().query_object_async(object_name,
+                                                           wildcard=wildcard)
+    assert response1 is not None and response2 is not None
+    assert response1.content  == response2.content
+
+@pytest.mark.parametrize(('object_name', 'wildcard'),
+                         [("m1", None),
+                         ("m [0-9]", True),
+                         ])
+def test_query_object(patch_post, object_name, wildcard):
+    result1 = simbad.queries.Simbad.query_object(object_name,
+                                                         wildcard=wildcard)
+    result2 = simbad.queries.Simbad().query_object(object_name,
+                                                           wildcard=wildcard)
     assert isinstance(result1, Table)
     assert isinstance(result2, Table)
