@@ -1,6 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from ... import simbad
-from astropy.tests.helper import pytest, remote_data
+from astropy.tests.helper import pytest
 import astropy.coordinates as coord
 import astropy.units as u
 from astropy.table import Table

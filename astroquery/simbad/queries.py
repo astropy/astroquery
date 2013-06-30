@@ -7,12 +7,11 @@ from . import parameters
 from .result import SimbadResult
 from .simbad_votable import VoTableDef
 #---------------------------- move to a separate core.py------------------------------------------------
-import requests
 import re
 from collections import OrderedDict
-from ..exceptions import TimeoutError
 from ..query import BaseQuery
 from ..utils.class_or_instance import class_or_instance
+from  ..utils import commons
 import astropy.units as u
 import astropy.coordinates as coord
 from . import SIMBAD_SERVER, SIMBAD_TIMEOUT, ROW_LIMIT
@@ -24,16 +23,6 @@ __all__ = ['QueryId',
             'QueryMulti',
             'Simbad'
             ]
-
-def send_request(url, data, timeout):
-    try:
-        response = requests.post(url, data=data, timeout=timeout)
-        return response
-    except requests.exceptions.Timeout:
-            raise TimeoutError("Query timed out, time elapsed {time}s".
-                               format(time=timeout))
-    except requests.exceptions.RequestException as ex:
-            raise Exception("Query failed\n"+ ex.message)
 
 # need to fix, before they work
 def validate_epoch(func):
@@ -139,7 +128,7 @@ class Simbad(BaseQuery):
         """
         request_payload = self._args_to_payload(object_name, wildcard=wildcard,
                                                 caller='query_object_async')
-        response = send_request(Simbad.SIMBAD_URL, request_payload,
+        response = commons.send_request(Simbad.SIMBAD_URL, request_payload,
                                 Simbad.TIMEOUT)
         return response
 
@@ -217,7 +206,7 @@ class Simbad(BaseQuery):
         request_payload = self._args_to_payload(coordinates, radius=radius,
                                                 equi=equi, epoch=epoch,
                                                 caller='query_region_async')
-        response = send_request(Simbad.SIMBAD_URL, request_payload,
+        response = commons.send_request(Simbad.SIMBAD_URL, request_payload,
                                 Simbad.TIMEOUT)
         return response
 
@@ -264,7 +253,7 @@ class Simbad(BaseQuery):
         """
         request_payload = self._args_to_payload(catalog,
                                                 caller='query_catalog_async')
-        response = send_request(Simbad.SIMBAD_URL, request_payload,
+        response = commons.send_request(Simbad.SIMBAD_URL, request_payload,
                                 Simbad.TIMEOUT)
         return response
 
@@ -311,7 +300,7 @@ class Simbad(BaseQuery):
         """
         request_payload = self._args_to_payload(
             bibcode, caller='query_bibobj_async')
-        response = send_request(Simbad.SIMBAD_URL, request_payload,
+        response = commons.send_request(Simbad.SIMBAD_URL, request_payload,
                                 Simbad.TIMEOUT)
         return response
 
@@ -366,7 +355,7 @@ class Simbad(BaseQuery):
         """
         request_payload = self._args_to_payload(bibcode, wildcard=wildcard,
                                                 caller='query_bibcode_async', get_raw=True)
-        response = send_request(Simbad.SIMBAD_URL, request_payload,
+        response = commons.send_request(Simbad.SIMBAD_URL, request_payload,
                                 Simbad.TIMEOUT)
         return response
 
@@ -438,23 +427,13 @@ class Simbad(BaseQuery):
 
 
 def _parse_coordinates(coordinates):
-    # SGAL, ECL not supported by astropy.coordinates yet?
-    # check if it is an identifier rather than coordinates
-    if isinstance(coordinates, basestring):
-        try:
-            c = coord.ICRSCoordinates.from_name(coordinates)
-        except coord.name_resolve.NameResolveError:
-            # check if they are coordinates expressed as a string
-            # otherwise UnitsException will be raised
-            c = coord.ICRSCoordinates(coordinates, unit=(None, None))
-    else:
-        # it must be an astropy.coordinates coordinate object
-        assert isinstance(coordinates, coord.SphericalCoordinatesBase)
-        c = coordinates
-    # now c has some subclass of astropy.coordinate
-    # get ra, dec and frame
-    return _get_frame_coords(c)
-    # get ra and dec
+    try:
+        c = commons.parse_coordinates(coordinates)
+        # now c has some subclass of astropy.coordinate
+        # get ra, dec and frame
+        return _get_frame_coords(c)
+    except (u.UnitsException, TypeError):
+        raise Exception("Coordinates not specified correctly")
 
 
 def _get_frame_coords(c):
@@ -481,22 +460,21 @@ def _to_simbad_format(ra, dec):
 
 
 def _parse_radius(radius):
-    if isinstance(radius, basestring):
-        angle = coord.Angle(radius)
-    else:
-        angle = coord.Angle(radius.value, unit=radius.unit)
+    try:
+        angle = commons.parse_radius(radius)
     # find the most appropriate unit - d, m or s
-    index = min([i for (i,val) in enumerate(angle.dms) if int(val) > 0])
-    unit = ('d', 'm', 's')[index]
-    if unit == 'd':
-        return str(angle.degrees) + unit
-    if unit == 'm':
-        sec_to_min = angle.dms[2] * u.arcsec.to(u.arcmin)
-        total_min = angle.dms[1] + sec_to_min
-        return str(total_min) + unit
-    if unit == 's':
-        return str(angle.dms[2]) + unit
-
+        index = min([i for (i,val) in enumerate(angle.dms) if int(val) > 0])
+        unit = ('d', 'm', 's')[index]
+        if unit == 'd':
+            return str(angle.degrees) + unit
+        if unit == 'm':
+            sec_to_min = angle.dms[2] * u.arcsec.to(u.arcmin)
+            total_min = angle.dms[1] + sec_to_min
+            return str(total_min) + unit
+        if unit == 's':
+            return str(angle.dms[2]) + unit
+    except (u.UnitsException, coord.UnitsError, AttributeError):
+        raise Exception("Radius specified incorrectly")
 
 
 
