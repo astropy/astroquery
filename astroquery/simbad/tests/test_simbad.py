@@ -62,9 +62,7 @@ def test_parse_radius(radius, expected_radius):
     assert actual == expected_radius
 
 @pytest.mark.parametrize(('ra', 'dec', 'expected_ra', 'expected_dec'),
-                         [(GALACTIC_COORDS.lonangle, GALACTIC_COORDS.latangle,
-                         u'-4:28:05.00160', u'-1:59:01.07280'),
-                          (ICRS_COORDS.ra, ICRS_COORDS.dec, u'5:35:17.30000',
+                         [(ICRS_COORDS.ra, ICRS_COORDS.dec, u'5:35:17.30000',
                            u'-5:23:28.00000')
                           ])
 def test_to_simbad_format(ra, dec, expected_ra, expected_dec):
@@ -80,6 +78,8 @@ def test_to_simbad_format(ra, dec, expected_ra, expected_dec):
 def test_get_frame_coordinates(coordinates, expected_frame):
     actual_frame = simbad.queries._get_frame_coords(coordinates)[2]
     assert actual_frame == expected_frame
+    if actual_frame == 'GAL':
+        assert simbad.queries._get_frame_coords(coordinates)[:2] == ('-67.02084', '-29.75447')
 
 def test_parse_result():
         pass
