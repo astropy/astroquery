@@ -462,7 +462,7 @@ def _get_frame_coords(c):
         ra, dec = _to_simbad_format(c.ra, c.dec)
         return (ra, dec, 'ICRS')
     if isinstance(c, coord.GalacticCoordinates):
-        ra, dec = _to_simbad_format(c.lonangle, c.latangle)
+        ra, dec = (str(c.lonangle.degrees), str(c.latangle.degrees))
         return (ra, dec, 'GAL')
     if isinstance(c, coord.FK4Coordinates):
         ra, dec = _to_simbad_format(c.ra, c.dec)
