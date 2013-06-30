@@ -32,7 +32,7 @@ SIMBAD_TIMEOUT = ConfigurationItem('timeout', 60, 'time limit for connecting to 
 # O defaults to the maximum limit
 ROW_LIMIT = ConfigurationItem('row_limit', 0, 'maximum number of rows that will be fetched from the result.')
 
-from .queries import *
+from .core import *
 from .result import *
 from .simbad_votable import *
 

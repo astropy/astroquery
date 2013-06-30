@@ -1,28 +1,20 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-import warnings
-import urllib
-import urllib2
-from .parameters import ValidatedAttribute
-from . import parameters
-from .result import SimbadResult
-from .simbad_votable import VoTableDef
-#---------------------------- move to a separate core.py------------------------------------------------
 import re
-from collections import OrderedDict
+from collections import OrderedDict, namedtuple
+import tempfile
+import warnings
 from ..query import BaseQuery
 from ..utils.class_or_instance import class_or_instance
 from  ..utils import commons
 import astropy.units as u
 import astropy.coordinates as coord
+from astropy.table import Table
+try:
+    import astropy.io.vo.table as votable
+except ImportError:
+    import astropy.io.votable as votable
 from . import SIMBAD_SERVER, SIMBAD_TIMEOUT, ROW_LIMIT
-__all__ = ['QueryId',
-            'QueryAroundId',
-            'QueryCat',
-            'QueryCoord',
-            'QueryBibobj',
-            'QueryMulti',
-            'Simbad'
-            ]
+__all__ = ['Simbad']
 
 # need to fix, before they work
 def validate_epoch(func):
@@ -476,337 +468,114 @@ def _parse_radius(radius):
     except (u.UnitsException, coord.UnitsError, AttributeError):
         raise Exception("Radius specified incorrectly")
 
-
-
-
-
-#--------------------------------------------------------upto here (core.py)-----------
-
-class _Query(object):
-    def execute(self, votabledef=None, limit=None, pedantic=False, mirror=None):
-        """ Execute the query, returning a :class:`SimbadResult` object.
-
-        Parameters
-        ----------
-        votabledef: string or :class:`VoTableDef`, optional
-            Definition object for the output.
-
-        limit: int, optional
-            Limits the number of rows returned. None sets the limit to
-            SIMBAD's server maximum.
-
-        pedantic: bool, optional
-            The value to pass to the votable parser for the *pedantic*
-            parameters.
-        """
-
-        return execute_query(self, votabledef=votabledef, limit=limit,
-                pedantic=pedantic, mirror=mirror)
-
-
-@ValidatedAttribute('wildcard', parameters._ScriptParameterWildcard)
-class QueryId(_Query):
-    """ Query by identifier.
-
-    Parameters
-    ----------
-    identifier: string
-        The identifier to query for.
-
-    wildcard: bool, optional
-        If True, specifies that `identifier` should be understood as an
-        expression with wildcards.
-
-    """
-
-    __command = 'query id '
-
-    def __init__(self, identifier, wildcard=None):
-        self.identifier = identifier
-        self.wildcard = wildcard
-
-    def __str__(self):
-        return self.__command + (self.wildcard and 'wildcard ' or '') + \
-                                                    str(self.identifier) + '\n'
-
-    def __repr__(self):
-        return '{%s(identifier=%s, wildcard=%s)}' % (self.__class__.__name__,
-                            repr(self.identifier), repr(self.wildcard.value))
-
-
-# class QueryBasic(_Query):
-#    """ Basic Query
-#
-#    Parameters
-#    ----------
-#    anything : string
-#        The identifier, coordinate, or bibcode to search for
-#    """
-#
-#    __command = 'query basic '
-#
-#    def __init__(self, qstring):
-#        self.Ident = qstring
-#
-#    def __str__(self):
-#        return self.__command + str(self.Ident) + '\n'
-#
-#    def __repr__(self):
-#        return '{%s(Ident=%s)}' % (self.__class__.__name__,
-#                            repr(self.Ident))
-
-@ValidatedAttribute('radius', parameters._ScriptParameterRadius)
-class QueryAroundId(_Query):
-    """ Query around identifier.
-
-    Parameters
-    ----------
-    identifier: string
-        The identifier around wich to query.
-
-    radius: string, optional
-        The value of the cone search radius. The value must be suffixed by
-        'd' (degrees), 'm' (arcminutes) or 's' (arcseconds).
-        If set to None the default value will be used.
-
-    """
-
-    __command = 'query around '
-
-    def __init__(self, identifier, radius=None):
-        self.identifier = identifier
-        self.radius = radius
-
-    def __str__(self):
-        s = self.__command + str(self.identifier)
-        if self.radius:
-            s += ' radius=%s' % self.radius
-        return s + '\n'
-
-    def __repr__(self):
-        return '{%s(identifier=%s, radius=%s)}' % (self.__class__.__name__,
-                            repr(self.identifier), repr(self.radius.value))
-
-
-class QueryCat(_Query):
-    """ Query for a whole catalog.
-
-    Parameters
-    ----------
-
-    catalog: string
-        The catalog identifier, for example 'm', 'ngc'.
-
-    """
-
-    __command = 'query cat '
-
-    def __init__(self, catalog):
-        self.catalog = catalog
-
-    def __str__(self):
-        return self.__command + str(self.catalog) + '\n'
-
-    def __repr__(self):
-        return '{%s(catalog=%s)}' % (self.__class__.__name__,
-                                                        repr(self.catalog))
-
-
-@ValidatedAttribute('radius', parameters._ScriptParameterRadius)
-@ValidatedAttribute('frame', parameters._ScriptParameterFrame)
-@ValidatedAttribute('equinox', parameters._ScriptParameterEquinox)
-@ValidatedAttribute('epoch', parameters._ScriptParameterEpoch)
-class QueryCoord(_Query):
-    """ Query by coordinates.
-
-    Parameters
-    ----------
-    ra: string
-        Right ascension, for example '+12 30'.
-
-    dec: string
-        Declination, for example '-20 17'.
-
-    radius: string, optional
-        The value of the cone search radius. The value must be suffixed by
-        'd' (degrees), 'm' (arcminutes) or 's' (arcseconds).
-        If set to None the default value will be used.
-
-    frame: string, optional
-        Frame of input coordinates.
-
-    equinox: string optional
-        Equinox of input coordinates.
-
-    epoch:  string, optional
-        Epoch of input coordinates.
-
-    """
-
-    __command = 'query coo '
-
-    def __init__(self, ra, dec, radius=None, frame=None, equinox=None,
-                                                                epoch=None):
-        self.ra = ra
-        self.dec = dec
-        self.radius = radius
-        self.frame = frame
-        self.equinox = equinox
-        self.epoch = epoch
-
-    def __str__(self):
-        s = self.__command + str(self.ra) + ' ' + str(self.dec)
-        for item in ('radius', 'frame', 'equinox', 'epoch'):
-            if getattr(self, item):
-                s += ' %s=%s' % (item, str(getattr(self, item)))
-        return s + '\n'
-
-    def __repr__(self):
-        return '{%s(ra=%s, dec=%s, radius=%s, frame=%s, equinox=%s, ' \
-                    'epoch=%s)}' % \
-                    (self.__class__.__name__, repr(self.ra), repr(self.dec),
-                    repr(self.radius), repr(self.frame), repr(self.equinox),
-                    repr(self.epoch))
-
-
-class QueryBibobj(_Query):
-    """ Query by bibcode objects. Used to fetch objects contained in the
-    given article.
-
-    Parameters
-    ----------
-    bibcode: string
-        The bibcode of the article.
-
-    """
-
-    __command = 'query bibobj '
-
-    def __init__(self, bibcode):
-        self.bibcode = bibcode
-
-    def __str__(self):
-        return self.__command + str(self.bibcode) + '\n'
-
-    def __repr__(self):
-        return '{%s(bibcode=%s)}' % (self.__class__.__name__,
-                                                            repr(self.bibcode))
-
-
-@ValidatedAttribute('radius', parameters._ScriptParameterRadius)
-@ValidatedAttribute('frame', parameters._ScriptParameterFrame)
-@ValidatedAttribute('epoch', parameters._ScriptParameterEpoch)
-@ValidatedAttribute('equinox', parameters._ScriptParameterEquinox)
-class QueryMulti(_Query):
-    __command_ids = ('radius', 'frame', 'epoch', 'equinox')
-
-    def __init__(self, queries=None, radius=None, frame=None, epoch=None,
-                                                                equinox=None):
-        """ A type of Query used to aggregate the values of multiple simple
-        queries into a single result.
-
-        Parameters
-        ----------
-        queries: iterable of Query objects
-            The list of Query objects to aggregate results for.
-
-        radius: string, optional
-            The value of the cone search radius. The value must be suffixed by
-            'd' (degrees), 'm' (arcminutes) or 's' (arcseconds).
-            If set to None the default value will be used.
-
-        frame: string, optional
-            Frame of input coordinates.
-
-        equinox: string optional
-            Equinox of input coordinates.
-
-        epoch:  string, optional
-            Epoch of input coordinates.
-
-        .. note:: Each of the *radius*, *frame*, *equinox* et *epoch* arguments
-                    acts as a default value for the whole MultiQuery object.
-                    Individual queries may override these.
-        """
-
-        self.queries = []
-        self.radius = radius
-        self.frame = frame
-        self.epoch = epoch
-        self.equinox = equinox
-        if queries is not None:
-            if (isinstance(queries, _Query) and not isinstance(queries,
-                    QueryMulti)):
-                self.queries.append(queries)
-            elif iter(queries):
-                for query in queries:
-                    if isinstance(query,_Query):
-                        self.queries.append(query)
-                    else:
-                        raise ValueError("Queries must be simbad.Query instances")
-                        # self.queries.append(BasicQuery(query))
-            elif isinstance(queries, QueryMulti):
-                for query in queries.queries:
-                    self.queries.append(query)
+error_regex = re.compile(r'(?ms)\[(?P<line>\d+)\]\s?(?P<msg>.+?)(\[|\Z)')
+bibcode_regex = re.compile(r'query\s+bibcode\s+(wildcard)?\s+([\w]*)')
+
+SimbadError = namedtuple('SimbadError', ('line', 'msg'))
+VersionInfo = namedtuple('VersionInfo', ('major', 'minor', 'micro', 'patch'))
+
+
+
+class SimbadResult(object):
+    __sections = ('script', 'console', 'error', 'data')
+
+    def __init__(self, txt, pedantic=False):
+        self.__txt = txt
+        self.__pedantic = pedantic
+        self.__table = None
+        self.__stringio = None
+        self.__indexes = {}
+        self.exectime = None
+        self.sim_version = None
+        self.__split_sections()
+        self.__parse_console_section()
+        self.__warn()
+        self.__file = None
+
+    def __split_sections(self):
+        for section in self.__sections:
+            match = re.search(r'(?ims)^::%s:+?$(?P<content>.*?)(^::|\Z)' % \
+                                                        section, self.__txt)
+            if match:
+                self.__indexes[section] = (match.start('content'),
+                                                        match.end('content'))
+
+    def __parse_console_section(self):
+        if self.console is None:
+            return
+        m = re.search(r'(?ims)total execution time: ([.\d]+?)\s*?secs',
+                                                                self.console)
+        if m:
+            try:
+                self.exectime = float(m.group(1))
+            except:
+                # TODO: do something useful here.
+                pass
+        m = re.search(r'(?ms)SIMBAD(\d) rel (\d)[.](\d+)([^\d^\s])?',
+                                                                self.console)
+        if m:
+            self.sim_version = VersionInfo(*m.groups(None))
+
+    def __warn(self):
+        for error in self.errors:
+            warnings.warn("Warning: The script line number %i raised "
+                            "the error: %s." %\
+                            (error.line, error.msg))
+
+    def __get_section(self, section_name):
+        if section_name in self.__indexes:
+            return self.__txt[self.__indexes[section_name][0]:\
+                                    self.__indexes[section_name][1]].strip()
 
     @property
-    def __commands(self):
-        """ The list of commands which are not None for this script.
-        """
-        return tuple([x for x in self.__command_ids if getattr(self, x)])
+    def script(self):
+        return self.__get_section('script')
 
     @property
-    def _header(self):
-        s = ''
-        for comm in self.__commands:
-            s += 'set %s %s\n' % (comm, str(getattr(self, comm)))
-        return s
+    def console(self):
+        return self.__get_section('console')
 
     @property
-    def __queries_string(self):
-        s = ''
-        for query in self.queries:
-            s += str(query)
-        return s
+    def error_raw(self):
+        return self.__get_section('error')
 
-    def __str__(self):
-        return self._header + self.__queries_string
+    @property
+    def data(self):
+        return self.__get_section('data')
 
-    def __repr__(self):
-        return repr(self.queries)
+    @property
+    def errors(self):
+        result = []
+        if self.error_raw is None:
+            return result
+        for err in error_regex.finditer(self.error_raw):
+            result.append(SimbadError(int(err.group('line')),
+                                        err.group('msg').replace('\n', ' ')))
+        return result
 
+    @property
+    def nb_errors(self):
+        if self.error_raw is None:
+            return 0
+        return len(self.errors)
 
-def execute_query(query, votabledef, limit, pedantic, mirror=None):
-    limit2 = parameters._ScriptParameterRowLimit(limit)
+    @property
+    def table(self):
+        if self.__file is None:
+            self.__file = tempfile.NamedTemporaryFile()
+            self.__file.write(self.data.encode('utf-8'))
+            self.__file.flush()
+            # if bibcode query then first create table from raw data
+            bibcode_match = bibcode_regex.search(self.script)
+            if bibcode_match:
+                self.__table = _create_bibcode_table(self.data, bibcode_match.group(2))
+            else:
+                self.__table = votable.parse_single_table(self.__file, pedantic=False).to_table()
+        return self.__table
 
-    if votabledef is None:
-        # votabledef is None, use the module level default one
-        from . import votabledef as vodefault
-        if isinstance(vodefault, VoTableDef):
-            votabledef = vodefault
-        else:
-            votabledef = VoTableDef(vodefault)
-    elif not isinstance(votabledef, VoTableDef):
-        votabledef = VoTableDef(votabledef)
-
-    # Create the 'script' string
-    script = ''
-    if limit is not None:
-        script += 'set limit %s\n' % str(limit2)
-    if isinstance(query, QueryMulti):
-        script += query._header
-    script += votabledef.def_str
-    script += votabledef.open_str
-    script += str(query)
-    script += votabledef.close_str
-    script = urllib.quote(script)
-
-    from . import SIMBAD_SERVER
-    server = (SIMBAD_SERVER() if mirror is None else mirror)
-    req_str = 'http://' + server + '/simbad/sim-script?script=' + script
-    response = urllib2.urlopen(req_str)
-    result = b''.join(response.readlines())
-    result = result.decode('utf-8')
-    if not result:
-        raise TypeError
-    return SimbadResult(result, pedantic=pedantic)
+def _create_bibcode_table(data, splitter):
+    ref_list = [splitter + ref for ref in data.split(splitter)][1:]
+    table = Table(names=['References'], dtypes=['object'])
+    for ref in ref_list:
+        table.add_row([ref.decode('utf-8')])
+    return table
