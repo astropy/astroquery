@@ -1,6 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
+from  __future__  import print_function
 import re
-from collections import OrderedDict, namedtuple
+from collections import namedtuple
 import tempfile
 import warnings
 from ..query import BaseQuery
@@ -126,7 +127,7 @@ class Simbad(BaseQuery):
 
     @class_or_instance
     def query_region(self, coordinates, radius=None,
-                     equi=None, epoch=None):
+                     equinox=None, epoch=None):
         """
         Queries around an object or coordinates as per the specified
         radius and returns the results in an `astropy.table.Table.`
@@ -138,7 +139,7 @@ class Simbad(BaseQuery):
         radius : str/`astropy.units.Qunatity`, optional
             the radius of the region. If missing, set to default
             value of 20 arcmin.
-        equi : float, optional
+        equinox : float, optional
             the equinox of the coordinates. If missing set to
             default 2000.0.
         epoch : str, optional
@@ -166,11 +167,11 @@ class Simbad(BaseQuery):
         # if the identifier is given rather than the coordinates, convert to
         # coordinates
         result = self.query_region_async(coordinates, radius=radius,
-                                          equi=equi, epoch=epoch)
+                                          equinox=equinox, epoch=epoch)
         return self._parse_result(result)
 
     @class_or_instance
-    def query_region_async(self, coordinates, radius=None, equi=None,
+    def query_region_async(self, coordinates, radius=None, equinox=None,
                            epoch=None):
         """
         Serves the same function as `astoquery.simbad.Simbad.query_region`. But
@@ -183,7 +184,7 @@ class Simbad(BaseQuery):
         radius : str/`astropy.units.Qunatity`, optional
             the radius of the region. If missing, set to default
             value of 20 arcmin.
-        equi : float, optional
+        equinox : float, optional
             the equinox of the coordinates. If missing set to
             default 2000.0.
         epoch : str, optional
@@ -196,7 +197,7 @@ class Simbad(BaseQuery):
              the response of the query from the server.
         """
         request_payload = self._args_to_payload(coordinates, radius=radius,
-                                                equi=equi, epoch=epoch,
+                                                equinox=equinox, epoch=epoch,
                                                 caller='query_region_async')
         response = commons.send_request(Simbad.SIMBAD_URL, request_payload,
                                 Simbad.TIMEOUT)
@@ -371,7 +372,7 @@ class Simbad(BaseQuery):
         votable_def = ("votable {" + votable_fields + "}", "")[get_raw]
         votable_open = ("votable open", "")[get_raw]
         votable_close = ("votable close", "")[get_raw]
-        if Simbad.ROW_LIMIT:
+        if Simbad.ROW_LIMIT > 0:
             script = "set limit " + str(Simbad.ROW_LIMIT)
         script = "\n".join([script, votable_def, votable_open, command])
         if kwargs.get('wildcard'):
@@ -388,6 +389,10 @@ class Simbad(BaseQuery):
             if kwargs.get('radius'):
                 kwargs['radius'] = _parse_radius(kwargs['radius'])
         args_str = ' '.join([str(val) for val in args])
+        #rename equinox to equi as required by SIMBAD script
+        if kwargs.get('equinox'):
+            kwargs['equi'] = kwargs['equinox']
+            del kwargs['equinox']
         # remove default None from kwargs
         # be compatible with python3
         for key in list(kwargs):
@@ -396,11 +401,8 @@ class Simbad(BaseQuery):
         #join in the order specified otherwise results in error
         all_keys = ['radius', 'frame', 'equi', 'epoch']
         present_keys =[key for key in all_keys if key in kwargs]
-        ordered_kwargs = OrderedDict()
-        for key in present_keys:
-            ordered_kwargs[key] = kwargs[key]
-        kwargs_str = ' '.join("{key}={value}".format(key=key, value=value) for
-                              key, value in ordered_kwargs.items())
+        kwargs_str = ' '.join("{key}={value}".format(key=key, value=kwargs[key]) for
+                              key in present_keys)
         script += ' '.join([" ", args_str, kwargs_str, "\n"])
         script += votable_close
         return dict(script=script)
@@ -503,18 +505,18 @@ class SimbadResult(object):
     def __parse_console_section(self):
         if self.console is None:
             return
-        m = re.search(r'(?ims)total execution time: ([.\d]+?)\s*?secs',
+        match = re.search(r'(?ims)total execution time: ([.\d]+?)\s*?secs',
                                                                 self.console)
-        if m:
+        if match:
             try:
-                self.exectime = float(m.group(1))
+                self.exectime = float(match.group(1))
             except:
                 # TODO: do something useful here.
                 pass
-        m = re.search(r'(?ms)SIMBAD(\d) rel (\d)[.](\d+)([^\d^\s])?',
+        match = re.search(r'(?ms)SIMBAD(\d) rel (\d)[.](\d+)([^\d^\s])?',
                                                                 self.console)
-        if m:
-            self.sim_version = VersionInfo(*m.groups(None))
+        if match:
+            self.sim_version = VersionInfo(*match.groups(None))
 
     def __warn(self):
         for error in self.errors:

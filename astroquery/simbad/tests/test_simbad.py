@@ -20,7 +20,8 @@ DATA_FILES = {
               'coo' : 'query_coo.data',
               'cat' : 'query_cat.data',
               'bibobj' : 'query_bibobj.data',
-              'bibcode' : 'query_bibcode.data'
+              'bibcode' : 'query_bibcode.data',
+              'error' : 'query_error.data'
              }
 
 class MockResponse(object):
@@ -82,12 +83,15 @@ def test_get_frame_coordinates(coordinates, expected_frame):
         assert simbad.core._get_frame_coords(coordinates)[:2] == ('-67.02084', '-29.75447')
 
 def test_parse_result():
-        pass
+    result1 = simbad.core.Simbad._parse_result(MockResponse('query id '))
+    assert isinstance(result1, Table)
+    result2 = simbad.core.Simbad._parse_result(MockResponse('query error '))
+    assert isinstance(result2, basestring)
 
 votable_fields = ",".join(simbad.core.Simbad.VOTABLE_FIELDS)
 @pytest.mark.parametrize(('args', 'kwargs', 'expected_script'),
                          [([ICRS_COORDS], dict(radius=5 * u.deg, frame='ICRS',
-                                               equi=2000.0, epoch='J2000',
+                                               equinox=2000.0, epoch='J2000',
                                                caller='query_region_async'),
                           ("\nvotable {"+ votable_fields +"}\n"
                            "votable open\n"
@@ -149,31 +153,31 @@ def test_query_catalog(patch_post):
     assert isinstance(result1, Table)
     assert isinstance(result2, Table)
 
-@pytest.mark.parametrize(('coordinates', 'radius', 'equi', 'epoch'),
+@pytest.mark.parametrize(('coordinates', 'radius', 'equinox', 'epoch'),
                          [(ICRS_COORDS, None, None, None),
                           (GALACTIC_COORDS, 5 * u.deg, 2000.0, 'J2000'),
                           (FK4_COORDS, '5d0m0s', None, None),
                           (FK5_COORDS, None, None, None)
                           ])
-def test_query_region_async(patch_post, coordinates, radius, equi, epoch):
+def test_query_region_async(patch_post, coordinates, radius, equinox, epoch):
     response1 = simbad.core.Simbad.query_region_async(coordinates, radius=radius,
-                                                         equi=equi, epoch=epoch)
+                                                         equinox=equinox, epoch=epoch)
     response2 = simbad.core.Simbad().query_region_async(coordinates, radius=radius,
-                                                         equi=equi, epoch=epoch)
+                                                         equinox=equinox, epoch=epoch)
     assert response1 is not None and response2 is not None
     assert response1.content  == response2.content
 
-@pytest.mark.parametrize(('coordinates', 'radius', 'equi', 'epoch'),
+@pytest.mark.parametrize(('coordinates', 'radius', 'equinox', 'epoch'),
                          [(ICRS_COORDS, None, None, None),
                           (GALACTIC_COORDS, 5 * u.deg, 2000.0, 'J2000'),
                           (FK4_COORDS, '5d0m0s', None, None),
                           (FK5_COORDS, None, None, None)
                           ])
-def test_query_region(patch_post, coordinates, radius, equi, epoch):
+def test_query_region(patch_post, coordinates, radius, equinox, epoch):
     result1 = simbad.core.Simbad.query_region(coordinates, radius=radius,
-                                                   equi=equi, epoch=epoch)
+                                                   equinox=equinox, epoch=epoch)
     result2 = simbad.core.Simbad().query_region(coordinates, radius=radius,
-                                                     equi=equi, epoch=epoch)
+                                                     equinox=equinox, epoch=epoch)
     assert isinstance(result1, Table)
     assert isinstance(result2, Table)
 
@@ -184,8 +188,7 @@ def test_query_region(patch_post, coordinates, radius, equi, epoch):
 def test_query_object_async(patch_post, object_name, wildcard):
     response1 = simbad.core.Simbad.query_object_async(object_name,
                                                          wildcard=wildcard)
-    response2 = simbad.core.Simbad().query_object_async(object_name,
-                                                           wildcard=wildcard)
+    response2 = simbad.core.Simbad().query_object_async(object_name,                                                           wildcard=wildcard)
     assert response1 is not None and response2 is not None
     assert response1.content  == response2.content
 
