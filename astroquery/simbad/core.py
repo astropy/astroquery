@@ -17,26 +17,35 @@ except ImportError:
 from . import SIMBAD_SERVER, SIMBAD_TIMEOUT, ROW_LIMIT
 __all__ = ['Simbad']
 
-# need to fix, before they work
 def validate_epoch(func):
-
+    """
+    A method decorator that checks if the epoch value entered by the user
+    is acceptable.
+    """
     def wrapper(*args, **kwargs):
         if kwargs.get('epoch'):
             value = kwargs['epoch']
-            p = re.compile('^[JB]\d+[.]?\d+$', re.IGNORECASE)
-            assert p.match(value) is not None
+            try:
+                p = re.compile('^[JB]\d+[.]?\d+$', re.IGNORECASE)
+                assert p.match(value) is not None
+            except (AssertionError, TypeError):
+                raise Exception("Epoch must be specified as [J|B]<epoch>.\n"
+                                "Example: epoch='J2000'")
         return func(*args, **kwargs)
     return wrapper
 
 def validate_equinox(func):
-
+    """
+    A method decorator that checks if the equinox value entered by the user
+    is acceptable.
+    """
     def wrapper(*args, **kwargs):
         if kwargs.get('equinox'):
             value = kwargs['equinox']
             try:
                 float(value)
             except ValueError:
-                raise("Equinox must be a number")
+                raise Exception("Equinox must be a number")
         return func(*args, **kwargs)
     return wrapper
 
@@ -354,9 +363,11 @@ class Simbad(BaseQuery):
 
 
     @class_or_instance
+    @validate_epoch
+    @validate_equinox
     def _args_to_payload(self, *args, **kwargs):
         """
-        Takes the arguments from all the query functions
+        Takes the arguments from any of the query functions
         and returns a dictionary that can be used as the
         data for an HTTP POST request.
         """

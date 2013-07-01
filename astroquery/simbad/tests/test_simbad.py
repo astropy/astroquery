@@ -111,6 +111,16 @@ def test_args_to_payload(args, kwargs, expected_script):
     script = simbad.Simbad._args_to_payload(*args, **kwargs)['script']
     assert script == expected_script
 
+@pytest.mark.parametrize(('epoch', 'equinox'),
+                         [(2000, 'thousand'),
+                          ('J-2000', None),
+                          (None, '10e3')
+                          ])
+def test_args_to_payload_validate(epoch, equinox):
+    with pytest.raises(Exception):
+        simbad.Simbad._args_to_payload(caller='query_region_async', epoch=epoch,
+                                       equinox=equinox)
+
 @pytest.mark.parametrize(('bibcode', 'wildcard'),
                          [('2006ApJ*', True),
                           ('2005A&A.430.165F', None)
@@ -188,7 +198,8 @@ def test_query_region(patch_post, coordinates, radius, equinox, epoch):
 def test_query_object_async(patch_post, object_name, wildcard):
     response1 = simbad.core.Simbad.query_object_async(object_name,
                                                          wildcard=wildcard)
-    response2 = simbad.core.Simbad().query_object_async(object_name,                                                           wildcard=wildcard)
+    response2 = simbad.core.Simbad().query_object_async(object_name,
+                                                        wildcard=wildcard)
     assert response1 is not None and response2 is not None
     assert response1.content  == response2.content
 
