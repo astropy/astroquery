@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VOTABLE version="1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="http://www.ivoa.net/xml/VOTable/v1.2"
+  xsi:schemaLocation="http://www.ivoa.net/xml/VOTable/v1.2 http://www.ivoa.net/xml/VOTable/v1.2">
+ <DESCRIPTION>
+   VizieR Astronomical Server vizier.u-strasbg.fr
+    Date: 2013-06-22T03:46:21 [V1.97 (28-Nov-2012)]
+   Explanations and Statistics of UCDs:			See LINK below
+   In case of problem, please report to:	question@simbad.u-strasbg.fr
+ </DESCRIPTION>
+<!-- VOTable description at http://www.ivoa.net/Documents/latest/VOT.html -->
+<INFO ID="VERSION" name="votable-version" value="1.97 (28-Nov-2012)"/>
+<INFO ID="Ref" name="-ref" value="VOTx24616"/>
+<INFO name="MaxTuples" value="50000" />
+<INFO name="queryParameters" value="5">
+-oc.form=D.
+-source=VII/258/vv10
+Vmag=5.0..11.0
+-out.add=_RAJ2000,_DEJ2000,_RAJ2000,_DEJ2000
+-out=Name,Sp,Vmag
+</INFO>
+
+<!--
+Execution Reports
+ -->
+
+<RESOURCE ID="yCat_7258" name="VII/258">
+  <DESCRIPTION>Quasars and Active Galactic Nuclei (13th Ed.) (Veron+ 2010)</DESCRIPTION>
+  <COOSYS ID="J2000" system="eq_FK5" equinox="J2000"/>
+  <TABLE ID="VII_258_vv10" name="VII/258/vv10">
+    <DESCRIPTION>Quasars (M_v_&lt;-22.25), BL Lac and AGNs (M_v_&gt;-22.25)</DESCRIPTION>
+    <!-- Definitions of GROUPs and FIELDs -->
+    <FIELD name="_RAJ2000" ucd="pos.eq.ra" ref="J2000" datatype="double" width="8" precision="4" unit="deg"><!-- ucd="POS_EQ_RA" -->
+      <DESCRIPTION>Right ascension (FK5, Equinox=J2000.0) (computed by VizieR, not part of the original data)</DESCRIPTION>
+    </FIELD>
+    <FIELD name="_DEJ2000" ucd="pos.eq.dec" ref="J2000" datatype="double" width="8" precision="4" unit="deg"><!-- ucd="POS_EQ_DEC" -->
+      <DESCRIPTION>Declination (FK5, Equinox=J2000.0) (computed by VizieR, not part of the original data)</DESCRIPTION>
+    </FIELD>
+    <FIELD name="Name" ucd="meta.id" datatype="char" arraysize="17"><!-- ucd="ID_IDENTIFIER" -->
+      <DESCRIPTION>Most common name of the object</DESCRIPTION>
+    </FIELD>
+    <FIELD name="Sp" ucd="src.class" datatype="char" arraysize="4"><!-- ucd="CLASS_OBJECT" -->
+      <DESCRIPTION>[S0-9?HPQBLbhin. ] Spectrum classification (3)</DESCRIPTION>
+    </FIELD>
+    <FIELD name="Vmag" ucd="phot.mag;em.opt.V" datatype="float" width="5" precision="2" unit="mag"><!-- ucd="PHOT_MAG_V" -->
+      <DESCRIPTION>? magnitude: either V if B-V is not blank, or another band (see n_Vmag)</DESCRIPTION>
+      <VALUES null="NaN" />
+    </FIELD>
+<DATA><TABLEDATA>
+<TR><TD>010.6846</TD><TD>+41.2694</TD><TD>M 31</TD><TD>S2</TD><TD>10.57</TD></TR>
+<TR><TD>060.2779</TD><TD>-16.1108</TD><TD>NPM1G-16.0168</TD><TD></TD><TD>10.16</TD></TR>
+<TR><TD>103.7917</TD><TD>+41.0028</TD><TD>NPM1G+41.0135</TD><TD>S?</TD><TD>9.37</TD></TR>
+<TR><TD>027.2387</TD><TD>+5.9067</TD><TD>NGC  676</TD><TD>S2</TD><TD>10.50</TD></TR>
+<TR><TD>040.6696</TD><TD>-0.0131</TD><TD>NGC 1068</TD><TD>S1h</TD><TD>10.83</TD></TR>
+<TR><TD>139.7596</TD><TD>+26.2697</TD><TD>NGC 2824</TD><TD>S?</TD><TD>10.88</TD></TR>
+<TR><TD>147.5921</TD><TD>+72.2792</TD><TD>NGC 2985</TD><TD>S1.9</TD><TD>10.61</TD></TR>
+<TR><TD>169.5687</TD><TD>-32.8142</TD><TD>NGC 3621</TD><TD>S2</TD><TD>9.40</TD></TR>
+<TR><TD>173.1442</TD><TD>+53.0678</TD><TD>NGC 3718</TD><TD>S3b</TD><TD>10.61</TD></TR>
+<TR><TD>184.9608</TD><TD>+29.6139</TD><TD>UGC  7377</TD><TD>S3</TD><TD>10.47</TD></TR>
+<TR><TD>185.0287</TD><TD>+29.2808</TD><TD>NGC 4278</TD><TD>S3b</TD><TD>10.87</TD></TR>
+<TR><TD>186.4537</TD><TD>+33.5467</TD><TD>NGC 4395</TD><TD>S1.8</TD><TD>10.27</TD></TR>
+<TR><TD>189.9971</TD><TD>-11.6231</TD><TD>NGC 4594</TD><TD>S3</TD><TD>9.25</TD></TR>
+<TR><TD>192.7196</TD><TD>+41.1194</TD><TD>NGC 4736</TD><TD>S</TD><TD>10.85</TD></TR>
+<TR><TD>208.3612</TD><TD>+40.2831</TD><TD>NGC 5353</TD><TD>S?</TD><TD>10.91</TD></TR>
+</TABLEDATA></DATA>
+</TABLE>
+</RESOURCE>
+</VOTABLE>
