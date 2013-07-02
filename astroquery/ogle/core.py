@@ -69,7 +69,7 @@ def query(coord, algorithm='NG', quality='GOOD', coord_sys='RD'):
         raise ValueError('Quality {0} must be GOOD or ALL'.format(quality))
     if coord_sys not in COORD_SYS:
         raise ValueError('Coordinate system {0} must be RD or \
-                         LB.'.format(coord_sys)
+                         LB.'.format(coord_sys))
     # Determine the coord object type and generate list of coordinates
     lon, lat = _parse_coords(coord, coord_sys)
     # Generate payload
