@@ -1,4 +1,4 @@
-.. _astroquery.nrao:
+.. _astroquery.ogle:
 
 ********************************
 OGLE Queries (`astroquery.ogle`)
