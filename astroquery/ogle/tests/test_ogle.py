@@ -20,7 +20,7 @@ def test_ogle_list():
     ogle.query(coord=co_list)
     return
 
-def test_ogle_list():
+def test_ogle_list_values():
     """
     Test multiple pointings using a list of astropy coordinate instances
     """
