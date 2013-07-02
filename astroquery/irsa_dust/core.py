@@ -1,23 +1,20 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import types
-import time
-import warnings
-import io
-import sys
-import urllib
-import urllib2
-import StringIO
-import string
-import re
-from xml.etree.ElementTree import ElementTree
+import functools
+import requests
 from astropy.table import Table, Column
 import astropy.units as u
+import astropy.utils.data as aud
+import astropy.coordinates as coord
 from astropy.io import fits
 from . import utils
+from . import IRSA_DUST_SERVER, IRSA_DUST_TIMEOUT
+from ..utils.class_or_instance import class_or_instance
+from ..exceptions import TimeoutError, InvalidQueryError
+from ..query import BaseQuery
 
-__all__ = ["DustResults", "SingleDustResult", "query"]
-
-DUST_SERVICE_URL = "http://irsa.ipac.caltech.edu/cgi-bin/DUST/nph-dust"
+# TODO Add support for server url from JSON cache
+__all__ = ["IrsaDust"]
 
 EXT_DESC = "E(B-V) Reddening"
 EM_DESC = "100 Micron Emission"
@@ -40,240 +37,428 @@ MIN_VALUE = "minValue"
 DATA_IMAGE = "./data/image"
 DATA_TABLE = "./data/table"
 
-DELAY = 1
+# make generic enough to move to BaseQuery classf_ar
 
-def query(location, reg_size=None, delay=DELAY, verbose=False, url=DUST_SERVICE_URL):
+
+def send_request(url, data, timeout):
     """
-    Queries the IRSA Galactic Dust Reddening and Extinction service
-    and returns the results.
-    
+    A utility function that post HTTP requests to remote server
+    and returns the HTTP response.
+
     Parameters
     ----------
-    location : str
-        Can be either the name of an object or a coordinate string
-        If a name, must be resolveable by NED, SIMBAD, 2MASS, or SWAS.
-        Examples of acceptable coordinate strings, can be found here:
-        http://irsa.ipac.caltech.edu/applications/DUST/docs/coordinate.html 
-    reg_size : Number
-        (optional) the size of the region to include in the dust query, in degrees
-        Defaults to 5 degrees.
-    delay : int 
-        (optional) wait time between queries in seconds. Default is 1 second. Included in case
-        rapid fire queries are considered obnoxious behavior by the server.
     url : str
-        (optional) when specified, overrides the default IRSA dust service url,
-        sending queries to the given url instead - should only be necessary for testing
+        The URL of the remote server
+    data : dict
+        A dictionary representing the payload to be posted via the HTTP request
+    timeout : int
+        Time limit for establishing successful connection with remote server
 
     Returns
     -------
-    result : `astroquery.irsa_dust.DustResults`
-        object containing the results of the query
-
-    Examples
-    --------
-    Query a single object by object name and output results as an astropy Table:
-    >>> dust_result = query('m81')
-    >>> table = dust_result.table()
-    >>> table.pprint()
-
-    Query multiple objects with a single command:
-    >>> dust_result = query(['m101', 'm33', 'm15'])
-    >>> table = dust_result.table()
-    >>> table.pprint()
-    
-    Query a single object by coordinates, then get extinction detail table
-    and FITS emission image:
-    >>> dust_result = query('266.12 -61.89 equ j2000')
-    >>> detail_table = dust_result.ext_detail_table()
-    >>> emission_image = dust_result.image('emission')
-    >>> emission_image.writeto("image1.fits")
+    response : `requests.Response`
+        Response object returned by the remote server
     """
-    if not isinstance(location, types.ListType):
-        location = [location]
+    try:
+        response = requests.post(url, data=data, timeout=timeout)
+        return response
+    except requests.exceptions.Timeout:
+            raise TimeoutError("Query timed out, time elapsed {time}s".
+                               format(time=timeout))
+    except requests.exceptions.RequestException:
+            raise Exception("Query failed\n")
 
-    # Query each location, one by one. 
-    result_set = []
-    index = 1
-    for loc in location:
-        options = {"locstr" : loc}
-        if reg_size != None:
-            options["regSize"] = reg_size
 
-        # Do the query
-        try:
-            if verbose:
-                log_str = ("Executing query " + str(index) + " of " + str(len(location))
-                           + ", location: " + loc)
-                print(log_str)
-            response = utils.query(options, url, debug=True)
-            xml_tree = utils.xml(response)
-        except Exception as ex:
-            warnings.warn("Query for location " + loc + " resulted in an error.\n" + str(ex))
-            continue
+class IrsaDust(BaseQuery):
 
-        # Parse the results
-        #try:
-        result = SingleDustResult(xml_tree, loc)
-        result_set.append(result)
-        if verbose:
-            print("Success.")
-        #except Exception as ex:
-        #    warnings.warn("Could not parse results of query for location " + loc + ".\n" + str(ex))
-        #    continue
+    DUST_SERVICE_URL = IRSA_DUST_SERVER()
+    TIMEOUT = IRSA_DUST_TIMEOUT()
+    image_type_to_section = {
+        'extinction': 't',
+        'ebv': 'r',
+        '100um': 'e'
+    }
 
-        # Wait a little while before querying again, to give the server a break
-        if delay != None and index < len(location):
-            time.sleep(delay)
-        index += 1
+    def __init__(self, *args):
+        pass
 
-    if len(result_set) == 0:
-        msg = """Query or queries did not return any parseable results. Cannot instantiate DustResult."""
-        raise ValueError(msg)
-
-    dust_results = DustResults(result_set)
-    return dust_results
-
-class DustResults(object):
-    """
-    Representes the response(s) to one or more dust queries. It's essentially a wrapper around a list
-    of SingleDustResult objects.
-    """
-    def __init__(self, result_set):
+    @class_or_instance
+    def get_images(self, coordinate, radius=None,
+                   image_type=None, timeout=TIMEOUT, get_query_payload=False):
         """
+        A query function that performs a coordinate-based query to acquire Irsa-Dust images
+
         Parameters
         ----------
-        result_set : list[SingleDustResult]
-            a list of one or more SingleDustResult objects
-        """
-        if len(result_set) == 0:
-            raise ValueError("Cannot instantiate DustResult with empty result set.")
-        self._result_set = result_set
+        coordinate : str
+            Can be either the name of an object or a coordinate string
+            If a name, must be resolveable by NED, SIMBAD, 2MASS, or SWAS.
+            Examples of acceptable coordinate strings, can be found here:
+            http://irsa.ipac.caltech.edu/applications/DUST/docs/coordinate.html.
+        radius : str/astropy.units.Quantity, optional
+            The size of the region to include in the dust query, in radian, degree
+            or hour as per format specified by `astropy.coordinates.Angle or `astropy
+            .units.Quantity`. Defaults to 5 degrees.
+        image_type : str, optional
+            When missing returns for all the images. Otherwise returns only
+            for image of the specified type which must be one of `extinction`, `ebv`,
+            `100um`. Defaults to `None`.
+        timeout : int, optional
+            Time limit for establishing successful connection with remote server.
+            Defaults to `astroquery.irsa_dust.IrsaDust.TIMEOUT`.
+        get_query_payload : bool, optional
+            If true than returns the dictionary of query parameters, posted to
+            remote server. Defaults to `False`.
 
-    def table(self, section=None):
+        Returns
+        -------
+        A list of `astropy.fits.HDUList` objects
+
+        Examples
+        ---------
+        Query an object by name with default radius and get a list of
+        astropy.fits.HDUList objects.
+        >>> fits_objects = IrsaDust.get_images('m81')
+
+        Query an object specifying the coordinates and the radius
+        >>> fits_objects = IrsaDust.get_images('266.12 -61.89 equ j2000', radius=5 * u.deg)
+
+        Only return the dictionary formed from the query parameters
+        >>> query_payload = get_images('34.5565 54.2321 gal', radius='0.13 rad')
+        """
+
+        if get_query_payload:
+            return self._args_to_payload(coordinate, radius=radius)
+        readable_objs = self.get_images_async(
+            coordinate, radius=radius, image_type=image_type,
+            timeout=timeout, get_query_payload=get_query_payload)
+        return [fits.open(obj.__enter__()) for obj in readable_objs]
+
+    @class_or_instance
+    def get_images_async(self, coordinate, radius=None,
+                         image_type=None, timeout=TIMEOUT, get_query_payload=False):
+        """
+        A query function similar to `astroquery.irsa_dust.IrsaDust.get_images` but
+        returns file-handlers to the remote files rather than downloading them. Useful
+        for asynchronous queries so that the actual download may be performed later.
+
+        Parameters
+        ----------
+        coordinate : str
+            Can be either the name of an object or a coordinate string
+            If a name, must be resolveable by NED, SIMBAD, 2MASS, or SWAS.
+            Examples of acceptable coordinate strings, can be found here:
+            http://irsa.ipac.caltech.edu/applications/DUST/docs/coordinate.html
+        radius : str/astropy.units.Quantity, optional
+            The size of the region to include in the dust query, in radian, degree
+            or hour as per format specified by `astropy.coordinates.Angle or `astropy
+            .units.Quantity`. Defaults to 5 degrees.
+        image_type : str, optional
+            When missing returns for all the images. Otherwise returns only
+            for image of the specified type which must be one of `extinction`, `ebv`,
+            `100um`. Defaults to `None`.
+        timeout : int, optional
+            Time limit for establishing successful connection with remote server.
+            Defaults to `astroquery.irsa_dust.IrsaDust.TIMEOUT`
+        get_query_payload : bool, optional
+            If true than returns the dictionary of query parameters, posted to
+            remote server. Defaults to `False`
+
+        Returns
+        --------
+        A list of context-managers that yield readable file-like objects
+        """
+
+        if get_query_payload:
+            return self._args_to_payload(coordinate, radius=radius)
+        image_urls = self.get_image_list(coordinate, radius=radius,
+                                         image_type=image_type, timeout=timeout)
+        return [aud.get_readable_fileobj(U) for U in image_urls]
+
+    @class_or_instance
+    def get_image_list(
+            self, coordinate, radius=None, image_type=None, timeout=TIMEOUT):
+        """
+        Query function that performes coordinate-based query and returns a list of
+        URLs to the Irsa-Dust images
+
+        Parameters
+        -----------
+        coordinate : str
+            Can be either the name of an object or a coordinate string
+            If a name, must be resolveable by NED, SIMBAD, 2MASS, or SWAS.
+            Examples of acceptable coordinate strings, can be found here:
+            http://irsa.ipac.caltech.edu/applications/DUST/docs/coordinate.html
+        radius : str/astropy.units.Quantity, optional
+            The size of the region to include in the dust query, in radian, degree
+            or hour as per format specified by `astropy.coordinates.Angle or `astropy
+            .units.Quantity`. Defaults to 5 degrees.
+        image_type : str, optional
+            When missing returns for all the images. Otherwise returns only
+            for image of the specified type which must be one of `extinction`,
+            `ebv`, `100um`. Defaults to `None`.
+        timeout : int, optional
+            Time limit for establishing successful connection with remote server.
+            Defaults to `astroquery.irsa_dust.IrsaDust.TIMEOUT`
+        get_query_payload : bool
+            If true than returns the dictionary of query parameters, posted to
+            remote server. Defaults to `False`
+
+        Returns
+        --------
+        A list of URLs to the FITS images corresponding to the queried object
+        """
+        url = IrsaDust.DUST_SERVICE_URL
+        request_payload = self._args_to_payload(coordinate, radius=radius)
+        response = send_request(url, request_payload, timeout)
+        return self.extract_image_urls(response.text, image_type=image_type)
+
+    @class_or_instance
+    def get_extinction_table(self, coordinate, radius=None, timeout=TIMEOUT):
+        """
+        Query function that fetches the extinction table from the query
+        result
+
+        Parameters
+        ----------
+        coordinate : str
+            Can be either the name of an object or a coordinate string
+            If a name, must be resolveable by NED, SIMBAD, 2MASS, or SWAS.
+            Examples of acceptable coordinate strings, can be found here:
+            http://irsa.ipac.caltech.edu/applications/DUST/docs/coordinate.html
+        radius : str/astropy.units.Quantity, optional
+            The size of the region to include in the dust query, in radian, degree
+            or hour as per format specified by `astropy.coordinates.Angle or `astropy
+            .units.Quantity`. Defaults to 5 degrees.
+        timeout : int, optional
+            Time limit for establishing successful connection with remote server.
+            Defaults to `astroquery.irsa_dust.IrsaDust.TIMEOUT`
+
+        Returns
+        --------
+        table : `astropy.table.Table`
+        """
+        readable_obj = self.get_extinction_table_async(
+            coordinate, radius=radius, timeout=timeout)
+        table = Table.read(readable_obj.__enter__(), format='ipac')
+        return table
+
+    @class_or_instance
+    def get_extinction_table_async(
+            self, coordinate, radius=None, timeout=TIMEOUT):
+        """
+        A query function similar to `astroquery.irsa_dust.IrsaDust.get_extinction_table`
+        but returns a file-handler to the remote files rather than downloading it.
+        Useful for asynchronous queries so that the actual download may be performed later.
+
+        Parameters
+        ----------
+        coordinate : str
+            Can be either the name of an object or a coordinate string
+            If a name, must be resolveable by NED, SIMBAD, 2MASS, or SWAS.
+            Examples of acceptable coordinate strings, can be found here:
+            http://irsa.ipac.caltech.edu/applications/DUST/docs/coordinate.html
+        radius : str, optional
+            The size of the region to include in the dust query, in radian, degree
+            or hour as per format specified by `astropy.coordinates.Angle. Defaults
+            to 5 degrees.
+        timeout : int, optional
+            Time limit for establishing successful connection with remote server.
+            Defaults to `astroquery.irsa_dust.IrsaDust.TIMEOUT`
+
+        Returns
+        -------
+        A context manager that yields a file like readable object
+        """
+        url = IrsaDust.DUST_SERVICE_URL
+        request_payload = self._args_to_payload(coordinate, radius=radius)
+        response = send_request(url, request_payload, timeout)
+        xml_tree = utils.xml(response.text)
+        result = SingleDustResult(xml_tree, coordinate)
+        return aud.get_readable_fileobj(result.ext_detail_table())
+
+    @class_or_instance
+    def get_query_table(self, coordinate, radius=None,
+                        section=None, timeout=TIMEOUT, url=DUST_SERVICE_URL):
         """
         Create and return an astropy Table representing the query response(s).
-        When `section` is missing or `all`, returns the full table. When a 
-        section is specified (`location`, `extinction`, `emission`, or `temperature`),
+        When `section` is missing, returns the full table. When a
+        section is specified (`location`, `extinction`, `ebv`, or `100um`),
         only that portion of the table is returned.
 
         Parameters
         ----------
-        section : str
-            When missing or `all`, returns the full table. When the name
-            of a section is given, only that portion of the table is returned.
-            The following values are accepted::
+        coordinate : str
+            Can be either the name of an object or a coordinate string
+            If a name, must be resolveable by NED, SIMBAD, 2MASS, or SWAS.
+            Examples of acceptable coordinate strings, can be found here:
+            http://irsa.ipac.caltech.edu/applications/DUST/docs/coordinate.html
+        radius : str/astropy.units.Quantity, optional
+            The size of the region to include in the dust query, in radian, degree
+            or hour as per format specified by `astropy.coordinates.Angle or `astropy
+            .units.Quantity`. Defaults to 5 degrees.
+        section : str, optional
+            When missing, all the sections of the query result are returned.
+            Otherwise only the specified section (`ebv`, `100um`, extinction`,
+            `location`) is returned. Defaults to `None`
+        timeout : int, optional
+            Time limit for establishing successful connection with remote server.
+            Defaults to `astroquery.irsa_dust.IrsaDust.TIMEOUT`
+        url : str, optional
+            Only provided for debugging. Should generally not be assigned.
+            Defaults to `astroquery.irsa_dust.IrsaDust.DUST_SERVICE_URL
 
-                'all'
-                'location', 'loc', 'l',
-                'reddening', 'red', 'r',
-                'emission', 'em', 'e',
-                'temperature', 'temp', 't'
-        
         Returns
-        -------
+        --------
         table : `astropy.table.Table`
-            Either the full table or a table containing one of the four
-            sections of the table, depending on what the section
-            parameter was.
+            table representing the query results, (all or as per  specified)
         """
-        # Use the first result to create the table.
-        # Use values from the other results to create additional rows.
-        table = self._result_set[0].table(section=section)
-        for result in self._result_set[1:]:
-            values = result.values(section=section)
-            table.add_row(vals=values)
-        return table
+        request_payload = self._args_to_payload(coordinate, radius=radius)
+        response = send_request(url, request_payload, timeout)
+        xml_tree = utils.xml(response.text)
+        result = SingleDustResult(xml_tree, coordinate)
+        if section is None or section in ["location", "loc", "l"]:
+            return result.table(section=section)
+        try:
+            section = IrsaDust.image_type_to_section[section]
+            return result.table(section=section)
+        except KeyError:
+            msg = ('section must be one of the following:\n'
+                   'ebv, extinction, location or 100um.')
+            raise ValueError(msg)
 
-    def ext_detail_table(self, row=1):
+    @class_or_instance
+    def _args_to_payload(self, coordinate, radius=None):
         """
-        Fetch the extinction detail table specfied in the given query result.
-        
+        Accepts the query parameters and returns a dictionary
+        suitable to be sent as data via a HTTP POST request
+
         Parameters
         ----------
-        row : int 
-            the index of the dust result within the list of results
-            The list of results has the same order as the list of locations specified
-            in the query.
+        coordinate : str
+            Can be either the name of an object or a coordinate string
+            If a name, must be resolveable by NED, SIMBAD, 2MASS, or SWAS.
+            Examples of acceptable coordinate strings, can be found here:
+            http://irsa.ipac.caltech.edu/applications/DUST/docs/coordinate.html
+        radius : str/astropy.units.Quantity, optional
+            The size of the region to include in the dust query, in radian, degree
+            or hour as per format specified by `astropy.coordinates.Angle or `astropy
+            .units.Quantity`. Defaults to 5 degrees.
 
         Returns
         -------
-        the extinction detail table, in `astropy.io.ascii.Ipac` format
+        payload : dict
+            A dictionary that specifies the data for an HTTP POST request
         """
-        if row < 1 or row > len(self._result_set):
-            raise IndexError("Row " + str(row)  + " is out of bounds for this table of length "
-                            + str(len(self._result_set)) + ".")
-        return self._result_set[row-1].ext_detail_table()
+        payload = {"locstr": coordinate}  # check if this is resolvable?
+        # check if radius is given with proper units
+        if radius is not None:
+            try:
+                if isinstance(radius, basestring):
+                    reg_size = self._parse_as_angle(radius)
+                else:
+                    reg_size = self._parse_as_quantity(radius)
+            # astropy v0.2.x throws UnitsError and v>0.2.x throws
+            # UnitsException
+            except (u.UnitsException, coord.errors.UnitsError, AttributeError):
+                raise Exception("Radius not specified with proper unit.")
+            # check if radius falls in the acceptable range
+            if reg_size < 2 or reg_size > 37.5:
+                raise ValueError("Radius (in any unit) must be in the"
+                                 " range of 2.0 to 37.5 degrees")
+            payload["regSize"] = reg_size
+        return payload
 
-    def image(self, section, row=1):
+    @class_or_instance
+    def _parse_as_angle(self, radius):
         """
-        Return the image associated wtih the given section and row.
-        
+        Helper function for _args_to_payload, parses the
+        given string as an `astropy.coordinates.Angle` and
+        returns its value in degrees
+
         Parameters
         ----------
-        section : str
-            the name or abbreviation for the section (extinction, emission, temperature)
-        row : int 
-            the index of the dust result within the list of results
-            The list of results has the same order as the list of locations specified
-            in the query.
-        """
-        if row < 1 or row > len(self._result_set):
-            raise IndexError("Row " + str(row)  + " is out of bounds for this table of length "
-                            + str(len(self._result_set)) + ".")
-        return self._result_set[row-1].image(section)
+        radius : str
+            string representing the angle
 
-    def query_loc(self, row=1):
-        """
-        Return the query location.
-
-        Parameters
-        ----------
-        row : int
-            the index of the dust result within the list of results
-            The list of results has the same order as the list of locations specified
-            in the query.
-        """
-        if row < 1 or row > len(self._result_set):
-            raise IndexError("Row " + str(row)  + " is out of bounds for this table of length "
-                            + str(len(self._result_set)) + ".")
-        location = self._result_set[row-1].query_loc
-        return location
-
-    @property
-    def result_set(self):
-        """
         Returns
         -------
-        result_set : list[SingleDustResult]
-            the list of SingleDustResult objects underlying this DustResults object
+        int
+            value of angle in degrees
         """
-        return self._result_set
+        return coord.Angle(radius).degrees
 
-    def append(self, dust_results2):
+    @class_or_instance
+    def _parse_as_quantity(self, radius):
         """
-        Append the results from the given DustResults object to this DustResults object.
+        Helper function for _args_to_payload, parses the
+        given string as an `astropy.units.Quantity` and
+        returns its value in degrees
 
         Parameters
         ----------
-        dust_results2 : `astroquery.irsa_dust.DustResults`
-            the results to append
-        """
-        #self._result_set.extend(dust_results2.result_set)
-        result_set2_copy = []
-        for result in dust_results2.result_set:
-            single_result_copy = SingleDustResult(result.xml, result.query_loc)
-            result_set2_copy.append(single_result_copy)
-        self._result_set.extend(result_set2_copy)
+        radius : astropy.units.Quantity
+            representation of the angle
 
-    def __str__(self):
-        """Return a string representation of this DustResult."""
-        string = ""
-        for result in self._result_set:
-            string += result.__str__()
-        return string
+        Returns
+        -------
+        int
+            value of angle in degrees
+        """
+        #this works only for astropy v >=0.3
+        #return radius.degree
+        return radius.to(u.degree).value
+
+    @class_or_instance
+    def extract_image_urls(self, raw_xml, image_type=None):
+        """
+        Extracts the image URLs from the query results and
+        returns these as a list. If section is missing or
+        `all` returns all the URLs, otherwise returns URL
+        corresponding to the section specified (`emission`,
+        `reddening`, `temperature`).
+
+        Parameters
+        ----------
+        raw_xml : str
+            XML response returned by the query as a string
+        image_type : str, optional
+            When missing returns for all the images. Otherwise returns only
+            for image of the specified type which must be one of `extinction`, `ebv`,
+            `100um`. Defaults to `None`.
+
+        Returns
+        -------
+        url_list : list
+            list of URLs to images extracted from query results.
+        """
+        # get the xml tree from the response
+        xml_tree = utils.xml(raw_xml)
+        result = SingleDustResult(xml_tree)
+        if image_type is None:
+            url_list = [result.image(sec) for sec in
+                        ['r', 'e', 't']]
+        else:
+            try:
+                section = IrsaDust.image_type_to_section[image_type]
+                url_list = [result.image(section)]
+            except KeyError:
+                msg = ('image_type must be one of the following:\n'
+                       'ebv, extinction or 100um.')
+                raise ValueError(msg)
+        return url_list
+
+    @class_or_instance
+    def list_image_types(self):
+        """
+        Returns a list of image_types available in the Irsa Dust
+        query results
+        """
+        return [key for key in IrsaDust.image_type_to_section]
 
 
 class SingleDustResult(object):
+
     """
     Represents the response to a dust query for a single object or location.
     Provides methods to return the response as an astropy Table, and to retrieve
@@ -281,7 +466,7 @@ class SingleDustResult(object):
     a detailed extinction table linked to in the initial response. Not intended
     to be instantiated by the end user.
     """
-    def __init__(self, xml_tree, query_loc):
+    def __init__(self, xml_tree, query_loc=None):
         """
         Parameters
         ----------
@@ -297,15 +482,15 @@ class SingleDustResult(object):
 
         ext_node = utils.find_result_node(EXT_DESC, xml_tree)
         self._ext_section = ExtinctionSection(ext_node)
-        
+
         em_node = utils.find_result_node(EM_DESC, xml_tree)
         self._em_section = EmissionSection(em_node)
- 
+
         temp_node = utils.find_result_node(TEMP_DESC, xml_tree)
         self._temp_section = TemperatureSection(temp_node)
 
         self._result_sections = [self._location_section, self._ext_section,
-                                self._em_section, self._temp_section]
+                                 self._em_section, self._temp_section]
 
     @property
     def query_loc(self):
@@ -360,12 +545,12 @@ class SingleDustResult(object):
         ----------
         section : str
             the name or abbreviated name of the section
-        
+
         Returns
         -------
             str: a one-letter code identifying the section.
         """
-        if section == None:
+        if section is None or section == "all":
             return "all"
         else:
             if section in ["location", "loc", "l"]:
@@ -391,7 +576,7 @@ class SingleDustResult(object):
         ----------
         code : str
             the one-letter code name of the section
-        
+
         Returns
         -------
         The section corresponding to the code, or a list containing all sections if
@@ -405,7 +590,7 @@ class SingleDustResult(object):
             return [self._em_section]
         elif code == 't':
             return [self._temp_section]
-        return [self._location_section, self._ext_section, self._em_section, self._temp_section] 
+        return [self._location_section, self._ext_section, self._em_section, self._temp_section]
 
     def _table_all(self):
         """
@@ -418,12 +603,12 @@ class SingleDustResult(object):
             table containing the data from the query response
         """
         columns = (self._location_section.columns + self._ext_section.columns
-                    + self._em_section.columns + self._temp_section.columns)
+                   + self._em_section.columns + self._temp_section.columns)
         table = Table(data=columns)
 
         values = self.values()
         table.add_row(vals=values)
-        return table 
+        return table
 
     def _table(self, section):
         """
@@ -437,7 +622,7 @@ class SingleDustResult(object):
         """
         # Get the specified section
         section_object = self._sections(section)[0]
-        
+
         # Create the table
         columns = section_object.columns
         table = Table(data=columns)
@@ -450,26 +635,27 @@ class SingleDustResult(object):
 
     def ext_detail_table(self):
         """
-        Get the additional, detailed table of extinction data for various filters.
+        Get the url of the additional, detailed table of extinction data for various filters.
         There is a url for this table given in the initial response to the query.
-        
+
         Returns
         -------
-        table : `astropy.io.ascii.Ipac`
-            detailed table of extinction data by filter
+        table_url : str
+            url of the detailed table of extinction data by filter
         """
         table_url = self._ext_section.table_url
-        response = utils.ext_detail_table(table_url)
-        if sys.version_info > (3, 0):
-            read_response = response.read().decode("utf-8")
-        else:
-            read_response = response.read()
-        table = Table.read(read_response, format="ipac")
-        return table
+        # response = utils.ext_detail_table(table_url)
+        # if sys.version_info > (3, 0):
+        #   read_response = response.read().decode("utf-8")
+        # else:
+        #   read_response = response.read()
+        # table = Table.read(read_response, format="ipac")
+        # return table
+        return table_url
 
     def image(self, section):
         """
-        Get the FITS image associated with the given section.
+        Get the FITS image url associated with the given section.
         The extinction, emission, and temperature sections each provide
         a url to a FITS image.
 
@@ -480,8 +666,8 @@ class SingleDustResult(object):
 
         Returns
         -------
-        image : `astropy.io.fits.hdu.HDUList`
-            the HDUList representing the image data 
+        url : str
+            the url to the FITS image
         """
         # Get the url of the image for the given section
         image_url = None
@@ -492,19 +678,19 @@ class SingleDustResult(object):
         elif section in ["temperature", "temp", "t"]:
             image_url = self._temp_section.image_url
 
-        if image_url == None:
+        if image_url is None:
             msg = """section must be one of the following values:
                     'reddening', 'red', 'r',
                     'emission', 'em', 'e',
                     'temperature', 'temp', 't'"""
             raise ValueError(msg)
-        
-        response = utils.image(image_url)
 
-        S = io.BytesIO(response)
-        image = fits.open(S)
-        return image 
-       
+        # response = utils.image(image_url)
+
+        # S = io.BytesIO(response)
+        # image = fits.open(S)
+        return image_url
+
     def __str__(self):
         """Return a string representation of the table."""
         string = "[DustResult: \n\t"
@@ -517,6 +703,7 @@ class SingleDustResult(object):
 
 
 class BaseDustNode(object):
+
     """
     A node in the result xml that has been enhanced to return values and Columns
     appropriate to its type (String, Number, or Coord).
@@ -538,7 +725,7 @@ class BaseDustNode(object):
     def name(self):
         """Return the xml node name."""
         return self._name
-        
+
     @property
     def value(self):
         """Return the value extracted from the node."""
@@ -558,7 +745,9 @@ class BaseDustNode(object):
         string = "name: " + self._name + ", " + col_str + "]"
         return string
 
+
 class StringNode(BaseDustNode):
+
     """
     A node that contains text.
     """
@@ -566,17 +755,17 @@ class StringNode(BaseDustNode):
         """
         Parameters
         ----------
-        xml_node : `xml.etree.ElementTree` 
+        xml_node : `xml.etree.ElementTree`
             the xml node that provides the raw data for this DustNode
         col_name : str
             the name of the column associated with this item
-        length : int 
+        length : int
             the size of the column associated with this item
         """
         BaseDustNode.__init__(self, xml_node)
-        
+
         self._value = xml_node.text.strip()
-        
+
         self._length = length
         self._columns = [Column(name=col_name, dtype="S" + str(length))]
 
@@ -584,10 +773,12 @@ class StringNode(BaseDustNode):
         """Return a string representation of this item."""
         base_string = BaseDustNode.__str__(self)
         string = ("[StringNode: " + base_string
-                 + ", value: " + self._value  + "]")
+                  + ", value: " + self._value + "]")
         return string
 
+
 class NumberNode(BaseDustNode):
+
     """
     A node that contains a number. Outputs a single column containing the number.
     """
@@ -595,7 +786,7 @@ class NumberNode(BaseDustNode):
         """
         Parameters
         ----------
-        xml_node : `xml.etree.ElementTree` 
+        xml_node : `xml.etree.ElementTree`
             the xml node that provides the raw data for this DustNode
         col_name : str
             the name of the column associated with this item
@@ -611,10 +802,12 @@ class NumberNode(BaseDustNode):
         base_string = BaseDustNode.__str__(self)
 
         string = ("[NumberNode: " + base_string
-                    + ", value: " + str(self._value) + "]")
+                  + ", value: " + str(self._value) + "]")
         return string
 
+
 class CoordNode(BaseDustNode):
+
     """
     A node that contains RA, Dec coordinates. Outputs three values / columns: RA, Dec
     and a coordinate system description string.
@@ -623,7 +816,7 @@ class CoordNode(BaseDustNode):
         """
         Parameters
         ----------
-        xml_node : `xml.etree.ElementTree` 
+        xml_node : `xml.etree.ElementTree`
             the xml node that provides the raw data for this DustNode
         col_names : str
             the names of the columns associated with this item
@@ -632,18 +825,20 @@ class CoordNode(BaseDustNode):
         self._value = utils.parse_coords(xml_node.text)
         units = u.deg
         self._columns = [Column(name=col_names[0], units=units),
-                        Column(name=col_names[1], units=units),
-                        Column(name=col_names[2], dtype="S25")]
+                         Column(name=col_names[1], units=units),
+                         Column(name=col_names[2], dtype="S25")]
 
     def __str__(self):
         """Return a string representation of the item."""
         base_string = BaseDustNode.__str__(self)
         values_str = ("values: " + str(self._value[0]) + ", " + str(self._value[1])
-                    + ", " + str(self._value[2]))
-        string = ("[CoordNode: " + base_string + ", " + values_str  + "]")
+                      + ", " + str(self._value[2]))
+        string = ("[CoordNode: " + base_string + ", " + values_str + "]")
         return string
 
+
 class BaseResultSection(object):
+
     """
     Represents a group of related nodes/columns in a DustResults object.
     A DustResults table contains four main sections:
@@ -674,7 +869,7 @@ class BaseResultSection(object):
         nodes = {}
         for name in names:
             found_node = xml_root.find(name)
-            if found_node == None:
+            if found_node is None:
                 raise ValueError("Could not find node '" + name + "'")
             nodes[name] = found_node
         return nodes
@@ -683,13 +878,13 @@ class BaseResultSection(object):
         """Build the columns associated with this section."""
         columns = []
         for dust_node in self._dust_nodes:
-            if isinstance(dust_node._columns, types.ListType):
+            if isinstance(dust_node._columns, list):
                 columns.extend(dust_node._columns)
             else:
                 columns.append(dust_node._columns)
         self._columns = columns
 
-    @property 
+    @property
     def columns(self):
         """Return the list of columns associated with this section."""
         return self._columns
@@ -699,7 +894,7 @@ class BaseResultSection(object):
         i.e. the data corresponding to a single row in the results table."""
         values = []
         for dust_node in self._dust_nodes:
-            if isinstance(dust_node._value, types.ListType):
+            if isinstance(dust_node._value, list):
                 values.extend(dust_node._value)
             else:
                 values.append(dust_node._value)
@@ -713,10 +908,12 @@ class BaseResultSection(object):
                 string += ",\n\t\t"
             string += dust_node.__str__()
         return string
- 
+
+
 class LocationSection(BaseResultSection):
+
     """
-    The location section of the DustResults object.  
+    The location section of the DustResults object.
     """
     def __init__(self, xml_root):
         """
@@ -728,13 +925,14 @@ class LocationSection(BaseResultSection):
         location_node = xml_root.find(INPUT)
         names = [OBJ_NAME, REG_SIZE]
         xml_nodes = self.node_dict(names, location_node)
-        
+
         # Create the section's DustNodes
-        self._dust_nodes = [CoordNode(xml_nodes[OBJ_NAME], col_names=["RA", "Dec", "coord sys"]),
-                    NumberNode(xml_nodes[REG_SIZE], REG_SIZE, u.deg)]
- 
+        self._dust_nodes = [CoordNode(
+            xml_nodes[OBJ_NAME], col_names=["RA", "Dec", "coord sys"]),
+            NumberNode(xml_nodes[REG_SIZE], REG_SIZE, u.deg)]
+
         self.create_columns()
-        
+
     def __str__(self):
         """Return a string representation of the section."""
         base_string = BaseResultSection.__str__(self)
@@ -743,6 +941,7 @@ class LocationSection(BaseResultSection):
 
 
 class StatsSection(BaseResultSection):
+
     """
     The statistics subsection of one of an extinction, emission, or temperature
     section.
@@ -756,18 +955,31 @@ class StatsSection(BaseResultSection):
         col_prefix : str
             the prefix to use in column names for this section
         """
-        names = [REF_PIXEL_VALUE, REF_COORDINATE, MEAN_VALUE, STD, MAX_VALUE, MIN_VALUE]
+        names = [
+            REF_PIXEL_VALUE,
+            REF_COORDINATE,
+            MEAN_VALUE,
+            STD,
+            MAX_VALUE,
+            MIN_VALUE]
         xml_nodes = self.node_dict(names, xml_root)
 
         # Create the DustNodes
-        self._dust_nodes = [NumberNode(xml_nodes[REF_PIXEL_VALUE], col_prefix + " ref"),
-                        CoordNode(xml_nodes[REF_COORDINATE], col_names=[col_prefix + " ref RA",
-                            col_prefix + " ref Dec", col_prefix + " ref coord sys"]),
-                        NumberNode(xml_nodes[MEAN_VALUE], col_prefix + " mean"),
-                        NumberNode(xml_nodes[STD], col_prefix + " std"),
-                        NumberNode(xml_nodes[MAX_VALUE], col_prefix + " max"),
-                        NumberNode(xml_nodes[MIN_VALUE], col_prefix + " min")]
-        
+        self._dust_nodes = [NumberNode(
+            xml_nodes[REF_PIXEL_VALUE], col_prefix + " ref"),
+            CoordNode(
+                xml_nodes[
+                    REF_COORDINATE], col_names=[col_prefix + " ref RA",
+                                                col_prefix + " ref Dec", col_prefix + " ref coord sys"]),
+            NumberNode(
+                xml_nodes[
+                    MEAN_VALUE],
+                col_prefix +
+                " mean"),
+            NumberNode(xml_nodes[STD], col_prefix + " std"),
+            NumberNode(xml_nodes[MAX_VALUE], col_prefix + " max"),
+            NumberNode(xml_nodes[MIN_VALUE], col_prefix + " min")]
+
         self._units = utils.parse_units(xml_nodes[REF_PIXEL_VALUE].text)
 
         self.create_columns()
@@ -790,10 +1002,11 @@ class StatsSection(BaseResultSection):
                 base_string += ",\n\t\t\t\t"
             base_string += dust_node.__str__()
         string = "\n\t\t\t[StatisticsSection: " + base_string + "]"
-        return string 
+        return string
 
 
 class ExtinctionSection(BaseResultSection):
+
     """
     The extinction (reddening) section in a DustResults object.
     """
@@ -810,9 +1023,13 @@ class ExtinctionSection(BaseResultSection):
 
         # Build the DustNodes
         self._dust_nodes = [StringNode(xml_nodes[DESC], "ext desc", 100),
-                StringNode(xml_nodes[DATA_IMAGE], "ext image", 255),
-                StringNode(xml_nodes[DATA_TABLE], "ext table", 255)]
-        
+                            StringNode(
+                            xml_nodes[
+                            DATA_IMAGE],
+                            "ext image",
+                            255),
+                            StringNode(xml_nodes[DATA_TABLE], "ext table", 255)]
+
         # Create statistics subsection
         self._stats = StatsSection(xml_nodes[STATISTICS], "ext")
 
@@ -844,13 +1061,15 @@ class ExtinctionSection(BaseResultSection):
     def __str__(self):
         """Return a string representation of the section."""
         base_string = BaseResultSection.__str__(self)
-        string = "[ExtinctionSection: " + base_string + self._stats.__str__() + "]"
+        string = "[ExtinctionSection: " + \
+            base_string + self._stats.__str__() + "]"
         return string
 
 
 class EmissionSection(BaseResultSection):
+
     """
-    The emission section in a DustResults object. 
+    The emission section in a DustResults object.
     """
     def __init__(self, xml_root):
         """
@@ -862,13 +1081,13 @@ class EmissionSection(BaseResultSection):
         names = [DESC, DATA_IMAGE, STATISTICS]
         xml_nodes = self.node_dict(names, xml_root)
 
-        # Create the DustNodes 
+        # Create the DustNodes
         self._dust_nodes = [StringNode(xml_nodes[DESC], "em desc", 100),
-                StringNode(xml_nodes[DATA_IMAGE], "em image", 255)]
-        
+                            StringNode(xml_nodes[DATA_IMAGE], "em image", 255)]
+
         # Create the statistics subsection
         self._stats = StatsSection(xml_nodes[STATISTICS], "em")
-        
+
         self.create_columns()
 
     def create_columns(self):
@@ -891,13 +1110,15 @@ class EmissionSection(BaseResultSection):
     def __str__(self):
         """Return a string representation of the section."""
         base_string = BaseResultSection.__str__(self)
-        string = "[EmissionSection: " + base_string + self._stats.__str__() + "]"
+        string = "[EmissionSection: " + \
+            base_string + self._stats.__str__() + "]"
         return string
 
 
 class TemperatureSection(BaseResultSection):
+
     """
-    The temperature section in a DustResults object. 
+    The temperature section in a DustResults object.
     """
     def __init__(self, xml_root):
         """
@@ -911,11 +1132,11 @@ class TemperatureSection(BaseResultSection):
 
         # Create the DustNodes
         self._dust_nodes = [StringNode(xml_nodes[DESC], "temp desc", 100),
-                StringNode(xml_nodes[DATA_IMAGE], "temp image", 255)]
-       
-        # Create the statistics subsection 
+                            StringNode(xml_nodes[DATA_IMAGE], "temp image", 255)]
+
+        # Create the statistics subsection
         self._stats = StatsSection(xml_nodes[STATISTICS], "temp")
-        
+
         self.create_columns()
 
     def create_columns(self):
@@ -938,5 +1159,6 @@ class TemperatureSection(BaseResultSection):
     def __str__(self):
         """Return a string representation of the section."""
         base_string = BaseResultSection.__str__(self)
-        string = "[TemperatureSection: " + base_string + self._stats.__str__() + "]"
+        string = "[TemperatureSection: " + \
+            base_string + self._stats.__str__() + "]"
         return string
