@@ -2,7 +2,7 @@
 """
 The SIMBAD query tool creates a `script query
 <http://simbad.u-strasbg.fr/simbad/sim-fscript>`__ that returns VOtable XML
-data that is then parsed into a :class:`~astroquery.simbad.result.SimbadResult` object.
+data that is then parsed into a :class:`~astroquery.simbad.core.SimbadResult` object.
 This object then parses the data and returns a table parsed with `astropy.io.votable.parse`.
 """
 from astropy.config import ConfigurationItem

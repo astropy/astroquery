@@ -1,4 +1,8 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
+
+"""
+This module contains the Simbad query class for accessing the Simbad Service
+"""
 from  __future__  import print_function
 import re
 from collections import namedtuple
@@ -15,6 +19,7 @@ try:
 except ImportError:
     import astropy.io.votable as votable
 from . import SIMBAD_SERVER, SIMBAD_TIMEOUT, ROW_LIMIT
+
 __all__ = ['Simbad']
 
 def validate_epoch(func):
@@ -50,6 +55,9 @@ def validate_equinox(func):
     return wrapper
 
 class Simbad(BaseQuery):
+    """
+    The class for querying the Simbad web service.
+    """
     SIMBAD_URL = 'http://' + SIMBAD_SERVER() + '/simbad/sim-script'
     TIMEOUT = SIMBAD_TIMEOUT()
     WILDCARDS = {
@@ -78,12 +86,21 @@ class Simbad(BaseQuery):
 
     ROW_LIMIT = ROW_LIMIT()
     @class_or_instance
+    def list_wildcards(self):
+        """
+        Displays the available wildcards that may be used in Simbad queries and
+        their usage.
+        """
+        for key in Simbad.WILDCARDS:
+            print("{key} : {value}\n".format(key=key, value=Simbad.WILDCARDS[key]))
+        return
+
+    @class_or_instance
     def query_object(self, object_name, wildcard=False):
         """
-        Queries Simbad for the given object and
-        returns the result as an `astropy.table.Table`. Object
-        names may also be specified with wildcards. See examples
-        below.
+        Queries Simbad for the given object and returns the result as an
+        `astropy.table.Table`. Object names may also be specified with wildcard.
+        See examples below.
 
         Parameters
         ----------
@@ -100,11 +117,14 @@ class Simbad(BaseQuery):
 
         Examples
         --------
-        Query Simbad for a given object
-        >>> table = Simbad.query_object("m81")
 
-        Query all objects m1 through m9 via a wildcard
-        >>> table = Simbad.query_object("m [1-9]", wildcard=True)
+        Query Simbad for a given object::
+
+          >>> table = Simbad.query_object("m81")
+
+        Query all objects m1 through m9 via a wildcard::
+
+          >>> table = Simbad.query_object("m [1-9]", wildcard=True)
         """
         result = self.query_object_async(object_name, wildcard=wildcard)
         return self._parse_result(result)
@@ -112,7 +132,7 @@ class Simbad(BaseQuery):
     @class_or_instance
     def query_object_async(self, object_name, wildcard=False):
         """
-        Serves the same function as `astoquery.simbad.Simbad.query_object`. But
+        Serves the same function as `astoquery.simbad.Simbad.query_object`, but
         only collects the reponse from the Simbad server and returns.
 
         Parameters
@@ -138,8 +158,8 @@ class Simbad(BaseQuery):
     def query_region(self, coordinates, radius=None,
                      equinox=None, epoch=None):
         """
-        Queries around an object or coordinates as per the specified
-        radius and returns the results in an `astropy.table.Table.`
+        Queries around an object or coordinates as per the specified radius and
+        returns the results in an `astropy.table.Table`.
 
         Parameters
         ----------
@@ -162,15 +182,19 @@ class Simbad(BaseQuery):
 
         Examples
         --------
-        Query around an identifier with a cone search radius of 5 degrees
-        >>> table = Simbad.query_region("m81", radius=5 * u.deg)
-        >>> table = Simbad.query_region("m81", radius="5d0m0s") # a second way
 
-        Query around coordinates
-        >>> # String arguments only work for ICRS Coordinates!
-        >>> table = Simbad.query_region("00h42m44.3s +41d16m9s", radius="5d0m0s")
-        >>> # For other coordinate systems use an astropy.coordinates object:
-        >>> table = Simbad.query_region(GalacticCoordinates(-76.22237, 74.49108, unit=(u.degree, u.degree)))
+        Query around an identifier with a cone search radius of 5 degrees::
+
+            >>> table = Simbad.query_region("m81", radius=5 * u.deg)
+            >>> table = Simbad.query_region("m81", radius="5d0m0s") # a second way
+
+        Query around coordinates::
+
+            >>> # String arguments only work for ICRS Coordinates!
+            >>> table = Simbad.query_region("00h42m44.3s +41d16m9s", radius="5d0m0s")
+            >>> # For other coordinate systems use an astropy.coordinates object:
+            >>> import astropy.coordinates as coord
+            >>> table = Simbad.query_region(coord.GalacticCoordinates(-76.22237, 74.49108, unit=(u.degree, u.degree)))
 
         """
         # if the identifier is given rather than the coordinates, convert to
@@ -183,7 +207,7 @@ class Simbad(BaseQuery):
     def query_region_async(self, coordinates, radius=None, equinox=None,
                            epoch=None):
         """
-        Serves the same function as `astoquery.simbad.Simbad.query_region`. But
+        Serves the same function as `astoquery.simbad.Simbad.query_region`, but
         only collects the reponse from the Simbad server and returns.
 
         Parameters
@@ -215,9 +239,8 @@ class Simbad(BaseQuery):
     @class_or_instance
     def query_catalog(self, catalog):
         """
-        Queries a whole catalog. Results may be very large
-        Number of rows should be controlled by configuring
-        `astroquery.simbad.ROW_LIMIT`.
+        Queries a whole catalog. Results may be very large -number of rows
+        should be controlled by configuring `astroquery.simbad.ROW_LIMIT`.
 
         Parameters
         ----------
@@ -231,7 +254,9 @@ class Simbad(BaseQuery):
 
         Examples
         --------
-        >>> table = Simbad.query_catalog("m")
+        ::
+
+            >>> table = Simbad.query_catalog("m")
         """
         result = self.query_catalog_async(catalog)
         return self._parse_result(result)
@@ -239,7 +264,7 @@ class Simbad(BaseQuery):
     @class_or_instance
     def query_catalog_async(self, catalog):
         """
-        Serves the same function as `astoquery.simbad.Simbad.query_catalog`. But
+        Serves the same function as `astoquery.simbad.Simbad.query_catalog`, but
         only collects the reponse from the Simbad server and returns.
 
         Parameters
@@ -262,8 +287,8 @@ class Simbad(BaseQuery):
     @class_or_instance
     def query_bibobj(self, bibcode):
         """
-        Query all the objects that are contained in the article
-        specified by the bibcode, and return results as an `astropy.table.Table`.
+        Query all the objects that are contained in the article specified by
+        the bibcode, and return results as an `astropy.table.Table`.
 
         Parameters
         ----------
@@ -277,7 +302,9 @@ class Simbad(BaseQuery):
 
         Examples
         --------
-        >>> table = Simbad.query_bibobj("2005A&A.430.165F")
+        ::
+
+            >>> table = Simbad.query_bibobj("2005A&A.430.165F")
 
         """
         result = self.query_bibobj_async(bibcode)
@@ -286,7 +313,7 @@ class Simbad(BaseQuery):
     @class_or_instance
     def query_bibobj_async(self, bibcode):
         """
-        Serves the same function as `astoquery.simbad.Simbad.query_bibobj`. But
+        Serves the same function as `astoquery.simbad.Simbad.query_bibobj`, but
         only collects the reponse from the Simbad server and returns.
 
         Parameters
@@ -309,9 +336,9 @@ class Simbad(BaseQuery):
     @class_or_instance
     def query_bibcode(self, bibcode, wildcard=False):
         """
-        Queries the references corresponding to a given bibcode, and
-        returns the results in an `astropy.table.Table`. Wildcards
-        may be used to specify bibcodes
+        Queries the references corresponding to a given bibcode, and returns
+        the results in an `astropy.table.Table`. Wildcards may be used to
+        specify bibcodes
 
         Parameters
         ----------
@@ -328,8 +355,10 @@ class Simbad(BaseQuery):
 
         Examples
         --------
-        Fetch all the bibcodes from a given journal for a given year:
-        >>> table = Simbad.query_bibcode("2006ApJ*", wildcard=True)
+
+        Fetch all the bibcodes from a given journal for a given year::
+
+            >>> table = Simbad.query_bibcode("2006ApJ*", wildcard=True)
 
         """
         result = self.query_bibcode_async(bibcode, wildcard=wildcard)
@@ -338,7 +367,7 @@ class Simbad(BaseQuery):
     @class_or_instance
     def query_bibcode_async(self, bibcode, wildcard=False):
         """
-        Serves the same function as `astoquery.simbad.Simbad.query_bibcode`. But
+        Serves the same function as `astoquery.simbad.Simbad.query_bibcode`, but
         only collects the reponse from the Simbad server and returns.
 
         Parameters
@@ -459,7 +488,7 @@ def _get_frame_coords(c):
 
 def _to_simbad_format(ra, dec):
     ra = ra.format(u.hour, sep=':')
-    dec = dec.format(u.hour, sep=':', alwayssign='True')
+    dec = dec.format(u.degree, sep=':', alwayssign='True')
     return (ra, dec)
 
 
@@ -478,7 +507,7 @@ def _parse_radius(radius):
             return str(total_min) + unit
         if unit == 's':
             return str(angle.dms[2]) + unit
-    except (u.UnitsException, coord.UnitsError, AttributeError):
+    except (u.UnitsException, coord.errors.UnitsError, AttributeError):
         raise Exception("Radius specified incorrectly")
 
 error_regex = re.compile(r'(?ms)\[(?P<line>\d+)\]\s?(?P<msg>.+?)(\[|\Z)')
