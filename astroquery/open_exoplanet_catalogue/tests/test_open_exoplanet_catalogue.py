@@ -13,7 +13,7 @@ def test_simple():
     # Find 'Kepler-67 b'.
     kepler67b = oec.query_planet('Kepler-67 b') # Return value is a python dictionary.
     # Print radius and period.
-    print "Period of Kepler-67 b:\t %s \t [days]"% kepler67b['period']
-    print "Radius of Kepler-67 b:\t %s \t [R_Jupiter]"% kepler67b['radius']
+    print ("Period of Kepler-67 b:\t %s \t [days]"% kepler67b['period'])
+    print ("Radius of Kepler-67 b:\t %s \t [R_Jupiter]"% kepler67b['radius'])
 
 
