@@ -5,6 +5,8 @@ This module contains the Simbad query class for accessing the Simbad Service
 """
 from  __future__  import print_function
 import re
+import json
+import os
 from collections import namedtuple
 import tempfile
 import warnings
@@ -12,6 +14,7 @@ from ..query import BaseQuery
 from ..utils.class_or_instance import class_or_instance
 from  ..utils import commons
 import astropy.units as u
+from astropy.utils.data import get_pkg_data_filename
 import astropy.coordinates as coord
 from astropy.table import Table
 try:
@@ -94,6 +97,39 @@ class Simbad(BaseQuery):
         for key in Simbad.WILDCARDS:
             print("{key} : {value}\n".format(key=key, value=Simbad.WILDCARDS[key]))
         return
+
+    @class_or_instance
+    def list_votable_fields(self):
+        # display additional notes:
+        notes_file = get_pkg_data_filename(os.path.join('data', 'votable_fields_notes.json'))
+        with open(notes_file, "r") as f:
+            notes = json.load(f)
+
+        print ("--NOTES--\n")
+        for i, line in list(enumerate(notes)):
+            print ("{}. {}\n".format(i+1,line))
+
+        # load the table
+        votable_fields_table = Table.read(get_pkg_data_filename
+                                          (os.path.join('data',
+                                                        'votable_fields_table.txt')),
+                                           format='ascii')
+        votable_fields_table.more()
+
+        print("For more information on a field :\nSimbad.get_field_description "
+              "('field_name')")
+
+    @class_or_instance
+    def get_field_description(self, field_name):
+        # first load the dictionary from json
+        dict_file = get_pkg_data_filename(os.path.join('data', 'votable_fields_dict.json'))
+        with open(dict_file, "r") as f:
+            fields_dict = json.load(f)
+
+        try:
+            print (fields_dict[field_name])
+        except KeyError:
+            raise Exception("No such field_name")
 
     @class_or_instance
     def query_object(self, object_name, wildcard=False):
