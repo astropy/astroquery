@@ -214,3 +214,28 @@ def test_query_object(patch_post, object_name, wildcard):
                                                            wildcard=wildcard)
     assert isinstance(result1, Table)
     assert isinstance(result2, Table)
+
+def test_list_votable_fields():
+    simbad.core.Simbad.list_votable_fields()
+    simbad.core.Simbad().list_votable_fields()
+
+def test_get_field_description():
+    simbad.core.Simbad.get_field_description('bibcode(y1-y2)')
+    simbad.core.Simbad().get_field_description('bibcode(y1-y2)')
+    with pytest.raises(KeyError):
+        simbad.core.get_field_description('xyz')
+
+def test_votable_fields():
+    simbad.core.Simbad.set_votable_fields('rot', 'ze', 'z')
+    assert set(simbad.core.Simbad.VOTABLE_FIELDS) == set(['main_id', 'coordinates', 'rot', 'ze', 'z'])
+    simbad.core.Simbad.set_votable_fields('z')
+    assert set(simbad.core.Simbad.VOTABLE_FIELDS) == set(['main_id', 'coordinates', 'rot', 'ze', 'z'])
+    simbad.core.rm_votable_fields('rot', 'main_id', 'coordinates')
+    assert set(simbad.core.Simbad.VOTABLE_FIELDS) == set(['ze', 'z'])
+    simbad.core.rm_votable_fields('rot', 'main_id', 'coordinates')
+    assert set(simbad.core.Simbad.VOTABLE_FIELDS) == set(['ze', 'z'])
+    simbad.core.rm_votable_fields('ze', 'z')
+    assert set(simbad.core.Simbad.VOTABLE_FIELDS) == set(['main_id', 'coordinates'])
+    simbad.core.Simbad.set_votable_fields('rot', 'ze', 'z')
+    simbad.core.Simbad.reset_votable_fields()
+    assert set(simbad.core.Simbad.VOTABLE_FIELDS) == set(['main_id', 'coordinates'])
