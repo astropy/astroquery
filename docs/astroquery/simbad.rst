@@ -291,6 +291,108 @@ article specified by the bibcode:
     NGC  5713 14 40 11.528 -00 17 21.16       7        7          nan          nan             0        B              I 2006AJ....131.1163S
 
 
+Customizing the default settings
+================================
+
+There may be times when you wish to change the defaults that have been set for
+the `Simbad` queries.  
+
+**Changing the row limit**
+
+To fetch all the rows in the result, the row limit must be set to 0. However for some
+queries, results are likely to be very large, in such cases it may be best to 
+limit the rows to a smaller number. If you want to do this only for the current
+python session then:
+
+.. codeblock:: python
+
+    >>> from astroquery.simbad import Simbad
+    >>> Simbad.ROW_LIMIT = 15 # now any query fetches atmost 15 rows
+
+If you would like to make your choice persistent, then you can do this by
+modifying the setting in the `astroquery` configuration file.
+
+**Changing the timeout**
+
+The timeout is the time limit in seconds for estabishing connection with the
+Simbad server and by default it is set to 100 seconds. You may want to modify
+this - again you can do this at run-time if you want to adjust it only for the
+current session. To make it persistent, you must modify the setting in the
+`astroquery` configuration file.
+
+.. codeblock:: python
+  
+    >>> from astroquery.simbad import Simbad
+    >>> Simbad.TIMEOUT = 60 # sets the timeout to 60s
+
+**Specifying which VOTable fields to include in the result**
+
+The VOTable fields that are currently returned in the result are set to
+`main_id` and `coordinates`. However you can specify other fields that you
+also want to be fetched in the result. To see the list of the fields:
+
+.. codeblock:: python
+
+     >>> from astroquery.simbad import Simbad
+     >>> Simbad.list_votable_fields()
+
+               col0               col1          col2     
+           ----------------- ------------ --------------
+                     dim      main_id  propermotions
+               dim_angle measurements        ra(opt)
+             dim_bibcode       mesplx        ra_prec
+                dim_incl        mespm            rot
+             dim_majaxis           mk       rv_value
+             
+
+The above shows just a small snippet of the table that is returned and has all
+the fields sorted lexcicographically column-wise. For more information on a
+particular field:
+
+.. codeblock:: python
+
+    >>> from astroquery.simbad import Simbad
+    >>> Simbad.get_field_description('ra_prec')
+
+    right ascension precision code (0:1/10deg, ..., 8: 1/1000 arcsec)
+
+To set additional fields to be returned in the VOTable:
+
+.. codeblock:: python
+
+     # see which fields are currently set
+
+     >>> from astroquery.simbad import Simbad
+     >>> Simbad.VOTABLE_FIELDS
+
+     ['main_id', 'coordinates']
+
+     # To set other fields 
+
+     >>> Simbad.set_votable_fields('mk', 'rot')
+     >>> Simbad.VOTABLE_FIELDS
+
+     ['main_id', 'coordinates', 'mk', 'rot']
+
+You can also remove a field you have set or reset `Simbad.VOTABLE_FIELDS` to
+its default value. Continuing from the above example:
+
+.. codeblock:: python
+
+    >>> Simbad.rm_votable_fields('mk', 'coordinates')
+    >>> Simbad.VOTABLE_FIELDS
+     
+    ['rot', 'main_id']
+    
+    # reset back to defaults
+    
+    >>> Simbad.reset_votable_fields()
+    >>> Simbad.VOTABLE_FIELDS
+
+    ['main_id', 'coordinates']
+
+    
+
 Reference/API
 =============
 

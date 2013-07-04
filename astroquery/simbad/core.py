@@ -117,7 +117,7 @@ class Simbad(BaseQuery):
                                           (os.path.join('data',
                                                         'votable_fields_table.txt')),
                                            format='ascii')
-        votable_fields_table.more()
+        print (votable_fields_table)
 
         print("\nFor more information on a field :\nSimbad.get_field_description "
               "('field_name')")
@@ -146,6 +146,14 @@ class Simbad(BaseQuery):
 
     @class_or_instance
     def set_votable_fields(self, *args):
+        """
+        Sets fields to be fetched in the VOTable. Must be one of those listed
+        by `astroquery.simbad.Simbad.list_votable_fields`.
+
+        Parameters
+        ----------
+        list of field_names
+        """
         dict_file = get_pkg_data_filename(os.path.join('data', 'votable_fields_dict.json'))
         with open(dict_file, "r") as f:
             fields_dict = json.load(f)
@@ -157,7 +165,30 @@ class Simbad(BaseQuery):
             else:
                 Simbad.VOTABLE_FIELDS.append(field)
 
+    @class_or_instance
+    def rm_votable_fields(self, *args):
+        """
+        Removes the specified field names from `astroquery.simbad.Simbad.VOTABLE_FIELDS`
 
+        Parameters
+        ----------
+        list of field_names to be removed
+        """
+        absent_fields =  set(args) - set(Simbad.VOTABLE_FIELDS)
+        for field in absent_fields:
+            warnings.warn("{}: this field is not set".format(field))
+        Simbad.VOTABLE_FIELDS = list(set(Simbad.VOTABLE_FIELDS) - set(args))
+
+        # check if all fields are removed
+        if not Simbad.VOTABLE_FIELDS:
+            self.reset_votable_fields()
+
+    @class_or_instance
+    def reset_votable_fields(self):
+        """
+        resets VOTABLE_FIELDS to defaults
+        """
+        Simbad.VOTABLE_FIELDS = ['main_id', 'coordinates']
 
     @class_or_instance
     def query_object(self, object_name, wildcard=False):
