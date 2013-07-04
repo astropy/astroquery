@@ -100,6 +100,9 @@ class Simbad(BaseQuery):
 
     @class_or_instance
     def list_votable_fields(self):
+        """
+        Lists all the fields that can be fetched for a VOTable.
+        """
         # display additional notes:
         notes_file = get_pkg_data_filename(os.path.join('data', 'votable_fields_notes.json'))
         with open(notes_file, "r") as f:
@@ -116,11 +119,21 @@ class Simbad(BaseQuery):
                                            format='ascii')
         votable_fields_table.more()
 
-        print("For more information on a field :\nSimbad.get_field_description "
+        print("\nFor more information on a field :\nSimbad.get_field_description "
               "('field_name')")
 
     @class_or_instance
     def get_field_description(self, field_name):
+        """
+        Displays a description of the VOTable field
+
+        Parameters
+        ----------
+        field_name : str
+            the name of the field to describe. Must be one of those listed
+            by `astroquery.simbad.Simbad.list_votable_fields`.
+
+        """
         # first load the dictionary from json
         dict_file = get_pkg_data_filename(os.path.join('data', 'votable_fields_dict.json'))
         with open(dict_file, "r") as f:
@@ -130,6 +143,21 @@ class Simbad(BaseQuery):
             print (fields_dict[field_name])
         except KeyError:
             raise Exception("No such field_name")
+
+    @class_or_instance
+    def set_votable_fields(self, *args):
+        dict_file = get_pkg_data_filename(os.path.join('data', 'votable_fields_dict.json'))
+        with open(dict_file, "r") as f:
+            fields_dict = json.load(f)
+        for field in args:
+            if field not in fields_dict:
+                warnings.warn("{}: no such field".format(field))
+            elif field in Simbad.VOTABLE_FIELDS:
+                warnings.warn("{}: field already present".format(field))
+            else:
+                Simbad.VOTABLE_FIELDS.append(field)
+
+
 
     @class_or_instance
     def query_object(self, object_name, wildcard=False):
