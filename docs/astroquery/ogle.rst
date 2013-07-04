@@ -42,5 +42,5 @@ to FK5.
 Reference/API
 =============
 
-.. automodapi:: astroquery.lamda
+.. automodapi:: astroquery.ogle
     :no-inheritance-diagram:
