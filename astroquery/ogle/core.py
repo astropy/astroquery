@@ -3,7 +3,6 @@ import StringIO
 import requests
 import numpy as np
 from astropy.table import Table
-import ipdb as pdb
 
 __all__ = ['query']
 
