@@ -116,17 +116,17 @@ def _parse_coords(coord, coord_sys):
             raise CoordParseError
     elif isinstance(coord, list):
         shape = np.shape(coord)
-        # list-like of values
-        if (len(shape) == 2) & (shape[1] == 2):
-            return coord
         # list of astropy coordinates
-        elif len(shape) == 1:
+        if len(shape) == 1:
             try:
                 lon = [co.fk5.ra.hours for co in coord]
                 lat = [co.fk5.dec.degrees for co in coord]
                 return lon, lat
             except:
                 raise CoordParseError
+        # list-like of values
+        elif (len(shape) == 2) & (shape[0] == 2):
+            return coord
         else:
             raise CoordParseError
     else:
