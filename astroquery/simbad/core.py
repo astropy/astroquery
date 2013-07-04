@@ -107,10 +107,9 @@ class Simbad(BaseQuery):
         notes_file = get_pkg_data_filename(os.path.join('data', 'votable_fields_notes.json'))
         with open(notes_file, "r") as f:
             notes = json.load(f)
-        print (notes_file)
         print ("--NOTES--\n")
         for i, line in list(enumerate(notes)):
-            print ("{}. {}\n".format(i+1,line))
+            print ("{lineno}. {msg}\n".format(lineno=i+1, msg=line))
 
         # load the table
         votable_fields_table = Table.read(get_pkg_data_filename
@@ -159,9 +158,9 @@ class Simbad(BaseQuery):
             fields_dict = json.load(f)
         for field in args:
             if field not in fields_dict:
-                warnings.warn("{}: no such field".format(field))
+                warnings.warn("{field}: no such field".format(fieldfield))
             elif field in Simbad.VOTABLE_FIELDS:
-                warnings.warn("{}: field already present".format(field))
+                warnings.warn("{field}: field already present".format(field=field))
             else:
                 Simbad.VOTABLE_FIELDS.append(field)
 
@@ -176,7 +175,7 @@ class Simbad(BaseQuery):
         """
         absent_fields =  set(args) - set(Simbad.VOTABLE_FIELDS)
         for field in absent_fields:
-            warnings.warn("{}: this field is not set".format(field))
+            warnings.warn("{field}: this field is not set".format(field=field))
         Simbad.VOTABLE_FIELDS = list(set(Simbad.VOTABLE_FIELDS) - set(args))
 
         # check if all fields are removed
