@@ -304,7 +304,7 @@ queries, results are likely to be very large, in such cases it may be best to
 limit the rows to a smaller number. If you want to do this only for the current
 python session then:
 
-.. codeblock:: python
+.. code-block:: python
 
     >>> from astroquery.simbad import Simbad
     >>> Simbad.ROW_LIMIT = 15 # now any query fetches atmost 15 rows
@@ -320,7 +320,7 @@ this - again you can do this at run-time if you want to adjust it only for the
 current session. To make it persistent, you must modify the setting in the
 `astroquery` configuration file.
 
-.. codeblock:: python
+.. code-block:: python
   
     >>> from astroquery.simbad import Simbad
     >>> Simbad.TIMEOUT = 60 # sets the timeout to 60s
@@ -331,7 +331,7 @@ The VOTable fields that are currently returned in the result are set to
 `main_id` and `coordinates`. However you can specify other fields that you
 also want to be fetched in the result. To see the list of the fields:
 
-.. codeblock:: python
+.. code-block:: python
 
      >>> from astroquery.simbad import Simbad
      >>> Simbad.list_votable_fields()
@@ -346,10 +346,10 @@ also want to be fetched in the result. To see the list of the fields:
              
 
 The above shows just a small snippet of the table that is returned and has all
-the fields sorted lexcicographically column-wise. For more information on a
+the fields sorted lexicographically column-wise. For more information on a
 particular field:
 
-.. codeblock:: python
+.. code-block:: python
 
     >>> from astroquery.simbad import Simbad
     >>> Simbad.get_field_description('ra_prec')
@@ -358,11 +358,12 @@ particular field:
 
 To set additional fields to be returned in the VOTable:
 
-.. codeblock:: python
+.. code-block:: python
+     
+     >>> from astroquery.simbad import Simbad
 
      # see which fields are currently set
 
-     >>> from astroquery.simbad import Simbad
      >>> Simbad.VOTABLE_FIELDS
 
      ['main_id', 'coordinates']
@@ -377,7 +378,7 @@ To set additional fields to be returned in the VOTable:
 You can also remove a field you have set or reset `Simbad.VOTABLE_FIELDS` to
 its default value. Continuing from the above example:
 
-.. codeblock:: python
+.. code-block:: python
 
     >>> Simbad.rm_votable_fields('mk', 'coordinates')
     >>> Simbad.VOTABLE_FIELDS
