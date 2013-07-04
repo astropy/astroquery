@@ -107,7 +107,7 @@ class Simbad(BaseQuery):
         notes_file = get_pkg_data_filename(os.path.join('data', 'votable_fields_notes.json'))
         with open(notes_file, "r") as f:
             notes = json.load(f)
-
+        print (notes_file)
         print ("--NOTES--\n")
         for i, line in list(enumerate(notes)):
             print ("{}. {}\n".format(i+1,line))
