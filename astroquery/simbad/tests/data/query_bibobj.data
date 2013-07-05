@@ -1,15 +1,14 @@
 ::script::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
-votable  {main_id, coordinates}
+votable {main_id, coordinates}
 votable open
-query id m31
-query id m51
+query bibobj 2013A&A...549A..23A
 votable close
 
 ::console:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
-C.D.S.  -  SIMBAD4 rel 1.207  -  2013.06.21CEST18:19:16
-total execution time: 0.34 secs
+C.D.S.  -  SIMBAD4 rel 1.207  -  2013.06.30CEST10:58:50
+total execution time: 0.407 secs
 simbatch done
 
 ::data::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -20,7 +19,7 @@ simbatch done
 <COOSYS ID="COOSYS" equinox="2000" epoch="J2000" system="ICRS"/>
 </DEFINITIONS>
 <RESOURCE name="Simbad query" type="results">
-<TABLE ID="SimbadScript" name="default"><DESCRIPTION>Simbad script executed on 2013.06.21CEST18:19:16</DESCRIPTION>
+<TABLE ID="SimbadScript" name="default"><DESCRIPTION>Simbad script executed on 2013.06.30CEST10:58:50</DESCRIPTION>
 <FIELD ID="MAIN_ID" name="MAIN_ID" datatype="char" width="22" ucd="meta.id;meta.main" arraysize="*">
 <DESCRIPTION>Main identifier for an object</DESCRIPTION>
 <LINK value="${MAIN_ID}" href="http://simbad.u-strasbg.fr/simbad/sim-id?Ident=${MAIN_ID}&amp;NbIdent=1"/>
@@ -57,8 +56,11 @@ simbatch done
 </FIELD>
 <DATA>
 <TABLEDATA>
-<TR><TD>M  31</TD><TD>00 42 44.330</TD><TD>+41 16 07.50</TD><TD>7</TD><TD>7</TD><TD></TD><TD></TD><TD></TD><TD>B</TD><TD>IR</TD><TD>2006AJ....131.1163S</TD></TR>
-<TR><TD>M  51</TD><TD>13 29 52.698</TD><TD>+47 11 42.93</TD><TD>7</TD><TD>7</TD><TD></TD><TD></TD><TD></TD><TD>B</TD><TD>IR</TD><TD>2006AJ....131.1163S</TD></TR>
+<TR><TD>PSR J0146+6145</TD><TD>01 46 22.407</TD><TD>+61 45 03.19</TD><TD>7</TD><TD>7</TD><TD></TD><TD></TD><TD></TD><TD>D</TD><TD></TD><TD>2004A&amp;A...416.1037H</TD></TR>
+<TR><TD>M   1</TD><TD>05 34 31.94</TD><TD>+22 00 52.2</TD><TD>6</TD><TD>6</TD><TD></TD><TD></TD><TD></TD><TD>C</TD><TD>Rad</TD><TD>2011A&amp;A...533A..10L</TD></TR>
+<TR><TD>PSR J1808-2024</TD><TD>18 08 39.32</TD><TD>-20 24 39.5</TD><TD>6</TD><TD>6</TD><TD></TD><TD></TD><TD></TD><TD>D</TD><TD></TD><TD>2002ApJ...564..935K</TD></TR>
+<TR><TD>SNR G109.1-01.0</TD><TD>23 01 08</TD><TD>+58 52.7</TD><TD>4</TD><TD>4</TD><TD>18000</TD><TD>18000</TD><TD>3</TD><TD>E</TD><TD></TD><TD></TD></TR>
+<TR><TD>2E  4673</TD><TD>23 01 08.295</TD><TD>+58 52 44.45</TD><TD>7</TD><TD>7</TD><TD></TD><TD></TD><TD></TD><TD>D</TD><TD></TD><TD>2002IAUC.7924....3K</TD></TR>
 
 </TABLEDATA>
 

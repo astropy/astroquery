@@ -1,0 +1,28 @@
+::script::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+votable {main_id,coordinates}
+votable open
+query coo  -67.02084 -29.75447 radius=5.0d frame=GAL
+votable close
+
+::console:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+C.D.S.  -  SIMBAD4 rel 1.207  -  2013.06.30CEST18:55:01
+total execution time: 48.562 secs
+simbatch done
+
+::error:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+[3] IO error while adding the object list in the VOTable: null
+[4] IO Error while closing the VOTable: null
+
+::data::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+<?xml version="1.0" encoding="UTF-8"?>
+<VOTABLE xmlns="http://www.ivoa.net/xml/VOTable/v1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.ivoa.net/xml/VOTable/v1.2" version="1.2">
+<DEFINITIONS>
+<COOSYS ID="COOSYS" equinox="2000" epoch="J2000" system="ICRS"/>
+</DEFINITIONS>
+<RESOURCE name="Simbad query" type="results">
+<TABLE ID="SimbadScript" name="default"><DESCRIPTION>Simbad script executed on 2013.06.30CEST18:55:01</DESCRIPTION>
+
