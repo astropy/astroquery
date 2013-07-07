@@ -38,6 +38,8 @@ to FK5.
     >>> co_list_values = [[0, 0, 0], [3, 3, 3]]
     >>> t2 = ogle.query(coord=co_list_values, coord_sys='LB')
 
+Note that non-Astropy coordinates may not be supported in a future version.
+
 
 Reference/API
 =============
