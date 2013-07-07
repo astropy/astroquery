@@ -8,9 +8,14 @@ import numpy as np
 from ..query import BaseQuery
 from ..utils.class_or_instance import class_or_instance
 from ..utils import commons
+import os
 import astropy.units as u
 import astropy.coordinates as coord
+import astropy.utils.data as aud
 import warnings
+import json
+from collections import defaultdict
+# maintain compat with PY<2.7
 from astropy.utils import OrderedDict
 try:
     import astropy.io.vo.table as votable
@@ -20,14 +25,28 @@ from astropy.table import Table
 
 from . import VIZIER_SERVER
 
-__all__ = ['vizquery', 'Vizier']
+__all__ = ['vizquery', 'Vizier', 'VizierKeyword']
 
 class Vizier(BaseQuery):
     TIMEOUT = 60
     VIZIER_URL = "http://"+VIZIER_SERVER()+"/viz-bin/votable"
     def __init__(self, columns=None, keywords=None):
         self.columns = columns
-        self.keywords = keywords
+        self._keywords = None
+        if keywords is not None:
+            self.keywords = keywords
+
+    @property
+    def keywords(self):
+        return self._keywords
+
+    @keywords.setter
+    def keywords(self, value):
+        self._keywords = VizierKeyword(value)
+
+    @keywords.deleter
+    def keywords(self):
+        del self._keywords
 
     @class_or_instance
     def query_object(self, object_name, catalog=None):
@@ -110,6 +129,9 @@ class Vizier(BaseQuery):
         body["-out"]  = ",".join(['_RAJ2000', '_DEJ2000'])
         body["-out.max"] = 5
         script = "\n".join(["{key}={val}".format(key=key, val=val) for key, val  in body.items()])
+        # add keywords
+        if self.keywords is not None:
+            script += str(self.keywords)
         return script
 
     @class_or_instance
@@ -252,3 +274,44 @@ def vizquery(query, server=None):
                     table.add_row(row)
 
     return table
+
+class VizierKeyword(object):
+    def __init__(self, keywords):
+        file_name = aud.get_pkg_data_filename(os.path.join("data", "inverse_dict.json"))
+        with open(file_name, 'r') as f:
+            self.keyword_dict = json.load(f)
+        self._keywords = None
+        self.keywords = keywords
+
+
+    @property
+    def keywords(self):
+        return self._keywords
+
+    @keywords.setter
+    def keywords(self, values):
+        if isinstance(values, basestring):
+            values = list(values)
+        keys = [key.lower() for key in self.keyword_dict]
+        values = [val.lower() for val in values]
+        # warn about unknown keywords
+        for val in set(values) - set(keys):
+            warnings.warn("{val} : No such keyword".format(val=val))
+        valid_keys = [key for key in self.keyword_dict if key.lower() in values]
+        # create a dict for each type of keyword
+        set_keywords = defaultdict(list)
+        for key in valid_keys:
+            set_keywords[self.keyword_dict[key]].append(key)
+        self._keywords = set_keywords
+
+    @keywords.deleter
+    def keywords(self):
+        del self._keywords
+
+    def __repr__(self):
+        return "\n".join([self.get_keyword_str(key) for key in self.keywords])
+
+    def get_keyword_str(self, key):
+        s = ",".join([val for val in self.keywords[key]])
+        keyword_name = "-kw." + key
+        return keyword_name + "=" + s
