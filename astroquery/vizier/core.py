@@ -25,7 +25,7 @@ from astropy.table import Table
 
 from . import VIZIER_SERVER
 
-__all__ = ['vizquery', 'Vizier', 'VizierKeyword']
+__all__ = ['vizquery', 'Vizier']
 
 class Vizier(BaseQuery):
     TIMEOUT = 60
@@ -43,6 +43,7 @@ class Vizier(BaseQuery):
 
     @property
     def keywords(self):
+        """The set of keywords to filter the Vizier search"""
         return self._keywords
 
     @keywords.setter
@@ -55,6 +56,7 @@ class Vizier(BaseQuery):
 
     @property
     def columns(self):
+        """The columns that must be returned in the output"""
         return self._columns
 
     @columns.setter
@@ -71,6 +73,7 @@ class Vizier(BaseQuery):
 
     @property
     def column_filters(self):
+        """Set constraints on one or more columns of the output"""
         return self._column_filters
 
     @column_filters.setter
@@ -88,18 +91,83 @@ class Vizier(BaseQuery):
 
     @class_or_instance
     def query_object(self, object_name, catalog=None):
+        """
+        Query the Vizier service for a known identifier and return the
+        results as an `astropy.table.Table`.
+
+        Parameters
+        ----------
+        object_name : str
+            The name of the identifier.
+        catalog : str or list, optional
+            The catalog(s) which must be searched for this identifier.
+            If not specified, all matching catalogs will be searched.
+
+        Returns
+        -------
+        result : `astropy.table.Table`
+            The results in an `astropy.table.Table`.
+        """
         response = self.query_object_async(object_name, catalog=catalog)
         result = self._parse_result(response)
         return result
 
     @class_or_instance
     def query_object_async(self, object_name, catalog=None):
+        """
+        Serves the same purpose as `astroquery.vizier.Vizier.query_object` but only
+        returns the HTTP response rather than the parsed result.
+
+        Parameters
+        ----------
+        object_name : str
+            The name of the identifier.
+        catalog : str or list, optional
+            The catalog(s) which must be searched for this identifier.
+            If not specified, all matching catalogs will be searched.
+
+        Returns
+        -------
+        response : `requests.Response` object
+            The response of the HTTP request.
+
+        """
         data_payload = self._args_to_payload(object_name, catalog=catalog, caller='query_object_async')
         response = commons.send_request(Vizier.VIZIER_URL, data_payload, Vizier.TIMEOUT)
         return response
 
     @class_or_instance
-    def query_region(self, coordinates, radius=None, height=None, width=None, catalog=None):
+    def query_region(self, coordinates, radius=None, width=None, height=None, catalog=None):
+        """
+        Returns the results from a Vizier service on querying a region around
+        a known identifier or coordinates. Region around the target may be specified
+        by a radius or box.
+
+        Parameters
+        ----------
+        coordinates : str or `astropy.coordinates` object
+            The target around which to search. It may be specified as a string
+            in which case it is resolved using online services or as the appropriate
+            `astropy.coordinates` object. ICRS coordinates may also be entered as strings
+             as specified in the `astropy.coordinates` module.
+        radius : str or `astropy.units.Quantity` object
+            The string must be parsable by `astropy.coordinates.Angle`. The appropriate
+            `Quantity` object from `astropy.units` may also be used.
+        width : str or `astropy.units.Quantity` object.
+            Must be specified for a box region. Has the same format
+            as radius above.
+        height :str or `astropy.units.Quantity` object.
+            Must be specified with the width for a box region that is a rectangle.
+            Has the same format as radius above.
+        catalog : str or list, optional
+            The catalog(s) which must be searched for this identifier.
+            If not specified, all matching catalogs will be searched.
+
+        Returns
+        -------
+        result : `astropy.table.Table`
+            The results in an `astropy.table.Table`.
+        """
         response = self.query_region_async(coordinates, radius=radius, height=height,
                                            width=width, catalog=catalog)
         result = self._parse_result(response)
@@ -107,6 +175,36 @@ class Vizier(BaseQuery):
 
     @class_or_instance
     def query_region_async(self, coordinates, radius=None, height=None, width=None, catalog=None):
+        """
+        Serves the same purpose as `astroquery.vizier.Vizier.query_region` but only
+        returns the HTTP response rather than the parsed result.
+
+        Parameters
+        ----------
+        coordinates : str or `astropy.coordinates` object
+            The target around which to search. It may be specified as a string
+            in which case it is resolved using online services or as the appropriate
+            `astropy.coordinates` object. ICRS coordinates may also be entered as strings
+             as specified in the `astropy.coordinates` module.
+        radius : str or `astropy.units.Quantity` object
+            The string must be parsable by `astropy.coordinates.Angle`. The appropriate
+            `Quantity` object from `astropy.units` may also be used.
+        width : str or `astropy.units.Quantity` object.
+            Must be specified for a box region. Has the same format
+            as radius above.
+        height :str or `astropy.units.Quantity` object.
+            Must be specified with the width for a box region that is a rectangle.
+            Has the same format as radius above.
+        catalog : str or list, optional
+            The catalog(s) which must be searched for this identifier.
+            If not specified, all matching catalogs will be searched.
+
+        Returns
+        -------
+        response : `requests.Response` object
+            The response of the HTTP request.
+
+        """
         data_payload = self._args_to_payload(coordinates, radius=radius, height=height,
                                             width=width, catalog=catalog, caller='query_region_async')
         response = commons.send_request(Vizier.VIZIER_URL, data_payload, Vizier.TIMEOUT)
@@ -114,6 +212,10 @@ class Vizier(BaseQuery):
 
     @class_or_instance
     def _args_to_payload(self, *args, **kwargs):
+        """
+        accepts the arguments for different query functions and
+        builds a script suitable for the Vizier votable CGI.
+        """
         body = OrderedDict()
         caller = kwargs['caller']
         del kwargs['caller']
@@ -192,6 +294,20 @@ class Vizier(BaseQuery):
 
     @class_or_instance
     def _parse_result(self, response):
+        """
+        Parses the HTTP response to create an `astropy.table.Table`.
+        Returns the raw result as a string in case of parse errors.
+
+        Parameters
+        ----------
+        response : `requests.Response`
+            The response of the HTTP POST request
+
+        Returns
+        -------
+        table : `astropy.table.Table`
+            If there are errors in the parsing, then returns the raw results as a string.
+        """
         try:
             s = io.BytesIO(response.content)
             voTable = votable.parse(s, pedantic=False)
@@ -221,6 +337,19 @@ class Vizier(BaseQuery):
             return response.content
 
 def _parse_dimension(dim):
+    """
+    Retuns the Vizier-formatted units and values for box/radius
+    dimensions in case of region queries.
+
+    Parameters
+    ----------
+    dim : `astropy.units.Quantity` or `astropy.coordinates.Angle`
+
+    Returns
+    -------
+    (unit, value) : tuple
+        formatted for Vizier.
+    """
     if isinstance(dim, u.Quantity) and dim.unit in u.deg.find_equivalent_units():
                     if dim.unit == u.arcsec:
                         unit, value = 's', dim.value
@@ -239,6 +368,19 @@ def _parse_dimension(dim):
     return unit, value
 
 def _str_to_unit(string):
+    """
+    translates to the string representation of the `astropy.units`
+    quantity from the Vizier format for the unit.
+
+    Parameters
+    ----------
+    string : str
+        `s`, `m` or `d`
+
+    Returns
+    -------
+    string equivalent of the corresponding `astropy` unit.
+    """
     str_to_unit = {
                     's' : 'arcsec',
                     'm' : 'arcmin',
@@ -330,8 +472,9 @@ def vizquery(query, server=None):
                     table.add_row(row)
 
     return table
-
+#-----------------------------------------
 class VizierKeyword(object):
+    """Helper class for setting keywords for Vizier queries"""
     def __init__(self, keywords):
         file_name = aud.get_pkg_data_filename(os.path.join("data", "inverse_dict.json"))
         with open(file_name, 'r') as f:
@@ -339,9 +482,9 @@ class VizierKeyword(object):
         self._keywords = None
         self.keywords = keywords
 
-
     @property
     def keywords(self):
+        """ list or string for keyword(s) that must be set for the Vizier object."""
         return self._keywords
 
     @keywords.setter
@@ -368,6 +511,10 @@ class VizierKeyword(object):
         return "\n".join([self.get_keyword_str(key) for key in self.keywords])
 
     def get_keyword_str(self, key):
+        """
+        Helper function that returns the keywords, grouped into appropriate
+        categories and suitable for the Vizier votable CGI.
+        """
         s = ",".join([val for val in self.keywords[key]])
         keyword_name = "-kw." + key
         return keyword_name + "=" + s
