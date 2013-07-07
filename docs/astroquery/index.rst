@@ -23,3 +23,4 @@ AstroQuery is a set of tools for querying astronomical web forms and databases.
   alfalfa.rst
   sha.rst
   lamda.rst
+  ogle.rst
