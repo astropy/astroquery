@@ -166,6 +166,18 @@ class Vizier(BaseQuery):
         # set output parameters
         if "all" in self.columns:
             body["-out"] = "**"
+        elif self.columns:
+            out_cols = ",".join([col for col in self.columns])
+            # if default then return default cols and listed cols
+            if "default" in self.columns:
+                body["-out.add"] = out_cols
+            # else return only the listed cols
+            else:
+                body["-out"] = out_cols
+        # otherwise ask to return default columns
+        else:
+            body["-out"] = "*"
+        # set the maximum rows returned
         body["-out.max"] = 5
         script = "\n".join(["{key}={val}".format(key=key, val=val) for key, val  in body.items()])
         # add keywords
