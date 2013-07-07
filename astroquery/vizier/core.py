@@ -30,11 +30,16 @@ __all__ = ['vizquery', 'Vizier', 'VizierKeyword']
 class Vizier(BaseQuery):
     TIMEOUT = 60
     VIZIER_URL = "http://"+VIZIER_SERVER()+"/viz-bin/votable"
-    def __init__(self, columns=None, keywords=None):
-        self.columns = columns
+    def __init__(self, columns=None, column_filters=None, keywords=None):
+        self._columns = None
+        self._column_filters = None
         self._keywords = None
-        if keywords is not None:
+        if keywords:
             self.keywords = keywords
+        if columns:
+            self.columns = columns
+        if column_filters:
+            self.column_filters = column_filters
 
     @property
     def keywords(self):
@@ -47,6 +52,39 @@ class Vizier(BaseQuery):
     @keywords.deleter
     def keywords(self):
         del self._keywords
+
+    @property
+    def columns(self):
+        return self._columns
+
+    @columns.setter
+    def columns(self, value):
+        if isinstance(value, basestring):
+            value = list(value)
+        if not isinstance(value, list):
+            raise TypeError("Column(s) should be specified as a list or string")
+        self._columns = value
+
+    @columns.deleter
+    def columns(self):
+        del self._columns
+
+    @property
+    def column_filters(self):
+        return self._column_filters
+
+    @column_filters.setter
+    def column_filters(self, value_dict):
+        # give warning if filtered column not in self.columns
+        # Vizer will return these columns in the output even if are not set in self.columns
+        if 'all' not in self.columns:
+            for val in set(value_dict.keys()) - set(self.columns):
+                warnings.warn("{val}: to be filtered but not set as an output column".format(val=val))
+        self._column_filters = value_dict
+
+    @column_filters.deleter
+    def column_filters(self):
+        del self._column_filters
 
     @class_or_instance
     def query_object(self, object_name, catalog=None):
@@ -125,13 +163,19 @@ class Vizier(BaseQuery):
                 body[switch] = h_value
             else:
                 raise Exception("At least one of radius, width/height must be specified")
-
-        body["-out"]  = ",".join(['_RAJ2000', '_DEJ2000'])
+        # set output parameters
+        if "all" in self.columns:
+            body["-out"] = "**"
         body["-out.max"] = 5
         script = "\n".join(["{key}={val}".format(key=key, val=val) for key, val  in body.items()])
         # add keywords
         if self.keywords is not None:
             script += str(self.keywords)
+        # add column filters
+        if self.column_filters is not None:
+            filter_str = "\n".join(["{key}={filter}".format(key=key, constraint=constraint) for key, constraint in
+                                    self.column_filters.items()])
+            script += "\n" + filter_str
         return script
 
     @class_or_instance
