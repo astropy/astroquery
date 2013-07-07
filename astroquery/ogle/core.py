@@ -1,18 +1,24 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import StringIO
 import requests
+import warnings
 import numpy as np
 from astropy.table import Table
 
 __all__ = ['query']
 
 
-URL = "http://ogle.astrouw.edu.pl/cgi-ogle/getext.py?"
+OGLE_URL = "http://ogle.astrouw.edu.pl/cgi-ogle/getext.py"
 ALGORITHMS = ['NG', 'NN']
 QUALITIES = ['GOOD', 'ALL']
 COORD_SYS = ['RD', 'LB']
 RESULT_DTYPE = ['f8', 'f8', 'f8', 'f8', 'f8', 'f8', 'f8', 'f8', 'i8', 'a2',
                 'f8']
+
+
+class CoordParseError(ValueError):
+    def __init__(self, message='Could not parse `coord` argument.', **kwargs):
+        super(ValueError, self).__init__(message, **kwargs)
 
 def query(coord, algorithm='NG', quality='GOOD', coord_sys='RD'):
     """
@@ -26,7 +32,7 @@ def query(coord, algorithm='NG', quality='GOOD', coord_sys='RD'):
             * single astropy coordinate instance
             * list-like object (1 x N) of astropy coordinate instances
             * list-like object (2 x N) of RA/Decs or Glon/Glat as strings or
-              floats.
+              floats. (May not be supported in future versions.)
     algorithm : string
         Algorithm to interpolate data for desired coordinate. Valid options:
             * 'NG': nearest grid point
@@ -36,7 +42,7 @@ def query(coord, algorithm='NG', quality='GOOD', coord_sys='RD'):
             * 'All': all points
             * 'GOOD': QF=0 as described in Nataf et al. (2012).
     coord_sys : string
-        Coordinate system. Valid options:
+        Coordinate system if using lists of RA/Decs in `coord`. Valid options:
             * 'RD': equatorial coordinates
             * 'LB': Galactic coordinates.
 
@@ -79,10 +85,12 @@ def query(coord, algorithm='NG', quality='GOOD', coord_sys='RD'):
     files = {'file1': file_data}
     params = {'dnfile':'submit'}
     # Make request
-    response = requests.post(URL, params=params, files=files)
+    response = requests.post(OGLE_URL, params=params, files=files)
     response.raise_for_status()
     # Parse table
+    # Ignore last two lines, blank
     raw_data = response.text.split('\n')[:-2]
+    # Select first row and skip first character ('#') to find column headers
     header = raw_data[0][1:].encode('ascii').split()
     data = _parse_raw(raw_data)
     t = Table(data, names=header, dtypes=RESULT_DTYPE)
@@ -105,7 +113,6 @@ def _parse_coords(coord, coord_sys):
     lat : list
         Latitude coordinate values
     """
-    CoordParseError = ValueError('Could not parse `coord` argument.')
     if not isinstance(coord, list):
         # single astropy coordinate
         try:
@@ -113,7 +120,7 @@ def _parse_coords(coord, coord_sys):
             lat = [coord.fk5.dec.degrees]
             return lon, lat
         except:
-            raise CoordParseError
+            raise CoordParseError()
     elif isinstance(coord, list):
         shape = np.shape(coord)
         # list of astropy coordinates
@@ -123,14 +130,16 @@ def _parse_coords(coord, coord_sys):
                 lat = [co.fk5.dec.degrees for co in coord]
                 return lon, lat
             except:
-                raise CoordParseError
+                raise CoordParseError()
         # list-like of values
         elif (len(shape) == 2) & (shape[0] == 2):
+            warnings.warn('Non-Astropy coordinates may not be supported in a \
+                future version.', FutureWarning)
             return coord
         else:
-            raise CoordParseError
+            raise CoordParseError()
     else:
-        raise CoordParseError
+        raise CoordParseError()
 
 def _parse_raw(raw_data):
     """
@@ -153,6 +162,4 @@ def _parse_raw(raw_data):
     data = map(list, zip(*data))
     return data
 
-if __name__ == "__main__":
-    pass
 
