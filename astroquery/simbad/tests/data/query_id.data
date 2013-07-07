@@ -1,14 +1,14 @@
 ::script::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
-votable  {main_id, coordinates}
+votable {main_id, coordinates}
 votable open
-query around m31 radius=0.5s
+query id m1
 votable close
 
 ::console:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
-C.D.S.  -  SIMBAD4 rel 1.207  -  2013.06.21CEST17:35:58
-total execution time: 0.617 secs
+C.D.S.  -  SIMBAD4 rel 1.207  -  2013.06.28CEST05:56:24
+total execution time: 0.143 secs
 simbatch done
 
 ::data::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -19,7 +19,7 @@ simbatch done
 <COOSYS ID="COOSYS" equinox="2000" epoch="J2000" system="ICRS"/>
 </DEFINITIONS>
 <RESOURCE name="Simbad query" type="results">
-<TABLE ID="SimbadScript" name="default"><DESCRIPTION>Simbad script executed on 2013.06.21CEST17:35:58</DESCRIPTION>
+<TABLE ID="SimbadScript" name="default"><DESCRIPTION>Simbad script executed on 2013.06.28CEST05:56:24</DESCRIPTION>
 <FIELD ID="MAIN_ID" name="MAIN_ID" datatype="char" width="22" ucd="meta.id;meta.main" arraysize="*">
 <DESCRIPTION>Main identifier for an object</DESCRIPTION>
 <LINK value="${MAIN_ID}" href="http://simbad.u-strasbg.fr/simbad/sim-id?Ident=${MAIN_ID}&amp;NbIdent=1"/>
@@ -56,11 +56,7 @@ simbatch done
 </FIELD>
 <DATA>
 <TABLEDATA>
-<TR><TD>M  31</TD><TD>00 42 44.330</TD><TD>+41 16 07.50</TD><TD>7</TD><TD>7</TD><TD></TD><TD></TD><TD></TD><TD>B</TD><TD>IR</TD><TD>2006AJ....131.1163S</TD></TR>
-<TR><TD>[BFS98] J004244.344+411607.70</TD><TD>00 42 44.344</TD><TD>+41 16 07.70</TD><TD>7</TD><TD>7</TD><TD></TD><TD></TD><TD></TD><TD>D</TD><TD></TD><TD>1998ApJ...504..113B</TD></TR>
-<TR><TD>[K2002] J004244.37+411607.6</TD><TD>00 42 44.365</TD><TD>+41 16 07.65</TD><TD>7</TD><TD>7</TD><TD>30</TD><TD>30</TD><TD>10</TD><TD>D</TD><TD></TD><TD>2002ApJ...577..738K</TD></TR>
-<TR><TD>[BFS98] J004244.362+411607.20</TD><TD>00 42 44.362</TD><TD>+41 16 07.20</TD><TD>7</TD><TD>7</TD><TD></TD><TD></TD><TD></TD><TD>D</TD><TD></TD><TD>1998ApJ...504..113B</TD></TR>
-<TR><TD>[BFS98] J004244.303+411607.14</TD><TD>00 42 44.303</TD><TD>+41 16 07.14</TD><TD>7</TD><TD>7</TD><TD></TD><TD></TD><TD></TD><TD>D</TD><TD></TD><TD>1998ApJ...504..113B</TD></TR>
+<TR><TD>M   1</TD><TD>05 34 31.94</TD><TD>+22 00 52.2</TD><TD>6</TD><TD>6</TD><TD></TD><TD></TD><TD></TD><TD>C</TD><TD>Rad</TD><TD>2011A&amp;A...533A..10L</TD></TR>
 
 </TABLEDATA>
 
