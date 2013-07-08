@@ -15,13 +15,14 @@ import astropy.utils.data as aud
 import warnings
 import json
 from collections import defaultdict
+import traceback
 # maintain compat with PY<2.7
 from astropy.utils import OrderedDict
 try:
     import astropy.io.vo.table as votable
 except ImportError:
     import astropy.io.votable as votable
-from astropy.table import Table
+from astropy.table import Table, vstack
 
 from . import VIZIER_SERVER
 
@@ -266,16 +267,17 @@ class Vizier(BaseQuery):
             else:
                 raise Exception("At least one of radius, width/height must be specified")
         # set output parameters
-        if "all" in self.columns:
-            body["-out"] = "**"
-        elif self.columns:
-            out_cols = ",".join([col for col in self.columns])
-            # if default then return default cols and listed cols
-            if "default" in self.columns:
-                body["-out.add"] = out_cols
-            # else return only the listed cols
+        if not isinstance(self.columns, property) and self.columns is not None:
+            if "all" in self.columns:
+                body["-out"] = "**"
             else:
-                body["-out"] = out_cols
+                out_cols = ",".join([col for col in self.columns])
+                # if default then return default cols and listed cols
+                if "default" in self.columns:
+                    body["-out.add"] = out_cols
+                # else return only the listed cols
+                else:
+                    body["-out"] = out_cols
         # otherwise ask to return default columns
         else:
             body["-out"] = "*"
@@ -283,10 +285,10 @@ class Vizier(BaseQuery):
         body["-out.max"] = 5
         script = "\n".join(["{key}={val}".format(key=key, val=val) for key, val  in body.items()])
         # add keywords
-        if self.keywords is not None:
+        if not isinstance(self.keywords, property) and self.keywords is not None:
             script += str(self.keywords)
         # add column filters
-        if self.column_filters is not None:
+        if not isinstance(self.column_filters, property) and self.column_filters is not None:
             filter_str = "\n".join(["{key}={filter}".format(key=key, constraint=constraint) for key, constraint in
                                     self.column_filters.items()])
             script += "\n" + filter_str
@@ -324,15 +326,13 @@ class Vizier(BaseQuery):
                         tableList += [voTreeTable.to_table()]
 
             # Merge the Table list
-            table = tableList[0]
-            if len(tableList)>1:
-                for t in tableList[1:]:
-                    if len(t)>0:
-                        for row in t:
-                            table.add_row(row)
-
+            # errors if the cols and vals don't match in add_row
+            # errors in col dtypes if using v_stack - fix this
+            #also need to fix cmaelCase var names
+            table = vstack(tableList)
             return table
         except:
+            traceback.print_exc() #temporary for debugging
             warnings.warn("Error in parsing result, returning raw result instead")
             return response.content
 
