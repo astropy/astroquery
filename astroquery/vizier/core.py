@@ -22,7 +22,7 @@ try:
     import astropy.io.vo.table as votable
 except ImportError:
     import astropy.io.votable as votable
-from astropy.table import Table, vstack
+from astropy.table import Table
 
 from . import VIZIER_SERVER
 
@@ -53,7 +53,7 @@ class Vizier(BaseQuery):
 
     @keywords.deleter
     def keywords(self):
-        del self._keywords
+        self._keywords = None
 
     @property
     def columns(self):
@@ -70,7 +70,7 @@ class Vizier(BaseQuery):
 
     @columns.deleter
     def columns(self):
-        del self._columns
+        self._columns = None
 
     @property
     def column_filters(self):
@@ -84,11 +84,12 @@ class Vizier(BaseQuery):
         if 'all' not in self.columns:
             for val in set(value_dict.keys()) - set(self.columns):
                 warnings.warn("{val}: to be filtered but not set as an output column".format(val=val))
+                raise Exception("Column-Filters not a subset of the output columns")
         self._column_filters = value_dict
 
     @column_filters.deleter
     def column_filters(self):
-        del self._column_filters
+        self._column_filters = None
 
     @class_or_instance
     def query_object(self, object_name, catalog=None):
@@ -289,7 +290,7 @@ class Vizier(BaseQuery):
             script += str(self.keywords)
         # add column filters
         if not isinstance(self.column_filters, property) and self.column_filters is not None:
-            filter_str = "\n".join(["{key}={filter}".format(key=key, constraint=constraint) for key, constraint in
+            filter_str = "\n".join(["{key}={constraint}".format(key=key, constraint=constraint) for key, constraint in
                                     self.column_filters.items()])
             script += "\n" + filter_str
         return script
@@ -326,10 +327,17 @@ class Vizier(BaseQuery):
                         tableList += [voTreeTable.to_table()]
 
             # Merge the Table list
-            # errors if the cols and vals don't match in add_row
-            # errors in col dtypes if using v_stack - fix this
+            # Merge the Table list
+            table = tableList[0]
+            if len(tableList)>1:
+                for t in tableList[1:]:
+                    if len(t)>0:
+                        for row in t:
+                            table.add_row(row)
+            #errors if the cols and vals don't match in add_row
+            #errors in col dtypes if using v_stack - fix this
             #also need to fix cmaelCase var names
-            table = vstack(tableList)
+            #table = vstack(tableList)
             return table
         except:
             traceback.print_exc() #temporary for debugging
