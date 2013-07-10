@@ -14,7 +14,7 @@ __all__ = ['send_request',
            'parse_coordinates',
            'parse_radius']
 
-def send_request(url, data, timeout):
+def send_request(url, data, timeout, request_type='POST'):
     """
     A utility function that post HTTP requests to remote server
     and returns the HTTP response.
@@ -27,13 +27,18 @@ def send_request(url, data, timeout):
         A dictionary representing the payload to be posted via the HTTP request
     timeout : int
         Time limit for establishing successful connection with remote server
-
+    request_type : str
+        options are 'POST' (default) and 'GET'. Determines whether to perform
+        an HTTP POST or an HTTP GET request
     Returns
     -------
     response : `requests.Response`
         Response object returned by the remote server
     """
     try:
+        if request_type == 'GET':
+            response = requests.get(url, params=data, timeout=timeout)
+            return response
         response = requests.post(url, data=data, timeout=timeout)
         return response
     except requests.exceptions.Timeout:
