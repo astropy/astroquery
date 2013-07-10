@@ -1,8 +1,8 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import urllib2
-import requests 
+import requests
 import astropy.coordinates as coord
-import astropy.units as u 
+import astropy.units as u
 from ...utils import chunk_read, chunk_report
 from ...utils import class_or_instance
 from ...utils import commons
@@ -19,7 +19,7 @@ class SimpleQueryClass(object):
             print("Calling query as instance method")
             return "instance"
 
-@remote_data 
+@remote_data
 def test_utils():
     response = urllib2.urlopen('http://www.ebay.com')
     C = chunk_read(response, report_hook=chunk_report)
@@ -65,7 +65,7 @@ def test_parse_radius_2(radius):
     with pytest.raises(Exception):
         commons.parse_radius(radius)
 
-def test_send_request(monkeypatch):
+def test_send_request_post(monkeypatch):
     def mock_post(url, data, timeout):
         class MockResponse(object):
             def __init__(self, url, data):
@@ -79,3 +79,11 @@ def test_send_request(monkeypatch):
     assert response.url == 'https://github.com/astropy/astroquery'
     assert response.data == dict(msg='ok')
 
+def test_send_request_get(monkeypatch):
+    def mock_get(url, params, timeout):
+        req = requests.Request('GET', url, params=params).prepare()
+        return req
+    monkeypatch.setattr(requests, 'get', mock_get)
+    response = commons.send_request('https://github.com/astropy/astroquery',
+                                    dict(a='b'), 60, request_type='GET')
+    assert response.url == 'https://github.com/astropy/astroquery?a=b'
