@@ -1,11 +1,12 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import urllib2
-import requests
+import requests 
 import astropy.coordinates as coord
-import astropy.units as u
+import astropy.units as u 
 from ...utils import chunk_read, chunk_report
 from ...utils import class_or_instance
 from ...utils import commons
+from astropy.table import Table
 from astropy.tests.helper import pytest, remote_data
 
 class SimpleQueryClass(object):
@@ -19,7 +20,7 @@ class SimpleQueryClass(object):
             print("Calling query as instance method")
             return "instance"
 
-@remote_data
+@remote_data 
 def test_utils():
     response = urllib2.urlopen('http://www.ebay.com')
     C = chunk_read(response, report_hook=chunk_report)
@@ -65,7 +66,7 @@ def test_parse_radius_2(radius):
     with pytest.raises(Exception):
         commons.parse_radius(radius)
 
-def test_send_request_post(monkeypatch):
+def test_send_request(monkeypatch):
     def mock_post(url, data, timeout):
         class MockResponse(object):
             def __init__(self, url, data):
@@ -79,16 +80,33 @@ def test_send_request_post(monkeypatch):
     assert response.url == 'https://github.com/astropy/astroquery'
     assert response.data == dict(msg='ok')
 
-def test_send_request_get(monkeypatch):
-    def mock_get(url, params, timeout):
-        req = requests.Request('GET', url, params=params).prepare()
-        return req
-    monkeypatch.setattr(requests, 'get', mock_get)
-    response = commons.send_request('https://github.com/astropy/astroquery',
-                                    dict(a='b'), 60, request_type='GET')
-    assert response.url == 'https://github.com/astropy/astroquery?a=b'
+col_1 = [1, 2, 3]
+col_2 = [0, 1, 0, 1, 0, 1]
+col_3 = ['v','w', 'x', 'y', 'z']
+# table t1 with 1 row and 3 cols
+t1 = Table([col_1[:1], col_2[:1], col_3[:1]], meta={'name': 't1'})
+# table t2 with 3 rows and 1 col
+t2 = Table([col_1], meta={'name': 't2'})
+# table t3 with 3 cols and 3 rows
+t3 = Table([col_1, col_2[:3], col_3[:3]], meta={'name': 't3'})
 
-def test_send_request_err():
-    with pytest.raises(ValueError):
-        commons.send_request('https://github.com/astropy/astroquery',
-                     dict(a='b'), 60, request_type='PUT')
+
+def test_TableDict():
+    in_list  = create_in_list([t1, t2, t3])
+    table_list = commons.TableList(in_list)
+    repr_str = table_list.__repr__()
+    assert repr_str == '<TableList with 3 table(s) and 7 total row(s)>'
+
+def test_TableDict_list_contents(capsys):
+    in_list  = create_in_list([t1, t2, t3])
+    table_list = commons.TableList(in_list)
+    table_list.list_contents()
+    out, err = capsys.readouterr()
+    assert out == ("<TableList with 3 tables:\n\t't1' with 3 column(s) and 1 row(s)"
+                   " \n\t't2' with 1 column(s) and 3 row(s)"
+                   " \n\t't3' with 3 column(s) and 3 row(s) \n>\n")
+
+
+
+def create_in_list(t_list):
+    return [(t.meta['name'], t) for t in t_list ]
