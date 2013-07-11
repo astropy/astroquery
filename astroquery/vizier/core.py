@@ -23,7 +23,7 @@ try:
     import astropy.io.vo.table as votable
 except ImportError:
     import astropy.io.votable as votable
-from astropy.table import Table, vstack
+from astropy.table import Table
 
 from . import VIZIER_SERVER
 
