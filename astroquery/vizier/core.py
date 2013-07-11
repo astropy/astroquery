@@ -513,6 +513,9 @@ class TableList(OrderedDict):
 
     def __repr__(self):
         header_str = "< TableList with {keylen} tables:".format(keylen=len(list(self.keys())))
-        body_str = "\n".join(["\t'{t_name}' with {nrow} rows".format(t_name=t_name, nrow=len(self.__getitem__(t_name))) for t_name in self.keys()])
+        body_str = "\n".join(["\t'{t_name}' with {ncol} column(s) and {nrow} row(s) ".
+                              format(t_name=t_name, nrow=len(self.__getitem__(t_name)),
+                                      ncol=len(self.__getitem__(t_name).colnames))
+                              for t_name in self.keys()])
         end_str = ">"
         return "\n".join([header_str, body_str, end_str])
