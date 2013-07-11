@@ -1,9 +1,103 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
+#uncomment after removing old code
+#from __future__ import print_function
+
 import urllib
 import tempfile
 from xml.dom.minidom import parseString
 import astropy.utils.data as aud
 from astropy.table import Table
+#-------------------------------------------
+import warnings
+from collections import namedtuple
+from ..query import BaseQuery
+from ..utils.class_or_instance import class_or_instance
+from ..utils import commons
+import requests # to be removed once pr merged
+import astropy.units as u
+import astropy.coordinates as coord
+
+__all__ = ["Ned"]
+
+#temporary fix till new pr merged
+def send_request(url, data, timeout):
+    response = requests.get(url, params=data, timeout=timeout)
+    return response
+
+
+class Ned(BaseQuery):
+    #make configurable
+    BASE_URL = 'http://nedwww.ipac.caltech.edu/cgi-bin/'
+    OBJ_SEARCH_URL = BASE_URL + 'nph-objsearch'
+    ALL_SKY_URL = BASE_URL + 'nph-allsky'
+    DATA_SEARCH_URL = BASE_URL + 'nph-datasearch'
+    IMG_DATA_URL = BASE_URL + 'imgdata'
+    TIMEOUT = 60
+    cosmology_parameters = {
+                            "wmap3": dict(hconst=73,
+                                           omegam=0.27,
+                                           omegav=0.73
+                                           ),
+                             "wmap5": dict(hconst=70.5,
+                                            omegam=0.27,
+                                            omegav=0.73
+                                            )
+                              }
+    correct_redshift_ref_frame = {
+                                   "3k cmb" : 1,
+                                   "virgo infall": 2,
+                                   "virgo + ga": 3,
+                                   "virgo + ga + shapley": 4
+                                  }
+
+
+    @class_or_instance
+    def query_object(self, object_name, tid=0, get_query_payload=False):
+        response = self.query_object_async(object_name, tid=tid, get_query_payload=get_query_payload)
+        if get_query_payload:
+            return response
+        result = self._parse_result(response)
+        return result
+
+    @class_or_instance
+    def query_object_async(self, object_name, tid=0, get_query_payload=False):
+        request_payload = self._args_to_payload(object_name, tid=tid, caller='query_object_async')
+        if get_query_payload:
+            return request_payload
+        response = send_request(Ned.OBJ_SEARCH_URL, request_payload, Ned.TIMEOUT)
+        return response
+
+    @class_or_instance
+    def _args_to_payload(self, *args, **kwargs):
+        caller = kwargs['caller']
+        del kwargs['caller']
+        request_payload = {}
+        # common settings for all queries as per NED guidelines
+        # for more see <http://ned.ipac.caltech.edu/help/guidelines_auto.html>
+        #also to be added here: i/p cosmological parameters
+        #output format, sort, etc
+        request_payload['img_stamp'] = 'NO'
+        request_payload['extend'] = 'no'
+        request_payload['list_limit'] = 0
+        # all queries other than image queries should return votable
+        if caller != 'get_images_async':
+             request_payload['of'] = 'xml_main'
+        if caller == 'query_object_async':
+            request_payload['objname'] = args[0]
+
+        # add conditions separately for each caller
+        # ...
+        # ...
+        return request_payload
+
+    @class_or_instance
+    def _parse_result(self, response):
+        tf = tempfile.NamedTemporaryFile()
+        tf.write(response.content.encode('utf-8'))
+        tf.flush()
+        table = Table.read(tf.name, format='votable')
+        return table
+
 
 def check_ned_valid(str):
 
@@ -126,7 +220,7 @@ def query_ned_nearname(objname='M31',radius=2.0,
     --------
     >>> print query_ned_nearname()
 
-    :: 
+    ::
 
         +----------------------+---------+---------+--------+
         |                 Name |    Unit |    Type | Format |
@@ -208,7 +302,7 @@ def query_ned_near_iauname(iauname='1234-423',radius=2.0,
 
     Examples
     --------
-    
+
     ::
 
         -----------------------------------------------------
@@ -288,7 +382,7 @@ def query_ned_by_refcode(refcode='2011ApJS..193...18W',
     Returns
     -------
     NED_MainTable with the following information for each target within the search radius
-    
+
     Examples
     --------
 
@@ -421,7 +515,7 @@ def query_ned_basic_posn(objname='M31',
     keywords:
         objname - astronomical object to search for
 
-    Returns 
+    Returns
     -------
     NED_PositionDataTable with the following information:
 
@@ -518,7 +612,7 @@ def query_ned_external(objname='M31',
     keywords:
         objname - astronomical object to search for
 
-    Returns 
+    Returns
     -------
     NED_ExternalLinksTable with the following information:
 
@@ -600,93 +694,93 @@ def query_ned_allsky(ra_constraint='Unconstrained', ra_1='', ra_2='',
 
     Parameters
     ----------
-    ra_constraint : 
+    ra_constraint :
 		constraint on right ascension. Options are 'Unconstrained','Between'
-    ra_1,ra_2 : 
+    ra_1,ra_2 :
 		limits for RA in J2000 equatorial coordinates. Acceptable format includes '00h00m00.0'.
-    dec_constraint : 
+    dec_constraint :
 		constraint on declination. Options are 'Unconstrained','Between'
-    dec_1,dec2 : 
+    dec_1,dec2 :
 		limits for declination in J2000 equatorial coordinates. Acceptable format includes '00d00m00.0'
-    glon_constraint : 
+    glon_constraint :
 		constraint on Galactic longitude. Options are 'Unconstrained','Between'
-    glon_1,glon_2 : 
+    glon_1,glon_2 :
 		limits for RA in J2000 equatorial coordinates. Acceptable format includes '00h00m00.0'.
-    glat_constraint : 
+    glat_constraint :
 		constraint on Galactic latitude. Options are 'Unconstrained','Between'
-    glat_1,glat2 : 
+    glat_1,glat2 :
 		limits for declination in J2000 equatorial coordinates. Acceptable format includes '00d00m00.0'
-    hconst : 
+    hconst :
 		Hubble constant. Default is 70.5 km/s/Mpc (WMAP5)
-    omegam : 
+    omegam :
 		Omega_matter. Default is 0.27 (WMAP5)
-    omegav : 
+    omegav :
 		Omega_vacuum. Default is 0.73 (WMAP5)
-    corr_z : 
+    corr_z :
 		integer keyword for correcting redshift to various velocity frames. Available frames are:
             1: reference frame defined by 3K CMB (default)
             2: reference frame defined by the Virgo Infall
             3: reference frame defined by the Virgo Infall + Great Attractor
             4: reference frame defined by the Virgo Infall + Great Attractor + Shapley Supercluster
-    z_constraint : 
+    z_constraint :
         constraint on redshift. Options are 'Unconstrained','Available','Unavailable','Larger Than','Less Than','Between','Not Between'
-    z_value1,zvalue2 : 
+    z_value1,zvalue2 :
         upper and lower boundaries for z_constraint. If 'Larger Than' or 'Less Than' are specified, only set z_value1
-    z_unit : 
+    z_unit :
 		units of redshift constraint. Options are 'z' or 'km/s'
-    flux_constraint : 
+    flux_constraint :
 		constraints on flux density. Options are 'Unconstrained','Available','Brighter Than','Fainter Than','Between','Not Between'
-    flux_value1,flux_value2 : 
+    flux_value1,flux_value2 :
 		limits for flux density. If 'Brighter Than' or 'Fainter Than' is specified, only set flux_value1
-    flux_unit : 
+    flux_unit :
 		units of the flux density constraint. Options are 'Jy','mJy','mag','Wm2Hz'
-    flux_band : 
+    flux_band :
         specify a particular band of flux density to constrain search.
         Example: flux_band='HST-WFPC2-F814' searches the F814W channel (7937
         AA) on WFPC2 on Hubble.  Setting this keyword searches for objects with
         any data in the bandpass frequency range; it is not limited to the
         particular instrument.
-    frat_constraint : 
+    frat_constraint :
 		option for specifying a flux ratio. Not currently enabled in the web version of NED; implementation here is uncertain.
-    in_objtypes1 : 
+    in_objtypes1 :
         list of classified extragalactic object types to include. Options are
         galaxies ('G'), galaxy pairs, triples, groups, clusters
         ('GPair','GTrpl','GGroup','GClstr'), QSOs and QSO groups
         ('QSO','QGroup'), gravitational lenses ('GravLens'), absorption line
         systems ('AbLS'), emission line sources ('EmLS')
-    in_objtypes2 : 
+    in_objtypes2 :
 		list of unclassified extragalactic candidates to include. Options are sources detected in the radio ('RadioS'), sub-mm ('SmmS'), infrared ('IrS'), visual ('VisS'), ultraviolet excess ('UvES'), X-ray ('XrayS'), gamma-ray ('GammaS')
-    in_objtypes3 : 
+    in_objtypes3 :
 		list of components of galaxies to include. Options are supernovae ('SN'), HII regions ('HII'), planetary nebulae ('PN'), supernova remnants ('SNR'), stellar associations ('\*Ass'), star clusters ('\*Cl'), molecular clouds ('MCld'), novae ('Nova'), variable stars ('V\*'), and Wolf-Rayet stars ('WR\*')
-    ot_include : 
+    ot_include :
 		option for selection of included object types. Options are 'ANY' (default) or 'ALL'
-    ex_objtypes1 : 
+    ex_objtypes1 :
 		list of classified extragalactic object types to exclude. Options are the same as for in_objtypes1.
-    ex_objtypes2 : 
+    ex_objtypes2 :
 		list of unclassified extragalactic candidates to exclude. Options are the same as for in_objtypes2.
-    ex_objtypes3 : 
+    ex_objtypes3 :
 		list of components of galaxies to exclude. Options are the same as for in_objtypes3.
-    nmp_op : 
+    nmp_op :
 		option for selection of name prefixes. Options are 'ANY' (default) or 'ALL'. Full list of prefixes available at http://ned.ipac.caltech.edu/samples/NEDmdb.html
-    name_prefix1 : 
+    name_prefix1 :
 		list of name prefixes from ABELLPN - GB
-    name_prefix2 : 
+    name_prefix2 :
 		list of name prefixes from GB1 - PISCES
-    name_prefix3 : 
+    name_prefix3 :
 		list of name prefixes from Pisces Austrinus - 87GB[BWE91]
-    name_prefix4 : 
+    name_prefix4 :
 		list of name prefixes from [A2001] - [ZZL96]
-    out_csys : 
+    out_csys :
 		output format for coordinate system. Options are 'Equatorial' (default), 'Ecliptic', 'Galactic', 'SuperGalactic'
-    out_equinox : 
+    out_equinox :
 		output format for equinox. Options are 'B1950.0','J2000.0' (default)
-    obj_sort : 
+    obj_sort :
 		format for sorting the output list. Options are 'RA or Longitude' (default), 'DEC or Latitude', 'Galactic Longitude', 'Galactic Latitude', 'Redshift - ascending', 'Redshift - descending'
-    of : 
+    of :
 		VOTable format of data. Options include 'xml_main' (default),'xml_names','xml_posn','xml_extern','xml_basic','xml_dervd'
-    zv_breaker : 
+    zv_breaker :
 		velocity will be displayed as a lower limit when above this value. Default is 30000.0 km/s
-    list_limit : 
+    list_limit :
 		lists with fewer than this number will return detailed information. Default is 5.
 
     """
@@ -1197,7 +1291,7 @@ def query_ned_nearpos(ra=0.000,dec=0.000,sr=2.0,
     Returns
     -------
     NED_MainTable with the following information for each target within the search radius:
-    
+
     Examples
     --------
 
