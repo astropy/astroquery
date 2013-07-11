@@ -39,8 +39,11 @@ def send_request(url, data, timeout, request_type='POST'):
         if request_type == 'GET':
             response = requests.get(url, params=data, timeout=timeout)
             return response
-        response = requests.post(url, data=data, timeout=timeout)
-        return response
+        elif request_type == 'POST':
+            response = requests.post(url, data=data, timeout=timeout)
+            return response
+        else:
+            raise ValueError("request_type must be either 'GET' or 'POST'.")
     except requests.exceptions.Timeout:
             raise TimeoutError("Query timed out, time elapsed {time}s".
                                format(time=timeout))

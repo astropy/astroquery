@@ -87,3 +87,8 @@ def test_send_request_get(monkeypatch):
     response = commons.send_request('https://github.com/astropy/astroquery',
                                     dict(a='b'), 60, request_type='GET')
     assert response.url == 'https://github.com/astropy/astroquery?a=b'
+
+def test_send_request_err():
+    with pytest.raises(ValueError):
+        commons.send_request('https://github.com/astropy/astroquery',
+                     dict(a='b'), 60, request_type='PUT')
