@@ -29,6 +29,10 @@ from . import VIZIER_SERVER
 
 __all__ = ['vizquery', 'Vizier']
 
+# move to utils separate PR
+def suppress_vo_warnings():
+    warnings.filterwarnings("ignore", category=votable.exceptions.VOWarning)
+
 class Vizier(BaseQuery):
     TIMEOUT = 60
     VIZIER_URL = "http://"+VIZIER_SERVER()+"/viz-bin/votable"
@@ -93,7 +97,7 @@ class Vizier(BaseQuery):
         self._column_filters = None
 
     @class_or_instance
-    def query_object(self, object_name, catalog=None):
+    def query_object(self, object_name, catalog=None, verbose=False):
         """
         Query the Vizier service for a known identifier and return the
         results as an `astropy.table.Table`.
@@ -112,7 +116,7 @@ class Vizier(BaseQuery):
             The results in an `astropy.table.Table`.
         """
         response = self.query_object_async(object_name, catalog=catalog)
-        result = self._parse_result(response)
+        result = self._parse_result(response, verbose=verbose)
         return result
 
     @class_or_instance
@@ -140,7 +144,7 @@ class Vizier(BaseQuery):
         return response
 
     @class_or_instance
-    def query_region(self, coordinates, radius=None, width=None, height=None, catalog=None):
+    def query_region(self, coordinates, radius=None, width=None, height=None, catalog=None, verbose=False):
         """
         Returns the results from a Vizier service on querying a region around
         a known identifier or coordinates. Region around the target may be specified
@@ -173,7 +177,7 @@ class Vizier(BaseQuery):
         """
         response = self.query_region_async(coordinates, radius=radius, height=height,
                                            width=width, catalog=catalog)
-        result = self._parse_result(response)
+        result = self._parse_result(response, verbose=verbose)
         return result
 
     @class_or_instance
@@ -297,7 +301,7 @@ class Vizier(BaseQuery):
         return script
 
     @class_or_instance
-    def _parse_result(self, response):
+    def _parse_result(self, response, verbose=False):
         """
         Parses the HTTP response to create an `astropy.table.Table`.
         Returns the raw result as a string in case of parse errors.
@@ -313,6 +317,8 @@ class Vizier(BaseQuery):
             An OrderedDict of `astropy.table.Table` objects.
             If there are errors in the parsing, then returns the raw results as a string.
         """
+        if not verbose:
+            suppress_vo_warnings()
         try:
             tf = tempfile.NamedTemporaryFile()
             tf.write(response.content.encode('utf-8'))
