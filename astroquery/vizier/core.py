@@ -16,13 +16,14 @@ import warnings
 import json
 from collections import defaultdict
 import traceback
+import tempfile
 # maintain compat with PY<2.7
 from astropy.utils import OrderedDict
 try:
     import astropy.io.vo.table as votable
 except ImportError:
     import astropy.io.votable as votable
-from astropy.table import Table
+from astropy.table import Table, vstack
 
 from . import VIZIER_SERVER
 
@@ -283,7 +284,7 @@ class Vizier(BaseQuery):
         else:
             body["-out"] = "*"
         # set the maximum rows returned
-        body["-out.max"] = 5
+        body["-out.max"] = 50
         script = "\n".join(["{key}={val}".format(key=key, val=val) for key, val  in body.items()])
         # add keywords
         if not isinstance(self.keywords, property) and self.keywords is not None:
@@ -308,37 +309,18 @@ class Vizier(BaseQuery):
 
         Returns
         -------
-        table : `astropy.table.Table`
+        `astroquery.vizier.TableList`
+            An OrderedDict of `astropy.table.Table` objects.
             If there are errors in the parsing, then returns the raw results as a string.
         """
         try:
-            s = io.BytesIO(response.content)
-            voTable = votable.parse(s, pedantic=False)
+            tf = tempfile.NamedTemporaryFile()
+            tf.write(response.content.encode('utf-8'))
+            tf.file.flush()
+            vo_tree = votable.parse(tf.name, pedantic=False)
+            table_list = [(t.name, t.to_table()) for t in vo_tree.iter_tables() if len(t.array) > 0 ]
+            return TableList(table_list)
 
-            # Convert VOTABLE into a list of astropy Table.
-            tableList = []
-            for voTreeTable in voTable.iter_tables():
-                if len(voTreeTable.array)>0:
-                    # Table names come from the VOTABLE fields
-                    names = []
-                    for field in voTreeTable.fields:
-                        names += [field.name.encode('ascii')]
-                        # Table data come from the VOTABLE record array
-                        tableList += [voTreeTable.to_table()]
-
-            # Merge the Table list
-            # Merge the Table list
-            table = tableList[0]
-            if len(tableList)>1:
-                for t in tableList[1:]:
-                    if len(t)>0:
-                        for row in t:
-                            table.add_row(row)
-            #errors if the cols and vals don't match in add_row
-            #errors in col dtypes if using v_stack - fix this
-            #also need to fix cmaelCase var names
-            #table = vstack(tableList)
-            return table
         except:
             traceback.print_exc() #temporary for debugging
             warnings.warn("Error in parsing result, returning raw result instead")
@@ -526,3 +508,11 @@ class VizierKeyword(object):
         s = ",".join([val for val in self.keywords[key]])
         keyword_name = "-kw." + key
         return keyword_name + "=" + s
+
+class TableList(OrderedDict):
+
+    def __repr__(self):
+        header_str = "< TableList with {keylen} tables:".format(keylen=len(list(self.keys())))
+        body_str = "\n".join(["\t'{t_name}' with {nrow} rows".format(t_name=t_name, nrow=len(self.__getitem__(t_name))) for t_name in self.keys()])
+        end_str = ">"
+        return "\n".join([header_str, body_str, end_str])
