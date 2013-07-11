@@ -515,13 +515,12 @@ class VizierKeyword(object):
         keyword_name = "-kw." + key
         return keyword_name + "=" + s
 
+# move to utils ... separate pr
 class TableList(OrderedDict):
 
     def __repr__(self):
-        header_str = "< TableList with {keylen} tables:".format(keylen=len(list(self.keys())))
-        body_str = "\n".join(["\t'{t_name}' with {ncol} column(s) and {nrow} row(s) ".
-                              format(t_name=t_name, nrow=len(self.__getitem__(t_name)),
-                                      ncol=len(self.__getitem__(t_name).colnames))
-                              for t_name in self.keys()])
-        end_str = ">"
-        return "\n".join([header_str, body_str, end_str])
+        total_rows = sum(len(self.__getitem__(t)) for t in self.keys())
+        info_str = "<TableList with {keylen} table(s) and {total_rows} total row(s)>".format(keylen=len(list(self.keys())),
+                                                                                           total_rows=total_rows)
+
+        return info_str
