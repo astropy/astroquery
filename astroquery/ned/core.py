@@ -52,16 +52,36 @@ class Ned(BaseQuery):
 
 
     @class_or_instance
-    def query_object(self, object_name, tid=0, get_query_payload=False):
-        response = self.query_object_async(object_name, tid=tid, get_query_payload=get_query_payload)
+    def query_object(self, object_name, get_query_payload=False, verbose=False):
+        # for NED's object by name
+        response = self.query_object_async(object_name, get_query_payload=get_query_payload)
         if get_query_payload:
             return response
-        result = self._parse_result(response)
+        result = self._parse_result(response, verbose=verbose)
         return result
 
     @class_or_instance
-    def query_object_async(self, object_name, tid=0, get_query_payload=False):
-        request_payload = self._args_to_payload(object_name, tid=tid, caller='query_object_async')
+    def query_object_async(self, object_name, get_query_payload=False):
+        request_payload = self._args_to_payload(object_name, caller='query_object_async')
+        if get_query_payload:
+            return request_payload
+        response = send_request(Ned.OBJ_SEARCH_URL, request_payload, Ned.TIMEOUT)
+        return response
+
+    @class_or_instance
+    def query_region(self, coordinates, radius= 1 * u.arcmin, equinox='J2000.0', get_query_payload=False,
+                     verbose=False):
+        # for NED's object near name/ near region
+        response = self.query_region_async(coordinates, radius=radius, equinox=equinox,
+                                           get_query_payload=get_query_payload)
+        if get_query_payload:
+            return response
+        result = self._parse_result(response, verbose=verbose)
+        return result
+
+    @class_or_instance
+    def query_region_async(self, coordinates, radius= 1 * u.arcmin, equinox='J2000.0', get_query_payload=False):
+        request_payload = self._args_to_payload(coordinates, radius=radius, equinox=equinox, caller='query_region_async')
         if get_query_payload:
             return request_payload
         response = send_request(Ned.OBJ_SEARCH_URL, request_payload, Ned.TIMEOUT)
@@ -84,19 +104,56 @@ class Ned(BaseQuery):
              request_payload['of'] = 'xml_main'
         if caller == 'query_object_async':
             request_payload['objname'] = args[0]
-
+        if caller == 'query_region_async':
+            # if its a name then query near name
+            coordinates = args[0]
+            try:
+                coord.ICRSCoordinates.from_name(coordinates)
+                request_payload['objname'] = coordinates
+                request_payload['search_type'] = 'Near Name Search'
+            # otherwise treat it as a coordinate
+            except coord.name_resolve.NameResolveError:
+                try:
+                    c = commons.parse_coordinates(coordinates)
+                    if isinstance(c, coord.GalacticCoordinates):
+                        request_payload['in_csys'] = 'Galactic'
+                        request_payload['lon'] = c.lonangle.degrees
+                        request_payload['lat'] = c.latangle.degrees
+                    # for any other, convert to ICRS and send
+                    else:
+                        request_payload['in_csys'] = 'Equatorial'
+                        request_payload['lon'] = c.icrs.ra.format(u.hour)
+                        request_payload['lat'] = c.icrs.dec.format(u.degree)
+                    request_payload['search_type'] = 'Near Position Search'
+                    request_payload['in_equinox'] = kwargs['equinox']
+                    request_payload['radius'] = _parse_radius(kwargs['radius'])
+                except (u.UnitsException, TypeError):
+                    raise TypeError("Coordinates not specified correctly")
         # add conditions separately for each caller
         # ...
         # ...
         return request_payload
 
     @class_or_instance
-    def _parse_result(self, response):
+    def _parse_result(self, response, verbose=False):
         tf = tempfile.NamedTemporaryFile()
         tf.write(response.content.encode('utf-8'))
         tf.flush()
         table = Table.read(tf.name, format='votable')
         return table
+
+def _parse_radius(radius):
+
+    if isinstance(radius, u.Quantity) and radius.unit in u.deg.find_equivalent_units():
+        radius_in_min = radius.to(u.arcmin).value
+    # otherwise must be an Angle or be specified in hours...
+    else:
+        try:
+            new_radius = commons.parse_radius(radius).degrees
+            radius_in_min = u.Quantity(value=new_radius, unit=u.deg).to(u.arcmin).value
+        except (u.UnitsException, coord.errors.UnitsError, AttributeError):
+            raise u.UnitsException("Dimension not in proper units")
+    return radius_in_min
 
 
 def check_ned_valid(str):
