@@ -88,6 +88,25 @@ class Ned(BaseQuery):
         return response
 
     @class_or_instance
+    def query_region_iau(self, iau_name, frame='Equatorial', equinox='B1950.0',
+                         get_query_payload=False, verbose=False):
+        response = self.query_region_iau_async(iau_name, frame='Equatorial',
+                                               equinox='B1950.0', get_query_payload=get_query_payload)
+        if get_query_payload:
+            return response
+        result = self._parse_result(response, verbose=verbose)
+        return result
+
+    @class_or_instance
+    def query_region_iau_async(self, iau_name, frame='Equatorial', equinox='B1950.0',
+                         get_query_payload=False):
+        request_payload = self._args_to_payload(iau_name, frame=frame, equinox=equinox, caller='query_region_iau_async')
+        if get_query_payload:
+            return request_payload
+        response = send_request(Ned.OBJ_SEARCH_URL, request_payload, Ned.TIMEOUT)
+        return response
+
+    @class_or_instance
     def _args_to_payload(self, *args, **kwargs):
         caller = kwargs['caller']
         del kwargs['caller']
@@ -104,7 +123,7 @@ class Ned(BaseQuery):
              request_payload['of'] = 'xml_main'
         if caller == 'query_object_async':
             request_payload['objname'] = args[0]
-        if caller == 'query_region_async':
+        elif caller == 'query_region_async':
             # if its a name then query near name
             coordinates = args[0]
             try:
@@ -129,6 +148,11 @@ class Ned(BaseQuery):
                     request_payload['radius'] = _parse_radius(kwargs['radius'])
                 except (u.UnitsException, TypeError):
                     raise TypeError("Coordinates not specified correctly")
+        elif caller == 'query_region_iau_async':
+            request_payload['search_type'] = 'IAU Search'
+            request_payload['iau_name'] = args[0]
+            request_payload['in_csys'] = kwargs['frame']
+            request_payload['in_equinox'] = kwargs['equinox']
         # add conditions separately for each caller
         # ...
         # ...
