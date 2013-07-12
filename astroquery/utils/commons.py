@@ -13,7 +13,8 @@ from ..exceptions import TimeoutError
 
 __all__ = ['send_request',
            'parse_coordinates',
-           'parse_radius']
+           'parse_radius',
+           'TableList']
 
 def send_request(url, data, timeout, request_type='POST'):
     """
@@ -137,7 +138,7 @@ class TableList(OrderedDict):
 
         return info_str
 
-    def list_contents(self):
+    def print_table_list(self):
         """
         Prints the names of all `astropy.table.Table` objects, with their
         respective number of row and columns, contained in the

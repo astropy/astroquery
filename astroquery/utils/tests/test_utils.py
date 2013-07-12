@@ -1,8 +1,8 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import urllib2
-import requests 
+import requests
 import astropy.coordinates as coord
-import astropy.units as u 
+import astropy.units as u
 from ...utils import chunk_read, chunk_report
 from ...utils import class_or_instance
 from ...utils import commons
@@ -20,7 +20,7 @@ class SimpleQueryClass(object):
             print("Calling query as instance method")
             return "instance"
 
-@remote_data 
+@remote_data
 def test_utils():
     response = urllib2.urlopen('http://www.ebay.com')
     C = chunk_read(response, report_hook=chunk_report)
@@ -97,10 +97,10 @@ def test_TableDict():
     repr_str = table_list.__repr__()
     assert repr_str == '<TableList with 3 table(s) and 7 total row(s)>'
 
-def test_TableDict_list_contents(capsys):
+def test_TableDict_print_table_list(capsys):
     in_list  = create_in_list([t1, t2, t3])
     table_list = commons.TableList(in_list)
-    table_list.list_contents()
+    table_list.print_table_list()
     out, err = capsys.readouterr()
     assert out == ("<TableList with 3 tables:\n\t't1' with 3 column(s) and 1 row(s)"
                    " \n\t't2' with 1 column(s) and 3 row(s)"
