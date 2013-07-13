@@ -1,5 +1,4 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-import urllib2
 import socket
 import time
 import copy
@@ -112,14 +111,14 @@ def parse_errors(text):
     
 colors_limits = {"J-H":(-99,99),"H-K":(-99,99),"J-K":(-99,99),"V-K":(-99,99)}
 mag_limits = {'U':(-99,99), 'B':(-99,99), 'V':(-5,20), 'R':(-99,99),
-    'I':(-99,99), 'J':(-99,99), 'H':(-99,99), 'K':(-99,99), 'L':(-99,99)}
+              'I':(-99,99), 'J':(-99,99), 'H':(-99,99), 'K':(-99,99), 'L':(-99,99)}
 mag_order = "U","B","V","R","I","J","H","K","L"
 
 def request_besancon(email, glon, glat, smallfield=True, extinction=0.7,
-        area=0.0001, verbose=True, clouds=None, absmag_limits=(-7,15),
-        mag_limits=copy.copy(mag_limits),
-        colors_limits=copy.copy(colors_limits), 
-        retrieve_file=True, **kwargs):
+                     area=0.0001, verbose=True, clouds=None,
+                     absmag_limits=(-7,15), mag_limits=copy.copy(mag_limits),
+                     colors_limits=copy.copy(colors_limits),
+                     retrieve_file=True, **kwargs):
     """
     Perform a query on the Besancon model of the galaxy
     http://model.obs-besancon.fr/
@@ -137,13 +136,13 @@ def request_besancon(email, glon, glat, smallfield=True, extinction=0.7,
     extinction : float
         Extinction per kpc in A_V
     area : float
-        Area in square degrees 
+        Area in square degrees
     absmag_limits : (float,float)
         Absolute magnitude lower,upper limits
     colors_limits : dict of (float,float)
         Should contain 4 elements listing color differences in the valid bands, e.g.:
             {"J-H":(99,-99),"H-K":(99,-99),"J-K":(99,-99),"V-K":(99,-99)}
-    mag_limits = dict of (float,float) 
+    mag_limits = dict of (float,float)
         Lower and Upper magnitude difference limits for each magnitude band
         U B V R I J H K L
     clouds : list of 2-tuples
@@ -233,7 +232,8 @@ def request_besancon(email, glon, glat, smallfield=True, extinction=0.7,
     else:
         return filename
 
-def get_besancon_model_file(filename, verbose=True, save=True, savename=None, overwrite=True):
+def get_besancon_model_file(filename, verbose=True, save=True, savename=None, overwrite=True,
+        timeout=5.0):
     """
     Download a Besancon model from the website
 
@@ -251,6 +251,9 @@ def get_besancon_model_file(filename, verbose=True, save=True, savename=None, ov
         Overwrite the file if it exists?  Defaults to True because the .resu
         tables should have unique names by default, so there's little risk of
         accidentally overwriting important information
+    timeout : float
+        Amount of time to wait after pinging the server to see if a file is
+        present.  Default 5s, which is probably reasonable.
     """
 
     url = url_download+filename
@@ -262,19 +265,19 @@ def get_besancon_model_file(filename, verbose=True, save=True, savename=None, ov
     while 1:
         sys.stdout.write(u"\r")
         try:
-            U = urllib2.urlopen(url,timeout=ping_delay)
-            with aud.get_readable_fileobj(url, cache=True) as f:
+            U = requests.get(url,timeout=timeout)
+            with aud.get_readable_fileobj(U, cache=True) as f:
                 results = f.read()
             break
-        except urllib2.URLError:
-            sys.stdout.write(u"Waiting 30s for model to finish (elapsed wait time %is, total %i)\r" % (elapsed_time,time.time()-t0))
-            time.sleep(30)
-            elapsed_time += 30
+        except requests.ConnectionError:
+            sys.stdout.write(u"Waiting %0.1fs for model to finish (elapsed wait time %is, total %i)\r" % (ping_delay,elapsed_time,time.time()-t0))
+            time.sleep(ping_delay)
+            elapsed_time += ping_delay
             continue
         except socket.timeout:
-            sys.stdout.write(u"Waiting 30s for model to finish (elapsed wait time %is, total %i)\r" % (elapsed_time,time.time()-t0))
-            time.sleep(30)
-            elapsed_time += 30
+            sys.stdout.write(u"Waiting %0.1fs for model to finish (elapsed wait time %is, total %i)\r" % (ping_delay,elapsed_time,time.time()-t0))
+            time.sleep(ping_delay)
+            elapsed_time += ping_delay
             continue
 
 

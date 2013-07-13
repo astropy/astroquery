@@ -19,9 +19,9 @@ BESANCON_MODEL_FORM = ConfigurationItem('besancon_model_Form',
                             ["http://model.obs-besancon.fr/modele_form.php"],
                             "Besancon model form URL")
 
-BESANCON_PING_DELAY = ConfigurationItem('besancon_ping_delay', 5,
-                                        "Amount of time before pinging the Besancon server to see if the file is ready.  Minimum 5s.",
-                                        cfgtype="integer(min=5)")
+BESANCON_PING_DELAY = ConfigurationItem('besancon_ping_delay', 30.0,
+                                        "Amount of time before pinging the Besancon server to see if the file is ready.  Minimum 30s.",
+                                        cfgtype="float(min=30.0)")
 
 from .core import *
 from .reader import *
