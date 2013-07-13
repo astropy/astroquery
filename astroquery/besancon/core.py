@@ -232,8 +232,8 @@ def request_besancon(email, glon, glat, smallfield=True, extinction=0.7,
     else:
         return filename
 
-def get_besancon_model_file(filename, verbose=True, save=True, savename=None, overwrite=True,
-        timeout=5.0):
+def get_besancon_model_file(filename, verbose=True, save=True, savename=None,
+                            overwrite=True, timeout=5.0):
     """
     Download a Besancon model from the website
 
@@ -307,5 +307,3 @@ def parse_besancon_model_string(bms,):
             break
 
     return besancon_table
-
-
