@@ -9,6 +9,7 @@ import astropy.utils.data as aud
 import astropy.io.ascii as asciireader
 from . import BESANCON_DOWNLOAD_URL, BESANCON_MODEL_FORM, BESANCON_PING_DELAY
 import requests
+import urllib2 # only needed for urllib2.URLError
 
 __all__ = ['get_besancon_model_file','request_besancon']
 
@@ -210,7 +211,7 @@ def request_besancon(email, glon, glat, smallfield=True, extinction=0.7,
     request_data = dict(request_data)
 
     # load the URL as text
-    response = requests.post(url_request, data=request_data)
+    response = requests.post(url_request, data=request_data, stream=True)
 
     if verbose:
         print "Loading request from Besancon server ..."
@@ -265,11 +266,11 @@ def get_besancon_model_file(filename, verbose=True, save=True, savename=None,
     while 1:
         sys.stdout.write(u"\r")
         try:
-            U = requests.get(url,timeout=timeout,stream=True)
-            with aud.get_readable_fileobj(U.raw, cache=True) as f:
+            #U = requests.get(url,timeout=timeout,stream=True)
+            with aud.get_readable_fileobj(url, cache=True) as f:
                 results = f.read()
             break
-        except requests.ConnectionError:
+        except urllib2.URLError:
             sys.stdout.write(u"Waiting %0.1fs for model to finish (elapsed wait time %is, total %i)\r" % (ping_delay,elapsed_time,time.time()-t0))
             time.sleep(ping_delay)
             elapsed_time += ping_delay
