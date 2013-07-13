@@ -205,6 +205,10 @@ def request_besancon(email, glon, glat, smallfield=True, extinction=0.7,
     request = urllib.urlencode(request)
     # load the URL as text
     U = urllib.urlopen(url_request, request)
+
+    if verbose:
+        print "Loading request from Besancon server ..."
+
     # keep the text stored for possible later use
     with aud.get_readable_fileobj(U) as f:
         text = f.read()
