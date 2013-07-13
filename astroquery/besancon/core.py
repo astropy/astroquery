@@ -1,5 +1,4 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-import urllib
 import urllib2
 import socket
 import time
@@ -8,7 +7,9 @@ import os
 import sys
 import re
 import astropy.utils.data as aud
-from . import BESANCON_DOWNLOAD_URL, BESANCON_MODEL_FORM
+import astropy.io.ascii as asciireader
+from . import BESANCON_DOWNLOAD_URL, BESANCON_MODEL_FORM, BESANCON_PING_DELAY
+import requests
 
 __all__ = ['get_besancon_model_file','request_besancon']
 
@@ -55,8 +56,13 @@ keyword_defaults = {
     'outmod':"",
 }
 
+# Since these are configuration options, they should probably be used directly
+# rather than re-stored as local variables.  Then again, we need to refactor
+# this whole project to be class-based, so they should be set for class
+# instances.
 url_download = BESANCON_DOWNLOAD_URL()
 url_request = BESANCON_MODEL_FORM()
+ping_delay = BESANCON_PING_DELAY()
 # sample file:  1340900648.230224.resu
 result_re = re.compile("[0-9]{10}\.[0-9]{6}\.resu")
 
@@ -198,19 +204,20 @@ def request_besancon(email, glon, glat, smallfield=True, extinction=0.7,
             kwd[di][ii] = di
 
     # parse the default dictionary
-    request = parse_besancon_dict(keyword_defaults)
+    request_data = parse_besancon_dict(keyword_defaults)
 
     # an e-mail address is required
-    request.append(('email',email))
-    request = urllib.urlencode(request)
+    request_data.append(('email',email))
+    request_data = dict(request_data)
+
     # load the URL as text
-    U = urllib.urlopen(url_request, request)
+    response = requests.post(url_request, data=request_data)
 
     if verbose:
         print "Loading request from Besancon server ..."
 
     # keep the text stored for possible later use
-    with aud.get_readable_fileobj(U) as f:
+    with aud.get_readable_fileobj(response) as f:
         text = f.read()
     try:
         filename = result_re.search(text).group()
@@ -255,8 +262,8 @@ def get_besancon_model_file(filename, verbose=True, save=True, savename=None, ov
     while 1:
         sys.stdout.write(u"\r")
         try:
-            U = urllib2.urlopen(url,timeout=5)
-            with aud.get_readable_fileobj(U, cache=True) as f:
+            U = urllib2.urlopen(url,timeout=ping_delay)
+            with aud.get_readable_fileobj(url, cache=True) as f:
                 results = f.read()
             break
         except urllib2.URLError:
@@ -283,14 +290,13 @@ def get_besancon_model_file(filename, verbose=True, save=True, savename=None, ov
     return parse_besancon_model_string(results)
 
 def parse_besancon_model_string(bms,):
-    import astropy.io.ascii as asciireader
 
     besancon_table = asciireader.read(bms, Reader=asciireader.FixedWidth,
-            header_start=None, data_start=81,
-            names=bms.split('\n')[80].split(),
-            col_starts=(0,7,13,16,21,27,33,36,41,49,56,62,69,76,82,92,102,109),
-            col_ends=(6,12,15,20,26,32,35,39,48,55,61,68,75,81,91,101,108,115),
-            data_end=-7)
+                                      header_start=None, data_start=81,
+                                      names=bms.split('\n')[80].split(),
+                                      col_starts=(0,7,13,16,21,27,33,36,41,49,56,62,69,76,82,92,102,109),
+                                      col_ends=(6,12,15,20,26,32,35,39,48,55,61,68,75,81,91,101,108,115),
+                                      data_end=-7)
 
     for cn in besancon_table.columns:
         if besancon_table[cn].dtype.kind in ('s','S'):
