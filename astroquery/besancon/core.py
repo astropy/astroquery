@@ -262,21 +262,26 @@ def get_besancon_model_file(filename, verbose=True, save=True, savename=None,
     elapsed_time = 0
     t0 = time.time()
 
-    sys.stdout.write("\n")
+    if verbose:
+        sys.stdout.write("Awaiting Besancon file...\n")
     while 1:
-        sys.stdout.write(u"\r")
+        if verbose:
+            sys.stdout.write(u"\r")
         try:
             #U = requests.get(url,timeout=timeout,stream=True)
+            # TODO: add timeout= keyword to get_readable_fileobj (when PR https://github.com/astropy/astropy/pull/1258 is merged)
             with aud.get_readable_fileobj(url, cache=True) as f:
                 results = f.read()
             break
         except urllib2.URLError:
-            sys.stdout.write(u"Waiting %0.1fs for model to finish (elapsed wait time %is, total %i)\r" % (ping_delay,elapsed_time,time.time()-t0))
+            if verbose:
+                sys.stdout.write(u"Waiting %0.1fs for model to finish (elapsed wait time %is, total %i)\r" % (ping_delay,elapsed_time,time.time()-t0))
             time.sleep(ping_delay)
             elapsed_time += ping_delay
             continue
         except socket.timeout:
-            sys.stdout.write(u"Waiting %0.1fs for model to finish (elapsed wait time %is, total %i)\r" % (ping_delay,elapsed_time,time.time()-t0))
+            if verbose:
+                sys.stdout.write(u"Waiting %0.1fs for model to finish (elapsed wait time %is, total %i)\r" % (ping_delay,elapsed_time,time.time()-t0))
             time.sleep(ping_delay)
             elapsed_time += ping_delay
             continue
