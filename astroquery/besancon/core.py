@@ -8,6 +8,7 @@ import os
 import sys
 import re
 import astropy.utils.data as aud
+from . import BESANCON_DOWNLOAD_URL
 
 __all__ = ['get_besancon_model_file','request_besancon']
 
@@ -54,7 +55,7 @@ keyword_defaults = {
     'outmod':"",
     }
 
-url_download = "ftp://sasftp.obs-besancon.fr/modele/"
+url_download = BESANCON_DOWNLOAD_URL()
 url_request  = "http://model.obs-besancon.fr/modele_form.php"
 # sample file:  1340900648.230224.resu
 result_re = re.compile("[0-9]{10}\.[0-9]{6}\.resu")
