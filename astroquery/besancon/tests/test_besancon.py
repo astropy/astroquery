@@ -2,7 +2,6 @@
 
 from ... import besancon
 import os
-from astropy.tests.helper import pytest  # import this since the user may not have pytest installed
 import astropy.io.ascii as asciitable
 from astropy.io.ascii.tests.common import assert_equal
 
@@ -11,7 +10,7 @@ from astropy.io.ascii.tests.common import assert_equal
 #     #assert os.path.exists('besancon_test.txt')
 #     B = asciitable.read('t/besancon_test.txt',Reader=besancon.BesanconFixed,guess=False)
 #     assert_equal(len(B),12)
-# 
+#
 # def test_basic():
 #     besancon_model = besancon.request_besancon('astropy.astroquery@gmail.com',10.5,0.0,rsup=0.5,soli=0.0001)
 #     B = asciitable.read(besancon_model,Reader=besancon.BesanconFixed,guess=False)
@@ -26,7 +25,7 @@ class TestBesancon(TestCase):
 
     def test_offline(self):
         besancon_model = self.data('besancon_test.txt')
-        B = asciitable.read(besancon_model,Reader=besancon.BesanconFixed,guess=False) 
+        B = asciitable.read(besancon_model,Reader=besancon.BesanconFixed,guess=False)
         B.pprint()
         assert_equal(len(B),13)
         assert_equal(len(B.columns),18)

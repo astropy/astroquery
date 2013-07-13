@@ -25,4 +25,3 @@ BESANCON_PING_DELAY = ConfigurationItem('besancon_ping_delay', 30.0,
 
 from .core import *
 from .reader import *
-
