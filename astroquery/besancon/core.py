@@ -216,7 +216,7 @@ def request_besancon(email, glon, glat, smallfield=True, extinction=0.7,
         print "Loading request from Besancon server ..."
 
     # keep the text stored for possible later use
-    with aud.get_readable_fileobj(response) as f:
+    with aud.get_readable_fileobj(response.raw) as f:
         text = f.read()
     try:
         filename = result_re.search(text).group()
@@ -265,8 +265,8 @@ def get_besancon_model_file(filename, verbose=True, save=True, savename=None,
     while 1:
         sys.stdout.write(u"\r")
         try:
-            U = requests.get(url,timeout=timeout)
-            with aud.get_readable_fileobj(U, cache=True) as f:
+            U = requests.get(url,timeout=timeout,stream=True)
+            with aud.get_readable_fileobj(U.raw, cache=True) as f:
                 results = f.read()
             break
         except requests.ConnectionError:
