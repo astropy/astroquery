@@ -15,6 +15,10 @@ BESANCON_DOWNLOAD_URL = ConfigurationItem('besancon_download_url',[
                                     ],
                                      'Besancon download URL.  Changed to modele2003 in 2013.')
 
+BESANCON_MODEL_FORM = ConfigurationItem('besancon_model_Form',
+                            ["http://model.obs-besancon.fr/modele_form.php"],
+                            "Besancon model form URL")
+
 from .core import *
 from .reader import *
 

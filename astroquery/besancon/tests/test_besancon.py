@@ -4,9 +4,7 @@ from ... import besancon
 import os
 from astropy.tests.helper import pytest  # import this since the user may not have pytest installed
 import astropy.io.ascii as asciitable
-
-#import asciitable
-#from astropy.io.ascii.tests.common import assert_equal
+from astropy.io.ascii.tests.common import assert_equal
 
 # SKIP - don't run tests because Besancon folks don't want them (based on the fact that your@email.net is now rejected)
 # def test_besancon_reader():
@@ -15,7 +13,7 @@ import astropy.io.ascii as asciitable
 #     assert_equal(len(B),12)
 # 
 # def test_basic():
-#     besancon_model = besancon.request_besancon('your@email.net',10.5,0.0)
+#     besancon_model = besancon.request_besancon('astropy.astroquery@gmail.com',10.5,0.0,rsup=0.5)
 #     B = asciitable.read(besancon_model,Reader=besancon.BesanconFixed,guess=False)
 #     B.pprint()
 
@@ -30,3 +28,6 @@ class TestBesancon(TestCase):
         besancon_model = self.data('besancon_test.txt')
         B = asciitable.read(besancon_model,Reader=besancon.BesanconFixed,guess=False) 
         B.pprint()
+        assert_equal(len(B),13)
+        assert_equal(len(B.columns),18)
+        assert_equal(repr(B.columns),"<TableColumns names=('Dist','Mv','CL','Typ','LTef','logg','Age','Mass','J-H','H-K','J-K','V-K','V','[Fe/H]','l','b','Av','Mbol')>")

@@ -8,7 +8,7 @@ import os
 import sys
 import re
 import astropy.utils.data as aud
-from . import BESANCON_DOWNLOAD_URL
+from . import BESANCON_DOWNLOAD_URL, BESANCON_MODEL_FORM
 
 __all__ = ['get_besancon_model_file','request_besancon']
 
@@ -53,10 +53,10 @@ keyword_defaults = {
     'klec':1,
     'cinem':0,
     'outmod':"",
-    }
+}
 
 url_download = BESANCON_DOWNLOAD_URL()
-url_request  = "http://model.obs-besancon.fr/modele_form.php"
+url_request = BESANCON_MODEL_FORM()
 # sample file:  1340900648.230224.resu
 result_re = re.compile("[0-9]{10}\.[0-9]{6}\.resu")
 
@@ -79,9 +79,9 @@ def parse_besancon_dict(bd):
                         for jj,lv in enumerate(listval):
                             http_dict.append((key+"[%i][%i]" % (ii,jj),lv))
                     else:
-                        http_dict.append((key+"[%i]" % (ii) , listval))
+                        http_dict.append((key+"[%i]" % (ii), listval))
         else:
-            http_dict.append((key , val))
+            http_dict.append((key, val))
 
     return http_dict
 
