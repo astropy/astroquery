@@ -1,10 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from __future__ import print_function
 
-import requests
-import io
-import numpy as np
-#------------------
 from ..query import BaseQuery
 from ..utils.class_or_instance import class_or_instance
 from ..utils import commons
@@ -19,15 +15,10 @@ import traceback
 import tempfile
 # maintain compat with PY<2.7
 from astropy.utils import OrderedDict
-try:
-    import astropy.io.vo.table as votable
-except ImportError:
-    import astropy.io.votable as votable
-from astropy.table import Table
-
+import astropy.io.votable as votable
 from . import VIZIER_SERVER
 
-__all__ = ['vizquery', 'Vizier']
+__all__ = ['Vizier']
 
 # move to utils separate PR
 def suppress_vo_warnings():
@@ -75,6 +66,8 @@ class Vizier(BaseQuery):
 
     @columns.deleter
     def columns(self):
+        if self.column_filters is not None:
+            raise Exception("One or more column_filter(s) exist. Aborting delete.")
         self._columns = None
 
     @property
@@ -86,7 +79,9 @@ class Vizier(BaseQuery):
     def column_filters(self, value_dict):
         # give warning if filtered column not in self.columns
         # Vizer will return these columns in the output even if are not set in self.columns
-        if 'all' not in self.columns:
+        if self.columns is None:
+            raise Exception("Columns must be set before specifiying column_filters.")
+        elif 'all' not in self.columns:
             for val in set(value_dict.keys()) - set(self.columns):
                 warnings.warn("{val}: to be filtered but not set as an output column".format(val=val))
                 raise Exception("Column-Filters not a subset of the output columns")
@@ -384,92 +379,7 @@ def _str_to_unit(string):
                    }
     return str_to_unit[string]
 
-#--------------------------------------------------------
-def vizquery(query, server=None):
-    """
-    VizieR search query.
-
-    This function can be used to search all the catalogs available through the VizieR service.
-
-    Parameters
-    ----------
-    query: dict
-        A dictionary specifying the query.
-        For acceptable keys, refer to the links given in the references section.
-        The dictionary values can be any of the following types:
-           * string
-           * list of string
-           * astropy.table.Table (containing columns "_RAJ2000" and "_DEJ2000" in degrees)
-    server: str, optional
-        The VizieR server to use. (See VizieR mirrors at http://vizier.u-strasbg.fr)
-        If not specified, `server` is set by the `VIZIER_SERVER` configuration item.
-
-    Returns
-    -------
-    table : `~astropy.table.Table`
-        A table containing the results of the query
-
-    References
-    ----------
-    * http://vizier.u-strasbg.fr/doc/asu-summary.htx
-    * http://vizier.u-strasbg.fr/vizier/vizHelp/menu.htx
-
-    """
-
-    #Check VizieR server
-    server = (VIZIER_SERVER() if server is None else server)
-
-    # Always add calculated _RAJ2000 & _DEJ2000 to the query.
-    # This is used for cross correlations between queries
-    if '-out.add' in query:
-        query["-out.add"] += ['_RAJ2000', '_DEJ2000']
-    else:
-        query["-out.add"]  = ['_RAJ2000', '_DEJ2000']
-
-    # Assemble the actual query
-    body = []
-    for (key,value) in query.items():
-        if type(value) is str:
-            body += ["%s=%s"%(key, value)]
-        elif type(value) is Table: # Value is a table, convert it to a string, list of positions
-            pos = []
-            for elem in np.array(value, copy=False):
-                pos += ["%.8f%+.8f"%(elem['_RAJ2000'],elem['_DEJ2000'])] # Position with the format: _RAJ2000+_DEJ2000
-            body += ["-out.add=_q"] # This calculated index is a reference to the input table
-            body += ["%s=%s"%(key, "<<;"+";".join(pos))] # The proper convention: <<;pos1;pos2;pos3
-        elif type(value) is list: # Value is a list, join it with commas
-            body += ["%s=%s"%(key, ",".join(value))]
-        else:
-            raise Exception("Don't know how to handle %s"%repr(value))
-    body = "\r\n".join(body)
-
-    # Fetch the VOTABLE corresponding to the query
-    r = requests.post("http://"+server+"/viz-bin/votable", data=body)
-    s = io.BytesIO(r.content)
-    voTable = votable.parse(s, pedantic=False)
-
-    # Convert VOTABLE into a list of astropy Table.
-    tableList = []
-    for voTreeTable in voTable.iter_tables():
-        if len(voTreeTable.array)>0:
-            # Table names come from the VOTABLE fields
-            names = []
-            for field in voTreeTable.fields:
-                names += [field.name.encode('ascii')]
-            # Table data come from the VOTABLE record array
-            tableList += [voTreeTable.to_table()]
-
-    # Merge the Table list
-    table = tableList[0]
-    if len(tableList)>1:
-        for t in tableList[1:]:
-            if len(t)>0:
-                for row in t:
-                    table.add_row(row)
-
-    return table
-#-----------------------------------------
-class VizierKeyword(object):
+class VizierKeyword(list):
     """Helper class for setting keywords for Vizier queries"""
     def __init__(self, keywords):
         file_name = aud.get_pkg_data_filename(os.path.join("data", "inverse_dict.json"))
@@ -503,6 +413,7 @@ class VizierKeyword(object):
     def keywords(self):
         del self._keywords
 
+
     def __repr__(self):
         return "\n".join([self.get_keyword_str(key) for key in self.keywords])
 
@@ -525,7 +436,7 @@ class TableList(OrderedDict):
 
         return info_str
 
-    def list_contents(self):
+    def print_table_list(self):
         header_str = "<TableList with {keylen} tables:".format(keylen=len(list(self.keys())))
         body_str = "\n".join(["\t'{t_name}' with {ncol} column(s) and {nrow} row(s) ".
                               format(t_name=t_name, nrow=len(self.__getitem__(t_name)),
