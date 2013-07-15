@@ -16,7 +16,7 @@ import tempfile
 # maintain compat with PY<2.7
 from astropy.utils import OrderedDict
 import astropy.io.votable as votable
-from . import VIZIER_SERVER, VIZIER_TIMEOUT
+from . import VIZIER_SERVER, VIZIER_TIMEOUT, ROW_LIMIT
 
 __all__ = ['Vizier']
 
@@ -283,7 +283,7 @@ class Vizier(BaseQuery):
         else:
             body["-out"] = "*"
         # set the maximum rows returned
-        body["-out.max"] = 50
+        body["-out.max"] = ROW_LIMIT()
         script = "\n".join(["{key}={val}".format(key=key, val=val) for key, val  in body.items()])
         # add keywords
         if not isinstance(self.keywords, property) and self.keywords is not None:
