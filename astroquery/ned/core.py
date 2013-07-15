@@ -107,6 +107,22 @@ class Ned(BaseQuery):
         return response
 
     @class_or_instance
+    def query_refcode(self, refcode, get_query_payload=False, verbose=False):
+        response = self.query_refcode_async(refcode, get_query_payload=get_query_payload)
+        if get_query_payload:
+            return response
+        result = self._parse_result(response, verbose=verbose)
+        return result
+
+    @class_or_instance
+    def query_refcode_async(self, refcode, get_query_payload=False):
+        request_payload = self._args_to_payload(refcode, caller='query_refcode_async')
+        if get_query_payload:
+            return request_payload
+        response = send_request(Ned.OBJ_SEARCH_URL, request_payload, Ned.TIMEOUT)
+        return response
+
+    @class_or_instance
     def _args_to_payload(self, *args, **kwargs):
         caller = kwargs['caller']
         del kwargs['caller']
@@ -153,6 +169,9 @@ class Ned(BaseQuery):
             request_payload['iau_name'] = args[0]
             request_payload['in_csys'] = kwargs['frame']
             request_payload['in_equinox'] = kwargs['equinox']
+        elif caller == 'query_refcode_async':
+            request_payload['search_type'] = 'Search'
+            request_payload['refcode'] = args[0]
         # add conditions separately for each caller
         # ...
         # ...
