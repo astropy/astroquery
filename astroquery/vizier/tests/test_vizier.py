@@ -7,8 +7,6 @@ from astropy.table import Table
 from ... import vizier
 import astropy.units as u
 import astropy.coordinates as coord
-VII258_DATA = "vii258.txt"
-II246_DATA = "ii246.txt"
 VO_DATA = "viz.xml"
 
 def data_path(filename):
@@ -47,7 +45,7 @@ def test_parse_dimension(dim, expected_out):
     actual_unit, actual_value = actual_out
     expected_unit, expected_value = expected_out
     assert actual_unit == expected_unit
-    npt.assert_almost_equal(actual_value, expected_value)
+    npt.assert_approx_equal(actual_value, expected_value, significant=2)
 
 
 def test_parse_dimension_err():
@@ -67,7 +65,7 @@ def test_parse_result():
     result = vizier.core.Vizier._parse_result(response)
     assert isinstance(result, vizier.core.TableList)
     assert len(result) == 231
-    assert isinstance(result[0], Table)
+    assert isinstance(result[result.keys()[0]], Table)
 
 def test_query_region_async(patch_post):
     response = vizier.core.Vizier.query_region_async(coord.ICRSCoordinates(ra=299.590, dec=35.201, unit=(u.deg, u.deg)),
@@ -100,11 +98,11 @@ class TestVizierClass:
 
     def test_keywords(self):
         v = vizier.core.Vizier(keywords=['optical', 'chandra', 'ans'])
-        assert len(v.keywords) == 3
-        v = vizier.core.Vizier(keywords=['xry', 'optical'])
-        assert len(v.keywords) == 1
+        assert str(v.keywords) == '-kw.Wavelength=optical\n-kw.Mission=ANS,Chandra'
+        v = vizier.core.Vizier(keywords=['xy', 'optical'])
+        assert str(v.keywords) == '-kw.Wavelength=optical'
         v.keywords = ['optical', 'cobe']
-        assert len(v.keywords) == 2
+        assert str(v.keywords) == '-kw.Wavelength=optical\n-kw.Mission=COBE'
         del v.keywords
         assert v.keywords is None
 
@@ -133,7 +131,7 @@ class TestVizierKeywordClass:
         assert v.keyword_dict is not None
 
     def test_keywords(self, capsys):
-        v = vizier.core.VizierKeyword(keywords=['xry','coBe'])
+        vizier.core.VizierKeyword(keywords=['xxx','coBe'])
         out, err = capsys.readouterr()
-        assert out != ""
-        assert len(v.keywords) == 1
+        # warning must be emitted
+        assert out  != ""
