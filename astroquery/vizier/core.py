@@ -150,15 +150,15 @@ class Vizier(BaseQuery):
         coordinates : str or `astropy.coordinates` object
             The target around which to search. It may be specified as a string
             in which case it is resolved using online services or as the appropriate
-            `astropy.coordinates` object. ICRS coordinates may also be entered as strings
-             as specified in the `astropy.coordinates` module.
+            `astropy.coordinates` object. ICRS coordinates may also be entered
+            as a string.
         radius : str or `astropy.units.Quantity` object
             The string must be parsable by `astropy.coordinates.Angle`. The appropriate
             `Quantity` object from `astropy.units` may also be used.
         width : str or `astropy.units.Quantity` object.
             Must be specified for a box region. Has the same format
             as radius above.
-        height :str or `astropy.units.Quantity` object.
+        height : str or `astropy.units.Quantity` object.
             Must be specified with the width for a box region that is a rectangle.
             Has the same format as radius above.
         catalog : str or list, optional
@@ -186,15 +186,15 @@ class Vizier(BaseQuery):
         coordinates : str or `astropy.coordinates` object
             The target around which to search. It may be specified as a string
             in which case it is resolved using online services or as the appropriate
-            `astropy.coordinates` object. ICRS coordinates may also be entered as strings
-             as specified in the `astropy.coordinates` module.
+            `astropy.coordinates` object. ICRS coordinates may also be entered as
+            a string.
         radius : str or `astropy.units.Quantity` object
             The string must be parsable by `astropy.coordinates.Angle`. The appropriate
             `Quantity` object from `astropy.units` may also be used.
         width : str or `astropy.units.Quantity` object.
             Must be specified for a box region. Has the same format
             as radius above.
-        height :str or `astropy.units.Quantity` object.
+        height : str or `astropy.units.Quantity` object.
             Must be specified with the width for a box region that is a rectangle.
             Has the same format as radius above.
         catalog : str or list, optional
