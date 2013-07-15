@@ -16,7 +16,7 @@ import tempfile
 # maintain compat with PY<2.7
 from astropy.utils import OrderedDict
 import astropy.io.votable as votable
-from . import VIZIER_SERVER
+from . import VIZIER_SERVER, VIZIER_TIMEOUT
 
 __all__ = ['Vizier']
 
@@ -25,7 +25,7 @@ def suppress_vo_warnings():
     warnings.filterwarnings("ignore", category=votable.exceptions.VOWarning)
 
 class Vizier(BaseQuery):
-    TIMEOUT = 60
+    TIMEOUT = VIZIER_TIMEOUT()
     VIZIER_URL = "http://"+VIZIER_SERVER()+"/viz-bin/votable"
     def __init__(self, columns=None, column_filters=None, keywords=None):
         self._columns = None

@@ -23,5 +23,6 @@ VIZIER_SERVER = ConfigurationItem('vizier_server', ['vizier.u-strasbg.fr',
                                                     'vizier.iucaa.ernet.in',
                                                     'vizier.china-vo.org'], 'Name of the VizieR mirror to use.')
 
+VIZIER_TIMEOUT = ConfigurationItem('timeout', 60, 'default timeout for connecting to server')
 
 from .core import *
