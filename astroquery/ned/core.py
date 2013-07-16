@@ -8,6 +8,7 @@ from xml.dom.minidom import parseString
 import astropy.utils.data as aud
 from astropy.table import Table
 #-------------------------------------------
+import re
 import warnings
 from collections import namedtuple
 from ..query import BaseQuery
@@ -16,7 +17,7 @@ from ..utils import commons
 import requests # to be removed once pr merged
 import astropy.units as u
 import astropy.coordinates as coord
-
+from astropy.io import fits
 __all__ = ["Ned"]
 
 #temporary fix till new pr merged
@@ -123,6 +124,36 @@ class Ned(BaseQuery):
         return response
 
     @class_or_instance
+    def get_images(self, object_name, get_query_payload=False):
+        readable_objs = self.get_images_async(object_name, get_query_payload=get_query_payload)
+        if get_query_payload:
+            return readable_objs
+        return [fits.open(obj.__enter__()) for obj in readable_objs]
+
+    @class_or_instance
+    def get_images_async(self, object_name, get_query_payload=False):
+        image_urls = self.get_image_list(object_name, get_query_payload=get_query_payload)
+        if get_query_payload:
+            return image_urls
+        return [aud.get_readable_fileobj(U) for U in image_urls]
+
+    @class_or_instance
+    def get_image_list(self, object_name, get_query_payload=False):
+        request_payload = self._args_to_payload(object_name, caller='get_image_list')
+        if get_query_payload:
+            return request_payload
+        response = send_request(Ned.IMG_DATA_URL, request_payload, Ned.TIMEOUT)
+        return self.extract_image_urls(response.content)
+
+    @class_or_instance
+    def extract_image_urls(self, html_in):
+        base_url = 'http://ned.ipac.caltech.edu'
+        pattern = re.compile('<a\s+href\s*?=\s*?(.+?fits.gz)\s*?>\s*?Retrieve', re.IGNORECASE)
+        matched_urls = pattern.findall(html_in)
+        url_list = [base_url + img_url for img_url in matched_urls]
+        return url_list
+
+    @class_or_instance
     def _args_to_payload(self, *args, **kwargs):
         caller = kwargs['caller']
         del kwargs['caller']
@@ -135,7 +166,7 @@ class Ned(BaseQuery):
         request_payload['extend'] = 'no'
         request_payload['list_limit'] = 0
         # all queries other than image queries should return votable
-        if caller != 'get_images_async':
+        if caller != 'get_image_list':
              request_payload['of'] = 'xml_main'
         if caller == 'query_object_async':
             request_payload['objname'] = args[0]
@@ -172,6 +203,8 @@ class Ned(BaseQuery):
         elif caller == 'query_refcode_async':
             request_payload['search_type'] = 'Search'
             request_payload['refcode'] = args[0]
+        elif caller == 'get_image_list':
+            request_payload['objname'] = args[0]
         # add conditions separately for each caller
         # ...
         # ...
@@ -197,7 +230,7 @@ def _parse_radius(radius):
         except (u.UnitsException, coord.errors.UnitsError, AttributeError):
             raise u.UnitsException("Dimension not in proper units")
     return radius_in_min
-
+#--------------
 
 def check_ned_valid(str):
 
