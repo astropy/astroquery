@@ -245,6 +245,22 @@ class Ned(BaseQuery):
         return response
 
     @class_or_instance
+    def get_diameters(self, object_name, get_query_payload=False, verbose=False):
+        response = self.get_diameters_async(object_name, get_query_payload=get_query_payload)
+        if get_query_payload:
+            return response
+        result = self._parse_result(response, verbose=verbose)
+        return result
+
+    @class_or_instance
+    def get_diameters_async(self, object_name, get_query_payload=False):
+        request_payload = self._args_to_payload(object_name, caller='get_diameters_async')
+        if get_query_payload:
+            return request_payload
+        response = send_request(Ned.DATA_SEARCH_URL, request_payload, Ned.TIMEOUT)
+        return response
+
+    @class_or_instance
     def _args_to_payload(self, *args, **kwargs):
         caller = kwargs['caller']
         del kwargs['caller']
@@ -311,6 +327,9 @@ class Ned(BaseQuery):
         elif caller == 'get_positions_async':
             request_payload['objname'] = args[0]
             request_payload['search_type'] = 'Positions'
+        elif caller == 'get_diameters_async':
+            request_payload['objname'] = args[0]
+            request_payload['search_type'] = 'Diameters'
         # add conditions separately for each caller
         # ...
         # ...
