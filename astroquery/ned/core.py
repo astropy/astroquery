@@ -229,6 +229,22 @@ class Ned(BaseQuery):
         return response
 
     @class_or_instance
+    def get_positions(self, object_name, get_query_payload=False, verbose=False):
+        response = self.get_positions_async(object_name, get_query_payload=get_query_payload)
+        if get_query_payload:
+            return response
+        result = self._parse_result(response, verbose=verbose)
+        return result
+
+    @class_or_instance
+    def get_positions_async(self, object_name, get_query_payload=False):
+        request_payload = self._args_to_payload(object_name, caller='get_positions_async')
+        if get_query_payload:
+            return request_payload
+        response = send_request(Ned.DATA_SEARCH_URL, request_payload, Ned.TIMEOUT)
+        return response
+
+    @class_or_instance
     def _args_to_payload(self, *args, **kwargs):
         caller = kwargs['caller']
         del kwargs['caller']
@@ -292,6 +308,9 @@ class Ned(BaseQuery):
         elif caller == 'get_redshifts_async':
             request_payload['objname'] = args[0]
             request_payload['search_type'] = 'Redshifts'
+        elif caller == 'get_positions_async':
+            request_payload['objname'] = args[0]
+            request_payload['search_type'] = 'Positions'
         # add conditions separately for each caller
         # ...
         # ...
@@ -299,6 +318,7 @@ class Ned(BaseQuery):
 
     @class_or_instance
     def _parse_result(self, response, verbose=False):
+        # TODO put this within a try block
         tf = tempfile.NamedTemporaryFile()
         tf.write(response.content.encode('utf-8'))
         tf.flush()
