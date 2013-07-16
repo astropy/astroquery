@@ -34,6 +34,20 @@ class Ned(BaseQuery):
     DATA_SEARCH_URL = BASE_URL + 'nph-datasearch'
     IMG_DATA_URL = BASE_URL + 'imgdata'
     TIMEOUT = 60
+    Options = namedtuple('Options', ('display_name', 'cgi_name'))
+
+    PHOTOMETRY_OUT = {1 : Options('Data as Published and Homogenized (mJy)', 'bot'),
+                      2 : Options('Data as Published', 'pub'),
+                      3 : Options('Homogenized Units (mJy)', 'mjy')}
+
+    SED_X = {1 : Options('X=log(Freq.)(Hz)', 'freq'),
+             2 : Options('X=log(Wave.)(microns)', 'wave')}
+
+    SED_Y = {1 : Options('log(Fnu)(Jy)', 'Fnu_jy'),
+             2 : Options('log(Fnu)(W/m2/Hz)', 'Fnu_MKS'),
+             3 : Options('log(NuFnu)(Jy-Hz)', 'NuFnu_Jy'),
+             4 : Options('log(NuFnu)(W/m2)', 'NuFnu_MKS')}
+
     cosmology_parameters = {
                             "wmap3": dict(hconst=73,
                                            omegam=0.27,
@@ -154,6 +168,51 @@ class Ned(BaseQuery):
         return url_list
 
     @class_or_instance
+    def get_photometry(self, object_name,
+                       output_table_format=1,
+                       error_bars=True,
+                       point_labels=False,
+                       sed_x=1,
+                       sed_y=1,
+                       autoscale=False,
+                       get_query_payload=False,
+                       verbose=False):
+        response = self.get_photometry_async(object_name,
+                       output_table_format=output_table_format,
+                       error_bars=error_bars,
+                       point_labels=point_labels,
+                       sed_x=sed_x,
+                       sed_y=sed_y,
+                       autoscale=autoscale,
+                       get_query_payload=get_query_payload)
+        if get_query_payload:
+            return response
+        result = self._parse_result(response, verbose=verbose)
+        return result
+
+    @class_or_instance
+    def get_photometry_async(self, object_name,
+                       output_table_format=1,
+                       error_bars=True,
+                       point_labels=False,
+                       sed_x=1,
+                       sed_y=1,
+                       autoscale=False,
+                       get_query_payload=False):
+        request_payload = self._args_to_payload(object_name,
+                       output_table_format=output_table_format,
+                       error_bars=error_bars,
+                       point_labels=point_labels,
+                       sed_x=sed_x,
+                       sed_y=sed_y,
+                       autoscale=autoscale,
+                       caller='get_photometry_async')
+        if get_query_payload:
+            return request_payload
+        response = send_request(Ned.DATA_SEARCH_URL, request_payload, Ned.TIMEOUT)
+        return response
+
+    @class_or_instance
     def _args_to_payload(self, *args, **kwargs):
         caller = kwargs['caller']
         del kwargs['caller']
@@ -205,6 +264,15 @@ class Ned(BaseQuery):
             request_payload['refcode'] = args[0]
         elif caller == 'get_image_list':
             request_payload['objname'] = args[0]
+        elif caller == 'get_photometry_async':
+            request_payload['objname'] = args[0]
+            request_payload['meas_type'] = Ned.PHOTOMETRY_OUT[kwargs['output_table_format']].cgi_name
+            request_payload['ebars_spec'] = 'ebars' if kwargs['error_bars'] else 'noebars'
+            request_payload['label_spec'] = 'yes' if kwargs['point_labels'] else 'no'
+            request_payload['x_spec'] = Ned.SED_X[kwargs['sed_x']].cgi_name
+            request_payload['y_spec'] = Ned.SED_Y[kwargs['sed_y']].cgi_name
+            request_payload['xr'] = -2 if kwargs['autoscale'] else -1
+            request_payload['search_type'] = 'Photometry'
         # add conditions separately for each caller
         # ...
         # ...
