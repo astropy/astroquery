@@ -126,11 +126,11 @@ def test_TableDict_print_table_list(capsys):
 def create_in_list(t_list):
     return [(t.meta['name'], t) for t in t_list ]
 
-def test_suppress_vo_warnings(capsys):
+def test_suppress_vo_warnings(recwarn):
     commons.suppress_vo_warnings()
     votable.exceptions.warn_or_raise(votable.exceptions.W01)
     votable.exceptions.warn_or_raise(votable.exceptions.VOTableChangeWarning)
     votable.exceptions.warn_or_raise(votable.exceptions.VOWarning)
     votable.exceptions.warn_or_raise(votable.exceptions.VOTableSpecWarning)
-    out, err = capsys.readouterr()
-    assert out == ''
+    with pytest.raises(Exception):
+        recwarn.pop(votable.exceptions.VOWarning)
