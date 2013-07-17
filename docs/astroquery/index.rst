@@ -11,8 +11,6 @@ user.
 
 The following modules have been completed using a common API:
 
-**Complete**
-
 .. toctree::
   :maxdepth: 1
 
@@ -22,8 +20,6 @@ The following modules have been completed using a common API:
 
 These others are functional, but do not follow a common & consistent API:
 
-
-**Incomplete**
 
 .. toctree::
   :maxdepth: 1
