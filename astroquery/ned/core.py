@@ -8,8 +8,10 @@ from xml.dom.minidom import parseString
 import astropy.utils.data as aud
 from astropy.table import Table
 #-------------------------------------------
+import os
 import re
 import warnings
+import json
 from collections import namedtuple
 from ..query import BaseQuery
 from ..utils.class_or_instance import class_or_instance
@@ -18,7 +20,8 @@ import requests # to be removed once pr merged
 import astropy.units as u
 import astropy.coordinates as coord
 from astropy.io import fits
-__all__ = ["Ned"]
+from datetime import datetime
+#__all__ = ["Ned"]
 
 #temporary fix till new pr merged
 def send_request(url, data, timeout):
@@ -33,6 +36,7 @@ class Ned(BaseQuery):
     ALL_SKY_URL = BASE_URL + 'nph-allsky'
     DATA_SEARCH_URL = BASE_URL + 'nph-datasearch'
     IMG_DATA_URL = BASE_URL + 'imgdata'
+    REF_KWD_URL = BASE_URL + 'SearchRefsByObjectName'
     TIMEOUT = 60
     Options = namedtuple('Options', ('display_name', 'cgi_name'))
 
@@ -261,6 +265,38 @@ class Ned(BaseQuery):
         return response
 
     @class_or_instance
+    def get_references(self, object_name, topical_keywords=None, data_content_keywords=None, get_query_payload=False, verbose=False,
+                       from_year=1800, to_year=datetime.now().year, extended_search=False):
+        response = self.get_references_async(object_name, topical_keywords=topical_keywords,
+                                             data_content_keywords=data_content_keywords,
+                                             from_year=from_year,
+                                             to_year=to_year,
+                                             extended_search=extended_search,
+                                             get_query_payload=get_query_payload)
+        if get_query_payload:
+            return response
+        result = self._parse_result(response, verbose=verbose)
+        return result
+
+    @class_or_instance
+    def get_references_async(self, object_name, topical_keywords=None, data_content_keywords=None, get_query_payload=False,
+                             from_year=1800, to_year=datetime.now().year, extended_search=False):
+        request_payload = self._args_to_payload(object_name, topical_keywords=topical_keywords,
+                                             data_content_keywords=data_content_keywords,
+                                             from_year=from_year,
+                                             to_year=to_year,
+                                             extended_search=extended_search,
+                                             caller='get_references_async')
+        if get_query_payload:
+            return request_payload
+        if topical_keywords or data_content_keywords is not None:
+            url = Ned.REF_KWD_URL
+        else:
+            url = Ned.DATA_SEARCH_URL
+        response = send_request(url, request_payload, Ned.TIMEOUT)
+        return response
+
+    @class_or_instance
     def _args_to_payload(self, *args, **kwargs):
         caller = kwargs['caller']
         del kwargs['caller']
@@ -330,6 +366,28 @@ class Ned(BaseQuery):
         elif caller == 'get_diameters_async':
             request_payload['objname'] = args[0]
             request_payload['search_type'] = 'Diameters'
+        elif caller == 'get_references_async':
+            request_payload['objname'] = args[0]
+            request_payload['ref_extend'] = 'yes' if kwargs['extended_search'] else 'no'
+            request_payload['begin_year'] = kwargs['from_year']
+            request_payload['end_year'] = kwargs['to_year']
+            request_payload['search_type'] = 'Search References (With Keywords)' if kwargs.get('topical_keywords') or kwargs.get('data_content_keywords') else 'Reference'
+            if kwargs.get('topical_keywords') is not None:
+                file_name = aud.get_pkg_data_filename(os.path.join("data", "keywords_dict.json"))
+                with open(file_name, mode="r") as f:
+                    keywords_dict = json.load(f)
+                valid_keywords = _validate_keywords(kwargs['topical_keywords'], keywords_dict.keys())
+                for kwd in valid_keywords:
+                    request_payload[keywords_dict[kwd]] = kwd
+                request_payload['arib_filter'] = 'yes'
+            if kwargs.get('data_content_keywords') is not None:
+                all_data_keywords = ["diameters", "pofg", "images", "kinematics",
+                                     "notes", "photometry", "positions", "spectroscopy"]
+                valid_keywords = _validate_keywords(kwargs['data_content_keywords'], all_data_keywords)
+                for kwd in valid_keywords:
+                    request_payload[kwd] = 'ON'
+                request_payload['filters'] = 'yes'
+
         # add conditions separately for each caller
         # ...
         # ...
@@ -343,6 +401,14 @@ class Ned(BaseQuery):
         tf.flush()
         table = Table.read(tf.name, format='votable')
         return table
+
+def _validate_keywords(kwds, kwd_dict_keys):
+    values = [kwd.lower() for kwd in kwds]
+    keys = [ key.lower() for key in kwd_dict_keys]
+    for val in set(values) - set(keys):
+            warnings.warn("{val} : No such keyword".format(val=val))
+    valid_keys = [key for key in kwd_dict_keys if key.lower() in values]
+    return valid_keys
 
 def _parse_radius(radius):
 
