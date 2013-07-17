@@ -10,7 +10,7 @@ import astropy.units as u
 from astropy import coordinates as coord
 from astropy.utils import OrderedDict
 from ..exceptions import TimeoutError
-  import astropy.io.votable as votable
+import astropy.io.votable as votable
 
 __all__ = ['send_request',
            'parse_coordinates',
