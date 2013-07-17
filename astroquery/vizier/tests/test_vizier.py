@@ -5,6 +5,7 @@ from astropy.tests.helper import pytest
 from numpy import testing as npt
 from astropy.table import Table
 from ... import vizier
+from ... utils import commons
 import astropy.units as u
 import astropy.coordinates as coord
 VO_DATA = "viz.xml"
@@ -63,7 +64,7 @@ def test_parse_result():
     table_contents = open(data_path(VO_DATA), 'r').read()
     response = MockResponse(table_contents)
     result = vizier.core.Vizier._parse_result(response)
-    assert isinstance(result, vizier.core.TableList)
+    assert isinstance(result, commons.TableList)
     assert len(result) == 231
     assert isinstance(result[result.keys()[0]], Table)
 
@@ -78,7 +79,7 @@ def test_query_region(patch_post):
                                                      radius=5 * u.deg,
                                                      catalog=["HIP", "NOMAD", "UCAC"])
 
-    assert isinstance(result, vizier.core.TableList)
+    assert isinstance(result, commons.TableList)
 
 def test_query_object_async(patch_post):
     response = vizier.core.Vizier.query_object_async("HD 226868", catalog=["NOMAD", "UCAC"])
@@ -86,7 +87,7 @@ def test_query_object_async(patch_post):
 
 def test_query_object(patch_post):
     result = vizier.core.Vizier.query_object("HD 226868", catalog=["NOMAD", "UCAC"])
-    assert isinstance(result, vizier.core.TableList)
+    assert isinstance(result, commons.TableList)
 
 class TestVizierClass:
 
