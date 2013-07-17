@@ -10,6 +10,7 @@ import astropy.units as u
 from astropy import coordinates as coord
 from astropy.utils import OrderedDict
 from ..exceptions import TimeoutError
+import astropy.io.votable as votable
 
 __all__ = ['send_request',
            'parse_coordinates',
@@ -151,3 +152,8 @@ class TableList(OrderedDict):
                               for t_name in self.keys()])
         end_str = ">"
         print ("\n".join([header_str, body_str, end_str]))
+
+
+def suppress_vo_warnings():
+    """ Suppresses all warnings of the class `astropy.io.votable.exceptions.VOWarning."""
+    warnings.filterwarnings("ignore", category=votable.exceptions.VOWarning)

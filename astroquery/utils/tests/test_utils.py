@@ -8,6 +8,7 @@ from ...utils import class_or_instance
 from ...utils import commons
 from astropy.table import Table
 from astropy.tests.helper import pytest, remote_data
+import astropy.io.votable as votable
 
 class SimpleQueryClass(object):
     @class_or_instance
@@ -66,7 +67,7 @@ def test_parse_radius_2(radius):
     with pytest.raises(Exception):
         commons.parse_radius(radius)
 
-def test_send_request(monkeypatch):
+def test_send_request_post(monkeypatch):
     def mock_post(url, data, timeout):
         class MockResponse(object):
             def __init__(self, url, data):
@@ -79,6 +80,20 @@ def test_send_request(monkeypatch):
                                     data=dict(msg='ok'), timeout=30)
     assert response.url == 'https://github.com/astropy/astroquery'
     assert response.data == dict(msg='ok')
+
+def test_send_request_get(monkeypatch):
+    def mock_get(url, params, timeout):
+        req = requests.Request('GET', url, params=params).prepare()
+        return req
+    monkeypatch.setattr(requests, 'get', mock_get)
+    response = commons.send_request('https://github.com/astropy/astroquery',
+                                    dict(a='b'), 60, request_type='GET')
+    assert response.url == 'https://github.com/astropy/astroquery?a=b'
+
+def test_send_request_err():
+    with pytest.raises(ValueError):
+        commons.send_request('https://github.com/astropy/astroquery',
+                     dict(a='b'), 60, request_type='PUT')
 
 col_1 = [1, 2, 3]
 col_2 = [0, 1, 0, 1, 0, 1]
@@ -110,3 +125,12 @@ def test_TableDict_print_table_list(capsys):
 
 def create_in_list(t_list):
     return [(t.meta['name'], t) for t in t_list ]
+
+def test_suppress_vo_warnings(recwarn):
+    commons.suppress_vo_warnings()
+    votable.exceptions.warn_or_raise(votable.exceptions.W01)
+    votable.exceptions.warn_or_raise(votable.exceptions.VOTableChangeWarning)
+    votable.exceptions.warn_or_raise(votable.exceptions.VOWarning)
+    votable.exceptions.warn_or_raise(votable.exceptions.VOTableSpecWarning)
+    with pytest.raises(Exception):
+        recwarn.pop(votable.exceptions.VOWarning)
