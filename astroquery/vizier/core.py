@@ -304,7 +304,7 @@ class Vizier(BaseQuery):
 
         Returns
         -------
-        `astroquery.vizier.TableList`
+        `astroquery.utils.commons.TableList`
             An OrderedDict of `astropy.table.Table` objects.
             If there are errors in the parsing, then returns the raw results as a string.
         """
@@ -316,7 +316,7 @@ class Vizier(BaseQuery):
             tf.file.flush()
             vo_tree = votable.parse(tf.name, pedantic=False)
             table_list = [(t.name, t.to_table()) for t in vo_tree.iter_tables() if len(t.array) > 0 ]
-            return TableList(table_list)
+            return commons.TableList(table_list)
 
         except:
             traceback.print_exc() #temporary for debugging
@@ -409,7 +409,6 @@ class VizierKeyword(list):
     def keywords(self):
         del self._keywords
 
-
     def __repr__(self):
         return "\n".join([self.get_keyword_str(key) for key in self.keywords])
 
@@ -421,22 +420,3 @@ class VizierKeyword(list):
         s = ",".join([val for val in self.keywords[key]])
         keyword_name = "-kw." + key
         return keyword_name + "=" + s
-
-# move to utils ... separate pr
-class TableList(OrderedDict):
-
-    def __repr__(self):
-        total_rows = sum(len(self.__getitem__(t)) for t in self.keys())
-        info_str = "<TableList with {keylen} table(s) and {total_rows} total row(s)>".format(keylen=len(list(self.keys())),
-                                                                                           total_rows=total_rows)
-
-        return info_str
-
-    def print_table_list(self):
-        header_str = "<TableList with {keylen} tables:".format(keylen=len(list(self.keys())))
-        body_str = "\n".join(["\t'{t_name}' with {ncol} column(s) and {nrow} row(s) ".
-                              format(t_name=t_name, nrow=len(self.__getitem__(t_name)),
-                                      ncol=len(self.__getitem__(t_name).colnames))
-                              for t_name in self.keys()])
-        end_str = ">"
-        print ("\n".join([header_str, body_str, end_str]))
