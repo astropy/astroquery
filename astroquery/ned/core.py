@@ -52,6 +52,8 @@ class Ned(BaseQuery):
              3 : Options('log(NuFnu)(Jy-Hz)', 'NuFnu_Jy'),
              4 : Options('log(NuFnu)(W/m2)', 'NuFnu_MKS')}
 
+    # need to set user's choice of cosmological corrections
+    # also need to set output format as per user's choice for each query
     cosmology_parameters = {
                             "wmap3": dict(hconst=73,
                                            omegam=0.27,
@@ -72,6 +74,26 @@ class Ned(BaseQuery):
 
     @class_or_instance
     def query_object(self, object_name, get_query_payload=False, verbose=False):
+        """
+        Queries objects by name from the NED Service and returns the Main Source Table.
+
+        Parameters
+        ----------
+        object_name : str
+            name of the identifier to query.
+        get_query_payload : bool, optional
+            if set to `True` then returns the dictionary sent as the HTTP request.
+            Defaults to `False`
+        verbose : bool, optional.
+            When set to `True` displays warnings if the returned VOTable does not
+            conform to the standard. Defaults to `False`.
+
+        Returns
+        -------
+        result : `astropy.table.Table`
+            The result of the query as an `astropy.table.Table` object.
+
+        """
         # for NED's object by name
         response = self.query_object_async(object_name, get_query_payload=get_query_payload)
         if get_query_payload:
@@ -81,6 +103,24 @@ class Ned(BaseQuery):
 
     @class_or_instance
     def query_object_async(self, object_name, get_query_payload=False):
+        """
+        Serves the same purpose as `Ned.query_object` but returns the raw HTTP response rather
+        than the `astropy.table.Table` object.
+
+        Parameters
+        ----------
+        object_name : str
+            name of the identifier to query.
+        get_query_payload : bool, optional
+            if set to `True` then returns the dictionary sent as the HTTP request.
+            Defaults to `False`
+
+        Returns
+        -------
+        response : `requests.Response`
+            The HTTP response returned from the service
+
+        """
         request_payload = self._args_to_payload(object_name, caller='query_object_async')
         if get_query_payload:
             return request_payload
@@ -90,6 +130,34 @@ class Ned(BaseQuery):
     @class_or_instance
     def query_region(self, coordinates, radius= 1 * u.arcmin, equinox='J2000.0', get_query_payload=False,
                      verbose=False):
+        """
+        Used to query a region around a known identifier or given coordinates. Equivalent to
+        the near position and near name queries from the Ned web interface.
+
+        Parameters
+        ----------
+        coordinates : str or `astropy.coordinates` object
+            The target around which to search. It may be specified as a string
+            in which case it is resolved using online services or as the appropriate
+            `astropy.coordinates` object. ICRS coordinates may also be entered as strings
+            as specified in the `astropy.coordinates` module.
+        radius : str or `astropy.units.Quantity` object, optional
+            The string must be parsable by `astropy.coordinates.Angle`. The appropriate
+            `Quantity` object from `astropy.units` may also be used. Defaults to 1 arcmin.
+        equinox : str, optional
+            The equinox may be either J2000.0 or B1950.0. Defaults to J2000.0
+        get_query_payload : bool, optional
+            if set to `True` then returns the dictionary sent as the HTTP request.
+            Defaults to `False`.
+        verbose : bool, optional.
+            When set to `True` displays warnings if the returned VOTable does not
+            conform to the standard. Defaults to `False`.
+
+        Returns
+        -------
+        result : `astropy.table.Table`
+            The result of the query as an `astropy.table.Table` object.
+        """
         # for NED's object near name/ near region
         response = self.query_region_async(coordinates, radius=radius, equinox=equinox,
                                            get_query_payload=get_query_payload)
@@ -100,6 +168,32 @@ class Ned(BaseQuery):
 
     @class_or_instance
     def query_region_async(self, coordinates, radius= 1 * u.arcmin, equinox='J2000.0', get_query_payload=False):
+        """
+        Serves the same purpose as `Ned.query_region` but returns the raw HTTP response rather
+        than the `astropy.table.Table` object.
+
+        Parameters
+        ----------
+        coordinates : str or `astropy.coordinates` object
+            The target around which to search. It may be specified as a string
+            in which case it is resolved using online services or as the appropriate
+            `astropy.coordinates` object. ICRS coordinates may also be entered as strings
+            as specified in the `astropy.coordinates` module.
+        radius : str or `astropy.units.Quantity` object, optional
+            The string must be parsable by `astropy.coordinates.Angle`. The appropriate
+            `Quantity` object from `astropy.units` may also be used. Defaults to 1 arcmin.
+        equinox : str, optional
+            The equinox may be either J2000.0 or B1950.0. Defaults to J2000.0
+        get_query_payload : bool, optional
+            if set to `True` then returns the dictionary sent as the HTTP request.
+            Defaults to `False`.
+
+        Returns
+        -------
+        response : `requests.Response`
+            The HTTP response returned from the service
+        """
+
         request_payload = self._args_to_payload(coordinates, radius=radius, equinox=equinox, caller='query_region_async')
         if get_query_payload:
             return request_payload
@@ -109,6 +203,33 @@ class Ned(BaseQuery):
     @class_or_instance
     def query_region_iau(self, iau_name, frame='Equatorial', equinox='B1950.0',
                          get_query_payload=False, verbose=False):
+        """
+        Used to query the Ned service via the IAU name. Equivalent to the IAU format
+        queries of the Web interface.
+
+        Parameters
+        ----------
+        iau_name : str
+            IAU coordinate-based name of target on which search is centered. Definition of IAU coordinates at
+            http://cdsweb.u-strasbg.fr/Dic/iau-spec.html.
+        frame : str, optional
+            May be one of 'Equatorial', 'Ecliptic', 'Galactic', 'SuperGalactic'.
+            Defaults to 'Equatorial'.
+        equinox : str, optional
+            The equinox may be one of J2000.0 or B1950.0. Defaults to B1950.0
+        get_query_payload : bool, optional
+            if set to `True` then returns the dictionary sent as the HTTP request.
+            Defaults to `False`
+        verbose : bool, optional.
+            When set to `True` displays warnings if the returned VOTable does not
+            conform to the standard. Defaults to `False`.
+
+        Returns
+        -------
+        result : `astropy.table.Table`
+            The result of the query as an `astropy.table.Table` object.
+
+        """
         response = self.query_region_iau_async(iau_name, frame='Equatorial',
                                                equinox='B1950.0', get_query_payload=get_query_payload)
         if get_query_payload:
@@ -119,6 +240,29 @@ class Ned(BaseQuery):
     @class_or_instance
     def query_region_iau_async(self, iau_name, frame='Equatorial', equinox='B1950.0',
                          get_query_payload=False):
+        """
+        Serves the same purpose as `Ned.query_region_iau` but returns the raw HTTP response rather
+        than the `astropy.table.Table` object.
+
+        Parameters
+        ----------
+        iau_name : str
+            IAU coordinate-based name of target on which search is centered. Definition of IAU coordinates at
+            http://cdsweb.u-strasbg.fr/Dic/iau-spec.html.
+        frame : str, optional
+            May be one of 'Equatorial', 'Ecliptic', 'Galactic', 'SuperGalactic'.
+            Defaults to 'Equatorial'.
+        equinox : str, optional
+            The equinox may be one of J2000.0 or B1950.0. Defaults to B1950.0
+        get_query_payload : bool, optional
+            if set to `True` then returns the dictionary sent as the HTTP request.
+            Defaults to `False`
+
+        Returns
+        -------
+        response : `requests.Response`
+            The HTTP response returned from the service.
+        """
         request_payload = self._args_to_payload(iau_name, frame=frame, equinox=equinox, caller='query_region_iau_async')
         if get_query_payload:
             return request_payload
@@ -127,6 +271,27 @@ class Ned(BaseQuery):
 
     @class_or_instance
     def query_refcode(self, refcode, get_query_payload=False, verbose=False):
+        """
+        Used to retrieve all objects contained in a particular reference. Equivalent
+        to by refcode queries of the web interface.
+
+        Parameters
+        ----------
+        refcode : str
+            19 digit reference code.  Example: 1997A&A...323...31K.
+        get_query_payload : bool, optional
+            if set to `True` then returns the dictionary sent as the HTTP request.
+            Defaults to `False`.
+        verbose : bool, optional.
+            When set to `True` displays warnings if the returned VOTable does not
+            conform to the standard. Defaults to `False`.
+
+        Returns
+        -------
+        result : `astropy.table.Table`
+            The result of the query as an `astropy.table.Table` object.
+
+        """
         response = self.query_refcode_async(refcode, get_query_payload=get_query_payload)
         if get_query_payload:
             return response
@@ -135,6 +300,23 @@ class Ned(BaseQuery):
 
     @class_or_instance
     def query_refcode_async(self, refcode, get_query_payload=False):
+        """
+        Serves the same purpose as `Ned.query_region` but returns the raw HTTP response rather
+        than the `astropy.table.Table` object.
+
+        Parameters
+        ----------
+        refcode : str
+            19 digit reference code.  Example: 1997A&A...323...31K.
+        get_query_payload : bool, optional
+            if set to `True` then returns the dictionary sent as the HTTP request.
+            Defaults to `False`.
+
+        Returns
+        -------
+        response : `requests.Response`
+            The HTTP response returned from the service.
+        """
         request_payload = self._args_to_payload(refcode, caller='query_refcode_async')
         if get_query_payload:
             return request_payload
@@ -143,6 +325,23 @@ class Ned(BaseQuery):
 
     @class_or_instance
     def get_images(self, object_name, get_query_payload=False):
+        """
+        Query function to fetch FITS images for a given identifier.
+
+        Parameters
+        ----------
+        object_name : str
+            name of the identifier to query.
+        get_query_payload : bool, optional
+            if set to `True` then returns the dictionary sent as the HTTP request.
+            Defaults to `False`
+
+        Returns
+        -------
+        result : `astropy.table.Table`
+            The result of the query as an `astropy.table.Table` object.
+
+        """
         readable_objs = self.get_images_async(object_name, get_query_payload=get_query_payload)
         if get_query_payload:
             return readable_objs
@@ -150,6 +349,23 @@ class Ned(BaseQuery):
 
     @class_or_instance
     def get_images_async(self, object_name, get_query_payload=False):
+        """
+        Serves the same purpose as `Ned.get_images` but returns the raw HTTP response rather
+        than the `astropy.table.Table` object.
+
+        Parameters
+        ----------
+        object_name : str
+            name of the identifier to query.
+        get_query_payload : bool, optional
+            if set to `True` then returns the dictionary sent as the HTTP request.
+            Defaults to `False`
+
+        Returns
+        -------
+        response : `requests.Response`
+            The HTTP response returned from the service.
+        """
         image_urls = self.get_image_list(object_name, get_query_payload=get_query_payload)
         if get_query_payload:
             return image_urls
@@ -157,6 +373,21 @@ class Ned(BaseQuery):
 
     @class_or_instance
     def get_image_list(self, object_name, get_query_payload=False):
+        """
+        Helper function that returns a list of urls from which to download the FITS images.
+
+        Parameters
+        ----------
+        object_name : str
+            name of the identifier to query.
+        get_query_payload : bool, optional
+            if set to `True` then returns the dictionary sent as the HTTP request.
+            Defaults to `False`
+
+        Returns
+        -------
+        list of image urls
+        """
         request_payload = self._args_to_payload(object_name, caller='get_image_list')
         if get_query_payload:
             return request_payload
@@ -165,6 +396,14 @@ class Ned(BaseQuery):
 
     @class_or_instance
     def extract_image_urls(self, html_in):
+        """
+        Helper function that uses reges to extract the image urls from the given HTML.
+
+        Parameters
+        ----------
+        html_in : str
+            source from which the urls are to be extracted
+        """
         base_url = 'http://ned.ipac.caltech.edu'
         pattern = re.compile('<a\s+href\s*?=\s*?(.+?fits.gz)\s*?>\s*?Retrieve', re.IGNORECASE)
         matched_urls = pattern.findall(html_in)
@@ -181,6 +420,36 @@ class Ned(BaseQuery):
                        autoscale=False,
                        get_query_payload=False,
                        verbose=False):
+        """
+        Retrieves the photometry data for the given identifier from NED.
+
+        Parameters
+        ----------
+        object_name : str
+            name of the identifier to query.
+        output_table_format : int, optional
+            specifies teh format of the output table. Must be 1, 2 or 3.
+            Defaults to 1. These options stand for:
+            (1) Data as Published and Homogenized (mJy)
+            (2) Data as Published
+            (3) Homogenized Units (mJy)
+        error_bars : bool, optional.
+            When `True` displays error-bars
+        #maybe these SED plot options aren't actually required for this
+        #should remove them?
+        #error_bars, sed_x, sed_y and autoscale...
+        get_query_payload : bool, optional
+            if set to `True` then returns the dictionary sent as the HTTP request.
+            Defaults to `False`
+        verbose : bool, optional.
+            When set to `True` displays warnings if the returned VOTable does not
+            conform to the standard. Defaults to `False`.
+
+        Returns
+        -------
+        result : `astropy.table.Table`
+            The result of the query as an `astropy.table.Table` object.
+        """
         response = self.get_photometry_async(object_name,
                        output_table_format=output_table_format,
                        error_bars=error_bars,
@@ -203,6 +472,30 @@ class Ned(BaseQuery):
                        sed_y=1,
                        autoscale=False,
                        get_query_payload=False):
+        """
+        Serves the same purpose as `Ned.get_photometry` but returns the raw HTTP response rather
+        than the `astropy.table.Table` object.
+
+        Parameters
+        ----------
+        object_name : str
+            name of the identifier to query.
+        output_table_format : int, optional
+            specifies teh format of the output table. Must be 1, 2 or 3.
+            Defaults to 1. These options stand for:
+            (1) Data as Published and Homogenized (mJy)
+            (2) Data as Published
+            (3) Homogenized Units (mJy)
+        get_query_payload : bool, optional
+            if set to `True` then returns the dictionary sent as the HTTP request.
+            Defaults to `False`
+
+        Returns
+        -------
+        response : `requests.Response`
+            The HTTP response returned from the service.
+
+        """
         request_payload = self._args_to_payload(object_name,
                        output_table_format=output_table_format,
                        error_bars=error_bars,
@@ -218,6 +511,25 @@ class Ned(BaseQuery):
 
     @class_or_instance
     def get_redshifts(self, object_name, get_query_payload=False, verbose=False):
+        """
+        Query the redshifts for the given identifier
+
+        Parameters
+        ----------
+        object_name : str
+            name of the identifier to query.
+        get_query_payload : bool, optional
+            if set to `True` then returns the dictionary sent as the HTTP request.
+            Defaults to `False`
+        verbose : bool, optional.
+            When set to `True` displays warnings if the returned VOTable does not
+            conform to the standard. Defaults to `False`.
+
+        Returns
+        -------
+        result : `astropy.table.Table`
+            The result of the query as an `astropy.table.Table` object.
+        """
         response = self.get_redshifts_async(object_name, get_query_payload=get_query_payload)
         if get_query_payload:
             return response
@@ -226,6 +538,23 @@ class Ned(BaseQuery):
 
     @class_or_instance
     def get_redshifts_async(self, object_name, get_query_payload=False):
+        """
+        Serves the same purpose as `Ned.get_redshifts` but returns the raw HTTP response rather
+        than the `astropy.table.Table` object.
+
+        Parameters
+        ----------
+        object_name : str
+            name of the identifier to query.
+        get_query_payload : bool, optional
+            if set to `True` then returns the dictionary sent as the HTTP request.
+            Defaults to `False`.
+
+        Returns
+        -------
+        response : `requests.Response`
+            The HTTP response returned from the service.
+        """
         request_payload = self._args_to_payload(object_name, caller='get_redshifts_async')
         if get_query_payload:
             return request_payload
@@ -234,6 +563,25 @@ class Ned(BaseQuery):
 
     @class_or_instance
     def get_positions(self, object_name, get_query_payload=False, verbose=False):
+        """
+        Query the positions for the given identifier.
+
+        Parameters
+        ----------
+        object_name : str
+            name of the identifier to query.
+        get_query_payload : bool, optional
+            if set to `True` then returns the dictionary sent as the HTTP request.
+            Defaults to `False`
+        verbose : bool, optional.
+            When set to `True` displays warnings if the returned VOTable does not
+            conform to the standard. Defaults to `False`.
+
+        Returns
+        -------
+        result : `astropy.table.Table`
+            The result of the query as an `astropy.table.Table` object.
+        """
         response = self.get_positions_async(object_name, get_query_payload=get_query_payload)
         if get_query_payload:
             return response
@@ -242,6 +590,23 @@ class Ned(BaseQuery):
 
     @class_or_instance
     def get_positions_async(self, object_name, get_query_payload=False):
+        """
+        Serves the same purpose as `Ned.get_positions` but returns the raw HTTP response rather
+        than the `astropy.table.Table` object.
+
+        Parameters
+        ----------
+        object_name : str
+            name of the identifier to query.
+        get_query_payload : bool, optional
+            if set to `True` then returns the dictionary sent as the HTTP request.
+            Defaults to `False`.
+
+        Returns
+        -------
+        response : `requests.Response`
+            The HTTP response returned from the service.
+        """
         request_payload = self._args_to_payload(object_name, caller='get_positions_async')
         if get_query_payload:
             return request_payload
@@ -250,6 +615,25 @@ class Ned(BaseQuery):
 
     @class_or_instance
     def get_diameters(self, object_name, get_query_payload=False, verbose=False):
+        """
+        Query the diameters for the given identifier.
+
+        Parameters
+        ----------
+        object_name : str
+            name of the identifier to query.
+        get_query_payload : bool, optional
+            if set to `True` then returns the dictionary sent as the HTTP request.
+            Defaults to `False`
+        verbose : bool, optional.
+            When set to `True` displays warnings if the returned VOTable does not
+            conform to the standard. Defaults to `False`.
+
+        Returns
+        -------
+        result : `astropy.table.Table`
+            The result of the query as an `astropy.table.Table` object.
+        """
         response = self.get_diameters_async(object_name, get_query_payload=get_query_payload)
         if get_query_payload:
             return response
@@ -258,6 +642,23 @@ class Ned(BaseQuery):
 
     @class_or_instance
     def get_diameters_async(self, object_name, get_query_payload=False):
+        """
+        Serves the same purpose as `Ned.get_diameters` but returns the raw HTTP response rather
+        than the `astropy.table.Table` object.
+
+        Parameters
+        ----------
+        object_name : str
+            name of the identifier to query.
+        get_query_payload : bool, optional
+            if set to `True` then returns the dictionary sent as the HTTP request.
+            Defaults to `False`.
+
+        Returns
+        -------
+        response : `requests.Response`
+            The HTTP response returned from the service.
+        """
         request_payload = self._args_to_payload(object_name, caller='get_diameters_async')
         if get_query_payload:
             return request_payload
@@ -267,6 +668,34 @@ class Ned(BaseQuery):
     @class_or_instance
     def get_references(self, object_name, topical_keywords=None, data_content_keywords=None, get_query_payload=False, verbose=False,
                        from_year=1800, to_year=datetime.now().year, extended_search=False):
+        """
+        Returns the references that contain the given object. Supports searching by topical keywords
+        from ARIBIB and data content keywords from NED.
+
+        Parameters
+        ----------
+        object_name : str
+            name of the identifier to query.
+        topical_keywords : list of `str`, optional
+            list of ARIBIB keywords on which to search.
+            Defaults to `None`.
+        data_content_keywords : list of `str`, optional
+            list of NED data content keywords on which to search.
+            Defaults to `None`.
+        get_query_payload : bool, optional
+            if set to `True` then returns the dictionary sent as the HTTP request.
+            Defaults to `False`.
+        verbose : bool, optional.
+            When set to `True` displays warnings if the returned VOTable does not
+            conform to the standard. Defaults to `False`.
+        from_year : int, optional
+            4 digit year from which to get the references. Defaults to 1800
+        to_year : int, optional
+            4 digit year upto which to fetch the references. Defaults to the current year.
+        extended_search : bool, optional
+            If set to `True`, returns all objects beginning with the same identifier name.
+            Defaults to `False`.
+        """
         response = self.get_references_async(object_name, topical_keywords=topical_keywords,
                                              data_content_keywords=data_content_keywords,
                                              from_year=from_year,
@@ -281,6 +710,37 @@ class Ned(BaseQuery):
     @class_or_instance
     def get_references_async(self, object_name, topical_keywords=None, data_content_keywords=None, get_query_payload=False,
                              from_year=1800, to_year=datetime.now().year, extended_search=False):
+        """
+        Serves the same purpose as `Ned.get_references` but returns the raw HTTP response rather
+        than the `astropy.table.Table` object.
+
+        Parameters
+        ----------
+        object_name : str
+            name of the identifier to query.
+        topical_keywords : list of `str`, optional
+            list of ARIBIB keywords on which to search.
+            Defaults to `None`.
+        data_content_keywords : list of `str`, optional
+            list of NED data content keywords on which to search.
+            Defaults to `None`.
+        get_query_payload : bool, optional
+            if set to `True` then returns the dictionary sent as the HTTP request.
+            Defaults to `False`.
+        from_year : int, optional
+            4 digit year from which to get the references. Defaults to 1800
+        to_year : int, optional
+            4 digit year upto which to fetch the references. Defaults to the current year.
+        extended_search : bool, optional
+            If set to `True`, returns all objects beginning with the same identifier name.
+            Defaults to `False`.
+
+        Returns
+        -------
+        response : `requests.Response`
+            The HTTP response returned from the service.
+
+        """
         request_payload = self._args_to_payload(object_name, topical_keywords=topical_keywords,
                                              data_content_keywords=data_content_keywords,
                                              from_year=from_year,
