@@ -20,9 +20,11 @@ from . import VIZIER_SERVER, VIZIER_TIMEOUT, ROW_LIMIT
 
 __all__ = ['Vizier']
 
+
 class Vizier(BaseQuery):
     TIMEOUT = VIZIER_TIMEOUT()
-    VIZIER_URL = "http://"+VIZIER_SERVER()+"/viz-bin/votable"
+    VIZIER_URL = "http://" + VIZIER_SERVER() + "/viz-bin/votable"
+
     def __init__(self, columns=None, column_filters=None, keywords=None):
         self._columns = None
         self._column_filters = None
@@ -57,13 +59,15 @@ class Vizier(BaseQuery):
         if isinstance(value, basestring):
             value = list(value)
         if not isinstance(value, list):
-            raise TypeError("Column(s) should be specified as a list or string")
+            raise TypeError(
+                "Column(s) should be specified as a list or string")
         self._columns = value
 
     @columns.deleter
     def columns(self):
         if self.column_filters is not None:
-            raise Exception("One or more column_filter(s) exist. Aborting delete.")
+            raise Exception(
+                "One or more column_filter(s) exist. Aborting delete.")
         self._columns = None
 
     @property
@@ -74,13 +78,17 @@ class Vizier(BaseQuery):
     @column_filters.setter
     def column_filters(self, value_dict):
         # give warning if filtered column not in self.columns
-        # Vizer will return these columns in the output even if are not set in self.columns
+        # Vizer will return these columns in the output even if are not set in
+        # self.columns
         if self.columns is None:
-            raise Exception("Columns must be set before specifiying column_filters.")
+            raise Exception(
+                "Columns must be set before specifiying column_filters.")
         elif 'all' not in self.columns:
             for val in set(value_dict.keys()) - set(self.columns):
-                warnings.warn("{val}: to be filtered but not set as an output column".format(val=val))
-                raise Exception("Column-Filters not a subset of the output columns")
+                warnings.warn(
+                    "{val}: to be filtered but not set as an output column".format(val=val))
+                raise Exception(
+                    "Column-Filters not a subset of the output columns")
         self._column_filters = value_dict
 
     @column_filters.deleter
@@ -130,12 +138,19 @@ class Vizier(BaseQuery):
             The response of the HTTP request.
 
         """
-        data_payload = self._args_to_payload(object_name, catalog=catalog, caller='query_object_async')
-        response = commons.send_request(Vizier.VIZIER_URL, data_payload, Vizier.TIMEOUT)
+        data_payload = self._args_to_payload(
+            object_name,
+            catalog=catalog,
+            caller='query_object_async')
+        response = commons.send_request(
+            Vizier.VIZIER_URL,
+            data_payload,
+            Vizier.TIMEOUT)
         return response
 
     @class_or_instance
-    def query_region(self, coordinates, radius=None, width=None, height=None, catalog=None, verbose=False):
+    def query_region(self, coordinates, radius=None,
+                     width=None, height=None, catalog=None, verbose=False):
         """
         Returns the results from a Vizier service on querying a region around
         a known identifier or coordinates. Region around the target may be specified
@@ -166,13 +181,15 @@ class Vizier(BaseQuery):
         result : `astropy.table.Table`
             The results in an `astropy.table.Table`.
         """
-        response = self.query_region_async(coordinates, radius=radius, height=height,
-                                           width=width, catalog=catalog)
+        response = self.query_region_async(
+            coordinates, radius=radius, height=height,
+            width=width, catalog=catalog)
         result = self._parse_result(response, verbose=verbose)
         return result
 
     @class_or_instance
-    def query_region_async(self, coordinates, radius=None, height=None, width=None, catalog=None):
+    def query_region_async(
+            self, coordinates, radius=None, height=None, width=None, catalog=None):
         """
         Serves the same purpose as `astroquery.vizier.Vizier.query_region` but only
         returns the HTTP response rather than the parsed result.
@@ -203,9 +220,13 @@ class Vizier(BaseQuery):
             The response of the HTTP request.
 
         """
-        data_payload = self._args_to_payload(coordinates, radius=radius, height=height,
-                                            width=width, catalog=catalog, caller='query_region_async')
-        response = commons.send_request(Vizier.VIZIER_URL, data_payload, Vizier.TIMEOUT)
+        data_payload = self._args_to_payload(
+            coordinates, radius=radius, height=height,
+            width=width, catalog=catalog, caller='query_region_async')
+        response = commons.send_request(
+            Vizier.VIZIER_URL,
+            data_payload,
+            Vizier.TIMEOUT)
         return response
 
     @class_or_instance
@@ -232,9 +253,9 @@ class Vizier(BaseQuery):
             ra = str(c.icrs.ra.degrees)
             dec = str(c.icrs.dec.degrees)
             if dec[0] not in ['+', '-']:
-               dec = '+' + dec
+                dec = '+' + dec
             body["-c"] = "".join([ra, dec])
-            #decide whether box or radius
+            # decide whether box or radius
             if kwargs.get('radius') is not None:
                 radius = kwargs['radius']
                 unit, value = _parse_dimension(radius)
@@ -249,20 +270,23 @@ class Vizier(BaseQuery):
                 if height is not None:
                     h_unit, h_value = _parse_dimension(height)
                     if h_unit != w_unit:
-                        warnings.warn("Converting height to same unit as width")
+                        warnings.warn(
+                            "Converting height to same unit as width")
                         h_value = u.Quantity(h_value, u.Unit
                                              (_str_to_unit(h_unit))).to(u.Unit(_str_to_unit(w_unit)))
                     body[switch] = "x".join([str(w_value), str(h_value)])
                 else:
-                    body[switch] = "x".join([str(w_value)]*2)
+                    body[switch] = "x".join([str(w_value)] * 2)
             elif kwargs.get('height'):
-                warnings.warn("No width given - shape interpreted as square (height x height)")
+                warnings.warn(
+                    "No width given - shape interpreted as square (height x height)")
                 height = kwargs['height']
                 h_unit, h_value = _parse_dimension(height)
                 switch = "-c.b" + h_unit
                 body[switch] = h_value
             else:
-                raise Exception("At least one of radius, width/height must be specified")
+                raise Exception(
+                    "At least one of radius, width/height must be specified")
         # set output parameters
         if not isinstance(self.columns, property) and self.columns is not None:
             if "all" in self.columns:
@@ -280,7 +304,8 @@ class Vizier(BaseQuery):
             body["-out"] = "*"
         # set the maximum rows returned
         body["-out.max"] = ROW_LIMIT()
-        script = "\n".join(["{key}={val}".format(key=key, val=val) for key, val  in body.items()])
+        script = "\n".join(["{key}={val}".format(key=key, val=val)
+                           for key, val in body.items()])
         # add keywords
         if not isinstance(self.keywords, property) and self.keywords is not None:
             script += str(self.keywords)
@@ -315,13 +340,16 @@ class Vizier(BaseQuery):
             tf.write(response.content.encode('utf-8'))
             tf.file.flush()
             vo_tree = votable.parse(tf.name, pedantic=False)
-            table_list = [(t.name, t.to_table()) for t in vo_tree.iter_tables() if len(t.array) > 0 ]
+            table_list = [(t.name, t.to_table())
+                          for t in vo_tree.iter_tables() if len(t.array) > 0]
             return commons.TableList(table_list)
 
         except:
-            traceback.print_exc() #temporary for debugging
-            warnings.warn("Error in parsing result, returning raw result instead")
+            traceback.print_exc()  # temporary for debugging
+            warnings.warn(
+                "Error in parsing result, returning raw result instead")
             return response.content
+
 
 def _parse_dimension(dim):
     """
@@ -338,12 +366,12 @@ def _parse_dimension(dim):
         formatted for Vizier.
     """
     if isinstance(dim, u.Quantity) and dim.unit in u.deg.find_equivalent_units():
-                    if dim.unit == u.arcsec:
-                        unit, value = 's', dim.value
-                    elif dim.unit == u.arcmin:
-                        unit, value = 'm', dim.value
-                    else:
-                        unit, value = 'd', dim.to(u.deg).value
+        if dim.unit == u.arcsec:
+            unit, value = 's', dim.value
+        elif dim.unit == u.arcmin:
+            unit, value = 'm', dim.value
+        else:
+            unit, value = 'd', dim.to(u.deg).value
     # otherwise must be an Angle or be specified in hours...
     else:
         try:
@@ -353,6 +381,7 @@ def _parse_dimension(dim):
             raise u.UnitsException("Dimension not in proper units")
 
     return unit, value
+
 
 def _str_to_unit(string):
     """
@@ -369,16 +398,20 @@ def _str_to_unit(string):
     string equivalent of the corresponding `astropy` unit.
     """
     str_to_unit = {
-                    's' : 'arcsec',
-                    'm' : 'arcmin',
-                    'd' : 'degree'
-                   }
+        's': 'arcsec',
+        'm': 'arcmin',
+        'd': 'degree'
+    }
     return str_to_unit[string]
 
+
 class VizierKeyword(list):
+
     """Helper class for setting keywords for Vizier queries"""
+
     def __init__(self, keywords):
-        file_name = aud.get_pkg_data_filename(os.path.join("data", "inverse_dict.json"))
+        file_name = aud.get_pkg_data_filename(
+            os.path.join("data", "inverse_dict.json"))
         with open(file_name, 'r') as f:
             self.keyword_dict = json.load(f)
         self._keywords = None
@@ -398,7 +431,8 @@ class VizierKeyword(list):
         # warn about unknown keywords
         for val in set(values) - set(keys):
             warnings.warn("{val} : No such keyword".format(val=val))
-        valid_keys = [key for key in self.keyword_dict if key.lower() in values]
+        valid_keys = [
+            key for key in self.keyword_dict if key.lower() in values]
         # create a dict for each type of keyword
         set_keywords = defaultdict(list)
         for key in valid_keys:
