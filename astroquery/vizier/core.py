@@ -20,10 +20,6 @@ from . import VIZIER_SERVER, VIZIER_TIMEOUT, ROW_LIMIT
 
 __all__ = ['Vizier']
 
-# move to utils separate PR
-def suppress_vo_warnings():
-    warnings.filterwarnings("ignore", category=votable.exceptions.VOWarning)
-
 class Vizier(BaseQuery):
     TIMEOUT = VIZIER_TIMEOUT()
     VIZIER_URL = "http://"+VIZIER_SERVER()+"/viz-bin/votable"
@@ -313,7 +309,7 @@ class Vizier(BaseQuery):
             If there are errors in the parsing, then returns the raw results as a string.
         """
         if not verbose:
-            suppress_vo_warnings()
+            commons.suppress_vo_warnings()
         try:
             tf = tempfile.NamedTemporaryFile()
             tf.write(response.content.encode('utf-8'))

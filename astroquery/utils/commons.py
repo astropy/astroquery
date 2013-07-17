@@ -15,7 +15,8 @@ import astropy.io.votable as votable
 __all__ = ['send_request',
            'parse_coordinates',
            'parse_radius',
-           'TableList']
+           'TableList',
+           'suppress_vo_warnings']
 
 def send_request(url, data, timeout, request_type='POST'):
     """
