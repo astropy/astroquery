@@ -5,17 +5,34 @@ This is the documentation for the AstroQuery affiliated package of astropy.
 
 AstroQuery is a set of tools for querying astronomical web forms and databases.
 
-.. toctree::
-  :maxdepth: 2
+The :ref:`API <api.rst>` is intended to be kept as consistent as possible, such
+that any web service can be used with a minimal learning curve imposed on the
+user.
 
-  api.rst
+The following modules have been completed using a common API:
+
+**Complete**
+
+.. toctree::
+  :maxdepth: 1
+
+  simbad.rst
+  vizier.rst
+  irsa_dust.rst
+
+These others are functional, but do not follow a common & consistent API:
+
+
+**Incomplete**
+
+.. toctree::
+  :maxdepth: 1
+
   irsa.rst
   ukidss.rst
   magpis.rst
   nrao.rst
-  simbad.rst
   besancon.rst
-  vizier.rst
   ned.rst
   nist.rst
   fermi.rst
