@@ -1,18 +1,21 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
 """
-This submodule contains some common functions that are required
+This submodule contains some common functions and classes that are required
 by all query classes
 """
 import requests
 import warnings
 import astropy.units as u
 from astropy import coordinates as coord
+from astropy.utils import OrderedDict
 from ..exceptions import TimeoutError
+import astropy.io.votable as votable
 
 __all__ = ['send_request',
            'parse_coordinates',
-           'parse_radius']
+           'parse_radius',
+           'TableList']
 
 def send_request(url, data, timeout, request_type='POST'):
     """
@@ -117,3 +120,40 @@ def parse_coordinates(coordinates):
     else:
         raise TypeError("Argument cannot be parsed as a coordinate")
     return c
+
+
+class TableList(OrderedDict):
+    """
+    A class that inherits from `OrderedDict` but included some pretty printing methods
+    for an OrderedDict of `astropy.table.Table` objects.
+    """
+
+    def __repr__(self):
+        """
+        Overrides the `OrderedDict.__repr__` method to return a simple summary
+        of the `TableList` object.
+        """
+        total_rows = sum(len(self.__getitem__(t)) for t in self.keys())
+        info_str = "<TableList with {keylen} table(s) and {total_rows} total row(s)>".format(keylen=len(list(self.keys())),
+                                                                                           total_rows=total_rows)
+
+        return info_str
+
+    def print_table_list(self):
+        """
+        Prints the names of all `astropy.table.Table` objects, with their
+        respective number of row and columns, contained in the
+        `TableList` instance.
+        """
+        header_str = "<TableList with {keylen} tables:".format(keylen=len(list(self.keys())))
+        body_str = "\n".join(["\t'{t_name}' with {ncol} column(s) and {nrow} row(s) ".
+                              format(t_name=t_name, nrow=len(self.__getitem__(t_name)),
+                                      ncol=len(self.__getitem__(t_name).colnames))
+                              for t_name in self.keys()])
+        end_str = ">"
+        print ("\n".join([header_str, body_str, end_str]))
+
+
+def suppress_vo_warnings():
+    """ Suppresses all warnings of the class `astropy.io.votable.exceptions.VOWarning."""
+    warnings.filterwarnings("ignore", category=votable.exceptions.VOWarning)
