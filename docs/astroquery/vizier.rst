@@ -7,68 +7,262 @@ VizieR Queries (`astroquery.vizier`)
 Getting started
 ===============
 
-The following example illustrates a VizieR query of the Veron & Cetty catalogue
+This is a python interface for querying the VizieR web service. This supports
+querying an object as well as querying a region around the target. For region
+queries, the region dimensions may be specified either for a box or as a
+radius. Similar to the VizieR web interface, the queries may be further
+constrained by specifying a choice of catalogs, keywords as well as filters on
+individual columns before retrieving the results.
+
+**Query an object**
+
+For instance to query Sirius across all catalogs:
 
 .. code-block:: python
 
-    >>> from astroquery import vizier
-    >>> query = {}
-    >>> query["-source"] = "VII/258/vv10"
-    >>> query["-out"] = ["Name", "Sp", "Vmag"]
-    >>> query["Vmag"] = "5.0..11.0"
-    >>> table1 = vizier.vizquery(query)
-    WARNING: W27: None:29:2: W27: COOSYS deprecated in VOTable 1.2 [astropy.io.vo.exceptions]
-    >>> print(table1)
-    _RAJ2000 _DEJ2000      Name      Sp   Vmag
-    -------- -------- ------------- ---- -----
-     10.6846  41.2694          M 31   S2 10.57
-     60.2779 -16.1108 NPM1G-16.0168      10.16
-    103.7917  41.0028 NPM1G+41.0135   S?  9.37
-     27.2387   5.9067      NGC  676   S2  10.5
-     40.6696  -0.0131      NGC 1068  S1h 10.83
-    139.7596  26.2697      NGC 2824   S? 10.88
-    147.5921  72.2792      NGC 2985 S1.9 10.61
-    169.5687 -32.8142      NGC 3621   S2   9.4
-    173.1442  53.0678      NGC 3718  S3b 10.61
-    184.9608  29.6139     UGC  7377   S3 10.47
-    185.0287  29.2808      NGC 4278  S3b 10.87
-    186.4537  33.5467      NGC 4395 S1.8 10.27
-    189.9971 -11.6231      NGC 4594   S3  9.25
-    192.7196  41.1194      NGC 4736    S 10.85
-    208.3612  40.2831      NGC 5353   S? 10.91
+    >>> from astroquery.vizier import Vizier
+    >>> result = Vizier.query_object("sirius")
+    >>> print result
 
-The resulting "table1" can be reused as an input for another search, here in 2MASS
+    <TableList with 231 table(s) and 875 total row(s)>
+
+All the results are returned as a `TableList` object. This is a container for
+`astropy.table.Table`_ objects. It is basically an extension to
+`collections.OrderedDict` for storing an `astropy.table.Table`_ against its
+name. 
+
+To see all the tables that have been fetched by the query (continiung from the
+example above):
 
 .. code-block:: python
 
-    >>> query = {}
-    >>> query["-source"] = "II/246/out"
-    >>> query["-out"] = ["RAJ2000", "DEJ2000", "2MASS", "Kmag"]
-    >>> query["-c.rs"] = "2"
-    >>> query["-c"] = table1
-    >>> table2 = vizquery(query)
-    WARNING: W27: None:32:2: W27: COOSYS deprecated in VOTable 1.2 [astropy.io.vo.exceptions]
-    WARNING: W03: None:64:4: W03: Implictly generating an ID from a name '2MASS' -> '_2MASS' [astropy.io.vo.exceptions]
-    >>> print(table2)
-     _q  _RAJ2000   _DEJ2000   RAJ2000    DEJ2000        2MASS        Kmag 
-    --- ---------- ---------- ---------- ---------- ---------------- ------
-      1  10.684737  41.269035  10.684737  41.269035 00424433+4116085  8.475
-      2   60.27763 -16.110863   60.27763 -16.110863 04010663-1606391 12.176
-      3 103.791864  41.002831 103.791864  41.002831 06551004+4100101 11.625
-      5  40.669613  -0.013339  40.669613  -0.013339 02424070-0000480  7.271
-      6 139.759322  26.270023 139.759322  26.270023 09190223+2616120 11.115
-      7 147.592456  72.278999 147.592456  72.278999 09502218+7216443  9.792
-      8 169.568732 -32.814068 169.568732 -32.814068 11181649-3248506 12.604
-     11 185.028409  29.280706 185.028409  29.280706 12200681+2916505 10.049
-     12  186.45358  33.546852  186.45358  33.546852 12254885+3332486 14.138
-     13 189.997638 -11.622945 189.997638 -11.622945 12395943-1137226  8.573
-     15 208.361284  40.283085 208.361284  40.283085 13532670+4016591 10.047
+    >>> result.print_table_list()
 
-Note: In the result above, column "_q" of "table2" is a 1-based index referencing "table1".
+    <TableList with 231 tables:
+	'ReadMeObj' with 5 column(s) and 5 row(s) 
+	'I/34/greenw2a' with 16 column(s) and 1 row(s) 
+	'I/40/catalog' with 11 column(s) and 1 row(s) 
+	'I/80/n30' with 13 column(s) and 1 row(s) 
+	'I/82/catalog' with 11 column(s) and 1 row(s) 
+	'I/87B/catalog' with 10 column(s) and 1 row(s) 
+	'I/98A/catalog' with 14 column(s) and 1 row(s) 
+	'I/98A/remarks' with 6 column(s) and 1 row(s) 
+	'I/100A/w10' with 9 column(s) and 1 row(s) 
+	'I/100A/w25' with 9 column(s) and 1 row(s) 
+	'I/100A/w50' with 9 column(s) and 5 row(s) 
+        ...
+        ...
+        'J/BaltA/10/481/table1' with 10 column(s) and 1 row(s)
+    >
 
+To access an individual table from the `TableList` object
+
+.. code-block:: python
+
+    >>> interesting_table =  result['IX/10A/cor_ros']
+    >>> print interesting_table
+    
+             _1RXS       Rank        sourceID       RAJ2000  DEJ2000  Sep
+    ---------------- ---- --------------------- -------- -------- ---
+    J064509.3-164241    2 1RXH J064509.2-164242 101.2885 -16.7119   2
+    J064509.3-164241   14 1RXP J0645 8.4-164302 101.2854 -16.7174  24
+    J064509.3-164241   20 1RXH J064515.7-164402 101.3156 -16.7339 123
+
+To do some common processing to all the tables in the returned `TableList`
+object, do just what you would do for a python dictionary:
+
+.. code-block:: python
+
+    >>> for table_name in result:
+            table = result[table_name]
+            # table is now an `astropy.table.Table` object
+            # some code to apply on table
+
+**Query a region**
+
+To query a region either the coordinates or the object name around which to
+query should be specified along with the value for the radius (or height/width
+for a box) of the region. For instance to query a large region around the
+quasar 3C 273:
+
+.. code-block:: python
+
+    >>> from astroquery.vizier import Vizier
+    >>> import astropy.units as u
+    >>> result = Vizier.query_region("3C 273", radius=5 * u.deg, catalog='GSC')
+
+Note that the radius may also be specified as a string in the format
+expected by `astropy.coordinates.Angle`_. So the above query may also
+be written as:
+
+.. code-block:: python
+
+    >>> result = Vizier.query_region("3C 273", radius="5d0m0s", catalog='GSC')
+    
+    # Finally to see the output:
+
+    >>> print result
+
+     <TableList with 3 table(s) and 150 total row(s)>
+
+    >>> result.print_table_list()
+
+    <TableList with 3 tables:
+	'I/254/out' with 10 column(s) and 50 row(s) 
+	'I/271/out' with 11 column(s) and 50 row(s) 
+	'I/305/out' with 11 column(s) and 50 row(s) 
+    >
+
+As mentioned earlier, the region may also be mentioned by specifying the height
+and width of a box. If only one of the height or width is mentioned, then the
+region is treated to be a square having sides equal to the specified
+dimension. 
+
+.. code-block:: python
+
+    >>> from astroquery.vizier import Vizier
+    >>> import astropy.units as u
+    >>> import astropy.coordinates as coord
+    >>> result = Vizier.query_region(coord.ICRSCoordinates(ra=299.590, dec=35.201, unit=(u.deg, u.deg)),
+    ...                         width="5d0m0s", height="3d0m0s",
+    ...                         catalog=["NOMAD", "UCAC"])
+    >>> print result
+
+    <TableList with 3 table(s) and 150 total row(s)>
+
+    >>> result.print_table_list()
+
+    <TableList with 3 tables:
+	'I/297/out' with 19 column(s) and 50 row(s) 
+	'I/289/out' with 13 column(s) and 50 row(s) 
+	'I/322A/out' with 24 column(s) and 50 row(s) 
+    >
+
+
+One more thing to note in the above example is that the coordinates may be
+specified by using the appropriate coordinate object from
+`astropy.coordinates`_. Especially for ICRS coordinates, some limited support
+also exists for directly passing a properly formatted string as the
+coordinate. Finally the `catalog` keyword argument may be passed in either
+`Vizier.query_object` or `Vizier.query_region` methods. This may be a string
+(if only a single catalog) or a list of strings otherwise.
+
+**Specifying keywords, output columns and constraints on columns**
+
+To specify keywords on which to search as well as conditions on the output
+columns, an instance of the `Vizier` class specifying these must be first
+created. All further queries may then be performed on this instance rather than
+on the Vizier class. 
+
+.. code-block:: python
+
+    >>> v = Vizier(columns=['_RAJ2000', 'DEJ2000','B-V', 'Vmag', 'Plx'],
+    ...            column_filters={"Vmag":">10"}, keywords=["optical", "xry"])
+
+    WARNING: xry : No such keyword [astroquery.vizier.core]
+
+Note that whenever an unknown keyword is specified, a warning is emitted and
+that keyword is discarded from further consideration. The behavior for
+searching with these keywords is the same as defined for the web
+interface (`for details see here`_). Now we call the different query methods on
+this Vizier instance:
+
+.. code-block:: python
+   
+    >>> result = v.query_object("HD 226868", catalog=["NOMAD", "UCAC"])              
+    >>> print result
+
+    <TableList with 2 table(s) and 28 total row(s)>
+    
+    >>> result.print_table_list()
+    
+    <TableList with 2 tables:
+	'I/289/out' with 3 column(s) and 18 row(s) 
+	'I/322A/out' with 4 column(s) and 10 row(s) 
+    >
+
+    >>> print result['I/322A/out']
+        
+         _RAJ2000    DEJ2000    Vmag   _DEJ2000 
+    ---------- ----------- ------ ----------
+    299.572419  35.1942342 15.986  35.194234
+    299.580291  35.1768889 13.274  35.176889
+    299.582571  35.1852253 14.863  35.185225
+    299.594172  35.1799948 14.690  35.179995
+    299.601402  35.1981078 14.644  35.198108
+    299.617669  35.1869987 14.394  35.186999
+    299.561498  35.2016928 15.687  35.201693
+    299.570217  35.2256634 14.878  35.225663
+    299.601081  35.2333378 13.170  35.233338
+    299.617995  35.2058637 13.946  35.205864
+
+Note that the columns that appear in the `column_filters` are required to be a
+subset of the output columns as specified via the `columns` keyword argument -
+if this is not the case, an exception will be raised.
+
+The constraints or keywords may be deleted at any time. So again continuing
+from the above example:
+
+.. code-block:: python
+
+    >>> del v.column_filters
+    >>> result = v.query_object("HD 226868", catalog=["NOMAD", "UCAC"])
+    >>> result.print_table_list()
+
+    <TableList with 3 tables:
+	'I/297/out' with 4 column(s) and 50 row(s) 
+	'I/289/out' with 3 column(s) and 18 row(s) 
+	'I/322A/out' with 4 column(s) and 28 row(s) 
+    >
+
+As can be seen considerably more rows are returned. Just to check:
+
+.. code-block:: python
+    
+    >>> print result['I/322A/out']
+
+         _RAJ2000    DEJ2000    Vmag   _DEJ2000 
+    ---------- ----------- ------ ----------
+    299.560073  35.1847709    nan  35.184771
+    299.572419  35.1942342 15.986  35.194234
+    299.579956  35.1965673    nan  35.196567
+    299.580291  35.1768889 13.274  35.176889
+    299.582553  35.1801528    nan  35.180153
+    299.582571  35.1852253 14.863  35.185225
+    299.594172  35.1799948 14.690  35.179995
+    299.601402  35.1981078 14.644  35.198108
+    299.606413  35.1871734    nan  35.187173
+    299.606698  35.1920009    nan  35.192001
+    299.608171  35.1994889    nan  35.199489
+    299.612142  35.1839075    nan  35.183908
+    299.617669  35.1869987 14.394  35.186999
+    299.561498  35.2016928 15.687  35.201693
+    299.570217  35.2256634 14.878  35.225663
+    299.587434  35.2032023    nan  35.203202
+    299.589158  35.2301031    nan  35.230103
+    299.590162  35.2168664  9.992  35.216866
+    299.590315  35.2016062  8.996  35.201606
+    299.590446  35.2153614    nan  35.215361
+    299.592838  35.2291506    nan  35.229151
+    299.597615  35.2271000    nan  35.227100
+    299.597652  35.2342487    nan  35.234249
+    299.601081  35.2333378 13.170  35.233338
+    299.615751  35.2229892    nan  35.222989
+    299.617995  35.2058637 13.946  35.205864
+    299.620861  35.2124506    nan  35.212451
+    299.623687  35.2105187    nan  35.210519
+
+It is evident that the *Vmag* constraint no longer applies.
+                 
 
 Reference/API
 =============
 
 .. automodapi:: astroquery.vizier
     :no-inheritance-diagram:
+
+.. _astropy.table.Table: http://docs.astropy.org/en/latest/table/index.html
+.. _astropy.coordinates.Angle: http://docs.astropy.org/en/latest/_generated/astropy.coordinates.angles.Angle.html#astropy.coordinates.angles.Angle 
+.. _astropy.units: http://docs.astropy.org/en/latest/units/index.html 
+.. _astropy.coordinates: http://docs.astropy.org/en/latest/coordinates/index.html  
+.. _for details see here: http://vizier.u-strasbg.fr/vizier/vizHelp/1.htx
