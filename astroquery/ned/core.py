@@ -21,6 +21,12 @@ import astropy.units as u
 import astropy.coordinates as coord
 from astropy.io import fits
 from datetime import datetime
+from . import (HUBBLE_CONSTANT,
+               CORRECT_REDSHIFT,
+               OUTPUT_COORDINATE_FRAME,
+               OUTPUT_EQUINOX,
+               SORT_OUTPUT_BY)
+
 #__all__ = ["Ned"]
 
 #temporary fix till new pr merged
@@ -51,26 +57,6 @@ class Ned(BaseQuery):
              2 : Options('log(Fnu)(W/m2/Hz)', 'Fnu_MKS'),
              3 : Options('log(NuFnu)(Jy-Hz)', 'NuFnu_Jy'),
              4 : Options('log(NuFnu)(W/m2)', 'NuFnu_MKS')}
-
-    # need to set user's choice of cosmological corrections
-    # also need to set output format as per user's choice for each query
-    cosmology_parameters = {
-                            "wmap3": dict(hconst=73,
-                                           omegam=0.27,
-                                           omegav=0.73
-                                           ),
-                             "wmap5": dict(hconst=70.5,
-                                            omegam=0.27,
-                                            omegav=0.73
-                                            )
-                              }
-    correct_redshift_ref_frame = {
-                                   "3k cmb" : 1,
-                                   "virgo infall": 2,
-                                   "virgo + ga": 3,
-                                   "virgo + ga + shapley": 4
-                                  }
-
 
     @class_or_instance
     def query_object(self, object_name, get_query_payload=False, verbose=False):
@@ -763,11 +749,24 @@ class Ned(BaseQuery):
         request_payload = {}
         # common settings for all queries as per NED guidelines
         # for more see <http://ned.ipac.caltech.edu/help/guidelines_auto.html>
-        #also to be added here: i/p cosmological parameters
-        #output format, sort, etc
         request_payload['img_stamp'] = 'NO'
         request_payload['extend'] = 'no'
         request_payload['list_limit'] = 0
+        # set input and output options for some queries
+        if caller in ['query_object_async',
+                      'query_region_async',
+                      'query_region_iau_async',
+                      'query_refcode_async',
+                      'query_allsky_async']:
+            # input settings
+            request_payload['hconst'] = HUBBLE_CONSTANT()
+            request_payload['omegam'] = 0.27
+            request_payload['omegav'] = 0.73
+            request_payload['corr_z'] = CORRECT_REDSHIFT()
+            # output settings
+            request_payload['out_csys'] = OUTPUT_COORDINATE_FRAME()
+            request_payload['out_equinox'] = OUTPUT_EQUINOX()
+            request_payload['obj_sort'] = SORT_OUTPUT_BY()
         # all queries other than image queries should return votable
         if caller != 'get_image_list':
              request_payload['of'] = 'xml_main'
