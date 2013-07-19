@@ -16,7 +16,6 @@ from collections import namedtuple
 from ..query import BaseQuery
 from ..utils.class_or_instance import class_or_instance
 from ..utils import commons
-import requests # to be removed once pr merged
 import astropy.units as u
 import astropy.coordinates as coord
 from astropy.io import fits
@@ -318,8 +317,7 @@ class Ned(BaseQuery):
 
         Returns
         -------
-        result : `astropy.table.Table`
-            The result of the query as an `astropy.table.Table` object.
+        A list of `astropy.fits.HDUList` objects
 
         """
         readable_objs = self.get_images_async(object_name, get_query_payload=get_query_payload)
@@ -342,9 +340,8 @@ class Ned(BaseQuery):
             Defaults to `False`
 
         Returns
-        -------
-        response : `requests.Response`
-            The HTTP response returned from the service.
+        --------
+        A list of context-managers that yield readable file-like objects
         """
         image_urls = self.get_image_list(object_name, get_query_payload=get_query_payload)
         if get_query_payload:
