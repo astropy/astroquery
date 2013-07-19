@@ -29,12 +29,6 @@ from . import (HUBBLE_CONSTANT,
 
 #__all__ = ["Ned"]
 
-#temporary fix till new pr merged
-def send_request(url, data, timeout):
-    response = requests.get(url, params=data, timeout=timeout)
-    return response
-
-
 class Ned(BaseQuery):
     #make configurable
     BASE_URL = 'http://nedwww.ipac.caltech.edu/cgi-bin/'
@@ -110,7 +104,7 @@ class Ned(BaseQuery):
         request_payload = self._args_to_payload(object_name, caller='query_object_async')
         if get_query_payload:
             return request_payload
-        response = send_request(Ned.OBJ_SEARCH_URL, request_payload, Ned.TIMEOUT)
+        response = commons.send_request(Ned.OBJ_SEARCH_URL, request_payload, Ned.TIMEOUT, request_type='GET')
         return response
 
     @class_or_instance
@@ -183,7 +177,7 @@ class Ned(BaseQuery):
         request_payload = self._args_to_payload(coordinates, radius=radius, equinox=equinox, caller='query_region_async')
         if get_query_payload:
             return request_payload
-        response = send_request(Ned.OBJ_SEARCH_URL, request_payload, Ned.TIMEOUT)
+        response = commons.send_request(Ned.OBJ_SEARCH_URL, request_payload, Ned.TIMEOUT, request_type='GET')
         return response
 
     @class_or_instance
@@ -252,7 +246,7 @@ class Ned(BaseQuery):
         request_payload = self._args_to_payload(iau_name, frame=frame, equinox=equinox, caller='query_region_iau_async')
         if get_query_payload:
             return request_payload
-        response = send_request(Ned.OBJ_SEARCH_URL, request_payload, Ned.TIMEOUT)
+        response = commons.send_request(Ned.OBJ_SEARCH_URL, request_payload, Ned.TIMEOUT, request_type='GET')
         return response
 
     @class_or_instance
@@ -306,7 +300,7 @@ class Ned(BaseQuery):
         request_payload = self._args_to_payload(refcode, caller='query_refcode_async')
         if get_query_payload:
             return request_payload
-        response = send_request(Ned.OBJ_SEARCH_URL, request_payload, Ned.TIMEOUT)
+        response = commons.send_request(Ned.OBJ_SEARCH_URL, request_payload, Ned.TIMEOUT, request_type='GET')
         return response
 
     @class_or_instance
@@ -377,7 +371,7 @@ class Ned(BaseQuery):
         request_payload = self._args_to_payload(object_name, caller='get_image_list')
         if get_query_payload:
             return request_payload
-        response = send_request(Ned.IMG_DATA_URL, request_payload, Ned.TIMEOUT)
+        response = commons.send_request(Ned.IMG_DATA_URL, request_payload, Ned.TIMEOUT, request_type='GET')
         return self.extract_image_urls(response.content)
 
     @class_or_instance
@@ -492,7 +486,7 @@ class Ned(BaseQuery):
                        caller='get_photometry_async')
         if get_query_payload:
             return request_payload
-        response = send_request(Ned.DATA_SEARCH_URL, request_payload, Ned.TIMEOUT)
+        response = commons.send_request(Ned.DATA_SEARCH_URL, request_payload, Ned.TIMEOUT, request_type='GET')
         return response
 
     @class_or_instance
@@ -544,7 +538,7 @@ class Ned(BaseQuery):
         request_payload = self._args_to_payload(object_name, caller='get_redshifts_async')
         if get_query_payload:
             return request_payload
-        response = send_request(Ned.DATA_SEARCH_URL, request_payload, Ned.TIMEOUT)
+        response = commons.send_request(Ned.DATA_SEARCH_URL, request_payload, Ned.TIMEOUT, request_type='GET')
         return response
 
     @class_or_instance
@@ -596,7 +590,7 @@ class Ned(BaseQuery):
         request_payload = self._args_to_payload(object_name, caller='get_positions_async')
         if get_query_payload:
             return request_payload
-        response = send_request(Ned.DATA_SEARCH_URL, request_payload, Ned.TIMEOUT)
+        response = commons.send_request(Ned.DATA_SEARCH_URL, request_payload, Ned.TIMEOUT, request_type='GET')
         return response
 
     @class_or_instance
@@ -648,7 +642,7 @@ class Ned(BaseQuery):
         request_payload = self._args_to_payload(object_name, caller='get_diameters_async')
         if get_query_payload:
             return request_payload
-        response = send_request(Ned.DATA_SEARCH_URL, request_payload, Ned.TIMEOUT)
+        response = commons.send_request(Ned.DATA_SEARCH_URL, request_payload, Ned.TIMEOUT, request_type='GET')
         return response
 
     @class_or_instance
@@ -739,7 +733,7 @@ class Ned(BaseQuery):
             url = Ned.REF_KWD_URL
         else:
             url = Ned.DATA_SEARCH_URL
-        response = send_request(url, request_payload, Ned.TIMEOUT)
+        response = commons.send_request(url, request_payload, Ned.TIMEOUT, request_type='GET')
         return response
 
     @class_or_instance
