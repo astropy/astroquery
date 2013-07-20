@@ -25,7 +25,8 @@ from . import (HUBBLE_CONSTANT,
                OUTPUT_COORDINATE_FRAME,
                OUTPUT_EQUINOX,
                SORT_OUTPUT_BY)
-
+# TODO remove this after debugging
+import traceback
 #__all__ = ["Ned"]
 
 class Ned(BaseQuery):
@@ -323,7 +324,7 @@ class Ned(BaseQuery):
         readable_objs = self.get_images_async(object_name, get_query_payload=get_query_payload)
         if get_query_payload:
             return readable_objs
-        return [fits.open(obj.__enter__()) for obj in readable_objs]
+        return [fits.open(obj.__enter__(), ignore_missing_end=True) for obj in readable_objs]
 
     @class_or_instance
     def get_images_async(self, object_name, get_query_payload=False):
@@ -767,7 +768,7 @@ class Ned(BaseQuery):
             # if its a name then query near name
             coordinates = args[0]
             try:
-                coord.ICRSCoordinates.from_name(coordinates)
+                coord.name_resolve.get_icrs_coordinates(coordinates)
                 request_payload['objname'] = coordinates
                 request_payload['search_type'] = 'Near Name Search'
             # otherwise treat it as a coordinate
@@ -787,6 +788,7 @@ class Ned(BaseQuery):
                     request_payload['in_equinox'] = kwargs['equinox']
                     request_payload['radius'] = _parse_radius(kwargs['radius'])
                 except (u.UnitsException, TypeError):
+                    traceback.print_exc()
                     raise TypeError("Coordinates not specified correctly")
         elif caller == 'query_region_iau_async':
             request_payload['search_type'] = 'IAU Search'
@@ -837,20 +839,25 @@ class Ned(BaseQuery):
                 for kwd in valid_keywords:
                     request_payload[kwd] = 'ON'
                 request_payload['filters'] = 'yes'
-
-        # add conditions separately for each caller
-        # ...
-        # ...
         return request_payload
 
     @class_or_instance
     def _parse_result(self, response, verbose=False):
-        # TODO put this within a try block
-        tf = tempfile.NamedTemporaryFile()
-        tf.write(response.content.encode('utf-8'))
-        tf.flush()
-        table = Table.read(tf.name, format='votable')
-        return table
+        try:
+            tf = tempfile.NamedTemporaryFile()
+            tf.write(response.content.encode('utf-8'))
+            tf.flush()
+            table = Table.read(tf.name, format='votable')
+            return table
+        except Exception:
+            (is_valid, err_msg) = _check_ned_valid(response.content)
+            if not is_valid:
+                if err_msg:
+                    print("The remote service returned the following error message.\n{err_msg}".format(err_msg=err_msg))
+                else:
+                    warnings.warn("Error in parsing Ned result. "
+                         "Returning raw result instead.")
+                    return response.content
 
 def _validate_keywords(kwds, kwd_dict_keys):
     values = [kwd.lower() for kwd in kwds]
@@ -872,13 +879,13 @@ def _parse_radius(radius):
         except (u.UnitsException, coord.errors.UnitsError, AttributeError):
             raise u.UnitsException("Dimension not in proper units")
     return radius_in_min
-#--------------
 
-def check_ned_valid(str):
+
+def _check_ned_valid(str):
 
     # Routine assumes input is valid Table unless error parameter is found.
     retval = True
-
+    errmsg = None
     strdom = parseString(str)
     p = strdom.getElementsByTagName('PARAM')
 
@@ -888,10 +895,13 @@ def check_ned_valid(str):
             errstr = n.value
 
             if errstr == 'Error':
+                if 'value' in p[1].attributes.keys():
+                    m = p[1].attributes['value']
+                    errmsg = m.value
                 retval = False
 
-    return retval
-
+    return (retval, errmsg)
+#--------------
 def query_ned_by_objname(objname='M31',
                          root_url='http://nedwww.ipac.caltech.edu/cgi-bin/nph-objsearch',
                          TID=0):
