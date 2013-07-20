@@ -81,7 +81,9 @@ def parse_radius(radius):
         return coord.Angle(radius)
     # else must be a quantity
     else:
-        return coord.Angle(radius.value, unit=radius.unit)
+        # workaround: if radius specified in arcsec, will fail
+        radius = radius.to(u.degree)
+        return coord.Angle(radius.value, unit=u.degree)
 
 def parse_coordinates(coordinates):
     """
