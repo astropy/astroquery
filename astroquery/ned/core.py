@@ -44,14 +44,6 @@ class Ned(BaseQuery):
                       2 : Options('Data as Published', 'pub'),
                       3 : Options('Homogenized Units (mJy)', 'mjy')}
 
-    SED_X = {1 : Options('X=log(Freq.)(Hz)', 'freq'),
-             2 : Options('X=log(Wave.)(microns)', 'wave')}
-
-    SED_Y = {1 : Options('log(Fnu)(Jy)', 'Fnu_jy'),
-             2 : Options('log(Fnu)(W/m2/Hz)', 'Fnu_MKS'),
-             3 : Options('log(NuFnu)(Jy-Hz)', 'NuFnu_Jy'),
-             4 : Options('log(NuFnu)(W/m2)', 'NuFnu_MKS')}
-
     @class_or_instance
     def query_object(self, object_name, get_query_payload=False, verbose=False):
         """
@@ -329,8 +321,8 @@ class Ned(BaseQuery):
     @class_or_instance
     def get_images_async(self, object_name, get_query_payload=False):
         """
-        Serves the same purpose as `Ned.get_images` but returns the raw HTTP response rather
-        than the `astropy.table.Table` object.
+        Serves the same purpose as `Ned.get_images` but returns file-handlers to
+        the remote files rather than downloading them.
 
         Parameters
         ----------
@@ -391,11 +383,6 @@ class Ned(BaseQuery):
     @class_or_instance
     def get_photometry(self, object_name,
                        output_table_format=1,
-                       error_bars=True,
-                       point_labels=False,
-                       sed_x=1,
-                       sed_y=1,
-                       autoscale=False,
                        get_query_payload=False,
                        verbose=False):
         """
@@ -430,11 +417,6 @@ class Ned(BaseQuery):
         """
         response = self.get_photometry_async(object_name,
                        output_table_format=output_table_format,
-                       error_bars=error_bars,
-                       point_labels=point_labels,
-                       sed_x=sed_x,
-                       sed_y=sed_y,
-                       autoscale=autoscale,
                        get_query_payload=get_query_payload)
         if get_query_payload:
             return response
@@ -444,11 +426,6 @@ class Ned(BaseQuery):
     @class_or_instance
     def get_photometry_async(self, object_name,
                        output_table_format=1,
-                       error_bars=True,
-                       point_labels=False,
-                       sed_x=1,
-                       sed_y=1,
-                       autoscale=False,
                        get_query_payload=False):
         """
         Serves the same purpose as `Ned.get_photometry` but returns the raw HTTP response rather
@@ -476,11 +453,6 @@ class Ned(BaseQuery):
         """
         request_payload = self._args_to_payload(object_name,
                        output_table_format=output_table_format,
-                       error_bars=error_bars,
-                       point_labels=point_labels,
-                       sed_x=sed_x,
-                       sed_y=sed_y,
-                       autoscale=autoscale,
                        caller='get_photometry_async')
         if get_query_payload:
             return request_payload
@@ -735,6 +707,60 @@ class Ned(BaseQuery):
         return response
 
     @class_or_instance
+    def get_object_notes(self, object_name, get_query_payload=False, verbose=False):
+        """
+        Returns object notes for the given identifier.
+
+        Parameters
+        ----------
+        object_name : str
+            name of the identifier to query.
+        get_query_payload : bool, optional
+            if set to `True` then returns the dictionary sent as the HTTP request.
+            Defaults to `False`.
+        verbose : bool, optional.
+            When set to `True` displays warnings if the returned VOTable does not
+            conform to the standard. Defaults to `False`.
+
+        Returns
+        -------
+        result : `astropy.table.Table`
+            The result of the query as an `astropy.table.Table` object.
+        """
+        response = self.get_object_notes_async(object_name,
+                                               get_query_payload=get_query_payload)
+        if get_query_payload:
+            return response
+        result = self._parse_result(response, verbose=verbose)
+        return result
+
+    @class_or_instance
+    def get_object_notes_async(self, object_name, get_query_payload=False):
+        """
+        Serves the same purpose as `Ned.get_object_notes` but returns the raw HTTP response rather
+        than the `astropy.table.Table` object.
+
+        Parameters
+        ----------
+        object_name : str
+            name of the identifier to query.
+        get_query_payload : bool, optional
+            if set to `True` then returns the dictionary sent as the HTTP request.
+            Defaults to `False`.
+
+        Returns
+        -------
+        response : `requests.Response`
+            The HTTP response returned from the service.
+        """
+        request_payload = self._args_to_payload(object_name,
+                                                caller='get_object_notes_async')
+        if get_query_payload:
+            return request_payload
+        response = commons.send_request(Ned.DATA_SEARCH_URL, request_payload, Ned.TIMEOUT, request_type='GET')
+        return response
+
+    @class_or_instance
     def _args_to_payload(self, *args, **kwargs):
         caller = kwargs['caller']
         del kwargs['caller']
@@ -839,10 +865,15 @@ class Ned(BaseQuery):
                 for kwd in valid_keywords:
                     request_payload[kwd] = 'ON'
                 request_payload['filters'] = 'yes'
+        elif caller == 'get_object_notes_async':
+            request_payload['objname'] = args[0]
+            request_payload['search_type'] = 'Notes'
         return request_payload
 
     @class_or_instance
     def _parse_result(self, response, verbose=False):
+        if not verbose:
+            commons.suppress_vo_warnings()
         try:
             tf = tempfile.NamedTemporaryFile()
             tf.write(response.content.encode('utf-8'))
@@ -853,7 +884,7 @@ class Ned(BaseQuery):
             (is_valid, err_msg) = _check_ned_valid(response.content)
             if not is_valid:
                 if err_msg:
-                    print("The remote service returned the following error message.\n{err_msg}".format(err_msg=err_msg))
+                    print("The remote service returned the following error message.\nERROR: {err_msg}".format(err_msg=err_msg))
                 else:
                     warnings.warn("Error in parsing Ned result. "
                          "Returning raw result instead.")

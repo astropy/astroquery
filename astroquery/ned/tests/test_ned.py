@@ -29,7 +29,8 @@ DATA_FILES = {
                'Reference': 'query_references.xml',
                'Search': 'query_refcode.xml',
                'error': 'error.xml',
-               'extract_urls': 'image_extract.html'
+               'extract_urls': 'image_extract.html',
+               'Notes': 'query_notes.xml'
               }
 
 def data_path(filename):
@@ -193,14 +194,10 @@ def test_query_region_async(monkeypatch, patch_get):
     response = ned.core.Ned.query_region_async("m1", get_query_payload=True)
     assert response['objname'] == "m1"
     assert response['search_type'] == "Near Name Search"
-    # check with ICRS coordinates
-    response = ned.core.Ned.query_region_async("05h35m17.3s +22d00m52.2s", get_query_payload=True)
-    assert response['lon'].startswith("5h35m17.3") == True
-    assert response['lat'].startswith("22d00m52.2") == True
-    assert response['search_type'] == 'Near Position Search'
     # check with Galactic coordinates
     response = ned.core.Ned.query_region_async(coord.GalacticCoordinates(l=-67.02084, b=-29.75447, unit=(u.deg, u.deg)),
                                                get_query_payload=True)
+    assert response['search_type'] == 'Near Position Search'
     npt.assert_approx_equal(response['lon'], -67.02084, significant=5)
     npt.assert_approx_equal(response['lat'], -29.75447, significant=5)
     response = ned.core.Ned.query_region_async("05h35m17.3s +22d00m52.2s")
@@ -219,3 +216,21 @@ def test_query_object_async(patch_get):
 def test_query_object(patch_get):
     result = ned.core.Ned.query_object('m1')
     assert isinstance(result, Table)
+
+def test_get_object_notes_async(patch_get):
+    response = ned.core.Ned.get_object_notes_async('m1', True)
+    assert response['objname'] == 'm1'
+    assert response['search_type'] == 'Notes'
+    response = ned.core.Ned.get_object_notes_async('m1')
+    assert response is not None
+
+def test_get_object_notes(patch_get):
+    result = ned.core.Ned.get_object_notes('3c 273')
+    assert isinstance(result, Table)
+
+def test_parse_result(capsys):
+    content = open(data_path(DATA_FILES['error']), 'r').read()
+    response = MockResponse(content)
+    ned.core.Ned._parse_result(response)
+    out, err = capsys.readouterr()
+    assert out == "The remote service returned the following error message.\nERROR:  No note found.\n"
