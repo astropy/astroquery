@@ -32,7 +32,7 @@ class Ned(BaseQuery):
     ALL_SKY_URL = BASE_URL + 'nph-allsky'
     DATA_SEARCH_URL = BASE_URL + 'nph-datasearch'
     IMG_DATA_URL = BASE_URL + 'imgdata'
-    REF_KWD_URL = BASE_URL + 'SearchRefsByObjectName'
+    SPECTRA_URL = BASE_URL + 'NEDspectra'
     TIMEOUT = 60
     Options = namedtuple('Options', ('display_name', 'cgi_name'))
 
@@ -375,7 +375,21 @@ class Ned(BaseQuery):
         return [aud.get_readable_fileobj(U) for U in image_urls]
 
     @class_or_instance
-    def get_image_list(self, object_name, get_query_payload=False):
+    def get_spectra(self, object_name, get_query_payload=False):
+        readable_objs = self.get_spectra_async(object_name, get_query_payload=get_query_payload)
+        if get_query_payload:
+            return readable_objs
+        return [fits.open(obj.__enter__(), ignore_missing_end=True) for obj in readable_objs]
+
+    @class_or_instance
+    def get_spectra_async(self, object_name, get_query_payload=False):
+        image_urls = self.get_image_list(object_name, item='spectra', get_query_payload=get_query_payload)
+        if get_query_payload:
+            return image_urls
+        return [aud.get_readable_fileobj(U) for U in image_urls]
+
+    @class_or_instance
+    def get_image_list(self, object_name, item='image', get_query_payload=False):
         """
         Helper function that returns a list of urls from which to download the FITS images.
 
@@ -392,9 +406,15 @@ class Ned(BaseQuery):
         list of image urls
         """
         request_payload = dict(objname=object_name)
+        if item == 'spectra':
+            request_payload['extend'] = 'multi'
+            request_payload['detail'] = 0
+            request_payload['numpp'] = 50
+            request_payload['preview'] = 0
         if get_query_payload:
             return request_payload
-        response = commons.send_request(Ned.IMG_DATA_URL, request_payload, Ned.TIMEOUT, request_type='GET')
+        url = Ned.SPECTRA_URL if item == 'spectra' else Ned.IMG_DATA_URL
+        response = commons.send_request(url, request_payload, Ned.TIMEOUT, request_type='GET')
         return self.extract_image_urls(response.content)
 
     @class_or_instance
@@ -408,7 +428,7 @@ class Ned(BaseQuery):
             source from which the urls are to be extracted
         """
         base_url = 'http://ned.ipac.caltech.edu'
-        pattern = re.compile('<a\s+href\s*?=\s*?(.+?fits.gz)\s*?>\s*?Retrieve', re.IGNORECASE)
+        pattern = re.compile('<a\s+href\s*?="?\s*?(.+?fits.gz)"?\s*?>\s*?(?:Retrieve|FITS)</a>', re.IGNORECASE)
         matched_urls = pattern.findall(html_in)
         url_list = [base_url + img_url for img_url in matched_urls]
         return url_list
