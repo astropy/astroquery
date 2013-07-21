@@ -137,7 +137,7 @@ def test_extract_image_urls():
         assert url.endswith('fits.gz')
 
 def test_get_image_list(patch_get):
-    response = ned.core.Ned.get_image_list('m1', True)
+    response = ned.core.Ned.get_image_list('m1', get_query_payload=True)
     assert response['objname'] == 'm1'
     response = ned.core.Ned.get_image_list('m1')
     assert len(response) == 5
