@@ -360,14 +360,13 @@ def _query_gator(options, debug=False):
     # Read it in using the astropy VO table reader
     try:
         firsttable = votable.parse(output.name, pedantic=False).get_first_table()
-        array = firsttable.array
     except Exception as ex:
         print("Failed to parse votable!  Returning output file instead.")
         print(ex)
         return open(output.name,'r')
 
     # Convert to astropy.table.Table instance
-    table = array.to_table()
+    table = firsttable.to_table()
 
     # Check if table is empty
     if len(table) == 0:
