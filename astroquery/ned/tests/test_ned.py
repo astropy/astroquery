@@ -78,9 +78,10 @@ def test_parse_radius(radius, expected):
     npt.assert_approx_equal(actual_radius, expected, significant=3)
 
 def test_get_references_async(patch_get):
-    response = ned.core.Ned.get_references_async("m1", from_year=2010,
-                                                   to_year=2013,
-                                                   get_query_payload=True)
+    response = ned.core.Ned.get_table_async("m1", table='references',
+                                            from_year=2010,
+                                            to_year=2013,
+                                            get_query_payload=True)
     assert response['objname'] == 'm1'
     assert response['ref_extend'] == 'no'
     assert response['begin_year'] == 2010
@@ -90,42 +91,42 @@ def test_get_references_async(patch_get):
 
 @pytest.mark.xfail(reason="astropy issue #1266")
 def test_get_references(patch_get):
-    response = ned.core.Ned.get_references_async("m1", from_year=2010)
+    response = ned.core.Ned.get_table_async("m1",table='references', from_year=2010)
     assert response is not None
-    result = ned.core.Ned.get_references("m1", to_year=2012, extended_search=True)
+    result = ned.core.Ned.get_table("m1", table='references', to_year=2012, extended_search=True)
     assert isinstance(result, Table)
 
 def test_get_positions_async(patch_get):
-    response = ned.core.Ned.get_positions_async("m1", get_query_payload=True)
+    response = ned.core.Ned.get_table_async("m1", table='positions',  get_query_payload=True)
     assert response['objname'] ==  'm1'
-    response =  ned.core.Ned.get_positions_async("m1")
+    response =  ned.core.Ned.get_table_async("m1", table='positions')
     assert response is not None
 
 def test_get_positions(patch_get):
-    result =  ned.core.Ned.get_positions("m1")
+    result =  ned.core.Ned.get_table("m1", table='positions')
     assert isinstance(result, Table)
 
 def test_get_redshifts_async(patch_get):
-    response = ned.core.Ned.get_redshifts_async("3c 273", get_query_payload=True)
+    response = ned.core.Ned.get_table_async("3c 273", table='redshifts', get_query_payload=True)
     assert response['objname'] == '3c 273'
     assert response['search_type'] == 'Redshifts'
-    response = ned.core.Ned.get_redshifts_async("3c 273")
+    response = ned.core.Ned.get_table_async("3c 273", table='redshifts')
     assert response is not None
 
 def test_get_redshifts(patch_get):
-    result = ned.core.Ned.get_redshifts("3c 273")
+    result = ned.core.Ned.get_table("3c 273", table='redshifts')
     assert isinstance(result, Table)
 
 def test_get_photometry_async(patch_get):
-    response = ned.core.Ned.get_photometry_async("3c 273", output_table_format=3, get_query_payload=True)
+    response = ned.core.Ned.get_table_async("3c 273", table='photometry', output_table_format=3, get_query_payload=True)
     assert response['objname'] == '3c 273'
     assert response['meas_type'] == 'mjy'
     assert response['search_type'] == 'Photometry'
-    response = ned.core.Ned.get_photometry_async("3C 273")
+    response = ned.core.Ned.get_table_async("3C 273", table='photometry')
     assert response is not None
 
 def test_photometry(patch_get):
-    result = ned.core.Ned.get_photometry("3c 273")
+    result = ned.core.Ned.get_table("3c 273", table='photometry')
     assert isinstance(result, Table)
 
 def test_extract_image_urls():
@@ -185,11 +186,12 @@ def test_query_region_iau(patch_get):
     result = ned.core.Ned.query_region_iau('1234-423')
     assert isinstance(result, Table)
 
-def test_query_region_async(monkeypatch, patch_get):
-    # check with the name
-    def mock_check_resolvable(name):
+def mock_check_resolvable(name):
         if name != 'm1':
             raise coord.name_resolve.NameResolveError
+
+def test_query_region_async(monkeypatch, patch_get):
+    # check with the name
     monkeypatch.setattr(coord.name_resolve, 'get_icrs_coordinates', mock_check_resolvable)
     response = ned.core.Ned.query_region_async("m1", get_query_payload=True)
     assert response['objname'] == "m1"
@@ -203,8 +205,9 @@ def test_query_region_async(monkeypatch, patch_get):
     response = ned.core.Ned.query_region_async("05h35m17.3s +22d00m52.2s")
     assert response is not None
 
-def test_query_region(patch_get):
-    result = ned.core.Ned.query_region("05h35m17.3s +22d00m52.2s")
+def test_query_region(monkeypatch, patch_get):
+    monkeypatch.setattr(coord.name_resolve, 'get_icrs_coordinates', mock_check_resolvable)
+    result = ned.core.Ned.query_region("m1")
     assert isinstance(result, Table)
 
 def test_query_object_async(patch_get):
@@ -218,14 +221,14 @@ def test_query_object(patch_get):
     assert isinstance(result, Table)
 
 def test_get_object_notes_async(patch_get):
-    response = ned.core.Ned.get_object_notes_async('m1', True)
+    response = ned.core.Ned.get_table_async('m1', table='object_notes', get_query_payload=True)
     assert response['objname'] == 'm1'
     assert response['search_type'] == 'Notes'
-    response = ned.core.Ned.get_object_notes_async('m1')
+    response = ned.core.Ned.get_table_async('m1', table='object_notes')
     assert response is not None
 
 def test_get_object_notes(patch_get):
-    result = ned.core.Ned.get_object_notes('3c 273')
+    result = ned.core.Ned.get_table('3c 273', table='object_notes')
     assert isinstance(result, Table)
 
 def test_parse_result(capsys):
