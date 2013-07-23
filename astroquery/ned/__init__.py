@@ -13,6 +13,11 @@ Originally written by K. Willett, Jun 2011
 """
 
 from astropy.config import ConfigurationItem
+NED_SERVER = ConfigurationItem('ned_server', ['http://ned.ipac.caltech.edu/cgi-bin/'],
+                               'Name of the NED mirror to use.')
+
+NED_TIMEOUT = ConfigurationItem('timeout', 60, 'time limit for connecting to NED server')
+
 
 # Set input parameters of choice
 HUBBLE_CONSTANT = ConfigurationItem('hubble_constant', [73, 70.5], 'value of the Hubble Constant for many NED queries.')

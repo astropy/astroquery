@@ -1,7 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 #from __future__ import print_function
 
-import urllib
 import tempfile
 from xml.dom.minidom import parseString
 import astropy.utils.data as aud
@@ -21,17 +20,19 @@ from . import (HUBBLE_CONSTANT,
                OUTPUT_COORDINATE_FRAME,
                OUTPUT_EQUINOX,
                SORT_OUTPUT_BY)
+from . import NED_SERVER, NED_TIMEOUT
+
 __all__ = ["Ned"]
 
 class Ned(BaseQuery):
     #make configurable
-    BASE_URL = 'http://ned.ipac.caltech.edu/cgi-bin/'
+    BASE_URL = NED_SERVER()
     OBJ_SEARCH_URL = BASE_URL + 'nph-objsearch'
     ALL_SKY_URL = BASE_URL + 'nph-allsky'
     DATA_SEARCH_URL = BASE_URL + 'nph-datasearch'
     IMG_DATA_URL = BASE_URL + 'imgdata'
     SPECTRA_URL = BASE_URL + 'NEDspectra'
-    TIMEOUT = 60
+    TIMEOUT = NED_TIMEOUT()
     Options = namedtuple('Options', ('display_name', 'cgi_name'))
 
     PHOTOMETRY_OUT = {1 : Options('Data as Published and Homogenized (mJy)', 'bot'),
