@@ -118,9 +118,9 @@ def test_get_redshifts(patch_get):
     assert isinstance(result, Table)
 
 def test_get_photometry_async(patch_get):
-    response = ned.core.Ned.get_table_async("3c 273", table='photometry', output_table_format=3, get_query_payload=True)
+    response = ned.core.Ned.get_table_async("3c 273", table='photometry', get_query_payload=True)
     assert response['objname'] == '3c 273'
-    assert response['meas_type'] == 'mjy'
+    assert response['meas_type'] == 'bot'
     assert response['search_type'] == 'Photometry'
     response = ned.core.Ned.get_table_async("3C 273", table='photometry')
     assert response is not None
