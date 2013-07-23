@@ -216,7 +216,7 @@ class IrsaDust(BaseQuery):
             http://irsa.ipac.caltech.edu/applications/DUST/docs/coordinate.html
         radius : str, optional
             The size of the region to include in the dust query, in radian, degree
-            or hour as per format specified by `astropy.coordinates.Angle. Defaults
+            or hour as per format specified by `astropy.coordinates.Angle`. Defaults
             to 5 degrees.
         timeout : int, optional
             Time limit for establishing successful connection with remote server.
@@ -262,7 +262,7 @@ class IrsaDust(BaseQuery):
             Defaults to `astroquery.irsa_dust.IrsaDust.TIMEOUT`
         url : str, optional
             Only provided for debugging. Should generally not be assigned.
-            Defaults to `astroquery.irsa_dust.IrsaDust.DUST_SERVICE_URL
+            Defaults to `astroquery.irsa_dust.IrsaDust.DUST_SERVICE_URL`
 
         Returns
         --------
