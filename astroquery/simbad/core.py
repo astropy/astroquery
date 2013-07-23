@@ -158,7 +158,7 @@ class Simbad(BaseQuery):
             fields_dict = json.load(f)
         for field in args:
             if field not in fields_dict:
-                warnings.warn("{field}: no such field".format(fieldfield))
+                warnings.warn("{field}: no such field".format(field=field))
             elif field in Simbad.VOTABLE_FIELDS:
                 warnings.warn("{field}: field already present".format(field=field))
             else:
@@ -190,7 +190,7 @@ class Simbad(BaseQuery):
         Simbad.VOTABLE_FIELDS = ['main_id', 'coordinates']
 
     @class_or_instance
-    def query_object(self, object_name, wildcard=False):
+    def query_object(self, object_name, wildcard=False, verbose=False):
         """
         Queries Simbad for the given object and returns the result as an
         `astropy.table.Table`. Object names may also be specified with wildcard.
@@ -208,20 +208,9 @@ class Simbad(BaseQuery):
         -------
         `astropy.table.Table`
             The results of the query as an `astropy.table.Table`.
-
-        Examples
-        --------
-
-        Query Simbad for a given object::
-
-          >>> table = Simbad.query_object("m81")
-
-        Query all objects m1 through m9 via a wildcard::
-
-          >>> table = Simbad.query_object("m [1-9]", wildcard=True)
         """
         result = self.query_object_async(object_name, wildcard=wildcard)
-        return self._parse_result(result)
+        return self._parse_result(result, verbose=verbose)
 
     @class_or_instance
     def query_object_async(self, object_name, wildcard=False):
@@ -250,7 +239,7 @@ class Simbad(BaseQuery):
 
     @class_or_instance
     def query_region(self, coordinates, radius=None,
-                     equinox=None, epoch=None):
+                     equinox=None, epoch=None, verbose=False):
         """
         Queries around an object or coordinates as per the specified radius and
         returns the results in an `astropy.table.Table`.
@@ -273,29 +262,12 @@ class Simbad(BaseQuery):
         -------
         `astropy.table.Table`
             The results of the query as an `astropy.table.Table`.
-
-        Examples
-        --------
-
-        Query around an identifier with a cone search radius of 5 degrees::
-
-            >>> table = Simbad.query_region("m81", radius=5 * u.deg)
-            >>> table = Simbad.query_region("m81", radius="5d0m0s") # a second way
-
-        Query around coordinates::
-
-            >>> # String arguments only work for ICRS Coordinates!
-            >>> table = Simbad.query_region("00h42m44.3s +41d16m9s", radius="5d0m0s")
-            >>> # For other coordinate systems use an astropy.coordinates object:
-            >>> import astropy.coordinates as coord
-            >>> table = Simbad.query_region(coord.GalacticCoordinates(-76.22237, 74.49108, unit=(u.degree, u.degree)))
-
         """
         # if the identifier is given rather than the coordinates, convert to
         # coordinates
         result = self.query_region_async(coordinates, radius=radius,
                                           equinox=equinox, epoch=epoch)
-        return self._parse_result(result)
+        return self._parse_result(result, verbose=verbose)
 
     @class_or_instance
     def query_region_async(self, coordinates, radius=None, equinox=None,
@@ -331,7 +303,7 @@ class Simbad(BaseQuery):
         return response
 
     @class_or_instance
-    def query_catalog(self, catalog):
+    def query_catalog(self, catalog, verbose=False):
         """
         Queries a whole catalog. Results may be very large -number of rows
         should be controlled by configuring `astroquery.simbad.ROW_LIMIT`.
@@ -345,15 +317,9 @@ class Simbad(BaseQuery):
         -------
         `astropy.table.Table`
             The results of the query as an `astropy.table.Table`.
-
-        Examples
-        --------
-        ::
-
-            >>> table = Simbad.query_catalog("m")
         """
         result = self.query_catalog_async(catalog)
-        return self._parse_result(result)
+        return self._parse_result(result, verbose=verbose)
 
     @class_or_instance
     def query_catalog_async(self, catalog):
@@ -379,7 +345,7 @@ class Simbad(BaseQuery):
         return response
 
     @class_or_instance
-    def query_bibobj(self, bibcode):
+    def query_bibobj(self, bibcode, verbose=False):
         """
         Query all the objects that are contained in the article specified by
         the bibcode, and return results as an `astropy.table.Table`.
@@ -394,15 +360,9 @@ class Simbad(BaseQuery):
         `astropy.table.Table`
             The results of the query as an `astropy.table.Table`.
 
-        Examples
-        --------
-        ::
-
-            >>> table = Simbad.query_bibobj("2005A&A.430.165F")
-
         """
         result = self.query_bibobj_async(bibcode)
-        return self._parse_result(result)
+        return self._parse_result(result, verbose=verbose)
 
     @class_or_instance
     def query_bibobj_async(self, bibcode):
@@ -428,7 +388,7 @@ class Simbad(BaseQuery):
         return response
 
     @class_or_instance
-    def query_bibcode(self, bibcode, wildcard=False):
+    def query_bibcode(self, bibcode, wildcard=False, verbose=False):
         """
         Queries the references corresponding to a given bibcode, and returns
         the results in an `astropy.table.Table`. Wildcards may be used to
@@ -447,16 +407,9 @@ class Simbad(BaseQuery):
         `astropy.table.Table`
             The results of the query as an `astropy.table.Table`.
 
-        Examples
-        --------
-
-        Fetch all the bibcodes from a given journal for a given year::
-
-            >>> table = Simbad.query_bibcode("2006ApJ*", wildcard=True)
-
         """
         result = self.query_bibcode_async(bibcode, wildcard=wildcard)
-        return self._parse_result(result)
+        return self._parse_result(result, verbose=verbose)
 
     @class_or_instance
     def query_bibcode_async(self, bibcode, wildcard=False):
@@ -542,8 +495,9 @@ class Simbad(BaseQuery):
         return dict(script=script)
 
     @class_or_instance
-    def _parse_result(self, result):
-
+    def _parse_result(self, result, verbose=False):
+        if not verbose:
+            commons.suppress_vo_warnings()
         parsed_result = SimbadResult(result.content)
         try:
             return parsed_result.table
