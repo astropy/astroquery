@@ -12,8 +12,8 @@ This module can be used to query IRSA dust extinction service.
 **Fetch images**
 
 Retrieve the image cut-outs for the specified oject name or coordinates. The
-images fetched in the FITS format and the result is returned as a list of
-`astropy.io.fits`_ HDUList objects. For all image queries, the radius may be optionally
+images fetched in the FITS format and the result is returned as a list of 
+:mod:`~astropy.io.fits` HDUList objects. For all image queries, the radius may be optionally
 specified. If missing the radius defaults to 5 degrees. Note that radius may be
 specified in any appropriate unit, however it must fall in the range of 2 to
 37.5 degrees.
@@ -39,7 +39,7 @@ specified in any appropriate unit, however it must fall in the range of 2 to
 Image queries return cutouts for 3 images - E(B-V) reddening, 100 micron
 intensity, and dust temperature maps. If only the image of a particular type is
 required, then this may be specified by using the `image_type` keyword argument
-to the `IrsaDust.get_images` method. It can take on one of the three values
+to the :meth:`~astroquery.irsa_dust.core.IrsaDust.get_images` method. It can take on one of the three values
 `ebv`, `100um` and `extinction`, corresponding to each of the 3 kinds of
 images:
 
@@ -86,9 +86,9 @@ be found on this `IRSA Dust Extinction Service page`_.
     |===========================================| 331k/331k (100.00%)        04s
 
 A list having the download links for the FITS image may also be fetched, rather
-than the actual images, via the `IrsaDust.get_image_list` method. This also
+than the actual images, via the :meth:`~astroquery.irsa_dust.core.IrsaDust.get_image_list` method. This also
 supports the `image_type` argument, in the same way as described for
-`IrsaDust.get_images`.
+:meth:`~astroquery.irsa_dust.core.IrsaDust.get_images`.
 
 .. code-block:: python
 
@@ -102,7 +102,7 @@ supports the `image_type` argument, in the same way as described for
 
 **Fetching the extinction table**
 
-This fetches the extinction table as an `astropy.table.Table`_ . The input parameters are the same as in
+This fetches the extinction table as an :class:`~astropy.table.table.Table` . The input parameters are the same as in
 the queries discussed above, namely the target string and optionally a radius
 value: 
 
@@ -136,7 +136,7 @@ value:
 
 **Get other query details**
 
-This fetches in an `astropy.table.Table`_ other additional details that may be
+This fetches in a :class:`~astropy.table.table.Table` other additional details that may be
 returned in the query results. For instance additional details in the three
 sections - `ebv`, `100um` and `extinction` as mentioned earlier and an
 additional section `location` may be fetched using the `section` keyword
@@ -171,5 +171,3 @@ Reference/API
     :no-inheritance-diagram:
 
 .. _IRSA Dust Extinction Service page: http://irsa.ipac.caltech.edu/applications/DUST/docs/coordinate.html
-.. _astropy.table.Table: http://docs.astropy.org/en/latest/table/index.html
-.. _astropy.io.fits: http://docs.astropy.org/en/latest/io/fits/index.html 
