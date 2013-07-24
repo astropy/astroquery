@@ -6,14 +6,17 @@ import urllib
 import urllib2
 import tempfile
 import string
-from xml.etree.ElementTree import ElementTree
-
+import xml.etree.ElementTree as tree
 from astropy.table import Table
-try:
-    import astropy.io.vo.table as votable
-except ImportError:
-    import astropy.io.votable as votable
+import astropy.io.votable as votable
 import astropy.utils.data as aud
+#-----------------------------------------
+from ..query import BaseQuery
+from ..utils.class_or_instance import class_or_instance
+from ..utils import commons
+import astropy.units as u
+import astropy.coordinates as coord
+
 
 '''
 
@@ -105,15 +108,177 @@ If onlist=0, the following parameters are required:
 
 __all__ = ['query_gator_cone', 'query_gator_box', 'query_gator_polygon',
            'query_gator_all_sky', 'print_gator_catalogs',
-           'list_gator_catalogs']
+           'list_gator_catalogs', 'Irsa']
 
 GATOR_URL = 'http://irsa.ipac.caltech.edu/cgi-bin/Gator/nph-query'
 GATOR_LIST_URL = 'http://irsa.ipac.caltech.edu/cgi-bin/Gator/nph-scan?mode=xml'
 
+class Irsa(BaseQuery):
+    IRSA_URL = GATOR_URL
+    GATOR_LIST_URL = 'http://irsa.ipac.caltech.edu/cgi-bin/Gator/nph-scan?mode=xml'
+    TIMEOUT = 60
+    @class_or_instance
+    def query_region(self, coordinates, catalog=None, spatial='cone', radius=None,
+                     width=None, get_query_payload=False, verbose=False):
 
+        response = self.query_region_async(coordinates, catalog=catalog, spatial='cone',
+                                           radius=None, width=None,
+                                           get_query_payload=get_query_payload)
+        if get_query_payload:
+            return response
+        return self._parse_result(response, verbose=verbose)
+
+    @class_or_instance
+    def query_region_async(self, coordinates, catalog=None, spatial='Cone', radius=10 * u.arcsec,
+                            width=None, get_query_payload=False):
+        if catalog is None:
+            raise Exception("Catalog name is required!")
+        request_payload = self._args_to_payload(catalog, spatial)
+        if spatial in ['Cone', 'Box']:
+            if not _is_coordinate(coordinates):
+                request_payload['objstr'] = coordinates
+            else:
+                request_payload['objstr'] = _parse_coordinates(coordinates)
+            if spatial == 'Cone':
+                radius = _parse_dimension(radius)
+                request_payload['radius'] = radius.value
+                request_payload['radunits'] = radius.unit.to_string()
+            else:
+                width = _parse_dimension(width)
+                request_payload['size'] = width.to(u.arcsec).value
+        elif spatial == 'Polygon':
+            coordinates_list = [_parse_coordinates(c) for c in coordinates]
+            request_payload['objstr'] = ','.join(coordinates_list)
+        if get_query_payload:
+            return request_payload
+        response = commons.send_request(Irsa.IRSA_URL, request_payload,
+                                        Irsa.TIMEOUT, request_type='GET')
+        return response
+
+
+    @class_or_instance
+    def _args_to_payload(self, catalog, spatial):
+        request_payload = dict(catalog=catalog,
+                               spatial=spatial,
+                               outfmt=3)
+        return request_payload
+
+    @class_or_instance
+    def _parse_result(self, response, verbose=False):
+        if not verbose:
+            commons.suppress_vo_warnings()
+        # Check if results were returned
+        if 'The catalog is not on the list' in response.content:
+            raise Exception("Catalog not found")
+
+        # Check that object name was not malformed
+        if 'Either wrong or missing coordinate/object name' in response.content:
+            raise Exception("Malformed coordinate/object name")
+
+        # Check that the results are not of length zero
+        if len(response.content) == 0:
+            raise Exception("The IRSA server sent back an empty reply")
+
+        # Write table to temporary file
+        output = tempfile.NamedTemporaryFile()
+        output.write(response.content)
+        output.flush()
+
+        # Read it in using the astropy VO table reader
+        try:
+            first_table = votable.parse(output.name, pedantic=False).get_first_table()
+        except Exception as ex:
+            print("Failed to parse votable!  Returning raw result instead.")
+            print(ex)
+            return response.content
+
+        # Convert to astropy.table.Table instance
+        table = first_table.to_table()
+
+        # Check if table is empty
+        if len(table) == 0:
+            warnings.warn("Query returned no results, so the table will be empty")
+
+        return table
+
+    @class_or_instance
+    def list_catalogs(self):
+        """
+        Return a dictionary of the catalogs in the IRSA Gator tool.
+
+        Returns
+        -------
+        catalogs : dict
+            A dictionary of catalogs where the key indicates the catalog name to
+            be used in query functions, and the value is the verbose description
+            of the catalog.
+        """
+        response = commons.send_request(Irsa.GATOR_LIST_URL, None, Irsa.TIMEOUT, request_type="GET")
+        root =tree.fromstring(response.content)
+        catalogs = {}
+        for catalog in root.findall('catalog'):
+            catname = catalog.find('catname').text
+            desc = catalog.find('desc').text
+            catalogs[catname] = desc
+        return catalogs
+
+    @class_or_instance
+    def print_catalogs(self):
+        """
+        Display a table of the catalogs in the IRSA Gator tool.
+        """
+        catalogs = self.list_catalogs()
+        for catname in catalogs:
+            print("{:30s}  {:s}".format(catname, catalogs[catname]))
+
+
+def _is_coordinate(coordinates):
+    try:
+        coord.ICRSCoordinates(coordinates)
+        return True
+    except ValueError:
+        return False
+
+def _parse_coordinates(coordinates):
+# borrowed from commons.parse_coordinates as from_name wasn't required in this case
+    if isinstance(coordinates, basestring):
+        try:
+            c = coord.ICRSCoordinates(coordinates)
+            warnings.warn("Coordinate string is being interpreted as an ICRS coordinate.")
+        except u.UnitsException as ex:
+            warnings.warn("Only ICRS coordinates can be entered as strings\n"
+                          "For other systems please use the appropriate "
+                          "astropy.coordinates object")
+            raise ex
+    elif isinstance(coordinates, coord.SphericalCoordinatesBase):
+        c = coordinates
+    else:
+        raise TypeError("Argument cannot be parsed as a coordinate")
+    if c.icrs.ra.degrees >= 0:
+        formatted_coords = str(c.icrs.ra.degrees) +  '+' + str(c.icrs.dec.degrees)
+    else:
+        formatted_coords = str(c.icrs.ra.degrees) + str(c.icrs.dec.degrees)
+    return formatted_coords
+
+
+def _parse_dimension(dim):
+    if isinstance(dim, u.Quantity) and dim.unit in u.deg.find_equivalent_units():
+       if dim.unit not in ['arcsec', 'arcmin', 'deg']:
+           dim = dim.to(u.degree)
+    # otherwise must be an Angle or be specified in hours...
+    else:
+        try:
+            new_dim = commons.parse_radius(dim)
+            dim = u.Quantity(new_dim.degrees, u.Unit('degree'))
+        except (u.UnitsException, coord.errors.UnitsError, AttributeError):
+            raise u.UnitsException("Dimension not in proper units")
+    return dim
+
+#------------------------------------------------------------------------------------------------
 default_options={
         'outfmt':3
         }# use VO table format
+
 
 def query_gator_cone(catalog, object, radius, units='arcsec'):
     '''
