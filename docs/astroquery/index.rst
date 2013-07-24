@@ -42,10 +42,11 @@ queries based on coordinates or object names.  Some simple examples, using SIMBA
     >>> from astroquery.simbad import Simbad
     >>> result_table = Simbad.query_object("m1")
     >>> result_table.pprint(show_unit=True)
-    MAIN_ID      RA         DEC     RA_PREC ... COO_ERR_ANGLE COO_QUAL COO_WAVELENGTH     COO_BIBCODE
-              "h:m:s"     "d:m:s"           ...      deg
-    ------- ----------- ----------- ------- ... ------------- -------- -------------- -------------------
-      M   1 05 34 31.94 +22 00 52.2       6 ...             0        C              R 2011A&A...533A..10L
+    MAIN_ID      RA         DEC     RA_PREC ... COO_QUAL COO_WAVELENGTH     COO_BIBCODE
+              "h:m:s"     "d:m:s"           ...
+    ------- ----------- ----------- ------- ... -------- -------------- -------------------
+      M   1 05 34 31.94 +22 00 52.2       6 ...        C              R 2011A&A...533A..10L
+    
     
 
 All query tools allow coordinate-based queries:      
@@ -57,12 +58,13 @@ All query tools allow coordinate-based queries:
     >>> # works only for ICRS coordinates:
     >>> c = coord.ICRSCoordinates("05h35m17.3s -05h23m28s")
     >>> r = 5 * u.arcminute
+    >>> result_table = Simbad.query_region(c, radius=r)
     >>> result_table.pprint(show_unit=True)
-    MAIN_ID           RA           DEC      RA_PREC ... COO_QUAL COO_WAVELENGTH     COO_BIBCODE
-                   "h:m:s"       "d:m:s"            ...
-    -------------- ------------- ------------- ------- ... -------- -------------- -------------------
-         HD  38875 05 34 59.7297 -80 51 09.082       9 ...        A              O 2007A&A...474..653V
-    TYC 9390-799-1 05 33 58.2222 -80 50 18.575       8 ...        B                1998A&A...335L..65H
+       MAIN_ID           RA           DEC      ... COO_QUAL COO_WAVELENGTH     COO_BIBCODE
+                      "h:m:s"       "d:m:s"    ...
+    -------------- ------------- ------------- ... -------- -------------- -------------------
+         HD  38875 05 34 59.7297 -80 51 09.082 ...        A              O 2007A&A...474..653V
+    TYC 9390-799-1 05 33 58.2222 -80 50 18.575 ...        B                1998A&A...335L..65H
 
 
 Table of Contents
