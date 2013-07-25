@@ -42,11 +42,26 @@ the complete contents of those catalogs:
 .. code-block:: python
 
     >>> catalogs = Vizier.get_catalogs(catalog_list.keys())
-    >>> print catalogs
-    <TableList with 3 table(s) and 102 total row(s)>
-    >>> print catalogs.keys()
-    [u'J/ApJ/706/83/ysos', u'J/ApJS/191/232/table1', u'J/ApJS/191/232/map']
-    
+    >>> catalogs.print_table_list()
+    <TableList with 3 tables:
+        'J/ApJ/706/83/ysos' with 22 column(s) and 50 row(s)
+        'J/ApJS/191/232/table1' with 13 column(s) and 50 row(s)
+        'J/ApJS/191/232/map' with 2 column(s) and 2 row(s)
+    >
+
+Note that the row limit is set to 50 by default, so if you want to get a truly
+complete catalog, you need to change that:
+
+.. code-block:: python
+
+    >>> Vizier.ROW_LIMIT.set('999999999')
+    >>> catalogs = Vizier.get_catalogs(catalog_list.keys())
+    >>> catalogs.print_table_list()
+    <TableList with 3 tables:
+        'J/ApJ/706/83/ysos' with 22 column(s) and 737 row(s)
+        'J/ApJS/191/232/table1' with 13 column(s) and 218 row(s)
+        'J/ApJS/191/232/map' with 2 column(s) and 2 row(s)
+    >
 
 **Query an object**
 
