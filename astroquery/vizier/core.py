@@ -146,12 +146,12 @@ class Vizier(BaseQuery):
         Parameters
         ----------
         catalog : str or list, optional
-            The catalog that will be retrieved
+            The catalog(s) that will be retrieved
 
         Returns
         -------
-        result : `astropy.table.Table`
-            The results in an `astropy.table.Table`.
+        result : `~astroquery.utils.common.TableList`
+            The results in a list of `astropy.table.Table`.
         """
         response = self.get_catalogs_async(catalog=catalog)
         result = self._parse_result(response, verbose=verbose)
@@ -193,8 +193,8 @@ class Vizier(BaseQuery):
 
         Returns
         -------
-        result : `astropy.table.Table`
-            The results in an `astropy.table.Table`.
+        result : `~astroquery.utils.common.TableList`
+            The results in a list of `astropy.table.Table`.
         """
         response = self.query_object_async(object_name, catalog=catalog)
         result = self._parse_result(response, verbose=verbose)
@@ -260,8 +260,8 @@ class Vizier(BaseQuery):
 
         Returns
         -------
-        result : `astropy.table.Table`
-            The results in an `astropy.table.Table`.
+        result : `~astroquery.utils.common.TableList`
+            The results in a list of `astropy.table.Table`.
         """
         response = self.query_region_async(
             coordinates, radius=radius, height=height,
