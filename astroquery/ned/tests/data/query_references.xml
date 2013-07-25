@@ -1,0 +1,209 @@
+<?xml version="1.0"?>
+<VOTABLE version="1.1">
+<DEFINITIONS>
+<COOSYS ID="J2000" equinox="2000." epoch="2000." system="eq_FK5" />
+</DEFINITIONS>
+<RESOURCE type="results">
+<DESCRIPTION>
+Results from query to  NASA/IPAC Extragalactic Database (NED),
+which is operated by the Jet Propulsion Laboratory, California Institute of
+Technology, under contract with the National Aeronautics and Space Administration.
+This work was (partially) supported by the US National Virtual Observatory
+development project, which is funded by the National Science Foundation
+under cooperative agreement AST0122449 with The Johns Hopkins University.
+</DESCRIPTION>
+<INFO name="QUERY_STATUS" value="OK"/>
+<PARAM name="queryDateTime"  ucd="time.creation" datatype="char" arraysize="*" value="2013-07-18T04:24:59PDT"/>
+<LINK content-role="query" content-type="char" 
+href="http://ned.ipac.caltech.edu/cgi-bin/datasearch?search_type=Reference&amp;objname=MESSIER 001&amp;of=xml_main"/>
+<TABLE ID="NED_ReferenceData" name="ReferenceData for MESSIER 001">
+<DESCRIPTION> The results of your search for literature references in NED </DESCRIPTION>
+
+<FIELD ID="ref_col1" name="No." ucd="meta.number" datatype="int">
+<DESCRIPTION> A sequential number of the reference for this object, applicable to this list only. </DESCRIPTION>
+</FIELD>
+<FIELD ID="ref_col2" name="Refcode" ucd="meta.bib.bibcode" datatype="char" arraysize="*">
+<DESCRIPTION> The NED 19-digit Bibliographic Reference code (year, journal, volume number, page number, and the initial of the first author's last name). </DESCRIPTION>
+</FIELD>
+<FIELD ID="ref_col3" name="Author List" ucd="meta.list" datatype="char" arraysize="*">
+<DESCRIPTION> The first 15 characters of the author list. </DESCRIPTION>
+</FIELD>
+<FIELD ID="ref_col4" name="Article Title" ucd="meta.title" datatype="char" arraysize="*">
+<DESCRIPTION> The first 80 characters of the article's title. </DESCRIPTION>
+</FIELD>
+<DATA>
+<TABLEDATA>
+<TR>
+<TD>  1.</TD>
+<TD>2011ApJS..192...19W</TD>
+<TD><![CDATA[Weiland, J. L.;...]]></TD>
+<TD><![CDATA[Seven-year Wilkinson Microwave Anisotropy Probe (WMAP) Observations: Planets and...]]></TD>
+</TR>
+<TR>
+<TD>  2.</TD>
+<TD>2011ApJ...742...16T</TD>
+<TD><![CDATA[Trujillo-Gomez,...]]></TD>
+<TD><![CDATA[Galaxies in {LAMBDA}CDM with Halo Abundance Matching: Luminosity-Velocity Relati...]]></TD>
+</TR>
+<TR>
+<TD>  3.</TD>
+<TD>2011ApJ...740L..24K</TD>
+<TD><![CDATA[Kazantzidis, St...]]></TD>
+<TD><![CDATA[Formation of Dwarf Spheroidal Galaxies via Mergers of Disky Dwarfs              ]]></TD>
+</TR>
+<TR>
+<TD>  4.</TD>
+<TD>2011ApJ...729..105C</TD>
+<TD><![CDATA[Case, G. L.; Ch...]]></TD>
+<TD><![CDATA[First Results from Fermi Gamma-ray Burst Monitor Earth Occultation Monitoring: O...]]></TD>
+</TR>
+<TR>
+<TD>  5.</TD>
+<TD>2011A&amp;A...531A.153M</TD>
+<TD><![CDATA[Maselli, A.; Cu...]]></TD>
+<TD><![CDATA[The populations of hard X-ray and gamma-ray sources: a correlation study and new...]]></TD>
+</TR>
+<TR>
+<TD>  6.</TD>
+<TD>2010ApJS..188..405A</TD>
+<TD><![CDATA[Abdo, A. A.; Ac...]]></TD>
+<TD><![CDATA[Fermi Large Area Telescope First Source Catalog                                 ]]></TD>
+</TR>
+<TR>
+<TD>  7.</TD>
+<TD>2010ApJS..186..378T</TD>
+<TD><![CDATA[Tueller, J.; Ba...]]></TD>
+<TD><![CDATA[The 22 Month Swift-BAT All-Sky Hard X-ray Survey                                ]]></TD>
+</TR>
+<TR>
+<TD>  8.</TD>
+<TD>2010A&amp;A...524A..64C</TD>
+<TD><![CDATA[Cusumano, G.; L...]]></TD>
+<TD><![CDATA[The Palermo Swift-BAT hard X-ray catalogue. III. Results after 54 months of sky ...]]></TD>
+</TR>
+<TR>
+<TD>  9.</TD>
+<TD>2010A&amp;A...522A..68T</TD>
+<TD><![CDATA[Telezhinsky, I....]]></TD>
+<TD><![CDATA[The catalog of variable sources detected by INTEGRAL. I. Catalog and techniques ]]></TD>
+</TR>
+<TR>
+<TD> 10.</TD>
+<TD>2009NEWPS.5.......:</TD>
+<TD><![CDATA[NEWPS team     ]]></TD>
+<TD><![CDATA[New Extragalactic Point Source catalogue downloaded on July 22, 2009 from http:/...]]></TD>
+</TR>
+<TR>
+<TD> 11.</TD>
+<TD>2009ApJS..183...46A</TD>
+<TD><![CDATA[Abdo, A. A.; Ac...]]></TD>
+<TD><![CDATA[Fermi/Large Area Telescope Bright Gamma-Ray Source List                         ]]></TD>
+</TR>
+<TR>
+<TD> 12.</TD>
+<TD>2009ApJ...706L...7U</TD>
+<TD><![CDATA[Ubertini, P.; S...]]></TD>
+<TD><![CDATA[The Fermi/LAT Sky as Seen by INTEGRAL/IBIS                                      ]]></TD>
+</TR>
+<TR>
+<TD> 13.</TD>
+<TD>2009ApJ...705..868L</TD>
+<TD><![CDATA[Lopez-Caniego, ...]]></TD>
+<TD><![CDATA[Polarization of the WMAP Point Sources                                          ]]></TD>
+</TR>
+<TR>
+<TD> 14.</TD>
+<TD>2009A&amp;A...506.1563P</TD>
+<TD><![CDATA[Pittori, C.; Ve...]]></TD>
+<TD><![CDATA[First AGILE catalog of high-confidence gamma-ray sources                        ]]></TD>
+</TR>
+<TR>
+<TD> 15.</TD>
+<TD>2009A&amp;A...493..339W</TD>
+<TD><![CDATA[Watson, M. G.; ...]]></TD>
+<TD><![CDATA[The XMM-Newton serendipitous survey. V. The Second XMM-Newton serendipitous sour...]]></TD>
+</TR>
+<TR>
+<TD> 16.</TD>
+<TD>2008ApJS..174..313H</TD>
+<TD><![CDATA[Helmboldt, J. F...]]></TD>
+<TD><![CDATA[Radio Frequency Spectra of 388 Bright 74 MHz Sources                            ]]></TD>
+</TR>
+<TR>
+<TD> 17.</TD>
+<TD>2007ApJS..172..686K</TD>
+<TD><![CDATA[Kassim, N. E.; ...]]></TD>
+<TD><![CDATA[The 74 MHz System on the Very Large Array                                       ]]></TD>
+</TR>
+<TR>
+<TD> 18.</TD>
+<TD>2007ApJS..170..175B</TD>
+<TD><![CDATA[Bird, A. J.; Ma...]]></TD>
+<TD><![CDATA[The Third IBIS/ISGRI Soft Gamma-Ray Survey Catalog                              ]]></TD>
+</TR>
+<TR>
+<TD> 19.</TD>
+<TD>2007AJ....134.1245C</TD>
+<TD><![CDATA[Cohen, A. S.; L...]]></TD>
+<TD><![CDATA[The VLA Low-Frequency Sky Survey                                                ]]></TD>
+</TR>
+<TR>
+<TD> 20.</TD>
+<TD>2007A&amp;A...475..775K</TD>
+<TD><![CDATA[Krivonos, R.; R...]]></TD>
+<TD><![CDATA[INTEGRAL/IBIS all-sky survey in hard X-rays                                     ]]></TD>
+</TR>
+<TR>
+<TD> 21.</TD>
+<TD>2007A&amp;A...472..705V</TD>
+<TD><![CDATA[Verrecchia, F.;...]]></TD>
+<TD><![CDATA[The BeppoSAX WFC X-ray source catalogue                                         ]]></TD>
+</TR>
+<TR>
+<TD> 22.</TD>
+<TD>2007A&amp;A...467..585B</TD>
+<TD><![CDATA[Bodaghee, A.; C...]]></TD>
+<TD><![CDATA[A description of sources detected by INTEGRAL during the first 4 years of observ...]]></TD>
+</TR>
+<TR>
+<TD> 23.</TD>
+<TD>2004ApJS..151..299H</TD>
+<TD><![CDATA[Hodge, Tracy M....]]></TD>
+<TD><![CDATA[Classification of Spectra from the Infrared Space Observatory PHT-S Database    ]]></TD>
+</TR>
+<TR>
+<TD> 24.</TD>
+<TD>2004ApJS..150..343E</TD>
+<TD><![CDATA[Engelke, C. W.;...]]></TD>
+<TD><![CDATA[A Uniform Database of 2.2-16.5 microns Spectra from the ISOCAM CVF Spectrometer ]]></TD>
+</TR>
+<TR>
+<TD> 25.</TD>
+<TD>2004ApJ...608..865A</TD>
+<TD><![CDATA[Antoni, T.; Ape...]]></TD>
+<TD><![CDATA[Search for Cosmic-Ray Point Sources with KASCADE                                ]]></TD>
+</TR>
+<TR>
+<TD> 26.</TD>
+<TD>2003ApJ...597..615N</TD>
+<TD><![CDATA[Nolan, P. L.; T...]]></TD>
+<TD><![CDATA[Variability of EGRET Gamma-Ray Sources                                          ]]></TD>
+</TR>
+<TR>
+<TD> 27.</TD>
+<TD>2003A&amp;A...411L..59E</TD>
+<TD><![CDATA[Ebisawa, K.; Bo...]]></TD>
+<TD><![CDATA[High-energy sources before INTEGRAL. INTEGRAL reference catalog                 ]]></TD>
+</TR>
+<TR>
+<TD> 28.</TD>
+<TD>2001ApJS..135..155M</TD>
+<TD><![CDATA[Mattox, J., Har...]]></TD>
+<TD><![CDATA[A Quantitative Evaluation of Potential Radio Identifications for 3EG EGRET Sourc...]]></TD>
+</TR>
+</TABLEDATA>
+</DATA>
+</TABLE>
+</RESOURCE>
+</VOTABLE>
+

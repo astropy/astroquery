@@ -1,0 +1,212 @@
+<?xml version="1.0"?>
+<VOTABLE version="1.1">
+<DEFINITIONS>
+<COOSYS ID="J2000" equinox="2000." epoch="2000." system="eq_FK5" />
+</DEFINITIONS>
+<RESOURCE type="results">
+<DESCRIPTION>
+Results from query to  NASA/IPAC Extragalactic Database (NED),
+which is operated by the Jet Propulsion Laboratory, California Institute of
+Technology, under contract with the National Aeronautics and Space Administration.
+This work was (partially) supported by the US National Virtual Observatory
+development project, which is funded by the National Science Foundation
+under cooperative agreement AST0122449 with The Johns Hopkins University.
+</DESCRIPTION>
+<INFO name="QUERY_STATUS" value="OK"/>
+<PARAM name="queryDateTime"  ucd="time.creation" datatype="char" arraysize="*" value="2013-07-18T04:22:00PDT"/>
+<LINK content-role="query" content-type="char" 
+href="http://ned.ipac.caltech.edu/cgi-bin/datasearch?search_type=Redschifts&amp;objname=3C 273&amp;of=xml_main"/>
+<TABLE ID="NED_Redshifts_Data" name="NED Redshifts Data for 3C 273">
+<DESCRIPTION> NED Redshift Data Search Results  </DESCRIPTION>
+
+<FIELD ID="z_col1" name="No." ucd="meta.number" datatype="int">
+<DESCRIPTION> A sequential data-point number applicable to this list only. </DESCRIPTION>
+</FIELD>
+<FIELD ID="z_col2" name="Frequency Targeted" ucd="em.freq" datatype="char" arraysize="*">
+<DESCRIPTION>  The frequency or wavelength at which the data apply (in common astronomical jargon, e.g. "V" for the Johnson Vband, "IRAS 12 microns" for the IRAS 12 micron band, etc.) </DESCRIPTION>
+</FIELD>
+<FIELD ID="z_col3" name="Published Velocity" ucd="src.spect.dopplerVeloc" unit="km/sec" datatype="int">
+<DESCRIPTION>  The radial velocity , derived from derived from the shift of some spectral feature, in km/sec </DESCRIPTION>
+</FIELD>
+<FIELD ID="z_col4" name="Published Velocity Uncertainty" ucd="stat.error;src.spect.dopplerVeloc" unit="km/sec" datatype="int">
+<DESCRIPTION> The velocity error, if given in the original reference. </DESCRIPTION>
+</FIELD>
+<FIELD ID="z_col5" name="Published Redshift" ucd="src.redshift.phot" datatype="double">
+<DESCRIPTION> The redshift or velocity as published in dimensionless units z = [deltalambda]/lambda </DESCRIPTION>
+</FIELD>
+<FIELD ID="z_col6" name="Published Redshift Uncertainty" ucd="stat.error;src.redshift.phot"  datatype="double">
+<DESCRIPTION> The redshift or velocity error, as published in dimensionless units z. </DESCRIPTION>
+</FIELD>
+<FIELD ID="z_col7" name="Refcode" ucd="meta.bib.bibcode" datatype="char" arraysize="*">
+<DESCRIPTION> The NED 19-digit Bibliographic Reference code. </DESCRIPTION>
+</FIELD>
+<FIELD ID="z_col8" name="Name in publication" ucd="meta.id;name" datatype="char" arraysize="*">
+<DESCRIPTION> The object's name in NED's standard format, of the object to which the data apply. </DESCRIPTION>
+</FIELD>
+<FIELD ID="z_col9" name="Published RA" ucd="pos.eq.ra" datatype="char" arraysize="*">
+<DESCRIPTION> The object's published coordinate RA </DESCRIPTION>
+</FIELD>
+<FIELD ID="z_col10" name="Published Dec" ucd="pos.eq.dec" datatype="char" arraysize="*">
+<DESCRIPTION> The object's published coordinate DEC. </DESCRIPTION>
+</FIELD>
+<FIELD ID="z_col11" name="Published Equinox" ucd="time.equinox" datatype="char" arraysize="*">
+<DESCRIPTION> The object's published equinox. </DESCRIPTION>
+</FIELD>
+<FIELD ID="z_col12" name="Unc. Significance" ucd="meta.note" datatype="char" arraysize="*">
+<DESCRIPTION> The type of uncertainty reported in the original publication; e.g. "rms uncertainty","90percent confidence","no unc. reported", etc. </DESCRIPTION>
+</FIELD>
+<FIELD ID="z_col13" name="Spectral Range" ucd="src.spType" datatype="char" arraysize="*">
+<DESCRIPTION> The observed spectral range. Possible values are: Gamma, ray X-ray,Ultraviolet, Optical,Near IR, Infrared,Far IR, Sub-millimeter,Millimeter, Radio. </DESCRIPTION>
+</FIELD>
+<FIELD ID="z_col14" name="Spectrograph" ucd="instr" datatype="char" arraysize="*">
+<DESCRIPTION> The observing instrumentation, e.g. "Long-slit spectrum", "Heterodyne  receiver (e.g. 21-cm)", "Grism" etc. </DESCRIPTION>
+</FIELD>
+<FIELD ID="z_col15" name="Measurement Mode Features" ucd="meta.number;stat.fit" datatype="char" arraysize="*">
+<DESCRIPTION> The number and nature of the spectral features measured. For multiple objects (e.g. galaxy clusters), the number of objects measured. </DESCRIPTION>
+</FIELD>
+<FIELD ID="z_col16" name="Measurement Mode Technique" ucd="stat.fit" datatype="char" arraysize="*">
+<DESCRIPTION> The method of measuring the spectrum, e.g. "Cross- correlation fit to template spectrum", "Mid-point of line profile at 20 percent level","Peak of line", etc. </DESCRIPTION>
+</FIELD>
+<FIELD ID="z_col17" name="Spatial Mode" ucd="instr.param" datatype="char" arraysize="*">
+<DESCRIPTION> The part of the object measured, e.g. "Systemic redshift," "Average over multiple objects," "Redshift is for individual star," etc. </DESCRIPTION>
+</FIELD>
+<FIELD ID="z_col18" name="Epoch" ucd="time.epoch" datatype="char" arraysize="*">
+<DESCRIPTION> The epoch of observation, if given. </DESCRIPTION>
+</FIELD>
+<FIELD ID="z_col19" name="Reference Frame" ucd="instr.redshift.mode" datatype="char" arraysize="*">
+<DESCRIPTION> Specifies the nature of the redshift or velocity and any corrections applied to it,e.g. "Heliocentric," "Corrected to the 3K microwave background," etc. </DESCRIPTION>
+</FIELD>
+<FIELD ID="z_col20" name="Apex" ucd="pos.lsr.apex" datatype="char" arraysize="*">
+<DESCRIPTION> The velocity and direction of the apex of the reference frame used to calculate the published redshift, if given. If not, NED calculates the heliocentric redshift using the apex as published. </DESCRIPTION>
+</FIELD>
+<FIELD ID="z_col21" name="Longitude of the Apex" ucd="pos.lsr.longitude" datatype="char" arraysize="*">
+<DESCRIPTION> The longitude of the apex of the reference frame used to calculate the published redshift, if given. If not, NED calculates the heliocentric redshift using the apex as published. </DESCRIPTION>
+</FIELD>
+<FIELD ID="z_col22" name="Latitude of the Apex" ucd="pos.lsr.latitude" datatype="char" arraysize="*">
+<DESCRIPTION> The latitude of the apex of the reference frame used to calculate the published redshift, if given. If not, NED calculates the heliocentric redshift using the apex as published. </DESCRIPTION>
+</FIELD>
+<FIELD ID="z_col23" name="Apex Coordinate System" ucd="pos.lsr.coord.sys" datatype="char" arraysize="*">
+<DESCRIPTION> The coordinate system used for expressing of the apex of the reference frame. </DESCRIPTION>
+</FIELD>
+<FIELD ID="z_col24" name="Qualifiers" ucd="meta.note" datatype="char" arraysize="*">
+<DESCRIPTION> Self-explanatory notes pertaining to the history of the data or adjustments to the data or changes introduced by NED or values modified by NED. </DESCRIPTION>
+</FIELD>
+<FIELD ID="z_col25" name="Comments" ucd="meta.comment" datatype="char" arraysize="*">
+<DESCRIPTION> Other information about the data. </DESCRIPTION>
+</FIELD>
+<DATA>
+<TABLEDATA>
+<TR>
+<TD>0</TD>
+<TD></TD>
+<TD> 30000</TD>
+<TD></TD>
+<TD>0.158339</TD>
+<TD>0.000067</TD>
+<TD>1992ApJS...83...29S</TD>
+<TD>3C 273</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+</TR>
+<TR>
+<TD>1</TD>
+<TD>Optical             </TD>
+<TD> 30000</TD>
+<TD></TD>
+<TD>0.158000</TD>
+<TD>0.000000</TD>
+<TD>2000AJ....119.2540G</TD>
+<TD>3C 273</TD>
+<TD>122906.7</TD>
+<TD>+020308.1</TD>
+<TD>J2000</TD>
+<TD>no unc. reported</TD>
+<TD>Optical</TD>
+<TD>Long-slit spectrum</TD>
+<TD></TD>
+<TD></TD>
+<TD>Redshift is for nucleus only</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[From new, raw data; OBJ_NAME modified from published data]]></TD>
+<TD><![CDATA[]]></TD>
+</TR>
+<TR>
+<TD>2</TD>
+<TD>                    </TD>
+<TD> 30000</TD>
+<TD></TD>
+<TD>0.158000</TD>
+<TD>0.000000</TD>
+<TD>2008ApJS..175...97H</TD>
+<TD>3C 273</TD>
+<TD></TD>
+<TD></TD>
+<TD>     </TD>
+<TD>no unc. reported</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD>Heliocentric velocity or redshift</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[Uncertain origin]]></TD>
+<TD><![CDATA[]]></TD>
+</TR>
+<TR>
+<TD>3</TD>
+<TD>                    </TD>
+<TD> 30000</TD>
+<TD></TD>
+<TD>0.158300</TD>
+<TD>0.000000</TD>
+<TD>2007A&amp;A...462...57S</TD>
+<TD>3C 273</TD>
+<TD></TD>
+<TD></TD>
+<TD>     </TD>
+<TD>no unc. reported</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD>Heliocentric velocity or redshift</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[Uncertain origin]]></TD>
+<TD><![CDATA[]]></TD>
+</TR>
+</TABLEDATA>
+</DATA>
+</TABLE>
+</RESOURCE>
+</VOTABLE>
+
