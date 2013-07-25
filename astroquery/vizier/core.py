@@ -95,6 +95,7 @@ class Vizier(BaseQuery):
     def column_filters(self):
         self._column_filters = None
 
+    @class_or_instance
     def find_catalogs(self, keywords, verbose=False):
 
         if isinstance(keywords, list):
@@ -109,6 +110,7 @@ class Vizier(BaseQuery):
 
         return result
 
+    @class_or_instance
     def get_catalog(self, catalog, verbose=False):
         """
         Query the Vizier service for a specific catalog
@@ -127,6 +129,7 @@ class Vizier(BaseQuery):
         result = self._parse_result(response, verbose=verbose)
         return result
 
+    @class_or_instance
     def get_catalog_async(self, catalog, verbose=False):
         """
         Asynchronous version of get_catalog
@@ -139,7 +142,11 @@ class Vizier(BaseQuery):
             Vizier.TIMEOUT)
         return response
 
-    get_catalog_async.__doc__ += get_catalog.__doc__
+    # This doesn't work:
+    # TypeError: unsupported operand type(s) for +=: 'NoneType' and 'NoneType'
+    # the decorator breaks this approach.  Perhaps we can pass the docstring to
+    # the decorator?
+    # get_catalog_async.__doc__ += get_catalog.__doc__
 
     @class_or_instance
     def query_object(self, object_name, catalog=None, verbose=False):
