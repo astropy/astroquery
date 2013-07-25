@@ -1,0 +1,199 @@
+<?xml version="1.0"?>
+<VOTABLE version="1.1">
+<DEFINITIONS>
+<COOSYS ID="J2000" equinox="2000." epoch="2000." system="eq_FK5" />
+</DEFINITIONS>
+<RESOURCE type="results">
+<DESCRIPTION>
+Results from query to  NASA/IPAC Extragalactic Database (NED),
+which is operated by the Jet Propulsion Laboratory, California Institute of
+Technology, under contract with the National Aeronautics and Space Administration.
+This work was (partially) supported by the US National Virtual Observatory
+development project, which is funded by the National Science Foundation
+under cooperative agreement AST0122449 with The Johns Hopkins University.
+</DESCRIPTION>
+<INFO name="QUERY_STATUS" value="OK"/>
+<PARAM name="queryDateTime"  ucd="time.creation" datatype="char" arraysize="*" value="2013-07-18T04:13:16PDT"/>
+<INFO name="QUERY_STATUS" value="OK"/>
+<LINK content-role="query" content-type="char" 
+href="http://ned.ipac.caltech.edu/cgi-bin/objsearch?search_type=Near+Name+Search&amp;objname=MESSIER+001&amp;radius=1.0&amp;of=xml_main"/>
+<TABLE ID="NED_MainTable" name="Main Information Table for NED objects within 1.000 arcmin of object MESSIER 001">
+<DESCRIPTION> Main information about object (Cone Search results)</DESCRIPTION>
+
+<PARAM name="Equinox" datatype="char" arraysize="*" ucd="time.equinox" value="J2000.0"/>
+<PARAM name="CoordSystem" datatype="char" arraysize="*" ucd="pos.system.coord" value="Equatorial"/>
+<FIELD ID="main_col1" name="No." ucd="meta.number" datatype="int" width="4" type="hidden">
+<DESCRIPTION> A sequential object number applicable to this list only.  </DESCRIPTION>
+</FIELD>
+<FIELD ID="main_col2" name="Object Name" ucd="meta.id;meta.main" datatype="char" arraysize="30" width="30">
+<DESCRIPTION> NED preferred name for the object </DESCRIPTION>
+<LINK content-role="query" content-type="char" href="http://ned.ipac.caltech.edu/cgi-bin/objsearch?objname=${Object Name}"/>
+</FIELD>
+<FIELD ID="main_col3" name="RA(deg)" ucd="pos.eq.ra;meta.main" datatype="double" unit="degrees" width="10">
+<DESCRIPTION> Right Ascension in degrees (Equatorial J2000.0)</DESCRIPTION>
+</FIELD>
+<FIELD ID="main_col4" name="DEC(deg)" ucd="pos.eq.dec;meta.main" datatype="double" unit="degrees" width="10">
+<DESCRIPTION> Declination in degrees (Equatorial J2000.0)</DESCRIPTION>
+</FIELD>
+<FIELD ID="main_col5" name="Type" ucd="src.class" datatype="char" arraysize="*" width="10">
+<DESCRIPTION> NED's Preferred Object Type: G,GPair,GTrpl,GGroup,GClstr,QSO,AbLS,RadioS,IrS,EmLS,UvES,XrayS,SN </DESCRIPTION>
+<LINK content-role="query" content-type="char" href="http://ned.ipac.caltech.edu/help/faq5.html#5k"/>
+</FIELD>
+<FIELD ID="main_col6" name="Velocity" ucd="src.veloc.hc" datatype="double" unit="km/sec" width="10">
+<DESCRIPTION> Velocity in km/sec, based on known heliocentric redshift </DESCRIPTION>
+</FIELD>
+<FIELD ID="main_col7" name="Redshift" ucd="src.redshift" datatype="double" width="10">
+<DESCRIPTION> Heliocentric redshift for the object, if it exists in NED </DESCRIPTION>
+</FIELD>
+<FIELD ID="main_col8" name="Redshift Flag" ucd="meta.code;src.redshift" datatype="char" arraysize="*" width="5">
+<DESCRIPTION> Quality flag for known heliocentric redshift</DESCRIPTION>
+</FIELD>
+<FIELD ID="main_col9" name="Magnitude and Filter" ucd="meta.code;src.magnitude" datatype="char" arraysize="*" width="5">
+<DESCRIPTION>  NED's Basic Data magnitude and filter, generally in an optical band.</DESCRIPTION>
+</FIELD>
+<FIELD ID="main_col10" name="Distance (arcmin)" ucd="pos.distance" datatype="double" unit="arcmin" width="10">
+<DESCRIPTION> Distance of the source from the queried position (arcmin);listed as blank if not applicable. </DESCRIPTION>
+</FIELD>
+<FIELD ID="main_col11" name="References" ucd="meta.bib;meta.number" datatype="int" width="5">
+<DESCRIPTION> Number of literature references in NED </DESCRIPTION>
+</FIELD>
+<FIELD ID="main_col12" name="Notes" ucd="meta.note;meta.number" datatype="int" width="5">
+<DESCRIPTION> Number of catalog notes in NED </DESCRIPTION>
+</FIELD>
+<FIELD ID="main_col13" name="Photometry Points" ucd="phot;meta.number" datatype="int" width="5">
+<DESCRIPTION> Number of photometric data points stored by NED for the object </DESCRIPTION>
+</FIELD>
+<FIELD ID="main_col14" name="Positions" ucd="pos;meta.number" datatype="int" width="5">
+<DESCRIPTION> Number of position data points stored by NED for the object </DESCRIPTION>
+</FIELD>
+<FIELD ID="main_col15" name="Redshift Points" ucd="src.redshift;meta.number" datatype="int" width="5">
+<DESCRIPTION> Number of redshift data points stored by NED for the object. </DESCRIPTION>
+</FIELD>
+<FIELD ID="main_col16" name="Diameter Points" ucd="phys.size.diameter;meta.number" datatype="int" width="5">
+<DESCRIPTION> Number of diameter data points stored by NED for the object. </DESCRIPTION>
+</FIELD>
+<FIELD ID="main_col17" name="Associations" ucd="meta.id.assoc;meta.number" datatype="int" width="5">
+<DESCRIPTION> Number of NED associations for the object. </DESCRIPTION>
+</FIELD>
+<DATA>
+<TABLEDATA>
+<TR>
+<TD>1</TD>
+<TD>MESSIER 001</TD>
+<TD> 83.63321 </TD>
+<TD>  22.01446 </TD>
+<TD>SNR</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  0.000</TD>
+<TD>75</TD>
+<TD>0</TD>
+<TD>44</TD>
+<TD>4</TD>
+<TD>0</TD>
+<TD>2</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>2</TD>
+<TD>2MASX J05343184+2201158</TD>
+<TD> 83.63271 </TD>
+<TD>  22.02106 </TD>
+<TD>IrS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[ 6.8J]]></TD>
+<TD>  0.397</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>9</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>2</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>3</TD>
+<TD>2MASXi J0534296+220050</TD>
+<TD> 83.62371 </TD>
+<TD>  22.01391 </TD>
+<TD>IrS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  0.530</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>4</TD>
+<TD>NVSS J053435+220034</TD>
+<TD> 83.64708 </TD>
+<TD>  22.00953 </TD>
+<TD>RadioS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  0.826</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>5</TD>
+<TD>2MASX J05343558+2200368</TD>
+<TD> 83.64829 </TD>
+<TD>  22.01028 </TD>
+<TD>IrS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[10.4J]]></TD>
+<TD>  0.876</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>9</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>2</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>6</TD>
+<TD>NVSS J053428+220019</TD>
+<TD> 83.62013 </TD>
+<TD>  22.00536 </TD>
+<TD>RadioS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  0.910</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+</TABLEDATA>
+</DATA>
+</TABLE>
+</RESOURCE>
+</VOTABLE>
+

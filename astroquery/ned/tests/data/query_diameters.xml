@@ -1,0 +1,283 @@
+<?xml version="1.0"?>
+<VOTABLE version="1.1">
+<DEFINITIONS>
+<COOSYS ID="J2000" equinox="2000." epoch="2000." system="eq_FK5" />
+</DEFINITIONS>
+<RESOURCE type="results">
+<DESCRIPTION>
+Results from query to  NASA/IPAC Extragalactic Database (NED),
+which is operated by the Jet Propulsion Laboratory, California Institute of
+Technology, under contract with the National Aeronautics and Space Administration.
+This work was (partially) supported by the US National Virtual Observatory
+development project, which is funded by the National Science Foundation
+under cooperative agreement AST0122449 with The Johns Hopkins University.
+</DESCRIPTION>
+<INFO name="QUERY_STATUS" value="OK"/>
+<PARAM name="queryDateTime"  ucd="time.creation" datatype="char" arraysize="*" value="2013-07-18T04:23:34PDT"/>
+<LINK content-role="query" content-type="char"
+ href="http://ned.ipac.caltech.edu/cgi-bin/datasearch?search_type=Diameters&amp;objname=MESSIER 001&amp;of=xml_main"/>
+<TABLE ID="NED_Diameters_Data" name="NED Diameters Data for MESSIER 001">
+<DESCRIPTION> NED Diameter Data Search Results  </DESCRIPTION>
+
+<FIELD ID="d_col1" name="No." ucd="meta.id" datatype="int">
+<DESCRIPTION> A sequential data-point number applicable to this list only. </DESCRIPTION>
+</FIELD>
+<FIELD ID="d_col2" name="Frequency targeted" ucd="em.freq;instr.setup" datatype="char" arraysize="*">
+<DESCRIPTION>  The frequency or wavelength at which the data apply (in common astronomical jargon, e.g. "V" for the Johnson Vband, "IRAS 12 microns" for the IRAS 12 micron band, etc.) </DESCRIPTION>
+</FIELD>
+<FIELD ID="d_col3" name="Refcode" ucd="meta.bib.bibcode" datatype="char" arraysize="*">
+<DESCRIPTION> The NED 19-digit Bibliographic Reference code. </DESCRIPTION>
+</FIELD>
+<FIELD ID="d_col4" name="Major Axis" ucd="phys.angSize.smajAxis" datatype="double">
+<DESCRIPTION> The major axis (2a) as published. It can be a radius</DESCRIPTION>
+</FIELD>
+<FIELD ID="d_col5" name="Major Axis Flag" ucd="meta.code;phys.angSize.smajAxis" datatype="char" arraysize="*">
+<DESCRIPTION> The major axis flag as published. (2a) - is diameter, which is default, (a) - means radius.</DESCRIPTION>
+</FIELD>
+<FIELD ID="d_col6" name="Major Axis Unit" ucd="meta.unit;phys.angSize.smajAxis" datatype="char" arraysize="*">
+<DESCRIPTION> The major axis unit's as published.</DESCRIPTION>
+</FIELD>
+<FIELD ID="d_col7" name="Minor Axis" ucd="phys.angSize.sminAxis" datatype="double">
+<DESCRIPTION> The minor axis (2b) as published. It can be a radius</DESCRIPTION>
+</FIELD>
+<FIELD ID="d_col8" name="Minor Axis Flag" ucd="meta.code;phys.angSize.sminAxis" datatype="char" arraysize="*">
+<DESCRIPTION> The minor axis flag as published. (2b) - is diameter, which is default, (b) - means radius.</DESCRIPTION>
+</FIELD>
+<FIELD ID="d_col9" name="Minor Axis Unit" ucd="meta.unit;phys.angSize.sminAxis" datatype="char" arraysize="*">
+<DESCRIPTION> The minor axis unit's as published.</DESCRIPTION>
+</FIELD>
+<FIELD ID="d_col10" name="Axis Ratio" ucd="phys.smajAxis.sminAxis" datatype="double">
+<DESCRIPTION> The axis ratio, as published: it can be b/a, a/b or log a/b.</DESCRIPTION>
+</FIELD>
+<FIELD ID="d_col11" name="Axis Ratio Flag" ucd="meta.code;phys.angSize.smajAxis.phys.angSize.sminAxis" datatype="char" arraysize="*">
+<DESCRIPTION> The axis ratio flag:  b/a, a/b or log a/b.</DESCRIPTION>
+</FIELD>
+<FIELD ID="d_col12" name="Major Axis Uncertainty" ucd="meta.code.error;arith;phys.angSize.smajAxis" datatype="double">
+<DESCRIPTION> The major axis uncertainty, as published.</DESCRIPTION>
+</FIELD>
+<FIELD ID="d_col13" name="Ellipticity" ucd="src.ellipticity" datatype="double">
+<DESCRIPTION> The ellipticity as published. (1-b/a)</DESCRIPTION>
+</FIELD>
+<FIELD ID="d_col14" name="Eccentricity" ucd="src.eccentricity" datatype="double">
+<DESCRIPTION> The eccentricity as published. [(a/b)^2-1]/[(a/b)^2+1]</DESCRIPTION>
+</FIELD>
+<FIELD ID="d_col15" name="Position Angle" ucd="pos.posAng" datatype="double" unit="deg">
+<DESCRIPTION> The position angle as published.</DESCRIPTION>
+</FIELD>
+<FIELD ID="d_col16" name="Equinox" ucd="time.equinox" datatype="char" arraysize="*">
+<DESCRIPTION> The equinox as published.When the equinox is followed by an asterisk, it means that no equinox was published, and the value given is assumed by NED.</DESCRIPTION>
+</FIELD>
+<FIELD ID="d_col17" name="Reference Level" ucd="meta.ref;phys.angSize" datatype="char" arraysize="*">
+<DESCRIPTION> The reference level, with units, for the diameters. For an optical diameter, this might be an isophote (surface brightness); for a radiodiameter, it might be a half-peak level; etc.</DESCRIPTION>
+</FIELD>
+<FIELD ID="d_col18" name="NED Frequency" ucd="em.freq" datatype="double" unit="hertz">
+<DESCRIPTION> The frequency or wavelength of observation, translated as needed in Hz.</DESCRIPTION>
+</FIELD>
+<FIELD ID="d_col19" name="NED Major Axis" ucd="phys.angSize.smajAxis" datatype="double" unit="arcsec">
+<DESCRIPTION> The major axis, translated as needed in arcseconds.</DESCRIPTION>
+</FIELD>
+<FIELD ID="d_col20" name="NED Major Axis Uncertainty" ucd="meta.code.error;arith;phys.angSize.smajAxis" datatype="double" unit="arcsec">
+<DESCRIPTION> The major axis uncertainty , translated as needed in arcseconds.</DESCRIPTION>
+</FIELD>
+<FIELD ID="d_col21" name="NED Axis Ratio" ucd="phys.smajAxis.sminAxis" datatype="double">
+<DESCRIPTION> The axis ratio b/a.</DESCRIPTION>
+</FIELD>
+<FIELD ID="d_col22" name="NED Ellipticity" ucd="src.ellipticity" datatype="double">
+<DESCRIPTION> The ellipticity as calculated in NED, based on paper.</DESCRIPTION>
+</FIELD>
+<FIELD ID="d_col23" name="NED Eccentricity" ucd="src.eccentricity" datatype="double">
+<DESCRIPTION> The eccentricity as calculated in NED, based on paper.</DESCRIPTION>
+</FIELD>
+<FIELD ID="d_col24" name="NED cos-1_axis_ratio" ucd="arith;cos-1.phys.smajAxis.sminAxis" datatype="double">
+<DESCRIPTION> The cos**(-1)(a/b), calculated be NED.</DESCRIPTION>
+</FIELD>
+<FIELD ID="d_col25" name="NED Position Angle" ucd="pos.posAng" datatype="double" unit="deg">
+<DESCRIPTION> The position angle, translated as needed to degrees for equinox J2000.</DESCRIPTION>
+</FIELD>
+<FIELD ID="d_col26" name="NED Minor Axis" ucd="phys.angSize.sminAxis" datatype="double" unit="arcsec">
+<DESCRIPTION> The minor axis, translated as needed, in arcseconds.</DESCRIPTION>
+</FIELD>
+<FIELD ID="d_col27" name="Minor Axis Uncertainty" ucd="meta.code.error;arith;phys.angSize.sminAxis" datatype="double">
+<DESCRIPTION> The minor axis uncertainty, as published.</DESCRIPTION>
+</FIELD>
+<FIELD ID="d_col28" name="NED Minor Axis Uncertainty" ucd="meta.code.error;arith;phys.angSize.sminAxis" datatype="double" unit="arcsec">
+<DESCRIPTION> The minor axis uncertainty in arcseconds.</DESCRIPTION>
+</FIELD>
+<FIELD ID="d_col29" name="Axis Ratio Uncertainty" ucd="meta.code.error;arith;phys.smajAxis.phys.angSize.sminAxis" datatype="double">
+<DESCRIPTION> The axis ratio uncertainty, as published.</DESCRIPTION>
+</FIELD>
+<FIELD ID="d_col30" name="NED Axis Ratio Uncertainty" ucd="meta.code.error;arith;phys.smajAxis.phys.angSize.sminAxis" datatype="double">
+<DESCRIPTION> The axis ratio uncertainty, if original paper has it.</DESCRIPTION>
+</FIELD>
+<FIELD ID="d_col31" name="Ellipticity Uncertainty" ucd="meta.code.error;arith;src.ellipticity" datatype="double">
+<DESCRIPTION> The ellipticity uncertainty, as published.</DESCRIPTION>
+</FIELD>
+<FIELD ID="d_col32" name="NED Ellipticity Uncertainty" ucd="meta.code.error;arith;src.ellipticity" datatype="double">
+<DESCRIPTION> The ellipticity uncertainty, as calculated by NED from the published values.</DESCRIPTION>
+</FIELD>
+<FIELD ID="d_col33" name="Eccentricity Uncertainty" ucd="meta.code.error;arith;src.eccentricity" datatype="double">
+<DESCRIPTION> The eccentricity uncertainty, as published.</DESCRIPTION>
+</FIELD>
+<FIELD ID="d_col34" name="NED Eccentricity Uncertainty" ucd="meta.code.error;arith;src.eccentricity" datatype="double">
+<DESCRIPTION> The eccentricity uncertainty, as calculated by NED from the published values.</DESCRIPTION>
+</FIELD>
+<FIELD ID="d_col35" name="Position Angle Uncertainty" ucd="meta.code.error;arith;pos.posAng" datatype="double">
+<DESCRIPTION> The position angle uncertainty, as published.</DESCRIPTION>
+</FIELD>
+<FIELD ID="d_col36" name="NED Position Angle Uncertainty" ucd="meta.code.error;arith;pos.posAng" datatype="double" unit="deg">
+<DESCRIPTION> The position angle uncertainty, calculated in degrees. </DESCRIPTION>
+</FIELD>
+<FIELD ID="d_col37" name="Significance" ucd="meta.note;stat.fit.goodness" datatype="char" arraysize="*">
+<DESCRIPTION> The type of uncertainty reported in the original publication.</DESCRIPTION>
+</FIELD>
+<FIELD ID="d_col38" name="Frequency" ucd="em.freq" datatype="double">
+<DESCRIPTION> The frequency or wavelength of observation as given in the paper.</DESCRIPTION>
+</FIELD>
+<FIELD ID="d_col39" name="Frequency Unit" ucd="meta.unit;em.freq" datatype="char" arraysize="*">
+<DESCRIPTION> The frequency or wavelength unit as given in the paper.</DESCRIPTION>
+</FIELD>
+<FIELD ID="d_col40" name="Frequency Mode" ucd="meta.note;em.freq" datatype="char" arraysize="*">
+<DESCRIPTION> The method(s) by which the data were collected, reduced, or derived, in elation to the frequency or wavelength.</DESCRIPTION>
+</FIELD>
+<FIELD ID="d_col41" name="Detector Type" ucd="meta.note;instr.det" datatype="char" arraysize="*">
+<DESCRIPTION> The observing instrumentation. </DESCRIPTION>
+</FIELD>
+<FIELD ID="d_col42" name="Fitting Technique" ucd="meta.note;obs.param" datatype="char" arraysize="*">
+<DESCRIPTION> The observing technique. </DESCRIPTION>
+</FIELD>
+<FIELD ID="d_col43" name="Features" ucd="meta.note;obs.feature" datatype="char" arraysize="*">
+<DESCRIPTION> The observing features. </DESCRIPTION>
+</FIELD>
+<FIELD ID="d_col44" name="Measured Quantity" ucd="meta.note;obs.field" datatype="char" arraysize="*">
+<DESCRIPTION> The part of the object measured.</DESCRIPTION>
+</FIELD>
+<FIELD ID="d_col45" name="Measurement Qualifiers" ucd="meta.note;obs.qualifier" datatype="char" arraysize="*">
+<DESCRIPTION> The qualifiers of measurement mode.</DESCRIPTION>
+</FIELD>
+<FIELD ID="d_col46" name="Targeted RA" ucd="pos.eq.ra" datatype="char" arraysize="*">
+<DESCRIPTION> The object's RA as published.(HHMMSS) </DESCRIPTION>
+</FIELD>
+<FIELD ID="d_col47" name="Targeted DEC" ucd="pos.eq.dec" datatype="char" arraysize="*">
+<DESCRIPTION> The object's DEC as published. </DESCRIPTION>
+</FIELD>
+<FIELD ID="d_col48" name="Targeted Equinox" ucd="time.equinox" datatype="char" arraysize="*">
+<DESCRIPTION> The object's coordinates equinox as published. </DESCRIPTION>
+</FIELD>
+<FIELD ID="d_col49" name="NED Qualifiers" ucd="meta.note" datatype="char" arraysize="*">
+<DESCRIPTION>Self-explanatory notes pertaining to the history of the data or to the adjustments to the data or to changes introduced by NED.</DESCRIPTION>
+</FIELD>
+<FIELD ID="d_col50" name="NED Comment" ucd="meta.note" datatype="char" arraysize="*">
+<DESCRIPTION>Other information about the data. </DESCRIPTION>
+</FIELD>
+<DATA>
+<TABLEDATA>
+<TR>
+<TD>1</TD>
+<TD>K_s (LGA/2MASS isophotal)     </TD>
+<TD>2003AJ....125..525J</TD>
+<TD> 165.8</TD>
+<TD>(a)</TD>
+<TD>arcsec </TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD>0.610</TD>
+<TD>(b/a)</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD> -52.0 </TD>
+<TD>J2000</TD>
+<TD>20.0 K-mag arcsec^-2^         </TD>
+<TD>     1.38E+14</TD>
+<TD>331.60</TD>
+<TD></TD>
+<TD>           0.61</TD>
+<TD>0.390000</TD>
+<TD>0.457620</TD>
+<TD>52</TD>
+<TD>128</TD>
+<TD>202.28</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD>No uncertainty reported</TD>
+<TD>2.17      </TD>
+<TD>microns   </TD>
+<TD>Broad-band detector (e.g. photographic plate)</TD>
+<TD>Maps (e.g., 2MASS, VLA, Sloan)</TD>
+<TD>Ellipse fitting to image</TD>
+<TD></TD>
+<TD>Isophotal diameter</TD>
+<TD>A radius is given in DIA_MAJ, not a diameter</TD>
+<TD>83.634140</TD>
+<TD>22.015520</TD>
+<TD>J2000</TD>
+<TD>From new, raw data</TD>
+<TD>                                        </TD>
+</TR>
+<TR>
+<TD>2</TD>
+<TD>K_s (LGA/2MASS "total")       </TD>
+<TD>2003AJ....125..525J</TD>
+<TD> 253.0</TD>
+<TD>(a)</TD>
+<TD>arcsec </TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD>0.610</TD>
+<TD>(b/a)</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD> -52.0 </TD>
+<TD>J2000</TD>
+<TD>Diameter for "total" magnitude</TD>
+<TD>     1.38E+14</TD>
+<TD>506.00</TD>
+<TD></TD>
+<TD>           0.61</TD>
+<TD>0.390000</TD>
+<TD>0.457620</TD>
+<TD>52</TD>
+<TD>128</TD>
+<TD>308.66</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD>No uncertainty reported</TD>
+<TD>2.17      </TD>
+<TD>microns   </TD>
+<TD>Broad-band detector (e.g. photographic plate)</TD>
+<TD>Maps (e.g., 2MASS, VLA, Sloan)</TD>
+<TD>Ellipse fitting to image</TD>
+<TD></TD>
+<TD>Isophotal diameter</TD>
+<TD>A radius is given in DIA_MAJ, not a diameter</TD>
+<TD>83.634140</TD>
+<TD>22.015520</TD>
+<TD>J2000</TD>
+<TD>From new, raw data</TD>
+<TD>                                        </TD>
+</TR>
+</TABLEDATA>
+</DATA>
+</TABLE>
+</RESOURCE>
+</VOTABLE>
+
