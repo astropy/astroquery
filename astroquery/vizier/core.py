@@ -24,7 +24,6 @@ __all__ = ['Vizier']
 class Vizier(BaseQuery):
     TIMEOUT = VIZIER_TIMEOUT()
     VIZIER_VOTABLE_URL = "http://" + VIZIER_SERVER() + "/viz-bin/votable"
-    VIZIER_URL = "http://" + VIZIER_SERVER() + "/viz-bin/VizieR-2"
 
     def __init__(self, columns=None, column_filters=None, keywords=None):
         self._columns = None
@@ -95,6 +94,20 @@ class Vizier(BaseQuery):
     @column_filters.deleter
     def column_filters(self):
         self._column_filters = None
+
+    def find_catalogs(self, keywords, verbose=False):
+
+        if isinstance(keywords, list):
+            keywords = " ".join(keywords)
+
+        data_payload = {'-words':keywords, '-meta.all':1}
+        response = commons.send_request(
+            Vizier.VIZIER_VOTABLE_URL,
+            data_payload,
+            Vizier.TIMEOUT)
+        result = self._parse_result(response, verbose=verbose, get_names=True)
+
+        return result
 
     def get_catalog(self, catalog, verbose=False):
         """
@@ -350,7 +363,7 @@ class Vizier(BaseQuery):
         return script
 
     @class_or_instance
-    def _parse_result(self, response, verbose=False):
+    def _parse_result(self, response, get_names=False, verbose=False):
         """
         Parses the HTTP response to create an `astropy.table.Table`.
         Returns the raw result as a string in case of parse errors.
@@ -359,6 +372,9 @@ class Vizier(BaseQuery):
         ----------
         response : `requests.Response`
             The response of the HTTP POST request
+        get_names : bool
+            If specified, return only the table names (useful for table
+            discovery)
 
         Returns
         -------
@@ -373,9 +389,12 @@ class Vizier(BaseQuery):
             tf.write(response.content.encode('utf-8'))
             tf.file.flush()
             vo_tree = votable.parse(tf.name, pedantic=False)
-            table_list = [(t.name, t.to_table())
-                          for t in vo_tree.iter_tables() if len(t.array) > 0]
-            return commons.TableList(table_list)
+            if get_names:
+                return [t.name for t in vo_tree.iter_tables()]
+            else:
+                table_list = [(t.name, t.to_table())
+                              for t in vo_tree.iter_tables() if len(t.array) > 0]
+                return commons.TableList(table_list)
 
         except:
             traceback.print_exc()  # temporary for debugging
