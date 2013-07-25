@@ -23,7 +23,8 @@ __all__ = ['Vizier']
 
 class Vizier(BaseQuery):
     TIMEOUT = VIZIER_TIMEOUT()
-    VIZIER_URL = "http://" + VIZIER_SERVER() + "/viz-bin/votable"
+    VIZIER_VOTABLE_URL = "http://" + VIZIER_SERVER() + "/viz-bin/votable"
+    VIZIER_URL = "http://" + VIZIER_SERVER() + "/viz-bin/VizieR-2"
 
     def __init__(self, columns=None, column_filters=None, keywords=None):
         self._columns = None
@@ -120,7 +121,7 @@ class Vizier(BaseQuery):
 
         data_payload = self._args_to_payload(catalog=catalog)
         response = commons.send_request(
-            Vizier.VIZIER_URL,
+            Vizier.VIZIER_VOTABLE_URL,
             data_payload,
             Vizier.TIMEOUT)
         return response
@@ -175,7 +176,7 @@ class Vizier(BaseQuery):
             catalog=catalog,
             caller='query_object_async')
         response = commons.send_request(
-            Vizier.VIZIER_URL,
+            Vizier.VIZIER_VOTABLE_URL,
             data_payload,
             Vizier.TIMEOUT)
         return response
@@ -256,7 +257,7 @@ class Vizier(BaseQuery):
             coordinates, radius=radius, height=height,
             width=width, catalog=catalog, caller='query_region_async')
         response = commons.send_request(
-            Vizier.VIZIER_URL,
+            Vizier.VIZIER_VOTABLE_URL,
             data_payload,
             Vizier.TIMEOUT)
         return response
