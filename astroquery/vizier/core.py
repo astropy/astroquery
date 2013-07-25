@@ -106,7 +106,7 @@ class Vizier(BaseQuery):
             Vizier.VIZIER_VOTABLE_URL,
             data_payload,
             Vizier.TIMEOUT)
-        result = self._parse_result(response, verbose=verbose, get_names=True)
+        result = self._parse_result(response, verbose=verbose, get_catalog_names=True)
 
         return result
 
@@ -371,7 +371,7 @@ class Vizier(BaseQuery):
         return script
 
     @class_or_instance
-    def _parse_result(self, response, get_names=False, verbose=False):
+    def _parse_result(self, response, get_catalog_names=False, verbose=False):
         """
         Parses the HTTP response to create an `astropy.table.Table`.
         Returns the raw result as a string in case of parse errors.
@@ -380,7 +380,7 @@ class Vizier(BaseQuery):
         ----------
         response : `requests.Response`
             The response of the HTTP POST request
-        get_names : bool
+        get_catalog_names : bool
             If specified, return only the table names (useful for table
             discovery)
 
@@ -397,8 +397,8 @@ class Vizier(BaseQuery):
             tf.write(response.content.encode('utf-8'))
             tf.file.flush()
             vo_tree = votable.parse(tf.name, pedantic=False)
-            if get_names:
-                return [t.name for t in vo_tree.iter_tables()]
+            if get_catalog_names:
+                return dict([(R.name,R) for R in vo_tree.resources])
             else:
                 table_list = [(t.name, t.to_table())
                               for t in vo_tree.iter_tables() if len(t.array) > 0]
