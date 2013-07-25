@@ -1,20 +1,22 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-#from __future__ import print_function
+from __future__ import print_function
 
 import tempfile
-from xml.dom.minidom import parseString
-import astropy.utils.data as aud
-from astropy.table import Table
 import re
 import warnings
 from collections import namedtuple
+from xml.dom.minidom import parseString
+from datetime import datetime
+
+import astropy.units as u
+import astropy.coordinates as coord
+import astropy.utils.data as aud
+from astropy.table import Table
+from astropy.io import fits
+
 from ..query import BaseQuery
 from ..utils.class_or_instance import class_or_instance
 from ..utils import commons
-import astropy.units as u
-import astropy.coordinates as coord
-from astropy.io import fits
-from datetime import datetime
 from . import (HUBBLE_CONSTANT,
                CORRECT_REDSHIFT,
                OUTPUT_COORDINATE_FRAME,
