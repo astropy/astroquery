@@ -1,6 +1,4 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-import urllib
-import urllib2
 import socket
 import time
 import copy
@@ -8,6 +6,10 @@ import os
 import sys
 import re
 import astropy.utils.data as aud
+import astropy.io.ascii as asciireader
+from . import BESANCON_DOWNLOAD_URL, BESANCON_MODEL_FORM, BESANCON_PING_DELAY
+import requests
+import urllib2 # only needed for urllib2.URLError
 
 __all__ = ['get_besancon_model_file','request_besancon']
 
@@ -52,10 +54,15 @@ keyword_defaults = {
     'klec':1,
     'cinem':0,
     'outmod':"",
-    }
+}
 
-url_download = "ftp://sasftp.obs-besancon.fr/modele/"
-url_request  = "http://model.obs-besancon.fr/modele_form.php"
+# Since these are configuration options, they should probably be used directly
+# rather than re-stored as local variables.  Then again, we need to refactor
+# this whole project to be class-based, so they should be set for class
+# instances.
+url_download = BESANCON_DOWNLOAD_URL()
+url_request = BESANCON_MODEL_FORM()
+ping_delay = BESANCON_PING_DELAY()
 # sample file:  1340900648.230224.resu
 result_re = re.compile("[0-9]{10}\.[0-9]{6}\.resu")
 
@@ -78,9 +85,9 @@ def parse_besancon_dict(bd):
                         for jj,lv in enumerate(listval):
                             http_dict.append((key+"[%i][%i]" % (ii,jj),lv))
                     else:
-                        http_dict.append((key+"[%i]" % (ii) , listval))
+                        http_dict.append((key+"[%i]" % (ii), listval))
         else:
-            http_dict.append((key , val))
+            http_dict.append((key, val))
 
     return http_dict
 
@@ -105,14 +112,14 @@ def parse_errors(text):
     
 colors_limits = {"J-H":(-99,99),"H-K":(-99,99),"J-K":(-99,99),"V-K":(-99,99)}
 mag_limits = {'U':(-99,99), 'B':(-99,99), 'V':(-5,20), 'R':(-99,99),
-    'I':(-99,99), 'J':(-99,99), 'H':(-99,99), 'K':(-99,99), 'L':(-99,99)}
+              'I':(-99,99), 'J':(-99,99), 'H':(-99,99), 'K':(-99,99), 'L':(-99,99)}
 mag_order = "U","B","V","R","I","J","H","K","L"
 
 def request_besancon(email, glon, glat, smallfield=True, extinction=0.7,
-        area=0.0001, verbose=True, clouds=None, absmag_limits=(-7,15),
-        mag_limits=copy.copy(mag_limits),
-        colors_limits=copy.copy(colors_limits), 
-        retrieve_file=True, **kwargs):
+                     area=0.0001, verbose=True, clouds=None,
+                     absmag_limits=(-7,15), mag_limits=copy.copy(mag_limits),
+                     colors_limits=copy.copy(colors_limits),
+                     retrieve_file=True, **kwargs):
     """
     Perform a query on the Besancon model of the galaxy
     http://model.obs-besancon.fr/
@@ -130,13 +137,13 @@ def request_besancon(email, glon, glat, smallfield=True, extinction=0.7,
     extinction : float
         Extinction per kpc in A_V
     area : float
-        Area in square degrees 
+        Area in square degrees
     absmag_limits : (float,float)
         Absolute magnitude lower,upper limits
     colors_limits : dict of (float,float)
         Should contain 4 elements listing color differences in the valid bands, e.g.:
             {"J-H":(99,-99),"H-K":(99,-99),"J-K":(99,-99),"V-K":(99,-99)}
-    mag_limits = dict of (float,float) 
+    mag_limits = dict of (float,float)
         Lower and Upper magnitude difference limits for each magnitude band
         U B V R I J H K L
     clouds : list of 2-tuples
@@ -197,15 +204,20 @@ def request_besancon(email, glon, glat, smallfield=True, extinction=0.7,
             kwd[di][ii] = di
 
     # parse the default dictionary
-    request = parse_besancon_dict(keyword_defaults)
+    request_data = parse_besancon_dict(keyword_defaults)
 
     # an e-mail address is required
-    request.append(('email',email))
-    request = urllib.urlencode(request)
+    request_data.append(('email',email))
+    request_data = dict(request_data)
+
     # load the URL as text
-    U = urllib.urlopen(url_request, request)
+    response = requests.post(url_request, data=request_data, stream=True)
+
+    if verbose:
+        print "Loading request from Besancon server ..."
+
     # keep the text stored for possible later use
-    with aud.get_readable_fileobj(U) as f:
+    with aud.get_readable_fileobj(response.raw) as f:
         text = f.read()
     try:
         filename = result_re.search(text).group()
@@ -221,7 +233,8 @@ def request_besancon(email, glon, glat, smallfield=True, extinction=0.7,
     else:
         return filename
 
-def get_besancon_model_file(filename, verbose=True, save=True, savename=None, overwrite=True):
+def get_besancon_model_file(filename, verbose=True, save=True, savename=None,
+                            overwrite=True, timeout=5.0):
     """
     Download a Besancon model from the website
 
@@ -239,6 +252,9 @@ def get_besancon_model_file(filename, verbose=True, save=True, savename=None, ov
         Overwrite the file if it exists?  Defaults to True because the .resu
         tables should have unique names by default, so there's little risk of
         accidentally overwriting important information
+    timeout : float
+        Amount of time to wait after pinging the server to see if a file is
+        present.  Default 5s, which is probably reasonable.
     """
 
     url = url_download+filename
@@ -246,23 +262,31 @@ def get_besancon_model_file(filename, verbose=True, save=True, savename=None, ov
     elapsed_time = 0
     t0 = time.time()
 
-    sys.stdout.write("\n")
+    if verbose:
+        sys.stdout.write("Awaiting Besancon file...\n")
     while 1:
-        sys.stdout.write(u"\r")
+        if verbose:
+            sys.stdout.write(u"\r")
+            sys.stdout.flush()
         try:
-            U = urllib2.urlopen(url,timeout=5)
-            with aud.get_readable_fileobj(U, cache=True) as f:
+            #U = requests.get(url,timeout=timeout,stream=True)
+            # TODO: add timeout= keyword to get_readable_fileobj (when PR https://github.com/astropy/astropy/pull/1258 is merged)
+            with aud.get_readable_fileobj(url, cache=True) as f:
                 results = f.read()
             break
         except urllib2.URLError:
-            sys.stdout.write(u"Waiting 30s for model to finish (elapsed wait time %is, total %i)\r" % (elapsed_time,time.time()-t0))
-            time.sleep(30)
-            elapsed_time += 30
+            if verbose:
+                sys.stdout.write(u"Waiting %0.1fs for model to finish (elapsed wait time %0.1fs, total wait time %0.1f)\r" % (ping_delay,elapsed_time,time.time()-t0))
+                sys.stdout.flush()
+            time.sleep(ping_delay)
+            elapsed_time += ping_delay
             continue
         except socket.timeout:
-            sys.stdout.write(u"Waiting 30s for model to finish (elapsed wait time %is, total %i)\r" % (elapsed_time,time.time()-t0))
-            time.sleep(30)
-            elapsed_time += 30
+            if verbose:
+                sys.stdout.write(u"Waiting %0.1fs for model to finish (elapsed wait time %0.1fs, total wait time %0.1f)\r" % (ping_delay,elapsed_time,time.time()-t0))
+                sys.stdout.flush()
+            time.sleep(ping_delay)
+            elapsed_time += ping_delay
             continue
 
 
@@ -278,14 +302,13 @@ def get_besancon_model_file(filename, verbose=True, save=True, savename=None, ov
     return parse_besancon_model_string(results)
 
 def parse_besancon_model_string(bms,):
-    import astropy.io.ascii as asciireader
 
     besancon_table = asciireader.read(bms, Reader=asciireader.FixedWidth,
-            header_start=None, data_start=81,
-            names=bms.split('\n')[80].split(),
-            col_starts=(0,7,13,16,21,27,33,36,41,49,56,62,69,76,82,92,102,109),
-            col_ends=(6,12,15,20,26,32,35,39,48,55,61,68,75,81,91,101,108,115),
-            data_end=-7)
+                                      header_start=None, data_start=81,
+                                      names=bms.split('\n')[80].split(),
+                                      col_starts=(0,7,13,16,21,27,33,36,41,49,56,62,69,76,82,92,102,109),
+                                      col_ends=(6,12,15,20,26,32,35,39,48,55,61,68,75,81,91,101,108,115),
+                                      data_end=-7)
 
     for cn in besancon_table.columns:
         if besancon_table[cn].dtype.kind in ('s','S'):
@@ -293,5 +316,3 @@ def parse_besancon_model_string(bms,):
             break
 
     return besancon_table
-
-
