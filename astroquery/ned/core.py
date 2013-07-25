@@ -570,6 +570,13 @@ class Ned(BaseQuery):
 
     @class_or_instance
     def _request_payload_init(self):
+        """
+        Initializes common cgi-parameters for all queries.
+
+        Returns
+        -------
+        request_payload : dict
+        """
         request_payload = dict(of='xml_main')
         # common settings for all queries as per NED guidelines
         # for more see <http://ned.ipac.caltech.edu/help/guidelines_auto.html>
@@ -580,6 +587,13 @@ class Ned(BaseQuery):
 
     @class_or_instance
     def _set_input_options(self, request_payload):
+        """
+        Supports setting of input options for certain queries
+
+        Parameters
+        ----------
+        request_payload : dict
+        """
         request_payload['hconst'] = HUBBLE_CONSTANT()
         request_payload['omegam'] = 0.27
         request_payload['omegav'] = 0.73
@@ -587,12 +601,34 @@ class Ned(BaseQuery):
 
     @class_or_instance
     def _set_output_options(self, request_payload):
+        """
+        Supports setting of output options for certain queries
+
+        Parameters
+        ----------
+        request_payload : dict
+        """
         request_payload['out_csys'] = OUTPUT_COORDINATE_FRAME()
         request_payload['out_equinox'] = OUTPUT_EQUINOX()
         request_payload['obj_sort'] = SORT_OUTPUT_BY()
 
     @class_or_instance
     def _parse_result(self, response, verbose=False):
+        """
+        Parses the raw HTTP response and returns it as an `astropy.table.Table`.
+
+        Parameters
+        ----------
+        response : `requests.Response`
+            The HTTP response object
+        verbose : bool, optional
+            Defaults to false. When true it will display warnings whenever the VOtable
+            returned from the service doesn't conform to the standard.
+
+        Returns
+        -------
+        table : `astropy.table.Table`
+        """
         if not verbose:
             commons.suppress_vo_warnings()
         try:
@@ -612,16 +648,19 @@ class Ned(BaseQuery):
                      "Returning raw result instead.")
                 return response.content
 
-def _validate_keywords(kwds, kwd_dict_keys):
-    values = [kwd.lower() for kwd in kwds]
-    keys = [ key.lower() for key in kwd_dict_keys]
-    for val in set(values) - set(keys):
-            warnings.warn("{val} : No such keyword".format(val=val))
-    valid_keys = [key for key in kwd_dict_keys if key.lower() in values]
-    return valid_keys
-
 def _parse_radius(radius):
+    """
+    Parses the radius and returns it in the format expected by NED.
 
+    Parameters
+    ----------
+    radius : str, `astropy.units.Quantity`
+
+    Returns
+    -------
+    radius_in_min : float
+        The value of the radius in arcminutes.
+    """
     if isinstance(radius, u.Quantity) and radius.unit in u.deg.find_equivalent_units():
         radius_in_min = radius.to(u.arcmin).value
     # otherwise must be an Angle or be specified in hours...
@@ -634,6 +673,22 @@ def _parse_radius(radius):
     return radius_in_min
 
 def _is_name(coordinates):
+    """
+    Returns `False` if coordinates can be parsed via `astropy.coordinates`
+    and `True` otherwise.
+
+    Parameters
+    ----------
+    coordinates : str or `astropy.coordinates` object
+            The target around which to search. It may be specified as a string
+            in which case it is resolved using online services or as the appropriate
+            `astropy.coordinates` object. ICRS coordinates may also be entered as strings
+            as specified in the `astropy.coordinates` module.
+
+    Returns
+    -------
+    bool
+    """
     try:
         coord.ICRSCoordinates(coordinates)
         return False
@@ -641,12 +696,24 @@ def _is_name(coordinates):
         return True
 
 
-def _check_ned_valid(str):
+def _check_ned_valid(string):
+    """
+    Checks if the VOTable returned has an error parameter
 
+    Parameters
+    ---------
+    string : The VOTable as a string
+
+    Returns
+    -------
+    (retval, errmsg): bool, str
+        retval - `False` if error parameter found, `True` otherwise.
+        errmsg - The string containing the error message if it exists, `None` otherwise.
+    """
     # Routine assumes input is valid Table unless error parameter is found.
     retval = True
     errmsg = None
-    strdom = parseString(str)
+    strdom = parseString(string)
     p = strdom.getElementsByTagName('PARAM')
 
     if len(p) > 1:
