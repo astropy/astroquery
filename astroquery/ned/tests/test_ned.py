@@ -1,14 +1,18 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from __future__ import print_function
-from ... import ned
+
 import os
-from astropy.tests.helper import pytest
+import requests
+
+
 from numpy import testing as npt
+from astropy.tests.helper import pytest
 from astropy.table import Table
 import astropy.utils.data as aud
 import astropy.coordinates as coord
 import astropy.units as u
-import requests
+
+from ... import ned
 from ...ned import (HUBBLE_CONSTANT,
                CORRECT_REDSHIFT,
                OUTPUT_COORDINATE_FRAME,
