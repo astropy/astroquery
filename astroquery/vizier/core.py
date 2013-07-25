@@ -95,6 +95,38 @@ class Vizier(BaseQuery):
     def column_filters(self):
         self._column_filters = None
 
+    def get_catalog(self, catalog, verbose=False):
+        """
+        Query the Vizier service for a specific catalog
+
+        Parameters
+        ----------
+        catalog : str or list, optional
+            The catalog that will be retrieved
+
+        Returns
+        -------
+        result : `astropy.table.Table`
+            The results in an `astropy.table.Table`.
+        """
+        response = self.get_catalog_async(catalog=catalog)
+        result = self._parse_result(response, verbose=verbose)
+        return result
+
+    def get_catalog_async(self, catalog, verbose=False):
+        """
+        Asynchronous version of get_catalog
+        """
+
+        data_payload = self._args_to_payload(catalog=catalog)
+        response = commons.send_request(
+            Vizier.VIZIER_URL,
+            data_payload,
+            Vizier.TIMEOUT)
+        return response
+
+    get_catalog_async.__doc__ += get_catalog.__doc__
+
     @class_or_instance
     def query_object(self, object_name, catalog=None, verbose=False):
         """
