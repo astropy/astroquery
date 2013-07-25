@@ -97,6 +97,34 @@ class Vizier(BaseQuery):
 
     @class_or_instance
     def find_catalogs(self, keywords, verbose=False):
+        """
+        Search Vizier for catalogs based on a set of keywords, e.g. author name
+
+        Parameters
+        ----------
+        keywords : list or string
+            List of keywords, or space-separated set of keywords.
+            From `Vizier <http://vizier.u-strasbg.fr/doc/asu-summary.htx>`_:
+            "names or words of title of catalog. The words are and'ed, i.e.
+            only the catalogues characterized by all the words are selected."
+
+        Returns
+        -------
+        Dictionary of the "Resource" name and the VOTable resource object.
+        "Resources" are generally publications; one publication may contain
+        many tables.
+
+        Example
+        -------
+        >>> from astroquery.vizier import Vizier
+        >>> catalog_list = Vizier.find_catalogs('Kang W51')
+        >>> print catalog_list
+        {u'J/ApJ/706/83': <astropy.io.votable.tree.Resource at 0x108d4d490>,
+         u'J/ApJS/191/232': <astropy.io.votable.tree.Resource at 0x108d50490>}
+        >>> print {k:v.description for k,v in catalog_list.iteritems()}
+        {u'J/ApJ/706/83': u'Embedded YSO candidates in W51 (Kang+, 2009)',
+         u'J/ApJS/191/232': u'CO survey of W51 molecular cloud (Bieging+, 2010)'}
+        """
 
         if isinstance(keywords, list):
             keywords = " ".join(keywords)
