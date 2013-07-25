@@ -97,7 +97,8 @@ remote server before it can be downloaded.  For these queries, the approach is
     data = result.get_data()
     # this will periodically check whether the data is available at the specified URL
 
-
+Additionally, any service can be queried asynchronously - `get_images_async`
+will return readable objects that can be downloaded at a later time.
 
 Outline of an Example Module
 ----------------------------
