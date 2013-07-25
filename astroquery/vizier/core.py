@@ -111,7 +111,7 @@ class Vizier(BaseQuery):
         return result
 
     @class_or_instance
-    def get_catalog(self, catalog, verbose=False):
+    def get_catalogs(self, catalog, verbose=False):
         """
         Query the Vizier service for a specific catalog
 
@@ -125,17 +125,18 @@ class Vizier(BaseQuery):
         result : `astropy.table.Table`
             The results in an `astropy.table.Table`.
         """
-        response = self.get_catalog_async(catalog=catalog)
+        response = self.get_catalogs_async(catalog=catalog)
         result = self._parse_result(response, verbose=verbose)
         return result
 
     @class_or_instance
-    def get_catalog_async(self, catalog, verbose=False):
+    def get_catalogs_async(self, catalog, verbose=False):
         """
         Asynchronous version of get_catalog
         """
 
-        data_payload = self._args_to_payload(catalog=catalog)
+        data_payload = self._args_to_payload(catalog=catalog,
+                                             caller='get_catalog_async')
         response = commons.send_request(
             Vizier.VIZIER_VOTABLE_URL,
             data_payload,

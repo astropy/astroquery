@@ -14,6 +14,35 @@ radius. Similar to the VizieR web interface, the queries may be further
 constrained by specifying a choice of catalogs, keywords as well as filters on
 individual columns before retrieving the results.
 
+**Table Discovery**
+
+If you want to search for a set of tables, e.g. based on author name or other keywords,
+the `~astroquery.vizier.Vizier.find_catalogs` tool can be used:
+
+.. code-block:: python
+
+    >>> from astroquery.vizier import Vizier
+    >>> catalog_list = Vizier.find_catalogs('Kang W51')
+    [u'J/ApJ/706/83/ysos', u'J/ApJS/191/232/table1', u'J/ApJS/191/232/map']
+
+From this result, you could either get any of these as a complete catalog or
+query them for individual objects or regions.
+
+**Get a whole catalog**
+
+If you know the name of the catalog you wish to retrieve, e.g. from doing a
+`~astroquery.vizier.Vizier.find_catalogs` search as above, you can then grab
+the complete contents of those catalogs:
+
+.. code-block:: python
+
+    >>> catalogs = Vizier.get_catalog(catalog_list)
+    >>> print catalogs
+    <TableList with 3 table(s) and 102 total row(s)>
+    >>> print catalogs.keys()
+    [u'J/ApJ/706/83/ysos', u'J/ApJS/191/232/table1', u'J/ApJS/191/232/map']
+    
+
 **Query an object**
 
 For instance to query Sirius across all catalogs:
