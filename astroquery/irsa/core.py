@@ -2,20 +2,20 @@
 from __future__ import print_function, division
 
 import warnings
-import urllib
-import urllib2
 import tempfile
-import string
 import xml.etree.ElementTree as tree
-from astropy.table import Table
+
+import astropy.units as u
+import astropy.coordinates as coord
 import astropy.io.votable as votable
-import astropy.utils.data as aud
-#-----------------------------------------
+
 from ..query import BaseQuery
 from ..utils.class_or_instance import class_or_instance
 from ..utils import commons
-import astropy.units as u
-import astropy.coordinates as coord
+from . import (IRSA_SERVER,
+               GATOR_LIST_CATALOGS,
+               ROW_LIMIT,
+               TIMEOUT)
 
 
 '''
@@ -106,17 +106,12 @@ If onlist=0, the following parameters are required:
                         constraints.
 '''
 
-__all__ = ['query_gator_cone', 'query_gator_box', 'query_gator_polygon',
-           'query_gator_all_sky', 'print_gator_catalogs',
-           'list_gator_catalogs', 'Irsa']
-
-GATOR_URL = 'http://irsa.ipac.caltech.edu/cgi-bin/Gator/nph-query'
-GATOR_LIST_URL = 'http://irsa.ipac.caltech.edu/cgi-bin/Gator/nph-scan?mode=xml'
+__all__ = ['Irsa']
 
 class Irsa(BaseQuery):
-    IRSA_URL = GATOR_URL
-    GATOR_LIST_URL = 'http://irsa.ipac.caltech.edu/cgi-bin/Gator/nph-scan?mode=xml'
-    TIMEOUT = 60
+    IRSA_URL = IRSA_SERVER()
+    GATOR_LIST_URL = GATOR_LIST_CATALOGS()
+    TIMEOUT = TIMEOUT()
     @class_or_instance
     def query_region(self, coordinates=None, catalog=None, spatial='cone', radius=10 * u.arcsec,
                      width=None, polygon=None, get_query_payload=False, verbose=False):
@@ -260,7 +255,8 @@ class Irsa(BaseQuery):
         """
         request_payload = dict(catalog=catalog,
                                spatial=spatial,
-                               outfmt=3)
+                               outfmt=3,
+                               outrows=ROW_LIMIT())
         return request_payload
 
     @class_or_instance
@@ -328,7 +324,7 @@ class Irsa(BaseQuery):
             be used in query functions, and the value is the verbose description
             of the catalog.
         """
-        response = commons.send_request(Irsa.GATOR_LIST_URL, None, Irsa.TIMEOUT, request_type="GET")
+        response = commons.send_request(Irsa.GATOR_LIST_URL, dict(mode='xml'), Irsa.TIMEOUT, request_type="GET")
         root =tree.fromstring(response.content)
         catalogs = {}
         for catalog in root.findall('catalog'):
@@ -391,306 +387,3 @@ def _parse_dimension(dim):
         except (u.UnitsException, coord.errors.UnitsError, AttributeError):
             raise u.UnitsException("Dimension not in proper units")
     return dim
-
-#------------------------------------------------------------------------------------------------
-default_options={
-        'outfmt':3
-        }# use VO table format
-
-
-def query_gator_cone(catalog, object, radius, units='arcsec'):
-    '''
-    IRSA Gator cone search query.
-
-    This function can be used to perform a cone search in the catalogs hosted
-    by the NASA/IPAC Infrared Science Archive (IRSA).
-
-    Parameters
-    ----------
-    catalog : str
-        The catalog to be used (see the *Notes* section below).
-    object : str
-        This string gives the position of the center of the cone or box if
-        performing a cone or box search. The string can give coordinates
-        in various coordinate systems, or the name of a source that will
-        be resolved on the server (see `here
-        <http://irsa.ipac.caltech.edu/search_help.html>`_ for more
-        details).
-    radius : float
-        The radius for the cone search.
-    units : {'arcsec', 'arcmin', 'deg'}, optional
-        The units for the cone search radius. Defaults to 'arcsec'.
-
-    Returns
-    -------
-    table : `~astropy.table.Table`
-        A table containing the results of the query
-
-    Notes
-    -----
-    The ``catalog`` value to be used can be found with::
-
-        >>> from astroquery.irsa import list_gator_catalogs
-        >>> catalogs = list_gator_catalogs()
-
-    which returns a dictionary of available catalogs. Alternatively, one can
-    also use::
-
-        >>> from astroquery.irsa import print_gator_catalogs
-        >>> print_gator_catalogs()
-
-    to simply print these rather than return a dictionary.
-     '''
-
-    # Set basic options
-    options = {}
-    options['spatial'] = 'Cone'
-    options['catalog'] = catalog
-    options['outfmt'] = 3  # use VO table format
-
-    options['objstr'] = object
-
-    options['radius'] = radius
-
-    if units not in ['arcsec', 'arcmin', 'deg']:
-        raise ValueError("units should be one of arcsec/arcmin/deg")
-    options['radunits'] = units
-
-    return _query_gator(options)
-
-
-def query_gator_box(catalog, object, size):
-    '''
-    IRSA Gator box search query.
-
-    This function can be used to perform a box search in the catalogs hosted
-    by the NASA/IPAC Infrared Science Archive (IRSA).
-
-    Parameters
-    ----------
-    catalog : str
-        The catalog to be used (see the *Notes* section below).
-    object : str
-        This string gives the position of the center of the cone or box if
-        performing a cone or box search. The string can give coordinates
-        in various coordinate systems, or the name of a source that will
-        be resolved on the server (see `here
-        <http://irsa.ipac.caltech.edu/search_help.html>`_ for more
-        details). Required if spatial is 'Cone' or 'Box'.
-    size : float
-        The size of the box to search in arcseconds.
-
-    Returns
-    -------
-    table : `~astropy.table.Table`
-        A table containing the results of the query
-
-    Notes
-    -----
-    The ``catalog`` value to be used can be found with::
-
-        >>> from astroquery.irsa import list_gator_catalogs
-        >>> catalogs = list_gator_catalogs()
-
-    which returns a dictionary of available catalogs. Alternatively, one can
-    also use::
-
-        >>> from astroquery.irsa import print_gator_catalogs
-        >>> print_gator_catalogs()
-
-    to simply print these rather than return a dictionary.
-    '''
-
-    # Set basic options
-    options = {}
-    options['spatial'] = 'Box'
-    options['catalog'] = catalog
-    options['outfmt'] = 3  # use VO table format
-
-    options['objstr'] = object
-
-    options['size'] = size
-
-    return _query_gator(options)
-
-
-def query_gator_polygon(catalog, polygon):
-    '''
-    IRSA Gator polygon search query.
-
-    This function can be used to perform a polygon search in the catalogs hosted
-    by the NASA/IPAC Infrared Science Archive (IRSA).
-
-    Parameters
-    ----------
-    catalog : str
-        The catalog to used (see the *Notes* section below).
-    polygon : list
-        A list of ``(ra, dec)`` pairs (as tuples), in decimal degrees,
-        outlinining the polygon to search in.
-
-    Returns
-    -------
-    table : `~astropy.table.Table`
-        A table containing the results of the query
-
-    Notes
-    -----
-    The ``catalog`` value to be used can be found with::
-
-        >>> from astroquery.irsa import list_gator_catalogs
-        >>> catalogs = list_gator_catalogs()
-
-    which returns a dictionary of available catalogs. Alternatively, one can
-    also use::
-
-        >>> from astroquery.irsa import print_gator_catalogs
-        >>> print_gator_catalogs()
-
-    to simply print these rather than return a dictionary.
-     '''
-
-    # Set basic options
-    options = {}
-    options['spatial'] = 'Polygon'
-    options['catalog'] = catalog
-    options['outfmt'] = 3  # use VO table format
-
-    pairs = []
-    for pair in polygon:
-        if pair[1] > 0:
-            pairs.append(str(pair[0]) + '+' + str(pair[1]))
-        else:
-            pairs.append(str(pair[0]) + str(pair[1]))
-    options['polygon'] = string.join(pairs, ',')
-
-    return _query_gator(options)
-
-
-def query_gator_all_sky(catalog):
-    '''
-    IRSA Gator all-sky search query.
-
-    This function can be used to perform an all-sky search in the catalogs hosted
-    by the NASA/IPAC Infrared Science Archive (IRSA).
-
-    Parameters
-    ----------
-    catalog : str
-        The catalog to used (see the *Notes* section below).
-
-    Returns
-    -------
-    table : `~astropy.table.Table`
-        A table containing the results of the query
-
-    Notes
-    -----
-    The ``catalog`` value to be used can be found with::
-
-        >>> from astroquery.irsa import list_gator_catalogs
-        >>> catalogs = list_gator_catalogs()
-
-    which returns a dictionary of available catalogs. Alternatively, one can
-    also use::
-
-        >>> from astroquery.irsa import print_gator_catalogs
-        >>> print_gator_catalogs()
-
-    to simply print these rather than return a dictionary.
-     '''
-
-    # Set basic options
-    options = {}
-    options['spatial'] = 'NONE'
-    options['catalog'] = catalog
-    options['outfmt'] = 3  # use VO table format
-
-    return _query_gator(options)
-
-
-def _query_gator(options, debug=False):
-
-    # Construct query URL
-    url = GATOR_URL + "?" + \
-          string.join(["%s=%s" % (x, urllib.quote_plus(str(options[x]))) for x in options], "&")
-    if debug:
-        print(url)
-
-    # Request page
-    req = urllib2.Request(url)
-    response = urllib2.urlopen(req)
-    with aud.get_readable_fileobj(response, cache=True) as f:
-        result = f.read()
-
-    # Check if results were returned
-    if 'The catalog is not on the list' in result:
-        raise Exception("Catalog not found")
-
-    # Check that object name was not malformed
-    if 'Either wrong or missing coordinate/object name' in result:
-        raise Exception("Malformed coordinate/object name")
-
-    # Check that the results are not of length zero
-    if len(result) == 0:
-        raise Exception("The IRSA server sent back an empty reply")
-
-    # Write table to temporary file
-    output = tempfile.NamedTemporaryFile()
-    output.write(result)
-    output.flush()
-
-    # Read it in using the astropy VO table reader
-    try:
-        firsttable = votable.parse(output.name, pedantic=False).get_first_table()
-    except Exception as ex:
-        print("Failed to parse votable!  Returning output file instead.")
-        print(ex)
-        return open(output.name,'r')
-
-    # Convert to astropy.table.Table instance
-    table = firsttable.to_table()
-
-    # Check if table is empty
-    if len(table) == 0:
-        warnings.warn("Query returned no results, so the table will be empty")
-
-    # Remove temporary file
-    output.close()
-
-    return table
-
-
-def print_gator_catalogs():
-    '''
-    Display a table of the catalogs in the IRSA Gator tool.
-    '''
-    catalogs = list_gator_catalogs()
-    for catname in catalogs:
-        print("%30s  %s" % (catname, catalogs[catname]))
-
-
-def list_gator_catalogs():
-    '''
-    Return a dictionary of the catalogs in the IRSA Gator tool.
-
-    Returns
-    -------
-    catalogs : dict
-        A dictionary of catalogs where the key indicates the catalog name to
-        be used in query functions, and the value is the verbose description
-        of the catalog.
-    '''
-
-    req = urllib2.Request(GATOR_LIST_URL)
-    response = urllib2.urlopen(req)
-
-    tree = ElementTree()
-
-    catalogs = {}
-    for catalog in tree.parse(response).findall('catalog'):
-        catname = catalog.find('catname').text
-        desc = catalog.find('desc').text
-        catalogs[catname] = desc
-
-    return catalogs

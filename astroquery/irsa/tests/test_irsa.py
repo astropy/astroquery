@@ -66,7 +66,7 @@ def test_is_coordinate(coordinates, expected):
 
 def test_args_to_payload():
     out  = irsa.core.Irsa._args_to_payload("fp_psc", "Cone")
-    assert out == dict(catalog='fp_psc', spatial='Cone', outfmt=3)
+    assert out == dict(catalog='fp_psc', spatial='Cone', outfmt=3, outrows=500)
 
 @pytest.mark.parametrize(("coordinates"), OBJ_LIST)
 def test_query_region_cone_async(coordinates, patch_get):
@@ -122,15 +122,3 @@ def test_query_region_polygon(polygon, patch_get):
     result = irsa.core.Irsa.query_region("m31", catalog="fp_psc", spatial="Polygon",
                                                  polygon=polygon)
     assert isinstance(result, Table)
-
-'''
-# this just wrong.  give up.
-# @pytest.mark.skipif(dv.StrictVersion(np.__version__) <= dv.StrictVersion("1.4.1"))
-def test_trivial():
-    """ just make sure it doesn't raise anything
-    takes about 3-5 seconds"""
-    tbl = irsa.query_gator_box('pt_src_cat','83.808 -5.391',300)
-
-    assert len(tbl) == 100 # at least, that's what I got...
-    return tbl
-'''
