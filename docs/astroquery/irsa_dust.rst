@@ -13,7 +13,7 @@ This module can be used to query IRSA dust extinction service.
 
 Retrieve the image cut-outs for the specified oject name or coordinates. The
 images fetched in the FITS format and the result is returned as a list of 
-:mod:`~astropy.io.fits` HDUList objects. For all image queries, the radius may be optionally
+`astropy.io.fits`_ HDUList objects. For all image queries, the radius may be optionally
 specified. If missing the radius defaults to 5 degrees. Note that radius may be
 specified in any appropriate unit, however it must fall in the range of 2 to
 37.5 degrees.
@@ -102,7 +102,7 @@ supports the `image_type` argument, in the same way as described for
 
 **Fetching the extinction table**
 
-This fetches the extinction table as an :class:`~astropy.table.table.Table` . The input parameters are the same as in
+This fetches the extinction table as an `astropy.table.Table`_ . The input parameters are the same as in
 the queries discussed above, namely the target string and optionally a radius
 value: 
 
@@ -136,7 +136,7 @@ value:
 
 **Get other query details**
 
-This fetches in a :class:`~astropy.table.table.Table` other additional details that may be
+This fetches in a `astropy.table.Table`_ other additional details that may be
 returned in the query results. For instance additional details in the three
 sections - `ebv`, `100um` and `extinction` as mentioned earlier and an
 additional section `location` may be fetched using the `section` keyword
@@ -171,3 +171,5 @@ Reference/API
     :no-inheritance-diagram:
 
 .. _IRSA Dust Extinction Service page: http://irsa.ipac.caltech.edu/applications/DUST/docs/coordinate.html
+.. _astropy.table.Table: http://docs.astropy.org/en/latest/table/index.html
+.. _astropy.io.fits: http://docs.astropy.org/en/latest/io/fits/index.html 
