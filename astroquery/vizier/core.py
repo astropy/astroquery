@@ -38,8 +38,20 @@ class Vizier(BaseQuery):
             self.column_filters = column_filters
 
     @class_or_instance
-    def _server_to_url(self):
-        return "http://" + Vizier.VIZIER_SERVER() + "/viz-bin/votable"
+    def _server_to_url(self, return_type='votable'):
+        """
+        Not generally meant to be modified, but there are different valid
+        return types supported by Vizier, listed here:
+        http://vizier.u-strasbg.fr/doc/asu-summary.htx
+
+        HTML: VizieR
+        votable: votable
+        tab-separated-values: asu-tsv
+        FITS ascii table: asu-fits
+        FITS binary table: asu-binfits
+        plain text: asu-txt
+        """
+        return "http://" + Vizier.VIZIER_SERVER() + "/viz-bin/" + return_type
 
     @property
     def keywords(self):
