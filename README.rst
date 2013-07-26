@@ -19,15 +19,15 @@ website <http://simbad.u-strasbg.fr/simbad/>`_, use the ``simbad`` sub-package:
 Installation and Requirements    
 -----------------------------
 
-As an astropy affiliate, astroquery requires astropy.  Astropy can be installed
-from pip:
+As an `astropy`_ affiliate, astroquery requires `astropy`_.  `astropy`_ can be
+installed from pip:
 
 .. code-block:: bash
 
     $ pip install astropy
 
 astroquery uses the `requests <http://docs.python-requests.org/en/latest/>`_
-module to communicate with the internet.  `requests` can also be installed with
+module to communicate with the internet.  `requests`_ can also be installed with
 pip.
 
 As of July 2013, astroquery is in pre-release state, so to install, you need to
@@ -53,5 +53,3 @@ contributions are very welcome, though we encourage you to follow the `API`_
 and `contributing guidelines
 <https://github.com/astropy/astroquery/blob/master/CONTRIBUTING.rst>`_ as much
 as possible.
-
-
