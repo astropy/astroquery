@@ -1,11 +1,14 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import os
 import xml.etree.ElementTree as tree
+
 import astropy.units as u
 import astropy.utils.data as aud
 from astropy.tests.helper import pytest  # import this since the user may not have pytest installed
 from astropy.io import fits
+
 from ... import irsa_dust
+from ...utils import commons
 
 M31_XML = "dustm31.xml"
 M81_XML = "dustm81.xml"
@@ -36,7 +39,7 @@ M31_URL_T = [
 def patch_request(request):
     mp = request.getfuncargvalue("monkeypatch")
     mp.setattr(
-        irsa_dust.core,
+        commons,
         'send_request',
         TestDust(
         ).send_request_mockreturn)

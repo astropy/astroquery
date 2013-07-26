@@ -2,9 +2,11 @@
 """
 IRSA Galactic Dust Reddening and Extinction Query Tool
 ------------------------------------------------------
+.. topic:: Revision History
 
-:Author: David Shiga (dshiga.dev@gmail.com)
+    Refactored using common API as a part of Google Summer of Code 2013.
 
+    :Originally contributed by: David Shiga (dshiga.dev@gmail.com)
 """
 from astropy.config import ConfigurationItem
 # maintain a list of URLs in case the user wants to append a mirror
@@ -16,4 +18,4 @@ IRSA_DUST_TIMEOUT = ConfigurationItem('timeout', 30, 'default timeout for connec
 
 
 
-from .core import *
+from .core import IrsaDust
