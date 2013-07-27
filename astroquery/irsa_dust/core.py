@@ -1,7 +1,4 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-import types
-import functools
-import requests
 from astropy.table import Table, Column
 import astropy.units as u
 import astropy.utils.data as aud
@@ -10,8 +7,10 @@ from astropy.io import fits
 from . import utils
 from . import IRSA_DUST_SERVER, IRSA_DUST_TIMEOUT
 from ..utils.class_or_instance import class_or_instance
+from ..utils import commons
 from ..exceptions import TimeoutError, InvalidQueryError
 from ..query import BaseQuery
+
 
 # TODO Add support for server url from JSON cache
 __all__ = ["IrsaDust"]
@@ -36,38 +35,6 @@ MIN_VALUE = "minValue"
 
 DATA_IMAGE = "./data/image"
 DATA_TABLE = "./data/table"
-
-# make generic enough to move to BaseQuery classf_ar
-
-
-def send_request(url, data, timeout):
-    """
-    A utility function that post HTTP requests to remote server
-    and returns the HTTP response.
-
-    Parameters
-    ----------
-    url : str
-        The URL of the remote server
-    data : dict
-        A dictionary representing the payload to be posted via the HTTP request
-    timeout : int
-        Time limit for establishing successful connection with remote server
-
-    Returns
-    -------
-    response : `requests.Response`
-        Response object returned by the remote server
-    """
-    try:
-        response = requests.post(url, data=data, timeout=timeout)
-        return response
-    except requests.exceptions.Timeout:
-            raise TimeoutError("Query timed out, time elapsed {time}s".
-                               format(time=timeout))
-    except requests.exceptions.RequestException:
-            raise Exception("Query failed\n")
-
 
 class IrsaDust(BaseQuery):
 
@@ -114,17 +81,6 @@ class IrsaDust(BaseQuery):
         -------
         A list of `astropy.fits.HDUList` objects
 
-        Examples
-        ---------
-        Query an object by name with default radius and get a list of
-        astropy.fits.HDUList objects.
-        >>> fits_objects = IrsaDust.get_images('m81')
-
-        Query an object specifying the coordinates and the radius
-        >>> fits_objects = IrsaDust.get_images('266.12 -61.89 equ j2000', radius=5 * u.deg)
-
-        Only return the dictionary formed from the query parameters
-        >>> query_payload = get_images('34.5565 54.2321 gal', radius='0.13 rad')
         """
 
         if get_query_payload:
@@ -210,7 +166,7 @@ class IrsaDust(BaseQuery):
         """
         url = IrsaDust.DUST_SERVICE_URL
         request_payload = self._args_to_payload(coordinate, radius=radius)
-        response = send_request(url, request_payload, timeout)
+        response = commons.send_request(url, request_payload, timeout)
         return self.extract_image_urls(response.text, image_type=image_type)
 
     @class_or_instance
@@ -260,7 +216,7 @@ class IrsaDust(BaseQuery):
             http://irsa.ipac.caltech.edu/applications/DUST/docs/coordinate.html
         radius : str, optional
             The size of the region to include in the dust query, in radian, degree
-            or hour as per format specified by `astropy.coordinates.Angle. Defaults
+            or hour as per format specified by `astropy.coordinates.Angle`. Defaults
             to 5 degrees.
         timeout : int, optional
             Time limit for establishing successful connection with remote server.
@@ -272,7 +228,7 @@ class IrsaDust(BaseQuery):
         """
         url = IrsaDust.DUST_SERVICE_URL
         request_payload = self._args_to_payload(coordinate, radius=radius)
-        response = send_request(url, request_payload, timeout)
+        response = commons.send_request(url, request_payload, timeout)
         xml_tree = utils.xml(response.text)
         result = SingleDustResult(xml_tree, coordinate)
         return aud.get_readable_fileobj(result.ext_detail_table())
@@ -306,7 +262,7 @@ class IrsaDust(BaseQuery):
             Defaults to `astroquery.irsa_dust.IrsaDust.TIMEOUT`
         url : str, optional
             Only provided for debugging. Should generally not be assigned.
-            Defaults to `astroquery.irsa_dust.IrsaDust.DUST_SERVICE_URL
+            Defaults to `astroquery.irsa_dust.IrsaDust.DUST_SERVICE_URL`
 
         Returns
         --------
@@ -314,7 +270,7 @@ class IrsaDust(BaseQuery):
             table representing the query results, (all or as per  specified)
         """
         request_payload = self._args_to_payload(coordinate, radius=radius)
-        response = send_request(url, request_payload, timeout)
+        response = commons.send_request(url, request_payload, timeout)
         xml_tree = utils.xml(response.text)
         result = SingleDustResult(xml_tree, coordinate)
         if section is None or section in ["location", "loc", "l"]:
