@@ -133,8 +133,8 @@ class Irsa(BaseQuery):
         catalog : str
             The catalog to be used (see the *Notes* section below).
         spatial : str
-            Type of spatial query: Cone, Box, Polygon, and NONE. When specified as NONE
-            then performs all-sky queries. If missing then defaults to 'Cone'.
+            Type of spatial query: 'Cone', 'Box', 'Polygon', and 'All-Sky'.
+            If missing then defaults to 'Cone'.
         radius : str or `astropy.units.Quantity` object, [optional for spatial is 'Cone']
             The string must be parsable by `astropy.coordinates.Angle`. The appropriate
             `Quantity` object from `astropy.units` may also be used. Defaults to 10 arcsec.
@@ -185,8 +185,8 @@ class Irsa(BaseQuery):
         catalog : str
             The catalog to be used (see the *Notes* section below).
         spatial : str
-            Type of spatial query: 'Cone', 'Box', 'Polygon', and 'NONE'. When specified as NONE
-            then performs all-sky queries. If missing then defaults to 'Cone'.
+            Type of spatial query: 'Cone', 'Box', 'Polygon', and 'All-Sky'.
+            If missing then defaults to 'Cone'.
         radius : str or `astropy.units.Quantity` object, [optional for spatial is 'Cone']
             The string must be parsable by `astropy.coordinates.Angle`. The appropriate
             `Quantity` object from `astropy.units` may also be used. Defaults to 10 arcsec.
@@ -253,6 +253,8 @@ class Irsa(BaseQuery):
         -------
         request_payload : dict
         """
+        if spatial == 'All-Sky':
+            spatial = 'NONE'
         request_payload = dict(catalog=catalog,
                                spatial=spatial,
                                outfmt=3,
