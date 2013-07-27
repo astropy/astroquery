@@ -9,6 +9,7 @@ import astropy.coordinates as coord
 import astropy.units as u
 
 from ... import irsa
+from ...irsa import ROW_LIMIT
 
 DATA_FILES = {'Cone' : 'Cone.xml',
               'Box' : 'Box.xml',
@@ -66,7 +67,7 @@ def test_is_coordinate(coordinates, expected):
 
 def test_args_to_payload():
     out  = irsa.core.Irsa._args_to_payload("fp_psc", "Cone")
-    assert out == dict(catalog='fp_psc', spatial='Cone', outfmt=3, outrows=500)
+    assert out == dict(catalog='fp_psc', spatial='Cone', outfmt=3, outrows=ROW_LIMIT())
 
 @pytest.mark.parametrize(("coordinates"), OBJ_LIST)
 def test_query_region_cone_async(coordinates, patch_get):
