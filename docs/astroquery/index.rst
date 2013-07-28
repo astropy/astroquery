@@ -78,6 +78,7 @@ The following modules have been completed using a common API:
   simbad.rst
   vizier.rst
   irsa_dust.rst
+  ned.rst
 
 These others are functional, but do not follow a common & consistent API:
 
@@ -90,7 +91,6 @@ These others are functional, but do not follow a common & consistent API:
   magpis.rst
   nrao.rst
   besancon.rst
-  ned.rst
   nist.rst
   fermi.rst
   sdss.rst
@@ -98,4 +98,4 @@ These others are functional, but do not follow a common & consistent API:
   sha.rst
   lamda.rst
   ogle.rst
-  irsa_dust.rst
+  
