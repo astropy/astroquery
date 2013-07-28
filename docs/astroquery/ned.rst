@@ -24,9 +24,10 @@ instance if you want to query NGC 224
     >>> result_table = Ned.query_object("NGC 224")
     >>> print result_table # an astropy.table.Table
 
-    main_col1  main_col2  main_col3  main_col4  main_col5 main_col6  ... main_col12 main_col13 main_col14 main_col15 main_col16 main_col17
-    --------- ----------- ---------- ---------- --------- ---------- ... ---------- ---------- ---------- ---------- ---------- ----------
-            1 MESSIER 031   10.68479   41.26906         G     -300.0 ...         19        142          8         26          7          2
+     No. Object Name  RA(deg)   ... Redshift Points Diameter Points Associations
+    --- ----------- ---------- ... --------------- --------------- ------------
+      1 MESSIER 031   10.68479 ...              26               7            2
+
 
 **Query a region**
 
@@ -46,26 +47,24 @@ specified. By default this is J2000.0 but can also be set to B1950.0.
     >>> result_table = Ned.query_region("3c 273", radius=5 * u.deg)
     >>> print result_table
 
-    main_col1        main_col2         main_col3  main_col4  main_col5 main_col6  ... main_col13 main_col14 main_col15 main_col16 main_col17
-    --------- ------------------------ ---------- ---------- --------- ---------- ... ---------- ---------- ---------- ---------- ----------
-            1   CXOMP J122846.7+020301  187.19458    2.05028     XrayS         -- ...          0          0          0          0          0
-            2    3C 273:[PWC2011] 4062  187.19583    2.04722         *         -- ...          0          0          0          0          0
-            3 SDSS J122847.06+020349.6  187.19609     2.0638         G    53273.0 ...         16          3          2          4          0
-            4 SDSS J122847.38+020332.2  187.19743    2.05896         G         -- ...         15          1          0          4          0
-            5    3C 273:[PWC2011] 4041   187.1975    2.05056         *         -- ...          0          0          0          0          0
-            6 SDSS J122847.59+020228.6  187.19831    2.04128         G         -- ...         15          1          0          4          0
-            7    3C 273:[PWC2011] 4028  187.19833    2.03083         *         -- ...          0          0          0          0          0
-            8 SDSS J122847.65+020256.8  187.19857    2.04913         *         -- ...          5          1          0          4          0
-            9    3C 273:[PWC2011] 4025  187.19875    2.05972      VisS         -- ...          0          0          0          0          0
-           10    3C 273:[PWC2011] 4024  187.19917    2.05222         *         -- ...          0          0          0          0          0
-           11    3C 273:[PWC2011] 4014  187.19958    2.04611         *         -- ...          0          0          0          0          0
-           12    3C 273:[PWC2011] 4016  187.19958    2.05639         *         -- ...          0          0          0          0          0
-           13    3C 273:[PWC2011] 4026  187.19958    2.07306         *         -- ...          0          0          0          0          0
-           14 SDSS J122847.96+020326.4  187.19985    2.05734         G         -- ...         15          1          0          4          0
-           15    3C 273:[PWC2011] 4001  187.20042    2.04278         *         -- ...          0          0          0          0          0
-           16    3C 273:[PWC2011] 4006  187.20042    2.07222         *         -- ...          0          0          0          0          0
-          ...                      ...        ...        ...       ...        ... ...        ...        ...        ...        ...        ...
-
+     No.       Object Name         RA(deg)   ... Diameter Points Associations
+    --- ------------------------ ---------- ... --------------- ------------
+      1   CXOMP J122846.7+020301  187.19458 ...               0            0
+      2    3C 273:[PWC2011] 4062  187.19583 ...               0            0
+      3 SDSS J122847.06+020349.6  187.19609 ...               4            0
+      4 SDSS J122847.38+020332.2  187.19743 ...               4            0
+      5    3C 273:[PWC2011] 4041   187.1975 ...               0            0
+      6 SDSS J122847.59+020228.6  187.19831 ...               4            0
+      7    3C 273:[PWC2011] 4028  187.19833 ...               0            0
+      8 SDSS J122847.65+020256.8  187.19857 ...               4            0
+    ...                      ...        ... ...             ...          ...
+    930    3C 273:[PWC2011] 1861  187.35667 ...               0            0
+    931    3C 273:[PWC2011] 1837   187.3575 ...               0            0
+    932    3C 273:[PWC2011] 1843   187.3575 ...               0            0
+    933    3C 273:[PWC2011] 1842   187.3575 ...               0            0
+    934    3C 273:[PWC2011] 1822  187.35875 ...               0            0
+    935 SDSS J122926.30+020323.8  187.35959 ...               4            0
+    936 SDSS J122926.56+020241.3   187.3607 ...               4            0
 
 Instead of using the name, the target may also be specified via
 coordinates. Any of the coordinate systems available in `astropy.coordinates`_
@@ -79,27 +78,26 @@ may be used (ICRS, Galactic, FK4, FK5). Note also the use of the equinox keyword
     >>> result_table = Ned.query_region(coord.FK4Coordinates(ra=56.38, dec=38.43, 
     ...                                 unit=(u.deg, u.deg)), radius=5 * u.deg, equinox='B1950.0')
     >>> print result_table
-    
 
-    main_col1        main_col2        main_col3  ... main_col16 main_col17
-    --------- ----------------------- ---------- ... ---------- ----------
-            1     NVSS J032629+385759   51.62125 ...          0          0
-            2     NVSS J032630+385402   51.62908 ...          0          0
-            3            CGCG 525-033   51.63563 ...          2          0
-            4 2MASX J03263334+3837013   51.63892 ...          2          0
-            5     NVSS J032641+382502   51.67188 ...          0          0
-            6 2MASX J03264256+3902594   51.67725 ...          2          0
-            7 2MASX J03264282+3922284   51.67842 ...          2          0
-            8 2MASX J03264358+3843424   51.68167 ...          2          0
-          ...                     ...        ... ...        ...        ...
-         9008 2MASX J04173572+3906291   64.39888 ...          2          0
-         9009             B3 0414+389   64.41151 ...          0          0
-         9010 2MASX J04174129+3841541   64.42208 ...          2          0
-         9011     NVSS J041742+391310   64.42617 ...          0          0
-         9012     NVSS J041743+385340   64.43129 ...          0          0
-         9013 2MASX J04174705+3901470   64.44604 ...          2          0
-         9014 2MASX J04174722+3900170   64.44679 ...          2          0
 
+       No.        Object Name        RA(deg)   ... Diameter Points Associations
+    ---- ----------------------- ---------- ... --------------- ------------
+       1     NVSS J032629+385759   51.62125 ...               0            0
+       2     NVSS J032630+385402   51.62908 ...               0            0
+       3            CGCG 525-033   51.63563 ...               2            0
+       4 2MASX J03263334+3837013   51.63892 ...               2            0
+       5     NVSS J032641+382502   51.67188 ...               0            0
+       6 2MASX J03264256+3902594   51.67725 ...               2            0
+       7 2MASX J03264282+3922284   51.67842 ...               2            0
+       8 2MASX J03264358+3843424   51.68167 ...               2            0
+     ...                     ...        ... ...             ...          ...
+    9008 2MASX J04173572+3906291   64.39888 ...               2            0
+    9009             B3 0414+389   64.41151 ...               0            0
+    9010 2MASX J04174129+3841541   64.42208 ...               2            0
+    9011     NVSS J041742+391310   64.42617 ...               0            0
+    9012     NVSS J041743+385340   64.43129 ...               0            0
+    9013 2MASX J04174705+3901470   64.44604 ...               2            0
+    9014 2MASX J04174722+3900170   64.44679 ...               2            0
 
 **Query in the IAU format**
 
@@ -118,20 +116,19 @@ target.
     >>> result_table = Ned.query_region_iau('1234-423', frame='SuperGalactic', equinox='J2000.0')
     >>> print result_table
 
-        main_col1        main_col2        main_col3  ... main_col16 main_col17
-    --------- ----------------------- ---------- ... ---------- ----------
-            1    SUMSS J123651-423554  189.21425 ...          0          0
-            2    SUMSS J123658-423457    189.245 ...          0          0
-            3    SUMSS J123711-424119  189.29663 ...          0          0
-            4 2MASX J12373141-4239342  189.38083 ...          2          0
-            5 2MASX J12373567-4239122  189.39908 ...          2          0
-
+        No.       Object Name        RA(deg)   ... Diameter Points Associations
+    --- ----------------------- ---------- ... --------------- ------------
+      1    SUMSS J123651-423554  189.21425 ...               0            0
+      2    SUMSS J123658-423457    189.245 ...               0            0
+      3    SUMSS J123711-424119  189.29663 ...               0            0
+      4 2MASX J12373141-4239342  189.38083 ...               2            0
+      5 2MASX J12373567-4239122  189.39908 ...               2            0
 
 **Query a reference code for objects**
 
 These queries can be used to retrieve all objects that appear in the specified
 19 digit reference code. These are similar to the
-`astroquery.simbad.Simbad.query_bibobj` queries. 
+:meth:`~astroquery.simbad.core.Simbad.query_bibobj` queries. 
 
 .. code-block:: python
 
@@ -139,25 +136,24 @@ These queries can be used to retrieve all objects that appear in the specified
     >>> result_table = Ned.query_refcode('1997A&A...323...31K')
     >>> print result_table
 
-    main_col1        main_col2        main_col3  ... main_col16 main_col17
-    --------- ----------------------- ---------- ... ---------- ----------
-            1                NGC 0262   12.19642 ...          8          0
-            2                NGC 0449    19.0302 ...          7          0
-            3                NGC 0591   23.38028 ...          7          0
-            4               UGC 01214   25.99084 ...          7          0
-            5 2MASX J01500266-0725482   27.51124 ...          2          0
-            6             MESSIER 077   40.66963 ...          8          0
-            7                MRK 0599   41.94759 ...          6          0
-            8                MRK 1058   42.46596 ...          4          0
-          ...                     ...        ... ...        ...        ...
-           30                NGC 5643  218.16977 ...         18          0
-           31            SBS 1439+537   220.1672 ...          2          3
-           32                MRK 1388  222.65772 ...          6          0
-           33 2MASX J20232535+1131352  305.85577 ...          2          0
-           34               UGC 12149  340.28163 ...          8          0
-           35                MRK 0522  345.07954 ...          4          0
-           36                NGC 7674  351.98635 ...          8          0
-
+        No.       Object Name        RA(deg)   ... Diameter Points Associations
+    --- ----------------------- ---------- ... --------------- ------------
+      1                NGC 0262   12.19642 ...               8            0
+      2                NGC 0449    19.0302 ...               7            0
+      3                NGC 0591   23.38028 ...               7            0
+      4               UGC 01214   25.99084 ...               7            0
+      5 2MASX J01500266-0725482   27.51124 ...               2            0
+      6             MESSIER 077   40.66963 ...               8            0
+      7                MRK 0599   41.94759 ...               6            0
+      8                MRK 1058   42.46596 ...               4            0
+    ...                     ...        ... ...             ...          ...
+     30                NGC 5643  218.16977 ...              18            0
+     31            SBS 1439+537   220.1672 ...               2            3
+     32                MRK 1388  222.65772 ...               6            0
+     33 2MASX J20232535+1131352  305.85577 ...               2            0
+     34               UGC 12149  340.28163 ...               8            0
+     35                MRK 0522  345.07954 ...               4            0
+     36                NGC 7674  351.98635 ...               8            0
 
 **Image and Spectra Queries**
 
@@ -236,11 +232,13 @@ Similarly the list of URLs for spectra of a particular object may be fetched:
 
 **Fetching other data tables for an object**
 
-Several other data tables for an object may be fetched via the `Ned.get_table`
+Several other data tables for an object may be fetched via the :meth:`~astroquery.ned.core.Ned.get_table`
 queries. These take a keyword argument `table`, which may be set to one of
 `photometry`, `diameters`, `redshifts`, `references` or `object-notes`. For
 instance the `table=photometry` will fetch all the relevant photometric data
 for the specified object. We look at a simple example:
+
+
 
 .. code-block:: python
 
@@ -248,23 +246,31 @@ for the specified object. We look at a simple example:
     >>> result_table = Ned.get_table("3C 273", table='positions')
     >>> print result_table
 
-    pos_col1    pos_col2       pos_col3    ... pos_col21         pos_col22                                   pos_col23                           
-    -------- -------------- -------------- ... --------- ------------------------- --------------------------------------------------------------
-           0 12h29m06.6997s +02d03m08.598s ...                                                                                                   
-           1 12h29m06.6997s +02d03m08.598s ...       ICR Multiple line measurement                                             From new, raw data
-           2  12h29m06.699s  +02d03m08.59s ...       ICR    Broad-band measurement                                             From new, raw data
-           3   12h29m06.64s   +02d03m09.0s ...       FK4    Broad-band measurement From reprocessed raw data; Corrected for contaminating sources
-           4   12h29m06.79s   +02d03m08.0s ...       FK5    Broad-band measurement  From new, raw data; Systematic errors in RA and Dec corrected
-           5   12h29m06.05s   +02d02m57.1s ...       FK4    Broad-band measurement                                             From new, raw data
-           6   12h29m05.60s   +02d03m09.0s ...       FK5    Broad-band measurement                                             From new, raw data
-           7    12h29m04.5s     +02d03m03s ...              Broad-band measurement                                             From new, raw data
-           8   12h29m07.55s   +02d03m02.3s ...       FK4    Broad-band measurement                                      From reprocessed raw data
-           9   12h29m06.05s   +02d03m11.3s ...       FK4    Broad-band measurement                                             From new, raw data
-          10    12h29m06.5s     +02d02m53s ...       FK4    Broad-band measurement                                             From new, raw data
-          11    12h29m06.5s     +02d02m52s ...       FK4    Broad-band measurement                                      From reprocessed raw data
+      No.       RA            DEC       ... Published Frame  Published Frequence Mode                           Qualifiers                          
+    --- -------------- -------------- ... --------------- ------------------------- --------------------------------------------------------------
+      0 12h29m06.6997s +02d03m08.598s ...                                                                                                         
+      1 12h29m06.6997s +02d03m08.598s ...             ICR Multiple line measurement                                             From new, raw data
+      2  12h29m06.699s  +02d03m08.59s ...             ICR    Broad-band measurement                                             From new, raw data
+      3   12h29m06.64s   +02d03m09.0s ...             FK4    Broad-band measurement From reprocessed raw data; Corrected for contaminating sources
+      4   12h29m06.79s   +02d03m08.0s ...             FK5    Broad-band measurement  From new, raw data; Systematic errors in RA and Dec corrected
+      5   12h29m06.05s   +02d02m57.1s ...             FK4    Broad-band measurement                                             From new, raw data
+      6   12h29m05.60s   +02d03m09.0s ...             FK5    Broad-band measurement                                             From new, raw data
+      7    12h29m04.5s     +02d03m03s ...                    Broad-band measurement                                             From new, raw data
+      8   12h29m07.55s   +02d03m02.3s ...             FK4    Broad-band measurement                                      From reprocessed raw data
+      9   12h29m06.05s   +02d03m11.3s ...             FK4    Broad-band measurement                                             From new, raw data
+     10    12h29m06.5s     +02d02m53s ...             FK4    Broad-band measurement                                             From new, raw data
+     11    12h29m06.5s     +02d02m52s ...             FK4    Broad-band measurement                                      From reprocessed raw data
 
+.. note::
 
+    All query methods that return the results in an `astropy.table.Table`_ will
+    return meaningful column names only with ``Astropy`` version >= 0.3. For
+    versions older than this, the table headers will have column names of the form
+    `main_col_number` because of the way in which the NED returns VOTables.
 
+.. warning:: 
+
+    table=references does not work correctly `astroquery issue #141`_
 
 Reference/API
 =============
@@ -278,3 +284,4 @@ Reference/API
 .. _astropy.coordinates: http://docs.astropy.org/en/latest/coordinates/index.html
 .. _IAU format: http://cdsweb.u-strasbg.fr/Dic/iau-spec.html.
 .. _astropy.io.fits: http://docs.astropy.org/en/latest/io/fits/index.html
+.. _astroquery issue #141: https://github.com/astropy/astroquery/issues/141
