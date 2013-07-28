@@ -128,7 +128,7 @@ target.
 
 These queries can be used to retrieve all objects that appear in the specified
 19 digit reference code. These are similar to the
-`astroquery.simbad.Simbad.query_bibobj` queries. 
+:meth:`~astroquery.simbad.core.Simbad.query_bibobj` queries. 
 
 .. code-block:: python
 
@@ -232,7 +232,7 @@ Similarly the list of URLs for spectra of a particular object may be fetched:
 
 **Fetching other data tables for an object**
 
-Several other data tables for an object may be fetched via the `Ned.get_table`
+Several other data tables for an object may be fetched via the :meth:`~astroquery.ned.core.Ned.get_table`
 queries. These take a keyword argument `table`, which may be set to one of
 `photometry`, `diameters`, `redshifts`, `references` or `object-notes`. For
 instance the `table=photometry` will fetch all the relevant photometric data
