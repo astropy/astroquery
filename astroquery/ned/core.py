@@ -11,7 +11,8 @@ from datetime import datetime
 import astropy.units as u
 import astropy.coordinates as coord
 import astropy.utils.data as aud
-from astropy.table import Table
+import astropy.io.votable as votable
+from astropy import __version__ as ASTROPY_VERSION
 from astropy.io import fits
 
 from ..query import BaseQuery
@@ -637,7 +638,13 @@ class Ned(BaseQuery):
             tf = tempfile.NamedTemporaryFile()
             tf.write(response.content.encode('utf-8'))
             tf.flush()
-            table = Table.read(tf.name, format='votable')
+            first_table = votable.parse(tf.name, pedantic=False).get_first_table()
+            # For astropy version < 0.3 returns tables that have field ids as col names
+            if ASTROPY_VERSION < '0.3':
+                table = first_table.to_table()
+            # For astropy versions >= 0.3 return the field names as col names
+            else:
+                table = first_table.to_table(use_names_over_ids=True)
             return table
         except Exception as ex:
             (is_valid, err_msg) = _check_ned_valid(response.content)
