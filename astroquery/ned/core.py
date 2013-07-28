@@ -510,7 +510,7 @@ class Ned(BaseQuery):
 
         Notes
         -----
-        .. warning:: table=references does not work correctly (astropy issue#1266)
+        .. warning:: table=references does not work correctly `astroquery issue #141 <https://github.com/astropy/astroquery/issues/141>`_
         """
         response = self.get_table_async(object_name, table=table, get_query_payload=get_query_payload,
                                         **kwargs)

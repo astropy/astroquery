@@ -2,13 +2,22 @@
 """
 Module containing a series of functions that execute queries to the NASA Extragalactic Database (NED):
 
-Based off Adam Ginsburg's Splatalogue search routine:
-    http://code.google.com/p/agpy/source/browse/trunk/agpy/query_splatalogue.py
-Service URLs to acquire the VO Tables are taken from Mazzarella et al. (2007)
-    in The National Virtual Observatory: Tools and Techniques for Astronomical Research,
-    ASP Conference Series, Vol. 382., p.165
+.. topic:: Revision History
 
-Originally written by K. Willett, Jun 2011
+    Refactored using common API as a part of Google Summer of Code 2013.
+
+    :Originally contributed by:
+
+     K. Willett, Jun 2011
+
+    :Acknowledgements:
+
+        Based off Adam Ginsburg's Splatalogue search routine:
+            http://code.google.com/p/agpy/source/browse/trunk/agpy/query_splatalogue.py
+
+        Service URLs to acquire the VO Tables are taken from Mazzarella et al. (2007)
+        The National Virtual Observatory: Tools and Techniques for Astronomical Research,
+        ASP Conference Series, Vol. 382., p.165
 
 """
 
