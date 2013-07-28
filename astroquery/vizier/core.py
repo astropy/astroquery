@@ -22,8 +22,9 @@ __all__ = ['Vizier']
 
 
 class Vizier(BaseQuery):
-    TIMEOUT = VIZIER_TIMEOUT()
-    VIZIER_URL = "http://" + VIZIER_SERVER() + "/viz-bin/votable"
+    TIMEOUT = VIZIER_TIMEOUT
+    VIZIER_SERVER = VIZIER_SERVER
+    ROW_LIMIT = ROW_LIMIT
 
     def __init__(self, columns=None, column_filters=None, keywords=None):
         self._columns = None
@@ -35,6 +36,22 @@ class Vizier(BaseQuery):
             self.columns = columns
         if column_filters:
             self.column_filters = column_filters
+
+    @class_or_instance
+    def _server_to_url(self, return_type='votable'):
+        """
+        Not generally meant to be modified, but there are different valid
+        return types supported by Vizier, listed here:
+        http://vizier.u-strasbg.fr/doc/asu-summary.htx
+
+        HTML: VizieR
+        votable: votable
+        tab-separated-values: asu-tsv
+        FITS ascii table: asu-fits
+        FITS binary table: asu-binfits
+        plain text: asu-txt
+        """
+        return "http://" + Vizier.VIZIER_SERVER() + "/viz-bin/" + return_type
 
     @property
     def keywords(self):
@@ -96,6 +113,88 @@ class Vizier(BaseQuery):
         self._column_filters = None
 
     @class_or_instance
+    def find_catalogs(self, keywords, verbose=False):
+        """
+        Search Vizier for catalogs based on a set of keywords, e.g. author name
+
+        Parameters
+        ----------
+        keywords : list or string
+            List of keywords, or space-separated set of keywords.
+            From `Vizier <http://vizier.u-strasbg.fr/doc/asu-summary.htx>`_:
+            "names or words of title of catalog. The words are and'ed, i.e.
+            only the catalogues characterized by all the words are selected."
+
+        Returns
+        -------
+        Dictionary of the "Resource" name and the VOTable resource object.
+        "Resources" are generally publications; one publication may contain
+        many tables.
+
+        Example
+        -------
+        >>> from astroquery.vizier import Vizier
+        >>> catalog_list = Vizier.find_catalogs('Kang W51')
+        >>> print catalog_list
+        {u'J/ApJ/706/83': <astropy.io.votable.tree.Resource at 0x108d4d490>,
+         u'J/ApJS/191/232': <astropy.io.votable.tree.Resource at 0x108d50490>}
+        >>> print {k:v.description for k,v in catalog_list.iteritems()}
+        {u'J/ApJ/706/83': u'Embedded YSO candidates in W51 (Kang+, 2009)',
+         u'J/ApJS/191/232': u'CO survey of W51 molecular cloud (Bieging+, 2010)'}
+        """
+
+        if isinstance(keywords, list):
+            keywords = " ".join(keywords)
+
+        data_payload = {'-words':keywords, '-meta.all':1}
+        response = commons.send_request(
+            self._server_to_url(),
+            data_payload,
+            Vizier.TIMEOUT())
+        result = self._parse_result(response, verbose=verbose, get_catalog_names=True)
+
+        return result
+
+    @class_or_instance
+    def get_catalogs(self, catalog, verbose=False):
+        """
+        Query the Vizier service for a specific catalog
+
+        Parameters
+        ----------
+        catalog : str or list, optional
+            The catalog(s) that will be retrieved
+
+        Returns
+        -------
+        result : `~astroquery.utils.common.TableList`
+            The results in a list of `astropy.table.Table`.
+        """
+        response = self.get_catalogs_async(catalog=catalog)
+        result = self._parse_result(response, verbose=verbose)
+        return result
+
+    @class_or_instance
+    def get_catalogs_async(self, catalog, verbose=False):
+        """
+        Asynchronous version of get_catalog
+        """
+
+        data_payload = self._args_to_payload(catalog=catalog,
+                                             caller='get_catalog_async')
+        response = commons.send_request(
+            self._server_to_url(),
+            data_payload,
+            Vizier.TIMEOUT())
+        return response
+
+    # This doesn't work:
+    # TypeError: unsupported operand type(s) for +=: 'NoneType' and 'NoneType'
+    # the decorator breaks this approach.  Perhaps we can pass the docstring to
+    # the decorator?
+    # get_catalog_async.__doc__ += get_catalog.__doc__
+
+    @class_or_instance
     def query_object(self, object_name, catalog=None, verbose=False):
         """
         Query the Vizier service for a known identifier and return the
@@ -111,8 +210,8 @@ class Vizier(BaseQuery):
 
         Returns
         -------
-        result : `astropy.table.Table`
-            The results in an `astropy.table.Table`.
+        result : `~astroquery.utils.common.TableList`
+            The results in a list of `astropy.table.Table`.
         """
         response = self.query_object_async(object_name, catalog=catalog)
         result = self._parse_result(response, verbose=verbose)
@@ -143,9 +242,9 @@ class Vizier(BaseQuery):
             catalog=catalog,
             caller='query_object_async')
         response = commons.send_request(
-            Vizier.VIZIER_URL,
+            self._server_to_url(),
             data_payload,
-            Vizier.TIMEOUT)
+            Vizier.TIMEOUT())
         return response
 
     @class_or_instance
@@ -178,8 +277,8 @@ class Vizier(BaseQuery):
 
         Returns
         -------
-        result : `astropy.table.Table`
-            The results in an `astropy.table.Table`.
+        result : `~astroquery.utils.common.TableList`
+            The results in a list of `astropy.table.Table`.
         """
         response = self.query_region_async(
             coordinates, radius=radius, height=height,
@@ -224,9 +323,9 @@ class Vizier(BaseQuery):
             coordinates, radius=radius, height=height,
             width=width, catalog=catalog, caller='query_region_async')
         response = commons.send_request(
-            Vizier.VIZIER_URL,
+            self._server_to_url(),
             data_payload,
-            Vizier.TIMEOUT)
+            Vizier.TIMEOUT())
         return response
 
     @class_or_instance
@@ -303,7 +402,7 @@ class Vizier(BaseQuery):
         else:
             body["-out"] = "*"
         # set the maximum rows returned
-        body["-out.max"] = ROW_LIMIT()
+        body["-out.max"] = Vizier.ROW_LIMIT()
         script = "\n".join(["{key}={val}".format(key=key, val=val)
                            for key, val in body.items()])
         # add keywords
@@ -317,7 +416,7 @@ class Vizier(BaseQuery):
         return script
 
     @class_or_instance
-    def _parse_result(self, response, verbose=False):
+    def _parse_result(self, response, get_catalog_names=False, verbose=False):
         """
         Parses the HTTP response to create an `astropy.table.Table`.
         Returns the raw result as a string in case of parse errors.
@@ -326,6 +425,9 @@ class Vizier(BaseQuery):
         ----------
         response : `requests.Response`
             The response of the HTTP POST request
+        get_catalog_names : bool
+            If specified, return only the table names (useful for table
+            discovery)
 
         Returns
         -------
@@ -340,9 +442,12 @@ class Vizier(BaseQuery):
             tf.write(response.content.encode('utf-8'))
             tf.file.flush()
             vo_tree = votable.parse(tf.name, pedantic=False)
-            table_list = [(t.name, t.to_table())
-                          for t in vo_tree.iter_tables() if len(t.array) > 0]
-            return commons.TableList(table_list)
+            if get_catalog_names:
+                return dict([(R.name,R) for R in vo_tree.resources])
+            else:
+                table_list = [(t.name, t.to_table())
+                              for t in vo_tree.iter_tables() if len(t.array) > 0]
+                return commons.TableList(table_list)
 
         except:
             traceback.print_exc()  # temporary for debugging

@@ -14,6 +14,55 @@ radius. Similar to the VizieR web interface, the queries may be further
 constrained by specifying a choice of catalogs, keywords as well as filters on
 individual columns before retrieving the results.
 
+**Table Discovery**
+
+If you want to search for a set of tables, e.g. based on author name or other keywords,
+the `~astroquery.vizier.Vizier.find_catalogs` tool can be used:
+
+.. code-block:: python
+
+    >>> from astroquery.vizier import Vizier
+    >>> catalog_list = Vizier.find_catalogs('Kang W51')
+    >>> print catalog_list
+    {u'J/ApJ/706/83': <astropy.io.votable.tree.Resource at 0x108d4d490>,
+     u'J/ApJS/191/232': <astropy.io.votable.tree.Resource at 0x108d50490>}
+    >>> print {k:v.description for k,v in catalog_list.iteritems()}
+    {u'J/ApJ/706/83': u'Embedded YSO candidates in W51 (Kang+, 2009)',
+     u'J/ApJS/191/232': u'CO survey of W51 molecular cloud (Bieging+, 2010)'}
+
+From this result, you could either get any of these as a complete catalog or
+query them for individual objects or regions. 
+
+**Get a whole catalog**
+
+If you know the name of the catalog you wish to retrieve, e.g. from doing a
+`~astroquery.vizier.Vizier.find_catalogs` search as above, you can then grab
+the complete contents of those catalogs:
+
+.. code-block:: python
+
+    >>> catalogs = Vizier.get_catalogs(catalog_list.keys())
+    >>> catalogs.print_table_list()
+    <TableList with 3 tables:
+        'J/ApJ/706/83/ysos' with 22 column(s) and 50 row(s)
+        'J/ApJS/191/232/table1' with 13 column(s) and 50 row(s)
+        'J/ApJS/191/232/map' with 2 column(s) and 2 row(s)
+    >
+
+Note that the row limit is set to 50 by default, so if you want to get a truly
+complete catalog, you need to change that:
+
+.. code-block:: python
+
+    >>> Vizier.ROW_LIMIT.set('999999999')
+    >>> catalogs = Vizier.get_catalogs(catalog_list.keys())
+    >>> catalogs.print_table_list()
+    <TableList with 3 tables:
+        'J/ApJ/706/83/ysos' with 22 column(s) and 737 row(s)
+        'J/ApJS/191/232/table1' with 13 column(s) and 218 row(s)
+        'J/ApJS/191/232/map' with 2 column(s) and 2 row(s)
+    >
+
 **Query an object**
 
 For instance to query Sirius across all catalogs:
