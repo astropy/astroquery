@@ -10,6 +10,8 @@ except ImportError:
 import formatter
 import tempfile
 import warnings
+import re
+import time
 from math import cos, radians
 
 import astropy.units as u
@@ -18,7 +20,8 @@ import astropy.io.votable as votable
 from astropy.io import fits
 import astropy.utils.data as aud
 
-from ..query import BaseQuery
+from ..query import QueryWithLogin
+from ..exceptions import InvalidQueryError
 from ..utils.class_or_instance import class_or_instance
 from ..utils import commons
 
@@ -65,7 +68,7 @@ def validate_filter(func):
     return wrapper
 
 
-class Ukidss(BaseQuery):
+class Ukidss(QueryWithLogin):
     """
     The UKIDSSQuery class.  Must instantiate this class in order to make any
     queries.  Allows registered users to login, but defaults to using the
@@ -77,19 +80,19 @@ class Ukidss(BaseQuery):
     REGION_URL = url_getcatalog
     TIMEOUT = 60
 
-    filters = {'all': 'all', 'J': '3', 'H': '4', 'K': '5', 'Y': 2,
+    filters = {'all': 'all', 'J': 3, 'H': 4, 'K': 5, 'Y': 2,
                 'Z': 1, 'H2': 6, 'Br': 7}
 
-    frame_types = ['stack', 'normal', 'interleave', 'deep%stack', 'confidence',
-               'difference', 'leavstack', 'all']
+    frame_types = {'stack': 'stack', 'normal': 'normal', 'interleave': 'leav', 'deep_stack': 'deep%stack', 'confidence': 'conf',
+               'difference': 'diff', 'leavstack': 'leavstack', 'all':  'all'}
 
-    ukidss_programs_short = {'LAS': 101,
+    ukidss_programmes_short = {'LAS': 101,
                              'GPS': 102,
                              'GCS': 103,
                              'DXS': 104,
                              'UDS': 105,}
 
-    ukidss_programs_long = {'Large Area Survey': 101,
+    ukidss_programmes_long = {'Large Area Survey': 101,
                             'Galactic Plane Survey': 102,
                             'Galactic Clusters Survey': 103,
                             'Deep Extragalactic Survey': 104,
@@ -171,7 +174,7 @@ class Ukidss(BaseQuery):
             The color filter to download. Must be one of  ['all','J','H','K','H2','Z','Y','Br'].
         frame_type : str
             The type of image. Must be one of
-            ['stack','normal','interleave','deep%stack','confidence','difference','leavstack','all']
+            ['stack','normal','interleave','deep_stack','confidence','difference', 'leavstack', 'all']
         image_width : str or `astropy.units.Quantity` object, optional
             The image size (along X). Cannot exceed 15 arcmin. If missing, defaults to 1 arcmin.
         image_height : str or `astropy.units.Quantity` object, optional
@@ -223,7 +226,7 @@ class Ukidss(BaseQuery):
             The color filter to download. Must be one of  ['all','J','H','K','H2','Z','Y','Br'].
         frame_type : str
             The type of image. Must be one of
-            ['stack','normal','interleave','deep%stack','confidence','difference','leavstack','all']
+            ['stack','normal','interleave','deep_stack','confidence','difference', 'leavstack', 'all']
         image_width : str or `astropy.units.Quantity` object, optional
             The image size (along X). Cannot exceed 15 arcmin. If missing, defaults to 1 arcmin.
         image_height : str or `astropy.units.Quantity` object, optional
@@ -280,7 +283,7 @@ class Ukidss(BaseQuery):
             The color filter to download. Must be one of  ['all','J','H','K','H2','Z','Y','Br'].
         frame_type : str
             The type of image. Must be one of
-            ['stack','normal','interleave','deep%stack','confidence','difference','leavstack','all']
+            ['stack','normal','interleave','deep_stack','confidence','difference', 'leavstack', 'all']
         image_width : str or `astropy.units.Quantity` object, optional
             The image size (along X). Cannot exceed 15 arcmin. If missing, defaults to 1 arcmin.
         image_height : str or `astropy.units.Quantity` object, optional
@@ -309,7 +312,7 @@ class Ukidss(BaseQuery):
                                                 programme_id=programme_id, query_type='image')
         request_payload['filterID']    = Ukidss.filters[waveband]
         request_payload['obsType']     = 'object'
-        request_payload['frameType']   = frame_type
+        request_payload['frameType']   = Ukidss.frame_types[frame_type]
         request_payload['mfid']        = ''
         if radius is None:
             request_payload['xsize'] = _parse_dimension(image_width)
@@ -337,15 +340,13 @@ class Ukidss(BaseQuery):
             request_payload['dep'] = 0
             request_payload['lmfid'] = ''
             request_payload['fsid'] = ''
-            request_payload['rows'] = 10
+            request_payload['rows'] = 1000
 
         if get_query_payload:
             return request_payload
 
-        if hasattr(self, 'session') and self.logged_in():
-            response = self.session.get(query_url, params=request_payload, timeout=Ukidss.TIMEOUT)
-        else:
-            response = commons.send_request(query_url, request_payload, Ukidss.TIMEOUT, request_type='GET')
+        response = self._ukidss_send_request(query_url, request_payload)
+        response = self._check_page(response.url, "row")
 
         image_urls = self.extract_urls(response.content)
         # different links for radius queries and simple ones
@@ -476,10 +477,8 @@ class Ukidss(BaseQuery):
         if get_query_payload:
             return request_payload
 
-        if hasattr(self, 'session') and self.logged_in():
-            response = self.session.get(Ukidss.REGION_URL, params=request_payload, timeout=Ukidss.TIMEOUT)
-        else:
-            response = commons.send_request(Ukidss.REGION_URL, request_payload, Ukidss.TIMEOUT, request_type='GET')
+        response = self._ukidss_send_request(Ukidss.REGION_URL, request_payload)
+        response = self._check_page(response.url, "query finished")
 
         return response
 
@@ -520,7 +519,7 @@ class Ukidss(BaseQuery):
             return table
         except Exception as ex:
              print (str(ex))
-             warnings.warn("Error in parsing Ned result. "
+             warnings.warn("Error in parsing UKIDSS result. "
                            "Returning raw result instead.")
              return content
 
@@ -542,15 +541,50 @@ class Ukidss(BaseQuery):
             list containing catalog name strings in long or short style.
         """
         if style=='short':
-            return list(Ukidss.ukidds_programmes_short.keys())
+            return list(Ukidss.ukidss_programmes_short.keys())
         elif style=='long':
-            return list(Ukidss.ukidss.programmes_long.keys())
+            return list(Ukidss.ukidss_programmes_long.keys())
         else:
             warnings.warn("Style must be one of 'long', 'short'.\n"
                           "Returning catalog list in short format.\n")
-            return list(Ukidss.ukidds_programmes_short.keys())
+            return list(Ukidss.ukidss_programmes_short.keys())
 
+    @class_or_instance
+    def _ukidss_send_request(self, url, request_payload):
+        """
+        Helper function that sends the query request via a session or simple HTTP
+        GET request.
 
+        Parameters
+        ----------
+        url : str
+            The url to send the request to.
+        request_payload : dict
+            The dict of parameters for the GET request
+
+        Returns
+        -------
+        response : `requests.Response` object
+            The response for the HTTP GET request
+        """
+        if hasattr(self, 'session') and self.logged_in():
+            response = self.session.get(url, params=request_payload, timeout=Ukidss.TIMEOUT)
+        else:
+            response = commons.send_request(url, request_payload, Ukidss.TIMEOUT, request_type='GET')
+        return response
+
+    @class_or_instance
+    def _check_page(self, url, keyword, wait_time=1, max_attempts=30):
+        page_loaded = False
+        while not page_loaded and max_attempts>0:
+            response = requests.get(url)
+            if re.search("error", response.content, re.IGNORECASE):
+                raise InvalidQueryError("Service returned with an error!")
+            elif re.search(keyword, response.content, re.IGNORECASE):
+                page_loaded = True
+            max_attempts -= 1
+            time.sleep(wait_time) # wait for wait_time seconds before checking again
+        return response
 
 def clean_catalog(ukidss_catalog, clean_band='K_1', badclass=-9999, maxerrbits=41, minerrbits=0,
         maxpperrbits=60):
@@ -611,13 +645,13 @@ def verify_programme_id(pid, query_type='catalog'):
         return 'all'
     elif pid == 'all' and query_type == 'catalog':
         raise ValueError("Cannot query all catalogs at once. Valid catalogs are: {0}.  Change programmeID to one of these.".format(
-            ",".join(Ukidss.ukidss_programs_short.keys())))
-    elif pid in Ukidss.ukidss_programs_long:
-        return Ukidss.ukidss_programs_long[pid]
-    elif pid in Ukidss.ukidss_programs_short:
-        return Ukidss.ukidss_programs_short[pid]
+            ",".join(Ukidss.ukidss_programmes_short.keys())))
+    elif pid in Ukidss.ukidss_programmes_long:
+        return Ukidss.ukidss_programmes_long[pid]
+    elif pid in Ukidss.ukidss_programmes_short:
+        return Ukidss.ukidss_programmes_short[pid]
     elif query_type != 'image':
-        raise ValueError("ProgrammeID {0} not recognized".format(pid))
+        raise ValueError("programme_id {0} not recognized".format(pid))
 
 def _parse_dimension(dim):
     """
