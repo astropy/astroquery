@@ -21,7 +21,7 @@ from astropy.io import fits
 import astropy.utils.data as aud
 
 from ..query import QueryWithLogin
-from ..exceptions import InvalidQueryError
+from ..exceptions import InvalidQueryError, TimeoutError
 from ..utils.class_or_instance import class_or_instance
 from ..utils import commons
 
@@ -501,6 +501,8 @@ class Ukidss(QueryWithLogin):
         """
         table_links = self.extract_urls(response.content)
         # keep only one link that is not a webstart
+        if len(table_links) == 0:
+            raise Exception("No VOTable found on returned webpage!")
         table_link = [link for link in table_links if "8080" not in link][0]
         with aud.get_readable_fileobj(table_link) as f:
             content = f.read()
@@ -584,6 +586,8 @@ class Ukidss(QueryWithLogin):
                 page_loaded = True
             max_attempts -= 1
             time.sleep(wait_time) # wait for wait_time seconds before checking again
+        if page_loaded == False:
+            raise TimeoutError("Page did not load.")
         return response
 
 def clean_catalog(ukidss_catalog, clean_band='K_1', badclass=-9999, maxerrbits=41, minerrbits=0,

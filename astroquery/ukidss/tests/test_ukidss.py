@@ -1,16 +1,18 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import os
 import requests
+from contextlib import contextmanager
 
 from astropy.tests.helper import pytest
 from astropy.table import Table
 import astropy.utils.data as aud
 import astropy.coordinates as coord
 import astropy.units as u
+import numpy.testing as npt
 
 from ... import ukidss
-from ..utils import commons
-from ..exceptions import InvalidQueryError
+from ...utils import commons
+from ...exceptions import InvalidQueryError
 
 DATA_FILES = {"vo_results" : "vo_results.html",
               "image_results" : "image_results.html",
@@ -31,11 +33,14 @@ def patch_get(request):
 
 @pytest.fixture
 def patch_get_readable_fileobj(request):
-    def get_readable_fileobj_mockreturn(filename):
+    @contextmanager
+    def get_readable_fileobj_mockreturn(filename, **kwargs):
+        print filename
         if "fits" in filename:
-            return open(data_path(DATA_FILES["image"]), "rb")
-        if "xml" in filename:
-            return open(data_path(DATA_FILES["votable"]), "rb")
+            file_obj = open(data_path(DATA_FILES["image"]), "rb")
+        else:
+            file_obj = open(data_path(DATA_FILES["votable"]), "r")
+        yield file_obj
     mp = request.getfuncargvalue("monkeypatch")
     mp.setattr(aud, 'get_readable_fileobj', get_readable_fileobj_mockreturn)
     return mp
@@ -52,28 +57,33 @@ def patch_parse_coordinates(request):
 def get_mockreturn(url, params=None, timeout=10):
     if "Image" in url:
         filename = DATA_FILES["image_results"]
+        url = "Image_URL"
     elif "SQL" in url:
         filename = DATA_FILES["vo_results"]
+        url = "SQL_URL"
     elif "error" in url:
         filename = DATA_FILES["error"]
-    content = open(filename, "r").read()
-    return MockResponse(content)
+        url = "error.html"
+    print(filename)
+    print(url)
+    content = open(data_path(filename), "r").read()
+    return MockResponse(content, url)
 
 class MockResponse(object):
-    def __init__(self, content):
+    def __init__(self, content, url):
         self.content = content
+        self.url = url
 
-
-@pytest.mark.parametrize(('dim', 'expected')
+@pytest.mark.parametrize(('dim', 'expected'),
                           [(5 * u.arcmin, 5),
                            (5 * u.degree, 300),
                            ('0d0m30s', 0.5)
                            ])
 def test_parse_dimension(dim, expected):
     out = ukidss.core._parse_dimension(dim)
-    assert out == expected
+    npt.assert_approx_equal(out, expected, significant=3)
 
-def test_get_images(patch_get, patch_get_readable_filobj):
+def test_get_images(patch_get, patch_get_readable_fileobj):
     image =  ukidss.core.Ukidss.get_images(coord.ICRSCoordinates
                                            (ra=83.633083, dec=22.0145, unit=(u.deg, u.deg)),
                                            frame_type='interleave',
@@ -86,7 +96,6 @@ def test_get_images_async_1():
                                            (ra=83.633083, dec=22.0145, unit=(u.deg, u.deg)),
                                             radius=20*u.arcmin,
                                             get_query_payload=True)
-     assert image['radius'] == 20
      assert 'xsize' not in image.keys()
      assert 'ysize' not in image.keys()
 
@@ -98,15 +107,15 @@ def test_get_images_async_1():
 
 def test_get_images_async_2(patch_get, patch_get_readable_fileobj):
      image_urls = ukidss.core.Ukidss.get_images_async(coord.ICRSCoordinates
-                                                      (ra=83.633083, dec=22.0145, unit=(u.deg, u.deg)),
-                                                      get_query_payload=True)
+                                                      (ra=83.633083, dec=22.0145, unit=(u.deg, u.deg)))
      assert len(image_urls) == 1
 
 
-def test_get_image_list(patch_get_readable_fileobj):
+def test_get_image_list(patch_get, patch_get_readable_fileobj):
     urls = ukidss.core.Ukidss.get_image_list(coord.ICRSCoordinates
                                             (ra=83.633083, dec=22.0145, unit=(u.deg, u.deg)),
-                                             get_query_payload=True)
+                                             frame_type='all', waveband='all')
+    print urls
     assert len(urls) == 1
 
 def test_extract_urls():
