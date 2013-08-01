@@ -116,8 +116,8 @@ def _parse_coords(coord, coord_sys):
     if not isinstance(coord, list):
         # single astropy coordinate
         try:
-            lon = [coord.fk5.ra.hours]
-            lat = [coord.fk5.dec.degrees]
+            lon = [coord.fk5.ra.hour]
+            lat = [coord.fk5.dec.degree]
             return lon, lat
         except:
             raise CoordParseError()
@@ -126,8 +126,8 @@ def _parse_coords(coord, coord_sys):
         # list of astropy coordinates
         if len(shape) == 1:
             try:
-                lon = [co.fk5.ra.hours for co in coord]
-                lat = [co.fk5.dec.degrees for co in coord]
+                lon = [co.fk5.ra.hour for co in coord]
+                lat = [co.fk5.dec.degree for co in coord]
                 return lon, lat
             except:
                 raise CoordParseError()

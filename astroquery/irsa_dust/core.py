@@ -342,7 +342,7 @@ class IrsaDust(BaseQuery):
         int
             value of angle in degrees
         """
-        return coord.Angle(radius).degrees
+        return coord.Angle(radius).degree
 
     @class_or_instance
     def _parse_as_quantity(self, radius):

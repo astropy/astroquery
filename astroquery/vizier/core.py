@@ -349,8 +349,8 @@ class Vizier(BaseQuery):
             body["-c"] = args[0]
         elif caller == 'query_region_async':
             c = commons.parse_coordinates(args[0])
-            ra = str(c.icrs.ra.degrees)
-            dec = str(c.icrs.dec.degrees)
+            ra = str(c.icrs.ra.degree)
+            dec = str(c.icrs.dec.degree)
             if dec[0] not in ['+', '-']:
                 dec = '+' + dec
             body["-c"] = "".join([ra, dec])
@@ -481,7 +481,7 @@ def _parse_dimension(dim):
     else:
         try:
             new_dim = commons.parse_radius(dim)
-            unit, value = 'd', new_dim.degrees
+            unit, value = 'd', new_dim.degree
         except (u.UnitsException, coord.errors.UnitsError, AttributeError):
             raise u.UnitsException("Dimension not in proper units")
 
