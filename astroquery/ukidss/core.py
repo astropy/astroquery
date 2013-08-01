@@ -112,9 +112,6 @@ class Ukidss(QueryWithLogin):
         username : string
         password : string
         community : string
-
-        .. warning:: Python3 doesn't have cookielib, so this function will not
-            work until this package is refactored to use requests
         """
 
         # Construct cookie holder, URL openenr, and retrieve login page
@@ -134,7 +131,7 @@ class Ukidss(QueryWithLogin):
 
     def logged_in(self):
         """
-        Determine whether currently logged in
+        Determine whether currently logged in.
         """
         if self.session == None:
             return False
