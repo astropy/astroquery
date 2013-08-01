@@ -12,5 +12,12 @@ UKIDSS Image and Catalog Query Tool
 
         Adam Ginsburg (adam.g.ginsburg@gmail.com)
 """
-from __future__ import print_function
+from astropy.config import ConfigurationItem
+
+UKIDSS_SERVER = ConfigurationItem('ukidss_server', ["http://surveys.roe.ac.uk:8080/wsa/"],
+                               'Name of the UKIDSS mirror to use.')
+UKIDSS_TIMEOUT = ConfigurationItem('timeout', 60, 'time limit for connecting to UKIDSS server')
+
+UKIDSS_SERVER
+
 from .core import *

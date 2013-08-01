@@ -24,6 +24,7 @@ from ..query import QueryWithLogin
 from ..exceptions import InvalidQueryError, TimeoutError
 from ..utils.class_or_instance import class_or_instance
 from ..utils import commons
+from .  import UKIDSS_SERVER, UKIDSS_TIMEOUT
 
 __all__ = ['Ukidss','clean_catalog']
 
@@ -43,12 +44,6 @@ class LinksExtractor(htmllib.HTMLParser):  # derive new HTML parser
 
     def get_links(self):
         return self.links
-
-url_login      = "http://surveys.roe.ac.uk:8080/wsa/DBLogin"
-url_getimage   = "http://surveys.roe.ac.uk:8080/wsa/GetImage"
-url_getimages  = "http://surveys.roe.ac.uk:8080/wsa/ImageList"
-url_getcatalog = "http://surveys.roe.ac.uk:8080/wsa/WSASQL"
-
 
 
 def validate_frame(func):
@@ -74,11 +69,12 @@ class Ukidss(QueryWithLogin):
     queries.  Allows registered users to login, but defaults to using the
     public UKIDSS data sets.
     """
-    LOGIN_URL = url_login
-    IMAGE_URL = url_getimage
-    ARCHIVE_URL = url_getimages
-    REGION_URL = url_getcatalog
-    TIMEOUT = 60
+    BASE_URL = UKIDSS_SERVER()
+    LOGIN_URL = BASE_URL + "DBLogin"
+    IMAGE_URL = BASE_URL + "GetImage"
+    ARCHIVE_URL = BASE_URL + "ImageList"
+    REGION_URL = BASE_URL + "WSASQL"
+    TIMEOUT = UKIDSS_TIMEOUT()
 
     filters = {'all': 'all', 'J': 3, 'H': 4, 'K': 5, 'Y': 2,
                 'Z': 1, 'H2': 6, 'Br': 7}
