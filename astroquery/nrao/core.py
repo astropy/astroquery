@@ -14,14 +14,6 @@ from ..utils import commons
 
 __all__ = ["Nrao"]
 
-def validate_band(func):
-    """ Decorator that ensures that the NRAO band is amongst the valid values"""
-    def wrapper(*args, **kwargs):
-        band = kwargs['band']
-        if band not in Nrao.valid_bands:
-            raise ValueError("Band must be one of {!s}".format(Nrao.valid_bands))
-        return func(*args, **kwargs)
-    return wrapper
 
 class Nrao(BaseQuery):
     URL = "https://webtest.aoc.nrao.edu/cgi-bin/lsjouwer/archive-pos.pl"
@@ -137,7 +129,6 @@ class Nrao(BaseQuery):
 
 
     @class_or_instance
-    @validate_band
     def get_image_list(self, coordinates, radius=0.25 * u.arcmin, max_rms=10000,
                        band="all", get_uvfits=False, get_query_payload=False):
         """
@@ -170,6 +161,8 @@ class Nrao(BaseQuery):
         list of image urls
 
         """
+        if band.upper() not in Nrao.valid_bands and band != 'all':
+            raise ValueError("'band' must be one of {!s}".format(Nrao.valid_bands))
         request_payload = {}
         request_payload["nvas_pos"] = _parse_coordinates(coordinates)
         request_payload["nvas_rad"] = _parse_radius(radius)
