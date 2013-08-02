@@ -1,180 +1,257 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-import gzip
-import os
+from __future__ import print_function
+
 import re
-import StringIO
-import urllib
-import urllib2
+
+import astropy.units as u
 from astropy.io import fits
 from astropy import coordinates as coord
 import astropy.utils.data as aud
-from ..utils import progressbar
 
-imfits_re = re.compile("http://[^\"]*\\.imfits")
-uvfits_re = re.compile("http://[^\"]*\\.uvfits")
-config_re = re.compile("([ABCD]/[ABCD])&nbsp;configuration")
+from ..query import BaseQuery
+from ..utils.class_or_instance import class_or_instance
+from ..utils import commons
 
-request_URL = "https://webtest.aoc.nrao.edu/cgi-bin/lsjouwer/archive-pos.pl"
+__all__ = ["Nrao"]
 
-__all__ = ['get_nrao_image']
+def validate_band(func):
+    """ Decorator that ensures that the NRAO band is amongst the valid values"""
+    def wrapper(*args, **kwargs):
+        band = kwargs['band']
+        if band not in Nrao.valid_bands:
+            raise ValueError("Band must be one of {!s}".format(Nrao.valid_bands))
+        return func(*args, **kwargs)
+    return wrapper
+
+class Nrao(BaseQuery):
+    URL = "https://webtest.aoc.nrao.edu/cgi-bin/lsjouwer/archive-pos.pl"
+    TIMEOUT = 60
+    valid_bands = ["all","L","C","X","U","K","Q"]
+
+    band_freqs = {
+        "L":	(1,2),
+        "S":	(2,4),
+        "C":	(4,8),
+        "X":	(8,12),
+        "U":	(12,18),
+        "K":	(18,26.5),
+        "Ka":	(26.5,40),
+        "Q":	(30,50),
+        "V":	(50,75),
+        "E":	(60,90),
+        "W":	(75,110),
+        "F":	(90,140),
+        "D":	(110,170),
+        }
+
+    @class_or_instance
+    def get_images(self, coordinates, radius=0.25 * u.arcmin, max_rms=10000,
+                   band="all", get_uvfits=False, verbose=True, get_query_payload=False):
+        """
+        Get an image around a target/ coordinates from the NRAO image archive
+
+        Parameters
+        ----------
+        coordinates : str or `astropy.coordinates` object
+            The target around which to search. It may be specified as a string
+            in which case it is resolved using online services or as the appropriate
+            `astropy.coordinates` object. ICRS coordinates may also be entered as strings
+            as specified in the `astropy.coordinates` module.
+        radius : str or `astropy.units.Quantity` object, optional
+            The string must be parsable by `astropy.coordinates.Angle`. The appropriate
+            `Quantity` object from `astropy.units` may also be used. Defaults to 0.25 arcmin.
+        max_rms : float, optional
+            Maximum allowable noise level in the image (mJy). Defaults to 10000 mJy.
+        band : str, optional
+            The band of the image to fetch. Valid bands must be from
+            ["all","L","C","X","U","K","Q"]. Defaults to 'all'
+        get_uvfits : bool, optional
+            Gets the UVfits files instead of the IMfits files when set to `True`.
+            Defaults to `False`.
+        verbose : bool, optional
+            When `True` print out additional messgages. Defaults to `True`.
+        get_query_payload : bool, optional
+            if set to `True` then returns the dictionary sent as the HTTP request.
+            Defaults to `False`.
+
+        Returns
+        -------
+        A list of `astropy.fits.HDUList` objects
+        """
+        readable_objs = self.get_images_async(coordinates, radius=radius, max_rms=max_rms,
+                                              band=band, get_uvfits=get_uvfits, verbose=verbose,
+                                              get_query_payload=get_query_payload)
+        if get_query_payload:
+            return readable_objs
+
+        return [fits.open(obj.__enter__(), ignore_missing_end=True) for obj in readable_objs]
 
 
-valid_bands = ["","L","C","X","U","K","Q"]
 
-band_freqs = {
-    "L":	(1,2),
-    "S":	(2,4),
-    "C":	(4,8),
-    "X":	(8,12),
-    "U":	(12,18),
-    "K":	(18,26.5),
-    "Ka":	(26.5,40),
-    "Q":	(30,50),
-    "V":	(50,75),
-    "E":	(60,90),
-    "W":	(75,110),
-    "F":	(90,140),
-    "D":	(110,170),
-    }
+    @class_or_instance
+    def get_images_async(self, coordinates, radius=0.25 * u.arcmin, max_rms=10000,
+                         band="all", get_uvfits=False, verbose=True, get_query_payload=False):
+        """
+        Serves the same purpose as :meth:`~astroquery.nrao.core.Nrao.get_images` but
+        returns a list of file handlers to remote files
+
+        Parameters
+        ----------
+        coordinates : str or `astropy.coordinates` object
+            The target around which to search. It may be specified as a string
+            in which case it is resolved using online services or as the appropriate
+            `astropy.coordinates` object. ICRS coordinates may also be entered as strings
+            as specified in the `astropy.coordinates` module.
+        radius : str or `astropy.units.Quantity` object, optional
+            The string must be parsable by `astropy.coordinates.Angle`. The appropriate
+            `Quantity` object from `astropy.units` may also be used. Defaults to 0.25 arcmin.
+        max_rms : float, optional
+            Maximum allowable noise level in the image (mJy). Defaults to 10000 mJy.
+        band : str, optional
+            The band of the image to fetch. Valid bands must be from
+            ["all","L","C","X","U","K","Q"]. Defaults to 'all'
+        get_uvfits : bool, optional
+            Gets the UVfits files instead of the IMfits files when set to `True`.
+            Defaults to `False`.
+        verbose : bool, optional
+            When `True` print out additional messgages. Defaults to `True`.
+        get_query_payload : bool, optional
+            if set to `True` then returns the dictionary sent as the HTTP request.
+            Defaults to `False`.
+
+        Returns
+        -------
+        A list of context-managers that yield readable file-like objects
+        """
+
+        image_urls = self.get_image_list(coordinates, radius=radius, max_rms=max_rms,
+                                         band=band, get_uvfits=get_uvfits,
+                                         get_query_payload=get_query_payload)
+        if get_query_payload:
+            return image_urls
+
+        if verbose:
+            print("{num} images found.".format(num=len(image_urls)))
+
+        return [aud.get_readable_fileobj(U) for U in image_urls]
 
 
-def get_nrao_image(lon, lat, system='galactic', epoch='J2000', size=1.0,
-        max_rms=1e4, band="", verbose=True, savename=None, save=True,
-        overwrite=False, directory='./', get_uvfits=False):
+    @class_or_instance
+    @validate_band
+    def get_image_list(self, coordinates, radius=0.25 * u.arcmin, max_rms=10000,
+                       band="all", get_uvfits=False, get_query_payload=False):
+        """
+        Function that returns a list of urls from which to download the FITS images.
+
+        Parameters
+        ----------
+        coordinates : str or `astropy.coordinates` object
+            The target around which to search. It may be specified as a string
+            in which case it is resolved using online services or as the appropriate
+            `astropy.coordinates` object. ICRS coordinates may also be entered as strings
+            as specified in the `astropy.coordinates` module.
+        radius : str or `astropy.units.Quantity` object, optional
+            The string must be parsable by `astropy.coordinates.Angle`. The appropriate
+            `Quantity` object from `astropy.units` may also be used. Defaults to 0.25 arcmin.
+        max_rms : float, optional
+            Maximum allowable noise level in the image (mJy). Defaults to 10000 mJy.
+        band : str, optional
+            The band of the image to fetch. Valid bands must be from
+            ["all","L","C","X","U","K","Q"]. Defaults to 'all'
+        get_uvfits : bool, optional
+            Gets the UVfits files instead of the IMfits files when set to `True`.
+            Defaults to `False`.
+        get_query_payload : bool, optional
+            if set to `True` then returns the dictionary sent as the HTTP request.
+            Defaults to `False`.
+
+        Returns
+        -------
+        list of image urls
+
+        """
+        request_payload = {}
+        request_payload["nvas_pos"] = _parse_coordinates(coordinates)
+        request_payload["nvas_rad"] = _parse_radius(radius)
+        request_payload["nvas_rms"] = max_rms
+        request_payload["nvas_scl"] = "yes"
+        request_payload["submit"] = "Search"
+        request_payload["nvas_bnd"] = "" if band == "all" else band.upper()
+        if get_query_payload:
+            return request_payload
+        response = commons.send_request(Nrao.URL, request_payload, Nrao.TIMEOUT)
+        image_urls = self.extract_image_urls(response.content, get_uvfits=get_uvfits)
+        return image_urls
+
+
+    @class_or_instance
+    def extract_image_urls(self, html_in, get_uvfits=False):
+        """
+        Helper function that uses reges to extract the image urls from the given HTML.
+
+        Parameters
+        ----------
+        html_in : str
+            source from which the urls are to be extracted.
+        get_uvfits : bool, optional
+            Gets the UVfits files instead of the IMfits files when set to `True`.
+            Defaults to `False`.
+
+        Returns
+        -------
+        image_urls : list
+            The list of URLS extracted from the input.
+        """
+        imfits_re = re.compile("http://[^\"]*\\.imfits")
+        uvfits_re = re.compile("http://[^\"]*\\.uvfits")
+        if get_uvfits:
+            image_urls = uvfits_re.findall(html_in)
+        else:
+            image_urls = imfits_re.findall(html_in)
+        return image_urls
+
+
+def _parse_coordinates(coordinates):
     """
-    Search for and download
+    Helper function to parse the entered coordinates in form expected by NRAO
 
     Parameters
     ----------
-    lon : float
-    lat : float
-        Right ascension and declination or glon/glat
-    system : ['celestial','galactic']
-        System of lon/lat.  Can be any valid coordinate system supported by the
-        astropy.coordinates package
-    epoch : string
-        Epoch of the coordinate system (e.g., B1950, J2000)
-    savename : None or string
-        filename to save fits file as.  If None, will become G###.###p###.###_(survey).fits
-    size : float
-        Size of search radius (arcminutes)
-    max_rms : float
-        Maximum allowable noise level in the image (mJy)
-    verbose : bool
-        Print out extra error messages?
-    save : bool
-        Save FITS file?
-    overwrite : bool
-        Overwrite if file already exists?
-    directory : string
-        Directory to store file in.  Defaults to './'.  
-    get_uvfits : bool
-        Get the UVfits files instead of the IMfits files?
+    coordinates : str or `astropy.coordinates` object
+        The target around which to search. It may be specified as a string
+        in which case it is resolved using online services or as the appropriate
+        `astropy.coordinates` object. ICRS coordinates may also be entered as strings
+        as specified in the `astropy.coordinates` module.
 
-    Examples
-    --------
-    >>> fitsfile = get_nrao_image(49.489,-0.37)
+    Returns
+    -------
+    radecstr : str
+        The formatted coordinates as string
+
     """
+    c = commons.parse_coordinates(coordinates)
+    radecstr = c.icrs.ra.format(u.hour, sep=" ") + " " + c.icrs.dec.format(sep= " ", alwayssign=True)
+    return radecstr
 
-    if band not in valid_bands:
-        raise ValueError("Invalid band.  Valid bands are: %s" % valid_bands)
+def _parse_radius(radius):
+    """
+    Parses the radius and returns it in the format expected by UKIDSS.
 
-    if system == 'celestial':
-        radec = coord.FK5Coordinates(lon, lat, unit=('deg', 'deg'))
-        galactic = radec.galactic
-    elif system == 'galactic':
-        galactic = coord.GalacticCoordinates(lon, lat, unit=('deg', 'deg'))
-        radec = galactic.fk5
-    
-    # numpy 1.5 returns an object array, so we need to force it to a pair of strings
-    # numpy 1.6, 1.7 apparently return string arrays and concatenate without issue
-    radecstr = str(radec.ra.format(sep=' ')) + ' ' + str(radec.dec.format(sep=' '))
-    glon, glat = galactic.lonangle.degree, galactic.latangle.degree
+    Parameters
+    ----------
+    radius : str, `astropy.units.Quantity`
 
-    # Construct request
-    request = {}
-    request["nvas_pos"] = radecstr
-    request["nvas_rad"] = size
-    request["nvas_rms"] = max_rms
-    request["nvas_scl"] = size
-    request["submit"] = "Search"
-    request["nvas_bnd"] = band
-
-    # create the request header data
-    request = urllib.urlencode(request)
-    # load the URL as text
-    U = urllib.urlopen(request_URL, request)
-    # read results with progressbar
-    results = progressbar.chunk_read(U, report_hook=progressbar.chunk_report)
-
-    if get_uvfits:
-        links = uvfits_re.findall(results)
+    Returns
+    -------
+    radius_in_min : float
+        The value of the radius in arcminutes.
+    """
+    if isinstance(radius, u.Quantity) and radius.unit in u.deg.find_equivalent_units():
+        radius_in_min = radius.to(u.arcmin).value
+    # otherwise must be an Angle or be specified in hours...
     else:
-        links = imfits_re.findall(results)
-    configurations = config_re.findall(results)
-            
-    if len(links) == 0:
-        if verbose:
-            print "No matches found at ra,dec = %s." % (radecstr)
-        return []
-
-    if verbose > 1:
-        print "Configurations: "
-        print "\n".join(["%40s: %20s" % (L,C) for L,C in zip(links,configurations)])
-
-    if save and not os.path.exists(directory):
-        os.mkdir(directory)
-    if save:
-        opener = urllib2.build_opener()
-
-    if verbose:
-        print "Found %i imfits files" % len(links)
-
-    images = []
-
-    for link,config in zip(links,configurations):
-
-        # Get the file
-        U = opener.open(link)
-        with aud.get_readable_fileobj(U) as f:
-            results = f.read()
-        S = StringIO.StringIO(results)
-        try: 
-            fitsfile = fits.open(S,ignore_missing_end=True)
-        except IOError:
-            S.seek(0)
-            G = gzip.GzipFile(fileobj=S)
-            fitsfile = fits.open(G,ignore_missing_end=True)
-
-        # Get Multiframe ID from the header
-        images.append(fitsfile)
-
-        if save:
-            h0 = fitsfile[0].header
-            freq_ghz = h0['CRVAL3'] / 1e9
-            for bn, bandlimits in band_freqs.iteritems():
-                if freq_ghz < bandlimits[1] and freq_ghz > bandlimits[0]:
-                    bandname = bn
-            obj = str(h0['OBJECT']).strip()
-            program = h0['OBSERVER'].strip()
-            h0['CONFIG'] = config
-
-            if savename is None:
-                if get_uvfits:
-                    filename = "VLA_%s_G%07.3f%+08.3f_%s_%s.uvfits" % (bandname,glon,glat,obj,program)
-                else:
-                    filename = "VLA_%s_G%07.3f%+08.3f_%s_%s.fits" % (bandname,glon,glat,obj,program)
-            else:
-                filename = savename
-
-            # Set final directory and file names
-            final_file = directory + '/' + filename
-
-            if verbose:
-                print "Saving file %s" % final_file
-
-            fitsfile.writeto(final_file, clobber=overwrite)
-
-    return images
-
-
+        try:
+            radius_in_min = commons.parse_radius(radius).to(u.arcmin).value
+        except (u.UnitsException, coord.errors.UnitsError, AttributeError):
+            raise u.UnitsException("Radius not in proper units")
+    return radius_in_min
