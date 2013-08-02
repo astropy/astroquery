@@ -11,13 +11,14 @@ import astropy.utils.data as aud
 from ..query import BaseQuery
 from ..utils.class_or_instance import class_or_instance
 from ..utils import commons
+from . import NRAO_SERVER, NRAO_TIMEOUT
 
 __all__ = ["Nrao"]
 
 
 class Nrao(BaseQuery):
-    URL = "https://webtest.aoc.nrao.edu/cgi-bin/lsjouwer/archive-pos.pl"
-    TIMEOUT = 60
+    URL = NRAO_SERVER()
+    TIMEOUT = NRAO_TIMEOUT()
     valid_bands = ["all","L","C","X","U","K","Q"]
 
     band_freqs = {
