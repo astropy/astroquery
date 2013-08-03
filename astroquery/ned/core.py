@@ -675,8 +675,7 @@ def _parse_radius(radius):
     # otherwise must be an Angle or be specified in hours...
     else:
         try:
-            new_radius = commons.parse_radius(radius).degree
-            radius_in_min = u.Quantity(value=new_radius, unit=u.deg).to(u.arcmin).value
+            radius_in_min = commons.parse_radius(radius).to(u.arcmin).value
         except (u.UnitsException, coord.errors.UnitsError, AttributeError):
             raise u.UnitsException("Dimension not in proper units")
     return radius_in_min

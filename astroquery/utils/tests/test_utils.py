@@ -57,7 +57,7 @@ def test_parse_coordinates_3():
                           5 * u.deg
                           ])
 def test_parse_radius_1(radius):
-    assert commons.parse_radius(radius).degree == 5
+    assert commons.radius_to_degrees(radius) == 5
 
 @pytest.mark.parametrize(('radius'),
                          [5,
