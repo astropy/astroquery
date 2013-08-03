@@ -22,13 +22,19 @@ Astroquery must be installed from source:
     $ cd astroquery
     $ python setup.py install
 
+pip install also works:
+
+.. code-block:: bash
+
+    $ pip install git+http://github.com/astropy/astroquery.git#egg=astroquery
+
 Requirements
 ````````````
 
 The following packages are required for astroquery installation & use:
 
  * `numpy <www.numpy.org>`_
- * `astropy <www.astropy.org>`_
+ * `astropy <www.astropy.org>`_ (v>=0.3)
  * `requests <http://docs.python-requests.org/en/latest/>`_
 
 Using astroquery
