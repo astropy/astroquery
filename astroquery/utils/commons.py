@@ -146,7 +146,9 @@ class TableList(OrderedDict):
     for an OrderedDict of `astropy.table.Table` objects.
 
     HINT: To access the tables by # instead of by table ID:
-    >>> TableList.items()[1]
+    >>> t = TableList(a=1,b=2)
+    >>> t.items()[1]
+    ('b', 2)
     """
 
     def __repr__(self):
@@ -182,7 +184,7 @@ class TableList(OrderedDict):
         return "\n".join([header_str, body_str])
 
     def print_table_list(self):
-        print(self.format_table_list)
+        print(self.format_table_list())
 
 
 def suppress_vo_warnings():

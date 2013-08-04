@@ -110,16 +110,18 @@ def test_TableDict():
     in_list  = create_in_list([t1, t2, t3])
     table_list = commons.TableList(in_list)
     repr_str = table_list.__repr__()
-    assert repr_str == '<TableList with 3 table(s) and 7 total row(s)>'
+    assert repr_str == ("TableList with 3 tables:\n\t'0:t1' with 3 column(s) and 1 row(s)"
+                   " \n\t'1:t2' with 1 column(s) and 3 row(s)"
+                   " \n\t'2:t3' with 3 column(s) and 3 row(s) ")
 
 def test_TableDict_print_table_list(capsys):
     in_list  = create_in_list([t1, t2, t3])
     table_list = commons.TableList(in_list)
     table_list.print_table_list()
     out, err = capsys.readouterr()
-    assert out == ("<TableList with 3 tables:\n\t't1' with 3 column(s) and 1 row(s)"
-                   " \n\t't2' with 1 column(s) and 3 row(s)"
-                   " \n\t't3' with 3 column(s) and 3 row(s) \n>\n")
+    assert out == ("TableList with 3 tables:\n\t'0:t1' with 3 column(s) and 1 row(s)"
+                   " \n\t'1:t2' with 1 column(s) and 3 row(s)"
+                   " \n\t'2:t3' with 3 column(s) and 3 row(s) \n")
 
 
 
