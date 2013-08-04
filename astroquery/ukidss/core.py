@@ -143,8 +143,8 @@ class Ukidss(QueryWithLogin):
         request_payload['database']    = self.database if hasattr(self, 'database') else kwargs['database']
         programme_id = self.programme_id if hasattr(self, 'programme_id') else kwargs['programme_id']
         request_payload['programmeID'] = verify_programme_id(programme_id, query_type=kwargs['query_type'])
-        request_payload['ra']          = commons.parse_coordinates(args[0]).icrs.ra.degrees
-        request_payload['dec']         = commons.parse_coordinates(args[0]).icrs.dec.degrees
+        request_payload['ra']          = commons.parse_coordinates(args[0]).icrs.ra.degree
+        request_payload['dec']         = commons.parse_coordinates(args[0]).icrs.dec.degree
         request_payload['sys']         = 'J'
         return request_payload
 
@@ -315,7 +315,7 @@ class Ukidss(QueryWithLogin):
             query_url = Ukidss.ARCHIVE_URL
             ra = request_payload.pop('ra')
             dec = request_payload.pop('dec')
-            radius = commons.parse_radius(radius).degrees
+            radius = commons.parse_radius(radius).degree
             del request_payload['sys']
             request_payload['userSelect']  = 'default'
             request_payload['minRA']       = str(round(ra - radius / cos(radians(dec)),2))
@@ -668,7 +668,7 @@ def _parse_dimension(dim):
     # otherwise must be an Angle or be specified in hours...
     else:
         try:
-            new_dim = commons.parse_radius(dim).degrees
+            new_dim = commons.parse_radius(dim).degree
             dim_in_min = u.Quantity(value=new_dim, unit=u.deg).to(u.arcmin).value
         except (u.UnitsException, coord.errors.UnitsError, AttributeError):
             raise u.UnitsException("Dimension not in proper units")
