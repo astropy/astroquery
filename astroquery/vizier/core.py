@@ -328,6 +328,78 @@ class Vizier(BaseQuery):
             Vizier.TIMEOUT())
         return response
 
+
+    @class_or_instance
+    def query_constraints(self, verbose=False, **kwargs):
+        response = self.query_constraints_async(**kwargs)
+        result = self._parse_result(response, verbose=verbose)
+        return result
+
+    @class_or_instance
+    def query_constraints_async(self, catalog=None, keywords={}, **kwargs):
+        """
+        Send a query to Vizier in which you specify constraints with keyword/value
+        pairs.  See `the vizier constraints page
+        <http://vizier.cfa.harvard.edu/vizier/vizHelp/cst.htx>`_ for details.
+
+        Parameters
+        ----------
+        catalog : str or list, optional
+            The catalog(s) which must be searched for this identifier.
+            If not specified, all matching catalogs will be searched.
+        keywords : dict
+            A dictionary of keywords to query on.  
+        kwargs : dict
+            Any key/value pairs besides "catalog" and "keywords" will be parsed
+            as additional keywords.  kwargs overrides anything specified in
+            keywords.
+
+        Returns
+        -------
+        response : `requests.Response` object
+            The response of the HTTP request.
+
+        Examples
+        --------
+        >>> from astroquery.vizier import Vizier
+        >>> # note that glon/glat constraints here *must* be floats
+        >>> result = Vizier.query_constraints(catalog='J/ApJ/723/492/table1',GLON='>49.0 & < 51.0', GLAT='<0.0')
+        >>> result[result.keys()[0]].pprint()
+            GRSMC      GLON   GLAT   VLSR  ... RD09 _RA.icrs _DE.icrs
+        ------------- ------ ------ ------ ... ---- -------- --------
+        G049.49-00.41  49.49  -0.41  56.90 ... RD09   290.95    14.50
+        G049.39-00.26  49.39  -0.26  50.94 ... RD09   290.77    14.48
+        G049.44-00.06  49.44  -0.06  62.00 ... RD09   290.61    14.62
+        G049.04-00.31  49.04  -0.31  66.25 ... RD09   290.64    14.15
+        G049.74-00.56  49.74  -0.56  67.95 ... RD09   291.21    14.65
+        G050.39-00.41  50.39  -0.41  41.17 ... RD09   291.39    15.29
+        G050.24-00.61  50.24  -0.61  41.17 ... RD09   291.50    15.06
+        G050.94-00.61  50.94  -0.61  40.32 ... RD09   291.85    15.68
+        G049.99-00.16  49.99  -0.16  46.27 ... RD09   290.97    15.06
+        G049.44-00.06  49.44  -0.06  46.27 ... RD09   290.61    14.62
+        G049.54-00.01  49.54  -0.01  56.05 ... RD09   290.61    14.73
+        G049.74-00.01  49.74  -0.01  48.39 ... RD09   290.71    14.91
+        G049.54-00.91  49.54  -0.91  43.29 ... RD09   291.43    14.31
+        G049.04-00.46  49.04  -0.46  58.60 ... RD09   290.78    14.08
+        G049.09-00.06  49.09  -0.06  46.69 ... RD09   290.44    14.31
+        G050.84-00.11  50.84  -0.11  50.52 ... RD09   291.34    15.83
+        G050.89-00.11  50.89  -0.11  59.45 ... RD09   291.37    15.87
+        G050.44-00.41  50.44  -0.41  64.12 ... RD09   291.42    15.34
+        G050.84-00.76  50.84  -0.76  61.15 ... RD09   291.94    15.52
+        G050.29-00.46  50.29  -0.46  14.81 ... RD09   291.39    15.18
+        """
+
+        data_payload = keywords
+        data_payload.update(kwargs)
+
+        data_payload['-source'] = catalog
+
+        response = commons.send_request(
+            self._server_to_url(),
+            data_payload,
+            Vizier.TIMEOUT())
+        return response
+
     @class_or_instance
     def _args_to_payload(self, *args, **kwargs):
         """
