@@ -155,7 +155,7 @@ class TableList(OrderedDict):
         of the `TableList` object.
         """
 
-        self.print_table_list()
+        return self.format_table_list()
 
         # This information is often unhelpful
         # total_rows = sum(len(self.__getitem__(t)) for t in self.keys())
@@ -164,7 +164,7 @@ class TableList(OrderedDict):
 
         # return info_str
 
-    def print_table_list(self):
+    def format_table_list(self):
         """
         Prints the names of all `astropy.table.Table` objects, with their
         respective number of row and columns, contained in the
@@ -176,7 +176,10 @@ class TableList(OrderedDict):
                                       ncol=len(self.__getitem__(t_name).colnames))
                               for t_number,t_name in enumerate(self.keys())])
         end_str = ""
-        print ("\n".join([header_str, body_str, end_str]))
+        return "\n".join([header_str, body_str, end_str])
+
+    def print_table_list(self):
+        print(self.format_table_list)
 
 
 def suppress_vo_warnings():
