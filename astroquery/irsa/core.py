@@ -367,7 +367,7 @@ def _parse_coordinates(coordinates):
         c = coordinates
     else:
         raise TypeError("Argument cannot be parsed as a coordinate")
-    formatted_coords = _format_coords(c.icrs.ra.degrees, c.icrs.dec.degrees)
+    formatted_coords = _format_coords(c.icrs.ra.degree, c.icrs.dec.degree)
     return formatted_coords
 
 def _format_coords(ra, dec):
@@ -385,7 +385,7 @@ def _parse_dimension(dim):
     else:
         try:
             new_dim = commons.parse_radius(dim)
-            dim = u.Quantity(new_dim.degrees, u.Unit('degree'))
+            dim = u.Quantity(new_dim.degree, u.Unit('degree'))
         except (u.UnitsException, coord.errors.UnitsError, AttributeError):
             raise u.UnitsException("Dimension not in proper units")
     return dim
