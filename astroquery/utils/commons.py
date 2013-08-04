@@ -170,7 +170,11 @@ class TableList(OrderedDict):
         respective number of row and columns, contained in the
         `TableList` instance.
         """
-        header_str = "TableList with {keylen} tables:".format(keylen=len(list(self.keys())))
+        ntables = len(list(self.keys()))
+        if ntables == 0:
+            return "Empty TableList"
+
+        header_str = "TableList with {keylen} tables:".format(keylen=ntables)
         body_str = "\n".join(["\t'{t_number}:{t_name}' with {ncol} column(s) and {nrow} row(s) ".
                               format(t_number=t_number,t_name=t_name, nrow=len(self.__getitem__(t_name)),
                                       ncol=len(self.__getitem__(t_name).colnames))
