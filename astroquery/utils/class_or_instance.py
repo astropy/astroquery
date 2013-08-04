@@ -11,6 +11,10 @@ __all__ = ["class_or_instance"]
 class class_or_instance(object):
     def __init__(self, fn):
         self.fn = fn
+        if hasattr(fn,'__docstr__'):
+            self.__docstr__ = fn.__docstr__
+        else:
+            self.__docstr__ = ""
 
     def __get__(self, obj, cls):
         if obj is not None:
@@ -19,3 +23,7 @@ class class_or_instance(object):
             f = lambda *args, **kwds: self.fn(cls, *args, **kwds)
         functools.update_wrapper(f, self.fn)
         return f
+
+    # Probably a bad idea: hack to make this callable
+    def __call__(self,*args):
+        self.fn(*args)
