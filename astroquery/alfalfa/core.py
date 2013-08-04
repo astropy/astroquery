@@ -141,9 +141,9 @@ def crossID(ra, dec, unit=None, dr=60., optical_counterpart=False):
         ra_ref = cat['RAdeg_HI']
         dec_ref = cat['Decdeg_HI']
     
-    dra = np.abs(ra_ref - ra.degrees) \
-        * np.cos(dec.degrees * np.pi / 180.)
-    ddec = np.abs(dec_ref - dec.degrees)
+    dra = np.abs(ra_ref - ra.degree) \
+        * np.cos(dec.degree * np.pi / 180.)
+    ddec = np.abs(dec_ref - dec.degree)
     sep = np.sqrt(dra**2 + ddec**2)
     
     i_minsep = np.argmin(sep)

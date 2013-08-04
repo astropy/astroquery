@@ -91,8 +91,8 @@ def query(coord=None, ra=None, dec=None, size=None, naifid=None, pid=None,
     # Use Coordinate instance if supplied
     if coord is not None:
         try:
-            ra = coord.fk5.ra.degrees
-            dec = coord.fk5.dec.degrees
+            ra = coord.fk5.ra.degree
+            dec = coord.fk5.dec.degree
         except:
             raise Exception('Cannot parse `coord` variable.')
     # Query parameters

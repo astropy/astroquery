@@ -86,8 +86,10 @@ def get_nrao_image(lon, lat, system='galactic', epoch='J2000', size=1.0,
         galactic = coord.GalacticCoordinates(lon, lat, unit=('deg', 'deg'))
         radec = galactic.fk5
     
-    radecstr = radec.ra.format(sep=' ') + ' ' + radec.dec.format(sep=' ') 
-    glon, glat = galactic.lonangle.degrees, galactic.latangle.degrees
+    # numpy 1.5 returns an object array, so we need to force it to a pair of strings
+    # numpy 1.6, 1.7 apparently return string arrays and concatenate without issue
+    radecstr = str(radec.ra.format(sep=' ')) + ' ' + str(radec.dec.format(sep=' '))
+    glon, glat = galactic.lonangle.degree, galactic.latangle.degree
 
     # Construct request
     request = {}

@@ -523,7 +523,7 @@ def _get_frame_coords(c):
         ra, dec = _to_simbad_format(c.ra, c.dec)
         return (ra, dec, 'ICRS')
     if isinstance(c, coord.GalacticCoordinates):
-        ra, dec = (str(c.lonangle.degrees), str(c.latangle.degrees))
+        ra, dec = (str(c.lonangle.degree), str(c.latangle.degree))
         if dec[0] not in ['+', '-']:
             dec = '+' + dec
         return (ra, dec, 'GAL')
@@ -548,7 +548,7 @@ def _parse_radius(radius):
         index = min([i for (i,val) in enumerate(angle.dms) if int(val) > 0])
         unit = ('d', 'm', 's')[index]
         if unit == 'd':
-            return str(angle.degrees) + unit
+            return str(angle.degree) + unit
         if unit == 'm':
             sec_to_min = angle.dms[2] * u.arcsec.to(u.arcmin)
             total_min = angle.dms[1] + sec_to_min

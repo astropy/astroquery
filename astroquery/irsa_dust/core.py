@@ -310,10 +310,7 @@ class IrsaDust(BaseQuery):
         # check if radius is given with proper units
         if radius is not None:
             try:
-                if isinstance(radius, basestring):
-                    reg_size = self._parse_as_angle(radius)
-                else:
-                    reg_size = self._parse_as_quantity(radius)
+                reg_size = commons.radius_to_degrees(radius)
             # astropy v0.2.x throws UnitsError and v>0.2.x throws
             # UnitsException
             except (u.UnitsException, coord.errors.UnitsError, AttributeError):
@@ -324,46 +321,6 @@ class IrsaDust(BaseQuery):
                                  " range of 2.0 to 37.5 degrees")
             payload["regSize"] = reg_size
         return payload
-
-    @class_or_instance
-    def _parse_as_angle(self, radius):
-        """
-        Helper function for _args_to_payload, parses the
-        given string as an `astropy.coordinates.Angle` and
-        returns its value in degrees
-
-        Parameters
-        ----------
-        radius : str
-            string representing the angle
-
-        Returns
-        -------
-        int
-            value of angle in degrees
-        """
-        return coord.Angle(radius).degrees
-
-    @class_or_instance
-    def _parse_as_quantity(self, radius):
-        """
-        Helper function for _args_to_payload, parses the
-        given string as an `astropy.units.Quantity` and
-        returns its value in degrees
-
-        Parameters
-        ----------
-        radius : astropy.units.Quantity
-            representation of the angle
-
-        Returns
-        -------
-        int
-            value of angle in degrees
-        """
-        #this works only for astropy v >=0.3
-        #return radius.degree
-        return radius.to(u.degree).value
 
     @class_or_instance
     def extract_image_urls(self, raw_xml, image_type=None):

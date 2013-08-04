@@ -105,7 +105,7 @@ def crossID(ra, dec, unit=None, dr=2., fields=None):
     q_from = 'FROM PhotoObjAll AS p '
     q_join = 'JOIN SpecObjAll s ON p.objID = s.bestObjID '
     q_where = 'WHERE (p.ra between %g and %g) and (p.dec between %g and %g)' \
-        % (ra.degrees-dr, ra.degrees+dr, dec.degrees-dr, dec.degrees+dr)
+        % (ra.degree-dr, ra.degree+dr, dec.degree-dr, dec.degree+dr)
     
     sql = "%s%s%s%s" % (q_select, q_from, q_join, q_where)
     r = requests.get('http://cas.sdss.org/public/en/tools/search/x_sql.asp', params={'cmd': sql, 'format': 'csv'})
