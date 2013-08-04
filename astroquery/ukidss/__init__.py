@@ -18,6 +18,5 @@ UKIDSS_SERVER = ConfigurationItem('ukidss_server', ["http://surveys.roe.ac.uk:80
                                'Name of the UKIDSS mirror to use.')
 UKIDSS_TIMEOUT = ConfigurationItem('timeout', 60, 'time limit for connecting to UKIDSS server')
 
-UKIDSS_SERVER
 
 from .core import *
