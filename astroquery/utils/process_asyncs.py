@@ -8,6 +8,10 @@ from class_or_instance import class_or_instance
 def process_asyncs(cls):
     """
     Convert all query_x_async methods to query_x methods
+
+    (see
+    http://stackoverflow.com/questions/18048341/add-methods-to-a-class-generated-from-other-methods
+    for help understanding)
     """
     methods = cls.__dict__.keys()
     for k in methods:
