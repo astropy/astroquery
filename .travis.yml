@@ -8,7 +8,7 @@ python:
 
 env:
     # try all python versions with the latest stable numpy and astropy
-    # - ASTROPY_VERSION=stable NUMPY_VERSION=1.7.1 SETUP_CMD='test'
+     - ASTROPY_VERSION=development NUMPY_VERSION=1.7.1 SETUP_CMD='test'
 
 matrix:
     include:
@@ -18,10 +18,10 @@ matrix:
           env: ASTROPY_VERSION=development NUMPY_VERSION=1.7.1 SETUP_CMD='build_sphinx'
 
         # try alternate numpy versions with the latest stable astropy
-        #- python: 2.7
-        #  env: ASTROPY_VERSION=stable NUMPY_VERSION=1.6.2 SETUP_CMD='test'
-        #- python: 2.7
-        #  env: ASTROPY_VERSION=stable NUMPY_VERSION=1.5.1 SETUP_CMD='test'
+        - python: 2.7
+          env: ASTROPY_VERSION=development NUMPY_VERSION=1.6.2 SETUP_CMD='test'
+        - python: 2.7
+          env: ASTROPY_VERSION=development NUMPY_VERSION=1.5.1 SETUP_CMD='test'
 #        - python: 3.2
 #          env: ASTROPY_VERSION=stable NUMPY_VERSION=1.6.2 SETUP_CMD='test'
         # numpy < 1.6 does not work on py 3.x
