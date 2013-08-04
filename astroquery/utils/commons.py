@@ -179,8 +179,7 @@ class TableList(OrderedDict):
                               format(t_number=t_number,t_name=t_name, nrow=len(self.__getitem__(t_name)),
                                       ncol=len(self.__getitem__(t_name).colnames))
                               for t_number,t_name in enumerate(self.keys())])
-        end_str = ""
-        return "\n".join([header_str, body_str, end_str])
+        return "\n".join([header_str, body_str])
 
     def print_table_list(self):
         print(self.format_table_list)
