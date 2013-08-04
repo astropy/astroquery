@@ -80,7 +80,6 @@ class Nrao(BaseQuery):
         return [fits.open(obj.__enter__(), ignore_missing_end=True) for obj in readable_objs]
 
 
-
     @class_or_instance
     def get_images_async(self, coordinates, radius=0.25 * u.arcmin, max_rms=10000,
                          band="all", get_uvfits=False, verbose=True, get_query_payload=False):

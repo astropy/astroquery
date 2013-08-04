@@ -68,8 +68,8 @@ def test_parse_coordinates(coordinates):
     out_str = nrao.core._parse_coordinates(coordinates)
     new_coords = coord.ICRSCoordinates(out_str, unit=(u.hour, u.deg))
     # if all goes well new_coords and coordinates have same ra and dec
-    npt.assert_approx_equal(new_coords.icrs.ra.degrees, coordinates.icrs.ra.degrees, significant=3)
-    npt.assert_approx_equal(new_coords.icrs.dec.degrees, coordinates.icrs.dec.degrees, significant=3)
+    npt.assert_approx_equal(new_coords.icrs.ra.degree, coordinates.icrs.ra.degree, significant=3)
+    npt.assert_approx_equal(new_coords.icrs.dec.degree, coordinates.icrs.dec.degree, significant=3)
 
 def test_extract_image_urls():
     html_in = open(data_path(DATA_FILES['image_search']), 'r').read()
