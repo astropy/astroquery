@@ -76,14 +76,29 @@ def parse_radius(radius):
     astropy.coordinates.errors.UnitsError
     AttributeError
     """
-    # check if its a string parsable as Angle
-    if isinstance(radius, basestring):
-        return coord.Angle(radius)
-    # else must be a quantity
+    return coord.Angle(radius)
+
+def radius_to_degrees(radius):
+    """
+    Helper function: Parse a radius, then return its value in degrees
+
+    Parameters
+    ----------
+    radius : str/astropy.units.Quantity
+        The radius of a region
+
+    Returns
+    -------
+    Floating point scalar value of radius in degrees
+    """
+    rad = parse_radius(radius)
+    # This is a hack to deal with astropy pre/post PR#1006
+    if hasattr(rad,'degree'):
+        return rad.degree
+    elif hasattr(rad,'degrees'):
+        return rad.degrees
     else:
-        # workaround: if radius specified in arcsec, will fail
-        radius = radius.to(u.degree)
-        return coord.Angle(radius.value, unit=u.degree)
+        raise TypeError("Radius is an invalid type.")
 
 def parse_coordinates(coordinates):
     """

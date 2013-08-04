@@ -178,8 +178,8 @@ class Ned(BaseQuery):
                 c = commons.parse_coordinates(coordinates)
                 if isinstance(c, coord.GalacticCoordinates):
                     request_payload['in_csys'] = 'Galactic'
-                    request_payload['lon'] = c.lonangle.degrees
-                    request_payload['lat'] = c.latangle.degrees
+                    request_payload['lon'] = c.lonangle.degree
+                    request_payload['lat'] = c.latangle.degree
                 # for any other, convert to ICRS and send
                 else:
                     request_payload['in_csys'] = 'Equatorial'
@@ -675,8 +675,7 @@ def _parse_radius(radius):
     # otherwise must be an Angle or be specified in hours...
     else:
         try:
-            new_radius = commons.parse_radius(radius).degrees
-            radius_in_min = u.Quantity(value=new_radius, unit=u.deg).to(u.arcmin).value
+            radius_in_min = commons.parse_radius(radius).to(u.arcmin).value
         except (u.UnitsException, coord.errors.UnitsError, AttributeError):
             raise u.UnitsException("Dimension not in proper units")
     return radius_in_min

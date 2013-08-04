@@ -19,12 +19,14 @@ website <http://simbad.u-strasbg.fr/simbad/>`_, use the ``simbad`` sub-package:
 Installation and Requirements    
 -----------------------------
 
-As an `astropy`_ affiliate, astroquery requires `astropy`_.  `astropy`_ can be
-installed from pip:
+As an `astropy`_ affiliate, astroquery requires `astropy`_.  However, because
+astroquery relies heavily upon the ``astropy.coordinates`` module, the
+development version of `astropy`_ is required. `astropy`_ can be installed from
+pip:
 
 .. code-block:: bash
 
-    $ pip install astropy
+    $ pip install git+http://github.com/astropy/astropy.git#egg=astropy
 
 astroquery uses the `requests <http://docs.python-requests.org/en/latest/>`_
 module to communicate with the internet.  `requests`_ can also be installed with
@@ -38,6 +40,12 @@ clone it:
     $ git clone git@github.com:astropy/astroquery.git
     $ cd astroquery
     $ python setup.py install
+
+pip install also works:
+
+.. code-block:: bash
+
+    $ pip install git+http://github.com/astropy/astroquery.git#egg=astroquery
     
 Using astroquery
 ----------------
