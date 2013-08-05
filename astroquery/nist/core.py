@@ -12,7 +12,9 @@ except ImportError:
 from ..query import BaseQuery
 from ..utils.class_or_instance import class_or_instance
 from ..utils import commons
+from . import NIST_SERVER, NIST_TIMEOUT
 
+__all__ = ['Nist']
 #temporary till #149 is merged
 def process_asyncs(cls):
     """
@@ -86,8 +88,8 @@ def _strip_blanks(table):
 
 @process_asyncs
 class Nist(BaseQuery):
-    URL = "http://physics.nist.gov/cgi-bin/ASD/lines1.pl"
-    TIMEOUT = 30
+    URL = NIST_SERVER()
+    TIMEOUT = NIST_TIMEOUT()
     unit_code = {'Angstrom':0,
                  'nm': 1,
                  'um': 2}
