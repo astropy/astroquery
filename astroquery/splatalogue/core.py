@@ -79,7 +79,7 @@ class Splatalogue(BaseQuery):
         energy_min : None or float
         energy_max : None or float
             Energy range to include.  See energy_type
-        energy_type : "E_L(cm)","E_U(cm)","E_U(K)","E_L(K)"
+        energy_type : "el_cm1","eu_cm1","eu_k","el_k"
             Type of energy to restrict.  L/U for lower/upper state energy,
             cm/K for *inverse* cm, i.e. wavenumber, or K for Kelvin
         intensity_lower_limit : None or float
@@ -135,7 +135,7 @@ class Splatalogue(BaseQuery):
 
         payload['energy_range_from'] = float(energy_min) if energy_min is not None else ''
         payload['energy_range_to'] = float(energy_max) if energy_max is not None else ''
-        payload['energy_type'] = energy_type if energy_type is not None else ''
+        payload['energy_range_type'] = energy_type if energy_type is not None else ''
 
         if intensity_type is not None:
             payload['lill'] = 'lill_' + intensity_type
@@ -179,7 +179,7 @@ class Splatalogue(BaseQuery):
         return payload
 
     @class_or_instance
-    def query_species_async(self, *args, **kwargs):
+    def query_lines_async(self, *args, **kwargs):
         """
         Returns
         -------
@@ -193,7 +193,7 @@ class Splatalogue(BaseQuery):
             self.TIMEOUT)
         return response
 
-    query_species_async.__doc__ += _parse_args.__doc__
+    query_lines_async.__doc__ += _parse_args.__doc__
 
 
     @class_or_instance
