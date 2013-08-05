@@ -21,12 +21,12 @@ def process_asyncs(cls):
             async_method = getattr(cls,k)
 
             @class_or_instance
-            def newmethod(self, *args, **kwargs):
+            def newmethod(self, _async_method=async_method, *args, **kwargs):
                 if 'verbose' in kwargs:
                     verbose = kwargs.pop('verbose')
                 else:
                     verbose = False
-                response = async_method(*args,**kwargs)
+                response = _async_method(*args,**kwargs)
                 result = self._parse_result(response, verbose=verbose)
                 return result
 
