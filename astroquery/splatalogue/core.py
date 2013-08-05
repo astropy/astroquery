@@ -179,7 +179,7 @@ class Splatalogue(BaseQuery):
         return payload
 
     @class_or_instance
-    def query_object_async(self, *args, **kwargs):
+    def query_species_async(self, *args, **kwargs):
         """
         Returns
         -------
@@ -193,7 +193,7 @@ class Splatalogue(BaseQuery):
             self.TIMEOUT)
         return response
 
-    query_object_async.__doc__ += _parse_args.__doc__
+    query_species_async.__doc__ += _parse_args.__doc__
 
 
     @class_or_instance
