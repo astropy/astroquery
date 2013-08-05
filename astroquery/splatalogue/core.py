@@ -5,9 +5,7 @@ ftp://ftp.cv.nrao.edu/NRAO-staff/bkent/slap/idl/
 
 :author: Adam Ginsburg <adam.g.ginsburg@gmail.com>
 """
-from astropy.table import Table
-import requests
-import tempfile
+from astropy.io import ascii
 from ..query import BaseQuery
 from ..utils.class_or_instance import class_or_instance
 from ..utils import commons,process_asyncs
@@ -56,7 +54,10 @@ class Splatalogue(BaseQuery):
             intensity_type=None, transition=None, version='v2.0', exclude=('potential','atmospheric','probable'),
             only_NRAO_recommended=False, 
             line_lists=('Lovas', 'SLAIM', 'JPL', 'CDMS', 'ToyoMA', 'OSU', 'Recomb', 'Lisa', 'RFI'),
-            line_strengths=('ls1','ls5')):
+            line_strengths=('ls1','ls3','ls4','ls5'),
+            energy_levels=('el1','el2','el3','el4'),
+            export=True,
+            export_limit=10000):
         """
         Query splatalogue using effectively the standard online interface
 
@@ -99,11 +100,20 @@ class Splatalogue(BaseQuery):
             Options:
             Lovas, SLAIM, JPL, CDMS, ToyoMA, OSU, Recomb, Lisa, RFI
         line_strengths : list
-            Defaults to (ls1,ls5).  Can include Sij or Aij, as below:
             CDMS/JPL Intensity : ls1
             Sij : ls3
             Aij : ls4
             Lovas/AST : ls5
+        energy_levels : list
+            E_lower (cm^-1) : el1
+            E_lower (K) : el2
+            E_upper (cm^-1) : el3
+            E_upper (K) : el4
+        export : bool
+            Set up arguments for the export server (as opposed to the HTML
+            server)?
+        export_limit : int
+            Maximum number of lines in output file
 
         Returns
         -------
@@ -113,7 +123,7 @@ class Splatalogue(BaseQuery):
         payload = {'submit':'Search','frequency_units':'GHz'}
     
         min_frequency = min_frequency.to(u.GHz, u.spectral())
-        max_frequency = min_frequency.to(u.GHz, u.spectral())
+        max_frequency = max_frequency.to(u.GHz, u.spectral())
         if min_frequency > max_frequency:
             min_frequency,max_frequency = max_frequency,min_frequency
 
@@ -147,6 +157,25 @@ class Splatalogue(BaseQuery):
         for L in line_lists:
             payload['display'+L] = 'display'+L
 
+        for LS in line_strengths:
+            payload[LS] = LS
+
+        for EL in energy_levels:
+            payload[EL] = EL
+
+        # default arg, unmodifiable...
+        payload['jsMath'] = 'font:symbol,warn:0'
+        payload['__utma'] = ''
+        payload['__utmc'] = ''
+
+        if export:
+            payload['submit'] = 'Export'
+            payload['export_delimiter'] = 'colon' # or tab or comma
+            payload['export_type'] = 'current'
+            payload['offset'] = 0
+            payload['range'] = 'on'
+            payload['limit'] = export_limit
+
         return payload
 
     @class_or_instance
@@ -166,6 +195,18 @@ class Splatalogue(BaseQuery):
 
     query_object_async.__doc__ += _parse_args.__doc__
 
+
+    @class_or_instance
+    def _parse_result(self, response, verbose=False):
+        """
+        Parse a response into an astropy Table
+        """
+
+        result = ascii.read(response.content.split('\n'),
+                            delimiter=':',
+                            format='basic')
+
+        return result
 
 def slap_default_payload(request='queryData', version='2.0', wavelength='',
         chemical_element='', initial_level_energy='', final_level_energy='',
