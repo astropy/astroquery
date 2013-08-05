@@ -223,7 +223,9 @@ def _parse_coordinates(coordinates):
 
     """
     c = commons.parse_coordinates(coordinates)
-    radecstr = c.icrs.ra.format(u.hour, sep=" ") + " " + c.icrs.dec.format(sep= " ", alwayssign=True)
+    # numpy 1.5 returns an object array, so we need to force it to a pair of strings
+    # numpy 1.6, 1.7 apparently return string arrays and concatenate without issue
+    radecstr = str(c.icrs.ra.format(u.hour, sep=" ")) + " " + str(c.icrs.dec.format(sep= " ", alwayssign=True))
     return radecstr
 
 def _parse_radius(radius):
