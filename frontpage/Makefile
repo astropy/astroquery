@@ -8,4 +8,4 @@ all:
 	git add index.html; \
 	git commit -m "Index.html generated."; \
 	git checkout master; \
-	cd -
+	cd frontpage
