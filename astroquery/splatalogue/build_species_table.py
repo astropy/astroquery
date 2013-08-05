@@ -8,8 +8,13 @@ for users / not part of the core package.
 
 import json
 import requests
+import os
 
-def get_json_species_ids(outfile='data/species.json'):
+def data_path(filename):
+    data_dir = os.path.join(os.path.dirname(__file__), 'data')
+    return os.path.join(data_dir, filename)
+
+def get_json_species_ids(outfile='species.json'):
     """
     Load the NRAO Splatalogue form and parse the inputs into a JSON object
     """
@@ -30,7 +35,7 @@ def get_json_species_ids(outfile='data/species.json'):
         if hasattr(kid,'attrs') and 'class' in kid.attrs:
             species[kid['class'][0]][kid['value']] = kid.text
 
-    with open(outfile,'w') as f:
+    with open(data_path(outfile),'w') as f:
         json.dump(species,f)
 
     return json.dumps(species)

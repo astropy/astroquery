@@ -1,5 +1,6 @@
 import json
 import re
+from build_species_table import data_path
 
 class SpeciesLookuptable(dict):
     def find(self, s, flags=0, return_dict=True, ):
@@ -31,8 +32,8 @@ class SpeciesLookuptable(dict):
             return out.values()
 
 
-def species_lookuptable(filename='data/species.json'):
-    with open(filename,'r') as f:
+def species_lookuptable(filename='species.json'):
+    with open(data_path(filename),'r') as f:
         J = json.load(f)
 
     lookuptable = SpeciesLookuptable({v:k for d in J.values() for k,v in d.iteritems()})

@@ -27,7 +27,7 @@ class Splatalogue(BaseQuery):
     versions = ('v1.0','v2.0')
 
     @class_or_instance
-    def get_species_IDs(self,restr=None,reflags=0):
+    def get_species_ids(self,restr=None,reflags=0):
         """
         Get a dictionary of "species" IDs, where species refers to the molecule
         name, mass, and chemical composition
@@ -43,7 +43,7 @@ class Splatalogue(BaseQuery):
         # loading can be an expensive operation and should not change at runtime:
         # do it lazily
         if not hasattr(self,'_species_ids'):
-            self._species_ids = load_species_table.species_lookup()
+            self._species_ids = load_species_table.species_lookuptable()
 
         if restr is not None:
             return self._species_ids.find(restr,reflags)
