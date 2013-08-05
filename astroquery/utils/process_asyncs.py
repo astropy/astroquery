@@ -34,3 +34,5 @@ def process_asyncs(cls):
                                     async_method.__doc__)
 
             setattr(cls,newmethodname,newmethod)
+
+    return cls
