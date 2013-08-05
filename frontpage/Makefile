@@ -7,5 +7,4 @@ all:
 	git reset; \
 	git add index.html; \
 	git commit -m "Index.html generated."; \
-	git checkout master; \
-	cd frontpage
+	git checkout master
