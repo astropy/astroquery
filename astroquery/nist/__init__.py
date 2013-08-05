@@ -2,4 +2,4 @@
 """
 TODO: add short description
 """
-from .atomic_lines import *
+from .core import *

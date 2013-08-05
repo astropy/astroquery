@@ -13,6 +13,7 @@ from ..query import BaseQuery
 from ..utils.class_or_instance import class_or_instance
 from ..utils import commons
 
+#temporary till #149 is merged
 def process_asyncs(cls):
     """
 Convert all query_x_async methods to query_x methods
@@ -34,8 +35,18 @@ for help understanding)
                     verbose = kwargs.pop('verbose')
                 else:
                     verbose = False
+                # add support for get_query_payload
+                get_query_payload = kwargs.get('get_query_payload', False)
                 response = async_method(*args, **kwargs)
-                result = self._parse_result(response, verbose=verbose)
+                if get_query_payload:
+                    return response
+                # verbose not really required in this case?
+                # inspect.getargspec not returning anything useful
+                # so a more rounabout way ...
+                try:
+                    result = self._parse_result(response, verbose=verbose)
+                except TypeError:
+                    result = self._parse_result(response)
                 return result
 
             newmethod.fn.__doc__ = ("Returns a table object.\n" +
