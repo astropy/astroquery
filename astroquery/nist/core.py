@@ -58,7 +58,7 @@ def process_asyncs(cls):
                                     async_method.__doc__+"\n"+
                                     "Returns\n"+
                                     "--------\n"+
-                                    "an `astropy.table.Table` object")
+                                    "an `astropy.table.Table` object\n")
 
             setattr(cls, newmethodname, newmethod)
 
@@ -107,7 +107,7 @@ class Nist(BaseQuery):
         """
         Parameters
         ----------
-        minwvav : `astropy.units.Quantity` object
+        minwav : `astropy.units.Quantity` object
             The lower wavelength for the spectrum in appropriate units.
         maxwav : `astropy.units.Quantity` object
             The upper wavelength for the spectrum in appropriate units.
@@ -115,7 +115,7 @@ class Nist(BaseQuery):
             The spectrum to fetch. Defaults to "H I"
         energy_level_unit : str, optional
             The energy level units must be one of the following -
-            ['R', 'Rydberg', 'rydberg,' 'cm', 'cm-1', 'EV', 'eV', 'electronvolt', 'ev', 'invcm']
+            ['R', 'Rydberg', 'rydberg', 'cm', 'cm-1', 'EV', 'eV', 'electronvolt', 'ev', 'invcm']
             Defaults to 'eV'.
         output_order : str, optional
             Decide ordering of output. Must be one of following:
@@ -125,6 +125,7 @@ class Nist(BaseQuery):
         get_query_payload : bool, optional
             If true than returns the dictionary of query parameters, posted to
             remote server. Defaults to `False`.
+
         """
         request_payload = self._args_to_payload(minwav, maxwav, linename=linename,
                                                 energy_level_unit=energy_level_unit,
