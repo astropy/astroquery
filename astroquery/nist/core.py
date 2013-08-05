@@ -16,12 +16,12 @@ from ..utils import commons
 #temporary till #149 is merged
 def process_asyncs(cls):
     """
-Convert all query_x_async methods to query_x methods
+    Convert all query_x_async methods to query_x methods
 
-(see
-http://stackoverflow.com/questions/18048341/add-methods-to-a-class-generated-from-other-methods
-for help understanding)
-"""
+    (see
+    http://stackoverflow.com/questions/18048341/add-methods-to-a-class-generated-from-other-methods
+    for help understanding)
+    """
     methods = cls.__dict__.keys()
     for k in methods:
         newmethodname = k.replace("_async","")
@@ -42,15 +42,21 @@ for help understanding)
                     return response
                 # verbose not really required in this case?
                 # inspect.getargspec not returning anything useful
-                # so a more rounabout way ...
+                # so a more roundabout way ...
                 try:
                     result = self._parse_result(response, verbose=verbose)
                 except TypeError:
                     result = self._parse_result(response)
                 return result
 
-            newmethod.fn.__doc__ = ("Returns a table object.\n" +
-                                    async_method.__doc__)
+            # fix last part about 
+            # Keep no 'returns part' or 'short intro' in async methods? see query_async below
+            # Add a returns part here 
+            newmethod.fn.__doc__ = ("Returns a table object.\n"+
+                                    async_method.__doc__+"\n"+
+                                    "Returns\n"+
+                                    "--------\n"+
+                                    "an `astropy.table.Table` object")
 
             setattr(cls, newmethodname, newmethod)
 
@@ -58,11 +64,19 @@ for help understanding)
 
 
 
-def strip_blanks(table):
+def _strip_blanks(table):
     """
     Remove blank lines from table (included for "human readability" but useless to us...
-
     returns a single string joined by \n newlines
+    
+    Parameters
+    ----------
+    table : str
+       table to strip as a string
+
+    Returns
+    -------
+    single string joined by newlines.  
     """
     numbersletters = re.compile("[0-9A-Za-z]")
     if isinstance(table,str):
@@ -85,29 +99,32 @@ class Nist(BaseQuery):
     wavelength_unit_code = {'vacuum': 3,
                 'vac+air':4}
 
-    '''
     @class_or_instance
-    def query(self, linename, minwav, maxwav, energy_level_unit='eV', output_order='wavelength',
-              wavelength_type='vacuum', get_query_payload=False):
-
-        response = self.query_async(linename, minwav, maxwav,
-                                    energy_level_unit=energy_level_unit,
-                                    output_order=output_order,
-                                    wavelength_type=wavelength_type,
-                                    get_query_payload=get_query_payload)
-        if get_query_payload:
-            return response
-
-        result = self._parse_result(response)
-        return result
-    '''
-
-    @class_or_instance
-    def query_async(self, linename, minwav, maxwav, energy_level_unit='eV', output_order='wavelength',
+    def query_async(self,minwav, maxwav, linename="H I", energy_level_unit='eV', output_order='wavelength',
                     wavelength_type='vacuum', get_query_payload=False):
         """
+        Parameters
+        ----------
+        minwvav : `astropy.units.Quantity` object
+            The lower wavelength for the spectrum in appropriate units.
+        maxwav : `astropy.units.Quantity` object
+            The upper wavelength for the spectrum in appropriate units.
+        linename : str, optional
+            The spectrum to fetch. Defaults to "H I"
+        energy_level_unit : str, optional
+            The energy level units must be one of the following -
+            ['R', 'Rydberg', 'rydberg,' 'cm', 'cm-1', 'EV', 'eV', 'electronvolt', 'ev', 'invcm']
+            Defaults to 'eV'.
+        output_order : str, optional
+            Decide ordering of output. Must be one of following:
+            ['wavelength', 'multiplet']. Defaults to 'wavelength'.
+        wavelength_type : str, optional
+            Must be one of 'vacuum' or 'vac+air'. Defaults to 'vacuum'.
+        get_query_payload : bool, optional
+            If true than returns the dictionary of query parameters, posted to
+            remote server. Defaults to `False`.
         """
-        request_payload = self._args_to_payload(linename, minwav, maxwav,
+        request_payload = self._args_to_payload(minwav, maxwav, linename=linename,
                                                 energy_level_unit=energy_level_unit,
                                                 output_order=output_order,
                                                 wavelength_type=wavelength_type)
@@ -119,9 +136,10 @@ class Nist(BaseQuery):
 
     @class_or_instance
     def _args_to_payload(self, *args, **kwargs):
+        """Helper function that forms the dictionary to send to CGI"""
         request_payload = {}
-        request_payload["spectra"] = args[0]
-        (min_wav, max_wav, wav_unit) = _parse_wavelength(args[1], args[2])
+        request_payload["spectra"] = kwargs['linename']
+        (min_wav, max_wav, wav_unit) = _parse_wavelength(args[0], args[1])
         request_payload["low_wl"] = min_wav
         request_payload["upp_wl"] = max_wav
         request_payload["unit"] = wav_unit
@@ -155,16 +173,43 @@ class Nist(BaseQuery):
 
     @class_or_instance
     def _parse_result(self, response):
+        """
+        Parses the results form the HTTP response to `astropy.table.Table`.
+
+        Parameters
+        ----------
+        response : `requests.Response`
+            The HTTP response object
+        
+        Returns
+        -------
+        table : `astropy.table.Table`
+        """
+        
         pre_re = re.compile("<pre>(.*)</pre>",flags=re.DOTALL)
         pre = pre_re.findall(response.content)[0]
-        table = strip_blanks(pre)
+        table = _strip_blanks(pre)
         Table = asciitable.read(table, Reader=asciitable.FixedWidth,
                 data_start=3)
         return Table
 
 
 def _parse_wavelength(min_wav, max_wav):
+    """
+    Helper function to return wavelength and units in form accepted by NIST
+    
+    Parameters
+    ----------
+    min_wav : `astropy.units.Quantity` object
+        The lower wavelength in proper units.
+    max_wav : `astropy.units.Quantity` object
+        The upper wavelength in proper units.
 
+    Returns
+    -------
+    tuple : (number, number, string)
+        The value of lower, upper wavelength and their unit.
+    """
     max_wav = max_wav.to(min_wav.unit)
     wav_unit = min_wav.unit.to_string()
     if wav_unit not in Nist.unit_code:
