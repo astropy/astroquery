@@ -10,7 +10,7 @@ import requests
 import tempfile
 from ..query import BaseQuery
 from ..utils.class_or_instance import class_or_instance
-from ..utils import commons
+from ..utils import commons,process_asyncs
 from astropy import units as u
 from . import SLAP_URL,QUERY_URL
 from . import load_species_table
@@ -18,6 +18,7 @@ from . import load_species_table
 # example query of SPLATALOGUE directly:
 # http://www.cv.nrao.edu/php/splat/c.php?sid%5B%5D=64&sid%5B%5D=108&calcIn=&data_version=v2.0&from=&to=&frequency_units=MHz&energy_range_from=&energy_range_to=&lill=on&tran=&submit=Search&no_atmospheric=no_atmospheric&no_potential=no_potential&no_probable=no_probable&include_only_nrao=include_only_nrao&displayLovas=displayLovas&displaySLAIM=displaySLAIM&displayJPL=displayJPL&displayCDMS=displayCDMS&displayToyaMA=displayToyaMA&displayOSU=displayOSU&displayRecomb=displayRecomb&displayLisa=displayLisa&displayRFI=displayRFI&ls1=ls1&ls5=ls5&el1=el1
 
+@process_asyncs
 class Splatalogue(BaseQuery):
 
     SLAP_URL = SLAP_URL
@@ -48,23 +49,6 @@ class Splatalogue(BaseQuery):
             return self._species_ids.find(restr,reflags)
         else: 
             return self._species_ids
-
-    @class_or_instance
-    def query_object_async(self, *args, **kwargs):
-        """
-        Returns
-        -------
-        response : `requests.Response` object
-            The response of the HTTP request.
-        """
-        data_payload = self._parse_args(*args, **kwargs)
-        response = commons.send_request(
-            self.QUERY_URL,
-            data_payload,
-            self.TIMEOUT)
-        return response
-
-    query_object_async.__doc__ += _parse_args.__doc__
 
     @class_or_instance
     def _parse_args(self, min_frequency, max_frequency, chemical_name=None, chem_re_flags=0,
@@ -164,6 +148,23 @@ class Splatalogue(BaseQuery):
             payload['display'+L] = 'display'+L
 
         return payload
+
+    @class_or_instance
+    def query_object_async(self, *args, **kwargs):
+        """
+        Returns
+        -------
+        response : `requests.Response` object
+            The response of the HTTP request.
+        """
+        data_payload = self._parse_args(*args, **kwargs)
+        response = commons.send_request(
+            self.QUERY_URL,
+            data_payload,
+            self.TIMEOUT)
+        return response
+
+    query_object_async.__doc__ += _parse_args.__doc__
 
 
 def slap_default_payload(request='queryData', version='2.0', wavelength='',
