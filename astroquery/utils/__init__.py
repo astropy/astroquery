@@ -8,3 +8,4 @@ from .progressbar import *
 from .download_file_list import *
 from .class_or_instance import *
 from .commons import *
+from .process_asyncs import process_asyncs
