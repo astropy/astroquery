@@ -13,22 +13,30 @@ def process_asyncs(cls):
     http://stackoverflow.com/questions/18048341/add-methods-to-a-class-generated-from-other-methods
     for help understanding)
     """
+    
+    def create_method(async_method):
+
+        @class_or_instance
+        def newmethod(self, *args, **kwargs):
+            if 'verbose' in kwargs:
+                verbose = kwargs.pop('verbose')
+            else:
+                verbose = False
+            response = async_method(*args,**kwargs)
+            result = self._parse_result(response, verbose=verbose)
+            return result
+
+        return newmethod
+
     methods = cls.__dict__.keys()
+
     for k in methods:
         newmethodname = k.replace("_async","")
         if 'async' in k and newmethodname not in methods:
 
             async_method = getattr(cls,k)
 
-            @class_or_instance
-            def newmethod(self, _async_method=async_method, *args, **kwargs):
-                if 'verbose' in kwargs:
-                    verbose = kwargs.pop('verbose')
-                else:
-                    verbose = False
-                response = _async_method(*args,**kwargs)
-                result = self._parse_result(response, verbose=verbose)
-                return result
+            newmethod = create_method(async_method)
 
             newmethod.fn.__doc__ = ("Returns a table object.\n" +
                                     async_method.__doc__)
