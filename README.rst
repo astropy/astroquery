@@ -1,3 +1,6 @@
+`Documentation`_ |  `View on Github`_ |  `Download ZIP`_  |  `Download TAR`_  
+
+
 ==================================
 Accessing Online Astronomical Data
 ==================================
@@ -18,6 +21,7 @@ website <http://simbad.u-strasbg.fr/simbad/>`_, use the ``simbad`` sub-package:
         
 Installation and Requirements    
 -----------------------------
+
 
 As an `astropy`_ affiliate, astroquery requires `astropy`_.  However, because
 astroquery relies heavily upon the ``astropy.coordinates`` module, the
@@ -50,7 +54,7 @@ pip install also works:
 Using astroquery
 ----------------
 Importing astroquery on its own doesn't get you much: you need to import each
-sub-module specifically.  Check out the `docs <astroquery.readthedocs.org>`_
+sub-module specifically.  Check out the `docs`_
 to find a list of the tools available.  The `API
 <http://astroquery.readthedocs.org/en/latest/astroquery/api.html>`_ 
 shows the standard suite of tools common to most modules, e.g. `query_object`
@@ -61,3 +65,9 @@ contributions are very welcome, though we encourage you to follow the `API`_
 and `contributing guidelines
 <https://github.com/astropy/astroquery/blob/master/CONTRIBUTING.rst>`_ as much
 as possible.
+
+.. _Download ZIP: https://github.com/astropy/astroquery/zipball/master
+.. _Download TAR: https://github.com/astropy/astroquery/tarball/master
+.. _View on Github: https://github.com/astropy/astroquery/
+.. _docs: http://astroquery.readthedocs.org
+.. _Documentation: http://astroquery.readthedocs.org
