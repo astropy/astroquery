@@ -209,7 +209,7 @@ def _parse_wavelength(min_wav, max_wav):
 
     Returns
     -------
-    tuple : (number, number, string)
+    tuple : (number, number, number)
         The value of lower, upper wavelength and their unit.
     """
     max_wav = max_wav.to(min_wav.unit)
