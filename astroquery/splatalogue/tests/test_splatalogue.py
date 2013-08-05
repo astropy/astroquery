@@ -27,4 +27,4 @@ def post_mockreturn(url, data=None, timeout=10):
     return MockResponse(content)
 
 def test_simple():
-    x = splatalogue.Splatalogue.query_species(114*u.GHz,116*u.GHz,chemical_name=' CO ')
+    x = splatalogue.Splatalogue.query_lines(114*u.GHz,116*u.GHz,chemical_name=' CO ')
