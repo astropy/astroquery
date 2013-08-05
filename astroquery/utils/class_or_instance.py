@@ -11,10 +11,10 @@ __all__ = ["class_or_instance"]
 class class_or_instance(object):
     def __init__(self, fn):
         self.fn = fn
-        if hasattr(fn,'__docstr__'):
-            self.__docstr__ = fn.__docstr__
+        if hasattr(fn,'__doc__'):
+            self.__doc__ = fn.__doc__
         else:
-            self.__docstr__ = ""
+            self.__doc__ = ""
 
     def __get__(self, obj, cls):
         if obj is not None:
