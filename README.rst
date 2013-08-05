@@ -1,4 +1,5 @@
-`Documentation <docs>`_ `View on Github <Github>`_ `Download ZIP`_  `Download TAR`_  
+`Documentation`_ |  `View on Github`_ |  `Download ZIP`_  |  `Download TAR`_  
+
 
 ==================================
 Accessing Online Astronomical Data
@@ -67,5 +68,6 @@ as possible.
 
 .. _Download ZIP: https://github.com/astropy/astroquery/zipball/master
 .. _Download TAR: https://github.com/astropy/astroquery/tarball/master
-.. _Github: https://github.com/astropy/astroquery/
+.. _View on Github: https://github.com/astropy/astroquery/
 .. _docs: http://astroquery.readthedocs.org
+.. _Documentation: http://astroquery.readthedocs.org
