@@ -51,9 +51,9 @@ def process_asyncs(cls):
                     result = self._parse_result(response)
                 return result
 
-            # fix last part about 
+            # fix last part about
             # Keep no 'returns part' or 'short intro' in async methods? see query_async below
-            # Add a returns part here 
+            # Add a returns part here
             newmethod.fn.__doc__ = ("Returns a table object.\n"+
                                     async_method.__doc__+"\n"+
                                     "Returns\n"+
@@ -70,7 +70,7 @@ def _strip_blanks(table):
     """
     Remove blank lines from table (included for "human readability" but useless to us...
     returns a single string joined by \n newlines
-    
+
     Parameters
     ----------
     table : str
@@ -78,7 +78,7 @@ def _strip_blanks(table):
 
     Returns
     -------
-    single string joined by newlines.  
+    single string joined by newlines.
     """
     numbersletters = re.compile("[0-9A-Za-z]")
     if isinstance(table,str):
@@ -182,24 +182,26 @@ class Nist(BaseQuery):
         ----------
         response : `requests.Response`
             The HTTP response object
-        
+
         Returns
         -------
         table : `astropy.table.Table`
         """
-        
+
         pre_re = re.compile("<pre>(.*)</pre>",flags=re.DOTALL)
+        links_re = re.compile(r"<a.*?>\s*(\w+)\s*</a>")
         pre = pre_re.findall(response.content)[0]
         table = _strip_blanks(pre)
+        table = links_re.sub(r'\1', table)
         Table = asciitable.read(table, Reader=asciitable.FixedWidth,
-                data_start=3)
+                                data_start=3, delimiter='|')
         return Table
 
 
 def _parse_wavelength(min_wav, max_wav):
     """
     Helper function to return wavelength and units in form accepted by NIST
-    
+
     Parameters
     ----------
     min_wav : `astropy.units.Quantity` object
