@@ -11,3 +11,5 @@ REQUIRES mechanize (and astropy)
 :Author: Magnus Vilehlm Persson (magnusp@vilhelm.nu)
 """
 from .core import *
+SLAP_URL = 'http://find.nrao.edu/splata-slap/slap'
+QUERY_URL = 'http://www.cv.nrao.edu/php/splat/c_export.php'
