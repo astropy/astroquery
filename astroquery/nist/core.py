@@ -13,6 +13,40 @@ from ..query import BaseQuery
 from ..utils.class_or_instance import class_or_instance
 from ..utils import commons
 
+def process_asyncs(cls):
+    """
+Convert all query_x_async methods to query_x methods
+
+(see
+http://stackoverflow.com/questions/18048341/add-methods-to-a-class-generated-from-other-methods
+for help understanding)
+"""
+    methods = cls.__dict__.keys()
+    for k in methods:
+        newmethodname = k.replace("_async","")
+        if 'async' in k and newmethodname not in methods:
+
+            async_method = getattr(cls, k)
+
+            @class_or_instance
+            def newmethod(self, *args, **kwargs):
+                if 'verbose' in kwargs:
+                    verbose = kwargs.pop('verbose')
+                else:
+                    verbose = False
+                response = async_method(*args, **kwargs)
+                result = self._parse_result(response, verbose=verbose)
+                return result
+
+            newmethod.fn.__doc__ = ("Returns a table object.\n" +
+                                    async_method.__doc__)
+
+            setattr(cls, newmethodname, newmethod)
+
+    return cls
+
+
+
 def strip_blanks(table):
     """
     Remove blank lines from table (included for "human readability" but useless to us...
@@ -25,6 +59,7 @@ def strip_blanks(table):
     table = [line for line in table if numbersletters.search(line)]
     return "\n".join(table)
 
+@process_asyncs
 class Nist(BaseQuery):
     URL = "http://physics.nist.gov/cgi-bin/ASD/lines1.pl"
     TIMEOUT = 30
@@ -39,6 +74,7 @@ class Nist(BaseQuery):
     wavelength_unit_code = {'vacuum': 3,
                 'vac+air':4}
 
+    '''
     @class_or_instance
     def query(self, linename, minwav, maxwav, energy_level_unit='eV', output_order='wavelength',
               wavelength_type='vacuum', get_query_payload=False):
@@ -53,11 +89,13 @@ class Nist(BaseQuery):
 
         result = self._parse_result(response)
         return result
+    '''
 
     @class_or_instance
     def query_async(self, linename, minwav, maxwav, energy_level_unit='eV', output_order='wavelength',
                     wavelength_type='vacuum', get_query_payload=False):
-
+        """
+        """
         request_payload = self._args_to_payload(linename, minwav, maxwav,
                                                 energy_level_unit=energy_level_unit,
                                                 output_order=output_order,
