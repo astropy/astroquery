@@ -34,7 +34,7 @@ def test_parse_wavelength():
     minwav, maxwav, unit = nist.core._parse_wavelength(4000 * u.AA, 7000 * u.AA)
     npt.assert_approx_equal(minwav, 4000, significant=4)
     npt.assert_approx_equal(maxwav, 7000, significant=4)
-    assert unit == ist.core.Nist.unit_code['Angstrom']
+    assert unit == nist.core.Nist.unit_code['Angstrom']
 
 def test_query_async(patch_get):
     response = nist.core.Nist.query_async(4000 * u.nm, 7000 * u.nm, "H I")
