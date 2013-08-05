@@ -29,7 +29,7 @@ def get_json_species_ids(outfile='species.json'):
         if hasattr(kid,'attrs') and 'class' in kid.attrs:
             species_types.add(kid['class'][0])
 
-    species = {k:{} for k in species_types}
+    species = dict((k,{}) for k in species_types)
 
     for kid in sid.children:
         if hasattr(kid,'attrs') and 'class' in kid.attrs:
