@@ -1,5 +1,5 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-from ... import Splatalogue
+from ... import splatalogue
 from astropy import units as u
 from astropy.tests.helper import pytest
 import requests
@@ -27,4 +27,4 @@ def post_mockreturn(url, data=None, timeout=10):
     return MockResponse(content)
 
 def test_simple():
-    x = Splatalogue.query_species(114*u.GHz,116*u.GHz,chemical_name=' CO ')
+    x = splatalogue.Splatalogue.query_species(114*u.GHz,116*u.GHz,chemical_name=' CO ')
