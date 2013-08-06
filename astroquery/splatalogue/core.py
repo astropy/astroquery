@@ -9,6 +9,7 @@ from astropy.io import ascii
 from ..query import BaseQuery
 from ..utils.class_or_instance import class_or_instance
 from ..utils import commons,async_to_sync
+from ..utils.docstr_chompers import prepend_docstr_noreturns
 from astropy import units as u
 from . import SLAP_URL,QUERY_URL
 from . import load_species_table
@@ -179,7 +180,7 @@ class Splatalogue(BaseQuery):
         return payload
 
     @class_or_instance
-    @commons.append_docstr(_parse_args.__doc__)
+    @prepend_docstr_noreturns(_parse_args.__doc__)
     def query_lines_async(self, *args, **kwargs):
         """
         Returns
