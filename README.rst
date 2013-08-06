@@ -66,6 +66,26 @@ and `contributing guidelines
 <https://github.com/astropy/astroquery/blob/master/CONTRIBUTING.rst>`_ as much
 as possible.
 
+List of Modules
+---------------
+
+  * `Simbad <http://astroquery.readthedocs.org/en/latest/simbad.html>`_
+  * `Vizier <http://astroquery.readthedocs.org/en/latest/vizier.html>`_
+  * `IRSA dust <http://astroquery.readthedocs.org/en/latest/irsa_dust.html>`_
+  * `NED <http://astroquery.readthedocs.org/en/latest/ned.html>`_
+  * `IRSA <http://astroquery.readthedocs.org/en/latest/irsa.html>`_
+  * `UKIDSS <http://astroquery.readthedocs.org/en/latest/ukidss.html>`_
+  * `MAGPIS <http://astroquery.readthedocs.org/en/latest/magpis.html>`_
+  * `NRAO <http://astroquery.readthedocs.org/en/latest/nrao.html>`_
+  * `Besancon <http://astroquery.readthedocs.org/en/latest/besancon.html>`_
+  * `NIST <http://astroquery.readthedocs.org/en/latest/nist.html>`_
+  * `Fermi <http://astroquery.readthedocs.org/en/latest/fermi.html>`_
+  * `SDSS <http://astroquery.readthedocs.org/en/latest/sdss.html>`_
+  * `Alfalfa <http://astroquery.readthedocs.org/en/latest/alfalfa.html>`_
+  * `SHA <http://astroquery.readthedocs.org/en/latest/sha.html>`_
+  * `Lamda <http://astroquery.readthedocs.org/en/latest/lamda.html>`_
+  * `Ogle <http://astroquery.readthedocs.org/en/latest/ogle.html>`_
+
 .. _Download ZIP: https://github.com/astropy/astroquery/zipball/master
 .. _Download TAR: https://github.com/astropy/astroquery/tarball/master
 .. _View on Github: https://github.com/astropy/astroquery/
