@@ -6,7 +6,7 @@ Process all "async" methods into direct methods.
 from class_or_instance import class_or_instance
 import textwrap
 
-def process_asyncs(cls):
+def async_to_sync(cls):
     """
     Convert all query_x_async methods to query_x methods
 
@@ -52,32 +52,38 @@ def async_to_sync_docstr(doc, returntype='table'):
     """
 
     object_dict = {'table':'astropy.table.Table',
-                   'fits':'astropy.io.fits.PrimaryHDU'}
+                   'fits':'astropy.io.fits.PrimaryHDU',
+                   'dict':'dict'}
 
     firstline = "Queries the service and returns a {rt} object".format(rt=returntype)
+
+    vowels = 'aeiou'
+    vowels += vowels.upper()
+    n = 'n' if object_dict[returntype][0] in vowels else ''
 
     returnstr = """
                 Returns
                 -------
-                A `{ot}` object
-                """.format(ot=object_dict[returntype])
+                A{n} `{ot}` object
+                """.format(n=n,ot=object_dict[returntype]).lstrip('\n')
 
-    lines = doc.split('\n')
+    lines = textwrap.dedent(doc.lstrip('\n')).split('\n')
     outlines = []
     rblock = False
     for line in lines:
-        lstrip = line.strip()
+        lstrip = line.rstrip()
         if lstrip == "Returns":
             rblock = True
             continue
-        if rblock:
+        elif rblock:
             if lstrip == '':
                 rblock = False
                 continue
             else:
                 continue
-        outlines.append(lstrip)
+        else:
+            outlines.append(lstrip)
 
-    newdoc = "\n".join([firstline] + lines + [textwrap.dedent(returnstr)])
+    newdoc = "\n".join([firstline] + outlines + [textwrap.dedent(returnstr)])
 
     return newdoc
