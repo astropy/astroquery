@@ -8,7 +8,7 @@ ftp://ftp.cv.nrao.edu/NRAO-staff/bkent/slap/idl/
 from astropy.io import ascii
 from ..query import BaseQuery
 from ..utils.class_or_instance import class_or_instance
-from ..utils import commons,process_asyncs
+from ..utils import commons,async_to_sync
 from astropy import units as u
 from . import SLAP_URL,QUERY_URL
 from . import load_species_table
@@ -16,7 +16,7 @@ from . import load_species_table
 # example query of SPLATALOGUE directly:
 # http://www.cv.nrao.edu/php/splat/c.php?sid%5B%5D=64&sid%5B%5D=108&calcIn=&data_version=v2.0&from=&to=&frequency_units=MHz&energy_range_from=&energy_range_to=&lill=on&tran=&submit=Search&no_atmospheric=no_atmospheric&no_potential=no_potential&no_probable=no_probable&include_only_nrao=include_only_nrao&displayLovas=displayLovas&displaySLAIM=displaySLAIM&displayJPL=displayJPL&displayCDMS=displayCDMS&displayToyaMA=displayToyaMA&displayOSU=displayOSU&displayRecomb=displayRecomb&displayLisa=displayLisa&displayRFI=displayRFI&ls1=ls1&ls5=ls5&el1=el1
 
-@process_asyncs
+@async_to_sync
 class Splatalogue(BaseQuery):
 
     SLAP_URL = SLAP_URL
