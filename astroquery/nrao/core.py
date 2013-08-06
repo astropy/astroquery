@@ -196,9 +196,13 @@ class Nrao(BaseQuery):
     def _parse_result(self, response, verbose=False):
         if not verbose:
             commons.suppress_vo_warnings()
+        # fix to replace non standard datatype 'integer' in returned VOTable
+        # with 'int' to make it parsable by astropy.io.votable
+        integer_re = re.compile(r'datatype="integer"')
+        new_content = integer_re.sub(r'datatype="int"', response.content)
         try:
             tf = tempfile.NamedTemporaryFile()
-            tf.write(response.content.encode('utf-8'))
+            tf.write(new_content.encode('utf-8'))
             tf.flush()
             first_table = votable.parse(tf.name, pedantic=False).get_first_table()
             table = first_table.to_table(use_names_over_ids=True)
