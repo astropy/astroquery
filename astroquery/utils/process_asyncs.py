@@ -5,6 +5,7 @@ Process all "async" methods into direct methods.
 
 from class_or_instance import class_or_instance
 import textwrap
+from docstr_chompers import remove_returns
 
 def async_to_sync(cls):
     """
@@ -67,23 +68,11 @@ def async_to_sync_docstr(doc, returntype='table'):
                 A{n} `{ot}` object
                 """.format(n=n,ot=object_dict[returntype]).lstrip('\n')
 
-    lines = textwrap.dedent(doc.lstrip('\n')).split('\n')
-    outlines = []
-    rblock = False
-    for line in lines:
-        lstrip = line.rstrip()
-        if lstrip == "Returns":
-            rblock = True
-            continue
-        elif rblock:
-            if lstrip == '':
-                rblock = False
-                continue
-            else:
-                continue
-        else:
-            outlines.append(lstrip)
+    # all docstrings have a blank first line
+    # strip it out, so that we can prepend
+    outlines = remove_returns(doc.lstrip('\n'))
 
-    newdoc = "\n".join([firstline] + outlines + [textwrap.dedent(returnstr)])
+    # then the '' here is to add back the blank line
+    newdoc = "\n".join(['',firstline] + outlines + [textwrap.dedent(returnstr)])
 
     return newdoc
