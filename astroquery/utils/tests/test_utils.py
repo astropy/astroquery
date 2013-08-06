@@ -166,7 +166,7 @@ docstr1_out = textwrap.dedent("""
         Returns
         -------
         An `astropy.table.Table` object
-        """).lstrip('\n')
+        """)
 
 docstr2 = """
         Search Vizier for catalogs based on a set of keywords, e.g. author name
@@ -223,7 +223,7 @@ docstr2_out = textwrap.dedent("""
         Returns
         -------
         A `dict` object
-        """).lstrip("\n")
+        """)
 
 def test_process_async_docs():
     assert async_to_sync_docstr(docstr1) == docstr1_out
