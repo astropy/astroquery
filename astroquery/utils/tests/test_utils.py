@@ -7,6 +7,7 @@ from ...utils import chunk_read, chunk_report
 from ...utils import class_or_instance
 from ...utils import commons
 from ...utils.process_asyncs import async_to_sync_docstr,async_to_sync
+from ...utils.docstr_chompers import remove_returns,prepend_docstr_noreturns
 from astropy.table import Table
 from astropy.tests.helper import pytest, remote_data
 import astropy.io.votable as votable
@@ -237,3 +238,58 @@ class Dummy:
 def test_async_to_sync(cls=Dummy):
     newcls = async_to_sync(Dummy)
     assert hasattr(newcls,"do_nothing")
+
+docstr3 = """
+    Returns
+    -------
+    Nothing!
+
+    Examples
+    --------
+    Nada
+"""
+
+docstr3_out = """
+    Examples
+    --------
+    Nada
+"""
+
+def test_return_chomper(doc=docstr3,out=docstr3_out):
+    assert remove_returns(doc) == [x.lstrip() for x in out.split('\n')]
+
+def dummyfunc():
+    """
+    Returns
+    -------
+    Nothing!
+
+    Examples
+    --------
+    Nada
+    """
+    pass
+
+docstr4 = """
+    Blah Blah Blah
+
+    Returns
+    -------
+    nothing
+"""
+
+docstr4_out = """
+    Blah Blah Blah
+
+    Returns
+    -------
+    Nothing!
+
+    Examples
+    --------
+    Nada
+"""
+
+def test_prepend_docstr(doc=docstr4,func=dummyfunc,out=docstr4_out):
+    fn = prepend_docstr_noreturns(doc)(func)
+    assert fn.__doc__ == textwrap.dedent(docstr4_out)
