@@ -179,6 +179,7 @@ class Splatalogue(BaseQuery):
         return payload
 
     @class_or_instance
+    @commons.append_docstr(_parse_args.__doc__)
     def query_lines_async(self, *args, **kwargs):
         """
         Returns
@@ -192,9 +193,6 @@ class Splatalogue(BaseQuery):
             data_payload,
             self.TIMEOUT)
         return response
-
-    query_lines_async.__doc__ += _parse_args.__doc__
-
 
     @class_or_instance
     def _parse_result(self, response, verbose=False):
