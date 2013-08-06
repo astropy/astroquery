@@ -4,6 +4,7 @@ Process all "async" methods into direct methods.
 """
 
 from class_or_instance import class_or_instance
+import textwrap
 
 def process_asyncs(cls):
     """
@@ -38,9 +39,45 @@ def process_asyncs(cls):
 
             newmethod = create_method(async_method)
 
-            newmethod.fn.__doc__ = ("Returns a table object.\n" +
-                                    async_method.__doc__)
+            newmethod.fn.__doc__ = async_to_sync_docstr(async_method.__doc__)
 
             setattr(cls,newmethodname,newmethod)
 
     return cls
+
+def async_to_sync_docstr(doc, returntype='table'):
+    """
+    Strip of the "Returns" component of a docstr and replace it with "Returns a
+    table" code
+    """
+
+    object_dict = {'table':'astropy.table.Table',
+                   'fits':'astropy.io.fits.PrimaryHDU'}
+
+    firstline = "Queries the service and returns a {rt} object".format(rt=returntype)
+
+    returnstr = """
+                Returns
+                -------
+                A `{ot}` object
+                """.format(ot=object_dict[returntype])
+
+    lines = doc.split('\n')
+    outlines = []
+    rblock = False
+    for line in lines:
+        lstrip = line.strip()
+        if lstrip == "Returns":
+            rblock = True
+            continue
+        if rblock:
+            if lstrip == '':
+                rblock = False
+                continue
+            else:
+                continue
+        outlines.append(lstrip)
+
+    newdoc = "\n".join([firstline] + lines + [textwrap.dedent(returnstr)])
+
+    return newdoc
