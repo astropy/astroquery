@@ -1,0 +1,164 @@
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
+from __future__ import print_function
+
+import re
+import tempfile
+import warnings
+
+import astropy.units as u
+from astropy import coordinates as coord
+import astropy.utils.data as aud
+
+from ..query import BaseQuery
+from ..utils.class_or_instance import class_or_instance
+from ..utils import commons
+
+
+__all__ = ["Nrao"]
+
+def _validate_params(func):
+    def wrapper(*args, **kwargs):
+        telescope = kwargs.get('telescope')
+        telescope_config = kwargs.get('telescope_config')
+        obs_band = kwargs.get('obs_band')
+        sub_array = kwargs.get('sub_array')
+        if telescope not in Nrao.telescope_code:
+            raise ValueError("'telescope must be one of {!s}".format(Nrao.telescope_code.keys()))
+        if telescope_config.upper() not in Nrao.telescope_config:
+            raise ValueError("'telescope_config' must be one of {!s}".format(Nrao.telescope_config))
+        if obs_band.upper() not in Nrao.obs_bands:
+            raise ValueError("'obs_band' must be one of {!s}".format(Nrao.obs_bands))
+        if sub_array.upper() not in Nrao.subarrays:
+            raise ValueError("'sub_array' must be one of {!s}".format(Nrao.subarrays))
+        return func(*args, **kwargs)
+    return wrapper
+
+class Nrao(BaseQuery):
+    
+    DATA_URL = 'https://archive.nrao.edu/archive/ArchiveQuery'
+    TIMEOUT = 60
+   
+    # dicts and lists for data archive queries
+    telescope_code = {
+        "all": "ALL",
+        "jansky_vla": "EVLA",
+        "historical_vla": "VLA",
+        "vlba": "VLBA",
+        "gbt": "GBT",
+        }
+
+    telescope_config = ['ALL', 'A', 'AB', 'BnA', 'B', 'BC', 'CnB', 'C',	'CD', 'DnC', 'D',  'DA']
+
+    obs_bands = ['ALL', '4', 'P', 'L', 'S',  'C', 'X', 'U', 'K', 'Ka', 'Q', 'W']
+
+    subarrays = ['ALL', '1', '2', '3', '4', '5']
+
+   
+      
+    @class_or_instance
+    def query_region(self, coordinates, radius=1 * u.deg, equinox='J2000',
+                     telescope='all', start_date="", end_date="",
+                     freq_low=None, freq_up=None,
+                     telescope_config='all', obs_band='all',
+                     sub_array='all', verbose=False, get_query_payload=False):
+
+        response = self.query_region_async(coordinates,
+                                           radius=radius,
+                                           telescope=telescope,
+                                           start_date=start_date,
+                                           end_date=end_date,
+                                           freq_low=freq_low, freq_up=freq_up,
+                                           telescope_config=telescope_config,
+                                           obs_band=obs_band,
+                                           sub_array=sub_array,
+                                           get_query_payload=get_query_payload)
+        if get_query_payload:
+            return response
+        result = self._parse_result(response, verbose=verbose)
+        return result
+
+
+    @class_or_instance
+    def query_region_async(self, coordinates, radius=1 * u.deg, equinox='J2000',
+                           telescope='all', start_date="", end_date="",
+                           freq_low=None, freq_up=None,
+                           telescope_config='all', obs_band='all',
+                           sub_array='all', get_query_payload=False):
+
+        request_payload = self._args_to_payload(coordinates,
+                                               radius=radius,
+                                               equinox=equinox,
+                                               telescope=telescope,
+                                               start_date=start_date,
+                                               end_date=end_date,
+                                               freq_low=freq_low, freq_up=freq_up,
+                                               telescope_config=telescope_config,
+                                               obs_band=obs_band,
+                                               sub_array=sub_array)
+        if get_query_payload:
+            return request_payload
+        response = commons.send_request(Nrao.DATA_URL, request_payload, Nrao.TIMEOUT, request_type='GET')
+        return response
+
+    @class_or_instance
+    @_validate_params
+    def _args_to_payload(self, *args, **kwargs):
+        c = commons.parse_coordinates(args[0])
+        lower_frequency = kwargs['freq_low']
+        upper_frequency = kwargs['freq_up']
+        if lower_frequency is not None and upper_frequency is not None:
+            freq_str = str(lower_frequency.to(u.MHz))+'-'+str(upper_frequency.to(u.MHz))
+        else:
+            freq_str = ""
+        request_payload = dict(QUERYTYPE="OBSSUMMARY",
+                               PROTOCOL="VOTable-XML",
+                               MAX_ROWS="NO LIMIT",
+                               SORT_PARM="Starttime",
+                               SORT_ORDER="Asc",
+                               SORT_PARM2="Starttime",
+                               SORT_ORDER2="Asc",
+                               QUERY_ID=9999,
+                               QUERY_MODE="AAT_TOOL",
+                               LOCKMODE="PROJECT",
+                               SITE_CODE="AOC",
+                               DBHOST="CHEWBACCA",
+                               WRITELOG=0,
+                               TELESCOPE=Nrao.telescope_code[kwargs['telescope']],
+                               PROJECT_CODE="",
+                               SEGMENT="",
+                               TIMERANGE1=kwargs['start_date'],
+                               OBSERVER="",
+                               ARCHIVE_VOLUME="",
+                               TIMERANGE2=kwargs['end_date'],
+                               CENTER_RA = str(c.icrs.ra.degree) + 'd',
+                               CENTER_DEC = str(c.icrs.dec.degree) + 'd',
+                               EQUINOX=kwargs['equinox'],
+                               SRAD=str(commons.parse_radius(kwargs['radius']).degree) + 'd',
+                               TELESCOPE_CONFIG=kwargs['telescope_config'].upper(),
+                               OBS_BANDS=kwargs['obs_band'].upper(),
+                               SUBARRAY=kwargs['sub_array'].upper(),
+                               OBSFREQ1=freq_str,
+                               OBS_POLAR="ALL",
+                               RECEIVER_ID="ALL",
+                               BACKEND_ID="ALL",
+                               SUBMIT="Submit Query")
+        return request_payload
+
+    @class_or_instance
+    def _parse_result(self, response, verbose=False):
+        if not verbose:
+            commons.suppress_vo_warnings()
+        try:
+            tf = tempfile.NamedTemporaryFile()
+            tf.write(response.content.encode('utf-8'))
+            tf.flush()
+            first_table = votable.parse(tf.name, pedantic=False).get_first_table()
+            table = first_table.to_table(use_names_over_ids=True)
+            return table
+        except Exception as ex:
+            print (str(ex))
+            warnings.warn("Error in parsing Ned result. "
+                 "Returning raw result instead.")
+            return response.content
+
+
