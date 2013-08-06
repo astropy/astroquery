@@ -51,7 +51,7 @@ class Nrao(BaseQuery):
 
     obs_bands = ['ALL', '4', 'P', 'L', 'S',  'C', 'X', 'U', 'K', 'Ka', 'Q', 'W']
 
-    subarrays = ['ALL', '1', '2', '3', '4', '5']
+    subarrays = ['ALL', 1, 2, 3, 4, 5]
 
    
       
@@ -84,6 +84,54 @@ class Nrao(BaseQuery):
                            freq_low=None, freq_up=None,
                            telescope_config='all', obs_band='all',
                            sub_array='all', get_query_payload=False):
+        """
+        Queries the NRAO data archive and fetches table of observation summaries.
+
+        Parameters
+        ----------
+        coordinates : str or `astropy.coordinates` object
+            The target around which to search. It may be specified as a string
+            in which case it is resolved using online services or as the appropriate
+            `astropy.coordinates` object. ICRS coordinates may also be entered
+            as a string.
+        radius : str or `astropy.units.Quantity` object, optional
+            The string must be parsable by `astropy.coordinates.Angle`. The appropriate
+            `Quantity` object from `astropy.units` may also be used. Defaults to 1 degree.
+        equinox : str, optional
+            One of 'J2000' or 'B1950'. Defaults to 'J2000'.
+        telescope : str, optional
+            The telescope that produced the data. Defaults to 'all'.
+            Valid values are ['gbt', 'all', 'historical_vla', 'vlba', 'jansky_vla']
+        start_date : str, optional
+            The starting date and time of the observations , e.g. 2010-06-21 14:20:30
+            Decimal seconds are not allowed. Defaults to `None` for no constraints.
+        end_date :  str, optional
+            The ending date and time of the observations , e.g. 2010-06-21 14:20:30
+            Decimal seconds are not allowed. Defaults to `None` for no constraints.
+        freq_low : `astropy.units.Quantity` object, optional
+            The lower frequency of the observations in proper units of frequency
+            via `astropy.units`. Defaults to `None` for no constraints.
+        freq_up : `astropy.units.Quantity` object, optional
+            The upper frequency of the observations in proper units of frequency
+            via `astropy.units`. Defaults to `None` for no constraints.
+        telescope_config : str, optional
+            Select the telescope configuration (only valid for VLA array). Defaults
+            to 'all'. Valid values are ['all', 'A', 'AB', 'BnA', 'B', 'BC', 'CnB', 'C',	'CD', 'DnC', 'D',  'DA']
+        obs_band : str, optional
+            The frequency bands for the observation. Defaults to 'all'. Valid values are
+            ['all', '4', 'P', 'L', 'S',  'C', 'X', 'U', 'K', 'Ka', 'Q', 'W'].
+        sub_array : str, number, optional
+            VLA subarray designations, may be set to an integer from 1 to 5.
+            Defaults to 'all'.
+        get_query_payload : bool, optional
+            if set to `True` then returns the dictionary sent as the HTTP request.
+            Defaults to `False`
+
+        Returns
+        -------
+        response : `requests.Response`
+            The HTTP response returned from the service.
+        """
 
         request_payload = self._args_to_payload(coordinates,
                                                radius=radius,
@@ -134,9 +182,9 @@ class Nrao(BaseQuery):
                                CENTER_DEC = str(c.icrs.dec.degree) + 'd',
                                EQUINOX=kwargs['equinox'],
                                SRAD=str(commons.parse_radius(kwargs['radius']).degree) + 'd',
-                               TELESCOPE_CONFIG=kwargs['telescope_config'].upper(),
+                               TELESCOPE_CONFIG='ALL' if kwargs['telescope_config'] == 'all' else  kwargs['telescope_config'],
                                OBS_BANDS=kwargs['obs_band'].upper(),
-                               SUBARRAY=kwargs['sub_array'].upper(),
+                               SUBARRAY='ALL' if kwargs['sub_array'] == 'all' else kwargs['sub_array'],
                                OBSFREQ1=freq_str,
                                OBS_POLAR="ALL",
                                RECEIVER_ID="ALL",
