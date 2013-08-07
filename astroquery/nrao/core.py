@@ -4,6 +4,7 @@ from __future__ import print_function
 import re
 import tempfile
 import warnings
+import functools
 
 import astropy.units as u
 import astropy.io.votable as votable
@@ -18,6 +19,7 @@ from . import  NRAO_SERVER, NRAO_TIMEOUT
 __all__ = ["Nrao"]
 
 def _validate_params(func):
+    @functools.wraps(func)
     def wrapper(*args, **kwargs):
         telescope = kwargs.get('telescope')
         telescope_config = kwargs.get('telescope_config')
