@@ -31,7 +31,7 @@ def _validate_params(func):
             raise ValueError("'telescope_config' must be one of {!s}".format(Nrao.telescope_config))
         if obs_band.upper() not in Nrao.obs_bands:
             raise ValueError("'obs_band' must be one of {!s}".format(Nrao.obs_bands))
-        if sub_array.upper() not in Nrao.subarrays:
+        if sub_array not in Nrao.subarrays and sub_array != 'all':
             raise ValueError("'sub_array' must be one of {!s}".format(Nrao.subarrays))
         return func(*args, **kwargs)
     return wrapper
