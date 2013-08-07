@@ -2,6 +2,7 @@
 from __future__ import print_function
 
 import re
+import warnings
 
 import astropy.units as u
 try:
@@ -191,12 +192,20 @@ class Nist(BaseQuery):
 
         pre_re = re.compile("<pre>(.*)</pre>",flags=re.DOTALL)
         links_re = re.compile(r"<a.*?>\s*(\w+)\s*</a>")
-        pre = pre_re.findall(response.content)[0]
-        table = _strip_blanks(pre)
-        table = links_re.sub(r'\1', table)
-        Table = asciitable.read(table, Reader=asciitable.FixedWidth,
-                                data_start=3, delimiter='|')
-        return Table
+        try:
+          pre = pre_re.findall(response.content)[0]
+        except IndexError:
+            raise Exception("Result did not contain a table")
+        try:
+            table = _strip_blanks(pre)
+            table = links_re.sub(r'\1', table)
+            table = asciitable.read(table, Reader=asciitable.FixedWidth,
+                                    data_start=3, delimiter='|')
+            return table
+        except Exception as ex:
+            warnings.warn("Unable to parse result. Returning raw respone")
+            print (str(ex))
+            return response.content
 
 
 def _parse_wavelength(min_wav, max_wav):
