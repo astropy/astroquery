@@ -5,6 +5,7 @@ Process all "async" methods into direct methods.
 
 from class_or_instance import class_or_instance
 import textwrap
+import functools
 from docstr_chompers import remove_returns
 
 def async_to_sync(cls):
@@ -16,7 +17,7 @@ def async_to_sync(cls):
     for help understanding)
     """
     
-    def create_method(async_method):
+    def create_method(async_method_name):
 
         @class_or_instance
         def newmethod(self, *args, **kwargs):
@@ -24,7 +25,7 @@ def async_to_sync(cls):
                 verbose = kwargs.pop('verbose')
             else:
                 verbose = False
-            response = async_method(*args,**kwargs)
+            response = getattr(self,async_method_name)(*args,**kwargs)
             result = self._parse_result(response, verbose=verbose)
             return result
 
@@ -36,11 +37,14 @@ def async_to_sync(cls):
         newmethodname = k.replace("_async","")
         if 'async' in k and newmethodname not in methods:
 
-            async_method = getattr(cls,k)
+            newmethod = create_method(k)
 
-            newmethod = create_method(async_method)
+            newmethod.fn.__doc__ = async_to_sync_docstr(getattr(cls,k).__doc__)
 
-            newmethod.fn.__doc__ = async_to_sync_docstr(async_method.__doc__)
+            newmethod.fn.__name__ = newmethodname
+            newmethod.__name__ = newmethodname
+        
+            functools.update_wrapper(newmethod, newmethod.fn)
 
             setattr(cls,newmethodname,newmethod)
 
