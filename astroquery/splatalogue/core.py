@@ -25,6 +25,22 @@ class Splatalogue(BaseQuery):
     TIMEOUT = 30
     versions = ('v1.0','v2.0')
 
+    def __init__(self, **kwargs):
+        """
+        Initialize a Splatalogue query class with default arguments set.
+        Frequency specification is required for *every* query, but any default keyword
+        arguments (see `query_lines`) can be overridden here
+        """
+        self.data = self._default_kwargs()
+        self.set_default_options(**kwargs)
+
+    def set_default_options(self,**kwargs):
+        """
+        Modifiy the default options.
+        See `query_lines`
+        """
+        self.data.update(self._parse_kwargs(**kwargs))
+
     @class_or_instance
     def get_species_ids(self,restr=None,reflags=0):
         """
@@ -50,25 +66,44 @@ class Splatalogue(BaseQuery):
             return self._species_ids
 
     @class_or_instance
-    def _parse_args(self, min_frequency, max_frequency, chemical_name=None, chem_re_flags=0,
-            energy_min=None, energy_max=None, energy_type=None, intensity_lower_limit=None,
-            intensity_type=None, transition=None, version='v2.0', exclude=('potential','atmospheric','probable'),
-            only_NRAO_recommended=False, 
-            line_lists=('Lovas', 'SLAIM', 'JPL', 'CDMS', 'ToyoMA', 'OSU', 'Recomb', 'Lisa', 'RFI'),
-            line_strengths=('ls1','ls3','ls4','ls5'),
-            energy_levels=('el1','el2','el3','el4'),
-            export=True,
-            export_limit=10000):
-        """
-        Query splatalogue using effectively the standard online interface
+    def _default_kwargs(self):
+        kwargs = dict(chemical_name='',
+                      line_lists=('Lovas', 'SLAIM', 'JPL', 'CDMS', 'ToyoMA',
+                                  'OSU', 'Recomb', 'Lisa', 'RFI'),
+                      line_strengths=('ls1','ls3','ls4','ls5'),
+                      energy_levels=('el1','el2','el3','el4'),
+                      exclude=('potential','atmospheric','probable'),
+                      version='v2.0',
+                      only_NRAO_recommended=None,
+                      export=True,
+                      export_limit=10000,
+                      noHFS=False, displayHFS=False, show_unres_qn=False,
+                      show_upper_degeneracy=False, show_molecule_tag=False,
+                      show_qn_code=False, show_lovas_labref=False,
+                      show_lovas_obsref=False, show_orderedfreq_only=False,
+                      show_nrao_recommended=False,)
+        return self._parse_kwargs(**kwargs)
 
-        Parameters
+
+    @class_or_instance
+    def _parse_kwargs(self, chemical_name=None, chem_re_flags=0,
+                      energy_min=None, energy_max=None, energy_type=None,
+                      intensity_lower_limit=None, intensity_type=None,
+                      transition=None, version=None, exclude=None,
+                      only_NRAO_recommended=None, line_lists=None,
+                      line_strengths=None, energy_levels=None, export=None,
+                      export_limit=None, noHFS=None, displayHFS=None,
+                      show_unres_qn=None, show_upper_degeneracy=None,
+                      show_molecule_tag=None, show_qn_code=None,
+                      show_lovas_labref=None, show_lovas_obsref=None,
+                      show_orderedfreq_only=None, show_nrao_recommended=None):
+    
+        """
+        Other Parameters
         ----------
-        min_frequency : `astropy.unit`
-        max_frequency : `astropy.unit`
-            Minimum and maximum frequency (or any spectral() equivalent)
         chemical_name : str
             Name of the chemical to search for.  Treated as a regular expression.
+            An empty set ('', (), [], {}) will match *any* species.
             Example:
             "H2CO" - 13 species have H2CO somewhere in their formula
             "Formaldehyde" - There are 8 isotopologues of Formaldehyde (e.g., H213CO)
@@ -115,54 +150,87 @@ class Splatalogue(BaseQuery):
             server)?
         export_limit : int
             Maximum number of lines in output file
+        noHFS : bool
+            No HFS Display
+        displayHFS : bool
+            Display HFS Intensity
+        show_unres_qn : bool
+            Display Unresolved Quantum Numbers
+        show_upper_degeneracy : bool
+            Display Upper State Degeneracy
+        show_molecule_tag : bool
+            Display Molecule Tag
+        show_qn_code : bool
+            Display Quantum Number Code
+        show_lovas_labref : bool
+            Display Lab Ref
+        show_lovas_obsref : bool
+            Display Obs Ref
+        show_orderedfreq_only : bool
+            Display Ordered Frequency ONLY
+        show_nrao_recommended : bool
+            Display NRAO Recommended Frequencies
+        payload : dict
+            A dictionary of keywords
 
         Returns
         -------
         Dictionary of the parameters to send to the SPLAT page
         """
 
-        payload = {'submit':'Search','frequency_units':'GHz'}
-    
-        min_frequency = min_frequency.to(u.GHz, u.spectral())
-        max_frequency = max_frequency.to(u.GHz, u.spectral())
-        if min_frequency > max_frequency:
-            min_frequency,max_frequency = max_frequency,min_frequency
+        payload = {'submit':'Search'}
 
-        payload['from'] = min_frequency.value
-        payload['to']   = max_frequency.value
+        if chemical_name in ('',{},(),[],set()):
+            # include all
+            payload['sid[]'] = []
+        elif chemical_name is not None:
+            species_ids = self.get_species_ids(chemical_name,chem_re_flags)
+            if len(species_ids) == 0:
+                raise ValueError("No matching chemical species found.")
+            payload['sid[]'] = species_ids.values()
 
-        species_ids = self.get_species_ids(chemical_name,chem_re_flags)
-        payload['sid[]'] = species_ids.values()
-
-        payload['energy_range_from'] = float(energy_min) if energy_min is not None else ''
-        payload['energy_range_to'] = float(energy_max) if energy_max is not None else ''
-        payload['energy_range_type'] = energy_type if energy_type is not None else ''
+        if energy_min is not None:
+            payload['energy_range_from'] = float(energy_min)
+        if energy_max is not None:
+            payload['energy_range_to'] = float(energy_max)
+        if energy_type is not None:
+            payload['energy_range_type'] = energy_type
 
         if intensity_type is not None:
             payload['lill'] = 'lill_' + intensity_type
-            payload[payload['lill']] = intensity_lower_limit if intensity_lower_limit is not None else ''
+            if intensity_lower_limit is not None:
+                payload[payload['lill']] = intensity_lower_limit
 
-        payload['tran'] = transition if transition is not None else ''
+        if transition is not None:
+            payload['tran'] = transition
 
         if version in self.versions:
             payload['version'] = version
-        else:
+        elif version is not None:
             raise ValueError("Invalid version specified.  Allowed versions are {vers}".format(vers=str(self.versions)))
 
-        for e in exclude:
-            payload['no_'+e] = 'no_'+e
+        if exclude is not None:
+            for e in exclude:
+                payload['no_'+e] = 'no_'+e
 
         if only_NRAO_recommended:
             payload['include_only_nrao'] = 'include_only_nrao'
         
-        for L in line_lists:
-            payload['display'+L] = 'display'+L
+        if line_lists is not None:
+            for L in line_lists:
+                payload['display'+L] = 'display'+L
 
-        for LS in line_strengths:
-            payload[LS] = LS
+        if line_strengths is not None:
+            for LS in line_strengths:
+                payload[LS] = LS
 
-        for EL in energy_levels:
-            payload[EL] = EL
+        if energy_levels is not None:
+            for EL in energy_levels:
+                payload[EL] = EL
+
+        for b in "noHFS,displayHFS,show_unres_qn,show_upper_degeneracy,show_molecule_tag,show_qn_code,show_lovas_labref,show_orderedfreq_only,show_lovas_obsref,show_nrao_recommended".split(","):
+            if locals()[b]:
+                payload[b] = b
 
         # default arg, unmodifiable...
         payload['jsMath'] = 'font:symbol,warn:0'
@@ -180,7 +248,29 @@ class Splatalogue(BaseQuery):
         return payload
 
     @class_or_instance
-    @prepend_docstr_noreturns(_parse_args.__doc__)
+    def _parse_frequency(self, min_frequency, max_frequency):
+        """
+        Parameters
+        ----------
+        min_frequency : `astropy.unit`
+        max_frequency : `astropy.unit`
+            Minimum and maximum frequency (or any spectral() equivalent)
+        """
+
+        payload = {'frequency_units':'GHz'}
+
+        min_frequency = min_frequency.to(u.GHz, u.spectral())
+        max_frequency = max_frequency.to(u.GHz, u.spectral())
+        if min_frequency > max_frequency:
+            min_frequency,max_frequency = max_frequency,min_frequency
+
+        payload['from'] = min_frequency.value
+        payload['to']   = max_frequency.value
+
+        return payload
+
+    @class_or_instance
+    @prepend_docstr_noreturns("\n"+_parse_frequency.__doc__ + _parse_kwargs.__doc__)
     def query_lines_async(self, *args, **kwargs):
         """
         Returns
@@ -188,7 +278,15 @@ class Splatalogue(BaseQuery):
         response : `requests.Response` object
             The response of the HTTP request.
         """
-        data_payload = self._parse_args(*args, **kwargs)
+        if hasattr(self,'data'):
+            data_payload = self.data.copy()
+            data_payload.update(self._parse_frequency(*args))
+            data_payload.update(self._parse_kwargs(**kwargs))
+        else:
+            data_payload = self._default_kwargs()
+            data_payload.update(self._parse_kwargs(**kwargs))
+            data_payload.update(self._parse_frequency(*args))
+
         response = commons.send_request(
             self.QUERY_URL,
             data_payload,
@@ -206,52 +304,3 @@ class Splatalogue(BaseQuery):
                             format='basic')
 
         return result
-
-def slap_default_payload(request='queryData', version='2.0', wavelength='',
-        chemical_element='', initial_level_energy='', final_level_energy='',
-        temperature='', einstein_a=''):
-    """
-    Parse the valid parameters specified by the `IVOA SLAP`_ interface document.
-
-    .. _IVOA SLAP: http://www.ivoa.net/documents/SLAP/20101209/REC-SLAP-1.0-20101209.pdf
-    
-
-    Parameters
-    ----------
-    request : 'queryData'
-        No other valid entries are known
-    version : '2.0'
-        A valid data version number
-    wavelength : 'x/y' or 'x' or 'x,y/z' or 'x/'
-        Wavelength range in meters.
-        'x/y' means 'in the range from x to y'
-        'x/' means 'wavelength > x'
-        'x' means 'wavelength == x'
-        'x/y,y/z' means 'wavelength in range [x,y] or [y,z]'
-        See Appendix A of the `IVOA SLAP`_ manual
-
-    Other Parameters
-    ----------------
-    chemical_element : str
-        A chemical element name.  Can be specified as a comma-separated list
-    initial_level_energy : float
-        Unit: Joules
-    final_level_energy : float
-        Unit: Joules
-    temperature : float
-        Unit : Kelvin
-        Expected temperature of object.  Not needed for splatalogue
-    einstein_a : float
-        Unit : s^-1
-    process_type : str
-    process_name : str
-        Examples: 
-        "Photoionization", "Collisional excitation", 
-        "Gravitational redshift", "Stark broadening", "Resonance broadening", "Van der 
-        Waals broadening"
-
-    Returns
-    -------
-    Dictionary of parameters which can then be POSTed to the service
-    """
-    return locals()

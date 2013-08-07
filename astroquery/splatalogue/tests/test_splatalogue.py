@@ -28,3 +28,14 @@ def post_mockreturn(url, data=None, timeout=10):
 
 def test_simple():
     x = splatalogue.Splatalogue.query_lines(114*u.GHz,116*u.GHz,chemical_name=' CO ')
+
+def test_init():
+    x = splatalogue.Splatalogue.query_lines(114*u.GHz,116*u.GHz,chemical_name=' CO ')
+    S = splatalogue.Splatalogue(chemical_name=' CO ')
+    y = S.query_lines(114*u.GHz,116*u.GHz)
+    # it is not currently possible to test equality between tables:
+    # masked arrays fail
+    #assert y == x
+    assert len(x) == len(y)
+    assert all(y['Species'] == x['Species'])
+    assert all(x['Chemical Name']==y['Chemical Name'])
