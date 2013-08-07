@@ -286,6 +286,8 @@ class Splatalogue(BaseQuery):
             data_payload = self._default_kwargs()
             data_payload.update(self._parse_kwargs(**kwargs))
             data_payload.update(self._parse_frequency(*args))
+        if kwargs.get('get_query_payload'):
+            return data_payload
 
         response = commons.send_request(
             self.QUERY_URL,
