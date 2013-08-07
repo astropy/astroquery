@@ -6,9 +6,12 @@ import astropy.units as u
 from ...utils import chunk_read, chunk_report
 from ...utils import class_or_instance
 from ...utils import commons
+from ...utils.process_asyncs import async_to_sync_docstr,async_to_sync
+from ...utils.docstr_chompers import remove_returns,prepend_docstr_noreturns
 from astropy.table import Table
 from astropy.tests.helper import pytest, remote_data
 import astropy.io.votable as votable
+import textwrap
 
 class SimpleQueryClass(object):
     @class_or_instance
@@ -134,3 +137,159 @@ def test_suppress_vo_warnings(recwarn):
     votable.exceptions.warn_or_raise(votable.exceptions.VOTableSpecWarning)
     with pytest.raises(Exception):
         recwarn.pop(votable.exceptions.VOWarning)
+
+
+docstr1 = """
+        Query the Vizier service for a specific catalog
+
+        Parameters
+        ----------
+        catalog : str or list, optional
+            The catalog(s) that will be retrieved
+
+        Returns
+        -------
+        response : `~request.response`
+            Returned if asynchronous method used
+        result : `~astroquery.utils.common.TableList`
+            The results in a list of `astropy.table.Table`.
+        """
+
+docstr1_out = textwrap.dedent("""
+        Queries the service and returns a table object
+        Query the Vizier service for a specific catalog
+
+        Parameters
+        ----------
+        catalog : str or list, optional
+            The catalog(s) that will be retrieved
+
+        Returns
+        -------
+        An `astropy.table.Table` object
+        """)
+
+docstr2 = """
+        Search Vizier for catalogs based on a set of keywords, e.g. author name
+
+        Parameters
+        ----------
+        keywords : list or string
+            List of keywords, or space-separated set of keywords.
+            From `Vizier <http://vizier.u-strasbg.fr/doc/asu-summary.htx>`_:
+            "names or words of title of catalog. The words are and'ed, i.e.
+            only the catalogues characterized by all the words are selected."
+
+        Returns
+        -------
+        Dictionary of the "Resource" name and the VOTable resource object.
+        "Resources" are generally publications; one publication may contain
+        many tables.
+
+        Example
+        -------
+        >>> from astroquery.vizier import Vizier
+        >>> catalog_list = Vizier.find_catalogs('Kang W51')
+        >>> print catalog_list
+        {u'J/ApJ/706/83': <astropy.io.votable.tree.Resource at 0x108d4d490>,
+         u'J/ApJS/191/232': <astropy.io.votable.tree.Resource at 0x108d50490>}
+        >>> print {k:v.description for k,v in catalog_list.iteritems()}
+        {u'J/ApJ/706/83': u'Embedded YSO candidates in W51 (Kang+, 2009)',
+         u'J/ApJS/191/232': u'CO survey of W51 molecular cloud (Bieging+, 2010)'}
+        """
+
+docstr2_out = textwrap.dedent("""
+        Queries the service and returns a dict object
+        Search Vizier for catalogs based on a set of keywords, e.g. author name
+
+        Parameters
+        ----------
+        keywords : list or string
+            List of keywords, or space-separated set of keywords.
+            From `Vizier <http://vizier.u-strasbg.fr/doc/asu-summary.htx>`_:
+            "names or words of title of catalog. The words are and'ed, i.e.
+            only the catalogues characterized by all the words are selected."
+
+        Example
+        -------
+        >>> from astroquery.vizier import Vizier
+        >>> catalog_list = Vizier.find_catalogs('Kang W51')
+        >>> print catalog_list
+        {u'J/ApJ/706/83': <astropy.io.votable.tree.Resource at 0x108d4d490>,
+         u'J/ApJS/191/232': <astropy.io.votable.tree.Resource at 0x108d50490>}
+        >>> print {k:v.description for k,v in catalog_list.iteritems()}
+        {u'J/ApJ/706/83': u'Embedded YSO candidates in W51 (Kang+, 2009)',
+         u'J/ApJS/191/232': u'CO survey of W51 molecular cloud (Bieging+, 2010)'}
+
+        Returns
+        -------
+        A `dict` object
+        """)
+
+def test_process_async_docs():
+    assert async_to_sync_docstr(docstr1) == docstr1_out
+    assert async_to_sync_docstr(docstr2,returntype='dict') == docstr2_out
+
+class Dummy:
+    def do_nothing_async():
+        """ docstr """
+        pass
+
+def test_async_to_sync(cls=Dummy):
+    newcls = async_to_sync(Dummy)
+    assert hasattr(newcls,"do_nothing")
+
+docstr3 = """
+    Returns
+    -------
+    Nothing!
+
+    Examples
+    --------
+    Nada
+"""
+
+docstr3_out = """
+    Examples
+    --------
+    Nada
+"""
+
+def test_return_chomper(doc=docstr3,out=docstr3_out):
+    assert remove_returns(doc) == [x.lstrip() for x in out.split('\n')]
+
+def dummyfunc():
+    """
+    Returns
+    -------
+    Nothing!
+
+    Examples
+    --------
+    Nada
+    """
+    pass
+
+docstr4 = """
+    Blah Blah Blah
+
+    Returns
+    -------
+    nothing
+"""
+
+docstr4_out = """
+    Blah Blah Blah
+
+    Returns
+    -------
+    Nothing!
+
+    Examples
+    --------
+    Nada
+"""
+
+def test_prepend_docstr(doc=docstr4,func=dummyfunc,out=docstr4_out):
+    fn = prepend_docstr_noreturns(doc)(func)
+    assert fn.__doc__ == textwrap.dedent(docstr4_out)

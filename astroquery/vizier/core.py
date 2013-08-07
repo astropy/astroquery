@@ -177,7 +177,19 @@ class Vizier(BaseQuery):
     @class_or_instance
     def get_catalogs_async(self, catalog, verbose=False):
         """
-        Asynchronous version of get_catalog
+        Query the Vizier service for a specific catalog
+
+        Parameters
+        ----------
+        catalog : str or list, optional
+            The catalog(s) that will be retrieved
+
+        Returns
+        -------
+        response : `~request.response`
+            Returned if asynchronous method used
+        result : `~astroquery.utils.common.TableList`
+            The results in a list of `astropy.table.Table`.
         """
 
         data_payload = self._args_to_payload(catalog=catalog,
