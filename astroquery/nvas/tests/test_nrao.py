@@ -11,7 +11,7 @@ import astropy.units as u
 import astropy.utils.data as aud
 from astropy.tests.helper import pytest
 
-from ...import nrao
+from ...import nvas
 from ...utils import commons
 
 COORDS_GAL = coord.GalacticCoordinates(l=49.489, b=-0.37, unit=(u.deg, u.deg)) # ARM 2000
@@ -60,12 +60,12 @@ def patch_get_readable_fileobj(request):
 
 @pytest.mark.parametrize(('radius'), ['5d0m0s', 5 * u.deg])
 def test_parse_radius(radius):
-    out = nrao.core._parse_radius(radius)
+    out = nvas.core._parse_radius(radius)
     npt.assert_approx_equal(out, 300, significant=3)
 
 @pytest.mark.parametrize(('coordinates'), [COORDS_GAL, COORDS_ICRS])
 def test_parse_coordinates(coordinates):
-    out_str = nrao.core._parse_coordinates(coordinates)
+    out_str = nvas.core._parse_coordinates(coordinates)
     new_coords = coord.ICRSCoordinates(out_str, unit=(u.hour, u.deg))
     # if all goes well new_coords and coordinates have same ra and dec
     npt.assert_approx_equal(new_coords.icrs.ra.degree, coordinates.icrs.ra.degree, significant=3)
@@ -73,25 +73,25 @@ def test_parse_coordinates(coordinates):
 
 def test_extract_image_urls():
     html_in = open(data_path(DATA_FILES['image_search']), 'r').read()
-    image_list = nrao.core.Nrao.extract_image_urls(html_in)
+    image_list = nvas.core.Nvas.extract_image_urls(html_in)
     assert len(image_list) == 2
 
 def test_get_images_async(patch_post, patch_parse_coordinates):
-    image_list = nrao.core.Nrao.get_images_async(COORDS_ICRS, band='K',
+    image_list = nvas.core.Nvas.get_images_async(COORDS_ICRS, band='K',
                                                  radius=2 * u.arcsec,
                                                  max_rms=100)
     assert len(image_list) == 2
 
 def test_get_images(patch_post, patch_parse_coordinates, patch_get_readable_fileobj):
-    images = nrao.core.Nrao.get_images(COORDS_GAL, radius='5d0m0s', band='all')
+    images = nvas.core.Nvas.get_images(COORDS_GAL, radius='5d0m0s', band='all')
     assert images is not None
 
 def test_get_image_list(patch_post, patch_parse_coordinates):
-    image_list = nrao.core.Nrao.get_image_list(COORDS_GAL, radius=15 * u.arcsec,
+    image_list = nvas.core.Nvas.get_image_list(COORDS_GAL, radius=15 * u.arcsec,
                                                max_rms=500, band="all", get_query_payload=True)
     npt.assert_approx_equal(image_list["nvas_rad"], 0.25, significant=2)
     assert image_list["nvas_bnd"] == ""
     assert image_list["nvas_rms"] == 500
-    image_list = nrao.core.Nrao.get_image_list(COORDS_GAL, radius=15 * u.arcsec,
+    image_list = nvas.core.Nvas.get_image_list(COORDS_GAL, radius=15 * u.arcsec,
                                                max_rms=500, band="all")
     assert len(image_list) == 2

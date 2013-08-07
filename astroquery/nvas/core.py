@@ -11,14 +11,14 @@ import astropy.utils.data as aud
 from ..query import BaseQuery
 from ..utils.class_or_instance import class_or_instance
 from ..utils import commons
-from . import NRAO_SERVER, NRAO_TIMEOUT
+from . import NVAS_SERVER, NVAS_TIMEOUT
 
-__all__ = ["Nrao"]
+__all__ = ["Nvas"]
 
 
-class Nrao(BaseQuery):
-    URL = NRAO_SERVER()
-    TIMEOUT = NRAO_TIMEOUT()
+class Nvas(BaseQuery):
+    URL = NVAS_SERVER()
+    TIMEOUT = NVAS_TIMEOUT()
     valid_bands = ["all","L","C","X","U","K","Q"]
 
     band_freqs = {
@@ -41,7 +41,7 @@ class Nrao(BaseQuery):
     def get_images(self, coordinates, radius=0.25 * u.arcmin, max_rms=10000,
                    band="all", get_uvfits=False, verbose=True, get_query_payload=False):
         """
-        Get an image around a target/ coordinates from the NRAO image archive
+        Get an image around a target/ coordinates from the NVAS image archive
 
         Parameters
         ----------
@@ -84,7 +84,7 @@ class Nrao(BaseQuery):
     def get_images_async(self, coordinates, radius=0.25 * u.arcmin, max_rms=10000,
                          band="all", get_uvfits=False, verbose=True, get_query_payload=False):
         """
-        Serves the same purpose as :meth:`~astroquery.nrao.core.Nrao.get_images` but
+        Serves the same purpose as :meth:`~astroquery.nvas.core.Nvas.get_images` but
         returns a list of file handlers to remote files
 
         Parameters
@@ -161,8 +161,8 @@ class Nrao(BaseQuery):
         list of image urls
 
         """
-        if band.upper() not in Nrao.valid_bands and band != 'all':
-            raise ValueError("'band' must be one of {!s}".format(Nrao.valid_bands))
+        if band.upper() not in Nvas.valid_bands and band != 'all':
+            raise ValueError("'band' must be one of {!s}".format(Nvas.valid_bands))
         request_payload = {}
         request_payload["nvas_pos"] = _parse_coordinates(coordinates)
         request_payload["nvas_rad"] = _parse_radius(radius)
@@ -172,7 +172,7 @@ class Nrao(BaseQuery):
         request_payload["nvas_bnd"] = "" if band == "all" else band.upper()
         if get_query_payload:
             return request_payload
-        response = commons.send_request(Nrao.URL, request_payload, Nrao.TIMEOUT)
+        response = commons.send_request(Nvas.URL, request_payload, Nvas.TIMEOUT)
         image_urls = self.extract_image_urls(response.content, get_uvfits=get_uvfits)
         return image_urls
 
@@ -206,7 +206,7 @@ class Nrao(BaseQuery):
 
 def _parse_coordinates(coordinates):
     """
-    Helper function to parse the entered coordinates in form expected by NRAO
+    Helper function to parse the entered coordinates in form expected by NVAS
 
     Parameters
     ----------
