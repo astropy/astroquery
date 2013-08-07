@@ -57,32 +57,6 @@ class Nrao(BaseQuery):
 
     subarrays = ['ALL', 1, 2, 3, 4, 5]
 
-
-    """
-    @class_or_instance
-    def query_region(self, coordinates, radius=1 * u.deg, equinox='J2000',
-                     telescope='all', start_date="", end_date="",
-                     freq_low=None, freq_up=None,
-                     telescope_config='all', obs_band='all',
-                     sub_array='all', verbose=False, get_query_payload=False):
-
-        response = self.query_region_async(coordinates,
-                                           radius=radius,
-                                           telescope=telescope,
-                                           start_date=start_date,
-                                           end_date=end_date,
-                                           freq_low=freq_low, freq_up=freq_up,
-                                           telescope_config=telescope_config,
-                                           obs_band=obs_band,
-                                           sub_array=sub_array,
-                                           get_query_payload=get_query_payload)
-        if get_query_payload:
-            return response
-        result = self._parse_result(response, verbose=verbose)
-        return result
-    """
-
-
     @class_or_instance
     @_validate_params
     def _args_to_payload(self, *args, **kwargs):
