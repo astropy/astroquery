@@ -6,8 +6,7 @@ import tempfile
 import warnings
 
 import astropy.units as u
-from astropy import coordinates as coord
-import astropy.utils.data as aud
+import astropy.io.votable as votable
 
 from ..query import BaseQuery
 from ..utils.class_or_instance import class_or_instance
@@ -34,10 +33,10 @@ def _validate_params(func):
     return wrapper
 
 class Nrao(BaseQuery):
-    
+
     DATA_URL = 'https://archive.nrao.edu/archive/ArchiveQuery'
     TIMEOUT = 60
-   
+
     # dicts and lists for data archive queries
     telescope_code = {
         "all": "ALL",
@@ -53,8 +52,8 @@ class Nrao(BaseQuery):
 
     subarrays = ['ALL', 1, 2, 3, 4, 5]
 
-   
-      
+
+
     @class_or_instance
     def query_region(self, coordinates, radius=1 * u.deg, equinox='J2000',
                      telescope='all', start_date="", end_date="",
@@ -212,5 +211,3 @@ class Nrao(BaseQuery):
             warnings.warn("Error in parsing Ned result. "
                  "Returning raw result instead.")
             return response.content
-
-
