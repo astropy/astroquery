@@ -12,6 +12,7 @@ from ..query import BaseQuery
 from ..utils.class_or_instance import class_or_instance
 from ..utils import commons
 
+from . import  NRAO_SERVER, NRAO_TIMEOUT
 
 __all__ = ["Nrao"]
 
@@ -34,8 +35,8 @@ def _validate_params(func):
 
 class Nrao(BaseQuery):
 
-    DATA_URL = 'https://archive.nrao.edu/archive/ArchiveQuery'
-    TIMEOUT = 60
+    DATA_URL = NRAO_SERVER()
+    TIMEOUT = NRAO_TIMEOUT()
 
     # dicts and lists for data archive queries
     telescope_code = {
