@@ -10,7 +10,8 @@ import astropy.io.votable as votable
 
 from ..query import BaseQuery
 from ..utils.class_or_instance import class_or_instance
-from ..utils import commons
+from ..utils import commons, async_to_sync
+from ..utils.docstr_chompers import prepend_docstr_noreturns
 
 from . import  NRAO_SERVER, NRAO_TIMEOUT
 
@@ -33,6 +34,7 @@ def _validate_params(func):
         return func(*args, **kwargs)
     return wrapper
 
+@async_to_sync
 class Nrao(BaseQuery):
 
     DATA_URL = NRAO_SERVER()
@@ -54,7 +56,7 @@ class Nrao(BaseQuery):
     subarrays = ['ALL', 1, 2, 3, 4, 5]
 
 
-
+    """
     @class_or_instance
     def query_region(self, coordinates, radius=1 * u.deg, equinox='J2000',
                      telescope='all', start_date="", end_date="",
@@ -76,14 +78,12 @@ class Nrao(BaseQuery):
             return response
         result = self._parse_result(response, verbose=verbose)
         return result
+    """
 
 
     @class_or_instance
-    def query_region_async(self, coordinates, radius=1 * u.deg, equinox='J2000',
-                           telescope='all', start_date="", end_date="",
-                           freq_low=None, freq_up=None,
-                           telescope_config='all', obs_band='all',
-                           sub_array='all', get_query_payload=False):
+    @_validate_params
+    def _args_to_payload(self, *args, **kwargs):
         """
         Queries the NRAO data archive and fetches table of observation summaries.
 
@@ -129,28 +129,9 @@ class Nrao(BaseQuery):
 
         Returns
         -------
-        response : `requests.Response`
-            The HTTP response returned from the service.
+        request_payload : dict
+            The dictionary of parameters to send via HTTP GET request.
         """
-
-        request_payload = self._args_to_payload(coordinates,
-                                               radius=radius,
-                                               equinox=equinox,
-                                               telescope=telescope,
-                                               start_date=start_date,
-                                               end_date=end_date,
-                                               freq_low=freq_low, freq_up=freq_up,
-                                               telescope_config=telescope_config,
-                                               obs_band=obs_band,
-                                               sub_array=sub_array)
-        if get_query_payload:
-            return request_payload
-        response = commons.send_request(Nrao.DATA_URL, request_payload, Nrao.TIMEOUT, request_type='GET')
-        return response
-
-    @class_or_instance
-    @_validate_params
-    def _args_to_payload(self, *args, **kwargs):
         c = commons.parse_coordinates(args[0])
         lower_frequency = kwargs['freq_low']
         upper_frequency = kwargs['freq_up']
@@ -191,6 +172,36 @@ class Nrao(BaseQuery):
                                BACKEND_ID="ALL",
                                SUBMIT="Submit Query")
         return request_payload
+
+    @class_or_instance
+    @prepend_docstr_noreturns(_args_to_payload.__doc__)
+    def query_region_async(self, coordinates, radius=1 * u.deg, equinox='J2000',
+                           telescope='all', start_date="", end_date="",
+                           freq_low=None, freq_up=None,
+                           telescope_config='all', obs_band='all',
+                           sub_array='all', get_query_payload=False):
+        """
+        Returns
+        -------
+        response : `requests.Response`
+            The HTTP response returned from the service.
+        """
+
+        request_payload = self._args_to_payload(coordinates,
+                                               radius=radius,
+                                               equinox=equinox,
+                                               telescope=telescope,
+                                               start_date=start_date,
+                                               end_date=end_date,
+                                               freq_low=freq_low, freq_up=freq_up,
+                                               telescope_config=telescope_config,
+                                               obs_band=obs_band,
+                                               sub_array=sub_array)
+        if get_query_payload:
+            return request_payload
+        response = commons.send_request(Nrao.DATA_URL, request_payload, Nrao.TIMEOUT, request_type='GET')
+        return response
+
 
     @class_or_instance
     def _parse_result(self, response, verbose=False):
