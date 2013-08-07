@@ -154,7 +154,7 @@ class Nrao(BaseQuery):
         lower_frequency = kwargs['freq_low']
         upper_frequency = kwargs['freq_up']
         if lower_frequency is not None and upper_frequency is not None:
-            freq_str = str(lower_frequency.to(u.MHz))+'-'+str(upper_frequency.to(u.MHz))
+            freq_str = str(lower_frequency.to(u.MHz).value)+'-'+str(upper_frequency.to(u.MHz).value)
         else:
             freq_str = ""
         request_payload = dict(QUERYTYPE="OBSSUMMARY",
