@@ -144,6 +144,11 @@ class TableList(OrderedDict):
     """
     A class that inherits from `OrderedDict` but included some pretty printing methods
     for an OrderedDict of `astropy.table.Table` objects.
+
+    HINT: To access the tables by # instead of by table ID:
+    >>> t = TableList(a=1,b=2)
+    >>> t.items()[1]
+    ('b', 2)
     """
 
     def __repr__(self):
@@ -151,25 +156,35 @@ class TableList(OrderedDict):
         Overrides the `OrderedDict.__repr__` method to return a simple summary
         of the `TableList` object.
         """
-        total_rows = sum(len(self.__getitem__(t)) for t in self.keys())
-        info_str = "<TableList with {keylen} table(s) and {total_rows} total row(s)>".format(keylen=len(list(self.keys())),
-                                                                                           total_rows=total_rows)
 
-        return info_str
+        return self.format_table_list()
 
-    def print_table_list(self):
+        # This information is often unhelpful
+        # total_rows = sum(len(self.__getitem__(t)) for t in self.keys())
+        # info_str = "<TableList with {keylen} table(s) and {total_rows} total row(s)>".format(keylen=len(list(self.keys())),
+        #                                                                                    total_rows=total_rows)
+
+        # return info_str
+
+    def format_table_list(self):
         """
         Prints the names of all `astropy.table.Table` objects, with their
         respective number of row and columns, contained in the
         `TableList` instance.
         """
-        header_str = "<TableList with {keylen} tables:".format(keylen=len(list(self.keys())))
-        body_str = "\n".join(["\t'{t_name}' with {ncol} column(s) and {nrow} row(s) ".
-                              format(t_name=t_name, nrow=len(self.__getitem__(t_name)),
+        ntables = len(list(self.keys()))
+        if ntables == 0:
+            return "Empty TableList"
+
+        header_str = "TableList with {keylen} tables:".format(keylen=ntables)
+        body_str = "\n".join(["\t'{t_number}:{t_name}' with {ncol} column(s) and {nrow} row(s) ".
+                              format(t_number=t_number,t_name=t_name, nrow=len(self.__getitem__(t_name)),
                                       ncol=len(self.__getitem__(t_name).colnames))
-                              for t_name in self.keys()])
-        end_str = ">"
-        print ("\n".join([header_str, body_str, end_str]))
+                              for t_number,t_name in enumerate(self.keys())])
+        return "\n".join([header_str, body_str])
+
+    def print_table_list(self):
+        print(self.format_table_list())
 
 
 def suppress_vo_warnings():
