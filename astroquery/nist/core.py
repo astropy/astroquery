@@ -12,60 +12,11 @@ except ImportError:
 
 from ..query import BaseQuery
 from ..utils.class_or_instance import class_or_instance
-from ..utils import commons
+from ..utils import commons,async_to_sync
+from ..utils.docstr_chompers import prepend_docstr_noreturns
 from . import NIST_SERVER, NIST_TIMEOUT
 
 __all__ = ['Nist']
-#temporary till #149 is merged
-def process_asyncs(cls):
-    """
-    Convert all query_x_async methods to query_x methods
-
-    (see
-    http://stackoverflow.com/questions/18048341/add-methods-to-a-class-generated-from-other-methods
-    for help understanding)
-    """
-    methods = cls.__dict__.keys()
-    for k in methods:
-        newmethodname = k.replace("_async","")
-        if 'async' in k and newmethodname not in methods:
-
-            async_method = getattr(cls, k)
-
-            @class_or_instance
-            def newmethod(self, *args, **kwargs):
-                if 'verbose' in kwargs:
-                    verbose = kwargs.pop('verbose')
-                else:
-                    verbose = False
-                # add support for get_query_payload
-                get_query_payload = kwargs.get('get_query_payload', False)
-                response = async_method(*args, **kwargs)
-                if get_query_payload:
-                    return response
-                # verbose not really required in this case?
-                # inspect.getargspec not returning anything useful
-                # so a more roundabout way ...
-                try:
-                    result = self._parse_result(response, verbose=verbose)
-                except TypeError:
-                    result = self._parse_result(response)
-                return result
-
-            # fix last part about
-            # Keep no 'returns part' or 'short intro' in async methods? see query_async below
-            # Add a returns part here
-            newmethod.fn.__doc__ = ("Returns a table object.\n"+
-                                    async_method.__doc__+"\n"+
-                                    "Returns\n"+
-                                    "--------\n"+
-                                    "an `astropy.table.Table` object\n")
-
-            setattr(cls, newmethodname, newmethod)
-
-    return cls
-
-
 
 def _strip_blanks(table):
     """
@@ -87,7 +38,7 @@ def _strip_blanks(table):
     table = [line for line in table if numbersletters.search(line)]
     return "\n".join(table)
 
-@process_asyncs
+@async_to_sync
 class Nist(BaseQuery):
     URL = NIST_SERVER()
     TIMEOUT = NIST_TIMEOUT()
@@ -103,8 +54,7 @@ class Nist(BaseQuery):
                 'vac+air':4}
 
     @class_or_instance
-    def query_async(self,minwav, maxwav, linename="H I", energy_level_unit='eV', output_order='wavelength',
-                    wavelength_type='vacuum', get_query_payload=False):
+    def _args_to_payload(self, *args, **kwargs):
         """
         Parameters
         ----------
@@ -127,20 +77,11 @@ class Nist(BaseQuery):
             If true than returns the dictionary of query parameters, posted to
             remote server. Defaults to `False`.
 
+        Returns
+        -------
+        request_payload : dict
+            The dictionary of parameters sent with the HTTP request
         """
-        request_payload = self._args_to_payload(minwav, maxwav, linename=linename,
-                                                energy_level_unit=energy_level_unit,
-                                                output_order=output_order,
-                                                wavelength_type=wavelength_type)
-        if get_query_payload:
-            return request_payload
-
-        response = commons.send_request(Nist.URL, request_payload, Nist.TIMEOUT, request_type='GET')
-        return response
-
-    @class_or_instance
-    def _args_to_payload(self, *args, **kwargs):
-        """Helper function that forms the dictionary to send to CGI"""
         request_payload = {}
         request_payload["spectra"] = kwargs['linename']
         (min_wav, max_wav, wav_unit) = _parse_wavelength(args[0], args[1])
@@ -176,7 +117,27 @@ class Nist(BaseQuery):
         return request_payload
 
     @class_or_instance
-    def _parse_result(self, response):
+    @prepend_docstr_noreturns("\n"+_args_to_payload.__doc__)
+    def query_async(self,minwav, maxwav, linename="H I", energy_level_unit='eV', output_order='wavelength',
+                    wavelength_type='vacuum', get_query_payload=False):
+        """
+        Returns
+        -------
+        response : `requests.Response` object
+            The response of the HTTP request.
+        """
+        request_payload = self._args_to_payload(minwav, maxwav, linename=linename,
+                                                energy_level_unit=energy_level_unit,
+                                                output_order=output_order,
+                                                wavelength_type=wavelength_type)
+        if get_query_payload:
+            return request_payload
+
+        response = commons.send_request(Nist.URL, request_payload, Nist.TIMEOUT, request_type='GET')
+        return response
+
+    @class_or_instance
+    def _parse_result(self, response, verbose=False):
         """
         Parses the results form the HTTP response to `astropy.table.Table`.
 
