@@ -74,7 +74,7 @@ class Nist(BaseQuery):
         wavelength_type : str, optional
             Must be one of 'vacuum' or 'vac+air'. Defaults to 'vacuum'.
         get_query_payload : bool, optional
-            If true than returns the dictionary of query parameters, posted to
+            If true then returns the dictionary of query parameters, posted to
             remote server. Defaults to `False`.
 
         Returns
