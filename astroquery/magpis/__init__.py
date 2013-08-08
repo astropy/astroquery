@@ -8,8 +8,6 @@ MAGPIS Image and Catalog Query Tool
 
     :Originally contributed by:
 
-        Thomas Robitalle (thomas.robitaille@gmail.com)
-
         Adam Ginsburg (adam.g.ginsburg@gmail.com)
 
 """
