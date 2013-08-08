@@ -11,16 +11,13 @@ from ..query import BaseQuery
 from ..utils.class_or_instance import class_or_instance
 from ..utils.docstr_chompers import prepend_docstr_noreturns
 from ..utils import commons
+from . import MAGPIS_SERVER, MAGPIS_TIMEOUT
 
-url_gpscutout  = "http://third.ucllnl.org/cgi-bin/gpscutout"
-
-#__all__ = ['get_magpis_image_gal']
-
-
+__all__ = ['Magpis']
 
 class Magpis(BaseQuery):
-    URL = url_gpscutout
-    TIMEOUT = 60
+    URL = MAGPIS_SERVER()
+    TIMEOUT = MAGPIS_TIMEOUT()
     surveys = ["gps6epoch3",
     "gps6epoch4",
     "gps20",
