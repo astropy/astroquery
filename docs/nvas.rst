@@ -1,13 +1,13 @@
-.. _astroquery.nrao:
+.. _astroquery.nvas:
 
 *****************************************
-NRAO Queries (`astroquery.nrao`)
+NVAS Queries (`astroquery.nvas`)
 *****************************************
 
 Getting started
 ===============
 
-This module may be used to retrieve the NRAO VLA archive images. All images are
+This module may be used to retrieve the NVAS VLA archive images. All images are
 returned as a list of `astropy.io.fits`_ `HDUList` objects. Images may be
 fetched by specifying directly an object name around which to search - in this
 case the name will be resolved to coordinates by astropy name resolving methods
@@ -21,12 +21,12 @@ via the `max_rms` keyword parameter. By default this is set to 10000 mJy
 
 .. code-block:: python
     
-    >>> from astroquery.nrao import Nrao
+    >>> from astroquery.nvas import Nvas
     >>> import astropy.units as u
-    >>> images = Nrao.get_images("3c 273", radius=2*u.arcsec, band="K", max_rms=500)
+    >>> images = Nvas.get_images("3c 273", radius=2*u.arcsec, band="K", max_rms=500)
 
     1 images found.
-    Downloading http://www.vla.nrao.edu/astro/archive/pipeline/position/J122906.7+020308/22.4I0.37_TEST_1995NOV15_1_352.U55.6S.imfits
+    Downloading http://www.vla.nvas.edu/astro/archive/pipeline/position/J122906.7+020308/22.4I0.37_TEST_1995NOV15_1_352.U55.6S.imfits
     |===========================================|  10M/ 10M (100.00%)     19m37s
 
     >>> images
@@ -47,10 +47,10 @@ centre.
 
 .. code-block:: python
 
-    >>> from astroquery.nrao import Nrao
+    >>> from astroquery.nvas import Nvas
     >>> import astropy.coordinates as coord
     >>> import astropy.units as u
-    >>> images = Nrao.get_images(coord.GalacticCoordinates(l=49.489, b=-0.37,
+    >>> images = Nvas.get_images(coord.GalacticCoordinates(l=49.489, b=-0.37,
     ...                          unit=(u.deg, u.deg)), band="K")
 
                                  
@@ -58,16 +58,16 @@ You may also fetch UVfits files rather than the IMfits files which is the
 default. To do this simply set the `get_uvfits` to `True`, in any of the query
 methods. You can also fetch the URLs to the downloadable images rather than the
 actual images themselves. To do this use the
-:meth:`~astroquery.nrao.core.Nrao.get_image_list` which takes in all the same
-arguments as :meth:`~astroquery.nrao.core.Nrao.get_images` above except for the
+:meth:`~astroquery.nvas.core.Nvas.get_image_list` which takes in all the same
+arguments as :meth:`~astroquery.nvas.core.Nvas.get_images` above except for the
 `verbose` argument which isn't relevant in this case.
 
 .. code-block:: python
   
-    >>> from astroquery.nrao import Nrao
+    >>> from astroquery.nvas import Nvas
     >>> import astropy.coordinates as coord
     >>> import astropy.units as u
-    >>> image_urls = Nrao.get_image_list("05h34m31.94s 22d00m52.2s",
+    >>> image_urls = Nvas.get_image_list("05h34m31.94s 22d00m52.2s",
     ...                                  radius='0d0m0.6s', max_rms=500)
 
     WARNING: Coordinate string is being interpreted as an ICRS
