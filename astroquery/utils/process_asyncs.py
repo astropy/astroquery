@@ -63,7 +63,7 @@ def async_to_sync_docstr(doc, returntype='table'):
                    'fits':'astropy.io.fits.PrimaryHDU',
                    'dict':'dict'}
 
-    firstline = "Queries the service and returns a {rt} object".format(rt=returntype)
+    firstline = "Queries the service and returns a {rt} object.".format(rt=returntype)
 
     vowels = 'aeiou'
     vowels += vowels.upper()
