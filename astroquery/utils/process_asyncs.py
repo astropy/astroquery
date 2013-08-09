@@ -16,7 +16,7 @@ def async_to_sync(cls):
     http://stackoverflow.com/questions/18048341/add-methods-to-a-class-generated-from-other-methods
     for help understanding)
     """
-    
+
     def create_method(async_method_name):
 
         @class_or_instance
@@ -26,6 +26,9 @@ def async_to_sync(cls):
             else:
                 verbose = False
             response = getattr(self,async_method_name)(*args,**kwargs)
+            get_query_payload = kwargs.get('get_query_payload', False)
+            if get_query_payload:
+                return response
             result = self._parse_result(response, verbose=verbose)
             return result
 
@@ -43,7 +46,7 @@ def async_to_sync(cls):
 
             newmethod.fn.__name__ = newmethodname
             newmethod.__name__ = newmethodname
-        
+
             functools.update_wrapper(newmethod, newmethod.fn)
 
             setattr(cls,newmethodname,newmethod)
@@ -60,7 +63,7 @@ def async_to_sync_docstr(doc, returntype='table'):
                    'fits':'astropy.io.fits.PrimaryHDU',
                    'dict':'dict'}
 
-    firstline = "Queries the service and returns a {rt} object".format(rt=returntype)
+    firstline = "Queries the service and returns a {rt} object.".format(rt=returntype)
 
     vowels = 'aeiou'
     vowels += vowels.upper()

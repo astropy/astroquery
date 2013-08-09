@@ -158,7 +158,7 @@ docstr1 = """
         """
 
 docstr1_out = textwrap.dedent("""
-        Queries the service and returns a table object
+        Queries the service and returns a table object.
         Query the Vizier service for a specific catalog
 
         Parameters
@@ -201,7 +201,7 @@ docstr2 = """
         """
 
 docstr2_out = textwrap.dedent("""
-        Queries the service and returns a dict object
+        Queries the service and returns a dict object.
         Search Vizier for catalogs based on a set of keywords, e.g. author name
 
         Parameters
@@ -295,3 +295,21 @@ docstr4_out = """
 def test_prepend_docstr(doc=docstr4,func=dummyfunc,out=docstr4_out):
     fn = prepend_docstr_noreturns(doc)(func)
     assert fn.__doc__ == textwrap.dedent(docstr4_out)
+
+@async_to_sync
+class DummyQuery(object):
+    @class_or_instance
+    def query_async(self, *args, **kwargs):
+        """ docstr"""
+        if kwargs['get_query_payload']:
+            return dict(msg='payload returned')
+        return 'needs to be parsed'
+    @class_or_instance
+    def _parse_result(self, response, verbose=False):
+        return response
+
+def test_payload_return(cls=DummyQuery):
+    result = DummyQuery.query(get_query_payload=True)
+    assert isinstance(result, dict)
+    result = DummyQuery.query(get_query_payload=False)
+    assert isinstance(result, basestring)
