@@ -77,8 +77,12 @@ class Nvas(BaseQuery):
         if get_query_payload:
             return readable_objs
 
-        return [fits.open(obj.__enter__(), ignore_missing_end=True) for obj in readable_objs]
+        filelist = []
+        for obj in readable_objs:
+            with obj as f:
+                filelist.append(fits.open(f,ignore_missing_end=True))
 
+        return filelist
 
     @class_or_instance
     def get_images_async(self, coordinates, radius=0.25 * u.arcmin, max_rms=10000,
