@@ -114,7 +114,7 @@ class Ukidss(QueryWithLogin):
         self.session = requests.session()
         credentials = {'user': username, 'passwd': password,
                        'community': ' ', 'community2': community}
-        response = self.session.post(url_login, data=credentials)
+        response = self.session.post(Ukidss.LOGIN_URL, data=credentials)
         if not response.ok:
             self.session = None
             response.raise_for_status()
