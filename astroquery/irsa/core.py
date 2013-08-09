@@ -113,7 +113,7 @@ class Irsa(BaseQuery):
     GATOR_LIST_URL = GATOR_LIST_CATALOGS()
     TIMEOUT = TIMEOUT()
     @class_or_instance
-    def query_region(self, coordinates=None, catalog=None, spatial='cone', radius=10 * u.arcsec,
+    def query_region(self, coordinates=None, catalog=None, spatial='Cone', radius=10 * u.arcsec,
                      width=None, polygon=None, get_query_payload=False, verbose=False):
 
         """
@@ -230,6 +230,9 @@ class Irsa(BaseQuery):
             else:
                 coordinates_list = [_parse_coordinates(c) for c in polygon]
             request_payload['polygon'] = ','.join(coordinates_list)
+        else:
+            raise ValueError("Unrecognized spatial query type. " +
+                "Must be one of 'Cone', 'Box', 'Polygon', or 'All-Sky'.")
         if get_query_payload:
             return request_payload
         response = commons.send_request(Irsa.IRSA_URL, request_payload,
@@ -371,11 +374,7 @@ def _parse_coordinates(coordinates):
     return formatted_coords
 
 def _format_coords(ra, dec):
-    if dec >= 0:
-        formatted_coords = str(ra) +  ' ' + str(dec)
-    else:
-         formatted_coords = str(ra) + str(dec)
-    return formatted_coords
+    return '{} {:+}'.format(ra, dec)
 
 def _parse_dimension(dim):
     if isinstance(dim, u.Quantity) and dim.unit in u.deg.find_equivalent_units():
