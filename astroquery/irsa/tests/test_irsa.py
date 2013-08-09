@@ -46,8 +46,8 @@ def test_parse_dimension(dim):
                          [(10, 10, '10 +10'),
                           (10.0, -11, '10.0 -11')
                           ])
-def test_format_coords(ra, dec, expected):
-    out = irsa.core._format_coords(ra, dec)
+def test_format_decimal_coords(ra, dec, expected):
+    out = irsa.core._format_decimal_coords(ra, dec)
     assert out == expected
 
 @pytest.mark.parametrize(('coordinates', 'expected'),
@@ -66,8 +66,8 @@ def test_is_coordinate(coordinates, expected):
     assert out == expected
 
 def test_args_to_payload():
-    out = irsa.core.Irsa._args_to_payload("fp_psc", "Cone")
-    assert out == dict(catalog='fp_psc', spatial='Cone', outfmt=3, outrows=ROW_LIMIT())
+    out = irsa.core.Irsa._args_to_payload("fp_psc")
+    assert out == dict(catalog='fp_psc', outfmt=3, outrows=ROW_LIMIT())
 
 @pytest.mark.parametrize(("coordinates"), OBJ_LIST)
 def test_query_region_cone_async(coordinates, patch_get):
@@ -99,11 +99,13 @@ def test_query_region_box(coordinates, patch_get):
                                          width=2 * u.arcmin)
     assert(result, Table)
 
-@pytest.mark.parametrize(("polygon"),
-                         [[coord.ICRSCoordinates(ra=10.1, dec=10.1, unit=(u.deg, u.deg)),
+poly1 = [coord.ICRSCoordinates(ra=10.1, dec=10.1, unit=(u.deg, u.deg)),
                            coord.ICRSCoordinates(ra=10.0, dec=10.1, unit=(u.deg, u.deg)),
-                           coord.ICRSCoordinates(ra=10.0, dec=10.0, unit=(u.deg, u.deg))],
-                          [(10.1, 10.1), (10.0, 10.1), (10.0, 10.0)]
+                           coord.ICRSCoordinates(ra=10.0, dec=10.0, unit=(u.deg, u.deg))]
+poly2 = [(10.1*u.deg, 10.1*u.deg), (10.0*u.deg, 10.1*u.deg), (10.0*u.deg, 10.0*u.deg)]
+@pytest.mark.parametrize(("polygon"),
+                         [poly1,
+                          poly2
                           ])
 def test_query_region_async_polygon(polygon, patch_get):
     response = irsa.core.Irsa.query_region_async("m31", catalog="fp_psc", spatial="Polygon",
@@ -114,12 +116,20 @@ def test_query_region_async_polygon(polygon, patch_get):
     assert response is not None
 
 @pytest.mark.parametrize(("polygon"),
-                         [[coord.ICRSCoordinates(ra=10.1, dec=10.1, unit=(u.deg, u.deg)),
-                           coord.ICRSCoordinates(ra=10.0, dec=10.1, unit=(u.deg, u.deg)),
-                           coord.ICRSCoordinates(ra=10.0, dec=10.0, unit=(u.deg, u.deg))],
-                          [(10.1, 10.1), (10.0, 10.1), (10.0, 10.0)]
+                         [poly1,
+                          poly2,
                           ])
 def test_query_region_polygon(polygon, patch_get):
     result = irsa.core.Irsa.query_region("m31", catalog="fp_psc", spatial="Polygon",
                                          polygon=polygon)
     assert isinstance(result, Table)
+
+@pytest.mark.parametrize(('spatial','result'),zip(('Cone','Box','Polygon','All-Sky'),('Cone','Box','Polygon','NONE')))
+def test_spatial_valdi(spatial,result):
+    out = irsa.core.Irsa._parse_spatial(spatial, coordinates='m31', radius=5*u.deg, width=5*u.deg, polygon=[(5*u.hour,5*u.deg)]*3)
+    assert out['spatial'] == result
+
+@pytest.mark.parametrize(('spatial'),[('cone','box','polygon','all-Sky','All-sky','invalid','blah')])
+def test_spatial_invalid(spatial):
+    with pytest.raises(ValueError):
+        irsa.core.Irsa._parse_spatial(spatial, coordinates='m31')

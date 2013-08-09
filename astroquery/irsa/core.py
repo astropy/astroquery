@@ -166,8 +166,9 @@ class Irsa(BaseQuery):
         return self._parse_result(response, verbose=verbose)
 
     @class_or_instance
-    def query_region_async(self, coordinates=None, catalog=None, spatial='Cone', radius=10 * u.arcsec,
-                            width=None, polygon=None,get_query_payload=False):
+    def query_region_async(self, coordinates=None, catalog=None,
+                           spatial='Cone', radius=10 * u.arcsec, width=None,
+                           polygon=None,get_query_payload=False):
         """
         This function serves the same purpose as :meth:`~astroquery.irsa.Irsa.query_region`,
         but returns the raw HTTP response rather than the results in an `astropy.table.Table`.
@@ -209,8 +210,59 @@ class Irsa(BaseQuery):
         """
         if catalog is None:
             raise Exception("Catalog name is required!")
-        request_payload = self._args_to_payload(catalog, spatial)
-        if spatial in ['Cone', 'Box']:
+
+        request_payload = self._args_to_payload(catalog)
+        request_payload.update(self._parse_spatial(spatial=spatial,
+                                                   coordinates=coordinates,
+                                                   radius=radius, width=width,
+                                                   polygon=polygon))
+
+        if get_query_payload:
+            return request_payload
+        response = commons.send_request(Irsa.IRSA_URL, request_payload,
+                                        Irsa.TIMEOUT, request_type='GET')
+        return response
+
+    @class_or_instance
+    def _parse_spatial(self, spatial, coordinates, radius=None, width=None,
+                       polygon=None):
+        """
+        Parse the spatial component of a query
+
+        Parameters
+        ----------
+        spatial : str
+            The type of spatial query. Must be one of: 'Cone', 'Box', 'Polygon', and 'All-Sky'.
+        coordinates : str, `astropy.coordinates` object
+            Gives the position of the center of the cone or box if
+            performing a cone or box search. The string can give coordinates
+            in various coordinate systems, or the name of a source that will
+            be resolved on the server (see `here
+            <http://irsa.ipac.caltech.edu/search_help.html>`_ for more
+            details). Required if spatial is 'Cone' or 'Box'. Optional if
+            spatial is 'Polygon'.
+        radius : str or `astropy.units.Quantity` object, [optional for spatial is 'Cone']
+            The string must be parsable by `astropy.coordinates.Angle`. The appropriate
+            `Quantity` object from `astropy.units` may also be used. Defaults to 10 arcsec.
+        width : str, `astropy.units.Quantity` object [Required for spatial is 'Polygon'.]
+            The string must be parsable by `astropy.coordinates.Angle`. The appropriate
+            `Quantity` object from `astropy.units` may also be used.
+        polygon : list, [Required for spatial is 'Polygon']
+            A list of ``(ra, dec)`` pairs as tuples of
+            `astropy.coordinates.Angle`s outlinining the polygon to search in.
+            It can also be a list of `astropy.coordinates` object or strings
+            that can be parsed by `astropy.coordinates.ICRSCoordinates`.
+        
+        Returns
+        -------
+        Payload dictionary
+        """
+
+        request_payload = {}
+
+        if spatial == 'All-Sky':
+            spatial = 'NONE'
+        elif spatial in ['Cone', 'Box']:
             if not _is_coordinate(coordinates):
                 request_payload['objstr'] = coordinates
             else:
@@ -225,23 +277,26 @@ class Irsa(BaseQuery):
         elif spatial == 'Polygon':
             if coordinates is not None:
                 request_payload['objstr'] = coordinates if not _is_coordinate(coordinates) else _parse_coordinates(coordinates)
-            if isinstance(polygon[0], tuple):
-                coordinates_list = [_format_coords(pair[0], pair[1]) for pair in polygon]
-            else:
+            try:
                 coordinates_list = [_parse_coordinates(c) for c in polygon]
+            except (ValueError,TypeError):
+                if isinstance(polygon[0], tuple):
+                    try:
+                        polygon = [(coord.Angle(pair[0]).degree, coord.Angle(pair[1]).degree) for pair in polygon]
+                    except u.UnitsException:
+                        warnings.warn("Polygon endpoints are being interpreted as RA/Dec pairs specified in decimal degree units.")
+                    coordinates_list = [_format_decimal_coords(pair[0], pair[1]) for pair in polygon]
             request_payload['polygon'] = ','.join(coordinates_list)
         else:
             raise ValueError("Unrecognized spatial query type. " +
-                "Must be one of 'Cone', 'Box', 'Polygon', or 'All-Sky'.")
-        if get_query_payload:
-            return request_payload
-        response = commons.send_request(Irsa.IRSA_URL, request_payload,
-                                        Irsa.TIMEOUT, request_type='GET')
-        return response
+                             "Must be one of 'Cone', 'Box', 'Polygon', or 'All-Sky'.")
 
+        request_payload['spatial'] = spatial
+        
+        return request_payload
 
     @class_or_instance
-    def _args_to_payload(self, catalog, spatial):
+    def _args_to_payload(self, catalog):
         """
         Sets the common parameters for all cgi -queries
 
@@ -249,17 +304,12 @@ class Irsa(BaseQuery):
         ----------
         catalog : str
             The name of the catalog to query.
-        spatial : str
-            The type of spatial query. Must be one of: 'Cone', 'Box', 'Polygon', and 'NONE'.
 
         Returns
         -------
         request_payload : dict
         """
-        if spatial == 'All-Sky':
-            spatial = 'NONE'
         request_payload = dict(catalog=catalog,
-                               spatial=spatial,
                                outfmt=3,
                                outrows=ROW_LIMIT())
         return request_payload
@@ -370,10 +420,13 @@ def _parse_coordinates(coordinates):
         c = coordinates
     else:
         raise TypeError("Argument cannot be parsed as a coordinate")
-    formatted_coords = _format_coords(c.icrs.ra.degree, c.icrs.dec.degree)
+    formatted_coords = _format_decimal_coords(c.icrs.ra.degree, c.icrs.dec.degree)
     return formatted_coords
 
-def _format_coords(ra, dec):
+def _format_decimal_coords(ra, dec):
+    """
+    Print *decimal degree* RA/Dec values in an IPAC-parseable form
+    """
     return '{} {:+}'.format(ra, dec)
 
 def _parse_dimension(dim):
