@@ -374,7 +374,7 @@ def _parse_coordinates(coordinates):
     return formatted_coords
 
 def _format_coords(ra, dec):
-    return '{} {:+}'.format(ra, dec)
+    return '{0} {1:+}'.format(ra, dec)
 
 def _parse_dimension(dim):
     if isinstance(dim, u.Quantity) and dim.unit in u.deg.find_equivalent_units():
