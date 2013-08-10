@@ -85,6 +85,7 @@ The following modules have been completed using a common API:
   vizier.rst
   irsa_dust.rst
   ned.rst
+  splatalogue.rst
 
 These others are functional, but do not follow a common & consistent API:
 

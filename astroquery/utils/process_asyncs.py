@@ -26,9 +26,6 @@ def async_to_sync(cls):
             else:
                 verbose = False
             response = getattr(self,async_method_name)(*args,**kwargs)
-            get_query_payload = kwargs.get('get_query_payload', False)
-            if get_query_payload:
-                return response
             result = self._parse_result(response, verbose=verbose)
             return result
 
