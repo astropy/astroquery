@@ -11,14 +11,16 @@ from astropy import coordinates as coord
 from astropy.utils import OrderedDict
 from ..exceptions import TimeoutError
 import astropy.io.votable as votable
+import re
 
 __all__ = ['send_request',
            'parse_coordinates',
            'parse_radius',
            'TableList',
-           'suppress_vo_warnings']
+           'suppress_vo_warnings',
+           'validate_email_re']
 
-def send_request(url, data, timeout, request_type='POST'):
+def send_request(url, data, timeout, request_type='POST', **kwargs):
     """
     A utility function that post HTTP requests to remote server
     and returns the HTTP response.
@@ -41,10 +43,10 @@ def send_request(url, data, timeout, request_type='POST'):
     """
     try:
         if request_type == 'GET':
-            response = requests.get(url, params=data, timeout=timeout)
+            response = requests.get(url, params=data, timeout=timeout, **kwargs)
             return response
         elif request_type == 'POST':
-            response = requests.post(url, data=data, timeout=timeout)
+            response = requests.post(url, data=data, timeout=timeout, **kwargs)
             return response
         else:
             raise ValueError("request_type must be either 'GET' or 'POST'.")
@@ -190,3 +192,15 @@ class TableList(OrderedDict):
 def suppress_vo_warnings():
     """ Suppresses all warnings of the class `astropy.io.votable.exceptions.VOWarning."""
     warnings.filterwarnings("ignore", category=votable.exceptions.VOWarning)
+
+def validate_email_re(email):
+    """
+    E-mail address validation.  Uses validate_email if available, else a simple
+    regex that will let through some invalid e-mails but will catch the most
+    common violators.
+    """
+    try:
+        import validate_email
+        return validate_email.validate_email(email)
+    except ImportError:
+        return bool(re.compile('^\S+@\S+\.\S+$').match(email))
