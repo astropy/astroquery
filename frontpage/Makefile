@@ -1,3 +1,5 @@
+CWD := $(shell pwd)
+
 all:
 	cd ..; \
 	git checkout gh-pages; \
@@ -8,3 +10,4 @@ all:
 	git add index.html; \
 	git commit -m "Index.html generated."; \
 	git checkout master
+	cd ${CWD}

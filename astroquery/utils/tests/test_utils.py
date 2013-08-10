@@ -113,16 +113,18 @@ def test_TableDict():
     in_list  = create_in_list([t1, t2, t3])
     table_list = commons.TableList(in_list)
     repr_str = table_list.__repr__()
-    assert repr_str == '<TableList with 3 table(s) and 7 total row(s)>'
+    assert repr_str == ("TableList with 3 tables:\n\t'0:t1' with 3 column(s) and 1 row(s)"
+                   " \n\t'1:t2' with 1 column(s) and 3 row(s)"
+                   " \n\t'2:t3' with 3 column(s) and 3 row(s) ")
 
 def test_TableDict_print_table_list(capsys):
     in_list  = create_in_list([t1, t2, t3])
     table_list = commons.TableList(in_list)
     table_list.print_table_list()
     out, err = capsys.readouterr()
-    assert out == ("<TableList with 3 tables:\n\t't1' with 3 column(s) and 1 row(s)"
-                   " \n\t't2' with 1 column(s) and 3 row(s)"
-                   " \n\t't3' with 3 column(s) and 3 row(s) \n>\n")
+    assert out == ("TableList with 3 tables:\n\t'0:t1' with 3 column(s) and 1 row(s)"
+                   " \n\t'1:t2' with 1 column(s) and 3 row(s)"
+                   " \n\t'2:t3' with 3 column(s) and 3 row(s) \n")
 
 
 
@@ -156,7 +158,7 @@ docstr1 = """
         """
 
 docstr1_out = textwrap.dedent("""
-        Queries the service and returns a table object
+        Queries the service and returns a table object.
         Query the Vizier service for a specific catalog
 
         Parameters
@@ -199,7 +201,7 @@ docstr2 = """
         """
 
 docstr2_out = textwrap.dedent("""
-        Queries the service and returns a dict object
+        Queries the service and returns a dict object.
         Search Vizier for catalogs based on a set of keywords, e.g. author name
 
         Parameters
@@ -293,3 +295,21 @@ docstr4_out = """
 def test_prepend_docstr(doc=docstr4,func=dummyfunc,out=docstr4_out):
     fn = prepend_docstr_noreturns(doc)(func)
     assert fn.__doc__ == textwrap.dedent(docstr4_out)
+
+@async_to_sync
+class DummyQuery(object):
+    @class_or_instance
+    def query_async(self, *args, **kwargs):
+        """ docstr"""
+        if kwargs['get_query_payload']:
+            return dict(msg='payload returned')
+        return 'needs to be parsed'
+    @class_or_instance
+    def _parse_result(self, response, verbose=False):
+        return response
+
+def test_payload_return(cls=DummyQuery):
+    result = DummyQuery.query(get_query_payload=True)
+    assert isinstance(result, dict)
+    result = DummyQuery.query(get_query_payload=False)
+    assert isinstance(result, basestring)
