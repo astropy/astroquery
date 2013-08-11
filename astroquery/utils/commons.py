@@ -18,7 +18,7 @@ __all__ = ['send_request',
            'parse_radius',
            'TableList',
            'suppress_vo_warnings',
-           'validate_email_re']
+           'validate_email']
 
 def send_request(url, data, timeout, request_type='POST', **kwargs):
     """
@@ -193,7 +193,7 @@ def suppress_vo_warnings():
     """ Suppresses all warnings of the class `astropy.io.votable.exceptions.VOWarning."""
     warnings.filterwarnings("ignore", category=votable.exceptions.VOWarning)
 
-def validate_email_re(email):
+def validate_email(email):
     """
     E-mail address validation.  Uses validate_email if available, else a simple
     regex that will let through some invalid e-mails but will catch the most
