@@ -76,6 +76,9 @@ All query tools allow coordinate-based queries:
 Table of Contents
 -----------------
 
+The modules and their maintainers are listed on the wiki:
+https://github.com/astropy/astroquery/wiki/Maintainers
+
 The following modules have been completed using a common API:
 
 .. toctree::
@@ -86,6 +89,13 @@ The following modules have been completed using a common API:
   irsa_dust.rst
   ned.rst
   splatalogue.rst
+  irsa.rst
+  ukidss.rst
+  magpis.rst
+  nrao.rst
+  besancon.rst
+  nist.rst
+  nvas.rst
 
 These others are functional, but do not follow a common & consistent API:
 
@@ -93,17 +103,10 @@ These others are functional, but do not follow a common & consistent API:
 .. toctree::
   :maxdepth: 1
 
-  irsa.rst
-  ukidss.rst
-  magpis.rst
-  nrao.rst
-  besancon.rst
-  nist.rst
   fermi.rst
   sdss.rst
   alfalfa.rst
   sha.rst
   lamda.rst
   ogle.rst
-  nvas.rst
   
