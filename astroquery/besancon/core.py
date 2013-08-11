@@ -1,12 +1,12 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
+from __future__ import print_function
 import socket
 import time
 import copy
-import os
 import sys
 import re
 import astropy.utils.data as aud
-import astropy.io.ascii as asciireader
+from astropy.io import ascii
 from . import BESANCON_DOWNLOAD_URL, BESANCON_MODEL_FORM, BESANCON_PING_DELAY
 import urllib2 # only needed for urllib2.URLError
 
@@ -26,7 +26,7 @@ keyword_defaults = {
     'kleg':1,
     'longit': 10.62,
     'latit':-0.38,
-    'soli':0.0003, # degrees.  0.00027777 = 1 arcmin
+    'soli':0.0003, # degrees.  0.00027777 = 1 arcsec
     'kleh':1,
     'eq1': 2000.0,
     'al0': 200.00,
@@ -44,8 +44,8 @@ keyword_defaults = {
     'subspectyp_min': 0,
     'spectyp_max':9,
     'subspectyp_max': 5,
-    'lumi[]':range(1,8),
-    'sous_pop[]':range(1,11),
+    'lumi':range(1,8),
+    'sous_pop':range(1,11),
     'iband':8,
     'band0':[8]*9,
     'bandf':[25]*9,
@@ -55,11 +55,13 @@ keyword_defaults = {
     'sc':[[0,0,0]]*9,
     'klee':0,
     'throughform':'ok',
-    'kleb':3,
-    'klec':1,
-    'cinem':0,
+    'kleb':3, # 3 = Catalogue Simulation, 1 = tables and differential counts
+    'klec':1, # 1 = ubv, 15= cfhtls (photometric system)
+    'cinem':0, # 0: no kinematics, 1: kinematics
     'outmod':"",
 }
+keyword_defaults['ff[15]'] = 500
+keyword_defaults['oo[15]'] = -500
 
 colors_limits = {"J-H":(-99,99),"H-K":(-99,99),"J-K":(-99,99),"V-K":(-99,99)}
 mag_limits = {'U':(-99,99), 'B':(-99,99), 'V':(-5,20), 'R':(-99,99),
@@ -75,18 +77,17 @@ class Besancon(BaseQuery):
     # this whole project to be class-based, so they should be set for class
     # instances.
     url_download = BESANCON_DOWNLOAD_URL()
-    url_request = BESANCON_MODEL_FORM()
+    QUERY_URL = BESANCON_MODEL_FORM()
     ping_delay = BESANCON_PING_DELAY()
+    TIMEOUT = 30
     # sample file name:  1340900648.230224.resu
     result_re = re.compile("[0-9]{10}\.[0-9]{6}\.resu")
 
     def __init__(self, email=None):
         self.email = email
 
-
     @class_or_instance
-    def get_besancon_model_file(self, filename, verbose=True, save=True,
-                                savename=None, overwrite=True, timeout=5.0):
+    def get_besancon_model_file(self, filename, verbose=True, timeout=5.0):
         """
         Download a Besancon model from the website
 
@@ -96,14 +97,6 @@ class Besancon(BaseQuery):
             The besancon filename, with format ##########.######.resu
         verbose : bool
             Print details about the download process
-        save : bool
-            Save the table after acquiring it?
-        savename : None or string
-            If not specified, defaults to the .resu table name
-        overwrite : bool
-            Overwrite the file if it exists?  Defaults to True because the .resu
-            tables should have unique names by default, so there's little risk of
-            accidentally overwriting important information
         timeout : float
             Amount of time to wait after pinging the server to see if a file is
             present.  Default 5s, which is probably reasonable.
@@ -141,20 +134,16 @@ class Besancon(BaseQuery):
                 elapsed_time += self.ping_delay
                 continue
 
-
-        if save:
-            if savename is None:
-                savename = filename
-            if not overwrite and os.path.exists(savename):
-                raise IOError("File %s already exists." % savename)
-            outf = open(savename,'w')
-            print >>outf,results
-            outf.close()
-
         return parse_besancon_model_string(results)
 
     @class_or_instance
-    def _parse_result(self, response, verbose=False, retrieve_file=False):
+    def _parse_result(self, response, verbose=False, retrieve_file=True):
+        """
+        retrieve_file : bool
+            If True, will try to retrieve the file every 30s until it shows up.
+            Otherwise, just returns the filename (the job is still executed on
+            the remote server, though)
+        """
 
         if verbose:
             print("Loading request from Besancon server ...")
@@ -180,7 +169,7 @@ class Besancon(BaseQuery):
     def _parse_args(self, glon, glat, email=None, smallfield=True, extinction=0.7,
                     area=0.0001, verbose=True, clouds=None,
                     absmag_limits=(-7,15), mag_limits=copy.copy(mag_limits),
-                    colors_limits=copy.copy(colors_limits), retrieve_file=True,
+                    colors_limits=copy.copy(colors_limits),
                     **kwargs):
         """
         Perform a query on the Besancon model of the galaxy
@@ -213,10 +202,6 @@ class Besancon(BaseQuery):
             distance in pc)
         verbose : bool
             Print out extra error messages?
-        retrieve_file : bool
-            If True, will try to retrieve the file every 30s until it shows up.
-            Otherwise, just returns the filename (the job is still executed on
-            the remote server, though)
         kwargs : dict
             Can override any argument in the request if you know the name of the
             POST keyword.
@@ -236,12 +221,15 @@ class Besancon(BaseQuery):
         for key,val in kwargs.iteritems():
             if key in keyword_defaults:
                 kwd[key] = val
-            elif verbose:
-                print "Skipped invalid key %s" % key
+            elif verbose and not key in ('retrieve_file',):
+                print("Skipped invalid key %s" % key)
 
         kwd['kleg'] = 1 if smallfield else 2
         if not smallfield:
             raise NotImplementedError
+
+        kwd['longit'] = glon
+        kwd['latit'] = glat
 
         kwd['adif'] = extinction
         kwd['soli'] = area
@@ -269,16 +257,26 @@ class Besancon(BaseQuery):
                 kwd[di][ii] = di
 
         # parse the default dictionary
-        request_data = parse_besancon_dict(keyword_defaults)
+        #request_data = parse_besancon_dict(keyword_defaults)
+        request_data = kwd.copy()
+
+        # convert all array elements to arrays
+        for dummy in xrange(2):  # deal with nested lists
+            for k,v in request_data.items():
+                if isinstance(v,list) or (isinstance(v,tuple) and len(v) > 1):
+                    if k in request_data:
+                        del request_data[k]
+                    for ii,x in enumerate(v):
+                        request_data['%s[%i]' % (k,ii)] = x
+
 
         # an e-mail address is required
-        request_data.append(('email',email))
-        request_data = dict(request_data)
+        request_data['email'] = email
 
         return request_data
 
     @class_or_instance
-    @prepend_docstr_noreturns("\n"+_parse_args.__doc__)
+    @prepend_docstr_noreturns("\n"+_parse_args.__doc__+_parse_result.__doc__)
     def query_async(self, *args, **kwargs):
         """
         Returns
@@ -348,17 +346,64 @@ def parse_errors(text):
     
 
 def parse_besancon_model_string(bms,):
+    """
+    Given an entire Besancon model result in *string* form, parse it into an
+    astropy table
+    """
 
-    besancon_table = asciireader.read(bms, Reader=asciireader.FixedWidth,
-                                      header_start=None, data_start=81,
-                                      names=bms.split('\n')[80].split(),
-                                      col_starts=(0,7,13,16,21,27,33,36,41,49,56,62,69,76,82,92,102,109),
-                                      col_ends=(6,12,15,20,26,32,35,39,48,55,61,68,75,81,91,101,108,115),
-                                      data_end=-7)
+    header_start = "Dist    Mv  CL".split()
+
+    # locate index of data start
+    lines = bms.split('\n')
+    nblanks = 0
+    for ii,line in enumerate(lines):
+        if line.strip() == '':
+            nblanks += 1
+        if all([h in line for h in header_start]):
+            break
+
+    names = line.split()
+    ncols = len(names)
+    data_start = ii
+    first_data_line = lines[data_start]
+    # ascii.read ignores blank lines
+    data_start -= nblanks
+
+    # locate index of data end
+    nblanks = 0
+    for ii,line in enumerate(lines[::-1]):
+        if "TOTAL NUMBER OF STARS :" in line:
+            nstars = int(line.split()[-1])
+        if line.strip() == '':
+            nblanks += 1
+        if all([h in line for h in header_start]):
+            break
+    # most likely = -7
+    data_end = -(ii-nblanks+1)
+
+    # note: old col_starts/col_ends were:
+    # (0,7,13,16,21,27,33,36,41,49,56,62,69,76,82,92,102,109)
+    # (6,12,15,20,26,32,35,39,48,55,61,68,75,81,91,101,108,115)
+    col_ends = [first_data_line.find(x)+len(x) for x in first_data_line.split()]
+    col_starts = [0] + [c-1 for c in col_ends[:-1]]
+
+    if len(col_starts) != ncols or len(col_ends) != ncols:
+        raise ValueError("Table parsing error: mismatch between # of columns & header")
+
+    besancon_table = ascii.read(bms, Reader=ascii.FixedWidthNoHeader,
+                                header_start=None, 
+                                data_start=data_start,
+                                names=names,
+                                col_starts=col_starts,
+                                col_ends=col_ends,
+                                data_end=data_end)
+
+    if len(besancon_table) != nstars:
+        raise ValueError("Besancon table did not match reported size")
 
     for cn in besancon_table.columns:
         if besancon_table[cn].dtype.kind in ('s','S'):
-            print "WARNING: The Besancon table did not parse properly.  Some columns are likely to have invalid values and others incorrect values.  Please report this error."
+            print("WARNING: The Besancon table did not parse properly.  Some columns are likely to have invalid values and others incorrect values.  Please report this error.")
             break
 
     return besancon_table
