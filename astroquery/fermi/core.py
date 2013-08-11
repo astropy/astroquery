@@ -5,6 +5,8 @@ import requests
 import re
 import time
 
+from . import FERMI_URL
+
 __all__ = ['FermiLAT_Query', 'FermiLAT_DelayedQuery']
 
 
@@ -15,10 +17,11 @@ class FermiLAT_QueryClass(object):
     """
 
     request_url = 'http://fermi.gsfc.nasa.gov/cgi-bin/ssc/LAT/LATDataQuery.cgi'
+    request_url = FERMI_URL()
     result_url_re = re.compile('The results of your query may be found at <a href="(http://fermi.gsfc.nasa.gov/.*?)"')
 
     def __call__(self, name_or_coords, coordsys='J2000', searchradius='', obsdates='', timesys='Gregorian',
-            energyrange_MeV='', LATdatatype='Photon', spacecraftdata=True):
+                 energyrange_MeV='', LATdatatype='Photon', spacecraftdata=True):
         """
         Query the FermiLAT database
 
