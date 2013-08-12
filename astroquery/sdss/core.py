@@ -7,15 +7,13 @@ Author: Jordan Mirocha
 Affiliation: University of Colorado at Boulder
 Created on: Sun Apr 14 19:18:43 2013
 
-Description: Access Sloan Digital Sky Survey database online. 
+Description: Access Sloan Digital Sky Survey database online.
 
 """
 
 import numpy as np
-import astropy.wcs as wcs
-import math, copy
+import copy
 from astropy.io import fits
-from astropy import coordinates as coord
 from astropy import units as u
 from astropy.table import Table
 import requests
@@ -46,7 +44,7 @@ sdss_arcsec_per_pixel = 0.396
 
 class SDSS(BaseQuery):
             
-    BASE_URL = 'http://das.sdss.org'#SDSS_SERVER()
+    BASE_URL = SDSS_SERVER()
     SPECTRO_1D = BASE_URL + '/spectro/1d_26'
     IMAGING = BASE_URL + '/www/cgi-bin/drC'
     TEMPLATES = 'http://www.sdss.org/dr5/algorithms/spectemplates/spDR2'
@@ -96,8 +94,8 @@ class SDSS(BaseQuery):
             The result of the query as an `astropy.table.Table` object.
         """
         
-        ra = coordinates.ra.degrees
-        dec = coordinates.dec.degrees
+        ra = coordinates.ra.degree
+        dec = coordinates.dec.degree
         dr = radius.value
         
         # Fields to return (if cross-ID successful)
