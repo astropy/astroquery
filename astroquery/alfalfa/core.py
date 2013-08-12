@@ -140,9 +140,9 @@ class ALFALFA(BaseQuery):
         
         """
         
-        ra = coordinates.ra.degrees
-        dec = coordinates.dec.degrees
-        dr = radius.to('degree')
+        ra = coordinates.ra.degree
+        dec = coordinates.dec.degree
+        dr = radius.to('degree').value
         
         cat = self.get_catalog()
         
