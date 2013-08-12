@@ -29,7 +29,6 @@ ALFALFACAT = None
 
 class ALFALFA(BaseQuery):
     
-    ASCII_PREFIX = "http://arecibo.tc.cornell.edu/hiarchive/alfalfa/spectraASCII"
     FITS_PREFIX = "http://arecibo.tc.cornell.edu/hiarchive/alfalfa/spectraFITS"
     CATALOG_PREFIX = "http://egg.astro.cornell.edu/alfalfa/data/a40files/a40.datafile1.csv"
 
