@@ -11,6 +11,6 @@ from astropy.config import ConfigurationItem
 SDSS_SERVER = ConfigurationItem('sdss_server', 'http://das.sdss.org',
                                'Link to SDSS website.')
 
-SDSS_TIMEOUT = ConfigurationItem('timeout', 60, 'time limit for connecting to SDSS server')
+SDSS_MAXQUERY = ConfigurationItem('maxqueries', 1, 'Max number of queries allowed per second')
 
-from .core import *
+from .core import SDSS
