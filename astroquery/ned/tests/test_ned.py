@@ -1,56 +1,243 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
+from __future__ import print_function
+
+import os
+import requests
+
+
+from numpy import testing as npt
+from astropy.tests.helper import pytest
+from astropy.table import Table
+import astropy.utils.data as aud
+import astropy.coordinates as coord
+import astropy.units as u
 
 from ... import ned
-import socket
-import time
+from ...ned import (HUBBLE_CONSTANT,
+               CORRECT_REDSHIFT,
+               OUTPUT_COORDINATE_FRAME,
+               OUTPUT_EQUINOX,
+               SORT_OUTPUT_BY)
 
-def test_objname():
-    result = ned.query_ned_by_objname()
 
-def test_nearname():
-    result = ned.query_ned_nearname()
+DATA_FILES = {
+               'object': 'query_object.xml',
+               'Near Name Search': 'query_near_name.xml',
+               'Near Position Search': 'query_near_position.xml',
+               'IAU Search': 'query_iau_format.xml',
+               'Diameters': 'query_diameters.xml',
+               'image': 'query_images.fits',
+               'Photometry': 'query_photometry.xml',
+               'Positions': 'query_positions.xml',
+               'Redshifts': 'query_redshifts.xml',
+               'Reference': 'query_references.xml',
+               'Search': 'query_refcode.xml',
+               'error': 'error.xml',
+               'extract_urls': 'image_extract.html',
+               'Notes': 'query_notes.xml'
+              }
 
-def test_near_iauname():
-    result = ned.query_ned_near_iauname()
+def data_path(filename):
+    data_dir = os.path.join(os.path.dirname(__file__), 'data')
+    return os.path.join(data_dir, filename)
 
-def test_by_refcode():
-    result = ned.query_ned_by_refcode()
+@pytest.fixture
+def patch_get(request):
+    mp = request.getfuncargvalue("monkeypatch")
+    mp.setattr(requests, 'get', get_mockreturn)
+    return mp
 
-def test_names():
-    result = ned.query_ned_names()
+@pytest.fixture
+def patch_get_readable_fileobj(request):
+    def get_readable_fileobj_mockreturn(filename):
+        return open(data_path(DATA_FILES['image']), 'rb')
+    mp = request.getfuncargvalue("monkeypatch")
+    mp.setattr(aud, 'get_readable_fileobj', get_readable_fileobj_mockreturn)
+    return mp
 
-def test_basic_posn():
-    result = ned.query_ned_basic_posn()
+def get_mockreturn(url, params=None, timeout=10):
+    search_type = params.get('search_type')
+    if search_type is not None:
+        filename = data_path(DATA_FILES[search_type])
+    elif 'imgdata' in url:
+        filename = data_path(DATA_FILES['extract_urls'])
+    else:
+        filename = data_path(DATA_FILES['object'])
+    print(filename)
+    content = open(filename, "r").read()
+    return MockResponse(content)
 
-def test_ned_external():
-    result = ned.query_ned_external()
+class MockResponse(object):
+    def __init__(self, content):
+        self.content = content
 
-# I cannot get this to pass.  It just gives timeout errors.
-#try:
-#    #time.sleep(1)  # wait before running another query
-#    def test_ned_allsky():
-#        result = ned.query_ned_allsky(ra_constraint='Between',
-#                                      ra_1='00h00m00.0',
-#                                      ra_2='01h00m00.0',
-#                                      z_constraint='Larger Than',
-#                                      z_value1=2.0)
-#except Exception as error: #socket.error:
-#    print "Some kind of error: ",error
+@pytest.mark.parametrize(('radius', 'expected'),
+                         [(5 * u.deg, 300),
+                          ('0d5m0s', 5),
+                          (5 * u.arcsec, 0.0833)
+                          ])
+def test_parse_radius(radius, expected):
+    # radius in any equivalent unit must be converted to minutes
+    actual_radius = ned.core._parse_radius(radius)
+    npt.assert_approx_equal(actual_radius, expected, significant=3)
 
-def test_ned_photometry():
-    result = ned.query_ned_photometry()
+def test_get_references_async(patch_get):
+    response = ned.core.Ned.get_table_async("m1", table='references',
+                                            from_year=2010,
+                                            to_year=2013,
+                                            get_query_payload=True)
+    assert response['objname'] == 'm1'
+    assert response['ref_extend'] == 'no'
+    assert response['begin_year'] == 2010
+    assert response['end_year'] == 2013
+    assert response['search_type'] == 'Reference'
 
-def test_ned_diameters():
-    result = ned.query_ned_diameters()
 
-def test_ned_redshifts():
-    result = ned.query_ned_redshifts()
+@pytest.mark.xfail(reason="astropy issue #1266")
+def test_get_references(patch_get):
+    response = ned.core.Ned.get_table_async("m1",table='references', from_year=2010)
+    assert response is not None
+    result = ned.core.Ned.get_table("m1", table='references', to_year=2012, extended_search=True)
+    assert isinstance(result, Table)
 
-def test_ned_notes():
-    result = ned.query_ned_notes()
+def test_get_positions_async(patch_get):
+    response = ned.core.Ned.get_table_async("m1", table='positions',  get_query_payload=True)
+    assert response['objname'] ==  'm1'
+    response =  ned.core.Ned.get_table_async("m1", table='positions')
+    assert response is not None
 
-def test_ned_position():
-    result = ned.query_ned_position()
+def test_get_positions(patch_get):
+    result =  ned.core.Ned.get_table("m1", table='positions')
+    assert isinstance(result, Table)
 
-def test_ned_nearpos():
-    result = ned.query_ned_nearpos()
+def test_get_redshifts_async(patch_get):
+    response = ned.core.Ned.get_table_async("3c 273", table='redshifts', get_query_payload=True)
+    assert response['objname'] == '3c 273'
+    assert response['search_type'] == 'Redshifts'
+    response = ned.core.Ned.get_table_async("3c 273", table='redshifts')
+    assert response is not None
+
+def test_get_redshifts(patch_get):
+    result = ned.core.Ned.get_table("3c 273", table='redshifts')
+    assert isinstance(result, Table)
+
+def test_get_photometry_async(patch_get):
+    response = ned.core.Ned.get_table_async("3c 273", table='photometry', get_query_payload=True)
+    assert response['objname'] == '3c 273'
+    assert response['meas_type'] == 'bot'
+    assert response['search_type'] == 'Photometry'
+    response = ned.core.Ned.get_table_async("3C 273", table='photometry')
+    assert response is not None
+
+def test_photometry(patch_get):
+    result = ned.core.Ned.get_table("3c 273", table='photometry')
+    assert isinstance(result, Table)
+
+def test_extract_image_urls():
+    html_in = open(data_path(DATA_FILES['extract_urls']), 'r').read()
+    url_list =ned.core.Ned.extract_image_urls(html_in)
+    assert len(url_list) == 5
+    for url in url_list:
+        assert url.endswith('fits.gz')
+
+def test_get_image_list(patch_get):
+    response = ned.core.Ned.get_image_list('m1', get_query_payload=True)
+    assert response['objname'] == 'm1'
+    response = ned.core.Ned.get_image_list('m1')
+    assert len(response) == 5
+
+def test_get_images_async(patch_get, patch_get_readable_fileobj):
+    readable_objs = ned.core.Ned.get_images_async('m1')
+    assert readable_objs is not None
+
+def test_get_images(patch_get, patch_get_readable_fileobj):
+    fits_images = ned.core.Ned.get_images('m1')
+    assert fits_images is not None
+
+def test_query_refcode_async(patch_get):
+    response = ned.core.Ned.query_refcode_async('1997A&A...323...31K', True)
+    assert response == {'search_type': 'Search',
+                        'refcode': '1997A&A...323...31K',
+                        'hconst': HUBBLE_CONSTANT(),
+                        'omegam': 0.27,
+                        'omegav': 0.73,
+                        'corr_z': CORRECT_REDSHIFT(),
+                        'out_csys': OUTPUT_COORDINATE_FRAME(),
+                        'out_equinox': OUTPUT_EQUINOX(),
+                        'obj_sort': SORT_OUTPUT_BY(),
+                        'extend': 'no',
+                        'img_stamp': 'NO',
+                        'list_limit': 0,
+                        'of': 'xml_main'
+                        }
+    response = ned.core.Ned.query_refcode_async('1997A&A...323...31K')
+    assert response is not None
+
+def test_query_refcode(patch_get):
+    result = ned.core.Ned.query_refcode('1997A&A...323...31K')
+    assert isinstance(result, Table)
+
+def test_query_region_iau_async(patch_get):
+    response = ned.core.Ned.query_region_iau_async('1234-423', get_query_payload=True)
+    assert response['search_type'] == 'IAU Search'
+    assert response['iau_name'] == '1234-423'
+    assert response['in_csys'] == 'Equatorial'
+    assert response['in_equinox'] == 'B1950.0'
+    response = ned.core.Ned.query_region_iau_async('1234-423')
+    assert response is not None
+
+def test_query_region_iau(patch_get):
+    result = ned.core.Ned.query_region_iau('1234-423')
+    assert isinstance(result, Table)
+
+def mock_check_resolvable(name):
+        if name != 'm1':
+            raise coord.name_resolve.NameResolveError
+
+def test_query_region_async(monkeypatch, patch_get):
+    # check with the name
+    monkeypatch.setattr(coord.name_resolve, 'get_icrs_coordinates', mock_check_resolvable)
+    response = ned.core.Ned.query_region_async("m1", get_query_payload=True)
+    assert response['objname'] == "m1"
+    assert response['search_type'] == "Near Name Search"
+    # check with Galactic coordinates
+    response = ned.core.Ned.query_region_async(coord.GalacticCoordinates(l=-67.02084, b=-29.75447, unit=(u.deg, u.deg)),
+                                               get_query_payload=True)
+    assert response['search_type'] == 'Near Position Search'
+    npt.assert_approx_equal(response['lon'], -67.02084, significant=5)
+    npt.assert_approx_equal(response['lat'], -29.75447, significant=5)
+    response = ned.core.Ned.query_region_async("05h35m17.3s +22d00m52.2s")
+    assert response is not None
+
+def test_query_region(monkeypatch, patch_get):
+    monkeypatch.setattr(coord.name_resolve, 'get_icrs_coordinates', mock_check_resolvable)
+    result = ned.core.Ned.query_region("m1")
+    assert isinstance(result, Table)
+
+def test_query_object_async(patch_get):
+    response = ned.core.Ned.query_object_async('m1', get_query_payload=True)
+    assert response['objname'] == 'm1'
+    response = ned.core.Ned.query_object_async('m1')
+    assert response is not None
+
+def test_query_object(patch_get):
+    result = ned.core.Ned.query_object('m1')
+    assert isinstance(result, Table)
+
+def test_get_object_notes_async(patch_get):
+    response = ned.core.Ned.get_table_async('m1', table='object_notes', get_query_payload=True)
+    assert response['objname'] == 'm1'
+    assert response['search_type'] == 'Notes'
+    response = ned.core.Ned.get_table_async('m1', table='object_notes')
+    assert response is not None
+
+def test_get_object_notes(patch_get):
+    result = ned.core.Ned.get_table('3c 273', table='object_notes')
+    assert isinstance(result, Table)
+
+def test_parse_result(capsys):
+    content = open(data_path(DATA_FILES['error']), 'r').read()
+    response = MockResponse(content)
+    ned.core.Ned._parse_result(response)
+    out, err = capsys.readouterr()
+    assert out == "The remote service returned the following error message.\nERROR:  No note found.\n"

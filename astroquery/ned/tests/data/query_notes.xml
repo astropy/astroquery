@@ -1,0 +1,269 @@
+<?xml version="1.0"?>
+<VOTABLE version="1.1">
+<DEFINITIONS>
+<COOSYS ID="J2000" equinox="2000." epoch="2000." system="eq_FK5" />
+</DEFINITIONS>
+<RESOURCE type="results">
+<DESCRIPTION>
+Results from query to  NASA/IPAC Extragalactic Database (NED),
+which is operated by the Jet Propulsion Laboratory, California Institute of
+Technology, under contract with the National Aeronautics and Space Administration.
+This work was (partially) supported by the US National Virtual Observatory
+development project, which is funded by the National Science Foundation
+under cooperative agreement AST0122449 with The Johns Hopkins University.
+</DESCRIPTION>
+<INFO name="QUERY_STATUS" value="OK"/>
+<PARAM name="queryDateTime"  ucd="time.creation" datatype="char" arraysize="*" value="2013-07-20T02:44:02PDT"/>
+<LINK content-role="query" content-type="char" 
+href="http://ned.ipac.caltech.edu/cgi-bin/datasearch?search_type=Notes&amp;objname=3C 273&amp;of=xml_main"/>
+<TABLE ID="NED_NoteData" name="NoteData for 3C 273">
+<DESCRIPTION> The results of your search for Notes from various catalogs or articles in NED </DESCRIPTION>
+
+<FIELD ID="note_col1" name="No." ucd="meta.number" datatype="int">
+<DESCRIPTION> A sequential number of the note for this object, applicable to this list only. </DESCRIPTION>
+</FIELD>
+<FIELD ID="note_col2" name="Refcode" ucd="meta.bib.bibcode" datatype="char" arraysize="*">
+<DESCRIPTION> The NED 19-digit Bibliographic Reference code (year, journal, volume number, page number, and the initial of the first author's last name). </DESCRIPTION>
+</FIELD>
+<FIELD ID="note_col3" name="Object Name" ucd="meta.id;name" datatype="char" arraysize="*">
+<DESCRIPTION>  The object name to which the Note applies. (in NED's standard format).</DESCRIPTION>
+</FIELD>
+<FIELD ID="note_col4" name="Note" ucd="meta.note" datatype="char" arraysize="*">
+<DESCRIPTION>  The Note itself, transcribed as faithfully as possible from the catalog or paper.</DESCRIPTION>
+</FIELD>
+<DATA>
+<TABLEDATA>
+<TR>
+<TD>1</TD>
+<TD>2008A&amp;A...484..341R</TD>
+<TD>3C 273</TD>
+<TD><![CDATA[The image of this well known quasar shows an unresolved core at 11.9 micron. Themeasured 11.9 micron flux is in agreement with the N-band flux of Sitko et al.(1982) but 100 mJy higher than the flux quoted in Gorjian et al. (2004).]]></TD>
+</TR>
+<TR>
+<TD>2</TD>
+<TD>2007AJ....134..294S</TD>
+<TD>PG 1226+023</TD>
+<TD><![CDATA[PG 1226+023 (3C 273): Some optical data (3200-8183 A) are from 1981 and 1988observations using the UVITS spectrograph and image dissector scanner (IDS) onthe 2.7 m telescope at McDonald Observatory (Wills et al. 1985).]]></TD>
+</TR>
+<TR>
+<TD>3</TD>
+<TD>2007A&amp;A...464..175B</TD>
+<TD>3C 273</TD>
+<TD><![CDATA[1226+023 (3C 273) - This object shows all the characteristics that are typicalof high-luminosity quasars: a flat radio spectrum of the core, strong and rapidvariability in all the observed energy ranges (e.g. McHardy et al. 1999; vonMontigny et al. 1997), variable polarization, and a radio jet with superluminalmotion (e.g. Pearson et al. 1981). Additionally, it shows an optical and X-rayjet, and a very prominent UV excess, the so-called big blue bump (e.g. Roser etal. 1996; Jester et al. 2005). In the SEDs the contribution of this componentbegins to dominate over the synchrotron one in the optical band (Fig. 3). Sinceit is likely due to thermal radiation from the accretion disc, it is notexpected to be strongly variable on short time scales, and indeed the opticallight curves do not show important flux changes over the whole time range (Fig.2). On the contrary, a noticeable flux increase has recently been observed at 22GHz, which might propagate also to the lower radio frequencies in the nextfuture (Fig. 1).]]></TD>
+</TR>
+<TR>
+<TD>4</TD>
+<TD>2005AJ....130.1418J</TD>
+<TD>3C 273</TD>
+<TD><![CDATA[The most prominent features in the images (see Fig. 7) are anunpolarized core and strongly polarized moving knots B1 and B2, whichboth brighten at ~0.8 mas (Fig. 39). Each component becomes stronglypolarized just as it leaves the core region (~0.3 mas from the core;Fig. 17), while the core has a low polarization (comparable with thenoise level). The similarity of the EVPA and fractional polarizationat 7 (brightest polarized feature), 3, and 1.3/0.85 mm suggests a lowfractional polarization in the core at the high frequencies, whereFaraday effects are not important. This implies that the core hasintrinsically low polarization, which might be caused by a stronglyturbulent magnetic field on scales smaller than the 7 mm synthesizedbeam. After they flare, B1 and B2 fade dramatically and expand bothalong and transverse to the jet direction. This results in theformation of new features b1 and bs related to B1, and b2 related toB2 (Fig. 16). The b components might form in the interaction ofrelativistic shocks connected with features B1 and B2 and theunderlying jet flow. These components should have lower apparentspeed than the main disturbances (Agudo et al. 2001), but this is notthe case for bs. Alternatively, the B components are fairly extendedfeatures in a broad jet, and the b knots might represent sections ofthe jet where the velocity vectors lie at different angles to theline of sight. The latter interpretation is supported by thedifference in the projected trajectories of the B and b components(Fig. 18) and the strong dependence between the projected positionangle and apparent speed of the components, with the more northernknots being slower (Fig. 40). A substantial velocity gradient acrossthe jet is also expected according to a model in which the underlyingjet flow has a double-helix structure and a lower Lorentz factor thanthat of the disturbances (Lobanov & Zensus 2001). The brightening ofB1 and B2 at ~0.8 mas from the core might be connected with either(1) a change of the jet direction (a slight curvature of theprojected trajectories of both components is seen in Fig. 18 at thisdistance), (2) an intensity peak of the threadlike pattern of theunderlying flow where the local velocity vector bends toward the lineof sight (Lobanov & Zensus 2001), or (3) interaction with theexternal medium. However, a stable polarization direction in B2before, during, and after the flare (see epochs 1999.76, 1999.93, and2000.07 in Fig. 7) does not support the third possibility..At many epochs the images contain a diffuse, highly polarized (up to50%) feature, C1, farther down the jet (see Fig. 41) and moving at anapparent speed of ~7c. According to the time of ejection, C1corresponds to knot G1 found by Jorstad et al. (2001b). If C1 and G1are the same feature, it has maintained a nearly constant propermotion over ~5 yr.]]></TD>
+</TR>
+<TR>
+<TD>5</TD>
+<TD>2005A&amp;A...432...15P</TD>
+<TD>3C 273</TD>
+<TD><![CDATA[1226+023 (3C 273) The main feature in the pn spectrum of thiswell-known radio-loud QSO is the broad soft excess. A simpletwo-component model indeed fails to adequately describe its 0.3-12 keVemission (see Sect 3.2 and Fig. 2). Our best fit includes twoblackbody components (with kT_BB,1_ ~ 0.1 and kT_BB,2_ ~ 0.24 keV,respectively) and a power law with a quite flat photon index ({GAMMA}= 1.60 +/- 0.01). This result confirms the finding by Page et al.(2004a), based on the same XMM-Newton observation. We also detectedthe significant (at >99.9% confidence level) presence of an absorptionedge at 7.4 +0.1-0.2 keV and with an optical depth of {tau} =0.09^+0.02^_-0.03_. Such an energy centroid suggests that theabsorbing material is weakly ionized (Fe V-XV). The most likely originfor this edge feature is via reflection in optically thick matter, asan origin in a line-of-sight plasma is not supported by the RGS dataanalysis results published in Page et al. (2004a), which did notreport any absorption features apart from a O VII He{alpha} due to warmgas in the local intergalactic medium. Consequently, we also tried tofit the data with a model including a Compton reflection component(PEXRAV in XSPEC); however this model yielded no statisticalimprovement with respect to the best fit model listed in Table 10. Theupper limit for the covering factor of the material irradiated by theX-ray source is R ={OMEGA}/2{pi} = 0.4. On the other hand, no FeK{alpha} emission line (i.e. another hallmark of reprocessing in anaccretion disk) was detected, and the upper limit on the equivalentwidth for a narrow line at 6.4 keV was found to be 6 eV. Finally, Pageet al. (2004a) reported evidence for a weak broad Fe line using tenco-added EPIC observations. However, this line has not been detectedin our data even when the absorption edge has been removed from thefitting model.]]></TD>
+</TR>
+<TR>
+<TD>6</TD>
+<TD>2004ApJS..155...33S</TD>
+<TD>VSOP J1229+0203</TD>
+<TD><![CDATA[(3C 273) A VSOP image made from GOT data can be found in Lobanov &Zensus (2001). The four-component model-fit does not include thelarge-scale structure.]]></TD>
+</TR>
+<TR>
+<TD>7</TD>
+<TD>2004ApJ...613..682P</TD>
+<TD>PG 1226+023</TD>
+<TD><![CDATA[PG 1226+023. This is the well-known quasar, 3C 273, which is another IZw 1-like object (see PG 0804+761 above) in which the [O III] lines arestrongly blended with Fe II lines (Peterson et al. 1984). Thenarrow-line components of H{gamma}and H{beta} are weak in both the meanand rms spectra. However, there are strong narrow-line residuals in theH{alpha} region, so the H{alpha} line-width measurements cannot be trusted.]]></TD>
+</TR>
+<TR>
+<TD>8</TD>
+<TD>2004ApJ...607..309I</TD>
+<TD>3C 273</TD>
+<TD><![CDATA[3C 273.-The sight line toward the bright quasar 3C 273 was described insome detail by Savage et al. (1993a). It passes through radio continuumLoops I and IV (Berkhuijsen, Haslam, & Salter 1971) and the North PolarSpur (Heiles et al. 1980; Snowden et al. 1995). Galactic radio loops ingeneral, and Loops I and IV in particular (Iwan 1980), are believed tobe supernova remnants or superbubbles filled with hot gas, so this sightline is expected to be strongly influenced by the interface between thathot gas and the denser shell around it. Savage et al. (1993a) note thatthe high-ionization lines have average velocities ~10 km s^-1^ morenegative than weaker ionization lines, which they attribute to infallinghot gas. From analysis of low-ionization lines, Sembach et al. (2001b)find elemental depletions typical of warm diffuse halo clouds,consistent with a partial destruction of grains (stripped mantles withcores remaining). They also note that C IV, N V, and O VI have similarabsorption profiles except for a high positive-velocity wing of O VI,which they attribute to hot gas being expelled from the Galaxy.     Despite the presence of the radio loops, there was no compellingreason to exclude the 3C 273 sight line from the general analysis of thisstudy. (In particular, the proposals of other authors that this sightline is involved with hot gas flowing in or out argues for its inclusionin this study of halo gas dynamics.) The resolved N V/O VI and C IV/O VIratios found here agree well with the integrated ratios of Sembach etal. (2001b), as does the integrated O VI column density. The integratedN V column density agrees well with that of Penton et al. (2000b).]]></TD>
+</TR>
+<TR>
+<TD>9</TD>
+<TD>2003ApJS..146....1W</TD>
+<TD>3C 273</TD>
+<TD><![CDATA[3C273.0.-This is among the 10 sight lines with the highest S/N ratio(28 per resolution element). A detailed investigation of this QSO waspresented by Sembach et al. (2001b). The velocity scale preferred herediffers by 9 km s^-1^ from that adopted by Sembach et al. (2001 b); seesection 3.4 for a discussion of this. Sembach et al. (2001 b) report thesame equivalent widths (within the errors), except that they include the125 km s^-1^ component into the Milky Way component, and they did notsplit the error into a statistical and systematic component. Therelatively large systematic error in the equivalent width of thiscomponent is due to uncertain integration limits.   Both the O VI {lambda}1031.926 and the O VI {lambda}1037.617 linescan be measured. In the velocity range -70 to 105 km s^-1^ the ratioN(1037)/N(1031) is 1.13 +- 0.04, suggesting that there might be someslight saturation.   Two H_2_ components are clearly visible in the J = 0, 1, 2, and 3 lines,but for J = 4 only one component is seen. The strongest H_2_ componentis associated with the weak H I at 25 km s^-1^ (see Richter etal. 2003). This H_2_ line has only a minor influence on the systematicerror of the thick disk and HyC O VI components. The features at1029.161 and 1031.186 {angstrom} are Ly{beta} at z = 0.00335(v = 1005 km s^-1^) and z = 0.00532 (v = 1595 km s^-1^), which areassociated with the Virgo Cluster (Sembach et al. 2001 b). There arethree small (diameter < 10 kpc),galaxies in this cluster with impactparameter <300 kpc (NGC 4420, UGC 7612, and UGC 7512). The featureat 1035.445 {angstrom} is O VI in the Virgo cluster, at v = 1020 km s^-1^.The corresponding O VI {lambda}1037.617 feature is blended withlow-velocity H_2_J = 3.]]></TD>
+</TR>
+<TR>
+<TD>10</TD>
+<TD>2003AJ....126.2237D</TD>
+<TD>3C 273</TD>
+<TD><![CDATA[.4.8. Blazars.Blazars are common in the radio-excess sample; PKS 0235+164(F02358+1623), PKS 0338-214 (F03384-2129), PKS 0420-014 (F04207-0127),PKS 0537-441 (F05373-4406), PKS 0735+17 (F07352+1749), PKS 0754+100(F07543+1004), PKS 0829+046 (F08291+0439), OJ 287 (F08519+2017),PKS 1144-379 (F11445-3755), 3C 273 (F12265+0219), 3C 279(F12535-0530), B2 1308+32 (F13080+3237), OQ 208 (F14047+2841), OQ 530(F14180+5437), B2 1732+389 (F17326+3859), Q2005-489 (F20057-4858),BL Lac (F22006+4202), and 3C 446 (F22231-0512). These BL Lac objectsare optically variable, flat radio spectrum quasars, or "transitionobjects" between traditional BL Lac objects and (strong emission-line)quasars. Many of the blazars have extremely high radio powers[L_{nu}_(4.8 GHz) > 10^27^ W Hz-1] and FIR luminosities[{nu}L_{nu}_(60 micron) > 10^13^L_solar_] and are at relatively largeredshifts (z > 0.9). Blazars also occur in the sample at lowerredshifts and powers, as low as z ~ 0.05 and L_{nu}_(4.8 GHz) ~ 10^25^W Hz-1. All the known blazars in the radio-excess sample have largeradio excesses (u < -0.2), several with extreme values of u ~ -1.0.CAB comment that the blazars in their full sample all have u < -0.15and spectral indices between 1.4 and 4.8 GHz of less than 0.5. Thismakes them flat spectrum objects with large radio excesses.]]></TD>
+</TR>
+<TR>
+<TD>11</TD>
+<TD>2002ApJS..143..315V</TD>
+<TD>IRAS F12265+0219</TD>
+<TD><![CDATA[F12265+0219 = 3C 273 (IVb). This object is highly nucleated butshows a thick tidal feature toward the northeast and a very faint featureto the northwest (e.g., Tyson, Baum, & Kreidl 1982). The faint linearfeature emerging to the southwest is the well-known optical jet in thissystem (e.g., Bahcall et al. 1995).]]></TD>
+</TR>
+<TR>
+<TD>12</TD>
+<TD>2002ApJS..143..257K</TD>
+<TD>3C 273</TD>
+<TD><![CDATA[1229+0203ra.---The strong absorption feature at 1209--1223 {Angstrom}does not appear in all spectra that were merged; this may be due tooversubtraction of geocoronal Ly{alpha} in some of these spectra; weexclude this region from further analysis. Also, there is no overlapin the constituent spectra around 1600--1650 {Angstrom}, leaving abreak at the Si IV + O IV.]]></TD>
+</TR>
+<TR>
+<TD>13</TD>
+<TD>2002ApJS..140..143B</TD>
+<TD>3C 273</TD>
+<TD><![CDATA[q1226p0219, z = 0.158.-3C 273. The FOS data are discussed in Bahcallet al. (1991). 3C 273 was observed in SPECTROPOLARIMETRY mode also, butwe did not analyze those data. G270, G130.]]></TD>
+</TR>
+<TR>
+<TD>14</TD>
+<TD>2001ApJS..134..181J</TD>
+<TD>3C 273</TD>
+<TD><![CDATA[   1226+023 (3C 273). - This relatively nearby object is one of thebrightest flat-spectrum radio sources and the brightest X-ray quasar.As such, it has been extensively studied at a number of wavelengths(e.g., McHardy et al. 1999; von Montigny et al. 1997). It is well knownto have superluminal motion (see Porcas 1987), which extends out to atleast 120 pc at 1.7 GHz (Davis et al. 1991). According to Homan & Wardle(1999), the core of 3C 273 contains significant circular polarization.   In our program the source was observed at three frequencies, whichallows us to trace the jet out to 16 mas at 8.4 GHz and 8 mas at 22 GHz.The structure of the jet is similar to the description by Mantovani et al.(1999), who observed 3C 273 at 22 and 43 GHz during 42 days in 1992December and 1993 January to search for short-term variability. In ourimages we identify seven moving components from ~0.5 to 8 mas from thecore. To determine the proper motions of these components, we combine theresults of our model fitting at different frequencies with those ofMantovani et al. (1999), whose model fits appear to be compatible withours. The results are shown in Figures 23d and 23e, where Figure 23dpresents the separation of components from the core in the innermost partof the jet out to 4 mas, while Figure 23e presents the same for thesegment of the jet between 4 and 10 mas. The values of the proper motionscover a wide range from 0.3 to 1.6 mas yr^-1^, with a tendency towardfaster motions farther from the core.]]></TD>
+</TR>
+<TR>
+<TD>15</TD>
+<TD>2000ApJS..129..563S</TD>
+<TD>3C 273</TD>
+<TD><![CDATA[     3C 273 (z_em_ = 0.158). - This QSO was observed with the G130H,G190H, and G270H gratings (see Table 4 and Fig. 4c). The FOS ISMabsorption lines in the spectrum of 3C 273 have been extensivelydiscussed in Paper I. That discussion also includes a comparison to themuch higher resolution observations with the GHRS reported bySavage et al. (1993b). The low-ionization gas along the sight line to3C 273 is relatively undisturbed, with the average velocity equivalentwidth for Mg II of <W_v_> = 111 km s^-1^ compared to the 21 cm emissionextension width of 109 km s^-1^. There are no known HVCs in thisdirection, even though the line of sight passes through Galactic RadioLoops I and IV.]]></TD>
+</TR>
+<TR>
+<TD>16</TD>
+<TD>2000ApJS..127...11G</TD>
+<TD>3C 273</TD>
+<TD><![CDATA[3.9. PKS 1226+023 (3C 273)     The 3C 273 blazer is a FSRQ (Wall & Peacock 1985; Padovani & Urry1992) with superluminal jet (Zensus 1989) and was detected in{gamma}-ray during EGRET phase 3 observations when it was in a high{gamma}-ray state (von Montigny et al. 1997). Recently, Courvoisier(1998) and Turler et al. (1999) described this blazar in detail. Weobserved this object on two nights during 1998 January and could notdetect any variations of this source. Results of our observations in B,V, and R bands are presented in Table 3.]]></TD>
+</TR>
+<TR>
+<TD>17</TD>
+<TD>2000A&amp;AS..145....1P</TD>
+<TD>3C 273</TD>
+<TD><![CDATA[1226+023 (3C 273): In this quasar (z=0.158, highly SLM), smooth fluxvariations appear. Its modulation index is 6% at 6 cm;]]></TD>
+</TR>
+<TR>
+<TD>18</TD>
+<TD>2000A&amp;AS..143..357K</TD>
+<TD>3C 273</TD>
+<TD><![CDATA[3C 273 (PKS 1226+02) was the first QSO discovered. It is classified as alow polarization quasar (LPQ). The optical variations are usuallyrelatively small, even the total brightness variation amplitude has beenless than one magnitude (Pica et al. 1988; Sillanpaa et al. 1988a). In1983 brightness reached 12.17 mag in the V-band (Sillanpaa et al.1988a). Studies by Fiorucci & Tosti (1996b) and Villata et al. (1997)did not show any large optical variations. During our observations on December 1995 3C 273 was brightening rapidly(Fig. 14) (between JD^bar^ 50065 and JD^bar^ 50070). On January 1996 theobject did not show a continuation of this trend. Part of theobservations on January and February 1996 were simultaneous with anEGRET-pointing (marked with a box in Fig. 14). In early April 1996(JD^bar^ 50157) 3C 273 started to fade from mag 12.8 towards mag 13. Theshape of our V-band light curve observed during winter 1996 is also inagreement with the R-band variations observed by Raiteri et al. (1998)during the same period. Observations during winter 1997 did not showlarge flares, the brightness was near 12.9 mag. The maximum V-bandbrightness during years 1995 and 1997 was 12.67 (JD^bar^ 50070) and theminimum 12.97 (JD^bar^ 50519 and JD^bar^ 50525) mag.]]></TD>
+</TR>
+<TR>
+<TD>19</TD>
+<TD>1999MNRAS.308.1159C</TD>
+<TD>3C 273</TD>
+<TD><![CDATA[3.4 3C2733C273 is famous for its jet, which can be seen in the outermost contoursof our corrected images. The jet is known to emit X-rays at around16 arcsec (nearer the core than the radio and optical features of thejet), but the emission from the jet contributes less than 0.5 per centof the total X-ray luminosity of the source associated with the quasar(Harris & Stern 1987). From optical images, 3C273 may be a member of apoor cluster of galaxies (Stockton 1980).   All the wobble-corrected profiles of 3C273 require the addition of anextended component (preferably a King law). Each of the models for theextended emission yields slightly (and consistently) different results:the broken power-law fits tend to have an R of 8.7 arcsec (where1 arcsec corresponds to 3.6 kpc at the redshift of the quasar) andcontain 5 per cent of the total X-ray luminosity, at7 x 10^44^ erg s^-1^. The King law fits show a greater variation in theparameters, but have an R of only ~ 4 arcsec, and ~ 11 per cent of thetotal luminosity at 1.3-2.0 x 10^45^ erg s^-1^. The extended emissionwe find in the environs of this quasar is sufficiently luminous that itcannot easily be ascribed to the jet.]]></TD>
+</TR>
+<TR>
+<TD>20</TD>
+<TD>1998ApJ...506..637T</TD>
+<TD>3C 273</TD>
+<TD><![CDATA[  This famous quasar was the first to have its spectral redshiftidentified (Schmidt 1963; z = 0.158, 1 mas = 3.6 pc) and has beenstudied extensively at all wavebands (Perry, Ward, & Jones 1987 andreferences therein). VLBI studies of the parsec-scale jet at centimeterwavelengths reveal typical motions of 0.6-1.2 mas yr^-1^ and componentswith lifetimes that vary from ~1 to over 13 years (Abraham et al. 1994;Zensus et al. 1990).  The first VLBI polarimetry was performed by Roberts et al. (1990) at5 GHz (epoch 1984.78), who found (1) a fractional polarization thatincreased steadily with distance from the core from 0.5%-50%, (2)polarized intensity dominated by the western ends of the jet in contrastto the total intensity that is core-dominated, and (3) anelectric-vector position angle in the western part of the jet nearlyorthogonal to the jet axis but that changes more rapidly in the inner 10mas. They assumed that the RM was identically zero everywhere. Theyjustified this assumption based on the fact that the integrated RM forthe core measured with the VLA is RM = +5 rad m^-2^ (Rusk 1988), and thepolarized flux density of the western jet contained over 40% of the VLApolarized flux density. In the inner jet, Roberts et al. recognized thatthere may be significant departures in the RM from zero and in fact usedthe deviations of the polarization angles from the jet axis at 5 GHz toinfer a RM of 22,000 r^-2.2^ rad m^-2^, which implies an RM of 140 radm^-2^ at r ~ 10 mas.  Leppanen et al. (1995) were the first to make polarimetricobservations of 3C 273 (epoch 1994.45) with VLBI at 22 GHz. They found(1) less than 0.5% polarization in the core, (2) generally disjointpeaks between the total and polarized intensities, (3) an increase infractional polarization with distance from the core, and (4) a roughlylongitudinal magnetic field orientation in the inner 2 mas that becomesmisaligned at larger core distances (in direct contrast to the findingof Roberts et al. 1990). Again, they assumed an identically 0 RMthroughout.]]></TD>
+</TR>
+<TR>
+<TD>21</TD>
+<TD>1998ApJ...506..637T</TD>
+<TD>3C 273</TD>
+<TD><![CDATA[  In Figure 1a I show an image of the polarized intensity overlaid onthe total intensity image at 15 GHz. Rough agreement can be found inboth total intensity and polarized structure with the images of Leppanenet al. (1995). I have therefore adopted their labeling of thecomponents (F1 -F7), although there is a difference of nearly 2.5 yrbetween our observations and my lower resolution results in the blendingof some of these components. The core (F7) is found to be weaklypolarized at the level of ~2% (see Table 3). This contrasts with thelower fractional core polarization seen by Leppanen et al. and byRoberts et al., but given the variable nature of radio cores this resultis not surprising. The polarized flux density increases with distancefrom the core reaching 27% at a distance of 10.6 mas at component F1.  The change in polarization angle with wavelength in the western jet(component F1) can be well fitted with a {lambda}^2^ law fit. The derivedFaraday RM between 8 and 15 GHz is 200 +/- 30 rad m^-2^ and between 5 and8 GHz (at lower resolution) is 80 +/- 20 rad m^-2^. This is still largerthan the +5 rad m^-2^ integrated RM found by Rusk, but this value willalso be influenced by polarized flux density from more distant jetcomponents not sampled by the VLBA. With increasing proximity to thecore, the RM appears to increase (see Fig. 2), going up to 800 rad m^-2^at the position of component F4/5. Note that an RM of 800 rad m^-2^corresponds to a change in {chi} of 164^deg^ at 5 GHz!  Failure to account for the RM may lead to gross mistakes inunderstanding the underlying magnetic field of the jet. At the core, thechange in polarization angle with frequency is not well fitted by a{lambda}^2^ law between 8 and 15 GHz. This could be caused byspectral-index effects and a blending of components within thesynthesized beam (see section 4). The RM-corrected magnetic fieldorientation is shown in Figure 3. Outside the core, the magnetic fieldruns parallel to the local jet direction.]]></TD>
+</TR>
+<TR>
+<TD>22</TD>
+<TD>1998ApJ...495..152L</TD>
+<TD>3C 273</TD>
+<TD><![CDATA[3C 273.--BKS95 detect a host with a brightness that is greater than L*, butthey see no companions. McLeod & Rieke (1994) see the jet to the northwest intheir H-band frame and a second feature that is just south of west. Stockton(1980) found four galaxies within 250 kpc with velocity differences of -80,300, 530, and 510 km s^-1^. This quasar is probably in a poor cluster.]]></TD>
+</TR>
+<TR>
+<TD>23</TD>
+<TD>1998ApJ...492..116S</TD>
+<TD>3C 273</TD>
+<TD><![CDATA[3C 273.--HST images of the radio-loud QSO 3C 273 (Bahcall et al. 1997), as wellas previous ground-based images by us and others, clearly show an optical"jetlike" feature extending to the southwest from the optical nucleus andreveal the presence of a fairly luminous host galaxy. However, there is noobvious evidence of a previous interaction/merger, and the extreme brightnessof the nucleus as well as the relatively short HST exposure times make theidentification of any circumnuclear knots that might be present extremelydifficult.]]></TD>
+</TR>
+<TR>
+<TD>24</TD>
+<TD>1998AJ....116.2682C</TD>
+<TD>IRAS  12265+0219</TD>
+<TD><![CDATA[ 3C 273. Quasar. Radio and optical variable. High-resolution maps ofthe radio jet in Bahcall, Kirhakos, & Schneider (1995).]]></TD>
+</TR>
+<TR>
+<TD>25</TD>
+<TD>1998AJ....115.1357S</TD>
+<TD>PKS 1226+02</TD>
+<TD><![CDATA[PKS 1226+023 (3C 273; Fig. 1m).--This well-known radio source has beenidentified with a 13th magnitude object at a redshift of z=0.158 (Hazard,Mackey, & Shimmins 1963; Schmidt 1963). It shows optical variation, which wasfirst analyzed by Smith & Hoffleit (1963), but does not have high opticalpolarization (Appenzeller 1968). It is very bright across the wave bands fromradio to {gamma}-rays. It was the only {gamma}-ray source known before the CGROobservations (Swanenburg et al. 1978; Bignami et al. 1981), and one of thefirst two extragalactic sources detected by EGRET (Mattox et al. 1997 andreferences therein).The large-scale structure from the VLA and MERLIN shows a compact, flat-spectrumcore and a single jet extending about 23" from the core at a position angle of222^deg^ (Conway et al. 1993). This source has received considerable attentionsince the VLBI technique became available, due mainly to its intensity andvariability. Multifrequency VLBI observations show a bright core and a number ofjet components extending toward the southwest (see, e.g., Davis, Unwin, & Muxlow1991; Zensus et al. 1988).Our VLBI observation of this equatorial quasar has a good north-south resolutionwith a beam of 1.6 mas x 0.88 mas at a position angle of 33^deg^. We fittedsix components, labeled 1 through 6, to the data. The strong component 1 at theeastern end is identified as the core. No counterjet is visible. Components 2-6are jet components, or knots in the continuous jet, which have a similarposition angle of ~230^deg^ and increasing distance to the core (from 1.9 masfor component 2 to 15.2 mas for component 6). Along this position angle, thereis a distinct emission gap between components 5 and 6. Such morphology isconsistent with other published results (e.g., Zensus et al. 1988). Comparisonwith earlier observations enables us to identify the components in our imagewith those seen previously: our components 2, 3, and 4 are respectively C_10_,C_9_, and C_8_ (Abraham et al. 1994). Our component 5 is C_7a_ (Cohen etal. 1987). The more extended component 6 in our image is more difficult toidentify and may be C6 (Unwin et al. 1985; Zensus 1987; Charlot, Lestrade, &Boucher 1988) or possibly a mixture of C_6_ and other components (such as C_5_,C_4_, or even C_3_) (see Cohen et al. 1987; Unwin et al. 1985). Suchidentification is in good agreement with the observational picture of theevolution of the different components in 3C 273 (see Abraham et al. 1996).]]></TD>
+</TR>
+<TR>
+<TD>26</TD>
+<TD>1998AJ....115.1295K</TD>
+<TD>3C 273</TD>
+<TD><![CDATA[1226+023.--The well-known jet in 3C 273 continues out to a much farther distance(Davis, Unwin, & Muxlow 1991) than shown in our image, which is sensitive onlyto the higher surface brightness structure.]]></TD>
+</TR>
+<TR>
+<TD>27</TD>
+<TD>1998A&amp;AS..131..451R</TD>
+<TD>3C 273</TD>
+<TD><![CDATA[ This quasar is a classical superluminal source (Zensus 1987). The masjet can be seen extending from the core out to more than 150mas (Unwin1990), and the PA of this jet is well aligned with the arc-second scalejet (Davis et al. 1985). VLBI monitoring of this source at {lambda}1.3cm(Zensus et al. 1990) shows two features moving out from the core, with{mu} = 0.65 and {mu} = 0.92 microas/yr respectively. A prominent featureis the twisting of the jet, seen in both total intensity maps andpolarization maps (Leppanen et al. 1995), with an increase inpolarization with distance from the core. A 3mm observation made by Krichbaum et al. (1990), showed jetcomponents being ejected after a major optical outburst. Baath et al.(1991) showed a core with a bent jet, with several components atdifferent PA's, suggesting that the wiggling seen at mas scalescontinued at microas scales. The 1988 map showed an elongated componentemerging at the time, which could be related to an outburst, seen 60days earlier in Optical/IR (Courvoisier et al. 1988). Krichbaum et al.(1996b) showed 2 new epochs (1994 & 1995) which clearly show the fast(0.5-0.6 mas/yr) superluminal motion in 3C 273. The 1990 map (Fig. 9) shows an unresolved core and a component in thesame PA as seen in earlier 3mm maps of this source. We do not see theother components but they may be too weak to be detected with thelimited dynamic range we have in this map. Most of the single dish fluxdensity (Table 2) is missing, suggesting that the major part of the{lambda}3mm flux density is emitted by the extended jet. The result froma Gaussian model fit to the UV data can be found in Table 12. Bothmethods agree on the general location and flux densities of the fittedcomponents. We are unable to determine the proper motion in this source as theprevious epoch map was made in 1998 March and the structural changeshave been too large to identify the components and determine theirmotions.]]></TD>
+</TR>
+<TR>
+<TD>28</TD>
+<TD>1997MNRAS.286..513R</TD>
+<TD>3C 273</TD>
+<TD><![CDATA[7.2.2 3C 273The radio-loud quasar 3C 273 is the most luminous object of the current sampleby more than an order of magnitude. The addition of a broad Gaussian atenergies characteristic of iron K{alpha} emission leads to a change in thegoodness of fit parameter by {DELTA}{chi}^2^=32 for three additional degrees offreedom (with best-fitting parameters reported in Table 4). The F-test showsthis to be a significant improvement at more than the 99 per cent level. Thisis contrary to the result of Yaqoob et al. (1994) who find no significant ironline emission. This discrepancy is understandable given small high-energycalibration issues (associated with the X-ray mirror response) that affectedthe early response matrices. The analysis presented here should be morereliable at detecting comparatively weak broad features at high energies.]]></TD>
+</TR>
+<TR>
+<TD>29</TD>
+<TD>1997ApJ...487..536S</TD>
+<TD>3C 273</TD>
+<TD><![CDATA[This source is known for its strong and variable soft excess (Leach etal. 1995). The longest ROSAT archival exposure used here (Table 1) canequally be fitted by a concave broken power law ({GAMMA}_soft_ = 2.10_-0.04_^+0.06^, {GAMMA}_hard_ = 1.87_-0.06_^+0.04^, E_0_ = 0.64 +/- 0.15keV, {chi}_r_^2^ = 1.06/181), or by a power law plus Galactic N_H_ plus ablackbody of temperature kT = 0.065_-0.014_^+0.07^ keV, photon index{GAMMA} = 1.82 +/- 0.06, {chi}_R_^2^ = 1.02/181. Our results do notcompare directly to Leach et al. (1995), who fixed the high-energy slopeto 1.5, the value from the GINGA data. Fitting the data with a power lawplus Galactic N_H_ plus edge yields a fit equivalent to the previousmodels,{chi}_r_^2^ = 1.03/181, with the following parameters:{GAMMA} = 1.97 +/- 0.02, E_e_ = 0.54 +/- 0.05, {tau} = 0.25 +/- 0.07. Theedge energy is consistent with the K edge of O II-VI in the quasar'srest frame.]]></TD>
+</TR>
+<TR>
+<TD>30</TD>
+<TD>1997ApJ...479..642B</TD>
+<TD>3C 273</TD>
+<TD><![CDATA[(PG 1226+023).-The host galaxy is an elliptical. The V magnitudeestimated from the McLeod & Rieke (1994b) H-band images is in goodagreement with the magnitude determined by our two-dimensional model.Using deep ground-based CCD images, Tyson et al. (1982) obtained M_V_~ -22.5 for the host, which is in good agreement with our best two-dimensional model magnitude of M_V_ = -22.1. The host is somewhatbrighter than the brightest galaxy in a rich cluster. Stockton (1980)measured redshifts for galaxies in the 3C 273 field and found that fourof them have redshifts similar to the quasar, in agreement with thesuggestion of Bahcall & Bahcall (1970). One of those galaxies wasdetected (a spiral galaxy) in WF4: it lies at 75" east of the quasar(~33 kpc), and its redshift is z = 0.1577. Wyckoff et al. (1981) obtainedR = 16.3 for the host, which is equivalent to M_V_ ~ -21.3 mag. The innerpart of the jet is barely visible in the PSF-subtracted image in Figure2. HST and Merlin observations of the 3C 273 jet are reported in Bahcallet al. (1995d).]]></TD>
+</TR>
+<TR>
+<TD>31</TD>
+<TD>1997A&amp;AS..121..119V</TD>
+<TD>3C 273</TD>
+<TD><![CDATA[3.9.  3C 273(1226+023)This is a very bright and consequently very famous quasar. Among its mainfeatures one can quote the optical jet and the existence of a UV excess (bluebump) in the spectrum, whose luminosity is comparable with or even greater thanthe {gamma} one. The source does not show a high optical activity: variationsless than 1 mag were reported after several years of observations. An opticalflare was detected at the beginning of 1983 (Sadun 1985; Sillanpaa et al.1988), the visual magnitude reaching 12.17. The first detection of 3C 273 at{gamma} energies was obtained by the COS B satellite in July 1976 and then inJune 1978. Subsequently, it was observed by the instruments OSSE (50keV-10MeV),COMPTEL (1-30MeV), and EGRET (30 MeV-20 GeV) on board CGRO. This allowed toreconstruct the spectrum of the quasar in the {gamma} band (Johnson et al.1995).The results of our monitoring campaign for 3C 273 are presented in Tables 21-23and in Figs. 18 and 19. For the magnitude calibration we have adopted the fieldcomparison stars chosen by Smith et al. (1985). Our photometric calibration inthe R and B bands (see Table 4) gave results in good agreement with thosedetermined by the above authors. The box in Fig. 19 shows the period of EGRETpointing. We have not observed significant variations in the source brightnessduring all the considered period.]]></TD>
+</TR>
+<TR>
+<TD>32</TD>
+<TD>1996ApJS..104...37M</TD>
+<TD>3C 273</TD>
+<TD><![CDATA[3C 273.--Strong Fe II_UV_ and He II {lambda}1640 as well. C IV {lambda}1549shows a prominent red wing. 3C 273 is a well-known core-dominated,superluminal source with {beta}_app_ ~8.0+/-1.0 (Vermeulen & Cohen 1994).]]></TD>
+</TR>
+<TR>
+<TD>33</TD>
+<TD>1995ApJS..100...37G</TD>
+<TD>3C 273</TD>
+<TD><![CDATA[  3C 273 is a superluminal source (Zensus 1989), and it has beenclassified as an RBL object (Giommi et al. 1990; Hewitt & Burbidge 1993).This blazar was observed with EXOSAT on six occasions between 1984 and1986. Both EXOSAT and Ginga observations of this source have beendescribed by Turner et al. (1990 and references therein). We used thepower-law plus absorption model to fit the EXOSAT spectra of 3C 273, butthe derived values of N_H_ are smaller than the Galactic value. Next wefitted the spectra using the power-law plus fixed absorption model, andthe results are listed in Table 3. It can be seen from this table thatthe reduced x^2^ values are very large, which suggests that the fits tothe spectra are not acceptable. Then we tried to fit the spectra usingall the models mentioned in Section 4.1. From the F-test analysis (usingTables 3, 4D, and 4E), we find that the power-law plus blackbody andthermal bremsstrahlung plus fixed absorption models fit the spectra best,and also these two models are highly significant (>99.99%) over thepower-law model. Simultaneous multifrequency observations of this sourcewere carried out at different epochs (Lindau et al. 1986; Courvoisier etal. 1990 and references therein), and the results of such observationswere used to construct the multifrequency spectrum of this RBL (Fig. 3i),which can be represented by two parabolic curves.]]></TD>
+</TR>
+<TR>
+<TD>34</TD>
+<TD>1995ApJ...447..121W</TD>
+<TD>3C 273</TD>
+<TD><![CDATA[3C 273.-We confirm the spectral complexity previously seen in the HEAO 1data (Worrall et al. 1979). To model the data with reprocessing werequire the Compton hump to turn over at ~20 keV. However, the upperlimit to the Fe K line EW (20 eV) is too small for the amount ofreflection observed, assuming the line and the Compton hump have acoincident origin. An Fe K line was detected by Ginga (Turner et al.1989).]]></TD>
+</TR>
+<TR>
+<TD>35</TD>
+<TD>1994AJ....108.1163K</TD>
+<TD>3C 273</TD>
+<TD><![CDATA[1226+02: (3C 273) Source structure taken from Conway et al. (1993).]]></TD>
+</TR>
+<TR>
+<TD>36</TD>
+<TD>1994AJ....107.1219E</TD>
+<TD>3C 273</TD>
+<TD><![CDATA[   3C 273. The absorption spectrum of this quasar (z = 0.158) and thegalaxies near the line of sight have been studied extensively by Morriset al. (1993). Here we note only that this quasar is not located in aparticularly rich environment (B_gq_ = 28 +/- 27) and also shows noassociated metal-line absorption.]]></TD>
+</TR>
+<TR>
+<TD>37</TD>
+<TD>1994A&amp;A...289..673T</TD>
+<TD>3C 273</TD>
+<TD><![CDATA[1226+023 (3C273)3C 273 is a remarkably well-monitored source at our radio frequencies butthe optical data set especially from the last few years is unfortunatelyundersampled. This is one of the three sources of which we have alsosufficient 230 GHz data for correlation analysis. Earlier analyses ofoptical and radio connections in this source (L. Valtaoja et al. 1990;Robson et al. 1993) have shown a clear correlation between the opticaland radio events at least during some flares, and our flux curves showthat the rise in the optical flux in ca. 1988.2 was soon followed by aflare at all radio frequencies with a timelag which increased towards thelower frequencies (0-50 days at 230 GHz, 50-100 at 90 GHz, ca. 200 at 37GHz). There is a very clear correlation between all the events at allfour radio frequencies, with time delays ranging from 50 to 100 days (230GHz to 22 GHz) to 0-50 days (230 GHz to 90 GHz, 37 to 22 GHz).]]></TD>
+</TR>
+<TR>
+<TD>38</TD>
+<TD>1993MNRAS.263..999T</TD>
+<TD>PKS 1226+02</TD>
+<TD><![CDATA[1226+02 (3C 273). Quasar spectrum, extensively studied: strong, broadBalmer and Fe II lines, blue continuum, [O III] {lambda}5007 of smallequivalent width. [O III] {lambda}5007 may be contaminated by Fe IIemission.]]></TD>
+</TR>
+</TABLEDATA>
+</DATA>
+</TABLE>
+</RESOURCE>
+</VOTABLE>
+

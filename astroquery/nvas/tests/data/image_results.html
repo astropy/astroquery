@@ -1,0 +1,309 @@
+<!DOCTYPE html
+	PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-US" xml:lang="en-US">
+<head>
+<title>VLA Archive Image Search</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+</head>
+<body>
+<!-- start of nrao-header.html -->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+    <link REL="icon" HREF="/common/favicon.ico">
+    <link rel="stylesheet" href="/common/nraostyle.css" media="screen">
+    <!-- end of nrao-header.html -->
+
+
+<title>VLA Archive Imaging Pilot</title>
+
+  <!-- Start of nrao-nav1.html -->
+  </head>
+  <body>
+    <div id="main">
+      <div id="topbar">
+	<div id="logo">
+	  <a href="http://www.nrao.edu/">
+	    <img align="left" src="/icons/nrao_logo_pms_51.png" alt="NRAO"
+		 border="0" width="39" height="51">
+	  </a>
+	  National Radio<br>Astronomy Observatory
+	</div>
+	<div id="search">
+	  <form name="gs" method="get" action="http://search.nrao.edu/search" style="display: inline;">
+	    <input type="text" name="q" size="15" maxlength="255"  />
+	    <input type="submit" name="btn" value="Search NRAO" />
+	  </form>
+	</div>
+	<div id="subnavArea">
+	  <!-- End of nrao-nav1.html -->
+
+
+&nbsp;<a class="navig" href="http://www.nrao.edu/">NRAO Home</a>&nbsp;&gt;
+<a class="navig" href="http://www.aoc.nrao.edu/~vlbacald/avla.shtml">Archive&nbsp;Pilot&nbsp;page</a>&nbsp;&gt;&nbsp;Search&nbsp;Results&nbsp;for:&nbsp;19h 23m 40.03s +14 31' 04.2",&nbsp;radius&nbsp;=&nbsp;0.25&nbsp;arcmin,&nbsp;scaled&nbsp;with&nbsp;respect&nbsp;to&nbsp;25.5&nbsp;GHz
+
+          <!-- Start of nrao-nav2menu1.html -->
+        </div>
+      </div>
+    </div>
+    <hr style="height:1px;">
+    <table width="100%" cellpadding=5 cellspacing=0 border=0 height="100%">
+      <tr>
+        <td rowspan=3 height="100%" bgcolor="#375774" width="210"
+            valign="top" align="left"> 
+          <font color="#ffffff">
+	    <b>
+              <!-- End of nrao-nav2menu1.html -->
+
+
+<p><font size="+1" color="#f0f000">Home Links</font></p>
+<p><a class="leftmenu" href="http://www.nrao.edu/"><font color="#ff9900">NRAO</font>, the National Radio Astronomy Observatory</a></p>
+<p><a class="leftmenu" href="http://archive.nrao.edu/">NRAO Data <font color="#ff9900">Archive</font> System</a></p>
+<p><a class="leftmenu" href="http://www.vla.nrao.edu/">NRAO Very Large Array <font color="#ff9900">(VLA)</font></a></p>
+<p><a class="leftmenu" href="http://www.aoc.nrao.edu/aips/">NRAO Astronomical Image Processing System <font color="#ff9900">(AIPS)</font></a></p>
+<p><a class="leftmenu" href="http://www.aoc.nrao.edu/~vlbacald/">Main page <font color="#ff6600">(NVAS Home)</font></a></p>
+<p><a class="leftmenu" href="http://www.vla.nrao.edu/astro/prop/largeprop/">NRAO <font color="#ff9900">Large</font> proposal links</a></p>
+
+<p><hr></p>
+<p><font size="+1" color="#f0f000">Cone Search</font></font>&nbsp;&nbsp;<font size=-3 color="#ffffff">(uses cookies)</font></p>
+<table border="0" cellspacing=3% cellpadding="0">
+<p><tr><td>&nbsp;<font color="#ffffff">Name&nbsp;look&nbsp;up&nbsp;:&nbsp;<br><font size=-4>&nbsp;(paste&nbsp;J2000&nbsp;below)</font></font></td>
+<td><form target="lookup" action="http://nedwww.ipac.caltech.edu/cgi-bin/nph-objsearch" method="POST"><input type="text" name="objname" size="3" value="NED"><input type="hidden" name="extend" value="no"><input type="hidden" name="out_equinox" value="J2000.0"><input type="hidden" name="of" value="pre_text"></form></td>
+<td><form target="lookup" action="http://simbad.u-strasbg.fr/simbad/sim-id" method="POST"><input type="text" name="Ident" size="6" value="SIMBAD"></form></td>
+</tr></table>
+
+<!form action="http://www.aoc.nrao.edu/cgi-bin/archive-pos.pl" method="POST">
+<form action="https://webtest.aoc.nrao.edu/cgi-bin/lsjouwer/archive-pos.pl" method="POST">
+<table border="0" cellspacing=3% cellpadding="0">
+<tr><td>&nbsp;<font color="#ffffff">Position&nbsp;J</font></td>
+    <td><input type="text" name="nvas_pos" size="18" value="19 23 40.03  +14 31 04.2 "></td></tr>
+<tr><td>&nbsp;<font color="#ffffff">Radius  </font>&nbsp;</td>
+    <td><input type="text" name="nvas_rad" size="5" value="0.25">
+              <font color="#ffffff">&nbsp;&nbsp;arcminutes</font></td></tr>
+<tr><td>&nbsp;<font color="#ffffff">RMS &nbsp;&nbsp;&nbsp;&le;</font>&nbsp;</td>
+    <td><input type="text" name="nvas_rms" size="5" value="10000">
+              <font color="#ffffff">&nbsp;&nbsp;microJy</font></td></tr>
+<tr><td colspan=2>&nbsp;<input type="radio" name="nvas_scl" value="yes" checked>&nbsp;<font color="#ffffff">Scale (?5&nbsp;GHz)/frequency 
+<br>&nbsp;<input type="radio" name="nvas_scl" value="no">&nbsp;<b>Do not</b> scale search radius</font></td></tr>
+<tr><td><input type="submit" name="submit" fgcolor="#f0f000" value="Search"></td>
+    <td><select name="nvas_bnd">
+           <option value="K"> 20.4-25.5 GHz (K)
+           <option value=""> All available bands
+           <option value="L"> 1.15-1.75 GHz (L)
+           <option value="C"> 4.20-5.10 GHz (C)
+           <option value="X"> 6.80-9.60 GHz (X)
+           <option value="U"> 13.5-16.3 GHz (U)
+           <option value="K"> 20.4-25.5 GHz (K)
+           <option value="Q"> 38.0-51.0 GHz (Q)
+        </select></td></tr>
+</table></form>
+</p>
+
+<p><hr></p>
+<p><font size="+1" color="#f0f000">Separate VLA images:</font><br><font color="#fffff"></p>
+<p>
+<li><a class="leftmenu" href="http://www.cv.nrao.edu/nvss/"><font color="#ff9900">NVSS</font> (AllSky 1.4 GHz/45")</a>
+<li><a class="leftmenu" href="http://sundog.stsci.edu/top.html"><font color="#ff9900">FIRST</font> (SDSS 1.4 GHz/5")</a>
+<li><a class="leftmenu" href="http://www.cv.nrao.edu/sirtf_fls"><font color="#ff9900">Spitzer FLS</font> (1.4 GHz/5")</a>
+<li><a class="leftmenu" href="http://lwa.nrl.navy.mil/VLSS/"><font color="#ff9900">VLSS</font> (AllSky 75 MHz/80")</a>
+<li><a class="leftmenu" href="http://images.nrao.edu/"><font color="#ffffff">NRAO Image 
+    <font color="#ff9900">Gallery</font></font></a>
+</font>
+</p>
+
+<p><hr></p>
+<p><font size="+1" color="#f0f000">Browse:</font>
+<font color="#f0f000">
+<ul>
+<li><a class="leftmenu" target="notes" href="http://www.aoc.nrao.edu/~vlbacald/read.shtml"><font color="#ff9900">README 
+    !</font></a>&nbsp;&nbsp;<font size=-3 color="#ffffff">(pop-up window)</font>
+<li><a class="leftmenu" href="http://www.aoc.nrao.edu/~vlbacald/read.shtml"><font color="#ff9900">README 
+    !</font></a>&nbsp;&nbsp;<font size=-3 color="#ffffff">(in the browser)</font>
+<li><a class="leftmenu" href="http://www.aoc.nrao.edu/~vlbacald/ArchIndex.shtml">VLA archive images</a>
+<li><a class="leftmenu" href="http://www.aoc.nrao.edu/~vlbacald/ArchDates.shtml">Dates processed</a>
+<li><a class="leftmenu" href="http://www.aoc.nrao.edu/~vlbacald/ArchExpts.shtml">Projects processed</a>
+<li><a class="leftmenu" href="http://www.aoc.nrao.edu/~vlbacald/src.shtml">AIPS pipeline code</a>
+</ul>
+</font>
+</p>
+
+<p><hr></p>
+
+<em><font size=-3 color="#ffffff">Fri Aug  2 12:43:55 UTC 2013&nbsp;[an error occurred while processing this directive]</font></em>
+
+              <!-- Start of nrao-menu2.html -->
+            </b>
+          </font>
+        </td>
+        <td id="contentArea" valign="top" id="contentArea">
+	  <!-- End of nrao-menu2.html -->
+
+
+These images were generated on a <b>best effort</b> basis using the 
+<a href="http://www.aoc.nrao.edu/~vlbacald">VLA pipeline in AIPS</a>.
+Please realize that errors can be made in such an automated
+process. If you encounter a problem with any of these images or have a
+question regarding the process or their use in your research, please
+<a href="http://www.nrao.edu/cgi-bin/contact?key=lorant%2bsjouwerman">let
+us know</a> and we will do our best to improve this service for you
+and everyone else using your input. Note that these images also
+include non-detections, so some of them really are empty..
+<br>Thank you in advance!
+
+<h2>The columns below describe the following:</h2>
+<ul>
+
+<li><u>Basic Info</u> lists the truncated J2000 position of the field
+center, the offset to the search position (if this is a position
+search) in arcminutes, date of observation, observing frequency in GHz
+and the date of pipeline processing.
+
+<li><u>UV Info</u> lists the observed polarizations, shortest and
+longest VLA-arms (D=1km, C=3km, B=11km, A=36km, P=Pie Town link=75km),
+number of antennas used in the observation (though some may have been
+flagged as bad), the subarray setting of the array (1-5), a link to
+the calibrated single source uv FITS file and it's size (in red)<!,
+and a link to the calibration tables (FITS) associated to the raw VLA
+data and it's size (in red)>.
+
+<li><u>JPEG</u> shows a thumbnail of the pipeline image. Clicking it
+will show you a larger version in the browser. Both JPEG images have a
+square transfer function to emphasize the lower levels a bit more;
+<em><b><font color="#ff0000">do not use the JPEGs for scientific purposes
+(see next)</font></b></em>. As a guideline, the lighter a thumbnail, the
+less difference between the peak flux density and the rms noise level,
+i.e., don't expect to see too much in in light gray images, especially
+if the rms noise given in the next column is in the order of microJy
+or less. On the other hand, dark images have a strong source in there
+somewhere.. (try looking in the center of the image).
+
+<li><u>Image Info</u> lists the image polarization, approximate beam
+size of the restoring beam (mean of major and minor axes) in
+arcseconds, the radius of the field of view of the image in units of
+angle, the approximate noise level in prefixed units of Jansky, and a
+link to the image FITS file and it's size (in red).  <br>
+<b><font color="#0000ff">Download these FITS files for scientific purposes</font></b>!
+
+
+<li><u>Links</u> is a collection of links that will show you the GIF
+uv-coverage and visibility plot for this data set in pop-up
+windows. See the 
+<a target="notes" href="http://www.aoc.nrao.edu/~vlbacald/read.shtml#plots">README</a>
+file on how to interpret these plots. They'll also get you to the
+project pipelining scripts and information log files as well as the
+full multi-source archive data on this project.
+
+</ul>
+
+<p>The list should be sorted, with decreasing weight, according to
+increasing R.A., increasing frequency and increasing image noise.
+If still equal, sorting probably favors smaller field of views over
+smaller beam sizes in the list ordering.
+</p><hr>
+<font color="#ff0000"><b><i>NOTE:</i></b></font>
+When downloading data after a search with a large radius, you may encounter that
+filenames to be downloaded may be the same (as they are named according to frequency,
+array, project and date - NOT position!). See the <a target="notes"
+href="http://www.aoc.nrao.edu/~vlbacald/read.shtml#positions">naming
+convention</a> and choose different download names or destinations.
+<br><br><center>
+<table bgcolor="#ddffee" width="90%" border="1" cellspacing="0" cellpadding="">
+<tr> <th bgcolor="#ddffaa"> Basic Info </th><th bgcolor="#ddffaa"> UV Info </th><th bgcolor="#ddffaa"> JPEG </th><th bgcolor="#ddffaa"> Image Info </th><th bgcolor="#ddffaa"> Links </th> </tr>
+<tr> <td>19h23m41.8s&nbsp;&nbsp;&nbsp;14d30'36" <br> <center>(J2000&nbsp;image&nbsp;center)</center> Sky&nbsp;offset&nbsp;=&nbsp;&nbsp;0.64&nbsp;arcmin&nbsp;
+     <br>1990 MAR 16<br>22.4&nbsp;GHz&nbsp;(K-band)
+
+     <br>Version:&nbsp;2009&nbsp;Feb&nbsp;24
+</td><td>Full&nbsp;polarization<br>A/A&nbsp;configuration<br>27&nbsp;antennas<br>subarray&nbsp;1
+     <br><a href="http://www.vla.nrao.edu/astro/archive/pipeline/position/J192341.8+143036/22.4F27AA_TEST_1990MAR16_1.uvfits">Calibrated&nbsp;uv-FITS</a><br>
+          <font color="#ff3300">2.3MBytes</font>
+</td><td align="center"><a href="http://www.vla.nrao.edu/astro/archive/pipeline/position/J192341.8+143036/22.4I0.08_TEST_1990MAR16_1_269.U44.5S.jpg">
+          <img src="http://www.vla.nrao.edu/astro/archive/pipeline/position/J192341.8+143036/22.4I0.08_TEST_1990MAR16_1_269.U44.5S.JPG" ismap></a>
+</td><td>Stokes&nbsp;I<br>Beam&nbsp;=&nbsp;0.08&nbsp;arcsec<br>fov:&nbsp;R&nbsp;=&nbsp;44.5&nbsp;arcsec<br>rms&nbsp;=&nbsp;269.&nbsp;microJy<br>
+          <a href="http://www.vla.nrao.edu/astro/archive/pipeline/position/J192341.8+143036/22.4I0.08_TEST_1990MAR16_1_269.U44.5S.imfits">Download&nbsp;FITS&nbsp;image</a> <br>
+          <font color="#ff3300">87MBytes</font>
+</td><td> <a href="http://www.vla.nrao.edu/astro/archive/pipeline/project/TEST/TEST_1990MAR16_1.data.log">General&nbsp;data&nbsp;log</a>
+     <br>(no&nbsp;u-v&nbsp;plot&nbsp;found)
+     <br>(no&nbsp;Re-Im&nbsp;plot&nbsp;found)
+     <br>(no&nbsp;vis&nbsp;plot&nbsp;found)
+     <br><a href="http://www.vla.nrao.edu/astro/archive/pipeline/project/TEST/index.shtml">AIPS&nbsp;pipeline&nbsp;runs</a>
+     <br><a href="http://www.vla.nrao.edu/astro/archive/pipeline/project/TEST/TEST_1990MAR16_1_22.4F27AA.uvfits">Original&nbsp;u-v&nbsp;data</a>
+</td></tr>
+<tr> <th bgcolor="#ddffaa"> Basic Info </th><th bgcolor="#ddffaa"> UV Info </th><th bgcolor="#ddffaa"> JPEG </th><th bgcolor="#ddffaa"> Image Info </th><th bgcolor="#ddffaa"> Links </th> </tr>
+<tr> <td>19h23m41.8s&nbsp;&nbsp;&nbsp;14d30'36" <br> <center>(J2000&nbsp;image&nbsp;center)</center> Sky&nbsp;offset&nbsp;=&nbsp;&nbsp;0.64&nbsp;arcmin&nbsp;
+     <br>1990 JAN 27<br>22.4&nbsp;GHz&nbsp;(K-band)
+
+     <br>Version:&nbsp;2009&nbsp;Feb&nbsp;17
+</td><td>Full&nbsp;polarization<br>D/D&nbsp;configuration<br>27&nbsp;antennas<br>subarray&nbsp;1
+     <br><a href="http://www.vla.nrao.edu/astro/archive/pipeline/position/J192341.8+143036/22.4F27DD_AM0284_1990JAN27_1.uvfits">Calibrated&nbsp;uv-FITS</a><br>
+          <font color="#ff3300">616KBytes</font>
+</td><td align="center"><a href="http://www.vla.nrao.edu/astro/archive/pipeline/position/J192341.8+143036/22.4I5.67_AM0284_1990JAN27_1_8.44M55.6S.jpg">
+          <img src="http://www.vla.nrao.edu/astro/archive/pipeline/position/J192341.8+143036/22.4I5.67_AM0284_1990JAN27_1_8.44M55.6S.JPG" ismap></a>
+</td><td>Stokes&nbsp;I<br>Beam&nbsp;=&nbsp;5.67&nbsp;arcsec<br>fov:&nbsp;R&nbsp;=&nbsp;55.6&nbsp;arcsec<br>rms&nbsp;=&nbsp;8.44&nbsp;milliJy<br>
+          <a href="http://www.vla.nrao.edu/astro/archive/pipeline/position/J192341.8+143036/22.4I5.67_AM0284_1990JAN27_1_8.44M55.6S.imfits">Download&nbsp;FITS&nbsp;image</a> <br>
+          <font color="#ff3300">72KBytes</font>
+</td><td> <a href="http://www.vla.nrao.edu/astro/archive/pipeline/project/AM0284/AM0284_1990JAN27_1.data.log">General&nbsp;data&nbsp;log</a>
+     <br>(no&nbsp;u-v&nbsp;plot&nbsp;found)
+     <br>(no&nbsp;Re-Im&nbsp;plot&nbsp;found)
+     <br>(no&nbsp;vis&nbsp;plot&nbsp;found)
+     <br><a href="http://www.vla.nrao.edu/astro/archive/pipeline/project/AM0284/index.shtml">AIPS&nbsp;pipeline&nbsp;runs</a>
+     <br><a href="http://www.vla.nrao.edu/astro/archive/pipeline/project/AM0284/AM0284_1990JAN27_1_22.4F27DD.uvfits">Original&nbsp;u-v&nbsp;data</a>
+</td></tr>
+<tr> <th bgcolor="#ddffaa"> Basic Info </th><th bgcolor="#ddffaa"> UV Info </th><th bgcolor="#ddffaa"> JPEG </th><th bgcolor="#ddffaa"> Image Info </th><th bgcolor="#ddffaa"> Links </th> </tr>
+</table>
+</center>
+<!-- Start of nrao-trailer.html -->
+<div id="footerUtilities">
+  <a href="https://staff.nrao.edu/">Staff</a> |
+  <a href="http://www.nrao.edu/cgi-bin/contact">Contact Us</a> |
+<!--
+  <a href="https://careers.nrao.edu/">Careers</a> |
+-->
+  <a href="http://www.nrao.edu/admin/hr/careers.shtml">Careers</a> |
+
+  <a href="http://www.nrao.edu/navbar/directories.shtml">Directories</a> |
+  <a href="http://www.nrao.edu/navbar/sitemap.shtml">Site Map</a> |
+  <a href="http://www.nrao.edu/index.php/Help">Help</a> |
+  <a href="http://www.nrao.edu/policy/">Policies</a> |
+  <a href="http://www.nrao.edu/policy/diversity.shtml">Diversity</a> |
+  <a href="http://search.nrao.edu/">Search</a>
+</div>
+<div id="footer">
+ <a href="http://www.nrao.edu">
+  <img src="/common/logoNRAO.jpg" alt="NRAO"
+   width="41" height="41" vspace="5" border="0" align="middle"
+   style="float:left;" />
+ </a>
+ <a href="http://www.nsf.gov/">
+  <img src="/common/logoNSF.jpg" alt="NSF"
+   width="57" height="57" hspace="10" border="0" align="middle"
+   style="float:left;" />
+ </a> 
+ <a href="http://www.aui.edu/">
+  <img src="/common/logoAUI.gif" alt="AUI"
+   width="74" height="49" vspace="1" border="0" align="middle"
+   style="float:left; margin-right:20px;" />
+ </a> 
+ <p style="padding-top:10px;">
+  Copyright &#169; 2009 Associated Universities, Inc.<br>
+  The National Radio Astronomy Observatory is a facility of the National
+  Science Foundation operated under cooperative agreement by Associated
+  Universities, Inc.
+ </p>  
+</div>
+<!-- End of nrao-trailer.html -->
+
+
+<em>Results returned on Fri Aug  2 12:43:55 UTC 2013</em>
+<!-- Start of nrao-end.html -->
+
+
+		</td>
+	</tr>
+</table>
+
+</body>
+</html>
+
+<!-- End of nrao-end.html -->
