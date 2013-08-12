@@ -10,7 +10,7 @@ def test_sdss_spectrum():
     
 def test_sdss_image():
     xid = sdss.core.SDSS.query_region(coords)
-    img = sdss.core.SDSS.get_image(xid)
+    img = sdss.core.SDSS.get_images(xid)
     
 def test_sdss_template():
     template = sdss.core.SDSS.get_spectral_template('qso')
