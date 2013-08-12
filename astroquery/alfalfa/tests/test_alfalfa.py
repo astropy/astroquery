@@ -10,7 +10,7 @@ def test_alfalfa_catalog():
 def test_alfalfa_crossID():
     agc = alfalfa.core.ALFALFA.query_region(coords, optical_counterpart=True)
     global AGC
-    AGC = agc    
+    AGC = agc
 
 def test_alfalfa_spectrum():
     sp = alfalfa.core.ALFALFA.get_spectra(AGC)
