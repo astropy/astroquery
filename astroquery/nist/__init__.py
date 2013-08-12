@@ -10,4 +10,4 @@ NIST_TIMEOUT = ConfigurationItem('timeout', 30, 'time limit for connecting to NI
 
 from .core import Nist
 
-__all__ = 'Nist'
+__all__ = ['Nist']

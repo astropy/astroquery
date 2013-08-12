@@ -58,4 +58,4 @@ SORT_OUTPUT_BY = ConfigurationItem('sort_output_by',
 
 from .core import Ned
 
-__all__ = 'Ned'
+__all__ = ['Ned']
