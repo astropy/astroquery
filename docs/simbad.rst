@@ -1,8 +1,8 @@
 .. _astroquery.simbad:
 
-*****************************************
+************************************
 SIMBAD Queries (`astroquery.simbad`)
-*****************************************
+************************************
 
 Getting started
 ===============
@@ -21,7 +21,7 @@ the messier object m1:
 
     >>> from astroquery.simbad import Simbad
     >>> result_table = Simbad.query_object("m1")
-    >>> print result_table
+    >>> print(result_table)
 
     MAIN_ID      RA         DEC     RA_PREC DEC_PREC COO_ERR_MAJA COO_ERR_MINA COO_ERR_ANGLE COO_QUAL COO_WAVELENGTH     COO_BIBCODE    
     ------- ----------- ----------- ------- -------- ------------ ------------ ------------- -------- -------------- -------------------
@@ -33,7 +33,8 @@ through 9:
 .. code-block:: python
 
     >>> from astroquery.simbad import Simbad
-    >>> Simbad.query_object("m [1-9]", wildcard=True)
+    >>> result_table = Simbad.query_object("m [1-9]", wildcard=True)
+    >>> print(result_table)
 
     MAIN_ID      RA         DEC     RA_PREC DEC_PREC COO_ERR_MAJA COO_ERR_MINA COO_ERR_ANGLE COO_QUAL COO_WAVELENGTH     COO_BIBCODE    
     ------- ----------- ----------- ------- -------- ------------ ------------ ------------- -------- -------------- -------------------
@@ -77,11 +78,12 @@ available in `astropy`.
 
     >>> from astroquery.simbad import Simbad
     >>> result_table = Simbad.query_region("m81")
-    >>> print result_table
+    >>> print(result_table)
 
                 MAIN_ID                 RA           DEC      RA_PREC DEC_PREC ... COO_ERR_ANGLE COO_QUAL COO_WAVELENGTH     COO_BIBCODE    
     -------------------------- ------------- ------------- ------- -------- ... ------------- -------- -------------- -------------------
     [VV2006c] J095534.0+043546 09 55 33.9854 +04 35 46.438       8        8 ...             0        B              O 2009A&A...505..385A
+    ...
 
 When no radius is specified, the radius defaults to 20 arcmin. A radius may
 also be explicitly specified - it can be entered either as a string that is
@@ -144,7 +146,7 @@ For other coordinate systems, use the appropriate `astropy.coordinates`_ object:
     >>> import astropy.units as u
     >>> result_table = Simbad.query_region(coord.GalacticCoordinates(l=31.0087, b=14.0627,
     ...                                    unit=(u.deg, u.deg)), radius='0d0m2s')
-    >>> print result_table
+    >>> print(result_table)
 
                 MAIN_ID             RA      ... COO_WAVELENGTH     COO_BIBCODE    
     ------------------- ------------- ... -------------- -------------------
@@ -167,7 +169,7 @@ to 2000.0. So here is a query with all the options utilized:
     ...                                    radius=5 * u.degree,
     ...                                    epoch='B1950',
     ...                                    equinox=1950)
-    >>> print result_table
+    >>> print(result_table)
 
     MAIN_ID               RA      ... COO_WAVELENGTH     COO_BIBCODE    
     ----------------------- ------------- ... -------------- -------------------
@@ -189,7 +191,7 @@ instance to query the ESO catalog:
 
     >>> from astroquery.simbad import Simbad
     >>> result_table = Simbad.query_catalog('eso')
-    >>> print result_table
+    >>> print(result_table)
 
     MAIN_ID              RA      ... COO_WAVELENGTH     COO_BIBCODE    
     ----------------------- ------------ ... -------------- -------------------
@@ -210,7 +212,7 @@ This retrieves the reference corresponding to a bibcode.
 
     >>> from astroquery.simbad import Simbad
     >>> result_table = Simbad.query_bibcode('2005A&A.430.165F')
-    >>> print result_table
+    >>> print(result_table)
 
     References                                                                                                                                                             
     ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -228,7 +230,7 @@ from a given journal in a given year:
 
     >>> from astroquery.simbad import Simbad
     >>> result_table = Simbad.query_bibcode('2013A&A*', wildcard=True)
-    >>> print result_table
+    >>> print(result_table)
 
     References                                                                                                                                        
     -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -279,7 +281,7 @@ article specified by the bibcode:
 
     >>> from astroquery.simbad import Simbad
     >>> result_table = Simbad.query_bibobj('2005A&A.430.165F')
-    >>> print result_table
+    >>> print(result_table)
 
     MAIN_ID       RA          DEC      RA_PREC DEC_PREC COO_ERR_MAJA COO_ERR_MINA COO_ERR_ANGLE COO_QUAL COO_WAVELENGTH     COO_BIBCODE    
     --------- ------------ ------------ ------- -------- ------------ ------------ ------------- -------- -------------- -------------------
@@ -307,7 +309,7 @@ python session then:
 .. code-block:: python
 
     >>> from astroquery.simbad import Simbad
-    >>> Simbad.ROW_LIMIT = 15 # now any query fetches atmost 15 rows
+    >>> Simbad.ROW_LIMIT = 15 # now any query fetches at most 15 rows
 
 If you would like to make your choice persistent, then you can do this by
 modifying the setting in the `astroquery` configuration file.
