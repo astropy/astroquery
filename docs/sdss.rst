@@ -17,8 +17,8 @@ photometry:
 
     >>> from astroquery.sdss import SDSS
     >>> from astropy import coordinates as coords
-    >>> agn = coords.ICRSCoordinates('0h8m05.63s +14d50m23.3s')
-    >>> xid = SDSS.query_region(agn, spectro=True)
+    >>> pos = coords.ICRSCoordinates('0h8m05.63s +14d50m23.3s')
+    >>> xid = SDSS.query_region(pos, spectro=True)
     >>> print xid
         ra         dec           objid        run  rerun camcol field    z    plate  mjd  fiberID     specobjid      specClass
     ---------- ----------- ------------------ ---- ----- ------ ----- ------- ----- ----- ------- ------------------ ---------
