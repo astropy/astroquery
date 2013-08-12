@@ -1,8 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-
 """
-This submodule contains some common functions and classes that are required
-by all query classes
+Common functions and classes that are required by all query classes.
 """
 import requests
 import warnings

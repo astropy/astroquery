@@ -4,7 +4,6 @@ import os
 import io
 import struct
 import requests
-import numpy as np
 from astropy.table import Table
 import astropy.io.fits as fits
 

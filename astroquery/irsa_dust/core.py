@@ -8,7 +8,6 @@ from . import utils
 from . import IRSA_DUST_SERVER, IRSA_DUST_TIMEOUT
 from ..utils.class_or_instance import class_or_instance
 from ..utils import commons
-from ..exceptions import TimeoutError, InvalidQueryError
 from ..query import BaseQuery
 
 

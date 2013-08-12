@@ -1,7 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-
 """
-This module contains the Simbad query class for accessing the Simbad Service
+Simbad query class for accessing the Simbad Service
 """
 from  __future__  import print_function
 import re

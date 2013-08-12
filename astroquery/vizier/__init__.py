@@ -6,6 +6,7 @@ VizieR Query Tool
 :Author: Julien Woillez (jwoillez@gmail.com)
 
 This package is for querying the VizieR service, primarily hosted at: http://vizier.u-strasbg.fr
+
 Note: If the access to catalogues with VizieR was helpful for your research work, the following
 acknowledgment would be appreciated::
 

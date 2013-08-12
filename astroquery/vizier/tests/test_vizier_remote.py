@@ -5,6 +5,7 @@ import astropy.units as u
 import astropy.coordinates as coord
 from ... import vizier
 from ...utils import commons
+
 @remote_data
 class TestVizierRemote:
 
