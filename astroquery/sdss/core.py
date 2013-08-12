@@ -17,11 +17,15 @@ import astropy.wcs as wcs
 import math, copy
 from astropy.io import fits
 from astropy import coordinates as coord
+from astropy import units as u
+from astropy.table import Table
 import requests
 import io
+from ..query import BaseQuery
+from . import SDSS_SERVER, SDSS_TIMEOUT
+from ..utils.class_or_instance import class_or_instance
 
-__all__ = ['crossID','get_image','get_spectral_template','get_spectrum',
-    'spec_templates']
+__all__ = ['SDSS']
 
 # Default photometric and spectroscopic quantities to retrieve.
 photoobj_defs = ['ra', 'dec', 'objid', 'run', 'rerun', 'camcol', 'field']
@@ -39,230 +43,236 @@ spec_templates = \
      'qso_bright': 32
      }
 
-# Some website prefixes we need
-spectro1d_prefix = 'http://das.sdss.org/spectro/1d_26'
-images_prefix = 'http://das.sdss.org/www/cgi-bin/drC'
-template_prefix = 'http://www.sdss.org/dr5/algorithms/spectemplates/spDR2'
-
 sdss_arcsec_per_pixel = 0.396
 
-def crossID(ra, dec, unit=None, dr=2., fields=None, spectro=False):
-    """
-    Perform object cross-ID in SDSS using SQL.
-
-    Search for objects near position (ra, dec) within some radius.
+class SDSS(BaseQuery):
+            
+    BASE_URL = SDSS_SERVER()
+    SPECTRO_1D = BASE_URL + '/spectro/1d_26'
+    IMAGING = BASE_URL + '/www/cgi-bin/drC'
+    TEMPLATES = BASE_URL + '/dr5/algorithms/spectemplates/spDR2'
+    TIMEOUT = SDSS_TIMEOUT
     
-    Parameters
-    ----------
-    ra : float, int, str, tuple
-        An object that represents a right ascension angle.
-    dec : float, int, str, tuple
-        An object that represents a declination angle.
-    unit : astropy.units.UnitBase, str
-        The unit of the value specified for the angle.
-    dr : int, float
-        Radius of region to perform object cross-ID (arcseconds).
-    fields : list, optional
-        SDSS PhotoObj or SpecObj quantities to return. If None, defaults
-        to quantities required to find corresponding spectra and images
-        of matched objects (e.g. plate, fiberID, mjd, etc.).
-    spectro : bool, optional
-        Look for spectroscopic match in addition to photometric match? If True,
-        objects will only count as a match if photometry *and* spectroscopy
-        exist. If False, will look for photometric matches only.
-
-    See documentation for astropy.coordinates.angles for more information 
-    about ('ra', 'dec', 'unit') parameters.
-    
-    Examples
-    --------
-    >>> xid = sdss.crossID(ra='0h8m05.63s', dec='14d50m23.3s')
-    >>> for match in xid:
-    >>>     print match['ra'], match['dec'], match['objid']
-
-    Returns
-    -------
-    List of all objects found within search radius. Each element of list is 
-    a dictionary containing information about each matched object.
-    
-    """
-    
-    if not isinstance(ra, coord.angles.RA):
-        ra = coord.RA(ra, unit=unit)
-    if not isinstance(ra, coord.angles.Dec):    
-        dec = coord.Dec(dec, unit=unit)
-    
-    if fields is None:
-        fields = copy.deepcopy(photoobj_defs)
-        if spectro:
-            fields += specobj_defs
-
-    # Convert arcseconds to degrees
-    dr /= 3600.
-    
-    q_select = 'SELECT '
-    for field in fields:
-        if field in photoobj_defs:
-            q_select += 'p.%s,' % field
-        if field in specobj_defs:
-            q_select += 's.%s,' % field
-    q_select = q_select.rstrip(',')
-    q_select += ' '
-    
-    q_from = 'FROM PhotoObjAll AS p '
-    if spectro:
-        q_join = 'JOIN SpecObjAll s ON p.objID = s.bestObjID '
-    else:
-        q_join = ''
-    q_where = 'WHERE (p.ra between %g and %g) and (p.dec between %g and %g)' \
-        % (ra.degree-dr, ra.degree+dr, dec.degree-dr, dec.degree+dr)
-    
-    sql = "%s%s%s%s" % (q_select, q_from, q_join, q_where)
-    r = requests.get('http://cas.sdss.org/public/en/tools/search/x_sql.asp', params={'cmd': sql, 'format': 'csv'})
-    
-    return np.atleast_1d(np.genfromtxt(io.BytesIO(r.content), names=True, dtype=None, delimiter=','))
-
-def get_spectrum(crossID=None, plate=None, fiberID=None, mjd=None):  
-    """
-    Download spectrum from SDSS. 
-    
-    Parameters
-    ----------
-    crossID : dict
-        Dictionary that must contain the plate, fiberID, and mjd of desired
-        spectrum. These parameters can be passed separately as well. All are 
-        required. Most convenient to pass the result of function
-        astroquery.sdss.crossID.
-    
-    Examples
-    --------
-    >>> xid = sdss.crossID(ra='0h8m05.63s', dec='14d50m23.3s')
-    >>> sp = sdss.get_spectrum(crossID=xid[0])
-    >>> 
-    >>> import pylab as pl
-    >>> pl.plot(sp.xarr, sp.data)   # plot the spectrum
-    
-    Returns
-    -------
-    Instance of Spectrum class, whose main attribute is a PyFITS HDUList.
-    Also contains properties to return x-axis, data, and error arrays, as 
-    well as the FITS header in dictionary form.
-    """
-    
-    if crossID is not None:
-        plate = crossID['plate']
-        fiberID = crossID['fiberID']
-        mjd = crossID['mjd']
-                    
-    plate = str(plate).zfill(4)
-    fiber = str(fiberID).zfill(3)
-    mjd = str(mjd)
-    link = '%s/%s/1d/spSpec-%s-%s-%s.fit' % (spectro1d_prefix, plate, mjd,
-                                             plate, fiber)
-              
-    hdulist = fits.open(link, ignore_missing_end=True)
-
-    return Spectrum(hdulist)
-
-def get_image(crossID=None, run=None, rerun=None, camcol=None, 
-    field=None, band='g'):
-    """
-    Download an image from SDSS. 
-    
-    Querying SDSS for images will return the entire plate. For subsequent 
-    analyses of individual objects
-    
-    Parameters
-    ----------
-    crossID : dict
-        Dictionary that must contain the run, rerun, camcol, and field for
-        desired image. These parameters can be passed separately as well. All
-        are required. Most convenient to pass the result of function
-        astroquery.sdss.crossID.
-    band : str, list
-        Could be individual band, or list of bands. Options: u, g, r, i, or z
-    
-    Examples
-    --------
-    xid = sdss.crossID(ra='0h8m05.63s', dec='14d50m23.3s')
-    img = sdss.get_image(crossID=xid[0], band='g')
-    
-    plate = img.data # data for entire plate
-    
-    # 60x60 arcsecond cutout around (ra, dec)
-    cutout = img.cutout(ra=xid[0]['ra'], dec=xid[0]['dec'], dr=60.)
-    
-    Returns
-    -------
-    Instance of Image class, whose main attribute is a PyFITS HDUList. Also
-    contains properties to return data and error arrays, as well as the FITS
-    header in dictionary form.
-    """
-    
-    if crossID is not None:
-        run = crossID['run']
-        rerun = crossID['rerun']
-        camcol = crossID['camcol']
-        field = crossID['field']
-
-    # Read in and format some information we need
-    field = str(field).zfill(4)
-                                
-    # Download and read in image data
-    link = '%s?RUN=%i&RERUN=%i&CAMCOL=%i&FIELD=%s&FILTER=%s' % (images_prefix, 
-        run, rerun, camcol, field, band)            
-
-    hdulist = fits.open(link, ignore_missing_end=True)
-     
-    return Image(hdulist)
-    
-def get_spectral_template(kind='qso'):
-    """
-    Download spectral templates from SDSS DR-2, which are located here:
-    
-        http://www.sdss.org/dr5/algorithms/spectemplates/
-    
-    There 32 spectral templates available from DR-2, from stellar spectra,
-    to galaxies, to quasars. To see the available templates, do:
-    
-        from astroquery import sdss
-        print sdss.spec_templates.keys()
-    
-    Parameters
-    ----------
-    kind : str, list
-        Which spectral template to download? Options are stored in the 
-        dictionary astroquery.sdss.spec_templates.
-    
-    Examples
-    --------
-    qso = sdss.get_spectral_template(kind='qso')
-    Astar = sdss.get_spectral_template(kind='star_A')
-    Fstar = sdss.get_spectral_template(kind='star_F')
-
-    Returns
-    -------
-    List of Spectrum class instances, whose main attribute is a PyFITS HDUList.
-    The reason for returning a list is that there are multiple templates
-    available for some spectral types.
-    """   
-    
-    if kind == 'all':
-        indices = list(np.arange(33))
-    else:
-        indices = spec_templates[kind]
-        if type(indices) is not list:
-            indices = [indices]
+    QUERY_URL = 'http://cas.sdss.org/public/en/tools/search/x_sql.asp'
         
-    spectra = []
-    for index in indices:
-        name = str(index).zfill(3)
-        link = '%s-%s.fit' % (template_prefix, name)
+    def __init__(self, *args):
+        pass    
+        
+    @class_or_instance
+    def query_region(self, coordinates, radius= u.degree / 1800., equinox='J2000.0', get_query_payload=False,
+        verbose=False, fields=None, spectro=False):
+        """
+        Used to query a region around given coordinates. Equivalent to
+        the object cross-ID from the web interface.
+
+        Parameters
+        ----------
+        coordinates : str or `astropy.coordinates` object
+            The target around which to search. It may be specified as a string
+            in which case it is resolved using online services or as the appropriate
+            `astropy.coordinates` object. ICRS coordinates may also be entered as strings
+            as specified in the `astropy.coordinates` module.
+        radius : str or `astropy.units.Quantity` object, optional
+            The string must be parsable by `astropy.coordinates.Angle`. The appropriate
+            `Quantity` object from `astropy.units` may also be used. Defaults to 2 arcsec.
+        equinox : str, optional
+            The equinox may be either J2000.0 or B1950.0. Defaults to J2000.0
+        get_query_payload : bool, optional
+            if set to `True` then returns the dictionary sent as the HTTP request.
+            Defaults to `False`.
+        verbose : bool, optional.
+            When set to `True` displays warnings if the returned VOTable does not
+            conform to the standard. Defaults to `False`.    
+        fields : list, optional
+            SDSS PhotoObj or SpecObj quantities to return. If None, defaults
+            to quantities required to find corresponding spectra and images
+            of matched objects (e.g. plate, fiberID, mjd, etc.).
+        spectro : bool, optional
+            Look for spectroscopic match in addition to photometric match? If True,
+            objects will only count as a match if photometry *and* spectroscopy
+            exist. If False, will look for photometric matches only.    
+
+        Returns
+        -------
+        result : `astropy.table.Table`
+            The result of the query as an `astropy.table.Table` object.
+        """
+        
+        ra = coordinates.ra.degrees
+        dec = coordinates.dec.degrees
+        dr = radius.value
+        
+        # Fields to return (if cross-ID successful)
+        if fields is None:
+            fields = copy.deepcopy(photoobj_defs)
+            if spectro:
+                fields += specobj_defs
+
+        # Construct SQL query
+        q_select = 'SELECT '
+        for field in fields:
+            if field in photoobj_defs:
+                q_select += 'p.%s,' % field
+            if field in specobj_defs:
+                q_select += 's.%s,' % field
+        q_select = q_select.rstrip(',')
+        q_select += ' '
+
+        q_from = 'FROM PhotoObjAll AS p '
+        if spectro:
+            q_join = 'JOIN SpecObjAll s ON p.objID = s.bestObjID '
+        else:
+            q_join = ''
+        q_where = 'WHERE (p.ra between %g and %g) and (p.dec between %g and %g)' \
+            % (ra-dr, ra+dr, dec-dr, dec+dr)
+
+        sql = "%s%s%s%s" % (q_select, q_from, q_join, q_where)
+        r = requests.get(SDSS.QUERY_URL, params={'cmd': sql, 'format': 'csv'})
+
+        return Table(np.atleast_1d(np.genfromtxt(io.BytesIO(r.content), 
+            names=True, dtype=None, delimiter=',')))
+
+    def get_spectrum(crossID=None, plate=None, fiberID=None, mjd=None):  
+        """
+        Download spectrum from SDSS. 
+        
+        Parameters
+        ----------
+        crossID : dict
+            Dictionary that must contain the plate, fiberID, and mjd of desired
+            spectrum. These parameters can be passed separately as well. All are 
+            required. Most convenient to pass the result of function
+            astroquery.sdss.crossID.
+        
+        Examples
+        --------
+        >>> xid = sdss.crossID(ra='0h8m05.63s', dec='14d50m23.3s')
+        >>> sp = sdss.get_spectrum(crossID=xid[0])
+        >>> 
+        >>> import pylab as pl
+        >>> pl.plot(sp.xarr, sp.data)   # plot the spectrum
+        
+        Returns
+        -------
+        Instance of Spectrum class, whose main attribute is a PyFITS HDUList.
+        Also contains properties to return x-axis, data, and error arrays, as 
+        well as the FITS header in dictionary form.
+        """
+        
+        if crossID is not None:
+            plate = crossID['plate']
+            fiberID = crossID['fiberID']
+            mjd = crossID['mjd']
+                        
+        plate = str(plate).zfill(4)
+        fiber = str(fiberID).zfill(3)
+        mjd = str(mjd)
+        link = '%s/%s/1d/spSpec-%s-%s-%s.fit' % (spectro1d_prefix, plate, mjd,
+                                                 plate, fiber)
+                  
         hdulist = fits.open(link, ignore_missing_end=True)
-        spectra.append(Spectrum(hdulist))
-        del hdulist
-                
-    return spectra
+    
+        return Spectrum(hdulist)
+    
+    def get_image(crossID=None, run=None, rerun=None, camcol=None, 
+        field=None, band='g'):
+        """
+        Download an image from SDSS. 
+        
+        Querying SDSS for images will return the entire plate. For subsequent 
+        analyses of individual objects
+        
+        Parameters
+        ----------
+        crossID : dict
+            Dictionary that must contain the run, rerun, camcol, and field for
+            desired image. These parameters can be passed separately as well. All
+            are required. Most convenient to pass the result of function
+            astroquery.sdss.crossID.
+        band : str, list
+            Could be individual band, or list of bands. Options: u, g, r, i, or z
+        
+        Examples
+        --------
+        xid = sdss.crossID(ra='0h8m05.63s', dec='14d50m23.3s')
+        img = sdss.get_image(crossID=xid[0], band='g')
+        
+        plate = img.data # data for entire plate
+        
+        # 60x60 arcsecond cutout around (ra, dec)
+        cutout = img.cutout(ra=xid[0]['ra'], dec=xid[0]['dec'], dr=60.)
+        
+        Returns
+        -------
+        Instance of Image class, whose main attribute is a PyFITS HDUList. Also
+        contains properties to return data and error arrays, as well as the FITS
+        header in dictionary form.
+        """
+        
+        if crossID is not None:
+            run = crossID['run']
+            rerun = crossID['rerun']
+            camcol = crossID['camcol']
+            field = crossID['field']
+    
+        # Read in and format some information we need
+        field = str(field).zfill(4)
+                                    
+        # Download and read in image data
+        link = '%s?RUN=%i&RERUN=%i&CAMCOL=%i&FIELD=%s&FILTER=%s' % (images_prefix, 
+            run, rerun, camcol, field, band)            
+    
+        hdulist = fits.open(link, ignore_missing_end=True)
+         
+        return Image(hdulist)
+        
+    def get_spectral_template(kind='qso'):
+        """
+        Download spectral templates from SDSS DR-2, which are located here:
+        
+            http://www.sdss.org/dr5/algorithms/spectemplates/
+        
+        There 32 spectral templates available from DR-2, from stellar spectra,
+        to galaxies, to quasars. To see the available templates, do:
+        
+            from astroquery import sdss
+            print sdss.spec_templates.keys()
+        
+        Parameters
+        ----------
+        kind : str, list
+            Which spectral template to download? Options are stored in the 
+            dictionary astroquery.sdss.spec_templates.
+        
+        Examples
+        --------
+        qso = sdss.get_spectral_template(kind='qso')
+        Astar = sdss.get_spectral_template(kind='star_A')
+        Fstar = sdss.get_spectral_template(kind='star_F')
+    
+        Returns
+        -------
+        List of Spectrum class instances, whose main attribute is a PyFITS HDUList.
+        The reason for returning a list is that there are multiple templates
+        available for some spectral types.
+        """   
+        
+        if kind == 'all':
+            indices = list(np.arange(33))
+        else:
+            indices = spec_templates[kind]
+            if type(indices) is not list:
+                indices = [indices]
+            
+        spectra = []
+        for index in indices:
+            name = str(index).zfill(3)
+            link = '%s-%s.fit' % (template_prefix, name)
+            hdulist = fits.open(link, ignore_missing_end=True)
+            spectra.append(Spectrum(hdulist))
+            del hdulist
+                    
+        return spectra
     
 class Spectrum(object):
     """ TODO: document """
