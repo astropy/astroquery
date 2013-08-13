@@ -1,8 +1,8 @@
 .. _astroquery.vizier:
 
-*****************************************
+************************************
 VizieR Queries (`astroquery.vizier`)
-*****************************************
+************************************
 
 Getting started
 ===============
@@ -23,7 +23,7 @@ the `~astroquery.vizier.Vizier.find_catalogs` tool can be used:
 
     >>> from astroquery.vizier import Vizier
     >>> catalog_list = Vizier.find_catalogs('Kang W51')
-    >>> print catalog_list
+    >>> print(catalog_list)
     {u'J/ApJ/706/83': <astropy.io.votable.tree.Resource at 0x108d4d490>,
      u'J/ApJS/191/232': <astropy.io.votable.tree.Resource at 0x108d50490>}
     >>> print {k:v.description for k,v in catalog_list.iteritems()}
@@ -42,12 +42,11 @@ the complete contents of those catalogs:
 .. code-block:: python
 
     >>> catalogs = Vizier.get_catalogs(catalog_list.keys())
-    >>> catalogs.print_table_list()
-    <TableList with 3 tables:
-        'J/ApJ/706/83/ysos' with 22 column(s) and 50 row(s)
-        'J/ApJS/191/232/table1' with 13 column(s) and 50 row(s)
-        'J/ApJS/191/232/map' with 2 column(s) and 2 row(s)
-    >
+    >>> print(catalogs)
+    TableList with 3 tables:
+       '0:J/ApJ/706/83/ysos' with 22 column(s) and 50 row(s) 
+       '1:J/ApJS/191/232/table1' with 13 column(s) and 50 row(s) 
+       '2:J/ApJS/191/232/map' with 2 column(s) and 2 row(s) 
 
 Note that the row limit is set to 50 by default, so if you want to get a truly
 complete catalog, you need to change that:
@@ -56,12 +55,11 @@ complete catalog, you need to change that:
 
     >>> Vizier.ROW_LIMIT.set('999999999')
     >>> catalogs = Vizier.get_catalogs(catalog_list.keys())
-    >>> catalogs.print_table_list()
-    <TableList with 3 tables:
-        'J/ApJ/706/83/ysos' with 22 column(s) and 737 row(s)
-        'J/ApJS/191/232/table1' with 13 column(s) and 218 row(s)
-        'J/ApJS/191/232/map' with 2 column(s) and 2 row(s)
-    >
+    >>> print(catalogs)
+    TableList with 3 tables:
+       '0:J/ApJ/706/83/ysos' with 22 column(s) and 737 row(s) 
+       '1:J/ApJS/191/232/table1' with 13 column(s) and 218 row(s) 
+       '2:J/ApJS/191/232/map' with 2 column(s) and 2 row(s) 
 
 **Query an object**
 
@@ -71,47 +69,26 @@ For instance to query Sirius across all catalogs:
 
     >>> from astroquery.vizier import Vizier
     >>> result = Vizier.query_object("sirius")
-    >>> print result
-
-    <TableList with 231 table(s) and 875 total row(s)>
+    >>> print(result)
+    TableList with 232 tables:
+       '0:ReadMeObj' with 5 column(s) and 5 row(s) 
+       '1:I/34/greenw2a' with 16 column(s) and 1 row(s) 
+       '2:I/40/catalog' with 11 column(s) and 1 row(s) 
+       ...
 
 All the results are returned as a `TableList` object. This is a container for
 `astropy.table.Table`_ objects. It is basically an extension to
 `collections.OrderedDict` for storing an `astropy.table.Table`_ against its
 name. 
 
-To see all the tables that have been fetched by the query (continiung from the
-example above):
-
-.. code-block:: python
-
-    >>> result.print_table_list()
-
-    <TableList with 231 tables:
-	'ReadMeObj' with 5 column(s) and 5 row(s) 
-	'I/34/greenw2a' with 16 column(s) and 1 row(s) 
-	'I/40/catalog' with 11 column(s) and 1 row(s) 
-	'I/80/n30' with 13 column(s) and 1 row(s) 
-	'I/82/catalog' with 11 column(s) and 1 row(s) 
-	'I/87B/catalog' with 10 column(s) and 1 row(s) 
-	'I/98A/catalog' with 14 column(s) and 1 row(s) 
-	'I/98A/remarks' with 6 column(s) and 1 row(s) 
-	'I/100A/w10' with 9 column(s) and 1 row(s) 
-	'I/100A/w25' with 9 column(s) and 1 row(s) 
-	'I/100A/w50' with 9 column(s) and 5 row(s) 
-        ...
-        ...
-        'J/BaltA/10/481/table1' with 10 column(s) and 1 row(s)
-    >
 
 To access an individual table from the `TableList` object
 
 .. code-block:: python
 
-    >>> interesting_table =  result['IX/10A/cor_ros']
-    >>> print interesting_table
-    
-             _1RXS       Rank        sourceID       RAJ2000  DEJ2000  Sep
+    >>> interesting_table = result['IX/10A/cor_ros']
+    >>> print(interesting_table)
+         _1RXS       Rank        sourceID       RAJ2000  DEJ2000  Sep
     ---------------- ---- --------------------- -------- -------- ---
     J064509.3-164241    2 1RXH J064509.2-164242 101.2885 -16.7119   2
     J064509.3-164241   14 1RXP J0645 8.4-164302 101.2854 -16.7174  24
@@ -147,20 +124,16 @@ be written as:
 .. code-block:: python
 
     >>> result = Vizier.query_region("3C 273", radius="5d0m0s", catalog='GSC')
-    
-    # Finally to see the output:
 
-    >>> print result
+To see the result:
 
-     <TableList with 3 table(s) and 150 total row(s)>
+.. code-block:: python
 
-    >>> result.print_table_list()
-
-    <TableList with 3 tables:
-	'I/254/out' with 10 column(s) and 50 row(s) 
-	'I/271/out' with 11 column(s) and 50 row(s) 
-	'I/305/out' with 11 column(s) and 50 row(s) 
-    >
+    >>> print(result)
+    TableList with 3 tables:
+       '0:I/254/out' with 10 column(s) and 50 row(s) 
+       '1:I/271/out' with 11 column(s) and 50 row(s) 
+       '2:I/305/out' with 11 column(s) and 50 row(s) 
 
 As mentioned earlier, the region may also be mentioned by specifying the height
 and width of a box. If only one of the height or width is mentioned, then the
@@ -175,17 +148,11 @@ dimension.
     >>> result = Vizier.query_region(coord.ICRSCoordinates(ra=299.590, dec=35.201, unit=(u.deg, u.deg)),
     ...                         width="5d0m0s", height="3d0m0s",
     ...                         catalog=["NOMAD", "UCAC"])
-    >>> print result
-
-    <TableList with 3 table(s) and 150 total row(s)>
-
-    >>> result.print_table_list()
-
-    <TableList with 3 tables:
-	'I/297/out' with 19 column(s) and 50 row(s) 
-	'I/289/out' with 13 column(s) and 50 row(s) 
-	'I/322A/out' with 24 column(s) and 50 row(s) 
-    >
+    >>> print(result)
+    TableList with 3 tables:
+       '0:I/297/out' with 19 column(s) and 50 row(s) 
+       '1:I/289/out' with 13 column(s) and 50 row(s) 
+       '2:I/322A/out' with 24 column(s) and 50 row(s) 
 
 
 One more thing to note in the above example is that the coordinates may be
@@ -219,20 +186,13 @@ this Vizier instance:
 .. code-block:: python
    
     >>> result = v.query_object("HD 226868", catalog=["NOMAD", "UCAC"])              
-    >>> print result
+    >>> print(result)
+   TableList with 2 tables:
+      '0:I/289/out' with 3 column(s) and 18 row(s) 
+      '1:I/322A/out' with 4 column(s) and 10 row(s) 
 
-    <TableList with 2 table(s) and 28 total row(s)>
-    
-    >>> result.print_table_list()
-    
-    <TableList with 2 tables:
-	'I/289/out' with 3 column(s) and 18 row(s) 
-	'I/322A/out' with 4 column(s) and 10 row(s) 
-    >
-
-    >>> print result['I/322A/out']
-        
-         _RAJ2000    DEJ2000    Vmag   _DEJ2000 
+    >>> print(result['I/322A/out'])
+     _RAJ2000    DEJ2000    Vmag   _DEJ2000 
     ---------- ----------- ------ ----------
     299.572419  35.1942342 15.986  35.194234
     299.580291  35.1768889 13.274  35.176889
@@ -256,21 +216,18 @@ from the above example:
 
     >>> del v.column_filters
     >>> result = v.query_object("HD 226868", catalog=["NOMAD", "UCAC"])
-    >>> result.print_table_list()
-
-    <TableList with 3 tables:
-	'I/297/out' with 4 column(s) and 50 row(s) 
-	'I/289/out' with 3 column(s) and 18 row(s) 
-	'I/322A/out' with 4 column(s) and 28 row(s) 
-    >
+    >>> print(result)
+    TableList with 3 tables:
+       '0:I/297/out' with 4 column(s) and 50 row(s) 
+       '1:I/289/out' with 3 column(s) and 18 row(s) 
+       '2:I/322A/out' with 4 column(s) and 28 row(s) 
 
 As can be seen considerably more rows are returned. Just to check:
 
 .. code-block:: python
     
-    >>> print result['I/322A/out']
-
-         _RAJ2000    DEJ2000    Vmag   _DEJ2000 
+    >>> print(result['I/322A/out'])
+     _RAJ2000    DEJ2000    Vmag   _DEJ2000 
     ---------- ----------- ------ ----------
     299.560073  35.1847709    nan  35.184771
     299.572419  35.1942342 15.986  35.194234
