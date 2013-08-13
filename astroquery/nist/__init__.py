@@ -9,3 +9,5 @@ NIST_SERVER = ConfigurationItem('nist_server', ["http://physics.nist.gov/cgi-bin
 NIST_TIMEOUT = ConfigurationItem('timeout', 30, 'time limit for connecting to NIST server')
 
 from .core import Nist
+
+__all__ = ['Nist']

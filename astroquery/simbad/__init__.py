@@ -15,4 +15,6 @@ SIMBAD_TIMEOUT = ConfigurationItem('timeout', 60, 'time limit for connecting to 
 # O defaults to the maximum limit
 ROW_LIMIT = ConfigurationItem('row_limit', 0, 'maximum number of rows that will be fetched from the result.')
 
-from .core import *
+from .core import Simbad
+
+__all__ = ['Simbad']

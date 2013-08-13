@@ -12,3 +12,4 @@ NRAO_TIMEOUT = ConfigurationItem('timeout', 60, 'time limit for connecting to NR
 
 from .core import Nrao
 
+__all__ = ['Nrao']

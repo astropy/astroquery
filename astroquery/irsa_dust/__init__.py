@@ -16,6 +16,6 @@ IRSA_DUST_SERVER = ConfigurationItem('irsa_dust_server',[
 
 IRSA_DUST_TIMEOUT = ConfigurationItem('timeout', 30, 'default timeout for connecting to server')
 
-
-
 from .core import IrsaDust
+
+__all__ = ['IrsaDust']

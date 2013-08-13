@@ -12,3 +12,5 @@ ROW_LIMIT =  ConfigurationItem('row_limit', 500, 'maximum number of rows to retr
 TIMEOUT = ConfigurationItem('timeout', 60, 'time limit for connecting to the IRSA server')
 
 from .core import Irsa
+
+__all__ = ['Irsa']
