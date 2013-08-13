@@ -1,8 +1,8 @@
 .. _astroquery.ukidss:
 
-*****************************************
+************************************
 UKIDSS Queries (`astroquery.ukidss`)
-*****************************************
+************************************
 
 Getting started
 ===============
@@ -118,7 +118,7 @@ SESAME. Coordinates may be entered using the suitable object from
     Downloading http://surveys.roe.ac.uk/wsa/cgi-bin/getFImage.cgi?file=/disk05/wsa/ingest/fits/20071011_v1/w20071011_01818_sf_st.fit&mfid=1737581&extNo=4&lx=1339&hx=1638&ly=1953&hy=2252&rf=0&flip=1&uniq=142_292_19_31199_1&xpos=150.7&ypos=150.3&band=K&ra=83.633083&dec=22.0145
     |===========================================| 174k/174k (100.00%)        07s
 
-    >>> print images
+    >>> print(images)
     
     [[<astropy.io.fits.hdu.image.PrimaryHDU object at 0x40f8b10>, <astropy.io.fits.hdu.image.ImageHDU object at 0x41026d0>]]
 
@@ -228,7 +228,7 @@ results are returned in an `astropy.table.Table`_.
     Downloading http://surveys.roe.ac.uk/wsa/tmp/tmp_sql/results1_4_45_58_24651.xml
     |===========================================| 4.6k/4.6k (100.00%)        00s
 
-    >>> print table
+    >>> print(table)
 
          sourceID    framesetID        RA      ... H2AperMag3Err     distance   
     ------------ ------------ ------------- ... ------------- ---------------

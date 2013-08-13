@@ -24,7 +24,7 @@ you can set it to several other values like "Na;Mg", etc. Lets now see a simple 
     >>> from astroquery.nist import Nist
     >>> import astropy.units as u
     >>> table = Nist.query(4000 * u.nm, 7000 * u.nm, linename="H I")
-    >>> print table
+    >>> print(table)
     
     Observed     Ritz     Rel.    Aki    ...     Upper level     Type   TP  Line
     -------- ----------- ----- --------- ... ------------------- ---- ----- ----
@@ -61,7 +61,7 @@ or 'vac+air'. Here is an example with all these parameters.
     >>> table = Nist.query(4000 * u.nm, 7000 * u.nm, 'H I',
     ...                    energy_level_unit='eV', output_order='wavelength',
     ...                    wavelength_type='vacuum')
-    >>> print table
+    >>> print(table)
 
         Observed     Ritz     Rel.    Aki    ...     Upper level     Type   TP  Line
     -------- ----------- ----- --------- ... ------------------- ---- ----- ----

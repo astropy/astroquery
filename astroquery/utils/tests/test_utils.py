@@ -28,7 +28,7 @@ class SimpleQueryClass(object):
 def test_utils():
     response = urllib2.urlopen('http://www.ebay.com')
     C = chunk_read(response, report_hook=chunk_report)
-    print C
+    print(C)
 
 def test_class_or_instance():
     assert SimpleQueryClass.query() == "class"
@@ -192,10 +192,10 @@ docstr2 = """
         -------
         >>> from astroquery.vizier import Vizier
         >>> catalog_list = Vizier.find_catalogs('Kang W51')
-        >>> print catalog_list
+        >>> print(catalog_list)
         {u'J/ApJ/706/83': <astropy.io.votable.tree.Resource at 0x108d4d490>,
          u'J/ApJS/191/232': <astropy.io.votable.tree.Resource at 0x108d50490>}
-        >>> print {k:v.description for k,v in catalog_list.iteritems()}
+        >>> print({k:v.description for k,v in catalog_list.iteritems()})
         {u'J/ApJ/706/83': u'Embedded YSO candidates in W51 (Kang+, 2009)',
          u'J/ApJS/191/232': u'CO survey of W51 molecular cloud (Bieging+, 2010)'}
         """
@@ -216,10 +216,10 @@ docstr2_out = textwrap.dedent("""
         -------
         >>> from astroquery.vizier import Vizier
         >>> catalog_list = Vizier.find_catalogs('Kang W51')
-        >>> print catalog_list
+        >>> print(catalog_list)
         {u'J/ApJ/706/83': <astropy.io.votable.tree.Resource at 0x108d4d490>,
          u'J/ApJS/191/232': <astropy.io.votable.tree.Resource at 0x108d50490>}
-        >>> print {k:v.description for k,v in catalog_list.iteritems()}
+        >>> print({k:v.description for k,v in catalog_list.iteritems()})
         {u'J/ApJ/706/83': u'Embedded YSO candidates in W51 (Kang+, 2009)',
          u'J/ApJS/191/232': u'CO survey of W51 molecular cloud (Bieging+, 2010)'}
 

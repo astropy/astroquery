@@ -127,7 +127,8 @@ Start by thinning out the line lists used:
 .. code-block:: python
 
     >>> CO2to1 = Splatalogue.query_lines(1*u.mm, 2*u.mm, chemical_name=" CO ",only_NRAO_recommended=True)
-    >>> CO2to1.pprint()Species  Chemical Name   Freq-GHz ... E<sub>U</sub> (K) Linelist
+    >>> CO2to1.pprint()
+    Species  Chemical Name   Freq-GHz ... E<sub>U</sub> (K) Linelist
     ------- --------------- --------- ... ----------------- --------
       COv=1 Carbon Monoxide 228.43911 ...        3100.11758    SLAIM
       COv=0 Carbon Monoxide   230.538 ...          16.59608    SLAIM
@@ -139,7 +140,8 @@ Then get rid of the vibrationally excited line by setting an energy upper limit 
     >>> CO2to1 = Splatalogue.query_lines(1*u.mm, 2*u.mm, chemical_name=" CO ",
                                          only_NRAO_recommended=True,
                                          energy_max=50, energy_type='eu_k')
-    >>> CO2to1.pprint()Species  Chemical Name  Freq-GHz ... E<sub>U</sub> (K) Linelist
+    >>> CO2to1.pprint()
+    Species  Chemical Name  Freq-GHz ... E<sub>U</sub> (K) Linelist
     ------- --------------- -------- ... ----------------- --------
       COv=0 Carbon Monoxide  230.538 ...          16.59608    SLAIM
    

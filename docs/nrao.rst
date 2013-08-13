@@ -1,8 +1,8 @@
 .. _astroquery.nrao:
 
-*****************************************
+********************************
 NRAO Queries (`astroquery.nrao`)
-*****************************************
+********************************
 
 Getting started
 ===============
@@ -21,7 +21,7 @@ directly using the appropriate coordinate system from
     >>> from astroquery.nrao import Nrao
     >>> import astropy.coordinates as coord
     >>> result_table = Nrao.query_region("04h33m11.1s 05d21m15.5s")
-    >>> print result_table
+    >>> print(result_table)
     
       Source     Project    Start Time Stop Time ...  RA DEC ARCH_FILE_ID
     ---------- ------------ ---------- --------- ... --- --- ------------
@@ -79,7 +79,7 @@ Here's an example with all these optional parameters.
    ... telescope='historical_vla', start_date='1985-06-30 18:16:49',
    ... end_date='1985-06-30 18:20:19', freq_low=1600*u.MHz, freq_up=1700*u.MHz,
    ... telescope_config='BC', sub_array=1)
-   >>> print result_table
+   >>> print(result_table)
    
    Source     Project    Start Time Stop Time ...  RA DEC ARCH_FILE_ID
     -------- ------------- ---------- --------- ... --- --- ------------
