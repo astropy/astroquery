@@ -27,8 +27,9 @@ from . import NED_SERVER, NED_TIMEOUT
 
 __all__ = ["Ned"]
 
+
 class Ned(BaseQuery):
-    #make configurable
+    # make configurable
     BASE_URL = NED_SERVER()
     OBJ_SEARCH_URL = BASE_URL + 'nph-objsearch'
     ALL_SKY_URL = BASE_URL + 'nph-allsky'
@@ -38,9 +39,9 @@ class Ned(BaseQuery):
     TIMEOUT = NED_TIMEOUT()
     Options = namedtuple('Options', ('display_name', 'cgi_name'))
 
-    PHOTOMETRY_OUT = {1 : Options('Data as Published and Homogenized (mJy)', 'bot'),
-                      2 : Options('Data as Published', 'pub'),
-                      3 : Options('Homogenized Units (mJy)', 'mjy')}
+    PHOTOMETRY_OUT = {1: Options('Data as Published and Homogenized (mJy)', 'bot'),
+                      2: Options('Data as Published', 'pub'),
+                      3: Options('Homogenized Units (mJy)', 'mjy')}
 
     @class_or_instance
     def query_object(self, object_name, get_query_payload=False, verbose=False):
@@ -101,7 +102,7 @@ class Ned(BaseQuery):
         return response
 
     @class_or_instance
-    def query_region(self, coordinates, radius= 1 * u.arcmin, equinox='J2000.0', get_query_payload=False,
+    def query_region(self, coordinates, radius=1 * u.arcmin, equinox='J2000.0', get_query_payload=False,
                      verbose=False):
         """
         Used to query a region around a known identifier or given coordinates. Equivalent to
@@ -140,7 +141,7 @@ class Ned(BaseQuery):
         return result
 
     @class_or_instance
-    def query_region_async(self, coordinates, radius= 1 * u.arcmin, equinox='J2000.0', get_query_payload=False):
+    def query_region_async(self, coordinates, radius=1 * u.arcmin, equinox='J2000.0', get_query_payload=False):
         """
         Serves the same purpose as `Ned.query_region` but returns the raw HTTP response rather
         than the `astropy.table.Table` object.
@@ -570,7 +571,6 @@ class Ned(BaseQuery):
         response = commons.send_request(Ned.DATA_SEARCH_URL, request_payload, Ned.TIMEOUT, request_type='GET')
         return response
 
-
     @class_or_instance
     def _request_payload_init(self):
         """
@@ -657,6 +657,7 @@ class Ned(BaseQuery):
                      "Returning raw result instead.")
                 return response.content
 
+
 def _parse_radius(radius):
     """
     Parses the radius and returns it in the format expected by NED.
@@ -679,6 +680,7 @@ def _parse_radius(radius):
         except (u.UnitsException, coord.errors.UnitsError, AttributeError):
             raise u.UnitsException("Dimension not in proper units")
     return radius_in_min
+
 
 def _is_name(coordinates):
     """

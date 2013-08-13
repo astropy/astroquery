@@ -14,9 +14,10 @@ from ..utils.class_or_instance import class_or_instance
 from ..utils import commons, async_to_sync
 from ..utils.docstr_chompers import prepend_docstr_noreturns
 
-from . import  NRAO_SERVER, NRAO_TIMEOUT
+from . import NRAO_SERVER, NRAO_TIMEOUT
 
 __all__ = ["Nrao"]
+
 
 def _validate_params(func):
     @functools.wraps(func)
@@ -36,6 +37,7 @@ def _validate_params(func):
         return func(*args, **kwargs)
     return wrapper
 
+
 @async_to_sync
 class Nrao(BaseQuery):
 
@@ -49,11 +51,11 @@ class Nrao(BaseQuery):
         "historical_vla": "VLA",
         "vlba": "VLBA",
         "gbt": "GBT",
-        }
+    }
 
-    telescope_config = ['ALL', 'A', 'AB', 'BnA', 'B', 'BC', 'CnB', 'C',	'CD', 'DnC', 'D',  'DA']
+    telescope_config = ['ALL', 'A', 'AB', 'BnA', 'B', 'BC', 'CnB', 'C', 'CD', 'DnC', 'D', 'DA']
 
-    obs_bands = ['ALL', '4', 'P', 'L', 'S',  'C', 'X', 'U', 'K', 'Ka', 'Q', 'W']
+    obs_bands = ['ALL', '4', 'P', 'L', 'S', 'C', 'X', 'U', 'K', 'Ka', 'Q', 'W']
 
     subarrays = ['ALL', 1, 2, 3, 4, 5]
 
@@ -135,11 +137,11 @@ class Nrao(BaseQuery):
                                OBSERVER="",
                                ARCHIVE_VOLUME="",
                                TIMERANGE2=kwargs['end_date'],
-                               CENTER_RA = str(c.icrs.ra.degree) + 'd',
-                               CENTER_DEC = str(c.icrs.dec.degree) + 'd',
+                               CENTER_RA=str(c.icrs.ra.degree) + 'd',
+                               CENTER_DEC=str(c.icrs.dec.degree) + 'd',
                                EQUINOX=kwargs['equinox'],
                                SRAD=str(commons.parse_radius(kwargs['radius']).degree) + 'd',
-                               TELESCOPE_CONFIG='ALL' if kwargs['telescope_config'] == 'all' else  kwargs['telescope_config'],
+                               TELESCOPE_CONFIG='ALL' if kwargs['telescope_config'] == 'all' else kwargs['telescope_config'],
                                OBS_BANDS=kwargs['obs_band'].upper(),
                                SUBARRAY='ALL' if kwargs['sub_array'] == 'all' else kwargs['sub_array'],
                                OBSFREQ1=freq_str,
@@ -177,7 +179,6 @@ class Nrao(BaseQuery):
             return request_payload
         response = commons.send_request(Nrao.DATA_URL, request_payload, Nrao.TIMEOUT, request_type='GET')
         return response
-
 
     @class_or_instance
     def _parse_result(self, response, verbose=False):

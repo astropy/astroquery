@@ -15,6 +15,7 @@ from . import MAGPIS_SERVER, MAGPIS_TIMEOUT
 
 __all__ = ['Magpis']
 
+
 class Magpis(BaseQuery):
     URL = MAGPIS_SERVER()
     TIMEOUT = MAGPIS_TIMEOUT()
@@ -56,13 +57,12 @@ class Magpis(BaseQuery):
         request_payload = {}
         request_payload["Survey"] = survey
         c = commons.parse_coordinates(coordinates)
-        ra_dec_str =  str(c.galactic.lonangle.degree) + ' ' + str(c.galactic.latangle.degree)
+        ra_dec_str = str(c.galactic.lonangle.degree) + ' ' + str(c.galactic.latangle.degree)
         request_payload["RA"] = ra_dec_str
         request_payload["Equinox"] = "Galactic"
         request_payload["ImageSize"] = commons.parse_radius(image_size).to(u.arcmin).value
         request_payload["ImageType"] = "FITS File"
         return request_payload
-
 
     @class_or_instance
     @prepend_docstr_noreturns("\n"+_args_to_payload.__doc__)

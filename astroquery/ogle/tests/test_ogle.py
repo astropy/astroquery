@@ -1,3 +1,4 @@
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
 from ... import ogle
 
 import os
@@ -6,9 +7,11 @@ from astropy.tests.helper import pytest
 from astropy import coordinates as coord
 from astropy import units as u
 
+
 def data_path(filename):
     data_dir = os.path.join(os.path.dirname(__file__), 'data')
     return os.path.join(data_dir, filename)
+
 
 @pytest.fixture
 def patch_get(request):
@@ -18,10 +21,12 @@ def patch_get(request):
 
 DATA_FILES = None
 
+
 def get_mockreturn(url, params=None, timeout=10):
     filename = data_path(DATA_FILES)
     content = open(filename, 'r').read()
     return MockResponse(content)
+
 
 @pytest.fixture
 def patch_post(request):
@@ -31,14 +36,17 @@ def patch_post(request):
 
 data = None
 
+
 def post_mockreturn(url, data, timeout):
     response = MockResponse(data)
     return response
 
 
 class MockResponse(object):
+
     def __init__(self, content):
         self.content = content
+
 
 def test_ogle_single(patch_get):
     """
@@ -47,6 +55,7 @@ def test_ogle_single(patch_get):
     co = coord.GalacticCoordinates(0, 3, unit=(u.degree, u.degree))
     ogle.query(coord=co)
 
+
 def test_ogle_list(patch_get):
     """
     Test multiple pointings using a list of astropy coordinate instances
@@ -54,6 +63,7 @@ def test_ogle_list(patch_get):
     co = coord.GalacticCoordinates(0, 3, unit=(u.degree, u.degree))
     co_list = [co, co, co]
     ogle.query(coord=co_list)
+
 
 def test_ogle_list_values(patch_get):
     """

@@ -4,8 +4,8 @@ import xml.etree.ElementTree as tree
 import requests
 import astropy.units as u
 import astropy.utils.data as aud
+# import this since the user may not have pytest installed
 from astropy.tests.helper import pytest, remote_data
- # import this since the user may not have pytest installed
 from astropy.io import fits
 from astropy.table import Table
 from ... import irsa_dust

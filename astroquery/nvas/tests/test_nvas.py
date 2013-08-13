@@ -14,25 +14,30 @@ from astropy.tests.helper import pytest
 from ...import nvas
 from ...utils import commons
 
-COORDS_GAL = coord.GalacticCoordinates(l=49.489, b=-0.37, unit=(u.deg, u.deg)) # ARM 2000
-COORDS_ICRS = coord.ICRSCoordinates("12h29m06.69512s +2d03m08.66276s") # 3C 273
+COORDS_GAL = coord.GalacticCoordinates(l=49.489, b=-0.37, unit=(u.deg, u.deg))  # ARM 2000
+COORDS_ICRS = coord.ICRSCoordinates("12h29m06.69512s +2d03m08.66276s")  # 3C 273
 
 DATA_FILES = {'image': 'image.imfits',
               'image_search': 'image_results.html'}
+
 
 def data_path(filename):
         data_dir = os.path.join(os.path.dirname(__file__), 'data')
         return os.path.join(data_dir, filename)
 
+
 class MockResponse(object):
+
     def __init__(self, content):
         self.content = content
+
 
 @pytest.fixture
 def patch_post(request):
     mp = request.getfuncargvalue("monkeypatch")
     mp.setattr(requests, 'post', post_mockreturn)
     return mp
+
 
 @pytest.fixture
 def patch_parse_coordinates(request):
@@ -42,11 +47,13 @@ def patch_parse_coordinates(request):
     mp.setattr(commons, 'parse_coordinates', parse_coordinates_mock_return)
     return mp
 
+
 def post_mockreturn(url, data, timeout):
     filename = data_path(DATA_FILES['image_search'])
     content = open(filename, 'r').read()
     response = MockResponse(content)
     return response
+
 
 @pytest.fixture
 def patch_get_readable_fileobj(request):
@@ -58,10 +65,12 @@ def patch_get_readable_fileobj(request):
     mp.setattr(aud, 'get_readable_fileobj', get_readable_fileobj_mockreturn)
     return mp
 
+
 @pytest.mark.parametrize(('radius'), ['5d0m0s', 5 * u.deg])
 def test_parse_radius(radius):
     out = nvas.core._parse_radius(radius)
     npt.assert_approx_equal(out, 300, significant=3)
+
 
 @pytest.mark.parametrize(('coordinates'), [COORDS_GAL, COORDS_ICRS])
 def test_parse_coordinates(coordinates):
@@ -71,10 +80,12 @@ def test_parse_coordinates(coordinates):
     npt.assert_approx_equal(new_coords.icrs.ra.degree, coordinates.icrs.ra.degree, significant=3)
     npt.assert_approx_equal(new_coords.icrs.dec.degree, coordinates.icrs.dec.degree, significant=3)
 
+
 def test_extract_image_urls():
     html_in = open(data_path(DATA_FILES['image_search']), 'r').read()
     image_list = nvas.core.Nvas.extract_image_urls(html_in)
     assert len(image_list) == 2
+
 
 def test_get_images_async(patch_post, patch_parse_coordinates):
     image_list = nvas.core.Nvas.get_images_async(COORDS_ICRS, band='K',
@@ -82,9 +93,11 @@ def test_get_images_async(patch_post, patch_parse_coordinates):
                                                  max_rms=100)
     assert len(image_list) == 2
 
+
 def test_get_images(patch_post, patch_parse_coordinates, patch_get_readable_fileobj):
     images = nvas.core.Nvas.get_images(COORDS_GAL, radius='5d0m0s', band='all')
     assert images is not None
+
 
 def test_get_image_list(patch_post, patch_parse_coordinates):
     image_list = nvas.core.Nvas.get_image_list(COORDS_GAL, radius=15 * u.arcsec,

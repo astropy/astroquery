@@ -7,6 +7,7 @@ from astropy.tests.helper import remote_data
 
 from ...import nvas
 
+
 @remote_data
 class TestNvas:
 
@@ -21,6 +22,6 @@ class TestNvas:
         assert images is not None
 
     def test_get_image_list(self):
-         image_urls = nvas.core.Nvas.get_image_list("05h34m31.94s 22d00m52.2s",
-                                                    radius='0d0m0.6s', max_rms=500)
-         assert len(image_urls) > 0
+        image_urls = nvas.core.Nvas.get_image_list("05h34m31.94s 22d00m52.2s",
+                                                   radius='0d0m0.6s', max_rms=500)
+        assert len(image_urls) > 0

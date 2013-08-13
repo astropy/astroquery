@@ -22,20 +22,20 @@ class Nvas(BaseQuery):
     valid_bands = ["all","L","C","X","U","K","Q"]
 
     band_freqs = {
-        "L":	(1,2),
-        "S":	(2,4),
-        "C":	(4,8),
-        "X":	(8,12),
-        "U":	(12,18),
-        "K":	(18,26.5),
-        "Ka":	(26.5,40),
-        "Q":	(30,50),
-        "V":	(50,75),
-        "E":	(60,90),
-        "W":	(75,110),
-        "F":	(90,140),
-        "D":	(110,170),
-        }
+        "L": (1,2),
+        "S": (2,4),
+        "C": (4,8),
+        "X": (8,12),
+        "U": (12,18),
+        "K": (18,26.5),
+        "Ka": (26.5,40),
+        "Q": (30,50),
+        "V": (50,75),
+        "E": (60,90),
+        "W": (75,110),
+        "F": (90,140),
+        "D": (110,170),
+    }
 
     @class_or_instance
     def get_images(self, coordinates, radius=0.25 * u.arcmin, max_rms=10000,
@@ -131,7 +131,6 @@ class Nvas(BaseQuery):
 
         return [aud.get_readable_fileobj(U) for U in image_urls]
 
-
     @class_or_instance
     def get_image_list(self, coordinates, radius=0.25 * u.arcmin, max_rms=10000,
                        band="all", get_uvfits=False, get_query_payload=False):
@@ -179,7 +178,6 @@ class Nvas(BaseQuery):
         response = commons.send_request(Nvas.URL, request_payload, Nvas.TIMEOUT)
         image_urls = self.extract_image_urls(response.content, get_uvfits=get_uvfits)
         return image_urls
-
 
     @class_or_instance
     def extract_image_urls(self, html_in, get_uvfits=False):
@@ -229,8 +227,9 @@ def _parse_coordinates(coordinates):
     c = commons.parse_coordinates(coordinates)
     # numpy 1.5 returns an object array, so we need to force it to a pair of strings
     # numpy 1.6, 1.7 apparently return string arrays and concatenate without issue
-    radecstr = str(c.icrs.ra.format(u.hour, sep=" ")) + " " + str(c.icrs.dec.format(sep= " ", alwayssign=True))
+    radecstr = str(c.icrs.ra.format(u.hour, sep=" ")) + " " + str(c.icrs.dec.format(sep=" ", alwayssign=True))
     return radecstr
+
 
 def _parse_radius(radius):
     """
