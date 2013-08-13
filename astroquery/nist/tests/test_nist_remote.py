@@ -7,6 +7,7 @@ import astropy.units as u
 
 from ... import nist
 
+
 @remote_data
 class TestNist:
 

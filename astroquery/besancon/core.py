@@ -8,7 +8,7 @@ import re
 import astropy.utils.data as aud
 from astropy.io import ascii
 from . import BESANCON_DOWNLOAD_URL, BESANCON_MODEL_FORM, BESANCON_PING_DELAY
-import urllib2 # only needed for urllib2.URLError
+import urllib2  # only needed for urllib2.URLError
 
 from ..query import BaseQuery
 from ..utils.class_or_instance import class_or_instance
@@ -22,18 +22,18 @@ keyword_defaults = {
     'rinf':0.000000,
     'rsup':50.000000,
     'dist_step_mode':0,
-    'dlr':  0.000,
+    'dlr': 0.000,
     'kleg':1,
     'longit': 10.62,
     'latit':-0.38,
-    'soli':0.0003, # degrees.  0.00027777 = 1 arcsec
+    'soli':0.0003,  # degrees.  0.00027777 = 1 arcsec
     'kleh':1,
     'eq1': 2000.0,
     'al0': 200.00,
     'alm': 200.00,
-    'dl':  1.00,
-    'ab0':  59.00,
-    'abm':  59.00,
+    'dl': 1.00,
+    'ab0': 59.00,
+    'abm': 59.00,
     'db': 1.00,
     'adif': 0.700,
     'ev':[""]*24,
@@ -50,14 +50,14 @@ keyword_defaults = {
     'band0':[8]*9,
     'bandf':[25]*9,
     'colind':["J-H","H-K","J-K","V-K",],
-    'nic':  4,
+    'nic': 4,
     'klea':1,
     'sc':[[0,0,0]]*9,
     'klee':0,
     'throughform':'ok',
-    'kleb':3, # 3 = Catalogue Simulation, 1 = tables and differential counts
-    'klec':1, # 1 = ubv, 15= cfhtls (photometric system)
-    'cinem':0, # 0: no kinematics, 1: kinematics
+    'kleb':3,  # 3 = Catalogue Simulation, 1 = tables and differential counts
+    'klec':1,  # 1 = ubv, 15= cfhtls (photometric system)
+    'cinem':0,  # 0: no kinematics, 1: kinematics
     'outmod':"",
 }
 keyword_defaults['ff[15]'] = 500
@@ -109,12 +109,12 @@ class Besancon(BaseQuery):
 
         if verbose:
             sys.stdout.write("Awaiting Besancon file...\n")
-        while 1:
+        while True:
             if verbose:
                 sys.stdout.write(u"\r")
                 sys.stdout.flush()
             try:
-                #U = requests.get(url,timeout=timeout,stream=True)
+                # U = requests.get(url,timeout=timeout,stream=True)
                 # TODO: add timeout= keyword to get_readable_fileobj (when PR https://github.com/astropy/astropy/pull/1258 is merged)
                 with aud.get_readable_fileobj(url, cache=True) as f:
                     results = f.read()
@@ -153,7 +153,7 @@ class Besancon(BaseQuery):
             text = f.read()
         try:
             filename = self.result_re.search(text).group()
-        except AttributeError: # if there are no matches
+        except AttributeError:  # if there are no matches
             errors = parse_errors(text)
             raise ValueError("Errors: "+"\n".join(errors))
 
@@ -164,7 +164,7 @@ class Besancon(BaseQuery):
             return self.get_besancon_model_file(filename)
         else:
             return filename
-            
+
     @class_or_instance
     def _parse_args(self, glon, glat, email=None, smallfield=True, extinction=0.7,
                     area=0.0001, verbose=True, clouds=None,
@@ -257,7 +257,7 @@ class Besancon(BaseQuery):
                 kwd[di][ii] = di
 
         # parse the default dictionary
-        #request_data = parse_besancon_dict(keyword_defaults)
+        # request_data = parse_besancon_dict(keyword_defaults)
         request_data = kwd.copy()
 
         # convert all array elements to arrays
@@ -268,7 +268,6 @@ class Besancon(BaseQuery):
                         del request_data[k]
                     for ii,x in enumerate(v):
                         request_data['%s[%i]' % (k,ii)] = x
-
 
         # an e-mail address is required
         request_data['email'] = email
@@ -309,13 +308,13 @@ def parse_besancon_dict(bd):
 
     http_dict = []
     for key,val in bd.iteritems():
-        if type(val) is list:
+        if isinstance(val, list):
             if "[]" in key:
                 for listval in val:
                     http_dict.append((key,listval))
             else:
                 for ii,listval in enumerate(val):
-                    if type(listval) is list:
+                    if isinstance(listval, list):
                         for jj,lv in enumerate(listval):
                             http_dict.append((key+"[%i][%i]" % (ii,jj),lv))
                     else:
@@ -324,6 +323,7 @@ def parse_besancon_dict(bd):
             http_dict.append((key, val))
 
     return http_dict
+
 
 def parse_errors(text):
     """
@@ -343,7 +343,6 @@ def parse_errors(text):
     error_list = text_items[2:-2]
     return error_list
 
-    
 
 def parse_besancon_model_string(bms,):
     """
@@ -391,7 +390,7 @@ def parse_besancon_model_string(bms,):
         raise ValueError("Table parsing error: mismatch between # of columns & header")
 
     besancon_table = ascii.read(bms, Reader=ascii.FixedWidthNoHeader,
-                                header_start=None, 
+                                header_start=None,
                                 data_start=data_start,
                                 names=names,
                                 col_starts=col_starts,

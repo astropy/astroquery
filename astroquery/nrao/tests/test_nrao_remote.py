@@ -7,6 +7,7 @@ import astropy.coordinates as coord
 
 from ... import nrao
 
+
 @remote_data
 class TestNrao:
 
@@ -15,5 +16,5 @@ class TestNrao:
         assert response is not None
 
     def test_query_region(self):
-         result = nrao.core.Nrao.query_region(coord.ICRSCoordinates("04h33m11.1s 05d21m15.5s"))
-         assert isinstance(result, Table)
+        result = nrao.core.Nrao.query_region(coord.ICRSCoordinates("04h33m11.1s 05d21m15.5s"))
+        assert isinstance(result, Table)

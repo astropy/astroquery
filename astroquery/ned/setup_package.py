@@ -1,4 +1,6 @@
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
 import os
+
 
 def get_package_data():
     paths_core = [os.path.join('data', 'keywords_dict.json')]
@@ -10,4 +12,4 @@ def get_package_data():
     return {
             'astroquery.ned': paths_core,
             'astroquery.ned.tests': paths_test
-           }
+    }

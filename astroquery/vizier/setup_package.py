@@ -1,4 +1,6 @@
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
 import os
+
 
 def get_package_data():
     paths_test = [os.path.join('data', 'viz.xml')]
@@ -9,4 +11,4 @@ def get_package_data():
     return {
             'astroquery.vizier.tests': paths_test,
             'astroquery.vizier': paths_core
-           }
+    }
