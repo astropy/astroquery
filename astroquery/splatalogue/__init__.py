@@ -4,8 +4,6 @@ Splatalogue Catalog Query Tool
 -----------------------------------
 
 :Author: Adam Ginsburg (adam.g.ginsburg@gmail.com)
-
-Previous version by
 :Author: Magnus Vilehlm Persson (magnusp@vilhelm.nu)
 """
 SLAP_URL = 'http://find.nrao.edu/splata-slap/slap'
