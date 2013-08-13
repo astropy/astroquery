@@ -56,4 +56,6 @@ SORT_OUTPUT_BY = ConfigurationItem('sort_output_by',
                                     "Redshift - ascending",
                                     "Redshift - descending"], 'display output sorted by this criteria.')
 
-from .core import *
+from .core import Ned
+
+__all__ = ['Ned']
