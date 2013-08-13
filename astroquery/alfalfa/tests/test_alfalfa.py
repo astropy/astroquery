@@ -14,7 +14,7 @@ def test_alfalfa_crossID():
     AGC = agc
 
 def test_alfalfa_spectrum():
-    sp = alfalfa.core.ALFALFA.get_spectra(AGC)
+    sp = alfalfa.core.ALFALFA.get_spectrum(AGC)
 
 if __name__ == '__main__':
     test_alfalfa_catalog()
