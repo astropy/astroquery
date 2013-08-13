@@ -4,7 +4,9 @@ import abc
 
 __all__ = ['BaseQuery']
 
+
 class BaseQuery(object):
+
     """
     This is the base class for all the query classes in astroquery. It
     is implemented as an abstract class and must not be directly instantiated.
@@ -14,6 +16,7 @@ class BaseQuery(object):
 
 
 class QueryWithLogin(BaseQuery):
+
     """
     This is the base class for all the query classes which are required to
     have a login to access the data.

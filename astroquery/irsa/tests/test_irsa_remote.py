@@ -10,6 +10,7 @@ from ... import irsa
 
 OBJ_LIST = ["m31", "00h42m44.330s +41d16m07.50s", coord.GalacticCoordinates(l=121.1743, b=-21.5733, unit=(u.deg, u.deg))]
 
+
 @remote_data
 class TestIrsa:
 

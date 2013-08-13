@@ -8,7 +8,6 @@ from . import utils
 from . import IRSA_DUST_SERVER, IRSA_DUST_TIMEOUT
 from ..utils.class_or_instance import class_or_instance
 from ..utils import commons
-from ..exceptions import TimeoutError, InvalidQueryError
 from ..query import BaseQuery
 
 
@@ -35,6 +34,7 @@ MIN_VALUE = "minValue"
 
 DATA_IMAGE = "./data/image"
 DATA_TABLE = "./data/table"
+
 
 class IrsaDust(BaseQuery):
 
@@ -379,6 +379,7 @@ class SingleDustResult(object):
     a detailed extinction table linked to in the initial response. Not intended
     to be instantiated by the end user.
     """
+
     def __init__(self, xml_tree, query_loc=None):
         """
         Parameters
@@ -621,6 +622,7 @@ class BaseDustNode(object):
     A node in the result xml that has been enhanced to return values and Columns
     appropriate to its type (String, Number, or Coord).
     """
+
     def __init__(self, xml_node):
         """
         Parameters
@@ -664,6 +666,7 @@ class StringNode(BaseDustNode):
     """
     A node that contains text.
     """
+
     def __init__(self, xml_node, col_name, length):
         """
         Parameters
@@ -695,6 +698,7 @@ class NumberNode(BaseDustNode):
     """
     A node that contains a number. Outputs a single column containing the number.
     """
+
     def __init__(self, xml_node, col_name, units=None):
         """
         Parameters
@@ -725,6 +729,7 @@ class CoordNode(BaseDustNode):
     A node that contains RA, Dec coordinates. Outputs three values / columns: RA, Dec
     and a coordinate system description string.
     """
+
     def __init__(self, xml_node, col_names):
         """
         Parameters
@@ -762,6 +767,7 @@ class BaseResultSection(object):
     In addition, the extinction, emission, and temperature sections
     each contain a nested statistics subsection.
     """
+
     def node_dict(self, names, xml_root):
         """
         Find all the nodes with the given names under the given root,
@@ -828,6 +834,7 @@ class LocationSection(BaseResultSection):
     """
     The location section of the DustResults object.
     """
+
     def __init__(self, xml_root):
         """
         Parameters
@@ -859,6 +866,7 @@ class StatsSection(BaseResultSection):
     The statistics subsection of one of an extinction, emission, or temperature
     section.
     """
+
     def __init__(self, xml_root, col_prefix):
         """
         Parameters
@@ -923,6 +931,7 @@ class ExtinctionSection(BaseResultSection):
     """
     The extinction (reddening) section in a DustResults object.
     """
+
     def __init__(self, xml_root):
         """
         Parameters
@@ -984,6 +993,7 @@ class EmissionSection(BaseResultSection):
     """
     The emission section in a DustResults object.
     """
+
     def __init__(self, xml_root):
         """
         Parameters
@@ -1033,6 +1043,7 @@ class TemperatureSection(BaseResultSection):
     """
     The temperature section in a DustResults object.
     """
+
     def __init__(self, xml_root):
         """
         Parameters

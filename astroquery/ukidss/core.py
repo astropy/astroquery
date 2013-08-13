@@ -24,9 +24,10 @@ from ..query import QueryWithLogin
 from ..exceptions import InvalidQueryError, TimeoutError
 from ..utils.class_or_instance import class_or_instance
 from ..utils import commons
-from .  import UKIDSS_SERVER, UKIDSS_TIMEOUT
+from . import UKIDSS_SERVER, UKIDSS_TIMEOUT
 
 __all__ = ['Ukidss','clean_catalog']
+
 
 class LinksExtractor(htmllib.HTMLParser):  # derive new HTML parser
 
@@ -54,6 +55,7 @@ def validate_frame(func):
         return func(*args, **kwargs)
     return wrapper
 
+
 def validate_filter(func):
     def wrapper(*args, **kwargs):
         waveband = kwargs.get('waveband')
@@ -64,6 +66,7 @@ def validate_filter(func):
 
 
 class Ukidss(QueryWithLogin):
+
     """
     The UKIDSSQuery class.  Must instantiate this class in order to make any
     queries.  Allows registered users to login, but defaults to using the
@@ -77,10 +80,10 @@ class Ukidss(QueryWithLogin):
     TIMEOUT = UKIDSS_TIMEOUT()
 
     filters = {'all': 'all', 'J': 3, 'H': 4, 'K': 5, 'Y': 2,
-                'Z': 1, 'H2': 6, 'Br': 7}
+              'Z': 1, 'H2': 6, 'Br': 7}
 
     frame_types = {'stack': 'stack', 'normal': 'normal', 'interleave': 'leav', 'deep_stack': 'deep%stack', 'confidence': 'conf',
-               'difference': 'diff', 'leavstack': 'leavstack', 'all':  'all'}
+               'difference': 'diff', 'leavstack': 'leavstack', 'all': 'all'}
 
     ukidss_programmes_short = {'LAS': 101,
                              'GPS': 102,
@@ -93,9 +96,10 @@ class Ukidss(QueryWithLogin):
                             'Galactic Clusters Survey': 103,
                             'Deep Extragalactic Survey': 104,
                             'Ultra Deep Survey': 105}
+
     def __init__(self, username, password, community, database='UKIDSSDR7PLUS', programme_id='all'):
         self.database = database
-        self.programme_id = programme_id # 102 = GPS
+        self.programme_id = programme_id  # 102 = GPS
         self.session = None
         self.login(username, password, community)
 
@@ -124,7 +128,6 @@ class Ukidss(QueryWithLogin):
                             "Please try again.\n"
                             "Note that you can continue to access public data without logging in.\n")
 
-
     def logged_in(self):
         """
         Determine whether currently logged in.
@@ -136,16 +139,15 @@ class Ukidss(QueryWithLogin):
                 return False
         return True
 
-
     @class_or_instance
     def _args_to_payload(self, *args, **kwargs):
         request_payload = {}
-        request_payload['database']    = self.database if hasattr(self, 'database') else kwargs['database']
+        request_payload['database'] = self.database if hasattr(self, 'database') else kwargs['database']
         programme_id = self.programme_id if hasattr(self, 'programme_id') else kwargs['programme_id']
         request_payload['programmeID'] = verify_programme_id(programme_id, query_type=kwargs['query_type'])
-        request_payload['ra']          = commons.parse_coordinates(args[0]).icrs.ra.degree
-        request_payload['dec']         = commons.parse_coordinates(args[0]).icrs.dec.degree
-        request_payload['sys']         = 'J'
+        request_payload['ra'] = commons.parse_coordinates(args[0]).icrs.ra.degree
+        request_payload['dec'] = commons.parse_coordinates(args[0]).icrs.dec.degree
+        request_payload['sys'] = 'J'
         return request_payload
 
     @class_or_instance
@@ -244,9 +246,9 @@ class Ukidss(QueryWithLogin):
         """
 
         image_urls = self.get_image_list(coordinates, waveband=waveband, frame_type=frame_type,
-                                           image_width=image_width, image_height=image_height,
-                                           database=database, programme_id=programme_id,
-                                           radius=radius, get_query_payload=get_query_payload)
+                                        image_width=image_width, image_height=image_height,
+                                        database=database, programme_id=programme_id,
+                                        radius=radius, get_query_payload=get_query_payload)
         if get_query_payload:
             return image_urls
 
@@ -303,10 +305,10 @@ class Ukidss(QueryWithLogin):
 
         request_payload = self._args_to_payload(coordinates, database=database,
                                                 programme_id=programme_id, query_type='image')
-        request_payload['filterID']    = Ukidss.filters[waveband]
-        request_payload['obsType']     = 'object'
-        request_payload['frameType']   = Ukidss.frame_types[frame_type]
-        request_payload['mfid']        = ''
+        request_payload['filterID'] = Ukidss.filters[waveband]
+        request_payload['obsType'] = 'object'
+        request_payload['frameType'] = Ukidss.frame_types[frame_type]
+        request_payload['mfid'] = ''
         if radius is None:
             request_payload['xsize'] = _parse_dimension(image_width)
             request_payload['ysize'] = _parse_dimension(image_width) if image_height is None else _parse_dimension(image_height)
@@ -317,13 +319,13 @@ class Ukidss(QueryWithLogin):
             dec = request_payload.pop('dec')
             radius = commons.parse_radius(radius).degree
             del request_payload['sys']
-            request_payload['userSelect']  = 'default'
-            request_payload['minRA']       = str(round(ra - radius / cos(radians(dec)),2))
-            request_payload['maxRA']       = str(round(ra + radius / cos(radians(dec)),2))
-            request_payload['formatRA']    = 'degrees'
-            request_payload['minDec']       = str(dec - radius)
-            request_payload['maxDec']       = str(dec + radius)
-            request_payload['formatDec']    = 'degrees'
+            request_payload['userSelect'] = 'default'
+            request_payload['minRA'] = str(round(ra - radius / cos(radians(dec)),2))
+            request_payload['maxRA'] = str(round(ra + radius / cos(radians(dec)),2))
+            request_payload['formatRA'] = 'degrees'
+            request_payload['minDec'] = str(dec - radius)
+            request_payload['maxDec'] = str(dec + radius)
+            request_payload['formatDec'] = 'degrees'
             request_payload['startDay'] = 0
             request_payload['startMonth'] = 0
             request_payload['startYear'] = 0
@@ -351,7 +353,6 @@ class Ukidss(QueryWithLogin):
             image_urls = [link.replace("getImage", "getFImage") for link in image_urls]
 
         return image_urls
-
 
     @class_or_instance
     def extract_urls(self, html_in):
@@ -419,7 +420,6 @@ class Ukidss(QueryWithLogin):
 
         result = self._parse_result(response, verbose=verbose)
         return result
-
 
     @class_or_instance
     def query_region_async(self, coordinates, radius=1 * u.arcmin, programme_id='GPS',
@@ -513,10 +513,10 @@ class Ukidss(QueryWithLogin):
                 warnings.warn("Query returned no results, so the table will be empty")
             return table
         except Exception as ex:
-             print (str(ex))
-             warnings.warn("Error in parsing UKIDSS result. "
-                           "Returning raw result instead.")
-             return content
+            print (str(ex))
+            warnings.warn("Error in parsing UKIDSS result. "
+                          "Returning raw result instead.")
+            return content
 
     @class_or_instance
     def list_catalogs(self, style='short'):
@@ -578,10 +578,11 @@ class Ukidss(QueryWithLogin):
             elif re.search(keyword, response.content, re.IGNORECASE):
                 page_loaded = True
             max_attempts -= 1
-            time.sleep(wait_time) # wait for wait_time seconds before checking again
+            time.sleep(wait_time)  # wait for wait_time seconds before checking again
         if page_loaded == False:
             raise TimeoutError("Page did not load.")
         return response
+
 
 def clean_catalog(ukidss_catalog, clean_band='K_1', badclass=-9999, maxerrbits=41, minerrbits=0,
         maxpperrbits=60):
@@ -613,9 +614,10 @@ def clean_catalog(ukidss_catalog, clean_band='K_1', badclass=-9999, maxerrbits=4
             * ((ukidss_catalog.data['PRIORSEC'] == ukidss_catalog.data['FRAMESETID'])
                 + (ukidss_catalog.data['PRIORSEC'] == 0))
             * (ukidss_catalog.data[band + 'PPERRBITS'] < maxpperrbits)
-        )
+            )
 
     return ukidss_catalog.data[mask]
+
 
 def verify_programme_id(pid, query_type='catalog'):
     """
@@ -649,6 +651,7 @@ def verify_programme_id(pid, query_type='catalog'):
         return Ukidss.ukidss_programmes_short[pid]
     elif query_type != 'image':
         raise ValueError("programme_id {0} not recognized".format(pid))
+
 
 def _parse_dimension(dim):
     """

@@ -12,7 +12,7 @@ from astropy.config import ConfigurationItem
 # maintain a list of URLs in case the user wants to append a mirror
 IRSA_DUST_SERVER = ConfigurationItem('irsa_dust_server',[
                                     'http://irsa.ipac.caltech.edu/cgi-bin/DUST/nph-dust'],
-                                     'Name of the irsa_dust server to use')
+    'Name of the irsa_dust server to use')
 
 IRSA_DUST_TIMEOUT = ConfigurationItem('timeout', 30, 'default timeout for connecting to server')
 

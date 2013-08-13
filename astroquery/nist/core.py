@@ -18,6 +18,7 @@ from . import NIST_SERVER, NIST_TIMEOUT
 
 __all__ = ['Nist']
 
+
 def _strip_blanks(table):
     """
     Remove blank lines from table (included for "human readability" but useless to us...
@@ -37,6 +38,7 @@ def _strip_blanks(table):
         table = table.split('\n')
     table = [line for line in table if numbersletters.search(line)]
     return "\n".join(table)
+
 
 @async_to_sync
 class Nist(BaseQuery):
@@ -89,10 +91,10 @@ class Nist(BaseQuery):
         request_payload["upp_wl"] = max_wav
         request_payload["unit"] = wav_unit
         request_payload["submit"] = "Retrieve Data"
-        request_payload["format"] = 1 # ascii
-        request_payload["line_out"] = 0 # All lines
+        request_payload["format"] = 1  # ascii
+        request_payload["line_out"] = 0  # All lines
         request_payload["en_unit"] = Nist.energy_level_code[kwargs["energy_level_unit"]]
-        request_payload["output"] = 0 # entirely rather than pagewise
+        request_payload["output"] = 0  # entirely rather than pagewise
         request_payload["bibrefs"] = 1
         request_payload["show_obs_wl"] = 1
         request_payload["show_calc_wl"] = 1
@@ -154,7 +156,7 @@ class Nist(BaseQuery):
         pre_re = re.compile("<pre>(.*)</pre>",flags=re.DOTALL)
         links_re = re.compile(r"<a.*?>\s*(\w+)\s*</a>")
         try:
-          pre = pre_re.findall(response.content)[0]
+            pre = pre_re.findall(response.content)[0]
         except IndexError:
             raise Exception("Result did not contain a table")
         try:

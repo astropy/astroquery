@@ -340,7 +340,6 @@ class Vizier(BaseQuery):
             Vizier.TIMEOUT())
         return response
 
-
     @class_or_instance
     def query_constraints(self, verbose=False, **kwargs):
         response = self.query_constraints_async(**kwargs)
@@ -360,7 +359,7 @@ class Vizier(BaseQuery):
             The catalog(s) which must be searched for this identifier.
             If not specified, all matching catalogs will be searched.
         keywords : dict
-            A dictionary of keywords to query on.  
+            A dictionary of keywords to query on.
         kwargs : dict
             Any key/value pairs besides "catalog" and "keywords" will be parsed
             as additional keywords.  kwargs overrides anything specified in

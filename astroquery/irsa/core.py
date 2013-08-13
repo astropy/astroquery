@@ -108,14 +108,15 @@ If onlist=0, the following parameters are required:
 
 __all__ = ['Irsa']
 
+
 class Irsa(BaseQuery):
     IRSA_URL = IRSA_SERVER()
     GATOR_LIST_URL = GATOR_LIST_CATALOGS()
     TIMEOUT = TIMEOUT()
+
     @class_or_instance
     def query_region(self, coordinates=None, catalog=None, spatial='Cone', radius=10 * u.arcsec,
                      width=None, polygon=None, get_query_payload=False, verbose=False):
-
         """
         This function can be used to perform either cone, box, polygon or all-sky
         search in the catalogs hosted by the NASA/IPAC Infrared Science Archive (IRSA).
@@ -252,7 +253,7 @@ class Irsa(BaseQuery):
             `astropy.coordinates.Angle`s outlinining the polygon to search in.
             It can also be a list of `astropy.coordinates` object or strings
             that can be parsed by `astropy.coordinates.ICRSCoordinates`.
-        
+
         Returns
         -------
         Payload dictionary
@@ -292,7 +293,7 @@ class Irsa(BaseQuery):
                              "Must be one of 'Cone', 'Box', 'Polygon', or 'All-Sky'.")
 
         request_payload['spatial'] = spatial
-        
+
         return request_payload
 
     @class_or_instance
@@ -405,6 +406,7 @@ def _is_coordinate(coordinates):
     except ValueError:
         return False
 
+
 def _parse_coordinates(coordinates):
 # borrowed from commons.parse_coordinates as from_name wasn't required in this case
     if isinstance(coordinates, basestring):
@@ -423,16 +425,18 @@ def _parse_coordinates(coordinates):
     formatted_coords = _format_decimal_coords(c.icrs.ra.degree, c.icrs.dec.degree)
     return formatted_coords
 
+
 def _format_decimal_coords(ra, dec):
     """
     Print *decimal degree* RA/Dec values in an IPAC-parseable form
     """
     return '{0} {1:+}'.format(ra, dec)
 
+
 def _parse_dimension(dim):
     if isinstance(dim, u.Quantity) and dim.unit in u.deg.find_equivalent_units():
-       if dim.unit not in ['arcsec', 'arcmin', 'deg']:
-           dim = dim.to(u.degree)
+        if dim.unit not in ['arcsec', 'arcmin', 'deg']:
+            dim = dim.to(u.degree)
     # otherwise must be an Angle or be specified in hours...
     else:
         try:
