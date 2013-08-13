@@ -57,8 +57,8 @@ def print_mols():
     Print molecule names available for query.
     """
     for mol_family in mols.keys():
-        print '-- {0} :'.format(mol_family)
-        print mols[mol_family], '\n'
+        print('-- {0} :'.format(mol_family))
+        print(mols[mol_family], '\n')
 
 
 def query(mol, query_type, coll_partner_index=0):

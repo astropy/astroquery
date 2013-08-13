@@ -97,7 +97,7 @@ the `Quantity` object from `astropy.units`_:
     >>> result_table = Simbad.query_region("m81", radius=5 * u.deg)
     >>> # another way to specify the radius.  
     >>> result_table = Simbad.query_region("m81", radius='5d0m0s')
-    >>> print result_table
+    >>> print(result_table)
 
 		    MAIN_ID               RA  ...     COO_WAVELENGTH     COO_BIBCODE    
 	----------------------- ------------- ... -------------- -------------------
@@ -126,7 +126,7 @@ by the `astropy.coordinates.ICRSCoordinates` object)
     >>> import astropy.coordinates as coord
     >>> # works only for ICRS coordinates:
     >>> result_table = Simbad.query_region("05h35m17.3s -05h23m28s", radius='5d0m0s')
-    >>> print result_table
+    >>> print(result_table)
 
     MAIN_ID           RA           DEC      RA_PREC DEC_PREC ... COO_ERR_MINA COO_ERR_ANGLE COO_QUAL COO_WAVELENGTH     COO_BIBCODE    
     --------------- ------------- ------------- ------- -------- ... ------------ ------------- -------- -------------- -------------------

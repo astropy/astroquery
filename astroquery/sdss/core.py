@@ -216,7 +216,7 @@ def get_spectral_template(kind='qso'):
     to galaxies, to quasars. To see the available templates, do:
     
         from astroquery import sdss
-        print sdss.spec_templates.keys()
+        print(sdss.spec_templates.keys())
     
     Parameters
     ----------
