@@ -34,7 +34,7 @@ class MockResponse(object):
             if match:
                 filename = DATA_FILES[match.group(1)]
                 content = open(data_path(filename), "r").read()
-                print filename
+                print(filename)
                 return content
 
 def data_path(filename):

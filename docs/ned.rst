@@ -22,7 +22,7 @@ instance if you want to query NGC 224
 
     >>> from astroquery.ned import Ned
     >>> result_table = Ned.query_object("NGC 224")
-    >>> print result_table # an astropy.table.Table
+    >>> print(result_table) # an astropy.table.Table
 
      No. Object Name  RA(deg)   ... Redshift Points Diameter Points Associations
     --- ----------- ---------- ... --------------- --------------- ------------
@@ -45,7 +45,7 @@ specified. By default this is J2000.0 but can also be set to B1950.0.
     >>> from astroquery.ned import Ned
     >>> import astropy.units as u
     >>> result_table = Ned.query_region("3c 273", radius=5 * u.deg)
-    >>> print result_table
+    >>> print(result_table)
 
      No.       Object Name         RA(deg)   ... Diameter Points Associations
     --- ------------------------ ---------- ... --------------- ------------
@@ -77,7 +77,7 @@ may be used (ICRS, Galactic, FK4, FK5). Note also the use of the equinox keyword
     >>> import astropy.coordinates as coord
     >>> result_table = Ned.query_region(coord.FK4Coordinates(ra=56.38, dec=38.43, 
     ...                                 unit=(u.deg, u.deg)), radius=5 * u.deg, equinox='B1950.0')
-    >>> print result_table
+    >>> print(result_table)
 
 
        No.        Object Name        RA(deg)   ... Diameter Points Associations
@@ -114,7 +114,7 @@ target.
 
     >>> from astroquery.ned import Ned
     >>> result_table = Ned.query_region_iau('1234-423', frame='SuperGalactic', equinox='J2000.0')
-    >>> print result_table
+    >>> print(result_table)
 
         No.       Object Name        RA(deg)   ... Diameter Points Associations
     --- ----------------------- ---------- ... --------------- ------------
@@ -134,7 +134,7 @@ These queries can be used to retrieve all objects that appear in the specified
 
     >>> from astroquery.ned import Ned
     >>> result_table = Ned.query_refcode('1997A&A...323...31K')
-    >>> print result_table
+    >>> print(result_table)
 
         No.       Object Name        RA(deg)   ... Diameter Points Associations
     --- ----------------------- ---------- ... --------------- ------------
@@ -244,7 +244,7 @@ for the specified object. We look at a simple example:
 
     >>> from astroquery.ned import Ned
     >>> result_table = Ned.get_table("3C 273", table='positions')
-    >>> print result_table
+    >>> print(result_table)
 
       No.       RA            DEC       ... Published Frame  Published Frequence Mode                           Qualifiers                          
     --- -------------- -------------- ... --------------- ------------------------- --------------------------------------------------------------

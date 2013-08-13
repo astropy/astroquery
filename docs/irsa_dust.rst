@@ -114,7 +114,7 @@ value:
     Downloading http://irsa.ipac.caltech.edu//workspace/TMP_UkhZqQ_9824/DUST/22h57m57.5s_+26d09m00.09s_Equatorial_B1950.v0001/extinction.tbl
     |===========================================| 1.3k/1.3k (100.00%)        00s
 
-    >>> print table
+    >>> print(table)
 
         Filter_name LamEff(A)  A/Av A/E(B-V) A(mag)
     ----------- --------- ----- -------- ------
@@ -147,7 +147,7 @@ with all the four sections will be returned.
 
     >>> from astroquery.irsa_dust import IrsaDust
     >>> table = IrsaDust.get_query_table('2MASXJ23045666+1219223') # get the whole table
-    >>> print table
+    >>> print(table)
 
            RA      Dec    coord sys regSize ... temp mean temp std temp max temp min
     --------- -------- --------- ------- ... --------- -------- -------- --------
@@ -157,7 +157,7 @@ with all the four sections will be returned.
 
     >>> table = IrsaDust.get_query_table('2MASXJ23045666+1219223',
     ...                                   section='ebv')
-    >>> print table
+    >>> print(table)
 
           ext desc     ... ext min
     ---------------- ... -------

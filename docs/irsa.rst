@@ -1,8 +1,8 @@
 .. _astroquery.irsa:
 
-*****************************************
+********************************
 IRSA Queries (`astroquery.irsa`)
-*****************************************
+********************************
 
 Getting started
 ===============
@@ -69,7 +69,7 @@ entered as a string that is parsable by `astropy.coordinates.Angle`_.
     >>> import astropy.units as u
     >>> table = Irsa.query_region("m31", catalog="fp_psc", spatial="Cone",
     ...                           radius=2 * u.arcmin)
-    >>> print table
+    >>> print(table)
 
           ra     dec       clon         clat     err_maj ...  j_h   h_k    j_k    id
     ------- ------- ------------ ------------ ------- ... ----- ------ ------ ---
@@ -104,7 +104,7 @@ a string, as specified by `astropy.coordinates`_:
     >>> table = Irsa.query_region(coord.GalacticCoordinates(l=121.1743,
     ...                           b=-21.5733, unit=(u.deg,u.deg)),
     ...                           catalog='fp_psc', radius='0d2m0s')
-    >>> print table
+    >>> print(table)
 
 **Performing a box search**
 
@@ -125,7 +125,7 @@ for cone search queries, above - so it may be set using the appropriate
     WARNING: Coordinate string is being interpreted as an ICRS
     coordinate. [astroquery.irsa.core]
 
-    >>> print table
+    >>> print(table)
 
           ra     dec       clon         clat     err_maj ...  j_h   h_k   j_k   id
     ------- ------- ------------ ------------ ------- ... ----- ----- ----- ---
@@ -156,7 +156,7 @@ options is illustrated below:
     ...          coord.ICRSCoordinates(ra=10.0, dec=10.1, unit=(u.deg, u.deg)),
     ...          coord.ICRSCoordinates(ra=10.0, dec=10.0, unit=(u.deg, u.deg))
     ...         ])
-    >>> print table
+    >>> print(table)
 
           ra     dec       clon         clat     err_maj ...  j_h   h_k   j_k   id
     ------- ------- ------------ ------------ ------- ... ----- ----- ----- ---
@@ -175,8 +175,8 @@ is an ra, dec pair expressed in degrees:
 
     >>> from astroquery.irsa import Irsa
     >>> table = Irsa.query_region("m31", catalog="fp_psc", spatial="Polygon",
-    ... polygon=[(10.1, 10.1), (10.0, 10.1), (10.0, 10.0)])
-    >>> print table 
+    ... polygon = [(10.1, 10.1), (10.0, 10.1), (10.0, 10.0)])
+    >>> print(table) 
 
           ra     dec       clon         clat     err_maj ...  j_h   h_k   j_k   id
     ------- ------- ------------ ------------ ------- ... ----- ----- ----- ---
