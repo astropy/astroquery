@@ -6,22 +6,23 @@ from astropy.table import Table
 
 from ... import ned
 
+
 @remote_data
 class TestNed:
 
     @pytest.mark.xfail(reason="astropy issue #1266")
     def test_get_references(self):
-         response = ned.core.Ned.get_table_async("m1",table='references', from_year=2010)
-         assert response is not None
-         result = ned.core.Ned.get_table("m1", table='references', to_year=2012, extended_search=True)
-         assert isinstance(result, Table)
+        response = ned.core.Ned.get_table_async("m1",table='references', from_year=2010)
+        assert response is not None
+        result = ned.core.Ned.get_table("m1", table='references', to_year=2012, extended_search=True)
+        assert isinstance(result, Table)
 
     def test_get_positions_async(self):
-        response =  ned.core.Ned.get_table_async("m1", table='positions')
+        response = ned.core.Ned.get_table_async("m1", table='positions')
         assert response is not None
 
     def test_get_positions(self):
-        result =  ned.core.Ned.get_table("m1", table='positions')
+        result = ned.core.Ned.get_table("m1", table='positions')
         assert isinstance(result, Table)
 
     def test_get_redshifts_async(self):
@@ -53,8 +54,8 @@ class TestNed:
         assert fits_images is not None
 
     def test_query_refcode_async(self):
-         response = ned.core.Ned.query_refcode_async('1997A&A...323...31K')
-         assert response is not None
+        response = ned.core.Ned.query_refcode_async('1997A&A...323...31K')
+        assert response is not None
 
     def test_query_refcode(self):
         result = ned.core.Ned.query_refcode('1997A&A...323...31K')
@@ -67,7 +68,6 @@ class TestNed:
     def test_query_region_iau(self):
         result = ned.core.Ned.query_region_iau('1234-423')
         assert isinstance(result, Table)
-
 
     def test_query_region_async(self):
         response = ned.core.Ned.query_region_async("05h35m17.3s +22d00m52.2s")

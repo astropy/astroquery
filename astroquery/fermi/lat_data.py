@@ -7,7 +7,9 @@ import time
 
 __all__ = ['FermiLAT_Query', 'FermiLAT_DelayedQuery']
 
+
 class FermiLAT_QueryClass(object):
+
     """
     TODO: document
     """
@@ -30,10 +32,10 @@ class FermiLAT_QueryClass(object):
             The search radius in degrees around the object/coordinates
             specified (will be converted to string if specified as number).
             Must be in the range [1,60]
-            .. warning:: 
+            .. warning::
                 Defaults to 1 degree if left blank
         obsdates : str
-            Observation dates.  
+            Observation dates.
         timesys: 'Gregorian' or 'MET' or 'MJD'
             Time system associated with obsdates
         energyrange_MeV: str
@@ -68,20 +70,22 @@ class FermiLAT_QueryClass(object):
 
 FermiLAT_Query = FermiLAT_QueryClass()
 
+
 class FermiLAT_DelayedQueryClass(object):
+
     """
     TODO: document
     """
 
     fitsfile_re = re.compile('<a href="(.*?)">Available</a>')
 
-    timeout = 30 # minutes
+    timeout = 30  # minutes
 
-    check_frequency = 1 # minutes
+    check_frequency = 1  # minutes
 
     def __call__(self, result_url, check_frequency=1, verbose=False):
         self.result_url = result_url
-        
+
         page_loaded = False
 
         elapsed_time = 0

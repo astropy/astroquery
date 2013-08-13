@@ -8,6 +8,7 @@ import textwrap
 import functools
 from docstr_chompers import remove_returns
 
+
 def async_to_sync(cls):
     """
     Convert all query_x_async methods to query_x methods
@@ -49,6 +50,7 @@ def async_to_sync(cls):
             setattr(cls,newmethodname,newmethod)
 
     return cls
+
 
 def async_to_sync_docstr(doc, returntype='table'):
     """

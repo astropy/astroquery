@@ -2,7 +2,7 @@
 """
 Simbad query class for accessing the Simbad Service
 """
-from  __future__  import print_function
+from __future__ import print_function
 import re
 import json
 import os
@@ -11,7 +11,7 @@ import tempfile
 import warnings
 from ..query import BaseQuery
 from ..utils.class_or_instance import class_or_instance
-from  ..utils import commons
+from ..utils import commons
 import astropy.units as u
 from astropy.utils.data import get_pkg_data_filename
 import astropy.coordinates as coord
@@ -23,6 +23,7 @@ except ImportError:
 from . import SIMBAD_SERVER, SIMBAD_TIMEOUT, ROW_LIMIT
 
 __all__ = ['Simbad']
+
 
 def validate_epoch(func):
     """
@@ -41,6 +42,7 @@ def validate_epoch(func):
         return func(*args, **kwargs)
     return wrapper
 
+
 def validate_equinox(func):
     """
     A method decorator that checks if the equinox value entered by the user
@@ -56,7 +58,9 @@ def validate_equinox(func):
         return func(*args, **kwargs)
     return wrapper
 
+
 class Simbad(BaseQuery):
+
     """
     The class for querying the Simbad web service.
     """
@@ -66,20 +70,20 @@ class Simbad(BaseQuery):
                 '*': 'Any string of characters (including an empty one)',
                 '?': 'Any character (exactly one character)',
                 '[abc]': ('Exactly one character taken in the list. '
-                           'Can also be defined by a range of characters: [A-Z]'
-                           ),
+                'Can also be defined by a range of characters: [A-Z]'
+                          ),
                 '[^0-9]': 'Any (one) character not in the list.'
 
                 }
 
     # query around not included since this is a subcase of query_region
     _function_to_command = {
-                           'query_object_async': 'query id',
-                           'query_region_async': 'query coo',
-                           'query_catalog_async': 'query cat',
-                           'query_bibcode_async': 'query bibcode',
-                           'query_bibobj_async': 'query bibobj'
-                           }
+        'query_object_async': 'query id',
+        'query_region_async': 'query coo',
+        'query_catalog_async': 'query cat',
+        'query_bibcode_async': 'query bibcode',
+        'query_bibobj_async': 'query bibobj'
+    }
 
    # also find a way to fetch the votable fields table from <http://simbad.u-strasbg.fr/simbad/sim-help?Page=sim-fscript#VotableFields>
    # tried something for this in this ipython nb
@@ -87,6 +91,7 @@ class Simbad(BaseQuery):
     VOTABLE_FIELDS = ['main_id', 'coordinates']
 
     ROW_LIMIT = ROW_LIMIT()
+
     @class_or_instance
     def list_wildcards(self):
         """
@@ -114,7 +119,7 @@ class Simbad(BaseQuery):
         votable_fields_table = Table.read(get_pkg_data_filename
                                           (os.path.join('data',
                                                         'votable_fields_table.txt')),
-                                           format='ascii')
+                                         format='ascii')
         print (votable_fields_table)
 
         print("\nFor more information on a field :\nSimbad.get_field_description "
@@ -172,7 +177,7 @@ class Simbad(BaseQuery):
         ----------
         list of field_names to be removed
         """
-        absent_fields =  set(args) - set(Simbad.VOTABLE_FIELDS)
+        absent_fields = set(args) - set(Simbad.VOTABLE_FIELDS)
         for field in absent_fields:
             warnings.warn("{field}: this field is not set".format(field=field))
         Simbad.VOTABLE_FIELDS = list(set(Simbad.VOTABLE_FIELDS) - set(args))
@@ -265,7 +270,7 @@ class Simbad(BaseQuery):
         # if the identifier is given rather than the coordinates, convert to
         # coordinates
         result = self.query_region_async(coordinates, radius=radius,
-                                          equinox=equinox, epoch=epoch)
+                                        equinox=equinox, epoch=epoch)
         return self._parse_result(result, verbose=verbose)
 
     @class_or_instance
@@ -436,7 +441,6 @@ class Simbad(BaseQuery):
                                 Simbad.TIMEOUT)
         return response
 
-
     @class_or_instance
     @validate_epoch
     @validate_equinox
@@ -454,7 +458,7 @@ class Simbad(BaseQuery):
             del kwargs['get_raw']
         command = self._function_to_command[caller]
         votable_fields = ','.join(Simbad.VOTABLE_FIELDS)
-        #if get_raw is set then don't fetch as votable
+        # if get_raw is set then don't fetch as votable
         votable_def = ("votable {" + votable_fields + "}", "")[get_raw]
         votable_open = ("votable open", "")[get_raw]
         votable_close = ("votable close", "")[get_raw]
@@ -475,7 +479,7 @@ class Simbad(BaseQuery):
             if kwargs.get('radius'):
                 kwargs['radius'] = _parse_radius(kwargs['radius'])
         args_str = ' '.join([str(val) for val in args])
-        #rename equinox to equi as required by SIMBAD script
+        # rename equinox to equi as required by SIMBAD script
         if kwargs.get('equinox'):
             kwargs['equi'] = kwargs['equinox']
             del kwargs['equinox']
@@ -484,7 +488,7 @@ class Simbad(BaseQuery):
         for key in list(kwargs):
             if not kwargs[key]:
                 del kwargs[key]
-        #join in the order specified otherwise results in error
+        # join in the order specified otherwise results in error
         all_keys = ['radius', 'frame', 'equi', 'epoch']
         present_keys =[key for key in all_keys if key in kwargs]
         kwargs_str = ' '.join("{key}={value}".format(key=key, value=kwargs[key]) for
@@ -504,7 +508,6 @@ class Simbad(BaseQuery):
             warnings.warn("Error in parsing Simbad result. "
                          "Returning raw result instead.")
             return result.content
-
 
 
 def _parse_coordinates(coordinates):
@@ -533,11 +536,11 @@ def _get_frame_coords(c):
         ra, dec = _to_simbad_format(c.ra, c.dec)
         return (ra, dec, 'FK5')
 
+
 def _to_simbad_format(ra, dec):
     ra = ra.format(u.hour, sep=':')
     dec = dec.format(u.degree, sep=':', alwayssign='True')
     return (ra, dec)
-
 
 
 def _parse_radius(radius):
@@ -564,7 +567,6 @@ SimbadError = namedtuple('SimbadError', ('line', 'msg'))
 VersionInfo = namedtuple('VersionInfo', ('major', 'minor', 'micro', 'patch'))
 
 
-
 class SimbadResult(object):
     __sections = ('script', 'console', 'error', 'data')
 
@@ -583,17 +585,17 @@ class SimbadResult(object):
 
     def __split_sections(self):
         for section in self.__sections:
-            match = re.search(r'(?ims)^::%s:+?$(?P<content>.*?)(^::|\Z)' % \
-                                                        section, self.__txt)
+            match = re.search(r'(?ims)^::%s:+?$(?P<content>.*?)(^::|\Z)' %
+                             section, self.__txt)
             if match:
                 self.__indexes[section] = (match.start('content'),
-                                                        match.end('content'))
+                              match.end('content'))
 
     def __parse_console_section(self):
         if self.console is None:
             return
         match = re.search(r'(?ims)total execution time: ([.\d]+?)\s*?secs',
-                                                                self.console)
+                         self.console)
         if match:
             try:
                 self.exectime = float(match.group(1))
@@ -601,20 +603,20 @@ class SimbadResult(object):
                 # TODO: do something useful here.
                 pass
         match = re.search(r'(?ms)SIMBAD(\d) rel (\d)[.](\d+)([^\d^\s])?',
-                                                                self.console)
+                         self.console)
         if match:
             self.sim_version = VersionInfo(*match.groups(None))
 
     def __warn(self):
         for error in self.errors:
             warnings.warn("Warning: The script line number %i raised "
-                            "the error: %s." %\
-                            (error.line, error.msg))
+                         "the error: %s." %
+                         (error.line, error.msg))
 
     def __get_section(self, section_name):
         if section_name in self.__indexes:
-            return self.__txt[self.__indexes[section_name][0]:\
-                                    self.__indexes[section_name][1]].strip()
+            return self.__txt[self.__indexes[section_name][0]:
+                             self.__indexes[section_name][1]].strip()
 
     @property
     def script(self):
@@ -639,7 +641,7 @@ class SimbadResult(object):
             return result
         for err in error_regex.finditer(self.error_raw):
             result.append(SimbadError(int(err.group('line')),
-                                        err.group('msg').replace('\n', ' ')))
+                         err.group('msg').replace('\n', ' ')))
         return result
 
     @property
@@ -661,6 +663,7 @@ class SimbadResult(object):
             else:
                 self.__table = votable.parse_single_table(self.__file, pedantic=False).to_table()
         return self.__table
+
 
 def _create_bibcode_table(data, splitter):
     ref_list = [splitter + ref for ref in data.split(splitter)][1:]

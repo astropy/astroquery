@@ -8,7 +8,9 @@ import functools
 
 __all__ = ["class_or_instance"]
 
+
 class class_or_instance(object):
+
     def __init__(self, fn):
         self.fn = fn
         if hasattr(fn,'__doc__'):

@@ -6,6 +6,7 @@ This is not presently used, since I don't know how to construct a complete SLAP
 query.
 """
 
+
 def slap_default_payload(request='queryData', version='2.0', wavelength='',
                          chemical_element='', initial_level_energy='',
                          final_level_energy='', temperature='', einstein_a=''):
@@ -13,7 +14,7 @@ def slap_default_payload(request='queryData', version='2.0', wavelength='',
     Parse the valid parameters specified by the `IVOA SLAP`_ interface document.
 
     .. _IVOA SLAP: http://www.ivoa.net/documents/SLAP/20101209/REC-SLAP-1.0-20101209.pdf
-    
+
 
     Parameters
     ----------
@@ -44,9 +45,9 @@ def slap_default_payload(request='queryData', version='2.0', wavelength='',
         Unit : s^-1
     process_type : str
     process_name : str
-        Examples: 
-        "Photoionization", "Collisional excitation", 
-        "Gravitational redshift", "Stark broadening", "Resonance broadening", "Van der 
+        Examples:
+        "Photoionization", "Collisional excitation",
+        "Gravitational redshift", "Stark broadening", "Resonance broadening", "Van der
         Waals broadening"
 
     Returns

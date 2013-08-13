@@ -16,8 +16,10 @@ RESULT_DTYPE = ['f8', 'f8', 'f8', 'f8', 'f8', 'f8', 'f8', 'f8', 'i8', 'a2',
 
 
 class CoordParseError(ValueError):
+
     def __init__(self, message='Could not parse `coord` argument.', **kwargs):
         super(ValueError, self).__init__(message, **kwargs)
+
 
 def query(coord, algorithm='NG', quality='GOOD', coord_sys='RD'):
     """
@@ -95,6 +97,7 @@ def query(coord, algorithm='NG', quality='GOOD', coord_sys='RD'):
     t = Table(data, names=header, dtypes=RESULT_DTYPE)
     return t
 
+
 def _parse_coords(coord, coord_sys):
     """
     Parse single astropy.coordinates instance, list of astropy.coordinate
@@ -140,6 +143,7 @@ def _parse_coords(coord, coord_sys):
     else:
         raise CoordParseError()
 
+
 def _parse_raw(raw_data):
     """
     Parse the raw strings returned from the query request and return a list of
@@ -160,5 +164,3 @@ def _parse_raw(raw_data):
     # Transpose while keeping as list of lists
     data = map(list, zip(*data))
     return data
-
-

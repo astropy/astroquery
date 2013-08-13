@@ -10,9 +10,11 @@ import astropy.units as u
 import astropy.coordinates as coord
 VO_DATA = "viz.xml"
 
+
 def data_path(filename):
     data_dir = os.path.join(os.path.dirname(__file__), 'data')
     return os.path.join(data_dir, filename)
+
 
 @pytest.fixture
 def patch_post(request):
@@ -20,14 +22,18 @@ def patch_post(request):
     mp.setattr(requests, 'post', post_mockreturn)
     return mp
 
+
 class MockResponse(object):
+
     def __init__(self, content):
         self.content = content
+
 
 def post_mockreturn(url, data=None, timeout=10):
     filename = data_path(VO_DATA)
     content = open(filename, "r").read()
     return MockResponse(content)
+
 
 def test_str_to_unit():
     with pytest.raises(KeyError):
@@ -53,12 +59,14 @@ def test_parse_dimension_err():
     with pytest.raises(u.UnitsException):
         vizier.core._parse_dimension(5 * u.kg)
 
+
 def test_parse_result_verbose(capsys):
     table_contents = open(data_path(VO_DATA), 'r').read()
     response = MockResponse(table_contents)
     vizier.core.Vizier._parse_result(response)
     out, err = capsys.readouterr()
     assert out == ''
+
 
 def test_parse_result():
     table_contents = open(data_path(VO_DATA), 'r').read()
@@ -68,26 +76,31 @@ def test_parse_result():
     assert len(result) == 231
     assert isinstance(result[result.keys()[0]], Table)
 
+
 def test_query_region_async(patch_post):
     response = vizier.core.Vizier.query_region_async(coord.ICRSCoordinates(ra=299.590, dec=35.201, unit=(u.deg, u.deg)),
                                                      radius=5 * u.deg,
                                                      catalog=["HIP", "NOMAD", "UCAC"])
     assert response is not None
 
+
 def test_query_region(patch_post):
     result = vizier.core.Vizier.query_region(coord.ICRSCoordinates(ra=299.590, dec=35.201, unit=(u.deg, u.deg)),
-                                                     radius=5 * u.deg,
-                                                     catalog=["HIP", "NOMAD", "UCAC"])
+                                            radius=5 * u.deg,
+                                            catalog=["HIP", "NOMAD", "UCAC"])
 
     assert isinstance(result, commons.TableList)
+
 
 def test_query_object_async(patch_post):
     response = vizier.core.Vizier.query_object_async("HD 226868", catalog=["NOMAD", "UCAC"])
     assert response is not None
 
+
 def test_query_object(patch_post):
     result = vizier.core.Vizier.query_object("HD 226868", catalog=["NOMAD", "UCAC"])
     assert isinstance(result, commons.TableList)
+
 
 class TestVizierClass:
 
@@ -125,6 +138,7 @@ class TestVizierClass:
         del v.column_filters
         assert v.column_filters is None
 
+
 class TestVizierKeywordClass:
 
     def test_init(self):
@@ -135,4 +149,4 @@ class TestVizierKeywordClass:
         vizier.core.VizierKeyword(keywords=['xxx','coBe'])
         out, err = capsys.readouterr()
         # warning must be emitted
-        assert out  != ""
+        assert out != ""

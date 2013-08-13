@@ -18,6 +18,7 @@ __all__ = ['send_request',
            'suppress_vo_warnings',
            'validate_email']
 
+
 def send_request(url, data, timeout, request_type='POST', **kwargs):
     """
     A utility function that post HTTP requests to remote server
@@ -78,6 +79,7 @@ def parse_radius(radius):
     """
     return coord.Angle(radius)
 
+
 def radius_to_degrees(radius):
     """
     Helper function: Parse a radius, then return its value in degrees
@@ -99,6 +101,7 @@ def radius_to_degrees(radius):
         return rad.degrees
     else:
         raise TypeError("Radius is an invalid type.")
+
 
 def parse_coordinates(coordinates):
     """
@@ -141,6 +144,7 @@ def parse_coordinates(coordinates):
 
 
 class TableList(OrderedDict):
+
     """
     A class that inherits from `OrderedDict` but included some pretty printing methods
     for an OrderedDict of `astropy.table.Table` objects.
@@ -179,7 +183,7 @@ class TableList(OrderedDict):
         header_str = "TableList with {keylen} tables:".format(keylen=ntables)
         body_str = "\n".join(["\t'{t_number}:{t_name}' with {ncol} column(s) and {nrow} row(s) ".
                               format(t_number=t_number,t_name=t_name, nrow=len(self.__getitem__(t_name)),
-                                      ncol=len(self.__getitem__(t_name).colnames))
+                            ncol=len(self.__getitem__(t_name).colnames))
                               for t_number,t_name in enumerate(self.keys())])
         return "\n".join([header_str, body_str])
 
@@ -190,6 +194,7 @@ class TableList(OrderedDict):
 def suppress_vo_warnings():
     """ Suppresses all warnings of the class `astropy.io.votable.exceptions.VOWarning."""
     warnings.filterwarnings("ignore", category=votable.exceptions.VOWarning)
+
 
 def validate_email(email):
     """

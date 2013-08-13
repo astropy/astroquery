@@ -7,16 +7,17 @@ from astropy.io import fits
 
 __all__ = ['chunk_report','chunk_read']
 
+
 def chunk_report(bytes_so_far, chunk_size, total_size):
     if total_size > 0:
         percent = float(bytes_so_far) / total_size
         percent = round(percent*100, 2)
-        sys.stdout.write(u"Downloaded %12.2g of %12.2g Mb (%6.2f%%)\r" % 
+        sys.stdout.write(u"Downloaded %12.2g of %12.2g Mb (%6.2f%%)\r" %
             (bytes_so_far / 1024.**2, total_size / 1024.**2, percent))
     else:
-        sys.stdout.write(u"Downloaded %10.2g Mb\r" % 
+        sys.stdout.write(u"Downloaded %10.2g Mb\r" %
             (bytes_so_far / 1024.**2))
-  
+
 
 def chunk_read(response, chunk_size=1024, report_hook=None):
     content_length = response.info().get('Content-Length')
@@ -27,29 +28,30 @@ def chunk_read(response, chunk_size=1024, report_hook=None):
         total_size = int(total_size)
 
     bytes_so_far = 0
-  
+
     result_string = b""
 
-    #sys.stdout.write("Beginning download.\n")
-  
-    while 1:
+    # sys.stdout.write("Beginning download.\n")
+
+    while True:
         chunk = response.read(chunk_size)
         result_string += chunk
         bytes_so_far += len(chunk)
 
         if not chunk:
-            if report_hook: 
+            if report_hook:
                 sys.stdout.write('\n')
             break
 
         if report_hook:
             report_hook(bytes_so_far, chunk_size, total_size)
-  
+
     return result_string
+
 
 def retrieve(url, outfile, opener=None, overwrite=False):
     """
-    "retrieve" (i.e., download to file) a URL. 
+    "retrieve" (i.e., download to file) a URL.
     """
 
     if opener is None:
@@ -60,7 +62,7 @@ def retrieve(url, outfile, opener=None, overwrite=False):
     results = chunk_read(page, report_hook=chunk_report)
 
     S = StringIO.StringIO(results)
-    try: 
+    try:
         fitsfile = fits.open(S,ignore_missing_end=True)
     except IOError:
         S.seek(0)
