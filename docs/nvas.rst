@@ -1,8 +1,8 @@
 .. _astroquery.nvas:
 
-*****************************************
+********************************
 NVAS Queries (`astroquery.nvas`)
-*****************************************
+********************************
 
 Getting started
 ===============
@@ -93,7 +93,7 @@ arguments as :meth:`~astroquery.nvas.core.Nvas.get_images` above except for the
 Reference/API
 =============
 
-.. automodapi:: astroquery.nrao
+.. automodapi:: astroquery.nvas
     :no-inheritance-diagram:
 
 .. _astropy.coordinates.Angle: http://docs.astropy.org/en/latest/_generated/astropy.coordinates.angles.Angle.html#astropy.coordinates.angles.Angle 

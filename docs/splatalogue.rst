@@ -143,6 +143,11 @@ Then get rid of the vibrationally excited line by setting an energy upper limit 
     ------- --------------- -------- ... ----------------- --------
       COv=0 Carbon Monoxide  230.538 ...          16.59608    SLAIM
    
+Reference/API
+=============
+
+.. automodapi:: astroquery.splatalogue
+    :no-inheritance-diagram:
 
 .. _Splatalogue: http://www.splatalogue.net
 .. _splat_b: www.cv.nrao.edu/php/splat/b.php
