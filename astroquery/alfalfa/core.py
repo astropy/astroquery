@@ -118,7 +118,7 @@ def crossID(ra, dec, unit=None, dr=60., optical_counterpart=False):
     --------
     >>> agc = alfalfa.crossID(ra='0h8m05.63s', dec='14d50m23.3s', dr)
     >>> for match in xid:
-    >>>     print match['ra'], match['dec'], match['objid']
+    >>>     print(match['ra'], match['dec'], match['objid'])
 
     Returns
     -------

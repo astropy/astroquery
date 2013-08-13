@@ -309,7 +309,7 @@ function that returns a `list` of catalog name strings:
 
 .. code-block:: python
 
-    print ukidss.list_catalogs()
+    print(ukidss.list_catalogs())
 
 
 Remaining Questions

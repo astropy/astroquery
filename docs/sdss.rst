@@ -1,8 +1,8 @@
 .. _astroquery.sdss:
 
-*****************************************
+********************************
 SDSS Queries (`astroquery.sdss`)
-*****************************************
+********************************
 
 Getting started
 ===============
@@ -15,7 +15,7 @@ arcsecond radius for optical counterparts in SDSS.
 
     >>> from astroquery import sdss
     >>> xid = sdss.crossID(ra='0h8m05.63s', dec='14d50m23.3s', dr=5)
-    >>> print xid
+    >>> print(xid)
     [{'mjd': 52251, 'plate': 751, 'dec': 14.83982059, 'run': 1739, 'specClass': 3, 
     'z': 0.04541, 'field': 315, 'fiberID': 160, 'ra': 2.02344483, 'specobjid': 211612124516974592, 
     'rerun': 40, 'camcol': 3, 'objid': 587727221951234166}]
@@ -71,7 +71,7 @@ available, do
 .. code-block:: python
     
     >>> from astroquery import sdss
-    >>> print sdss.spec_templates.keys()
+    >>> print(sdss.spec_templates.keys())
     
 Then, to download your favorite template, do something like
 

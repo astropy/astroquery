@@ -115,7 +115,7 @@ def test_get_image_list(patch_get, patch_get_readable_fileobj):
     urls = ukidss.core.Ukidss.get_image_list(coord.ICRSCoordinates
                                             (ra=83.633083, dec=22.0145, unit=(u.deg, u.deg)),
                                              frame_type='all', waveband='all')
-    print urls
+    print(urls)
     assert len(urls) == 1
 
 def test_extract_urls():

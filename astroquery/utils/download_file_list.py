@@ -110,11 +110,11 @@ def download_list_of_fitsfiles(linklist, output_directory=None,
             final_file = output_directory + savename
 
             if verbose:
-                print "Saving file %s" % final_file
+                print("Saving file %s" % final_file)
 
             try:
                 fitsfile.writeto(final_file, clobber=overwrite)
             except IOError:
-                print "Skipped writing file %s because it exists and overwrite=False" % final_file
+                print("Skipped writing file %s because it exists and overwrite=False" % final_file)
 
     return images
