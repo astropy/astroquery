@@ -8,8 +8,11 @@ from ... import vizier
 from ... utils import commons
 import astropy.units as u
 import astropy.coordinates as coord
-VO_DATA = {'query': "viz.xml",
-           'catalog': "kang2010.xml"}
+import urlparse
+import itertools
+VO_DATA = {'HIP,NOMAD,UCAC': "viz.xml",
+           'NOMAD,UCAC': "viz.xml",
+           'J/ApJ/706/83': "kang2010.xml"}
 
 
 def data_path(filename):
@@ -31,7 +34,8 @@ class MockResponse(object):
 
 
 def post_mockreturn(url, data=None, timeout=10):
-    filename = data_path(VO_DATA)
+    datad = dict([urlparse.parse_qsl(d)[0] for d in data.split('\n')]) 
+    filename = data_path(VO_DATA[datad['-source']])
     content = open(filename, "r").read()
     return MockResponse(content)
 
@@ -60,21 +64,27 @@ def test_parse_dimension_err():
     with pytest.raises(u.UnitsException):
         vizier.core._parse_dimension(5 * u.kg)
 
-
-def test_parse_result_verbose(capsys):
-    table_contents = open(data_path(VO_DATA), 'r').read()
+@pytest.mark.parametrize(('filepath'),
+                         list(set(VO_DATA.values())))
+def test_parse_result_verbose(filepath):
+    print filepath
+    with open(data_path(filepath), 'r') as f:
+        table_contents = f.read()
     response = MockResponse(table_contents)
     vizier.core.Vizier._parse_result(response)
-    out, err = capsys.readouterr()
-    assert out == ''
+    #out, err = capsys.readouterr()
+    #assert out == ''
 
 
-def test_parse_result():
-    table_contents = open(data_path(VO_DATA), 'r').read()
+@pytest.mark.parametrize(('filepath','objlen'),
+                         [('viz.xml',231),
+                          ('kang2010.xml',1)]) # TODO: 1->50 because it is just 1 table
+def test_parse_result(filepath, objlen):
+    table_contents = open(data_path(filepath), 'r').read()
     response = MockResponse(table_contents)
     result = vizier.core.Vizier._parse_result(response)
     assert isinstance(result, commons.TableList)
-    assert len(result) == 231
+    assert len(result) == objlen
     assert isinstance(result[result.keys()[0]], Table)
 
 
@@ -87,8 +97,8 @@ def test_query_region_async(patch_post):
 
 def test_query_region(patch_post):
     result = vizier.core.Vizier.query_region(coord.ICRSCoordinates(ra=299.590, dec=35.201, unit=(u.deg, u.deg)),
-                                            radius=5 * u.deg,
-                                            catalog=["HIP", "NOMAD", "UCAC"])
+                                             radius=5 * u.deg,
+                                             catalog=["HIP", "NOMAD", "UCAC"])
 
     assert isinstance(result, commons.TableList)
 

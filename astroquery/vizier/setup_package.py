@@ -3,7 +3,9 @@ import os
 
 
 def get_package_data():
-    paths_test = [os.path.join('data', 'viz.xml')]
+    paths_test = [os.path.join('data', 'viz.xml'),
+                  os.path.join('data', 'kang2010.xml'),
+                 ]
 
     paths_core = [os.path.join('data', 'inverse_dict.json'),
                   os.path.join('data', 'keywords_dict.json')]
