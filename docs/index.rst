@@ -1,20 +1,20 @@
-AstroQuery
+Astroquery
 ==========
 
-This is the documentation for the AstroQuery affiliated package of astropy.
+This is the documentation for the Astroquery affiliated package of astropy.
 
 Code and issue tracker are on `GitHub <https://github.com/astropy/astroquery>`_.
 
 Introduction
 ------------
 
-AstroQuery is a set of tools for querying astronomical web forms and databases.
+Astroquery is a set of tools for querying astronomical web forms and databases.
 
 The :doc:`api` is intended to be kept as consistent as possible, such
 that any web service can be used with a minimal learning curve imposed on the
 user.
 
-There are two other packages with complimentary functionality as AstroQuery:
+There are two other packages with complimentary functionality as Astroquery:
 `astropy.vo <http://docs.astropy.org/en/latest/vo/index.html>`_ is in the Astropy core and
 `pyvo <https://pyvo.readthedocs.org/en/latest/>`_ is an Astropy affiliated package.
 They are more oriented to general `virtual observatory <http://www.virtualobservatory.org>`_
