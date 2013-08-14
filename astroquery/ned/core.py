@@ -174,6 +174,7 @@ class Ned(BaseQuery):
         if _is_name(coordinates):
             request_payload['objname'] = coordinates
             request_payload['search_type'] = 'Near Name Search'
+            request_payload['radius'] = _parse_radius(radius)
         else:
             try:
                 c = commons.parse_coordinates(coordinates)
