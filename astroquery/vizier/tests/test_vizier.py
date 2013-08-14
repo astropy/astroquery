@@ -8,7 +8,8 @@ from ... import vizier
 from ... utils import commons
 import astropy.units as u
 import astropy.coordinates as coord
-VO_DATA = "viz.xml"
+VO_DATA = {'query': "viz.xml",
+           'catalog': "kang2010.xml"}
 
 
 def data_path(filename):
@@ -99,6 +100,16 @@ def test_query_object_async(patch_post):
 
 def test_query_object(patch_post):
     result = vizier.core.Vizier.query_object("HD 226868", catalog=["NOMAD", "UCAC"])
+    assert isinstance(result, commons.TableList)
+
+
+def test_get_catalogs_async(patch_post):
+    response = vizier.core.Vizier.get_catalogs_async('J/ApJ/706/83')
+    assert response is not None
+
+
+def test_get_catalogs(patch_post):
+    result = vizier.core.Vizier.get_catalogs('J/ApJ/706/83')
     assert isinstance(result, commons.TableList)
 
 

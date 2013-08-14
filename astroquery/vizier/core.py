@@ -4,6 +4,7 @@ from __future__ import print_function
 from ..query import BaseQuery
 from ..utils.class_or_instance import class_or_instance
 from ..utils import commons
+from ..utils import async_to_sync
 import os
 import astropy.units as u
 import astropy.coordinates as coord
@@ -20,7 +21,7 @@ from . import VIZIER_SERVER, VIZIER_TIMEOUT, ROW_LIMIT
 
 __all__ = ['Vizier']
 
-
+@async_to_sync
 class Vizier(BaseQuery):
     TIMEOUT = VIZIER_TIMEOUT
     VIZIER_SERVER = VIZIER_SERVER
@@ -156,27 +157,6 @@ class Vizier(BaseQuery):
         return result
 
     @class_or_instance
-    def get_catalogs(self, catalog, verbose=False):
-        """
-        Query the Vizier service for a specific catalog
-
-        Parameters
-        ----------
-        catalog : str or list, optional
-            The catalog(s) that will be retrieved
-
-        Returns
-        -------
-        result : `~astroquery.utils.common.TableList`
-            The results in a list of `astropy.table.Table`.
-        """
-        response = self.get_catalogs_async(catalog=catalog)
-        result = self._parse_result(response, verbose=verbose)
-        if _is_single_catalog(catalog):
-            return result.values()[0]
-        return result
-
-    @class_or_instance
     def get_catalogs_async(self, catalog, verbose=False):
         """
         Query the Vizier service for a specific catalog
@@ -199,37 +179,6 @@ class Vizier(BaseQuery):
             data_payload,
             Vizier.TIMEOUT())
         return response
-
-    # This doesn't work:
-    # TypeError: unsupported operand type(s) for +=: 'NoneType' and 'NoneType'
-    # the decorator breaks this approach.  Perhaps we can pass the docstring to
-    # the decorator?
-    # get_catalog_async.__doc__ += get_catalog.__doc__
-
-    @class_or_instance
-    def query_object(self, object_name, catalog=None, verbose=False):
-        """
-        Query the Vizier service for a known identifier and return the
-        results as an `astropy.table.Table`.
-
-        Parameters
-        ----------
-        object_name : str
-            The name of the identifier.
-        catalog : str or list, optional
-            The catalog(s) which must be searched for this identifier.
-            If not specified, all matching catalogs will be searched.
-
-        Returns
-        -------
-        result : `~astroquery.utils.common.TableList`
-            The results in a list of `astropy.table.Table`.
-        """
-        response = self.query_object_async(object_name, catalog=catalog)
-        result = self._parse_result(response, verbose=verbose)
-        if _is_single_catalog(catalog):
-            return result.values()[0]
-        return result
 
     @class_or_instance
     def query_object_async(self, object_name, catalog=None):
@@ -260,47 +209,6 @@ class Vizier(BaseQuery):
             data_payload,
             Vizier.TIMEOUT())
         return response
-
-    @class_or_instance
-    def query_region(self, coordinates, radius=None,
-                     width=None, height=None, catalog=None, verbose=False):
-        """
-        Returns the results from a Vizier service on querying a region around
-        a known identifier or coordinates. Region around the target may be specified
-        by a radius or box.
-
-        Parameters
-        ----------
-        coordinates : str or `astropy.coordinates` object
-            The target around which to search. It may be specified as a string
-            in which case it is resolved using online services or as the appropriate
-            `astropy.coordinates` object. ICRS coordinates may also be entered
-            as a string.
-        radius : str or `astropy.units.Quantity` object
-            The string must be parsable by `astropy.coordinates.Angle`. The appropriate
-            `Quantity` object from `astropy.units` may also be used.
-        width : str or `astropy.units.Quantity` object.
-            Must be specified for a box region. Has the same format
-            as radius above.
-        height : str or `astropy.units.Quantity` object.
-            Must be specified with the width for a box region that is a rectangle.
-            Has the same format as radius above.
-        catalog : str or list, optional
-            The catalog(s) which must be searched for this identifier.
-            If not specified, all matching catalogs will be searched.
-
-        Returns
-        -------
-        result : `~astroquery.utils.common.TableList`
-            The results in a list of `astropy.table.Table`.
-        """
-        response = self.query_region_async(
-            coordinates, radius=radius, height=height,
-            width=width, catalog=catalog)
-        result = self._parse_result(response, verbose=verbose)
-        if _is_single_catalog(catalog):
-            return result.values()[0]
-        return result
 
     @class_or_instance
     def query_region_async(
@@ -343,14 +251,6 @@ class Vizier(BaseQuery):
             data_payload,
             Vizier.TIMEOUT())
         return response
-
-    @class_or_instance
-    def query_constraints(self, verbose=False, **kwargs):
-        response = self.query_constraints_async(**kwargs)
-        result = self._parse_result(response, verbose=verbose)
-        if _is_single_catalog(catalog):
-            return result.values()[0]
-        return result
 
     @class_or_instance
     def query_constraints_async(self, catalog=None, keywords={}, **kwargs):
