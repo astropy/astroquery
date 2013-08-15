@@ -13,12 +13,13 @@ used in the SDSS example).
 
 .. code-block:: python
 
-    >>> from astroquery import alfalfa
-    >>> agc = alfalfa.crossID(ra='0h8m05.63s', dec='14d50m23.3s', dr=5,
-    >>>     optical_counterpart=True) 
+    >>> from astroquery.alfalfa import ALFALFA
+    >>> from astropy import coordinates as coords
+    >>> pos = coords.ICRSCoordinates('0h8m05.63s +14d50m23.3s')
+    >>> agc = ALFALFA.query_region(pos, optical_counterpart=True)
 
 This retrieves the AGC number of the object closest to the supplied ra and dec
-(within search radius dr=5 arcseconds). The "optical_counterpart" keyword
+(within search radius dr=3 arcminutes by default). The "optical_counterpart" keyword
 argument above tells the crossID function to look for matches using the
 positions of the optical counterparts of HI detected sources (painstakingly
 determined by members of the ALFALFA team), rather than their radio centroids.
@@ -27,22 +28,13 @@ and once we know it, we can download spectra (if they are available) easily,
 
 .. code-block:: python
 
-    >>> sp = alfalfa.get_spectrum(agc)
+    >>> sp = ALFALFA.get_spectrum(agc)
 
-This returns a simple object which gives users access to the spectrum's FITS
-file, and contains a few convenience properties to access the data quickly.
-For example, we can access the frequency / velocity axis and the data
-respectively via
+This returns a PyFITS HDUList object.  If we want to have a look at the entire ALFALFA catalog, we can do that too:
 
 .. code-block:: python
 
-    >>> sp.freq, sp.varr, sp.data
-    
-If we want to have a look at the entire ALFALFA catalog, we can do that too:
-
-.. code-block:: python
-
-    >>> cat = alfalfa.get_catalog()
+    >>> cat = ALFALFA.get_catalog()
     
 which returns a dictionary containing HI measurements for nearly 16,000
 objects.
