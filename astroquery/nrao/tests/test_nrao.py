@@ -11,11 +11,13 @@ from astropy.table import Table
 from ... import nrao
 from ...utils import commons
 
+
 def data_path(filename):
     data_dir = os.path.join(os.path.dirname(__file__), 'data')
     return os.path.join(data_dir, filename)
 
 DATA_FILES = {'votable': 'votable.xml'}
+
 
 @pytest.fixture
 def patch_parse_coordinates(request):
@@ -25,20 +27,25 @@ def patch_parse_coordinates(request):
     mp.setattr(commons, 'parse_coordinates', parse_coordinates_mock_return)
     return mp
 
+
 @pytest.fixture
 def patch_get(request):
     mp = request.getfuncargvalue("monkeypatch")
     mp.setattr(requests, 'get', get_mockreturn)
     return mp
 
+
 def get_mockreturn(url, params=None, timeout=10):
     filename = data_path(DATA_FILES['votable'])
     content = open(filename, 'r').read()
     return MockResponse(content)
 
+
 class MockResponse(object):
+
     def __init__(self, content):
         self.content = content
+
 
 def test_query_region_async(patch_get, patch_parse_coordinates):
     response = nrao.core.Nrao.query_region_async(coord.ICRSCoordinates("04h33m11.1s 05d21m15.5s"),
@@ -51,6 +58,7 @@ def test_query_region_async(patch_get, patch_parse_coordinates):
     assert response['OBSFREQ1'] == '1.0-2.0'
     response = nrao.core.Nrao.query_region_async(coord.ICRSCoordinates("04h33m11.1s 05d21m15.5s"))
     assert response is not None
+
 
 def test_query_region(patch_get, patch_parse_coordinates):
     result = nrao.core.Nrao.query_region(coord.ICRSCoordinates("04h33m11.1s 05d21m15.5s"))

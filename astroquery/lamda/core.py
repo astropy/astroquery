@@ -44,12 +44,12 @@ mols = {
     'CH3CN': ['ch3cn'],
     'O2': ['o2'],
     'HF': ['hf']
-     }
+}
 query_types = {
     'erg_levels': '!NUMBER OF ENERGY LEVELS',
     'rad_trans': '!NUMBER OF RADIATIVE TRANSITIONS',
     'coll_rates': '!COLLISIONS BETWEEN'
-    }
+}
 
 
 def print_mols():
@@ -57,8 +57,8 @@ def print_mols():
     Print molecule names available for query.
     """
     for mol_family in mols.keys():
-        print '-- {0} :'.format(mol_family)
-        print mols[mol_family], '\n'
+        print('-- {0} :'.format(mol_family))
+        print(mols[mol_family], '\n')
 
 
 def query(mol, query_type, coll_partner_index=0):
@@ -215,5 +215,3 @@ def _check_dtypes(data):
 
 if __name__ == "__main__":
     pass
-
-

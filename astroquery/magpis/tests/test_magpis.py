@@ -12,15 +12,19 @@ import astropy.coordinates as coord
 from ...utils import commons
 from ... import magpis
 
-DATA_FILES = {'image' : 'image.fits'}
+DATA_FILES = {'image': 'image.fits'}
+
 
 class MockResponse(object):
+
     def __init__(self, content):
         self.content = content
+
 
 def data_path(filename):
     data_dir = os.path.join(os.path.dirname(__file__), 'data')
     return os.path.join(data_dir, filename)
+
 
 @pytest.fixture
 def patch_parse_coordinates(request):
@@ -30,20 +34,24 @@ def patch_parse_coordinates(request):
     mp.setattr(commons, 'parse_coordinates', parse_coordinates_mock_return)
     return mp
 
+
 @pytest.fixture
 def patch_post(request):
     mp = request.getfuncargvalue("monkeypatch")
     mp.setattr(requests, 'post', post_mockreturn)
     return mp
 
+
 def post_mockreturn(url, data, timeout):
     filename = data_path(DATA_FILES['image'])
     content = open(filename, 'rb').read()
     return MockResponse(content)
 
+
 def test_list_surveys():
     surveys = magpis.core.Magpis.list_surveys()
     assert len(surveys) > 0
+
 
 def test_get_images_async(patch_post, patch_parse_coordinates):
     response = magpis.core.Magpis.get_images_async(coord.GalacticCoordinates(10.5, 0.0, unit=(u.deg, u.deg)),
@@ -53,6 +61,7 @@ def test_get_images_async(patch_post, patch_parse_coordinates):
     assert response['Survey'] == 'gps6'
     response = magpis.core.Magpis.get_images_async(coord.GalacticCoordinates(10.5, 0.0, unit=(u.deg, u.deg)))
     assert response is not None
+
 
 def test_get_images(patch_post, patch_parse_coordinates):
     image = magpis.core.Magpis.get_images(coord.GalacticCoordinates(10.5, 0.0, unit=(u.deg, u.deg)))

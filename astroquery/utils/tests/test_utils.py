@@ -13,7 +13,9 @@ from astropy.tests.helper import pytest, remote_data
 import astropy.io.votable as votable
 import textwrap
 
+
 class SimpleQueryClass(object):
+
     @class_or_instance
     def query(self):
         """ docstring """
@@ -24,17 +26,20 @@ class SimpleQueryClass(object):
             print("Calling query as instance method")
             return "instance"
 
+
 @remote_data
 def test_utils():
     response = urllib2.urlopen('http://www.ebay.com')
     C = chunk_read(response, report_hook=chunk_report)
-    print C
+    print(C)
+
 
 def test_class_or_instance():
     assert SimpleQueryClass.query() == "class"
     U = SimpleQueryClass()
     assert U.query() == "instance"
     assert SimpleQueryClass.query.__doc__ == " docstring "
+
 
 @pytest.mark.parametrize(('coordinates'),
                          [coord.ICRSCoordinates(ra=148,
@@ -46,14 +51,17 @@ def test_parse_coordinates_1(coordinates):
     c = commons.parse_coordinates(coordinates)
     assert c != None
 
+
 @remote_data
 def test_parse_coordinates_2():
     c = commons.parse_coordinates("m81")
     assert c != None
 
+
 def test_parse_coordinates_3():
     with pytest.raises(Exception):
         commons.parse_coordinates(9.8 * u.kg)
+
 
 @pytest.mark.parametrize(('radius'),
                          ['5d0m0s',
@@ -61,6 +69,7 @@ def test_parse_coordinates_3():
                           ])
 def test_parse_radius_1(radius):
     assert commons.radius_to_degrees(radius) == 5
+
 
 @pytest.mark.parametrize(('radius'),
                          [5,
@@ -70,9 +79,11 @@ def test_parse_radius_2(radius):
     with pytest.raises(Exception):
         commons.parse_radius(radius)
 
+
 def test_send_request_post(monkeypatch):
     def mock_post(url, data, timeout):
         class MockResponse(object):
+
             def __init__(self, url, data):
                 self.url = url
                 self.data = data
@@ -84,6 +95,7 @@ def test_send_request_post(monkeypatch):
     assert response.url == 'https://github.com/astropy/astroquery'
     assert response.data == dict(msg='ok')
 
+
 def test_send_request_get(monkeypatch):
     def mock_get(url, params, timeout):
         req = requests.Request('GET', url, params=params).prepare()
@@ -92,6 +104,7 @@ def test_send_request_get(monkeypatch):
     response = commons.send_request('https://github.com/astropy/astroquery',
                                     dict(a='b'), 60, request_type='GET')
     assert response.url == 'https://github.com/astropy/astroquery?a=b'
+
 
 def test_send_request_err():
     with pytest.raises(ValueError):
@@ -110,15 +123,16 @@ t3 = Table([col_1, col_2[:3], col_3[:3]], meta={'name': 't3'})
 
 
 def test_TableDict():
-    in_list  = create_in_list([t1, t2, t3])
+    in_list = create_in_list([t1, t2, t3])
     table_list = commons.TableList(in_list)
     repr_str = table_list.__repr__()
     assert repr_str == ("TableList with 3 tables:\n\t'0:t1' with 3 column(s) and 1 row(s)"
                    " \n\t'1:t2' with 1 column(s) and 3 row(s)"
                    " \n\t'2:t3' with 3 column(s) and 3 row(s) ")
 
+
 def test_TableDict_print_table_list(capsys):
-    in_list  = create_in_list([t1, t2, t3])
+    in_list = create_in_list([t1, t2, t3])
     table_list = commons.TableList(in_list)
     table_list.print_table_list()
     out, err = capsys.readouterr()
@@ -127,9 +141,9 @@ def test_TableDict_print_table_list(capsys):
                    " \n\t'2:t3' with 3 column(s) and 3 row(s) \n")
 
 
-
 def create_in_list(t_list):
-    return [(t.meta['name'], t) for t in t_list ]
+    return [(t.meta['name'], t) for t in t_list]
+
 
 def test_suppress_vo_warnings(recwarn):
     commons.suppress_vo_warnings()
@@ -192,10 +206,10 @@ docstr2 = """
         -------
         >>> from astroquery.vizier import Vizier
         >>> catalog_list = Vizier.find_catalogs('Kang W51')
-        >>> print catalog_list
+        >>> print(catalog_list)
         {u'J/ApJ/706/83': <astropy.io.votable.tree.Resource at 0x108d4d490>,
          u'J/ApJS/191/232': <astropy.io.votable.tree.Resource at 0x108d50490>}
-        >>> print {k:v.description for k,v in catalog_list.iteritems()}
+        >>> print({k:v.description for k,v in catalog_list.iteritems()})
         {u'J/ApJ/706/83': u'Embedded YSO candidates in W51 (Kang+, 2009)',
          u'J/ApJS/191/232': u'CO survey of W51 molecular cloud (Bieging+, 2010)'}
         """
@@ -216,10 +230,10 @@ docstr2_out = textwrap.dedent("""
         -------
         >>> from astroquery.vizier import Vizier
         >>> catalog_list = Vizier.find_catalogs('Kang W51')
-        >>> print catalog_list
+        >>> print(catalog_list)
         {u'J/ApJ/706/83': <astropy.io.votable.tree.Resource at 0x108d4d490>,
          u'J/ApJS/191/232': <astropy.io.votable.tree.Resource at 0x108d50490>}
-        >>> print {k:v.description for k,v in catalog_list.iteritems()}
+        >>> print({k:v.description for k,v in catalog_list.iteritems()})
         {u'J/ApJ/706/83': u'Embedded YSO candidates in W51 (Kang+, 2009)',
          u'J/ApJS/191/232': u'CO survey of W51 molecular cloud (Bieging+, 2010)'}
 
@@ -228,14 +242,18 @@ docstr2_out = textwrap.dedent("""
         A `dict` object
         """)
 
+
 def test_process_async_docs():
     assert async_to_sync_docstr(docstr1) == docstr1_out
     assert async_to_sync_docstr(docstr2,returntype='dict') == docstr2_out
 
+
 class Dummy:
+
     def do_nothing_async():
         """ docstr """
         pass
+
 
 def test_async_to_sync(cls=Dummy):
     newcls = async_to_sync(Dummy)
@@ -257,8 +275,10 @@ docstr3_out = """
     Nada
 """
 
+
 def test_return_chomper(doc=docstr3,out=docstr3_out):
     assert remove_returns(doc) == [x.lstrip() for x in out.split('\n')]
+
 
 def dummyfunc():
     """
@@ -292,21 +312,26 @@ docstr4_out = """
     Nada
 """
 
+
 def test_prepend_docstr(doc=docstr4,func=dummyfunc,out=docstr4_out):
     fn = prepend_docstr_noreturns(doc)(func)
     assert fn.__doc__ == textwrap.dedent(docstr4_out)
 
+
 @async_to_sync
 class DummyQuery(object):
+
     @class_or_instance
     def query_async(self, *args, **kwargs):
         """ docstr"""
         if kwargs['get_query_payload']:
             return dict(msg='payload returned')
         return 'needs to be parsed'
+
     @class_or_instance
     def _parse_result(self, response, verbose=False):
         return response
+
 
 def test_payload_return(cls=DummyQuery):
     result = DummyQuery.query(get_query_payload=True)

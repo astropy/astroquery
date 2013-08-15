@@ -1,8 +1,11 @@
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
 import json
 import re
 from build_species_table import data_path
 
+
 class SpeciesLookuptable(dict):
+
     def find(self, s, flags=0, return_dict=True, ):
         """
         Search dictionary keys for a regex match to string s

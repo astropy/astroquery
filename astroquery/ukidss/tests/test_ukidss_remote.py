@@ -8,6 +8,7 @@ import astropy.units as u
 
 from ... import ukidss
 
+
 @remote_data
 class TestUkidss:
 
@@ -28,19 +29,18 @@ class TestUkidss:
     def test_get_image_list(self):
         urls = ukidss.core.Ukidss.get_image_list(coord.ICRSCoordinates
                                             (ra=83.633083, dec=22.0145, unit=(u.deg, u.deg)),
-                                             frame_type='all', waveband='all')
+            frame_type='all', waveband='all')
         assert len(urls) > 0
 
     def test_query_region_async(self):
         response = ukidss.core.Ukidss.query_region_async(coord.GalacticCoordinates
-                                                   (l=10.625, b=-0.38,  unit=(u.deg, u.deg)),
-                                                   radius=6 * u.arcsec)
+                                                   (l=10.625, b=-0.38, unit=(u.deg, u.deg)),
+            radius=6 * u.arcsec)
         assert response is not None
-
 
     def test_query_region(self):
         table = ukidss.core.Ukidss.query_region(coord.GalacticCoordinates
-                                                (l=10.625, b=-0.38,  unit=(u.deg, u.deg)),
+                                                (l=10.625, b=-0.38, unit=(u.deg, u.deg)),
                                                 radius=6 * u.arcsec)
         assert isinstance(table, Table)
         assert len(table) > 0

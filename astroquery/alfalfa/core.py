@@ -7,7 +7,7 @@ Author: Jordan Mirocha
 Affiliation: University of Colorado at Boulder
 Created on: Fri May  3 09:45:13 2013
 
-Description: 
+Description:
 
 """
 

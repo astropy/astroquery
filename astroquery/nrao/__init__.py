@@ -9,6 +9,6 @@ NRAO_SERVER = ConfigurationItem('nrao_server', ['https://archive.nrao.edu/archiv
 NRAO_TIMEOUT = ConfigurationItem('timeout', 60, 'time limit for connecting to NRAO server')
 
 
-
 from .core import Nrao
 
+__all__ = ['Nrao']

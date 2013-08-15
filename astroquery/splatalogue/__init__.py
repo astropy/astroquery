@@ -3,14 +3,14 @@
 Splatalogue Catalog Query Tool
 -----------------------------------
 
-REQUIRES mechanize (and astropy)
+:Author: Adam Ginsburg (adam.g.ginsburg@gmail.com)
 
-.. TODO::
-    Replace mechanize with standard module
+:Originally contributed by:
 
-:Author: Magnus Vilehlm Persson (magnusp@vilhelm.nu)
+     Magnus Vilehlm Persson (magnusp@vilhelm.nu)
 """
 SLAP_URL = 'http://find.nrao.edu/splata-slap/slap'
 QUERY_URL = 'http://www.cv.nrao.edu/php/splat/c_export.php'
 import load_species_table
-from .core import *
+from .core import Splatalogue
+__all__ = ['Splatalogue']

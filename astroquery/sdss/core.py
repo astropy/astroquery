@@ -240,7 +240,7 @@ class SDSS(BaseQuery):
             name = str(index).zfill(3)
             link = '%s-%s.fit' % (SDSS.TEMPLATES, name)
             results.append(fits.open(link, ignore_missing_end=True))
-                    
+
         return results
     
     @class_or_instance    
@@ -263,5 +263,6 @@ class SDSS(BaseQuery):
             return None
         else:
             return Table(response)   
+
         
         

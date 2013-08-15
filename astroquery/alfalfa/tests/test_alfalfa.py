@@ -1,3 +1,4 @@
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
 from ... import alfalfa
 from astropy import coordinates
 
@@ -19,4 +20,3 @@ if __name__ == '__main__':
     test_alfalfa_catalog()
     test_alfalfa_crossID()
     test_alfalfa_spectrum()
-    

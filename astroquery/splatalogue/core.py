@@ -14,8 +14,11 @@ from astropy import units as u
 from . import SLAP_URL,QUERY_URL
 from . import load_species_table
 
+__all__ = ['Splatalogue']
+
 # example query of SPLATALOGUE directly:
 # http://www.cv.nrao.edu/php/splat/c.php?sid%5B%5D=64&sid%5B%5D=108&calcIn=&data_version=v2.0&from=&to=&frequency_units=MHz&energy_range_from=&energy_range_to=&lill=on&tran=&submit=Search&no_atmospheric=no_atmospheric&no_potential=no_potential&no_probable=no_probable&include_only_nrao=include_only_nrao&displayLovas=displayLovas&displaySLAIM=displaySLAIM&displayJPL=displayJPL&displayCDMS=displayCDMS&displayToyaMA=displayToyaMA&displayOSU=displayOSU&displayRecomb=displayRecomb&displayLisa=displayLisa&displayRFI=displayRFI&ls1=ls1&ls5=ls5&el1=el1
+
 
 @async_to_sync
 class Splatalogue(BaseQuery):
@@ -62,7 +65,7 @@ class Splatalogue(BaseQuery):
 
         if restr is not None:
             return self._species_ids.find(restr,reflags)
-        else: 
+        else:
             return self._species_ids
 
     @class_or_instance
@@ -84,7 +87,6 @@ class Splatalogue(BaseQuery):
                       show_nrao_recommended=False,)
         return self._parse_kwargs(**kwargs)
 
-
     @class_or_instance
     def _parse_kwargs(self, chemical_name=None, chem_re_flags=0,
                       energy_min=None, energy_max=None, energy_type=None,
@@ -97,7 +99,6 @@ class Splatalogue(BaseQuery):
                       show_molecule_tag=None, show_qn_code=None,
                       show_lovas_labref=None, show_lovas_obsref=None,
                       show_orderedfreq_only=None, show_nrao_recommended=None):
-    
         """
         Other Parameters
         ----------
@@ -215,7 +216,7 @@ class Splatalogue(BaseQuery):
 
         if only_NRAO_recommended:
             payload['include_only_nrao'] = 'include_only_nrao'
-        
+
         if line_lists is not None:
             for L in line_lists:
                 payload['display'+L] = 'display'+L
@@ -239,7 +240,7 @@ class Splatalogue(BaseQuery):
 
         if export:
             payload['submit'] = 'Export'
-            payload['export_delimiter'] = 'colon' # or tab or comma
+            payload['export_delimiter'] = 'colon'  # or tab or comma
             payload['export_type'] = 'current'
             payload['offset'] = 0
             payload['range'] = 'on'
@@ -265,7 +266,7 @@ class Splatalogue(BaseQuery):
             min_frequency,max_frequency = max_frequency,min_frequency
 
         payload['from'] = min_frequency.value
-        payload['to']   = max_frequency.value
+        payload['to'] = max_frequency.value
 
         return payload
 

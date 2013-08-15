@@ -4,7 +4,6 @@ import os
 import io
 import struct
 import requests
-import numpy as np
 from astropy.table import Table
 import astropy.io.fits as fits
 
@@ -15,8 +14,9 @@ id_parse = re.compile('ID\=(\d+)')
 
 uri = 'http://sha.ipac.caltech.edu/applications/Spitzer/SHA/servlet/DataService?'
 
+
 def query(coord=None, ra=None, dec=None, size=None, naifid=None, pid=None,
-    reqkey=None, dataset=2, verbosity=3):
+          reqkey=None, dataset=2, verbosity=3):
     """
     Query the Spitzer Heritage Archive (SHA).
 
@@ -168,6 +168,7 @@ def save_file(url, out_dir='sha_tmp/', out_name=None):
             f.write(block)
     return
 
+
 def get_file(url):
     """
     Return object from SHA query URL. Currently only supports fits files.
@@ -237,5 +238,3 @@ def _map_dtypes(type_names, field_widths):
 
 if __name__ == "__main__":
     pass
-
-

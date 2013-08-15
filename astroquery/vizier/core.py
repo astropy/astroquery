@@ -135,10 +135,10 @@ class Vizier(BaseQuery):
         -------
         >>> from astroquery.vizier import Vizier
         >>> catalog_list = Vizier.find_catalogs('Kang W51')
-        >>> print catalog_list
+        >>> print(catalog_list)
         {u'J/ApJ/706/83': <astropy.io.votable.tree.Resource at 0x108d4d490>,
          u'J/ApJS/191/232': <astropy.io.votable.tree.Resource at 0x108d50490>}
-        >>> print {k:v.description for k,v in catalog_list.iteritems()}
+        >>> print({k:v.description for k,v in catalog_list.iteritems()})
         {u'J/ApJ/706/83': u'Embedded YSO candidates in W51 (Kang+, 2009)',
          u'J/ApJS/191/232': u'CO survey of W51 molecular cloud (Bieging+, 2010)'}
         """
@@ -340,7 +340,6 @@ class Vizier(BaseQuery):
             Vizier.TIMEOUT())
         return response
 
-
     @class_or_instance
     def query_constraints(self, verbose=False, **kwargs):
         response = self.query_constraints_async(**kwargs)
@@ -360,7 +359,7 @@ class Vizier(BaseQuery):
             The catalog(s) which must be searched for this identifier.
             If not specified, all matching catalogs will be searched.
         keywords : dict
-            A dictionary of keywords to query on.  
+            A dictionary of keywords to query on.
         kwargs : dict
             Any key/value pairs besides "catalog" and "keywords" will be parsed
             as additional keywords.  kwargs overrides anything specified in

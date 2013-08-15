@@ -5,4 +5,6 @@ ALFALFA Spectra Archive Query Tool
 
 :Author: Jordan Mirocha (mirochaj@gmail.com)
 """
+
 from .core import ALFALFA
+

@@ -1,3 +1,4 @@
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
 import StringIO
 import re
 import string
@@ -11,6 +12,7 @@ __all__ = ['download_list_of_fitsfiles']
 whitespace_re = re.compile("\s")
 valid_chars = "-_.()%s%s" % (string.ascii_letters, string.digits)
 
+
 def validify_filename(filestr):
     """ Remove invalid characters from a file string """
     filestr = filestr.strip()
@@ -19,6 +21,7 @@ def validify_filename(filestr):
     # strip out invalid characters
     filestr = "".join([c for c in filestr if c in valid_chars])
     return filestr
+
 
 def download_list_of_fitsfiles(linklist, output_directory=None,
         output_prefix=None, save=False, overwrite=False, verbose=False,
@@ -57,7 +60,7 @@ def download_list_of_fitsfiles(linklist, output_directory=None,
             results = f.read()
         S = StringIO.StringIO(results)
 
-        try: 
+        try:
             # try to open as a fits file
             fitsfile = fits.open(S,ignore_missing_end=True)
         except IOError:
@@ -73,7 +76,7 @@ def download_list_of_fitsfiles(linklist, output_directory=None,
         if save:
             h0 = fitsfile[0].header
 
-            if filename_header_keywords: # is not None or empty
+            if filename_header_keywords:  # is not None or empty
                 nametxt = "_".join([validify_filename(str(h0[key])) for key in filename_header_keywords])
             else:
                 nametxt = ""
@@ -101,7 +104,7 @@ def download_list_of_fitsfiles(linklist, output_directory=None,
                 filename_root = os.path.split(link)[1]
             else:
                 filename_root = ""
-        
+
             savename = output_prefix if output_prefix else ""
             savename += nametxt
             savename += "_" + filename_root
@@ -110,11 +113,11 @@ def download_list_of_fitsfiles(linklist, output_directory=None,
             final_file = output_directory + savename
 
             if verbose:
-                print "Saving file %s" % final_file
+                print("Saving file %s" % final_file)
 
             try:
                 fitsfile.writeto(final_file, clobber=overwrite)
             except IOError:
-                print "Skipped writing file %s because it exists and overwrite=False" % final_file
+                print("Skipped writing file %s because it exists and overwrite=False" % final_file)
 
     return images
