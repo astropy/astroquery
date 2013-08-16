@@ -67,7 +67,8 @@ def test_ogle_list(patch_get):
 
 def test_ogle_list_values(patch_get):
     """
-    Test multiple pointings using a list of astropy coordinate instances
+    Test multiple pointings using a nested-list of decimal degree Galactic
+    coordinates
     """
     co_list = [[0, 0, 0], [3, 3, 3]]
     ogle.query(coord=co_list)
