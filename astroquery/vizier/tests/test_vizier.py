@@ -66,14 +66,13 @@ def test_parse_dimension_err():
 
 @pytest.mark.parametrize(('filepath'),
                          list(set(VO_DATA.values())))
-def test_parse_result_verbose(filepath):
-    print filepath
+def test_parse_result_verbose(filepath, capsys):
     with open(data_path(filepath), 'r') as f:
         table_contents = f.read()
     response = MockResponse(table_contents)
     vizier.core.Vizier._parse_result(response)
-    #out, err = capsys.readouterr()
-    #assert out == ''
+    out, err = capsys.readouterr()
+    assert out == ''
 
 
 @pytest.mark.parametrize(('filepath','objlen'),
