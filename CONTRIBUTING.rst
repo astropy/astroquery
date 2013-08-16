@@ -37,9 +37,7 @@ The minimum requirements for a new feature are:
  
      docs/astroquery/feature.rst
 
-Ideally, we'd like the test to pass on all branches on travis-ci, but until
-that's true of master (**keep this updated!! as of 5/28/2013, tests do not
-pass**), it cannot be expected of PRs either.
+PRs will not be accepted if tests fail.
 
 
 After first release

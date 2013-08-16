@@ -9,7 +9,7 @@ for a given web service (e.g., IRSA, UKIDSS, SIMBAD) will be
 
 .. code-block:: python
 
-    from astroquery import Service
+    from astroquery.service import Service
 
     result = Service.query_object('M 31')
 
@@ -17,7 +17,7 @@ for services that do not require login, and
 
 .. code-block:: python
 
-    from astroquery import Service
+    from astroquery.service import Service
 
     S = Service(user='username',password='password')
     result = S.query_object('M 31')
@@ -39,8 +39,10 @@ ADS queries that may return a `bibtex` text block).
 
 query_object
 ````````````
-Will use `astropy.coordinates.name_resolve` to convert the object name to coordinates,
-but otherwise is the same as `query_region`.
+`query_object` is only needed for services that are capable of parsing an
+object name (e.g., SIMBAD, Vizier, NED), otherwise `query_region` is an
+adequate approach, as any name can be converted to a coordinate via the SIMBAD
+name parser.
 
 
 query_region
@@ -117,14 +119,21 @@ Directory Structure::
 
     SERVER = ConfigurationItem('Service_server', ['url1','url2'])
 
-    from .core import *
+    from .core import QueryClass
+
+    __all__ = ['QueryClass']
 
 
 ``core.py`` contains:
 
 .. code-block:: python
 
+    from ..utils.class_or_instance import class_or_instance
+    from ..utils import commons, async_to_sync
 
+    __all__ = ['QueryClass']  # specifies what to import
+
+    @async_to_sync
     class QueryClass(astroquery.BaseQuery):
 
         server = SERVER()
@@ -134,36 +143,27 @@ Directory Structure::
             # do login here
             pass
 
-        @static_or_instance
-        def query_region(self, *args):
-            result = self.query_region_async(*args)
+        @class_or_instance
+        def query_region_async(self, *args, get_query_payload=False):
 
-            try:
-                self.parse_result(result)
-            except:
-                return result
+            request_payload = self._args_to_payload(*args)
 
-        @static_or_instance
-        def query_region_async(self, *args):
+            response = commons.send_request(self.server, request_payload, TIMEOUT)
 
-            request_payload = self.args_to_payload(*args)
-
-            result = requests.post(url, data=request_payload)
+            # primarily for debug purposes, but also useful if you want to send
+            # someone a URL linking directly to the data
+            if get_query_payload:
+                return request_payload
 
             return result
 
-        @static_or_instance
-        def get_images(self, *args):
-            readable_objs = self.get_images_async(*args)
-            return [fits.open(obj) for obj in readable_objs]
-
-        @static_or_instance
+        @class_or_instance
         def get_images_async(self, *args):
             image_urls = self.get_image_list(*args)
             return [get_readable_fileobj(U) for U in image_urls]
             # get_readable_fileobj returns need a "get_data()" method?
 
-        @static_or_instance
+        @class_or_instance
         def get_image_list(self, *args):
 
             request_payload = self.args_to_payload(*args)
@@ -172,28 +172,16 @@ Directory Structure::
 
             return self.extract_image_urls(result)
 
-        def parse_result(self, result):
+        def _parse_result(self, result):
             # do something, probably with regexp's
             return astropy.table.Table(tabular_data)
 
-        def args_to_payload(self, *args):
+        def _args_to_payload(self, *args):
             # convert arguments to a valid requests payload
 
             return dict
 
 
-Support Code for classmethod overloading
-----------------------------------------
-
-.. code-block:: python
-
-
-    class static_or_instance(object):
-        def __init__(self, func):
-            self.func = func
-
-        def __get__(self, instance, owner):
-            return functools.partial(self.func, instance)
 
 
 Parallel Queries
@@ -216,36 +204,6 @@ For multiple parallel queries logged in to the same object, you could do:
     Include a `parallel_map` function in `astroquery.utils`
 
 
-Present Implementations (April 2013)
-------------------------------------
-
-There are a few current implementations that differ from the above proposal.
-They will need to be refactored.  However, they provide useful comparison.
-
-1. The UKIDSS model
-
-.. code-block:: python
-
-    from astroquery import ukidss
-
-    q = ukidss.Query()
-    q.login(...) # optional
-    result = q.query_catalog(...)
-    images = q.query_images_radec(...)
-    images = q.query_images_gal(...)
-
-i.e., you create a `Query` object and use its various methods.  
-
-2. The `nedpy` model (individual functions for each query type)
-
-.. code-block:: python
-
-    from astroquery import ned
-
-    result = ned.query_object_name('M 31')
-    result = ned.query_object_coordinate(ra,dec)
-
-
 Exceptions
 ----------
 
@@ -266,40 +224,41 @@ Standard usage should be along these lines:
 
 .. code-block:: python
 
-    from astroquery import simbad
+    from astroquery.simbad import Simbad
 
-    result = simbad.query_object("M 31")
+    result = Simbad.query_object("M 31")
     # returns astropy.Table object
 
-    from astroquery import irsa
+    from astroquery.irsa import Irsa
 
-    images = irsa.get_images("M 31","5 arcmin")
+    images = Irsa.get_images("M 31","5 arcmin")
     # searches for images in a 5-arcminute circle around M 31
     # returns list of HDU objects
 
-    images = irsa.get_images("M 31")
+    images = Irsa.get_images("M 31")
     # searches for images overlapping with the SIMBAD position of M 31, if supported by the service?
     # returns list of HDU objects
 
-    from astroquery import ukidss
+    from astroquery.ukidss import Ukidss
 
-    ukidss.login(username, password)
+    Ukidss.login(username, password)
 
-    result = ukidss.query_region("5.0 0.0 gal", catalog='GPS')
+    result = Ukidss.query_region("5.0 0.0 gal", catalog='GPS')
     # FAILS: no radius specified!
-    result = ukidss.query_region("5.0 0.0 gal", catalog='GPS', radius=1)
+    result = Ukidss.query_region("5.0 0.0 gal", catalog='GPS', radius=1)
     # FAILS: no assumed units!
-    result = ukidss.query_region("5.0 0.0 gal", catalog='GPS', radius='1 arcmin')
+    result = Ukidss.query_region("5.0 0.0 gal", catalog='GPS', radius='1 arcmin')
     # SUCCEEDS!  returns an astropy.Table
 
     import astropy.coordinates as coords
     import astropy.units as u
-    result = ukidss.query_region(coords.GalacticCoordinates(5,0,unit=('deg','deg')),
+    result = Ukidss.query_region(coords.GalacticCoordinates(5,0,unit=('deg','deg')),
         catalog='GPS', region='circle', radius=5*u.arcmin)
     # returns an astropy.Table
 
-    hydrogen = NIST.query(linename='H I', minwav=4000, maxwav=7000,
-                wavelength_unit='A', energy_level_unit='eV')
+    from astroquery.nist import Nist
+
+    hydrogen = Nist.query(4000*u.AA, 7000*u.AA, linename='H I', energy_level_unit='eV')
     # returns an astropy.Table
 
 
@@ -309,75 +268,12 @@ function that returns a `list` of catalog name strings:
 
 .. code-block:: python
 
-    print(ukidss.list_catalogs())
-
-
-Remaining Questions
--------------------
-
-Storing Data Locally
-~~~~~~~~~~~~~~~~~~~~
-(this was left as an open question on the June 7, 2013 telecon)
-
-How will data be stored locally?  What is the interface to determine whether
-and where it will be stored permanently?
-
-Proposals
-#########
-
-result object
-`````````````
-
-.. code-block:: python
-
-    class Result(object):
-        def __init__(self, URL):
-            self.URL = URL
-            self.data = None
-
-        def get_data(self, timeout=10):
-
-            if self._data is None:
-                success = False
-                t0 = time.time()
-                while not success:
-                    try:
-                        with astropy.utils.data.get_readable_fileobj(URL) as f:
-                            self._data = f.read()
-                    except URLError:
-                        continue
-                    except IOError:
-                        raise IOError("Not a valid URL: "+str(self.URL))
-                    if time.time() - t0 > timeout:
-                        raise TimeoutError("Elapse time exceeded %i seconds" % timeout)
-            return self._data
-
-        def write(self, savepath, **kwargs):
-            if self._data is None:
-                self.get_data()
-            self._data.write(savepath)
-
-savepath keyword
-````````````````
-
-.. code-block:: python
-
-    from astroquery import Service
-
-    result = Service.query_object('M31', radius='1 degree', savepath='Service_M31_1degree.ipac')
-    # expect to use astropy.Table.write to make an .ipac file
-
-    result = Service.query_object('M31', radius='1 degree', savepath='Service_M31_1degree.xml')
-    # expect to write the data exactly as downloaded
-             
+    print(Ukidss.list_catalogs())
 
 Unparseable Data
 ~~~~~~~~~~~~~~~~
-(this was not discussed on the June 7, 2013 telecon)
 
-A. If data cannot be parsed into its expected form (`astropy.Table`,
-    `fits.HDU`), the raw unparsed data will be returned and a `Warning` issued.
-B. If data cannot be parsed, an Exception will be raised that identifies where the
-    raw/unparsed data is stored / cached on disk
+If data cannot be parsed into its expected form (`astropy.Table`, `fits.HDU`),
+the raw unparsed data will be returned and a `Warning` issued.
        
 
