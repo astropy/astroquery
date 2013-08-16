@@ -1,20 +1,17 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from ... import sdss
+from astropy import coordinates
 
 # Test Case: A Seyfert 1 galaxy
-RA = '0h8m05.63s'
-DEC = '14d50m23.3s'
-
+coords = coordinates.ICRSCoordinates('0h8m05.63s +14d50m23.3s')
 
 def test_sdss_spectrum():
-    xid = sdss.crossID(ra=RA, dec=DEC)
-    sp = sdss.get_spectrum(crossID=xid[0])
-
-
+    xid = sdss.core.SDSS.query_region(coords, spectro=True)
+    sp = sdss.core.SDSS.get_spectra(xid)
+    
 def test_sdss_image():
-    xid = sdss.crossID(ra=RA, dec=DEC)
-    img = sdss.get_image(crossID=xid[0])
-
-
+    xid = sdss.core.SDSS.query_region(coords)
+    img = sdss.core.SDSS.get_images(xid)
+    
 def test_sdss_template():
-    template = sdss.get_spectral_template('qso')
+    template = sdss.core.SDSS.get_spectral_template('qso')
