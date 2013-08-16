@@ -156,7 +156,7 @@ class Ukidss(QueryWithLogin):
         if sys == 'J':
             request_payload['ra'] = commons.parse_coordinates(args[0]).icrs.ra.degree
             request_payload['dec'] = commons.parse_coordinates(args[0]).icrs.dec.degree
-        elif sys == 'G'
+        elif sys == 'G':
             request_payload['ra'] = commons.parse_coordinates(args[0]).galactic.l.degree
             request_payload['dec'] = commons.parse_coordinates(args[0]).galactic.b.degree
         return request_payload
@@ -399,7 +399,7 @@ class Ukidss(QueryWithLogin):
 
     @class_or_instance
     def query_region(self, coordinates, radius=1 * u.arcmin, programme_id='GPS', database='UKIDSSDR7PLUS',
-                     verbose=False, get_query_payload=False):
+                     verbose=False, get_query_payload=False, system='J2000'):
         """
         Used to query a region around a known identifier or given coordinates from the catalog.
 
@@ -424,6 +424,8 @@ class Ukidss(QueryWithLogin):
         get_query_payload : bool, optional
             if set to `True` then returns the dictionary sent as the HTTP request.
             Defaults to `False`.
+        system : 'J2000' or 'Galactic'
+            The system in which to perform the query.  Can affect the output data columns
 
         Returns
         -------
