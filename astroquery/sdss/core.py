@@ -53,11 +53,8 @@ class SDSS(BaseQuery):
     
     QUERY_URL = 'http://cas.sdss.org/public/en/tools/search/x_sql.asp'
         
-    def __init__(self, *args):
-        pass    
-        
     @class_or_instance
-    def query_region(self, coordinates, radius=u.degree / 1800., fields=None, 
+    def query_region_async(self, coordinates, radius=u.degree / 1800., fields=None, 
         spectro=False):
         """
         Used to query a region around given coordinates. Equivalent to
@@ -125,8 +122,7 @@ class SDSS(BaseQuery):
         sql = "%s%s%s%s" % (q_select, q_from, q_join, q_where)
         r = requests.get(SDSS.QUERY_URL, params={'cmd': sql, 'format': 'csv'})
 
-        return self._parse_result(np.atleast_1d(np.genfromtxt(io.BytesIO(r.content), 
-            names=True, dtype=None, delimiter=',')))
+        return r
 
     @class_or_instance
     def get_spectra(self, matches, plate=None, fiberID=None, mjd=None):  
@@ -243,8 +239,8 @@ class SDSS(BaseQuery):
 
         return results
     
-    @class_or_instance    
-    def _parse_result(self, response):        
+    @class_or_instance
+    def _parse_result(self, response):
         """
         Parses the result and return either an `astropy.table.Table` or
         None if no matches were found.
@@ -259,10 +255,11 @@ class SDSS(BaseQuery):
         table : `astropy.table.Table`
         """
 
-        if len(response) == 0:
+
+        arr = np.atleast_1d(np.genfromtxt(io.BytesIO(response.content),
+                            names=True, dtype=None, delimiter=','))
+
+        if len(arr) == 0:
             return None
         else:
-            return Table(response)   
-
-        
-        
+            return Table(arr)
