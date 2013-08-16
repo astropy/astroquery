@@ -436,7 +436,8 @@ class Ukidss(QueryWithLogin):
         response = self.query_region_async(coordinates, radius=radius,
                                            programme_id=programme_id,
                                            database=database,
-                                           get_query_payload=get_query_payload)
+                                           get_query_payload=get_query_payload,
+                                           system=system)
         if get_query_payload:
             return response
 
@@ -445,7 +446,8 @@ class Ukidss(QueryWithLogin):
 
     @class_or_instance
     def query_region_async(self, coordinates, radius=1 * u.arcmin, programme_id='GPS',
-                           database='UKIDSSDR7PLUS', get_query_payload=False):
+                           database='UKIDSSDR7PLUS', get_query_payload=False,
+                           system='J2000'):
         """
         Serves the same purpose as :meth:`~astroquery.ukidss.core.Ukidss.query_region`. But
         returns the raw HTTP response rather than the parsed result.
@@ -475,7 +477,11 @@ class Ukidss(QueryWithLogin):
             The HTTP response returned from the service
         """
 
-        request_payload = self._args_to_payload(coordinates, programme_id=programme_id, database=database, query_type='catalog')
+        request_payload = self._args_to_payload(coordinates,
+                                                programme_id=programme_id,
+                                                database=database,
+                                                system=system,
+                                                query_type='catalog')
         request_payload['radius'] = _parse_dimension(radius)
         request_payload['from'] = 'source'
         request_payload['formaction'] = 'region'
