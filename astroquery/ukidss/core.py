@@ -92,10 +92,16 @@ class Ukidss(QueryWithLogin):
                              'UDS': 105,}
 
     ukidss_programmes_long = {'Large Area Survey': 101,
-                            'Galactic Plane Survey': 102,
-                            'Galactic Clusters Survey': 103,
-                            'Deep Extragalactic Survey': 104,
-                            'Ultra Deep Survey': 105}
+                              'Galactic Plane Survey': 102,
+                              'Galactic Clusters Survey': 103,
+                              'Deep Extragalactic Survey': 104,
+                              'Ultra Deep Survey': 105}
+
+    databases = ("UKIDSSDR9PLUS", "UKIDSSDR8PLUS", "UKIDSSDR7PLUS",
+                 "UKIDSSDR6PLUS", "UKIDSSDR5PLUS", "UKIDSSDR4PLUS",
+                 "UKIDSSDR3PLUS", "UKIDSSDR2PLUS", "UKIDSSDR1PLUS",
+                 "UKIDSSDR1", "UKIDSSEDRPLUS", "UKIDSSEDR", "UKIDSSSV",
+                 "WFCAMCAL08B")
 
     def __init__(self, username, password, community, database='UKIDSSDR7PLUS', programme_id='all'):
         self.database = database
@@ -145,10 +151,24 @@ class Ukidss(QueryWithLogin):
         request_payload['database'] = self.database if hasattr(self, 'database') else kwargs['database']
         programme_id = self.programme_id if hasattr(self, 'programme_id') else kwargs['programme_id']
         request_payload['programmeID'] = verify_programme_id(programme_id, query_type=kwargs['query_type'])
-        request_payload['ra'] = commons.parse_coordinates(args[0]).icrs.ra.degree
-        request_payload['dec'] = commons.parse_coordinates(args[0]).icrs.dec.degree
-        request_payload['sys'] = 'J'
+        sys = self._parse_system(kwargs.get('system'))
+        request_payload['sys'] = sys
+        if sys == 'J':
+            request_payload['ra'] = commons.parse_coordinates(args[0]).icrs.ra.degree
+            request_payload['dec'] = commons.parse_coordinates(args[0]).icrs.dec.degree
+        elif sys == 'G'
+            request_payload['ra'] = commons.parse_coordinates(args[0]).galactic.l.degree
+            request_payload['dec'] = commons.parse_coordinates(args[0]).galactic.b.degree
         return request_payload
+
+    @class_or_instance
+    def _parse_system(self, system):
+        if system is None:
+            return 'J'
+        elif system.lower() in ('g','gal','galactic'):
+            return 'G'
+        elif system.lower() in ('j','j2000','celestical','radec'):
+            return 'J'
 
     @class_or_instance
     def get_images(self, coordinates, waveband='all', frame_type='stack',
@@ -231,7 +251,7 @@ class Ukidss(QueryWithLogin):
             `Quantity` object from `astropy.units` may also be used. When missing only image
             around the given position rather than multi-frames are retrieved.
         programme_id : str
-            The survey or programme in which to search for.
+            The survey or programme in which to search for.  See `list_catalogs`.
         database : str
             The UKIDSS database to use.
         verbose : bool
@@ -288,7 +308,7 @@ class Ukidss(QueryWithLogin):
             `Quantity` object from `astropy.units` may also be used. When missing only image
             around the given position rather than multi-frames are retrieved.
         programme_id : str
-            The survey or programme in which to search for
+            The survey or programme in which to search for.  See `list_catalogs`.
         database : str
             The UKIDSS database to use
         verbose : bool
@@ -395,7 +415,7 @@ class Ukidss(QueryWithLogin):
             `Quantity` object from `astropy.units` may also be used. When missing
             defaults to 1 arcmin. Cannot exceed 90 arcmin.
         programme_id : str
-            The survey or programme in which to search for
+            The survey or programme in which to search for.  See `list_catalogs`.
         database : str
             The UKIDSS database to use
         verbose : bool, optional.
@@ -440,7 +460,7 @@ class Ukidss(QueryWithLogin):
             `Quantity` object from `astropy.units` may also be used. When missing
             defaults to 1 arcmin. Cannot exceed 90 arcmin.
         programme_id : str
-            The survey or programme in which to search for
+            The survey or programme in which to search for.  See `list_catalogs`.
         database : str
             The UKIDSS database to use
         get_query_payload : bool, optional
@@ -536,13 +556,20 @@ class Ukidss(QueryWithLogin):
             list containing catalog name strings in long or short style.
         """
         if style=='short':
-            return list(Ukidss.ukidss_programmes_short.keys())
+            return list(self.ukidss_programmes_short.keys())
         elif style=='long':
-            return list(Ukidss.ukidss_programmes_long.keys())
+            return list(self.ukidss_programmes_long.keys())
         else:
             warnings.warn("Style must be one of 'long', 'short'.\n"
                           "Returning catalog list in short format.\n")
-            return list(Ukidss.ukidss_programmes_short.keys())
+            return list(self.ukidss_programmes_short.keys())
+
+    @class_or_instance
+    def list_databases(self):
+        """
+        List the databases available from the UKIDSS WFCAM archive
+        """
+        return self.databases
 
     @class_or_instance
     def _ukidss_send_request(self, url, request_payload):
@@ -608,13 +635,16 @@ def clean_catalog(ukidss_catalog, clean_band='K_1', badclass=-9999, maxerrbits=4
     """
 
     band = clean_band
-    mask = ((ukidss_catalog.data[band + 'CLASS'] != badclass)
-            * (ukidss_catalog.data[band + 'ERRBITS'] <= maxerrbits)
-            * (ukidss_catalog.data[band + 'ERRBITS'] >= minerrbits)
-            * ((ukidss_catalog.data['PRIORSEC'] == ukidss_catalog.data['FRAMESETID'])
-                + (ukidss_catalog.data['PRIORSEC'] == 0))
-            * (ukidss_catalog.data[band + 'PPERRBITS'] < maxpperrbits)
+    mask = ((ukidss_catalog[band + 'ERRBITS'] <= maxerrbits)
+            * (ukidss_catalog[band + 'ERRBITS'] >= minerrbits)
+            * ((ukidss_catalog['PRIORSEC'] == ukidss_catalog['FRAMESETID'])
+                + (ukidss_catalog['PRIORSEC'] == 0))
+            * (ukidss_catalog[band + 'PPERRBITS'] < maxpperrbits)
             )
+    if band+'CLASS' in ukidss_catalog.colnames:
+        mask *= (ukidss_catalog[band + 'CLASS'] != badclass)
+    elif 'mergedClass' in ukidss_catalog.colnames:
+        mask *= (ukidss_catalog['mergedClass'] != badclass)
 
     return ukidss_catalog.data[mask]
 
