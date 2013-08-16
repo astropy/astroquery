@@ -1,8 +1,11 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from ... import sdss
 from astropy import coordinates
+from astropy.tests.helper import pytest
 import astropy.utils.data as aud
+import requests
 import io
+import os
 
 # actual spectra/data are a bit heavy to include in astroquery, so we don't try
 # to deal with them.  Would be nice to find a few very small examples
@@ -33,7 +36,7 @@ def patch_get_readable_fileobj(request):
     return mp
 
 def get_mockreturn(url, params=None, timeout=10):
-    if 'SpecObjALL' in params['cmd']:
+    if 'SpecObjAll' in params['cmd']:
         filename = data_path(DATA_FILES['spectra_id'])
     else:
         filename = data_path(DATA_FILES['images_id'])

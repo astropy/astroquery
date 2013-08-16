@@ -1,8 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 """
 
-core.py
-
 Author: Jordan Mirocha
 Affiliation: University of Colorado at Boulder
 Created on: Sun Apr 14 19:18:43 2013
@@ -22,6 +20,8 @@ from ..query import BaseQuery
 from . import SDSS_SERVER, SDSS_MAXQUERY
 from ..utils.class_or_instance import class_or_instance
 from ..utils import commons, async_to_sync
+from ..utils.docstr_chompers import prepend_docstr_noreturns
+import astropy.utils.data as aud
 
 __all__ = ['SDSS']
 
@@ -169,7 +169,7 @@ class SDSS(BaseQuery):
         return [fits.open(obj.__enter__(), ignore_missing_end=True) for obj in readable_objs]
 
     @class_or_instance
-    def get_images(self, matches, run=None, rerun=None, camcol=None,
+    def get_images_async(self, matches, run=None, rerun=None, camcol=None,
         field=None, band='g'):
         """
         Download an image from SDSS.
@@ -202,12 +202,26 @@ class SDSS(BaseQuery):
             link = '%s?RUN=%i&RERUN=%i&CAMCOL=%i&FIELD=%s&FILTER=%s' % (SDSS.IMAGING,
                     row['run'], row['rerun'], row['camcol'], field, band)
 
-            results.append(fits.open(link, ignore_missing_end=True))
+            results.append(aud.get_readable_fileobj(link))
 
         return results
 
+
     @class_or_instance
-    def get_spectral_template(self, kind='qso'):
+    @prepend_docstr_noreturns(get_images_async.__doc__)
+    def get_images(self, matches, run=None, rerun=None, camcol=None):
+        """
+        Returns
+        -------
+        List of PyFITS HDUList objects.
+        """
+
+        readable_objs = self.get_images_async(matches, run=run, rerun=rerun, camcol=camcol)
+
+        return [fits.open(obj.__enter__(), ignore_missing_end=True) for obj in readable_objs]
+
+    @class_or_instance
+    def get_spectral_template_async(self, kind='qso'):
         """
         Download spectral templates from SDSS DR-2, which are located here:
 
@@ -247,9 +261,23 @@ class SDSS(BaseQuery):
         for index in indices:
             name = str(index).zfill(3)
             link = '%s-%s.fit' % (SDSS.TEMPLATES, name)
-            results.append(fits.open(link, ignore_missing_end=True))
+            results.append(aud.get_readable_fileobj(link))
 
         return results
+
+
+    @class_or_instance
+    @prepend_docstr_noreturns(get_spectral_template_async.__doc__)
+    def get_spectral_template(self, kind='qso'):
+        """
+        Returns
+        -------
+        List of PyFITS HDUList objects.
+        """
+
+        readable_objs = self.get_spectral_template_async(kind=kind)
+
+        return [fits.open(obj.__enter__(), ignore_missing_end=True) for obj in readable_objs]
 
     @class_or_instance
     def _parse_result(self, response, verbose=False):
