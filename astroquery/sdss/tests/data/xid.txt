@@ -1,0 +1,2 @@
+ra,dec,objid,run,rerun,camcol,field,z,plate,mjd,fiberID,specobjid,specClass
+2.02344483,14.83982059,587727221951234166,1739,40,3,315,0.04541,751,52251,160,211612124516974592,3

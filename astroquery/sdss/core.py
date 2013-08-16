@@ -21,6 +21,7 @@ import io
 from ..query import BaseQuery
 from . import SDSS_SERVER, SDSS_MAXQUERY
 from ..utils.class_or_instance import class_or_instance
+from ..utils import commons, async_to_sync
 
 __all__ = ['SDSS']
 
@@ -42,7 +43,7 @@ spec_templates = \
 
 sdss_arcsec_per_pixel = 0.396
 
-
+@async_to_sync
 class SDSS(BaseQuery):
 
     BASE_URL = SDSS_SERVER()
@@ -126,7 +127,7 @@ class SDSS(BaseQuery):
         return r
 
     @class_or_instance
-    def get_spectra(self, matches, plate=None, fiberID=None, mjd=None):
+    def get_spectra_async(self, matches, plate=None, fiberID=None, mjd=None):
         """
         Download spectrum from SDSS.
 
@@ -136,8 +137,7 @@ class SDSS(BaseQuery):
 
         Returns
         -------
-        List of PyFITS HDUList objects.
-
+        A list of context-managers that yield readable file-like objects
         """
 
         if not isinstance(matches, Table):
@@ -151,9 +151,22 @@ class SDSS(BaseQuery):
             link = '%s/%s/1d/spSpec-%s-%s-%s.fit' % (SDSS.SPECTRO_1D, plate,
                                                      mjd, plate, fiber)
 
-            results.append(fits.open(link, ignore_missing_end=True))
+            results.append(aud.get_readable_fileobj(link))
 
         return results
+
+    @class_or_instance
+    @prepend_docstr_noreturns(get_spectra_async.__doc__)
+    def get_spectra(self, matches, plate=None, fiberID=None, mjd=None):
+        """
+        Returns
+        -------
+        List of PyFITS HDUList objects.
+        """
+
+        readable_objs = self.get_spectra_async(matches, plate=plate, fiberID=fiberID, mjd=mjd)
+
+        return [fits.open(obj.__enter__(), ignore_missing_end=True) for obj in readable_objs]
 
     @class_or_instance
     def get_images(self, matches, run=None, rerun=None, camcol=None,
@@ -177,7 +190,6 @@ class SDSS(BaseQuery):
         Returns
         -------
         List of PyFITS HDUList objects.
-
         """
 
         results = []
@@ -240,7 +252,7 @@ class SDSS(BaseQuery):
         return results
 
     @class_or_instance
-    def _parse_result(self, response):
+    def _parse_result(self, response, verbose=False):
         """
         Parses the result and return either an `astropy.table.Table` or
         None if no matches were found.
