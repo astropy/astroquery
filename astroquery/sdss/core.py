@@ -1,8 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 """
 
-core.py
-
 Author: Jordan Mirocha
 Affiliation: University of Colorado at Boulder
 Created on: Sun Apr 14 19:18:43 2013
@@ -21,6 +19,9 @@ import io
 from ..query import BaseQuery
 from . import SDSS_SERVER, SDSS_MAXQUERY
 from ..utils.class_or_instance import class_or_instance
+from ..utils import commons, async_to_sync
+from ..utils.docstr_chompers import prepend_docstr_noreturns
+import astropy.utils.data as aud
 
 __all__ = ['SDSS']
 
@@ -42,23 +43,21 @@ spec_templates = \
 
 sdss_arcsec_per_pixel = 0.396
 
+@async_to_sync
 class SDSS(BaseQuery):
-            
+
     BASE_URL = SDSS_SERVER()
     SPECTRO_1D = BASE_URL + '/spectro/1d_26'
     IMAGING = BASE_URL + '/www/cgi-bin/drC'
     TEMPLATES = 'http://www.sdss.org/dr5/algorithms/spectemplates/spDR2'
     MAXQUERIES = SDSS_MAXQUERY()
     AVAILABLE_TEMPLATES = spec_templates
-    
+
     QUERY_URL = 'http://cas.sdss.org/public/en/tools/search/x_sql.asp'
-        
-    def __init__(self, *args):
-        pass    
-        
+
     @class_or_instance
-    def query_region(self, coordinates, radius=u.degree / 1800., fields=None, 
-        spectro=False):
+    def query_region_async(self, coordinates, radius=u.degree / 1800., fields=None,
+                           spectro=False):
         """
         Used to query a region around given coordinates. Equivalent to
         the object cross-ID from the web interface.
@@ -80,7 +79,7 @@ class SDSS(BaseQuery):
         spectro : bool, optional
             Look for spectroscopic match in addition to photometric match? If True,
             objects will only count as a match if photometry *and* spectroscopy
-            exist. If False, will look for photometric matches only.    
+            exist. If False, will look for photometric matches only.
 
         Examples
         --------
@@ -93,11 +92,11 @@ class SDSS(BaseQuery):
         result : `astropy.table.Table`
             The result of the query as an `astropy.table.Table` object.
         """
-        
+
         ra = coordinates.ra.degree
         dec = coordinates.dec.degree
         dr = radius.to('degree').value
-        
+
         # Fields to return (if cross-ID successful)
         if fields is None:
             fields = copy.deepcopy(photoobj_defs)
@@ -125,48 +124,59 @@ class SDSS(BaseQuery):
         sql = "%s%s%s%s" % (q_select, q_from, q_join, q_where)
         r = requests.get(SDSS.QUERY_URL, params={'cmd': sql, 'format': 'csv'})
 
-        return self._parse_result(np.atleast_1d(np.genfromtxt(io.BytesIO(r.content), 
-            names=True, dtype=None, delimiter=',')))
+        return r
 
     @class_or_instance
-    def get_spectra(self, matches, plate=None, fiberID=None, mjd=None):  
+    def get_spectra_async(self, matches, plate=None, fiberID=None, mjd=None):
         """
-        Download spectrum from SDSS. 
-        
+        Download spectrum from SDSS.
+
         Parameters
         ----------
-        matches : astropy.table.Table instance (result of query_region). 
-        
+        matches : astropy.table.Table instance (result of query_region).
+
         Returns
         -------
-        List of PyFITS HDUList objects.
-        
+        A list of context-managers that yield readable file-like objects
         """
-        
+
         if not isinstance(matches, Table):
             raise ValueError
-        
+
         results = []
         for row in matches:
             plate = str(row['plate']).zfill(4)
             fiber = str(row['fiberID']).zfill(3)
             mjd = str(row['mjd'])
-            link = '%s/%s/1d/spSpec-%s-%s-%s.fit' % (SDSS.SPECTRO_1D, plate, 
+            link = '%s/%s/1d/spSpec-%s-%s-%s.fit' % (SDSS.SPECTRO_1D, plate,
                                                      mjd, plate, fiber)
-                  
-            results.append(fits.open(link, ignore_missing_end=True))
-    
+
+            results.append(aud.get_readable_fileobj(link))
+
         return results
-    
+
     @class_or_instance
-    def get_images(self, matches, run=None, rerun=None, camcol=None, 
+    @prepend_docstr_noreturns(get_spectra_async.__doc__)
+    def get_spectra(self, matches, plate=None, fiberID=None, mjd=None):
+        """
+        Returns
+        -------
+        List of PyFITS HDUList objects.
+        """
+
+        readable_objs = self.get_spectra_async(matches, plate=plate, fiberID=fiberID, mjd=mjd)
+
+        return [fits.open(obj.__enter__(), ignore_missing_end=True) for obj in readable_objs]
+
+    @class_or_instance
+    def get_images_async(self, matches, run=None, rerun=None, camcol=None,
         field=None, band='g'):
         """
-        Download an image from SDSS. 
-        
-        Querying SDSS for images will return the entire plate. For subsequent 
+        Download an image from SDSS.
+
+        Querying SDSS for images will return the entire plate. For subsequent
         analyses of individual objects
-        
+
         Parameters
         ----------
         crossID : dict
@@ -176,79 +186,105 @@ class SDSS(BaseQuery):
             astroquery.sdss.crossID.
         band : str, list
             Could be individual band, or list of bands. Options: u, g, r, i, or z
-        
+
         Returns
         -------
         List of PyFITS HDUList objects.
-        
         """
-        
+
         results = []
         for row in matches:
-    
+
             # Read in and format some information we need
             field = str(row['field']).zfill(4)
-                                    
+
             # Download and read in image data
-            link = '%s?RUN=%i&RERUN=%i&CAMCOL=%i&FIELD=%s&FILTER=%s' % (SDSS.IMAGING, 
-                row['run'], row['rerun'], row['camcol'], field, band)            
-    
-            results.append(fits.open(link, ignore_missing_end=True))
-         
+            link = '%s?RUN=%i&RERUN=%i&CAMCOL=%i&FIELD=%s&FILTER=%s' % (SDSS.IMAGING,
+                    row['run'], row['rerun'], row['camcol'], field, band)
+
+            results.append(aud.get_readable_fileobj(link))
+
         return results
-    
-    @class_or_instance    
-    def get_spectral_template(self, kind='qso'):
+
+
+    @class_or_instance
+    @prepend_docstr_noreturns(get_images_async.__doc__)
+    def get_images(self, matches, run=None, rerun=None, camcol=None):
+        """
+        Returns
+        -------
+        List of PyFITS HDUList objects.
+        """
+
+        readable_objs = self.get_images_async(matches, run=run, rerun=rerun, camcol=camcol)
+
+        return [fits.open(obj.__enter__(), ignore_missing_end=True) for obj in readable_objs]
+
+    @class_or_instance
+    def get_spectral_template_async(self, kind='qso'):
         """
         Download spectral templates from SDSS DR-2, which are located here:
-        
+
             http://www.sdss.org/dr5/algorithms/spectemplates/
-        
+
         There 32 spectral templates available from DR-2, from stellar spectra,
         to galaxies, to quasars. To see the available templates, do:
-        
+
             from astroquery.sdss import SDSS
             print sdss.AVAILABLE_TEMPLATES
-        
+
         Parameters
         ----------
         kind : str, list
-            Which spectral template to download? Options are stored in the 
+            Which spectral template to download? Options are stored in the
             dictionary astroquery.sdss.SDSS.AVAILABLE_TEMPLATES
-        
+
         Examples
         --------
         >>> qso = SDSS.get_spectral_template(kind='qso')
         >>> Astar = SDSS.get_spectral_template(kind='star_A')
         >>> Fstar = SDSS.get_spectral_template(kind='star_F')
-    
+
         Returns
         -------
         List of PyFITS HDUList objects.
-        
-        """   
-        
+        """
+
         if kind == 'all':
             indices = list(np.arange(33))
         else:
             indices = spec_templates[kind]
             if type(indices) is not list:
                 indices = [indices]
-            
+
         results = []
         for index in indices:
             name = str(index).zfill(3)
             link = '%s-%s.fit' % (SDSS.TEMPLATES, name)
-            results.append(fits.open(link, ignore_missing_end=True))
+            results.append(aud.get_readable_fileobj(link))
 
         return results
-    
-    @class_or_instance    
-    def _parse_result(self, response):        
+
+
+    @class_or_instance
+    @prepend_docstr_noreturns(get_spectral_template_async.__doc__)
+    def get_spectral_template(self, kind='qso'):
+        """
+        Returns
+        -------
+        List of PyFITS HDUList objects.
+        """
+
+        readable_objs = self.get_spectral_template_async(kind=kind)
+
+        return [fits.open(obj.__enter__(), ignore_missing_end=True) for obj in readable_objs]
+
+    @class_or_instance
+    def _parse_result(self, response, verbose=False):
         """
         Parses the result and return either an `astropy.table.Table` or
         None if no matches were found.
-        
+
         Parameters
         ----------
         response : `requests.Response`
@@ -259,10 +295,10 @@ class SDSS(BaseQuery):
         table : `astropy.table.Table`
         """
 
-        if len(response) == 0:
+        arr = np.atleast_1d(np.genfromtxt(io.BytesIO(response.content),
+                            names=True, dtype=None, delimiter=','))
+
+        if len(arr) == 0:
             return None
         else:
-            return Table(response)   
-
-        
-        
+            return Table(arr)
