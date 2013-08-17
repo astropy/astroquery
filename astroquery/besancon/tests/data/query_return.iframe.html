@@ -1,0 +1,304 @@
+
+<html>
+
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<title>Model: input form</title>
+<style type="text/css">
+BODY {
+     font-family: Arial, Helvetica, Geneva, Swiss, SunSans-Regular;
+     font-size: small;
+     background: #FFFFFF;
+}
+TD  {
+ font-family: Arial, Helvetica, Geneva, Swiss, SunSans-Regular;
+}
+
+TD.bigtabl  {
+     font-size: small;
+}
+
+TH.bigtabl  {
+     font-size: small;
+}
+
+option.form {
+     font-size: small;
+}
+
+span.errorpar {
+      color: #1C64A9 ;
+     font-weight: bold;
+ }
+
+span.enhanced {
+      color: #1C64A9 ;
+     font-weight: bold;
+ }
+
+span.param {
+     font-weight: bold;
+ }
+
+span.math {
+	font-family: courier, fixed, monospace;
+	color: #6A07B6;
+ }
+div.errorpar {
+      color: #1C64A9 ;
+ }
+
+h1 {
+      font-weight: bold;
+      font-size: x-large; 
+      text-align: center;
+}
+h3 {
+	text-align: left;
+	font-size: large;
+	font-weight: bold;
+}
+h4 {
+	text-align: left;
+	font-size: inherit;
+	font-weight: bold;
+}
+hr.redline {
+	color: #FF0000;
+	background-color: #FF0000;
+	height: 2px;
+	border: 0;
+}
+a.modelhelp {
+   text-decoration: none ;
+}
+
+a.modelhelp span {
+   display: none; /* on masque l'infobulle */
+}
+a.modelhelp:hover {
+   background: none; /* correction d'un bug IE */
+/*   z-index: 500;  on définit une valeur pour l'ordre d'affichage */
+
+   cursor: help; /* on change le curseur par défaut en curseur d'aide */
+}
+a.modelhelp:hover span {
+   display: inline; /* on affiche l'infobulle */
+   position: absolute;
+
+/*
+  white-space: nowrap;  on change la valeur de la propriété white-space
+pour qu'il n'y ait pas de retour à la ligne non-désiré */
+/*
+   top: 20px;  on positionne notre infobulle 
+   left: 80px;*/
+   text-align: justify;
+/*   width: 260px ; */
+   text-decoration: none ;
+   font-weight: normal ;
+   font-style: normal ;
+   font-size: 90% ;
+   color: brown ;
+   background: bisque  ;
+
+/*   color: green; */
+   padding: 3px;
+
+   border: 1px solid brown;
+/*   border-left: 4px solid green; */
+}
+a.modelhelp:hover h3 {
+   font-size: 90% ;
+}
+</style>
+<script type="text/javascript">
+
+function createWindesc(cUrl) {
+
+    xWdesc = window.open(cUrl,'xWdesc','height=600,width=350,toolbar,resizable,scrollbars');
+    if (xWdesc.blur) xWdesc.focus();
+}
+
+</script>
+	</head>
+
+	<body bgcolor="#ffffff" text="#b22222" link="#ff6347" vlink="#ffa07a">
+		<div align="center">
+			<h1>Model of stellar population synthesis of the Galaxy</h1>
+			<h2>Catalogue simulation without kinematics, Johnson-Cousins photometric system</h2>
+	</div>
+<div>The resulting parameter file 1376235131.430670.par has been built; a message will be sent to address keflavich@gmail.com when the simulation is complete</div>
+<div><a href="/modele_form.php?kleb=3&klec=1&cinem=0">new access to the model form: </a></div>
+<hr width="70%">
+<br clear="all">
+<h3>Summary of the parameters you supplied</h3>
+<div>
+ A mail will be sent to address: <SPAN class="enhanced">keflavich@gmail.com</SPAN> when the simulation is completed<br>
+ The name of the file containing the result of the simulation will be: <SPAN class="enhanced">1376235131.430670.resu</SPAN>
+</div>
+<h4>Field of view:</h4>
+<div>
+distance step mode: progressive<br>
+small field<br>
+Longitude: 173<br>
+Latitude: 3<br>
+solid angle: 0.01<br>
+</div>
+<div>
+<h4>Extinction:</h4>
+diffuse absorption:  0.700 mag/kpc<br>
+no discrete clouds<br>
+</div>
+<br>
+<div>
+<table border=1>
+<tr>
+<th class="bigtabl">parameter</th>
+<th class="bigtabl">min</th>
+<th class="bigtabl">max</th>
+<th class="bigtabl">step</th>
+</tr>
+<tr>
+<td class="bigtabl">Absolute V magnitude</td>
+<td class="bigtabl">  -7.00</td>
+<td class="bigtabl">  20.00</td>
+<td class="bigtabl">   0.50</td>
+</tr>
+<tr>
+<td class="bigtabl">Spectral type</td>
+<td class="bigtabl">1</td>
+<td class="bigtabl">9.5</td>
+<td class="bigtabl">0.1</td>
+</tr>
+<tr>
+<td class="bigtabl">Luminosity class</td>
+<td class="bigtabl">1</td>
+<td class="bigtabl">7</td>
+<td class="bigtabl">   1.00</td>
+</tr>
+<tr>
+<td class="bigtabl">Population-age</td>
+<td class="bigtabl">1</td>
+<td class="bigtabl">10</td>
+<td class="bigtabl">1</td>
+</tr>
+<tr>
+<td class="bigtabl">[Fe/H]</td>
+<td class="bigtabl">  -4.20</td>
+<td class="bigtabl">   1.50</td>
+<td class="bigtabl">   0.30</td>
+</tr>
+<tr>
+<td class="bigtabl">Distance</td>
+<td class="bigtabl">0.000000</td>
+<td class="bigtabl">50.000000</td>
+<td class="bigtabl">   2.00</td>
+</tr>
+<tr>
+<td class="bigtabl">V app. magnitude</td>
+<td class="bigtabl">-10</td>
+<td class="bigtabl"> 18.00</td>
+<td class="bigtabl">1</td>
+</tr>
+<tr>
+<td class="bigtabl">B-V</td>
+<td class="bigtabl">-99.00</td>
+<td class="bigtabl">99.00</td>
+<td class="bigtabl">  10.00</td>
+</tr>
+<tr>
+<td class="bigtabl">U-B</td>
+<td class="bigtabl">-99.00</td>
+<td class="bigtabl">99.00</td>
+<td class="bigtabl">  10.00</td>
+</tr>
+<tr>
+<td class="bigtabl">V-I</td>
+<td class="bigtabl">-99.00</td>
+<td class="bigtabl">99.00</td>
+<td class="bigtabl">  10.00</td>
+</tr>
+<tr>
+<td class="bigtabl">V-K</td>
+<td class="bigtabl">-99.00</td>
+<td class="bigtabl">99.00</td>
+<td class="bigtabl">  10.00</td>
+</tr>
+<tr>
+<td class="bigtabl">LogTeff</td>
+<td class="bigtabl">   3.00</td>
+<td class="bigtabl">   6.00</td>
+<td class="bigtabl">   0.10</td>
+</tr>
+</table>
+</div>
+<div>
+<h4>Errors:</h4>
+error mode:parabolic <span class="math">error = A + B*m + C*m<sup>2</sup></span><br>
+photometric errors:<br>
+<table border=1>
+<tr>
+<th class="bigtabl">photometric band</th>
+<th class="bigtabl">A</th>
+<th class="bigtabl">B</th>
+<th class="bigtabl">C</th>
+</tr>
+<tr>
+<td class="bigtabl">V</td>
+<td class="bigtabl">0.000000</td>
+<td class="bigtabl">0.000000</td>
+<td class="bigtabl">0.000000</td>
+</tr>
+<tr>
+<td class="bigtabl">B</td>
+<td class="bigtabl">0.000000</td>
+<td class="bigtabl">0.000000</td>
+<td class="bigtabl">0.000000</td>
+</tr>
+<tr>
+<td class="bigtabl">U</td>
+<td class="bigtabl">0.000000</td>
+<td class="bigtabl">0.000000</td>
+<td class="bigtabl">0.000000</td>
+</tr>
+<tr>
+<td class="bigtabl">R</td>
+<td class="bigtabl">0.000000</td>
+<td class="bigtabl">0.000000</td>
+<td class="bigtabl">0.000000</td>
+</tr>
+<tr>
+<td class="bigtabl">I</td>
+<td class="bigtabl">0.000000</td>
+<td class="bigtabl">0.000000</td>
+<td class="bigtabl">0.000000</td>
+</tr>
+<tr>
+<td class="bigtabl">J</td>
+<td class="bigtabl">0.000000</td>
+<td class="bigtabl">0.000000</td>
+<td class="bigtabl">0.000000</td>
+</tr>
+<tr>
+<td class="bigtabl">H</td>
+<td class="bigtabl">0.000000</td>
+<td class="bigtabl">0.000000</td>
+<td class="bigtabl">0.000000</td>
+</tr>
+<tr>
+<td class="bigtabl">K</td>
+<td class="bigtabl">0.000000</td>
+<td class="bigtabl">0.000000</td>
+<td class="bigtabl">0.000000</td>
+</tr>
+<tr>
+<td class="bigtabl">L</td>
+<td class="bigtabl">0.000000</td>
+<td class="bigtabl">0.000000</td>
+<td class="bigtabl">0.000000</td>
+</tr>
+</table>
+</div>
+	</body>
+
+</html>

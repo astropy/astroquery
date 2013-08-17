@@ -5,6 +5,7 @@ import time
 import copy
 import sys
 import re
+import os
 import astropy.utils.data as aud
 from astropy.io import ascii
 from . import BESANCON_DOWNLOAD_URL, BESANCON_MODEL_FORM, BESANCON_PING_DELAY
@@ -102,7 +103,7 @@ class Besancon(BaseQuery):
             present.  Default 5s, which is probably reasonable.
         """
 
-        url = self.url_download+"/"+filename
+        url = os.path.join(self.url_download,filename)
 
         elapsed_time = 0
         t0 = time.time()
