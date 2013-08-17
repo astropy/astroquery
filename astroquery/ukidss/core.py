@@ -176,7 +176,7 @@ class Ukidss(QueryWithLogin):
 
     @class_or_instance
     def get_images(self, coordinates, waveband='all', frame_type='stack',
-                   image_width=1* u.arcmin, image_height=None, radius=None,
+                   image_width=1*u.arcmin, image_height=None, radius=None,
                    database='UKIDSSDR7PLUS', programme_id='all',
                    verbose=True, get_query_payload=False):
         """
