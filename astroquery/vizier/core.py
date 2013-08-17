@@ -172,6 +172,8 @@ class Vizier(BaseQuery):
         """
         response = self.get_catalogs_async(catalog=catalog)
         result = self._parse_result(response, verbose=verbose)
+        if _is_single_catalog(catalog):
+            return result.values()[0]
         return result
 
     @class_or_instance
@@ -188,8 +190,6 @@ class Vizier(BaseQuery):
         -------
         response : `~request.response`
             Returned if asynchronous method used
-        result : `~astroquery.utils.common.TableList`
-            The results in a list of `astropy.table.Table`.
         """
 
         data_payload = self._args_to_payload(catalog=catalog,
@@ -227,6 +227,8 @@ class Vizier(BaseQuery):
         """
         response = self.query_object_async(object_name, catalog=catalog)
         result = self._parse_result(response, verbose=verbose)
+        if _is_single_catalog(catalog):
+            return result.values()[0]
         return result
 
     @class_or_instance
@@ -296,6 +298,8 @@ class Vizier(BaseQuery):
             coordinates, radius=radius, height=height,
             width=width, catalog=catalog)
         result = self._parse_result(response, verbose=verbose)
+        if _is_single_catalog(catalog):
+            return result.values()[0]
         return result
 
     @class_or_instance
@@ -344,6 +348,8 @@ class Vizier(BaseQuery):
     def query_constraints(self, verbose=False, **kwargs):
         response = self.query_constraints_async(**kwargs)
         result = self._parse_result(response, verbose=verbose)
+        if _is_single_catalog(catalog):
+            return result.values()[0]
         return result
 
     @class_or_instance
@@ -538,6 +544,13 @@ class Vizier(BaseQuery):
                 "Error in parsing result, returning raw result instead")
             return response.content
 
+def _is_single_catalog(catalog):
+    if isinstance(catalog, basestring):
+        return True
+    if isinstance(catalog, list):
+        if len(catalog) == 1:
+            return True
+    return False
 
 def _parse_dimension(dim):
     """
