@@ -396,7 +396,7 @@ class Vizier(BaseQuery):
                            for key, val in body.items()])
         # add keywords
         if not isinstance(self.keywords, property) and self.keywords is not None:
-            script += str(self.keywords)
+            script += "\n" + str(self.keywords)
         # add column filters
         if not isinstance(self.column_filters, property) and self.column_filters is not None:
             filter_str = "\n".join(["{key}={constraint}".format(key=key, constraint=constraint) for key, constraint in
