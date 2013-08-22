@@ -151,9 +151,8 @@ For other coordinate systems, use the appropriate `astropy.coordinates`_ object:
                 MAIN_ID             RA      ... COO_WAVELENGTH     COO_BIBCODE    
     ------------------- ------------- ... -------------- -------------------
     NAME Barnard's star 17 57 48.4980 ...              O 2007A&A...474..653V
-                
-    
-   
+
+
 
 Two other options can also be specified - the epoch and the equinox. If these
 are not explicitly mentioned, then the epoch defaults to J2000 and the equinox
@@ -372,10 +371,10 @@ To set additional fields to be returned in the VOTable:
 
      # To set other fields 
 
-     >>> Simbad.set_votable_fields('mk', 'rot')
+     >>> Simbad.set_votable_fields('mk', 'rot', 'bibcodelist(1800-2014)')
      >>> Simbad.VOTABLE_FIELDS
 
-     ['main_id', 'coordinates', 'mk', 'rot']
+     ['main_id', 'coordinates', 'mk', 'rot', 'bibcodelist(1800-2014')]
 
 You can also remove a field you have set or reset `Simbad.VOTABLE_FIELDS` to
 its default value. Continuing from the above example:
