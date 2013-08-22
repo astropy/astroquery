@@ -107,7 +107,10 @@ class Ukidss(QueryWithLogin):
         self.database = database
         self.programme_id = programme_id  # 102 = GPS
         self.session = None
-        self.login(username, password, community)
+        if username is None or password is None or community is None:
+            pass
+        else:
+            self.login(username, password, community)
 
     def login(self, username, password, community):
         """
@@ -122,13 +125,6 @@ class Ukidss(QueryWithLogin):
 
         # Construct cookie holder, URL openenr, and retrieve login page
         self.session = requests.session()
-        
-        if username is None:
-            username = ''
-        if password is None:
-            password = ''
-        if community is None:
-            community = ''
 
         credentials = {'user': username, 'passwd': password,
                        'community': ' ', 'community2': community}
