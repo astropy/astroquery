@@ -24,7 +24,7 @@ __all__ = ['Vizier']
 class Vizier(BaseQuery):
     TIMEOUT = VIZIER_TIMEOUT
     VIZIER_SERVER = VIZIER_SERVER
-    ROW_LIMIT = ROW_LIMIT
+    ROW_LIMIT = ROW_LIMIT()
 
     def __init__(self, columns=None, column_filters=None, keywords=None):
         self._columns = None
@@ -491,7 +491,7 @@ class Vizier(BaseQuery):
         else:
             body["-out"] = "*"
         # set the maximum rows returned
-        body["-out.max"] = Vizier.ROW_LIMIT()
+        body["-out.max"] = Vizier.ROW_LIMIT
         script = "\n".join(["{key}={val}".format(key=key, val=val)
                            for key, val in body.items()])
         # add keywords

@@ -113,6 +113,7 @@ class Irsa(BaseQuery):
     IRSA_URL = IRSA_SERVER()
     GATOR_LIST_URL = GATOR_LIST_CATALOGS()
     TIMEOUT = TIMEOUT()
+    ROW_LIMIT = ROW_LIMIT()
 
     @class_or_instance
     def query_region(self, coordinates=None, catalog=None, spatial='Cone', radius=10 * u.arcsec,
@@ -312,7 +313,7 @@ class Irsa(BaseQuery):
         """
         request_payload = dict(catalog=catalog,
                                outfmt=3,
-                               outrows=ROW_LIMIT())
+                               outrows=Irsa.ROW_LIMIT)
         return request_payload
 
     @class_or_instance
