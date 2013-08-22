@@ -25,7 +25,7 @@ class TestVizierRemote:
 
         assert isinstance(result, commons.TableList)
 
-    def test_query_region_async(patch_post):
+    def test_query_region_async(self):
         response = vizier.core.Vizier.query_region_async(coord.ICRSCoordinates(ra=299.590, dec=35.201, unit=(u.deg, u.deg)),
                                                      radius=5 * u.deg,
                                                      catalog=["HIP", "NOMAD", "UCAC"])
@@ -39,4 +39,8 @@ class TestVizierRemote:
         result = v.query_region(coord.ICRSCoordinates(ra=299.590, dec=35.201, unit=(u.deg, u.deg)),
                                 width="5d0m0s", height="3d0m0s",
                                 catalog=["NOMAD", "UCAC"])
+        assert isinstance(result, commons.TableList)
+
+    def test_get_catalogs(self):
+        result = vizier.core.Vizier.get_catalogs('J/ApJ/706/83')
         assert isinstance(result, commons.TableList)
