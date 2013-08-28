@@ -3,10 +3,10 @@
 Process all "async" methods into direct methods.
 """
 
-from class_or_instance import class_or_instance
+from .class_or_instance import class_or_instance
 import textwrap
 import functools
-from docstr_chompers import remove_returns
+from .docstr_chompers import remove_returns
 
 
 def async_to_sync(cls):
@@ -34,7 +34,7 @@ def async_to_sync(cls):
 
     methods = cls.__dict__.keys()
 
-    for k in methods:
+    for k in list(methods):
         newmethodname = k.replace("_async","")
         if 'async' in k and newmethodname not in methods:
 

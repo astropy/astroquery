@@ -1,23 +1,31 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from __future__ import print_function
 
-from ..query import BaseQuery
-from ..utils.class_or_instance import class_or_instance
-from ..utils import commons
-from ..utils import async_to_sync
+import sys
 import os
-import astropy.units as u
-import astropy.coordinates as coord
-import astropy.utils.data as aud
 import warnings
 import json
 from collections import defaultdict
 import traceback
 import tempfile
+
+import astropy.units as u
+import astropy.coordinates as coord
+import astropy.utils.data as aud
 # maintain compat with PY<2.7
 from astropy.utils import OrderedDict
 import astropy.io.votable as votable
+
+from ..query import BaseQuery
+from ..utils.class_or_instance import class_or_instance
+from ..utils import commons
+from ..utils import async_to_sync
 from . import VIZIER_SERVER, VIZIER_TIMEOUT, ROW_LIMIT
+
+PY3 = sys.version_info[0] >= 3
+
+if PY3:
+    basestring = (str, bytes)
 
 __all__ = ['Vizier']
 
@@ -428,7 +436,10 @@ class Vizier(BaseQuery):
             commons.suppress_vo_warnings()
         try:
             tf = tempfile.NamedTemporaryFile()
-            tf.write(response.content.encode('utf-8'))
+            if PY3:
+                tf.write(response.content)
+            else:
+                tf.write(response.content.encode('utf-8'))
             tf.file.flush()
             vo_tree = votable.parse(tf.name, pedantic=False)
             if get_catalog_names:
