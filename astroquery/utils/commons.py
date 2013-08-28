@@ -2,15 +2,23 @@
 """
 Common functions and classes that are required by all query classes.
 """
+
+import re
+import sys
 import requests
 import warnings
+
 import astropy.units as u
 from astropy import coordinates as coord
 from astropy.utils import OrderedDict
-from ..exceptions import TimeoutError
 import astropy.io.votable as votable
-import re
 
+from ..exceptions import TimeoutError
+
+PY3 = sys.version_info[0] >= 3
+
+if PY3:
+    basestring = (str, bytes)
 __all__ = ['send_request',
            'parse_coordinates',
            'parse_radius',
