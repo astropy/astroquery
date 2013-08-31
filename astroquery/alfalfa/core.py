@@ -23,6 +23,9 @@ from astropy.table import Table
 from ..query import BaseQuery
 from ..utils.class_or_instance import class_or_instance
 
+import astropy.utils.data as aud
+from ..utils.docstr_chompers import prepend_docstr_noreturns
+
 __all__ = ['ALFALFA']
 
 class ALFALFA(BaseQuery):
