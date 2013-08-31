@@ -25,17 +25,12 @@ from ..utils.class_or_instance import class_or_instance
 
 __all__ = ['ALFALFA']
 
-ALFALFACAT = None
-
 class ALFALFA(BaseQuery):
     
     FITS_PREFIX = "http://arecibo.tc.cornell.edu/hiarchive/alfalfa/spectraFITS"
     CATALOG_PREFIX = "http://egg.astro.cornell.edu/alfalfa/data/a40files/a40.datafile1.csv"
 
     PLACEHOLDER = -999999
-    
-    def __init__(self, *args):
-        pass
     
     @class_or_instance
     def get_catalog(self):
@@ -53,10 +48,8 @@ class ALFALFA(BaseQuery):
         
         """
         
-        if ALFALFACAT is not None:
-            return ALFALFACAT
-        else:
-            pass
+        if hasattr(self,'ALFALFACAT'):
+            return self.ALFALFACAT
         
         result = requests.get(ALFALFA.CATALOG_PREFIX)
         iterable_lines = result.iter_lines()
@@ -93,14 +86,9 @@ class ALFALFA(BaseQuery):
             
         # Make this globally available so we don't have to re-download it 
         # again in this session 
-        self._make_cat_global(catalog)
+        self.ALFALFACAT = catalog
         
         return catalog
-    
-    @class_or_instance    
-    def _make_cat_global(self, catalog):
-        global ALFALFACAT
-        ALFALFACAT = catalog    
         
     @class_or_instance    
     def query_region(self, coordinates, radius=3. * u.arcmin,
@@ -168,8 +156,8 @@ class ALFALFA(BaseQuery):
         else:
             return None
        
-    @class_or_instance   
-    def get_spectrum(self, agc):
+    @class_or_instance
+    def get_spectrum_async(self, agc):
         """
         Download spectrum from ALFALFA catalogue.
         
@@ -179,11 +167,11 @@ class ALFALFA(BaseQuery):
             Identification number for object in ALFALFA catalog.
         ascii : bool
             Download spectrum from remote server in ASCII or FITS format?
-            
+
         Returns
         -------
-        PyFITS HDUList. Spectrum is in hdulist[0].data[0][2]
-        
+        A file context manager
+            
         See Also
         --------
         get_catalog : method that downloads ALFALFA catalog
@@ -192,9 +180,22 @@ class ALFALFA(BaseQuery):
         
         """
             
-        agc = str(agc).zfill(6)      
+        agc = str(agc).zfill(6)
                 
         link = "%s/A%s.fits" % (ALFALFA.FITS_PREFIX, agc)    
-        hdulist = fits.open(link, ignore_missing_end=True)
+        result = aud.get_readable_fileobj(link)
+        return result
+
+    @class_or_instance
+    @prepend_docstr_noreturns(get_spectrum_async.__doc__)
+    def get_spectrum(self, agc):
+        """
+        Returns
+        -------
+        PyFITS HDUList. Spectrum is in hdulist[0].data[0][2]
+        """
+        
+        result = get_spectrum_async(agc)
+        hdulist = fits.open(result, ignore_missing_end=True)
         return hdulist
     
