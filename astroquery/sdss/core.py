@@ -30,8 +30,8 @@ photoobj_defs = ['ra', 'dec', 'objid', 'run', 'rerun', 'camcol', 'field']
 specobj_defs = ['z', 'plate', 'mjd', 'fiberID', 'specobjid', 'specClass']
 
 # Cross-correlation templates from DR-5
-spec_templates = \
-    {'star_O': 0, 'star_OB': 1, 'star_B': 2, 'star_A': [3,4],
+spec_templates = {
+     'star_O': 0, 'star_OB': 1, 'star_B': 2, 'star_A': [3,4],
      'star_FA': 5, 'star_F': [6,7], 'star_G': [8,9],
      'star_K': 10, 'star_M1': 11, 'star_M3': 12, 'star_M5': 13,
      'star_M8': 14, 'star_L1': 15, 'star_wd': [16,20,21],
