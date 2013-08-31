@@ -93,9 +93,11 @@ class SDSS(BaseQuery):
             The result of the query as an `astropy.table.Table` object.
         """
 
+        coordinates = commons.parse_coordinates(coordinates)
+        
         ra = coordinates.ra.degree
         dec = coordinates.dec.degree
-        dr = radius.to('degree').value
+        dr = commons.radius_to_degrees(radius)
 
         # Fields to return (if cross-ID successful)
         if fields is None:

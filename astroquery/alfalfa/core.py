@@ -17,9 +17,9 @@ import numpy as np
 import numpy.ma as ma
 from astropy.io import fits
 from astropy import coordinates as coord
+from ..utils import commons, async_to_sync
 
 from astropy import units as u
-from astropy.table import Table
 from ..query import BaseQuery
 from ..utils.class_or_instance import class_or_instance
 
@@ -93,9 +93,9 @@ class ALFALFA(BaseQuery):
         
         return catalog
         
-    @class_or_instance    
+    @class_or_instance
     def query_region(self, coordinates, radius=3. * u.arcmin,
-        optical_counterpart=False):
+                     optical_counterpart=False):
         """
         Perform object cross-ID in ALFALFA.
         
@@ -130,10 +130,12 @@ class ALFALFA(BaseQuery):
         AGC number for object nearest supplied position.
         
         """
+
+        coordinates = commons.parse_coordinates(coordinates)
         
         ra = coordinates.ra.degree
         dec = coordinates.dec.degree
-        dr = radius.to('degree').value
+        dr = commons.radius_to_degrees(radius)
         
         cat = self.get_catalog()
         
