@@ -30,16 +30,15 @@ photoobj_defs = ['ra', 'dec', 'objid', 'run', 'rerun', 'camcol', 'field']
 specobj_defs = ['z', 'plate', 'mjd', 'fiberID', 'specobjid', 'specClass']
 
 # Cross-correlation templates from DR-5
-spec_templates = {
-     'star_O': 0, 'star_OB': 1, 'star_B': 2, 'star_A': [3,4],
-     'star_FA': 5, 'star_F': [6,7], 'star_G': [8,9],
-     'star_K': 10, 'star_M1': 11, 'star_M3': 12, 'star_M5': 13,
-     'star_M8': 14, 'star_L1': 15, 'star_wd': [16,20,21],
-     'star_carbon': [17,18,19], 'star_Ksubdwarf': 22,
-     'galaxy_early': 23, 'galaxy': [24,25,26], 'galaxy_late': 27,
-     'galaxy_lrg': 28, 'qso': 29, 'qso_bal': [30,31],
-     'qso_bright': 32
-     }
+spec_templates = {'star_O': 0, 'star_OB': 1, 'star_B': 2, 'star_A': [3,4],
+                  'star_FA': 5, 'star_F': [6,7], 'star_G': [8,9],
+                  'star_K': 10, 'star_M1': 11, 'star_M3': 12, 'star_M5': 13,
+                  'star_M8': 14, 'star_L1': 15, 'star_wd': [16,20,21],
+                  'star_carbon': [17,18,19], 'star_Ksubdwarf': 22,
+                  'galaxy_early': 23, 'galaxy': [24,25,26], 'galaxy_late': 27,
+                  'galaxy_lrg': 28, 'qso': 29, 'qso_bal': [30,31],
+                  'qso_bright': 32
+                  }
 
 sdss_arcsec_per_pixel = 0.396
 
@@ -172,7 +171,7 @@ class SDSS(BaseQuery):
 
     @class_or_instance
     def get_images_async(self, matches, run=None, rerun=None, camcol=None,
-        field=None, band='g'):
+                         field=None, band='g'):
         """
         Download an image from SDSS.
 
@@ -201,8 +200,9 @@ class SDSS(BaseQuery):
             field = str(row['field']).zfill(4)
 
             # Download and read in image data
-            link = '%s?RUN=%i&RERUN=%i&CAMCOL=%i&FIELD=%s&FILTER=%s' % (SDSS.IMAGING,
-                    row['run'], row['rerun'], row['camcol'], field, band)
+            linkstr = '%s?RUN=%i&RERUN=%i&CAMCOL=%i&FIELD=%s&FILTER=%s'
+            link = linkstr % (SDSS.IMAGING, row['run'], row['rerun'],
+                              row['camcol'], field, band)
 
             results.append(aud.get_readable_fileobj(link))
 
