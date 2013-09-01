@@ -199,5 +199,5 @@ class ALFALFA(BaseQuery):
         """
 
         result = self.get_spectrum_async(agc)
-        hdulist = fits.open(result, ignore_missing_end=True)
+        hdulist = fits.open(result.__enter__(), ignore_missing_end=True)
         return hdulist
