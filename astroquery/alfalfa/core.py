@@ -56,7 +56,7 @@ class ALFALFA(BaseQuery):
         iterable_lines = result.iter_lines()
 
         # Read header
-        cols = [col.decode() for col in next(iterable_lines).rstrip(b'\n').split(b',')]
+        cols = [col for col in next(iterable_lines).rstrip('\n').split(',')]
 
         catalog = {}
         for col in cols:
@@ -64,7 +64,9 @@ class ALFALFA(BaseQuery):
 
         # Parse result
         for line in iterable_lines:
-            line = line.decode()
+            # skip blank lines or trailing newlines
+            if line == "":
+                continue
             l = line.rstrip('\n').split(',')
             for i, col in enumerate(cols):
                 item = l[i].strip()
