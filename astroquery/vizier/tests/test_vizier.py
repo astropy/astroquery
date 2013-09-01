@@ -61,7 +61,7 @@ def test_parse_dimension(dim, expected_out):
 
 
 def test_parse_dimension_err():
-    with pytest.raises(u.UnitsException):
+    with pytest.raises(Exception):
         vizier.core._parse_dimension(5 * u.kg)
 
 @pytest.mark.parametrize(('filepath'),
