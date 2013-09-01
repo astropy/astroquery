@@ -1,9 +1,17 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-import StringIO
 import re
 import string
 import os
 import gzip
+import sys
+
+PY3 = sys.version_info[0] >=3
+
+if PY3:
+    from io import StringIO
+else:
+    import StringIO
+
 import astropy.io.fits as fits
 import astropy.utils.data as aud
 

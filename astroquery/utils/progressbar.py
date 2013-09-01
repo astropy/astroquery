@@ -1,9 +1,17 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-import urllib2
+
 import gzip
 import sys
-import StringIO
+PY3 = sys.version_info[0] >= 3
+if PY3:
+    import urllib as urllib2
+    from io import StringIO
+else:
+    import urllib2
+    import StringIO
+
 from astropy.io import fits
+
 
 __all__ = ['chunk_report','chunk_read']
 
