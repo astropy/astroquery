@@ -89,6 +89,7 @@ class FermiLAT(BaseQuery):
 
         return payload
 
+    @class_or_instance
     def _parse_result(self,result,verbose=False,**kwargs):
         """
         Use get_fermilat_datafile to download a result URL
@@ -105,7 +106,8 @@ def _parse_coordinates(coordinates):
         raise Exception("Coordinates not specified correctly")
 
 def _fermi_format_coords(c):
-    return c.format()
+    c = c.fk5
+    return "{:0.5f},{:0.5f}".format(c.ra.value,c.dec.value)
 
 class GetFermilatDatafile(object):
     """
