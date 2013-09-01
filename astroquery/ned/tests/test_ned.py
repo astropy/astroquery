@@ -228,7 +228,7 @@ def test_query_region_async(monkeypatch, patch_get):
     response = ned.core.Ned.query_region_async(coord.GalacticCoordinates(l=-67.02084, b=-29.75447, unit=(u.deg, u.deg)),
                                                get_query_payload=True)
     assert response['search_type'] == 'Near Position Search'
-    npt.assert_approx_equal(response['lon'], -67.02084, significant=5)
+    npt.assert_approx_equal(response['lon'] % 360, -67.02084 % 360, significant=5)
     npt.assert_approx_equal(response['lat'], -29.75447, significant=5)
     response = ned.core.Ned.query_region_async("05h35m17.3s +22d00m52.2s")
     assert response is not None

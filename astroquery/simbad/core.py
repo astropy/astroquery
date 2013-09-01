@@ -525,10 +525,10 @@ def _get_frame_coords(c):
         ra, dec = _to_simbad_format(c.ra, c.dec)
         return (ra, dec, 'ICRS')
     if isinstance(c, coord.GalacticCoordinates):
-        ra, dec = (str(c.lonangle.degree), str(c.latangle.degree))
-        if dec[0] not in ['+', '-']:
-            dec = '+' + dec
-        return (ra, dec, 'GAL')
+        lon, lat = (str(c.lonangle.degree), str(c.latangle.degree))
+        if lat[0] not in ['+', '-']:
+            lat = '+' + lat
+        return (lon, lat, 'GAL')
     if isinstance(c, coord.FK4Coordinates):
         ra, dec = _to_simbad_format(c.ra, c.dec)
         return (ra, dec,'FK4')
