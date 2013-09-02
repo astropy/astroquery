@@ -116,7 +116,7 @@ class Ogle(BaseQuery):
         return files
 
     @class_or_instance
-    #@prepend_docstr_noreturns(_args_to_payload.__doc__)
+    @prepend_docstr_noreturns(_args_to_payload.__doc__)
     def query_region_async(self, *args, **kwargs):
         """
         Returns
@@ -130,8 +130,11 @@ class Ogle(BaseQuery):
         response = requests.post(self.DATA_URL, params=params, files=files,
                                  timeout=self.TIMEOUT)
         response.raise_for_status()
-        # Parse table
-        # Ignore last two lines, blank
+        return response
+
+    @class_or_instance
+    def _parse_result(self, response, verbose=False):
+        # Parse table, ignore last two (blank) lines
         raw_data = response.text.split('\n')[:-2]
         # Select first row and skip first character ('#') to find column headers
         header = raw_data[0][1:].encode('ascii').split()
