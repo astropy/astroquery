@@ -60,7 +60,6 @@ install:
    - if [[ $ASTROPY_VERSION == stable ]]; then pip -q install astropy --use-mirrors; fi
    - if [[ $ASTROPY_VERSION == development ]]; then pip -q install git+http://github.com/astropy/astropy.git#egg=astropy --use-mirrors; fi
 
-   - pip install asciitable --use-mirrors # for NIST 
    - pip install beautifulsoup4 --use-mirrors # for NIST
    - pip install mechanize --use-mirrors # for splatalogue
    - pip install http://stsdas.stsci.edu/astrolib/vo-0.8.tar.gz # for NED / atpy

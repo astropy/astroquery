@@ -5,10 +5,7 @@ import re
 import warnings
 
 import astropy.units as u
-try:
-    import astropy.io.ascii as asciitable
-except ImportError:
-    import asciitable
+import astropy.io.ascii as asciitable
 
 from ..query import BaseQuery
 from ..utils.class_or_instance import class_or_instance
