@@ -153,12 +153,14 @@ def test_query_bibcode_async(patch_post, bibcode, wildcard):
     assert response1.content == response2.content
 
 
-def test_query_bibcode(patch_post):
+def test_query_bibcode_class(patch_post):
     result1 = simbad.core.Simbad.query_bibcode("2006ApJ*", wildcard=True)
-    result2 = simbad.core.Simbad().query_bibcode("2006ApJ*", wildcard=True)
     assert isinstance(result1, Table)
-    assert isinstance(result2, Table)
 
+def test_query_bibcode_instance(patch_post):
+    S = simbad.core.Simbad()
+    result2 = S.query_bibcode("2006ApJ*", wildcard=True)
+    assert isinstance(result2, Table)
 
 def test_query_bibobj_async(patch_post):
     response1 = simbad.core.Simbad.query_bibobj_async('2005A&A.430.165F')
