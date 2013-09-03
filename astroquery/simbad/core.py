@@ -666,8 +666,9 @@ class SimbadResult(object):
 
 
 def _create_bibcode_table(data, splitter):
-    ref_list = [splitter + ref for ref in data.split(splitter)][1:]
-    table = Table(names=['References'], dtypes=['object'])
+    ref_list = [splitter + ref for ref in data.split(splitter)][2:]
+    max_len = max([len(r) for r in ref_list])
+    table = Table(names=['References'], dtypes=['S%i' % max_len])
     for ref in ref_list:
         table.add_row([ref.decode('utf-8')])
     return table
