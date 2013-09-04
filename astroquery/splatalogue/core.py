@@ -39,7 +39,7 @@ class Splatalogue(BaseQuery):
 
     def set_default_options(self,**kwargs):
         """
-        Modifiy the default options.
+        Modify the default options.
         See `query_lines`
         """
         self.data.update(self._parse_kwargs(**kwargs))
@@ -100,8 +100,9 @@ class Splatalogue(BaseQuery):
                       show_lovas_labref=None, show_lovas_obsref=None,
                       show_orderedfreq_only=None, show_nrao_recommended=None):
         """
+
         Other Parameters
-        ----------
+        ----------------
         chemical_name : str
             Name of the chemical to search for.  Treated as a regular expression.
             An empty set ('', (), [], {}) will match *any* species.
@@ -251,6 +252,9 @@ class Splatalogue(BaseQuery):
     @class_or_instance
     def _parse_frequency(self, min_frequency, max_frequency):
         """
+        The Splatalogue service returns lines with rest frequencies in the
+        range [min_frequency, max_frequency]
+
         Parameters
         ----------
         min_frequency : `astropy.unit`
@@ -271,7 +275,7 @@ class Splatalogue(BaseQuery):
         return payload
 
     @class_or_instance
-    @prepend_docstr_noreturns("\n"+_parse_frequency.__doc__ + _parse_kwargs.__doc__)
+    @prepend_docstr_noreturns("\n"+_parse_frequency.__doc__ + "\n" + _parse_kwargs.__doc__)
     def query_lines_async(self, *args, **kwargs):
         """
         Returns
