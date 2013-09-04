@@ -1,5 +1,8 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from ... import simbad
+from ...utils import turn_off_internet
+turn_off_internet()
+
 from astropy.tests.helper import pytest
 import astropy.coordinates as coord
 import astropy.units as u

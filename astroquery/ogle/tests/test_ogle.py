@@ -1,5 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from ... import ogle
+from ...utils import turn_off_internet
+turn_off_internet()
 
 import os
 import requests

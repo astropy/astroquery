@@ -1,4 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
+from ...utils import turn_off_internet,turn_on_internet
+turn_off_internet()
 import urllib2
 import requests
 import astropy.coordinates as coord
@@ -13,6 +15,10 @@ from astropy.tests.helper import pytest, remote_data
 import astropy.io.votable as votable
 import textwrap
 
+@remote_data
+def test_turn_on_internet():
+    # this is just a hack to globally restore internet connection if remote_data is enabled
+    turn_on_internet()
 
 class SimpleQueryClass(object):
 

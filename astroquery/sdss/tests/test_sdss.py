@@ -1,4 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
+from ...utils import turn_off_internet
+turn_off_internet()
 from ... import sdss
 from astropy import coordinates
 from astropy.tests.helper import pytest

@@ -1,4 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
+from ...utils import turn_off_internet
+turn_off_internet()
 from ... import alfalfa
 from astropy import coordinates
 import astropy.utils.data as aud
