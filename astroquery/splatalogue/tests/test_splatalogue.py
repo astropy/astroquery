@@ -32,11 +32,11 @@ def post_mockreturn(url, data=None, timeout=10):
     return MockResponse(content)
 
 
-def test_simple():
+def test_simple(patch_post):
     x = splatalogue.Splatalogue.query_lines(114*u.GHz,116*u.GHz,chemical_name=' CO ')
 
 
-def test_init():
+def test_init(patch_post):
     x = splatalogue.Splatalogue.query_lines(114*u.GHz,116*u.GHz,chemical_name=' CO ')
     S = splatalogue.Splatalogue(chemical_name=' CO ')
     y = S.query_lines(114*u.GHz,116*u.GHz)
