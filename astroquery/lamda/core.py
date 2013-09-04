@@ -61,7 +61,7 @@ def print_mols():
         print(mols[mol_family], '\n')
 
 
-def query(mol, query_type, coll_partner_index=0):
+def query(mol, query_type, coll_partner_index=0, return_datafile=False):
     """
     Query the LAMDA database.
 
@@ -99,6 +99,8 @@ def query(mol, query_type, coll_partner_index=0):
     # Send HTTP request to open URL
     datafile = [s.strip() for s in
                 requests.get(url.format(mol)).iter_lines()]
+    if return_datafile:
+        return datafile
     # Parse datafile string list and return a table
     table = _parse_datafile(datafile, query_type=query_type,
                             coll_partner_index=coll_partner_index)
