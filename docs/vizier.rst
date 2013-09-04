@@ -146,7 +146,7 @@ dimension.
     >>> import astropy.units as u
     >>> import astropy.coordinates as coord
     >>> result = Vizier.query_region(coord.ICRSCoordinates(ra=299.590, dec=35.201, unit=(u.deg, u.deg)),
-    ...                         width="5d0m0s", height="3d0m0s",
+    ...                         width="0d30m0s", height="0d10m0s",
     ...                         catalog=["NOMAD", "UCAC"])
     >>> print(result)
     TableList with 3 tables:
