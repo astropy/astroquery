@@ -25,3 +25,6 @@ OGLE_TIMEOUT = ConfigurationItem('timeout', 60,
 from .core import Ogle
 
 __all__ = ['Ogle']
+
+import warnings
+warnings.warn("Experimental: OGLE has not yet been refactored to have its API match the rest of astroquery.")

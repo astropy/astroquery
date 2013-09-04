@@ -12,3 +12,6 @@ FERMI_URL = ConfigurationItem('fermi_url',
                               "Fermi query URL")
 
 from .core import FermiLAT, GetFermilatDatafile, get_fermilat_datafile
+
+import warnings
+warnings.warn("Experimental: Fermi-LAT has not yet been refactored to have its API match the rest of astroquery.")
