@@ -16,7 +16,8 @@ uri = 'http://sha.ipac.caltech.edu/applications/Spitzer/SHA/servlet/DataService?
 
 
 def query(coord=None, ra=None, dec=None, size=None, naifid=None, pid=None,
-          reqkey=None, dataset=2, verbosity=3):
+          reqkey=None, dataset=2, verbosity=3, return_response=False,
+          return_payload=False):
     """
     Query the Spitzer Heritage Archive (SHA).
 
@@ -104,8 +105,12 @@ def query(coord=None, ra=None, dec=None, size=None, naifid=None, pid=None,
                'REQKEY': reqkey,
                'VERB': verbosity,
                'DATASET': 'ivo://irsa.ipac.spitzer.level{0}'.format(dataset)}
+    if return_payload:
+        return payload
     # Make request
     response = requests.get(uri, params=payload)
+    if return_response:
+        return response
     response.raise_for_status()
     # Parse output
     # requests returns unicde strings, encode back to ascii
