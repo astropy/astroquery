@@ -7,7 +7,7 @@ socket_original = socket.socket
 @pytest.fixture
 def turn_off_internet():
     def guard(*args, **kwargs):
-        raise Exception("I told you not to use the Internet!")
+        raise Exception("An attempt was made to connect to the internet")
     setattr(socket, 'socket', guard)
     return socket
 
