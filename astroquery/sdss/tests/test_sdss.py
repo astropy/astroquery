@@ -62,3 +62,4 @@ def test_sdss_image(patch_get, patch_get_readable_fileobj, coords=coords):
     
 def test_sdss_template(patch_get, patch_get_readable_fileobj):
     template = sdss.core.SDSS.get_spectral_template('qso')
+

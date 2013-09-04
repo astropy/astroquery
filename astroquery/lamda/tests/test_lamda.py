@@ -46,3 +46,4 @@ def test_query_radtrans(patch_get):
 
 def test_query_collrates(patch_get):
     lamda.query(mol='co', query_type='coll_rates', coll_partner_index=1)
+

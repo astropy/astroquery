@@ -76,3 +76,4 @@ def test_get_file(patch_get):
     # sha.save_file(table_url)
     # sha.save_file(image_url)
     img = sha.get_file(image_url)
+

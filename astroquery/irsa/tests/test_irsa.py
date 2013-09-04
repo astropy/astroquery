@@ -153,3 +153,4 @@ def test_spatial_valdi(spatial,result):
 def test_spatial_invalid(spatial):
     with pytest.raises(ValueError):
         irsa.core.Irsa._parse_spatial(spatial, coordinates='m31')
+

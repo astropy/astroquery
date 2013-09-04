@@ -108,3 +108,4 @@ def test_get_image_list(patch_post, patch_parse_coordinates):
     image_list = nvas.core.Nvas.get_image_list(COORDS_GAL, radius=15 * u.arcsec,
                                                max_rms=500, band="all")
     assert len(image_list) == 2
+

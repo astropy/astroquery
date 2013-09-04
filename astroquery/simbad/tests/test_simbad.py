@@ -1,5 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from ... import simbad
+
 from astropy.tests.helper import pytest
 import astropy.coordinates as coord
 import astropy.units as u
@@ -272,3 +273,4 @@ def test_votable_fields():
     simbad.core.Simbad.set_votable_fields('rot', 'ze', 'z')
     simbad.core.Simbad.reset_votable_fields()
     assert set(simbad.core.Simbad.VOTABLE_FIELDS) == set(['main_id', 'coordinates'])
+

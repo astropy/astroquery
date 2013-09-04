@@ -65,7 +65,3 @@ def test_alfalfa_spectrum(patch_get, patch_get_readable_fileobj, coords=coords):
     sp = ALFALFA.get_spectrum(agc)
     assert len(sp) == 3
 
-if __name__ == '__main__':
-    test_alfalfa_catalog()
-    test_alfalfa_crossID()
-    test_alfalfa_spectrum()

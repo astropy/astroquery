@@ -66,3 +66,4 @@ def test_get_images_async(patch_post, patch_parse_coordinates):
 def test_get_images(patch_post, patch_parse_coordinates):
     image = magpis.core.Magpis.get_images(coord.GalacticCoordinates(10.5, 0.0, unit=(u.deg, u.deg)))
     assert image is not None
+

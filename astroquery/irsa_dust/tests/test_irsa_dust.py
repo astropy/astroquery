@@ -324,3 +324,4 @@ class TestDust(DustTestCase):
         image_node = results_node.find("./data/image")
         image_url = text
         image_node.text = image_url
+
