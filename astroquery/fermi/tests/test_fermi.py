@@ -1,5 +1,11 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from __future__ import print_function
+
+import socket
+def guard(*args, **kwargs):
+    raise Exception("I told you not to use the Internet!")
+socket.socket = guard
+
 from ... import fermi
 from astropy.tests.helper import pytest
 import requests
@@ -28,6 +34,7 @@ def patch_post(request):
     return mp
 
 def post_mockreturn(url, data=None, timeout=50):
+    print("Post Mock")
     if data is not None:
         with open(data_path(DATA_FILES['async']),'r') as r:
             response = MockResponse(r.read())
@@ -36,11 +43,20 @@ def post_mockreturn(url, data=None, timeout=50):
             response = MockResponse(r.read())
     return response
 
-def test_FermiLAT_query(patch_post):
 
+def test_FermiLAT_query_async(patch_post):
+    print("Starting async test...",)
+    result = fermi.FermiLAT.query_object_async('M31', energyrange_MeV='1000, 100000',
+                                         obsdates='2013-01-01 00:00:00, 2013-01-02 00:00:00')
+    assert result == DATA_FILES['async']
+    print("Finished async test...")
+
+def test_FermiLAT_query(patch_post):
     # Make a query that results in small SC and PH file sizes
+    print("Starting test...",)
     result = fermi.FermiLAT.query_object('M31', energyrange_MeV='1000, 100000',
                                          obsdates='2013-01-01 00:00:00, 2013-01-02 00:00:00')
+    print("Finished test...")
     assert result == DATA_FILES['fits']
 
 
