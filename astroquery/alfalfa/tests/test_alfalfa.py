@@ -1,6 +1,4 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-from ...utils import turn_off_internet,turn_on_internet
-turn_off_internet()
 from ... import alfalfa
 from astropy import coordinates
 import astropy.utils.data as aud
@@ -67,4 +65,3 @@ def test_alfalfa_spectrum(patch_get, patch_get_readable_fileobj, coords=coords):
     sp = ALFALFA.get_spectrum(agc)
     assert len(sp) == 3
 
-turn_on_internet()

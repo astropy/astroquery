@@ -1,7 +1,5 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from __future__ import print_function
-from ...utils import turn_off_internet,turn_on_internet
-turn_off_internet()
 import os
 import requests
 
@@ -67,4 +65,3 @@ def test_query_region(patch_get, patch_parse_coordinates):
     assert isinstance(result, Table)
     assert len(result) > 0
 
-turn_on_internet()

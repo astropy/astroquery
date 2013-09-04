@@ -1,6 +1,4 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-from ...utils import turn_off_internet,turn_on_internet
-turn_off_internet()
 import os
 import requests
 from astropy.tests.helper import pytest
@@ -173,4 +171,3 @@ class TestVizierKeywordClass:
         # warning must be emitted
         assert out != ""
 
-turn_on_internet()

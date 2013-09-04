@@ -1,7 +1,5 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from __future__ import print_function
-from ...utils import turn_off_internet,turn_on_internet
-turn_off_internet()
 
 import os
 import requests
@@ -69,4 +67,3 @@ def test_get_images(patch_post, patch_parse_coordinates):
     image = magpis.core.Magpis.get_images(coord.GalacticCoordinates(10.5, 0.0, unit=(u.deg, u.deg)))
     assert image is not None
 
-turn_on_internet()

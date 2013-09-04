@@ -1,6 +1,4 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-from ...utils import turn_off_internet,turn_on_internet
-turn_off_internet()
 
 from ... import besancon
 import os
@@ -83,4 +81,3 @@ def test_query(patch_post, patch_get_readable_fileobj):
     result = B.query(0,0,'adam.g.ginsburg@gmail.com')
     assert result is not None
 
-turn_on_internet()

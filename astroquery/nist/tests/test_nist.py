@@ -1,6 +1,4 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-from ...utils import turn_off_internet,turn_on_internet
-turn_off_internet()
 import os
 import requests
 
@@ -57,4 +55,3 @@ def test_query(patch_get):
     result = nist.core.Nist.query(4000 * u.nm, 7000 * u.nm, "H I")
     assert isinstance(result, Table)
 
-turn_on_internet()

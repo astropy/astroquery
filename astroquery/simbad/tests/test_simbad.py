@@ -1,7 +1,5 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from ... import simbad
-from ...utils import turn_off_internet,turn_on_internet
-turn_off_internet()
 
 from astropy.tests.helper import pytest
 import astropy.coordinates as coord
@@ -276,4 +274,3 @@ def test_votable_fields():
     simbad.core.Simbad.reset_votable_fields()
     assert set(simbad.core.Simbad.VOTABLE_FIELDS) == set(['main_id', 'coordinates'])
 
-turn_on_internet()

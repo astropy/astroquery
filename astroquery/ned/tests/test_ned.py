@@ -1,7 +1,5 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from __future__ import print_function
-from ...utils import turn_off_internet,turn_on_internet
-turn_off_internet()
 
 import os
 import requests
@@ -274,4 +272,3 @@ def test_parse_result(capsys):
     out, err = capsys.readouterr()
     assert out == "The remote service returned the following error message.\nERROR:  No note found.\n"
 
-turn_on_internet()

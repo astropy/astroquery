@@ -1,6 +1,4 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-from ...utils import turn_off_internet,turn_on_internet
-turn_off_internet()
 import os
 import xml.etree.ElementTree as tree
 
@@ -327,4 +325,3 @@ class TestDust(DustTestCase):
         image_url = text
         image_node.text = image_url
 
-turn_on_internet()
