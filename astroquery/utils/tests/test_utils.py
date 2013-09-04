@@ -44,7 +44,6 @@ def test_class_or_instance():
                          [coord.ICRSCoordinates(ra=148,
                                                 dec=69,
                                                 unit=(u.deg, u.deg)),
-                          "00h42m44.3s +41d16m9s"
                           ])
 def test_parse_coordinates_1(coordinates):
     c = commons.parse_coordinates(coordinates)
@@ -52,8 +51,11 @@ def test_parse_coordinates_1(coordinates):
 
 
 @remote_data
-def test_parse_coordinates_2():
-    c = commons.parse_coordinates("m81")
+@pytest.mark.parametrize(('coordinates'),
+                         ["00h42m44.3s +41d16m9s",
+                          "m81"])
+def test_parse_coordinates_2(coordinates):
+    c = commons.parse_coordinates(coordinates)
     assert c is not None
 
 
