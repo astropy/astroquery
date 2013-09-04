@@ -3,6 +3,6 @@ import os
 
 
 def get_package_data():
-    paths_test = [os.path.join('data', '*.xml')]
+    paths_test = [os.path.join('data', '*.txt')]
 
     return {'astroquery.ogle.tests': paths_test}

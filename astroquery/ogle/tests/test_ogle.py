@@ -7,25 +7,12 @@ from astropy.tests.helper import pytest
 from astropy import coordinates as coord
 from astropy import units as u
 
+DATA_FILES = {'gal_0_3':'gal_0_3.txt',
+              }
 
 def data_path(filename):
     data_dir = os.path.join(os.path.dirname(__file__), 'data')
     return os.path.join(data_dir, filename)
-
-
-@pytest.fixture
-def patch_get(request):
-    mp = request.getfuncargvalue("monkeypatch")
-    mp.setattr(requests, 'get', get_mockreturn)
-    return mp
-
-DATA_FILES = None
-
-
-def get_mockreturn(url, params=None, timeout=10):
-    filename = data_path(DATA_FILES)
-    content = open(filename, 'r').read()
-    return MockResponse(content)
 
 
 @pytest.fixture
@@ -34,21 +21,24 @@ def patch_post(request):
     mp.setattr(requests, 'post', post_mockreturn)
     return mp
 
-data = None
-
-
-def post_mockreturn(url, data, timeout):
-    response = MockResponse(data)
+def post_mockreturn(url, data, timeout, files=None):
+    if files is not None:
+        response = MockResponse(open(data_path(DATA_FILES['gal_0_3']),'r').read())
+    else:
+        raise ValueError("Unsupported post request.")
     return response
 
 
 class MockResponse(object):
 
     def __init__(self, content):
-        self.content = content
+        self.content = self.text = content
+
+    def raise_for_status(self):
+        pass
 
 
-def test_ogle_single(patch_get):
+def test_ogle_single(patch_post):
     """
     Test a single pointing using an astropy coordinate instance
     """
@@ -56,7 +46,7 @@ def test_ogle_single(patch_get):
     ogle.core.Ogle.query_region(coord=co)
 
 
-def test_ogle_list(patch_get):
+def test_ogle_list(patch_post):
     """
     Test multiple pointings using a list of astropy coordinate instances
     """
@@ -65,7 +55,7 @@ def test_ogle_list(patch_get):
     ogle.core.Ogle.query_region(coord=co_list)
 
 
-def test_ogle_list_values(patch_get):
+def test_ogle_list_values(patch_post):
     """
     Test multiple pointings using a nested-list of decimal degree Galactic
     coordinates

@@ -1,7 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from __future__ import print_function
 
-import requests
 import warnings
 import functools
 import numpy as np
@@ -128,8 +127,11 @@ class Ogle(BaseQuery):
         files = self._args_to_payload(*args, **kwargs)
         # Make request
         params = {'dnfile':'submit'}
-        response = requests.post(self.DATA_URL, params=params, files=files,
-                                 timeout=self.TIMEOUT)
+        response = commons.send_request(url=self.DATA_URL,
+                                        data=params,
+                                        timeout=self.TIMEOUT,
+                                        files=files,
+                                        request_type='POST')
         response.raise_for_status()
         return response
 
