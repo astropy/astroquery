@@ -10,6 +10,9 @@ from astropy.tests.helper import pytest, remote_data
 
 from astropy.tests.pytest_plugins import *
 
+# pytest magic:
+# http://pytest.org/latest/plugins.html#_pytest.hookspec.pytest_configure
+# use pytest.set_trace() to interactively inspect config's features
 def pytest_configure(config):
     if config.getoption('remote_data'):
         turn_on_internet(verbose=config.option.verbose)

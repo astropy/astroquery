@@ -3,18 +3,18 @@ from ... import lamda
 from astropy.tests.helper import pytest, remote_data
 
 @remote_data
-def test_query_levels(patch_get):
+def test_query_levels():
     result = lamda.query(mol='co', query_type='erg_levels')
     assert len(result) == 41
 
 
 @remote_data
-def test_query_radtrans(patch_get):
+def test_query_radtrans():
     result = lamda.query(mol='co', query_type='rad_trans')
     assert len(result) == 40
 
 
 @remote_data
-def test_query_collrates(patch_get):
+def test_query_collrates():
     result = lamda.query(mol='co', query_type='coll_rates', coll_partner_index=1)
     assert len(result) == 820
