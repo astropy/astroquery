@@ -115,7 +115,7 @@ quasar 3C 273:
 
     >>> from astroquery.vizier import Vizier
     >>> import astropy.units as u
-    >>> result = Vizier.query_region("3C 273", radius=5 * u.deg, catalog='GSC')
+    >>> result = Vizier.query_region("3C 273", radius=0.1 * u.deg, catalog='GSC')
 
 Note that the radius may also be specified as a string in the format
 expected by `astropy.coordinates.Angle`_. So the above query may also
@@ -123,7 +123,7 @@ be written as:
 
 .. code-block:: python
 
-    >>> result = Vizier.query_region("3C 273", radius="5d0m0s", catalog='GSC')
+    >>> result = Vizier.query_region("3C 273", radius="0d6m0s", catalog='GSC')
 
 To see the result:
 
@@ -131,7 +131,7 @@ To see the result:
 
     >>> print(result)
     TableList with 3 tables:
-       '0:I/254/out' with 10 column(s) and 50 row(s) 
+       '0:I/254/out' with 10 column(s) and 17 row(s) 
        '1:I/271/out' with 11 column(s) and 50 row(s) 
        '2:I/305/out' with 11 column(s) and 50 row(s) 
 

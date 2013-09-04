@@ -44,27 +44,28 @@ specified. By default this is J2000.0 but can also be set to B1950.0.
 
     >>> from astroquery.ned import Ned
     >>> import astropy.units as u
-    >>> result_table = Ned.query_region("3c 273", radius=5 * u.deg)
+    >>> result_table = Ned.query_region("3c 273", radius=0.05 * u.deg)
     >>> print(result_table)
 
-     No.       Object Name         RA(deg)   ... Diameter Points Associations
-    --- ------------------------ ---------- ... --------------- ------------
-      1   CXOMP J122846.7+020301  187.19458 ...               0            0
-      2    3C 273:[PWC2011] 4062  187.19583 ...               0            0
-      3 SDSS J122847.06+020349.6  187.19609 ...               4            0
-      4 SDSS J122847.38+020332.2  187.19743 ...               4            0
-      5    3C 273:[PWC2011] 4041   187.1975 ...               0            0
-      6 SDSS J122847.59+020228.6  187.19831 ...               4            0
-      7    3C 273:[PWC2011] 4028  187.19833 ...               0            0
-      8 SDSS J122847.65+020256.8  187.19857 ...               4            0
-    ...                      ...        ... ...             ...          ...
-    930    3C 273:[PWC2011] 1861  187.35667 ...               0            0
-    931    3C 273:[PWC2011] 1837   187.3575 ...               0            0
-    932    3C 273:[PWC2011] 1843   187.3575 ...               0            0
-    933    3C 273:[PWC2011] 1842   187.3575 ...               0            0
-    934    3C 273:[PWC2011] 1822  187.35875 ...               0            0
-    935 SDSS J122926.30+020323.8  187.35959 ...               4            0
-    936 SDSS J122926.56+020241.3   187.3607 ...               4            0
+    No.       Object Name        ... Diameter Points Associations
+    --- ------------------------ ... --------------- ------------
+      1    3C 273:[PWC2011] 3640 ...               0            0
+      2    3C 273:[PWC2011] 3592 ...               0            0
+      3    3C 273:[PWC2011] 3593 ...               0            0
+      4    3C 273:[PWC2011] 3577 ...               0            0
+      5 SDSS J122856.35+020325.3 ...               3            0
+      6    3C 273:[PWC2011] 3553 ...               0            0
+      7    3C 273:[PWC2011] 3544 ...               0            0
+      8    3C 273:[PWC2011] 3521 ...               0            0
+    ...                      ... ...             ...          ...
+    346    3C 273:[PWC2011] 2370 ...               0            0
+    347 SDSS J122917.00+020436.3 ...               4            0
+    348    3C 273:[PWC2011] 2338 ...               0            0
+    349    3C 273:[PWC2011] 2349 ...               0            0
+    350 SDSS J122917.52+020301.5 ...               4            0
+    351    3C 273:[PWC2011] 2326 ...               0            0
+    352 SDSS J122917.72+020356.8 ...               3            0
+    353 SDSS J122918.38+020323.4 ...               4            0
 
 Instead of using the name, the target may also be specified via
 coordinates. Any of the coordinate systems available in `astropy.coordinates`_
@@ -76,28 +77,16 @@ may be used (ICRS, Galactic, FK4, FK5). Note also the use of the equinox keyword
     >>> import astropy.units as u
     >>> import astropy.coordinates as coord
     >>> result_table = Ned.query_region(coord.FK4Coordinates(ra=56.38, dec=38.43, 
-    ...                                 unit=(u.deg, u.deg)), radius=5 * u.deg, equinox='B1950.0')
+    ...                                 unit=(u.deg, u.deg)), radius=0.1 * u.deg, equinox='B1950.0')
     >>> print(result_table)
 
-
-       No.        Object Name        RA(deg)   ... Diameter Points Associations
-    ---- ----------------------- ---------- ... --------------- ------------
-       1     NVSS J032629+385759   51.62125 ...               0            0
-       2     NVSS J032630+385402   51.62908 ...               0            0
-       3            CGCG 525-033   51.63563 ...               2            0
-       4 2MASX J03263334+3837013   51.63892 ...               2            0
-       5     NVSS J032641+382502   51.67188 ...               0            0
-       6 2MASX J03264256+3902594   51.67725 ...               2            0
-       7 2MASX J03264282+3922284   51.67842 ...               2            0
-       8 2MASX J03264358+3843424   51.68167 ...               2            0
-     ...                     ...        ... ...             ...          ...
-    9008 2MASX J04173572+3906291   64.39888 ...               2            0
-    9009             B3 0414+389   64.41151 ...               0            0
-    9010 2MASX J04174129+3841541   64.42208 ...               2            0
-    9011     NVSS J041742+391310   64.42617 ...               0            0
-    9012     NVSS J041743+385340   64.43129 ...               0            0
-    9013 2MASX J04174705+3901470   64.44604 ...               2            0
-    9014 2MASX J04174722+3900170   64.44679 ...               2            0
+    No.       Object Name       ... Diameter Points Associations
+    --- ----------------------- ... --------------- ------------
+      1 2MASX J03514350+3841573 ...               2            0
+      2 2MASX J03514563+3839573 ...               2            0
+      3     NVSS J035158+384747 ...               0            0
+      4 2MASX J03521115+3849288 ...               2            0
+      5 2MASX J03521844+3840179 ...               2            0
 
 **Query in the IAU format**
 
