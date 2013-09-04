@@ -109,7 +109,7 @@ def _parse_coordinates(coordinates):
 
 def _fermi_format_coords(c):
     c = c.fk5
-    return "{:0.5f},{:0.5f}".format(c.ra.value,c.dec.value)
+    return "{0:0.5f},{1:0.5f}".format(c.ra.value,c.dec.value)
 
 class GetFermilatDatafile(object):
     """
