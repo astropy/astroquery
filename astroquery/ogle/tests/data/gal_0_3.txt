@@ -1,0 +1,3 @@
+#  RA/Lon    Dec/Lat    A_I   E(V-I) S_E(V-I)  R_JKVI   mu    S_mu   QF  alg  dist_NG
+ 17.568157 -27.342475  3.126  2.597   0.126    0.3337 14.581  0.212   0   NG   232.9
+# Computed in 0.0 seconds
