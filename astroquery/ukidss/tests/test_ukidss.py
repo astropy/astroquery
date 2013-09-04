@@ -158,3 +158,4 @@ def test_query_region_async(patch_get):
 def test_check_page_err(patch_get):
     with pytest.raises(InvalidQueryError):
         ukidss.core.Ukidss._check_page("error", "dummy")
+

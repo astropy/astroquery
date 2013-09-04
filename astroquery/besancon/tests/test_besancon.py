@@ -80,3 +80,4 @@ def test_query(patch_post, patch_get_readable_fileobj):
     B.url_download=''
     result = B.query(0,0,'adam.g.ginsburg@gmail.com')
     assert result is not None
+

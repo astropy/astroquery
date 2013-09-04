@@ -271,3 +271,4 @@ def test_parse_result(capsys):
     ned.core.Ned._parse_result(response)
     out, err = capsys.readouterr()
     assert out == "The remote service returned the following error message.\nERROR:  No note found.\n"
+

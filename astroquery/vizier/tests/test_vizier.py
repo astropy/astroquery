@@ -170,3 +170,4 @@ class TestVizierKeywordClass:
         out, err = capsys.readouterr()
         # warning must be emitted
         assert out != ""
+
