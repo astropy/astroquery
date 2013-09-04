@@ -24,13 +24,14 @@ def _validate_params(func):
         algorithm = kwargs.get('algorithm')
         quality = kwargs.get('quality')
         coord_sys = kwargs.get('coord_sys')
-        if algorithm not in Ogle.algorithms:
+        # if unspecified, the defaults (which are OK) will be used
+        if algorithm is not None and algorithm not in Ogle.algorithms:
             raise ValueError("'algorithm` must be one of \
                              {!s}".format(Ogle.algorithms))
-        if quality not in Ogle.quality_codes:
+        if quality is not None and quality not in Ogle.quality_codes:
             raise ValueError("'quality' must be one of \
                              {!s}".format(Ogle.quality_codes))
-        if coord_sys not in Ogle.coord_systems:
+        if coord_sys is not None and coord_sys not in Ogle.coord_systems:
             raise ValueError("'coord_sys' must be one of \
                     {!s}".format(Ogle.coord_systems))
         return func(*args, **kwargs)
@@ -58,7 +59,7 @@ class Ogle(BaseQuery):
     @class_or_instance
     @_validate_params
     def _args_to_payload(self, coord=None, algorithm='NG', quality='GOOD',
-                        coord_sys='RD'):
+                         coord_sys='RD'):
         """
         Query the OGLE-III interstellar extinction calculator.
 
@@ -124,7 +125,7 @@ class Ogle(BaseQuery):
         response : `requests.Response`
             The HTTP response returned from the service.
         """
-        files = self._args_to_payload(self, *args, **kwargs)
+        files = self._args_to_payload(*args, **kwargs)
         # Make request
         params = {'dnfile':'submit'}
         response = requests.post(self.DATA_URL, params=params, files=files,

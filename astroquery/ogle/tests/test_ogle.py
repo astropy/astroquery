@@ -53,7 +53,7 @@ def test_ogle_single(patch_get):
     Test a single pointing using an astropy coordinate instance
     """
     co = coord.GalacticCoordinates(0, 3, unit=(u.degree, u.degree))
-    ogle.query(coord=co)
+    ogle.core.Ogle.query_region(coord=co)
 
 
 def test_ogle_list(patch_get):
@@ -62,7 +62,7 @@ def test_ogle_list(patch_get):
     """
     co = coord.GalacticCoordinates(0, 3, unit=(u.degree, u.degree))
     co_list = [co, co, co]
-    ogle.query(coord=co_list)
+    ogle.core.Ogle.query_region(coord=co_list)
 
 
 def test_ogle_list_values(patch_get):
@@ -71,4 +71,4 @@ def test_ogle_list_values(patch_get):
     coordinates
     """
     co_list = [[0, 0, 0], [3, 3, 3]]
-    ogle.query(coord=co_list)
+    ogle.core.Ogle.query_region(coord=co_list)
