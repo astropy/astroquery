@@ -13,4 +13,15 @@ Note:
   If you use the data from OGLE please refer to the publication by Nataf et al.
   (2012).
 """
-from .core import *
+from astropy.config import ConfigurationItem
+
+OGLE_SERVER = ConfigurationItem('ogle_server',
+                                ['http://ogle.astrouw.edu.pl/cgi-ogle/getext.py'],
+                                'Name of the OGLE mirror to use.')
+OGLE_TIMEOUT = ConfigurationItem('timeout', 60,
+                                 'Time limit for connecting to the OGLE server.')
+
+
+from .core import Ogle
+
+__all__ = ['Ogle']
