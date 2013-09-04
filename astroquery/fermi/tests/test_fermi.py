@@ -1,6 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from __future__ import print_function
-from ...utils import turn_off_internet
+from ...utils import turn_off_internet,turn_on_internet
 turn_off_internet()
 from ... import fermi
 from astropy.tests.helper import pytest

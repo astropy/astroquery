@@ -1,5 +1,5 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-from ...utils import turn_off_internet
+from ...utils import turn_off_internet,turn_on_internet
 turn_off_internet()
 from ... import lamda
 
@@ -18,3 +18,5 @@ def test_query_radtrans():
 
 def test_query_collrates():
     lamda.query(mol='co', query_type='coll_rates', coll_partner_index=1)
+
+turn_on_internet()

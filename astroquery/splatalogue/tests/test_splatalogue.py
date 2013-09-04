@@ -1,5 +1,5 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-from ...utils import turn_off_internet
+from ...utils import turn_off_internet,turn_on_internet
 turn_off_internet()
 from ... import splatalogue
 from astropy import units as u
@@ -48,3 +48,5 @@ def test_init():
     assert len(x) == len(y)
     assert all(y['Species'] == x['Species'])
     assert all(x['Chemical Name']==y['Chemical Name'])
+
+turn_on_internet()

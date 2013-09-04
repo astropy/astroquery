@@ -1,5 +1,5 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-from ...utils import turn_off_internet
+from ...utils import turn_off_internet,turn_on_internet
 turn_off_internet()
 import os
 import requests
@@ -160,3 +160,5 @@ def test_query_region_async(patch_get):
 def test_check_page_err(patch_get):
     with pytest.raises(InvalidQueryError):
         ukidss.core.Ukidss._check_page("error", "dummy")
+
+    turn_on_internet()

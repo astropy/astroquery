@@ -1,5 +1,5 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-from ...utils import turn_off_internet
+from ...utils import turn_off_internet,turn_on_internet
 turn_off_internet()
 import os
 import requests
@@ -172,3 +172,5 @@ class TestVizierKeywordClass:
         out, err = capsys.readouterr()
         # warning must be emitted
         assert out != ""
+
+turn_on_internet()

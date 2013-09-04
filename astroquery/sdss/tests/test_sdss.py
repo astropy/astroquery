@@ -1,5 +1,5 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-from ...utils import turn_off_internet
+from ...utils import turn_off_internet,turn_on_internet
 turn_off_internet()
 from ... import sdss
 from astropy import coordinates
@@ -64,3 +64,5 @@ def test_sdss_image(patch_get, patch_get_readable_fileobj, coords=coords):
     
 def test_sdss_template(patch_get, patch_get_readable_fileobj):
     template = sdss.core.SDSS.get_spectral_template('qso')
+
+turn_on_internet()

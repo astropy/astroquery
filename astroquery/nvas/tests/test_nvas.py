@@ -1,6 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from __future__ import print_function
-from ...utils import turn_off_internet
+from ...utils import turn_off_internet,turn_on_internet
 turn_off_internet()
 
 import os
@@ -110,3 +110,5 @@ def test_get_image_list(patch_post, patch_parse_coordinates):
     image_list = nvas.core.Nvas.get_image_list(COORDS_GAL, radius=15 * u.arcsec,
                                                max_rms=500, band="all")
     assert len(image_list) == 2
+
+turn_on_internet()

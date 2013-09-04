@@ -1,5 +1,5 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-from ...utils import turn_off_internet
+from ...utils import turn_off_internet,turn_on_internet
 turn_off_internet()
 from ... import sha
 
@@ -17,3 +17,5 @@ def test_query():
     # sha.save_file(table_url)
     # sha.save_file(image_url)
     img = sha.get_file(image_url)
+
+turn_on_internet()
