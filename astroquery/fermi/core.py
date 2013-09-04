@@ -1,7 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 """Download of Fermi LAT (Large Area Telescope) data"""
 from __future__ import print_function
-import requests
 import re
 import time
 from ..query import BaseQuery
@@ -22,6 +21,7 @@ class FermiLAT(BaseQuery):
     request_url = 'http://fermi.gsfc.nasa.gov/cgi-bin/ssc/LAT/LATDataQuery.cgi'
     request_url = FERMI_URL()
     result_url_re = re.compile('The results of your query may be found at <a href="(http://fermi.gsfc.nasa.gov/.*?)"')
+    TIMEOUT = 30
 
     @class_or_instance
     def query_object_async(self, *args, **kwargs):
@@ -38,7 +38,9 @@ class FermiLAT(BaseQuery):
         if kwargs.get('get_query_payload'):
             return payload
 
-        result = requests.post(self.request_url, data=payload)
+        result = commons.send_request(self.request_url,
+                                      payload,
+                                      self.TIMEOUT)
 
         # text returns unicode, content returns unencoded (?)
         re_result = self.result_url_re.findall(result.text)
@@ -112,12 +114,13 @@ def _fermi_format_coords(c):
 class GetFermilatDatafile(object):
     """
     TODO: document
+    TODO: Fail with useful failure messages on genuine failures
     (this doesn't need to be implemented as a class)
     """
 
     fitsfile_re = re.compile('<a href="(.*?)">Available</a>')
 
-    timeout = 30  # minutes
+    TIMEOUT = 120  # seconds
 
     check_frequency = 1  # minutes
 
@@ -130,6 +133,9 @@ class GetFermilatDatafile(object):
 
         while not(page_loaded):
             page_loaded = fitsfile_urls = self._check_page()
+            if page_loaded: 
+                # don't wait an extra N minutes for success
+                break
             time.sleep(check_frequency * 60)
             elapsed_time += check_frequency
             # update progressbar here...
@@ -140,7 +146,9 @@ class GetFermilatDatafile(object):
         return fitsfile_urls
 
     def _check_page(self):
-        result_page = requests.post(self.result_url)
+        result_page = commons.send_request(self.result_url,
+                                           None,
+                                           self.TIMEOUT)
 
         pagedata = result_page.content
 
