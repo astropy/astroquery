@@ -347,6 +347,10 @@ def parse_besancon_model_string(bms,):
     astropy table
     """
 
+    # py3 compatibility:
+    if hasattr(bms,'decode'):
+        bms = bms.decode()
+
     header_start = "Dist    Mv  CL".split()
 
     # locate index of data start

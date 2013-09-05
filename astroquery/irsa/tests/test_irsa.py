@@ -51,7 +51,7 @@ def test_parse_dimension(dim):
                           ])
 def test_format_decimal_coords(ra, dec, expected):
     out = irsa.core._format_decimal_coords(ra, dec)
-    np.testing.assert_almost_equal(out, expected)
+    assert out == expected
 
 
 @pytest.mark.parametrize(('coordinates', 'expected'),
@@ -59,7 +59,13 @@ def test_format_decimal_coords(ra, dec, expected):
                           ])
 def test_parse_coordinates(coordinates, expected):
     out = irsa.core._parse_coordinates(coordinates)
-    np.testing.assert_almost_equal(out, expected)
+    for a,b in zip(out.split(),expected.split()):
+        try:
+            a = float(a)
+            b = float(b)
+            np.testing.assert_almost_equal(a,b)
+        except ValueError:
+            assert a == b
 
 
 def test_args_to_payload():
@@ -114,7 +120,15 @@ poly2 = [(10.1*u.deg, 10.1*u.deg), (10.0*u.deg, 10.1*u.deg), (10.0*u.deg, 10.0*u
 def test_query_region_async_polygon(polygon, patch_get):
     response = irsa.core.Irsa.query_region_async("m31", catalog="fp_psc", spatial="Polygon",
                                                  polygon=polygon, get_query_payload=True)
-    assert response["polygon"] == "10.1 +10.1,10.0 +10.1,10.0 +10.0"
+
+    for a,b in zip(response["polygon"].split(),"10.1 +10.1,10.0 +10.1,10.0 +10.0".split()):
+        try:
+            a = float(a)
+            b = float(b)
+            np.testing.assert_almost_equal(a,b)
+        except ValueError:
+            assert a == b
+
     response = irsa.core.Irsa.query_region_async("m31", catalog="fp_psc", spatial="Polygon",
                                                  polygon=polygon)
     assert response is not None
