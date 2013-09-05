@@ -177,6 +177,7 @@ docstr1 = """
 
 docstr1_out = textwrap.dedent("""
         Queries the service and returns a table object.
+
         Query the Vizier service for a specific catalog
 
         Parameters
@@ -218,8 +219,11 @@ docstr2 = """
          u'J/ApJS/191/232': u'CO survey of W51 molecular cloud (Bieging+, 2010)'}
         """
 
+# note that the blank line between "Queries..." and "Search..." is necessary
+# for sphinx parsing of the docs
 docstr2_out = textwrap.dedent("""
         Queries the service and returns a dict object.
+
         Search Vizier for catalogs based on a set of keywords, e.g. author name
 
         Parameters

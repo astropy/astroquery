@@ -44,7 +44,7 @@ def async_to_sync(cls):
             #newmethod.__doc__ = async_to_sync_docstr(getattr(cls,k).__doc__) # for using decorator module
 
             newmethod.fn.__name__ = newmethodname
-            #newmethod.__name__ = newmethodname # for using decorator module
+            newmethod.__name__ = newmethodname
 
             functools.update_wrapper(newmethod, newmethod.fn)
 
