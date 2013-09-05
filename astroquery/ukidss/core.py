@@ -25,6 +25,7 @@ from ..exceptions import InvalidQueryError, TimeoutError
 from ..utils.class_or_instance import class_or_instance
 from ..utils import commons
 from . import UKIDSS_SERVER, UKIDSS_TIMEOUT
+from ..exceptions import TableParseError
 
 __all__ = ['Ukidss','clean_catalog']
 
@@ -545,10 +546,10 @@ class Ukidss(QueryWithLogin):
                 warnings.warn("Query returned no results, so the table will be empty")
             return table
         except Exception as ex:
-            print (str(ex))
-            warnings.warn("Error in parsing UKIDSS result. "
-                          "Returning raw result instead.")
-            return content
+            self.response = content
+            self.table_parse_error = ex
+            raise TableParseError("Failed to parse UKIDSS votable! The raw response can be found "
+                                  "in self.response, and the error in self.table_parse_error.")
 
     @class_or_instance
     def list_catalogs(self, style='short'):

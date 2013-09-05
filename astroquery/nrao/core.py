@@ -13,6 +13,7 @@ from ..query import BaseQuery
 from ..utils.class_or_instance import class_or_instance
 from ..utils import commons, async_to_sync
 from ..utils.docstr_chompers import prepend_docstr_noreturns
+from ..exceptions import TableParseError
 
 from . import NRAO_SERVER, NRAO_TIMEOUT
 
@@ -196,7 +197,7 @@ class Nrao(BaseQuery):
             table = first_table.to_table(use_names_over_ids=True)
             return table
         except Exception as ex:
-            print (str(ex))
-            warnings.warn("Error in parsing Ned result. "
-                 "Returning raw result instead.")
-            return response.content
+            self.response = response
+            self.table_parse_error = ex
+            raise TableParseError("Failed to parse NRAO votable result! The raw response can be found "
+                                  "in self.response, and the error in self.table_parse_error.")

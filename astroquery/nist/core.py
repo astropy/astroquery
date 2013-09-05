@@ -12,6 +12,7 @@ from ..utils.class_or_instance import class_or_instance
 from ..utils import commons,async_to_sync
 from ..utils.docstr_chompers import prepend_docstr_noreturns
 from . import NIST_SERVER, NIST_TIMEOUT
+from ..exceptions import TableParseError
 
 __all__ = ['Nist']
 
@@ -163,9 +164,10 @@ class Nist(BaseQuery):
                                     data_start=3, delimiter='|')
             return table
         except Exception as ex:
-            warnings.warn("Unable to parse result. Returning raw respone")
-            print (str(ex))
-            return response.content
+            self.response = response
+            self.table_parse_error = ex
+            raise TableParseError("Failed to parse votable! The raw response can be found "
+                                  "in self.response, and the error in self.table_parse_error.")
 
 
 def _parse_wavelength(min_wav, max_wav):

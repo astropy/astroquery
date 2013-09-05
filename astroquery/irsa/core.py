@@ -16,6 +16,7 @@ from . import (IRSA_SERVER,
                GATOR_LIST_CATALOGS,
                ROW_LIMIT,
                TIMEOUT)
+from ..exceptions import TableParseError
 
 
 '''
@@ -356,9 +357,10 @@ class Irsa(BaseQuery):
         try:
             first_table = votable.parse(output.name, pedantic=False).get_first_table()
         except Exception as ex:
-            print("Failed to parse votable! Returning raw result instead.")
-            print(ex)
-            return response.content
+            self.response = response
+            self.table_parse_error = ex
+            raise TableParseError("Failed to parse IRSA votable! The raw response can be found "
+                                  "in self.response, and the error in self.table_parse_error.")
 
         # Convert to astropy.table.Table instance
         table = first_table.to_table()
