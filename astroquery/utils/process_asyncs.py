@@ -41,6 +41,7 @@ def async_to_sync(cls):
             newmethod = create_method(k)
 
             newmethod.fn.__doc__ = async_to_sync_docstr(getattr(cls,k).__doc__)
+            #newmethod.__doc__ = async_to_sync_docstr(getattr(cls,k).__doc__) # for using decorator module
 
             newmethod.fn.__name__ = newmethodname
             newmethod.__name__ = newmethodname
@@ -62,7 +63,7 @@ def async_to_sync_docstr(doc, returntype='table'):
                    'fits':'astropy.io.fits.PrimaryHDU',
                    'dict':'dict'}
 
-    firstline = "Queries the service and returns a {rt} object.".format(rt=returntype)
+    firstline = "Queries the service and returns a {rt} object.\n".format(rt=returntype)
 
     vowels = 'aeiou'
     vowels += vowels.upper()
