@@ -150,7 +150,7 @@ class BesanconClass(BaseQuery):
         with aud.get_readable_fileobj(response.raw) as f:
             text = f.read()
         try:
-            filename = self.result_re.search(text).group()
+            filename = self.result_re.search(text.decode()).group()
         except AttributeError:  # if there are no matches
             errors = parse_errors(text)
             raise ValueError("Errors: "+"\n".join(errors))
@@ -332,7 +332,7 @@ def parse_errors(text):
                         (<li>([a-zA-Z0-9):( \s_-]*)</li>\s*)*\s*
                         </ol>\s*
                         </div>""", re.X)
-        text = errors.search(text).group()
+        text = errors.search(text.decode()).group()
     except AttributeError:
         raise ValueError("Regular expression matching to error message failed.")
     text_items = re.split("<li>|</li>|\n",errors.search(text).group())

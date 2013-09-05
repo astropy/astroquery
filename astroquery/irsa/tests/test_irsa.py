@@ -7,6 +7,7 @@ from astropy.tests.helper import pytest
 from astropy.table import Table
 import astropy.coordinates as coord
 import astropy.units as u
+import numpy as np
 
 from ...utils.testing_tools import MockResponse
 from ... import irsa
@@ -50,7 +51,7 @@ def test_parse_dimension(dim):
                           ])
 def test_format_decimal_coords(ra, dec, expected):
     out = irsa.core._format_decimal_coords(ra, dec)
-    assert out == expected
+    np.testing.assert_almost_equal(out, expected)
 
 
 @pytest.mark.parametrize(('coordinates', 'expected'),
@@ -58,7 +59,7 @@ def test_format_decimal_coords(ra, dec, expected):
                           ])
 def test_parse_coordinates(coordinates, expected):
     out = irsa.core._parse_coordinates(coordinates)
-    assert out == expected
+    np.testing.assert_almost_equal(out, expected)
 
 
 def test_args_to_payload():
