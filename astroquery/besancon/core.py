@@ -81,7 +81,7 @@ class BesanconClass(BaseQuery):
     ping_delay = BESANCON_PING_DELAY()
     TIMEOUT = BESANCON_TIMEOUT()
     # sample file name:  1340900648.230224.resu
-    result_re = re.compile("[0-9]{10}\.[0-9]{6}\.resu")
+    result_re = re.compile(b"[0-9]{10}\.[0-9]{6}\.resu")
 
     def __init__(self, email=None):
         self.email = email
@@ -101,7 +101,7 @@ class BesanconClass(BaseQuery):
             present.  Default 5s, which is probably reasonable.
         """
 
-        url = os.path.join(self.url_download,filename)
+        url = os.path.join(self.url_download,filename.decode())
 
         elapsed_time = 0
         t0 = time.time()
@@ -329,7 +329,7 @@ def parse_errors(text):
     Attempt to extract the errors from a Besancon web page with error messages in it
     """
     try:
-        errors = re.compile(r"""<div\ class="?errorpar"?>\s*
+        errors = re.compile(br"""<div\ class="?errorpar"?>\s*
                         <ol>\s*
                         (<li>([a-zA-Z0-9):( \s_-]*)</li>\s*)*\s*
                         </ol>\s*
@@ -351,12 +351,11 @@ def parse_besancon_model_string(bms,):
     astropy table
     """
 
-    # # py3 compatibility:
-    # if hasattr(bms,'decode'):
-    #     bms = bms.decode()
-    # breaks py2 compatibility.  Not acceptable.
+    # py3 compatibility:
+    if hasattr(bms,'encode'):
+        bms = bms.encode()
 
-    header_start = "Dist    Mv  CL".split()
+    header_start = b"Dist    Mv  CL".split()
 
     # locate index of data start
     lines = bms.split('\n')
@@ -399,6 +398,11 @@ def parse_besancon_model_string(bms,):
 
     if len(col_starts) != ncols or len(col_ends) != ncols:
         raise ValueError("Table parsing error: mismatch between # of columns & header")
+
+    # py3 compatibility:
+    if hasattr(bms,'decode'):
+        bms = bms.decode()
+        names = [n.decode() for n in names]
 
     besancon_table = ascii.read(bms, Reader=ascii.FixedWidthNoHeader,
                                 header_start=None,
