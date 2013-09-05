@@ -3,7 +3,7 @@
 Process all "async" methods into direct methods.
 """
 
-from .class_or_instance import class_or_instance,copy_argspec
+from .class_or_instance import class_or_instance
 import textwrap
 import functools
 from .docstr_chompers import remove_returns
@@ -21,7 +21,6 @@ def async_to_sync(cls):
     def create_method(async_method_name):
 
         @class_or_instance
-        #@copy_argspec(getattr(cls,async_method_name))
         def newmethod(self, *args, **kwargs):
             if 'verbose' in kwargs:
                 verbose = kwargs.pop('verbose')
@@ -42,10 +41,10 @@ def async_to_sync(cls):
             newmethod = create_method(k)
 
             newmethod.fn.__doc__ = async_to_sync_docstr(getattr(cls,k).__doc__)
-            #newmethod.__doc__ = async_to_sync_docstr(getattr(cls,k).__doc__)
+            #newmethod.__doc__ = async_to_sync_docstr(getattr(cls,k).__doc__) # for using decorator module
 
             newmethod.fn.__name__ = newmethodname
-            #newmethod.__name__ = newmethodname
+            #newmethod.__name__ = newmethodname # for using decorator module
 
             functools.update_wrapper(newmethod, newmethod.fn)
 

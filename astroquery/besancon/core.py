@@ -12,7 +12,7 @@ from . import BESANCON_DOWNLOAD_URL, BESANCON_MODEL_FORM, BESANCON_PING_DELAY
 import urllib2  # only needed for urllib2.URLError
 
 from ..query import BaseQuery
-from ..utils.class_or_instance import class_or_instance,copy_argspec
+from ..utils.class_or_instance import class_or_instance
 from ..utils import commons
 from ..utils import prepend_docstr_noreturns
 from ..utils import async_to_sync
@@ -277,7 +277,6 @@ class Besancon(BaseQuery):
 
     @class_or_instance
     @prepend_docstr_noreturns("\n"+_parse_args.__doc__+_parse_result.__doc__)
-    #@copy_argspec(_parse_args)
     def query_async(self, *args, **kwargs):
         """
         Returns
