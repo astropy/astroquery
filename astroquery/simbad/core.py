@@ -21,6 +21,7 @@ try:
 except ImportError:
     import astropy.io.votable as votable
 from . import SIMBAD_SERVER, SIMBAD_TIMEOUT, ROW_LIMIT
+from ..exceptions import TableParseError
 
 __all__ = ['Simbad']
 
@@ -504,10 +505,13 @@ class Simbad(BaseQuery):
         parsed_result = SimbadResult(result.content)
         try:
             return parsed_result.table
-        except Exception:
-            warnings.warn("Error in parsing Simbad result. "
-                         "Returning raw result instead.")
-            return result.content
+        except Exception as ex:
+            self.parsed_result = parsed_result
+            self.response = result
+            self.table_parse_error = ex
+            raise TableParseError("Failed to parse SIMBAD result! The raw response can be found "
+                                  "in self.response, and the error in self.table_parse_error."
+                                  "  The attempted parsed result is in self.parsed_result.")
 
 
 def _parse_coordinates(coordinates):

@@ -24,6 +24,7 @@ from . import (HUBBLE_CONSTANT,
                OUTPUT_EQUINOX,
                SORT_OUTPUT_BY)
 from . import NED_SERVER, NED_TIMEOUT
+from ..exceptions import TableParseError,RemoteServiceError
 
 __all__ = ["Ned"]
 
@@ -651,12 +652,14 @@ class Ned(BaseQuery):
             (is_valid, err_msg) = _check_ned_valid(response.content)
             if not is_valid:
                 if err_msg:
-                    print("The remote service returned the following error message.\nERROR: {err_msg}".format(err_msg=err_msg))
+                    raise RemoteServiceError("The remote service returned the following error message.\nERROR: {err_msg}".format(err_msg=err_msg))
+                else:
+                    raise RemoteServiceError("The remote service returned an error, but with no message.")
             else:
-                print (str(ex))
-                warnings.warn("Error in parsing Ned result. "
-                     "Returning raw result instead.")
-                return response.content
+                self.response = response
+                self.table_parse_error = ex
+                raise TableParseError("Failed to parse NED result! The raw response can be found "
+                                      "in self.response, and the error in self.table_parse_error.")
 
 
 def _parse_radius(radius):

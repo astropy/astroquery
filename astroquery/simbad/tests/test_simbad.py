@@ -9,6 +9,7 @@ import sys
 import os
 import re
 import requests
+from ...exceptions import TableParseError
 is_python3 = (sys.version_info >= (3,))
 
 GALACTIC_COORDS = coord.GalacticCoordinates(l=-67.02084, b=-29.75447, unit=(u.deg, u.deg))
@@ -93,7 +94,7 @@ def test_get_frame_coordinates(coordinates, expected_frame):
     actual_frame = simbad.core._get_frame_coords(coordinates)[2]
     assert actual_frame == expected_frame
     if actual_frame == 'GAL':
-        l,b = simbad.core._get_frame_coords(coordinates)[:2] 
+        l,b = simbad.core._get_frame_coords(coordinates)[:2]
         assert float(l) % 360 == -67.02084 % 360
         assert float(b) == -29.75447
 
@@ -101,8 +102,13 @@ def test_get_frame_coordinates(coordinates, expected_frame):
 def test_parse_result():
     result1 = simbad.core.Simbad._parse_result(MockResponse('query id '))
     assert isinstance(result1, Table)
-    result2 = simbad.core.Simbad._parse_result(MockResponse('query error '))
-    assert isinstance(result2, basestring)
+    with pytest.raises(TableParseError) as ex:
+        dummy = simbad.core.Simbad._parse_result(MockResponse('query error '))
+    assert ex.value.message == ('Failed to parse SIMBAD result! '
+                                'The raw response can be found in self.response, '
+                                'and the error in self.table_parse_error.  '
+                                'The attempted parsed result is in self.parsed_result.')
+    assert isinstance(simbad.core.Simbad.response.content, basestring)
 
 votable_fields = ",".join(simbad.core.Simbad.VOTABLE_FIELDS)
 
