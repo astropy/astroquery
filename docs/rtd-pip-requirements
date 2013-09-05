@@ -2,4 +2,3 @@ numpy
 Cython
 -e git+http://github.com/astropy/astropy.git#egg=astropy
 requests
-decorator
