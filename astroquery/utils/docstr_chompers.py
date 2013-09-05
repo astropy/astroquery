@@ -1,5 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import textwrap
+import functools
 
 
 def append_docstr(doc):
