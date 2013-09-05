@@ -11,6 +11,7 @@ from astropy.table import Table
 import astropy.utils.data as aud
 import astropy.coordinates as coord
 import astropy.units as u
+from ...exceptions import RemoteServiceError
 
 from ... import ned
 from ...ned import (HUBBLE_CONSTANT,
@@ -268,7 +269,6 @@ def test_get_object_notes(patch_get):
 def test_parse_result(capsys):
     content = open(data_path(DATA_FILES['error']), 'r').read()
     response = MockResponse(content)
-    ned.core.Ned._parse_result(response)
-    out, err = capsys.readouterr()
-    assert out == "The remote service returned the following error message.\nERROR:  No note found.\n"
-
+    with pytest.raises(RemoteServiceError) as exinfo:
+        ned.core.Ned._parse_result(response)
+    assert exinfo.value.message == "The remote service returned the following error message.\nERROR:  No note found."
