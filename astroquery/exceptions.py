@@ -3,7 +3,7 @@
 Custom exceptions used in the astroquery query classes
 """
 
-__all__ = ['TimeoutError', 'InvalidQueryError']
+__all__ = ['TimeoutError', 'InvalidQueryError', 'RemoteServiceError', 'TableParseError']
 
 
 class TimeoutError(Exception):
