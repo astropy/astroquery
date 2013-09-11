@@ -123,4 +123,18 @@ if not _ASTROPY_SETUP_:
             warn(config.configuration.ConfigurationDefaultMissingWarning(wmsg))
             del e
 
-    del os, warn, config_dir  # clean up namespace
+    from distutils.version import LooseVersion
+
+    import astropy
+
+    # Monkeypatching for plural symbols
+    if LooseVersion(astropy.version.version) < LooseVersion('0.3.dev4957'):
+        warn("You are using an 'old' version of astropy prior to the change "
+             "that made all units singular.  astropy is being monkeypatched "
+             "such that degrees and degree are both allow and hours and hour "
+             "are both allowed.  This is NOT normal astropy behavior.")
+
+        astropy.units.degrees = astropy.units.degree
+        astropy.units.hours = astropy.units.hour
+
+    del os, warn, config_dir, LooseVersion  # clean up namespace
