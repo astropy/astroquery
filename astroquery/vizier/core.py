@@ -346,8 +346,8 @@ class Vizier(BaseQuery):
             body["-c"] = args[0]
         elif caller == 'query_region_async':
             c = commons.parse_coordinates(args[0])
-            ra = str(c.icrs.ra.degree)
-            dec = str(c.icrs.dec.degree)
+            ra = str(c.icrs.ra.degrees)
+            dec = str(c.icrs.dec.degrees)
             if dec[0] not in ['+', '-']:
                 dec = '+' + dec
             body["-c"] = "".join([ra, dec])
