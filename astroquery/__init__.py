@@ -136,5 +136,7 @@ if not _ASTROPY_SETUP_:
 
         astropy.units.degrees = astropy.units.degree
         astropy.units.hours = astropy.units.hour
+        astropy.units.Unit._registry['degrees'] = astropy.units.degree
+        astropy.units.Unit._registry['hours'] = astropy.units.hour
 
     del os, warn, config_dir, LooseVersion  # clean up namespace
