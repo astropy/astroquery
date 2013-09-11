@@ -144,6 +144,49 @@ Then get rid of the vibrationally excited line by setting an energy upper limit 
     Species  Chemical Name  Freq-GHz ... E<sub>U</sub> (K) Linelist
     ------- --------------- -------- ... ----------------- --------
       COv=0 Carbon Monoxide  230.538 ...          16.59608    SLAIM
+
+
+Cleaning Up the Returned Data
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Depending on what sub-field you work in, you may be interested in fine-tuning
+splatalogue queries to return only a subset of the columns and lines on a
+regular basis.  For example, if you want data returned preferentially in units
+of K rather than inverse cm, you're interested in low-energy lines, and you want your
+data sorted by energy, you can use an approach like this:
+
+.. code-block:: python
+
+    >>> S = Splatalogue(energy_max=500,
+    ...    energy_type='eu_k',energy_levels=['el4'],
+    ...    line_strengths=['ls4'],
+    ...    only_NRAO_recommended=True,noHFS=True)
+    >>> def trimmed_query(*args,**kwargs):
+    ...     columns = ('Species','Chemical Name','Resolved QNs','Freq-GHz',
+    ...                'Meas Freq-GHz','Log<sub>10</sub> (A<sub>ij</sub>)',
+    ...                'E_U (K)')
+    ...     table = S.query_lines(*args, **kwargs)[columns]
+    ...     table.rename_column('Log<sub>10</sub> (A<sub>ij</sub>)','log10(Aij)')
+    ...     table.rename_column('E_U (K)','EU_K')
+    ...     table.rename_column('Resolved QNs','QNs')
+    ...     table.sort('EU_K')
+    ...     return table
+    >>> trimmed_query(1*u.GHz,30*u.GHz, 
+    ...     chemical_name='(H2.*Formaldehyde)|( HDCO )',
+    ...     energy_max=50).pprint()
+    Species Chemical Name      QNs      Freq-GHz Meas Freq-GHz log10(Aij)   EU_K
+    ------- ------------- ------------- -------- ------------- ---------- --------
+       HDCO  Formaldehyde 1(1,0)-1(1,1)       --       5.34614   -8.31616 11.18287
+     H2C18O  Formaldehyde 1(1,0)-1(1,1)   4.3888        4.3888   -8.22052 15.30187
+     H213CO  Formaldehyde 1(1,0)-1(1,1)       --       4.59309   -8.51332 15.34693
+       H2CO  Formaldehyde 1(1,0)-1(1,1)  4.82966            --   -8.44801 15.39497
+       HDCO  Formaldehyde 2(1,1)-2(1,2)       --      16.03787   -7.36194 17.62746
+     H2C18O  Formaldehyde 2(1,1)-2(1,2) 13.16596      13.16596   -6.86839 22.17455
+     H213CO  Formaldehyde 2(1,1)-2(1,2)       --       13.7788   -7.55919 22.38424
+       H2CO  Formaldehyde 2(1,1)-2(1,2) 14.48848            --   -7.49383 22.61771
+     H2C18O  Formaldehyde 3(1,2)-3(1,3) 26.33012      26.33014   -6.03008 32.48204
+     H213CO  Formaldehyde 3(1,2)-3(1,3)       --      27.55567   -6.95712  32.9381
+       H2CO  Formaldehyde 3(1,2)-3(1,3)       --       28.9748   -6.89179 33.44949
    
 Reference/API
 =============
