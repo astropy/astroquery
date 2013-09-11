@@ -48,7 +48,7 @@ images:
     >>> from astroquery.irsa_dust import IrsaDust
     >>> import astropy.units as u
     >>> image = IrsaDust.get_images("m81", image_type="100um",
-    ...                             radius=200*u.arcmin)
+    ...                             radius=20*u.arcmin)
 
     Downloading http://irsa.ipac.caltech.edu//workspace/TMP_007Vob_24557/DUST/m81.v0001/p414i100.fits
     |===========================================| 149k/149k (100.00%)        02s
@@ -76,14 +76,15 @@ be found on this `IRSA Dust Extinction Service page`_.
     >>> from astroquery.irsa_dust import IrsaDust
     >>> import astropy.coordinates as coord
     >>> import astropy.units as u
-    >>> image_list = IrsaDust.get_images("17h44m34s -27d59m13s", radius=5 * u.deg)
+    >>> image_list = IrsaDust.get_images("17h44m34s -27d59m13s", radius=2.0 * u.deg)
 
-    Downloading http://irsa.ipac.caltech.edu//workspace/TMP_07raMc_4877/DUST/17h44m34s_-27d59m13s.v0001/p118Dust.fits
-    |===========================================| 331k/331k (100.00%)        05s
-    Downloading http://irsa.ipac.caltech.edu//workspace/TMP_07raMc_4877/DUST/17h44m34s_-27d59m13s.v0001/p118i100.fits
-    |===========================================| 331k/331k (100.00%)        04s
-    Downloading http://irsa.ipac.caltech.edu//workspace/TMP_07raMc_4877/DUST/17h44m34s_-27d59m13s.v0001/p118temp.fits
-    |===========================================| 331k/331k (100.00%)        04s
+    Downloading http://irsa.ipac.caltech.edu//workspace/TMP_46IWzq_9460/DUST/17h44m34s_-27d59m13s.v0001/p118Dust.fits
+    |==============================|  57k/ 57k (100.00%)        00s
+    Downloading http://irsa.ipac.caltech.edu//workspace/TMP_46IWzq_9460/DUST/17h44m34s_-27d59m13s.v0001/p118i100.fits
+    |==============================|  57k/ 57k (100.00%)        00s
+    Downloading http://irsa.ipac.caltech.edu//workspace/TMP_46IWzq_9460/DUST/17h44m34s_-27d59m13s.v0001/p118temp.fits
+    |==============================|  57k/ 57k (100.00%)        00s
+    
 
 A list having the download links for the FITS image may also be fetched, rather
 than the actual images, via the :meth:`~astroquery.irsa_dust.core.IrsaDust.get_image_list` method. This also
