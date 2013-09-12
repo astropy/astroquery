@@ -85,10 +85,14 @@ def parse_radius(radius):
     astropy.coordinates.errors.UnitsError
     AttributeError
     """
-    return coord.Angle(radius)
+    try:
+        return coord.Angle(radius)
+    except coord.errors.UnitsError:
+        # astropy <0.3 compatibility: Angle can't be instantiated with a unit object
+        return coord.Angle(radius.to(u.degree), unit=u.degree)
 
 
-def radius_to_degrees(radius):
+def radius_to_unit(radius, unit='degree'):
     """
     Helper function: Parse a radius, then return its value in degrees
 
@@ -103,10 +107,15 @@ def radius_to_degrees(radius):
     """
     rad = parse_radius(radius)
     # This is a hack to deal with astropy pre/post PR#1006
-    if hasattr(rad,'degree'):
-        return rad.degree
-    elif hasattr(rad,'degrees'):
-        return rad.degrees
+    if hasattr(rad,str(unit)):
+        return getattr(rad,str(unit))
+    elif hasattr(rad,str(unit)+'s'):
+        return getattr(rad,str(unit)+'s')
+    # major hack to deal with <0.3 Angle's not having deg/arcmin/etc equivs.
+    elif hasattr(rad,'degree'):
+        return (rad.degree * u.degree).to(unit).value
+    elif hasattr(rad,'to'):
+        return rad.to(unit).value
     else:
         raise TypeError("Radius is an invalid type.")
 
