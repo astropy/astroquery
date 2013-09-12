@@ -125,7 +125,7 @@ if not _ASTROPY_SETUP_:
 
     from distutils.version import LooseVersion
 
-    import astropy
+    import astropy.coordinates
 
     # Monkeypatching for plural symbols
     if LooseVersion(astropy.version.version) < LooseVersion('0.3.dev4957'):
@@ -134,9 +134,11 @@ if not _ASTROPY_SETUP_:
              "such that degrees and degree are both allow and hours and hour "
              "are both allowed.  This is NOT normal astropy behavior.")
 
-        astropy.units.degrees = astropy.units.degree
-        astropy.units.hours = astropy.units.hour
-        astropy.units.Unit._registry['degrees'] = astropy.units.degree
-        astropy.units.Unit._registry['hours'] = astropy.units.hour
+        def _Angle_degrees_monkeypatch(self):
+            return self.degrees
+        astropy.coordinates.Angle.degree = property(_Angle_degrees_monkeypatch)
+        def _Angle_hours_monkeypatch(self):
+            return self.hours
+        astropy.coordinates.Angle.hour = property(_Angle_hours_monkeypatch)
 
     del os, warn, config_dir, LooseVersion  # clean up namespace

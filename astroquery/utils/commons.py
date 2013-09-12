@@ -85,7 +85,11 @@ def parse_radius(radius):
     astropy.coordinates.errors.UnitsError
     AttributeError
     """
-    return coord.Angle(radius)
+    try:
+        return coord.Angle(radius)
+    except coord.errors.UnitsError:
+        # astropy <0.3 compatibility: Angle can't be instantiated with a unit object
+        return coord.Angle(radius.to(u.degree), unit=u.degree)
 
 
 def radius_to_degrees(radius):
