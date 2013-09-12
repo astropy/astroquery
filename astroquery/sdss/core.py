@@ -96,7 +96,7 @@ class SDSS(BaseQuery):
         
         ra = coordinates.ra.degree
         dec = coordinates.dec.degree
-        dr = commons.radius_to_degrees(radius)
+        dr = commons.radius_to_unit(radius,'degree')
 
         # Fields to return (if cross-ID successful)
         if fields is None:
