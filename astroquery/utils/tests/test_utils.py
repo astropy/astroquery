@@ -13,7 +13,7 @@ from astropy.tests.helper import pytest, remote_data
 import astropy.io.votable as votable
 import textwrap
 from numpy import testing as npt
-import collections
+from astropy.utils import OrderedDict
 
 class SimpleQueryClass(object):
 
@@ -159,7 +159,7 @@ def test_TableDict_print_table_list(capsys):
 
 
 def create_in_odict(t_list):
-    return collections.OrderedDict([(t.meta['name'], t) for t in t_list])
+    return OrderedDict([(t.meta['name'], t) for t in t_list])
 
 
 def test_suppress_vo_warnings(recwarn):
