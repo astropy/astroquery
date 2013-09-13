@@ -1,5 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from ... import simbad
+from ...utils.testing_tools import MockResponse
 
 from astropy.tests.helper import pytest
 import astropy.coordinates as coord
@@ -29,19 +30,21 @@ DATA_FILES = {
 }
 
 
-class MockResponse(object):
-        query_regex = re.compile(r'query\s+([a-z]+)\s+')
+class MockResponseSimbad(MockResponse):
+    query_regex = re.compile(r'query\s+([a-z]+)\s+')
 
-        def __init__(self, script):
-            self.content = self.get_content(script)
+    def __init__(self, script, **kwargs):
+        # preserve, e.g., headers
+        super(MockResponseSimbad, self).__init__(**kwargs)
+        self.content = self.get_content(script)
 
-        def get_content(self, script):
-            match = MockResponse.query_regex.search(script)
-            if match:
-                filename = DATA_FILES[match.group(1)]
-                content = open(data_path(filename), "r").read()
-                print(filename)
-                return content
+    def get_content(self, script):
+        match = self.query_regex.search(script)
+        if match:
+            filename = DATA_FILES[match.group(1)]
+            content = open(data_path(filename), "r").read()
+            print(filename)
+            return content
 
 
 def data_path(filename):
@@ -56,8 +59,8 @@ def patch_post(request):
     return mp
 
 
-def post_mockreturn(url, data, timeout):
-    response = MockResponse(data['script'])
+def post_mockreturn(url, data, timeout, **kwargs):
+    response = MockResponseSimbad(data['script'], **kwargs)
     return response
 
 
@@ -108,10 +111,10 @@ def test_get_frame_coordinates(coordinates, expected_frame):
 
 
 def test_parse_result():
-    result1 = simbad.core.Simbad._parse_result(MockResponse('query id '))
+    result1 = simbad.core.Simbad._parse_result(MockResponseSimbad('query id '))
     assert isinstance(result1, Table)
     with pytest.raises(TableParseError) as ex:
-        dummy = simbad.core.Simbad._parse_result(MockResponse('query error '))
+        dummy = simbad.core.Simbad._parse_result(MockResponseSimbad('query error '))
     assert ex.value.message == ('Failed to parse SIMBAD result! '
                                 'The raw response can be found in self.response, '
                                 'and the error in self.table_parse_error.  '

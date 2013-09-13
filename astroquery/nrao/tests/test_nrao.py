@@ -9,6 +9,7 @@ import astropy.coordinates as coord
 from astropy.table import Table
 
 from ... import nrao
+from ...utils.testing_tools import MockResponse
 from ...utils import commons
 
 
@@ -35,16 +36,10 @@ def patch_get(request):
     return mp
 
 
-def get_mockreturn(url, params=None, timeout=10):
+def get_mockreturn(url, params=None, timeout=10, **kwargs):
     filename = data_path(DATA_FILES['votable'])
     content = open(filename, 'r').read()
-    return MockResponse(content)
-
-
-class MockResponse(object):
-
-    def __init__(self, content):
-        self.content = content
+    return MockResponse(content, **kwargs)
 
 
 def test_query_region_async(patch_get, patch_parse_coordinates):

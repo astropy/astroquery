@@ -96,13 +96,13 @@ def test_radius_to_unit(inv,inunit,outv,outunit):
 
 def test_send_request_post(monkeypatch):
     def mock_post(url, data, timeout, headers={}):
-        class MockResponse(object):
+        class SpecialMockResponse(object):
 
-            def __init__(self, url, data):
+            def __init__(self, url, data, headers):
                 self.url = url
                 self.data = data
                 self.headers = headers
-        return MockResponse(url, data)
+        return SpecialMockResponse(url, data, headers=headers)
     monkeypatch.setattr(requests, 'post', mock_post)
 
     response = commons.send_request('https://github.com/astropy/astroquery',

@@ -8,6 +8,7 @@ from astropy.table import Table
 import astropy.coordinates as coord
 import astropy.units as u
 
+from ...utils.testing_tools import MockResponse
 from ... import irsa
 from ...irsa import ROW_LIMIT
 
@@ -30,16 +31,10 @@ def patch_get(request):
     return mp
 
 
-def get_mockreturn(url, params=None, timeout=10):
+def get_mockreturn(url, params=None, timeout=10, **kwargs):
     filename = data_path(DATA_FILES[params['spatial']])
     content = open(filename, 'r').read()
-    return MockResponse(content)
-
-
-class MockResponse(object):
-
-    def __init__(self, content):
-        self.content = content
+    return MockResponse(content, **kwargs)
 
 
 @pytest.mark.parametrize(('dim'), ['5d0m0s', 0.3 * u.rad, '5h0m0s', 2 * u.arcmin])

@@ -10,15 +10,10 @@ import astropy.units as u
 import astropy.coordinates as coord
 
 from ...utils import commons
+from ...utils.testing_tools import MockResponse
 from ... import magpis
 
 DATA_FILES = {'image': 'image.fits'}
-
-
-class MockResponse(object):
-
-    def __init__(self, content):
-        self.content = content
 
 
 def data_path(filename):
@@ -42,10 +37,10 @@ def patch_post(request):
     return mp
 
 
-def post_mockreturn(url, data, timeout):
+def post_mockreturn(url, data, timeout, **kwargs):
     filename = data_path(DATA_FILES['image'])
     content = open(filename, 'rb').read()
-    return MockResponse(content)
+    return MockResponse(content, **kwargs)
 
 
 def test_list_surveys():

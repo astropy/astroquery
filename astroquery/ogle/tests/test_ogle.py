@@ -6,6 +6,7 @@ import requests
 from astropy.tests.helper import pytest
 from astropy import coordinates as coord
 from astropy import units as u
+from ...utils.testing_tools import MockResponse
 
 DATA_FILES = {'gal_0_3':'gal_0_3.txt',
               }
@@ -21,21 +22,13 @@ def patch_post(request):
     mp.setattr(requests, 'post', post_mockreturn)
     return mp
 
-def post_mockreturn(url, data, timeout, files=None):
+def post_mockreturn(url, data, timeout, files=None, **kwargs):
     if files is not None:
-        response = MockResponse(open(data_path(DATA_FILES['gal_0_3']),'r').read())
+        content = open(data_path(DATA_FILES['gal_0_3']),'r').read()
+        response = MockResponse(content, **kwargs)
     else:
         raise ValueError("Unsupported post request.")
     return response
-
-
-class MockResponse(object):
-
-    def __init__(self, content):
-        self.content = self.text = content
-
-    def raise_for_status(self):
-        pass
 
 
 def test_ogle_single(patch_post):

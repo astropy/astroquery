@@ -6,10 +6,10 @@ from numpy import testing as npt
 from astropy.table import Table
 from ... import vizier
 from ... utils import commons
+from ...utils.testing_tools import MockResponse
 import astropy.units as u
 import astropy.coordinates as coord
 import urlparse
-import itertools
 VO_DATA = {'HIP,NOMAD,UCAC': "viz.xml",
            'NOMAD,UCAC': "viz.xml",
            'J/ApJ/706/83': "kang2010.xml"}
@@ -27,17 +27,11 @@ def patch_post(request):
     return mp
 
 
-class MockResponse(object):
-
-    def __init__(self, content):
-        self.content = content
-
-
-def post_mockreturn(url, data=None, timeout=10):
+def post_mockreturn(url, data=None, timeout=10, **kwargs):
     datad = dict([urlparse.parse_qsl(d)[0] for d in data.split('\n')]) 
     filename = data_path(VO_DATA[datad['-source']])
     content = open(filename, "r").read()
-    return MockResponse(content)
+    return MockResponse(content, **kwargs)
 
 
 def test_str_to_unit():
