@@ -310,7 +310,7 @@ class IrsaDust(BaseQuery):
         # check if radius is given with proper units
         if radius is not None:
             try:
-                reg_size = commons.radius_to_degrees(radius)
+                reg_size = commons.radius_to_unit(radius,'degree')
             # astropy v0.2.x throws UnitsError and v>0.2.x throws
             # UnitsException
             except (u.UnitsException, coord.errors.UnitsError, AttributeError):

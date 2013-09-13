@@ -167,15 +167,15 @@ class Nrao(BaseQuery):
         """
 
         request_payload = self._args_to_payload(coordinates,
-                                               radius=radius,
-                                               equinox=equinox,
-                                               telescope=telescope,
-                                               start_date=start_date,
-                                               end_date=end_date,
-                                               freq_low=freq_low, freq_up=freq_up,
-                                               telescope_config=telescope_config,
-                                               obs_band=obs_band,
-                                               sub_array=sub_array)
+                                                radius=radius,
+                                                equinox=equinox,
+                                                telescope=telescope,
+                                                start_date=start_date,
+                                                end_date=end_date,
+                                                freq_low=freq_low, freq_up=freq_up,
+                                                telescope_config=telescope_config,
+                                                obs_band=obs_band,
+                                                sub_array=sub_array)
         if get_query_payload:
             return request_payload
         response = commons.send_request(Nrao.DATA_URL, request_payload, Nrao.TIMEOUT, request_type='GET')
@@ -194,7 +194,12 @@ class Nrao(BaseQuery):
             tf.write(new_content.encode('utf-8'))
             tf.flush()
             first_table = votable.parse(tf.name, pedantic=False).get_first_table()
-            table = first_table.to_table(use_names_over_ids=True)
+            try:
+                table = first_table.to_table(use_names_over_ids=True)
+            except TypeError:
+                warnings.warn("NRAO table parsing: astropy versions prior to 6558975c use "
+                              "the table column IDs instead of names.")
+                table = first_table.to_table()
             return table
         except Exception as ex:
             self.response = response

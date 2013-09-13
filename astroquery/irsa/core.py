@@ -283,12 +283,7 @@ class Irsa(BaseQuery):
             try:
                 coordinates_list = [_parse_coordinates(c) for c in polygon]
             except (ValueError,TypeError):
-                if isinstance(polygon[0], tuple):
-                    try:
-                        polygon = [(coord.Angle(pair[0]).degree, coord.Angle(pair[1]).degree) for pair in polygon]
-                    except u.UnitsException:
-                        warnings.warn("Polygon endpoints are being interpreted as RA/Dec pairs specified in decimal degree units.")
-                    coordinates_list = [_format_decimal_coords(pair[0], pair[1]) for pair in polygon]
+                    coordinates_list = [_format_decimal_coords(*_pair_to_deg(pair)) for pair in polygon]
             request_payload['polygon'] = ','.join(coordinates_list)
         else:
             raise ValueError("Unrecognized spatial query type. " +
@@ -427,6 +422,27 @@ def _parse_coordinates(coordinates):
         raise TypeError("Argument cannot be parsed as a coordinate")
     formatted_coords = _format_decimal_coords(c.icrs.ra.degree, c.icrs.dec.degree)
     return formatted_coords
+
+def _pair_to_deg(pair):
+    """ Turn a pair of floats, Angles, or Quantities into pairs of float degrees """
+
+    # unpack
+    lon,lat = pair
+
+    if hasattr(lon,'degree') and hasattr(lat,'degree'):
+        pair = (lon.degree, lat.degree)
+    elif hasattr(lon,'to') and hasattr(lat,'to'):
+        pair = [lon,lat]
+        for ii,ang in enumerate((lon,lat)):
+            if ang.unit.is_equivalent(u.degree):
+                pair[ii] = ang.to(u.degree).value
+            elif ang.unit.is_equivalent(u.hour):
+                warnings.warn("Assuming angle specified with 'hour' units means 'hourangle'.  "
+                              "This is an astropy < 0.3 warning.")
+                pair[ii] = (ang.value * u.hourangle).to(u.degree)
+    else:
+        warnings.warn("Polygon endpoints are being interpreted as RA/Dec pairs specified in decimal degree units.")
+    return tuple(pair)
 
 
 def _format_decimal_coords(ra, dec):

@@ -60,7 +60,7 @@ class Magpis(BaseQuery):
         ra_dec_str = str(c.galactic.lonangle.degree) + ' ' + str(c.galactic.latangle.degree)
         request_payload["RA"] = ra_dec_str
         request_payload["Equinox"] = "Galactic"
-        request_payload["ImageSize"] = commons.parse_radius(image_size).to(u.arcmin).value
+        request_payload["ImageSize"] = commons.radius_to_unit(image_size,'arcmin')
         request_payload["ImageType"] = "FITS File"
         return request_payload
 

@@ -306,8 +306,14 @@ class Splatalogue(BaseQuery):
         Parse a response into an astropy Table
         """
 
-        result = ascii.read(response.content.split('\n'),
-                            delimiter=':',
-                            format='basic')
+        try:
+            result = ascii.read(response.content.split('\n'),
+                                delimiter=':',
+                                format='basic')
+        except TypeError:
+            # deprecated
+            result = ascii.read(response.content.split('\n'),
+                                delimiter=':',
+                                Reader=ascii.Basic)
 
         return result
