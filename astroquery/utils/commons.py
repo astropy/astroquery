@@ -241,8 +241,10 @@ class TableList(list):
     def print_table_list(self):
         print(self.format_table_list())
 
-    def pprint(self):
+    def pprint(self, **kwargs):
         """ Helper function to make API more similar to astropy.Tables """
+        if kwargs != {}:
+            warnings.warn("TableList is a container of astropy.Table's.")
         self.print_table_list()
 
 
