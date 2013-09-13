@@ -160,10 +160,10 @@ def parse_coordinates(coordinates):
     return c
 
 
-class TableList(OrderedDict):
+class TableList(list):
 
     """
-    A class that inherits from `OrderedDict` but included some pretty printing methods
+    A class that inherits from `list` but included some pretty printing methods
     for an OrderedDict of `astropy.table.Table` objects.
 
     HINT: To access the tables by # instead of by table ID:
@@ -171,6 +171,27 @@ class TableList(OrderedDict):
     >>> t.items()[1]
     ('b', 2)
     """
+    def __init__(self, *args, **kwargs):
+        values = args + tuple((v for v in kwargs.values()))
+        keys = tuple((str(ii) for ii in xrange(len(args)))) + kwargs.keys()
+        super(TableList,self).__init__(*values)
+        self._dict = OrderedDict(zip(keys,values))
+
+    def __getitem__(self, key):
+        if isinstance(key, int):
+            return self[key]
+        elif isinstance(key, str):
+            return self._dict[key]
+        else:
+            raise TypeError("TableLists can only be indexed with strings and integers.")
+
+    @property
+    def keys(self):
+        return self._dict.keys()
+
+    @property
+    def values(self):
+        return self
 
     def __repr__(self):
         """
@@ -206,6 +227,7 @@ class TableList(OrderedDict):
 
     def print_table_list(self):
         print(self.format_table_list())
+
 
 
 def suppress_vo_warnings():
