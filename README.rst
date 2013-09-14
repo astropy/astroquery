@@ -42,7 +42,7 @@ will be clear from context what to do with your particular VCS.
      description of your package.
   3. Define a longer description as a string in the ``LONG_DESCRIPTION``
      variable.  You may want this to be the docstring of your package itself
-     as Astropy does.  In this case, simple add ``import yourpkg`` somewhere
+     as Astropy does.  In this case, simply add ``import yourpkg`` somewhere
      above, and set ``LONG_DESCRIPTION = yourpkg.__doc__``.  Alternatively,
      you may omit the description by deleting the variable and deleting the
      line where it is used in the ``setup()`` function further down.
@@ -97,7 +97,7 @@ will be clear from context what to do with your particular VCS.
 * Adjust the information in the documentation to match your new project by
   editing the ``docs/conf.py`` file.
 
-  1. Change the ``project`` variable to your project's name (note that this 
+  1. Change the ``project`` variable to your project's name (note that this
      does not *need* to be exactly the same as the package name, but that's a
      common convention).
   2. Update the ``author`` variable with your name or the name of your collaboration.
@@ -120,12 +120,12 @@ will be clear from context what to do with your particular VCS.
 
      where ``yourpkg`` is the name of your package.
   5. (optional) If you're hosting your source code on github, you can
-     enable a sphinx extension that will link documentation pages 
-     directly to github's web site. To do this, uncomment the code in 
-     the "edit_on_github" section at the bottom of ``docs/conf.py``, 
+     enable a sphinx extension that will link documentation pages
+     directly to github's web site. To do this, uncomment the code in
+     the "edit_on_github" section at the bottom of ``docs/conf.py``,
      and replace ``packagename`` and ``reponame`` in that section with
      the name of your package and github repository.
-  
+
 
 * Pass these changes on to git::
 
@@ -193,7 +193,7 @@ will be clear from context what to do with your particular VCS.
   `here <https://github.com/astropy/astropy/wiki/Continuous-Integration>`_
   and for lot's of example ``.travis.yml`` build configurations see
   `here <https://github.com/astropy/astropy/wiki/travis-ci-test-status>`_.
-  Generally you should aim to always have you `master` branch work with
+  Generally you should aim to always have your `master` branch work with
   the latest stable as well as the latest development version of astropy
   (i.e. the astropy git master branch).
 
