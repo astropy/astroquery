@@ -14,3 +14,6 @@ SDSS_SERVER = ConfigurationItem('sdss_server', 'http://das.sdss.org',
 SDSS_MAXQUERY = ConfigurationItem('maxqueries', 1, 'Max number of queries allowed per second')
 
 from .core import SDSS
+
+import warnings
+warnings.warn("Experimental: SDSS has not yet been refactored to have its API match the rest of astroquery (but it's nearly there).")
