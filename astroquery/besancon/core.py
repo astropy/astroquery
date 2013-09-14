@@ -8,7 +8,7 @@ import re
 import os
 import astropy.utils.data as aud
 from astropy.io import ascii
-from . import BESANCON_DOWNLOAD_URL, BESANCON_MODEL_FORM, BESANCON_PING_DELAY
+from . import BESANCON_DOWNLOAD_URL, BESANCON_MODEL_FORM, BESANCON_PING_DELAY, BESANCON_TIMEOUT
 import urllib2  # only needed for urllib2.URLError
 
 from ..query import BaseQuery
@@ -80,7 +80,7 @@ class Besancon(BaseQuery):
     url_download = BESANCON_DOWNLOAD_URL()
     QUERY_URL = BESANCON_MODEL_FORM()
     ping_delay = BESANCON_PING_DELAY()
-    TIMEOUT = 30
+    TIMEOUT = BESANCON_TIMEOUT()
     # sample file name:  1340900648.230224.resu
     result_re = re.compile("[0-9]{10}\.[0-9]{6}\.resu")
 
