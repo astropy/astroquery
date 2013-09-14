@@ -18,9 +18,9 @@ class FermiLAT(BaseQuery):
     TODO: document
     """
 
-    request_url = FERMI_URL
+    request_url = FERMI_URL()
     result_url_re = re.compile('The results of your query may be found at <a href="(http://fermi.gsfc.nasa.gov/.*?)"')
-    TIMEOUT = FERMI_TIMEOUT
+    TIMEOUT = FERMI_TIMEOUT()
 
     @class_or_instance
     def query_object_async(self, *args, **kwargs):
@@ -37,9 +37,9 @@ class FermiLAT(BaseQuery):
         if kwargs.get('get_query_payload'):
             return payload
 
-        result = commons.send_request(self.request_url(),
+        result = commons.send_request(self.request_url,
                                       payload,
-                                      self.TIMEOUT())
+                                      self.TIMEOUT)
 
         # text returns unicode, content returns unencoded (?)
         re_result = self.result_url_re.findall(result.text)
@@ -119,7 +119,7 @@ class GetFermilatDatafile(object):
 
     fitsfile_re = re.compile('<a href="(.*?)">Available</a>')
 
-    TIMEOUT = FERMI_RETRIEVAL_TIMEOUT
+    TIMEOUT = FERMI_RETRIEVAL_TIMEOUT()
 
     check_frequency = 1  # minutes
 
@@ -147,7 +147,7 @@ class GetFermilatDatafile(object):
     def _check_page(self):
         result_page = commons.send_request(self.result_url,
                                            None,
-                                           self.TIMEOUT())
+                                           self.TIMEOUT)
 
         pagedata = result_page.content
 

@@ -152,11 +152,6 @@ class TestVizierClass:
         del v.column_filters
         assert v.column_filters is None
 
-    def test_limits(self, patch_post):
-        v = vizier.core.Vizier()
-        v.ROW_LIMIT.set(5)
-        v.TIMEOUT.set(30)
-
 class TestVizierKeywordClass:
 
     def test_init(self):

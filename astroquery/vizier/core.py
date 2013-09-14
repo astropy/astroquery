@@ -31,9 +31,9 @@ __all__ = ['Vizier']
 
 @async_to_sync
 class Vizier(BaseQuery):
-    TIMEOUT = VIZIER_TIMEOUT
-    VIZIER_SERVER = VIZIER_SERVER
-    ROW_LIMIT = ROW_LIMIT
+    TIMEOUT = VIZIER_TIMEOUT()
+    VIZIER_SERVER = VIZIER_SERVER()
+    ROW_LIMIT = ROW_LIMIT()
 
     def __init__(self, columns=None, column_filters=None, keywords=None):
         self._columns = None
@@ -60,7 +60,7 @@ class Vizier(BaseQuery):
         FITS binary table: asu-binfits
         plain text: asu-txt
         """
-        return "http://" + Vizier.VIZIER_SERVER() + "/viz-bin/" + return_type
+        return "http://" + Vizier.VIZIER_SERVER + "/viz-bin/" + return_type
 
     @property
     def keywords(self):
@@ -159,7 +159,7 @@ class Vizier(BaseQuery):
         response = commons.send_request(
             self._server_to_url(),
             data_payload,
-            Vizier.TIMEOUT())
+            Vizier.TIMEOUT)
         result = self._parse_result(response, verbose=verbose, get_catalog_names=True)
 
         return result
@@ -185,7 +185,7 @@ class Vizier(BaseQuery):
         response = commons.send_request(
             self._server_to_url(),
             data_payload,
-            Vizier.TIMEOUT())
+            Vizier.TIMEOUT)
         return response
 
     @class_or_instance
@@ -215,7 +215,7 @@ class Vizier(BaseQuery):
         response = commons.send_request(
             self._server_to_url(),
             data_payload,
-            Vizier.TIMEOUT())
+            Vizier.TIMEOUT)
         return response
 
     @class_or_instance
@@ -257,7 +257,7 @@ class Vizier(BaseQuery):
         response = commons.send_request(
             self._server_to_url(),
             data_payload,
-            Vizier.TIMEOUT())
+            Vizier.TIMEOUT)
         return response
 
     @class_or_instance
@@ -322,7 +322,7 @@ class Vizier(BaseQuery):
         response = commons.send_request(
             self._server_to_url(),
             data_payload,
-            Vizier.TIMEOUT())
+            Vizier.TIMEOUT)
         return response
 
     @class_or_instance
@@ -399,7 +399,7 @@ class Vizier(BaseQuery):
         else:
             body["-out"] = "*"
         # set the maximum rows returned
-        body["-out.max"] = Vizier.ROW_LIMIT()
+        body["-out.max"] = Vizier.ROW_LIMIT
         script = "\n".join(["{key}={val}".format(key=key, val=val)
                            for key, val in body.items()])
         # add keywords
