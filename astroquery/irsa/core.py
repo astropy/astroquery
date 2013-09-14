@@ -111,10 +111,10 @@ __all__ = ['Irsa']
 
 
 class Irsa(BaseQuery):
-    IRSA_URL = IRSA_SERVER()
-    GATOR_LIST_URL = GATOR_LIST_CATALOGS()
-    TIMEOUT = TIMEOUT()
-    ROW_LIMIT = ROW_LIMIT()
+    IRSA_URL = IRSA_SERVER
+    GATOR_LIST_URL = GATOR_LIST_CATALOGS
+    TIMEOUT = TIMEOUT
+    ROW_LIMIT = ROW_LIMIT
 
     @class_or_instance
     def query_region(self, coordinates=None, catalog=None, spatial='Cone', radius=10 * u.arcsec,
@@ -222,8 +222,8 @@ class Irsa(BaseQuery):
 
         if get_query_payload:
             return request_payload
-        response = commons.send_request(Irsa.IRSA_URL, request_payload,
-                                        Irsa.TIMEOUT, request_type='GET')
+        response = commons.send_request(Irsa.IRSA_URL(), request_payload,
+                                        Irsa.TIMEOUT(), request_type='GET')
         return response
 
     @class_or_instance
@@ -309,7 +309,7 @@ class Irsa(BaseQuery):
         """
         request_payload = dict(catalog=catalog,
                                outfmt=3,
-                               outrows=Irsa.ROW_LIMIT)
+                               outrows=Irsa.ROW_LIMIT())
         return request_payload
 
     @class_or_instance
@@ -378,7 +378,7 @@ class Irsa(BaseQuery):
             be used in query functions, and the value is the verbose description
             of the catalog.
         """
-        response = commons.send_request(Irsa.GATOR_LIST_URL, dict(mode='xml'), Irsa.TIMEOUT, request_type="GET")
+        response = commons.send_request(Irsa.GATOR_LIST_URL(), dict(mode='xml'), Irsa.TIMEOUT(), request_type="GET")
         root =tree.fromstring(response.content)
         catalogs = {}
         for catalog in root.findall('catalog'):
