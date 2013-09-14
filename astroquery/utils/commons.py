@@ -160,17 +160,49 @@ def parse_coordinates(coordinates):
     return c
 
 
-class TableList(OrderedDict):
+class TableList(list):
 
     """
-    A class that inherits from `OrderedDict` but included some pretty printing methods
+    A class that inherits from `list` but included some pretty printing methods
     for an OrderedDict of `astropy.table.Table` objects.
 
     HINT: To access the tables by # instead of by table ID:
-    >>> t = TableList(a=1,b=2)
-    >>> t.items()[1]
-    ('b', 2)
+    >>> t = TableList([('a',1),('b',2)])
+    >>> t[1]
+    2
+    >>> t['b']
+    2
     """
+    def __init__(self, inp):
+        if not isinstance(inp, OrderedDict):
+            try:
+                inp = OrderedDict(inp)
+            except TypeError,ValueError:
+                raise ValueError("Input to TableList must be an OrderedDict or list of (k,v) pairs")
+        
+        self._dict = inp
+        super(TableList,self).__init__(inp.values())
+
+    def __getitem__(self, key):
+        if isinstance(key, int):
+            # get the value in the (key,value) pair
+            return super(TableList,self).__getitem__(key)
+        elif key in self._dict:
+            return self._dict[key]
+        else:
+            raise TypeError("TableLists can only be indexed with the named keys and integers.")
+
+    def __setitem__(self, value):
+        raise TypeError("TableList is immutable.")
+
+    def __getslice__(self, slice):
+        return self.values()[slice]
+
+    def keys(self):
+        return self._dict.keys()
+
+    def values(self):
+        return self._dict.values()
 
     def __repr__(self):
         """
@@ -199,13 +231,22 @@ class TableList(OrderedDict):
 
         header_str = "TableList with {keylen} tables:".format(keylen=ntables)
         body_str = "\n".join(["\t'{t_number}:{t_name}' with {ncol} column(s) and {nrow} row(s) ".
-                              format(t_number=t_number,t_name=t_name, nrow=len(self.__getitem__(t_name)),
-                            ncol=len(self.__getitem__(t_name).colnames))
+                              format(t_number=t_number,
+                                     t_name=t_name,
+                                     nrow=len(self[t_number]),
+                                     ncol=len(self[t_number].colnames))
                               for t_number,t_name in enumerate(self.keys())])
         return "\n".join([header_str, body_str])
 
     def print_table_list(self):
         print(self.format_table_list())
+
+    def pprint(self, **kwargs):
+        """ Helper function to make API more similar to astropy.Tables """
+        if kwargs != {}:
+            warnings.warn("TableList is a container of astropy.Tables.")
+        self.print_table_list()
+
 
 
 def suppress_vo_warnings():
