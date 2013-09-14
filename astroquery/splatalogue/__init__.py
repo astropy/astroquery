@@ -9,8 +9,13 @@ Splatalogue Catalog Query Tool
 
      Magnus Vilehlm Persson (magnusp@vilhelm.nu)
 """
-SLAP_URL = 'http://find.nrao.edu/splata-slap/slap'
-QUERY_URL = 'http://www.cv.nrao.edu/php/splat/c_export.php'
+from astropy.config import ConfigurationItem
+SLAP_URL = ConfigurationItem('http://find.nrao.edu/splata-slap/slap',"Splatalogue SLAP interface URL (not used).")
+QUERY_URL = ConfigurationItem('http://www.cv.nrao.edu/php/splat/c_export.php',"Splatalogue web interface URL.")
+SPLATALOGUE_TIMEOUT = ConfigurationItem('timeout', 60, 'default timeout for connecting to server')
+
 import load_species_table
+
 from .core import Splatalogue
+
 __all__ = ['Splatalogue']

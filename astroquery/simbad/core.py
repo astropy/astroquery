@@ -61,7 +61,6 @@ def validate_equinox(func):
 
 
 class Simbad(BaseQuery):
-
     """
     The class for querying the Simbad web service.
     """
