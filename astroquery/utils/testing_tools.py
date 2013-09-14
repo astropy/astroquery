@@ -26,12 +26,13 @@ def turn_on_internet(verbose=False):
 class MockResponse(object):
 
     def __init__(self, content=None, url=None, headers={},
-                 content_type='text/plain'):
+                 content_type=None):
         self.content = content
         self.text = content
         self.raw = content
         self.headers = headers
-        self.headers.update({'content-type':content_type})
+        if content_type is not None:
+            self.headers.update({'Content-Type':content_type})
         self.url = url
 
     def iter_lines(self):

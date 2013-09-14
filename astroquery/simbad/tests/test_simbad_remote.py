@@ -5,7 +5,12 @@ import astropy.coordinates as coord
 import astropy.units as u
 from astropy.table import Table
 import sys
+from ...utils.testing_tools import MockResponse
 is_python3 = (sys.version_info >= (3,))
+
+# double-check super-undo monkeypatching...
+import requests
+reload(requests)
 
 
 ICRS_COORDS = coord.ICRSCoordinates("05h35m17.3s -05h23m28s")
@@ -21,6 +26,14 @@ class TestSimbad(object):
     def test_query_bibcode_async(self):
         response = simbad.core.Simbad.query_bibcode_async('2006ApJ*', wildcard=True)
         assert response is not None
+        response.raise_for_status()
+        # make sure requests has *NOT* been monkeypatched
+        assert hasattr(response,'connection')
+        assert hasattr(response,'close')
+        assert hasattr(response,'status_code')
+        assert hasattr(response,'request')
+        assert not isinstance(response,MockResponse)
+        assert not issubclass(response.__class__,MockResponse)
 
     def test_query_bibcode(self):
         result = simbad.core.Simbad.query_bibcode('2006ApJ*', wildcard=True)
