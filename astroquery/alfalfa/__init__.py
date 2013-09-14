@@ -8,3 +8,5 @@ ALFALFA Spectra Archive Query Tool
 
 from .core import ALFALFA
 
+import warnings
+warnings.warn("Experimental: ALFALFA has not yet been refactored to have its API match the rest of astroquery.")
