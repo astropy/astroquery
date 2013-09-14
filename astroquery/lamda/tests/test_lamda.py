@@ -1,5 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from ... import lamda
+from ...utils.testing_tools import MockResponse
 import requests
 from astropy.tests.helper import pytest
 import os
@@ -10,20 +11,10 @@ def data_path(filename):
     data_dir = os.path.join(os.path.dirname(__file__), 'data')
     return os.path.join(data_dir, filename)
 
-class MockResponse(object):
-
-    def __init__(self, content):
-        self.content = content
-
-    def iter_lines(self):
-        c = self.content.split("\n")
-        for l in c:
-            yield l
-
-def get_mockreturn(url, params=None, timeout=10):
+def get_mockreturn(url, params=None, timeout=10, **kwargs):
     filename = data_path(DATA_FILES['co'])
     content = open(filename, 'r').read()
-    return MockResponse(content)
+    return MockResponse(content, **kwargs)
 
 @pytest.fixture
 def patch_get(request):

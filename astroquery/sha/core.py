@@ -163,7 +163,7 @@ def save_file(url, out_dir='sha_tmp/', out_name=None):
     if out_name is None:
         out_name = 'shaID_' + id_parse.findall(url)[0]
     # Determine extension
-    exten = exten_types[response.headers['content-type']]
+    exten = exten_types[response.headers['Content-Type']]
     # Check if path exists
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
@@ -171,7 +171,6 @@ def save_file(url, out_dir='sha_tmp/', out_name=None):
     with open(out_dir + out_name + exten, 'wb') as f:
         for block in response.iter_content(1024):
             f.write(block)
-    return
 
 
 def get_file(url):
@@ -204,7 +203,7 @@ def get_file(url):
     response.raise_for_status()
     # Read fits
     iofile = io.BytesIO(response.content)
-    content_type = response.headers['content-type']
+    content_type = response.headers['Content-Type']
     if content_type == 'image/fits':
         obj = fits.open(iofile)
     else:

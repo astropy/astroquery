@@ -12,6 +12,7 @@ import astropy.utils.data as aud
 import astropy.coordinates as coord
 import astropy.units as u
 from ...exceptions import RemoteServiceError
+from ...utils.testing_tools import MockResponse
 
 from ... import ned
 from ...ned import (HUBBLE_CONSTANT,
@@ -60,7 +61,7 @@ def patch_get_readable_fileobj(request):
     return mp
 
 
-def get_mockreturn(url, params=None, timeout=10):
+def get_mockreturn(url, params=None, timeout=10, **kwargs):
     search_type = params.get('search_type')
     if search_type is not None:
         filename = data_path(DATA_FILES[search_type])
@@ -70,13 +71,7 @@ def get_mockreturn(url, params=None, timeout=10):
         filename = data_path(DATA_FILES['object'])
     print(filename)
     content = open(filename, "r").read()
-    return MockResponse(content)
-
-
-class MockResponse(object):
-
-    def __init__(self, content):
-        self.content = content
+    return MockResponse(content, **kwargs)
 
 
 @pytest.mark.parametrize(('radius', 'expected'),

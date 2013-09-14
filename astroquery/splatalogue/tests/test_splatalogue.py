@@ -1,5 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from ... import splatalogue
+from ...utils.testing_tools import MockResponse
 from astropy import units as u
 from astropy.tests.helper import pytest
 import requests
@@ -20,16 +21,10 @@ def patch_post(request):
     return mp
 
 
-class MockResponse(object):
-
-    def __init__(self, content):
-        self.content = content
-
-
-def post_mockreturn(url, data=None, timeout=10):
+def post_mockreturn(url, data=None, timeout=10, **kwargs):
     filename = data_path(SPLAT_DATA)
     content = open(filename, "r").read()
-    return MockResponse(content)
+    return MockResponse(content, **kwargs)
 
 
 def test_simple(patch_post):
@@ -46,4 +41,3 @@ def test_init(patch_post):
     assert len(x) == len(y)
     assert all(y['Species'] == x['Species'])
     assert all(x['Chemical Name']==y['Chemical Name'])
-

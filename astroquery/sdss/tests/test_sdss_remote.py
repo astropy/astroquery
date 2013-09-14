@@ -2,6 +2,8 @@
 from ... import sdss
 from astropy import coordinates
 from astropy.tests.helper import remote_data
+import requests
+reload(requests)
 
 @remote_data
 class RemoteTests:

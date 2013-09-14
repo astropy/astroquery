@@ -15,6 +15,7 @@ from astropy.tests.pytest_plugins import *
 # use pytest.set_trace() to interactively inspect config's features
 def pytest_configure(config):
     if config.getoption('remote_data'):
-        turn_on_internet(verbose=config.option.verbose)
+        pass
+        #turn_on_internet(verbose=config.option.verbose)
     else:
         turn_off_internet(verbose=config.option.verbose)

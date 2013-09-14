@@ -12,6 +12,7 @@ import astropy.utils.data as aud
 from astropy.tests.helper import pytest
 
 from ...import nvas
+from ...utils.testing_tools import MockResponse
 from ...utils import commons
 
 COORDS_GAL = coord.GalacticCoordinates(l=49.489, b=-0.37, unit=(u.deg, u.deg))  # ARM 2000
@@ -24,12 +25,6 @@ DATA_FILES = {'image': 'image.imfits',
 def data_path(filename):
         data_dir = os.path.join(os.path.dirname(__file__), 'data')
         return os.path.join(data_dir, filename)
-
-
-class MockResponse(object):
-
-    def __init__(self, content):
-        self.content = content
 
 
 @pytest.fixture
@@ -48,10 +43,10 @@ def patch_parse_coordinates(request):
     return mp
 
 
-def post_mockreturn(url, data, timeout):
+def post_mockreturn(url, data, timeout, **kwargs):
     filename = data_path(DATA_FILES['image_search'])
     content = open(filename, 'r').read()
-    response = MockResponse(content)
+    response = MockResponse(content, **kwargs)
     return response
 
 

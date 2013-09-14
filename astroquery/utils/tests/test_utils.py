@@ -96,24 +96,26 @@ def test_radius_to_unit(inv,inunit,outv,outunit):
     npt.assert_almost_equal(commons.radius_to_unit(x, outunit), outv)
 
 def test_send_request_post(monkeypatch):
-    def mock_post(url, data, timeout):
-        class MockResponse(object):
+    def mock_post(url, data, timeout, headers={}):
+        class SpecialMockResponse(object):
 
-            def __init__(self, url, data):
+            def __init__(self, url, data, headers):
                 self.url = url
                 self.data = data
-        return MockResponse(url, data)
+                self.headers = headers
+        return SpecialMockResponse(url, data, headers=headers)
     monkeypatch.setattr(requests, 'post', mock_post)
 
     response = commons.send_request('https://github.com/astropy/astroquery',
                                     data=dict(msg='ok'), timeout=30)
     assert response.url == 'https://github.com/astropy/astroquery'
     assert response.data == dict(msg='ok')
+    assert 'astroquery' in response.headers['User-Agent']
 
 
 def test_send_request_get(monkeypatch):
-    def mock_get(url, params, timeout):
-        req = requests.Request('GET', url, params=params).prepare()
+    def mock_get(url, params, timeout, headers={}):
+        req = requests.Request('GET', url, params=params, headers=headers).prepare()
         return req
     monkeypatch.setattr(requests, 'get', mock_get)
     response = commons.send_request('https://github.com/astropy/astroquery',

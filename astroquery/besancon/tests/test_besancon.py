@@ -7,7 +7,6 @@ import astropy.utils.data as aud
 from astropy.tests.helper import pytest
 from astropy.io.ascii.tests.common import assert_equal
 import requests
-import StringIO
 
 # SKIP - don't run tests because Besancon folks don't want them (based on the fact that your@email.net is now rejected)
 # def test_besancon_reader():
@@ -61,19 +60,11 @@ def patch_get_readable_fileobj(request):
     return mp
 
 
-def post_mockreturn(url, data, timeout=10, stream=True, params=None):
+def post_mockreturn(url, data, timeout=10, stream=True, params=None, **kwargs):
     #filename = data_path('1376235131.430670.resu')
     filename = data_path('query_return.iframe.html')
     content = open(filename, 'r').read()
-    return MockResponse(content, filename)
-
-
-class MockResponse(object):
-
-    def __init__(self, content, url):
-        self.content = content
-        self.raw = url #StringIO.StringIO(url)
-
+    return MockResponse(content, filename, **kwargs)
 
 def test_query(patch_post, patch_get_readable_fileobj):
     B = besancon.Besancon()
@@ -81,3 +72,10 @@ def test_query(patch_post, patch_get_readable_fileobj):
     result = B.query(0,0,'adam.g.ginsburg@gmail.com')
     assert result is not None
 
+class MockResponse(object):
+
+    def __init__(self, content=None, url=None, headers={}):
+        self.content = content
+        self.text = content
+        self.raw = url #StringIO.StringIO(url)
+        self.headers = headers

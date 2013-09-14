@@ -1,9 +1,9 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from ... import sha
+from ...utils.testing_tools import MockResponse
 import os
 from astropy.tests.helper import pytest
 import requests
-from astropy.io import fits
 
 DATA_FILES = {'img':'img.fits',
               'nid_t':'nid_t.txt',
@@ -16,24 +16,10 @@ def data_path(filename):
     data_dir = os.path.join(os.path.dirname(__file__), 'data')
     return os.path.join(data_dir, filename)
 
-class MockResponse(object):
-
-    def __init__(self, content, content_type='text/plain'):
-        self.content = self.text = content
-        self.headers = {'content-type':content_type}
-
-    def iter_content(self):
-        c = self.content.split("\n")
-        for line in c:
-            yield line
-
-    def raise_for_status(self):
-        pass
-
-def get_mockreturn(url, params=None, stream=False, timeout=10):
+def get_mockreturn(url, params=None, stream=False, timeout=10, **kwargs):
     if stream:
         filename = data_path(DATA_FILES['img'])
-        return MockResponse(open(filename,'r').read(), content_type='image/fits')
+        return MockResponse(open(filename,'r').read(), content_type='image/fits', **kwargs)
     elif params['RA'] == 163.6136:
         filename = data_path(DATA_FILES['pos_t'])
     elif params['NAIFID'] == 2003226:
@@ -46,7 +32,7 @@ def get_mockreturn(url, params=None, stream=False, timeout=10):
         raise ValueError("Query not pre-loaded.")
         
     content = open(filename, 'r').read()
-    return MockResponse(content)
+    return MockResponse(content, **kwargs)
 
 @pytest.fixture
 def patch_get(request):
