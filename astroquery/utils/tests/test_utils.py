@@ -13,6 +13,7 @@ from astropy.tests.helper import pytest, remote_data
 import astropy.io.votable as votable
 import textwrap
 from numpy import testing as npt
+from astropy.utils import OrderedDict
 
 class SimpleQueryClass(object):
 
@@ -137,26 +138,28 @@ t3 = Table([col_1, col_2[:3], col_3[:3]], meta={'name': 't3'})
 
 
 def test_TableDict():
-    in_list = create_in_list([t1, t2, t3])
+    in_list = create_in_odict([t1, t2, t3])
     table_list = commons.TableList(in_list)
     repr_str = table_list.__repr__()
-    assert repr_str == ("TableList with 3 tables:\n\t'0:t1' with 3 column(s) and 1 row(s)"
-                        " \n\t'1:t2' with 1 column(s) and 3 row(s)"
-                        " \n\t'2:t3' with 3 column(s) and 3 row(s) ")
+    assert repr_str == ("TableList with 3 tables:"
+                        "\n\t'0:t1' with 3 column(s) and 1 row(s) "
+                        "\n\t'1:t2' with 1 column(s) and 3 row(s) "
+                        "\n\t'2:t3' with 3 column(s) and 3 row(s) ")
 
 
 def test_TableDict_print_table_list(capsys):
-    in_list = create_in_list([t1, t2, t3])
+    in_list = create_in_odict([t1, t2, t3])
     table_list = commons.TableList(in_list)
     table_list.print_table_list()
     out, err = capsys.readouterr()
-    assert out == ("TableList with 3 tables:\n\t'0:t1' with 3 column(s) and 1 row(s)"
-                   " \n\t'1:t2' with 1 column(s) and 3 row(s)"
-                   " \n\t'2:t3' with 3 column(s) and 3 row(s) \n")
+    assert out == ("TableList with 3 tables:"
+                   "\n\t'0:t1' with 3 column(s) and 1 row(s) "
+                   "\n\t'1:t2' with 1 column(s) and 3 row(s) "
+                   "\n\t'2:t3' with 3 column(s) and 3 row(s) \n")
 
 
-def create_in_list(t_list):
-    return [(t.meta['name'], t) for t in t_list]
+def create_in_odict(t_list):
+    return OrderedDict([(t.meta['name'], t) for t in t_list])
 
 
 def test_suppress_vo_warnings(recwarn):
