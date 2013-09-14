@@ -23,6 +23,9 @@ BESANCON_PING_DELAY = ConfigurationItem('besancon_ping_delay', 30.0,
                                         "Amount of time before pinging the Besancon server to see if the file is ready.  Minimum 30s.",
                                         cfgtype="float(min=30.0)")
 
+BESANCON_TIMEOUT = ConfigurationItem('besancon_timeout', 30.0,
+                                        "Timeout for Besancon query")
+
 from .core import Besancon
 from .reader import BesanconFixed,BesanconFixedWidthHeader,BesanconFixedWidthData
 

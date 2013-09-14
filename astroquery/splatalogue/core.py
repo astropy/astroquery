@@ -11,7 +11,7 @@ from ..utils.class_or_instance import class_or_instance
 from ..utils import commons,async_to_sync
 from ..utils.docstr_chompers import prepend_docstr_noreturns
 from astropy import units as u
-from . import SLAP_URL,QUERY_URL
+from . import SLAP_URL,QUERY_URL,SPLATALOGUE_TIMEOUT
 from . import load_species_table
 
 __all__ = ['Splatalogue']
@@ -25,7 +25,7 @@ class Splatalogue(BaseQuery):
 
     SLAP_URL = SLAP_URL
     QUERY_URL = QUERY_URL
-    TIMEOUT = 30
+    TIMEOUT = SPLATALOGUE_TIMEOUT()
     versions = ('v1.0','v2.0')
 
     def __init__(self, **kwargs):

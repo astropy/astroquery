@@ -152,7 +152,6 @@ class TestVizierClass:
         del v.column_filters
         assert v.column_filters is None
 
-
 class TestVizierKeywordClass:
 
     def test_init(self):
