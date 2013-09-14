@@ -12,6 +12,7 @@ import numpy.testing as npt
 
 from ... import ukidss
 from ...utils import commons
+from ...utils.testing_tools import MockResponse
 from ...exceptions import InvalidQueryError
 
 DATA_FILES = {"vo_results": "vo_results.html",
@@ -58,7 +59,7 @@ def patch_parse_coordinates(request):
     return mp
 
 
-def get_mockreturn(url, params=None, timeout=10):
+def get_mockreturn(url, params=None, timeout=10, **kwargs):
     if "Image" in url:
         filename = DATA_FILES["image_results"]
         url = "Image_URL"
@@ -71,14 +72,7 @@ def get_mockreturn(url, params=None, timeout=10):
     print(filename)
     print(url)
     content = open(data_path(filename), "r").read()
-    return MockResponse(content, url)
-
-
-class MockResponse(object):
-
-    def __init__(self, content, url):
-        self.content = content
-        self.url = url
+    return MockResponse(content=content, url=url, **kwargs)
 
 
 @pytest.mark.parametrize(('dim', 'expected'),

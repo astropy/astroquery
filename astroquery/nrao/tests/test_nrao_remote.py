@@ -4,6 +4,8 @@ from __future__ import print_function
 from astropy.tests.helper import remote_data
 from astropy.table import Table
 import astropy.coordinates as coord
+import requests
+reload(requests)
 
 from ... import nrao
 

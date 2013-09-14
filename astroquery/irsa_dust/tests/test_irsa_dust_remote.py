@@ -9,6 +9,8 @@ from astropy.tests.helper import pytest, remote_data
 from astropy.io import fits
 from astropy.table import Table
 from ... import irsa_dust
+import requests
+reload(requests)
 
 M31_XML = "dustm31.xml"
 M81_XML = "dustm81.xml"

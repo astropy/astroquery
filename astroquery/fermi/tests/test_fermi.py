@@ -1,6 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from __future__ import print_function
 from ... import fermi
+from ...utils.testing_tools import MockResponse
 from astropy.tests.helper import pytest
 import requests
 import os
@@ -16,25 +17,19 @@ def data_path(filename):
     data_dir = os.path.join(os.path.dirname(__file__), 'data')
     return os.path.join(data_dir, filename)
 
-class MockResponse(object):
-
-    def __init__(self, content):
-        self.content = content
-        self.text = content
-
 @pytest.fixture
 def patch_post(request):
     mp = request.getfuncargvalue("monkeypatch")
     mp.setattr(requests, 'post', post_mockreturn)
     return mp
 
-def post_mockreturn(url, data=None, timeout=50):
+def post_mockreturn(url, data=None, timeout=50, **kwargs):
     if data is not None:
         with open(data_path(DATA_FILES['async']),'r') as r:
-            response = MockResponse(r.read())
+            response = MockResponse(r.read(), **kwargs)
     else:
         with open(data_path(DATA_FILES['result']),'r') as r:
-            response = MockResponse(r.read())
+            response = MockResponse(r.read(), **kwargs)
     return response
 
 FK5_COORDINATES = coord.ICRSCoordinates(10.68471, 41.26875, unit=('deg','deg'))

@@ -7,6 +7,7 @@ from astropy.tests.helper import pytest
 from astropy.table import Table
 import astropy.units as u
 
+from ...utils.testing_tools import MockResponse
 from ... import nist
 
 DATA_FILES = {'lines': 'nist_out.html'}
@@ -24,16 +25,10 @@ def patch_get(request):
     return mp
 
 
-def get_mockreturn(url, params=None, timeout=10):
+def get_mockreturn(url, params=None, timeout=10, **kwargs):
     filename = data_path(DATA_FILES['lines'])
     content = open(filename, 'r').read()
-    return MockResponse(content)
-
-
-class MockResponse(object):
-
-    def __init__(self, content):
-        self.content = content
+    return MockResponse(content, **kwargs)
 
 
 def test_parse_wavelength():

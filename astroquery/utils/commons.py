@@ -14,6 +14,7 @@ from astropy.utils import OrderedDict
 import astropy.io.votable as votable
 
 from ..exceptions import TimeoutError
+from .. import version
 
 PY3 = sys.version_info[0] >= 3
 
@@ -27,7 +28,8 @@ __all__ = ['send_request',
            'validate_email']
 
 
-def send_request(url, data, timeout, request_type='POST', **kwargs):
+def send_request(url, data, timeout, request_type='POST', headers={},
+                 **kwargs):
     """
     A utility function that post HTTP requests to remote server
     and returns the HTTP response.
@@ -43,17 +45,24 @@ def send_request(url, data, timeout, request_type='POST', **kwargs):
     request_type : str
         options are 'POST' (default) and 'GET'. Determines whether to perform
         an HTTP POST or an HTTP GET request
+    headers : dict
+        POST or GET headers.  user-agent will be set to
+        astropy:astroquery.version
+
     Returns
     -------
     response : `requests.Response`
         Response object returned by the remote server
     """
+    headers['User-Agent'] = 'astropy:astroquery.{vers}'.format(vers=version.version)
     try:
         if request_type == 'GET':
-            response = requests.get(url, params=data, timeout=timeout, **kwargs)
+            response = requests.get(url, params=data, timeout=timeout,
+                                    headers=headers, **kwargs)
             return response
         elif request_type == 'POST':
-            response = requests.post(url, data=data, timeout=timeout, **kwargs)
+            response = requests.post(url, data=data, timeout=timeout,
+                                     headers=headers, **kwargs)
             return response
         else:
             raise ValueError("request_type must be either 'GET' or 'POST'.")

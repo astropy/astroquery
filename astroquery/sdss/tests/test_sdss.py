@@ -1,5 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from ... import sdss
+from ...utils.testing_tools import MockResponse
 from astropy import coordinates
 from astropy.tests.helper import pytest
 from contextlib import contextmanager
@@ -15,11 +16,6 @@ DATA_FILES = {'spectra_id': 'xid_sp.txt',
               'images_id': 'xid_im.txt',
               'spectra': 'emptyfile.fits',
               'images': 'emptyfile.fits'}
-
-class MockResponse(object):
-
-    def __init__(self, content):
-        self.content = content
 
 @pytest.fixture
 def patch_get(request):
@@ -37,13 +33,13 @@ def patch_get_readable_fileobj(request):
     mp.setattr(aud, 'get_readable_fileobj', get_readable_fileobj_mockreturn)
     return mp
 
-def get_mockreturn(url, params=None, timeout=10):
+def get_mockreturn(url, params=None, timeout=10, **kwargs):
     if 'SpecObjAll' in params['cmd']:
         filename = data_path(DATA_FILES['spectra_id'])
     else:
         filename = data_path(DATA_FILES['images_id'])
     content = open(filename, 'r').read()
-    return MockResponse(content)
+    return MockResponse(content, **kwargs)
 
 def data_path(filename):
     data_dir = os.path.join(os.path.dirname(__file__), 'data')

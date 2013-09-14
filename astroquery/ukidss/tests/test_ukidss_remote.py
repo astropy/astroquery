@@ -5,6 +5,8 @@ from astropy.tests.helper import remote_data
 from astropy.table import Table
 import astropy.coordinates as coord
 import astropy.units as u
+import requests
+reload(requests)
 
 from ... import ukidss
 

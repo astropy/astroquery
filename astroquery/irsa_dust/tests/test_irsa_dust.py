@@ -5,7 +5,6 @@ import xml.etree.ElementTree as tree
 import astropy.units as u
 import astropy.utils.data as aud
 from astropy.tests.helper import pytest  # import this since the user may not have pytest installed
-from astropy.io import fits
 
 from ... import irsa_dust
 from ...utils import commons
