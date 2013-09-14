@@ -10,6 +10,7 @@ from astropy.config import ConfigurationItem
 FERMI_URL = ConfigurationItem('fermi_url',
                               ['http://fermi.gsfc.nasa.gov/cgi-bin/ssc/LAT/LATDataQuery.cgi'],
                               "Fermi query URL")
+FERMI_TIMEOUT = ConfigurationItem('timeout', 60, 'time limit for connecting to FERMI server')
 
 from .core import FermiLAT, GetFermilatDatafile, get_fermilat_datafile
 

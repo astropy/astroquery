@@ -8,7 +8,7 @@ from ..utils.class_or_instance import class_or_instance
 from ..utils import commons, async_to_sync
 import astropy.units as u
 
-from . import FERMI_URL
+from . import FERMI_URL,FERMI_TIMEOUT
 
 __all__ = ['FermiLAT', 'GetFermilatDatafile','get_fermilat_datafile']
 
@@ -21,7 +21,7 @@ class FermiLAT(BaseQuery):
     request_url = 'http://fermi.gsfc.nasa.gov/cgi-bin/ssc/LAT/LATDataQuery.cgi'
     request_url = FERMI_URL()
     result_url_re = re.compile('The results of your query may be found at <a href="(http://fermi.gsfc.nasa.gov/.*?)"')
-    TIMEOUT = 30
+    TIMEOUT = FERMI_TIMEOUT()
 
     @class_or_instance
     def query_object_async(self, *args, **kwargs):
