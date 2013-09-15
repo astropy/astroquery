@@ -210,6 +210,8 @@ class TableList(list):
     """
     def __init__(self, inp):
         if not isinstance(inp, OrderedDict):
+            # py3 doesn't let you catch 2 types of errors.
+            errmsg = "Input to TableList must be an OrderedDict or list of (k,v) pairs"
             try:
                 inp = OrderedDict(inp)
             except (TypeError,ValueError):
