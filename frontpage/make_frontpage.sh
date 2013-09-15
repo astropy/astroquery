@@ -33,6 +33,7 @@ if [ -d ${CWD} ]
 then
     echo "directory ${CWD} exists."
     cd ${CWD}
+    cd ${CWD}
 else
     echo "directory ${CWD} does not exist."
 fi
