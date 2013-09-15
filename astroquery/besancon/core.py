@@ -81,7 +81,7 @@ class BesanconClass(BaseQuery):
     ping_delay = BESANCON_PING_DELAY()
     TIMEOUT = BESANCON_TIMEOUT()
     # sample file name:  1340900648.230224.resu
-    result_re = re.compile(b"[0-9]{10}\.[0-9]{6}\.resu")
+    result_re = re.compile("[0-9]{10}\.[0-9]{6}\.resu")
 
     def __init__(self, email=None):
         self.email = email
@@ -101,7 +101,11 @@ class BesanconClass(BaseQuery):
             present.  Default 5s, which is probably reasonable.
         """
 
-        url = os.path.join(self.url_download,filename.decode())
+        # py3 compatibility
+        if hasattr(filename,'decode'):
+            filename = filename.decode()
+
+        url = os.path.join(self.url_download,filename)
 
         elapsed_time = 0
         t0 = time.time()
@@ -149,10 +153,11 @@ class BesanconClass(BaseQuery):
         # keep the text stored for possible later use
         with aud.get_readable_fileobj(response.raw) as f:
             text = f.read()
+            # py3 compatibility:
+            if hasattr(text,'decode'):
+                text = text.decode()
         try:
             filename = self.result_re.search(text).group()
-            # py3 compatibility, INCOMPATIBLE with py2
-            # filename = self.result_re.search(text.decode()).group()
         except AttributeError:  # if there are no matches
             errors = parse_errors(text)
             raise ValueError("Errors: "+"\n".join(errors))
@@ -328,15 +333,16 @@ def parse_errors(text):
     """
     Attempt to extract the errors from a Besancon web page with error messages in it
     """
+    # py3 compatibility:
+    if hasattr(text,'decode'):
+        text = text.decode()
     try:
-        errors = re.compile(br"""<div\ class="?errorpar"?>\s*
+        errors = re.compile(r"""<div\ class="?errorpar"?>\s*
                         <ol>\s*
                         (<li>([a-zA-Z0-9):( \s_-]*)</li>\s*)*\s*
                         </ol>\s*
                         </div>""", re.X)
         text = errors.search(text).group()
-        # py3 compatibility, INCOMPATIBLE with py2
-        # text = errors.search(text.decode()).group()
     except AttributeError:
         raise ValueError("Regular expression matching to error message failed.")
     text_items = re.split("<li>|</li>|\n",errors.search(text).group())
@@ -352,10 +358,10 @@ def parse_besancon_model_string(bms,):
     """
 
     # py3 compatibility:
-    if hasattr(bms,'encode'):
-        bms = bms.encode()
+    if hasattr(bms,'decode'):
+        bms = bms.decode()
 
-    header_start = b"Dist    Mv  CL".split()
+    header_start = "Dist    Mv  CL".split()
 
     # locate index of data start
     lines = bms.split('\n')
@@ -402,7 +408,7 @@ def parse_besancon_model_string(bms,):
     # py3 compatibility:
     if hasattr(bms,'decode'):
         bms = bms.decode()
-        names = [n.decode() for n in names]
+        names = [n.decode() if hasattr(n,'decode') else n for n in names]
 
     besancon_table = ascii.read(bms, Reader=ascii.FixedWidthNoHeader,
                                 header_start=None,

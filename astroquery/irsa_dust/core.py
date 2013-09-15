@@ -6,6 +6,7 @@ from . import utils
 from . import IRSA_DUST_SERVER, IRSA_DUST_TIMEOUT
 from ..utils import commons
 from ..query import BaseQuery
+import io
 
 
 # TODO Add support for server url from JSON cache
@@ -586,10 +587,6 @@ class SingleDustResult(object):
                     'temperature', 'temp', 't'"""
             raise ValueError(msg)
 
-        # response = utils.image(image_url)
-
-        # S = io.BytesIO(response)
-        # image = fits.open(S)
         return image_url
 
     def __str__(self):

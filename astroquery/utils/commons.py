@@ -127,12 +127,27 @@ def radius_to_unit(radius, unit='degree'):
     """
     rad = parse_radius(radius)
     # This is a hack to deal with astropy pre/post PR#1006
-    if hasattr(rad,str(unit)):
-        return getattr(rad,str(unit))
-    elif hasattr(rad,str(unit)+'s'):
-        return getattr(rad,str(unit)+'s')
+    # the try/except clauses are to deal with python3
+    # (note that this falls under the "I really, really wish I didn't have to
+    # deal with unicode right now" category)
+
+    try:
+        unit = unit.decode()
+    except AttributeError:
+        pass # (unit has no attribute "decode": it is already a unicode string?)
+
+    try:
+        # don't check for attrs if unit is not a string and cannot be coerced to one
+        assert isinstance(unit,str)
+        if hasattr(rad,unit):
+            return getattr(rad,unit)
+        elif hasattr(rad,unit+'s'):
+            return getattr(rad,unit+'s')
+    except AssertionError:
+        pass # try the other if
+    
     # major hack to deal with <0.3 Angle's not having deg/arcmin/etc equivs.
-    elif hasattr(rad,'degree'):
+    if hasattr(rad,'degree'):
         return (rad.degree * u.degree).to(unit).value
     elif hasattr(rad,'to'):
         return rad.to(unit).value
