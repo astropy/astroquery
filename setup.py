@@ -70,8 +70,7 @@ scripts = [fname for fname in glob.glob(os.path.join('scripts', '*'))
 extensions = []
 
 # A dictionary to keep track of all package data to install
-package_data = {PACKAGENAME: ['data/*'],
-                'astroquery.splatalogue':['astroquery/splatalogue/data/*.json']}
+package_data = {PACKAGENAME: ['data/*']}
 
 # A dictionary to keep track of extra packagedir mappings
 package_dirs = {}
@@ -93,7 +92,6 @@ setup(name=PACKAGENAME,
       scripts=scripts,
       requires=['astropy'],
       install_requires=['astropy'],
-      data_files=[('astroquery.splatalogue',['astroquery/splatalogue/data/species.json'])],
       include_package_data=True,
       provides=[PACKAGENAME],
       license=LICENSE,

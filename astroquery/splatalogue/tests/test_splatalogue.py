@@ -41,3 +41,8 @@ def test_init(patch_post):
     assert len(x) == len(y)
     assert all(y['Species'] == x['Species'])
     assert all(x['Chemical Name']==y['Chemical Name'])
+
+def test_load_species_table():
+    tbl = splatalogue.load_species_table.species_lookuptable()
+    CO = tbl.find(' CO ')
+    assert len(CO) == 4
