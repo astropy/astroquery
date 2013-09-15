@@ -1,6 +1,7 @@
 CWD := $(shell pwd)
 
 all:
+	echo ${CWD}; \
 	cd ..; \
 	git checkout gh-pages; \
 	git checkout master -- README.rst; \
