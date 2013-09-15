@@ -1,4 +1,4 @@
-`Documentation`_ |  `View on Github`_ |  `Download ZIP`_  |  `Download TAR`_  
+`Documentation`_ |  `View on Github`_ |  `Download Development ZIP`_  |  `Download Development TAR`_  |  `Download Stable ZIP`_  |  `Download Stable TAR`_  
 
 
 ==================================
@@ -36,8 +36,15 @@ astroquery uses the `requests <http://docs.python-requests.org/en/latest/>`_
 module to communicate with the internet.  `requests`_ can also be installed with
 pip.
 
-As of July 2013, astroquery is in pre-release state, so to install, you need to
-clone it:
+The `first beta release`_ of astroquery can be downloaded or pip installed:
+
+.. code-block:: bash
+
+   $ pip install https://github.com/astropy/astroquery/archive/v0.1.tar.gz
+
+
+If you'd like the latest development version, you can install it with the
+following commands:
 
 .. code-block:: bash
 
@@ -86,8 +93,11 @@ List of Modules
   * `Lamda <http://astroquery.readthedocs.org/en/latest/lamda.html>`_
   * `Ogle <http://astroquery.readthedocs.org/en/latest/ogle.html>`_
 
-.. _Download ZIP: https://github.com/astropy/astroquery/zipball/master
-.. _Download TAR: https://github.com/astropy/astroquery/tarball/master
+.. _Download Development ZIP: https://github.com/astropy/astroquery/zipball/master
+.. _Download Development TAR: https://github.com/astropy/astroquery/tarball/master
+.. _Download Stable ZIP: https://github.com/astropy/astroquery/zipball/stable
+.. _Download Stable TAR: https://github.com/astropy/astroquery/tarball/stable
 .. _View on Github: https://github.com/astropy/astroquery/
 .. _docs: http://astroquery.readthedocs.org
 .. _Documentation: http://astroquery.readthedocs.org
+.. _first beta release: https://github.com/astropy/astroquery/tarball/v0.1
