@@ -1,4 +1,4 @@
-`Documentation`_ |  `View on Github`_ |  `Download Development ZIP`_  |  `Download Development TAR`_  |  `Download Stable ZIP`_  |  `Download Stable TAR`_  
+`Documentation`_ |  `View on Github`_ |  `Download Stable ZIP`_  |  `Download Stable TAR`_  
 
 
 ==================================
@@ -92,6 +92,11 @@ List of Modules
   * `SHA <http://astroquery.readthedocs.org/en/latest/sha.html>`_
   * `Lamda <http://astroquery.readthedocs.org/en/latest/lamda.html>`_
   * `Ogle <http://astroquery.readthedocs.org/en/latest/ogle.html>`_
+
+Additional Links
+----------------
+
+`Download Development ZIP`_  |  `Download Development TAR`_  
 
 .. _Download Development ZIP: https://github.com/astropy/astroquery/zipball/master
 .. _Download Development TAR: https://github.com/astropy/astroquery/tarball/master
