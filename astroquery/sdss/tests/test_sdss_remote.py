@@ -6,7 +6,8 @@ from astropy.table import Table
 from astropy.tests.helper import remote_data
 import pytest
 import requests
-reload(requests)
+import imp
+imp.reload(requests)
 
 
 @remote_data

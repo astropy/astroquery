@@ -6,7 +6,8 @@ import astropy.coordinates as coord
 from ... import vizier
 from ...utils import commons
 import requests
-reload(requests)
+import imp
+imp.reload(requests)
 
 
 @remote_data

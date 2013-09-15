@@ -10,7 +10,8 @@ is_python3 = (sys.version_info >= (3,))
 
 # double-check super-undo monkeypatching...
 import requests
-reload(requests)
+import imp
+imp.reload(requests)
 
 
 ICRS_COORDS = coord.ICRS("05h35m17.3s -05h23m28s")
