@@ -11,5 +11,28 @@ rm README.rst && \
 git reset && \
 git add index.html && \
 git commit -m "Index.html generated." && \
-git checkout master && \
-cd ${CWD}
+git checkout master
+
+git checkout master
+git checkout master
+git checkout master
+
+echo $PWD
+echo $CWD
+echo `git branch`
+
+if [ -d frontpage ]
+then
+    echo "directory frontpage exists."
+    cd frontpage
+else
+    echo "directory frontpage does not exist"
+fi 
+
+if [ -d ${CWD} ]
+then
+    echo "directory ${CWD} exists."
+    cd ${CWD}
+else
+    echo "directory ${CWD} does not exist."
+fi
