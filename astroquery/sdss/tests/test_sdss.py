@@ -66,7 +66,7 @@ def get_mockreturn(url, params=None, timeout=10, **kwargs):
         filename = data_path(DATA_FILES['spectra_id'])
     else:
         filename = data_path(DATA_FILES['images_id'])
-    content = open(filename, 'r').read()
+    content = open(filename, 'rb').read()
     return MockResponse(content, **kwargs)
 
 
