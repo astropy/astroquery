@@ -144,7 +144,7 @@ class OgleClass(BaseQuery):
         # Parse table, ignore last two (blank) lines
         raw_data = response.text.split('\n')[:-2]
         # Select first row and skip first character ('#') to find column headers
-        header = raw_data[0][1:].encode('ascii').split()
+        header = raw_data[0][1:].split()
         data = self._parse_raw(raw_data)
         t = Table(data, names=header, dtypes=self.result_dtypes)
         return t
@@ -212,7 +212,7 @@ class OgleClass(BaseQuery):
             List of lists for each column as strings
         """
         # Requests returns unicode encoding, return to ascii
-        data = [line.encode('ascii').split() for line in raw_data[1:]]
+        data = [line.split() for line in raw_data[1:]]
         # Transpose while keeping as list of lists
         data = map(list, zip(*data))
         return data
