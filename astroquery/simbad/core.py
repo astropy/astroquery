@@ -195,7 +195,7 @@ class Simbad(BaseQuery):
         Simbad.VOTABLE_FIELDS = ['main_id', 'coordinates']
 
     @class_or_instance
-    def query_criteria(self, verbose=False, **kwargs):
+    def query_criteria(self, verbose=False, *args, **kwargs):
         """
 
         Parameters
@@ -206,11 +206,11 @@ class Simbad(BaseQuery):
         `astropy.table.Table`
             The results of the query as an `astropy.table.Table`.
         """
-        result = self.query_criteria_async(**kwargs)
+        result = self.query_criteria_async(*args,**kwargs)
         return self._parse_result(result, verbose=verbose)
 
     @class_or_instance
-    def query_criteria_async(self, **kwargs):
+    def query_criteria_async(self, *args, **kwargs):
         """
 
         Parameters
@@ -221,7 +221,7 @@ class Simbad(BaseQuery):
         response : `requests.response`
             the response of the query from the server
         """
-        request_payload = self._args_to_payload(caller='query_criteria_async', **kwargs)
+        request_payload = self._args_to_payload(caller='query_criteria_async', *args, **kwargs)
         response = commons.send_request(Simbad.SIMBAD_URL, request_payload,
                                 Simbad.TIMEOUT)
         return response
