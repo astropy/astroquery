@@ -1,7 +1,7 @@
 Contributing to Astroquery
 ==========================
-The first official release of astroquery is scheduled for late summer
-(August/September) 2013.  There are therefore two sets of contribution
+The first official release of astroquery is scheduled for September 2013.
+There are therefore two sets of contribution
 guidelines below.
 
 Please see `astropy's contributing guildelines
