@@ -81,6 +81,7 @@ class Simbad(BaseQuery):
         'query_object_async': 'query id',
         'query_region_async': 'query coo',
         'query_catalog_async': 'query cat',
+        'query_criteria_async': 'query sample',
         'query_bibcode_async': 'query bibcode',
         'query_bibobj_async': 'query bibobj'
     }
@@ -192,6 +193,38 @@ class Simbad(BaseQuery):
         resets VOTABLE_FIELDS to defaults
         """
         Simbad.VOTABLE_FIELDS = ['main_id', 'coordinates']
+
+    @class_or_instance
+    def query_criteria(self, verbose=False, **kwargs):
+        """
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+        `astropy.table.Table`
+            The results of the query as an `astropy.table.Table`.
+        """
+        result = self.query_criteria_async(**kwargs)
+        return self._parse_result(result, verbose=verbose)
+
+    @class_or_instance
+    def query_criteria_async(self, **kwargs):
+        """
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+        response : `requests.response`
+            the response of the query from the server
+        """
+        request_payload = self._args_to_payload(caller='query_criteria_async', **kwargs)
+        response = commons.send_request(Simbad.SIMBAD_URL, request_payload,
+                                Simbad.TIMEOUT)
+        return response
 
     @class_or_instance
     def query_object(self, object_name, wildcard=False, verbose=False):
@@ -457,13 +490,13 @@ class Simbad(BaseQuery):
         if get_raw:
             del kwargs['get_raw']
         command = self._function_to_command[caller]
-        votable_fields = ','.join(Simbad.VOTABLE_FIELDS)
+        votable_fields = ','.join(self.VOTABLE_FIELDS)
         # if get_raw is set then don't fetch as votable
         votable_def = ("votable {" + votable_fields + "}", "")[get_raw]
         votable_open = ("votable open", "")[get_raw]
         votable_close = ("votable close", "")[get_raw]
-        if Simbad.ROW_LIMIT > 0:
-            script = "set limit " + str(Simbad.ROW_LIMIT)
+        if self.ROW_LIMIT > 0:
+            script = "set limit " + str(self.ROW_LIMIT)
         script = "\n".join([script, votable_def, votable_open, command])
         if kwargs.get('wildcard'):
             script += " wildcard"  # necessary to have a space at the beginning
@@ -491,6 +524,9 @@ class Simbad(BaseQuery):
         # join in the order specified otherwise results in error
         all_keys = ['radius', 'frame', 'equi', 'epoch']
         present_keys =[key for key in all_keys if key in kwargs]
+        if caller == 'query_criteria_async':
+            for k in kwargs:
+                present_keys.append(k)
         kwargs_str = ' '.join("{key}={value}".format(key=key, value=kwargs[key]) for
                               key in present_keys)
         script += ' '.join([" ", args_str, kwargs_str, "\n"])

@@ -82,6 +82,8 @@ All query tools allow coordinate-based queries:
     TYC 9390-799-1 05 33 58.2222 -80 50 18.575 ...        B                1998A&A...335L..65H
 
 
+For additional guidance and examples, read the documentation for the individual services below.
+
 Table of Contents
 -----------------
 
