@@ -74,6 +74,6 @@ class TestSimbad(object):
         result = simbad.core.Simbad.query_object("m [0-9]", wildcard=True)
         assert isinstance(result, Table)
 
-    def test_query_criteria(self)
+    def test_query_criteria(self):
         result = simbad.core.Simbad.query_criteria("region(box, GAL, 49.89 -0.3, 0.5d 0.5d)", otype='HII')
         assert isinstance(result, Table)
