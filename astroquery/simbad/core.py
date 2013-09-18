@@ -169,16 +169,24 @@ class Simbad(BaseQuery):
         list of field_names
         """
         dict_file = get_pkg_data_filename(os.path.join('data', 'votable_fields_dict.json'))
+    
+        def strip_field(f):
+            if '(' in f:
+                return f[:f.find('(')]
+            else:
+                return f
+            
         with open(dict_file, "r") as f:
             fields_dict = json.load(f)
             for field in fields_dict:
                 if '(' in field:
-                    fields_dict[field[:field.find('(')]] = fields_dict.pop(field)
+                    fields_dict[strip_field(field)] = fields_dict.pop(field)
         for field in args:
-            if field not in fields_dict:
-                warnings.warn("{field}: no such field".format(field=field))
-            elif field in Simbad._VOTABLE_FIELDS:
-                warnings.warn("{field}: field already present".format(field=field))
+            sf = strip_field(field)
+            if sf not in fields_dict:
+                raise KeyError("{field}: no such field".format(field=field))
+            elif sf in [strip_field(f) for f in Simbad._VOTABLE_FIELDS]:
+                raise KeyError("{field}: field already present".format(field=field))
             else:
                 self._VOTABLE_FIELDS.append(field)
 
