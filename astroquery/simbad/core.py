@@ -528,7 +528,8 @@ class Simbad(BaseQuery):
             for k in kwargs:
                 present_keys.append(k)
             # need ampersands to join args
-            args_str = '&'.join([str(val) for val in args]) + " & "
+            args_str = '&'.join([str(val) for val in args]) 
+            args_str += " & " if len(args) > 0 else ""
         else:
             args_str = ' '.join([str(val) for val in args])
         kwargs_str = ' '.join("{key}={value}".format(key=key, value=kwargs[key]) for
@@ -550,7 +551,8 @@ class Simbad(BaseQuery):
             self.table_parse_error = ex
             raise TableParseError("Failed to parse SIMBAD result! The raw response can be found "
                                   "in self.response, and the error in self.table_parse_error."
-                                  "  The attempted parsed result is in self.parsed_result.")
+                                  "  The attempted parsed result is in self.parsed_result.\n"
+                                  "Exception: " + str(self.table_parse_error))
 
 
 def _parse_coordinates(coordinates):

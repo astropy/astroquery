@@ -23,6 +23,14 @@ class TestSimbad(object):
     def setup_class(cls):
         simbad.core.Simbad.ROW_LIMIT = 5
 
+    def test_query_criteria1(self):
+        result = simbad.core.Simbad.query_criteria("region(box, GAL, 49.89 -0.3, 0.5d 0.5d)", otype='HII')
+        assert isinstance(result, Table)
+
+    def test_query_criteria2(self):
+        result = simbad.core.Simbad.query_criteria(otype='SNR')
+        assert isinstance(result, Table)
+
     def test_query_bibcode_async(self):
         response = simbad.core.Simbad.query_bibcode_async('2006ApJ*', wildcard=True)
         assert response is not None
@@ -72,8 +80,4 @@ class TestSimbad(object):
 
     def test_query_object(self):
         result = simbad.core.Simbad.query_object("m [0-9]", wildcard=True)
-        assert isinstance(result, Table)
-
-    def test_query_criteria(self):
-        result = simbad.core.Simbad.query_criteria("region(box, GAL, 49.89 -0.3, 0.5d 0.5d)", otype='HII')
         assert isinstance(result, Table)

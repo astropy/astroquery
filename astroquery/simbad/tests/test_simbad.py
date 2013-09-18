@@ -118,7 +118,8 @@ def test_parse_result():
     assert ex.value.message == ('Failed to parse SIMBAD result! '
                                 'The raw response can be found in self.response, '
                                 'and the error in self.table_parse_error.  '
-                                'The attempted parsed result is in self.parsed_result.')
+                                'The attempted parsed result is in self.parsed_result.'
+                                '\nException: 7:115: no element found')
     assert isinstance(simbad.core.Simbad.response.content, basestring)
 
 votable_fields = ",".join(simbad.core.Simbad.VOTABLE_FIELDS)
@@ -291,3 +292,10 @@ def test_votable_fields():
     simbad.core.Simbad.reset_votable_fields()
     assert set(simbad.core.Simbad.VOTABLE_FIELDS) == set(['main_id', 'coordinates'])
 
+def test_query_criteria1(patch_post):
+    result = simbad.core.Simbad.query_criteria("region(box, GAL, 49.89 -0.3, 0.5d 0.5d)", otype='HII')
+    assert isinstance(result, Table)
+
+def test_query_criteria2(patch_post):
+    result = simbad.core.Simbad.query_criteria(otype='SNR')
+    assert isinstance(result, Table)

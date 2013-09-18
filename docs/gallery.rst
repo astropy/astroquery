@@ -3,7 +3,10 @@ A Gallery of Queries
 
 A series of queries folks have performed for research or for kicks.  
 
+Example 1:
+
 .. code-block:: python
+
     >>> from astroquery.vizier import Vizier
     >>> # Vizier accepts keywords indicating wavelength & object type
     >>> # You can create a Vizier query object that respects these kws
@@ -22,7 +25,10 @@ A series of queries folks have performed for research or for kicks.
     584-0030          23 54 05 -01 32.3 16.6        17.7              k  0.199  193 23 56 39 -01 15.4
     
 
+Example 2:
+
 .. code-block:: python
+
     >>> from astroquery.simbad import Simbad
     >>> S = Simbad()
     >>> # You can add new output fields to queries
@@ -37,7 +43,10 @@ A series of queries folks have performed for research or for kicks.
       M  31 00 42 44.330 +41 16 07.50       7        7          nan          nan             0        B              I 2006AJ....131.1163S              3758
     
 
+Example 3:
+
 .. code-block:: python
+
     >>> from astroquery import simbad
     >>> S = simbad.Simbad()
     >>> # We've seen errors where ra_prec was NAN, but it's an int: that's a problem
