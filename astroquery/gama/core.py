@@ -3,6 +3,7 @@ import re
 import os
 import astropy.utils.data as aud
 from astropy.io import fits
+from astropy.table import Table
 from ..query import BaseQuery
 from ..utils.class_or_instance import class_or_instance
 from ..utils import commons, async_to_sync
@@ -76,6 +77,7 @@ class GAMA(BaseQuery):
 def get_gama_datafile(result):
     """Turn a URL into an HDUList object."""
     with aud.get_readable_fileobj(result) as f:
-        return fits.HDUList.fromstring(f.read())
+        hdulist = fits.HDUList.fromstring(f.read())
+    return Table(hdulist[1].data)
 
 

@@ -1,4 +1,4 @@
-from astropy.io import fits
+from astropy.table import Table
 from ... import gama
 from astropy.tests.helper import remote_data
 
@@ -15,5 +15,5 @@ def test_GAMA_query_sql_async():
 def test_GAMA_query_sql():
     """Tests that a valid HDUList object is returned."""
     result = gama.core.GAMA.query_sql(SQL_QUERY)
-    assert isinstance(result, fits.HDUList)
+    assert isinstance(result, Table)
 
