@@ -20,6 +20,7 @@ There are two other packages with complimentary functionality as Astroquery:
 They are more oriented to general `virtual observatory <http://www.virtualobservatory.org>`_
 discovery and queries, whereas Astroquery has web service specific interfaces.
 
+Check out the :doc:`gallery` for some nice examples.
 
 Installation
 ------------
@@ -121,4 +122,3 @@ These others are functional, but do not follow a common & consistent API:
   sha.rst
   lamda.rst
   ogle.rst
-  
