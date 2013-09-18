@@ -109,6 +109,7 @@ The following modules have been completed using a common API:
   besancon.rst
   nist.rst
   nvas.rst
+  gama.rst
 
 These others are functional, but do not follow a common & consistent API:
 
