@@ -10,7 +10,7 @@ from collections import namedtuple
 import tempfile
 import warnings
 from ..query import BaseQuery
-from ..utils.class_or_instance import class_or_instance
+from ..utils.class_or_instance import class_or_instance,property_class_or_instance
 from ..utils import commons
 import astropy.units as u
 from astropy.utils.data import get_pkg_data_filename
@@ -86,12 +86,22 @@ class Simbad(BaseQuery):
         'query_bibobj_async': 'query bibobj'
     }
 
-   # also find a way to fetch the votable fields table from <http://simbad.u-strasbg.fr/simbad/sim-help?Page=sim-fscript#VotableFields>
-   # tried something for this in this ipython nb
-   # <http://nbviewer.ipython.org/5851110>
-    VOTABLE_FIELDS = ['main_id', 'coordinates']
-
     ROW_LIMIT = ROW_LIMIT()
+
+    # also find a way to fetch the votable fields table from <http://simbad.u-strasbg.fr/simbad/sim-help?Page=sim-fscript#VotableFields>
+    # tried something for this in this ipython nb
+    # <http://nbviewer.ipython.org/5851110>
+    _VOTABLE_FIELDS = ['main_id', 'coordinates']
+
+    @property_class_or_instance
+    def VOTABLE_FIELDS(self):
+        return self._VOTABLE_FIELDS
+
+    @VOTABLE_FIELDS.setter
+    def VOTABLE_FIELDS(self, *args):
+        raise ValueError("VOTABLE_FIELDS are not directly modifiable; instead use add_votable_fields "
+                         "and rm_votable_fields.  See list_votable_fields() for valid fields.  "
+                         "reset_votable_fields can always be used to reset to the defaults.")
 
     @class_or_instance
     def list_wildcards(self):
@@ -149,7 +159,7 @@ class Simbad(BaseQuery):
             raise Exception("No such field_name")
 
     @class_or_instance
-    def set_votable_fields(self, *args):
+    def add_votable_fields(self, *args):
         """
         Sets fields to be fetched in the VOTable. Must be one of those listed
         by `astroquery.simbad.Simbad.list_votable_fields`.
@@ -161,13 +171,16 @@ class Simbad(BaseQuery):
         dict_file = get_pkg_data_filename(os.path.join('data', 'votable_fields_dict.json'))
         with open(dict_file, "r") as f:
             fields_dict = json.load(f)
+            for field in fields_dict:
+                if '(' in field:
+                    fields_dict[field[:field.find('(')]] = fields_dict.pop(field)
         for field in args:
             if field not in fields_dict:
                 warnings.warn("{field}: no such field".format(field=field))
-            elif field in Simbad.VOTABLE_FIELDS:
+            elif field in Simbad._VOTABLE_FIELDS:
                 warnings.warn("{field}: field already present".format(field=field))
             else:
-                Simbad.VOTABLE_FIELDS.append(field)
+                self._VOTABLE_FIELDS.append(field)
 
     @class_or_instance
     def rm_votable_fields(self, *args):
@@ -178,13 +191,13 @@ class Simbad(BaseQuery):
         ----------
         list of field_names to be removed
         """
-        absent_fields = set(args) - set(Simbad.VOTABLE_FIELDS)
+        absent_fields = set(args) - set(self._VOTABLE_FIELDS)
         for field in absent_fields:
             warnings.warn("{field}: this field is not set".format(field=field))
-        Simbad.VOTABLE_FIELDS = list(set(Simbad.VOTABLE_FIELDS) - set(args))
+        self._VOTABLE_FIELDS = list(set(self._VOTABLE_FIELDS) - set(args))
 
         # check if all fields are removed
-        if not Simbad.VOTABLE_FIELDS:
+        if not self._VOTABLE_FIELDS:
             self.reset_votable_fields()
 
     @class_or_instance
@@ -192,7 +205,7 @@ class Simbad(BaseQuery):
         """
         resets VOTABLE_FIELDS to defaults
         """
-        Simbad.VOTABLE_FIELDS = ['main_id', 'coordinates']
+        self._VOTABLE_FIELDS = ['main_id', 'coordinates']
 
     @class_or_instance
     def query_criteria(self, *args, **kwargs):

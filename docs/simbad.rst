@@ -434,7 +434,7 @@ To set additional fields to be returned in the VOTable:
 
      # To set other fields 
 
-     >>> Simbad.set_votable_fields('mk', 'rot', 'bibcodelist(1800-2014)')
+     >>> Simbad.add_votable_fields('mk', 'rot', 'bibcodelist(1800-2014)')
      >>> Simbad.VOTABLE_FIELDS
 
      ['main_id', 'coordinates', 'mk', 'rot', 'bibcodelist(1800-2014')]

@@ -303,3 +303,13 @@ def test_query_criteria2(patch_post):
     S.VOTABLE_FIELDS = ['main_id','ra(d)','dec(d)']
     result = S.query_criteria(otype='SNR')
     assert isinstance(result, Table)
+
+@pytest.xfail
+def test_property():
+    simbad.core.Simbad.VOTABLE_FIELDS == ['main_id','coordinates']
+    try:
+        simbad.core.Simbad.VOTABLE_FIELDS += ['something']
+        raise SuccessError
+    except ValueError: # maybe?  Can't get it to crash, so don't know what it will crash with...
+        pass # this is what we want
+    raise NotImplementedError
