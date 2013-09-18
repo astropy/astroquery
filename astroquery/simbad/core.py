@@ -195,7 +195,7 @@ class Simbad(BaseQuery):
         Simbad.VOTABLE_FIELDS = ['main_id', 'coordinates']
 
     @class_or_instance
-    def query_criteria(self, verbose=False, *args, **kwargs):
+    def query_criteria(self, *args, **kwargs):
         """
 
         Parameters
@@ -206,6 +206,7 @@ class Simbad(BaseQuery):
         `astropy.table.Table`
             The results of the query as an `astropy.table.Table`.
         """
+        verbose = kwargs.pop('verbose') if 'verbose' in kwargs else False
         result = self.query_criteria_async(*args,**kwargs)
         return self._parse_result(result, verbose=verbose)
 
@@ -511,7 +512,6 @@ class Simbad(BaseQuery):
             kwargs['frame'] = frame
             if kwargs.get('radius'):
                 kwargs['radius'] = _parse_radius(kwargs['radius'])
-        args_str = ' '.join([str(val) for val in args])
         # rename equinox to equi as required by SIMBAD script
         if kwargs.get('equinox'):
             kwargs['equi'] = kwargs['equinox']
@@ -527,6 +527,10 @@ class Simbad(BaseQuery):
         if caller == 'query_criteria_async':
             for k in kwargs:
                 present_keys.append(k)
+            # need ampersands to join args
+            args_str = '&'.join([str(val) for val in args]) + " & "
+        else:
+            args_str = ' '.join([str(val) for val in args])
         kwargs_str = ' '.join("{key}={value}".format(key=key, value=kwargs[key]) for
                               key in present_keys)
         script += ' '.join([" ", args_str, kwargs_str, "\n"])
