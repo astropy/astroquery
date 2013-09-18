@@ -197,9 +197,16 @@ class Simbad(BaseQuery):
     @class_or_instance
     def query_criteria(self, *args, **kwargs):
         """
+        Query SIMBAD based on any criteria.  
 
         Parameters
         ----------
+        args: 
+            String arguments passed directly to SIMBAD's script
+            (e.g., 'region(box, GAL, 10.5 -10.5, 0.5d 0.5d)')
+        kwargs:
+            Keyword / value pairs passed to SIMBAD's script engine
+            (e.g., {'otype':'SNR'} will be rendered as otype=SNR)
 
         Returns
         -------
@@ -213,9 +220,16 @@ class Simbad(BaseQuery):
     @class_or_instance
     def query_criteria_async(self, *args, **kwargs):
         """
+        Query SIMBAD based on any criteria.  
 
         Parameters
         ----------
+        args: 
+            String arguments passed directly to SIMBAD's script
+            (e.g., 'region(box, GAL, 10.5 -10.5, 0.5d 0.5d)')
+        kwargs:
+            Keyword / value pairs passed to SIMBAD's script engine
+            (e.g., {'otype':'SNR'} will be rendered as otype=SNR)
 
         Returns
         -------

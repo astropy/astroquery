@@ -323,6 +323,38 @@ article specified by the bibcode:
     NGC  5713 14 40 11.528 -00 17 21.16       7        7          nan          nan             0        B              I 2006AJ....131.1163S
 
 
+**Query based on any criteria** 
+
+Anything done in SIMBAD's `criteria interface`_ can be done via astroquery.
+See that link for details of how these queries are formed.
+
+.. code-block:: python
+
+   >>> from astroquery.simbad import Simbad
+   >>> result = Simbad.query_criteria('region(box, GAL, 0 +0, 3d 1d)', otype='SNR')
+   >>> print result
+          MAIN_ID             RA         DEC     RA_PREC DEC_PREC COO_ERR_MAJA COO_ERR_MINA COO_ERR_ANGLE COO_QUAL COO_WAVELENGTH     COO_BIBCODE
+   --------------------- ----------- ----------- ------- -------- ------------ ------------ ------------- -------- -------------- -------------------
+     EQ J174702.6-282733  17 47 02.6   -28 27 33       5        5          nan          nan             0        D                2002ApJ...565.1017S
+   [L92] 174535.0-280410  17 48 44.4   -28 05 06       5        5     3000.000     3000.000             0        D
+              [GWC93] 19  17 42 04.9   -30 04 04       5        5     3000.000     3000.000             1        D
+         SNR G359.1-00.2    17 43 29    -29 45.9       4        4          nan          nan             0        E                2000AJ....119..207L
+         SNR G000.1-00.2  17 48 42.5   -28 09 11       5        5          nan          nan             0        D                2008ApJS..177..255L
+         SNR G359.9-00.9     17 45.8      -29 03       3        3          nan          nan             0
+         SNR G359.4-00.1    17 44 37    -29 27.2       4        4    18000.000    18000.000             1        E
+              NAME SGR D    17 48 42    -28 01.4       4        4    18000.000    18000.000             0        E
+         SNR G359.1-00.5    17 45 25    -29 57.9       4        4    18000.000    18000.000             1        E
+          NAME SGR D SNR     17 48.7      -28 07       3        3          nan          nan             0        E
+       Suzaku J1747-2824    17 47 00    -28 24.5       4        4          nan          nan             0        E                2007ApJ...666..934C
+         SNR G000.4+00.2 17 46 27.65 -28 36 05.6       6        6      300.000      300.000             1        D
+         SNR G001.4-00.1  17 49 28.1   -27 47 45       5        5          nan          nan             0        D                1999ApJ...527..172Y
+        GAL 000.61+00.01     17 47.0      -28 25       3        3          nan          nan             0        D
+         SNR G000.9+00.1     17 47.3      -28 09       3        3          nan          nan             0        E              R 2009BASI...37...45G
+         SNR G000.3+00.0  17 46 14.9   -28 37 15       5        5     3000.000     3000.000             1        D
+         SNR G001.0-00.1     17 48.5      -28 09       3        3          nan          nan             0        E              R 2009BASI...37...45G
+         NAME SGR A EAST    17 45 47    -29 00.2       4        4    18000.000    18000.000             1        E
+   
+
 Customizing the default settings
 ================================
 
@@ -436,3 +468,5 @@ Reference/API
 .. _astropy.coordinates.Angle: http://docs.astropy.org/en/latest/_generated/astropy.coordinates.angles.Angle.html#astropy.coordinates.angles.Angle 
 .. _astropy.units: http://docs.astropy.org/en/latest/units/index.html 
 .. _astropy.coordinates: http://docs.astropy.org/en/latest/coordinates/index.html
+
+.. _criteria interface: http://simbad.u-strasbg.fr/simbad/sim-fsam
