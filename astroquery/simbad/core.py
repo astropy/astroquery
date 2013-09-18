@@ -59,6 +59,13 @@ def validate_equinox(func):
         return func(*args, **kwargs)
     return wrapper
 
+    
+def strip_field(f):
+    """Helper tool: remove parameters from VOTABLE fields"""
+    if '(' in f:
+        return f[:f.find('(')]
+    else:
+        return f
 
 class Simbad(BaseQuery):
     """
@@ -92,16 +99,6 @@ class Simbad(BaseQuery):
     # tried something for this in this ipython nb
     # <http://nbviewer.ipython.org/5851110>
     _VOTABLE_FIELDS = ['main_id', 'coordinates']
-
-    @property_class_or_instance
-    def VOTABLE_FIELDS(self):
-        return self._VOTABLE_FIELDS
-
-    @VOTABLE_FIELDS.setter
-    def VOTABLE_FIELDS(self, *args):
-        raise ValueError("VOTABLE_FIELDS are not directly modifiable; instead use add_votable_fields "
-                         "and rm_votable_fields.  See list_votable_fields() for valid fields.  "
-                         "reset_votable_fields can always be used to reset to the defaults.")
 
     @class_or_instance
     def list_wildcards(self):
@@ -159,6 +156,13 @@ class Simbad(BaseQuery):
             raise Exception("No such field_name")
 
     @class_or_instance
+    def get_votable_fields(self):
+        """
+        Display votable fields
+        """
+        return self._VOTABLE_FIELDS
+
+    @class_or_instance
     def add_votable_fields(self, *args):
         """
         Sets fields to be fetched in the VOTable. Must be one of those listed
@@ -169,18 +173,13 @@ class Simbad(BaseQuery):
         list of field_names
         """
         dict_file = get_pkg_data_filename(os.path.join('data', 'votable_fields_dict.json'))
-    
-        def strip_field(f):
-            if '(' in f:
-                return f[:f.find('(')]
-            else:
-                return f
             
         with open(dict_file, "r") as f:
             fields_dict = json.load(f)
-            for field in fields_dict:
-                if '(' in field:
-                    fields_dict[strip_field(field)] = fields_dict.pop(field)
+            fields_dict = dict(
+                               ((strip_field(f) if '(' in f else f, fields_dict[f])
+                                for f in fields_dict)
+                               )
         for field in args:
             sf = strip_field(field)
             if sf not in fields_dict:
@@ -191,21 +190,34 @@ class Simbad(BaseQuery):
                 self._VOTABLE_FIELDS.append(field)
 
     @class_or_instance
-    def rm_votable_fields(self, *args):
+    def remove_votable_fields(self, *args, **kwargs):
         """
         Removes the specified field names from `astroquery.simbad.Simbad.VOTABLE_FIELDS`
 
         Parameters
         ----------
         list of field_names to be removed
+        strip_params: bool
+            If true, strip the specified keywords before removing them:
+            e.g., ra(foo) would remove ra(bar) if this is True
         """
+        strip_params = kwargs.pop('strip_params', False)
         absent_fields = set(args) - set(self._VOTABLE_FIELDS)
-        for field in absent_fields:
-            warnings.warn("{field}: this field is not set".format(field=field))
         self._VOTABLE_FIELDS = list(set(self._VOTABLE_FIELDS) - set(args))
+
+        if strip_params:
+            sargs = [strip_field(a) for a in args]
+            sfields = [strip_field(a) for a in self._VOTABLE_FIELDS]
+            for b,f in zip(sfields, self._VOTABLE_FIELDS):
+                if b in sargs:
+                    self._VOTABLE_FIELDS.remove(f)
+        else:
+            for field in absent_fields:
+                warnings.warn("{field}: this field is not set".format(field=field))
 
         # check if all fields are removed
         if not self._VOTABLE_FIELDS:
+            warnings.warn("All fields have been removed. Resetting to defaults.")
             self.reset_votable_fields()
 
     @class_or_instance
