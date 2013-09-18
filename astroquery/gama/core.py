@@ -1,5 +1,8 @@
 """Download GAMA data"""
 import re
+import os
+import astropy.utils.data as aud
+from astropy.io import fits
 from ..query import BaseQuery
 from ..utils.class_or_instance import class_or_instance
 from ..utils import commons, async_to_sync
@@ -40,7 +43,7 @@ class GAMA(BaseQuery):
         if len(re_result) == 0:
             raise ValueError("Results did not contain a result url")
         else:
-            result_url = re_result[0]
+            result_url = os.path.join(self.request_url, re_result[0])
 
         return result_url
 
@@ -61,5 +64,18 @@ class GAMA(BaseQuery):
                    'format': 'fits'}
 
         return payload
-        
+
+    @class_or_instance
+    def _parse_result(self, result, verbose=False, **kwargs):
+        """
+        Use get_gama_datafile to download a result URL
+        """
+        return get_gama_datafile(result)
+
+
+def get_gama_datafile(result):
+    """Turn a URL into an HDUList object."""
+    with aud.get_readable_fileobj(result) as f:
+        return fits.HDUList.fromstring(f.read())
+
 
