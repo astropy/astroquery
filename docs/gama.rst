@@ -9,12 +9,12 @@ Getting started
 
 This module can be used to query the GAMA (Galaxy And Mass Assembly) survey,
 second data release (DR2). Currently queries must be formulated in SQL. If
-successful, the results are returned as an `astropy.fits.HDUList`_.
+successful, the results are returned as an `astropy.io.fits.HDUList`_.
 
 **SQL Queries**
 
 This sends an SQL query, passed as a string, to the GAMA server and returns
-an `astropy.fits.HDUList`_. For example, to return basic information on the
+an `astropy.io.fits.HDUList`_. For example, to return basic information on the
 first 100 spectroscopic objects in the database:
 
 .. code-block:: python
