@@ -4,11 +4,12 @@ import os
 
 def get_package_data():
     paths_test = [os.path.join('data', 'query_bibcode.data'),
-             os.path.join('data', 'query_bibobj.data'),
-             os.path.join('data', 'query_cat.data'),
-             os.path.join('data', 'query_coo.data'),
-             os.path.join('data', 'query_id.data'),
-             os.path.join('data', 'query_error.data')
+                  os.path.join('data', 'query_bibobj.data'),
+                  os.path.join('data', 'query_cat.data'),
+                  os.path.join('data', 'query_coo.data'),
+                  os.path.join('data', 'query_id.data'),
+                  os.path.join('data', 'query_error.data'),
+                  os.path.join('data', 'query_*.data'),
                   ]
 
     paths_core = [os.path.join('data', 'votable_fields_notes.json'),

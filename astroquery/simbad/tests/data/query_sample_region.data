@@ -1,0 +1,75 @@
+::script::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+votable {main_id,coordinates}
+votable open
+query sample  region(box, GAL, 49.89 -0.3, 0.5d 0.5d) &  otype=HII
+votable close
+
+::console:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+C.D.S.  -  SIMBAD4 rel 1.209  -  2013.09.18CEST08:03:57
+total execution time: 0.178 secs
+simbatch done
+
+::data::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+<?xml version="1.0" encoding="UTF-8"?>
+<VOTABLE xmlns="http://www.ivoa.net/xml/VOTable/v1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.ivoa.net/xml/VOTable/v1.2" version="1.2">
+<DEFINITIONS>
+<COOSYS ID="COOSYS" equinox="2000" epoch="J2000" system="ICRS"/>
+</DEFINITIONS>
+<RESOURCE name="Simbad query" type="results">
+<TABLE ID="SimbadScript" name="default"><DESCRIPTION>Simbad script executed on 2013.09.18CEST08:03:57</DESCRIPTION>
+<FIELD ID="MAIN_ID" name="MAIN_ID" datatype="char" width="22" ucd="meta.id;meta.main" arraysize="*">
+<DESCRIPTION>Main identifier for an object</DESCRIPTION>
+<LINK value="${MAIN_ID}" href="http://simbad.u-strasbg.fr/simbad/sim-id?Ident=${MAIN_ID}&amp;NbIdent=1"/>
+</FIELD>
+<FIELD ID="RA" name="RA" datatype="char" precision="8" width="13" ucd="pos.eq.ra;meta.main" arraysize="13" unit="&quot;h:m:s&quot;">
+<DESCRIPTION>Right ascension</DESCRIPTION>
+</FIELD>
+<FIELD ID="DEC" name="DEC" datatype="char" precision="8" width="13" ucd="pos.eq.dec;meta.main" arraysize="13" unit="&quot;d:m:s&quot;">
+<DESCRIPTION>Declination</DESCRIPTION>
+</FIELD>
+<FIELD ID="RA_PREC" name="RA_PREC" datatype="short" width="2">
+<DESCRIPTION>Right ascension precision</DESCRIPTION>
+</FIELD>
+<FIELD ID="DEC_PREC" name="DEC_PREC" datatype="short" width="2">
+<DESCRIPTION>Declination precision</DESCRIPTION>
+</FIELD>
+<FIELD ID="COO_ERR_MAJA" name="COO_ERR_MAJA" datatype="float" precision="3" width="6" ucd="phys.angSize.smajAxis;pos.errorEllipse;pos.eq" unit="mas">
+<DESCRIPTION>Coordinate error major axis</DESCRIPTION>
+</FIELD>
+<FIELD ID="COO_ERR_MINA" name="COO_ERR_MINA" datatype="float" precision="3" width="6" ucd="phys.angSize.sminAxis;pos.errorEllipse;pos.eq" unit="mas">
+<DESCRIPTION>Coordinate error minor axis</DESCRIPTION>
+</FIELD>
+<FIELD ID="COO_ERR_ANGLE" name="COO_ERR_ANGLE" datatype="short" width="3" ucd="pos.posAng;pos.errorEllipse;pos.eq" unit="deg">
+<DESCRIPTION>Coordinate error angle</DESCRIPTION>
+</FIELD>
+<FIELD ID="COO_QUAL" name="COO_QUAL" datatype="char" width="1" ucd="meta.code.qual;pos.eq">
+<DESCRIPTION>Coordinate quality</DESCRIPTION>
+</FIELD>
+<FIELD ID="COO_WAVELENGTH" name="COO_WAVELENGTH" datatype="char" width="1" ucd="instr.bandpass;pos.eq">
+<DESCRIPTION>Wavelength class for the origin of the coordinates (R,I,V,U,X,G)</DESCRIPTION>
+</FIELD>
+<FIELD ID="COO_BIBCODE" name="COO_BIBCODE" datatype="char" width="19" ucd="meta.bib.bibcode;pos.eq" arraysize="*">
+<DESCRIPTION>Coordinate reference</DESCRIPTION>
+</FIELD>
+<DATA>
+<TABLEDATA>
+<TR><TD>IRAS 19220+1432</TD><TD>19 24 20.05</TD><TD>+14 38 03.6</TD><TD>6</TD><TD>6</TD><TD></TD><TD></TD><TD></TD><TD>D</TD><TD>mm</TD><TD>2002ApJ...566..945B</TD></TR>
+<TR><TD>HRDS G049.998-0.125</TD><TD>19 23 46.1</TD><TD>+15 04 54</TD><TD>5</TD><TD>5</TD><TD></TD><TD></TD><TD></TD><TD>E</TD><TD>Rad</TD><TD>2011ApJS..194...32A</TD></TR>
+<TR><TD>[ABJ2009] C50.02-0.08</TD><TD>19 23 39</TD><TD>+15 07.3</TD><TD>4</TD><TD>4</TD><TD></TD><TD></TD><TD></TD><TD>E</TD><TD>Rad</TD><TD>2009ApJS..181..255A</TD></TR>
+<TR><TD>[WAM82] 049.704-0.172</TD><TD>19 23 21.9</TD><TD>+14 48 01</TD><TD>5</TD><TD>5</TD><TD>3000</TD><TD>3000</TD><TD>175</TD><TD>D</TD><TD></TD><TD></TD></TR>
+<TR><TD>[ABJ2009] C49.70-0.17</TD><TD>19 23 21</TD><TD>+14 47.8</TD><TD>4</TD><TD>4</TD><TD></TD><TD></TD><TD></TD><TD>E</TD><TD>Rad</TD><TD>2009ApJS..181..255A</TD></TR>
+<TR><TD>[KB94] 65</TD><TD>19 23 38.4</TD><TD>+15 07 39</TD><TD>5</TD><TD>5</TD><TD></TD><TD></TD><TD></TD><TD>D</TD><TD></TD><TD>1989ApJS...71..469L</TD></TR>
+<TR><TD>[LPH96] 049.704-0.172</TD><TD>19 23 21.9</TD><TD>+14 48 01</TD><TD>5</TD><TD>5</TD><TD>3000</TD><TD>3000</TD><TD>175</TD><TD>D</TD><TD></TD><TD></TD></TR>
+<TR><TD>IRAS 19214+1458</TD><TD>19 23 46.1</TD><TD>+15 04 51</TD><TD>5</TD><TD>5</TD><TD>3000</TD><TD>3000</TD><TD>97</TD><TD>D</TD><TD></TD><TD></TD></TR>
+<TR><TD>HRDS G050.039-0.274</TD><TD>19 24 23.5</TD><TD>+15 02 49</TD><TD>5</TD><TD>5</TD><TD></TD><TD></TD><TD></TD><TD>D</TD><TD></TD><TD>2012ApJ...759...96B</TD></TR>
+
+</TABLEDATA>
+
+</DATA>
+</TABLE>
+</RESOURCE>
+</VOTABLE>
+

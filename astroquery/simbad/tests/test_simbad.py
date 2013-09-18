@@ -25,8 +25,10 @@ DATA_FILES = {
     'coo': 'query_coo.data',
     'cat': 'query_cat.data',
     'bibobj': 'query_bibobj.data',
-              'bibcode': 'query_bibcode.data',
-              'error': 'query_error.data'
+    'bibcode': 'query_bibcode.data',
+    'error': 'query_error.data',
+    'sample': 'query_sample.data',
+    'region': 'query_sample_region.data',
 }
 
 
@@ -297,5 +299,7 @@ def test_query_criteria1(patch_post):
     assert isinstance(result, Table)
 
 def test_query_criteria2(patch_post):
-    result = simbad.core.Simbad.query_criteria(otype='SNR')
+    S = simbad.core.Simbad()
+    S.VOTABLE_FIELDS = ['main_id','ra(d)','dec(d)']
+    result = S.query_criteria(otype='SNR')
     assert isinstance(result, Table)
