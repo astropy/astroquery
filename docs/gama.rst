@@ -11,7 +11,9 @@ This module can be used to query the GAMA (Galaxy And Mass Assembly) survey,
 second data release (DR2). Currently queries must be formulated in SQL. If
 successful, the results are returned as an `astropy.table.Table`_.
 
-**SQL Queries**
+SQL Queries
+-----------
+
 
 This sends an SQL query, passed as a string, to the GAMA server and returns
 an `astropy.table.Table`_. For example, to return basic information on the
