@@ -428,31 +428,31 @@ To set additional fields to be returned in the VOTable:
 
      # see which fields are currently set
 
-     >>> Simbad.VOTABLE_FIELDS
+     >>> Simbad.get_votable_fields()
 
      ['main_id', 'coordinates']
 
      # To set other fields 
 
      >>> Simbad.add_votable_fields('mk', 'rot', 'bibcodelist(1800-2014)')
-     >>> Simbad.VOTABLE_FIELDS
+     >>> Simbad.get_votable_fields()
 
      ['main_id', 'coordinates', 'mk', 'rot', 'bibcodelist(1800-2014')]
 
-You can also remove a field you have set or reset `Simbad.VOTABLE_FIELDS` to
-its default value. Continuing from the above example:
+You can also remove a field you have set or `Simbad.reset_votable_fields()`.
+Continuing from the above example:
 
 .. code-block:: python
 
     >>> Simbad.rm_votable_fields('mk', 'coordinates')
-    >>> Simbad.VOTABLE_FIELDS
+    >>> Simbad.get_votable_fields()
      
     ['rot', 'main_id']
     
     # reset back to defaults
     
     >>> Simbad.reset_votable_fields()
-    >>> Simbad.VOTABLE_FIELDS
+    >>> Simbad.get_votable_fields()
 
     ['main_id', 'coordinates']
 
