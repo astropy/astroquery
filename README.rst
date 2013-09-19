@@ -1,4 +1,4 @@
-`Documentation`_ |  `View on Github`_ |  `Download Stable ZIP`_  |  `Download Stable TAR`_  
+`Documentation`_ | Blog_ |  `View on Github`_ |  `Download Stable ZIP`_  |  `Download Stable TAR`_  
 
 
 ==================================
@@ -99,7 +99,7 @@ Additional Links
 
 `Download Development ZIP`_  |  `Download Development TAR`_  
 
-Maintained by `Adam Ginsburg`_ (`adam.g.ginsburg@gmail.com`_)
+Maintained by `Adam Ginsburg`_ (`astropy.astroquery@gmail.com`_)
 
 .. _Download Development ZIP: https://github.com/astropy/astroquery/zipball/master
 .. _Download Development TAR: https://github.com/astropy/astroquery/tarball/master
@@ -111,3 +111,4 @@ Maintained by `Adam Ginsburg`_ (`adam.g.ginsburg@gmail.com`_)
 .. _first beta release: https://github.com/astropy/astroquery/tarball/v0.1
 .. _adam.g.ginsburg@gmail.com: mailto:adam.g.ginsburg@gmail.com
 .. _Adam Ginsburg: http://www.adamgginsburg.com
+.. _Blog: http://astropy.org/astroquery-blog
