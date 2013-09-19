@@ -109,6 +109,6 @@ Maintained by `Adam Ginsburg`_ (`astropy.astroquery@gmail.com`_)
 .. _docs: http://astroquery.readthedocs.org
 .. _Documentation: http://astroquery.readthedocs.org
 .. _first beta release: https://github.com/astropy/astroquery/tarball/v0.1
-.. _adam.g.ginsburg@gmail.com: mailto:adam.g.ginsburg@gmail.com
+.. _astropy.astroquery@gmail.com: mailto:astropy.astroquery@gmail.com
 .. _Adam Ginsburg: http://www.adamgginsburg.com
 .. _Blog: http://astropy.org/astroquery-blog
