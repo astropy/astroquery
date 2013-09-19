@@ -12,7 +12,9 @@ examples that illustrate the different types of queries that can be
 formulated. If successful all the queries will return the results in an
 `astropy.table.Table`_.
 
-**Query an Identifier** 
+Query an Identifier
+-------------------
+
 
 This is useful if you want to query a known identifier. For instance to query
 the messier object m1: 
@@ -66,8 +68,9 @@ their functions:
 
     [abc] : Exactly one character taken in the list. Can also be defined by a range of characters: [A-Z]
 
+Query a region
+--------------
 
-**Query a region** 
 
 Queries that support a cone search with a specified radius - around an
 identifier or given coordinates are also supported. If an identifier is used
@@ -211,8 +214,9 @@ to 2000.0. So here is a query with all the options utilized:
     
 
  
+Query a catalogue
+-----------------
 
-**Query a catalogue**
  
 Queries can also be formulated to return all the objects from a catalogue. For
 instance to query the ESO catalog:
@@ -233,8 +237,9 @@ instance to query the ESO catalog:
     ESO   1-5 08 53 05.006 ...              I 2006AJ....131.1163S
 
 
+Query a bibcode
+---------------
 
-**Query a bibcode** 
 
 This retrieves the reference corresponding to a bibcode.
 
@@ -301,8 +306,9 @@ from a given journal in a given year:
     Files: (abstract)
 
 
+Query a bibobj
+--------------
 
-**Query a bibobj** 
 
 These queries can be used to retrieve all the objects that are contained in the
 article specified by the bibcode:
@@ -322,8 +328,9 @@ article specified by the bibcode:
     NGC  5179 13 29 30.875 +11 44 44.54       7        7          nan          nan             0        B              I 2006AJ....131.1163S
     NGC  5713 14 40 11.528 -00 17 21.16       7        7          nan          nan             0        B              I 2006AJ....131.1163S
 
+Query based on any criteria 
+----------------------------
 
-**Query based on any criteria** 
 
 Anything done in SIMBAD's `criteria interface`_ can be done via astroquery.
 See that link for details of how these queries are formed.
@@ -361,7 +368,9 @@ Customizing the default settings
 There may be times when you wish to change the defaults that have been set for
 the `Simbad` queries.  
 
-**Changing the row limit**
+Changing the row limit
+----------------------
+
 
 To fetch all the rows in the result, the row limit must be set to 0. However for some
 queries, results are likely to be very large, in such cases it may be best to 
@@ -376,7 +385,9 @@ python session then:
 If you would like to make your choice persistent, then you can do this by
 modifying the setting in the `astroquery` configuration file.
 
-**Changing the timeout**
+Changing the timeout
+--------------------
+
 
 The timeout is the time limit in seconds for estabishing connection with the
 Simbad server and by default it is set to 100 seconds. You may want to modify
@@ -389,7 +400,9 @@ current session. To make it persistent, you must modify the setting in the
     >>> from astroquery.simbad import Simbad
     >>> Simbad.TIMEOUT = 60 # sets the timeout to 60s
 
-**Specifying which VOTable fields to include in the result**
+Specifying which VOTable fields to include in the result
+--------------------------------------------------------
+
 
 The VOTable fields that are currently returned in the result are set to
 `main_id` and `coordinates`. However you can specify other fields that you
