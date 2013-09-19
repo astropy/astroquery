@@ -35,7 +35,7 @@ Example 2:
     >>> # see Simbad.list_votable_fields()
     >>> # bibcodelist(date1-date2) lists the number of bibliography
     >>> # items referring to each object over that date range
-    >>> S.VOTABLE_FIELDS.append('bibcodelist(2003-2013)')
+    >>> S.add_votable_fields('bibcodelist(2003-2013)')
     >>> r = S.query_object('m31')
     >>> r.pprint()
     MAIN_ID      RA          DEC      RA_PREC DEC_PREC COO_ERR_MAJA COO_ERR_MINA COO_ERR_ANGLE COO_QUAL COO_WAVELENGTH     COO_BIBCODE     BIBLIST_2003_2013
@@ -51,7 +51,8 @@ Example 3:
     >>> S = simbad.Simbad()
     >>> # We've seen errors where ra_prec was NAN, but it's an int: that's a problem
     >>> # this is a workaround we adapted
-    >>> S.VOTABLE_FIELDS = ['main_id','ra(d)','dec(d)']
+    >>> S.add_votable_fields('main_id','ra(d)','dec(d)')
+    >>> S.remove_votable_fields('coordinates')
     >>> result[:5].pprint()
          MAIN_ID           RA_d        DEC_d
     ------------------ ------------ ------------
