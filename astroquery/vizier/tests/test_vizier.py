@@ -10,6 +10,8 @@ from ...utils.testing_tools import MockResponse
 import astropy.units as u
 import astropy.coordinates as coord
 import urlparse
+from astropy.extern import six
+str, = six.string_types
 VO_DATA = {'HIP,NOMAD,UCAC': "viz.xml",
            'NOMAD,UCAC': "viz.xml",
            'J/ApJ/706/83': "kang2010.xml"}
@@ -28,7 +30,7 @@ def patch_post(request):
 
 
 def post_mockreturn(url, data=None, timeout=10, **kwargs):
-    datad = dict([urlparse.parse_qsl(d)[0] for d in data.split('\n')]) 
+    datad = dict([urlparse.parse_qsl(d)[0] for d in data.split('\n')])
     filename = data_path(VO_DATA[datad['-source']])
     content = open(filename, "r").read()
     return MockResponse(content, **kwargs)
