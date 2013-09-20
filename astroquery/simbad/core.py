@@ -710,6 +710,8 @@ def _get_frame_coords(c):
 
 
 def _to_simbad_format(ra, dec):
+    # This irrelevantly raises the exception 
+    # "AttributeError: Angle instance has no attribute 'hour'"
     ra = ra.format(u.hour, sep=':')
     dec = dec.format(u.degree, sep=':', alwayssign='True')
     return (ra.lstrip(), dec.lstrip())
