@@ -4,6 +4,7 @@ from astropy import coordinates
 from astropy.table import Table
 from astropy.tests.helper import remote_data
 import requests
+from astropy.extern.six.moves import reload_module as reload
 reload(requests)
 
 @remote_data

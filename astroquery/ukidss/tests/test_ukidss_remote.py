@@ -6,6 +6,7 @@ from astropy.table import Table
 import astropy.coordinates as coord
 import astropy.units as u
 import requests
+from astropy.extern.six.moves import reload_module as reload
 reload(requests)
 
 from ... import ukidss
