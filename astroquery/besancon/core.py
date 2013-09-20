@@ -407,10 +407,15 @@ def parse_besancon_model_string(bms,):
 
     # py3 compatibility:
     if hasattr(bms,'decode') and not hasattr(bms,'encode'):
+        # py3
         bms = bms.decode()
-        names = [n.decode() if hasattr(n,'decode') else n for n in names]
-    elif hasattr(bms,'encode'):
+
+    if hasattr(bms,'decode') and hasattr(bms,'encode'):
+        # py2
         names = [n.encode() if hasattr(n,'encode') else n for n in names]
+    else:
+        # py3
+        names = [n.decode() if hasattr(n,'decode') else n for n in names]
 
     besancon_table = ascii.read(bms, Reader=ascii.FixedWidthNoHeader,
                                 header_start=None,
