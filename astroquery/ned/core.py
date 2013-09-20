@@ -3,7 +3,6 @@ from __future__ import print_function
 
 import tempfile
 import re
-import warnings
 from collections import namedtuple
 from xml.dom.minidom import parseString
 from datetime import datetime

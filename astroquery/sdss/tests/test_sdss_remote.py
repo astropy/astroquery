@@ -1,6 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from ... import sdss
 from astropy import coordinates
+from astropy.table import Table
 from astropy.tests.helper import remote_data
 import requests
 reload(requests)

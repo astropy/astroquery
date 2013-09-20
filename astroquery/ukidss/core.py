@@ -395,8 +395,8 @@ class Ukidss(QueryWithLogin):
             The list of URLS extracted from the input.
         """
         # Parse html input for links
-        format = formatter.NullFormatter()
-        htmlparser = LinksExtractor(format)
+        fmt = formatter.NullFormatter()
+        htmlparser = LinksExtractor(fmt)
         htmlparser.feed(html_in)
         htmlparser.close()
         links = htmlparser.get_links()

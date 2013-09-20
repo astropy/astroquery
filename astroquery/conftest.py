@@ -1,6 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from __future__ import print_function
-from .utils import turn_off_internet,turn_on_internet
+from .utils import turn_off_internet
 
 from astropy.tests.helper import pytest, remote_data
 
@@ -16,6 +16,5 @@ from astropy.tests.pytest_plugins import *
 def pytest_configure(config):
     if config.getoption('remote_data'):
         pass
-        #turn_on_internet(verbose=config.option.verbose)
     else:
         turn_off_internet(verbose=config.option.verbose)
