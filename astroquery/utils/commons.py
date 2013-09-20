@@ -31,6 +31,7 @@ PY3 = sys.version_info[0] >= 3
 
 if PY3:
     basestring = (str, bytes)
+
 __all__ = ['send_request',
            'parse_coordinates',
            'parse_radius',

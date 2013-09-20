@@ -276,7 +276,7 @@ def test_process_async_docs():
 
 class Dummy:
 
-    def do_nothing_async():
+    def do_nothing_async(self):
         """ docstr """
         pass
 

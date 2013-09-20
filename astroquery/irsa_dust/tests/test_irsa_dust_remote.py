@@ -1,12 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import os
-import xml.etree.ElementTree as tree
-import requests
-import astropy.units as u
-import astropy.utils.data as aud
 # import this since the user may not have pytest installed
 from astropy.tests.helper import pytest, remote_data
-from astropy.io import fits
 from astropy.table import Table
 from ... import irsa_dust
 import requests

@@ -1,6 +1,5 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import os
-import xml.etree.ElementTree as tree
 
 import astropy.units as u
 from astropy.tests.helper import pytest  # import this since the user may not have pytest installed
