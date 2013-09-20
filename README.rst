@@ -69,8 +69,7 @@ Using astroquery
 ----------------
 Importing astroquery on its own doesn't get you much: you need to import each
 sub-module specifically.  Check out the `docs`_
-to find a list of the tools available.  The `API
-<http://astroquery.readthedocs.org/en/latest/astroquery/api.html>`_ 
+to find a list of the tools available.  The `API`_ 
 shows the standard suite of tools common to most modules, e.g. `query_object`
 and `query_region`.  
 
@@ -119,3 +118,4 @@ Maintained by `Adam Ginsburg`_ (`astropy.astroquery@gmail.com`_)
 .. _astropy.astroquery@gmail.com: mailto:astropy.astroquery@gmail.com
 .. _Adam Ginsburg: http://www.adamgginsburg.com
 .. _Blog: http://astropy.org/astroquery-blog
+.. _API: <http://astroquery.readthedocs.org/en/latest/api.html>
