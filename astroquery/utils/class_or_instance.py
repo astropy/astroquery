@@ -25,3 +25,14 @@ class class_or_instance(object):
             f = lambda *args, **kwds: self.fn(cls, *args, **kwds)
         functools.update_wrapper(f, self.fn)
         return f
+
+class property_class_or_instance(property):
+
+    def __get__(self, obj, cls):
+        if obj is not None:
+            return self.fget(obj)
+        else:
+            return self.fget(cls)
+
+    def __set__(self, *args):
+        raise ValueError("Setters don't work.")

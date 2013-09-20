@@ -10,12 +10,13 @@ from collections import namedtuple
 import tempfile
 import warnings
 from ..query import BaseQuery
-from ..utils.class_or_instance import class_or_instance
+from ..utils.class_or_instance import class_or_instance,property_class_or_instance
 from ..utils import commons
 import astropy.units as u
 from astropy.utils.data import get_pkg_data_filename
 import astropy.coordinates as coord
 from astropy.table import Table
+import copy
 try:
     import astropy.io.vo.table as votable
 except ImportError:
@@ -59,6 +60,13 @@ def validate_equinox(func):
         return func(*args, **kwargs)
     return wrapper
 
+    
+def strip_field(f):
+    """Helper tool: remove parameters from VOTABLE fields"""
+    if '(' in f:
+        return f[:f.find('(')]
+    else:
+        return f
 
 class Simbad(BaseQuery):
     """
@@ -86,12 +94,15 @@ class Simbad(BaseQuery):
         'query_bibobj_async': 'query bibobj'
     }
 
-   # also find a way to fetch the votable fields table from <http://simbad.u-strasbg.fr/simbad/sim-help?Page=sim-fscript#VotableFields>
-   # tried something for this in this ipython nb
-   # <http://nbviewer.ipython.org/5851110>
-    VOTABLE_FIELDS = ['main_id', 'coordinates']
-
     ROW_LIMIT = ROW_LIMIT()
+
+    # also find a way to fetch the votable fields table from <http://simbad.u-strasbg.fr/simbad/sim-help?Page=sim-fscript#VotableFields>
+    # tried something for this in this ipython nb
+    # <http://nbviewer.ipython.org/5851110>
+    _VOTABLE_FIELDS = ['main_id', 'coordinates']
+
+    def __init__(self):
+        self._VOTABLE_FIELDS = copy.copy(self._VOTABLE_FIELDS)
 
     @class_or_instance
     def list_wildcards(self):
@@ -99,8 +110,8 @@ class Simbad(BaseQuery):
         Displays the available wildcards that may be used in Simbad queries and
         their usage.
         """
-        for key in Simbad.WILDCARDS:
-            print("{key} : {value}\n".format(key=key, value=Simbad.WILDCARDS[key]))
+        for key in self.WILDCARDS:
+            print("{key} : {value}\n".format(key=key, value=self.WILDCARDS[key]))
         return
 
     @class_or_instance
@@ -149,7 +160,14 @@ class Simbad(BaseQuery):
             raise Exception("No such field_name")
 
     @class_or_instance
-    def set_votable_fields(self, *args):
+    def get_votable_fields(self):
+        """
+        Display votable fields
+        """
+        return self._VOTABLE_FIELDS
+
+    @class_or_instance
+    def add_votable_fields(self, *args):
         """
         Sets fields to be fetched in the VOTable. Must be one of those listed
         by `astroquery.simbad.Simbad.list_votable_fields`.
@@ -159,32 +177,54 @@ class Simbad(BaseQuery):
         list of field_names
         """
         dict_file = get_pkg_data_filename(os.path.join('data', 'votable_fields_dict.json'))
+            
         with open(dict_file, "r") as f:
             fields_dict = json.load(f)
+            fields_dict = dict(
+                               ((strip_field(f) if '(' in f else f, fields_dict[f])
+                                for f in fields_dict)
+                               )
         for field in args:
-            if field not in fields_dict:
-                warnings.warn("{field}: no such field".format(field=field))
-            elif field in Simbad.VOTABLE_FIELDS:
-                warnings.warn("{field}: field already present".format(field=field))
+            sf = strip_field(field)
+            if sf not in fields_dict:
+                raise KeyError("{field}: no such field".format(field=field))
+            elif sf in [strip_field(f) for f in Simbad._VOTABLE_FIELDS]:
+                raise KeyError("{field}: field already present".format(field=field))
             else:
-                Simbad.VOTABLE_FIELDS.append(field)
+                self._VOTABLE_FIELDS.append(field)
 
     @class_or_instance
-    def rm_votable_fields(self, *args):
+    def remove_votable_fields(self, *args, **kwargs):
         """
         Removes the specified field names from `astroquery.simbad.Simbad.VOTABLE_FIELDS`
 
         Parameters
         ----------
         list of field_names to be removed
+        strip_params: bool
+            If true, strip the specified keywords before removing them:
+            e.g., ra(foo) would remove ra(bar) if this is True
         """
-        absent_fields = set(args) - set(Simbad.VOTABLE_FIELDS)
+        strip_params = kwargs.pop('strip_params', False)
+
+        if strip_params:
+            sargs = [strip_field(a) for a in args]
+            sfields = [strip_field(a) for a in self._VOTABLE_FIELDS]
+        else:
+            sargs = args
+            sfields = self._VOTABLE_FIELDS
+        absent_fields = set(sargs) - set(sfields)
+
+        for b,f in zip(sfields, self._VOTABLE_FIELDS):
+            if b in sargs:
+                self._VOTABLE_FIELDS.remove(f)
+
         for field in absent_fields:
             warnings.warn("{field}: this field is not set".format(field=field))
-        Simbad.VOTABLE_FIELDS = list(set(Simbad.VOTABLE_FIELDS) - set(args))
 
         # check if all fields are removed
-        if not Simbad.VOTABLE_FIELDS:
+        if not self._VOTABLE_FIELDS:
+            warnings.warn("All fields have been removed. Resetting to defaults.")
             self.reset_votable_fields()
 
     @class_or_instance
@@ -192,7 +232,7 @@ class Simbad(BaseQuery):
         """
         resets VOTABLE_FIELDS to defaults
         """
-        Simbad.VOTABLE_FIELDS = ['main_id', 'coordinates']
+        self._VOTABLE_FIELDS = ['main_id', 'coordinates']
 
     @class_or_instance
     def query_criteria(self, *args, **kwargs):
@@ -237,8 +277,8 @@ class Simbad(BaseQuery):
             the response of the query from the server
         """
         request_payload = self._args_to_payload(caller='query_criteria_async', *args, **kwargs)
-        response = commons.send_request(Simbad.SIMBAD_URL, request_payload,
-                                Simbad.TIMEOUT)
+        response = commons.send_request(self.SIMBAD_URL, request_payload,
+                                self.TIMEOUT)
         return response
 
     @class_or_instance
@@ -285,8 +325,8 @@ class Simbad(BaseQuery):
         """
         request_payload = self._args_to_payload(object_name, wildcard=wildcard,
                                                 caller='query_object_async')
-        response = commons.send_request(Simbad.SIMBAD_URL, request_payload,
-                                Simbad.TIMEOUT)
+        response = commons.send_request(self.SIMBAD_URL, request_payload,
+                                self.TIMEOUT)
         return response
 
     @class_or_instance
@@ -350,8 +390,8 @@ class Simbad(BaseQuery):
         request_payload = self._args_to_payload(coordinates, radius=radius,
                                                 equinox=equinox, epoch=epoch,
                                                 caller='query_region_async')
-        response = commons.send_request(Simbad.SIMBAD_URL, request_payload,
-                                Simbad.TIMEOUT)
+        response = commons.send_request(self.SIMBAD_URL, request_payload,
+                                self.TIMEOUT)
         return response
 
     @class_or_instance
@@ -392,8 +432,8 @@ class Simbad(BaseQuery):
         """
         request_payload = self._args_to_payload(catalog,
                                                 caller='query_catalog_async')
-        response = commons.send_request(Simbad.SIMBAD_URL, request_payload,
-                                Simbad.TIMEOUT)
+        response = commons.send_request(self.SIMBAD_URL, request_payload,
+                                self.TIMEOUT)
         return response
 
     @class_or_instance
@@ -435,8 +475,8 @@ class Simbad(BaseQuery):
         """
         request_payload = self._args_to_payload(
             bibcode, caller='query_bibobj_async')
-        response = commons.send_request(Simbad.SIMBAD_URL, request_payload,
-                                Simbad.TIMEOUT)
+        response = commons.send_request(self.SIMBAD_URL, request_payload,
+                                self.TIMEOUT)
         return response
 
     @class_or_instance
@@ -485,8 +525,8 @@ class Simbad(BaseQuery):
         """
         request_payload = self._args_to_payload(bibcode, wildcard=wildcard,
                                                 caller='query_bibcode_async', get_raw=True)
-        response = commons.send_request(Simbad.SIMBAD_URL, request_payload,
-                                Simbad.TIMEOUT)
+        response = commons.send_request(self.SIMBAD_URL, request_payload,
+                                self.TIMEOUT)
         return response
 
     @class_or_instance
@@ -505,7 +545,7 @@ class Simbad(BaseQuery):
         if get_raw:
             del kwargs['get_raw']
         command = self._function_to_command[caller]
-        votable_fields = ','.join(self.VOTABLE_FIELDS)
+        votable_fields = ','.join(self.get_votable_fields())
         # if get_raw is set then don't fetch as votable
         votable_def = ("votable {" + votable_fields + "}", "")[get_raw]
         votable_open = ("votable open", "")[get_raw]
