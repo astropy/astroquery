@@ -47,7 +47,7 @@ rst_epilog += """
 
 # This does not *have* to match the package name, but typically does
 project = u'astroquery' 
-author = u'Adam Ginsburg (maintainer) and Tom Robitaille; astropy.astroquery@gmail.com'
+author = u'Adam Ginsburg (maintainer) and Tom Robitaille; <a href="mailto:astropy.astroquery@gmail.com">astropy.astroquery@gmail.com</a>'
 copyright = u'2012, ' + author
 
 # The version info for the project you're documenting, acts as replacement for

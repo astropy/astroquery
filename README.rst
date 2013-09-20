@@ -40,6 +40,13 @@ The `first beta release`_ of astroquery can be downloaded or pip installed:
 
 .. code-block:: bash
 
+   $ pip install astroquery 
+   
+
+Or if pypi is down:   
+   
+.. code-block:: bash
+   
    $ pip install https://github.com/astropy/astroquery/archive/v0.1.tar.gz
 
 
