@@ -11,7 +11,8 @@ import astropy.units as u
 import astropy.coordinates as coord
 import urlparse
 from astropy.extern import six
-str, = six.string_types
+if six.PY3:
+    str, = six.string_types
 VO_DATA = {'HIP,NOMAD,UCAC': "viz.xml",
            'NOMAD,UCAC': "viz.xml",
            'J/ApJ/706/83': "kang2010.xml"}
@@ -135,12 +136,11 @@ class TestVizierClass:
 
     def test_keywords(self):
         v = vizier.core.Vizier(keywords=['optical', 'chandra', 'ans'])
-        assert set(str(v.keywords).split("\n")) == set('-kw.Wavelength=optical\n-kw.Mission=ANS,Chandra'.split("\n"))
+        assert str(v.keywords) == '-kw.Mission=ANS,Chandra\n-kw.Wavelength=optical'
         v = vizier.core.Vizier(keywords=['xy', 'optical'])
         assert str(v.keywords) == '-kw.Wavelength=optical'
         v.keywords = ['optical', 'cobe']
-        # keywords are from a defaultdict and do not have order
-        assert set(v.keywords.split("\n")) == set('-kw.Wavelength=optical\n-kw.Mission=COBE'.split("\n"))
+        assert str(v.keywords) == '-kw.Mission=COBE\n-kw.Wavelength=optical'
         del v.keywords
         assert v.keywords is None
 

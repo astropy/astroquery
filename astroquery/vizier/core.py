@@ -5,7 +5,6 @@ import sys
 import os
 import warnings
 import json
-from collections import defaultdict
 import traceback
 import tempfile
 
@@ -28,6 +27,8 @@ PY3 = sys.version_info[0] >= 3
 
 if PY3:
     stringtypes = (str, bytes)
+else:
+    stringtypes = basestring
 
 __all__ = ['Vizier','VizierClass']
 
@@ -507,7 +508,9 @@ class VizierKeyword(list):
         file_name = aud.get_pkg_data_filename(
             os.path.join("data", "inverse_dict.json"))
         with open(file_name, 'r') as f:
-            self.keyword_dict = json.load(f)
+            kwd = json.load(f)
+            self.keyword_types = sorted(kwd.values())
+            self.keyword_dict = OrderedDict([(k,kwd[k]) for k in sorted(kwd)])
         self._keywords = None
         self.keywords = keywords
 
@@ -526,12 +529,20 @@ class VizierKeyword(list):
         for val in set(values) - set(keys):
             warnings.warn("{val} : No such keyword".format(val=val))
         valid_keys = [
-            key for key in self.keyword_dict if key.lower() in values]
+            key for key in self.keyword_dict.keys() 
+            if key.lower() in list(map(str.lower,values))]
         # create a dict for each type of keyword
-        set_keywords = defaultdict(list)
-        for key in valid_keys:
-            set_keywords[self.keyword_dict[key]].append(key)
-        self._keywords = set_keywords
+        set_keywords = OrderedDict()
+        for key in self.keyword_dict:
+            if key in valid_keys:
+                if self.keyword_dict[key] in set_keywords:
+                    set_keywords[self.keyword_dict[key]].append(key)
+                else:
+                    set_keywords[self.keyword_dict[key]] = [key]
+        self._keywords = OrderedDict(
+                [(k,sorted(set_keywords[k]))
+                 for k in set_keywords]
+                )
 
     @keywords.deleter
     def keywords(self):
