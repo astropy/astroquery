@@ -118,4 +118,4 @@ Maintained by `Adam Ginsburg`_ (`astropy.astroquery@gmail.com`_)
 .. _astropy.astroquery@gmail.com: mailto:astropy.astroquery@gmail.com
 .. _Adam Ginsburg: http://www.adamgginsburg.com
 .. _Blog: http://astropy.org/astroquery-blog
-.. _API: <http://astroquery.readthedocs.org/en/latest/api.html>
+.. _API: http://astroquery.readthedocs.org/en/latest/api.html
