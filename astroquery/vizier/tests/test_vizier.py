@@ -135,11 +135,12 @@ class TestVizierClass:
 
     def test_keywords(self):
         v = vizier.core.Vizier(keywords=['optical', 'chandra', 'ans'])
-        assert str(v.keywords) == '-kw.Wavelength=optical\n-kw.Mission=ANS,Chandra'
+        assert set(str(v.keywords).split("\n")) == set('-kw.Wavelength=optical\n-kw.Mission=ANS,Chandra'.split("\n"))
         v = vizier.core.Vizier(keywords=['xy', 'optical'])
         assert str(v.keywords) == '-kw.Wavelength=optical'
         v.keywords = ['optical', 'cobe']
-        assert str(v.keywords) == '-kw.Wavelength=optical\n-kw.Mission=COBE'
+        # keywords are from a defaultdict and do not have order
+        assert set(v.keywords.split("\n")) == set('-kw.Wavelength=optical\n-kw.Mission=COBE'.split("\n"))
         del v.keywords
         assert v.keywords is None
 

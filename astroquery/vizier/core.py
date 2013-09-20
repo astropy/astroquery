@@ -22,11 +22,12 @@ from ..utils import commons
 from ..utils import async_to_sync
 from ..utils import schema
 from . import VIZIER_SERVER, VIZIER_TIMEOUT, ROW_LIMIT
+from ..exceptions import TableParseError
 
 PY3 = sys.version_info[0] >= 3
 
 if PY3:
-    basestring = (str, bytes)
+    stringtypes = (str, bytes)
 
 __all__ = ['Vizier','VizierClass']
 
@@ -358,7 +359,7 @@ class VizierClass(BaseQuery):
         if catalog is None:
             catalog = self.catalog
         if catalog is not None:
-            if isinstance(catalog, basestring):
+            if isinstance(catalog, stringtypes):
                 body['-source'] = catalog
             elif isinstance(catalog, list):
                 body['-source'] = ",".join(catalog)
@@ -440,7 +441,7 @@ class VizierClass(BaseQuery):
         try:
             tf = tempfile.NamedTemporaryFile()
             if PY3:
-                tf.write(response.content)
+                tf.write(response.content.encode())
             else:
                 tf.write(response.content.encode('utf-8'))
             tf.file.flush()
@@ -465,11 +466,13 @@ class VizierClass(BaseQuery):
                         table_dict[name] = table_dict[name][0]
                 return commons.TableList(table_dict)
 
-        except:
-            traceback.print_exc()  # temporary for debugging
-            warnings.warn(
-                "Error in parsing result, returning raw result instead")
-            return response.content
+        except Exception as ex:
+            self.response = response
+            self.table_parse_error = ex
+            raise TableParseError("Failed to parse SIMBAD result! The raw response can be found "
+                                  "in self.response, and the error in self.table_parse_error."
+                                  "  The attempted parsed result is in self.parsed_result.\n"
+                                  "Exception: " + str(self.table_parse_error))
 
 
 def _parse_angle(angle):
@@ -515,7 +518,7 @@ class VizierKeyword(list):
 
     @keywords.setter
     def keywords(self, values):
-        if isinstance(values, basestring):
+        if isinstance(values, stringtypes):
             values = list(values)
         keys = [key.lower() for key in self.keyword_dict]
         values = [val.lower() for val in values]
