@@ -153,8 +153,8 @@ class BesanconClass(BaseQuery):
         # keep the text stored for possible later use
         with aud.get_readable_fileobj(response.raw) as f:
             text = f.read()
-            # py3 compatibility:
-            if hasattr(text,'decode'):
+            # py3 compatibility; do nothing for py2:
+            if hasattr(text,'decode') and not hasattr(text,'encode'):
                 text = text.decode()
         try:
             filename = self.result_re.search(text).group()
@@ -406,9 +406,11 @@ def parse_besancon_model_string(bms,):
         raise ValueError("Table parsing error: mismatch between # of columns & header")
 
     # py3 compatibility:
-    if hasattr(bms,'decode'):
+    if hasattr(bms,'decode') and not hasattr(bms,'encode'):
         bms = bms.decode()
         names = [n.decode() if hasattr(n,'decode') else n for n in names]
+    elif hasattr(bms,'encode'):
+        names = [n.encode() if hasattr(n,'encode') else n for n in names]
 
     besancon_table = ascii.read(bms, Reader=ascii.FixedWidthNoHeader,
                                 header_start=None,
