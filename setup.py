@@ -39,7 +39,7 @@ DESCRIPTION = 'Functions and classes to access online data resources'
 LICENSE = 'BSD'
 
 # VERSION should be PEP386 compatible (http://www.python.org/dev/peps/pep-0386)
-VERSION = '0.1'
+VERSION = '0.2.dev'
 
 # Indicates if this version is a release version
 RELEASE = 'dev' not in VERSION
