@@ -2,7 +2,7 @@
 from ... import lamda
 from astropy.tests.helper import remote_data
 import requests
-from astropy.extern.six.moves import reload_module as reload
+from ...extern.six.moves import reload_module as reload
 reload(requests)
 
 @remote_data

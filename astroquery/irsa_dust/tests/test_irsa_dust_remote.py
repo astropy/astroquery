@@ -5,7 +5,7 @@ from astropy.tests.helper import pytest, remote_data
 from astropy.table import Table
 from ... import irsa_dust
 import requests
-from astropy.extern.six.moves import reload_module as reload
+from ...extern.six.moves import reload_module as reload
 reload(requests)
 
 M31_XML = "dustm31.xml"

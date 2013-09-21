@@ -10,7 +10,7 @@ is_python3 = (sys.version_info >= (3,))
 
 # double-check super-undo monkeypatching...
 import requests
-from astropy.extern.six.moves import reload_module as reload
+from ...extern.six.moves import reload_module as reload
 reload(requests)
 
 

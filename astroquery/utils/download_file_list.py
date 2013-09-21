@@ -3,7 +3,7 @@ import re
 import string
 import os
 import gzip
-from astropy.extern.six import StringIO
+from ..extern.six import StringIO
 
 import astropy.io.fits as fits
 import astropy.utils.data as aud
