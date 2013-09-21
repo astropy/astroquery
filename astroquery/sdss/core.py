@@ -544,9 +544,12 @@ class SDSSClass(BaseQuery):
 
         """
 
-        arr = np.atleast_1d(np.genfromtxt(io.BytesIO(response.content),
-                            names=True, dtype=None, delimiter=',',
-                            skip_header=1))
+        # genfromtxt requires bytes; need to check for 'encode' for py3 compat
+        bytecontent = (response.content.encode('ascii') 
+                       if hasattr(response.content,'encode') 
+                       else response.content)
+        arr = np.atleast_1d(np.genfromtxt(io.BytesIO(bytecontent),
+                            names=True, dtype=None, delimiter=b','))
 
         if len(arr) == 0:
             return None
