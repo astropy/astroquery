@@ -6,6 +6,7 @@ import astropy.coordinates as coord
 from ... import vizier
 from ...utils import commons
 import requests
+from ...extern.six.moves import reload_module as reload
 reload(requests)
 
 

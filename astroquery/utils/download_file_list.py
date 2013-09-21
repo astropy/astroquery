@@ -3,14 +3,7 @@ import re
 import string
 import os
 import gzip
-import sys
-
-PY3 = sys.version_info[0] >=3
-
-if PY3:
-    from io import StringIO
-else:
-    import StringIO
+from ..extern.six import StringIO
 
 import astropy.io.fits as fits
 import astropy.utils.data as aud
@@ -66,7 +59,7 @@ def download_list_of_fitsfiles(linklist, output_directory=None,
 
         with aud.get_readable_fileobj(link, cache=True) as f:
             results = f.read()
-        S = StringIO.StringIO(results)
+        S = StringIO(results)
 
         try:
             # try to open as a fits file

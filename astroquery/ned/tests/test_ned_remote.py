@@ -4,6 +4,7 @@ from __future__ import print_function
 from astropy.tests.helper import remote_data, pytest
 from astropy.table import Table
 import requests
+from ...extern.six.moves import reload_module as reload
 reload(requests)
 
 from ... import ned

@@ -5,6 +5,7 @@ from astropy.tests.helper import remote_data
 from astropy.table import Table
 import astropy.coordinates as coord
 import requests
+from ...extern.six.moves import reload_module as reload
 reload(requests)
 
 from ... import nrao

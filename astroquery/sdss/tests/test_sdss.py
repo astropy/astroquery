@@ -6,7 +6,6 @@ from astropy.tests.helper import pytest
 from contextlib import contextmanager
 import astropy.utils.data as aud
 import requests
-import io
 import os
 
 # actual spectra/data are a bit heavy to include in astroquery, so we don't try
