@@ -69,6 +69,8 @@ def get_mockreturn(url, params=None, timeout=10, **kwargs):
     elif "error" in url:
         filename = DATA_FILES["error"]
         url = "error.html"
+    else:
+        raise ValueError("Mismatch: no test made for specified URL")
     print(filename)
     print(url)
     content = open(data_path(filename), "r").read()
@@ -95,22 +97,26 @@ def test_get_images(patch_get, patch_get_readable_fileobj):
 
 
 def test_get_images_async_1():
-    image = ukidss.core.Ukidss.get_images_async(coord.ICRS
+    payload = ukidss.core.Ukidss.get_images_async(coord.ICRSCoordinates
                                           (ra=83.633083, dec=22.0145, unit=(u.deg, u.deg)),
         radius=20*u.arcmin,
         get_query_payload=True)
-    assert 'xsize' not in image.keys()
-    assert 'ysize' not in image.keys()
+    assert 'xsize' not in payload
+    assert 'ysize' not in payload
 
-    image = ukidss.core.Ukidss.get_images_async(coord.ICRS
+    payload = ukidss.core.Ukidss.get_images_async(coord.ICRSCoordinates
                                           (ra=83.633083, dec=22.0145, unit=(u.deg, u.deg)),
         get_query_payload=True)
-    assert image['xsize'] == image['ysize']
-    assert image['xsize'] == 1
+    assert payload['xsize'] == payload['ysize']
+    assert payload['xsize'] == 1
+
+    test_mockreturn = get_mockreturn(ukidss.core.Ukidss.ARCHIVE_URL, payload)
+    assert 0
 
 
 def test_get_images_async_2(patch_get, patch_get_readable_fileobj):
-    image_urls = ukidss.core.Ukidss.get_images_async(coord.ICRS
+
+    image_urls = ukidss.core.Ukidss.get_images_async(coord.ICRSCoordinates
                                                      (ra=83.633083, dec=22.0145, unit=(u.deg, u.deg)))
     assert len(image_urls) == 1
 
