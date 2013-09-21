@@ -2,7 +2,7 @@
 
 import gzip
 import sys
-from astropy.extern.six import StringIO
+from ..extern.six import StringIO
 
 PY3 = sys.version_info[0] >= 3
 if PY3:
