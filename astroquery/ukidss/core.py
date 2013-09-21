@@ -2,11 +2,6 @@
 from __future__ import print_function
 
 import requests
-try:
-    import htmllib
-except ImportError:
-    # python 3 compatibility
-    import html.parser as htmllib
 import formatter
 import tempfile
 import warnings
@@ -27,38 +22,6 @@ from ..exceptions import TableParseError
 
 __all__ = ['Ukidss','UkidssClass','clean_catalog']
 
-
-class LinksExtractor(htmllib.HTMLParser):  # derive new HTML parser
-
-    def __init__(self, formatter):        # class constructor
-        htmllib.HTMLParser.__init__(self, formatter)  # base class constructor
-        self.links = []        # create an empty list for storing hyperlinks
-
-    def start_a(self, attrs):  # override handler of <A ...>...</A> tags
-        # process the attributes
-        if len(attrs) > 0:
-            for attr in attrs:
-                print(attr)
-                if attr[0] == "href":         # ignore all non HREF attributes
-                    self.links.append(
-                        attr[1])  # save the link info in the list
-
-    def handle_starttag(self, data, attrs=None):
-        if attrs is not None and 'href' in attrs:
-            print("Found attrs: ",attrs,data)
-            return self.start_a(data)
-        elif 'href' in data.lower():
-            raise
-
-    def handle_data(self, data, attrs=None):
-        if attrs is not None and 'href' in attrs:
-            print("Found attrs: ",attrs,data)
-            return self.start_a(data)
-        elif 'href' in data.lower():
-            raise
-
-    def get_links(self):
-        return self.links
 
 
 def validate_frame(func):
@@ -401,16 +364,13 @@ class UkidssClass(QueryWithLogin):
         links : list
             The list of URLS extracted from the input.
         """
-        print("Function has been called.")
         # Parse html input for links
-        fmt = formatter.NullFormatter()
-        print("Created a parser.")
-        htmlparser = LinksExtractor(fmt)
-        htmlparser.feed(html_in)
-        htmlparser.close()
-        links = htmlparser.get_links()
-        if 'href' in html_in and len(links) == 0:
-            raise ValueError("Failed to find links when one is present.")
+        ahref = re.compile('href="([a-zA-Z0-9_\.&\?=%/:-]+)"')
+        try:
+            links = ahref.findall(html_in)
+        except TypeError:
+            # py3
+            links = ahref.findall(html_in.decode())
         return links
 
     def query_region(self, coordinates, radius=1 * u.arcmin, programme_id='GPS', database='UKIDSSDR7PLUS',
@@ -556,8 +516,10 @@ class UkidssClass(QueryWithLogin):
         except Exception as ex:
             self.response = content
             self.table_parse_error = ex
+            raise
             raise TableParseError("Failed to parse UKIDSS votable! The raw response can be found "
-                                  "in self.response, and the error in self.table_parse_error.")
+                                  "in self.response, and the error in self.table_parse_error.  "
+                                  "Exception: " + str(self.table_parse_error))
 
     def list_catalogs(self, style='short'):
         """

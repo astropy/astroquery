@@ -111,7 +111,6 @@ def test_get_images_async_1():
     assert payload['xsize'] == 1
 
     test_mockreturn = get_mockreturn(ukidss.core.Ukidss.ARCHIVE_URL, payload)
-    assert 0
 
 
 def test_get_images_async_2(patch_get, patch_get_readable_fileobj):
