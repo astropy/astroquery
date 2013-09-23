@@ -2,8 +2,7 @@
 from __future__ import print_function
 
 import requests
-import formatter
-import tempfile
+import io
 import warnings
 import re
 import time
@@ -505,10 +504,8 @@ class UkidssClass(QueryWithLogin):
             commons.suppress_vo_warnings()
 
         try:
-            tf = tempfile.NamedTemporaryFile()
-            tf.write(content.encode('utf-8'))
-            tf.flush()
-            first_table = votable.parse(tf.name, pedantic=False).get_first_table()
+            parsed_table = votable.parse(io.BytesIO(content.encode('utf-8')), pedantic=False)
+            first_table = parsed_table.get_first_table()
             table = first_table.to_table()
             if len(table) == 0:
                 warnings.warn("Query returned no results, so the table will be empty")
