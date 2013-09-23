@@ -107,6 +107,8 @@ Additional Links
 
 Maintained by `Adam Ginsburg`_ (`astropy.astroquery@gmail.com`_)
 
+To cite, use our `figshare`_ DOI (http://dx.doi.org/10.6084/m9.figshare.805208).
+
 .. _Download Development ZIP: https://github.com/astropy/astroquery/zipball/master
 .. _Download Development TAR: https://github.com/astropy/astroquery/tarball/master
 .. _Download Stable ZIP: https://github.com/astropy/astroquery/zipball/stable
@@ -119,3 +121,4 @@ Maintained by `Adam Ginsburg`_ (`astropy.astroquery@gmail.com`_)
 .. _Adam Ginsburg: http://www.adamgginsburg.com
 .. _Blog: http://astropy.org/astroquery-blog
 .. _API: http://astroquery.readthedocs.org/en/latest/api.html
+.. _figshare: http://figshare.com/articles/Astroquery_v0_1/805208
