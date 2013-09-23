@@ -109,6 +109,11 @@ Maintained by `Adam Ginsburg`_ (`astropy.astroquery@gmail.com`_)
 
 To cite, use our `figshare`_ DOI (http://dx.doi.org/10.6084/m9.figshare.805208).
 
+.. image:: https://d2weczhvl823v0.cloudfront.net/keflavich/astroquery/trend.png
+   :alt: Bitdeli badge
+   :target: https://bitdeli.com/free
+
+
 .. _Download Development ZIP: https://github.com/astropy/astroquery/zipball/master
 .. _Download Development TAR: https://github.com/astropy/astroquery/tarball/master
 .. _Download Stable ZIP: https://github.com/astropy/astroquery/zipball/stable
