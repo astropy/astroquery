@@ -12,6 +12,7 @@ from ..utils.class_or_instance import class_or_instance
 from ..utils.docstr_chompers import prepend_docstr_noreturns
 from ..utils import commons
 from . import MAGPIS_SERVER, MAGPIS_TIMEOUT
+from ..exceptions import InvalidQueryError
 
 __all__ = ['Magpis']
 
@@ -19,22 +20,27 @@ __all__ = ['Magpis']
 class Magpis(BaseQuery):
     URL = MAGPIS_SERVER()
     TIMEOUT = MAGPIS_TIMEOUT()
-    surveys = ["gps6epoch3",
-    "gps6epoch4",
-    "gps20",
-    "gps20new",
-    "gps90",
-    "gpsmsx",
-    "gpsmsx2",
-    "gpsglimpse36",
-    "gpsglimpse45",
-    "gpsglimpse58",
-    "gpsglimpse80",
-    "mipsgal",
-    "bolocam"]
+    surveys = ["gps6",
+               "gps6epoch2",
+               "gps6epoch3",
+               "gps6epoch4",
+               "gps20",
+               "gps20new",
+               "gps90",
+               "gpsmsx",
+               "gpsmsx2",
+               "gpsglimpse36",
+               "gpsglimpse45",
+               "gpsglimpse58",
+               "gpsglimpse80",
+               "mipsgal",
+               "atlasgal",
+               "bolocam"]
+    maximsize = 1024
 
     @class_or_instance
-    def _args_to_payload(self, coordinates, image_size=1*u.arcmin, survey='bolocam'):
+    def _args_to_payload(self, coordinates, image_size=1*u.arcmin, survey='bolocam',
+                         maximsize=None):
         """
         Fetches image cutouts from MAGPIS surveys.
 
@@ -53,6 +59,9 @@ class Magpis(BaseQuery):
             The MAGPIS survey you want to cut out. Defaults to 'bolocam'. The other
             surveys that can be used can be listed via
             :meth:`~astroquery.core.Magpis.list_surveys`.
+        maximsize : int, optional
+            Specify the maximum image size (in pixels on each dimension) that
+            will be returned.  Max is 2048.
         """
         request_payload = {}
         request_payload["Survey"] = survey
@@ -62,6 +71,7 @@ class Magpis(BaseQuery):
         request_payload["Equinox"] = "Galactic"
         request_payload["ImageSize"] = commons.radius_to_unit(image_size,'arcmin')
         request_payload["ImageType"] = "FITS File"
+        request_payload["MaxImSize"] = self.maximsize if maximsize is None else maximsize
         return request_payload
 
     @class_or_instance
@@ -83,7 +93,10 @@ class Magpis(BaseQuery):
         if get_query_payload:
             return response
         S = BytesIO(response.content)
-        return fits.open(S, ignore_missing_end=True)
+        try:
+            return fits.open(S, ignore_missing_end=True)
+        except IOError:
+            raise InvalidQueryError(response.content) 
 
     @class_or_instance
     @prepend_docstr_noreturns("\n"+_args_to_payload.__doc__)
@@ -99,14 +112,16 @@ class Magpis(BaseQuery):
         response : `requests.Response`
             The HTTP response returned from the service
         """
+        if survey not in self.surveys:
+            raise InvalidQueryError("Survey must be one of "+(",".join(self.list_surveys())))
         request_payload = self._args_to_payload(coordinates, image_size=image_size,
                                                 survey=survey)
         if get_query_payload:
             return request_payload
-        response = commons.send_request(Magpis.URL, request_payload, Magpis.TIMEOUT)
+        response = commons.send_request(self.URL, request_payload, self.TIMEOUT)
         return response
 
     @class_or_instance
     def list_surveys(self):
         """Return a list of surveys for MAGPIS"""
-        return Magpis.surveys
+        return self.surveys
