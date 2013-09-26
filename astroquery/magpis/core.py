@@ -12,6 +12,7 @@ from ..utils.class_or_instance import class_or_instance
 from ..utils.docstr_chompers import prepend_docstr_noreturns
 from ..utils import commons
 from . import MAGPIS_SERVER, MAGPIS_TIMEOUT
+from ...exceptions import InvalidQueryError
 
 __all__ = ['Magpis']
 
@@ -83,7 +84,10 @@ class Magpis(BaseQuery):
         if get_query_payload:
             return response
         S = BytesIO(response.content)
-        return fits.open(S, ignore_missing_end=True)
+        try:
+            fits.open(S, ignore_missing_end=True)
+        except IOError:
+            raise InvalidQueryError(response.content) 
 
     @class_or_instance
     @prepend_docstr_noreturns("\n"+_args_to_payload.__doc__)
