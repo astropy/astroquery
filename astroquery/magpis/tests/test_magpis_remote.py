@@ -14,9 +14,14 @@ from ... import magpis
 class TestMagpis:
 
     def test_get_images_async(self):
-        response = magpis.core.Magpis.get_images_async(coord.GalacticCoordinates(10.5, 0.0, unit=(u.deg, u.deg)))
+        response = magpis.core.Magpis.get_images_async(
+                        coord.GalacticCoordinates(10.5, 0.0, unit=(u.deg, u.deg)),
+                        image_size='1 arcmin')
         assert response is not None
 
     def test_get_images(self):
-        image = magpis.core.Magpis.get_images(coord.GalacticCoordinates(10.5, 0.0, unit=(u.deg, u.deg)))
+        image = magpis.core.Magpis.get_images(
+                coord.GalacticCoordinates(10.5, 0.0, unit=(u.deg, u.deg)),
+                image_size='1 arcmin')
         assert image is not None
+        assert image[0].data.shape == (8,8)
