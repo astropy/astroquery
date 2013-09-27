@@ -23,8 +23,8 @@ __all__ = ['Splatalogue']
 @async_to_sync
 class Splatalogue(BaseQuery):
 
-    SLAP_URL = SLAP_URL
-    QUERY_URL = QUERY_URL
+    SLAP_URL = SLAP_URL()
+    QUERY_URL = QUERY_URL()
     TIMEOUT = SPLATALOGUE_TIMEOUT()
     versions = ('v1.0','v2.0')
 

@@ -46,3 +46,8 @@ def test_load_species_table():
     tbl = splatalogue.load_species_table.species_lookuptable()
     CO = tbl.find(' CO ')
     assert len(CO) == 4
+
+# regression test: ConfigurationItems were in wrong order at one point
+def test_url():
+    assert 'http://' in splatalogue.core.Splatalogue.QUERY_URL
+    assert 'cv.nrao.edu' in splatalogue.core.Splatalogue.QUERY_URL
