@@ -60,7 +60,7 @@ scripts = [fname for fname in glob.glob(os.path.join('scripts', '*'))
 package_info = get_package_info(PACKAGENAME)
 
 # Add the project-global data
-package_info['package_data']['astropy'] = ['data/*']
+package_info['package_data'][PACKAGENAME] = ['data/*']
 
 
 setup(name=PACKAGENAME,
