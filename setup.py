@@ -17,7 +17,7 @@ builtins._ASTROPY_SETUP_ = True
 
 import astropy
 from astropy.setup_helpers import (register_commands, adjust_compiler,
-                                   get_package_info, get_debug_option)
+                                   get_debug_option)
 from astropy.version_helpers import get_git_devstr, generate_version_py
 
 # Set affiliated package-specific settings
@@ -54,14 +54,46 @@ generate_version_py(PACKAGENAME, VERSION, RELEASE, get_debug_option())
 scripts = [fname for fname in glob.glob(os.path.join('scripts', '*'))
            if os.path.basename(fname) != 'README.rst']
 
-# Get configuration information from all of the various subpackages.
-# See the docstring for setup_helpers.update_package_files for more
-# details.
-package_info = get_package_info(PACKAGENAME)
 
-# Add the project-global data
-package_info['package_data'][PACKAGENAME] = ['data/*']
+try:
 
+    from astropy.setup_helpers import get_package_info
+
+    # Get configuration information from all of the various subpackages.
+    # See the docstring for setup_helpers.update_package_files for more
+    # details.
+    package_info = get_package_info(PACKAGENAME)
+
+    # Add the project-global data
+    package_info['package_data'][PACKAGENAME] = ['data/*']
+
+except ImportError: # compatibility with Astropy 0.2 - can be removed in cases
+                    # where Astropy 0.2 is no longer supported
+
+    from setuptools import find_packages
+    from astropy.setup_helpers import filter_packages, update_package_files
+
+    package_info = {}
+
+    # Use the find_packages tool to locate all packages and modules
+    package_info['packages'] = filter_packages(find_packages())
+
+    # Additional C extensions that are not Cython-based should be added here.
+    package_info['ext_modules'] = []
+
+    # A dictionary to keep track of all package data to install
+    package_info['package_data'] = {PACKAGENAME: ['data/*']}
+
+    # A dictionary to keep track of extra packagedir mappings
+    package_info['package_dir'] = {}
+
+    # Update extensions, package_data, packagenames and package_dirs from
+    # any sub-packages that define their own extension modules and package
+    # data.  See the docstring for setup_helpers.update_package_files for
+    # more details.
+    update_package_files(PACKAGENAME, package_info['ext_modules'],
+                         package_info['package_data'], package_info['packages'],
+                         package_info['package_dir'])
 
 setup(name=PACKAGENAME,
       version=VERSION,
