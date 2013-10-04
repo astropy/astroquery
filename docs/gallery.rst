@@ -41,9 +41,25 @@ Example 2:
     MAIN_ID      RA          DEC      RA_PREC DEC_PREC COO_ERR_MAJA COO_ERR_MINA COO_ERR_ANGLE COO_QUAL COO_WAVELENGTH     COO_BIBCODE     BIBLIST_2003_2013
     ------- ------------ ------------ ------- -------- ------------ ------------ ------------- -------- -------------- ------------------- -----------------
       M  31 00 42 44.330 +41 16 07.50       7        7          nan          nan             0        B              I 2006AJ....131.1163S              3758
-    
+
 
 Example 3:
+
+This illustrates finding the spectral type of some particular star.
+
+.. code-block:: python
+
+    >>> from astroquery import simbad
+    >>> s = simbad.Simbad()
+    >>> s.add_votable_fields('sptype')
+    >>> result = s.query_object('g her')
+    >>> result['MAIN_ID'][0]
+    'V* g Her'
+    >>>result['SP_TYPE'][0]
+    'M6III'
+    
+
+Example 4:
 
 .. code-block:: python
 
