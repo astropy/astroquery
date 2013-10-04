@@ -621,15 +621,18 @@ class Simbad(BaseQuery):
         if not verbose:
             commons.suppress_vo_warnings()
         self.last_response = result
-        self.last_parsed_result = SimbadResult(result.content)
+
         try:
-            return self.last_parsed_result.table
+            self.last_parsed_result = SimbadResult(result.content)
+            resulttable = self.last_parsed_result.table
         except Exception as ex:
             self.last_table_parse_error = ex
             raise TableParseError("Failed to parse SIMBAD result! The raw response can be found "
                                   "in self.last_response, and the error in self.last_table_parse_error."
                                   "  The attempted parsed result is in self.last_parsed_result.\n"
                                   "Exception: " + str(ex))
+        resulttable.errors = self.last_parsed_result.errors
+        return resulttable
 
 
 def _parse_coordinates(coordinates):
@@ -732,7 +735,8 @@ class SimbadResult(object):
     def __warn(self):
         for error in self.errors:
             warnings.warn("Warning: The script line number %i raised "
-                         "the error: %s." %
+                         "an error (recorded in the `errors` attribute "
+                         "of the result table): %s" %
                          (error.line, error.msg))
 
     def __get_section(self, section_name):
