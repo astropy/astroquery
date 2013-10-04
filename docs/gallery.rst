@@ -10,11 +10,11 @@ Example 1:
     >>> from astroquery.vizier import Vizier
     >>> # Vizier accepts keywords indicating wavelength & object type
     >>> # You can create a Vizier query object that respects these kws
-    >>> V = Vizier(keywords=['stars:white_dwarf'])
+    >>> v = Vizier(keywords=['stars:white_dwarf'])
     >>> # use astropy coordinates to set a (highly arbitrary) target
     >>> from astropy import coordinates as coord
-    >>> C = coord.ICRSCoordinates(0,0,unit=('deg','deg'))
-    >>> result = V.query_region(C, radius='2 degrees')
+    >>> c = coord.ICRSCoordinates(0,0,unit=('deg','deg'))
+    >>> result = v.query_region(c, radius='2 degrees')
     >>> print len(result)
     31
     >>> result[0].pprint()
@@ -30,13 +30,13 @@ Example 2:
 .. code-block:: python
 
     >>> from astroquery.simbad import Simbad
-    >>> S = Simbad()
+    >>> s = Simbad()
     >>> # You can add new output fields to queries
     >>> # see Simbad.list_votable_fields()
     >>> # bibcodelist(date1-date2) lists the number of bibliography
     >>> # items referring to each object over that date range
-    >>> S.add_votable_fields('bibcodelist(2003-2013)')
-    >>> r = S.query_object('m31')
+    >>> s.add_votable_fields('bibcodelist(2003-2013)')
+    >>> r = s.query_object('m31')
     >>> r.pprint()
     MAIN_ID      RA          DEC      RA_PREC DEC_PREC COO_ERR_MAJA COO_ERR_MINA COO_ERR_ANGLE COO_QUAL COO_WAVELENGTH     COO_BIBCODE     BIBLIST_2003_2013
     ------- ------------ ------------ ------- -------- ------------ ------------ ------------- -------- -------------- ------------------- -----------------
@@ -64,11 +64,11 @@ Example 4:
 .. code-block:: python
 
     >>> from astroquery import simbad
-    >>> S = simbad.Simbad()
+    >>> s = simbad.Simbad()
     >>> # We've seen errors where ra_prec was NAN, but it's an int: that's a problem
     >>> # this is a workaround we adapted
-    >>> S.add_votable_fields('main_id','ra(d)','dec(d)')
-    >>> S.remove_votable_fields('coordinates')
+    >>> s.add_votable_fields('main_id','ra(d)','dec(d)')
+    >>> s.remove_votable_fields('coordinates')
     >>> result[:5].pprint()
          MAIN_ID           RA_d        DEC_d
     ------------------ ------------ ------------
