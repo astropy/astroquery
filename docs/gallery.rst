@@ -5,16 +5,18 @@ A series of queries folks have performed for research or for kicks.
 
 Example 1:
 
+This illustrates querying Vizier with specific keyword, and the use of 
+`astropy.coordinates` to describe a query.
+Vizier's keywords can indicate wavelength & object type, although only 
+object type is shown here.
+
 .. code-block:: python
 
     >>> from astroquery.vizier import Vizier
-    >>> # Vizier accepts keywords indicating wavelength & object type
-    >>> # You can create a Vizier query object that respects these kws
-    >>> V = Vizier(keywords=['stars:white_dwarf'])
-    >>> # use astropy coordinates to set a (highly arbitrary) target
+    >>> v = Vizier(keywords=['stars:white_dwarf'])
     >>> from astropy import coordinates as coord
-    >>> C = coord.ICRSCoordinates(0,0,unit=('deg','deg'))
-    >>> result = V.query_region(C, radius='2 degrees')
+    >>> c = coord.ICRSCoordinates(0,0,unit=('deg','deg'))
+    >>> result = v.query_region(c, radius='2 degrees')
     >>> print len(result)
     31
     >>> result[0].pprint()
@@ -27,39 +29,37 @@ Example 1:
 
 Example 2:
 
+This illustrates addinf new output fields to SIMBAD queries. 
+Run `astropquery.simbad.Simbad.list_votable_fields` to get the full list of valid fields.
+
 .. code-block:: python
 
     >>> from astroquery.simbad import Simbad
-    >>> S = Simbad()
-    >>> # You can add new output fields to queries
-    >>> # see Simbad.list_votable_fields()
+    >>> s = Simbad()
     >>> # bibcodelist(date1-date2) lists the number of bibliography
     >>> # items referring to each object over that date range
-    >>> S.add_votable_fields('bibcodelist(2003-2013)')
-    >>> r = S.query_object('m31')
+    >>> s.add_votable_fields('bibcodelist(2003-2013)')
+    >>> r = s.query_object('m31')
     >>> r.pprint()
     MAIN_ID      RA          DEC      RA_PREC DEC_PREC COO_ERR_MAJA COO_ERR_MINA COO_ERR_ANGLE COO_QUAL COO_WAVELENGTH     COO_BIBCODE     BIBLIST_2003_2013
     ------- ------------ ------------ ------- -------- ------------ ------------ ------------- -------- -------------- ------------------- -----------------
       M  31 00 42 44.330 +41 16 07.50       7        7          nan          nan             0        B              I 2006AJ....131.1163S              3758
-    
+
 
 Example 3:
+
+This illustrates finding the spectral type of some particular star.
 
 .. code-block:: python
 
     >>> from astroquery import simbad
-    >>> S = simbad.Simbad()
-    >>> # We've seen errors where ra_prec was NAN, but it's an int: that's a problem
-    >>> # this is a workaround we adapted
-    >>> S.add_votable_fields('main_id','ra(d)','dec(d)')
-    >>> S.remove_votable_fields('coordinates')
-    >>> result[:5].pprint()
-         MAIN_ID           RA_d        DEC_d
-    ------------------ ------------ ------------
-      [AU88] 5.95-37.9  11.88896000 -25.28775000
-       SNR G315.0-02.3 220.76700000 -62.46200000
-             [DD88] 14 192.71670000  41.12110000
-            [U2000] 22  11.92991700 -25.26106400
-    [MF97] NGC 5585  3 214.96500000  56.73920000
+    >>> s = simbad.Simbad()
+    >>> s.add_votable_fields('sptype')
+    >>> result = s.query_object('g her')
+    >>> result['MAIN_ID'][0]
+    'V* g Her'
+    >>>result['SP_TYPE'][0]
+    'M6III'
     
 
+    
