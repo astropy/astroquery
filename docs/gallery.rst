@@ -5,13 +5,15 @@ A series of queries folks have performed for research or for kicks.
 
 Example 1:
 
+This illustrates querying Vizier with specific keyword, and the use of 
+`astropy.coordinates` to describe a query.
+Vizier's keywords can indicate wavelength & object type, although only 
+object type is shown here.
+
 .. code-block:: python
 
     >>> from astroquery.vizier import Vizier
-    >>> # Vizier accepts keywords indicating wavelength & object type
-    >>> # You can create a Vizier query object that respects these kws
     >>> v = Vizier(keywords=['stars:white_dwarf'])
-    >>> # use astropy coordinates to set a (highly arbitrary) target
     >>> from astropy import coordinates as coord
     >>> c = coord.ICRSCoordinates(0,0,unit=('deg','deg'))
     >>> result = v.query_region(c, radius='2 degrees')
@@ -27,12 +29,13 @@ Example 1:
 
 Example 2:
 
+This illustrates addinf new output fields to SIMBAD queries. 
+Run `astropquery.simbad.Simbad.list_votable_fields` to get the full list of valid fields.
+
 .. code-block:: python
 
     >>> from astroquery.simbad import Simbad
     >>> s = Simbad()
-    >>> # You can add new output fields to queries
-    >>> # see Simbad.list_votable_fields()
     >>> # bibcodelist(date1-date2) lists the number of bibliography
     >>> # items referring to each object over that date range
     >>> s.add_votable_fields('bibcodelist(2003-2013)')
