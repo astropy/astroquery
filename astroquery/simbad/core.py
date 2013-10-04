@@ -620,17 +620,16 @@ class Simbad(BaseQuery):
     def _parse_result(self, result, verbose=False):
         if not verbose:
             commons.suppress_vo_warnings()
-        parsed_result = SimbadResult(result.content)
+        self.last_response = result
+        self.last_parsed_result = SimbadResult(result.content)
         try:
-            return parsed_result.table
+            return self.last_parsed_result.table
         except Exception as ex:
-            self.parsed_result = parsed_result
-            self.response = result
-            self.table_parse_error = ex
+            self.last_table_parse_error = ex
             raise TableParseError("Failed to parse SIMBAD result! The raw response can be found "
-                                  "in self.response, and the error in self.table_parse_error."
-                                  "  The attempted parsed result is in self.parsed_result.\n"
-                                  "Exception: " + str(self.table_parse_error))
+                                  "in self.last_response, and the error in self.last_table_parse_error."
+                                  "  The attempted parsed result is in self.last_parsed_result.\n"
+                                  "Exception: " + str(ex))
 
 
 def _parse_coordinates(coordinates):
