@@ -342,16 +342,53 @@ class Simbad(BaseQuery):
         response : `requests.response`
             the response of the query from the server
         """
-        from astropy.utils import isiterable
-        if isiterable(object_name) and not isinstance(object_name, basestring):
-            #SIMBAD accepts newline-sperated object names as a query
-            object_name = '\n'.join(object_name)
-
         request_payload = self._args_to_payload(object_name, wildcard=wildcard,
                                                 caller='query_object_async')
         response = commons.send_request(self.SIMBAD_URL, request_payload,
                                 self.TIMEOUT)
         return response
+
+
+    @class_or_instance
+    def query_objects(self, object_names, wildcard=False, verbose=False):
+        """
+        Queries Simbad for the specified list of objects and returns the results
+        as an `astropy.table.Table`. Object names may be specified with
+        wildcards if desired.
+
+        Parameters
+        ----------
+        object_names : sequence of strs
+            names of objects to be queried
+        wildcard : boolean, optional
+            When `True`, the names may have wildcards in them.
+
+        Returns
+        -------
+        `astropy.table.Table`
+            The results of the query as an `astropy.table.Table`.
+        """
+        return self.query_object('\n'.join(object_names), wildcard)
+
+    @class_or_instance
+    def query_objects_async(self, object_names, wildcard=False):
+        """
+        Same as `astoquery.simbad.Simbad.query_objects`, but
+        only collects the reponse from the Simbad server and returns.
+
+        Parameters
+        ----------
+        object_names : sequence of strs
+            names of objects to be queried
+        wildcard : boolean, optional
+            When `True`, the names may have wildcards in them.
+
+        Returns
+        -------
+        response : `requests.response`
+            the response of the query from the server
+        """
+        return self.query_object_async('\n'.join(object_names), wildcard)
 
     @class_or_instance
     def query_region(self, coordinates, radius=None,

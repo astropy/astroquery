@@ -83,12 +83,19 @@ class TestSimbad(object):
         assert isinstance(result, Table)
 
     def test_query_multi_object(self):
-        result = simbad.core.Simbad.query_object(['M32', 'M81'])
+        result = simbad.core.Simbad.query_objects(['M32', 'M81'])
         assert len(result) == 2
         assert len(result.errors) == 0
 
-        result = simbad.core.Simbad.query_object(['M32', 'M81', 'gHer'])
+        result = simbad.core.Simbad.query_objects(['M32', 'M81', 'gHer'])
         #'gHer' is not a valid Simbad identifier - it should be 'g Her' to get the star
         assert len(result) == 2
         assert len(result.errors) == 1
+
+        #test async
+        s = simbad.core.Simbad()
+        response = s.query_objects_async(['M32', 'M81'])
+
+        result = s._parse_result(response)
+        assert len(result) == 1
 
