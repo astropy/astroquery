@@ -62,22 +62,4 @@ This illustrates finding the spectral type of some particular star.
     'M6III'
     
 
-Example 4:
-
-.. code-block:: python
-
-    >>> from astroquery import simbad
-    >>> s = simbad.Simbad()
-    >>> # We've seen errors where ra_prec was NAN, but it's an int: that's a problem
-    >>> # this is a workaround we adapted
-    >>> s.add_votable_fields('main_id','ra(d)','dec(d)')
-    >>> s.remove_votable_fields('coordinates')
-    >>> result[:5].pprint()
-         MAIN_ID           RA_d        DEC_d
-    ------------------ ------------ ------------
-      [AU88] 5.95-37.9  11.88896000 -25.28775000
-       SNR G315.0-02.3 220.76700000 -62.46200000
-             [DD88] 14 192.71670000  41.12110000
-            [U2000] 22  11.92991700 -25.26106400
-    [MF97] NGC 5585  3 214.96500000  56.73920000
     
