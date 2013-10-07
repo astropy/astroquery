@@ -22,7 +22,6 @@ from astropy import units as u
 from ..query import BaseQuery
 from ..utils.class_or_instance import class_or_instance
 
-import astropy.utils.data as aud
 from ..utils.docstr_chompers import prepend_docstr_noreturns
 
 __all__ = ['ALFALFA']
@@ -188,7 +187,7 @@ class ALFALFA(BaseQuery):
         agc = str(agc).zfill(6)
 
         link = "%s/A%s.fits" % (ALFALFA.FITS_PREFIX, agc)
-        result = aud.get_readable_fileobj(link)
+        result = commons.FileContainer(link)
         return result
 
     @class_or_instance
@@ -201,5 +200,5 @@ class ALFALFA(BaseQuery):
         """
 
         result = self.get_spectrum_async(agc)
-        hdulist = fits.open(result.__enter__(), ignore_missing_end=True)
+        hdulist = result.get_fits()
         return hdulist
