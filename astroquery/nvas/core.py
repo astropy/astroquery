@@ -6,7 +6,6 @@ import re
 import astropy.units as u
 from astropy.io import fits
 from astropy import coordinates as coord
-import astropy.utils.data as aud
 
 from ..query import BaseQuery
 from ..utils.class_or_instance import class_or_instance
@@ -77,10 +76,7 @@ class Nvas(BaseQuery):
         if get_query_payload:
             return readable_objs
 
-        filelist = []
-        for obj in readable_objs:
-            with obj as f:
-                filelist.append(fits.open(f,ignore_missing_end=True))
+        filelist = [obj.get_fits() for obj in readable_objs]
 
         return filelist
 
@@ -129,7 +125,7 @@ class Nvas(BaseQuery):
         if verbose:
             print("{num} images found.".format(num=len(image_urls)))
 
-        return [aud.get_readable_fileobj(U) for U in image_urls]
+        return [commons.FileContainer(U) for U in image_urls]
 
     @class_or_instance
     def get_image_list(self, coordinates, radius=0.25 * u.arcmin, max_rms=10000,
