@@ -3,14 +3,12 @@ from __future__ import print_function
 
 import tempfile
 import re
-import warnings
 from collections import namedtuple
 from xml.dom.minidom import parseString
 from datetime import datetime
 
 import astropy.units as u
 import astropy.coordinates as coord
-import astropy.utils.data as aud
 import astropy.io.votable as votable
 from astropy import __version__ as ASTROPY_VERSION
 from astropy.io import fits
@@ -349,10 +347,11 @@ class Ned(BaseQuery):
         A list of `astropy.fits.HDUList` objects
 
         """
-        readable_objs = self.get_images_async(object_name, get_query_payload=get_query_payload)
+        readable_objs = self.get_images_async(object_name,
+                                              get_query_payload=get_query_payload)
         if get_query_payload:
             return readable_objs
-        return [fits.open(obj.__enter__(), ignore_missing_end=True) for obj in readable_objs]
+        return [obj.get_fits() for obj in readable_objs]
 
     @class_or_instance
     def get_images_async(self, object_name, get_query_payload=False):
@@ -375,7 +374,7 @@ class Ned(BaseQuery):
         image_urls = self.get_image_list(object_name, get_query_payload=get_query_payload)
         if get_query_payload:
             return image_urls
-        return [aud.get_readable_fileobj(U) for U in image_urls]
+        return [commons.FileContainer(U) for U in image_urls]
 
     @class_or_instance
     def get_spectra(self, object_name, get_query_payload=False):
@@ -398,7 +397,7 @@ class Ned(BaseQuery):
         readable_objs = self.get_spectra_async(object_name, get_query_payload=get_query_payload)
         if get_query_payload:
             return readable_objs
-        return [fits.open(obj.__enter__(), ignore_missing_end=True) for obj in readable_objs]
+        return [obj.get_fits() for obj in readable_objs]
 
     @class_or_instance
     def get_spectra_async(self, object_name, get_query_payload=False):
@@ -421,7 +420,7 @@ class Ned(BaseQuery):
         image_urls = self.get_image_list(object_name, item='spectra', get_query_payload=get_query_payload)
         if get_query_payload:
             return image_urls
-        return [aud.get_readable_fileobj(U) for U in image_urls]
+        return [commons.FileContainer(U) for U in image_urls]
 
     @class_or_instance
     def get_image_list(self, object_name, item='image', get_query_payload=False):
