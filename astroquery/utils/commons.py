@@ -11,7 +11,8 @@ import warnings
 import astropy.units as u
 from astropy import coordinates as coord
 from astropy.utils import OrderedDict
-import astropy.io.votable as votable
+import astropy.utils.data as aud
+from astropy.io import fits,votable
 
 from ..exceptions import TimeoutError
 from .. import version
@@ -274,3 +275,41 @@ def validate_email(email):
         return validate_email.validate_email(email)
     except ImportError:
         return bool(re.compile('^\S+@\S+\.\S+$').match(email))
+
+class FileContainer(object):
+    """
+    A File Object container, meant to offer lazy access to downloaded FITS
+    files.
+    """
+
+    def __init__(self, target):
+
+        self._target = target
+        self._readable_object = aud.get_readable_fileobj(target)
+
+    def get_fits(self):
+        """
+        Assuming the contained file is a FITS file, read it
+        and return the file parsed as FITS HDUList
+        """
+        filedata = self.get_string()
+
+        self._fits = fits.HDUList.fromstring(filedata)
+
+        return self._fits
+
+    def get_string(self):
+        """
+        Download the file as a string
+        """
+        if not hasattr(self,'_string'):
+            with self._readable_object as f:
+                self._string = f.read()
+
+        return self._string
+
+    def __repr__(self):
+        if hasattr(self,'_fits'):
+            return "Downloaded FITS file: "+self._fits.__repr__()
+        else:
+            return "Downloaded object from URL {} with ID {}".format(self._target, id(self._readable_object))
