@@ -314,10 +314,11 @@ class FileContainer(object):
         Return the file as an io.StringIO object
         """
         s = self.get_string()
+        # TODO: replace with six.BytesIO
         try:
-            return io.StringIO(s)
-        except TypeError:
             return io.BytesIO(s)
+        except TypeError:
+            return io.StringIO(s)
 
     def __repr__(self):
         if hasattr(self,'_fits'):
