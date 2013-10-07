@@ -224,7 +224,7 @@ class Ukidss(QueryWithLogin):
                                               get_query_payload=get_query_payload)
         if get_query_payload:
             return readable_objs
-        return [fits.open(obj.__enter__(), ignore_missing_end=True) for obj in readable_objs]
+        return [obj.get_fits() for obj in readable_objs]
 
     @class_or_instance
     def get_images_async(self, coordinates, waveband='all', frame_type='stack',
@@ -280,7 +280,7 @@ class Ukidss(QueryWithLogin):
         if verbose:
             print("Found {num} targets".format(num=len(image_urls)))
 
-        return [aud.get_readable_fileobj(U) for U in image_urls]
+        return [commons.FileContainer(U) for U in image_urls]
 
     @class_or_instance
     @validate_frame
