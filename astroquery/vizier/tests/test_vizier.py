@@ -115,6 +115,18 @@ def test_get_catalogs(patch_post):
     result = vizier.core.Vizier.get_catalogs('J/ApJ/706/83')
     assert isinstance(result, commons.TableList)
 
+class TestVizierKeywordClass:
+
+    def test_init(self):
+        v = vizier.core.VizierKeyword(keywords=['cobe', 'xmm'])
+        assert v.keyword_dict is not None
+
+    def test_keywords(self, recwarn):
+        vizier.core.VizierKeyword(keywords=['xxx','coBe'])
+        w = recwarn.pop(UserWarning)
+        # warning must be emitted
+        assert (w.message.message == 'xxx : No such keyword')
+
 
 class TestVizierClass:
 
@@ -151,16 +163,4 @@ class TestVizierClass:
             del v.columns
         del v.column_filters
         assert v.column_filters is None
-
-class TestVizierKeywordClass:
-
-    def test_init(self):
-        v = vizier.core.VizierKeyword(keywords=['cobe', 'xmm'])
-        assert v.keyword_dict is not None
-
-    def test_keywords(self, capsys):
-        vizier.core.VizierKeyword(keywords=['xxx','coBe'])
-        out, err = capsys.readouterr()
-        # warning must be emitted
-        assert out != ""
 
