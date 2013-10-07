@@ -3,7 +3,6 @@ import os
 import xml.etree.ElementTree as tree
 
 import astropy.units as u
-import astropy.utils.data as aud
 from astropy.tests.helper import pytest  # import this since the user may not have pytest installed
 
 from ... import irsa_dust
@@ -296,18 +295,20 @@ class TestDust(DustTestCase):
 
     def get_ext_table_async_mockreturn(self, coordinate, radius=None,
                                        timeout=irsa_dust.core.IrsaDust.TIMEOUT):
-        return(aud.get_readable_fileobj(self.data(EXT_TBL)))
+        return(commons.FileContainer(self.data(EXT_TBL)))
 
     def get_image_list_mockreturn(
         self, coordinate, radius=None, image_type=None,
             timeout=irsa_dust.core.IrsaDust.TIMEOUT):
         return [self.data(IMG_FITS)]
 
-    def get_images_async_mockreturn(
-        self, coordinate, radius=None, image_type=None,
-        timeout=irsa_dust.core.IrsaDust.TIMEOUT,
-            get_query_payload=False):
-        readable_obj = aud.get_readable_fileobj(self.data(IMG_FITS))
+    def get_images_async_mockreturn(self,
+                                    coordinate,
+                                    radius=None,
+                                    image_type=None,
+                                    timeout=irsa_dust.core.IrsaDust.TIMEOUT,
+                                    get_query_payload=False):
+        readable_obj = commons.FileContainer(self.data(IMG_FITS))
         return [readable_obj]
 
     def set_ext_table_text(self, text, xml_tree):

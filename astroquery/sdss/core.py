@@ -21,7 +21,6 @@ from . import SDSS_SERVER, SDSS_MAXQUERY
 from ..utils.class_or_instance import class_or_instance
 from ..utils import commons, async_to_sync
 from ..utils.docstr_chompers import prepend_docstr_noreturns
-import astropy.utils.data as aud
 
 __all__ = ['SDSS']
 
@@ -152,7 +151,7 @@ class SDSS(BaseQuery):
             link = '%s/%s/1d/spSpec-%s-%s-%s.fit' % (SDSS.SPECTRO_1D, plate,
                                                      mjd, plate, fiber)
 
-            results.append(aud.get_readable_fileobj(link))
+            results.append(commons.FileContainer(link))
 
         return results
 
@@ -167,7 +166,7 @@ class SDSS(BaseQuery):
 
         readable_objs = self.get_spectra_async(matches, plate=plate, fiberID=fiberID, mjd=mjd)
 
-        return [fits.open(obj.__enter__(), ignore_missing_end=True) for obj in readable_objs]
+        return [obj.get_fits() for obj in readable_objs]
 
     @class_or_instance
     def get_images_async(self, matches, run=None, rerun=None, camcol=None,
@@ -204,7 +203,7 @@ class SDSS(BaseQuery):
             link = linkstr % (SDSS.IMAGING, row['run'], row['rerun'],
                               row['camcol'], field, band)
 
-            results.append(aud.get_readable_fileobj(link))
+            results.append(commons.FileContainer(link))
 
         return results
 
@@ -220,7 +219,7 @@ class SDSS(BaseQuery):
 
         readable_objs = self.get_images_async(matches, run=run, rerun=rerun, camcol=camcol)
 
-        return [fits.open(obj.__enter__(), ignore_missing_end=True) for obj in readable_objs]
+        return [obj.get_fits() for obj in readable_objs]
 
     @class_or_instance
     def get_spectral_template_async(self, kind='qso'):
@@ -263,7 +262,7 @@ class SDSS(BaseQuery):
         for index in indices:
             name = str(index).zfill(3)
             link = '%s-%s.fit' % (SDSS.TEMPLATES, name)
-            results.append(aud.get_readable_fileobj(link))
+            results.append(commons.FileContainer(link))
 
         return results
 
@@ -279,7 +278,7 @@ class SDSS(BaseQuery):
 
         readable_objs = self.get_spectral_template_async(kind=kind)
 
-        return [fits.open(obj.__enter__(), ignore_missing_end=True) for obj in readable_objs]
+        return [obj.get_fits() for obj in readable_objs]
 
     @class_or_instance
     def _parse_result(self, response, verbose=False):

@@ -1,9 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from astropy.table import Table, Column
 import astropy.units as u
-import astropy.utils.data as aud
 import astropy.coordinates as coord
-from astropy.io import fits
 from . import utils
 from . import IRSA_DUST_SERVER, IRSA_DUST_TIMEOUT
 from ..utils.class_or_instance import class_or_instance
@@ -88,7 +86,7 @@ class IrsaDust(BaseQuery):
         readable_objs = self.get_images_async(
             coordinate, radius=radius, image_type=image_type,
             timeout=timeout, get_query_payload=get_query_payload)
-        return [fits.open(obj.__enter__()) for obj in readable_objs]
+        return [obj.get_fits() for obj in readable_objs]
 
     @class_or_instance
     def get_images_async(self, coordinate, radius=None,
@@ -129,7 +127,7 @@ class IrsaDust(BaseQuery):
             return self._args_to_payload(coordinate, radius=radius)
         image_urls = self.get_image_list(coordinate, radius=radius,
                                          image_type=image_type, timeout=timeout)
-        return [aud.get_readable_fileobj(U) for U in image_urls]
+        return [commons.FileContainer(U) for U in image_urls]
 
     @class_or_instance
     def get_image_list(
@@ -196,7 +194,7 @@ class IrsaDust(BaseQuery):
         """
         readable_obj = self.get_extinction_table_async(
             coordinate, radius=radius, timeout=timeout)
-        table = Table.read(readable_obj.__enter__(), format='ipac')
+        table = Table.read(readable_obj.get_stringio(), format='ipac')
         return table
 
     @class_or_instance
@@ -231,7 +229,7 @@ class IrsaDust(BaseQuery):
         response = commons.send_request(url, request_payload, timeout)
         xml_tree = utils.xml(response.text)
         result = SingleDustResult(xml_tree, coordinate)
-        return aud.get_readable_fileobj(result.ext_detail_table())
+        return commons.FileContainer(result.ext_detail_table())
 
     @class_or_instance
     def get_query_table(self, coordinate, radius=None,

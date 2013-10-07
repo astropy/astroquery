@@ -7,6 +7,7 @@ import re
 import sys
 import requests
 import warnings
+import io
 
 import astropy.units as u
 from astropy import coordinates as coord
@@ -307,6 +308,16 @@ class FileContainer(object):
                 self._string = f.read()
 
         return self._string
+
+    def get_stringio(self):
+        """
+        Return the file as an io.StringIO object
+        """
+        s = self.get_string()
+        try:
+            return io.StringIO(s)
+        except TypeError:
+            return io.BytesIO(s)
 
     def __repr__(self):
         if hasattr(self,'_fits'):
