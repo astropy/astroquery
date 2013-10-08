@@ -329,6 +329,8 @@ class FileContainer(object):
         with aud._open_shelve(urlmapfn, True) as url2hash:
             if str(self._target) in url2hash:
                 target = url2hash[str(self._target)]
+            else:
+                raise IOError("Cached file not found / does not exist.")
 
         if link_cache == 'hard':
             try:
