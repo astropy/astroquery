@@ -8,6 +8,8 @@ import sys
 import requests
 import warnings
 import io
+import os
+import shutil
 
 import astropy.units as u
 from astropy import coordinates as coord
@@ -283,10 +285,10 @@ class FileContainer(object):
     files.
     """
 
-    def __init__(self, target):
+    def __init__(self, target, cache=True):
 
         self._target = target
-        self._readable_object = aud.get_readable_fileobj(target)
+        self._readable_object = aud.get_readable_fileobj(target, cache=cache)
 
     def get_fits(self):
         """
@@ -298,6 +300,45 @@ class FileContainer(object):
         self._fits = fits.HDUList.fromstring(filedata)
 
         return self._fits
+
+    def save_fits(self, savepath, link_cache='hard'):
+        """
+        Save a FITS file to savepath
+
+        Parameters
+        ----------
+        savepath : str
+            The full path to a FITS filename, e.g. "file.fits", or
+            "/path/to/file.fits".
+        link_cache : 'hard', 'sym', or False
+            Try to create a hard or symbolic link to the astropy cached file?
+            If the system is unable to create a hardlink, the file will be
+            copied to the target location.
+        """
+        from warnings import warn
+
+        self.get_fits()
+
+        try:
+            dldir, urlmapfn = aud._get_download_cache_locs()
+        except (IOError, OSError) as e:
+            msg = 'Remote data cache could not be accessed due to '
+            estr = '' if len(e.args) < 1 else (': ' + str(e))
+            warn(aud.CacheMissingWarning(msg + e.__class__.__name__ + estr))
+
+        with aud._open_shelve(urlmapfn, True) as url2hash:
+            if str(self._target) in url2hash:
+                target = url2hash[str(self._target)]
+
+        if link_cache == 'hard':
+            try:
+                os.link(target, savepath)
+            except (IOError,OSError) as e:
+                shutil.copy(target, savepath)
+        elif link_cache == 'sym':
+            os.symlink(target, savepath)
+        else:
+            shutil.copy(target, savepath)
 
     def get_string(self):
         """
