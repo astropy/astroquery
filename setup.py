@@ -1,24 +1,12 @@
 #!/usr/bin/env python
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
-import sys
-import imp
-try:
-    # This incantation forces distribute to be used (over setuptools) if it is
-    # available on the path; otherwise distribute will be downloaded.
-    import pkg_resources
-    distribute = pkg_resources.get_distribution('distribute')
-    if pkg_resources.get_distribution('setuptools') != distribute:
-        sys.path.insert(1, distribute.location)
-        distribute.activate()
-        imp.reload(pkg_resources)
-except:  # There are several types of exceptions that can occur here
-    from distribute_setup import use_setuptools
-    use_setuptools()
-
 import glob
 import os
-from setuptools import setup, find_packages
+import sys
+
+import setuptools_bootstrap
+from setuptools import setup
 
 #A dirty hack to get around some early import/configurations ambiguities
 if sys.version_info[0] >= 3:
@@ -26,12 +14,6 @@ if sys.version_info[0] >= 3:
 else:
     import __builtin__ as builtins
 builtins._ASTROPY_SETUP_ = True
-
-import astropy
-from astropy.setup_helpers import (register_commands, adjust_compiler,
-                                   filter_packages, update_package_files,
-                                   get_debug_option)
-from astropy.version_helpers import get_git_devstr, generate_version_py
 
 # Set affiliated package-specific settings
 PACKAGENAME = 'packagename'
@@ -48,62 +30,87 @@ VERSION = '0.0.dev'
 # Indicates if this version is a release version
 RELEASE = 'dev' not in VERSION
 
-if not RELEASE:
-    VERSION += get_git_devstr(False)
-
-# Populate the dict of setup command overrides; this should be done before
-# invoking any other functionality from distutils since it can potentially
-# modify distutils' behavior.
-cmdclassd = register_commands(PACKAGENAME, VERSION, RELEASE)
-
-# Adjust the compiler in case the default on this platform is to use a
-# broken one.
-adjust_compiler(PACKAGENAME)
-
-# Freeze build information in version.py
-generate_version_py(PACKAGENAME, VERSION, RELEASE, get_debug_option())
-
-# Use the find_packages tool to locate all packages and modules
-packagenames = filter_packages(find_packages())
+metadata = dict(
+    name=PACKAGENAME,
+    package_data={},
+    version=VERSION,
+    description=DESCRIPTION,
+    requires=['astropy'],
+    install_requires=['astropy'],
+    provides=[PACKAGENAME],
+    author=AUTHOR,
+    author_email=AUTHOR_EMAIL,
+    license=LICENSE,
+    url=URL,
+    long_description=LONG_DESCRIPTION,
+    zip_safe=False,
+    use_2to3=True
+)
 
 # Treat everything in scripts except README.rst as a script to be installed
-scripts = [fname for fname in glob.glob(os.path.join('scripts', '*'))
-           if os.path.basename(fname) != 'README.rst']
+metadata['scripts'] = [fname for fname in glob.glob(os.path.join('scripts', '*'))
+                       if os.path.basename(fname) != 'README.rst']
 
-# Additional C extensions that are not Cython-based should be added here.
-extensions = []
+# Add the project-global data
+metadata['package_data'][PACKAGENAME] = ['data/*']
 
-# A dictionary to keep track of all package data to install
-package_data = {PACKAGENAME: ['data/*']}
+if len(sys.argv) >= 2 and sys.argv[1] == 'egg_info':
 
-# A dictionary to keep track of extra packagedir mappings
-package_dirs = {}
+    # TODO: if we have a copy of get_git_devstr in the package template we can
+    # set the proper version here.
 
-# Update extensions, package_data, packagenames and package_dirs from
-# any sub-packages that define their own extension modules and package
-# data.  See the docstring for setup_helpers.update_package_files for
-# more details.
-update_package_files(PACKAGENAME, extensions, package_data, packagenames,
-                     package_dirs)
+    pass
 
+else:
 
-setup(name=PACKAGENAME,
-      version=VERSION,
-      description=DESCRIPTION,
-      packages=packagenames,
-      package_data=package_data,
-      package_dir=package_dirs,
-      ext_modules=extensions,
-      scripts=scripts,
-      requires=['astropy'],
-      install_requires=['astropy'],
-      provides=[PACKAGENAME],
-      author=AUTHOR,
-      author_email=AUTHOR_EMAIL,
-      license=LICENSE,
-      url=URL,
-      long_description=LONG_DESCRIPTION,
-      cmdclass=cmdclassd,
-      zip_safe=False,
-      use_2to3=True
-      )
+    from astropy.setup_helpers import register_commands, adjust_compiler, get_debug_option
+    from astropy.version_helpers import get_git_devstr, generate_version_py
+
+    if not RELEASE:
+        VERSION += get_git_devstr(False)
+
+    # Populate the dict of setup command overrides; this should be done before
+    # invoking any other functionality from distutils since it can potentially
+    # modify distutils' behavior.
+    metadata['cmdclass'] = register_commands(PACKAGENAME, VERSION, RELEASE)
+
+    # Adjust the compiler in case the default on this platform is to use a
+    # broken one.
+    adjust_compiler(PACKAGENAME)
+
+    # Freeze build information in version.py
+    generate_version_py(PACKAGENAME, VERSION, RELEASE, get_debug_option())
+
+    try:
+
+        from astropy.setup_helpers import get_package_info
+
+        # Get configuration information from all of the various subpackages.
+        # See the docstring for setup_helpers.update_package_files for more
+        # details.
+        metadata.update(get_package_info(PACKAGENAME))
+
+    except ImportError: # compatibility with Astropy 0.2 - can be removed in cases
+                        # where Astropy 0.2 is no longer supported
+
+        from setuptools import find_packages
+        from astropy.setup_helpers import filter_packages, update_package_files
+
+        # Use the find_packages tool to locate all packages and modules
+        metadata['packages'] = filter_packages(find_packages())
+
+        # Additional C extensions that are not Cython-based should be added here.
+        metadata['ext_modules'] = []
+
+        # A dictionary to keep track of extra packagedir mappings
+        metadata['package_dir'] = {}
+
+        # Update extensions, package_data, packagenames and package_dirs from
+        # any sub-packages that define their own extension modules and package
+        # data.  See the docstring for setup_helpers.update_package_files for
+        # more details.
+        update_package_files(PACKAGENAME, metadata['ext_modules'],
+                             metadata['package_data'], metadata['packages'],
+                             metadata['package_dir'])
+
+setup(**metadata)

@@ -11,6 +11,7 @@ except NameError:
         import __builtin__ as builtins
     builtins._ASTROPY_SETUP_ = False
     del version_info
+    del builtins
 
 try:
     from .version import version as __version__
@@ -82,6 +83,12 @@ def test(package=None, test_path=None, args=None, plugins=None,
         Fail when any tests leave files open.  Off by default, because
         this adds extra run time to the test suite.  Works only on
         platforms with a working `lsof` command.
+
+    parallel : int, optional
+        When provided, run the tests in parallel on the specified
+        number of CPUs.  If parallel is negative, it will use the all
+        the cores on the machine.  Requires the `pytest-xdist` plugin
+        is installed. Only available when using Astropy 0.3 or later.
 
     kwargs
         Any additional keywords passed into this function will be passed
