@@ -61,12 +61,27 @@ def validate_equinox(func):
     return wrapper
 
     
-def strip_field(f):
-    """Helper tool: remove parameters from VOTABLE fields"""
+def strip_field(f, keep_filters=False):
+    """Helper tool: remove parameters from VOTABLE fields
+    However, this should only be applied to a subset of VOTABLE fields:
+    
+     * ra
+     * dec
+     * otype
+     * id
+     * coo
+     * bibcodelist
+     
+    *if* keep_filters is specified
+    """
     if '(' in f:
-        return f[:f.find('(')]
-    else:
-        return f
+        root = f[:f.find('(')]
+        if (root in ('ra','dec','otype','id','coo','bibcodelist')
+                 or not keep_filters):
+            return root
+
+    # the overall else (default option)
+    return f
 
 class Simbad(BaseQuery):
     """
@@ -188,8 +203,13 @@ class Simbad(BaseQuery):
             sf = strip_field(field)
             if sf not in fields_dict:
                 raise KeyError("{field}: no such field".format(field=field))
-            elif sf in [strip_field(f) for f in Simbad._VOTABLE_FIELDS]:
-                raise KeyError("{field}: field already present".format(field=field))
+            elif sf in [strip_field(f,keep_filters=True) for f in Simbad._VOTABLE_FIELDS]:
+                errmsg = "{field}: field already present.  ".format(field=field)
+                errmsg += ("Fields ra,dec,id,otype, and bibcodelist can only "
+                           "be specified once.  To change their options, "
+                           "first remove the existing entry, then add a new "
+                           "one.")
+                raise KeyError(errmsg)
             else:
                 self._VOTABLE_FIELDS.append(field)
 
