@@ -10,7 +10,7 @@ from ...utils.testing_tools import MockResponse
 import astropy.units as u
 import astropy.coordinates as coord
 from ...extern import six
-from ...extern.six import urlparse
+from ...extern.six.moves import urllib_parse as urlparse
 if six.PY3:
     str, = six.string_types
 VO_DATA = {'HIP,NOMAD,UCAC': "viz.xml",
