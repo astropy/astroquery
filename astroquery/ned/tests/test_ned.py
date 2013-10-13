@@ -54,7 +54,7 @@ def patch_get(request):
 
 @pytest.fixture
 def patch_get_readable_fileobj(request):
-    def get_readable_fileobj_mockreturn(filename):
+    def get_readable_fileobj_mockreturn(filename, cache=True):
         return open(data_path(DATA_FILES['image']), 'rb')
     mp = request.getfuncargvalue("monkeypatch")
     mp.setattr(aud, 'get_readable_fileobj', get_readable_fileobj_mockreturn)
