@@ -372,7 +372,7 @@ fitsfilepath = os.path.join(os.path.dirname(__file__),
 def patch_getreadablefileobj(request):
     # Monkeypatch hack: ALWAYS treat as a URL
     _is_url = aud._is_url
-    aud._is_url = lambda(x): True
+    aud._is_url = lambda x: True
     _urlopen = urllib2.urlopen
     filesize = os.path.getsize(fitsfilepath)
 

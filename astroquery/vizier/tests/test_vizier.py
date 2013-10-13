@@ -5,12 +5,12 @@ from astropy.tests.helper import pytest
 from numpy import testing as npt
 from astropy.table import Table
 from ... import vizier
-from ... utils import commons
+from ...utils import commons
 from ...utils.testing_tools import MockResponse
 import astropy.units as u
 import astropy.coordinates as coord
-import urlparse
-from astropy.extern import six
+from ...extern import six
+from ...extern.six import urlparse
 if six.PY3:
     str, = six.string_types
 VO_DATA = {'HIP,NOMAD,UCAC': "viz.xml",
