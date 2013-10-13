@@ -39,7 +39,6 @@ def patch_get(request):
 def patch_get_readable_fileobj(request):
     @contextmanager
     def get_readable_fileobj_mockreturn(filename, **kwargs):
-        print filename
         if "fits" in filename:
             file_obj = open(data_path(DATA_FILES["image"]), "rb")
         else:
