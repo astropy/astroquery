@@ -107,7 +107,7 @@ def test_query_region_box_async(coordinates, patch_get):
 def test_query_region_box(coordinates, patch_get):
     result = irsa.core.Irsa.query_region(coordinates, catalog='fp_psc', spatial='Box',
                                          width=2 * u.arcmin)
-    assert(result, Table)
+    assert isinstance(result, Table)
 
 poly1 = [coord.ICRSCoordinates(ra=10.1, dec=10.1, unit=(u.deg, u.deg)),
         coord.ICRSCoordinates(ra=10.0, dec=10.1, unit=(u.deg, u.deg)),
