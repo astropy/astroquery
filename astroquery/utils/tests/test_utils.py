@@ -14,6 +14,9 @@ import astropy.io.votable as votable
 import textwrap
 from numpy import testing as npt
 from astropy.utils import OrderedDict
+import os
+from astropy.io import fits
+import astropy.utils.data as aud
 
 class SimpleQueryClass(object):
 
@@ -361,3 +364,45 @@ def test_payload_return(cls=DummyQuery):
     assert isinstance(result, dict)
     result = DummyQuery.query(get_query_payload=False)
     assert isinstance(result, basestring)
+
+fitsfilepath = os.path.join(os.path.dirname(__file__),
+                            '../../sdss/tests/data/emptyfile.fits')
+
+@pytest.fixture
+def patch_getreadablefileobj(request):
+    # Monkeypatch hack: ALWAYS treat as a URL
+    _is_url = aud._is_url
+    aud._is_url = lambda(x): True
+    _urlopen = urllib2.urlopen
+    filesize = os.path.getsize(fitsfilepath)
+
+    class MockRemote(object):
+        def __init__(self, fn, *args):
+            self.file = open(fn,'r')
+        def info(self):
+            return {'Content-Length':filesize}
+        def read(self,*args):
+            return self.file.read(*args)
+        def close(self):
+            self.file.close()
+
+    def urlopen(x, *args, **kwargs):
+        return MockRemote(fitsfilepath)
+
+    urllib2.urlopen = urlopen
+
+    def closing():
+        aud._is_url = _is_url
+        urllib2.urlopen = _urlopen
+
+    request.addfinalizer(closing)
+
+def test_filecontainer_save(patch_getreadablefileobj):
+    ffile = commons.FileContainer(fitsfilepath)
+    ffile.save_fits('/tmp/test_emptyfile.fits')
+    assert os.path.exists('/tmp/test_emptyfile.fits')
+
+def test_filecontainer_get(patch_getreadablefileobj):
+    ffile = commons.FileContainer(fitsfilepath)
+    ff = ffile.get_fits()
+    assert isinstance(ff, fits.HDUList)
