@@ -35,7 +35,7 @@ class TestIrsa:
     def test_query_region_box(self):
         result = irsa.core.Irsa.query_region("00h42m44.330s +41d16m07.50s", catalog='fp_psc', spatial='Box',
                                              width=2 * u.arcmin)
-        assert(result, Table)
+        assert isinstance(result, Table)
 
     def test_query_region_async_polygon(self):
         polygon = [coord.ICRSCoordinates(ra=10.1, dec=10.1, unit=(u.deg, u.deg)),
