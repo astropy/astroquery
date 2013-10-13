@@ -321,3 +321,22 @@ def test_simbad_settings2():
     simbad.core.Simbad.add_votable_fields('ra','dec(5)')
     simbad.core.Simbad.remove_votable_fields('ra','dec',strip_params=True)
     assert simbad.core.Simbad.get_votable_fields() == ['main_id','coordinates']
+
+def test_regression_votablesettings():
+    assert simbad.core.Simbad.get_votable_fields() == ['main_id','coordinates']
+    simbad.core.Simbad.add_votable_fields('ra','dec(5)')
+    with pytest.raises(KeyError) as ex:
+        simbad.core.Simbad.add_votable_fields('ra(d)','dec(d)')
+    assert ex.value.message == 'ra(d): field already present.  Fields ra,dec,id,otype, and bibcodelist can only be specified once.  To change their options, first remove the existing entry, then add a new one.'
+    # cleanup
+    simbad.core.Simbad.remove_votable_fields('ra','dec',strip_params=True)
+    assert simbad.core.Simbad.get_votable_fields() == ['main_id','coordinates']
+
+def test_regression_votablesettings2():
+    assert simbad.core.Simbad.get_votable_fields() == ['main_id','coordinates']
+    simbad.core.Simbad.add_votable_fields('fluxdata(J)')
+    simbad.core.Simbad.add_votable_fields('fluxdata(H)')
+    simbad.core.Simbad.add_votable_fields('fluxdata(K)')
+    assert simbad.core.Simbad.get_votable_fields() == ['main_id', 'coordinates', 'fluxdata(J)', 'fluxdata(H)', 'fluxdata(K)']
+    simbad.core.Simbad.remove_votable_fields('fluxdata',strip_params=True)
+    assert simbad.core.Simbad.get_votable_fields() == ['main_id','coordinates']
