@@ -123,6 +123,18 @@ class Simbad(BaseQuery):
         """
         Displays the available wildcards that may be used in Simbad queries and
         their usage.
+
+        Examples
+        --------
+        >>> from astroquery.simbad import Simbad
+        >>> Simbad.list_wildcards()
+        * : Any string of characters (including an empty one)
+
+        [^0-9] : Any (one) character not in the list.
+
+        ? : Any character (exactly one character)
+
+        [abc] : Exactly one character taken in the list. Can also be defined by a range of characters: [A-Z]
         """
         for key in self.WILDCARDS:
             print("{key} : {value}\n".format(key=key, value=self.WILDCARDS[key]))
@@ -132,6 +144,12 @@ class Simbad(BaseQuery):
     def list_votable_fields(self):
         """
         Lists all the fields that can be fetched for a VOTable.
+
+        Examples
+        --------
+        >>> from astroquery.simbad import Simbad
+        >>> Simbad.list_votable_fields()
+        --NOTES--...
         """
         # display additional notes:
         notes_file = get_pkg_data_filename(os.path.join('data', 'votable_fields_notes.json'))
@@ -162,6 +180,13 @@ class Simbad(BaseQuery):
             the name of the field to describe. Must be one of those listed
             by `astroquery.simbad.Simbad.list_votable_fields`.
 
+        Examples
+        --------
+        >>> from astroquery.simbad import Simbad
+        >>> Simbad.get_field_description('main_id')
+        main identifier of an astronomical object. It is the same as id(1)
+        >>> Simbad.get_field_description('bibcodelist(y1-y2)')
+        number of references. The parameter is optional and limit the count to the references between the years y1 and y2
         """
         # first load the dictionary from json
         dict_file = get_pkg_data_filename(os.path.join('data', 'votable_fields_dict.json'))
@@ -177,6 +202,12 @@ class Simbad(BaseQuery):
     def get_votable_fields(self):
         """
         Display votable fields
+
+        Examples
+        --------
+        >>> from astroquery.simbad import Simbad
+        >>> Simbad.get_votable_fields()
+        ['main_id', 'coordinates']
         """
         return self._VOTABLE_FIELDS
 
