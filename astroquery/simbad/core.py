@@ -309,8 +309,8 @@ class Simbad(BaseQuery):
 
         Parameters
         ----------
-        object_name : str or list of str
-            name of object to be queried, or a list of object names
+        object_name : str
+            name of object to be queried
         wildcard : boolean, optional
             When it is set to `True` it implies that the object is specified
             with wildcards. Defaults to `False`.
@@ -331,8 +331,8 @@ class Simbad(BaseQuery):
 
         Parameters
         ----------
-        object_name : str or list of str
-            name of object to be queried, or a list of object names
+        object_name : str
+            name of object to be queried
         wildcard : boolean, optional
             When it is set to `True` it implies that the object is specified
             with wildcards. Defaults to `False`.
