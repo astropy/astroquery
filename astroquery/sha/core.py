@@ -11,6 +11,8 @@ import astropy.io.fits as fits
 __all__ = ['query', 'save_file', 'get_file']
 id_parse = re.compile('ID\=(\d+)')
 
+# should skip only if remote_data = False
+__doctest_skip__ = ['query','save_file','get_file']
 
 uri = 'http://sha.ipac.caltech.edu/applications/Spitzer/SHA/servlet/DataService?'
 
@@ -68,7 +70,8 @@ def query(coord=None, ra=None, dec=None, size=None, naifid=None, pid=None,
     Position query using an astropy coordinate object:
     >>> import astropy.coordinates as coord
     >>> import astropy.units as u
-    >>> pos_t = sha.query(coord=coord.FK5(ra=163.6136, dec=-11.784,
+    >>> from astroquery import sha
+    >>> pos_t = sha.query(coord=coord.FK5Coordinates(ra=163.6136, dec=-11.784,
     ... unit=(u.degree, u.degree)), size=0.5)
 
     Position query with optional `ra` and `dec` paramters:
@@ -151,6 +154,7 @@ def save_file(url, out_dir='sha_tmp/', out_name=None):
 
     Examples
     --------
+    >>> from astroquery import sha
     >>> url = sha.query(pid=30080)['accessUrl'][0]
     >>> sha.save_file(url)
     """
@@ -195,6 +199,7 @@ def get_file(url):
 
     Examples
     --------
+    >>> from astroquery import sha
     >>> url = sha.query(pid=30080)['accessUrl'][0]
     >>> img = sha.get_file(url)
     """

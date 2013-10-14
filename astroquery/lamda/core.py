@@ -6,6 +6,8 @@ from astropy.table import Table
 
 __all__ = ['query', 'print_mols']
 
+# should skip only if remote_data = False
+__doctest_skip__ = ['query']
 
 url = "http://home.strw.leidenuniv.nl/~moldata/datafiles/{0}.dat"
 mols = {
@@ -86,6 +88,7 @@ def query(mol, query_type, coll_partner_index=0, return_datafile=False):
 
     Examples
     --------
+    >>> from astroquery import lamda
     >>> t = lamda.query(mol='co', query_type='erg_levels')
     >>> t.pprint()
     LEVEL ENERGIES(cm^-1) WEIGHT  J
