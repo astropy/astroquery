@@ -15,7 +15,7 @@ def test_monkeypatch_warning(recwarn):
 import astropy
 
 def test_monkeypatch_units():
-    x = astropy.coordinates.angle.Angle("5 deg")
+    x = astropy.coordinates.angles.Angle("5 deg")
     if LooseVersion(astropy.version.version) < LooseVersion('0.3.dev4957'):
         assert x.degree == x.degrees
         assert x.hour == x.hours
