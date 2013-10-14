@@ -4,9 +4,7 @@ Helper class that can be used to decorate instance
 methods of a class so that they can be called either as a class method
 or as instance methods.
 """
-import functools
 import inspect
-from collections import namedtuple
 
 __all__ = ["class_or_instance"]
 
@@ -43,23 +41,40 @@ class class_or_instance(object):
             self.__doc__ = ""
 
     def __get__(self, obj, cls):
-        if obj is not None:
-            f = lambda *args, **kwds: self.fn(obj, *args, **kwds)
-        else:
-            f = lambda *args, **kwds: self.fn(cls, *args, **kwds)
-        functools.update_wrapper(f, self.fn)
-        return f
+        src_func = self.fn
 
-        # this was a failed attempt, preserved in history
-        formatted_args = inspect.formatargspec(**self.argspec_d)
-        fndef = 'lambda %s: f%s' % (formatted_args.lstrip('(').rstrip(')'),
-                                    formatted_args)
-        try:
-            fake_fn = eval(fndef, {'f': f})
-        except SyntaxError:
-            # raise it at this level so it can be debugged
-            raise Exception('syntax error')
-        return functools.wraps(self.fn)(fake_fn)
+        self.argspec = inspect.getargspec(src_func)
+        self.src_doc = src_func.__doc__
+        self.src_defaults = src_func.func_defaults
+
+        #tgt_argspec = inspect.getargspec(src_func)
+
+        name = src_func.__name__
+        argspec = self.argspec
+        if obj is not None:
+            slf = obj
+        else:
+            slf = cls
+        argspec[0].remove('self')
+        tgt_func = src_func
+        signature = inspect.formatargspec(formatvalue=lambda val: "",
+                                          *argspec
+                                          )[1:-1]
+        new_func = ('def _wrapper_(%(signature)s):\n'
+                    '    return %(tgt_func)s(%(slf)s,%(signature)s)' %
+                      {'signature':signature,
+                       'slf':'slf',
+                       'tgt_func':'tgt_func'}
+                   )
+        evaldict = {'tgt_func': tgt_func, 'slf': slf}
+        exec new_func in evaldict
+        wrapped = evaldict['_wrapper_']
+        wrapped.__name__ = name
+        wrapped.__doc__ = self.src_doc
+        wrapped.func_defaults = self.src_defaults
+        wrapped.__module__ = tgt_func.__module__
+        wrapped.__dict__ = tgt_func.__dict__
+        return wrapped
 
 class property_class_or_instance(property):
 
