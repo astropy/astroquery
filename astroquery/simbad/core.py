@@ -59,14 +59,28 @@ def validate_equinox(func):
                 raise Exception("Equinox must be a number")
         return func(*args, **kwargs)
     return wrapper
-
     
-def strip_field(f):
-    """Helper tool: remove parameters from VOTABLE fields"""
+def strip_field(f, keep_filters=False):
+    """Helper tool: remove parameters from VOTABLE fields
+    However, this should only be applied to a subset of VOTABLE fields:
+    
+     * ra
+     * dec
+     * otype
+     * id
+     * coo
+     * bibcodelist
+     
+    *if* keep_filters is specified
+    """
     if '(' in f:
-        return f[:f.find('(')]
-    else:
-        return f
+        root = f[:f.find('(')]
+        if (root in ('ra','dec','otype','id','coo','bibcodelist')
+                 or not keep_filters):
+            return root
+
+    # the overall else (default option)
+    return f
 
 class Simbad(BaseQuery):
     """
@@ -177,7 +191,7 @@ class Simbad(BaseQuery):
         list of field_names
         """
         dict_file = get_pkg_data_filename(os.path.join('data', 'votable_fields_dict.json'))
-            
+
         with open(dict_file, "r") as f:
             fields_dict = json.load(f)
             fields_dict = dict(
@@ -188,8 +202,13 @@ class Simbad(BaseQuery):
             sf = strip_field(field)
             if sf not in fields_dict:
                 raise KeyError("{field}: no such field".format(field=field))
-            elif sf in [strip_field(f) for f in Simbad._VOTABLE_FIELDS]:
-                raise KeyError("{field}: field already present".format(field=field))
+            elif sf in [strip_field(f,keep_filters=True) for f in Simbad._VOTABLE_FIELDS]:
+                errmsg = "{field}: field already present.  ".format(field=field)
+                errmsg += ("Fields ra,dec,id,otype, and bibcodelist can only "
+                           "be specified once.  To change their options, "
+                           "first remove the existing entry, then add a new "
+                           "one.")
+                raise KeyError(errmsg)
             else:
                 self._VOTABLE_FIELDS.append(field)
 
@@ -237,11 +256,11 @@ class Simbad(BaseQuery):
     @class_or_instance
     def query_criteria(self, *args, **kwargs):
         """
-        Query SIMBAD based on any criteria.  
+        Query SIMBAD based on any criteria.
 
         Parameters
         ----------
-        args: 
+        args:
             String arguments passed directly to SIMBAD's script
             (e.g., 'region(box, GAL, 10.5 -10.5, 0.5d 0.5d)')
         kwargs:
@@ -260,11 +279,11 @@ class Simbad(BaseQuery):
     @class_or_instance
     def query_criteria_async(self, *args, **kwargs):
         """
-        Query SIMBAD based on any criteria.  
+        Query SIMBAD based on any criteria.
 
         Parameters
         ----------
-        args: 
+        args:
             String arguments passed directly to SIMBAD's script
             (e.g., 'region(box, GAL, 10.5 -10.5, 0.5d 0.5d)')
         kwargs:
@@ -328,6 +347,48 @@ class Simbad(BaseQuery):
         response = commons.send_request(self.SIMBAD_URL, request_payload,
                                 self.TIMEOUT)
         return response
+
+
+    @class_or_instance
+    def query_objects(self, object_names, wildcard=False, verbose=False):
+        """
+        Queries Simbad for the specified list of objects and returns the results
+        as an `astropy.table.Table`. Object names may be specified with
+        wildcards if desired.
+
+        Parameters
+        ----------
+        object_names : sequence of strs
+            names of objects to be queried
+        wildcard : boolean, optional
+            When `True`, the names may have wildcards in them.
+
+        Returns
+        -------
+        `astropy.table.Table`
+            The results of the query as an `astropy.table.Table`.
+        """
+        return self.query_object('\n'.join(object_names), wildcard)
+
+    @class_or_instance
+    def query_objects_async(self, object_names, wildcard=False):
+        """
+        Same as `astoquery.simbad.Simbad.query_objects`, but
+        only collects the reponse from the Simbad server and returns.
+
+        Parameters
+        ----------
+        object_names : sequence of strs
+            names of objects to be queried
+        wildcard : boolean, optional
+            When `True`, the names may have wildcards in them.
+
+        Returns
+        -------
+        response : `requests.response`
+            the response of the query from the server
+        """
+        return self.query_object_async('\n'.join(object_names), wildcard)
 
     @class_or_instance
     def query_region(self, coordinates, radius=None,
@@ -582,7 +643,7 @@ class Simbad(BaseQuery):
             for k in kwargs:
                 present_keys.append(k)
             # need ampersands to join args
-            args_str = '&'.join([str(val) for val in args]) 
+            args_str = '&'.join([str(val) for val in args])
             args_str += " & " if len(args) > 0 else ""
         else:
             args_str = ' '.join([str(val) for val in args])
@@ -596,17 +657,19 @@ class Simbad(BaseQuery):
     def _parse_result(self, result, verbose=False):
         if not verbose:
             commons.suppress_vo_warnings()
-        parsed_result = SimbadResult(result.content)
+        self.last_response = result
+
         try:
-            return parsed_result.table
+            self.last_parsed_result = SimbadResult(result.content)
+            resulttable = self.last_parsed_result.table
         except Exception as ex:
-            self.parsed_result = parsed_result
-            self.response = result
-            self.table_parse_error = ex
+            self.last_table_parse_error = ex
             raise TableParseError("Failed to parse SIMBAD result! The raw response can be found "
-                                  "in self.response, and the error in self.table_parse_error."
-                                  "  The attempted parsed result is in self.parsed_result.\n"
-                                  "Exception: " + str(self.table_parse_error))
+                                  "in self.last_response, and the error in self.last_table_parse_error."
+                                  "  The attempted parsed result is in self.last_parsed_result.\n"
+                                  "Exception: " + str(ex))
+        resulttable.errors = self.last_parsed_result.errors
+        return resulttable
 
 
 def _parse_coordinates(coordinates):
@@ -709,7 +772,8 @@ class SimbadResult(object):
     def __warn(self):
         for error in self.errors:
             warnings.warn("Warning: The script line number %i raised "
-                         "the error: %s." %
+                         "an error (recorded in the `errors` attribute "
+                         "of the result table): %s" %
                          (error.line, error.msg))
 
     def __get_section(self, section_name):

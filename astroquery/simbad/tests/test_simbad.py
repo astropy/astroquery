@@ -118,11 +118,11 @@ def test_parse_result():
     with pytest.raises(TableParseError) as ex:
         dummy = simbad.core.Simbad._parse_result(MockResponseSimbad('query error '))
     assert ex.value.message == ('Failed to parse SIMBAD result! '
-                                'The raw response can be found in self.response, '
-                                'and the error in self.table_parse_error.  '
-                                'The attempted parsed result is in self.parsed_result.'
+                                'The raw response can be found in self.last_response, '
+                                'and the error in self.last_table_parse_error.  '
+                                'The attempted parsed result is in self.last_parsed_result.'
                                 '\nException: 7:115: no element found')
-    assert isinstance(simbad.core.Simbad.response.content, basestring)
+    assert isinstance(simbad.core.Simbad.last_response.content, basestring)
 
 votable_fields = ",".join(simbad.core.Simbad.get_votable_fields())
 
@@ -320,4 +320,23 @@ def test_simbad_settings2():
     assert simbad.core.Simbad.get_votable_fields() == ['main_id','coordinates']
     simbad.core.Simbad.add_votable_fields('ra','dec(5)')
     simbad.core.Simbad.remove_votable_fields('ra','dec',strip_params=True)
+    assert simbad.core.Simbad.get_votable_fields() == ['main_id','coordinates']
+
+def test_regression_votablesettings():
+    assert simbad.core.Simbad.get_votable_fields() == ['main_id','coordinates']
+    simbad.core.Simbad.add_votable_fields('ra','dec(5)')
+    with pytest.raises(KeyError) as ex:
+        simbad.core.Simbad.add_votable_fields('ra(d)','dec(d)')
+    assert ex.value.message == 'ra(d): field already present.  Fields ra,dec,id,otype, and bibcodelist can only be specified once.  To change their options, first remove the existing entry, then add a new one.'
+    # cleanup
+    simbad.core.Simbad.remove_votable_fields('ra','dec',strip_params=True)
+    assert simbad.core.Simbad.get_votable_fields() == ['main_id','coordinates']
+
+def test_regression_votablesettings2():
+    assert simbad.core.Simbad.get_votable_fields() == ['main_id','coordinates']
+    simbad.core.Simbad.add_votable_fields('fluxdata(J)')
+    simbad.core.Simbad.add_votable_fields('fluxdata(H)')
+    simbad.core.Simbad.add_votable_fields('fluxdata(K)')
+    assert simbad.core.Simbad.get_votable_fields() == ['main_id', 'coordinates', 'fluxdata(J)', 'fluxdata(H)', 'fluxdata(K)']
+    simbad.core.Simbad.remove_votable_fields('fluxdata',strip_params=True)
     assert simbad.core.Simbad.get_votable_fields() == ['main_id','coordinates']
