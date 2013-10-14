@@ -12,28 +12,6 @@ class class_or_instance(object):
 
     def __init__(self, fn):
         self.fn = fn
-        argspec = inspect.getargspec(fn)
-        if argspec.args[0] != 'self':
-            raise ValueError('Method created with "self" not the first argument')
-        else:
-            # in the "fake" definition, we leave out "self"
-            args = argspec.args[1:]
-
-        # Some "default args" have repr's that are *not* evaluatable
-        # These must be replaced with strings
-        if argspec.defaults is not None:
-            defaults = []
-            for ii,default in enumerate(argspec.defaults):
-                try:
-                    eval("%s" % repr(default))
-                    defaults.append(default)
-                except SyntaxError:
-                    defaults.append('%s' % repr(default))
-        else:
-            defaults = None
-
-        self.argspec_d = dict(args=args, varargs=argspec.varargs,
-                              varkw=argspec.keywords, defaults=defaults)
 
         if hasattr(fn,'__doc__'):
             self.__doc__ = fn.__doc__
@@ -55,7 +33,8 @@ class class_or_instance(object):
             slf = obj
         else:
             slf = cls
-        argspec[0].remove('self')
+        if argspec[0][0] == 'self':
+            argspec[0].remove('self')
         tgt_func = src_func
         signature = inspect.formatargspec(formatvalue=lambda val: "",
                                           *argspec
