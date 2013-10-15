@@ -5,9 +5,12 @@ from distutils.version import LooseVersion
 
 # first test occurs with astropy import locally
 def test_monkeypatch_warning(recwarn):
-    import astropy
+    import astroquery
+    # need to clear the registry to get the warning to appear this time
+    astroquery.__warningregistry__.clear()
+    reload(astroquery)
     if LooseVersion(astropy.version.version) < LooseVersion('0.3.dev4957'):
-        warnstr = "WARNING: You are using an 'old' version of astropy prior to the change that made all units singular.  astropy is being monkeypatched such that degrees and degree are both allow and hours and hour are both allowed.  This is NOT normal astropy behavior. [astroquery]"
+        warnstr = "You are using an 'old' version of astropy prior to the change that made all units singular.  astropy is being monkeypatched such that degrees and degree are both allow and hours and hour are both allowed.  This is NOT normal astropy behavior."
         w = recwarn.pop()
         assert str(w.message) == warnstr
 
