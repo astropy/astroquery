@@ -18,11 +18,10 @@ import requests
 import io
 from ..query import BaseQuery
 from . import SDSS_SERVER, SDSS_MAXQUERY
-from ..utils.class_or_instance import class_or_instance
 from ..utils import commons, async_to_sync
 from ..utils.docstr_chompers import prepend_docstr_noreturns
 
-__all__ = ['SDSS']
+__all__ = ['SDSS','SDSSClass']
 
 # Default photometric and spectroscopic quantities to retrieve.
 photoobj_defs = ['ra', 'dec', 'objid', 'run', 'rerun', 'camcol', 'field']
@@ -42,7 +41,7 @@ spec_templates = {'star_O': 0, 'star_OB': 1, 'star_B': 2, 'star_A': [3,4],
 sdss_arcsec_per_pixel = 0.396
 
 @async_to_sync
-class SDSS(BaseQuery):
+class SDSSClass(BaseQuery):
 
     BASE_URL = SDSS_SERVER()
     SPECTRO_1D = BASE_URL + '/spectro/1d_26'
@@ -53,7 +52,6 @@ class SDSS(BaseQuery):
 
     QUERY_URL = 'http://cas.sdss.org/public/en/tools/search/x_sql.asp'
 
-    @class_or_instance
     def query_region_async(self, coordinates, radius=u.degree / 1800., fields=None,
                            spectro=False):
         """
@@ -126,7 +124,6 @@ class SDSS(BaseQuery):
 
         return r
 
-    @class_or_instance
     def get_spectra_async(self, matches, plate=None, fiberID=None, mjd=None):
         """
         Download spectrum from SDSS.
@@ -155,7 +152,6 @@ class SDSS(BaseQuery):
 
         return results
 
-    @class_or_instance
     @prepend_docstr_noreturns(get_spectra_async.__doc__)
     def get_spectra(self, matches, plate=None, fiberID=None, mjd=None):
         """
@@ -168,7 +164,6 @@ class SDSS(BaseQuery):
 
         return [obj.get_fits() for obj in readable_objs]
 
-    @class_or_instance
     def get_images_async(self, matches, run=None, rerun=None, camcol=None,
                          field=None, band='g'):
         """
@@ -208,7 +203,6 @@ class SDSS(BaseQuery):
         return results
 
 
-    @class_or_instance
     @prepend_docstr_noreturns(get_images_async.__doc__)
     def get_images(self, matches, run=None, rerun=None, camcol=None):
         """
@@ -221,7 +215,6 @@ class SDSS(BaseQuery):
 
         return [obj.get_fits() for obj in readable_objs]
 
-    @class_or_instance
     def get_spectral_template_async(self, kind='qso'):
         """
         Download spectral templates from SDSS DR-2, which are located here:
@@ -267,7 +260,6 @@ class SDSS(BaseQuery):
         return results
 
 
-    @class_or_instance
     @prepend_docstr_noreturns(get_spectral_template_async.__doc__)
     def get_spectral_template(self, kind='qso'):
         """
@@ -280,7 +272,6 @@ class SDSS(BaseQuery):
 
         return [obj.get_fits() for obj in readable_objs]
 
-    @class_or_instance
     def _parse_result(self, response, verbose=False):
         """
         Parses the result and return either an `astropy.table.Table` or
@@ -303,3 +294,5 @@ class SDSS(BaseQuery):
             return None
         else:
             return Table(arr)
+
+SDSS = SDSSClass()

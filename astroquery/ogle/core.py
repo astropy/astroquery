@@ -7,13 +7,12 @@ import numpy as np
 from astropy.table import Table
 
 from ..query import BaseQuery
-from ..utils.class_or_instance import class_or_instance
 from ..utils import commons, async_to_sync
 from ..utils.docstr_chompers import prepend_docstr_noreturns
 
 from . import OGLE_SERVER, OGLE_TIMEOUT
 
-__all__ = ['Ogle']
+__all__ = ['Ogle','OgleClass']
 
 
 
@@ -44,7 +43,7 @@ class CoordParseError(ValueError):
 
 
 @async_to_sync
-class Ogle(BaseQuery):
+class OgleClass(BaseQuery):
 
     DATA_URL = OGLE_SERVER()
     TIMEOUT = OGLE_TIMEOUT()
@@ -55,7 +54,6 @@ class Ogle(BaseQuery):
     result_dtypes = ['f8', 'f8', 'f8', 'f8', 'f8', 'f8', 'f8', 'f8', 'i8', 'a2',
                      'f8']
 
-    @class_or_instance
     @_validate_params
     def _args_to_payload(self, coord=None, algorithm='NG', quality='GOOD',
                          coord_sys='RD'):
@@ -115,7 +113,6 @@ class Ogle(BaseQuery):
         files = {'file1': file_data}
         return files
 
-    @class_or_instance
     @prepend_docstr_noreturns(_args_to_payload.__doc__)
     def query_region_async(self, *args, **kwargs):
         """
@@ -135,7 +132,6 @@ class Ogle(BaseQuery):
         response.raise_for_status()
         return response
 
-    @class_or_instance
     def _parse_result(self, response, verbose=False):
         # Parse table, ignore last two (blank) lines
         raw_data = response.text.split('\n')[:-2]
@@ -145,7 +141,6 @@ class Ogle(BaseQuery):
         t = Table(data, names=header, dtypes=self.result_dtypes)
         return t
 
-    @class_or_instance
     def _parse_coords(self, coord, coord_sys):
         """
         Parse single astropy.coordinates instance, list of astropy.coordinate
@@ -191,7 +186,6 @@ class Ogle(BaseQuery):
         else:
             raise CoordParseError()
 
-    @class_or_instance
     def _parse_raw(self, raw_data):
         """
         Parse the raw strings returned from the query request and return a list
@@ -213,3 +207,5 @@ class Ogle(BaseQuery):
         # Transpose while keeping as list of lists
         data = map(list, zip(*data))
         return data
+
+Ogle = OgleClass()

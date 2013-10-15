@@ -10,7 +10,7 @@ from collections import namedtuple
 import tempfile
 import warnings
 from ..query import BaseQuery
-from ..utils.class_or_instance import class_or_instance,property_class_or_instance
+from ..utils.class_or_instance import property_class_or_instance
 from ..utils import commons
 import astropy.units as u
 from astropy.utils.data import get_pkg_data_filename
@@ -24,7 +24,7 @@ except ImportError:
 from . import SIMBAD_SERVER, SIMBAD_TIMEOUT, ROW_LIMIT
 from ..exceptions import TableParseError
 
-__all__ = ['Simbad']
+__all__ = ['Simbad','SimbadClass']
 
 
 def validate_epoch(func):
@@ -82,7 +82,7 @@ def strip_field(f, keep_filters=False):
     # the overall else (default option)
     return f
 
-class Simbad(BaseQuery):
+class SimbadClass(BaseQuery):
     """
     The class for querying the Simbad web service.
     """
@@ -118,7 +118,6 @@ class Simbad(BaseQuery):
     def __init__(self):
         self._VOTABLE_FIELDS = copy.copy(self._VOTABLE_FIELDS)
 
-    @class_or_instance
     def list_wildcards(self):
         """
         Displays the available wildcards that may be used in Simbad queries and
@@ -140,7 +139,6 @@ class Simbad(BaseQuery):
             print("{key} : {value}\n".format(key=key, value=self.WILDCARDS[key]))
         return
 
-    @class_or_instance
     def list_votable_fields(self):
         """
         Lists all the fields that can be fetched for a VOTable.
@@ -169,7 +167,6 @@ class Simbad(BaseQuery):
         print("\nFor more information on a field :\nSimbad.get_field_description "
               "('field_name')")
 
-    @class_or_instance
     def get_field_description(self, field_name):
         """
         Displays a description of the VOTable field
@@ -198,7 +195,6 @@ class Simbad(BaseQuery):
         except KeyError:
             raise Exception("No such field_name")
 
-    @class_or_instance
     def get_votable_fields(self):
         """
         Display votable fields
@@ -211,7 +207,6 @@ class Simbad(BaseQuery):
         """
         return self._VOTABLE_FIELDS
 
-    @class_or_instance
     def add_votable_fields(self, *args):
         """
         Sets fields to be fetched in the VOTable. Must be one of those listed
@@ -243,7 +238,6 @@ class Simbad(BaseQuery):
             else:
                 self._VOTABLE_FIELDS.append(field)
 
-    @class_or_instance
     def remove_votable_fields(self, *args, **kwargs):
         """
         Removes the specified field names from `astroquery.simbad.Simbad.VOTABLE_FIELDS`
@@ -277,14 +271,12 @@ class Simbad(BaseQuery):
             warnings.warn("All fields have been removed. Resetting to defaults.")
             self.reset_votable_fields()
 
-    @class_or_instance
     def reset_votable_fields(self):
         """
         resets VOTABLE_FIELDS to defaults
         """
         self._VOTABLE_FIELDS = ['main_id', 'coordinates']
 
-    @class_or_instance
     def query_criteria(self, *args, **kwargs):
         """
         Query SIMBAD based on any criteria.
@@ -307,7 +299,6 @@ class Simbad(BaseQuery):
         result = self.query_criteria_async(*args,**kwargs)
         return self._parse_result(result, verbose=verbose)
 
-    @class_or_instance
     def query_criteria_async(self, *args, **kwargs):
         """
         Query SIMBAD based on any criteria.
@@ -331,7 +322,6 @@ class Simbad(BaseQuery):
                                 self.TIMEOUT)
         return response
 
-    @class_or_instance
     def query_object(self, object_name, wildcard=False, verbose=False):
         """
         Queries Simbad for the given object and returns the result as an
@@ -354,7 +344,6 @@ class Simbad(BaseQuery):
         result = self.query_object_async(object_name, wildcard=wildcard)
         return self._parse_result(result, verbose=verbose)
 
-    @class_or_instance
     def query_object_async(self, object_name, wildcard=False):
         """
         Serves the same function as `astoquery.simbad.Simbad.query_object`, but
@@ -380,7 +369,6 @@ class Simbad(BaseQuery):
         return response
 
 
-    @class_or_instance
     def query_objects(self, object_names, wildcard=False, verbose=False):
         """
         Queries Simbad for the specified list of objects and returns the results
@@ -401,7 +389,6 @@ class Simbad(BaseQuery):
         """
         return self.query_object('\n'.join(object_names), wildcard)
 
-    @class_or_instance
     def query_objects_async(self, object_names, wildcard=False):
         """
         Same as `astoquery.simbad.Simbad.query_objects`, but
@@ -421,7 +408,6 @@ class Simbad(BaseQuery):
         """
         return self.query_object_async('\n'.join(object_names), wildcard)
 
-    @class_or_instance
     def query_region(self, coordinates, radius=None,
                      equinox=None, epoch=None, verbose=False):
         """
@@ -453,7 +439,6 @@ class Simbad(BaseQuery):
                                         equinox=equinox, epoch=epoch)
         return self._parse_result(result, verbose=verbose)
 
-    @class_or_instance
     def query_region_async(self, coordinates, radius=None, equinox=None,
                            epoch=None):
         """
@@ -486,7 +471,6 @@ class Simbad(BaseQuery):
                                 self.TIMEOUT)
         return response
 
-    @class_or_instance
     def query_catalog(self, catalog, verbose=False):
         """
         Queries a whole catalog. Results may be very large -number of rows
@@ -505,7 +489,6 @@ class Simbad(BaseQuery):
         result = self.query_catalog_async(catalog)
         return self._parse_result(result, verbose=verbose)
 
-    @class_or_instance
     def query_catalog_async(self, catalog):
         """
         Serves the same function as `astoquery.simbad.Simbad.query_catalog`, but
@@ -528,7 +511,6 @@ class Simbad(BaseQuery):
                                 self.TIMEOUT)
         return response
 
-    @class_or_instance
     def query_bibobj(self, bibcode, verbose=False):
         """
         Query all the objects that are contained in the article specified by
@@ -548,7 +530,6 @@ class Simbad(BaseQuery):
         result = self.query_bibobj_async(bibcode)
         return self._parse_result(result, verbose=verbose)
 
-    @class_or_instance
     def query_bibobj_async(self, bibcode):
         """
         Serves the same function as `astoquery.simbad.Simbad.query_bibobj`, but
@@ -571,7 +552,6 @@ class Simbad(BaseQuery):
                                 self.TIMEOUT)
         return response
 
-    @class_or_instance
     def query_bibcode(self, bibcode, wildcard=False, verbose=False):
         """
         Queries the references corresponding to a given bibcode, and returns
@@ -595,7 +575,6 @@ class Simbad(BaseQuery):
         result = self.query_bibcode_async(bibcode, wildcard=wildcard)
         return self._parse_result(result, verbose=verbose)
 
-    @class_or_instance
     def query_bibcode_async(self, bibcode, wildcard=False):
         """
         Serves the same function as `astoquery.simbad.Simbad.query_bibcode`, but
@@ -621,7 +600,6 @@ class Simbad(BaseQuery):
                                 self.TIMEOUT)
         return response
 
-    @class_or_instance
     @validate_epoch
     @validate_equinox
     def _args_to_payload(self, *args, **kwargs):
@@ -684,7 +662,6 @@ class Simbad(BaseQuery):
         script += votable_close
         return dict(script=script)
 
-    @class_or_instance
     def _parse_result(self, result, verbose=False):
         if not verbose:
             commons.suppress_vo_warnings()
@@ -857,6 +834,8 @@ class SimbadResult(object):
             else:
                 self.__table = votable.parse_single_table(self.__file, pedantic=False).to_table()
         return self.__table
+
+Simbad = SimbadClass()
 
 
 def _create_bibcode_table(data, splitter):

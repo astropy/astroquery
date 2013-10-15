@@ -8,14 +8,13 @@ from astropy.io import fits
 from astropy import coordinates as coord
 
 from ..query import BaseQuery
-from ..utils.class_or_instance import class_or_instance
 from ..utils import commons
 from . import NVAS_SERVER, NVAS_TIMEOUT
 
-__all__ = ["Nvas"]
+__all__ = ["Nvas","NvasClass"]
 
 
-class Nvas(BaseQuery):
+class NvasClass(BaseQuery):
     URL = NVAS_SERVER()
     TIMEOUT = NVAS_TIMEOUT()
     valid_bands = ["all","L","C","X","U","K","Q"]
@@ -36,7 +35,6 @@ class Nvas(BaseQuery):
         "D": (110,170),
     }
 
-    @class_or_instance
     def get_images(self, coordinates, radius=0.25 * u.arcmin, max_rms=10000,
                    band="all", get_uvfits=False, verbose=True, get_query_payload=False):
         """
@@ -80,7 +78,6 @@ class Nvas(BaseQuery):
 
         return filelist
 
-    @class_or_instance
     def get_images_async(self, coordinates, radius=0.25 * u.arcmin, max_rms=10000,
                          band="all", get_uvfits=False, verbose=True, get_query_payload=False):
         """
@@ -127,7 +124,6 @@ class Nvas(BaseQuery):
 
         return [commons.FileContainer(U) for U in image_urls]
 
-    @class_or_instance
     def get_image_list(self, coordinates, radius=0.25 * u.arcmin, max_rms=10000,
                        band="all", get_uvfits=False, get_query_payload=False):
         """
@@ -175,7 +171,6 @@ class Nvas(BaseQuery):
         image_urls = self.extract_image_urls(response.content, get_uvfits=get_uvfits)
         return image_urls
 
-    @class_or_instance
     def extract_image_urls(self, html_in, get_uvfits=False):
         """
         Helper function that uses reges to extract the image urls from the given HTML.
@@ -201,6 +196,7 @@ class Nvas(BaseQuery):
             image_urls = imfits_re.findall(html_in)
         return image_urls
 
+Nvas = NvasClass()
 
 def _parse_coordinates(coordinates):
     """

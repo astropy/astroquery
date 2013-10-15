@@ -7,21 +7,20 @@ ftp://ftp.cv.nrao.edu/NRAO-staff/bkent/slap/idl/
 """
 from astropy.io import ascii
 from ..query import BaseQuery
-from ..utils.class_or_instance import class_or_instance
 from ..utils import commons,async_to_sync
 from ..utils.docstr_chompers import prepend_docstr_noreturns
 from astropy import units as u
 from . import SLAP_URL,QUERY_URL,SPLATALOGUE_TIMEOUT
 from . import load_species_table
 
-__all__ = ['Splatalogue']
+__all__ = ['Splatalogue','SplatalogueClass']
 
 # example query of SPLATALOGUE directly:
 # http://www.cv.nrao.edu/php/splat/c.php?sid%5B%5D=64&sid%5B%5D=108&calcIn=&data_version=v2.0&from=&to=&frequency_units=MHz&energy_range_from=&energy_range_to=&lill=on&tran=&submit=Search&no_atmospheric=no_atmospheric&no_potential=no_potential&no_probable=no_probable&include_only_nrao=include_only_nrao&displayLovas=displayLovas&displaySLAIM=displaySLAIM&displayJPL=displayJPL&displayCDMS=displayCDMS&displayToyaMA=displayToyaMA&displayOSU=displayOSU&displayRecomb=displayRecomb&displayLisa=displayLisa&displayRFI=displayRFI&ls1=ls1&ls5=ls5&el1=el1
 
 
 @async_to_sync
-class Splatalogue(BaseQuery):
+class SplatalogueClass(BaseQuery):
 
     SLAP_URL = SLAP_URL()
     QUERY_URL = QUERY_URL()
@@ -44,7 +43,6 @@ class Splatalogue(BaseQuery):
         """
         self.data.update(self._parse_kwargs(**kwargs))
 
-    @class_or_instance
     def get_species_ids(self,restr=None,reflags=0):
         """
         Get a dictionary of "species" IDs, where species refers to the molecule
@@ -68,7 +66,6 @@ class Splatalogue(BaseQuery):
         else:
             return self._species_ids
 
-    @class_or_instance
     def _default_kwargs(self):
         kwargs = dict(chemical_name='',
                       line_lists=('Lovas', 'SLAIM', 'JPL', 'CDMS', 'ToyoMA',
@@ -87,7 +84,6 @@ class Splatalogue(BaseQuery):
                       show_nrao_recommended=False,)
         return self._parse_kwargs(**kwargs)
 
-    @class_or_instance
     def _parse_kwargs(self, chemical_name=None, chem_re_flags=0,
                       energy_min=None, energy_max=None, energy_type=None,
                       intensity_lower_limit=None, intensity_type=None,
@@ -249,7 +245,6 @@ class Splatalogue(BaseQuery):
 
         return payload
 
-    @class_or_instance
     def _parse_frequency(self, min_frequency, max_frequency):
         """
         The Splatalogue service returns lines with rest frequencies in the
@@ -274,7 +269,6 @@ class Splatalogue(BaseQuery):
 
         return payload
 
-    @class_or_instance
     @prepend_docstr_noreturns("\n"+_parse_frequency.__doc__ + "\n" + _parse_kwargs.__doc__)
     def query_lines_async(self, *args, **kwargs):
         """
@@ -300,7 +294,6 @@ class Splatalogue(BaseQuery):
             self.TIMEOUT)
         return response
 
-    @class_or_instance
     def _parse_result(self, response, verbose=False):
         """
         Parse a response into an astropy Table
@@ -317,3 +310,5 @@ class Splatalogue(BaseQuery):
                                 Reader=ascii.Basic)
 
         return result
+
+Splatalogue = SplatalogueClass()
