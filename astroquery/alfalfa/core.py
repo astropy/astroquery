@@ -24,6 +24,9 @@ from ..utils.docstr_chompers import prepend_docstr_noreturns
 
 __all__ = ['Alfalfa','AlfalfaClass']
 
+# have to skip because it tries to use the internet, which is not allowed
+__doctest_skip__ = ['AlfalfaClass.query_region','Alfalfa.query_region']
+
 class AlfalfaClass(BaseQuery):
 
     FITS_PREFIX = "http://arecibo.tc.cornell.edu/hiarchive/alfalfa/spectraFITS"
@@ -116,9 +119,10 @@ class AlfalfaClass(BaseQuery):
 
         Examples
         --------
-        >>> agc = alfalfa.crossID(ra='0h8m05.63s', dec='14d50m23.3s', dr)
-        >>> for match in agc:
-        ...     print(match['ra'], match['dec'], match['objid'])
+        >>> from astroquery.alfalfa import Alfalfa
+        >>> from astropy import coordinates as coords
+        >>> C = coords.ICRSCoordinates('0h8m05.63s +14d50m23.3s')
+        >>> agc = Alfalfa.query_region(C,'3 arcmin')
 
         Returns
         -------

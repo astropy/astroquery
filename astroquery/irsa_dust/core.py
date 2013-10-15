@@ -189,8 +189,8 @@ class IrsaDustClass(BaseQuery):
         table = Table.read(readable_obj.get_stringio(), format='ipac')
         return table
 
-    def get_extinction_table_async(
-            self, coordinate, radius=None, timeout=TIMEOUT):
+    def get_extinction_table_async(self, coordinate, radius=None,
+                                   timeout=TIMEOUT):
         """
         A query function similar to `astroquery.irsa_dust.IrsaDust.get_extinction_table`
         but returns a file-handler to the remote files rather than downloading it.

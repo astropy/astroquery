@@ -50,7 +50,7 @@ def data_path(filename):
 # Test Case: A Seyfert 1 galaxy
 coords = coordinates.ICRSCoordinates('0h8m05.63s +14d50m23.3s')
 
-ALFALFA = alfalfa.core.ALFALFA()
+ALFALFA = alfalfa.core.Alfalfa()
 
 def test_alfalfa_catalog(patch_get, patch_get_readable_fileobj, coords=coords):
     cat = ALFALFA.get_catalog()

@@ -213,7 +213,7 @@ class TestDust(DustTestCase):
 
     def test_get_extinction_table_instance(self, monkeypatch):
         monkeypatch.setattr(
-            irsa_dust.core.IrsaDust, 'get_extinction_table_async',
+            irsa_dust.core.IrsaDustClass, 'get_extinction_table_async',
             self.get_ext_table_async_mockreturn)
         table = irsa_dust.core.IrsaDust().get_extinction_table("m31")
         assert table is not None
@@ -262,7 +262,7 @@ class TestDust(DustTestCase):
                               ('extinction'),
                               ])
     def test_get_images_async_instance(self, monkeypatch, image_type):
-        monkeypatch.setattr(irsa_dust.core.IrsaDust, 'get_image_list',
+        monkeypatch.setattr(irsa_dust.core.IrsaDustClass, 'get_image_list',
                             self.get_image_list_mockreturn)
         readable_objs = irsa_dust.core.IrsaDust().get_images_async("m81",
                                                                    image_type=image_type)
@@ -275,7 +275,7 @@ class TestDust(DustTestCase):
         assert images is not None
 
     def test_get_images_instance(self, monkeypatch):
-        monkeypatch.setattr(irsa_dust.core.IrsaDust, 'get_images_async',
+        monkeypatch.setattr(irsa_dust.core.IrsaDustClass, 'get_images_async',
                             self.get_images_async_mockreturn)
         images = irsa_dust.core.IrsaDust().get_images("m81")
         assert images is not None
