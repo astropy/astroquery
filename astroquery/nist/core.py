@@ -8,13 +8,12 @@ import astropy.units as u
 import astropy.io.ascii as asciitable
 
 from ..query import BaseQuery
-from ..utils.class_or_instance import class_or_instance
 from ..utils import commons,async_to_sync
 from ..utils.docstr_chompers import prepend_docstr_noreturns
 from . import NIST_SERVER, NIST_TIMEOUT
 from ..exceptions import TableParseError
 
-__all__ = ['Nist']
+__all__ = ['Nist','NistClass']
 
 
 def _strip_blanks(table):
@@ -39,7 +38,7 @@ def _strip_blanks(table):
 
 
 @async_to_sync
-class Nist(BaseQuery):
+class NistClass(BaseQuery):
     URL = NIST_SERVER()
     TIMEOUT = NIST_TIMEOUT()
     unit_code = {'Angstrom':0,
@@ -53,7 +52,6 @@ class Nist(BaseQuery):
     wavelength_unit_code = {'vacuum': 3,
                 'vac+air':4}
 
-    @class_or_instance
     def _args_to_payload(self, *args, **kwargs):
         """
         Parameters
@@ -116,7 +114,6 @@ class Nist(BaseQuery):
         request_payload["page_size"] = 15
         return request_payload
 
-    @class_or_instance
     @prepend_docstr_noreturns("\n"+_args_to_payload.__doc__)
     def query_async(self,minwav, maxwav, linename="H I", energy_level_unit='eV', output_order='wavelength',
                     wavelength_type='vacuum', get_query_payload=False):
@@ -136,7 +133,6 @@ class Nist(BaseQuery):
         response = commons.send_request(Nist.URL, request_payload, Nist.TIMEOUT, request_type='GET')
         return response
 
-    @class_or_instance
     def _parse_result(self, response, verbose=False):
         """
         Parses the results form the HTTP response to `astropy.table.Table`.
@@ -169,6 +165,7 @@ class Nist(BaseQuery):
             raise TableParseError("Failed to parse votable! The raw response can be found "
                                   "in self.response, and the error in self.table_parse_error.")
 
+Nist = NistClass()
 
 def _parse_wavelength(min_wav, max_wav):
     """

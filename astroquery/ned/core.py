@@ -14,7 +14,6 @@ from astropy import __version__ as ASTROPY_VERSION
 from astropy.io import fits
 
 from ..query import BaseQuery
-from ..utils.class_or_instance import class_or_instance
 from ..utils import commons
 from . import (HUBBLE_CONSTANT,
                CORRECT_REDSHIFT,
@@ -24,10 +23,10 @@ from . import (HUBBLE_CONSTANT,
 from . import NED_SERVER, NED_TIMEOUT
 from ..exceptions import TableParseError,RemoteServiceError
 
-__all__ = ["Ned"]
+__all__ = ["Ned","NedClass"]
 
 
-class Ned(BaseQuery):
+class NedClass(BaseQuery):
     # make configurable
     BASE_URL = NED_SERVER()
     OBJ_SEARCH_URL = BASE_URL + 'nph-objsearch'
@@ -42,7 +41,6 @@ class Ned(BaseQuery):
                       2: Options('Data as Published', 'pub'),
                       3: Options('Homogenized Units (mJy)', 'mjy')}
 
-    @class_or_instance
     def query_object(self, object_name, get_query_payload=False, verbose=False):
         """
         Queries objects by name from the NED Service and returns the Main Source Table.
@@ -71,7 +69,6 @@ class Ned(BaseQuery):
         result = self._parse_result(response, verbose=verbose)
         return result
 
-    @class_or_instance
     def query_object_async(self, object_name, get_query_payload=False):
         """
         Serves the same purpose as `Ned.query_object` but returns the raw HTTP response rather
@@ -100,7 +97,6 @@ class Ned(BaseQuery):
         response = commons.send_request(Ned.OBJ_SEARCH_URL, request_payload, Ned.TIMEOUT, request_type='GET')
         return response
 
-    @class_or_instance
     def query_region(self, coordinates, radius=1 * u.arcmin, equinox='J2000.0', get_query_payload=False,
                      verbose=False):
         """
@@ -139,7 +135,6 @@ class Ned(BaseQuery):
         result = self._parse_result(response, verbose=verbose)
         return result
 
-    @class_or_instance
     def query_region_async(self, coordinates, radius=1 * u.arcmin, equinox='J2000.0', get_query_payload=False):
         """
         Serves the same purpose as `Ned.query_region` but returns the raw HTTP response rather
@@ -196,7 +191,6 @@ class Ned(BaseQuery):
         response = commons.send_request(Ned.OBJ_SEARCH_URL, request_payload, Ned.TIMEOUT, request_type='GET')
         return response
 
-    @class_or_instance
     def query_region_iau(self, iau_name, frame='Equatorial', equinox='B1950.0',
                          get_query_payload=False, verbose=False):
         """
@@ -233,7 +227,6 @@ class Ned(BaseQuery):
         result = self._parse_result(response, verbose=verbose)
         return result
 
-    @class_or_instance
     def query_region_iau_async(self, iau_name, frame='Equatorial', equinox='B1950.0',
                          get_query_payload=False):
         """
@@ -271,7 +264,6 @@ class Ned(BaseQuery):
         response = commons.send_request(Ned.OBJ_SEARCH_URL, request_payload, Ned.TIMEOUT, request_type='GET')
         return response
 
-    @class_or_instance
     def query_refcode(self, refcode, get_query_payload=False, verbose=False):
         """
         Used to retrieve all objects contained in a particular reference. Equivalent
@@ -300,7 +292,6 @@ class Ned(BaseQuery):
         result = self._parse_result(response, verbose=verbose)
         return result
 
-    @class_or_instance
     def query_refcode_async(self, refcode, get_query_payload=False):
         """
         Serves the same purpose as `Ned.query_region` but returns the raw HTTP response rather
@@ -329,7 +320,6 @@ class Ned(BaseQuery):
         response = commons.send_request(Ned.OBJ_SEARCH_URL, request_payload, Ned.TIMEOUT, request_type='GET')
         return response
 
-    @class_or_instance
     def get_images(self, object_name, get_query_payload=False):
         """
         Query function to fetch FITS images for a given identifier.
@@ -353,7 +343,6 @@ class Ned(BaseQuery):
             return readable_objs
         return [obj.get_fits() for obj in readable_objs]
 
-    @class_or_instance
     def get_images_async(self, object_name, get_query_payload=False):
         """
         Serves the same purpose as `Ned.get_images` but returns file-handlers to
@@ -376,7 +365,6 @@ class Ned(BaseQuery):
             return image_urls
         return [commons.FileContainer(U) for U in image_urls]
 
-    @class_or_instance
     def get_spectra(self, object_name, get_query_payload=False):
         """
         Query function to fetch FITS files of spectra for a given identifier.
@@ -399,7 +387,6 @@ class Ned(BaseQuery):
             return readable_objs
         return [obj.get_fits() for obj in readable_objs]
 
-    @class_or_instance
     def get_spectra_async(self, object_name, get_query_payload=False):
         """
         Serves the same purpose as `Ned.get_spectra` but returns file-handlers to
@@ -422,7 +409,6 @@ class Ned(BaseQuery):
             return image_urls
         return [commons.FileContainer(U) for U in image_urls]
 
-    @class_or_instance
     def get_image_list(self, object_name, item='image', get_query_payload=False):
         """
         Helper function that returns a list of urls from which to download the FITS images.
@@ -454,7 +440,6 @@ class Ned(BaseQuery):
         response = commons.send_request(url, request_payload, Ned.TIMEOUT, request_type='GET')
         return self.extract_image_urls(response.content)
 
-    @class_or_instance
     def extract_image_urls(self, html_in):
         """
         Helper function that uses reges to extract the image urls from the given HTML.
@@ -470,7 +455,6 @@ class Ned(BaseQuery):
         url_list = [base_url + img_url for img_url in matched_urls]
         return url_list
 
-    @class_or_instance
     def get_table(self, object_name, table='photometry', get_query_payload=False,
                   verbose=False, **kwargs):
         """
@@ -521,7 +505,6 @@ class Ned(BaseQuery):
         result = self._parse_result(response, verbose=verbose)
         return result
 
-    @class_or_instance
     def get_table_async(self, object_name, table='photometry', get_query_payload=False, **kwargs):
         """
         Serves the same purpose as `Ned.query_region` but returns the raw HTTP response rather
@@ -572,7 +555,6 @@ class Ned(BaseQuery):
         response = commons.send_request(Ned.DATA_SEARCH_URL, request_payload, Ned.TIMEOUT, request_type='GET')
         return response
 
-    @class_or_instance
     def _request_payload_init(self):
         """
         Initializes common cgi-parameters for all queries.
@@ -589,7 +571,6 @@ class Ned(BaseQuery):
         request_payload['list_limit'] = 0
         return request_payload
 
-    @class_or_instance
     def _set_input_options(self, request_payload):
         """
         Supports setting of input options for certain queries
@@ -603,7 +584,6 @@ class Ned(BaseQuery):
         request_payload['omegav'] = 0.73
         request_payload['corr_z'] = CORRECT_REDSHIFT()
 
-    @class_or_instance
     def _set_output_options(self, request_payload):
         """
         Supports setting of output options for certain queries
@@ -616,7 +596,6 @@ class Ned(BaseQuery):
         request_payload['out_equinox'] = OUTPUT_EQUINOX()
         request_payload['obj_sort'] = SORT_OUTPUT_BY()
 
-    @class_or_instance
     def _parse_result(self, response, verbose=False):
         """
         Parses the raw HTTP response and returns it as an `astropy.table.Table`.
@@ -660,6 +639,7 @@ class Ned(BaseQuery):
                 raise TableParseError("Failed to parse NED result! The raw response can be found "
                                       "in self.response, and the error in self.table_parse_error.")
 
+Ned = NedClass()
 
 def _parse_radius(radius):
     """

@@ -17,17 +17,15 @@ from math import cos, radians
 import astropy.units as u
 import astropy.coordinates as coord
 import astropy.io.votable as votable
-from astropy.io import fits
 import astropy.utils.data as aud
 
 from ..query import QueryWithLogin
 from ..exceptions import InvalidQueryError, TimeoutError
-from ..utils.class_or_instance import class_or_instance
 from ..utils import commons
 from . import UKIDSS_SERVER, UKIDSS_TIMEOUT
 from ..exceptions import TableParseError
 
-__all__ = ['Ukidss','clean_catalog']
+__all__ = ['Ukidss','UkidssClass','clean_catalog']
 
 
 class LinksExtractor(htmllib.HTMLParser):  # derive new HTML parser
@@ -51,8 +49,8 @@ class LinksExtractor(htmllib.HTMLParser):  # derive new HTML parser
 def validate_frame(func):
     def wrapper(*args, **kwargs):
         frame_type = kwargs.get('frame_type')
-        if frame_type not in Ukidss.frame_types:
-            raise ValueError("Invalid frame type. Valid frame types are: {!s}".format(Ukidss.frame_types))
+        if frame_type not in UkidssClass.frame_types:
+            raise ValueError("Invalid frame type. Valid frame types are: {!s}".format(UkidssClass.frame_types))
         return func(*args, **kwargs)
     return wrapper
 
@@ -60,13 +58,13 @@ def validate_frame(func):
 def validate_filter(func):
     def wrapper(*args, **kwargs):
         waveband = kwargs.get('waveband')
-        if waveband not in Ukidss.filters:
-            raise ValueError("Invalid waveband. Valid wavebands are: {!s}".format(Ukidss.filters.keys()))
+        if waveband not in UkidssClass.filters:
+            raise ValueError("Invalid waveband. Valid wavebands are: {!s}".format(UkidssClass.filters.keys()))
         return func(*args, **kwargs)
     return wrapper
 
 
-class Ukidss(QueryWithLogin):
+class UkidssClass(QueryWithLogin):
 
     """
     The UKIDSSQuery class.  Must instantiate this class in order to make any
@@ -129,7 +127,7 @@ class Ukidss(QueryWithLogin):
 
         credentials = {'user': username, 'passwd': password,
                        'community': ' ', 'community2': community}
-        response = self.session.post(Ukidss.LOGIN_URL, data=credentials)
+        response = self.session.post(self.LOGIN_URL, data=credentials)
         if not response.ok:
             self.session = None
             response.raise_for_status()
@@ -150,7 +148,6 @@ class Ukidss(QueryWithLogin):
                 return False
         return True
 
-    @class_or_instance
     def _args_to_payload(self, *args, **kwargs):
         request_payload = {}
         request_payload['database'] = self.database if hasattr(self, 'database') else kwargs['database']
@@ -166,7 +163,6 @@ class Ukidss(QueryWithLogin):
             request_payload['dec'] = commons.parse_coordinates(args[0]).galactic.b.degree
         return request_payload
 
-    @class_or_instance
     def _parse_system(self, system):
         if system is None:
             return 'J'
@@ -175,7 +171,6 @@ class Ukidss(QueryWithLogin):
         elif system.lower() in ('j','j2000','celestical','radec'):
             return 'J'
 
-    @class_or_instance
     def get_images(self, coordinates, waveband='all', frame_type='stack',
                    image_width=1*u.arcmin, image_height=None, radius=None,
                    database='UKIDSSDR7PLUS', programme_id='all',
@@ -226,7 +221,6 @@ class Ukidss(QueryWithLogin):
             return readable_objs
         return [obj.get_fits() for obj in readable_objs]
 
-    @class_or_instance
     def get_images_async(self, coordinates, waveband='all', frame_type='stack',
                          image_width=1* u.arcmin, image_height=None, radius=None,
                          database='UKIDSSDR7PLUS', programme_id='all',
@@ -282,7 +276,6 @@ class Ukidss(QueryWithLogin):
 
         return [commons.FileContainer(U) for U in image_urls]
 
-    @class_or_instance
     @validate_frame
     @validate_filter
     def get_image_list(self, coordinates, waveband='all', frame_type='stack',
@@ -330,16 +323,16 @@ class Ukidss(QueryWithLogin):
 
         request_payload = self._args_to_payload(coordinates, database=database,
                                                 programme_id=programme_id, query_type='image')
-        request_payload['filterID'] = Ukidss.filters[waveband]
+        request_payload['filterID'] = self.filters[waveband]
         request_payload['obsType'] = 'object'
-        request_payload['frameType'] = Ukidss.frame_types[frame_type]
+        request_payload['frameType'] = self.frame_types[frame_type]
         request_payload['mfid'] = ''
         if radius is None:
             request_payload['xsize'] = _parse_dimension(image_width)
             request_payload['ysize'] = _parse_dimension(image_width) if image_height is None else _parse_dimension(image_height)
-            query_url = Ukidss.IMAGE_URL
+            query_url = self.IMAGE_URL
         else:
-            query_url = Ukidss.ARCHIVE_URL
+            query_url = self.ARCHIVE_URL
             ra = request_payload.pop('ra')
             dec = request_payload.pop('dec')
             radius = commons.parse_radius(radius).degree
@@ -379,7 +372,6 @@ class Ukidss(QueryWithLogin):
 
         return image_urls
 
-    @class_or_instance
     def extract_urls(self, html_in):
         """
         Helper function that uses reges to extract the image urls from the given HTML.
@@ -402,7 +394,6 @@ class Ukidss(QueryWithLogin):
         links = htmlparser.get_links()
         return links
 
-    @class_or_instance
     def query_region(self, coordinates, radius=1 * u.arcmin, programme_id='GPS', database='UKIDSSDR7PLUS',
                      verbose=False, get_query_payload=False, system='J2000'):
         """
@@ -449,7 +440,6 @@ class Ukidss(QueryWithLogin):
         result = self._parse_result(response, verbose=verbose)
         return result
 
-    @class_or_instance
     def query_region_async(self, coordinates, radius=1 * u.arcmin, programme_id='GPS',
                            database='UKIDSSDR7PLUS', get_query_payload=False,
                            system='J2000'):
@@ -503,12 +493,11 @@ class Ukidss(QueryWithLogin):
         if get_query_payload:
             return request_payload
 
-        response = self._ukidss_send_request(Ukidss.REGION_URL, request_payload)
+        response = self._ukidss_send_request(self.REGION_URL, request_payload)
         response = self._check_page(response.url, "query finished")
 
         return response
 
-    @class_or_instance
     def _parse_result(self, response, verbose=False):
         """
         Parses the raw HTTP response and returns it as an `astropy.table.Table`.
@@ -551,7 +540,6 @@ class Ukidss(QueryWithLogin):
             raise TableParseError("Failed to parse UKIDSS votable! The raw response can be found "
                                   "in self.response, and the error in self.table_parse_error.")
 
-    @class_or_instance
     def list_catalogs(self, style='short'):
         """
         Returns a lsit of available catalogs in UKIDSS.
@@ -577,14 +565,12 @@ class Ukidss(QueryWithLogin):
                           "Returning catalog list in short format.\n")
             return list(self.ukidss_programmes_short.keys())
 
-    @class_or_instance
     def list_databases(self):
         """
         List the databases available from the UKIDSS WFCAM archive
         """
         return self.databases
 
-    @class_or_instance
     def _ukidss_send_request(self, url, request_payload):
         """
         Helper function that sends the query request via a session or simple HTTP
@@ -603,12 +589,11 @@ class Ukidss(QueryWithLogin):
             The response for the HTTP GET request
         """
         if hasattr(self, 'session') and self.logged_in():
-            response = self.session.get(url, params=request_payload, timeout=Ukidss.TIMEOUT)
+            response = self.session.get(url, params=request_payload, timeout=self.TIMEOUT)
         else:
-            response = commons.send_request(url, request_payload, Ukidss.TIMEOUT, request_type='GET')
+            response = commons.send_request(url, request_payload, self.TIMEOUT, request_type='GET')
         return response
 
-    @class_or_instance
     def _check_page(self, url, keyword, wait_time=1, max_attempts=30):
         page_loaded = False
         while not page_loaded and max_attempts>0:
@@ -623,6 +608,7 @@ class Ukidss(QueryWithLogin):
             raise TimeoutError("Page did not load.")
         return response
 
+Ukidss = UkidssClass()
 
 def clean_catalog(ukidss_catalog, clean_band='K_1', badclass=-9999, maxerrbits=41, minerrbits=0,
         maxpperrbits=60):
@@ -687,11 +673,11 @@ def verify_programme_id(pid, query_type='catalog'):
         return 'all'
     elif pid == 'all' and query_type == 'catalog':
         raise ValueError("Cannot query all catalogs at once. Valid catalogs are: {0}.  Change programmeID to one of these.".format(
-            ",".join(Ukidss.ukidss_programmes_short.keys())))
-    elif pid in Ukidss.ukidss_programmes_long:
-        return Ukidss.ukidss_programmes_long[pid]
-    elif pid in Ukidss.ukidss_programmes_short:
-        return Ukidss.ukidss_programmes_short[pid]
+            ",".join(UkidssClass.ukidss_programmes_short.keys())))
+    elif pid in UkidssClass.ukidss_programmes_long:
+        return UkidssClass.ukidss_programmes_long[pid]
+    elif pid in UkidssClass.ukidss_programmes_short:
+        return UkidssClass.ukidss_programmes_short[pid]
     elif query_type != 'image':
         raise ValueError("programme_id {0} not recognized".format(pid))
 
