@@ -20,6 +20,10 @@ def pytest_configure(config):
     else:
         turn_off_internet(verbose=config.option.verbose)
 
-    from astropy.tests.pytest_plugins import pytest_configure
+    try:
+        from astropy.tests.pytest_plugins import pytest_configure
 
-    pytest_configure(config)
+        pytest_configure(config)
+    except ImportError:
+        # assume astropy v<0.3
+        pass
