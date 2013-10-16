@@ -96,8 +96,9 @@ class OgleClass(BaseQuery):
         Using astropy coordinates:
         >>> from astropy import coordinates as coord
         >>> from astropy import units as u
-        >>> co = coord.Galactic(0.0, 3.0, unit=(u.degree, u.degree))
-        >>> t = ogle.query(coord=co)
+        >>> co = coord.GalacticCoordinates(0.0, 3.0, unit=(u.degree, u.degree))
+        >>> from astroquery.ogle import Ogle
+        >>> t = Ogle.query_region(coord=co)
         >>> t.pprint()
           RA/LON   Dec/Lat    A_I  E(V-I) S_E(V-I) R_JKVI   mu    S_mu
         --------- ---------- ----- ------ -------- ------ ------ ----- ...
@@ -161,8 +162,9 @@ class OgleClass(BaseQuery):
         if not isinstance(coord, list):
             # single astropy coordinate
             try:
-                lon = [coord.fk5.ra.hour]
-                lat = [coord.fk5.dec.degree]
+                ra,dec = commons.coord_to_radec(coord)
+                lon = [ra]
+                lat = [dec]
                 return lon, lat
             except:
                 raise CoordParseError()
@@ -171,8 +173,8 @@ class OgleClass(BaseQuery):
             # list of astropy coordinates
             if len(shape) == 1:
                 try:
-                    lon = [co.fk5.ra.hour for co in coord]
-                    lat = [co.fk5.dec.degree for co in coord]
+                    radec = [commons.coord_to_radec(co) for co in coord]
+                    lon,lat = zip(*radec)
                     return lon, lat
                 except:
                     raise CoordParseError()

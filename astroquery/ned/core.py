@@ -179,8 +179,9 @@ class NedClass(BaseQuery):
                 # for any other, convert to ICRS and send
                 else:
                     request_payload['in_csys'] = 'Equatorial'
-                    request_payload['lon'] = c.icrs.ra.format(u.hour)
-                    request_payload['lat'] = c.icrs.dec.format(u.degree)
+                    ra,dec = commons.coord_to_radec(c)
+                    request_payload['lon'] = ra
+                    request_payload['lat'] = dec
                 request_payload['search_type'] = 'Near Position Search'
                 request_payload['in_equinox'] = equinox
                 request_payload['radius'] = _parse_radius(radius)

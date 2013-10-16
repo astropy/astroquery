@@ -172,6 +172,21 @@ def parse_coordinates(coordinates):
         raise TypeError("Argument cannot be parsed as a coordinate")
     return c
 
+def coord_to_radec(coordinate):
+    """
+    Wrapper to turn any astropy coordinate into FK5 RA in Hours and FK5 Dec in
+    degrees
+    
+    This is a hack / temporary wrapper to deal with the unstable astropy API
+    """
+    if hasattr(coordinate.fk5.ra,'hour'):
+        ra = coordinate.fk5.ra.hour
+    elif hasattr(coordinate.fk5.ra,'hourangle'):
+        ra = coordinate.fk5.ra.hourangle
+    else:
+        raise Exception("API Error: RA cannot be converted to hour or hourangle.")
+    dec = coordinate.fk5.dec.degree
+    return ra,dec
 
 class TableList(list):
 

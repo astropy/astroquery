@@ -219,7 +219,10 @@ def _parse_coordinates(coordinates):
     c = commons.parse_coordinates(coordinates)
     # numpy 1.5 returns an object array, so we need to force it to a pair of strings
     # numpy 1.6, 1.7 apparently return string arrays and concatenate without issue
-    radecstr = str(c.icrs.ra.format(u.hour, sep=" ")) + " " + str(c.icrs.dec.format(sep=" ", alwayssign=True))
+    try: # hack to deal with variably astropy coordinates API
+        radecstr = str(c.icrs.ra.to_string(u.hour, sep=" ")) + " " + str(c.icrs.dec.to_string(sep=" ", alwayssign=True))
+    except AttributeError:
+        radecstr = str(c.icrs.ra.to_string(u.hourangle, sep=" ")) + " " + str(c.icrs.dec.to_string(sep=" ", alwayssign=True))
     return radecstr
 
 
