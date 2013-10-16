@@ -14,7 +14,7 @@ from . import OGLE_SERVER, OGLE_TIMEOUT
 
 __all__ = ['Ogle','OgleClass']
 
-
+__doctest_skip__ = ['OgleClass.*']
 
 def _validate_params(func):
     @functools.wraps(func)

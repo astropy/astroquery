@@ -127,7 +127,7 @@ class SimbadClass(BaseQuery):
         --------
         >>> from astroquery.simbad import Simbad
         >>> Simbad.list_wildcards()
-        * : Any string of characters (including an empty one)
+        * : Any string of characters (including an empty one)...
 
         [^0-9] : Any (one) character not in the list.
 
@@ -708,9 +708,14 @@ def _get_frame_coords(c):
 
 
 def _to_simbad_format(ra, dec):
-    ra = ra.format(u.hour, sep=':')
-    dec = dec.format(u.degree, sep=':', alwayssign='True')
-    return (ra, dec)
+    # A very ugly hack to deal with "astropy 0.3.dev39"
+    hms = ra.hms
+    dms = dec.dms
+    ra = "%2i:%02i:%08.5f" % hms
+    dec = "%+3i:%02i:%08.5f" % dms
+    #ra = ra.format(u.hour, sep=':')
+    #dec = dec.format(u.degree, sep=':', alwayssign='True')
+    return (ra.lstrip(), dec.lstrip())
 
 
 def _parse_radius(radius):
