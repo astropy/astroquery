@@ -17,7 +17,6 @@ from astropy.utils import OrderedDict
 import astropy.io.votable as votable
 
 from ..query import BaseQuery
-from ..utils.class_or_instance import class_or_instance
 from ..utils import commons
 from ..utils import async_to_sync
 from . import VIZIER_SERVER, VIZIER_TIMEOUT, ROW_LIMIT
@@ -27,10 +26,12 @@ PY3 = sys.version_info[0] >= 3
 if PY3:
     basestring = (str, bytes)
 
-__all__ = ['Vizier']
+__all__ = ['Vizier','VizierClass']
+
+__doctest_skip__ = ['VizierClass.*']
 
 @async_to_sync
-class Vizier(BaseQuery):
+class VizierClass(BaseQuery):
     TIMEOUT = VIZIER_TIMEOUT()
     VIZIER_SERVER = VIZIER_SERVER()
     ROW_LIMIT = ROW_LIMIT()
@@ -46,7 +47,6 @@ class Vizier(BaseQuery):
         if column_filters:
             self.column_filters = column_filters
 
-    @class_or_instance
     def _server_to_url(self, return_type='votable'):
         """
         Not generally meant to be modified, but there are different valid
@@ -121,7 +121,6 @@ class Vizier(BaseQuery):
     def column_filters(self):
         self._column_filters = None
 
-    @class_or_instance
     def find_catalogs(self, keywords, verbose=False):
         """
         Search Vizier for catalogs based on a set of keywords, e.g. author name
@@ -164,7 +163,6 @@ class Vizier(BaseQuery):
 
         return result
 
-    @class_or_instance
     def get_catalogs_async(self, catalog, verbose=False):
         """
         Query the Vizier service for a specific catalog
@@ -188,7 +186,6 @@ class Vizier(BaseQuery):
             Vizier.TIMEOUT)
         return response
 
-    @class_or_instance
     def query_object_async(self, object_name, catalog=None):
         """
         Serves the same purpose as `astroquery.vizier.Vizier.query_object` but only
@@ -218,7 +215,6 @@ class Vizier(BaseQuery):
             Vizier.TIMEOUT)
         return response
 
-    @class_or_instance
     def query_region_async(
             self, coordinates, radius=None, height=None, width=None, catalog=None):
         """
@@ -260,7 +256,6 @@ class Vizier(BaseQuery):
             Vizier.TIMEOUT)
         return response
 
-    @class_or_instance
     def query_constraints_async(self, catalog=None, keywords={}, **kwargs):
         """
         Send a query to Vizier in which you specify constraints with keyword/value
@@ -325,7 +320,6 @@ class Vizier(BaseQuery):
             Vizier.TIMEOUT)
         return response
 
-    @class_or_instance
     def _args_to_payload(self, *args, **kwargs):
         """
         accepts the arguments for different query functions and
@@ -412,7 +406,6 @@ class Vizier(BaseQuery):
             script += "\n" + filter_str
         return script
 
-    @class_or_instance
     def _parse_result(self, response, get_catalog_names=False, verbose=False):
         """
         Parses the HTTP response to create an `astropy.table.Table`.
@@ -566,3 +559,5 @@ class VizierKeyword(list):
         s = ",".join([val for val in self.keywords[key]])
         keyword_name = "-kw." + key
         return keyword_name + "=" + s
+
+Vizier = VizierClass()

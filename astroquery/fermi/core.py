@@ -4,16 +4,15 @@ from __future__ import print_function
 import re
 import time
 from ..query import BaseQuery
-from ..utils.class_or_instance import class_or_instance
 from ..utils import commons, async_to_sync
 import astropy.units as u
 
 from . import FERMI_URL,FERMI_TIMEOUT,FERMI_RETRIEVAL_TIMEOUT
 
-__all__ = ['FermiLAT', 'GetFermilatDatafile','get_fermilat_datafile']
+__all__ = ['FermiLAT', 'FermiLATClass', 'GetFermilatDatafile','get_fermilat_datafile']
 
 @async_to_sync
-class FermiLAT(BaseQuery):
+class FermiLATClass(BaseQuery):
     """
     TODO: document
     """
@@ -22,7 +21,6 @@ class FermiLAT(BaseQuery):
     result_url_re = re.compile('The results of your query may be found at <a href="(http://fermi.gsfc.nasa.gov/.*?)"')
     TIMEOUT = FERMI_TIMEOUT()
 
-    @class_or_instance
     def query_object_async(self, *args, **kwargs):
         """
         Query the FermiLAT database
@@ -51,7 +49,6 @@ class FermiLAT(BaseQuery):
 
         return result_url
 
-    @class_or_instance
     def _parse_args(self, name_or_coords, searchradius='', obsdates='', timesys='Gregorian',
                     energyrange_MeV='', LATdatatype='Photon', spacecraftdata=True):
         """
@@ -90,12 +87,13 @@ class FermiLAT(BaseQuery):
 
         return payload
 
-    @class_or_instance
     def _parse_result(self,result,verbose=False,**kwargs):
         """
         Use get_fermilat_datafile to download a result URL
         """
         return get_fermilat_datafile(result)
+
+FermiLAT = FermiLATClass()
 
 def _parse_coordinates(coordinates):
     try:

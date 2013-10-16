@@ -1,25 +1,6 @@
-# Licensed under a 3-clause BSD style license - see LICENSE.rst
-from __future__ import print_function, division
-
-import warnings
-import tempfile
-import xml.etree.ElementTree as tree
-
-import astropy.units as u
-import astropy.coordinates as coord
-import astropy.io.votable as votable
-
-from ..query import BaseQuery
-from ..utils.class_or_instance import class_or_instance
-from ..utils import commons
-from . import (IRSA_SERVER,
-               GATOR_LIST_CATALOGS,
-               ROW_LIMIT,
-               TIMEOUT)
-from ..exceptions import TableParseError
-
-
 '''
+IRSA
+====
 
 API from
 
@@ -106,17 +87,34 @@ If onlist=0, the following parameters are required:
                         equal to available to be retrieved rows under the same
                         constraints.
 '''
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
+from __future__ import print_function, division
 
-__all__ = ['Irsa']
+import warnings
+import tempfile
+import xml.etree.ElementTree as tree
+
+import astropy.units as u
+import astropy.coordinates as coord
+import astropy.io.votable as votable
+
+from ..query import BaseQuery
+from ..utils import commons
+from . import (IRSA_SERVER,
+               GATOR_LIST_CATALOGS,
+               ROW_LIMIT,
+               TIMEOUT)
+from ..exceptions import TableParseError
+
+__all__ = ['Irsa','IrsaClass']
 
 
-class Irsa(BaseQuery):
+class IrsaClass(BaseQuery):
     IRSA_URL = IRSA_SERVER()
     GATOR_LIST_URL = GATOR_LIST_CATALOGS()
     TIMEOUT = TIMEOUT()
     ROW_LIMIT = ROW_LIMIT()
 
-    @class_or_instance
     def query_region(self, coordinates=None, catalog=None, spatial='Cone', radius=10 * u.arcsec,
                      width=None, polygon=None, get_query_payload=False, verbose=False):
         """
@@ -168,7 +166,6 @@ class Irsa(BaseQuery):
             return response
         return self._parse_result(response, verbose=verbose)
 
-    @class_or_instance
     def query_region_async(self, coordinates=None, catalog=None,
                            spatial='Cone', radius=10 * u.arcsec, width=None,
                            polygon=None,get_query_payload=False):
@@ -226,7 +223,6 @@ class Irsa(BaseQuery):
                                         Irsa.TIMEOUT, request_type='GET')
         return response
 
-    @class_or_instance
     def _parse_spatial(self, spatial, coordinates, radius=None, width=None,
                        polygon=None):
         """
@@ -293,7 +289,6 @@ class Irsa(BaseQuery):
 
         return request_payload
 
-    @class_or_instance
     def _args_to_payload(self, catalog):
         """
         Sets the common parameters for all cgi -queries
@@ -312,7 +307,6 @@ class Irsa(BaseQuery):
                                outrows=Irsa.ROW_LIMIT)
         return request_payload
 
-    @class_or_instance
     def _parse_result(self, response, verbose=False):
         """
         Parses the results form the HTTP response to `astropy.table.Table`.
@@ -366,7 +360,6 @@ class Irsa(BaseQuery):
 
         return table
 
-    @class_or_instance
     def list_catalogs(self):
         """
         Return a dictionary of the catalogs in the IRSA Gator tool.
@@ -387,7 +380,6 @@ class Irsa(BaseQuery):
             catalogs[catname] = desc
         return catalogs
 
-    @class_or_instance
     def print_catalogs(self):
         """
         Display a table of the catalogs in the IRSA Gator tool.
@@ -396,6 +388,7 @@ class Irsa(BaseQuery):
         for catname in catalogs:
             print("{:30s}  {:s}".format(catname, catalogs[catname]))
 
+Irsa = IrsaClass()
 
 def _is_coordinate(coordinates):
     try:

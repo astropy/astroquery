@@ -8,16 +8,15 @@ from astropy.io import fits
 
 
 from ..query import BaseQuery
-from ..utils.class_or_instance import class_or_instance
 from ..utils.docstr_chompers import prepend_docstr_noreturns
 from ..utils import commons
 from . import MAGPIS_SERVER, MAGPIS_TIMEOUT
 from ..exceptions import InvalidQueryError
 
-__all__ = ['Magpis']
+__all__ = ['Magpis','MagpisClass']
 
 
-class Magpis(BaseQuery):
+class MagpisClass(BaseQuery):
     URL = MAGPIS_SERVER()
     TIMEOUT = MAGPIS_TIMEOUT()
     surveys = ["gps6",
@@ -38,7 +37,6 @@ class Magpis(BaseQuery):
                "bolocam"]
     maximsize = 1024
 
-    @class_or_instance
     def _args_to_payload(self, coordinates, image_size=1*u.arcmin, survey='bolocam',
                          maximsize=None):
         """
@@ -74,7 +72,6 @@ class Magpis(BaseQuery):
         request_payload["MaxImSize"] = self.maximsize if maximsize is None else maximsize
         return request_payload
 
-    @class_or_instance
     @prepend_docstr_noreturns("\n"+_args_to_payload.__doc__)
     def get_images(self, coordinates, image_size=1 * u.arcmin,
                    survey='bolocam', get_query_payload=False):
@@ -98,7 +95,6 @@ class Magpis(BaseQuery):
         except IOError:
             raise InvalidQueryError(response.content) 
 
-    @class_or_instance
     @prepend_docstr_noreturns("\n"+_args_to_payload.__doc__)
     def get_images_async(self, coordinates, image_size=1 * u.arcmin, survey='bolocam',
                          get_query_payload=False):
@@ -121,7 +117,8 @@ class Magpis(BaseQuery):
         response = commons.send_request(self.URL, request_payload, self.TIMEOUT)
         return response
 
-    @class_or_instance
     def list_surveys(self):
         """Return a list of surveys for MAGPIS"""
         return self.surveys
+
+Magpis = MagpisClass()

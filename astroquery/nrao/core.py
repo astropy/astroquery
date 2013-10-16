@@ -10,14 +10,13 @@ import astropy.units as u
 import astropy.io.votable as votable
 
 from ..query import BaseQuery
-from ..utils.class_or_instance import class_or_instance
 from ..utils import commons, async_to_sync
 from ..utils.docstr_chompers import prepend_docstr_noreturns
 from ..exceptions import TableParseError
 
 from . import NRAO_SERVER, NRAO_TIMEOUT
 
-__all__ = ["Nrao"]
+__all__ = ["Nrao","NraoClass"]
 
 
 def _validate_params(func):
@@ -40,7 +39,7 @@ def _validate_params(func):
 
 
 @async_to_sync
-class Nrao(BaseQuery):
+class NraoClass(BaseQuery):
 
     DATA_URL = NRAO_SERVER()
     TIMEOUT = NRAO_TIMEOUT()
@@ -60,7 +59,6 @@ class Nrao(BaseQuery):
 
     subarrays = ['ALL', 1, 2, 3, 4, 5]
 
-    @class_or_instance
     @_validate_params
     def _args_to_payload(self, *args, **kwargs):
         """
@@ -152,7 +150,6 @@ class Nrao(BaseQuery):
                                SUBMIT="Submit Query")
         return request_payload
 
-    @class_or_instance
     @prepend_docstr_noreturns(_args_to_payload.__doc__)
     def query_region_async(self, coordinates, radius=1 * u.deg, equinox='J2000',
                            telescope='all', start_date="", end_date="",
@@ -181,7 +178,6 @@ class Nrao(BaseQuery):
         response = commons.send_request(Nrao.DATA_URL, request_payload, Nrao.TIMEOUT, request_type='GET')
         return response
 
-    @class_or_instance
     def _parse_result(self, response, verbose=False):
         if not verbose:
             commons.suppress_vo_warnings()
@@ -206,3 +202,5 @@ class Nrao(BaseQuery):
             self.table_parse_error = ex
             raise TableParseError("Failed to parse NRAO votable result! The raw response can be found "
                                   "in self.response, and the error in self.table_parse_error.")
+
+Nrao = NraoClass()
