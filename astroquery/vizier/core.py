@@ -28,6 +28,8 @@ if PY3:
 
 __all__ = ['Vizier','VizierClass']
 
+__doctest_skip__ = ['VizierClass.*']
+
 @async_to_sync
 class VizierClass(BaseQuery):
     TIMEOUT = VIZIER_TIMEOUT()
