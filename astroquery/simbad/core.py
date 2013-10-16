@@ -710,7 +710,10 @@ def _get_frame_coords(c):
 def _to_simbad_format(ra, dec):
     # A very ugly hack to deal with "astropy 0.3.dev39"
     hms = ra.hms
+    # astropy 0.2 had all 3 negative
+    hms = (hms[0], abs(hms[1]), abs(hms[2]))
     dms = dec.dms
+    dms = (dms[0], abs(dms[1]), abs(dms[2]))
     ra = "%2i:%02i:%08.5f" % hms
     dec = "%+3i:%02i:%08.5f" % dms
     #ra = ra.format(u.hour, sep=':')
@@ -721,17 +724,17 @@ def _to_simbad_format(ra, dec):
 def _parse_radius(radius):
     try:
         angle = commons.parse_radius(radius)
-    # find the most appropriate unit - d, m or s
+        # find the most appropriate unit - d, m or s
         index = min([i for (i,val) in enumerate(angle.dms) if int(val) > 0])
         unit = ('d', 'm', 's')[index]
         if unit == 'd':
             return str(int(angle.degree)) + unit
         if unit == 'm':
-            sec_to_min = angle.dms[2] * u.arcsec.to(u.arcmin)
-            total_min = angle.dms[1] + sec_to_min
+            sec_to_min = abs(angle.dms[2]) * u.arcsec.to(u.arcmin)
+            total_min = abs(angle.dms[1])+ sec_to_min
             return str(total_min) + unit
         if unit == 's':
-            return str(angle.dms[2]) + unit
+            return str(abs(angle.dms[2])) + unit
     except (u.UnitsException, coord.errors.UnitsError, AttributeError):
         raise Exception("Radius specified incorrectly")
 
