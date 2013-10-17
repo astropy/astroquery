@@ -30,8 +30,8 @@ def data_path(filename):
     return os.path.join(data_dir, filename)
 
 
-@pytest.mark.parametrize(('filename','length','ncols'),zip(DATA_FILES,(13,6),(18,24)))
-def test_reader(filename,length,ncols):
+@pytest.mark.parametrize(('filename','length','ncols','d1','mv1'),zip(DATA_FILES,(13,6),(18,24),(0.091,0.111),(10.20,9.70)))
+def test_reader(filename,length,ncols,d1,mv1):
     besancon_model = data_path(filename)
     with open(besancon_model,'r') as f:
         data = f.read()
@@ -39,6 +39,8 @@ def test_reader(filename,length,ncols):
     B.pprint()
     assert_equal(len(B),length)
     assert_equal(len(B.columns),ncols)
+    assert B['Dist'][0] == d1
+    assert B['Mv'][0] == mv1
 
 
 @pytest.fixture

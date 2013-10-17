@@ -16,7 +16,7 @@ from ..utils import commons
 from ..utils import prepend_docstr_noreturns
 from ..utils import async_to_sync
 
-__all__ = ['Besancon','BesanconClass']
+__all__ = ['Besancon','BesanconClass','parse_besancon_model_string']
 
 keyword_defaults = {
     'rinf':0.000000,
@@ -351,37 +351,42 @@ def parse_besancon_model_string(bms,):
 
     # locate index of data start
     lines = bms.split('\n')
-    nblanks = 0
+    nblanks1 = 0
     for ii,line in enumerate(lines):
         if line.strip() == '':
-            nblanks += 1
+            nblanks1 += 1
         if all([h in line for h in header_start]):
             break
 
     names = line.split()
     ncols = len(names)
-    data_start = ii
-    first_data_line = lines[data_start]
+    header_line = ii
+    # data starts 1 line after header
+    first_data_line = lines[header_line+1]
+    # apparently ascii wants you to start 1 early though
+    data_start = header_line
     # ascii.read ignores blank lines
-    data_start -= nblanks
+    data_start -= nblanks1
 
     # locate index of data end
-    nblanks = 0
-    for ii,line in enumerate(lines[::-1]):
+    nblanks2 = 0
+    for jj,line in enumerate(lines[::-1]):
         if "TOTAL NUMBER OF STARS :" in line:
             nstars = int(line.split()[-1])
         if line.strip() == '':
-            nblanks += 1
+            nblanks2 += 1
         if all([h in line for h in header_start]):
             break
     # most likely = -7
-    data_end = -(ii-nblanks+1)
+    data_end = -(jj-nblanks2+1)
 
     # note: old col_starts/col_ends were:
     # (0,7,13,16,21,27,33,36,41,49,56,62,69,76,82,92,102,109)
     # (6,12,15,20,26,32,35,39,48,55,61,68,75,81,91,101,108,115)
-    col_ends = [first_data_line.find(x)+len(x) for x in first_data_line.split()]
-    col_starts = [0] + [c-1 for c in col_ends[:-1]]
+    col_ends = [(first_data_line+" ").find(" "+x+" ")+len(x)+1 for x in first_data_line.split()]
+    if not all(x<y for x,y in zip(col_ends[:-1],col_ends[1:])):
+        raise ValueError("Failed to parse Besancon table header.")
+    col_starts = [0] + [c for c in col_ends[:-1]]
 
     if len(col_starts) != ncols or len(col_ends) != ncols:
         raise ValueError("Table parsing error: mismatch between # of columns & header")
