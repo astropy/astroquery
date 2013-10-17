@@ -12,12 +12,11 @@ from . import BESANCON_DOWNLOAD_URL, BESANCON_MODEL_FORM, BESANCON_PING_DELAY, B
 import urllib2  # only needed for urllib2.URLError
 
 from ..query import BaseQuery
-from ..utils.class_or_instance import class_or_instance
 from ..utils import commons
 from ..utils import prepend_docstr_noreturns
 from ..utils import async_to_sync
 
-__all__ = ['Besancon']
+__all__ = ['Besancon','BesanconClass']
 
 keyword_defaults = {
     'rinf':0.000000,
@@ -71,7 +70,7 @@ mag_order = "U","B","V","R","I","J","H","K","L"
 
 
 @async_to_sync
-class Besancon(BaseQuery):
+class BesanconClass(BaseQuery):
 
     # Since these are configuration options, they should probably be used directly
     # rather than re-stored as local variables.  Then again, we need to refactor
@@ -87,7 +86,6 @@ class Besancon(BaseQuery):
     def __init__(self, email=None):
         self.email = email
 
-    @class_or_instance
     def get_besancon_model_file(self, filename, verbose=True, timeout=5.0):
         """
         Download a Besancon model from the website
@@ -137,7 +135,6 @@ class Besancon(BaseQuery):
 
         return parse_besancon_model_string(results)
 
-    @class_or_instance
     def _parse_result(self, response, verbose=False, retrieve_file=True):
         """
         retrieve_file : bool
@@ -166,7 +163,6 @@ class Besancon(BaseQuery):
         else:
             return filename
 
-    @class_or_instance
     def _parse_args(self, glon, glat, email=None, smallfield=True, extinction=0.7,
                     area=0.0001, verbose=True, clouds=None,
                     absmag_limits=(-7,15), mag_limits=copy.copy(mag_limits),
@@ -275,7 +271,6 @@ class Besancon(BaseQuery):
 
         return request_data
 
-    @class_or_instance
     @prepend_docstr_noreturns("\n"+_parse_args.__doc__+_parse_result.__doc__)
     def query_async(self, *args, **kwargs):
         """
@@ -295,6 +290,7 @@ class Besancon(BaseQuery):
             stream=True)
         return response
 
+Besancon = BesanconClass()
 
 def parse_besancon_dict(bd):
     """

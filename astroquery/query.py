@@ -14,6 +14,10 @@ class BaseQuery(object):
 
     __metaclass__ = abc.ABCMeta
 
+    def __call__(self, *args, **kwargs):
+        """ init a fresh copy of self """
+        return self.__class__(*args, **kwargs)
+
 
 class QueryWithLogin(BaseQuery):
 

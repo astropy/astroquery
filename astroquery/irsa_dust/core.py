@@ -4,13 +4,12 @@ import astropy.units as u
 import astropy.coordinates as coord
 from . import utils
 from . import IRSA_DUST_SERVER, IRSA_DUST_TIMEOUT
-from ..utils.class_or_instance import class_or_instance
 from ..utils import commons
 from ..query import BaseQuery
 
 
 # TODO Add support for server url from JSON cache
-__all__ = ["IrsaDust"]
+__all__ = ["IrsaDust","IrsaDustClass"]
 
 EXT_DESC = "E(B-V) Reddening"
 EM_DESC = "100 Micron Emission"
@@ -34,7 +33,7 @@ DATA_IMAGE = "./data/image"
 DATA_TABLE = "./data/table"
 
 
-class IrsaDust(BaseQuery):
+class IrsaDustClass(BaseQuery):
 
     DUST_SERVICE_URL = IRSA_DUST_SERVER()
     TIMEOUT = IRSA_DUST_TIMEOUT()
@@ -44,10 +43,6 @@ class IrsaDust(BaseQuery):
         '100um': 'e'
     }
 
-    def __init__(self, *args):
-        pass
-
-    @class_or_instance
     def get_images(self, coordinate, radius=None,
                    image_type=None, timeout=TIMEOUT, get_query_payload=False):
         """
@@ -88,7 +83,6 @@ class IrsaDust(BaseQuery):
             timeout=timeout, get_query_payload=get_query_payload)
         return [obj.get_fits() for obj in readable_objs]
 
-    @class_or_instance
     def get_images_async(self, coordinate, radius=None,
                          image_type=None, timeout=TIMEOUT, get_query_payload=False):
         """
@@ -129,7 +123,6 @@ class IrsaDust(BaseQuery):
                                          image_type=image_type, timeout=timeout)
         return [commons.FileContainer(U) for U in image_urls]
 
-    @class_or_instance
     def get_image_list(
             self, coordinate, radius=None, image_type=None, timeout=TIMEOUT):
         """
@@ -162,12 +155,11 @@ class IrsaDust(BaseQuery):
         --------
         A list of URLs to the FITS images corresponding to the queried object
         """
-        url = IrsaDust.DUST_SERVICE_URL
+        url = self.DUST_SERVICE_URL
         request_payload = self._args_to_payload(coordinate, radius=radius)
         response = commons.send_request(url, request_payload, timeout)
         return self.extract_image_urls(response.text, image_type=image_type)
 
-    @class_or_instance
     def get_extinction_table(self, coordinate, radius=None, timeout=TIMEOUT):
         """
         Query function that fetches the extinction table from the query
@@ -197,9 +189,8 @@ class IrsaDust(BaseQuery):
         table = Table.read(readable_obj.get_stringio(), format='ipac')
         return table
 
-    @class_or_instance
-    def get_extinction_table_async(
-            self, coordinate, radius=None, timeout=TIMEOUT):
+    def get_extinction_table_async(self, coordinate, radius=None,
+                                   timeout=TIMEOUT):
         """
         A query function similar to `astroquery.irsa_dust.IrsaDust.get_extinction_table`
         but returns a file-handler to the remote files rather than downloading it.
@@ -224,14 +215,13 @@ class IrsaDust(BaseQuery):
         -------
         A context manager that yields a file like readable object
         """
-        url = IrsaDust.DUST_SERVICE_URL
+        url = self.DUST_SERVICE_URL
         request_payload = self._args_to_payload(coordinate, radius=radius)
         response = commons.send_request(url, request_payload, timeout)
         xml_tree = utils.xml(response.text)
         result = SingleDustResult(xml_tree, coordinate)
         return commons.FileContainer(result.ext_detail_table())
 
-    @class_or_instance
     def get_query_table(self, coordinate, radius=None,
                         section=None, timeout=TIMEOUT, url=DUST_SERVICE_URL):
         """
@@ -274,14 +264,13 @@ class IrsaDust(BaseQuery):
         if section is None or section in ["location", "loc", "l"]:
             return result.table(section=section)
         try:
-            section = IrsaDust.image_type_to_section[section]
+            section = self.image_type_to_section[section]
             return result.table(section=section)
         except KeyError:
             msg = ('section must be one of the following:\n'
                    'ebv, extinction, location or 100um.')
             raise ValueError(msg)
 
-    @class_or_instance
     def _args_to_payload(self, coordinate, radius=None):
         """
         Accepts the query parameters and returns a dictionary
@@ -320,7 +309,6 @@ class IrsaDust(BaseQuery):
             payload["regSize"] = reg_size
         return payload
 
-    @class_or_instance
     def extract_image_urls(self, raw_xml, image_type=None):
         """
         Extracts the image URLs from the query results and
@@ -351,7 +339,7 @@ class IrsaDust(BaseQuery):
                         ['r', 'e', 't']]
         else:
             try:
-                section = IrsaDust.image_type_to_section[image_type]
+                section = self.image_type_to_section[image_type]
                 url_list = [result.image(section)]
             except KeyError:
                 msg = ('image_type must be one of the following:\n'
@@ -359,13 +347,12 @@ class IrsaDust(BaseQuery):
                 raise ValueError(msg)
         return url_list
 
-    @class_or_instance
     def list_image_types(self):
         """
         Returns a list of image_types available in the Irsa Dust
         query results
         """
-        return [key for key in IrsaDust.image_type_to_section]
+        return [key for key in self.image_type_to_section]
 
 
 class SingleDustResult(object):
@@ -1035,6 +1022,7 @@ class EmissionSection(BaseResultSection):
             base_string + self._stats.__str__() + "]"
         return string
 
+IrsaDust = IrsaDustClass()
 
 class TemperatureSection(BaseResultSection):
 
