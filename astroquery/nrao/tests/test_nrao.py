@@ -59,4 +59,6 @@ def test_query_region(patch_get, patch_parse_coordinates):
     result = nrao.core.Nrao.query_region(coord.ICRSCoordinates("04h33m11.1s 05d21m15.5s"))
     assert isinstance(result, Table)
     assert len(result) > 0
+    assert result['Start Time'][0] == '83-Sep-27 09:19:30'
+    assert result['RA'][0] == '04h33m11.096s'
 

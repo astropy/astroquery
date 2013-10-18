@@ -185,6 +185,13 @@ class NraoClass(BaseQuery):
         # with 'int' to make it parsable by astropy.io.votable
         integer_re = re.compile(r'datatype="integer"')
         new_content = integer_re.sub(r'datatype="int"', response.content)
+
+        # these are pretty bad hacks, but also needed...
+        days_re = re.compile(r'unit="days"  datatype="double"')
+        new_content = days_re.sub(r'unit="days"  datatype="char" arraysize="*"', new_content)
+        degrees_re = re.compile(r'unit="degrees"  datatype="double"')
+        new_content = degrees_re.sub(r'unit="degrees"  datatype="char" arraysize="*"', new_content)
+                
         try:
             tf = tempfile.NamedTemporaryFile()
             tf.write(new_content.encode('utf-8'))
