@@ -12,31 +12,46 @@
     </desc>
     <data>
       <image>
-        http://irsa.ipac.caltech.edu//workspace/TMP_0fVHXe_17371/DUST/m101.v0001/p379Dust.fits
+        http://irsa.ipac.caltech.edu//workspace/TMP_kRQo9a_8160/DUST/m101.v0001/p379Dust.fits
       </image>
       <table>
-        http://irsa.ipac.caltech.edu//workspace/TMP_0fVHXe_17371/DUST/m101.v0001/extinction.tbl
+        http://irsa.ipac.caltech.edu//workspace/TMP_kRQo9a_8160/DUST/m101.v0001/extinction.tbl
       </table>
     </data>
     <statistics>
-      <refPixelValue>
+      <refPixelValueSandF>
+             0.0074 (mag)
+      </refPixelValueSandF>
+      <refPixelValueSFD>
              0.0086 (mag)
-      </refPixelValue>
+      </refPixelValueSFD>
       <refCoordinate>
         210.802270 54.348950 equ J2000
       </refCoordinate>
-      <meanValue>
+      <meanValueSandF>
+           0.0074 (mag)
+      </meanValueSandF>
+      <meanValueSFD>
            0.0086 (mag)
-      </meanValue>
-      <std>
+      </meanValueSFD>
+      <stdSandF>
            0.0001 (mag)
-      </std>
-      <maxValue>
+      </stdSandF>
+      <stdSFD>
+           0.0001 (mag)
+      </stdSFD>
+      <maxValueSandF>
+           0.0076 (mag)
+      </maxValueSandF>
+      <maxValueSFD>
            0.0089 (mag)
-      </maxValue>
-      <minValue>
+      </maxValueSFD>
+      <minValueSandF>
+           0.0073 (mag)
+      </minValueSandF>
+      <minValueSFD>
            0.0085 (mag)
-      </minValue>
+      </minValueSFD>
     </statistics>
   </result>
   <result>
@@ -45,7 +60,7 @@
     </desc>
     <data>
       <image>
-        http://irsa.ipac.caltech.edu//workspace/TMP_0fVHXe_17371/DUST/m101.v0001/p379i100.fits
+        http://irsa.ipac.caltech.edu//workspace/TMP_kRQo9a_8160/DUST/m101.v0001/p379i100.fits
       </image>
     </data>
     <statistics>
@@ -75,7 +90,7 @@
     </desc>
     <data>
       <image>
-        http://irsa.ipac.caltech.edu//workspace/TMP_0fVHXe_17371/DUST/m101.v0001/p379temp.fits
+        http://irsa.ipac.caltech.edu//workspace/TMP_kRQo9a_8160/DUST/m101.v0001/p379temp.fits
       </image>
     </data>
     <statistics>

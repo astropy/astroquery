@@ -28,6 +28,8 @@ MEAN_VALUE = "meanValue"
 STD = "std"
 MAX_VALUE = "maxValue"
 MIN_VALUE = "minValue"
+SANDF = "SandF"
+SFD = "SFD"
 
 DATA_IMAGE = "./data/image"
 DATA_TABLE = "./data/table"
@@ -360,8 +362,8 @@ class SingleDustResult(object):
     """
     Represents the response to a dust query for a single object or location.
     Provides methods to return the response as an astropy Table, and to retrieve
-    FITS images listed as urls in the initial response. It can also retrieve
-    a detailed extinction table linked to in the initial response. Not intended
+    FITS images listed as urls in the initial response. It can also return the url
+    to a detailed extinction table provided in the initial response. Not intended
     to be instantiated by the end user.
     """
 
@@ -852,7 +854,7 @@ class StatsSection(BaseResultSection):
     section.
     """
 
-    def __init__(self, xml_root, col_prefix):
+    def __init__(self, xml_root, col_prefix, suffix=""):
         """
         Parameters
         ----------
@@ -860,34 +862,30 @@ class StatsSection(BaseResultSection):
             The xml tree containing the data for this section
         col_prefix : str
             the prefix to use in column names for this section
+        suffix : str
+            the suffix that appears in the node names (e.g. 'SandF' or 'SDF')
         """
+
         names = [
-            REF_PIXEL_VALUE,
+            REF_PIXEL_VALUE + suffix,
             REF_COORDINATE,
-            MEAN_VALUE,
-            STD,
-            MAX_VALUE,
-            MIN_VALUE]
+            MEAN_VALUE + suffix,
+            STD + suffix,
+            MAX_VALUE + suffix,
+            MIN_VALUE + suffix]
         xml_nodes = self.node_dict(names, xml_root)
 
         # Create the DustNodes
         self._dust_nodes = [NumberNode(
-            xml_nodes[REF_PIXEL_VALUE], col_prefix + " ref"),
-            CoordNode(
-                xml_nodes[
-                    REF_COORDINATE], col_names=[col_prefix + " ref RA",
+            xml_nodes[REF_PIXEL_VALUE + suffix], col_prefix + " ref"),
+            CoordNode(xml_nodes[REF_COORDINATE], col_names=[col_prefix + " ref RA",
                                                 col_prefix + " ref Dec", col_prefix + " ref coord sys"]),
-            NumberNode(
-                xml_nodes[
-                    MEAN_VALUE],
-                col_prefix +
-                " mean"),
-            NumberNode(xml_nodes[STD], col_prefix + " std"),
-            NumberNode(xml_nodes[MAX_VALUE], col_prefix + " max"),
-            NumberNode(xml_nodes[MIN_VALUE], col_prefix + " min")]
+            NumberNode(xml_nodes[MEAN_VALUE + suffix], col_prefix + " mean"),
+            NumberNode(xml_nodes[STD + suffix], col_prefix + " std"),
+            NumberNode(xml_nodes[MAX_VALUE + suffix], col_prefix + " max"),
+            NumberNode(xml_nodes[MIN_VALUE + suffix], col_prefix + " min")]
 
-        self._units = utils.parse_units(xml_nodes[REF_PIXEL_VALUE].text)
-
+        self._units = utils.parse_units(xml_nodes[REF_PIXEL_VALUE + suffix].text)
         self.create_columns()
 
     @property
@@ -937,15 +935,17 @@ class ExtinctionSection(BaseResultSection):
                             255),
                             StringNode(xml_nodes[DATA_TABLE], "ext table", 255)]
 
-        # Create statistics subsection
-        self._stats = StatsSection(xml_nodes[STATISTICS], "ext")
+        # Create statistics subsections
+        self._stats_sandf = StatsSection(xml_nodes[STATISTICS], "ext SandF", "SandF")
+        self._stats_sfd = StatsSection(xml_nodes[STATISTICS], "ext SFD", "SFD")
 
         self.create_columns()
 
     def create_columns(self):
         """Build the columns associated with this section."""
         BaseResultSection.create_columns(self)
-        self._columns.extend(self._stats.columns)
+        self._columns.extend(self._stats_sandf.columns)
+        self._columns.extend(self._stats_sfd.columns)
 
     @property
     def table_url(self):
@@ -962,14 +962,15 @@ class ExtinctionSection(BaseResultSection):
         """Return the data values associated with this section,
         i.e. the list of values corresponding to a single row in the results table."""
         ext_values = BaseResultSection.values(self)
-        ext_values.extend(self._stats.values())
+        ext_values.extend(self._stats_sandf.values())
+        ext_values.extend(self._stats_sfd.values())
         return ext_values
 
     def __str__(self):
         """Return a string representation of the section."""
         base_string = BaseResultSection.__str__(self)
         string = "[ExtinctionSection: " + \
-            base_string + self._stats.__str__() + "]"
+            base_string + self._stats_sandf.__str__() + self._stats_sfd.__str__() + "]"
         return string
 
 

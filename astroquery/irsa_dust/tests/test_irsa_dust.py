@@ -15,21 +15,21 @@ ERR_XML = "dust-error.xml"
 EXT_TBL = "dust_ext_detail.tbl"
 IMG_FITS = "test.fits"
 M31_URL_ALL = [
-    'http://irsa.ipac.caltech.edu//workspace/TMP_0fVHXe_17371/DUST/m31.v0001/p338Dust.fits',
-    'http://irsa.ipac.caltech.edu//workspace/TMP_0fVHXe_17371/DUST/m31.v0001/p338i100.fits',
-    'http://irsa.ipac.caltech.edu//workspace/TMP_0fVHXe_17371/DUST/m31.v0001/p338temp.fits'
-]
-
-M31_URL_E = [
-    'http://irsa.ipac.caltech.edu//workspace/TMP_0fVHXe_17371/DUST/m31.v0001/p338i100.fits'
+    'http://irsa.ipac.caltech.edu//workspace/TMP_kRQo9a_8160/DUST/m31.v0002/p338Dust.fits',
+    'http://irsa.ipac.caltech.edu//workspace/TMP_kRQo9a_8160/DUST/m31.v0002/p338i100.fits',
+    'http://irsa.ipac.caltech.edu//workspace/TMP_kRQo9a_8160/DUST/m31.v0002/p338temp.fits'
 ]
 
 M31_URL_R = [
-    'http://irsa.ipac.caltech.edu//workspace/TMP_0fVHXe_17371/DUST/m31.v0001/p338Dust.fits'
+    'http://irsa.ipac.caltech.edu//workspace/TMP_kRQo9a_8160/DUST/m31.v0002/p338Dust.fits'
+]
+
+M31_URL_E = [
+    'http://irsa.ipac.caltech.edu//workspace/TMP_kRQo9a_8160/DUST/m31.v0002/p338i100.fits'
 ]
 
 M31_URL_T = [
-    'http://irsa.ipac.caltech.edu//workspace/TMP_0fVHXe_17371/DUST/m31.v0001/p338temp.fits'
+    'http://irsa.ipac.caltech.edu//workspace/TMP_kRQo9a_8160/DUST/m31.v0002/p338temp.fits'
 ]
 
 
@@ -170,10 +170,10 @@ class TestDust(DustTestCase):
             irsa_dust.core.IrsaDust.extract_image_urls(raw_xml, image_type="l")
 
     @pytest.mark.parametrize(('section', 'expected_length'),
-                             [(None, 35),
+                             [(None, 43),
                               ('100um', 10),
                               ('location', 4),
-                              ('ebv', 11),
+                              ('ebv', 19),
                               ('extinction', 10)
                               ])
     def test_query_table_class(self, patch_request, section, expected_length):
@@ -182,10 +182,10 @@ class TestDust(DustTestCase):
         assert len(qtable.colnames) == expected_length
 
     @pytest.mark.parametrize(('section', 'expected_length'),
-                             [(None, 35),
+                             [(None, 43),
                               ('100um', 10),
                               ('location', 4),
-                              ('ebv', 11),
+                              ('ebv', 19),
                               ('extinction', 10)
                               ])
     def test_query_table_instance(
