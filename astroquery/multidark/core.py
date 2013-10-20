@@ -13,11 +13,13 @@ import astropy.io.votable as votable
 from astropy.io import fits
 import astropy.utils.data as aud
 
+from ..utils import commons
 from ..query import QueryWithLogin
 from . import MULTIDARK_SERVER, MULTIDARK_TIMEOUT
 
-__all__ = ['MultiDark']
+import pdb
 
+__all__ = ['MultiDark']
 
 class MultiDark(QueryWithLogin):
     """
@@ -25,7 +27,7 @@ class MultiDark(QueryWithLogin):
     """
 
     BASE_URL = MULTIDARK_SERVER()
-    LOGIN_URL = BASE_URL + "MyDB"
+    LOGIN_URL = BASE_URL + "j_security_check"
     TIMEOUT = MULTIDARK_TIMEOUT()
 
     public_databases = ("miniMDR1", "Sp3D")
@@ -50,25 +52,25 @@ class MultiDark(QueryWithLogin):
         # Construct cookie holder, URL openenr, and retrieve login page
         self.session = requests.session()
 
-        credentials = {'user': username, 'passwd': password}
+        credentials = {'j_password': password, 'j_username': username, 'submit': 'Login'}
         response = self.session.post(MultiDark.LOGIN_URL, data=credentials)
         if not response.ok:
             self.session = None
             response.raise_for_status()
-        if 'FAILED to log in' in response.content: # change the error message
+        if 'login failed' in response.content: # error message given for multidark login
             self.session = None
-            raise Exception("Unable to log in with your given credentials.\n"
+            raise Exception("Unable to log in with credentials given..\n"
                             "Please try again.\n"
-                            "Note: Public credentials can be used, though databse access is limited.\n"
-                            "Use the following for default public access:"
-                            "username=multidark_public"
+                            "NOTE: Public credentials can be used, though databse access is limited.\n"
+                            "Use the following for default public access:\n"
+                            "username=multidark_public\n"
                             "password= ")
         
     def logged_in(self):
         """
         Determine whether currently logged in.
         """
-        if self.session == None:
+        if self.session is None:
             return False
         for cookie in self.session.cookies:
             if cookie.is_expired():
@@ -104,7 +106,7 @@ class MultiDark(QueryWithLogin):
         return response
 
 
-     def _parse_result(self, response, verbose=False):
+    def _parse_result(self, response, verbose=False):
         """
         Parses the raw HTTP response and returns it as an `astropy.table.Table`.
 
