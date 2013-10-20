@@ -96,10 +96,10 @@ class TestDust(DustTestCase):
             assert url.endswith(tail)
 
     @pytest.mark.parametrize(('section', 'expected_length'),
-                             [(None, 35),
+                             [(None, 43),
                               ('100um', 10),
                               ('location', 4),
-                              ('ebv', 11),
+                              ('ebv', 19),
                               ('extinction', 10)
                               ])
     def test_query_table_class(self, section, expected_length):
@@ -108,10 +108,10 @@ class TestDust(DustTestCase):
         assert len(qtable.colnames) == expected_length
 
     @pytest.mark.parametrize(('section', 'expected_length'),
-                             [(None, 35),
+                             [(None, 43),
                               ('100um', 10),
                               ('location', 4),
-                              ('ebv', 11),
+                              ('ebv', 19),
                               ('extinction', 10)
                               ])
     def test_query_table_instance(self, section, expected_length):
