@@ -67,7 +67,7 @@ class TestDust(DustTestCase):
                              [(None, M31_URL_ALL),
                               ('100um', M31_URL_E),
                               ('ebv', M31_URL_R),
-                              ('extinction', M31_URL_T),
+                              ('temperature', M31_URL_T),
                               ])
     def test_extract_image_urls_instance(self, image_type, expected_tails):
         response = requests.get(
@@ -83,7 +83,7 @@ class TestDust(DustTestCase):
                              [(None, M31_URL_ALL),
                               ('100um', M31_URL_E),
                               ('ebv', M31_URL_R),
-                              ('extinction', M31_URL_T),
+                              ('temperature', M31_URL_T),
                               ])
     def test_extract_image_urls_class(self, image_type, expected_tails):
         response = requests.get(
@@ -100,7 +100,7 @@ class TestDust(DustTestCase):
                               ('100um', 10),
                               ('location', 4),
                               ('ebv', 19),
-                              ('extinction', 10)
+                              ('temperature', 10)
                               ])
     def test_query_table_class(self, section, expected_length):
         qtable = irsa_dust.core.IrsaDust.get_query_table(
@@ -112,7 +112,7 @@ class TestDust(DustTestCase):
                               ('100um', 10),
                               ('location', 4),
                               ('ebv', 19),
-                              ('extinction', 10)
+                              ('temperature', 10)
                               ])
     def test_query_table_instance(self, section, expected_length):
         qtable = irsa_dust.core.IrsaDust.get_query_table(
@@ -143,7 +143,7 @@ class TestDust(DustTestCase):
                              [(None, M31_URL_ALL),
                               ('100um', M31_URL_E),
                               ('ebv', M31_URL_R),
-                              ('extinction', M31_URL_T),
+                              ('temperature', M31_URL_T),
                               ])
     def test_get_image_list_class(self, image_type, expected_tails):
         url_list = irsa_dust.core.IrsaDust.get_image_list(
@@ -155,7 +155,7 @@ class TestDust(DustTestCase):
                              [(None, M31_URL_ALL),
                               ('100um', M31_URL_E),
                               ('ebv', M31_URL_R),
-                              ('extinction', M31_URL_T),
+                              ('temperature', M31_URL_T),
                               ])
     def test_get_image_list_instance(self, image_type, expected_tails):
         url_list = irsa_dust.core.IrsaDust().get_image_list(
@@ -167,7 +167,7 @@ class TestDust(DustTestCase):
                              [(None),
                               ('100um'),
                               ('ebv'),
-                              ('extinction'),
+                              ('temperature'),
                               ])
     def test_get_images_async_class(self, image_type):
         readable_objs = irsa_dust.core.IrsaDust.get_images_async("m81",
@@ -178,7 +178,7 @@ class TestDust(DustTestCase):
                              [(None),
                               ('100um'),
                               ('ebv'),
-                              ('extinction'),
+                              ('temperature'),
                               ])
     def test_get_images_async_instance(self, image_type):
         readable_objs = irsa_dust.core.IrsaDust().get_images_async("m81",
