@@ -297,7 +297,7 @@ class VizierClass(BaseQuery):
             Vizier.TIMEOUT)
         return response
 
-    def query_constraints_async(self, catalog=None, keywords={}, **kwargs):
+    def query_constraints_async(self, catalog=None, **kwargs):
         """
         Send a query to Vizier in which you specify constraints with keyword/value
         pairs.  See `the vizier constraints page
@@ -308,12 +308,9 @@ class VizierClass(BaseQuery):
         catalog : str or list, optional
             The catalog(s) which must be searched for this identifier.
             If not specified, all matching catalogs will be searched.
-        keywords : dict
-            A dictionary of keywords to query on.
         kwargs : dict
-            Any key/value pairs besides "catalog" and "keywords" will be parsed
-            as additional keywords.  kwargs overrides anything specified in
-            keywords.
+            Any key/value pairs besides "catalog" will be parsed
+            as additional column filters.
 
         Returns
         -------
@@ -350,7 +347,7 @@ class VizierClass(BaseQuery):
         G050.29-00.46  50.29  -0.46  14.81 ... RD09   291.39    15.18
         """
 
-        data_payload = keywords
+        data_payload = {}
         data_payload.update(kwargs)
 
         data_payload['-source'] = catalog
