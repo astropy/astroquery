@@ -247,9 +247,45 @@ class VizierClass(BaseQuery):
             The response of the HTTP request.
 
         """
+        center = {}
+        c = commons.parse_coordinates(coordinates)
+        ra = str(c.icrs.ra.degree)
+        dec = str(c.icrs.dec.degree)
+        if dec[0] not in ['+', '-']:
+            dec = '+' + dec
+        center["-c"] = "".join([ra, dec])
+        # decide whether box or radius
+        if radius is not None:
+            unit, value = _parse_dimension(radius)
+            key = "-c.r" + unit
+            center[key] = value
+        elif width is not None:
+            w_unit, w_value = _parse_dimension(width)
+            key = "-c.b" + w_unit
+            # is box a rectangle or square?
+            if height is not None:
+                h_unit, h_value = _parse_dimension(height)
+                if h_unit != w_unit:
+                    warnings.warn(
+                        "Converting height to same unit as width")
+                    h_value = u.Quantity(h_value, u.Unit
+                                         (_str_to_unit(h_unit))).to(u.Unit(_str_to_unit(w_unit)))
+                center[key] = "x".join([str(w_value), str(h_value)])
+            else:
+                center[key] = "x".join([str(w_value)] * 2)
+        elif height:
+            warnings.warn(
+                "No width given - shape interpreted as square (height x height)")
+            h_unit, h_value = _parse_dimension(height)
+            key = "-c.b" + h_unit
+            center[key] = h_value
+        else:
+            raise Exception(
+                "At least one of radius, width/height must be specified")
         data_payload = self._args_to_payload(
-            coordinates, radius=radius, height=height,
-            width=width, catalog=catalog, caller='query_region_async')
+            center=center,
+            catalog=catalog,
+            caller='query_region_async')
         response = commons.send_request(
             self._server_to_url(),
             data_payload,
@@ -329,6 +365,7 @@ class VizierClass(BaseQuery):
         caller = kwargs['caller']
         del kwargs['caller']
         catalog = kwargs.get('catalog')
+        center = kwargs.get('center')
         if catalog is not None:
             if isinstance(catalog, basestring):
                 body['-source'] = catalog
@@ -338,45 +375,6 @@ class VizierClass(BaseQuery):
                 raise TypeError("Catalog must be specified as list or string")
         if caller == 'query_object_async':
             body["-c"] = args[0]
-        elif caller == 'query_region_async':
-            c = commons.parse_coordinates(args[0])
-            ra = str(c.icrs.ra.degree)
-            dec = str(c.icrs.dec.degree)
-            if dec[0] not in ['+', '-']:
-                dec = '+' + dec
-            body["-c"] = "".join([ra, dec])
-            # decide whether box or radius
-            if kwargs.get('radius') is not None:
-                radius = kwargs['radius']
-                unit, value = _parse_dimension(radius)
-                switch = "-c.r" + unit
-                body[switch] = value
-            elif kwargs.get('width') is not None:
-                width = kwargs['width']
-                w_unit, w_value = _parse_dimension(width)
-                switch = "-c.b" + w_unit
-                height = kwargs.get('height')
-                # is box a rectangle or square?
-                if height is not None:
-                    h_unit, h_value = _parse_dimension(height)
-                    if h_unit != w_unit:
-                        warnings.warn(
-                            "Converting height to same unit as width")
-                        h_value = u.Quantity(h_value, u.Unit
-                                             (_str_to_unit(h_unit))).to(u.Unit(_str_to_unit(w_unit)))
-                    body[switch] = "x".join([str(w_value), str(h_value)])
-                else:
-                    body[switch] = "x".join([str(w_value)] * 2)
-            elif kwargs.get('height'):
-                warnings.warn(
-                    "No width given - shape interpreted as square (height x height)")
-                height = kwargs['height']
-                h_unit, h_value = _parse_dimension(height)
-                switch = "-c.b" + h_unit
-                body[switch] = h_value
-            else:
-                raise Exception(
-                    "At least one of radius, width/height must be specified")
         # set output parameters
         if not isinstance(self.columns, property) and self.columns is not None:
             if "all" in self.columns:
@@ -404,6 +402,10 @@ class VizierClass(BaseQuery):
             filter_str = "\n".join(["{key}={constraint}".format(key=key, constraint=constraint) for key, constraint in
                                     self.column_filters.items()])
             script += "\n" + filter_str
+        # add center
+        if center is not None:
+            center_str = "\n".join(["{key}={value}".format(key=key, value=value) for (key, value) in center.items()])
+            script += "\n" + center_str
         return script
 
     def _parse_result(self, response, get_catalog_names=False, verbose=False):
