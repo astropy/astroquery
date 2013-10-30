@@ -205,8 +205,9 @@ class VizierClass(BaseQuery):
             The response of the HTTP request.
 
         """
+        center = {'-c': object_name}
         data_payload = self._args_to_payload(
-            object_name,
+            center=center,
             catalog=catalog,
             caller='query_object_async')
         response = commons.send_request(
@@ -373,8 +374,6 @@ class VizierClass(BaseQuery):
                 body['-source'] = ",".join(catalog)
             else:
                 raise TypeError("Catalog must be specified as list or string")
-        if caller == 'query_object_async':
-            body["-c"] = args[0]
         # set output parameters
         if not isinstance(self.columns, property) and self.columns is not None:
             if "all" in self.columns:
