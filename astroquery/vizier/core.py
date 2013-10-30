@@ -227,9 +227,10 @@ class VizierClass(BaseQuery):
             in which case it is resolved using online services or as the appropriate
             `astropy.coordinates` object. ICRS coordinates may also be entered as
             a string.
-        radius : str or `astropy.units.Quantity` object
+        radius : str or `astropy.units.Quantity` object or two-tuple of previous
             The string must be parsable by `astropy.coordinates.Angle`. The appropriate
-            `Quantity` object from `astropy.units` may also be used.
+            `Quantity` object from `astropy.units` may also be used. If a two-tuple
+            is passed, the region is an annulus of size (inner radius, outer radius).
         box : str or `astropy.units.Quantity` object or two-tuple of previous
             Must be specified for a square box region. Has the same format
             as radius above. If a two-tuple is passed, the region is a rectangle
@@ -253,9 +254,21 @@ class VizierClass(BaseQuery):
         center["-c"] = "".join([ra, dec])
         # decide whether box or radius
         if radius is not None:
-            unit, value = _parse_dimension(radius)
-            key = "-c.r" + unit
-            center[key] = value
+            # is radius a disk or an annulus?
+            if type(radius) is not tuple:
+                unit, value = _parse_dimension(radius)
+                key = "-c.r" + unit
+                center[key] = value
+            else:
+                i_unit, i_value = _parse_dimension(radius[0])
+                o_unit, o_value = _parse_dimension(radius[1])
+                key = "-c.r" + i_unit
+                if i_unit != o_unit:
+                    warnings.warn(
+                        "Converting outer radius to same unit as inner radius")
+                    o_value = u.Quantity(o_value, u.Unit
+                                         (_str_to_unit(o_unit))).to(u.Unit(_str_to_unit(i_unit)))
+                center[key] = ",".join([str(i_value), str(o_value)])
         elif box is not None:
             # is box a rectangle or square?
             if type(box) is not tuple:
