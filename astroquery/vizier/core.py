@@ -215,7 +215,7 @@ class VizierClass(BaseQuery):
         return response
 
     def query_region_async(
-            self, coordinates, radius=None, height=None, width=None, catalog=None):
+            self, coordinates, radius=None, box=None, catalog=None):
         """
         Serves the same purpose as `astroquery.vizier.Vizier.query_region` but only
         returns the HTTP response rather than the parsed result.
@@ -230,12 +230,10 @@ class VizierClass(BaseQuery):
         radius : str or `astropy.units.Quantity` object
             The string must be parsable by `astropy.coordinates.Angle`. The appropriate
             `Quantity` object from `astropy.units` may also be used.
-        width : str or `astropy.units.Quantity` object.
-            Must be specified for a box region. Has the same format
-            as radius above.
-        height : str or `astropy.units.Quantity` object.
-            Must be specified with the width for a box region that is a rectangle.
-            Has the same format as radius above.
+        box : str or `astropy.units.Quantity` object or two-tuple of previous
+            Must be specified for a square box region. Has the same format
+            as radius above. If a two-tuple is passed, the region is a rectangle
+            of size (width,height).
         catalog : str or list, optional
             The catalog(s) which must be searched for this identifier.
             If not specified, all matching catalogs will be searched.
@@ -258,26 +256,22 @@ class VizierClass(BaseQuery):
             unit, value = _parse_dimension(radius)
             key = "-c.r" + unit
             center[key] = value
-        elif width is not None:
-            w_unit, w_value = _parse_dimension(width)
-            key = "-c.b" + w_unit
+        elif box is not None:
             # is box a rectangle or square?
-            if height is not None:
-                h_unit, h_value = _parse_dimension(height)
+            if type(box) is not tuple:
+                unit, value = _parse_dimension(box)
+                key = "-c.b" + unit
+                center[key] = "x".join([str(value)] * 2)
+            else:
+                w_unit, w_value = _parse_dimension(box[0])
+                h_unit, h_value = _parse_dimension(box[1])
+                key = "-c.b" + w_unit
                 if h_unit != w_unit:
                     warnings.warn(
                         "Converting height to same unit as width")
                     h_value = u.Quantity(h_value, u.Unit
                                          (_str_to_unit(h_unit))).to(u.Unit(_str_to_unit(w_unit)))
                 center[key] = "x".join([str(w_value), str(h_value)])
-            else:
-                center[key] = "x".join([str(w_value)] * 2)
-        elif height:
-            warnings.warn(
-                "No width given - shape interpreted as square (height x height)")
-            h_unit, h_value = _parse_dimension(height)
-            key = "-c.b" + h_unit
-            center[key] = h_value
         else:
             raise Exception(
                 "At least one of radius, width/height must be specified")
