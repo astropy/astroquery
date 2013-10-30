@@ -178,8 +178,7 @@ class VizierClass(BaseQuery):
             Returned if asynchronous method used
         """
 
-        data_payload = self._args_to_payload(catalog=catalog,
-                                             caller='get_catalog_async')
+        data_payload = self._args_to_payload(catalog=catalog)
         response = commons.send_request(
             self._server_to_url(),
             data_payload,
@@ -208,8 +207,7 @@ class VizierClass(BaseQuery):
         center = {'-c': object_name}
         data_payload = self._args_to_payload(
             center=center,
-            catalog=catalog,
-            caller='query_object_async')
+            catalog=catalog)
         response = commons.send_request(
             self._server_to_url(),
             data_payload,
@@ -285,8 +283,7 @@ class VizierClass(BaseQuery):
                 "At least one of radius, width/height must be specified")
         data_payload = self._args_to_payload(
             center=center,
-            catalog=catalog,
-            caller='query_region_async')
+            catalog=catalog)
         response = commons.send_request(
             self._server_to_url(),
             data_payload,
@@ -363,8 +360,6 @@ class VizierClass(BaseQuery):
         builds a script suitable for the Vizier votable CGI.
         """
         body = OrderedDict()
-        caller = kwargs['caller']
-        del kwargs['caller']
         catalog = kwargs.get('catalog')
         center = kwargs.get('center')
         if catalog is not None:
