@@ -40,7 +40,7 @@ class IrsaDustClass(BaseQuery):
     DUST_SERVICE_URL = IRSA_DUST_SERVER()
     TIMEOUT = IRSA_DUST_TIMEOUT()
     image_type_to_section = {
-        'extinction': 't',
+        'temperature': 't',
         'ebv': 'r',
         '100um': 'e'
     }
@@ -63,7 +63,7 @@ class IrsaDustClass(BaseQuery):
             .units.Quantity`. Defaults to 5 degrees.
         image_type : str, optional
             When missing returns for all the images. Otherwise returns only
-            for image of the specified type which must be one of `extinction`, `ebv`,
+            for image of the specified type which must be one of `temperature`, `ebv`,
             `100um`. Defaults to `None`.
         timeout : int, optional
             Time limit for establishing successful connection with remote server.
@@ -105,7 +105,7 @@ class IrsaDustClass(BaseQuery):
             .units.Quantity`. Defaults to 5 degrees.
         image_type : str, optional
             When missing returns for all the images. Otherwise returns only
-            for image of the specified type which must be one of `extinction`, `ebv`,
+            for image of the specified type which must be one of `temperature`, `ebv`,
             `100um`. Defaults to `None`.
         timeout : int, optional
             Time limit for establishing successful connection with remote server.
@@ -144,7 +144,7 @@ class IrsaDustClass(BaseQuery):
             .units.Quantity`. Defaults to 5 degrees.
         image_type : str, optional
             When missing returns for all the images. Otherwise returns only
-            for image of the specified type which must be one of `extinction`,
+            for image of the specified type which must be one of `temperature`,
             `ebv`, `100um`. Defaults to `None`.
         timeout : int, optional
             Time limit for establishing successful connection with remote server.
@@ -229,7 +229,7 @@ class IrsaDustClass(BaseQuery):
         """
         Create and return an astropy Table representing the query response(s).
         When `section` is missing, returns the full table. When a
-        section is specified (`location`, `extinction`, `ebv`, or `100um`),
+        section is specified (`location`, `temperature`, `ebv`, or `100um`),
         only that portion of the table is returned.
 
         Parameters
@@ -245,7 +245,7 @@ class IrsaDustClass(BaseQuery):
             .units.Quantity`. Defaults to 5 degrees.
         section : str, optional
             When missing, all the sections of the query result are returned.
-            Otherwise only the specified section (`ebv`, `100um`, extinction`,
+            Otherwise only the specified section (`ebv`, `100um`, temperature`,
             `location`) is returned. Defaults to `None`
         timeout : int, optional
             Time limit for establishing successful connection with remote server.
@@ -270,7 +270,7 @@ class IrsaDustClass(BaseQuery):
             return result.table(section=section)
         except KeyError:
             msg = ('section must be one of the following:\n'
-                   'ebv, extinction, location or 100um.')
+                   'ebv, temperature, location or 100um.')
             raise ValueError(msg)
 
     def _args_to_payload(self, coordinate, radius=None):
@@ -325,7 +325,7 @@ class IrsaDustClass(BaseQuery):
             XML response returned by the query as a string
         image_type : str, optional
             When missing returns for all the images. Otherwise returns only
-            for image of the specified type which must be one of `extinction`, `ebv`,
+            for image of the specified type which must be one of `temperature`, `ebv`,
             `100um`. Defaults to `None`.
 
         Returns
@@ -345,7 +345,7 @@ class IrsaDustClass(BaseQuery):
                 url_list = [result.image(section)]
             except KeyError:
                 msg = ('image_type must be one of the following:\n'
-                       'ebv, extinction or 100um.')
+                       'ebv, temperature or 100um.')
                 raise ValueError(msg)
         return url_list
 
