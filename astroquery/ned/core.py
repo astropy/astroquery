@@ -165,7 +165,7 @@ class NedClass(BaseQuery):
         self._set_input_options(request_payload)
         self._set_output_options(request_payload)
         # if its a name then query near name
-        if _is_name(coordinates):
+        if not commons._is_coordinate(coordinates):
             request_payload['objname'] = coordinates
             request_payload['search_type'] = 'Near Name Search'
             request_payload['radius'] = _parse_radius(radius)
@@ -665,29 +665,6 @@ def _parse_radius(radius):
             raise u.UnitsException("Dimension not in proper units")
     return radius_in_min
 
-
-def _is_name(coordinates):
-    """
-    Returns `False` if coordinates can be parsed via `astropy.coordinates`
-    and `True` otherwise.
-
-    Parameters
-    ----------
-    coordinates : str or `astropy.coordinates` object
-            The target around which to search. It may be specified as a string
-            in which case it is resolved using online services or as the appropriate
-            `astropy.coordinates` object. ICRS coordinates may also be entered as strings
-            as specified in the `astropy.coordinates` module.
-
-    Returns
-    -------
-    bool
-    """
-    try:
-        coord.ICRSCoordinates(coordinates)
-        return False
-    except ValueError:
-        return True
 
 
 def _check_ned_valid(string):

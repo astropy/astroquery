@@ -276,6 +276,31 @@ class TableList(list):
         self.print_table_list()
 
 
+def _is_coordinate(coordinates):
+    """
+    Returns `True` if coordinates can be parsed via `astropy.coordinates`
+    and `False` otherwise.
+
+    Parameters
+    ----------
+    coordinates : str or `astropy.coordinates` object
+            The target around which to search. It may be specified as a string
+            in which case it is resolved using online services or as the appropriate
+            `astropy.coordinates` object. ICRS coordinates may also be entered as strings
+            as specified in the `astropy.coordinates` module.
+
+    Returns
+    -------
+    bool
+    """
+    if hasattr(coordinates,'fk5'):
+        # its coordinate-like enough
+        return True
+    try:
+        coord.ICRSCoordinates(coordinates)
+        return True
+    except ValueError:
+        return False
 
 def suppress_vo_warnings():
     """ Suppresses all warnings of the class `astropy.io.votable.exceptions.VOWarning."""
