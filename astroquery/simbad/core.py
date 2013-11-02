@@ -691,20 +691,22 @@ def _parse_coordinates(coordinates):
 
 
 def _get_frame_coords(c):
-    if isinstance(c, coord.ICRSCoordinates):
+    if c.icrs == c:
         ra, dec = _to_simbad_format(c.ra, c.dec)
         return (ra, dec, 'ICRS')
-    if isinstance(c, coord.GalacticCoordinates):
+    elif c.galactic == c:
         lon, lat = (str(c.lonangle.degree), str(c.latangle.degree))
         if lat[0] not in ['+', '-']:
             lat = '+' + lat
         return (lon, lat, 'GAL')
-    if isinstance(c, coord.FK4Coordinates):
+    elif c.fk4 == c:
         ra, dec = _to_simbad_format(c.ra, c.dec)
         return (ra, dec,'FK4')
-    if isinstance(c, coord.FK5Coordinates):
+    elif c.fk5 == c:
         ra, dec = _to_simbad_format(c.ra, c.dec)
         return (ra, dec, 'FK5')
+    else:
+        raise ValueError("%s is not a valid coordinate" % c)
 
 
 def _to_simbad_format(ra, dec):
