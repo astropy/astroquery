@@ -61,15 +61,6 @@ def test_parse_coordinates(coordinates, expected):
     assert out == expected
 
 
-@pytest.mark.parametrize(('coordinates', 'expected'),
-                         [("5h0m0s 0d0m0s", True),
-                          ("m1", False)
-                          ])
-def test_is_coordinate(coordinates, expected):
-    out = irsa.core._is_coordinate(coordinates)
-    assert out == expected
-
-
 def test_args_to_payload():
     out = irsa.core.Irsa._args_to_payload("fp_psc")
     assert out == dict(catalog='fp_psc', outfmt=3, outrows=ROW_LIMIT())
