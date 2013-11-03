@@ -205,7 +205,7 @@ class TableList(list):
         if not isinstance(inp, OrderedDict):
             try:
                 inp = OrderedDict(inp)
-            except TypeError,ValueError:
+            except (TypeError,ValueError):
                 raise ValueError("Input to TableList must be an OrderedDict or list of (k,v) pairs")
         
         self._dict = inp
