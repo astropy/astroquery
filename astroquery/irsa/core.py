@@ -262,7 +262,7 @@ class IrsaClass(BaseQuery):
         if spatial == 'All-Sky':
             spatial = 'NONE'
         elif spatial in ['Cone', 'Box']:
-            if not _is_coordinate(coordinates):
+            if not commons._is_coordinate(coordinates):
                 request_payload['objstr'] = coordinates
             else:
                 request_payload['objstr'] = _parse_coordinates(coordinates)
@@ -275,7 +275,7 @@ class IrsaClass(BaseQuery):
                 request_payload['size'] = width.to(u.arcsec).value
         elif spatial == 'Polygon':
             if coordinates is not None:
-                request_payload['objstr'] = coordinates if not _is_coordinate(coordinates) else _parse_coordinates(coordinates)
+                request_payload['objstr'] = coordinates if not commons._is_coordinate(coordinates) else _parse_coordinates(coordinates)
             try:
                 coordinates_list = [_parse_coordinates(c) for c in polygon]
             except (ValueError,TypeError):
@@ -389,13 +389,6 @@ class IrsaClass(BaseQuery):
             print("{:30s}  {:s}".format(catname, catalogs[catname]))
 
 Irsa = IrsaClass()
-
-def _is_coordinate(coordinates):
-    try:
-        coord.ICRSCoordinates(coordinates)
-        return True
-    except ValueError:
-        return False
 
 
 def _parse_coordinates(coordinates):

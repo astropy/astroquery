@@ -406,3 +406,11 @@ def test_filecontainer_get(patch_getreadablefileobj):
     ffile = commons.FileContainer(fitsfilepath)
     ff = ffile.get_fits()
     assert isinstance(ff, fits.HDUList)
+
+@pytest.mark.parametrize(('coordinates', 'expected'),
+                         [("5h0m0s 0d0m0s", True),
+                          ("m1", False)
+                          ])
+def test_is_coordinate(coordinates, expected):
+    out = commons._is_coordinate(coordinates)
+    assert out == expected
