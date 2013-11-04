@@ -463,28 +463,20 @@ def _parse_dimension(dim):
 
     Parameters
     ----------
-    dim : `astropy.units.Quantity` or `astropy.coordinates.Angle`
+    dim : convertible to `astropy.coordinates.angles.Angle`
 
     Returns
     -------
     (unit, value) : tuple
         formatted for Vizier.
     """
-    if isinstance(dim, u.Quantity) and dim.unit in u.deg.find_equivalent_units():
-        if dim.unit == u.arcsec:
-            unit, value = 's', dim.value
-        elif dim.unit == u.arcmin:
-            unit, value = 'm', dim.value
-        else:
-            unit, value = 'd', dim.to(u.deg).value
-    # otherwise must be an Angle or be specified in hours...
+    dim = coord.Angle(dim)
+    if dim.unit == u.arcsec:
+        unit, value = 's', dim.value
+    elif dim.unit == u.arcmin:
+        unit, value = 'm', dim.value
     else:
-        try:
-            new_dim = commons.radius_to_unit(dim,'degree')
-            unit, value = 'd', new_dim
-        except (u.UnitsException, coord.errors.UnitsError, AttributeError):
-            raise u.UnitsException("Dimension not in proper units")
-
+        unit, value = 'd', dim.to(u.deg).value
     return unit, value
 
 
