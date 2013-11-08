@@ -299,7 +299,8 @@ class VizierClass(BaseQuery):
 
         data_payload = self._args_to_payload(
             catalog=catalog,
-            column_filters=kwargs)
+            column_filters=kwargs,
+            center={'-c.rd':180}) 
         response = commons.send_request(
             self._server_to_url(),
             data_payload,
