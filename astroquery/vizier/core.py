@@ -37,15 +37,11 @@ class VizierClass(BaseQuery):
     ROW_LIMIT = ROW_LIMIT()
 
     def __init__(self, columns=None, column_filters=None, keywords=None):
-        self._columns = None
-        self._column_filters = None
+        self.columns = columns
+        self.column_filters = column_filters
         self._keywords = None
         if keywords:
             self.keywords = keywords
-        if columns:
-            self.columns = columns
-        if column_filters:
-            self.column_filters = column_filters
 
     def _server_to_url(self, return_type='votable'):
         """
@@ -74,52 +70,6 @@ class VizierClass(BaseQuery):
     @keywords.deleter
     def keywords(self):
         self._keywords = None
-
-    @property
-    def columns(self):
-        """The columns that must be returned in the output"""
-        return self._columns
-
-    @columns.setter
-    def columns(self, value):
-        if isinstance(value, basestring):
-            value = list(value)
-        if not isinstance(value, list):
-            raise TypeError(
-                "Column(s) should be specified as a list or string")
-        self._columns = value
-
-    @columns.deleter
-    def columns(self):
-        if self.column_filters is not None:
-            raise Exception(
-                "One or more column_filter(s) exist. Aborting delete.")
-        self._columns = None
-
-    @property
-    def column_filters(self):
-        """Set constraints on one or more columns of the output"""
-        return self._column_filters
-
-    @column_filters.setter
-    def column_filters(self, value_dict):
-        # give warning if filtered column not in self.columns
-        # Vizer will return these columns in the output even if are not set in
-        # self.columns
-        if self.columns is None:
-            raise Exception(
-                "Columns must be set before specifiying column_filters.")
-        elif 'all' not in self.columns:
-            for val in set(value_dict.keys()) - set(self.columns):
-                warnings.warn(
-                    "{val}: to be filtered but not set as an output column".format(val=val))
-                raise Exception(
-                    "Column-Filters not a subset of the output columns")
-        self._column_filters = value_dict
-
-    @column_filters.deleter
-    def column_filters(self):
-        self._column_filters = None
 
     def find_catalogs(self, keywords, verbose=False):
         """
@@ -366,6 +316,7 @@ class VizierClass(BaseQuery):
         body = OrderedDict()
         catalog = kwargs.get('catalog')
         center = kwargs.get('center')
+        # process: calatog
         if catalog is not None:
             if isinstance(catalog, basestring):
                 body['-source'] = catalog
@@ -373,37 +324,30 @@ class VizierClass(BaseQuery):
                 body['-source'] = ",".join(catalog)
             else:
                 raise TypeError("Catalog must be specified as list or string")
-        # set output parameters
-        if not isinstance(self.columns, property) and self.columns is not None:
-            if "all" in self.columns:
-                body["-out"] = "**"
+        # process: columns
+        columns = kwargs.get('columns', self.columns)
+        if columns is not None:
+            if '**' in columns:
+                body['-out'] = '**'
             else:
-                out_cols = ",".join([col for col in self.columns])
-                # if default then return default cols and listed cols
-                if "default" in self.columns:
-                    body["-out.add"] = out_cols
-                # else return only the listed cols
-                else:
-                    body["-out"] = out_cols
-        # otherwise ask to return default columns
-        else:
-            body["-out"] = "*"
-        # set the maximum rows returned
+                body['-out'] = ','.join(columns)
+        # process: maximum rows returned
         body["-out.max"] = Vizier.ROW_LIMIT
+        # process: column filters
+        column_filters = kwargs.get('column_filters', self.column_filters)
+        if column_filters is not None:
+            for (key, value) in column_filters.items():
+                body[key] = value
+        # process: center
+        if center is not None:
+            for (key, value) in center.items():
+                body[key] = value
+        # create final script
         script = "\n".join(["{key}={val}".format(key=key, val=val)
-                           for key, val in body.items()])
+                   for key, val in body.items()])
         # add keywords
         if not isinstance(self.keywords, property) and self.keywords is not None:
             script += "\n" + str(self.keywords)
-        # add column filters
-        if not isinstance(self.column_filters, property) and self.column_filters is not None:
-            filter_str = "\n".join(["{key}={constraint}".format(key=key, constraint=constraint) for key, constraint in
-                                    self.column_filters.items()])
-            script += "\n" + filter_str
-        # add center
-        if center is not None:
-            center_str = "\n".join(["{key}={value}".format(key=key, value=value) for (key, value) in center.items()])
-            script += "\n" + center_str
         return script
 
     def _parse_result(self, response, get_catalog_names=False, verbose=False):
