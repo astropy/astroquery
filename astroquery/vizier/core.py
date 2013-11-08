@@ -297,11 +297,9 @@ class VizierClass(BaseQuery):
         G050.29-00.46  50.29  -0.46  14.81 ... RD09   291.39    15.18
         """
 
-        data_payload = {}
-        data_payload.update(kwargs)
-
-        data_payload['-source'] = catalog
-
+        data_payload = self._args_to_payload(
+            catalog=catalog,
+            column_filters=kwargs)
         response = commons.send_request(
             self._server_to_url(),
             data_payload,
