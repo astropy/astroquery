@@ -598,8 +598,9 @@ class UkidssClass(QueryWithLogin):
         page_loaded = False
         while not page_loaded and max_attempts>0:
             response = requests.get(url)
+            self.response = response
             if re.search("error", response.content, re.IGNORECASE):
-                raise InvalidQueryError("Service returned with an error!")
+                raise InvalidQueryError("Service returned with an error!  Check self.response for more information.")
             elif re.search(keyword, response.content, re.IGNORECASE):
                 page_loaded = True
             max_attempts -= 1
