@@ -27,8 +27,8 @@ matrix:
         # numpy < 1.6 does not work on py 3.x
 
         # try latest developer version of astropy
-        - python: 2.7
-          env: ASTROPY_VERSION=development NUMPY_VERSION=1.7.1 SETUP_CMD='test'
+#        - python: 2.7
+#          env: ASTROPY_VERSION=development NUMPY_VERSION=1.7.1 SETUP_CMD='test'
 #        - python: 3.3
 #          env: ASTROPY_VERSION=development NUMPY_VERSION=1.7.1 SETUP_CMD='test'
 
