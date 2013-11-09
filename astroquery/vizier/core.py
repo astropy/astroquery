@@ -36,9 +36,10 @@ class VizierClass(BaseQuery):
     VIZIER_SERVER = VIZIER_SERVER()
     ROW_LIMIT = ROW_LIMIT()
 
-    def __init__(self, columns=None, column_filters=None, keywords=None):
+    def __init__(self, columns=None, column_filters=None, catalog=None, keywords=None):
         self.columns = columns
         self.column_filters = column_filters
+        self.catalog = catalog
         self._keywords = None
         if keywords:
             self.keywords = keywords
@@ -313,9 +314,9 @@ class VizierClass(BaseQuery):
         builds a script suitable for the Vizier votable CGI.
         """
         body = OrderedDict()
-        catalog = kwargs.get('catalog')
         center = kwargs.get('center')
-        # process: calatog
+        # process: catalog
+        catalog = kwargs.get('catalog', self.catalog)
         if catalog is not None:
             if isinstance(catalog, basestring):
                 body['-source'] = catalog
