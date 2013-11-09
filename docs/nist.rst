@@ -23,7 +23,7 @@ you can set it to several other values like "Na;Mg", etc. Lets now see a simple 
                 
     >>> from astroquery.nist import Nist
     >>> import astropy.units as u
-    >>> table = Nist.query(4000 * u.nm, 7000 * u.nm, linename="H I")
+    >>> table = Nist.query(40000 * u.AA, 70000 * u.AA, linename="H I")
     >>> print(table)
     
     Observed     Ritz     Rel.    Aki    ...     Upper level     Type   TP  Line
