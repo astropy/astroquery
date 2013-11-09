@@ -331,10 +331,23 @@ class VizierClass(BaseQuery):
         if columns is None:
             columns = self.columns
         if columns is not None:
+            columns_out = []
+            sorts_out = []
+            for column in columns:
+                if column[0] == '+':
+                    columns_out += [column[1:]]
+                    sorts_out += [column[1:]]
+                elif column[0] == '-':
+                    columns_out += [column[1:]]
+                    sorts_out += [column]
+                else:
+                    columns_out += [column]
             if '**' in columns:
                 body['-out'] = '**'
             else:
-                body['-out'] = ','.join(columns)
+                body['-out'] = ','.join(columns_out)
+            if len(sorts_out)>0:
+                body['-sort'] = ','.join(sorts_out)
         # process: maximum rows returned
         body["-out.max"] = Vizier.ROW_LIMIT
         # process: column filters
