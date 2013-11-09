@@ -316,7 +316,9 @@ class VizierClass(BaseQuery):
         body = OrderedDict()
         center = kwargs.get('center')
         # process: catalog
-        catalog = kwargs.get('catalog', self.catalog)
+        catalog = kwargs.get('catalog')
+        if catalog is None:
+            catalog = self.catalog
         if catalog is not None:
             if isinstance(catalog, basestring):
                 body['-source'] = catalog
@@ -325,7 +327,9 @@ class VizierClass(BaseQuery):
             else:
                 raise TypeError("Catalog must be specified as list or string")
         # process: columns
-        columns = kwargs.get('columns', self.columns)
+        columns = kwargs.get('columns')
+        if columns is None:
+            columns = self.columns
         if columns is not None:
             if '**' in columns:
                 body['-out'] = '**'
@@ -334,7 +338,9 @@ class VizierClass(BaseQuery):
         # process: maximum rows returned
         body["-out.max"] = Vizier.ROW_LIMIT
         # process: column filters
-        column_filters = kwargs.get('column_filters', self.column_filters)
+        column_filters = kwargs.get('column_filters')
+        if column_filters is None:
+            column_filters = self.column_filters
         if column_filters is not None:
             for (key, value) in column_filters.items():
                 body[key] = value
