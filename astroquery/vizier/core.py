@@ -36,16 +36,13 @@ class VizierClass(BaseQuery):
     VIZIER_SERVER = VIZIER_SERVER()
     ROW_LIMIT = ROW_LIMIT()
 
-    def __init__(self, columns=None, column_filters=None, keywords=None):
-        self._columns = None
-        self._column_filters = None
+    def __init__(self, columns=None, column_filters=None, catalog=None, keywords=None):
+        self.columns = columns
+        self.column_filters = column_filters
+        self.catalog = catalog
         self._keywords = None
         if keywords:
             self.keywords = keywords
-        if columns:
-            self.columns = columns
-        if column_filters:
-            self.column_filters = column_filters
 
     def _server_to_url(self, return_type='votable'):
         """
@@ -74,52 +71,6 @@ class VizierClass(BaseQuery):
     @keywords.deleter
     def keywords(self):
         self._keywords = None
-
-    @property
-    def columns(self):
-        """The columns that must be returned in the output"""
-        return self._columns
-
-    @columns.setter
-    def columns(self, value):
-        if isinstance(value, basestring):
-            value = list(value)
-        if not isinstance(value, list):
-            raise TypeError(
-                "Column(s) should be specified as a list or string")
-        self._columns = value
-
-    @columns.deleter
-    def columns(self):
-        if self.column_filters is not None:
-            raise Exception(
-                "One or more column_filter(s) exist. Aborting delete.")
-        self._columns = None
-
-    @property
-    def column_filters(self):
-        """Set constraints on one or more columns of the output"""
-        return self._column_filters
-
-    @column_filters.setter
-    def column_filters(self, value_dict):
-        # give warning if filtered column not in self.columns
-        # Vizer will return these columns in the output even if are not set in
-        # self.columns
-        if self.columns is None:
-            raise Exception(
-                "Columns must be set before specifiying column_filters.")
-        elif 'all' not in self.columns:
-            for val in set(value_dict.keys()) - set(self.columns):
-                warnings.warn(
-                    "{val}: to be filtered but not set as an output column".format(val=val))
-                raise Exception(
-                    "Column-Filters not a subset of the output columns")
-        self._column_filters = value_dict
-
-    @column_filters.deleter
-    def column_filters(self):
-        self._column_filters = None
 
     def find_catalogs(self, keywords, verbose=False):
         """
@@ -178,8 +129,7 @@ class VizierClass(BaseQuery):
             Returned if asynchronous method used
         """
 
-        data_payload = self._args_to_payload(catalog=catalog,
-                                             caller='get_catalog_async')
+        data_payload = self._args_to_payload(catalog=catalog)
         response = commons.send_request(
             self._server_to_url(),
             data_payload,
@@ -205,10 +155,10 @@ class VizierClass(BaseQuery):
             The response of the HTTP request.
 
         """
+        center = {'-c': object_name}
         data_payload = self._args_to_payload(
-            object_name,
-            catalog=catalog,
-            caller='query_object_async')
+            center=center,
+            catalog=catalog)
         response = commons.send_request(
             self._server_to_url(),
             data_payload,
@@ -216,7 +166,7 @@ class VizierClass(BaseQuery):
         return response
 
     def query_region_async(
-            self, coordinates, radius=None, height=None, width=None, catalog=None):
+            self, coordinates, radius=None, box=None, catalog=None):
         """
         Serves the same purpose as `astroquery.vizier.Vizier.query_region` but only
         returns the HTTP response rather than the parsed result.
@@ -228,15 +178,14 @@ class VizierClass(BaseQuery):
             in which case it is resolved using online services or as the appropriate
             `astropy.coordinates` object. ICRS coordinates may also be entered as
             a string.
-        radius : str or `astropy.units.Quantity` object
+        radius : str or `astropy.units.Quantity` object or two-tuple of previous
             The string must be parsable by `astropy.coordinates.Angle`. The appropriate
-            `Quantity` object from `astropy.units` may also be used.
-        width : str or `astropy.units.Quantity` object.
-            Must be specified for a box region. Has the same format
-            as radius above.
-        height : str or `astropy.units.Quantity` object.
-            Must be specified with the width for a box region that is a rectangle.
-            Has the same format as radius above.
+            `Quantity` object from `astropy.units` may also be used. If a two-tuple
+            is passed, the region is an annulus of size (inner radius, outer radius).
+        box : str or `astropy.units.Quantity` object or two-tuple of previous
+            Must be specified for a square box region. Has the same format
+            as radius above. If a two-tuple is passed, the region is a rectangle
+            of size (width,height).
         catalog : str or list, optional
             The catalog(s) which must be searched for this identifier.
             If not specified, all matching catalogs will be searched.
@@ -247,16 +196,59 @@ class VizierClass(BaseQuery):
             The response of the HTTP request.
 
         """
+        center = {}
+        c = commons.parse_coordinates(coordinates)
+        ra = str(c.icrs.ra.degree)
+        dec = str(c.icrs.dec.degree)
+        if dec[0] not in ['+', '-']:
+            dec = '+' + dec
+        center["-c"] = "".join([ra, dec])
+        # decide whether box or radius
+        if radius is not None:
+            # is radius a disk or an annulus?
+            if type(radius) is not tuple:
+                unit, value = _parse_dimension(radius)
+                key = "-c.r" + unit
+                center[key] = value
+            else:
+                i_unit, i_value = _parse_dimension(radius[0])
+                o_unit, o_value = _parse_dimension(radius[1])
+                key = "-c.r" + i_unit
+                if i_unit != o_unit:
+                    warnings.warn(
+                        "Converting outer radius to same unit as inner radius")
+                    o_value = u.Quantity(o_value, u.Unit
+                                         (_str_to_unit(o_unit))).to(u.Unit(_str_to_unit(i_unit)))
+                center[key] = ",".join([str(i_value), str(o_value)])
+        elif box is not None:
+            # is box a rectangle or square?
+            if type(box) is not tuple:
+                unit, value = _parse_dimension(box)
+                key = "-c.b" + unit
+                center[key] = "x".join([str(value)] * 2)
+            else:
+                w_unit, w_value = _parse_dimension(box[0])
+                h_unit, h_value = _parse_dimension(box[1])
+                key = "-c.b" + w_unit
+                if h_unit != w_unit:
+                    warnings.warn(
+                        "Converting height to same unit as width")
+                    h_value = u.Quantity(h_value, u.Unit
+                                         (_str_to_unit(h_unit))).to(u.Unit(_str_to_unit(w_unit)))
+                center[key] = "x".join([str(w_value), str(h_value)])
+        else:
+            raise Exception(
+                "At least one of radius, width/height must be specified")
         data_payload = self._args_to_payload(
-            coordinates, radius=radius, height=height,
-            width=width, catalog=catalog, caller='query_region_async')
+            center=center,
+            catalog=catalog)
         response = commons.send_request(
             self._server_to_url(),
             data_payload,
             Vizier.TIMEOUT)
         return response
 
-    def query_constraints_async(self, catalog=None, keywords={}, **kwargs):
+    def query_constraints_async(self, catalog=None, **kwargs):
         """
         Send a query to Vizier in which you specify constraints with keyword/value
         pairs.  See `the vizier constraints page
@@ -267,12 +259,9 @@ class VizierClass(BaseQuery):
         catalog : str or list, optional
             The catalog(s) which must be searched for this identifier.
             If not specified, all matching catalogs will be searched.
-        keywords : dict
-            A dictionary of keywords to query on.
         kwargs : dict
-            Any key/value pairs besides "catalog" and "keywords" will be parsed
-            as additional keywords.  kwargs overrides anything specified in
-            keywords.
+            Any key/value pairs besides "catalog" will be parsed
+            as additional column filters.
 
         Returns
         -------
@@ -309,11 +298,10 @@ class VizierClass(BaseQuery):
         G050.29-00.46  50.29  -0.46  14.81 ... RD09   291.39    15.18
         """
 
-        data_payload = keywords
-        data_payload.update(kwargs)
-
-        data_payload['-source'] = catalog
-
+        data_payload = self._args_to_payload(
+            catalog=catalog,
+            column_filters=kwargs,
+            center={'-c.rd':180}) 
         response = commons.send_request(
             self._server_to_url(),
             data_payload,
@@ -326,9 +314,11 @@ class VizierClass(BaseQuery):
         builds a script suitable for the Vizier votable CGI.
         """
         body = OrderedDict()
-        caller = kwargs['caller']
-        del kwargs['caller']
+        center = kwargs.get('center')
+        # process: catalog
         catalog = kwargs.get('catalog')
+        if catalog is None:
+            catalog = self.catalog
         if catalog is not None:
             if isinstance(catalog, basestring):
                 body['-source'] = catalog
@@ -336,74 +326,47 @@ class VizierClass(BaseQuery):
                 body['-source'] = ",".join(catalog)
             else:
                 raise TypeError("Catalog must be specified as list or string")
-        if caller == 'query_object_async':
-            body["-c"] = args[0]
-        elif caller == 'query_region_async':
-            c = commons.parse_coordinates(args[0])
-            ra = str(c.icrs.ra.degree)
-            dec = str(c.icrs.dec.degree)
-            if dec[0] not in ['+', '-']:
-                dec = '+' + dec
-            body["-c"] = "".join([ra, dec])
-            # decide whether box or radius
-            if kwargs.get('radius') is not None:
-                radius = kwargs['radius']
-                unit, value = _parse_dimension(radius)
-                switch = "-c.r" + unit
-                body[switch] = value
-            elif kwargs.get('width') is not None:
-                width = kwargs['width']
-                w_unit, w_value = _parse_dimension(width)
-                switch = "-c.b" + w_unit
-                height = kwargs.get('height')
-                # is box a rectangle or square?
-                if height is not None:
-                    h_unit, h_value = _parse_dimension(height)
-                    if h_unit != w_unit:
-                        warnings.warn(
-                            "Converting height to same unit as width")
-                        h_value = u.Quantity(h_value, u.Unit
-                                             (_str_to_unit(h_unit))).to(u.Unit(_str_to_unit(w_unit)))
-                    body[switch] = "x".join([str(w_value), str(h_value)])
+        # process: columns
+        columns = kwargs.get('columns')
+        if columns is None:
+            columns = self.columns
+        if columns is not None:
+            columns_out = []
+            sorts_out = []
+            for column in columns:
+                if column[0] == '+':
+                    columns_out += [column[1:]]
+                    sorts_out += [column[1:]]
+                elif column[0] == '-':
+                    columns_out += [column[1:]]
+                    sorts_out += [column]
                 else:
-                    body[switch] = "x".join([str(w_value)] * 2)
-            elif kwargs.get('height'):
-                warnings.warn(
-                    "No width given - shape interpreted as square (height x height)")
-                height = kwargs['height']
-                h_unit, h_value = _parse_dimension(height)
-                switch = "-c.b" + h_unit
-                body[switch] = h_value
+                    columns_out += [column]
+            if '**' in columns:
+                body['-out'] = '**'
             else:
-                raise Exception(
-                    "At least one of radius, width/height must be specified")
-        # set output parameters
-        if not isinstance(self.columns, property) and self.columns is not None:
-            if "all" in self.columns:
-                body["-out"] = "**"
-            else:
-                out_cols = ",".join([col for col in self.columns])
-                # if default then return default cols and listed cols
-                if "default" in self.columns:
-                    body["-out.add"] = out_cols
-                # else return only the listed cols
-                else:
-                    body["-out"] = out_cols
-        # otherwise ask to return default columns
-        else:
-            body["-out"] = "*"
-        # set the maximum rows returned
+                body['-out'] = ','.join(columns_out)
+            if len(sorts_out)>0:
+                body['-sort'] = ','.join(sorts_out)
+        # process: maximum rows returned
         body["-out.max"] = Vizier.ROW_LIMIT
+        # process: column filters
+        column_filters = kwargs.get('column_filters')
+        if column_filters is None:
+            column_filters = self.column_filters
+        if column_filters is not None:
+            for (key, value) in column_filters.items():
+                body[key] = value
+        # process: center
+        if center is not None:
+            for (key, value) in center.items():
+                body[key] = value
+        # create final script
         script = "\n".join(["{key}={val}".format(key=key, val=val)
-                           for key, val in body.items()])
+                   for key, val in body.items()])
         # add keywords
         if not isinstance(self.keywords, property) and self.keywords is not None:
             script += "\n" + str(self.keywords)
-        # add column filters
-        if not isinstance(self.column_filters, property) and self.column_filters is not None:
-            filter_str = "\n".join(["{key}={constraint}".format(key=key, constraint=constraint) for key, constraint in
-                                    self.column_filters.items()])
-            script += "\n" + filter_str
         return script
 
     def _parse_result(self, response, get_catalog_names=False, verbose=False):
@@ -463,28 +426,20 @@ def _parse_dimension(dim):
 
     Parameters
     ----------
-    dim : `astropy.units.Quantity` or `astropy.coordinates.Angle`
+    dim : convertible to `astropy.coordinates.angles.Angle`
 
     Returns
     -------
     (unit, value) : tuple
         formatted for Vizier.
     """
-    if isinstance(dim, u.Quantity) and dim.unit in u.deg.find_equivalent_units():
-        if dim.unit == u.arcsec:
-            unit, value = 's', dim.value
-        elif dim.unit == u.arcmin:
-            unit, value = 'm', dim.value
-        else:
-            unit, value = 'd', dim.to(u.deg).value
-    # otherwise must be an Angle or be specified in hours...
+    dim = coord.Angle(dim)
+    if dim.unit == u.arcsec:
+        unit, value = 's', dim.value
+    elif dim.unit == u.arcmin:
+        unit, value = 'm', dim.value
     else:
-        try:
-            new_dim = commons.radius_to_unit(dim,'degree')
-            unit, value = 'd', new_dim
-        except (u.UnitsException, coord.errors.UnitsError, AttributeError):
-            raise u.UnitsException("Dimension not in proper units")
-
+        unit, value = 'd', dim.to(u.deg).value
     return unit, value
 
 

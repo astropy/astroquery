@@ -149,18 +149,4 @@ class TestVizierClass:
     def test_columns(self):
         v = vizier.core.Vizier(columns=['Vmag', 'B-V', '_RAJ2000', '_DEJ2000'])
         assert len(v.columns) == 4
-        del v.columns
-        assert v.columns is None
-
-    def test_column_filters(self):
-        with pytest.raises(Exception):
-            v = vizier.core.Vizier(column_filters={"Plx":">50"})
-        with pytest.raises(Exception):
-            v = vizier.core.Vizier(columns=['B-V'], column_filters={"Vmag":"<12.5"})
-        v = vizier.core.Vizier(columns=['Vmag', 'B-V'], column_filters={'Vmag':"<12.5"})
-        assert 'Vmag' in v.column_filters
-        with pytest.raises(Exception):
-            del v.columns
-        del v.column_filters
-        assert v.column_filters is None
 
