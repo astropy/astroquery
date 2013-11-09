@@ -33,8 +33,8 @@ matrix:
 #          env: ASTROPY_VERSION=development NUMPY_VERSION=1.7.1 SETUP_CMD='test'
 
         # try a stable version of astropy, which requires monkeypatching
-        - python: 2.7
-          env: ASTROPY_VERSION=stable NUMPY_VERSION=1.7.1 SETUP_CMD='test'
+        #- python: 2.7
+        #  env: ASTROPY_VERSION=stable NUMPY_VERSION=1.7.1 SETUP_CMD='test'
 
 before_install:
    # We do this to make sure we get the dependencies so pip works below
