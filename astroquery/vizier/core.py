@@ -19,6 +19,7 @@ import astropy.io.votable as votable
 from ..query import BaseQuery
 from ..utils import commons
 from ..utils import async_to_sync
+from ..utils import schema
 from . import VIZIER_SERVER, VIZIER_TIMEOUT, ROW_LIMIT
 
 PY3 = sys.version_info[0] >= 3
@@ -35,11 +36,15 @@ class VizierClass(BaseQuery):
     TIMEOUT = VIZIER_TIMEOUT()
     VIZIER_SERVER = VIZIER_SERVER()
     ROW_LIMIT = ROW_LIMIT()
+    
+    schema_columns = schema.Schema(schema.Or([str],None), error="columns must be a list of strings")
+    schema_column_filters = schema.Schema(schema.Or({str:str},None), error="column_filters must be a dictionary where both keys and values are strings")
+    schema_catalog = schema.Schema(schema.Or([str],str,None), error="catalog must be a list of strings or a single string")
 
     def __init__(self, columns=None, column_filters=None, catalog=None, keywords=None):
-        self.columns = columns
-        self.column_filters = column_filters
-        self.catalog = catalog
+        self.columns = VizierClass.schema_columns.validate(columns)
+        self.column_filters = VizierClass.schema_column_filters.validate(column_filters)
+        self.catalog = VizierClass.schema_catalog.validate(catalog)
         self._keywords = None
         if keywords:
             self.keywords = keywords
