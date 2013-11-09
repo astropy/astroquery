@@ -14,18 +14,20 @@ NIST. All the results are returned as an `astropy.table.Table`_. To do this you
 just need to specify the lower and the upper wavelength for the spectrum you
 want to fetch. These wavelengths must be specified as an appropriate
 `astropy.units`_ `Quantity` object, for instance having units of
-nanometer, or angstrom or the like. Of course there are several optional
+nanometer, or angstrom or the like. For example, to use a lower wavelength
+value of 4000 Angstrons, you should use ```4000 * u.AA``` and if you want the
+same in nanometers, just use ```400 * u.nm```. Of course there are several optional
 parameters you can also specify. For instance use the `linename` parameter to
 specify the spectrum you wish to fetch. By default this is set to "H I", but
 you can set it to several other values like "Na;Mg", etc. Lets now see a simple example.
 
 .. code-block:: python
-                
+
     >>> from astroquery.nist import Nist
     >>> import astropy.units as u
     >>> table = Nist.query(40000 * u.AA, 70000 * u.AA, linename="H I")
     >>> print(table)
-    
+
     Observed     Ritz     Rel.    Aki    ...     Upper level     Type   TP  Line
     -------- ----------- ----- --------- ... ------------------- ---- ----- ----
           --    4020.871 (200)    5526.5 ...                  --   --    --   --
@@ -56,7 +58,7 @@ Similarly you can set the `output_order` to any one of 'wavelength' or
 or 'vac+air'. Here is an example with all these parameters.
 
 .. code-block:: python
- 
+
     >>> from astroquery.nist import Nist
     >>> table = Nist.query(4000 * u.nm, 7000 * u.nm, 'H I',
     ...                    energy_level_unit='eV', output_order='wavelength',
@@ -83,8 +85,8 @@ or 'vac+air'. Here is an example with all these parameters.
           --    6946.756    --    688.58 ...                  --   --    --   --
 
 
-              
-    
+
+
 Reference/API
 =============
 
@@ -92,4 +94,4 @@ Reference/API
     :no-inheritance-diagram:
 
 .. _astropy.table.Table: http://docs.astropy.org/en/latest/table/index.html
-.. _astropy.units: http://docs.astropy.org/en/latest/units/index.html 
+.. _astropy.units: http://docs.astropy.org/en/latest/units/index.html
