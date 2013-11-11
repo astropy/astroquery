@@ -160,6 +160,7 @@ class VizierClass(BaseQuery):
             The response of the HTTP request.
 
         """
+        catalog = VizierClass.schema_catalog.validate(catalog)
         center = {'-c': object_name}
         data_payload = self._args_to_payload(
             center=center,
@@ -201,6 +202,7 @@ class VizierClass(BaseQuery):
             The response of the HTTP request.
 
         """
+        catalog = VizierClass.schema_catalog.validate(catalog)
         center = {}
         c = commons.parse_coordinates(coordinates)
         ra = str(c.icrs.ra.degree)
@@ -303,6 +305,7 @@ class VizierClass(BaseQuery):
         G050.29-00.46  50.29  -0.46  14.81 ... RD09   291.39    15.18
         """
 
+        catalog = VizierClass.schema_catalog.validate(catalog)
         data_payload = self._args_to_payload(
             catalog=catalog,
             column_filters=kwargs,
