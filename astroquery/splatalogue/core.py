@@ -292,6 +292,9 @@ class SplatalogueClass(BaseQuery):
             self.QUERY_URL,
             data_payload,
             self.TIMEOUT)
+
+        self.response = response
+
         return response
 
     def _parse_result(self, response, verbose=False):
@@ -310,5 +313,34 @@ class SplatalogueClass(BaseQuery):
                                 Reader=ascii.Basic)
 
         return result
+
+    def get_fixed_table(self, columns=None):
+        """
+        Convenience function to get the table with html column names made human
+        readable.  It returns only the columns identified with the `columns`
+        keyword.  See the source for the defaults.
+        """
+        if columns is None:
+            columns = ('Species','Chemical Name','Resolved QNs','Freq-GHz',
+                    'Meas Freq-GHz','Log<sub>10</sub> (A<sub>ij</sub>)',
+                    'E_U (K)')
+        table = self.table[columns]
+        long_to_short = {'Log<sub>10</sub> (A<sub>ij</sub>)':'log10(Aij)',
+                         'E_U (K)':'EU_K',
+                         'E_U (cm^-1)':'EU_cm',
+                         'E_L (K)':'EL_K',
+                         'E_L (cm^-1)':'EL_cm',
+                         'Chemical Name':'Name',
+                         'Lovas/AST Intensity':'Intensity',
+                         'Freq-GHz':'Freq',
+                         'Freq Err':'eFreq',
+                         'Meas Freq-GHz':'MeasFreq',
+                         'Meas Freq Err':'eMeasFreq',
+                         'Resolved QNs':'QNs'}
+        for cn in long_to_short:
+            if cn in table.colnames:
+                table.rename_column(cn,long_to_short[cn])
+        return table
+
 
 Splatalogue = SplatalogueClass()

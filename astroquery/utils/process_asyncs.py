@@ -28,6 +28,7 @@ def async_to_sync(cls):
                 verbose = False
             response = getattr(self,async_method_name)(*args,**kwargs)
             result = self._parse_result(response, verbose=verbose)
+            self.table = result
             return result
 
         return newmethod
