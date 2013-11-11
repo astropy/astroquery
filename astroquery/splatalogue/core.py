@@ -322,8 +322,8 @@ class SplatalogueClass(BaseQuery):
         """
         if columns is None:
             columns = ('Species','Chemical Name','Resolved QNs','Freq-GHz',
-                    'Meas Freq-GHz','Log<sub>10</sub> (A<sub>ij</sub>)',
-                    'E_U (K)')
+                       'Meas Freq-GHz','Log<sub>10</sub> (A<sub>ij</sub>)',
+                       'E_U (K)')
         table = self.table[columns]
         long_to_short = {'Log<sub>10</sub> (A<sub>ij</sub>)':'log10(Aij)',
                          'E_U (K)':'EU_K',
