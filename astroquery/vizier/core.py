@@ -417,27 +417,26 @@ class VizierClass(BaseQuery):
                 "Error in parsing result, returning raw result instead")
             return response.content
 
-    def _parse_dimension(self, dim):
+    def _parse_dimension(self, angle):
         """
         Retuns the Vizier-formatted units and values for box/radius
         dimensions in case of region queries.
     
         Parameters
         ----------
-        dim : convertible to `astropy.coordinates.angles.Angle`
+        angle : an `astropy.coordinates.angles.Angle`
     
         Returns
         -------
         (unit, value) : tuple
             formatted for Vizier.
         """
-        dim = coord.Angle(dim)
-        if dim.unit == u.arcsec:
-            unit, value = 's', dim.value
-        elif dim.unit == u.arcmin:
-            unit, value = 'm', dim.value
+        if angle.unit == u.arcsec:
+            unit, value = 's', angle.value
+        elif angle.unit == u.arcmin:
+            unit, value = 'm', angle.value
         else:
-            unit, value = 'd', dim.to(u.deg).value
+            unit, value = 'd', angle.to(u.deg).value
         return unit, value
 
 
