@@ -34,11 +34,6 @@ def post_mockreturn(url, data=None, timeout=10, **kwargs):
     return MockResponse(content, **kwargs)
 
 
-def test_str_to_unit():
-    with pytest.raises(KeyError):
-        vizier.core._str_to_unit('rad')
-
-
 @pytest.mark.parametrize(('dim', 'expected_out'),
                          [(5 * u.deg, ('d', 5)),
                           (5 * u.arcmin, ('m', 5)),
