@@ -419,14 +419,6 @@ class VizierClass(BaseQuery):
                 "Error in parsing result, returning raw result instead")
             return response.content
 
-def _is_single_catalog(catalog):
-    if isinstance(catalog, basestring):
-        return True
-    if isinstance(catalog, list):
-        if len(catalog) == 1:
-            return True
-    return False
-
 def _parse_dimension(dim):
     """
     Retuns the Vizier-formatted units and values for box/radius
