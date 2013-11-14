@@ -218,14 +218,12 @@ class VizierClass(BaseQuery):
                 key = "-c.r" + unit
                 center[key] = value
             else:
-                i_unit, i_value = _parse_dimension(radius[0])
-                o_unit, o_value = _parse_dimension(radius[1])
+                [i_radius, o_radius] = [coord.Angle(r) for r in radius]
+                if i_radius.unit != o_radius.unit:
+                    o_radius = o_radius.to(i_radius.unit)
+                i_unit, i_value = _parse_dimension(i_radius)
+                o_unit, o_value = _parse_dimension(o_radius)
                 key = "-c.r" + i_unit
-                if i_unit != o_unit:
-                    warnings.warn(
-                        "Converting outer radius to same unit as inner radius")
-                    o_value = u.Quantity(o_value, u.Unit
-                                         (_str_to_unit(o_unit))).to(u.Unit(_str_to_unit(i_unit)))
                 center[key] = ",".join([str(i_value), str(o_value)])
         elif box is not None:
             # is box a rectangle or square?
@@ -234,14 +232,12 @@ class VizierClass(BaseQuery):
                 key = "-c.b" + unit
                 center[key] = "x".join([str(value)] * 2)
             else:
-                w_unit, w_value = _parse_dimension(box[0])
-                h_unit, h_value = _parse_dimension(box[1])
+                [w_box, h_box] = [coord.Angle(b) for b in box]
+                if w_box.unit != h_box.unit:
+                    h_box = h_box.to(w_box.unit)
+                w_unit, w_value = _parse_dimension(h_box)
+                h_unit, h_value = _parse_dimension(w_box)
                 key = "-c.b" + w_unit
-                if h_unit != w_unit:
-                    warnings.warn(
-                        "Converting height to same unit as width")
-                    h_value = u.Quantity(h_value, u.Unit
-                                         (_str_to_unit(h_unit))).to(u.Unit(_str_to_unit(w_unit)))
                 center[key] = "x".join([str(w_value), str(h_value)])
         else:
             raise Exception(
