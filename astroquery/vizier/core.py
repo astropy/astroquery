@@ -424,13 +424,14 @@ class VizierClass(BaseQuery):
     
         Parameters
         ----------
-        angle : an `astropy.coordinates.angles.Angle`
+        angle : convertible to `astropy.coordinates.angles.Angle`
     
         Returns
         -------
         (unit, value) : tuple
             formatted for Vizier.
         """
+        angle = coord.Angle(angle)
         if angle.unit == u.arcsec:
             unit, value = 's', angle.value
         elif angle.unit == u.arcmin:
