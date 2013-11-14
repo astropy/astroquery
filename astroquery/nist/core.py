@@ -101,6 +101,7 @@ class NistClass(BaseQuery):
         request_payload["tsb_value"] = 0
         request_payload["min_str"] = ""
         request_payload["A_out"] = 0
+        request_payload["f_out"] = "on"
         request_payload["intens_out"] = "on"
         request_payload["max_str"] = ""
         request_payload["allowed_out"] = 1
@@ -162,7 +163,7 @@ class NistClass(BaseQuery):
         except Exception as ex:
             self.response = response
             self.table_parse_error = ex
-            raise TableParseError("Failed to parse votable! The raw response can be found "
+            raise TableParseError("Failed to parse asciitable! The raw response can be found "
                                   "in self.response, and the error in self.table_parse_error.")
 
 Nist = NistClass()
