@@ -439,28 +439,6 @@ def _parse_dimension(dim):
     return unit, value
 
 
-def _str_to_unit(string):
-    """
-    translates to the string representation of the `astropy.units`
-    quantity from the Vizier format for the unit.
-
-    Parameters
-    ----------
-    string : str
-        `s`, `m` or `d`
-
-    Returns
-    -------
-    string equivalent of the corresponding `astropy` unit.
-    """
-    str_to_unit = {
-        's': 'arcsec',
-        'm': 'arcmin',
-        'd': 'degree'
-    }
-    return str_to_unit[string]
-
-
 class VizierKeyword(list):
 
     """Helper class for setting keywords for Vizier queries"""
