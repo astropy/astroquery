@@ -214,29 +214,29 @@ class VizierClass(BaseQuery):
         if radius is not None:
             # is radius a disk or an annulus?
             if type(radius) is not tuple:
-                unit, value = _parse_dimension(radius)
+                unit, value = self._parse_dimension(radius)
                 key = "-c.r" + unit
                 center[key] = value
             else:
                 [i_radius, o_radius] = [coord.Angle(r) for r in radius]
                 if i_radius.unit != o_radius.unit:
                     o_radius = o_radius.to(i_radius.unit)
-                i_unit, i_value = _parse_dimension(i_radius)
-                o_unit, o_value = _parse_dimension(o_radius)
+                i_unit, i_value = self._parse_dimension(i_radius)
+                o_unit, o_value = self._parse_dimension(o_radius)
                 key = "-c.r" + i_unit
                 center[key] = ",".join([str(i_value), str(o_value)])
         elif box is not None:
             # is box a rectangle or square?
             if type(box) is not tuple:
-                unit, value = _parse_dimension(box)
+                unit, value = self._parse_dimension(box)
                 key = "-c.b" + unit
                 center[key] = "x".join([str(value)] * 2)
             else:
                 [w_box, h_box] = [coord.Angle(b) for b in box]
                 if w_box.unit != h_box.unit:
                     h_box = h_box.to(w_box.unit)
-                w_unit, w_value = _parse_dimension(h_box)
-                h_unit, h_value = _parse_dimension(w_box)
+                w_unit, w_value = self._parse_dimension(h_box)
+                h_unit, h_value = self._parse_dimension(w_box)
                 key = "-c.b" + w_unit
                 center[key] = "x".join([str(w_value), str(h_value)])
         else:
@@ -415,28 +415,28 @@ class VizierClass(BaseQuery):
                 "Error in parsing result, returning raw result instead")
             return response.content
 
-def _parse_dimension(dim):
-    """
-    Retuns the Vizier-formatted units and values for box/radius
-    dimensions in case of region queries.
-
-    Parameters
-    ----------
-    dim : convertible to `astropy.coordinates.angles.Angle`
-
-    Returns
-    -------
-    (unit, value) : tuple
-        formatted for Vizier.
-    """
-    dim = coord.Angle(dim)
-    if dim.unit == u.arcsec:
-        unit, value = 's', dim.value
-    elif dim.unit == u.arcmin:
-        unit, value = 'm', dim.value
-    else:
-        unit, value = 'd', dim.to(u.deg).value
-    return unit, value
+    def _parse_dimension(self, dim):
+        """
+        Retuns the Vizier-formatted units and values for box/radius
+        dimensions in case of region queries.
+    
+        Parameters
+        ----------
+        dim : convertible to `astropy.coordinates.angles.Angle`
+    
+        Returns
+        -------
+        (unit, value) : tuple
+            formatted for Vizier.
+        """
+        dim = coord.Angle(dim)
+        if dim.unit == u.arcsec:
+            unit, value = 's', dim.value
+        elif dim.unit == u.arcmin:
+            unit, value = 'm', dim.value
+        else:
+            unit, value = 'd', dim.to(u.deg).value
+        return unit, value
 
 
 class VizierKeyword(list):
