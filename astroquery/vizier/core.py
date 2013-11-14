@@ -214,6 +214,7 @@ class VizierClass(BaseQuery):
         if radius is not None:
             # is radius a disk or an annulus?
             if type(radius) is not tuple:
+                radius = coord.Angle(radius)
                 unit, value = self._parse_dimension(radius)
                 key = "-c.r" + unit
                 center[key] = value
@@ -228,6 +229,7 @@ class VizierClass(BaseQuery):
         elif box is not None:
             # is box a rectangle or square?
             if type(box) is not tuple:
+                box = coord.Angle(coord)
                 unit, value = self._parse_dimension(box)
                 key = "-c.b" + unit
                 center[key] = "x".join([str(value)] * 2)
