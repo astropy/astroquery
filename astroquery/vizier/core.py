@@ -355,7 +355,10 @@ class VizierClass(BaseQuery):
             if len(sorts_out)>0:
                 body['-sort'] = ','.join(sorts_out)
         # process: maximum rows returned
-        body["-out.max"] = Vizier.ROW_LIMIT
+        if Vizier.ROW_LIMIT < 0:
+            body["-out.max"] = 'unlimited'
+        else:
+            body["-out.max"] = Vizier.ROW_LIMIT
         # process: column filters
         column_filters = kwargs.get('column_filters')
         if column_filters is None:
