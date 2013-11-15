@@ -53,7 +53,7 @@ complete catalog, you need to change that:
 
 .. code-block:: python
 
-    >>> Vizier.ROW_LIMIT.set('999999999')
+    >>> Vizier.ROW_LIMIT = -1
     >>> catalogs = Vizier.get_catalogs(catalog_list.keys())
     >>> print(catalogs)
     TableList with 3 tables:
