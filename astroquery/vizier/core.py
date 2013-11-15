@@ -229,7 +229,7 @@ class VizierClass(BaseQuery):
         elif box is not None:
             # is box a rectangle or square?
             if type(box) is not tuple:
-                box = coord.Angle(coord)
+                box = coord.Angle(box)
                 unit, value = self._parse_angle(box)
                 key = "-c.b" + unit
                 center[key] = "x".join([str(value)] * 2)
