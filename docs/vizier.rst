@@ -165,7 +165,7 @@ dimension.
 
 One more thing to note in the above example is that the coordinates may be
 specified by using the appropriate coordinate object from
-`astropy.coordinates`_. Especially for ICRS coordinates, some limited support
+`astropy.coordinates`_. Especially for ICRS coordinates, some support
 also exists for directly passing a properly formatted string as the
 coordinate. Finally the `catalog` keyword argument may be passed in either
 `Vizier.query_object` or `Vizier.query_region` methods. This may be a string
