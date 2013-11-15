@@ -60,6 +60,7 @@ complete catalog, you need to change that:
        '0:J/ApJ/706/83/ysos' with 22 column(s) and 737 row(s) 
        '1:J/ApJS/191/232/table1' with 13 column(s) and 218 row(s) 
        '2:J/ApJS/191/232/map' with 2 column(s) and 2 row(s) 
+    >>> Vizier.ROW_LIMIT = 50
 
 **Query an object**
 
