@@ -212,61 +212,6 @@ this Vizier instance:
     299.570217  35.2256634 14.878  35.225663
     299.601081  35.2333378 13.170  35.233338
     299.617995  35.2058637 13.946  35.205864
-
-Note that the columns that appear in the `column_filters` are required to be a
-subset of the output columns as specified via the `columns` keyword argument -
-if this is not the case, an exception will be raised.
-
-The constraints or keywords may be deleted at any time. So again continuing
-from the above example:
-
-.. code-block:: python
-
-    >>> del v.column_filters
-    >>> result = v.query_object("HD 226868", catalog=["NOMAD", "UCAC"])
-    >>> print(result)
-    TableList with 3 tables:
-       '0:I/297/out' with 4 column(s) and 50 row(s) 
-       '1:I/289/out' with 3 column(s) and 18 row(s) 
-       '2:I/322A/out' with 4 column(s) and 28 row(s) 
-
-As can be seen considerably more rows are returned. Just to check:
-
-.. code-block:: python
-    
-    >>> print(result['I/322A/out'])
-     _RAJ2000    DEJ2000    Vmag   _DEJ2000 
-    ---------- ----------- ------ ----------
-    299.560073  35.1847709    nan  35.184771
-    299.572419  35.1942342 15.986  35.194234
-    299.579956  35.1965673    nan  35.196567
-    299.580291  35.1768889 13.274  35.176889
-    299.582553  35.1801528    nan  35.180153
-    299.582571  35.1852253 14.863  35.185225
-    299.594172  35.1799948 14.690  35.179995
-    299.601402  35.1981078 14.644  35.198108
-    299.606413  35.1871734    nan  35.187173
-    299.606698  35.1920009    nan  35.192001
-    299.608171  35.1994889    nan  35.199489
-    299.612142  35.1839075    nan  35.183908
-    299.617669  35.1869987 14.394  35.186999
-    299.561498  35.2016928 15.687  35.201693
-    299.570217  35.2256634 14.878  35.225663
-    299.587434  35.2032023    nan  35.203202
-    299.589158  35.2301031    nan  35.230103
-    299.590162  35.2168664  9.992  35.216866
-    299.590315  35.2016062  8.996  35.201606
-    299.590446  35.2153614    nan  35.215361
-    299.592838  35.2291506    nan  35.229151
-    299.597615  35.2271000    nan  35.227100
-    299.597652  35.2342487    nan  35.234249
-    299.601081  35.2333378 13.170  35.233338
-    299.615751  35.2229892    nan  35.222989
-    299.617995  35.2058637 13.946  35.205864
-    299.620861  35.2124506    nan  35.212451
-    299.623687  35.2105187    nan  35.210519
-
-It is evident that the *Vmag* constraint no longer applies.
                  
 
 Reference/API
