@@ -212,7 +212,29 @@ this Vizier instance:
     299.570217  35.2256634 14.878  35.225663
     299.601081  35.2333378 13.170  35.233338
     299.617995  35.2058637 13.946  35.205864
-                 
+
+When specifying the columns of the query, sorting of the returned table can be
+requested by adding `+` (or `-` for reverse sorting order) in front of the column
+name. In the following example, the standard (`"*"`) columns and the calculated
+distance column (`"_r"`) of the 2MASS catalog (II/246) are queried, 20 arcsec
+around HD 226868. The result is sorted in increasing distance, as requested with
+the `"+"` in front of `"_r"`.  
+
+.. code-block:: python
+
+    >>> v = Vizier(columns=["*", "+_r"], catalog="II/246")
+    >>> result = v.query_region("HD 226868", radius="20s")
+    >>> print(result[0])
+     RAJ2000    DEJ2000        _2MASS       Jmag  e_Jmag  Hmag  e_Hmag  Kmag  e_Kmag Qflg Rflg Bflg Cflg Xflg Aflg   _r  
+    ---------- ---------- ---------------- ------ ------ ------ ------ ------ ------ ---- ---- ---- ---- ---- ---- ------
+    299.590280  35.201599 19582166+3512057  6.872  0.023  6.652  0.018  6.501  0.020  AAA  111  111  000    0    0  0.109
+    299.587491  35.203217 19582099+3512115 10.285  0.048  9.225  0.028  8.854  0.028  AAA  222  111  c00    0    0 10.137
+    299.588599  35.198849 19582126+3511558 13.111    nan 12.987    nan 14.023  0.128  UUB  662  002  00c    0    0 11.134
+    299.586356  35.200542 19582072+3512019 14.553  0.166 14.480  0.184 14.119  0.142  CCB  222  111  ccc    0    0 12.263
+    299.586254  35.197994 19582070+3511527 16.413  0.195 14.937    nan 14.770    nan  CUU  200  100  c00    0    0 17.658
+
+Note: The special column `"*"` requests just the default columns of a catalog; `"**"` would request all the columns. 
+
 
 Reference/API
 =============
