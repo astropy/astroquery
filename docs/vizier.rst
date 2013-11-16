@@ -180,7 +180,7 @@ on the Vizier class.
 
 .. code-block:: python
 
-    >>> v = Vizier(columns=['_RAJ2000', 'DEJ2000','B-V', 'Vmag', 'Plx'],
+    >>> v = Vizier(columns=['_RAJ2000', '_DEJ2000','B-V', 'Vmag', 'Plx'],
     ...            column_filters={"Vmag":">10"}, keywords=["optical", "xry"])
 
     WARNING: xry : No such keyword [astroquery.vizier.core]
