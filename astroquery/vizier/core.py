@@ -172,7 +172,7 @@ class VizierClass(BaseQuery):
         return response
 
     def query_region_async(
-            self, coordinates, radius=None, box=None, catalog=None):
+            self, coordinates, radius=None, inner_radius=None, width=None, height=None, catalog=None):
         """
         Serves the same purpose as `astroquery.vizier.Vizier.query_region` but only
         returns the HTTP response rather than the parsed result.
@@ -213,28 +213,30 @@ class VizierClass(BaseQuery):
         # decide whether box or radius
         if radius is not None:
             # is radius a disk or an annulus?
-            if type(radius) is not tuple:
+            if inner_radius is None:
                 radius = coord.Angle(radius)
                 unit, value = _parse_angle(radius)
                 key = "-c.r" + unit
                 center[key] = value
             else:
-                [i_radius, o_radius] = [coord.Angle(r) for r in radius]
+                i_radius = coord.Angle(inner_radius)
+                o_radius = coord.Angle(radius)
                 if i_radius.unit != o_radius.unit:
                     o_radius = o_radius.to(i_radius.unit)
                 i_unit, i_value = _parse_angle(i_radius)
                 o_unit, o_value = _parse_angle(o_radius)
                 key = "-c.r" + i_unit
                 center[key] = ",".join([str(i_value), str(o_value)])
-        elif box is not None:
+        elif width is not None:
             # is box a rectangle or square?
-            if type(box) is not tuple:
-                box = coord.Angle(box)
-                unit, value = _parse_angle(box)
+            if height is None:
+                width = coord.Angle(width)
+                unit, value = _parse_angle(width)
                 key = "-c.b" + unit
                 center[key] = "x".join([str(value)] * 2)
             else:
-                [w_box, h_box] = [coord.Angle(b) for b in box]
+                w_box = coord.Angle(width)
+                h_box = coord.Angle(height)
                 if w_box.unit != h_box.unit:
                     h_box = h_box.to(w_box.unit)
                 w_unit, w_value = _parse_angle(h_box)
