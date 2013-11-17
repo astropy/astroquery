@@ -42,7 +42,7 @@ def post_mockreturn(url, data=None, timeout=10, **kwargs):
                           ('5d5m5.5s', ('d', 5.0846))
                           ])
 def test_parse_angle(dim, expected_out):
-    actual_out = vizier.core.Vizier._parse_angle(dim)
+    actual_out = vizier.core._parse_angle(dim)
     actual_unit, actual_value = actual_out
     expected_unit, expected_value = expected_out
     assert actual_unit == expected_unit
@@ -51,7 +51,7 @@ def test_parse_angle(dim, expected_out):
 
 def test_parse_angle_err():
     with pytest.raises(Exception):
-        vizier.core.Vizier._parse_angle(5 * u.kg)
+        vizier.core._parse_angle(5 * u.kg)
 
 @pytest.mark.parametrize(('filepath'),
                          list(set(VO_DATA.values())))
