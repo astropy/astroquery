@@ -37,14 +37,14 @@ class VizierClass(BaseQuery):
     VIZIER_SERVER = VIZIER_SERVER()
     ROW_LIMIT = ROW_LIMIT()
     
-    schema_columns = schema.Schema(schema.Or([str],None), error="columns must be a list of strings")
-    schema_column_filters = schema.Schema(schema.Or({str:str},None), error="column_filters must be a dictionary where both keys and values are strings")
-    schema_catalog = schema.Schema(schema.Or([str],str,None), error="catalog must be a list of strings or a single string")
+    _schema_columns = schema.Schema(schema.Or([str],None), error="columns must be a list of strings")
+    _schema_column_filters = schema.Schema(schema.Or({str:str},None), error="column_filters must be a dictionary where both keys and values are strings")
+    _schema_catalog = schema.Schema(schema.Or([str],str,None), error="catalog must be a list of strings or a single string")
 
     def __init__(self, columns=None, column_filters=None, catalog=None, keywords=None):
-        self.columns = VizierClass.schema_columns.validate(columns)
-        self.column_filters = VizierClass.schema_column_filters.validate(column_filters)
-        self.catalog = VizierClass.schema_catalog.validate(catalog)
+        self.columns = VizierClass._schema_columns.validate(columns)
+        self.column_filters = VizierClass._schema_column_filters.validate(column_filters)
+        self.catalog = VizierClass._schema_catalog.validate(catalog)
         self._keywords = None
         if keywords:
             self.keywords = keywords
@@ -160,7 +160,7 @@ class VizierClass(BaseQuery):
             The response of the HTTP request.
 
         """
-        catalog = VizierClass.schema_catalog.validate(catalog)
+        catalog = VizierClass._schema_catalog.validate(catalog)
         center = {'-c': object_name}
         data_payload = self._args_to_payload(
             center=center,
@@ -202,7 +202,7 @@ class VizierClass(BaseQuery):
             The response of the HTTP request.
 
         """
-        catalog = VizierClass.schema_catalog.validate(catalog)
+        catalog = VizierClass._schema_catalog.validate(catalog)
         center = {}
         c = commons.parse_coordinates(coordinates)
         ra = str(c.icrs.ra.degree)
@@ -303,7 +303,7 @@ class VizierClass(BaseQuery):
         G050.29-00.46  50.29  -0.46  14.81 ... RD09   291.39    15.18
         """
 
-        catalog = VizierClass.schema_catalog.validate(catalog)
+        catalog = VizierClass._schema_catalog.validate(catalog)
         data_payload = self._args_to_payload(
             catalog=catalog,
             column_filters=kwargs,
