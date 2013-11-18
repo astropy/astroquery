@@ -184,14 +184,16 @@ class VizierClass(BaseQuery):
             in which case it is resolved using online services or as the appropriate
             `astropy.coordinates` object. ICRS coordinates may also be entered as
             a string.
-        radius : str or `astropy.units.Quantity` object or two-tuple of previous
-            The string must be parsable by `astropy.coordinates.Angle`. The appropriate
-            `Quantity` object from `astropy.units` may also be used. If a two-tuple
-            is passed, the region is an annulus of size (inner radius, outer radius).
-        box : str or `astropy.units.Quantity` object or two-tuple of previous
-            Must be specified for a square box region. Has the same format
-            as radius above. If a two-tuple is passed, the region is a rectangle
-            of size (width,height).
+        radius : convertible to `astropy.coordinates.angles.Angle`
+            The radius of the circular region to query.
+        inner_radius: convertible to `astropy.coordinates.angles.Angle`
+            When set in addition to `radius`, the queried region becomes annular,
+            with outer radius `radius` and inner radius `inner_radius`.
+        width : convertible to `astropy.coordinates.angles.Angle`
+            The width of the square region to query.
+        height: convertible to `astropy.coordinates.angles.Angle`
+            When set in addition to `width`, the queried region becomes rectangular,
+            with the specified `width` and `height`.
         catalog : str or list, optional
             The catalog(s) which must be searched for this identifier.
             If not specified, all matching catalogs will be searched.
