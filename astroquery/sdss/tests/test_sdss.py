@@ -46,7 +46,7 @@ def data_path(filename):
     return os.path.join(data_dir, filename)
 
 # Test Case: A Seyfert 1 galaxy
-coords = coordinates.ICRSCoordinates('0h8m05.63s +14d50m23.3s')
+coords = coordinates.ICRS('0h8m05.63s +14d50m23.3s')
 
 def test_sdss_spectrum(patch_get, patch_get_readable_fileobj, coords=coords):
     xid = sdss.core.SDSS.query_region(coords, spectro=True)

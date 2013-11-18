@@ -29,7 +29,7 @@ class TestUkidss:
         assert images is not None
 
     def test_get_image_list(self):
-        urls = ukidss.core.Ukidss.get_image_list(coord.ICRSCoordinates
+        urls = ukidss.core.Ukidss.get_image_list(coord.ICRS
                                             (ra=83.633083, dec=22.0145, unit=(u.deg, u.deg)),
             frame_type='all', waveband='all')
         assert len(urls) > 0

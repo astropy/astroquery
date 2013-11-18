@@ -100,9 +100,9 @@ def test_query_region_box(coordinates, patch_get):
                                          width=2 * u.arcmin)
     assert isinstance(result, Table)
 
-poly1 = [coord.ICRSCoordinates(ra=10.1, dec=10.1, unit=(u.deg, u.deg)),
-        coord.ICRSCoordinates(ra=10.0, dec=10.1, unit=(u.deg, u.deg)),
-        coord.ICRSCoordinates(ra=10.0, dec=10.0, unit=(u.deg, u.deg))]
+poly1 = [coord.ICRS(ra=10.1, dec=10.1, unit=(u.deg, u.deg)),
+        coord.ICRS(ra=10.0, dec=10.1, unit=(u.deg, u.deg)),
+        coord.ICRS(ra=10.0, dec=10.0, unit=(u.deg, u.deg))]
 poly2 = [(10.1*u.deg, 10.1*u.deg), (10.0*u.deg, 10.1*u.deg), (10.0*u.deg, 10.0*u.deg)]
 
 

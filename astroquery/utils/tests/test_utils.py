@@ -46,7 +46,7 @@ def test_class_or_instance():
 
 
 @pytest.mark.parametrize(('coordinates'),
-                         [coord.ICRSCoordinates(ra=148,
+                         [coord.ICRS(ra=148,
                                                 dec=69,
                                                 unit=(u.deg, u.deg)),
                           ])
