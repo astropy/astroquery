@@ -19,6 +19,7 @@ import astropy.io.votable as votable
 from ..query import BaseQuery
 from ..utils import commons
 from ..utils import async_to_sync
+from ..utils import schema
 from . import VIZIER_SERVER, VIZIER_TIMEOUT, ROW_LIMIT
 
 PY3 = sys.version_info[0] >= 3
@@ -35,11 +36,15 @@ class VizierClass(BaseQuery):
     TIMEOUT = VIZIER_TIMEOUT()
     VIZIER_SERVER = VIZIER_SERVER()
     ROW_LIMIT = ROW_LIMIT()
+    
+    _schema_columns = schema.Schema(schema.Or([str],None), error="columns must be a list of strings")
+    _schema_column_filters = schema.Schema(schema.Or({str:str},None), error="column_filters must be a dictionary where both keys and values are strings")
+    _schema_catalog = schema.Schema(schema.Or([str],str,None), error="catalog must be a list of strings or a single string")
 
     def __init__(self, columns=None, column_filters=None, catalog=None, keywords=None):
-        self.columns = columns
-        self.column_filters = column_filters
-        self.catalog = catalog
+        self.columns = VizierClass._schema_columns.validate(columns)
+        self.column_filters = VizierClass._schema_column_filters.validate(column_filters)
+        self.catalog = VizierClass._schema_catalog.validate(catalog)
         self._keywords = None
         if keywords:
             self.keywords = keywords
@@ -155,6 +160,7 @@ class VizierClass(BaseQuery):
             The response of the HTTP request.
 
         """
+        catalog = VizierClass._schema_catalog.validate(catalog)
         center = {'-c': object_name}
         data_payload = self._args_to_payload(
             center=center,
@@ -166,7 +172,7 @@ class VizierClass(BaseQuery):
         return response
 
     def query_region_async(
-            self, coordinates, radius=None, box=None, catalog=None):
+            self, coordinates, radius=None, inner_radius=None, width=None, height=None, catalog=None):
         """
         Serves the same purpose as `astroquery.vizier.Vizier.query_region` but only
         returns the HTTP response rather than the parsed result.
@@ -178,14 +184,16 @@ class VizierClass(BaseQuery):
             in which case it is resolved using online services or as the appropriate
             `astropy.coordinates` object. ICRS coordinates may also be entered as
             a string.
-        radius : str or `astropy.units.Quantity` object or two-tuple of previous
-            The string must be parsable by `astropy.coordinates.Angle`. The appropriate
-            `Quantity` object from `astropy.units` may also be used. If a two-tuple
-            is passed, the region is an annulus of size (inner radius, outer radius).
-        box : str or `astropy.units.Quantity` object or two-tuple of previous
-            Must be specified for a square box region. Has the same format
-            as radius above. If a two-tuple is passed, the region is a rectangle
-            of size (width,height).
+        radius : convertible to `astropy.coordinates.angles.Angle`
+            The radius of the circular region to query.
+        inner_radius: convertible to `astropy.coordinates.angles.Angle`
+            When set in addition to `radius`, the queried region becomes annular,
+            with outer radius `radius` and inner radius `inner_radius`.
+        width : convertible to `astropy.coordinates.angles.Angle`
+            The width of the square region to query.
+        height: convertible to `astropy.coordinates.angles.Angle`
+            When set in addition to `width`, the queried region becomes rectangular,
+            with the specified `width` and `height`.
         catalog : str or list, optional
             The catalog(s) which must be searched for this identifier.
             If not specified, all matching catalogs will be searched.
@@ -196,6 +204,7 @@ class VizierClass(BaseQuery):
             The response of the HTTP request.
 
         """
+        catalog = VizierClass._schema_catalog.validate(catalog)
         center = {}
         c = commons.parse_coordinates(coordinates)
         ra = str(c.icrs.ra.degree)
@@ -206,35 +215,35 @@ class VizierClass(BaseQuery):
         # decide whether box or radius
         if radius is not None:
             # is radius a disk or an annulus?
-            if type(radius) is not tuple:
-                unit, value = _parse_dimension(radius)
+            if inner_radius is None:
+                radius = coord.Angle(radius)
+                unit, value = _parse_angle(radius)
                 key = "-c.r" + unit
                 center[key] = value
             else:
-                i_unit, i_value = _parse_dimension(radius[0])
-                o_unit, o_value = _parse_dimension(radius[1])
+                i_radius = coord.Angle(inner_radius)
+                o_radius = coord.Angle(radius)
+                if i_radius.unit != o_radius.unit:
+                    o_radius = o_radius.to(i_radius.unit)
+                i_unit, i_value = _parse_angle(i_radius)
+                o_unit, o_value = _parse_angle(o_radius)
                 key = "-c.r" + i_unit
-                if i_unit != o_unit:
-                    warnings.warn(
-                        "Converting outer radius to same unit as inner radius")
-                    o_value = u.Quantity(o_value, u.Unit
-                                         (_str_to_unit(o_unit))).to(u.Unit(_str_to_unit(i_unit)))
                 center[key] = ",".join([str(i_value), str(o_value)])
-        elif box is not None:
+        elif width is not None:
             # is box a rectangle or square?
-            if type(box) is not tuple:
-                unit, value = _parse_dimension(box)
+            if height is None:
+                width = coord.Angle(width)
+                unit, value = _parse_angle(width)
                 key = "-c.b" + unit
                 center[key] = "x".join([str(value)] * 2)
             else:
-                w_unit, w_value = _parse_dimension(box[0])
-                h_unit, h_value = _parse_dimension(box[1])
+                w_box = coord.Angle(width)
+                h_box = coord.Angle(height)
+                if w_box.unit != h_box.unit:
+                    h_box = h_box.to(w_box.unit)
+                w_unit, w_value = _parse_angle(h_box)
+                h_unit, h_value = _parse_angle(w_box)
                 key = "-c.b" + w_unit
-                if h_unit != w_unit:
-                    warnings.warn(
-                        "Converting height to same unit as width")
-                    h_value = u.Quantity(h_value, u.Unit
-                                         (_str_to_unit(h_unit))).to(u.Unit(_str_to_unit(w_unit)))
                 center[key] = "x".join([str(w_value), str(h_value)])
         else:
             raise Exception(
@@ -298,6 +307,7 @@ class VizierClass(BaseQuery):
         G050.29-00.46  50.29  -0.46  14.81 ... RD09   291.39    15.18
         """
 
+        catalog = VizierClass._schema_catalog.validate(catalog)
         data_payload = self._args_to_payload(
             catalog=catalog,
             column_filters=kwargs,
@@ -349,7 +359,10 @@ class VizierClass(BaseQuery):
             if len(sorts_out)>0:
                 body['-sort'] = ','.join(sorts_out)
         # process: maximum rows returned
-        body["-out.max"] = Vizier.ROW_LIMIT
+        if Vizier.ROW_LIMIT < 0:
+            body["-out.max"] = 'unlimited'
+        else:
+            body["-out.max"] = Vizier.ROW_LIMIT
         # process: column filters
         column_filters = kwargs.get('column_filters')
         if column_filters is None:
@@ -411,58 +424,29 @@ class VizierClass(BaseQuery):
                 "Error in parsing result, returning raw result instead")
             return response.content
 
-def _is_single_catalog(catalog):
-    if isinstance(catalog, basestring):
-        return True
-    if isinstance(catalog, list):
-        if len(catalog) == 1:
-            return True
-    return False
 
-def _parse_dimension(dim):
+def _parse_angle(angle):
     """
     Retuns the Vizier-formatted units and values for box/radius
     dimensions in case of region queries.
 
     Parameters
     ----------
-    dim : convertible to `astropy.coordinates.angles.Angle`
+    angle : convertible to `astropy.coordinates.angles.Angle`
 
     Returns
     -------
     (unit, value) : tuple
         formatted for Vizier.
     """
-    dim = coord.Angle(dim)
-    if dim.unit == u.arcsec:
-        unit, value = 's', dim.value
-    elif dim.unit == u.arcmin:
-        unit, value = 'm', dim.value
+    angle = coord.Angle(angle)
+    if angle.unit == u.arcsec:
+        unit, value = 's', angle.value
+    elif angle.unit == u.arcmin:
+        unit, value = 'm', angle.value
     else:
-        unit, value = 'd', dim.to(u.deg).value
+        unit, value = 'd', angle.to(u.deg).value
     return unit, value
-
-
-def _str_to_unit(string):
-    """
-    translates to the string representation of the `astropy.units`
-    quantity from the Vizier format for the unit.
-
-    Parameters
-    ----------
-    string : str
-        `s`, `m` or `d`
-
-    Returns
-    -------
-    string equivalent of the corresponding `astropy` unit.
-    """
-    str_to_unit = {
-        's': 'arcsec',
-        'm': 'arcmin',
-        'd': 'degree'
-    }
-    return str_to_unit[string]
 
 
 class VizierKeyword(list):

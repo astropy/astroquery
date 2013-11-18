@@ -53,13 +53,14 @@ complete catalog, you need to change that:
 
 .. code-block:: python
 
-    >>> Vizier.ROW_LIMIT.set('999999999')
+    >>> Vizier.ROW_LIMIT = -1
     >>> catalogs = Vizier.get_catalogs(catalog_list.keys())
     >>> print(catalogs)
     TableList with 3 tables:
        '0:J/ApJ/706/83/ysos' with 22 column(s) and 737 row(s) 
        '1:J/ApJS/191/232/table1' with 13 column(s) and 218 row(s) 
        '2:J/ApJS/191/232/map' with 2 column(s) and 2 row(s) 
+    >>> Vizier.ROW_LIMIT = 50
 
 **Query an object**
 
@@ -114,8 +115,8 @@ quasar 3C 273:
 .. code-block:: python
 
     >>> from astroquery.vizier import Vizier
-    >>> import astropy.units as u
-    >>> result = Vizier.query_region("3C 273", radius=0.1 * u.deg, catalog='GSC')
+    >>> from astropy.coordinates import Angle
+    >>> result = Vizier.query_region("3C 273", radius=Angle(0.1, "deg"), catalog='GSC')
 
 Note that the radius may also be specified as a string in the format
 expected by `astropy.coordinates.Angle`_. So the above query may also
@@ -124,6 +125,13 @@ be written as:
 .. code-block:: python
 
     >>> result = Vizier.query_region("3C 273", radius="0d6m0s", catalog='GSC')
+
+Or using angular units and quantities from `astropy.units`_:
+
+.. code-block:: python
+
+    >>> import astropy.units as u
+    >>> result = Vizier.query_region("3C 273", radius=0.1*u.deg, catalog='GSC')
 
 To see the result:
 
@@ -145,8 +153,8 @@ dimension.
     >>> from astroquery.vizier import Vizier
     >>> import astropy.units as u
     >>> import astropy.coordinates as coord
-    >>> result = Vizier.query_region(coord.ICRSCoordinates(ra=299.590, dec=35.201, unit=(u.deg, u.deg)),
-    ...                         width="0d30m0s", height="0d10m0s",
+    >>> result = Vizier.query_region(coord.ICRS(ra=299.590, dec=35.201, unit=(u.deg, u.deg)),
+    ...                         width="30m",
     ...                         catalog=["NOMAD", "UCAC"])
     >>> print(result)
     TableList with 3 tables:
@@ -157,7 +165,7 @@ dimension.
 
 One more thing to note in the above example is that the coordinates may be
 specified by using the appropriate coordinate object from
-`astropy.coordinates`_. Especially for ICRS coordinates, some limited support
+`astropy.coordinates`_. Especially for ICRS coordinates, some support
 also exists for directly passing a properly formatted string as the
 coordinate. Finally the `catalog` keyword argument may be passed in either
 `Vizier.query_object` or `Vizier.query_region` methods. This may be a string
@@ -172,7 +180,7 @@ on the Vizier class.
 
 .. code-block:: python
 
-    >>> v = Vizier(columns=['_RAJ2000', 'DEJ2000','B-V', 'Vmag', 'Plx'],
+    >>> v = Vizier(columns=['_RAJ2000', '_DEJ2000','B-V', 'Vmag', 'Plx'],
     ...            column_filters={"Vmag":">10"}, keywords=["optical", "xry"])
 
     WARNING: xry : No such keyword [astroquery.vizier.core]
@@ -205,61 +213,28 @@ this Vizier instance:
     299.601081  35.2333378 13.170  35.233338
     299.617995  35.2058637 13.946  35.205864
 
-Note that the columns that appear in the `column_filters` are required to be a
-subset of the output columns as specified via the `columns` keyword argument -
-if this is not the case, an exception will be raised.
-
-The constraints or keywords may be deleted at any time. So again continuing
-from the above example:
-
-.. code-block:: python
-
-    >>> del v.column_filters
-    >>> result = v.query_object("HD 226868", catalog=["NOMAD", "UCAC"])
-    >>> print(result)
-    TableList with 3 tables:
-       '0:I/297/out' with 4 column(s) and 50 row(s) 
-       '1:I/289/out' with 3 column(s) and 18 row(s) 
-       '2:I/322A/out' with 4 column(s) and 28 row(s) 
-
-As can be seen considerably more rows are returned. Just to check:
+When specifying the columns of the query, sorting of the returned table can be
+requested by adding `+` (or `-` for reverse sorting order) in front of the column
+name. In the following example, the standard (`"*"`) columns and the calculated
+distance column (`"_r"`) of the 2MASS catalog (II/246) are queried, 20 arcsec
+around HD 226868. The result is sorted in increasing distance, as requested with
+the `"+"` in front of `"_r"`.  
 
 .. code-block:: python
-    
-    >>> print(result['I/322A/out'])
-     _RAJ2000    DEJ2000    Vmag   _DEJ2000 
-    ---------- ----------- ------ ----------
-    299.560073  35.1847709    nan  35.184771
-    299.572419  35.1942342 15.986  35.194234
-    299.579956  35.1965673    nan  35.196567
-    299.580291  35.1768889 13.274  35.176889
-    299.582553  35.1801528    nan  35.180153
-    299.582571  35.1852253 14.863  35.185225
-    299.594172  35.1799948 14.690  35.179995
-    299.601402  35.1981078 14.644  35.198108
-    299.606413  35.1871734    nan  35.187173
-    299.606698  35.1920009    nan  35.192001
-    299.608171  35.1994889    nan  35.199489
-    299.612142  35.1839075    nan  35.183908
-    299.617669  35.1869987 14.394  35.186999
-    299.561498  35.2016928 15.687  35.201693
-    299.570217  35.2256634 14.878  35.225663
-    299.587434  35.2032023    nan  35.203202
-    299.589158  35.2301031    nan  35.230103
-    299.590162  35.2168664  9.992  35.216866
-    299.590315  35.2016062  8.996  35.201606
-    299.590446  35.2153614    nan  35.215361
-    299.592838  35.2291506    nan  35.229151
-    299.597615  35.2271000    nan  35.227100
-    299.597652  35.2342487    nan  35.234249
-    299.601081  35.2333378 13.170  35.233338
-    299.615751  35.2229892    nan  35.222989
-    299.617995  35.2058637 13.946  35.205864
-    299.620861  35.2124506    nan  35.212451
-    299.623687  35.2105187    nan  35.210519
 
-It is evident that the *Vmag* constraint no longer applies.
-                 
+    >>> v = Vizier(columns=["*", "+_r"], catalog="II/246")
+    >>> result = v.query_region("HD 226868", radius="20s")
+    >>> print(result[0])
+     RAJ2000    DEJ2000        _2MASS       Jmag  e_Jmag  Hmag  e_Hmag  Kmag  e_Kmag Qflg Rflg Bflg Cflg Xflg Aflg   _r  
+    ---------- ---------- ---------------- ------ ------ ------ ------ ------ ------ ---- ---- ---- ---- ---- ---- ------
+    299.590280  35.201599 19582166+3512057  6.872  0.023  6.652  0.018  6.501  0.020  AAA  111  111  000    0    0  0.109
+    299.587491  35.203217 19582099+3512115 10.285  0.048  9.225  0.028  8.854  0.028  AAA  222  111  c00    0    0 10.137
+    299.588599  35.198849 19582126+3511558 13.111    nan 12.987    nan 14.023  0.128  UUB  662  002  00c    0    0 11.134
+    299.586356  35.200542 19582072+3512019 14.553  0.166 14.480  0.184 14.119  0.142  CCB  222  111  ccc    0    0 12.263
+    299.586254  35.197994 19582070+3511527 16.413  0.195 14.937    nan 14.770    nan  CUU  200  100  c00    0    0 17.658
+
+Note: The special column `"*"` requests just the default columns of a catalog; `"**"` would request all the columns. 
+
 
 Reference/API
 =============
