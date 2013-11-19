@@ -166,7 +166,7 @@ For other coordinate systems, use the appropriate `astropy.coordinates`_ object:
     >>> from astroquery.simbad import Simbad
     >>> import astropy.coordinates as coord
     >>> import astropy.units as u
-    >>> result_table = Simbad.query_region(coord.GalacticCoordinates(l=31.0087, b=14.0627,
+    >>> result_table = Simbad.query_region(coord.Galactic(l=31.0087, b=14.0627,
     ...                                    unit=(u.deg, u.deg)), radius='0d0m2s')
     >>> print(result_table)
 

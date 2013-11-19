@@ -147,7 +147,7 @@ parameters will no longer be effective.
     >>> from astroquery.ukidss import Ukidss
     >>> import astropy.units as u
     >>> import astropy.coordinates as coord
-    >>> images = Ukidss.get_images(coord.GalacticCoordinates(l=49.489, b=-0.27,
+    >>> images = Ukidss.get_images(coord.Galactic(l=49.489, b=-0.27,
     ...          unit=(u.deg, u.deg)), image_width=5 * u.arcmin)
 
         Found 6 targets
@@ -222,7 +222,7 @@ results are returned in an `astropy.table.Table`_.
     >>> from astroquery.ukidss import Ukidss
     >>> import astropy.coordinates as coord
     >>> import astropy.units as u
-    >>> table = Ukidss.query_region(coord.GalacticCoordinates(l=10.625,
+    >>> table = Ukidss.query_region(coord.Galactic(l=10.625,
     ...         b=-0.38,  unit=(u.deg, u.deg)), radius=6 * u.arcsec)
     
     Downloading http://surveys.roe.ac.uk/wsa/tmp/tmp_sql/results1_4_45_58_24651.xml

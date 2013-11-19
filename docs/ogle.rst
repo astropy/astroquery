@@ -19,7 +19,7 @@ using an `astropy.coordinates` instance use:
     >>> from astropy import coordinates as coord
     >>> from astropy imoprt units as u
     >>> from astroquery import ogle
-    >>> co = coord.GalacticCoordinates(0, 3, unit=(u.degree, u.degree))
+    >>> co = coord.Galactic(0, 3, unit=(u.degree, u.degree))
     >>> t = ogle.query(coord=co)
 
 Arguments can be passed to choose the interpolation algorithm, quality factor,
@@ -30,7 +30,7 @@ to FK5.
 
 .. code-block:: python
 
-    >>> co = coord.GalacticCoordinates(0, 3, unit=(u.degree, u.degree))
+    >>> co = coord.Galactic(0, 3, unit=(u.degree, u.degree))
     >>> # list of coordinate instances
     >>> co_list = [co, co, co]
     >>> t1 = ogle.query(coord=co_list)
