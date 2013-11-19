@@ -79,13 +79,7 @@ def post_mockreturn(url, data, timeout, **kwargs):
                           ])
 def test_parse_radius(radius, expected_radius):
     actual = simbad.core._parse_radius(radius)
-    # bug in 1168: https://github.com/astropy/astropy/pull/1168
-    if (LooseVersion(astropy.version.version) <= LooseVersion('0.2.5')
-       and radius in ('5d',)):
-        # error...
-        pass
-    else:
-        assert actual == expected_radius
+    assert actual == expected_radius
 
 
 @pytest.mark.parametrize(('ra', 'dec', 'expected_ra', 'expected_dec'),
