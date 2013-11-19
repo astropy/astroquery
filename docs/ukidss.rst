@@ -193,7 +193,7 @@ parameters. Let us now see a complete example to illustrate these points.
     >>> from astroquery.ukidss import Ukidss
     >>> import astropy.units as u
     >>> import astropy.coordinates as coord 
-    >>> image_urls = Ukidss.get_image_list(coord.ICRSCoordinates(ra=83.633083,
+    >>> image_urls = Ukidss.get_image_list(coord.ICRS(ra=83.633083,
     ...          dec=22.0145, unit=(u.deg, u.deg)), frame_type='interleave',
     ...          programme_id="GCS", waveband="K", radius=20*u.arcmin)
     >>> image_urls

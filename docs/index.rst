@@ -72,7 +72,7 @@ All query tools allow coordinate-based queries:
     >>> import astropy.coordinates as coord
     >>> import astropy.units as u
     >>> # works only for ICRS coordinates:
-    >>> c = coord.ICRSCoordinates("05h35m17.3s -05h23m28s")
+    >>> c = coord.ICRS("05h35m17.3s -05h23m28s")
     >>> r = 5 * u.arcminute
     >>> result_table = Simbad.query_region(c, radius=r)
     >>> result_table.pprint(show_unit=True)

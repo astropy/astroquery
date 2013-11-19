@@ -128,7 +128,7 @@ the `Quantity` object from `astropy.units`_:
 If coordinates are used, then they should be entered using an `astropy.coordinates`_
 object. Limited support for entering the coordinates directly as a string also
 exists - only for ICRS coordinates (though these may just as well be specified
-by the `astropy.coordinates.ICRSCoordinates` object)
+by the `astropy.coordinates.ICRS` object)
 
 .. code-block:: python 
 

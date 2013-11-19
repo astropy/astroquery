@@ -152,9 +152,9 @@ options is illustrated below:
     >>> from astroquery.irsa import Irsa
     >>> import astropy.coordinates as coord
     >>> table = Irsa.query_region("m31", catalog="fp_psc", spatial="Polygon",
-    ... polygon=[coord.ICRSCoordinates(ra=10.1, dec=10.1, unit=(u.deg, u.deg)),
-    ...          coord.ICRSCoordinates(ra=10.0, dec=10.1, unit=(u.deg, u.deg)),
-    ...          coord.ICRSCoordinates(ra=10.0, dec=10.0, unit=(u.deg, u.deg))
+    ... polygon=[coord.ICRS(ra=10.1, dec=10.1, unit=(u.deg, u.deg)),
+    ...          coord.ICRS(ra=10.0, dec=10.1, unit=(u.deg, u.deg)),
+    ...          coord.ICRS(ra=10.0, dec=10.0, unit=(u.deg, u.deg))
     ...         ])
     >>> print(table)
 
