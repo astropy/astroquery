@@ -130,22 +130,4 @@ if not _ASTROPY_SETUP_:
             warn(config.configuration.ConfigurationDefaultMissingWarning(wmsg))
             del e
 
-    from distutils.version import LooseVersion
-
-    import astropy.coordinates
-
-    # Monkeypatching for plural symbols
-    if LooseVersion(astropy.version.version) < LooseVersion('0.3.dev4957'):
-        warn("You are using an 'old' version of astropy prior to the change "
-             "that made all units singular.  astropy is being monkeypatched "
-             "such that degrees and degree are both allow and hours and hour "
-             "are both allowed.  This is NOT normal astropy behavior.")
-
-        def _Angle_degrees_monkeypatch(self):
-            return self.degrees
-        astropy.coordinates.Angle.degree = property(_Angle_degrees_monkeypatch)
-        def _Angle_hours_monkeypatch(self):
-            return self.hours
-        astropy.coordinates.Angle.hour = property(_Angle_hours_monkeypatch)
-
-    del os, warn, config_dir, LooseVersion  # clean up namespace
+    del os, warn, config_dir  # clean up namespace
