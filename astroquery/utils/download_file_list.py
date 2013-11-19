@@ -98,7 +98,7 @@ def download_list_of_fitsfiles(linklist, output_directory=None,
                 # if 'RA' in ctype:
                 #     coordinate = coord.ICRS(lon,lat,unit=('deg','deg'))
                 # elif 'GLON' in ctype:
-                #     coordinate = coord.GalacticCoordinates(lon,lat,unit=('deg','deg'))
+                #     coordinate = coord.Galactic(lon,lat,unit=('deg','deg'))
                 # else:
                 #     raise TypeError("Don't recognize ctype %s" % ctype)
                 # coordstr = coordinate.format(output_coord_format)

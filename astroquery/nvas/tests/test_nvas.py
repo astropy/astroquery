@@ -15,7 +15,7 @@ from ...import nvas
 from ...utils.testing_tools import MockResponse
 from ...utils import commons
 
-COORDS_GAL = coord.GalacticCoordinates(l=49.489, b=-0.37, unit=(u.deg, u.deg))  # ARM 2000
+COORDS_GAL = coord.Galactic(l=49.489, b=-0.37, unit=(u.deg, u.deg))  # ARM 2000
 COORDS_ICRS = coord.ICRS("12h29m06.69512s +2d03m08.66276s")  # 3C 273
 
 DATA_FILES = {'image': 'image.imfits',

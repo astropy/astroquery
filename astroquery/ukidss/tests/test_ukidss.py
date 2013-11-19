@@ -130,7 +130,7 @@ def test_extract_urls():
 
 
 def test_query_region(patch_get, patch_get_readable_fileobj):
-    table = ukidss.core.Ukidss.query_region(coord.GalacticCoordinates
+    table = ukidss.core.Ukidss.query_region(coord.Galactic
                                             (l=10.625, b=-0.38, unit=(u.deg, u.deg)),
                                             radius=6 * u.arcsec)
     assert isinstance(table, Table)
@@ -138,12 +138,12 @@ def test_query_region(patch_get, patch_get_readable_fileobj):
 
 
 def test_query_region_async(patch_get):
-    response = ukidss.core.Ukidss.query_region_async(coord.GalacticCoordinates
+    response = ukidss.core.Ukidss.query_region_async(coord.Galactic
                                                      (l=10.625, b=-0.38, unit=(u.deg, u.deg)),
                                                      radius=6 * u.arcsec,
                                                      get_query_payload=True)
     assert response['radius'] == 0.1
-    response = ukidss.core.Ukidss.query_region_async(coord.GalacticCoordinates
+    response = ukidss.core.Ukidss.query_region_async(coord.Galactic
                                                      (l=10.625, b=-0.38, unit=(u.deg, u.deg)),
                                                      radius=6 * u.arcsec)
     assert response is not None
