@@ -710,16 +710,8 @@ def _get_frame_coords(c):
 
 
 def _to_simbad_format(ra, dec):
-    # A very ugly hack to deal with "astropy 0.3.dev39"
-    hms = ra.hms
-    # astropy 0.2 had all 3 negative
-    hms = (hms[0], abs(hms[1]), abs(hms[2]))
-    dms = dec.dms
-    dms = (dms[0], abs(dms[1]), abs(dms[2]))
-    ra = "%2i:%02i:%08.5f" % hms
-    dec = "%+3i:%02i:%08.5f" % dms
-    #ra = ra.format(u.hour, sep=':')
-    #dec = dec.format(u.degree, sep=':', alwayssign='True')
+    ra = ra.format(u.hour, sep=':')
+    dec = dec.format(u.degree, sep=':', alwayssign='True')
     return (ra.lstrip(), dec.lstrip())
 
 
