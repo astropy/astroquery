@@ -121,7 +121,7 @@ class AlfalfaClass(BaseQuery):
         --------
         >>> from astroquery.alfalfa import Alfalfa
         >>> from astropy import coordinates as coords
-        >>> C = coords.ICRSCoordinates('0h8m05.63s +14d50m23.3s')
+        >>> C = coords.ICRS('0h8m05.63s +14d50m23.3s')
         >>> agc = Alfalfa.query_region(C,'3 arcmin')
 
         Returns

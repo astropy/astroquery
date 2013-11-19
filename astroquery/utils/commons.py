@@ -136,7 +136,7 @@ def radius_to_unit(radius, unit='degree'):
 def parse_coordinates(coordinates):
     """
     Takes a string or astropy.coordinates object. Checks if the
-    string is parsable as an astropy.coordinates.ICRSCoordinates
+    string is parsable as an astropy.coordinates.ICRS
     object or is a name that is resolvable. Otherwise asserts
     that the argument is an astropy.coordinates object.
 
@@ -156,10 +156,10 @@ def parse_coordinates(coordinates):
     """
     if isinstance(coordinates, basestring):
         try:
-            c = coord.ICRSCoordinates.from_name(coordinates)
+            c = coord.ICRS.from_name(coordinates)
         except coord.name_resolve.NameResolveError:
             try:
-                c = coord.ICRSCoordinates(coordinates)
+                c = coord.ICRS(coordinates)
                 warnings.warn("Coordinate string is being interpreted as an ICRS coordinate.")
             except u.UnitsException:
                 warnings.warn("Only ICRS coordinates can be entered as strings\n"
@@ -297,7 +297,7 @@ def _is_coordinate(coordinates):
         # its coordinate-like enough
         return True
     try:
-        coord.ICRSCoordinates(coordinates)
+        coord.ICRS(coordinates)
         return True
     except ValueError:
         return False

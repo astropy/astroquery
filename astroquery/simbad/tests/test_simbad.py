@@ -15,10 +15,10 @@ from distutils.version import LooseVersion
 import astropy
 is_python3 = (sys.version_info >= (3,))
 
-GALACTIC_COORDS = coord.GalacticCoordinates(l=-67.02084, b=-29.75447, unit=(u.deg, u.deg))
-ICRS_COORDS = coord.ICRSCoordinates("05h35m17.3s -05h23m28s")
-FK4_COORDS = coord.FK4Coordinates(ra=84.90759, dec=-80.89403, unit=(u.deg, u.deg))
-FK5_COORDS = coord.FK5Coordinates(ra=83.82207, dec=-80.86667, unit=(u.deg, u.deg))
+GALACTIC_COORDS = coord.Galactic(l=-67.02084, b=-29.75447, unit=(u.deg, u.deg))
+ICRS_COORDS = coord.ICRS("05h35m17.3s -05h23m28s")
+FK4_COORDS = coord.FK4(ra=84.90759, dec=-80.89403, unit=(u.deg, u.deg))
+FK5_COORDS = coord.FK5(ra=83.82207, dec=-80.86667, unit=(u.deg, u.deg))
 
 DATA_FILES = {
     'id': 'query_id.data',
@@ -79,13 +79,7 @@ def post_mockreturn(url, data, timeout, **kwargs):
                           ])
 def test_parse_radius(radius, expected_radius):
     actual = simbad.core._parse_radius(radius)
-    # bug in 1168: https://github.com/astropy/astropy/pull/1168
-    if (LooseVersion(astropy.version.version) <= LooseVersion('0.2.5')
-       and radius in ('5d',)):
-        # error...
-        pass
-    else:
-        assert actual == expected_radius
+    assert actual == expected_radius
 
 
 @pytest.mark.parametrize(('ra', 'dec', 'expected_ra', 'expected_dec'),

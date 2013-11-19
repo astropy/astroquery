@@ -252,7 +252,7 @@ Standard usage should be along these lines:
 
     import astropy.coordinates as coords
     import astropy.units as u
-    result = Ukidss.query_region(coords.GalacticCoordinates(5,0,unit=('deg','deg')),
+    result = Ukidss.query_region(coords.Galactic(5,0,unit=('deg','deg')),
         catalog='GPS', region='circle', radius=5*u.arcmin)
     # returns an astropy.Table
 

@@ -83,7 +83,7 @@ class SDSSClass(BaseQuery):
         --------
         >>> from astroquery.sdss import SDSS
         >>> from astropy import coordinates as coords
-        >>> co = coords.ICRSCoordinates('0h8m05.63s +14d50m23.3s')
+        >>> co = coords.ICRS('0h8m05.63s +14d50m23.3s')
         >>> result = SDSS.query_region(co)
         >>> print(result)
             ra         dec           objid        run  rerun camcol field

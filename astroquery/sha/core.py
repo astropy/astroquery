@@ -71,7 +71,7 @@ def query(coord=None, ra=None, dec=None, size=None, naifid=None, pid=None,
     >>> import astropy.coordinates as coord
     >>> import astropy.units as u
     >>> from astroquery import sha
-    >>> pos_t = sha.query(coord=coord.FK5Coordinates(ra=163.6136, dec=-11.784,
+    >>> pos_t = sha.query(coord=coord.FK5(ra=163.6136, dec=-11.784,
     ... unit=(u.degree, u.degree)), size=0.5)
 
     Position query with optional `ra` and `dec` paramters:

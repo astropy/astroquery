@@ -77,14 +77,14 @@ def test_parse_result(filepath, objlen):
 
 
 def test_query_region_async(patch_post):
-    response = vizier.core.Vizier.query_region_async(coord.ICRSCoordinates(ra=299.590, dec=35.201, unit=(u.deg, u.deg)),
+    response = vizier.core.Vizier.query_region_async(coord.ICRS(ra=299.590, dec=35.201, unit=(u.deg, u.deg)),
                                                      radius=5 * u.deg,
                                                      catalog=["HIP", "NOMAD", "UCAC"])
     assert response is not None
 
 
 def test_query_region(patch_post):
-    result = vizier.core.Vizier.query_region(coord.ICRSCoordinates(ra=299.590, dec=35.201, unit=(u.deg, u.deg)),
+    result = vizier.core.Vizier.query_region(coord.ICRS(ra=299.590, dec=35.201, unit=(u.deg, u.deg)),
                                              radius=5 * u.deg,
                                              catalog=["HIP", "NOMAD", "UCAC"])
 

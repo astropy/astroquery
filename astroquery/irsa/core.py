@@ -146,7 +146,7 @@ class IrsaClass(BaseQuery):
             A list of ``(ra, dec)`` pairs (as tuples), in decimal degrees,
             outlinining the polygon to search in. It can also be a list of
             `astropy.coordinates` object or strings that can be parsed by
-            `astropy.coordinates.ICRSCoordinates`.
+            `astropy.coordinates.ICRS`.
         get_query_payload : bool, optional
             if set to `True` then returns the dictionary sent as the HTTP request.
             Defaults to `False`.
@@ -198,7 +198,7 @@ class IrsaClass(BaseQuery):
             A list of ``(ra, dec)`` pairs (as tuples), in decimal degrees,
             outlinining the polygon to search in. It can also be a list of
             `astropy.coordinates` object or strings that can be parsed by
-            `astropy.coordinates.ICRSCoordinates`.
+            `astropy.coordinates.ICRS`.
         get_query_payload : bool, optional
             if set to `True` then returns the dictionary sent as the HTTP request.
             Defaults to `False`.
@@ -250,7 +250,7 @@ class IrsaClass(BaseQuery):
             A list of ``(ra, dec)`` pairs as tuples of
             `astropy.coordinates.Angle`s outlinining the polygon to search in.
             It can also be a list of `astropy.coordinates` object or strings
-            that can be parsed by `astropy.coordinates.ICRSCoordinates`.
+            that can be parsed by `astropy.coordinates.ICRS`.
 
         Returns
         -------
@@ -395,7 +395,7 @@ def _parse_coordinates(coordinates):
 # borrowed from commons.parse_coordinates as from_name wasn't required in this case
     if isinstance(coordinates, basestring):
         try:
-            c = coord.ICRSCoordinates(coordinates)
+            c = coord.ICRS(coordinates)
             warnings.warn("Coordinate string is being interpreted as an ICRS coordinate.")
         except u.UnitsException as ex:
             warnings.warn("Only ICRS coordinates can be entered as strings\n"

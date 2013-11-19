@@ -15,7 +15,7 @@ object type is shown here.
     >>> from astroquery.vizier import Vizier
     >>> v = Vizier(keywords=['stars:white_dwarf'])
     >>> from astropy import coordinates as coord
-    >>> c = coord.ICRSCoordinates(0,0,unit=('deg','deg'))
+    >>> c = coord.ICRS(0,0,unit=('deg','deg'))
     >>> result = v.query_region(c, radius='2 degrees')
     >>> print len(result)
     31
@@ -73,7 +73,7 @@ Example 4:
     >>> S.add_votable_fields('ra(d)','dec(d)')
     >>> S.remove_votable_fields('coordinates')
     >>> from astropy import coordinates as coord
-    >>> C = coord.ICRSCoordinates(0,0,unit=('deg','deg'))
+    >>> C = coord.ICRS(0,0,unit=('deg','deg'))
     >>> result = S.query_region(C, radius='2 degrees')
     >>> result[:5].pprint()
         MAIN_ID        RA_d       DEC_d

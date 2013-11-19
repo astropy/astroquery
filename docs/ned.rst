@@ -76,7 +76,7 @@ may be used (ICRS, Galactic, FK4, FK5). Note also the use of the equinox keyword
     >>> from astroquery.ned import Ned
     >>> import astropy.units as u
     >>> import astropy.coordinates as coord
-    >>> result_table = Ned.query_region(coord.FK4Coordinates(ra=56.38, dec=38.43, 
+    >>> result_table = Ned.query_region(coord.FK4(ra=56.38, dec=38.43, 
     ...                                 unit=(u.deg, u.deg)), radius=0.1 * u.deg, equinox='B1950.0')
     >>> print(result_table)
 

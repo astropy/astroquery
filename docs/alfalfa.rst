@@ -15,7 +15,7 @@ used in the SDSS example).
 
     >>> from astroquery.alfalfa import ALFALFA
     >>> from astropy import coordinates as coords
-    >>> pos = coords.ICRSCoordinates('0h8m05.63s +14d50m23.3s')
+    >>> pos = coords.ICRS('0h8m05.63s +14d50m23.3s')
     >>> agc = ALFALFA.query_region(pos, optical_counterpart=True)
 
 This retrieves the AGC number of the object closest to the supplied ra and dec

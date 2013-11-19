@@ -16,7 +16,7 @@ DATA_FILES = {'Cone': 'Cone.xml',
               'Box': 'Box.xml',
               'Polygon': 'Polygon.xml'}
 
-OBJ_LIST = ["m31", "00h42m44.330s +41d16m07.50s", coord.GalacticCoordinates(l=121.1743, b=-21.5733, unit=(u.deg, u.deg))]
+OBJ_LIST = ["m31", "00h42m44.330s +41d16m07.50s", coord.Galactic(l=121.1743, b=-21.5733, unit=(u.deg, u.deg))]
 
 
 def data_path(filename):
@@ -100,9 +100,9 @@ def test_query_region_box(coordinates, patch_get):
                                          width=2 * u.arcmin)
     assert isinstance(result, Table)
 
-poly1 = [coord.ICRSCoordinates(ra=10.1, dec=10.1, unit=(u.deg, u.deg)),
-        coord.ICRSCoordinates(ra=10.0, dec=10.1, unit=(u.deg, u.deg)),
-        coord.ICRSCoordinates(ra=10.0, dec=10.0, unit=(u.deg, u.deg))]
+poly1 = [coord.ICRS(ra=10.1, dec=10.1, unit=(u.deg, u.deg)),
+        coord.ICRS(ra=10.0, dec=10.1, unit=(u.deg, u.deg)),
+        coord.ICRS(ra=10.0, dec=10.0, unit=(u.deg, u.deg))]
 poly2 = [(10.1*u.deg, 10.1*u.deg), (10.0*u.deg, 10.1*u.deg), (10.0*u.deg, 10.0*u.deg)]
 
 

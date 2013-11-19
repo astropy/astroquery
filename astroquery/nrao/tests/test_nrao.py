@@ -43,7 +43,7 @@ def get_mockreturn(url, params=None, timeout=10, **kwargs):
 
 
 def test_query_region_async(patch_get, patch_parse_coordinates):
-    response = nrao.core.Nrao.query_region_async(coord.ICRSCoordinates("04h33m11.1s 05d21m15.5s"),
+    response = nrao.core.Nrao.query_region_async(coord.ICRS("04h33m11.1s 05d21m15.5s"),
                                            radius='5d0m0s', equinox='B1950',
                                            freq_low=1000*u.kHz, freq_up=2000*u.kHz,
                                            get_query_payload=True)
@@ -51,12 +51,12 @@ def test_query_region_async(patch_get, patch_parse_coordinates):
     assert response['SRAD'].startswith('5') and response['SRAD'].endswith('d')
     assert response['EQUINOX'] == 'B1950'
     assert response['OBSFREQ1'] == '1.0-2.0'
-    response = nrao.core.Nrao.query_region_async(coord.ICRSCoordinates("04h33m11.1s 05d21m15.5s"))
+    response = nrao.core.Nrao.query_region_async(coord.ICRS("04h33m11.1s 05d21m15.5s"))
     assert response is not None
 
 
 def test_query_region(patch_get, patch_parse_coordinates):
-    result = nrao.core.Nrao.query_region(coord.ICRSCoordinates("04h33m11.1s 05d21m15.5s"))
+    result = nrao.core.Nrao.query_region(coord.ICRS("04h33m11.1s 05d21m15.5s"))
     assert isinstance(result, Table)
     assert len(result) > 0
     if 'Start Time' in result.colnames:

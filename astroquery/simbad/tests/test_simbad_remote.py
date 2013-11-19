@@ -13,7 +13,7 @@ import requests
 reload(requests)
 
 
-ICRS_COORDS = coord.ICRSCoordinates("05h35m17.3s -05h23m28s")
+ICRS_COORDS = coord.ICRS("05h35m17.3s -05h23m28s")
 
 
 @remote_data
