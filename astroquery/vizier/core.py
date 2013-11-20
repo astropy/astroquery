@@ -77,7 +77,7 @@ class VizierClass(BaseQuery):
     def keywords(self):
         self._keywords = None
 
-    def find_catalogs(self, keywords, verbose=False):
+    def find_catalogs(self, keywords, include_obsolete=False, verbose=False):
         """
         Search Vizier for catalogs based on a set of keywords, e.g. author name
 
@@ -88,6 +88,8 @@ class VizierClass(BaseQuery):
             From `Vizier <http://vizier.u-strasbg.fr/doc/asu-summary.htx>`_:
             "names or words of title of catalog. The words are and'ed, i.e.
             only the catalogues characterized by all the words are selected."
+        include_obsolete : bool, optional
+            If set to True, catalogs marked obsolete will also be returned.
 
         Returns
         -------
@@ -116,7 +118,14 @@ class VizierClass(BaseQuery):
             data_payload,
             Vizier.TIMEOUT)
         result = self._parse_result(response, verbose=verbose, get_catalog_names=True)
-
+        
+        #Filter out the obsolete catalogs, unless requested
+        if include_obsolete is False:
+            for (key, resource) in result.items():
+                for info in resource.infos:
+                    if (info.name == 'status') and (info.value == 'obsolete'):
+                        del result[key]
+        
         return result
 
     def get_catalogs_async(self, catalog, verbose=False):
