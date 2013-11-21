@@ -11,6 +11,7 @@ import tempfile
 
 import astropy.units as u
 import astropy.coordinates as coord
+import astropy.table as tbl
 import astropy.utils.data as aud
 # maintain compat with PY<2.7
 from astropy.utils import OrderedDict
@@ -215,12 +216,22 @@ class VizierClass(BaseQuery):
         """
         catalog = VizierClass._schema_catalog.validate(catalog)
         center = {}
-        c = commons.parse_coordinates(coordinates)
-        ra = str(c.icrs.ra.degree)
-        dec = str(c.icrs.dec.degree)
-        if dec[0] not in ['+', '-']:
-            dec = '+' + dec
-        center["-c"] = "".join([ra, dec])
+        if isinstance(coordinates, coord.SphericalCoordinatesBase) or isinstance(coordinates, basestring):
+            c = commons.parse_coordinates(coordinates)
+            ra = str(c.icrs.ra.degree)
+            dec = str(c.icrs.dec.degree)
+            if dec[0] not in ['+', '-']:
+                dec = '+' + dec
+            center["-c"] = "".join([ra, dec])
+        elif isinstance(coordinates, tbl.Table):
+            pos_list = []
+            for pos in coord.ICRS(coordinates[coordinates.keys()[0]], coordinates[coordinates.keys()[1]], unit=(u.hourangle, u.deg)):
+                ra_deg = pos.ra.to_string(unit="deg", decimal=True, precision=8)
+                dec_deg = pos.dec.to_string(unit="deg", decimal=True, precision=8, alwayssign=True)
+                pos_list += ["{}{}".format(ra_deg, dec_deg)]
+            center["-c"] = "<<;"+";".join(pos_list)
+        else:
+            raise Exception()
         # decide whether box or radius
         if radius is not None:
             # is radius a disk or an annulus?
