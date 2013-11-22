@@ -216,6 +216,7 @@ class VizierClass(BaseQuery):
         """
         catalog = VizierClass._schema_catalog.validate(catalog)
         center = {}
+        columns = []
         if isinstance(coordinates, coord.SphericalCoordinatesBase) or isinstance(coordinates, basestring):
             c = commons.parse_coordinates(coordinates)
             ra = str(c.icrs.ra.degree)
@@ -231,6 +232,7 @@ class VizierClass(BaseQuery):
                     dec_deg = pos.dec.to_string(unit="deg", decimal=True, precision=8, alwayssign=True)
                     pos_list += ["{}{}".format(ra_deg, dec_deg)]
                 center["-c"] = "<<;"+";".join(pos_list)
+                columns += ["_q"] # request a reference to the input table
             else:
                 raise ValueError("Table must contain '_RAJ2000' and '_DEJ2000' columns!")
         else:
@@ -273,6 +275,7 @@ class VizierClass(BaseQuery):
                 "At least one of radius, width/height must be specified")
         data_payload = self._args_to_payload(
             center=center,
+            columns=columns,
             catalog=catalog)
         response = commons.send_request(
             self._server_to_url(),
