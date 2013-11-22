@@ -231,7 +231,7 @@ class VizierClass(BaseQuery):
                 pos_list += ["{}{}".format(ra_deg, dec_deg)]
             center["-c"] = "<<;"+";".join(pos_list)
         else:
-            raise Exception()
+            raise TypeError("{} must be one of: string, astropy coordinates, or table containing coordinates!")
         # decide whether box or radius
         if radius is not None:
             # is radius a disk or an annulus?
