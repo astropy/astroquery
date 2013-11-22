@@ -360,24 +360,32 @@ class VizierClass(BaseQuery):
         columns = kwargs.get('columns')
         if columns is None:
             columns = self.columns
-        if columns is not None:
-            columns_out = []
-            sorts_out = []
-            for column in columns:
-                if column[0] == '+':
-                    columns_out += [column[1:]]
-                    sorts_out += [column[1:]]
-                elif column[0] == '-':
-                    columns_out += [column[1:]]
-                    sorts_out += [column]
-                else:
-                    columns_out += [column]
-            if '**' in columns:
-                body['-out'] = '**'
+        if columns is None:
+            columns = []
+        # process: columns - always request computed positions in degrees
+        if "_RAJ2000" not in columns:
+            columns += ["_RAJ2000"]
+        if "_DEJ2000" not in columns:
+            columns += ["_DEJ2000"]
+        # process: columns - identify sorting requests
+        columns_out = []
+        sorts_out = []
+        for column in columns:
+            if column[0] == '+':
+                columns_out += [column[1:]]
+                sorts_out += [column[1:]]
+            elif column[0] == '-':
+                columns_out += [column[1:]]
+                sorts_out += [column]
             else:
-                body['-out'] = ','.join(columns_out)
-            if len(sorts_out)>0:
-                body['-sort'] = ','.join(sorts_out)
+                columns_out += [column]
+        # process :columns - identify wild cards
+        if '**' in columns:
+            body['-out'] = '**'
+        else:
+            body['-out'] = ','.join(columns_out)
+        if len(sorts_out)>0:
+            body['-sort'] = ','.join(sorts_out)
         # process: maximum rows returned
         if Vizier.ROW_LIMIT < 0:
             body["-out.max"] = 'unlimited'
@@ -396,6 +404,8 @@ class VizierClass(BaseQuery):
                 body[key] = value
         # add column metadata: name, unit, UCD1+, and description
         body["-out.meta"] = "huUD"
+        # computed position should always be in decimal degrees
+        body["-oc.form"] = "d"
         # create final script
         script = "\n".join(["{key}={val}".format(key=key, val=val)
                    for key, val in body.items()])
