@@ -379,11 +379,7 @@ class VizierClass(BaseQuery):
                 sorts_out += [column]
             else:
                 columns_out += [column]
-        # process :columns - identify wild cards
-        if '**' in columns:
-            body['-out'] = '**'
-        else:
-            body['-out'] = ','.join(columns_out)
+        body['-out'] = ','.join(columns_out)
         if len(sorts_out)>0:
             body['-sort'] = ','.join(sorts_out)
         # process: maximum rows returned
