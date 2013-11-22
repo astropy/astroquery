@@ -394,6 +394,8 @@ class VizierClass(BaseQuery):
         if center is not None:
             for (key, value) in center.items():
                 body[key] = value
+        # add column metadata: name, unit, UCD1+, and description
+        body["-out.meta"] = "huUD"
         # create final script
         script = "\n".join(["{key}={val}".format(key=key, val=val)
                    for key, val in body.items()])
