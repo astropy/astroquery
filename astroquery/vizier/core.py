@@ -361,7 +361,7 @@ class VizierClass(BaseQuery):
         if columns is None:
             columns = self.columns
         if columns is None:
-            columns = []
+            columns = ["*"]
         # process: columns - always request computed positions in degrees
         if "_RAJ2000" not in columns:
             columns += ["_RAJ2000"]
