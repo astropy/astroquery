@@ -38,11 +38,11 @@ class VizierClass(BaseQuery):
     VIZIER_SERVER = VIZIER_SERVER()
     ROW_LIMIT = ROW_LIMIT()
     
-    _schema_columns = schema.Schema(schema.Or([str],None), error="columns must be a list of strings")
+    _schema_columns = schema.Schema([str], error="columns must be a list of strings")
     _schema_column_filters = schema.Schema(schema.Or({str:str},None), error="column_filters must be a dictionary where both keys and values are strings")
     _schema_catalog = schema.Schema(schema.Or([str],str,None), error="catalog must be a list of strings or a single string")
 
-    def __init__(self, columns=None, column_filters=None, catalog=None, keywords=None):
+    def __init__(self, columns=["*"], column_filters=None, catalog=None, keywords=None):
         self.columns = VizierClass._schema_columns.validate(columns)
         self.column_filters = VizierClass._schema_column_filters.validate(column_filters)
         self.catalog = VizierClass._schema_catalog.validate(catalog)
@@ -366,8 +366,8 @@ class VizierClass(BaseQuery):
         columns = kwargs.get('columns')
         if columns is None:
             columns = self.columns
-        if columns is None:
-            columns = ["*"]
+        else:
+            columns = self.columns + columns
         # process: columns - always request computed positions in degrees
         if "_RAJ2000" not in columns:
             columns += ["_RAJ2000"]
