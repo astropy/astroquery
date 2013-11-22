@@ -224,12 +224,15 @@ class VizierClass(BaseQuery):
                 dec = '+' + dec
             center["-c"] = "".join([ra, dec])
         elif isinstance(coordinates, tbl.Table):
-            pos_list = []
-            for pos in coord.ICRS(coordinates[coordinates.keys()[0]], coordinates[coordinates.keys()[1]], unit=(u.hourangle, u.deg)):
-                ra_deg = pos.ra.to_string(unit="deg", decimal=True, precision=8)
-                dec_deg = pos.dec.to_string(unit="deg", decimal=True, precision=8, alwayssign=True)
-                pos_list += ["{}{}".format(ra_deg, dec_deg)]
-            center["-c"] = "<<;"+";".join(pos_list)
+            if ("_RAJ2000" in coordinates.keys()) and ("_DEJ2000" in coordinates.keys()):
+                pos_list = []
+                for pos in coord.ICRS(coordinates["_RAJ2000"], coordinates["_DEJ2000"], unit=(coordinates["_RAJ2000"].unit, coordinates["_DEJ2000"].unit)):
+                    ra_deg = pos.ra.to_string(unit="deg", decimal=True, precision=8)
+                    dec_deg = pos.dec.to_string(unit="deg", decimal=True, precision=8, alwayssign=True)
+                    pos_list += ["{}{}".format(ra_deg, dec_deg)]
+                center["-c"] = "<<;"+";".join(pos_list)
+            else:
+                raise ValueError("Table must contain '_RAJ2000' and '_DEJ2000' columns!")
         else:
             raise TypeError("{} must be one of: string, astropy coordinates, or table containing coordinates!")
         # decide whether box or radius
