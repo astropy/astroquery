@@ -394,12 +394,10 @@ class VizierClass(BaseQuery):
         else:
             body["-out.max"] = Vizier.ROW_LIMIT
         # process: column filters
-        column_filters = kwargs.get('column_filters')
-        if column_filters is None:
-            column_filters = self.column_filters
-        if column_filters is not None:
-            for (key, value) in column_filters.items():
-                body[key] = value
+        column_filters = self.column_filters.copy()
+        column_filters.update(kwargs.get('column_filters', {}))
+        for (key, value) in column_filters.items():
+            body[key] = value
         # process: center
         if center is not None:
             for (key, value) in center.items():
