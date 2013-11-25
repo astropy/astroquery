@@ -129,7 +129,7 @@ class TestVizierClass:
         v = vizier.core.Vizier()
         assert v.keywords is None
         assert v.columns == ["*"]
-        assert v.column_filters is None
+        assert v.column_filters == {}
 
     def test_keywords(self):
         v = vizier.core.Vizier(keywords=['optical', 'chandra', 'ans'])
