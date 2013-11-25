@@ -1,3 +1,5 @@
+.. doctest-skip-all
+
 A Gallery of Queries
 ====================
 
@@ -58,7 +60,7 @@ This illustrates finding the spectral type of some particular star.
     >>> result = s.query_object('g her')
     >>> result['MAIN_ID'][0]
     'V* g Her'
-    >>>result['SP_TYPE'][0]
+    >>> result['SP_TYPE'][0]
     'M6III'
     
 

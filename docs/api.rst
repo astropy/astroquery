@@ -1,3 +1,4 @@
+.. doctest-skip-all
 Astroquery API Specification
 ============================
 

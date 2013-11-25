@@ -1,3 +1,4 @@
+.. doctest-skip-all
 .. _astroquery.gama:
 
 ********************************

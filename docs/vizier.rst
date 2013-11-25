@@ -1,3 +1,5 @@
+.. doctest-skip-all
+
 .. _astroquery.vizier:
 
 ************************************
@@ -195,9 +197,9 @@ this Vizier instance:
    
     >>> result = v.query_object("HD 226868", catalog=["NOMAD", "UCAC"])              
     >>> print(result)
-   TableList with 2 tables:
-      '0:I/289/out' with 3 column(s) and 18 row(s) 
-      '1:I/322A/out' with 4 column(s) and 10 row(s) 
+    TableList with 2 tables:
+       '0:I/289/out' with 3 column(s) and 18 row(s) 
+       '1:I/322A/out' with 4 column(s) and 10 row(s) 
 
     >>> print(result['I/322A/out'])
      _RAJ2000    DEJ2000    Vmag   _DEJ2000 
