@@ -1,3 +1,5 @@
+.. doctest-skip-all
+
 A Gallery of Queries
 ====================
 
