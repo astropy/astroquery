@@ -1,4 +1,5 @@
 .. _astroquery.simbad:
+.. doctest-skip-all
 
 ************************************
 SIMBAD Queries (`astroquery.simbad`)

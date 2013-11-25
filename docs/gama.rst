@@ -1,4 +1,5 @@
 .. _astroquery.gama:
+.. doctest-skip-all
 
 ********************************
 GAMA Queries (`astroquery.gama`)

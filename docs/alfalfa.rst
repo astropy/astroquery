@@ -1,4 +1,5 @@
 .. _astroquery.alfalfa:
+.. doctest-skip-all
 
 *****************************************
 ALFALFA Queries (`astroquery.alfalfa`)

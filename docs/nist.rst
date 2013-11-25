@@ -1,4 +1,5 @@
 .. _astroquery.nist:
+.. doctest-skip-all
 
 ********************************
 NIST Queries (`astroquery.nist`)

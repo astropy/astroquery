@@ -1,4 +1,5 @@
 .. _astroquery.splatalogue:
+.. doctest-skip-all
 
 **********************************************
 Splatalogue Queries (`astroquery.splatalogue`)

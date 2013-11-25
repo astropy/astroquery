@@ -1,4 +1,5 @@
 .. _astroquery.sdss:
+.. doctest-skip-all
 
 ********************************
 SDSS Queries (`astroquery.sdss`)

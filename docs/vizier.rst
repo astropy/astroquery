@@ -1,4 +1,5 @@
 .. _astroquery.vizier:
+.. doctest-skip-all
 
 ************************************
 VizieR Queries (`astroquery.vizier`)

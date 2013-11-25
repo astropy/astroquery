@@ -1,4 +1,5 @@
 .. _astroquery.besancon:
+.. doctest-skip-all
 
 *****************************************
 Besancon Queries (`astroquery.besancon`)

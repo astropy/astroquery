@@ -1,4 +1,5 @@
 .. _astroquery.nrao:
+.. doctest-skip-all
 
 **********************************
 LAMDA Queries (`astroquery.lamda`)

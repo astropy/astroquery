@@ -1,4 +1,5 @@
 .. _astroquery.ned:
+.. doctest-skip-all
 
 ******************************
 NED Queries (`astroquery.ned`)

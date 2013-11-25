@@ -1,4 +1,5 @@
 .. _astroquery.irsa_dust:
+.. doctest-skip-all
 
 *************************************************************
 IRSA Dust Extinction Service Queries (`astroquery.irsa_dust`)

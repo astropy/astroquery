@@ -1,4 +1,5 @@
 .. _astroquery.ogle:
+.. doctest-skip-all
 
 ********************************
 OGLE Queries (`astroquery.ogle`)

@@ -1,4 +1,5 @@
 .. _astroquery.irsa:
+.. doctest-skip-all
 
 ********************************
 IRSA Queries (`astroquery.irsa`)
