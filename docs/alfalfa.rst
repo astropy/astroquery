@@ -1,4 +1,5 @@
 .. _astroquery.alfalfa:
+.. doctest-skip-all
 
 *****************************************
 ALFALFA Queries (`astroquery.alfalfa`)
@@ -13,10 +14,10 @@ used in the SDSS example).
 
 .. code-block:: python
 
-    >>> from astroquery.alfalfa import ALFALFA
+    >>> from astroquery.alfalfa import Alfalfa
     >>> from astropy import coordinates as coords
     >>> pos = coords.ICRS('0h8m05.63s +14d50m23.3s')
-    >>> agc = ALFALFA.query_region(pos, optical_counterpart=True)
+    >>> agc = Alfalfa.query_region(pos, optical_counterpart=True)
 
 This retrieves the AGC number of the object closest to the supplied ra and dec
 (within search radius dr=3 arcminutes by default). The "optical_counterpart" keyword
@@ -28,13 +29,13 @@ and once we know it, we can download spectra (if they are available) easily,
 
 .. code-block:: python
 
-    >>> sp = ALFALFA.get_spectrum(agc)
+    >>> sp = Alfalfa.get_spectrum(agc)
 
 This returns a PyFITS HDUList object.  If we want to have a look at the entire ALFALFA catalog, we can do that too:
 
 .. code-block:: python
 
-    >>> cat = ALFALFA.get_catalog()
+    >>> cat = Alfalfa.get_catalog()
     
 which returns a dictionary containing HI measurements for nearly 16,000
 objects.

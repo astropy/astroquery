@@ -1,4 +1,5 @@
 .. _astroquery.magpis:
+.. doctest-skip-all
 
 *****************************************
 MAGPIS Queries (`astroquery.magpis`)

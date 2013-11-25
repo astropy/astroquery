@@ -1,4 +1,5 @@
 .. _astroquery.ukidss:
+.. doctest-skip-all
 
 ************************************
 UKIDSS Queries (`astroquery.ukidss`)

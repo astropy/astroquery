@@ -1,4 +1,5 @@
 .. _astroquery.nvas:
+.. doctest-skip-all
 
 ********************************
 NVAS Queries (`astroquery.nvas`)

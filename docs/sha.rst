@@ -1,4 +1,5 @@
 .. _astroquery.sha:
+.. doctest-skip-all
 
 *******************************************
 Spitzer Heritage Archive (`astroquery.sha`)
