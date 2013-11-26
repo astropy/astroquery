@@ -241,8 +241,8 @@ Note: The special column `"*"` requests just the default columns of a catalog; `
 
 An `astropy.table.Table`_ can also be used in a region query. The following example
 starts by looking for AGNs in the Veron & Cety catalog with a `Vmag` between 10.0 and 11.0. Based on the
-result of this first query, guide stars with a `Kmag` brighter than 9.0 are looked for with a separation
-between 2 arcsec and 30 arcsec. The column `_q` is a 1-based index to the `guide` table (not the 0-based
+result of this first query, guide stars with a `Kmag` brighter than 9.0 are looked for, with a separation
+between 2 and 30 arcsec. The column `_q` in the `guide` table is a 1-based index to the `agn` table (not the 0-based
 python convention).
 
 ..code-block:: python
