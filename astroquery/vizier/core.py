@@ -448,10 +448,14 @@ class VizierClass(BaseQuery):
             else:
                 table_dict = OrderedDict()
                 for t in vo_tree.iter_tables():
-                    if t.ref is not None:
-                        table_dict[vo_tree.get_table_by_id(t.ref).name] += [t.to_table()]
-                    else:
-                        table_dict[t.name] = [t.to_table()]
+                    if len(t.array) > 0:
+                        if t.ref is not None:
+                            name = vo_tree.get_table_by_id(t.ref).name
+                        else:
+                            name = t.name
+                        if name not in table_dict.keys():
+                            table_dict[name] = []
+                        table_dict[name] += [t.to_table()]
                 for name in table_dict.keys():
                     if len(table_dict[name]) > 1:
                         table_dict[name] = tbl.vstack(table_dict[name])
