@@ -189,11 +189,13 @@ class VizierClass(BaseQuery):
 
         Parameters
         ----------
-        coordinates : str or `astropy.coordinates` object
+        coordinates : str, `astropy.coordinates` object, or `astropy.table.Table`
             The target around which to search. It may be specified as a string
             in which case it is resolved using online services or as the appropriate
             `astropy.coordinates` object. ICRS coordinates may also be entered as
             a string.
+            If a table is used, each of its rows will be queried, as long as it contains
+            two columns named `_RAJ2000` and `_DEJ2000` with proper angular units.
         radius : convertible to `astropy.coordinates.angles.Angle`
             The radius of the circular region to query.
         inner_radius: convertible to `astropy.coordinates.angles.Angle`
