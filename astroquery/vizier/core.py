@@ -446,9 +446,18 @@ class VizierClass(BaseQuery):
             if get_catalog_names:
                 return dict([(R.name,R) for R in vo_tree.resources])
             else:
-                table_list = [(t.name, t.to_table())
-                              for t in vo_tree.iter_tables() if len(t.array) > 0]
-                return commons.TableList(table_list)
+                table_dict = OrderedDict()
+                for t in vo_tree.iter_tables():
+                    if t.ref is not None:
+                        table_dict[vo_tree.get_table_by_id(t.ref).name] += [t.to_table()]
+                    else:
+                        table_dict[t.name] = [t.to_table()]
+                for name in table_dict.keys():
+                    if len(table_dict[name]) > 1:
+                        table_dict[name] = tbl.vstack(table_dict[name])
+                    else:
+                        table_dict[name] = table_dict[name][0]
+                return commons.TableList(table_dict)
 
         except:
             traceback.print_exc()  # temporary for debugging
