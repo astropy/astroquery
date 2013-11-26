@@ -11,6 +11,7 @@ import tempfile
 
 import astropy.units as u
 import astropy.coordinates as coord
+import astropy.table as tbl
 import astropy.utils.data as aud
 # maintain compat with PY<2.7
 from astropy.utils import OrderedDict
@@ -37,11 +38,11 @@ class VizierClass(BaseQuery):
     VIZIER_SERVER = VIZIER_SERVER()
     ROW_LIMIT = ROW_LIMIT()
     
-    _schema_columns = schema.Schema(schema.Or([str],None), error="columns must be a list of strings")
-    _schema_column_filters = schema.Schema(schema.Or({str:str},None), error="column_filters must be a dictionary where both keys and values are strings")
+    _schema_columns = schema.Schema([str], error="columns must be a list of strings")
+    _schema_column_filters = schema.Schema({schema.Optional(str):str}, error="column_filters must be a dictionary where both keys and values are strings")
     _schema_catalog = schema.Schema(schema.Or([str],str,None), error="catalog must be a list of strings or a single string")
 
-    def __init__(self, columns=None, column_filters=None, catalog=None, keywords=None):
+    def __init__(self, columns=["*"], column_filters={}, catalog=None, keywords=None):
         self.columns = VizierClass._schema_columns.validate(columns)
         self.column_filters = VizierClass._schema_column_filters.validate(column_filters)
         self.catalog = VizierClass._schema_catalog.validate(catalog)
@@ -77,7 +78,7 @@ class VizierClass(BaseQuery):
     def keywords(self):
         self._keywords = None
 
-    def find_catalogs(self, keywords, verbose=False):
+    def find_catalogs(self, keywords, include_obsolete=False, verbose=False):
         """
         Search Vizier for catalogs based on a set of keywords, e.g. author name
 
@@ -88,6 +89,8 @@ class VizierClass(BaseQuery):
             From `Vizier <http://vizier.u-strasbg.fr/doc/asu-summary.htx>`_:
             "names or words of title of catalog. The words are and'ed, i.e.
             only the catalogues characterized by all the words are selected."
+        include_obsolete : bool, optional
+            If set to True, catalogs marked obsolete will also be returned.
 
         Returns
         -------
@@ -116,7 +119,14 @@ class VizierClass(BaseQuery):
             data_payload,
             Vizier.TIMEOUT)
         result = self._parse_result(response, verbose=verbose, get_catalog_names=True)
-
+        
+        #Filter out the obsolete catalogs, unless requested
+        if include_obsolete is False:
+            for (key, resource) in result.items():
+                for info in resource.infos:
+                    if (info.name == 'status') and (info.value == 'obsolete'):
+                        del result[key]
+        
         return result
 
     def get_catalogs_async(self, catalog, verbose=False):
@@ -179,11 +189,13 @@ class VizierClass(BaseQuery):
 
         Parameters
         ----------
-        coordinates : str or `astropy.coordinates` object
+        coordinates : str, `astropy.coordinates` object, or `astropy.table.Table`
             The target around which to search. It may be specified as a string
             in which case it is resolved using online services or as the appropriate
             `astropy.coordinates` object. ICRS coordinates may also be entered as
             a string.
+            If a table is used, each of its rows will be queried, as long as it contains
+            two columns named `_RAJ2000` and `_DEJ2000` with proper angular units.
         radius : convertible to `astropy.coordinates.angles.Angle`
             The radius of the circular region to query.
         inner_radius: convertible to `astropy.coordinates.angles.Angle`
@@ -206,12 +218,27 @@ class VizierClass(BaseQuery):
         """
         catalog = VizierClass._schema_catalog.validate(catalog)
         center = {}
-        c = commons.parse_coordinates(coordinates)
-        ra = str(c.icrs.ra.degree)
-        dec = str(c.icrs.dec.degree)
-        if dec[0] not in ['+', '-']:
-            dec = '+' + dec
-        center["-c"] = "".join([ra, dec])
+        columns = []
+        if isinstance(coordinates, coord.SphericalCoordinatesBase) or isinstance(coordinates, basestring):
+            c = commons.parse_coordinates(coordinates)
+            ra = str(c.icrs.ra.degree)
+            dec = str(c.icrs.dec.degree)
+            if dec[0] not in ['+', '-']:
+                dec = '+' + dec
+            center["-c"] = "".join([ra, dec])
+        elif isinstance(coordinates, tbl.Table):
+            if ("_RAJ2000" in coordinates.keys()) and ("_DEJ2000" in coordinates.keys()):
+                pos_list = []
+                for pos in coord.ICRS(coordinates["_RAJ2000"], coordinates["_DEJ2000"], unit=(coordinates["_RAJ2000"].unit, coordinates["_DEJ2000"].unit)):
+                    ra_deg = pos.ra.to_string(unit="deg", decimal=True, precision=8)
+                    dec_deg = pos.dec.to_string(unit="deg", decimal=True, precision=8, alwayssign=True)
+                    pos_list += ["{}{}".format(ra_deg, dec_deg)]
+                center["-c"] = "<<;"+";".join(pos_list)
+                columns += ["_q"] # request a reference to the input table
+            else:
+                raise ValueError("Table must contain '_RAJ2000' and '_DEJ2000' columns!")
+        else:
+            raise TypeError("{} must be one of: string, astropy coordinates, or table containing coordinates!")
         # decide whether box or radius
         if radius is not None:
             # is radius a disk or an annulus?
@@ -250,6 +277,7 @@ class VizierClass(BaseQuery):
                 "At least one of radius, width/height must be specified")
         data_payload = self._args_to_payload(
             center=center,
+            columns=columns,
             catalog=catalog)
         response = commons.send_request(
             self._server_to_url(),
@@ -340,40 +368,46 @@ class VizierClass(BaseQuery):
         columns = kwargs.get('columns')
         if columns is None:
             columns = self.columns
-        if columns is not None:
-            columns_out = []
-            sorts_out = []
-            for column in columns:
-                if column[0] == '+':
-                    columns_out += [column[1:]]
-                    sorts_out += [column[1:]]
-                elif column[0] == '-':
-                    columns_out += [column[1:]]
-                    sorts_out += [column]
-                else:
-                    columns_out += [column]
-            if '**' in columns:
-                body['-out'] = '**'
+        else:
+            columns = self.columns + columns
+        # process: columns - always request computed positions in degrees
+        if "_RAJ2000" not in columns:
+            columns += ["_RAJ2000"]
+        if "_DEJ2000" not in columns:
+            columns += ["_DEJ2000"]
+        # process: columns - identify sorting requests
+        columns_out = []
+        sorts_out = []
+        for column in columns:
+            if column[0] == '+':
+                columns_out += [column[1:]]
+                sorts_out += [column[1:]]
+            elif column[0] == '-':
+                columns_out += [column[1:]]
+                sorts_out += [column]
             else:
-                body['-out'] = ','.join(columns_out)
-            if len(sorts_out)>0:
-                body['-sort'] = ','.join(sorts_out)
+                columns_out += [column]
+        body['-out'] = ','.join(columns_out)
+        if len(sorts_out)>0:
+            body['-sort'] = ','.join(sorts_out)
         # process: maximum rows returned
         if Vizier.ROW_LIMIT < 0:
             body["-out.max"] = 'unlimited'
         else:
             body["-out.max"] = Vizier.ROW_LIMIT
         # process: column filters
-        column_filters = kwargs.get('column_filters')
-        if column_filters is None:
-            column_filters = self.column_filters
-        if column_filters is not None:
-            for (key, value) in column_filters.items():
-                body[key] = value
+        column_filters = self.column_filters.copy()
+        column_filters.update(kwargs.get('column_filters', {}))
+        for (key, value) in column_filters.items():
+            body[key] = value
         # process: center
         if center is not None:
             for (key, value) in center.items():
                 body[key] = value
+        # add column metadata: name, unit, UCD1+, and description
+        body["-out.meta"] = "huUD"
+        # computed position should always be in decimal degrees
+        body["-oc.form"] = "d"
         # create final script
         script = "\n".join(["{key}={val}".format(key=key, val=val)
                    for key, val in body.items()])
@@ -414,9 +448,22 @@ class VizierClass(BaseQuery):
             if get_catalog_names:
                 return dict([(R.name,R) for R in vo_tree.resources])
             else:
-                table_list = [(t.name, t.to_table())
-                              for t in vo_tree.iter_tables() if len(t.array) > 0]
-                return commons.TableList(table_list)
+                table_dict = OrderedDict()
+                for t in vo_tree.iter_tables():
+                    if len(t.array) > 0:
+                        if t.ref is not None:
+                            name = vo_tree.get_table_by_id(t.ref).name
+                        else:
+                            name = t.name
+                        if name not in table_dict.keys():
+                            table_dict[name] = []
+                        table_dict[name] += [t.to_table()]
+                for name in table_dict.keys():
+                    if len(table_dict[name]) > 1:
+                        table_dict[name] = tbl.vstack(table_dict[name])
+                    else:
+                        table_dict[name] = table_dict[name][0]
+                return commons.TableList(table_dict)
 
         except:
             traceback.print_exc()  # temporary for debugging
