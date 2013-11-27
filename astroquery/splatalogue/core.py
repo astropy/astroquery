@@ -10,7 +10,7 @@ from ..query import BaseQuery
 from ..utils import commons,async_to_sync
 from ..utils.docstr_chompers import prepend_docstr_noreturns
 from astropy import units as u
-from . import SLAP_URL,QUERY_URL,SPLATALOGUE_TIMEOUT
+from . import SLAP_URL,QUERY_URL,SPLATALOGUE_TIMEOUT,LINES_LIMIT
 from . import load_species_table
 
 __all__ = ['Splatalogue','SplatalogueClass']
@@ -25,6 +25,7 @@ class SplatalogueClass(BaseQuery):
     SLAP_URL = SLAP_URL()
     QUERY_URL = QUERY_URL()
     TIMEOUT = SPLATALOGUE_TIMEOUT()
+    LINES_LIMIT = LINES_LIMIT()
     versions = ('v1.0','v2.0')
 
     def __init__(self, **kwargs):
@@ -76,7 +77,7 @@ class SplatalogueClass(BaseQuery):
                       version='v2.0',
                       only_NRAO_recommended=None,
                       export=True,
-                      export_limit=10000,
+                      export_limit=self.LINES_LIMIT,
                       noHFS=False, displayHFS=False, show_unres_qn=False,
                       show_upper_degeneracy=False, show_molecule_tag=False,
                       show_qn_code=False, show_lovas_labref=False,
@@ -168,12 +169,12 @@ class SplatalogueClass(BaseQuery):
             Display Ordered Frequency ONLY
         show_nrao_recommended : bool
             Display NRAO Recommended Frequencies
-        payload : dict
-            A dictionary of keywords
 
         Returns
         -------
         Dictionary of the parameters to send to the SPLAT page
+        payload : dict
+            A dictionary of keywords
         """
 
         payload = {'submit':'Search'}
@@ -241,7 +242,10 @@ class SplatalogueClass(BaseQuery):
             payload['export_type'] = 'current'
             payload['offset'] = 0
             payload['range'] = 'on'
-            payload['limit'] = export_limit
+            if export_limit is not None:
+                payload['limit'] = export_limit
+            else:
+                payload['limit'] = self.LINES_LIMIT
 
         return payload
 
