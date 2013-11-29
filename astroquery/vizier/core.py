@@ -63,7 +63,7 @@ class VizierClass(BaseQuery):
         FITS binary table: asu-binfits
         plain text: asu-txt
         """
-        return "http://" + Vizier.VIZIER_SERVER + "/viz-bin/" + return_type
+        return "http://" + self.VIZIER_SERVER + "/viz-bin/" + return_type
 
     @property
     def keywords(self):
@@ -117,7 +117,7 @@ class VizierClass(BaseQuery):
         response = commons.send_request(
             self._server_to_url(),
             data_payload,
-            Vizier.TIMEOUT)
+            self.TIMEOUT)
         result = self._parse_result(response, verbose=verbose, get_catalog_names=True)
         
         #Filter out the obsolete catalogs, unless requested
@@ -148,7 +148,7 @@ class VizierClass(BaseQuery):
         response = commons.send_request(
             self._server_to_url(),
             data_payload,
-            Vizier.TIMEOUT)
+            self.TIMEOUT)
         return response
 
     def query_object_async(self, object_name, catalog=None):
@@ -178,7 +178,7 @@ class VizierClass(BaseQuery):
         response = commons.send_request(
             self._server_to_url(),
             data_payload,
-            Vizier.TIMEOUT)
+            self.TIMEOUT)
         return response
 
     def query_region_async(
@@ -282,7 +282,7 @@ class VizierClass(BaseQuery):
         response = commons.send_request(
             self._server_to_url(),
             data_payload,
-            Vizier.TIMEOUT)
+            self.TIMEOUT)
         return response
 
     def query_constraints_async(self, catalog=None, **kwargs):
@@ -343,7 +343,7 @@ class VizierClass(BaseQuery):
         response = commons.send_request(
             self._server_to_url(),
             data_payload,
-            Vizier.TIMEOUT)
+            self.TIMEOUT)
         return response
 
     def _args_to_payload(self, *args, **kwargs):
@@ -391,10 +391,10 @@ class VizierClass(BaseQuery):
         if len(sorts_out)>0:
             body['-sort'] = ','.join(sorts_out)
         # process: maximum rows returned
-        if Vizier.ROW_LIMIT < 0:
+        if self.ROW_LIMIT < 0:
             body["-out.max"] = 'unlimited'
         else:
-            body["-out.max"] = Vizier.ROW_LIMIT
+            body["-out.max"] = self.ROW_LIMIT
         # process: column filters
         column_filters = self.column_filters.copy()
         column_filters.update(kwargs.get('column_filters', {}))
