@@ -253,14 +253,16 @@ class SDSSClass(BaseQuery):
 
         results = []
         for row in matches:
-            # Download and read in image data
-            linkstr = ('{base}/{rerun}/{run}/{camcol}/'
-                       'frame-{band}-{run:06d}-{camcol}-{field:04d}.fits.bz2')
-            link = linkstr.format(base=SDSS.IMAGING, run=row['run'],
-                                  rerun=row['rerun'], camcol=row['camcol'],
-                                  field=row['field'], band=band)
+            for b in band:
+                # Download and read in image data
+                linkstr = ('{base}/{rerun}/{run}/{camcol}/'
+                           'frame-{band}-{run:06d}-{camcol}-'
+                           '{field:04d}.fits.bz2')
+                link = linkstr.format(base=SDSS.IMAGING, run=row['run'],
+                                      rerun=row['rerun'], camcol=row['camcol'],
+                                      field=row['field'], band=b)
 
-            results.append(commons.FileContainer(link))
+                results.append(commons.FileContainer(link))
 
         return results
 
