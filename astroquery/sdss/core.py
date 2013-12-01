@@ -27,9 +27,10 @@ __doctest_skip__ = ['SDSSClass.*']
 
 # Default photometric and spectroscopic quantities to retrieve.
 photoobj_defs = ['ra', 'dec', 'objid', 'run', 'rerun', 'camcol', 'field']
-specobj_defs = ['z', 'plate', 'mjd', 'fiberID', 'specobjid', 'specClass']
+specobj_defs = ['z', 'plate', 'mjd', 'fiberID', 'specobjid', 'run2d',
+                'instrument']
 
-# Cross-correlation templates from DR-5
+# Cross-correlation templates from DR-7
 spec_templates = {'star_O': 0, 'star_OB': 1, 'star_B': 2, 'star_A': [3,4],
                   'star_FA': 5, 'star_F': [6,7], 'star_G': [8,9],
                   'star_K': 10, 'star_M1': 11, 'star_M3': 12, 'star_M5': 13,
@@ -46,13 +47,13 @@ sdss_arcsec_per_pixel = 0.396
 class SDSSClass(BaseQuery):
 
     BASE_URL = SDSS_SERVER()
-    SPECTRO_1D = BASE_URL + '/spectro/1d_26'
-    IMAGING = BASE_URL + '/www/cgi-bin/drC'
-    TEMPLATES = 'http://www.sdss.org/dr5/algorithms/spectemplates/spDR2'
+    SPECTRO_OPTICAL = BASE_URL
+    IMAGING = BASE_URL + '/boss/photoObj/frames'
+    TEMPLATES = 'http://www.sdss.org/dr7/algorithms/spectemplates/spDR2'
     MAXQUERIES = SDSS_MAXQUERY()
     AVAILABLE_TEMPLATES = spec_templates
 
-    QUERY_URL = 'http://cas.sdss.org/public/en/tools/search/x_sql.asp'
+    QUERY_URL = 'http://skyserver.sdss3.org/public/en/tools/search/x_sql.aspx'
 
     def query_region_async(self, coordinates, radius=u.degree / 1800., fields=None,
                            spectro=False):
@@ -151,11 +152,12 @@ class SDSSClass(BaseQuery):
 
         results = []
         for row in matches:
-            plate = str(row['plate']).zfill(4)
-            fiber = str(row['fiberID']).zfill(3)
-            mjd = str(row['mjd'])
-            link = '%s/%s/1d/spSpec-%s-%s-%s.fit' % (SDSS.SPECTRO_1D, plate,
-                                                     mjd, plate, fiber)
+            link = ('{base}/{instrument}/spectro/redux/{run2d}/spectra'
+                    '/{plate:04d}/spec-{plate:04d}-{mjd}-{fiber:04d}.fits')
+            link = link.format(base=SDSS.SPECTRO_OPTICAL,
+                               instrument=row['instrument'].lower(),
+                               run2d=row['run2d'], plate=row['plate'],
+                               fiber=row['fiberID'], mjd=row['mjd'])
 
             results.append(commons.FileContainer(link))
 
@@ -169,7 +171,8 @@ class SDSSClass(BaseQuery):
         List of PyFITS HDUList objects.
         """
 
-        readable_objs = self.get_spectra_async(matches, plate=plate, fiberID=fiberID, mjd=mjd)
+        readable_objs = self.get_spectra_async(matches, plate=plate,
+                                               fiberID=fiberID, mjd=mjd)
 
         return [obj.get_fits() for obj in readable_objs]
 
@@ -199,13 +202,12 @@ class SDSSClass(BaseQuery):
         results = []
         for row in matches:
 
-            # Read in and format some information we need
-            field = str(row['field']).zfill(4)
-
             # Download and read in image data
-            linkstr = '%s?RUN=%i&RERUN=%i&CAMCOL=%i&FIELD=%s&FILTER=%s'
-            link = linkstr % (SDSS.IMAGING, row['run'], row['rerun'],
-                              row['camcol'], field, band)
+            linkstr = ('{base}/{rerun}/{run}/{camcol}/'
+                       'frame-{band}-{run:06d}-{camcol}-{field:04d}.fits.bz2')
+            link = linkstr.format(base=SDSS.IMAGING, run=row['run'],
+                                  rerun=row['rerun'], camcol=row['camcol'],
+                                  field=row['field'], band=band)
 
             results.append(commons.FileContainer(link))
 
@@ -228,13 +230,13 @@ class SDSSClass(BaseQuery):
         """
         Download spectral templates from SDSS DR-2, which are located here:
 
-            http://www.sdss.org/dr5/algorithms/spectemplates/
+            http://www.sdss.org/dr7/algorithms/spectemplates/
 
         There 32 spectral templates available from DR-2, from stellar spectra,
         to galaxies, to quasars. To see the available templates, do:
 
             from astroquery.sdss import SDSS
-            print sdss.AVAILABLE_TEMPLATES
+            print SDSS.AVAILABLE_TEMPLATES
 
         Parameters
         ----------
@@ -297,7 +299,8 @@ class SDSSClass(BaseQuery):
         """
 
         arr = np.atleast_1d(np.genfromtxt(io.BytesIO(response.content),
-                            names=True, dtype=None, delimiter=','))
+                            names=True, dtype=None, delimiter=',',
+                            skip_header=1))
 
         if len(arr) == 0:
             return None

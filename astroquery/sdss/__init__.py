@@ -8,8 +8,8 @@ SDSS Spectra/Image/SpectralTemplate Archive Query Tool
 
 from astropy.config import ConfigurationItem
 
-SDSS_SERVER = ConfigurationItem('sdss_server', 'http://das.sdss.org',
-                               'Link to SDSS website.')
+SDSS_SERVER = ConfigurationItem('sdss_server', 'http://data.sdss3.org/sas/dr10',
+                                'Link to SDSS website.')
 
 SDSS_MAXQUERY = ConfigurationItem('maxqueries', 1, 'Max number of queries allowed per second')
 
