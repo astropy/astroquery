@@ -234,7 +234,7 @@ class SDSSClass(BaseQuery):
         to galaxies, to quasars. To see the available templates, do:
 
             from astroquery.sdss import SDSS
-            print sdss.AVAILABLE_TEMPLATES
+            print SDSS.AVAILABLE_TEMPLATES
 
         Parameters
         ----------
