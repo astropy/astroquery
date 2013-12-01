@@ -29,7 +29,7 @@ __doctest_skip__ = ['SDSSClass.*']
 photoobj_defs = ['ra', 'dec', 'objid', 'run', 'rerun', 'camcol', 'field']
 specobj_defs = ['z', 'plate', 'mjd', 'fiberID', 'specobjid', 'specClass']
 
-# Cross-correlation templates from DR-5
+# Cross-correlation templates from DR-7
 spec_templates = {'star_O': 0, 'star_OB': 1, 'star_B': 2, 'star_A': [3,4],
                   'star_FA': 5, 'star_F': [6,7], 'star_G': [8,9],
                   'star_K': 10, 'star_M1': 11, 'star_M3': 12, 'star_M5': 13,
@@ -48,11 +48,11 @@ class SDSSClass(BaseQuery):
     BASE_URL = SDSS_SERVER()
     SPECTRO_1D = BASE_URL + '/spectro/1d_26'
     IMAGING = BASE_URL + '/www/cgi-bin/drC'
-    TEMPLATES = 'http://www.sdss.org/dr5/algorithms/spectemplates/spDR2'
+    TEMPLATES = 'http://www.sdss.org/dr7/algorithms/spectemplates/spDR2'
     MAXQUERIES = SDSS_MAXQUERY()
     AVAILABLE_TEMPLATES = spec_templates
 
-    QUERY_URL = 'http://cas.sdss.org/public/en/tools/search/x_sql.asp'
+    QUERY_URL = 'http://skyserver.sdss3.org/public/en/tools/search/x_sql.aspx'
 
     def query_region_async(self, coordinates, radius=u.degree / 1800., fields=None,
                            spectro=False):
@@ -228,7 +228,7 @@ class SDSSClass(BaseQuery):
         """
         Download spectral templates from SDSS DR-2, which are located here:
 
-            http://www.sdss.org/dr5/algorithms/spectemplates/
+            http://www.sdss.org/dr7/algorithms/spectemplates/
 
         There 32 spectral templates available from DR-2, from stellar spectra,
         to galaxies, to quasars. To see the available templates, do:
