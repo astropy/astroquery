@@ -55,8 +55,9 @@ class SDSSClass(BaseQuery):
 
     QUERY_URL = 'http://skyserver.sdss3.org/public/en/tools/search/x_sql.aspx'
 
-    def query_region_async(self, coordinates, radius=u.degree / 1800., fields=None,
-                           spectro=False):
+    def query_region_async(self, coordinates, radius=u.degree / 1800.,
+                           fields=None, spectro=False,
+                           get_query_payload=False):
         """
         Used to query a region around given coordinates. Equivalent to
         the object cross-ID from the web interface.
@@ -79,6 +80,9 @@ class SDSSClass(BaseQuery):
             Look for spectroscopic match in addition to photometric match? If True,
             objects will only count as a match if photometry *and* spectroscopy
             exist. If False, will look for photometric matches only.
+        get_query_payload : bool, optional
+            if set to `True` then returns the dictionary sent as the HTTP request.
+            Defaults to `False`.
 
         Examples
         --------
@@ -99,38 +103,12 @@ class SDSSClass(BaseQuery):
             The result of the query as an `astropy.table.Table` object.
         """
 
-        coordinates = commons.parse_coordinates(coordinates)
-        
-        ra = coordinates.ra.degree
-        dec = coordinates.dec.degree
-        dr = commons.radius_to_unit(radius,'degree')
-
-        # Fields to return (if cross-ID successful)
-        if fields is None:
-            fields = copy.deepcopy(photoobj_defs)
-            if spectro:
-                fields += specobj_defs
-
-        # Construct SQL query
-        q_select = 'SELECT '
-        for field in fields:
-            if field in photoobj_defs:
-                q_select += 'p.%s,' % field
-            if field in specobj_defs:
-                q_select += 's.%s,' % field
-        q_select = q_select.rstrip(',')
-        q_select += ' '
-
-        q_from = 'FROM PhotoObjAll AS p '
-        if spectro:
-            q_join = 'JOIN SpecObjAll s ON p.objID = s.bestObjID '
-        else:
-            q_join = ''
-        q_where = 'WHERE (p.ra between %g and %g) and (p.dec between %g and %g)' \
-            % (ra-dr, ra+dr, dec-dr, dec+dr)
-
-        sql = "%s%s%s%s" % (q_select, q_from, q_join, q_where)
-        r = requests.get(SDSS.QUERY_URL, params={'cmd': sql, 'format': 'csv'})
+        request_payload = self._args_to_payload(coordinates=coordinates,
+                                                radius=radius, fields=fields,
+                                                spectro=spectro)
+        if get_query_payload:
+            return request_payload
+        r = requests.get(SDSS.QUERY_URL, params=request_payload)
 
         return r
 
@@ -306,5 +284,92 @@ class SDSSClass(BaseQuery):
             return None
         else:
             return Table(arr)
+
+    def _args_to_payload(self, coordinates=None, radius=u.degree / 1800.,
+                         fields=None, spectro=False,
+                         plate=None, mjd=None, fiberID=None):
+        """
+        Construct the SQL query from the arguments.
+
+        Parameters
+        ----------
+        coordinates : str or `astropy.coordinates` object
+            The target around which to search. It may be specified as a string
+            in which case it is resolved using online services or as the appropriate
+            `astropy.coordinates` object. ICRS coordinates may also be entered as strings
+            as specified in the `astropy.coordinates` module.
+        radius : str or `astropy.units.Quantity` object, optional
+            The string must be parsable by `astropy.coordinates.Angle`. The appropriate
+            `Quantity` object from `astropy.units` may also be used. Defaults to 2 arcsec.
+        fields : list, optional
+            SDSS PhotoObj or SpecObj quantities to return. If None, defaults
+            to quantities required to find corresponding spectra and images
+            of matched objects (e.g. plate, fiberID, mjd, etc.).
+        spectro : bool, optional
+            Look for spectroscopic match in addition to photometric match? If
+            True, objects will only count as a match if photometry *and*
+            spectroscopy exist. If False, will look for photometric matches
+            only. If `spectro` is True, it is possible to let coordinates
+            undefined and set at least one of `plate`, `mjd` or `fiberID` to
+            search using these fields.
+        plate : integer, optional
+            Plate number.
+        mjd : integer, optional
+            Modified Julian Date indicating the date a given piece of SDSS data
+            was taken.
+        fiberID : integer, optional
+            Fiber number.
+
+        Returns
+        -------
+        request_payload : dict
+        """
+        # Fields to return (if cross-ID successful)
+        if fields is None:
+            fields = list(photoobj_defs)
+        if spectro:
+            fields += specobj_defs
+
+        # Construct SQL query
+        q_select = 'SELECT '
+        for field in fields:
+            if field in photoobj_defs:
+                q_select += 'p.%s,' % field
+            if field in specobj_defs:
+                q_select += 's.%s,' % field
+        q_select = q_select.rstrip(',')
+        q_select += ' '
+
+        q_from = 'FROM PhotoObjAll AS p '
+        if spectro:
+            q_join = 'JOIN SpecObjAll s ON p.objID = s.bestObjID '
+        else:
+            q_join = ''
+
+        q_where = ''
+        if coordinates:
+            coordinates = commons.parse_coordinates(coordinates)
+
+            ra = coordinates.ra.degree
+            dec = coordinates.dec.degree
+            dr = commons.radius_to_unit(radius,'degree')
+
+            q_where = ('WHERE (p.ra between %g and %g) and '
+                       '(p.dec between %g and %g)'
+                       % (ra-dr, ra+dr, dec-dr, dec+dr))
+        elif spectro:
+            s_fields = ['s.%s=%d' % (key, val) for (key, val) in
+                        [('plate', plate), ('mjd', mjd), ('fiberid', fiberID)]
+                        if val is not None]
+            if s_fields:
+                q_where = 'WHERE (' + ' AND '.join(spec_fields) + ')'
+        if not q_where:
+            raise ValueError('must specify at least one of `coordinates`, '
+                             '`plate`, `mjd` or `fiberID`')
+
+        sql = "%s%s%s%s" % (q_select, q_from, q_join, q_where)
+        request_payload = dict(cmd=sql, format='csv')
+
+        return request_payload
 
 SDSS = SDSSClass()
