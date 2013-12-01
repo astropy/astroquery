@@ -112,18 +112,57 @@ class SDSSClass(BaseQuery):
 
         return r
 
-    def get_spectra_async(self, matches, plate=None, fiberID=None, mjd=None):
+    def get_spectra_async(self, coordinates=None, radius=u.degree / 1800.,
+                          matches=None, plate=None, fiberID=None, mjd=None,
+                          get_query_payload=False):
         """
         Download spectrum from SDSS.
 
         Parameters
         ----------
-        matches : astropy.table.Table instance (result of query_region).
+        At least one of `coordinates`, `matches`, `plate`, `mjd` or `fiberID`
+        must be specified.
+
+        coordinates : str or `astropy.coordinates` object
+            The target around which to search. It may be specified as a string
+            in which case it is resolved using online services or as the
+            appropriate `astropy.coordinates` object. ICRS coordinates may also
+            be entered as strings as specified in the `astropy.coordinates`
+            module.
+        radius : str or `astropy.units.Quantity` object, optional
+            The string must be parsable by `astropy.coordinates.Angle`. The
+            appropriate `Quantity` object from `astropy.units` may also be
+            used. Defaults to 2 arcsec.
+        matches : astropy.table.Table instance 
+            Result of `query_region`.
+        plate : integer, optional
+            Plate number.
+        mjd : integer, optional
+            Modified Julian Date indicating the date a given piece of SDSS data
+            was taken.
+        fiberID : integer, optional
+            Fiber number.
+        get_query_payload : bool, optional
+            if set to `True` then returns the dictionary sent as the HTTP
+            request.  Defaults to `False`. Ignored if `matches` is provided.
 
         Returns
         -------
-        A list of context-managers that yield readable file-like objects
+        A list of context-managers that yield readable file-like objects. The
+        function returns the spectra for only one of `matches`, or
+        `coordinates` and `radius`, or `plate`, `mjd` and `fiberID`.
+
         """
+
+        if not matches:
+            request_payload = self._args_to_payload(coordinates=coordinates,
+                                                    radius=radius, spectro=True,
+                                                    plate=plate, mjd=mjd,
+                                                    fiberID=fiberID)
+            if get_query_payload:
+                return request_payload
+            r = requests.get(SDSS.QUERY_URL, params=request_payload)
+            matches = self._parse_result(r)
 
         if not isinstance(matches, Table):
             raise ValueError
@@ -139,18 +178,22 @@ class SDSSClass(BaseQuery):
 
             results.append(commons.FileContainer(link))
 
+
         return results
 
     @prepend_docstr_noreturns(get_spectra_async.__doc__)
-    def get_spectra(self, matches, plate=None, fiberID=None, mjd=None):
+    def get_spectra(self, coordinates=None, radius=u.degree / 1800.,
+                    matches=None, plate=None, fiberID=None, mjd=None):
         """
         Returns
         -------
         List of PyFITS HDUList objects.
         """
 
-        readable_objs = self.get_spectra_async(matches, plate=plate,
-                                               fiberID=fiberID, mjd=mjd)
+        readable_objs = self.get_spectra_async(coordinates=coordinates,
+                                               radius=radius, matches=matches,
+                                               plate=plate, fiberID=fiberID,
+                                               mjd=mjd )
 
         return [obj.get_fits() for obj in readable_objs]
 
@@ -362,7 +405,7 @@ class SDSSClass(BaseQuery):
                         [('plate', plate), ('mjd', mjd), ('fiberid', fiberID)]
                         if val is not None]
             if s_fields:
-                q_where = 'WHERE (' + ' AND '.join(spec_fields) + ')'
+                q_where = 'WHERE (' + ' AND '.join(s_fields) + ')'
         if not q_where:
             raise ValueError('must specify at least one of `coordinates`, '
                              '`plate`, `mjd` or `fiberID`')
