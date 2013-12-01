@@ -297,7 +297,8 @@ class SDSSClass(BaseQuery):
         """
 
         arr = np.atleast_1d(np.genfromtxt(io.BytesIO(response.content),
-                            names=True, dtype=None, delimiter=','))
+                            names=True, dtype=None, delimiter=',',
+                            skip_header=1))
 
         if len(arr) == 0:
             return None
