@@ -47,7 +47,7 @@ class SDSSClass(BaseQuery):
 
     BASE_URL = SDSS_SERVER()
     SPECTRO_1D = BASE_URL + '/spectro/1d_26'
-    IMAGING = BASE_URL + '/www/cgi-bin/drC'
+    IMAGING = BASE_URL + '/boss/photoObj/frames'
     TEMPLATES = 'http://www.sdss.org/dr7/algorithms/spectemplates/spDR2'
     MAXQUERIES = SDSS_MAXQUERY()
     AVAILABLE_TEMPLATES = spec_templates
@@ -203,9 +203,9 @@ class SDSSClass(BaseQuery):
             field = str(row['field']).zfill(4)
 
             # Download and read in image data
-            linkstr = '%s?RUN=%i&RERUN=%i&CAMCOL=%i&FIELD=%s&FILTER=%s'
-            link = linkstr % (SDSS.IMAGING, row['run'], row['rerun'],
-                              row['camcol'], field, band)
+            linkstr = '{base}/{rerun}/{run}/{camcol}/frame-{band}-{run:06d}-{camcol}-{field}.fits.bz2'
+            link = linkstr.format(base=SDSS.IMAGING, run=row['run'], rerun=row['rerun'],
+                                  camcol=row['camcol'], field=field, band=band)
 
             results.append(commons.FileContainer(link))
 
