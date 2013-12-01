@@ -80,9 +80,6 @@ class SDSSClass(BaseQuery):
             Look for spectroscopic match in addition to photometric match? If True,
             objects will only count as a match if photometry *and* spectroscopy
             exist. If False, will look for photometric matches only.
-        get_query_payload : bool, optional
-            if set to `True` then returns the dictionary sent as the HTTP request.
-            Defaults to `False`.
 
         Examples
         --------
@@ -133,7 +130,7 @@ class SDSSClass(BaseQuery):
             The string must be parsable by `astropy.coordinates.Angle`. The
             appropriate `Quantity` object from `astropy.units` may also be
             used. Defaults to 2 arcsec.
-        matches : astropy.table.Table instance 
+        matches : astropy.table.Table instance
             Result of `query_region`.
         plate : integer, optional
             Plate number.
@@ -142,9 +139,6 @@ class SDSSClass(BaseQuery):
             was taken.
         fiberID : integer, optional
             Fiber number.
-        get_query_payload : bool, optional
-            if set to `True` then returns the dictionary sent as the HTTP
-            request.  Defaults to `False`. Ignored if `matches` is provided.
 
         Returns
         -------
@@ -197,8 +191,9 @@ class SDSSClass(BaseQuery):
 
         return [obj.get_fits() for obj in readable_objs]
 
-    def get_images_async(self, matches, run=None, rerun=None, camcol=None,
-                         field=None, band='g'):
+    def get_images_async(self, coordinates=None, radius=u.degree / 1800.,
+                         matches=None, run=None, rerun=301, camcol=None,
+                         field=None, band='g', get_query_payload=False):
         """
         Download an image from SDSS.
 
@@ -207,22 +202,57 @@ class SDSSClass(BaseQuery):
 
         Parameters
         ----------
-        crossID : dict
-            Dictionary that must contain the run, rerun, camcol, and field for
-            desired image. These parameters can be passed separately as well. All
-            are required. Most convenient to pass the result of function
-            astroquery.sdss.crossID.
+        At least one of `coordinates`, `matches`, `plate`, `mjd` or `fiberID`
+        must be specified.
+
+        coordinates : str or `astropy.coordinates` object
+            The target around which to search. It may be specified as a string
+            in which case it is resolved using online services or as the
+            appropriate `astropy.coordinates` object. ICRS coordinates may also
+            be entered as strings as specified in the `astropy.coordinates`
+            module.
+        radius : str or `astropy.units.Quantity` object, optional
+            The string must be parsable by `astropy.coordinates.Angle`. The
+            appropriate `Quantity` object from `astropy.units` may also be
+            used. Defaults to 2 arcsec.
+        matches : astropy.table.Table instance
+            Result of `query_region`.
+        run : integer, optional
+            Length of a strip observed in a single continuous image observing
+            scan.
+        rerun : integer, optional
+            Reprocessing of an imaging run. Defaults to 301 which is the most
+            recent rerun.
+        camcol : integer, optional
+            Output of one camera column of CCDs.
+        field : integer, optional
+            Part of a camcol of size 2048 by 1489 pixels.
         band : str, list
             Could be individual band, or list of bands. Options: u, g, r, i, or z
 
         Returns
         -------
-        List of PyFITS HDUList objects.
+        List of PyFITS HDUList objects. The function returns the images for
+        only one of `matches`, or `coordinates` and `radius`, or `run`,
+        `camcol` and `field`.
+
         """
+        if not matches:
+            request_payload = self._args_to_payload(coordinates=coordinates,
+                                                    radius=radius,
+                                                    spectro=False,
+                                                    run=run, rerun=rerun,
+                                                    camcol=camcol, field=field)
+            if get_query_payload:
+                return request_payload
+            r = requests.get(SDSS.QUERY_URL, params=request_payload)
+            matches = self._parse_result(r)
+
+        if not isinstance(matches, Table):
+            raise ValueError
 
         results = []
         for row in matches:
-
             # Download and read in image data
             linkstr = ('{base}/{rerun}/{run}/{camcol}/'
                        'frame-{band}-{run:06d}-{camcol}-{field:04d}.fits.bz2')
@@ -236,14 +266,21 @@ class SDSSClass(BaseQuery):
 
 
     @prepend_docstr_noreturns(get_images_async.__doc__)
-    def get_images(self, matches, run=None, rerun=None, camcol=None):
+    def get_images(self, coordinates=None, radius=u.degree / 1800.,
+                   matches=None, run=None, rerun=301, camcol=None,
+                   field=None, band='g'):
         """
         Returns
         -------
         List of PyFITS HDUList objects.
         """
 
-        readable_objs = self.get_images_async(matches, run=run, rerun=rerun, camcol=camcol)
+        readable_objs = self.get_images_async(coordinates=coordinates,
+                                              radius=radius, matches=matches,
+                                              run=run, rerun=rerun,
+                                              camcol=camcol, field=field,
+                                              band=band,
+                                              get_query_payload=False)
 
         return [obj.get_fits() for obj in readable_objs]
 
@@ -330,7 +367,8 @@ class SDSSClass(BaseQuery):
 
     def _args_to_payload(self, coordinates=None, radius=u.degree / 1800.,
                          fields=None, spectro=False,
-                         plate=None, mjd=None, fiberID=None):
+                         plate=None, mjd=None, fiberID=None, run=None,
+                         rerun=301, camcol=None, field=None):
         """
         Construct the SQL query from the arguments.
 
@@ -362,12 +400,22 @@ class SDSSClass(BaseQuery):
             was taken.
         fiberID : integer, optional
             Fiber number.
+        run : integer, optional
+            Length of a strip observed in a single continuous image observing
+            scan.
+        rerun : integer, optional
+            Reprocessing of an imaging run. Defaults to 301 which is the most
+            recent rerun.
+        camcol : integer, optional
+            Output of one camera column of CCDs.
+        field : integer, optional
+            Part of a camcol of size 2048 by 1489 pixels.
 
         Returns
         -------
         request_payload : dict
         """
-        # Fields to return (if cross-ID successful)
+        # Fields to return
         if fields is None:
             fields = list(photoobj_defs)
         if spectro:
@@ -375,11 +423,11 @@ class SDSSClass(BaseQuery):
 
         # Construct SQL query
         q_select = 'SELECT '
-        for field in fields:
-            if field in photoobj_defs:
-                q_select += 'p.%s,' % field
-            if field in specobj_defs:
-                q_select += 's.%s,' % field
+        for sql_field in fields:
+            if sql_field in photoobj_defs:
+                q_select += 'p.%s,' % sql_field
+            if sql_field in specobj_defs:
+                q_select += 's.%s,' % sql_field
         q_select = q_select.rstrip(',')
         q_select += ' '
 
@@ -391,6 +439,7 @@ class SDSSClass(BaseQuery):
 
         q_where = ''
         if coordinates:
+            # Query for a region
             coordinates = commons.parse_coordinates(coordinates)
 
             ra = coordinates.ra.degree
@@ -401,14 +450,28 @@ class SDSSClass(BaseQuery):
                        '(p.dec between %g and %g)'
                        % (ra-dr, ra+dr, dec-dr, dec+dr))
         elif spectro:
+            # Spectra: query for specified plate, mjd, fiberid
             s_fields = ['s.%s=%d' % (key, val) for (key, val) in
                         [('plate', plate), ('mjd', mjd), ('fiberid', fiberID)]
                         if val is not None]
             if s_fields:
                 q_where = 'WHERE (' + ' AND '.join(s_fields) + ')'
+        elif run or camcol or field:
+            # Imaging: query for specified run, rerun, camcol, field
+            p_fields = ['p.%s=%d' % (key, val) for (key, val) in
+                        [('run', run), ('camcol', camcol), ('field', field)]
+                        if val is not None]
+            if p_fields:
+                p_fields.append('p.rerun=%d' % rerun)
+                q_where = 'WHERE (' + ' AND '.join(p_fields) + ')'
+
         if not q_where:
-            raise ValueError('must specify at least one of `coordinates`, '
-                             '`plate`, `mjd` or `fiberID`')
+            if spectro:
+                raise ValueError('must specify at least one of `coordinates`, '
+                                 '`plate`, `mjd` or `fiberID`')
+            else:
+                raise ValueError('must specify at least one of `coordinates`, '
+                                 '`run`, `camcol` or `field`')
 
         sql = "%s%s%s%s" % (q_select, q_from, q_join, q_where)
         request_payload = dict(cmd=sql, format='csv')
