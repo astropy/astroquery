@@ -27,7 +27,8 @@ __doctest_skip__ = ['SDSSClass.*']
 
 # Default photometric and spectroscopic quantities to retrieve.
 photoobj_defs = ['ra', 'dec', 'objid', 'run', 'rerun', 'camcol', 'field']
-specobj_defs = ['z', 'plate', 'mjd', 'fiberID', 'specobjid', 'specClass']
+specobj_defs = ['z', 'plate', 'mjd', 'fiberID', 'specobjid', 'run2d',
+                'instrument']
 
 # Cross-correlation templates from DR-7
 spec_templates = {'star_O': 0, 'star_OB': 1, 'star_B': 2, 'star_A': [3,4],
@@ -46,7 +47,7 @@ sdss_arcsec_per_pixel = 0.396
 class SDSSClass(BaseQuery):
 
     BASE_URL = SDSS_SERVER()
-    SPECTRO_1D = BASE_URL + '/spectro/1d_26'
+    SPECTRO_OPTICAL = BASE_URL
     IMAGING = BASE_URL + '/boss/photoObj/frames'
     TEMPLATES = 'http://www.sdss.org/dr7/algorithms/spectemplates/spDR2'
     MAXQUERIES = SDSS_MAXQUERY()
@@ -151,11 +152,12 @@ class SDSSClass(BaseQuery):
 
         results = []
         for row in matches:
-            plate = str(row['plate']).zfill(4)
-            fiber = str(row['fiberID']).zfill(3)
-            mjd = str(row['mjd'])
-            link = '%s/%s/1d/spSpec-%s-%s-%s.fit' % (SDSS.SPECTRO_1D, plate,
-                                                     mjd, plate, fiber)
+            link = ('{base}/{instrument}/spectro/redux/{run2d}/spectra'
+                    '/{plate:04d}/spec-{plate:04d}-{mjd}-{fiber:04d}.fits')
+            link = link.format(base=SDSS.SPECTRO_OPTICAL,
+                               instrument=row['instrument'].lower(),
+                               run2d=row['run2d'], plate=row['plate'],
+                               fiber=row['fiberID'], mjd=row['mjd'])
 
             results.append(commons.FileContainer(link))
 
@@ -169,7 +171,8 @@ class SDSSClass(BaseQuery):
         List of PyFITS HDUList objects.
         """
 
-        readable_objs = self.get_spectra_async(matches, plate=plate, fiberID=fiberID, mjd=mjd)
+        readable_objs = self.get_spectra_async(matches, plate=plate,
+                                               fiberID=fiberID, mjd=mjd)
 
         return [obj.get_fits() for obj in readable_objs]
 
@@ -199,13 +202,12 @@ class SDSSClass(BaseQuery):
         results = []
         for row in matches:
 
-            # Read in and format some information we need
-            field = str(row['field']).zfill(4)
-
             # Download and read in image data
-            linkstr = '{base}/{rerun}/{run}/{camcol}/frame-{band}-{run:06d}-{camcol}-{field}.fits.bz2'
-            link = linkstr.format(base=SDSS.IMAGING, run=row['run'], rerun=row['rerun'],
-                                  camcol=row['camcol'], field=field, band=band)
+            linkstr = ('{base}/{rerun}/{run}/{camcol}/'
+                       'frame-{band}-{run:06d}-{camcol}-{field:04d}.fits.bz2')
+            link = linkstr.format(base=SDSS.IMAGING, run=row['run'],
+                                  rerun=row['rerun'], camcol=row['camcol'],
+                                  field=row['field'], band=band)
 
             results.append(commons.FileContainer(link))
 
