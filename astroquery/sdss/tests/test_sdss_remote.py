@@ -6,6 +6,7 @@ from astropy.tests.helper import remote_data
 import requests
 reload(requests)
 
+
 @remote_data
 class TestSDSSRemote:
     # Test Case: A Seyfert 1 galaxy

@@ -19,7 +19,7 @@ from . import SDSS_SERVER, SDSS_MAXQUERY
 from ..utils import commons, async_to_sync
 from ..utils.docstr_chompers import prepend_docstr_noreturns
 
-__all__ = ['SDSS','SDSSClass']
+__all__ = ['SDSS', 'SDSSClass']
 
 __doctest_skip__ = ['SDSSClass.*']
 
@@ -29,17 +29,18 @@ specobj_defs = ['z', 'plate', 'mjd', 'fiberID', 'specobjid', 'run2d',
                 'instrument']
 
 # Cross-correlation templates from DR-7
-spec_templates = {'star_O': 0, 'star_OB': 1, 'star_B': 2, 'star_A': [3,4],
-                  'star_FA': 5, 'star_F': [6,7], 'star_G': [8,9],
+spec_templates = {'star_O': 0, 'star_OB': 1, 'star_B': 2, 'star_A': [3, 4],
+                  'star_FA': 5, 'star_F': [6, 7], 'star_G': [8, 9],
                   'star_K': 10, 'star_M1': 11, 'star_M3': 12, 'star_M5': 13,
-                  'star_M8': 14, 'star_L1': 15, 'star_wd': [16,20,21],
-                  'star_carbon': [17,18,19], 'star_Ksubdwarf': 22,
-                  'galaxy_early': 23, 'galaxy': [24,25,26], 'galaxy_late': 27,
-                  'galaxy_lrg': 28, 'qso': 29, 'qso_bal': [30,31],
-                  'qso_bright': 32
+                  'star_M8': 14, 'star_L1': 15, 'star_wd': [16, 20, 21],
+                  'star_carbon': [17, 18, 19], 'star_Ksubdwarf': 22,
+                  'galaxy_early': 23, 'galaxy': [24, 25, 26],
+                  'galaxy_late': 27, 'galaxy_lrg': 28, 'qso': 29,
+                  'qso_bal': [30, 31], 'qso_bright': 32
                   }
 
 sdss_arcsec_per_pixel = 0.396
+
 
 @async_to_sync
 class SDSSClass(BaseQuery):
@@ -64,20 +65,23 @@ class SDSSClass(BaseQuery):
         ----------
         coordinates : str or `astropy.coordinates` object
             The target around which to search. It may be specified as a string
-            in which case it is resolved using online services or as the appropriate
-            `astropy.coordinates` object. ICRS coordinates may also be entered as strings
-            as specified in the `astropy.coordinates` module.
+            in which case it is resolved using online services or as the
+            appropriate `astropy.coordinates` object. ICRS coordinates may also
+            be entered as strings as specified in the `astropy.coordinates`
+            module.
         radius : str or `astropy.units.Quantity` object, optional
-            The string must be parsable by `astropy.coordinates.Angle`. The appropriate
-            `Quantity` object from `astropy.units` may also be used. Defaults to 2 arcsec.
+            The string must be parsable by `astropy.coordinates.Angle`. The
+            appropriate `Quantity` object from `astropy.units` may also be
+            used. Defaults to 2 arcsec.
         fields : list, optional
             SDSS PhotoObj or SpecObj quantities to return. If None, defaults
             to quantities required to find corresponding spectra and images
             of matched objects (e.g. plate, fiberID, mjd, etc.).
         spectro : bool, optional
-            Look for spectroscopic match in addition to photometric match? If True,
-            objects will only count as a match if photometry *and* spectroscopy
-            exist. If False, will look for photometric matches only.
+            Look for spectroscopic match in addition to photometric match? If
+            True, objects will only count as a match if photometry *and*
+            spectroscopy exist. If False, will look for photometric matches
+            only.
 
         Examples
         --------
@@ -148,11 +152,9 @@ class SDSSClass(BaseQuery):
 
         if not matches:
             request_payload = self._args_to_payload(
-                                    fields=['instrument', 'run2d', 'plate',
-                                            'mjd', 'fiberID'],
-                                    coordinates=coordinates, radius=radius,
-                                    spectro=True, plate=plate, mjd=mjd,
-                                    fiberID=fiberID)
+                fields=['instrument', 'run2d', 'plate', 'mjd', 'fiberID'],
+                coordinates=coordinates, radius=radius, spectro=True,
+                plate=plate, mjd=mjd, fiberID=fiberID)
             if get_query_payload:
                 return request_payload
             r = requests.get(SDSS.QUERY_URL, params=request_payload)
@@ -172,7 +174,6 @@ class SDSSClass(BaseQuery):
 
             results.append(commons.FileContainer(link))
 
-
         return results
 
     @prepend_docstr_noreturns(get_spectra_async.__doc__)
@@ -187,7 +188,7 @@ class SDSSClass(BaseQuery):
         readable_objs = self.get_spectra_async(coordinates=coordinates,
                                                radius=radius, matches=matches,
                                                plate=plate, fiberID=fiberID,
-                                               mjd=mjd )
+                                               mjd=mjd)
 
         return [obj.get_fits() for obj in readable_objs]
 
@@ -228,7 +229,8 @@ class SDSSClass(BaseQuery):
         field : integer, optional
             Part of a camcol of size 2048 by 1489 pixels.
         band : str, list
-            Could be individual band, or list of bands. Options: u, g, r, i, or z
+            Could be individual band, or list of bands.
+            Options: u, g, r, i, or z
 
         Returns
         -------
@@ -239,10 +241,9 @@ class SDSSClass(BaseQuery):
         """
         if not matches:
             request_payload = self._args_to_payload(
-                                    fields=['run', 'rerun', 'camcol', 'field'],
-                                    coordinates=coordinates, radius=radius,
-                                    spectro=False, run=run, rerun=rerun,
-                                    camcol=camcol, field=field)
+                fields=['run', 'rerun', 'camcol', 'field'],
+                coordinates=coordinates, radius=radius, spectro=False, run=run,
+                rerun=rerun, camcol=camcol, field=field)
             if get_query_payload:
                 return request_payload
             r = requests.get(SDSS.QUERY_URL, params=request_payload)
@@ -265,7 +266,6 @@ class SDSSClass(BaseQuery):
                 results.append(commons.FileContainer(link))
 
         return results
-
 
     @prepend_docstr_noreturns(get_images_async.__doc__)
     def get_images(self, coordinates=None, radius=u.degree / 1800.,
@@ -330,7 +330,6 @@ class SDSSClass(BaseQuery):
 
         return results
 
-
     @prepend_docstr_noreturns(get_spectral_template_async.__doc__)
     def get_spectral_template(self, kind='qso'):
         """
@@ -378,12 +377,14 @@ class SDSSClass(BaseQuery):
         ----------
         coordinates : str or `astropy.coordinates` object
             The target around which to search. It may be specified as a string
-            in which case it is resolved using online services or as the appropriate
-            `astropy.coordinates` object. ICRS coordinates may also be entered as strings
-            as specified in the `astropy.coordinates` module.
+            in which case it is resolved using online services or as the
+            appropriate `astropy.coordinates` object. ICRS coordinates may also
+            be entered as strings as specified in the `astropy.coordinates`
+            module.
         radius : str or `astropy.units.Quantity` object, optional
-            The string must be parsable by `astropy.coordinates.Angle`. The appropriate
-            `Quantity` object from `astropy.units` may also be used. Defaults to 2 arcsec.
+            The string must be parsable by `astropy.coordinates.Angle`. The
+            appropriate `Quantity` object from `astropy.units` may also be
+            used. Defaults to 2 arcsec.
         fields : list, optional
             SDSS PhotoObj or SpecObj quantities to return. If None, defaults
             to quantities required to find corresponding spectra and images
@@ -446,7 +447,7 @@ class SDSSClass(BaseQuery):
 
             ra = coordinates.ra.degree
             dec = coordinates.dec.degree
-            dr = commons.radius_to_unit(radius,'degree')
+            dr = commons.radius_to_unit(radius, 'degree')
 
             q_where = ('WHERE (p.ra between %g and %g) and '
                        '(p.dec between %g and %g)'
