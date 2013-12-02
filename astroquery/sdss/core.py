@@ -10,8 +10,6 @@ Description: Access Sloan Digital Sky Survey database online.
 """
 
 import numpy as np
-import copy
-from astropy.io import fits
 from astropy import units as u
 from astropy.table import Table
 import requests
