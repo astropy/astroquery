@@ -14,12 +14,24 @@ class TestSDSSRemote:
     def test_sdss_spectrum(self):
         xid = sdss.core.SDSS.query_region(self.coords, spectro=True)
         assert isinstance(xid, Table)
-        sp = sdss.core.SDSS.get_spectra(xid)
-        
+        sp = sdss.core.SDSS.get_spectra(matches=xid)
+
+    def test_sdss_spectrum_mjd(self):
+        sp = sdss.core.SDSS.get_spectra(plate=2345, fiberID=572)
+
+    def test_sdss_spectrum_coords(self):
+        sp = sdss.core.SDSS.get_spectra(self.coords)
+
     def test_sdss_image(self):
         xid = sdss.core.SDSS.query_region(self.coords)
         assert isinstance(xid, Table)
-        img = sdss.core.SDSS.get_images(xid)
-        
+        img = sdss.core.SDSS.get_images(matches=xid)
+
     def test_sdss_template(self):
         template = sdss.core.SDSS.get_spectral_template('qso')
+
+    def test_sdss_image_run(self):
+        img = sdss.core.SDSS.get_images(run=1904, camcol=3, field=164)
+
+    def test_sdss_image_coord(self):
+        img = sdss.core.SDSS.get_images(self.coords)

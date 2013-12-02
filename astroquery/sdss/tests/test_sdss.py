@@ -50,12 +50,24 @@ coords = coordinates.ICRS('0h8m05.63s +14d50m23.3s')
 
 def test_sdss_spectrum(patch_get, patch_get_readable_fileobj, coords=coords):
     xid = sdss.core.SDSS.query_region(coords, spectro=True)
-    sp = sdss.core.SDSS.get_spectra(xid)
-    
+    sp = sdss.core.SDSS.get_spectra(matches=xid)
+
+def test_sdss_spectrum_mjd(patch_get, patch_get_readable_fileobj):
+    sp = sdss.core.SDSS.get_spectra(plate=2345, fiberID=572)
+
+def test_sdss_spectrum_coords(patch_get, patch_get_readable_fileobj,
+                              coords=coords):
+    sp = sdss.core.SDSS.get_spectra(coords)
+
 def test_sdss_image(patch_get, patch_get_readable_fileobj, coords=coords):
     xid = sdss.core.SDSS.query_region(coords)
-    img = sdss.core.SDSS.get_images(xid)
-    
+    img = sdss.core.SDSS.get_images(matches=xid)
+
+def test_sdss_image_run(patch_get, patch_get_readable_fileobj):
+    img = sdss.core.SDSS.get_images(run=1904, camcol=3, field=164)
+
+def test_sdss_image_coord(patch_get, patch_get_readable_fileobj, coord=coords):
+    img = sdss.core.SDSS.get_images(coords)
+
 def test_sdss_template(patch_get, patch_get_readable_fileobj):
     template = sdss.core.SDSS.get_spectral_template('qso')
-
