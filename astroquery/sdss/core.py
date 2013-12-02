@@ -149,10 +149,12 @@ class SDSSClass(BaseQuery):
         """
 
         if not matches:
-            request_payload = self._args_to_payload(coordinates=coordinates,
-                                                    radius=radius, spectro=True,
-                                                    plate=plate, mjd=mjd,
-                                                    fiberID=fiberID)
+            request_payload = self._args_to_payload(
+                                    fields=['instrument', 'run2d', 'plate',
+                                            'mjd', 'fiberID'],
+                                    coordinates=coordinates, radius=radius,
+                                    spectro=True, plate=plate, mjd=mjd,
+                                    fiberID=fiberID)
             if get_query_payload:
                 return request_payload
             r = requests.get(SDSS.QUERY_URL, params=request_payload)
@@ -238,11 +240,11 @@ class SDSSClass(BaseQuery):
 
         """
         if not matches:
-            request_payload = self._args_to_payload(coordinates=coordinates,
-                                                    radius=radius,
-                                                    spectro=False,
-                                                    run=run, rerun=rerun,
-                                                    camcol=camcol, field=field)
+            request_payload = self._args_to_payload(
+                                    fields=['run', 'rerun', 'camcol', 'field'],
+                                    coordinates=coordinates, radius=radius,
+                                    spectro=False, run=run, rerun=rerun,
+                                    camcol=camcol, field=field)
             if get_query_payload:
                 return request_payload
             r = requests.get(SDSS.QUERY_URL, params=request_payload)
@@ -424,7 +426,7 @@ class SDSSClass(BaseQuery):
             fields += specobj_defs
 
         # Construct SQL query
-        q_select = 'SELECT '
+        q_select = 'SELECT DISTINCT '
         for sql_field in fields:
             if sql_field in photoobj_defs:
                 q_select += 'p.%s,' % sql_field
