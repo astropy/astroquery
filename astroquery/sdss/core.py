@@ -89,17 +89,20 @@ class SDSSClass(BaseQuery):
         >>> from astropy import coordinates as coords
         >>> co = coords.ICRS('0h8m05.63s +14d50m23.3s')
         >>> result = SDSS.query_region(co)
-        >>> print(result)
-            ra         dec           objid        run  rerun camcol field
-        ---------- ----------- ------------------ ---- ----- ------ -----
-        2.02344483 14.83982059 587727221951234166 1739    40      3   315
-        2.02344483 14.83982059 587727221951234165 1739    40      3   315
-        2.02345465 14.83983064 587727221951234164 1739    40      3   315
+        >>> print(result[:5])
+              ra           dec             objid        run  rerun camcol field
+        ------------- ------------- ------------------- ---- ----- ------ -----
+        2.02344282607 14.8398204075 1237653651835781245 1904   301      3   163
+        2.02344283666 14.8398204143 1237653651835781244 1904   301      3   163
+        2.02344596595 14.8398237229 1237652943176138867 1739   301      3   315
+        2.02344596303 14.8398237521 1237652943176138868 1739   301      3   315
+        2.02344772021 14.8398201105 1237653651835781243 1904   301      3   163
 
         Returns
         -------
         result : `astropy.table.Table`
             The result of the query as an `astropy.table.Table` object.
+
         """
 
         request_payload = self._args_to_payload(coordinates=coordinates,
@@ -119,8 +122,12 @@ class SDSSClass(BaseQuery):
 
         Parameters
         ----------
-        At least one of `coordinates`, `matches`, `plate`, `mjd` or `fiberID`
-        must be specified.
+        The query can be made with one the following groups of parameters
+        (whichever comes first is used):
+          - `matches` (result of a call to `query_region`);
+          - `coordinates`, `radius`;
+          - `plate`, `mjd`, `fiberID`.
+        See below for examples.
 
         coordinates : str or `astropy.coordinates` object
             The target around which to search. It may be specified as a string
@@ -147,6 +154,21 @@ class SDSSClass(BaseQuery):
         A list of context-managers that yield readable file-like objects. The
         function returns the spectra for only one of `matches`, or
         `coordinates` and `radius`, or `plate`, `mjd` and `fiberID`.
+
+        Examples
+        --------
+        Using results from a call to `query_region`:
+        >>> from astropy import coordinates as coords
+        >>> from astroquery.sdss import SDSS
+        >>> co = coords.ICRS('0h8m05.63s +14d50m23.3s')
+        >>> result = SDSS.query_region(co, spectro=True)
+        >>> spec = SDSS.get_spectra(matches=result)
+
+        Using coordinates directly:
+        >>> spec = SDSS.get_spectra(co)
+
+        Fetch the spectra from all fibers on plate 751 with mjd 52251:
+        >>> specs = SDSS.get_spectra(plate=751, mjd=52251)
 
         """
 
@@ -183,6 +205,7 @@ class SDSSClass(BaseQuery):
         Returns
         -------
         List of PyFITS HDUList objects.
+
         """
 
         readable_objs = self.get_spectra_async(coordinates=coordinates,
@@ -203,8 +226,12 @@ class SDSSClass(BaseQuery):
 
         Parameters
         ----------
-        At least one of `coordinates`, `matches`, `plate`, `mjd` or `fiberID`
-        must be specified.
+        The query can be made with one the following groups of parameters
+        (whichever comes first is used):
+          - `matches` (result of a call to `query_region`);
+          - `coordinates`, `radius`;
+          - `run`, `rerun`, `camcol`, `field`.
+        See below for examples.
 
         coordinates : str or `astropy.coordinates` object
             The target around which to search. It may be specified as a string
@@ -234,9 +261,25 @@ class SDSSClass(BaseQuery):
 
         Returns
         -------
-        List of PyFITS HDUList objects. The function returns the images for
-        only one of `matches`, or `coordinates` and `radius`, or `run`,
-        `camcol` and `field`.
+        List of PyFITS HDUList objects.
+
+        Examples
+        --------
+        Using results from a call to `query_region`:
+        >>> from astropy import coordinates as coords
+        >>> from astroquery.sdss import SDSS
+        >>> co = coords.ICRS('0h8m05.63s +14d50m23.3s')
+        >>> result = SDSS.query_region(co)
+        >>> imgs = SDSS.get_images(matches=result)
+
+        Using coordinates directly:
+        >>> imgs = SDSS.get_images(co)
+
+        Fetch the images from all runs with camcol 3 and field 164:
+        >>> imgs = SDSS.get_images(camcol=3, field=164)
+
+        Fetch only images from run 1904, camcol 3 and field 164:
+        >>> imgs = SDSS.get_images(run=1904, camcol=3, field=164)
 
         """
         if not matches:
@@ -275,6 +318,7 @@ class SDSSClass(BaseQuery):
         Returns
         -------
         List of PyFITS HDUList objects.
+
         """
 
         readable_objs = self.get_images_async(coordinates=coordinates,
@@ -313,6 +357,7 @@ class SDSSClass(BaseQuery):
         Returns
         -------
         List of PyFITS HDUList objects.
+
         """
 
         if kind == 'all':
@@ -336,6 +381,7 @@ class SDSSClass(BaseQuery):
         Returns
         -------
         List of PyFITS HDUList objects.
+
         """
 
         readable_objs = self.get_spectral_template_async(kind=kind)
@@ -350,11 +396,12 @@ class SDSSClass(BaseQuery):
         Parameters
         ----------
         response : `requests.Response`
-            Result of requests -> np.atleast1d.
+            Result of requests -> np.atleast_1d.
 
         Returns
         -------
         table : `astropy.table.Table`
+
         """
 
         arr = np.atleast_1d(np.genfromtxt(io.BytesIO(response.content),
@@ -417,6 +464,7 @@ class SDSSClass(BaseQuery):
         Returns
         -------
         request_payload : dict
+
         """
         # Fields to return
         if fields is None:
