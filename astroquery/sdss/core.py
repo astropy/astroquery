@@ -15,7 +15,7 @@ from astropy.table import Table
 import requests
 import io
 from ..query import BaseQuery
-from . import SDSS_SERVER, SDSS_MAXQUERY
+from . import SDSS_SERVER, SDSS_MAXQUERY, SDSS_TIMEOUT
 from ..utils import commons, async_to_sync
 from ..utils.docstr_chompers import prepend_docstr_noreturns
 
@@ -51,11 +51,12 @@ class SDSSClass(BaseQuery):
     TEMPLATES = 'http://www.sdss.org/dr7/algorithms/spectemplates/spDR2'
     MAXQUERIES = SDSS_MAXQUERY()
     AVAILABLE_TEMPLATES = spec_templates
+    TIMEOUT = SDSS_TIMEOUT()
 
     QUERY_URL = 'http://skyserver.sdss3.org/public/en/tools/search/x_sql.aspx'
 
     def query_region_async(self, coordinates, radius=u.degree / 1800.,
-                           fields=None, spectro=False,
+                           fields=None, spectro=False, timeout=TIMEOUT,
                            get_query_payload=False):
         """
         Used to query a region around given coordinates. Equivalent to
@@ -82,6 +83,9 @@ class SDSSClass(BaseQuery):
             True, objects will only count as a match if photometry *and*
             spectroscopy exist. If False, will look for photometric matches
             only.
+        timeout : float, optional
+            Time limit (in seconds) for establishing successful connection with
+            remote server.  Defaults to `astroquery.sdss.SDSS.TIMEOUT`.
 
         Examples
         --------
@@ -110,7 +114,8 @@ class SDSSClass(BaseQuery):
                                                 spectro=spectro)
         if get_query_payload:
             return request_payload
-        r = requests.get(SDSS.QUERY_URL, params=request_payload)
+        r = requests.get(SDSS.QUERY_URL, params=request_payload,
+                         timeout=timeout)
 
         return r
 
