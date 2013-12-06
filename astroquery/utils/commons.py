@@ -12,6 +12,12 @@ import os
 import shutil
 import socket
 
+try:
+    from urllib2 import URLError
+except ImportError:
+    # Python 3
+    from urllib.error import URLError
+
 import astropy.units as u
 from astropy import coordinates as coord
 from astropy.utils import OrderedDict
@@ -329,14 +335,8 @@ class FileContainer(object):
     def __init__(self, target, **kwargs):
         kwargs.setdefault('cache', True)
         self._target = target
-        try:
-            self._readable_object = aud.get_readable_fileobj(target, **kwargs)
-        except URLError as e:
-            if isinstance(e.reason, socket.timeout):
-                raise TimeoutError("Query timed out, time elapsed {}s".
-                    format(kwargs.get(remote_timeout, aud.REMOTE_TIMEOUT())))
-            else:
-                raise e
+        self._timeout = kwargs.get('remote_timeout', aud.REMOTE_TIMEOUT())
+        self._readable_object = aud.get_readable_fileobj(target, **kwargs)
 
     def get_fits(self):
         """
@@ -395,8 +395,15 @@ class FileContainer(object):
         Download the file as a string
         """
         if not hasattr(self,'_string'):
-            with self._readable_object as f:
-                self._string = f.read()
+            try:
+                with self._readable_object as f:
+                    self._string = f.read()
+            except URLError as e:
+                if isinstance(e.reason, socket.timeout):
+                    raise TimeoutError("Query timed out, time elapsed {}s".
+                                       format(self._timeout))
+                else:
+                    raise e
 
         return self._string
 
