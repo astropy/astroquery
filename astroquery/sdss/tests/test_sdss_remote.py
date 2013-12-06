@@ -36,3 +36,11 @@ class TestSDSSRemote:
 
     def test_sdss_image_coord(self):
         img = sdss.core.SDSS.get_images(self.coords)
+
+    def test_sdss_specobj(self):
+        xid = sdss.core.SDSS.query_specobj(plate=2340)
+        assert isinstance(xid, Table)
+
+    def test_sdss_photoobj(self):
+        xid = sdss.core.SDSS.query_photoobj(run=1904, camcol=3, field=164)
+        assert isinstance(xid, Table)

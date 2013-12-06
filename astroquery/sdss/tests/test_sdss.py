@@ -82,3 +82,11 @@ def test_sdss_image_coord(patch_get, patch_get_readable_fileobj, coord=coords):
 
 def test_sdss_template(patch_get, patch_get_readable_fileobj):
     template = sdss.core.SDSS.get_spectral_template('qso')
+
+
+def test_sdss_specobj(patch_get):
+    xid = sdss.core.SDSS.query_specobj(plate=2340)
+
+
+def test_sdss_photoobj(patch_get):
+    xid = sdss.core.SDSS.query_photoobj(run=1904, camcol=3, field=164)
