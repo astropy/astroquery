@@ -114,6 +114,115 @@ class SDSSClass(BaseQuery):
 
         return r
 
+    def query_specobj_async(self, plate=None, mjd=None, fiberID=None, 
+                            fields=None, get_query_payload=False):
+        """
+        Used to query the SpecObjAll table with plate, mjd and fiberID values.
+
+        Parameters
+        ----------
+        At least one of `plate`, `mjd` or `fiberID` must be specified.
+
+        plate : integer, optional
+            Plate number.
+        mjd : integer, optional
+            Modified Julian Date indicating the date a given piece of SDSS data
+            was taken.
+        fiberID : integer, optional
+            Fiber number.
+        fields : list, optional
+            SDSS PhotoObj or SpecObj quantities to return. If None, defaults
+            to quantities required to find corresponding spectra and images
+            of matched objects (e.g. plate, fiberID, mjd, etc.).
+
+        Examples
+        --------
+        >>> from astroquery.sdss import SDSS
+        >>> result = SDSS.query_specobj(plate=2340,
+        ...     fields=['ra', 'dec','plate', 'mjd', 'fiberID', 'specobjid'])
+        >>> print(result[:5])
+              ra           dec      plate  mjd  fiberID      specobjid     
+        ------------- ------------- ----- ----- ------- -------------------
+        49.2020613611 5.20883041368  2340 53733      60 2634622337315530752
+        48.3745360119 5.26557511598  2340 53733     154 2634648175838783488
+        47.1604269095 5.48241410994  2340 53733     332 2634697104106219520
+        48.6634992214 6.69459110287  2340 53733     553 2634757852123654144
+        48.0759195428 6.18757403485  2340 53733     506 2634744932862027776
+
+        Returns
+        -------
+        result : `astropy.table.Table`
+            The result of the query as an `astropy.table.Table` object.
+
+        """
+
+        if plate is None and mjd is None and fiberID is None:
+            raise ValueError('must specify at least one of '
+                             '`plate`, `mjd` or `fiberID`')
+        request_payload = self._args_to_payload(plate=plate, mjd=mjd,
+                fiberID=fiberID, fields=fields, spectro=True)
+        if get_query_payload:
+            return request_payload
+        r = requests.get(SDSS.QUERY_URL, params=request_payload)
+
+        return r
+
+    def query_photoobj_async(self, run=None, rerun=301, camcol=None,
+                             field=None, fields=None, get_query_payload=False):
+        """
+        Used to query the PhotoObjAll table with run, rerun, camcol and field
+        values.
+
+        Parameters
+        ----------
+        At least one of `run`, `camcol` or `field` must be specified.
+
+        run : integer, optional
+            Length of a strip observed in a single continuous image observing
+            scan.
+        rerun : integer, optional
+            Reprocessing of an imaging run. Defaults to 301 which is the most
+            recent rerun.
+        camcol : integer, optional
+            Output of one camera column of CCDs.
+        field : integer, optional
+            Part of a camcol of size 2048 by 1489 pixels.
+        fields : list, optional
+            SDSS PhotoObj or SpecObj quantities to return. If None, defaults
+            to quantities required to find corresponding spectra and images
+            of matched objects (e.g. plate, fiberID, mjd, etc.).
+
+        Examples
+        --------
+        >>> from astroquery.sdss import SDSS
+        >>> result = SDSS.query_photoobj(run=5714, camcol=6)
+        >>> print(result[:5])
+              ra           dec             objid        run  rerun camcol field
+        ------------- ------------- ------------------- ---- ----- ------ -----
+        30.4644529079 7.86460794626 1237670017266024498 5714   301      6    75
+        38.7635496073 7.47083098197 1237670017269628978 5714   301      6   130
+        22.2574304026 8.43175488904 1237670017262485671 5714   301      6    21
+        23.3724928784 8.32576993103 1237670017262944491 5714   301      6    28
+        25.4801226435 8.27642390025 1237670017263927330 5714   301      6    43
+
+        Returns
+        -------
+        result : `astropy.table.Table`
+            The result of the query as an `astropy.table.Table` object.
+
+        """
+
+        if run is None and camcol is None and field is None:
+            raise ValueError('must specify at least one of '
+                             '`run`, `camcol` or `field`')
+        request_payload = self._args_to_payload(run=run, rerun=rerun,
+                camcol=camcol, field=field, fields=fields, spectro=False)
+        if get_query_payload:
+            return request_payload
+        r = requests.get(SDSS.QUERY_URL, params=request_payload)
+
+        return r
+
     def get_spectra_async(self, coordinates=None, radius=u.degree / 1800.,
                           matches=None, plate=None, fiberID=None, mjd=None,
                           get_query_payload=False):
@@ -469,8 +578,8 @@ class SDSSClass(BaseQuery):
         # Fields to return
         if fields is None:
             fields = list(photoobj_defs)
-        if spectro:
-            fields += specobj_defs
+            if spectro:
+                fields += specobj_defs
 
         # Construct SQL query
         q_select = 'SELECT DISTINCT '
