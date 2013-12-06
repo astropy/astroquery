@@ -12,7 +12,6 @@ Description: Access Sloan Digital Sky Survey database online.
 import numpy as np
 from astropy import units as u
 from astropy.table import Table
-import requests
 import io
 from ..query import BaseQuery
 from . import SDSS_SERVER, SDSS_MAXQUERY, SDSS_TIMEOUT
@@ -114,8 +113,8 @@ class SDSSClass(BaseQuery):
                                                 spectro=spectro)
         if get_query_payload:
             return request_payload
-        r = requests.get(SDSS.QUERY_URL, params=request_payload,
-                         timeout=timeout)
+        r = commons.send_request(SDSS.QUERY_URL, request_payload, timeout,
+                                 request_type='GET')
 
         return r
 
@@ -187,8 +186,8 @@ class SDSSClass(BaseQuery):
                 plate=plate, mjd=mjd, fiberID=fiberID)
             if get_query_payload:
                 return request_payload
-            r = requests.get(SDSS.QUERY_URL, params=request_payload,
-                             timeout=timeout)
+            r = commons.send_request(SDSS.QUERY_URL, request_payload, timeout,
+                                     request_type='GET')
             matches = self._parse_result(r)
 
         if not isinstance(matches, Table):
@@ -303,8 +302,8 @@ class SDSSClass(BaseQuery):
                 rerun=rerun, camcol=camcol, field=field)
             if get_query_payload:
                 return request_payload
-            r = requests.get(SDSS.QUERY_URL, params=request_payload,
-                             timeout=timeout)
+            r = commons.send_request(SDSS.QUERY_URL, request_payload, timeout,
+                                     request_type='GET')
             matches = self._parse_result(r)
 
         if not isinstance(matches, Table):
