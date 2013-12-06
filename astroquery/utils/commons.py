@@ -325,10 +325,10 @@ class FileContainer(object):
     files.
     """
 
-    def __init__(self, target, cache=True):
-
+    def __init__(self, target, **kwargs):
+        kwargs.setdefault('cache', True)
         self._target = target
-        self._readable_object = aud.get_readable_fileobj(target, cache=cache)
+        self._readable_object = aud.get_readable_fileobj(target, **kwargs)
 
     def get_fits(self):
         """
