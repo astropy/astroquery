@@ -118,7 +118,7 @@ class SDSSClass(BaseQuery):
 
         return r
 
-    def query_specobj_async(self, plate=None, mjd=None, fiberID=None, 
+    def query_specobj_async(self, plate=None, mjd=None, fiberID=None,
                             fields=None, timeout=TIMEOUT,
                             get_query_payload=False):
         """
@@ -149,7 +149,7 @@ class SDSSClass(BaseQuery):
         >>> result = SDSS.query_specobj(plate=2340,
         ...     fields=['ra', 'dec','plate', 'mjd', 'fiberID', 'specobjid'])
         >>> print(result[:5])
-              ra           dec      plate  mjd  fiberID      specobjid     
+              ra           dec      plate  mjd  fiberID      specobjid
         ------------- ------------- ----- ----- ------- -------------------
         49.2020613611 5.20883041368  2340 53733      60 2634622337315530752
         48.3745360119 5.26557511598  2340 53733     154 2634648175838783488
@@ -168,7 +168,8 @@ class SDSSClass(BaseQuery):
             raise ValueError('must specify at least one of '
                              '`plate`, `mjd` or `fiberID`')
         request_payload = self._args_to_payload(plate=plate, mjd=mjd,
-                fiberID=fiberID, fields=fields, spectro=True)
+                                                fiberID=fiberID, fields=fields,
+                                                spectro=True)
         if get_query_payload:
             return request_payload
         r = commons.send_request(SDSS.QUERY_URL, request_payload, timeout,
@@ -229,7 +230,8 @@ class SDSSClass(BaseQuery):
             raise ValueError('must specify at least one of '
                              '`run`, `camcol` or `field`')
         request_payload = self._args_to_payload(run=run, rerun=rerun,
-                camcol=camcol, field=field, fields=fields, spectro=False)
+                                                camcol=camcol, field=field,
+                                                fields=fields, spectro=False)
         if get_query_payload:
             return request_payload
         r = commons.send_request(SDSS.QUERY_URL, request_payload, timeout,
