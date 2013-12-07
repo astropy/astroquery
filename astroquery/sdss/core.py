@@ -119,7 +119,8 @@ class SDSSClass(BaseQuery):
         return r
 
     def query_specobj_async(self, plate=None, mjd=None, fiberID=None, 
-                            fields=None, get_query_payload=False):
+                            fields=None, timeout=TIMEOUT,
+                            get_query_payload=False):
         """
         Used to query the SpecObjAll table with plate, mjd and fiberID values.
 
@@ -138,6 +139,9 @@ class SDSSClass(BaseQuery):
             SDSS PhotoObj or SpecObj quantities to return. If None, defaults
             to quantities required to find corresponding spectra and images
             of matched objects (e.g. plate, fiberID, mjd, etc.).
+        timeout : float, optional
+            Time limit (in seconds) for establishing successful connection with
+            remote server.  Defaults to `astroquery.sdss.SDSS.TIMEOUT`.
 
         Examples
         --------
@@ -167,12 +171,14 @@ class SDSSClass(BaseQuery):
                 fiberID=fiberID, fields=fields, spectro=True)
         if get_query_payload:
             return request_payload
-        r = requests.get(SDSS.QUERY_URL, params=request_payload)
+        r = commons.send_request(SDSS.QUERY_URL, request_payload, timeout,
+                                 request_type='GET')
 
         return r
 
     def query_photoobj_async(self, run=None, rerun=301, camcol=None,
-                             field=None, fields=None, get_query_payload=False):
+                             field=None, fields=None, timeout=TIMEOUT,
+                             get_query_payload=False):
         """
         Used to query the PhotoObjAll table with run, rerun, camcol and field
         values.
@@ -195,6 +201,9 @@ class SDSSClass(BaseQuery):
             SDSS PhotoObj or SpecObj quantities to return. If None, defaults
             to quantities required to find corresponding spectra and images
             of matched objects (e.g. plate, fiberID, mjd, etc.).
+        timeout : float, optional
+            Time limit (in seconds) for establishing successful connection with
+            remote server.  Defaults to `astroquery.sdss.SDSS.TIMEOUT`.
 
         Examples
         --------
@@ -223,7 +232,8 @@ class SDSSClass(BaseQuery):
                 camcol=camcol, field=field, fields=fields, spectro=False)
         if get_query_payload:
             return request_payload
-        r = requests.get(SDSS.QUERY_URL, params=request_payload)
+        r = commons.send_request(SDSS.QUERY_URL, request_payload, timeout,
+                                 request_type='GET')
 
         return r
 
