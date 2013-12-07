@@ -400,8 +400,8 @@ class FileContainer(object):
                     self._string = f.read()
             except URLError as e:
                 if isinstance(e.reason, socket.timeout):
-                    raise TimeoutError("Query timed out, time elapsed {}s".
-                                       format(self._timeout))
+                    raise TimeoutError("Query timed out, time elapsed {t}s".
+                                       format(t=self._timeout))
                 else:
                     raise e
 

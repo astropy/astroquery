@@ -13,6 +13,9 @@ SDSS_SERVER = ConfigurationItem('sdss_server', 'http://data.sdss3.org/sas/dr10',
 
 SDSS_MAXQUERY = ConfigurationItem('maxqueries', 1, 'Max number of queries allowed per second')
 
+SDSS_TIMEOUT = ConfigurationItem('timeout', 30,
+                                 'Default timeout for connecting to server')
+
 from .core import SDSS
 
 import warnings

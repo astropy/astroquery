@@ -12,10 +12,9 @@ Description: Access Sloan Digital Sky Survey database online.
 import numpy as np
 from astropy import units as u
 from astropy.table import Table
-import requests
 import io
 from ..query import BaseQuery
-from . import SDSS_SERVER, SDSS_MAXQUERY
+from . import SDSS_SERVER, SDSS_MAXQUERY, SDSS_TIMEOUT
 from ..utils import commons, async_to_sync
 from ..utils.docstr_chompers import prepend_docstr_noreturns
 
@@ -51,11 +50,12 @@ class SDSSClass(BaseQuery):
     TEMPLATES = 'http://www.sdss.org/dr7/algorithms/spectemplates/spDR2'
     MAXQUERIES = SDSS_MAXQUERY()
     AVAILABLE_TEMPLATES = spec_templates
+    TIMEOUT = SDSS_TIMEOUT()
 
     QUERY_URL = 'http://skyserver.sdss3.org/public/en/tools/search/x_sql.aspx'
 
     def query_region_async(self, coordinates, radius=u.degree / 1800.,
-                           fields=None, spectro=False,
+                           fields=None, spectro=False, timeout=TIMEOUT,
                            get_query_payload=False):
         """
         Used to query a region around given coordinates. Equivalent to
@@ -82,6 +82,9 @@ class SDSSClass(BaseQuery):
             True, objects will only count as a match if photometry *and*
             spectroscopy exist. If False, will look for photometric matches
             only.
+        timeout : float, optional
+            Time limit (in seconds) for establishing successful connection with
+            remote server.  Defaults to `astroquery.sdss.SDSS.TIMEOUT`.
 
         Examples
         --------
@@ -110,13 +113,14 @@ class SDSSClass(BaseQuery):
                                                 spectro=spectro)
         if get_query_payload:
             return request_payload
-        r = requests.get(SDSS.QUERY_URL, params=request_payload)
+        r = commons.send_request(SDSS.QUERY_URL, request_payload, timeout,
+                                 request_type='GET')
 
         return r
 
     def get_spectra_async(self, coordinates=None, radius=u.degree / 1800.,
                           matches=None, plate=None, fiberID=None, mjd=None,
-                          get_query_payload=False):
+                          timeout=TIMEOUT, get_query_payload=False):
         """
         Download spectrum from SDSS.
 
@@ -148,6 +152,9 @@ class SDSSClass(BaseQuery):
             was taken.
         fiberID : integer, optional
             Fiber number.
+        timeout : float, optional
+            Time limit (in seconds) for establishing successful connection with
+            remote server.  Defaults to `astroquery.sdss.SDSS.TIMEOUT`.
 
         Returns
         -------
@@ -179,7 +186,8 @@ class SDSSClass(BaseQuery):
                 plate=plate, mjd=mjd, fiberID=fiberID)
             if get_query_payload:
                 return request_payload
-            r = requests.get(SDSS.QUERY_URL, params=request_payload)
+            r = commons.send_request(SDSS.QUERY_URL, request_payload, timeout,
+                                     request_type='GET')
             matches = self._parse_result(r)
 
         if not isinstance(matches, Table):
@@ -194,13 +202,14 @@ class SDSSClass(BaseQuery):
                                run2d=row['run2d'], plate=row['plate'],
                                fiber=row['fiberID'], mjd=row['mjd'])
 
-            results.append(commons.FileContainer(link))
+            results.append(commons.FileContainer(link, remote_timeout=timeout))
 
         return results
 
     @prepend_docstr_noreturns(get_spectra_async.__doc__)
     def get_spectra(self, coordinates=None, radius=u.degree / 1800.,
-                    matches=None, plate=None, fiberID=None, mjd=None):
+                    matches=None, plate=None, fiberID=None, mjd=None,
+                    timeout=TIMEOUT):
         """
         Returns
         -------
@@ -211,13 +220,14 @@ class SDSSClass(BaseQuery):
         readable_objs = self.get_spectra_async(coordinates=coordinates,
                                                radius=radius, matches=matches,
                                                plate=plate, fiberID=fiberID,
-                                               mjd=mjd)
+                                               mjd=mjd, timeout=timeout)
 
         return [obj.get_fits() for obj in readable_objs]
 
     def get_images_async(self, coordinates=None, radius=u.degree / 1800.,
                          matches=None, run=None, rerun=301, camcol=None,
-                         field=None, band='g', get_query_payload=False):
+                         field=None, band='g', timeout=TIMEOUT,
+                         get_query_payload=False):
         """
         Download an image from SDSS.
 
@@ -258,6 +268,9 @@ class SDSSClass(BaseQuery):
         band : str, list
             Could be individual band, or list of bands.
             Options: u, g, r, i, or z
+        timeout : float, optional
+            Time limit (in seconds) for establishing successful connection with
+            remote server.  Defaults to `astroquery.sdss.SDSS.TIMEOUT`.
 
         Returns
         -------
@@ -289,7 +302,8 @@ class SDSSClass(BaseQuery):
                 rerun=rerun, camcol=camcol, field=field)
             if get_query_payload:
                 return request_payload
-            r = requests.get(SDSS.QUERY_URL, params=request_payload)
+            r = commons.send_request(SDSS.QUERY_URL, request_payload, timeout,
+                                     request_type='GET')
             matches = self._parse_result(r)
 
         if not isinstance(matches, Table):
@@ -306,14 +320,15 @@ class SDSSClass(BaseQuery):
                                       rerun=row['rerun'], camcol=row['camcol'],
                                       field=row['field'], band=b)
 
-                results.append(commons.FileContainer(link))
+                results.append(commons.FileContainer(link,
+                                                     remote_timeout=timeout))
 
         return results
 
     @prepend_docstr_noreturns(get_images_async.__doc__)
     def get_images(self, coordinates=None, radius=u.degree / 1800.,
                    matches=None, run=None, rerun=301, camcol=None,
-                   field=None, band='g'):
+                   field=None, band='g', timeout=TIMEOUT):
         """
         Returns
         -------
@@ -325,12 +340,12 @@ class SDSSClass(BaseQuery):
                                               radius=radius, matches=matches,
                                               run=run, rerun=rerun,
                                               camcol=camcol, field=field,
-                                              band=band,
+                                              band=band, timeout=timeout,
                                               get_query_payload=False)
 
         return [obj.get_fits() for obj in readable_objs]
 
-    def get_spectral_template_async(self, kind='qso'):
+    def get_spectral_template_async(self, kind='qso', timeout=TIMEOUT):
         """
         Download spectral templates from SDSS DR-2, which are located here:
 
@@ -347,6 +362,9 @@ class SDSSClass(BaseQuery):
         kind : str, list
             Which spectral template to download? Options are stored in the
             dictionary astroquery.sdss.SDSS.AVAILABLE_TEMPLATES
+        timeout : float, optional
+            Time limit (in seconds) for establishing successful connection with
+            remote server.  Defaults to `astroquery.sdss.SDSS.TIMEOUT`.
 
         Examples
         --------
@@ -371,12 +389,12 @@ class SDSSClass(BaseQuery):
         for index in indices:
             name = str(index).zfill(3)
             link = '%s-%s.fit' % (SDSS.TEMPLATES, name)
-            results.append(commons.FileContainer(link))
+            results.append(commons.FileContainer(link, remote_timeout=timeout))
 
         return results
 
     @prepend_docstr_noreturns(get_spectral_template_async.__doc__)
-    def get_spectral_template(self, kind='qso'):
+    def get_spectral_template(self, kind='qso', timeout=TIMEOUT):
         """
         Returns
         -------
@@ -384,7 +402,8 @@ class SDSSClass(BaseQuery):
 
         """
 
-        readable_objs = self.get_spectral_template_async(kind=kind)
+        readable_objs = self.get_spectral_template_async(kind=kind,
+                                                         timeout=timeout)
 
         return [obj.get_fits() for obj in readable_objs]
 
