@@ -10,6 +10,13 @@ import warnings
 import io
 import os
 import shutil
+import socket
+
+try:
+    from urllib2 import URLError
+except ImportError:
+    # Python 3
+    from urllib.error import URLError
 
 import astropy.units as u
 from astropy import coordinates as coord
@@ -176,7 +183,7 @@ def coord_to_radec(coordinate):
     """
     Wrapper to turn any astropy coordinate into FK5 RA in Hours and FK5 Dec in
     degrees
-    
+
     This is a hack / temporary wrapper to deal with the unstable astropy API
     """
     if hasattr(coordinate.fk5.ra,'hour'):
@@ -207,7 +214,7 @@ class TableList(list):
                 inp = OrderedDict(inp)
             except (TypeError,ValueError):
                 raise ValueError("Input to TableList must be an OrderedDict or list of (k,v) pairs")
-        
+
         self._dict = inp
         super(TableList,self).__init__(inp.values())
 
@@ -325,10 +332,11 @@ class FileContainer(object):
     files.
     """
 
-    def __init__(self, target, cache=True):
-
+    def __init__(self, target, **kwargs):
+        kwargs.setdefault('cache', True)
         self._target = target
-        self._readable_object = aud.get_readable_fileobj(target, cache=cache)
+        self._timeout = kwargs.get('remote_timeout', aud.REMOTE_TIMEOUT())
+        self._readable_object = aud.get_readable_fileobj(target, **kwargs)
 
     def get_fits(self):
         """
@@ -387,8 +395,15 @@ class FileContainer(object):
         Download the file as a string
         """
         if not hasattr(self,'_string'):
-            with self._readable_object as f:
-                self._string = f.read()
+            try:
+                with self._readable_object as f:
+                    self._string = f.read()
+            except URLError as e:
+                if isinstance(e.reason, socket.timeout):
+                    raise TimeoutError("Query timed out, time elapsed {}s".
+                                       format(self._timeout))
+                else:
+                    raise e
 
         return self._string
 

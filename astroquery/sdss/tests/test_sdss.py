@@ -1,12 +1,18 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from ... import sdss
 from ...utils.testing_tools import MockResponse
+from ...exceptions import TimeoutError
 from astropy import coordinates
 from astropy.tests.helper import pytest
 from contextlib import contextmanager
 import astropy.utils.data as aud
 import requests
 import os
+import socket
+try:
+    from urllib2 import URLError
+except ImportError:
+    from urllib.error import URLError
 
 # actual spectra/data are a bit heavy to include in astroquery, so we don't try
 # to deal with them.  Would be nice to find a few very small examples
@@ -25,11 +31,31 @@ def patch_get(request):
 
 
 @pytest.fixture
+def patch_get_slow(request):
+    mp = request.getfuncargvalue("monkeypatch")
+    mp.setattr(requests, 'get', get_mockreturn_slow)
+    return mp
+
+
+@pytest.fixture
 def patch_get_readable_fileobj(request):
     @contextmanager
     def get_readable_fileobj_mockreturn(filename, **kwargs):
         file_obj = data_path(DATA_FILES['spectra'])  # TODO: add images option
         yield open(file_obj)
+    mp = request.getfuncargvalue("monkeypatch")
+    mp.setattr(aud, 'get_readable_fileobj', get_readable_fileobj_mockreturn)
+    return mp
+
+
+@pytest.fixture
+def patch_get_readable_fileobj_slow(request):
+    @contextmanager
+    def get_readable_fileobj_mockreturn(filename, **kwargs):
+        e = URLError('timeout')
+        e.reason = socket.timeout()
+        raise e
+        yield True
     mp = request.getfuncargvalue("monkeypatch")
     mp.setattr(aud, 'get_readable_fileobj', get_readable_fileobj_mockreturn)
     return mp
@@ -42,6 +68,10 @@ def get_mockreturn(url, params=None, timeout=10, **kwargs):
         filename = data_path(DATA_FILES['images_id'])
     content = open(filename, 'r').read()
     return MockResponse(content, **kwargs)
+
+
+def get_mockreturn_slow(url, params=None, timeout=10, **kwargs):
+    raise requests.exceptions.Timeout('timeout')
 
 
 def data_path(filename):
@@ -90,3 +120,18 @@ def test_sdss_specobj(patch_get):
 
 def test_sdss_photoobj(patch_get):
     xid = sdss.core.SDSS.query_photoobj(run=1904, camcol=3, field=164)
+
+
+def test_query_timeout(patch_get_slow, coord=coords):
+    with pytest.raises(TimeoutError):
+        xid = sdss.core.SDSS.query_region(coords, timeout=1)
+
+
+def test_spectra_timeout(patch_get, patch_get_readable_fileobj_slow):
+    with pytest.raises(TimeoutError):
+        sp = sdss.core.SDSS.get_spectra(plate=2345, fiberID=572)
+
+
+def test_images_timeout(patch_get, patch_get_readable_fileobj_slow):
+    with pytest.raises(TimeoutError):
+        img = sdss.core.SDSS.get_images(run=1904, camcol=3, field=164)
