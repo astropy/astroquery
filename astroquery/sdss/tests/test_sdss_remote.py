@@ -39,6 +39,48 @@ class TestSDSSRemote:
     def test_sdss_image_coord(self):
         img = sdss.core.SDSS.get_images(self.coords)
 
+    def test_sdss_specobj(self):
+        colnames = ['ra', 'dec', 'objid', 'run', 'rerun', 'camcol', 'field',
+                    'z', 'plate', 'mjd', 'fiberID', 'specobjid', 'run2d',
+                    'instrument']
+        dtypes = [float, float, int, int, int, int, int, float, int, int, int,
+                  int, int, str]
+        data = [
+            [46.8390680395307, 5.16972676625711, 1237670015125750016, 5714,
+             301, 2, 185, -0.0006390358, 2340, 53733, 291, 2634685834112034816,
+             26, 'SDSS'],
+            [46.8705377929765, 5.42458826592292, 1237670015662621224, 5714,
+             301, 3, 185, 0, 2340, 53733, 3, 2634606669274834944, 26, 'SDSS'],
+            [46.8899751105478, 5.09432755808192, 1237670015125815346, 5714,
+             301, 2, 186, -4.898809E-05, 2340, 53733, 287, 2634684734600407040,
+             26, 'SDSS'],
+            [46.8954031261838, 5.9739184644185, 1237670016199491831, 5714,
+             301, 4, 185, 0, 2340, 53733, 329, 2634696279472498688, 26,
+             'SDSS'],
+            [46.9155836662379, 5.50671723824944, 1237670015662686398, 5714,
+             301, 3, 186, 0, 2340, 53733, 420, 2634721293362030592, 26,
+             'SDSS']]
+        table = Table(data=zip(*data), names=colnames, dtypes=dtypes)
+        xid = sdss.core.SDSS.query_specobj(plate=2340)
+        assert isinstance(xid, Table)
+        for row in table:
+            assert row in xid
+
+    def test_sdss_photoobj(self):
+        colnames = [ 'ra', 'dec', 'objid', 'run', 'rerun', 'camcol', 'field']
+        dtypes = [float, float, int, int, int, int, int]
+        data = [
+            [2.01401566011947, 14.9014376776107, 1237653651835846751, 1904, 301, 3, 164],
+            [2.01643436080644, 14.8109761280994, 1237653651835846753, 1904, 301, 3, 164],
+            [2.03003450430003, 14.7653903655885, 1237653651835846845, 1904, 301, 3, 164],
+            [2.01347376262532, 14.8681488509887, 1237653651835846661, 1904, 301, 3, 164],
+            [2.18077144165426, 14.8482787058708, 1237653651835847302, 1904, 301, 3, 164]]
+        table = Table(data=zip(*data), names=colnames, dtypes=dtypes)
+        xid = sdss.core.SDSS.query_photoobj(run=1904, camcol=3, field=164)
+        assert isinstance(xid, Table)
+        for row in table:
+            assert row in xid
+
     def test_query_timeout(self):
         with pytest.raises(TimeoutError):
             xid = sdss.core.SDSS.query_region(self.coords, timeout=0.00001)
