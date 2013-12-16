@@ -16,7 +16,9 @@ radius. Similar to the VizieR web interface, the queries may be further
 constrained by specifying a choice of catalogs, keywords as well as filters on
 individual columns before retrieving the results.
 
-**Table Discovery**
+Table Discover
+--------------
+
 
 If you want to search for a set of tables, e.g. based on author name or other keywords,
 the `~astroquery.vizier.Vizier.find_catalogs` tool can be used:
@@ -35,7 +37,9 @@ the `~astroquery.vizier.Vizier.find_catalogs` tool can be used:
 From this result, you could either get any of these as a complete catalog or
 query them for individual objects or regions. 
 
-**Get a whole catalog**
+Get a whole catalog
+-------------------
+
 
 If you know the name of the catalog you wish to retrieve, e.g. from doing a
 `~astroquery.vizier.Vizier.find_catalogs` search as above, you can then grab
@@ -64,7 +68,9 @@ complete catalog, you need to change that:
        '2:J/ApJS/191/232/map' with 2 column(s) and 2 row(s) 
     >>> Vizier.ROW_LIMIT = 50
 
-**Query an object**
+Query an object
+---------------
+
 
 For instance to query Sirius across all catalogs:
 
@@ -107,7 +113,9 @@ object, do just what you would do for a python dictionary:
             # table is now an `astropy.table.Table` object
             # some code to apply on table
 
-**Query a region**
+Query a region
+--------------
+
 
 To query a region either the coordinates or the object name around which to
 query should be specified along with the value for the radius (or height/width
@@ -173,7 +181,9 @@ coordinate. Finally the `catalog` keyword argument may be passed in either
 `Vizier.query_object` or `Vizier.query_region` methods. This may be a string
 (if only a single catalog) or a list of strings otherwise.
 
-**Specifying keywords, output columns and constraints on columns**
+Specifying keywords, output columns and constraints on columns
+--------------------------------------------------------------
+
 
 To specify keywords on which to search as well as conditions on the output
 columns, an instance of the `Vizier` class specifying these must be first
@@ -237,7 +247,9 @@ the `"+"` in front of `"_r"`.
 
 Note: The special column `"*"` requests just the default columns of a catalog; `"**"` would request all the columns. 
 
-**Query with table**
+Query with table
+----------------
+
 
 An `astropy.table.Table`_ can also be used in a region query. The following example
 starts by looking for AGNs in the Veron & Cety catalog with a `Vmag` between 10.0 and 11.0. Based on the
@@ -245,7 +257,7 @@ result of this first query, guide stars with a `Kmag` brighter than 9.0 are look
 between 2 and 30 arcsec. The column `_q` in the `guide` table is a 1-based index to the `agn` table (not the 0-based
 python convention).
 
-..code-block:: python
+.. code-block:: python
 
     >>> agn = Vizier(catalog="VII/258/vv10").query_constraints(Vmag="10.0..11.0")[0]
     >>> agn.pprint()
