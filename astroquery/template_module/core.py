@@ -340,3 +340,6 @@ class DummyClass(BaseQuery):
 
 # once your class is done, tests should be written
 # See ./tests for templates on this
+
+# Next you should write the docs in astroquery/docs/module_name
+# using Sphinx.
