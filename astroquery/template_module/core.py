@@ -231,4 +231,109 @@ class DummyClass(BaseQuery):
             # return raw result/ handle in some way
             pass
 
-     # for image queries, the
+     # for image queries, the results should be returned as a
+     # list of `astropy.fits.HDUList` objects. Typically image queries
+     # have the following method family:
+     # 1. get_images - this is the high level method that interacts with
+     #        the user. It reads in the user input and returns the final
+     #        list of fits images to the user.
+     # 2. get_images_async - This is a lazier form of the get_images function, in
+     #        that it returns just the list of handles to the image files instead
+     #        of actually downloading them.
+     # 3. extract_image_urls - This takes in the raw HTTP response and scraps
+     #        it to get the downloadable list of image URLs.
+     # 4. get_image_list - this is similar to the get_images, but it simply
+     #        takes in the list of URLs scrapped by extract_image_urls and
+     #        returns this list rather than the actual FITS images
+     # NOTE : in future support may be added to allow the user to save
+     # the downloaded images to a preferred location. Here we look at the
+     # skeleton code for image services
+
+    def get_images(self, coordinates, radius, get_query_payload):
+        """
+        A query function that searches for image cut-outs around coordinates
+
+        Parameters
+        ----------
+        coordinates : str or `astropy.coordinates`.
+            coordinates around which to query
+        radius : str or `astropy.units.Quantity`.
+            the radius of the cone search
+        get_query_payload : bool, optional
+            If true than returns the dictionary of query parameters, posted to
+            remote server. Defaults to `False`.
+
+        Returns
+        -------
+        A list of `astropy.fits.HDUList` objects
+        """
+        readable_objs = self.get_images_async(coordinates, radius,
+                                              get_query_payload=get_query_payload)
+        if get_query_payload:
+            return readable_objs # simply return the dict of HTTP request params
+        # otherwise return the images as a list of astropy.fits.HDUList
+        return [obj.get_fits() for obj in readable_objs]
+
+    @prepend_docstr_noreturns(get_images.__doc__)
+    def get_images_async(self, coordinates, radius, get_query_payload=False):
+        """
+        Returns
+        -------
+        A list of context-managers that yield readable file-like objects
+        """
+        # As described earlier, this function should return just
+        # the handles to the remote image files. Use the utilities
+        # in commons.py for doing this:
+
+        # first get the links to the remote image files
+        image_urls = self.get_image_list(coordinates, radius,
+                                         get_query_payload=get_query_payload)
+        if get_query_payload:  # if true then return the HTTP request params dict
+            return image_urls
+        # otherwise return just the handles to the image files.
+        return [commons.FileContainer(U) for U in image_urls]
+
+    # the get_image_list method, simply returns the download
+    # links for the images as a list
+
+    @prepend_docstr_noreturns(get_images.__doc__)
+    def get_image_list(self, coordinates, radius, get_query_payload=False):
+        """
+        Returns
+        -------
+        list of image urls
+        """
+        # This method should implement steps as outlined below:
+        # 1. Construct the actual dict of HTTP request params.
+        # 2. Check if the get_query_payload is True, in which
+        #    case it should just return this dict.
+        # 3. Otherwise make the HTTP request and receive the
+        #    HTTP response.
+        # 4. Pass this raw response to the extract_image_urls
+        #    which scraps it to extract the image download links.
+        # 5. Return the download links as a list.
+        request_payload = self._args_to_payload(coordinates, radius)
+        if get_query_payload:
+            return request_payload
+        response = commons.send_request(DummyClass.URL, request_payload, DummyClass.TIMEOUT, request_type='GET')
+        return self.extract_image_urls(response.content)
+
+    # the extract_image_urls method takes in the HTML page as a string
+    # and uses regexps, etc to scrape the image urls:
+
+
+    def extract_image_urls(self, html_str):
+        """
+        Helper function that uses reges to extract the image urls from the given HTML.
+        Parameters
+        ----------
+        html_str : str
+            source from which the urls are to be extracted
+
+        Returns
+        -------
+        list of image URLs
+        """
+        # do something with regex on the HTML
+        # return the list of image URLs
+        pass
