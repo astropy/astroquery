@@ -337,3 +337,6 @@ class DummyClass(BaseQuery):
         # do something with regex on the HTML
         # return the list of image URLs
         pass
+
+# once your class is done, tests should be written
+# See ./tests for templates on this
