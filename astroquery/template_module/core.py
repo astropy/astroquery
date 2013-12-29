@@ -32,7 +32,7 @@ __all__ = ['DummyClass']
 class DummyClass(BaseQuery):
 
     """
-    Not all the methods below are necessary but these cover most of the common cases, new methods may be added if necessary, follow the guid    elines at <http://astroquery.readthedocs.org/en/latest/api.html>
+    Not all the methods below are necessary but these cover most of the common cases, new methods may be added if necessary, follow the guidelines at <http://astroquery.readthedocs.org/en/latest/api.html>
     """
     # use the Configuration Items imported from __init__.py to set the URL, TIMEOUT, etc.
     URL = SERVER()
@@ -98,7 +98,6 @@ class DummyClass(BaseQuery):
     # the common docs. See below for an example.
 
 
-
     @prepend_docstr_noreturns(query_object.__doc__)
     def query_object_async(self, object_name, get_query_payload=False) :
         """
@@ -109,7 +108,7 @@ class DummyClass(BaseQuery):
             All async methods should return the raw HTTP response.
         """
         # the async method should typically have the following steps:
-        # 1. First construct the dictionary of the HTTP requests.
+        # 1. First construct the dictionary of the HTTP request params.
         # 2. If get_query_payload is `True` then simply return this dict.
         # 3. Else make the actual HTTP request and return the corresponding
         #    HTTP response
@@ -145,7 +144,7 @@ class DummyClass(BaseQuery):
     # For services that can query coordinates, use the query_region method.
     # The pattern is similar to the query_object method. The query_region
     # method also has a 'radius' keyword for specifying the radius around
-    # the coordinates in which to search. If the region is a box, than
+    # the coordinates in which to search. If the region is a box, then
     # the keywords 'width' and 'height' should be used instead. The coordinates
     # may be accepted as an `astropy.coordinates` object or as a
     # string, which may be further parsed.
@@ -217,7 +216,7 @@ class DummyClass(BaseQuery):
     # an `astropy.table.Table`. Below is the skeleton:
 
     def _parse_result(self, response, verbose=False):
-        # if verbose is False then supress any VOTable related warnings
+        # if verbose is False then suppress any VOTable related warnings
         if not verbose:
             commons.suppress_vo_warnings()
         # try to parse the result into an astropy.Table, else
@@ -324,7 +323,7 @@ class DummyClass(BaseQuery):
 
     def extract_image_urls(self, html_str):
         """
-        Helper function that uses reges to extract the image urls from the given HTML.
+        Helper function that uses regex to extract the image urls from the given HTML.
         Parameters
         ----------
         html_str : str
@@ -339,7 +338,7 @@ class DummyClass(BaseQuery):
         pass
 
 # once your class is done, tests should be written
-# See ./tests for templates on this
+# See ./tests for examples on this
 
 # Next you should write the docs in astroquery/docs/module_name
 # using Sphinx.
