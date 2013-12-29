@@ -23,6 +23,6 @@ TIMEOUT = ConfigurationItem('timeout', 30, 'default timeout for connecting to se
 # Now import your public class
 # Should probably have the same name as your module
 
-from .core import DummyTool
+from .core import DummyClass
 
-__all__ = ['DummyTool']
+__all__ = ['DummyClass']
