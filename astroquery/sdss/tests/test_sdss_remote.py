@@ -81,15 +81,17 @@ class TestSDSSRemote:
         for row in table:
             assert row in xid
 
+    mintimeout = 1e-6
+
     def test_query_timeout(self):
         with pytest.raises(TimeoutError):
-            xid = sdss.core.SDSS.query_region(self.coords, timeout=0.00001)
+            xid = sdss.core.SDSS.query_region(self.coords, timeout=self.mintimeout)
 
     def test_spectra_timeout(self):
         with pytest.raises(TimeoutError):
-            spec = sdss.core.SDSS.get_spectra(self.coords, timeout=0.00001)
+            spec = sdss.core.SDSS.get_spectra(self.coords, timeout=self.mintimeout)
 
     def test_images_timeout(self):
         xid = sdss.core.SDSS.query_region(self.coords)
         with pytest.raises(TimeoutError):
-            img = sdss.core.SDSS.get_images(matches=xid, timeout=0.00001)
+            img = sdss.core.SDSS.get_images(matches=xid, timeout=self.mintimeout)

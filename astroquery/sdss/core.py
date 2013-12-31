@@ -312,7 +312,7 @@ class SDSSClass(BaseQuery):
             matches = self._parse_result(r)
 
         if not isinstance(matches, Table):
-            raise ValueError
+            raise TypeError("Matches must be an astropy Table.")
 
         results = []
         for row in matches:
