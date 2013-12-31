@@ -2,7 +2,7 @@
 
 """
 <Put Your Tool Name Here>
-------------------------------------------------------
+-------------------------
 
 :author: <your name> (<your email>)
 """
@@ -15,7 +15,11 @@
 from astropy.config import ConfigurationItem
 
 # Set the server mirrors to query
-SERVER = ConfigurationItem('server',['http://dummy_server_mirror_1', 'http://dummy_server_mirror_2', 'http://dummy_server_mirror_n'], 'put a brief description of the item here')
+SERVER = ConfigurationItem('server',
+                           ['http://dummy_server_mirror_1',
+                            'http://dummy_server_mirror_2',
+                            'http://dummy_server_mirror_n'],
+                           'put a brief description of the item here')
 
 # Set the timeout for connecting to the server in seconds, here we set it to 30s
 TIMEOUT = ConfigurationItem('timeout', 30, 'default timeout for connecting to server')

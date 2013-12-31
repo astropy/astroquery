@@ -137,7 +137,10 @@ class DummyClass(BaseQuery):
         # HTTP request parameters we constructed above, the TIMEOUT which we imported
         # from __init__.py and the type of HTTP request - either 'GET' or 'POST', which
         # defaults to 'GET'.
-        response = commons.send_request(DummyClass.URL, request_payload, DummyClass.TIMEOUT, request_type='GET')
+        response = commons.send_request(self.URL,
+                                        request_payload,
+                                        self.TIMEOUT,
+                                        request_type='GET')
         return response
 
 
@@ -198,7 +201,10 @@ class DummyClass(BaseQuery):
         request_payload = self._args_to_payload(coordinates, radius, height, width)
         if get_query_payload:
             return request_payload
-        response = commons.send_request(DummyClass.URL, request_payload, DummyClass.TIMEOUT, request_type='GET')
+        response = commons.send_request(self.URL,
+                                        request_payload,
+                                        self.TIMEOUT,
+                                        request_type='GET')
         return response
 
     # as we mentioned earlier use various python regular expressions, etc
@@ -239,7 +245,7 @@ class DummyClass(BaseQuery):
      # 2. get_images_async - This is a lazier form of the get_images function, in
      #        that it returns just the list of handles to the image files instead
      #        of actually downloading them.
-     # 3. extract_image_urls - This takes in the raw HTTP response and scraps
+     # 3. extract_image_urls - This takes in the raw HTTP response and scrapes
      #        it to get the downloadable list of image URLs.
      # 4. get_image_list - this is similar to the get_images, but it simply
      #        takes in the list of URLs scrapped by extract_image_urls and
@@ -309,12 +315,15 @@ class DummyClass(BaseQuery):
         # 3. Otherwise make the HTTP request and receive the
         #    HTTP response.
         # 4. Pass this raw response to the extract_image_urls
-        #    which scraps it to extract the image download links.
+        #    which scrapes it to extract the image download links.
         # 5. Return the download links as a list.
         request_payload = self._args_to_payload(coordinates, radius)
         if get_query_payload:
             return request_payload
-        response = commons.send_request(DummyClass.URL, request_payload, DummyClass.TIMEOUT, request_type='GET')
+        response = commons.send_request(self.URL,
+                                        request_payload,
+                                        self.TIMEOUT,
+                                        request_type='GET')
         return self.extract_image_urls(response.content)
 
     # the extract_image_urls method takes in the HTML page as a string
