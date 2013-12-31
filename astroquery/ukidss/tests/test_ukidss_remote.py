@@ -13,6 +13,7 @@ from ... import ukidss
 
 @remote_data
 class TestUkidss:
+    ukidss.core.Ukidss.TIMEOUT = 20
 
     def test_get_images_1(self):
         images = ukidss.core.Ukidss.get_images("m1")
