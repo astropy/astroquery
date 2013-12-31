@@ -97,5 +97,5 @@ class TestSimbad(object):
         response = s.query_objects_async(['M32', 'M81'])
 
         result = s._parse_result(response)
-        assert len(result) == 1
+        assert len(result) == 2
 
