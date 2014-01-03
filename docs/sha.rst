@@ -12,9 +12,10 @@ There are four types of supported queries for the Spitzer Heritage Archive
 each are shown below.
 
 Using the standard imports:
+
 .. code-block:: python
 
-    >>> from atsroquery import sha
+    >>> from astroquery import sha
     >>> from astropy import coordinates as coord
     >>> from astropy import units as u
 
