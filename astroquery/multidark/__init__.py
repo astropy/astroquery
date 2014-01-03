@@ -9,6 +9,7 @@ MultiDark Database Query Tool
 
     :Author: Austen M. Groener <Austen.M.Groener@drexel.edu>
 """
+
 from astropy.config import ConfigurationItem
 
 MULTIDARK_SERVER = ConfigurationItem('multidark_server',["http://www.multidark.org/MultiDark/"],'Name of the MultiDark mirror to use.')
