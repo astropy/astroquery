@@ -1,3 +1,5 @@
+.. doctest-skip-all
+
 .. _astroquery.sha:
 
 *******************************************
@@ -20,6 +22,7 @@ Using the standard imports:
     >>> from astropy import units as u
 
 Query with an astropy coordinate instance (preferred):
+
 .. code-block:: python
 
     >>> pos_t1 = sha.query(coord=coord.FK5(ra=163.6136, dec=-11.784,
@@ -28,19 +31,23 @@ Query with an astropy coordinate instance (preferred):
 Query with the alternate `ra` and `dec` parameters:
 .. code-block:: python
 
+
     >>> pos_t2 = sha.query(ra=163.6136, dec=-11.784, size=0.5)
 
 Query by NAIFID:
+
 .. code-block:: python
 
     >>> nid_t = sha.query(naifid=2003226)
 
 Query by PID:
+
 .. code-block:: python
 
     >>> pid_t = sha.query(pid=30080)
 
 Query by ReqKey:
+
 .. code-block:: python
 
     >>> # by ReqKey
