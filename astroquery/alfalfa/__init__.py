@@ -4,6 +4,9 @@ ALFALFA Spectra Archive Query Tool
 -----------------------------------
 
 :Author: Jordan Mirocha (mirochaj@gmail.com)
+
+This package is for querying the ALFALFA data repository hosted at
+http://arecibo.tc.cornell.edu/hiarchive/alfalfa/
 """
 
 from .core import Alfalfa

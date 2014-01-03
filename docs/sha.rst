@@ -1,5 +1,3 @@
-.. doctest-skip-all
-
 .. _astroquery.sha:
 
 *******************************************
@@ -52,7 +50,6 @@ Additional Documentation
 
 For column descriptions, metadata, and other information visit the SHA query
 API_ help page.
-.. _API: http://sha.ipac.caltech.edu/applications/Spitzer/SHA/help/doc/api.html
 
 Saving files to disk
 ====================
@@ -92,3 +89,5 @@ Reference/API
 
 .. automodapi:: astroquery.sha
     :no-inheritance-diagram:
+
+.. _API: http://sha.ipac.caltech.edu/applications/Spitzer/SHA/help/doc/api.html

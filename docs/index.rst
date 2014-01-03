@@ -125,3 +125,13 @@ These others are functional, but do not follow a common & consistent API:
   sha.rst
   lamda.rst
   ogle.rst
+
+Additional documentation:
+
+.. toctree::
+   :maxdepth: 1
+
+   api.rst
+   gallery.rst
+   template.rst
+   testing.rst

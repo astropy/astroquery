@@ -2,12 +2,11 @@
 
 .. _astroquery.alfalfa:
 
-*****************************************
 ALFALFA Queries (`astroquery.alfalfa`)
-*****************************************
+======================================
 
 Getting started
-===============
+---------------
 
 This example shows how to perform an object cross-ID with ALFALFA. We'll start
 with the position of a source that exists in another survey (same object we
@@ -42,7 +41,7 @@ which returns a dictionary containing HI measurements for nearly 16,000
 objects.
 
 Reference/API
-=============
+-------------
 
 .. automodapi:: astroquery.alfalfa
     :no-inheritance-diagram:

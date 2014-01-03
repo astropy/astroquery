@@ -1,14 +1,8 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 """
-
-core.py
-
 Author: Jordan Mirocha
 Affiliation: University of Colorado at Boulder
 Created on: Fri May  3 09:45:13 2013
-
-Description:
-
 """
 
 from __future__ import print_function
