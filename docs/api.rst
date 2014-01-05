@@ -1,4 +1,5 @@
 .. doctest-skip-all
+
 Astroquery API Specification
 ============================
 
@@ -14,7 +15,7 @@ for a given web service (e.g., IRSA, UKIDSS, SIMBAD) will be
 
     result = Service.query_object('M 31')
 
-for services that do not require login, and  
+for services that do not require login, and
 
 .. code-block:: python
 
@@ -32,7 +33,7 @@ The classes will have the following methods where appropriate:
 .. code-block:: python
 
     query_object(objectname, ...)
-    query_region(coordinate, radius=, width=) 
+    query_region(coordinate, radius=, width=)
     get_images(coordinate)
 
 They may also have other methods for querying non-standard data types (e.g.,
@@ -63,7 +64,7 @@ get_images
 ``````````
 Perform a coordinate-based query to acquire images.
 
-Returns a list of `astropy.io.fits.HDUList`s.  
+Returns a list of `astropy.io.fits.HDUList` s.
 
 Shape keywords are optional - some query services allow searches for images
 that overlap with a specified coordinate.
@@ -79,7 +80,7 @@ object so that the data is not downloaded until `result.get_data()` is run.
 Common Keywords
 ```````````````
 These keywords are common to all query methods::
-    
+
     return_query_payload - Return the POST data that will be submitted as a dictionary
     savename - [optional - see discussion below] File path to save the downloaded query to
     timeout - timeout in seconds
@@ -197,11 +198,11 @@ For multiple parallel queries logged in to the same object, you could do:
 
     results = parallel_map(QC.query_object,['m31','m51','m17'],radius=['1"','1"','1"'])
 
-    results = [QC.query_object_async(obj, radius=r) 
+    results = [QC.query_object_async(obj, radius=r)
         for obj,r in zip(['m31','m51','m17'],['1"','1"','1"'])]
 
-.. TODO:: 
-    
+.. TODO::
+
     Include a `parallel_map` function in `astroquery.utils`
 
 
@@ -214,8 +215,8 @@ Exceptions
   error message into something useful.
 
 * How should timeouts be handled?
-  Timeouts should raise a `TimeoutError`.  
-  
+  Timeouts should raise a `TimeoutError`.
+
 
 
 
@@ -276,5 +277,5 @@ Unparseable Data
 
 If data cannot be parsed into its expected form (`astropy.Table`, `fits.HDU`),
 the raw unparsed data will be returned and a `Warning` issued.
-       
+
 
