@@ -3,7 +3,7 @@
 Astroquery
 ==========
 
-This is the documentation for the Astroquery affiliated package of astropy.
+This is the documentation for the Astroquery affiliated package of astropy_.
 
 Code and issue tracker are on `GitHub <https://github.com/astropy/astroquery>`_.
 
@@ -46,7 +46,7 @@ Requirements
 The following packages are required for astroquery installation & use:
 
  * `numpy <www.numpy.org>`_
- * `astropy <www.astropy.org>`_ (v>=0.3)
+ * astropy_ (v>=0.3)
  * `requests <http://docs.python-requests.org/en/latest/>`_
 
 Using astroquery
@@ -64,10 +64,10 @@ queries based on coordinates or object names.  Some simple examples, using SIMBA
               "h:m:s"     "d:m:s"           ...
     ------- ----------- ----------- ------- ... -------- -------------- -------------------
       M   1 05 34 31.94 +22 00 52.2       6 ...        C              R 2011A&A...533A..10L
-    
-    
 
-All query tools allow coordinate-based queries:      
+
+
+All query tools allow coordinate-based queries:
 
 .. code-block:: python
 
