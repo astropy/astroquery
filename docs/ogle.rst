@@ -14,7 +14,6 @@ on the interstellar extinction towards the Galactic Bulge. The
 `astroquery.ogle` module queries the online extinction calculator_ and returns
 an `astropy.table.Table` instance with the same data. To run a single query
 using an `astropy.coordinates` instance use:
-.. _calculator: http://ogle.astrouw.edu.pl/
 
 .. code-block:: python
 
@@ -48,3 +47,5 @@ Reference/API
 
 .. automodapi:: astroquery.ogle
     :no-inheritance-diagram:
+
+.. _calculator: http://ogle.astrouw.edu.pl/

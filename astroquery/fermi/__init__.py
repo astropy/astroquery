@@ -17,3 +17,5 @@ from .core import FermiLAT, GetFermilatDatafile, get_fermilat_datafile
 
 import warnings
 warnings.warn("Experimental: Fermi-LAT has not yet been refactored to have its API match the rest of astroquery.")
+
+del ConfigurationItem  # clean up namespace - prevents doc warnings

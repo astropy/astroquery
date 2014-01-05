@@ -11,9 +11,11 @@ __pycache__
 
 # Other generated files
 */version.py
+astroquery/astroquery.cfg
 
 # Sphinx
 _build
+docs/api
 
 # Packages/installer info
 *.egg
