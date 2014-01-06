@@ -549,7 +549,9 @@ class SDSSClass(BaseQuery):
                        if hasattr(response.content,'encode') 
                        else response.content)
         arr = np.atleast_1d(np.genfromtxt(io.BytesIO(bytecontent),
-                            names=True, dtype=None, delimiter=b','))
+                            names=True, dtype=None, delimiter=b',',
+                            skip_header=1, # this may be a hack; it is necessary for tests to pass
+                            comments=b'#'))
 
         if len(arr) == 0:
             return None
