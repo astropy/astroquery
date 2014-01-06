@@ -130,4 +130,4 @@ if not _ASTROPY_SETUP_:
             warn(config.configuration.ConfigurationDefaultMissingWarning(wmsg))
             del e
 
-    del os, warn, config_dir # clean up namespace
+    del os, warn, config_dir  # clean up namespace
