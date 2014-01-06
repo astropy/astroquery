@@ -28,4 +28,6 @@ VIZIER_TIMEOUT = ConfigurationItem('timeout', 60, 'default timeout for connectin
 
 ROW_LIMIT = ConfigurationItem('row_limit', 50, 'maximum number of rows that will be fetched from the result (set to -1 for unlimited).')
 
-from .core import Vizier
+from .core import Vizier,VizierClass
+
+__all__ = ['Vizier','VizierClass']

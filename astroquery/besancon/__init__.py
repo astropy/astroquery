@@ -26,7 +26,7 @@ BESANCON_PING_DELAY = ConfigurationItem('besancon_ping_delay', 30.0,
 BESANCON_TIMEOUT = ConfigurationItem('besancon_timeout', 30.0,
                                         "Timeout for Besancon query")
 
-from .core import Besancon
+from .core import Besancon,BesanconClass
 from .reader import BesanconFixed,BesanconFixedWidthHeader,BesanconFixedWidthData
 
-__all__ = ['Besancon','BesanconFixed','BesanconFixedWidthHeader','BesanconFixedWidthData']
+__all__ = ['Besancon','BesanconClass','BesanconFixed','BesanconFixedWidthHeader','BesanconFixedWidthData']

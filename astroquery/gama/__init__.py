@@ -7,4 +7,4 @@ http://www.gama-survey.org/dr2/query/
 :author: James T. Allen <james.thomas.allen@gmail.com>
 """
 
-from .core import GAMA
+from .core import GAMA,GAMAClass
