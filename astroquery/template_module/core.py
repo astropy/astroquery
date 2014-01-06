@@ -21,7 +21,7 @@ from . import SERVER, TIMEOUT # import configurable items declared in __init__.p
 
 
 # export all the public classes and methods
-__all__ = ['DummyClass']
+__all__ = ['Dummy','DummyClass']
 
 # declare global variables and constants if any
 
@@ -345,6 +345,9 @@ class DummyClass(BaseQuery):
         # do something with regex on the HTML
         # return the list of image URLs
         pass
+
+# the default tool for users to interact with is an instance of the Class
+Dummy = DummyClass()
 
 # once your class is done, tests should be written
 # See ./tests for examples on this

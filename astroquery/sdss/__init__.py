@@ -16,7 +16,7 @@ SDSS_MAXQUERY = ConfigurationItem('maxqueries', 1, 'Max number of queries allowe
 SDSS_TIMEOUT = ConfigurationItem('timeout', 30,
                                  'Default timeout for connecting to server')
 
-from .core import SDSS
+from .core import SDSS,SDSSClass
 
 import warnings
 warnings.warn("Experimental: SDSS has not yet been refactored to have its API match the rest of astroquery (but it's nearly there).")

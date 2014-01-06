@@ -17,6 +17,6 @@ LINES_LIMIT = ConfigurationItem('Limit to number of lines exported', 10000)
 
 import load_species_table
 
-from .core import Splatalogue
+from .core import Splatalogue,SplatalogueClass
 
-__all__ = ['Splatalogue']
+__all__ = ['Splatalogue','SplatalogueClass']

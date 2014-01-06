@@ -17,6 +17,6 @@ MAGPIS_SERVER = ConfigurationItem('magpis_server', ["http://third.ucllnl.org/cgi
                                'Name of the MAGPIS server.')
 MAGPIS_TIMEOUT = ConfigurationItem('timeout', 60, 'time limit for connecting to MAGPIS server')
 
-from .core import Magpis
+from .core import Magpis,MagpisClass
 
-__all__ = ['Magpis']
+__all__ = ['Magpis','MagpisClass']
