@@ -107,7 +107,7 @@ class OgleClass(BaseQuery):
         >>> from astroquery.ogle import Ogle
         >>> t = Ogle.query_region(coord=co)
         >>> t.pprint()
-          RA/LON   Dec/Lat    A_I  E(V-I) S_E(V-I) R_JKVI   mu    S_mu
+        RA/LON   Dec/Lat    A_I  E(V-I) S_E(V-I) R_JKVI   mu    S_mu
         --------- ---------- ----- ------ -------- ------ ------ ----- ...
         17.568157 -27.342475 3.126  2.597    0.126 0.3337 14.581 0.212
         """
