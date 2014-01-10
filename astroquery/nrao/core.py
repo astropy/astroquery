@@ -22,10 +22,10 @@ __all__ = ["Nrao","NraoClass"]
 def _validate_params(func):
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
-        telescope = kwargs.get('telescope')
-        telescope_config = kwargs.get('telescope_config')
-        obs_band = kwargs.get('obs_band')
-        sub_array = kwargs.get('sub_array')
+        telescope = kwargs.get('telescope','all')
+        telescope_config = kwargs.get('telescope_config','all')
+        obs_band = kwargs.get('obs_band','all')
+        sub_array = kwargs.get('sub_array','all')
         if telescope not in Nrao.telescope_code:
             raise ValueError("'telescope must be one of {!s}".format(Nrao.telescope_code.keys()))
         if telescope_config.upper() not in Nrao.telescope_config:
@@ -60,7 +60,7 @@ class NraoClass(BaseQuery):
     subarrays = ['ALL', 1, 2, 3, 4, 5]
 
     @_validate_params
-    def _args_to_payload(self, *args, **kwargs):
+    def _args_to_payload(self, **kwargs):
         """
         Queries the NRAO data archive and fetches table of observation summaries.
 
@@ -73,7 +73,8 @@ class NraoClass(BaseQuery):
             as a string.
         radius : str or `~astropy.units.Quantity` object, optional
             The string must be parsable by `astropy.coordinates.Angle`. The appropriate
-            `~astropy.units.Quantity` object from `astropy.units` may also be used. Defaults to 1 degree.
+            `Quantity` object from `astropy.units` may also be used. Defaults
+            to 1 arcminute.
         equinox : str, optional
             One of 'J2000' or 'B1950'. Defaults to 'J2000'.
         telescope : str, optional
@@ -100,23 +101,36 @@ class NraoClass(BaseQuery):
         sub_array : str, number, optional
             VLA subarray designations, may be set to an integer from 1 to 5.
             Defaults to 'all'.
+        project_code : str, optional
+            A string indicating the project code.  Examples::
+
+                * GBT: AGBT12A_055
+                * JVLA: 12A-256
+                
+        querytype : str
+            The type of query to perform.  "OBSSUMMARY" is the default, but it
+            is only valid for VLA/VLBA observations.  ARCHIVE will not work at all
+            because it relies on XML data.  OBSERVATION will provide full details
+            of the soruces observed and under what configurations.
+        source_id : str, optional
+            A source name (to be parsed by SIMBAD or NED)
         get_query_payload : bool, optional
-            if set to `True` then returns the dictionary sent as the HTTP request.
-            Defaults to `False`
+            if set to `True` then returns the dictionary sent as the HTTP
+            request.  Defaults to `False`
 
         Returns
         -------
         request_payload : dict
             The dictionary of parameters to send via HTTP GET request.
         """
-        c = commons.parse_coordinates(args[0])
-        lower_frequency = kwargs['freq_low']
-        upper_frequency = kwargs['freq_up']
+        lower_frequency = kwargs.get('freq_low',None)
+        upper_frequency = kwargs.get('freq_up',None)
         if lower_frequency is not None and upper_frequency is not None:
             freq_str = str(lower_frequency.to(u.MHz).value)+'-'+str(upper_frequency.to(u.MHz).value)
         else:
             freq_str = ""
-        request_payload = dict(QUERYTYPE="OBSSUMMARY",
+
+        request_payload = dict(QUERYTYPE=kwargs.get('querytype',"OBSSUMMARY"),
                                PROTOCOL="VOTable-XML",
                                MAX_ROWS="NO LIMIT",
                                SORT_PARM="Starttime",
@@ -129,26 +143,59 @@ class NraoClass(BaseQuery):
                                SITE_CODE="AOC",
                                DBHOST="CHEWBACCA",
                                WRITELOG=0,
-                               TELESCOPE=Nrao.telescope_code[kwargs['telescope']],
-                               PROJECT_CODE="",
+                               TELESCOPE=Nrao.telescope_code[kwargs.get('telescope','all')],
+                               PROJECT_CODE=kwargs.get('project_code',''),
                                SEGMENT="",
-                               TIMERANGE1=kwargs['start_date'],
+                               MIN_EXPOSURE='',
+                               TIMERANGE1=kwargs.get('start_date',''),
                                OBSERVER="",
                                ARCHIVE_VOLUME="",
-                               TIMERANGE2=kwargs['end_date'],
-                               CENTER_RA=str(c.icrs.ra.degree) + 'd',
-                               CENTER_DEC=str(c.icrs.dec.degree) + 'd',
-                               EQUINOX=kwargs['equinox'],
-                               SRAD=str(commons.parse_radius(kwargs['radius']).degree) + 'd',
-                               TELESCOPE_CONFIG='ALL' if kwargs['telescope_config'] == 'all' else kwargs['telescope_config'],
-                               OBS_BANDS=kwargs['obs_band'].upper(),
-                               SUBARRAY='ALL' if kwargs['sub_array'] == 'all' else kwargs['sub_array'],
+                               TIMERANGE2=kwargs.get('end_date',''),
+                               EQUINOX=kwargs.get('equinox','J2000'),
+                               CENTER_RA='',
+                               CENTER_DEC='',
+                               SRAD=str(commons.parse_radius(kwargs['radius']).degree) + 'd' if 'radius' in kwargs else "1.0'",
+                               TELESCOPE_CONFIG=kwargs.get('telescope_config','all').upper(),
+                               OBS_BANDS=kwargs.get('obs_band','all').upper(),
+                               SUBARRAY=kwargs.get('subarray','all').upper(),
+                               SOURCE_ID=kwargs.get('source_id',''),
+                               SRC_SEARCH_TYPE='SIMBAD or NED',
                                OBSFREQ1=freq_str,
                                OBS_POLAR="ALL",
                                RECEIVER_ID="ALL",
                                BACKEND_ID="ALL",
+                               DATATYPE="ALL",
+                               PASSWD="", # TODO: implement login...
                                SUBMIT="Submit Query")
+
+        if 'coordinates' in kwargs:
+            c = commons.parse_coordinates(kwargs['coordinates'])
+            request_payload['CENTER_RA']  = str(c.icrs.ra.degree) + 'd'
+            request_payload['CENTER_DEC'] = str(c.icrs.dec.degree) + 'd'
+
+
         return request_payload
+
+    @prepend_docstr_noreturns(_args_to_payload.__doc__)
+    def query_async(self,
+                    get_query_payload=False,
+                    **kwargs):
+        """
+        Returns
+        -------
+        response : `requests.Response`
+            The HTTP response returned from the service.
+        """
+
+        request_payload = self._args_to_payload(**kwargs)
+
+        if get_query_payload:
+            return request_payload
+        response = commons.send_request(Nrao.DATA_URL,
+                                        request_payload,
+                                        Nrao.TIMEOUT,
+                                        request_type='POST')
+        return response
 
     @prepend_docstr_noreturns(_args_to_payload.__doc__)
     def query_region_async(self, coordinates, radius=1 * u.deg, equinox='J2000',
@@ -163,20 +210,19 @@ class NraoClass(BaseQuery):
             The HTTP response returned from the service.
         """
 
-        request_payload = self._args_to_payload(coordinates,
-                                                radius=radius,
-                                                equinox=equinox,
-                                                telescope=telescope,
-                                                start_date=start_date,
-                                                end_date=end_date,
-                                                freq_low=freq_low, freq_up=freq_up,
-                                                telescope_config=telescope_config,
-                                                obs_band=obs_band,
-                                                sub_array=sub_array)
-        if get_query_payload:
-            return request_payload
-        response = commons.send_request(Nrao.DATA_URL, request_payload, Nrao.TIMEOUT, request_type='GET')
-        return response
+        return self.query_async(coordinates=coordinates,
+                                radius=radius,
+                                equinox=equinox,
+                                telescope=telescope,
+                                start_date=start_date,
+                                end_date=end_date,
+                                freq_low=freq_low,
+                                freq_up=freq_up,
+                                telescope_config=telescope_config,
+                                obs_band=obs_band,
+                                sub_array=sub_array,
+                                get_query_payload=get_query_payload)
+
 
     def _parse_result(self, response, verbose=False):
         if not verbose:
