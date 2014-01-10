@@ -55,7 +55,7 @@ class SplatalogueClass(BaseQuery):
             String to compile into an re, if specified.   Searches table for
             species whose names match
         reflags : int
-            Flags to pass to :python:`re`
+            Flags to pass to `re`
         """
         # loading can be an expensive operation and should not change at runtime:
         # do it lazily
@@ -110,7 +110,7 @@ class SplatalogueClass(BaseQuery):
             "formaldehyde",flags=re.I - Formaldehyde,thioformaldehyde, and Cyanoformaldehyde
             " H2CO " - Just 1 species, H2CO.  The spaces prevent including others.
         chem_re_flags : int
-            See the :python:`re` module
+            See the `re` module
         energy_min : None or float
         energy_max : None or float
             Energy range to include.  See energy_type
