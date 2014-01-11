@@ -64,7 +64,7 @@ class DummyClass(BaseQuery):
             All queries other than image queries should typically return
             results like this.
 
-        Example
+        Examples
         --------
         While this section is optional you may put in some examples that
         show how to use the method. The examples are written similar to
