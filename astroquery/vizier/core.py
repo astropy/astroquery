@@ -37,7 +37,7 @@ class VizierClass(BaseQuery):
     TIMEOUT = VIZIER_TIMEOUT()
     VIZIER_SERVER = VIZIER_SERVER()
     ROW_LIMIT = ROW_LIMIT()
-    
+
     _schema_columns = schema.Schema([str], error="columns must be a list of strings")
     _schema_column_filters = schema.Schema({schema.Optional(str):str}, error="column_filters must be a dictionary where both keys and values are strings")
     _schema_catalog = schema.Schema(schema.Or([str],str,None), error="catalog must be a list of strings or a single string")
@@ -98,8 +98,8 @@ class VizierClass(BaseQuery):
         "Resources" are generally publications; one publication may contain
         many tables.
 
-        Example
-        -------
+        Examples
+        --------
         >>> from astroquery.vizier import Vizier
         >>> catalog_list = Vizier.find_catalogs('Kang W51')
         >>> print(catalog_list)
@@ -119,14 +119,14 @@ class VizierClass(BaseQuery):
             data_payload,
             self.TIMEOUT)
         result = self._parse_result(response, verbose=verbose, get_catalog_names=True)
-        
+
         #Filter out the obsolete catalogs, unless requested
         if include_obsolete is False:
             for (key, resource) in result.items():
                 for info in resource.infos:
                     if (info.name == 'status') and (info.value == 'obsolete'):
                         del result[key]
-        
+
         return result
 
     def get_catalogs_async(self, catalog, verbose=False):
@@ -339,7 +339,7 @@ class VizierClass(BaseQuery):
         data_payload = self._args_to_payload(
             catalog=catalog,
             column_filters=kwargs,
-            center={'-c.rd':180}) 
+            center={'-c.rd':180})
         response = commons.send_request(
             self._server_to_url(),
             data_payload,

@@ -64,21 +64,28 @@ class OgleClass(BaseQuery):
         ----------
         coord : list-like
             Pointings to evaluate interstellar extinction. Three forms of
-            coordinates may be passed:
+            coordinates may be passed::
+                
                 * single astropy coordinate instance
                 * list-like object (1 x N) of astropy coordinate instances
                 * list-like object (2 x N) of RA/Decs or Glon/Glat as strings or
                   floats. (May not be supported in future versions.)
+
         algorithm : string
-            Algorithm to interpolate data for desired coordinate. Valid options:
+            Algorithm to interpolate data for desired coordinate. Valid options::
+
                 * 'NG': nearest grid point
                 * 'NN': natural neighbor interpolation
+
         quality : string
-            Quality factor for data. Valid options:
+            Quality factor for data. Valid options::
+
                 * 'All': all points
                 * 'GOOD': QF=0 as described in Nataf et al. (2012).
+
         coord_sys : string
-            Coordinate system if using lists of RA/Decs in `coord`. Valid options:
+            Coordinate system if using lists of RA/Decs in `coord`. Valid options::
+
                 * 'RD': equatorial coordinates
                 * 'LB': Galactic coordinates.
 
@@ -100,7 +107,7 @@ class OgleClass(BaseQuery):
         >>> from astroquery.ogle import Ogle
         >>> t = Ogle.query_region(coord=co)
         >>> t.pprint()
-          RA/LON   Dec/Lat    A_I  E(V-I) S_E(V-I) R_JKVI   mu    S_mu
+        RA/LON   Dec/Lat    A_I  E(V-I) S_E(V-I) R_JKVI   mu    S_mu
         --------- ---------- ----- ------ -------- ------ ------ ----- ...
         17.568157 -27.342475 3.126  2.597    0.126 0.3337 14.581 0.212
         """

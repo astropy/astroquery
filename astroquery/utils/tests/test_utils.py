@@ -225,8 +225,8 @@ docstr2 = """
         "Resources" are generally publications; one publication may contain
         many tables.
 
-        Example
-        -------
+        Examples
+        --------
         >>> from astroquery.vizier import Vizier
         >>> catalog_list = Vizier.find_catalogs('Kang W51')
         >>> print(catalog_list)
@@ -252,8 +252,8 @@ docstr2_out = textwrap.dedent("""
             "names or words of title of catalog. The words are and'ed, i.e.
             only the catalogues characterized by all the words are selected."
 
-        Example
-        -------
+        Examples
+        --------
         >>> from astroquery.vizier import Vizier
         >>> catalog_list = Vizier.find_catalogs('Kang W51')
         >>> print(catalog_list)
