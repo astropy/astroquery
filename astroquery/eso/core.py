@@ -2,7 +2,7 @@ import requests
 import keyring
 import getpass
 import re
-from bs4 import BeautifulSoup as bs
+import lxml.html as html
 
 from ..query import QueryWithLogin
 
@@ -15,26 +15,22 @@ class EsoClass(QueryWithLogin):
         print("Authenticating {} on www.eso.org...".format(username))
         #Get the login page
         login_response = self.session.get("https://www.eso.org/sso/login")
-        #Extract all the inputs to the login form into the form_payload dictionary
-        soup = bs(login_response.content)
-        form = soup.find('form', attrs={'action':re.compile("^login")}).find_all('input',attrs={'name':True})
-        form_payload = {}
-        for form_input in form:
-            form_payload[form_input.attrs.get('name')] = form_input.attrs.get('value')
-        #Update the username and password inputs
-        form_payload.update({'username': username})
-        form_payload.update({'password': password})
+        #Fill the login form
+        root = html.document_fromstring(login_response.content)
+        form = root.forms[-1]
+        form.fields['username'] = username
+        form.fields['password'] = password
         #Post the form payload to login
-        login_result_response = self.session.post("https://www.eso.org/sso/login", params=form_payload)
+        login_result_response = self.session.post("https://www.eso.org/sso/login", params=form.form_values())
         #Check success
-        soup = bs(login_result_response.content)
-        result = (soup.find('div', attrs={'class':'error'}) is None)
+        root = html.document_fromstring(login_result_response.content)
+        result = (len(root.find_class('error')) == 0)
         if result:
             print("Authentication successful!")
         else:
             print("Authentication failed!")
         return result
-        
+    
     def login(self, username):
         password = keyring.get_password("astroquery:www.eso.org", username)
         if password is None:
