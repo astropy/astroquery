@@ -3,6 +3,9 @@ import keyring
 import getpass
 import re
 import lxml.html as html
+from cStringIO import StringIO
+
+from astropy.table import Table
 
 from ..query import QueryWithLogin
 
@@ -39,5 +42,27 @@ class EsoClass(QueryWithLogin):
                 keyring.set_password("astroquery:www.eso.org", username, password)
         else:
             self.authenticate(username, password)
+    
+    def query_instrument(self, instrument, **kwargs):
+        url_base = "http://archive.eso.org"
+        url_form = "/wdb/wdb/eso/{}/form".format(instrument)
+        url_query = "/wdb/wdb/eso/{}/query".format(instrument)
+        instrument_form = self.session.get(url_base+url_form)
+        root = html.document_fromstring(instrument_form.content)
+        form = root.forms[0]
+        for keyword in kwargs.keys():
+            if keyword in form.fields.keys():
+                form.fields[keyword] = kwargs[keyword]
+        query_dict = {}
+        for key in form.inputs.keys():
+            if (form.inputs[key].value != '') and (form.inputs[key].value != None):
+                query_dict[key] = form.inputs[key].value
+            if isinstance(form.inputs[key], html.SelectElement):
+                query_dict[key] = form.inputs[key].value_options[0]
+        query_dict["wdbo"] = "votable"
+        instrument_response = self.session.get(url_base+url_query, params=query_dict)
+        table = Table.read(StringIO(instrument_response.content))
+        return table
+
 
 Eso = EsoClass()
