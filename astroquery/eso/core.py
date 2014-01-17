@@ -52,7 +52,7 @@ class EsoClass(QueryWithLogin):
         form = root.forms[0]
         for keyword in kwargs.keys():
             if keyword in form.fields.keys():
-                form.fields[keyword] = kwargs[keyword]
+                form.fields[keyword] = "{}".format(kwargs[keyword])
         query_dict = {}
         for key in form.inputs.keys():
             if (form.inputs[key].value != '') and (form.inputs[key].value != None):
