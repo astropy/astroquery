@@ -19,11 +19,20 @@ class EsoClass(QueryWithLogin):
         form = root.forms[form_index]
         #form_dict = dict(form.form_values())
         form_dict = {}
+        files_dict = []
         for key in form.inputs.keys():
-            if (form.inputs[key].value != '') and (form.inputs[key].value != None):
-                form_dict[key] = form.inputs[key].value
-            if isinstance(form.inputs[key], html.SelectElement):
-                form_dict[key] = form.inputs[key].value_options[0]
+            if 'type' in form.inputs[key].attrib.keys():
+                typ = form.inputs[key].attrib['type']
+            else:
+                typ = None
+            if typ == 'file':
+                if form.inputs[key].value is None:
+                    files_dict += [(key, ("", "", "application/octet-stream"))]
+            else:
+                if (form.inputs[key].value != '') and (form.inputs[key].value != None):
+                    form_dict[key] = form.inputs[key].value
+                if isinstance(form.inputs[key], html.SelectElement):
+                    form_dict[key] = form.inputs[key].value_options[0]
         #
         for key in inputs.keys():
             form_dict[key] = inputs[key]
@@ -38,7 +47,7 @@ class EsoClass(QueryWithLogin):
         elif form.method == 'POST':
             if 'enctype' in form.attrib:
                 if form.attrib['enctype'] == 'multipart/form-data':
-                    response = self.session.post(url, data=form_dict, files={})
+                    response = self.session.post(url, data=form_dict, files=files_dict)
                 else:
                     raise Exception("Not implemented!")
             else:
