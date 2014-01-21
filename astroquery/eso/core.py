@@ -49,7 +49,7 @@ class EsoClass(QueryWithLogin):
                 if form.attrib['enctype'] == 'multipart/form-data':
                     response = self.session.post(url, data=form_dict, files=files_dict)
                 else:
-                    raise Exception("Not implemented!")
+                    raise Exception("Not implemented: enctype={}".format(form.attrib['enctype']))
             else:
                 response = self.session.post(url, params=form_dict)
         else:
