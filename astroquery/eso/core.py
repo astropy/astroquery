@@ -77,23 +77,10 @@ class EsoClass(QueryWithLogin):
         return authenticated
     
     def query_instrument(self, instrument, **kwargs):
-        url_base = "http://archive.eso.org"
-        url_form = "/wdb/wdb/eso/{}/form".format(instrument)
-        url_query = "/wdb/wdb/eso/{}/query".format(instrument)
-        instrument_form = self.session.get(url_base+url_form)
-        root = html.document_fromstring(instrument_form.content)
-        form = root.forms[0]
-        for keyword in kwargs.keys():
-            if keyword in form.fields.keys():
-                form.fields[keyword] = "{}".format(kwargs[keyword])
-        query_dict = {}
-        for key in form.inputs.keys():
-            if (form.inputs[key].value != '') and (form.inputs[key].value != None):
-                query_dict[key] = form.inputs[key].value
-            if isinstance(form.inputs[key], html.SelectElement):
-                query_dict[key] = form.inputs[key].value_options[0]
+        instrument_form = self.session.get("http://archive.eso.org/wdb/wdb/eso/{}/form".format(instrument))
+        query_dict = kwargs
         query_dict["wdbo"] = "votable"
-        instrument_response = self.session.get(url_base+url_query, params=query_dict)
+        instrument_response = self._activate_form(instrument_form, form_index=0, inputs=query_dict)
         table = Table.read(StringIO(instrument_response.content))
         return table
 
