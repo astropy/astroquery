@@ -63,13 +63,18 @@ class EsoClass(QueryWithLogin):
         return result
     
     def login(self, username):
-        password = keyring.get_password("astroquery:www.eso.org", username)
-        if password is None:
+        #Get password from keyring or prompt
+        password_from_keyring = keyring.get_password("astroquery:www.eso.org", username)
+        if password_from_keyring is None:
             password = getpass.getpass("{}, enter your ESO password:\n".format(username))
-            if self.authenticate(username, password):
-                keyring.set_password("astroquery:www.eso.org", username, password)
         else:
-            self.authenticate(username, password)
+            password = password_from_keyring
+        #Authenticate
+        authenticated = self.authenticate(username, password)
+        #When authenticated, save password in keyring if needed
+        if authenticated and password_from_keyring is None:
+            keyring.set_password("astroquery:www.eso.org", username, password)
+        return authenticated
     
     def query_instrument(self, instrument, **kwargs):
         url_base = "http://archive.eso.org"
