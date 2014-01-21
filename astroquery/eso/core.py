@@ -47,21 +47,6 @@ class EsoClass(QueryWithLogin):
             raise Exception("Unknown form method: {}".format(form.method))
         return response
     
-    def authenticate(self, username, password):
-        print("Authenticating {} on www.eso.org...".format(username))
-        #Get the login page
-        login_response = self.session.get("https://www.eso.org/sso/login")
-        #Fill the login form
-        login_result_response = self._activate_form(login_response, form_index=-1, inputs={'username': username, 'password':password})
-        #Check success
-        root = html.document_fromstring(login_result_response.content)
-        result = (len(root.find_class('error')) == 0)
-        if result:
-            print("Authentication successful!")
-        else:
-            print("Authentication failed!")
-        return result
-    
     def login(self, username):
         #Get password from keyring or prompt
         password_from_keyring = keyring.get_password("astroquery:www.eso.org", username)
@@ -70,7 +55,15 @@ class EsoClass(QueryWithLogin):
         else:
             password = password_from_keyring
         #Authenticate
-        authenticated = self.authenticate(username, password)
+        print("Authenticating {} on www.eso.org...".format(username))
+        login_response = self.session.get("https://www.eso.org/sso/login")
+        login_result_response = self._activate_form(login_response, form_index=-1, inputs={'username': username, 'password':password})
+        root = html.document_fromstring(login_result_response.content)
+        authenticated = (len(root.find_class('error')) == 0)
+        if authenticated:
+            print("Authentication successful!")
+        else:
+            print("Authentication failed!")
         #When authenticated, save password in keyring if needed
         if authenticated and password_from_keyring is None:
             keyring.set_password("astroquery:www.eso.org", username, password)
