@@ -14,6 +14,39 @@ class EsoClass(QueryWithLogin):
     def __init__(self):
         self.session = requests.Session()
     
+    def _activate_form(self, response, form_index=0, inputs={}):
+        root = html.document_fromstring(response.content)
+        form = root.forms[form_index]
+        #form_dict = dict(form.form_values())
+        form_dict = {}
+        for key in form.inputs.keys():
+            if (form.inputs[key].value != '') and (form.inputs[key].value != None):
+                form_dict[key] = form.inputs[key].value
+            if isinstance(form.inputs[key], html.SelectElement):
+                form_dict[key] = form.inputs[key].value_options[0]
+        #
+        for key in inputs.keys():
+            form_dict[key] = inputs[key]
+        if "://" in form.action:
+            url = form.action
+        elif form.action[0] == "/":
+            url = '/'.join(response.url.split('/',3)[:3]) + form.action
+        else:
+            url = response.url.rsplit('/',1)[0] + form.action
+        if form.method == 'GET':
+            response = self.session.get(url, params=form_dict)
+        elif form.method == 'POST':
+            if 'enctype' in form.attrib:
+                if form.attrib['enctype'] == 'multipart/form-data':
+                    response = self.session.post(url, data=form_dict, files={})
+                else:
+                    raise Exception("Not implemented!")
+            else:
+                response = self.session.post(url, params=form_dict)
+        else:
+            raise Exception("Unknown form method: {}".format(form.method))
+        return response
+    
     def authenticate(self, username, password):
         print("Authenticating {} on www.eso.org...".format(username))
         #Get the login page
