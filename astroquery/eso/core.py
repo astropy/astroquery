@@ -52,12 +52,7 @@ class EsoClass(QueryWithLogin):
         #Get the login page
         login_response = self.session.get("https://www.eso.org/sso/login")
         #Fill the login form
-        root = html.document_fromstring(login_response.content)
-        form = root.forms[-1]
-        form.fields['username'] = username
-        form.fields['password'] = password
-        #Post the form payload to login
-        login_result_response = self.session.post("https://www.eso.org/sso/login", params=form.form_values())
+        login_result_response = self._activate_form(login_response, form_index=-1, inputs={'username': username, 'password':password})
         #Check success
         root = html.document_fromstring(login_result_response.content)
         result = (len(root.find_class('error')) == 0)
