@@ -32,7 +32,7 @@ class EsoClass(QueryWithLogin):
         elif form.action[0] == "/":
             url = '/'.join(response.url.split('/',3)[:3]) + form.action
         else:
-            url = response.url.rsplit('/',1)[0] + form.action
+            url = response.url.rsplit('/',1)[0] + '/' + form.action
         if form.method == 'GET':
             response = self.session.get(url, params=form_dict)
         elif form.method == 'POST':
