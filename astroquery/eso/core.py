@@ -90,6 +90,12 @@ class EsoClass(QueryWithLogin):
         instrument_response = self._activate_form(instrument_form, form_index=0, inputs=query_dict)
         table = Table.read(StringIO(instrument_response.content))
         return table
+    
+    def data_retrieval(self, datasets):
+        data_retrieval_form = self.session.get("http://archive.eso.org/cms/eso-data/eso-data-direct-retrieval.html")
+        data_confirmation_form = self._activate_form(data_retrieval_form, form_index=-1, inputs={"list_of_datasets": "/n".join(datasets)})
+        data_download_form = self._activate_form(data_confirmation_form, form_index=-1)
+        return data_download_form
 
 
 Eso = EsoClass()
