@@ -1,7 +1,6 @@
 import requests
 import keyring
 import getpass
-import re
 import lxml.html as html
 from cStringIO import StringIO
 
