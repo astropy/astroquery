@@ -15,50 +15,72 @@ class EsoClass(QueryWithLogin):
         self.session = requests.Session()
     
     def _activate_form(self, response, form_index=0, inputs={}):
+        #Extract form from response
         root = html.document_fromstring(response.content)
         form = root.forms[form_index]
-        form_dict = []
-        files_dict = []
-        for key in form.inputs.keys():
-            if isinstance(form.inputs[key], html.CheckboxGroup):
-                for item in form.inputs[key]:
-                    form_dict += [(key, item.value)]
-            else:
-                if 'type' in form.inputs[key].attrib.keys():
-                    typ = form.inputs[key].attrib['type']
-                else:
-                    typ = None
-                if typ == 'file':
-                    if form.inputs[key].value is None:
-                        files_dict += [(key, ("", "", "application/octet-stream"))]
-                else:
-                    if (form.inputs[key].value != '') and (form.inputs[key].value != None):
-                        form_dict += [(key, form.inputs[key].value)]
-                    if isinstance(form.inputs[key], html.SelectElement):
-                        form_dict += [(key, form.inputs[key].value_options[0])]
-        #
-        for key in inputs.keys():
-            form_dict += [(key, inputs[key])]
+        #Construct base url
         if "://" in form.action:
             url = form.action
         elif form.action[0] == "/":
             url = '/'.join(response.url.split('/',3)[:3]) + form.action
         else:
             url = response.url.rsplit('/',1)[0] + '/' + form.action
+        #Identify payload format
         if form.method == 'GET':
-            response = self.session.get(url, params=form_dict)
+            fmt = 'get' #get(url, params=payload)
         elif form.method == 'POST':
             if 'enctype' in form.attrib:
                 if form.attrib['enctype'] == 'multipart/form-data':
-                    response = self.session.post(url, data=form_dict, files=files_dict)
+                    fmt = 'multipart/form-data' #post(url, files=payload)
                 elif form.attrib['enctype'] == 'application/x-www-form-urlencoded':
-                    response = self.session.post(url, data=form_dict)
-                else:
-                    raise Exception("Not implemented: enctype={}".format(form.attrib['enctype']))
+                    fmt = 'application/x-www-form-urlencoded' #post(url, data=payload)
             else:
-                response = self.session.post(url, params=form_dict)
-        else:
-            raise Exception("Unknown form method: {}".format(form.method))
+                fmt = 'post' #post(url, params=payload)
+        #Extract payload from form
+        payload = []
+        for key in form.inputs.keys():
+            value = None
+            is_file = False
+            if isinstance(form.inputs[key], html.InputElement):
+                value = form.inputs[key].value
+                if 'type' in form.inputs[key].attrib:
+                    is_file = (form.inputs[key].attrib['type'] == 'file')
+            elif isinstance(form.inputs[key], html.SelectElement):
+                if isinstance(form.inputs[key].value, html.MultipleSelectOptions):
+                    value = []
+                    for v in form.inputs[key].value:
+                        value += [v]
+                else:
+                    value = form.inputs[key].value
+                    if value is None:
+                        value = form.inputs[key].value_options[0]
+            if key in inputs.keys():
+                value = "{}".format(inputs[key])
+            if value is not None:
+                if fmt == 'multipart/form-data':
+                    if is_file:
+                        payload += [(key, ('', '', 'application/octet-stream'))]
+                    else:
+                        if type(value) is list:
+                            for v in value:
+                                payload += [(key, ('', v))]
+                        else:
+                            payload += [(key, ('', value))]
+                else:
+                    if type(value) is list:
+                        for v in value:
+                            payload += [(key, v)]
+                    else:
+                        payload += [(key, value)]
+        #Send payload
+        if fmt == 'get':
+            response = self.session.get(url, params=payload)
+        elif fmt == 'post':
+            response = self.session.post(url, params=payload)
+        elif fmt == 'multipart/form-data':
+            response = self.session.post(url, files=payload)
+        elif fmt == 'application/x-www-form-urlencoded':
+            response = self.session.post(url, data=payload)
         return response
     
     def login(self, username):
