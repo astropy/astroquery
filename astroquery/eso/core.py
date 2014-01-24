@@ -82,6 +82,17 @@ class EsoClass(QueryWithLogin):
             response = self.session.post(url, data=payload)
         return response
     
+    def _download_file(self, url):
+        local_filename = url.split('/')[-1]
+        print("Downloading {}...".format(local_filename))
+        r = self.session.get(url, stream=True)
+        with open(local_filename, 'wb') as f:
+            for chunk in r.iter_content(chunk_size=1024): 
+                if chunk:
+                    f.write(chunk)
+                    f.flush()
+        return local_filename
+    
     def login(self, username):
         #Get password from keyring or prompt
         password_from_keyring = keyring.get_password("astroquery:www.eso.org", username)
