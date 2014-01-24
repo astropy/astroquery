@@ -1,3 +1,4 @@
+import time
 import requests
 import keyring
 import getpass
@@ -127,7 +128,20 @@ class EsoClass(QueryWithLogin):
         data_retrieval_form = self.session.get("http://archive.eso.org/cms/eso-data/eso-data-direct-retrieval.html")
         data_confirmation_form = self._activate_form(data_retrieval_form, form_index=-1, inputs={"list_of_datasets": "/n".join(datasets)})
         data_download_form = self._activate_form(data_confirmation_form, form_index=-1)
-        return data_download_form
+        root = html.document_fromstring(data_download_form.content)
+        state = root.xpath("//span[@id='requestState']")[0].text
+        while state != 'COMPLETE':
+            time.sleep(2.0)
+            data_download_form = self.session.get(data_download_form.url)
+            root = html.document_fromstring(data_download_form.content)
+            state = root.xpath("//span[@id='requestState']")[0].text
+        files = []
+        for fileId in root.xpath("//input[@name='fileId']"):
+            fileLink = fileId.attrib['value'].split()[1]
+            fileLink = fileLink.replace("/api","").replace("https://","http://")
+            files += [self._download_file(fileLink)]
+        print("Done!")
+        return files
 
 
 Eso = EsoClass()
