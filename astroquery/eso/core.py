@@ -13,6 +13,7 @@ class EsoClass(QueryWithLogin):
     
     def __init__(self):
         self.session = requests.Session()
+        self._instrument_list = None
     
     def _activate_form(self, response, form_index=0, inputs={}):
         #Extract form from response
@@ -115,6 +116,18 @@ class EsoClass(QueryWithLogin):
         if authenticated and password_from_keyring is None:
             keyring.set_password("astroquery:www.eso.org", username, password)
         return authenticated
+    
+    def list_instruments(self):
+        if self._instrument_list is None:
+            instrument_list_response = self.session.get("http://archive.eso.org/cms/eso-data/instrument-specific-query-forms.html")
+            root = html.document_fromstring(instrument_list_response.content)
+            self._instrument_list = []
+            for element in root.xpath("//div[@id='col3']//a[@href]"):
+                if "http://archive.eso.org/wdb/wdb/eso" in element.attrib["href"]:
+                    instrument = element.attrib["href"].split("/")[-2]
+                    if instrument not in self._instrument_list:
+                        self._instrument_list += [instrument]
+        return self._instrument_list
     
     def query_instrument(self, instrument, **kwargs):
         instrument_form = self.session.get("http://archive.eso.org/wdb/wdb/eso/{}/form".format(instrument))
