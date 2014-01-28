@@ -629,7 +629,7 @@ class SDSSClass(BaseQuery):
             q_join = ''
 
         q_where = ''
-        if coordinates:
+        if coordinates is not None:
             # Query for a region
             coordinates = commons.parse_coordinates(coordinates)
 
