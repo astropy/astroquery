@@ -73,6 +73,18 @@ are printed.
 
     >>> table = eso.query_instrument('amber', target="Sgr A*")
     >>> table[:10].pprint()
+     target     RA        DEC    data_products.prog_id      data_products.dp_id        ob_id   data_products.dp_cat data_products.dp_type data_products.dp_tech
+    ------- ---------- --------- --------------------- ----------------------------- --------- -------------------- --------------------- ---------------------
+    GC_IRS7 266.417056 -29.00614         076.B-0863(A) AMBER.2006-03-14T07:40:03.741 200156177              SCIENCE         FRNSRC,BASE12        INTERFEROMETRY
+    GC_IRS7 266.417056 -29.00614         076.B-0863(A) AMBER.2006-03-14T07:40:19.830 200156177              SCIENCE         FRNSRC,BASE12        INTERFEROMETRY
+    GC_IRS7 266.417056 -29.00614         076.B-0863(A) AMBER.2006-03-14T07:40:35.374 200156177              SCIENCE         FRNSRC,BASE12        INTERFEROMETRY
+    GC_IRS7 266.417056 -29.00614         076.B-0863(A) AMBER.2006-03-14T07:40:50.932 200156177              SCIENCE         FRNSRC,BASE12        INTERFEROMETRY
+    GC_IRS7 266.417056 -29.00614         076.B-0863(A) AMBER.2006-03-14T07:41:07.444 200156177              SCIENCE         FRNSRC,BASE12        INTERFEROMETRY
+    GC_IRS7 266.417056 -29.00614         076.B-0863(A) AMBER.2006-03-14T07:41:24.179 200156177              SCIENCE         FRNSRC,BASE12        INTERFEROMETRY
+    GC_IRS7 266.417056 -29.00614         076.B-0863(A) AMBER.2006-03-14T07:41:39.523 200156177              SCIENCE         FRNSRC,BASE12        INTERFEROMETRY
+    GC_IRS7 266.417056 -29.00614         076.B-0863(A) AMBER.2006-03-14T07:41:55.312 200156177              SCIENCE         FRNSRC,BASE12        INTERFEROMETRY
+    GC_IRS7 266.417056 -29.00614         076.B-0863(A) AMBER.2006-03-14T07:42:12.060 200156177              SCIENCE         FRNSRC,BASE12        INTERFEROMETRY
+    GC_IRS7 266.417056 -29.00614         076.B-0863(A) AMBER.2006-03-14T07:42:29.119 200156177              SCIENCE         FRNSRC,BASE12        INTERFEROMETRY
 
 In the next step, the first dataset is selected, using its data product ID, and retrieved from the ESO archive.
 
