@@ -9,8 +9,11 @@ from cStringIO import StringIO
 from astropy.table import Table
 
 from ..query import QueryWithLogin
+from . import ROW_LIMIT
 
 class EsoClass(QueryWithLogin):
+    
+    ROW_LIMIT = ROW_LIMIT()
     
     def __init__(self):
         self.session = requests.Session()
@@ -164,6 +167,10 @@ class EsoClass(QueryWithLogin):
             instrument_form = self.session.get(url)
             query_dict = kwargs
             query_dict["wdbo"] = "votable"
+            if self.ROW_LIMIT >= 0:
+                query_dict["max_rows_returned"] = self.ROW_LIMIT
+            else:
+                query_dict["max_rows_returned"] = 10000
             instrument_response = self._activate_form(instrument_form, form_index=0, inputs=query_dict)
             table = Table.read(StringIO(instrument_response.content))
         return table
