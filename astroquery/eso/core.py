@@ -1,5 +1,6 @@
 import time
 import requests
+import webbrowser
 import keyring
 import getpass
 import lxml.html as html
@@ -136,13 +137,16 @@ class EsoClass(QueryWithLogin):
                         self._instrument_list += [instrument]
         return self._instrument_list
     
-    def query_instrument(self, instrument, **kwargs):
+    def query_instrument(self, instrument, open_form=False, **kwargs):
         """ Query instrument specific raw data contained in the ESO archive.
         
         Parameters
         ----------
         instrument : string
             Name of the instrument to query, one of the names returned by `list_instruments()`.
+        open_form : bool
+            If set to true, this will open in your browser the query form for the given instrument,
+            and return None.
         kwargs : 
         
         Returns
@@ -152,11 +156,16 @@ class EsoClass(QueryWithLogin):
             matching the constraints specified in `kwargs`.
         
         """
-        instrument_form = self.session.get("http://archive.eso.org/wdb/wdb/eso/{}/form".format(instrument))
-        query_dict = kwargs
-        query_dict["wdbo"] = "votable"
-        instrument_response = self._activate_form(instrument_form, form_index=0, inputs=query_dict)
-        table = Table.read(StringIO(instrument_response.content))
+        url = "http://archive.eso.org/wdb/wdb/eso/{}/form".format(instrument)
+        if open_form:
+            webbrowser.open(url)
+            table = None
+        else:
+            instrument_form = self.session.get(url)
+            query_dict = kwargs
+            query_dict["wdbo"] = "votable"
+            instrument_response = self._activate_form(instrument_form, form_index=0, inputs=query_dict)
+            table = Table.read(StringIO(instrument_response.content))
         return table
     
     def data_retrieval(self, datasets):
