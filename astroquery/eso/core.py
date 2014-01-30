@@ -156,7 +156,8 @@ class EsoClass(QueryWithLogin):
         -------
         table : `astropy.table.Table`
             A table representing the data available in the archive for the specified instrument,
-            matching the constraints specified in `kwargs`.
+            matching the constraints specified in `kwargs`. The number of rows returned is capped
+            by the ROW_LIMIT configuration item.
         
         """
         url = "http://archive.eso.org/wdb/wdb/eso/{}/form".format(instrument)
