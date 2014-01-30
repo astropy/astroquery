@@ -76,8 +76,12 @@ class AlfalfaClass(BaseQuery):
 
         # Mask out blank elements
         for col in cols:
-            mask = np.zeros(len(catalog[col]))
-            mask[np.array(catalog[col]) == self.PLACEHOLDER] = 1
+            mask = np.zeros(len(catalog[col]), dtype='bool')
+            # need to turn list -> array for boolean comparison
+            colArr = np.array(catalog[col])
+            # placeholder must share Type with the array
+            ph = np.array(self.PLACEHOLDER,dtype=colArr.dtype)
+            mask[colArr == ph] = True
             catalog[col] = ma.array(catalog[col], mask=mask)
 
         # Make this globally available so we don't have to re-download it
