@@ -150,7 +150,6 @@ class EsoClass(QueryWithLogin):
         open_form : bool
             If set to true, this will open in your browser the query form for the given instrument,
             and return None.
-        kwargs : 
         
         Returns
         -------
