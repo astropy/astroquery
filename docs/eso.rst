@@ -63,7 +63,7 @@ authentication example above. The first thing to do is to identify the instrumen
 Then, the list of available datasets can be queried for this instrument, using additional constraints.
 These constraints are based on the instrument specific options that can be found is the instrument query forms.
 
-Note: these instrument query forms can be open in your web browser directly using the `show_form` option of
+Note: these instrument query forms can be opened in your web browser directly using the `show_form` option of
 the `instrument_query()` method. For now, this should help with the identification of the acceptable keywords.
 
 In the following, datasets near Sgr A* are searched for in the amber archive, and the first 10 returned datasets
