@@ -118,6 +118,13 @@ class EsoClass(QueryWithLogin):
         return authenticated
     
     def list_instruments(self):
+        """ List all the available instruments in the ESO archive.
+        
+        Returns
+        -------
+        instrument_list : list of strings
+        
+        """
         if self._instrument_list is None:
             instrument_list_response = self.session.get("http://archive.eso.org/cms/eso-data/instrument-specific-query-forms.html")
             root = html.document_fromstring(instrument_list_response.content)
@@ -130,6 +137,21 @@ class EsoClass(QueryWithLogin):
         return self._instrument_list
     
     def query_instrument(self, instrument, **kwargs):
+        """ Query instrument specific raw data contained in the ESO archive.
+        
+        Parameters
+        ----------
+        instrument : string
+            Name of the instrument to query, one of the names returned by `list_instruments()`.
+        kwargs : 
+        
+        Returns
+        -------
+        table : `astropy.table.Table`
+            A table representing the data available in the archive for the specified instrument,
+            matching the constraints specified in `kwargs`.
+        
+        """
         instrument_form = self.session.get("http://archive.eso.org/wdb/wdb/eso/{}/form".format(instrument))
         query_dict = kwargs
         query_dict["wdbo"] = "votable"
@@ -138,6 +160,19 @@ class EsoClass(QueryWithLogin):
         return table
     
     def data_retrieval(self, datasets):
+        """ Retrieve a list of datasets form the ESO archive.
+        
+        Parameters
+        ----------
+        datasets : list of strings
+            List of datasets strings to retrieve from the archive.
+        
+        Returns
+        -------
+        files : list of strings
+            List of files that have been locally downloaded from the archive.
+        
+        """
         data_retrieval_form = self.session.get("http://archive.eso.org/cms/eso-data/eso-data-direct-retrieval.html")
         data_confirmation_form = self._activate_form(data_retrieval_form, form_index=-1, inputs={"list_of_datasets": "/n".join(datasets)})
         data_download_form = self._activate_form(data_confirmation_form, form_index=-1)
