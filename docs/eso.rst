@@ -11,6 +11,7 @@ Getting started
 
 This is a python interface for querying the ESO archive web service.
 For now, it supports the following:
+
 - listing available instruments
 - searching all instrument specific raw data: http://archive.eso.org/cms/eso-data/instrument-specific-query-forms.html
 - downloading data by dataset identifiers: http://archive.eso.org/cms/eso-data/eso-data-direct-retrieval.html
@@ -46,8 +47,8 @@ interaction with the ESO archive.
     Authentication successful!
 
 
-Direct retrieval of data
-------------------------
+Query and direct retrieval of instrument specific raw data
+----------------------------------------------------------
 
 The direct retrieval of datasets is better explained with a running example, continuing from the
 authentication example above. The first thing to do is to identify the instrument to query.
@@ -78,7 +79,7 @@ In the next step, the first dataset is selected, using its data product ID, and 
     >>> data_product_id = table[0]['data_products.dp_id']
     >>> data_files = eso.data_retrieval([data_product_id])
     Downloading AMBER.2006-03-14T07:40:03.741.fits.Z...
-	Done!
+    Done!
     
     >>> print(data_files)
     ['AMBER.2006-03-14T07:40:03.741.fits.Z']
