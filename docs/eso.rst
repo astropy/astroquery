@@ -98,3 +98,4 @@ In the next step, the first dataset is selected, using its data product ID, and 
     >>> print(data_files)
     ['AMBER.2006-03-14T07:40:03.741.fits.Z']
 
+The returned file names correspond to datasets downloaded locally. They are ready to be used.
