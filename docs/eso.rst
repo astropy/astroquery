@@ -66,13 +66,14 @@ These constraints are based on the instrument specific options that can be found
 Note: these instrument query forms can be opened in your web browser directly using the `show_form` option of
 the `instrument_query()` method. For now, this should help with the identification of the acceptable keywords.
 
-In the following, datasets near Sgr A* are searched for in the amber archive, and the first 10 returned datasets
-are printed.
+In the following, datasets near Sgr A* are searched for in the amber archive, after limiting the number of
+returned rows to 10.
 
 .. code-block:: python
 
+    >>> eso.ROW_LIMIT = 10
     >>> table = eso.query_instrument('amber', target="Sgr A*")
-    >>> table[:10].pprint()
+    >>> table.pprint()
      target     RA        DEC    data_products.prog_id      data_products.dp_id        ob_id   data_products.dp_cat data_products.dp_type data_products.dp_tech
     ------- ---------- --------- --------------------- ----------------------------- --------- -------------------- --------------------- ---------------------
     GC_IRS7 266.417056 -29.00614         076.B-0863(A) AMBER.2006-03-14T07:40:03.741 200156177              SCIENCE         FRNSRC,BASE12        INTERFEROMETRY
