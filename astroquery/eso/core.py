@@ -7,6 +7,7 @@ import lxml.html as html
 from cStringIO import StringIO
 
 from astropy.table import Table
+from astropy.io import ascii
 
 from ..query import QueryWithLogin
 from . import ROW_LIMIT
@@ -139,6 +140,53 @@ class EsoClass(QueryWithLogin):
                     if instrument not in self._instrument_list:
                         self._instrument_list += [instrument]
         return self._instrument_list
+
+    def list_surveys(self):
+        """ List all the available surveys (phase 3) in the ESO archive.
+        
+        Returns
+        -------
+        survey_list : list of strings
+        
+        """
+        if self._survey_list is None:
+            survey_list_response = self.session.get("http://archive.eso.org/wdb/wdb/adp/phase3_main/form")
+            root = html.document_fromstring(survey_list_response.content)
+            self._survey_list = []
+            for select in root.xpath("//select[@name='phase3_program']"):
+                for element in select.xpath('option'):
+                    survey = element.text_content().strip()
+                    if survey not in self.survey_list and 'Any' not in survey:
+                        self.survey_list.append(survey)
+        return self._survey_list
+
+    def query_survey(self, survey, **kwargs):
+        """ Query survey Phase 3 data contained in the ESO archive.
+        
+        Parameters
+        ----------
+        survey : string
+            Name of the survey to query, one of the names returned by `list_surveys()`.
+        
+        Returns
+        -------
+        table : `astropy.table.Table`
+            A table representing the data available in the archive for the specified survey,
+            matching the constraints specified in `kwargs`. The number of rows returned is capped
+            by the ROW_LIMIT configuration item.
+        
+        """
+        url = "http://archive.eso.org/wdb/wdb/adp/phase3_main/form"
+        survey_form = self.session.get(url)
+        query_dict = kwargs
+        query_dict["wdbo"] = "csv/download"
+        if self.ROW_LIMIT >= 0:
+            query_dict["max_rows_returned"] = self.ROW_LIMIT
+        else:
+            query_dict["max_rows_returned"] = 10000
+        survey_response = self._activate_form(survey_form, form_index=0, inputs=query_dict)
+        table = ascii.read(StringIO(survey_response.content),format='csv',comment='#',delimiter=',',header_start=1)
+        return table
     
     def query_instrument(self, instrument, open_form=False, **kwargs):
         """ Query instrument specific raw data contained in the ESO archive.
