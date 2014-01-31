@@ -19,6 +19,7 @@ class EsoClass(QueryWithLogin):
     def __init__(self):
         self.session = requests.Session()
         self._instrument_list = None
+        self._survey_list = None
     
     def _activate_form(self, response, form_index=0, inputs={}):
         #Extract form from response
@@ -156,8 +157,8 @@ class EsoClass(QueryWithLogin):
             for select in root.xpath("//select[@name='phase3_program']"):
                 for element in select.xpath('option'):
                     survey = element.text_content().strip()
-                    if survey not in self.survey_list and 'Any' not in survey:
-                        self.survey_list.append(survey)
+                    if survey not in self._survey_list and 'Any' not in survey:
+                        self._survey_list.append(survey)
         return self._survey_list
 
     def query_survey(self, survey, **kwargs):
