@@ -239,7 +239,7 @@ class EsoClass(QueryWithLogin):
         
         """
         data_retrieval_form = self.session.get("http://archive.eso.org/cms/eso-data/eso-data-direct-retrieval.html")
-        data_confirmation_form = self._activate_form(data_retrieval_form, form_index=-1, inputs={"list_of_datasets": "/n".join(datasets)})
+        data_confirmation_form = self._activate_form(data_retrieval_form, form_index=-1, inputs={"list_of_datasets": "\n".join(datasets)})
         data_download_form = self._activate_form(data_confirmation_form, form_index=-1)
         root = html.document_fromstring(data_download_form.content)
         state = root.xpath("//span[@id='requestState']")[0].text
