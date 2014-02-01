@@ -111,7 +111,7 @@ def test_parse_result():
     assert isinstance(result1, Table)
     with pytest.raises(TableParseError) as ex:
         dummy = simbad.core.Simbad._parse_result(MockResponseSimbad('query error '))
-    assert ex.value.message == ('Failed to parse SIMBAD result! '
+    assert str(ex.value) == ('Failed to parse SIMBAD result! '
                                 'The raw response can be found in self.last_response, '
                                 'and the error in self.last_table_parse_error.  '
                                 'The attempted parsed result is in self.last_parsed_result.'
@@ -321,7 +321,7 @@ def test_regression_votablesettings():
     simbad.core.Simbad.add_votable_fields('ra','dec(5)')
     with pytest.raises(KeyError) as ex:
         simbad.core.Simbad.add_votable_fields('ra(d)','dec(d)')
-    assert ex.value.message == 'ra(d): field already present.  Fields ra,dec,id,otype, and bibcodelist can only be specified once.  To change their options, first remove the existing entry, then add a new one.'
+    assert ex.value.args[0] == 'ra(d): field already present.  Fields ra,dec,id,otype, and bibcodelist can only be specified once.  To change their options, first remove the existing entry, then add a new one.'
     # cleanup
     simbad.core.Simbad.remove_votable_fields('ra','dec',strip_params=True)
     assert simbad.core.Simbad.get_votable_fields() == ['main_id','coordinates']

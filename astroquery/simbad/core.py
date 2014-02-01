@@ -39,8 +39,8 @@ def validate_epoch(func):
                 p = re.compile('^[JB]\d+[.]?\d+$', re.IGNORECASE)
                 assert p.match(value) is not None
             except (AssertionError, TypeError):
-                raise Exception("Epoch must be specified as [J|B]<epoch>.\n"
-                                "Example: epoch='J2000'")
+                raise ValueError("Epoch must be specified as [J|B]<epoch>.\n"
+                                 "Example: epoch='J2000'")
         return func(*args, **kwargs)
     return wrapper
 
@@ -56,7 +56,7 @@ def validate_equinox(func):
             try:
                 float(value)
             except ValueError:
-                raise Exception("Equinox must be a number")
+                raise ValueError("Equinox must be a number")
         return func(*args, **kwargs)
     return wrapper
     
@@ -193,7 +193,7 @@ class SimbadClass(BaseQuery):
         try:
             print (fields_dict[field_name])
         except KeyError:
-            raise Exception("No such field_name")
+            raise KeyError("No such field_name")
 
     def get_votable_fields(self):
         """
@@ -687,7 +687,7 @@ def _parse_coordinates(coordinates):
         # get ra, dec and frame
         return _get_frame_coords(c)
     except (u.UnitsException, TypeError):
-        raise Exception("Coordinates not specified correctly")
+        raise ValueError("Coordinates not specified correctly")
 
 
 def _get_frame_coords(c):
@@ -730,7 +730,7 @@ def _parse_radius(radius):
         if unit == 's':
             return str(abs(angle.dms[2])) + unit
     except (u.UnitsException, coord.errors.UnitsError, AttributeError):
-        raise Exception("Radius specified incorrectly")
+        raise ValueError("Radius specified incorrectly")
 
 error_regex = re.compile(r'(?ms)\[(?P<line>\d+)\]\s?(?P<msg>.+?)(\[|\Z)')
 bibcode_regex = re.compile(r'query\s+bibcode\s+(wildcard)?\s+([\w]*)')

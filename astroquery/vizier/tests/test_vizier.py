@@ -120,7 +120,7 @@ class TestVizierKeywordClass:
         vizier.core.VizierKeyword(keywords=['xxx','coBe'])
         w = recwarn.pop(UserWarning)
         # warning must be emitted
-        assert (w.message.message == 'xxx : No such keyword')
+        assert (str(w.message) == 'xxx : No such keyword')
 
 
 class TestVizierClass:
