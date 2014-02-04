@@ -177,10 +177,13 @@ class EsoClass(QueryWithLogin):
             by the ROW_LIMIT configuration item.
         
         """
+        if survey not in self.list_surveys():
+            raise ValueError("Survey %s is not in the survey list." % survey)
         url = "http://archive.eso.org/wdb/wdb/adp/phase3_main/form"
         survey_form = self.session.get(url)
         query_dict = kwargs
         query_dict["wdbo"] = "csv/download"
+        query_dict['phase3_program'] = survey
         if self.ROW_LIMIT >= 0:
             query_dict["max_rows_returned"] = self.ROW_LIMIT
         else:
