@@ -63,7 +63,7 @@ def print_mols():
         print(mols[mol_family], '\n')
 
 
-def query(mol, query_type, coll_partner_index=0, return_datafile=False):
+def query(mol, query_type=None, coll_partner_index=0, return_datafile=False):
     """
     Query the LAMDA database.
 
