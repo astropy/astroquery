@@ -63,7 +63,7 @@ def print_mols():
         print(mols[mol_family], '\n')
 
 
-def query(mol, query_type, coll_partner_index=0, return_datafile=False):
+def query(mol, query_type=None, coll_partner_index=0, return_datafile=False):
     """
     Query the LAMDA database.
 
@@ -97,8 +97,8 @@ def query(mol, query_type, coll_partner_index=0, return_datafile=False):
         3    11.534919938    5.0   2
       ...             ...    ... ...
     """
-    if query_type not in query_types.keys():
-        raise ValueError
+    if query_type not in query_types.keys() and not return_datafile:
+        raise ValueError("Query type must be one of "+",".join(query_type.keys()))
     # Send HTTP request to open URL
     datafile = [s.strip() for s in
                 requests.get(url.format(mol)).iter_lines()]
