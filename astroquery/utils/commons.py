@@ -359,7 +359,7 @@ class FileContainer(object):
         if (os.path.splitext(target)[1] == '.fits' and not 
                 ('encoding' in kwargs and kwargs['encoding'] == 'binary')):
             warnings.warn("FITS files must be read as binaries; error is likely.")
-        self._readable_object = aud.get_readable_fileobj(target, **kwargs)
+        self._readable_object = get_readable_fileobj(target, **kwargs)
 
     def get_fits(self):
         """
@@ -447,3 +447,11 @@ class FileContainer(object):
             return "Downloaded FITS file: "+self._fits.__repr__()
         else:
             return "Downloaded object from URL {} with ID {}".format(self._target, id(self._readable_object))
+
+
+def get_readable_fileobj(*args, **kwargs):
+    """
+    Overload astropy's get_readable_fileobj so that we can safely monkeypatch
+    it in astroquery without affecting astropy core functionality
+    """
+    return aud.get_readable_fileobj(*args, **kwargs)

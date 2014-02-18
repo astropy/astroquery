@@ -6,7 +6,7 @@ import gzip
 from ..extern.six import StringIO
 
 import astropy.io.fits as fits
-import astropy.utils.data as aud
+from .commons import get_readable_fileobj
 
 __all__ = ['download_list_of_fitsfiles']
 
@@ -57,7 +57,7 @@ def download_list_of_fitsfiles(linklist, output_directory=None,
             if not os.path.exists(output_directory):
                 os.mkdir(output_directory)
 
-        with aud.get_readable_fileobj(link, cache=True) as f:
+        with get_readable_fileobj(link, cache=True) as f:
             results = f.read()
         S = StringIO(results)
 

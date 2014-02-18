@@ -5,7 +5,6 @@ from contextlib import contextmanager
 
 from astropy.tests.helper import pytest
 from astropy.table import Table
-import astropy.utils.data as aud
 import astropy.coordinates as coord
 import astropy.units as u
 import numpy.testing as npt
@@ -45,7 +44,7 @@ def patch_get_readable_fileobj(request):
             file_obj = open(data_path(DATA_FILES["votable"]), "r")
         yield file_obj
     mp = request.getfuncargvalue("monkeypatch")
-    mp.setattr(aud, 'get_readable_fileobj', get_readable_fileobj_mockreturn)
+    mp.setattr(commons, 'get_readable_fileobj', get_readable_fileobj_mockreturn)
     return mp
 
 

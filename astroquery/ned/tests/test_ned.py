@@ -8,13 +8,13 @@ import requests
 from numpy import testing as npt
 from astropy.tests.helper import pytest
 from astropy.table import Table
-import astropy.utils.data as aud
 import astropy.coordinates as coord
 import astropy.units as u
 from ...exceptions import RemoteServiceError
 from ...utils.testing_tools import MockResponse
 
 from ... import ned
+from ...utils import commons
 from ...ned import (HUBBLE_CONSTANT,
                CORRECT_REDSHIFT,
                OUTPUT_COORDINATE_FRAME,
@@ -57,7 +57,7 @@ def patch_get_readable_fileobj(request):
     def get_readable_fileobj_mockreturn(filename, cache=True):
         return open(data_path(DATA_FILES['image']), 'rb')
     mp = request.getfuncargvalue("monkeypatch")
-    mp.setattr(aud, 'get_readable_fileobj', get_readable_fileobj_mockreturn)
+    mp.setattr(commons, 'get_readable_fileobj', get_readable_fileobj_mockreturn)
     return mp
 
 

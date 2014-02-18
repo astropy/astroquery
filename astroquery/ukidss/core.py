@@ -10,7 +10,6 @@ from math import cos, radians
 import astropy.units as u
 import astropy.coordinates as coord
 import astropy.io.votable as votable
-import astropy.utils.data as aud
 
 from ..query import QueryWithLogin
 from ..exceptions import InvalidQueryError, TimeoutError
@@ -497,7 +496,7 @@ class UkidssClass(QueryWithLogin):
         if len(table_links) == 0:
             raise Exception("No VOTable found on returned webpage!")
         table_link = [link for link in table_links if "8080" not in link][0]
-        with aud.get_readable_fileobj(table_link) as f:
+        with commons.get_readable_fileobj(table_link) as f:
             content = f.read()
 
         if not verbose:

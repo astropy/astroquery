@@ -1,11 +1,12 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from ... import alfalfa
 from astropy import coordinates
-import astropy.utils.data as aud
 from astropy.tests.helper import pytest
 import requests
 from contextlib import contextmanager
 import os
+
+from ...utils import commons
 
 DATA_FILES = {'catalog':'alfalfa_cat_small.txt',
               'spectrum':'alfalfa_sp.fits'}
@@ -35,7 +36,7 @@ def patch_get_readable_fileobj(request):
         file_obj = data_path(DATA_FILES['spectrum']) # TODO: add images option
         yield open(file_obj,'rb') # read as bytes, assuming FITS
     mp = request.getfuncargvalue("monkeypatch")
-    mp.setattr(aud, 'get_readable_fileobj', get_readable_fileobj_mockreturn)
+    mp.setattr(commons, 'get_readable_fileobj', get_readable_fileobj_mockreturn)
     return mp
 
 def get_mockreturn(url, params=None, timeout=10):
