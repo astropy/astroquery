@@ -81,9 +81,10 @@ class IrsaDustClass(BaseQuery):
 
         if get_query_payload:
             return self._args_to_payload(coordinate, radius=radius)
-        readable_objs = self.get_images_async(
-            coordinate, radius=radius, image_type=image_type,
-            timeout=timeout, get_query_payload=get_query_payload)
+        readable_objs = self.get_images_async(coordinate, radius=radius,
+                                              image_type=image_type,
+                                              timeout=timeout,
+                                              get_query_payload=get_query_payload)
         return [obj.get_fits() for obj in readable_objs]
 
     def get_images_async(self, coordinate, radius=None,
@@ -124,7 +125,9 @@ class IrsaDustClass(BaseQuery):
             return self._args_to_payload(coordinate, radius=radius)
         image_urls = self.get_image_list(coordinate, radius=radius,
                                          image_type=image_type, timeout=timeout)
-        return [commons.FileContainer(U) for U in image_urls]
+        # Images are assumed to be FITS files
+        # they MUST be read as binary for python3 to parse them
+        return [commons.FileContainer(U, encoding='binary') for U in image_urls]
 
     def get_image_list(
             self, coordinate, radius=None, image_type=None, timeout=TIMEOUT):

@@ -60,8 +60,8 @@ def test_query_region(patch_get, patch_parse_coordinates):
     assert isinstance(result, Table)
     assert len(result) > 0
     if 'Start Time' in result.colnames:
-        assert result['Start Time'][0] == '83-Sep-27 09:19:30'
+        assert result['Start Time'][0] == b'83-Sep-27 09:19:30'
     else:
-        assert result['Start_Time'][0] == '83-Sep-27 09:19:30'
-    assert result['RA'][0] == '04h33m11.096s'
+        assert result['Start_Time'][0] == b'83-Sep-27 09:19:30'
+    assert result['RA'][0] == b'04h33m11.096s'
 
