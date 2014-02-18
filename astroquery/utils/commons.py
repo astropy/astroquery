@@ -30,7 +30,9 @@ from .. import version
 PY3 = sys.version_info[0] >= 3
 
 if PY3:
-    basestring = (str, bytes)
+    stringtypes = (str, bytes)
+else:
+    stringtypes = basestring
 
 __all__ = ['send_request',
            'parse_coordinates',
@@ -177,7 +179,7 @@ def parse_coordinates(coordinates):
     astropy.units.UnitsException
     TypeError
     """
-    if isinstance(coordinates, basestring):
+    if isinstance(coordinates, stringtypes):
         try:
             c = coord.ICRS.from_name(coordinates)
         except coord.name_resolve.NameResolveError:

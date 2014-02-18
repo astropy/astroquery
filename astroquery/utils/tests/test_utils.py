@@ -377,8 +377,8 @@ def patch_getreadablefileobj(request):
     filesize = os.path.getsize(fitsfilepath)
 
     class MockRemote(object):
-        def __init__(self, fn, *args):
-            self.file = open(fn,'r')
+        def __init__(self, fn, *args, **kwargs):
+            self.file = open(fn,'rb')
         def info(self):
             return {'Content-Length':filesize}
         def read(self,*args):
@@ -387,7 +387,7 @@ def patch_getreadablefileobj(request):
             self.file.close()
 
     def urlopen(x, *args, **kwargs):
-        return MockRemote(fitsfilepath)
+        return MockRemote(fitsfilepath, *args, **kwargs)
 
     urllib2.urlopen = urlopen
 
