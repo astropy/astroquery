@@ -25,6 +25,7 @@ import astropy.utils.data as aud
 from astropy.io import fits,votable
 
 from ..exceptions import TimeoutError
+from ..extern import six
 from .. import version
 
 PY3 = sys.version_info[0] >= 3
@@ -354,6 +355,9 @@ class FileContainer(object):
         kwargs.setdefault('cache', True)
         self._target = target
         self._timeout = kwargs.get('remote_timeout', aud.REMOTE_TIMEOUT())
+        if (os.path.splitext(target)[1] == '.fits' and not 
+                ('encoding' in kwargs and kwargs['encoding'] == 'binary')):
+            warnings.warn("FITS files must be read as binaries; error is likely.")
         self._readable_object = aud.get_readable_fileobj(target, **kwargs)
 
     def get_fits(self):
@@ -415,7 +419,8 @@ class FileContainer(object):
         if not hasattr(self,'_string'):
             try:
                 with self._readable_object as f:
-                    self._string = f.read()
+                    data = f.read()
+                    self._string = data
             except URLError as e:
                 if isinstance(e.reason, socket.timeout):
                     raise TimeoutError("Query timed out, time elapsed {t}s".

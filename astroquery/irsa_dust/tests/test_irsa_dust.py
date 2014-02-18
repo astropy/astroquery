@@ -307,7 +307,7 @@ class TestDust(DustTestCase):
                                     image_type=None,
                                     timeout=irsa_dust.core.IrsaDust.TIMEOUT,
                                     get_query_payload=False):
-        readable_obj = commons.FileContainer(self.data(IMG_FITS))
+        readable_obj = commons.FileContainer(self.data(IMG_FITS),encoding='binary')
         return [readable_obj]
 
     def set_ext_table_text(self, text, xml_tree):
