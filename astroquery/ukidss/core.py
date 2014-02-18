@@ -504,7 +504,6 @@ class UkidssClass(QueryWithLogin):
             commons.suppress_vo_warnings()
 
         try:
-            import pdb; pdb.set_trace()
             io_obj = io.BytesIO(content.encode('utf-8'))
             parsed_table = votable.parse(io_obj, pedantic=False)
             first_table = parsed_table.get_first_table()
