@@ -442,11 +442,11 @@ class VizierClass(BaseQuery):
         try:
             tf = tempfile.NamedTemporaryFile()
             if PY3:
-                tf.write(response.content.encode())
+                tf.write(response.content)
             else:
                 tf.write(response.content.encode('utf-8'))
             tf.file.flush()
-            vo_tree = votable.parse(tf.name, pedantic=False)
+            vo_tree = votable.parse(tf, pedantic=False)
             if get_catalog_names:
                 return dict([(R.name,R) for R in vo_tree.resources])
             else:
@@ -470,7 +470,7 @@ class VizierClass(BaseQuery):
         except Exception as ex:
             self.response = response
             self.table_parse_error = ex
-            raise TableParseError("Failed to parse SIMBAD result! The raw response can be found "
+            raise TableParseError("Failed to parse VIZIER result! The raw response can be found "
                                   "in self.response, and the error in self.table_parse_error."
                                   "  The attempted parsed result is in self.parsed_result.\n"
                                   "Exception: " + str(self.table_parse_error))
