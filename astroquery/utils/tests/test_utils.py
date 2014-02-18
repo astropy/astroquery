@@ -398,12 +398,12 @@ def patch_getreadablefileobj(request):
     request.addfinalizer(closing)
 
 def test_filecontainer_save(patch_getreadablefileobj):
-    ffile = commons.FileContainer(fitsfilepath)
+    ffile = commons.FileContainer(fitsfilepath, encoding='binary')
     ffile.save_fits('/tmp/test_emptyfile.fits')
     assert os.path.exists('/tmp/test_emptyfile.fits')
 
 def test_filecontainer_get(patch_getreadablefileobj):
-    ffile = commons.FileContainer(fitsfilepath)
+    ffile = commons.FileContainer(fitsfilepath, encoding='binary')
     ff = ffile.get_fits()
     assert isinstance(ff, fits.HDUList)
 
