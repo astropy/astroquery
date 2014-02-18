@@ -187,9 +187,11 @@ class IrsaDustClass(BaseQuery):
         --------
         table : `astropy.table.Table`
         """
-        readable_obj = self.get_extinction_table_async(
-            coordinate, radius=radius, timeout=timeout)
-        table = Table.read(readable_obj.get_stringio(), format='ipac')
+        readable_obj = self.get_extinction_table_async(coordinate,
+                                                       radius=radius,
+                                                       timeout=timeout)
+        # guess=False to suppress error messages related to bad guesses
+        table = Table.read(readable_obj.get_string(), format='ipac', guess=False)
         return table
 
     def get_extinction_table_async(self, coordinate, radius=None,
