@@ -7,7 +7,6 @@ import re
 import sys
 import requests
 import warnings
-import io
 import os
 import shutil
 import socket
@@ -437,9 +436,9 @@ class FileContainer(object):
         s = self.get_string()
         # TODO: replace with six.BytesIO
         try:
-            return io.BytesIO(s)
+            return six.BytesIO(s)
         except TypeError:
-            return io.StringIO(s)
+            return six.StringIO(s)
 
     def __repr__(self):
         if hasattr(self,'_fits'):
