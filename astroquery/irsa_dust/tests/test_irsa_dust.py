@@ -1,6 +1,5 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import os
-import xml.etree.ElementTree as tree
 
 import astropy.units as u
 from astropy.tests.helper import pytest  # import this since the user may not have pytest installed
@@ -308,7 +307,7 @@ class TestDust(DustTestCase):
                                     image_type=None,
                                     timeout=irsa_dust.core.IrsaDust.TIMEOUT,
                                     get_query_payload=False):
-        readable_obj = commons.FileContainer(self.data(IMG_FITS))
+        readable_obj = commons.FileContainer(self.data(IMG_FITS),encoding='binary')
         return [readable_obj]
 
     def set_ext_table_text(self, text, xml_tree):

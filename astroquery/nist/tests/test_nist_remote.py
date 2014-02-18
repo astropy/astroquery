@@ -5,7 +5,8 @@ from astropy.tests.helper import remote_data
 from astropy.table import Table
 import astropy.units as u
 import requests
-reload(requests)
+import imp
+imp.reload(requests)
 
 from ... import nist
 

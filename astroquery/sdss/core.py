@@ -323,7 +323,9 @@ class SDSSClass(BaseQuery):
                                run2d=row['run2d'], plate=row['plate'],
                                fiber=row['fiberID'], mjd=row['mjd'])
 
-            results.append(commons.FileContainer(link, remote_timeout=timeout))
+            results.append(commons.FileContainer(link,
+                                                 encoding='binary',
+                                                 remote_timeout=timeout))
 
         return results
 
@@ -442,6 +444,7 @@ class SDSSClass(BaseQuery):
                                       field=row['field'], band=b)
 
                 results.append(commons.FileContainer(link,
+                                                     encoding='binary',
                                                      remote_timeout=timeout))
 
         return results
@@ -510,7 +513,9 @@ class SDSSClass(BaseQuery):
         for index in indices:
             name = str(index).zfill(3)
             link = '%s-%s.fit' % (SDSS.TEMPLATES, name)
-            results.append(commons.FileContainer(link, remote_timeout=timeout))
+            results.append(commons.FileContainer(link, 
+                                                 remote_timeout=timeout,
+                                                 encoding='binary'))
 
         return results
 
@@ -544,9 +549,14 @@ class SDSSClass(BaseQuery):
 
         """
 
-        arr = np.atleast_1d(np.genfromtxt(io.BytesIO(response.content),
-                            names=True, dtype=None, delimiter=',',
-                            skip_header=1))
+        # genfromtxt requires bytes; need to check for 'encode' for py3 compat
+        bytecontent = (response.content.encode('ascii') 
+                       if hasattr(response.content,'encode') 
+                       else response.content)
+        arr = np.atleast_1d(np.genfromtxt(io.BytesIO(bytecontent),
+                            names=True, dtype=None, delimiter=b',',
+                            skip_header=1, # this may be a hack; it is necessary for tests to pass
+                            comments=b'#'))
 
         if len(arr) == 0:
             return None

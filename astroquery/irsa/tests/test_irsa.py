@@ -7,6 +7,7 @@ from astropy.tests.helper import pytest
 from astropy.table import Table
 import astropy.coordinates as coord
 import astropy.units as u
+import numpy as np
 
 from ...utils.testing_tools import MockResponse
 from ... import irsa
@@ -58,7 +59,13 @@ def test_format_decimal_coords(ra, dec, expected):
                           ])
 def test_parse_coordinates(coordinates, expected):
     out = irsa.core._parse_coordinates(coordinates)
-    assert out == expected
+    for a,b in zip(out.split(),expected.split()):
+        try:
+            a = float(a)
+            b = float(b)
+            np.testing.assert_almost_equal(a,b)
+        except ValueError:
+            assert a == b
 
 
 def test_args_to_payload():
@@ -113,7 +120,15 @@ poly2 = [(10.1*u.deg, 10.1*u.deg), (10.0*u.deg, 10.1*u.deg), (10.0*u.deg, 10.0*u
 def test_query_region_async_polygon(polygon, patch_get):
     response = irsa.core.Irsa.query_region_async("m31", catalog="fp_psc", spatial="Polygon",
                                                  polygon=polygon, get_query_payload=True)
-    assert response["polygon"] == "10.1 +10.1,10.0 +10.1,10.0 +10.0"
+
+    for a,b in zip(response["polygon"].split(),"10.1 +10.1,10.0 +10.1,10.0 +10.0".split()):
+        try:
+            a = float(a)
+            b = float(b)
+            np.testing.assert_almost_equal(a,b)
+        except ValueError:
+            assert a == b
+
     response = irsa.core.Irsa.query_region_async("m31", catalog="fp_psc", spatial="Polygon",
                                                  polygon=polygon)
     assert response is not None

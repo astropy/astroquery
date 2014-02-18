@@ -266,4 +266,7 @@ def test_parse_result(capsys):
     response = MockResponse(content)
     with pytest.raises(RemoteServiceError) as exinfo:
         ned.core.Ned._parse_result(response)
-    assert str(exinfo.value) == "The remote service returned the following error message.\nERROR:  No note found."
+    if hasattr(exinfo.value,'message'):
+        assert exinfo.value.message == "The remote service returned the following error message.\nERROR:  No note found."
+    else:
+        assert exinfo.value.args == ("The remote service returned the following error message.\nERROR:  No note found.",)

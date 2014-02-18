@@ -97,6 +97,7 @@ class SimbadClass(BaseQuery):
                 '[^0-9]': 'Any (one) character not in the list.'
 
                 }
+    _ORDERED_WILDCARDS = ['*','?','[abc]','[^0-9]']
 
     # query around not included since this is a subcase of query_region
     _function_to_command = {
@@ -135,7 +136,7 @@ class SimbadClass(BaseQuery):
 
         [abc] : Exactly one character taken in the list. Can also be defined by a range of characters: [A-Z]
         """
-        for key in self.WILDCARDS:
+        for key in self._ORDERED_WILDCARDS:
             print("{key} : {value}\n".format(key=key, value=self.WILDCARDS[key]))
         return
 
@@ -259,7 +260,7 @@ class SimbadClass(BaseQuery):
             sfields = self._VOTABLE_FIELDS
         absent_fields = set(sargs) - set(sfields)
 
-        for b,f in zip(sfields, self._VOTABLE_FIELDS):
+        for b,f in list(zip(sfields, self._VOTABLE_FIELDS)):
             if b in sargs:
                 self._VOTABLE_FIELDS.remove(f)
 
@@ -597,7 +598,7 @@ class SimbadClass(BaseQuery):
         request_payload = self._args_to_payload(bibcode, wildcard=wildcard,
                                                 caller='query_bibcode_async', get_raw=True)
         response = commons.send_request(self.SIMBAD_URL, request_payload,
-                                self.TIMEOUT)
+                                        self.TIMEOUT)
         return response
 
     @validate_epoch
@@ -710,6 +711,8 @@ def _get_frame_coords(c):
 
 
 def _to_simbad_format(ra, dec):
+    # This irrelevantly raises the exception 
+    # "AttributeError: Angle instance has no attribute 'hour'"
     ra = ra.format(u.hour, sep=':')
     dec = dec.format(u.degree, sep=':', alwayssign='True')
     return (ra.lstrip(), dec.lstrip())
@@ -845,5 +848,8 @@ def _create_bibcode_table(data, splitter):
     max_len = max([len(r) for r in ref_list])
     table = Table(names=['References'], dtypes=['S%i' % max_len])
     for ref in ref_list:
-        table.add_row([ref.decode('utf-8')])
+        if hasattr(ref,'decode'):
+            table.add_row([ref.decode('utf-8')])
+        else:
+            table.add_row([ref])
     return table

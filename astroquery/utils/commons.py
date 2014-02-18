@@ -7,7 +7,6 @@ import re
 import sys
 import requests
 import warnings
-import io
 import os
 import shutil
 import socket
@@ -25,12 +24,16 @@ import astropy.utils.data as aud
 from astropy.io import fits,votable
 
 from ..exceptions import TimeoutError
+from ..extern import six
 from .. import version
 
 PY3 = sys.version_info[0] >= 3
 
 if PY3:
-    basestring = (str, bytes)
+    stringtypes = (str, bytes)
+else:
+    stringtypes = basestring
+
 __all__ = ['send_request',
            'parse_coordinates',
            'parse_radius',
@@ -127,12 +130,27 @@ def radius_to_unit(radius, unit='degree'):
     """
     rad = parse_radius(radius)
     # This is a hack to deal with astropy pre/post PR#1006
-    if hasattr(rad,str(unit)):
-        return getattr(rad,str(unit))
-    elif hasattr(rad,str(unit)+'s'):
-        return getattr(rad,str(unit)+'s')
+    # the try/except clauses are to deal with python3
+    # (note that this falls under the "I really, really wish I didn't have to
+    # deal with unicode right now" category)
+
+    try:
+        unit = unit.decode()
+    except AttributeError:
+        pass # (unit has no attribute "decode": it is already a unicode string?)
+
+    try:
+        # don't check for attrs if unit is not a string and cannot be coerced to one
+        assert isinstance(unit,str)
+        if hasattr(rad,unit):
+            return getattr(rad,unit)
+        elif hasattr(rad,unit+'s'):
+            return getattr(rad,unit+'s')
+    except AssertionError:
+        pass # try the other if
+    
     # major hack to deal with <0.3 Angle's not having deg/arcmin/etc equivs.
-    elif hasattr(rad,'degree'):
+    if hasattr(rad,'degree'):
         return (rad.degree * u.degree).to(unit).value
     elif hasattr(rad,'to'):
         return rad.to(unit).value
@@ -161,7 +179,7 @@ def parse_coordinates(coordinates):
     astropy.units.UnitsException
     TypeError
     """
-    if isinstance(coordinates, basestring):
+    if isinstance(coordinates, stringtypes):
         try:
             c = coord.ICRS.from_name(coordinates)
         except coord.name_resolve.NameResolveError:
@@ -210,6 +228,8 @@ class TableList(list):
     """
     def __init__(self, inp):
         if not isinstance(inp, OrderedDict):
+            # py3 doesn't let you catch 2 types of errors.
+            errmsg = "Input to TableList must be an OrderedDict or list of (k,v) pairs"
             try:
                 inp = OrderedDict(inp)
             except (TypeError,ValueError):
@@ -336,6 +356,9 @@ class FileContainer(object):
         kwargs.setdefault('cache', True)
         self._target = target
         self._timeout = kwargs.get('remote_timeout', aud.REMOTE_TIMEOUT())
+        if (os.path.splitext(target)[1] == '.fits' and not 
+                ('encoding' in kwargs and kwargs['encoding'] == 'binary')):
+            warnings.warn("FITS files must be read as binaries; error is likely.")
         self._readable_object = aud.get_readable_fileobj(target, **kwargs)
 
     def get_fits(self):
@@ -397,7 +420,8 @@ class FileContainer(object):
         if not hasattr(self,'_string'):
             try:
                 with self._readable_object as f:
-                    self._string = f.read()
+                    data = f.read()
+                    self._string = data
             except URLError as e:
                 if isinstance(e.reason, socket.timeout):
                     raise TimeoutError("Query timed out, time elapsed {t}s".
@@ -414,9 +438,9 @@ class FileContainer(object):
         s = self.get_string()
         # TODO: replace with six.BytesIO
         try:
-            return io.BytesIO(s)
+            return six.BytesIO(s)
         except TypeError:
-            return io.StringIO(s)
+            return six.StringIO(s)
 
     def __repr__(self):
         if hasattr(self,'_fits'):

@@ -6,7 +6,8 @@ from astropy.table import Table
 import astropy.coordinates as coord
 import astropy.units as u
 import requests
-reload(requests)
+import imp
+imp.reload(requests)
 
 from ... import ukidss
 

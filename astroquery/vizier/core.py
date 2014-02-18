@@ -5,7 +5,6 @@ import sys
 import os
 import warnings
 import json
-from collections import defaultdict
 import traceback
 import tempfile
 
@@ -22,11 +21,14 @@ from ..utils import commons
 from ..utils import async_to_sync
 from ..utils import schema
 from . import VIZIER_SERVER, VIZIER_TIMEOUT, ROW_LIMIT
+from ..exceptions import TableParseError
 
 PY3 = sys.version_info[0] >= 3
 
 if PY3:
-    basestring = (str, bytes)
+    stringtypes = (str, bytes)
+else:
+    stringtypes = basestring
 
 __all__ = ['Vizier','VizierClass']
 
@@ -358,7 +360,7 @@ class VizierClass(BaseQuery):
         if catalog is None:
             catalog = self.catalog
         if catalog is not None:
-            if isinstance(catalog, basestring):
+            if isinstance(catalog, stringtypes):
                 body['-source'] = catalog
             elif isinstance(catalog, list):
                 body['-source'] = ",".join(catalog)
@@ -440,11 +442,12 @@ class VizierClass(BaseQuery):
         try:
             tf = tempfile.NamedTemporaryFile()
             if PY3:
-                tf.write(response.content)
+                tf.write(response.content.encode())
+                # possibly tf.write(response.content.decode().encode('utf-8'))
             else:
                 tf.write(response.content.encode('utf-8'))
             tf.file.flush()
-            vo_tree = votable.parse(tf.name, pedantic=False)
+            vo_tree = votable.parse(tf, pedantic=False)
             if get_catalog_names:
                 return dict([(R.name,R) for R in vo_tree.resources])
             else:
@@ -465,11 +468,13 @@ class VizierClass(BaseQuery):
                         table_dict[name] = table_dict[name][0]
                 return commons.TableList(table_dict)
 
-        except:
-            traceback.print_exc()  # temporary for debugging
-            warnings.warn(
-                "Error in parsing result, returning raw result instead")
-            return response.content
+        except Exception as ex:
+            self.response = response
+            self.table_parse_error = ex
+            raise TableParseError("Failed to parse VIZIER result! The raw response can be found "
+                                  "in self.response, and the error in self.table_parse_error."
+                                  "  The attempted parsed result is in self.parsed_result.\n"
+                                  "Exception: " + str(self.table_parse_error))
 
 
 def _parse_angle(angle):
@@ -504,7 +509,9 @@ class VizierKeyword(list):
         file_name = aud.get_pkg_data_filename(
             os.path.join("data", "inverse_dict.json"))
         with open(file_name, 'r') as f:
-            self.keyword_dict = json.load(f)
+            kwd = json.load(f)
+            self.keyword_types = sorted(kwd.values())
+            self.keyword_dict = OrderedDict([(k,kwd[k]) for k in sorted(kwd)])
         self._keywords = None
         self.keywords = keywords
 
@@ -515,7 +522,7 @@ class VizierKeyword(list):
 
     @keywords.setter
     def keywords(self, values):
-        if isinstance(values, basestring):
+        if isinstance(values, stringtypes):
             values = list(values)
         keys = [key.lower() for key in self.keyword_dict]
         values = [val.lower() for val in values]
@@ -523,12 +530,20 @@ class VizierKeyword(list):
         for val in set(values) - set(keys):
             warnings.warn("{val} : No such keyword".format(val=val))
         valid_keys = [
-            key for key in self.keyword_dict if key.lower() in values]
+            key for key in self.keyword_dict.keys() 
+            if key.lower() in list(map(str.lower,values))]
         # create a dict for each type of keyword
-        set_keywords = defaultdict(list)
-        for key in valid_keys:
-            set_keywords[self.keyword_dict[key]].append(key)
-        self._keywords = set_keywords
+        set_keywords = OrderedDict()
+        for key in self.keyword_dict:
+            if key in valid_keys:
+                if self.keyword_dict[key] in set_keywords:
+                    set_keywords[self.keyword_dict[key]].append(key)
+                else:
+                    set_keywords[self.keyword_dict[key]] = [key]
+        self._keywords = OrderedDict(
+                [(k,sorted(set_keywords[k]))
+                 for k in set_keywords]
+                )
 
     @keywords.deleter
     def keywords(self):

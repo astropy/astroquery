@@ -6,6 +6,7 @@ from . import utils
 from . import IRSA_DUST_SERVER, IRSA_DUST_TIMEOUT
 from ..utils import commons
 from ..query import BaseQuery
+import io
 
 
 # TODO Add support for server url from JSON cache
@@ -80,9 +81,10 @@ class IrsaDustClass(BaseQuery):
 
         if get_query_payload:
             return self._args_to_payload(coordinate, radius=radius)
-        readable_objs = self.get_images_async(
-            coordinate, radius=radius, image_type=image_type,
-            timeout=timeout, get_query_payload=get_query_payload)
+        readable_objs = self.get_images_async(coordinate, radius=radius,
+                                              image_type=image_type,
+                                              timeout=timeout,
+                                              get_query_payload=get_query_payload)
         return [obj.get_fits() for obj in readable_objs]
 
     def get_images_async(self, coordinate, radius=None,
@@ -123,7 +125,9 @@ class IrsaDustClass(BaseQuery):
             return self._args_to_payload(coordinate, radius=radius)
         image_urls = self.get_image_list(coordinate, radius=radius,
                                          image_type=image_type, timeout=timeout)
-        return [commons.FileContainer(U) for U in image_urls]
+        # Images are assumed to be FITS files
+        # they MUST be read as binary for python3 to parse them
+        return [commons.FileContainer(U, encoding='binary') for U in image_urls]
 
     def get_image_list(
             self, coordinate, radius=None, image_type=None, timeout=TIMEOUT):
@@ -186,9 +190,11 @@ class IrsaDustClass(BaseQuery):
         --------
         table : `astropy.table.Table`
         """
-        readable_obj = self.get_extinction_table_async(
-            coordinate, radius=radius, timeout=timeout)
-        table = Table.read(readable_obj.get_stringio(), format='ipac')
+        readable_obj = self.get_extinction_table_async(coordinate,
+                                                       radius=radius,
+                                                       timeout=timeout)
+        # guess=False to suppress error messages related to bad guesses
+        table = Table.read(readable_obj.get_string(), format='ipac', guess=False)
         return table
 
     def get_extinction_table_async(self, coordinate, radius=None,
@@ -586,10 +592,6 @@ class SingleDustResult(object):
                     'temperature', 'temp', 't'"""
             raise ValueError(msg)
 
-        # response = utils.image(image_url)
-
-        # S = io.BytesIO(response)
-        # image = fits.open(S)
         return image_url
 
     def __str__(self):

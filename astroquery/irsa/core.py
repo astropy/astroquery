@@ -339,7 +339,7 @@ class IrsaClass(BaseQuery):
 
         # Write table to temporary file
         output = tempfile.NamedTemporaryFile()
-        output.write(response.content)
+        output.write(response.content.encode())
         output.flush()
 
         # Read it in using the astropy VO table reader

@@ -6,6 +6,7 @@ import struct
 import requests
 from astropy.table import Table
 import astropy.io.fits as fits
+import numpy as np
 
 
 __all__ = ['query', 'save_file', 'get_file']
@@ -130,14 +131,14 @@ def query(coord=None, ra=None, dec=None, size=None, naifid=None, pid=None,
     # Parse output
     # requests returns unicde strings, encode back to ascii
     # because of '|foo|bar|' delimeters, remove first and last empty columns
-    raw_data = [line.encode('ascii') for line in response.text.split('\n')]
+    raw_data = [line for line in response.text.split('\n')]
     field_widths = [len(s) + 1 for s in raw_data[0].split('|')][1:-1]
     col_names = [s.strip() for s in raw_data[0].split('|')][1:-1]
     type_names = [s.strip() for s in raw_data[1].split('|')][1:-1]
-    # Line parser for fixed width
-    fmtstring = ''.join('%ds' % width for width in field_widths)
-    line_parse = struct.Struct(fmtstring).unpack_from
-    data = [[el.strip() for el in line_parse(row)] for row in raw_data[4:-1]]
+    cs = [0]+np.cumsum(field_widths).tolist()
+    def parse_line(line, cs=cs):
+        return [line[a:b] for a,b in zip(cs[:-1],cs[1:])]
+    data = [parse_line(row) for row in raw_data[4:-1]]
     # Parse type names
     dtypes = _map_dtypes(type_names, field_widths)
     # To table

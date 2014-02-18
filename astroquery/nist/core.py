@@ -2,7 +2,6 @@
 from __future__ import print_function
 
 import re
-import warnings
 
 import astropy.units as u
 import astropy.io.ascii as asciitable

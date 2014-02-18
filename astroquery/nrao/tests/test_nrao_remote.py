@@ -5,7 +5,8 @@ from astropy.tests.helper import remote_data
 from astropy.table import Table
 import astropy.coordinates as coord
 import requests
-reload(requests)
+import imp
+imp.reload(requests)
 
 from ... import nrao
 

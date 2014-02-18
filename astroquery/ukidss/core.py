@@ -2,13 +2,6 @@
 from __future__ import print_function
 
 import requests
-try:
-    import htmllib
-except ImportError:
-    # python 3 compatibility
-    import html.parser as htmllib
-import formatter
-import tempfile
 import warnings
 import re
 import time
@@ -24,26 +17,10 @@ from ..exceptions import InvalidQueryError, TimeoutError
 from ..utils import commons
 from . import UKIDSS_SERVER, UKIDSS_TIMEOUT
 from ..exceptions import TableParseError
+from ..extern.six import BytesIO
 
 __all__ = ['Ukidss','UkidssClass','clean_catalog']
 
-
-class LinksExtractor(htmllib.HTMLParser):  # derive new HTML parser
-
-    def __init__(self, formatter):        # class constructor
-        htmllib.HTMLParser.__init__(self, formatter)  # base class constructor
-        self.links = []        # create an empty list for storing hyperlinks
-
-    def start_a(self, attrs):  # override handler of <A ...>...</A> tags
-        # process the attributes
-        if len(attrs) > 0:
-            for attr in attrs:
-                if attr[0] == "href":         # ignore all non HREF attributes
-                    self.links.append(
-                        attr[1])  # save the link info in the list
-
-    def get_links(self):
-        return self.links
 
 
 def validate_frame(func):
@@ -387,11 +364,12 @@ class UkidssClass(QueryWithLogin):
             The list of URLS extracted from the input.
         """
         # Parse html input for links
-        format = formatter.NullFormatter()
-        htmlparser = LinksExtractor(format)
-        htmlparser.feed(html_in)
-        htmlparser.close()
-        links = htmlparser.get_links()
+        ahref = re.compile('href="([a-zA-Z0-9_\.&\?=%/:-]+)"')
+        try:
+            links = ahref.findall(html_in)
+        except TypeError:
+            # py3
+            links = ahref.findall(html_in.decode())
         return links
 
     def query_region(self, coordinates, radius=1 * u.arcmin, programme_id='GPS', database='UKIDSSDR7PLUS',
@@ -526,10 +504,9 @@ class UkidssClass(QueryWithLogin):
             commons.suppress_vo_warnings()
 
         try:
-            tf = tempfile.NamedTemporaryFile()
-            tf.write(content.encode('utf-8'))
-            tf.flush()
-            first_table = votable.parse(tf.name, pedantic=False).get_first_table()
+            io_obj = BytesIO(content.encode('utf-8'))
+            parsed_table = votable.parse(io_obj, pedantic=False)
+            first_table = parsed_table.get_first_table()
             table = first_table.to_table()
             if len(table) == 0:
                 warnings.warn("Query returned no results, so the table will be empty")
@@ -537,8 +514,10 @@ class UkidssClass(QueryWithLogin):
         except Exception as ex:
             self.response = content
             self.table_parse_error = ex
+            raise
             raise TableParseError("Failed to parse UKIDSS votable! The raw response can be found "
-                                  "in self.response, and the error in self.table_parse_error.")
+                                  "in self.response, and the error in self.table_parse_error.  "
+                                  "Exception: " + str(self.table_parse_error))
 
     def list_catalogs(self, style='short'):
         """
