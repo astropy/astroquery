@@ -8,7 +8,6 @@ from contextlib import contextmanager
 import numpy.testing as npt
 import astropy.coordinates as coord
 import astropy.units as u
-import astropy.utils.data as aud
 from astropy.tests.helper import pytest
 
 from ...import nvas
@@ -57,7 +56,7 @@ def patch_get_readable_fileobj(request):
         file_obj = open(data_path(DATA_FILES["image"]), "rb")
         yield file_obj
     mp = request.getfuncargvalue("monkeypatch")
-    mp.setattr(aud, 'get_readable_fileobj', get_readable_fileobj_mockreturn)
+    mp.setattr(commons, 'get_readable_fileobj', get_readable_fileobj_mockreturn)
     return mp
 
 

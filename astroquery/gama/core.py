@@ -1,7 +1,6 @@
 """Download GAMA data"""
 import re
 import os
-import astropy.utils.data as aud
 from astropy.io import fits
 from astropy.table import Table
 from ..query import BaseQuery
@@ -73,7 +72,7 @@ GAMA = GAMAClass()
 
 def get_gama_datafile(result):
     """Turn a URL into an HDUList object."""
-    with aud.get_readable_fileobj(result) as f:
+    with commons.get_readable_fileobj(result) as f:
         hdulist = fits.HDUList.fromstring(f.read())
     return Table(hdulist[1].data)
 

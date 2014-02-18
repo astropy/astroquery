@@ -1,9 +1,9 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
 from ... import besancon
+from ...utils import commons
 import os
 from contextlib import contextmanager
-import astropy.utils.data as aud
 from astropy.tests.helper import pytest
 from astropy.io.ascii.tests.common import assert_equal
 import requests
@@ -58,7 +58,7 @@ def patch_get_readable_fileobj(request):
         #file_obj = data_path(filename)
         yield file_obj
     mp = request.getfuncargvalue("monkeypatch")
-    mp.setattr(aud, 'get_readable_fileobj', get_readable_fileobj_mockreturn)
+    mp.setattr(commons, 'get_readable_fileobj', get_readable_fileobj_mockreturn)
     return mp
 
 

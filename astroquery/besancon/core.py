@@ -6,7 +6,6 @@ import copy
 import sys
 import re
 import os
-import astropy.utils.data as aud
 from astropy.io import ascii
 from . import BESANCON_DOWNLOAD_URL, BESANCON_MODEL_FORM, BESANCON_PING_DELAY, BESANCON_TIMEOUT
 import urllib2  # only needed for urllib2.URLError
@@ -119,7 +118,7 @@ class BesanconClass(BaseQuery):
             try:
                 # U = requests.get(url,timeout=timeout,stream=True)
                 # TODO: add timeout= keyword to get_readable_fileobj (when PR https://github.com/astropy/astropy/pull/1258 is merged)
-                with aud.get_readable_fileobj(url, cache=True) as f:
+                with commons.get_readable_fileobj(url, cache=True) as f:
                     results = f.read()
                 break
             except urllib2.URLError:
@@ -151,7 +150,7 @@ class BesanconClass(BaseQuery):
             print("Loading request from Besancon server ...")
 
         # keep the text stored for possible later use
-        with aud.get_readable_fileobj(response.raw) as f:
+        with commons.get_readable_fileobj(response.raw) as f:
             text = f.read()
             # py3 compatibility; do nothing for py2:
             if hasattr(text,'decode') and not hasattr(text,'encode'):

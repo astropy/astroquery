@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function
+import astropy.utils.data as aud
+import re
+import json
 
 def reload_votable_fields_json():
-    import astropy.utils.data as aud
     content = aud.get_file_contents("http://simbad.u-strasbg.fr/simbad/sim-help?Page=sim-fscript#VotableFields")
 
-    import re
     import bs4
     htmldoc = bs4.BeautifulSoup(content)
     search_text = re.compile(r'Field names for VOTable output', re.IGNORECASE)
@@ -35,6 +36,5 @@ def reload_votable_fields_json():
                  smallest_child.attrs['size'] == '+2')):
                 outd[text1.strip()] = text2.strip()
 
-    import json
     with open('data/votable_fields_dict.json','w') as f:
         json.dump(outd,f,indent=2,sort_keys=True)
