@@ -2,7 +2,6 @@
 from __future__ import print_function
 
 import requests
-import io
 import warnings
 import re
 import time
@@ -18,6 +17,7 @@ from ..exceptions import InvalidQueryError, TimeoutError
 from ..utils import commons
 from . import UKIDSS_SERVER, UKIDSS_TIMEOUT
 from ..exceptions import TableParseError
+from ..extern.six import io
 
 __all__ = ['Ukidss','UkidssClass','clean_catalog']
 
@@ -504,7 +504,9 @@ class UkidssClass(QueryWithLogin):
             commons.suppress_vo_warnings()
 
         try:
-            parsed_table = votable.parse(io.BytesIO(content.encode('utf-8')), pedantic=False)
+            import pdb; pdb.set_trace()
+            io_obj = io.BytesIO(content.encode('utf-8'))
+            parsed_table = votable.parse(io_obj, pedantic=False)
             first_table = parsed_table.get_first_table()
             table = first_table.to_table()
             if len(table) == 0:
@@ -513,7 +515,6 @@ class UkidssClass(QueryWithLogin):
         except Exception as ex:
             self.response = content
             self.table_parse_error = ex
-            raise
             raise TableParseError("Failed to parse UKIDSS votable! The raw response can be found "
                                   "in self.response, and the error in self.table_parse_error.  "
                                   "Exception: " + str(self.table_parse_error))
