@@ -169,7 +169,7 @@ def create_in_odict(t_list):
 
 
 # These tests fail on stable astropy.  I don't know why, but they're not essential
-@pytest.mark.skipif(astropy.version.minor <= 3)
+@pytest.mark.skipif(astropy.version.minor <= 3, reason="Old versions don't do exceptions right.")
 def test_suppress_vo_warnings(recwarn):
     commons.suppress_vo_warnings()
     votable.exceptions.warn_or_raise(votable.exceptions.W01)
