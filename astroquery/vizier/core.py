@@ -442,7 +442,7 @@ class VizierClass(BaseQuery):
         try:
             tf = tempfile.NamedTemporaryFile()
             if PY3:
-                tf.write(response.content)
+                tf.write(response.content.encode())
             else:
                 tf.write(response.content.encode('utf-8'))
             tf.file.flush()
