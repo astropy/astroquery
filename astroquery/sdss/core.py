@@ -323,7 +323,9 @@ class SDSSClass(BaseQuery):
                                run2d=row['run2d'], plate=row['plate'],
                                fiber=row['fiberID'], mjd=row['mjd'])
 
-            results.append(commons.FileContainer(link, remote_timeout=timeout))
+            results.append(commons.FileContainer(link,
+                                                 encoding='binary',
+                                                 remote_timeout=timeout))
 
         return results
 
@@ -442,6 +444,7 @@ class SDSSClass(BaseQuery):
                                       field=row['field'], band=b)
 
                 results.append(commons.FileContainer(link,
+                                                     encoding='binary',
                                                      remote_timeout=timeout))
 
         return results
@@ -510,7 +513,9 @@ class SDSSClass(BaseQuery):
         for index in indices:
             name = str(index).zfill(3)
             link = '%s-%s.fit' % (SDSS.TEMPLATES, name)
-            results.append(commons.FileContainer(link, remote_timeout=timeout))
+            results.append(commons.FileContainer(link, 
+                                                 remote_timeout=timeout,
+                                                 encoding='binary'))
 
         return results
 
