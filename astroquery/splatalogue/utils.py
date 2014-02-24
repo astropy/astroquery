@@ -1,3 +1,4 @@
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
 """
 Utilities for working with Splatalogue query results
 """
@@ -35,11 +36,11 @@ def merge_frequencies(table, prefer='measured', theor_kwd='Freq-GHz',
 
     if prefer=='measured':
         Freq = np.copy(table[theor_kwd])
-        measmask = True-table[meas_kwd].mask
+        measmask = np.logical_not(table[meas_kwd].mask)
         Freq[measmask] = table[meas_kwd][measmask]
     elif prefer=='theoretical':
         Freq = np.copy(table[meas_kwd])
-        theomask = True-table[theor_kwd].mask
+        theomask = np.logical_not(table[theor_kwd].mask)
         Freq[measmask] = table[theor_kwd][theomask]
     else:
         raise ValueError('prefer must be one of "measured" or "theoretical"')
@@ -51,10 +52,10 @@ def merge_frequencies(table, prefer='measured', theor_kwd='Freq-GHz',
 
     return table
 
-def minimize_table(table, columns=('Species', 'Chemical Name',
+def minimize_table(table, columns=['Species', 'Chemical Name',
                                    'Resolved QNs', 'Freq-GHz', 'Meas Freq-GHz',
                                    'Log<sub>10</sub> (A<sub>ij</sub>)',
-                                   'E_U (K)'),
+                                   'E_U (K)'],
                    merge=True,
                    clean=True):
     """
@@ -64,7 +65,7 @@ def minimize_table(table, columns=('Species', 'Chemical Name',
     ----------
     table : table
         The Splatalogue table
-    columns : iterable
+    columns : list
         A list of column names to keep before merging and cleaning
     merge : bool
         Run merge_frequencies to get a single reported frequency for each line?
