@@ -140,6 +140,18 @@ will be clear from context what to do with your particular VCS.
     git mv docs/packagename docs/yourpkg
     git commit -m "Updated docs to reflect new project yourpkg"
 
+* (Optional) If you want integrated coverage testing, update the
+  coverage configuration.  Open ``yourpkg/tests/coveragerc`` in a text
+  editor and change the ``source = packagename`` line to refer to the
+  name of your package.  Any other project-specific settings for
+  ``coverage.py`` can be added here.  Open
+  ``yourpkg/tests/setup_package.py`` and replace the package name
+  ``packages.tests`` with ``yourpkg.tests``.  Then do::
+
+    git add yourpkg/tests/coveragerc
+    git add yourpkg/tests/setup_package.py
+    git commit -m "Update coveragerc settings"
+
 * Adjust the ``MANIFEST.in`` file to reflect your package's name by changing
   the line 4 from ``recursive-include packagename *.pyx *.c`` to
   ``recursive-include yourpkg *.pyx *.c`` and pass this onto git::
