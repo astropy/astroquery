@@ -15,7 +15,7 @@ if six.PY3:
     str, = six.string_types
 VO_DATA = {'HIP,NOMAD,UCAC': "viz.xml",
            'NOMAD,UCAC': "viz.xml",
-           'iram': "afgl2591_iram.xml",
+           'B/iram/pdbi': "afgl2591_iram.xml",
            'J/ApJ/706/83': "kang2010.xml"}
 
 
@@ -36,6 +36,16 @@ def post_mockreturn(url, data=None, timeout=10, **kwargs):
     filename = data_path(VO_DATA[datad['-source']])
     content = open(filename, "r").read()
     return MockResponse(content, **kwargs)
+
+def parse_objname(obj):
+    d = {'AFGL 2591': coord.ICRS(307.35388*u.deg, 40.18858*u.deg)}
+    return d[obj]
+
+@pytest.fixture
+def patch_coords(request):
+    mp = request.getfuncargvalue("monkeypatch")
+    mp.setattr(commons, 'parse_coordinates', parse_objname)
+    return mp
 
 
 @pytest.mark.parametrize(('dim', 'expected_out'),
@@ -105,7 +115,7 @@ def test_query_object(patch_post):
     result = vizier.core.Vizier.query_object("HD 226868", catalog=["NOMAD", "UCAC"])
     assert isinstance(result, commons.TableList)
 
-def test_query_another_object(patch_post):
+def test_query_another_object(patch_post, patch_coords):
     result = vizier.core.Vizier.query_region("AFGL 2591", radius='0d5m', catalog="B/iram/pdbi")
     assert isinstance(result, commons.TableList)
 
