@@ -17,6 +17,10 @@ class TestVizierRemote:
         result = vizier.core.Vizier.query_object("HD 226868", catalog=["NOMAD", "UCAC"])
         assert isinstance(result, commons.TableList)
 
+    def test_query_another_object(self):
+        result = vizier.core.Vizier.query_region("AFGL 2591", radius='0d5m', catalog="B/iram/pdbi")
+        assert isinstance(result, commons.TableList)
+
     def test_query_object_async(self):
         response = vizier.core.Vizier.query_object_async("HD 226868", catalog=["NOMAD", "UCAC"])
         assert response is not None

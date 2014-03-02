@@ -15,6 +15,7 @@ if six.PY3:
     str, = six.string_types
 VO_DATA = {'HIP,NOMAD,UCAC': "viz.xml",
            'NOMAD,UCAC': "viz.xml",
+           'iram': "afgl2591_iram.xml",
            'J/ApJ/706/83': "kang2010.xml"}
 
 
@@ -103,6 +104,9 @@ def test_query_object(patch_post):
     result = vizier.core.Vizier.query_object("HD 226868", catalog=["NOMAD", "UCAC"])
     assert isinstance(result, commons.TableList)
 
+def test_query_another_object(patch_post):
+    result = vizier.core.Vizier.query_region("AFGL 2591", radius='0d5m', catalog="B/iram/pdbi")
+    assert isinstance(result, commons.TableList)
 
 def test_get_catalogs_async(patch_post):
     response = vizier.core.Vizier.get_catalogs_async('J/ApJ/706/83')
