@@ -70,6 +70,7 @@ def test_parse_result_verbose(filepath, capsys):
 
 @pytest.mark.parametrize(('filepath','objlen'),
                          [('viz.xml',231),
+                          ('afgl2591_iram.xml',1),
                           ('kang2010.xml',1)]) # TODO: 1->50 because it is just 1 table
 def test_parse_result(filepath, objlen):
     table_contents = open(data_path(filepath), 'r').read()

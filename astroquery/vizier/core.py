@@ -442,8 +442,14 @@ class VizierClass(BaseQuery):
         try:
             tf = tempfile.NamedTemporaryFile()
             if PY3:
-                tf.write(response.content.encode())
-                # possibly tf.write(response.content.decode().encode('utf-8'))
+                # This is an exceedingly confusing section
+                # It is likely to be doubly wrong, but has caused issue #185
+                try:
+                    # Case 1: data is read in as unicode
+                    tf.write(response.content.encode())
+                except AttributeError:
+                    # Case 2: data is read in as a byte string
+                    tf.write(response.content.decode().encode('utf-8'))
             else:
                 tf.write(response.content.encode('utf-8'))
             tf.file.flush()
