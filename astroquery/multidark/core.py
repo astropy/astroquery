@@ -30,8 +30,8 @@ class MultiDark(QueryWithLogin):
     LOGIN_URL = BASE_URL + "j_security_check"
     TIMEOUT = MULTIDARK_TIMEOUT()
 
-    public_databases = ("miniMDR1", "Sp3D")
-    private_databases = ("Bolshoi","MDPL","MDR1","miniMDR1","Sp3D")
+    #public_databases = ("miniMDR1", "Sp3D")
+    #private_databases = ("Bolshoi","MDPL","MDR1","miniMDR1","Sp3D")
     #table_info_query = "select * from MDR1.information_schema.tables"
 
     def __init__(self,username="multidark_public",password=None):
