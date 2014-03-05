@@ -56,10 +56,11 @@ class CosmoSim(QueryWithLogin):
         TO DO: documentation
         """
 
-        request_payload = {'auth':(self.username,self.password),'data':{'query':query_string},'phase':'run'}
-        result = self.session.post(CosmoSim.QUERY_URL,data=request_payload)
-        #result = self.session.post(CosmoSim.QUERY_URL,auth=(self.username,self.password),data={'query':query_string,'table':'mytest99'})
-        pdb.set_trace()
+        result = self.session.post(CosmoSim.QUERY_URL,auth=(self.username,self.password),data={'query':query_string,'table':'mytest99','phase':'run'})
+        root = etree.fromstring(result.content)
+        self.current_job = root.find('{*}jobId').text
+        return self.current_job
+        #pdb.set_trace()
 
     def _existing_tables(self):
         """
@@ -67,11 +68,18 @@ class CosmoSim(QueryWithLogin):
         """
         return
 
-    def check_query_status(self):
+    def check_query_status(self,jobid=None):
         """
         A public function which sends an http GET request for a given jobid 
         """
-        return
+
+        if jobid is None:
+            if hasattr(self,'current_job'):
+                jobid = self.current_job
+                
+        response = self.session.get(CosmoSim.QUERY_URL+'/{}'.format(jobid)+'/phase',auth=(self.username,self.password),data={'print':'b'})
+        print response.content
+        return response.content
 
     def check_all_jobs(self):
         """
