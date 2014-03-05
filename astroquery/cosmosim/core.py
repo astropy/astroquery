@@ -1,4 +1,5 @@
 import requests
+from lxml import etree
 
 # Astropy imports
 from astropy.table import Table
@@ -38,8 +39,6 @@ class CosmoSim(QueryWithLogin):
         self.session = requests.session()
         response = self.session.post(CosmoSim.QUERY_URL,auth=(self.username,self.password))
 
-        pdb.set_trace()
-
         if not response.ok:
             self.session = None
             response.raise_for_status()
@@ -51,15 +50,55 @@ class CosmoSim(QueryWithLogin):
         """
         print 'Need to implement when public default parameters (if any) are known...'
 
-    @class_or_instance
-    def sql_query(self, query_string):
+    
+    def run_sql_query(self, query_string):
         """
         TO DO: documentation
         """
 
-        request_payload = {}
+        request_payload = {'auth':(self.username,self.password),'data':{'query':query_string},'phase':'run'}
+        result = self.session.post(CosmoSim.QUERY_URL,data=request_payload)
+        #result = self.session.post(CosmoSim.QUERY_URL,auth=(self.username,self.password),data={'query':query_string,'table':'mytest99'})
+        pdb.set_trace()
 
-    @class_or_instance
+    def _existing_tables(self):
+        """
+        Internal function which finds the names of the tables already in use for a given set of user credentials.
+        """
+        return
+
+    def check_query_status(self):
+        """
+        A public function which sends an http GET request for a given jobid 
+        """
+        return
+
+    def check_all_jobs(self):
+        """
+        Public function which creates a dictionary of job statuses. 
+
+        Returns
+        -------
+        job_dict: dict
+            A dictionary whose keys are each jobid for a given set of user credentials and whose values are the phase status (e.g. - EXECUTING,COMPLETED,PENDING).
+        """
+
+        checkalljobs = requests.get(CosmoSim.QUERY_URL,auth=(self.username,self.password),params={'print':'b'})
+        
+        self.job_dict={}
+        root = etree.fromstring(checkalljobs.content)
+        
+        for iter in root:
+            self.job_dict['{}'.format(iter.values()[0])] = iter.find('{*}phase').text
+
+        return self.job_dict
+
+    def delete_job(self):
+        return
+
+    def to_file(self,):
+        return
+    
     def _cosmosim_send_request(self,url,request_payload):
         """
         Internal function which sends the sql query request.
