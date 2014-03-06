@@ -140,7 +140,7 @@ class EsoClass(QueryWithLogin):
             root = BeautifulSoup(instrument_list_response.content)
             self._instrument_list = []
             for element in root.select('div[id="col3"] a'):
-                href = element.get("href")
+                href = element.get("href", "")
                 if "http://archive.eso.org/wdb/wdb/eso" in href:
                     instrument = href.split("/")[-2]
                     if instrument not in self._instrument_list:
@@ -161,7 +161,7 @@ class EsoClass(QueryWithLogin):
             self._survey_list = []
             for select in root.find_all('select', {'name': 'phase3_program'}):
                 for element in select.find_all('option'):
-                    survey = element.text_content().strip()
+                    survey = ''.join(element.stripped_strings)
                     if survey not in self._survey_list and 'Any' not in survey:
                         self._survey_list.append(survey)
         return self._survey_list
