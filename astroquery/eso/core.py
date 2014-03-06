@@ -117,7 +117,7 @@ class EsoClass(QueryWithLogin):
         login_response = self.session.get("https://www.eso.org/sso/login")
         login_result_response = self._activate_form(login_response, form_index=-1, inputs={'username': username, 'password':password})
         root = BeautifulSoup(login_result_response.content)
-        authenticated = bool(root.select('.error'))
+        authenticated = not root.select('.error')
         if authenticated:
             print("Authentication successful!")
         else:
