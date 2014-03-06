@@ -29,7 +29,7 @@ class EsoClass(QueryWithLogin):
         form_action = form.get('action')
         if "://" in form_action:
             url = form_action
-        elif form_action[0] == "/":
+        elif form_action.startswith("/"):
             url = '/'.join(response.url.split('/',3)[:3]) + form_action
         else:
             url = response.url.rsplit('/',1)[0] + '/' + form_action
