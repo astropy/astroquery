@@ -1,4 +1,5 @@
 import requests
+import sys
 from lxml import etree
 
 # Astropy imports
@@ -30,6 +31,7 @@ class CosmoSim(QueryWithLogin):
         self.username = username
         self.password = password
         self.login(username,password)
+        self._existing_tables()
 
     def login(self,username,password):
         """
@@ -69,7 +71,7 @@ class CosmoSim(QueryWithLogin):
         
         self._existing_tables()
 
-        if tablename in self.existing_tables:
+        if tablename in self.table_dict.values():
             result = self.session.post(CosmoSim.QUERY_URL,auth=(self.username,self.password),data={'query':query_string,'phase':'run'})
             root = etree.fromstring(result.content)
             gen_tablename = [[subname.text for subname in name.iterfind('{*}parameter') if subname.attrib['id']=='table'] for name in root.iterfind('{*}parameters')][0][0]
@@ -83,15 +85,25 @@ class CosmoSim(QueryWithLogin):
         root = etree.fromstring(result.content)
         self.current_job = root.find('{*}jobId').text
         print "Job created: {}".format(self.current_job)
+        self._existing_tables()
         return result
         
     def _existing_tables(self):
         """
-        Internal function which finds the names of the tables already in use for a given set of user credentials.
+        Internal function which builds a dictionary of the tables already in use for a given set of user credentials. Keys are jobids and values are the tables which are stored under those keys.
         """
 
-        self.check_all_jobs()
-        self.existing_tables = [key for key in self.job_dict.keys() if self.job_dict[key] == 'COMPLETED']
+        checkalljobs = self.check_all_jobs()
+        completed_jobs = [key for key in self.job_dict.keys() if self.job_dict[key] in ['COMPLETED','EXECUTING']]
+        #pdb.set_trace()
+        root = etree.fromstring(checkalljobs.content)
+        self.table_dict={}
+        
+        for iter in root:
+            jobid = '{}'.format(iter.values()[1].split(CosmoSim.QUERY_URL+"/")[1])
+            if jobid in completed_jobs:
+                self.table_dict[jobid] = '{}'.format(iter.values()[0])
+        
 
     def check_query_status(self,jobid=None):
         """
@@ -115,47 +127,70 @@ class CosmoSim(QueryWithLogin):
 
     def check_all_jobs(self):
         """
-        Public function which creates a dictionary whose keys are jobids and whose values are the corresponding job statuses. 
+        Public function which builds a dictionary whose keys are each jobid for a given set of user credentials and whose values are the phase status (e.g. - EXECUTING,COMPLETED,PENDING,ERROR).
 
         Returns
         -------
-        job_dict: dict
-            A dictionary whose keys are each jobid for a given set of user credentials and whose values are the phase status (e.g. - EXECUTING,COMPLETED,PENDING,ERROR).
+        checkalljobs : 'requests.models.Response' object
+            The requests response for the GET request for finding all existing jobs.
         """
-
-        checkalljobs = requests.get(CosmoSim.QUERY_URL,auth=(self.username,self.password),params={'print':'b'})
-        pdb.set_trace()
+        
+        checkalljobs = self.session.get(CosmoSim.QUERY_URL,auth=(self.username,self.password),params={'print':'b'})
         self.job_dict={}
         root = etree.fromstring(checkalljobs.content)
         
         for iter in root:
-            self.job_dict['{}'.format(iter.values()[0])] = iter.find('{*}phase').text
+            if iter.find('{*}phase').text in ['COMPLETED','EXECUTING']:
+                self.job_dict['{}'.format(iter.values()[1].split(CosmoSim.QUERY_URL+"/")[1])] = iter.find('{*}phase').text
+            else:
+                self.job_dict['{}'.format(iter.values()[0])] = iter.find('{*}phase').text
 
-        return self.job_dict
+        frame = sys._getframe(1)
+        do_not_print_job_dict = ['completed_job_info','delete_all_jobs','_existing_tables','delete_job'] # list of methods which use check_all_jobs() for which I would not like job_dict to be printed to the terminal
+        if frame.f_code.co_name in do_not_print_job_dict: 
+            return checkalljobs
+        else:
+            print self.job_dict
+            return checkalljobs
 
-    def completed_job_info(self,jobid=None):
+    def completed_job_info(self,jobid=None,output=None):
 
         self.check_all_jobs()
+        
         if jobid is None:
             completed_jobids = [key for key in self.job_dict.keys() if self.job_dict[key] == 'COMPLETED']
             response_list = [self.session.get(CosmoSim.QUERY_URL+"/{}".format(completed_jobids[i]),auth=(self.username,self.password)) for i in range(len(completed_jobids))]
         else:
             response_list = [self.session.get(CosmoSim.QUERY_URL+"/{}".format(jobid),auth=(self.username,self.password))]
-        pdb.set_trace()
-        
-        print response_list
-        
-        return
+
+        if output is not None:
+            for i in response_list:
+                print i.content
+        else:
+            print response_list
+            
+        return response_list
 
     def delete_job(self,jobid=None):
-
+        """
+        So far works if 
+        """
+        
         self.check_all_jobs()
 
         if jobid is None:
             if hasattr(self,'current_job'):
                 jobid = self.current_job
+
+        if jobid is not None:
+            if hasattr(self,'current_job'):
+                if jobid == self.current_job:
+                    del self.current_job
         
         result = self.session.delete(CosmoSim.QUERY_URL+"/{}".format(jobid),auth=(self.username,self.password),data={'follow':''})
+        pdb.set_trace()
+        if not result.ok:
+            result.raise_for_status()
         print 'Deleted job: {}'.format(jobid)
         
         return result
@@ -166,6 +201,8 @@ class CosmoSim(QueryWithLogin):
         
         for key in self.job_dict.keys():
             result = self.session.delete(CosmoSim.QUERY_URL+"/{}".format(key),auth=(self.username,self.password),data={'follow':''})
+            if not result.ok:
+                result.raise_for_status()
             print "Deleted job: {}".format(key)
 
         return 
