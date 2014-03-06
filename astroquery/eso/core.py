@@ -34,6 +34,7 @@ class EsoClass(QueryWithLogin):
         else:
             url = response.url.rsplit('/',1)[0] + '/' + form_action
         #Identify payload format
+        fmt = None
         if form.get('method') == 'get':
             fmt = 'get' #get(url, params=payload)
         elif form.get('method') == 'post':
