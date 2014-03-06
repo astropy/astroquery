@@ -59,6 +59,7 @@ install:
    - pip -q install --upgrade requests # needed for multipart queries (fermilat)
    - pip -q install --upgrade lxml
    - pip -q install --upgrade keyring
+   - pip -q install --upgrade beautifulsoup4
    #- if [[ $SETUP_CMD == build_sphinx* ]]; then pip -q install sphinx==1.1.3 --use-mirrors; fi
    #- if [[ $SETUP_CMD == build_sphinx* ]]; then pip -q install matplotlib --use-mirrors; fi
    - if [[ $SETUP_CMD == build_sphinx* ]]; then bash .travis.pip.wheel $TRAVIS_PYTHON_VERSION Sphinx 1.1.3 -q -p; fi
