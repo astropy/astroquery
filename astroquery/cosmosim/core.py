@@ -95,7 +95,6 @@ class CosmoSim(QueryWithLogin):
 
         checkalljobs = self.check_all_jobs()
         completed_jobs = [key for key in self.job_dict.keys() if self.job_dict[key] in ['COMPLETED','EXECUTING']]
-        #pdb.set_trace()
         root = etree.fromstring(checkalljobs.content)
         self.table_dict={}
         
@@ -146,7 +145,7 @@ class CosmoSim(QueryWithLogin):
                 self.job_dict['{}'.format(iter.values()[0])] = iter.find('{*}phase').text
 
         frame = sys._getframe(1)
-        do_not_print_job_dict = ['completed_job_info','delete_all_jobs','_existing_tables','delete_job'] # list of methods which use check_all_jobs() for which I would not like job_dict to be printed to the terminal
+        do_not_print_job_dict = ['completed_job_info','delete_all_jobs','_existing_tables','delete_job','download'] # list of methods which use check_all_jobs() for which I would not like job_dict to be printed to the terminal
         if frame.f_code.co_name in do_not_print_job_dict: 
             return checkalljobs
         else:
@@ -173,7 +172,7 @@ class CosmoSim(QueryWithLogin):
 
     def delete_job(self,jobid=None):
         """
-        So far works if 
+        A public function which deletes a stored job from the server in any phase. If no jobid is given, it attemps to use the most recent job (if it exists in this session). If jobid is specified, then it deletes the corresponding job, and if it happens to match the existing current job, that variable gets deleted.
         """
         
         self.check_all_jobs()
@@ -207,7 +206,25 @@ class CosmoSim(QueryWithLogin):
 
         return 
 
-    def to_file(self,):
+    def download(self,jobid=None,method=None):
+        """
+        """
+
+        if jobid is None:
+            try:
+                jobid = self.current_job
+            except:
+                raise
+                
+        
+        
+        self.check_all_jobs()
+        completed_job_responses = self.completed_job_info(jobid)
+        all_completed_jobs = [key for key in self.job_dict.keys() if self.job_dict[key] == 'COMPLETED']
+        pdb.set_trace()
+        
+        
+        
         return
     
     
