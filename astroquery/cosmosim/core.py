@@ -1,6 +1,10 @@
 import requests
+<<<<<<< HEAD
 import sys
 from lxml import etree
+import numpy as np
+=======
+>>>>>>> 4527625... Added cosmosim repository, which will contain the machinery required to query the MultiDark, BolshoiP, and CLUES cosmological simulation databases. The multidark repository will become deprecated.
 
 # Astropy imports
 from astropy.table import Table
@@ -27,10 +31,16 @@ class CosmoSim(QueryWithLogin):
     QUERY_URL = COSMOSIM_SERVER()
     TIMEOUT = COSMOSIM_TIMEOUT()
 
+<<<<<<< HEAD
+    cosmosim_databases = ('MDR1','MDPL','Bolshoi','BolshoiP')
+
+=======
+>>>>>>> 4527625... Added cosmosim repository, which will contain the machinery required to query the MultiDark, BolshoiP, and CLUES cosmological simulation databases. The multidark repository will become deprecated.
     def __init__(self,username=None,password=None):
         self.username = username
         self.password = password
         self.login(username,password)
+<<<<<<< HEAD
         self._existing_tables()
 
     def login(self,username,password):
@@ -47,10 +57,23 @@ class CosmoSim(QueryWithLogin):
         
         self.session = requests.session()
         response = self.session.get(CosmoSim.QUERY_URL,auth=(self.username,self.password))
+=======
+
+    def login(self,username,password):
+        """
+        TO DO: documentation
+        """
+        
+        self.session = requests.session()
+        response = self.session.post(CosmoSim.QUERY_URL,auth=(self.username,self.password))
+
+        pdb.set_trace()
+>>>>>>> 4527625... Added cosmosim repository, which will contain the machinery required to query the MultiDark, BolshoiP, and CLUES cosmological simulation databases. The multidark repository will become deprecated.
 
         if not response.ok:
             self.session = None
             response.raise_for_status()
+<<<<<<< HEAD
     
     def run_sql_query(self, query_string,tablename=None):
         """
@@ -95,7 +118,6 @@ class CosmoSim(QueryWithLogin):
 
         checkalljobs = self.check_all_jobs()
         completed_jobs = [key for key in self.job_dict.keys() if self.job_dict[key] in ['COMPLETED','EXECUTING']]
-        #pdb.set_trace()
         root = etree.fromstring(checkalljobs.content)
         self.table_dict={}
         
@@ -114,15 +136,18 @@ class CosmoSim(QueryWithLogin):
         jobid : string
             The jobid of the sql query. If none provided
         """
-
+        
         if jobid is None:
             if hasattr(self,'current_job'):
                 jobid = self.current_job
             else:
-                print "Fix this"
+                try:
+                    jobid = self.current_job
+                except: 
+                    raise AttributeError
                 
         response = self.session.get(CosmoSim.QUERY_URL+'/{}'.format(jobid)+'/phase',auth=(self.username,self.password),data={'print':'b'})
-        print "Job {}: {}".format(self.current_job,response.content)
+        print "Job {}: {}".format(jobid,response.content)
         return response.content
 
     def check_all_jobs(self):
@@ -140,13 +165,13 @@ class CosmoSim(QueryWithLogin):
         root = etree.fromstring(checkalljobs.content)
         
         for iter in root:
-            if iter.find('{*}phase').text in ['COMPLETED','EXECUTING']:
+            if iter.find('{*}phase').text in ['COMPLETED','EXECUTING','ABORTED','ERROR']:
                 self.job_dict['{}'.format(iter.values()[1].split(CosmoSim.QUERY_URL+"/")[1])] = iter.find('{*}phase').text
             else:
                 self.job_dict['{}'.format(iter.values()[0])] = iter.find('{*}phase').text
 
         frame = sys._getframe(1)
-        do_not_print_job_dict = ['completed_job_info','delete_all_jobs','_existing_tables','delete_job'] # list of methods which use check_all_jobs() for which I would not like job_dict to be printed to the terminal
+        do_not_print_job_dict = ['completed_job_info','delete_all_jobs','_existing_tables','delete_job','download'] # list of methods which use check_all_jobs() for which I would not like job_dict to be printed to the terminal
         if frame.f_code.co_name in do_not_print_job_dict: 
             return checkalljobs
         else:
@@ -173,7 +198,7 @@ class CosmoSim(QueryWithLogin):
 
     def delete_job(self,jobid=None):
         """
-        So far works if 
+        A public function which deletes a stored job from the server in any phase. If no jobid is given, it attemps to use the most recent job (if it exists in this session). If jobid is specified, then it deletes the corresponding job, and if it happens to match the existing current job, that variable gets deleted.
         """
         
         self.check_all_jobs()
@@ -186,14 +211,23 @@ class CosmoSim(QueryWithLogin):
             if hasattr(self,'current_job'):
                 if jobid == self.current_job:
                     del self.current_job
-        
-        result = self.session.delete(CosmoSim.QUERY_URL+"/{}".format(jobid),auth=(self.username,self.password),data={'follow':''})
+
+        if job_dict[jobid] in ['COMPLETED','ERROR','ABORTED']:
+            result = self.session.delete(CosmoSim.QUERY_URL+"/{}".format(jobid),auth=(self.username,self.password),data={'follow':''})
+        else:
+            print "Can only delete a job with phase: 'COMPLETED','ERROR',or 'ABORTED'."
         pdb.set_trace()
         if not result.ok:
             result.raise_for_status()
         print 'Deleted job: {}'.format(jobid)
         
         return result
+
+    def abort_job(self,jobid=None):
+        """
+        """
+
+        self.check_all_jobs()
 
     def delete_all_jobs(self):
 
@@ -207,7 +241,88 @@ class CosmoSim(QueryWithLogin):
 
         return 
 
-    def to_file(self,):
-        return
-    
-    
+    def download(self,jobid=None,filename=None):
+        """
+        A public function to download data from a job with COMPLETED phase.
+
+        Keyword Args
+        ----------
+        jobid :
+            Completed jobid to be downloaded
+        filename : string
+            If left blank, downloaded to the terminal. If specified, data is written out to file (directory can be included here).
+
+        Returns
+        -------
+        headers, data : list, list
+        """
+
+        if jobid is None:
+            try:
+                jobid = self.current_job
+            except:
+                raise
+                
+        self.check_all_jobs()
+        completed_job_responses = self.completed_job_info(jobid)
+        root = etree.fromstring(completed_job_responses[0].content)
+        tableurl = [[list(c.attrib.values())[1] for c in e] for e in root.iter('{*}results') ][0][0]
+
+        # This is where the requestrequest.content parsing happens
+        raw_table_data = self.session.get(tableurl,auth=(self.username,self.password))
+        raw_headers = raw_table_data.content.split('\n')[0]
+        num_cols = len(raw_headers.split(','))
+        num_rows = len(raw_table_data.content.split('\n'))-2
+        headers = [raw_headers.split(',')[i].strip('"') for i in range(num_cols)]
+        raw_data = [raw_table_data.content.split('\n')[i+1].split(",") for i in range(num_rows)]
+        data = [map(eval,raw_data[i]) for i in range(num_rows)]
+        
+        if filename is None:
+            return headers, data
+        else:
+            with open(filename, 'wb') as fh:
+                raw_table_data = self.session.get(tableurl,auth=(self.username,self.password),stream=True)
+                for block in raw_table_data.iter_content(1024):
+                    if not block:
+                        break
+                    fh.write(block)
+                print "Data written to file: {}".format(filename)
+            return headers, data
+=======
+
+    # will check to see if using private or public credentials
+    def logged_in(self):
+        """
+        TO DO: documentation
+        """
+        print 'Need to implement when public default parameters (if any) are known...'
+
+    @class_or_instance
+    def sql_query(self, query_string):
+        """
+        TO DO: documentation
+        """
+
+        request_payload = {}
+
+    @class_or_instance
+    def _cosmosim_send_request(self,url,request_payload):
+        """
+        Internal function which sends the sql query request.
+
+        Parameters
+        ----------
+        url : str
+            The url to send the request to.
+        request_payload : dict
+            A dictionary of parameters for the POST request
+
+        Returns
+        -------
+        response: `requests.Response` object
+            The response for the HTTP POST request
+        """
+        
+        if hasattr(self,'session'):
+            response = self.session.post(url,data=re)
+>>>>>>> 4527625... Added cosmosim repository, which will contain the machinery required to query the MultiDark, BolshoiP, and CLUES cosmological simulation databases. The multidark repository will become deprecated.
