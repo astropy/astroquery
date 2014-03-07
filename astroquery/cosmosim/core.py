@@ -1,6 +1,7 @@
 import requests
 import sys
 from lxml import etree
+import numpy as np
 
 # Astropy imports
 from astropy.table import Table
@@ -113,15 +114,18 @@ class CosmoSim(QueryWithLogin):
         jobid : string
             The jobid of the sql query. If none provided
         """
-
+        
         if jobid is None:
             if hasattr(self,'current_job'):
                 jobid = self.current_job
             else:
-                print "Fix this"
+                try:
+                    jobid = self.current_job
+                except: 
+                    raise AttributeError
                 
         response = self.session.get(CosmoSim.QUERY_URL+'/{}'.format(jobid)+'/phase',auth=(self.username,self.password),data={'print':'b'})
-        print "Job {}: {}".format(self.current_job,response.content)
+        print "Job {}: {}".format(jobid,response.content)
         return response.content
 
     def check_all_jobs(self):
@@ -139,7 +143,7 @@ class CosmoSim(QueryWithLogin):
         root = etree.fromstring(checkalljobs.content)
         
         for iter in root:
-            if iter.find('{*}phase').text in ['COMPLETED','EXECUTING']:
+            if iter.find('{*}phase').text in ['COMPLETED','EXECUTING','ABORTED','ERROR']:
                 self.job_dict['{}'.format(iter.values()[1].split(CosmoSim.QUERY_URL+"/")[1])] = iter.find('{*}phase').text
             else:
                 self.job_dict['{}'.format(iter.values()[0])] = iter.find('{*}phase').text
@@ -206,8 +210,20 @@ class CosmoSim(QueryWithLogin):
 
         return 
 
-    def download(self,jobid=None,method=None):
+    def download(self,jobid=None,filename=None):
         """
+        A public function to download data from a job with COMPLETED phase.
+
+        Keyword Args
+        ----------
+        jobid :
+            Completed jobid to be downloaded
+        filename : string
+            If left blank, downloaded to the terminal. If specified, data is written out to file (directory can be included here).
+
+        Returns
+        -------
+        headers, data : list, list
         """
 
         if jobid is None:
@@ -216,15 +232,28 @@ class CosmoSim(QueryWithLogin):
             except:
                 raise
                 
-        
-        
         self.check_all_jobs()
         completed_job_responses = self.completed_job_info(jobid)
-        all_completed_jobs = [key for key in self.job_dict.keys() if self.job_dict[key] == 'COMPLETED']
-        pdb.set_trace()
+        root = etree.fromstring(completed_job_responses[0].content)
+        tableurl = [[list(c.attrib.values())[1] for c in e] for e in root.iter('{*}results') ][0][0]
+
+        # This is where the requestrequest.content parsing happens
+        raw_table_data = self.session.get(tableurl,auth=(self.username,self.password))
+        raw_headers = raw_table_data.content.split('\n')[0]
+        num_cols = len(raw_headers.split(','))
+        num_rows = len(raw_table_data.content.split('\n'))-2
+        headers = [raw_headers.split(',')[i].strip('"') for i in range(num_cols)]
+        raw_data = [raw_table_data.content.split('\n')[i+1].split(",") for i in range(num_rows)]
+        data = [map(eval,raw_data[i]) for i in range(num_rows)]
         
-        
-        
-        return
-    
-    
+        if filename is None:
+            return headers, data
+        else:
+            with open(filename, 'wb') as fh:
+                raw_table_data = self.session.get(tableurl,auth=(self.username,self.password),stream=True)
+                for block in raw_table_data.iter_content(1024):
+                    if not block:
+                        break
+                    fh.write(block)
+                print "Data written to file: {}".format(filename)
+            return headers, data
