@@ -191,14 +191,23 @@ class CosmoSim(QueryWithLogin):
             if hasattr(self,'current_job'):
                 if jobid == self.current_job:
                     del self.current_job
-        
-        result = self.session.delete(CosmoSim.QUERY_URL+"/{}".format(jobid),auth=(self.username,self.password),data={'follow':''})
+
+        if job_dict[jobid] in ['COMPLETED','ERROR','ABORTED']:
+            result = self.session.delete(CosmoSim.QUERY_URL+"/{}".format(jobid),auth=(self.username,self.password),data={'follow':''})
+        else:
+            print "Can only delete a job with phase: 'COMPLETED','ERROR',or 'ABORTED'."
         pdb.set_trace()
         if not result.ok:
             result.raise_for_status()
         print 'Deleted job: {}'.format(jobid)
         
         return result
+
+    def abort_job(self,jobid=None):
+        """
+        """
+
+        self.check_all_jobs()
 
     def delete_all_jobs(self):
 
