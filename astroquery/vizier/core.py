@@ -147,10 +147,8 @@ class VizierClass(BaseQuery):
         """
 
         data_payload = self._args_to_payload(catalog=catalog)
-        response = commons.send_request(
-            self._server_to_url(),
-            data_payload,
-            self.TIMEOUT)
+        response = commons.send_request(self._server_to_url(), data_payload,
+                                        self.TIMEOUT)
         return response
 
     def query_object_async(self, object_name, catalog=None):
@@ -183,8 +181,9 @@ class VizierClass(BaseQuery):
             self.TIMEOUT)
         return response
 
-    def query_region_async(
-            self, coordinates, radius=None, inner_radius=None, width=None, height=None, catalog=None):
+    def query_region_async(self, coordinates, radius=None, inner_radius=None,
+                           width=None, height=None, catalog=None,
+                           get_query_payload=False):
         """
         Serves the same purpose as `astroquery.vizier.Vizier.query_region` but only
         returns the HTTP response rather than the parsed result.
@@ -277,14 +276,15 @@ class VizierClass(BaseQuery):
         else:
             raise Exception(
                 "At least one of radius, width/height must be specified")
-        data_payload = self._args_to_payload(
-            center=center,
-            columns=columns,
-            catalog=catalog)
-        response = commons.send_request(
-            self._server_to_url(),
-            data_payload,
-            self.TIMEOUT)
+
+        data_payload = self._args_to_payload(center=center, columns=columns,
+                                             catalog=catalog)
+
+        if get_query_payload:
+            return data_payload
+
+        response = commons.send_request(self._server_to_url(), data_payload,
+                                        self.TIMEOUT)
         return response
 
     def query_constraints_async(self, catalog=None, **kwargs):
@@ -442,8 +442,14 @@ class VizierClass(BaseQuery):
         try:
             tf = tempfile.NamedTemporaryFile()
             if PY3:
-                tf.write(response.content.encode())
-                # possibly tf.write(response.content.decode().encode('utf-8'))
+                # This is an exceedingly confusing section
+                # It is likely to be doubly wrong, but has caused issue #185
+                try:
+                    # Case 1: data is read in as unicode
+                    tf.write(response.content.encode())
+                except AttributeError:
+                    # Case 2: data is read in as a byte string
+                    tf.write(response.content.decode().encode('utf-8'))
             else:
                 tf.write(response.content.encode('utf-8'))
             tf.file.flush()

@@ -52,6 +52,9 @@ def patch_get_readable_fileobj(request):
 def patch_parse_coordinates(request):
     def parse_coordinates_mock_return(c):
         return c
+    # This should probably be request, not requests, but this mistake has lead
+    # to no errors
+    # TODO: determine if this patch is ever used
     mp = requests.getfuncargvalue("monkeypatch")
     mp.setattr(commons, 'parse_coordinates', parse_coordinates_mock_return)
     return mp
