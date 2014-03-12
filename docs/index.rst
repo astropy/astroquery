@@ -123,3 +123,4 @@ These others are functional, but do not follow a common & consistent API:
   sha.rst
   lamda.rst
   ogle.rst
+  cosmosim.rst
