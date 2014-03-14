@@ -29,8 +29,17 @@ import datetime
 import os
 import sys
 
+try:
+    import astropy_helpers
+except ImportError:
+    # Building from inside the docs/ directory?
+    if os.path.basename(os.getcwd()) == 'docs':
+        a_h_path = os.path.abspath(os.path.join('..', 'astropy_helpers'))
+        if os.path.isdir(a_h_path):
+            sys.path.insert(1, a_h_path)
+
 # Load all of the global Astropy configuration
-from astropy.sphinx.conf import *
+from astropy_helpers.sphinx.conf import *
 
 # Get configuration information from setup.cfg
 from distutils import config
@@ -183,8 +192,8 @@ if eval(setup_cfg.get('edit_on_github')):
 
     versionmod = __import__(setup_cfg['package_name'] + '.version')
     edit_on_github_project = setup_cfg['github_project']
-    if versionmod.release:
-        edit_on_github_branch = "v" + versionmod.version
+    if versionmod.version.release:
+        edit_on_github_branch = "v" + versionmod.version.version
     else:
         edit_on_github_branch = "master"
 
