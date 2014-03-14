@@ -134,6 +134,30 @@ will be clear from context what to do with your particular VCS.
   up to the main repository, just switch to the appropriate branch and do
   ``git push upstream master``.
 
+  Additionally, you can set things up to make it easier to pull future
+  changes to the package template to your affiliated package.  Add a remote
+  for the package template::
+
+    git remote add template git@github.com:astropy/package-template.git
+
+  Then, each time you want to pull in changes to the package template::
+
+    git fetch template
+    git fetch upstream
+    # Make your master match the upstream master.  This will destroy
+    # any unmerged commits on your master (which you shouldn't be doing
+    # work on anyway, according to the standard workflow).
+    git checkout master
+    git reset --hard upstream/master
+
+    # Merge any recent changes from the package-template
+    git merge template/master
+
+    # ...possibly resolve any conflicts...
+
+    # Push to upstream master
+    git push upstream master
+
 * You should register your package on https://travis-ci.org and modify the
   ``.travis.yml`` file to make the build pass. This will continuously test
   your package for each commit, even pull requests against your main repository
