@@ -32,7 +32,7 @@ will be clear from context what to do with your particular VCS.
 
 * Go into the directory you just created, and open the ``setup.cfg``
   file with your favorite text editor.  Edit the settings in the
-  ``affiliated`` section.  These values will be used to automatically
+  ``metadata`` section.  These values will be used to automatically
   replace special placeholders in the affiliated package template.
 
   1. Change the ``package_name`` variable to whatever you decide your

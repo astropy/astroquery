@@ -24,14 +24,14 @@ from astropy.version_helpers import get_git_devstr, generate_version_py
 from distutils import config
 conf = config.ConfigParser()
 conf.read(['setup.cfg'])
-affiliated = dict(conf.items('affiliated'))
+metadata = dict(conf.items('metadata'))
 
-PACKAGENAME = affiliated.get('package_name', 'packagename')
-DESCRIPTION = affiliated.get('description', 'Astropy affiliated package')
-AUTHOR = affiliated.get('author', '')
-AUTHOR_EMAIL = affiliated.get('author_email', '')
-LICENSE = affiliated.get('license', 'unknown')
-URL = affiliated.get('url', 'http://astropy.org')
+PACKAGENAME = metadata.get('package_name', 'packagename')
+DESCRIPTION = metadata.get('description', 'Astropy affiliated package')
+AUTHOR = metadata.get('author', '')
+AUTHOR_EMAIL = metadata.get('author_email', '')
+LICENSE = metadata.get('license', 'unknown')
+URL = metadata.get('url', 'http://astropy.org')
 
 # Get the long description from the package's docstring
 __import__(PACKAGENAME)

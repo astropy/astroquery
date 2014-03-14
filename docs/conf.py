@@ -35,7 +35,7 @@ from astropy.sphinx.conf import *
 from distutils import config
 conf = config.ConfigParser()
 conf.read([os.path.join(os.path.dirname(__file__), '..', 'setup.cfg')])
-setup_cfg = dict(conf.items('affiliated'))
+setup_cfg = dict(conf.items('metadata'))
 
 # -- General configuration ----------------------------------------------------
 
