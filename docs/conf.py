@@ -25,6 +25,7 @@
 # Thus, any C-extensions that are needed to build the documentation will *not*
 # be accessible, and the documentation will not build correctly.
 
+import datetime
 import os
 import sys
 
@@ -64,7 +65,7 @@ copyright = '{0}, {1}'.format(
 # built documents.
 
 __import__(setup_cfg['package_name'])
-package = sys.modules[setup_cfg['package_name'])
+package = sys.modules[setup_cfg['package_name']]
 
 # The short X.Y version.
 version = package.__version__.split('-', 1)[0]

@@ -1,5 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
+__all__ = ['__version__', '__githash__', 'test']
+
 #this indicates whether or not we are in the package's setup.py
 try:
     _ASTROPY_SETUP_
@@ -10,8 +12,6 @@ except NameError:
     else:
         import __builtin__ as builtins
     builtins._ASTROPY_SETUP_ = False
-    del version_info
-    del builtins
 
 try:
     from .version import version as __version__
@@ -127,5 +127,3 @@ if not _ASTROPY_SETUP_:
                     "importing from source, this is expected.")
             warn(config.configuration.ConfigurationDefaultMissingWarning(wmsg))
             del e
-
-    del os, warn, config_dir  # clean up namespace
