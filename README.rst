@@ -144,6 +144,7 @@ will be clear from context what to do with your particular VCS.
 
     git fetch template
     git fetch upstream
+
     # Make your master match the upstream master.  This will destroy
     # any unmerged commits on your master (which you shouldn't be doing
     # work on anyway, according to the standard workflow).
