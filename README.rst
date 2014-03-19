@@ -169,7 +169,10 @@ will be clear from context what to do with your particular VCS.
   `here <https://github.com/astropy/astropy/wiki/travis-ci-test-status>`_.
   Generally you should aim to always have your `master` branch work with
   the latest stable as well as the latest development version of astropy
-  (i.e. the astropy git master branch).
+  (i.e. the astropy git master branch) and the same versions of python and
+  numpy supported by astropy. The template ``.travis.yml`` covers those
+  versions; in some circumstances you may need to limit the versions your
+  package covers.
 
 * You're now ready to start doing actual work on your affiliated package.  You
   will probably want to read over the developer guidelines of the Astropy
