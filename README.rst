@@ -30,57 +30,45 @@ will be clear from context what to do with your particular VCS.
   This will download the latest version of the template from `github`_ and
   place it in a directory named ``yourpkg``.
 
-* Go into the directory you just created, and open the ``setup.py`` file
-  with your favorite text editor.  Follow the steps below to update it for
-  your new package.
+* Go into the directory you just created, and open the ``setup.cfg``
+  file with your favorite text editor.  Edit the settings in the
+  ``metadata`` section.  These values will be used to automatically
+  replace special placeholders in the affiliated package template.
 
-  1. Change the ``PACKAGENAME`` variable to whatever you decide your package
-     should be named (for examples' sake, we will call it ``yourpkg``). By
-     tradition/very strong suggestion, python package names should be all
-     lower-case.
-  2. Change the ``DESCRIPTION`` variable to a short (one or few sentence)
-     description of your package.
-  3. Define a longer description as a string in the ``LONG_DESCRIPTION``
-     variable.  You may want this to be the docstring of your package itself
-     as Astropy does.  In this case, simply add ``import yourpkg`` somewhere
-     above, and set ``LONG_DESCRIPTION = yourpkg.__doc__``.  Alternatively,
-     you may omit the description by deleting the variable and deleting the
-     line where it is used in the ``setup()`` function further down.
-  4. Add your name and email address by changing the ``AUTHOR`` and
-     ``AUTHOR_EMAIL`` variables.
-  5. If your affiliated package has a website, change ``URL`` to point to that
-     site.  Otherwise, you can leave it pointing to `Astropy`_ or just
-     delete it.
-  6. Exit out of your text editor
+  1. Change the ``package_name`` variable to whatever you decide your
+     package should be named. By tradition/very strong suggestion,
+     python package names should be all lower-case.
+  2. Change the ``description`` variable to a short (one or few
+     sentence) description of your package.
+  3. Add your name and email address by changing the ``author`` and
+     ``author_email`` variables.
+  4. If your affiliated package has a website, change ``url`` to point
+     to that site.  Otherwise, you can leave it pointing to `Astropy`_
+     or just delete it.
+  5. Exit out of your text editor
 
-* Now tell git to remember the changes you just made::
+* Update the main package docstring in ``packagename/__init__.py``.
 
-   git add setup.py
-   git commit -m "adjusted setup.py for new project yourpkg"
-
-* Decide what license you want to use to release your source code. If you
-  don't care and/or are fine with the Astropy license, just edit the file
-  ``licenses/LICENSE.rst`` with your name (or your collaboration's name) at
-  the top as the licensees.  Otherwise, make sure to replace that file with
-  whatever license you prefer, and update the ``LICENSE`` variable in
-  ``setup.py`` to reflect your choice of license.  You also may need to
-  update the comment at the top of ``packagename/__init__.py`` to reflect your
-  choice of license. Again, tell git about your changes::
-
-    git add licenses/LICENSE.rst
-    git add setup.py  # if you changed the license and modified setup.py
-    git commit -m "updated license for new project yourpkg"
+* Decide what license you want to use to release your source code. If
+  you don't care and/or are fine with the Astropy license, just edit
+  the file ``licenses/LICENSE.rst`` with your name (or your
+  collaboration's name) at the top as the licensees. Otherwise, make
+  sure to replace that file with whatever license you prefer, and
+  update the ``license`` variable in ``setup.cfg`` to reflect your
+  choice of license. You also may need to update the comment at the
+  top of ``packagename/__init__.py`` to reflect your choice of
+  license.
 
 * Take a moment to look over the ``packagename/example_mod.py``,
-  ``packagename/tests/test_example.py``, ``scripts/script_example``, and
-  ``packagename/example_c.pyx`` files, as well as the
+  ``packagename/tests/test_example.py``, ``scripts/script_example``,
+  and ``packagename/example_c.pyx`` files, as well as the
   ``packagename/example_subpkg`` directory. These are examples of a
   pure-python module, a test script, an example command-line script, a
-  `Cython`_ module, and a sub-package, respectively. (`Cython`_ is a way to
-  compile python-like code to C to make it run faster - see the project's web
-  site for details). These are provided as examples of standard way to lay
-  these out. Once you understand these, though, you'll want to delete them
-  (and later replace with your own)::
+  `Cython`_ module, and a sub-package, respectively. (`Cython`_ is a
+  way to compile python-like code to C to make it run faster - see the
+  project's web site for details). These are provided as examples of
+  standard way to lay these out. Once you understand these, though,
+  you'll want to delete them (and later replace with your own)::
 
     git rm packagename/example_mod.py
     git rm scripts/script_example
@@ -89,48 +77,17 @@ will be clear from context what to do with your particular VCS.
     git rm -r packagename/example_subpkg
     git commit -m "removed examples from package template"
 
-* Now rename the source code directory to match your project's name::
+* Optional: If you're hosting your source code on github, you can
+  enable a sphinx extension that will link documentation pages
+  directly to github's web site. To do this, set ``edit_on_github`` in
+  ``setup.cfg`` to ``True`` and set ``github_project`` to the name of
+  your project on github.
+
+* Move the main source directory to reflect the name of your package.
+  To tell your DVCS about this move, you should use it, and not ``mv``
+  directly, to make the move.  For example, with git::
 
     git mv packagename yourpkg
-    git commit -m "renamed template package source to new project yourpkg"
-
-* Adjust the information in the documentation to match your new project by
-  editing the ``docs/conf.py`` file.
-
-  1. Change the ``project`` variable to your project's name (note that this
-     does not *need* to be exactly the same as the package name, but that's a
-     common convention).
-  2. Update the ``author`` variable with your name or the name of your collaboration.
-  3. Update the ``copyright`` variable for the current year.
-  4. Change the following lines::
-
-        import packagename
-        # The short X.Y version.
-        version = packagename.__version__.split('-', 1)[0]
-        # The full version, including alpha/beta/rc tags.
-        release = packagename.__version__
-
-     to::
-
-        import yourpkg
-        # The short X.Y version.
-        version = yourpkg.__version__.split('-', 1)[0]
-        # The full version, including alpha/beta/rc tags.
-        release = yourpkg.__version__
-
-     where ``yourpkg`` is the name of your package.
-  5. (optional) If you're hosting your source code on github, you can
-     enable a sphinx extension that will link documentation pages
-     directly to github's web site. To do this, uncomment the code in
-     the "edit_on_github" section at the bottom of ``docs/conf.py``,
-     and replace ``packagename`` and ``reponame`` in that section with
-     the name of your package and github repository.
-
-
-* Pass these changes on to git::
-
-    git add docs/conf.py
-    git commit -m "updated documentation for new project yourpkg"
 
 * Update the names of the documentation files to match your package's name.
   First open ``docs/index.rst`` in a text editor and change the text
@@ -138,33 +95,13 @@ will be clear from context what to do with your particular VCS.
 
     git add docs/index.rst
     git mv docs/packagename docs/yourpkg
-    git commit -m "Updated docs to reflect new project yourpkg"
-
-* (Optional) If you want integrated coverage testing, update the
-  coverage configuration.  Open ``yourpkg/tests/coveragerc`` in a text
-  editor and change the ``source = packagename`` line to refer to the
-  name of your package.  Any other project-specific settings for
-  ``coverage.py`` can be added here.  Open
-  ``yourpkg/tests/setup_package.py`` and replace the package name
-  ``packages.tests`` with ``yourpkg.tests``.  Then do::
-
-    git add yourpkg/tests/coveragerc
-    git add yourpkg/tests/setup_package.py
-    git commit -m "Update coveragerc settings"
-
-* Adjust the ``MANIFEST.in`` file to reflect your package's name by changing
-  the line 4 from ``recursive-include packagename *.pyx *.c`` to
-  ``recursive-include yourpkg *.pyx *.c`` and pass this onto git::
-
-    ... edit MANIFEST.in as described above...
-    git add MANIFEST.in
-    git commit -m "updated MANIFEST.in for new project yourpkg"
 
 * Edit this file (``README.rst``) and delete all of this content, and replace it
-  with a short description of your affiliated package. Inform git::
+  with a short description of your affiliated package.
 
-    git add README.rst
-    git commit -m "replaced README for new project yourpkg"
+* Now tell git to remember the changes you just made::
+
+    git commit -a -m "Adjusted for new project yourpkg"
 
 * (This step assumes your affiliated package is hosted as part of the astropy
   organization on Github.  If it's instead hosted somewhere else, just adjust
@@ -196,6 +133,31 @@ will be clear from context what to do with your particular VCS.
   without affecting the official version, but when you want to push something
   up to the main repository, just switch to the appropriate branch and do
   ``git push upstream master``.
+
+  Additionally, you can set things up to make it easier to pull future
+  changes to the package template to your affiliated package.  Add a remote
+  for the package template::
+
+    git remote add template git@github.com:astropy/package-template.git
+
+  Then, each time you want to pull in changes to the package template::
+
+    git fetch template
+    git fetch upstream
+
+    # Make your master match the upstream master.  This will destroy
+    # any unmerged commits on your master (which you shouldn't be doing
+    # work on anyway, according to the standard workflow).
+    git checkout master
+    git reset --hard upstream/master
+
+    # Merge any recent changes from the package-template
+    git merge template/master
+
+    # ...possibly resolve any conflicts...
+
+    # Push to upstream master
+    git push upstream master
 
 * You should register your package on https://travis-ci.org and modify the
   ``.travis.yml`` file to make the build pass. This will continuously test
