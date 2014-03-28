@@ -227,6 +227,36 @@ class EsoClass(QueryWithLogin):
             table = Table.read(StringIO(instrument_response.content))
         return table
     
+    def get_header(self, product_ids):
+        """ Get the headers associated to a list of data product IDs
+        
+        Parameters
+        ----------
+        product_ids : list of strings
+            List of data product IDs
+        
+        Returns
+        -------
+        result : list of dict
+            List of headers, where each header is represented as a dictionary
+        """
+        if not isinstance(product_ids, list):
+            product_ids = [product_ids]
+        result = []
+        for dp_id in product_ids:
+            response = self.session.get("http://archive.eso.org/hdr?DpId={0}".format(dp_id))
+            root = html.document_fromstring(response.text)
+            hdr = root.xpath("//pre")[0].text
+            header = {}
+            for key_value in hdr.split('\n'):
+                if "=" in key_value:
+                    [key,value] = key_value.split('=',1)
+                    header[key.strip()] = unicode(value.split('/',1)[0].strip())
+                elif key_value.find("END") == 0:
+                    break
+            result += [header]
+        return result
+    
     def data_retrieval(self, datasets):
         """ Retrieve a list of datasets form the ESO archive.
         
