@@ -3,11 +3,11 @@ import requests
 import webbrowser
 import keyring
 import getpass
-import lxml.html as html
 from cStringIO import StringIO
 
 from astropy.table import Table
 from astropy.io import ascii
+from bs4 import BeautifulSoup
 
 from ..query import QueryWithLogin
 from . import ROW_LIMIT
@@ -23,62 +23,67 @@ class EsoClass(QueryWithLogin):
     
     def _activate_form(self, response, form_index=0, inputs={}):
         #Extract form from response
-        root = html.document_fromstring(response.content)
-        form = root.forms[form_index]
+        root = BeautifulSoup(response.content)
+        form = root.find_all('form')[form_index]
         #Construct base url
-        if "://" in form.action:
-            url = form.action
-        elif form.action[0] == "/":
-            url = '/'.join(response.url.split('/',3)[:3]) + form.action
+        form_action = form.get('action')
+        if "://" in form_action:
+            url = form_action
+        elif form_action.startswith("/"):
+            url = '/'.join(response.url.split('/',3)[:3]) + form_action
         else:
-            url = response.url.rsplit('/',1)[0] + '/' + form.action
+            url = response.url.rsplit('/',1)[0] + '/' + form_action
         #Identify payload format
-        if form.method == 'GET':
+        fmt = None
+        if form.get('method') == 'get':
             fmt = 'get' #get(url, params=payload)
-        elif form.method == 'POST':
-            if 'enctype' in form.attrib:
-                if form.attrib['enctype'] == 'multipart/form-data':
+        elif form.get('method') == 'post':
+            if 'enctype' in form.attrs:
+                if form.attrs['enctype'] == 'multipart/form-data':
                     fmt = 'multipart/form-data' #post(url, files=payload)
-                elif form.attrib['enctype'] == 'application/x-www-form-urlencoded':
+                elif form.attrs['enctype'] == 'application/x-www-form-urlencoded':
                     fmt = 'application/x-www-form-urlencoded' #post(url, data=payload)
             else:
                 fmt = 'post' #post(url, params=payload)
         #Extract payload from form
         payload = []
-        for key in form.inputs.keys():
+        for form_elem in form.find_all(['input', 'select', 'textarea']):
             value = None
             is_file = False
-            if isinstance(form.inputs[key], html.InputElement):
-                value = form.inputs[key].value
-                if 'type' in form.inputs[key].attrib:
-                    is_file = (form.inputs[key].attrib['type'] == 'file')
-            elif isinstance(form.inputs[key], html.SelectElement):
-                if isinstance(form.inputs[key].value, html.MultipleSelectOptions):
+            tag_name = form_elem.name
+            if tag_name == 'input':
+                value = form_elem.get('value')
+                if 'type' in form_elem.attrs:
+                    is_file = form_elem.get('type') == 'file'
+            elif tag_name == 'select':
+                if form_elem.get('multiple') is not None:
                     value = []
-                    for v in form.inputs[key].value:
-                        value += [v]
+                    for option in form_elem.select('option[value]'):
+                        if option.get('selected') is not None:
+                            value.append(option.get('value'))
                 else:
-                    value = form.inputs[key].value
-                    if value is None:
-                        value = form.inputs[key].value_options[0]
-            if key in inputs.keys():
-                value = "{}".format(inputs[key])
+                    for option in form_elem.select('option[value]'):
+                        if option.get('selected') is not None:
+                            value = option.get('value')
+            if tag_name in inputs:
+                value = str(inputs[tag_name])
             if value is not None:
                 if fmt == 'multipart/form-data':
                     if is_file:
-                        payload += [(key, ('', '', 'application/octet-stream'))]
+                        payload += [(tag_name, ('', '', 'application/octet-stream'))]
                     else:
                         if type(value) is list:
                             for v in value:
-                                payload += [(key, ('', v))]
+                                payload += [(tag_name, ('', v))]
                         else:
-                            payload += [(key, ('', value))]
+                            payload += [(tag_name, ('', value))]
                 else:
                     if type(value) is list:
                         for v in value:
-                            payload += [(key, v)]
+                            payload += [(tag_name, v)]
                     else:
-                        payload += [(key, value)]
+                        payload += [(tag_name, value)]
+
         #Send payload
         if fmt == 'get':
             response = self.session.get(url, params=payload)
@@ -112,8 +117,8 @@ class EsoClass(QueryWithLogin):
         print("Authenticating {} on www.eso.org...".format(username))
         login_response = self.session.get("https://www.eso.org/sso/login")
         login_result_response = self._activate_form(login_response, form_index=-1, inputs={'username': username, 'password':password})
-        root = html.document_fromstring(login_result_response.content)
-        authenticated = (len(root.find_class('error')) == 0)
+        root = BeautifulSoup(login_result_response.content)
+        authenticated = not root.select('.error')
         if authenticated:
             print("Authentication successful!")
         else:
@@ -133,13 +138,14 @@ class EsoClass(QueryWithLogin):
         """
         if self._instrument_list is None:
             instrument_list_response = self.session.get("http://archive.eso.org/cms/eso-data/instrument-specific-query-forms.html")
-            root = html.document_fromstring(instrument_list_response.content)
+            root = BeautifulSoup(instrument_list_response.content)
             self._instrument_list = []
-            for element in root.xpath("//div[@id='col3']//a[@href]"):
-                if "http://archive.eso.org/wdb/wdb/eso" in element.attrib["href"]:
-                    instrument = element.attrib["href"].split("/")[-2]
+            for element in root.select('div[id="col3"] a'):
+                href = element.get("href", "")
+                if "http://archive.eso.org/wdb/wdb/eso" in href:
+                    instrument = href.split("/")[-2]
                     if instrument not in self._instrument_list:
-                        self._instrument_list += [instrument]
+                        self._instrument_list.append(instrument)
         return self._instrument_list
 
     def list_surveys(self):
@@ -152,11 +158,11 @@ class EsoClass(QueryWithLogin):
         """
         if self._survey_list is None:
             survey_list_response = self.session.get("http://archive.eso.org/wdb/wdb/adp/phase3_main/form")
-            root = html.document_fromstring(survey_list_response.content)
+            root = BeautifulSoup(survey_list_response.content)
             self._survey_list = []
-            for select in root.xpath("//select[@name='phase3_program']"):
-                for element in select.xpath('option'):
-                    survey = element.text_content().strip()
+            for select in root.find_all('select', {'name': 'phase3_program'}):
+                for element in select.find_all('option'):
+                    survey = ''.join(element.stripped_strings)
                     if survey not in self._survey_list and 'Any' not in survey:
                         self._survey_list.append(survey)
         return self._survey_list
@@ -244,18 +250,19 @@ class EsoClass(QueryWithLogin):
         data_retrieval_form = self.session.get("http://archive.eso.org/cms/eso-data/eso-data-direct-retrieval.html")
         data_confirmation_form = self._activate_form(data_retrieval_form, form_index=-1, inputs={"list_of_datasets": "\n".join(datasets)})
         data_download_form = self._activate_form(data_confirmation_form, form_index=-1)
-        root = html.document_fromstring(data_download_form.content)
-        state = root.xpath("//span[@id='requestState']")[0].text
-        while state != 'COMPLETE':
+        root = BeautifulSoup(data_download_form.content)
+        state = root.select('span[id="requestState"]')[0].text
+        while state != u'COMPLETE':
             time.sleep(2.0)
             data_download_form = self.session.get(data_download_form.url)
-            root = html.document_fromstring(data_download_form.content)
-            state = root.xpath("//span[@id='requestState']")[0].text
+            root = BeautifulSoup(data_download_form.content)
+            state = root.select('span[id="requestState"]')[0].text
         files = []
-        for fileId in root.xpath("//input[@name='fileId']"):
-            fileLink = fileId.attrib['value'].split()[1]
-            fileLink = fileLink.replace("/api","").replace("https://","http://")
-            files += [self._download_file(fileLink)]
+        for fileId in root.select('input[name="fileId"]'):
+            fileLink = fileId.attrs['value'].split()[1]
+            fileLink = fileLink.replace('/api', '').replace('https://', 'http://')
+            files.append(self._download_file(fileLink))
+
         print("Done!")
         return files
 
