@@ -14,6 +14,11 @@ This module provides an interface to the `Splatalogue web service <Splatalogue>`
 It returns tables of spectral lines with features that you can specify by the
 same means generally available on the Splatalogue website.
 
+Examples
+========
+
+`An example ipynb from an interactive tutorial session at NRAO in April 2014 <nraoipynb>`_
+
 Searching for Lines
 -------------------
 
@@ -198,5 +203,5 @@ Reference/API
 
 .. _Splatalogue: http://www.splatalogue.net
 .. _splat_b: www.cv.nrao.edu/php/splat/b.php
-
+.. _nraoipynb: http://nbviewer.ipython.org/gist/keflavich/10477775
 
