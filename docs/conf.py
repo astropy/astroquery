@@ -30,7 +30,7 @@ import os
 import sys
 
 # Load all of the global Astropy configuration
-from astropy.sphinx.conf import *
+from astropy_helpers.sphinx.conf import *
 
 # Get configuration information from setup.cfg
 from distutils import config
