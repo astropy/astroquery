@@ -223,6 +223,49 @@ class EsoClass(QueryWithLogin):
                 table = Table.read(BytesIO(content), format="ascii.csv")
         return table
     
+    def get_header(self, product_ids):
+        """ Get the headers associated to a list of data product IDs
+        
+        Parameters
+        ----------
+        product_ids : list of strings
+            List of data product IDs
+        
+        Returns
+        -------
+        result : list of dict
+            List of headers, where each header is represented as a dictionary
+        """
+        if not isinstance(product_ids, list):
+            product_ids = [product_ids]
+        result = []
+        for dp_id in product_ids:
+            response = self.request("GET", "http://archive.eso.org/hdr?DpId={0}".format(dp_id))
+            root = html.document_fromstring(response.content)
+            hdr = root.xpath("//pre")[0].text
+            header = {}
+            for key_value in hdr.split('\n'):
+                if "=" in key_value:
+                    [key,value] = key_value.split('=',1)
+                    key = key.strip()
+                    value = value.split('/',1)[0].strip()
+                    if key[0:7] != "COMMENT": #drop comments
+                        if value == "T": #Convert boolean T to True
+                            value = True
+                        elif value == "F": #Convert boolean F to False
+                            value = False
+                        elif value[0]=="'": #Convert to string, removing quotation marks
+                            value = value[1:-1]
+                        elif "." in value: #Convert to float
+                                value = float(value)
+                        else: #Convert to integer
+                            value = int(value)
+                        header[key] = value
+                elif key_value.find("END") == 0:
+                    break
+            result += [header]
+        return result
+    
     def data_retrieval(self, datasets):
         """ Retrieve a list of datasets form the ESO archive.
         
