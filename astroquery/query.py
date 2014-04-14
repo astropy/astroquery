@@ -129,9 +129,14 @@ class QueryWithLogin(BaseQuery):
     """
     This is the base class for all the query classes which are required to
     have a login to access the data.
+    
+    The abstract method _login() must be implemented. It is wrapped by the
+    login() method, which turns off the cache. This way, login credentials
+    are not stored in the cache. 
     """
+
     @abc.abstractmethod
-    def login(self, **kwargs):
+    def _login(self, *args, **kwargs):
         """
         login to non-public data as a known user
 
@@ -141,3 +146,8 @@ class QueryWithLogin(BaseQuery):
         the data payload(dict) sent via `requests.post`
         """
         pass
+
+    def login(self, *args, **kwargs):
+        with suspend_cache(self):
+            result = self._login(*args, **kwargs)
+        return result
