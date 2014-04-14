@@ -1,15 +1,15 @@
 import time
-import requests
+import os.path
 import webbrowser
 import keyring
 import getpass
 import lxml.html as html
-from cStringIO import StringIO
+from io import StringIO, BytesIO
 
 from astropy.table import Table
 from astropy.io import ascii
 
-from ..query import QueryWithLogin
+from ..query import QueryWithLogin, suspend_cache
 from . import ROW_LIMIT
 
 class EsoClass(QueryWithLogin):
@@ -17,7 +17,7 @@ class EsoClass(QueryWithLogin):
     ROW_LIMIT = ROW_LIMIT()
     
     def __init__(self):
-        self.session = requests.Session()
+        super(EsoClass, self).__init__()
         self._instrument_list = None
         self._survey_list = None
     
@@ -62,7 +62,7 @@ class EsoClass(QueryWithLogin):
                     if value is None:
                         value = form.inputs[key].value_options[0]
             if key in inputs.keys():
-                value = "{}".format(inputs[key])
+                value = "{0}".format(inputs[key])
             if value is not None:
                 if fmt == 'multipart/form-data':
                     if is_file:
@@ -81,36 +81,25 @@ class EsoClass(QueryWithLogin):
                         payload += [(key, value)]
         #Send payload
         if fmt == 'get':
-            response = self.session.get(url, params=payload)
+            response = self.request("GET", url, params=payload)
         elif fmt == 'post':
-            response = self.session.post(url, params=payload)
+            response = self.request("POST", url, params=payload)
         elif fmt == 'multipart/form-data':
-            response = self.session.post(url, files=payload)
+            response = self.request("POST", url, files=payload)
         elif fmt == 'application/x-www-form-urlencoded':
-            response = self.session.post(url, data=payload)
+            response = self.request("POST", url, data=payload)
         return response
     
-    def _download_file(self, url):
-        local_filename = url.split('/')[-1]
-        print("Downloading {}...".format(local_filename))
-        r = self.session.get(url, stream=True)
-        with open(local_filename, 'wb') as f:
-            for chunk in r.iter_content(chunk_size=1024): 
-                if chunk:
-                    f.write(chunk)
-                    f.flush()
-        return local_filename
-    
-    def login(self, username):
+    def _login(self, username):
         #Get password from keyring or prompt
         password_from_keyring = keyring.get_password("astroquery:www.eso.org", username)
         if password_from_keyring is None:
-            password = getpass.getpass("{}, enter your ESO password:\n".format(username))
+            password = getpass.getpass("{0}, enter your ESO password:\n".format(username))
         else:
             password = password_from_keyring
         #Authenticate
-        print("Authenticating {} on www.eso.org...".format(username))
-        login_response = self.session.get("https://www.eso.org/sso/login")
+        print("Authenticating {0} on www.eso.org...".format(username))
+        login_response = self.request("GET", "https://www.eso.org/sso/login")
         login_result_response = self._activate_form(login_response, form_index=-1, inputs={'username': username, 'password':password})
         root = html.document_fromstring(login_result_response.content)
         authenticated = (len(root.find_class('error')) == 0)
@@ -132,7 +121,7 @@ class EsoClass(QueryWithLogin):
         
         """
         if self._instrument_list is None:
-            instrument_list_response = self.session.get("http://archive.eso.org/cms/eso-data/instrument-specific-query-forms.html")
+            instrument_list_response = self.request("GET", "http://archive.eso.org/cms/eso-data/instrument-specific-query-forms.html")
             root = html.document_fromstring(instrument_list_response.content)
             self._instrument_list = []
             for element in root.xpath("//div[@id='col3']//a[@href]"):
@@ -151,7 +140,7 @@ class EsoClass(QueryWithLogin):
         
         """
         if self._survey_list is None:
-            survey_list_response = self.session.get("http://archive.eso.org/wdb/wdb/adp/phase3_main/form")
+            survey_list_response = self.request("GET", "http://archive.eso.org/wdb/wdb/adp/phase3_main/form")
             root = html.document_fromstring(survey_list_response.content)
             self._survey_list = []
             for select in root.xpath("//select[@name='phase3_program']"):
@@ -180,7 +169,7 @@ class EsoClass(QueryWithLogin):
         if survey not in self.list_surveys():
             raise ValueError("Survey %s is not in the survey list." % survey)
         url = "http://archive.eso.org/wdb/wdb/adp/phase3_main/form"
-        survey_form = self.session.get(url)
+        survey_form = self.request("GET", url)
         query_dict = kwargs
         query_dict["wdbo"] = "csv/download"
         query_dict['phase3_program'] = survey
@@ -189,7 +178,7 @@ class EsoClass(QueryWithLogin):
         else:
             query_dict["max_rows_returned"] = 10000
         survey_response = self._activate_form(survey_form, form_index=0, inputs=query_dict)
-        table = ascii.read(StringIO(survey_response.content),format='csv',comment='#',delimiter=',',header_start=1)
+        table = ascii.read(StringIO(survey_response.content.decode(survey_response.encoding)),format='csv',comment='#',delimiter=',',header_start=1)
         return table
     
     def query_instrument(self, instrument, open_form=False, **kwargs):
@@ -211,21 +200,71 @@ class EsoClass(QueryWithLogin):
             by the ROW_LIMIT configuration item.
         
         """
-        url = "http://archive.eso.org/wdb/wdb/eso/{}/form".format(instrument)
+        url = "http://archive.eso.org/wdb/wdb/eso/{0}/form".format(instrument)
+        table = None
         if open_form:
             webbrowser.open(url)
-            table = None
         else:
-            instrument_form = self.session.get(url)
+            instrument_form = self.request("GET", url)
             query_dict = kwargs
-            query_dict["wdbo"] = "votable"
+            query_dict["wdbo"] = "csv/download"
             if self.ROW_LIMIT >= 0:
                 query_dict["max_rows_returned"] = self.ROW_LIMIT
             else:
                 query_dict["max_rows_returned"] = 10000
             instrument_response = self._activate_form(instrument_form, form_index=0, inputs=query_dict)
-            table = Table.read(StringIO(instrument_response.content))
+            if b"# No data returned !" not in instrument_response.content:
+                content = []
+                for line in instrument_response.content.split(b'\n')[1:]: #The first line is garbage, don't know why
+                    if len(line)>0: #Drop empty lines
+                        if line[0:1]!=b'#': #And drop comments
+                            content += [line]
+                content = b'\n'.join(content)
+                table = Table.read(BytesIO(content), format="ascii.csv")
         return table
+    
+    def get_header(self, product_ids):
+        """ Get the headers associated to a list of data product IDs
+        
+        Parameters
+        ----------
+        product_ids : list of strings
+            List of data product IDs
+        
+        Returns
+        -------
+        result : list of dict
+            List of headers, where each header is represented as a dictionary
+        """
+        if not isinstance(product_ids, list):
+            product_ids = [product_ids]
+        result = []
+        for dp_id in product_ids:
+            response = self.request("GET", "http://archive.eso.org/hdr?DpId={0}".format(dp_id))
+            root = html.document_fromstring(response.content)
+            hdr = root.xpath("//pre")[0].text
+            header = {}
+            for key_value in hdr.split('\n'):
+                if "=" in key_value:
+                    [key,value] = key_value.split('=',1)
+                    key = key.strip()
+                    value = value.split('/',1)[0].strip()
+                    if key[0:7] != "COMMENT": #drop comments
+                        if value == "T": #Convert boolean T to True
+                            value = True
+                        elif value == "F": #Convert boolean F to False
+                            value = False
+                        elif value[0]=="'": #Convert to string, removing quotation marks
+                            value = value[1:-1]
+                        elif "." in value: #Convert to float
+                                value = float(value)
+                        else: #Convert to integer
+                            value = int(value)
+                        header[key] = value
+                elif key_value.find("END") == 0:
+                    break
+            result += [header]
+        return result
     
     def data_retrieval(self, datasets):
         """ Retrieve a list of datasets form the ESO archive.
@@ -241,21 +280,37 @@ class EsoClass(QueryWithLogin):
             List of files that have been locally downloaded from the archive.
         
         """
-        data_retrieval_form = self.session.get("http://archive.eso.org/cms/eso-data/eso-data-direct-retrieval.html")
-        data_confirmation_form = self._activate_form(data_retrieval_form, form_index=-1, inputs={"list_of_datasets": "\n".join(datasets)})
-        data_download_form = self._activate_form(data_confirmation_form, form_index=-1)
-        root = html.document_fromstring(data_download_form.content)
-        state = root.xpath("//span[@id='requestState']")[0].text
-        while state != 'COMPLETE':
-            time.sleep(2.0)
-            data_download_form = self.session.get(data_download_form.url)
-            root = html.document_fromstring(data_download_form.content)
-            state = root.xpath("//span[@id='requestState']")[0].text
+        datasets_to_download = []
         files = []
-        for fileId in root.xpath("//input[@name='fileId']"):
-            fileLink = fileId.attrib['value'].split()[1]
-            fileLink = fileLink.replace("/api","").replace("https://","http://")
-            files += [self._download_file(fileLink)]
+        #First: Detect datasets already downloaded
+        for dataset in datasets:
+            local_filename = dataset + ".fits.Z"
+            if self.cache_location is not None:
+                local_filename = self.cache_location + "/" + local_filename
+            if os.path.exists(local_filename):
+                print("Found {0}.fits.Z...".format(dataset))
+                files += [local_filename]
+            else:
+                datasets_to_download += [dataset]
+        #Second: Download the other datasets
+        if datasets_to_download:
+            data_retrieval_form = self.request("GET", "http://archive.eso.org/cms/eso-data/eso-data-direct-retrieval.html")
+            print("Staging request...")
+            with suspend_cache(self): #Never cache staging operations
+                data_confirmation_form = self._activate_form(data_retrieval_form, form_index=-1, inputs={"list_of_datasets": "\n".join(datasets_to_download)})
+                data_download_form = self._activate_form(data_confirmation_form, form_index=-1)
+                root = html.document_fromstring(data_download_form.content)
+                state = root.xpath("//span[@id='requestState']")[0].text
+                while state != 'COMPLETE':
+                    time.sleep(2.0)
+                    data_download_form = self.request("GET", data_download_form.url)
+                    root = html.document_fromstring(data_download_form.content)
+                    state = root.xpath("//span[@id='requestState']")[0].text
+            print("Downloading files...")
+            for fileId in root.xpath("//input[@name='fileId']"):
+                fileLink = fileId.attrib['value'].split()[1]
+                fileLink = fileLink.replace("/api","").replace("https://","http://")
+                files += [self.request("GET", fileLink, save=True)]
         print("Done!")
         return files
 

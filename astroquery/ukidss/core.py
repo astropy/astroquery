@@ -87,7 +87,7 @@ class UkidssClass(QueryWithLogin):
         else:
             self.login(username, password, community)
 
-    def login(self, username, password, community):
+    def _login(self, username, password, community):
         """
         Login to non-public data as a known user
 
