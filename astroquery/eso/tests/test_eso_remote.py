@@ -1,15 +1,14 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-from __future__ import print_function
+import os
 from astropy.tests.helper import remote_data
-from ... import eso
-import requests
-import imp
-imp.reload(requests)
+from ...eso import Eso
 
+CACHE_PATH = os.path.join(os.path.dirname(__file__), 'data')
 
-@remote_data
 def test_SgrAstar():
 
-    instruments = eso.Eso.list_instruments()
-    results = [eso.Eso.query_instrument(ins, target='Sgr A*') for ins in instruments]
+    eso = Eso()
+    eso.cache_location = CACHE_PATH
+    instruments = eso.list_instruments()
+    result = eso.query_instrument(instruments[0], target='Sgr A*')
     
