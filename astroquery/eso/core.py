@@ -224,7 +224,7 @@ class EsoClass(QueryWithLogin):
                 table = Table.read(BytesIO(content), format="ascii.csv")
         return table
     
-    def get_header(self, product_ids):
+    def get_headers(self, product_ids):
         """ Get the headers associated to a list of data product IDs
         
         This method returns an astropy.table.Table where the rows correspond to
