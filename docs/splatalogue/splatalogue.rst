@@ -10,20 +10,20 @@ Getting Started
 ===============
 
 
-This module provides an interface to the `Splatalogue web service <Splatalogue>`_
+This module provides an interface to the `Splatalogue web service`_
 It returns tables of spectral lines with features that you can specify by the
 same means generally available on the Splatalogue website.
 
 Examples
 ========
 
-`An example ipynb from an interactive tutorial session at NRAO in April 2014 <nraoipynb>`_
+`An example ipynb from an interactive tutorial session at NRAO in April 2014`_
 
 Searching for Lines
 -------------------
 
 In the Splatalogue web interface, you select "species" of interest using the left side menu
-seen in the `query interface <splat_b>`_  You can access the line list:
+seen in the `query interface`_  You can access the line list:
 
 .. code-block:: python
 
@@ -201,7 +201,7 @@ Reference/API
 .. automodapi:: astroquery.splatalogue
     :no-inheritance-diagram:
 
-.. _Splatalogue: http://www.splatalogue.net
-.. _splat_b: www.cv.nrao.edu/php/splat/b.php
-.. _nraoipynb: http://nbviewer.ipython.org/gist/keflavich/10477775
+.. _Splatalogue web service: http://www.splatalogue.net
+.. _query interface: http://www.cv.nrao.edu/php/splat/b.php
+.. _An example ipynb from an interactive tutorial session at NRAO in April 2014: http://nbviewer.ipython.org/gist/keflavich/10477775
 

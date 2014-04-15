@@ -45,7 +45,7 @@ Requirements
 
 The following packages are required for astroquery installation & use:
 
- * `numpy <www.numpy.org>`_
+ * `numpy <http://www.numpy.org>`_
  * astropy_ (v>=0.3)
  * `requests <http://docs.python-requests.org/en/latest/>`_
 
