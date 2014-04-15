@@ -107,7 +107,7 @@ Obtaining extended information on data products
 
 Only a small subset of the keywords presents in the data products can be obtained with `query_instrument()`.
 There is however a way to get the full primary header of the FITS data products, using `get_headers()`. This
-method is detailed in the exampled below, continuing with the previously obtained `table`.
+method is detailed in the example below, continuing with the previously obtained `table`.
 
 .. code-block:: python
 
@@ -129,6 +129,5 @@ method is detailed in the exampled below, continuing with the previously obtaine
     570
 
 As shown above, for each data product ID (`DP.ID`), the full header (570 columns in our case) of the archive
-Fits file is collected. In the above table `table_headers`, there are as many rows as in the input
-data product ID column `table['DP.ID']`.
+Fits file is collected. In the above table `table_headers`, there are as many rows as in the column `table['DP.ID']`.
 
