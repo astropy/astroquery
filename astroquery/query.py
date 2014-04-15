@@ -59,7 +59,7 @@ class AstroQuery(object):
         return self._hash
     
     def request_file(self, cache_location):
-        return "/".join([cache_location, self.hash()+".pickle"])
+        return os.path.join(cache_location, self.hash()+".pickle")
     
     def from_cache(self, cache_location):
         request_file = self.request_file(cache_location)
@@ -84,7 +84,7 @@ class BaseQuery(object):
 
     def __init__(self):
         self.__session = requests.session()
-        self.cache_location = "/".join([paths.get_cache_dir(), u'astroquery', self.__class__.__name__.split("Class")[0]])
+        self.cache_location = os.path.join(paths.get_cache_dir(), u'astroquery', self.__class__.__name__.split("Class")[0])
         if not os.path.exists(self.cache_location):
             os.makedirs(self.cache_location)
         self._cache_active = True
@@ -96,7 +96,7 @@ class BaseQuery(object):
     def request(self, method, url, params=None, data=None, headers=None, files=None, save=False):
         if save:
             local_filename = url.split('/')[-1]
-            local_filepath = (self.cache_location if self.cache_location else ".") + "/" + local_filename
+            local_filepath = os.path.join(self.cache_location if self.cache_location else ".", local_filename)
             print("Downloading {0}...".format(local_filename))
             with suspend_cache(self): #Never cache file downloads: they are already saved on disk
                 r = self.request(method, url)

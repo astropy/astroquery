@@ -309,7 +309,7 @@ class EsoClass(QueryWithLogin):
         for dataset in datasets:
             local_filename = dataset + ".fits.Z"
             if self.cache_location is not None:
-                local_filename = self.cache_location + "/" + local_filename
+                local_filename = os.path.join(self.cache_location, local_filename)
             if os.path.exists(local_filename):
                 print("Found {0}.fits.Z...".format(dataset))
                 files += [local_filename]
