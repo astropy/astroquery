@@ -236,23 +236,23 @@ class DummyClass(BaseQuery):
             # return raw result/ handle in some way
             pass
 
-     # for image queries, the results should be returned as a
-     # list of `astropy.fits.HDUList` objects. Typically image queries
-     # have the following method family:
-     # 1. get_images - this is the high level method that interacts with
-     #        the user. It reads in the user input and returns the final
-     #        list of fits images to the user.
-     # 2. get_images_async - This is a lazier form of the get_images function, in
-     #        that it returns just the list of handles to the image files instead
-     #        of actually downloading them.
-     # 3. extract_image_urls - This takes in the raw HTTP response and scrapes
-     #        it to get the downloadable list of image URLs.
-     # 4. get_image_list - this is similar to the get_images, but it simply
-     #        takes in the list of URLs scrapped by extract_image_urls and
-     #        returns this list rather than the actual FITS images
-     # NOTE : in future support may be added to allow the user to save
-     # the downloaded images to a preferred location. Here we look at the
-     # skeleton code for image services
+    # for image queries, the results should be returned as a
+    # list of `astropy.fits.HDUList` objects. Typically image queries
+    # have the following method family:
+    # 1. get_images - this is the high level method that interacts with
+    #        the user. It reads in the user input and returns the final
+    #        list of fits images to the user.
+    # 2. get_images_async - This is a lazier form of the get_images function, in
+    #        that it returns just the list of handles to the image files instead
+    #        of actually downloading them.
+    # 3. extract_image_urls - This takes in the raw HTTP response and scrapes
+    #        it to get the downloadable list of image URLs.
+    # 4. get_image_list - this is similar to the get_images, but it simply
+    #        takes in the list of URLs scrapped by extract_image_urls and
+    #        returns this list rather than the actual FITS images
+    # NOTE : in future support may be added to allow the user to save
+    # the downloaded images to a preferred location. Here we look at the
+    # skeleton code for image services
 
     def get_images(self, coordinates, radius, get_query_payload):
         """
