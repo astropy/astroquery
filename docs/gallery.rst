@@ -5,7 +5,8 @@ A Gallery of Queries
 
 A series of queries folks have performed for research or for kicks.  
 
-Example 1:
+Example 1
++++++++++
 
 This illustrates querying Vizier with specific keyword, and the use of 
 `astropy.coordinates` to describe a query.
@@ -29,10 +30,11 @@ object type is shown here.
     584-0030          23 54 05 -01 32.3 16.6        17.7              k  0.199  193 23 56 39 -01 15.4
     
 
-Example 2:
+Example 2
++++++++++
 
 This illustrates addinf new output fields to SIMBAD queries. 
-Run `astropquery.simbad.Simbad.list_votable_fields` to get the full list of valid fields.
+Run `~astroquery.simbad.SimbadClass.list_votable_fields` to get the full list of valid fields.
 
 .. code-block:: python
 
@@ -48,7 +50,8 @@ Run `astropquery.simbad.Simbad.list_votable_fields` to get the full list of vali
       M  31 00 42 44.330 +41 16 07.50       7        7          nan          nan             0        B              I 2006AJ....131.1163S              3758
 
 
-Example 3:
+Example 3
++++++++++
 
 This illustrates finding the spectral type of some particular star.
 
@@ -64,7 +67,8 @@ This illustrates finding the spectral type of some particular star.
     'M6III'
     
 
-Example 4:
+Example 4
++++++++++
 
 .. code-block:: python
 

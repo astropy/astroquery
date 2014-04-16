@@ -19,9 +19,8 @@ individual columns before retrieving the results.
 Table Discover
 --------------
 
-
 If you want to search for a set of tables, e.g. based on author name or other keywords,
-the `~astroquery.vizier.Vizier.find_catalogs` tool can be used:
+the :meth:`~astroquery.vizier.VizierClass.find_catalogs` tool can be used:
 
 .. code-block:: python
 
@@ -42,7 +41,7 @@ Get a whole catalog
 
 
 If you know the name of the catalog you wish to retrieve, e.g. from doing a
-`~astroquery.vizier.Vizier.find_catalogs` search as above, you can then grab
+:meth:`~astroquery.vizier.VizierClass.find_catalogs` search as above, you can then grab
 the complete contents of those catalogs:
 
 .. code-block:: python
@@ -86,10 +85,9 @@ For instance to query Sirius across all catalogs:
        ...
 
 All the results are returned as a `TableList` object. This is a container for
-`astropy.table.Table`_ objects. It is basically an extension to
-`collections.OrderedDict` for storing an `astropy.table.Table`_ against its
-name. 
-
+`~astropy.table.Table` objects. It is basically an extension to
+`collections.OrderedDict` for storing a `~astropy.table.Table` against its
+name.
 
 To access an individual table from the `TableList` object
 
@@ -129,14 +127,14 @@ quasar 3C 273:
     >>> result = Vizier.query_region("3C 273", radius=Angle(0.1, "deg"), catalog='GSC')
 
 Note that the radius may also be specified as a string in the format
-expected by `astropy.coordinates.Angle`_. So the above query may also
+expected by `~astropy.coordinates.Angle`. So the above query may also
 be written as:
 
 .. code-block:: python
 
     >>> result = Vizier.query_region("3C 273", radius="0d6m0s", catalog='GSC')
 
-Or using angular units and quantities from `astropy.units`_:
+Or using angular units and quantities from `astropy.units`:
 
 .. code-block:: python
 
@@ -175,18 +173,18 @@ dimension.
 
 One more thing to note in the above example is that the coordinates may be
 specified by using the appropriate coordinate object from
-`astropy.coordinates`_. Especially for ICRS coordinates, some support
+`astropy.coordinates`. Especially for ICRS coordinates, some support
 also exists for directly passing a properly formatted string as the
-coordinate. Finally the `catalog` keyword argument may be passed in either
-`Vizier.query_object` or `Vizier.query_region` methods. This may be a string
+coordinate. Finally the ``catalog`` keyword argument may be passed in either
+:meth:`~astroquery.vizier.VizierClass.query_object` or
+:meth:`~astroquery.vizier.VizierClass.query_region` methods. This may be a string
 (if only a single catalog) or a list of strings otherwise.
 
 Specifying keywords, output columns and constraints on columns
 --------------------------------------------------------------
 
-
 To specify keywords on which to search as well as conditions on the output
-columns, an instance of the `Vizier` class specifying these must be first
+columns, an instance of the `~astroquery.vizier.VizierClass` class specifying these must be first
 created. All further queries may then be performed on this instance rather than
 on the Vizier class. 
 
@@ -226,11 +224,11 @@ this Vizier instance:
     299.617995  35.2058637 13.946  35.205864
 
 When specifying the columns of the query, sorting of the returned table can be
-requested by adding `+` (or `-` for reverse sorting order) in front of the column
-name. In the following example, the standard (`"*"`) columns and the calculated
-distance column (`"_r"`) of the 2MASS catalog (II/246) are queried, 20 arcsec
+requested by adding ``+`` (or ``-`` for reverse sorting order) in front of the column
+name. In the following example, the standard (``"*"``) columns and the calculated
+distance column (``"_r"``) of the 2MASS catalog (II/246) are queried, 20 arcsec
 around HD 226868. The result is sorted in increasing distance, as requested with
-the `"+"` in front of `"_r"`.  
+the ``"+"`` in front of ``"_r"``.  
 
 .. code-block:: python
 
@@ -245,16 +243,16 @@ the `"+"` in front of `"_r"`.
     299.586356  35.200542 19582072+3512019 14.553  0.166 14.480  0.184 14.119  0.142  CCB  222  111  ccc    0    0 12.263
     299.586254  35.197994 19582070+3511527 16.413  0.195 14.937    nan 14.770    nan  CUU  200  100  c00    0    0 17.658
 
-Note: The special column `"*"` requests just the default columns of a catalog; `"**"` would request all the columns. 
+Note: The special column ``"*"`` requests just the default columns of a catalog; ``"**"`` would request all the columns. 
 
 Query with table
 ----------------
 
 
-An `astropy.table.Table`_ can also be used in a region query. The following example
-starts by looking for AGNs in the Veron & Cety catalog with a `Vmag` between 10.0 and 11.0. Based on the
-result of this first query, guide stars with a `Kmag` brighter than 9.0 are looked for, with a separation
-between 2 and 30 arcsec. The column `_q` in the `guide` table is a 1-based index to the `agn` table (not the 0-based
+A `~astropy.table.Table` can also be used in a region query. The following example
+starts by looking for AGNs in the Veron & Cety catalog with a ``Vmag`` between 10.0 and 11.0. Based on the
+result of this first query, guide stars with a ``Kmag`` brighter than 9.0 are looked for, with a separation
+between 2 and 30 arcsec. The column ``_q`` in the ``guide`` table is a 1-based index to the ``agn`` table (not the 0-based
 python convention).
 
 .. code-block:: python
@@ -292,16 +290,11 @@ python convention).
      40.670177  -0.012830 02424084-0000461 11.381  0.173  8.636    nan  8.112    nan  EUU  200  100  c00    2    0   4  40.670177  -0.012830
     192.721982  41.121040 12505327+4107157 10.822  0.037  8.539    nan  8.242    nan  EUU  200  100  c00    2    0  11 192.721982  41.121040
     192.721179  41.120201 12505308+4107127  9.306  0.055  8.742  0.074  8.492  0.067  EEE  222  111  000    2    0  11 192.721179  41.120201
-
-
+    
 Reference/API
 =============
 
 .. automodapi:: astroquery.vizier
     :no-inheritance-diagram:
 
-.. _astropy.table.Table: http://docs.astropy.org/en/latest/table/index.html
-.. _astropy.coordinates.Angle: http://docs.astropy.org/en/latest/_generated/astropy.coordinates.angles.Angle.html#astropy.coordinates.angles.Angle 
-.. _astropy.units: http://docs.astropy.org/en/latest/units/index.html 
-.. _astropy.coordinates: http://docs.astropy.org/en/latest/coordinates/index.html  
 .. _for details see here: http://vizier.u-strasbg.fr/vizier/vizHelp/1.htx

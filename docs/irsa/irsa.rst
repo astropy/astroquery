@@ -11,15 +11,15 @@ Getting started
 
 This module can has methods to perform different types of queries on the
 catalogs present in the IRSA general catalog service. All queries can be
-performed by calling :meth:`~astroquery.irsa.core.Irsa.query_region`, with
+performed by calling :meth:`~astroquery.irsa.IrsaClass.query_region`, with
 different keyword arguments. There are 4 different region queries that are
-supported: `Cone`, `Box`, `Polygon` and `All-Sky`. All successful queries return the
-results in an `astropy.table.Table`_.  We now look at some
+supported: ``Cone``, ``Box``, ``Polygon`` and ``All-Sky``. All successful queries return the
+results in a `~astropy.table.Table`.  We now look at some
 examples.
 
 **Available catalogs**
 
-All region queries require a `catalog` keyword argument, which is the name of
+All region queries require a ``catalog`` keyword argument, which is the name of
 the catalog in the IRSA database, on which the query must be performed. To take
 a look at all the available catalogs:
 
@@ -58,12 +58,12 @@ rather just print out this information:
 
 **Performing a cone search**
 
-A cone search query is performed by setting the `spatial` keyword to
-`Cone`. The target name or the coordinates of the search center must also be
+A cone search query is performed by setting the ``spatial`` keyword to
+``Cone``. The target name or the coordinates of the search center must also be
 specified. The radius for the cone search may also be specified - if this is
 missing, it defaults to a value of 10 arcsec. The radius may be specified in
-any appropriate unit using an `astropy.units`_  `Quantity` object. It may also be
-entered as a string that is parsable by `astropy.coordinates.Angle`_.
+any appropriate unit using a `~astropy.units.Quantity` object. It may also be
+entered as a string that is parsable by `~astropy.coordinates.Angle`.
 
 .. code-block:: python
 
@@ -96,8 +96,8 @@ entered as a string that is parsable by `astropy.coordinates.Angle`_.
 
 The coordinates of the center may be specified rather than using the target
 name. The coordinates can be specified using the appropriate
-`astropy.coordinates`_ object. ICRS coordinates may also be entered directly as
-a string, as specified by `astropy.coordinates`_:
+`astropy.coordinates` object. ICRS coordinates may also be entered directly as
+a string, as specified by `astropy.coordinates`:
 
 .. code-block:: python
 
@@ -111,10 +111,10 @@ a string, as specified by `astropy.coordinates`_:
 **Performing a box search**
 
 The box queries have a syntax similar to the cone queries. In this case the
-`spatial` keyword argument must be set to `Box`. Also the width of the box
+``spatial`` keyword argument must be set to ``Box``. Also the width of the box
 region is required. The width may be specified in the same way as the radius
 for cone search queries, above - so it may be set using the appropriate
-`astropy.units`_ `Quantity` object or a string parsable by `astropy.coordinates.Angle`_.
+`~astropy.units.Quantity` object or a string parsable by `~astropy.coordinates.Angle`.
 
 .. code-block:: python
 
@@ -134,17 +134,17 @@ for cone search queries, above - so it may be set using the appropriate
      10.685  41.269 00h42m44.34s 41d16m08.53s    0.08 ... 0.785 0.193 0.978   0
 
 Note that in this case we directly passed ICRS coordinates as a string to the
-:meth:`~astroquery.irsa.core.Irsa.query_region`.
+:meth:`~astroquery.irsa.IrsaClass.query_region`.
 
 **Queries over a polygon**
 
-Polygon queries can be performed by setting `spatial='Polygon'`. The search
+Polygon queries can be performed by setting ``spatial='Polygon'``. The search
 center is optional in this case. One additional parameter that must be set for
-these queries is `polygon`. This is a list of coordinate pairs that define a
+these queries is ``polygon``. This is a list of coordinate pairs that define a
 convex polygon. The coordinates may be specified as usual by using the
-appropriate `astropy.coordinates`_ object (Again ICRS coordinates may be
+appropriate `astropy.coordinates` object (Again ICRS coordinates may be
 directly passed as properly formatted strings). In addition to using a list of
-`astropy.coordinates`_ objects, one additional convenient means of specifiying
+`astropy.coordinates` objects, one additional convenient means of specifiying
 the coordinates is also available - Coordinates may also be entered as a list of
 tuples, each tuple containing the ra and dec values in degrees. Each of these
 options is illustrated below:
@@ -208,8 +208,3 @@ Reference/API
 
 .. automodapi:: astroquery.irsa
     :no-inheritance-diagram:
-
-.. _astropy.table.Table: http://docs.astropy.org/en/latest/table/index.html
-.. _astropy.coordinates.Angle: http://docs.astropy.org/en/latest/_generated/astropy.coordinates.angles.Angle.html#astropy.coordinates.angles.Angle 
-.. _astropy.units: http://docs.astropy.org/en/latest/units/index.html 
-.. _astropy.coordinates: http://docs.astropy.org/en/latest/coordinates/index.html

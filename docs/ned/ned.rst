@@ -10,9 +10,9 @@ Getting Started
 ===============
 
 This module can be used to query the Ned web service. All queries other than
-image and spectra queries return results in an `astropy.table.Table`_. Image
+image and spectra queries return results in a `~astropy.table.Table`. Image
 and spectra queries on the other hand return the results as a list of
-`astropy.io.fits`_ `HDUList` objects. Below are some working examples that
+`~astropy.io.fits.HDUList` objects. Below are some working examples that
 illustrate common use cases.
 
 **Query an object**
@@ -36,9 +36,9 @@ instance if you want to query NGC 224
 These queries may be used for querying a region around a named object or
 coordinates (i.e *near name* and *near position* queries). The radius of  
 the region should be specified in degrees or equivalent units. An easy way to do this is to use an
-`astropy.units`_ `Quantity` object to specify the radius and units. The radius may also
+`~astropy.units.Quantity` object to specify the radius and units. The radius may also
 be specified as a string in which case it will be parsed using
-`astropy.coordinates.Angle`_. If no radius is specified, it defaults to 1
+`~astropy.coordinates.Angle`. If no radius is specified, it defaults to 1
 arcmin. Another optional parameter is the equinox if coordinates are
 specified. By default this is J2000.0 but can also be set to B1950.0.
 
@@ -70,7 +70,7 @@ specified. By default this is J2000.0 but can also be set to B1950.0.
     353 SDSS J122918.38+020323.4 ...               4            0
 
 Instead of using the name, the target may also be specified via
-coordinates. Any of the coordinate systems available in `astropy.coordinates`_
+coordinates. Any of the coordinate systems available in `astropy.coordinates`
 may be used (ICRS, Galactic, FK4, FK5). Note also the use of the equinox keyword argument:
 
 .. code-block:: python
@@ -95,9 +95,9 @@ may be used (ICRS, Galactic, FK4, FK5). Note also the use of the equinox keyword
 The `IAU format`_ for coordinates may also be used for querying
 purposes. Additional parameters that can be specified for these queries is the
 reference frame of the coordinates. The reference frame defaults to
-`Equatorial`. But it can also take the values `Ecliptic`, `Galactic` and
-`SuperGalactic`. The equinox can also be explicitly chosen (same as in region
-queries). It defaults to `B1950` but again it may be set to `J2000.0`. Note
+``Equatorial``. But it can also take the values ``Ecliptic``, ``Galactic`` and
+``SuperGalactic``. The equinox can also be explicitly chosen (same as in region
+queries). It defaults to ``B1950`` but again it may be set to ``J2000.0``. Note
 that Ned report results by searching in a 15 arcmin radius around the specified
 target.
 
@@ -119,7 +119,7 @@ target.
 
 These queries can be used to retrieve all objects that appear in the specified
 19 digit reference code. These are similar to the
-:meth:`~astroquery.simbad.core.Simbad.query_bibobj` queries. 
+:meth:`~astroquery.simbad.SimbadClass.query_bibobj` queries. 
 
 .. code-block:: python
 
@@ -148,8 +148,8 @@ These queries can be used to retrieve all objects that appear in the specified
 
 **Image and Spectra Queries**
 
-The image queries return a list of `astropy.io.fits`_ `HDUList` objects for the
-specified name . For instance:
+The image queries return a list of `~astropy.io.fits.HDUList` objects for the
+specified name. For instance:
 
 .. code-block:: python
 
@@ -223,12 +223,11 @@ Similarly the list of URLs for spectra of a particular object may be fetched:
 
 **Fetching other data tables for an object**
 
-Several other data tables for an object may be fetched via the :meth:`~astroquery.ned.core.Ned.get_table`
-queries. These take a keyword argument `table`, which may be set to one of
-`photometry`, `diameters`, `redshifts`, `references` or `object-notes`. For
-instance the `table=photometry` will fetch all the relevant photometric data
+Several other data tables for an object may be fetched via the :meth:`~astroquery.ned.NedClass.get_table`
+queries. These take a keyword argument ``table``, which may be set to one of
+``photometry``, ``diameters``, ``redshifts``, ``references`` or ``object-notes``. For
+instance the ``table=photometry`` will fetch all the relevant photometric data
 for the specified object. We look at a simple example:
-
 
 
 .. code-block:: python
@@ -254,10 +253,10 @@ for the specified object. We look at a simple example:
 
 .. note::
 
-    All query methods that return the results in an `astropy.table.Table`_ will
-    return meaningful column names only with ``Astropy`` version >= 0.3. For
+    All query methods that return the results in a `~astropy.table.Table` will
+    return meaningful column names only with Astropy version >= 0.3. For
     versions older than this, the table headers will have column names of the form
-    `main_col_number` because of the way in which the NED returns VOTables.
+    ``main_col_number`` because of the way in which the NED returns VOTables.
 
 .. warning:: 
 
@@ -269,10 +268,5 @@ Reference/API
 .. automodapi:: astroquery.ned
     :no-inheritance-diagram:
 
-.. _astropy.table.Table: http://docs.astropy.org/en/latest/table/index.html
-.. _astropy.coordinates.Angle: http://docs.astropy.org/en/latest/_generated/astropy.coordinates.angles.Angle.html#astropy.coordinates.angles.Angle 
-.. _astropy.units: http://docs.astropy.org/en/latest/units/index.html 
-.. _astropy.coordinates: http://docs.astropy.org/en/latest/coordinates/index.html
 .. _IAU format: http://cdsweb.u-strasbg.fr/Dic/iau-spec.html.
-.. _astropy.io.fits: http://docs.astropy.org/en/latest/io/fits/index.html
 .. _astroquery issue #141: https://github.com/astropy/astroquery/issues/141

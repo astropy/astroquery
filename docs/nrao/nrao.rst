@@ -10,13 +10,13 @@ Getting started
 ===============
 
 This module supports fetching the table of observation summaries from the NRAO
-data archive. The results are returned in an `astropy.table.Table`_. The service
-can be queried using the :meth:`~astroquery.nrao.core.Nrao.query_region`. The
+data archive. The results are returned in a `~astropy.table.Table`. The service
+can be queried using the :meth:`~astroquery.nrao.NraoClass.query_region`. The
 only required argument to this is the target around which to query. This may be
 specified either by using the identifier name directly - this is resolved via
 astropy functions using online services. The coordinates may also be specified
 directly using the appropriate coordinate system from
-`astropy.coordinates`_. Here is a basic example:
+`astropy.coordinates`. Here is a basic example:
 
 .. code-block:: python
 
@@ -48,22 +48,22 @@ More detailed parameters
 ------------------------
 
 There are several other optional parameters that may also be specified. For
-instance the `radius` may be specified via `astropy.units`_ `Quantity` object or a
-string acceptable be `astropy.coordinates.Angle`_. By default this is set to 1
-degree. `equinox` may be set to 'J2000' or 'B1950' for equatorial systems, the
-default being 'J2000'. You can also specify the `telescope` from which to fetch
+instance the ``radius`` may be specified via `~astropy.units.Quantity` object or a
+string acceptable be `~astropy.coordinates.Angle`. By default this is set to 1
+degree. ``equinox`` may be set to 'J2000' or 'B1950' for equatorial systems, the
+default being 'J2000'. You can also specify the ``telescope`` from which to fetch
 the observations. This can be one of the following. ::
 
     'gbt' 'all' 'historical_vla' 'vlba' 'jansky_vla'
 
-Another parameter is the `telescope_config`. Valid values are ::
+Another parameter is the ``telescope_config``. Valid values are ::
 
 
      'all' 'A' 'AB' 'BnA' 'B' 'BC' 'CnB' 'C' 'CD' 'DnC' 'D'  'DA'                
 
 You may also specify the range of frequencies for the observation by specifying
-the `freq_low` and `freq_up` in appropriate units of frequency via
-`astropy.units`_. The other optional parameters are the `sub_array` which may be
+the ``freq_low`` and ``freq_up`` in appropriate units of frequency via
+`astropy.units`. The other optional parameters are the ``sub_array`` which may be
 set to 'all' or any value from 1 to 5. Finally you may also set the frequency
 bands for observation ::
 
@@ -95,8 +95,4 @@ Reference/API
 .. automodapi:: astroquery.nrao
     :no-inheritance-diagram:
 
-.. _astropy.table.Table: http://docs.astropy.org/en/latest/table/index.html
-.. _astropy.coordinates.Angle: http://docs.astropy.org/en/latest/_generated/astropy.coordinates.angles.Angle.html#astropy.coordinates.angles.Angle 
-.. _astropy.units: http://docs.astropy.org/en/latest/units/index.html 
-.. _astropy.coordinates: http://docs.astropy.org/en/latest/coordinates/index.html
 .. _IAU format: http://cdsweb.u-strasbg.fr/Dic/iau-spec.html.

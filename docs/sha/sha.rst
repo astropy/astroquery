@@ -28,9 +28,9 @@ Query with an astropy coordinate instance (preferred):
     >>> pos_t1 = sha.query(coord=coord.FK5(ra=163.6136, dec=-11.784,
     ... unit=(u.degree, u.degree)), size=0.5)
 
-Query with the alternate `ra` and `dec` parameters:
-.. code-block:: python
+Query with the alternate ``ra`` and ``dec`` parameters:
 
+.. code-block:: python
 
     >>> pos_t2 = sha.query(ra=163.6136, dec=-11.784, size=0.5)
 
@@ -62,7 +62,7 @@ API_ help page.
 Saving files to disk
 ====================
 
-Using the access URLs found in the SHA queries, the functions `save_file`
+Using the access URLs found in the SHA queries, the functions `astroquery.sha.save_file`
 writes the file to disk. To save a file:
 
 .. code-block:: python
@@ -82,9 +82,9 @@ The extension will automatically be added depending on the filetype.
 Reading files into python
 =========================
 
-Given an access URL, the `get_file` returns an appropriate astropy object,
-either an `astropy.table.Table` instance for tabular data, or
-`astropy.io.fits.hdu.image.PrimaryHDU` instance for fits files.
+Given an access URL, `astroquery.sha.get_file` returns an appropriate astropy object,
+either a `~astropy.table.Table` instance for tabular data, or
+`~astropy.io.fits.PrimaryHDU` instance for FITS files.
 
 .. code-block:: python
 
