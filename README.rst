@@ -82,23 +82,23 @@ as possible.
 List of Modules
 ---------------
 
-  * `Simbad <http://astroquery.readthedocs.org/en/latest/simbad.html>`_:           Basic data, cross-identifications, bibliography and measurements for astronomical objects outside the solar system.
-  * `Vizier <http://astroquery.readthedocs.org/en/latest/vizier.html>`_:           Set of 11,000+ published, multiwavelength catalogues hosted by the CDS.
-  * `IRSA dust <http://astroquery.readthedocs.org/en/latest/irsa_dust.html>`_:     Galactic dust reddening and extinction maps from IRAS 100 um data.
-  * `NED <http://astroquery.readthedocs.org/en/latest/ned.html>`_:                 NASA/IPAC Extragalactic Database. Multiwavelength data from both surveys and publications.
-  * `IRSA <http://astroquery.readthedocs.org/en/latest/irsa.html>`_:               NASA/IPAC Infrared Science Archive. Science products for all of NASA's infrared and sub-mm missions.
-  * `UKIDSS <http://astroquery.readthedocs.org/en/latest/ukidss.html>`_:           UKIRT Infrared Deep Sky Survey. JHK images of 7500 sq deg. in the northern sky.
-  * `MAGPIS <http://astroquery.readthedocs.org/en/latest/magpis.html>`_:           Multi-Array Galactic Plane Imaging Survey. 6 and 20-cm radio images of the Galactic plane from the VLA.
-  * `NRAO <http://astroquery.readthedocs.org/en/latest/nrao.html>`_:               Science data archive of the National Radio Astronomy Observatory. VLA, JVLA, VLBA and GBT data products.
-  * `Besancon <http://astroquery.readthedocs.org/en/latest/besancon.html>`_:       Model of stellar population synthesis in the Galaxy.
-  * `NIST <http://astroquery.readthedocs.org/en/latest/nist.html>`_:               National Institute of Standards and Technology (NIST) atomic lines database.
-  * `Fermi <http://astroquery.readthedocs.org/en/latest/fermi.html>`_:             Fermi gamma-ray telescope archive.
-  * `SDSS <http://astroquery.readthedocs.org/en/latest/sdss.html>`_:               Sloan Digital Sky Survey data, including optical images, spectra, and spectral templates.
-  * `Alfalfa <http://astroquery.readthedocs.org/en/latest/alfalfa.html>`_:         Arecibo Legacy Fast ALFA survey; extragalactic HI radio data.
-  * `SHA <http://astroquery.readthedocs.org/en/latest/sha.html>`_:                 Spitzer Heritage Archive; infrared data products from the Spitzer Space Telescope
-  * `Lamda <http://astroquery.readthedocs.org/en/latest/lamda.html>`_:             Leiden Atomic and Molecular Database; energy levels, radiative transitions, and collisional rates for astrophysically relevant atoms and molecules.
-  * `Ogle <http://astroquery.readthedocs.org/en/latest/ogle.html>`_:               Optical Gravitational Lensing Experiment III; information on interstellar extinction towards the Galactic bulge.
-  * `Splatalogue <http://astroquery.readthedocs.org/en/latest/splatalogue.html>`_: National Radio Astronomy Observatory (NRAO)-maintained (mostly) molecular radio and millimeter line list service.
+  * `Simbad <http://astroquery.readthedocs.org/en/latest/simbad/simbad.html>`_:           Basic data, cross-identifications, bibliography and measurements for astronomical objects outside the solar system.
+  * `Vizier <http://astroquery.readthedocs.org/en/latest/vizier/vizier.html>`_:           Set of 11,000+ published, multiwavelength catalogues hosted by the CDS.
+  * `IRSA dust <http://astroquery.readthedocs.org/en/latest/irsa_dust/irsa_dust.html>`_:     Galactic dust reddening and extinction maps from IRAS 100 um data.
+  * `NED <http://astroquery.readthedocs.org/en/latest/ned/ned.html>`_:                 NASA/IPAC Extragalactic Database. Multiwavelength data from both surveys and publications.
+  * `IRSA <http://astroquery.readthedocs.org/en/latest/irsa/irsa.html>`_:               NASA/IPAC Infrared Science Archive. Science products for all of NASA's infrared and sub-mm missions.
+  * `UKIDSS <http://astroquery.readthedocs.org/en/latest/ukidss/ukidss.html>`_:           UKIRT Infrared Deep Sky Survey. JHK images of 7500 sq deg. in the northern sky.
+  * `MAGPIS <http://astroquery.readthedocs.org/en/latest/magpis/magpis.html>`_:           Multi-Array Galactic Plane Imaging Survey. 6 and 20-cm radio images of the Galactic plane from the VLA.
+  * `NRAO <http://astroquery.readthedocs.org/en/latest/nrao/nrao.html>`_:               Science data archive of the National Radio Astronomy Observatory. VLA, JVLA, VLBA and GBT data products.
+  * `Besancon <http://astroquery.readthedocs.org/en/latest/besancon/besancon.html>`_:       Model of stellar population synthesis in the Galaxy.
+  * `NIST <http://astroquery.readthedocs.org/en/latest/nist/nist.html>`_:               National Institute of Standards and Technology (NIST) atomic lines database.
+  * `Fermi <http://astroquery.readthedocs.org/en/latest/fermi/fermi.html>`_:             Fermi gamma-ray telescope archive.
+  * `SDSS <http://astroquery.readthedocs.org/en/latest/sdss/sdss.html>`_:               Sloan Digital Sky Survey data, including optical images, spectra, and spectral templates.
+  * `Alfalfa <http://astroquery.readthedocs.org/en/latest/alfalfa/alfalfa.html>`_:         Arecibo Legacy Fast ALFA survey; extragalactic HI radio data.
+  * `SHA <http://astroquery.readthedocs.org/en/latest/sha/sha.html>`_:                 Spitzer Heritage Archive; infrared data products from the Spitzer Space Telescope
+  * `Lamda <http://astroquery.readthedocs.org/en/latest/lamda/lamda.html>`_:             Leiden Atomic and Molecular Database; energy levels, radiative transitions, and collisional rates for astrophysically relevant atoms and molecules.
+  * `Ogle <http://astroquery.readthedocs.org/en/latest/ogle/ogle.html>`_:               Optical Gravitational Lensing Experiment III; information on interstellar extinction towards the Galactic bulge.
+  * `Splatalogue <http://astroquery.readthedocs.org/en/latest/splatalogue/splatalogue.html>`_: National Radio Astronomy Observatory (NRAO)-maintained (mostly) molecular radio and millimeter line list service.
 
 Additional Links
 ----------------
