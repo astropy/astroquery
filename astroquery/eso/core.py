@@ -6,9 +6,10 @@ import getpass
 import lxml.html as html
 from io import StringIO, BytesIO
 
-from astropy.table import Table
+from astropy.table import Table, Column
 from astropy.io import ascii
 
+from ..utils import schema
 from ..query import QueryWithLogin, suspend_cache
 from . import ROW_LIMIT
 
@@ -223,27 +224,35 @@ class EsoClass(QueryWithLogin):
                 table = Table.read(BytesIO(content), format="ascii.csv")
         return table
     
-    def get_header(self, product_ids):
+    def get_headers(self, product_ids):
         """ Get the headers associated to a list of data product IDs
+        
+        This method returns an astropy.table.Table where the rows correspond to
+        the provided data product IDs, and the columns are from each of the Fits headers
+        keywords.
+        
+        Note: The additional column 'DP.ID' found in the returned table
+        corresponds to the provided data product IDs.
         
         Parameters
         ----------
-        product_ids : list of strings
+        product_ids : either a list of strings or an astropy.table.Column
             List of data product IDs
         
         Returns
         -------
-        result : list of dict
-            List of headers, where each header is represented as a dictionary
+        result : astropy.table.Table
+            A table where: columns are header keywords, rows are product_ids.
         """
-        if not isinstance(product_ids, list):
-            product_ids = [product_ids]
+        _schema_product_ids = schema.Schema(schema.Or(Column, [basestring]))
+        _schema_product_ids.validate(product_ids)
+        #Get all headers
         result = []
         for dp_id in product_ids:
             response = self.request("GET", "http://archive.eso.org/hdr?DpId={0}".format(dp_id))
             root = html.document_fromstring(response.content)
             hdr = root.xpath("//pre")[0].text
-            header = {}
+            header = {'DP.ID': dp_id}
             for key_value in hdr.split('\n'):
                 if "=" in key_value:
                     [key,value] = key_value.split('=',1)
@@ -264,7 +273,21 @@ class EsoClass(QueryWithLogin):
                 elif key_value.find("END") == 0:
                     break
             result += [header]
-        return result
+        #Identify all columns
+        columns = []
+        column_types = []
+        for header in result:
+            for key in header.keys():
+                if key not in columns:
+                    columns += [key]
+                    column_types += [type(header[key])]
+        #Add all missing elements
+        for i in range(len(result)):
+            for (column, column_type) in zip(columns, column_types):
+                if column not in result[i]:
+                    result[i][column] = column_type()
+        #Return as Table
+        return Table(result)
     
     def data_retrieval(self, datasets):
         """ Retrieve a list of datasets form the ESO archive.
@@ -286,7 +309,7 @@ class EsoClass(QueryWithLogin):
         for dataset in datasets:
             local_filename = dataset + ".fits.Z"
             if self.cache_location is not None:
-                local_filename = self.cache_location + "/" + local_filename
+                local_filename = os.path.join(self.cache_location, local_filename)
             if os.path.exists(local_filename):
                 print("Found {0}.fits.Z...".format(dataset))
                 files += [local_filename]

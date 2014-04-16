@@ -73,25 +73,25 @@ returned rows to 10.
 
     >>> eso.ROW_LIMIT = 10
     >>> table = eso.query_instrument('amber', target="Sgr A*")
-    >>> table.pprint()
-     target     RA        DEC    data_products.prog_id      data_products.dp_id        ob_id   data_products.dp_cat data_products.dp_type data_products.dp_tech
-    ------- ---------- --------- --------------------- ----------------------------- --------- -------------------- --------------------- ---------------------
-    GC_IRS7 266.417056 -29.00614         076.B-0863(A) AMBER.2006-03-14T07:40:03.741 200156177              SCIENCE         FRNSRC,BASE12        INTERFEROMETRY
-    GC_IRS7 266.417056 -29.00614         076.B-0863(A) AMBER.2006-03-14T07:40:19.830 200156177              SCIENCE         FRNSRC,BASE12        INTERFEROMETRY
-    GC_IRS7 266.417056 -29.00614         076.B-0863(A) AMBER.2006-03-14T07:40:35.374 200156177              SCIENCE         FRNSRC,BASE12        INTERFEROMETRY
-    GC_IRS7 266.417056 -29.00614         076.B-0863(A) AMBER.2006-03-14T07:40:50.932 200156177              SCIENCE         FRNSRC,BASE12        INTERFEROMETRY
-    GC_IRS7 266.417056 -29.00614         076.B-0863(A) AMBER.2006-03-14T07:41:07.444 200156177              SCIENCE         FRNSRC,BASE12        INTERFEROMETRY
-    GC_IRS7 266.417056 -29.00614         076.B-0863(A) AMBER.2006-03-14T07:41:24.179 200156177              SCIENCE         FRNSRC,BASE12        INTERFEROMETRY
-    GC_IRS7 266.417056 -29.00614         076.B-0863(A) AMBER.2006-03-14T07:41:39.523 200156177              SCIENCE         FRNSRC,BASE12        INTERFEROMETRY
-    GC_IRS7 266.417056 -29.00614         076.B-0863(A) AMBER.2006-03-14T07:41:55.312 200156177              SCIENCE         FRNSRC,BASE12        INTERFEROMETRY
-    GC_IRS7 266.417056 -29.00614         076.B-0863(A) AMBER.2006-03-14T07:42:12.060 200156177              SCIENCE         FRNSRC,BASE12        INTERFEROMETRY
-    GC_IRS7 266.417056 -29.00614         076.B-0863(A) AMBER.2006-03-14T07:42:29.119 200156177              SCIENCE         FRNSRC,BASE12        INTERFEROMETRY
+    >>> table.pprint(max_width=300)
+     Object      Target Ra Dec           Target l b          ProgId                DP.ID               OB.ID   DPR.CATG    DPR.TYPE      DPR.TECH    ISS.CONF.STATION1 ISS.CONF.STATION2 ISS.CONF.STATION3 INS.GRAT1.WLEN  DIMM S-avg
+    ------- ----------------------- -------------------- ------------- ----------------------------- --------- -------- ------------- -------------- ----------------- ----------------- ----------------- -------------- -----------
+    GC_IRS7 17:45:40.09 -29:00:22.1 359.945774 -0.045458 076.B-0863(A) AMBER.2006-03-14T07:40:03.741 200156177  SCIENCE FRNSRC,BASE12 INTERFEROMETRY                U1                U3                U4           -1.0 0.64 [0.01]
+    GC_IRS7 17:45:40.09 -29:00:22.1 359.945774 -0.045458 076.B-0863(A) AMBER.2006-03-14T07:40:19.830 200156177  SCIENCE FRNSRC,BASE12 INTERFEROMETRY                U1                U3                U4           -1.0 0.64 [0.01]
+    GC_IRS7 17:45:40.09 -29:00:22.1 359.945774 -0.045458 076.B-0863(A) AMBER.2006-03-14T07:40:35.374 200156177  SCIENCE FRNSRC,BASE12 INTERFEROMETRY                U1                U3                U4           -1.0 0.64 [0.01]
+    GC_IRS7 17:45:40.09 -29:00:22.1 359.945774 -0.045458 076.B-0863(A) AMBER.2006-03-14T07:40:50.932 200156177  SCIENCE FRNSRC,BASE12 INTERFEROMETRY                U1                U3                U4           -1.0 0.68 [0.01]
+    GC_IRS7 17:45:40.09 -29:00:22.1 359.945774 -0.045458 076.B-0863(A) AMBER.2006-03-14T07:41:07.444 200156177  SCIENCE FRNSRC,BASE12 INTERFEROMETRY                U1                U3                U4           -1.0 0.68 [0.01]
+    GC_IRS7 17:45:40.09 -29:00:22.1 359.945774 -0.045458 076.B-0863(A) AMBER.2006-03-14T07:41:24.179 200156177  SCIENCE FRNSRC,BASE12 INTERFEROMETRY                U1                U3                U4           -1.0 0.68 [0.01]
+    GC_IRS7 17:45:40.09 -29:00:22.1 359.945774 -0.045458 076.B-0863(A) AMBER.2006-03-14T07:41:39.523 200156177  SCIENCE FRNSRC,BASE12 INTERFEROMETRY                U1                U3                U4           -1.0 0.68 [0.01]
+    GC_IRS7 17:45:40.09 -29:00:22.1 359.945774 -0.045458 076.B-0863(A) AMBER.2006-03-14T07:41:55.312 200156177  SCIENCE FRNSRC,BASE12 INTERFEROMETRY                U1                U3                U4           -1.0 0.69 [0.01]
+    GC_IRS7 17:45:40.09 -29:00:22.1 359.945774 -0.045458 076.B-0863(A) AMBER.2006-03-14T07:42:12.060 200156177  SCIENCE FRNSRC,BASE12 INTERFEROMETRY                U1                U3                U4           -1.0 0.69 [0.01]
+    GC_IRS7 17:45:40.09 -29:00:22.1 359.945774 -0.045458 076.B-0863(A) AMBER.2006-03-14T07:42:29.119 200156177  SCIENCE FRNSRC,BASE12 INTERFEROMETRY                U1                U3                U4           -1.0 0.69 [0.01]
 
 In the next step, the first dataset is selected, using its data product ID, and retrieved from the ESO archive.
 
 .. code-block:: python
 
-    >>> data_product_id = table[0]['data_products.dp_id']
+    >>> data_product_id = table[0]['DP.ID']
     >>> data_files = eso.data_retrieval([data_product_id])
     Downloading AMBER.2006-03-14T07:40:03.741.fits.Z...
     Done!
@@ -100,3 +100,34 @@ In the next step, the first dataset is selected, using its data product ID, and 
     ['AMBER.2006-03-14T07:40:03.741.fits.Z']
 
 The returned file names correspond to datasets downloaded locally. They are ready to be used.
+
+
+Obtaining extended information on data products
+-----------------------------------------------
+
+Only a small subset of the keywords presents in the data products can be obtained with `query_instrument()`.
+There is however a way to get the full primary header of the FITS data products, using `get_headers()`. This
+method is detailed in the example below, continuing with the previously obtained `table`.
+
+.. code-block:: python
+
+    >>> table_headers = eso.get_headers(table['DP.ID'])
+    >>> table_headers.pprint()
+                 ARCFILE               BITPIX ...    TELESCOP      UTC   
+    ---------------------------------- ------ ... ------------- ---------
+    AMBER.2006-03-14T07:40:03.741.fits     16 ... ESO-VLTI-U134   27600.0
+    AMBER.2006-03-14T07:40:19.830.fits     16 ... ESO-VLTI-U134   27616.0
+    AMBER.2006-03-14T07:40:35.374.fits     16 ... ESO-VLTI-U134   27632.0
+    AMBER.2006-03-14T07:40:50.932.fits     16 ... ESO-VLTI-U134 27646.667
+    AMBER.2006-03-14T07:41:07.444.fits     16 ... ESO-VLTI-U134   27664.0
+    AMBER.2006-03-14T07:41:24.179.fits     16 ... ESO-VLTI-U134 27680.667
+    AMBER.2006-03-14T07:41:39.523.fits     16 ... ESO-VLTI-U134   27696.0
+    AMBER.2006-03-14T07:41:55.312.fits     16 ... ESO-VLTI-U134   27712.0
+    AMBER.2006-03-14T07:42:12.060.fits     16 ... ESO-VLTI-U134   27728.0
+    AMBER.2006-03-14T07:42:29.119.fits     16 ... ESO-VLTI-U134   27746.0
+    >>> len(table_headers.columns)
+    570
+
+As shown above, for each data product ID (`DP.ID`), the full header (570 columns in our case) of the archive
+Fits file is collected. In the above table `table_headers`, there are as many rows as in the column `table['DP.ID']`.
+
