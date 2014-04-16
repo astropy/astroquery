@@ -12,7 +12,6 @@ import re
 import requests
 from ...exceptions import TableParseError
 from distutils.version import LooseVersion
-import astropy
 is_python3 = (sys.version_info >= (3,))
 
 GALACTIC_COORDS = coord.Galactic(l=-67.02084, b=-29.75447, unit=(u.deg, u.deg))

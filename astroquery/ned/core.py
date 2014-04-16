@@ -11,7 +11,6 @@ import astropy.units as u
 import astropy.coordinates as coord
 import astropy.io.votable as votable
 from astropy import __version__ as ASTROPY_VERSION
-from astropy.io import fits
 
 from ..query import BaseQuery
 from ..utils import commons
