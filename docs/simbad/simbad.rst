@@ -1,6 +1,6 @@
 .. doctest-skip-all
 
-.. _astroquery.simbad:
+.. _astroquery_simbad:
 
 ************************************
 SIMBAD Queries (`astroquery.simbad`)
@@ -11,8 +11,8 @@ Getting started
 
 This module can be used to query the Simbad service. Presented below are
 examples that illustrate the different types of queries that can be
-formulated. If successful all the queries will return the results in an
-`astropy.table.Table`_.
+formulated. If successful all the queries will return the results in a
+`~astropy.table.Table`.
 
 Query an Identifier
 -------------------
@@ -77,7 +77,7 @@ Query a region
 Queries that support a cone search with a specified radius - around an
 identifier or given coordinates are also supported. If an identifier is used
 then it will be resolved to coordinates using online name resolving services
-available in `astropy`.
+available in Astropy.
 
 .. code-block:: python
 
@@ -92,8 +92,8 @@ available in `astropy`.
 
 When no radius is specified, the radius defaults to 20 arcmin. A radius may
 also be explicitly specified - it can be entered either as a string that is
-acceptable by `astropy.coordinates.Angle`_ or by using
-the `Quantity` object from `astropy.units`_:
+acceptable by `~astropy.coordinates.Angle` or by using
+the `~astropy.units.Quantity` object:
 
 .. code-block:: python
 
@@ -127,10 +127,10 @@ the `Quantity` object from `astropy.units`_:
 
 
 
-If coordinates are used, then they should be entered using an `astropy.coordinates`_
+If coordinates are used, then they should be entered using an `astropy.coordinates`
 object. Limited support for entering the coordinates directly as a string also
 exists - only for ICRS coordinates (though these may just as well be specified
-by the `astropy.coordinates.ICRS` object)
+by the `~astropy.coordinates.ICRS` object)
 
 .. code-block:: python 
 
@@ -161,7 +161,7 @@ by the `astropy.coordinates.ICRS` object)
                PKS 0602-813    05 57 30.7 ...
     
 
-For other coordinate systems, use the appropriate `astropy.coordinates`_ object: 
+For other coordinate systems, use the appropriate `astropy.coordinates` object: 
 
 .. code-block:: python
 
@@ -213,12 +213,10 @@ to 2000.0. So here is a query with all the options utilized:
               TYC  608-60-1  00 51 13.314 ... 2000A&A...355L..27H
              TYC  608-432-1  00 51 05.289 ... 2000A&A...355L..27H
              TYC  607-418-1  00 49 09.636 ... 2000A&A...355L..27H
-    
 
  
 Query a catalogue
 -----------------
-
  
 Queries can also be formulated to return all the objects from a catalogue. For
 instance to query the ESO catalog:
@@ -368,7 +366,7 @@ Customizing the default settings
 ================================
 
 There may be times when you wish to change the defaults that have been set for
-the `Simbad` queries.  
+the Simbad queries.  
 
 Changing the row limit
 ----------------------
@@ -385,7 +383,7 @@ python session then:
     >>> Simbad.ROW_LIMIT = 15 # now any query fetches at most 15 rows
 
 If you would like to make your choice persistent, then you can do this by
-modifying the setting in the `astroquery` configuration file.
+modifying the setting in the Astroquery configuration file.
 
 Changing the timeout
 --------------------
@@ -395,7 +393,7 @@ The timeout is the time limit in seconds for estabishing connection with the
 Simbad server and by default it is set to 100 seconds. You may want to modify
 this - again you can do this at run-time if you want to adjust it only for the
 current session. To make it persistent, you must modify the setting in the
-`astroquery` configuration file.
+Astroquery configuration file.
 
 .. code-block:: python
   
@@ -407,7 +405,7 @@ Specifying which VOTable fields to include in the result
 
 
 The VOTable fields that are currently returned in the result are set to
-`main_id` and `coordinates`. However you can specify other fields that you
+``main_id`` and ``coordinates``. However you can specify other fields that you
 also want to be fetched in the result. To see the list of the fields:
 
 .. code-block:: python
@@ -454,7 +452,7 @@ To set additional fields to be returned in the VOTable:
 
      ['main_id', 'coordinates', 'mk', 'rot', 'bibcodelist(1800-2014')]
 
-You can also remove a field you have set or `Simbad.reset_votable_fields()`.
+You can also remove a field you have set or :meth:`astroquery.simbad.SimbadClass.reset_votable_fields`.
 Continuing from the above example:
 
 .. code-block:: python
@@ -478,10 +476,5 @@ Reference/API
 
 .. automodapi:: astroquery.simbad
     :no-inheritance-diagram:
-
-.. _astropy.table.Table: http://docs.astropy.org/en/latest/table/index.html
-.. _astropy.coordinates.Angle: http://docs.astropy.org/en/latest/_generated/astropy.coordinates.angles.Angle.html#astropy.coordinates.angles.Angle 
-.. _astropy.units: http://docs.astropy.org/en/latest/units/index.html 
-.. _astropy.coordinates: http://docs.astropy.org/en/latest/coordinates/index.html
 
 .. _criteria interface: http://simbad.u-strasbg.fr/simbad/sim-fsam

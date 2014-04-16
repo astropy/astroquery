@@ -43,10 +43,10 @@ exclude_patterns.append('_templates')
 rst_epilog += """
 """
 
-#this is added because, as of Astropy 0.3, the wrong objects.inv is used in
-#astropy's astropy.sphinx.conf - this should be fixed in 0.3.1, but this is an
-#"insurance policy" for now
-intersphinx_mapping['astropy'] = ('http://docs.astropy.org/en/stable/', None)
+del intersphinx_mapping['scipy']
+del intersphinx_mapping['h5py']
+intersphinx_mapping['astropy'] = ('http://docs.astropy.org/en/latest/', None)
+intersphinx_mapping['requests'] = ('http://docs.python-requests.org/en/latest/', None)
 
 # -- Project information ------------------------------------------------------
 
@@ -179,3 +179,5 @@ edit_on_github_doc_root = "docs"
 #
 #edit_on_github_source_root = ""
 #edit_on_github_doc_root = "docs"
+
+#nitpicky = True

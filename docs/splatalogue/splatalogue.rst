@@ -90,7 +90,7 @@ not obvious what other parameters one might want to query on (whereas with
 catalogs, you almost always need a sky-position based query tool).
 
 Any feature you can change on the `Splatalogue web form <splat_b>`_ can be
-modified in the :func:`~Splatalogue.query_lines` tool.
+modified in the :meth:`~astroquery.splatalogue.SplatalogueClass.query_lines` tool.
 
 For any Splatalogue query, you *must* specify a minimum/maximum frequency.
 However, you can do it with astropy units, so wavelengths are OK too.

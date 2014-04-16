@@ -37,12 +37,13 @@ The classes will have the following methods where appropriate:
     get_images(coordinate)
 
 They may also have other methods for querying non-standard data types (e.g.,
-ADS queries that may return a `bibtex` text block).
+ADS queries that may return a ``bibtex`` text block).
 
 query_object
 ````````````
-`query_object` is only needed for services that are capable of parsing an
-object name (e.g., SIMBAD, Vizier, NED), otherwise `query_region` is an
+
+``query_object`` is only needed for services that are capable of parsing an
+object name (e.g., SIMBAD, Vizier, NED), otherwise ``query_region`` is an
 adequate approach, as any name can be converted to a coordinate via the SIMBAD
 name parser.
 
@@ -58,34 +59,34 @@ One of these keywords *must* be specified (no default is assumed)::
     width - a Quantity.  Specifies the edge length of a square box
     height - a Quantity.  Specifies the height of a rectangular box.  Must be passed with width.
 
-Returns an `astropy.Table`
+Returns a `~astropy.table.Table`.
 
 get_images
 ``````````
 Perform a coordinate-based query to acquire images.
 
-Returns a list of `astropy.io.fits.HDUList` s.
+Returns a list of `~astropy.io.fits.HDUList` objects.
 
 Shape keywords are optional - some query services allow searches for images
 that overlap with a specified coordinate.
 
 (query)_async
 `````````````
-Includes `get_images_async`, `query_region_async`, `query_object_async`
+
+Includes ``get_images_async``, ``query_region_async``, ``query_object_async``
 
 Same as the above query tools, but returns a list of readable file objects instead of a parsed
-object so that the data is not downloaded until `result.get_data()` is run.
+object so that the data is not downloaded until ``result.get_data()`` is run.
 
 
 Common Keywords
 ```````````````
+
 These keywords are common to all query methods::
 
     return_query_payload - Return the POST data that will be submitted as a dictionary
     savename - [optional - see discussion below] File path to save the downloaded query to
     timeout - timeout in seconds
-
-
 
 
 Asynchronous Queries
@@ -101,7 +102,7 @@ remote server before it can be downloaded.  For these queries, the approach is
     data = result.get_data()
     # this will periodically check whether the data is available at the specified URL
 
-Additionally, any service can be queried asynchronously - `get_images_async`
+Additionally, any service can be queried asynchronously - ``get_images_async``
 will return readable objects that can be downloaded at a later time.
 
 Outline of an Example Module
@@ -203,7 +204,7 @@ For multiple parallel queries logged in to the same object, you could do:
 
 .. TODO::
 
-    Include a `parallel_map` function in `astroquery.utils`
+    Include a ``parallel_map`` function in ``astroquery.utils``
 
 
 Exceptions
@@ -215,13 +216,12 @@ Exceptions
   error message into something useful.
 
 * How should timeouts be handled?
-  Timeouts should raise a `TimeoutError`.
-
-
+  Timeouts should raise a ``TimeoutError``.
 
 
 Examples
 --------
+
 Standard usage should be along these lines:
 
 .. code-block:: python
@@ -265,8 +265,8 @@ Standard usage should be along these lines:
 
 
 For tools in which multiple catalogs can be queried, e.g. as in the UKIDSS
-examples, they must be specified.  There should also be a `list_catalogs`
-function that returns a `list` of catalog name strings:
+examples, they must be specified.  There should also be a ``list_catalogs``
+function that returns a ``list`` of catalog name strings:
 
 .. code-block:: python
 
@@ -275,7 +275,5 @@ function that returns a `list` of catalog name strings:
 Unparseable Data
 ~~~~~~~~~~~~~~~~
 
-If data cannot be parsed into its expected form (`astropy.Table`, `fits.HDU`),
-the raw unparsed data will be returned and a `Warning` issued.
-
-
+If data cannot be parsed into its expected form (`~astropy.table.Table`, `astropy.io.fits.PrimaryHDU`),
+the raw unparsed data will be returned and a ``Warning`` issued.

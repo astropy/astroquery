@@ -12,7 +12,7 @@ Getting started
 The Optical Gravitational Lensing Experiment III (OGLE-III) stores information
 on the interstellar extinction towards the Galactic Bulge. The
 `astroquery.ogle` module queries the online extinction calculator_ and returns
-an `astropy.table.Table` instance with the same data. To run a single query
+an `~astropy.table.Table` instance with the same data. To run a single query
 using an `astropy.coordinates` instance use:
 
 .. code-block:: python
@@ -26,7 +26,7 @@ using an `astropy.coordinates` instance use:
 Arguments can be passed to choose the interpolation algorithm, quality factor,
 and coordinate system. Multiple coordinates may be queried simultaneously by
 passing a list-like object of string/float values or a list-like object of
-`astropy.coordinate` instances. All of coordinates will be internally converted
+`astropy.coordinates` instances. All of coordinates will be internally converted
 to FK5.
 
 .. code-block:: python

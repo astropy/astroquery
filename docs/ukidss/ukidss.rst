@@ -48,9 +48,9 @@ data.
 
 Note that at login time you may also optionally set the database and the survey
 that you would like to query. By default the database is set to 'UKIDSSDR7PLUS'
-and the `programme_id` is set to 'all' - which includes all the surveys. A word
+and the ``programme_id`` is set to 'all' - which includes all the surveys. A word
 of warning - for region queries you should explicitly set the
-`programme_id` to the survey you wish to query. Querying all surveys is
+``programme_id`` to the survey you wish to query. Querying all surveys is
 permitted only for image queries.
 
 .. code-block:: python
@@ -71,17 +71,17 @@ the above example):
     True
 
 If you want to change your programme_id and database after you have already instantiated the
-object - say `u_obj` then you should do:
+object - say ``u_obj`` then you should do:
 
 .. code-block:: python
 
     >>> u_obj.programme_id = 'new_id_here'
     >>> u_obj.database = 'new_database_here'
 
-The above examples mention `programme_id` that specifies the catalog
+The above examples mention ``programme_id`` that specifies the catalog
 or survey you wish to query. If you would like to get a list of the commonly
 available UKIDSS survey - either the abbreviations or the complete names, you
-can do so by using :meth:`~astroquery.ukidss.core.Ukidss.list_catalogs`:
+can do so by using :meth:`~astroquery.ukidss.UkidssClass.list_catalogs`:
 
 .. code-block:: python
 
@@ -107,8 +107,8 @@ You can fetch images around the specified target or coordinates. When a target
 name is used rather than the coordinates, this will be resolved to coordinates
 using astropy name resolving methods that utilze online services like
 SESAME. Coordinates may be entered using the suitable object from
-`astropy.coordinates`_. The images are returned as a list of
-`astropy.io.fits`_ `HDUList` objects.
+`astropy.coordinates`. The images are returned as a list of
+`~astropy.io.fits.HDUList` objects.
 
 
 .. code-block:: python
@@ -125,7 +125,7 @@ SESAME. Coordinates may be entered using the suitable object from
     [[<astropy.io.fits.hdu.image.PrimaryHDU object at 0x40f8b10>, <astropy.io.fits.hdu.image.ImageHDU object at 0x41026d0>]]
 
 Note if you have logged in using the procedure described earlier and assuming
-that you already have a :class:`~astroquery.ukidss.core.Ukidss` object `u_obj` instantiated:
+that you already have a `~astroquery.ukidss.UkidssClass` object ``u_obj`` instantiated:
 
 .. code-block:: python
 
@@ -133,14 +133,14 @@ that you already have a :class:`~astroquery.ukidss.core.Ukidss` object `u_obj` i
 
 There are several optional parameters that you can specify in image
 queries. For instance to specify the image size you should set the
-`image_width` and the `image_height` keyword arguments. If only the
-`image_width` is set then the `image_height` is taken to be the same as this
-width. By default the `image_width` is set to 1 arcmin. To set this to your
-desired value, you should enter it using an `astropy.units`_ `Quantity` object
+``image_width`` and the ``image_height`` keyword arguments. If only the
+``image_width`` is set then the ``image_height`` is taken to be the same as this
+width. By default the ``image_width`` is set to 1 arcmin. To set this to your
+desired value, you should enter it using a `~astropy.units.Quantity` object
 with appropriate units or as a string that is parsable by
-`astropy.coordinates.Angle`_. Another parameter you may set is
-`radius`. This may be specified in the same way as the `image_height` and
-`image_width` with the `radius` keyword. By specifying this multi-frame FITS
+`~astropy.coordinates.Angle`. Another parameter you may set is
+``radius``. This may be specified in the same way as the ``image_height`` and
+``image_width`` with the ``radius`` keyword. By specifying this multi-frame FITS
 images will be retrieved. Note that in this case the image height and width
 parameters will no longer be effective.
 
@@ -169,24 +169,24 @@ parameters will no longer be effective.
 
 Again the query may be performed similarly with a log-in.
 
-If you haven't logged-in then you could also specify the `programme_id` as a
+If you haven't logged-in then you could also specify the ``programme_id`` as a
 keyword argument. By default this is set to 'all'. But you can change it to a
-specific survey as mentioned earlier. The same goes for the `database` which
+specific survey as mentioned earlier. The same goes for the ``database`` which
 is set by default to 'UKIDSSDR7PLUS'. Some more parameters you can set are the
-`frame_type` which may be one of ::
+``frame_type`` which may be one of ::
 
     'stack' 'normal' 'interleave' 'deep_stack' 'confidence' 'difference'
     'leavstack' 'all'
 
-and the `waveband` that decides the color filter to download. This must be
+and the ``waveband`` that decides the color filter to download. This must be
 chosen from ::
 
     'all' 'J' 'H' 'K' 'H2' 'Z' 'Y' 'Br' 
 
 Note that rather than fetching the actual images, you could also get the URLs of the downloadable
 images. To do this simply replace the call to
-:meth:`~astroquery.ukidss.core.Ukidss.get_images` by a call to
-:meth:`~astroquery.ukidss.core.Ukidss.get_image_list` with exactly the same
+:meth:`~astroquery.ukidss.UkidssClass.get_images` by a call to
+:meth:`~astroquery.ukidss.UkidssClass.get_image_list` with exactly the same
 parameters. Let us now see a complete example to illustrate these points.
 
 
@@ -214,10 +214,10 @@ Query a region
 Another type of query is to search a catalog for objects within a specified
 radius of a source. Again the source may be either a named identifier or it may
 be specified via coordinates. The radius may be specified as in the previous
-cases by using an `astropy.units`_ `Quantity` or a string parsable via
-`astropy.coordinates.Angle`_. If this is missing, then it defaults to 1 arcmin.
-As before you may also mention the `programme_id` and the `database`. The query
-results are returned in an `astropy.table.Table`_.
+cases by using a `~astropy.units.Quantity` or a string parsable via
+`~astropy.coordinates.Angle`. If this is missing, then it defaults to 1 arcmin.
+As before you may also mention the ``programme_id`` and the ``database``. The query
+results are returned in a `~astropy.table.Table`.
 
 .. code-block:: python
 
@@ -244,15 +244,8 @@ results are returned in an `astropy.table.Table`_.
     438758414982 438086690175 272.616576986 ...  -9.99999e+08 0.0214102038115
 
  
-
 Reference/API
 =============
 
 .. automodapi:: astroquery.ukidss
     :no-inheritance-diagram:
-
-.. _astropy.table.Table: http://docs.astropy.org/en/latest/table/index.html
-.. _astropy.coordinates.Angle: http://docs.astropy.org/en/latest/_generated/astropy.coordinates.angles.Angle.html#astropy.coordinates.angles.Angle 
-.. _astropy.units: http://docs.astropy.org/en/latest/units/index.html 
-.. _astropy.coordinates: http://docs.astropy.org/en/latest/coordinates/index.html
-.. _astropy.io.fits: http://docs.astropy.org/en/latest/io/fits/index.html

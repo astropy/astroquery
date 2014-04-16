@@ -10,16 +10,16 @@ Getting started
 ===============
 
 This module may be used to retrieve the NVAS VLA archive images. All images are
-returned as a list of `astropy.io.fits`_ `HDUList` objects. Images may be
+returned as a list of `~astropy.io.fits.HDUList` objects. Images may be
 fetched by specifying directly an object name around which to search - in this
 case the name will be resolved to coordinates by astropy name resolving methods
 that use online services like SESAME. The search centre may also be entered as
-a coordinate using any coordinate system from `astropy.coordinates`_. ICRS
+a coordinate using any coordinate system from `astropy.coordinates`. ICRS
 coordinates can also be entered directly as a string that conforms to the
-format specified by `astropy.coordinates`_. Some other parameters you may
-optionally specify are the `radius` and the frequency band for which the image
+format specified by `astropy.coordinates`. Some other parameters you may
+optionally specify are the ``radius`` and the frequency band for which the image
 must be fetched. You can also specify the maximum allowable noise level in mJy
-via the `max_rms` keyword parameter. By default this is set to 10000 mJy 
+via the ``max_rms`` keyword parameter. By default this is set to 10000 mJy 
 
 .. code-block:: python
     
@@ -36,10 +36,10 @@ via the `max_rms` keyword parameter. By default this is set to 10000 mJy
     [[<astropy.io.fits.hdu.image.PrimaryHDU at 0x3376150>]]
 
 
-The `radius` may be specified in any appropriate unit using an `astropy.units`_ 
-`Quantity` object. Apart from that it may also be entered as a string in a format
-parsable by `astropy.coordinates.Angle`_. The frequency bands are specified
-using the `band` keyword parameter. This defaults to a value of `all` - i.e all
+The ``radius`` may be specified in any appropriate unit using a `~astropy.units.Quantity`
+object. Apart from that it may also be entered as a string in a format
+parsable by `~astropy.coordinates.Angle`. The frequency bands are specified
+using the ``band`` keyword parameter. This defaults to a value of ``all`` - i.e all
 the bands. Here's a list of the valid values that this parameter can take. ::
 
     "all", "L", "C", "X", "U", "K", "Q"
@@ -57,12 +57,12 @@ centre.
 
                                  
 You may also fetch UVfits files rather than the IMfits files which is the
-default. To do this simply set the `get_uvfits` to `True`, in any of the query
+default. To do this simply set the ``get_uvfits`` to ``True``, in any of the query
 methods. You can also fetch the URLs to the downloadable images rather than the
 actual images themselves. To do this use the
-:meth:`~astroquery.nvas.core.Nvas.get_image_list` which takes in all the same
-arguments as :meth:`~astroquery.nvas.core.Nvas.get_images` above except for the
-`verbose` argument which isn't relevant in this case.
+:meth:`~astroquery.nvas.NvasClass.get_image_list` which takes in all the same
+arguments as :meth:`~astroquery.nvas.NvasClass.get_images` above except for the
+``verbose`` argument which isn't relevant in this case.
 
 .. code-block:: python
   
@@ -88,17 +88,9 @@ arguments as :meth:`~astroquery.nvas.core.Nvas.get_images` above except for the
      'http://www.vla.nrao.edu/astro/archive/pipeline/position/J053431.9+220052/8.46I2.18_AM503_1996FEB23_1_243.U2.59M.imfits',
      'http://www.vla.nrao.edu/astro/archive/pipeline/position/J053431.9+220052/8.46I1.60_AM503_1996FEB01_1_483.U2.59M.imfits']
 
- 
-   
-
 
 Reference/API
 =============
 
 .. automodapi:: astroquery.nvas
     :no-inheritance-diagram:
-
-.. _astropy.coordinates.Angle: http://docs.astropy.org/en/latest/_generated/astropy.coordinates.angles.Angle.html#astropy.coordinates.angles.Angle 
-.. _astropy.units: http://docs.astropy.org/en/latest/units/index.html 
-.. _astropy.coordinates: http://docs.astropy.org/en/latest/coordinates/index.html
-.. _astropy.io.fits: http://docs.astropy.org/en/latest/io/fits/index.html

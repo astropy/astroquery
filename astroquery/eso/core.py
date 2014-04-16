@@ -3,7 +3,7 @@ import os.path
 import webbrowser
 import keyring
 import getpass
-import lxml.html as html
+from lxml import html
 from io import StringIO, BytesIO
 
 from astropy.table import Table, Column

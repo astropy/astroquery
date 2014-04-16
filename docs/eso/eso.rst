@@ -63,8 +63,8 @@ authentication example above. The first thing to do is to identify the instrumen
 Then, the list of available datasets can be queried for this instrument, using additional constraints.
 These constraints are based on the instrument specific options that can be found is the instrument query forms.
 
-Note: these instrument query forms can be opened in your web browser directly using the `show_form` option of
-the `instrument_query()` method. For now, this should help with the identification of the acceptable keywords.
+Note: these instrument query forms can be opened in your web browser directly using the ``show_form`` option of
+the :meth:`~astroquery.eso.EsoClass.query_instrument` method. For now, this should help with the identification of the acceptable keywords.
 
 In the following, datasets near Sgr A* are searched for in the amber archive, after limiting the number of
 returned rows to 10.
@@ -105,9 +105,11 @@ The returned file names correspond to datasets downloaded locally. They are read
 Obtaining extended information on data products
 -----------------------------------------------
 
-Only a small subset of the keywords presents in the data products can be obtained with `query_instrument()`.
-There is however a way to get the full primary header of the FITS data products, using `get_headers()`. This
-method is detailed in the example below, continuing with the previously obtained `table`.
+Only a small subset of the keywords presents in the data products can be obtained
+with :meth:`~astroquery.eso.EsoClass.query_instrument`.
+There is however a way to get the full primary header of the FITS data products,
+using :meth:`~astroquery.eso.EsoClass.get_headers`.
+This method is detailed in the example below, continuing with the previously obtained table.
 
 .. code-block:: python
 
@@ -128,6 +130,11 @@ method is detailed in the example below, continuing with the previously obtained
     >>> len(table_headers.columns)
     570
 
-As shown above, for each data product ID (`DP.ID`), the full header (570 columns in our case) of the archive
-Fits file is collected. In the above table `table_headers`, there are as many rows as in the column `table['DP.ID']`.
+As shown above, for each data product ID (``DP.ID``), the full header (570 columns in our case) of the archive
+FITS file is collected. In the above table ``table_headers``, there are as many rows as in the column ``table['DP.ID']``.
 
+Reference/API
+=============
+
+.. automodapi:: astroquery.eso
+    :no-inheritance-diagram:
