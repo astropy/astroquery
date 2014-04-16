@@ -45,7 +45,8 @@ rst_epilog += """
 
 del intersphinx_mapping['scipy']
 del intersphinx_mapping['h5py']
-intersphinx_mapping['astropy'] = ('http://docs.astropy.org/en/stable/', None)
+intersphinx_mapping['astropy'] = ('http://docs.astropy.org/en/latest/', None)
+intersphinx_mapping['requests'] = ('http://docs.python-requests.org/en/latest/', None)
 
 # -- Project information ------------------------------------------------------
 
