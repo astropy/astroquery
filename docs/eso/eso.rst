@@ -131,3 +131,8 @@ method is detailed in the example below, continuing with the previously obtained
 As shown above, for each data product ID (`DP.ID`), the full header (570 columns in our case) of the archive
 Fits file is collected. In the above table `table_headers`, there are as many rows as in the column `table['DP.ID']`.
 
+Reference/API
+=============
+
+.. automodapi:: astroquery.eso
+    :no-inheritance-diagram:
