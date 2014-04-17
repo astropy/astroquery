@@ -9,7 +9,7 @@ from io import StringIO, BytesIO
 from astropy.table import Table, Column
 from astropy.io import ascii
 
-from ..utils import schema
+from ..utils import schema, system_tools
 from ..query import QueryWithLogin, suspend_cache
 from . import ROW_LIMIT
 
@@ -307,12 +307,15 @@ class EsoClass(QueryWithLogin):
         files = []
         #First: Detect datasets already downloaded
         for dataset in datasets:
-            local_filename = dataset + ".fits.Z"
+            local_filename = dataset + ".fits"
             if self.cache_location is not None:
                 local_filename = os.path.join(self.cache_location, local_filename)
             if os.path.exists(local_filename):
-                print("Found {0}.fits.Z...".format(dataset))
+                print("Found {0}.fits...".format(dataset))
                 files += [local_filename]
+            elif os.path.exists(local_filename+".Z"):
+                print("Found {0}.fits.Z...".format(dataset))
+                files += [local_filename+".Z"]
             else:
                 datasets_to_download += [dataset]
         #Second: Download the other datasets
@@ -333,7 +336,8 @@ class EsoClass(QueryWithLogin):
             for fileId in root.xpath("//input[@name='fileId']"):
                 fileLink = fileId.attrib['value'].split()[1]
                 fileLink = fileLink.replace("/api","").replace("https://","http://")
-                files += [self.request("GET", fileLink, save=True)]
+                filename = self.request("GET", fileLink, save=True)
+                files += [system_tools.gunzip(filename)]
         print("Done!")
         return files
 
