@@ -18,7 +18,6 @@ __all__ = ['Splatalogue','SplatalogueClass']
 # example query of SPLATALOGUE directly:
 # http://www.cv.nrao.edu/php/splat/c.php?sid%5B%5D=64&sid%5B%5D=108&calcIn=&data_version=v2.0&from=&to=&frequency_units=MHz&energy_range_from=&energy_range_to=&lill=on&tran=&submit=Search&no_atmospheric=no_atmospheric&no_potential=no_potential&no_probable=no_probable&include_only_nrao=include_only_nrao&displayLovas=displayLovas&displaySLAIM=displaySLAIM&displayJPL=displayJPL&displayCDMS=displayCDMS&displayToyaMA=displayToyaMA&displayOSU=displayOSU&displayRecomb=displayRecomb&displayLisa=displayLisa&displayRFI=displayRFI&ls1=ls1&ls5=ls5&el1=el1
 
-
 @async_to_sync
 class SplatalogueClass(BaseQuery):
 
@@ -27,6 +26,10 @@ class SplatalogueClass(BaseQuery):
     TIMEOUT = SPLATALOGUE_TIMEOUT()
     LINES_LIMIT = LINES_LIMIT()
     versions = ('v1.0','v2.0')
+    # global constant, not user-configurable
+    ALL_LINE_LISTS = ('Lovas', 'SLAIM', 'JPL', 'CDMS', 'ToyoMA', 'OSU',
+                      'Recomb', 'Lisa', 'RFI')
+
 
     def __init__(self, **kwargs):
         """
@@ -69,8 +72,7 @@ class SplatalogueClass(BaseQuery):
 
     def _default_kwargs(self):
         kwargs = dict(chemical_name='',
-                      line_lists=('Lovas', 'SLAIM', 'JPL', 'CDMS', 'ToyoMA',
-                                  'OSU', 'Recomb', 'Lisa', 'RFI'),
+                      line_lists=self.ALL_LINE_LISTS,
                       line_strengths=('ls1','ls3','ls4','ls5'),
                       energy_levels=('el1','el2','el3','el4'),
                       exclude=('potential','atmospheric','probable'),
@@ -216,8 +218,14 @@ class SplatalogueClass(BaseQuery):
             payload['include_only_nrao'] = 'include_only_nrao'
 
         if line_lists is not None:
-            for L in line_lists:
-                payload['display'+L] = 'display'+L
+            if type(line_lists) not in (tuple,list):
+                raise TypeError("Line lists should be a list of linelist names.  See Splatalogue.ALL_LINE_LISTS")
+            for L in self.ALL_LINE_LISTS:
+                kwd = 'display' + L
+                if L in line_lists:
+                    payload[kwd] = kwd
+                else:
+                    payload[kwd] = ''
 
         if line_strengths is not None:
             for LS in line_strengths:
@@ -281,6 +289,11 @@ class SplatalogueClass(BaseQuery):
         response : `requests.Response` object
             The response of the HTTP request.
         """
+        # have to chomp this kwd here...
+        get_query_payload = (kwargs.pop('get_query_payload')
+                             if 'get_query_payload' in kwargs
+                             else False)
+
         if hasattr(self,'data'):
             data_payload = self.data.copy()
             data_payload.update(self._parse_frequency(*args))
@@ -289,7 +302,8 @@ class SplatalogueClass(BaseQuery):
             data_payload = self._default_kwargs()
             data_payload.update(self._parse_kwargs(**kwargs))
             data_payload.update(self._parse_frequency(*args))
-        if kwargs.get('get_query_payload'):
+
+        if get_query_payload:
             return data_payload
 
         response = commons.send_request(
