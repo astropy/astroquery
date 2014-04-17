@@ -75,7 +75,7 @@ def test_linelist_type():
                                                        get_query_payload=True)
     assert exc.value.args[0] == "Line lists should be a list of linelist names.  See Splatalogue.ALL_LINE_LISTS"
 
-def test_top20():
+def test_top20_crashorno():
     splatalogue.core.Splatalogue.query_lines_async(114*u.GHz,116*u.GHz, top20='top20',
                                                    get_query_payload=True)
     with pytest.raises(ValueError) as exc:
@@ -84,7 +84,7 @@ def test_top20():
                                                        get_query_payload=True)
     assert exc.value.args[0] == "Top20 is not one of the allowed values"
 
-def test_band():
+def test_band_crashorno():
     splatalogue.core.Splatalogue.query_lines_async(band='alma3',
                                                    get_query_payload=True)
     with pytest.raises(ValueError) as exc:
