@@ -143,7 +143,8 @@ class SplatalogueClass(BaseQuery):
         Other Parameters
         ----------------
         top20: str
-            One of 'comet','planet','top20','ism_hotcore','ism_darkcloud','ism_diffusecloud'
+            One of 'comet','planet','top20','ism_hotcore','ism_darkcloud','ism_diffusecloud'.
+            Overrides chemical_name
         chemical_name : str
             Name of the chemical to search for.  Treated as a regular expression.
             An empty set ('', (), [], {}) will match *any* species.
