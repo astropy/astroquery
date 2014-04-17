@@ -313,6 +313,9 @@ class EsoClass(QueryWithLogin):
             if os.path.exists(local_filename):
                 print("Found {0}.fits...".format(dataset))
                 files += [local_filename]
+            elif os.path.exists(local_filename+".Z"):
+                print("Found {0}.fits.Z...".format(dataset))
+                files += [local_filename+".Z"]
             else:
                 datasets_to_download += [dataset]
         #Second: Download the other datasets
