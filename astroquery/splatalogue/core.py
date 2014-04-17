@@ -96,7 +96,9 @@ class SplatalogueClass(BaseQuery):
             return self._species_ids
 
     def _default_kwargs(self):
-        kwargs = dict(chemical_name='',
+        kwargs = dict(min_frequency=0*u.GHz,
+                      max_frequency=100*u.THz,
+                      chemical_name='',
                       line_lists=self.ALL_LINE_LISTS,
                       line_strengths=('ls1','ls3','ls4','ls5'),
                       energy_levels=('el1','el2','el3','el4'),
@@ -112,18 +114,31 @@ class SplatalogueClass(BaseQuery):
                       show_nrao_recommended=False,)
         return self._parse_kwargs(**kwargs)
 
-    def _parse_kwargs(self, top20=None, chemical_name=None, chem_re_flags=0,
-                      energy_min=None, energy_max=None, energy_type=None,
-                      intensity_lower_limit=None, intensity_type=None,
-                      transition=None, version=None, exclude=None,
-                      only_NRAO_recommended=None, line_lists=None,
-                      line_strengths=None, energy_levels=None, export=None,
-                      export_limit=None, noHFS=None, displayHFS=None,
-                      show_unres_qn=None, show_upper_degeneracy=None,
-                      show_molecule_tag=None, show_qn_code=None,
-                      show_lovas_labref=None, show_lovas_obsref=None,
-                      show_orderedfreq_only=None, show_nrao_recommended=None):
+    def _parse_kwargs(self, min_frequency=None, max_frequency=None,
+                      band='any', top20=None, chemical_name=None,
+                      chem_re_flags=0, energy_min=None, energy_max=None,
+                      energy_type=None, intensity_lower_limit=None,
+                      intensity_type=None, transition=None, version=None,
+                      exclude=None, only_NRAO_recommended=None,
+                      line_lists=None, line_strengths=None, energy_levels=None,
+                      export=None, export_limit=None, noHFS=None,
+                      displayHFS=None, show_unres_qn=None,
+                      show_upper_degeneracy=None, show_molecule_tag=None,
+                      show_qn_code=None, show_lovas_labref=None,
+                      show_lovas_obsref=None, show_orderedfreq_only=None,
+                      show_nrao_recommended=None):
         """
+        The Splatalogue service returns lines with rest frequencies in the
+        range [min_frequency, max_frequency]
+
+        Parameters
+        ----------
+        min_frequency : `astropy.unit`
+        max_frequency : `astropy.unit`
+            Minimum and maximum frequency (or any spectral() equivalent)
+        band : str
+            The observing band.  If it is not 'any', it overrides
+            minfreq/maxfreq.
 
         Other Parameters
         ----------------
@@ -206,7 +221,24 @@ class SplatalogueClass(BaseQuery):
             A dictionary of keywords
         """
 
-        payload = {'submit':'Search'}
+        payload = {'submit':'Search',
+                   'frequency_units':'GHz'}
+
+        if band != 'any':
+            if band not in self.FREQUENCY_BANDS:
+                raise ValueError("Invalid frequency band.")
+            if min_frequency is not None or max_frequency is not None:
+                warnings.warn("Band was specified, so the frequency specification is overridden")
+            payload['band'] = band
+        elif min_frequency is not None and max_frequency is not None:
+            # allow setting payload without having *ANY* valid frequencies set
+            min_frequency = min_frequency.to(u.GHz, u.spectral())
+            max_frequency = max_frequency.to(u.GHz, u.spectral())
+            if min_frequency > max_frequency:
+                min_frequency,max_frequency = max_frequency,min_frequency
+
+            payload['from'] = min_frequency.value
+            payload['to'] = max_frequency.value
 
         if top20 is not None:
             if top20 in self.TOP20_LIST:
@@ -289,43 +321,18 @@ class SplatalogueClass(BaseQuery):
 
         return payload
 
-    def _parse_frequency(self, min_frequency=None, max_frequency=None,
-                         band='any'):
+
+    def _validate_kwargs(self, min_frequency=None, max_frequency=None,
+                         band='any', **kwargs):
         """
-        The Splatalogue service returns lines with rest frequencies in the
-        range [min_frequency, max_frequency]
-
-        Parameters
-        ----------
-        min_frequency : `astropy.unit`
-        max_frequency : `astropy.unit`
-            Minimum and maximum frequency (or any spectral() equivalent)
-        band : str
-            The observing band.  If it is not 'any', it overrides
-            minfreq/maxfreq.
+        Check that either min_frequency + max_frequency or band are specified
         """
+        if band == 'any':
+            if min_frequency is None or max_frequency is None:
+                raise ValueError("Must specify either min/max frequency or a valid Band.")
 
-        payload = {'frequency_units':'GHz'}
-
-        if band != 'any':
-            if band not in self.FREQUENCY_BANDS:
-                raise ValueError("Invalid frequency band.")
-            if min_frequency is not None or max_frequency is not None:
-                warnings.warn("Band was specified, so the frequency specification is overridden")
-            payload['band'] = band
-        else:
-            min_frequency = min_frequency.to(u.GHz, u.spectral())
-            max_frequency = max_frequency.to(u.GHz, u.spectral())
-            if min_frequency > max_frequency:
-                min_frequency,max_frequency = max_frequency,min_frequency
-
-            payload['from'] = min_frequency.value
-            payload['to'] = max_frequency.value
-
-        return payload
-
-    @prepend_docstr_noreturns("\n"+_parse_frequency.__doc__ + "\n" + _parse_kwargs.__doc__)
-    def query_lines_async(self, *args, **kwargs):
+    @prepend_docstr_noreturns("\n"+_parse_kwargs.__doc__)
+    def query_lines_async(self, min_frequency=None, max_frequency=None, **kwargs):
         """
         Returns
         -------
@@ -336,15 +343,19 @@ class SplatalogueClass(BaseQuery):
         get_query_payload = (kwargs.pop('get_query_payload')
                              if 'get_query_payload' in kwargs
                              else False)
+        self._validate_kwargs(min_frequency=min_frequency,
+                              max_frequency=max_frequency, **kwargs)
 
         if hasattr(self,'data'):
             data_payload = self.data.copy()
-            data_payload.update(self._parse_frequency(*args))
-            data_payload.update(self._parse_kwargs(**kwargs))
+            data_payload.update(self._parse_kwargs(min_frequency=min_frequency,
+                                                   max_frequency=max_frequency,
+                                                   **kwargs))
         else:
             data_payload = self._default_kwargs()
-            data_payload.update(self._parse_kwargs(**kwargs))
-            data_payload.update(self._parse_frequency(*args))
+            data_payload.update(self._parse_kwargs(min_frequency=min_frequency,
+                                                   max_frequency=max_frequency,
+                                                   **kwargs))
 
         if get_query_payload:
             return data_payload
