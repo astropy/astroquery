@@ -10,14 +10,33 @@ except ImportError:
 
 #Check availability of some system tools
 #Exceptions are raised if not found
+__is_gzip_found = False
 try:
     subprocess.call(["gzip", "-V"], stdout=DEVNULL)
 except OSError:
-    print("gzip was not found on your system! You should solve this issue before using astroquery.eso...")
-    print("  On POSIX system: make sure gzip is in your path!")
+    print("gzip was not found on your system! You should solve this issue for astroquery.eso to be at its best!")
+    print("  On POSIX system: make sure gzip is installed and in your path!")
     print("  On Windows: 7-zip (http://www.7-zip.org) should do the job, but unfortunately is not yet supported!")
-    raise
+else:
+    __is_gzip_found = True
 
 
 def gunzip(filename):
-    subprocess.call(["gzip", "-d", "{0}".format(filename)], stdout=DEVNULL)
+    """ Decompress a file with gzip.
+    
+    Parameters
+    ----------
+        filename: string
+            Fully qualified path of the file to decompress.
+    
+    Returns
+    -------
+        filename: string
+            Name of the decompressed file (or input filname if gzip is not available).
+    
+    """
+    if __is_gzip_found:
+        subprocess.call(["gzip", "-d", "{0}".format(filename)], stdout=DEVNULL)
+        return filename.rsplit(".",1)[0]
+    else:
+        return filename
