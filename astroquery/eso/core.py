@@ -334,8 +334,7 @@ class EsoClass(QueryWithLogin):
                 fileLink = fileId.attrib['value'].split()[1]
                 fileLink = fileLink.replace("/api","").replace("https://","http://")
                 filename = self.request("GET", fileLink, save=True)
-                system_tools.gunzip(filename)
-                files += [filename.strip(".Z")]
+                files += [system_tools.gunzip(filename)]
         print("Done!")
         return files
 
