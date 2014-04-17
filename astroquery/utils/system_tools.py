@@ -13,7 +13,7 @@ except ImportError:
 #Exceptions are raised if not found
 __is_gzip_found = False
 try:
-    subprocess.call(["gzip", "-V"], stdout=DEVNULL)
+    subprocess.call(["gzip", "-V"], stdout=DEVNULL, stderr=DEVNULL)
 except OSError:
     print("gzip was not found on your system! You should solve this issue for astroquery.eso to be at its best!")
     print("  On POSIX system: make sure gzip is installed and in your path!")
@@ -37,7 +37,7 @@ def gunzip(filename):
     
     """
     if __is_gzip_found:
-        subprocess.call(["gzip", "-d", "{0}".format(filename)], stdout=DEVNULL)
+        subprocess.call(["gzip", "-d", "{0}".format(filename)], stdout=DEVNULL, stderr=DEVNULL)
         return filename.rsplit(".",1)[0]
     else:
         return filename
