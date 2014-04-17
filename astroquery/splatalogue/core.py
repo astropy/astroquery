@@ -12,6 +12,7 @@ from ..utils.docstr_chompers import prepend_docstr_noreturns
 from astropy import units as u
 from . import SLAP_URL,QUERY_URL,SPLATALOGUE_TIMEOUT,LINES_LIMIT
 from . import load_species_table
+import warnings
 
 __all__ = ['Splatalogue','SplatalogueClass']
 
@@ -29,6 +30,30 @@ class SplatalogueClass(BaseQuery):
     # global constant, not user-configurable
     ALL_LINE_LISTS = ('Lovas', 'SLAIM', 'JPL', 'CDMS', 'ToyoMA', 'OSU',
                       'Recomb', 'Lisa', 'RFI')
+    TOP20_LIST = ('comet', 'planet', 'top20', 'ism_hotcore', 'ism_darkcloud',
+                  'ism_diffusecloud')
+    FREQUENCY_BANDS = {"any":"Any",
+                       "alma3":"ALMA Band 3 (84-116 GHz)",
+                       "alma4":" ALMA Band 4 (125-163 GHz)",
+                       "alma5":" ALMA Band 5 (163-211 GHz)",
+                       "alma6":"ALMA Band 6 (211-275 GHz)",
+                       "alma7":"ALMA Band 7 (275-373 GHz)",
+                       "alma8":"ALMA Band 8 (385-500 GHz)",
+                       "alma9":"ALMA Band 9 (602-720 GHz)",
+                       "alma10":"ALMA Band 10 (787-950 GHz)",
+                       "pf1":"GBT PF1 (0.29-0.92 GHz)",
+                       "pf2":"GBT PF2 (0.91-1.23 GHz)",
+                       "l":"GBT/VLA L (1-2 GHz)",
+                       "s":"GBT/VLA S (1.7-4 GHz)",
+                       "c":"GBT/VLA C (3.9-8 GHz)",
+                       "x":"GBT/VLA X (8-12 GHz)",
+                       "ku":" GBT/VLA Ku (12-18 GHz)",
+                       "kfpa":"GBT KFPA (18-27.5 GHz)",
+                       "k":"VLA K (18-26.5 GHz)",
+                       "ka":" GBT/VLA Ka (26-40 GHz)",
+                       "q":"GBT/VLA Q (38-50 GHz)",
+                       "w":"GBT W (67-93.3 GHz)",
+                       "mustang":"GBT Mustang (80-100 GHz)",}
 
 
     def __init__(self, **kwargs):
@@ -87,7 +112,7 @@ class SplatalogueClass(BaseQuery):
                       show_nrao_recommended=False,)
         return self._parse_kwargs(**kwargs)
 
-    def _parse_kwargs(self, chemical_name=None, chem_re_flags=0,
+    def _parse_kwargs(self, top20=None, chemical_name=None, chem_re_flags=0,
                       energy_min=None, energy_max=None, energy_type=None,
                       intensity_lower_limit=None, intensity_type=None,
                       transition=None, version=None, exclude=None,
@@ -102,6 +127,8 @@ class SplatalogueClass(BaseQuery):
 
         Other Parameters
         ----------------
+        top20: str
+            One of 'comet','planet','top20','ism_hotcore','ism_darkcloud','ism_diffusecloud'
         chemical_name : str
             Name of the chemical to search for.  Treated as a regular expression.
             An empty set ('', (), [], {}) will match *any* species.
@@ -181,7 +208,12 @@ class SplatalogueClass(BaseQuery):
 
         payload = {'submit':'Search'}
 
-        if chemical_name in ('',{},(),[],set()):
+        if top20 is not None:
+            if top20 in self.TOP20_LIST:
+                payload['top20'] = top20
+            else:
+                raise ValueError("Top20 is not one of the allowed values")
+        elif chemical_name in ('',{},(),[],set()):
             # include all
             payload['sid[]'] = []
         elif chemical_name is not None:
@@ -257,7 +289,8 @@ class SplatalogueClass(BaseQuery):
 
         return payload
 
-    def _parse_frequency(self, min_frequency, max_frequency):
+    def _parse_frequency(self, min_frequency=None, max_frequency=None,
+                         band='any'):
         """
         The Splatalogue service returns lines with rest frequencies in the
         range [min_frequency, max_frequency]
@@ -267,17 +300,27 @@ class SplatalogueClass(BaseQuery):
         min_frequency : `astropy.unit`
         max_frequency : `astropy.unit`
             Minimum and maximum frequency (or any spectral() equivalent)
+        band : str
+            The observing band.  If it is not 'any', it overrides
+            minfreq/maxfreq.
         """
 
         payload = {'frequency_units':'GHz'}
 
-        min_frequency = min_frequency.to(u.GHz, u.spectral())
-        max_frequency = max_frequency.to(u.GHz, u.spectral())
-        if min_frequency > max_frequency:
-            min_frequency,max_frequency = max_frequency,min_frequency
+        if band != 'any':
+            if band not in self.FREQUENCY_BANDS:
+                raise ValueError("Invalid frequency band.")
+            if min_frequency is not None or max_frequency is not None:
+                warnings.warn("Band was specified, so the frequency specification is overridden")
+            payload['band'] = band
+        else:
+            min_frequency = min_frequency.to(u.GHz, u.spectral())
+            max_frequency = max_frequency.to(u.GHz, u.spectral())
+            if min_frequency > max_frequency:
+                min_frequency,max_frequency = max_frequency,min_frequency
 
-        payload['from'] = min_frequency.value
-        payload['to'] = max_frequency.value
+            payload['from'] = min_frequency.value
+            payload['to'] = max_frequency.value
 
         return payload
 
