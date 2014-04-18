@@ -74,3 +74,20 @@ def test_linelist_type():
                                                        line_lists='JPL',
                                                        get_query_payload=True)
     assert exc.value.args[0] == "Line lists should be a list of linelist names.  See Splatalogue.ALL_LINE_LISTS"
+
+def test_top20_crashorno():
+    splatalogue.core.Splatalogue.query_lines_async(114*u.GHz,116*u.GHz, top20='top20',
+                                                   get_query_payload=True)
+    with pytest.raises(ValueError) as exc:
+        splatalogue.core.Splatalogue.query_lines_async(114*u.GHz,116*u.GHz,
+                                                       top20='invalid',
+                                                       get_query_payload=True)
+    assert exc.value.args[0] == "Top20 is not one of the allowed values"
+
+def test_band_crashorno():
+    splatalogue.core.Splatalogue.query_lines_async(band='alma3',
+                                                   get_query_payload=True)
+    with pytest.raises(ValueError) as exc:
+        splatalogue.core.Splatalogue.query_lines_async(band='invalid',
+                                                       get_query_payload=True)
+    assert exc.value.args[0] == "Invalid frequency band."
