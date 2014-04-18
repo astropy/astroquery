@@ -12,10 +12,6 @@ Introduction
 
 Astroquery is a set of tools for querying astronomical web forms and databases.
 
-The :doc:`api` is intended to be kept as consistent as possible, such
-that any web service can be used with a minimal learning curve imposed on the
-user.
-
 There are two other packages with complimentary functionality as Astroquery:
 `astropy.vo <http://docs.astropy.org/en/latest/vo/index.html>`_ is in the Astropy core and
 `pyvo <https://pyvo.readthedocs.org/en/latest/>`_ is an Astropy affiliated package.
@@ -87,12 +83,15 @@ All query tools allow coordinate-based queries:
 
 For additional guidance and examples, read the documentation for the individual services below.
 
-Table of Contents
------------------
+Available Services
+------------------
 
-The modules and their maintainers are listed on the
-`Maintainers <https://github.com/astropy/astroquery/wiki/Maintainers>`_
-wiki page.
+If you're new to Astroquery, a good place to start is the :doc:`gallery`:
+
+.. toctree::
+  :maxdepth: 1
+
+  gallery
 
 The following modules have been completed using a common API:
 
@@ -116,7 +115,6 @@ The following modules have been completed using a common API:
 
 These others are functional, but do not follow a common & consistent API:
 
-
 .. toctree::
   :maxdepth: 1
 
@@ -127,12 +125,31 @@ These others are functional, but do not follow a common & consistent API:
   lamda/lamda.rst
   ogle/ogle.rst
 
-Additional documentation:
+
+Developer documentation
+-----------------------
+
+The modules and their maintainers are listed on the
+`Maintainers <https://github.com/astropy/astroquery/wiki/Maintainers>`_
+wiki page.
+
+
+The :doc:`api` is intended to be kept as consistent as possible, such
+that any web service can be used with a minimal learning curve imposed on the
+user.
 
 .. toctree::
    :maxdepth: 1
 
    api.rst
-   gallery.rst
    template.rst
    testing.rst
+
+The following Astroquery modules are mostly meant for internal use of
+services in Astroquery, you can use them for your scripts, but we don't guarantee API stability.
+
+.. toctree::
+  :maxdepth: 1
+
+  utils.rst
+  query.rst

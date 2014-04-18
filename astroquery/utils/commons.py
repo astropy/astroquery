@@ -330,7 +330,7 @@ def _is_coordinate(coordinates):
         return False
 
 def suppress_vo_warnings():
-    """ Suppresses all warnings of the class `astropy.io.votable.exceptions.VOWarning."""
+    """Suppresses all warnings of the class `astropy.io.votable.exceptions.VOWarning`."""
     warnings.filterwarnings("ignore", category=votable.exceptions.VOWarning)
 
 

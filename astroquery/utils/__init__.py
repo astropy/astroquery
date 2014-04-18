@@ -1,7 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 """
 Common non-package specific utility
-functions that will ultimately be merged into `astropy.utils`
+functions that will ultimately be merged into `astropy.utils`.
 """
 
 from .progressbar import *

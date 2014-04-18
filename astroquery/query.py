@@ -7,7 +7,7 @@ import requests
 import os
 from astropy.config import paths
 
-__all__ = ['BaseQuery']
+__all__ = ['BaseQuery', 'QueryWithLogin']
 
 
 class AstroResponse(object):
