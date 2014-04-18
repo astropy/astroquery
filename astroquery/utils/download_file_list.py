@@ -10,6 +10,8 @@ from .commons import get_readable_fileobj
 
 __all__ = ['download_list_of_fitsfiles']
 
+__doctest_skip__ = ["download_list_of_fitsfiles"]
+
 whitespace_re = re.compile("\s")
 valid_chars = "-_.()%s%s" % (string.ascii_letters, string.digits)
 
