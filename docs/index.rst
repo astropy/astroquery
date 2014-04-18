@@ -145,7 +145,7 @@ user.
    template.rst
    testing.rst
 
-There following Astroquery modules are mostly meant for implementation of
+The following Astroquery modules are mostly meant for internal use of
 services in Astroquery, you can use them for your scripts, but we don't guarantee API stability.
 
 .. toctree::
