@@ -8,8 +8,10 @@ __all__ = ['BesanconFixed','BesanconFixedWidthHeader','BesanconFixedWidthData']
 class BesanconFixed(fixedwidth.FixedWidth):
 
     """
-    Read data from a Besancon galactic model table file.  Assumes a
-    fixed-length header; it is possible that different parameters in the model
+    Read data from a Besancon galactic model table file.
+    
+    Assumes a fixed-length header;
+    it is possible that different parameters in the model
     will result in different length headers
     """
 
@@ -68,11 +70,18 @@ class BesanconFixedWidthHeader(fixedwidth.FixedWidthHeader):
             col.index = i
 
     def process_lines(self, lines):
-        """Strip out comment lines from list of ``lines``
-        (unlike the normal process_lines, does NOT exclude blank lines)
+        """Strip out comment lines from list of ``lines``.
 
-        :param lines: all lines in table
-        :returns: list of lines
+        Unlike the normal process_lines, does NOT exclude blank lines.
+
+        Parameters
+        ----------
+        lines : TODO
+            All lines in table
+        
+        Returns
+        -------
+        list of lines
         """
         return lines[self.header_line+1:self.footer_line]
 
@@ -80,10 +89,17 @@ class BesanconFixedWidthHeader(fixedwidth.FixedWidthHeader):
 class BesanconFixedWidthData(fixedwidth.FixedWidthData):
 
     def process_lines(self, lines):
-        """Strip out comment lines from list of ``lines``
-        (unlike the normal process_lines, does NOT exclude blank lines)
+        """Strip out comment lines from list of ``lines``.
+        
+        Unlike the normal process_lines, does NOT exclude blank lines.
 
-        :param lines: all lines in table
-        :returns: list of lines
+        Parameters
+        ----------
+        lines : TODO
+            All lines in table
+        
+        Returns
+        -------
+        list of lines
         """
         return lines[self.header.header_line+1:self.header.footer_line]

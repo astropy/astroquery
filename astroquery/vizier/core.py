@@ -5,7 +5,6 @@ import sys
 import os
 import warnings
 import json
-import traceback
 import tempfile
 
 import astropy.units as u
@@ -142,7 +141,7 @@ class VizierClass(BaseQuery):
 
         Returns
         -------
-        response : `~request.response`
+        response : `~requests.Response`
             Returned if asynchronous method used
         """
 
@@ -153,7 +152,7 @@ class VizierClass(BaseQuery):
 
     def query_object_async(self, object_name, catalog=None):
         """
-        Serves the same purpose as `astroquery.vizier.Vizier.query_object` but only
+        Serves the same purpose as `query_object` but only
         returns the HTTP response rather than the parsed result.
 
         Parameters
@@ -166,7 +165,7 @@ class VizierClass(BaseQuery):
 
         Returns
         -------
-        response : `requests.Response` object
+        response : `requests.Response`
             The response of the HTTP request.
 
         """
@@ -185,35 +184,35 @@ class VizierClass(BaseQuery):
                            width=None, height=None, catalog=None,
                            get_query_payload=False):
         """
-        Serves the same purpose as `astroquery.vizier.Vizier.query_region` but only
+        Serves the same purpose as `query_region` but only
         returns the HTTP response rather than the parsed result.
 
         Parameters
         ----------
-        coordinates : str, `astropy.coordinates` object, or `astropy.table.Table`
+        coordinates : str, `astropy.coordinates` object, or `~astropy.table.Table`
             The target around which to search. It may be specified as a string
             in which case it is resolved using online services or as the appropriate
             `astropy.coordinates` object. ICRS coordinates may also be entered as
             a string.
             If a table is used, each of its rows will be queried, as long as it contains
-            two columns named `_RAJ2000` and `_DEJ2000` with proper angular units.
-        radius : convertible to `astropy.coordinates.angles.Angle`
+            two columns named ``_RAJ2000`` and ``_DEJ2000`` with proper angular units.
+        radius : convertible to `~astropy.coordinates.Angle`
             The radius of the circular region to query.
-        inner_radius: convertible to `astropy.coordinates.angles.Angle`
-            When set in addition to `radius`, the queried region becomes annular,
-            with outer radius `radius` and inner radius `inner_radius`.
-        width : convertible to `astropy.coordinates.angles.Angle`
+        inner_radius: convertible to `~astropy.coordinates.Angle`
+            When set in addition to ``radius``, the queried region becomes annular,
+            with outer radius ``radius`` and inner radius ``inner_radius``.
+        width : convertible to `~astropy.coordinates.Angle`
             The width of the square region to query.
-        height: convertible to `astropy.coordinates.angles.Angle`
-            When set in addition to `width`, the queried region becomes rectangular,
-            with the specified `width` and `height`.
+        height: convertible to `~astropy.coordinates.Angle`
+            When set in addition to ``width``, the queried region becomes rectangular,
+            with the specified ``width`` and ``height``.
         catalog : str or list, optional
             The catalog(s) which must be searched for this identifier.
             If not specified, all matching catalogs will be searched.
 
         Returns
         -------
-        response : `requests.Response` object
+        response : `requests.Response`
             The response of the HTTP request.
 
         """
@@ -290,7 +289,9 @@ class VizierClass(BaseQuery):
     def query_constraints_async(self, catalog=None, **kwargs):
         """
         Send a query to Vizier in which you specify constraints with keyword/value
-        pairs.  See `the vizier constraints page
+        pairs.
+        
+        See `the vizier constraints page
         <http://vizier.cfa.harvard.edu/vizier/vizHelp/cst.htx>`_ for details.
 
         Parameters
@@ -304,7 +305,7 @@ class VizierClass(BaseQuery):
 
         Returns
         -------
-        response : `requests.Response` object
+        response : `requests.Response`
             The response of the HTTP request.
 
         Examples
@@ -420,7 +421,8 @@ class VizierClass(BaseQuery):
 
     def _parse_result(self, response, get_catalog_names=False, verbose=False):
         """
-        Parses the HTTP response to create an `astropy.table.Table`.
+        Parses the HTTP response to create a `~astropy.table.Table`.
+
         Returns the raw result as a string in case of parse errors.
 
         Parameters
@@ -433,8 +435,7 @@ class VizierClass(BaseQuery):
 
         Returns
         -------
-        `astroquery.utils.commons.TableList`
-            An OrderedDict of `astropy.table.Table` objects.
+        table_list : `astroquery.utils.TableList` or str    
             If there are errors in the parsing, then returns the raw results as a string.
         """
         if not verbose:
@@ -490,7 +491,7 @@ def _parse_angle(angle):
 
     Parameters
     ----------
-    angle : convertible to `astropy.coordinates.angles.Angle`
+    angle : convertible to `astropy.coordinates.Angle`
 
     Returns
     -------

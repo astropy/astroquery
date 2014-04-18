@@ -49,14 +49,14 @@ class MagpisClass(BaseQuery):
             in which case it is resolved using online services or as the appropriate
             `astropy.coordinates` object. ICRS coordinates may also be entered as strings
             as specified in the `astropy.coordinates` module.
-        radius : str or `astropy.units.Quantity` object, optional
+        radius : str or `~astropy.units.Quantity` object, optional
            The string must be parsable by `astropy.coordinates.Angle`. The appropriate
-           `Quantity` object from `astropy.units` may also be used. Specifies the symmetric
+           `~astropy.units.Quantity` object from `astropy.units` may also be used. Specifies the symmetric
            size of the image. Defaults to 1 arcmin.
         survey : str, optional
             The MAGPIS survey you want to cut out. Defaults to 'bolocam'. The other
             surveys that can be used can be listed via
-            :meth:`~astroquery.core.Magpis.list_surveys`.
+            :meth:`~astroquery.magpis.MagpisClass.list_surveys`.
         maximsize : int, optional
             Specify the maximum image size (in pixels on each dimension) that
             will be returned.  Max is 2048.

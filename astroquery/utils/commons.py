@@ -90,17 +90,17 @@ def send_request(url, data, timeout, request_type='POST', headers={},
 def parse_radius(radius):
     """
     Given a radius checks that it is either parsable as an
-    `astropy.coordinates.angle` or an `astropy.units.Quantity`
-    and returns an `astropy.coordinates.Angle` object
+    `~astropy.coordinates.Angle` or a `~astropy.units.Quantity`
+    and returns an `~astropy.coordinates.Angle` object.
 
     Parameters
     ----------
-    radius : str/astropy.units.Quantity
+    radius : str/`~astropy.units.Quantity`
         The radius of a region
 
     Returns
     -------
-    `astropy.coordinates.Angle` object
+    angle : `~astropy.coordinates.Angle`
 
     Raises
     ------

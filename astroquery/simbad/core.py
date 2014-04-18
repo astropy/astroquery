@@ -170,13 +170,13 @@ class SimbadClass(BaseQuery):
 
     def get_field_description(self, field_name):
         """
-        Displays a description of the VOTable field
+        Displays a description of the VOTable field.
 
         Parameters
         ----------
         field_name : str
             the name of the field to describe. Must be one of those listed
-            by `astroquery.simbad.Simbad.list_votable_fields`.
+            by `list_votable_fields`.
 
         Examples
         --------
@@ -211,7 +211,7 @@ class SimbadClass(BaseQuery):
     def add_votable_fields(self, *args):
         """
         Sets fields to be fetched in the VOTable. Must be one of those listed
-        by `astroquery.simbad.Simbad.list_votable_fields`.
+        by `list_votable_fields`.
 
         Parameters
         ----------
@@ -241,7 +241,7 @@ class SimbadClass(BaseQuery):
 
     def remove_votable_fields(self, *args, **kwargs):
         """
-        Removes the specified field names from `astroquery.simbad.Simbad.VOTABLE_FIELDS`
+        Removes the specified field names from ``SimbadClass._VOTABLE_FIELDS``
 
         Parameters
         ----------
@@ -293,8 +293,8 @@ class SimbadClass(BaseQuery):
 
         Returns
         -------
-        `astropy.table.Table`
-            The results of the query as an `astropy.table.Table`.
+        table : `~astropy.table.Table`
+            Query results table
         """
         verbose = kwargs.pop('verbose') if 'verbose' in kwargs else False
         result = self.query_criteria_async(*args,**kwargs)
@@ -315,8 +315,8 @@ class SimbadClass(BaseQuery):
 
         Returns
         -------
-        response : `requests.response`
-            the response of the query from the server
+        response : `requests.Response`
+            Response of the query from the server
         """
         request_payload = self._args_to_payload(caller='query_criteria_async', *args, **kwargs)
         response = commons.send_request(self.SIMBAD_URL, request_payload,
@@ -325,8 +325,8 @@ class SimbadClass(BaseQuery):
 
     def query_object(self, object_name, wildcard=False, verbose=False):
         """
-        Queries Simbad for the given object and returns the result as an
-        `astropy.table.Table`. Object names may also be specified with wildcard.
+        Queries Simbad for the given object and returns the result as a
+        `~astropy.table.Table`. Object names may also be specified with wildcard.
         See examples below.
 
         Parameters
@@ -339,15 +339,15 @@ class SimbadClass(BaseQuery):
 
         Returns
         -------
-        `astropy.table.Table`
-            The results of the query as an `astropy.table.Table`.
+        table : `~astropy.table.Table`
+            Query results table
         """
         result = self.query_object_async(object_name, wildcard=wildcard)
         return self._parse_result(result, verbose=verbose)
 
     def query_object_async(self, object_name, wildcard=False):
         """
-        Serves the same function as `astoquery.simbad.Simbad.query_object`, but
+        Serves the same function as `query_object`, but
         only collects the reponse from the Simbad server and returns.
 
         Parameters
@@ -360,8 +360,8 @@ class SimbadClass(BaseQuery):
 
         Returns
         -------
-        response : `requests.response`
-            the response of the query from the server
+        response : `requests.Response`
+            Response of the query from the server
         """
         request_payload = self._args_to_payload(object_name, wildcard=wildcard,
                                                 caller='query_object_async')
@@ -373,7 +373,7 @@ class SimbadClass(BaseQuery):
     def query_objects(self, object_names, wildcard=False, verbose=False):
         """
         Queries Simbad for the specified list of objects and returns the results
-        as an `astropy.table.Table`. Object names may be specified with
+        as a `~astropy.table.Table`. Object names may be specified with
         wildcards if desired.
 
         Parameters
@@ -385,14 +385,14 @@ class SimbadClass(BaseQuery):
 
         Returns
         -------
-        `astropy.table.Table`
-            The results of the query as an `astropy.table.Table`.
+        table : `~astropy.table.Table`
+            Query results table
         """
         return self.query_object('\n'.join(object_names), wildcard)
 
     def query_objects_async(self, object_names, wildcard=False):
         """
-        Same as `astoquery.simbad.Simbad.query_objects`, but
+        Same as `query_objects`, but
         only collects the reponse from the Simbad server and returns.
 
         Parameters
@@ -404,8 +404,8 @@ class SimbadClass(BaseQuery):
 
         Returns
         -------
-        response : `requests.response`
-            the response of the query from the server
+        response : `requests.Response`
+            Response of the query from the server
         """
         return self.query_object_async('\n'.join(object_names), wildcard)
 
@@ -413,13 +413,13 @@ class SimbadClass(BaseQuery):
                      equinox=None, epoch=None, verbose=False):
         """
         Queries around an object or coordinates as per the specified radius and
-        returns the results in an `astropy.table.Table`.
+        returns the results in a `~astropy.table.Table`.
 
         Parameters
         ----------
-        coordinates : str/`astropy.coordinates`
+        coordinates : str / `astropy.coordinates`
             the identifier or coordinates around which to query.
-        radius : str/`astropy.units.Qunatity`, optional
+        radius : str / `~astropy.units.Quantity`, optional
             the radius of the region. If missing, set to default
             value of 20 arcmin.
         equinox : float, optional
@@ -431,8 +431,8 @@ class SimbadClass(BaseQuery):
 
         Returns
         -------
-        `astropy.table.Table`
-            The results of the query as an `astropy.table.Table`.
+        table : `~astropy.table.Table`
+            Query results table
         """
         # if the identifier is given rather than the coordinates, convert to
         # coordinates
@@ -443,14 +443,14 @@ class SimbadClass(BaseQuery):
     def query_region_async(self, coordinates, radius=None, equinox=None,
                            epoch=None):
         """
-        Serves the same function as `astoquery.simbad.Simbad.query_region`, but
+        Serves the same function as `query_region`, but
         only collects the reponse from the Simbad server and returns.
 
         Parameters
         ----------
         coordinates : str/`astropy.coordinates`
             the identifier or coordinates around which to query.
-        radius : str/`astropy.units.Qunatity`, optional
+        radius : str/`~astropy.units.Quantity`, optional
             the radius of the region. If missing, set to default
             value of 20 arcmin.
         equinox : float, optional
@@ -462,8 +462,8 @@ class SimbadClass(BaseQuery):
 
         Returns
         -------
-        response : `requests.response` object
-             the response of the query from the server.
+        response : `requests.Response`
+             Response of the query from the server.
         """
         request_payload = self._args_to_payload(coordinates, radius=radius,
                                                 equinox=equinox, epoch=epoch,
@@ -474,8 +474,10 @@ class SimbadClass(BaseQuery):
 
     def query_catalog(self, catalog, verbose=False):
         """
-        Queries a whole catalog. Results may be very large -number of rows
-        should be controlled by configuring `astroquery.simbad.ROW_LIMIT`.
+        Queries a whole catalog.
+        
+        Results may be very large -number of rows
+        should be controlled by configuring `SimbadClass.ROW_LIMIT`.
 
         Parameters
         ----------
@@ -484,15 +486,15 @@ class SimbadClass(BaseQuery):
 
         Returns
         -------
-        `astropy.table.Table`
-            The results of the query as an `astropy.table.Table`.
+        table : `~astropy.table.Table`
+            Query results table
         """
         result = self.query_catalog_async(catalog)
         return self._parse_result(result, verbose=verbose)
 
     def query_catalog_async(self, catalog):
         """
-        Serves the same function as `astoquery.simbad.Simbad.query_catalog`, but
+        Serves the same function as `query_catalog`, but
         only collects the reponse from the Simbad server and returns.
 
         Parameters
@@ -502,8 +504,8 @@ class SimbadClass(BaseQuery):
 
         Returns
         -------
-        response : `requests.response` object
-             the response of the query from the server.
+        response : `requests.Response`
+             Response of the query from the server.
 
         """
         request_payload = self._args_to_payload(catalog,
@@ -515,7 +517,7 @@ class SimbadClass(BaseQuery):
     def query_bibobj(self, bibcode, verbose=False):
         """
         Query all the objects that are contained in the article specified by
-        the bibcode, and return results as an `astropy.table.Table`.
+        the bibcode, and return results as a `~astropy.table.Table`.
 
         Parameters
         ----------
@@ -524,16 +526,15 @@ class SimbadClass(BaseQuery):
 
         Returns
         -------
-        `astropy.table.Table`
-            The results of the query as an `astropy.table.Table`.
-
+        table : `~astropy.table.Table`
+            Query results table
         """
         result = self.query_bibobj_async(bibcode)
         return self._parse_result(result, verbose=verbose)
 
     def query_bibobj_async(self, bibcode):
         """
-        Serves the same function as `astoquery.simbad.Simbad.query_bibobj`, but
+        Serves the same function as `query_bibobj`, but
         only collects the reponse from the Simbad server and returns.
 
         Parameters
@@ -543,8 +544,8 @@ class SimbadClass(BaseQuery):
 
         Returns
         -------
-        response : `requests.response` object
-             the response of the query from the server.
+        response : `requests.Response`
+             Response of the query from the server.
 
         """
         request_payload = self._args_to_payload(
@@ -556,7 +557,7 @@ class SimbadClass(BaseQuery):
     def query_bibcode(self, bibcode, wildcard=False, verbose=False):
         """
         Queries the references corresponding to a given bibcode, and returns
-        the results in an `astropy.table.Table`. Wildcards may be used to
+        the results in a `~astropy.table.Table`. Wildcards may be used to
         specify bibcodes
 
         Parameters
@@ -569,8 +570,8 @@ class SimbadClass(BaseQuery):
 
         Returns
         -------
-        `astropy.table.Table`
-            The results of the query as an `astropy.table.Table`.
+        table : `~astropy.table.Table`
+            Query results table
 
         """
         result = self.query_bibcode_async(bibcode, wildcard=wildcard)
@@ -578,7 +579,7 @@ class SimbadClass(BaseQuery):
 
     def query_bibcode_async(self, bibcode, wildcard=False):
         """
-        Serves the same function as `astoquery.simbad.Simbad.query_bibcode`, but
+        Serves the same function as `query_bibcode`, but
         only collects the reponse from the Simbad server and returns.
 
         Parameters
@@ -591,8 +592,8 @@ class SimbadClass(BaseQuery):
 
         Returns
         -------
-        response : `requests.response` object
-             the response of the query from the server.
+        response : `requests.Response`
+             Response of the query from the server.
 
         """
         request_payload = self._args_to_payload(bibcode, wildcard=wildcard,

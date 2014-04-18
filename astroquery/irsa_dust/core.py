@@ -58,24 +58,24 @@ class IrsaDustClass(BaseQuery):
             If a name, must be resolveable by NED, SIMBAD, 2MASS, or SWAS.
             Examples of acceptable coordinate strings, can be found here:
             http://irsa.ipac.caltech.edu/applications/DUST/docs/coordinate.html.
-        radius : str/astropy.units.Quantity, optional
+        radius : str / `~astropy.units.Quantity`, optional
             The size of the region to include in the dust query, in radian, degree
-            or hour as per format specified by `astropy.coordinates.Angle or `astropy
+            or hour as per format specified by `~astropy.coordinates.Angle` or `~astropy
             .units.Quantity`. Defaults to 5 degrees.
         image_type : str, optional
             When missing returns for all the images. Otherwise returns only
-            for image of the specified type which must be one of `temperature`, `ebv`,
-            `100um`. Defaults to `None`.
+            for image of the specified type which must be one of ``temperature``, ``ebv``,
+            ``100um``. Defaults to ``None``.
         timeout : int, optional
             Time limit for establishing successful connection with remote server.
-            Defaults to `astroquery.irsa_dust.IrsaDust.TIMEOUT`.
+            Defaults to `~astroquery.irsa_dust.IrsaDustClass.TIMEOUT`.
         get_query_payload : bool, optional
             If true than returns the dictionary of query parameters, posted to
-            remote server. Defaults to `False`.
+            remote server. Defaults to ``False``.
 
         Returns
         -------
-        A list of `astropy.fits.HDUList` objects
+        A list of `~astropy.io.fits.HDUList` objects
 
         """
 
@@ -90,7 +90,7 @@ class IrsaDustClass(BaseQuery):
     def get_images_async(self, coordinate, radius=None,
                          image_type=None, timeout=TIMEOUT, get_query_payload=False):
         """
-        A query function similar to `astroquery.irsa_dust.IrsaDust.get_images` but
+        A query function similar to `astroquery.irsa_dust.IrsaDustClass.get_images` but
         returns file-handlers to the remote files rather than downloading them. Useful
         for asynchronous queries so that the actual download may be performed later.
 
@@ -101,20 +101,20 @@ class IrsaDustClass(BaseQuery):
             If a name, must be resolveable by NED, SIMBAD, 2MASS, or SWAS.
             Examples of acceptable coordinate strings, can be found here:
             http://irsa.ipac.caltech.edu/applications/DUST/docs/coordinate.html
-        radius : str/astropy.units.Quantity, optional
+        radius : str / `~astropy.units.Quantity`, optional
             The size of the region to include in the dust query, in radian, degree
-            or hour as per format specified by `astropy.coordinates.Angle or `astropy
+            or hour as per format specified by `~astropy.coordinates.Angle` or `~astropy
             .units.Quantity`. Defaults to 5 degrees.
         image_type : str, optional
             When missing returns for all the images. Otherwise returns only
-            for image of the specified type which must be one of `temperature`, `ebv`,
-            `100um`. Defaults to `None`.
+            for image of the specified type which must be one of ``temperature``, ``ebv``,
+            ``100um``. Defaults to ``None``.
         timeout : int, optional
             Time limit for establishing successful connection with remote server.
-            Defaults to `astroquery.irsa_dust.IrsaDust.TIMEOUT`
+            Defaults to `~astroquery.irsa_dust.IrsaDustClass.TIMEOUT`
         get_query_payload : bool, optional
             If true than returns the dictionary of query parameters, posted to
-            remote server. Defaults to `False`
+            remote server. Defaults to ``False``
 
         Returns
         --------
@@ -142,20 +142,20 @@ class IrsaDustClass(BaseQuery):
             If a name, must be resolveable by NED, SIMBAD, 2MASS, or SWAS.
             Examples of acceptable coordinate strings, can be found here:
             http://irsa.ipac.caltech.edu/applications/DUST/docs/coordinate.html
-        radius : str/astropy.units.Quantity, optional
+        radius : str / `~astropy.units.Quantity`, optional
             The size of the region to include in the dust query, in radian, degree
-            or hour as per format specified by `astropy.coordinates.Angle or `astropy
+            or hour as per format specified by `~astropy.coordinates.Angle` or `~astropy
             .units.Quantity`. Defaults to 5 degrees.
         image_type : str, optional
             When missing returns for all the images. Otherwise returns only
-            for image of the specified type which must be one of `temperature`,
-            `ebv`, `100um`. Defaults to `None`.
+            for image of the specified type which must be one of ``temperature``,
+            ``ebv``, ``100um``. Defaults to ``None``.
         timeout : int, optional
             Time limit for establishing successful connection with remote server.
-            Defaults to `astroquery.irsa_dust.IrsaDust.TIMEOUT`
+            Defaults to `~astroquery.irsa_dust.IrsaDustClass.TIMEOUT`
         get_query_payload : bool
             If true than returns the dictionary of query parameters, posted to
-            remote server. Defaults to `False`
+            remote server. Defaults to ``False``
 
         Returns
         --------
@@ -178,17 +178,17 @@ class IrsaDustClass(BaseQuery):
             If a name, must be resolveable by NED, SIMBAD, 2MASS, or SWAS.
             Examples of acceptable coordinate strings, can be found here:
             http://irsa.ipac.caltech.edu/applications/DUST/docs/coordinate.html
-        radius : str/astropy.units.Quantity, optional
+        radius : str / `~astropy.units.Quantity`, optional
             The size of the region to include in the dust query, in radian, degree
-            or hour as per format specified by `astropy.coordinates.Angle or `astropy
+            or hour as per format specified by `~astropy.coordinates.Angle` or `~astropy
             .units.Quantity`. Defaults to 5 degrees.
         timeout : int, optional
             Time limit for establishing successful connection with remote server.
-            Defaults to `astroquery.irsa_dust.IrsaDust.TIMEOUT`
+            Defaults to `~astroquery.irsa_dust.IrsaDustClass.TIMEOUT`
 
         Returns
         --------
-        table : `astropy.table.Table`
+        table : `~astropy.table.Table`
         """
         readable_obj = self.get_extinction_table_async(coordinate,
                                                        radius=radius,
@@ -200,7 +200,7 @@ class IrsaDustClass(BaseQuery):
     def get_extinction_table_async(self, coordinate, radius=None,
                                    timeout=TIMEOUT):
         """
-        A query function similar to `astroquery.irsa_dust.IrsaDust.get_extinction_table`
+        A query function similar to `astroquery.irsa_dust.IrsaDustClass.get_extinction_table`
         but returns a file-handler to the remote files rather than downloading it.
         Useful for asynchronous queries so that the actual download may be performed later.
 
@@ -213,11 +213,11 @@ class IrsaDustClass(BaseQuery):
             http://irsa.ipac.caltech.edu/applications/DUST/docs/coordinate.html
         radius : str, optional
             The size of the region to include in the dust query, in radian, degree
-            or hour as per format specified by `astropy.coordinates.Angle`. Defaults
+            or hour as per format specified by `~astropy.coordinates.Angle`. Defaults
             to 5 degrees.
         timeout : int, optional
             Time limit for establishing successful connection with remote server.
-            Defaults to `astroquery.irsa_dust.IrsaDust.TIMEOUT`
+            Defaults to `~astroquery.irsa_dust.IrsaDustClass.TIMEOUT`
 
         Returns
         -------
@@ -233,9 +233,10 @@ class IrsaDustClass(BaseQuery):
     def get_query_table(self, coordinate, radius=None,
                         section=None, timeout=TIMEOUT, url=DUST_SERVICE_URL):
         """
-        Create and return an astropy Table representing the query response(s).
-        When `section` is missing, returns the full table. When a
-        section is specified (`location`, `temperature`, `ebv`, or `100um`),
+        Create and return an `~astropy.table.Table` representing the query response(s).
+
+        When ``section`` is missing, returns the full table. When a
+        section is specified (``location``, ``temperature``, ``ebv``, or ``100um``),
         only that portion of the table is returned.
 
         Parameters
@@ -245,25 +246,25 @@ class IrsaDustClass(BaseQuery):
             If a name, must be resolveable by NED, SIMBAD, 2MASS, or SWAS.
             Examples of acceptable coordinate strings, can be found here:
             http://irsa.ipac.caltech.edu/applications/DUST/docs/coordinate.html
-        radius : str/astropy.units.Quantity, optional
+        radius : str / `~astropy.units.Quantity`, optional
             The size of the region to include in the dust query, in radian, degree
-            or hour as per format specified by `astropy.coordinates.Angle or `astropy
+            or hour as per format specified by `~astropy.coordinates.Angle` or `~astropy
             .units.Quantity`. Defaults to 5 degrees.
         section : str, optional
             When missing, all the sections of the query result are returned.
-            Otherwise only the specified section (`ebv`, `100um`, temperature`,
-            `location`) is returned. Defaults to `None`
+            Otherwise only the specified section (``ebv``, ``100um``, ``temperature``,
+            ``location``) is returned. Defaults to ``None``
         timeout : int, optional
             Time limit for establishing successful connection with remote server.
-            Defaults to `astroquery.irsa_dust.IrsaDust.TIMEOUT`
+            Defaults to `~astroquery.irsa_dust.IrsaDustClass.TIMEOUT`
         url : str, optional
             Only provided for debugging. Should generally not be assigned.
-            Defaults to `astroquery.irsa_dust.IrsaDust.DUST_SERVICE_URL`
+            Defaults to `~astroquery.irsa_dust.IrsaDustClass.DUST_SERVICE_URL`
 
         Returns
         --------
-        table : `astropy.table.Table`
-            table representing the query results, (all or as per  specified)
+        table : `~astropy.table.Table`
+            Table representing the query results, (all or as per  specified)
         """
         request_payload = self._args_to_payload(coordinate, radius=radius)
         response = commons.send_request(url, request_payload, timeout)
@@ -291,9 +292,9 @@ class IrsaDustClass(BaseQuery):
             If a name, must be resolveable by NED, SIMBAD, 2MASS, or SWAS.
             Examples of acceptable coordinate strings, can be found here:
             http://irsa.ipac.caltech.edu/applications/DUST/docs/coordinate.html
-        radius : str/astropy.units.Quantity, optional
+        radius : str / `~astropy.units.Quantity`, optional
             The size of the region to include in the dust query, in radian, degree
-            or hour as per format specified by `astropy.coordinates.Angle or `astropy
+            or hour as per format specified by `~astropy.coordinates.Angle` or `~astropy
             .units.Quantity`. Defaults to 5 degrees.
 
         Returns
@@ -306,6 +307,7 @@ class IrsaDustClass(BaseQuery):
         if radius is not None:
             try:
                 reg_size = commons.radius_to_unit(radius,'degree')
+            # TODO: clean this up so that it works with Astropy 0.3 and later:
             # astropy v0.2.x throws UnitsError and v>0.2.x throws
             # UnitsException
             except (u.UnitsException, coord.errors.UnitsError, AttributeError):
@@ -321,9 +323,9 @@ class IrsaDustClass(BaseQuery):
         """
         Extracts the image URLs from the query results and
         returns these as a list. If section is missing or
-        `all` returns all the URLs, otherwise returns URL
-        corresponding to the section specified (`emission`,
-        `reddening`, `temperature`).
+        ``all`` returns all the URLs, otherwise returns URL
+        corresponding to the section specified (``emission``,
+        ``reddening``, ``temperature``).
 
         Parameters
         ----------
@@ -331,8 +333,8 @@ class IrsaDustClass(BaseQuery):
             XML response returned by the query as a string
         image_type : str, optional
             When missing returns for all the images. Otherwise returns only
-            for image of the specified type which must be one of `temperature`, `ebv`,
-            `100um`. Defaults to `None`.
+            for image of the specified type which must be one of ``temperature``, ``ebv``,
+            ``100um``. Defaults to ``None``.
 
         Returns
         -------
@@ -367,7 +369,8 @@ class SingleDustResult(object):
 
     """
     Represents the response to a dust query for a single object or location.
-    Provides methods to return the response as an astropy Table, and to retrieve
+
+    Provides methods to return the response as an `~astropy.table.Table`, and to retrieve
     FITS images listed as urls in the initial response. It can also return the url
     to a detailed extinction table provided in the initial response. Not intended
     to be instantiated by the end user.
@@ -411,7 +414,7 @@ class SingleDustResult(object):
 
     def table(self, section=None):
         """
-        Create and return an astropy Table representing the query response.
+        Create and return a `~astropy.table.Table` representing the query response.
 
         Parameters
         ----------
@@ -506,7 +509,7 @@ class SingleDustResult(object):
 
         Returns
         -------
-        table : `astropy.table.Table`
+        table : `~astropy.table.Table`
             table containing the data from the query response
         """
         columns = (self._location_section.columns + self._ext_section.columns
@@ -637,7 +640,7 @@ class BaseDustNode(object):
 
     @property
     def columns(self):
-        """Return the column or columns associated with this item in the astropy Table."""
+        """Return the column or columns associated with this item in the `~astropy.table.Table`."""
         return self._columns
 
     def __str__(self):
@@ -696,7 +699,7 @@ class NumberNode(BaseDustNode):
             the xml node that provides the raw data for this DustNode
         col_name : str
             the name of the column associated with this item
-        units : `astropy.units.Unit`
+        units : `~astropy.units.Unit`
             the units associated with this item
         """
         BaseDustNode.__init__(self, xml_node)

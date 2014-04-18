@@ -89,13 +89,13 @@ class UkidssClass(QueryWithLogin):
 
     def _login(self, username, password, community):
         """
-        Login to non-public data as a known user
+        Login to non-public data as a known user.
 
         Parameters
         ----------
-        username : string
-        password : string
-        community : string
+        username : str
+        password : str
+        community : str
         """
 
         # Construct cookie holder, URL openenr, and retrieve login page
@@ -166,13 +166,13 @@ class UkidssClass(QueryWithLogin):
         frame_type : str
             The type of image. Must be one of
             ['stack','normal','interleave','deep_stack','confidence','difference', 'leavstack', 'all']
-        image_width : str or `astropy.units.Quantity` object, optional
+        image_width : str or `~astropy.units.Quantity` object, optional
             The image size (along X). Cannot exceed 15 arcmin. If missing, defaults to 1 arcmin.
-        image_height : str or `astropy.units.Quantity` object, optional
+        image_height : str or `~astropy.units.Quantity` object, optional
              The image size (along Y). Cannot exceed 90 arcmin. If missing, same as image_width.
-        radius : str or `astropy.units.Quantity` object, optional
-            The string must be parsable by `astropy.coordinates.Angle`. The appropriate
-            `Quantity` object from `astropy.units` may also be used. When missing only image
+        radius : str or `~astropy.units.Quantity` object, optional
+            The string must be parsable by `~astropy.coordinates.Angle`. The appropriate
+            `~astropy.units.Quantity` object from `astropy.units` may also be used. When missing only image
             around the given position rather than multi-frames are retrieved.
         programme_id : str
             The survey or programme in which to search for
@@ -186,7 +186,7 @@ class UkidssClass(QueryWithLogin):
 
         Returns
         -------
-        A list of `astropy.fits.HDUList` objects
+        A list of `~astropy.io.fits.HDUList` objects
         """
         readable_objs = self.get_images_async(coordinates, waveband=waveband, frame_type=frame_type,
                                               image_width=image_width, image_height=image_height,
@@ -202,7 +202,7 @@ class UkidssClass(QueryWithLogin):
                          database='UKIDSSDR7PLUS', programme_id='all',
                          verbose=True, get_query_payload=False):
         """
-        Serves the same purpose as :meth:`~astroquery.ukidss.core.Ukidss.get_images` but
+        Serves the same purpose as `get_images` but
         returns a list of file handlers to remote files
 
         Parameters
@@ -217,13 +217,13 @@ class UkidssClass(QueryWithLogin):
         frame_type : str
             The type of image. Must be one of
             ['stack','normal','interleave','deep_stack','confidence','difference', 'leavstack', 'all']
-        image_width : str or `astropy.units.Quantity` object, optional
+        image_width : str or `~astropy.units.Quantity` object, optional
             The image size (along X). Cannot exceed 15 arcmin. If missing, defaults to 1 arcmin.
-        image_height : str or `astropy.units.Quantity` object, optional
+        image_height : str or `~astropy.units.Quantity` object, optional
              The image size (along Y). Cannot exceed 90 arcmin. If missing, same as image_width.
-        radius : str or `astropy.units.Quantity` object, optional
-            The string must be parsable by `astropy.coordinates.Angle`. The appropriate
-            `Quantity` object from `astropy.units` may also be used. When missing only image
+        radius : str or `~astropy.units.Quantity` object, optional
+            The string must be parsable by `~astropy.coordinates.Angle`. The appropriate
+            `~astropy.units.Quantity` object from `astropy.units` may also be used. When missing only image
             around the given position rather than multi-frames are retrieved.
         programme_id : str
             The survey or programme in which to search for.  See `list_catalogs`.
@@ -273,13 +273,13 @@ class UkidssClass(QueryWithLogin):
         frame_type : str
             The type of image. Must be one of
             ['stack','normal','interleave','deep_stack','confidence','difference', 'leavstack', 'all']
-        image_width : str or `astropy.units.Quantity` object, optional
+        image_width : str or `~astropy.units.Quantity` object, optional
             The image size (along X). Cannot exceed 15 arcmin. If missing, defaults to 1 arcmin.
-        image_height : str or `astropy.units.Quantity` object, optional
+        image_height : str or `~astropy.units.Quantity` object, optional
              The image size (along Y). Cannot exceed 90 arcmin. If missing, same as image_width.
-        radius : str or `astropy.units.Quantity` object, optional
-            The string must be parsable by `astropy.coordinates.Angle`. The appropriate
-            `Quantity` object from `astropy.units` may also be used. When missing only image
+        radius : str or `~astropy.units.Quantity` object, optional
+            The string must be parsable by `~astropy.coordinates.Angle`. The appropriate
+            `~astropy.units.Quantity` object from `astropy.units` may also be used. When missing only image
             around the given position rather than multi-frames are retrieved.
         programme_id : str
             The survey or programme in which to search for.  See `list_catalogs`.
@@ -383,9 +383,9 @@ class UkidssClass(QueryWithLogin):
             in which case it is resolved using online services or as the appropriate
             `astropy.coordinates` object. ICRS coordinates may also be entered as strings
             as specified in the `astropy.coordinates` module.
-        radius : str or `astropy.units.Quantity` object, optional
-            The string must be parsable by `astropy.coordinates.Angle`. The appropriate
-            `Quantity` object from `astropy.units` may also be used. When missing
+        radius : str or `~astropy.units.Quantity` object, optional
+            The string must be parsable by `~astropy.coordinates.Angle`. The appropriate
+            `~astropy.units.Quantity` object from `astropy.units` may also be used. When missing
             defaults to 1 arcmin. Cannot exceed 90 arcmin.
         programme_id : str
             The survey or programme in which to search for.  See `list_catalogs`.
@@ -402,8 +402,8 @@ class UkidssClass(QueryWithLogin):
 
         Returns
         -------
-        result : `astropy.table.Table`
-            The result of the query as an `astropy.table.Table` object.
+        result : `~astropy.table.Table`
+            Query result table
         """
 
         response = self.query_region_async(coordinates, radius=radius,
@@ -421,7 +421,7 @@ class UkidssClass(QueryWithLogin):
                            database='UKIDSSDR7PLUS', get_query_payload=False,
                            system='J2000'):
         """
-        Serves the same purpose as :meth:`~astroquery.ukidss.core.Ukidss.query_region`. But
+        Serves the same purpose as `query_region`. But
         returns the raw HTTP response rather than the parsed result.
 
         Parameters
@@ -431,9 +431,9 @@ class UkidssClass(QueryWithLogin):
             in which case it is resolved using online services or as the appropriate
             `astropy.coordinates` object. ICRS coordinates may also be entered as strings
             as specified in the `astropy.coordinates` module.
-        radius : str or `astropy.units.Quantity` object, optional
-            The string must be parsable by `astropy.coordinates.Angle`. The appropriate
-            `Quantity` object from `astropy.units` may also be used. When missing
+        radius : str or `~astropy.units.Quantity` object, optional
+            The string must be parsable by `~astropy.coordinates.Angle`. The appropriate
+            `~astropy.units.Quantity` object from `astropy.units` may also be used. When missing
             defaults to 1 arcmin. Cannot exceed 90 arcmin.
         programme_id : str
             The survey or programme in which to search for.  See `list_catalogs`.
@@ -521,7 +521,7 @@ class UkidssClass(QueryWithLogin):
     def list_catalogs(self, style='short'):
         """
         Returns a lsit of available catalogs in UKIDSS.
-        These can be used as `programme_id` in queries
+        These can be used as ``programme_id`` in queries
 
         Parameters
         ----------
@@ -667,7 +667,7 @@ def _parse_dimension(dim):
 
     Parameters
     ----------
-    dim : str, `astropy.units.Quantity`
+    dim : str, `~astropy.units.Quantity`
 
     Returns
     -------

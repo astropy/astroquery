@@ -2,7 +2,6 @@
 import re
 import os
 import io
-import struct
 import requests
 from astropy.table import Table
 import astropy.io.fits as fits
@@ -46,11 +45,11 @@ def query(coord=None, ra=None, dec=None, size=None, naifid=None, pid=None,
     coord : astropy.coordinates.builtin_systems
         Astropy coordinate object. (query_type = 'position')
     ra : number
-        Right ascension in degrees, alternative to using `coord`. (query_type =
-        'position')
+        Right ascension in degrees, alternative to using ``coord``.
+        (query_type = 'position')
     dec : number
-        Declination in degrees, alternative to using `coord`. (query_type =
-        'position')
+        Declination in degrees, alternative to using ``coord``.
+        (query_type = 'position')
     size : number
         Region size in degrees. (query_type = 'position')
     naifid : number
@@ -70,7 +69,7 @@ def query(coord=None, ra=None, dec=None, size=None, naifid=None, pid=None,
 
     Returns
     -------
-    table : astropy.table.Table
+    table : `~astropy.table.Table`
 
     Examples
     --------
@@ -82,7 +81,7 @@ def query(coord=None, ra=None, dec=None, size=None, naifid=None, pid=None,
     >>> pos_t = sha.query(coord=coord.FK5(ra=163.6136, dec=-11.784,
     ... unit=(u.degree, u.degree)), size=0.5)
 
-    Position query with optional `ra` and `dec` parameters
+    Position query with optional ``ra`` and ``dec`` parameters
 
     >>> pos_t = sha.query(ra=163.6136, dec=-11.784, size=0.5)
 
@@ -153,7 +152,7 @@ def save_file(url, out_dir='sha_tmp/', out_name=None):
 
     Parameters
     ----------
-    url : string
+    url : str
         Access URL from SHA query. Requires complete URL, valid URLs from the
         SHA query include columns::
 
@@ -162,9 +161,9 @@ def save_file(url, out_dir='sha_tmp/', out_name=None):
                          with important ancillary products (mask, uncertainty,
                          etc.) as a zip archive
 
-    out_dir : string
+    out_dir : str
         Path for output table or image
-    out_name : string
+    out_name : str
         Name for output table or image, if None use the file ID as name.
 
     Examples
@@ -194,11 +193,13 @@ def save_file(url, out_dir='sha_tmp/', out_name=None):
 
 def get_file(url):
     """
-    Return object from SHA query URL. Currently only supports fits files.
+    Return object from SHA query URL.
+    
+    Currently only supports FITS files.
 
     Parameters
     ----------
-    url : string
+    url : str
         Access URL from SHA query. Requires complete URL, valid URLs from the
         SHA query include columns::
 
@@ -209,7 +210,7 @@ def get_file(url):
 
     Returns
     -------
-    obj : astropy.table.Table, astropy.io.fits, list
+    obj : `~astropy.table.Table`, `astropy.io.fits`, list
         Return object depending if link points to a table, fits image, or zip
         file of products.
 

@@ -87,7 +87,7 @@ class BesanconClass(BaseQuery):
 
     def get_besancon_model_file(self, filename, verbose=True, timeout=5.0):
         """
-        Download a Besancon model from the website
+        Download a Besancon model from the website.
 
         Parameters
         ----------
@@ -175,7 +175,8 @@ class BesanconClass(BaseQuery):
                     colors_limits=copy.copy(colors_limits),
                     **kwargs):
         """
-        Perform a query on the Besancon model of the galaxy
+        Perform a query on the Besancon model of the galaxy.
+
         http://model.obs-besancon.fr/
 
         Parameters
@@ -300,9 +301,10 @@ Besancon = BesanconClass()
 
 def parse_besancon_dict(bd):
     """
-    Turn a dict like default_keys into a list of tuples (must be a list of
-    tuples because there are some repeated entries, which dictionaries do not
-    support)
+    Turn a dict like default_keys into a list of tuples.
+    
+    Must be a list of tuples because there are some repeated entries,
+    which dictionaries do not support.
 
     .. todo::
         In the future, a better way to do this is to make each dict entry a list;
@@ -330,7 +332,7 @@ def parse_besancon_dict(bd):
 
 def parse_errors(text):
     """
-    Attempt to extract the errors from a Besancon web page with error messages in it
+    Attempt to extract the errors from a Besancon web page with error messages in it.
     """
     # py3 compatibility:
     if hasattr(text,'decode'):
@@ -353,7 +355,7 @@ def parse_errors(text):
 def parse_besancon_model_string(bms,):
     """
     Given an entire Besancon model result in *string* form, parse it into an
-    astropy table
+    `~astropy.table.Table`.
     """
 
     # py3 compatibility:
@@ -429,7 +431,9 @@ def parse_besancon_model_string(bms,):
 
     for cn in besancon_table.columns:
         if besancon_table[cn].dtype.kind in ('s','S'):
-            print("WARNING: The Besancon table did not parse properly.  Some columns are likely to have invalid values and others incorrect values.  Please report this error.")
+            print("WARNING: The Besancon table did not parse properly.  "
+                  "Some columns are likely to have invalid values and others incorrect values.  "
+                  "Please report this error.")
             break
 
     return besancon_table

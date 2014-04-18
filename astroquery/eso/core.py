@@ -163,7 +163,7 @@ class EsoClass(QueryWithLogin):
         -------
         table : `astropy.table.Table`
             A table representing the data available in the archive for the specified survey,
-            matching the constraints specified in `kwargs`. The number of rows returned is capped
+            matching the constraints specified in ``kwargs``. The number of rows returned is capped
             by the ROW_LIMIT configuration item.
         
         """
@@ -197,7 +197,7 @@ class EsoClass(QueryWithLogin):
         -------
         table : `astropy.table.Table`
             A table representing the data available in the archive for the specified instrument,
-            matching the constraints specified in `kwargs`. The number of rows returned is capped
+            matching the constraints specified in ``kwargs``. The number of rows returned is capped
             by the ROW_LIMIT configuration item.
         
         """
