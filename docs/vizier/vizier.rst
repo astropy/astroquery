@@ -84,12 +84,12 @@ For instance to query Sirius across all catalogs:
        '2:I/40/catalog' with 11 column(s) and 1 row(s) 
        ...
 
-All the results are returned as a `TableList` object. This is a container for
+All the results are returned as a `astroquery.utils.TableList` object. This is a container for
 `~astropy.table.Table` objects. It is basically an extension to
 `collections.OrderedDict` for storing a `~astropy.table.Table` against its
 name.
 
-To access an individual table from the `TableList` object
+To access an individual table from the `astroquery.utils.TableList` object
 
 .. code-block:: python
 
@@ -101,7 +101,7 @@ To access an individual table from the `TableList` object
     J064509.3-164241   14 1RXP J0645 8.4-164302 101.2854 -16.7174  24
     J064509.3-164241   20 1RXH J064515.7-164402 101.3156 -16.7339 123
 
-To do some common processing to all the tables in the returned `TableList`
+To do some common processing to all the tables in the returned `astroquery.utils.TableList`
 object, do just what you would do for a python dictionary:
 
 .. code-block:: python
