@@ -136,12 +136,12 @@ class IrsaClass(BaseQuery):
         spatial : str
             Type of spatial query: 'Cone', 'Box', 'Polygon', and 'All-Sky'.
             If missing then defaults to 'Cone'.
-        radius : str or `astropy.units.Quantity` object, [optional for spatial is 'Cone']
+        radius : str or `~astropy.units.Quantity` object, [optional for spatial is 'Cone']
             The string must be parsable by `astropy.coordinates.Angle`. The appropriate
-            `Quantity` object from `astropy.units` may also be used. Defaults to 10 arcsec.
-        width : str, `astropy.units.Quantity` object [Required for spatial is 'Polygon'.]
+            `~astropy.units.Quantity` object from `astropy.units` may also be used. Defaults to 10 arcsec.
+        width : str, `~astropy.units.Quantity` object [Required for spatial is 'Polygon'.]
             The string must be parsable by `astropy.coordinates.Angle`. The appropriate
-            `Quantity` object from `astropy.units` may also be used.
+            `~astropy.units.Quantity` object from `astropy.units` may also be used.
         polygon : list, [Required for spatial is 'Polygon']
             A list of ``(ra, dec)`` pairs (as tuples), in decimal degrees,
             outlinining the polygon to search in. It can also be a list of
@@ -170,7 +170,7 @@ class IrsaClass(BaseQuery):
                            spatial='Cone', radius=10 * u.arcsec, width=None,
                            polygon=None,get_query_payload=False):
         """
-        This function serves the same purpose as :meth:`~astroquery.irsa.Irsa.query_region`,
+        This function serves the same purpose as :meth:`~astroquery.irsa.IrsaClass.query_region`,
         but returns the raw HTTP response rather than the results in an `astropy.table.Table`.
 
         Parameters
@@ -188,12 +188,12 @@ class IrsaClass(BaseQuery):
         spatial : str
             Type of spatial query: 'Cone', 'Box', 'Polygon', and 'All-Sky'.
             If missing then defaults to 'Cone'.
-        radius : str or `astropy.units.Quantity` object, [optional for spatial is 'Cone']
+        radius : str or `~astropy.units.Quantity` object, [optional for spatial is 'Cone']
             The string must be parsable by `astropy.coordinates.Angle`. The appropriate
-            `Quantity` object from `astropy.units` may also be used. Defaults to 10 arcsec.
-        width : str, `astropy.units.Quantity` object [Required for spatial is 'Polygon'.]
+            `~astropy.units.Quantity` object from `astropy.units` may also be used. Defaults to 10 arcsec.
+        width : str, `~astropy.units.Quantity` object [Required for spatial is 'Polygon'.]
             The string must be parsable by `astropy.coordinates.Angle`. The appropriate
-            `Quantity` object from `astropy.units` may also be used.
+            `~astropy.units.Quantity` object from `astropy.units` may also be used.
         polygon : list, [Required for spatial is 'Polygon']
             A list of ``(ra, dec)`` pairs (as tuples), in decimal degrees,
             outlinining the polygon to search in. It can also be a list of
@@ -240,12 +240,12 @@ class IrsaClass(BaseQuery):
             <http://irsa.ipac.caltech.edu/search_help.html>`_ for more
             details). Required if spatial is 'Cone' or 'Box'. Optional if
             spatial is 'Polygon'.
-        radius : str or `astropy.units.Quantity` object, [optional for spatial is 'Cone']
+        radius : str or `~astropy.units.Quantity` object, [optional for spatial is 'Cone']
             The string must be parsable by `astropy.coordinates.Angle`. The appropriate
-            `Quantity` object from `astropy.units` may also be used. Defaults to 10 arcsec.
-        width : str, `astropy.units.Quantity` object [Required for spatial is 'Polygon'.]
+            `~astropy.units.Quantity` object from `astropy.units` may also be used. Defaults to 10 arcsec.
+        width : str, `~astropy.units.Quantity` object [Required for spatial is 'Polygon'.]
             The string must be parsable by `astropy.coordinates.Angle`. The appropriate
-            `Quantity` object from `astropy.units` may also be used.
+            `~astropy.units.Quantity` object from `astropy.units` may also be used.
         polygon : list, [Required for spatial is 'Polygon']
             A list of ``(ra, dec)`` pairs as tuples of
             `astropy.coordinates.Angle`s outlinining the polygon to search in.

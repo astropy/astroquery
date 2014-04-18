@@ -71,9 +71,9 @@ class NraoClass(BaseQuery):
             in which case it is resolved using online services or as the appropriate
             `astropy.coordinates` object. ICRS coordinates may also be entered
             as a string.
-        radius : str or `astropy.units.Quantity` object, optional
+        radius : str or `~astropy.units.Quantity` object, optional
             The string must be parsable by `astropy.coordinates.Angle`. The appropriate
-            `Quantity` object from `astropy.units` may also be used. Defaults to 1 degree.
+            `~astropy.units.Quantity` object from `astropy.units` may also be used. Defaults to 1 degree.
         equinox : str, optional
             One of 'J2000' or 'B1950'. Defaults to 'J2000'.
         telescope : str, optional
@@ -85,10 +85,10 @@ class NraoClass(BaseQuery):
         end_date :  str, optional
             The ending date and time of the observations , e.g. 2010-06-21 14:20:30
             Decimal seconds are not allowed. Defaults to `None` for no constraints.
-        freq_low : `astropy.units.Quantity` object, optional
+        freq_low : `~astropy.units.Quantity` object, optional
             The lower frequency of the observations in proper units of frequency
             via `astropy.units`. Defaults to `None` for no constraints.
-        freq_up : `astropy.units.Quantity` object, optional
+        freq_up : `~astropy.units.Quantity` object, optional
             The upper frequency of the observations in proper units of frequency
             via `astropy.units`. Defaults to `None` for no constraints.
         telescope_config : str, optional

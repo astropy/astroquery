@@ -70,7 +70,7 @@ class NedClass(BaseQuery):
 
     def query_object_async(self, object_name, get_query_payload=False):
         """
-        Serves the same purpose as `Ned.query_object` but returns the raw HTTP response rather
+        Serves the same purpose as `~NedClass.query_object` but returns the raw HTTP response rather
         than the `astropy.table.Table` object.
 
         Parameters
@@ -109,9 +109,9 @@ class NedClass(BaseQuery):
             in which case it is resolved using online services or as the appropriate
             `astropy.coordinates` object. ICRS coordinates may also be entered as strings
             as specified in the `astropy.coordinates` module.
-        radius : str or `astropy.units.Quantity` object, optional
-            The string must be parsable by `astropy.coordinates.Angle`. The appropriate
-            `Quantity` object from `astropy.units` may also be used. Defaults to 1 arcmin.
+        radius : str or `~astropy.units.Quantity` object, optional
+            The string must be parsable by `~astropy.coordinates.Angle`. The appropriate
+            `~astropy.units.Quantity` object from `astropy.units` may also be used. Defaults to 1 arcmin.
         equinox : str, optional
             The equinox may be either J2000.0 or B1950.0. Defaults to J2000.0
         get_query_payload : bool, optional
@@ -136,7 +136,7 @@ class NedClass(BaseQuery):
 
     def query_region_async(self, coordinates, radius=1 * u.arcmin, equinox='J2000.0', get_query_payload=False):
         """
-        Serves the same purpose as `Ned.query_region` but returns the raw HTTP response rather
+        Serves the same purpose as `~NedClass.query_region` but returns the raw HTTP response rather
         than the `astropy.table.Table` object.
 
         Parameters
@@ -146,9 +146,9 @@ class NedClass(BaseQuery):
             in which case it is resolved using online services or as the appropriate
             `astropy.coordinates` object. ICRS coordinates may also be entered as strings
             as specified in the `astropy.coordinates` module.
-        radius : str or `astropy.units.Quantity` object, optional
+        radius : str or `~astropy.units.Quantity` object, optional
             The string must be parsable by `astropy.coordinates.Angle`. The appropriate
-            `Quantity` object from `astropy.units` may also be used. Defaults to 1 arcmin.
+            `~astropy.units.Quantity` object from `astropy.units` may also be used. Defaults to 1 arcmin.
         equinox : str, optional
             The equinox may be either J2000.0 or B1950.0. Defaults to J2000.0
         get_query_payload : bool, optional
@@ -230,7 +230,7 @@ class NedClass(BaseQuery):
     def query_region_iau_async(self, iau_name, frame='Equatorial', equinox='B1950.0',
                          get_query_payload=False):
         """
-        Serves the same purpose as `Ned.query_region_iau` but returns the raw HTTP response rather
+        Serves the same purpose as `~NedClass.query_region_iau` but returns the raw HTTP response rather
         than the `astropy.table.Table` object.
 
         Parameters
@@ -294,7 +294,7 @@ class NedClass(BaseQuery):
 
     def query_refcode_async(self, refcode, get_query_payload=False):
         """
-        Serves the same purpose as `Ned.query_region` but returns the raw HTTP response rather
+        Serves the same purpose as `~NedClass.query_region` but returns the raw HTTP response rather
         than the `astropy.table.Table` object.
 
         Parameters
@@ -345,7 +345,7 @@ class NedClass(BaseQuery):
 
     def get_images_async(self, object_name, get_query_payload=False):
         """
-        Serves the same purpose as `Ned.get_images` but returns file-handlers to
+        Serves the same purpose as `~NedClass.get_images` but returns file-handlers to
         the remote files rather than downloading them.
 
         Parameters
@@ -389,7 +389,7 @@ class NedClass(BaseQuery):
 
     def get_spectra_async(self, object_name, get_query_payload=False):
         """
-        Serves the same purpose as `Ned.get_spectra` but returns file-handlers to
+        Serves the same purpose as `~NedClass.get_spectra` but returns file-handlers to
         the remote files rather than downloading them.
 
         Parameters
@@ -507,7 +507,7 @@ class NedClass(BaseQuery):
 
     def get_table_async(self, object_name, table='photometry', get_query_payload=False, **kwargs):
         """
-        Serves the same purpose as `Ned.query_region` but returns the raw HTTP response rather
+        Serves the same purpose as `~NedClass.query_region` but returns the raw HTTP response rather
         than the `astropy.table.Table` object.
 
         Parameters
@@ -647,7 +647,7 @@ def _parse_radius(radius):
 
     Parameters
     ----------
-    radius : str, `astropy.units.Quantity`
+    radius : str, `~astropy.units.Quantity`
 
     Returns
     -------

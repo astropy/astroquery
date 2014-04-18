@@ -337,7 +337,7 @@ class SplatalogueClass(BaseQuery):
         """
         Returns
         -------
-        response : `requests.Response` object
+        response : `requests.Response`
             The response of the HTTP request.
         """
         # have to chomp this kwd here...
@@ -372,7 +372,7 @@ class SplatalogueClass(BaseQuery):
 
     def _parse_result(self, response, verbose=False):
         """
-        Parse a response into an astropy Table
+        Parse a response into an `~astropy.table.Table`
         """
 
         try:
@@ -390,7 +390,7 @@ class SplatalogueClass(BaseQuery):
     def get_fixed_table(self, columns=None):
         """
         Convenience function to get the table with html column names made human
-        readable.  It returns only the columns identified with the `columns`
+        readable.  It returns only the columns identified with the ``columns``
         keyword.  See the source for the defaults.
         """
         if columns is None:

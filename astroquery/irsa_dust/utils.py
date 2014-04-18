@@ -58,7 +58,7 @@ def parse_units(string):
 
     Returns
     -------
-    units : `astropy.units.Unit`
+    units : `~astropy.units.Unit`
         the units contained in the string
     """
     unit_str = string.split(None, 1)[1]
@@ -78,8 +78,10 @@ def find_result_node(desc, xml_tree):
 
     Parameters
     -----
-    xmlTree : the xml tree to search for the <result> node
-    desc : the text contained in the desc node
+    xmlTree : `xml.etree.ElementTree`
+        the xml tree to search for the <result> node
+    desc : string
+        the text contained in the desc node
 
     Returns
     -----
@@ -96,7 +98,7 @@ def find_result_node(desc, xml_tree):
 
 def xml(response):
     """
-    Parse raw xml and return as an xml tree. If status is not `ok`, raise an exception.
+    Parse raw xml and return as an xml tree. If status is not ``ok``, raise an exception.
 
     Parameters
     ----------

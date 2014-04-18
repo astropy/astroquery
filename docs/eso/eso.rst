@@ -22,7 +22,7 @@ Authentication with ESO User Portal
 
 Whereas querying the ESO database is fully open, accessing actual datasets requires
 authentication with the ESO User Portal (https://www.eso.org/sso/login).
-This authentication is performed directly with the provided `login()` command,
+This authentication is performed directly with the provided :meth:`~astroquery.query.QueryWithLogin.login` command,
 as illustrated in the example below. This method uses your keyring to securely
 store the password in your operating system. As such you should have to enter your
 correct password only once, and later be able to use this package for automated

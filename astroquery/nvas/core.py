@@ -38,7 +38,7 @@ class NvasClass(BaseQuery):
     def get_images(self, coordinates, radius=0.25 * u.arcmin, max_rms=10000,
                    band="all", get_uvfits=False, verbose=True, get_query_payload=False):
         """
-        Get an image around a target/ coordinates from the NVAS image archive
+        Get an image around a target/ coordinates from the NVAS image archive.
 
         Parameters
         ----------
@@ -47,9 +47,9 @@ class NvasClass(BaseQuery):
             in which case it is resolved using online services or as the appropriate
             `astropy.coordinates` object. ICRS coordinates may also be entered as strings
             as specified in the `astropy.coordinates` module.
-        radius : str or `astropy.units.Quantity` object, optional
-            The string must be parsable by `astropy.coordinates.Angle`. The appropriate
-            `Quantity` object from `astropy.units` may also be used. Defaults to 0.25 arcmin.
+        radius : str or `~astropy.units.Quantity` object, optional
+            The string must be parsable by `~astropy.coordinates.Angle`. The appropriate
+            `~astropy.units.Quantity` object from `astropy.units` may also be used. Defaults to 0.25 arcmin.
         max_rms : float, optional
             Maximum allowable noise level in the image (mJy). Defaults to 10000 mJy.
         band : str, optional
@@ -81,8 +81,8 @@ class NvasClass(BaseQuery):
     def get_images_async(self, coordinates, radius=0.25 * u.arcmin, max_rms=10000,
                          band="all", get_uvfits=False, verbose=True, get_query_payload=False):
         """
-        Serves the same purpose as :meth:`~astroquery.nvas.core.Nvas.get_images` but
-        returns a list of file handlers to remote files
+        Serves the same purpose as `get_images` but
+        returns a list of file handlers to remote files.
 
         Parameters
         ----------
@@ -91,9 +91,9 @@ class NvasClass(BaseQuery):
             in which case it is resolved using online services or as the appropriate
             `astropy.coordinates` object. ICRS coordinates may also be entered as strings
             as specified in the `astropy.coordinates` module.
-        radius : str or `astropy.units.Quantity` object, optional
-            The string must be parsable by `astropy.coordinates.Angle`. The appropriate
-            `Quantity` object from `astropy.units` may also be used. Defaults to 0.25 arcmin.
+        radius : str or `~astropy.units.Quantity` object, optional
+            The string must be parsable by `~astropy.coordinates.Angle`. The appropriate
+            `~astropy.units.Quantity` object from `astropy.units` may also be used. Defaults to 0.25 arcmin.
         max_rms : float, optional
             Maximum allowable noise level in the image (mJy). Defaults to 10000 mJy.
         band : str, optional
@@ -136,9 +136,9 @@ class NvasClass(BaseQuery):
             in which case it is resolved using online services or as the appropriate
             `astropy.coordinates` object. ICRS coordinates may also be entered as strings
             as specified in the `astropy.coordinates` module.
-        radius : str or `astropy.units.Quantity` object, optional
-            The string must be parsable by `astropy.coordinates.Angle`. The appropriate
-            `Quantity` object from `astropy.units` may also be used. Defaults to 0.25 arcmin.
+        radius : str or `~astropy.units.Quantity` object, optional
+            The string must be parsable by `~astropy.coordinates.Angle`. The appropriate
+            `~astropy.units.Quantity` object from `astropy.units` may also be used. Defaults to 0.25 arcmin.
         max_rms : float, optional
             Maximum allowable noise level in the image (mJy). Defaults to 10000 mJy.
         band : str, optional
@@ -232,7 +232,7 @@ def _parse_radius(radius):
 
     Parameters
     ----------
-    radius : str, `astropy.units.Quantity`
+    radius : str, `~astropy.units.Quantity`
 
     Returns
     -------

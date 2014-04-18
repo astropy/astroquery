@@ -69,9 +69,9 @@ class SDSSClass(BaseQuery):
             appropriate `astropy.coordinates` object. ICRS coordinates may also
             be entered as strings as specified in the `astropy.coordinates`
             module.
-        radius : str or `astropy.units.Quantity` object, optional
-            The string must be parsable by `astropy.coordinates.Angle`. The
-            appropriate `Quantity` object from `astropy.units` may also be
+        radius : str or `~astropy.units.Quantity` object, optional
+            The string must be parsable by `~astropy.coordinates.Angle`. The
+            appropriate `~astropy.units.Quantity` object from `astropy.units` may also be
             used. Defaults to 2 arcsec.
         fields : list, optional
             SDSS PhotoObj or SpecObj quantities to return. If None, defaults
@@ -84,7 +84,7 @@ class SDSSClass(BaseQuery):
             only.
         timeout : float, optional
             Time limit (in seconds) for establishing successful connection with
-            remote server.  Defaults to `astroquery.sdss.SDSS.TIMEOUT`.
+            remote server.  Defaults to `SDSSClass.TIMEOUT`.
 
         Examples
         --------
@@ -141,7 +141,7 @@ class SDSSClass(BaseQuery):
             of matched objects (e.g. plate, fiberID, mjd, etc.).
         timeout : float, optional
             Time limit (in seconds) for establishing successful connection with
-            remote server.  Defaults to `astroquery.sdss.SDSS.TIMEOUT`.
+            remote server.  Defaults to `SDSSClass.TIMEOUT`.
 
         Examples
         --------
@@ -204,7 +204,7 @@ class SDSSClass(BaseQuery):
             of matched objects (e.g. plate, fiberID, mjd, etc.).
         timeout : float, optional
             Time limit (in seconds) for establishing successful connection with
-            remote server.  Defaults to `astroquery.sdss.SDSS.TIMEOUT`.
+            remote server.  Defaults to `SDSSClass.TIMEOUT`.
 
         Examples
         --------
@@ -249,9 +249,9 @@ class SDSSClass(BaseQuery):
         ----------
         The query can be made with one the following groups of parameters
         (whichever comes first is used):
-          - `matches` (result of a call to `query_region`);
-          - `coordinates`, `radius`;
-          - `plate`, `mjd`, `fiberID`.
+          - ``matches`` (result of a call to `query_region`);
+          - ``coordinates``, ``radius``;
+          - ``plate``, ``mjd``, ``fiberID``.
         See below for examples.
 
         coordinates : str or `astropy.coordinates` object
@@ -260,11 +260,11 @@ class SDSSClass(BaseQuery):
             appropriate `astropy.coordinates` object. ICRS coordinates may also
             be entered as strings as specified in the `astropy.coordinates`
             module.
-        radius : str or `astropy.units.Quantity` object, optional
-            The string must be parsable by `astropy.coordinates.Angle`. The
-            appropriate `Quantity` object from `astropy.units` may also be
+        radius : str or `~astropy.units.Quantity` object, optional
+            The string must be parsable by `~astropy.coordinates.Angle`. The
+            appropriate `~astropy.units.Quantity` object from `astropy.units` may also be
             used. Defaults to 2 arcsec.
-        matches : astropy.table.Table instance
+        matches : astropy.table.Table
             Result of `query_region`.
         plate : integer, optional
             Plate number.
@@ -275,13 +275,13 @@ class SDSSClass(BaseQuery):
             Fiber number.
         timeout : float, optional
             Time limit (in seconds) for establishing successful connection with
-            remote server.  Defaults to `astroquery.sdss.SDSS.TIMEOUT`.
+            remote server.  Defaults to `SDSSClass.TIMEOUT`.
 
         Returns
         -------
         A list of context-managers that yield readable file-like objects. The
-        function returns the spectra for only one of `matches`, or
-        `coordinates` and `radius`, or `plate`, `mjd` and `fiberID`.
+        function returns the spectra for only one of ``matches``, or
+        ``coordinates`` and ``radius``, or ``plate``, ``mjd`` and ``fiberID``.
 
         Examples
         --------
@@ -361,9 +361,9 @@ class SDSSClass(BaseQuery):
         ----------
         The query can be made with one the following groups of parameters
         (whichever comes first is used):
-          - `matches` (result of a call to `query_region`);
-          - `coordinates`, `radius`;
-          - `run`, `rerun`, `camcol`, `field`.
+          - ``matches`` (result of a call to `query_region`);
+          - ``coordinates``, ``radius``;
+          - ``run``, ``rerun``, ``camcol``, ``field``.
         See below for examples.
 
         coordinates : str or `astropy.coordinates` object
@@ -372,11 +372,11 @@ class SDSSClass(BaseQuery):
             appropriate `astropy.coordinates` object. ICRS coordinates may also
             be entered as strings as specified in the `astropy.coordinates`
             module.
-        radius : str or `astropy.units.Quantity` object, optional
-            The string must be parsable by `astropy.coordinates.Angle`. The
-            appropriate `Quantity` object from `astropy.units` may also be
+        radius : str or `~astropy.units.Quantity` object, optional
+            The string must be parsable by `~astropy.coordinates.Angle`. The
+            appropriate `~astropy.units.Quantity` object from `astropy.units` may also be
             used. Defaults to 2 arcsec.
-        matches : astropy.table.Table instance
+        matches : astropy.table.Table
             Result of `query_region`.
         run : integer, optional
             Length of a strip observed in a single continuous image observing
@@ -393,11 +393,11 @@ class SDSSClass(BaseQuery):
             Options: u, g, r, i, or z
         timeout : float, optional
             Time limit (in seconds) for establishing successful connection with
-            remote server.  Defaults to `astroquery.sdss.SDSS.TIMEOUT`.
+            remote server.  Defaults to `SDSSClass.TIMEOUT`.
 
         Returns
         -------
-        List of PyFITS HDUList objects.
+        List of `~astropy.io.fits.HDUList` objects.
 
         Examples
         --------
@@ -471,9 +471,9 @@ class SDSSClass(BaseQuery):
 
     def get_spectral_template_async(self, kind='qso', timeout=TIMEOUT):
         """
-        Download spectral templates from SDSS DR-2, which are located here:
-
-            http://www.sdss.org/dr7/algorithms/spectemplates/
+        Download spectral templates from SDSS DR-2.
+        
+        Location: http://www.sdss.org/dr7/algorithms/spectemplates/
 
         There 32 spectral templates available from DR-2, from stellar spectra,
         to galaxies, to quasars. To see the available templates, do:
@@ -488,7 +488,7 @@ class SDSSClass(BaseQuery):
             dictionary astroquery.sdss.SDSS.AVAILABLE_TEMPLATES
         timeout : float, optional
             Time limit (in seconds) for establishing successful connection with
-            remote server.  Defaults to `astroquery.sdss.SDSS.TIMEOUT`.
+            remote server.  Defaults to `SDSSClass.TIMEOUT`.
 
         Examples
         --------
@@ -578,9 +578,9 @@ class SDSSClass(BaseQuery):
             appropriate `astropy.coordinates` object. ICRS coordinates may also
             be entered as strings as specified in the `astropy.coordinates`
             module.
-        radius : str or `astropy.units.Quantity` object, optional
-            The string must be parsable by `astropy.coordinates.Angle`. The
-            appropriate `Quantity` object from `astropy.units` may also be
+        radius : str or `~astropy.units.Quantity` object, optional
+            The string must be parsable by `~astropy.coordinates.Angle`. The
+            appropriate `~astropy.units.Quantity` object from `astropy.units` may also be
             used. Defaults to 2 arcsec.
         fields : list, optional
             SDSS PhotoObj or SpecObj quantities to return. If None, defaults

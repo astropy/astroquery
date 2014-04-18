@@ -84,7 +84,7 @@ class OgleClass(BaseQuery):
                 * 'GOOD': QF=0 as described in Nataf et al. (2012).
 
         coord_sys : string
-            Coordinate system if using lists of RA/Decs in `coord`. Valid options::
+            Coordinate system if using lists of RA/Decs in ``coord``. Valid options::
 
                 * 'RD': equatorial coordinates
                 * 'LB': Galactic coordinates.
