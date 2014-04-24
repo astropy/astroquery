@@ -156,7 +156,8 @@ class EsoClass(QueryWithLogin):
         return self._survey_list
 
     def query_survey(self, survey, **kwargs):
-        """ Query survey Phase 3 data contained in the ESO archive.
+        """
+        Query survey Phase 3 data contained in the ESO archive.
 
         Parameters
         ----------
@@ -173,6 +174,7 @@ class EsoClass(QueryWithLogin):
             ROW_LIMIT configuration item.
 
         """
+
         if survey not in self.list_surveys():
             raise ValueError("Survey %s is not in the survey list." % survey)
         url = "http://archive.eso.org/wdb/wdb/adp/phase3_main/form"
@@ -186,11 +188,16 @@ class EsoClass(QueryWithLogin):
             query_dict["max_rows_returned"] = 10000
         survey_response = self._activate_form(survey_form, form_index=0,
                                               inputs=query_dict)
-        table = ascii.read(StringIO(survey_response.content.decode(survey_response.encoding)),format='csv',comment='#',delimiter=',',header_start=1)
-        return table
+
+        if b"# No data returned !" not in survey_response.content:
+            table = ascii.read(StringIO(survey_response.content.decode(
+                               survey_response.encoding)), format='csv',
+                               comment='#', delimiter=',', header_start=1)
+            return table
 
     def query_instrument(self, instrument, open_form=False, **kwargs):
-        """ Query instrument specific raw data contained in the ESO archive.
+        """
+        Query instrument specific raw data contained in the ESO archive.
 
         Parameters
         ----------
@@ -210,6 +217,7 @@ class EsoClass(QueryWithLogin):
             ROW_LIMIT configuration item.
 
         """
+
         url = "http://archive.eso.org/wdb/wdb/eso/{0}/form".format(instrument)
         table = None
         if open_form:
@@ -237,7 +245,8 @@ class EsoClass(QueryWithLogin):
         return table
 
     def get_headers(self, product_ids):
-        """ Get the headers associated to a list of data product IDs
+        """
+        Get the headers associated to a list of data product IDs
 
         This method returns a `~astropy.table.Table` where the rows correspond
         to the provided data product IDs, and the columns are from each of
@@ -255,7 +264,9 @@ class EsoClass(QueryWithLogin):
         -------
         result : `~astropy.table.Table`
             A table where: columns are header keywords, rows are product_ids.
+
         """
+
         _schema_product_ids = schema.Schema(schema.Or(Column, [basestring]))
         _schema_product_ids.validate(product_ids)
         # Get all headers
@@ -303,7 +314,8 @@ class EsoClass(QueryWithLogin):
         return Table(result)
 
     def data_retrieval(self, datasets):
-        """ Retrieve a list of datasets form the ESO archive.
+        """
+        Retrieve a list of datasets form the ESO archive.
 
         Parameters
         ----------
