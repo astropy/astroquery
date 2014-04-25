@@ -48,22 +48,23 @@ class EsoClass(QueryWithLogin):
                 fmt = 'post'  # post(url, params=payload)
         # Extract payload from form
         payload = []
-        for key in form.inputs.keys():
+        for form_input in form.inputs:
+            key = form_input.name
             value = None
             is_file = False
-            if isinstance(form.inputs[key], html.InputElement):
-                value = form.inputs[key].value
-                if 'type' in form.inputs[key].attrib:
-                    is_file = (form.inputs[key].attrib['type'] == 'file')
-            elif isinstance(form.inputs[key], html.SelectElement):
-                if isinstance(form.inputs[key].value, html.MultipleSelectOptions):
+            if isinstance(form_input, html.InputElement):
+                value = form_input.value
+                if 'type' in form_input.attrib:
+                    is_file = (form_input.attrib['type'] == 'file')
+            elif isinstance(form_input, html.SelectElement):
+                if isinstance(form_input.value, html.MultipleSelectOptions):
                     value = []
-                    for v in form.inputs[key].value:
+                    for v in form_input.value:
                         value += [v]
                 else:
-                    value = form.inputs[key].value
+                    value = form_input.value
                     if value is None:
-                        value = form.inputs[key].value_options[0]
+                        value = form_input.value_options[0]
             if key in inputs.keys():
                 value = "{0}".format(inputs[key])
             if value is not None:
