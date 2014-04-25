@@ -67,7 +67,7 @@ class EsoClass(QueryWithLogin):
                         value = form_input.value_options[0]
             if key in inputs.keys():
                 value = "{0}".format(inputs[key])
-            if value is not None:
+            if (key is not None) and (value is not None):
                 if fmt == 'multipart/form-data':
                     if is_file:
                         payload += [(key, ('', '', 'application/octet-stream'))]
