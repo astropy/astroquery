@@ -11,7 +11,7 @@ def append_docstr(doc):
 
 
 def prepend_docstr_noreturns(doc):
-    """ Decorator to prepend to the function's docstr after stripping out the "Returns" """
+    """ Decorator to prepend to the function's docstr after stripping out the "Returns". """
     def dec(fn):
         fn.__doc__ = "\n".join(remove_returns(doc)) + textwrap.dedent(fn.__doc__)
         return fn
@@ -21,7 +21,7 @@ def prepend_docstr_noreturns(doc):
 def remove_returns(doc):
     """
     Given a numpy-formatted docstring, remove the "Returns" block
-    and dedent the whole thing
+    and dedent the whole thing.
 
     Returns
     -------

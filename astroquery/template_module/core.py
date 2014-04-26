@@ -59,8 +59,8 @@ class DummyClass(BaseQuery):
 
         Returns
         -------
-        result : `astropy.table.Table`
-            The result of the query as an `astropy.table.Table` object.
+        result : `~astropy.table.Table`
+            The result of the query as a `~astropy.table.Table` object.
             All queries other than image queries should typically return
             results like this.
 
@@ -173,8 +173,8 @@ class DummyClass(BaseQuery):
 
         Returns
         -------
-        result : `astropy.table.Table`
-            The result of the query as an `astropy.table.Table` object.
+        result : `~astropy.table.Table`
+            The result of the query as a `~astropy.table.Table` object.
             All queries other than image queries should typically return
             results like this.
         """

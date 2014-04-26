@@ -60,8 +60,8 @@ def async_to_sync_docstr(doc, returntype='table'):
     table" code
     """
 
-    object_dict = {'table':'astropy.table.Table',
-                   'fits':'astropy.io.fits.PrimaryHDU',
+    object_dict = {'table':'~astropy.table.Table',
+                   'fits':'~astropy.io.fits.PrimaryHDU',
                    'dict':'dict'}
 
     firstline = "Queries the service and returns a {rt} object.\n".format(rt=returntype)
@@ -73,8 +73,9 @@ def async_to_sync_docstr(doc, returntype='table'):
     returnstr = """
                 Returns
                 -------
-                A{n} `{ot}` object
-                """.format(n=n,ot=object_dict[returntype]).lstrip('\n')
+                {rtype} : A{n} `{ot}` object.
+                """.format(rtype=returntype, n=n,
+                           ot=object_dict[returntype]).lstrip('\n')
 
     # all docstrings have a blank first line
     # strip it out, so that we can prepend

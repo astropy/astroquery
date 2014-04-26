@@ -13,8 +13,19 @@ This is a python interface for querying the ESO archive web service.
 For now, it supports the following:
 
 - listing available instruments
+- listing available surveys (phase 3)
 - searching all instrument specific raw data: http://archive.eso.org/cms/eso-data/instrument-specific-query-forms.html
+- searching data products (phase 3): http://archive.eso.org/wdb/wdb/adp/phase3_main/form
 - downloading data by dataset identifiers: http://archive.eso.org/cms/eso-data/eso-data-direct-retrieval.html
+
+
+Requirements
+------------
+
+The following packages are required for the use of this module:
+
+* keyring
+* lxml
 
 
 Authentication with ESO User Portal
@@ -34,12 +45,12 @@ interaction with the ESO archive.
     >>> eso = Eso()
     >>> eso.login("TEST")
     TEST, enter your ESO password:
-    
+
     Authenticating TEST on www.eso.org...
     Authentication failed!
     >>> eso.login("ICONDOR")
     ICONDOR, enter your ESO password:
-    
+
     Authenticating ICONDOR on www.eso.org...
     Authentication successful!
     >>> eso.login("ICONDOR")
@@ -95,7 +106,7 @@ In the next step, the first dataset is selected, using its data product ID, and 
     >>> data_files = eso.data_retrieval([data_product_id])
     Downloading AMBER.2006-03-14T07:40:03.741.fits.Z...
     Done!
-    
+
     >>> print(data_files)
     ['AMBER.2006-03-14T07:40:03.741.fits.Z']
 
@@ -115,7 +126,7 @@ This method is detailed in the example below, continuing with the previously obt
 
     >>> table_headers = eso.get_headers(table['DP.ID'])
     >>> table_headers.pprint()
-                 ARCFILE               BITPIX ...    TELESCOP      UTC   
+                 ARCFILE               BITPIX ...    TELESCOP      UTC
     ---------------------------------- ------ ... ------------- ---------
     AMBER.2006-03-14T07:40:03.741.fits     16 ... ESO-VLTI-U134   27600.0
     AMBER.2006-03-14T07:40:19.830.fits     16 ... ESO-VLTI-U134   27616.0

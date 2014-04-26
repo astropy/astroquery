@@ -18,15 +18,15 @@ from . import UKIDSS_SERVER, UKIDSS_TIMEOUT
 from ..exceptions import TableParseError
 from ..extern.six import BytesIO
 
-__all__ = ['Ukidss','UkidssClass','clean_catalog']
-
+__all__ = ['Ukidss', 'UkidssClass', 'clean_catalog']
 
 
 def validate_frame(func):
     def wrapper(*args, **kwargs):
         frame_type = kwargs.get('frame_type')
         if frame_type not in UkidssClass.frame_types:
-            raise ValueError("Invalid frame type. Valid frame types are: {!s}".format(UkidssClass.frame_types))
+            raise ValueError("Invalid frame type. Valid frame types are: {!s}"
+                             .format(UkidssClass.frame_types))
         return func(*args, **kwargs)
     return wrapper
 
@@ -35,7 +35,8 @@ def validate_filter(func):
     def wrapper(*args, **kwargs):
         waveband = kwargs.get('waveband')
         if waveband not in UkidssClass.filters:
-            raise ValueError("Invalid waveband. Valid wavebands are: {!s}".format(UkidssClass.filters.keys()))
+            raise ValueError("Invalid waveband. Valid wavebands are: {!s}"
+                             .format(UkidssClass.filters.keys()))
         return func(*args, **kwargs)
     return wrapper
 
@@ -55,16 +56,17 @@ class UkidssClass(QueryWithLogin):
     TIMEOUT = UKIDSS_TIMEOUT()
 
     filters = {'all': 'all', 'J': 3, 'H': 4, 'K': 5, 'Y': 2,
-              'Z': 1, 'H2': 6, 'Br': 7}
+               'Z': 1, 'H2': 6, 'Br': 7}
 
-    frame_types = {'stack': 'stack', 'normal': 'normal', 'interleave': 'leav', 'deep_stack': 'deep%stack', 'confidence': 'conf',
-               'difference': 'diff', 'leavstack': 'leavstack', 'all': 'all'}
+    frame_types = {'stack': 'stack', 'normal': 'normal', 'interleave': 'leav',
+                   'deep_stack': 'deep%stack', 'confidence': 'conf',
+                   'difference': 'diff', 'leavstack': 'leavstack', 'all': 'all'}
 
     ukidss_programmes_short = {'LAS': 101,
-                             'GPS': 102,
-                             'GCS': 103,
-                             'DXS': 104,
-                             'UDS': 105,}
+                               'GPS': 102,
+                               'GCS': 103,
+                               'DXS': 104,
+                               'UDS': 105, }
 
     ukidss_programmes_long = {'Large Area Survey': 101,
                               'Galactic Plane Survey': 102,
@@ -78,7 +80,8 @@ class UkidssClass(QueryWithLogin):
                  "UKIDSSDR1", "UKIDSSEDRPLUS", "UKIDSSEDR", "UKIDSSSV",
                  "WFCAMCAL08B")
 
-    def __init__(self, username=None, password=None, community=None, database='UKIDSSDR7PLUS', programme_id='all'):
+    def __init__(self, username=None, password=None, community=None,
+                 database='UKIDSSDR7PLUS', programme_id='all'):
         self.database = database
         self.programme_id = programme_id  # 102 = GPS
         self.session = None
@@ -117,7 +120,7 @@ class UkidssClass(QueryWithLogin):
         """
         Determine whether currently logged in.
         """
-        if self.session == None:
+        if self.session is None:
             return False
         for cookie in self.session.cookies:
             if cookie.is_expired():
@@ -142,13 +145,13 @@ class UkidssClass(QueryWithLogin):
     def _parse_system(self, system):
         if system is None:
             return 'J'
-        elif system.lower() in ('g','gal','galactic'):
+        elif system.lower() in ('g', 'gal', 'galactic'):
             return 'G'
-        elif system.lower() in ('j','j2000','celestical','radec'):
+        elif system.lower() in ('j', 'j2000', 'celestical', 'radec'):
             return 'J'
 
     def get_images(self, coordinates, waveband='all', frame_type='stack',
-                   image_width=1*u.arcmin, image_height=None, radius=None,
+                   image_width=1 * u.arcmin, image_height=None, radius=None,
                    database='UKIDSSDR7PLUS', programme_id='all',
                    verbose=True, get_query_payload=False):
         """
@@ -157,40 +160,49 @@ class UkidssClass(QueryWithLogin):
         Parameters
         ----------
         coordinates : str or `astropy.coordinates` object
-            The target around which to search. It may be specified as a string
-            in which case it is resolved using online services or as the appropriate
-            `astropy.coordinates` object. ICRS coordinates may also be entered as strings
-            as specified in the `astropy.coordinates` module.
+            The target around which to search. It may be specified as a
+            string in which case it is resolved using online services or as
+            the appropriate `astropy.coordinates` object. ICRS coordinates
+            may also be entered as strings as specified in the
+            `astropy.coordinates` module.
         waveband  : str
-            The color filter to download. Must be one of  ['all','J','H','K','H2','Z','Y','Br'].
+            The color filter to download. Must be one of  ``'all'``, ``'J'``,
+            ``'H'``, ``'K'``, ``'H2'``, ``'Z'``, ``'Y'``, ``'Br'``].
         frame_type : str
-            The type of image. Must be one of
-            ['stack','normal','interleave','deep_stack','confidence','difference', 'leavstack', 'all']
+            The type of image. Must be one of ``'stack'``, ``'normal'``,
+            ``'interleave'``, ``'deep_stack'``, ``'confidence'``,
+            ``'difference'``, ``'leavstack'``, ``'all'``]
         image_width : str or `~astropy.units.Quantity` object, optional
-            The image size (along X). Cannot exceed 15 arcmin. If missing, defaults to 1 arcmin.
+            The image size (along X). Cannot exceed 15 arcmin. If missing,
+            defaults to 1 arcmin.
         image_height : str or `~astropy.units.Quantity` object, optional
-             The image size (along Y). Cannot exceed 90 arcmin. If missing, same as image_width.
+             The image size (along Y). Cannot exceed 90 arcmin. If missing,
+             same as image_width.
         radius : str or `~astropy.units.Quantity` object, optional
-            The string must be parsable by `~astropy.coordinates.Angle`. The appropriate
-            `~astropy.units.Quantity` object from `astropy.units` may also be used. When missing only image
-            around the given position rather than multi-frames are retrieved.
+            The string must be parsable by `~astropy.coordinates.Angle`. The
+            appropriate `~astropy.units.Quantity` object from `astropy.units`
+            may also be used. When missing only image around the given position
+            rather than multi-frames are retrieved.
         programme_id : str
-            The survey or programme in which to search for
+            The survey or programme in which to search for.
         database : str
-            The UKIDSS database to use
+            The UKIDSS database to use.
         verbose : bool
             Defaults to `True`. When `True` prints additional messages.
         get_query_payload : bool, optional
-            if set to `True` then returns the dictionary sent as the HTTP request.
-            Defaults to `False`
+            If `True` then returns the dictionary sent as the HTTP request.
+            Defaults to `False`.
 
         Returns
         -------
-        A list of `~astropy.io.fits.HDUList` objects
+        list : A list of `~astropy.io.fits.HDUList` objects.
         """
-        readable_objs = self.get_images_async(coordinates, waveband=waveband, frame_type=frame_type,
-                                              image_width=image_width, image_height=image_height,
-                                              database=database, programme_id=programme_id,
+        readable_objs = self.get_images_async(coordinates, waveband=waveband,
+                                              frame_type=frame_type,
+                                              image_width=image_width,
+                                              image_height=image_height,
+                                              database=database,
+                                              programme_id=programme_id,
                                               radius=radius, verbose=verbose,
                                               get_query_payload=get_query_payload)
         if get_query_payload:
@@ -198,52 +210,61 @@ class UkidssClass(QueryWithLogin):
         return [obj.get_fits() for obj in readable_objs]
 
     def get_images_async(self, coordinates, waveband='all', frame_type='stack',
-                         image_width=1* u.arcmin, image_height=None, radius=None,
+                         image_width=1 * u.arcmin, image_height=None, radius=None,
                          database='UKIDSSDR7PLUS', programme_id='all',
                          verbose=True, get_query_payload=False):
         """
         Serves the same purpose as `get_images` but
-        returns a list of file handlers to remote files
+        returns a list of file handlers to remote files.
 
         Parameters
         ----------
         coordinates : str or `astropy.coordinates` object
-            The target around which to search. It may be specified as a string
-            in which case it is resolved using online services or as the appropriate
-            `astropy.coordinates` object. ICRS coordinates may also be entered as strings
-            as specified in the `astropy.coordinates` module.
+            The target around which to search. It may be specified as a
+            string in which case it is resolved using online services or as
+            the appropriate `astropy.coordinates` object. ICRS coordinates
+            may also be entered as strings as specified in the
+            `astropy.coordinates` module.
         waveband  : str
-            The color filter to download. Must be one of  ['all','J','H','K','H2','Z','Y','Br'].
+            The color filter to download. Must be one of  ``'all'``, ``'J'``,
+            ``'H'``, ``'K'``, ``'H2'``, ``'Z'``, ``'Y'``, ``'Br'``].
         frame_type : str
-            The type of image. Must be one of
-            ['stack','normal','interleave','deep_stack','confidence','difference', 'leavstack', 'all']
+            The type of image. Must be one of ``'stack'``, ``'normal'``,
+            ``'interleave'``, ``'deep_stack'``, ``'confidence'``,
+            ``'difference'``, ``'leavstack'``, ``'all'``]
         image_width : str or `~astropy.units.Quantity` object, optional
-            The image size (along X). Cannot exceed 15 arcmin. If missing, defaults to 1 arcmin.
+            The image size (along X). Cannot exceed 15 arcmin. If missing,
+            defaults to 1 arcmin.
         image_height : str or `~astropy.units.Quantity` object, optional
-             The image size (along Y). Cannot exceed 90 arcmin. If missing, same as image_width.
+             The image size (along Y). Cannot exceed 90 arcmin. If missing,
+             same as image_width.
         radius : str or `~astropy.units.Quantity` object, optional
-            The string must be parsable by `~astropy.coordinates.Angle`. The appropriate
-            `~astropy.units.Quantity` object from `astropy.units` may also be used. When missing only image
-            around the given position rather than multi-frames are retrieved.
+            The string must be parsable by `~astropy.coordinates.Angle`. The
+            appropriate `~astropy.units.Quantity` object from `astropy.units`
+            may also be used. When missing only image around the given position
+            rather than multi-frames are retrieved.
         programme_id : str
-            The survey or programme in which to search for.  See `list_catalogs`.
+            The survey or programme in which to search for. See `list_catalogs`.
         database : str
             The UKIDSS database to use.
         verbose : bool
             Defaults to `True`. When `True` prints additional messages.
         get_query_payload : bool, optional
-            if set to `True` then returns the dictionary sent as the HTTP request.
-            Defaults to `False`
+            If `True` then returns the dictionary sent as the HTTP request.
+            Defaults to `False`.
 
         Returns
         -------
-        A list of context-managers that yield readable file-like objects
+        list : A list of context-managers that yield readable file-like objects.
         """
 
-        image_urls = self.get_image_list(coordinates, waveband=waveband, frame_type=frame_type,
-                                        image_width=image_width, image_height=image_height,
-                                        database=database, programme_id=programme_id,
-                                        radius=radius, get_query_payload=get_query_payload)
+        image_urls = self.get_image_list(coordinates, waveband=waveband,
+                                         frame_type=frame_type,
+                                         image_width=image_width,
+                                         image_height=image_height,
+                                         database=database, radius=radius,
+                                         programme_id=programme_id,
+                                         get_query_payload=get_query_payload)
         if get_query_payload:
             return image_urls
 
@@ -255,50 +276,58 @@ class UkidssClass(QueryWithLogin):
     @validate_frame
     @validate_filter
     def get_image_list(self, coordinates, waveband='all', frame_type='stack',
-                       image_width=1* u.arcmin, image_height=None, radius=None,
+                       image_width=1 * u.arcmin, image_height=None, radius=None,
                        database='UKIDSSDR7PLUS', programme_id='all',
                        get_query_payload=False):
         """
-        Function that returns a list of urls from which to download the FITS images.
+        Function that returns a list of urls from which to download the FITS
+        images.
 
         Parameters
         ----------
         coordinates : str or `astropy.coordinates` object
-            The target around which to search. It may be specified as a string
-            in which case it is resolved using online services or as the appropriate
-            `astropy.coordinates` object. ICRS coordinates may also be entered as strings
-            as specified in the `astropy.coordinates` module.
+            The target around which to search. It may be specified as a
+            string in which case it is resolved using online services or as
+            the appropriate `astropy.coordinates` object. ICRS coordinates
+            may also be entered as strings as specified in the
+            `astropy.coordinates` module.
         waveband  : str
-            The color filter to download. Must be one of  ['all','J','H','K','H2','Z','Y','Br'].
+            The color filter to download. Must be one of  ``'all'``, ``'J'``,
+            ``'H'``, ``'K'``, ``'H2'``, ``'Z'``, ``'Y'``, ``'Br'``].
         frame_type : str
-            The type of image. Must be one of
-            ['stack','normal','interleave','deep_stack','confidence','difference', 'leavstack', 'all']
+            The type of image. Must be one of ``'stack'``, ``'normal'``,
+            ``'interleave'``, ``'deep_stack'``, ``'confidence'``,
+            ``'difference'``, ``'leavstack'``, ``'all'``]
         image_width : str or `~astropy.units.Quantity` object, optional
-            The image size (along X). Cannot exceed 15 arcmin. If missing, defaults to 1 arcmin.
+            The image size (along X). Cannot exceed 15 arcmin. If missing,
+            defaults to 1 arcmin.
         image_height : str or `~astropy.units.Quantity` object, optional
-             The image size (along Y). Cannot exceed 90 arcmin. If missing, same as image_width.
+             The image size (along Y). Cannot exceed 90 arcmin. If missing,
+             same as image_width.
         radius : str or `~astropy.units.Quantity` object, optional
-            The string must be parsable by `~astropy.coordinates.Angle`. The appropriate
-            `~astropy.units.Quantity` object from `astropy.units` may also be used. When missing only image
-            around the given position rather than multi-frames are retrieved.
+            The string must be parsable by `~astropy.coordinates.Angle`. The
+            appropriate `~astropy.units.Quantity` object from
+            `astropy.units` may also be used. When missing only image around
+            the given position rather than multi-frames are retrieved.
         programme_id : str
-            The survey or programme in which to search for.  See `list_catalogs`.
+            The survey or programme in which to search for. See `list_catalogs`.
         database : str
-            The UKIDSS database to use
+            The UKIDSS database to use.
         verbose : bool
             Defaults to `True`. When `True` prints additional messages.
         get_query_payload : bool, optional
-            if set to `True` then returns the dictionary sent as the HTTP request.
-            Defaults to `False`
+            If `True` then returns the dictionary sent as the HTTP request.
+            Defaults to `False`.
 
         Returns
         -------
-        list of image urls
+        url_list : list of image urls
 
         """
 
         request_payload = self._args_to_payload(coordinates, database=database,
-                                                programme_id=programme_id, query_type='image')
+                                                programme_id=programme_id,
+                                                query_type='image')
         request_payload['filterID'] = self.filters[waveband]
         request_payload['obsType'] = 'object'
         request_payload['frameType'] = self.frame_types[frame_type]
@@ -340,22 +369,25 @@ class UkidssClass(QueryWithLogin):
         image_urls = self.extract_urls(response.content)
         # different links for radius queries and simple ones
         if radius is not None:
-            image_urls = [link for link in image_urls if ('fits_download' in link
-                                                          and '_cat.fits' not in link
-                                                          and '_two.fit' not in link)]
+            image_urls = [link for link in image_urls if ('fits_download' in
+                                                          link and '_cat.fits'
+                                                          not in link and
+                                                          '_two.fit' not in link)]
         else:
-            image_urls = [link.replace("getImage", "getFImage") for link in image_urls]
+            image_urls = [link.replace("getImage", "getFImage")
+                          for link in image_urls]
 
         return image_urls
 
     def extract_urls(self, html_in):
         """
-        Helper function that uses reges to extract the image urls from the given HTML.
+        Helper function that uses reges to extract the image urls from the
+        given HTML.
 
         Parameters
         ----------
         html_in : str
-            source from which the urls are to be extracted
+            source from which the urls are to be extracted.
 
         Returns
         -------
@@ -371,39 +403,44 @@ class UkidssClass(QueryWithLogin):
             links = ahref.findall(html_in.decode())
         return links
 
-    def query_region(self, coordinates, radius=1 * u.arcmin, programme_id='GPS', database='UKIDSSDR7PLUS',
+    def query_region(self, coordinates, radius=1 * u.arcmin,
+                     programme_id='GPS', database='UKIDSSDR7PLUS',
                      verbose=False, get_query_payload=False, system='J2000'):
         """
-        Used to query a region around a known identifier or given coordinates from the catalog.
+        Used to query a region around a known identifier or given
+        coordinates from the catalog.
 
         Parameters
         ----------
         coordinates : str or `astropy.coordinates` object
             The target around which to search. It may be specified as a string
-            in which case it is resolved using online services or as the appropriate
-            `astropy.coordinates` object. ICRS coordinates may also be entered as strings
-            as specified in the `astropy.coordinates` module.
+            in which case it is resolved using online services or as the
+            appropriate `astropy.coordinates` object. ICRS coordinates may also
+            be entered as strings as specified in the `astropy.coordinates`
+            module.
         radius : str or `~astropy.units.Quantity` object, optional
-            The string must be parsable by `~astropy.coordinates.Angle`. The appropriate
-            `~astropy.units.Quantity` object from `astropy.units` may also be used. When missing
-            defaults to 1 arcmin. Cannot exceed 90 arcmin.
+            The string must be parsable by `~astropy.coordinates.Angle`. The
+            appropriate `~astropy.units.Quantity` object from
+            `astropy.units` may also be used. When missing defaults to 1
+            arcmin. Cannot exceed 90 arcmin.
         programme_id : str
-            The survey or programme in which to search for.  See `list_catalogs`.
+            The survey or programme in which to search for. See `list_catalogs`.
         database : str
-            The UKIDSS database to use
+            The UKIDSS database to use.
         verbose : bool, optional.
-            When set to `True` displays warnings if the returned VOTable does not
-            conform to the standard. Defaults to `False`.
+            When set to `True` displays warnings if the returned VOTable does
+            not conform to the standard. Defaults to `False`.
         get_query_payload : bool, optional
-            if set to `True` then returns the dictionary sent as the HTTP request.
+            If `True` then returns the dictionary sent as the HTTP request.
             Defaults to `False`.
         system : 'J2000' or 'Galactic'
-            The system in which to perform the query.  Can affect the output data columns
+            The system in which to perform the query. Can affect the output
+            data columns.
 
         Returns
         -------
         result : `~astropy.table.Table`
-            Query result table
+            Query result table.
         """
 
         response = self.query_region_async(coordinates, radius=radius,
@@ -417,7 +454,8 @@ class UkidssClass(QueryWithLogin):
         result = self._parse_result(response, verbose=verbose)
         return result
 
-    def query_region_async(self, coordinates, radius=1 * u.arcmin, programme_id='GPS',
+    def query_region_async(self, coordinates, radius=1 * u.arcmin,
+                           programme_id='GPS',
                            database='UKIDSSDR7PLUS', get_query_payload=False,
                            system='J2000'):
         """
@@ -427,26 +465,28 @@ class UkidssClass(QueryWithLogin):
         Parameters
         ----------
         coordinates : str or `astropy.coordinates` object
-            The target around which to search. It may be specified as a string
-            in which case it is resolved using online services or as the appropriate
-            `astropy.coordinates` object. ICRS coordinates may also be entered as strings
-            as specified in the `astropy.coordinates` module.
+            The target around which to search. It may be specified as a
+            string in which case it is resolved using online services or as
+            the appropriate `astropy.coordinates` object. ICRS coordinates
+            may also be entered as strings as specified in the
+            `astropy.coordinates` module.
         radius : str or `~astropy.units.Quantity` object, optional
-            The string must be parsable by `~astropy.coordinates.Angle`. The appropriate
-            `~astropy.units.Quantity` object from `astropy.units` may also be used. When missing
-            defaults to 1 arcmin. Cannot exceed 90 arcmin.
+            The string must be parsable by `~astropy.coordinates.Angle`. The
+            appropriate `~astropy.units.Quantity` object from
+            `astropy.units` may also be used. When missing defaults to 1
+            arcmin. Cannot exceed 90 arcmin.
         programme_id : str
-            The survey or programme in which to search for.  See `list_catalogs`.
+            The survey or programme in which to search for. See `list_catalogs`.
         database : str
-            The UKIDSS database to use
+            The UKIDSS database to use.
         get_query_payload : bool, optional
-            if set to `True` then returns the dictionary sent as the HTTP request.
+            If `True` then returns the dictionary sent as the HTTP request.
             Defaults to `False`.
 
         Returns
         -------
         response : `requests.Response`
-            The HTTP response returned from the service
+            The HTTP response returned from the service.
         """
 
         request_payload = self._args_to_payload(coordinates,
@@ -477,19 +517,19 @@ class UkidssClass(QueryWithLogin):
 
     def _parse_result(self, response, verbose=False):
         """
-        Parses the raw HTTP response and returns it as an `astropy.table.Table`.
+        Parses the raw HTTP response and returns it as a `~astropy.table.Table`.
 
         Parameters
         ----------
         response : `requests.Response`
             The HTTP response object
         verbose : bool, optional
-            Defaults to false. When true it will display warnings whenever the VOtable
-            returned from the service doesn't conform to the standard.
+            Defaults to `False`. If `True it displaya warnings whenever the
+            VOtable returned from the service doesn't conform to the standard.
 
         Returns
         -------
-        table : `astropy.table.Table`
+        table : `~astropy.table.Table`
         """
         table_links = self.extract_urls(response.content)
         # keep only one link that is not a webstart
@@ -521,22 +561,22 @@ class UkidssClass(QueryWithLogin):
     def list_catalogs(self, style='short'):
         """
         Returns a lsit of available catalogs in UKIDSS.
-        These can be used as ``programme_id`` in queries
+        These can be used as ``programme_id`` in queries.
 
         Parameters
         ----------
         style : str, optional
-            Must be one of ['short', 'long']. Defaults to 'short'.
-            Determines whether to print long names or abbreviations for catalogs.
+            Must be one of ``'short'``, ``'long'``. Defaults to ``'short'``.
+            Determines whether to print long names or abbreviations for
+            catalogs.
 
         Returns
         -------
-        list
-            list containing catalog name strings in long or short style.
+        list : list containing catalog name strings in long or short style.
         """
-        if style=='short':
+        if style == 'short':
             return list(self.ukidss_programmes_short.keys())
-        elif style=='long':
+        elif style == 'long':
             return list(self.ukidss_programmes_long.keys())
         else:
             warnings.warn("Style must be one of 'long', 'short'.\n"
@@ -551,8 +591,8 @@ class UkidssClass(QueryWithLogin):
 
     def _ukidss_send_request(self, url, request_payload):
         """
-        Helper function that sends the query request via a session or simple HTTP
-        GET request.
+        Helper function that sends the query request via a session or simple
+        HTTP GET request.
 
         Parameters
         ----------
@@ -567,14 +607,16 @@ class UkidssClass(QueryWithLogin):
             The response for the HTTP GET request
         """
         if hasattr(self, 'session') and self.logged_in():
-            response = self.session.get(url, params=request_payload, timeout=self.TIMEOUT)
+            response = self.session.get(url, params=request_payload,
+                                        timeout=self.TIMEOUT)
         else:
-            response = commons.send_request(url, request_payload, self.TIMEOUT, request_type='GET')
+            response = commons.send_request(url, request_payload, self.TIMEOUT,
+                                            request_type='GET')
         return response
 
     def _check_page(self, url, keyword, wait_time=1, max_attempts=30):
         page_loaded = False
-        while not page_loaded and max_attempts>0:
+        while not page_loaded and max_attempts > 0:
             response = requests.get(url)
             self.response = response
             if re.search("error", response.content, re.IGNORECASE):
@@ -582,31 +624,33 @@ class UkidssClass(QueryWithLogin):
             elif re.search(keyword, response.content, re.IGNORECASE):
                 page_loaded = True
             max_attempts -= 1
-            time.sleep(wait_time)  # wait for wait_time seconds before checking again
-        if page_loaded == False:
+            # wait for wait_time seconds before checking again
+            time.sleep(wait_time)
+        if page_loaded is False:
             raise TimeoutError("Page did not load.")
         return response
 
 Ukidss = UkidssClass()
 
-def clean_catalog(ukidss_catalog, clean_band='K_1', badclass=-9999, maxerrbits=41, minerrbits=0,
-        maxpperrbits=60):
+
+def clean_catalog(ukidss_catalog, clean_band='K_1', badclass=-9999,
+                  maxerrbits=41, minerrbits=0, maxpperrbits=60):
     """
-    Attempt to remove 'bad' entries in a catalog
+    Attempt to remove 'bad' entries in a catalog.
 
     Parameters
     ----------
-    ukidss_catalog : astropy.io.fits.hdu.table.BinTableHDU
-        A FITS binary table instance from the UKIDSS survey
-    clean_band : ['K_1','K_2','J','H']
-        The band to use for bad photometry flagging
+    ukidss_catalog : `~astropy.io.fits.BinTableHDU`
+        A FITS binary table instance from the UKIDSS survey.
+    clean_band : ``'K_1'``, ``'K_2'``, ``'J'``, ``'H'``
+        The band to use for bad photometry flagging.
     badclass : int
-        Class to exclude
+        Class to exclude.
     minerrbits : int
     maxerrbits : int
-        Inside this range is the accepted # of error bits
+        Inside this range is the accepted number of error bits.
     maxpperrbits : int
-        Exclude this type of error bit
+        Exclude this type of error bit.
 
     Examples
     --------
@@ -645,8 +689,8 @@ def verify_programme_id(pid, query_type='catalog'):
 
     Raises
     ------
-    ValueError if the pid is 'all' and the query type is a catalog.  You can query
-    all surveys for images, but not all catalogs.
+    ValueError if the pid is 'all' and the query type is a catalog.
+    You can query all surveys for images, but not all catalogs.
     """
     if pid == 'all' and query_type == 'image':
         return 'all'

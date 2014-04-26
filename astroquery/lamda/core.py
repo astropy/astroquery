@@ -71,12 +71,12 @@ def query(mol, query_type=None, coll_partner_index=0, return_datafile=False):
     ----------
     mol : string
         Molecule or atom designation. For a list of valid designations see
-        the :meth:``print_mols`` method.
+        the :meth:`print_mols` method.
     query_type : string
         Query type to execute. Valid options:
-            'erg_levels' -> Energy Levels
-            'rad_trans'  -> Radiative transitions
-            'coll_rates' -> Collisional rates
+            ``'erg_levels'`` -> Energy Levels
+            ``'rad_trans'``  -> Radiative transitions
+            ``'coll_rates'`` -> Collisional rates
     coll_partner_index : number, default 0
         If collisional rates are queried, set the index of the collisional
         partner to the order found in the LAMDA datafile. If no index is
@@ -84,7 +84,7 @@ def query(mol, query_type=None, coll_partner_index=0, return_datafile=False):
 
     Returns
     -------
-    table : astropy.table.Table
+    table : `~astropy.table.Table`
 
     Examples
     --------
@@ -117,7 +117,7 @@ def _parse_datafile(datafile, query_type, coll_partner_index=0):
 
     Parameters
     ----------
-    datafile : np.ndarray
+    datafile : `np.ndarray`
         Raw data array pulled from LAMDA
     query_type : string
         Valid query_type in ['coll_rates', 'rad_trans', 'erg_levels']
@@ -126,7 +126,7 @@ def _parse_datafile(datafile, query_type, coll_partner_index=0):
 
     Returns
     -------
-    table : astropy.table.Table
+    table : `~astropy.table.Table`
     """
     query_identifier = query_types[query_type]
     if query_type == 'coll_rates':
@@ -155,16 +155,16 @@ def _select_data(data, i, query_type):
 
     Parameters
     ----------
-    data : np.ndarray
-        Raw data array pulled from LAMDA
+    data : `np.ndarray`
+        Raw data array pulled from LAMDA.
     i : number
-        Row index to start reading from data in
+        Row index to start reading from data in.
     query_type : string
-        Valid query_type in ['coll_rates', 'rad_trans', 'erg_levels']
+        Valid query_type in ['coll_rates', 'rad_trans', 'erg_levels'].
 
     Returns
     -------
-    data : np.array
+    data : `np.array`
         Data for query_type
     col_names : list
         Column name list
@@ -201,7 +201,7 @@ def _check_dtypes(data):
 
     Parameters
     ----------
-    data : np.ndarray
+    data : `np.ndarray`
 
     Returns
     -------

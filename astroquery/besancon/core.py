@@ -62,19 +62,20 @@ keyword_defaults = {
 keyword_defaults['ff[15]'] = 500
 keyword_defaults['oo[15]'] = -500
 
-colors_limits = {"J-H":(-99,99),"H-K":(-99,99),"J-K":(-99,99),"V-K":(-99,99)}
+colors_limits = {"J-H":(-99,99), "H-K":(-99,99), "J-K":(-99,99), "V-K":(-99,99)}
 mag_limits = {'U':(-99,99), 'B':(-99,99), 'V':(-5,20), 'R':(-99,99),
               'I':(-99,99), 'J':(-99,99), 'H':(-99,99), 'K':(-99,99), 'L':(-99,99)}
-mag_order = "U","B","V","R","I","J","H","K","L"
+mag_order = "U", "B", "V", "R", "I", "J", "H", "K", "L"
 
 
 @async_to_sync
 class BesanconClass(BaseQuery):
 
-    # Since these are configuration options, they should probably be used directly
-    # rather than re-stored as local variables.  Then again, we need to refactor
-    # this whole project to be class-based, so they should be set for class
-    # instances.
+    # Since these are configuration options, they should probably be used
+    # directly rather than re-stored as local variables. Then again, we need
+    # to refactor this whole project to be class-based, so they should be
+    # set for class instances.
+
     url_download = BESANCON_DOWNLOAD_URL()
     QUERY_URL = BESANCON_MODEL_FORM()
     ping_delay = BESANCON_PING_DELAY()
@@ -101,10 +102,10 @@ class BesanconClass(BaseQuery):
         """
 
         # py3 compatibility
-        if hasattr(filename,'decode'):
+        if hasattr(filename, 'decode'):
             filename = filename.decode()
 
-        url = os.path.join(self.url_download,filename)
+        url = os.path.join(self.url_download, filename)
 
         elapsed_time = 0
         t0 = time.time()
@@ -153,7 +154,7 @@ class BesanconClass(BaseQuery):
         with commons.get_readable_fileobj(response.raw) as f:
             text = f.read()
             # py3 compatibility; do nothing for py2:
-            if hasattr(text,'decode') and not hasattr(text,'encode'):
+            if hasattr(text, 'decode') and not hasattr(text, 'encode'):
                 text = text.decode()
         try:
             filename = self.result_re.search(text).group()
@@ -169,9 +170,9 @@ class BesanconClass(BaseQuery):
         else:
             return filename
 
-    def _parse_args(self, glon, glat, email=None, smallfield=True, extinction=0.7,
-                    area=0.0001, verbose=True, clouds=None,
-                    absmag_limits=(-7,15), mag_limits=copy.copy(mag_limits),
+    def _parse_args(self, glon, glat, email=None, smallfield=True,
+                    extinction=0.7, area=0.0001, verbose=True, clouds=None,
+                    absmag_limits=(-7, 15), mag_limits=copy.copy(mag_limits),
                     colors_limits=copy.copy(colors_limits),
                     **kwargs):
         """
@@ -215,14 +216,14 @@ class BesanconClass(BaseQuery):
         Either the filename or the table depending on whether 'retrieve file' is
         specified
         """
-        if email is None and hasattr(self,'email'):
+        if email is None and hasattr(self, 'email'):
             email = self.email
         if email is None or not isinstance(email,str) or not commons.validate_email(email):
             raise ValueError("Must specify a valid e-mail address.")
 
         # create a new keyword dict based on inputs + defaults
         kwd = copy.copy(keyword_defaults)
-        for key,val in kwargs.iteritems():
+        for key, val in kwargs.iteritems():
             if key in keyword_defaults:
                 kwd[key] = val
             elif verbose and not key in ('retrieve_file',):
@@ -240,7 +241,7 @@ class BesanconClass(BaseQuery):
         kwd['oo'][0] = absmag_limits[0]
         kwd['ff'][0] = absmag_limits[1]
 
-        for ii,(key,val) in enumerate(colors_limits.items()):
+        for ii, (key, val) in enumerate(colors_limits.items()):
             if key[0] in mag_order and key[1] == '-' and key[2] in mag_order:
                 kwd['colind'][ii] = key
                 kwd['oo'][ii+9] = val[0]
@@ -248,7 +249,7 @@ class BesanconClass(BaseQuery):
             else:
                 raise ValueError('Invalid color %s' % key)
 
-        for (key,val) in mag_limits.iteritems():
+        for (key, val) in mag_limits.iteritems():
             if key in mag_order:
                 kwd['band0'][mag_order.index(key)] = val[0]
                 kwd['bandf'][mag_order.index(key)] = val[1]
@@ -256,7 +257,7 @@ class BesanconClass(BaseQuery):
                 raise ValueError('Invalid band %s' % key)
 
         if clouds is not None:
-            for ii,(AV,di) in enumerate(clouds):
+            for ii, (AV, di) in enumerate(clouds):
                 kwd[AV][ii] = AV
                 kwd[di][ii] = di
 
@@ -266,12 +267,12 @@ class BesanconClass(BaseQuery):
 
         # convert all array elements to arrays
         for dummy in xrange(2):  # deal with nested lists
-            for k,v in request_data.items():
-                if isinstance(v,list) or (isinstance(v,tuple) and len(v) > 1):
+            for k, v in request_data.items():
+                if isinstance(v, list) or (isinstance(v, tuple) and len(v) > 1):
                     if k in request_data:
                         del request_data[k]
-                    for ii,x in enumerate(v):
-                        request_data['%s[%i]' % (k,ii)] = x
+                    for ii, x in enumerate(v):
+                        request_data['%s[%i]' % (k, ii)] = x
 
         # an e-mail address is required
         request_data['email'] = email
@@ -299,10 +300,11 @@ class BesanconClass(BaseQuery):
 
 Besancon = BesanconClass()
 
+
 def parse_besancon_dict(bd):
     """
     Turn a dict like default_keys into a list of tuples.
-    
+
     Must be a list of tuples because there are some repeated entries,
     which dictionaries do not support.
 
@@ -312,16 +314,16 @@ def parse_besancon_dict(bd):
     """
 
     http_dict = []
-    for key,val in bd.iteritems():
+    for key, val in bd.iteritems():
         if isinstance(val, list):
             if "[]" in key:
                 for listval in val:
-                    http_dict.append((key,listval))
+                    http_dict.append((key, listval))
             else:
-                for ii,listval in enumerate(val):
+                for ii, listval in enumerate(val):
                     if isinstance(listval, list):
-                        for jj,lv in enumerate(listval):
-                            http_dict.append((key+"[%i][%i]" % (ii,jj),lv))
+                        for jj, lv in enumerate(listval):
+                            http_dict.append((key+"[%i][%i]" % (ii, jj), lv))
                     else:
                         http_dict.append((key+"[%i]" % (ii), listval))
         else:
@@ -335,7 +337,7 @@ def parse_errors(text):
     Attempt to extract the errors from a Besancon web page with error messages in it.
     """
     # py3 compatibility:
-    if hasattr(text,'decode'):
+    if hasattr(text, 'decode'):
         text = text.decode()
     try:
         errors = re.compile(r"""<div\ class="?errorpar"?>\s*
@@ -346,7 +348,7 @@ def parse_errors(text):
         text = errors.search(text).group()
     except AttributeError:
         raise ValueError("Regular expression matching to error message failed.")
-    text_items = re.split("<li>|</li>|\n",errors.search(text).group())
+    text_items = re.split("<li>|</li>|\n", errors.search(text).group())
     text_items = [t for t in text_items if t != ""]
     error_list = text_items[2:-2]
     return error_list
@@ -359,7 +361,7 @@ def parse_besancon_model_string(bms,):
     """
 
     # py3 compatibility:
-    if hasattr(bms,'decode'):
+    if hasattr(bms, 'decode'):
         bms = bms.decode()
 
     header_start = "Dist    Mv  CL".split()
@@ -367,7 +369,7 @@ def parse_besancon_model_string(bms,):
     # locate index of data start
     lines = bms.split('\n')
     nblanks1 = 0
-    for ii,line in enumerate(lines):
+    for ii, line in enumerate(lines):
         if line.strip() == '':
             nblanks1 += 1
         if all([h in line for h in header_start]):
@@ -385,7 +387,7 @@ def parse_besancon_model_string(bms,):
 
     # locate index of data end
     nblanks2 = 0
-    for jj,line in enumerate(lines[::-1]):
+    for jj, line in enumerate(lines[::-1]):
         if "TOTAL NUMBER OF STARS :" in line:
             nstars = int(line.split()[-1])
         if line.strip() == '':
@@ -407,16 +409,16 @@ def parse_besancon_model_string(bms,):
         raise ValueError("Table parsing error: mismatch between # of columns & header")
 
     # py3 compatibility:
-    if hasattr(bms,'decode') and not hasattr(bms,'encode'):
+    if hasattr(bms, 'decode') and not hasattr(bms, 'encode'):
         # py3
         bms = bms.decode()
 
-    if hasattr(bms,'decode') and hasattr(bms,'encode'):
+    if hasattr(bms, 'decode') and hasattr(bms, 'encode'):
         # py2
-        names = [n.encode() if hasattr(n,'encode') else n for n in names]
+        names = [n.encode() if hasattr(n, 'encode') else n for n in names]
     else:
         # py3
-        names = [n.decode() if hasattr(n,'decode') else n for n in names]
+        names = [n.decode() if hasattr(n, 'decode') else n for n in names]
 
     besancon_table = ascii.read(bms, Reader=ascii.FixedWidthNoHeader,
                                 header_start=None,
@@ -430,7 +432,7 @@ def parse_besancon_model_string(bms,):
         raise ValueError("Besancon table did not match reported size")
 
     for cn in besancon_table.columns:
-        if besancon_table[cn].dtype.kind in ('s','S'):
+        if besancon_table[cn].dtype.kind in ('s', 'S'):
             print("WARNING: The Besancon table did not parse properly.  "
                   "Some columns are likely to have invalid values and others incorrect values.  "
                   "Please report this error.")

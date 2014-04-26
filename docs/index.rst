@@ -44,6 +44,9 @@ The following packages are required for astroquery installation & use:
 * `numpy <http://www.numpy.org>`_
 * astropy_ (v>=0.3)
 * `requests <http://docs.python-requests.org/en/latest/>`_
+* `keyring <https://pypi.python.org/pypi/keyring>`_ (required only for the
+  `~astroquery.eso` module)
+* `lxml <http://lxml.de/>`_ (required only for the `~astroquery.eso` module)
 
 Using astroquery
 ----------------
