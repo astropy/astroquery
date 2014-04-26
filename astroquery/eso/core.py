@@ -3,6 +3,7 @@ import os.path
 import webbrowser
 import keyring
 import getpass
+import warnings
 from lxml import html
 from io import StringIO, BytesIO
 
@@ -167,11 +168,12 @@ class EsoClass(QueryWithLogin):
 
         Returns
         -------
-        table : `~astropy.table.Table`
+        table : `~astropy.table.Table` or `None`
             A table representing the data available in the archive for the
-            specified survey, matching the constraints specified in
-            ``kwargs``. The number of rows returned is capped by the
-            ROW_LIMIT configuration item.
+            specified survey, matching the constraints specified in ``kwargs``.
+            The number of rows returned is capped by the ROW_LIMIT
+            configuration item. `None` is returned when the query has no
+            results.
 
         """
 
@@ -194,6 +196,10 @@ class EsoClass(QueryWithLogin):
                                survey_response.encoding)), format='csv',
                                comment='#', delimiter=',', header_start=1)
             return table
+        else:
+            warnings.warn("Query returned no results")
+
+
 
     def query_instrument(self, instrument, open_form=False, **kwargs):
         """
@@ -240,6 +246,8 @@ class EsoClass(QueryWithLogin):
                     if len(line) > 0:  # Drop empty lines
                         if line[0:1] != b'#':  # And drop comments
                             content += [line]
+                        else:
+                            warnings.warn("Query returned no results")
                 content = b'\n'.join(content)
                 table = Table.read(BytesIO(content), format="ascii.csv")
         return table
