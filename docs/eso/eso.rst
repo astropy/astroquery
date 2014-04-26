@@ -98,19 +98,17 @@ returned rows to 10.
     GC_IRS7 17:45:40.09 -29:00:22.1 359.945774 -0.045458 076.B-0863(A) AMBER.2006-03-14T07:42:12.060 200156177  SCIENCE FRNSRC,BASE12 INTERFEROMETRY                U1                U3                U4           -1.0 0.69 [0.01]
     GC_IRS7 17:45:40.09 -29:00:22.1 359.945774 -0.045458 076.B-0863(A) AMBER.2006-03-14T07:42:29.119 200156177  SCIENCE FRNSRC,BASE12 INTERFEROMETRY                U1                U3                U4           -1.0 0.69 [0.01]
 
-In the next step, the first dataset is selected, using its data product ID, and retrieved from the ESO archive.
+In the next step, the first two datasets are selected, using their data product IDs, and retrieved from the ESO archive.
 
 .. code-block:: python
 
-    >>> data_product_id = table[0]['DP.ID']
-    >>> data_files = eso.data_retrieval([data_product_id])
+    >>> data_files = eso.data_retrieval(table['DP.ID'][:2])
     Downloading AMBER.2006-03-14T07:40:03.741.fits.Z...
+    Downloading AMBER.2006-03-14T07:40:19.830.fits.Z...
     Done!
 
-    >>> print(data_files)
-    ['AMBER.2006-03-14T07:40:03.741.fits.Z']
-
-The returned file names correspond to datasets downloaded locally. They are ready to be used.
+The file names, returned in data_files, points to the decompressed datasets (without the .Z extension) that have been locally downloaded.
+They are ready to be used with astropy.io.fits.
 
 
 Obtaining extended information on data products
