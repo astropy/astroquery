@@ -108,7 +108,7 @@ In the next step, the first two datasets are selected, using their data product 
     Done!
 
 The file names, returned in data_files, points to the decompressed datasets (without the .Z extension) that have been locally downloaded.
-They are ready to be used with astropy.io.fits.
+They are ready to be used with `~astropy.io.fits`.
 
 
 Obtaining extended information on data products
