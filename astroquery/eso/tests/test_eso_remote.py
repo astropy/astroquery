@@ -18,6 +18,9 @@ class TestEso:
         surveys = eso.list_surveys()
         result_s = eso.query_survey(surveys[0], target='Sgr A*')
 
+        assert result_i is not None
+        assert result_s is not None
+
     def test_empty_return():
         # test for empty return with an object from the North
         eso = Eso()
