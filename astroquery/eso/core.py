@@ -3,6 +3,7 @@ import os.path
 import webbrowser
 import keyring
 import getpass
+import warnings
 from lxml import html
 from io import StringIO, BytesIO
 
@@ -156,7 +157,8 @@ class EsoClass(QueryWithLogin):
         return self._survey_list
 
     def query_survey(self, survey, **kwargs):
-        """ Query survey Phase 3 data contained in the ESO archive.
+        """
+        Query survey Phase 3 data contained in the ESO archive.
 
         Parameters
         ----------
@@ -166,13 +168,15 @@ class EsoClass(QueryWithLogin):
 
         Returns
         -------
-        table : `~astropy.table.Table`
+        table : `~astropy.table.Table` or `None`
             A table representing the data available in the archive for the
-            specified survey, matching the constraints specified in
-            ``kwargs``. The number of rows returned is capped by the
-            ROW_LIMIT configuration item.
+            specified survey, matching the constraints specified in ``kwargs``.
+            The number of rows returned is capped by the ROW_LIMIT
+            configuration item. `None` is returned when the query has no
+            results.
 
         """
+
         if survey not in self.list_surveys():
             raise ValueError("Survey %s is not in the survey list." % survey)
         url = "http://archive.eso.org/wdb/wdb/adp/phase3_main/form"
@@ -186,11 +190,20 @@ class EsoClass(QueryWithLogin):
             query_dict["max_rows_returned"] = 10000
         survey_response = self._activate_form(survey_form, form_index=0,
                                               inputs=query_dict)
-        table = ascii.read(StringIO(survey_response.content.decode(survey_response.encoding)),format='csv',comment='#',delimiter=',',header_start=1)
-        return table
+
+        if b"# No data returned !" not in survey_response.content:
+            table = ascii.read(StringIO(survey_response.content.decode(
+                               survey_response.encoding)), format='csv',
+                               comment='#', delimiter=',', header_start=1)
+            return table
+        else:
+            warnings.warn("Query returned no results")
+
+
 
     def query_instrument(self, instrument, open_form=False, **kwargs):
-        """ Query instrument specific raw data contained in the ESO archive.
+        """
+        Query instrument specific raw data contained in the ESO archive.
 
         Parameters
         ----------
@@ -210,6 +223,7 @@ class EsoClass(QueryWithLogin):
             ROW_LIMIT configuration item.
 
         """
+
         url = "http://archive.eso.org/wdb/wdb/eso/{0}/form".format(instrument)
         table = None
         if open_form:
@@ -232,12 +246,15 @@ class EsoClass(QueryWithLogin):
                     if len(line) > 0:  # Drop empty lines
                         if line[0:1] != b'#':  # And drop comments
                             content += [line]
+                        else:
+                            warnings.warn("Query returned no results")
                 content = b'\n'.join(content)
                 table = Table.read(BytesIO(content), format="ascii.csv")
         return table
 
     def get_headers(self, product_ids):
-        """ Get the headers associated to a list of data product IDs
+        """
+        Get the headers associated to a list of data product IDs
 
         This method returns a `~astropy.table.Table` where the rows correspond
         to the provided data product IDs, and the columns are from each of
@@ -255,7 +272,9 @@ class EsoClass(QueryWithLogin):
         -------
         result : `~astropy.table.Table`
             A table where: columns are header keywords, rows are product_ids.
+
         """
+
         _schema_product_ids = schema.Schema(schema.Or(Column, [basestring]))
         _schema_product_ids.validate(product_ids)
         # Get all headers
@@ -303,7 +322,8 @@ class EsoClass(QueryWithLogin):
         return Table(result)
 
     def data_retrieval(self, datasets):
-        """ Retrieve a list of datasets form the ESO archive.
+        """
+        Retrieve a list of datasets form the ESO archive.
 
         Parameters
         ----------
