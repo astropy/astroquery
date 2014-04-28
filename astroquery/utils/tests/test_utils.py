@@ -208,7 +208,7 @@ docstr1_out = textwrap.dedent("""
 
         Returns
         -------
-        An `astropy.table.Table` object
+        table : A `~astropy.table.Table` object.
         """)
 
 docstr2 = """
@@ -268,7 +268,7 @@ docstr2_out = textwrap.dedent("""
 
         Returns
         -------
-        A `dict` object
+        dict : A `dict` object.
         """)
 
 

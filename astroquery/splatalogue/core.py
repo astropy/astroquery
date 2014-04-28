@@ -7,17 +7,18 @@ ftp://ftp.cv.nrao.edu/NRAO-staff/bkent/slap/idl/
 """
 from astropy.io import ascii
 from ..query import BaseQuery
-from ..utils import commons,async_to_sync
+from ..utils import commons, async_to_sync
 from ..utils.docstr_chompers import prepend_docstr_noreturns
 from astropy import units as u
-from . import SLAP_URL,QUERY_URL,SPLATALOGUE_TIMEOUT,LINES_LIMIT
+from . import SLAP_URL, QUERY_URL, SPLATALOGUE_TIMEOUT, LINES_LIMIT
 from . import load_species_table
 import warnings
 
-__all__ = ['Splatalogue','SplatalogueClass']
+__all__ = ['Splatalogue', 'SplatalogueClass']
 
 # example query of SPLATALOGUE directly:
 # http://www.cv.nrao.edu/php/splat/c.php?sid%5B%5D=64&sid%5B%5D=108&calcIn=&data_version=v2.0&from=&to=&frequency_units=MHz&energy_range_from=&energy_range_to=&lill=on&tran=&submit=Search&no_atmospheric=no_atmospheric&no_potential=no_potential&no_probable=no_probable&include_only_nrao=include_only_nrao&displayLovas=displayLovas&displaySLAIM=displaySLAIM&displayJPL=displayJPL&displayCDMS=displayCDMS&displayToyaMA=displayToyaMA&displayOSU=displayOSU&displayRecomb=displayRecomb&displayLisa=displayLisa&displayRFI=displayRFI&ls1=ls1&ls5=ls5&el1=el1
+
 
 @async_to_sync
 class SplatalogueClass(BaseQuery):
@@ -26,7 +27,7 @@ class SplatalogueClass(BaseQuery):
     QUERY_URL = QUERY_URL()
     TIMEOUT = SPLATALOGUE_TIMEOUT()
     LINES_LIMIT = LINES_LIMIT()
-    versions = ('v1.0','v2.0')
+    versions = ('v1.0', 'v2.0')
     # global constant, not user-configurable
     ALL_LINE_LISTS = ('Lovas', 'SLAIM', 'JPL', 'CDMS', 'ToyoMA', 'OSU',
                       'Recomb', 'Lisa', 'RFI')
@@ -55,27 +56,27 @@ class SplatalogueClass(BaseQuery):
                        "w":"GBT W (67-93.3 GHz)",
                        "mustang":"GBT Mustang (80-100 GHz)",}
 
-
     def __init__(self, **kwargs):
         """
         Initialize a Splatalogue query class with default arguments set.
-        Frequency specification is required for *every* query, but any default keyword
-        arguments (see `query_lines`) can be overridden here
+        Frequency specification is required for *every* query, but any
+        default keyword arguments (see `query_lines`) can be overridden
+        here.
         """
         self.data = self._default_kwargs()
         self.set_default_options(**kwargs)
 
-    def set_default_options(self,**kwargs):
+    def set_default_options(self, **kwargs):
         """
         Modify the default options.
         See `query_lines`
         """
         self.data.update(self._parse_kwargs(**kwargs))
 
-    def get_species_ids(self,restr=None,reflags=0):
+    def get_species_ids(self, restr=None, reflags=0):
         """
         Get a dictionary of "species" IDs, where species refers to the molecule
-        name, mass, and chemical composition
+        name, mass, and chemical composition.
 
         Parameters
         ----------
@@ -83,15 +84,15 @@ class SplatalogueClass(BaseQuery):
             String to compile into an re, if specified.   Searches table for
             species whose names match
         reflags : int
-            Flags to pass to `re`
+            Flags to pass to `re`.
         """
         # loading can be an expensive operation and should not change at runtime:
         # do it lazily
-        if not hasattr(self,'_species_ids'):
+        if not hasattr(self, '_species_ids'):
             self._species_ids = load_species_table.species_lookuptable()
 
         if restr is not None:
-            return self._species_ids.find(restr,reflags)
+            return self._species_ids.find(restr, reflags)
         else:
             return self._species_ids
 
@@ -100,9 +101,9 @@ class SplatalogueClass(BaseQuery):
                       max_frequency=100*u.THz,
                       chemical_name='',
                       line_lists=self.ALL_LINE_LISTS,
-                      line_strengths=('ls1','ls3','ls4','ls5'),
-                      energy_levels=('el1','el2','el3','el4'),
-                      exclude=('potential','atmospheric','probable'),
+                      line_strengths=('ls1', 'ls3', 'ls4', 'ls5'),
+                      energy_levels=('el1', 'el2', 'el3', 'el4'),
+                      exclude=('potential', 'atmospheric', 'probable'),
                       version='v2.0',
                       only_NRAO_recommended=None,
                       export=True,
@@ -133,8 +134,8 @@ class SplatalogueClass(BaseQuery):
 
         Parameters
         ----------
-        min_frequency : `astropy.unit`
-        max_frequency : `astropy.unit`
+        min_frequency : `astropy.units`
+        max_frequency : `astropy.units`
             Minimum and maximum frequency (or any spectral() equivalent)
         band : str
             The observing band.  If it is not 'any', it overrides
@@ -143,37 +144,38 @@ class SplatalogueClass(BaseQuery):
         Other Parameters
         ----------------
         top20: str
-            One of 'comet','planet','top20','ism_hotcore','ism_darkcloud','ism_diffusecloud'.
+            One of ``'comet'``, ``'planet'``, ``'top20'``, ``'ism_hotcore'``,
+            ``'ism_darkcloud'``, ``'ism_diffusecloud'``.
             Overrides chemical_name
         chemical_name : str
-            Name of the chemical to search for.  Treated as a regular expression.
+            Name of the chemical to search for. Treated as a regular expression.
             An empty set ('', (), [], {}) will match *any* species.
             Example:
-            "H2CO" - 13 species have H2CO somewhere in their formula
-            "Formaldehyde" - There are 8 isotopologues of Formaldehyde (e.g., H213CO)
-            "formaldehyde" - Thioformaldehyde,Cyanoformaldehyde
-            "formaldehyde",flags=re.I - Formaldehyde,thioformaldehyde, and Cyanoformaldehyde
-            " H2CO " - Just 1 species, H2CO.  The spaces prevent including others.
+            ``'H2CO'`` - 13 species have H2CO somewhere in their formula.
+            ``'Formaldehyde'`` - There are 8 isotopologues of Formaldehyde (e.g., H213CO).
+            ``'formaldehyde'`` - Thioformaldehyde,Cyanoformaldehyde.
+            ``'formaldehyde',flags=re.I`` - Formaldehyde,thioformaldehyde, and Cyanoformaldehyde.
+            ``' H2CO '`` - Just 1 species, H2CO.  The spaces prevent including others.
         chem_re_flags : int
             See the `re` module
-        energy_min : None or float
-        energy_max : None or float
+        energy_min : `None` or float
+        energy_max : `None` or float
             Energy range to include.  See energy_type
-        energy_type : "el_cm1","eu_cm1","eu_k","el_k"
+        energy_type : ``'el_cm1'``, ``'eu_cm1'``, ``'eu_k'``, ``'el_k'``
             Type of energy to restrict.  L/U for lower/upper state energy,
             cm/K for *inverse* cm, i.e. wavenumber, or K for Kelvin
-        intensity_lower_limit : None or float
+        intensity_lower_limit : `None` or float
             Lower limit on the intensity.  See intensity_type
-        intensity_type : None or 'sij','cdms_jpl','aij'
+        intensity_type : `None` or ``'sij'``, ``'cdms_jpl'``, ``'aij'``
             The type of intensity on which to place a lower limit
         transition : str
             e.g. 1-0
-        version : 'v1.0' or 'v2.0'
+        version : ``'v1.0'`` or ``'v2.0'``
             Data version
         exclude : list
             Types of lines to exclude.  Default is:
-            ('potential','atmospheric','probable')
-            Can also exclude 'known'
+            (``'potential'``, ``'atmospheric'``, ``'probable'``)
+            Can also exclude ``'known'``
         only_NRAO_recommended : bool
             Show only NRAO recommended species?
         line_lists : list
@@ -236,7 +238,7 @@ class SplatalogueClass(BaseQuery):
             min_frequency = min_frequency.to(u.GHz, u.spectral())
             max_frequency = max_frequency.to(u.GHz, u.spectral())
             if min_frequency > max_frequency:
-                min_frequency,max_frequency = max_frequency,min_frequency
+                min_frequency, max_frequency = max_frequency,min_frequency
 
             payload['from'] = min_frequency.value
             payload['to'] = max_frequency.value
@@ -246,11 +248,11 @@ class SplatalogueClass(BaseQuery):
                 payload['top20'] = top20
             else:
                 raise ValueError("Top20 is not one of the allowed values")
-        elif chemical_name in ('',{},(),[],set()):
+        elif chemical_name in ('', {}, (), [], set()):
             # include all
             payload['sid[]'] = []
         elif chemical_name is not None:
-            species_ids = self.get_species_ids(chemical_name,chem_re_flags)
+            species_ids = self.get_species_ids(chemical_name, chem_re_flags)
             if len(species_ids) == 0:
                 raise ValueError("No matching chemical species found.")
             payload['sid[]'] = species_ids.values()
@@ -283,7 +285,7 @@ class SplatalogueClass(BaseQuery):
             payload['include_only_nrao'] = 'include_only_nrao'
 
         if line_lists is not None:
-            if type(line_lists) not in (tuple,list):
+            if type(line_lists) not in (tuple, list):
                 raise TypeError("Line lists should be a list of linelist names.  See Splatalogue.ALL_LINE_LISTS")
             for L in self.ALL_LINE_LISTS:
                 kwd = 'display' + L
@@ -322,7 +324,6 @@ class SplatalogueClass(BaseQuery):
 
         return payload
 
-
     def _validate_kwargs(self, min_frequency=None, max_frequency=None,
                          band='any', **kwargs):
         """
@@ -347,7 +348,7 @@ class SplatalogueClass(BaseQuery):
         self._validate_kwargs(min_frequency=min_frequency,
                               max_frequency=max_frequency, **kwargs)
 
-        if hasattr(self,'data'):
+        if hasattr(self, 'data'):
             data_payload = self.data.copy()
             data_payload.update(self._parse_kwargs(min_frequency=min_frequency,
                                                    max_frequency=max_frequency,
@@ -394,8 +395,8 @@ class SplatalogueClass(BaseQuery):
         keyword.  See the source for the defaults.
         """
         if columns is None:
-            columns = ('Species','Chemical Name','Resolved QNs','Freq-GHz',
-                       'Meas Freq-GHz','Log<sub>10</sub> (A<sub>ij</sub>)',
+            columns = ('Species', 'Chemical Name', 'Resolved QNs', 'Freq-GHz',
+                       'Meas Freq-GHz', 'Log<sub>10</sub> (A<sub>ij</sub>)',
                        'E_U (K)')
         table = self.table[columns]
         long_to_short = {'Log<sub>10</sub> (A<sub>ij</sub>)':'log10(Aij)',
@@ -412,7 +413,7 @@ class SplatalogueClass(BaseQuery):
                          'Resolved QNs':'QNs'}
         for cn in long_to_short:
             if cn in table.colnames:
-                table.rename_column(cn,long_to_short[cn])
+                table.rename_column(cn, long_to_short[cn])
         return table
 
 

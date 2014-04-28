@@ -103,8 +103,8 @@ class SDSSClass(BaseQuery):
 
         Returns
         -------
-        result : `astropy.table.Table`
-            The result of the query as an `astropy.table.Table` object.
+        result : `~astropy.table.Table`
+            The result of the query as a `~astropy.table.Table` object.
 
         """
 
@@ -126,7 +126,7 @@ class SDSSClass(BaseQuery):
 
         Parameters
         ----------
-        At least one of `plate`, `mjd` or `fiberID` must be specified.
+        At least one of ``plate``, ``mjd`` or ``fiberID`` must be specified.
 
         plate : integer, optional
             Plate number.
@@ -159,8 +159,8 @@ class SDSSClass(BaseQuery):
 
         Returns
         -------
-        result : `astropy.table.Table`
-            The result of the query as an `astropy.table.Table` object.
+        result : `~astropy.table.Table`
+            The result of the query as an `~astropy.table.Table` object.
 
         """
 
@@ -186,7 +186,7 @@ class SDSSClass(BaseQuery):
 
         Parameters
         ----------
-        At least one of `run`, `camcol` or `field` must be specified.
+        At least one of ``run``, ``camcol`` or ``field`` must be specified.
 
         run : integer, optional
             Length of a strip observed in a single continuous image observing
@@ -221,8 +221,8 @@ class SDSSClass(BaseQuery):
 
         Returns
         -------
-        result : `astropy.table.Table`
-            The result of the query as an `astropy.table.Table` object.
+        result : `~astropy.table.Table`
+            The result of the query as a `~astropy.table.Table` object.
 
         """
 
@@ -262,9 +262,9 @@ class SDSSClass(BaseQuery):
             module.
         radius : str or `~astropy.units.Quantity` object, optional
             The string must be parsable by `~astropy.coordinates.Angle`. The
-            appropriate `~astropy.units.Quantity` object from `astropy.units` may also be
-            used. Defaults to 2 arcsec.
-        matches : astropy.table.Table
+            appropriate `~astropy.units.Quantity` object from `astropy.units`
+            may also be used. Defaults to 2 arcsec.
+        matches : `~astropy.table.Table`
             Result of `query_region`.
         plate : integer, optional
             Plate number.
@@ -279,13 +279,15 @@ class SDSSClass(BaseQuery):
 
         Returns
         -------
-        A list of context-managers that yield readable file-like objects. The
-        function returns the spectra for only one of ``matches``, or
-        ``coordinates`` and ``radius``, or ``plate``, ``mjd`` and ``fiberID``.
+        list : A list of context-managers that yield readable file-like objects.
+            The function returns the spectra for only one of ``matches``, or
+            ``coordinates`` and ``radius``, or ``plate``, ``mjd`` and
+            ``fiberID``.
 
         Examples
         --------
         Using results from a call to `query_region`:
+
         >>> from astropy import coordinates as coords
         >>> from astroquery.sdss import SDSS
         >>> co = coords.ICRS('0h8m05.63s +14d50m23.3s')
@@ -293,9 +295,11 @@ class SDSSClass(BaseQuery):
         >>> spec = SDSS.get_spectra(matches=result)
 
         Using coordinates directly:
+
         >>> spec = SDSS.get_spectra(co)
 
         Fetch the spectra from all fibers on plate 751 with mjd 52251:
+
         >>> specs = SDSS.get_spectra(plate=751, mjd=52251)
 
         """
@@ -336,7 +340,7 @@ class SDSSClass(BaseQuery):
         """
         Returns
         -------
-        List of PyFITS HDUList objects.
+        list : List of `~astropy.io.fits.HDUList` objects.
 
         """
 
@@ -374,9 +378,9 @@ class SDSSClass(BaseQuery):
             module.
         radius : str or `~astropy.units.Quantity` object, optional
             The string must be parsable by `~astropy.coordinates.Angle`. The
-            appropriate `~astropy.units.Quantity` object from `astropy.units` may also be
-            used. Defaults to 2 arcsec.
-        matches : astropy.table.Table
+            appropriate `~astropy.units.Quantity` object from
+            `astropy.units` may also be used. Defaults to 2 arcsec.
+        matches : `~astropy.table.Table`
             Result of `query_region`.
         run : integer, optional
             Length of a strip observed in a single continuous image observing
@@ -390,18 +394,19 @@ class SDSSClass(BaseQuery):
             Part of a camcol of size 2048 by 1489 pixels.
         band : str, list
             Could be individual band, or list of bands.
-            Options: u, g, r, i, or z
+            Options: ``'u'``, ``'g'``, ``'r'``, ``'i'``, or ``'z'``.
         timeout : float, optional
             Time limit (in seconds) for establishing successful connection with
             remote server.  Defaults to `SDSSClass.TIMEOUT`.
 
         Returns
         -------
-        List of `~astropy.io.fits.HDUList` objects.
+        list : List of `~astropy.io.fits.HDUList` objects.
 
         Examples
         --------
         Using results from a call to `query_region`:
+
         >>> from astropy import coordinates as coords
         >>> from astroquery.sdss import SDSS
         >>> co = coords.ICRS('0h8m05.63s +14d50m23.3s')
@@ -409,12 +414,15 @@ class SDSSClass(BaseQuery):
         >>> imgs = SDSS.get_images(matches=result)
 
         Using coordinates directly:
+
         >>> imgs = SDSS.get_images(co)
 
         Fetch the images from all runs with camcol 3 and field 164:
+
         >>> imgs = SDSS.get_images(camcol=3, field=164)
 
         Fetch only images from run 1904, camcol 3 and field 164:
+
         >>> imgs = SDSS.get_images(run=1904, camcol=3, field=164)
 
         """
@@ -456,7 +464,7 @@ class SDSSClass(BaseQuery):
         """
         Returns
         -------
-        List of PyFITS HDUList objects.
+        list : List of `~astropy.io.fits.HDUList` objects.
 
         """
 
@@ -472,7 +480,7 @@ class SDSSClass(BaseQuery):
     def get_spectral_template_async(self, kind='qso', timeout=TIMEOUT):
         """
         Download spectral templates from SDSS DR-2.
-        
+
         Location: http://www.sdss.org/dr7/algorithms/spectemplates/
 
         There 32 spectral templates available from DR-2, from stellar spectra,
@@ -498,7 +506,7 @@ class SDSSClass(BaseQuery):
 
         Returns
         -------
-        List of PyFITS HDUList objects.
+        list : List of `~astropy.io.fits.HDUList` objects.
 
         """
 
@@ -513,7 +521,7 @@ class SDSSClass(BaseQuery):
         for index in indices:
             name = str(index).zfill(3)
             link = '%s-%s.fit' % (SDSS.TEMPLATES, name)
-            results.append(commons.FileContainer(link, 
+            results.append(commons.FileContainer(link,
                                                  remote_timeout=timeout,
                                                  encoding='binary'))
 
@@ -524,7 +532,7 @@ class SDSSClass(BaseQuery):
         """
         Returns
         -------
-        List of PyFITS HDUList objects.
+        list : List of `~astropy.io.fits.HDUList` objects.
 
         """
 
@@ -535,8 +543,8 @@ class SDSSClass(BaseQuery):
 
     def _parse_result(self, response, verbose=False):
         """
-        Parses the result and return either an `astropy.table.Table` or
-        None if no matches were found.
+        Parses the result and return either a `~astropy.table.Table` or
+        `None` if no matches were found.
 
         Parameters
         ----------
@@ -545,13 +553,13 @@ class SDSSClass(BaseQuery):
 
         Returns
         -------
-        table : `astropy.table.Table`
+        table : `~astropy.table.Table`
 
         """
 
         # genfromtxt requires bytes; need to check for 'encode' for py3 compat
-        bytecontent = (response.content.encode('ascii') 
-                       if hasattr(response.content,'encode') 
+        bytecontent = (response.content.encode('ascii')
+                       if hasattr(response.content,'encode')
                        else response.content)
         arr = np.atleast_1d(np.genfromtxt(io.BytesIO(bytecontent),
                             names=True, dtype=None, delimiter=b',',
@@ -580,8 +588,8 @@ class SDSSClass(BaseQuery):
             module.
         radius : str or `~astropy.units.Quantity` object, optional
             The string must be parsable by `~astropy.coordinates.Angle`. The
-            appropriate `~astropy.units.Quantity` object from `astropy.units` may also be
-            used. Defaults to 2 arcsec.
+            appropriate `~astropy.units.Quantity` object from `astropy.units`
+            may also be used. Defaults to 2 arcsec.
         fields : list, optional
             SDSS PhotoObj or SpecObj quantities to return. If None, defaults
             to quantities required to find corresponding spectra and images
@@ -590,9 +598,9 @@ class SDSSClass(BaseQuery):
             Look for spectroscopic match in addition to photometric match? If
             True, objects will only count as a match if photometry *and*
             spectroscopy exist. If False, will look for photometric matches
-            only. If `spectro` is True, it is possible to let coordinates
-            undefined and set at least one of `plate`, `mjd` or `fiberID` to
-            search using these fields.
+            only. If ``spectro`` is True, it is possible to let coordinates
+            undefined and set at least one of ``plate``, ``mjd`` or ``fiberID``
+            to search using these fields.
         plate : integer, optional
             Plate number.
         mjd : integer, optional

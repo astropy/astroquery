@@ -24,7 +24,7 @@ class GAMAClass(BaseQuery):
 
         Returns
         -------
-        The URL of the FITS file containing the results.
+        url : The URL of the FITS file containing the results.
         """
 
         payload = self._parse_args(*args, **kwargs)
@@ -54,7 +54,7 @@ class GAMAClass(BaseQuery):
 
         Returns
         -------
-        Requests payload in a dictionary
+        payload_dict : Requests payload in a dictionary
         """
 
         payload = {'query': sql_query,
@@ -69,6 +69,7 @@ class GAMAClass(BaseQuery):
         return get_gama_datafile(result)
 
 GAMA = GAMAClass()
+
 
 def get_gama_datafile(result):
     """Turn a URL into an HDUList object."""

@@ -39,7 +39,7 @@ class AlfalfaClass(BaseQuery):
 
         Returns
         -------
-        Dictionary of results, each element is a masked array.
+        result : Dictionary of results, each element is a masked array.
         """
 
         if hasattr(self,'ALFALFACAT'):
@@ -124,7 +124,7 @@ class AlfalfaClass(BaseQuery):
 
         Returns
         -------
-        AGC number for object nearest supplied position.
+        result : AGC number for object nearest supplied position.
 
         """
 
@@ -171,7 +171,7 @@ class AlfalfaClass(BaseQuery):
 
         Returns
         -------
-        A file context manager
+        result : A file context manager
 
         See Also
         --------

@@ -95,7 +95,7 @@ class VizierClass(BaseQuery):
 
         Returns
         -------
-        Dictionary of the "Resource" name and the VOTable resource object.
+        resource_dict : Dictionary of the "Resource" name and the VOTable resource object.
         "Resources" are generally publications; one publication may contain
         many tables.
 
@@ -198,12 +198,12 @@ class VizierClass(BaseQuery):
             two columns named ``_RAJ2000`` and ``_DEJ2000`` with proper angular units.
         radius : convertible to `~astropy.coordinates.Angle`
             The radius of the circular region to query.
-        inner_radius: convertible to `~astropy.coordinates.Angle`
+        inner_radius : convertible to `~astropy.coordinates.Angle`
             When set in addition to ``radius``, the queried region becomes annular,
             with outer radius ``radius`` and inner radius ``inner_radius``.
         width : convertible to `~astropy.coordinates.Angle`
             The width of the square region to query.
-        height: convertible to `~astropy.coordinates.Angle`
+        height : convertible to `~astropy.coordinates.Angle`
             When set in addition to ``width``, the queried region becomes rectangular,
             with the specified ``width`` and ``height``.
         catalog : str or list, optional
@@ -290,7 +290,7 @@ class VizierClass(BaseQuery):
         """
         Send a query to Vizier in which you specify constraints with keyword/value
         pairs.
-        
+
         See `the vizier constraints page
         <http://vizier.cfa.harvard.edu/vizier/vizHelp/cst.htx>`_ for details.
 
@@ -435,7 +435,7 @@ class VizierClass(BaseQuery):
 
         Returns
         -------
-        table_list : `astroquery.utils.TableList` or str    
+        table_list : `astroquery.utils.TableList` or str
             If there are errors in the parsing, then returns the raw results as a string.
         """
         if not verbose:
@@ -537,7 +537,7 @@ class VizierKeyword(list):
         for val in set(values) - set(keys):
             warnings.warn("{val} : No such keyword".format(val=val))
         valid_keys = [
-            key for key in self.keyword_dict.keys() 
+            key for key in self.keyword_dict.keys()
             if key.lower() in list(map(str.lower,values))]
         # create a dict for each type of keyword
         set_keywords = OrderedDict()

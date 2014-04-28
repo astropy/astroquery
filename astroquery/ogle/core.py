@@ -12,9 +12,10 @@ from ..utils.docstr_chompers import prepend_docstr_noreturns
 
 from . import OGLE_SERVER, OGLE_TIMEOUT
 
-__all__ = ['Ogle','OgleClass']
+__all__ = ['Ogle', 'OgleClass']
 
 __doctest_skip__ = ['OgleClass.*']
+
 
 def _validate_params(func):
     @functools.wraps(func)
@@ -51,8 +52,8 @@ class OgleClass(BaseQuery):
     algorithms = ['NG', 'NN']
     quality_codes = ['GOOD', 'ALL']
     coord_systems = ['RD', 'LB']
-    result_dtypes = ['f8', 'f8', 'f8', 'f8', 'f8', 'f8', 'f8', 'f8', 'i8', 'a2',
-                     'f8']
+    result_dtypes = ['f8', 'f8', 'f8', 'f8', 'f8', 'f8', 'f8', 'f8', 'i8',
+                     'a2', 'f8']
 
     @_validate_params
     def _args_to_payload(self, coord=None, algorithm='NG', quality='GOOD',
@@ -65,11 +66,11 @@ class OgleClass(BaseQuery):
         coord : list-like
             Pointings to evaluate interstellar extinction. Three forms of
             coordinates may be passed::
-                
+
                 * single astropy coordinate instance
                 * list-like object (1 x N) of astropy coordinate instances
-                * list-like object (2 x N) of RA/Decs or Glon/Glat as strings or
-                  floats. (May not be supported in future versions.)
+                * list-like object (2 x N) of RA/Decs or Glon/Glat as strings
+                or  floats. (May not be supported in future versions.)
 
         algorithm : string
             Algorithm to interpolate data for desired coordinate. Valid options::
@@ -91,7 +92,7 @@ class OgleClass(BaseQuery):
 
         Returns
         -------
-        astropy.table.Table
+        table : `~astropy.table.Table`
 
         Raises
         ------
@@ -101,6 +102,7 @@ class OgleClass(BaseQuery):
         Examples
         --------
         Using astropy coordinates:
+
         >>> from astropy import coordinates as coord
         >>> from astropy import units as u
         >>> co = coord.Galactic(0.0, 3.0, unit=(u.degree, u.degree))

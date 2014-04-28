@@ -27,10 +27,10 @@ class FermiLATClass(BaseQuery):
 
         Returns
         -------
-        The URL of the page with the results (still need to scrape this page to download the data: easy for wget)
+        url : The URL of the page with the results (still need to scrape this page to download the data: easy for wget)
         """
 
-        payload = self._parse_args(*args,**kwargs)
+        payload = self._parse_args(*args, **kwargs)
 
         if kwargs.get('get_query_payload'):
             return payload
@@ -71,7 +71,7 @@ class FermiLATClass(BaseQuery):
 
         Returns
         -------
-        Requests payload in a dictionary
+        payload_dict : Requests payload in a dictionary
         """
 
 
@@ -130,7 +130,7 @@ class GetFermilatDatafile(object):
 
         while not(page_loaded):
             page_loaded = fitsfile_urls = self._check_page()
-            if page_loaded: 
+            if page_loaded:
                 # don't wait an extra N minutes for success
                 break
             time.sleep(check_frequency * 60)
