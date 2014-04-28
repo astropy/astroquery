@@ -55,6 +55,7 @@ class TestEso:
 
 
     def test_list_instruments():
+        # If this test fails, we may simply need to update it
     
         inst = Eso.list_instruments()
     
