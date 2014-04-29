@@ -1,8 +1,14 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 """
-NRAO Image Archive Query Tool
------------------------------------
-
-:Author: Adam Ginsburg (adam.g.ginsburg@gmail.com)
+Module to query the NRAO Data Archive for observation summaries.
 """
-from .core import *
+from astropy.config import ConfigurationItem
+
+NRAO_SERVER = ConfigurationItem('nrao_server', ['https://archive.nrao.edu/archive/ArchiveQuery'],
+                               'Name of the NRAO mirror to use.')
+NRAO_TIMEOUT = ConfigurationItem('timeout', 60, 'time limit for connecting to NRAO server')
+
+
+from .core import Nrao,NraoClass
+
+__all__ = ['Nrao','NraoClass']

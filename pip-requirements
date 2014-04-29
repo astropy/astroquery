@@ -1,3 +1,5 @@
 numpy>=1.4.0
 astropy
-mechanize
+requests
+lxml
+keyring

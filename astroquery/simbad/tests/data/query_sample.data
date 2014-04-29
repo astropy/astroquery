@@ -1,0 +1,48 @@
+::script::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+votable {main_id,ra(d),dec(d)}
+votable open
+query sample   otype=SNR
+votable close
+
+::console:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+C.D.S.  -  SIMBAD4 rel 1.209  -  2013.09.18CEST08:02:13
+total execution time: 5.766 secs
+simbatch done
+
+::data::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+<?xml version="1.0" encoding="UTF-8"?>
+<VOTABLE xmlns="http://www.ivoa.net/xml/VOTable/v1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.ivoa.net/xml/VOTable/v1.2" version="1.2">
+<DEFINITIONS>
+<COOSYS ID="COOSYS" equinox="2000" epoch="J2000" system="ICRS"/>
+</DEFINITIONS>
+<RESOURCE name="Simbad query" type="results">
+<TABLE ID="SimbadScript" name="default"><DESCRIPTION>Simbad script executed on 2013.09.18CEST08:02:13</DESCRIPTION>
+<FIELD ID="MAIN_ID" name="MAIN_ID" datatype="char" width="22" ucd="meta.id;meta.main" arraysize="*">
+<DESCRIPTION>Main identifier for an object</DESCRIPTION>
+<LINK value="${MAIN_ID}" href="http://simbad.u-strasbg.fr/simbad/sim-id?Ident=${MAIN_ID}&amp;NbIdent=1"/>
+</FIELD>
+<FIELD ID="RA_d" name="RA" datatype="double" precision="8" width="11" ucd="pos.eq.ra;meta.main" unit="deg">
+<DESCRIPTION>Right ascension</DESCRIPTION>
+</FIELD>
+<FIELD ID="DEC_d" name="DEC" datatype="double" precision="8" width="12" ucd="pos.eq.dec;meta.main" unit="deg">
+<DESCRIPTION>Declination</DESCRIPTION>
+</FIELD>
+<DATA>
+<TABLEDATA>
+<TR><TD>[AU88] 5.95-37.9</TD><TD>011.88896</TD><TD>-25.28775</TD></TR>
+<TR><TD>SNR G315.0-02.3</TD><TD>220.767</TD><TD>-62.462</TD></TR>
+<TR><TD>[DD88] 14</TD><TD>192.7167</TD><TD>+41.1211</TD></TR>
+<TR><TD>SNR B013152+30281</TD><TD>023.67096</TD><TD>+30.72439</TD></TR>
+<TR><TD>GAL 296.59-00.98</TD><TD>178.7125</TD><TD>-63.1483</TD></TR>
+<TR><TD>MFBL 16</TD><TD>114.2342</TD><TD>+65.5683</TD></TR>
+
+</TABLEDATA>
+
+</DATA>
+</TABLE>
+</RESOURCE>
+</VOTABLE>
+

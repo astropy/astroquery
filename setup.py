@@ -1,24 +1,12 @@
 #!/usr/bin/env python
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
-import sys
-import imp
-try:
-    # This incantation forces distribute to be used (over setuptools) if it is
-    # available on the path; otherwise distribute will be downloaded.
-    import pkg_resources
-    distribute = pkg_resources.get_distribution('distribute')
-    if pkg_resources.get_distribution('setuptools') != distribute:
-        sys.path.insert(1, distribute.location)
-        distribute.activate()
-        imp.reload(pkg_resources)
-except:  # There are several types of exceptions that can occur here
-    from distribute_setup import use_setuptools
-    use_setuptools()
-
 import glob
 import os
-from setuptools import setup, find_packages
+import sys
+
+import setuptools_bootstrap
+from setuptools import setup
 
 #A dirty hack to get around some early import/configurations ambiguities
 if sys.version_info[0] >= 3:
@@ -29,7 +17,6 @@ builtins._ASTROPY_SETUP_ = True
 
 import astropy
 from astropy.setup_helpers import (register_commands, adjust_compiler,
-                                   filter_packages, update_package_files,
                                    get_debug_option)
 from astropy.version_helpers import get_git_devstr, generate_version_py
 
@@ -39,7 +26,7 @@ DESCRIPTION = 'Functions and classes to access online data resources'
 LICENSE = 'BSD'
 
 # VERSION should be PEP386 compatible (http://www.python.org/dev/peps/pep-0386)
-VERSION = '0.0.dev'
+VERSION = '0.2.dev'
 
 # Indicates if this version is a release version
 RELEASE = 'dev' not in VERSION
@@ -59,43 +46,72 @@ adjust_compiler(PACKAGENAME)
 # Freeze build information in version.py
 generate_version_py(PACKAGENAME, VERSION, RELEASE, get_debug_option())
 
-# Use the find_packages tool to locate all packages and modules
-packagenames = filter_packages(find_packages())
-
 # Treat everything in scripts except README.rst as a script to be installed
 scripts = [fname for fname in glob.glob(os.path.join('scripts', '*'))
            if os.path.basename(fname) != 'README.rst']
 
-# Additional C extensions that are not Cython-based should be added here.
-extensions = []
 
-# A dictionary to keep track of all package data to install
-package_data = {PACKAGENAME: ['data/*']}
+try:
 
-# A dictionary to keep track of extra packagedir mappings
-package_dirs = {}
+    from astropy.setup_helpers import get_package_info
 
-# Update extensions, package_data, packagenames and package_dirs from
-# any sub-packages that define their own extension modules and package
-# data.  See the docstring for setup_helpers.update_package_files for
-# more details.
-update_package_files(PACKAGENAME, extensions, package_data, packagenames,
-                     package_dirs)
+    # Get configuration information from all of the various subpackages.
+    # See the docstring for setup_helpers.update_package_files for more
+    # details.
+    package_info = get_package_info(PACKAGENAME)
 
+    # Add the project-global data
+    package_info['package_data'][PACKAGENAME] = ['data/*']
+
+except ImportError: # compatibility with Astropy 0.2 - can be removed in cases
+                    # where Astropy 0.2 is no longer supported
+
+    from setuptools import find_packages
+    from astropy.setup_helpers import filter_packages, update_package_files
+
+    package_info = {}
+
+    # Use the find_packages tool to locate all packages and modules
+    package_info['packages'] = filter_packages(find_packages())
+
+    # Additional C extensions that are not Cython-based should be added here.
+    package_info['ext_modules'] = []
+
+    # A dictionary to keep track of all package data to install
+    package_info['package_data'] = {PACKAGENAME: ['data/*']}
+
+    # A dictionary to keep track of extra packagedir mappings
+    package_info['package_dir'] = {}
+
+    # Update extensions, package_data, packagenames and package_dirs from
+    # any sub-packages that define their own extension modules and package
+    # data.  See the docstring for setup_helpers.update_package_files for
+    # more details.
+    update_package_files(PACKAGENAME, package_info['ext_modules'],
+                         package_info['package_data'], package_info['packages'],
+                         package_info['package_dir'])
+
+# Currently the only entry points installed by Astropy are hooks to
+# zest.releaser for doing Astropy's releases
+entry_points = {}
+for hook in [('prereleaser', 'middle'), ('releaser', 'middle'),
+             ('postreleaser', 'before'), ('postreleaser', 'middle')]:
+    hook_ep = 'zest.releaser.' + '.'.join(hook)
+    hook_name = 'astroquery.release.' + '.'.join(hook)
+    hook_func = 'astropy.utils.release:' + '_'.join(hook)
+    entry_points[hook_ep] = ['%s = %s' % (hook_name, hook_func)]
 
 setup(name=PACKAGENAME,
       version=VERSION,
       description=DESCRIPTION,
-      packages=packagenames,
-      package_data=package_data,
-      package_dir=package_dirs,
-      ext_modules=extensions,
       scripts=scripts,
-      requires=['astropy'],
-      install_requires=['astropy'],
+      requires=['astropy','lxml','keyring'],
+      install_requires=['astropy','requests'],
+      include_package_data=True,
       provides=[PACKAGENAME],
       license=LICENSE,
       cmdclass=cmdclassd,
       zip_safe=False,
-      use_2to3=True
-      )
+      use_2to3=True,
+      **package_info
+)

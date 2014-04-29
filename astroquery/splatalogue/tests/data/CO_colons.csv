@@ -1,0 +1,5 @@
+Species:Chemical Name:Freq-GHz:Freq Err:Meas Freq-GHz:Meas Freq Err:Resolved QNs:CDMS/JPL Intensity:S<sub>ij</sub>:Log<sub>10</sub> (A<sub>ij</sub>):Lovas/AST Intensity:E_L (cm^-1):E_L (K):E_U (cm^-1):E_U (K):Linelist
+COv=0:Carbon Monoxide:::115.27120:5.0E-7:1-0:-5.01050:1.00000:-7.14246::0.00000:0.00000:3.84503:5.53211:CDMS
+COv=0:Carbon Monoxide:::115.27120:5.0E-7:1-0:-5.01050:1.00000:-7.14246::0.00000:0.00000:3.84503:5.53211:JPL
+COv=0:Carbon Monoxide:115.27120:1.0E-6:::1-0:0.00000:0.00000:0.00000:60.0:0.00000:0.00000:0.00000:0.00000:Lovas
+COv=0:Carbon Monoxide:115.27120:0:115.27120:1.0E-6:1-0:0.00000:1.00000:-7.14236:60.0:0.00000:0.00000:3.84503:5.53211:SLAIM

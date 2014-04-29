@@ -2,7 +2,21 @@
 """
 MAGPIS Image and Catalog Query Tool
 -----------------------------------
+.. topic:: Revision History
 
-:Author: Adam Ginsburg (adam.g.ginsburg@gmail.com)
+    Refactored using common API as a part of Google Summer of Code 2013.
+
+    :Originally contributed by:
+
+        Adam Ginsburg (adam.g.ginsburg@gmail.com)
+
 """
-from .core import *
+from astropy.config import ConfigurationItem
+
+MAGPIS_SERVER = ConfigurationItem('magpis_server', ["http://third.ucllnl.org/cgi-bin/gpscutout"],
+                               'Name of the MAGPIS server.')
+MAGPIS_TIMEOUT = ConfigurationItem('timeout', 60, 'time limit for connecting to MAGPIS server')
+
+from .core import Magpis,MagpisClass
+
+__all__ = ['Magpis','MagpisClass']

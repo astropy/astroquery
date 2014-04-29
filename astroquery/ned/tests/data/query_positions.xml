@@ -1,0 +1,223 @@
+<?xml version="1.0"?>
+<VOTABLE version="1.1">
+<DEFINITIONS>
+<COOSYS ID="J2000" equinox="2000." epoch="2000." system="eq_FK5" />
+</DEFINITIONS>
+<RESOURCE type="results">
+<DESCRIPTION>
+Results from query to  NASA/IPAC Extragalactic Database (NED),
+which is operated by the Jet Propulsion Laboratory, California Institute of
+Technology, under contract with the National Aeronautics and Space Administration.
+This work was (partially) supported by the US National Virtual Observatory
+development project, which is funded by the National Science Foundation
+under cooperative agreement AST0122449 with The Johns Hopkins University.
+</DESCRIPTION>
+<INFO name="QUERY_STATUS" value="OK"/>
+<PARAM name="queryDateTime"  ucd="time.creation" datatype="char" arraysize="*" value="2013-07-18T04:22:57PDT"/>
+<LINK content-role="query" content-type="char"
+href = "http://ned.ipac.caltech.edu/cgi-bin/datasearch?search_type=Positions&amp;objname=MESSIER 001&amp;of=xml_main"/>
+<TABLE ID="NED_Positions_Data" name="NED Positions Data for MESSIER 001">
+<DESCRIPTION> NED Position Data Search Results </DESCRIPTION>
+
+<FIELD ID="pos_col1" name="No." ucd="meta.number" datatype="int">
+<DESCRIPTION> A sequential data-point number applicable to this list only. </DESCRIPTION>
+</FIELD>
+<FIELD ID="pos_col2" name="RA" ucd="pos.eq.ra" datatype="char" arraysize="*">
+<DESCRIPTION>  The RA position as published, converted to the Equatorial J2000.0 system, longitude. </DESCRIPTION>
+</FIELD>
+<FIELD ID="pos_col3" name="DEC" ucd="pos.eq.dec" datatype="char" arraysize="*">
+<DESCRIPTION>  The DEC position as published, converted to the Equatorial J2000.0 system, latitude. </DESCRIPTION>
+</FIELD>
+<FIELD ID="pos_col4" name="Frequency" ucd="em.freq" datatype="char" arraysize="*">
+<DESCRIPTION>   The frequency or wavelength at which the data apply (in common astronomical jargon, e.g. "V" for the Johnson Vband, "IRAS 12 microns" for the IRAS 12 micron band, etc.)</DESCRIPTION>
+</FIELD>
+<FIELD ID="pos_col5" name="Uncertainty Ellipse Semi-Major Axis" ucd="stat.error;phys.smajAxis" datatype="double" unit="arcsec">
+<DESCRIPTION>   The 95 percent uncertainty ellipse (semi-major axis) </DESCRIPTION>
+</FIELD>
+<FIELD ID="pos_col6" name="Uncertainty Ellipse Semi-Minor Axis" ucd="stat.error;phys.sminAxis" datatype="double" unit="arcsec">
+<DESCRIPTION>   The 95 percent uncertainty ellipse (semi-minor axis) </DESCRIPTION>
+</FIELD>
+<FIELD ID="pos_col7" name="Uncertainty Ellipse PA" ucd="stat.error;pos.posAng" datatype="char" arraysize="*">
+<DESCRIPTION>   The 95 percent uncertainty ellipse (position angle)  </DESCRIPTION>
+</FIELD>
+<FIELD ID="pos_col8" name="Refcode" ucd="meta.bib.bibcode" datatype="char" arraysize="*">
+<DESCRIPTION> The NED 19-digit Bibliographic Reference code. </DESCRIPTION>
+</FIELD>
+<FIELD ID="pos_col9" name="Published Name" ucd="meta.id;name" datatype="char" arraysize="*">
+<DESCRIPTION> Published_name, in NED's standard format, of the object to which the data apply. </DESCRIPTION>
+</FIELD>
+<FIELD ID="pos_col10" name="Published RA" ucd="pos.eq.ra" datatype="char" arraysize="*">
+<DESCRIPTION> The coordinate RA in HHMMSS.S format as published. </DESCRIPTION>
+</FIELD>
+<FIELD ID="pos_col11" name="Published Dec" ucd="pos.eq.dec" datatype="char" arraysize="*">
+<DESCRIPTION> The coordinate DEC in DDMMSS format, as published. </DESCRIPTION>
+</FIELD>
+<FIELD ID="pos_col12" name="Published RA Uncertainty" ucd="stat.error;pos.eq.ra" datatype="char" arraysize="*">
+<DESCRIPTION> uncertainty ellipse, as published, usually standard deviations in RA </DESCRIPTION>
+</FIELD>
+<FIELD ID="pos_col13" name="Published Dec Uncertainty" ucd="stat.error;pos.eq.dec" datatype="char" arraysize="*">
+<DESCRIPTION> Uncertainty ellipse, as published, usually standard deviations in DEC </DESCRIPTION>
+</FIELD>
+<FIELD ID="pos_col14" name="Published PA Uncertainty" ucd="sta.error;pos.posAng" datatype="char" arraysize="*">
+<DESCRIPTION> Uncertainty position angle, as published, usually standard deviations in position angle </DESCRIPTION>
+</FIELD>
+<FIELD ID="pos_col15" name="Uncertainty Significance" ucd="meta.code.error" datatype="char" arraysize="*">
+<DESCRIPTION> The type of uncertainty reported in the original publication. </DESCRIPTION>
+</FIELD>
+<FIELD ID="pos_col16" name="Published Equinox" ucd="time.equinox" datatype="char" arraysize="*">
+<DESCRIPTION> The equinox to which the coordinates are referred (usually B1950.0 or J2000.0). </DESCRIPTION>
+</FIELD>
+<FIELD ID="pos_col17" name="Published Epoch" ucd="time.epoch" datatype="char" arraysize="*">
+<DESCRIPTION> The date of the observation (if given in the original publication). </DESCRIPTION>
+</FIELD>
+<FIELD ID="pos_col18" name="NED Frequency" ucd="em.freq" datatype="double" unit="Hz">
+<DESCRIPTION> The frame in which the frequency or wavelength is defined (OBS for observatory reference frame, and REST for object or source rest frame); and the frequency in Hz, as translated by NED. </DESCRIPTION>
+</FIELD>
+<FIELD ID="pos_col19" name="Published System Coordinate" ucd="pos.coord.sys" datatype="char" arraysize="*">
+<DESCRIPTION> Coordinate System: Equatorial, Galactic, supergalactic, etc. </DESCRIPTION>
+</FIELD>
+<FIELD ID="pos_col20" name="Published Unit" ucd="pos.coord.unit" datatype="char" arraysize="*">
+<DESCRIPTION> Coordinate Units: Sexagesimal, Decimal Degrees, etc.  </DESCRIPTION>
+</FIELD>
+<FIELD ID="pos_col21" name="Published Frame" ucd="pos.ref.frame" datatype="char" arraysize="*">
+<DESCRIPTION> Fundamental Reference Frame: FK3, FK4, FK5, ICR[F], etc. </DESCRIPTION>
+</FIELD>
+<FIELD ID="pos_col22" name="Published Frequence Mode" ucd="em.freq.mode" datatype="char" arraysize="*">
+<DESCRIPTION> Frequency Mode: The method(s) by which the data were collected, reduced, or derived, in relation to the frequency or wavelength. </DESCRIPTION>
+</FIELD>
+<FIELD ID="pos_col23" name="Qualifiers" ucd="meta.note" datatype="char" arraysize="*">
+<DESCRIPTION> Qualifiers: Self-explanatory notes about the data.  </DESCRIPTION>
+</FIELD>
+<DATA>
+<TABLEDATA>
+<TR>
+<TD>0</TD>
+<TD>05h34m31.971s</TD>
+<TD>+22d00m52.06s</TD>
+<TD></TD>
+<TD>0.500000</TD>
+<TD>0.500000</TD>
+<TD>0</TD>
+<TD>1971PASP...83..491M</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+</TR>
+<TR>
+<TD>1</TD>
+<TD>05h34m32.53s</TD>
+<TD>+22d00m39.6s</TD>
+<TD>IRAS</TD>
+<TD>22.000000</TD>
+<TD>7.000000</TD>
+<TD>87</TD>
+<TD>1988IRASP.C2..0000:</TD>
+<TD>IRAS  05315+2158</TD>
+<TD>053132.0</TD>
+<TD>+215842.</TD>
+<TD>22.</TD>
+<TD>7.</TD>
+<TD>87</TD>
+<TD>Uncertainty in arcseconds; 95% confidence level</TD>
+<TD>B1950.0</TD>
+<TD>1983.5</TD>
+<TD>5.00E+12</TD>
+<TD>Equatorial</TD>
+<TD>Sexagesimal</TD>
+<TD>FK4</TD>
+<TD> Broad-band measurement</TD>
+<TD><![CDATA[From new, raw data]]></TD>
+</TR>
+<TR>
+<TD>2</TD>
+<TD>05h34m31.7s</TD>
+<TD>+22d01m15s</TD>
+<TD>1400 MHz (NRAO)</TD>
+<TD>22.799999</TD>
+<TD>15.900000</TD>
+<TD>0</TD>
+<TD>1966ApJS...13...65P</TD>
+<TD>NRAO 0214</TD>
+<TD>053131.2</TD>
+<TD>+215917</TD>
+<TD>1.0</TD>
+<TD>20</TD>
+<TD></TD>
+<TD>Uncertainty in time seconds and arcseconds; 90% confidence level</TD>
+<TD>B1950.0</TD>
+<TD></TD>
+<TD>1.40E+09</TD>
+<TD>Equatorial</TD>
+<TD>Sexagesimal</TD>
+<TD>   </TD>
+<TD> Broad-band measurement</TD>
+<TD><![CDATA[From new, raw data]]></TD>
+</TR>
+<TR>
+<TD>3</TD>
+<TD>05h34m32.8s</TD>
+<TD>+22d01m02s</TD>
+<TD>4.85 GHz</TD>
+<TD>50.000000</TD>
+<TD>50.000000</TD>
+<TD>0</TD>
+<TD>1991ApJS...75....1B</TD>
+<TD>87GB[BWE91] 0531+2159</TD>
+<TD>053132.3</TD>
+<TD>+215904.</TD>
+<TD>50.</TD>
+<TD>50.</TD>
+<TD></TD>
+<TD>Uncertainty in arcseconds; 95% confidence level</TD>
+<TD>B1950.0</TD>
+<TD></TD>
+<TD>4.85E+09</TD>
+<TD>Equatorial</TD>
+<TD>Sexagesimal</TD>
+<TD>FK4</TD>
+<TD> Broad-band measurement</TD>
+<TD><![CDATA[From reprocessed raw data]]></TD>
+</TR>
+<TR>
+<TD>4</TD>
+<TD>05h34m36s</TD>
+<TD>+22d11.0m</TD>
+<TD>26.3 MHz</TD>
+<TD>900.000000</TD>
+<TD>208.000000</TD>
+<TD>0</TD>
+<TD>1975AJ.....80..931V</TD>
+<TD>[VE75] CL 0531+22</TD>
+<TD>053136.</TD>
+<TD>+220900.</TD>
+<TD>0.1</TD>
+<TD>6.</TD>
+<TD></TD>
+<TD>Uncertainty in time minutes and arcminutes; uncertainty</TD>
+<TD>B1950.0</TD>
+<TD></TD>
+<TD>2.63E+07</TD>
+<TD>Equatorial</TD>
+<TD>Sexagesimal</TD>
+<TD>   </TD>
+<TD> Broad-band measurement</TD>
+<TD><![CDATA[From new, raw data]]></TD>
+</TR>
+</TABLEDATA>
+</DATA>
+</TABLE>
+</RESOURCE>
+</VOTABLE>
+

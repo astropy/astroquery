@@ -1,0 +1,70 @@
+<?xml version="1.0"?>
+<!DOCTYPE VOTABLE SYSTEM "http://us-vo.org/xml/VOTable.dtd">
+<VOTABLE version="1.0">
+<DEFINITIONS>
+<COOSYS ID="J2000" equinox="J2000." epoch="J2000." system="eq_FK5" />
+</DEFINITIONS>
+<RESOURCE>
+<PARAM name="fixlen" datatype="char" arraysize="*" value="T" />
+<PARAM name="RowsRetrieved" datatype="char" arraysize="*" value="1" />
+<PARAM name="ORIGIN" datatype="char" arraysize="*" value="IPAC Infrared Science Archive (IRSA), Caltech/JPL" />
+<PARAM name="DATETIME" datatype="char" arraysize="*" value="2013-07-26 06:52:06" />
+<PARAM name="DataTag" datatype="char" arraysize="*" value="ADS/IRSA.Gator#2013/0726/065206_14347" />
+<PARAM name="DATABASE" datatype="char" arraysize="*" value="2MASS All-Sky Point Source Catalog (PSC) (fp_psc)" />
+<PARAM name="EQUINOX" datatype="char" arraysize="*" value="J2000" />
+<PARAM name="SKYAREA" datatype="char" arraysize="*" value="box with center (10.68479,+41.26906) and length 1 arcsec." />
+<PARAM name="StatusFile" datatype="char" arraysize="*" value="/workspace/TMP_FyULu3_14347/Gator/irsa/14347/log.14347.html" />
+<PARAM name="SQL" datatype="char" arraysize="*" value="WHERE (no constraints)" />
+<PARAM name="SQL" datatype="char" arraysize="*" value="SELECT (37 column names follow in next row.)" />
+<TABLE>
+<FIELD name="ra" ucd="POS_EQ_RA_MAIN" ref="J2000" datatype="float" unit="deg" precision="F3" width="7" />
+<FIELD name="dec" ucd="POS_EQ_DEC_MAIN" ref="J2000" datatype="float" unit="deg" precision="F3" width="7" />
+<FIELD name="clon" datatype="char" arraysize="*"/>
+<FIELD name="clat" datatype="char" arraysize="*"/>
+<FIELD name="err_maj" datatype="double" unit="arcsec"/>
+<FIELD name="err_min" datatype="double" unit="arcsec"/>
+<FIELD name="err_ang" datatype="int" unit="deg"/>
+<FIELD name="designation" datatype="char" arraysize="*"/>
+<FIELD name="j_m" datatype="double" unit="mag"/>
+<FIELD name="j_cmsig" datatype="double" unit="mag"/>
+<FIELD name="j_msigcom" datatype="double" unit="mag"/>
+<FIELD name="j_snr" datatype="double"/>
+<FIELD name="h_m" datatype="double" unit="mag"/>
+<FIELD name="h_cmsig" datatype="double" unit="mag"/>
+<FIELD name="h_msigcom" datatype="double" unit="mag"/>
+<FIELD name="h_snr" datatype="double"/>
+<FIELD name="k_m" datatype="double" unit="mag"/>
+<FIELD name="k_cmsig" datatype="double" unit="mag"/>
+<FIELD name="k_msigcom" datatype="double" unit="mag"/>
+<FIELD name="k_snr" datatype="double"/>
+<FIELD name="ph_qual" datatype="char" arraysize="*"/>
+<FIELD name="rd_flg" datatype="char" arraysize="*"/>
+<FIELD name="bl_flg" datatype="char" arraysize="*"/>
+<FIELD name="cc_flg" datatype="char" arraysize="*"/>
+<FIELD name="ndet" datatype="char" arraysize="*"/>
+<FIELD name="gal_contam" datatype="int"/>
+<FIELD name="mp_flg" datatype="int"/>
+<FIELD name="hemis" datatype="char" arraysize="*"/>
+<FIELD name="xdate" datatype="char" arraysize="*"/>
+<FIELD name="scan" datatype="int"/>
+<FIELD name="glon" datatype="double" unit="deg"/>
+<FIELD name="glat" datatype="double" unit="deg"/>
+<FIELD name="a" datatype="char" arraysize="*"/>
+<FIELD name="dist_opt" datatype="double" unit="arcsec"/>
+<FIELD name="phi_opt" datatype="int" unit="deg"/>
+<FIELD name="b_m_opt" datatype="double" unit="mag"/>
+<FIELD name="vr_m_opt" datatype="double" unit="mag"/>
+<FIELD name="nopt_mchs" datatype="int"/>
+<FIELD name="ext_key" datatype="int"/>
+<FIELD name="j_h" datatype="double"/>
+<FIELD name="h_k" datatype="double"/>
+<FIELD name="j_k" datatype="double"/>
+<FIELD name="id" ucd="ID_MAIN" datatype="char" arraysize="*" />
+<DATA>
+<TABLEDATA>
+<TR><TD>10.684737</TD><TD>41.269035</TD><TD>00h42m44.34s</TD><TD>41d16m08.53s</TD><TD>0.08</TD><TD>0.07</TD><TD>87</TD><TD>00424433+4116085</TD><TD>9.453</TD><TD>0.051</TD><TD>0.052</TD><TD>5385.6</TD><TD>8.668</TD><TD>0.050</TD><TD>0.051</TD><TD>5089.9</TD><TD>8.475</TD><TD>0.050</TD><TD>0.051</TD><TD>3684.8</TD><TD>EEE</TD><TD>222</TD><TD>111</TD><TD>000</TD><TD>556655</TD><TD>2</TD><TD>0</TD><TD>n</TD><TD>1997-10-24</TD><TD>8</TD><TD>121.174</TD><TD>-21.573</TD><TD>0</TD><TD></TD><TD></TD><TD></TD><TD></TD><TD>0</TD><TD></TD><TD>0.7850</TD><TD>0.1930</TD><TD>0.9780</TD><TD>0</TD></TR>
+</TABLEDATA>
+</DATA>
+</TABLE>
+</RESOURCE>
+</VOTABLE>

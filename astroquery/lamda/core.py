@@ -6,6 +6,8 @@ from astropy.table import Table
 
 __all__ = ['query', 'print_mols']
 
+# should skip only if remote_data = False
+__doctest_skip__ = ['query']
 
 url = "http://home.strw.leidenuniv.nl/~moldata/datafiles/{0}.dat"
 mols = {
@@ -44,12 +46,12 @@ mols = {
     'CH3CN': ['ch3cn'],
     'O2': ['o2'],
     'HF': ['hf']
-     }
+}
 query_types = {
     'erg_levels': '!NUMBER OF ENERGY LEVELS',
     'rad_trans': '!NUMBER OF RADIATIVE TRANSITIONS',
     'coll_rates': '!COLLISIONS BETWEEN'
-    }
+}
 
 
 def print_mols():
@@ -57,11 +59,11 @@ def print_mols():
     Print molecule names available for query.
     """
     for mol_family in mols.keys():
-        print '-- {0} :'.format(mol_family)
-        print mols[mol_family], '\n'
+        print('-- {0} :'.format(mol_family))
+        print(mols[mol_family], '\n')
 
 
-def query(mol, query_type, coll_partner_index=0):
+def query(mol, query_type=None, coll_partner_index=0, return_datafile=False):
     """
     Query the LAMDA database.
 
@@ -69,12 +71,12 @@ def query(mol, query_type, coll_partner_index=0):
     ----------
     mol : string
         Molecule or atom designation. For a list of valid designations see
-        the :meth:``print_mols`` method.
+        the :meth:`print_mols` method.
     query_type : string
         Query type to execute. Valid options:
-            'erg_levels' -> Energy Levels
-            'rad_trans'  -> Radiative transitions
-            'coll_rates' -> Collisional rates
+            ``'erg_levels'`` -> Energy Levels
+            ``'rad_trans'``  -> Radiative transitions
+            ``'coll_rates'`` -> Collisional rates
     coll_partner_index : number, default 0
         If collisional rates are queried, set the index of the collisional
         partner to the order found in the LAMDA datafile. If no index is
@@ -82,10 +84,11 @@ def query(mol, query_type, coll_partner_index=0):
 
     Returns
     -------
-    table : astropy.table.Table
+    table : `~astropy.table.Table`
 
     Examples
     --------
+    >>> from astroquery import lamda
     >>> t = lamda.query(mol='co', query_type='erg_levels')
     >>> t.pprint()
     LEVEL ENERGIES(cm^-1) WEIGHT  J
@@ -94,11 +97,13 @@ def query(mol, query_type, coll_partner_index=0):
         3    11.534919938    5.0   2
       ...             ...    ... ...
     """
-    if query_type not in query_types.keys():
-        raise ValueError
+    if query_type not in query_types.keys() and not return_datafile:
+        raise ValueError("Query type must be one of "+",".join(query_type.keys()))
     # Send HTTP request to open URL
     datafile = [s.strip() for s in
                 requests.get(url.format(mol)).iter_lines()]
+    if return_datafile:
+        return datafile
     # Parse datafile string list and return a table
     table = _parse_datafile(datafile, query_type=query_type,
                             coll_partner_index=coll_partner_index)
@@ -112,7 +117,7 @@ def _parse_datafile(datafile, query_type, coll_partner_index=0):
 
     Parameters
     ----------
-    datafile : np.ndarray
+    datafile : `np.ndarray`
         Raw data array pulled from LAMDA
     query_type : string
         Valid query_type in ['coll_rates', 'rad_trans', 'erg_levels']
@@ -121,7 +126,7 @@ def _parse_datafile(datafile, query_type, coll_partner_index=0):
 
     Returns
     -------
-    table : astropy.table.Table
+    table : `~astropy.table.Table`
     """
     query_identifier = query_types[query_type]
     if query_type == 'coll_rates':
@@ -150,16 +155,16 @@ def _select_data(data, i, query_type):
 
     Parameters
     ----------
-    data : np.ndarray
-        Raw data array pulled from LAMDA
+    data : `np.ndarray`
+        Raw data array pulled from LAMDA.
     i : number
-        Row index to start reading from data in
+        Row index to start reading from data in.
     query_type : string
-        Valid query_type in ['coll_rates', 'rad_trans', 'erg_levels']
+        Valid query_type in ['coll_rates', 'rad_trans', 'erg_levels'].
 
     Returns
     -------
-    data : np.array
+    data : `np.array`
         Data for query_type
     col_names : list
         Column name list
@@ -196,7 +201,7 @@ def _check_dtypes(data):
 
     Parameters
     ----------
-    data : np.ndarray
+    data : `np.ndarray`
 
     Returns
     -------
@@ -215,5 +220,3 @@ def _check_dtypes(data):
 
 if __name__ == "__main__":
     pass
-
-

@@ -1,0 +1,9109 @@
+<?xml version="1.0"?>
+<VOTABLE version="1.1">
+<DEFINITIONS>
+<COOSYS ID="J2000" equinox="2000." epoch="2000." system="eq_FK5" />
+</DEFINITIONS>
+<RESOURCE type="results">
+<DESCRIPTION>
+Results from query to  NASA/IPAC Extragalactic Database (NED),
+which is operated by the Jet Propulsion Laboratory, California Institute of
+Technology, under contract with the National Aeronautics and Space Administration.
+This work was (partially) supported by the US National Virtual Observatory
+development project, which is funded by the National Science Foundation
+under cooperative agreement AST0122449 with The Johns Hopkins University.
+</DESCRIPTION>
+<INFO name="QUERY_STATUS" value="OK"/>
+<PARAM name="queryDateTime"  ucd="time.creation" datatype="char" arraysize="*" value="2013-07-18T04:16:22PDT"/>
+<INFO name="QUERY_STATUS" value="OK"/>
+<LINK content-role="query" content-type="char" href="http://ned.ipac.caltech.edu/cgi-bin/objsearch?search_type=Near+Position+Search&amp;RA=83.822083&amp;DEC=-5.391111&amp;radius=2.000&amp;of=xml_main"/>
+<TABLE ID="NED_MainTable" name="Main Information Table for Searching NED within 2.000 arcmin of 83.822083, -5.391111">
+<DESCRIPTION> Main information about object (Cone Search results)</DESCRIPTION>
+
+<PARAM name="Equinox" datatype="char" arraysize="*" ucd="time.equinox" value="J2000.0"/>
+<PARAM name="CoordSystem" datatype="char" arraysize="*" ucd="pos.system.coord" value="Equatorial"/>
+<FIELD ID="main_col1" name="No." ucd="meta.number" datatype="int" width="4" type="hidden">
+<DESCRIPTION> A sequential object number applicable to this list only.  </DESCRIPTION>
+</FIELD>
+<FIELD ID="main_col2" name="Object Name" ucd="meta.id;meta.main" datatype="char" arraysize="30" width="30">
+<DESCRIPTION> NED preferred name for the object </DESCRIPTION>
+<LINK content-role="query" content-type="char" href="http://ned.ipac.caltech.edu/cgi-bin/objsearch?objname=${Object Name}"/>
+</FIELD>
+<FIELD ID="main_col3" name="RA(deg)" ucd="pos.eq.ra;meta.main" datatype="double" unit="degrees" width="10">
+<DESCRIPTION> Right Ascension in degrees (Equatorial J2000.0)</DESCRIPTION>
+</FIELD>
+<FIELD ID="main_col4" name="DEC(deg)" ucd="pos.eq.dec;meta.main" datatype="double" unit="degrees" width="10">
+<DESCRIPTION> Declination in degrees (Equatorial J2000.0)</DESCRIPTION>
+</FIELD>
+<FIELD ID="main_col5" name="Type" ucd="src.class" datatype="char" arraysize="*" width="10">
+<DESCRIPTION> NED's Preferred Object Type: G,GPair,GTrpl,GGroup,GClstr,QSO,AbLS,RadioS,IrS,EmLS,UvES,XrayS,SN </DESCRIPTION>
+<LINK content-role="query" content-type="char" href="http://ned.ipac.caltech.edu/help/faq5.html#5k"/>
+</FIELD>
+<FIELD ID="main_col6" name="Velocity" ucd="src.veloc.hc" datatype="double" unit="km/sec" width="10">
+<DESCRIPTION> Velocity in km/sec, based on known heliocentric redshift </DESCRIPTION>
+</FIELD>
+<FIELD ID="main_col7" name="Redshift" ucd="src.redshift" datatype="double" width="10">
+<DESCRIPTION> Heliocentric redshift for the object, if it exists in NED </DESCRIPTION>
+</FIELD>
+<FIELD ID="main_col8" name="Redshift Flag" ucd="meta.code;src.redshift" datatype="char" arraysize="*" width="5">
+<DESCRIPTION> Quality flag for known heliocentric redshift</DESCRIPTION>
+</FIELD>
+<FIELD ID="main_col9" name="Magnitude and Filter" ucd="meta.code;src.magnitude" datatype="char" arraysize="*" width="5">
+<DESCRIPTION>  NED's Basic Data magnitude and filter, generally in an optical band.</DESCRIPTION>
+</FIELD>
+<FIELD ID="main_col10" name="Distance (arcmin)" ucd="pos.distance" datatype="double" unit="arcmin" width="10">
+<DESCRIPTION> Distance of the source from the queried position (arcmin);listed as blank if not applicable. </DESCRIPTION>
+</FIELD>
+<FIELD ID="main_col11" name="References" ucd="meta.bib;meta.number" datatype="int" width="5">
+<DESCRIPTION> Number of literature references in NED </DESCRIPTION>
+</FIELD>
+<FIELD ID="main_col12" name="Notes" ucd="meta.note;meta.number" datatype="int" width="5">
+<DESCRIPTION> Number of catalog notes in NED </DESCRIPTION>
+</FIELD>
+<FIELD ID="main_col13" name="Photometry Points" ucd="phot;meta.number" datatype="int" width="5">
+<DESCRIPTION> Number of photometric data points stored by NED for the object </DESCRIPTION>
+</FIELD>
+<FIELD ID="main_col14" name="Positions" ucd="pos;meta.number" datatype="int" width="5">
+<DESCRIPTION> Number of position data points stored by NED for the object </DESCRIPTION>
+</FIELD>
+<FIELD ID="main_col15" name="Redshift Points" ucd="src.redshift;meta.number" datatype="int" width="5">
+<DESCRIPTION> Number of redshift data points stored by NED for the object. </DESCRIPTION>
+</FIELD>
+<FIELD ID="main_col16" name="Diameter Points" ucd="phys.size.diameter;meta.number" datatype="int" width="5">
+<DESCRIPTION> Number of diameter data points stored by NED for the object. </DESCRIPTION>
+</FIELD>
+<FIELD ID="main_col17" name="Associations" ucd="meta.id.assoc;meta.number" datatype="int" width="5">
+<DESCRIPTION> Number of NED associations for the object. </DESCRIPTION>
+</FIELD>
+<DATA>
+<TABLEDATA>
+<TR>
+<TD>1</TD>
+<TD>COUP 0900</TD>
+<TD> 83.82320 </TD>
+<TD>  -5.39018 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[13.8I]]></TD>
+<TD>  0.087</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>2</TD>
+<TD>CXO J053517.0-052333</TD>
+<TD> 83.82113 </TD>
+<TD>  -5.39278 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[13.3V]]></TD>
+<TD>  0.115</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>3</TD>
+<TD>CXO J053517.4-052320</TD>
+<TD> 83.82280 </TD>
+<TD>  -5.38918 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[15.8V]]></TD>
+<TD>  0.124</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>4</TD>
+<TD>CXO J053516.7-052327</TD>
+<TD> 83.81989 </TD>
+<TD>  -5.39112 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  0.131</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>5</TD>
+<TD>COUP 0933</TD>
+<TD> 83.82467 </TD>
+<TD>  -5.39056 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  0.158</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>6</TD>
+<TD>COUP 0923</TD>
+<TD> 83.82426 </TD>
+<TD>  -5.38933 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  0.168</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>7</TD>
+<TD>CXO J053516.9-052336</TD>
+<TD> 83.82078 </TD>
+<TD>  -5.39363 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[14.0V]]></TD>
+<TD>  0.170</TD>
+<TD>4</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>8</TD>
+<TD>COUP 0911</TD>
+<TD> 83.82398 </TD>
+<TD>  -5.38892 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  0.174</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>9</TD>
+<TD>2XMM J053516.7-052320</TD>
+<TD> 83.81980 </TD>
+<TD>  -5.38896 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  0.188</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>10</TD>
+<TD>HD 037023</TD>
+<TD> 83.82193 </TD>
+<TD>  -5.38793 </TD>
+<TD>!*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[ 4.76]]></TD>
+<TD>  0.191</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>11</TD>
+<TD>CXO J053517.0-052339</TD>
+<TD> 83.82111 </TD>
+<TD>  -5.39437 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[13.3I]]></TD>
+<TD>  0.204</TD>
+<TD>4</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>12</TD>
+<TD>CXO J053517.9-052335</TD>
+<TD> 83.82489 </TD>
+<TD>  -5.39318 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[20.9V]]></TD>
+<TD>  0.209</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>13</TD>
+<TD>CXO J053516.4-052329</TD>
+<TD> 83.81860 </TD>
+<TD>  -5.39142 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  0.209</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>14</TD>
+<TD>CXO J053516.4-052331</TD>
+<TD> 83.81862 </TD>
+<TD>  -5.39200 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  0.214</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>15</TD>
+<TD>MESSIER 042</TD>
+<TD> 83.81866 </TD>
+<TD>  -5.38968 </TD>
+<TD>HII</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[ 3.0 ]]></TD>
+<TD>  0.222</TD>
+<TD>35</TD>
+<TD>0</TD>
+<TD>8</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>16</TD>
+<TD>theta 1 Ori C</TD>
+<TD> 83.81862 </TD>
+<TD>  -5.38969 </TD>
+<TD>!*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[ 4.61]]></TD>
+<TD>  0.223</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>17</TD>
+<TD>COUP 0886</TD>
+<TD> 83.82259 </TD>
+<TD>  -5.39491 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[17.7I]]></TD>
+<TD>  0.230</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>18</TD>
+<TD>CXO J053516.7-052316</TD>
+<TD> 83.81982 </TD>
+<TD>  -5.38788 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[12.2I]]></TD>
+<TD>  0.236</TD>
+<TD>4</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>19</TD>
+<TD>COUP 0910</TD>
+<TD> 83.82390 </TD>
+<TD>  -5.38745 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[16.3I]]></TD>
+<TD>  0.245</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>20</TD>
+<TD>CXO J053517.8-052315</TD>
+<TD> 83.82429 </TD>
+<TD>  -5.38766 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[15.6V]]></TD>
+<TD>  0.246</TD>
+<TD>4</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>21</TD>
+<TD>2XMM J053516.4-052320</TD>
+<TD> 83.81849 </TD>
+<TD>  -5.38903 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  0.248</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>22</TD>
+<TD>CXO J053516.6-052315</TD>
+<TD> 83.81929 </TD>
+<TD>  -5.38779 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  0.260</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>23</TD>
+<TD>CXO J053518.2-052335</TD>
+<TD> 83.82588 </TD>
+<TD>  -5.39329 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[13.9V]]></TD>
+<TD>  0.262</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>24</TD>
+<TD>COUP 0834</TD>
+<TD> 83.82009 </TD>
+<TD>  -5.39507 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  0.266</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>25</TD>
+<TD>CXO J053517.7-052342</TD>
+<TD> 83.82405 </TD>
+<TD>  -5.39516 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[17.4I]]></TD>
+<TD>  0.270</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>26</TD>
+<TD>2XMM J053516.2-052319</TD>
+<TD> 83.81786 </TD>
+<TD>  -5.38870 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  0.291</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>27</TD>
+<TD>CXO J053517.7-052344</TD>
+<TD> 83.82412 </TD>
+<TD>  -5.39560 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[19.9V]]></TD>
+<TD>  0.296</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>28</TD>
+<TD>CXO J053518.5-052329</TD>
+<TD> 83.82711 </TD>
+<TD>  -5.39144 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[21.0V]]></TD>
+<TD>  0.301</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>29</TD>
+<TD>CXO J053516.2-052318</TD>
+<TD> 83.81770 </TD>
+<TD>  -5.38861 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  0.302</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>30</TD>
+<TD>CXO J053516.0-052325</TD>
+<TD> 83.81702 </TD>
+<TD>  -5.39040 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  0.306</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>31</TD>
+<TD>COUP 0780</TD>
+<TD> 83.81712 </TD>
+<TD>  -5.38971 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  0.308</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+</TR>
+<TR>
+<TD>32</TD>
+<TD>CXO J053516.0-052322</TD>
+<TD> 83.81705 </TD>
+<TD>  -5.38966 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  0.313</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+</TR>
+<TR>
+<TD>33</TD>
+<TD>CXO J053518.2-052315</TD>
+<TD> 83.82604 </TD>
+<TD>  -5.38765 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[18.6V]]></TD>
+<TD>  0.314</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>34</TD>
+<TD>CXO J053516.2-052316</TD>
+<TD> 83.81788 </TD>
+<TD>  -5.38792 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[12.3I]]></TD>
+<TD>  0.316</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>35</TD>
+<TD>COUP 0767</TD>
+<TD> 83.81684 </TD>
+<TD>  -5.39288 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  0.331</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>36</TD>
+<TD>COUP 0747</TD>
+<TD> 83.81605 </TD>
+<TD>  -5.39042 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  0.363</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>37</TD>
+<TD>COUP 0833</TD>
+<TD> 83.82034 </TD>
+<TD>  -5.38529 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[20.6V]]></TD>
+<TD>  0.365</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>38</TD>
+<TD>CXO J053515.8-052322</TD>
+<TD> 83.81603 </TD>
+<TD>  -5.38954 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[12.2I]]></TD>
+<TD>  0.374</TD>
+<TD>4</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>39</TD>
+<TD>CXO J053516.1-052313</TD>
+<TD> 83.81716 </TD>
+<TD>  -5.38726 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  0.374</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>40</TD>
+<TD>COUP 0757</TD>
+<TD> 83.81629 </TD>
+<TD>  -5.39384 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  0.383</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>41</TD>
+<TD>CXO J053517.3-052304</TD>
+<TD> 83.82241 </TD>
+<TD>  -5.38468 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[16.6I]]></TD>
+<TD>  0.386</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>42</TD>
+<TD>CXO J053515.8-052318</TD>
+<TD> 83.81611 </TD>
+<TD>  -5.38856 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  0.388</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>43</TD>
+<TD>CXO J053518.8-052328</TD>
+<TD> 83.82867 </TD>
+<TD>  -5.39135 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[18.8V]]></TD>
+<TD>  0.394</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>44</TD>
+<TD>COUP 0733</TD>
+<TD> 83.81558 </TD>
+<TD>  -5.38959 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  0.399</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>45</TD>
+<TD>AF Ori</TD>
+<TD> 83.82780 </TD>
+<TD>  -5.38720 </TD>
+<TD>!V*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[15.5V]]></TD>
+<TD>  0.414</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>46</TD>
+<TD>CXO J053515.7-052338</TD>
+<TD> 83.81571 </TD>
+<TD>  -5.39395 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  0.417</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>47</TD>
+<TD>COUP 0954</TD>
+<TD> 83.82618 </TD>
+<TD>  -5.38539 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[20.1V]]></TD>
+<TD>  0.422</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>48</TD>
+<TD>CXO J053516.1-052309</TD>
+<TD> 83.81726 </TD>
+<TD>  -5.38599 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  0.422</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>49</TD>
+<TD>COUP 0846</TD>
+<TD> 83.82082 </TD>
+<TD>  -5.38413 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  0.426</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>50</TD>
+<TD>CXO J053518.9-052321</TD>
+<TD> 83.82906 </TD>
+<TD>  -5.38943 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  0.429</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>51</TD>
+<TD>V1016 Ori</TD>
+<TD> 83.81596 </TD>
+<TD>  -5.38727 </TD>
+<TD>!V*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[ 4.85]]></TD>
+<TD>  0.432</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>52</TD>
+<TD>CXO J053517.8-052302</TD>
+<TD> 83.82448 </TD>
+<TD>  -5.38419 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[16.8V]]></TD>
+<TD>  0.439</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>53</TD>
+<TD>CXO J053515.7-052339</TD>
+<TD> 83.81535 </TD>
+<TD>  -5.39417 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  0.442</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>54</TD>
+<TD>CXO J053515.8-052310</TD>
+<TD> 83.81619 </TD>
+<TD>  -5.38630 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  0.455</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>55</TD>
+<TD>BM Ori</TD>
+<TD> 83.81727 </TD>
+<TD>  -5.38522 </TD>
+<TD>!V*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[ 7.2V]]></TD>
+<TD>  0.456</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>56</TD>
+<TD>CXO J053519.1-052326</TD>
+<TD> 83.82970 </TD>
+<TD>  -5.39084 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[16.5V]]></TD>
+<TD>  0.456</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>57</TD>
+<TD>COUP 0744</TD>
+<TD> 83.81590 </TD>
+<TD>  -5.38664 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  0.457</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>58</TD>
+<TD>CXO J053516.9-052300</TD>
+<TD> 83.82076 </TD>
+<TD>  -5.38358 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[15.0V]]></TD>
+<TD>  0.458</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>59</TD>
+<TD>COUP 0766</TD>
+<TD> 83.81701 </TD>
+<TD>  -5.38527 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[11.0I]]></TD>
+<TD>  0.463</TD>
+<TD>2</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+</TR>
+<TR>
+<TD>60</TD>
+<TD>CXO J053516.0-052306</TD>
+<TD> 83.81701 </TD>
+<TD>  -5.38522 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  0.465</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+</TR>
+<TR>
+<TD>61</TD>
+<TD>CXO J053515.4-052337</TD>
+<TD> 83.81468 </TD>
+<TD>  -5.39373 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  0.469</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>62</TD>
+<TD>2XMM J053515.7-052345</TD>
+<TD> 83.81567 </TD>
+<TD>  -5.39584 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  0.477</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>63</TD>
+<TD>CXO J053515.3-052333</TD>
+<TD> 83.81411 </TD>
+<TD>  -5.39259 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  0.484</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>64</TD>
+<TD>CXO J053515.7-052309</TD>
+<TD> 83.81574 </TD>
+<TD>  -5.38607 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[ 8.4I]]></TD>
+<TD>  0.485</TD>
+<TD>3</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>65</TD>
+<TD>AC Ori</TD>
+<TD> 83.81652 </TD>
+<TD>  -5.39717 </TD>
+<TD>!V*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[13.7V]]></TD>
+<TD>  0.493</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>66</TD>
+<TD>COUP 0786</TD>
+<TD> 83.81780 </TD>
+<TD>  -5.38372 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  0.512</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>67</TD>
+<TD>COUP 0769</TD>
+<TD> 83.81696 </TD>
+<TD>  -5.39815 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  0.522</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>68</TD>
+<TD>CXO J053516.0-052352</TD>
+<TD> 83.81672 </TD>
+<TD>  -5.39803 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[14.4V]]></TD>
+<TD>  0.524</TD>
+<TD>4</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>69</TD>
+<TD>V1510 Ori</TD>
+<TD> 83.82320 </TD>
+<TD>  -5.38244 </TD>
+<TD>!V*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[14.9V]]></TD>
+<TD>  0.524</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>70</TD>
+<TD>CXO J053518.8-052306</TD>
+<TD> 83.82866 </TD>
+<TD>  -5.38528 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  0.526</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>71</TD>
+<TD>CXO J053515.8-052305</TD>
+<TD> 83.81589 </TD>
+<TD>  -5.38485 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  0.527</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>72</TD>
+<TD>CXO J053517.3-052400</TD>
+<TD> 83.82243 </TD>
+<TD>  -5.40007 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[18.7V]]></TD>
+<TD>  0.538</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>73</TD>
+<TD>CXO J053515.1-052318</TD>
+<TD> 83.81341 </TD>
+<TD>  -5.38857 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  0.540</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>74</TD>
+<TD>CXO J053515.4-052345</TD>
+<TD> 83.81437 </TD>
+<TD>  -5.39595 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[12.9I]]></TD>
+<TD>  0.545</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>75</TD>
+<TD>2XMM J053516.1-052356</TD>
+<TD> 83.81730 </TD>
+<TD>  -5.39900 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  0.553</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>76</TD>
+<TD>CXO J053515.8-052301</TD>
+<TD> 83.81618 </TD>
+<TD>  -5.38387 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[15.9V]]></TD>
+<TD>  0.560</TD>
+<TD>4</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>77</TD>
+<TD>CXO J053519.0-052307</TD>
+<TD> 83.82953 </TD>
+<TD>  -5.38540 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[18.1I]]></TD>
+<TD>  0.561</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>78</TD>
+<TD>CXO J053516.4-052256</TD>
+<TD> 83.81871 </TD>
+<TD>  -5.38237 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  0.562</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>79</TD>
+<TD>V1337 Ori</TD>
+<TD> 83.82947 </TD>
+<TD>  -5.39714 </TD>
+<TD>!V*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[15.5V]]></TD>
+<TD>  0.571</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>80</TD>
+<TD>CXO J053518.0-052400</TD>
+<TD> 83.82533 </TD>
+<TD>  -5.40032 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[17.9V]]></TD>
+<TD>  0.586</TD>
+<TD>4</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>81</TD>
+<TD>CXO J053514.9-052328</TD>
+<TD> 83.81226 </TD>
+<TD>  -5.39137 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[14.0I]]></TD>
+<TD>  0.587</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>82</TD>
+<TD>COUP 0987</TD>
+<TD> 83.82786 </TD>
+<TD>  -5.39910 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[19.0V]]></TD>
+<TD>  0.591</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>83</TD>
+<TD>COUP 0906</TD>
+<TD> 83.82354 </TD>
+<TD>  -5.38103 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[19.6V]]></TD>
+<TD>  0.611</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>84</TD>
+<TD>CXO J053514.9-052338</TD>
+<TD> 83.81232 </TD>
+<TD>  -5.39421 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[14.5V]]></TD>
+<TD>  0.612</TD>
+<TD>4</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>85</TD>
+<TD>CXO J053517.4-052251</TD>
+<TD> 83.82285 </TD>
+<TD>  -5.38092 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[18.7V]]></TD>
+<TD>  0.613</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>86</TD>
+<TD>CXO J053518.0-052402</TD>
+<TD> 83.82519 </TD>
+<TD>  -5.40087 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[21.1V]]></TD>
+<TD>  0.614</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>87</TD>
+<TD>CXO J053515.1-052346</TD>
+<TD> 83.81319 </TD>
+<TD>  -5.39627 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[13.0I]]></TD>
+<TD>  0.615</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>88</TD>
+<TD>COUP 0777</TD>
+<TD> 83.81732 </TD>
+<TD>  -5.38201 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[21.9V]]></TD>
+<TD>  0.616</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>89</TD>
+<TD>2XMM J053516.5-052403</TD>
+<TD> 83.81889 </TD>
+<TD>  -5.40088 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  0.616</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>90</TD>
+<TD>V1279 Ori</TD>
+<TD> 83.81989 </TD>
+<TD>  -5.40116 </TD>
+<TD>!V*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[13.7V]]></TD>
+<TD>  0.617</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>91</TD>
+<TD>COUP 0691</TD>
+<TD> 83.81361 </TD>
+<TD>  -5.39712 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  0.622</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>92</TD>
+<TD>CXO J053518.7-052256</TD>
+<TD> 83.82796 </TD>
+<TD>  -5.38244 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[15.7V]]></TD>
+<TD>  0.627</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+</TR>
+<TR>
+<TD>93</TD>
+<TD>CXO J053516.3-052403</TD>
+<TD> 83.81826 </TD>
+<TD>  -5.40090 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[14.0V]]></TD>
+<TD>  0.630</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>94</TD>
+<TD>CXO J053519.3-052306</TD>
+<TD> 83.83078 </TD>
+<TD>  -5.38513 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  0.631</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+</TR>
+<TR>
+<TD>95</TD>
+<TD>CXO J053517.1-052249</TD>
+<TD> 83.82134 </TD>
+<TD>  -5.38056 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[14.0I]]></TD>
+<TD>  0.634</TD>
+<TD>4</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>96</TD>
+<TD>CXO J053516.0-052253</TD>
+<TD> 83.81703 </TD>
+<TD>  -5.38168 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  0.642</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>97</TD>
+<TD>CXO J053514.8-052315</TD>
+<TD> 83.81182 </TD>
+<TD>  -5.38776 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  0.645</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>98</TD>
+<TD>CXO J053514.7-052322</TD>
+<TD> 83.81137 </TD>
+<TD>  -5.38968 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[12.2I]]></TD>
+<TD>  0.646</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>99</TD>
+<TD>CXO J053516.5-052405</TD>
+<TD> 83.81912 </TD>
+<TD>  -5.40165 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[18.4V]]></TD>
+<TD>  0.657</TD>
+<TD>4</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>100</TD>
+<TD>CXO J053514.6-052328</TD>
+<TD> 83.81108 </TD>
+<TD>  -5.39131 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  0.658</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>101</TD>
+<TD>CXO J053515.1-052304</TD>
+<TD> 83.81306 </TD>
+<TD>  -5.38466 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  0.664</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>102</TD>
+<TD>CXO J053516.9-052248</TD>
+<TD> 83.82074 </TD>
+<TD>  -5.38012 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[19.1V]]></TD>
+<TD>  0.664</TD>
+<TD>4</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>103</TD>
+<TD>V1336 Ori</TD>
+<TD> 83.82641 </TD>
+<TD>  -5.40135 </TD>
+<TD>!V*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[19.4V]]></TD>
+<TD>  0.667</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>104</TD>
+<TD>CXO J053515.6-052256</TD>
+<TD> 83.81517 </TD>
+<TD>  -5.38234 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[12.7V]]></TD>
+<TD>  0.669</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>105</TD>
+<TD>CXO J053514.8-052346</TD>
+<TD> 83.81179 </TD>
+<TD>  -5.39620 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[12.3I]]></TD>
+<TD>  0.686</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>106</TD>
+<TD>COUP 0800</TD>
+<TD> 83.81813 </TD>
+<TD>  -5.38030 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[17.0V]]></TD>
+<TD>  0.690</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>107</TD>
+<TD>CXO J053517.3-052245</TD>
+<TD> 83.82241 </TD>
+<TD>  -5.37936 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  0.705</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>108</TD>
+<TD>CXO J053519.6-052303</TD>
+<TD> 83.83181 </TD>
+<TD>  -5.38433 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  0.709</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+</TR>
+<TR>
+<TD>109</TD>
+<TD>CXO J053515.0-052354</TD>
+<TD> 83.81268 </TD>
+<TD>  -5.39844 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  0.713</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>110</TD>
+<TD>CXO J053514.5-052315</TD>
+<TD> 83.81061 </TD>
+<TD>  -5.38776 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  0.714</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>111</TD>
+<TD>CXO J053514.8-052304</TD>
+<TD> 83.81199 </TD>
+<TD>  -5.38473 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[21.2V]]></TD>
+<TD>  0.714</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>112</TD>
+<TD>CXO J053518.4-052406</TD>
+<TD> 83.82697 </TD>
+<TD>  -5.40198 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[17.0V]]></TD>
+<TD>  0.715</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>113</TD>
+<TD>2XMM J053519.2-052256</TD>
+<TD> 83.83038 </TD>
+<TD>  -5.38249 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  0.716</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>4</TD>
+</TR>
+<TR>
+<TD>114</TD>
+<TD>CXO J053515.6-052402</TD>
+<TD> 83.81509 </TD>
+<TD>  -5.40083 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[14.5V]]></TD>
+<TD>  0.717</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>115</TD>
+<TD>CXO J053514.4-052322</TD>
+<TD> 83.81003 </TD>
+<TD>  -5.38972 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  0.725</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>116</TD>
+<TD>CXO J053515.2-052256</TD>
+<TD> 83.81362 </TD>
+<TD>  -5.38245 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[13.1V]]></TD>
+<TD>  0.725</TD>
+<TD>4</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>117</TD>
+<TD>CXO J053514.3-052333</TD>
+<TD> 83.81001 </TD>
+<TD>  -5.39266 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[15.1V]]></TD>
+<TD>  0.727</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>118</TD>
+<TD>MT Ori</TD>
+<TD> 83.82482 </TD>
+<TD>  -5.37928 </TD>
+<TD>!V*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[11.3V]]></TD>
+<TD>  0.728</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>119</TD>
+<TD>NVSS J053517-052243</TD>
+<TD> 83.82158 </TD>
+<TD>  -5.37864 </TD>
+<TD>RadioS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  0.749</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>120</TD>
+<TD>CXO J053519.6-052357</TD>
+<TD> 83.83174 </TD>
+<TD>  -5.39926 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[17.0V]]></TD>
+<TD>  0.756</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>121</TD>
+<TD>CXO J053514.3-052317</TD>
+<TD> 83.80973 </TD>
+<TD>  -5.38815 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  0.759</TD>
+<TD>4</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>122</TD>
+<TD>CXO J053517.3-052413</TD>
+<TD> 83.82251 </TD>
+<TD>  -5.40388 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[19.8V]]></TD>
+<TD>  0.766</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>123</TD>
+<TD>CXO J053515.1-052254</TD>
+<TD> 83.81333 </TD>
+<TD>  -5.38175 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[14.2V]]></TD>
+<TD>  0.767</TD>
+<TD>4</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>124</TD>
+<TD>CXO J053516.0-052411</TD>
+<TD> 83.81707 </TD>
+<TD>  -5.40316 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[18.2V]]></TD>
+<TD>  0.783</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>125</TD>
+<TD>CXO J053519.2-052250</TD>
+<TD> 83.83008 </TD>
+<TD>  -5.38074 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[17.0V]]></TD>
+<TD>  0.784</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+</TR>
+<TR>
+<TD>126</TD>
+<TD>2XMM J053514.1-052319</TD>
+<TD> 83.80916 </TD>
+<TD>  -5.38865 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  0.786</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>127</TD>
+<TD>CXO J053514.6-052301</TD>
+<TD> 83.81113 </TD>
+<TD>  -5.38383 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[19.1V]]></TD>
+<TD>  0.787</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>128</TD>
+<TD>CXO J053520.1-052308</TD>
+<TD> 83.83408 </TD>
+<TD>  -5.38569 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  0.787</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>129</TD>
+<TD>V1520 Ori</TD>
+<TD> 83.83529 </TD>
+<TD>  -5.39162 </TD>
+<TD>!V*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[15.7V]]></TD>
+<TD>  0.790</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>130</TD>
+<TD>CXO J053515.8-052245</TD>
+<TD> 83.81602 </TD>
+<TD>  -5.37940 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[17.1V]]></TD>
+<TD>  0.791</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>131</TD>
+<TD>COUP 0877</TD>
+<TD> 83.82220 </TD>
+<TD>  -5.37785 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  0.796</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>132</TD>
+<TD>CXO J053515.4-052248</TD>
+<TD> 83.81455 </TD>
+<TD>  -5.38015 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[16.0V]]></TD>
+<TD>  0.797</TD>
+<TD>4</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>133</TD>
+<TD>COUP 0819</TD>
+<TD> 83.81936 </TD>
+<TD>  -5.37806 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  0.800</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>134</TD>
+<TD>CXO J053517.9-052240</TD>
+<TD> 83.82494 </TD>
+<TD>  -5.37799 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  0.805</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>135</TD>
+<TD>NVSS J053514-052329</TD>
+<TD> 83.80858 </TD>
+<TD>  -5.39147 </TD>
+<TD>RadioS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  0.807</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>136</TD>
+<TD>CXO J053514.3-052308</TD>
+<TD> 83.80966 </TD>
+<TD>  -5.38563 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[21.7V]]></TD>
+<TD>  0.812</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>137</TD>
+<TD>COUP 0632</TD>
+<TD> 83.81002 </TD>
+<TD>  -5.39750 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  0.816</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>138</TD>
+<TD>CXO J053515.5-052246</TD>
+<TD> 83.81477 </TD>
+<TD>  -5.37957 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  0.819</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>139</TD>
+<TD>CXO J053518.3-052241</TD>
+<TD> 83.82636 </TD>
+<TD>  -5.37815 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  0.819</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>140</TD>
+<TD>CXO J053515.7-052411</TD>
+<TD> 83.81570 </TD>
+<TD>  -5.40321 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[21.1V]]></TD>
+<TD>  0.820</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>141</TD>
+<TD>CXO J053517.4-052417</TD>
+<TD> 83.82286 </TD>
+<TD>  -5.40481 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[19.7V]]></TD>
+<TD>  0.823</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>142</TD>
+<TD>CXO J053514.0-052338</TD>
+<TD> 83.80858 </TD>
+<TD>  -5.39401 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[15.2V]]></TD>
+<TD>  0.825</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>143</TD>
+<TD>COUP 0601</TD>
+<TD> 83.80861 </TD>
+<TD>  -5.38714 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  0.839</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>144</TD>
+<TD>CXO J053514.2-052304</TD>
+<TD> 83.80957 </TD>
+<TD>  -5.38449 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  0.847</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>145</TD>
+<TD>CXO J053513.9-052319</TD>
+<TD> 83.80805 </TD>
+<TD>  -5.38891 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  0.849</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>146</TD>
+<TD>COUP 1064</TD>
+<TD> 83.83299 </TD>
+<TD>  -5.40070 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[19.6V]]></TD>
+<TD>  0.869</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>147</TD>
+<TD>AD Ori</TD>
+<TD> 83.82234 </TD>
+<TD>  -5.37660 </TD>
+<TD>!V*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[16.2V]]></TD>
+<TD>  0.871</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>148</TD>
+<TD>COUP 0843</TD>
+<TD> 83.82051 </TD>
+<TD>  -5.37645 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  0.885</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>149</TD>
+<TD>V1229 Ori</TD>
+<TD> 83.82657 </TD>
+<TD>  -5.37706 </TD>
+<TD>!V*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[13.4V]]></TD>
+<TD>  0.885</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>150</TD>
+<TD>CXO J053516.1-052237</TD>
+<TD> 83.81748 </TD>
+<TD>  -5.37707 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[18.9V]]></TD>
+<TD>  0.886</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>151</TD>
+<TD>CXO J053514.8-052406</TD>
+<TD> 83.81175 </TD>
+<TD>  -5.40189 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  0.894</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>152</TD>
+<TD>CXO J053515.9-052417</TD>
+<TD> 83.81609 </TD>
+<TD>  -5.40479 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[18.7V]]></TD>
+<TD>  0.896</TD>
+<TD>4</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>153</TD>
+<TD>NVSS J053517-052420</TD>
+<TD> 83.82496 </TD>
+<TD>  -5.40581 </TD>
+<TD>RadioS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[ 4.99]]></TD>
+<TD>  0.898</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>154</TD>
+<TD>COUP 0629</TD>
+<TD> 83.81000 </TD>
+<TD>  -5.38213 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[18.0I]]></TD>
+<TD>  0.901</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>155</TD>
+<TD>CXO J053516.4-052234</TD>
+<TD> 83.81874 </TD>
+<TD>  -5.37641 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[17.7V]]></TD>
+<TD>  0.904</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>156</TD>
+<TD>CXO J053520.9-052321</TD>
+<TD> 83.83718 </TD>
+<TD>  -5.38941 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[19.4V]]></TD>
+<TD>  0.908</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>157</TD>
+<TD>CXO J053514.6-052249</TD>
+<TD> 83.81125 </TD>
+<TD>  -5.38037 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  0.913</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>158</TD>
+<TD>CXO J053518.8-052417</TD>
+<TD> 83.82874 </TD>
+<TD>  -5.40485 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[20.3V]]></TD>
+<TD>  0.915</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+</TR>
+<TR>
+<TD>159</TD>
+<TD>COUP 0905</TD>
+<TD> 83.82371 </TD>
+<TD>  -5.37593 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  0.916</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>160</TD>
+<TD>COUP 0607</TD>
+<TD> 83.80902 </TD>
+<TD>  -5.39917 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  0.918</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>161</TD>
+<TD>V1333 Ori</TD>
+<TD> 83.82089 </TD>
+<TD>  -5.37583 </TD>
+<TD>!V*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[14.6V]]></TD>
+<TD>  0.920</TD>
+<TD>4</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>162</TD>
+<TD>NVSS J053517-052232</TD>
+<TD> 83.82154 </TD>
+<TD>  -5.37575 </TD>
+<TD>RadioS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[ERROR]]></TD>
+<TD>  0.922</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>163</TD>
+<TD>CXO J053514.3-052253</TD>
+<TD> 83.80987 </TD>
+<TD>  -5.38168 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[17.6I]]></TD>
+<TD>  0.923</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>164</TD>
+<TD>CXO J053517.2-052423</TD>
+<TD> 83.82200 </TD>
+<TD>  -5.40672 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[18.2V]]></TD>
+<TD>  0.936</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>165</TD>
+<TD>CXO J053513.5-052330</TD>
+<TD> 83.80640 </TD>
+<TD>  -5.39191 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[16.8V]]></TD>
+<TD>  0.938</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>166</TD>
+<TD>CXO J053520.6-052353</TD>
+<TD> 83.83617 </TD>
+<TD>  -5.39812 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[18.1V]]></TD>
+<TD>  0.941</TD>
+<TD>4</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>167</TD>
+<TD>COUP 0668</TD>
+<TD> 83.81208 </TD>
+<TD>  -5.40326 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[18.1V]]></TD>
+<TD>  0.943</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>168</TD>
+<TD>COUP 0564</TD>
+<TD> 83.80696 </TD>
+<TD>  -5.39589 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  0.948</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>169</TD>
+<TD>CXO J053514.5-052407</TD>
+<TD> 83.81078 </TD>
+<TD>  -5.40221 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  0.948</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>170</TD>
+<TD>CXO J053514.9-052412</TD>
+<TD> 83.81222 </TD>
+<TD>  -5.40357 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[18.6V]]></TD>
+<TD>  0.952</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>171</TD>
+<TD>CXO J053516.7-052231</TD>
+<TD> 83.81976 </TD>
+<TD>  -5.37534 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[18.1V]]></TD>
+<TD>  0.957</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>172</TD>
+<TD>CXO J053517.7-052230</TD>
+<TD> 83.82400 </TD>
+<TD>  -5.37524 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[19.1I]]></TD>
+<TD>  0.959</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>173</TD>
+<TD>COUP 1138</TD>
+<TD> 83.83828 </TD>
+<TD>  -5.39253 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[20.5V]]></TD>
+<TD>  0.971</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>174</TD>
+<TD>V1398 Ori</TD>
+<TD> 83.80605 </TD>
+<TD>  -5.39453 </TD>
+<TD>!V*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[14.4V]]></TD>
+<TD>  0.979</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>175</TD>
+<TD>CXO J053515.8-052233</TD>
+<TD> 83.81619 </TD>
+<TD>  -5.37589 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[20.6V]]></TD>
+<TD>  0.979</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>176</TD>
+<TD>CXO J053514.7-052412</TD>
+<TD> 83.81132 </TD>
+<TD>  -5.40347 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  0.982</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>177</TD>
+<TD>V1399 Ori</TD>
+<TD> 83.83773 </TD>
+<TD>  -5.39695 </TD>
+<TD>!V*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[12.4V]]></TD>
+<TD>  0.998</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>178</TD>
+<TD>COUP 0979</TD>
+<TD> 83.82746 </TD>
+<TD>  -5.37534 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[23.8V]]></TD>
+<TD>  0.999</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>179</TD>
+<TD>COUP 1142</TD>
+<TD> 83.83852 </TD>
+<TD>  -5.38803 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  0.999</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>180</TD>
+<TD>COUP 1018</TD>
+<TD> 83.82973 </TD>
+<TD>  -5.37628 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[22.4V]]></TD>
+<TD>  1.000</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>181</TD>
+<TD>CXO J053514.9-052417</TD>
+<TD> 83.81241 </TD>
+<TD>  -5.40479 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.004</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>182</TD>
+<TD>CXO J053513.2-052330</TD>
+<TD> 83.80526 </TD>
+<TD>  -5.39174 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.006</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+</TR>
+<TR>
+<TD>183</TD>
+<TD>V1330 Ori</TD>
+<TD> 83.81218 </TD>
+<TD>  -5.37754 </TD>
+<TD>!V*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[13.9V]]></TD>
+<TD>  1.006</TD>
+<TD>5</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>184</TD>
+<TD>COUP 0633</TD>
+<TD> 83.81001 </TD>
+<TD>  -5.40285 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.008</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>185</TD>
+<TD>CXOONC J053513.2-052322</TD>
+<TD> 83.80525 </TD>
+<TD>  -5.38965 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.009</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>186</TD>
+<TD>CXO J053515.7-052424</TD>
+<TD> 83.81577 </TD>
+<TD>  -5.40686 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[22.7V]]></TD>
+<TD>  1.017</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>187</TD>
+<TD>CXO J053518.3-052426</TD>
+<TD> 83.82659 </TD>
+<TD>  -5.40745 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[19.1V]]></TD>
+<TD>  1.017</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+</TR>
+<TR>
+<TD>188</TD>
+<TD>CXO J053513.5-052304</TD>
+<TD> 83.80635 </TD>
+<TD>  -5.38457 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[20.0V]]></TD>
+<TD>  1.018</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>189</TD>
+<TD>COUP 0615</TD>
+<TD> 83.80920 </TD>
+<TD>  -5.40229 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.021</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>190</TD>
+<TD>2MASS J05351356-0523552</TD>
+<TD> 83.80664 </TD>
+<TD>  -5.39869 </TD>
+<TD>IrS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.029</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>191</TD>
+<TD>CXO J053521.0-052355</TD>
+<TD> 83.83760 </TD>
+<TD>  -5.39880 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[21.0V]]></TD>
+<TD>  1.035</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>192</TD>
+<TD>CXO J053513.6-052256</TD>
+<TD> 83.80706 </TD>
+<TD>  -5.38228 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.042</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>193</TD>
+<TD>CXO J053514.7-052237</TD>
+<TD> 83.81152 </TD>
+<TD>  -5.37728 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.043</TD>
+<TD>3</TD>
+<TD>1</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>194</TD>
+<TD>CXO J053517.8-052430</TD>
+<TD> 83.82429 </TD>
+<TD>  -5.40850 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[20.0V]]></TD>
+<TD>  1.051</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>195</TD>
+<TD>V1524 Ori</TD>
+<TD> 83.83905 </TD>
+<TD>  -5.39596 </TD>
+<TD>!V*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[16.2V]]></TD>
+<TD>  1.054</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>196</TD>
+<TD>COUP 0541</TD>
+<TD> 83.80577 </TD>
+<TD>  -5.39811 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[22.4V]]></TD>
+<TD>  1.061</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>197</TD>
+<TD>CXO J053518.2-052430</TD>
+<TD> 83.82594 </TD>
+<TD>  -5.40841 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[19.6V]]></TD>
+<TD>  1.063</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+</TR>
+<TR>
+<TD>198</TD>
+<TD>CXO J053521.5-052316</TD>
+<TD> 83.83960 </TD>
+<TD>  -5.38797 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[19.7V]]></TD>
+<TD>  1.063</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>199</TD>
+<TD>CXO J053513.5-052359</TD>
+<TD> 83.80647 </TD>
+<TD>  -5.39991 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.072</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>200</TD>
+<TD>CXO J053513.3-052352</TD>
+<TD> 83.80550 </TD>
+<TD>  -5.39803 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.074</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+</TR>
+<TR>
+<TD>201</TD>
+<TD>COUP 0509</TD>
+<TD> 83.80407 </TD>
+<TD>  -5.39168 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.076</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+</TR>
+<TR>
+<TD>202</TD>
+<TD>COUP 0540</TD>
+<TD> 83.80549 </TD>
+<TD>  -5.39807 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[21.0V]]></TD>
+<TD>  1.076</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+</TR>
+<TR>
+<TD>203</TD>
+<TD>COUP 0582</TD>
+<TD> 83.80774 </TD>
+<TD>  -5.40198 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.077</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>204</TD>
+<TD>CXO J053514.4-052238</TD>
+<TD> 83.81043 </TD>
+<TD>  -5.37741 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.077</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>205</TD>
+<TD>COUP 1052</TD>
+<TD> 83.83215 </TD>
+<TD>  -5.37622 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.077</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>206</TD>
+<TD>CXO J053521.6-052325</TD>
+<TD> 83.84013 </TD>
+<TD>  -5.39049 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[22.1V]]></TD>
+<TD>  1.079</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>207</TD>
+<TD>CXO J053513.9-052409</TD>
+<TD> 83.80823 </TD>
+<TD>  -5.40272 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.082</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>208</TD>
+<TD>CXO J053515.0-052231</TD>
+<TD> 83.81290 </TD>
+<TD>  -5.37540 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.091</TD>
+<TD>4</TD>
+<TD>1</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>209</TD>
+<TD>CXO J053520.6-052245</TD>
+<TD> 83.83602 </TD>
+<TD>  -5.37931 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[19.8V]]></TD>
+<TD>  1.093</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>210</TD>
+<TD>CXO J053521.2-052259</TD>
+<TD> 83.83855 </TD>
+<TD>  -5.38318 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[19.0V]]></TD>
+<TD>  1.093</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>211</TD>
+<TD>CXO J053516.2-052224</TD>
+<TD> 83.81765 </TD>
+<TD>  -5.37339 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.096</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>212</TD>
+<TD>CXO J053516.8-052222</TD>
+<TD> 83.82040 </TD>
+<TD>  -5.37289 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[14.9V]]></TD>
+<TD>  1.098</TD>
+<TD>4</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>213</TD>
+<TD>COUP 0581</TD>
+<TD> 83.80764 </TD>
+<TD>  -5.37957 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.106</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>214</TD>
+<TD>CXO J053515.1-052229</TD>
+<TD> 83.81329 </TD>
+<TD>  -5.37487 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.107</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>215</TD>
+<TD>CXO J053513.2-052355</TD>
+<TD> 83.80515 </TD>
+<TD>  -5.39873 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.110</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>216</TD>
+<TD>COUP 0875</TD>
+<TD> 83.82224 </TD>
+<TD>  -5.37255 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.114</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>217</TD>
+<TD>CXO J053514.6-052233</TD>
+<TD> 83.81109 </TD>
+<TD>  -5.37603 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[14.5V]]></TD>
+<TD>  1.118</TD>
+<TD>4</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>218</TD>
+<TD>CXO J053514.8-052231</TD>
+<TD> 83.81197 </TD>
+<TD>  -5.37543 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[17.5V]]></TD>
+<TD>  1.118</TD>
+<TD>5</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>219</TD>
+<TD>CXO J053513.2-052257</TD>
+<TD> 83.80536 </TD>
+<TD>  -5.38268 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[20.6V]]></TD>
+<TD>  1.120</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>220</TD>
+<TD>CXO J053516.9-052220</TD>
+<TD> 83.82061 </TD>
+<TD>  -5.37238 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[20.8V]]></TD>
+<TD>  1.128</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>221</TD>
+<TD>CXO J053521.7-052339</TD>
+<TD> 83.84073 </TD>
+<TD>  -5.39426 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[17.7V]]></TD>
+<TD>  1.130</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>222</TD>
+<TD>CXO J053514.3-052235</TD>
+<TD> 83.80987 </TD>
+<TD>  -5.37666 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[23.3V]]></TD>
+<TD>  1.133</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>223</TD>
+<TD>COUP 0506</TD>
+<TD> 83.80353 </TD>
+<TD>  -5.39520 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.135</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+</TR>
+<TR>
+<TD>224</TD>
+<TD>COUP 0799</TD>
+<TD> 83.81803 </TD>
+<TD>  -5.37263 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[19.9V]]></TD>
+<TD>  1.135</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>225</TD>
+<TD>CXO J053519.9-052232</TD>
+<TD> 83.83324 </TD>
+<TD>  -5.37580 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[18.3I]]></TD>
+<TD>  1.135</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>226</TD>
+<TD>CXO J053519.6-052426</TD>
+<TD> 83.83194 </TD>
+<TD>  -5.40739 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[15.3V]]></TD>
+<TD>  1.141</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+</TR>
+<TR>
+<TD>227</TD>
+<TD>COUP 0699</TD>
+<TD> 83.81413 </TD>
+<TD>  -5.37371 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[19.7V]]></TD>
+<TD>  1.147</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>228</TD>
+<TD>COUP 0920</TD>
+<TD> 83.82431 </TD>
+<TD>  -5.37210 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.148</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>229</TD>
+<TD>2XMM J053514.1-052237</TD>
+<TD> 83.80912 </TD>
+<TD>  -5.37697 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.149</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>230</TD>
+<TD>CXO J053518.8-052222</TD>
+<TD> 83.82853 </TD>
+<TD>  -5.37304 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[17.5I]]></TD>
+<TD>  1.151</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>231</TD>
+<TD>CXO J053521.7-052348</TD>
+<TD> 83.84056 </TD>
+<TD>  -5.39677 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[22.3V]]></TD>
+<TD>  1.155</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>232</TD>
+<TD>CXO J053521.7-052310</TD>
+<TD> 83.84082 </TD>
+<TD>  -5.38631 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[18.9V]]></TD>
+<TD>  1.156</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>233</TD>
+<TD>COUP 0698</TD>
+<TD> 83.81393 </TD>
+<TD>  -5.37360 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[19.7V]]></TD>
+<TD>  1.158</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+</TR>
+<TR>
+<TD>234</TD>
+<TD>CXO J053515.3-052224</TD>
+<TD> 83.81394 </TD>
+<TD>  -5.37359 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.158</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+</TR>
+<TR>
+<TD>235</TD>
+<TD>CXO J053513.2-052254</TD>
+<TD> 83.80505 </TD>
+<TD>  -5.38187 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.159</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>236</TD>
+<TD>CXO J053514.7-052229</TD>
+<TD> 83.81138 </TD>
+<TD>  -5.37492 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.163</TD>
+<TD>4</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>237</TD>
+<TD>CXO J053512.9-052354</TD>
+<TD> 83.80407 </TD>
+<TD>  -5.39856 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.165</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+</TR>
+<TR>
+<TD>238</TD>
+<TD>CXO J053512.8-052351</TD>
+<TD> 83.80368 </TD>
+<TD>  -5.39762 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.166</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+</TR>
+<TR>
+<TD>239</TD>
+<TD>CXO J053515.9-052220</TD>
+<TD> 83.81645 </TD>
+<TD>  -5.37251 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[17.0V]]></TD>
+<TD>  1.166</TD>
+<TD>4</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>240</TD>
+<TD>CXO J053514.0-052236</TD>
+<TD> 83.80872 </TD>
+<TD>  -5.37679 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[16.3V]]></TD>
+<TD>  1.173</TD>
+<TD>4</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>241</TD>
+<TD>CXO J053516.3-052437</TD>
+<TD> 83.81827 </TD>
+<TD>  -5.41032 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.175</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>242</TD>
+<TD>CXO J053514.3-052232</TD>
+<TD> 83.80983 </TD>
+<TD>  -5.37575 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.177</TD>
+<TD>5</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>243</TD>
+<TD>V1278 Ori</TD>
+<TD> 83.81338 </TD>
+<TD>  -5.37334 </TD>
+<TD>!V*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[15.2V]]></TD>
+<TD>  1.186</TD>
+<TD>4</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>244</TD>
+<TD>COUP 0592</TD>
+<TD> 83.80808 </TD>
+<TD>  -5.37708 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.187</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>245</TD>
+<TD>CXO J053521.8-052307</TD>
+<TD> 83.84122 </TD>
+<TD>  -5.38538 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[23.8V]]></TD>
+<TD>  1.194</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>246</TD>
+<TD>CXO J053520.5-052420</TD>
+<TD> 83.83561 </TD>
+<TD>  -5.40580 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[18.4V]]></TD>
+<TD>  1.196</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+</TR>
+<TR>
+<TD>247</TD>
+<TD>COUP 0519</TD>
+<TD> 83.80455 </TD>
+<TD>  -5.38143 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[20.4V]]></TD>
+<TD>  1.198</TD>
+<TD>2</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>248</TD>
+<TD>LV Ori</TD>
+<TD> 83.80253 </TD>
+<TD>  -5.39559 </TD>
+<TD>!V*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[12.6V]]></TD>
+<TD>  1.199</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+</TR>
+<TR>
+<TD>249</TD>
+<TD>COUP 0628</TD>
+<TD> 83.81005 </TD>
+<TD>  -5.37510 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.200</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>250</TD>
+<TD>CXO J053514.8-052225</TD>
+<TD> 83.81208 </TD>
+<TD>  -5.37371 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.203</TD>
+<TD>4</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>251</TD>
+<TD>V0494 Ori</TD>
+<TD> 83.84088 </TD>
+<TD>  -5.39830 </TD>
+<TD>!V*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[13.2V]]></TD>
+<TD>  1.203</TD>
+<TD>4</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>252</TD>
+<TD>COUP 1192</TD>
+<TD> 83.84223 </TD>
+<TD>  -5.39210 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.205</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>253</TD>
+<TD>V1328 Ori</TD>
+<TD> 83.80952 </TD>
+<TD>  -5.40687 </TD>
+<TD>!V*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[13.9V]]></TD>
+<TD>  1.207</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>254</TD>
+<TD>CXO J053513.1-052250</TD>
+<TD> 83.80466 </TD>
+<TD>  -5.38072 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.213</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>255</TD>
+<TD>CXO J053513.8-052235</TD>
+<TD> 83.80796 </TD>
+<TD>  -5.37659 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.213</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>256</TD>
+<TD>2XMM J053520.3-052424</TD>
+<TD> 83.83493 </TD>
+<TD>  -5.40686 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.217</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>257</TD>
+<TD>CXO J053520.1-052228</TD>
+<TD> 83.83402 </TD>
+<TD>  -5.37451 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[21.8V]]></TD>
+<TD>  1.225</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>258</TD>
+<TD>CXO J053517.8-052440</TD>
+<TD> 83.82425 </TD>
+<TD>  -5.41141 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[21.6V]]></TD>
+<TD>  1.225</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+</TR>
+<TR>
+<TD>259</TD>
+<TD>COUP 0508</TD>
+<TD> 83.80380 </TD>
+<TD>  -5.38181 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.226</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>260</TD>
+<TD>CXO J053518.9-052218</TD>
+<TD> 83.82900 </TD>
+<TD>  -5.37187 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[18.6V]]></TD>
+<TD>  1.226</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>261</TD>
+<TD>CXO J053521.8-052355</TD>
+<TD> 83.84120 </TD>
+<TD>  -5.39876 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[17.9V]]></TD>
+<TD>  1.231</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>262</TD>
+<TD>CXO J053520.0-052226</TD>
+<TD> 83.83348 </TD>
+<TD>  -5.37400 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[20.6V]]></TD>
+<TD>  1.232</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>263</TD>
+<TD>CXO J053515.5-052218</TD>
+<TD> 83.81494 </TD>
+<TD>  -5.37186 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.232</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>264</TD>
+<TD>COUP 1032</TD>
+<TD> 83.83119 </TD>
+<TD>  -5.37268 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[20.9V]]></TD>
+<TD>  1.232</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>265</TD>
+<TD>CXO J053521.3-052411</TD>
+<TD> 83.83889 </TD>
+<TD>  -5.40319 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[16.8V]]></TD>
+<TD>  1.238</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+</TR>
+<TR>
+<TD>266</TD>
+<TD>CXO J053514.8-052222</TD>
+<TD> 83.81178 </TD>
+<TD>  -5.37307 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[22.1V]]></TD>
+<TD>  1.245</TD>
+<TD>3</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>267</TD>
+<TD>CXO J053513.0-052246</TD>
+<TD> 83.80462 </TD>
+<TD>  -5.37976 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[15.6I]]></TD>
+<TD>  1.246</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>268</TD>
+<TD>CXO J053513.9-052231</TD>
+<TD> 83.80820 </TD>
+<TD>  -5.37549 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.251</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>269</TD>
+<TD>CXO J053512.5-052301</TD>
+<TD> 83.80242 </TD>
+<TD>  -5.38386 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[22.7V]]></TD>
+<TD>  1.253</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+</TR>
+<TR>
+<TD>270</TD>
+<TD>Orion:[GFB2000] 25</TD>
+<TD> 83.81396 </TD>
+<TD>  -5.37178 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.257</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>271</TD>
+<TD>COUP 1108</TD>
+<TD> 83.83575 </TD>
+<TD>  -5.40710 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.259</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+</TR>
+<TR>
+<TD>272</TD>
+<TD>CXO J053517.6-052212</TD>
+<TD> 83.82340 </TD>
+<TD>  -5.37011 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.262</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>273</TD>
+<TD>COUP 1072</TD>
+<TD> 83.83338 </TD>
+<TD>  -5.37331 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.263</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>274</TD>
+<TD>CXO J053520.9-052234</TD>
+<TD> 83.83713 </TD>
+<TD>  -5.37628 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.265</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>275</TD>
+<TD>COUP 0495</TD>
+<TD> 83.80305 </TD>
+<TD>  -5.38184 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.266</TD>
+<TD>2</TD>
+<TD>1</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>276</TD>
+<TD>CXO J053519.8-052221</TD>
+<TD> 83.83261 </TD>
+<TD>  -5.37266 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[18.3V]]></TD>
+<TD>  1.273</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>277</TD>
+<TD>CXO J053516.4-052212</TD>
+<TD> 83.81842 </TD>
+<TD>  -5.37004 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.283</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>278</TD>
+<TD>CXO J053512.3-052351</TD>
+<TD> 83.80163 </TD>
+<TD>  -5.39770 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.284</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+</TR>
+<TR>
+<TD>279</TD>
+<TD>CXO J053513.3-052238</TD>
+<TD> 83.80546 </TD>
+<TD>  -5.37753 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.284</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>280</TD>
+<TD>COUP 0589</TD>
+<TD> 83.80796 </TD>
+<TD>  -5.37496 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.285</TD>
+<TD>2</TD>
+<TD>1</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>281</TD>
+<TD>COUP 0505</TD>
+<TD> 83.80364 </TD>
+<TD>  -5.38000 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.288</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>282</TD>
+<TD>CXO J053513.8-052425</TD>
+<TD> 83.80785 </TD>
+<TD>  -5.40726 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.289</TD>
+<TD>3</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>283</TD>
+<TD>V1228 Ori</TD>
+<TD> 83.80120 </TD>
+<TD>  -5.39668 </TD>
+<TD>!V*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[15.0V]]></TD>
+<TD>  1.292</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+</TR>
+<TR>
+<TD>284</TD>
+<TD>CXO J053514.0-052427</TD>
+<TD> 83.80838 </TD>
+<TD>  -5.40777 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.292</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>285</TD>
+<TD>CXO J053515.1-052217</TD>
+<TD> 83.81317 </TD>
+<TD>  -5.37149 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.292</TD>
+<TD>4</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>286</TD>
+<TD>COUP 0775</TD>
+<TD> 83.81717 </TD>
+<TD>  -5.37013 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.293</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>287</TD>
+<TD>V1331 Ori</TD>
+<TD> 83.81396 </TD>
+<TD>  -5.37097 </TD>
+<TD>!V*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[15.1V]]></TD>
+<TD>  1.302</TD>
+<TD>4</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>288</TD>
+<TD>CXO J053516.9-052209</TD>
+<TD> 83.82056 </TD>
+<TD>  -5.36938 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[17.7I]]></TD>
+<TD>  1.307</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>289</TD>
+<TD>CXO J053513.6-052230</TD>
+<TD> 83.80709 </TD>
+<TD>  -5.37512 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.313</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>290</TD>
+<TD>CXO J053516.2-052210</TD>
+<TD> 83.81784 </TD>
+<TD>  -5.36956 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[17.9I]]></TD>
+<TD>  1.318</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>291</TD>
+<TD>COUP 0496</TD>
+<TD> 83.80329 </TD>
+<TD>  -5.40294 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.328</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>292</TD>
+<TD>V1494 Ori</TD>
+<TD> 83.80675 </TD>
+<TD>  -5.40715 </TD>
+<TD>!V*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[16.3V]]></TD>
+<TD>  1.329</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>293</TD>
+<TD>V1527 Ori</TD>
+<TD> 83.84397 </TD>
+<TD>  -5.39547 </TD>
+<TD>!V*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[15.2V]]></TD>
+<TD>  1.333</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>294</TD>
+<TD>COUP 0480</TD>
+<TD> 83.80200 </TD>
+<TD>  -5.40098 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.338</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+</TR>
+<TR>
+<TD>295</TD>
+<TD>CXO J053517.6-052207</TD>
+<TD> 83.82357 </TD>
+<TD>  -5.36885 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[20.5V]]></TD>
+<TD>  1.338</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>296</TD>
+<TD>CXO J053514.0-052222</TD>
+<TD> 83.80868 </TD>
+<TD>  -5.37284 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.358</TD>
+<TD>4</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>297</TD>
+<TD>COUP 1057</TD>
+<TD> 83.83277 </TD>
+<TD>  -5.41113 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.360</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+</TR>
+<TR>
+<TD>298</TD>
+<TD>CXO J053521.8-052240</TD>
+<TD> 83.84099 </TD>
+<TD>  -5.37784 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[22.0V]]></TD>
+<TD>  1.382</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>299</TD>
+<TD>CXO J053518.2-052205</TD>
+<TD> 83.82600 </TD>
+<TD>  -5.36837 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.384</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>300</TD>
+<TD>CXO J053511.7-052333</TD>
+<TD> 83.79892 </TD>
+<TD>  -5.39264 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.387</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+</TR>
+<TR>
+<TD>301</TD>
+<TD>COUP 0456</TD>
+<TD> 83.79989 </TD>
+<TD>  -5.38420 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.389</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+</TR>
+<TR>
+<TD>302</TD>
+<TD>CXO J053511.7-052330</TD>
+<TD> 83.79883 </TD>
+<TD>  -5.39182 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.390</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+</TR>
+<TR>
+<TD>303</TD>
+<TD>CXO J053518.0-052205</TD>
+<TD> 83.82514 </TD>
+<TD>  -5.36815 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[19.0V]]></TD>
+<TD>  1.390</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>304</TD>
+<TD>CXO J053522.7-052313</TD>
+<TD> 83.84503 </TD>
+<TD>  -5.38706 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[17.8V]]></TD>
+<TD>  1.392</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>305</TD>
+<TD>CXO J053511.7-052340</TD>
+<TD> 83.79886 </TD>
+<TD>  -5.39457 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[17.8V]]></TD>
+<TD>  1.403</TD>
+<TD>4</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+</TR>
+<TR>
+<TD>306</TD>
+<TD>2MASXi J0535210-052225</TD>
+<TD> 83.83787 </TD>
+<TD>  -5.37375 </TD>
+<TD>G</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.405</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>307</TD>
+<TD>CXO J053517.3-052203</TD>
+<TD> 83.82248 </TD>
+<TD>  -5.36767 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.407</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>308</TD>
+<TD>CXO J053513.7-052221</TD>
+<TD> 83.80729 </TD>
+<TD>  -5.37278 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[16.8V]]></TD>
+<TD>  1.411</TD>
+<TD>4</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>309</TD>
+<TD>CXO J053513.3-052225</TD>
+<TD> 83.80571 </TD>
+<TD>  -5.37392 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[18.0V]]></TD>
+<TD>  1.422</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>310</TD>
+<TD>COUP 1129</TD>
+<TD> 83.83758 </TD>
+<TD>  -5.37303 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[22.0V]]></TD>
+<TD>  1.426</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>311</TD>
+<TD>CXO J053517.8-052202</TD>
+<TD> 83.82451 </TD>
+<TD>  -5.36746 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.426</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>312</TD>
+<TD>CXO J053514.6-052210</TD>
+<TD> 83.81113 </TD>
+<TD>  -5.36976 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.439</TD>
+<TD>4</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>313</TD>
+<TD>CXO J053511.9-052253</TD>
+<TD> 83.79994 </TD>
+<TD>  -5.38168 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[21.3V]]></TD>
+<TD>  1.439</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+</TR>
+<TR>
+<TD>314</TD>
+<TD>CXO J053517.6-052453</TD>
+<TD> 83.82376 </TD>
+<TD>  -5.41503 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[18.8V]]></TD>
+<TD>  1.439</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+</TR>
+<TR>
+<TD>315</TD>
+<TD>COUP 0443</TD>
+<TD> 83.79891 </TD>
+<TD>  -5.39771 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[15.2I]]></TD>
+<TD>  1.440</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+</TR>
+<TR>
+<TD>316</TD>
+<TD>CXO J053511.5-052340</TD>
+<TD> 83.79808 </TD>
+<TD>  -5.39451 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.448</TD>
+<TD>3</TD>
+<TD>1</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+</TR>
+<TR>
+<TD>317</TD>
+<TD>CXO J053512.3-052241</TD>
+<TD> 83.80146 </TD>
+<TD>  -5.37814 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.457</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>318</TD>
+<TD>CXO J053511.5-052344</TD>
+<TD> 83.79816 </TD>
+<TD>  -5.39592 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.458</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+</TR>
+<TR>
+<TD>319</TD>
+<TD>CXO J053520.3-052213</TD>
+<TD> 83.83502 </TD>
+<TD>  -5.37045 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[16.5V]]></TD>
+<TD>  1.461</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>320</TD>
+<TD>CXO J053517.5-052200</TD>
+<TD> 83.82312 </TD>
+<TD>  -5.36672 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.465</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>321</TD>
+<TD>CXO J053513.7-052217</TD>
+<TD> 83.80740 </TD>
+<TD>  -5.37149 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.468</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>322</TD>
+<TD>COUP 0575</TD>
+<TD> 83.80714 </TD>
+<TD>  -5.41057 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.470</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>323</TD>
+<TD>COUP 0675</TD>
+<TD> 83.81245 </TD>
+<TD>  -5.41365 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.470</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>324</TD>
+<TD>V1231 Ori</TD>
+<TD> 83.84304 </TD>
+<TD>  -5.40396 </TD>
+<TD>!V*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[13.8V]]></TD>
+<TD>  1.470</TD>
+<TD>4</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+</TR>
+<TR>
+<TD>325</TD>
+<TD>CXO J053519.8-052447</TD>
+<TD> 83.83270 </TD>
+<TD>  -5.41331 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[15.4V]]></TD>
+<TD>  1.475</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+</TR>
+<TR>
+<TD>326</TD>
+<TD>CXO J053513.5-052219</TD>
+<TD> 83.80636 </TD>
+<TD>  -5.37208 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[16.1V]]></TD>
+<TD>  1.478</TD>
+<TD>4</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>327</TD>
+<TD>CXO J053518.7-052201</TD>
+<TD> 83.82818 </TD>
+<TD>  -5.36724 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[17.4V]]></TD>
+<TD>  1.478</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>328</TD>
+<TD>CXO J053522.4-052413</TD>
+<TD> 83.84350 </TD>
+<TD>  -5.40373 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.487</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+</TR>
+<TR>
+<TD>329</TD>
+<TD>COUP 0451</TD>
+<TD> 83.79927 </TD>
+<TD>  -5.40108 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.488</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+</TR>
+<TR>
+<TD>330</TD>
+<TD>CXO J053515.9-052200</TD>
+<TD> 83.81660 </TD>
+<TD>  -5.36682 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.494</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>331</TD>
+<TD>CXO J053516.2-052456</TD>
+<TD> 83.81753 </TD>
+<TD>  -5.41563 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[18.4V]]></TD>
+<TD>  1.496</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>332</TD>
+<TD>CXO J053516.7-052158</TD>
+<TD> 83.81986 </TD>
+<TD>  -5.36625 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.498</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>333</TD>
+<TD>CXO J053522.1-052233</TD>
+<TD> 83.84222 </TD>
+<TD>  -5.37614 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[19.8V]]></TD>
+<TD>  1.501</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>334</TD>
+<TD>CXO J053511.4-052351</TD>
+<TD> 83.79784 </TD>
+<TD>  -5.39777 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.502</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+</TR>
+<TR>
+<TD>335</TD>
+<TD>CXO J053512.7-052426</TD>
+<TD> 83.80294 </TD>
+<TD>  -5.40736 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.502</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>336</TD>
+<TD>CXO J053512.9-052431</TD>
+<TD> 83.80400 </TD>
+<TD>  -5.40878 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.513</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>337</TD>
+<TD>CXO J053517.1-052458</TD>
+<TD> 83.82137 </TD>
+<TD>  -5.41631 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[18.6V]]></TD>
+<TD>  1.513</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>338</TD>
+<TD>CXO J053513.1-052220</TD>
+<TD> 83.80490 </TD>
+<TD>  -5.37252 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[20.6V]]></TD>
+<TD>  1.516</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>339</TD>
+<TD>COUP 1181</TD>
+<TD> 83.84161 </TD>
+<TD>  -5.40726 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.516</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+</TR>
+<TR>
+<TD>340</TD>
+<TD>COUP 0638</TD>
+<TD> 83.81055 </TD>
+<TD>  -5.36850 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[18.6V]]></TD>
+<TD>  1.521</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>341</TD>
+<TD>CXO J053515.8-052456</TD>
+<TD> 83.81607 </TD>
+<TD>  -5.41590 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.530</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>342</TD>
+<TD>COUP 0433</TD>
+<TD> 83.79851 </TD>
+<TD>  -5.38093 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[14.0I]]></TD>
+<TD>  1.535</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+</TR>
+<TR>
+<TD>343</TD>
+<TD>V0562 Ori</TD>
+<TD> 83.84248 </TD>
+<TD>  -5.40691 </TD>
+<TD>!V*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[13.9V]]></TD>
+<TD>  1.544</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+</TR>
+<TR>
+<TD>344</TD>
+<TD>CXO J053520.6-052446</TD>
+<TD> 83.83597 </TD>
+<TD>  -5.41290 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[13.5I]]></TD>
+<TD>  1.548</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+</TR>
+<TR>
+<TD>345</TD>
+<TD>COUP 0409</TD>
+<TD> 83.79619 </TD>
+<TD>  -5.38735 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.563</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+</TR>
+<TR>
+<TD>346</TD>
+<TD>COUP 1148</TD>
+<TD> 83.83881 </TD>
+<TD>  -5.37100 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[16.8I]]></TD>
+<TD>  1.567</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>347</TD>
+<TD>CXO J053512.2-052424</TD>
+<TD> 83.80109 </TD>
+<TD>  -5.40680 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.568</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>348</TD>
+<TD>CXO J053517.6-052153</TD>
+<TD> 83.82340 </TD>
+<TD>  -5.36494 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.572</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>349</TD>
+<TD>CXO J053513.8-052209</TD>
+<TD> 83.80765 </TD>
+<TD>  -5.36919 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.573</TD>
+<TD>4</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>350</TD>
+<TD>CXO J053514.9-052159</TD>
+<TD> 83.81248 </TD>
+<TD>  -5.36663 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[14.4V]]></TD>
+<TD>  1.577</TD>
+<TD>5</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>351</TD>
+<TD>COUP 0620</TD>
+<TD> 83.80963 </TD>
+<TD>  -5.36789 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[21.3V]]></TD>
+<TD>  1.580</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>352</TD>
+<TD>COUP 0918</TD>
+<TD> 83.82454 </TD>
+<TD>  -5.36485 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.583</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>353</TD>
+<TD>CXO J053523.6-052331</TD>
+<TD> 83.84858 </TD>
+<TD>  -5.39220 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[15.7V]]></TD>
+<TD>  1.584</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>354</TD>
+<TD>CXO J053514.6-052200</TD>
+<TD> 83.81101 </TD>
+<TD>  -5.36685 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.599</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>355</TD>
+<TD>CXO J053523.5-052350</TD>
+<TD> 83.84812 </TD>
+<TD>  -5.39747 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.601</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>356</TD>
+<TD>CXO J053523.7-052319</TD>
+<TD> 83.84884 </TD>
+<TD>  -5.38887 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[15.1I]]></TD>
+<TD>  1.604</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>357</TD>
+<TD>V1496 Ori</TD>
+<TD> 83.80753 </TD>
+<TD>  -5.36861 </TD>
+<TD>!V*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[14.4V]]></TD>
+<TD>  1.606</TD>
+<TD>5</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>358</TD>
+<TD>CXOONC J053513.5-052209</TD>
+<TD> 83.80649 </TD>
+<TD>  -5.36929 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.607</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>359</TD>
+<TD>CXO J053522.0-052432</TD>
+<TD> 83.84208 </TD>
+<TD>  -5.40912 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.610</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+</TR>
+<TR>
+<TD>360</TD>
+<TD>CXO J053522.9-052241</TD>
+<TD> 83.84572 </TD>
+<TD>  -5.37821 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[19.2V]]></TD>
+<TD>  1.610</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>361</TD>
+<TD>CXO J053513.0-052214</TD>
+<TD> 83.80439 </TD>
+<TD>  -5.37085 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[17.4V]]></TD>
+<TD>  1.611</TD>
+<TD>4</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>362</TD>
+<TD>CXO J053523.6-052346</TD>
+<TD> 83.84860 </TD>
+<TD>  -5.39621 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[13.9I]]></TD>
+<TD>  1.613</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>363</TD>
+<TD>CXO J053516.0-052152</TD>
+<TD> 83.81669 </TD>
+<TD>  -5.36473 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.615</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>364</TD>
+<TD>CXO J053515.2-052155</TD>
+<TD> 83.81363 </TD>
+<TD>  -5.36543 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[23.6V]]></TD>
+<TD>  1.621</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>365</TD>
+<TD>CXO J053523.8-052334</TD>
+<TD> 83.84922 </TD>
+<TD>  -5.39285 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[15.2V]]></TD>
+<TD>  1.624</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>366</TD>
+<TD>CXO J053516.3-052150</TD>
+<TD> 83.81828 </TD>
+<TD>  -5.36406 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[20.3V]]></TD>
+<TD>  1.639</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>367</TD>
+<TD>CXO J053519.0-052502</TD>
+<TD> 83.82932 </TD>
+<TD>  -5.41749 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[19.3V]]></TD>
+<TD>  1.641</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+</TR>
+<TR>
+<TD>368</TD>
+<TD>CXO J053510.6-052332</TD>
+<TD> 83.79453 </TD>
+<TD>  -5.39244 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.648</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+</TR>
+<TR>
+<TD>369</TD>
+<TD>CXO J053513.2-052209</TD>
+<TD> 83.80519 </TD>
+<TD>  -5.36938 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.649</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>370</TD>
+<TD>CXO J053517.9-052506</TD>
+<TD> 83.82472 </TD>
+<TD>  -5.41849 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[20.4V]]></TD>
+<TD>  1.650</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+</TR>
+<TR>
+<TD>371</TD>
+<TD>LQ Ori</TD>
+<TD> 83.79475 </TD>
+<TD>  -5.39575 </TD>
+<TD>!V*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[12.4V]]></TD>
+<TD>  1.656</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+</TR>
+<TR>
+<TD>372</TD>
+<TD>CXO J053521.6-052212</TD>
+<TD> 83.84022 </TD>
+<TD>  -5.37012 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.661</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>373</TD>
+<TD>CXO J053518.5-052149</TD>
+<TD> 83.82726 </TD>
+<TD>  -5.36390 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.662</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>374</TD>
+<TD>CXO J053513.8-052202</TD>
+<TD> 83.80756 </TD>
+<TD>  -5.36746 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[19.4V]]></TD>
+<TD>  1.663</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>375</TD>
+<TD>CXO J053511.6-052421</TD>
+<TD> 83.79860 </TD>
+<TD>  -5.40600 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[18.9V]]></TD>
+<TD>  1.663</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+</TR>
+<TR>
+<TD>376</TD>
+<TD>CXO J053512.4-052437</TD>
+<TD> 83.80210 </TD>
+<TD>  -5.41057 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.670</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>377</TD>
+<TD>COUP 1176</TD>
+<TD> 83.84101 </TD>
+<TD>  -5.41162 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.671</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+</TR>
+<TR>
+<TD>378</TD>
+<TD>CXO J053521.3-052207</TD>
+<TD> 83.83912 </TD>
+<TD>  -5.36873 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.685</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>379</TD>
+<TD>COUP 0465</TD>
+<TD> 83.80055 </TD>
+<TD>  -5.40942 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[15.9I]]></TD>
+<TD>  1.692</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>380</TD>
+<TD>CXO J053524.0-052313</TD>
+<TD> 83.85013 </TD>
+<TD>  -5.38717 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.692</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>381</TD>
+<TD>CXO J053519.9-052153</TD>
+<TD> 83.83319 </TD>
+<TD>  -5.36500 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.701</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>382</TD>
+<TD>CXO J053511.3-052415</TD>
+<TD> 83.79698 </TD>
+<TD>  -5.40454 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.702</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+</TR>
+<TR>
+<TD>383</TD>
+<TD>COUP 0408</TD>
+<TD> 83.79603 </TD>
+<TD>  -5.37960 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.703</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+</TR>
+<TR>
+<TD>384</TD>
+<TD>CXO J053518.5-052147</TD>
+<TD> 83.82748 </TD>
+<TD>  -5.36323 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.704</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>385</TD>
+<TD>CXO J053522.2-052217</TD>
+<TD> 83.84272 </TD>
+<TD>  -5.37149 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.704</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>386</TD>
+<TD>CXO J053510.6-052303</TD>
+<TD> 83.79438 </TD>
+<TD>  -5.38428 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.705</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+</TR>
+<TR>
+<TD>387</TD>
+<TD>2MASXi J0535137-052159</TD>
+<TD> 83.80754 </TD>
+<TD>  -5.36658 </TD>
+<TD>G</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.709</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>388</TD>
+<TD>MR Ori</TD>
+<TD> 83.82314 </TD>
+<TD>  -5.36264 </TD>
+<TD>!V*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[19.2V]]></TD>
+<TD>  1.710</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>389</TD>
+<TD>CXO J053516.3-052509</TD>
+<TD> 83.81820 </TD>
+<TD>  -5.41936 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[17.2V]]></TD>
+<TD>  1.711</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>390</TD>
+<TD>CXO J053513.9-052157</TD>
+<TD> 83.80826 </TD>
+<TD>  -5.36609 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.713</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>391</TD>
+<TD>COUP 0709</TD>
+<TD> 83.81443 </TD>
+<TD>  -5.41863 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.713</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>392</TD>
+<TD>CXO J053516.0-052146</TD>
+<TD> 83.81670 </TD>
+<TD>  -5.36304 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[18.5V]]></TD>
+<TD>  1.715</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>393</TD>
+<TD>CXO J053522.8-052226</TD>
+<TD> 83.84520 </TD>
+<TD>  -5.37416 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[22.0V]]></TD>
+<TD>  1.715</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>394</TD>
+<TD>CXO J053514.4-052502</TD>
+<TD> 83.81026 </TD>
+<TD>  -5.41727 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[14.9V]]></TD>
+<TD>  1.721</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>395</TD>
+<TD>CXO J053514.2-052155</TD>
+<TD> 83.80920 </TD>
+<TD>  -5.36524 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.732</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>396</TD>
+<TD>CXO J053511.2-052237</TD>
+<TD> 83.79669 </TD>
+<TD>  -5.37713 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.733</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>397</TD>
+<TD>CXO J053510.9-052246</TD>
+<TD> 83.79545 </TD>
+<TD>  -5.37955 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[15.0I]]></TD>
+<TD>  1.735</TD>
+<TD>4</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+</TR>
+<TR>
+<TD>398</TD>
+<TD>CXO J053522.1-052213</TD>
+<TD> 83.84234 </TD>
+<TD>  -5.37039 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[20.2V]]></TD>
+<TD>  1.735</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>399</TD>
+<TD>CXO J053519.5-052148</TD>
+<TD> 83.83145 </TD>
+<TD>  -5.36364 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.740</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>400</TD>
+<TD>CXO J053510.6-052255</TD>
+<TD> 83.79425 </TD>
+<TD>  -5.38225 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.746</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+</TR>
+<TR>
+<TD>401</TD>
+<TD>CXO J053521.8-052208</TD>
+<TD> 83.84110 </TD>
+<TD>  -5.36898 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[17.9V]]></TD>
+<TD>  1.747</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>402</TD>
+<TD>COUP 0526</TD>
+<TD> 83.80477 </TD>
+<TD>  -5.41467 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.752</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>403</TD>
+<TD>COUP 0964</TD>
+<TD> 83.82653 </TD>
+<TD>  -5.36226 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[19.6V]]></TD>
+<TD>  1.752</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>404</TD>
+<TD>COUP 0727</TD>
+<TD> 83.81529 </TD>
+<TD>  -5.41955 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[17.7V]]></TD>
+<TD>  1.754</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>405</TD>
+<TD>CXO J053510.2-052316</TD>
+<TD> 83.79279 </TD>
+<TD>  -5.38786 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.761</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+</TR>
+<TR>
+<TD>406</TD>
+<TD>CXO J053519.6-052507</TD>
+<TD> 83.83178 </TD>
+<TD>  -5.41882 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.761</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+</TR>
+<TR>
+<TD>407</TD>
+<TD>CXO J053521.2-052159</TD>
+<TD> 83.83845 </TD>
+<TD>  -5.36671 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[19.5V]]></TD>
+<TD>  1.761</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>408</TD>
+<TD>COUP 0692</TD>
+<TD> 83.81369 </TD>
+<TD>  -5.41926 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.762</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>409</TD>
+<TD>CXO J053520.2-052503</TD>
+<TD> 83.83448 </TD>
+<TD>  -5.41776 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[13.5I]]></TD>
+<TD>  1.762</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+</TR>
+<TR>
+<TD>410</TD>
+<TD>CXO J053514.6-052149</TD>
+<TD> 83.81120 </TD>
+<TD>  -5.36376 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.765</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>411</TD>
+<TD>CXO J053510.2-052321</TD>
+<TD> 83.79259 </TD>
+<TD>  -5.38932 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[14.3I]]></TD>
+<TD>  1.765</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+</TR>
+<TR>
+<TD>412</TD>
+<TD>CXO J053523.1-052228</TD>
+<TD> 83.84660 </TD>
+<TD>  -5.37453 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[22.6V]]></TD>
+<TD>  1.770</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>413</TD>
+<TD>CXO J053520.7-052154</TD>
+<TD> 83.83657 </TD>
+<TD>  -5.36530 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[15.0V]]></TD>
+<TD>  1.774</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>414</TD>
+<TD>2MASXi J0535131-052455</TD>
+<TD> 83.80502 </TD>
+<TD>  -5.41542 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[15.1V]]></TD>
+<TD>  1.779</TD>
+<TD>4</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>415</TD>
+<TD>COUP 0419</TD>
+<TD> 83.79714 </TD>
+<TD>  -5.40736 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.781</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+</TR>
+<TR>
+<TD>416</TD>
+<TD>COUP 0369</TD>
+<TD> 83.79324 </TD>
+<TD>  -5.38325 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.786</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+</TR>
+<TR>
+<TD>417</TD>
+<TD>COUP 0398</TD>
+<TD> 83.79521 </TD>
+<TD>  -5.37799 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.788</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+</TR>
+<TR>
+<TD>418</TD>
+<TD>CXO J053518.0-052141</TD>
+<TD> 83.82519 </TD>
+<TD>  -5.36143 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.791</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>419</TD>
+<TD>V0377 Ori</TD>
+<TD> 83.83875 </TD>
+<TD>  -5.41594 </TD>
+<TD>!V*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[14.1V]]></TD>
+<TD>  1.792</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+</TR>
+<TR>
+<TD>420</TD>
+<TD>CXO J053513.0-052200</TD>
+<TD> 83.80430 </TD>
+<TD>  -5.36691 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[19.3V]]></TD>
+<TD>  1.799</TD>
+<TD>4</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>421</TD>
+<TD>CXO J053512.6-052204</TD>
+<TD> 83.80278 </TD>
+<TD>  -5.36805 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.801</TD>
+<TD>4</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>422</TD>
+<TD>CXO J053519.1-052143</TD>
+<TD> 83.82983 </TD>
+<TD>  -5.36211 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[18.3I]]></TD>
+<TD>  1.801</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>423</TD>
+<TD>2MASS J05351347-0525012</TD>
+<TD> 83.80634 </TD>
+<TD>  -5.41701 </TD>
+<TD>IrS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.816</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>424</TD>
+<TD>COUP 0384</TD>
+<TD> 83.79415 </TD>
+<TD>  -5.37909 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[13.6I]]></TD>
+<TD>  1.818</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+</TR>
+<TR>
+<TD>425</TD>
+<TD>V1501 Ori</TD>
+<TD> 83.81483 </TD>
+<TD>  -5.42060 </TD>
+<TD>!V*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[13.8V]]></TD>
+<TD>  1.822</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>426</TD>
+<TD>CXO J053518.8-052141</TD>
+<TD> 83.82860 </TD>
+<TD>  -5.36143 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[15.6V]]></TD>
+<TD>  1.823</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>427</TD>
+<TD>V1487 Ori</TD>
+<TD> 83.79375 </TD>
+<TD>  -5.37937 </TD>
+<TD>!V*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[14.7V]]></TD>
+<TD>  1.833</TD>
+<TD>4</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+</TR>
+<TR>
+<TD>428</TD>
+<TD>CXO J053513.8-052150</TD>
+<TD> 83.80787 </TD>
+<TD>  -5.36398 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.836</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>429</TD>
+<TD>CXO J053516.5-052517</TD>
+<TD> 83.81911 </TD>
+<TD>  -5.42162 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[17.7V]]></TD>
+<TD>  1.839</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>430</TD>
+<TD>V1332 Ori</TD>
+<TD> 83.81571 </TD>
+<TD>  -5.36104 </TD>
+<TD>!V*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[17.6V]]></TD>
+<TD>  1.844</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>431</TD>
+<TD>CXO J053512.9-052457</TD>
+<TD> 83.80394 </TD>
+<TD>  -5.41607 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.848</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>432</TD>
+<TD>CXO J053509.8-052338</TD>
+<TD> 83.79129 </TD>
+<TD>  -5.39404 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[20.2V]]></TD>
+<TD>  1.848</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+</TR>
+<TR>
+<TD>433</TD>
+<TD>CXO J053512.1-052447</TD>
+<TD> 83.80055 </TD>
+<TD>  -5.41328 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.850</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>434</TD>
+<TD>CXO J053520.9-052150</TD>
+<TD> 83.83724 </TD>
+<TD>  -5.36413 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[15.5V]]></TD>
+<TD>  1.855</TD>
+<TD>4</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>435</TD>
+<TD>CXO J053510.5-052416</TD>
+<TD> 83.79397 </TD>
+<TD>  -5.40463 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[18.4V]]></TD>
+<TD>  1.865</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+</TR>
+<TR>
+<TD>436</TD>
+<TD>CXO J053524.4-052400</TD>
+<TD> 83.85191 </TD>
+<TD>  -5.40031 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[15.2I]]></TD>
+<TD>  1.865</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>437</TD>
+<TD>CXO J053510.9-052227</TD>
+<TD> 83.79568 </TD>
+<TD>  -5.37436 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.870</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>438</TD>
+<TD>V1326 Ori</TD>
+<TD> 83.79073 </TD>
+<TD>  -5.39082 </TD>
+<TD>!V*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[13.4V]]></TD>
+<TD>  1.873</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+</TR>
+<TR>
+<TD>439</TD>
+<TD>CXO J053512.7-052157</TD>
+<TD> 83.80324 </TD>
+<TD>  -5.36607 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.877</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>440</TD>
+<TD>CXO J053524.7-052341</TD>
+<TD> 83.85328 </TD>
+<TD>  -5.39495 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.878</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>441</TD>
+<TD>COUP 0868</TD>
+<TD> 83.82182 </TD>
+<TD>  -5.35974 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.882</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>442</TD>
+<TD>CXOONC J053512.8-052156</TD>
+<TD> 83.80344 </TD>
+<TD>  -5.36578 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.884</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>443</TD>
+<TD>XMMSL1 J053521.6-052501</TD>
+<TD> 83.84000 </TD>
+<TD>  -5.41694 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.884</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>54</TD>
+</TR>
+<TR>
+<TD>444</TD>
+<TD>COUP 0571</TD>
+<TD> 83.80738 </TD>
+<TD>  -5.36329 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.887</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>445</TD>
+<TD>CXO J053512.0-052206</TD>
+<TD> 83.80017 </TD>
+<TD>  -5.36839 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.890</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>446</TD>
+<TD>CXO J053510.9-052224</TD>
+<TD> 83.79580 </TD>
+<TD>  -5.37352 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.892</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>447</TD>
+<TD>CXO J053511.3-052438</TD>
+<TD> 83.79718 </TD>
+<TD>  -5.41060 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.892</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>448</TD>
+<TD>CXO J053517.9-052521</TD>
+<TD> 83.82479 </TD>
+<TD>  -5.42257 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[18.9V]]></TD>
+<TD>  1.894</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+</TR>
+<TR>
+<TD>449</TD>
+<TD>CXO J053510.0-052401</TD>
+<TD> 83.79179 </TD>
+<TD>  -5.40053 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.895</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+</TR>
+<TR>
+<TD>450</TD>
+<TD>CXO J053513.0-052153</TD>
+<TD> 83.80442 </TD>
+<TD>  -5.36477 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[21.1V]]></TD>
+<TD>  1.900</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>451</TD>
+<TD>CXO J053520.0-052514</TD>
+<TD> 83.83359 </TD>
+<TD>  -5.42062 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.900</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+</TR>
+<TR>
+<TD>452</TD>
+<TD>CXO J053520.6-052510</TD>
+<TD> 83.83615 </TD>
+<TD>  -5.41965 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.907</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+</TR>
+<TR>
+<TD>453</TD>
+<TD>COUP 0370</TD>
+<TD> 83.79295 </TD>
+<TD>  -5.40477 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.924</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+</TR>
+<TR>
+<TD>454</TD>
+<TD>V1230 Ori</TD>
+<TD> 83.83637 </TD>
+<TD>  -5.36232 </TD>
+<TD>!V*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[ 9.6V]]></TD>
+<TD>  1.927</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>455</TD>
+<TD>CXO J053525.0-052326</TD>
+<TD> 83.85438 </TD>
+<TD>  -5.39074 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.929</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>456</TD>
+<TD>CXO J053522.4-052200</TD>
+<TD> 83.84358 </TD>
+<TD>  -5.36697 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[16.7V]]></TD>
+<TD>  1.936</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>457</TD>
+<TD>AE Ori</TD>
+<TD> 83.82178 </TD>
+<TD>  -5.35880 </TD>
+<TD>!V*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[13.0V]]></TD>
+<TD>  1.939</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>458</TD>
+<TD>CXO J053512.2-052456</TD>
+<TD> 83.80086 </TD>
+<TD>  -5.41566 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.943</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>459</TD>
+<TD>CXO J053516.1-052132</TD>
+<TD> 83.81750 </TD>
+<TD>  -5.35896 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[18.0V]]></TD>
+<TD>  1.948</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>460</TD>
+<TD>CXO J053509.6-052355</TD>
+<TD> 83.79036 </TD>
+<TD>  -5.39888 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[24.5V]]></TD>
+<TD>  1.952</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+</TR>
+<TR>
+<TD>461</TD>
+<TD>CXO J053511.5-052447</TD>
+<TD> 83.79821 </TD>
+<TD>  -5.41336 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.953</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>462</TD>
+<TD>COUP 0818</TD>
+<TD> 83.81931 </TD>
+<TD>  -5.35861 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[19.2I]]></TD>
+<TD>  1.957</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>463</TD>
+<TD>CXO J053520.5-052140</TD>
+<TD> 83.83560 </TD>
+<TD>  -5.36136 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.959</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>464</TD>
+<TD>CXO J053525.0-052346</TD>
+<TD> 83.85456 </TD>
+<TD>  -5.39632 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[14.2V]]></TD>
+<TD>  1.965</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>465</TD>
+<TD>CXO J053517.1-052129</TD>
+<TD> 83.82137 </TD>
+<TD>  -5.35818 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.976</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>466</TD>
+<TD>CXO J053516.9-052129</TD>
+<TD> 83.82072 </TD>
+<TD>  -5.35818 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.978</TD>
+<TD>3</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>467</TD>
+<TD>COUP 0344</TD>
+<TD> 83.79073 </TD>
+<TD>  -5.40186 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.981</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+</TR>
+<TR>
+<TD>468</TD>
+<TD>CXO J053524.3-052232</TD>
+<TD> 83.85143 </TD>
+<TD>  -5.37566 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[22.5V]]></TD>
+<TD>  1.983</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>469</TD>
+<TD>CXO J053524.6-052242</TD>
+<TD> 83.85278 </TD>
+<TD>  -5.37851 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[22.3V]]></TD>
+<TD>  1.983</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>470</TD>
+<TD>CXO J053525.0-052353</TD>
+<TD> 83.85452 </TD>
+<TD>  -5.39827 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[15.6V]]></TD>
+<TD>  1.985</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>471</TD>
+<TD>CXO J053524.9-052401</TD>
+<TD> 83.85404 </TD>
+<TD>  -5.40042 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.989</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>472</TD>
+<TD>CXO J053510.7-052220</TD>
+<TD> 83.79464 </TD>
+<TD>  -5.37227 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.991</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>473</TD>
+<TD>CXO J053525.0-052258</TD>
+<TD> 83.85444 </TD>
+<TD>  -5.38292 </TD>
+<TD>*</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[16.3V]]></TD>
+<TD>  1.994</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>474</TD>
+<TD>XMMSL1 J053509.3-052335</TD>
+<TD> 83.78875 </TD>
+<TD>  -5.39306 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.995</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>56</TD>
+</TR>
+<TR>
+<TD>475</TD>
+<TD>CXOONC J053510.4-052430</TD>
+<TD> 83.79364 </TD>
+<TD>  -5.40860 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  1.997</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+</TR>
+</TABLEDATA>
+</DATA>
+</TABLE>
+</RESOURCE>
+</VOTABLE>
+

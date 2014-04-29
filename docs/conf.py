@@ -8,7 +8,7 @@
 # Note that not all possible configuration values are present in this file.
 #
 # All configuration values have a default. Some values are defined in
-# the global Astropy configuration which is loaded here before anything else. 
+# the global Astropy configuration which is loaded here before anything else.
 # See astropy.sphinx.conf for which values are set there.
 
 # If extensions (or modules to document with autodoc) are in another directory,
@@ -43,11 +43,16 @@ exclude_patterns.append('_templates')
 rst_epilog += """
 """
 
+del intersphinx_mapping['scipy']
+del intersphinx_mapping['h5py']
+intersphinx_mapping['astropy'] = ('http://docs.astropy.org/en/latest/', None)
+intersphinx_mapping['requests'] = ('http://docs.python-requests.org/en/latest/', None)
+
 # -- Project information ------------------------------------------------------
 
 # This does not *have* to match the package name, but typically does
-project = u'astroquery' 
-author = u'Adam Ginsburg (maintainer) and Tom Robitaille'
+project = u'astroquery'
+author = u'Adam Ginsburg (maintainer) and Tom Robitaille; astropy.astroquery@gmail.com'
 copyright = u'2012, ' + author
 
 # The version info for the project you're documenting, acts as replacement for
@@ -139,7 +144,7 @@ class Mock(object):
         else:
             return Mock()
 
-MOCK_MODULES = ['atpy', 'beautifulsoup4', 'vo', 'requests']
+MOCK_MODULES = ['atpy', 'beautifulsoup4', 'vo', 'requests', 'lxml', 'keyring']
 for mod_name in MOCK_MODULES:
     sys.modules[mod_name] = Mock()
 
@@ -174,3 +179,5 @@ edit_on_github_doc_root = "docs"
 #
 #edit_on_github_source_root = ""
 #edit_on_github_doc_root = "docs"
+
+#nitpicky = True

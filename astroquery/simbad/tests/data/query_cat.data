@@ -1,0 +1,176 @@
+::script::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+votable {main_id,coordinates}
+votable open
+query cat m
+votable close
+
+::console:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+C.D.S.  -  SIMBAD4 rel 1.207  -  2013.06.30CEST06:42:38
+total execution time: 47.407 secs
+simbatch done
+
+::data::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+<?xml version="1.0" encoding="UTF-8"?>
+<VOTABLE xmlns="http://www.ivoa.net/xml/VOTable/v1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.ivoa.net/xml/VOTable/v1.2" version="1.2">
+<DEFINITIONS>
+<COOSYS ID="COOSYS" equinox="2000" epoch="J2000" system="ICRS"/>
+</DEFINITIONS>
+<RESOURCE name="Simbad query" type="results">
+<TABLE ID="SimbadScript" name="default"><DESCRIPTION>Simbad script executed on 2013.06.30CEST06:42:38</DESCRIPTION>
+<FIELD ID="MAIN_ID" name="MAIN_ID" datatype="char" width="22" ucd="meta.id;meta.main" arraysize="*">
+<DESCRIPTION>Main identifier for an object</DESCRIPTION>
+<LINK value="${MAIN_ID}" href="http://simbad.u-strasbg.fr/simbad/sim-id?Ident=${MAIN_ID}&amp;NbIdent=1"/>
+</FIELD>
+<FIELD ID="RA" name="RA" datatype="char" precision="8" width="13" ucd="pos.eq.ra;meta.main" arraysize="13" unit="&quot;h:m:s&quot;">
+<DESCRIPTION>Right ascension</DESCRIPTION>
+</FIELD>
+<FIELD ID="DEC" name="DEC" datatype="char" precision="8" width="13" ucd="pos.eq.dec;meta.main" arraysize="13" unit="&quot;d:m:s&quot;">
+<DESCRIPTION>Declination</DESCRIPTION>
+</FIELD>
+<FIELD ID="RA_PREC" name="RA_PREC" datatype="short" width="2">
+<DESCRIPTION>Right ascension precision</DESCRIPTION>
+</FIELD>
+<FIELD ID="DEC_PREC" name="DEC_PREC" datatype="short" width="2">
+<DESCRIPTION>Declination precision</DESCRIPTION>
+</FIELD>
+<FIELD ID="COO_ERR_MAJA" name="COO_ERR_MAJA" datatype="float" precision="3" width="6" ucd="phys.angSize.smajAxis;pos.errorEllipse;pos.eq" unit="mas">
+<DESCRIPTION>Coordinate error major axis</DESCRIPTION>
+</FIELD>
+<FIELD ID="COO_ERR_MINA" name="COO_ERR_MINA" datatype="float" precision="3" width="6" ucd="phys.angSize.sminAxis;pos.errorEllipse;pos.eq" unit="mas">
+<DESCRIPTION>Coordinate error minor axis</DESCRIPTION>
+</FIELD>
+<FIELD ID="COO_ERR_ANGLE" name="COO_ERR_ANGLE" datatype="short" width="3" ucd="pos.posAng;pos.errorEllipse;pos.eq" unit="deg">
+<DESCRIPTION>Coordinate error angle</DESCRIPTION>
+</FIELD>
+<FIELD ID="COO_QUAL" name="COO_QUAL" datatype="char" width="1" ucd="meta.code.qual;pos.eq">
+<DESCRIPTION>Coordinate quality</DESCRIPTION>
+</FIELD>
+<FIELD ID="COO_WAVELENGTH" name="COO_WAVELENGTH" datatype="char" width="1" ucd="instr.bandpass;pos.eq">
+<DESCRIPTION>Wavelength class for the origin of the coordinates (R,I,V,U,X,G)</DESCRIPTION>
+</FIELD>
+<FIELD ID="COO_BIBCODE" name="COO_BIBCODE" datatype="char" width="19" ucd="meta.bib.bibcode;pos.eq" arraysize="*">
+<DESCRIPTION>Coordinate reference</DESCRIPTION>
+</FIELD>
+<DATA>
+<TABLEDATA>
+<TR><TD>M   1</TD><TD>05 34 31.94</TD><TD>+22 00 52.2</TD><TD>6</TD><TD>6</TD><TD></TD><TD></TD><TD></TD><TD>C</TD><TD>Rad</TD><TD>2011A&amp;A...533A..10L</TD></TR>
+<TR><TD>M   2</TD><TD>21 33 27.02</TD><TD>-00 49 23.7</TD><TD>6</TD><TD>6</TD><TD>100</TD><TD>100</TD><TD>0</TD><TD>C</TD><TD>Opt</TD><TD>2010AJ....140.1830G</TD></TR>
+<TR><TD>M   3</TD><TD>13 42 11.62</TD><TD>+28 22 38.2</TD><TD>6</TD><TD>6</TD><TD>200</TD><TD>200</TD><TD>0</TD><TD>C</TD><TD>Opt</TD><TD>2010AJ....140.1830G</TD></TR>
+<TR><TD>M   4</TD><TD>16 23 35.22</TD><TD>-26 31 32.7</TD><TD>6</TD><TD>6</TD><TD>400</TD><TD>400</TD><TD>0</TD><TD>C</TD><TD>Opt</TD><TD>2010AJ....140.1830G</TD></TR>
+<TR><TD>M   5</TD><TD>15 18 33.22</TD><TD>+02 04 51.7</TD><TD>6</TD><TD>6</TD><TD></TD><TD></TD><TD></TD><TD>C</TD><TD>Opt</TD><TD>2010AJ....140.1830G</TD></TR>
+<TR><TD>M   6</TD><TD>17 40 20</TD><TD>-32 15.2</TD><TD>4</TD><TD>4</TD><TD></TD><TD></TD><TD></TD><TD>E</TD><TD>Opt</TD><TD>2009MNRAS.399.2146W</TD></TR>
+<TR><TD>M   7</TD><TD>17 53 51</TD><TD>-34 47.6</TD><TD>4</TD><TD>4</TD><TD></TD><TD></TD><TD></TD><TD>E</TD><TD>Opt</TD><TD>2009MNRAS.399.2146W</TD></TR>
+<TR><TD>M   8</TD><TD>18 03 37</TD><TD>-24 23.2</TD><TD>4</TD><TD>4</TD><TD>18000</TD><TD>18000</TD><TD>179</TD><TD>E</TD><TD></TD><TD></TD></TR>
+<TR><TD>M   9</TD><TD>17 19 11.78</TD><TD>-18 30 58.5</TD><TD>6</TD><TD>6</TD><TD></TD><TD></TD><TD></TD><TD>D</TD><TD></TD><TD>2002MNRAS.332..441F</TD></TR>
+<TR><TD>M  10</TD><TD>16 57 09.05</TD><TD>-04 06 01.1</TD><TD>6</TD><TD>6</TD><TD>100</TD><TD>100</TD><TD>90</TD><TD>C</TD><TD>Opt</TD><TD>2010AJ....140.1830G</TD></TR>
+<TR><TD>M  11</TD><TD>18 51 05</TD><TD>-06 16.2</TD><TD>4</TD><TD>4</TD><TD></TD><TD></TD><TD></TD><TD>E</TD><TD>Opt</TD><TD>2009MNRAS.399.2146W</TD></TR>
+<TR><TD>M  12</TD><TD>16 47 14.18</TD><TD>-01 56 54.7</TD><TD>6</TD><TD>6</TD><TD>800</TD><TD>800</TD><TD>90</TD><TD>C</TD><TD>Opt</TD><TD>2010AJ....140.1830G</TD></TR>
+<TR><TD>M  13</TD><TD>16 41 41.634</TD><TD>+36 27 40.75</TD><TD>7</TD><TD>7</TD><TD></TD><TD></TD><TD></TD><TD>B</TD><TD>IR</TD><TD>2006AJ....131.1163S</TD></TR>
+<TR><TD>M  14</TD><TD>17 37 36.15</TD><TD>-03 14 45.3</TD><TD>6</TD><TD>6</TD><TD></TD><TD></TD><TD></TD><TD>D</TD><TD></TD><TD>2006MNRAS.365.1357D</TD></TR>
+<TR><TD>M  15</TD><TD>21 29 58.33</TD><TD>+12 10 01.2</TD><TD>6</TD><TD>6</TD><TD>200</TD><TD>200</TD><TD>0</TD><TD>C</TD><TD>Opt</TD><TD>2010AJ....140.1830G</TD></TR>
+<TR><TD>M  16</TD><TD>18 18 48</TD><TD>-13 48.4</TD><TD>4</TD><TD>4</TD><TD></TD><TD></TD><TD></TD><TD>E</TD><TD>Opt</TD><TD>2009MNRAS.399.2146W</TD></TR>
+<TR><TD>M  17</TD><TD>18 20 47</TD><TD>-16 10.3</TD><TD>4</TD><TD>4</TD><TD></TD><TD></TD><TD></TD><TD>E</TD><TD>Opt</TD><TD>2009MNRAS.399.2146W</TD></TR>
+<TR><TD>M  18</TD><TD>18 19 58</TD><TD>-17 06.1</TD><TD>4</TD><TD>4</TD><TD></TD><TD></TD><TD></TD><TD>E</TD><TD>Opt</TD><TD>2009MNRAS.399.2146W</TD></TR>
+<TR><TD>M  19</TD><TD>17 02 37.69</TD><TD>-26 16 04.6</TD><TD>6</TD><TD>6</TD><TD></TD><TD></TD><TD></TD><TD>D</TD><TD></TD><TD>2006MNRAS.365.1357D</TD></TR>
+<TR><TD>M  20</TD><TD>18 02 42</TD><TD>-22 58.3</TD><TD>4</TD><TD>4</TD><TD></TD><TD></TD><TD></TD><TD>E</TD><TD>Opt</TD><TD>2009MNRAS.399.2146W</TD></TR>
+<TR><TD>M  21</TD><TD>18 04 13</TD><TD>-22 29.4</TD><TD>4</TD><TD>4</TD><TD></TD><TD></TD><TD></TD><TD>E</TD><TD>Opt</TD><TD>2009MNRAS.399.2146W</TD></TR>
+<TR><TD>M  22</TD><TD>18 36 23.94</TD><TD>-23 54 17.1</TD><TD>6</TD><TD>6</TD><TD>800</TD><TD>800</TD><TD>82</TD><TD>C</TD><TD>Opt</TD><TD>2010AJ....140.1830G</TD></TR>
+<TR><TD>M  23</TD><TD>17 57 04</TD><TD>-18 59.1</TD><TD>4</TD><TD>4</TD><TD></TD><TD></TD><TD></TD><TD>E</TD><TD>Opt</TD><TD>2009MNRAS.399.2146W</TD></TR>
+<TR><TD>M  24</TD><TD>18 16.8</TD><TD>-18 33</TD><TD>3</TD><TD>3</TD><TD></TD><TD></TD><TD></TD><TD>E</TD><TD>Opt</TD><TD>2004yCat.7239....0C</TD></TR>
+<TR><TD>M  25</TD><TD>18 31 47</TD><TD>-19 07.0</TD><TD>4</TD><TD>4</TD><TD></TD><TD></TD><TD></TD><TD>E</TD><TD>Opt</TD><TD>2009MNRAS.399.2146W</TD></TR>
+<TR><TD>M  26</TD><TD>18 45 18</TD><TD>-09 23.0</TD><TD>4</TD><TD>4</TD><TD></TD><TD></TD><TD></TD><TD>E</TD><TD>Opt</TD><TD>2009MNRAS.399.2146W</TD></TR>
+<TR><TD>M  27</TD><TD>19 59 36.379</TD><TD>+22 43 15.75</TD><TD>7</TD><TD>7</TD><TD></TD><TD></TD><TD></TD><TD>B</TD><TD>IR</TD><TD>2006AJ....131.1163S</TD></TR>
+<TR><TD>M  28</TD><TD>18 24 32.89</TD><TD>-24 52 11.4</TD><TD>6</TD><TD>6</TD><TD></TD><TD></TD><TD></TD><TD>D</TD><TD></TD><TD>2006MNRAS.365.1357D</TD></TR>
+<TR><TD>M  29</TD><TD>20 23 56</TD><TD>+38 31.4</TD><TD>4</TD><TD>4</TD><TD></TD><TD></TD><TD></TD><TD>E</TD><TD></TD><TD>2002A&amp;A...392..869L</TD></TR>
+<TR><TD>M  30</TD><TD>21 40 22.12</TD><TD>-23 10 47.5</TD><TD>6</TD><TD>6</TD><TD>100</TD><TD>100</TD><TD>0</TD><TD>C</TD><TD>Opt</TD><TD>2010AJ....140.1830G</TD></TR>
+<TR><TD>M  31</TD><TD>00 42 44.330</TD><TD>+41 16 07.50</TD><TD>7</TD><TD>7</TD><TD></TD><TD></TD><TD></TD><TD>B</TD><TD>IR</TD><TD>2006AJ....131.1163S</TD></TR>
+<TR><TD>M  32</TD><TD>00 42 41.87</TD><TD>+40 51 57.2</TD><TD>6</TD><TD>6</TD><TD>10800.00</TD><TD>2200.00</TD><TD>90</TD><TD>D</TD><TD></TD><TD>1999ApJS..125..409C</TD></TR>
+<TR><TD>M  33</TD><TD>01 33 50.904</TD><TD>+30 39 35.79</TD><TD>7</TD><TD>7</TD><TD></TD><TD></TD><TD></TD><TD>B</TD><TD>IR</TD><TD>2006AJ....131.1163S</TD></TR>
+<TR><TD>M  34</TD><TD>02 42 05</TD><TD>+42 45.7</TD><TD>4</TD><TD>4</TD><TD></TD><TD></TD><TD></TD><TD>E</TD><TD>Opt</TD><TD>2009MNRAS.399.2146W</TD></TR>
+<TR><TD>M  35</TD><TD>06 08 54</TD><TD>+24 20.0</TD><TD>4</TD><TD>4</TD><TD></TD><TD></TD><TD></TD><TD>E</TD><TD>Opt</TD><TD>2009MNRAS.399.2146W</TD></TR>
+<TR><TD>M  36</TD><TD>05 36 18</TD><TD>+34 08.4</TD><TD>4</TD><TD>4</TD><TD></TD><TD></TD><TD></TD><TD>E</TD><TD>Opt</TD><TD>2009MNRAS.399.2146W</TD></TR>
+<TR><TD>M  37</TD><TD>05 52 18</TD><TD>+32 33.2</TD><TD>4</TD><TD>4</TD><TD></TD><TD></TD><TD></TD><TD>E</TD><TD>Opt</TD><TD>2009MNRAS.399.2146W</TD></TR>
+<TR><TD>M  38</TD><TD>05 28 43</TD><TD>+35 51.3</TD><TD>4</TD><TD>4</TD><TD></TD><TD></TD><TD></TD><TD>E</TD><TD></TD><TD>2002A&amp;A...390..103D</TD></TR>
+<TR><TD>M  39</TD><TD>21 31 48</TD><TD>+48 26.0</TD><TD>4</TD><TD>4</TD><TD></TD><TD></TD><TD></TD><TD>E</TD><TD>Opt</TD><TD>2009MNRAS.399.2146W</TD></TR>
+<TR><TD>NAME WINNECKE 4</TD><TD>12 22 12.53</TD><TD>+58 04 58.6</TD><TD>6</TD><TD>6</TD><TD></TD><TD></TD><TD></TD><TD>D</TD><TD>Opt</TD><TD>2001AJ....122.3466M</TD></TR>
+<TR><TD>M  41</TD><TD>06 46 01</TD><TD>-20 45.4</TD><TD>4</TD><TD>4</TD><TD></TD><TD></TD><TD></TD><TD>E</TD><TD>Opt</TD><TD>2009MNRAS.399.2146W</TD></TR>
+<TR><TD>M  42</TD><TD>05 35 17.3</TD><TD>-05 23 28</TD><TD>5</TD><TD>5</TD><TD>7500</TD><TD>7500</TD><TD>91</TD><TD>D</TD><TD></TD><TD>1981MNRAS.194..693L</TD></TR>
+<TR><TD>M  43</TD><TD>05 35 31</TD><TD>-05 16.2</TD><TD>4</TD><TD>4</TD><TD>18000</TD><TD>18000</TD><TD>175</TD><TD>E</TD><TD></TD><TD></TD></TR>
+<TR><TD>M  44</TD><TD>08 40 24</TD><TD>+19 40.0</TD><TD>4</TD><TD>4</TD><TD></TD><TD></TD><TD></TD><TD>E</TD><TD>Opt</TD><TD>2009MNRAS.399.2146W</TD></TR>
+<TR><TD>M  45</TD><TD>03 47 00</TD><TD>+24 07.0</TD><TD>4</TD><TD>4</TD><TD></TD><TD></TD><TD></TD><TD>E</TD><TD>Opt</TD><TD>2009MNRAS.399.2146W</TD></TR>
+<TR><TD>M  46</TD><TD>07 41 46</TD><TD>-14 48.6</TD><TD>4</TD><TD>4</TD><TD></TD><TD></TD><TD></TD><TD>E</TD><TD>Opt</TD><TD>2009MNRAS.399.2146W</TD></TR>
+<TR><TD>M  47</TD><TD>07 36 35</TD><TD>-14 29.0</TD><TD>4</TD><TD>4</TD><TD></TD><TD></TD><TD></TD><TD>E</TD><TD>Opt</TD><TD>2009MNRAS.399.2146W</TD></TR>
+<TR><TD>M  48</TD><TD>08 13 43</TD><TD>-05 45.0</TD><TD>4</TD><TD>4</TD><TD></TD><TD></TD><TD></TD><TD>E</TD><TD>Opt</TD><TD>2009MNRAS.399.2146W</TD></TR>
+<TR><TD>M  49</TD><TD>12 29 46.798</TD><TD>+08 00 01.48</TD><TD>7</TD><TD>7</TD><TD></TD><TD></TD><TD></TD><TD>B</TD><TD>IR</TD><TD>2006AJ....131.1163S</TD></TR>
+<TR><TD>M  50</TD><TD>07 02 47.5</TD><TD>-08 20 16</TD><TD>5</TD><TD>5</TD><TD></TD><TD></TD><TD></TD><TD>D</TD><TD></TD><TD>2012AstL...38...74F</TD></TR>
+<TR><TD>M  51</TD><TD>13 29 52.698</TD><TD>+47 11 42.93</TD><TD>7</TD><TD>7</TD><TD></TD><TD></TD><TD></TD><TD>B</TD><TD>IR</TD><TD>2006AJ....131.1163S</TD></TR>
+<TR><TD>M  52</TD><TD>23 24 48</TD><TD>+61 35.6</TD><TD>4</TD><TD>4</TD><TD></TD><TD></TD><TD></TD><TD>E</TD><TD>Opt</TD><TD>2009MNRAS.399.2146W</TD></TR>
+<TR><TD>M  53</TD><TD>13 12 55.25</TD><TD>+18 10 05.4</TD><TD>6</TD><TD>6</TD><TD>100</TD><TD>100</TD><TD>91</TD><TD>C</TD><TD>Opt</TD><TD>2010AJ....140.1830G</TD></TR>
+<TR><TD>M  54</TD><TD>18 55 03.33</TD><TD>-30 28 47.5</TD><TD>6</TD><TD>6</TD><TD>100</TD><TD>100</TD><TD>0</TD><TD>C</TD><TD>Opt</TD><TD>2010AJ....140.1830G</TD></TR>
+<TR><TD>M  55</TD><TD>19 39 59.71</TD><TD>-30 57 53.1</TD><TD>6</TD><TD>6</TD><TD>800</TD><TD>800</TD><TD>0</TD><TD>C</TD><TD>Opt</TD><TD>2010AJ....140.1830G</TD></TR>
+<TR><TD>M  56</TD><TD>19 16 35.57</TD><TD>+30 11 00.5</TD><TD>6</TD><TD>6</TD><TD>200</TD><TD>200</TD><TD>0</TD><TD>C</TD><TD>Opt</TD><TD>2010AJ....140.1830G</TD></TR>
+<TR><TD>NAME RING NEBULA</TD><TD>18 53 35.079</TD><TD>+33 01 45.03</TD><TD>7</TD><TD>7</TD><TD></TD><TD></TD><TD></TD><TD>D</TD><TD></TD><TD>2003A&amp;A...408.1029K</TD></TR>
+<TR><TD>M  58</TD><TD>12 37 43.527</TD><TD>+11 49 05.46</TD><TD>7</TD><TD>7</TD><TD>58</TD><TD>42</TD><TD>0</TD><TD>C</TD><TD>Opt</TD><TD>2009yCat.2294....0A</TD></TR>
+<TR><TD>M  59</TD><TD>12 42 02.322</TD><TD>+11 38 48.95</TD><TD>7</TD><TD>7</TD><TD></TD><TD></TD><TD></TD><TD>B</TD><TD>IR</TD><TD>2006AJ....131.1163S</TD></TR>
+<TR><TD>M  60</TD><TD>12 43 40.008</TD><TD>+11 33 09.40</TD><TD>7</TD><TD>7</TD><TD></TD><TD></TD><TD></TD><TD>B</TD><TD>IR</TD><TD>2006AJ....131.1163S</TD></TR>
+<TR><TD>M  61</TD><TD>12 21 54.950</TD><TD>+04 28 24.92</TD><TD>7</TD><TD>7</TD><TD></TD><TD></TD><TD></TD><TD>B</TD><TD>IR</TD><TD>2006AJ....131.1163S</TD></TR>
+<TR><TD>M  62</TD><TD>17 01 12.60</TD><TD>-30 06 44.5</TD><TD>6</TD><TD>6</TD><TD></TD><TD></TD><TD></TD><TD>D</TD><TD></TD><TD>2006MNRAS.365.1357D</TD></TR>
+<TR><TD>M  63</TD><TD>13 15 49.329</TD><TD>+42 01 45.44</TD><TD>7</TD><TD>7</TD><TD></TD><TD></TD><TD></TD><TD>B</TD><TD>IR</TD><TD>2006AJ....131.1163S</TD></TR>
+<TR><TD>M  64</TD><TD>12 56 43.696</TD><TD>+21 40 57.57</TD><TD>7</TD><TD>7</TD><TD></TD><TD></TD><TD></TD><TD>B</TD><TD>IR</TD><TD>2006AJ....131.1163S</TD></TR>
+<TR><TD>M  65</TD><TD>11 18 55.957</TD><TD>+13 05 31.96</TD><TD>7</TD><TD>7</TD><TD></TD><TD></TD><TD></TD><TD>B</TD><TD>IR</TD><TD>2006AJ....131.1163S</TD></TR>
+<TR><TD>M  66</TD><TD>11 20 15.026</TD><TD>+12 59 28.64</TD><TD>7</TD><TD>7</TD><TD></TD><TD></TD><TD></TD><TD>B</TD><TD>IR</TD><TD>2006AJ....131.1163S</TD></TR>
+<TR><TD>M  67</TD><TD>08 51 18</TD><TD>+11 48.0</TD><TD>4</TD><TD>4</TD><TD></TD><TD></TD><TD></TD><TD>E</TD><TD></TD><TD>2005ApJ...619..824X</TD></TR>
+<TR><TD>M  68</TD><TD>12 39 27.98</TD><TD>-26 44 38.6</TD><TD>6</TD><TD>6</TD><TD>200</TD><TD>200</TD><TD>0</TD><TD>C</TD><TD>Opt</TD><TD>2010AJ....140.1830G</TD></TR>
+<TR><TD>M  69</TD><TD>18 31 23.10</TD><TD>-32 20 53.1</TD><TD>6</TD><TD>6</TD><TD>100</TD><TD>100</TD><TD>0</TD><TD>C</TD><TD>Opt</TD><TD>2010AJ....140.1830G</TD></TR>
+<TR><TD>M  70</TD><TD>18 43 12.76</TD><TD>-32 17 31.6</TD><TD>6</TD><TD>6</TD><TD>100</TD><TD>100</TD><TD>86</TD><TD>C</TD><TD>Opt</TD><TD>2010AJ....140.1830G</TD></TR>
+<TR><TD>M  71</TD><TD>19 53 46.49</TD><TD>+18 46 45.1</TD><TD>6</TD><TD>6</TD><TD>500</TD><TD>500</TD><TD>0</TD><TD>C</TD><TD>Opt</TD><TD>2010AJ....140.1830G</TD></TR>
+<TR><TD>M  72</TD><TD>20 53 27.70</TD><TD>-12 32 14.3</TD><TD>6</TD><TD>6</TD><TD>100</TD><TD>100</TD><TD>90</TD><TD>C</TD><TD>Opt</TD><TD>2010AJ....140.1830G</TD></TR>
+<TR><TD>M  73</TD><TD>20 59.0</TD><TD>-12 38</TD><TD>3</TD><TD>3</TD><TD>180000</TD><TD>180000</TD><TD>170</TD><TD>E</TD><TD></TD><TD></TD></TR>
+<TR><TD>M  74</TD><TD>01 36 41.772</TD><TD>+15 47 00.46</TD><TD>7</TD><TD>7</TD><TD></TD><TD></TD><TD></TD><TD>B</TD><TD>IR</TD><TD>2006AJ....131.1163S</TD></TR>
+<TR><TD>M  75</TD><TD>20 06 04.841</TD><TD>-21 55 20.14</TD><TD>7</TD><TD>7</TD><TD></TD><TD></TD><TD></TD><TD>B</TD><TD>IR</TD><TD>2006AJ....131.1163S</TD></TR>
+<TR><TD>M  76</TD><TD>01 42 19.948</TD><TD>+51 34 31.15</TD><TD>7</TD><TD>7</TD><TD></TD><TD></TD><TD></TD><TD>D</TD><TD></TD><TD>2003A&amp;A...408.1029K</TD></TR>
+<TR><TD>M  77</TD><TD>02 42 40.771</TD><TD>-00 00 47.84</TD><TD>7</TD><TD>7</TD><TD></TD><TD></TD><TD></TD><TD>B</TD><TD>IR</TD><TD>2006AJ....131.1163S</TD></TR>
+<TR><TD>M  78</TD><TD>05 46 46.7</TD><TD>+00 00 50</TD><TD>5</TD><TD>5</TD><TD>3000</TD><TD>3000</TD><TD>176</TD><TD>D</TD><TD></TD><TD></TD></TR>
+<TR><TD>M  79</TD><TD>05 24 10.59</TD><TD>-24 31 27.3</TD><TD>6</TD><TD>6</TD><TD></TD><TD></TD><TD></TD><TD>D</TD><TD></TD><TD>2006MNRAS.365.1357D</TD></TR>
+<TR><TD>M  80</TD><TD>16 17 02.41</TD><TD>-22 58 33.9</TD><TD>6</TD><TD>6</TD><TD>200</TD><TD>200</TD><TD>0</TD><TD>C</TD><TD>Opt</TD><TD>2010AJ....140.1830G</TD></TR>
+<TR><TD>M  81</TD><TD>09 55 33.17306</TD><TD>+69 03 55.0610</TD><TD>9</TD><TD>9</TD><TD>0.620</TD><TD>0.042</TD><TD>0</TD><TD>A</TD><TD>Rad</TD><TD>2004AJ....127.3587F</TD></TR>
+<TR><TD>M  82</TD><TD>09 55 52.19</TD><TD>+69 40 48.8</TD><TD>6</TD><TD>6</TD><TD>10800.00</TD><TD>10800.00</TD><TD>90</TD><TD>D</TD><TD></TD><TD>1999ApJS..125..409C</TD></TR>
+<TR><TD>M  83</TD><TD>13 37 00.919</TD><TD>-29 51 56.74</TD><TD>7</TD><TD>7</TD><TD></TD><TD></TD><TD></TD><TD>B</TD><TD>IR</TD><TD>2006AJ....131.1163S</TD></TR>
+<TR><TD>M  84</TD><TD>12 25 03.74333</TD><TD>+12 53 13.1393</TD><TD>9</TD><TD>9</TD><TD>0.430</TD><TD>0.019</TD><TD>90</TD><TD>A</TD><TD>Rad</TD><TD>2009A&amp;A...493..317L</TD></TR>
+<TR><TD>M  85</TD><TD>12 25 24.053</TD><TD>+18 11 27.89</TD><TD>7</TD><TD>7</TD><TD></TD><TD></TD><TD></TD><TD>B</TD><TD>IR</TD><TD>2006AJ....131.1163S</TD></TR>
+<TR><TD>M  86</TD><TD>12 26 11.814</TD><TD>+12 56 45.49</TD><TD>7</TD><TD>7</TD><TD></TD><TD></TD><TD></TD><TD>B</TD><TD>IR</TD><TD>2006AJ....131.1163S</TD></TR>
+<TR><TD>M  87</TD><TD>12 30 49.42338</TD><TD>+12 23 28.0439</TD><TD>9</TD><TD>9</TD><TD>0.250</TD><TD>0.017</TD><TD>90</TD><TD>A</TD><TD>Rad</TD><TD>2009A&amp;A...493..317L</TD></TR>
+<TR><TD>M  88</TD><TD>12 31 59.216</TD><TD>+14 25 13.48</TD><TD>7</TD><TD>7</TD><TD></TD><TD></TD><TD></TD><TD>B</TD><TD>IR</TD><TD>2006AJ....131.1163S</TD></TR>
+<TR><TD>M  89</TD><TD>12 35 39.884</TD><TD>+12 33 21.74</TD><TD>7</TD><TD>7</TD><TD></TD><TD></TD><TD></TD><TD>B</TD><TD>IR</TD><TD>2006AJ....131.1163S</TD></TR>
+<TR><TD>M  90</TD><TD>12 36 49.816</TD><TD>+13 09 46.33</TD><TD>7</TD><TD>7</TD><TD></TD><TD></TD><TD></TD><TD>B</TD><TD>IR</TD><TD>2006AJ....131.1163S</TD></TR>
+<TR><TD>M  91</TD><TD>12 35 26.430</TD><TD>+14 29 46.75</TD><TD>7</TD><TD>7</TD><TD></TD><TD></TD><TD></TD><TD>B</TD><TD>IR</TD><TD>2006AJ....131.1163S</TD></TR>
+<TR><TD>M  92</TD><TD>17 17 07.39</TD><TD>+43 08 09.4</TD><TD>6</TD><TD>6</TD><TD>300</TD><TD>300</TD><TD>0</TD><TD>C</TD><TD>Opt</TD><TD>2010AJ....140.1830G</TD></TR>
+<TR><TD>M  93</TD><TD>07 44 30</TD><TD>-23 51.4</TD><TD>4</TD><TD>4</TD><TD></TD><TD></TD><TD></TD><TD>E</TD><TD>Opt</TD><TD>2009MNRAS.399.2146W</TD></TR>
+<TR><TD>M  94</TD><TD>12 50 53.148</TD><TD>+41 07 12.55</TD><TD>7</TD><TD>7</TD><TD></TD><TD></TD><TD></TD><TD>B</TD><TD>IR</TD><TD>2006AJ....131.1163S</TD></TR>
+<TR><TD>M  95</TD><TD>10 43 57.733</TD><TD>+11 42 13.00</TD><TD>7</TD><TD>7</TD><TD></TD><TD></TD><TD></TD><TD>B</TD><TD>IR</TD><TD>2006AJ....131.1163S</TD></TR>
+<TR><TD>M  96</TD><TD>10 46 45.744</TD><TD>+11 49 11.78</TD><TD>7</TD><TD>7</TD><TD></TD><TD></TD><TD></TD><TD>B</TD><TD>IR</TD><TD>2006AJ....131.1163S</TD></TR>
+<TR><TD>M  97</TD><TD>11 14 47.734</TD><TD>+55 01 08.50</TD><TD>7</TD><TD>7</TD><TD></TD><TD></TD><TD></TD><TD>D</TD><TD></TD><TD>2003A&amp;A...408.1029K</TD></TR>
+<TR><TD>M  98</TD><TD>12 13 48.292</TD><TD>+14 54 01.69</TD><TD>7</TD><TD>7</TD><TD></TD><TD></TD><TD></TD><TD>B</TD><TD>IR</TD><TD>2006AJ....131.1163S</TD></TR>
+<TR><TD>M  99</TD><TD>12 18 49.625</TD><TD>+14 24 59.36</TD><TD>7</TD><TD>7</TD><TD></TD><TD></TD><TD></TD><TD>B</TD><TD>IR</TD><TD>2006AJ....131.1163S</TD></TR>
+<TR><TD>M 100</TD><TD>12 22 54.899</TD><TD>+15 49 20.57</TD><TD>7</TD><TD>7</TD><TD></TD><TD></TD><TD></TD><TD>B</TD><TD>IR</TD><TD>2006AJ....131.1163S</TD></TR>
+<TR><TD>M 101</TD><TD>14 03 12.51</TD><TD>+54 20 53.1</TD><TD>6</TD><TD>6</TD><TD>10800.00</TD><TD>10800.00</TD><TD>90</TD><TD>D</TD><TD></TD><TD>1999ApJS..125..409C</TD></TR>
+<TR><TD>M 102</TD><TD>15 06 29.561</TD><TD>+55 45 47.91</TD><TD>7</TD><TD>7</TD><TD></TD><TD></TD><TD></TD><TD>B</TD><TD>IR</TD><TD>2006AJ....131.1163S</TD></TR>
+<TR><TD>M 103</TD><TD>01 33 23</TD><TD>+60 39.0</TD><TD>4</TD><TD>4</TD><TD></TD><TD></TD><TD></TD><TD>E</TD><TD>Opt</TD><TD>2009MNRAS.399.2146W</TD></TR>
+<TR><TD>M 104</TD><TD>12 39 59.43185</TD><TD>-11 37 22.9954</TD><TD>9</TD><TD>9</TD><TD>2.310</TD><TD>0.054</TD><TD>0</TD><TD>A</TD><TD>Rad</TD><TD>2004AJ....127.3587F</TD></TR>
+<TR><TD>M 105</TD><TD>10 47 49.600</TD><TD>+12 34 53.87</TD><TD>7</TD><TD>7</TD><TD></TD><TD></TD><TD></TD><TD>B</TD><TD>IR</TD><TD>2006AJ....131.1163S</TD></TR>
+<TR><TD>M 106</TD><TD>12 18 57.620</TD><TD>+47 18 13.39</TD><TD>7</TD><TD>7</TD><TD></TD><TD></TD><TD></TD><TD>B</TD><TD>IR</TD><TD>2006AJ....131.1163S</TD></TR>
+<TR><TD>M 107</TD><TD>16 32 31.86</TD><TD>-13 03 13.6</TD><TD>6</TD><TD>6</TD><TD>100</TD><TD>100</TD><TD>90</TD><TD>C</TD><TD>Opt</TD><TD>2010AJ....140.1830G</TD></TR>
+<TR><TD>M 108</TD><TD>11 11 30.967</TD><TD>+55 40 26.84</TD><TD>7</TD><TD>7</TD><TD></TD><TD></TD><TD></TD><TD>B</TD><TD>IR</TD><TD>2006AJ....131.1163S</TD></TR>
+<TR><TD>M 109</TD><TD>11 57 35.984</TD><TD>+53 22 28.27</TD><TD>7</TD><TD>7</TD><TD></TD><TD></TD><TD></TD><TD>B</TD><TD>IR</TD><TD>2006AJ....131.1163S</TD></TR>
+<TR><TD>M 110</TD><TD>00 40 22.075</TD><TD>+41 41 07.08</TD><TD>7</TD><TD>7</TD><TD></TD><TD></TD><TD></TD><TD>B</TD><TD>IR</TD><TD>2006AJ....131.1163S</TD></TR>
+
+</TABLEDATA>
+
+</DATA>
+</TABLE>
+</RESOURCE>
+</VOTABLE>
+

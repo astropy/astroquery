@@ -6,6 +6,7 @@ import re
 import xml.etree.ElementTree as tree
 import astropy.units as u
 
+
 def parse_number(string):
     """
     Retrieve a number from the string.
@@ -23,6 +24,7 @@ def parse_number(string):
     num_str = string.split(None, 1)[0]
     number = float(num_str)
     return number
+
 
 def parse_coords(string):
     """
@@ -44,6 +46,7 @@ def parse_coords(string):
     coords = [ra, dec, coord_sys]
     return coords
 
+
 def parse_units(string):
     """
     Retrieve units from the string.
@@ -55,13 +58,14 @@ def parse_units(string):
 
     Returns
     -------
-    units : `astropy.units.Unit`
+    units : `~astropy.units.Unit`
         the units contained in the string
     """
     unit_str = string.split(None, 1)[1]
     unit_str = re.sub("[()]", "", unit_str).strip()
     units = u.format.Generic().parse(unit_str)
     return units
+
 
 def find_result_node(desc, xml_tree):
     """
@@ -74,8 +78,10 @@ def find_result_node(desc, xml_tree):
 
     Parameters
     -----
-    xmlTree : the xml tree to search for the <result> node
-    desc : the text contained in the desc node
+    xmlTree : `xml.etree.ElementTree`
+        the xml tree to search for the <result> node
+    desc : string
+        the text contained in the desc node
 
     Returns
     -----
@@ -89,9 +95,10 @@ def find_result_node(desc, xml_tree):
             return result_node
     return None
 
+
 def xml(response):
     """
-    Parse raw xml and return as an xml tree. If status is not `ok`, raise an exception.
+    Parse raw xml and return as an xml tree. If status is not ``ok``, raise an exception.
 
     Parameters
     ----------
@@ -103,7 +110,7 @@ def xml(response):
     xml_tree : `xml.etree.ElementTree`
         an xml tree
     """
-    #get the root element from the xml string
+    # get the root element from the xml string
     root = tree.fromstring(response)
     status = root.attrib["status"]
     if status == "error":
@@ -111,6 +118,6 @@ def xml(response):
         raise Exception("The dust service responded with an error: " + message)
     elif status != "ok":
         raise Exception("Response status was not 'ok'.")
-    #construct the ElementTree from the root
+    # construct the ElementTree from the root
     xml_tree = tree.ElementTree(root)
     return xml_tree

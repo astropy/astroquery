@@ -1,93 +1,124 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-from astropy.io import fits
+from __future__ import print_function
+
 from io import BytesIO
-# not used any more, but needs to be eventually import astropy.utils.data as aud
-import requests
 
-url_gpscutout  = "http://third.ucllnl.org/cgi-bin/gpscutout"
-
-__all__ = ['get_magpis_image_gal']
-
-surveys = ["gps6epoch3",
-    "gps6epoch4",
-    "gps20",
-    "gps20new",
-    "gps90",
-    "gpsmsx",
-    "gpsmsx2",
-    "gpsglimpse36",
-    "gpsglimpse45",
-    "gpsglimpse58",
-    "gpsglimpse80",
-    "mipsgal",
-    "bolocam"]
+import astropy.units as u
+from astropy.io import fits
 
 
-def get_magpis_image_gal(glon, glat, survey='bolocam', size=1.0, 
-        verbose=False, savename=None, save=True,
-        overwrite=False, directory='./'):
-    """
-    Get an image at a specified glon/glat.  Size can be specified
-    WARNING: MAGPIS has a maxmimum image size of about 2048x2048
+from ..query import BaseQuery
+from ..utils.docstr_chompers import prepend_docstr_noreturns
+from ..utils import commons
+from . import MAGPIS_SERVER, MAGPIS_TIMEOUT
+from ..exceptions import InvalidQueryError
 
-    Parameters
-    ----------
-    glon : float
-    glat : float
-        Galactic latitude and longitude at the center
-    survey : string
-        Which MAGPIS survey do you want to cut out?
-    frametype : ['stack','normal','interleave','deep%stack','confidence','difference','all']
-        The type of image
-    savename : None or string
-        filename to save fits file as.  If None, will become G###.###p###.###_(survey).fits
-    size : float
-        Size of cutout (symmetric) in arcminutes
-    verbose : bool
-        Print out extra error messages?
-    save : bool
-        Save FITS file?
-    overwrite : bool
-        Overwrite if file already exists?
-    directory : string
-        Directory to store file in.  Defaults to './'.  
+__all__ = ['Magpis','MagpisClass']
 
-    Examples
-    --------
-    >>> fitsfile = get_magpis_image_gal(10.5,0.0)
-    """
 
-    if survey not in surveys:
-        raise ValueError("Invalide survey.  Valid surveys are: %s" % surveys)
+class MagpisClass(BaseQuery):
+    URL = MAGPIS_SERVER()
+    TIMEOUT = MAGPIS_TIMEOUT()
+    surveys = ["gps6",
+               "gps6epoch2",
+               "gps6epoch3",
+               "gps6epoch4",
+               "gps20",
+               "gps20new",
+               "gps90",
+               "gpsmsx",
+               "gpsmsx2",
+               "gpsglimpse36",
+               "gpsglimpse45",
+               "gpsglimpse58",
+               "gpsglimpse80",
+               "mipsgal",
+               "atlasgal",
+               "bolocam"]
+    maximsize = 1024
 
-    # Construct request
-    request = {}
-    request["Survey"] = survey 
-    # NOTE: RA is passed as a 2-part string, DEC is not used.  Whoops!
-    request["RA"] = "%s %s" % (glon,glat)
-    # request["Dec"] = 
-    request["Equinox"] = "Galactic"
-    request["ImageSize"] = size
-    request["ImageType"] = "FITS"
+    def _args_to_payload(self, coordinates, image_size=1*u.arcmin, survey='bolocam',
+                         maximsize=None):
+        """
+        Fetches image cutouts from MAGPIS surveys.
 
-    # these options are not used
-    # optional request["MaxInt"] = 10
-    # optional request["Epochs"] = 
-    # optional request["Fieldname"] = 
+        Parameters
+        ----------
+        coordinates : str or `astropy.coordinates` object
+            The target around which to search. It may be specified as a string
+            in which case it is resolved using online services or as the appropriate
+            `astropy.coordinates` object. ICRS coordinates may also be entered as strings
+            as specified in the `astropy.coordinates` module.
+        radius : str or `~astropy.units.Quantity` object, optional
+           The string must be parsable by `astropy.coordinates.Angle`. The appropriate
+           `~astropy.units.Quantity` object from `astropy.units` may also be used. Specifies the symmetric
+           size of the image. Defaults to 1 arcmin.
+        survey : str, optional
+            The MAGPIS survey you want to cut out. Defaults to 'bolocam'. The other
+            surveys that can be used can be listed via
+            :meth:`~astroquery.magpis.MagpisClass.list_surveys`.
+        maximsize : int, optional
+            Specify the maximum image size (in pixels on each dimension) that
+            will be returned.  Max is 2048.
+        """
+        request_payload = {}
+        request_payload["Survey"] = survey
+        c = commons.parse_coordinates(coordinates)
+        ra_dec_str = str(c.galactic.lonangle.degree) + ' ' + str(c.galactic.latangle.degree)
+        request_payload["RA"] = ra_dec_str
+        request_payload["Equinox"] = "Galactic"
+        request_payload["ImageSize"] = commons.radius_to_unit(image_size,'arcmin')
+        request_payload["ImageType"] = "FITS File"
+        request_payload["MaxImSize"] = self.maximsize if maximsize is None else maximsize
+        return request_payload
 
-    result = requests.post(url_gpscutout, data=request)
+    @prepend_docstr_noreturns("\n"+_args_to_payload.__doc__)
+    def get_images(self, coordinates, image_size=1 * u.arcmin,
+                   survey='bolocam', get_query_payload=False):
+        """
+        get_query_payload : bool, optional
+            if set to `True` then returns the dictionary sent as the HTTP request.
+            Defaults to `False`
 
-    # turn the text into a StringIO object for FITS reading
-    S = BytesIO(result.content)
+        Returns
+        -------
+        A list of `astropy.fits.HDUList` objects
+        """
+        response = self.get_images_async(coordinates, image_size=image_size,
+                                         survey=survey,
+                                         get_query_payload=get_query_payload)
+        if get_query_payload:
+            return response
+        S = BytesIO(response.content)
+        try:
+            return fits.open(S, ignore_missing_end=True)
+        except IOError:
+            raise InvalidQueryError(response.content) 
 
-    fitsfile = fits.open(S)
+    @prepend_docstr_noreturns("\n"+_args_to_payload.__doc__)
+    def get_images_async(self, coordinates, image_size=1 * u.arcmin, survey='bolocam',
+                         get_query_payload=False):
+        """
+        get_query_payload : bool, optional
+            if set to `True` then returns the dictionary sent as the HTTP request.
+            Defaults to `False`
 
-    if save:
-        if savename is None:
-            savename = "G%08.4f%+09.4f_%s.fits" % (glon,glat,survey)
-        if directory[-1] != '/':
-            directory += '/'
-        fitsfile.writeto(directory+savename, clobber=overwrite)
+        Returns
+        -------
+        response : `requests.Response`
+            The HTTP response returned from the service
+        """
+        if survey not in self.surveys:
+            raise InvalidQueryError("Survey must be one of "+(",".join(self.list_surveys())))
+        request_payload = self._args_to_payload(coordinates, image_size=image_size,
+                                                survey=survey)
+        if get_query_payload:
+            return request_payload
+        response = commons.send_request(self.URL, request_payload, self.TIMEOUT)
+        return response
 
-    return fitsfile
+    def list_surveys(self):
+        """Return a list of surveys for MAGPIS"""
+        return self.surveys
 
+Magpis = MagpisClass()

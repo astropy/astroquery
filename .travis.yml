@@ -4,55 +4,68 @@ python:
     - 2.6
     - 2.7
 #    - 3.2
-#    - 3.3
+    - 3.3
 
 env:
     # try all python versions with the latest stable numpy and astropy
-    - ASTROPY_VERSION=stable NUMPY_VERSION=1.7.1 SETUP_CMD='test'
+     - ASTROPY_VERSION=development NUMPY_VERSION=1.7.1 SETUP_CMD='test'
 
 matrix:
     include:
         - python: 2.7
           # opdeps needed because the matplotlib sphinx extension requires them
-          # env: ASTROPY_VERSION=development NUMPY_VERSION=1.7.1 SETUP_CMD='build_sphinx -w -n'
-          env: ASTROPY_VERSION=development NUMPY_VERSION=1.7.1 SETUP_CMD='build_sphinx'
+          env: ASTROPY_VERSION=development NUMPY_VERSION=1.8.0 SETUP_CMD='build_sphinx -w -n'
 
-        # try alternate numpy versions with the latest stable astropy
+        # try alternate numpy versions with the latest development astropy
         - python: 2.7
-          env: ASTROPY_VERSION=stable NUMPY_VERSION=1.6.2 SETUP_CMD='test'
+          env: ASTROPY_VERSION=development NUMPY_VERSION=1.8.0 SETUP_CMD='test'
         - python: 2.7
-          env: ASTROPY_VERSION=stable NUMPY_VERSION=1.5.1 SETUP_CMD='test'
-#        - python: 3.2
-#          env: ASTROPY_VERSION=stable NUMPY_VERSION=1.6.2 SETUP_CMD='test'
+          env: ASTROPY_VERSION=development NUMPY_VERSION=1.6.2 SETUP_CMD='test'
+        - python: 2.7
+          env: ASTROPY_VERSION=development NUMPY_VERSION=1.5.1 SETUP_CMD='test'
+        - python: 3.3
+          env: ASTROPY_VERSION=development NUMPY_VERSION=1.8.0 SETUP_CMD='test'
         # numpy < 1.6 does not work on py 3.x
 
         # try latest developer version of astropy
-        - python: 2.7
-          env: ASTROPY_VERSION=development NUMPY_VERSION=1.7.1 SETUP_CMD='test'
+#        - python: 2.7
+#          env: ASTROPY_VERSION=development NUMPY_VERSION=1.7.1 SETUP_CMD='test'
 #        - python: 3.3
 #          env: ASTROPY_VERSION=development NUMPY_VERSION=1.7.1 SETUP_CMD='test'
+
+        # try a stable version of astropy, which requires monkeypatching
+        #- python: 2.7
+        #  env: ASTROPY_VERSION=stable NUMPY_VERSION=1.7.1 SETUP_CMD='test'
 
 before_install:
    # We do this to make sure we get the dependencies so pip works below
    - sudo apt-get update -qq
-   - sudo apt-get install -qq python-numpy python-sphinx cython libatlas-dev liblapack-dev gfortran
-   - if [[ $SETUP_CMD == build_sphinx* ]]; then sudo apt-get install -qq python-sphinx graphviz texlive-latex-extra dvipng python-matplotlib; fi
+   - sudo apt-get install -qq python-numpy 
+   - sudo apt-get install -qq python-sphinx 
+   - sudo apt-get install -qq cython 
+   - sudo apt-get install -qq libatlas-dev 
+   - sudo apt-get install -qq liblapack-dev 
+   - sudo apt-get install -qq gfortran
+   - if [[ $SETUP_CMD == build_sphinx* ]]; then sudo apt-get install -qq python-sphinx; fi
+   - if [[ $SETUP_CMD == build_sphinx* ]]; then sudo apt-get install -qq graphviz; fi
+   - if [[ $SETUP_CMD == build_sphinx* ]]; then sudo apt-get install -qq texlive-latex-extra; fi
+   - if [[ $SETUP_CMD == build_sphinx* ]]; then sudo apt-get install -qq dvipng; fi
+   - if [[ $SETUP_CMD == build_sphinx* ]]; then sudo apt-get install -qq python-matplotlib; fi
 
 install:
    - export PYTHONIOENCODING=UTF8 # just in case
    - pip -q install --upgrade "numpy==$NUMPY_VERSION" --use-mirrors
    - pip -q install --upgrade Cython --use-mirrors
    - pip -q install --upgrade requests # needed for multipart queries (fermilat)
-   - if [[ $SETUP_CMD == build_sphinx* ]]; then pip -q install sphinx==1.1.3 --use-mirrors; fi
-   - if [[ $SETUP_CMD == build_sphinx* ]]; then pip -q install matplotlib --use-mirrors; fi
+   - pip -q install --upgrade lxml
+   - pip -q install --upgrade keyring
+   #- if [[ $SETUP_CMD == build_sphinx* ]]; then pip -q install sphinx==1.1.3 --use-mirrors; fi
+   #- if [[ $SETUP_CMD == build_sphinx* ]]; then pip -q install matplotlib --use-mirrors; fi
+   - if [[ $SETUP_CMD == build_sphinx* ]]; then bash .travis.pip.wheel $TRAVIS_PYTHON_VERSION Sphinx 1.1.3 -q -p; fi
+   - if [[ $SETUP_CMD == build_sphinx* ]]; then bash .travis.pip.wheel $TRAVIS_PYTHON_VERSION matplotlib 1.2.1 -q; fi
 
    - if [[ $ASTROPY_VERSION == stable ]]; then pip -q install astropy --use-mirrors; fi
    - if [[ $ASTROPY_VERSION == development ]]; then pip -q install git+http://github.com/astropy/astropy.git#egg=astropy --use-mirrors; fi
-
-   - pip install asciitable --use-mirrors # for NIST 
-   - pip install beautifulsoup4 --use-mirrors # for NIST
-   - pip install mechanize --use-mirrors # for splatalogue
-   - pip install http://stsdas.stsci.edu/astrolib/vo-0.8.tar.gz # for NED / atpy
 
 script:
    - python setup.py $SETUP_CMD

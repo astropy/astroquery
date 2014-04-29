@@ -6,6 +6,7 @@ VizieR Query Tool
 :Author: Julien Woillez (jwoillez@gmail.com)
 
 This package is for querying the VizieR service, primarily hosted at: http://vizier.u-strasbg.fr
+
 Note: If the access to catalogues with VizieR was helpful for your research work, the following
 acknowledgment would be appreciated::
 
@@ -23,5 +24,10 @@ VIZIER_SERVER = ConfigurationItem('vizier_server', ['vizier.u-strasbg.fr',
                                                     'vizier.iucaa.ernet.in',
                                                     'vizier.china-vo.org'], 'Name of the VizieR mirror to use.')
 
+VIZIER_TIMEOUT = ConfigurationItem('timeout', 60, 'default timeout for connecting to server')
 
-from .core import *
+ROW_LIMIT = ConfigurationItem('row_limit', 50, 'maximum number of rows that will be fetched from the result (set to -1 for unlimited).')
+
+from .core import Vizier,VizierClass
+
+__all__ = ['Vizier','VizierClass']

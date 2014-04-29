@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VOTABLE version="1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="http://www.ivoa.net/xml/VOTable/v1.2"
+  xsi:schemaLocation="http://www.ivoa.net/xml/VOTable/v1.2 http://www.ivoa.net/xml/VOTable/v1.2">
+ <DESCRIPTION>
+   VizieR Astronomical Server vizier.u-strasbg.fr
+    Date: 2013-08-14T15:01:12 [V1.97 (28-Nov-2012)]
+   Explanations and Statistics of UCDs:			See LINK below
+   In case of problem, please report to:	question@simbad.u-strasbg.fr
+ </DESCRIPTION>
+<!-- VOTable description at http://www.ivoa.net/Documents/latest/VOT.html -->
+<INFO ID="VERSION" name="votable-version" value="1.97 (28-Nov-2012)"/>
+<INFO ID="Ref" name="-ref" value="VOTx10139"/>
+<INFO ID="MaxTuples" name="-out.max" value="50"/>
+<INFO name="queryParameters" value="4">
+-oc.form=D.
+-source=J/ApJ/706/83
+-out=*
+-out.max=50
+</INFO>
+
+<!--
+Execution Reports
+ -->
+
+<RESOURCE ID="yCat_17060083" name="J/ApJ/706/83">
+  <DESCRIPTION>Embedded YSO candidates in W51 (Kang+, 2009)</DESCRIPTION>
+  <COOSYS ID="G" system="galactic"/>
+  <TABLE ID="J_ApJ_706_83_ysos" name="J/ApJ/706/83/ysos">
+    <DESCRIPTION>Magnitudes {\em (table 2)} and model parameters {\em (table 3)} of YSO candidates</DESCRIPTION>
+    <!-- Definitions of GROUPs and FIELDs -->
+    <FIELD name="Seq" ucd="meta.id" datatype="short" width="3"><!-- ucd="ID_NUMBER" -->
+      <DESCRIPTION>Running index number (\dicS{[KBP2009] NNN} in Simbad)</DESCRIPTION>
+    </FIELD>
+    <FIELD name="f_Seq" ucd="meta.code" datatype="char" arraysize="1"><!-- ucd="CODE_MISC" -->
+      <DESCRIPTION>[*] *: Strange upper and lower values for this object; take with caution (flag added by CDS)</DESCRIPTION>
+    </FIELD>
+    <FIELD name="SSTGLMC" ucd="meta.id;meta.main" datatype="char" arraysize="17"><!-- ucd="ID_MAIN" -->
+      <DESCRIPTION>Source name (GLLL.llll+BB.bbbb)</DESCRIPTION>
+    </FIELD>
+    <FIELD name="AV" ucd="phys.absorption" datatype="float" width="4" precision="1" unit="mag"><!-- ucd="PHOT_EXTINCTION_ISM" -->
+      <DESCRIPTION>Average V band extinction</DESCRIPTION>
+    </FIELD>
+    <FIELD name="Mstar" ucd="phys.mass" datatype="float" width="4" precision="1" unit="Msun"><!-- ucd="PHYS_MASS_MISC" -->
+      <DESCRIPTION>Average central star mass</DESCRIPTION>
+    </FIELD>
+    <FIELD name="Ltot" ucd="phys.luminosity;em.IR" datatype="int" width="5" unit="Lsun"><!-- ucd="PHYS_LUMINOSITY_IR_MISC" -->
+      <DESCRIPTION>Average total luminosity</DESCRIPTION>
+    </FIELD>
+    <FIELD name="Stg" ucd="src.class" datatype="char" arraysize="3"><!-- ucd="CLASS_MISC" -->
+      <DESCRIPTION>Evolutionary stage (Amb: Ambiguous source)</DESCRIPTION>
+    </FIELD>
+    <FIELD name="Cl1" ucd="src.class" datatype="char" arraysize="3"><!-- ucd="CLASS_MISC" -->
+      <DESCRIPTION>YSO class based on IRAC data (2)</DESCRIPTION>
+    </FIELD>
+    <FIELD name="Cl2" ucd="src.class" datatype="char" arraysize="3"><!-- ucd="CLASS_MISC" -->
+      <DESCRIPTION>YSO class based on the spectral slope {alpha} i between 2 and 24um (2)</DESCRIPTION>
+    </FIELD>
+    <FIELD name="Jmag" ucd="phot.mag;em.IR.J" datatype="float" width="5" precision="2" unit="mag"><!-- ucd="PHOT_JHN_J" -->
+      <DESCRIPTION>? 2MASS J band magnitude</DESCRIPTION>
+      <VALUES null="NaN" />
+    </FIELD>
+    <FIELD name="Hmag" ucd="phot.mag;em.IR.H" datatype="float" width="5" precision="2" unit="mag"><!-- ucd="PHOT_JHN_H" -->
+      <DESCRIPTION>? 2MASS H band magnitude</DESCRIPTION>
+      <VALUES null="NaN" />
+    </FIELD>
+    <FIELD name="Ksmag" ucd="phot.mag;em.IR.K" datatype="float" width="5" precision="2" unit="mag"><!-- ucd="PHOT_JHN_K" -->
+      <DESCRIPTION>? 2MASS K_s_ band magnitude</DESCRIPTION>
+      <VALUES null="NaN" />
+    </FIELD>
+    <FIELD name="[3.6]" ucd="phot.mag;em.IR.3-4um" datatype="float" width="5" precision="2" unit="mag"><!-- ucd="PHOT_IR_3.4" -->
+      <DESCRIPTION>? Spitzer/IRAC 3.6 micron filter magnitude</DESCRIPTION>
+      <VALUES null="NaN" />
+    </FIELD>
+    <FIELD name="[4.5]" ucd="phot.mag;em.IR.4-8um" datatype="float" width="5" precision="2" unit="mag"><!-- ucd="PHOT_IR_4.2" -->
+      <DESCRIPTION>? Spitzer/IRAC 4.5 micron filter magnitude</DESCRIPTION>
+      <VALUES null="NaN" />
+    </FIELD>
+    <FIELD name="[5.8]" ucd="phot.flux.density;em.IR.4-8um" datatype="float" width="5" precision="2" unit="mag"><!-- ucd="PHOT_FLUX_IR_6" -->
+      <DESCRIPTION>? Spitzer/IRAC 5.8 micron filter magnitude</DESCRIPTION>
+      <VALUES null="NaN" />
+    </FIELD>
+    <FIELD name="[8.0]" ucd="phot.flux.density;em.IR.8-15um" datatype="float" width="5" precision="2" unit="mag"><!-- ucd="PHOT_FLUX_IR_9" -->
+      <DESCRIPTION>? Spitzer/IRAC 8.0 micron filter magnitude</DESCRIPTION>
+      <VALUES null="NaN" />
+    </FIELD>
+    <FIELD name="[24]" ucd="phot.flux.density;em.IR.15-30um" datatype="float" width="5" precision="2" unit="mag"><!-- ucd="PHOT_FLUX_IR_25" -->
+      <DESCRIPTION>? Spitzer/MIPS 24 micron filter magnitude</DESCRIPTION>
+      <VALUES null="NaN" />
+    </FIELD>
+    <FIELD name="A" ucd="meta.code.member" datatype="char" arraysize="1"><!-- ucd="CODE_MEMB" -->
+      <DESCRIPTION>[W/F] W=Associated with W51, or F=foreground by A_V_</DESCRIPTION>
+    </FIELD>
+    <FIELD name="2M" ucd="meta.ref.url" datatype="char" arraysize="2"><!-- ucd="DATA_LINK" -->
+      <DESCRIPTION>Display the 2MASS data (Cutri et al. 2003, Cat. II/246)</DESCRIPTION>
+    </FIELD>
+    <FIELD name="Simbad" ucd="meta.ref" datatype="char" arraysize="6*"><!-- ucd="DATA_LINK" -->
+      <DESCRIPTION>ask the {\bf\fg{FireBrick}Simbad} data-base about this object</DESCRIPTION>
+    </FIELD>
+    <FIELD name="_Glon" ucd="pos.galactic.lon" ref="G" datatype="double" width="8" precision="4" unit="deg"><!-- ucd="POS_GAL_LON" -->
+      <DESCRIPTION>Positions from SSTGLMC name (longitude part)</DESCRIPTION>
+    </FIELD>
+    <FIELD name="_Glat" ucd="pos.galactic.lat" ref="G" datatype="double" width="8" precision="4" unit="deg"><!-- ucd="POS_GAL_LAT" -->
+      <DESCRIPTION>Positions from SSTGLMC name (latitude part)</DESCRIPTION>
+    </FIELD>
+<DATA><TABLEDATA>
+<TR><TD>1</TD><TD></TD><TD>G048.7567-00.6341</TD><TD>4.0</TD><TD>3.0</TD><TD>74</TD><TD>II</TD><TD>II</TD><TD>II</TD><TD>15.89</TD><TD>14.81</TD><TD>14.00</TD><TD>12.58</TD><TD>12.15</TD><TD>11.85</TD><TD>10.94</TD><TD>7.43</TD><TD>F</TD><TD>2M</TD><TD>Simbad</TD><TD>048.7567</TD><TD>-00.6341</TD></TR>
+<TR><TD>2</TD><TD></TD><TD>G048.7579-00.2797</TD><TD>1.6</TD><TD>2.7</TD><TD>33</TD><TD>0/I</TD><TD></TD><TD>F</TD><TD>14.17</TD><TD>13.37</TD><TD>12.94</TD><TD>12.40</TD><TD>12.30</TD><TD>11.66</TD><TD></TD><TD>6.03</TD><TD>F</TD><TD>2M</TD><TD>Simbad</TD><TD>048.7579</TD><TD>-00.2797</TD></TR>
+<TR><TD>3</TD><TD></TD><TD>G048.7605-00.0388</TD><TD>33.3</TD><TD>4.1</TD><TD>269</TD><TD>II</TD><TD>I</TD><TD>I</TD><TD></TD><TD></TD><TD></TD><TD>13.05</TD><TD>12.28</TD><TD>11.07</TD><TD>10.02</TD><TD>6.24</TD><TD>W</TD><TD>2M</TD><TD>Simbad</TD><TD>048.7605</TD><TD>-00.0388</TD></TR>
+<TR><TD>4</TD><TD></TD><TD>G048.7618+00.0627</TD><TD>51.8</TD><TD>4.0</TD><TD>274</TD><TD>II</TD><TD>I</TD><TD>F</TD><TD></TD><TD></TD><TD></TD><TD>14.33</TD><TD>13.20</TD><TD>11.68</TD><TD>10.94</TD><TD>7.62</TD><TD>W</TD><TD>2M</TD><TD>Simbad</TD><TD>048.7618</TD><TD>+00.0627</TD></TR>
+<TR><TD>5</TD><TD></TD><TD>G048.7637+00.2022</TD><TD>25.7</TD><TD>3.5</TD><TD>155</TD><TD>0/I</TD><TD>I</TD><TD>I</TD><TD></TD><TD></TD><TD></TD><TD>13.80</TD><TD>12.37</TD><TD>11.27</TD><TD>10.67</TD><TD>6.47</TD><TD>W</TD><TD>2M</TD><TD>Simbad</TD><TD>048.7637</TD><TD>+00.2022</TD></TR>
+<TR><TD>6</TD><TD></TD><TD>G048.7655+00.1017</TD><TD>3.0</TD><TD>3.2</TD><TD>66</TD><TD>Amb</TD><TD></TD><TD>II</TD><TD>14.91</TD><TD>14.08</TD><TD>13.41</TD><TD>12.74</TD><TD>12.64</TD><TD></TD><TD></TD><TD>8.44</TD><TD>F</TD><TD>2M</TD><TD>Simbad</TD><TD>048.7655</TD><TD>+00.1017</TD></TR>
+<TR><TD>7</TD><TD></TD><TD>G048.7667+00.0766</TD><TD>7.5</TD><TD>4.0</TD><TD>229</TD><TD>II</TD><TD>II</TD><TD>II</TD><TD>15.97</TD><TD>14.10</TD><TD>12.82</TD><TD>11.33</TD><TD>10.80</TD><TD>10.31</TD><TD>9.84</TD><TD>7.60</TD><TD>F</TD><TD>2M</TD><TD>Simbad</TD><TD>048.7667</TD><TD>+00.0766</TD></TR>
+<TR><TD>8</TD><TD></TD><TD>G048.7702-00.1505</TD><TD>18.8</TD><TD>3.9</TD><TD>106</TD><TD>0/I</TD><TD>F</TD><TD>I</TD><TD></TD><TD></TD><TD></TD><TD>13.58</TD><TD>12.15</TD><TD>11.46</TD><TD>11.06</TD><TD>6.26</TD><TD>W</TD><TD>2M</TD><TD>Simbad</TD><TD>048.7702</TD><TD>-00.1505</TD></TR>
+<TR><TD>9</TD><TD></TD><TD>G048.7703+00.0786</TD><TD>52.7</TD><TD>6.6</TD><TD>1788</TD><TD>II</TD><TD>I</TD><TD>F</TD><TD></TD><TD></TD><TD></TD><TD>12.41</TD><TD>10.88</TD><TD>9.67</TD><TD>8.85</TD><TD>5.81</TD><TD>W</TD><TD>2M</TD><TD>Simbad</TD><TD>048.7703</TD><TD>+00.0786</TD></TR>
+<TR><TD>10</TD><TD></TD><TD>G048.7720-00.4792</TD><TD>9.3</TD><TD>4.6</TD><TD>349</TD><TD>II</TD><TD>II</TD><TD>F</TD><TD>16.27</TD><TD>14.38</TD><TD>12.90</TD><TD>10.94</TD><TD>10.53</TD><TD>10.03</TD><TD>9.25</TD><TD></TD><TD>F</TD><TD>2M</TD><TD>Simbad</TD><TD>048.7720</TD><TD>-00.4792</TD></TR>
+<TR><TD>11</TD><TD></TD><TD>G048.7726-00.2215</TD><TD>7.9</TD><TD>6.0</TD><TD>472</TD><TD>0/I</TD><TD></TD><TD>I</TD><TD></TD><TD></TD><TD>13.20</TD><TD>12.06</TD><TD>11.74</TD><TD>9.94</TD><TD></TD><TD>2.28</TD><TD>F</TD><TD>2M</TD><TD>Simbad</TD><TD>048.7726</TD><TD>-00.2215</TD></TR>
+<TR><TD>12</TD><TD></TD><TD>G048.7744+00.1091</TD><TD>34.7</TD><TD>5.8</TD><TD>1464</TD><TD>II</TD><TD>F</TD><TD>F</TD><TD></TD><TD></TD><TD>14.87</TD><TD>11.70</TD><TD>10.47</TD><TD>9.72</TD><TD>9.13</TD><TD>7.20</TD><TD>W</TD><TD>2M</TD><TD>Simbad</TD><TD>048.7744</TD><TD>+00.1091</TD></TR>
+<TR><TD>13</TD><TD></TD><TD>G048.7750-00.1507</TD><TD>32.2</TD><TD>4.3</TD><TD>663</TD><TD>II</TD><TD></TD><TD>I</TD><TD></TD><TD></TD><TD></TD><TD>13.22</TD><TD>12.08</TD><TD>10.41</TD><TD></TD><TD>5.34</TD><TD>W</TD><TD>2M</TD><TD>Simbad</TD><TD>048.7750</TD><TD>-00.1507</TD></TR>
+<TR><TD>14</TD><TD></TD><TD>G048.7772+00.2513</TD><TD>36.8</TD><TD>3.6</TD><TD>238</TD><TD>0/I</TD><TD>I</TD><TD>I</TD><TD></TD><TD>14.94</TD><TD>13.88</TD><TD>12.92</TD><TD>13.63</TD><TD>11.11</TD><TD>9.80</TD><TD>3.72</TD><TD>W</TD><TD>2M</TD><TD>Simbad</TD><TD>048.7772</TD><TD>+00.2513</TD></TR>
+<TR><TD>15</TD><TD></TD><TD>G048.7780+00.2275</TD><TD>8.2</TD><TD>2.6</TD><TD>35</TD><TD>Amb</TD><TD>II</TD><TD>II</TD><TD></TD><TD>15.19</TD><TD>14.29</TD><TD>13.20</TD><TD>12.72</TD><TD>12.15</TD><TD>11.56</TD><TD></TD><TD>F</TD><TD>2M</TD><TD>Simbad</TD><TD>048.7780</TD><TD>+00.2275</TD></TR>
+<TR><TD>16</TD><TD></TD><TD>G048.7783+00.1459</TD><TD>9.1</TD><TD>1.8</TD><TD>26</TD><TD>Amb</TD><TD></TD><TD>I</TD><TD></TD><TD></TD><TD></TD><TD>14.37</TD><TD>14.10</TD><TD></TD><TD>11.89</TD><TD>7.76</TD><TD>F</TD><TD>2M</TD><TD>Simbad</TD><TD>048.7783</TD><TD>+00.1459</TD></TR>
+<TR><TD>17</TD><TD></TD><TD>G048.7809-00.2681</TD><TD>1.5</TD><TD>4.5</TD><TD>125</TD><TD>0/I</TD><TD></TD><TD>F</TD><TD>12.72</TD><TD>11.91</TD><TD>11.42</TD><TD>11.03</TD><TD>10.78</TD><TD>10.02</TD><TD></TD><TD>4.29</TD><TD>F</TD><TD>2M</TD><TD>Simbad</TD><TD>048.7809</TD><TD>-00.2681</TD></TR>
+<TR><TD>18</TD><TD></TD><TD>G048.7814-00.1096</TD><TD>2.7</TD><TD>2.1</TD><TD>30</TD><TD>Amb</TD><TD></TD><TD>II</TD><TD></TD><TD></TD><TD>14.21</TD><TD>13.65</TD><TD>13.32</TD><TD></TD><TD>12.06</TD><TD></TD><TD>F</TD><TD>2M</TD><TD>Simbad</TD><TD>048.7814</TD><TD>-00.1096</TD></TR>
+<TR><TD>19</TD><TD></TD><TD>G048.7830-00.4937</TD><TD>3.9</TD><TD>2.5</TD><TD>30</TD><TD>0/I</TD><TD></TD><TD>II</TD><TD>14.93</TD><TD>13.37</TD><TD>12.69</TD><TD>12.13</TD><TD>12.13</TD><TD></TD><TD></TD><TD>7.57</TD><TD>F</TD><TD>2M</TD><TD>Simbad</TD><TD>048.7830</TD><TD>-00.4937</TD></TR>
+<TR><TD>20</TD><TD></TD><TD>G048.7843-00.5690</TD><TD>3.3</TD><TD>2.6</TD><TD>45</TD><TD>0/I</TD><TD></TD><TD>F</TD><TD>14.94</TD><TD>13.82</TD><TD>13.16</TD><TD>12.79</TD><TD>12.54</TD><TD>12.43</TD><TD></TD><TD>6.46</TD><TD>F</TD><TD>2M</TD><TD>Simbad</TD><TD>048.7843</TD><TD>-00.5690</TD></TR>
+<TR><TD>21</TD><TD></TD><TD>G048.7866+00.1213</TD><TD>18.4</TD><TD>3.9</TD><TD>310</TD><TD>0/I</TD><TD>II</TD><TD>II</TD><TD></TD><TD></TD><TD></TD><TD>13.18</TD><TD>12.53</TD><TD>11.60</TD><TD>11.06</TD><TD></TD><TD>W</TD><TD>2M</TD><TD>Simbad</TD><TD>048.7866</TD><TD>+00.1213</TD></TR>
+<TR><TD>22</TD><TD></TD><TD>G048.7866+00.1734</TD><TD>11.7</TD><TD>2.7</TD><TD>108</TD><TD>Amb</TD><TD></TD><TD>I</TD><TD></TD><TD></TD><TD></TD><TD>13.85</TD><TD>13.35</TD><TD></TD><TD>10.99</TD><TD>6.73</TD><TD>W</TD><TD>2M</TD><TD>Simbad</TD><TD>048.7866</TD><TD>+00.1734</TD></TR>
+<TR><TD>23</TD><TD></TD><TD>G048.7881-00.6669</TD><TD>5.4</TD><TD>2.9</TD><TD>59</TD><TD>Amb</TD><TD>II</TD><TD>II</TD><TD></TD><TD>14.52</TD><TD>13.64</TD><TD>12.88</TD><TD>12.80</TD><TD>12.37</TD><TD>11.63</TD><TD></TD><TD>F</TD><TD>2M</TD><TD>Simbad</TD><TD>048.7881</TD><TD>-00.6669</TD></TR>
+<TR><TD>24</TD><TD></TD><TD>G048.7890-00.0546</TD><TD>9.5</TD><TD>2.0</TD><TD>24</TD><TD>0/I</TD><TD></TD><TD>F</TD><TD></TD><TD></TD><TD>14.79</TD><TD>13.71</TD><TD>13.17</TD><TD></TD><TD></TD><TD>7.31</TD><TD>F</TD><TD>2M</TD><TD>Simbad</TD><TD>048.7890</TD><TD>-00.0546</TD></TR>
+<TR><TD>25</TD><TD></TD><TD>G048.7898+00.0880</TD><TD>25.1</TD><TD>3.4</TD><TD>125</TD><TD>II</TD><TD>F</TD><TD>F</TD><TD></TD><TD></TD><TD></TD><TD>13.34</TD><TD>12.49</TD><TD>11.75</TD><TD>10.76</TD><TD>7.25</TD><TD>W</TD><TD>2M</TD><TD>Simbad</TD><TD>048.7898</TD><TD>+00.0880</TD></TR>
+<TR><TD>26</TD><TD></TD><TD>G048.8020+00.0785</TD><TD>16.8</TD><TD>3.3</TD><TD>99</TD><TD>II</TD><TD>F</TD><TD>F</TD><TD></TD><TD></TD><TD>14.93</TD><TD>12.99</TD><TD>12.14</TD><TD>11.53</TD><TD>10.69</TD><TD>7.86</TD><TD>W</TD><TD>2M</TD><TD>Simbad</TD><TD>048.8020</TD><TD>+00.0785</TD></TR>
+<TR><TD>27</TD><TD></TD><TD>G048.8028+00.2432</TD><TD>6.9</TD><TD>3.3</TD><TD>177</TD><TD>Amb</TD><TD>F</TD><TD>II</TD><TD></TD><TD></TD><TD>14.13</TD><TD>13.01</TD><TD>12.30</TD><TD>12.02</TD><TD>10.45</TD><TD></TD><TD>F</TD><TD>2M</TD><TD>Simbad</TD><TD>048.8028</TD><TD>+00.2432</TD></TR>
+<TR><TD>28</TD><TD></TD><TD>G048.8041+00.2840</TD><TD>25.0</TD><TD>2.6</TD><TD>52</TD><TD>Amb</TD><TD></TD><TD>F</TD><TD></TD><TD></TD><TD></TD><TD>14.45</TD><TD>13.75</TD><TD></TD><TD>11.95</TD><TD>8.05</TD><TD>W</TD><TD>2M</TD><TD>Simbad</TD><TD>048.8041</TD><TD>+00.2840</TD></TR>
+<TR><TD>29</TD><TD></TD><TD>G048.8066+00.1818</TD><TD>12.8</TD><TD>4.3</TD><TD>276</TD><TD>II</TD><TD>II</TD><TD>II</TD><TD></TD><TD></TD><TD>13.35</TD><TD>11.36</TD><TD>10.69</TD><TD>10.26</TD><TD>9.66</TD><TD>6.36</TD><TD>W</TD><TD>2M</TD><TD>Simbad</TD><TD>048.8066</TD><TD>+00.1818</TD></TR>
+<TR><TD>30</TD><TD></TD><TD>G048.8102-00.0243</TD><TD>31.1</TD><TD>5.5</TD><TD>956</TD><TD>Amb</TD><TD>I</TD><TD>I</TD><TD></TD><TD></TD><TD></TD><TD>11.41</TD><TD>10.11</TD><TD>9.00</TD><TD>7.98</TD><TD>3.32</TD><TD>W</TD><TD>2M</TD><TD>Simbad</TD><TD>048.8102</TD><TD>-00.0243</TD></TR>
+<TR><TD>31</TD><TD></TD><TD>G048.8142+00.2635</TD><TD>16.2</TD><TD>2.9</TD><TD>83</TD><TD>0/I</TD><TD>F</TD><TD>F</TD><TD></TD><TD></TD><TD></TD><TD>14.16</TD><TD>12.75</TD><TD>11.84</TD><TD>11.42</TD><TD>7.53</TD><TD>W</TD><TD>2M</TD><TD>Simbad</TD><TD>048.8142</TD><TD>+00.2635</TD></TR>
+<TR><TD>32</TD><TD></TD><TD>G048.8147+00.0624</TD><TD>14.9</TD><TD>6.0</TD><TD>1120</TD><TD>II</TD><TD>F</TD><TD>II</TD><TD></TD><TD></TD><TD></TD><TD>10.03</TD><TD>9.42</TD><TD>8.64</TD><TD>7.74</TD><TD>4.97</TD><TD>W</TD><TD>2M</TD><TD>Simbad</TD><TD>048.8147</TD><TD>+00.0624</TD></TR>
+<TR><TD>33</TD><TD></TD><TD>G048.8154+00.2541</TD><TD>1.3</TD><TD>2.4</TD><TD>36</TD><TD>Amb</TD><TD></TD><TD>F</TD><TD>15.02</TD><TD>14.46</TD><TD>14.24</TD><TD>13.84</TD><TD>13.78</TD><TD></TD><TD></TD><TD>7.47</TD><TD>F</TD><TD>2M</TD><TD>Simbad</TD><TD>048.8154</TD><TD>+00.2541</TD></TR>
+<TR><TD>34</TD><TD></TD><TD>G048.8158-00.3809</TD><TD>9.3</TD><TD>3.6</TD><TD>88</TD><TD>0/I</TD><TD>II</TD><TD>I</TD><TD>15.80</TD><TD>13.84</TD><TD>12.83</TD><TD>11.91</TD><TD>11.48</TD><TD>10.80</TD><TD>10.02</TD><TD>4.23</TD><TD>F</TD><TD>2M</TD><TD>Simbad</TD><TD>048.8158</TD><TD>-00.3809</TD></TR>
+<TR><TD>35</TD><TD></TD><TD>G048.8164-00.6332</TD><TD>0.9</TD><TD>1.8</TD><TD>50</TD><TD>0/I</TD><TD>I</TD><TD>I</TD><TD>15.78</TD><TD>14.86</TD><TD>14.49</TD><TD>13.45</TD><TD>12.84</TD><TD>11.48</TD><TD>9.89</TD><TD>6.02</TD><TD>F</TD><TD>2M</TD><TD>Simbad</TD><TD>048.8164</TD><TD>-00.6332</TD></TR>
+<TR><TD>36</TD><TD></TD><TD>G048.8179-00.0270</TD><TD>0.2</TD><TD>3.5</TD><TD>35</TD><TD>Amb</TD><TD></TD><TD>II</TD><TD>13.31</TD><TD>12.73</TD><TD>12.43</TD><TD>11.97</TD><TD>11.93</TD><TD>11.64</TD><TD></TD><TD>7.85</TD><TD>F</TD><TD>2M</TD><TD>Simbad</TD><TD>048.8179</TD><TD>-00.0270</TD></TR>
+<TR><TD>37</TD><TD></TD><TD>G048.8181-00.4489</TD><TD>20.4</TD><TD>7.1</TD><TD>1989</TD><TD>0/I</TD><TD>I</TD><TD>I</TD><TD></TD><TD></TD><TD></TD><TD>13.67</TD><TD>12.38</TD><TD>11.23</TD><TD>10.80</TD><TD></TD><TD>W</TD><TD>2M</TD><TD>Simbad</TD><TD>048.8181</TD><TD>-00.4489</TD></TR>
+<TR><TD>38</TD><TD></TD><TD>G048.8185+00.2375</TD><TD>39.4</TD><TD>5.1</TD><TD>842</TD><TD>II</TD><TD></TD><TD>I</TD><TD></TD><TD></TD><TD></TD><TD>13.17</TD><TD>11.69</TD><TD>10.55</TD><TD></TD><TD>5.35</TD><TD>W</TD><TD>2M</TD><TD>Simbad</TD><TD>048.8185</TD><TD>+00.2375</TD></TR>
+<TR><TD>39</TD><TD></TD><TD>G048.8247+00.1488</TD><TD>16.2</TD><TD>6.8</TD><TD>2022</TD><TD>0/I</TD><TD>F</TD><TD>F</TD><TD></TD><TD></TD><TD></TD><TD>12.85</TD><TD>11.61</TD><TD>10.81</TD><TD>10.30</TD><TD></TD><TD>W</TD><TD>2M</TD><TD>Simbad</TD><TD>048.8247</TD><TD>+00.1488</TD></TR>
+<TR><TD>40</TD><TD></TD><TD>G048.8262-00.5649</TD><TD>21.0</TD><TD>2.8</TD><TD>72</TD><TD>Amb</TD><TD></TD><TD>F</TD><TD></TD><TD></TD><TD></TD><TD>13.83</TD><TD>13.18</TD><TD></TD><TD>11.47</TD><TD>7.36</TD><TD>W</TD><TD>2M</TD><TD>Simbad</TD><TD>048.8262</TD><TD>-00.5649</TD></TR>
+<TR><TD>41</TD><TD></TD><TD>G048.8291-00.2474</TD><TD>15.3</TD><TD>4.8</TD><TD>313</TD><TD>Amb</TD><TD>F</TD><TD>I</TD><TD></TD><TD></TD><TD>14.00</TD><TD>11.94</TD><TD>10.90</TD><TD>10.22</TD><TD>9.44</TD><TD></TD><TD>W</TD><TD>2M</TD><TD>Simbad</TD><TD>048.8291</TD><TD>-00.2474</TD></TR>
+<TR><TD>42</TD><TD></TD><TD>G048.8326+00.2504</TD><TD>18.7</TD><TD>4.7</TD><TD>659</TD><TD>0/I</TD><TD>F</TD><TD>F</TD><TD></TD><TD></TD><TD></TD><TD>13.98</TD><TD>12.89</TD><TD>11.95</TD><TD>11.51</TD><TD></TD><TD>W</TD><TD>2M</TD><TD>Simbad</TD><TD>048.8326</TD><TD>+00.2504</TD></TR>
+<TR><TD>43</TD><TD></TD><TD>G048.8327+00.1395</TD><TD>19.2</TD><TD>3.3</TD><TD>84</TD><TD>0/I</TD><TD></TD><TD>I</TD><TD></TD><TD></TD><TD></TD><TD>14.49</TD><TD>13.16</TD><TD></TD><TD>12.01</TD><TD>7.14</TD><TD>W</TD><TD>2M</TD><TD>Simbad</TD><TD>048.8327</TD><TD>+00.1395</TD></TR>
+<TR><TD>44</TD><TD></TD><TD>G048.8329-00.5506</TD><TD>22.4</TD><TD>4.9</TD><TD>711</TD><TD>0/I</TD><TD>F</TD><TD>F</TD><TD></TD><TD></TD><TD></TD><TD>13.82</TD><TD>12.60</TD><TD>11.73</TD><TD>11.18</TD><TD></TD><TD>W</TD><TD>2M</TD><TD>Simbad</TD><TD>048.8329</TD><TD>-00.5506</TD></TR>
+<TR><TD>45</TD><TD></TD><TD>G048.8359+00.1526</TD><TD>25.1</TD><TD>3.8</TD><TD>120</TD><TD>0/I</TD><TD></TD><TD>I</TD><TD></TD><TD></TD><TD></TD><TD></TD><TD>12.40</TD><TD>11.38</TD><TD>10.81</TD><TD>6.25</TD><TD>W</TD><TD>2M</TD><TD>Simbad</TD><TD>048.8359</TD><TD>+00.1526</TD></TR>
+<TR><TD>46</TD><TD></TD><TD>G048.8363+00.2527</TD><TD>36.2</TD><TD>4.7</TD><TD>453</TD><TD>II</TD><TD>I</TD><TD>I</TD><TD>15.83</TD><TD>15.14</TD><TD>14.74</TD><TD>12.49</TD><TD>11.46</TD><TD>10.50</TD><TD>9.59</TD><TD>6.14</TD><TD>W</TD><TD>2M</TD><TD>Simbad</TD><TD>048.8363</TD><TD>+00.2527</TD></TR>
+<TR><TD>47</TD><TD></TD><TD>G048.8369-00.5571</TD><TD>12.3</TD><TD>3.2</TD><TD>106</TD><TD>Amb</TD><TD>II</TD><TD>II</TD><TD></TD><TD>15.33</TD><TD>13.88</TD><TD>12.77</TD><TD>12.26</TD><TD>11.68</TD><TD>10.69</TD><TD></TD><TD>W</TD><TD>2M</TD><TD>Simbad</TD><TD>048.8369</TD><TD>-00.5571</TD></TR>
+<TR><TD>48</TD><TD></TD><TD>G048.8398-00.4837</TD><TD>39.8</TD><TD>3.2</TD><TD>299</TD><TD>Amb</TD><TD>I</TD><TD>I</TD><TD></TD><TD></TD><TD></TD><TD>13.88</TD><TD>12.21</TD><TD>11.04</TD><TD>10.05</TD><TD>5.72</TD><TD>W</TD><TD>2M</TD><TD>Simbad</TD><TD>048.8398</TD><TD>-00.4837</TD></TR>
+<TR><TD>49</TD><TD></TD><TD>G048.8410-00.4813</TD><TD>21.0</TD><TD>4.1</TD><TD>128</TD><TD>0/I</TD><TD>II</TD><TD>I</TD><TD></TD><TD></TD><TD></TD><TD>13.02</TD><TD>12.03</TD><TD>11.44</TD><TD>10.93</TD><TD>6.04</TD><TD>W</TD><TD>2M</TD><TD>Simbad</TD><TD>048.8410</TD><TD>-00.4813</TD></TR>
+<TR><TD>50</TD><TD></TD><TD>G048.8416+00.1505</TD><TD>19.9</TD><TD>1.8</TD><TD>102</TD><TD>0/I</TD><TD>I</TD><TD>I</TD><TD></TD><TD></TD><TD></TD><TD>15.45</TD><TD>12.68</TD><TD>11.69</TD><TD>10.69</TD><TD>5.48</TD><TD>W</TD><TD>2M</TD><TD>Simbad</TD><TD>048.8416</TD><TD>+00.1505</TD></TR>
+</TABLEDATA></DATA>
+</TABLE>
+</RESOURCE>
+</VOTABLE>
+

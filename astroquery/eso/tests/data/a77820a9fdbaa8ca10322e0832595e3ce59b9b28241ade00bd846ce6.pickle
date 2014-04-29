@@ -1,0 +1,25 @@
+ccopy_reg
+_reconstructor
+p0
+(castroquery.query
+AstroResponse
+p1
+c__builtin__
+object
+p2
+Ntp3
+Rp4
+(dp5
+S'url'
+p6
+Vhttp://archive.eso.org/wdb/wdb/eso/fors1/query
+p7
+sS'content'
+p8
+S'\xef\xbb\xbf\n# SIMBAD coordinates for Sgr A* :  17 45 40.0, -29 00 28.1.\n#\n# No data returned !\n# Please go back to the query form and try different constraints.\n# \n# \n#\n# A total of 0 records were found matching the provided criteria.\n#'
+p9
+sS'encoding'
+p10
+S'utf-8'
+p11
+sb.

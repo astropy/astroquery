@@ -1,0 +1,522 @@
+<?xml version="1.0"?>
+<VOTABLE version="1.1">
+<DEFINITIONS>
+<COOSYS ID="J2000" equinox="2000." epoch="2000." system="eq_FK5" />
+</DEFINITIONS>
+<RESOURCE type="results">
+<DESCRIPTION>
+Results from query to  NASA/IPAC Extragalactic Database (NED),
+which is operated by the Jet Propulsion Laboratory, California Institute of
+Technology, under contract with the National Aeronautics and Space Administration.
+This work was (partially) supported by the US National Virtual Observatory
+development project, which is funded by the National Science Foundation
+under cooperative agreement AST0122449 with The Johns Hopkins University.
+</DESCRIPTION>
+<INFO name="QUERY_STATUS" value="OK"/>
+<PARAM name="queryDateTime"  ucd="time.creation" datatype="char" arraysize="*" value="2013-07-18T04:17:22PDT"/>
+<INFO name="QUERY_STATUS" value="OK"/>
+<LINK content-role="query" content-type="char" 
+href="http://ned.ipac.caltech.edu/cgi-bin/objsearch?search_type=IAU+Search&amp;iau_name=1234-423&amp;radius=15.0&amp;of=xml_main"/>
+<TABLE ID="NED_MainTable" name="Main Information Table for IAU name 1234-423, within 15.000 arcmin of 189.242787, -42.733435">
+<DESCRIPTION> Main information about object (Cone Search results)</DESCRIPTION>
+
+<PARAM name="Equinox" datatype="char" arraysize="*" ucd="time.equinox" value="J2000.0"/>
+<PARAM name="CoordSystem" datatype="char" arraysize="*" ucd="pos.system.coord" value="Equatorial"/>
+<FIELD ID="main_col1" name="No." ucd="meta.number" datatype="int" width="4" type="hidden">
+<DESCRIPTION> A sequential object number applicable to this list only.  </DESCRIPTION>
+</FIELD>
+<FIELD ID="main_col2" name="Object Name" ucd="meta.id;meta.main" datatype="char" arraysize="30" width="30">
+<DESCRIPTION> NED preferred name for the object </DESCRIPTION>
+<LINK content-role="query" content-type="char" href="http://ned.ipac.caltech.edu/cgi-bin/objsearch?objname=${Object Name}"/>
+</FIELD>
+<FIELD ID="main_col3" name="RA(deg)" ucd="pos.eq.ra;meta.main" datatype="double" unit="degrees" width="10">
+<DESCRIPTION> Right Ascension in degrees (Equatorial J2000.0)</DESCRIPTION>
+</FIELD>
+<FIELD ID="main_col4" name="DEC(deg)" ucd="pos.eq.dec;meta.main" datatype="double" unit="degrees" width="10">
+<DESCRIPTION> Declination in degrees (Equatorial J2000.0)</DESCRIPTION>
+</FIELD>
+<FIELD ID="main_col5" name="Type" ucd="src.class" datatype="char" arraysize="*" width="10">
+<DESCRIPTION> NED's Preferred Object Type: G,GPair,GTrpl,GGroup,GClstr,QSO,AbLS,RadioS,IrS,EmLS,UvES,XrayS,SN </DESCRIPTION>
+<LINK content-role="query" content-type="char" href="http://ned.ipac.caltech.edu/help/faq5.html#5k"/>
+</FIELD>
+<FIELD ID="main_col6" name="Velocity" ucd="src.veloc.hc" datatype="double" unit="km/sec" width="10">
+<DESCRIPTION> Velocity in km/sec, based on known heliocentric redshift </DESCRIPTION>
+</FIELD>
+<FIELD ID="main_col7" name="Redshift" ucd="src.redshift" datatype="double" width="10">
+<DESCRIPTION> Heliocentric redshift for the object, if it exists in NED </DESCRIPTION>
+</FIELD>
+<FIELD ID="main_col8" name="Redshift Flag" ucd="meta.code;src.redshift" datatype="char" arraysize="*" width="5">
+<DESCRIPTION> Quality flag for known heliocentric redshift</DESCRIPTION>
+</FIELD>
+<FIELD ID="main_col9" name="Magnitude and Filter" ucd="meta.code;src.magnitude" datatype="char" arraysize="*" width="5">
+<DESCRIPTION>  NED's Basic Data magnitude and filter, generally in an optical band.</DESCRIPTION>
+</FIELD>
+<FIELD ID="main_col10" name="Distance (arcmin)" ucd="pos.distance" datatype="double" unit="arcmin" width="10">
+<DESCRIPTION> Distance of the source from the queried position (arcmin);listed as blank if not applicable. </DESCRIPTION>
+</FIELD>
+<FIELD ID="main_col11" name="References" ucd="meta.bib;meta.number" datatype="int" width="5">
+<DESCRIPTION> Number of literature references in NED </DESCRIPTION>
+</FIELD>
+<FIELD ID="main_col12" name="Notes" ucd="meta.note;meta.number" datatype="int" width="5">
+<DESCRIPTION> Number of catalog notes in NED </DESCRIPTION>
+</FIELD>
+<FIELD ID="main_col13" name="Photometry Points" ucd="phot;meta.number" datatype="int" width="5">
+<DESCRIPTION> Number of photometric data points stored by NED for the object </DESCRIPTION>
+</FIELD>
+<FIELD ID="main_col14" name="Positions" ucd="pos;meta.number" datatype="int" width="5">
+<DESCRIPTION> Number of position data points stored by NED for the object </DESCRIPTION>
+</FIELD>
+<FIELD ID="main_col15" name="Redshift Points" ucd="src.redshift;meta.number" datatype="int" width="5">
+<DESCRIPTION> Number of redshift data points stored by NED for the object. </DESCRIPTION>
+</FIELD>
+<FIELD ID="main_col16" name="Diameter Points" ucd="phys.size.diameter;meta.number" datatype="int" width="5">
+<DESCRIPTION> Number of diameter data points stored by NED for the object. </DESCRIPTION>
+</FIELD>
+<FIELD ID="main_col17" name="Associations" ucd="meta.id.assoc;meta.number" datatype="int" width="5">
+<DESCRIPTION> Number of NED associations for the object. </DESCRIPTION>
+</FIELD>
+<DATA>
+<TABLEDATA>
+<TR>
+<TD>1</TD>
+<TD>SUMSS J123711-424119</TD>
+<TD>189.29663 </TD>
+<TD> -42.68861 </TD>
+<TD>RadioS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[ 1.19]]></TD>
+<TD>  3.587</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>2</TD>
+<TD>2MASX J12373141-4239342</TD>
+<TD>189.38083 </TD>
+<TD> -42.65956 </TD>
+<TD>G</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  7.530</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>9</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>2</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>3</TD>
+<TD>SUMSS J123651-423554</TD>
+<TD>189.21425 </TD>
+<TD> -42.59850 </TD>
+<TD>RadioS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[ 1.33]]></TD>
+<TD>  8.193</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>4</TD>
+<TD>2MASX J12374273-4242252</TD>
+<TD>189.42792 </TD>
+<TD> -42.70700 </TD>
+<TD>G</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  8.313</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>9</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>2</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>5</TD>
+<TD>2MASX J12373567-4239122</TD>
+<TD>189.39908 </TD>
+<TD> -42.65347 </TD>
+<TD>G</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD>  8.398</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>9</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>2</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>6</TD>
+<TD>SUMSS J123658-423457</TD>
+<TD>189.24500 </TD>
+<TD> -42.58253 </TD>
+<TD>RadioS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[ 1.01]]></TD>
+<TD>  9.055</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>7</TD>
+<TD>SUMSS J123709-425330</TD>
+<TD>189.28983 </TD>
+<TD> -42.89183 </TD>
+<TD>RadioS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[ 1.17]]></TD>
+<TD>  9.727</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>8</TD>
+<TD>ABELL S0702</TD>
+<TD>189.45614 </TD>
+<TD> -42.67494 </TD>
+<TD>GClstr</TD>
+<TD> 22169</TD>
+<TD> 0.073948 </TD>
+<TD>:   </TD>
+<TD><![CDATA[16.9J]]></TD>
+<TD> 10.041</TD>
+<TD>2</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>9</TD>
+<TD>2MFGC 09931</TD>
+<TD>189.12621 </TD>
+<TD> -42.87892 </TD>
+<TD>G</TD>
+<TD> 14470</TD>
+<TD> 0.048267 </TD>
+<TD>    </TD>
+<TD><![CDATA[16.0R]]></TD>
+<TD> 10.126</TD>
+<TD>3</TD>
+<TD>0</TD>
+<TD>9</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>2</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>10</TD>
+<TD>ESO 322- G 037</TD>
+<TD>189.46854 </TD>
+<TD> -42.67706 </TD>
+<TD>G</TD>
+<TD>  2808</TD>
+<TD> 0.009366 </TD>
+<TD>    </TD>
+<TD><![CDATA[14.75]]></TD>
+<TD> 10.513</TD>
+<TD>4</TD>
+<TD>1</TD>
+<TD>15</TD>
+<TD>1</TD>
+<TD>1</TD>
+<TD>13</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>11</TD>
+<TD>2MASX J12372200-4253570</TD>
+<TD>189.34179 </TD>
+<TD> -42.89906 </TD>
+<TD>G</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD> 10.851</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>9</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>2</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>12</TD>
+<TD>2MASX J12361518-4252000</TD>
+<TD>189.06333 </TD>
+<TD> -42.86656 </TD>
+<TD>G</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD> 11.234</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>9</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>2</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>13</TD>
+<TD>SUMSS J123601-423850</TD>
+<TD>189.00663 </TD>
+<TD> -42.64722 </TD>
+<TD>RadioS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[ 1.17]]></TD>
+<TD> 11.629</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>14</TD>
+<TD>1RXS J123757.2-423830</TD>
+<TD>189.48834 </TD>
+<TD> -42.64167 </TD>
+<TD>XrayS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD> 12.149</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>15</TD>
+<TD>2MASX J12380469-4244542</TD>
+<TD>189.51954 </TD>
+<TD> -42.74833 </TD>
+<TD>G</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD> 12.228</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>9</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>2</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>16</TD>
+<TD>2MASX J12380196-4239512</TD>
+<TD>189.50804 </TD>
+<TD> -42.66419 </TD>
+<TD>G</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD> 12.412</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>9</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>2</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>17</TD>
+<TD>SUMSS J123619-423347</TD>
+<TD>189.08046 </TD>
+<TD> -42.56308 </TD>
+<TD>RadioS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[ 1.17]]></TD>
+<TD> 12.482</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>18</TD>
+<TD>2MASX J12374673-4235153</TD>
+<TD>189.44463 </TD>
+<TD> -42.58753 </TD>
+<TD>G</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD> 12.488</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>9</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>2</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>19</TD>
+<TD>2MASX J12380368-4238432</TD>
+<TD>189.51529 </TD>
+<TD> -42.64533 </TD>
+<TD>G</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD> 13.129</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>9</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>2</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>20</TD>
+<TD>2MASX J12364348-4257401</TD>
+<TD>189.18133 </TD>
+<TD> -42.96108 </TD>
+<TD>G</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD> 13.924</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>9</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>2</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>21</TD>
+<TD>2MASX J12363847-4257441</TD>
+<TD>189.16017 </TD>
+<TD> -42.96256 </TD>
+<TD>G</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD> 14.220</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>8</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>2</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>22</TD>
+<TD>2MASX J12355484-4252221</TD>
+<TD>188.97846 </TD>
+<TD> -42.87289 </TD>
+<TD>G</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[     ]]></TD>
+<TD> 14.332</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>9</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>2</TD>
+<TD>0</TD>
+</TR>
+<TR>
+<TD>23</TD>
+<TD>SUMSS J123819-424430</TD>
+<TD>189.58217 </TD>
+<TD> -42.74169 </TD>
+<TD>RadioS</TD>
+<TD></TD>
+<TD></TD>
+<TD></TD>
+<TD><![CDATA[ 1.06]]></TD>
+<TD> 14.964</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>1</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+<TD>0</TD>
+</TR>
+</TABLEDATA>
+</DATA>
+</TABLE>
+</RESOURCE>
+</VOTABLE>
+

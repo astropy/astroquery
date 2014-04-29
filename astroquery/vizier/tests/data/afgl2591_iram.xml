@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VOTABLE version="1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="http://www.ivoa.net/xml/VOTable/v1.2"
+  xsi:schemaLocation="http://www.ivoa.net/xml/VOTable/v1.2 http://www.ivoa.net/xml/VOTable/v1.2">
+ <DESCRIPTION>
+   VizieR Astronomical Server vizier.u-strasbg.fr
+    Date: 2014-03-02T10:33:18 [V1.99+ (14-Oct-2013)]
+   Explanations and Statistics of UCDs:			See LINK below
+   In case of problem, please report to:	cds-question@unistra.fr
+   In this version, NULL integer columns are written as an empty string
+   &lt;TD&gt;&lt;/TD&gt;, explicitely possible from VOTable-1.3
+ </DESCRIPTION>
+<!-- VOTable description at http://www.ivoa.net/Documents/latest/VOT.html -->
+<INFO ID="VERSION" name="votable-version" value="1.99+ (14-Oct-2013)"/>
+<INFO ID="Ref" name="-ref" value="VOTx17059"/>
+<INFO ID="MaxTuples" name="-out.max" value="50"/>
+<INFO name="queryParameters" value="6">
+-oc.form=d
+-source=B/iram/pdbi
+-out=*,_RAJ2000,_DEJ2000
+-out.max=50
+-c.rd=0.08333333333333333
+-c=307.353875+40.188583
+</INFO>
+
+<!--
+Execution Reports
+ -->
+<INFO ID="Target" name="-c" value="307.353875+40.188583,rd=0.083333">
+</INFO>
+
+<RESOURCE ID="yCat_102016" name="B/iram">
+  <DESCRIPTION>IRAM Observation Logs (IRAM 1991-2014)</DESCRIPTION>
+  <COOSYS ID="J2000" system="eq_FK5" equinox="J2000"/>
+  <TABLE ID="B_iram_pdbi" name="B/iram/pdbi">
+    <DESCRIPTION>The Plateau de Bure Interferometer Observation Log between 1991-12-01 and 2012-09-30</DESCRIPTION>
+    <!-- Definitions of GROUPs and FIELDs -->
+    <FIELD name="Prog" ucd="OBS_CODE" datatype="char" arraysize="4">
+      <DESCRIPTION>Identification code of the program</DESCRIPTION>
+    </FIELD>
+    <FIELD name="Name" ucd="ID_TARGET" datatype="char" arraysize="12*">
+      <DESCRIPTION>Source name, as mentioned in the observing program</DESCRIPTION>
+    </FIELD>
+    <FIELD name="Obs" ucd="TIME_DATE" datatype="char" arraysize="10" unit="&quot;Y:M:D&quot;">
+      <DESCRIPTION>Starting date of the Observation (5)</DESCRIPTION>
+    </FIELD>
+    <FIELD name="tos" ucd="TIME_EXPTIME" datatype="int" width="6" unit="s">
+      <DESCRIPTION>Total on-source correlation time</DESCRIPTION>
+    </FIELD>
+    <FIELD name="Type" ucd="INST_SETUP" datatype="char" arraysize="3">
+      <DESCRIPTION>Program type (1)</DESCRIPTION>
+    </FIELD>
+    <FIELD name="Vel" ucd="INST_VELOC_CENTRAL" datatype="float" width="6" precision="1" unit="km/s">
+      <DESCRIPTION>Velocity of the source (3)</DESCRIPTION>
+    </FIELD>
+    <FIELD name="n_Vel" ucd="NOTE" datatype="char" arraysize="1">
+      <DESCRIPTION>[LH] LSR or Heliocentric velocity</DESCRIPTION>
+    </FIELD>
+    <FIELD name="Flow" ucd="OBS_FREQUENCY" datatype="int" width="6" unit="MHz">
+      <DESCRIPTION>? Sky Frequency of the 3mm receiver (6) [NULL integer written as an empty string]</DESCRIPTION>
+      <VALUES null="-2147483648" />
+    </FIELD>
+    <FIELD name="n_Flow" ucd="NOTE" datatype="char" arraysize="1">
+      <DESCRIPTION>[UL] Signal Upper/Lower band of the 3mm receiver</DESCRIPTION>
+    </FIELD>
+    <FIELD name="Fhigh" ucd="OBS_FREQUENCY" datatype="int" width="6" unit="MHz">
+      <DESCRIPTION>? Sky Frequency of the 1mm receiver (6) [NULL integer written as an empty string]</DESCRIPTION>
+      <VALUES null="-2147483648" />
+    </FIELD>
+    <FIELD name="n_Fhigh" ucd="NOTE" datatype="char" arraysize="1">
+      <DESCRIPTION>[UL] Signal Upper/Lower band of the 1mm receiver</DESCRIPTION>
+    </FIELD>
+    <FIELD name="Conf" ucd="INST_ID" datatype="char" arraysize="3">
+      <DESCRIPTION>Configuration code of the interferometer</DESCRIPTION>
+    </FIELD>
+    <FIELD name="RAJ2000" ucd="POS_EQ_RA_MAIN" ref="J2000" datatype="char" arraysize="11" unit="&quot;h:m:s&quot;">
+      <DESCRIPTION>? Right Ascension J2000</DESCRIPTION>
+      <VALUES null=" " />
+    </FIELD>
+    <FIELD name="DEJ2000" ucd="POS_EQ_DEC_MAIN" ref="J2000" datatype="char" arraysize="11" unit="&quot;d:m:s&quot;">
+      <DESCRIPTION>? Declination J2000</DESCRIPTION>
+      <VALUES null=" " />
+    </FIELD>
+    <FIELD name="_RAJ2000" ucd="POS_EQ_RA" ref="J2000" datatype="double" width="9" precision="5" unit="deg">
+      <DESCRIPTION>Right ascension (FK5, Equinox=J2000.0) (computed by VizieR, not part of the original data)</DESCRIPTION>
+    </FIELD>
+    <FIELD name="_DEJ2000" ucd="POS_EQ_DEC" ref="J2000" datatype="double" width="9" precision="5" unit="deg">
+      <DESCRIPTION>Declination (FK5, Equinox=J2000.0) (computed by VizieR, not part of the original data)</DESCRIPTION>
+    </FIELD>
+<DATA><TABLEDATA>
+<TR><TD>N032</TD><TD>AFGL2591</TD><TD>2003-12-06</TD><TD>16800</TD><TD>MAP</TD><TD>-5.5</TD><TD>L</TD><TD>80578</TD><TD>L</TD><TD>203407</TD><TD>L</TD><TD>6Cp</TD><TD>20:29:24.87</TD><TD>+40:11:19.8</TD><TD>307.35362</TD><TD>+40.18883</TD></TR>
+<TR><TD>N032</TD><TD>AFGL2591</TD><TD>2004-05-15</TD><TD>1140</TD><TD>MAP</TD><TD>-5.5</TD><TD>L</TD><TD>80578</TD><TD>L</TD><TD>203407</TD><TD>L</TD><TD>6Dp</TD><TD>20:29:24.87</TD><TD>+40:11:19.8</TD><TD>307.35362</TD><TD>+40.18883</TD></TR>
+<TR><TD>N032</TD><TD>AFGL2591</TD><TD>2004-05-15</TD><TD>7740</TD><TD>MAP</TD><TD>-5.5</TD><TD>L</TD><TD>80578</TD><TD>L</TD><TD>203407</TD><TD>L</TD><TD>6Dp</TD><TD>20:29:24.87</TD><TD>+40:11:19.8</TD><TD>307.35362</TD><TD>+40.18883</TD></TR>
+<TR><TD>N032</TD><TD>AFGL2591</TD><TD>2004-05-16</TD><TD>24060</TD><TD>MAP</TD><TD>-5.5</TD><TD>L</TD><TD>80578</TD><TD>L</TD><TD>203407</TD><TD>L</TD><TD>6Dp</TD><TD>20:29:24.87</TD><TD>+40:11:19.8</TD><TD>307.35362</TD><TD>+40.18883</TD></TR>
+<TR><TD>N032</TD><TD>AFGL2591</TD><TD>2004-05-17</TD><TD>3060</TD><TD>MAP</TD><TD>-5.5</TD><TD>L</TD><TD>80578</TD><TD>L</TD><TD>203407</TD><TD>L</TD><TD>6Dp</TD><TD>20:29:24.87</TD><TD>+40:11:19.8</TD><TD>307.35362</TD><TD>+40.18883</TD></TR>
+<TR><TD>PB3F</TD><TD>AFGL2591</TD><TD>2005-12-25</TD><TD>4050</TD><TD>MAP</TD><TD>0.0</TD><TD>L</TD><TD>86610</TD><TD>L</TD><TD>230538</TD><TD>L</TD><TD>6Cq</TD><TD>20:29:24.80</TD><TD>+40:11:19.0</TD><TD>307.35333</TD><TD>+40.18861</TD></TR>
+<TR><TD>PB3F</TD><TD>AFGL2591</TD><TD>2005-12-26</TD><TD>4050</TD><TD>MAP</TD><TD>0.0</TD><TD>L</TD><TD>86610</TD><TD>L</TD><TD>230538</TD><TD>L</TD><TD>6Cq</TD><TD>20:29:24.80</TD><TD>+40:11:19.0</TD><TD>307.35333</TD><TD>+40.18861</TD></TR>
+<TR><TD>P04A</TD><TD>AFGL2591</TD><TD>2006-02-03</TD><TD>9000</TD><TD>MAP</TD><TD>-5.5</TD><TD>L</TD><TD>80578</TD><TD>L</TD><TD>203407</TD><TD>L</TD><TD>6Aq</TD><TD>20:29:24.87</TD><TD>+40:11:19.5</TD><TD>307.35362</TD><TD>+40.18875</TD></TR>
+<TR><TD>PB3F</TD><TD>AFGL2591</TD><TD>2006-06-03</TD><TD>675</TD><TD>MAP</TD><TD>0.0</TD><TD>L</TD><TD>86610</TD><TD>L</TD><TD>230538</TD><TD>L</TD><TD>5Dq</TD><TD>20:29:24.80</TD><TD>+40:11:19.0</TD><TD>307.35333</TD><TD>+40.18861</TD></TR>
+<TR><TD>PB3F</TD><TD>AFGL2591</TD><TD>2006-06-04</TD><TD>7425</TD><TD>MAP</TD><TD>0.0</TD><TD>L</TD><TD>86610</TD><TD>L</TD><TD>230538</TD><TD>L</TD><TD>5Dq</TD><TD>20:29:24.80</TD><TD>+40:11:19.0</TD><TD>307.35333</TD><TD>+40.18861</TD></TR>
+<TR><TD>PB4A</TD><TD>AFGL2591</TD><TD>2007-02-19</TD><TD>9450</TD><TD>MAP</TD><TD>-5.5</TD><TD>L</TD><TD>80126</TD><TD>L</TD><TD>81030</TD><TD>L</TD><TD>6Aq</TD><TD>20:29:24.87</TD><TD>+40:11:19.5</TD><TD>307.35362</TD><TD>+40.18875</TD></TR>
+<TR><TD>PA4A</TD><TD>AFGL2591</TD><TD>2007-03-04</TD><TD>10800</TD><TD>MAP</TD><TD>-5.5</TD><TD>L</TD><TD>203055</TD><TD>L</TD><TD>203739</TD><TD>L</TD><TD>6Aq</TD><TD>20:29:24.87</TD><TD>+40:11:19.5</TD><TD>307.35362</TD><TD>+40.18875</TD></TR>
+<TR><TD>PA4A</TD><TD>AFGL2591</TD><TD>2007-03-13</TD><TD>10935</TD><TD>MAP</TD><TD>-5.5</TD><TD>L</TD><TD>203055</TD><TD>L</TD><TD>203739</TD><TD>L</TD><TD>6Bq</TD><TD>20:29:24.87</TD><TD>+40:11:19.5</TD><TD>307.35362</TD><TD>+40.18875</TD></TR>
+<TR><TD>PA4A</TD><TD>AFGL2591</TD><TD>2007-03-15</TD><TD>9450</TD><TD>MAP</TD><TD>-5.5</TD><TD>L</TD><TD>203055</TD><TD>L</TD><TD>203739</TD><TD>L</TD><TD>6Bq</TD><TD>20:29:24.87</TD><TD>+40:11:19.5</TD><TD>307.35362</TD><TD>+40.18875</TD></TR>
+</TABLEDATA></DATA>
+</TABLE>
+</RESOURCE>
+</VOTABLE>

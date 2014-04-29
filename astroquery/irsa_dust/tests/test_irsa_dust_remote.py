@@ -1,14 +1,12 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import os
-import xml.etree.ElementTree as tree
-import requests
-import astropy.units as u
-import astropy.utils.data as aud
+# import this since the user may not have pytest installed
 from astropy.tests.helper import pytest, remote_data
- # import this since the user may not have pytest installed
-from astropy.io import fits
 from astropy.table import Table
 from ... import irsa_dust
+import requests
+import imp
+imp.reload(requests)
 
 M31_XML = "dustm31.xml"
 M81_XML = "dustm81.xml"
@@ -65,7 +63,7 @@ class TestDust(DustTestCase):
                              [(None, M31_URL_ALL),
                               ('100um', M31_URL_E),
                               ('ebv', M31_URL_R),
-                              ('extinction', M31_URL_T),
+                              ('temperature', M31_URL_T),
                               ])
     def test_extract_image_urls_instance(self, image_type, expected_tails):
         response = requests.get(
@@ -81,7 +79,7 @@ class TestDust(DustTestCase):
                              [(None, M31_URL_ALL),
                               ('100um', M31_URL_E),
                               ('ebv', M31_URL_R),
-                              ('extinction', M31_URL_T),
+                              ('temperature', M31_URL_T),
                               ])
     def test_extract_image_urls_class(self, image_type, expected_tails):
         response = requests.get(
@@ -94,11 +92,11 @@ class TestDust(DustTestCase):
             assert url.endswith(tail)
 
     @pytest.mark.parametrize(('section', 'expected_length'),
-                             [(None, 35),
+                             [(None, 43),
                               ('100um', 10),
                               ('location', 4),
-                              ('ebv', 11),
-                              ('extinction', 10)
+                              ('ebv', 19),
+                              ('temperature', 10)
                               ])
     def test_query_table_class(self, section, expected_length):
         qtable = irsa_dust.core.IrsaDust.get_query_table(
@@ -106,11 +104,11 @@ class TestDust(DustTestCase):
         assert len(qtable.colnames) == expected_length
 
     @pytest.mark.parametrize(('section', 'expected_length'),
-                             [(None, 35),
+                             [(None, 43),
                               ('100um', 10),
                               ('location', 4),
-                              ('ebv', 11),
-                              ('extinction', 10)
+                              ('ebv', 19),
+                              ('temperature', 10)
                               ])
     def test_query_table_instance(self, section, expected_length):
         qtable = irsa_dust.core.IrsaDust.get_query_table(
@@ -141,7 +139,7 @@ class TestDust(DustTestCase):
                              [(None, M31_URL_ALL),
                               ('100um', M31_URL_E),
                               ('ebv', M31_URL_R),
-                              ('extinction', M31_URL_T),
+                              ('temperature', M31_URL_T),
                               ])
     def test_get_image_list_class(self, image_type, expected_tails):
         url_list = irsa_dust.core.IrsaDust.get_image_list(
@@ -153,7 +151,7 @@ class TestDust(DustTestCase):
                              [(None, M31_URL_ALL),
                               ('100um', M31_URL_E),
                               ('ebv', M31_URL_R),
-                              ('extinction', M31_URL_T),
+                              ('temperature', M31_URL_T),
                               ])
     def test_get_image_list_instance(self, image_type, expected_tails):
         url_list = irsa_dust.core.IrsaDust().get_image_list(
@@ -165,7 +163,7 @@ class TestDust(DustTestCase):
                              [(None),
                               ('100um'),
                               ('ebv'),
-                              ('extinction'),
+                              ('temperature'),
                               ])
     def test_get_images_async_class(self, image_type):
         readable_objs = irsa_dust.core.IrsaDust.get_images_async("m81",
@@ -176,7 +174,7 @@ class TestDust(DustTestCase):
                              [(None),
                               ('100um'),
                               ('ebv'),
-                              ('extinction'),
+                              ('temperature'),
                               ])
     def test_get_images_async_instance(self, image_type):
         readable_objs = irsa_dust.core.IrsaDust().get_images_async("m81",

@@ -1,0 +1,71 @@
+::script::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+votable {main_id, coordinates}
+votable open
+query bibobj 2013A&A...549A..23A
+votable close
+
+::console:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+C.D.S.  -  SIMBAD4 rel 1.207  -  2013.06.30CEST10:58:50
+total execution time: 0.407 secs
+simbatch done
+
+::data::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+<?xml version="1.0" encoding="UTF-8"?>
+<VOTABLE xmlns="http://www.ivoa.net/xml/VOTable/v1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.ivoa.net/xml/VOTable/v1.2" version="1.2">
+<DEFINITIONS>
+<COOSYS ID="COOSYS" equinox="2000" epoch="J2000" system="ICRS"/>
+</DEFINITIONS>
+<RESOURCE name="Simbad query" type="results">
+<TABLE ID="SimbadScript" name="default"><DESCRIPTION>Simbad script executed on 2013.06.30CEST10:58:50</DESCRIPTION>
+<FIELD ID="MAIN_ID" name="MAIN_ID" datatype="char" width="22" ucd="meta.id;meta.main" arraysize="*">
+<DESCRIPTION>Main identifier for an object</DESCRIPTION>
+<LINK value="${MAIN_ID}" href="http://simbad.u-strasbg.fr/simbad/sim-id?Ident=${MAIN_ID}&amp;NbIdent=1"/>
+</FIELD>
+<FIELD ID="RA" name="RA" datatype="char" precision="8" width="13" ucd="pos.eq.ra;meta.main" arraysize="13" unit="&quot;h:m:s&quot;">
+<DESCRIPTION>Right ascension</DESCRIPTION>
+</FIELD>
+<FIELD ID="DEC" name="DEC" datatype="char" precision="8" width="13" ucd="pos.eq.dec;meta.main" arraysize="13" unit="&quot;d:m:s&quot;">
+<DESCRIPTION>Declination</DESCRIPTION>
+</FIELD>
+<FIELD ID="RA_PREC" name="RA_PREC" datatype="short" width="2">
+<DESCRIPTION>Right ascension precision</DESCRIPTION>
+</FIELD>
+<FIELD ID="DEC_PREC" name="DEC_PREC" datatype="short" width="2">
+<DESCRIPTION>Declination precision</DESCRIPTION>
+</FIELD>
+<FIELD ID="COO_ERR_MAJA" name="COO_ERR_MAJA" datatype="float" precision="3" width="6" ucd="phys.angSize.smajAxis;pos.errorEllipse;pos.eq" unit="mas">
+<DESCRIPTION>Coordinate error major axis</DESCRIPTION>
+</FIELD>
+<FIELD ID="COO_ERR_MINA" name="COO_ERR_MINA" datatype="float" precision="3" width="6" ucd="phys.angSize.sminAxis;pos.errorEllipse;pos.eq" unit="mas">
+<DESCRIPTION>Coordinate error minor axis</DESCRIPTION>
+</FIELD>
+<FIELD ID="COO_ERR_ANGLE" name="COO_ERR_ANGLE" datatype="short" width="3" ucd="pos.posAng;pos.errorEllipse;pos.eq" unit="deg">
+<DESCRIPTION>Coordinate error angle</DESCRIPTION>
+</FIELD>
+<FIELD ID="COO_QUAL" name="COO_QUAL" datatype="char" width="1" ucd="meta.code.qual;pos.eq">
+<DESCRIPTION>Coordinate quality</DESCRIPTION>
+</FIELD>
+<FIELD ID="COO_WAVELENGTH" name="COO_WAVELENGTH" datatype="char" width="1" ucd="instr.bandpass;pos.eq">
+<DESCRIPTION>Wavelength class for the origin of the coordinates (R,I,V,U,X,G)</DESCRIPTION>
+</FIELD>
+<FIELD ID="COO_BIBCODE" name="COO_BIBCODE" datatype="char" width="19" ucd="meta.bib.bibcode;pos.eq" arraysize="*">
+<DESCRIPTION>Coordinate reference</DESCRIPTION>
+</FIELD>
+<DATA>
+<TABLEDATA>
+<TR><TD>PSR J0146+6145</TD><TD>01 46 22.407</TD><TD>+61 45 03.19</TD><TD>7</TD><TD>7</TD><TD></TD><TD></TD><TD></TD><TD>D</TD><TD></TD><TD>2004A&amp;A...416.1037H</TD></TR>
+<TR><TD>M   1</TD><TD>05 34 31.94</TD><TD>+22 00 52.2</TD><TD>6</TD><TD>6</TD><TD></TD><TD></TD><TD></TD><TD>C</TD><TD>Rad</TD><TD>2011A&amp;A...533A..10L</TD></TR>
+<TR><TD>PSR J1808-2024</TD><TD>18 08 39.32</TD><TD>-20 24 39.5</TD><TD>6</TD><TD>6</TD><TD></TD><TD></TD><TD></TD><TD>D</TD><TD></TD><TD>2002ApJ...564..935K</TD></TR>
+<TR><TD>SNR G109.1-01.0</TD><TD>23 01 08</TD><TD>+58 52.7</TD><TD>4</TD><TD>4</TD><TD>18000</TD><TD>18000</TD><TD>3</TD><TD>E</TD><TD></TD><TD></TD></TR>
+<TR><TD>2E  4673</TD><TD>23 01 08.295</TD><TD>+58 52 44.45</TD><TD>7</TD><TD>7</TD><TD></TD><TD></TD><TD></TD><TD>D</TD><TD></TD><TD>2002IAUC.7924....3K</TD></TR>
+
+</TABLEDATA>
+
+</DATA>
+</TABLE>
+</RESOURCE>
+</VOTABLE>
+
