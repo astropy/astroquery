@@ -1,3 +1,5 @@
+.. doctest-skip-all
+
 .. _astroquery.simbad:
 
 ************************************
@@ -128,7 +130,7 @@ the `Quantity` object from `astropy.units`_:
 If coordinates are used, then they should be entered using an `astropy.coordinates`_
 object. Limited support for entering the coordinates directly as a string also
 exists - only for ICRS coordinates (though these may just as well be specified
-by the `astropy.coordinates.ICRSCoordinates` object)
+by the `astropy.coordinates.ICRS` object)
 
 .. code-block:: python 
 
@@ -166,7 +168,7 @@ For other coordinate systems, use the appropriate `astropy.coordinates`_ object:
     >>> from astroquery.simbad import Simbad
     >>> import astropy.coordinates as coord
     >>> import astropy.units as u
-    >>> result_table = Simbad.query_region(coord.GalacticCoordinates(l=31.0087, b=14.0627,
+    >>> result_table = Simbad.query_region(coord.Galactic(l=31.0087, b=14.0627,
     ...                                    unit=(u.deg, u.deg)), radius='0d0m2s')
     >>> print(result_table)
 
@@ -185,7 +187,7 @@ to 2000.0. So here is a query with all the options utilized:
     >>> from astroquery.simbad import Simbad
     >>> import astropy.coordinates as coord
     >>> import astropy.units as u
-    >>> result_table = Simbad.query_region(coord.FK5Coordinates(ra=11.70, dec=10.90,
+    >>> result_table = Simbad.query_region(coord.FK5(ra=11.70, dec=10.90,
     ...                                    unit=(u.deg, u.deg)),
     ...                                    radius=0.5 * u.degree,
     ...                                    epoch='B1950',

@@ -5,7 +5,6 @@ from contextlib import contextmanager
 
 from astropy.tests.helper import pytest
 from astropy.table import Table
-import astropy.utils.data as aud
 import astropy.coordinates as coord
 import astropy.units as u
 import numpy.testing as npt
@@ -39,14 +38,13 @@ def patch_get(request):
 def patch_get_readable_fileobj(request):
     @contextmanager
     def get_readable_fileobj_mockreturn(filename, **kwargs):
-        print filename
         if "fits" in filename:
             file_obj = open(data_path(DATA_FILES["image"]), "rb")
         else:
             file_obj = open(data_path(DATA_FILES["votable"]), "r")
         yield file_obj
     mp = request.getfuncargvalue("monkeypatch")
-    mp.setattr(aud, 'get_readable_fileobj', get_readable_fileobj_mockreturn)
+    mp.setattr(commons, 'get_readable_fileobj', get_readable_fileobj_mockreturn)
     return mp
 
 
@@ -54,6 +52,9 @@ def patch_get_readable_fileobj(request):
 def patch_parse_coordinates(request):
     def parse_coordinates_mock_return(c):
         return c
+    # This should probably be request, not requests, but this mistake has lead
+    # to no errors
+    # TODO: determine if this patch is ever used
     mp = requests.getfuncargvalue("monkeypatch")
     mp.setattr(commons, 'parse_coordinates', parse_coordinates_mock_return)
     return mp
@@ -69,6 +70,8 @@ def get_mockreturn(url, params=None, timeout=10, **kwargs):
     elif "error" in url:
         filename = DATA_FILES["error"]
         url = "error.html"
+    else:
+        raise ValueError("Mismatch: no test made for specified URL")
     print(filename)
     print(url)
     content = open(data_path(filename), "r").read()
@@ -86,7 +89,7 @@ def test_parse_dimension(dim, expected):
 
 
 def test_get_images(patch_get, patch_get_readable_fileobj):
-    image = ukidss.core.Ukidss.get_images(coord.ICRSCoordinates
+    image = ukidss.core.Ukidss.get_images(coord.ICRS
                                          (ra=83.633083, dec=22.0145, unit=(u.deg, u.deg)),
                                          frame_type='interleave',
                                          programme_id="GCS", waveband="K",
@@ -95,28 +98,31 @@ def test_get_images(patch_get, patch_get_readable_fileobj):
 
 
 def test_get_images_async_1():
-    image = ukidss.core.Ukidss.get_images_async(coord.ICRSCoordinates
+    payload = ukidss.core.Ukidss.get_images_async(coord.ICRSCoordinates
                                           (ra=83.633083, dec=22.0145, unit=(u.deg, u.deg)),
         radius=20*u.arcmin,
         get_query_payload=True)
-    assert 'xsize' not in image.keys()
-    assert 'ysize' not in image.keys()
+    assert 'xsize' not in payload
+    assert 'ysize' not in payload
 
-    image = ukidss.core.Ukidss.get_images_async(coord.ICRSCoordinates
+    payload = ukidss.core.Ukidss.get_images_async(coord.ICRSCoordinates
                                           (ra=83.633083, dec=22.0145, unit=(u.deg, u.deg)),
         get_query_payload=True)
-    assert image['xsize'] == image['ysize']
-    assert image['xsize'] == 1
+    assert payload['xsize'] == payload['ysize']
+    assert payload['xsize'] == 1
+
+    test_mockreturn = get_mockreturn(ukidss.core.Ukidss.ARCHIVE_URL, payload)
 
 
 def test_get_images_async_2(patch_get, patch_get_readable_fileobj):
+
     image_urls = ukidss.core.Ukidss.get_images_async(coord.ICRSCoordinates
                                                      (ra=83.633083, dec=22.0145, unit=(u.deg, u.deg)))
     assert len(image_urls) == 1
 
 
 def test_get_image_list(patch_get, patch_get_readable_fileobj):
-    urls = ukidss.core.Ukidss.get_image_list(coord.ICRSCoordinates
+    urls = ukidss.core.Ukidss.get_image_list(coord.ICRS
                                             (ra=83.633083, dec=22.0145, unit=(u.deg, u.deg)),
                                              frame_type='all', waveband='all')
     print(urls)
@@ -130,7 +136,7 @@ def test_extract_urls():
 
 
 def test_query_region(patch_get, patch_get_readable_fileobj):
-    table = ukidss.core.Ukidss.query_region(coord.GalacticCoordinates
+    table = ukidss.core.Ukidss.query_region(coord.Galactic
                                             (l=10.625, b=-0.38, unit=(u.deg, u.deg)),
                                             radius=6 * u.arcsec)
     assert isinstance(table, Table)
@@ -138,12 +144,12 @@ def test_query_region(patch_get, patch_get_readable_fileobj):
 
 
 def test_query_region_async(patch_get):
-    response = ukidss.core.Ukidss.query_region_async(coord.GalacticCoordinates
+    response = ukidss.core.Ukidss.query_region_async(coord.Galactic
                                                      (l=10.625, b=-0.38, unit=(u.deg, u.deg)),
                                                      radius=6 * u.arcsec,
                                                      get_query_payload=True)
     assert response['radius'] == 0.1
-    response = ukidss.core.Ukidss.query_region_async(coord.GalacticCoordinates
+    response = ukidss.core.Ukidss.query_region_async(coord.Galactic
                                                      (l=10.625, b=-0.38, unit=(u.deg, u.deg)),
                                                      radius=6 * u.arcsec)
     assert response is not None

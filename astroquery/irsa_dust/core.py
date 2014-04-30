@@ -4,13 +4,13 @@ import astropy.units as u
 import astropy.coordinates as coord
 from . import utils
 from . import IRSA_DUST_SERVER, IRSA_DUST_TIMEOUT
-from ..utils.class_or_instance import class_or_instance
 from ..utils import commons
 from ..query import BaseQuery
+import io
 
 
 # TODO Add support for server url from JSON cache
-__all__ = ["IrsaDust"]
+__all__ = ["IrsaDust","IrsaDustClass"]
 
 EXT_DESC = "E(B-V) Reddening"
 EM_DESC = "100 Micron Emission"
@@ -29,25 +29,23 @@ MEAN_VALUE = "meanValue"
 STD = "std"
 MAX_VALUE = "maxValue"
 MIN_VALUE = "minValue"
+SANDF = "SandF"
+SFD = "SFD"
 
 DATA_IMAGE = "./data/image"
 DATA_TABLE = "./data/table"
 
 
-class IrsaDust(BaseQuery):
+class IrsaDustClass(BaseQuery):
 
     DUST_SERVICE_URL = IRSA_DUST_SERVER()
     TIMEOUT = IRSA_DUST_TIMEOUT()
     image_type_to_section = {
-        'extinction': 't',
+        'temperature': 't',
         'ebv': 'r',
         '100um': 'e'
     }
 
-    def __init__(self, *args):
-        pass
-
-    @class_or_instance
     def get_images(self, coordinate, radius=None,
                    image_type=None, timeout=TIMEOUT, get_query_payload=False):
         """
@@ -66,7 +64,7 @@ class IrsaDust(BaseQuery):
             .units.Quantity`. Defaults to 5 degrees.
         image_type : str, optional
             When missing returns for all the images. Otherwise returns only
-            for image of the specified type which must be one of `extinction`, `ebv`,
+            for image of the specified type which must be one of `temperature`, `ebv`,
             `100um`. Defaults to `None`.
         timeout : int, optional
             Time limit for establishing successful connection with remote server.
@@ -83,12 +81,12 @@ class IrsaDust(BaseQuery):
 
         if get_query_payload:
             return self._args_to_payload(coordinate, radius=radius)
-        readable_objs = self.get_images_async(
-            coordinate, radius=radius, image_type=image_type,
-            timeout=timeout, get_query_payload=get_query_payload)
+        readable_objs = self.get_images_async(coordinate, radius=radius,
+                                              image_type=image_type,
+                                              timeout=timeout,
+                                              get_query_payload=get_query_payload)
         return [obj.get_fits() for obj in readable_objs]
 
-    @class_or_instance
     def get_images_async(self, coordinate, radius=None,
                          image_type=None, timeout=TIMEOUT, get_query_payload=False):
         """
@@ -109,7 +107,7 @@ class IrsaDust(BaseQuery):
             .units.Quantity`. Defaults to 5 degrees.
         image_type : str, optional
             When missing returns for all the images. Otherwise returns only
-            for image of the specified type which must be one of `extinction`, `ebv`,
+            for image of the specified type which must be one of `temperature`, `ebv`,
             `100um`. Defaults to `None`.
         timeout : int, optional
             Time limit for establishing successful connection with remote server.
@@ -127,9 +125,10 @@ class IrsaDust(BaseQuery):
             return self._args_to_payload(coordinate, radius=radius)
         image_urls = self.get_image_list(coordinate, radius=radius,
                                          image_type=image_type, timeout=timeout)
-        return [commons.FileContainer(U) for U in image_urls]
+        # Images are assumed to be FITS files
+        # they MUST be read as binary for python3 to parse them
+        return [commons.FileContainer(U, encoding='binary') for U in image_urls]
 
-    @class_or_instance
     def get_image_list(
             self, coordinate, radius=None, image_type=None, timeout=TIMEOUT):
         """
@@ -149,7 +148,7 @@ class IrsaDust(BaseQuery):
             .units.Quantity`. Defaults to 5 degrees.
         image_type : str, optional
             When missing returns for all the images. Otherwise returns only
-            for image of the specified type which must be one of `extinction`,
+            for image of the specified type which must be one of `temperature`,
             `ebv`, `100um`. Defaults to `None`.
         timeout : int, optional
             Time limit for establishing successful connection with remote server.
@@ -162,12 +161,11 @@ class IrsaDust(BaseQuery):
         --------
         A list of URLs to the FITS images corresponding to the queried object
         """
-        url = IrsaDust.DUST_SERVICE_URL
+        url = self.DUST_SERVICE_URL
         request_payload = self._args_to_payload(coordinate, radius=radius)
         response = commons.send_request(url, request_payload, timeout)
         return self.extract_image_urls(response.text, image_type=image_type)
 
-    @class_or_instance
     def get_extinction_table(self, coordinate, radius=None, timeout=TIMEOUT):
         """
         Query function that fetches the extinction table from the query
@@ -192,14 +190,15 @@ class IrsaDust(BaseQuery):
         --------
         table : `astropy.table.Table`
         """
-        readable_obj = self.get_extinction_table_async(
-            coordinate, radius=radius, timeout=timeout)
-        table = Table.read(readable_obj.get_stringio(), format='ipac')
+        readable_obj = self.get_extinction_table_async(coordinate,
+                                                       radius=radius,
+                                                       timeout=timeout)
+        # guess=False to suppress error messages related to bad guesses
+        table = Table.read(readable_obj.get_string(), format='ipac', guess=False)
         return table
 
-    @class_or_instance
-    def get_extinction_table_async(
-            self, coordinate, radius=None, timeout=TIMEOUT):
+    def get_extinction_table_async(self, coordinate, radius=None,
+                                   timeout=TIMEOUT):
         """
         A query function similar to `astroquery.irsa_dust.IrsaDust.get_extinction_table`
         but returns a file-handler to the remote files rather than downloading it.
@@ -224,20 +223,19 @@ class IrsaDust(BaseQuery):
         -------
         A context manager that yields a file like readable object
         """
-        url = IrsaDust.DUST_SERVICE_URL
+        url = self.DUST_SERVICE_URL
         request_payload = self._args_to_payload(coordinate, radius=radius)
         response = commons.send_request(url, request_payload, timeout)
         xml_tree = utils.xml(response.text)
         result = SingleDustResult(xml_tree, coordinate)
         return commons.FileContainer(result.ext_detail_table())
 
-    @class_or_instance
     def get_query_table(self, coordinate, radius=None,
                         section=None, timeout=TIMEOUT, url=DUST_SERVICE_URL):
         """
         Create and return an astropy Table representing the query response(s).
         When `section` is missing, returns the full table. When a
-        section is specified (`location`, `extinction`, `ebv`, or `100um`),
+        section is specified (`location`, `temperature`, `ebv`, or `100um`),
         only that portion of the table is returned.
 
         Parameters
@@ -253,7 +251,7 @@ class IrsaDust(BaseQuery):
             .units.Quantity`. Defaults to 5 degrees.
         section : str, optional
             When missing, all the sections of the query result are returned.
-            Otherwise only the specified section (`ebv`, `100um`, extinction`,
+            Otherwise only the specified section (`ebv`, `100um`, temperature`,
             `location`) is returned. Defaults to `None`
         timeout : int, optional
             Time limit for establishing successful connection with remote server.
@@ -274,14 +272,13 @@ class IrsaDust(BaseQuery):
         if section is None or section in ["location", "loc", "l"]:
             return result.table(section=section)
         try:
-            section = IrsaDust.image_type_to_section[section]
+            section = self.image_type_to_section[section]
             return result.table(section=section)
         except KeyError:
             msg = ('section must be one of the following:\n'
-                   'ebv, extinction, location or 100um.')
+                   'ebv, temperature, location or 100um.')
             raise ValueError(msg)
 
-    @class_or_instance
     def _args_to_payload(self, coordinate, radius=None):
         """
         Accepts the query parameters and returns a dictionary
@@ -320,7 +317,6 @@ class IrsaDust(BaseQuery):
             payload["regSize"] = reg_size
         return payload
 
-    @class_or_instance
     def extract_image_urls(self, raw_xml, image_type=None):
         """
         Extracts the image URLs from the query results and
@@ -335,7 +331,7 @@ class IrsaDust(BaseQuery):
             XML response returned by the query as a string
         image_type : str, optional
             When missing returns for all the images. Otherwise returns only
-            for image of the specified type which must be one of `extinction`, `ebv`,
+            for image of the specified type which must be one of `temperature`, `ebv`,
             `100um`. Defaults to `None`.
 
         Returns
@@ -351,21 +347,20 @@ class IrsaDust(BaseQuery):
                         ['r', 'e', 't']]
         else:
             try:
-                section = IrsaDust.image_type_to_section[image_type]
+                section = self.image_type_to_section[image_type]
                 url_list = [result.image(section)]
             except KeyError:
                 msg = ('image_type must be one of the following:\n'
-                       'ebv, extinction or 100um.')
+                       'ebv, temperature or 100um.')
                 raise ValueError(msg)
         return url_list
 
-    @class_or_instance
     def list_image_types(self):
         """
         Returns a list of image_types available in the Irsa Dust
         query results
         """
-        return [key for key in IrsaDust.image_type_to_section]
+        return [key for key in self.image_type_to_section]
 
 
 class SingleDustResult(object):
@@ -373,8 +368,8 @@ class SingleDustResult(object):
     """
     Represents the response to a dust query for a single object or location.
     Provides methods to return the response as an astropy Table, and to retrieve
-    FITS images listed as urls in the initial response. It can also retrieve
-    a detailed extinction table linked to in the initial response. Not intended
+    FITS images listed as urls in the initial response. It can also return the url
+    to a detailed extinction table provided in the initial response. Not intended
     to be instantiated by the end user.
     """
 
@@ -597,10 +592,6 @@ class SingleDustResult(object):
                     'temperature', 'temp', 't'"""
             raise ValueError(msg)
 
-        # response = utils.image(image_url)
-
-        # S = io.BytesIO(response)
-        # image = fits.open(S)
         return image_url
 
     def __str__(self):
@@ -865,7 +856,7 @@ class StatsSection(BaseResultSection):
     section.
     """
 
-    def __init__(self, xml_root, col_prefix):
+    def __init__(self, xml_root, col_prefix, suffix=""):
         """
         Parameters
         ----------
@@ -873,34 +864,30 @@ class StatsSection(BaseResultSection):
             The xml tree containing the data for this section
         col_prefix : str
             the prefix to use in column names for this section
+        suffix : str
+            the suffix that appears in the node names (e.g. 'SandF' or 'SDF')
         """
+
         names = [
-            REF_PIXEL_VALUE,
+            REF_PIXEL_VALUE + suffix,
             REF_COORDINATE,
-            MEAN_VALUE,
-            STD,
-            MAX_VALUE,
-            MIN_VALUE]
+            MEAN_VALUE + suffix,
+            STD + suffix,
+            MAX_VALUE + suffix,
+            MIN_VALUE + suffix]
         xml_nodes = self.node_dict(names, xml_root)
 
         # Create the DustNodes
         self._dust_nodes = [NumberNode(
-            xml_nodes[REF_PIXEL_VALUE], col_prefix + " ref"),
-            CoordNode(
-                xml_nodes[
-                    REF_COORDINATE], col_names=[col_prefix + " ref RA",
+            xml_nodes[REF_PIXEL_VALUE + suffix], col_prefix + " ref"),
+            CoordNode(xml_nodes[REF_COORDINATE], col_names=[col_prefix + " ref RA",
                                                 col_prefix + " ref Dec", col_prefix + " ref coord sys"]),
-            NumberNode(
-                xml_nodes[
-                    MEAN_VALUE],
-                col_prefix +
-                " mean"),
-            NumberNode(xml_nodes[STD], col_prefix + " std"),
-            NumberNode(xml_nodes[MAX_VALUE], col_prefix + " max"),
-            NumberNode(xml_nodes[MIN_VALUE], col_prefix + " min")]
+            NumberNode(xml_nodes[MEAN_VALUE + suffix], col_prefix + " mean"),
+            NumberNode(xml_nodes[STD + suffix], col_prefix + " std"),
+            NumberNode(xml_nodes[MAX_VALUE + suffix], col_prefix + " max"),
+            NumberNode(xml_nodes[MIN_VALUE + suffix], col_prefix + " min")]
 
-        self._units = utils.parse_units(xml_nodes[REF_PIXEL_VALUE].text)
-
+        self._units = utils.parse_units(xml_nodes[REF_PIXEL_VALUE + suffix].text)
         self.create_columns()
 
     @property
@@ -950,15 +937,17 @@ class ExtinctionSection(BaseResultSection):
                             255),
                             StringNode(xml_nodes[DATA_TABLE], "ext table", 255)]
 
-        # Create statistics subsection
-        self._stats = StatsSection(xml_nodes[STATISTICS], "ext")
+        # Create statistics subsections
+        self._stats_sandf = StatsSection(xml_nodes[STATISTICS], "ext SandF", "SandF")
+        self._stats_sfd = StatsSection(xml_nodes[STATISTICS], "ext SFD", "SFD")
 
         self.create_columns()
 
     def create_columns(self):
         """Build the columns associated with this section."""
         BaseResultSection.create_columns(self)
-        self._columns.extend(self._stats.columns)
+        self._columns.extend(self._stats_sandf.columns)
+        self._columns.extend(self._stats_sfd.columns)
 
     @property
     def table_url(self):
@@ -975,14 +964,15 @@ class ExtinctionSection(BaseResultSection):
         """Return the data values associated with this section,
         i.e. the list of values corresponding to a single row in the results table."""
         ext_values = BaseResultSection.values(self)
-        ext_values.extend(self._stats.values())
+        ext_values.extend(self._stats_sandf.values())
+        ext_values.extend(self._stats_sfd.values())
         return ext_values
 
     def __str__(self):
         """Return a string representation of the section."""
         base_string = BaseResultSection.__str__(self)
         string = "[ExtinctionSection: " + \
-            base_string + self._stats.__str__() + "]"
+            base_string + self._stats_sandf.__str__() + self._stats_sfd.__str__() + "]"
         return string
 
 
@@ -1035,6 +1025,7 @@ class EmissionSection(BaseResultSection):
             base_string + self._stats.__str__() + "]"
         return string
 
+IrsaDust = IrsaDustClass()
 
 class TemperatureSection(BaseResultSection):
 

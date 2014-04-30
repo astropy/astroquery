@@ -5,7 +5,8 @@ import astropy.coordinates as coord
 import astropy.units as u
 from astropy.tests.helper import remote_data
 import requests
-reload(requests)
+import imp
+imp.reload(requests)
 
 from ...import nvas
 
@@ -14,7 +15,7 @@ from ...import nvas
 class TestNvas:
 
     def test_get_images_async(self):
-        image_list = nvas.core.Nvas.get_images_async(coord.GalacticCoordinates
+        image_list = nvas.core.Nvas.get_images_async(coord.Galactic
                                                      (l=49.489, b=-0.37, unit=(u.deg, u.deg)),
                                                      band="K")
         assert len(image_list) > 0

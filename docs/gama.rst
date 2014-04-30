@@ -1,3 +1,4 @@
+.. doctest-skip-all
 .. _astroquery.gama:
 
 ********************************
@@ -68,6 +69,6 @@ Reference/API
 =============
 
 .. automodapi:: astroquery.gama
-    :no-inheritance-diagram
+    :no-inheritance-diagram:
 
 .. _astropy.table.Table: http://docs.astropy.org/en/latest/table/index.html

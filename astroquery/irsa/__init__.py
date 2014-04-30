@@ -11,6 +11,6 @@ GATOR_LIST_CATALOGS = ConfigurationItem('gator_list_catalogs', ['http://irsa.ipa
 ROW_LIMIT = ConfigurationItem('row_limit', 500, 'maximum number of rows to retrieve in result')
 TIMEOUT = ConfigurationItem('timeout', 60, 'time limit for connecting to the IRSA server')
 
-from .core import Irsa
+from .core import Irsa,IrsaClass
 
-__all__ = ['Irsa']
+__all__ = ['Irsa','IrsaClass']

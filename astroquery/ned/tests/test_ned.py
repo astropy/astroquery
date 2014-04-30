@@ -8,13 +8,13 @@ import requests
 from numpy import testing as npt
 from astropy.tests.helper import pytest
 from astropy.table import Table
-import astropy.utils.data as aud
 import astropy.coordinates as coord
 import astropy.units as u
 from ...exceptions import RemoteServiceError
 from ...utils.testing_tools import MockResponse
 
 from ... import ned
+from ...utils import commons
 from ...ned import (HUBBLE_CONSTANT,
                CORRECT_REDSHIFT,
                OUTPUT_COORDINATE_FRAME,
@@ -54,10 +54,10 @@ def patch_get(request):
 
 @pytest.fixture
 def patch_get_readable_fileobj(request):
-    def get_readable_fileobj_mockreturn(filename):
+    def get_readable_fileobj_mockreturn(filename, cache=True):
         return open(data_path(DATA_FILES['image']), 'rb')
     mp = request.getfuncargvalue("monkeypatch")
-    mp.setattr(aud, 'get_readable_fileobj', get_readable_fileobj_mockreturn)
+    mp.setattr(commons, 'get_readable_fileobj', get_readable_fileobj_mockreturn)
     return mp
 
 
@@ -221,7 +221,7 @@ def test_query_region_async(monkeypatch, patch_get):
     assert response['objname'] == "m1"
     assert response['search_type'] == "Near Name Search"
     # check with Galactic coordinates
-    response = ned.core.Ned.query_region_async(coord.GalacticCoordinates(l=-67.02084, b=-29.75447, unit=(u.deg, u.deg)),
+    response = ned.core.Ned.query_region_async(coord.Galactic(l=-67.02084, b=-29.75447, unit=(u.deg, u.deg)),
                                                get_query_payload=True)
     assert response['search_type'] == 'Near Position Search'
     npt.assert_approx_equal(response['lon'] % 360, -67.02084 % 360, significant=5)
@@ -266,4 +266,7 @@ def test_parse_result(capsys):
     response = MockResponse(content)
     with pytest.raises(RemoteServiceError) as exinfo:
         ned.core.Ned._parse_result(response)
-    assert exinfo.value.message == "The remote service returned the following error message.\nERROR:  No note found."
+    if hasattr(exinfo.value,'message'):
+        assert exinfo.value.message == "The remote service returned the following error message.\nERROR:  No note found."
+    else:
+        assert exinfo.value.args == ("The remote service returned the following error message.\nERROR:  No note found.",)

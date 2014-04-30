@@ -1,6 +1,5 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import os
-import xml.etree.ElementTree as tree
 
 import astropy.units as u
 from astropy.tests.helper import pytest  # import this since the user may not have pytest installed
@@ -15,21 +14,21 @@ ERR_XML = "dust-error.xml"
 EXT_TBL = "dust_ext_detail.tbl"
 IMG_FITS = "test.fits"
 M31_URL_ALL = [
-    'http://irsa.ipac.caltech.edu//workspace/TMP_0fVHXe_17371/DUST/m31.v0001/p338Dust.fits',
-    'http://irsa.ipac.caltech.edu//workspace/TMP_0fVHXe_17371/DUST/m31.v0001/p338i100.fits',
-    'http://irsa.ipac.caltech.edu//workspace/TMP_0fVHXe_17371/DUST/m31.v0001/p338temp.fits'
-]
-
-M31_URL_E = [
-    'http://irsa.ipac.caltech.edu//workspace/TMP_0fVHXe_17371/DUST/m31.v0001/p338i100.fits'
+    'http://irsa.ipac.caltech.edu//workspace/TMP_kRQo9a_8160/DUST/m31.v0002/p338Dust.fits',
+    'http://irsa.ipac.caltech.edu//workspace/TMP_kRQo9a_8160/DUST/m31.v0002/p338i100.fits',
+    'http://irsa.ipac.caltech.edu//workspace/TMP_kRQo9a_8160/DUST/m31.v0002/p338temp.fits'
 ]
 
 M31_URL_R = [
-    'http://irsa.ipac.caltech.edu//workspace/TMP_0fVHXe_17371/DUST/m31.v0001/p338Dust.fits'
+    'http://irsa.ipac.caltech.edu//workspace/TMP_kRQo9a_8160/DUST/m31.v0002/p338Dust.fits'
+]
+
+M31_URL_E = [
+    'http://irsa.ipac.caltech.edu//workspace/TMP_kRQo9a_8160/DUST/m31.v0002/p338i100.fits'
 ]
 
 M31_URL_T = [
-    'http://irsa.ipac.caltech.edu//workspace/TMP_0fVHXe_17371/DUST/m31.v0001/p338temp.fits'
+    'http://irsa.ipac.caltech.edu//workspace/TMP_kRQo9a_8160/DUST/m31.v0002/p338temp.fits'
 ]
 
 
@@ -138,7 +137,7 @@ class TestDust(DustTestCase):
                              [(None, M31_URL_ALL),
                               ('100um', M31_URL_E),
                               ('ebv', M31_URL_R),
-                              ('extinction', M31_URL_T),
+                              ('temperature', M31_URL_T),
                               ])
     def test_extract_image_urls_instance(self, image_type, expected_urls):
         raw_xml = open(self.data(M31_XML), "r").read()
@@ -156,7 +155,7 @@ class TestDust(DustTestCase):
                              [(None, M31_URL_ALL),
                               ('100um', M31_URL_E),
                               ('ebv', M31_URL_R),
-                              ('extinction', M31_URL_T),
+                              ('temperature', M31_URL_T),
                               ])
     def test_extract_image_urls_class(self, image_type, expected_urls):
         raw_xml = open(self.data(M31_XML), "r").read()
@@ -170,11 +169,11 @@ class TestDust(DustTestCase):
             irsa_dust.core.IrsaDust.extract_image_urls(raw_xml, image_type="l")
 
     @pytest.mark.parametrize(('section', 'expected_length'),
-                             [(None, 35),
+                             [(None, 43),
                               ('100um', 10),
                               ('location', 4),
-                              ('ebv', 11),
-                              ('extinction', 10)
+                              ('ebv', 19),
+                              ('temperature', 10)
                               ])
     def test_query_table_class(self, patch_request, section, expected_length):
         qtable = irsa_dust.core.IrsaDust.get_query_table(
@@ -182,11 +181,11 @@ class TestDust(DustTestCase):
         assert len(qtable.colnames) == expected_length
 
     @pytest.mark.parametrize(('section', 'expected_length'),
-                             [(None, 35),
+                             [(None, 43),
                               ('100um', 10),
                               ('location', 4),
-                              ('ebv', 11),
-                              ('extinction', 10)
+                              ('ebv', 19),
+                              ('temperature', 10)
                               ])
     def test_query_table_instance(
             self, patch_request, section, expected_length):
@@ -213,7 +212,7 @@ class TestDust(DustTestCase):
 
     def test_get_extinction_table_instance(self, monkeypatch):
         monkeypatch.setattr(
-            irsa_dust.core.IrsaDust, 'get_extinction_table_async',
+            irsa_dust.core.IrsaDustClass, 'get_extinction_table_async',
             self.get_ext_table_async_mockreturn)
         table = irsa_dust.core.IrsaDust().get_extinction_table("m31")
         assert table is not None
@@ -222,7 +221,7 @@ class TestDust(DustTestCase):
                              [(None, M31_URL_ALL),
                               ('100um', M31_URL_E),
                               ('ebv', M31_URL_R),
-                              ('extinction', M31_URL_T),
+                              ('temperature', M31_URL_T),
                               ])
     def test_get_image_list_class(
             self, patch_request, image_type, expected_urls):
@@ -234,7 +233,7 @@ class TestDust(DustTestCase):
                              [(None, M31_URL_ALL),
                               ('100um', M31_URL_E),
                               ('ebv', M31_URL_R),
-                              ('extinction', M31_URL_T),
+                              ('temperature', M31_URL_T),
                               ])
     def test_get_image_list_instance(
             self, patch_request, image_type, expected_urls):
@@ -246,7 +245,7 @@ class TestDust(DustTestCase):
                              [(None),
                               ('100um'),
                               ('ebv'),
-                              ('extinction'),
+                              ('temperature'),
                               ])
     def test_get_images_async_class(self, monkeypatch, image_type):
         monkeypatch.setattr(irsa_dust.core.IrsaDust, 'get_image_list',
@@ -259,10 +258,10 @@ class TestDust(DustTestCase):
                              [(None),
                               ('100um'),
                               ('ebv'),
-                              ('extinction'),
+                              ('temperature'),
                               ])
     def test_get_images_async_instance(self, monkeypatch, image_type):
-        monkeypatch.setattr(irsa_dust.core.IrsaDust, 'get_image_list',
+        monkeypatch.setattr(irsa_dust.core.IrsaDustClass, 'get_image_list',
                             self.get_image_list_mockreturn)
         readable_objs = irsa_dust.core.IrsaDust().get_images_async("m81",
                                                                    image_type=image_type)
@@ -275,7 +274,7 @@ class TestDust(DustTestCase):
         assert images is not None
 
     def test_get_images_instance(self, monkeypatch):
-        monkeypatch.setattr(irsa_dust.core.IrsaDust, 'get_images_async',
+        monkeypatch.setattr(irsa_dust.core.IrsaDustClass, 'get_images_async',
                             self.get_images_async_mockreturn)
         images = irsa_dust.core.IrsaDust().get_images("m81")
         assert images is not None
@@ -308,7 +307,7 @@ class TestDust(DustTestCase):
                                     image_type=None,
                                     timeout=irsa_dust.core.IrsaDust.TIMEOUT,
                                     get_query_payload=False):
-        readable_obj = commons.FileContainer(self.data(IMG_FITS))
+        readable_obj = commons.FileContainer(self.data(IMG_FITS),encoding='binary')
         return [readable_obj]
 
     def set_ext_table_text(self, text, xml_tree):

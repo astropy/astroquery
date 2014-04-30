@@ -6,18 +6,16 @@ import copy
 import sys
 import re
 import os
-import astropy.utils.data as aud
 from astropy.io import ascii
 from . import BESANCON_DOWNLOAD_URL, BESANCON_MODEL_FORM, BESANCON_PING_DELAY, BESANCON_TIMEOUT
 import urllib2  # only needed for urllib2.URLError
 
 from ..query import BaseQuery
-from ..utils.class_or_instance import class_or_instance
 from ..utils import commons
 from ..utils import prepend_docstr_noreturns
 from ..utils import async_to_sync
 
-__all__ = ['Besancon']
+__all__ = ['Besancon','BesanconClass','parse_besancon_model_string']
 
 keyword_defaults = {
     'rinf':0.000000,
@@ -71,7 +69,7 @@ mag_order = "U","B","V","R","I","J","H","K","L"
 
 
 @async_to_sync
-class Besancon(BaseQuery):
+class BesanconClass(BaseQuery):
 
     # Since these are configuration options, they should probably be used directly
     # rather than re-stored as local variables.  Then again, we need to refactor
@@ -87,7 +85,6 @@ class Besancon(BaseQuery):
     def __init__(self, email=None):
         self.email = email
 
-    @class_or_instance
     def get_besancon_model_file(self, filename, verbose=True, timeout=5.0):
         """
         Download a Besancon model from the website
@@ -103,6 +100,10 @@ class Besancon(BaseQuery):
             present.  Default 5s, which is probably reasonable.
         """
 
+        # py3 compatibility
+        if hasattr(filename,'decode'):
+            filename = filename.decode()
+
         url = os.path.join(self.url_download,filename)
 
         elapsed_time = 0
@@ -117,7 +118,7 @@ class Besancon(BaseQuery):
             try:
                 # U = requests.get(url,timeout=timeout,stream=True)
                 # TODO: add timeout= keyword to get_readable_fileobj (when PR https://github.com/astropy/astropy/pull/1258 is merged)
-                with aud.get_readable_fileobj(url, cache=True) as f:
+                with commons.get_readable_fileobj(url, cache=True) as f:
                     results = f.read()
                 break
             except urllib2.URLError:
@@ -137,7 +138,6 @@ class Besancon(BaseQuery):
 
         return parse_besancon_model_string(results)
 
-    @class_or_instance
     def _parse_result(self, response, verbose=False, retrieve_file=True):
         """
         retrieve_file : bool
@@ -150,8 +150,11 @@ class Besancon(BaseQuery):
             print("Loading request from Besancon server ...")
 
         # keep the text stored for possible later use
-        with aud.get_readable_fileobj(response.raw) as f:
+        with commons.get_readable_fileobj(response.raw) as f:
             text = f.read()
+            # py3 compatibility; do nothing for py2:
+            if hasattr(text,'decode') and not hasattr(text,'encode'):
+                text = text.decode()
         try:
             filename = self.result_re.search(text).group()
         except AttributeError:  # if there are no matches
@@ -166,7 +169,6 @@ class Besancon(BaseQuery):
         else:
             return filename
 
-    @class_or_instance
     def _parse_args(self, glon, glat, email=None, smallfield=True, extinction=0.7,
                     area=0.0001, verbose=True, clouds=None,
                     absmag_limits=(-7,15), mag_limits=copy.copy(mag_limits),
@@ -275,7 +277,6 @@ class Besancon(BaseQuery):
 
         return request_data
 
-    @class_or_instance
     @prepend_docstr_noreturns("\n"+_parse_args.__doc__+_parse_result.__doc__)
     def query_async(self, *args, **kwargs):
         """
@@ -295,6 +296,7 @@ class Besancon(BaseQuery):
             stream=True)
         return response
 
+Besancon = BesanconClass()
 
 def parse_besancon_dict(bd):
     """
@@ -330,6 +332,9 @@ def parse_errors(text):
     """
     Attempt to extract the errors from a Besancon web page with error messages in it
     """
+    # py3 compatibility:
+    if hasattr(text,'decode'):
+        text = text.decode()
     try:
         errors = re.compile(r"""<div\ class="?errorpar"?>\s*
                         <ol>\s*
@@ -351,44 +356,65 @@ def parse_besancon_model_string(bms,):
     astropy table
     """
 
+    # py3 compatibility:
+    if hasattr(bms,'decode'):
+        bms = bms.decode()
+
     header_start = "Dist    Mv  CL".split()
 
     # locate index of data start
     lines = bms.split('\n')
-    nblanks = 0
+    nblanks1 = 0
     for ii,line in enumerate(lines):
         if line.strip() == '':
-            nblanks += 1
+            nblanks1 += 1
         if all([h in line for h in header_start]):
             break
 
     names = line.split()
     ncols = len(names)
-    data_start = ii
-    first_data_line = lines[data_start]
+    header_line = ii
+    # data starts 1 line after header
+    first_data_line = lines[header_line+1]
+    # apparently ascii wants you to start 1 early though
+    data_start = header_line
     # ascii.read ignores blank lines
-    data_start -= nblanks
+    data_start -= nblanks1
 
     # locate index of data end
-    nblanks = 0
-    for ii,line in enumerate(lines[::-1]):
+    nblanks2 = 0
+    for jj,line in enumerate(lines[::-1]):
         if "TOTAL NUMBER OF STARS :" in line:
             nstars = int(line.split()[-1])
         if line.strip() == '':
-            nblanks += 1
+            nblanks2 += 1
         if all([h in line for h in header_start]):
             break
     # most likely = -7
-    data_end = -(ii-nblanks+1)
+    data_end = -(jj-nblanks2+1)
 
     # note: old col_starts/col_ends were:
     # (0,7,13,16,21,27,33,36,41,49,56,62,69,76,82,92,102,109)
     # (6,12,15,20,26,32,35,39,48,55,61,68,75,81,91,101,108,115)
-    col_ends = [first_data_line.find(x)+len(x) for x in first_data_line.split()]
-    col_starts = [0] + [c-1 for c in col_ends[:-1]]
+    col_ends = [(first_data_line+" ").find(" "+x+" ")+len(x)+1 for x in first_data_line.split()]
+    if not all(x<y for x,y in zip(col_ends[:-1],col_ends[1:])):
+        raise ValueError("Failed to parse Besancon table header.")
+    col_starts = [0] + [c for c in col_ends[:-1]]
 
     if len(col_starts) != ncols or len(col_ends) != ncols:
         raise ValueError("Table parsing error: mismatch between # of columns & header")
+
+    # py3 compatibility:
+    if hasattr(bms,'decode') and not hasattr(bms,'encode'):
+        # py3
+        bms = bms.decode()
+
+    if hasattr(bms,'decode') and hasattr(bms,'encode'):
+        # py2
+        names = [n.encode() if hasattr(n,'encode') else n for n in names]
+    else:
+        # py3
+        names = [n.decode() if hasattr(n,'decode') else n for n in names]
 
     besancon_table = ascii.read(bms, Reader=ascii.FixedWidthNoHeader,
                                 header_start=None,

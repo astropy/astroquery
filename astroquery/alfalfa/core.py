@@ -1,39 +1,33 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 """
-
-core.py
-
 Author: Jordan Mirocha
 Affiliation: University of Colorado at Boulder
 Created on: Fri May  3 09:45:13 2013
-
-Description:
-
 """
 
 from __future__ import print_function
 import requests
 import numpy as np
 import numpy.ma as ma
-from astropy.io import fits
 from ..utils import commons
 
 from astropy import units as u
 from ..query import BaseQuery
-from ..utils.class_or_instance import class_or_instance
 
 from ..utils.docstr_chompers import prepend_docstr_noreturns
 
-__all__ = ['ALFALFA']
+__all__ = ['Alfalfa','AlfalfaClass']
 
-class ALFALFA(BaseQuery):
+# have to skip because it tries to use the internet, which is not allowed
+__doctest_skip__ = ['AlfalfaClass.query_region','Alfalfa.query_region']
+
+class AlfalfaClass(BaseQuery):
 
     FITS_PREFIX = "http://arecibo.tc.cornell.edu/hiarchive/alfalfa/spectraFITS"
     CATALOG_PREFIX = "http://egg.astro.cornell.edu/alfalfa/data/a40files/a40.datafile1.csv"
 
     PLACEHOLDER = -999999
 
-    @class_or_instance
     def get_catalog(self):
         """
         Download catalog of ALFALFA source properties.
@@ -51,7 +45,7 @@ class ALFALFA(BaseQuery):
         if hasattr(self,'ALFALFACAT'):
             return self.ALFALFACAT
 
-        result = requests.get(ALFALFA.CATALOG_PREFIX)
+        result = requests.get(self.CATALOG_PREFIX)
         iterable_lines = result.iter_lines()
 
         # Read header
@@ -70,7 +64,7 @@ class ALFALFA(BaseQuery):
             for i, col in enumerate(cols):
                 item = l[i].strip()
                 if item == '\"\"':
-                    catalog[col].append(ALFALFA.PLACEHOLDER)
+                    catalog[col].append(self.PLACEHOLDER)
                 elif item.isdigit():
                     catalog[col].append(int(item))
                 elif item.replace('.', '').isdigit():
@@ -82,8 +76,12 @@ class ALFALFA(BaseQuery):
 
         # Mask out blank elements
         for col in cols:
-            mask = np.zeros(len(catalog[col]))
-            mask[np.array(catalog[col]) == ALFALFA.PLACEHOLDER] = 1
+            mask = np.zeros(len(catalog[col]), dtype='bool')
+            # need to turn list -> array for boolean comparison
+            colArr = np.array(catalog[col])
+            # placeholder must share Type with the array
+            ph = np.array(self.PLACEHOLDER,dtype=colArr.dtype)
+            mask[colArr == ph] = True
             catalog[col] = ma.array(catalog[col], mask=mask)
 
         # Make this globally available so we don't have to re-download it
@@ -92,7 +90,6 @@ class ALFALFA(BaseQuery):
 
         return catalog
 
-    @class_or_instance
     def query_region(self, coordinates, radius=3. * u.arcmin,
                      optical_counterpart=False):
         """
@@ -120,9 +117,10 @@ class ALFALFA(BaseQuery):
 
         Examples
         --------
-        >>> agc = alfalfa.crossID(ra='0h8m05.63s', dec='14d50m23.3s', dr)
-        >>> for match in agc:
-        ...     print(match['ra'], match['dec'], match['objid'])
+        >>> from astroquery.alfalfa import Alfalfa
+        >>> from astropy import coordinates as coords
+        >>> C = coords.ICRS('0h8m05.63s +14d50m23.3s')
+        >>> agc = Alfalfa.query_region(C,'3 arcmin')
 
         Returns
         -------
@@ -160,7 +158,6 @@ class ALFALFA(BaseQuery):
         else:
             return None
 
-    @class_or_instance
     def get_spectrum_async(self, agc):
         """
         Download spectrum from ALFALFA catalogue.
@@ -186,11 +183,10 @@ class ALFALFA(BaseQuery):
 
         agc = str(agc).zfill(6)
 
-        link = "%s/A%s.fits" % (ALFALFA.FITS_PREFIX, agc)
+        link = "%s/A%s.fits" % (self.FITS_PREFIX, agc)
         result = commons.FileContainer(link)
         return result
 
-    @class_or_instance
     @prepend_docstr_noreturns(get_spectrum_async.__doc__)
     def get_spectrum(self, agc):
         """
@@ -202,3 +198,5 @@ class ALFALFA(BaseQuery):
         result = self.get_spectrum_async(agc)
         hdulist = result.get_fits()
         return hdulist
+
+Alfalfa = AlfalfaClass()

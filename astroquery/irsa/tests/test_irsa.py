@@ -7,6 +7,7 @@ from astropy.tests.helper import pytest
 from astropy.table import Table
 import astropy.coordinates as coord
 import astropy.units as u
+import numpy as np
 
 from ...utils.testing_tools import MockResponse
 from ... import irsa
@@ -16,7 +17,7 @@ DATA_FILES = {'Cone': 'Cone.xml',
               'Box': 'Box.xml',
               'Polygon': 'Polygon.xml'}
 
-OBJ_LIST = ["m31", "00h42m44.330s +41d16m07.50s", coord.GalacticCoordinates(l=121.1743, b=-21.5733, unit=(u.deg, u.deg))]
+OBJ_LIST = ["m31", "00h42m44.330s +41d16m07.50s", coord.Galactic(l=121.1743, b=-21.5733, unit=(u.deg, u.deg))]
 
 
 def data_path(filename):
@@ -58,16 +59,13 @@ def test_format_decimal_coords(ra, dec, expected):
                           ])
 def test_parse_coordinates(coordinates, expected):
     out = irsa.core._parse_coordinates(coordinates)
-    assert out == expected
-
-
-@pytest.mark.parametrize(('coordinates', 'expected'),
-                         [("5h0m0s 0d0m0s", True),
-                          ("m1", False)
-                          ])
-def test_is_coordinate(coordinates, expected):
-    out = irsa.core._is_coordinate(coordinates)
-    assert out == expected
+    for a,b in zip(out.split(),expected.split()):
+        try:
+            a = float(a)
+            b = float(b)
+            np.testing.assert_almost_equal(a,b)
+        except ValueError:
+            assert a == b
 
 
 def test_args_to_payload():
@@ -107,11 +105,11 @@ def test_query_region_box_async(coordinates, patch_get):
 def test_query_region_box(coordinates, patch_get):
     result = irsa.core.Irsa.query_region(coordinates, catalog='fp_psc', spatial='Box',
                                          width=2 * u.arcmin)
-    assert(result, Table)
+    assert isinstance(result, Table)
 
-poly1 = [coord.ICRSCoordinates(ra=10.1, dec=10.1, unit=(u.deg, u.deg)),
-        coord.ICRSCoordinates(ra=10.0, dec=10.1, unit=(u.deg, u.deg)),
-        coord.ICRSCoordinates(ra=10.0, dec=10.0, unit=(u.deg, u.deg))]
+poly1 = [coord.ICRS(ra=10.1, dec=10.1, unit=(u.deg, u.deg)),
+        coord.ICRS(ra=10.0, dec=10.1, unit=(u.deg, u.deg)),
+        coord.ICRS(ra=10.0, dec=10.0, unit=(u.deg, u.deg))]
 poly2 = [(10.1*u.deg, 10.1*u.deg), (10.0*u.deg, 10.1*u.deg), (10.0*u.deg, 10.0*u.deg)]
 
 
@@ -122,7 +120,15 @@ poly2 = [(10.1*u.deg, 10.1*u.deg), (10.0*u.deg, 10.1*u.deg), (10.0*u.deg, 10.0*u
 def test_query_region_async_polygon(polygon, patch_get):
     response = irsa.core.Irsa.query_region_async("m31", catalog="fp_psc", spatial="Polygon",
                                                  polygon=polygon, get_query_payload=True)
-    assert response["polygon"] == "10.1 +10.1,10.0 +10.1,10.0 +10.0"
+
+    for a,b in zip(response["polygon"].split(),"10.1 +10.1,10.0 +10.1,10.0 +10.0".split()):
+        try:
+            a = float(a)
+            b = float(b)
+            np.testing.assert_almost_equal(a,b)
+        except ValueError:
+            assert a == b
+
     response = irsa.core.Irsa.query_region_async("m31", catalog="fp_psc", spatial="Polygon",
                                                  polygon=polygon)
     assert response is not None

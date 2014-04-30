@@ -1,3 +1,5 @@
+.. doctest-skip-all
+
 .. _astroquery.ogle:
 
 ********************************
@@ -12,14 +14,13 @@ on the interstellar extinction towards the Galactic Bulge. The
 `astroquery.ogle` module queries the online extinction calculator_ and returns
 an `astropy.table.Table` instance with the same data. To run a single query
 using an `astropy.coordinates` instance use:
-.. _calculator: http://ogle.astrouw.edu.pl/
 
 .. code-block:: python
 
     >>> from astropy import coordinates as coord
     >>> from astropy imoprt units as u
     >>> from astroquery import ogle
-    >>> co = coord.GalacticCoordinates(0, 3, unit=(u.degree, u.degree))
+    >>> co = coord.Galactic(0, 3, unit=(u.degree, u.degree))
     >>> t = ogle.query(coord=co)
 
 Arguments can be passed to choose the interpolation algorithm, quality factor,
@@ -30,7 +31,7 @@ to FK5.
 
 .. code-block:: python
 
-    >>> co = coord.GalacticCoordinates(0, 3, unit=(u.degree, u.degree))
+    >>> co = coord.Galactic(0, 3, unit=(u.degree, u.degree))
     >>> # list of coordinate instances
     >>> co_list = [co, co, co]
     >>> t1 = ogle.query(coord=co_list)
@@ -46,3 +47,5 @@ Reference/API
 
 .. automodapi:: astroquery.ogle
     :no-inheritance-diagram:
+
+.. _calculator: http://ogle.astrouw.edu.pl/

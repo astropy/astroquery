@@ -1,3 +1,5 @@
+.. doctest-skip-all
+
 .. _astroquery.sha:
 
 *******************************************
@@ -12,13 +14,15 @@ There are four types of supported queries for the Spitzer Heritage Archive
 each are shown below.
 
 Using the standard imports:
+
 .. code-block:: python
 
-    >>> from atsroquery import sha
+    >>> from astroquery import sha
     >>> from astropy import coordinates as coord
     >>> from astropy import units as u
 
 Query with an astropy coordinate instance (preferred):
+
 .. code-block:: python
 
     >>> pos_t1 = sha.query(coord=coord.FK5(ra=163.6136, dec=-11.784,
@@ -27,19 +31,23 @@ Query with an astropy coordinate instance (preferred):
 Query with the alternate `ra` and `dec` parameters:
 .. code-block:: python
 
+
     >>> pos_t2 = sha.query(ra=163.6136, dec=-11.784, size=0.5)
 
 Query by NAIFID:
+
 .. code-block:: python
 
     >>> nid_t = sha.query(naifid=2003226)
 
 Query by PID:
+
 .. code-block:: python
 
     >>> pid_t = sha.query(pid=30080)
 
 Query by ReqKey:
+
 .. code-block:: python
 
     >>> # by ReqKey
@@ -50,7 +58,6 @@ Additional Documentation
 
 For column descriptions, metadata, and other information visit the SHA query
 API_ help page.
-.. _API: http://sha.ipac.caltech.edu/applications/Spitzer/SHA/help/doc/api.html
 
 Saving files to disk
 ====================
@@ -90,3 +97,5 @@ Reference/API
 
 .. automodapi:: astroquery.sha
     :no-inheritance-diagram:
+
+.. _API: http://sha.ipac.caltech.edu/applications/Spitzer/SHA/help/doc/api.html

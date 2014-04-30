@@ -7,25 +7,25 @@ ftp://ftp.cv.nrao.edu/NRAO-staff/bkent/slap/idl/
 """
 from astropy.io import ascii
 from ..query import BaseQuery
-from ..utils.class_or_instance import class_or_instance
 from ..utils import commons,async_to_sync
 from ..utils.docstr_chompers import prepend_docstr_noreturns
 from astropy import units as u
-from . import SLAP_URL,QUERY_URL,SPLATALOGUE_TIMEOUT
+from . import SLAP_URL,QUERY_URL,SPLATALOGUE_TIMEOUT,LINES_LIMIT
 from . import load_species_table
 
-__all__ = ['Splatalogue']
+__all__ = ['Splatalogue','SplatalogueClass']
 
 # example query of SPLATALOGUE directly:
 # http://www.cv.nrao.edu/php/splat/c.php?sid%5B%5D=64&sid%5B%5D=108&calcIn=&data_version=v2.0&from=&to=&frequency_units=MHz&energy_range_from=&energy_range_to=&lill=on&tran=&submit=Search&no_atmospheric=no_atmospheric&no_potential=no_potential&no_probable=no_probable&include_only_nrao=include_only_nrao&displayLovas=displayLovas&displaySLAIM=displaySLAIM&displayJPL=displayJPL&displayCDMS=displayCDMS&displayToyaMA=displayToyaMA&displayOSU=displayOSU&displayRecomb=displayRecomb&displayLisa=displayLisa&displayRFI=displayRFI&ls1=ls1&ls5=ls5&el1=el1
 
 
 @async_to_sync
-class Splatalogue(BaseQuery):
+class SplatalogueClass(BaseQuery):
 
     SLAP_URL = SLAP_URL()
     QUERY_URL = QUERY_URL()
     TIMEOUT = SPLATALOGUE_TIMEOUT()
+    LINES_LIMIT = LINES_LIMIT()
     versions = ('v1.0','v2.0')
 
     def __init__(self, **kwargs):
@@ -44,7 +44,6 @@ class Splatalogue(BaseQuery):
         """
         self.data.update(self._parse_kwargs(**kwargs))
 
-    @class_or_instance
     def get_species_ids(self,restr=None,reflags=0):
         """
         Get a dictionary of "species" IDs, where species refers to the molecule
@@ -56,7 +55,7 @@ class Splatalogue(BaseQuery):
             String to compile into an re, if specified.   Searches table for
             species whose names match
         reflags : int
-            Flags to pass to :python:`re`
+            Flags to pass to `re`
         """
         # loading can be an expensive operation and should not change at runtime:
         # do it lazily
@@ -68,7 +67,6 @@ class Splatalogue(BaseQuery):
         else:
             return self._species_ids
 
-    @class_or_instance
     def _default_kwargs(self):
         kwargs = dict(chemical_name='',
                       line_lists=('Lovas', 'SLAIM', 'JPL', 'CDMS', 'ToyoMA',
@@ -79,7 +77,7 @@ class Splatalogue(BaseQuery):
                       version='v2.0',
                       only_NRAO_recommended=None,
                       export=True,
-                      export_limit=10000,
+                      export_limit=self.LINES_LIMIT,
                       noHFS=False, displayHFS=False, show_unres_qn=False,
                       show_upper_degeneracy=False, show_molecule_tag=False,
                       show_qn_code=False, show_lovas_labref=False,
@@ -87,7 +85,6 @@ class Splatalogue(BaseQuery):
                       show_nrao_recommended=False,)
         return self._parse_kwargs(**kwargs)
 
-    @class_or_instance
     def _parse_kwargs(self, chemical_name=None, chem_re_flags=0,
                       energy_min=None, energy_max=None, energy_type=None,
                       intensity_lower_limit=None, intensity_type=None,
@@ -113,7 +110,7 @@ class Splatalogue(BaseQuery):
             "formaldehyde",flags=re.I - Formaldehyde,thioformaldehyde, and Cyanoformaldehyde
             " H2CO " - Just 1 species, H2CO.  The spaces prevent including others.
         chem_re_flags : int
-            See the :python:`re` module
+            See the `re` module
         energy_min : None or float
         energy_max : None or float
             Energy range to include.  See energy_type
@@ -172,12 +169,12 @@ class Splatalogue(BaseQuery):
             Display Ordered Frequency ONLY
         show_nrao_recommended : bool
             Display NRAO Recommended Frequencies
-        payload : dict
-            A dictionary of keywords
 
         Returns
         -------
         Dictionary of the parameters to send to the SPLAT page
+        payload : dict
+            A dictionary of keywords
         """
 
         payload = {'submit':'Search'}
@@ -245,11 +242,13 @@ class Splatalogue(BaseQuery):
             payload['export_type'] = 'current'
             payload['offset'] = 0
             payload['range'] = 'on'
-            payload['limit'] = export_limit
+            if export_limit is not None:
+                payload['limit'] = export_limit
+            else:
+                payload['limit'] = self.LINES_LIMIT
 
         return payload
 
-    @class_or_instance
     def _parse_frequency(self, min_frequency, max_frequency):
         """
         The Splatalogue service returns lines with rest frequencies in the
@@ -274,7 +273,6 @@ class Splatalogue(BaseQuery):
 
         return payload
 
-    @class_or_instance
     @prepend_docstr_noreturns("\n"+_parse_frequency.__doc__ + "\n" + _parse_kwargs.__doc__)
     def query_lines_async(self, *args, **kwargs):
         """
@@ -298,9 +296,11 @@ class Splatalogue(BaseQuery):
             self.QUERY_URL,
             data_payload,
             self.TIMEOUT)
+
+        self.response = response
+
         return response
 
-    @class_or_instance
     def _parse_result(self, response, verbose=False):
         """
         Parse a response into an astropy Table
@@ -317,3 +317,34 @@ class Splatalogue(BaseQuery):
                                 Reader=ascii.Basic)
 
         return result
+
+    def get_fixed_table(self, columns=None):
+        """
+        Convenience function to get the table with html column names made human
+        readable.  It returns only the columns identified with the `columns`
+        keyword.  See the source for the defaults.
+        """
+        if columns is None:
+            columns = ('Species','Chemical Name','Resolved QNs','Freq-GHz',
+                       'Meas Freq-GHz','Log<sub>10</sub> (A<sub>ij</sub>)',
+                       'E_U (K)')
+        table = self.table[columns]
+        long_to_short = {'Log<sub>10</sub> (A<sub>ij</sub>)':'log10(Aij)',
+                         'E_U (K)':'EU_K',
+                         'E_U (cm^-1)':'EU_cm',
+                         'E_L (K)':'EL_K',
+                         'E_L (cm^-1)':'EL_cm',
+                         'Chemical Name':'Name',
+                         'Lovas/AST Intensity':'Intensity',
+                         'Freq-GHz':'Freq',
+                         'Freq Err':'eFreq',
+                         'Meas Freq-GHz':'MeasFreq',
+                         'Meas Freq Err':'eMeasFreq',
+                         'Resolved QNs':'QNs'}
+        for cn in long_to_short:
+            if cn in table.colnames:
+                table.rename_column(cn,long_to_short[cn])
+        return table
+
+
+Splatalogue = SplatalogueClass()

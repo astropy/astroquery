@@ -1,3 +1,5 @@
+.. doctest-skip-all
+
 .. _astroquery.splatalogue:
 
 **********************************************
@@ -10,10 +12,10 @@ Getting Started
 
 This module provides an interface to the `Splatalogue web service <Splatalogue>`_
 It returns tables of spectral lines with features that you can specify by the
-same means generally available on the Splatalogue website.  
+same means generally available on the Splatalogue website.
 
 Searching for Lines
-~~~~~~~~~~~~~~~~~~~
+-------------------
 
 In the Splatalogue web interface, you select "species" of interest using the left side menu
 seen in the `query interface <splat_b>`_  You can access the line list:
@@ -61,9 +63,9 @@ To search within this list for a particular species, you can use regular express
    >>> atomic_weight_88
    {u'08801 SiC5 - ': u'265',
     u'08802 CH3C6H - Methyltriacetylene': u'388',
-    u'08803 C6O - Hexacarbon monoxide': u'585'}   
+    u'08803 C6O - Hexacarbon monoxide': u'585'}
 
-The returned items are dictionaries, but they are also searchable.  
+The returned items are dictionaries, but they are also searchable.
 
 .. code-block:: python
 
@@ -75,7 +77,7 @@ The returned items are dictionaries, but they are also searchable.
     u'03101 13C18O - Carbon Monoxide': u'14'}
 
 Querying Splatalogue: Getting Line Information
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+----------------------------------------------
 
 Unlike most astroquery tools, the Splatalogue_ tool closely resembles the
 online interface.  In principle, we can make a higher level wrapper, but it is
@@ -120,7 +122,7 @@ this query works:
      COv=0 Carbon Monoxide        -- ...          16.59608      JPL
      COv=0 Carbon Monoxide   230.538 ...               0.0    Lovas
      COv=0 Carbon Monoxide   230.538 ...          16.59608    SLAIM
-   
+
 Of course, there's some noise in there: both the vibrationally excited line and a whole lot of different line lists.
 Start by thinning out the line lists used:
 
@@ -147,7 +149,7 @@ Then get rid of the vibrationally excited line by setting an energy upper limit 
 
 
 Cleaning Up the Returned Data
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-----------------------------
 
 Depending on what sub-field you work in, you may be interested in fine-tuning
 splatalogue queries to return only a subset of the columns and lines on a
@@ -171,7 +173,7 @@ data sorted by energy, you can use an approach like this:
     ...     table.rename_column('Resolved QNs','QNs')
     ...     table.sort('EU_K')
     ...     return table
-    >>> trimmed_query(1*u.GHz,30*u.GHz, 
+    >>> trimmed_query(1*u.GHz,30*u.GHz,
     ...     chemical_name='(H2.*Formaldehyde)|( HDCO )',
     ...     energy_max=50).pprint()
     Species Chemical Name      QNs      Freq-GHz Meas Freq-GHz log10(Aij)   EU_K
@@ -187,7 +189,7 @@ data sorted by energy, you can use an approach like this:
      H2C18O  Formaldehyde 3(1,2)-3(1,3) 26.33012      26.33014   -6.03008 32.48204
      H213CO  Formaldehyde 3(1,2)-3(1,3)       --      27.55567   -6.95712  32.9381
        H2CO  Formaldehyde 3(1,2)-3(1,3)       --       28.9748   -6.89179 33.44949
-   
+
 Reference/API
 =============
 

@@ -8,15 +8,14 @@ from contextlib import contextmanager
 import numpy.testing as npt
 import astropy.coordinates as coord
 import astropy.units as u
-import astropy.utils.data as aud
 from astropy.tests.helper import pytest
 
 from ...import nvas
 from ...utils.testing_tools import MockResponse
 from ...utils import commons
 
-COORDS_GAL = coord.GalacticCoordinates(l=49.489, b=-0.37, unit=(u.deg, u.deg))  # ARM 2000
-COORDS_ICRS = coord.ICRSCoordinates("12h29m06.69512s +2d03m08.66276s")  # 3C 273
+COORDS_GAL = coord.Galactic(l=49.489, b=-0.37, unit=(u.deg, u.deg))  # ARM 2000
+COORDS_ICRS = coord.ICRS("12h29m06.69512s +2d03m08.66276s")  # 3C 273
 
 DATA_FILES = {'image': 'image.imfits',
               'image_search': 'image_results.html'}
@@ -57,7 +56,7 @@ def patch_get_readable_fileobj(request):
         file_obj = open(data_path(DATA_FILES["image"]), "rb")
         yield file_obj
     mp = request.getfuncargvalue("monkeypatch")
-    mp.setattr(aud, 'get_readable_fileobj', get_readable_fileobj_mockreturn)
+    mp.setattr(commons, 'get_readable_fileobj', get_readable_fileobj_mockreturn)
     return mp
 
 
@@ -70,7 +69,7 @@ def test_parse_radius(radius):
 @pytest.mark.parametrize(('coordinates'), [COORDS_GAL, COORDS_ICRS])
 def test_parse_coordinates(coordinates):
     out_str = nvas.core._parse_coordinates(coordinates)
-    new_coords = coord.ICRSCoordinates(out_str, unit=(u.hour, u.deg))
+    new_coords = coord.ICRS(out_str, unit=(u.hour, u.deg))
     # if all goes well new_coords and coordinates have same ra and dec
     npt.assert_approx_equal(new_coords.icrs.ra.degree, coordinates.icrs.ra.degree, significant=3)
     npt.assert_approx_equal(new_coords.icrs.dec.degree, coordinates.icrs.dec.degree, significant=3)

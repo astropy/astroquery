@@ -1,17 +1,15 @@
 """Download GAMA data"""
 import re
 import os
-import astropy.utils.data as aud
 from astropy.io import fits
 from astropy.table import Table
 from ..query import BaseQuery
-from ..utils.class_or_instance import class_or_instance
 from ..utils import commons, async_to_sync
 
-__all__ = ['GAMA']
+__all__ = ['GAMA','GAMAClass']
 
 @async_to_sync
-class GAMA(BaseQuery):
+class GAMAClass(BaseQuery):
     """
     TODO: document
     """
@@ -20,7 +18,6 @@ class GAMA(BaseQuery):
     result_relative_url_re = re.compile(r'Download the result file: <a href="(\.\./tmp/.*?)">')
     timeout = 60
 
-    @class_or_instance
     def query_sql_async(self, *args, **kwargs):
         """
         Query the GAMA database
@@ -48,7 +45,6 @@ class GAMA(BaseQuery):
 
         return result_url
 
-    @class_or_instance
     def _parse_args(self, sql_query):
         """
         Parameters
@@ -66,17 +62,17 @@ class GAMA(BaseQuery):
 
         return payload
 
-    @class_or_instance
     def _parse_result(self, result, verbose=False, **kwargs):
         """
         Use get_gama_datafile to download a result URL
         """
         return get_gama_datafile(result)
 
+GAMA = GAMAClass()
 
 def get_gama_datafile(result):
     """Turn a URL into an HDUList object."""
-    with aud.get_readable_fileobj(result) as f:
+    with commons.get_readable_fileobj(result) as f:
         hdulist = fits.HDUList.fromstring(f.read())
     return Table(hdulist[1].data)
 

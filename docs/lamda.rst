@@ -1,4 +1,4 @@
-.. _astroquery.nrao:
+.. doctest-skip-all
 
 **********************************
 LAMDA Queries (`astroquery.lamda`)
@@ -11,7 +11,6 @@ The Leiden Atomic and Molecular Database (LAMDA_) stores information for energy
 levels, radiative transitions, and collisional rates for many astrophysically
 relevant atoms and molecules. To print the list of available molecules for
 query, use:
-.. _LAMDA: http://home.strw.leidenuniv.nl/~moldata/
 
 .. code-block:: python
 
@@ -42,3 +41,5 @@ Reference/API
 
 .. automodapi:: astroquery.lamda
     :no-inheritance-diagram:
+
+.. _LAMDA: http://home.strw.leidenuniv.nl/~moldata/

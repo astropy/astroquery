@@ -1,8 +1,9 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from ... import lamda
-from astropy.tests.helper import pytest, remote_data
+from astropy.tests.helper import remote_data
 import requests
-reload(requests)
+import imp
+imp.reload(requests)
 
 @remote_data
 def test_query_levels():

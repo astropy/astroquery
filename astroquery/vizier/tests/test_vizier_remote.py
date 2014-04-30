@@ -6,7 +6,8 @@ import astropy.coordinates as coord
 from ... import vizier
 from ...utils import commons
 import requests
-reload(requests)
+import imp
+imp.reload(requests)
 
 
 @remote_data
@@ -16,19 +17,23 @@ class TestVizierRemote:
         result = vizier.core.Vizier.query_object("HD 226868", catalog=["NOMAD", "UCAC"])
         assert isinstance(result, commons.TableList)
 
+    def test_query_another_object(self):
+        result = vizier.core.Vizier.query_region("AFGL 2591", radius='0d5m', catalog="B/iram/pdbi")
+        assert isinstance(result, commons.TableList)
+
     def test_query_object_async(self):
         response = vizier.core.Vizier.query_object_async("HD 226868", catalog=["NOMAD", "UCAC"])
         assert response is not None
 
     def test_query_region(self):
-        result = vizier.core.Vizier.query_region(coord.ICRSCoordinates(ra=299.590, dec=35.201, unit=(u.deg, u.deg)),
+        result = vizier.core.Vizier.query_region(coord.ICRS(ra=299.590, dec=35.201, unit=(u.deg, u.deg)),
                                                 radius=5 * u.deg,
                                                 catalog=["HIP", "NOMAD", "UCAC"])
 
         assert isinstance(result, commons.TableList)
 
     def test_query_region_async(self):
-        response = vizier.core.Vizier.query_region_async(coord.ICRSCoordinates(ra=299.590, dec=35.201, unit=(u.deg, u.deg)),
+        response = vizier.core.Vizier.query_region_async(coord.ICRS(ra=299.590, dec=35.201, unit=(u.deg, u.deg)),
                                                      radius=5 * u.deg,
                                                      catalog=["HIP", "NOMAD", "UCAC"])
         assert response is not None
@@ -38,7 +43,7 @@ class TestVizierRemote:
                                column_filters={"Vmag":">10"}, keywords=["optical", "xry"])
         result = v.query_object("HD 226868", catalog=["NOMAD", "UCAC"])
         assert isinstance(result, commons.TableList)
-        result = v.query_region(coord.ICRSCoordinates(ra=299.590, dec=35.201, unit=(u.deg, u.deg)),
+        result = v.query_region(coord.ICRS(ra=299.590, dec=35.201, unit=(u.deg, u.deg)),
                                 width="5d0m0s", height="3d0m0s",
                                 catalog=["NOMAD", "UCAC"])
         assert isinstance(result, commons.TableList)

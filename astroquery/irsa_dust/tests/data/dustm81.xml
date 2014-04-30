@@ -12,31 +12,46 @@
     </desc>
     <data>
       <image>
-        http://irsa.ipac.caltech.edu//workspace/TMP_0fVHXe_17371/DUST/m81.v0001/p414Dust.fits
+        http://irsa.ipac.caltech.edu//workspace/TMP_kRQo9a_8160/DUST/m81.v0001/p414Dust.fits
       </image>
       <table>
-        http://irsa.ipac.caltech.edu//workspace/TMP_0fVHXe_17371/DUST/m81.v0001/extinction.tbl
+        http://irsa.ipac.caltech.edu//workspace/TMP_kRQo9a_8160/DUST/m81.v0001/extinction.tbl
       </table>
     </data>
     <statistics>
-      <refPixelValue>
+      <refPixelValueSandF>
+             0.0690 (mag)
+      </refPixelValueSandF>
+      <refPixelValueSFD>
              0.0802 (mag)
-      </refPixelValue>
+      </refPixelValueSFD>
       <refCoordinate>
         148.888220 69.065290 equ J2000
       </refCoordinate>
-      <meanValue>
+      <meanValueSandF>
+           0.0689 (mag)
+      </meanValueSandF>
+      <meanValueSFD>
            0.0801 (mag)
-      </meanValue>
-      <std>
+      </meanValueSFD>
+      <stdSandF>
            0.0001 (mag)
-      </std>
-      <maxValue>
+      </stdSandF>
+      <stdSFD>
+           0.0001 (mag)
+      </stdSFD>
+      <maxValueSandF>
+           0.0691 (mag)
+      </maxValueSandF>
+      <maxValueSFD>
            0.0803 (mag)
-      </maxValue>
-      <minValue>
+      </maxValueSFD>
+      <minValueSandF>
+           0.0686 (mag)
+      </minValueSandF>
+      <minValueSFD>
            0.0798 (mag)
-      </minValue>
+      </minValueSFD>
     </statistics>
   </result>
   <result>
@@ -45,7 +60,7 @@
     </desc>
     <data>
       <image>
-        http://irsa.ipac.caltech.edu//workspace/TMP_0fVHXe_17371/DUST/m81.v0001/p414i100.fits
+        http://irsa.ipac.caltech.edu//workspace/TMP_kRQo9a_8160/DUST/m81.v0001/p414i100.fits
       </image>
     </data>
     <statistics>
@@ -75,7 +90,7 @@
     </desc>
     <data>
       <image>
-        http://irsa.ipac.caltech.edu//workspace/TMP_0fVHXe_17371/DUST/m81.v0001/p414temp.fits
+        http://irsa.ipac.caltech.edu//workspace/TMP_kRQo9a_8160/DUST/m81.v0001/p414temp.fits
       </image>
     </data>
     <statistics>

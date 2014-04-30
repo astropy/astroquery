@@ -7,11 +7,12 @@ import astropy.coordinates as coord
 import astropy.units as u
 
 import requests
-reload(requests)
+import imp
+imp.reload(requests)
 
 from ... import irsa
 
-OBJ_LIST = ["m31", "00h42m44.330s +41d16m07.50s", coord.GalacticCoordinates(l=121.1743, b=-21.5733, unit=(u.deg, u.deg))]
+OBJ_LIST = ["m31", "00h42m44.330s +41d16m07.50s", coord.Galactic(l=121.1743, b=-21.5733, unit=(u.deg, u.deg))]
 
 
 @remote_data
@@ -35,12 +36,12 @@ class TestIrsa:
     def test_query_region_box(self):
         result = irsa.core.Irsa.query_region("00h42m44.330s +41d16m07.50s", catalog='fp_psc', spatial='Box',
                                              width=2 * u.arcmin)
-        assert(result, Table)
+        assert isinstance(result, Table)
 
     def test_query_region_async_polygon(self):
-        polygon = [coord.ICRSCoordinates(ra=10.1, dec=10.1, unit=(u.deg, u.deg)),
-                   coord.ICRSCoordinates(ra=10.0, dec=10.1, unit=(u.deg, u.deg)),
-                   coord.ICRSCoordinates(ra=10.0, dec=10.0, unit=(u.deg, u.deg))]
+        polygon = [coord.ICRS(ra=10.1, dec=10.1, unit=(u.deg, u.deg)),
+                   coord.ICRS(ra=10.0, dec=10.1, unit=(u.deg, u.deg)),
+                   coord.ICRS(ra=10.0, dec=10.0, unit=(u.deg, u.deg))]
         response = irsa.core.Irsa.query_region_async("m31", catalog="fp_psc", spatial="Polygon",
                                                  polygon=polygon)
         assert response is not None

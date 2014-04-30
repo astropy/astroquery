@@ -1,9 +1,9 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
 from ... import besancon
+from ...utils import commons
 import os
 from contextlib import contextmanager
-import astropy.utils.data as aud
 from astropy.tests.helper import pytest
 from astropy.io.ascii.tests.common import assert_equal
 import requests
@@ -30,8 +30,8 @@ def data_path(filename):
     return os.path.join(data_dir, filename)
 
 
-@pytest.mark.parametrize(('filename','length','ncols'),zip(DATA_FILES,(13,6),(18,24)))
-def test_reader(filename,length,ncols):
+@pytest.mark.parametrize(('filename','length','ncols','d1','mv1'),zip(DATA_FILES,(13,6),(18,24),(0.091,0.111),(10.20,9.70)))
+def test_reader(filename,length,ncols,d1,mv1):
     besancon_model = data_path(filename)
     with open(besancon_model,'r') as f:
         data = f.read()
@@ -39,6 +39,8 @@ def test_reader(filename,length,ncols):
     B.pprint()
     assert_equal(len(B),length)
     assert_equal(len(B.columns),ncols)
+    assert B['Dist'][0] == d1
+    assert B['Mv'][0] == mv1
 
 
 @pytest.fixture
@@ -56,7 +58,7 @@ def patch_get_readable_fileobj(request):
         #file_obj = data_path(filename)
         yield file_obj
     mp = request.getfuncargvalue("monkeypatch")
-    mp.setattr(aud, 'get_readable_fileobj', get_readable_fileobj_mockreturn)
+    mp.setattr(commons, 'get_readable_fileobj', get_readable_fileobj_mockreturn)
     return mp
 
 

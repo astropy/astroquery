@@ -2,13 +2,13 @@
 
 import gzip
 import sys
+from ..extern.six import StringIO
+
 PY3 = sys.version_info[0] >= 3
 if PY3:
     import urllib as urllib2
-    from io import StringIO
 else:
     import urllib2
-    import StringIO
 
 from astropy.io import fits
 
@@ -69,7 +69,7 @@ def retrieve(url, outfile, opener=None, overwrite=False):
 
     results = chunk_read(page, report_hook=chunk_report)
 
-    S = StringIO.StringIO(results)
+    S = StringIO(results)
     try:
         fitsfile = fits.open(S,ignore_missing_end=True)
     except IOError:

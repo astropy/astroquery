@@ -1,25 +1,6 @@
-# Licensed under a 3-clause BSD style license - see LICENSE.rst
-from __future__ import print_function, division
-
-import warnings
-import tempfile
-import xml.etree.ElementTree as tree
-
-import astropy.units as u
-import astropy.coordinates as coord
-import astropy.io.votable as votable
-
-from ..query import BaseQuery
-from ..utils.class_or_instance import class_or_instance
-from ..utils import commons
-from . import (IRSA_SERVER,
-               GATOR_LIST_CATALOGS,
-               ROW_LIMIT,
-               TIMEOUT)
-from ..exceptions import TableParseError
-
-
 '''
+IRSA
+====
 
 API from
 
@@ -106,17 +87,34 @@ If onlist=0, the following parameters are required:
                         equal to available to be retrieved rows under the same
                         constraints.
 '''
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
+from __future__ import print_function, division
 
-__all__ = ['Irsa']
+import warnings
+import tempfile
+import xml.etree.ElementTree as tree
+
+import astropy.units as u
+import astropy.coordinates as coord
+import astropy.io.votable as votable
+
+from ..query import BaseQuery
+from ..utils import commons
+from . import (IRSA_SERVER,
+               GATOR_LIST_CATALOGS,
+               ROW_LIMIT,
+               TIMEOUT)
+from ..exceptions import TableParseError
+
+__all__ = ['Irsa','IrsaClass']
 
 
-class Irsa(BaseQuery):
+class IrsaClass(BaseQuery):
     IRSA_URL = IRSA_SERVER()
     GATOR_LIST_URL = GATOR_LIST_CATALOGS()
     TIMEOUT = TIMEOUT()
     ROW_LIMIT = ROW_LIMIT()
 
-    @class_or_instance
     def query_region(self, coordinates=None, catalog=None, spatial='Cone', radius=10 * u.arcsec,
                      width=None, polygon=None, get_query_payload=False, verbose=False):
         """
@@ -148,7 +146,7 @@ class Irsa(BaseQuery):
             A list of ``(ra, dec)`` pairs (as tuples), in decimal degrees,
             outlinining the polygon to search in. It can also be a list of
             `astropy.coordinates` object or strings that can be parsed by
-            `astropy.coordinates.ICRSCoordinates`.
+            `astropy.coordinates.ICRS`.
         get_query_payload : bool, optional
             if set to `True` then returns the dictionary sent as the HTTP request.
             Defaults to `False`.
@@ -168,7 +166,6 @@ class Irsa(BaseQuery):
             return response
         return self._parse_result(response, verbose=verbose)
 
-    @class_or_instance
     def query_region_async(self, coordinates=None, catalog=None,
                            spatial='Cone', radius=10 * u.arcsec, width=None,
                            polygon=None,get_query_payload=False):
@@ -201,7 +198,7 @@ class Irsa(BaseQuery):
             A list of ``(ra, dec)`` pairs (as tuples), in decimal degrees,
             outlinining the polygon to search in. It can also be a list of
             `astropy.coordinates` object or strings that can be parsed by
-            `astropy.coordinates.ICRSCoordinates`.
+            `astropy.coordinates.ICRS`.
         get_query_payload : bool, optional
             if set to `True` then returns the dictionary sent as the HTTP request.
             Defaults to `False`.
@@ -226,7 +223,6 @@ class Irsa(BaseQuery):
                                         Irsa.TIMEOUT, request_type='GET')
         return response
 
-    @class_or_instance
     def _parse_spatial(self, spatial, coordinates, radius=None, width=None,
                        polygon=None):
         """
@@ -254,7 +250,7 @@ class Irsa(BaseQuery):
             A list of ``(ra, dec)`` pairs as tuples of
             `astropy.coordinates.Angle`s outlinining the polygon to search in.
             It can also be a list of `astropy.coordinates` object or strings
-            that can be parsed by `astropy.coordinates.ICRSCoordinates`.
+            that can be parsed by `astropy.coordinates.ICRS`.
 
         Returns
         -------
@@ -266,7 +262,7 @@ class Irsa(BaseQuery):
         if spatial == 'All-Sky':
             spatial = 'NONE'
         elif spatial in ['Cone', 'Box']:
-            if not _is_coordinate(coordinates):
+            if not commons._is_coordinate(coordinates):
                 request_payload['objstr'] = coordinates
             else:
                 request_payload['objstr'] = _parse_coordinates(coordinates)
@@ -279,7 +275,7 @@ class Irsa(BaseQuery):
                 request_payload['size'] = width.to(u.arcsec).value
         elif spatial == 'Polygon':
             if coordinates is not None:
-                request_payload['objstr'] = coordinates if not _is_coordinate(coordinates) else _parse_coordinates(coordinates)
+                request_payload['objstr'] = coordinates if not commons._is_coordinate(coordinates) else _parse_coordinates(coordinates)
             try:
                 coordinates_list = [_parse_coordinates(c) for c in polygon]
             except (ValueError,TypeError):
@@ -293,7 +289,6 @@ class Irsa(BaseQuery):
 
         return request_payload
 
-    @class_or_instance
     def _args_to_payload(self, catalog):
         """
         Sets the common parameters for all cgi -queries
@@ -312,7 +307,6 @@ class Irsa(BaseQuery):
                                outrows=Irsa.ROW_LIMIT)
         return request_payload
 
-    @class_or_instance
     def _parse_result(self, response, verbose=False):
         """
         Parses the results form the HTTP response to `astropy.table.Table`.
@@ -345,7 +339,7 @@ class Irsa(BaseQuery):
 
         # Write table to temporary file
         output = tempfile.NamedTemporaryFile()
-        output.write(response.content)
+        output.write(response.content.encode())
         output.flush()
 
         # Read it in using the astropy VO table reader
@@ -366,7 +360,6 @@ class Irsa(BaseQuery):
 
         return table
 
-    @class_or_instance
     def list_catalogs(self):
         """
         Return a dictionary of the catalogs in the IRSA Gator tool.
@@ -387,7 +380,6 @@ class Irsa(BaseQuery):
             catalogs[catname] = desc
         return catalogs
 
-    @class_or_instance
     def print_catalogs(self):
         """
         Display a table of the catalogs in the IRSA Gator tool.
@@ -396,20 +388,14 @@ class Irsa(BaseQuery):
         for catname in catalogs:
             print("{:30s}  {:s}".format(catname, catalogs[catname]))
 
-
-def _is_coordinate(coordinates):
-    try:
-        coord.ICRSCoordinates(coordinates)
-        return True
-    except ValueError:
-        return False
+Irsa = IrsaClass()
 
 
 def _parse_coordinates(coordinates):
 # borrowed from commons.parse_coordinates as from_name wasn't required in this case
     if isinstance(coordinates, basestring):
         try:
-            c = coord.ICRSCoordinates(coordinates)
+            c = coord.ICRS(coordinates)
             warnings.warn("Coordinate string is being interpreted as an ICRS coordinate.")
         except u.UnitsException as ex:
             warnings.warn("Only ICRS coordinates can be entered as strings\n"

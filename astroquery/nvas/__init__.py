@@ -15,6 +15,6 @@ NVAS_SERVER = ConfigurationItem('nvas_server', ["https://webtest.aoc.nrao.edu/cg
                                'Name of the NVAS mirror to use.')
 NVAS_TIMEOUT = ConfigurationItem('timeout', 60, 'time limit for connecting to NVAS server')
 
-from .core import Nvas
+from .core import Nvas,NvasClass
 
-__all__ = ['Nvas']
+__all__ = ['Nvas','NvasClass']

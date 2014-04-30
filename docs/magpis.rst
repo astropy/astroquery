@@ -1,3 +1,5 @@
+.. doctest-skip-all
+
 .. _astroquery.magpis:
 
 *****************************************
@@ -18,7 +20,7 @@ functions or as coordinates using any of the coordinate systems available in
 
     >>> from astroquery.magpis import Magpis
     >>> import astropy.coordinates as coord
-    >>> image = Magpis.get_images(coord.GalacticCoordinates(10.5, 0.0,
+    >>> image = Magpis.get_images(coord.Galactic(10.5, 0.0,
     ...    unit=(u.deg,u.deg)))
     >>> image
     
@@ -59,7 +61,7 @@ parameters as well.
     >>> from astroquery.magpis import Magpis
     >>> import astropy.units as u
     >>> import astropy.coordinates as coord
-    >>> image = Magpis.get_images(coord.GalacticCoordinates(10.5, 0.0,
+    >>> image = Magpis.get_images(coord.Galactic(10.5, 0.0,
     ...    unit=(u.deg,u.deg)), image_size=10*u.arcmin, survey='gps20new')
     >>> image
 

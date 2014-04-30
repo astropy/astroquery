@@ -1,3 +1,5 @@
+.. doctest-skip-all
+
 .. _astroquery.nvas:
 
 ********************************
@@ -50,7 +52,7 @@ centre.
     >>> from astroquery.nvas import Nvas
     >>> import astropy.coordinates as coord
     >>> import astropy.units as u
-    >>> images = Nvas.get_images(coord.GalacticCoordinates(l=49.489, b=-0.37,
+    >>> images = Nvas.get_images(coord.Galactic(l=49.489, b=-0.37,
     ...                          unit=(u.deg, u.deg)), band="K")
 
                                  

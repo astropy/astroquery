@@ -1,11 +1,12 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from ... import alfalfa
 from astropy import coordinates
-import astropy.utils.data as aud
 from astropy.tests.helper import pytest
 import requests
 from contextlib import contextmanager
 import os
+
+from ...utils import commons
 
 DATA_FILES = {'catalog':'alfalfa_cat_small.txt',
               'spectrum':'alfalfa_sp.fits'}
@@ -33,9 +34,9 @@ def patch_get_readable_fileobj(request):
     @contextmanager
     def get_readable_fileobj_mockreturn(filename, **kwargs):
         file_obj = data_path(DATA_FILES['spectrum']) # TODO: add images option
-        yield open(file_obj)
+        yield open(file_obj,'rb') # read as bytes, assuming FITS
     mp = request.getfuncargvalue("monkeypatch")
-    mp.setattr(aud, 'get_readable_fileobj', get_readable_fileobj_mockreturn)
+    mp.setattr(commons, 'get_readable_fileobj', get_readable_fileobj_mockreturn)
     return mp
 
 def get_mockreturn(url, params=None, timeout=10):
@@ -48,9 +49,9 @@ def data_path(filename):
     return os.path.join(data_dir, filename)
 
 # Test Case: A Seyfert 1 galaxy
-coords = coordinates.ICRSCoordinates('0h8m05.63s +14d50m23.3s')
+coords = coordinates.ICRS('0h8m05.63s +14d50m23.3s')
 
-ALFALFA = alfalfa.core.ALFALFA()
+ALFALFA = alfalfa.core.Alfalfa()
 
 def test_alfalfa_catalog(patch_get, patch_get_readable_fileobj, coords=coords):
     cat = ALFALFA.get_catalog()

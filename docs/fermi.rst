@@ -1,4 +1,4 @@
-.. _astroquery.simbad:
+.. doctest-skip-all
 
 **********************************
 Fermi Queries (`astroquery.fermi`)

@@ -8,7 +8,7 @@
 # Note that not all possible configuration values are present in this file.
 #
 # All configuration values have a default. Some values are defined in
-# the global Astropy configuration which is loaded here before anything else. 
+# the global Astropy configuration which is loaded here before anything else.
 # See astropy.sphinx.conf for which values are set there.
 
 # If extensions (or modules to document with autodoc) are in another directory,
@@ -43,10 +43,15 @@ exclude_patterns.append('_templates')
 rst_epilog += """
 """
 
+#this is added because, as of Astropy 0.3, the wrong objects.inv is used in
+#astropy's astropy.sphinx.conf - this should be fixed in 0.3.1, but this is an
+#"insurance policy" for now
+intersphinx_mapping['astropy'] = ('http://docs.astropy.org/en/stable/', None)
+
 # -- Project information ------------------------------------------------------
 
 # This does not *have* to match the package name, but typically does
-project = u'astroquery' 
+project = u'astroquery'
 author = u'Adam Ginsburg (maintainer) and Tom Robitaille; astropy.astroquery@gmail.com'
 copyright = u'2012, ' + author
 
@@ -139,7 +144,7 @@ class Mock(object):
         else:
             return Mock()
 
-MOCK_MODULES = ['atpy', 'beautifulsoup4', 'vo', 'requests']
+MOCK_MODULES = ['atpy', 'beautifulsoup4', 'vo', 'requests', 'lxml', 'keyring']
 for mod_name in MOCK_MODULES:
     sys.modules[mod_name] = Mock()
 

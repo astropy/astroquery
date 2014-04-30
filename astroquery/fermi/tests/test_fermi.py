@@ -32,7 +32,7 @@ def post_mockreturn(url, data=None, timeout=50, **kwargs):
             response = MockResponse(r.read(), **kwargs)
     return response
 
-FK5_COORDINATES = coord.ICRSCoordinates(10.68471, 41.26875, unit=('deg','deg'))
+FK5_COORDINATES = coord.ICRS(10.68471, 41.26875, unit=('deg','deg'))
 
 # disable waiting so tests run fast
 fermi.core.get_fermilat_datafile.TIMEOUT = 1

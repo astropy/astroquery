@@ -15,10 +15,10 @@ from distutils.version import LooseVersion
 import astropy
 is_python3 = (sys.version_info >= (3,))
 
-GALACTIC_COORDS = coord.GalacticCoordinates(l=-67.02084, b=-29.75447, unit=(u.deg, u.deg))
-ICRS_COORDS = coord.ICRSCoordinates("05h35m17.3s -05h23m28s")
-FK4_COORDS = coord.FK4Coordinates(ra=84.90759, dec=-80.89403, unit=(u.deg, u.deg))
-FK5_COORDS = coord.FK5Coordinates(ra=83.82207, dec=-80.86667, unit=(u.deg, u.deg))
+GALACTIC_COORDS = coord.Galactic(l=-67.02084, b=-29.75447, unit=(u.deg, u.deg))
+ICRS_COORDS = coord.ICRS("05h35m17.3s -05h23m28s")
+FK4_COORDS = coord.FK4(ra=84.90759, dec=-80.89403, unit=(u.deg, u.deg))
+FK5_COORDS = coord.FK5(ra=83.82207, dec=-80.86667, unit=(u.deg, u.deg))
 
 DATA_FILES = {
     'id': 'query_id.data',
@@ -79,13 +79,7 @@ def post_mockreturn(url, data, timeout, **kwargs):
                           ])
 def test_parse_radius(radius, expected_radius):
     actual = simbad.core._parse_radius(radius)
-    # bug in 1168: https://github.com/astropy/astropy/pull/1168
-    if (LooseVersion(astropy.version.version) <= LooseVersion('0.2.4')
-       and radius in ('5d',)):
-        # error...
-        pass
-    else:
-        assert actual == expected_radius
+    assert actual == expected_radius
 
 
 @pytest.mark.parametrize(('ra', 'dec', 'expected_ra', 'expected_dec'),
@@ -117,12 +111,12 @@ def test_parse_result():
     assert isinstance(result1, Table)
     with pytest.raises(TableParseError) as ex:
         dummy = simbad.core.Simbad._parse_result(MockResponseSimbad('query error '))
-    assert ex.value.message == ('Failed to parse SIMBAD result! '
-                                'The raw response can be found in self.response, '
-                                'and the error in self.table_parse_error.  '
-                                'The attempted parsed result is in self.parsed_result.'
+    assert str(ex.value) == ('Failed to parse SIMBAD result! '
+                                'The raw response can be found in self.last_response, '
+                                'and the error in self.last_table_parse_error.  '
+                                'The attempted parsed result is in self.last_parsed_result.'
                                 '\nException: 7:115: no element found')
-    assert isinstance(simbad.core.Simbad.response.content, basestring)
+    assert isinstance(simbad.core.Simbad.last_response.content, basestring)
 
 votable_fields = ",".join(simbad.core.Simbad.get_votable_fields())
 
@@ -320,4 +314,23 @@ def test_simbad_settings2():
     assert simbad.core.Simbad.get_votable_fields() == ['main_id','coordinates']
     simbad.core.Simbad.add_votable_fields('ra','dec(5)')
     simbad.core.Simbad.remove_votable_fields('ra','dec',strip_params=True)
+    assert simbad.core.Simbad.get_votable_fields() == ['main_id','coordinates']
+
+def test_regression_votablesettings():
+    assert simbad.core.Simbad.get_votable_fields() == ['main_id','coordinates']
+    simbad.core.Simbad.add_votable_fields('ra','dec(5)')
+    with pytest.raises(KeyError) as ex:
+        simbad.core.Simbad.add_votable_fields('ra(d)','dec(d)')
+    assert ex.value.args[0] == 'ra(d): field already present.  Fields ra,dec,id,otype, and bibcodelist can only be specified once.  To change their options, first remove the existing entry, then add a new one.'
+    # cleanup
+    simbad.core.Simbad.remove_votable_fields('ra','dec',strip_params=True)
+    assert simbad.core.Simbad.get_votable_fields() == ['main_id','coordinates']
+
+def test_regression_votablesettings2():
+    assert simbad.core.Simbad.get_votable_fields() == ['main_id','coordinates']
+    simbad.core.Simbad.add_votable_fields('fluxdata(J)')
+    simbad.core.Simbad.add_votable_fields('fluxdata(H)')
+    simbad.core.Simbad.add_votable_fields('fluxdata(K)')
+    assert simbad.core.Simbad.get_votable_fields() == ['main_id', 'coordinates', 'fluxdata(J)', 'fluxdata(H)', 'fluxdata(K)']
+    simbad.core.Simbad.remove_votable_fields('fluxdata',strip_params=True)
     assert simbad.core.Simbad.get_votable_fields() == ['main_id','coordinates']

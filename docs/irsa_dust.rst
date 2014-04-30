@@ -1,3 +1,5 @@
+.. doctest-skip-all
+
 .. _astroquery.irsa_dust:
 
 *************************************************************
@@ -40,7 +42,7 @@ Image queries return cutouts for 3 images - E(B-V) reddening, 100 micron
 intensity, and dust temperature maps. If only the image of a particular type is
 required, then this may be specified by using the `image_type` keyword argument
 to the :meth:`~astroquery.irsa_dust.core.IrsaDust.get_images` method. It can take on one of the three values
-`ebv`, `100um` and `extinction`, corresponding to each of the 3 kinds of
+`ebv`, `100um` and `temperature`, corresponding to each of the 3 kinds of
 images:
 
 .. code-block:: python
@@ -65,7 +67,7 @@ The image types that are available can also be listed out any time:
     >>> from astroquery.irsa_dust import IrsaDust
     >>> IrsaDust.list_image_types()
 
-    ['ebv', 'extinction', '100um']
+    ['ebv', 'temperature', '100um']
 
 Rather than specifying the name, the target may also be specified via
 coordinates passed as strings. Examples of acceptable coordinate strings, can
@@ -139,7 +141,7 @@ value:
 
 This fetches in a `astropy.table.Table`_ other additional details that may be
 returned in the query results. For instance additional details in the three
-sections - `ebv`, `100um` and `extinction` as mentioned earlier and an
+sections - `ebv`, `100um` and `temperature` as mentioned earlier and an
 additional section `location` may be fetched using the `section` keyword
 argument. If on the other hand, `section` is missing then the complete table
 with all the four sections will be returned.

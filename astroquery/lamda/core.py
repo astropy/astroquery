@@ -6,6 +6,8 @@ from astropy.table import Table
 
 __all__ = ['query', 'print_mols']
 
+# should skip only if remote_data = False
+__doctest_skip__ = ['query']
 
 url = "http://home.strw.leidenuniv.nl/~moldata/datafiles/{0}.dat"
 mols = {
@@ -61,7 +63,7 @@ def print_mols():
         print(mols[mol_family], '\n')
 
 
-def query(mol, query_type, coll_partner_index=0, return_datafile=False):
+def query(mol, query_type=None, coll_partner_index=0, return_datafile=False):
     """
     Query the LAMDA database.
 
@@ -86,6 +88,7 @@ def query(mol, query_type, coll_partner_index=0, return_datafile=False):
 
     Examples
     --------
+    >>> from astroquery import lamda
     >>> t = lamda.query(mol='co', query_type='erg_levels')
     >>> t.pprint()
     LEVEL ENERGIES(cm^-1) WEIGHT  J
@@ -94,8 +97,8 @@ def query(mol, query_type, coll_partner_index=0, return_datafile=False):
         3    11.534919938    5.0   2
       ...             ...    ... ...
     """
-    if query_type not in query_types.keys():
-        raise ValueError
+    if query_type not in query_types.keys() and not return_datafile:
+        raise ValueError("Query type must be one of "+",".join(query_type.keys()))
     # Send HTTP request to open URL
     datafile = [s.strip() for s in
                 requests.get(url.format(mol)).iter_lines()]
