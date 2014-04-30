@@ -113,6 +113,7 @@ The following modules have been completed using a common API:
   nvas.rst
   gama.rst
   eso.rst
+  cosmosim.rst
 
 These others are functional, but do not follow a common & consistent API:
 
