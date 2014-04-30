@@ -27,19 +27,19 @@ def find_system_for_alias(alias):
     alias = alias.strip()
     if aliases is None:
         metaserver = OEC_META_SERVER()
-        metaurl = metaserver+"/aliases.csv"
+        metaurl = metaserver+"aliases.csv"
         try:
             metacsv = urllib2.urlopen(metaurl)
             aliases = list(csv.reader(metacsv))
         except:
-            print ("Error getting Open Exoplanet Catalogue file '"+url+"'.\nCheck system_id and server.")
+            print ("Error getting Open Exoplanet Catalogue file '"+metaurl+"'.\nCheck system_id and server.")
             return
     for a in aliases:
         if a[0] == alias:
             return a[1]
     
 def get_xml_for_system(system,category='systems'):
-    url = OEC_SERVER() + "/" + category + "/" + urllib2.quote(system) + ".xml"
+    url = OEC_SERVER() + "" + category + "/" + urllib2.quote(system) + ".xml"
     try:
         xml = urllib2.urlopen(url).read()
     except:
