@@ -1,7 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 """
 Query fucntion for the Open Exoplanet Catalogue 
-------------------
+-----------------------------------------------
 
 The function query_system_xml simply returns the xml file from one of the servers and returns it. 
 
@@ -9,11 +9,11 @@ The function query_planet searches for a planet and returns its properties as a 
 
 
 ------------------
-Hanno Rein 2013
-hanno@hanno-rein.de
+:Author: Hanno Rein (hanno@hanno-rein.de)
 """
 from __future__ import print_function
-from . import OEC_SERVER, OEC_META_SERVER
+from . import OEC_SERVER
+from . import OEC_META_SERVER
 import sys,urllib2
 import csv
 import xml.etree.ElementTree as ET
@@ -32,7 +32,8 @@ def find_system_for_alias(alias):
             metacsv = urllib2.urlopen(metaurl)
             aliases = list(csv.reader(metacsv))
         except:
-            print ("Error getting Open Exoplanet Catalogue file '"+metaurl+"'.\nCheck system_id and server.")
+            print ("Error getting Open Exoplanet Catalogue file '"+metaurl+\
+			    "'.\nCheck system_id and server.")
             return
     for a in aliases:
         if a[0] == alias:
@@ -43,12 +44,14 @@ def get_xml_for_system(system,category='systems'):
     try:
         xml = urllib2.urlopen(url).read()
     except:
-        print ("Error getting Open Exoplanet Catalogue file '" + url + "'.\nCheck system_id and server.")
-    	return
+        print ("Error getting Open Exoplanet Catalogue file '" + url +\
+			"'.\nCheck system_id and server.")
+        return
 
     return xml
 
-def element_to_dict(e):
+def xml_element_to_dict(e):
+    """Converts xml tree to dictionary"""
     d = {}
     for c in e.getchildren():
         d[c.tag] = c.text
@@ -72,7 +75,7 @@ def query_planet(planet_id,category='systems'):
         names = planet.findall("./name")
         for name in names:
             if name.text == planet_id.strip():
-                return element_to_dict(planet)
+                return xml_element_to_dict(planet)
 
     return None
 
