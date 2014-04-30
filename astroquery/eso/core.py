@@ -3,6 +3,7 @@ import os.path
 import webbrowser
 import getpass
 import warnings
+from bs4 import BeautifulSoup
 from io import StringIO, BytesIO
 
 from astropy.extern import six
@@ -206,7 +207,7 @@ class EsoClass(QueryWithLogin):
 
 
 
-    def query_instrument(self, instrument, open_form=False, **kwargs):
+    def query_instrument(self, instrument, open_form=False, help=False, **kwargs):
         """
         Query instrument specific raw data contained in the ESO archive.
 
@@ -218,6 +219,9 @@ class EsoClass(QueryWithLogin):
         open_form : bool
             If `True`, this will open in your browser the query form
             for the given instrument, and return `None`.
+        help : bool
+            If `True`, this will print all the options that one can use to query
+            the requested `instrument`, and return `None`.
 
         Returns
         -------
@@ -233,6 +237,43 @@ class EsoClass(QueryWithLogin):
         table = None
         if open_form:
             webbrowser.open(url)
+        elif help:
+            resp = self.request("GET", url)
+            doc = BeautifulSoup(resp.content, 'html5lib')
+            form = doc.select("html > body > form > pre")[0]
+            for section in form.select("table"):
+                section_title = "".join(section.stripped_strings)
+                section_title = "\n".join(["", section_title, "-"*len(section_title)])
+                print(section_title)
+                checkbox_name = ""
+                checkbox_value = ""
+                for tag in section.next_siblings:
+                    if tag.name == u"table":
+                        break
+                    elif tag.name == u"input":
+                        if tag.get(u'type') == u"checkbox":
+                            checkbox_name = tag['name']
+                            checkbox_value = u"x" if ('checked' in tag.attrs) else u"o"
+                            name = ""
+                            value = ""
+                        else:
+                            name = tag['name']
+                            value = ""
+                    elif tag.name == u"select":
+                        options = []
+                        for option in tag.select("option"):
+                            options += ["{0} ({1})".format(option['value'], "".join(option.stripped_strings))]
+                        name = tag[u"name"]
+                        value = ", ".join(options)   
+                    else:
+                        name = ""
+                        value = ""         
+                    if u"tab_"+name == checkbox_name:
+                        checkbox = checkbox_value
+                    else:
+                        checkbox = " "
+                    if name != u"":
+                        print("{0} {1}: {2}".format(checkbox, name, value))
         else:
             instrument_form = self.request("GET", url)
             query_dict = kwargs
