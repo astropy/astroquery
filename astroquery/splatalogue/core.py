@@ -255,7 +255,7 @@ class SplatalogueClass(BaseQuery):
             species_ids = self.get_species_ids(chemical_name, chem_re_flags)
             if len(species_ids) == 0:
                 raise ValueError("No matching chemical species found.")
-            payload['sid[]'] = species_ids.values()
+            payload['sid[]'] = list(species_ids.values())
 
         if energy_min is not None:
             payload['energy_range_from'] = float(energy_min)

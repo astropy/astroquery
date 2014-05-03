@@ -10,7 +10,6 @@ from collections import namedtuple
 import tempfile
 import warnings
 from ..query import BaseQuery
-from ..utils.class_or_instance import property_class_or_instance
 from ..utils import commons
 import astropy.units as u
 from astropy.utils.data import get_pkg_data_filename

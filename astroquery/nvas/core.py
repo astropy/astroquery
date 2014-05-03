@@ -4,7 +4,6 @@ from __future__ import print_function
 import re
 
 import astropy.units as u
-from astropy.io import fits
 from astropy import coordinates as coord
 
 from ..query import BaseQuery
