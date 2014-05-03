@@ -85,7 +85,8 @@ class BaseQuery(object):
 
     def __init__(self):
         self.__session = requests.session()
-        self.cache_location = os.path.join(paths.get_cache_dir(), u'astroquery', self.__class__.__name__.split("Class")[0])
+        self.cache_location = os.path.join(paths.get_cache_dir(), 'astroquery',
+                                           self.__class__.__name__.split("Class")[0])
         if not os.path.exists(self.cache_location):
             os.makedirs(self.cache_location)
         self._cache_active = True

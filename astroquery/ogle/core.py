@@ -183,7 +183,7 @@ class OgleClass(BaseQuery):
             if len(shape) == 1:
                 try:
                     radec = [commons.coord_to_radec(co) for co in coord]
-                    lon,lat = zip(*radec)
+                    lon,lat = list(zip(*radec))
                     return lon, lat
                 except:
                     raise CoordParseError()
@@ -216,7 +216,7 @@ class OgleClass(BaseQuery):
         # Requests returns unicode encoding, return to ascii
         data = [line.split() for line in raw_data[1:]]
         # Transpose while keeping as list of lists
-        data = map(list, zip(*data))
+        data = list(map(list, zip(*data)))
         return data
 
 Ogle = OgleClass()

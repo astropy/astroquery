@@ -1,10 +1,8 @@
 import time
 import os.path
 import webbrowser
-import keyring
 import getpass
 import warnings
-from lxml import html
 from io import StringIO, BytesIO
 
 from astropy.extern import six
@@ -26,6 +24,7 @@ class EsoClass(QueryWithLogin):
         self._survey_list = None
 
     def _activate_form(self, response, form_index=0, inputs={}):
+        from lxml import html
         # Extract form from response
         root = html.document_fromstring(response.content)
         form = root.forms[form_index]
@@ -95,6 +94,8 @@ class EsoClass(QueryWithLogin):
         return response
 
     def _login(self, username):
+        import keyring
+        from lxml import html
         # Get password from keyring or prompt
         password_from_keyring = keyring.get_password("astroquery:www.eso.org", username)
         if password_from_keyring is None:
@@ -127,6 +128,7 @@ class EsoClass(QueryWithLogin):
         instrument_list : list of strings
 
         """
+        from lxml import html
         if self._instrument_list is None:
             instrument_list_response = self.request("GET", "http://archive.eso.org/cms/eso-data/instrument-specific-query-forms.html")
             root = html.document_fromstring(instrument_list_response.content)
@@ -275,7 +277,7 @@ class EsoClass(QueryWithLogin):
             A table where: columns are header keywords, rows are product_ids.
 
         """
-
+        from lxml import html
         _schema_product_ids = schema.Schema(schema.Or(Column, [six.string_types]))
         _schema_product_ids.validate(product_ids)
         # Get all headers
@@ -337,6 +339,7 @@ class EsoClass(QueryWithLogin):
             List of files that have been locally downloaded from the archive.
 
         """
+        from lxml import html
         datasets_to_download = []
         files = []
         # First: Detect datasets already downloaded

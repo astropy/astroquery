@@ -92,10 +92,10 @@ def test_parse_radius_2(radius):
         commons.parse_radius(radius)
 
 @pytest.mark.parametrize(('inv','inunit','outv','outunit'),
-                         zip((1,5,1,5,66,3960),
-                             ('deg','degree','deg','deg','arcmin','arcsec'),
-                             (1,5,60,18000,1.1,1.1),
-                             ('deg',u.deg,'arcmin','arcsec','deg','deg')))
+                         list(zip((1,5,1,5,66,3960),
+                                  ('deg','degree','deg','deg','arcmin','arcsec'),
+                                  (1,5,60,18000,1.1,1.1),
+                                  ('deg',u.deg,'arcmin','arcsec','deg','deg'))))
 def test_radius_to_unit(inv,inunit,outv,outunit):
     x = inv*u.Unit(inunit)
     npt.assert_almost_equal(commons.radius_to_unit(x, outunit), outv)

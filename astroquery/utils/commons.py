@@ -240,13 +240,13 @@ class TableList(list):
         raise TypeError("TableList is immutable.")
 
     def __getslice__(self, slice):
-        return self.values()[slice]
+        return list(self.values())[slice]
 
     def keys(self):
-        return self._dict.keys()
+        return list(self._dict.keys())
 
     def values(self):
-        return self._dict.values()
+        return list(self._dict.values())
 
     def __repr__(self):
         """

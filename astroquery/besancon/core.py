@@ -43,8 +43,8 @@ keyword_defaults = {
     'subspectyp_min': 0,
     'spectyp_max':9,
     'subspectyp_max': 5,
-    'lumi':range(1,8),
-    'sous_pop':range(1,11),
+    'lumi':list(range(1,8)),
+    'sous_pop':list(range(1,11)),
     'iband':8,
     'band0':[8]*9,
     'bandf':[25]*9,
@@ -267,7 +267,7 @@ class BesanconClass(BaseQuery):
 
         # convert all array elements to arrays
         for dummy in range(2):  # deal with nested lists
-            for k, v in request_data.items():
+            for k, v in list(request_data.items()):
                 if isinstance(v, list) or (isinstance(v, tuple) and len(v) > 1):
                     if k in request_data:
                         del request_data[k]
