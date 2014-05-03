@@ -15,9 +15,8 @@ QUERY_URL = ConfigurationItem("Splatalogue web interface URL.",'http://www.cv.nr
 SPLATALOGUE_TIMEOUT = ConfigurationItem('timeout', 60, 'default timeout for connecting to server')
 LINES_LIMIT = ConfigurationItem('Limit to number of lines exported', 10000)
 
-import load_species_table
-
+from . import load_species_table
+from . import utils
 from .core import Splatalogue,SplatalogueClass
-import utils
 
 __all__ = ['Splatalogue','SplatalogueClass']

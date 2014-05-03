@@ -390,14 +390,14 @@ def patch_getreadablefileobj(request):
         def close(self):
             self.file.close()
 
-    def urlopen(x, *args, **kwargs):
+    def monkey_urlopen(x, *args, **kwargs):
         return MockRemote(fitsfilepath, *args, **kwargs)
 
-    urllib.request.urlopen = urlopen
+    urllib.request.urlopen = monkey_urlopen
 
     def closing():
         aud._is_url = _is_url
-        urlopen = _urlopen
+        urllib.request.urlopen = _urlopen
 
     request.addfinalizer(closing)
 
