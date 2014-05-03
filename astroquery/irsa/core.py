@@ -94,6 +94,7 @@ import warnings
 import tempfile
 import xml.etree.ElementTree as tree
 
+from astropy.extern import six
 import astropy.units as u
 import astropy.coordinates as coord
 import astropy.io.votable as votable
@@ -406,7 +407,7 @@ Irsa = IrsaClass()
 
 def _parse_coordinates(coordinates):
 # borrowed from commons.parse_coordinates as from_name wasn't required in this case
-    if isinstance(coordinates, basestring):
+    if isinstance(coordinates, six.string_types):
         try:
             c = coord.ICRS(coordinates)
             warnings.warn("Coordinate string is being interpreted as an ICRS coordinate.")

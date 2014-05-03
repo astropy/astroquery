@@ -1,18 +1,15 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-from ... import simbad
-from ...utils.testing_tools import MockResponse
-
+import os
+import re
+import requests
+from astropy.extern import six
 from astropy.tests.helper import pytest
 import astropy.coordinates as coord
 import astropy.units as u
 from astropy.table import Table
-import sys
-import os
-import re
-import requests
+from ... import simbad
+from ...utils.testing_tools import MockResponse
 from ...exceptions import TableParseError
-from distutils.version import LooseVersion
-is_python3 = (sys.version_info >= (3,))
 
 GALACTIC_COORDS = coord.Galactic(l=-67.02084, b=-29.75447, unit=(u.deg, u.deg))
 ICRS_COORDS = coord.ICRS("05h35m17.3s -05h23m28s")
@@ -115,7 +112,7 @@ def test_parse_result():
                                 'and the error in self.last_table_parse_error.  '
                                 'The attempted parsed result is in self.last_parsed_result.'
                                 '\nException: 7:115: no element found')
-    assert isinstance(simbad.core.Simbad.last_response.content, basestring)
+    assert isinstance(simbad.core.Simbad.last_response.content, six.string_types)
 
 votable_fields = ",".join(simbad.core.Simbad.get_votable_fields())
 

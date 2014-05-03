@@ -1,10 +1,12 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
 import abc
 import pickle
 import hashlib
 import requests
 import os
+from .extern.six import with_metaclass
 from astropy.config import paths
 
 __all__ = ['BaseQuery', 'QueryWithLogin']
@@ -73,14 +75,12 @@ class AstroQuery(object):
         return response
 
 
-class BaseQuery(object):
+class BaseQuery(with_metaclass(abc.ABCMeta, object)):
 
     """
     This is the base class for all the query classes in astroquery. It
     is implemented as an abstract class and must not be directly instantiated.
     """
-
-    __metaclass__ = abc.ABCMeta
 
     def __init__(self):
         self.__session = requests.session()

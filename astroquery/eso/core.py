@@ -7,6 +7,7 @@ import warnings
 from lxml import html
 from io import StringIO, BytesIO
 
+from astropy.extern import six
 from astropy.table import Table, Column
 from astropy.io import ascii
 
@@ -275,7 +276,7 @@ class EsoClass(QueryWithLogin):
 
         """
 
-        _schema_product_ids = schema.Schema(schema.Or(Column, [basestring]))
+        _schema_product_ids = schema.Schema(schema.Or(Column, [six.string_types]))
         _schema_product_ids.validate(product_ids)
         # Get all headers
         result = []
