@@ -2,8 +2,8 @@
 
 import gzip
 import sys
-from ..extern.six import StringIO
-from ..extern.six.moves import urllib
+from astropy.extern.six import StringIO
+from astropy.extern.six.moves import urllib
 from astropy.io import fits
 
 

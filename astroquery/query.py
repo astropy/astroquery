@@ -6,7 +6,7 @@ import pickle
 import hashlib
 import requests
 import os
-from .extern.six import with_metaclass
+from astropy.extern import six
 from astropy.config import paths
 
 __all__ = ['BaseQuery', 'QueryWithLogin']
@@ -75,7 +75,8 @@ class AstroQuery(object):
         return response
 
 
-class BaseQuery(with_metaclass(abc.ABCMeta, object)):
+@six.add_metaclass(abc.ABCMeta)
+class BaseQuery(object):
 
     """
     This is the base class for all the query classes in astroquery. It
