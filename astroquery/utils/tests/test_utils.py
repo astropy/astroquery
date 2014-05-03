@@ -1,6 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import requests
-from astropy.extern.six.moves.urllib.request import urlopen
+from astropy.extern.six.moves import urllib
 from astropy.extern import six
 import astropy.coordinates as coord
 import astropy.units as u
@@ -377,7 +377,7 @@ def patch_getreadablefileobj(request):
     # Monkeypatch hack: ALWAYS treat as a URL
     _is_url = aud._is_url
     aud._is_url = lambda x: True
-    _urlopen = urlopen
+    _urlopen = urllib.request.urlopen
     filesize = os.path.getsize(fitsfilepath)
 
     class MockRemote(object):
@@ -390,10 +390,10 @@ def patch_getreadablefileobj(request):
         def close(self):
             self.file.close()
 
-    def monkey_urlopen(x, *args, **kwargs):
+    def urlopen(x, *args, **kwargs):
         return MockRemote(fitsfilepath, *args, **kwargs)
 
-    urlopen = monkey_urlopen
+    urllib.request.urlopen = urlopen
 
     def closing():
         aud._is_url = _is_url
