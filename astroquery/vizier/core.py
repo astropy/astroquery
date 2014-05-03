@@ -1,12 +1,12 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from __future__ import print_function
 
-import sys
 import os
 import warnings
 import json
 import tempfile
 
+from astropy.extern import six
 import astropy.units as u
 import astropy.coordinates as coord
 import astropy.table as tbl
@@ -22,12 +22,6 @@ from ..utils import schema
 from . import VIZIER_SERVER, VIZIER_TIMEOUT, ROW_LIMIT
 from ..exceptions import TableParseError
 
-PY3 = sys.version_info[0] >= 3
-
-if PY3:
-    stringtypes = (str, bytes)
-else:
-    stringtypes = basestring
 
 __all__ = ['Vizier','VizierClass']
 
@@ -106,7 +100,7 @@ class VizierClass(BaseQuery):
         >>> print(catalog_list)
         {u'J/ApJ/706/83': <astropy.io.votable.tree.Resource at 0x108d4d490>,
          u'J/ApJS/191/232': <astropy.io.votable.tree.Resource at 0x108d50490>}
-        >>> print({k:v.description for k,v in catalog_list.iteritems()})
+        >>> print({k:v.description for k,v in catalog_list.items()})
         {u'J/ApJ/706/83': u'Embedded YSO candidates in W51 (Kang+, 2009)',
          u'J/ApJS/191/232': u'CO survey of W51 molecular cloud (Bieging+, 2010)'}
         """
@@ -219,7 +213,7 @@ class VizierClass(BaseQuery):
         catalog = VizierClass._schema_catalog.validate(catalog)
         center = {}
         columns = []
-        if isinstance(coordinates, coord.SphericalCoordinatesBase) or isinstance(coordinates, basestring):
+        if isinstance(coordinates, coord.SphericalCoordinatesBase) or isinstance(coordinates, six.string_types):
             c = commons.parse_coordinates(coordinates)
             ra = str(c.icrs.ra.degree)
             dec = str(c.icrs.dec.degree)
@@ -361,7 +355,7 @@ class VizierClass(BaseQuery):
         if catalog is None:
             catalog = self.catalog
         if catalog is not None:
-            if isinstance(catalog, stringtypes):
+            if isinstance(catalog, six.string_types):
                 body['-source'] = catalog
             elif isinstance(catalog, list):
                 body['-source'] = ",".join(catalog)
@@ -442,7 +436,7 @@ class VizierClass(BaseQuery):
             commons.suppress_vo_warnings()
         try:
             tf = tempfile.NamedTemporaryFile()
-            if PY3:
+            if six.PY3:
                 # This is an exceedingly confusing section
                 # It is likely to be doubly wrong, but has caused issue #185
                 try:
@@ -529,7 +523,7 @@ class VizierKeyword(list):
 
     @keywords.setter
     def keywords(self, values):
-        if isinstance(values, stringtypes):
+        if isinstance(values, six.string_types):
             values = list(values)
         keys = [key.lower() for key in self.keyword_dict]
         values = [val.lower() for val in values]

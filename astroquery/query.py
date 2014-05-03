@@ -1,10 +1,12 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
 import abc
 import pickle
 import hashlib
 import requests
 import os
+from astropy.extern import six
 from astropy.config import paths
 
 __all__ = ['BaseQuery', 'QueryWithLogin']
@@ -73,6 +75,7 @@ class AstroQuery(object):
         return response
 
 
+@six.add_metaclass(abc.ABCMeta)
 class BaseQuery(object):
 
     """
@@ -80,11 +83,10 @@ class BaseQuery(object):
     is implemented as an abstract class and must not be directly instantiated.
     """
 
-    __metaclass__ = abc.ABCMeta
-
     def __init__(self):
         self.__session = requests.session()
-        self.cache_location = os.path.join(paths.get_cache_dir(), u'astroquery', self.__class__.__name__.split("Class")[0])
+        self.cache_location = os.path.join(paths.get_cache_dir(), 'astroquery',
+                                           self.__class__.__name__.split("Class")[0])
         if not os.path.exists(self.cache_location):
             os.makedirs(self.cache_location)
         self._cache_active = True

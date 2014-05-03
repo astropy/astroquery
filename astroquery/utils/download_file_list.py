@@ -3,8 +3,8 @@ import re
 import string
 import os
 import gzip
-from ..extern.six import StringIO
 
+from astropy.extern.six import StringIO
 import astropy.io.fits as fits
 from .commons import get_readable_fileobj
 

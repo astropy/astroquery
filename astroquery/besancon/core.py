@@ -8,7 +8,7 @@ import re
 import os
 from astropy.io import ascii
 from . import BESANCON_DOWNLOAD_URL, BESANCON_MODEL_FORM, BESANCON_PING_DELAY, BESANCON_TIMEOUT
-import urllib2  # only needed for urllib2.URLError
+from astropy.extern.six.moves.urllib.error import URLError
 
 from ..query import BaseQuery
 from ..utils import commons
@@ -43,8 +43,8 @@ keyword_defaults = {
     'subspectyp_min': 0,
     'spectyp_max':9,
     'subspectyp_max': 5,
-    'lumi':range(1,8),
-    'sous_pop':range(1,11),
+    'lumi':list(range(1,8)),
+    'sous_pop':list(range(1,11)),
     'iband':8,
     'band0':[8]*9,
     'bandf':[25]*9,
@@ -122,7 +122,7 @@ class BesanconClass(BaseQuery):
                 with commons.get_readable_fileobj(url, cache=True) as f:
                     results = f.read()
                 break
-            except urllib2.URLError:
+            except URLError:
                 if verbose:
                     sys.stdout.write(u"Waiting %0.1fs for model to finish (elapsed wait time %0.1fs, total wait time %0.1f)\r" % (self.ping_delay,elapsed_time,time.time()-t0))
                     sys.stdout.flush()
@@ -223,7 +223,7 @@ class BesanconClass(BaseQuery):
 
         # create a new keyword dict based on inputs + defaults
         kwd = copy.copy(keyword_defaults)
-        for key, val in kwargs.iteritems():
+        for key, val in kwargs.items():
             if key in keyword_defaults:
                 kwd[key] = val
             elif verbose and not key in ('retrieve_file',):
@@ -249,7 +249,7 @@ class BesanconClass(BaseQuery):
             else:
                 raise ValueError('Invalid color %s' % key)
 
-        for (key, val) in mag_limits.iteritems():
+        for (key, val) in mag_limits.items():
             if key in mag_order:
                 kwd['band0'][mag_order.index(key)] = val[0]
                 kwd['bandf'][mag_order.index(key)] = val[1]
@@ -266,8 +266,8 @@ class BesanconClass(BaseQuery):
         request_data = kwd.copy()
 
         # convert all array elements to arrays
-        for dummy in xrange(2):  # deal with nested lists
-            for k, v in request_data.items():
+        for dummy in range(2):  # deal with nested lists
+            for k, v in list(request_data.items()):
                 if isinstance(v, list) or (isinstance(v, tuple) and len(v) > 1):
                     if k in request_data:
                         del request_data[k]
@@ -314,7 +314,7 @@ def parse_besancon_dict(bd):
     """
 
     http_dict = []
-    for key, val in bd.iteritems():
+    for key, val in bd.items():
         if isinstance(val, list):
             if "[]" in key:
                 for listval in val:

@@ -33,7 +33,7 @@ def async_to_sync(cls):
 
         return newmethod
 
-    methods = cls.__dict__.keys()
+    methods = list(cls.__dict__.keys())
 
     for k in list(methods):
         newmethodname = k.replace("_async","")

@@ -4,19 +4,15 @@ Common functions and classes that are required by all query classes.
 """
 
 import re
-import sys
-import requests
 import warnings
 import os
 import shutil
 import socket
 
-try:
-    from urllib2 import URLError
-except ImportError:
-    # Python 3
-    from urllib.error import URLError
+import requests
 
+from astropy.extern.six.moves.urllib_error import URLError
+from astropy.extern import six
 import astropy.units as u
 from astropy import coordinates as coord
 from astropy.utils import OrderedDict
@@ -24,15 +20,8 @@ import astropy.utils.data as aud
 from astropy.io import fits,votable
 
 from ..exceptions import TimeoutError
-from ..extern import six
 from .. import version
 
-PY3 = sys.version_info[0] >= 3
-
-if PY3:
-    stringtypes = (str, bytes)
-else:
-    stringtypes = basestring
 
 __all__ = ['send_request',
            'parse_coordinates',
@@ -179,7 +168,7 @@ def parse_coordinates(coordinates):
     astropy.units.UnitsException
     TypeError
     """
-    if isinstance(coordinates, stringtypes):
+    if isinstance(coordinates, six.string_types):
         try:
             c = coord.ICRS.from_name(coordinates)
         except coord.name_resolve.NameResolveError:
@@ -251,13 +240,13 @@ class TableList(list):
         raise TypeError("TableList is immutable.")
 
     def __getslice__(self, slice):
-        return self.values()[slice]
+        return list(self.values())[slice]
 
     def keys(self):
-        return self._dict.keys()
+        return list(self._dict.keys())
 
     def values(self):
-        return self._dict.values()
+        return list(self._dict.values())
 
     def __repr__(self):
         """

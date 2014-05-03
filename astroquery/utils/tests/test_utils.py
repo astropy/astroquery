@@ -1,6 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-import urllib2
 import requests
+from astropy.extern.six.moves import urllib
+from astropy.extern import six
 import astropy.coordinates as coord
 import astropy.units as u
 from ...utils import chunk_read, chunk_report
@@ -34,7 +35,7 @@ class SimpleQueryClass(object):
 
 @remote_data
 def test_utils():
-    response = urllib2.urlopen('http://www.ebay.com')
+    response = urlopen('http://www.ebay.com')
     C = chunk_read(response, report_hook=chunk_report)
     print(C)
 
@@ -91,10 +92,10 @@ def test_parse_radius_2(radius):
         commons.parse_radius(radius)
 
 @pytest.mark.parametrize(('inv','inunit','outv','outunit'),
-                         zip((1,5,1,5,66,3960),
-                             ('deg','degree','deg','deg','arcmin','arcsec'),
-                             (1,5,60,18000,1.1,1.1),
-                             ('deg',u.deg,'arcmin','arcsec','deg','deg')))
+                         list(zip((1,5,1,5,66,3960),
+                                  ('deg','degree','deg','deg','arcmin','arcsec'),
+                                  (1,5,60,18000,1.1,1.1),
+                                  ('deg',u.deg,'arcmin','arcsec','deg','deg'))))
 def test_radius_to_unit(inv,inunit,outv,outunit):
     x = inv*u.Unit(inunit)
     npt.assert_almost_equal(commons.radius_to_unit(x, outunit), outv)
@@ -235,7 +236,7 @@ docstr2 = """
         >>> print(catalog_list)
         {u'J/ApJ/706/83': <astropy.io.votable.tree.Resource at 0x108d4d490>,
          u'J/ApJS/191/232': <astropy.io.votable.tree.Resource at 0x108d50490>}
-        >>> print({k:v.description for k,v in catalog_list.iteritems()})
+        >>> print({k:v.description for k,v in catalog_list.items()})
         {u'J/ApJ/706/83': u'Embedded YSO candidates in W51 (Kang+, 2009)',
          u'J/ApJS/191/232': u'CO survey of W51 molecular cloud (Bieging+, 2010)'}
         """
@@ -262,7 +263,7 @@ docstr2_out = textwrap.dedent("""
         >>> print(catalog_list)
         {u'J/ApJ/706/83': <astropy.io.votable.tree.Resource at 0x108d4d490>,
          u'J/ApJS/191/232': <astropy.io.votable.tree.Resource at 0x108d50490>}
-        >>> print({k:v.description for k,v in catalog_list.iteritems()})
+        >>> print({k:v.description for k,v in catalog_list.items()})
         {u'J/ApJ/706/83': u'Embedded YSO candidates in W51 (Kang+, 2009)',
          u'J/ApJS/191/232': u'CO survey of W51 molecular cloud (Bieging+, 2010)'}
 
@@ -366,7 +367,7 @@ def test_payload_return(cls=DummyQuery):
     result = DummyQuery.query(get_query_payload=True)
     assert isinstance(result, dict)
     result = DummyQuery.query(get_query_payload=False)
-    assert isinstance(result, basestring)
+    assert isinstance(result, six.string_types)
 
 fitsfilepath = os.path.join(os.path.dirname(__file__),
                             '../../sdss/tests/data/emptyfile.fits')
@@ -376,7 +377,7 @@ def patch_getreadablefileobj(request):
     # Monkeypatch hack: ALWAYS treat as a URL
     _is_url = aud._is_url
     aud._is_url = lambda x: True
-    _urlopen = urllib2.urlopen
+    _urlopen = urllib.request.urlopen
     filesize = os.path.getsize(fitsfilepath)
 
     class MockRemote(object):
@@ -389,14 +390,14 @@ def patch_getreadablefileobj(request):
         def close(self):
             self.file.close()
 
-    def urlopen(x, *args, **kwargs):
+    def monkey_urlopen(x, *args, **kwargs):
         return MockRemote(fitsfilepath, *args, **kwargs)
 
-    urllib2.urlopen = urlopen
+    urllib.request.urlopen = monkey_urlopen
 
     def closing():
         aud._is_url = _is_url
-        urllib2.urlopen = _urlopen
+        urllib.request.urlopen = _urlopen
 
     request.addfinalizer(closing)
 
