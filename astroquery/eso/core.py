@@ -207,7 +207,7 @@ class EsoClass(QueryWithLogin):
 
 
 
-    def query_instrument(self, instrument, open_form=False, help=False, **kwargs):
+    def query_instrument(self, instrument, column_filters={}, columns=[], open_form=False, help=False):
         """
         Query instrument specific raw data contained in the ESO archive.
 
@@ -216,6 +216,10 @@ class EsoClass(QueryWithLogin):
         instrument : string
             Name of the instrument to query, one of the names returned by
             `list_instruments()`.
+        column_filters : dict
+            Constraints applied to the query.
+        columns : list of strings
+            Columns returned by the query.
         open_form : bool
             If `True`, this will open in your browser the query form
             for the given instrument, and return `None`.
@@ -276,8 +280,11 @@ class EsoClass(QueryWithLogin):
                         print("{0} {1}: {2}".format(checkbox, name, value))
         else:
             instrument_form = self.request("GET", url)
-            query_dict = kwargs
+            query_dict = {}
+            query_dict.update(column_filters)
             query_dict["wdbo"] = "csv/download"
+            for k in columns:
+                query_dict["tab_"+k] = True
             if self.ROW_LIMIT >= 0:
                 query_dict["max_rows_returned"] = self.ROW_LIMIT
             else:
