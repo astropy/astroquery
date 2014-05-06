@@ -242,6 +242,9 @@ class EsoClass(QueryWithLogin):
         if open_form:
             webbrowser.open(url)
         elif help:
+            print("List of the column_filters parameters accepted by the {0} instrument query.".format(instrument))
+            print("The presence of a column in the result table can be controlled if prefixed with a [ ] checkbox.")
+            print("The default columns in the result table are shown as already ticked: [x].")
             resp = self.request("GET", url)
             doc = BeautifulSoup(resp.content, 'html5lib')
             form = doc.select("html > body > form > pre")[0]
@@ -257,7 +260,7 @@ class EsoClass(QueryWithLogin):
                     elif tag.name == u"input":
                         if tag.get(u'type') == u"checkbox":
                             checkbox_name = tag['name']
-                            checkbox_value = u"x" if ('checked' in tag.attrs) else u"o"
+                            checkbox_value = u"[x]" if ('checked' in tag.attrs) else u"[ ]"
                             name = ""
                             value = ""
                         else:
@@ -275,7 +278,7 @@ class EsoClass(QueryWithLogin):
                     if u"tab_"+name == checkbox_name:
                         checkbox = checkbox_value
                     else:
-                        checkbox = " "
+                        checkbox = "   "
                     if name != u"":
                         print("{0} {1}: {2}".format(checkbox, name, value))
         else:
