@@ -3,3 +3,4 @@ astropy
 requests
 lxml
 keyring
+beautifulsoup4
