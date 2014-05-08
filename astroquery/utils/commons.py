@@ -93,7 +93,7 @@ def parse_radius(radius):
 
     Raises
     ------
-    astropy.units.UnitsException
+    astropy.units.UnitsError
     astropy.coordinates.errors.UnitsError
     AttributeError
     """
@@ -102,49 +102,6 @@ def parse_radius(radius):
     except coord.errors.UnitsError:
         # astropy <0.3 compatibility: Angle can't be instantiated with a unit object
         return coord.Angle(radius.to(u.degree), unit=u.degree)
-
-
-def radius_to_unit(radius, unit='degree'):
-    """
-    Helper function: Parse a radius, then return its value in degrees
-
-    Parameters
-    ----------
-    radius : str/astropy.units.Quantity
-        The radius of a region
-
-    Returns
-    -------
-    Floating point scalar value of radius in degrees
-    """
-    rad = parse_radius(radius)
-    # This is a hack to deal with astropy pre/post PR#1006
-    # the try/except clauses are to deal with python3
-    # (note that this falls under the "I really, really wish I didn't have to
-    # deal with unicode right now" category)
-
-    try:
-        unit = unit.decode()
-    except AttributeError:
-        pass # (unit has no attribute "decode": it is already a unicode string?)
-
-    try:
-        # don't check for attrs if unit is not a string and cannot be coerced to one
-        assert isinstance(unit,str)
-        if hasattr(rad,unit):
-            return getattr(rad,unit)
-        elif hasattr(rad,unit+'s'):
-            return getattr(rad,unit+'s')
-    except AssertionError:
-        pass # try the other if
-    
-    # major hack to deal with <0.3 Angle's not having deg/arcmin/etc equivs.
-    if hasattr(rad,'degree'):
-        return (rad.degree * u.degree).to(unit).value
-    elif hasattr(rad,'to'):
-        return rad.to(unit).value
-    else:
-        raise TypeError("Radius is an invalid type.")
 
 
 def parse_coordinates(coordinates):
@@ -165,7 +122,7 @@ def parse_coordinates(coordinates):
 
     Raises
     ------
-    astropy.units.UnitsException
+    astropy.units.UnitsError
     TypeError
     """
     if isinstance(coordinates, six.string_types):
@@ -175,11 +132,11 @@ def parse_coordinates(coordinates):
             try:
                 c = coord.ICRS(coordinates)
                 warnings.warn("Coordinate string is being interpreted as an ICRS coordinate.")
-            except u.UnitsException:
+            except u.UnitsError:
                 warnings.warn("Only ICRS coordinates can be entered as strings\n"
                               "For other systems please use the appropriate "
                               "astropy.coordinates object")
-                raise u.UnitsException
+                raise u.UnitsError
     elif isinstance(coordinates, coord.SphericalCoordinatesBase):
         c = coordinates
     else:

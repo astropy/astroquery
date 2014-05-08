@@ -725,6 +725,6 @@ def _parse_dimension(dim):
         try:
             new_dim = commons.parse_radius(dim).degree
             dim_in_min = u.Quantity(value=new_dim, unit=u.deg).to(u.arcmin).value
-        except (u.UnitsException, coord.errors.UnitsError, AttributeError):
-            raise u.UnitsException("Dimension not in proper units")
+        except (u.UnitsError, coord.errors.UnitsError, AttributeError):
+            raise u.UnitsError("Dimension not in proper units")
     return dim_in_min

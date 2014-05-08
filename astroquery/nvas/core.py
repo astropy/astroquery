@@ -238,12 +238,4 @@ def _parse_radius(radius):
     radius_in_min : float
         The value of the radius in arcminutes.
     """
-    if isinstance(radius, u.Quantity) and radius.unit in u.deg.find_equivalent_units():
-        radius_in_min = commons.radius_to_unit(radius, u.arcmin)
-    # otherwise must be an Angle or be specified in hours...
-    else:
-        try:
-            radius_in_min = commons.radius_to_unit(radius, u.arcmin)
-        except (u.UnitsException, coord.errors.UnitsError, AttributeError):
-            raise u.UnitsException("Radius not in proper units")
-    return radius_in_min
+    return coord.Angle(radius).to('arcmin').value

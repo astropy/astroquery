@@ -184,7 +184,7 @@ class NedClass(BaseQuery):
                 request_payload['search_type'] = 'Near Position Search'
                 request_payload['in_equinox'] = equinox
                 request_payload['radius'] = _parse_radius(radius)
-            except (u.UnitsException, TypeError):
+            except (u.UnitsError, TypeError):
                 raise TypeError("Coordinates not specified correctly")
         if get_query_payload:
             return request_payload
@@ -654,15 +654,7 @@ def _parse_radius(radius):
     radius_in_min : float
         The value of the radius in arcminutes.
     """
-    if isinstance(radius, u.Quantity) and radius.unit in u.deg.find_equivalent_units():
-        radius_in_min = radius.to(u.arcmin).value
-    # otherwise must be an Angle or be specified in hours...
-    else:
-        try:
-            radius_in_min = commons.radius_to_unit(radius,u.arcmin)
-        except (u.UnitsException, coord.errors.UnitsError, AttributeError):
-            raise u.UnitsException("Dimension not in proper units")
-    return radius_in_min
+    return coord.Angle(radius).to('arcmin').value
 
 
 

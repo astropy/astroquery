@@ -101,7 +101,7 @@ def _parse_coordinates(coordinates):
         # now c has some subclass of astropy.coordinate
         # get ra, dec and frame
         return _fermi_format_coords(c)
-    except (u.UnitsException, TypeError):
+    except (u.UnitsError, TypeError):
         raise Exception("Coordinates not specified correctly")
 
 def _fermi_format_coords(c):

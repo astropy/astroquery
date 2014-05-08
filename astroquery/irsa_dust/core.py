@@ -316,13 +316,7 @@ class IrsaDustClass(BaseQuery):
         payload = {"locstr": coordinate}  # check if this is resolvable?
         # check if radius is given with proper units
         if radius is not None:
-            try:
-                reg_size = commons.radius_to_unit(radius, 'degree')
-            # TODO: clean this up so that it works with Astropy 0.3 and later:
-            # astropy v0.2.x throws UnitsError and v>0.2.x throws
-            # UnitsException
-            except (u.UnitsException, coord.errors.UnitsError, AttributeError):
-                raise Exception("Radius not specified with proper unit.")
+            reg_size = coord.Angle(radius).to('degree').value
             # check if radius falls in the acceptable range
             if reg_size < 2 or reg_size > 37.5:
                 raise ValueError("Radius (in any unit) must be in the"

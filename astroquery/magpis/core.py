@@ -4,6 +4,7 @@ from __future__ import print_function
 from io import BytesIO
 
 import astropy.units as u
+import astropy.coordinates as coord
 from astropy.io import fits
 
 
@@ -67,7 +68,7 @@ class MagpisClass(BaseQuery):
         ra_dec_str = str(c.galactic.lonangle.degree) + ' ' + str(c.galactic.latangle.degree)
         request_payload["RA"] = ra_dec_str
         request_payload["Equinox"] = "Galactic"
-        request_payload["ImageSize"] = commons.radius_to_unit(image_size,'arcmin')
+        request_payload["ImageSize"] = coord.Angle(image_size).to('arcmin').value
         request_payload["ImageType"] = "FITS File"
         request_payload["MaxImSize"] = self.maximsize if maximsize is None else maximsize
         return request_payload

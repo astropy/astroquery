@@ -687,7 +687,7 @@ def _parse_coordinates(coordinates):
         # now c has some subclass of astropy.coordinate
         # get ra, dec and frame
         return _get_frame_coords(c)
-    except (u.UnitsException, TypeError):
+    except (u.UnitsError, TypeError):
         raise ValueError("Coordinates not specified correctly")
 
 
@@ -732,7 +732,7 @@ def _parse_radius(radius):
             return str(total_min) + unit
         if unit == 's':
             return str(abs(angle.dms[2])) + unit
-    except (u.UnitsException, coord.errors.UnitsError, AttributeError):
+    except (coord.errors.UnitsError, AttributeError):
         raise ValueError("Radius specified incorrectly")
 
 error_regex = re.compile(r'(?ms)\[(?P<line>\d+)\]\s?(?P<msg>.+?)(\[|\Z)')

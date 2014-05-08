@@ -148,6 +148,7 @@ class EsoClass(QueryWithLogin):
         survey_list : list of strings
 
         """
+        from lxml import html
         if self._survey_list is None:
             survey_list_response = self.request("GET", "http://archive.eso.org/wdb/wdb/adp/phase3_main/form")
             root = html.document_fromstring(survey_list_response.content)
