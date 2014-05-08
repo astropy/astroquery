@@ -11,6 +11,7 @@ Description: Access Sloan Digital Sky Survey database online.
 
 import numpy as np
 from astropy import units as u
+import astropy.coordinates as coord
 from astropy.table import Table
 import io
 from ..query import BaseQuery
@@ -653,7 +654,7 @@ class SDSSClass(BaseQuery):
 
             ra = coordinates.ra.degree
             dec = coordinates.dec.degree
-            dr = commons.radius_to_unit(radius, 'degree')
+            dr = coord.Angle(radius).to('degree').value
 
             q_where = ('WHERE (p.ra between %g and %g) and '
                        '(p.dec between %g and %g)'
