@@ -93,7 +93,7 @@ def parse_radius(radius):
 
     Raises
     ------
-    astropy.units.UnitsException
+    astropy.units.UnitsError
     astropy.coordinates.errors.UnitsError
     AttributeError
     """
@@ -122,7 +122,7 @@ def parse_coordinates(coordinates):
 
     Raises
     ------
-    astropy.units.UnitsException
+    astropy.units.UnitsError
     TypeError
     """
     if isinstance(coordinates, six.string_types):
@@ -132,11 +132,11 @@ def parse_coordinates(coordinates):
             try:
                 c = coord.ICRS(coordinates)
                 warnings.warn("Coordinate string is being interpreted as an ICRS coordinate.")
-            except u.UnitsException:
+            except u.UnitsError:
                 warnings.warn("Only ICRS coordinates can be entered as strings\n"
                               "For other systems please use the appropriate "
                               "astropy.coordinates object")
-                raise u.UnitsException
+                raise u.UnitsError
     elif isinstance(coordinates, coord.SphericalCoordinatesBase):
         c = coordinates
     else:

@@ -411,7 +411,7 @@ def _parse_coordinates(coordinates):
         try:
             c = coord.ICRS(coordinates)
             warnings.warn("Coordinate string is being interpreted as an ICRS coordinate.")
-        except u.UnitsException as ex:
+        except u.UnitsError as ex:
             warnings.warn("Only ICRS coordinates can be entered as strings\n"
                           "For other systems please use the appropriate "
                           "astropy.coordinates object")
@@ -461,6 +461,6 @@ def _parse_dimension(dim):
         try:
             new_dim = commons.parse_radius(dim)
             dim = u.Quantity(new_dim.degree, u.Unit('degree'))
-        except (u.UnitsException, coord.errors.UnitsError, AttributeError):
-            raise u.UnitsException("Dimension not in proper units")
+        except (u.UnitsError, coord.errors.UnitsError, AttributeError):
+            raise u.UnitsError("Dimension not in proper units")
     return dim

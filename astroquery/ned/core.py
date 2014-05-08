@@ -184,7 +184,7 @@ class NedClass(BaseQuery):
                 request_payload['search_type'] = 'Near Position Search'
                 request_payload['in_equinox'] = equinox
                 request_payload['radius'] = _parse_radius(radius)
-            except (u.UnitsException, TypeError):
+            except (u.UnitsError, TypeError):
                 raise TypeError("Coordinates not specified correctly")
         if get_query_payload:
             return request_payload
