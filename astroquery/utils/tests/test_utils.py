@@ -71,14 +71,6 @@ def test_parse_coordinates_3():
         commons.parse_coordinates(9.8 * u.kg)
 
 
-@pytest.mark.parametrize(('radius'),
-                         ['5d0m0s',
-                          5 * u.deg
-                          ])
-def test_parse_radius_1(radius):
-    assert commons.radius_to_unit(radius,'degree') == 5
-
-
 # this test fails to fail appropriately, apparently...
 # I get a "DID NOT RAISE" failure running locally,
 # even though every interactive test I have tried DOES
@@ -90,15 +82,6 @@ def test_parse_radius_1(radius):
 def test_parse_radius_2(radius):
     with pytest.raises(Exception):
         commons.parse_radius(radius)
-
-@pytest.mark.parametrize(('inv','inunit','outv','outunit'),
-                         list(zip((1,5,1,5,66,3960),
-                                  ('deg','degree','deg','deg','arcmin','arcsec'),
-                                  (1,5,60,18000,1.1,1.1),
-                                  ('deg',u.deg,'arcmin','arcsec','deg','deg'))))
-def test_radius_to_unit(inv,inunit,outv,outunit):
-    x = inv*u.Unit(inunit)
-    npt.assert_almost_equal(commons.radius_to_unit(x, outunit), outv)
 
 def test_send_request_post(monkeypatch):
     def mock_post(url, data, timeout, headers={}):
