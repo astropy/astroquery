@@ -221,11 +221,11 @@ class EsoClass(QueryWithLogin):
         columns : list of strings
             Columns returned by the query.
         open_form : bool
-            If `True`, this will open in your browser the query form
-            for the given instrument, and return `None`.
+            If `True`, opens in your default browser the query form
+            for the requested instrument.
         help : bool
-            If `True`, this will print all the options that one can use to query
-            the requested `instrument`, and return `None`.
+            If `True`, prints all the parameters accepted in
+            `column_filters` and `columns` for the requested `instrument`.
 
         Returns
         -------
