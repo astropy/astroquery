@@ -363,6 +363,11 @@ class EsoClass(QueryWithLogin):
             print("Staging request...")
             with suspend_cache(self):  # Never cache staging operations
                 data_confirmation_form = self._activate_form(data_retrieval_form, form_index=-1, inputs={"list_of_datasets": "\n".join(datasets_to_download)})
+                root = html.document_fromstring(data_confirmation_form.content)
+                login_button = root.xpath('//input[@value="LOGIN"]')
+                if login_button:
+                    raise ValueError("Not logged in.  You must be logged in to download data.")
+                # TODO: There may be another screen for Not Authorized; that should be included too
                 data_download_form = self._activate_form(data_confirmation_form, form_index=-1)
                 root = html.document_fromstring(data_download_form.content)
                 state = root.xpath("//span[@id='requestState']")[0].text
