@@ -20,7 +20,7 @@ For now, it supports the following:
 
 
 Requirements
-------------
+============
 
 The following packages are required for the use of this module:
 
@@ -29,7 +29,7 @@ The following packages are required for the use of this module:
 
 
 Authentication with ESO User Portal
------------------------------------
+===================================
 
 Whereas querying the ESO database is fully open, accessing actual datasets requires
 authentication with the ESO User Portal (https://www.eso.org/sso/login).
@@ -59,52 +59,130 @@ interaction with the ESO archive.
 
 
 Query and direct retrieval of instrument specific raw data
-----------------------------------------------------------
+==========================================================
+
+Identifying available instruments
+---------------------------------
 
 The direct retrieval of datasets is better explained with a running example, continuing from the
-authentication example above. The first thing to do is to identify the instrument to query.
+authentication example above. The first thing to do is to identify the instrument to query. The
+list of available instruments can be queried with the :meth:`~astroquery.eso.EsoClass.list_instrument`
+method.
 
 .. code-block:: python
 
     >>> eso.list_instruments()
     ['fors1', 'fors2', 'vimos', 'omegacam', 'hawki', 'isaac', 'naco', 'visir', 'vircam',
     'apex', 'uves', 'giraffe', 'xshooter', 'crires', 'kmos', 'sinfoni', 'amber', 'midi']
-    >>> instrument = 'amber'
 
-Then, the list of available datasets can be queried for this instrument, using additional constraints.
-These constraints are based on the instrument specific options that can be found is the instrument query forms.
+In the example above, 18 instruments are available, they correspond to the instrument listed on
+the following web page: http://archive.eso.org/cms/eso-data/instrument-specific-query-forms.html.
 
-Note: these instrument query forms can be opened in your web browser directly using the ``show_form`` option of
-the :meth:`~astroquery.eso.EsoClass.query_instrument` method. For now, this should help with the identification of the acceptable keywords.
+Inspecting available query options
+----------------------------------
 
-In the following, datasets near Sgr A* are searched for in the amber archive, after limiting the number of
-returned rows to 10.
+Once an instrument is chosen, ``midi`` in our case, the query options for that instrument can be
+inspected by setting the ``help=True`` keyword of the :meth:`~astroquery.eso.EsoClass.query_instrument`
+method. 
 
 .. code-block:: python
 
-    >>> eso.ROW_LIMIT = 10
-    >>> table = eso.query_instrument('amber', target="Sgr A*")
-    >>> table.pprint(max_width=300)
-     Object      Target Ra Dec           Target l b          ProgId                DP.ID               OB.ID   DPR.CATG    DPR.TYPE      DPR.TECH    ISS.CONF.STATION1 ISS.CONF.STATION2 ISS.CONF.STATION3 INS.GRAT1.WLEN  DIMM S-avg
-    ------- ----------------------- -------------------- ------------- ----------------------------- --------- -------- ------------- -------------- ----------------- ----------------- ----------------- -------------- -----------
-    GC_IRS7 17:45:40.09 -29:00:22.1 359.945774 -0.045458 076.B-0863(A) AMBER.2006-03-14T07:40:03.741 200156177  SCIENCE FRNSRC,BASE12 INTERFEROMETRY                U1                U3                U4           -1.0 0.64 [0.01]
-    GC_IRS7 17:45:40.09 -29:00:22.1 359.945774 -0.045458 076.B-0863(A) AMBER.2006-03-14T07:40:19.830 200156177  SCIENCE FRNSRC,BASE12 INTERFEROMETRY                U1                U3                U4           -1.0 0.64 [0.01]
-    GC_IRS7 17:45:40.09 -29:00:22.1 359.945774 -0.045458 076.B-0863(A) AMBER.2006-03-14T07:40:35.374 200156177  SCIENCE FRNSRC,BASE12 INTERFEROMETRY                U1                U3                U4           -1.0 0.64 [0.01]
-    GC_IRS7 17:45:40.09 -29:00:22.1 359.945774 -0.045458 076.B-0863(A) AMBER.2006-03-14T07:40:50.932 200156177  SCIENCE FRNSRC,BASE12 INTERFEROMETRY                U1                U3                U4           -1.0 0.68 [0.01]
-    GC_IRS7 17:45:40.09 -29:00:22.1 359.945774 -0.045458 076.B-0863(A) AMBER.2006-03-14T07:41:07.444 200156177  SCIENCE FRNSRC,BASE12 INTERFEROMETRY                U1                U3                U4           -1.0 0.68 [0.01]
-    GC_IRS7 17:45:40.09 -29:00:22.1 359.945774 -0.045458 076.B-0863(A) AMBER.2006-03-14T07:41:24.179 200156177  SCIENCE FRNSRC,BASE12 INTERFEROMETRY                U1                U3                U4           -1.0 0.68 [0.01]
-    GC_IRS7 17:45:40.09 -29:00:22.1 359.945774 -0.045458 076.B-0863(A) AMBER.2006-03-14T07:41:39.523 200156177  SCIENCE FRNSRC,BASE12 INTERFEROMETRY                U1                U3                U4           -1.0 0.68 [0.01]
-    GC_IRS7 17:45:40.09 -29:00:22.1 359.945774 -0.045458 076.B-0863(A) AMBER.2006-03-14T07:41:55.312 200156177  SCIENCE FRNSRC,BASE12 INTERFEROMETRY                U1                U3                U4           -1.0 0.69 [0.01]
-    GC_IRS7 17:45:40.09 -29:00:22.1 359.945774 -0.045458 076.B-0863(A) AMBER.2006-03-14T07:42:12.060 200156177  SCIENCE FRNSRC,BASE12 INTERFEROMETRY                U1                U3                U4           -1.0 0.69 [0.01]
-    GC_IRS7 17:45:40.09 -29:00:22.1 359.945774 -0.045458 076.B-0863(A) AMBER.2006-03-14T07:42:29.119 200156177  SCIENCE FRNSRC,BASE12 INTERFEROMETRY                U1                U3                U4           -1.0 0.69 [0.01]
+    >>> eso.query_instrument('midi', help=True)
+    List of the column_filters parameters accepted by the amber instrument query.
+    The presence of a column in the result table can be controlled if prefixed with a [ ] checkbox.
+    The default columns in the result table are shown as already ticked: [x].
+    
+    Target Information
+    ------------------
+        target: 
+        resolver: simbad (SIMBAD name), ned (NED name), none (OBJECT as specified by the observer)
+        coord_sys: eq (Equatorial (FK5)), gal (Galactic)
+        coord1: 
+        coord2: 
+        box: 
+        format: sexagesimal (Sexagesimal), decimal (Decimal)
+    [x] wdb_input_file: 
+    
+    Observation  and proposal parameters
+    ------------------------------------
+    [ ] night: 
+        stime: 
+        starttime: 01 (01 hrs [UT]), 02 (02 hrs [UT]), 03 (03 hrs [UT]), 04 (04 hrs [UT]), 05 (05 hrs [UT]), 06 (06 hrs [UT]), 07 (07 hrs [UT]), 08 (08 hrs [UT]), 09 (09 hrs [UT]), 10 (10 hrs [UT]), 11 (11 hrs [UT]), 12 (12 hrs [UT]), 13 (13 hrs [UT]), 14 (14 hrs [UT]), 15 (15 hrs [UT]), 16 (16 hrs [UT]), 17 (17 hrs [UT]), 18 (18 hrs [UT]), 19 (19 hrs [UT]), 20 (20 hrs [UT]), 21 (21 hrs [UT]), 22 (22 hrs [UT]), 23 (23 hrs [UT]), 24 (24 hrs [UT])
+        etime: 
+        endtime: 01 (01 hrs [UT]), 02 (02 hrs [UT]), 03 (03 hrs [UT]), 04 (04 hrs [UT]), 05 (05 hrs [UT]), 06 (06 hrs [UT]), 07 (07 hrs [UT]), 08 (08 hrs [UT]), 09 (09 hrs [UT]), 10 (10 hrs [UT]), 11 (11 hrs [UT]), 12 (12 hrs [UT]), 13 (13 hrs [UT]), 14 (14 hrs [UT]), 15 (15 hrs [UT]), 16 (16 hrs [UT]), 17 (17 hrs [UT]), 18 (18 hrs [UT]), 19 (19 hrs [UT]), 20 (20 hrs [UT]), 21 (21 hrs [UT]), 22 (22 hrs [UT]), 23 (23 hrs [UT]), 24 (24 hrs [UT])
+    [x] prog_id: 
+    [ ] prog_type: % (Any), 0 (Normal), 1 (GTO), 2 (DDT), 3 (ToO), 4 (Large), 5 (Short), 6 (Calibration)
+    [ ] obs_mode: % (All modes), s (Service), v (Visitor)
+    [ ] pi_coi: 
+        pi_coi_name: PI_only (as PI only), none (as PI or CoI)
+    [ ] prog_title: 
 
-In the next step, the first two datasets are selected, using their data product IDs, and retrieved from the ESO archive.
+Only the first two sections, of the parameters accepted by the ``midi`` instrument query,
+are shown in the example above: ``Target Information`` and ``Observation and proposal parameters``.
+
+As stated at the beginning of the help message, the parameters accepted by the query are given just before
+the first ``:`` sign (e.g. ``target``, ``resolver``, ``stime``, ``etime``...). When a parameter is prefixed
+by ``[ ]``, the presence of the associated column in the query result can be controlled.
+
+Note: the instrument query forms can be opened in your web browser directly using the ``show_form`` option of
+the :meth:`~astroquery.eso.EsoClass.query_instrument` method. This should also help with the identification of
+acceptable keywords.
+
+Querying with constraints
+-------------------------
+
+It is now time to query the ``midi`` instrument for datasets. In the following example, observations of
+target ``NGC 4151`` between ``2007-01-01`` and ``2008-01-01`` are searched, and the query is configured to
+return the observation date column.
+
+.. code-block:: python
+
+    >>> table = eso.query_instrument('midi', column_filters={'target':'NGC 4151', 'stime':'2007-01-01', 'etime':'2008-01-01'}, columns=['night'])
+    >>> print(len(table)
+    38
+    >>> print(table.columns)
+    <TableColumns names=('Object','Target Ra Dec','Target l b','DATE OBS','ProgId','DP.ID','OB.ID','OBS.TARG.NAME','DPR.CATG','DPR.TYPE','DPR.TECH','INS.MODE','DIMM S-avg')>
+    >>> table.pprint(max_width=100)
+             Object              Target Ra Dec           Target l b      ... INS.MODE  DIMM S-avg
+    ----------------------- ----------------------- -------------------- ... -------- -----------
+                    NGC4151 12:10:32.63 +39:24:20.7 155.076719 75.063247 ... STARINTF 0.69 [0.01]
+                    NGC4151 12:10:32.63 +39:24:20.7 155.076719 75.063247 ... STARINTF 0.68 [0.01]
+                    NGC4151 12:10:32.63 +39:24:20.7 155.076719 75.063247 ... STARINTF 0.68 [0.01]
+                    NGC4151 12:10:32.63 +39:24:20.7 155.076719 75.063247 ... STARINTF 0.69 [0.01]
+                    NGC4151 12:10:32.63 +39:24:20.7 155.076719 75.063247 ... STARINTF 0.69 [0.01]
+                    NGC4151 12:10:32.63 +39:24:20.7 155.076719 75.063247 ... STARINTF 0.74 [0.01]
+                    NGC4151 12:10:32.63 +39:24:20.7 155.076719 75.063247 ... STARINTF 0.69 [0.01]
+                    NGC4151 12:10:32.63 +39:24:20.7 155.076719 75.063247 ... STARINTF 0.66 [0.01]
+                    NGC4151 12:10:32.63 +39:24:20.7 155.076719 75.063247 ... STARINTF 0.64 [0.01]
+                    NGC4151 12:10:32.63 +39:24:20.7 155.076719 75.063247 ... STARINTF 0.60 [0.01]
+                    NGC4151 12:10:32.63 +39:24:20.7 155.076719 75.063247 ... STARINTF 0.59 [0.01]
+                        ...                     ...                  ... ...      ...         ...
+     TRACK,OBJECT,DISPERSED 12:10:32.63 +39:24:20.7 155.076719 75.063247 ... STARINTF 0.70 [0.01]
+     TRACK,OBJECT,DISPERSED 12:10:32.63 +39:24:20.7 155.076719 75.063247 ... STARINTF 0.72 [0.01]
+    SEARCH,OBJECT,DISPERSED 12:10:32.63 +39:24:20.7 155.076719 75.063247 ... STARINTF 0.62 [0.01]
+    SEARCH,OBJECT,DISPERSED 12:10:32.63 +39:24:20.7 155.076719 75.063247 ... STARINTF 0.61 [0.01]
+    SEARCH,OBJECT,DISPERSED 12:10:32.63 +39:24:20.7 155.076719 75.063247 ... STARINTF 0.54 [0.01]
+    SEARCH,OBJECT,DISPERSED 12:10:32.63 +39:24:20.7 155.076719 75.063247 ... STARINTF 0.53 [0.01]
+     TRACK,OBJECT,DISPERSED 12:10:32.63 +39:24:20.7 155.076719 75.063247 ... STARINTF 0.51 [0.01]
+     TRACK,OBJECT,DISPERSED 12:10:32.63 +39:24:20.7 155.076719 75.063247 ... STARINTF 0.51 [0.01]
+     TRACK,OBJECT,DISPERSED 12:10:32.63 +39:24:20.7 155.076719 75.063247 ... STARINTF 0.51 [0.01]
+          PHOTOMETRY,OBJECT 12:10:32.63 +39:24:20.7 155.076719 75.063247 ... STARINTF 0.54 [0.01]
+          PHOTOMETRY,OBJECT 12:10:32.63 +39:24:20.7 155.076719 75.063247 ... STARINTF 0.54 [0.01]
+
+And indeed, 38 datasets are found, and the ``DATE OBS`` column is in the result table.
+
+Downloading identified datasets
+-------------------------------
+
+Continuing from the previous example, the first two datasets are selected, using their data product IDs ``DP.ID``, and retrieved from the ESO archive.
 
 .. code-block:: python
 
     >>> data_files = eso.data_retrieval(table['DP.ID'][:2])
-    Downloading AMBER.2006-03-14T07:40:03.741.fits.Z...
-    Downloading AMBER.2006-03-14T07:40:19.830.fits.Z...
+    Staging request...
+    Downloading files...
+    Downloading MIDI.2007-02-07T07:01:51.000.fits.Z...
+    Downloading MIDI.2007-02-07T07:02:49.000.fits.Z...
     Done!
 
 The file names, returned in data_files, points to the decompressed datasets (without the .Z extension) that have been locally downloaded.
@@ -112,7 +190,7 @@ They are ready to be used with `~astropy.io.fits`.
 
 
 Obtaining extended information on data products
------------------------------------------------
+===============================================
 
 Only a small subset of the keywords presents in the data products can be obtained
 with :meth:`~astroquery.eso.EsoClass.query_instrument`.
@@ -124,20 +202,33 @@ This method is detailed in the example below, continuing with the previously obt
 
     >>> table_headers = eso.get_headers(table['DP.ID'])
     >>> table_headers.pprint()
-                 ARCFILE               BITPIX ...    TELESCOP      UTC
-    ---------------------------------- ------ ... ------------- ---------
-    AMBER.2006-03-14T07:40:03.741.fits     16 ... ESO-VLTI-U134   27600.0
-    AMBER.2006-03-14T07:40:19.830.fits     16 ... ESO-VLTI-U134   27616.0
-    AMBER.2006-03-14T07:40:35.374.fits     16 ... ESO-VLTI-U134   27632.0
-    AMBER.2006-03-14T07:40:50.932.fits     16 ... ESO-VLTI-U134 27646.667
-    AMBER.2006-03-14T07:41:07.444.fits     16 ... ESO-VLTI-U134   27664.0
-    AMBER.2006-03-14T07:41:24.179.fits     16 ... ESO-VLTI-U134 27680.667
-    AMBER.2006-03-14T07:41:39.523.fits     16 ... ESO-VLTI-U134   27696.0
-    AMBER.2006-03-14T07:41:55.312.fits     16 ... ESO-VLTI-U134   27712.0
-    AMBER.2006-03-14T07:42:12.060.fits     16 ... ESO-VLTI-U134   27728.0
-    AMBER.2006-03-14T07:42:29.119.fits     16 ... ESO-VLTI-U134   27746.0
+                 ARCFILE              BITPIX ...   TELESCOP     UTC  
+    --------------------------------- ------ ... ------------ -------
+    MIDI.2007-02-07T07:01:51.000.fits     16 ... ESO-VLTI-U23 25300.5
+    MIDI.2007-02-07T07:02:49.000.fits     16 ... ESO-VLTI-U23 25358.5
+    MIDI.2007-02-07T07:03:30.695.fits     16 ... ESO-VLTI-U23 25358.5
+    MIDI.2007-02-07T07:05:47.000.fits     16 ... ESO-VLTI-U23 25538.5
+    MIDI.2007-02-07T07:06:28.695.fits     16 ... ESO-VLTI-U23 25538.5
+    MIDI.2007-02-07T07:09:03.000.fits     16 ... ESO-VLTI-U23 25732.5
+    MIDI.2007-02-07T07:09:44.695.fits     16 ... ESO-VLTI-U23 25732.5
+    MIDI.2007-02-07T07:13:09.000.fits     16 ... ESO-VLTI-U23 25978.5
+    MIDI.2007-02-07T07:13:50.695.fits     16 ... ESO-VLTI-U23 25978.5
+    MIDI.2007-02-07T07:15:55.000.fits     16 ... ESO-VLTI-U23 26144.5
+    MIDI.2007-02-07T07:16:36.694.fits     16 ... ESO-VLTI-U23 26144.5
+                                  ...    ... ...          ...     ...
+    MIDI.2007-02-07T07:51:13.485.fits     16 ... ESO-VLTI-U23 28190.5
+    MIDI.2007-02-07T07:52:27.992.fits     16 ... ESO-VLTI-U23 28190.5
+    MIDI.2007-02-07T07:56:21.000.fits     16 ... ESO-VLTI-U23 28572.5
+    MIDI.2007-02-07T07:57:35.485.fits     16 ... ESO-VLTI-U23 28572.5
+    MIDI.2007-02-07T07:59:46.000.fits     16 ... ESO-VLTI-U23 28778.5
+    MIDI.2007-02-07T08:01:00.486.fits     16 ... ESO-VLTI-U23 28778.5
+    MIDI.2007-02-07T08:03:42.000.fits     16 ... ESO-VLTI-U23 29014.5
+    MIDI.2007-02-07T08:04:56.506.fits     16 ... ESO-VLTI-U23 29014.5
+    MIDI.2007-02-07T08:06:11.013.fits     16 ... ESO-VLTI-U23 29014.5
+    MIDI.2007-02-07T08:08:19.000.fits     16 ... ESO-VLTI-U23 29288.5
+    MIDI.2007-02-07T08:09:33.506.fits     16 ... ESO-VLTI-U23 29288.5
     >>> len(table_headers.columns)
-    570
+    340
 
 As shown above, for each data product ID (``DP.ID``), the full header (570 columns in our case) of the archive
 FITS file is collected. In the above table ``table_headers``, there are as many rows as in the column ``table['DP.ID']``.
