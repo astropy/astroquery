@@ -30,6 +30,16 @@ class TestEso:
         assert 'VVV' in surveys
         assert result_s is not None
 
+    def test_nologin():
+        # WARNING: this test will fail if you haven't cleared your cache and
+        # you have downloaded this file!
+        eso = Eso()
+
+        with pytest.raises(ValueError) as exc:
+            eso.data_retrieval('AMBER.2006-03-14T07:40:19.830')
+
+        assert exc.value.args[0] == "Not logged in.  You must be logged in to download data."
+
     def test_empty_return(self):
         # test for empty return with an object from the North
         eso = Eso()
