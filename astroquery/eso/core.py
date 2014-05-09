@@ -3,6 +3,7 @@ import os.path
 import webbrowser
 import getpass
 import warnings
+from bs4 import BeautifulSoup
 from io import StringIO, BytesIO
 
 from astropy.extern import six
@@ -48,25 +49,26 @@ class EsoClass(QueryWithLogin):
                 fmt = 'post'  # post(url, params=payload)
         # Extract payload from form
         payload = []
-        for key in form.inputs.keys():
+        for form_input in form.inputs:
+            key = form_input.name
             value = None
             is_file = False
-            if isinstance(form.inputs[key], html.InputElement):
-                value = form.inputs[key].value
-                if 'type' in form.inputs[key].attrib:
-                    is_file = (form.inputs[key].attrib['type'] == 'file')
-            elif isinstance(form.inputs[key], html.SelectElement):
-                if isinstance(form.inputs[key].value, html.MultipleSelectOptions):
+            if isinstance(form_input, html.InputElement):
+                value = form_input.value
+                if 'type' in form_input.attrib:
+                    is_file = (form_input.attrib['type'] == 'file')
+            elif isinstance(form_input, html.SelectElement):
+                if isinstance(form_input.value, html.MultipleSelectOptions):
                     value = []
-                    for v in form.inputs[key].value:
+                    for v in form_input.value:
                         value += [v]
                 else:
-                    value = form.inputs[key].value
+                    value = form_input.value
                     if value is None:
-                        value = form.inputs[key].value_options[0]
+                        value = form_input.value_options[0]
             if key in inputs.keys():
                 value = "{0}".format(inputs[key])
-            if value is not None:
+            if (key is not None) and (value is not None):
                 if fmt == 'multipart/form-data':
                     if is_file:
                         payload += [(key, ('', '', 'application/octet-stream'))]
@@ -205,7 +207,7 @@ class EsoClass(QueryWithLogin):
 
 
 
-    def query_instrument(self, instrument, open_form=False, **kwargs):
+    def query_instrument(self, instrument, column_filters={}, columns=[], open_form=False, help=False):
         """
         Query instrument specific raw data contained in the ESO archive.
 
@@ -214,9 +216,16 @@ class EsoClass(QueryWithLogin):
         instrument : string
             Name of the instrument to query, one of the names returned by
             `list_instruments()`.
+        column_filters : dict
+            Constraints applied to the query.
+        columns : list of strings
+            Columns returned by the query.
         open_form : bool
-            If `True`, this will open in your browser the query form
-            for the given instrument, and return `None`.
+            If `True`, opens in your default browser the query form
+            for the requested instrument.
+        help : bool
+            If `True`, prints all the parameters accepted in
+            `column_filters` and `columns` for the requested `instrument`.
 
         Returns
         -------
@@ -232,10 +241,53 @@ class EsoClass(QueryWithLogin):
         table = None
         if open_form:
             webbrowser.open(url)
+        elif help:
+            print("List of the column_filters parameters accepted by the {0} instrument query.".format(instrument))
+            print("The presence of a column in the result table can be controlled if prefixed with a [ ] checkbox.")
+            print("The default columns in the result table are shown as already ticked: [x].")
+            resp = self.request("GET", url)
+            doc = BeautifulSoup(resp.content, 'html5lib')
+            form = doc.select("html > body > form > pre")[0]
+            for section in form.select("table"):
+                section_title = "".join(section.stripped_strings)
+                section_title = "\n".join(["", section_title, "-"*len(section_title)])
+                print(section_title)
+                checkbox_name = ""
+                checkbox_value = ""
+                for tag in section.next_siblings:
+                    if tag.name == u"table":
+                        break
+                    elif tag.name == u"input":
+                        if tag.get(u'type') == u"checkbox":
+                            checkbox_name = tag['name']
+                            checkbox_value = u"[x]" if ('checked' in tag.attrs) else u"[ ]"
+                            name = ""
+                            value = ""
+                        else:
+                            name = tag['name']
+                            value = ""
+                    elif tag.name == u"select":
+                        options = []
+                        for option in tag.select("option"):
+                            options += ["{0} ({1})".format(option['value'], "".join(option.stripped_strings))]
+                        name = tag[u"name"]
+                        value = ", ".join(options)   
+                    else:
+                        name = ""
+                        value = ""         
+                    if u"tab_"+name == checkbox_name:
+                        checkbox = checkbox_value
+                    else:
+                        checkbox = "   "
+                    if name != u"":
+                        print("{0} {1}: {2}".format(checkbox, name, value))
         else:
             instrument_form = self.request("GET", url)
-            query_dict = kwargs
+            query_dict = {}
+            query_dict.update(column_filters)
             query_dict["wdbo"] = "csv/download"
+            for k in columns:
+                query_dict["tab_"+k] = True
             if self.ROW_LIMIT >= 0:
                 query_dict["max_rows_returned"] = self.ROW_LIMIT
             else:
