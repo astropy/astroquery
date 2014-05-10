@@ -2,19 +2,42 @@
 import os
 from ...eso import Eso
 from astropy.tests.helper import pytest
+from ...utils.testing_tools import MockResponse
 
 CACHE_PATH = os.path.join(os.path.dirname(__file__), 'data')
 
+def data_path(filename):
+        data_dir = os.path.join(os.path.dirname(__file__), 'data')
+        return os.path.join(data_dir, filename)
+
+DATA_FILES = {'http://archive.eso.org/wdb/wdb/eso/amber/form':
+              'data/amber_form.html'}
+
+def eso_request(request_type, url):
+    with open(data_path(DATA_FILES[url]),'r') as f:
+        response = MockResponse(content=f.read(), url=url)
+    return response
+    
+#@pytest.fixture
+#def patch_get(request):
+#    mp = request.getfuncargvalue("monkeypatch")
+#    mp.setattr(Eso, 'request', eso_request)
+#    return mp
+
 # This test should attempt to access the internet and therefore should fail
 # (_activate_form always connects to the internet)
-@pytest.mark.xfail
-def test_SgrAstar():
+#@pytest.mark.xfail
+def test_SgrAstar(monkeypatch):
     # Local caching prevents a remote query here
 
     eso = Eso()
+
+    # monkeypatch instructions from https://pytest.org/latest/monkeypatch.html
+    monkeypatch.setattr(eso, 'request', eso_request)
     # set up local cache path to prevent remote query
     eso.cache_location = CACHE_PATH
 
+    # the failure should occur here
     result = eso.query_instrument('amber', target='Sgr A*')
     
     # test that max_results = 50
