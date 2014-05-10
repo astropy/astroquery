@@ -3,7 +3,7 @@ Contributing to Astroquery
 The first official release of astroquery occurred in September 2013.
 
 Please see `astropy's contributing guildelines
-<http://www.astropy.org/contributing.html>`__ for a general guide to the
+<http://www.astropy.org/contribute.html>`__ for a general guide to the
 workflow involving git, etc.  Everything below is astroquery-specific.
 
 New Features
