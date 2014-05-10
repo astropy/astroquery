@@ -2,6 +2,7 @@
 import os
 from astropy.tests.helper import pytest, remote_data
 from ...eso import Eso
+from ...exceptions import LoginError
 
 CACHE_PATH = os.path.join(os.path.dirname(__file__), 'data')
 
@@ -30,12 +31,12 @@ class TestEso:
         assert 'VVV' in surveys
         assert result_s is not None
 
-    def test_nologin():
+    def test_nologin(self):
         # WARNING: this test will fail if you haven't cleared your cache and
         # you have downloaded this file!
         eso = Eso()
 
-        with pytest.raises(ValueError) as exc:
+        with pytest.raises(LoginError) as exc:
             eso.data_retrieval('AMBER.2006-03-14T07:40:19.830')
 
         assert exc.value.args[0] == "Not logged in.  You must be logged in to download data."
