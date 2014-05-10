@@ -4,11 +4,10 @@ from ...eso import Eso
 from astropy.tests.helper import pytest
 from ...utils.testing_tools import MockResponse
 
-CACHE_PATH = os.path.join(os.path.dirname(__file__), 'data')
+DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
 
 def data_path(filename):
-        data_dir = os.path.join(os.path.dirname(__file__), 'data')
-        return os.path.join(data_dir, filename)
+    return os.path.join(DATA_DIR, filename)
 
 DATA_FILES = {'http://archive.eso.org/wdb/wdb/eso/amber/form':
               'data/amber_form.html'}
@@ -35,7 +34,7 @@ def test_SgrAstar(monkeypatch):
     # monkeypatch instructions from https://pytest.org/latest/monkeypatch.html
     monkeypatch.setattr(eso, 'request', eso_request)
     # set up local cache path to prevent remote query
-    eso.cache_location = CACHE_PATH
+    eso.cache_location = DATA_DIR
 
     # the failure should occur here
     result = eso.query_instrument('amber', target='Sgr A*')
