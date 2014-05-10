@@ -16,7 +16,7 @@ DATA_FILES = {'GET': {'http://archive.eso.org/wdb/wdb/eso/amber/form':
               }
 
 def eso_request(request_type, url, **kwargs):
-    with open(data_path(DATA_FILES[request_type][url]),'r') as f:
+    with open(data_path(DATA_FILES[request_type][url]),'rb') as f:
         response = MockResponse(content=f.read(), url=url)
     return response
     
