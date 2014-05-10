@@ -6,6 +6,7 @@ from astropy.tests.helper import pytest
 CACHE_PATH = os.path.join(os.path.dirname(__file__), 'data')
 
 # This test should attempt to access the internet and therefore should fail
+# (_activate_form always connects to the internet)
 @pytest.mark.xfail
 def test_SgrAstar():
     # Local caching prevents a remote query here
