@@ -9,6 +9,7 @@ from astropy.extern import six
 from astropy.table import Table, Column
 from astropy.io import ascii
 
+from ..exceptions import LoginError
 from ..utils import schema, system_tools
 from ..query import QueryWithLogin, suspend_cache
 from . import ROW_LIMIT
@@ -366,7 +367,7 @@ class EsoClass(QueryWithLogin):
                 root = html.document_fromstring(data_confirmation_form.content)
                 login_button = root.xpath('//input[@value="LOGIN"]')
                 if login_button:
-                    raise ValueError("Not logged in.  You must be logged in to download data.")
+                    raise LoginError("Not logged in.  You must be logged in to download data.")
                 # TODO: There may be another screen for Not Authorized; that should be included too
                 data_download_form = self._activate_form(data_confirmation_form, form_index=-1)
                 root = html.document_fromstring(data_download_form.content)
