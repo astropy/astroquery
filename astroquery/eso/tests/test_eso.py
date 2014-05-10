@@ -9,11 +9,14 @@ DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
 def data_path(filename):
     return os.path.join(DATA_DIR, filename)
 
-DATA_FILES = {'http://archive.eso.org/wdb/wdb/eso/amber/form':
-              'data/amber_form.html'}
+DATA_FILES = {'GET': {'http://archive.eso.org/wdb/wdb/eso/amber/form':
+                      'amber_form.html',},
+              'POST': {'http://archive.eso.org/wdb/wdb/eso/amber/query':
+                       'amber_sgra_query.tbl'}
+              }
 
-def eso_request(request_type, url):
-    with open(data_path(DATA_FILES[url]),'r') as f:
+def eso_request(request_type, url, **kwargs):
+    with open(data_path(DATA_FILES[request_type][url]),'r') as f:
         response = MockResponse(content=f.read(), url=url)
     return response
     
