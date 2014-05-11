@@ -24,12 +24,12 @@ class TestEso:
         # in principle, we should run both of these tests
         #result_i = eso.query_instrument('midi', target='Sgr A*')
         # Equivalent, does not depend on SESAME:
-        result_i = eso.query_instrument('midi', ra=266.41681662/15, dec=-29.00782497)
+        result_i = eso.query_instrument('midi', coord1=266.41681662, coord2=-29.00782497)
 
         surveys = eso.list_surveys()
         #result_s = eso.query_survey('VVV', target='Sgr A*')
         # Equivalent, does not depend on SESAME:
-        result_s = eso.query_survey('VVV', ra=266.41681662/15, dec=-29.00782497)
+        result_s = eso.query_survey('VVV', coord1=266.41681662, coord2=-29.00782497)
 
         assert 'midi' in instruments
         assert result_i is not None
@@ -50,7 +50,9 @@ class TestEso:
         # test for empty return with an object from the North
         eso = Eso()
         surveys = eso.list_surveys()
-        result_s = eso.query_survey(surveys[0], target='M51')
+        #result_s = eso.query_survey(surveys[0], target='M51')
+        # Avoid SESAME
+        result_s = eso.query_survey(surveys[0], coord1=202.469575, coord2=47.195258)
 
         assert result_s is None
 
