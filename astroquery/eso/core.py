@@ -299,7 +299,6 @@ class EsoClass(QueryWithLogin):
             instrument_response = self._activate_form(instrument_form,
                                                       form_index=0,
                                                       inputs=query_dict)
-            import ipdb; ipdb.set_trace()
             if b"NETWORKPROBLEM" in instrument_response.content:
                 raise RemoteServiceError("The query resulted in a network "
                                          "problem; the service may be offline.")
