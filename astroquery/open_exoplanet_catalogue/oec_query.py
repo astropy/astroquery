@@ -32,6 +32,15 @@ __all__ = ['query_system_xml','query_planet', 'query_system_to_obj',\
 aliases = None
 
 def find_system_for_alias(alias):
+    """ (str) -> str
+    Find the system for the given object, whether it be a star, binary or planet
+
+    find_system_for_alias("Kepler-20 b")
+    >>>"Kepler-20"
+
+    find_system_for_alias("KOI-546 c")
+    >>>"Kepler-182"
+    """
     global aliases
     alias = alias.strip()
     if aliases is None:
@@ -48,6 +57,10 @@ def find_system_for_alias(alias):
             return a[1]
     
 def get_xml_for_system(system,category='systems'):
+    """"(str, *str)-> str
+    Returns the xml file as a str for the given system
+    """
+
     try:
         url = OEC_SERVER() + category + "/" +\
                 urllib2.quote(system) + ".xml"
@@ -61,25 +74,34 @@ def get_xml_for_system(system,category='systems'):
         return xml
 
 def xml_element_to_dict(e):
-    """Converts xml tree to dictionary"""
+    """(str) -> dict
+    Converts xml tree to dictionary
+    """
+
     d = {}
     for c in e.getchildren():
         d[c.tag] = c.text
     return d
     
 def query_system_xml(system_id,category='systems'):
-    """ Queries the database and returns the XML data of the system """
+    """ (str, *str) -> System 
+    Queries the database and returns the XML data of the system 
+    """
 
     system = find_system_for_alias(system_id)
     return get_xml_for_system(system,category)
 
 def query_system_to_obj(system_id, category='systems'):
-    """Queries the database and returns a System object of the system"""
+    """ (str, *str) -> System 
+    Queries the database and returns a System object of the system
+    """
 
     return xml_to_obj(query_system_xml(system_id,category))
 
 def query_planet(planet_id,category='systems'):
-    """ Queries the database and returns the planet data as a python dictionary """
+    """ (str, *str) -> dict
+    Queries the database and returns the planet data as a python dictionary 
+    """
 
     system = find_system_for_alias(planet_id)
     xml = get_xml_for_system(system,category)
@@ -94,7 +116,9 @@ def query_planet(planet_id,category='systems'):
     return None
 
 def query_planet_to_obj(planet_id, category='systems'):
-    """Queries the database and returns the planet data as a System type"""
+    """(str, *str) -> System
+    Queries the database and returns the planet data as a System type
+    """
 
     system = find_system_for_alias(planet_id)
     xml = get_xml_for_system(system,category)
