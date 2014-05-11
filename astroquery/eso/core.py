@@ -287,6 +287,8 @@ class EsoClass(QueryWithLogin):
             instrument_form = self.request("GET", url)
             query_dict = {}
             query_dict.update(column_filters)
+            # TODO: replace this with individually parsed kwargs
+            query_dict.update(kwargs)
             query_dict["wdbo"] = "csv/download"
             for k in columns:
                 query_dict["tab_"+k] = True

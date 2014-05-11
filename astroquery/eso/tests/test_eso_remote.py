@@ -49,7 +49,7 @@ class TestEso:
 
         assert result_s is None
 
-    def test_SgrAstar_remotevslocal():
+    def test_SgrAstar_remotevslocal(self):
     
         eso = Eso()
         # Remote version
@@ -64,8 +64,7 @@ class TestEso:
         assert result1 == result2
     
 
-
-    def test_list_instruments():
+    def test_list_instruments(self):
         # If this test fails, we may simply need to update it
     
         inst = Eso.list_instruments()
