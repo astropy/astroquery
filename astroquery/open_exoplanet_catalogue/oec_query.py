@@ -9,6 +9,8 @@ The function query_planet searches for a planet and returns its properties as a 
 
 The function query_system_to_obj returns a System object as defined by oec2py.
 
+The function query_planet_to_obj returns a System object of a planet as defined by oec2py
+
 ------------------
 :Author: Hanno Rein (hanno@hanno-rein.de)
 """
