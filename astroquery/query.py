@@ -43,7 +43,11 @@ class AstroQuery(object):
         self._hash = None
     
     def request(self, session, cache_location=None):
-        return AstroResponse(session.request(self.method, self.url, params=self.params, data=self.data, headers=self.headers, files=self.files))
+        return AstroResponse(session.request(self.method, self.url,
+                                             params=self.params,
+                                             data=self.data,
+                                             headers=self.headers,
+                                             files=self.files))
     
     def hash(self):
         if self._hash is None:

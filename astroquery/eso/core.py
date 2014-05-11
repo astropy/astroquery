@@ -10,6 +10,7 @@ from astropy.extern import six
 from astropy.table import Table, Column
 from astropy.io import ascii
 
+from ..exceptions import LoginError
 from ..utils import schema, system_tools
 from ..query import QueryWithLogin, suspend_cache
 from . import ROW_LIMIT
@@ -207,7 +208,8 @@ class EsoClass(QueryWithLogin):
 
 
 
-    def query_instrument(self, instrument, column_filters={}, columns=[], open_form=False, help=False):
+    def query_instrument(self, instrument, column_filters={}, columns=[],
+                         open_form=False, help=False, **kwargs):
         """
         Query instrument specific raw data contained in the ESO archive.
 
@@ -415,6 +417,11 @@ class EsoClass(QueryWithLogin):
             print("Staging request...")
             with suspend_cache(self):  # Never cache staging operations
                 data_confirmation_form = self._activate_form(data_retrieval_form, form_index=-1, inputs={"list_of_datasets": "\n".join(datasets_to_download)})
+                root = html.document_fromstring(data_confirmation_form.content)
+                login_button = root.xpath('//input[@value="LOGIN"]')
+                if login_button:
+                    raise LoginError("Not logged in.  You must be logged in to download data.")
+                # TODO: There may be another screen for Not Authorized; that should be included too
                 data_download_form = self._activate_form(data_confirmation_form, form_index=-1)
                 root = html.document_fromstring(data_download_form.content)
                 state = root.xpath("//span[@id='requestState']")[0].text
