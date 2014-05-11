@@ -208,7 +208,8 @@ class EsoClass(QueryWithLogin):
 
 
 
-    def query_instrument(self, instrument, column_filters={}, columns=[], open_form=False, help=False):
+    def query_instrument(self, instrument, column_filters={}, columns=[],
+                         open_form=False, help=False, **kwargs):
         """
         Query instrument specific raw data contained in the ESO archive.
 
