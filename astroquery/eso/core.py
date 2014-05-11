@@ -10,7 +10,7 @@ from astropy.extern import six
 from astropy.table import Table, Column
 from astropy.io import ascii
 
-from ..exceptions import LoginError
+from ..exceptions import LoginError, RemoteServiceError
 from ..utils import schema, system_tools
 from ..query import QueryWithLogin, suspend_cache
 from . import ROW_LIMIT
@@ -299,7 +299,11 @@ class EsoClass(QueryWithLogin):
             instrument_response = self._activate_form(instrument_form,
                                                       form_index=0,
                                                       inputs=query_dict)
-            if b"# No data returned !" not in instrument_response.content:
+            import ipdb; ipdb.set_trace()
+            if b"NETWORKPROBLEM" in instrument_response.content:
+                raise RemoteServiceError("The query resulted in a network "
+                                         "problem; the service may be offline.")
+            elif b"# No data returned !" not in instrument_response.content:
                 content = []
                 # The first line is garbage, don't know why
                 for line in instrument_response.content.split(b'\n')[1:]:

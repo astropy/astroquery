@@ -21,10 +21,15 @@ class TestEso:
         eso.cache_location = CACHE_PATH
 
         instruments = eso.list_instruments()
-        result_i = eso.query_instrument('midi', target='Sgr A*')
+        # in principle, we should run both of these tests
+        #result_i = eso.query_instrument('midi', target='Sgr A*')
+        # Equivalent, does not depend on SESAME:
+        result_i = eso.query_instrument('midi', ra=266.41681662/15, dec=-29.00782497)
 
         surveys = eso.list_surveys()
-        result_s = eso.query_survey('VVV', target='Sgr A*')
+        #result_s = eso.query_survey('VVV', target='Sgr A*')
+        # Equivalent, does not depend on SESAME:
+        result_s = eso.query_survey('VVV', ra=266.41681662/15, dec=-29.00782497)
 
         assert 'midi' in instruments
         assert result_i is not None
