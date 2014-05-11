@@ -61,12 +61,14 @@ class TestEso:
         eso = Eso()
         # Remote version
         instruments = eso.list_instruments()
-        result1 = eso.query_instrument(instruments[0], target='Sgr A*')
+        #result1 = eso.query_instrument(instruments[0], target='Sgr A*')
+        result1 = eso.query_instrument(instruments[0], coord1=266.41681662, coord2=-29.00782497)
     
         # Local version
         eso.cache_location = CACHE_PATH
         instruments = eso.list_instruments()
-        result2 = eso.query_instrument(instruments[0], target='Sgr A*')
+        #result2 = eso.query_instrument(instruments[0], target='Sgr A*')
+        result2 = eso.query_instrument(instruments[0], coord1=266.41681662, coord2=-29.00782497)
     
         assert result1 == result2
     
