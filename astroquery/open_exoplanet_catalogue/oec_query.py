@@ -7,6 +7,7 @@ The function query_system_xml simply returns the xml file from one of the server
 
 The function query_planet searches for a planet and returns its properties as a python dictionary.
 
+The function query_system_to_obj returns a System object as defined by oec2py.
 
 ------------------
 :Author: Hanno Rein (hanno@hanno-rein.de)
@@ -14,7 +15,9 @@ The function query_planet searches for a planet and returns its properties as a 
 from __future__ import print_function
 from . import OEC_SERVER
 from . import OEC_META_SERVER
-import sys,urllib2
+from oec2py import xml_to_obj
+import sys
+import urllib2
 import csv
 import xml.etree.ElementTree as ET
 
@@ -23,7 +26,8 @@ class CatalogueOpeningError(Exception):
     """Exception for error in opening open exoplanet catalogue"""
     pass
 
-__all__ = ['query_system_xml','query_planet']
+__all__ = ['query_system_xml','query_planet', 'query_system_to_obj',\
+        'query_planet_to_obj']
 
 aliases = None
 
@@ -69,6 +73,10 @@ def query_system_xml(system_id,category='systems'):
     system = find_system_for_alias(system_id)
     return get_xml_for_system(system,category)
 
+def query_system_to_obj(system_id, category='systems'):
+    """Queries the database and returns a System object of the system"""
+
+    return xml_to_obj(query_system_xml(system_id,category))
 
 def query_planet(planet_id,category='systems'):
     """ Queries the database and returns the planet data as a python dictionary """
@@ -85,5 +93,13 @@ def query_planet(planet_id,category='systems'):
 
     return None
 
+def query_planet_to_obj(planet_id, category='systems'):
+    """Queries the database and returns the planet data as a System type"""
+
+    system = find_system_for_alias(planet_id)
+    xml = get_xml_for_system(system,category)
+    sysobj = xml_to_obj(xml)
+    return sysobj.find_system(planet_id.strip(), "planet")
 
 
+    return None
