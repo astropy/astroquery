@@ -21,10 +21,15 @@ class TestEso:
         eso.cache_location = CACHE_PATH
 
         instruments = eso.list_instruments()
-        result_i = eso.query_instrument('midi', target='Sgr A*')
+        # in principle, we should run both of these tests
+        #result_i = eso.query_instrument('midi', target='Sgr A*')
+        # Equivalent, does not depend on SESAME:
+        result_i = eso.query_instrument('midi', coord1=266.41681662, coord2=-29.00782497)
 
         surveys = eso.list_surveys()
-        result_s = eso.query_survey('VVV', target='Sgr A*')
+        #result_s = eso.query_survey('VVV', target='Sgr A*')
+        # Equivalent, does not depend on SESAME:
+        result_s = eso.query_survey('VVV', coord1=266.41681662, coord2=-29.00782497)
 
         assert 'midi' in instruments
         assert result_i is not None
@@ -45,27 +50,30 @@ class TestEso:
         # test for empty return with an object from the North
         eso = Eso()
         surveys = eso.list_surveys()
-        result_s = eso.query_survey(surveys[0], target='M51')
+        #result_s = eso.query_survey(surveys[0], target='M51')
+        # Avoid SESAME
+        result_s = eso.query_survey(surveys[0], coord1=202.469575, coord2=47.195258)
 
         assert result_s is None
 
-    def test_SgrAstar_remotevslocal():
+    def test_SgrAstar_remotevslocal(self):
     
         eso = Eso()
         # Remote version
         instruments = eso.list_instruments()
-        result1 = eso.query_instrument(instruments[0], target='Sgr A*')
+        #result1 = eso.query_instrument(instruments[0], target='Sgr A*')
+        result1 = eso.query_instrument(instruments[0], coord1=266.41681662, coord2=-29.00782497)
     
         # Local version
         eso.cache_location = CACHE_PATH
         instruments = eso.list_instruments()
-        result2 = eso.query_instrument(instruments[0], target='Sgr A*')
+        #result2 = eso.query_instrument(instruments[0], target='Sgr A*')
+        result2 = eso.query_instrument(instruments[0], coord1=266.41681662, coord2=-29.00782497)
     
         assert result1 == result2
     
 
-
-    def test_list_instruments():
+    def test_list_instruments(self):
         # If this test fails, we may simply need to update it
     
         inst = Eso.list_instruments()
