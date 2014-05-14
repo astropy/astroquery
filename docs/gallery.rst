@@ -89,3 +89,19 @@ Example 4
      ALFALFA 5-206  0.00000000   0.00000000
      ALFALFA 5-241  0.00000000   0.00000000
      ALFALFA 5-293  0.00000000   0.00000000
+
+Example 5
++++++++++
+
+This illustrates a simple usage of the open_exoplanet_catalogue module.
+
+Finding the mass of a specific planet:
+
+.. code-block:: python
+
+        >>> from astroquery import open_exoplanet_catalogue as oec
+        >>> cata = oec.get_catalogue()
+        >>> for planet in cata.findall(".//planet[name='Kepler-68 b']"):
+        >>>     print planet.findvalue('mass')
+        0.02105109
+
