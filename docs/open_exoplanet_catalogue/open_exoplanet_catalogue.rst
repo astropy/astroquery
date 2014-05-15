@@ -15,15 +15,12 @@ To start import the catalog and generate the catalogue.
 
         from astroquery import open_exoplanet_catalogue as oec
 
+        # getting the catalogue from the default remote source
         cata = oec.get_catalogue()
 
-The source of the catalogue can be changed from remote to local, and vice versa.
+        # getting the catalogue from a local path
+        cata = oec.get_catalogue("path/to/file/systems.xml.gz")
 
-.. code-block:: python
-
-        oec.change_to_local("path/to/catalogue/systems.xml.gz")
-
-        oec.change_to_remote()
 
 
 Examples
@@ -70,8 +67,8 @@ Prints the name, radius and mass of the planet Kepler-68 b.
 
 .. code-block:: python
 
-    for planet in cata.findall(".//planet[name='Kepler-68 b']"):
-        print planet.findtext('name'), planet.findvalue('radius'), planet.findvalue('mass')
+    planet = cata.find(".//planet[name='Kepler-68 b']")
+    print planet.findtext('name'), planet.findvalue('radius'), planet.findvalue('mass')
 
 Prints the name and radius of planets with a radius greater than 1 jupiter radius.
 

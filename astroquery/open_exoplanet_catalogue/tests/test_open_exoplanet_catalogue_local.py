@@ -1,49 +1,35 @@
-
-
-
-from ...utils.testing_tools import MockResponse 
-from ... import open_exoplanet_catalogue as oec
-from astropy.tests.helper import pytest
-from xml.etree import ElementTree as ET
 import os
 import urllib2
+from xml.etree import ElementTree as ET
+from astropy.tests.helper import pytest
+from ...utils.testing_tools import MockResponse
+from ... import open_exoplanet_catalogue as oec
+
+@pytest.fixture(autouse=True)
+def patch_urlopen(request):
+    mp = request.getfuncargvalue("monkeypatch")
+    mp.setattr(urllib2, 'urlopen', get_mock_return)
+    return mp
+
+def get_mock_return(url, params=None, timeout=10,**kwargs):
+    # dummy function to replace urllib2 get functionality
+    # function returns what the http request would but with local data
+    filename = url[url.rfind("/")+1:]
+    content = open(data_path(filename), "r").read()
+    return MockResponse(content, **kwargs)
 
 # get file path of a static data file for testing
 def data_path(filename):
     data_dir = os.path.join(os.path.dirname(__file__), 'data')
     return os.path.join(data_dir, filename)
 
-@pytest.fixture
-def patch_quote():
-    urllib2.quote = get_mock_quote
-
-@pytest.fixture
-def patch_get():
-    # create a mock request
-    urllib2.urlopen = get_mock_return
-
-def get_mock_quote(system):
-    return system
-
-def get_mock_return(url, params=None, timeout=10,**kwargs):
-    # dummy function to replace urllib2 get functionality
-    # function returns what the http request would but with local data
-    filename = url[url.rfind("/")+1:]
-    content = open(data_path(filename), "r")
-    return content
-
-
-def test_function():
-    patch_quote()
-    patch_get()
+def test_function(patch_urlopen):
     cata = oec.get_catalogue()
     assert len(cata.findall('.//planet')) > 0
 
-    for planet in cata.findall(".//planet[name='Kepler-67 b']"):
-        kepler67b = planet
+    kepler67b =  cata.find(".//planet[name='Kepler-67 b']")
     assert kepler67b.findtext('name') == "Kepler-67 b"
     assert kepler67b.findtext('discoverymethod') == "transit"
 
-    for sys in cata.findall(".//system[name='Kepler-67']"):
-        kepler67 = sys
+    kepler67 = cata.find(".//system[name='Kepler-67']")
     assert kepler67.findvalue('distance') == 1107

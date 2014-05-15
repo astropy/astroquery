@@ -3,6 +3,7 @@ import xml.etree.ElementTree as ET
 import urllib
 import gzip
 import io
+import os
 """
 To access the catalogue
 from oec2py import oec
@@ -17,49 +18,23 @@ for planet in oec.findall(".//planet"):
     print planet.findvalue('mass')
 """
 
-oec_server_url = "https://github.com/hannorein/oec_iphone/raw/master/data_iphone_11/systems.xml.gz"
+oec_server_url = "https://github.com/OpenExoplanetCatalogue/oec_gzip/raw/master/systems.xml.gz"
 
-__all__ = ['change_to_local','change_to_remote','xml_element_to_dict','findvalue', 'get_catalogue']
+__all__ = ['xml_element_to_dict','findvalue', 'get_catalogue']
 
-global oec
-try:
-    oec = ET.parse(gzip.GzipFile(fileobj=io.BytesIO(urllib.urlopen(oec_server_url).read())))
-except:
-    print "Error getting catalogue, try switching to local version"
-
-def get_catalogue():
-    return oec
-
-def change_to_local(filepath):
-    """(str) -> Notype
-    change the querying to use a local version of the open exoplanet catalogue.
-
-    filepath must be absolute.
-
-    change_to_local("/home/usrname/open_exoplanet_catalogue/")
-    >>>"Now using local data at /home/usrname/open_exoplanet_catalogue"
+def get_catalogue(filepath=None):
+    """ (str) -> ElementTree
+    Return an element tree of the open exoplanet catalogue. If no filepath is given, remote source is used.
     """
 
-    global oec
-    try:
-        oec = ET.parse(gzip.GzipFile(fileobj=io.BytesIO(urllib.urlopen("file://"+filepath).read())))
-        print "Now using local catalogue at: " + filepath
-    except:
-        raise Exception("Error changing to local. Check path to catalogue")
-
-
-def change_to_remote():
-    """ Change the queries to use the default remote database"""
-    
-    global oec
-    try:
+    if filepath is None:
         oec = ET.parse(gzip.GzipFile(fileobj=io.BytesIO(urllib.urlopen(oec_server_url).read())))
-        print "Now using remote catalogue"
-    except:
-        raise Exception("Error getting catalogue, try switching to local version")
+    else:
+        oec = ET.parse(gzip.GzipFile(filepath)) 
+    return oec
 
 def xml_element_to_dict(e):
-    """(str) -> dict
+    """ (str) -> dict
     Converts xml tree to dictionary
     """
 
@@ -68,43 +43,43 @@ def xml_element_to_dict(e):
         d[c.tag] = c.text
     return d
     
-class number(object):
-    """Number class for values containing errors. Math operations use the \
-    the value given. Checking for no 'value' must use "==". Numbers with\
+class Number(object):
+    """ Number class for values containing errors. Math operations use 
+    the value given. Checking for no 'value' must use "==". Numbers with
     upper or lower limits as assumed to have no value.
 
-    num = Number(10, errorminus=0.5, errorplus=0.8)
-    str(num)
-    >>>10 +0.5 -0.8
+    >>>num = Number(10, errorminus=0.5, errorplus=0.8)
+    >>>str(num)
+    10 +0.5 -0.8
 
-    num * 2
-    >>>20
+    >>>num * 2
+    20
 
-    num + 2
-    >>>12
+    >>>num + 2
+    12
 
-    num.errorminus
-    >>>0.5
+    >>>num.errorminus
+    0.5
 
-    num = Number(None, upperlimit=10)
-    str(num) 
-    >>>"upperlimit=10"
+    >>>num = Number(None, upperlimit=10)
+    >>>str(num) 
+    "upperlimit=10"
     
-    num + 2
-    >>>TypeError:....
+    >>>num + 2
+    TypeError:....
 
-    num == None
-    >>>True
+    >>>num == None
+    True
 
-    num is None
-    >>>False
+    >>>num is None
+    False
     """
 
     def __init__(self, value, **kwargs):
-        """"(float, float, float) -> (number)
-        number object acts as a typical float object, but can hold\
+        """ "(float, float, float) -> (Number)
+        Number object acts as a typical float object, but can hold\
         errorminus, errorplus, lowerlimit, upperlimit
-        mathematical operations use value. number == number does compare
+        mathematical operations use value. Number == Number does compare
         the error values as well
         """
         try:
@@ -116,8 +91,8 @@ class number(object):
    
 
     def __str__(self):
-        """(number) -> str
-        Returns a string representation of the number
+        """ (Number) -> str
+        Returns a string representation of the Number
 
         2.0
         2.0 +1.0 -1.5
@@ -126,23 +101,23 @@ class number(object):
         <2.0
         """
         tempstr = ""
-        if(self.value is not None):
+        if self.value is not None:
             tempstr += str(self.value)
-        if(hasattr(self, "errorplus") and self.errorplus is not None and\
-                hasattr(self,"errorminus") and self.errorminus is not None):
+        if hasattr(self, "errorplus") and self.errorplus is not None and\
+                hasattr(self,"errorminus") and self.errorminus is not None:
 
-            if(self.errorplus == self.errorminus):
+            if self.errorplus == self.errorminus:
                 tempstr += " +/-" + str(self.errorplus)
             else:
                 tempstr += " +"+str(self.errorplus) +" -"+str(self.errorminus)
-        if(hasattr(self,"upperlimit") and self.upperlimit is not None):
+        if hasattr(self,"upperlimit") and self.upperlimit is not None:
             tempstr += "<"+ str(self.upperlimit)
-        elif(hasattr(self,"lowerlimit") and self.lowerlimit is not None):
+        elif hasattr(self,"lowerlimit") and self.lowerlimit is not None:
             tempstr += ">"+ str(self.lowerlimit)
         return tempstr
 
     def machine_readable(self, seperator="\t",missingval="None"):
-        """(str, str) -> str
+        """ (str, str) -> str
         creates a string intedned for a machine to read (ex, gnuplot)
         prints as follows
         value(seperator)errorplus(seperator)errorminus(seperator)upperlimit(seperator)lowerlimit
@@ -151,23 +126,23 @@ class number(object):
         """
 
         temp = ""
-        if(hasattr(self,"value") and self.value is not None):
+        if hasattr(self,"value") and self.value is not None:
             temp += str(self.value) + seperator 
         else:
             temp += missingval + seperator
-        if(hasattr(self,"errorplus") and self.errorplus is not None):
+        if hasattr(self,"errorplus") and self.errorplus is not None:
             temp += str(self.errorplus) + seperator 
         else:
             temp += missingval + seperator
-        if(hasattr(self,"errorminus") and self.errorminus is not None):
+        if hasattr(self,"errorminus") and self.errorminus is not None:
             temp += str(self.errorminus) + seperator 
         else:
             temp += missingval + seperator
-        if(hasattr(self,"upperlimit") and self.upperlimit is not None):
+        if hasattr(self,"upperlimit") and self.upperlimit is not None:
             temp += str(self.upperlimit) + seperator 
         else:
             temp += missingval + seperator
-        if(hasattr(self,"lowerlimit") and self.lowerlimit is not None):
+        if hasattr(self,"lowerlimit") and self.lowerlimit is not None:
             temp += str(self.lowerlimit) + seperator 
         else:
             temp += missingval + seperator
@@ -181,17 +156,17 @@ class number(object):
             self.__dict__[key] = val
 
     def __eq__(self, num):
-        """(any)-> any
+        """ (any)-> any
         returns true if value of self is the same as value of num
         x == y
-        if num is of type number, this will check the errors as well
+        if num is of type Number, this will check the errors as well
         """
-        if(num.__class__.__name__ == "number"):
-            return (self.value == num.value and\
+        if num.__class__.__name__ == "Number":
+            return self.value == num.value and\
                     self.errorminus == num.errorminus and\
                     self.errorplus == num.errorplus and\
                     self.lowerlimit == num.lowerlimit and\
-                    self.upperlimit == num.upperlimit)
+                    self.upperlimit == num.upperlimit
         else:
             return self.value == num
 
@@ -209,16 +184,16 @@ class number(object):
         return self.value <= num
 
     def __ne__(self, num):
-        """(any) -> any
+        """ (any) -> any
         returns true if self value is not equal to num value
         x != y
-        if num is of type number, it will check errors as well
+        if num is of type Number, it will check errors as well
         """
 
-        if(num.__class__.__name__ == "number"):
-            return (self.value != num.value and\
+        if num.__class__.__name__ == "Number":
+            return self.value != num.value and\
                     self.errorminus != num.errorminus and\
-                    self.errorplus != num.errorplus)
+                    self.errorplus != num.errorplus
         else:
             return self.value != num
 
@@ -349,35 +324,41 @@ class number(object):
         return self.value.bit_length()
 
     def asymmetric(self):
-        """(number) -> bool
+        """ (Number) -> bool
         returns true if the error values are asymmetric
         """
 
-        return (self.errorminus != self.errorplus)
+        return self.errorminus != self.errorplus
 
-def findvalue(self,searchstring):
+def findvalue(self, searchstring):
+    """ (str) -> Number
+    Find the tag given by searchstring and return its data as a Number object.
+    """
+
     res = self.find(searchstring)
     if res is None:
         return None
-    if(len(res.attrib) == 0):
-       return number(res.text) 
-    else:
-        tempnum = number(res.text)
-        if(res.attrib.has_key("errorminus")):
-            tempnum.errorminus = res.attrib["errorminus"]
-        if(res.attrib.has_key("errorplus")):
-            tempnum.errorplus = res.attrib["errorplus"]
-        if(res.attrib.has_key("upperlimit")):
-            tempnum.upperlimit = res.attrib["upperlimit"]
-        if(res.attrib.has_key("lowerlimit")):
-            tempnum.lowerlimit = res.attrib["lowerlimit"]
-        return tempnum 
+    if len(res.attrib) == 0:
+       return Number(res.text) 
+    tempnum = Number(res.text)
+    if res.attrib.has_key("errorminus"):
+        tempnum.errorminus = res.attrib["errorminus"]
+    if res.attrib.has_key("errorplus"):
+        tempnum.errorplus = res.attrib["errorplus"]
+    if res.attrib.has_key("upperlimit"):
+        tempnum.upperlimit = res.attrib["upperlimit"]
+    if res.attrib.has_key("lowerlimit"):
+        tempnum.lowerlimit = res.attrib["lowerlimit"]
+    return tempnum 
 
 
 ET.Element.findvalue = findvalue 
 
 
 if __name__ == "__main__":
+
+    oec = get_catalogue()
+
     # examples
     print("---------- Example 1 ----------")
     # example 1
@@ -406,8 +387,8 @@ if __name__ == "__main__":
     print("---------- Example 5 ----------")
     # example 5
     # find a specific planet
-    for planet in oec.findall(".//planet[name='Kepler-68 b']"):
-        print planet.findtext('name'), planet.findvalue('radius'), planet.findvalue('mass')
+    planet = oec.find(".//planet[name='Kepler-68 b']")
+    print planet.findtext('name'), planet.findvalue('radius'), planet.findvalue('mass')
 
     print("---------- Example 6 ----------")
     # example 6
