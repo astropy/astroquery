@@ -21,13 +21,15 @@ from astropy.io import fits,votable
 
 try:
     from astropy.coordinates import BaseCoordinateFrame
-    ICRSCoordinateGenerator = lambda *args, **kwargs: coord.SkyCoord(*args, frame='icrs', **kwargs)
-    ICRSCoordinate = coord.SkyCoord
+    ICRSCoordGenerator = lambda *args, **kwargs: coord.SkyCoord(*args, frame='icrs', **kwargs)
+    GalacticCoordGenerator = lambda *args, **kwargs: coord.SkyCoord(*args, frame='galactic', **kwargs)
+    ICRSCoord = coord.SkyCoord
     CoordClasses = (coord.SkyCoord, BaseCoordinateFrame)
 except ImportError:
     from astropy.coordinates import SphericalCoordinateBase as BaseCoordinateFrame
-    ICRSCoordinateGenerator = lambda *args, **kwargs: coord.ICRS(*args, **kwargs)
-    ICRSCoordinate = coord.ICRS
+    ICRSCoordGenerator = lambda *args, **kwargs: coord.ICRS(*args, **kwargs)
+    GalacticCoordGenerator = lambda *args, **kwargs: coord.Galactic(*args, **kwargs)
+    ICRSCoord = coord.ICRS
     CoordClasses = (coord.SphericalCoordinateBase,)
 
 from ..exceptions import TimeoutError
