@@ -144,10 +144,10 @@ def parse_coordinates(coordinates):
     """
     if isinstance(coordinates, six.string_types):
         try:
-            c = ICRSCoordinate.from_name(coordinates)
+            c = ICRSCoord.from_name(coordinates)
         except coord.name_resolve.NameResolveError:
             try:
-                c = ICRSCoordinate(coordinates)
+                c = ICRSCoordGenerator(coordinates)
                 warnings.warn("Coordinate string is being interpreted as an ICRS coordinate.")
             except u.UnitsError:
                 warnings.warn("Only ICRS coordinates can be entered as strings\n"
@@ -287,7 +287,7 @@ def _is_coordinate(coordinates):
         # its coordinate-like enough
         return True
     try:
-        coord.ICRS(coordinates)
+        ICRSCoordGenerator(coordinates)
         return True
     except ValueError:
         return False
