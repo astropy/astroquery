@@ -1,4 +1,4 @@
-#!/usr/bin/python
+
 class Number(object):
     """ Number class for values containing errors. Math operations use 
     the value given. Checking for no 'value' must use "==". Numbers with
@@ -34,17 +34,20 @@ class Number(object):
     False
     """
 
-    def __init__(self, value=None, **kwargs):
+    def __init__(self, value=None, upperlimit=None, lowerlimit=None, errorplus=None, errorminus=None):
         """
         Parameters
         ----------
-        value: float or None
+        value: float
             the value of this number. Numbers with upper or lower limits assume None as value.
-        kwargs:
-            upperlimit: float
-            lowerlimit: float
-            errorplus: float
-            errorminus: float
+        upperlimit: float
+            if upper limit exists, there should be no value
+        lowerlimit: float
+            if lower limit exists, there should be no value
+        errorplus: float
+            unsigned value
+        errorminus: float
+            unsigned value
 
         Notes
         -----
@@ -58,13 +61,17 @@ class Number(object):
         -------
         Number object.
         """
-
-        try:
-            self.value = float(value)
-        except:
-            self.value = value
-        for key,val in kwargs.iteritems():
-            setattr(self, key, value)
+        if value is None:
+            self.value = None
+        else:
+            try:
+                self.value = float(value)
+            except ValueError:
+                self.value = value
+        self.upperlimit = upperlimit
+        self.lowerlimit = lowerlimit
+        self.errorplus = errorplus
+        self.errorminus = errorminus
    
 
     def __str__(self):
@@ -143,10 +150,12 @@ class Number(object):
         return temp.strip(separator)
 
     def __setattr__(self, key, val):
-
-        try:
-            self.__dict__[key] = float(val)
-        except:
+        if val is not None:
+            try:
+                self.__dict__[key] = float(val)
+            except ValueError:
+                self.__dict__[key] = val
+        else:
             self.__dict__[key] = val
 
     def __eq__(self, num):
@@ -160,7 +169,7 @@ class Number(object):
         -------
         bool
         """
-        if num.__class__.__name__ == "Number":
+        if isinstance(num, Number):
             return self.value == num.value and\
                     self.errorminus == num.errorminus and\
                     self.errorplus == num.errorplus and\
@@ -194,7 +203,7 @@ class Number(object):
         bool
         """
 
-        if num.__class__.__name__ == "Number":
+        if isinstance(num, Number):
             return self.value != num.value and\
                     self.errorminus != num.errorminus and\
                     self.errorplus != num.errorplus

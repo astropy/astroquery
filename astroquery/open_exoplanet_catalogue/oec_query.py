@@ -46,9 +46,6 @@ def xml_element_to_dict(e):
     return d
 
 def findvalue( element, searchstring):
-    """ (str) -> Number
-    Find the tag given by searchstring and return its data as a Number object.
-    """
     """
     Parameters
     ----------
@@ -67,14 +64,13 @@ def findvalue( element, searchstring):
     res = element.find(searchstring)
     if res is None:
         return None
-    try:
-        float(res.text)
-    except:
-        if res.text is not None:
+    tempnum = Number()
+    if res.text is not None:
+        try:
+            float(res.text)
+            setattr(tempnum, 'value', res.text)
+        except ValueError:
             return res.text
-    if len(res.attrib) == 0:
-       return Number(res.text) 
-    tempnum = Number(res.text)
     if res.attrib.has_key("errorminus"):
         tempnum.errorminus = res.attrib["errorminus"]
     if res.attrib.has_key("errorplus"):
