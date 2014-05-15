@@ -21,8 +21,12 @@ from astropy.io import fits,votable
 
 try:
     from astropy.coordinates import BaseCoordinateFrame
+    ICRSCoordinateGenerator = lambda x: coord.SkyCoord(x, frame='icrs')
+    ICRSCoordinate = coord.SkyCoord
 except ImportError:
     from astropy.coordinates import SphericalCoordinateBase as BaseCoordinateFrame
+    ICRSCoordinateGenerator = lambda x: coord.ICRS(x)
+    ICRSCoordinate = coord.ICRS
 
 from ..exceptions import TimeoutError
 from .. import version
@@ -132,10 +136,10 @@ def parse_coordinates(coordinates):
     """
     if isinstance(coordinates, six.string_types):
         try:
-            c = coord.SkyCoord.from_name(coordinates)
+            c = ICRSCoordinate.from_name(coordinates)
         except coord.name_resolve.NameResolveError:
             try:
-                c = coord.ICRS(coordinates)
+                c = ICRSCoordinate(coordinates)
                 warnings.warn("Coordinate string is being interpreted as an ICRS coordinate.")
             except u.UnitsError:
                 warnings.warn("Only ICRS coordinates can be entered as strings\n"
