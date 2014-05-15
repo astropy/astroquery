@@ -2,19 +2,23 @@
 import os
 import re
 import requests
+
 from astropy.extern import six
 from astropy.tests.helper import pytest
 import astropy.coordinates as coord
 import astropy.units as u
 from astropy.table import Table
+import numpy as np
+
 from ... import simbad
 from ...utils.testing_tools import MockResponse
+from ...utils import commons
 from ...exceptions import TableParseError
 
-GALACTIC_COORDS = coord.Galactic(l=-67.02084, b=-29.75447, unit=(u.deg, u.deg))
-ICRS_COORDS = coord.ICRS("05h35m17.3s -05h23m28s")
-FK4_COORDS = coord.FK4(ra=84.90759, dec=-80.89403, unit=(u.deg, u.deg))
-FK5_COORDS = coord.FK5(ra=83.82207, dec=-80.86667, unit=(u.deg, u.deg))
+GALACTIC_COORDS = commons.GalacticCoordGenerator(l=-67.02084, b=-29.75447, unit=(u.deg, u.deg))
+ICRS_COORDS = commons.ICRSCoordGenerator("05h35m17.3s -05h23m28s")
+FK4_COORDS = commons.FK4CoordGenerator(ra=84.90759, dec=-80.89403, unit=(u.deg, u.deg))
+FK5_COORDS = commons.FK5CoordGenerator(ra=83.82207, dec=-80.86667, unit=(u.deg, u.deg))
 
 DATA_FILES = {
     'id': 'query_id.data',
@@ -98,8 +102,8 @@ def test_get_frame_coordinates(coordinates, expected_frame):
     assert actual_frame == expected_frame
     if actual_frame == 'GAL':
         l,b = simbad.core._get_frame_coords(coordinates)[:2]
-        assert float(l) % 360 == -67.02084 % 360
-        assert float(b) == -29.75447
+        np.testing.assert_almost_equal(float(l) % 360, -67.02084 % 360)
+        np.testing.assert_almost_equal(float(b), -29.75447)
 
 
 def test_parse_result():

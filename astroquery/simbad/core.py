@@ -696,7 +696,7 @@ def _get_frame_coords(c):
         ra, dec = _to_simbad_format(c.ra, c.dec)
         return (ra, dec, 'ICRS')
     elif c.galactic == c:
-        lon, lat = (str(c.lonangle.degree), str(c.latangle.degree))
+        lon, lat = (str(c.l.degree), str(c.b.degree))
         if lat[0] not in ['+', '-']:
             lat = '+' + lat
         return (lon, lat, 'GAL')

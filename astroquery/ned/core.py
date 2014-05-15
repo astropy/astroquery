@@ -173,8 +173,8 @@ class NedClass(BaseQuery):
                 c = commons.parse_coordinates(coordinates)
                 if hasattr(c,'galactic') and (c.galactic==c):
                     request_payload['in_csys'] = 'Galactic'
-                    request_payload['lon'] = c.lonangle.degree
-                    request_payload['lat'] = c.latangle.degree
+                    request_payload['lon'] = c.l.degree
+                    request_payload['lat'] = c.b.degree
                 # for any other, convert to ICRS and send
                 else:
                     request_payload['in_csys'] = 'Equatorial'
