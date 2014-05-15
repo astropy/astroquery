@@ -23,12 +23,16 @@ try:
     from astropy.coordinates import BaseCoordinateFrame
     ICRSCoordGenerator = lambda *args, **kwargs: coord.SkyCoord(*args, frame='icrs', **kwargs)
     GalacticCoordGenerator = lambda *args, **kwargs: coord.SkyCoord(*args, frame='galactic', **kwargs)
+    FK5CoordGenerator = lambda *args, **kwargs: coord.SkyCoord(*args, frame='fk5', **kwargs)
+    FK4CoordGenerator = lambda *args, **kwargs: coord.SkyCoord(*args, frame='fk4', **kwargs)
     ICRSCoord = coord.SkyCoord
     CoordClasses = (coord.SkyCoord, BaseCoordinateFrame)
 except ImportError:
     from astropy.coordinates import SphericalCoordinateBase as BaseCoordinateFrame
     ICRSCoordGenerator = lambda *args, **kwargs: coord.ICRS(*args, **kwargs)
     GalacticCoordGenerator = lambda *args, **kwargs: coord.Galactic(*args, **kwargs)
+    FK5CoordGenerator = lambda *args, **kwargs: coord.FK5(*args, **kwargs)
+    FK4CoordGenerator = lambda *args, **kwargs: coord.FK4(*args, **kwargs)
     ICRSCoord = coord.ICRS
     CoordClasses = (coord.SphericalCoordinateBase,)
 
