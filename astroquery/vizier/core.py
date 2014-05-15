@@ -213,7 +213,8 @@ class VizierClass(BaseQuery):
         catalog = VizierClass._schema_catalog.validate(catalog)
         center = {}
         columns = []
-        if isinstance(coordinates, coord.SphericalCoordinatesBase) or isinstance(coordinates, six.string_types):
+        if (isinstance(coordinates, commons.BaseCoordinateFrame) or
+            isinstance(coordinates, six.string_types)):
             c = commons.parse_coordinates(coordinates)
             ra = str(c.icrs.ra.degree)
             dec = str(c.icrs.dec.degree)
@@ -223,7 +224,10 @@ class VizierClass(BaseQuery):
         elif isinstance(coordinates, tbl.Table):
             if ("_RAJ2000" in coordinates.keys()) and ("_DEJ2000" in coordinates.keys()):
                 pos_list = []
-                for pos in coord.ICRS(coordinates["_RAJ2000"], coordinates["_DEJ2000"], unit=(coordinates["_RAJ2000"].unit, coordinates["_DEJ2000"].unit)):
+                for pos in coord.SkyCoord(coordinates["_RAJ2000"],
+                                          coordinates["_DEJ2000"],
+                                          unit=(coordinates["_RAJ2000"].unit,
+                                                coordinates["_DEJ2000"].unit)):
                     ra_deg = pos.ra.to_string(unit="deg", decimal=True, precision=8)
                     dec_deg = pos.dec.to_string(unit="deg", decimal=True, precision=8, alwayssign=True)
                     pos_list += ["{}{}".format(ra_deg, dec_deg)]

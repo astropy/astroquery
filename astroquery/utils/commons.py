@@ -19,6 +19,11 @@ from astropy.utils import OrderedDict
 import astropy.utils.data as aud
 from astropy.io import fits,votable
 
+try:
+    from astropy.coordinates import BaseCoordinateFrame
+except ImportError:
+    from astropy.coordinates import SphericalCoordinateBase as BaseCoordinateFrame
+
 from ..exceptions import TimeoutError
 from .. import version
 
@@ -118,7 +123,7 @@ def parse_coordinates(coordinates):
 
     Returns
     -------
-    a subclass of `astropy.coordinates.SphericalCoordinatesBase`
+    a subclass of `astropy.coordinates.BaseCoordinateFrame`
 
     Raises
     ------
@@ -127,7 +132,7 @@ def parse_coordinates(coordinates):
     """
     if isinstance(coordinates, six.string_types):
         try:
-            c = coord.ICRS.from_name(coordinates)
+            c = coord.SkyCoord.from_name(coordinates)
         except coord.name_resolve.NameResolveError:
             try:
                 c = coord.ICRS(coordinates)
@@ -137,7 +142,7 @@ def parse_coordinates(coordinates):
                               "For other systems please use the appropriate "
                               "astropy.coordinates object")
                 raise u.UnitsError
-    elif isinstance(coordinates, coord.SphericalCoordinatesBase):
+    elif isinstance(coordinates, BaseCoordinateFrame):
         c = coordinates
     else:
         raise TypeError("Argument cannot be parsed as a coordinate")

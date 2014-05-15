@@ -416,7 +416,7 @@ def _parse_coordinates(coordinates):
                           "For other systems please use the appropriate "
                           "astropy.coordinates object")
             raise ex
-    elif isinstance(coordinates, coord.SphericalCoordinatesBase):
+    elif isinstance(coordinates, commons.BaseCoordinateFrame):
         c = coordinates
     else:
         raise TypeError("Argument cannot be parsed as a coordinate")
