@@ -124,9 +124,9 @@ Badges
 .. image:: https://coveralls.io/repos/astropy/astroquery/badge.png
    :target: https://coveralls.io/r/astropy/astroquery
 
-.. image:: https://d2weczhvl823v0.cloudfront.net/astropy/astroquery/trend.png
-   :alt: Bitdeli badge
-   :target: https://bitdeli.com/free
+.. .. image:: https://d2weczhvl823v0.cloudfront.net/astropy/astroquery/trend.png
+..    :alt: Bitdeli badge
+..    :target: https://bitdeli.com/free
 
 
 .. _Download Development ZIP: https://github.com/astropy/astroquery/zipball/master
