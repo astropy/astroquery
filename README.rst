@@ -121,10 +121,10 @@ Badges
 
 .. image:: https://travis-ci.org/astropy/astroquery.svg?branch=master
 
-.. image:: https://coveralls.io/repos/astroquery/astroquery/badge.png
-   :target: https://coveralls.io/r/astroquery/astroquery
+.. image:: https://coveralls.io/repos/astropy/astroquery/badge.png
+   :target: https://coveralls.io/r/astropy/astroquery
 
-.. image:: https://d2weczhvl823v0.cloudfront.net/astroquery/astroquery/trend.png
+.. image:: https://d2weczhvl823v0.cloudfront.net/astropy/astroquery/trend.png
    :alt: Bitdeli badge
    :target: https://bitdeli.com/free
 
