@@ -109,7 +109,22 @@ Maintained by `Adam Ginsburg`_ (`astropy.astroquery@gmail.com`_)
 
 To cite, use our `figshare`_ DOI (http://dx.doi.org/10.6084/m9.figshare.805208).
 
-.. image:: https://d2weczhvl823v0.cloudfront.net/keflavich/astroquery/trend.png
+Badges
+------
+.. image:: https://pypip.in/v/astroquery/badge.png
+    :target: https://crate.io/packages/astroquery/
+    :alt: Latest PyPI version
+
+.. image:: https://pypip.in/d/astroquery/badge.png
+    :target: https://crate.io/packages/astroquery/
+    :alt: Number of PyPI downloads
+
+.. image:: https://travis-ci.org/astropy/astroquery.svg?branch=master
+
+.. image:: https://coveralls.io/repos/astroquery/astroquery/badge.png
+   :target: https://coveralls.io/r/astroquery/astroquery
+
+.. image:: https://d2weczhvl823v0.cloudfront.net/astroquery/astroquery/trend.png
    :alt: Bitdeli badge
    :target: https://bitdeli.com/free
 
