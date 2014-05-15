@@ -2,11 +2,14 @@
 import os
 import re
 import requests
+
 from astropy.extern import six
 from astropy.tests.helper import pytest
 import astropy.coordinates as coord
 import astropy.units as u
 from astropy.table import Table
+import numpy as np
+
 from ... import simbad
 from ...utils.testing_tools import MockResponse
 from ...utils import commons
@@ -99,8 +102,8 @@ def test_get_frame_coordinates(coordinates, expected_frame):
     assert actual_frame == expected_frame
     if actual_frame == 'GAL':
         l,b = simbad.core._get_frame_coords(coordinates)[:2]
-        assert float(l) % 360 == -67.02084 % 360
-        assert float(b) == -29.75447
+        np.testing.assert_almost_equal(float(l) % 360, -67.02084 % 360)
+        np.testing.assert_almost_equal(float(b), -29.75447)
 
 
 def test_parse_result():
