@@ -65,7 +65,7 @@ class MagpisClass(BaseQuery):
         request_payload = {}
         request_payload["Survey"] = survey
         c = commons.parse_coordinates(coordinates)
-        ra_dec_str = str(c.galactic.lonangle.degree) + ' ' + str(c.galactic.latangle.degree)
+        ra_dec_str = str(c.galactic.l.degree) + ' ' + str(c.galactic.b.degree)
         request_payload["RA"] = ra_dec_str
         request_payload["Equinox"] = "Galactic"
         request_payload["ImageSize"] = coord.Angle(image_size).to('arcmin').value
