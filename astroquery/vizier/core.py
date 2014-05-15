@@ -213,7 +213,7 @@ class VizierClass(BaseQuery):
         catalog = VizierClass._schema_catalog.validate(catalog)
         center = {}
         columns = []
-        if (isinstance(coordinates, commons.BaseCoordinateFrame) or
+        if (isinstance(coordinates, commons.CoordClasses) or
             isinstance(coordinates, six.string_types)):
             c = commons.parse_coordinates(coordinates)
             ra = str(c.icrs.ra.degree)

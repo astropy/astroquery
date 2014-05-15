@@ -21,12 +21,14 @@ from astropy.io import fits,votable
 
 try:
     from astropy.coordinates import BaseCoordinateFrame
-    ICRSCoordinateGenerator = lambda x: coord.SkyCoord(x, frame='icrs')
+    ICRSCoordinateGenerator = lambda *args, **kwargs: coord.SkyCoord(*args, frame='icrs', **kwargs)
     ICRSCoordinate = coord.SkyCoord
+    CoordClasses = (coord.SkyCoord, BaseCoordinateFrame)
 except ImportError:
     from astropy.coordinates import SphericalCoordinateBase as BaseCoordinateFrame
-    ICRSCoordinateGenerator = lambda x: coord.ICRS(x)
+    ICRSCoordinateGenerator = lambda *args, **kwargs: coord.ICRS(*args, **kwargs)
     ICRSCoordinate = coord.ICRS
+    CoordClasses = (coord.SphericalCoordinateBase,)
 
 from ..exceptions import TimeoutError
 from .. import version
@@ -146,7 +148,7 @@ def parse_coordinates(coordinates):
                               "For other systems please use the appropriate "
                               "astropy.coordinates object")
                 raise u.UnitsError
-    elif isinstance(coordinates, BaseCoordinateFrame):
+    elif isinstance(coordinates, CoordClasses):
         c = coordinates
     else:
         raise TypeError("Argument cannot be parsed as a coordinate")
