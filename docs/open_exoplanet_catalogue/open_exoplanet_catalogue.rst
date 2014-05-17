@@ -1,4 +1,4 @@
-.. _astroquery.simbad:
+.. _astroquery.open_exoplanet_catalogue:
 
 ***************************************************************
 Open Exoplanet Catalogue(`astorquery.open_exoplanet_catalogue`)

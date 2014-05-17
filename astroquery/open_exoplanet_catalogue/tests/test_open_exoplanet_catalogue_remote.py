@@ -4,8 +4,10 @@
 
 from xml.etree import ElementTree as ET
 from astropy.tests.helper import pytest
+from astropy.tests.helper import remote_data
 from ... import open_exoplanet_catalogue as oec
 
+@remote_data
 def test_function():
 
     cata = oec.get_catalogue()

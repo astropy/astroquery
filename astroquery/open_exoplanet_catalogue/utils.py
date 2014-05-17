@@ -7,30 +7,30 @@ class Number(object):
     Examples
     --------
 
-    >>>num = Number(10, errorminus=0.5, errorplus=0.8)
-    >>>str(num)
+    >>> num = Number(10, errorminus=0.5, errorplus=0.8)
+    >>> str(num)
     10 +0.5 -0.8
 
-    >>>num * 2
+    >>> num * 2
     20
 
-    >>>num + 2
+    >>> num + 2
     12
 
-    >>>num.errorminus
+    >>> num.errorminus
     0.5
 
-    >>>num = Number(None, upperlimit=10)
-    >>>str(num) 
+    >>> num = Number(None, upperlimit=10)
+    >>> str(num) 
     "upperlimit=10"
     
-    >>>num + 2
+    >>> num + 2
     TypeError:....
 
-    >>>num == None
+    >>> num == None
     True
 
-    >>>num is None
+    >>> num is None
     False
     """
 
@@ -78,15 +78,15 @@ class Number(object):
         """
         Example outputs
         ---------------
-        >>>str(Number(2.0))
+        >>> str(Number(2.0))
         2.0
-        >>>str(Number(2.0, errorplus=1.0, errorminus=1.5))
+        >>> str(Number(2.0, errorplus=1.0, errorminus=1.5))
         2.0 +1.0 -1.5
-        >>>str(Number(2.0, errorplus=1.0, errominus=1.0))
+        >>> str(Number(2.0, errorplus=1.0, errominus=1.0))
         2.0 +/-1.0
-        >>>str(Number(lowerlimit=2.0))
+        >>> str(Number(lowerlimit=2.0))
         >2.0
-        >>>str(Number(upperlimit=2.0))
+        >>> str(Number(upperlimit=2.0))
         <2.0
         """
 
@@ -106,14 +106,13 @@ class Number(object):
         return tempstr
 
     def machine_readable(self, separator="\t",missingval="None"):
-        """ (str, str) -> str
-        creates a string intedned for a machine to read (ex, gnuplot)
+        """
+        Creates a string intedned for a machine to read (ex, gnuplot)
         prints as follows
         value(separator)errorplus(separator)errorminus(separator)upperlimit(separator)lowerlimit
         
         if the value does not exist, the missingval is added instead
-        """
-        """
+
         Parameters
         ----------
         separator: str
