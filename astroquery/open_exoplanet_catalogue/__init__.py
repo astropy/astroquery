@@ -9,3 +9,4 @@ http://openexoplanetcatalogue.com
 """
 from astropy.config import ConfigurationItem
 from .oec_query import *
+from .utils import *
