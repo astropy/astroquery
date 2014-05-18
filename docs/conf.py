@@ -25,9 +25,18 @@
 # Thus, any C-extensions that are needed to build the documentation will *not*
 # be accessible, and the documentation will not build correctly.
 
+import datetime
+import os
+import sys
+
 # Load all of the global Astropy configuration
 from astropy.sphinx.conf import *
 
+# Get configuration information from setup.cfg
+from distutils import config
+conf = config.ConfigParser()
+conf.read([os.path.join(os.path.dirname(__file__), '..', 'setup.cfg')])
+setup_cfg = dict(conf.items('metadata'))
 
 # -- General configuration ----------------------------------------------------
 
@@ -51,19 +60,22 @@ intersphinx_mapping['requests'] = ('http://docs.python-requests.org/en/latest/',
 # -- Project information ------------------------------------------------------
 
 # This does not *have* to match the package name, but typically does
-project = u'astroquery'
-author = u'Adam Ginsburg (maintainer) and Tom Robitaille; astropy.astroquery@gmail.com'
-copyright = u'2012, ' + author
+project = setup_cfg['package_name']
+author = setup_cfg['author']
+copyright = '{0}, {1}'.format(
+    datetime.datetime.now().year, setup_cfg['author'])
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 
-import astroquery
+__import__(setup_cfg['package_name'])
+package = sys.modules[setup_cfg['package_name']]
+
 # The short X.Y version.
-version = astroquery.__version__.split('-', 1)[0]
+version = package.__version__.split('-', 1)[0]
 # The full version, including alpha/beta/rc tags.
-release = astroquery.__version__
+release = package.__version__
 
 
 # -- Options for HTML output ---------------------------------------------------
@@ -165,19 +177,16 @@ edit_on_github_source_root = ""
 edit_on_github_doc_root = "docs"
 
 ## -- Options for the edit_on_github extension ----------------------------------------
-#
-#extensions += ['astropy.sphinx.ext.edit_on_github']
-#
-## Don't import the module as "version" or it will override the
-## "version" configuration parameter
-#from packagename import version as versionmod
-#edit_on_github_project = "astropy/reponame"
-#if versionmod.release:
-#    edit_on_github_branch = "v" + versionmod.version
-#else:
-#    edit_on_github_branch = "master"
-#
-#edit_on_github_source_root = ""
-#edit_on_github_doc_root = "docs"
 
-#nitpicky = True
+if eval(setup_cfg.get('edit_on_github')):
+    extensions += ['astropy.sphinx.ext.edit_on_github']
+
+    versionmod = __import__(setup_cfg['package_name'] + '.version')
+    edit_on_github_project = setup_cfg['github_project']
+    if versionmod.release:
+        edit_on_github_branch = "v" + versionmod.version
+    else:
+        edit_on_github_branch = "master"
+
+    edit_on_github_source_root = ""
+    edit_on_github_doc_root = "docs"
