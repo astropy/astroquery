@@ -9,7 +9,7 @@ class Number(object):
 
     >>> num = Number(10, errorminus=0.5, errorplus=0.8)
     >>> str(num)
-    '10 +0.5 -0.8'
+    '10 +0.8 -0.5'
 
     >>> num * 2
     20
@@ -22,7 +22,7 @@ class Number(object):
 
     >>> num = Number(None, upperlimit=10)
     >>> str(num) 
-    "upperlimit=10"
+    "<10"
     
     >>> num == None
     True
@@ -79,7 +79,7 @@ class Number(object):
         '2.0'
         >>> str(Number(2.0, errorplus=1.0, errorminus=1.5))
         '2.0 +1.0 -1.5'
-        >>> str(Number(2.0, errorplus=1.0, errominus=1.0))
+        >>> str(Number(2.0, errorplus=1.0, errorminus=1.0))
         '2.0 +/-1.0'
         >>> str(Number(lowerlimit=2.0))
         '>2.0'
