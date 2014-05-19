@@ -26,65 +26,67 @@ class EsoClass(QueryWithLogin):
         self._survey_list = None
 
     def _activate_form(self, response, form_index=0, inputs={}):
-        from lxml import html
         # Extract form from response
-        root = html.document_fromstring(response.content)
-        form = root.forms[form_index]
+        root = BeautifulSoup(response.content, 'html5lib')
+        form = root.find_all('form')[form_index]
         # Construct base url
-        if "://" in form.action:
-            url = form.action
-        elif form.action[0] == "/":
-            url = '/'.join(response.url.split('/', 3)[:3]) + form.action
+        form_action = form.get('action')
+        if "://" in form_action:
+            url = form_action
+        elif form_action[0] == "/":
+            url = '/'.join(response.url.split('/', 3)[:3]) + form_action
         else:
-            url = response.url.rsplit('/', 1)[0] + '/' + form.action
+            url = response.url.rsplit('/', 1)[0] + '/' + form_action
         # Identify payload format
-        if form.method == 'GET':
+        fmt = None
+        if form.get('method') == 'get':  # TODO: perhaps add .lower() call
             fmt = 'get'  # get(url, params=payload)
-        elif form.method == 'POST':
-            if 'enctype' in form.attrib:
-                if form.attrib['enctype'] == 'multipart/form-data':
+        elif form.get('method') == 'post':
+            if 'enctype' in form.attrs:
+                if form.attrs['enctype'] == 'multipart/form-data':
                     fmt = 'multipart/form-data'  # post(url, files=payload)
-                elif form.attrib['enctype'] == 'application/x-www-form-urlencoded':
+                elif form.attrs['enctype'] == 'application/x-www-form-urlencoded':
                     fmt = 'application/x-www-form-urlencoded'  # post(url, data=payload)
             else:
                 fmt = 'post'  # post(url, params=payload)
         # Extract payload from form
         payload = []
-        for form_input in form.inputs:
-            key = form_input.name
+        for form_elem in form.find_all(['input', 'select', 'textarea']):
             value = None
             is_file = False
-            if isinstance(form_input, html.InputElement):
-                value = form_input.value
-                if 'type' in form_input.attrib:
-                    is_file = (form_input.attrib['type'] == 'file')
-            elif isinstance(form_input, html.SelectElement):
-                if isinstance(form_input.value, html.MultipleSelectOptions):
+            tag_name = form_elem.name
+            if tag_name == 'input':
+                value = form_elem.get('value')
+                if 'type' in form_elem.attrs:
+                    is_file = form_elem.get('type') == 'file'
+            elif tag_name == 'select':
+                if form_elem.get('multiple') is not None:
                     value = []
-                    for v in form_input.value:
-                        value += [v]
+                    for option in form_elem.select('option[value]'):
+                        if option.get('selected') is not None:
+                            value.append(option.get('value'))
                 else:
-                    value = form_input.value
-                    if value is None:
-                        value = form_input.value_options[0]
-            if key in inputs.keys():
-                value = "{0}".format(inputs[key])
-            if (key is not None) and (value is not None):
+                    for option in form_elem.select('option[value]'):
+                        if option.get('selected') is not None:
+                            value = option.get('value')
+            if tag_name in inputs:
+                value = str(inputs[tag_name])
+            if (tag_name is not None) and (value is not None):
                 if fmt == 'multipart/form-data':
                     if is_file:
-                        payload += [(key, ('', '', 'application/octet-stream'))]
+                        payload += [(tag_name, ('', '', 'application/octet-stream'))]
                     else:
                         if type(value) is list:
                             for v in value:
-                                payload += [(key, ('', v))]
+                                payload += [(tag_name, ('', v))]
                         else:
-                            payload += [(key, ('', value))]
+                            payload += [(tag_name, ('', value))]
                 else:
                     if type(value) is list:
                         for v in value:
-                            payload += [(key, v)]
+                            payload += [(tag_name, v)]
                     else:
-                        payload += [(key, value)]
+                        payload += [(tag_name, value)]
         # Send payload
         if fmt == 'get':
             response = self.request("GET", url, params=payload)
