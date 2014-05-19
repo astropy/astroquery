@@ -33,7 +33,7 @@ class EsoClass(QueryWithLogin):
         form_action = form.get('action')
         if "://" in form_action:
             url = form_action
-        elif form_action[0] == "/":
+        elif form_action.startswith('/'):
             url = '/'.join(response.url.split('/', 3)[:3]) + form_action
         else:
             url = response.url.rsplit('/', 1)[0] + '/' + form_action
@@ -75,19 +75,20 @@ class EsoClass(QueryWithLogin):
             if (tag_name is not None) and (value is not None):
                 if fmt == 'multipart/form-data':
                     if is_file:
-                        payload += [(tag_name, ('', '', 'application/octet-stream'))]
+                        payload.append(
+                            (tag_name, ('', '', 'application/octet-stream')))
                     else:
                         if type(value) is list:
                             for v in value:
-                                payload += [(tag_name, ('', v))]
+                                payload.append((tag_name, ('', v)))
                         else:
-                            payload += [(tag_name, ('', value))]
+                            payload.append((tag_name, ('', value)))
                 else:
                     if type(value) is list:
                         for v in value:
-                            payload += [(tag_name, v)]
+                            payload.append((tag_name, v))
                     else:
-                        payload += [(tag_name, value)]
+                        payload.append((tag_name, value))
         # Send payload
         if fmt == 'get':
             response = self.request("GET", url, params=payload)
