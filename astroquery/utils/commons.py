@@ -28,13 +28,13 @@ try:
     ICRSCoord = coord.SkyCoord
     CoordClasses = (coord.SkyCoord, BaseCoordinateFrame)
 except ImportError:
-    from astropy.coordinates import SphericalCoordinateBase as BaseCoordinateFrame
+    from astropy.coordinates import SphericalCoordinatesBase as BaseCoordinateFrame
     ICRSCoordGenerator = lambda *args, **kwargs: coord.ICRS(*args, **kwargs)
     GalacticCoordGenerator = lambda *args, **kwargs: coord.Galactic(*args, **kwargs)
     FK5CoordGenerator = lambda *args, **kwargs: coord.FK5(*args, **kwargs)
     FK4CoordGenerator = lambda *args, **kwargs: coord.FK4(*args, **kwargs)
     ICRSCoord = coord.ICRS
-    CoordClasses = (coord.SphericalCoordinateBase,)
+    CoordClasses = (coord.SphericalCoordinatesBase,)
 
 from ..exceptions import TimeoutError
 from .. import version
