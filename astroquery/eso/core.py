@@ -4,7 +4,7 @@ import webbrowser
 import getpass
 import warnings
 from bs4 import BeautifulSoup
-from io import StringIO, BytesIO
+from astropy.extern.six import BytesIO, StringIO
 
 from astropy.extern import six
 from astropy.table import Table, Column
