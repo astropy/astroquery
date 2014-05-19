@@ -39,9 +39,10 @@ class EsoClass(QueryWithLogin):
             url = response.url.rsplit('/', 1)[0] + '/' + form_action
         # Identify payload format
         fmt = None
-        if form.get('method') == 'get':  # TODO: perhaps add .lower() call
+        form_method = form.get('method').lower()
+        if form_method == 'get':
             fmt = 'get'  # get(url, params=payload)
-        elif form.get('method') == 'post':
+        elif form_method == 'post':
             if 'enctype' in form.attrs:
                 if form.attrs['enctype'] == 'multipart/form-data':
                     fmt = 'multipart/form-data'  # post(url, files=payload)
