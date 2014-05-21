@@ -19,6 +19,23 @@ from astropy.utils import OrderedDict
 import astropy.utils.data as aud
 from astropy.io import fits,votable
 
+try:
+    from astropy.coordinates import BaseCoordinateFrame
+    ICRSCoordGenerator = lambda *args, **kwargs: coord.SkyCoord(*args, frame='icrs', **kwargs)
+    GalacticCoordGenerator = lambda *args, **kwargs: coord.SkyCoord(*args, frame='galactic', **kwargs)
+    FK5CoordGenerator = lambda *args, **kwargs: coord.SkyCoord(*args, frame='fk5', **kwargs)
+    FK4CoordGenerator = lambda *args, **kwargs: coord.SkyCoord(*args, frame='fk4', **kwargs)
+    ICRSCoord = coord.SkyCoord
+    CoordClasses = (coord.SkyCoord, BaseCoordinateFrame)
+except ImportError:
+    from astropy.coordinates import SphericalCoordinatesBase as BaseCoordinateFrame
+    ICRSCoordGenerator = lambda *args, **kwargs: coord.ICRS(*args, **kwargs)
+    GalacticCoordGenerator = lambda *args, **kwargs: coord.Galactic(*args, **kwargs)
+    FK5CoordGenerator = lambda *args, **kwargs: coord.FK5(*args, **kwargs)
+    FK4CoordGenerator = lambda *args, **kwargs: coord.FK4(*args, **kwargs)
+    ICRSCoord = coord.ICRS
+    CoordClasses = (coord.SphericalCoordinatesBase,)
+
 from ..exceptions import TimeoutError
 from .. import version
 
@@ -118,7 +135,7 @@ def parse_coordinates(coordinates):
 
     Returns
     -------
-    a subclass of `astropy.coordinates.SphericalCoordinatesBase`
+    a subclass of `astropy.coordinates.BaseCoordinateFrame`
 
     Raises
     ------
@@ -127,17 +144,17 @@ def parse_coordinates(coordinates):
     """
     if isinstance(coordinates, six.string_types):
         try:
-            c = coord.ICRS.from_name(coordinates)
+            c = ICRSCoord.from_name(coordinates)
         except coord.name_resolve.NameResolveError:
             try:
-                c = coord.ICRS(coordinates)
+                c = ICRSCoordGenerator(coordinates)
                 warnings.warn("Coordinate string is being interpreted as an ICRS coordinate.")
             except u.UnitsError:
                 warnings.warn("Only ICRS coordinates can be entered as strings\n"
                               "For other systems please use the appropriate "
                               "astropy.coordinates object")
                 raise u.UnitsError
-    elif isinstance(coordinates, coord.SphericalCoordinatesBase):
+    elif isinstance(coordinates, CoordClasses):
         c = coordinates
     else:
         raise TypeError("Argument cannot be parsed as a coordinate")
@@ -270,7 +287,7 @@ def _is_coordinate(coordinates):
         # its coordinate-like enough
         return True
     try:
-        coord.ICRS(coordinates)
+        ICRSCoordGenerator(coordinates)
         return True
     except ValueError:
         return False

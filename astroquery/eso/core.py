@@ -4,18 +4,29 @@ import webbrowser
 import getpass
 import warnings
 from bs4 import BeautifulSoup
-from io import StringIO, BytesIO
+from astropy.extern.six import BytesIO, StringIO
 
 import keyring
 from astropy.extern import six
 from astropy.table import Table, Column
 from astropy.io import ascii
 
-from ..exceptions import LoginError
+from ..exceptions import LoginError, RemoteServiceError
 from ..utils import schema, system_tools
 from ..query import QueryWithLogin, suspend_cache
 from . import ROW_LIMIT
 
+def _check_response(content):
+    """
+    Check the response from an ESO service query for various types of error
+
+    If all is OK, return True
+    """
+    if b"NETWORKPROBLEM" in content:
+        raise RemoteServiceError("The query resulted in a network "
+                                 "problem; the service may be offline.")
+    elif b"# No data returned !" not in content:
+        return True
 
 class EsoClass(QueryWithLogin):
 
@@ -201,7 +212,7 @@ class EsoClass(QueryWithLogin):
         survey_response = self._activate_form(survey_form, form_index=0,
                                               inputs=query_dict)
 
-        if b"# No data returned !" not in survey_response.content:
+        if _check_response(survey_response.content):
             table = ascii.read(StringIO(survey_response.content.decode(
                                survey_response.encoding)), format='csv',
                                comment='#', delimiter=',', header_start=1)
@@ -290,6 +301,8 @@ class EsoClass(QueryWithLogin):
             instrument_form = self.request("GET", url)
             query_dict = {}
             query_dict.update(column_filters)
+            # TODO: replace this with individually parsed kwargs
+            query_dict.update(kwargs)
             query_dict["wdbo"] = "csv/download"
             for k in columns:
                 query_dict["tab_"+k] = True
@@ -300,7 +313,7 @@ class EsoClass(QueryWithLogin):
             instrument_response = self._activate_form(instrument_form,
                                                       form_index=0,
                                                       inputs=query_dict)
-            if b"# No data returned !" not in instrument_response.content:
+            if _check_response(instrument_response.content):
                 content = []
                 # The first line is garbage, don't know why
                 for line in instrument_response.content.split(b'\n')[1:]:
@@ -310,7 +323,15 @@ class EsoClass(QueryWithLogin):
                         else:
                             warnings.warn("Query returned no results")
                 content = b'\n'.join(content)
-                table = Table.read(BytesIO(content), format="ascii.csv")
+                try:
+                    table = Table.read(BytesIO(content), format="ascii.csv")
+                except Exception as ex:
+                    # astropy 0.3.2 raises an anonymous exception; this is
+                    # intended to prevent that from causing real problems
+                    if 'No reader defined' in ex.args[0]:
+                        table = Table.read(BytesIO(content), format="ascii")
+                    else:
+                        raise ex
         return table
 
     def get_headers(self, product_ids):

@@ -8,7 +8,7 @@ import re
 import os
 from astropy.io import ascii
 from . import BESANCON_DOWNLOAD_URL, BESANCON_MODEL_FORM, BESANCON_PING_DELAY, BESANCON_TIMEOUT
-from astropy.extern.six.moves.urllib.error import URLError
+from astropy.extern.six.moves.urllib_error import URLError
 
 from ..query import BaseQuery
 from ..utils import commons

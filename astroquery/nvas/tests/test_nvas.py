@@ -2,6 +2,7 @@
 from __future__ import print_function
 
 import os
+import re
 import requests
 from contextlib import contextmanager
 
@@ -14,8 +15,8 @@ from ...import nvas
 from ...utils.testing_tools import MockResponse
 from ...utils import commons
 
-COORDS_GAL = coord.Galactic(l=49.489, b=-0.37, unit=(u.deg, u.deg))  # ARM 2000
-COORDS_ICRS = coord.ICRS("12h29m06.69512s +2d03m08.66276s")  # 3C 273
+COORDS_GAL = commons.GalacticCoordGenerator(l=49.489, b=-0.37, unit=(u.deg, u.deg))  # ARM 2000
+COORDS_ICRS = commons.ICRSCoordGenerator("12h29m06.69512s +2d03m08.66276s")  # 3C 273
 
 DATA_FILES = {'image': 'image.imfits',
               'image_search': 'image_results.html'}
@@ -65,11 +66,16 @@ def test_parse_radius(radius):
     out = nvas.core._parse_radius(radius)
     npt.assert_approx_equal(out, 300, significant=3)
 
+def deparse_coordinates(cstr):
+    """
+    '19 23 40.001395 +14 31 01.550347' -> '19:23:40.001395 +14:31:01.550347'
+    """
+    return re.sub(" ([\+-])",r",\1",cstr).replace(" ",":").replace(","," ")
 
 @pytest.mark.parametrize(('coordinates'), [COORDS_GAL, COORDS_ICRS])
 def test_parse_coordinates(coordinates):
     out_str = nvas.core._parse_coordinates(coordinates)
-    new_coords = coord.ICRS(out_str, unit=(u.hour, u.deg))
+    new_coords = commons.ICRSCoordGenerator(deparse_coordinates(out_str), unit=(u.hour, u.deg))
     # if all goes well new_coords and coordinates have same ra and dec
     npt.assert_approx_equal(new_coords.icrs.ra.degree, coordinates.icrs.ra.degree, significant=3)
     npt.assert_approx_equal(new_coords.icrs.dec.degree, coordinates.icrs.dec.degree, significant=3)

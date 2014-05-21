@@ -40,7 +40,7 @@ def post_mockreturn(url, data=None, timeout=10, **kwargs):
     return MockResponse(content, **kwargs)
 
 def parse_objname(obj):
-    d = {'AFGL 2591': coord.ICRS(307.35388*u.deg, 40.18858*u.deg)}
+    d = {'AFGL 2591': commons.ICRSCoordGenerator(307.35388*u.deg, 40.18858*u.deg)}
     return d[obj]
 
 @pytest.fixture
@@ -94,14 +94,19 @@ def test_parse_result(filepath, objlen):
 
 
 def test_query_region_async(patch_post):
-    response = vizier.core.Vizier.query_region_async(coord.ICRS(ra=299.590, dec=35.201, unit=(u.deg, u.deg)),
+    response = vizier.core.Vizier.query_region_async(commons.ICRSCoordGenerator(ra=299.590,
+                                                                dec=35.201,
+                                                                unit=(u.deg,
+                                                                      u.deg)),
                                                      radius=5 * u.deg,
                                                      catalog=["HIP", "NOMAD", "UCAC"])
     assert response is not None
 
 
 def test_query_region(patch_post):
-    result = vizier.core.Vizier.query_region(coord.ICRS(ra=299.590, dec=35.201, unit=(u.deg, u.deg)),
+    target = commons.ICRSCoordGenerator(ra=299.590, dec=35.201,
+                                             unit=(u.deg, u.deg))
+    result = vizier.core.Vizier.query_region(target,
                                              radius=5 * u.deg,
                                              catalog=["HIP", "NOMAD", "UCAC"])
 
@@ -118,7 +123,8 @@ def test_query_object(patch_post):
     assert isinstance(result, commons.TableList)
 
 def test_query_another_object(patch_post, patch_coords):
-    result = vizier.core.Vizier.query_region("AFGL 2591", radius='0d5m', catalog="B/iram/pdbi")
+    result = vizier.core.Vizier.query_region("AFGL 2591", radius='0d5m',
+                                             catalog="B/iram/pdbi")
     assert isinstance(result, commons.TableList)
 
 def test_get_catalogs_async(patch_post):

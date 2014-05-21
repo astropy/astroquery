@@ -13,6 +13,9 @@ __pycache__
 */version.py
 astroquery/astroquery.cfg
 
+htmlcov
+.coverage
+
 # Sphinx
 _build
 docs/api
