@@ -165,14 +165,13 @@ class EsoClass(QueryWithLogin):
         survey_list : list of strings
 
         """
-        from lxml import html
         if self._survey_list is None:
             survey_list_response = self.request("GET", "http://archive.eso.org/wdb/wdb/adp/phase3_main/form")
-            root = html.document_fromstring(survey_list_response.content)
+            root = BeautifulSoup(survey_list_response .content, 'html5lib')
             self._survey_list = []
-            for select in root.xpath("//select[@name='phase3_program']"):
-                for element in select.xpath('option'):
-                    survey = element.text_content().strip()
+            for select in root.select("select[name=phase3_program]"):
+                for element in select.select('option'):
+                    survey = element.text.strip()
                     if survey not in self._survey_list and 'Any' not in survey:
                         self._survey_list.append(survey)
         return self._survey_list
