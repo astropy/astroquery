@@ -18,7 +18,7 @@ matrix:
     include:
         # Do a coverage test in Python 2
         - python: 2.7
-          env: NUMPY_VERSION=1.8.0 SETUP_CMD='test --coverage'
+          env: NUMPY_VERSION=1.8.0 SETUP_CMD='test --coverage' ASTROPY_VERSION=development
 
         - python: 2.7
           # opdeps needed because the matplotlib sphinx extension requires them
