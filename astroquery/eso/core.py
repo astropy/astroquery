@@ -6,6 +6,7 @@ import warnings
 from bs4 import BeautifulSoup
 from io import StringIO, BytesIO
 
+import keyring
 from astropy.extern import six
 from astropy.table import Table, Column
 from astropy.io import ascii
@@ -101,8 +102,6 @@ class EsoClass(QueryWithLogin):
         return response
 
     def _login(self, username):
-        import keyring
-        from lxml import html
         # Get password from keyring or prompt
         password_from_keyring = keyring.get_password("astroquery:www.eso.org", username)
         if password_from_keyring is None:
@@ -116,8 +115,8 @@ class EsoClass(QueryWithLogin):
                                                     form_index=-1,
                                                     inputs={'username': username,
                                                             'password':password})
-        root = html.document_fromstring(login_result_response.content)
-        authenticated = (len(root.find_class('error')) == 0)
+        root = BeautifulSoup(login_result_response.content, 'html5lib')
+        authenticated = not root.select('.error')
         if authenticated:
             print("Authentication successful!")
         else:
