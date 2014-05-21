@@ -10,8 +10,9 @@ python:
 env:
     global:
         - PIP_WHEEL_COMMAND="pip install --find-links http://wheels.astropy.org/ --find-links http://wheels2.astropy.org/ --use-wheel --use-mirrors"
-    # try all python versions with the latest stable numpy and astropy
-     - ASTROPY_VERSION=development NUMPY_VERSION=1.7.1 SETUP_CMD='test'
+    matrix:
+        # try all python versions with the latest stable numpy and astropy
+        - ASTROPY_VERSION=development NUMPY_VERSION=1.7.1 SETUP_CMD='test'
 
 matrix:
     include:
