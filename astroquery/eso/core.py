@@ -4,7 +4,7 @@ import webbrowser
 import getpass
 import warnings
 from bs4 import BeautifulSoup
-from io import StringIO, BytesIO
+from astropy.extern.six import BytesIO, StringIO
 
 from astropy.extern import six
 from astropy.table import Table, Column
@@ -320,7 +320,15 @@ class EsoClass(QueryWithLogin):
                         else:
                             warnings.warn("Query returned no results")
                 content = b'\n'.join(content)
-                table = Table.read(BytesIO(content), format="ascii.csv")
+                try:
+                    table = Table.read(BytesIO(content), format="ascii.csv")
+                except Exception as ex:
+                    # astropy 0.3.2 raises an anonymous exception; this is
+                    # intended to prevent that from causing real problems
+                    if 'No reader defined' in ex.args[0]:
+                        table = Table.read(BytesIO(content), format="ascii")
+                    else:
+                        raise ex
         return table
 
     def get_headers(self, product_ids):

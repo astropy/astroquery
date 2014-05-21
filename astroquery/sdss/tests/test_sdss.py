@@ -3,7 +3,7 @@ from ... import sdss
 from ...utils.testing_tools import MockResponse
 from ...exceptions import TimeoutError
 from ...utils import commons
-from astropy.extern.six.moves.urllib.error import URLError
+from astropy.extern.six.moves.urllib_error import URLError
 from astropy import coordinates
 from astropy.tests.helper import pytest
 from contextlib import contextmanager

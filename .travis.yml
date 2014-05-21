@@ -17,6 +17,7 @@ matrix:
           # opdeps needed because the matplotlib sphinx extension requires them
           env: ASTROPY_VERSION=development NUMPY_VERSION=1.8.0 SETUP_CMD='build_sphinx -w -n'
 
+
         # try alternate numpy versions with the latest development astropy
         - python: 2.7
           env: ASTROPY_VERSION=development NUMPY_VERSION=1.8.0 SETUP_CMD='test'
@@ -37,8 +38,10 @@ matrix:
 #          env: ASTROPY_VERSION=development NUMPY_VERSION=1.7.1 SETUP_CMD='test'
 
         # try a stable version of astropy, which requires monkeypatching
-        #- python: 2.7
-        #  env: ASTROPY_VERSION=stable NUMPY_VERSION=1.7.1 SETUP_CMD='test'
+        - python: 2.7
+          env: ASTROPY_VERSION=stable NUMPY_VERSION=1.8.0 SETUP_CMD='test'
+        #- python: 3.3
+        #  env: ASTROPY_VERSION=stable NUMPY_VERSION=1.8.0 SETUP_CMD='test'
 
 before_install:
    # We do this to make sure we get the dependencies so pip works below
