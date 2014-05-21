@@ -145,16 +145,16 @@ class EsoClass(QueryWithLogin):
         instrument_list : list of strings
 
         """
-        from lxml import html
         if self._instrument_list is None:
             instrument_list_response = self.request("GET", "http://archive.eso.org/cms/eso-data/instrument-specific-query-forms.html")
-            root = html.document_fromstring(instrument_list_response.content)
+            root = BeautifulSoup(instrument_list_response.content, 'html5lib')
             self._instrument_list = []
-            for element in root.xpath("//div[@id='col3']//a[@href]"):
-                if "http://archive.eso.org/wdb/wdb/eso" in element.attrib["href"]:
-                    instrument = element.attrib["href"].split("/")[-2]
+            for element in bsroot.select("div[id=col3] a[href]"):
+                href = element.attrs["href"]
+                if u"http://archive.eso.org/wdb/wdb/eso" in href:
+                    instrument = href.split("/")[-2]
                     if instrument not in self._instrument_list:
-                        self._instrument_list += [instrument]
+                        self._instrument_list.append(instrument)
         return self._instrument_list
 
     def list_surveys(self):
