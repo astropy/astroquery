@@ -22,7 +22,7 @@ class Number(object):
 
     >>> num = Number(None, upperlimit=10)
     >>> str(num) 
-    "<10.0"
+    '<10.0'
     
     >>> num == None
     True
