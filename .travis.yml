@@ -78,8 +78,8 @@ install:
    - if [[ $SETUP_CMD == build_sphinx* ]]; then bash .travis.pip.wheel $TRAVIS_PYTHON_VERSION Sphinx 1.1.3 -q -p; fi
    - if [[ $SETUP_CMD == build_sphinx* ]]; then bash .travis.pip.wheel $TRAVIS_PYTHON_VERSION matplotlib 1.2.1 -q; fi
 
-   - if [[ $ASTROPY_VERSION == stable ]]; then pip -q install astropy --use-mirrors; fi
-   - if [[ $ASTROPY_VERSION == development ]]; then pip -q install git+http://github.com/astropy/astropy.git#egg=astropy --use-mirrors; fi
+   - if [[ $ASTROPY_VERSION == stable ]]; then pip -q install astropy; fi
+   - if [[ $ASTROPY_VERSION == development ]]; then pip -q install git+http://github.com/astropy/astropy.git#egg=astropy; fi
 
    # COVERAGE DEPENDENCIES
    - if [[ $SETUP_CMD == 'test --coverage' ]]; then $PIP_WHEEL_COMMAND "coverage" ; fi
@@ -88,3 +88,5 @@ install:
 script:
    - python setup.py $SETUP_CMD
 
+after_success:
+  - if [[ $SETUP_CMD == 'test --coverage' ]]; then coveralls; fi
