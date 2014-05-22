@@ -8,11 +8,18 @@ python:
     - 3.4
 
 env:
-    # try all python versions with the latest stable numpy and astropy
-     - ASTROPY_VERSION=development NUMPY_VERSION=1.7.1 SETUP_CMD='test'
+    global:
+        - PIP_WHEEL_COMMAND="pip install --find-links http://wheels.astropy.org/ --find-links http://wheels2.astropy.org/ --use-wheel --use-mirrors"
+    matrix:
+        # try all python versions with the latest stable numpy and astropy
+        - ASTROPY_VERSION=development NUMPY_VERSION=1.7.1 SETUP_CMD='test'
 
 matrix:
     include:
+        # Do a coverage test in Python 2
+        - python: 2.7
+          env: NUMPY_VERSION=1.8.0 SETUP_CMD='test --coverage' ASTROPY_VERSION=development
+
         - python: 2.7
           # opdeps needed because the matplotlib sphinx extension requires them
           env: ASTROPY_VERSION=development NUMPY_VERSION=1.8.0 SETUP_CMD='build_sphinx -w -n'
@@ -73,6 +80,10 @@ install:
 
    - if [[ $ASTROPY_VERSION == stable ]]; then pip -q install astropy --use-mirrors; fi
    - if [[ $ASTROPY_VERSION == development ]]; then pip -q install git+http://github.com/astropy/astropy.git#egg=astropy --use-mirrors; fi
+
+   # COVERAGE DEPENDENCIES
+   - if [[ $SETUP_CMD == 'test --coverage' ]]; then $PIP_WHEEL_COMMAND "coverage" ; fi
+   - if [[ $SETUP_CMD == 'test --coverage' ]]; then $PIP_WHEEL_COMMAND "coveralls"; fi
 
 script:
    - python setup.py $SETUP_CMD
