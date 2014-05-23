@@ -1,5 +1,5 @@
 import os
-import urllib2
+import urllib
 from xml.etree import ElementTree as ET
 from astropy.tests.helper import pytest
 from ...utils.testing_tools import MockResponse
@@ -8,11 +8,11 @@ from ... import open_exoplanet_catalogue as oec
 @pytest.fixture(autouse=True)
 def patch_urlopen(request):
     mp = request.getfuncargvalue("monkeypatch")
-    mp.setattr(urllib2, 'urlopen', get_mock_return)
+    mp.setattr(urllib, 'urlopen', get_mock_return)
     return mp
 
 def get_mock_return(url, params=None, timeout=10,**kwargs):
-    # dummy function to replace urllib2 get functionality
+    # dummy function to replace urllib get functionality
     # function returns what the http request would but with local data
     filename = url[url.rfind("/")+1:]
     content = open(data_path(filename), "r").read()
