@@ -16,7 +16,7 @@ def get_mock_return(url, params=None, timeout=10,**kwargs):
     # function returns what the http request would but with local data
     filename = data_path('systems.xml.gz')
     content = open(filename, "r").read()
-    return MockResponse(content, **kwargs)
+    return content
 
 # get file path of a static data file for testing
 def data_path(filename):
