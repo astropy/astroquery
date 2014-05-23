@@ -15,7 +15,7 @@ def get_mock_return(url, params=None, timeout=10,**kwargs):
     # dummy function to replace urllib get functionality
     # function returns what the http request would but with local data
     filename = data_path('systems.xml.gz')
-    content = open(filename, "r").read()
+    content = open(filename, "r")
     return content
 
 # get file path of a static data file for testing
