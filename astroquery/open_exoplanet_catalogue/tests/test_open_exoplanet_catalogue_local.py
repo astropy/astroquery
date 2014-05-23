@@ -32,4 +32,4 @@ def test_function(patch_urlopen):
     assert kepler67b.findtext('discoverymethod') == "transit"
 
     kepler67 = cata.find(".//system[name='Kepler-67']")
-    assert kepler67.findvalue('distance') == 1107
+    assert oec.findvalue(kepler67, 'distance') == 1107
