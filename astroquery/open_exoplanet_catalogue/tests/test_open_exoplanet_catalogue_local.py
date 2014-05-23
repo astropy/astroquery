@@ -27,7 +27,7 @@ def test_function(patch_urlopen):
     cata = oec.get_catalogue()
     assert len(cata.findall('.//planet')) > 0
 
-    kepler67b =  cata.find(".//planet[name='Kepler-67 b']")
+    kepler67b = cata.find(".//planet[name='Kepler-67 b']")
     assert kepler67b.findtext('name') == "Kepler-67 b"
     assert kepler67b.findtext('discoverymethod') == "transit"
 
