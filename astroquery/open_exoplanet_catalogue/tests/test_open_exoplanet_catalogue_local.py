@@ -14,8 +14,7 @@ def patch_urlopen(request):
 def get_mock_return(url, params=None, timeout=10,**kwargs):
     # dummy function to replace urllib get functionality
     # function returns what the http request would but with local data
-    filename = url[url.rfind("/")+1:]
-    content = open(data_path(filename), "r").read()
+    content = open(data_path('systems.xml.gz'), "r").read()
     return MockResponse(content, **kwargs)
 
 # get file path of a static data file for testing
