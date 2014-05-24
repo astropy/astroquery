@@ -4,7 +4,7 @@ import urllib
 import gzip
 import io
 import os
-from utils import Number
+from .utils import Number
 
 oec_server_url = "https://github.com/OpenExoplanetCatalogue/oec_gzip/raw/master/systems.xml.gz"
 
