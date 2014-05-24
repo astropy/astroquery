@@ -60,23 +60,24 @@ def findvalue( element, searchstring):
     str if the tag cannot be expressed as a float.
     Number if the tag is a numerical value
     """
-
-    res = element.find(searchstring)
-    if res is None:
-        return None
-    tempnum = Number()
-    if res.text is not None:
-        try:
-            float(res.text)
-            setattr(tempnum, 'value', res.text)
-        except ValueError:
-            return res.text
-    if res.attrib.has_key("errorminus"):
-        tempnum.errorminus = res.attrib["errorminus"]
-    if res.attrib.has_key("errorplus"):
-        tempnum.errorplus = res.attrib["errorplus"]
-    if res.attrib.has_key("upperlimit"):
-        tempnum.upperlimit = res.attrib["upperlimit"]
-    if res.attrib.has_key("lowerlimit"):
-        tempnum.lowerlimit = res.attrib["lowerlimit"]
-    return tempnum 
+    
+    if element is not None:
+        res = element.find(searchstring)
+        if res is None:
+            return None
+        tempnum = Number()
+        if res.text is not None:
+            try:
+                float(res.text)
+                setattr(tempnum, 'value', res.text)
+            except ValueError:
+                return res.text
+        if res.attrib.has_key("errorminus"):
+            tempnum.errorminus = res.attrib["errorminus"]
+        if res.attrib.has_key("errorplus"):
+            tempnum.errorplus = res.attrib["errorplus"]
+        if res.attrib.has_key("upperlimit"):
+            tempnum.upperlimit = res.attrib["upperlimit"]
+        if res.attrib.has_key("lowerlimit"):
+            tempnum.lowerlimit = res.attrib["lowerlimit"]
+        return tempnum 

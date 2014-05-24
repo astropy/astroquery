@@ -28,8 +28,8 @@ def test_function(patch_urlopen):
     assert len(cata.findall('.//planet')) > 0
 
     kepler67b = cata.find(".//planet[name='Kepler-67 b']")
-    assert kepler67b.findtext('name') == "Kepler-67 b"
-    assert kepler67b.findtext('discoverymethod') == "transit"
+    assert oec.findvalue(kepler67b, 'name') == "Kepler-67 b"
+    assert oec.findvalue(kepler67b, 'discoverymethod') == "transit"
 
     kepler67 = cata.find(".//system[name='Kepler-67']")
     assert oec.findvalue(kepler67, 'distance') == 1107
