@@ -1,14 +1,21 @@
 import os
-import urllib
 from xml.etree import ElementTree as ET
 from astropy.tests.helper import pytest
 from ...utils.testing_tools import MockResponse
 from ... import open_exoplanet_catalogue as oec
 
+try:
+    from urllib.request import urlopen
+except ImportError:
+    from urllib2 import urlopen
+
 @pytest.fixture(autouse=True)
 def patch_urlopen(request):
     mp = request.getfuncargvalue("monkeypatch")
-    mp.setattr(urllib, 'urlopen', get_mock_return)
+    try:
+        mp.setattr(urllib2, 'urlopen', get_mock_return)
+    except AttributeError:
+        mp.setattr(urllib.request, 'urlopen', get_mock_return)
     return mp
 
 def get_mock_return(url, params=None, timeout=10,**kwargs):

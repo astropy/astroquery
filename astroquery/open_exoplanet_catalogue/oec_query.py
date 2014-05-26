@@ -1,6 +1,5 @@
 #!/usr/bin/python
 import xml.etree.ElementTree as ET
-import urllib
 import gzip
 import io
 import os
@@ -9,6 +8,11 @@ from .utils import Number
 oec_server_url = "https://github.com/OpenExoplanetCatalogue/oec_gzip/raw/master/systems.xml.gz"
 
 __all__ = ['xml_element_to_dict','findvalue', 'get_catalogue']
+
+try:
+    from urllib.request import urlopen
+except ImportError:
+    from urllib2 import urlopen
 
 def get_catalogue(filepath=None):
     """
@@ -23,7 +27,7 @@ def get_catalogue(filepath=None):
     """
 
     if filepath is None:
-        oec = ET.parse(gzip.GzipFile(fileobj=io.BytesIO(urllib.urlopen(oec_server_url).read())))
+        oec = ET.parse(gzip.GzipFile(fileobj=io.BytesIO(urlopen(oec_server_url).read())))
     else:
         oec = ET.parse(gzip.GzipFile(filepath)) 
     return oec
