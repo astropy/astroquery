@@ -5,9 +5,9 @@ from ...utils.testing_tools import MockResponse
 from ... import open_exoplanet_catalogue as oec
 
 try:
-    from urllib.request import urlopen
+    import urllib.request
 except ImportError:
-    from urllib2 import urlopen
+    import urllib2
 
 @pytest.fixture(autouse=True)
 def patch_urlopen(request):
