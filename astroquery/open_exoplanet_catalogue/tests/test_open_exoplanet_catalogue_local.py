@@ -14,7 +14,7 @@ def patch_urlopen(request):
     mp = request.getfuncargvalue("monkeypatch")
     try:
         mp.setattr(urllib2, 'urlopen', get_mock_return)
-    except AttributeError:
+    except NameError:
         mp.setattr(urllib.request, 'urlopen', get_mock_return)
     return mp
 
