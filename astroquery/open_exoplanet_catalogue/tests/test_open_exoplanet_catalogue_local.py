@@ -4,18 +4,16 @@ from astropy.tests.helper import pytest
 from ...utils.testing_tools import MockResponse
 from ... import open_exoplanet_catalogue as oec
 
-try:
-    import urllib.request
-except ImportError:
-    import urllib2
 
 @pytest.fixture(autouse=True)
 def patch_urlopen(request):
     mp = request.getfuncargvalue("monkeypatch")
     try:
-        mp.setattr(urllib2, 'urlopen', get_mock_return)
-    except NameError:
+        import urllib.request
         mp.setattr(urllib.request, 'urlopen', get_mock_return)
+    except ImportError:
+        import urllib2
+        mp.setattr(urllib2, 'urlopen', get_mock_return)
     return mp
 
 def get_mock_return(url, params=None, timeout=10,**kwargs):
