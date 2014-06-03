@@ -32,9 +32,14 @@ def test_function(patch_urlopen):
     cata = oec.get_catalogue()
     assert len(cata.findall('.//planet')) > 0
 
-    kepler67b = cata.find(".//planet[name='Kepler-67 b']")
+    for planet in cata.findall(".//planet[name]"):
+        if oec.findvalue(planet, 'name') == "Kepler-67 b":
+            kepler67b = planet
     assert oec.findvalue(kepler67b, 'name') == "Kepler-67 b"
     assert oec.findvalue(kepler67b, 'discoverymethod') == "transit"
 
-    kepler67 = cata.find(".//system[name='Kepler-67']")
+    kepler67 = cata.find(".//system[name]")
+    for star in cata.findall(".//planet[name]"):
+        if oec.findvalue(star, 'name') == "Kepler-67":
+            kepler67 = star 
     assert oec.findvalue(kepler67, 'distance') == 1107
