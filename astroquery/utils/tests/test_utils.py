@@ -110,6 +110,14 @@ def test_send_request_get(monkeypatch):
                                     dict(a='b'), 60, request_type='GET')
     assert response.url == 'https://github.com/astropy/astroquery?a=b'
 
+def test_quantity_timeout(monkeypatch):
+    def mock_get(url, params, timeout, headers={}):
+        req = requests.Request('GET', url, params=params, headers=headers).prepare()
+        return req
+    monkeypatch.setattr(requests, 'get', mock_get)
+    response = commons.send_request('https://github.com/astropy/astroquery',
+                                    dict(a='b'), 1*u.min, request_type='GET')
+    assert response.url == 'https://github.com/astropy/astroquery?a=b'
 
 def test_send_request_err():
     with pytest.raises(ValueError):

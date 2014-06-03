@@ -60,7 +60,7 @@ def send_request(url, data, timeout, request_type='POST', headers={},
         The URL of the remote server
     data : dict
         A dictionary representing the payload to be posted via the HTTP request
-    timeout : int
+    timeout : int, quantity_like
         Time limit for establishing successful connection with remote server
     request_type : str
         options are 'POST' (default) and 'GET'. Determines whether to perform
@@ -75,6 +75,11 @@ def send_request(url, data, timeout, request_type='POST', headers={},
         Response object returned by the remote server
     """
     headers['User-Agent'] = 'astropy:astroquery.{vers}'.format(vers=version.version)
+
+    if hasattr(timeout, "unit"):
+        warnings.warn("Converting timeout to seconds and truncating to integer.")
+        timeout = int(timeout.to(u.s).value)
+
     try:
         if request_type == 'GET':
             response = requests.get(url, params=data, timeout=timeout,
@@ -120,6 +125,47 @@ def parse_radius(radius):
         # astropy <0.3 compatibility: Angle can't be instantiated with a unit object
         return coord.Angle(radius.to(u.degree), unit=u.degree)
 
+def radius_to_unit(radius, unit='degree'):
+    """
+    Helper function: Parse a radius, then return its value in degrees
+
+    Parameters
+    ----------
+    radius : str/astropy.units.Quantity
+        The radius of a region
+
+    Returns
+    -------
+    Floating point scalar value of radius in degrees
+    """
+    rad = parse_radius(radius)
+    # This is a hack to deal with astropy pre/post PR#1006
+    # the try/except clauses are to deal with python3
+    # (note that this falls under the "I really, really wish I didn't have to
+    # deal with unicode right now" category)
+
+    try:
+        unit = unit.decode()
+    except AttributeError:
+        pass # (unit has no attribute "decode": it is already a unicode string?)
+
+    try:
+        # don't check for attrs if unit is not a string and cannot be coerced to one
+        assert isinstance(unit,str)
+        if hasattr(rad,unit):
+            return getattr(rad,unit)
+        elif hasattr(rad,unit+'s'):
+            return getattr(rad,unit+'s')
+    except AssertionError:
+        pass # try the other if
+
+    # major hack to deal with <0.3 Angle's not having deg/arcmin/etc equivs.
+    if hasattr(rad,'degree'):
+        return (rad.degree * u.degree).to(unit).value
+    elif hasattr(rad,'to'):
+        return rad.to(unit).value
+    else:
+        raise TypeError("Radius is an invalid type.")
 
 def parse_coordinates(coordinates):
     """
@@ -319,7 +365,7 @@ class FileContainer(object):
         kwargs.setdefault('cache', True)
         self._target = target
         self._timeout = kwargs.get('remote_timeout', aud.REMOTE_TIMEOUT())
-        if (os.path.splitext(target)[1] == '.fits' and not 
+        if (os.path.splitext(target)[1] == '.fits' and not
                 ('encoding' in kwargs and kwargs['encoding'] == 'binary')):
             warnings.warn("FITS files must be read as binaries; error is likely.")
         self._readable_object = get_readable_fileobj(target, **kwargs)
