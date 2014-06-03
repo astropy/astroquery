@@ -68,6 +68,7 @@ class EsoClass(QueryWithLogin):
             value = None
             is_file = False
             tag_name = form_elem.name
+            key = form_elem.get('name')
             if tag_name == 'input':
                 value = form_elem.get('value')
                 if 'type' in form_elem.attrs:
@@ -82,25 +83,25 @@ class EsoClass(QueryWithLogin):
                     for option in form_elem.select('option[value]'):
                         if option.get('selected') is not None:
                             value = option.get('value')
-            if tag_name in inputs:
-                value = str(inputs[tag_name])
-            if (tag_name is not None) and (value is not None):
+            if key in inputs:
+                value = str(inputs[key])
+            if (key is not None) and (value is not None):
                 if fmt == 'multipart/form-data':
                     if is_file:
                         payload.append(
-                            (tag_name, ('', '', 'application/octet-stream')))
+                            (key, ('', '', 'application/octet-stream')))
                     else:
                         if type(value) is list:
                             for v in value:
-                                payload.append((tag_name, ('', v)))
+                                payload.append((key, ('', v)))
                         else:
-                            payload.append((tag_name, ('', value)))
+                            payload.append((key, ('', value)))
                 else:
                     if type(value) is list:
                         for v in value:
-                            payload.append((tag_name, v))
+                            payload.append((key, v))
                     else:
-                        payload.append((tag_name, value))
+                        payload.append((key, value))
         # Send payload
         if fmt == 'get':
             response = self.request("GET", url, params=payload)
