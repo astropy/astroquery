@@ -418,7 +418,6 @@ class EsoClass(QueryWithLogin):
             List of files that have been locally downloaded from the archive.
 
         """
-        from lxml import html
         datasets_to_download = []
         files = []
         # First: Detect datasets already downloaded
@@ -429,38 +428,38 @@ class EsoClass(QueryWithLogin):
                                               local_filename)
             if os.path.exists(local_filename):
                 print("Found {0}.fits...".format(dataset))
-                files += [local_filename]
+                files.append(local_filename)
             elif os.path.exists(local_filename + ".Z"):
                 print("Found {0}.fits.Z...".format(dataset))
-                files += [local_filename + ".Z"]
+                files.append(local_filename + ".Z")
             else:
-                datasets_to_download += [dataset]
+                datasets_to_download.append(dataset)
         # Second: Download the other datasets
         if datasets_to_download:
             data_retrieval_form = self.request("GET", "http://archive.eso.org/cms/eso-data/eso-data-direct-retrieval.html")
             print("Staging request...")
             with suspend_cache(self):  # Never cache staging operations
                 data_confirmation_form = self._activate_form(data_retrieval_form, form_index=-1, inputs={"list_of_datasets": "\n".join(datasets_to_download)})
-                root = html.document_fromstring(data_confirmation_form.content)
-                login_button = root.xpath('//input[@value="LOGIN"]')
+                root = BeautifulSoup(data_confirmation_form.content, 'html5lib')
+                login_button = root.select('input[value=LOGIN]')
                 if login_button:
                     raise LoginError("Not logged in.  You must be logged in to download data.")
                 # TODO: There may be another screen for Not Authorized; that should be included too
                 data_download_form = self._activate_form(data_confirmation_form, form_index=-1)
-                root = html.document_fromstring(data_download_form.content)
-                state = root.xpath("//span[@id='requestState']")[0].text
+                root = BeautifulSoup(data_download_form.content, 'html5lib')
+                state = root.select('span[id=requestState]')[0].text
                 while state != 'COMPLETE':
                     time.sleep(2.0)
                     data_download_form = self.request("GET",
                                                       data_download_form.url)
-                    root = html.document_fromstring(data_download_form.content)
-                    state = root.xpath("//span[@id='requestState']")[0].text
+                    root = BeautifulSoup(data_download_form.content, 'html5lib')
+                    state = root.select('span[id=requestState]')[0].text
             print("Downloading files...")
-            for fileId in root.xpath("//input[@name='fileId']"):
-                fileLink = fileId.attrib['value'].split()[1]
+            for fileId in root.select('input[name=fileId]'):  # FIXME
+                fileLink = fileId.attrs['value'].split()[1]
                 fileLink = fileLink.replace("/api", "").replace("https://", "http://")
                 filename = self.request("GET", fileLink, save=True)
-                files += [system_tools.gunzip(filename)]
+                files.append(system_tools.gunzip(filename))
         print("Done!")
         return files
 
