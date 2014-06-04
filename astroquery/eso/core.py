@@ -367,7 +367,7 @@ class EsoClass(QueryWithLogin):
             header = {'DP.ID': dp_id}
             for key_value in hdr.split('\n'):
                 if "=" in key_value:
-                    [key, value] = key_value.split('=', 1)
+                    key, value = key_value.split('=', 1)
                     key = key.strip()
                     value = value.split('/', 1)[0].strip()
                     if key[0:7] != "COMMENT":  # drop comments
@@ -379,21 +379,21 @@ class EsoClass(QueryWithLogin):
                         elif value[0] == "'":
                             value = value[1:-1]
                         elif "." in value:  # Convert to float
-                                value = float(value)
+                            value = float(value)
                         else:  # Convert to integer
                             value = int(value)
                         header[key] = value
-                elif key_value.find("END") == 0:
+                elif key_value.startswith("END"):
                     break
-            result += [header]
+            result.append(header)
         # Identify all columns
         columns = []
         column_types = []
         for header in result:
-            for key in header.keys():
+            for key in header:
                 if key not in columns:
-                    columns += [key]
-                    column_types += [type(header[key])]
+                    columns.append(key)
+                    column_types.append(type(header[key]))
         # Add all missing elements
         for i in range(len(result)):
             for (column, column_type) in zip(columns, column_types):
