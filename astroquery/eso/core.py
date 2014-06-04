@@ -356,15 +356,14 @@ class EsoClass(QueryWithLogin):
             A table where: columns are header keywords, rows are product_ids.
 
         """
-        from lxml import html
         _schema_product_ids = schema.Schema(schema.Or(Column, [six.string_types]))
         _schema_product_ids.validate(product_ids)
         # Get all headers
         result = []
         for dp_id in product_ids:
             response = self.request("GET", "http://archive.eso.org/hdr?DpId={0}".format(dp_id))
-            root = html.document_fromstring(response.content)
-            hdr = root.xpath("//pre")[0].text
+            root = BeautifulSoup(response.content, 'html5lib')
+            hdr = root.select('pre')[0].text
             header = {'DP.ID': dp_id}
             for key_value in hdr.split('\n'):
                 if "=" in key_value:
