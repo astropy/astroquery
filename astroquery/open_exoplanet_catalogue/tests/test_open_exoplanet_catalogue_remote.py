@@ -21,4 +21,4 @@ def test_function():
     for star in cata.findall(".//planet[name]"):
         if oec.findvalue(star, 'name') == "Kepler-67":
             kepler67 = star 
-    assert oec.findvalue(kepler67, 'distance') == 1107
+    assert oec.findvalue(kepler67, 'distance') == "1107"
