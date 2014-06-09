@@ -83,7 +83,7 @@ install:
     - if [[ $SETUP_CMD != egg_info ]]; then pip install pytest-xdist; fi
 
     # ASTROPY
-    - if [[ $SETUP_CMD != egg_info ]] && [[ $ASTROPY_VERSION == development ]]; then pip -q install git+http://github.com/astropy/astropy.git#egg=astropy; fi
+    - if [[ $SETUP_CMD != egg_info ]] && [[ $ASTROPY_VERSION == development ]]; then conda remove astropy ; pip -q install git+http://github.com/astropy/astropy.git#egg=astropy; fi
     - if [[ $SETUP_CMD != egg_info ]] && [[ $ASTROPY_VERSION == stable ]]; then conda install -c astropy-ci-extras --yes astropy; fi
 
     # OPTIONAL DEPENDENCIES
