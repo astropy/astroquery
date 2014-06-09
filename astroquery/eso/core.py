@@ -336,7 +336,8 @@ class EsoClass(QueryWithLogin):
                     # astropy 0.3.2 raises an anonymous exception; this is
                     # intended to prevent that from causing real problems
                     if 'No reader defined' in ex.args[0]:
-                        table = Table.read(BytesIO(content), format="ascii")
+                        table = Table.read(BytesIO(content), format="ascii",
+                                           delimiter=',')
                     else:
                         raise ex
         return table
