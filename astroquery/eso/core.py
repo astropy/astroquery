@@ -83,6 +83,10 @@ class EsoClass(QueryWithLogin):
                     for option in form_elem.select('option[value]'):
                         if option.get('selected') is not None:
                             value = option.get('value')
+                    # select the first option field if none is selected
+                    if value is None:
+                        value = form_elem.select('option[value]')[0].get('value')
+
             if key in inputs:
                 value = str(inputs[key])
             if (key is not None) and (value is not None):
@@ -213,14 +217,17 @@ class EsoClass(QueryWithLogin):
                                               inputs=query_dict)
 
         if _check_response(survey_response.content):
-            table = ascii.read(StringIO(survey_response.content.decode(
-                               survey_response.encoding)), format='csv',
-                               comment='#', delimiter=',', header_start=1)
+            try:
+                table = ascii.read(StringIO(survey_response.content.decode(
+                                   survey_response.encoding)), format='csv',
+                                   comment='#', delimiter=',', header_start=1)
+            except ValueError:
+                table = ascii.read(StringIO(survey_response.content.decode(
+                                   survey_response.encoding)),
+                                   comment='#', delimiter=',', header_start=1)
             return table
         else:
             warnings.warn("Query returned no results")
-
-
 
     def query_instrument(self, instrument, column_filters={}, columns=[],
                          open_form=False, help=False, **kwargs):
