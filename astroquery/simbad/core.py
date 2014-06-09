@@ -846,7 +846,7 @@ Simbad = SimbadClass()
 def _create_bibcode_table(data, splitter):
     ref_list = [splitter + ref for ref in data.split(splitter)][2:]
     max_len = max([len(r) for r in ref_list])
-    table = Table(names=['References'], dtypes=['S%i' % max_len])
+    table = Table(names=['References'], dtype=['S%i' % max_len])
     for ref in ref_list:
         if hasattr(ref,'decode'):
             table.add_row([ref.decode('utf-8')])

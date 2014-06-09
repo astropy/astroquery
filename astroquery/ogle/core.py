@@ -148,7 +148,7 @@ class OgleClass(BaseQuery):
         # Select first row and skip first character ('#') to find column headers
         header = raw_data[0][1:].split()
         data = self._parse_raw(raw_data)
-        t = Table(data, names=header, dtypes=self.result_dtypes)
+        t = Table(data, names=header, dtype=self.result_dtypes)
         return t
 
     def _parse_coords(self, coord, coord_sys):

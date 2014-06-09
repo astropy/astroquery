@@ -142,7 +142,7 @@ def query(coord=None, ra=None, dec=None, size=None, naifid=None, pid=None,
     dtypes = _map_dtypes(type_names, field_widths)
     # To table
     # transpose data for appropriate table instance handling
-    t = Table(list(zip(*data)), names=col_names, dtypes=dtypes)
+    t = Table(list(zip(*data)), names=col_names, dtype=dtypes)
     return t
 
 
