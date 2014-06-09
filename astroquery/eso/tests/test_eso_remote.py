@@ -70,7 +70,7 @@ class TestEso:
         #result2 = eso.query_instrument(instruments[0], target='Sgr A*')
         result2 = eso.query_instrument(instruments[0], coord1=266.41681662, coord2=-29.00782497)
     
-        assert (result1 == result2).all()
+        assert result1 == result2
     
 
     def test_list_instruments(self):
