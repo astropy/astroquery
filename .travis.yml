@@ -9,6 +9,9 @@ python:
     # This is just for "egg_info".  All other builds are explicitly given in the matrix
 env:
     global:
+        # The following versions are the 'default' for tests, unless
+        # overidden underneath. They are defined here in order to save having
+        # to repeat them for all configurations.
         - NUMPY_VERSION=1.8
         - ASTROPY_VERSION=stable
     matrix:
@@ -17,30 +20,31 @@ env:
 matrix:
     include:
 
-        # Do a coverage test in Python 2
+        # Do a coverage test in Python 2. This requires the latest
+        # development version of Astropy, which fixes some issues with
+        # coverage testing in affiliated packages.
         - python: 2.7
           env: ASTROPY_VERSION=development SETUP_CMD='test --coverage'
 
         # Check for sphinx doc build warnings - we do this first because it
-        # runs for a long time
+        # may run for a long time
         - python: 2.7
           env: SETUP_CMD='build_sphinx -w'
-          # OPTIONAL_DEPS needed because the plot_directive in sphinx needs them
 
         # Try all python versions with the latest numpy
         - python: 2.6
           env: SETUP_CMD='test --parallel=8'
         - python: 2.7
           env: SETUP_CMD='test --parallel=8'
-        # There is a bug in pytest-xdist that prevents it from working
-        # on Python 3.x.  See:
-        # https://bitbucket.org/hpk42/pytest/issue/301/internal-error-during-test-collecting
         - python: 3.2
           env: SETUP_CMD='test'
         - python: 3.3
           env: SETUP_CMD='test'
         - python: 3.4
           env: SETUP_CMD='test'
+        # There is a bug in pytest-xdist that prevents it from working
+        # on Python 3.x, so we don't use parallel testing on Python 3.x. See:
+        # https://bitbucket.org/hpk42/pytest/issue/301/internal-error-during-test-collecting
 
         # Try older numpy versions
         - python: 3.2
@@ -87,8 +91,11 @@ install:
     - if [[ $SETUP_CMD != egg_info ]] && [[ $ASTROPY_VERSION == stable ]]; then conda install -c astropy-ci-extras --yes astropy; fi
 
     # OPTIONAL DEPENDENCIES
-    # - if $OPTIONAL_DEPS; then conda install --yes ... ; fi
-    # - if $OPTIONAL_DEPS; then pip install ...; fi
+    # Here you can add any dependencies your package may have. You can use
+    # conda for packages available through conda, or pip for any other
+    # packages.
+    # - if [[ $SETUP_CMD != egg_info ]]; then conda install --yes ... ; fi
+    # - if [[ $SETUP_CMD != egg_info ]]; then pip install ...; fi
 
     # DOCUMENTATION DEPENDENCIES
     # build_sphinx needs sphinx and matplotlib (for plot_directive). Note that
