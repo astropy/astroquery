@@ -454,7 +454,7 @@ class EsoClass(QueryWithLogin):
                     root = BeautifulSoup(data_download_form.content, 'html5lib')
                     state = root.select('span[id=requestState]')[0].text
             print("Downloading files...")
-            for fileId in root.select('input[name=fileId]'):  # FIXME
+            for fileId in root.select('input[name=fileId]'):
                 fileLink = fileId.attrs['value'].split()[1]
                 fileLink = fileLink.replace("/api", "").replace("https://", "http://")
                 filename = self.request("GET", fileLink, save=True)
