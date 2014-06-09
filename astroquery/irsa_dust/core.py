@@ -714,7 +714,7 @@ class NumberNode(BaseDustNode):
         """
         BaseDustNode.__init__(self, xml_node)
         self._value = utils.parse_number(xml_node.text)
-        self._columns = [Column(name=col_name, units=units)]
+        self._columns = [Column(name=col_name, unit=units)]
 
     def __str__(self):
         """Return a string representation of the item."""
@@ -744,8 +744,8 @@ class CoordNode(BaseDustNode):
         BaseDustNode.__init__(self, xml_node)
         self._value = utils.parse_coords(xml_node.text)
         units = u.deg
-        self._columns = [Column(name=col_names[0], units=units),
-                         Column(name=col_names[1], units=units),
+        self._columns = [Column(name=col_names[0], unit=units),
+                         Column(name=col_names[1], unit=units),
                          Column(name=col_names[2], dtype="S25")]
 
     def __str__(self):
