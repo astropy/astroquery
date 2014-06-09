@@ -144,7 +144,7 @@ def _parse_datafile(datafile, query_type, coll_partner_index=0):
                                    query_type=query_type)
     # Convert columns with string data types to floats if possible
     col_dtypes = _check_dtypes(data)
-    table = Table(data, names=col_names, dtypes=col_dtypes)
+    table = Table(data, names=col_names, dtype=col_dtypes)
     return table
 
 
