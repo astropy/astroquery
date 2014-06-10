@@ -87,21 +87,22 @@ install:
     - if [[ $SETUP_CMD != egg_info ]]; then pip install pytest-xdist; fi
 
     # ASTROPY
-    - if [[ $SETUP_CMD != egg_info ]] && [[ $ASTROPY_VERSION == development ]]; then conda remove astropy ; pip -q install git+http://github.com/astropy/astropy.git#egg=astropy; fi
-    - if [[ $SETUP_CMD != egg_info ]] && [[ $ASTROPY_VERSION == stable ]]; then conda install -c astropy-ci-extras --yes astropy; fi
+    - if [[ $SETUP_CMD != egg_info ]] && [[ $ASTROPY_VERSION == development ]]; then pip -q install git+http://github.com/astropy/astropy.git#egg=astropy; fi
+    - if [[ $SETUP_CMD != egg_info ]] && [[ $ASTROPY_VERSION == stable ]]; then conda install -c astropy-ci-extras --yes numpy=$NUMPY_VERSION astropy; fi
 
     # OPTIONAL DEPENDENCIES
     # Here you can add any dependencies your package may have. You can use
     # conda for packages available through conda, or pip for any other
-    # packages.
-    # - if [[ $SETUP_CMD != egg_info ]]; then conda install --yes ... ; fi
+    # packages. You should leave the `numpy=$NUMPY_VERSION` in the `conda` 
+    # install since this ensures Numpy does not get automatically upgraded.
+    # - if [[ $SETUP_CMD != egg_info ]]; then conda install --yes numpy=$NUMPY_VERSION ... ; fi
     # - if [[ $SETUP_CMD != egg_info ]]; then pip install ...; fi
 
     # DOCUMENTATION DEPENDENCIES
     # build_sphinx needs sphinx and matplotlib (for plot_directive). Note that
     # this matplotlib will *not* work with py 3.x, but our sphinx build is
     # currently 2.7, so that's fine
-    - if [[ $SETUP_CMD == build_sphinx* ]]; then conda install --yes Sphinx matplotlib; fi
+    - if [[ $SETUP_CMD == build_sphinx* ]]; then conda install --yes numpy=$NUMPY_VERSION Sphinx matplotlib; fi
 
     # COVERAGE DEPENDENCIES
     - if [[ $SETUP_CMD == 'test --coverage' ]]; then pip install coverage coveralls; fi
