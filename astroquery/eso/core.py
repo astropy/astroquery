@@ -37,7 +37,7 @@ class EsoClass(QueryWithLogin):
         self._instrument_list = None
         self._survey_list = None
 
-    def _activate_form(self, response, form_index=0, inputs={}, debug=False):
+    def _activate_form(self, response, form_index=0, inputs={}):
         # Extract form from response
         root = BeautifulSoup(response.content, 'html5lib')
         form = root.find_all('form')[form_index]
