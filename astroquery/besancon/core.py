@@ -9,6 +9,7 @@ import os
 from astropy.io import ascii
 from . import BESANCON_DOWNLOAD_URL, BESANCON_MODEL_FORM, BESANCON_PING_DELAY, BESANCON_TIMEOUT
 from astropy.extern.six.moves.urllib_error import URLError
+from astropy.extern.six import StringIO
 
 from ..query import BaseQuery
 from ..utils import commons
@@ -151,7 +152,7 @@ class BesanconClass(BaseQuery):
             print("Loading request from Besancon server ...")
 
         # keep the text stored for possible later use
-        with commons.get_readable_fileobj(response.raw) as f:
+        with commons.get_readable_fileobj(StringIO(response.content)) as f:
             text = f.read()
             # py3 compatibility; do nothing for py2:
             if hasattr(text, 'decode') and not hasattr(text, 'encode'):
@@ -258,8 +259,8 @@ class BesanconClass(BaseQuery):
 
         if clouds is not None:
             for ii, (AV, di) in enumerate(clouds):
-                kwd[AV][ii] = AV
-                kwd[di][ii] = di
+                kwd['AV'][ii] = AV
+                kwd['di'][ii] = di
 
         # parse the default dictionary
         # request_data = parse_besancon_dict(keyword_defaults)
@@ -400,7 +401,9 @@ def parse_besancon_model_string(bms,):
     # note: old col_starts/col_ends were:
     # (0,7,13,16,21,27,33,36,41,49,56,62,69,76,82,92,102,109)
     # (6,12,15,20,26,32,35,39,48,55,61,68,75,81,91,101,108,115)
-    col_ends = [(first_data_line+" ").find(" "+x+" ")+len(x)+1 for x in first_data_line.split()]
+    space_indices = [first_data_line.find(" ",ii) for ii in range(len(first_data_line))]
+    col_ends = [y for x,y in zip(space_indices[:-1], space_indices[1:]) if y-x > 1] + [len(space_indices)]
+    #col_ends = [(first_data_line+" ").find(" "+x+" ")+len(x)+1 for x in first_data_line.split()]
     if not all(x<y for x,y in zip(col_ends[:-1],col_ends[1:])):
         raise ValueError("Failed to parse Besancon table header.")
     col_starts = [0] + [c for c in col_ends[:-1]]
