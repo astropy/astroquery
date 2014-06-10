@@ -48,7 +48,7 @@ matrix:
 
         # Try older numpy versions
         - python: 3.2
-          env: NUMPY_VERSION=1.6 SETUP_CMD='test --parallel=8'
+          env: NUMPY_VERSION=1.6 SETUP_CMD='test'
         - python: 2.7
           env: NUMPY_VERSION=1.7 SETUP_CMD='test --parallel=8'
         - python: 2.7
@@ -60,7 +60,7 @@ matrix:
         - python: 2.7
           env: ASTROPY_VERSION=development SETUP_CMD='test --parallel=8'
         - python: 3.3
-          env: ASTROPY_VERSION=development SETUP_CMD='test --parallel=8'
+          env: ASTROPY_VERSION=development SETUP_CMD='test'
 
 before_install:
 
