@@ -401,7 +401,9 @@ def parse_besancon_model_string(bms,):
     # note: old col_starts/col_ends were:
     # (0,7,13,16,21,27,33,36,41,49,56,62,69,76,82,92,102,109)
     # (6,12,15,20,26,32,35,39,48,55,61,68,75,81,91,101,108,115)
-    col_ends = [(first_data_line+" ").find(" "+x+" ")+len(x)+1 for x in first_data_line.split()]
+    space_indices = [first_data_line.find(" ",ii) for ii in range(len(first_data_line))]
+    col_ends = [y for x,y in zip(space_indices[:-1], space_indices[1:]) if y-x > 1] + [len(space_indices)]
+    #col_ends = [(first_data_line+" ").find(" "+x+" ")+len(x)+1 for x in first_data_line.split()]
     if not all(x<y for x,y in zip(col_ends[:-1],col_ends[1:])):
         raise ValueError("Failed to parse Besancon table header.")
     col_starts = [0] + [c for c in col_ends[:-1]]
