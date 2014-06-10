@@ -35,6 +35,8 @@ class TestEso:
         assert result_i is not None
         assert 'VVV' in surveys
         assert result_s is not None
+        assert 'Object' in result_s.colnames
+        assert 'b333' in result_s['Object']
 
     def test_nologin(self):
         # WARNING: this test will fail if you haven't cleared your cache and

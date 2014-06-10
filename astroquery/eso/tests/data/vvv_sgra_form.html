@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<TITLE>ESO Science Archive - Data Products</TITLE>
+<link rel="stylesheet" type="text/css" href="/wdb/css/wdb.css">
+<META http-equiv="Content-Script-Type" content="text/javascript">
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+<script type="text/javascript"><!--
+$(document).ready( function() { ;
+// wdb forces the onclick of the reset field in the query form to use the wdb_showall_toggler function;
+// this is not wise, need to change it. Here we REMOVE such binding, and use the $(":reset").click function defined few lines later.
+// A good way of doing this with jQuery 1.10.x would be: $(":reset").prop("onclick", null); but here we have 1.8.3:
+$(":reset").attr('onclick','').unbind('click');
+// function to actually select the "more" and "HDR" output fields in the extra_columns select menu:
+set_extra_columns();
+$(":reset").click(function(){
+$("\x23coord_sys option[value=eq]").attr('selected','selected');
+changeLabels();
+wdb_showall_toggler($('\x23wdb_tabbit'),'All Fields','Default Fields','reset')
+set_extra_columns();
+});
+});
+function set_extra_columns()
+{
+$('\x23extra_columns option').filter( function() {
+var theval = $(this).val();
+if ( theval=="HDR" || theval=="more")
+{
+return 1;
+} else { return 0; }
+}).attr('selected', true);   // Remeber: use prop if jQuery version >= 1.9
+}
+function changeLabels()
+{
+var coordsys=$("\x23coord_sys").val();
+var label1="RA";
+var label2="DEC";
+var unitlabel_coord1="RA: sexagesimal/hours, decimal/degrees";
+if (coordsys == "gal")
+{
+label1="l ";
+label2="b ";
+unitlabel_coord1="both degrees whether sexagesimal or decimal";
+}
+$('\x23coord1_label').html(label1);
+$('\x23coord2_label').html(label2);
+$('\x23unitlabel_coord1').html(unitlabel_coord1);
+//document.getElementById("coord1_label").innerHTML = label1;
+//document.getElementById("coord2_label").innerHTML = label2;
+//document.getElementById("unitlabel_coord1").innerHTML = unitlabel_coord1;
+}
+function resetLabels()
+{
+var label1="RA";
+var label2="DEC";
+var unitlabel_coord1="RA: sexagesimal/hours, decimal/degrees";
+$('\x23coord1_label').html(label1);
+$('\x23coord2_label').html(label2);
+$('\x23unitlabel_coord1').html(unitlabel_coord1);
+}
+//-->
+</SCRIPT>
+<script type="text/javascript" src="/wdb/jslib/wdb_query_functions.js"></script>
+</HEAD>
+<BODY onunload="" bgcolor="#ffffff">
+<table align="center" width="100%">
+<tr valign="middle">
+<!-- logo left -->
+<td width="260"><a href="http://www.eso.org/">
+<img src="/wdb/images/eso-logo.gif" width="80" height="100"
+alt="ESO" title="ESO Homepage"></a>
+<table cellpadding="2" cellspacing="2" border="0">
+<tr align="left" valign="middle">
+<td align="middle" bgcolor="aaaaaa"><A href="/cms/eso-data/eso-data-products.html">
+<font color="ffffff" size="2"><b>Other data products query forms</b></font></a></td>
+</tr>
+</table>
+</td>
+<!-- Headline -->
+<td align="right">
+<h1><font face='Arial,Helvetica'>ESO Data Products<br>Generic Query Form</font></h1>
+<table cellpadding="2" cellspacing="2" border="0">
+<tr align="right" valign="middle">
+<td align="middle" bgcolor="006699"><A href="/">
+<font color="ffffff" size="1">Archive Facility HOME</font></a></td>
+<td align="middle" bgcolor="006699"><A href="http://www.eso.org/">
+<font color="ffffff" size="1">ESO HOME</font></a></td>
+<td align="middle" bgcolor="006699"><A href="/eso/eso_archive_wdb.html">
+<font color="ffffff" size="1">INFO</font></a></td>
+<td align="middle" bgcolor="006699"><A href="/faq.html">
+<font color="ffffff" size="1">FAQ</font></a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+<HR><div style="text-align: justify;text-justify:inter-word;">This form provides access to <b>reduced or fully calibrated</b> data sets
+that were produced by PIs of ESO programmes or internally at ESO (using ESO calibration pipelines with the best available calibration data), and then
+integrated into the ESO <a href="/">Science Archive Facility</a>
+starting April 2011, through the <a href="http://www.eso.org/sci/observing/phase3.html">
+Phase 3 process</a>.
+Each available data set is fully described; please see the <a href="http://www.eso.org/sci/observing/phase3/data_releases.html">list of data releases</a> of type &quot;Image&quot; or &quot;Spectrum&quot;.
+<!-- , including data released by the
+<a href="http://www.eso.org/sci/observing/PublicSurveys/sciencePublicSurveys.html">
+spectroscopic and imaging public survey projects</a>. -->
+This form allows generic query constraints for all types of data products.
+More specific forms are available for <a href ="/wdb/wdb/adp/phase3_imaging/form">Imaging Data Products</a>,
+<a href ="/wdb/wdb/adp/phase3_spectral/form">Spectral Data Products</a>,
+and <a href ="/wdb/wdb/adp/phase3_vircam/form">VISTA Data Products</a>.
+Other data not yet migrated to the Phase 3 infrastructure are available via different user interfaces; please check the <a href="http://archive.eso.org/">archive home page</a>.
+</div><p>
+<p><b>Note:</b> The FITS format of the spectra retrievable via this query form complies to the <a href="http://www.eso.org/sci/observing/phase3/p3sdpstd.pdf">ESO Science Data Product standard</a> [PDF]. The <a href="http://archive.eso.org/cms/eso-data/help/1dspectra.html">1d spectra help page</a> provides a list of tools that support this format and a quick guide to read and display these spectra in IDL and IRAF.</p>
+<noscript><P><FONT COLOR="red">You need to activate JavaScript to properly use this form.</FONT><P></noscript
+<br><FORM ACTION="/wdb/wdb/adp/phase3_main/query" METHOD="POST" ENCTYPE="multipart/form-data"><div id="wdb_top_menu" class="wdb_top_menu"><fieldset class="fs_top_menu"> <table id="wdb_top_menu_table" width="100%" cellpadding=5 cellspacing=0 border=0><tr valign="middle"> <td align="left" valign="middle" style="width: 25%; white-space: nowrap;">
+        <input id="search" type="submit" class="ibsearch" value="Search">
+        <input id="reset" type="reset" style="width: 7em;" value="Reset" onClick="wdb_showall_toggler($('#wdb_tabbit'),'All Fields','Default Fields','reset')"></td><td style="width: 50%; white-space: nowrap;">
+         <div id="wdb_preferences_container" class="wdb_preferences_container"><div id="wdb_preferences" class="wdb_preferences">Output preferences: <SELECT name="wdbo"><OPTION VALUE="html/display" selected="selected">html table</OPTION><OPTION VALUE="ascii/display">ascii fixed length/display</OPTION><OPTION VALUE="ascii/download">ascii fixed length/download</OPTION><OPTION VALUE="csv/download">ascii csv/download</OPTION></SELECT>
+</div><div id="wdb_max_records" class="wdb_max_records"> Return max <INPUT VALUE="200" SIZE="5" NAME="max_rows_returned"> rows.</div>
+            <input type="button" id="wdb_tabbit" class="wdb_tabbit" style="margin-left: 2em;" onClick="wdb_showall_toggler(this,'All Fields','Default Fields');" value="All Fields">
+         </div>
+       </td><td align="right" style="width: 25%; white-space: nowrap;"><input type="button" id="ib_query_syntax" value="Syntax Help" onClick="wdb_query_syntax(this,'/wdb/html/wdb_query_syntax_quick.html')"></td></tr></table><p id="wdb_query_syntax" class="wdb_query_syntax"></p></fieldset></div><p>
+<pre></fieldset><fieldset class="legendBorder" style="background:#FFFFCC"><legend class="legendTitle">&nbsp;<font style="font-family:'Arial',serif" color="006699" size="+1"><b>Phase 3 Observing Programme</b></font>&nbsp;</legend><INPUT type=checkbox  name="tab_phase3_program"> <b><a href="/wdb/help/adp/phase3_help.html#phase3_program"><abbr title="phase3_program: Title of the observing programme (Null for pipeline-generated internal data products)">Programme</abbr></a>........ :</b> <B><SELECT NAME="phase3_program" MULTIPLE SIZE="5"><OPTION selected>Any
+<OPTION> UltraVISTA 
+<OPTION> VHS 
+<OPTION> VIDEO 
+<OPTION> VIKING 
+<OPTION> VMC 
+<OPTION> VVV 
+<OPTION> 60.A-9284H 
+<OPTION> KIDS 
+<OPTION> VPHASplus 
+<OPTION> ATLAS 
+<OPTION> GAIAESO 
+<OPTION> PESSTO 
+<OPTION> ZCOSMOS 
+<OPTION> ESSENCE 
+</SELECT>  </B><INPUT type=checkbox checked name="tab_phase3_collection"> <b><a href="/wdb/help/adp/phase3_help.html#phase3_collection"><abbr title="phase3_collection: Name of the collection (Null for pipeline-generated internal data products)">Collection</abbr></a>... :</b> <B><SELECT NAME="phase3_collection" MULTIPLE SIZE="5"><OPTION selected>Any
+<OPTION> UltraVISTA 
+<OPTION> VHS 
+<OPTION> VIDEO_XMM 
+<OPTION> VIKING 
+<OPTION> VMC 
+<OPTION> VVV 
+<OPTION> XMMU_J2235_JK_imaging 
+<OPTION> KiDS 
+<OPTION> VPHASplus 
+<OPTION> UVES_ECHELLE 
+<OPTION> ATLAS 
+<OPTION> GaiaESO 
+<OPTION> PESSTO 
+<OPTION> ZCOSMOS 
+<OPTION> VIDEO_CDFS 
+<OPTION> VIDEO_ES1 
+<OPTION> XSHOOTER_ECHELLE 
+<OPTION> ESSENCE 
+</SELECT>  </B><INPUT type=checkbox checked name="tab_release_tag"> <b><a href="/wdb/help/adp/phase3_help.html#release_tag"><abbr title="release_tag: By default the latest release version is returned. A user can here search for a specific release version of a given programme.">Release version</abbr></a>... :</b> <INPUT name="release_tag" size="2" value="" > <i>default: latest</i>
+<P><INPUT type=checkbox checked name="tab_prog_id"> <b><a href="/wdb/help/adp/phase3_help.html#Prog_ID"><abbr title="prog_id: ESO program identification code. In HTML output, it provides a link to the scheduling information.">Run/Program ID</abbr></a>... :</b> <INPUT name="prog_id" size="20" value="" > <i>eg 179.B-2003(B)</i>&nbsp;&nbsp;<INPUT type=checkbox  name="tab_pi_name"> <b><a href="/wdb/help/adp/phase3_help.html#P3_USER"><abbr title="pi_name: The name of the Principal Investigator.">Phase 3 user</abbr></a> :</b> <INPUT name="pi_name" size="12" value="" > &nbsp;&nbsp;<INPUT type=checkbox  name="tab_p3orig"> <b><a href="/wdb/help/adp/phase3_help.html#p3orig"><abbr title="p3orig: Describes the origin of a Phase 3 data product. Can be either
+- EDP – External Data Product, for data processed by an ESO user, typically the P.I. of an ESO observing programme, or
+- IDP – Internal Data Product, for data which has been processed by ESO in the course of operations.">Product origin</abbr></a> :</b> <SELECT id="p3orig" name="p3orig"><OPTION value="%"> Any
+<OPTION value="EDP"> EDP
+<OPTION value="IDP"> IDP
+</SELECT>
+</fieldset><fieldset class="legendBorder" style="background:#FFFFCC"><legend class="legendTitle">&nbsp;<font style="font-family:'Arial',serif" color="006699" size="+1"><b>Target Information</b></font>&nbsp;</legend><small>&nbsp;&nbsp;&nbsp;&nbsp;</small><b><a href="/wdb/help/adp/phase3_help.html#Target_name"><abbr title="target: ">Target name</abbr></a>............... :</b> <INPUT name="target" size="22" value="" > <select name=resolver>
+<option value=simbad>SIMBAD name
+<option value=ned>NED name
+<option value=none>Phase 3 target name
+</select>
+<small>&nbsp;&nbsp;&nbsp;&nbsp;</small><b><a href="/wdb/help/adp/phase3_help.html#Coord_system"><abbr title="coord_sys: ">Coordinate System</abbr></a>......... :</b> <SELECT id="coord_sys" name="coord_sys" onChange='changeLabels();' ><OPTION value="eq"> Equatorial (FK5)
+<OPTION value="gal"> Galactic
+</SELECT><small>&nbsp;&nbsp;&nbsp;&nbsp;</small><b><a href="/wdb/help/adp/phase3_help.html#RA"><abbr title="coord1: "><I id="coord1_label">RA</I></abbr></a></b> <INPUT name="coord1" size="12" value="" ><small>&nbsp;&nbsp;&nbsp;&nbsp;</small><b><a href="/wdb/help/adp/phase3_help.html#DEC"><abbr title="coord2: "><I id="coord2_label">DEC</I></abbr></a></b> <INPUT name="coord2" size="12" value="" > <I id="unitlabel_coord1">RA: sexagesimal=hours,decimal=degrees</I>
+<small>&nbsp;&nbsp;&nbsp;&nbsp;</small><b><a href="/wdb/help/adp/phase3_help.html#Search_Box"><abbr title="box: ">Search Box</abbr></a>................ :</b> <INPUT name="box" size="12" value="02 09 00" >
+<small>&nbsp;&nbsp;&nbsp;&nbsp;</small><b><a href="/wdb/help/adp/phase3_help.html#Upload"><abbr title="wdb_input_file: ">Input Target List</abbr></a>......... :</b> <INPUT name="wdb_input_file" type="file" value="" >
+<small>&nbsp;&nbsp;&nbsp;&nbsp;</small><b><a href="/wdb/help/adp/phase3_help.html#Output"><abbr title="format: ">Equatorial Output Format</abbr></a>.. :</b> <SELECT id="format" name="format"><OPTION value="decimal"> Decimal
+<OPTION value="sexagesimal"> Sexagesimal
+</SELECT> &nbsp;&nbsp;&nbsp;Display:&nbsp;<INPUT type=checkbox checked name="tab_ra"> <b><a href="/wdb/help/adp/phase3_help.html#RA"><abbr title="ra: Right Ascension">RA</abbr></a></b> &nbsp;<INPUT type=checkbox checked name="tab_dec"> <b><a href="/wdb/help/adp/phase3_help.html#DEC"><abbr title="dec: Declination">DEC</abbr></a></b> &nbsp;<INPUT type=checkbox  name="tab_gal_lon"> <b><a href="/wdb/help/adp/phase3_help.html#RA"><abbr title="gal_lon: ">Gal long</abbr></a></b> &nbsp;<INPUT type=checkbox  name="tab_gal_lat"> <b><a href="/wdb/help/adp/phase3_help.html#DEC"><abbr title="gal_lat: ">Gal lat</abbr></a></b>
+</fieldset><fieldset class="legendBorder" style="background:#FFFFCC"><legend class="legendTitle">&nbsp;<font style="font-family:'Arial',serif" color="006699" size="+1"><b>Observation Parameters</b></font>&nbsp;</legend><INPUT type=checkbox  name="tab_tel_id"> <b><a href="/wdb/help/adp/phase3_help.html#Telescope"><abbr title="tel_id: Telescope name">Telescope</abbr></a>... :</b><SELECT NAME="tel_id" MULTIPLE SIZE="5"><OPTION selected>Any
+<OPTION> ESO-VISTA 
+<OPTION> ESO-VLT-U4 
+<OPTION> ESO-VST 
+<OPTION> ESO-VLT-U2 
+<OPTION> ESO-NTT 
+<OPTION> ESO-VLT-U3 
+<OPTION> ESO-VLT-U1 
+</SELECT> <INPUT type=checkbox checked name="tab_ins_id"> <b><a href="/wdb/help/adp/phase3_help.html#Instrument"><abbr title="ins_id: Instrument name">Instrument</abbr></a>... :</b><B><SELECT NAME="ins_id" MULTIPLE SIZE="5"><OPTION selected>Any
+<OPTION> VIRCAM 
+<OPTION> HAWKI 
+<OPTION> OMEGACAM 
+<OPTION> UVES 
+<OPTION> GIRAFFE 
+<OPTION> SOFI 
+<OPTION> EFOSC 
+<OPTION> VIMOS 
+<OPTION> XSHOOTER 
+<OPTION> FORS1 
+</SELECT>  </B><INPUT type=checkbox  name="tab_obstech"> <b><a href="/wdb/help/adp/phase3_help.html#OBSTECH"><abbr title="obstech: General mode/technique used for the observation">OBSTECH</abbr></a>... :</b>&nbsp;<B><SELECT NAME="obstech" MULTIPLE SIZE="5"><OPTION selected>Any
+<OPTION> IMAGE,JITTER 
+<OPTION> IMAGE 
+<OPTION> IMAGE,DITHER 
+<OPTION> IMAGE,OFFSET 
+<OPTION> ECHELLE 
+<OPTION> ECHELLE,ABSORPTION-CELL 
+<OPTION> MOS 
+<OPTION> SPECTRUM 
+<OPTION> ECHELLE,SLIT,NODDING 
+<OPTION> ECHELLE,SLIT,STARE 
+<OPTION> ECHELLE,SLIT,OFFSET 
+</SELECT>  </B>
+<P><INPUT type=checkbox checked name="tab_date_obs"> <b><a href="/wdb/help/adp/phase3_help.html#DATE_OBS"><abbr title="date_obs: The start datetime of an observation (UTC). A user can specify a datetime range (e.g.: 2013-01-31..2013-02-01), use an operator (e.g.: > 2013-01-31 07:00:00), or a single value. When a single value is provided then all observations that potentially cover that moment in time are returned.">DATE OBS</abbr></a>.................. :</b> <INPUT name="date_obs" size="23" value="" > <i>YYYY-MM-DDThh:mm:ss</i>
+<INPUT type=checkbox  name="tab_mjd_obs"> <b><a href="/wdb/help/adp/phase3_help.html#MJD_OBS"><abbr title="mjd_obs: The start datetime of an observation in modified julian date (MJD). A user can specify a datetime range (e.g.: 53386..53389), use an operator (e.g.: &gt; 53386.09735), or a single value. When a single value is provided then all observations that potentially cover that moment in time are returned.">MJD OBS</abbr></a>................... :</b> <INPUT name="mjd_obs" size="10" value="" > <i>Modified Julian Date</i>
+<INPUT type=checkbox checked name="tab_exptime"> <b><a href="/wdb/help/adp/phase3_help.html#EXPTIME"><abbr title="exptime: Exposure time">EXPTIME</abbr></a>................... :</b> <INPUT name="exptime" size="10" value="" > <i>Total integration time per pixel [s]</i>
+<INPUT type=checkbox  name="tab_multi_ob"> <b><a href="/wdb/help/adp/phase3_help.html#MULTI_OB"><abbr title="multi_ob: ">MULTI OB</abbr></a>.................. :</b> <SELECT id="multi_ob" name="multi_ob"><OPTION value="%"> Any
+<OPTION value="M%"> Request multi-OB products
+<OPTION value="S%"> Exclude multi-OB products
+</SELECT>
+</fieldset><fieldset class="legendBorder" style="background:#ccFFCC"><legend class="legendTitle">&nbsp;<font style="font-family:'Arial',serif" color="006699" size="+1"><b>Product Category and Bandpass</b></font>&nbsp;</legend><INPUT type=checkbox checked name="tab_filter"> <b><a href="/wdb/help/adp/phase3_help.html#Filter"><abbr title="filter: The name of the filter used (search criterion applicable only to imaging products, including images and source tables)">Filter (imaging)</abbr></a> :</b><B><SELECT NAME="filter" MULTIPLE SIZE="5"><OPTION selected>Any
+<OPTION> u_SDSS 
+<OPTION> g_SDSS 
+<OPTION> r_SDSS 
+<OPTION> NB_659 
+<OPTION> i_SDSS 
+<OPTION> Z 
+<OPTION> Y 
+<OPTION> J 
+<OPTION> H 
+<OPTION> Ks 
+<OPTION> NB118 
+<OPTION> YJKs 
+<OPTION> z_SDSS 
+</SELECT>  </B> OR<SUP>(*)</SUP>&nbsp;&nbsp;&nbsp;<INPUT type=checkbox checked name="tab_wavelength"> <b><a href="/wdb/help/adp/phase3_help.html#wavelength"><abbr title="wavelength: Wavelength coverage [nm]. Examples 1) 656 - The spectrum must contain the 656 nm point; 2) 393 AND 656 - entire range must be covered 3) 393..656 partial range must be covered">Wavelength (spectra):</abbr></a></b> <INPUT name="wavelength" size="20" value="Any" > [nm] Examples: <span style="text-decoration: underline;" title="656 must be contained">656</span>, <span style="text-decoration: underline;" title="full range must be covered">393 AND 656</span>, <span style="text-decoration: underline;" title="if partial overlap is enough">393..656</span>.
+<p class="wdb_avoid_pre" style="font-size: .85em; font-family:'Arial',serif">(*) Constraints on Filter (imaging) and Wavelength (spectra) are logically OR-ed together, that is, Images/Source tables (matching the Filter constraint) and Spectra (matching the wavelength constraint) are both returned, unless a Product category (here below) is specifically chosen.</p>
+<SCRIPT type="text/javascript">
+// This javascript/jQuery does two things:
+// 1) when the wavelength field receives focus, the Any default value is removed;
+// 2) the Any default value is added if the user leaves the field empty.
+// It is within the 'ehm' special attribute that the value 'Any' is replaced with the correct SQL.
+$(document).ready(function() {
+var Input = $('input[name=wavelength]');
+var default_value= "Any";
+Input.focus(function() {
+if(Input.val() == default_value) { Input.val(""); }
+}).blur(function(){
+if(Input.val().length == 0) Input.val(default_value);
+});
+});
+</SCRIPT>
+<INPUT type=checkbox checked name="tab_dataproduct_type"> <b><a href="/wdb/help/adp/phase3_help.html#PRODCATG"><abbr title="dataproduct_type: ">Product category</abbr></a>.......... :</b><B> <SELECT size="4" name="dataproduct_type" multiple><OPTION selected>Any</OPTION><OPTION value="SCIENCE.%IMAGE">image</OPTION><OPTION value="SCIENCE.SRCTBL">source_table</OPTION><OPTION value="SCIENCE.SPECTRUM">spectrum</OPTION></SELECT>
+ </B>
+</fieldset><fieldset class="legendBorder" style="background:#FFFFCC"><legend class="legendTitle">&nbsp;<font style="font-family:'Arial',serif" color="006699" size="+1"><b>Data Product Properties</b></font>&nbsp;</legend><INPUT type=checkbox  name="tab_rel_date"> <b><a href="/wdb/help/adp/phase3_help.html#rel_date"><abbr title="rel_date: Date by which the product is, or will be, publically available. Until then, access is available only to the observing team.">Release Date</abbr></a>.............. :</b> <INPUT name="rel_date" size="12" value="" >
+<INPUT type=checkbox  name="tab_publication_date"> <b><a href="/wdb/help/adp/phase3_help.html#publication_date"><abbr title="publication_date: Date by which the product was made available to the community">Publication Date</abbr></a>.......... :</b> <INPUT name="publication_date" size="27" value="" >
+<INPUT type=checkbox checked name="tab_origfile"> <b><a href="/wdb/help/adp/phase3_help.html#ORIGFILE"><abbr title="origfile: The original file name as given by the PI. It is guaranteed to be unique only within a given version of a Phase 3 programme release.">ORIGFILE</abbr></a>.................. :</b> <INPUT name="origfile" size="29" value="" > <i>Original File Name</i>
+<INPUT type=checkbox checked name="tab_dp_id"> <b><a href="/wdb/help/adp/phase3_help.html#ARCFILE"><abbr title="dp_id: Archive File ID. It is guaranteed to be unique within the entire ESO Science Archive Facility.">ARCFILE</abbr></a>................... :</b> <INPUT name="dp_id" size="29" value="" > <i>Archive File ID</i>
+</fieldset><fieldset class="legendBorder" style="background:#FFFFCC"><legend class="legendTitle">&nbsp;<font style="font-family:'Arial',serif" color="006699" size="+1"><b>Other</b></font>&nbsp;</legend><INPUT type=checkbox checked name="tab_referenc"> <b><a href="/wdb/help/adp/phase3_help.html#REFERENC"><abbr title="referenc: ">REFERENC</abbr></a>.................. :</b> <INPUT name="referenc" size="20" value="" > Bibliographic reference
+<small>&nbsp;&nbsp;&nbsp;&nbsp;</small><b>Sort results by........... :</b> <SELECT id="order_main" name="order_main"><OPTION value=""None""> None (Faster)
+<OPTION value="object"> Object
+<OPTION value="dec,ra"> DEC and RA
+<OPTION value="mjd_obs"> MJD_OBS
+<OPTION value="exptime"> Exposure_Time
+<OPTION value="prodcatg"> Data Product Category
+<OPTION value="wavelmin,filter,exp_start,prodcatg"> Wavelength(spectra) and Filter Name(imaging)
+<OPTION value="publication_date desc"> Publication date (descending)
+</SELECT></pre> <table width="100%"><tr><td align="center" bgcolor="#aaaaaa"><font color="#ffffff" size="+1"> <b><a href="/wdb/html/wdb_query_help.html#ctrl">Extra Columns on Tabular Output</a></b></font></td></tr></table><SELECT id="extra_columns" name="extra_columns" size="8" multiple>
+<option value="more"> More
+<option value="HDR"> HDR
+<option value="exp_end"> STOP TIME
+</SELECT>
+	<hr>
+        <INPUT type=checkbox name="force_tabular_mode">
+        Use tabular output even if only one row is returned.<br>
+	<INPUT type=checkbox name="full_screen_mode">
+	Use full-screen output even if more than one row is returned.<br>
+
+
+</FORM><div id="wdb_conf_tail">
+<center>      
+<!-- bottom navigator: home, help etc. put on a table so that they
+           fill out the full column -->
+ <table border="0" cellpadding="2" cellspacing="5">
+ <tr>
+  <td width="33%" align="center" bgcolor="#006699">
+         <a href="http://www.eso.org/"><font color="white" size="1">
+         <strong>ESO HOME</strong></font></a></td>
+        <td width="33%" align="center" bgcolor="#006699">
+         <a href="http://archive.eso.org/"><font color="white" size="1">
+         <strong>ARCHIVE HOME</strong></font></a></td>
+        <td width="33%" align="center" bgcolor="#006699">
+         <a href="http://archive.eso.org/cms/faq.html"><font color="white" size="1">
+         <strong>ARCHIVE FAQ</strong></font></a></td>
+ </tr>
+ <tr>
+   <td colspan="4" align="center">
+         <a href="/wdb/wdb.html">wdb 3.0</a> - 3-APR-2013 ......
+         <a href="mailto:archive@eso.org?subject=wdb_form:phase3_main">
+         <font size="1"><strong>Send comments to archive@eso.org
+         </strong></font></a></td>
+ </tr>
+ </table><!-- END bottom navigator -->
+</center>
+</div>
+</BODY>
+</html>

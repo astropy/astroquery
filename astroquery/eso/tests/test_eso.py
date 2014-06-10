@@ -10,9 +10,15 @@ def data_path(filename):
     return os.path.join(DATA_DIR, filename)
 
 DATA_FILES = {'GET': {'http://archive.eso.org/wdb/wdb/eso/amber/form':
-                      'amber_form.html',},
+                      'amber_form.html',
+                      'http://archive.eso.org/wdb/wdb/adp/phase3_main/form':
+                      'vvv_sgra_form.html',
+                     },
               'POST': {'http://archive.eso.org/wdb/wdb/eso/amber/query':
-                       'amber_sgra_query.tbl'}
+                       'amber_sgra_query.tbl',
+                       'http://archive.eso.org/wdb/wdb/adp/phase3_main/query':
+                       'vvv_sgra_survey_response.tbl',
+                      }
               }
 
 def eso_request(request_type, url, **kwargs):
@@ -44,5 +50,9 @@ def test_SgrAstar(monkeypatch):
     
     # test that max_results = 50
     assert len(result) == 50
-
     assert 'GC_IRS7' in result['Object']
+
+    result_s = eso.query_survey('VVV', coord1=266.41681662, coord2=-29.00782497)
+    assert result_s is not None
+    assert 'Object' in result_s.colnames
+    assert 'b333' in result_s['Object']
