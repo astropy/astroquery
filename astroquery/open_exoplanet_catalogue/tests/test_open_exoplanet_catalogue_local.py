@@ -1,7 +1,6 @@
 import os
 from xml.etree import ElementTree as ET
 from astropy.tests.helper import pytest
-from ...utils.testing_tools import MockResponse
 from ... import open_exoplanet_catalogue as oec
 
 
@@ -10,7 +9,7 @@ def data_path(filename):
     data_dir = os.path.join(os.path.dirname(__file__), 'data')
     return os.path.join(data_dir, filename)
 
-def test_function(patch_urlopen):
+def test_function():
     cata = oec.get_catalogue(data_path('systems.xml.gz')) # use local version of database
     assert len(cata.findall('.//planet')) > 0
 
