@@ -115,6 +115,7 @@ class EsoClass(QueryWithLogin):
             response = self.request("POST", url, files=payload)
         elif fmt == 'application/x-www-form-urlencoded':
             response = self.request("POST", url, data=payload)
+
         return response
 
     def _login(self, username):
@@ -217,14 +218,19 @@ class EsoClass(QueryWithLogin):
                                               inputs=query_dict)
 
         if _check_response(survey_response.content):
+            content = survey_response.content
             try:
-                table = ascii.read(StringIO(survey_response.content.decode(
-                                   survey_response.encoding)), format='csv',
-                                   comment='#', delimiter=',', header_start=1)
-            except ValueError:
-                table = ascii.read(StringIO(survey_response.content.decode(
-                                   survey_response.encoding)),
-                                   comment='#', delimiter=',', header_start=1)
+                table = Table.read(BytesIO(content), format="ascii.csv",
+                                   guess=False, header_start=1)
+            except Exception as ex:
+                # astropy 0.3.2 raises an anonymous exception; this is
+                # intended to prevent that from causing real problems
+                if 'No reader defined' in ex.args[0]:
+                    table = Table.read(BytesIO(content), format="ascii",
+                                       delimiter=',', guess=False,
+                                       header_start=1)
+                else:
+                    raise ex
             return table
         else:
             warnings.warn("Query returned no results")
