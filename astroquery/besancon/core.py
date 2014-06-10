@@ -9,6 +9,7 @@ import os
 from astropy.io import ascii
 from . import BESANCON_DOWNLOAD_URL, BESANCON_MODEL_FORM, BESANCON_PING_DELAY, BESANCON_TIMEOUT
 from astropy.extern.six.moves.urllib_error import URLError
+from astropy.extern.six import StringIO
 
 from ..query import BaseQuery
 from ..utils import commons
@@ -151,7 +152,7 @@ class BesanconClass(BaseQuery):
             print("Loading request from Besancon server ...")
 
         # keep the text stored for possible later use
-        with commons.get_readable_fileobj(response.raw) as f:
+        with commons.get_readable_fileobj(StringIO(response.content)) as f:
             text = f.read()
             # py3 compatibility; do nothing for py2:
             if hasattr(text, 'decode') and not hasattr(text, 'encode'):
@@ -258,8 +259,8 @@ class BesanconClass(BaseQuery):
 
         if clouds is not None:
             for ii, (AV, di) in enumerate(clouds):
-                kwd[AV][ii] = AV
-                kwd[di][ii] = di
+                kwd['AV'][ii] = AV
+                kwd['di'][ii] = di
 
         # parse the default dictionary
         # request_data = parse_besancon_dict(keyword_defaults)
