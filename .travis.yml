@@ -5,118 +5,106 @@ python:
     - 2.7
     - 3.2
     - 3.3
-
+    - 3.4
+    # This is just for "egg_info".  All other builds are explicitly given in the matrix
 env:
     global:
-        - WHEELHOUSE_HUB=http://wheels.astropy.org
-        - PIP_WHEEL_STRICT_NUMPY="pip install --use-wheel --no-index"
-        - SETUP_CMD='test'
+        # The following versions are the 'default' for tests, unless
+        # overidden underneath. They are defined here in order to save having
+        # to repeat them for all configurations.
+        - NUMPY_VERSION=1.8
         - ASTROPY_VERSION=stable
-        - PIP_WHEEL_FLEX_NUMPY="pip install --use-wheel --find-links=http://wheels.astropy.org --find-links=http://wheels2.astropy.org"
-        # All tests explicitly added to the matrix in the include section use
-        # the latest stable numpy.
-        - LATEST_NUMPY_STABLE=1.8.1
-
-        # Does your package need Cython to build?
-        - PACKAGE_NEEDS_CYTHON=true
-        # Note that cython will be installed when it is needed for building
-        # astropy development regardless of the setting of this variable.
-
-        # ADDITIONAL PACKAGE DEPENDENCIES, if any
-
-        # If there is a wheel available that will be used, otherwise the
-        # package will be built from the source at pypi.org
-
-        # If your package needs any additional packages for all builds
-        # that you want to ensure have been built with the same version of
-        # numpy used in the tests, put them here.
-        # - ADDITIONAL_DEPENDENCIES_STRICT_NUMPY="scipy"
-
-        # If your package needs additional packages for which the numpy
-        # version does not matter, put them here.
-        # - ADDITIONAL_DEPENDENCIES_ANY_NUMPY="mock requests"
-
-    # Try all python versions with all supported numpy,
-    # latest stable scipy and astropy.
+        - CONDA_INSTALL='conda install -c astropy-ci-extras --yes'
+        - PIP_INSTALL='pip install'
     matrix:
-        - NUMPY_VERSION=1.5.1
-        - NUMPY_VERSION=1.6.2
-        - NUMPY_VERSION=1.7.1
-        - NUMPY_VERSION=1.8.1
-        - SETUP_CMD="egg_info" ASTROPY_VERSION="none" ADDITIONAL_DEPENDENCIES_STRICT_NUMPY="" ADDITIONAL_DEPENDENCIES_ANY_NUMPY=""
+        - SETUP_CMD='egg_info'
 
 matrix:
-    # some version of numpy do not work on some versions of python
-    exclude:
-        - python: 2.6
-          env: NUMPY_VERSION=1.6.2
-        - python: 2.6
-          env: NUMPY_VERSION=1.7.1
-        - python: 3.2
-          env: NUMPY_VERSION=1.5.1
-        - python: 3.2
-          env: NUMPY_VERSION=1.7.1
-        - python: 3.2
-          env: NUMPY_VERSION=1.8.1
-        - python: 3.3
-          env: NUMPY_VERSION=1.5.1
-        - python: 3.3
-          env: NUMPY_VERSION=1.6.2
-        - python: 3.3
-          env: NUMPY_VERSION=1.7.1
-
     include:
-        # Try latest development version of astropy with latest python 2.7 and
-        # 3.x releases
+
+        # Do a coverage test in Python 2. This requires the latest
+        # development version of Astropy, which fixes some issues with
+        # coverage testing in affiliated packages.
         - python: 2.7
-          env: ASTROPY_VERSION=development NUMPY_VERSION=$LATEST_NUMPY_STABLE SETUP_CMD='test'
+          env: ASTROPY_VERSION=development SETUP_CMD='test --coverage'
+
+        # Check for sphinx doc build warnings - we do this first because it
+        # may run for a long time
+        - python: 2.7
+          env: SETUP_CMD='build_sphinx -w'
+
+        # Try all python versions with the latest numpy
+        - python: 2.6
+          env: SETUP_CMD='test'
+        - python: 2.7
+          env: SETUP_CMD='test'
+        - python: 3.2
+          env: SETUP_CMD='test'
         - python: 3.3
-          env: ASTROPY_VERSION=development NUMPY_VERSION=$LATEST_NUMPY_STABLE SETUP_CMD='test'
+          env: SETUP_CMD='test'
+        - python: 3.4
+          env: SETUP_CMD='test'
 
-        # get test coverage from a python 2.7 build
-        # for now need the development version of astropy
+        # Try older numpy versions
+        - python: 3.2
+          env: NUMPY_VERSION=1.6 SETUP_CMD='test'
         - python: 2.7
-          env: ASTROPY_VERSION=development NUMPY_VERSION=$LATEST_NUMPY_STABLE SETUP_CMD='test --coverage'
+          env: NUMPY_VERSION=1.7 SETUP_CMD='test'
+        - python: 2.7
+          env: NUMPY_VERSION=1.6 SETUP_CMD='test'
+        - python: 2.7
+          env: NUMPY_VERSION=1.5 SETUP_CMD='test'
 
-        # one documentation build
+        # Try Astropy development version
         - python: 2.7
-          env: NUMPY_VERSION=$LATEST_NUMPY_STABLE SETUP_CMD='build_sphinx -w -n'
+          env: ASTROPY_VERSION=development SETUP_CMD='test'
+        - python: 3.3
+          env: ASTROPY_VERSION=development SETUP_CMD='test'
 
 before_install:
-    - pip install --upgrade setuptools
-    - pip install --upgrade pip
-    - pip install wheel
-    - if [[ $SETUP_CMD == build_sphinx* ]]; then sudo apt-get update; sudo apt-get install graphviz; fi
+
+    # Use utf8 encoding. Should be default, but this is insurance against
+    # future changes
+    - export PYTHONIOENCODING=UTF8
+    - wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh
+    - chmod +x miniconda.sh
+    - ./miniconda.sh -b
+    - export PATH=/home/travis/miniconda/bin:$PATH
+    - conda update --yes conda
+
+    # DOCUMENTATION DEPENDENCIES
+    - if [[ $SETUP_CMD == build_sphinx* ]]; then sudo apt-get install graphviz texlive-latex-extra dvipng; fi
 
 install:
-    - export PYTHONIOENCODING=UTF8 # just in case
 
-    # numpy version-specific wheelhouse
-    - export WHEELHOUSE_SPOKE=$WHEELHOUSE_HUB/numpy-$NUMPY_VERSION/
+    # CONDA
+    - conda create --yes -n test -c astropy-ci-extras python=$TRAVIS_PYTHON_VERSION
+    - source activate test
 
-    # all tests need numpy
-    # Install from wheels, no building from source, force reinstall to make
-    # sure we get our wheels.
-    - if [[ $SETUP_CMD != egg_info ]]; then $PIP_WHEEL_STRICT_NUMPY --find-links=$WHEELHOUSE_SPOKE --upgrade --force-reinstall numpy==$NUMPY_VERSION; fi
-    - if [[ $ADDITIONAL_DEPENDENCIES_STRICT_NUMPY ]]; then $PIP_WHEEL_STRICT_NUMPY --find-links=$WHEELHOUSE_SPOKE --upgrade --force-reinstall $ADDITIONAL_DEPENDENCIES_STRICT_NUMPY; fi
-    - if [[ $ADDITIONAL_DEPENDENCIES_ANY_NUMPY ]]; then $PIP_WHEEL_FLEX_NUMPY $ADDITIONAL_DEPENDENCIES_ANY_NUMPY; fi
+    # CORE DEPENDENCIES
+    - if [[ $SETUP_CMD != egg_info ]]; then $CONDA_INSTALL numpy=$NUMPY_VERSION pytest pip Cython; fi
+    - if [[ $SETUP_CMD != egg_info ]]; then $PIP_INSTALL pytest-xdist; fi
 
-    # tests with astropy stable use wheels
-    - if [[ $ASTROPY_VERSION == stable ]]; then $PIP_WHEEL_STRICT_NUMPY --find-links=$WHEELHOUSE_SPOKE astropy; fi
+    # ASTROPY
+    - if [[ $SETUP_CMD != egg_info ]] && [[ $ASTROPY_VERSION == development ]]; then $PIP_INSTALL git+http://github.com/astropy/astropy.git#egg=astropy; fi
+    - if [[ $SETUP_CMD != egg_info ]] && [[ $ASTROPY_VERSION == stable ]]; then $CONDA_INSTALL numpy=$NUMPY_VERSION astropy; fi
 
-    # Build development astropy from source -- requires cython. Cython does not
-    # depend on numpy so we don't care where we get the wheel from.
-    - if [[ $SETUP_CMD != egg_info && ( $ASTROPY_VERSION == development || $PACKAGE_NEEDS_CYTHON == true ) ]]; then $PIP_WHEEL_FLEX_NUMPY cython; fi
-    - if [[ $ASTROPY_VERSION == development ]]; then pip -q install git+http://github.com/astropy/astropy.git#egg=astropy; fi
+    # OPTIONAL DEPENDENCIES
+    # Here you can add any dependencies your package may have. You can use
+    # conda for packages available through conda, or pip for any other
+    # packages. You should leave the `numpy=$NUMPY_VERSION` in the `conda` 
+    # install since this ensures Numpy does not get automatically upgraded.
+    # - if [[ $SETUP_CMD != egg_info ]]; then $CONDA_INSTALL numpy=$NUMPY_VERSION ... ; fi
+    # - if [[ $SETUP_CMD != egg_info ]]; then $PIP_INSTALL ...; fi
 
-    # Documentation build has a couple of additional requirements.
-    - if [[ $SETUP_CMD == build_sphinx* ]]; then $PIP_WHEEL_FLEX_NUMPY sphinx>=1.2; fi
-    - if [[ $SETUP_CMD == build_sphinx* ]]; then $PIP_WHEEL_FLEX_NUMPY matplotlib; fi
+    # DOCUMENTATION DEPENDENCIES
+    # build_sphinx needs sphinx and matplotlib (for plot_directive). Note that
+    # this matplotlib will *not* work with py 3.x, but our sphinx build is
+    # currently 2.7, so that's fine
+    - if [[ $SETUP_CMD == build_sphinx* ]]; then $CONDA_INSTALL numpy=$NUMPY_VERSION Sphinx matplotlib; fi
 
-    # coverage needs the coverage package...
-    - if [[ $SETUP_CMD == 'test --coverage' ]]; then pip install coverage; fi
-    # Uncomment line below if coveralls.io is set up for this package
-    # - if [[ $SETUP_CMD == 'test --coverage' ]]; then pip install coveralls; fi
+    # COVERAGE DEPENDENCIES
+    - if [[ $SETUP_CMD == 'test --coverage' ]]; then $PIP_INSTALL coverage coveralls; fi
 
 script:
    - python setup.py $SETUP_CMD
