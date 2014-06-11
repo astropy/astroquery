@@ -6,6 +6,7 @@ import warnings
 from bs4 import BeautifulSoup
 from astropy.extern.six import BytesIO, StringIO
 
+import keyring
 from astropy.extern import six
 from astropy.table import Table, Column
 from astropy.io import ascii
@@ -37,65 +38,74 @@ class EsoClass(QueryWithLogin):
         self._survey_list = None
 
     def _activate_form(self, response, form_index=0, inputs={}):
-        from lxml import html
         # Extract form from response
-        root = html.document_fromstring(response.content)
-        form = root.forms[form_index]
+        root = BeautifulSoup(response.content, 'html5lib')
+        form = root.find_all('form')[form_index]
         # Construct base url
-        if "://" in form.action:
-            url = form.action
-        elif form.action[0] == "/":
-            url = '/'.join(response.url.split('/', 3)[:3]) + form.action
+        form_action = form.get('action')
+        if "://" in form_action:
+            url = form_action
+        elif form_action.startswith('/'):
+            url = '/'.join(response.url.split('/', 3)[:3]) + form_action
         else:
-            url = response.url.rsplit('/', 1)[0] + '/' + form.action
+            url = response.url.rsplit('/', 1)[0] + '/' + form_action
         # Identify payload format
-        if form.method == 'GET':
+        fmt = None
+        form_method = form.get('method').lower()
+        if form_method == 'get':
             fmt = 'get'  # get(url, params=payload)
-        elif form.method == 'POST':
-            if 'enctype' in form.attrib:
-                if form.attrib['enctype'] == 'multipart/form-data':
+        elif form_method == 'post':
+            if 'enctype' in form.attrs:
+                if form.attrs['enctype'] == 'multipart/form-data':
                     fmt = 'multipart/form-data'  # post(url, files=payload)
-                elif form.attrib['enctype'] == 'application/x-www-form-urlencoded':
+                elif form.attrs['enctype'] == 'application/x-www-form-urlencoded':
                     fmt = 'application/x-www-form-urlencoded'  # post(url, data=payload)
             else:
                 fmt = 'post'  # post(url, params=payload)
         # Extract payload from form
         payload = []
-        for form_input in form.inputs:
-            key = form_input.name
+        for form_elem in form.find_all(['input', 'select', 'textarea']):
             value = None
             is_file = False
-            if isinstance(form_input, html.InputElement):
-                value = form_input.value
-                if 'type' in form_input.attrib:
-                    is_file = (form_input.attrib['type'] == 'file')
-            elif isinstance(form_input, html.SelectElement):
-                if isinstance(form_input.value, html.MultipleSelectOptions):
+            tag_name = form_elem.name
+            key = form_elem.get('name')
+            if tag_name == 'input':
+                value = form_elem.get('value')
+                if 'type' in form_elem.attrs:
+                    is_file = form_elem.get('type') == 'file'
+            elif tag_name == 'select':
+                if form_elem.get('multiple') is not None:
                     value = []
-                    for v in form_input.value:
-                        value += [v]
+                    for option in form_elem.select('option[value]'):
+                        if option.get('selected') is not None:
+                            value.append(option.get('value'))
                 else:
-                    value = form_input.value
+                    for option in form_elem.select('option[value]'):
+                        if option.get('selected') is not None:
+                            value = option.get('value')
+                    # select the first option field if none is selected
                     if value is None:
-                        value = form_input.value_options[0]
-            if key in inputs.keys():
-                value = "{0}".format(inputs[key])
+                        value = form_elem.select('option[value]')[0].get('value')
+
+            if key in inputs:
+                value = str(inputs[key])
             if (key is not None) and (value is not None):
                 if fmt == 'multipart/form-data':
                     if is_file:
-                        payload += [(key, ('', '', 'application/octet-stream'))]
+                        payload.append(
+                            (key, ('', '', 'application/octet-stream')))
                     else:
                         if type(value) is list:
                             for v in value:
-                                payload += [(key, ('', v))]
+                                payload.append((key, ('', v)))
                         else:
-                            payload += [(key, ('', value))]
+                            payload.append((key, ('', value)))
                 else:
                     if type(value) is list:
                         for v in value:
-                            payload += [(key, v)]
+                            payload.append((key, v))
                     else:
-                        payload += [(key, value)]
+                        payload.append((key, value))
         # Send payload
         if fmt == 'get':
             response = self.request("GET", url, params=payload)
@@ -105,11 +115,10 @@ class EsoClass(QueryWithLogin):
             response = self.request("POST", url, files=payload)
         elif fmt == 'application/x-www-form-urlencoded':
             response = self.request("POST", url, data=payload)
+
         return response
 
     def _login(self, username):
-        import keyring
-        from lxml import html
         # Get password from keyring or prompt
         password_from_keyring = keyring.get_password("astroquery:www.eso.org", username)
         if password_from_keyring is None:
@@ -123,8 +132,8 @@ class EsoClass(QueryWithLogin):
                                                     form_index=-1,
                                                     inputs={'username': username,
                                                             'password':password})
-        root = html.document_fromstring(login_result_response.content)
-        authenticated = (len(root.find_class('error')) == 0)
+        root = BeautifulSoup(login_result_response.content, 'html5lib')
+        authenticated = not root.select('.error')
         if authenticated:
             print("Authentication successful!")
         else:
@@ -142,16 +151,16 @@ class EsoClass(QueryWithLogin):
         instrument_list : list of strings
 
         """
-        from lxml import html
         if self._instrument_list is None:
             instrument_list_response = self.request("GET", "http://archive.eso.org/cms/eso-data/instrument-specific-query-forms.html")
-            root = html.document_fromstring(instrument_list_response.content)
+            root = BeautifulSoup(instrument_list_response.content, 'html5lib')
             self._instrument_list = []
-            for element in root.xpath("//div[@id='col3']//a[@href]"):
-                if "http://archive.eso.org/wdb/wdb/eso" in element.attrib["href"]:
-                    instrument = element.attrib["href"].split("/")[-2]
+            for element in root.select("div[id=col3] a[href]"):
+                href = element.attrs["href"]
+                if u"http://archive.eso.org/wdb/wdb/eso" in href:
+                    instrument = href.split("/")[-2]
                     if instrument not in self._instrument_list:
-                        self._instrument_list += [instrument]
+                        self._instrument_list.append(instrument)
         return self._instrument_list
 
     def list_surveys(self):
@@ -162,14 +171,13 @@ class EsoClass(QueryWithLogin):
         survey_list : list of strings
 
         """
-        from lxml import html
         if self._survey_list is None:
             survey_list_response = self.request("GET", "http://archive.eso.org/wdb/wdb/adp/phase3_main/form")
-            root = html.document_fromstring(survey_list_response.content)
+            root = BeautifulSoup(survey_list_response .content, 'html5lib')
             self._survey_list = []
-            for select in root.xpath("//select[@name='phase3_program']"):
-                for element in select.xpath('option'):
-                    survey = element.text_content().strip()
+            for select in root.select("select[name=phase3_program]"):
+                for element in select.select('option'):
+                    survey = element.text.strip()
                     if survey not in self._survey_list and 'Any' not in survey:
                         self._survey_list.append(survey)
         return self._survey_list
@@ -210,14 +218,22 @@ class EsoClass(QueryWithLogin):
                                               inputs=query_dict)
 
         if _check_response(survey_response.content):
-            table = ascii.read(StringIO(survey_response.content.decode(
-                               survey_response.encoding)), format='csv',
-                               comment='#', delimiter=',', header_start=1)
+            content = survey_response.content
+            try:
+                table = Table.read(BytesIO(content), format="ascii.csv",
+                                   guess=False, header_start=1)
+            except Exception as ex:
+                # astropy 0.3.2 raises an anonymous exception; this is
+                # intended to prevent that from causing real problems
+                if 'No reader defined' in ex.args[0]:
+                    table = Table.read(BytesIO(content), format="ascii",
+                                       delimiter=',', guess=False,
+                                       header_start=1)
+                else:
+                    raise ex
             return table
         else:
             warnings.warn("Query returned no results")
-
-
 
     def query_instrument(self, instrument, column_filters={}, columns=[],
                          open_form=False, help=False, **kwargs):
@@ -326,7 +342,8 @@ class EsoClass(QueryWithLogin):
                     # astropy 0.3.2 raises an anonymous exception; this is
                     # intended to prevent that from causing real problems
                     if 'No reader defined' in ex.args[0]:
-                        table = Table.read(BytesIO(content), format="ascii")
+                        table = Table.read(BytesIO(content), format="ascii",
+                                           delimiter=',')
                     else:
                         raise ex
         return table
@@ -353,19 +370,18 @@ class EsoClass(QueryWithLogin):
             A table where: columns are header keywords, rows are product_ids.
 
         """
-        from lxml import html
         _schema_product_ids = schema.Schema(schema.Or(Column, [six.string_types]))
         _schema_product_ids.validate(product_ids)
         # Get all headers
         result = []
         for dp_id in product_ids:
             response = self.request("GET", "http://archive.eso.org/hdr?DpId={0}".format(dp_id))
-            root = html.document_fromstring(response.content)
-            hdr = root.xpath("//pre")[0].text
+            root = BeautifulSoup(response.content, 'html5lib')
+            hdr = root.select('pre')[0].text
             header = {'DP.ID': dp_id}
             for key_value in hdr.split('\n'):
                 if "=" in key_value:
-                    [key, value] = key_value.split('=', 1)
+                    key, value = key_value.split('=', 1)
                     key = key.strip()
                     value = value.split('/', 1)[0].strip()
                     if key[0:7] != "COMMENT":  # drop comments
@@ -377,21 +393,21 @@ class EsoClass(QueryWithLogin):
                         elif value[0] == "'":
                             value = value[1:-1]
                         elif "." in value:  # Convert to float
-                                value = float(value)
+                            value = float(value)
                         else:  # Convert to integer
                             value = int(value)
                         header[key] = value
-                elif key_value.find("END") == 0:
+                elif key_value.startswith("END"):
                     break
-            result += [header]
+            result.append(header)
         # Identify all columns
         columns = []
         column_types = []
         for header in result:
-            for key in header.keys():
+            for key in header:
                 if key not in columns:
-                    columns += [key]
-                    column_types += [type(header[key])]
+                    columns.append(key)
+                    column_types.append(type(header[key]))
         # Add all missing elements
         for i in range(len(result)):
             for (column, column_type) in zip(columns, column_types):
@@ -415,7 +431,6 @@ class EsoClass(QueryWithLogin):
             List of files that have been locally downloaded from the archive.
 
         """
-        from lxml import html
         datasets_to_download = []
         files = []
         # First: Detect datasets already downloaded
@@ -426,38 +441,38 @@ class EsoClass(QueryWithLogin):
                                               local_filename)
             if os.path.exists(local_filename):
                 print("Found {0}.fits...".format(dataset))
-                files += [local_filename]
+                files.append(local_filename)
             elif os.path.exists(local_filename + ".Z"):
                 print("Found {0}.fits.Z...".format(dataset))
-                files += [local_filename + ".Z"]
+                files.append(local_filename + ".Z")
             else:
-                datasets_to_download += [dataset]
+                datasets_to_download.append(dataset)
         # Second: Download the other datasets
         if datasets_to_download:
             data_retrieval_form = self.request("GET", "http://archive.eso.org/cms/eso-data/eso-data-direct-retrieval.html")
             print("Staging request...")
             with suspend_cache(self):  # Never cache staging operations
                 data_confirmation_form = self._activate_form(data_retrieval_form, form_index=-1, inputs={"list_of_datasets": "\n".join(datasets_to_download)})
-                root = html.document_fromstring(data_confirmation_form.content)
-                login_button = root.xpath('//input[@value="LOGIN"]')
+                root = BeautifulSoup(data_confirmation_form.content, 'html5lib')
+                login_button = root.select('input[value=LOGIN]')
                 if login_button:
                     raise LoginError("Not logged in.  You must be logged in to download data.")
                 # TODO: There may be another screen for Not Authorized; that should be included too
                 data_download_form = self._activate_form(data_confirmation_form, form_index=-1)
-                root = html.document_fromstring(data_download_form.content)
-                state = root.xpath("//span[@id='requestState']")[0].text
+                root = BeautifulSoup(data_download_form.content, 'html5lib')
+                state = root.select('span[id=requestState]')[0].text
                 while state != 'COMPLETE':
                     time.sleep(2.0)
                     data_download_form = self.request("GET",
                                                       data_download_form.url)
-                    root = html.document_fromstring(data_download_form.content)
-                    state = root.xpath("//span[@id='requestState']")[0].text
+                    root = BeautifulSoup(data_download_form.content, 'html5lib')
+                    state = root.select('span[id=requestState]')[0].text
             print("Downloading files...")
-            for fileId in root.xpath("//input[@name='fileId']"):
-                fileLink = fileId.attrib['value'].split()[1]
+            for fileId in root.select('input[name=fileId]'):
+                fileLink = fileId.attrs['value'].split()[1]
                 fileLink = fileLink.replace("/api", "").replace("https://", "http://")
                 filename = self.request("GET", fileLink, save=True)
-                files += [system_tools.gunzip(filename)]
+                files.append(system_tools.gunzip(filename))
         print("Done!")
         return files
 
