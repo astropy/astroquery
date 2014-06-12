@@ -75,12 +75,12 @@ def findvalue( element, searchstring):
                 setattr(tempnum, 'value', res.text)
             except ValueError:
                 return res.text
-        if res.attrib.has_key("errorminus"):
+        if "errorminus" in res.attrib:
             tempnum.errorminus = res.attrib["errorminus"]
-        if res.attrib.has_key("errorplus"):
+        if "errorplus" in res.attrib:
             tempnum.errorplus = res.attrib["errorplus"]
-        if res.attrib.has_key("upperlimit"):
+        if "upperlimit" in res.attrib:
             tempnum.upperlimit = res.attrib["upperlimit"]
-        if res.attrib.has_key("lowerlimit"):
+        if "lowerlimit" in res.attrib:
             tempnum.lowerlimit = res.attrib["lowerlimit"]
         return tempnum 
