@@ -174,6 +174,10 @@ will be clear from context what to do with your particular VCS.
   versions; in some circumstances you may need to limit the versions your
   package covers.
 
+* If you register your package with coveralls.io, then you will need
+  to modify the ``coveralls --rcfile`` line in ``.travis.yml`` file to
+  replace ``packagename`` with the name of your package.
+
 * You're now ready to start doing actual work on your affiliated package.  You
   will probably want to read over the developer guidelines of the Astropy
   documentation, and if you are hosting your code in GitHub, you might also
