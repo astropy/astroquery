@@ -11,6 +11,7 @@ def data_path(filename):
 
 def test_function():
     cata = oec.get_catalogue(data_path('systems.xml.gz')) # use local version of database
+
     assert len(cata.findall('.//planet')) > 0
 
     for planet in cata.findall(".//planet[name]"):
@@ -19,8 +20,3 @@ def test_function():
     assert oec.findvalue(kepler67b, 'name') == "Kepler-67 b"
     assert oec.findvalue(kepler67b, 'discoverymethod') == "transit"
 
-    kepler67 = cata.find(".//system[name]")
-    for star in cata.findall(".//planet[name]"):
-        if oec.findvalue(star, 'name') == "Kepler-67":
-            kepler67 = star 
-    assert oec.findvalue(kepler67, 'distance') == "1107"
