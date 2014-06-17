@@ -8,6 +8,7 @@ from ...xmatch import XMatch
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
 
+
 @pytest.fixture
 def xmatch():
     return XMatch()
