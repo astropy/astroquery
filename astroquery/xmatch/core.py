@@ -77,7 +77,8 @@ class XMatchClass(BaseQuery):
             # it is assumed it's either a URL or an uploaded table
             payload['colRA2'] = colRA2
             payload['colDec2'] = colDec2
-        return commons.send_request(self.URL, payload, self.TIMEOUT, **kwargs)
+        return commons.send_request(
+            self.URL, payload, self.TIMEOUT, **kwargs).text
 
     def is_available_table(self, table_id):
         """Return True if the passed CDS table identifier is one of the

@@ -46,6 +46,6 @@ def test_xmatch_query(xmatch):
 4.503950,322.493,12.16703,21295861+1210023,322.494242,+12.167332,0.100,0.080,1,10.057,9.720,9.483,0.077,0.136,0.088,EEE,222,0,2451080.6935
 """
     with open(os.path.join(DATA_DIR, 'posList.csv')) as pos_list:
-        res = xmatch.query(
+        csv = xmatch.query(
             pos_list, 'vizier:II/246/out', 5, 'csv', 'ra', 'dec')
-        assert res.text == expected_csv_output
+        assert csv == expected_csv_output
