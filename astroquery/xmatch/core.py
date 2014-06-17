@@ -77,8 +77,9 @@ class XMatchClass(BaseQuery):
             # it is assumed it's either a URL or an uploaded table
             payload['colRA2'] = colRA2
             payload['colDec2'] = colDec2
-        return commons.send_request(
-            self.URL, payload, self.TIMEOUT, **kwargs).text
+        response = commons.send_request(
+            self.URL, payload, self.TIMEOUT, **kwargs)
+        return response.text
 
     def is_available_table(self, table_id):
         """Return True if the passed CDS table identifier is one of the
@@ -100,9 +101,10 @@ class XMatchClass(BaseQuery):
         """
         if format not in frozenset(['json', 'txt']):
             raise ValueError('format argument must be "json" or "txt"')
-        return commons.send_request(
+        response = commons.send_request(
             'http://cdsxmatch.u-strasbg.fr/xmatch/api/v1/sync/tables',
             {'action': 'getVizieRTableNames', 'RESPONSEFORMAT': format},
-            self.TIMEOUT, 'GET').text
+            self.TIMEOUT, 'GET')
+        return response.text
 
 XMatch = XMatchClass()
