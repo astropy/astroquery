@@ -11,7 +11,7 @@ from ... import open_exoplanet_catalogue as oec
 def test_function():
 
     cata = oec.get_catalogue()
-    for planet in cata.findall(".//planet[name]"):
+    for planet in cata.findall(".//planet"):
         if oec.findvalue(planet, 'name') == "Kepler-67 b":
             kepler67b = planet
     assert oec.findvalue(kepler67b, 'name') == "Kepler-67 b"

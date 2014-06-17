@@ -14,7 +14,7 @@ def test_function():
 
     assert len(cata.findall('.//planet')) > 0
 
-    for planet in cata.findall(".//planet[name]"):
+    for planet in cata.findall(".//planet"):
         if oec.findvalue(planet, 'name') == "Kepler-67 b":
             kepler67b = planet
     assert oec.findvalue(kepler67b, 'name') == "Kepler-67 b"
