@@ -26,9 +26,9 @@ def test_xmatch_avail_tables(xmatch):
 
 @remote_data
 def test_xmatch_is_avail_table(xmatch):
-    assert xmatch.is_available_table('II/311/wise')
-    assert xmatch.is_available_table('II/246/out')
-    assert not xmatch.is_available_table('vizier:II/311/wise')
+    assert xmatch.is_table_available('II/311/wise')
+    assert xmatch.is_table_available('II/246/out')
+    assert not xmatch.is_table_available('vizier:II/311/wise')
 
 
 @remote_data

@@ -81,7 +81,7 @@ class XMatchClass(BaseQuery):
             self.URL, payload, self.TIMEOUT, **kwargs)
         return response.text
 
-    def is_available_table(self, table_id):
+    def is_table_available(self, table_id):
         """Return True if the passed CDS table identifier is one of the
         available VizieR tables, otherwise False.
 
