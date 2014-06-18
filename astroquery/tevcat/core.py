@@ -54,17 +54,18 @@ class _TeVCat(object):
         log.info('Downloading {0} with timeout {1} sec (should be ~ 0.5 MB)'
                  ''.format(TEVCAT_SERVER(), TEVCAT_TIMEOUT()))
         self.response = requests.get(TEVCAT_SERVER(), timeout=TEVCAT_TIMEOUT())
+        self.text = self.response.text
 
     def _extract_version(self):
         """"Extract the version number from the html"""
         pattern = 'Current Catalog Version:\s*(.*)\s*'
-        matches = re.search(pattern, self.response.text)
+        matches = re.search(pattern, self.text)
         self.version = matches.group(1)
 
     def _extract_data(self):
         """Extract the data dict from the html"""
         pattern = 'var jsonData = atob\("(.*)"\);'
-        matches = re.search(pattern, self.response.text)
+        matches = re.search(pattern, self.text)
         data1 = matches.group(1)
         data2 = base64.b64decode(data1)
         # The following line in necessary on Python 3 to get the escaping of
