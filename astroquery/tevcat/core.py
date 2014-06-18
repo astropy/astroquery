@@ -2,10 +2,11 @@
 import json
 import re
 import base64
-import warnings
 import numpy as np
 import requests
+from copy import copy
 from astropy.extern import six
+from astropy.tests.helper import catch_warnings
 from astropy.logger import log
 from astropy.table import Table, Column
 from astropy.coordinates import Angle, IllegalSecondWarning
@@ -52,24 +53,28 @@ class _TeVCat(object):
         """Gets the data and sets the 'data' and 'version' attributes"""
         log.info('Downloading {0} with timeout {1} sec (should be ~ 0.5 MB)'
                  ''.format(TEVCAT_SERVER(), TEVCAT_TIMEOUT()))
-        response = requests.get(TEVCAT_SERVER(), timeout=TEVCAT_TIMEOUT())
-        self._html = response.text
+        self.response = requests.get(TEVCAT_SERVER(), timeout=TEVCAT_TIMEOUT())
 
     def _extract_version(self):
         """"Extract the version number from the html"""
         pattern = 'Current Catalog Version:\s*(.*)\s*'
-        matches = re.search(pattern, self._html)
+        matches = re.search(pattern, self.response.text)
         self.version = matches.group(1)
 
     def _extract_data(self):
         """Extract the data dict from the html"""
         pattern = 'var jsonData = atob\("(.*)"\);'
-        matches = re.search(pattern, self._html)
-        encoded_data = matches.group(1)
-        if six.PY3:
-            encoded_data = bytes(encoded_data, encoding='utf-8')
-        decoded_data = base64.decodestring(encoded_data)
-        data = json.loads(decoded_data)
+        matches = re.search(pattern, self.response.text)
+        data1 = matches.group(1)
+        data2 = base64.b64decode(data1)
+        # The following line in necessary on Python 3 to get the escaping of
+        # quotes in URLs in the `notes` fields right (simply converting to string
+        # will results in an error in `json.loads`.
+        # http://stackoverflow.com/questions/14453152/convering-double-backslash-to-single-backslash-in-python-3
+        # http://stackoverflow.com/questions/21023162/python-3-pythonic-way-to-get-the-string-literal-representation-of-bytes
+        # https://docs.python.org/3.4/library/base64.html
+        data3 = data2.decode('utf8')
+        data = json.loads(data3)
         # Keep the full data for debugging
         self._data = data
         # Store the useful parts
@@ -102,7 +107,7 @@ class _TeVCat(object):
 
         table['catalog_name'] = _fix_data(t['catalog_name'])
 
-        with warnings.catch_warnings(IllegalSecondWarning):
+        with catch_warnings(IllegalSecondWarning):
             coord_dec = Angle(t['coord_dec'], 'degree').degree
             table['coord_dec'] = Column(coord_dec, unit='degree',
                                         description='Declination')
@@ -120,11 +125,11 @@ class _TeVCat(object):
                                        description='Right Ascension')
 
         # TODO: what does `coord_type` mean?
-        coord_type = _fix_data(t['coord_type'], int)
+        coord_type = _fix_data(t['coord_type'], 'int')
         table['coord_type'] = Column(coord_type, description='Coordinate type')
 
         # TODO: translate integer code to string
-        table['discoverer'] = _fix_data(t['discoverer'], int)
+        table['discoverer'] = _fix_data(t['discoverer'], 'int')
 
         # Store date in format that can be passed to astropy.time.Time as
         # Time(date, scale='utc', format='iso')
@@ -135,18 +140,18 @@ class _TeVCat(object):
         table['distance'] = Column(distance, unit='kpc',
                                    description='Distance to source')
 
-        eth = _fix_data(t['eth'], float)
+        eth = _fix_data(t['eth'], 'float')
         table['eth'] = Column(eth, unit='TeV', description='Energy threshold')
 
         # TODO: Which crab flux should be used as reference?
-        flux = _fix_data(t['flux'], float)
-        table['flux'] = Column(flux, unit='Crab', description='Source flux')
+        flux = _fix_data(t['flux'], 'float')
+        table['flux'] = Column(flux, description='Source flux (Crab nebula flux units)')
 
         greens_cat = _fix_data(t['greens_cat'])
         table['greens_cat'] = Column(greens_cat,
                                      description="URL to Green's catalog entry")
 
-        table['id'] = _fix_data(t['id'], int)
+        table['id'] = _fix_data(t['id'], 'int')
 
         # Omitting `image` column ... not useful.
         # Omitting `marker_id` column ... not useful.
@@ -158,49 +163,54 @@ class _TeVCat(object):
 
         table['other_names'] = _fix_data(t['other_names'])
 
-        table['owner'] = _fix_data(t['owner'], int)
+        table['owner'] = _fix_data(t['owner'], 'int')
 
         if with_notes:
             table['private_notes'] = _fix_data(t['private_notes'])
 
         # Omitting `public` column ... not useful.
 
-        size_x = _fix_data(t['size_x'], float)
+        size_x = _fix_data(t['size_x'], 'float')
         table['size_x'] = Column(size_x, unit='deg',
                                  description='Size (major axis)')
 
-        size_y = _fix_data(t['size_y'], float)
+        size_y = _fix_data(t['size_y'], 'float')
         table['size_y'] = Column(size_y, unit='deg',
                                  description='Size (minor axis)')
 
-        table['source_type'] = _fix_data(t['source_type'], int)
+        table['source_type'] = _fix_data(t['source_type'], 'int')
 
         table['source_type_name'] = _fix_data(t['source_type_name'])
 
-        spec_idx = _fix_data(t['spec_idx'], float)
+        spec_idx = _fix_data(t['spec_idx'], 'float')
         table['spec_idx'] = Column(spec_idx, description='Spectral index')
 
-        table['src_rank'] = _fix_data(t['src_rank'], int)
+        table['src_rank'] = _fix_data(t['src_rank'], 'int')
 
-        table['variability'] = _fix_data(t['variability'], int)
+        table['variability'] = _fix_data(t['variability'], 'int')
+
+        # This doesn't seem to have any effect ... column dtype is still unicode!?
+        # 
+        #table.convert_unicode_to_bytestring(python3_only=True)
+        #table._convert_string_dtype('U', 'S', python3_only=True)
 
         # Store tables (the `sources_table` is mainly useful for debugging)
         self._sources_table = t
         self.table = table
 
 
-def _fix_data(in_data, dtype=str, fill_value=None):
+def _fix_data(in_data, dtype='str', fill_value=None):
 
-    # We use float for int columns to make `NaN` available for missing values
-    if dtype == int:
-        dtype = float
+    # Use float for int columns to make `NaN` available for missing values
+    #if dtype == 'int':
+    #    dtype = 'float'
 
     if fill_value == None:
-        if dtype == str:
+        if dtype == 'str':
             fill_value = ''
-        elif dtype == float:
+        elif dtype == 'float':
             fill_value = np.NAN
-        elif dtype == int:
+        elif dtype == 'int':
             fill_value = -99
 
     out_data = []
@@ -208,10 +218,24 @@ def _fix_data(in_data, dtype=str, fill_value=None):
         if element == None:
             out_data.append(fill_value)
         else:
-            if dtype == str:
-                element = element.encode('utf8')
+            if dtype == 'str':
+                if six.PY2:
+                    element = element.encode('utf8')
+                else:
+                    try:
+                        element = element.encode('ascii')
+                    except Exception as e:
+                        log.info('PROBLEMATIC STRING: {0}'.format(element))
+                        log.info(e)
+                        element = element.encode('ascii', errors='replace')
+            elif dtype == 'float':
+                element = float(element)
+            elif dtype == 'int':
+                element = int(element)
             out_data.append(element)
-    return np.array(out_data, dtype=dtype)
+
+    return out_data
+    #return np.array(out_data, dtype=dtype)
     # mask = [_ == None for _ in column]
     # return MaskedColumn(data=data, name=column.name, mask)
 
@@ -225,9 +249,9 @@ def _fix_date(in_data):
 
 
 def _fix_distance(t):
-    distance = _fix_data(t['distance'], float)
-    distance_mod = _fix_data(t['distance_mod'], str)
-    mask = (distance_mod == 'z')
+    distance = _fix_data(t['distance'], 'float')
+    distance_mod = _fix_data(t['distance_mod'], 'str')
+    #mask = (distance_mod == 'z')
 
     try:
         cosmo = cosmology.default_cosmology.get()
@@ -235,6 +259,10 @@ def _fix_distance(t):
         # compatibility with pre Astropy 0.4
         cosmo = cosmology.get_current()
 
-    distance[mask] = cosmo.luminosity_distance(distance[mask]).to('kpc').value
+    out_data = copy(distance)
+    for ii in range(len(t)):
+        if distance_mod[ii] == 'z':
+            dist = cosmo.luminosity_distance(distance[ii]).to('kpc').value
+            out_data[ii] = dist
 
     return distance
