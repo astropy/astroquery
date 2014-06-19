@@ -5,7 +5,6 @@ import base64
 import numpy as np
 import requests
 from copy import copy
-from astropy.extern import six
 from astropy.tests.helper import catch_warnings
 from astropy.logger import log
 from astropy.table import Table, Column
@@ -16,6 +15,12 @@ from . import TEVCAT_SERVER, TEVCAT_TIMEOUT
 __all__ = ['get_tevcat']
 
 __doctest_skip__ = ['*']
+
+try:
+    import scipy
+    HAS_SCIPY = True
+except ImportError:
+    HAS_SCIPY = False
 
 
 def get_tevcat(with_notes=False):
@@ -137,14 +142,19 @@ class _TeVCat(object):
         date = _fix_date(t['discovery_date'])
         table['discovery_date'] = Column(date, description='Discovery date')
 
-        distance = _fix_distance(t)
-        table['distance'] = Column(distance, unit='kpc',
-                                   description='Distance to source')
+        # TeVCat has for some sources redshift, for others distance in kpc
+        # in the `distance` column:
+        table['distance_value'] = _fix_data(t['distance'], 'float')
+        table['distance_type'] = _fix_data(t['distance_mod'], 'str')
+
+        if HAS_SCIPY:
+            distance_kpc = _fix_distance(table['distance_value'], table['distance_type'])
+            table['distance_kpc'] = Column(distance_kpc, unit='kpc',
+                                           description='Distance to source')
 
         eth = _fix_data(t['eth'], 'float')
         table['eth'] = Column(eth, unit='TeV', description='Energy threshold')
 
-        # TODO: Which crab flux should be used as reference?
         flux = _fix_data(t['flux'], 'float')
         table['flux'] = Column(flux, description='Source flux (Crab nebula flux units)')
 
@@ -190,11 +200,6 @@ class _TeVCat(object):
 
         table['variability'] = _fix_data(t['variability'], 'int')
 
-        # This doesn't seem to have any effect ... column dtype is still unicode!?
-        # 
-        #table.convert_unicode_to_bytestring(python3_only=True)
-        #table._convert_string_dtype('U', 'S', python3_only=True)
-
         # Store tables (the `sources_table` is mainly useful for debugging)
         self._sources_table = t
         self.table = table
@@ -220,15 +225,22 @@ def _fix_data(in_data, dtype='str', fill_value=None):
             out_data.append(fill_value)
         else:
             if dtype == 'str':
-                if six.PY2:
-                    element = element.encode('utf8')
-                else:
-                    try:
-                        element = element.encode('ascii')
-                    except Exception as e:
-                        log.info('PROBLEMATIC STRING: {0}'.format(element))
-                        log.info(e)
-                        element = element.encode('ascii', errors='replace')
+                # Use ascii encoding for string data, because FITS
+                # can't handle unicode encodings like UTF-8 and
+                # we don't care for the few unicode characters anyways.
+
+                # These are long `-` characters in source names
+                element = element.replace(u'\u2212', '-')
+                element = element.replace('\u2013', '-')
+
+                # We leave this try ... except in place in case new
+                # unicode characters are introduced.
+                try:
+                    element = element.encode('ascii')
+                except Exception as e:
+                    element = element.encode('ascii', 'replace')
+                    log.info(e)
+                    log.info(element)
             elif dtype == 'float':
                 element = float(element)
             elif dtype == 'int':
@@ -249,10 +261,7 @@ def _fix_date(in_data):
     return out_data
 
 
-def _fix_distance(t):
-    distance = _fix_data(t['distance'], 'float')
-    distance_mod = _fix_data(t['distance_mod'], 'str')
-    #mask = (distance_mod == 'z')
+def _fix_distance(distance_value, distance_type):
 
     try:
         cosmo = cosmology.default_cosmology.get()
@@ -260,10 +269,10 @@ def _fix_distance(t):
         # compatibility with pre Astropy 0.4
         cosmo = cosmology.get_current()
 
-    out_data = copy(distance)
-    for ii in range(len(t)):
-        if distance_mod[ii] == 'z':
-            dist = cosmo.luminosity_distance(distance[ii]).to('kpc').value
-            out_data[ii] = dist
+    distance_kpc = copy(distance_value)
+    for ii in range(len(distance_value)):
+        if distance_type[ii] == 'z':
+            dist = cosmo.luminosity_distance(distance_value[ii]).to('kpc').value
+            distance_kpc[ii] = dist
 
-    return distance
+    return distance_kpc
