@@ -63,7 +63,7 @@ class XMatchClass(BaseQuery):
             payload['cat1'] = cat1
         elif isinstance(cat1, file):
             kwargs['files'] = {'cat1': cat1}
-        if not self.is_available_table(cat1):
+        if not self.is_table_available(cat1):
             # if `cat1` is not a VizieR table,
             # it is assumed it's either a URL or an uploaded table
             payload['colRA1'] = colRA1
@@ -72,7 +72,7 @@ class XMatchClass(BaseQuery):
             payload['cat2'] = cat2
         elif isinstance(cat2, file):
             kwargs['files'] = {'cat2': cat2}
-        if not self.is_available_table(cat2):
+        if not self.is_table_available(cat2):
             # if `cat2` is not a VizieR table,
             # it is assumed it's either a URL or an uploaded table
             payload['colRA2'] = colRA2
