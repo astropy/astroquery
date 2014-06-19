@@ -454,7 +454,12 @@ class EsoClass(QueryWithLogin):
         files = []
         # First: Detect datasets already downloaded
         for dataset in datasets:
-            local_filename = dataset + ".fits"
+            
+            if os.path.splitext(dataset)[1].lower() in ('.fits','.tar'):
+                local_filename = dataset
+            else:
+                local_filename = dataset + ".fits"
+
             if self.cache_location is not None:
                 local_filename = os.path.join(self.cache_location,
                                               local_filename)
@@ -466,6 +471,7 @@ class EsoClass(QueryWithLogin):
                 files.append(local_filename + ".Z")
             else:
                 datasets_to_download.append(dataset)
+
         # Second: Download the other datasets
         if datasets_to_download:
             data_retrieval_form = self.request("GET", "http://archive.eso.org/cms/eso-data/eso-data-direct-retrieval.html")
