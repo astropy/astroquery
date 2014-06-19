@@ -72,8 +72,8 @@ class EsoClass(QueryWithLogin):
             if tag_name == 'input':
                 if 'type' in form_elem.attrs:
                     is_file = form_elem.get('type') == 'file'
-                if form_elem.has_key('checked'):
-                    if form_elem.has_key('value'):
+                if form_elem.has_attr('checked'):
+                    if form_elem.has_attr('value'):
                         value = form_elem.get('value')
                     else:
                         value = 'on'
@@ -132,6 +132,8 @@ class EsoClass(QueryWithLogin):
         # Get password from keyring or prompt
         password_from_keyring = keyring.get_password("astroquery:www.eso.org", username)
         if password_from_keyring is None:
+            if __IPYTHON__:
+                print("You are using an ipython notebook: the password form will appear in your terminal.")
             password = getpass.getpass("{0}, enter your ESO password:\n".format(username))
         else:
             password = password_from_keyring
@@ -141,7 +143,7 @@ class EsoClass(QueryWithLogin):
         login_result_response = self._activate_form(login_response,
                                                     form_index=-1,
                                                     inputs={'username': username,
-                                                            'password':password})
+                                                            'password': password})
         root = BeautifulSoup(login_result_response.content, 'html5lib')
         authenticated = not root.select('.error')
         if authenticated:
@@ -327,6 +329,12 @@ class EsoClass(QueryWithLogin):
             # TODO: replace this with individually parsed kwargs
             query_dict.update(kwargs)
             query_dict["wdbo"] = "csv/download"
+
+            # Default to returning the DP.ID since it is needed for header acquisition
+            query_dict['tab_dp_id'] = (kwargs.pop('tab_dp_id')
+                                       if 'tab_db_id' in kwargs
+                                       else 'on')
+
             for k in columns:
                 query_dict["tab_"+k] = True
             if self.ROW_LIMIT >= 0:
