@@ -61,7 +61,8 @@ class XMatchClass(BaseQuery):
         kwargs = {}
         if isinstance(cat1, six.string_types):
             payload['cat1'] = cat1
-        elif isinstance(cat1, file):
+        else:
+            # assume it's a file-like object, support duck-typing
             kwargs['files'] = {'cat1': cat1}
         if not self.is_table_available(cat1):
             # if `cat1` is not a VizieR table,
@@ -70,7 +71,8 @@ class XMatchClass(BaseQuery):
             payload['colDec1'] = colDec1
         if isinstance(cat2, six.string_types):
             payload['cat2'] = cat2
-        elif isinstance(cat2, file):
+        else:
+            # assume it's a file-like object, support duck-typing
             kwargs['files'] = {'cat2': cat2}
         if not self.is_table_available(cat2):
             # if `cat2` is not a VizieR table,
