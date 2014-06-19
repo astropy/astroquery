@@ -70,9 +70,15 @@ class EsoClass(QueryWithLogin):
             tag_name = form_elem.name
             key = form_elem.get('name')
             if tag_name == 'input':
-                value = form_elem.get('value')
                 if 'type' in form_elem.attrs:
                     is_file = form_elem.get('type') == 'file'
+                if form_elem.has_key('checked'):
+                    if form_elem.has_key('value'):
+                        value = form_elem.get('value')
+                    else:
+                        value = 'on'
+                else:
+                    value = form_elem.get('value')
             elif tag_name == 'select':
                 if form_elem.get('multiple') is not None:
                     value = []
@@ -106,6 +112,10 @@ class EsoClass(QueryWithLogin):
                             payload.append((key, v))
                     else:
                         payload.append((key, value))
+
+        # for future debugging
+        self._payload = payload
+
         # Send payload
         if fmt == 'get':
             response = self.request("GET", url, params=payload)
