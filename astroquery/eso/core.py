@@ -10,6 +10,7 @@ import keyring
 from astropy.extern import six
 from astropy.table import Table, Column
 from astropy.io import ascii
+from astropy import log
 
 from ..exceptions import LoginError, RemoteServiceError
 from ..utils import schema, system_tools
@@ -479,12 +480,14 @@ class EsoClass(QueryWithLogin):
                 data_download_form = self._activate_form(data_confirmation_form, form_index=-1)
                 root = BeautifulSoup(data_download_form.content, 'html5lib')
                 state = root.select('span[id=requestState]')[0].text
-                while state != 'COMPLETE':
+                while state not in ('COMPLETE', 'ERROR'):
                     time.sleep(2.0)
                     data_download_form = self.request("GET",
                                                       data_download_form.url)
                     root = BeautifulSoup(data_download_form.content, 'html5lib')
                     state = root.select('span[id=requestState]')[0].text
+                if state == 'ERROR':
+                    raise RemoteServiceError("There was a remote service error; perhaps the requested file could not be found?")
             print("Downloading files...")
             for fileId in root.select('input[name=fileId]'):
                 fileLink = fileId.attrs['value'].split()[1]
