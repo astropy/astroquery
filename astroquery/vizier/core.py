@@ -35,8 +35,10 @@ class VizierClass(BaseQuery):
 
     _str_schema = schema.Or(*six.string_types)
     _schema_columns = schema.Schema([_str_schema], error="columns must be a list of strings")
-    _schema_column_filters = schema.Schema({schema.Optional(_str_schema):_str_schema}, error="column_filters must be a dictionary where both keys and values are strings")
-    _schema_catalog = schema.Schema(schema.Or([_str_schema],_str_schema,None), error="catalog must be a list of strings or a single string")
+    _schema_column_filters = schema.Schema({schema.Optional(_str_schema):_str_schema},
+                                           error="column_filters must be a dictionary where both keys and values are strings")
+    _schema_catalog = schema.Schema(schema.Or([_str_schema],_str_schema,None),
+                                    error="catalog must be a list of strings or a single string")
 
     def __init__(self, columns=["*"], column_filters={}, catalog=None, keywords=None):
         self.columns = VizierClass._schema_columns.validate(columns)
