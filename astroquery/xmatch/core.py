@@ -92,10 +92,10 @@ class XMatchClass(BaseQuery):
         xMatch service and return them as a list of strings.
 
         """
-        response = commons.send_request(
+        response = self.request(
+            'GET',
             'http://cdsxmatch.u-strasbg.fr/xmatch/api/v1/sync/tables',
-            {'action': 'getVizieRTableNames', 'RESPONSEFORMAT': 'txt'},
-            self.TIMEOUT, 'GET')
-        return response.text.splitlines()
+            {'action': 'getVizieRTableNames', 'RESPONSEFORMAT': 'txt'})
+        return response.content.splitlines()
 
 XMatch = XMatchClass()
