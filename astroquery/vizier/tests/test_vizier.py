@@ -171,3 +171,6 @@ class TestVizierClass:
         v = vizier.core.Vizier(columns=['Vmag', 'B-V', '_RAJ2000', '_DEJ2000'])
         assert len(v.columns) == 4
 
+    def test_columns_unicode(self):
+        v = vizier.core.Vizier(columns=[u'Vmag', u'B-V', u'_RAJ2000', u'_DEJ2000'])
+        assert len(v.columns) == 4
