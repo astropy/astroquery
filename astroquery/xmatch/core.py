@@ -1,5 +1,6 @@
 import six
 from astropy.io import ascii
+from astropy.units import arcsec
 
 from . import XMATCH_URL, XMATCH_TIMEOUT
 from ..query import BaseQuery
@@ -28,7 +29,7 @@ class XMatchClass(BaseQuery):
             equatorial frame and as decimal degrees numbers.
         cat2 : str or file
             Identifier of the second table. Follows the same rules as *cat1*.
-        max_distance : int, float
+        max_distance : `~astropy.units.arcsec`
             Maximum distance in arcsec to look for counterparts.
             Maximum allowed value is 180.
         colRA1 : str
@@ -50,12 +51,12 @@ class XMatchClass(BaseQuery):
             Query results table
 
         """
-        if max_distance > 180:
+        if max_distance > 180 * arcsec:
             raise ValueError(
                 'max_distance argument must not be greater than 180')
         payload = {
             'request': 'xmatch',
-            'distMaxArcsec': max_distance,
+            'distMaxArcsec': max_distance.value,
             'RESPONSEFORMAT': 'csv',
         }
         kwargs = {}

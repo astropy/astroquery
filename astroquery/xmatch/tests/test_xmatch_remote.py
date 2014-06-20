@@ -3,6 +3,7 @@ import os.path
 import pytest
 from astropy.tests.helper import remote_data
 from astropy.table import Table
+from astropy.units import arcsec
 
 from ...xmatch import XMatch
 
@@ -36,7 +37,7 @@ def test_xmatch_is_avail_table(xmatch):
 def test_xmatch_query(xmatch):
     with open(os.path.join(DATA_DIR, 'posList.csv')) as pos_list:
         table = xmatch.query(
-            pos_list, 'vizier:II/246/out', 5, 'ra', 'dec')
+            pos_list, 'vizier:II/246/out', 5 * arcsec, 'ra', 'dec')
         assert isinstance(table, Table)
         assert table.colnames == [
             'angDist', 'ra', 'dec', '2MASS', 'RAJ2000', 'DEJ2000',
