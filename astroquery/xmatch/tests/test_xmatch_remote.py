@@ -16,7 +16,7 @@ def xmatch():
 
 @remote_data
 def test_xmatch_avail_tables(xmatch):
-    tables = xmatch.get_available_tables('txt').splitlines()
+    tables = xmatch.get_available_tables()
     assert tables
     # those example tables are from
     # http://cdsxmatch.u-strasbg.fr/xmatch/doc/API-calls.html

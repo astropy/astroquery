@@ -88,25 +88,17 @@ class XMatchClass(BaseQuery):
         available VizieR tables, otherwise False.
 
         """
-        return table_id in self.get_available_tables('txt').splitlines()
+        return table_id in self.get_available_tables()
 
-    def get_available_tables(self, format):
+    def get_available_tables(self):
         """Get the list of the VizieR tables which are available in the
-        xMatch service.
-
-        Parameters
-        ----------
-        format : str
-            Must be one of ['json'|'txt'].
-            Format of the result.
+        xMatch service and return them as a list of strings.
 
         """
-        if format not in frozenset(['json', 'txt']):
-            raise ValueError('format argument must be "json" or "txt"')
         response = commons.send_request(
             'http://cdsxmatch.u-strasbg.fr/xmatch/api/v1/sync/tables',
-            {'action': 'getVizieRTableNames', 'RESPONSEFORMAT': format},
+            {'action': 'getVizieRTableNames', 'RESPONSEFORMAT': 'txt'},
             self.TIMEOUT, 'GET')
-        return response.text
+        return response.text.splitlines()
 
 XMatch = XMatchClass()
