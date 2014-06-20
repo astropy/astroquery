@@ -1,6 +1,9 @@
+import tempfile
+
 import six
 from astropy.io import ascii
 from astropy.units import arcsec
+from astropy.table import Table
 
 from . import XMATCH_URL, XMATCH_TIMEOUT
 from ..query import BaseQuery
@@ -19,14 +22,17 @@ class XMatchClass(BaseQuery):
 
         Parameters
         ----------
-        cat1 : str or file
+        cat1 : str, file or `~astropy.table.Table`
             Identifier of the first table. It can either be a URL, the
-            payload of a local file being uploaded or a CDS table
-            identifier (either *simbad* for a view of SIMBAD data, or to
-            point out a given VizieR table.
+            payload of a local file being uploaded, a CDS table
+            identifier (either *simbad* for a view of SIMBAD data / to
+            point out a given VizieR table or a an AstroPy table.
             If the table is uploaded or accessed through a URL, it must be
             in VOTable or CSV format with the positions in J2000
             equatorial frame and as decimal degrees numbers.
+            Note: If the passed argument is an AstroPy table, the column names
+            are extracted from this object and the parameters `colRA1` and
+            `colDec1` are ignored!
         cat2 : str or file
             Identifier of the second table. Follows the same rules as *cat1*.
         max_distance : `~astropy.units.arcsec`
@@ -62,20 +68,38 @@ class XMatchClass(BaseQuery):
         kwargs = {}
         if isinstance(cat1, six.string_types):
             payload['cat1'] = cat1
+        elif isinstance(cat1, Table):
+            payload['colRA1'], payload['colDec1'] = cat1.colnames
+            # write the Table's content into a new, temporary CSV-file
+            # so that it can be pointed to via the `files` option
+            # file will be closed when garbage-collected
+            fp = tempfile.NamedTemporaryFile()
+            cat1.write(fp.name, format='ascii.csv')
+            kwargs['files'] = {'cat1': fp}
         else:
             # assume it's a file-like object, support duck-typing
             kwargs['files'] = {'cat1': cat1}
-        if not self.is_table_available(cat1):
+        if not self.is_table_available(cat1) and\
+                payload.get('colRA1') is None or payload.get('colDec1') is None:
             # if `cat1` is not a VizieR table,
             # it is assumed it's either a URL or an uploaded table
             payload['colRA1'] = colRA1
             payload['colDec1'] = colDec1
         if isinstance(cat2, six.string_types):
             payload['cat2'] = cat2
+        elif isinstance(cat2, Table):
+            payload['colRA2'], payload['colDec2'] = cat2.colnames
+            # write the Table's content into a new, temporary CSV-file
+            # so that it can be pointed to via the `files` option
+            # file will be closed when garbage-collected
+            fp = tempfile.NamedTemporaryFile()
+            cat1.write(fp.name, format='ascii.csv')
+            kwargs['files'] = {'cat1': fp}
         else:
             # assume it's a file-like object, support duck-typing
             kwargs['files'] = {'cat2': cat2}
-        if not self.is_table_available(cat2):
+        if not self.is_table_available(cat2) and\
+                payload.get('colRA2') is None or payload.get('colDec2') is None:
             # if `cat2` is not a VizieR table,
             # it is assumed it's either a URL or an uploaded table
             payload['colRA2'] = colRA2

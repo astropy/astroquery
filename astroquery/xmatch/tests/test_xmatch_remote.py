@@ -44,3 +44,16 @@ def test_xmatch_query(xmatch):
             'errHalfMaj', 'errHalfMin', 'errPosAng', 'Jmag', 'Hmag', 'Kmag',
             'e_Jmag', 'e_Hmag', 'e_Kmag', 'Qfl', 'Rfl', 'X', 'MeasureJD']
         assert len(table) == 11
+
+
+@remote_data
+def test_xmatch_query_astropy_table(xmatch):
+    with open(os.path.join(DATA_DIR, 'posList.csv')) as pos_list:
+        input_table = Table.read(pos_list, names=['ra', 'dec'], format='ascii')
+    table = xmatch.query(input_table, 'vizier:II/246/out', 5 * arcsec)
+    assert isinstance(table, Table)
+    assert table.colnames == [
+        'angDist', 'ra', 'dec', '2MASS', 'RAJ2000', 'DEJ2000',
+        'errHalfMaj', 'errHalfMin', 'errPosAng', 'Jmag', 'Hmag', 'Kmag',
+        'e_Jmag', 'e_Hmag', 'e_Kmag', 'Qfl', 'Rfl', 'X', 'MeasureJD']
+    assert len(table) == 11
