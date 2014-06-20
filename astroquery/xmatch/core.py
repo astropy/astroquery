@@ -1,4 +1,5 @@
 import six
+from astropy.io import ascii
 
 from . import XMATCH_URL, XMATCH_TIMEOUT
 from ..query import BaseQuery
@@ -9,9 +10,7 @@ class XMatchClass(BaseQuery):
     URL = XMATCH_URL()
     TIMEOUT = XMATCH_TIMEOUT()
 
-    SUPPORTED_FORMATS = frozenset(['votable', 'json', 'csv', 'tsv'])
-
-    def query(self, cat1, cat2, max_distance, format, colRA1=None,
+    def query(self, cat1, cat2, max_distance, colRA1=None,
               colDec1=None, colRA2=None, colDec2=None):
         """
         Parameters
@@ -29,9 +28,6 @@ class XMatchClass(BaseQuery):
         max_distance : int, float
             Maximum distance in arcsec to look for counterparts.
             Maximum allowed value is 180.
-        format : str
-            Must be one of ['votable'|'json'|'csv'|'tsv'].
-            Format of the result.
         colRA1 : str
             Name of the column holding the right ascension. Only required
             if `cat1` is an uploaded table or a pointer to a URL.
@@ -45,18 +41,19 @@ class XMatchClass(BaseQuery):
             Name of the column holding the declination. Only required if
             `cat2` is an uploaded table or a pointer to a URL.
 
+        Returns
+        -------
+        table : `~astropy.table.Table`
+            Query results table
+
         """
         if max_distance > 180:
             raise ValueError(
                 'max_distance argument must not be greater than 180')
-        if format not in self.SUPPORTED_FORMATS:
-            raise ValueError(
-                'format argument must be one of the following: {0}'.format(
-                    ', '.join(self.SUPPORTED_FORMATS)))
         payload = {
             'request': 'xmatch',
             'distMaxArcsec': max_distance,
-            'RESPONSEFORMAT': format,
+            'RESPONSEFORMAT': 'csv',
         }
         kwargs = {}
         if isinstance(cat1, six.string_types):
@@ -81,7 +78,7 @@ class XMatchClass(BaseQuery):
             payload['colDec2'] = colDec2
         response = commons.send_request(
             self.URL, payload, self.TIMEOUT, **kwargs)
-        return response.text
+        return ascii.read(response.text)
 
     def is_table_available(self, table_id):
         """Return True if the passed CDS table identifier is one of the

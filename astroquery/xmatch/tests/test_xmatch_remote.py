@@ -2,6 +2,7 @@ import os.path
 
 import pytest
 from astropy.tests.helper import remote_data
+from astropy.table import Table
 
 from ...xmatch import XMatch
 
@@ -33,9 +34,12 @@ def test_xmatch_is_avail_table(xmatch):
 
 @remote_data
 def test_xmatch_query(xmatch):
-    with open(os.path.join(DATA_DIR, 'expected_output.csv')) as csv:
-        expected_csv_output = csv.read()
     with open(os.path.join(DATA_DIR, 'posList.csv')) as pos_list:
-        csv = xmatch.query(
-            pos_list, 'vizier:II/246/out', 5, 'csv', 'ra', 'dec')
-        assert csv == expected_csv_output
+        table = xmatch.query(
+            pos_list, 'vizier:II/246/out', 5, 'ra', 'dec')
+        assert isinstance(table, Table)
+        assert table.colnames == [
+            'angDist', 'ra', 'dec', '2MASS', 'RAJ2000', 'DEJ2000',
+            'errHalfMaj', 'errHalfMin', 'errPosAng', 'Jmag', 'Hmag', 'Kmag',
+            'e_Jmag', 'e_Hmag', 'e_Kmag', 'Qfl', 'Rfl', 'X', 'MeasureJD']
+        assert len(table) == 11
