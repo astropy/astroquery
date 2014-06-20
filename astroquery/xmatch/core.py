@@ -12,7 +12,10 @@ class XMatchClass(BaseQuery):
 
     def query(self, cat1, cat2, max_distance, colRA1=None,
               colDec1=None, colRA2=None, colDec2=None):
-        """
+        """Query the `CDS cross-match service
+        <http://cdsxmatch.u-strasbg.fr/xmatch>`_ by finding matches between
+        two (potentially big) catalogues.
+
         Parameters
         ----------
         cat1 : str or file
