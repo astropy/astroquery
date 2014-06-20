@@ -10,6 +10,7 @@ import keyring
 from astropy.extern import six
 from astropy.table import Table, Column
 from astropy.io import ascii
+from astropy import log
 
 from ..exceptions import LoginError, RemoteServiceError
 from ..utils import schema, system_tools
@@ -70,9 +71,15 @@ class EsoClass(QueryWithLogin):
             tag_name = form_elem.name
             key = form_elem.get('name')
             if tag_name == 'input':
-                value = form_elem.get('value')
                 if 'type' in form_elem.attrs:
                     is_file = form_elem.get('type') == 'file'
+                if form_elem.has_attr('checked'):
+                    if form_elem.has_attr('value'):
+                        value = form_elem.get('value')
+                    else:
+                        value = 'on'
+                else:
+                    value = form_elem.get('value')
             elif tag_name == 'select':
                 if form_elem.get('multiple') is not None:
                     value = []
@@ -106,6 +113,10 @@ class EsoClass(QueryWithLogin):
                             payload.append((key, v))
                     else:
                         payload.append((key, value))
+
+        # for future debugging
+        self._payload = payload
+
         # Send payload
         if fmt == 'get':
             response = self.request("GET", url, params=payload)
@@ -122,6 +133,8 @@ class EsoClass(QueryWithLogin):
         # Get password from keyring or prompt
         password_from_keyring = keyring.get_password("astroquery:www.eso.org", username)
         if password_from_keyring is None:
+            if __IPYTHON__:
+                print("You are using an ipython notebook: the password form will appear in your terminal.")
             password = getpass.getpass("{0}, enter your ESO password:\n".format(username))
         else:
             password = password_from_keyring
@@ -131,7 +144,7 @@ class EsoClass(QueryWithLogin):
         login_result_response = self._activate_form(login_response,
                                                     form_index=-1,
                                                     inputs={'username': username,
-                                                            'password':password})
+                                                            'password': password})
         root = BeautifulSoup(login_result_response.content, 'html5lib')
         authenticated = not root.select('.error')
         if authenticated:
@@ -317,6 +330,12 @@ class EsoClass(QueryWithLogin):
             # TODO: replace this with individually parsed kwargs
             query_dict.update(kwargs)
             query_dict["wdbo"] = "csv/download"
+
+            # Default to returning the DP.ID since it is needed for header acquisition
+            query_dict['tab_dp_id'] = (kwargs.pop('tab_dp_id')
+                                       if 'tab_db_id' in kwargs
+                                       else 'on')
+
             for k in columns:
                 query_dict["tab_"+k] = True
             if self.ROW_LIMIT >= 0:
@@ -435,7 +454,12 @@ class EsoClass(QueryWithLogin):
         files = []
         # First: Detect datasets already downloaded
         for dataset in datasets:
-            local_filename = dataset + ".fits"
+            
+            if os.path.splitext(dataset)[1].lower() in ('.fits','.tar'):
+                local_filename = dataset
+            else:
+                local_filename = dataset + ".fits"
+
             if self.cache_location is not None:
                 local_filename = os.path.join(self.cache_location,
                                               local_filename)
@@ -447,6 +471,7 @@ class EsoClass(QueryWithLogin):
                 files.append(local_filename + ".Z")
             else:
                 datasets_to_download.append(dataset)
+
         # Second: Download the other datasets
         if datasets_to_download:
             data_retrieval_form = self.request("GET", "http://archive.eso.org/cms/eso-data/eso-data-direct-retrieval.html")
@@ -461,12 +486,14 @@ class EsoClass(QueryWithLogin):
                 data_download_form = self._activate_form(data_confirmation_form, form_index=-1)
                 root = BeautifulSoup(data_download_form.content, 'html5lib')
                 state = root.select('span[id=requestState]')[0].text
-                while state != 'COMPLETE':
+                while state not in ('COMPLETE', 'ERROR'):
                     time.sleep(2.0)
                     data_download_form = self.request("GET",
                                                       data_download_form.url)
                     root = BeautifulSoup(data_download_form.content, 'html5lib')
                     state = root.select('span[id=requestState]')[0].text
+                if state == 'ERROR':
+                    raise RemoteServiceError("There was a remote service error; perhaps the requested file could not be found?")
             print("Downloading files...")
             for fileId in root.select('input[name=fileId]'):
                 fileLink = fileId.attrs['value'].split()[1]
