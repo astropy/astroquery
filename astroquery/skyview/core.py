@@ -13,6 +13,11 @@ class SkyViewClass(BaseQuery):
     URL = SKYVIEW_URL()
 
     def _submit_form(self, input=None):
+        """Fill out the form of the SkyView site and submit it with the
+        values given in `input` (a dictionary where the keys are the form
+        element's names and the values are their respective values).
+
+        """
         if input is None:
             input = {}
         response = requests.get(self.URL)
