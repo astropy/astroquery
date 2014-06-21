@@ -228,7 +228,7 @@ class SimbadClass(BaseQuery):
             sf = strip_field(field)
             if sf not in fields_dict:
                 raise KeyError("{field}: no such field".format(field=field))
-            elif sf in [strip_field(f,keep_filters=True) for f in Simbad._VOTABLE_FIELDS]:
+            elif sf in [strip_field(f,keep_filters=True) for f in self._VOTABLE_FIELDS]:
                 errmsg = "{field}: field already present.  ".format(field=field)
                 errmsg += ("Fields ra,dec,id,otype, and bibcodelist can only "
                            "be specified once.  To change their options, "
