@@ -35,18 +35,64 @@ class VizierClass(BaseQuery):
 
     _str_schema = schema.Or(*six.string_types)
     _schema_columns = schema.Schema([_str_schema], error="columns must be a list of strings")
+    _schema_ucd = schema.Schema(_str_schema, error="ucd must be string")
     _schema_column_filters = schema.Schema({schema.Optional(_str_schema):_str_schema},
                                            error="column_filters must be a dictionary where both keys and values are strings")
     _schema_catalog = schema.Schema(schema.Or([_str_schema],_str_schema,None),
                                     error="catalog must be a list of strings or a single string")
 
-    def __init__(self, columns=["*"], column_filters={}, catalog=None, keywords=None):
-        self.columns = VizierClass._schema_columns.validate(columns)
-        self.column_filters = VizierClass._schema_column_filters.validate(column_filters)
-        self.catalog = VizierClass._schema_catalog.validate(catalog)
+    def __init__(self, columns=["*"], column_filters={}, catalog=None, keywords=None,
+                 ucd=""):
+        self.columns = columns
+        self.column_filters = column_filters
+        self.catalog = catalog
         self._keywords = None
+        self.ucd = ""
         if keywords:
             self.keywords = keywords
+
+    @property
+    def columns(self):
+        """ Columns to include.  The special keyword 'all' will return ALL
+        columns from ALL retrieved tables. """
+        return self._columns
+
+    @columns.setter
+    def columns(self, values):
+        self._columns = VizierClass._schema_columns.validate(values)
+
+    @property
+    def column_filters(self):
+        """ Filters to run on the individual columns.  See the Vizier website for details """
+        return self._column_filters
+
+    @column_filters.setter
+    def column_filters(self, values):
+        self._column_filters = VizierClass._schema_column_filters.validate(values)
+
+    @property
+    def catalog(self):
+        """ The default catalog to search.  If left empty, will search all catalogs """
+        return self._catalog
+
+    @catalog.setter
+    def catalog(self, values):
+        self._catalog = VizierClass._schema_catalog.validate(values)
+
+    @property
+    def ucd(self):
+        """
+        UCD criteria: see http://vizier.u-strasbg.fr/vizier/vizHelp/1.htx#ucd
+        
+        Examples
+        --------
+        >>> Vizier.ucd = '(spect.dopplerVeloc*|phys.veloc*)'
+        """
+        return self._ucd
+
+    @ucd.setter
+    def ucd(self, values):
+        self._ucd = VizierClass._schema_ucd.validate(values)
 
     def _server_to_url(self, return_type='votable'):
         """
@@ -374,6 +420,11 @@ class VizierClass(BaseQuery):
             columns = self.columns
         else:
             columns = self.columns + columns
+
+        if 'all' in columns:
+            columns.pop(all)
+            body['-out.all'] = 2
+
         # process: columns - always request computed positions in degrees
         if "_RAJ2000" not in columns:
             columns += ["_RAJ2000"]
@@ -412,6 +463,11 @@ class VizierClass(BaseQuery):
         body["-out.meta"] = "huUD"
         # computed position should always be in decimal degrees
         body["-oc.form"] = "d"
+
+        ucd = kwargs.get('ucd', "") + self.ucd
+        if ucd:
+            body['-ucd'] = ucd
+
         # create final script
         script = "\n".join(["{key}={val}".format(key=key, val=val)
                    for key, val in body.items()])
@@ -483,6 +539,18 @@ class VizierClass(BaseQuery):
                                   "in self.response, and the error in self.table_parse_error."
                                   "  The attempted parsed result is in self.parsed_result.\n"
                                   "Exception: " + str(self.table_parse_error))
+
+    @property
+    def valid_keywords(self):
+        if not hasattr(self,'_valid_keyword_dict'):
+            file_name = aud.get_pkg_data_filename(
+                os.path.join("data", "inverse_dict.json"))
+            with open(file_name, 'r') as f:
+                kwd = json.load(f)
+                self._valid_keyword_types = sorted(kwd.values())
+                self._valid_keyword_dict = OrderedDict([(k,kwd[k]) for k in sorted(kwd)])
+
+        return self._valid_keyword_dict
 
 
 def _parse_angle(angle):
