@@ -6,7 +6,6 @@ from bs4 import BeautifulSoup
 
 from . import SKYVIEW_URL
 from ..query import BaseQuery
-from ..utils import commons
 
 
 class SkyViewClass(BaseQuery):
