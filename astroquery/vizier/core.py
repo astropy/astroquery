@@ -29,9 +29,6 @@ __doctest_skip__ = ['VizierClass.*']
 
 @async_to_sync
 class VizierClass(BaseQuery):
-    TIMEOUT = VIZIER_TIMEOUT()
-    VIZIER_SERVER = VIZIER_SERVER()
-    ROW_LIMIT = ROW_LIMIT()
 
     _str_schema = schema.Or(*six.string_types)
     _schema_columns = schema.Schema([_str_schema], error="columns must be a list of strings")
@@ -42,14 +39,18 @@ class VizierClass(BaseQuery):
                                     error="catalog must be a list of strings or a single string")
 
     def __init__(self, columns=["*"], column_filters={}, catalog=None, keywords=None,
-                 ucd=""):
+                 ucd="", timeout=VIZIER_TIMEOUT(), vizier_server=VIZIER_SERVER(),
+                 row_limit=ROW_LIMIT()):
         self.columns = columns
         self.column_filters = column_filters
         self.catalog = catalog
         self._keywords = None
-        self.ucd = ""
+        self.ucd = ucd
         if keywords:
             self.keywords = keywords
+        self.TIMEOUT = timeout
+        self.VIZIER_SERVER = vizier_server
+        self.ROW_LIMIT = row_limit
 
     @property
     def columns(self):
@@ -193,7 +194,7 @@ class VizierClass(BaseQuery):
                                         self.TIMEOUT)
         return response
 
-    def query_object_async(self, object_name, catalog=None):
+    def query_object_async(self, object_name, catalog=None, radius=None, coordinate_frame=None):
         """
         Serves the same purpose as `query_object` but only
         returns the HTTP response rather than the parsed result.
@@ -205,6 +206,12 @@ class VizierClass(BaseQuery):
         catalog : str or list, optional
             The catalog(s) which must be searched for this identifier.
             If not specified, all matching catalogs will be searched.
+        radius : `astropy.unit.Unit` or None
+            A degree-equivalent unit (optional)
+        coordinate_system : str or None
+            If the object name is given as a coordinate, you *should* use
+            `query_region`, but you can specify a coordinate frame here instead
+            (today, J2000, B1975, B1950, B1900, B1875, B1855, Galactic, Supergal., Ecl.J2000, )
 
         Returns
         -------
@@ -213,7 +220,17 @@ class VizierClass(BaseQuery):
 
         """
         catalog = VizierClass._schema_catalog.validate(catalog)
-        center = {'-c': object_name}
+        if radius is None:
+            center = {'-c': object_name}
+        else:
+            radius_arcmin = radius.to(u.arcmin).value
+            cframe = (coordinate_frame if coordinate_frame in
+                      'today,J2000,B1975,B1950,B1900,B1875,B1855,Galactic,Supergal.,Ecl.J2000'.split(",")
+                      else 'J2000')
+            #oname = "{name}({arcmin} {cframe})".format(name=object_name, arcmin=radius_arcmin, cframe)
+            center = {'-c': object_name, '-c.u':'arcmin', '-c.geom':'r', 
+                      '-c.r': radius_arcmin, '-c.eq':cframe}
+
         data_payload = self._args_to_payload(
             center=center,
             catalog=catalog)
@@ -422,7 +439,7 @@ class VizierClass(BaseQuery):
             columns = self.columns + columns
 
         if 'all' in columns:
-            columns.pop(all)
+            columns.remove('all')
             body['-out.all'] = 2
 
         # process: columns - always request computed positions in degrees
@@ -442,14 +459,15 @@ class VizierClass(BaseQuery):
                 sorts_out += [column]
             else:
                 columns_out += [column]
-        body['-out'] = ','.join(columns_out)
+        body['-out.add'] = ','.join(columns_out)
         if len(sorts_out)>0:
             body['-sort'] = ','.join(sorts_out)
         # process: maximum rows returned
-        if self.ROW_LIMIT < 0:
+        row_limit = kwargs.get('row_limit') or self.ROW_LIMIT
+        if row_limit < 0:
             body["-out.max"] = 'unlimited'
         else:
-            body["-out.max"] = self.ROW_LIMIT
+            body["-out.max"] = row_limit
         # process: column filters
         column_filters = self.column_filters.copy()
         column_filters.update(kwargs.get('column_filters', {}))
