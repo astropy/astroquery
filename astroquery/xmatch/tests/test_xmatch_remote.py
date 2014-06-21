@@ -37,7 +37,8 @@ def test_xmatch_is_avail_table(xmatch):
 def test_xmatch_query(xmatch):
     with open(os.path.join(DATA_DIR, 'posList.csv')) as pos_list:
         table = xmatch.query(
-            pos_list, 'vizier:II/246/out', 5 * arcsec, 'ra', 'dec')
+            cat1=pos_list, cat2='vizier:II/246/out', max_distance=5 * arcsec,
+            colRA1='ra', colDec1='dec')
         assert isinstance(table, Table)
         assert table.colnames == [
             'angDist', 'ra', 'dec', '2MASS', 'RAJ2000', 'DEJ2000',
@@ -50,7 +51,8 @@ def test_xmatch_query(xmatch):
 def test_xmatch_query_astropy_table(xmatch):
     with open(os.path.join(DATA_DIR, 'posList.csv')) as pos_list:
         input_table = Table.read(pos_list, names=['ra', 'dec'], format='ascii')
-    table = xmatch.query(input_table, 'vizier:II/246/out', 5 * arcsec)
+    table = xmatch.query(
+        cat1=input_table, cat2='vizier:II/246/out', max_distance=5 * arcsec)
     assert isinstance(table, Table)
     assert table.colnames == [
         'angDist', 'ra', 'dec', '2MASS', 'RAJ2000', 'DEJ2000',
