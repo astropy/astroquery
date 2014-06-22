@@ -644,15 +644,16 @@ class VizierKeyword(list):
         del self._keywords
 
     def __repr__(self):
-        return "\n".join([self.get_keyword_str(key) for key in self.keywords])
+        return "\n".join([x for key in self.keywords for x in self.get_keyword_str(key)])
 
     def get_keyword_str(self, key):
         """
         Helper function that returns the keywords, grouped into appropriate
         categories and suitable for the Vizier votable CGI.
+
+        Comma-separated is not valid!!!
         """
-        s = ",".join([val for val in self.keywords[key]])
         keyword_name = "-kw." + key
-        return keyword_name + "=" + s
+        return [keyword_name + "=" + s for s in self.keywords[key]]
 
 Vizier = VizierClass()
