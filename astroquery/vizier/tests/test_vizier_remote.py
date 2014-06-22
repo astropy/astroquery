@@ -51,3 +51,8 @@ class TestVizierRemote:
     def test_get_catalogs(self):
         result = vizier.core.Vizier.get_catalogs('J/ApJ/706/83')
         assert isinstance(result, commons.TableList)
+
+    def test_query_two_wavelengths(self):
+        v = vizier.core.Vizier(columns=['_RAJ2000', 'DEJ2000','B-V', 'Vmag', 'Plx'],
+                               column_filters={"Vmag":">10"}, keywords=["optical", "radio"])
+        v.query_object('M 31')
