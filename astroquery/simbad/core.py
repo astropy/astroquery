@@ -15,6 +15,7 @@ import astropy.units as u
 from astropy.utils.data import get_pkg_data_filename
 import astropy.coordinates as coord
 from astropy.table import Table
+from astropy.extern import six
 import copy
 try:
     import astropy.io.vo.table as votable
@@ -436,7 +437,7 @@ class SimbadClass(BaseQuery):
         # if the identifier is given rather than the coordinates, convert to
         # coordinates
         result = self.query_region_async(coordinates, radius=radius,
-                                        equinox=equinox, epoch=epoch)
+                                         equinox=equinox, epoch=epoch)
         return self._parse_result(result, verbose=verbose)
 
     def query_region_async(self, coordinates, radius=None, equinox=None,
@@ -468,7 +469,7 @@ class SimbadClass(BaseQuery):
                                                 equinox=equinox, epoch=epoch,
                                                 caller='query_region_async')
         response = commons.send_request(self.SIMBAD_URL, request_payload,
-                                self.TIMEOUT)
+                                        self.TIMEOUT)
         return response
 
     def query_catalog(self, catalog, verbose=False):
@@ -654,7 +655,7 @@ class SimbadClass(BaseQuery):
                 present_keys.append(k)
             # need ampersands to join args
             args_str = '&'.join([str(val) for val in args])
-            args_str += " & " if len(args) > 0 else ""
+            args_str += " & " if len(args) > 0 and len(present_keys) > 0 else ""
         else:
             args_str = ' '.join([str(val) for val in args])
         kwargs_str = ' '.join("{key}={value}".format(key=key, value=kwargs[key]) for
