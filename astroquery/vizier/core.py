@@ -494,7 +494,7 @@ class VizierClass(BaseQuery):
             script += "\n" + str(self.keywords)
         return script
 
-    def _parse_result(self, response, get_catalog_names=False, verbose=False):
+    def _parse_result(self, response, get_catalog_names=False, verbose=False, invalid='mask'):
         """
         Parses the HTTP response to create a `~astropy.table.Table`.
 
@@ -507,6 +507,10 @@ class VizierClass(BaseQuery):
         get_catalog_names : bool
             If specified, return only the table names (useful for table
             discovery)
+        invalid : 'mask' or 'raise'
+            The default behavior if a VOTABLE cannot be parsed.  Default is
+            'mask' because there are many poorly-formatted votables available
+            from vizier.
 
         Returns
         -------
@@ -529,7 +533,7 @@ class VizierClass(BaseQuery):
             else:
                 tf.write(response.content.encode('utf-8'))
             tf.file.flush()
-            vo_tree = votable.parse(tf, pedantic=False)
+            vo_tree = votable.parse(tf, pedantic=False, invalid=invalid)
             if get_catalog_names:
                 return dict([(R.name,R) for R in vo_tree.resources])
             else:
