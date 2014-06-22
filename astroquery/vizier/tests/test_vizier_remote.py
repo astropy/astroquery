@@ -56,3 +56,10 @@ class TestVizierRemote:
         v = vizier.core.Vizier(columns=['_RAJ2000', 'DEJ2000','B-V', 'Vmag', 'Plx'],
                                column_filters={"Vmag":">10"}, keywords=["optical", "radio"])
         v.query_object('M 31')
+
+    def regressiontest_invalidtable(self):
+        V = Vizier(columns=['all'], ucd='(spect.dopplerVeloc*|phys.veloc*)',
+                   keywords=['Radio','IR'], row_limit=5000)
+        C = coordinates.SkyCoord(359.61687*u.deg,-0.242457*u.deg,frame='galactic')
+        
+        r2 = V.query_region(C, radius=2*u.arcmin)
