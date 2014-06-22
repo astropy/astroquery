@@ -494,7 +494,7 @@ class VizierClass(BaseQuery):
             script += "\n" + str(self.keywords)
         return script
 
-    def _parse_result(self, response, get_catalog_names=False, verbose=False, invalid='mask'):
+    def _parse_result(self, response, get_catalog_names=False, verbose=False, invalid='warn'):
         """
         Parses the HTTP response to create a `~astropy.table.Table`.
 
@@ -507,10 +507,10 @@ class VizierClass(BaseQuery):
         get_catalog_names : bool
             If specified, return only the table names (useful for table
             discovery)
-        invalid : 'mask' or 'raise'
-            The default behavior if a VOTABLE cannot be parsed.  Default is
-            'mask' because there are many poorly-formatted votables available
-            from vizier.
+        invalid : 'warn', 'mask' or 'raise'
+            The behavior if a VOTABLE cannot be parsed.  Default is 'warn',
+            which will try to parse the table, then if an exception is raised,
+            it will be printent but the masked table will be returned
 
         Returns
         -------
@@ -533,7 +533,20 @@ class VizierClass(BaseQuery):
             else:
                 tf.write(response.content.encode('utf-8'))
             tf.file.flush()
-            vo_tree = votable.parse(tf, pedantic=False, invalid=invalid)
+
+            if invalid == 'mask':
+                vo_tree = votable.parse(tf, pedantic=False, invalid='mask')
+            elif invalid == 'warn':
+                try:
+                    vo_tree = votable.parse(tf, pedantic=False, invalid='raise')
+                except Exception as ex:
+                    warnings.warn("VOTABLE parsing raised exception: {0}".format(ex))
+                    vo_tree = votable.parse(tf, pedantic=False, invalid='mask')
+            elif invalid == 'raise':
+                vo_tree = votable.parse(tf, pedantic=False, invalid='raise')
+            else:
+                raise ValueError("Invalid keyword 'invalid'.  Must be raise, mask, or warn")
+
             if get_catalog_names:
                 return dict([(R.name,R) for R in vo_tree.resources])
             else:
