@@ -171,3 +171,14 @@ class TestVizierClass:
         v = vizier.core.Vizier(columns=['Vmag', 'B-V', '_RAJ2000', '_DEJ2000'])
         assert len(v.columns) == 4
 
+    def test_columns_unicode(self):
+        v = vizier.core.Vizier(columns=[u'Vmag', u'B-V', u'_RAJ2000', u'_DEJ2000'])
+        assert len(v.columns) == 4
+
+    def test_column_filters(self):
+        v = vizier.core.Vizier(column_filters={'Vmag':'>10'})
+        assert len(v.column_filters) == 1
+
+    def test_column_filters_unicode(self):
+        v = vizier.core.Vizier(column_filters={u'Vmag':u'>10'})
+        assert len(v.column_filters) == 1
