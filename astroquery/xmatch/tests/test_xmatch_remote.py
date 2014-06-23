@@ -11,6 +11,8 @@ from ...xmatch import XMatch
 DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
 
 
+# fixture only used here to save creating XMatch instances in each
+# of the following test functions
 @pytest.fixture
 def xmatch():
     return XMatch()
