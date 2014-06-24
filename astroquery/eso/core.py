@@ -472,6 +472,11 @@ class EsoClass(QueryWithLogin):
             else:
                 datasets_to_download.append(dataset)
 
+        valid_datasets = [self.verify(ds) for ds in datasets_to_download]
+        if not all(valid_datasets):
+            invalid_datasets = [ds for ds,v in zip(datasets_to_download, valid_datasets) if not v]
+            raise ValueError("The following data sets were not found on the ESO servers: {0}".format(invalid_datasets))
+
         # Second: Download the other datasets
         if datasets_to_download:
             data_retrieval_form = self.request("GET", "http://archive.eso.org/cms/eso-data/eso-data-direct-retrieval.html")
@@ -502,6 +507,22 @@ class EsoClass(QueryWithLogin):
                 files.append(system_tools.gunzip(filename))
         print("Done!")
         return files
+
+    def verify_data_exists(self, dataset):
+        """
+        Given a data set name, return 'True' if ESO has the file and 'False'
+        otherwise
+        """
+        url = 'http://archive.eso.org/wdb/wdb/eso/eso_archive_main/query'
+        payload = {'dp_id': dataset, 
+                   'ascii_out_mode':'true',
+                  }
+        response = self.request("POST", url, params=payload)
+
+        if 'No data returned' in response.content:
+            return False
+        else:
+            return True
 
 
 Eso = EsoClass()
