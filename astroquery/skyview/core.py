@@ -170,7 +170,7 @@ class SkyViewClass(BaseQuery):
             'Deedger': deedger,
             'lut': lut,
             'projection': projection,
-            'gridlabels': gridlabels,
+            'gridlabels': '1' if gridlabels else '0',
             'coordinates': coordinates,
             'scaling': scaling,
             'grid': grid,
