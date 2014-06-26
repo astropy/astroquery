@@ -91,11 +91,12 @@ class SkyViewClass(BaseQuery):
             'pixels': pixels}
         response = self._submit_form(input)
         bs = BeautifulSoup(response.content)
-        a_node = (a for a in bs.find_all('a') if a.text == 'FITS').next()
-        href = a_node.get('href')
-        abs_href = urlparse.urljoin(response.url, href)
-        # download the FITS file
-        path = self.request('GET', abs_href, save=True)
-        return path
+        for a in bs.find_all('a'):
+            if a.text == 'FITS':
+                href = a.get('href')
+                abs_href = urlparse.urljoin(response.url, href)
+                # download the FITS file
+                path = self.request('GET', abs_href, save=True)
+                yield path
 
 SkyView = SkyViewClass()
