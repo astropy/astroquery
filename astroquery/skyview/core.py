@@ -69,11 +69,99 @@ class SkyViewClass(BaseQuery):
         return response
 
     def download(
-            self, position, survey, deedger=None, lut=None,
-            projection=None, gridlabels=None, coordinates=None, scaling=None,
-            grid=None, resolver=None, sampler=None, pixels=None):
+            self, position, survey, coordinates=None, projection=None,
+            pixels=None, scaling=None, sampler=None, resolver=None,
+            deedger=None, lut=None, grid=None, gridlabels=None):
         """Query the SkyView service, download the FITS file that will be
-        found and return the local path to the download FITS file.
+        found and return a generator over the local paths to the
+        downloaded FITS files.
+
+        Note that the files will be downloaded when the generator will be
+        exhausted, i.e. just calling this method alone without iterating
+        over the result won't issue a connection to the SkyView server.
+
+        Parameters
+        ----------
+        position : str
+            Determines the center of the field to be retrieved. Both
+            coordinates (also equatorial ones) and object names are
+            supported. Object names are converted to coordinates via the
+            SIMBAD or NED name resolver. See the reference for more info
+            on the supported syntax for coordinates.
+        survey : str or list of str
+            Select data from one or more surveys. The number of surveys
+            determines the number of resulting file downloads. Passing a
+            list with just one string has the same effect as passing this
+            string directly.
+        coordinates : str
+            Choose among common equatorial, galactic and ecliptic
+            coordinate systems (``"J2000"``, ``"B1950"``, ``"Galactic"``,
+            ``"E2000"``, ``"ICRS"``) or pass a custom string.
+        projection : str
+            Choose among the map projections (the value in parentheses
+            denotes the string to be passed):
+
+            Gnomonic (Tan), default value
+                good for small regions
+            Rectangular (Car)
+                simplest projection
+            Aitoff (Ait)
+                Hammer-Aitoff, equal area projection good for all sky maps
+            Orthographic (Sin)
+                Projection often used in interferometry
+            Zenith Equal Area (Zea)
+                equal area, azimuthal projection
+            COBE Spherical Cube (Csc)
+                Used in COBE data
+            Arc (Arc)
+                Similar to Zea but not equal-area
+        pixels : str
+            Selects the pixel dimensions of the image to be produced. A
+            scalar value or a pair of values separated by comma may be
+            given. If the value is a scalar the number of width and height
+            of the image will be the same. By default a 300x300 image is
+            produced.
+        scaling : str
+            Selects the transformation between pixel intensity and
+            intensity on the displayed image. The supported values are:
+            ``"Log"``, ``"Sqrt"``, ``"Linear"``, ``"HistEq"``,
+            ``"LogLog"``.
+        sampler : str
+            The sampling algorithm determines how the data requested will
+            be resampled so that it can be displayed.
+        resolver : str
+            The name resolver allows to choose a name resolver to use when
+            looking up a name which was passed in the `position` parameter
+            (as opposed to a numeric coordinate value). The default choice
+            is to call the SIMBAD name resolver first and then the NED
+            name resolver if the SIMBAD search fails.
+        deedger : str
+            When multiple input images with different backgrounds are
+            resampled the edges between the images may be apparent because
+            of the background shift. This parameter makes it possible to
+            attempt to minimize these edges by applying a de-edging
+            algorithm. The user can elect to choose the default given for
+            that survey, to turn de-edging off, or to use the default
+            de-edging algorithm. The supported values are: ``"_skip_"`` to
+            use the survey default, ``"skyview.process.Deedger"`` (for
+            enabling de-edging), and ``"null"`` to disable.
+        lut : str
+            Choose from the color table selections to display the data in false color.
+        grid : bool
+            overlay a coordinate grid on the image if True
+        gridlabels : bool
+            annotate the grid with coordinates postions if True
+
+        References
+        ----------
+        .. [1] http://skyview.gsfc.nasa.gov/current/help/fields.html
+
+        Examples
+        --------
+        >>> sv = SkyView()
+        >>> paths = sv.download(position='Eta Carinae', survey=['Fermi 5', 'HRI', 'DSS'])
+        >>> for path in paths:
+        ...     print '\tnew file:', path
 
         """
         input = {
