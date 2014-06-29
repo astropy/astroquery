@@ -46,7 +46,6 @@ The following packages are required for astroquery installation & use:
 * `requests <http://docs.python-requests.org/en/latest/>`_
 * `keyring <https://pypi.python.org/pypi/keyring>`_ (required only for the
   `~astroquery.eso` module)
-* `lxml <http://lxml.de/>`_ (required only for the `~astroquery.eso` module)
 
 Using astroquery
 ----------------
@@ -70,10 +69,10 @@ All query tools allow coordinate-based queries:
 
 .. code-block:: python
 
-    >>> import astropy.coordinates as coord
+    >>> from astropy import coordinates
     >>> import astropy.units as u
     >>> # works only for ICRS coordinates:
-    >>> c = coord.ICRS("05h35m17.3s -05h23m28s")
+    >>> c = coordinate.SkyFrame("05h35m17.3s -05h23m28s", frame='icrs')
     >>> r = 5 * u.arcminute
     >>> result_table = Simbad.query_region(c, radius=r)
     >>> result_table.pprint(show_unit=True)
@@ -128,6 +127,79 @@ These others are functional, but do not follow a common & consistent API:
   lamda/lamda.rst
   ogle/ogle.rst
   open_exoplanet_catalogue/open_exoplanet_catalogue.rst
+
+Catalog, Archive, and Other
+---------------------------
+
+A second index of the services by the type of data they serve.  Some services
+perform many tasks and are listed more than once.
+
+Catalogs
+~~~~~~~~
+
+The first serve catalogs, which generally return one row of information for
+each source (though they may return many catalogs that *each* have one row
+for each source)
+
+.. toctree::
+  :maxdepth: 1
+
+  alfalfa/alfalfa.rst
+  gama/gama.rst
+  irsa/irsa.rst
+  irsa/irsa_dust.rst
+  ned/ned.rst
+  ogle/ogle.rst
+  open_exoplanet_catalogue/open_exoplanet_catalogue.rst
+  sdss/sdss.rst
+  sha/sha.rst
+  simbad/simbad.rst
+  ukidss/ukidss.rst
+  vizier/vizier.rst
+
+Archives
+~~~~~~~~
+
+Archive services provide data, usually in FITS images or spectra.  They will
+generally return a table listing the available data first.
+
+.. toctree::
+  :maxdepth: 1
+
+  alfalfa/alfalfa.rst
+  eso/eso.rst
+  fermi/fermi.rst
+  irsa/irsa.rst
+  magpis/magpis.rst
+  nrao/nrao.rst
+  nvas/nvas.rst
+  sdss/sdss.rst
+  sha/sha.rst
+  ukidss/ukidss.rst
+
+Simulations
+~~~~~~~~~~~
+
+Simulation services query databases of simulated or synthetic data
+
+.. toctree::
+  :maxdepth: 1
+
+  besancon/besancon.rst
+
+Other
+~~~~~
+
+There are other astronomically significant services, e.g. line list and
+atomic/molecular cross section and collision rate services, that don't fit the
+above categories.  
+
+.. toctree::
+  :maxdepth: 1
+
+  lamda/lamda.rst
+  nist/nist.rst
+  splatalogue/splatalogue.rst
 
 
 Developer documentation
