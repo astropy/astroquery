@@ -171,6 +171,7 @@ generally return a table listing the available data first.
   fermi/fermi.rst
   irsa/irsa.rst
   magpis/magpis.rst
+  ned/ned.rst
   nrao/nrao.rst
   nvas/nvas.rst
   sdss/sdss.rst
