@@ -282,30 +282,41 @@ class VizierClass(BaseQuery):
         catalog = VizierClass._schema_catalog.validate(catalog)
         center = {}
         columns = []
-        if (isinstance(coordinates, commons.CoordClasses) or
-            isinstance(coordinates, six.string_types)):
+        if isinstance(coordinates, (commons.CoordClasses,) + six.string_types):
             c = commons.parse_coordinates(coordinates)
-            ra = str(c.icrs.ra.degree)
-            dec = str(c.icrs.dec.degree)
-            if dec[0] not in ['+', '-']:
-                dec = '+' + dec
-            center["-c"] = "".join([ra, dec])
+
+            if hasattr(c, '__len__') and len(c) > 1:
+                for pos in c:
+                    ra_deg = pos.ra.to_string(unit="deg", decimal=True, precision=8)
+                    dec_deg = pos.dec.to_string(unit="deg", decimal=True,
+                                                precision=8, alwayssign=True)
+                    pos_list += ["{}{}".format(ra_deg, dec_deg)]
+                center["-c"] = "<<;"+";".join(pos_list)
+                columns += ["_q"] # request a reference to the input table
+            else:
+                ra = c.ra.to_string(unit='deg', decimal=True, precision=8)
+                dec = c.dec.to_string(unit="deg", decimal=True, precision=8,
+                                      alwayssign=True)
+                center["-c"] = "{ra}{dec}".format(ra=ra, dec=dec)
         elif isinstance(coordinates, tbl.Table):
-            if ("_RAJ2000" in coordinates.keys()) and ("_DEJ2000" in coordinates.keys()):
+            if (("_RAJ2000" in coordinates.keys()) and ("_DEJ2000" in
+                                                        coordinates.keys())):
                 pos_list = []
                 for pos in coord.SkyCoord(coordinates["_RAJ2000"],
                                           coordinates["_DEJ2000"],
                                           unit=(coordinates["_RAJ2000"].unit,
                                                 coordinates["_DEJ2000"].unit)):
                     ra_deg = pos.ra.to_string(unit="deg", decimal=True, precision=8)
-                    dec_deg = pos.dec.to_string(unit="deg", decimal=True, precision=8, alwayssign=True)
+                    dec_deg = pos.dec.to_string(unit="deg", decimal=True,
+                                                precision=8, alwayssign=True)
                     pos_list += ["{}{}".format(ra_deg, dec_deg)]
                 center["-c"] = "<<;"+";".join(pos_list)
                 columns += ["_q"] # request a reference to the input table
             else:
                 raise ValueError("Table must contain '_RAJ2000' and '_DEJ2000' columns!")
         else:
-            raise TypeError("{} must be one of: string, astropy coordinates, or table containing coordinates!")
+            raise TypeError("Coordinates must be one of: string, astropy coordinates,"
+                            " or table containing coordinates!")
         # decide whether box or radius
         if radius is not None:
             # is radius a disk or an annulus?
