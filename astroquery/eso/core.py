@@ -444,7 +444,7 @@ class EsoClass(QueryWithLogin):
         warnings.warn("data_retrieval has been replaced with retrieve_data",
                       DeprecationWarning)
 
-    def retrieve_datasets(self, datasets):
+    def retrieve_data(self, datasets):
         """
         Retrieve a list of datasets form the ESO archive.
 
