@@ -2,12 +2,11 @@
 
 .. _astroquery.ned:
 
-******************************
 NED Queries (`astroquery.ned`)
-******************************
+==============================
 
 Getting Started
-===============
+---------------
 
 This module can be used to query the Ned web service. All queries other than
 image and spectra queries return results in a `~astropy.table.Table`. Image
@@ -15,7 +14,8 @@ and spectra queries on the other hand return the results as a list of
 `~astropy.io.fits.HDUList` objects. Below are some working examples that
 illustrate common use cases.
 
-**Query an object**
+Query an object
+~~~~~~~~~~~~~~~
 
 This may be used to query the object *by name* from the NED service. For
 instance if you want to query NGC 224
@@ -30,8 +30,8 @@ instance if you want to query NGC 224
     --- ----------- ---------- ... --------------- --------------- ------------
       1 MESSIER 031   10.68479 ...              26               7            2
 
-
-**Query a region**
+Query a region
+~~~~~~~~~~~~~~
 
 These queries may be used for querying a region around a named object or
 coordinates (i.e *near name* and *near position* queries). The radius of  
@@ -77,9 +77,10 @@ may be used (ICRS, Galactic, FK4, FK5). Note also the use of the equinox keyword
 
     >>> from astroquery.ned import Ned
     >>> import astropy.units as u
-    >>> import astropy.coordinates as coord
-    >>> result_table = Ned.query_region(coord.FK4(ra=56.38, dec=38.43, 
-    ...                                 unit=(u.deg, u.deg)), radius=0.1 * u.deg, equinox='B1950.0')
+    >>> from astropy import coordinates
+    >>> co = coordinates.SkyCoord(ra=56.38, dec=38.43, 
+    ...                           unit=(u.deg, u.deg), frame='fk4')
+    >>> result_table = Ned.query_region(co, radius=0.1 * u.deg, equinox='B1950.0')
     >>> print(result_table)
 
     No.       Object Name       ... Diameter Points Associations
@@ -90,7 +91,8 @@ may be used (ICRS, Galactic, FK4, FK5). Note also the use of the equinox keyword
       4 2MASX J03521115+3849288 ...               2            0
       5 2MASX J03521844+3840179 ...               2            0
 
-**Query in the IAU format**
+Query in the IAU format
+~~~~~~~~~~~~~~~~~~~~~~~
 
 The `IAU format`_ for coordinates may also be used for querying
 purposes. Additional parameters that can be specified for these queries is the
@@ -115,7 +117,8 @@ target.
       4 2MASX J12373141-4239342  189.38083 ...               2            0
       5 2MASX J12373567-4239122  189.39908 ...               2            0
 
-**Query a reference code for objects**
+Query a reference code for objects
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 These queries can be used to retrieve all objects that appear in the specified
 19 digit reference code. These are similar to the
@@ -146,7 +149,8 @@ These queries can be used to retrieve all objects that appear in the specified
      35                MRK 0522  345.07954 ...               4            0
      36                NGC 7674  351.98635 ...               8            0
 
-**Image and Spectra Queries**
+Image and Spectra Queries
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The image queries return a list of `~astropy.io.fits.HDUList` objects for the
 specified name. For instance:
@@ -221,14 +225,14 @@ Similarly the list of URLs for spectra of a particular object may be fetched:
     'http://ned.ipac.caltech.edu/spc1/1992ApJS...80..109B/PG_1226+023:S:B_V:bg1992.fits.gz',
     'http://ned.ipac.caltech.edu/spc1/2009A+A...495.1033B/3C_273:S:RI:bcc2009.fits.gz']
 
-**Fetching other data tables for an object**
+Fetching other data tables for an object
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Several other data tables for an object may be fetched via the :meth:`~astroquery.ned.NedClass.get_table`
 queries. These take a keyword argument ``table``, which may be set to one of
 ``photometry``, ``diameters``, ``redshifts``, ``references`` or ``object-notes``. For
 instance the ``table=photometry`` will fetch all the relevant photometric data
 for the specified object. We look at a simple example:
-
 
 .. code-block:: python
 
