@@ -44,7 +44,7 @@ class TestEso:
         eso = Eso()
 
         with pytest.raises(LoginError) as exc:
-            eso.data_retrieval('AMBER.2006-03-14T07:40:19.830')
+            eso.retrieve_data('AMBER.2006-03-14T07:40:19.830')
 
         assert exc.value.args[0] == "Not logged in.  You must be logged in to download data."
 
@@ -89,6 +89,6 @@ class TestEso:
     #def test_data_retrieval():
     #    
     #    data_product_id = 'AMBER.2006-03-14T07:40:03.741'
-    #    data_files = eso.data_retrieval([data_product_id])
+    #    data_files = eso.retrieve_data([data_product_id])
     #    # How do we know if we're going to get .fits or .fits.Z?
     #    assert 'AMBER.2006-03-14T07:40:03.741.fits' in data_files[0]
