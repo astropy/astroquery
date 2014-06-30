@@ -86,7 +86,7 @@ All query tools allow coordinate-based queries:
 For additional guidance and examples, read the documentation for the individual services below.
 
 Available Services
-------------------
+==================
 
 If you're new to Astroquery, a good place to start is the :doc:`gallery`:
 
@@ -129,13 +129,13 @@ These others are functional, but do not follow a common & consistent API:
   open_exoplanet_catalogue/open_exoplanet_catalogue.rst
 
 Catalog, Archive, and Other
----------------------------
+===========================
 
 A second index of the services by the type of data they serve.  Some services
 perform many tasks and are listed more than once.
 
 Catalogs
-~~~~~~~~
+--------
 
 The first serve catalogs, which generally return one row of information for
 each source (though they may return many catalogs that *each* have one row
@@ -158,7 +158,7 @@ for each source)
   vizier/vizier.rst
 
 Archives
-~~~~~~~~
+--------
 
 Archive services provide data, usually in FITS images or spectra.  They will
 generally return a table listing the available data first.
@@ -179,7 +179,7 @@ generally return a table listing the available data first.
   ukidss/ukidss.rst
 
 Simulations
-~~~~~~~~~~~
+-----------
 
 Simulation services query databases of simulated or synthetic data
 
@@ -189,7 +189,7 @@ Simulation services query databases of simulated or synthetic data
   besancon/besancon.rst
 
 Other
-~~~~~
+-----
 
 There are other astronomically significant services, e.g. line list and
 atomic/molecular cross section and collision rate services, that don't fit the
