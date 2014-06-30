@@ -519,10 +519,7 @@ class EsoClass(QueryWithLogin):
                   }
         response = self.request("POST", url, params=payload)
 
-        if 'No data returned' in response.content:
-            return False
-        else:
-            return True
+        return 'No data returned' not in response.content
 
 
 Eso = EsoClass()
