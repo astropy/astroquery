@@ -472,7 +472,7 @@ class EsoClass(QueryWithLogin):
             else:
                 datasets_to_download.append(dataset)
 
-        valid_datasets = [self.verify(ds) for ds in datasets_to_download]
+        valid_datasets = [self.verify_data_exists(ds) for ds in datasets_to_download]
         if not all(valid_datasets):
             invalid_datasets = [ds for ds,v in zip(datasets_to_download, valid_datasets) if not v]
             raise ValueError("The following data sets were not found on the ESO servers: {0}".format(invalid_datasets))
