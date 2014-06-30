@@ -159,7 +159,7 @@ class TestVizierClass:
 
     def test_keywords(self):
         v = vizier.core.Vizier(keywords=['optical', 'chandra', 'ans'])
-        assert str(v.keywords) == '-kw.Mission=ANS,Chandra\n-kw.Wavelength=optical'
+        assert str(v.keywords) == '-kw.Mission=ANS\n-kw.Mission=Chandra\n-kw.Wavelength=optical'
         v = vizier.core.Vizier(keywords=['xy', 'optical'])
         assert str(v.keywords) == '-kw.Wavelength=optical'
         v.keywords = ['optical', 'cobe']
