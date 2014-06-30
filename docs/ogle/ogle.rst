@@ -2,12 +2,11 @@
 
 .. _astroquery.ogle:
 
-********************************
 OGLE Queries (`astroquery.ogle`)
-********************************
+================================
 
 Getting started
-===============
+---------------
 
 The Optical Gravitational Lensing Experiment III (OGLE-III) stores information
 on the interstellar extinction towards the Galactic Bulge. The

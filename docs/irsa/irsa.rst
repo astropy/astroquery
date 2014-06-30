@@ -45,8 +45,8 @@ rather just print out this information:
 .. code-block:: python
 
     >>> from astroquery.irsa import Irsa
-    >>> Irsa.print_catalogs()                
-         
+    >>> Irsa.print_catalogs()
+
     wise_allsky_2band_p1bm_frm      WISE Post-Cryo Single Exposure (L1b) Image Inventory Table
     wise_allsky_4band_p3as_psr      WISE All-Sky Reject Table
     cosmos_morph_col_1              COSMOS Zamojski Morphology Catalog v1.0
@@ -124,7 +124,7 @@ for cone search queries, above - so it may be set using the appropriate
     >>> from astroquery.irsa import Irsa
     >>> import astropy.units as u
     >>> table = Irsa.query_region("00h42m44.330s +41d16m07.50s",
-    ...                           catalog='fp_psc', spatial='Box', 
+    ...                           catalog='fp_psc', spatial='Box',
     ...                           width=5 * u.arcsec)
 
     WARNING: Coordinate string is being interpreted as an ICRS
@@ -183,7 +183,7 @@ is an ra, dec pair expressed in degrees:
     >>> from astroquery.irsa import Irsa
     >>> table = Irsa.query_region("m31", catalog="fp_psc", spatial="Polygon",
     ... polygon = [(10.1, 10.1), (10.0, 10.1), (10.0, 10.0)])
-    >>> print(table) 
+    >>> print(table)
 
           ra     dec       clon         clat     err_maj ...  j_h   h_k   j_k   id
     ------- ------- ------------ ------------ ------- ... ----- ----- ----- ---

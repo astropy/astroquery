@@ -34,7 +34,7 @@ Query a region
 ~~~~~~~~~~~~~~
 
 These queries may be used for querying a region around a named object or
-coordinates (i.e *near name* and *near position* queries). The radius of  
+coordinates (i.e *near name* and *near position* queries). The radius of
 the region should be specified in degrees or equivalent units. An easy way to do this is to use an
 `~astropy.units.Quantity` object to specify the radius and units. The radius may also
 be specified as a string in which case it will be parsed using
@@ -78,7 +78,7 @@ may be used (ICRS, Galactic, FK4, FK5). Note also the use of the equinox keyword
     >>> from astroquery.ned import Ned
     >>> import astropy.units as u
     >>> from astropy import coordinates
-    >>> co = coordinates.SkyCoord(ra=56.38, dec=38.43, 
+    >>> co = coordinates.SkyCoord(ra=56.38, dec=38.43,
     ...                           unit=(u.deg, u.deg), frame='fk4')
     >>> result_table = Ned.query_region(co, radius=0.1 * u.deg, equinox='B1950.0')
     >>> print(result_table)
@@ -122,7 +122,7 @@ Query a reference code for objects
 
 These queries can be used to retrieve all objects that appear in the specified
 19 digit reference code. These are similar to the
-:meth:`~astroquery.simbad.SimbadClass.query_bibobj` queries. 
+:meth:`~astroquery.simbad.SimbadClass.query_bibobj` queries.
 
 .. code-block:: python
 
@@ -179,9 +179,9 @@ specified name. For instance:
     [<astropy.io.fits.hdu.image.PrimaryHDU at 0x4339790>],
     [<astropy.io.fits.hdu.image.PrimaryHDU at 0x433dd90>]]
 
-To get the URLs of the downloadable FITS images: 
+To get the URLs of the downloadable FITS images:
 
-.. code-block:: python 
+.. code-block:: python
 
     >>> from astroquery.ned import Ned
     >>> image_list = Ned.get_image_list("m1")
@@ -196,7 +196,7 @@ To get the URLs of the downloadable FITS images:
 Spectra can also be fetched in the same way:
 
 .. code-block:: python
-    
+
     >>> from astroquery.ned import Ned
     >>> spectra = Ned.get_spectra('3c 273')
 
@@ -220,7 +220,7 @@ Similarly the list of URLs for spectra of a particular object may be fetched:
     >>> from astroquery.ned import Ned
     >>> image_list = Ned.get_image_list("3c 273", item='spectra')
     >>> image_list
-    
+
     ['http://ned.ipac.caltech.edu/spc1/2009A+A...495.1033B/3C_273:S:B:bcc2009.fits.gz',
     'http://ned.ipac.caltech.edu/spc1/1992ApJS...80..109B/PG_1226+023:S:B_V:bg1992.fits.gz',
     'http://ned.ipac.caltech.edu/spc1/2009A+A...495.1033B/3C_273:S:RI:bcc2009.fits.gz']
@@ -240,9 +240,9 @@ for the specified object. We look at a simple example:
     >>> result_table = Ned.get_table("3C 273", table='positions')
     >>> print(result_table)
 
-      No.       RA            DEC       ... Published Frame  Published Frequence Mode                           Qualifiers                          
+      No.       RA            DEC       ... Published Frame  Published Frequence Mode                           Qualifiers
     --- -------------- -------------- ... --------------- ------------------------- --------------------------------------------------------------
-      0 12h29m06.6997s +02d03m08.598s ...                                                                                                         
+      0 12h29m06.6997s +02d03m08.598s ...
       1 12h29m06.6997s +02d03m08.598s ...             ICR Multiple line measurement                                             From new, raw data
       2  12h29m06.699s  +02d03m08.59s ...             ICR    Broad-band measurement                                             From new, raw data
       3   12h29m06.64s   +02d03m09.0s ...             FK4    Broad-band measurement From reprocessed raw data; Corrected for contaminating sources
@@ -262,7 +262,7 @@ for the specified object. We look at a simple example:
     versions older than this, the table headers will have column names of the form
     ``main_col_number`` because of the way in which the NED returns VOTables.
 
-.. warning:: 
+.. warning::
 
     table=references does not work correctly `astroquery issue #141`_
 
