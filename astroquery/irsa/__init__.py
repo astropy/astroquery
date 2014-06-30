@@ -1,5 +1,8 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 """
+IRSA Query Tool
+---------------
+
 This module contains various methods for querying the IRSA Catalog Query Service(CatQuery)
 """
 from astropy.config import ConfigurationItem

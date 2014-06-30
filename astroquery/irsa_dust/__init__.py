@@ -2,6 +2,7 @@
 """
 IRSA Galactic Dust Reddening and Extinction Query Tool
 ------------------------------------------------------
+
 .. topic:: Revision History
 
     Refactored using common API as a part of Google Summer of Code 2013.

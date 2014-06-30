@@ -1,5 +1,8 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 """
+SIMBAD Query Tool
+-----------------
+
 The SIMBAD query tool creates a `script query
 <http://simbad.u-strasbg.fr/simbad/sim-fscript>`__ that returns VOtable XML
 data that is then parsed into a SimbadResult object.
