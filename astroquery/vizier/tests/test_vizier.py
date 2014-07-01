@@ -29,11 +29,14 @@ def data_path(filename):
 @pytest.fixture
 def patch_post(request):
     mp = request.getfuncargvalue("monkeypatch")
-    mp.setattr(requests, 'post', post_mockreturn)
+    mp.setattr(requests.Session, 'request', post_mockreturn)
     return mp
 
 
-def post_mockreturn(url, data=None, timeout=10, **kwargs):
+def post_mockreturn(self, method, url, data=None, timeout=10, files=None,
+                    params=None, headers=None, **kwargs):
+    if method != 'POST':
+        raise ValueError("A 'post request' was made with method != POST")
     datad = dict([urlparse.parse_qsl(d)[0] for d in data.split('\n')])
     filename = data_path(VO_DATA[datad['-source']])
     content = open(filename, "r").read()

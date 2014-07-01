@@ -41,6 +41,7 @@ class VizierClass(BaseQuery):
     def __init__(self, columns=["*"], column_filters={}, catalog=None, keywords=None,
                  ucd="", timeout=VIZIER_TIMEOUT(), vizier_server=VIZIER_SERVER(),
                  row_limit=ROW_LIMIT()):
+        super(VizierClass, self).__init__()
         self.columns = columns
         self.column_filters = column_filters
         self.catalog = catalog
@@ -159,10 +160,10 @@ class VizierClass(BaseQuery):
             keywords = " ".join(keywords)
 
         data_payload = {'-words':keywords, '-meta.all':1}
-        response = commons.send_request(
-            self._server_to_url(),
-            data_payload,
-            self.TIMEOUT)
+        response = self.request(method='POST',
+                                url=self._server_to_url(),
+                                data=data_payload,
+                                timeout=self.TIMEOUT)
         result = self._parse_result(response, verbose=verbose, get_catalog_names=True)
 
         #Filter out the obsolete catalogs, unless requested
@@ -190,8 +191,10 @@ class VizierClass(BaseQuery):
         """
 
         data_payload = self._args_to_payload(catalog=catalog)
-        response = commons.send_request(self._server_to_url(), data_payload,
-                                        self.TIMEOUT)
+        response = self.request(method='POST',
+                                url=self._server_to_url(),
+                                data=data_payload,
+                                timeout=self.TIMEOUT)
         return response
 
     def query_object_async(self, object_name, catalog=None, radius=None, coordinate_frame=None):
@@ -234,10 +237,10 @@ class VizierClass(BaseQuery):
         data_payload = self._args_to_payload(
             center=center,
             catalog=catalog)
-        response = commons.send_request(
-            self._server_to_url(),
-            data_payload,
-            self.TIMEOUT)
+        response = self.request(method='POST',
+                                url=self._server_to_url(),
+                                data=data_payload,
+                                timeout=self.TIMEOUT)
         return response
 
     def query_region_async(self, coordinates, radius=None, inner_radius=None,
@@ -346,8 +349,10 @@ class VizierClass(BaseQuery):
         if get_query_payload:
             return data_payload
 
-        response = commons.send_request(self._server_to_url(), data_payload,
-                                        self.TIMEOUT)
+        response = self.request(method='POST',
+                                url=self._server_to_url(),
+                                data=data_payload,
+                                timeout=self.TIMEOUT)
         return response
 
     def query_constraints_async(self, catalog=None, **kwargs):
@@ -407,10 +412,10 @@ class VizierClass(BaseQuery):
             catalog=catalog,
             column_filters=kwargs,
             center={'-c.rd':180})
-        response = commons.send_request(
-            self._server_to_url(),
-            data_payload,
-            self.TIMEOUT)
+        response = self.request(method='POST',
+                                url=self._server_to_url(),
+                                data=data_payload,
+                                timeout=self.TIMEOUT)
         return response
 
     def _args_to_payload(self, *args, **kwargs):
