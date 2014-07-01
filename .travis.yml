@@ -96,8 +96,8 @@ install:
     # packages. You should leave the `numpy=$NUMPY_VERSION` in the `conda`
     # install since this ensures Numpy does not get automatically upgraded.
     - if [[ $SETUP_CMD != egg_info ]]; then $CONDA_INSTALL numpy=$NUMPY_VERSION requests ; fi
-    - if [[ ($SETUP_CMD != egg_info) && ($TRAVIS_PYTHON_VERSION==2.7) ]]; then $CONDA_INSTALL numpy=$NUMPY_VERSION keyring ; fi
-    - if [[ ($SETUP_CMD != egg_info) && ($TRAVIS_PYTHON_VERSION!=2.7) ]]; then $PIP_INSTALL keyring ; fi
+    - if [[ ($SETUP_CMD != egg_info) && ($TRAVIS_PYTHON_VERSION == 2.7) ]]; then $CONDA_INSTALL numpy=$NUMPY_VERSION keyring ; fi
+    - if [[ ($SETUP_CMD != egg_info) && ($TRAVIS_PYTHON_VERSION != 2.7) ]]; then $PIP_INSTALL keyring ; fi
     - if [[ $SETUP_CMD != egg_info ]]; then $CONDA_INSTALL numpy=$NUMPY_VERSION beautiful-soup ; fi
     - if [[ $SETUP_CMD != egg_info ]]; then $CONDA_INSTALL numpy=$NUMPY_VERSION html5lib ; fi
     # - if [[ $SETUP_CMD != egg_info ]]; then $PIP_INSTALL ...; fi
