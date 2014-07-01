@@ -604,8 +604,8 @@ class SimbadClass(BaseQuery):
 
     def query_objectids(self, object_name, verbose=False):
         """
-        Queries the identifiers for the given object, returning
-        the results in a `~astropy.table.Table`.
+        Query Simbad with an object name, and return a table of all
+        names associated with that object in a `~astropy.table.Table`.
 
         Parameters
         ----------
