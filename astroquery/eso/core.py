@@ -3,10 +3,11 @@ import os.path
 import webbrowser
 import getpass
 import warnings
-from bs4 import BeautifulSoup
-from astropy.extern.six import BytesIO, StringIO
-
 import keyring
+import numpy as np
+from bs4 import BeautifulSoup
+
+from astropy.extern.six import BytesIO, StringIO
 from astropy.extern import six
 from astropy.table import Table, Column
 from astropy.io import ascii
@@ -438,11 +439,19 @@ class EsoClass(QueryWithLogin):
 
     def data_retrieval(self, datasets):
         """
+        DEPRECATED: see `retrieve_datasets`
+        """
+
+        warnings.warn("data_retrieval has been replaced with retrieve_data",
+                      DeprecationWarning)
+
+    def retrieve_data(self, datasets):
+        """
         Retrieve a list of datasets form the ESO archive.
 
         Parameters
         ----------
-        datasets : list of strings
+        datasets : list of strings or string
             List of datasets strings to retrieve from the archive.
 
         Returns
@@ -453,6 +462,12 @@ class EsoClass(QueryWithLogin):
         """
         datasets_to_download = []
         files = []
+
+        if isinstance(datasets, six.string_types):
+            datasets = [datasets]
+        if not isinstance(datasets, (list, tuple, np.ndarray)):
+            raise TypeError("Datasets must be given as a list of strings.")
+
         # First: Detect datasets already downloaded
         for dataset in datasets:
             
