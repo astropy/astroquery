@@ -40,8 +40,9 @@ matrix:
           env: ASTROPY_VERSION=development SETUP_CMD='test'
 
         # Try all python versions with the latest numpy
-        - python: 2.6
-          env: SETUP_CMD='test'
+        # We don't support 2.6 in astroquery: not compatible with keyring, other syntax choices
+        #- python: 2.6
+        #  env: SETUP_CMD='test'
         - python: 2.7
           env: SETUP_CMD='test'
         - python: 3.2
