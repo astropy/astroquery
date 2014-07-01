@@ -17,9 +17,10 @@ object type is shown here.
 
     >>> from astroquery.vizier import Vizier
     >>> v = Vizier(keywords=['stars:white_dwarf'])
-    >>> from astropy import coordinates as coord
-    >>> c = coord.ICRS(0,0,unit=('deg','deg'))
-    >>> result = v.query_region(c, radius='2 degrees')
+    >>> from astropy import coordinates
+    >>> from astropy import units as u
+    >>> c = coordinates.SkyCoord(0,0,unit=('deg','deg'),frame='icrs')
+    >>> result = v.query_region(c, radius=2*u.deg)
     >>> print len(result)
     31
     >>> result[0].pprint()
@@ -57,10 +58,10 @@ This illustrates finding the spectral type of some particular star.
 
 .. code-block:: python
 
-    >>> from astroquery import simbad
-    >>> s = simbad.Simbad()
-    >>> s.add_votable_fields('sptype')
-    >>> result = s.query_object('g her')
+    >>> from astroquery.simbad import Simbad
+    >>> customSimbad = Simbad()
+    >>> customSimbad.add_votable_fields('sptype')
+    >>> result = customSimbad.query_object('g her')
     >>> result['MAIN_ID'][0]
     'V* g Her'
     >>> result['SP_TYPE'][0]
@@ -72,14 +73,14 @@ Example 4
 
 .. code-block:: python
 
-    >>> from astroquery import simbad
-    >>> S = simbad.Simbad()
+    >>> from astroquery.simbad import Simbad
+    >>> customSimbad = Simbad()
     >>> # We've seen errors where ra_prec was NAN, but it's an int: that's a problem
     >>> # this is a workaround we adapted
-    >>> S.add_votable_fields('ra(d)','dec(d)')
-    >>> S.remove_votable_fields('coordinates')
-    >>> from astropy import coordinates as coord
-    >>> C = coord.ICRS(0,0,unit=('deg','deg'))
+    >>> customSimbad.add_votable_fields('ra(d)','dec(d)')
+    >>> customSimbad.remove_votable_fields('coordinates')
+    >>> from astropy import coordinates
+    >>> C = coordinates.SkyFrame(0,0,unit=('deg','deg'), frame='icrs')
     >>> result = S.query_region(C, radius='2 degrees')
     >>> result[:5].pprint()
         MAIN_ID        RA_d       DEC_d

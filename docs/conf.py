@@ -156,7 +156,7 @@ class Mock(object):
         else:
             return Mock()
 
-MOCK_MODULES = ['atpy', 'beautifulsoup4', 'vo', 'requests', 'lxml', 'keyring']
+MOCK_MODULES = ['atpy', 'beautifulsoup4', 'vo', 'requests', 'lxml', 'keyring', 'bs4']
 for mod_name in MOCK_MODULES:
     sys.modules[mod_name] = Mock()
 

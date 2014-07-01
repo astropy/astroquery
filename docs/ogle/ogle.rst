@@ -2,12 +2,11 @@
 
 .. _astroquery.ogle:
 
-********************************
 OGLE Queries (`astroquery.ogle`)
-********************************
+================================
 
 Getting started
-===============
+---------------
 
 The Optical Gravitational Lensing Experiment III (OGLE-III) stores information
 on the interstellar extinction towards the Galactic Bulge. The
@@ -17,10 +16,10 @@ using an `astropy.coordinates` instance use:
 
 .. code-block:: python
 
-    >>> from astropy import coordinates as coord
+    >>> from astropy import coordinates
     >>> from astropy imoprt units as u
     >>> from astroquery import ogle
-    >>> co = coord.Galactic(0, 3, unit=(u.degree, u.degree))
+    >>> co = coordinates.SkyFrame(0*u.deg, 3*u.deg, frame='galactic')
     >>> t = ogle.query(coord=co)
 
 Arguments can be passed to choose the interpolation algorithm, quality factor,
@@ -31,7 +30,6 @@ to FK5.
 
 .. code-block:: python
 
-    >>> co = coord.Galactic(0, 3, unit=(u.degree, u.degree))
     >>> # list of coordinate instances
     >>> co_list = [co, co, co]
     >>> t1 = ogle.query(coord=co_list)

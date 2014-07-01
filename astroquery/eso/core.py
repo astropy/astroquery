@@ -3,10 +3,11 @@ import os.path
 import webbrowser
 import getpass
 import warnings
-from bs4 import BeautifulSoup
-from astropy.extern.six import BytesIO, StringIO
-
 import keyring
+import numpy as np
+from bs4 import BeautifulSoup
+
+from astropy.extern.six import BytesIO, StringIO
 from astropy.extern import six
 from astropy.table import Table, Column
 from astropy.io import ascii
@@ -352,8 +353,6 @@ class EsoClass(QueryWithLogin):
                     if len(line) > 0:  # Drop empty lines
                         if line[0:1] != b'#':  # And drop comments
                             content += [line]
-                        else:
-                            warnings.warn("Query returned no results")
                 content = b'\n'.join(content)
                 try:
                     table = Table.read(BytesIO(content), format="ascii.csv")
@@ -365,7 +364,10 @@ class EsoClass(QueryWithLogin):
                                            delimiter=',')
                     else:
                         raise ex
-        return table
+                return table
+            else:
+                warnings.warn("Query returned no results")
+
 
     def get_headers(self, product_ids):
         """
@@ -437,11 +439,19 @@ class EsoClass(QueryWithLogin):
 
     def data_retrieval(self, datasets):
         """
+        DEPRECATED: see `retrieve_datasets`
+        """
+
+        warnings.warn("data_retrieval has been replaced with retrieve_data",
+                      DeprecationWarning)
+
+    def retrieve_data(self, datasets):
+        """
         Retrieve a list of datasets form the ESO archive.
 
         Parameters
         ----------
-        datasets : list of strings
+        datasets : list of strings or string
             List of datasets strings to retrieve from the archive.
 
         Returns
@@ -452,6 +462,12 @@ class EsoClass(QueryWithLogin):
         """
         datasets_to_download = []
         files = []
+
+        if isinstance(datasets, six.string_types):
+            datasets = [datasets]
+        if not isinstance(datasets, (list, tuple, np.ndarray)):
+            raise TypeError("Datasets must be given as a list of strings.")
+
         # First: Detect datasets already downloaded
         for dataset in datasets:
             
@@ -471,6 +487,11 @@ class EsoClass(QueryWithLogin):
                 files.append(local_filename + ".Z")
             else:
                 datasets_to_download.append(dataset)
+
+        valid_datasets = [self.verify_data_exists(ds) for ds in datasets_to_download]
+        if not all(valid_datasets):
+            invalid_datasets = [ds for ds,v in zip(datasets_to_download, valid_datasets) if not v]
+            raise ValueError("The following data sets were not found on the ESO servers: {0}".format(invalid_datasets))
 
         # Second: Download the other datasets
         if datasets_to_download:
@@ -502,6 +523,19 @@ class EsoClass(QueryWithLogin):
                 files.append(system_tools.gunzip(filename))
         print("Done!")
         return files
+
+    def verify_data_exists(self, dataset):
+        """
+        Given a data set name, return 'True' if ESO has the file and 'False'
+        otherwise
+        """
+        url = 'http://archive.eso.org/wdb/wdb/eso/eso_archive_main/query'
+        payload = {'dp_id': dataset, 
+                   'ascii_out_mode':'true',
+                  }
+        response = self.request("POST", url, params=payload)
+
+        return 'No data returned' not in response.content
 
 
 Eso = EsoClass()
