@@ -107,10 +107,10 @@ def test_get_frame_coordinates(coordinates, expected_frame):
 
 
 def test_parse_result():
-    result1 = simbad.core.Simbad._parse_result(MockResponseSimbad('query id '))
+    result1 = simbad.core.Simbad._parse_result(MockResponseSimbad('query id '), simbad.core.SimbadVOTableResult)
     assert isinstance(result1, Table)
     with pytest.raises(TableParseError) as ex:
-        dummy = simbad.core.Simbad._parse_result(MockResponseSimbad('query error '))
+        dummy = simbad.core.Simbad._parse_result(MockResponseSimbad('query error '), simbad.core.SimbadVOTableResult)
     assert str(ex.value) == ('Failed to parse SIMBAD result! '
                                 'The raw response can be found in self.last_response, '
                                 'and the error in self.last_table_parse_error.  '
