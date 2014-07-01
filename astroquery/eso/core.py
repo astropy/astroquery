@@ -352,8 +352,6 @@ class EsoClass(QueryWithLogin):
                     if len(line) > 0:  # Drop empty lines
                         if line[0:1] != b'#':  # And drop comments
                             content += [line]
-                        else:
-                            warnings.warn("Query returned no results")
                 content = b'\n'.join(content)
                 try:
                     table = Table.read(BytesIO(content), format="ascii.csv")
@@ -365,7 +363,10 @@ class EsoClass(QueryWithLogin):
                                            delimiter=',')
                     else:
                         raise ex
-        return table
+                return table
+            else:
+                warnings.warn("Query returned no results")
+
 
     def get_headers(self, product_ids):
         """
