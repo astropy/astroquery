@@ -2,11 +2,12 @@
 
 .. _astroquery.irsa:
 
+********************************
 IRSA Queries (`astroquery.irsa`)
-################################
+********************************
 
 Getting started
-***************
+===============
 
 
 This module can has methods to perform different types of queries on the
@@ -18,7 +19,7 @@ queries return the results in a `~astropy.table.Table`.  We now look at some
 examples.
 
 Available catalogs
-==================
+------------------
 
 All region queries require a ``catalog`` keyword argument, which is the name of
 the catalog in the IRSA database, on which the query must be performed. To take
@@ -58,7 +59,7 @@ rather just print out this information:
     sdwfs_ch1_epoch3                SDWFS Aug '09 DR1.1 IRAC 3.6um-Selected 3x30sec Coadd, epoch 3 (Feb '08)
 
 Performing a cone search
-========================
+------------------------
 
 A cone search query is performed by setting the ``spatial`` keyword to
 ``Cone``. The target name or the coordinates of the search center must also be
@@ -111,7 +112,7 @@ a string, as specified by `astropy.coordinates`:
     >>> print(table)
 
 Performing a box search
-=======================
+-----------------------
 
 The box queries have a syntax similar to the cone queries. In this case the
 ``spatial`` keyword argument must be set to ``Box``. Also the width of the box
@@ -140,7 +141,7 @@ Note that in this case we directly passed ICRS coordinates as a string to the
 :meth:`~astroquery.irsa.IrsaClass.query_region`.
 
 Queries over a polygon
-======================
+----------------------
 
 
 Polygon queries can be performed by setting ``spatial='Polygon'``. The search
@@ -196,7 +197,7 @@ is an ra, dec pair expressed in degrees:
      10.006  10.018 00h40m01.33s 10d01m06.24s    0.16 ... 0.662 0.566 1.228   6
 
 Other Configurations
-====================
+--------------------
 
 By default the maximum number of rows that is fetched is set to 500. However,
 this option may be changed by changing the astroquery configuration file. To
@@ -209,7 +210,7 @@ change the setting only for the ongoing python session, you could also do:
 
 
 Reference/API
-*************
+=============
 
 .. automodapi:: astroquery.irsa
     :no-inheritance-diagram:

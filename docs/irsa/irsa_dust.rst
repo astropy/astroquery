@@ -2,16 +2,17 @@
 
 .. _astroquery.irsa_dust:
 
+*************************************************************
 IRSA Dust Extinction Service Queries (`astroquery.irsa_dust`)
-=============================================================
+*************************************************************
 
 Getting started
----------------
+===============
 
 This module can be used to query IRSA dust extinction service.
 
 Fetch images
-~~~~~~~~~~~~
+------------
 
 Retrieve the image cut-outs for the specified oject name or coordinates. The
 images fetched in the FITS format and the result is returned as a list of 
@@ -104,7 +105,7 @@ supports the ``image_type`` argument, in the same way as described for
     'http://irsa.ipac.caltech.edu//workspace/TMP_gB3awn_6492/DUST/34.5565_54.2321_gal.v0001/p292temp.fits']
 
 Fetching the extinction table
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-----------------------------
 
 This fetches the extinction table as a `~astropy.table.Table`. The input parameters are the same as in
 the queries discussed above, namely the target string and optionally a radius
@@ -139,7 +140,7 @@ value:
          IRAC-4       8.0 0.045    0.148  0.006
 
 Get other query details
-~~~~~~~~~~~~~~~~~~~~~~~
+-----------------------
 
 This fetches in a `~astropy.table.Table` other additional details that may be
 returned in the query results. For instance additional details in the three

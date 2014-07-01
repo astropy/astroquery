@@ -2,11 +2,12 @@
 
 .. _astroquery.ned:
 
+******************************
 NED Queries (`astroquery.ned`)
-##############################
+******************************
 
 Getting Started
-***************
+===============
 
 This module can be used to query the Ned web service. All queries other than
 image and spectra queries return results in a `~astropy.table.Table`. Image
@@ -15,7 +16,7 @@ and spectra queries on the other hand return the results as a list of
 illustrate common use cases.
 
 Query an object
-===============
+---------------
 
 This may be used to query the object *by name* from the NED service. For
 instance if you want to query NGC 224
@@ -31,7 +32,7 @@ instance if you want to query NGC 224
       1 MESSIER 031   10.68479 ...              26               7            2
 
 Query a region
-==============
+--------------
 
 These queries may be used for querying a region around a named object or
 coordinates (i.e *near name* and *near position* queries). The radius of
@@ -92,7 +93,7 @@ may be used (ICRS, Galactic, FK4, FK5). Note also the use of the equinox keyword
       5 2MASX J03521844+3840179 ...               2            0
 
 Query in the IAU format
-~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^
 
 The `IAU format`_ for coordinates may also be used for querying
 purposes. Additional parameters that can be specified for these queries is the
@@ -118,7 +119,7 @@ target.
       5 2MASX J12373567-4239122  189.39908 ...               2            0
 
 Query a reference code for objects
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 These queries can be used to retrieve all objects that appear in the specified
 19 digit reference code. These are similar to the
@@ -150,7 +151,7 @@ These queries can be used to retrieve all objects that appear in the specified
      36                NGC 7674  351.98635 ...               8            0
 
 Image and Spectra Queries
-~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The image queries return a list of `~astropy.io.fits.HDUList` objects for the
 specified name. For instance:
@@ -226,7 +227,7 @@ Similarly the list of URLs for spectra of a particular object may be fetched:
     'http://ned.ipac.caltech.edu/spc1/2009A+A...495.1033B/3C_273:S:RI:bcc2009.fits.gz']
 
 Fetching other data tables for an object
-========================================
+----------------------------------------
 
 Several other data tables for an object may be fetched via the :meth:`~astroquery.ned.NedClass.get_table`
 queries. These take a keyword argument ``table``, which may be set to one of
@@ -267,7 +268,7 @@ for the specified object. We look at a simple example:
     table=references does not work correctly `astroquery issue #141`_
 
 Reference/API
-#############
+=============
 
 .. automodapi:: astroquery.ned
     :no-inheritance-diagram:
