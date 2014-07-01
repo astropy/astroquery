@@ -838,7 +838,7 @@ class SimbadResult(object):
             if bibcode_match:
                 self.__table = _create_bibcode_table(self.data, bibcode_match.group(2))
             else:
-                self.__table = votable.parse_single_table(self.__file, pedantic=False).to_table()
+                self.__table = votable.parse_single_table(self.__file, pedantic=False, invalid='mask').to_table()
         return self.__table
 
 Simbad = SimbadClass()
