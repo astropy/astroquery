@@ -3,10 +3,10 @@
 .. _astroquery.ned:
 
 NED Queries (`astroquery.ned`)
-==============================
+##############################
 
 Getting Started
----------------
+***************
 
 This module can be used to query the Ned web service. All queries other than
 image and spectra queries return results in a `~astropy.table.Table`. Image
@@ -15,7 +15,7 @@ and spectra queries on the other hand return the results as a list of
 illustrate common use cases.
 
 Query an object
-~~~~~~~~~~~~~~~
+===============
 
 This may be used to query the object *by name* from the NED service. For
 instance if you want to query NGC 224
@@ -31,7 +31,7 @@ instance if you want to query NGC 224
       1 MESSIER 031   10.68479 ...              26               7            2
 
 Query a region
-~~~~~~~~~~~~~~
+==============
 
 These queries may be used for querying a region around a named object or
 coordinates (i.e *near name* and *near position* queries). The radius of
@@ -226,7 +226,7 @@ Similarly the list of URLs for spectra of a particular object may be fetched:
     'http://ned.ipac.caltech.edu/spc1/2009A+A...495.1033B/3C_273:S:RI:bcc2009.fits.gz']
 
 Fetching other data tables for an object
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+========================================
 
 Several other data tables for an object may be fetched via the :meth:`~astroquery.ned.NedClass.get_table`
 queries. These take a keyword argument ``table``, which may be set to one of
@@ -267,7 +267,7 @@ for the specified object. We look at a simple example:
     table=references does not work correctly `astroquery issue #141`_
 
 Reference/API
-=============
+#############
 
 .. automodapi:: astroquery.ned
     :no-inheritance-diagram:

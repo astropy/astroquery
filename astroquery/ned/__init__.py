@@ -1,7 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 """
 NED Query Tool
---------------
+==============
 
 Module containing a series of functions that execute queries to the NASA Extragalactic Database (NED):
 
