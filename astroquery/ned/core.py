@@ -27,6 +27,11 @@ __all__ = ["Ned","NedClass"]
 
 
 class NedClass(BaseQuery):
+    """
+    Class for querying the NED (NASA/IPAC Extragalactic Database) system
+
+    http://ned.ipac.caltech.edu/
+    """
     # make configurable
     BASE_URL = NED_SERVER()
     OBJ_SEARCH_URL = BASE_URL + 'nph-objsearch'
