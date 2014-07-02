@@ -124,6 +124,9 @@ Badges
 .. image:: https://coveralls.io/repos/astropy/astroquery/badge.png
    :target: https://coveralls.io/r/astropy/astroquery
 
+.. image:: https://badges.gitter.im/astropy/astroquery.png
+   :target: https://gitter.im/astropy/astroquery
+
 .. .. image:: https://d2weczhvl823v0.cloudfront.net/astropy/astroquery/trend.png
 ..    :alt: Bitdeli badge
 ..    :target: https://bitdeli.com/free
