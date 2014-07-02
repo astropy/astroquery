@@ -105,14 +105,13 @@ class CosmoSim(QueryWithLogin):
         checkalljobs = self.check_all_jobs()
         completed_jobs = [key for key in self.job_dict.keys() if self.job_dict[key] in ['COMPLETED','EXECUTING']]
         soup = BeautifulSoup(checkalljobs.content)
-        root = etree.fromstring(checkalljobs.content)
+        #root = etree.fromstring(checkalljobs.content)
         self.table_dict={}
-        ipdb.set_trace()
-        for iter in root:
-            jobid = '{}'.format(iter.values()[1].split(CosmoSim.QUERY_URL+"/")[1])
-            if jobid in completed_jobs:
-                self.table_dict[jobid] = '{}'.format(iter.values()[0])
         
+        for i in soup.find_all("uws:jobref"):
+            jobid = i.get('xlink:href').split('/')[-1]
+            if jobid in completed_jobs:
+                self.table_dict[jobid] = '{}'.format(i.get('id'))
 
     def check_query_status(self,jobid=None):
         """
@@ -149,14 +148,24 @@ class CosmoSim(QueryWithLogin):
         
         checkalljobs = self.session.get(CosmoSim.QUERY_URL,auth=(self.username,self.password),params={'print':'b'})
         self.job_dict={}
-        root = etree.fromstring(checkalljobs.content)
-        
+        soup = BeautifulSoup(checkalljobs.content)
+        #root = etree.fromstring(checkalljobs.content)
+
+        for i in soup.find_all("uws:jobref"):
+            i_phase = str(i.find('uws:phase').string)
+            if i_phase in ['COMPLETED','EXECUTING','ABORTED','ERROR']:
+                self.job_dict['{}'.format(i.get('xlink:href').split('/')[-1])] = i_phase
+            else:
+                self.job_dict['{}'.format(i.get('id'))] = i_phase
+        '''
         for iter in root:
             if iter.find('{*}phase').text in ['COMPLETED','EXECUTING','ABORTED','ERROR']:
                 self.job_dict['{}'.format(iter.values()[1].split(CosmoSim.QUERY_URL+"/")[1])] = iter.find('{*}phase').text
+                ipdb.set_trace()
             else:
                 self.job_dict['{}'.format(iter.values()[0])] = iter.find('{*}phase').text
-
+        '''
+                
         frame = sys._getframe(1)
         do_not_print_job_dict = ['completed_job_info','delete_all_jobs','_existing_tables','delete_job','download'] # list of methods which use check_all_jobs() for which I would not like job_dict to be printed to the terminal
         if frame.f_code.co_name in do_not_print_job_dict: 
