@@ -1,20 +1,8 @@
 import requests
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> e4683cc... Added quite a bit to the run_sql_query(),_existing_tables(),check_query_status(),check_all_jobs(),completed_job_info(),delete_job(),and delete_all_jobs() functions, in addition to adding some preliminary docstrings for many of them.
 import sys
+from bs4 import BeautifulSoup
 from lxml import etree
 import numpy as np
-<<<<<<< HEAD
-=======
->>>>>>> 4527625... Added cosmosim repository, which will contain the machinery required to query the MultiDark, BolshoiP, and CLUES cosmological simulation databases. The multidark repository will become deprecated.
-=======
-from lxml import etree
->>>>>>> 8138a2e... Added a bunch more to the check_all_jobs function, and began working on run_sql_query.
-=======
->>>>>>> 951c28b... Got the core functionality of download() working. The function now parses a completed table response and either returns the data to the terminal, or it writes to file and returns the data to the terminal.
 
 # Astropy imports
 from astropy.table import Table
@@ -41,22 +29,12 @@ class CosmoSim(QueryWithLogin):
     QUERY_URL = COSMOSIM_SERVER()
     TIMEOUT = COSMOSIM_TIMEOUT()
 
-<<<<<<< HEAD
-<<<<<<< HEAD
     cosmosim_databases = ('MDR1','MDPL','Bolshoi','BolshoiP')
 
-=======
->>>>>>> 4527625... Added cosmosim repository, which will contain the machinery required to query the MultiDark, BolshoiP, and CLUES cosmological simulation databases. The multidark repository will become deprecated.
-=======
-    cosmosim_databases = ('MDR1','MDPL','Bolshoi','BolshoiP')
-
->>>>>>> 951c28b... Got the core functionality of download() working. The function now parses a completed table response and either returns the data to the terminal, or it writes to file and returns the data to the terminal.
     def __init__(self,username=None,password=None):
         self.username = username
         self.password = password
         self.login(username,password)
-<<<<<<< HEAD
-<<<<<<< HEAD
         self._existing_tables()
 
     def login(self,username,password):
@@ -73,10 +51,7 @@ class CosmoSim(QueryWithLogin):
         
         self.session = requests.session()
         response = self.session.get(CosmoSim.QUERY_URL,auth=(self.username,self.password))
-=======
-=======
         self._existing_tables()
->>>>>>> e4683cc... Added quite a bit to the run_sql_query(),_existing_tables(),check_query_status(),check_all_jobs(),completed_job_info(),delete_job(),and delete_all_jobs() functions, in addition to adding some preliminary docstrings for many of them.
 
     def login(self,username,password):
         """
@@ -93,17 +68,9 @@ class CosmoSim(QueryWithLogin):
         self.session = requests.session()
         response = self.session.get(CosmoSim.QUERY_URL,auth=(self.username,self.password))
 
-<<<<<<< HEAD
-        pdb.set_trace()
->>>>>>> 4527625... Added cosmosim repository, which will contain the machinery required to query the MultiDark, BolshoiP, and CLUES cosmological simulation databases. The multidark repository will become deprecated.
-
-=======
->>>>>>> 8138a2e... Added a bunch more to the check_all_jobs function, and began working on run_sql_query.
         if not response.ok:
             self.session = None
             response.raise_for_status()
-<<<<<<< HEAD
-<<<<<<< HEAD
     
     def run_sql_query(self, query_string,tablename=None):
         """
@@ -126,17 +93,21 @@ class CosmoSim(QueryWithLogin):
 
         if tablename in self.table_dict.values():
             result = self.session.post(CosmoSim.QUERY_URL,auth=(self.username,self.password),data={'query':query_string,'phase':'run'})
-            root = etree.fromstring(result.content)
-            gen_tablename = [[subname.text for subname in name.iterfind('{*}parameter') if subname.attrib['id']=='table'] for name in root.iterfind('{*}parameters')][0][0]
+            soup = BeautifulSoup(result.content)
+            gen_tablename = str(soup.find(id="table").string)
+            #root = etree.fromstring(result.content)
+            #gen_tablename = [[subname.text for subname in name.iterfind('{*}parameter') if subname.attrib['id']=='table'] for name in root.iterfind('{*}parameters')][0][0]
             print "Table name {} is already taken.".format(tablename)
             print "Generated table name: {}".format(gen_tablename)
         elif tablename is None:
             result = self.session.post(CosmoSim.QUERY_URL,auth=(self.username,self.password),data={'query':query_string,'phase':'run'})
         else:
             result = self.session.post(CosmoSim.QUERY_URL,auth=(self.username,self.password),data={'query':query_string,'table':'{}'.format(tablename),'phase':'run'})
-            
-        root = etree.fromstring(result.content)
-        self.current_job = root.find('{*}jobId').text
+        
+        soup = BeautifulSoup(result.content)
+        self.current_job = str(soup.find("uws:jobid").string)
+        #root = etree.fromstring(result.content)
+        #self.current_job = root.find('{*}jobId').text
         print "Job created: {}".format(self.current_job)
         self._existing_tables()
         return result
@@ -148,9 +119,10 @@ class CosmoSim(QueryWithLogin):
 
         checkalljobs = self.check_all_jobs()
         completed_jobs = [key for key in self.job_dict.keys() if self.job_dict[key] in ['COMPLETED','EXECUTING']]
+        soup = BeautifulSoup(checkalljobs.content)
         root = etree.fromstring(checkalljobs.content)
         self.table_dict={}
-        
+        pdb.set_trace()
         for iter in root:
             jobid = '{}'.format(iter.values()[1].split(CosmoSim.QUERY_URL+"/")[1])
             if jobid in completed_jobs:
@@ -295,6 +267,8 @@ class CosmoSim(QueryWithLogin):
                 
         self.check_all_jobs()
         completed_job_responses = self.completed_job_info(jobid)
+        soup = BeautifulSoup(completed_job_responses[0].content)
+        #tableurl = 
         root = etree.fromstring(completed_job_responses[0].content)
         tableurl = [[list(c.attrib.values())[1] for c in e] for e in root.iter('{*}results') ][0][0]
 
@@ -318,7 +292,6 @@ class CosmoSim(QueryWithLogin):
                     fh.write(block)
                 print "Data written to file: {}".format(filename)
             return headers, data
-=======
 
     # will check to see if using private or public credentials
     def logged_in(self):
@@ -326,9 +299,6 @@ class CosmoSim(QueryWithLogin):
         TO DO: documentation
         """
         print 'Need to implement when public default parameters (if any) are known...'
-
-=======
->>>>>>> e4683cc... Added quite a bit to the run_sql_query(),_existing_tables(),check_query_status(),check_all_jobs(),completed_job_info(),delete_job(),and delete_all_jobs() functions, in addition to adding some preliminary docstrings for many of them.
     
     def run_sql_query(self, query_string,tablename=None):
         """
@@ -518,16 +488,9 @@ class CosmoSim(QueryWithLogin):
             except:
                 raise
                 
-<<<<<<< HEAD
-        
-<<<<<<< HEAD
-        if hasattr(self,'session'):
-            response = self.session.post(url,data=re)
->>>>>>> 4527625... Added cosmosim repository, which will contain the machinery required to query the MultiDark, BolshoiP, and CLUES cosmological simulation databases. The multidark repository will become deprecated.
-=======
-        
-=======
->>>>>>> 951c28b... Got the core functionality of download() working. The function now parses a completed table response and either returns the data to the terminal, or it writes to file and returns the data to the terminal.
+        #if hasattr(self,'session'):
+        #    response = self.session.post(url,data=re)
+
         self.check_all_jobs()
         completed_job_responses = self.completed_job_info(jobid)
         root = etree.fromstring(completed_job_responses[0].content)
@@ -541,13 +504,7 @@ class CosmoSim(QueryWithLogin):
         headers = [raw_headers.split(',')[i].strip('"') for i in range(num_cols)]
         raw_data = [raw_table_data.content.split('\n')[i+1].split(",") for i in range(num_rows)]
         data = [map(eval,raw_data[i]) for i in range(num_rows)]
-        
-<<<<<<< HEAD
-        return
     
-    
->>>>>>> e4683cc... Added quite a bit to the run_sql_query(),_existing_tables(),check_query_status(),check_all_jobs(),completed_job_info(),delete_job(),and delete_all_jobs() functions, in addition to adding some preliminary docstrings for many of them.
-=======
         if filename is None:
             return headers, data
         else:
@@ -559,4 +516,3 @@ class CosmoSim(QueryWithLogin):
                     fh.write(block)
                 print "Data written to file: {}".format(filename)
             return headers, data
->>>>>>> 951c28b... Got the core functionality of download() working. The function now parses a completed table response and either returns the data to the terminal, or it writes to file and returns the data to the terminal.
