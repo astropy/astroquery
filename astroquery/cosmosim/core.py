@@ -1,7 +1,6 @@
 import requests
 import sys
 from bs4 import BeautifulSoup
-from lxml import etree
 import numpy as np
 
 # Astropy imports
@@ -73,15 +72,13 @@ class CosmoSim(QueryWithLogin):
         result : 'requests.models.Response' object
             The requests response 
         """
-        print "Inside run_sql_query"
+        
         self._existing_tables()
 
         if tablename in self.table_dict.values():
             result = self.session.post(CosmoSim.QUERY_URL,auth=(self.username,self.password),data={'query':query_string,'phase':'run'})
             soup = BeautifulSoup(result.content)
             gen_tablename = str(soup.find(id="table").string)
-            #root = etree.fromstring(result.content)
-            #gen_tablename = [[subname.text for subname in name.iterfind('{*}parameter') if subname.attrib['id']=='table'] for name in root.iterfind('{*}parameters')][0][0]
             print "Table name {} is already taken.".format(tablename)
             print "Generated table name: {}".format(gen_tablename)
         elif tablename is None:
@@ -91,8 +88,6 @@ class CosmoSim(QueryWithLogin):
         
         soup = BeautifulSoup(result.content)
         self.current_job = str(soup.find("uws:jobid").string)
-        #root = etree.fromstring(result.content)
-        #self.current_job = root.find('{*}jobId').text
         print "Job created: {}".format(self.current_job)
         self._existing_tables()
         return result
@@ -105,7 +100,6 @@ class CosmoSim(QueryWithLogin):
         checkalljobs = self.check_all_jobs()
         completed_jobs = [key for key in self.job_dict.keys() if self.job_dict[key] in ['COMPLETED','EXECUTING']]
         soup = BeautifulSoup(checkalljobs.content)
-        #root = etree.fromstring(checkalljobs.content)
         self.table_dict={}
         
         for i in soup.find_all("uws:jobref"):
@@ -149,7 +143,6 @@ class CosmoSim(QueryWithLogin):
         checkalljobs = self.session.get(CosmoSim.QUERY_URL,auth=(self.username,self.password),params={'print':'b'})
         self.job_dict={}
         soup = BeautifulSoup(checkalljobs.content)
-        #root = etree.fromstring(checkalljobs.content)
 
         for i in soup.find_all("uws:jobref"):
             i_phase = str(i.find('uws:phase').string)
@@ -157,14 +150,6 @@ class CosmoSim(QueryWithLogin):
                 self.job_dict['{}'.format(i.get('xlink:href').split('/')[-1])] = i_phase
             else:
                 self.job_dict['{}'.format(i.get('id'))] = i_phase
-        '''
-        for iter in root:
-            if iter.find('{*}phase').text in ['COMPLETED','EXECUTING','ABORTED','ERROR']:
-                self.job_dict['{}'.format(iter.values()[1].split(CosmoSim.QUERY_URL+"/")[1])] = iter.find('{*}phase').text
-                ipdb.set_trace()
-            else:
-                self.job_dict['{}'.format(iter.values()[0])] = iter.find('{*}phase').text
-        '''
                 
         frame = sys._getframe(1)
         do_not_print_job_dict = ['completed_job_info','delete_all_jobs','_existing_tables','delete_job','download'] # list of methods which use check_all_jobs() for which I would not like job_dict to be printed to the terminal
@@ -208,11 +193,11 @@ class CosmoSim(QueryWithLogin):
                 if jobid == self.current_job:
                     del self.current_job
 
-        if job_dict[jobid] in ['COMPLETED','ERROR','ABORTED']:
+        if self.job_dict[jobid] in ['COMPLETED','ERROR','ABORTED']:
             result = self.session.delete(CosmoSim.QUERY_URL+"/{}".format(jobid),auth=(self.username,self.password),data={'follow':''})
         else:
             print "Can only delete a job with phase: 'COMPLETED','ERROR',or 'ABORTED'."
-        pdb.set_trace()
+            
         if not result.ok:
             result.raise_for_status()
         print 'Deleted job: {}'.format(jobid)
@@ -265,9 +250,7 @@ class CosmoSim(QueryWithLogin):
         self.check_all_jobs()
         completed_job_responses = self.completed_job_info(jobid)
         soup = BeautifulSoup(completed_job_responses[0].content)
-        #tableurl = 
-        root = etree.fromstring(completed_job_responses[0].content)
-        tableurl = [[list(c.attrib.values())[1] for c in e] for e in root.iter('{*}results') ][0][0]
+        tableurl = soup.find("uws:result").get("xlink:href")
 
         # This is where the requestrequest.content parsing happens
         raw_table_data = self.session.get(tableurl,auth=(self.username,self.password))
