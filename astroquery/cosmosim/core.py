@@ -17,7 +17,7 @@ from ..utils import commons
 from ..query import QueryWithLogin
 from . import COSMOSIM_SERVER, COSMOSIM_TIMEOUT
 
-import pdb
+import ipdb
 
 __all__ = ['CosmoSim']
 
@@ -88,7 +88,7 @@ class CosmoSim(QueryWithLogin):
         result : 'requests.models.Response' object
             The requests response 
         """
-        
+        print "Inside run_sql_query"
         self._existing_tables()
 
         if tablename in self.table_dict.values():
@@ -122,7 +122,7 @@ class CosmoSim(QueryWithLogin):
         soup = BeautifulSoup(checkalljobs.content)
         root = etree.fromstring(checkalljobs.content)
         self.table_dict={}
-        pdb.set_trace()
+        ipdb.set_trace()
         for iter in root:
             jobid = '{}'.format(iter.values()[1].split(CosmoSim.QUERY_URL+"/")[1])
             if jobid in completed_jobs:
