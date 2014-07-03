@@ -124,10 +124,31 @@ class BaseQuery(object):
         return self.__class__(*args, **kwargs)
     
     def request(self, method, url, params=None, data=None, headers=None,
-                files=None, save=False, timeout=None):
+                files=None, save=False, savedir='', timeout=None):
+        """
+        A generic HTTP request method, similar to `requests.Session.request` but
+        with added caching-related tools
+
+        Parameters
+        ----------
+        method : 'GET' or 'POST'
+        url : str
+        params : None or dict
+        data : None or dict
+        headers : None or dict
+        files : None or dict
+            See `requests.request`
+        save : bool
+            Whether to save the file to a local directory.  Caching will happen independent of
+            this parameter if `BaseQuery.cache_location` is set, but the save location can be
+            overridden if ``save==True``
+        savedir : str
+            The location to save the local file if you want to save it
+            somewhere other than `BaseQuery.cache_location`
+        """
         if save:
             local_filename = url.split('/')[-1]
-            local_filepath = os.path.join(self.cache_location if self.cache_location else ".", local_filename)
+            local_filepath = os.path.join(self.cache_location or savedir or '.', local_filename)
             print("Downloading {0}...".format(local_filename))
             with suspend_cache(self): #Never cache file downloads: they are already saved on disk
                 r = self.request(method, url, save=False, params=params,
