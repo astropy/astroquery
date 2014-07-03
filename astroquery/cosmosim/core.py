@@ -36,7 +36,7 @@ class CosmoSim(QueryWithLogin):
         self.login(username,password)
         self._existing_tables()
 
-    def login(self,username,password):
+    def _login(self,username,password): # This needs re-doing; Follow ESO example (and look into what QueryWithLogin does)...
         """
         Public function which sends a GET request to the base url, and checks for authentication of user credentials. This function is used upon instantiation of the class.
 
