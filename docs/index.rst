@@ -101,21 +101,20 @@ The following modules have been completed using a common API:
 .. toctree::
   :maxdepth: 1
 
-  simbad.rst
-  vizier.rst
-  irsa_dust.rst
-  ned.rst
-  splatalogue.rst
-  irsa.rst
-  ukidss.rst
-  magpis.rst
-  nrao.rst
-  besancon.rst
-  nist.rst
-  nvas.rst
-  gama.rst
-  eso.rst
-  cosmosim.rst
+ simbad/simbad.rst
+  vizier/vizier.rst
+  irsa/irsa_dust.rst
+  ned/ned.rst
+  splatalogue/splatalogue.rst
+  irsa/irsa.rst
+  ukidss/ukidss.rst
+  magpis/magpis.rst
+  nrao/nrao.rst
+  besancon/besancon.rst
+  nist/nist.rst
+  nvas/nvas.rst
+  gama/gama.rst
+  eso/eso.rst
 
 These others are functional, but do not follow a common & consistent API:
 
@@ -128,6 +127,7 @@ These others are functional, but do not follow a common & consistent API:
   sha/sha.rst
   lamda/lamda.rst
   ogle/ogle.rst
+  cosmosim/cosmosim.rst
 
 Developer documentation
 -----------------------
