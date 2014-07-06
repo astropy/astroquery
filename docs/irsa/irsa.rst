@@ -9,15 +9,17 @@ IRSA Queries (`astroquery.irsa`)
 Getting started
 ===============
 
+
 This module can has methods to perform different types of queries on the
 catalogs present in the IRSA general catalog service. All queries can be
 performed by calling :meth:`~astroquery.irsa.IrsaClass.query_region`, with
 different keyword arguments. There are 4 different region queries that are
-supported: ``Cone``, ``Box``, ``Polygon`` and ``All-Sky``. All successful queries return the
-results in a `~astropy.table.Table`.  We now look at some
+supported: ``Cone``, ``Box``, ``Polygon`` and ``All-Sky``. All successful
+queries return the results in a `~astropy.table.Table`.  We now look at some
 examples.
 
-**Available catalogs**
+Available catalogs
+------------------
 
 All region queries require a ``catalog`` keyword argument, which is the name of
 the catalog in the IRSA database, on which the query must be performed. To take
@@ -44,8 +46,8 @@ rather just print out this information:
 .. code-block:: python
 
     >>> from astroquery.irsa import Irsa
-    >>> Irsa.print_catalogs()                
-         
+    >>> Irsa.print_catalogs()
+
     wise_allsky_2band_p1bm_frm      WISE Post-Cryo Single Exposure (L1b) Image Inventory Table
     wise_allsky_4band_p3as_psr      WISE All-Sky Reject Table
     cosmos_morph_col_1              COSMOS Zamojski Morphology Catalog v1.0
@@ -56,7 +58,8 @@ rather just print out this information:
     ...
     sdwfs_ch1_epoch3                SDWFS Aug '09 DR1.1 IRAC 3.6um-Selected 3x30sec Coadd, epoch 3 (Feb '08)
 
-**Performing a cone search**
+Performing a cone search
+------------------------
 
 A cone search query is performed by setting the ``spatial`` keyword to
 ``Cone``. The target name or the coordinates of the search center must also be
@@ -108,7 +111,8 @@ a string, as specified by `astropy.coordinates`:
     ...                           catalog='fp_psc', radius='0d2m0s')
     >>> print(table)
 
-**Performing a box search**
+Performing a box search
+-----------------------
 
 The box queries have a syntax similar to the cone queries. In this case the
 ``spatial`` keyword argument must be set to ``Box``. Also the width of the box
@@ -121,7 +125,7 @@ for cone search queries, above - so it may be set using the appropriate
     >>> from astroquery.irsa import Irsa
     >>> import astropy.units as u
     >>> table = Irsa.query_region("00h42m44.330s +41d16m07.50s",
-    ...                           catalog='fp_psc', spatial='Box', 
+    ...                           catalog='fp_psc', spatial='Box',
     ...                           width=5 * u.arcsec)
 
     WARNING: Coordinate string is being interpreted as an ICRS
@@ -136,7 +140,9 @@ for cone search queries, above - so it may be set using the appropriate
 Note that in this case we directly passed ICRS coordinates as a string to the
 :meth:`~astroquery.irsa.IrsaClass.query_region`.
 
-**Queries over a polygon**
+Queries over a polygon
+----------------------
+
 
 Polygon queries can be performed by setting ``spatial='Polygon'``. The search
 center is optional in this case. One additional parameter that must be set for
@@ -152,11 +158,11 @@ options is illustrated below:
 .. code-block:: python
 
     >>> from astroquery.irsa import Irsa
-    >>> import astropy.coordinates as coord
+    >>> from astropy import coordinates
     >>> table = Irsa.query_region("m31", catalog="fp_psc", spatial="Polygon",
-    ... polygon=[coord.ICRS(ra=10.1, dec=10.1, unit=(u.deg, u.deg)),
-    ...          coord.ICRS(ra=10.0, dec=10.1, unit=(u.deg, u.deg)),
-    ...          coord.ICRS(ra=10.0, dec=10.0, unit=(u.deg, u.deg))
+    ... polygon=[coordinates.SkyCoord(ra=10.1, dec=10.1, unit=(u.deg, u.deg), frame='icrs'),
+    ...          coordinates.SkyCoord(ra=10.0, dec=10.1, unit=(u.deg, u.deg), frame='icrs'),
+    ...          coordinates.SkyCoord(ra=10.0, dec=10.0, unit=(u.deg, u.deg), frame='icrs')
     ...         ])
     >>> print(table)
 
@@ -178,7 +184,7 @@ is an ra, dec pair expressed in degrees:
     >>> from astroquery.irsa import Irsa
     >>> table = Irsa.query_region("m31", catalog="fp_psc", spatial="Polygon",
     ... polygon = [(10.1, 10.1), (10.0, 10.1), (10.0, 10.0)])
-    >>> print(table) 
+    >>> print(table)
 
           ra     dec       clon         clat     err_maj ...  j_h   h_k   j_k   id
     ------- ------- ------------ ------------ ------- ... ----- ----- ----- ---
@@ -190,8 +196,8 @@ is an ra, dec pair expressed in degrees:
      10.011  10.094 00h40m02.68s 10d05m38.05s    0.23 ... 0.378 0.602  0.98   5
      10.006  10.018 00h40m01.33s 10d01m06.24s    0.16 ... 0.662 0.566 1.228   6
 
-
-**Other Configurations**
+Other Configurations
+--------------------
 
 By default the maximum number of rows that is fetched is set to 500. However,
 this option may be changed by changing the astroquery configuration file. To
