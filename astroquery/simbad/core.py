@@ -706,11 +706,21 @@ class SimbadClass(BaseQuery):
         return dict(script=script)
 
     def _parse_result(self, result, resultclass, verbose=False):
+        """
+        Instantiate a Simbad*Result class and try to parse the
+        response with the .table property/method, then return the
+        resulting table.  If data is not retrieved or the resulting
+        table is empty, return None.  In case of problems, save
+        intermediate results for furthur debugging.
+        """
         self.last_response = result
-
         try:
             self.last_parsed_result = resultclass(result.content, verbose=verbose)
+            if self.last_parsed_result.data is None:
+                return None
             resulttable = self.last_parsed_result.table
+            if len(resulttable) == 0:
+                return None
         except Exception as ex:
             self.last_table_parse_error = ex
             raise TableParseError("Failed to parse SIMBAD result! The raw response can be found "
