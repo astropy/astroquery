@@ -666,9 +666,11 @@ class SimbadClass(BaseQuery):
         if self.ROW_LIMIT > 0:
             script = "set limit " + str(self.ROW_LIMIT)
         script = "\n".join([script, votable_def, votable_open, command])
+        using_wildcard = False
         if kwargs.get('wildcard'):
-            script += " wildcard"  # necessary to have a space at the beginning
+            script += " wildcard "  # necessary to have a space at the beginning and end
             del kwargs['wildcard']
+            using_wildcard = True
         # now append args and kwds as per the caller
         # if caller is query_region_async write coordinates as separate ra dec
         if caller == 'query_region_async':
@@ -701,7 +703,14 @@ class SimbadClass(BaseQuery):
             args_str = ' '.join([str(val) for val in args])
         kwargs_str = ' '.join("{key}={value}".format(key=key, value=kwargs[key]) for
                               key in present_keys)
-        script += ' '.join([" ", args_str, kwargs_str, "\n"])
+        
+        # For the record, I feel dirty for writing this wildcard-case hack.
+        # This entire function should be refactored when someone has time.
+        allargs_str = ' '.join([" ", args_str, kwargs_str, "\n"])
+        if using_wildcard:
+            allargs_str = allargs_str.lstrip()
+
+        script += allargs_str
         script += votable_close
         return dict(script=script)
 
