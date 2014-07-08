@@ -1,7 +1,8 @@
 import requests
 import sys
 from bs4 import BeautifulSoup
-import numpy as np
+import keyring
+import getpass
 
 # Astropy imports
 from astropy.table import Table
@@ -30,31 +31,36 @@ class CosmoSim(QueryWithLogin):
 
     cosmosim_databases = ('MDR1','MDPL','Bolshoi','BolshoiP')
 
-    def __init__(self,username=None,password=None):
-        self.username = username
-        self.password = password
-        self.login(username,password)
-        self._existing_tables()
-
-    def _login(self,username,password): # This needs re-doing; Follow ESO example (and look into what QueryWithLogin does)...
-        """
-        Public function which sends a GET request to the base url, and checks for authentication of user credentials. This function is used upon instantiation of the class.
-
-        Parameters
-        ----------
-        username : string
-            The CosmoSim.org username.
-        password : string
-            The CosmoSim.org password.
-        """
+    def __init__(self):
+        self.session = requests.session()
+ 
+    def _login(self, username):
         
         self.session = requests.session()
-        response = self.session.get(CosmoSim.QUERY_URL,auth=(self.username,self.password))
-
-        if not response.ok:
-            self.session = None
-            response.raise_for_status()
+        self.username = username
+        
+        # Get password from keyring or prompt
+        password_from_keyring = keyring.get_password("astroquery:www.cosmosim.org", self.username)
+        if password_from_keyring is None:
+            self.password = getpass.getpass("{0}, enter your CosmoSim password:\n".format(self.username))
+        else:
+            self.password = password_from_keyring
+            
+        # Authenticate
+        print("Authenticating {0} on www.cosmosim.org...".format(self.username))
+        authenticated = self.session.post(CosmoSim.QUERY_URL,auth=(self.username,self.password))
+        if authenticated.status_code == 200:
+            print("Authentication successful!")
+        elif authenticated.status_code == 401:
+            print("Authentication failed!")
+            
+        # Generating dictionary of existing tables
         self._existing_tables()
+
+        if authenticated.status_code == 200 and password_from_keyring is None:
+            keyring.set_password("astroquery:www.cosmosim.org", self.username, self.password)
+        return authenticated
+
 
     def run_sql_query(self, query_string,tablename=None):
         """
