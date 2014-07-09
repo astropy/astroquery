@@ -32,6 +32,7 @@ class CosmoSim(QueryWithLogin):
     cosmosim_databases = ('MDR1','MDPL','Bolshoi','BolshoiP')
 
     def __init__(self):
+        super(CosmoSim, self).__init__()
         self.session = requests.session()
  
     def _login(self, username):
@@ -53,6 +54,8 @@ class CosmoSim(QueryWithLogin):
             print("Authentication successful!")
         elif authenticated.status_code == 401:
             print("Authentication failed!")
+        elif authenticated.status_code == 503:
+            print("Service Temporarily Unavailable...")
             
         # Generating dictionary of existing tables
         self._existing_tables()
