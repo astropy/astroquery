@@ -94,6 +94,7 @@ import warnings
 import tempfile
 import xml.etree.ElementTree as tree
 
+from astropy.extern import six
 import astropy.units as u
 import astropy.coordinates as coord
 import astropy.io.votable as votable
@@ -406,16 +407,16 @@ Irsa = IrsaClass()
 
 def _parse_coordinates(coordinates):
 # borrowed from commons.parse_coordinates as from_name wasn't required in this case
-    if isinstance(coordinates, basestring):
+    if isinstance(coordinates, six.string_types):
         try:
             c = coord.ICRS(coordinates)
             warnings.warn("Coordinate string is being interpreted as an ICRS coordinate.")
-        except u.UnitsException as ex:
+        except u.UnitsError as ex:
             warnings.warn("Only ICRS coordinates can be entered as strings\n"
                           "For other systems please use the appropriate "
                           "astropy.coordinates object")
             raise ex
-    elif isinstance(coordinates, coord.SphericalCoordinatesBase):
+    elif isinstance(coordinates, commons.CoordClasses):
         c = coordinates
     else:
         raise TypeError("Argument cannot be parsed as a coordinate")
@@ -460,6 +461,6 @@ def _parse_dimension(dim):
         try:
             new_dim = commons.parse_radius(dim)
             dim = u.Quantity(new_dim.degree, u.Unit('degree'))
-        except (u.UnitsException, coord.errors.UnitsError, AttributeError):
-            raise u.UnitsException("Dimension not in proper units")
+        except (u.UnitsError, coord.errors.UnitsError, AttributeError):
+            raise u.UnitsError("Dimension not in proper units")
     return dim

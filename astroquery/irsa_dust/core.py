@@ -316,13 +316,7 @@ class IrsaDustClass(BaseQuery):
         payload = {"locstr": coordinate}  # check if this is resolvable?
         # check if radius is given with proper units
         if radius is not None:
-            try:
-                reg_size = commons.radius_to_unit(radius, 'degree')
-            # TODO: clean this up so that it works with Astropy 0.3 and later:
-            # astropy v0.2.x throws UnitsError and v>0.2.x throws
-            # UnitsException
-            except (u.UnitsException, coord.errors.UnitsError, AttributeError):
-                raise Exception("Radius not specified with proper unit.")
+            reg_size = coord.Angle(radius).to('degree').value
             # check if radius falls in the acceptable range
             if reg_size < 2 or reg_size > 37.5:
                 raise ValueError("Radius (in any unit) must be in the"
@@ -720,7 +714,7 @@ class NumberNode(BaseDustNode):
         """
         BaseDustNode.__init__(self, xml_node)
         self._value = utils.parse_number(xml_node.text)
-        self._columns = [Column(name=col_name, units=units)]
+        self._columns = [Column(name=col_name, unit=units)]
 
     def __str__(self):
         """Return a string representation of the item."""
@@ -750,8 +744,8 @@ class CoordNode(BaseDustNode):
         BaseDustNode.__init__(self, xml_node)
         self._value = utils.parse_coords(xml_node.text)
         units = u.deg
-        self._columns = [Column(name=col_names[0], units=units),
-                         Column(name=col_names[1], units=units),
+        self._columns = [Column(name=col_names[0], unit=units),
+                         Column(name=col_names[1], unit=units),
                          Column(name=col_names[2], dtype="S25")]
 
     def __str__(self):

@@ -54,7 +54,9 @@ def patch_get(request):
 
 @pytest.fixture
 def patch_get_readable_fileobj(request):
-    def get_readable_fileobj_mockreturn(filename, cache=True):
+    def get_readable_fileobj_mockreturn(filename, cache=True, encoding=None):
+        # Need to read FITS files with binary encoding: should raise error otherwise
+        assert encoding == 'binary'
         return open(data_path(DATA_FILES['image']), 'rb')
     mp = request.getfuncargvalue("monkeypatch")
     mp.setattr(commons, 'get_readable_fileobj', get_readable_fileobj_mockreturn)
@@ -221,7 +223,7 @@ def test_query_region_async(monkeypatch, patch_get):
     assert response['objname'] == "m1"
     assert response['search_type'] == "Near Name Search"
     # check with Galactic coordinates
-    response = ned.core.Ned.query_region_async(coord.Galactic(l=-67.02084, b=-29.75447, unit=(u.deg, u.deg)),
+    response = ned.core.Ned.query_region_async(commons.GalacticCoordGenerator(l=-67.02084, b=-29.75447, unit=(u.deg, u.deg)),
                                                get_query_payload=True)
     assert response['search_type'] == 'Near Position Search'
     npt.assert_approx_equal(response['lon'] % 360, -67.02084 % 360, significant=5)

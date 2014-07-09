@@ -8,7 +8,8 @@ import re
 import os
 from astropy.io import ascii
 from . import BESANCON_DOWNLOAD_URL, BESANCON_MODEL_FORM, BESANCON_PING_DELAY, BESANCON_TIMEOUT
-import urllib2  # only needed for urllib2.URLError
+from astropy.extern.six.moves.urllib_error import URLError
+from astropy.extern.six import StringIO
 
 from ..query import BaseQuery
 from ..utils import commons
@@ -43,8 +44,8 @@ keyword_defaults = {
     'subspectyp_min': 0,
     'spectyp_max':9,
     'subspectyp_max': 5,
-    'lumi':range(1,8),
-    'sous_pop':range(1,11),
+    'lumi':list(range(1,8)),
+    'sous_pop':list(range(1,11)),
     'iband':8,
     'band0':[8]*9,
     'bandf':[25]*9,
@@ -122,7 +123,7 @@ class BesanconClass(BaseQuery):
                 with commons.get_readable_fileobj(url, cache=True) as f:
                     results = f.read()
                 break
-            except urllib2.URLError:
+            except URLError:
                 if verbose:
                     sys.stdout.write(u"Waiting %0.1fs for model to finish (elapsed wait time %0.1fs, total wait time %0.1f)\r" % (self.ping_delay,elapsed_time,time.time()-t0))
                     sys.stdout.flush()
@@ -151,7 +152,7 @@ class BesanconClass(BaseQuery):
             print("Loading request from Besancon server ...")
 
         # keep the text stored for possible later use
-        with commons.get_readable_fileobj(response.raw) as f:
+        with commons.get_readable_fileobj(StringIO(response.content)) as f:
             text = f.read()
             # py3 compatibility; do nothing for py2:
             if hasattr(text, 'decode') and not hasattr(text, 'encode'):
@@ -223,7 +224,7 @@ class BesanconClass(BaseQuery):
 
         # create a new keyword dict based on inputs + defaults
         kwd = copy.copy(keyword_defaults)
-        for key, val in kwargs.iteritems():
+        for key, val in kwargs.items():
             if key in keyword_defaults:
                 kwd[key] = val
             elif verbose and not key in ('retrieve_file',):
@@ -249,7 +250,7 @@ class BesanconClass(BaseQuery):
             else:
                 raise ValueError('Invalid color %s' % key)
 
-        for (key, val) in mag_limits.iteritems():
+        for (key, val) in mag_limits.items():
             if key in mag_order:
                 kwd['band0'][mag_order.index(key)] = val[0]
                 kwd['bandf'][mag_order.index(key)] = val[1]
@@ -258,16 +259,16 @@ class BesanconClass(BaseQuery):
 
         if clouds is not None:
             for ii, (AV, di) in enumerate(clouds):
-                kwd[AV][ii] = AV
-                kwd[di][ii] = di
+                kwd['AV'][ii] = AV
+                kwd['di'][ii] = di
 
         # parse the default dictionary
         # request_data = parse_besancon_dict(keyword_defaults)
         request_data = kwd.copy()
 
         # convert all array elements to arrays
-        for dummy in xrange(2):  # deal with nested lists
-            for k, v in request_data.items():
+        for dummy in range(2):  # deal with nested lists
+            for k, v in list(request_data.items()):
                 if isinstance(v, list) or (isinstance(v, tuple) and len(v) > 1):
                     if k in request_data:
                         del request_data[k]
@@ -314,7 +315,7 @@ def parse_besancon_dict(bd):
     """
 
     http_dict = []
-    for key, val in bd.iteritems():
+    for key, val in bd.items():
         if isinstance(val, list):
             if "[]" in key:
                 for listval in val:
@@ -400,7 +401,9 @@ def parse_besancon_model_string(bms,):
     # note: old col_starts/col_ends were:
     # (0,7,13,16,21,27,33,36,41,49,56,62,69,76,82,92,102,109)
     # (6,12,15,20,26,32,35,39,48,55,61,68,75,81,91,101,108,115)
-    col_ends = [(first_data_line+" ").find(" "+x+" ")+len(x)+1 for x in first_data_line.split()]
+    space_indices = [first_data_line.find(" ",ii) for ii in range(len(first_data_line))]
+    col_ends = [y for x,y in zip(space_indices[:-1], space_indices[1:]) if y-x > 1] + [len(space_indices)]
+    #col_ends = [(first_data_line+" ").find(" "+x+" ")+len(x)+1 for x in first_data_line.split()]
     if not all(x<y for x,y in zip(col_ends[:-1],col_ends[1:])):
         raise ValueError("Failed to parse Besancon table header.")
     col_starts = [0] + [c for c in col_ends[:-1]]

@@ -4,35 +4,41 @@ Common functions and classes that are required by all query classes.
 """
 
 import re
-import sys
-import requests
 import warnings
 import os
 import shutil
 import socket
 
-try:
-    from urllib2 import URLError
-except ImportError:
-    # Python 3
-    from urllib.error import URLError
+import requests
 
+from astropy.extern.six.moves.urllib_error import URLError
+from astropy.extern import six
 import astropy.units as u
 from astropy import coordinates as coord
 from astropy.utils import OrderedDict
 import astropy.utils.data as aud
 from astropy.io import fits,votable
 
+try:
+    from astropy.coordinates import BaseCoordinateFrame
+    ICRSCoordGenerator = lambda *args, **kwargs: coord.SkyCoord(*args, frame='icrs', **kwargs)
+    GalacticCoordGenerator = lambda *args, **kwargs: coord.SkyCoord(*args, frame='galactic', **kwargs)
+    FK5CoordGenerator = lambda *args, **kwargs: coord.SkyCoord(*args, frame='fk5', **kwargs)
+    FK4CoordGenerator = lambda *args, **kwargs: coord.SkyCoord(*args, frame='fk4', **kwargs)
+    ICRSCoord = coord.SkyCoord
+    CoordClasses = (coord.SkyCoord, BaseCoordinateFrame)
+except ImportError:
+    from astropy.coordinates import SphericalCoordinatesBase as BaseCoordinateFrame
+    ICRSCoordGenerator = lambda *args, **kwargs: coord.ICRS(*args, **kwargs)
+    GalacticCoordGenerator = lambda *args, **kwargs: coord.Galactic(*args, **kwargs)
+    FK5CoordGenerator = lambda *args, **kwargs: coord.FK5(*args, **kwargs)
+    FK4CoordGenerator = lambda *args, **kwargs: coord.FK4(*args, **kwargs)
+    ICRSCoord = coord.ICRS
+    CoordClasses = (coord.SphericalCoordinatesBase,)
+
 from ..exceptions import TimeoutError
-from ..extern import six
 from .. import version
 
-PY3 = sys.version_info[0] >= 3
-
-if PY3:
-    stringtypes = (str, bytes)
-else:
-    stringtypes = basestring
 
 __all__ = ['send_request',
            'parse_coordinates',
@@ -54,7 +60,7 @@ def send_request(url, data, timeout, request_type='POST', headers={},
         The URL of the remote server
     data : dict
         A dictionary representing the payload to be posted via the HTTP request
-    timeout : int
+    timeout : int, quantity_like
         Time limit for establishing successful connection with remote server
     request_type : str
         options are 'POST' (default) and 'GET'. Determines whether to perform
@@ -69,6 +75,11 @@ def send_request(url, data, timeout, request_type='POST', headers={},
         Response object returned by the remote server
     """
     headers['User-Agent'] = 'astropy:astroquery.{vers}'.format(vers=version.version)
+
+    if hasattr(timeout, "unit"):
+        warnings.warn("Converting timeout to seconds and truncating to integer.")
+        timeout = int(timeout.to(u.s).value)
+
     try:
         if request_type == 'GET':
             response = requests.get(url, params=data, timeout=timeout,
@@ -104,7 +115,7 @@ def parse_radius(radius):
 
     Raises
     ------
-    astropy.units.UnitsException
+    astropy.units.UnitsError
     astropy.coordinates.errors.UnitsError
     AttributeError
     """
@@ -113,7 +124,6 @@ def parse_radius(radius):
     except coord.errors.UnitsError:
         # astropy <0.3 compatibility: Angle can't be instantiated with a unit object
         return coord.Angle(radius.to(u.degree), unit=u.degree)
-
 
 def radius_to_unit(radius, unit='degree'):
     """
@@ -148,7 +158,7 @@ def radius_to_unit(radius, unit='degree'):
             return getattr(rad,unit+'s')
     except AssertionError:
         pass # try the other if
-    
+
     # major hack to deal with <0.3 Angle's not having deg/arcmin/etc equivs.
     if hasattr(rad,'degree'):
         return (rad.degree * u.degree).to(unit).value
@@ -156,7 +166,6 @@ def radius_to_unit(radius, unit='degree'):
         return rad.to(unit).value
     else:
         raise TypeError("Radius is an invalid type.")
-
 
 def parse_coordinates(coordinates):
     """
@@ -172,26 +181,26 @@ def parse_coordinates(coordinates):
 
     Returns
     -------
-    a subclass of `astropy.coordinates.SphericalCoordinatesBase`
+    a subclass of `astropy.coordinates.BaseCoordinateFrame`
 
     Raises
     ------
-    astropy.units.UnitsException
+    astropy.units.UnitsError
     TypeError
     """
-    if isinstance(coordinates, stringtypes):
+    if isinstance(coordinates, six.string_types):
         try:
-            c = coord.ICRS.from_name(coordinates)
+            c = ICRSCoord.from_name(coordinates)
         except coord.name_resolve.NameResolveError:
             try:
-                c = coord.ICRS(coordinates)
+                c = ICRSCoordGenerator(coordinates)
                 warnings.warn("Coordinate string is being interpreted as an ICRS coordinate.")
-            except u.UnitsException:
+            except u.UnitsError:
                 warnings.warn("Only ICRS coordinates can be entered as strings\n"
                               "For other systems please use the appropriate "
                               "astropy.coordinates object")
-                raise u.UnitsException
-    elif isinstance(coordinates, coord.SphericalCoordinatesBase):
+                raise u.UnitsError
+    elif isinstance(coordinates, CoordClasses):
         c = coordinates
     else:
         raise TypeError("Argument cannot be parsed as a coordinate")
@@ -251,13 +260,13 @@ class TableList(list):
         raise TypeError("TableList is immutable.")
 
     def __getslice__(self, slice):
-        return self.values()[slice]
+        return list(self.values())[slice]
 
     def keys(self):
-        return self._dict.keys()
+        return list(self._dict.keys())
 
     def values(self):
-        return self._dict.values()
+        return list(self._dict.values())
 
     def __repr__(self):
         """
@@ -324,7 +333,7 @@ def _is_coordinate(coordinates):
         # its coordinate-like enough
         return True
     try:
-        coord.ICRS(coordinates)
+        ICRSCoordGenerator(coordinates)
         return True
     except ValueError:
         return False
@@ -356,7 +365,7 @@ class FileContainer(object):
         kwargs.setdefault('cache', True)
         self._target = target
         self._timeout = kwargs.get('remote_timeout', aud.REMOTE_TIMEOUT())
-        if (os.path.splitext(target)[1] == '.fits' and not 
+        if (os.path.splitext(target)[1] == '.fits' and not
                 ('encoding' in kwargs and kwargs['encoding'] == 'binary')):
             warnings.warn("FITS files must be read as binaries; error is likely.")
         self._readable_object = get_readable_fileobj(target, **kwargs)

@@ -1,23 +1,24 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-from ... import simbad
-from ...utils.testing_tools import MockResponse
+import os
+import re
+import requests
 
+from astropy.extern import six
 from astropy.tests.helper import pytest
 import astropy.coordinates as coord
 import astropy.units as u
 from astropy.table import Table
-import sys
-import os
-import re
-import requests
-from ...exceptions import TableParseError
-from distutils.version import LooseVersion
-is_python3 = (sys.version_info >= (3,))
+import numpy as np
 
-GALACTIC_COORDS = coord.Galactic(l=-67.02084, b=-29.75447, unit=(u.deg, u.deg))
-ICRS_COORDS = coord.ICRS("05h35m17.3s -05h23m28s")
-FK4_COORDS = coord.FK4(ra=84.90759, dec=-80.89403, unit=(u.deg, u.deg))
-FK5_COORDS = coord.FK5(ra=83.82207, dec=-80.86667, unit=(u.deg, u.deg))
+from ... import simbad
+from ...utils.testing_tools import MockResponse
+from ...utils import commons
+from ...exceptions import TableParseError
+
+GALACTIC_COORDS = commons.GalacticCoordGenerator(l=-67.02084, b=-29.75447, unit=(u.deg, u.deg))
+ICRS_COORDS = commons.ICRSCoordGenerator("05h35m17.3s -05h23m28s")
+FK4_COORDS = commons.FK4CoordGenerator(ra=84.90759, dec=-80.89403, unit=(u.deg, u.deg))
+FK5_COORDS = commons.FK5CoordGenerator(ra=83.82207, dec=-80.86667, unit=(u.deg, u.deg))
 
 DATA_FILES = {
     'id': 'query_id.data',
@@ -25,6 +26,7 @@ DATA_FILES = {
     'cat': 'query_cat.data',
     'bibobj': 'query_bibobj.data',
     'bibcode': 'query_bibcode.data',
+    'objectids': 'query_objectids.data',
     'error': 'query_error.data',
     'sample': 'query_sample.data',
     'region': 'query_sample_region.data',
@@ -101,21 +103,21 @@ def test_get_frame_coordinates(coordinates, expected_frame):
     assert actual_frame == expected_frame
     if actual_frame == 'GAL':
         l,b = simbad.core._get_frame_coords(coordinates)[:2]
-        assert float(l) % 360 == -67.02084 % 360
-        assert float(b) == -29.75447
+        np.testing.assert_almost_equal(float(l) % 360, -67.02084 % 360)
+        np.testing.assert_almost_equal(float(b), -29.75447)
 
 
 def test_parse_result():
-    result1 = simbad.core.Simbad._parse_result(MockResponseSimbad('query id '))
+    result1 = simbad.core.Simbad._parse_result(MockResponseSimbad('query id '), simbad.core.SimbadVOTableResult)
     assert isinstance(result1, Table)
     with pytest.raises(TableParseError) as ex:
-        dummy = simbad.core.Simbad._parse_result(MockResponseSimbad('query error '))
+        dummy = simbad.core.Simbad._parse_result(MockResponseSimbad('query error '), simbad.core.SimbadVOTableResult)
     assert str(ex.value) == ('Failed to parse SIMBAD result! '
                                 'The raw response can be found in self.last_response, '
                                 'and the error in self.last_table_parse_error.  '
                                 'The attempted parsed result is in self.last_parsed_result.'
                                 '\nException: 7:115: no element found')
-    assert isinstance(simbad.core.Simbad.last_response.content, basestring)
+    assert isinstance(simbad.core.Simbad.last_response.content, six.string_types)
 
 votable_fields = ",".join(simbad.core.Simbad.get_votable_fields())
 
@@ -176,6 +178,18 @@ def test_query_bibcode_instance(patch_post):
     result2 = S.query_bibcode("2006ApJ*", wildcard=True)
     assert isinstance(result2, Table)
 
+def test_query_objectids_async(patch_post):
+    response1 = simbad.core.Simbad.query_objectids_async('Polaris')
+    response2 = simbad.core.Simbad().query_objectids_async('Polaris')
+    assert response1 is not None and response2 is not None
+    assert response1.content == response2.content
+
+def test_query_objectids(patch_post):
+    result1 = simbad.core.Simbad.query_objectids('Polaris')
+    result2 = simbad.core.Simbad().query_objectids('Polaris')
+    assert isinstance(result1, Table)
+    assert isinstance(result2, Table)
+
 def test_query_bibobj_async(patch_post):
     response1 = simbad.core.Simbad.query_bibobj_async('2005A&A.430.165F')
     response2 = simbad.core.Simbad().query_bibobj_async('2005A&A.430.165F')
@@ -188,7 +202,6 @@ def test_query_bibobj(patch_post):
     result2 = simbad.core.Simbad().query_bibobj('2005A&A.430.165F')
     assert isinstance(result1, Table)
     assert isinstance(result2, Table)
-
 
 def test_query_catalog_async(patch_post):
     response1 = simbad.core.Simbad.query_catalog_async('m')

@@ -7,6 +7,7 @@ from collections import namedtuple
 from xml.dom.minidom import parseString
 from datetime import datetime
 
+from astropy.extern import six
 import astropy.units as u
 import astropy.coordinates as coord
 import astropy.io.votable as votable
@@ -26,6 +27,11 @@ __all__ = ["Ned","NedClass"]
 
 
 class NedClass(BaseQuery):
+    """
+    Class for querying the NED (NASA/IPAC Extragalactic Database) system
+
+    http://ned.ipac.caltech.edu/
+    """
     # make configurable
     BASE_URL = NED_SERVER()
     OBJ_SEARCH_URL = BASE_URL + 'nph-objsearch'
@@ -173,8 +179,8 @@ class NedClass(BaseQuery):
                 c = commons.parse_coordinates(coordinates)
                 if hasattr(c,'galactic') and (c.galactic==c):
                     request_payload['in_csys'] = 'Galactic'
-                    request_payload['lon'] = c.lonangle.degree
-                    request_payload['lat'] = c.latangle.degree
+                    request_payload['lon'] = c.l.degree
+                    request_payload['lat'] = c.b.degree
                 # for any other, convert to ICRS and send
                 else:
                     request_payload['in_csys'] = 'Equatorial'
@@ -184,7 +190,7 @@ class NedClass(BaseQuery):
                 request_payload['search_type'] = 'Near Position Search'
                 request_payload['in_equinox'] = equinox
                 request_payload['radius'] = _parse_radius(radius)
-            except (u.UnitsException, TypeError):
+            except (u.UnitsError, TypeError):
                 raise TypeError("Coordinates not specified correctly")
         if get_query_payload:
             return request_payload
@@ -363,7 +369,7 @@ class NedClass(BaseQuery):
         image_urls = self.get_image_list(object_name, get_query_payload=get_query_payload)
         if get_query_payload:
             return image_urls
-        return [commons.FileContainer(U) for U in image_urls]
+        return [commons.FileContainer(U, encoding='binary') for U in image_urls]
 
     def get_spectra(self, object_name, get_query_payload=False):
         """
@@ -407,7 +413,7 @@ class NedClass(BaseQuery):
         image_urls = self.get_image_list(object_name, item='spectra', get_query_payload=get_query_payload)
         if get_query_payload:
             return image_urls
-        return [commons.FileContainer(U) for U in image_urls]
+        return [commons.FileContainer(U, encoding='binary') for U in image_urls]
 
     def get_image_list(self, object_name, item='image', get_query_payload=False):
         """
@@ -451,7 +457,10 @@ class NedClass(BaseQuery):
         """
         base_url = 'http://ned.ipac.caltech.edu'
         pattern = re.compile('<a\s+href\s*?="?\s*?(.+?fits.gz)"?\s*?>\s*?(?:Retrieve|FITS)</a>', re.IGNORECASE)
-        matched_urls = pattern.findall(html_in)
+        try:
+            matched_urls = pattern.findall(html_in)
+        except TypeError:
+            matched_urls = pattern.findall(html_in.decode())
         url_list = [base_url + img_url for img_url in matched_urls]
         return url_list
 
@@ -616,8 +625,18 @@ class NedClass(BaseQuery):
             commons.suppress_vo_warnings()
         try:
             tf = tempfile.NamedTemporaryFile()
-            tf.write(response.content.encode('utf-8'))
-            tf.flush()
+            if six.PY3:
+                # This is an exceedingly confusing section
+                # It is likely to be doubly wrong, but has caused issue #185
+                try:
+                    # Case 1: data is read in as unicode
+                    tf.write(response.content.encode())
+                except AttributeError:
+                    # Case 2: data is read in as a byte string
+                    tf.write(response.content.decode().encode('utf-8'))
+            else:
+                tf.write(response.content.encode('utf-8'))
+            tf.file.flush()
             first_table = votable.parse(tf.name, pedantic=False).get_first_table()
             # For astropy version < 0.3 returns tables that have field ids as col names
             if ASTROPY_VERSION < '0.3':
@@ -654,15 +673,7 @@ def _parse_radius(radius):
     radius_in_min : float
         The value of the radius in arcminutes.
     """
-    if isinstance(radius, u.Quantity) and radius.unit in u.deg.find_equivalent_units():
-        radius_in_min = radius.to(u.arcmin).value
-    # otherwise must be an Angle or be specified in hours...
-    else:
-        try:
-            radius_in_min = commons.radius_to_unit(radius,u.arcmin)
-        except (u.UnitsException, coord.errors.UnitsError, AttributeError):
-            raise u.UnitsException("Dimension not in proper units")
-    return radius_in_min
+    return coord.Angle(radius).to('arcmin').value
 
 
 

@@ -3,7 +3,8 @@
 Custom exceptions used in the astroquery query classes
 """
 
-__all__ = ['TimeoutError', 'InvalidQueryError', 'RemoteServiceError', 'TableParseError']
+__all__ = ['TimeoutError', 'InvalidQueryError', 'RemoteServiceError',
+           'TableParseError', 'LoginError']
 
 
 class TimeoutError(Exception):
@@ -30,5 +31,12 @@ class RemoteServiceError(Exception):
     """
     Errors related to the remote service, i.e. if the service returns an error
     page
+    """
+    pass
+
+class LoginError(Exception):
+    """
+    Errors due to failed logins.  Should only be raised for services for which
+    a login is a prerequisite for the requested action
     """
     pass

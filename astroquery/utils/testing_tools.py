@@ -1,5 +1,7 @@
 from __future__ import print_function
 import socket
+import requests
+
 from astropy.tests.helper import pytest
 
 # save original socket method for restoration

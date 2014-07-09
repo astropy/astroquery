@@ -19,9 +19,10 @@ functions or as coordinates using any of the coordinate systems available in
 .. code-block:: python
 
     >>> from astroquery.magpis import Magpis
-    >>> import astropy.coordinates as coord
-    >>> image = Magpis.get_images(coord.Galactic(10.5, 0.0,
-    ...    unit=(u.deg,u.deg)))
+    >>> from astropy import coordinates
+    >>> from astropy import units as u
+    >>> image = Magpis.get_images(coordinates.SkyCoord(10.5*u.deg, 0.0*u.deg,
+    ...                                                frame='galactic')
     >>> image
     
     [<astropy.io.fits.hdu.image.PrimaryHDU at 0x4008650>]
@@ -39,19 +40,19 @@ keyword ``survey``. To know the list of valid surveys:
     >>> from astroquery.magpis import Magpis
     >>> Magpis.list_surveys()
 
-        ['gps6epoch3',
-     'gps6epoch4',
-     'gps20',
-     'gps20new',
-     'gps90',
-     'gpsmsx',
-     'gpsmsx2',
-     'gpsglimpse36',
-     'gpsglimpse45',
-     'gpsglimpse58',
-     'gpsglimpse80',
-     'mipsgal',
-     'bolocam']
+       ['gps6epoch3',
+        'gps6epoch4',
+        'gps20',
+        'gps20new',
+        'gps90',
+        'gpsmsx',
+        'gpsmsx2',
+        'gpsglimpse36',
+        'gpsglimpse45',
+        'gpsglimpse58',
+        'gpsglimpse80',
+        'mipsgal',
+        'bolocam']
 
 The default survey used is 'bolocam'. Here is a query setting these optional
 parameters as well.
@@ -61,8 +62,10 @@ parameters as well.
     >>> from astroquery.magpis import Magpis
     >>> import astropy.units as u
     >>> import astropy.coordinates as coord
-    >>> image = Magpis.get_images(coord.Galactic(10.5, 0.0,
-    ...    unit=(u.deg,u.deg)), image_size=10*u.arcmin, survey='gps20new')
+    >>> image = Magpis.get_images(coordinates.SkyCoord(10.5*u.deg, 0.0*u.deg,
+    ...                                                frame='galactic'),
+    ...                                                image_size=10*u.arcmin,
+    ...                                                survey='gps20new')
     >>> image
 
     [<astropy.io.fits.hdu.image.PrimaryHDU at 0x4013e10>]

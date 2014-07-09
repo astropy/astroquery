@@ -1,10 +1,14 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
 import abc
 import pickle
 import hashlib
 import requests
 import os
+import warnings
+
+from astropy.extern import six
 from astropy.config import paths
 
 __all__ = ['BaseQuery', 'QueryWithLogin']
@@ -21,8 +25,14 @@ class AstroResponse(object):
             self.url = response.url
             self.encoding = response.encoding
             self.content = response.content
-        else:
+        elif not hasattr(response, 'content'):
             raise TypeError("{0} is not a requests.Response".format(response))
+        elif not isinstance(response, requests.Response):
+            self.url = response.url
+            self.content = response.content
+            warnings.warn("Response has 'content' attribute but is not a "
+                          "requests.Response object.  This is expected when "
+                          "running local tests but not otherwise.")
     
     def to_cache(self, cache_file):
         with open(cache_file, "wb") as f:
@@ -31,7 +41,8 @@ class AstroResponse(object):
 
 class AstroQuery(object):
     
-    def __init__(self, method, url, params=None, data=None, headers=None, files=None):
+    def __init__(self, method, url, params=None, data=None, headers=None,
+                 files=None, timeout=None):
         self.method = method
         self.url = url
         self.params = params
@@ -39,9 +50,26 @@ class AstroQuery(object):
         self.headers = headers
         self.files = files
         self._hash = None
+        self.timeout = timeout
+
+    @property
+    def timeout(self):
+        return self._timeout
+
+    @timeout.setter
+    def timeout(self, value):
+        if hasattr(value, 'to'):
+            self._timeout = value.to(u.s).value
+        else:
+            self._timeout = value
     
     def request(self, session, cache_location=None):
-        return AstroResponse(session.request(self.method, self.url, params=self.params, data=self.data, headers=self.headers, files=self.files))
+        return AstroResponse(session.request(self.method, self.url,
+                                             params=self.params,
+                                             data=self.data,
+                                             headers=self.headers,
+                                             files=self.files,
+                                             timeout=self.timeout))
     
     def hash(self):
         if self._hash is None:
@@ -53,8 +81,10 @@ class AstroQuery(object):
                     request_key += (tuple(sorted(k)),)
                 elif k is None:
                     request_key += (None,)
+                elif isinstance(k, six.string_types):
+                    request_key += (k,)
                 else:
-                    raise TypeError("{0} must be a dict, tuple, or list!")
+                    raise TypeError("{0} must be a dict, tuple, str, or list")
             self._hash = hashlib.sha224(pickle.dumps(request_key)).hexdigest() 
         return self._hash
     
@@ -73,6 +103,7 @@ class AstroQuery(object):
         return response
 
 
+@six.add_metaclass(abc.ABCMeta)
 class BaseQuery(object):
 
     """
@@ -80,11 +111,10 @@ class BaseQuery(object):
     is implemented as an abstract class and must not be directly instantiated.
     """
 
-    __metaclass__ = abc.ABCMeta
-
     def __init__(self):
         self.__session = requests.session()
-        self.cache_location = os.path.join(paths.get_cache_dir(), u'astroquery', self.__class__.__name__.split("Class")[0])
+        self.cache_location = os.path.join(paths.get_cache_dir(), 'astroquery',
+                                           self.__class__.__name__.split("Class")[0])
         if not os.path.exists(self.cache_location):
             os.makedirs(self.cache_location)
         self._cache_active = True
@@ -93,18 +123,22 @@ class BaseQuery(object):
         """ init a fresh copy of self """
         return self.__class__(*args, **kwargs)
     
-    def request(self, method, url, params=None, data=None, headers=None, files=None, save=False):
+    def request(self, method, url, params=None, data=None, headers=None,
+                files=None, save=False, timeout=None):
         if save:
             local_filename = url.split('/')[-1]
             local_filepath = os.path.join(self.cache_location if self.cache_location else ".", local_filename)
             print("Downloading {0}...".format(local_filename))
             with suspend_cache(self): #Never cache file downloads: they are already saved on disk
-                r = self.request(method, url)
+                r = self.request(method, url, save=False, params=params,
+                                 headers=headers, data=data, files=files,
+                                 timeout=timeout)
                 with open(local_filepath, 'wb') as f:
                     f.write(r.content)
             return local_filepath
         else:
-            query = AstroQuery(method, url, params=params, data=data, headers=headers, files=files)
+            query = AstroQuery(method, url, params=params, data=data,
+                               headers=headers, files=files, timeout=timeout)
             if (self.cache_location is None) or (not self._cache_active):
                 response = query.request(self.__session)
             else:

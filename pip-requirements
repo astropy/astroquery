@@ -1,5 +1,6 @@
 numpy>=1.4.0
 astropy
 requests
-lxml
 keyring
+beautifulsoup4
+html5lib

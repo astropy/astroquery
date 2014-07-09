@@ -7,6 +7,7 @@ import re
 import time
 from math import cos, radians
 
+from astropy.extern.six import BytesIO
 import astropy.units as u
 import astropy.coordinates as coord
 import astropy.io.votable as votable
@@ -16,7 +17,6 @@ from ..exceptions import InvalidQueryError, TimeoutError
 from ..utils import commons
 from . import UKIDSS_SERVER, UKIDSS_TIMEOUT
 from ..exceptions import TableParseError
-from ..extern.six import BytesIO
 
 __all__ = ['Ukidss', 'UkidssClass', 'clean_catalog']
 
@@ -725,6 +725,6 @@ def _parse_dimension(dim):
         try:
             new_dim = commons.parse_radius(dim).degree
             dim_in_min = u.Quantity(value=new_dim, unit=u.deg).to(u.arcmin).value
-        except (u.UnitsException, coord.errors.UnitsError, AttributeError):
-            raise u.UnitsException("Dimension not in proper units")
+        except (u.UnitsError, coord.errors.UnitsError, AttributeError):
+            raise u.UnitsError("Dimension not in proper units")
     return dim_in_min

@@ -144,7 +144,7 @@ def _parse_datafile(datafile, query_type, coll_partner_index=0):
                                    query_type=query_type)
     # Convert columns with string data types to floats if possible
     col_dtypes = _check_dtypes(data)
-    table = Table(data, names=col_names, dtypes=col_dtypes)
+    table = Table(data, names=col_names, dtype=col_dtypes)
     return table
 
 
@@ -174,20 +174,17 @@ def _select_data(data, i, query_type):
     if query_type == 'erg_levels':
         num_erg_levels = int(data[i + 1])
         col_names = [s.strip() for s in data[i + 2][1:].split('+')]
-        erg_levels = [data[i + 3 + j].split() for j in xrange(0,
-            num_erg_levels)]
+        erg_levels = [data[i + 3 + j].split() for j in range(0, num_erg_levels)]
         return np.array(erg_levels), col_names
     elif query_type == 'rad_trans':
         num_trans = int(data[i + 1])
         col_names = [s.strip() for s in data[i + 2][1:].split('+')]
-        rad_trans = [data[i + 3 + j].split() for j in xrange(0,
-            num_trans)]
+        rad_trans = [data[i + 3 + j].split() for j in range(0, num_trans)]
         return np.array(rad_trans), col_names
     elif query_type == 'coll_rates':
         num_coll_trans = int(data[i + 3])
         coll_temps = data[i + 7].split()
-        coll_trans = [data[i + 9 + j].split() for j in xrange(0,
-            num_coll_trans)]
+        coll_trans = [data[i + 9 + j].split() for j in range(0, num_coll_trans)]
         col_names = ['TRANS', 'UP', 'LOW'] + coll_temps
         return np.array(coll_trans), col_names
     else:
@@ -209,7 +206,7 @@ def _check_dtypes(data):
         List of a dtypes for each column in data
     """
     dtypes = []
-    for i in xrange(data.shape[1]):
+    for i in range(data.shape[1]):
         try:
             data[:,i].astype('float')
             dtypes.append('<f8')

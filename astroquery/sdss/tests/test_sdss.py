@@ -3,16 +3,13 @@ from ... import sdss
 from ...utils.testing_tools import MockResponse
 from ...exceptions import TimeoutError
 from ...utils import commons
+from astropy.extern.six.moves.urllib_error import URLError
 from astropy import coordinates
 from astropy.tests.helper import pytest
 from contextlib import contextmanager
 import requests
 import os
 import socket
-try:
-    from urllib2 import URLError
-except ImportError:
-    from urllib.error import URLError
 
 # actual spectra/data are a bit heavy to include in astroquery, so we don't try
 # to deal with them.  Would be nice to find a few very small examples
@@ -80,7 +77,7 @@ def data_path(filename):
 
 
 # Test Case: A Seyfert 1 galaxy
-coords = coordinates.ICRS('0h8m05.63s +14d50m23.3s')
+coords = commons.ICRSCoordGenerator('0h8m05.63s +14d50m23.3s')
 
 
 def test_sdss_spectrum(patch_get, patch_get_readable_fileobj, coords=coords):

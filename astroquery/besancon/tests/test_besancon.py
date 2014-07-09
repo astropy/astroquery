@@ -7,6 +7,7 @@ from contextlib import contextmanager
 from astropy.tests.helper import pytest
 from astropy.io.ascii.tests.common import assert_equal
 import requests
+from astropy.extern.six import string_types
 
 # SKIP - don't run tests because Besancon folks don't want them (based on the fact that your@email.net is now rejected)
 # def test_besancon_reader():
@@ -54,7 +55,10 @@ def patch_get_readable_fileobj(request):
     @contextmanager
     def get_readable_fileobj_mockreturn(filename, **kwargs):
         #file_obj = StringIO.StringIO(filename)
-        file_obj = open(data_path(filename), "rb")
+        if isinstance(filename, string_types):
+            file_obj = open(data_path(filename), "rb")
+        else:
+            file_obj = filename
         #file_obj = data_path(filename)
         yield file_obj
     mp = request.getfuncargvalue("monkeypatch")

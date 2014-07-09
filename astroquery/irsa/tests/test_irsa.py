@@ -1,6 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from __future__ import print_function
 import os
+import re
 import requests
 
 from astropy.tests.helper import pytest
@@ -10,6 +11,7 @@ import astropy.units as u
 import numpy as np
 
 from ...utils.testing_tools import MockResponse
+from ...utils import commons
 from ... import irsa
 from ...irsa import ROW_LIMIT
 
@@ -17,7 +19,8 @@ DATA_FILES = {'Cone': 'Cone.xml',
               'Box': 'Box.xml',
               'Polygon': 'Polygon.xml'}
 
-OBJ_LIST = ["m31", "00h42m44.330s +41d16m07.50s", coord.Galactic(l=121.1743, b=-21.5733, unit=(u.deg, u.deg))]
+OBJ_LIST = ["m31", "00h42m44.330s +41d16m07.50s",
+            commons.GalacticCoordGenerator(l=121.1743, b=-21.5733, unit=(u.deg, u.deg))]
 
 
 def data_path(filename):
@@ -121,13 +124,12 @@ def test_query_region_async_polygon(polygon, patch_get):
     response = irsa.core.Irsa.query_region_async("m31", catalog="fp_psc", spatial="Polygon",
                                                  polygon=polygon, get_query_payload=True)
 
-    for a,b in zip(response["polygon"].split(),"10.1 +10.1,10.0 +10.1,10.0 +10.0".split()):
-        try:
-            a = float(a)
-            b = float(b)
-            np.testing.assert_almost_equal(a,b)
-        except ValueError:
-            assert a == b
+    for a,b in zip(re.split("[ ,]",response["polygon"]),
+                   re.split("[ ,]", "10.1 +10.1,10.0 +10.1,10.0 +10.0")):
+        for a1,b1 in zip(a.split(), b.split()):
+            a1 = float(a1)
+            b1 = float(b1)
+            np.testing.assert_almost_equal(a1,b1)
 
     response = irsa.core.Irsa.query_region_async("m31", catalog="fp_psc", spatial="Polygon",
                                                  polygon=polygon)
