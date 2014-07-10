@@ -284,6 +284,14 @@ class CosmoSim(QueryWithLogin):
                 print "Data written to file: {}".format(filename)
             return headers, data
 
+    def get_all_tables(database=None):
+        """
+        TO DO: documentation
+        """
+        query_string = "SELECT '['+SCHEMA_NAME(schema_id)+'].['+name+']'  AS SchemaTable FROM sys.tables"
+        result = self.session.post(CosmoSim.QUERY_URL,auth=(self.username,self.password),data={'query':query_string,'phase':'run'})
+        
+        
     # will check to see if using private or public credentials
     def logged_in(self):
         """
