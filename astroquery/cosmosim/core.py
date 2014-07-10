@@ -27,6 +27,7 @@ class CosmoSim(QueryWithLogin):
     """
 
     QUERY_URL = COSMOSIM_SERVER()
+    SCHEMA_URL = 'http://www.cosmosim.org/query/account/databases/json'
     TIMEOUT = COSMOSIM_TIMEOUT()
 
     cosmosim_databases = ('MDR1','MDPL','Bolshoi','BolshoiP')
@@ -231,6 +232,33 @@ class CosmoSim(QueryWithLogin):
 
         return 
 
+    def get_all_tables(self,database=None):
+        """
+        TO DO: documentation
+        """
+        response = requests.get(CosmoSim.SCHEMA_URL,auth=(self.username,self.password),headers = {'Accept': 'application/json'})
+        data = response.json()
+
+        self.db_dict = {}
+        for i in range(len(data['databases'])):
+            self.db_dict['{}'.format(data['databases'][i]['name'])] = {}
+            
+            self.db_dict['{}'.format(data['databases'][i]['name'])]['id'] = '{}'.format(data['databases'][i]['id'])
+            self.db_dict['{}'.format(data['databases'][i]['name'])]['description'] = '{}'.format(data['databases'][i]['description'])
+            self.db_dict['{}'.format(data['databases'][i]['name'])]['tables'] = {}
+            for j in range(len(data['databases'][i]['tables'])):
+                self.db_dict['{}'.format(data['databases'][i]['name'])]['tables']['{}'.format(data['databases'][i]['tables'][j]['name'])] = {}
+                self.db_dict['{}'.format(data['databases'][i]['name'])]['tables']['{}'.format(data['databases'][i]['tables'][j]['name'])]['id'] = data['databases'][i]['tables'][j]['id']
+                self.db_dict['{}'.format(data['databases'][i]['name'])]['tables']['{}'.format(data['databases'][i]['tables'][j]['name'])]['description'] = data['databases'][i]['tables'][j]['description']
+                self.db_dict['{}'.format(data['databases'][i]['name'])]['tables']['{}'.format(data['databases'][i]['tables'][j]['name'])]['columns'] = {}
+                for k in range(len(data['databases'][i]['tables'][j]['columns'])):
+                    self.db_dict['{}'.format(data['databases'][i]['name'])]['tables']['{}'.format(data['databases'][i]['tables'][j]['name'])]['columns']['{}'.format(data['databases'][i]['tables'][j]['columns'][k]['name'])] = {}
+                    self.db_dict['{}'.format(data['databases'][i]['name'])]['tables']['{}'.format(data['databases'][i]['tables'][j]['name'])]['columns']['{}'.format(data['databases'][i]['tables'][j]['columns'][k]['name'])]['id'] = data['databases'][i]['tables'][j]['columns'][k]['id']
+                    self.db_dict['{}'.format(data['databases'][i]['name'])]['tables']['{}'.format(data['databases'][i]['tables'][j]['name'])]['columns']['{}'.format(data['databases'][i]['tables'][j]['columns'][k]['name'])]['description'] = data['databases'][i]['tables'][j]['columns'][k]['description']
+                    
+        ipdb.set_trace()
+        return result
+
     def download(self,jobid=None,filename=None):
         """
         A public function to download data from a job with COMPLETED phase.
@@ -284,12 +312,6 @@ class CosmoSim(QueryWithLogin):
                 print "Data written to file: {}".format(filename)
             return headers, data
 
-    def get_all_tables(database=None):
-        """
-        TO DO: documentation
-        """
-        query_string = "SELECT '['+SCHEMA_NAME(schema_id)+'].['+name+']'  AS SchemaTable FROM sys.tables"
-        result = self.session.post(CosmoSim.QUERY_URL,auth=(self.username,self.password),data={'query':query_string,'phase':'run'})
         
         
     # will check to see if using private or public credentials
