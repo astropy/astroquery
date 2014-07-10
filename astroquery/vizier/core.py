@@ -41,6 +41,7 @@ class VizierClass(BaseQuery):
     def __init__(self, columns=["*"], column_filters={}, catalog=None, keywords=None,
                  ucd="", timeout=VIZIER_TIMEOUT(), vizier_server=VIZIER_SERVER(),
                  row_limit=ROW_LIMIT()):
+        super(VizierClass, self).__init__()
         self.columns = columns
         self.column_filters = column_filters
         self.catalog = catalog
@@ -159,10 +160,10 @@ class VizierClass(BaseQuery):
             keywords = " ".join(keywords)
 
         data_payload = {'-words':keywords, '-meta.all':1}
-        response = commons.send_request(
-            self._server_to_url(),
-            data_payload,
-            self.TIMEOUT)
+        response = self.request(method='POST',
+                                url=self._server_to_url(),
+                                data=data_payload,
+                                timeout=self.TIMEOUT)
         result = self._parse_result(response, verbose=verbose, get_catalog_names=True)
 
         #Filter out the obsolete catalogs, unless requested
@@ -190,8 +191,10 @@ class VizierClass(BaseQuery):
         """
 
         data_payload = self._args_to_payload(catalog=catalog)
-        response = commons.send_request(self._server_to_url(), data_payload,
-                                        self.TIMEOUT)
+        response = self.request(method='POST',
+                                url=self._server_to_url(),
+                                data=data_payload,
+                                timeout=self.TIMEOUT)
         return response
 
     def query_object_async(self, object_name, catalog=None, radius=None, coordinate_frame=None):
@@ -234,10 +237,10 @@ class VizierClass(BaseQuery):
         data_payload = self._args_to_payload(
             center=center,
             catalog=catalog)
-        response = commons.send_request(
-            self._server_to_url(),
-            data_payload,
-            self.TIMEOUT)
+        response = self.request(method='POST',
+                                url=self._server_to_url(),
+                                data=data_payload,
+                                timeout=self.TIMEOUT)
         return response
 
     def query_region_async(self, coordinates, radius=None, inner_radius=None,
@@ -346,8 +349,10 @@ class VizierClass(BaseQuery):
         if get_query_payload:
             return data_payload
 
-        response = commons.send_request(self._server_to_url(), data_payload,
-                                        self.TIMEOUT)
+        response = self.request(method='POST',
+                                url=self._server_to_url(),
+                                data=data_payload,
+                                timeout=self.TIMEOUT)
         return response
 
     def query_constraints_async(self, catalog=None, **kwargs):
@@ -407,10 +412,10 @@ class VizierClass(BaseQuery):
             catalog=catalog,
             column_filters=kwargs,
             center={'-c.rd':180})
-        response = commons.send_request(
-            self._server_to_url(),
-            data_payload,
-            self.TIMEOUT)
+        response = self.request(method='POST',
+                                url=self._server_to_url(),
+                                data=data_payload,
+                                timeout=self.TIMEOUT)
         return response
 
     def _args_to_payload(self, *args, **kwargs):
@@ -494,7 +499,7 @@ class VizierClass(BaseQuery):
             script += "\n" + str(self.keywords)
         return script
 
-    def _parse_result(self, response, get_catalog_names=False, verbose=False):
+    def _parse_result(self, response, get_catalog_names=False, verbose=False, invalid='warn'):
         """
         Parses the HTTP response to create a `~astropy.table.Table`.
 
@@ -507,6 +512,10 @@ class VizierClass(BaseQuery):
         get_catalog_names : bool
             If specified, return only the table names (useful for table
             discovery)
+        invalid : 'warn', 'mask' or 'raise'
+            The behavior if a VOTABLE cannot be parsed.  Default is 'warn',
+            which will try to parse the table, then if an exception is raised,
+            it will be printent but the masked table will be returned
 
         Returns
         -------
@@ -529,7 +538,20 @@ class VizierClass(BaseQuery):
             else:
                 tf.write(response.content.encode('utf-8'))
             tf.file.flush()
-            vo_tree = votable.parse(tf, pedantic=False)
+
+            if invalid == 'mask':
+                vo_tree = votable.parse(tf, pedantic=False, invalid='mask')
+            elif invalid == 'warn':
+                try:
+                    vo_tree = votable.parse(tf, pedantic=False, invalid='raise')
+                except Exception as ex:
+                    warnings.warn("VOTABLE parsing raised exception: {0}".format(ex))
+                    vo_tree = votable.parse(tf, pedantic=False, invalid='mask')
+            elif invalid == 'raise':
+                vo_tree = votable.parse(tf, pedantic=False, invalid='raise')
+            else:
+                raise ValueError("Invalid keyword 'invalid'.  Must be raise, mask, or warn")
+
             if get_catalog_names:
                 return dict([(R.name,R) for R in vo_tree.resources])
             else:
@@ -644,15 +666,16 @@ class VizierKeyword(list):
         del self._keywords
 
     def __repr__(self):
-        return "\n".join([self.get_keyword_str(key) for key in self.keywords])
+        return "\n".join([x for key in self.keywords for x in self.get_keyword_str(key)])
 
     def get_keyword_str(self, key):
         """
         Helper function that returns the keywords, grouped into appropriate
         categories and suitable for the Vizier votable CGI.
+
+        Comma-separated is not valid!!!
         """
-        s = ",".join([val for val in self.keywords[key]])
         keyword_name = "-kw." + key
-        return keyword_name + "=" + s
+        return [keyword_name + "=" + s for s in self.keywords[key]]
 
 Vizier = VizierClass()

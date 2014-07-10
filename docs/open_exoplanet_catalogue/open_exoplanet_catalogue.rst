@@ -1,7 +1,7 @@
 .. _astroquery.open_exoplanet_catalogue:
 
 ***************************************************************
-Open Exoplanet Catalogue(`astorquery.open_exoplanet_catalogue`)
+Open Exoplanet Catalogue(`astroquery.open_exoplanet_catalogue`)
 ***************************************************************
 
 Getting started
@@ -32,7 +32,7 @@ First import the module and generate the catalogue. The findvalue function provi
 .. code-block:: python
 
         from astroquery import open_exoplanet_catalogue as oec
-        from astorquery.open_exoplanet_catalogue import findvalue
+        from astroquery.open_exoplanet_catalogue import findvalue
 
         cata = oec.get_catalogue()
 
@@ -138,7 +138,3 @@ Reference
 =========
 To contribute to the open exoplanet catalogue, fork the project on github!
 https://github.com/OpenExoplanetCatalogue/open_exoplanet_catalogue
-
-
-
-

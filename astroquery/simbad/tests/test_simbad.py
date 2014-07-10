@@ -26,6 +26,7 @@ DATA_FILES = {
     'cat': 'query_cat.data',
     'bibobj': 'query_bibobj.data',
     'bibcode': 'query_bibcode.data',
+    'objectids': 'query_objectids.data',
     'error': 'query_error.data',
     'sample': 'query_sample.data',
     'region': 'query_sample_region.data',
@@ -107,10 +108,10 @@ def test_get_frame_coordinates(coordinates, expected_frame):
 
 
 def test_parse_result():
-    result1 = simbad.core.Simbad._parse_result(MockResponseSimbad('query id '))
+    result1 = simbad.core.Simbad._parse_result(MockResponseSimbad('query id '), simbad.core.SimbadVOTableResult)
     assert isinstance(result1, Table)
     with pytest.raises(TableParseError) as ex:
-        dummy = simbad.core.Simbad._parse_result(MockResponseSimbad('query error '))
+        dummy = simbad.core.Simbad._parse_result(MockResponseSimbad('query error '), simbad.core.SimbadVOTableResult)
     assert str(ex.value) == ('Failed to parse SIMBAD result! '
                                 'The raw response can be found in self.last_response, '
                                 'and the error in self.last_table_parse_error.  '
@@ -177,6 +178,18 @@ def test_query_bibcode_instance(patch_post):
     result2 = S.query_bibcode("2006ApJ*", wildcard=True)
     assert isinstance(result2, Table)
 
+def test_query_objectids_async(patch_post):
+    response1 = simbad.core.Simbad.query_objectids_async('Polaris')
+    response2 = simbad.core.Simbad().query_objectids_async('Polaris')
+    assert response1 is not None and response2 is not None
+    assert response1.content == response2.content
+
+def test_query_objectids(patch_post):
+    result1 = simbad.core.Simbad.query_objectids('Polaris')
+    result2 = simbad.core.Simbad().query_objectids('Polaris')
+    assert isinstance(result1, Table)
+    assert isinstance(result2, Table)
+
 def test_query_bibobj_async(patch_post):
     response1 = simbad.core.Simbad.query_bibobj_async('2005A&A.430.165F')
     response2 = simbad.core.Simbad().query_bibobj_async('2005A&A.430.165F')
@@ -189,7 +202,6 @@ def test_query_bibobj(patch_post):
     result2 = simbad.core.Simbad().query_bibobj('2005A&A.430.165F')
     assert isinstance(result1, Table)
     assert isinstance(result2, Table)
-
 
 def test_query_catalog_async(patch_post):
     response1 = simbad.core.Simbad.query_catalog_async('m')

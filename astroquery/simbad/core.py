@@ -15,6 +15,7 @@ import astropy.units as u
 from astropy.utils.data import get_pkg_data_filename
 import astropy.coordinates as coord
 from astropy.table import Table
+from astropy.extern import six
 import copy
 try:
     import astropy.io.vo.table as votable
@@ -297,7 +298,7 @@ class SimbadClass(BaseQuery):
         """
         verbose = kwargs.pop('verbose') if 'verbose' in kwargs else False
         result = self.query_criteria_async(*args,**kwargs)
-        return self._parse_result(result, verbose=verbose)
+        return self._parse_result(result, SimbadVOTableResult, verbose=verbose)
 
     def query_criteria_async(self, *args, **kwargs):
         """
@@ -342,7 +343,7 @@ class SimbadClass(BaseQuery):
             Query results table
         """
         result = self.query_object_async(object_name, wildcard=wildcard)
-        return self._parse_result(result, verbose=verbose)
+        return self._parse_result(result, SimbadVOTableResult, verbose=verbose)
 
     def query_object_async(self, object_name, wildcard=False):
         """
@@ -437,7 +438,7 @@ class SimbadClass(BaseQuery):
         # coordinates
         result = self.query_region_async(coordinates, radius=radius,
                                         equinox=equinox, epoch=epoch)
-        return self._parse_result(result, verbose=verbose)
+        return self._parse_result(result, SimbadVOTableResult, verbose=verbose)
 
     def query_region_async(self, coordinates, radius=None, equinox=None,
                            epoch=None):
@@ -468,7 +469,7 @@ class SimbadClass(BaseQuery):
                                                 equinox=equinox, epoch=epoch,
                                                 caller='query_region_async')
         response = commons.send_request(self.SIMBAD_URL, request_payload,
-                                self.TIMEOUT)
+                                        self.TIMEOUT)
         return response
 
     def query_catalog(self, catalog, verbose=False):
@@ -489,7 +490,7 @@ class SimbadClass(BaseQuery):
             Query results table
         """
         result = self.query_catalog_async(catalog)
-        return self._parse_result(result, verbose=verbose)
+        return self._parse_result(result, SimbadVOTableResult, verbose=verbose)
 
     def query_catalog_async(self, catalog):
         """
@@ -529,7 +530,7 @@ class SimbadClass(BaseQuery):
             Query results table
         """
         result = self.query_bibobj_async(bibcode)
-        return self._parse_result(result, verbose=verbose)
+        return self._parse_result(result, SimbadVOTableResult, verbose=verbose)
 
     def query_bibobj_async(self, bibcode):
         """
@@ -574,7 +575,7 @@ class SimbadClass(BaseQuery):
 
         """
         result = self.query_bibcode_async(bibcode, wildcard=wildcard)
-        return self._parse_result(result, verbose=verbose)
+        return self._parse_result(result, SimbadBibcodeResult, verbose=verbose)
 
     def query_bibcode_async(self, bibcode, wildcard=False):
         """
@@ -597,6 +598,47 @@ class SimbadClass(BaseQuery):
         """
         request_payload = self._args_to_payload(bibcode, wildcard=wildcard,
                                                 caller='query_bibcode_async', get_raw=True)
+        response = commons.send_request(self.SIMBAD_URL, request_payload,
+                                        self.TIMEOUT)
+        return response
+
+    def query_objectids(self, object_name, verbose=False):
+        """
+        Query Simbad with an object name, and return a table of all
+        names associated with that object in a `~astropy.table.Table`.
+
+        Parameters
+        ----------
+        object_name : str
+            name of object to be queried
+
+        Returns
+        -------
+        table : `~astropy.table.Table`
+            Query results table
+
+        """
+        result = self.query_objectids_async(object_name)
+        return self._parse_result(result, SimbadObjectIDsResult, verbose=verbose)
+
+    def query_objectids_async(self, object_name):
+        """
+        Serves the same function as `query_objectids`, but
+        only collects the reponse from the Simbad server and returns.
+
+        Parameters
+        ----------
+        object_name : str
+            name of object to be queried
+
+        Returns
+        -------
+        response : `requests.Response`
+             Response of the query from the server.
+
+        """
+        request_payload = dict(script="\n".join(('format object "%IDLIST"',
+                                                 'query id %s' % object_name)))
         response = commons.send_request(self.SIMBAD_URL, request_payload,
                                         self.TIMEOUT)
         return response
@@ -654,7 +696,7 @@ class SimbadClass(BaseQuery):
                 present_keys.append(k)
             # need ampersands to join args
             args_str = '&'.join([str(val) for val in args])
-            args_str += " & " if len(args) > 0 else ""
+            args_str += " & " if len(args) > 0 and len(present_keys) > 0 else ""
         else:
             args_str = ' '.join([str(val) for val in args])
         kwargs_str = ' '.join("{key}={value}".format(key=key, value=kwargs[key]) for
@@ -663,13 +705,11 @@ class SimbadClass(BaseQuery):
         script += votable_close
         return dict(script=script)
 
-    def _parse_result(self, result, verbose=False):
-        if not verbose:
-            commons.suppress_vo_warnings()
+    def _parse_result(self, result, resultclass, verbose=False):
         self.last_response = result
 
         try:
-            self.last_parsed_result = SimbadResult(result.content)
+            self.last_parsed_result = resultclass(result.content, verbose=verbose)
             resulttable = self.last_parsed_result.table
         except Exception as ex:
             self.last_table_parse_error = ex
@@ -736,27 +776,22 @@ def _parse_radius(radius):
         raise ValueError("Radius specified incorrectly")
 
 error_regex = re.compile(r'(?ms)\[(?P<line>\d+)\]\s?(?P<msg>.+?)(\[|\Z)')
-bibcode_regex = re.compile(r'query\s+bibcode\s+(wildcard)?\s+([\w]*)')
-
 SimbadError = namedtuple('SimbadError', ('line', 'msg'))
 VersionInfo = namedtuple('VersionInfo', ('major', 'minor', 'micro', 'patch'))
-
 
 class SimbadResult(object):
     __sections = ('script', 'console', 'error', 'data')
 
-    def __init__(self, txt, pedantic=False):
+    def __init__(self, txt, verbose=False):
         self.__txt = txt
-        self.__pedantic = pedantic
-        self.__table = None
         self.__stringio = None
         self.__indexes = {}
+        self.verbose = verbose
         self.exectime = None
         self.sim_version = None
         self.__split_sections()
         self.__parse_console_section()
         self.__warn()
-        self.__file = None
 
     def __split_sections(self):
         for section in self.__sections:
@@ -826,30 +861,51 @@ class SimbadResult(object):
             return 0
         return len(self.errors)
 
+class SimbadVOTableResult(SimbadResult):
+    """VOTable-type Simbad result"""
+    def __init__(self, txt, verbose=False, pedantic=False):
+        SimbadResult.__init__(self, txt, verbose=verbose)
+        self.__pedantic = pedantic
+        self.__file = None
+        self.__table = None
+        if not self.verbose:
+            commons.suppress_vo_warnings()
+
+
     @property
     def table(self):
         if self.__file is None:
             self.__file = tempfile.NamedTemporaryFile()
             self.__file.write(self.data.encode('utf-8'))
             self.__file.flush()
-            # if bibcode query then first create table from raw data
-            bibcode_match = bibcode_regex.search(self.script)
-            if bibcode_match:
-                self.__table = _create_bibcode_table(self.data, bibcode_match.group(2))
-            else:
-                self.__table = votable.parse_single_table(self.__file, pedantic=False).to_table()
+            self.__table = votable.parse_single_table(self.__file, pedantic=False).to_table()
         return self.__table
 
+bibcode_regex = re.compile(r'query\s+bibcode\s+(wildcard)?\s+([\w]*)')
+class SimbadBibcodeResult(SimbadResult):
+    """Bibliography-type Simbad result"""
+    @property
+    def table(self):
+        bibcode_match = bibcode_regex.search(self.script)
+        splitter = bibcode_match.group(2)
+        ref_list = [splitter + ref for ref in self.data.split(splitter)][1:]
+        max_len = max([len(r) for r in ref_list])
+        table = Table(names=['References'], dtype=['S%i' % max_len])
+        for ref in ref_list:
+            if hasattr(ref,'decode'):
+                table.add_row([ref.decode('utf-8')])
+            else:
+                table.add_row([ref])
+        return table
+
+class SimbadObjectIDsResult(SimbadResult):
+    """Object identifier list Simbad result"""
+    @property
+    def table(self):
+        max_len = max([len(i) for i in self.data.splitlines()])
+        table = Table(names=['ID'], dtype=['S%i' % max_len])
+        for id in self.data.splitlines():
+            table.add_row([id.strip()])
+        return table
+
 Simbad = SimbadClass()
-
-
-def _create_bibcode_table(data, splitter):
-    ref_list = [splitter + ref for ref in data.split(splitter)][2:]
-    max_len = max([len(r) for r in ref_list])
-    table = Table(names=['References'], dtype=['S%i' % max_len])
-    for ref in ref_list:
-        if hasattr(ref,'decode'):
-            table.add_row([ref.decode('utf-8')])
-        else:
-            table.add_row([ref])
-    return table
