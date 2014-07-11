@@ -69,45 +69,6 @@ class SkyViewClass(BaseQuery):
         response = requests.get(url, params=payload)
         return response
 
-    @prepend_docstr_noreturns(get_images.__doc__)
-    def get_image_list(
-            self, position, survey, coordinates=None, projection=None,
-            pixels=None, scaling=None, sampler=None, resolver=None,
-            deedger=None, lut=None, grid=None, gridlabels=None):
-        """
-        Returns
-        -------
-        list of image urls
-
-        Examples
-        --------
-        >>> SkyView().get_image_list(position='Eta Carinae', survey=['Fermi 5', 'HRI', 'DSS'])
-        [u'http://skyview.gsfc.nasa.gov/tempspace/fits/skv6183161285798_1.fits',
-         u'http://skyview.gsfc.nasa.gov/tempspace/fits/skv6183161285798_2.fits',
-         u'http://skyview.gsfc.nasa.gov/tempspace/fits/skv6183161285798_3.fits']
-        """
-        input = {
-            'Position': position,
-            'survey': survey,
-            'Deedger': deedger,
-            'lut': lut,
-            'projection': projection,
-            'gridlabels': '1' if gridlabels else '0',
-            'coordinates': coordinates,
-            'scaling': scaling,
-            'grid': grid,
-            'resolver': resolver,
-            'Sampler': sampler,
-            'pixels': pixels}
-        response = self._submit_form(input)
-        bs = BeautifulSoup(response.content)
-        urls = []
-        for a in bs.find_all('a'):
-            if a.text == 'FITS':
-                href = a.get('href')
-                urls.append(urlparse.urljoin(response.url, href))
-        return urls
-
     def get_images(
             self, position, survey, coordinates=None, projection=None,
             pixels=None, scaling=None, sampler=None, resolver=None,
@@ -209,7 +170,46 @@ class SkyViewClass(BaseQuery):
             sampler, resolver, deedger, lut, grid, gridlabels)
         for url in image_urls:
             # download the FITS file
-            path = self.request('GET', abs_href, save=True)
+            path = self.request('GET', url, save=True)
             yield path
+
+    @prepend_docstr_noreturns(get_images.__doc__)
+    def get_image_list(
+            self, position, survey, coordinates=None, projection=None,
+            pixels=None, scaling=None, sampler=None, resolver=None,
+            deedger=None, lut=None, grid=None, gridlabels=None):
+        """
+        Returns
+        -------
+        list of image urls
+
+        Examples
+        --------
+        >>> SkyView().get_image_list(position='Eta Carinae', survey=['Fermi 5', 'HRI', 'DSS'])
+        [u'http://skyview.gsfc.nasa.gov/tempspace/fits/skv6183161285798_1.fits',
+         u'http://skyview.gsfc.nasa.gov/tempspace/fits/skv6183161285798_2.fits',
+         u'http://skyview.gsfc.nasa.gov/tempspace/fits/skv6183161285798_3.fits']
+        """
+        input = {
+            'Position': position,
+            'survey': survey,
+            'Deedger': deedger,
+            'lut': lut,
+            'projection': projection,
+            'gridlabels': '1' if gridlabels else '0',
+            'coordinates': coordinates,
+            'scaling': scaling,
+            'grid': grid,
+            'resolver': resolver,
+            'Sampler': sampler,
+            'pixels': pixels}
+        response = self._submit_form(input)
+        bs = BeautifulSoup(response.content)
+        urls = []
+        for a in bs.find_all('a'):
+            if a.text == 'FITS':
+                href = a.get('href')
+                urls.append(urlparse.urljoin(response.url, href))
+        return urls
 
 SkyView = SkyViewClass()
