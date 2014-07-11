@@ -6,6 +6,7 @@ from bs4 import BeautifulSoup
 
 from . import SKYVIEW_URL
 from ..query import BaseQuery
+from ..utils import prepend_docstr_noreturns
 
 
 class SkyViewClass(BaseQuery):
@@ -67,6 +68,45 @@ class SkyViewClass(BaseQuery):
         url = urlparse.urljoin(self.URL, form.get('action'))
         response = requests.get(url, params=payload)
         return response
+
+    @prepend_docstr_noreturns(get_images.__doc__)
+    def get_image_list(
+            self, position, survey, coordinates=None, projection=None,
+            pixels=None, scaling=None, sampler=None, resolver=None,
+            deedger=None, lut=None, grid=None, gridlabels=None):
+        """
+        Returns
+        -------
+        list of image urls
+
+        Examples
+        --------
+        >>> SkyView().get_image_list(position='Eta Carinae', survey=['Fermi 5', 'HRI', 'DSS'])
+        [u'http://skyview.gsfc.nasa.gov/tempspace/fits/skv6183161285798_1.fits',
+         u'http://skyview.gsfc.nasa.gov/tempspace/fits/skv6183161285798_2.fits',
+         u'http://skyview.gsfc.nasa.gov/tempspace/fits/skv6183161285798_3.fits']
+        """
+        input = {
+            'Position': position,
+            'survey': survey,
+            'Deedger': deedger,
+            'lut': lut,
+            'projection': projection,
+            'gridlabels': '1' if gridlabels else '0',
+            'coordinates': coordinates,
+            'scaling': scaling,
+            'grid': grid,
+            'resolver': resolver,
+            'Sampler': sampler,
+            'pixels': pixels}
+        response = self._submit_form(input)
+        bs = BeautifulSoup(response.content)
+        urls = []
+        for a in bs.find_all('a'):
+            if a.text == 'FITS':
+                href = a.get('href')
+                urls.append(urlparse.urljoin(response.url, href))
+        return urls
 
     def get_images(
             self, position, survey, coordinates=None, projection=None,
@@ -164,27 +204,12 @@ class SkyViewClass(BaseQuery):
         ...     print '\tnew file:', path
 
         """
-        input = {
-            'Position': position,
-            'survey': survey,
-            'Deedger': deedger,
-            'lut': lut,
-            'projection': projection,
-            'gridlabels': '1' if gridlabels else '0',
-            'coordinates': coordinates,
-            'scaling': scaling,
-            'grid': grid,
-            'resolver': resolver,
-            'Sampler': sampler,
-            'pixels': pixels}
-        response = self._submit_form(input)
-        bs = BeautifulSoup(response.content)
-        for a in bs.find_all('a'):
-            if a.text == 'FITS':
-                href = a.get('href')
-                abs_href = urlparse.urljoin(response.url, href)
-                # download the FITS file
-                path = self.request('GET', abs_href, save=True)
-                yield path
+        image_urls = self.get_image_list(
+            position, survey, coordinates, projection, pixels, scaling,
+            sampler, resolver, deedger, lut, grid, gridlabels)
+        for url in image_urls:
+            # download the FITS file
+            path = self.request('GET', abs_href, save=True)
+            yield path
 
 SkyView = SkyViewClass()
