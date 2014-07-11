@@ -188,6 +188,8 @@ class UrquhartClass(BaseQuery):
 
         return [obj.get_fits() for obj in line_fileobjs]
 
+    get_spectra.__doc__ = get_spectra_async.__doc__
+
     def get_source_data(self, sourceid_or_coordinate, catalog='sextractor',
                         radius=60*u.arcsec):
         """
@@ -206,6 +208,10 @@ class UrquhartClass(BaseQuery):
         return tables
 
     def _parse_table(self, tb):
+        """
+        Attempt to parse a Table, which is a BeautifulSoup object containing
+        match <th> and <td> rows
+        """
 
         rows = tb.findAll('tr')
 
