@@ -68,7 +68,7 @@ class SkyViewClass(BaseQuery):
         response = requests.get(url, params=payload)
         return response
 
-    def download(
+    def get_images(
             self, position, survey, coordinates=None, projection=None,
             pixels=None, scaling=None, sampler=None, resolver=None,
             deedger=None, lut=None, grid=None, gridlabels=None):
@@ -159,7 +159,7 @@ class SkyViewClass(BaseQuery):
         Examples
         --------
         >>> sv = SkyView()
-        >>> paths = sv.download(position='Eta Carinae', survey=['Fermi 5', 'HRI', 'DSS'])
+        >>> paths = sv.get_images(position='Eta Carinae', survey=['Fermi 5', 'HRI', 'DSS'])
         >>> for path in paths:
         ...     print '\tnew file:', path
 
