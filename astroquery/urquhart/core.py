@@ -15,8 +15,7 @@ from ..utils import async_to_sync
 
 class UrquhartClass(BaseQuery):
 
-    _urls = {'atlasgal':'ATLASGAL_SEARCH_RESULTS.cgi',
-             'atlasgal_datapage':'ATLASGAL_SEARCH_RESULTS.cgi'}
+    database_registry = {'atlasgal':'ATLASGAL_SEARCH_RESULTS.cgi',}
 
     def __init__(self, timeout=60,
                  url='http://atlasgal.mpifr-bonn.mpg.de/cgi-bin/'):
@@ -33,11 +32,22 @@ class UrquhartClass(BaseQuery):
                            get_query_payload=False,
                            database='atlasgal'):
         """
+        Query the server with a set radius
 
         Parameters
         ----------
+        coordinates : `astropy.coordinates.SkyCoord`
+            A coordinate object
+        radius : `astropy.units.degree` equivalent
+            An angular radius
         catalog : str
-            One of 'sextractor', 'gaussclump'
+            One of 'sextractor', 'gaussclump', depending on which catalog you
+            wish to search (only appropriate for the ATLASGAL database)
+        database : str
+            The database name to query.  Must be in
+            `UrquhartClass.database_registry`
+        get_query_payload : bool
+            Return the query data parameters instead of the result
         """
         payload = self._region_args_to_payload(coordinates,
                                                radius=radius,
@@ -47,13 +57,22 @@ class UrquhartClass(BaseQuery):
             return payload
 
         result = self.request('POST', os.path.join(self.URQUHART_SERVER,
-                                                   self._urls[database]),
+                                                   self.database_registry[database]),
                               data=payload)
 
         return result
 
     def query_region(self, coordinates, table_index=0, **kwargs):
         """
+        See query_region_async
+
+        Parameters
+        ----------
+        table_index : int
+            The index of the table to extract from the search result page.  In
+            general, this should be 0, but it is possible that some pages are
+            restructured to have multiple tables in which case this parameter
+            is needed
         """
 
         result = self.query_region_async(coordinates, **kwargs)
@@ -81,6 +100,7 @@ class UrquhartClass(BaseQuery):
 
     def _region_args_to_payload(self, coordinates, radius=60*u.arcsec, catalog='sextractor'):
         """
+        Parse a coordinate object into a data payload
         """
         # Example:
         # http://atlasgal.mpifr-bonn.mpg.de/cgi-bin/ATLASGAL_SEARCH_RESULTS.cgi?text_field_1=19.482+%2B0.173&radius_field=60&catalogue_field=GaussClump+%28GCSC%29
@@ -97,9 +117,10 @@ class UrquhartClass(BaseQuery):
 
         return payload
 
-    def get_datapage(self, sourceid, catalog='sextractor', database='atlasgal_datapage'):
+    def _get_datapage(self, sourceid, catalog='sextractor', database='atlasgal'):
         """
-        http://atlasgal.mpifr-bonn.mpg.de/cgi-bin/ATLASGAL_SEARCH_RESULTS.cgi?text_field_1=G019.4717%2B0.1702&catalogue_field=GaussClump&gc_flag=
+        Acquire the data page for a given source ID from a given catalog and
+        database
         """
 
         catalog_dict = {'sextractor':'Sextractor',
@@ -111,17 +132,12 @@ class UrquhartClass(BaseQuery):
                   }
         
         result = self.request('POST', os.path.join(self.URQUHART_SERVER,
-                                                   self._urls[database]),
+                                                   self.database_registry[database]),
                               data=payload)
 
         return result
 
-    def get_spectra_async(self, sourceid_or_coordinate, catalog='sextractor',
-                          radius=60*u.arcsec, line_searchstr='molecular_line'):
-        """
-        http://atlasgal.mpifr-bonn.mpg.de/atlasgal_images/molecular_line_data/atlasgal_cohrs/AGAL019.472+00.171_12CO_COHRS.fits
-        http://atlasgal.mpifr-bonn.mpg.de//atlasgal_images/molecular_line_data/atlasgal_cohrs/AGAL019.472+00.171_12CO_COHRS.fits
-        """
+    def _coord_or_sourceid_to_sourceid(self, sourceid_or_coordinate):
         if isinstance(sourceid_or_coordinate, coordinates.SkyCoord):
             tbl = self.query_region(sourceid_or_coordinate, radius=radius, catalog=catalog)
             if tbl is None or len(tbl) == 0:
@@ -129,11 +145,31 @@ class UrquhartClass(BaseQuery):
             elif len(tbl) > 1:
                 warnings.warn("Multiple matches found; returning first source: {0}".format(tbl['Name'][0]))
 
-            sourceid = tbl['Name'][0]
+            return tbl['Name'][0]
         else:
-            sourceid = sourceid_or_coordinate
+            return sourceid_or_coordinate
 
-        datapage = self.get_datapage(sourceid)
+    def get_spectra_async(self, sourceid_or_coordinate, catalog='sextractor',
+                          radius=60*u.arcsec, line_searchstr='molecular_line'):
+        """
+        Find and download spectra for a specified source
+
+        Parameters
+        sourceid_or_coordinate : str or `astropy.coordinates.SkyCoord`
+            Either the exact source name from the selected database or a
+            coordinate to search around
+        radius : `astropy.units.degree` equivalent
+            A search radius.  Only relevant if ``sourceid_or_coordinate`` is a
+            coordinate
+        catalog : 'sextractor' or 'gaussclumps'
+            Catalog name
+        line_searchstr : str
+            A string to search URLs for to identify relevant spectral FITS
+            files (NOT a regex)
+        """
+        sourceid = self._coord_or_sourceid_to_sourceid(sourceid_or_coordinate)
+
+        datapage = self._get_datapage(sourceid)
 
         root = BeautifulSoup(datapage.content)
         
@@ -151,5 +187,81 @@ class UrquhartClass(BaseQuery):
             return None
 
         return [obj.get_fits() for obj in line_fileobjs]
+
+    def get_source_data(self, sourceid_or_coordinate, catalog='sextractor',
+                        radius=60*u.arcsec):
+        """
+        Get the table data for a selected source
+        """
+        sourceid = self._coord_or_sourceid_to_sourceid(sourceid_or_coordinate)
+
+        datapage = self._get_datapage(sourceid, catalog=catalog)
+
+        root = BeautifulSoup(datapage.content)
+
+        tables = [self._parse_table(tb)
+                  for tb in root.findAll('table')
+                  if len(tb.findAll('tr'))>1]
+
+        return tables
+
+    def _parse_table(self, tb):
+
+        rows = tb.findAll('tr')
+
+        headers = [x.text.strip() for x in rows[0].findAll('th')]
+
+        for row in rows:
+            datarow = row.findAll('td')
+            if len(datarow) > 0:
+                first_data_row = datarow
+                break
+
+        types = [determine_type(x) for x in first_data_row]
+
+        content_rows=[]
+        # exclude header row
+        for row in rows[1:]:
+            if len(row.findAll('th')) > 0:
+                # skip header columns 
+                continue
+            if len(row.findAll('td')) == len(types):
+                content = [dt(td.text) for td,dt in zip(row.findAll('td'),types)]
+                content_rows.append(content)
+            else:
+                raise ValueError("Mismatch between n(headers) and n(columns)")
+
+        dtypes = []
+        for ii,tp in enumerate(types):
+            if tp is str:
+                strlen = max([len(x[ii]) for x in content_rows])
+                dtypes.append(np.dtype('S{0}'.format(strlen)))
+            else:
+                dtypes.append(tp)
+
+        tbl = table.Table(names=headers,
+                          dtype=dtypes)
+
+        for content in content_rows:
+            tbl.add_row(content)
+
+        return tbl
+
+
+            
+def determine_type(x):
+    """ Determine a valid numerical type of a string (maybe) """
+    try:
+        a = float(x.strip())
+        try:
+            b = int(x.strip())
+            if a-x == 0:
+                return int
+            else:
+                return float
+        except (TypeError,ValueError):
+            return float
+    except (TypeError,ValueError):
+        return str
 
 Urquhart = UrquhartClass()
