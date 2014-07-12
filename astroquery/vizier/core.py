@@ -286,6 +286,7 @@ class VizierClass(BaseQuery):
             c = commons.parse_coordinates(coordinates)
 
             if not c.isscalar:
+                pos_list = []
                 for pos in c:
                     ra_deg = pos.ra.to_string(unit="deg", decimal=True, precision=8)
                     dec_deg = pos.dec.to_string(unit="deg", decimal=True,
