@@ -232,7 +232,7 @@ class CosmoSim(QueryWithLogin):
 
         return 
 
-    def get_all_tables(self,database=None):
+    def _generate_schema(self):
         """
         TO DO: documentation
         """
@@ -256,8 +256,60 @@ class CosmoSim(QueryWithLogin):
                     self.db_dict['{}'.format(data['databases'][i]['name'])]['tables']['{}'.format(data['databases'][i]['tables'][j]['name'])]['columns']['{}'.format(data['databases'][i]['tables'][j]['columns'][k]['name'])]['id'] = data['databases'][i]['tables'][j]['columns'][k]['id']
                     self.db_dict['{}'.format(data['databases'][i]['name'])]['tables']['{}'.format(data['databases'][i]['tables'][j]['name'])]['columns']['{}'.format(data['databases'][i]['tables'][j]['columns'][k]['name'])]['description'] = data['databases'][i]['tables'][j]['columns'][k]['description']
                     
-        ipdb.set_trace()
-        return result
+        return response
+
+    def explore_db(self,db=None,table=None,col=None):
+        """
+        TO DO: documentation
+        """
+        
+        try:
+            self.db_dict
+        except AttributeError:
+            self._generate_schema()
+        
+        if db is not None:
+            if table is not None:
+                if col is not None:
+                    print "#"*(len(db)+4) + "\n# {} #\n".format(db) + "#"*(len(db)+4)
+                    print "@{}".format("tables")
+                    print "   -->{}".format(table)
+                    print " "*6 + "*{}".format("columns")
+                    print " "*9 + "+{}".format('{}'.format(col))
+                    for i in self.db_dict['{}'.format(db)]['tables']['{}'.format(table)]['columns']['{}'.format(col)].keys():
+                        print " "*12 + "{}:{}".format(i,self.db_dict['{}'.format(db)]['tables']['{}'.format(table)]['columns']['{}'.format(col)][i])
+                    
+                else:
+                    print "#"*(len(db)+4) + "\n# {} #\n".format(db) + "#"*(len(db)+4)
+                    print "@{}".format("tables")
+                    print "   -->{}".format(table)
+                    for i in self.db_dict['{}'.format(db)]['tables']['{}'.format(table)].keys():
+                        if type(self.db_dict['{}'.format(db)]['tables']['{}'.format(table)][i]) == dict:
+                            print " "*6 + "*{}".format(i)
+                            for j in self.db_dict['{}'.format(db)]['tables']['{}'.format(table)][i].keys():
+                                print " "*9 + "+{}".format(j)
+                        else:
+                            print " "*6 + "*{}".format(i)
+                            print " "*9 + "+{}".format(self.db_dict['{}'.format(db)]['tables']['{}'.format(table)][i])
+                        
+
+            else:    
+                print "#"*(len(db)+4) + "\n# {} #\n".format(db) + "#"*(len(db)+4)
+                for i in self.db_dict['{}'.format(db)].keys():
+                    if type(self.db_dict['{}'.format(db)][i]) == dict:
+                        print "@{}".format(i)
+                        for j in self.db_dict['{}'.format(db)][i].keys():
+                            print "   -->{}".format(j)
+                    else:
+                        print "@{}".format(i)
+                        print "   -->{}".format(self.db_dict['{}'.format(db)][i])
+                            
+        else:
+            print("Must choose a database to explore:")
+            for i in self.db_dict.keys():
+                print " ## " + "{}".format(i)
+                            
+        return 
 
     def download(self,jobid=None,filename=None):
         """
