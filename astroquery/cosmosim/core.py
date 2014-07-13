@@ -108,6 +108,7 @@ class CosmoSim(QueryWithLogin):
         """
 
         checkalljobs = self.check_all_jobs()
+        ipdb.set_trace()
         completed_jobs = [key for key in self.job_dict.keys() if self.job_dict[key] in ['COMPLETED','EXECUTING']]
         soup = BeautifulSoup(checkalljobs.content)
         self.table_dict={}

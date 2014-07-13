@@ -127,6 +127,7 @@ These others are functional, but do not follow a common & consistent API:
   lamda/lamda.rst
   ogle/ogle.rst
   open_exoplanet_catalogue/open_exoplanet_catalogue.rst
+  cosmosim/cosmosim.rst
 
 Catalog, Archive, and Other
 ===========================
@@ -187,6 +188,7 @@ Simulation services query databases of simulated or synthetic data
   :maxdepth: 1
 
   besancon/besancon.rst
+  cosmosim/cosmosim.rst
 
 Other
 -----
