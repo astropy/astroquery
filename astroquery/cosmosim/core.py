@@ -108,7 +108,6 @@ class CosmoSim(QueryWithLogin):
         """
 
         checkalljobs = self.check_all_jobs()
-        ipdb.set_trace()
         completed_jobs = [key for key in self.job_dict.keys() if self.job_dict[key] in ['COMPLETED','EXECUTING']]
         soup = BeautifulSoup(checkalljobs.content)
         self.table_dict={}
@@ -204,10 +203,11 @@ class CosmoSim(QueryWithLogin):
                 if jobid == self.current_job:
                     del self.current_job
 
-        if self.job_dict[jobid] in ['COMPLETED','ERROR','ABORTED']:
+        if self.job_dict[jobid] in ['COMPLETED','ERROR','ABORTED','PENDING']:
             result = self.session.delete(CosmoSim.QUERY_URL+"/{}".format(jobid),auth=(self.username,self.password),data={'follow':''})
         else:
-            print "Can only delete a job with phase: 'COMPLETED','ERROR',or 'ABORTED'."
+            print "Can only delete a job with phase: 'COMPLETED', 'ERROR', 'ABORTED', or 'PENDING'."
+            return 
             
         if not result.ok:
             result.raise_for_status()
@@ -288,17 +288,17 @@ class CosmoSim(QueryWithLogin):
                         if type(self.db_dict['{}'.format(db)]['tables']['{}'.format(table)][i]) == dict:
                             print " "*6 + "*{}".format(i)
                             for j in self.db_dict['{}'.format(db)]['tables']['{}'.format(table)][i].keys():
-                                print " "*9 + "+{}".format(j)
+                                print " "*9 + "-->{}".format(j)
                         else:
-                            print " "*6 + "*{}".format(i)
-                            print " "*9 + "+{}".format(self.db_dict['{}'.format(db)]['tables']['{}'.format(table)][i])
+                            print " "*6 + "{}".format(i)
+                            print " "*9 + "{}".format(self.db_dict['{}'.format(db)]['tables']['{}'.format(table)][i])
                         
 
             else:    
                 print "#"*(len(db)+4) + "\n# {} #\n".format(db) + "#"*(len(db)+4)
                 for i in self.db_dict['{}'.format(db)].keys():
                     if type(self.db_dict['{}'.format(db)][i]) == dict:
-                        print "@{}".format(i)
+                        print "${}".format(i)
                         for j in self.db_dict['{}'.format(db)][i].keys():
                             print "   -->{}".format(j)
                     else:
@@ -364,17 +364,3 @@ class CosmoSim(QueryWithLogin):
                     fh.write(block)
                 print "Data written to file: {}".format(filename)
             return headers, data
-
-        
-        
-    # will check to see if using private or public credentials
-    def logged_in(self):
-        """
-        TO DO: documentation
-        """
-        print 'Need to implement when public default parameters (if any) are known...'
-        
-
-
-
-    
