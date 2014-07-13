@@ -64,6 +64,11 @@ Exploring Database Schema
 A database exploration tool is available to help the user navigate
 the structure of any simulation database in the CosmoSim database. 
 
+
+Legend
+'@'  :   type == dict
+'$'   :   type != dict
+
 .. code-block:: python
 
     >>> CS.explore_db(db='MDPL')
@@ -87,13 +92,43 @@ the structure of any simulation database in the CosmoSim database.
        --> 114
     $ description
        --> The MDR1-Planck simulation.
-
-Legend: 
-@: type == dict
-$: type != dict
  
+.. code-block:: python
 
+    >>> CS.explore_db(db='MDPL',table='AvailHalos')
+    ########
+    # MDPL #
+    ########
+    @ tables
+       @ AvailHalos
+          $ id
+             --> 932
+          @ columns
+             --> FOF5
+             --> FOF4
+             --> FOF3
+             --> FOF2
+             --> FOF1
+             --> redshift
+             --> BDM
+             --> FOF
+             --> snapnum
+          $ description
+             --> 
 
+.. code-block:: python
+
+    >>> CS.explore_db(db='MDPL',table='AvailHalos',col='redshift')    
+    ########
+    # MDPL #
+    ########
+    @ tables
+       @ AvailHalos
+          @ columns
+             @ redshift
+                --> id:21613
+                --> description:
+    
 Downloading data
 ================
 
