@@ -273,37 +273,37 @@ class CosmoSim(QueryWithLogin):
             if table is not None:
                 if col is not None:
                     print "#"*(len(db)+4) + "\n# {} #\n".format(db) + "#"*(len(db)+4)
-                    print "@{}".format("tables")
-                    print "   -->{}".format(table)
-                    print " "*6 + "*{}".format("columns")
-                    print " "*9 + "+{}".format('{}'.format(col))
+                    print "@ {}".format("tables")
+                    print "   @ {}".format(table)
+                    print " "*6 + "@ {}".format("columns")
+                    print " "*9 + "@ {}".format('{}'.format(col))
                     for i in self.db_dict['{}'.format(db)]['tables']['{}'.format(table)]['columns']['{}'.format(col)].keys():
-                        print " "*12 + "{}:{}".format(i,self.db_dict['{}'.format(db)]['tables']['{}'.format(table)]['columns']['{}'.format(col)][i])
+                        print " "*12 + "--> {}:{}".format(i,self.db_dict['{}'.format(db)]['tables']['{}'.format(table)]['columns']['{}'.format(col)][i])
                     
                 else:
                     print "#"*(len(db)+4) + "\n# {} #\n".format(db) + "#"*(len(db)+4)
-                    print "@{}".format("tables")
-                    print "   -->{}".format(table)
+                    print "@ {}".format("tables")
+                    print "   @ {}".format(table)
                     for i in self.db_dict['{}'.format(db)]['tables']['{}'.format(table)].keys():
                         if type(self.db_dict['{}'.format(db)]['tables']['{}'.format(table)][i]) == dict:
-                            print " "*6 + "*{}".format(i)
+                            print " "*6 + "@ {}".format(i)
                             for j in self.db_dict['{}'.format(db)]['tables']['{}'.format(table)][i].keys():
-                                print " "*9 + "-->{}".format(j)
+                                print " "*9 + "--> {}".format(j)
                         else:
-                            print " "*6 + "{}".format(i)
-                            print " "*9 + "{}".format(self.db_dict['{}'.format(db)]['tables']['{}'.format(table)][i])
+                            print " "*6 + "$ {}".format(i)
+                            print " "*9 + "--> {}".format(self.db_dict['{}'.format(db)]['tables']['{}'.format(table)][i])
                         
 
             else:    
                 print "#"*(len(db)+4) + "\n# {} #\n".format(db) + "#"*(len(db)+4)
                 for i in self.db_dict['{}'.format(db)].keys():
                     if type(self.db_dict['{}'.format(db)][i]) == dict:
-                        print "${}".format(i)
+                        print "@ {}".format(i)
                         for j in self.db_dict['{}'.format(db)][i].keys():
-                            print "   -->{}".format(j)
+                            print "   --> {}".format(j)
                     else:
-                        print "@{}".format(i)
-                        print "   -->{}".format(self.db_dict['{}'.format(db)][i])
+                        print "$ {}".format(i)
+                        print "   --> {}".format(self.db_dict['{}'.format(db)][i])
                             
         else:
             print("Must choose a database to explore:")

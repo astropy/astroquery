@@ -25,9 +25,11 @@ Getting started
     Authentication successful!
     >>> sql_query = "SELECT 0.25*(0.5+FLOOR(LOG10(Mvir)/0.25)) AS
     log_mass, COUNT(*) AS num FROM MDR1.FOF WHERE snapnum=85 GROUP BY
-    FLOOR(LOG10(Mvir)/0.25) ORDER BY log_mass" # MDR1.BDMV mass function
+    FLOOR(LOG10(Mvir)/0.25) ORDER BY log_mass" # MDR1.BDMV mass
+    function 
     >>> CS.run_sql_query(query_string=sql_query)
-    Job created: 359748449665484 #jobid; note: will be different 
+    Job created: 359748449665484 #jobid; note: is unique to each and
+    every query
 
 Managing CosmoSim Queries
 ===============
@@ -59,6 +61,37 @@ few examples functions available to the user for these purposes.
 Exploring Database Schema
 ==================
 
+A database exploration tool is available to help the user navigate
+the structure of any simulation database in the CosmoSim database. 
+
+.. code-block:: python
+
+    >>> CS.explore_db(db='MDPL')
+    ########
+    # MDPL #
+    ########
+    @ tables
+       --> FOF5
+       --> FOF4
+       --> FOF3
+       --> FOF2
+       --> FOF1
+       --> Particles88
+       --> FOF
+       --> LinkLength
+       --> BDMW
+       --> AvailHalos
+       --> Redshifts
+       --> Particles42
+    $ id
+       --> 114
+    $ description
+       --> The MDR1-Planck simulation.
+
+Legend: 
+@: type == dict
+$: type != dict
+ 
 
 
 Downloading data
