@@ -571,7 +571,7 @@ class SDSSClass(BaseQuery):
         bytecontent = (response.content.encode('ascii')
                        if hasattr(response.content,'encode')
                        else response.content)
-        if 'error_message' in response.content.encode('ascii'):
+        if 'error_message' in response.content:
             #print(response.content.encode('ascii'))
             raise RemoteServiceError(response.content)
         arr = np.atleast_1d(np.genfromtxt(io.BytesIO(bytecontent),
