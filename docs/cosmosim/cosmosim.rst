@@ -66,7 +66,9 @@ the structure of any simulation database in the CosmoSim database.
 
 
 Legend
+
 '@'  :   type == dict
+
 '$'   :   type != dict
 
 .. code-block:: python
