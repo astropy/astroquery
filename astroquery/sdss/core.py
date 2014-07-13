@@ -20,6 +20,7 @@ from ..query import BaseQuery
 from . import SDSS_SERVER, SDSS_MAXQUERY, SDSS_TIMEOUT
 from ..utils import commons, async_to_sync
 from ..utils.docstr_chompers import prepend_docstr_noreturns
+from ..exceptions import RemoteServiceError
 
 __all__ = ['SDSS', 'SDSSClass']
 
@@ -571,8 +572,8 @@ class SDSSClass(BaseQuery):
                        if hasattr(response.content,'encode')
                        else response.content)
         if 'error_message' in response.content.encode('ascii'):
-            print(response.content.encode('ascii'))
-            raise Exception('Error retrieving message from server')
+            #print(response.content.encode('ascii'))
+            raise RemoteServiceError(response.content.encode('ascii'))
         arr = np.atleast_1d(np.genfromtxt(io.BytesIO(bytecontent),
                             names=True, dtype=None, delimiter=b',',
                             skip_header=1, # this may be a hack; it is necessary for tests to pass
