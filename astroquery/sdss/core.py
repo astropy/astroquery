@@ -568,6 +568,9 @@ class SDSSClass(BaseQuery):
         bytecontent = (response.content.encode('ascii')
                        if hasattr(response.content,'encode')
                        else response.content)
+        if 'error_message' in response.content.encode('ascii'):
+            print response.content.encode('ascii')
+            raise Exception('Error retrieving message from server')
         arr = np.atleast_1d(np.genfromtxt(io.BytesIO(bytecontent),
                             names=True, dtype=None, delimiter=b',',
                             skip_header=1, # this may be a hack; it is necessary for tests to pass
