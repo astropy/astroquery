@@ -9,6 +9,8 @@ Description: Access Sloan Digital Sky Survey database online.
 
 """
 
+from __future__ import print_function
+
 import numpy as np
 from astropy import units as u
 import astropy.coordinates as coord
@@ -569,7 +571,7 @@ class SDSSClass(BaseQuery):
                        if hasattr(response.content,'encode')
                        else response.content)
         if 'error_message' in response.content.encode('ascii'):
-            print response.content.encode('ascii')
+            print(response.content.encode('ascii'))
             raise Exception('Error retrieving message from server')
         arr = np.atleast_1d(np.genfromtxt(io.BytesIO(bytecontent),
                             names=True, dtype=None, delimiter=b',',
