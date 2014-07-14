@@ -67,12 +67,17 @@ class SDSSClass(BaseQuery):
 
         Parameters
         ----------
-        coordinates : str or `astropy.coordinates` object
-            The target around which to search. It may be specified as a string
+        coordinates : str or `astropy.coordinates` object or list of coordinates
+            The target(s) around which to search. It may be specified as a string
             in which case it is resolved using online services or as the
             appropriate `astropy.coordinates` object. ICRS coordinates may also
             be entered as strings as specified in the `astropy.coordinates`
             module.
+            
+            Example:
+            ra = np.array([220.064728084,220.064728467,220.06473483])
+            dec = np.array([0.870131920218,0.87013210119,0.870138329659])
+            coordinates = SkyCoord(ra, dec], frame='icrs', unit='deg')
         radius : str or `~astropy.units.Quantity` object, optional
             The string must be parsable by `~astropy.coordinates.Angle`. The
             appropriate `~astropy.units.Quantity` object from `astropy.units` may also be
@@ -592,7 +597,7 @@ class SDSSClass(BaseQuery):
 
         Parameters
         ----------
-        coordinates : str or `astropy.coordinates` object
+        coordinates : str or `astropy.coordinates` object or list of coordinates
             The target around which to search. It may be specified as a string
             in which case it is resolved using online services or as the
             appropriate `astropy.coordinates` object. ICRS coordinates may also
@@ -672,18 +677,24 @@ class SDSSClass(BaseQuery):
         else:
             q_join = ''
 
-        q_where = ''
+        q_where = 'WHERE '
         if coordinates is not None:
-            # Query for a region
-            coordinates = commons.parse_coordinates(coordinates)
+            if (not isinstance(coordinates, list) and
+                not (isinstance(coordinates, coord.sky_coordinate.SkyCoord) and
+                isinstance(coordinates.data.lat.value, np.ndarray))):
+                coordinates = [coordinates]
+            for n, target in enumerate(coordinates):
+                # Query for a region
+                target = commons.parse_coordinates(target)
 
-            ra = coordinates.ra.degree
-            dec = coordinates.dec.degree
-            dr = coord.Angle(radius).to('degree').value
-
-            q_where = ('WHERE (p.ra between %g and %g) and '
-                       '(p.dec between %g and %g)'
-                       % (ra-dr, ra+dr, dec-dr, dec+dr))
+                ra = target.ra.degree
+                dec = target.dec.degree
+                dr = coord.Angle(radius).to('degree').value
+                if n>0:
+                    q_where += ' or '
+                q_where += ('((p.ra between %g and %g) and '
+                           '(p.dec between %g and %g))'
+                           % (ra-dr, ra+dr, dec-dr, dec+dr))
         elif spectro:
             # Spectra: query for specified plate, mjd, fiberid
             s_fields = ['s.%s=%d' % (key, val) for (key, val) in
