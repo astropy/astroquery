@@ -680,7 +680,7 @@ class SDSSClass(BaseQuery):
         q_where = 'WHERE '
         if coordinates is not None:
             if (not isinstance(coordinates, list) and
-                not (isinstance(coordinates, coord.sky_coordinate.SkyCoord) and
+                not (isinstance(coordinates, commons.CoordClasses) and
                 isinstance(coordinates.data.lat.value, np.ndarray))
             ):
                 coordinates = [coordinates]
