@@ -77,7 +77,7 @@ class SDSSClass(BaseQuery):
             Example:
             ra = np.array([220.064728084,220.064728467,220.06473483])
             dec = np.array([0.870131920218,0.87013210119,0.870138329659])
-            coordinates = SkyCoord(ra, dec], frame='icrs', unit='deg')
+            coordinates = SkyCoord(ra, dec, frame='icrs', unit='deg')
         radius : str or `~astropy.units.Quantity` object, optional
             The string must be parsable by `~astropy.coordinates.Angle`. The
             appropriate `~astropy.units.Quantity` object from `astropy.units` may also be
@@ -681,14 +681,15 @@ class SDSSClass(BaseQuery):
         if coordinates is not None:
             if (not isinstance(coordinates, list) and
                 not (isinstance(coordinates, coord.sky_coordinate.SkyCoord) and
-                isinstance(coordinates.data.lat.value, np.ndarray))):
+                isinstance(coordinates.data.lat.value, np.ndarray))
+            ):
                 coordinates = [coordinates]
             for n, target in enumerate(coordinates):
                 # Query for a region
                 target = commons.parse_coordinates(target)
 
-                ra = target.ra.degree
-                dec = target.dec.degree
+                ra = target.fk5.ra.degree
+                dec = target.fk5.dec.degree
                 dr = coord.Angle(radius).to('degree').value
                 if n>0:
                     q_where += ' or '
