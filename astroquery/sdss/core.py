@@ -681,7 +681,7 @@ class SDSSClass(BaseQuery):
         if coordinates is not None:
             if (not isinstance(coordinates, list) and
                 not (isinstance(coordinates, commons.CoordClasses) and
-                isinstance(coordinates.data.lat.value, np.ndarray))
+                not coordinates.isscalar)
             ):
                 coordinates = [coordinates]
             for n, target in enumerate(coordinates):
