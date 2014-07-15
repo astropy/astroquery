@@ -22,13 +22,18 @@ class MiriadeClass(BaseQuery):
     
     def __init__(self):
         super(MiriadeClass, self).__init__()
-        self.observatory_codes = ascii.read(BytesIO(self.request("GET", "http://www.minorplanetcenter.net/iau/lists/ObsCodes.html").content),
-                                            format='fixed_width',
-                                            col_starts=[0,4,13,21,30], col_ends=[3,12,20,29,100],
-                                            header_start=1, data_start=2, data_end=-1)
+        self.observatory_codes = None
+    
+    def _observatory_codes(self):
+        if self.observatory_codes is None:
+            self.observatory_codes = ascii.read(BytesIO(self.request("GET", "http://www.minorplanetcenter.net/iau/lists/ObsCodes.html").content),
+                                                format='fixed_width',
+                                                col_starts=[0,4,13,21,30], col_ends=[3,12,20,29,100],
+                                                header_start=1, data_start=2, data_end=-1)
+        return self.observatory_codes
     
     def observatory_coordinates(self, observatory):
-        results = Table(np.array([], dtype=self.observatory_codes.dtype))
+        results = Table(np.array([], dtype=self._observatory_codes().dtype))
         for obs in self.observatory_codes:
             if observatory.lower() in obs['Name'].lower():
                 results.add_row(obs)
