@@ -2,6 +2,7 @@
 from __future__ import print_function
 import os
 import warnings
+import itertools
 from bs4 import BeautifulSoup
 import numpy as np
 
@@ -77,7 +78,7 @@ class UrquhartClass(BaseQuery):
 
         result = self.query_region_async(coordinates, **kwargs)
 
-        root = BeautifulSoup(result.content)
+        root = BeautifulSoup(result.content, 'html5lib')
         if any(['There are no ATLASGAL sources within the search radius.' in x.text
                 for x in root.findAll('h3')]):
             return None
@@ -137,7 +138,7 @@ class UrquhartClass(BaseQuery):
 
         return result
 
-    def _coord_or_sourceid_to_sourceid(self, sourceid_or_coordinate):
+    def _coord_or_sourceid_to_sourceid(self, sourceid_or_coordinate, radius, catalog):
         if isinstance(sourceid_or_coordinate, coordinates.SkyCoord):
             tbl = self.query_region(sourceid_or_coordinate, radius=radius, catalog=catalog)
             if tbl is None or len(tbl) == 0:
@@ -167,7 +168,7 @@ class UrquhartClass(BaseQuery):
             A string to search URLs for to identify relevant spectral FITS
             files (NOT a regex)
         """
-        sourceid = self._coord_or_sourceid_to_sourceid(sourceid_or_coordinate)
+        sourceid = self._coord_or_sourceid_to_sourceid(sourceid_or_coordinate, radius, catalog)
 
         datapage = self._get_datapage(sourceid)
 
@@ -195,7 +196,7 @@ class UrquhartClass(BaseQuery):
         """
         Get the table data for a selected source
         """
-        sourceid = self._coord_or_sourceid_to_sourceid(sourceid_or_coordinate)
+        sourceid = self._coord_or_sourceid_to_sourceid(sourceid_or_coordinate, radius, catalog)
 
         datapage = self._get_datapage(sourceid, catalog=catalog)
 
@@ -203,7 +204,7 @@ class UrquhartClass(BaseQuery):
 
         tables = [self._parse_table(tb)
                   for tb in root.findAll('table')
-                  if len(tb.findAll('tr'))>1]
+                  if len(tb.findAll('tr'))>1 and len(tb.findAll('th'))>0]
 
         return tables
 
@@ -213,9 +214,38 @@ class UrquhartClass(BaseQuery):
         match <th> and <td> rows
         """
 
+        # This parsing can fail if the tables are malformed and have <th> with
+        # no surrounding <tr>
         rows = tb.findAll('tr')
 
-        headers = [x.text.strip() for x in rows[0].findAll('th')]
+        # TERRIBLE HACK TIME
+        all_th = tb.findAll('th')
+        all_th_inrows = [x for r in rows for x in r.findAll('th')]
+        missing_row = [t for t in all_th if t not in all_th_inrows]
+
+        header_rows = [row for row in rows if row.findAll('th')]
+        if missing_row:
+            mr = BeautifulSoup("<table><tr>{0}</tr></table>".format("".join([x.encode() for x in missing_row])))
+            header_rows.append(mr.findAll('table')[0].findAll('tr')[0])
+
+        header_rows_iterable = []
+        for hr in header_rows:
+            H = [(x.text.strip(), int(x.attrs['colspan']))
+                 if 'colspan' in x.attrs else
+                 (x.text.strip(),1)
+                 for x in hr.findAll('th')]
+            header_rows_iterable.append([x for a in H for x in itertools.repeat(a[0],a[1])])
+
+        headers = [" ".join(x).encode('ascii', errors='replace')
+                   for x in zip(*header_rows_iterable)]
+
+        #longest_header_row_length = max([len(row) for row in header_rows])
+        #matched_header_rows = [row for row in header_rows
+        #                       if len(row) == longest_header_row_length]
+        #top_header_row = matched_header_rows[0]
+
+        #headers = [x.text.strip().encode('ascii', errors='replace')
+        #           for x in top_header_row.findAll('th')]
 
         for row in rows:
             datarow = row.findAll('td')
