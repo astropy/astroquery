@@ -3,9 +3,11 @@ import os.path
 
 
 def urljoin_keep_path(url, path):
-    """Join a base URL and a relative or absolute path. The important difference to :func:`urlparse.urljoin`
-    (or :func:`urllib.parse.urljoin` on Python 3) is that ``urljoin_keep_path`` does not remove the last
-    directory of the path found in the parameter `url` if it is in relative form. Compare the examples below to verify.
+    """Join a base URL and a relative or absolute path. The important
+    difference to :func:`urlparse.urljoin` (or
+    :func:`urllib.parse.urljoin` on Python 3) is that `urljoin_keep_path`
+    does not remove the last directory of the path found in the parameter
+    `url` if it is in relative form. Compare the examples below to verify.
 
     Examples
     --------
