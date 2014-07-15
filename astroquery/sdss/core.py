@@ -9,6 +9,8 @@ Description: Access Sloan Digital Sky Survey database online.
 
 """
 
+from __future__ import print_function
+
 import numpy as np
 from astropy import units as u
 import astropy.coordinates as coord
@@ -18,6 +20,7 @@ from ..query import BaseQuery
 from . import SDSS_SERVER, SDSS_MAXQUERY, SDSS_TIMEOUT
 from ..utils import commons, async_to_sync
 from ..utils.docstr_chompers import prepend_docstr_noreturns
+from ..exceptions import RemoteServiceError
 
 __all__ = ['SDSS', 'SDSSClass']
 
@@ -57,7 +60,7 @@ class SDSSClass(BaseQuery):
 
     def query_region_async(self, coordinates, radius=u.degree / 1800.,
                            fields=None, spectro=False, timeout=TIMEOUT,
-                           get_query_payload=False):
+                           get_query_payload=False, photoobj_fields=None, specobj_fields=None):
         """
         Used to query a region around given coordinates. Equivalent to
         the object cross-ID from the web interface.
@@ -86,6 +89,12 @@ class SDSSClass(BaseQuery):
         timeout : float, optional
             Time limit (in seconds) for establishing successful connection with
             remote server.  Defaults to `SDSSClass.TIMEOUT`.
+        photoobj_fields: float, optional
+            PhotoObj quantities to return. If photoobj_fields is None and
+            specobj_fields is None then the value of fields is used
+        specobj_fields: float, optional
+            SpecObj quantities to return. If photoobj_fields is None and
+            specobj_fields is None then the value of fields is used
 
         Examples
         --------
@@ -108,10 +117,10 @@ class SDSSClass(BaseQuery):
             The result of the query as a `~astropy.table.Table` object.
 
         """
-
         request_payload = self._args_to_payload(coordinates=coordinates,
                                                 radius=radius, fields=fields,
-                                                spectro=spectro)
+                                                spectro=spectro, photoobj_fields=photoobj_fields, 
+                                                specobj_fields=specobj_fields)
         if get_query_payload:
             return request_payload
         r = commons.send_request(SDSS.QUERY_URL, request_payload, timeout,
@@ -562,6 +571,8 @@ class SDSSClass(BaseQuery):
         bytecontent = (response.content.encode('ascii')
                        if hasattr(response.content,'encode')
                        else response.content)
+        if 'error_message' in io.BytesIO(bytecontent):
+            raise RemoteServiceError(response.content)
         arr = np.atleast_1d(np.genfromtxt(io.BytesIO(bytecontent),
                             names=True, dtype=None, delimiter=b',',
                             skip_header=1, # this may be a hack; it is necessary for tests to pass
@@ -575,7 +586,7 @@ class SDSSClass(BaseQuery):
     def _args_to_payload(self, coordinates=None, radius=u.degree / 1800.,
                          fields=None, spectro=False,
                          plate=None, mjd=None, fiberID=None, run=None,
-                         rerun=301, camcol=None, field=None):
+                         rerun=301, camcol=None, field=None, photoobj_fields=None, specobj_fields=None):
         """
         Construct the SQL query from the arguments.
 
@@ -619,6 +630,12 @@ class SDSSClass(BaseQuery):
             Output of one camera column of CCDs.
         field : integer, optional
             Part of a camcol of size 2048 by 1489 pixels.
+        photoobj_fields: float, optional
+            PhotoObj quantities to return. If photoobj_fields is None and
+            specobj_fields is None then the value of fields is used
+        specobj_fields: float, optional
+            SpecObj quantities to return. If photoobj_fields is None and
+            specobj_fields is None then the value of fields is used
 
         Returns
         -------
@@ -633,11 +650,19 @@ class SDSSClass(BaseQuery):
 
         # Construct SQL query
         q_select = 'SELECT DISTINCT '
-        for sql_field in fields:
-            if sql_field in photoobj_defs:
-                q_select += 'p.%s,' % sql_field
-            if sql_field in specobj_defs:
-                q_select += 's.%s,' % sql_field
+        if photoobj_fields is None and specobj_fields is None:
+            for sql_field in fields:
+                if sql_field in photoobj_defs:
+                    q_select += 'p.%s,' % sql_field
+                if sql_field in specobj_defs:
+                    q_select += 's.%s,' % sql_field
+        else:
+            if photoobj_fields is not None:
+                for sql_field in photoobj_fields:
+                    q_select += 'p.%s,' % sql_field
+            if specobj_fields is not None:
+                for sql_field in photoobj_fields:
+                    q_select += 's.%s,' % sql_field
         q_select = q_select.rstrip(',')
         q_select += ' '
 

@@ -666,9 +666,11 @@ class SimbadClass(BaseQuery):
         if self.ROW_LIMIT > 0:
             script = "set limit " + str(self.ROW_LIMIT)
         script = "\n".join([script, votable_def, votable_open, command])
+        using_wildcard = False
         if kwargs.get('wildcard'):
-            script += " wildcard"  # necessary to have a space at the beginning
+            script += " wildcard "  # necessary to have a space at the beginning and end
             del kwargs['wildcard']
+            using_wildcard = True
         # now append args and kwds as per the caller
         # if caller is query_region_async write coordinates as separate ra dec
         if caller == 'query_region_async':
@@ -701,16 +703,33 @@ class SimbadClass(BaseQuery):
             args_str = ' '.join([str(val) for val in args])
         kwargs_str = ' '.join("{key}={value}".format(key=key, value=kwargs[key]) for
                               key in present_keys)
-        script += ' '.join([" ", args_str, kwargs_str, "\n"])
+        
+        # For the record, I feel dirty for writing this wildcard-case hack.
+        # This entire function should be refactored when someone has time.
+        allargs_str = ' '.join([" ", args_str, kwargs_str, "\n"])
+        if using_wildcard:
+            allargs_str = allargs_str.lstrip()
+
+        script += allargs_str
         script += votable_close
         return dict(script=script)
 
     def _parse_result(self, result, resultclass, verbose=False):
+        """
+        Instantiate a Simbad*Result class and try to parse the
+        response with the .table property/method, then return the
+        resulting table.  If data is not retrieved or the resulting
+        table is empty, return None.  In case of problems, save
+        intermediate results for furthur debugging.
+        """
         self.last_response = result
-
         try:
             self.last_parsed_result = resultclass(result.content, verbose=verbose)
+            if self.last_parsed_result.data is None:
+                return None
             resulttable = self.last_parsed_result.table
+            if len(resulttable) == 0:
+                return None
         except Exception as ex:
             self.last_table_parse_error = ex
             raise TableParseError("Failed to parse SIMBAD result! The raw response can be found "
