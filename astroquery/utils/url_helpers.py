@@ -1,4 +1,4 @@
-import urlparse
+import six
 import os.path
 
 
@@ -18,8 +18,8 @@ def urljoin_keep_path(url, path):
     """
     # urlparse.SplitResult doesn't allow overriding attribute values,
     # so ``splitted_url.path = ...`` is not possible here, unfortunately.
-    splitted_url = urlparse.urlsplit(url)
-    return urlparse.SplitResult(
+    splitted_url = six.moves.urllib_parse.urlsplit(url)
+    return six.moves.urllib_parse.SplitResult(
         splitted_url.scheme,
         splitted_url.netloc,
         os.path.join(splitted_url.path, path),
