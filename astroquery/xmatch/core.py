@@ -7,9 +7,10 @@ from astropy.table import Table
 
 from . import XMATCH_URL, XMATCH_TIMEOUT
 from ..query import BaseQuery
-from ..utils import commons, url_helpers, prepend_docstr_noreturns
+from ..utils import commons, url_helpers, prepend_docstr_noreturns, async_to_sync
 
 
+@async_to_sync
 class XMatchClass(BaseQuery):
     URL = XMATCH_URL()
     TIMEOUT = XMATCH_TIMEOUT()
