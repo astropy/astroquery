@@ -313,7 +313,7 @@ class IrsaDustClass(BaseQuery):
         payload : dict
             A dictionary that specifies the data for an HTTP POST request
         """
-        C = commons.parse_coordinate(coordinate)
+        C = commons.parse_coordinates(coordinate)
         payload = {"locstr": "{0} {1}".format(C.fk5.ra.deg, C.fk5.dec.deg)}  # check if this is resolvable?
         # check if radius is given with proper units
         if radius is not None:
