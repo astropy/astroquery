@@ -7,7 +7,7 @@ from astropy.table import Table
 
 from . import XMATCH_URL, XMATCH_TIMEOUT
 from ..query import BaseQuery
-from ..utils import commons, url_helpers
+from ..utils import commons, url_helpers, prepend_docstr_noreturns
 
 
 class XMatchClass(BaseQuery):
@@ -55,6 +55,19 @@ class XMatchClass(BaseQuery):
         -------
         table : `~astropy.table.Table`
             Query results table
+
+        """
+        response = self.query_async(cat1, cat2, max_distance, colRA1, colDec1, colRA2, colDec2)
+        return ascii.read(response.text)
+
+    @prepend_docstr_noreturns(query.__doc__)
+    def query_async(self, cat1, cat2, max_distance, colRA1=None,
+              colDec1=None, colRA2=None, colDec2=None):
+        """
+        Returns
+        -------
+        response : `requests.Response`
+            The HTTP response returned from the service.
 
         """
         if max_distance > 180 * arcsec:
@@ -106,7 +119,7 @@ class XMatchClass(BaseQuery):
             payload['colDec2'] = colDec2
         response = commons.send_request(
             self.URL, payload, self.TIMEOUT, **kwargs)
-        return ascii.read(response.text)
+        return response
 
     def is_table_available(self, table_id):
         """Return True if the passed CDS table identifier is one of the
