@@ -7,7 +7,7 @@ from astropy.table import Table
 
 from . import XMATCH_URL, XMATCH_TIMEOUT
 from ..query import BaseQuery
-from ..utils import commons
+from ..utils import commons, url_helpers
 
 
 class XMatchClass(BaseQuery):
@@ -122,7 +122,7 @@ class XMatchClass(BaseQuery):
         """
         response = self.request(
             'GET',
-            'http://cdsxmatch.u-strasbg.fr/xmatch/api/v1/sync/tables',
+            url_helpers.urljoin_keep_path(self.URL, 'tables'),
             {'action': 'getVizieRTableNames', 'RESPONSEFORMAT': 'txt'})
         return response.content.splitlines()
 
