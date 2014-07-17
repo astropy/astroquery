@@ -1,8 +1,7 @@
-External Packages/Libraries
-===========================
+External C Libraries
+====================
 
-This directory contains C extensions included with the package. Note that only
-C extensions should be included in this directory - pure Cython code should be
-placed in the package source tree, and wrapper Cython code for C libraries
-included here should be in the packagename/wrappers directory.
-
+This directory contains C libraries included with Astropy. Note that only C
+libraries without python-specific code  should be included in this directory.
+Cython or C code intended for use with Astropy or wrapper code should be in
+the Astropy source tree.

@@ -9,7 +9,7 @@ IRSA Dust Extinction Service Queries (`astroquery.irsa_dust`)
 Getting started
 ===============
 
-This module can be used to query IRSA dust extinction service.
+This module can be used to query the `IRSA Dust Extinction Service`_.
 
 Fetch images
 ------------
@@ -70,9 +70,8 @@ The image types that are available can also be listed out any time:
 
     ['ebv', 'temperature', '100um']
 
-Rather than specifying the name, the target may also be specified via
-coordinates passed as strings. Examples of acceptable coordinate strings, can
-be found on this `IRSA Dust Extinction Service page`_.            
+The target may also be specified via coordinates passed as strings. Examples of acceptable coordinate
+strings can be found on this `IRSA DUST coordinates description page`_.            
 
 .. code-block:: python
 
@@ -176,4 +175,5 @@ Reference/API
 .. automodapi:: astroquery.irsa_dust
     :no-inheritance-diagram:
 
-.. _IRSA Dust Extinction Service page: http://irsa.ipac.caltech.edu/applications/DUST/docs/coordinate.html
+.. _IRSA Dust Extinction Service: http://irsa.ipac.caltech.edu/applications/DUST/index.html
+.. _IRSA DUST coordinates description page: http://irsa.ipac.caltech.edu/applications/DUST/docs/coordinate.html
