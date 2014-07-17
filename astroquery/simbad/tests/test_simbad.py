@@ -134,7 +134,7 @@ votable_fields = ",".join(simbad.core.Simbad.get_votable_fields())
                           (["m [0-9]"], dict(wildcard=True, caller='query_object_async'),
                            ("\nvotable {" + votable_fields +"}\n"
                             "votable open\n"
-                            "query id wildcard  m [0-9]  \n"
+                            "query id wildcard m [0-9]  \n"
                             "votable close"
                             )),
                           (["2006ApJ"], dict(caller='query_bibcode_async', get_raw=True),

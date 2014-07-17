@@ -115,6 +115,20 @@ def test_query_region(patch_post):
 
     assert isinstance(result, commons.TableList)
 
+def test_query_regions(patch_post):
+    """
+    This ONLY tests that calling the function works -
+    the data currently used for the test is *NOT* appropriate
+    for the multi-object query.  There is no test for parsing
+    that return (yet - but see test_multicoord in remote_data)
+    """
+    targets = commons.ICRSCoordGenerator(ra=[299.590,299.90],
+                                         dec=[35.201, 35.201],
+                                         unit=(u.deg, u.deg))
+    result = vizier.core.Vizier.query_region(targets,
+                                             radius=5 * u.deg,
+                                             catalog=["HIP", "NOMAD", "UCAC"])
+
 
 def test_query_object_async(patch_post):
     response = vizier.core.Vizier.query_object_async("HD 226868", catalog=["NOMAD", "UCAC"])
