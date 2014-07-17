@@ -6,9 +6,10 @@ from bs4 import BeautifulSoup
 
 from . import SKYVIEW_URL
 from ..query import BaseQuery
-from ..utils import prepend_docstr_noreturns
+from ..utils import prepend_docstr_noreturns, commons, async_to_sync
 
 
+@async_to_sync
 class SkyViewClass(BaseQuery):
     URL = SKYVIEW_URL()
 
@@ -164,14 +165,32 @@ class SkyViewClass(BaseQuery):
         >>> for path in paths:
         ...     print '\tnew file:', path
 
+        Returns
+        -------
+        A list of `astropy.fits.HDUList` objects
+
+        """
+        readable_objects = self.get_images_async(
+            position, survey, coordinates, projection,
+            pixels, scaling, sampler, resolver,
+            deedger, lut, grid, gridlabels)
+        return [obj.get_fits() for obj in readable_objects]
+
+    @prepend_docstr_noreturns(get_images.__doc__)
+    def get_images_async(
+            self, position, survey, coordinates=None, projection=None,
+            pixels=None, scaling=None, sampler=None, resolver=None,
+            deedger=None, lut=None, grid=None, gridlabels=None):
+        """
+        Returns
+        -------
+        A list of context-managers that yield readable file-like objects
         """
         image_urls = self.get_image_list(
-            position, survey, coordinates, projection, pixels, scaling,
-            sampler, resolver, deedger, lut, grid, gridlabels)
-        for url in image_urls:
-            # download the FITS file
-            path = self.request('GET', url, save=True)
-            yield path
+            position, survey, coordinates, projection,
+            pixels, scaling, sampler, resolver,
+            deedger, lut, grid, gridlabels)
+        return [commons.FileContainer(url) for url in image_urls]
 
     @prepend_docstr_noreturns(get_images.__doc__)
     def get_image_list(
