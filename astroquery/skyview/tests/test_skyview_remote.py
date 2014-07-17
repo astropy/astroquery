@@ -1,6 +1,9 @@
+from astropy.tests.helper import remote_data
+
 from ...skyview import SkyView
 
 
+@remote_data
 def test_get_image_list():
     urls = SkyView().get_image_list(position='Eta Carinae', survey=['Fermi 5', 'HRI', 'DSS'])
     assert urls == [
