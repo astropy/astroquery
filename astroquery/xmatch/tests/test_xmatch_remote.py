@@ -41,12 +41,12 @@ def test_xmatch_query(xmatch):
         table = xmatch.query(
             cat1=pos_list, cat2='vizier:II/246/out', max_distance=5 * arcsec,
             colRA1='ra', colDec1='dec')
-        assert isinstance(table, Table)
-        assert table.colnames == [
-            'angDist', 'ra', 'dec', '2MASS', 'RAJ2000', 'DEJ2000',
-            'errHalfMaj', 'errHalfMin', 'errPosAng', 'Jmag', 'Hmag', 'Kmag',
-            'e_Jmag', 'e_Hmag', 'e_Kmag', 'Qfl', 'Rfl', 'X', 'MeasureJD']
-        assert len(table) == 11
+    assert isinstance(table, Table)
+    assert table.colnames == [
+        'angDist', 'ra', 'dec', '2MASS', 'RAJ2000', 'DEJ2000',
+        'errHalfMaj', 'errHalfMin', 'errPosAng', 'Jmag', 'Hmag', 'Kmag',
+        'e_Jmag', 'e_Hmag', 'e_Kmag', 'Qfl', 'Rfl', 'X', 'MeasureJD']
+    assert len(table) == 11
 
 
 @remote_data
