@@ -16,7 +16,13 @@ htmlcov
 .coverage
 
 # Sphinx
-_build
+docs/api
+docs/_build
+
+# Eclipse editor project files
+.project
+.pydevproject
+.settings
 
 # Packages/installer info
 *.egg
