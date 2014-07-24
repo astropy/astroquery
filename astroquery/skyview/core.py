@@ -148,7 +148,8 @@ class SkyViewClass(BaseQuery):
             use the survey default, ``"skyview.process.Deedger"`` (for
             enabling de-edging), and ``"null"`` to disable.
         lut : str
-            Choose from the color table selections to display the data in false color.
+            Choose from the color table selections to display the data in
+            false color.
         grid : bool
             overlay a coordinate grid on the image if True
         gridlabels : bool
