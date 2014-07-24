@@ -391,7 +391,7 @@ class EsoClass(QueryWithLogin):
             A table where: columns are header keywords, rows are product_ids.
 
         """
-        _schema_product_ids = schema.Schema(schema.Or(Column, [six.string_types]))
+        _schema_product_ids = schema.Schema(schema.Or(Column, [schema.Or(*six.string_types)]))
         _schema_product_ids.validate(product_ids)
         # Get all headers
         result = []
