@@ -223,6 +223,10 @@ class SkyViewClass(BaseQuery):
             'Sampler': sampler,
             'pixels': pixels}
         response = self._submit_form(input)
+        urls = self._parse_response(response)
+        return urls
+
+    def _parse_response(self, response):
         bs = BeautifulSoup(response.content)
         urls = []
         for a in bs.find_all('a'):
