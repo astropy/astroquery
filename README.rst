@@ -178,6 +178,17 @@ will be clear from context what to do with your particular VCS.
   to modify the ``coveralls --rcfile`` line in ``.travis.yml`` file to
   replace ``packagename`` with the name of your package.
 
+* If you want the documentation for your project to be hosted by
+  `ReadTheDocs <https://readthedocs.org>`_, then you need to setup an
+  account there. The following entries in "Advanced Settings" for your
+  package on `ReadTheDocs <https://readthedocs.org>`_ should work:
+
+  - activate ``Install your project inside a virtualenv using setup.py install``
+  - Requirements file: ``docs/rtd-pip-requirements``
+  - activate ``Give the virtual environment access to the global site-packages dir.``
+
+  All other settings can stay on their default value.
+
 * You're now ready to start doing actual work on your affiliated package.  You
   will probably want to read over the developer guidelines of the Astropy
   documentation, and if you are hosting your code in GitHub, you might also
