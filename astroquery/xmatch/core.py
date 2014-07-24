@@ -7,7 +7,8 @@ from astropy.table import Table
 
 from . import XMATCH_URL, XMATCH_TIMEOUT
 from ..query import BaseQuery
-from ..utils import commons, url_helpers, prepend_docstr_noreturns, async_to_sync
+from ..utils import commons, url_helpers, prepend_docstr_noreturns,\
+    async_to_sync
 
 
 @async_to_sync
@@ -58,12 +59,14 @@ class XMatchClass(BaseQuery):
             Query results table
 
         """
-        response = self.query_async(cat1, cat2, max_distance, colRA1, colDec1, colRA2, colDec2)
+        response = self.query_async(
+            cat1, cat2, max_distance, colRA1, colDec1, colRA2, colDec2)
         return ascii.read(response.text)
 
     @prepend_docstr_noreturns(query.__doc__)
-    def query_async(self, cat1, cat2, max_distance, colRA1=None,
-              colDec1=None, colRA2=None, colDec2=None):
+    def query_async(
+            self, cat1, cat2, max_distance, colRA1=None,
+            colDec1=None, colRA2=None, colDec2=None):
         """
         Returns
         -------
@@ -94,7 +97,8 @@ class XMatchClass(BaseQuery):
             # assume it's a file-like object, support duck-typing
             kwargs['files'] = {'cat1': cat1}
         if not self.is_table_available(cat1) and\
-                payload.get('colRA1') is None or payload.get('colDec1') is None:
+                payload.get('colRA1') is None or\
+                payload.get('colDec1') is None:
             # if `cat1` is not a VizieR table,
             # it is assumed it's either a URL or an uploaded table
             payload['colRA1'] = colRA1
@@ -113,7 +117,8 @@ class XMatchClass(BaseQuery):
             # assume it's a file-like object, support duck-typing
             kwargs['files'] = {'cat2': cat2}
         if not self.is_table_available(cat2) and\
-                payload.get('colRA2') is None or payload.get('colDec2') is None:
+                payload.get('colRA2') is None or\
+                payload.get('colDec2') is None:
             # if `cat2` is not a VizieR table,
             # it is assumed it's either a URL or an uploaded table
             payload['colRA2'] = colRA2

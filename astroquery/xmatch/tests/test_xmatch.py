@@ -10,8 +10,11 @@ from ...utils import commons
 from ...utils.testing_tools import MockResponse
 from ...xmatch import XMatch
 
-DATA_FILES = {'get':'tables.csv', # .action.getVizieRTableNames
-              'post':'query_res.csv',} # .request.xmatch
+DATA_FILES = {
+    'get': 'tables.csv',   # .action.getVizieRTableNames
+    'post': 'query_res.csv',  # .request.xmatch
+}
+
 
 class MockResponseXmatch(MockResponse):
     def __init__(self, method, url, data, **kwargs):
@@ -31,6 +34,7 @@ def patch_request(request):
     mp = request.getfuncargvalue("monkeypatch")
     mp.setattr(requests, "request", request_mockreturn)
     return mp
+
 
 def request_mockreturn(method, url, data, **kwargs):
     return MockResponseXmatch(method, url, data)
@@ -72,7 +76,7 @@ def test_xmatch_query_local(monkeypatch):
         commons,
         'send_request',
         lambda url, data, timeout, request_type='POST', headers={}, **kwargs:
-                request_mockreturn(request_type, url, data, **kwargs))
+            request_mockreturn(request_type, url, data, **kwargs))
     xm = XMatch()
     with open(data_path('posList.csv')) as pos_list:
         response = xm.query_async(
@@ -92,7 +96,7 @@ def test_xmatch_query_cat1_table_local(monkeypatch):
         commons,
         'send_request',
         lambda url, data, timeout, request_type='POST', headers={}, **kwargs:
-                request_mockreturn(request_type, url, data, **kwargs))
+            request_mockreturn(request_type, url, data, **kwargs))
     with open(data_path('posList.csv')) as pos_list:
         input_table = Table.read(pos_list, names=['ra', 'dec'], format='ascii')
     xm = XMatch()
