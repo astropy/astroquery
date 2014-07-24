@@ -9,6 +9,9 @@ from ..query import BaseQuery
 from ..utils import prepend_docstr_noreturns, commons, async_to_sync
 
 
+__doctest_skip__ = ['get_images']
+
+
 @async_to_sync
 class SkyViewClass(BaseQuery):
     URL = SKYVIEW_URL()
