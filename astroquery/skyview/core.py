@@ -9,7 +9,10 @@ from ..query import BaseQuery
 from ..utils import prepend_docstr_noreturns, commons, async_to_sync
 
 
-__doctest_skip__ = ['get_images']
+__doctest_skip__ = [
+    'SkyViewClass.get_images',
+    'SkyViewClass.get_images_async',
+    'SkyViewClass.get_image_list']
 
 
 @async_to_sync
