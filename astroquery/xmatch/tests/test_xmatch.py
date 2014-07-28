@@ -83,7 +83,7 @@ def test_xmatch_query_local(monkeypatch):
         response = xm.query_async(
             cat1=pos_list, cat2='vizier:II/246/out', max_distance=5 * arcsec,
             colRA1='ra', colDec1='dec')
-    table = ascii.read(response.get_content())
+    table = ascii.read(response.get_content(), format='csv')
     assert isinstance(table, Table)
     assert table.colnames == [
         'angDist', 'ra', 'dec', '2MASS', 'RAJ2000', 'DEJ2000',
@@ -104,7 +104,7 @@ def test_xmatch_query_cat1_table_local(monkeypatch):
         input_table = Table.read(pos_list, names=['ra', 'dec'], format='ascii')
     response = xm.query_async(
         cat1=input_table, cat2='vizier:II/246/out', max_distance=5 * arcsec)
-    table = ascii.read(response.get_content())
+    table = ascii.read(response.get_content(), format='csv')
     assert isinstance(table, Table)
     assert table.colnames == [
         'angDist', 'ra', 'dec', '2MASS', 'RAJ2000', 'DEJ2000',

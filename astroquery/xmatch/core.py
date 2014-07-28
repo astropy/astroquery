@@ -61,7 +61,7 @@ class XMatchClass(BaseQuery):
         """
         response = self.query_async(
             cat1, cat2, max_distance, colRA1, colDec1, colRA2, colDec2)
-        return ascii.read(response.text)
+        return ascii.read(response.text, format='csv')
 
     @prepend_docstr_noreturns(query.__doc__)
     def query_async(
