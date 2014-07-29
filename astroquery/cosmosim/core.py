@@ -17,7 +17,7 @@ from ..utils import commons
 from ..query import QueryWithLogin
 from . import COSMOSIM_SERVER, COSMOSIM_TIMEOUT
 
-import ipdb
+
 
 __all__ = ['CosmoSim']
 
@@ -63,6 +63,11 @@ class CosmoSim(QueryWithLogin):
 
         if authenticated.status_code == 200 and password_from_keyring is None:
             keyring.set_password("astroquery:www.cosmosim.org", self.username, self.password)
+
+        # Delete job
+        soup = BeautifulSoup(authenticated.content)
+        self.delete_job(jobid="{}".format(soup.find("uws:jobid").string),squash=True)
+        
         return authenticated
 
 
@@ -187,7 +192,7 @@ class CosmoSim(QueryWithLogin):
             
         return response_list
 
-    def delete_job(self,jobid=None):
+    def delete_job(self,jobid=None,squash=None):
         """
         A public function which deletes a stored job from the server in any phase. If no jobid is given, it attemps to use the most recent job (if it exists in this session). If jobid is specified, then it deletes the corresponding job, and if it happens to match the existing current job, that variable gets deleted.
         """
@@ -211,7 +216,8 @@ class CosmoSim(QueryWithLogin):
             
         if not result.ok:
             result.raise_for_status()
-        print 'Deleted job: {}'.format(jobid)
+        if squash is None:    
+            print 'Deleted job: {}'.format(jobid)
         
         return result
 
@@ -333,9 +339,6 @@ class CosmoSim(QueryWithLogin):
                 jobid = self.current_job
             except:
                 raise
-
-        #if hasattr(self,'session'):
-        #    response = self.session.post(url,data=re)
                    
         self.check_all_jobs()
         completed_job_responses = self.completed_job_info(jobid)
@@ -344,7 +347,7 @@ class CosmoSim(QueryWithLogin):
 
         ipdb.set_trace()
         
-        # This is where the requestrequest.content parsing happens
+        # This is where the request.content parsing happens
         raw_table_data = self.session.get(tableurl,auth=(self.username,self.password))
         raw_headers = raw_table_data.content.split('\n')[0]
         num_cols = len(raw_headers.split(','))
