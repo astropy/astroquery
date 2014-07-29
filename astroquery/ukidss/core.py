@@ -135,11 +135,13 @@ class UkidssClass(QueryWithLogin):
         sys = self._parse_system(kwargs.get('system'))
         request_payload['sys'] = sys
         if sys == 'J':
-            request_payload['ra'] = commons.parse_coordinates(args[0]).icrs.ra.degree
-            request_payload['dec'] = commons.parse_coordinates(args[0]).icrs.dec.degree
+            C = commons.parse_coordinates(args[0]).transform_to(coord.ICRS)
+            request_payload['ra'] = C.ra.degree
+            request_payload['dec'] = C.dec.degree
         elif sys == 'G':
-            request_payload['ra'] = commons.parse_coordinates(args[0]).galactic.l.degree
-            request_payload['dec'] = commons.parse_coordinates(args[0]).galactic.b.degree
+            C = commons.parse_coordinates(args[0]).transform_to(coord.Galactic)
+            request_payload['ra'] = C.l.degree
+            request_payload['dec'] = C.b.degree
         return request_payload
 
     def _parse_system(self, system):
