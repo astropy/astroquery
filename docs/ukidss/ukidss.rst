@@ -149,7 +149,7 @@ parameters will no longer be effective.
     >>> from astroquery.ukidss import Ukidss
     >>> import astropy.units as u
     >>> import astropy.coordinates as coord
-    >>> images = Ukidss.get_images(coord.SkyFrame(49.489, -0.27,
+    >>> images = Ukidss.get_images(coord.SkyCoord(49.489, -0.27,
     ...                                           unit=(u.deg, u.deg),
     ...                                           frame='galactic'),
     ...                            image_width=5 * u.arcmin)
@@ -197,7 +197,7 @@ parameters. Let us now see a complete example to illustrate these points.
     >>> from astroquery.ukidss import Ukidss
     >>> import astropy.units as u
     >>> import astropy.coordinates as coord 
-    >>> image_urls = Ukidss.get_image_list(coord.SkyFrame(ra=83.633083,
+    >>> image_urls = Ukidss.get_image_list(coord.SkyCoord(ra=83.633083,
     ...          dec=22.0145, unit=(u.deg, u.deg), frame='icrs'),
     ...          frame_type='interleave',
     ...          programme_id="GCS", waveband="K", radius=20*u.arcmin)
@@ -227,7 +227,7 @@ results are returned in a `~astropy.table.Table`.
     >>> from astroquery.ukidss import Ukidss
     >>> import astropy.coordinates as coord
     >>> import astropy.units as u
-    >>> table = Ukidss.query_region(coord.SkyFrame(10.625, -0.38,
+    >>> table = Ukidss.query_region(coord.SkyCoord(10.625, -0.38,
     ...                                            unit=(u.deg, u.deg),
     ...                                            frame='galactic'),
     ...                             radius=6 * u.arcsec)

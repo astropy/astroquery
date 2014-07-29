@@ -52,7 +52,7 @@ centre.
     >>> from astroquery.nvas import Nvas
     >>> import astropy.coordinates as coord
     >>> import astropy.units as u
-    >>> images = Nvas.get_images(coord.SkyFrame(49.489, -0.37,
+    >>> images = Nvas.get_images(coord.SkyCoord(49.489, -0.37,
     ...                          unit=(u.deg, u.deg), frame='galactic'),
     ...                          band="K")
 
