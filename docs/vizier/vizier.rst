@@ -161,7 +161,9 @@ dimension.
     >>> from astroquery.vizier import Vizier
     >>> import astropy.units as u
     >>> import astropy.coordinates as coord
-    >>> result = Vizier.query_region(coord.ICRS(ra=299.590, dec=35.201, unit=(u.deg, u.deg)),
+    >>> result = Vizier.query_region(coord.SkyFrame(ra=299.590, dec=35.201,
+    ...                                             unit=(u.deg, u.deg),
+    ...                                             frame='icrs'),
     ...                         width="30m",
     ...                         catalog=["NOMAD", "UCAC"])
     >>> print(result)

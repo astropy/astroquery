@@ -149,8 +149,10 @@ parameters will no longer be effective.
     >>> from astroquery.ukidss import Ukidss
     >>> import astropy.units as u
     >>> import astropy.coordinates as coord
-    >>> images = Ukidss.get_images(coord.Galactic(l=49.489, b=-0.27,
-    ...          unit=(u.deg, u.deg)), image_width=5 * u.arcmin)
+    >>> images = Ukidss.get_images(coord.SkyFrame(49.489, -0.27,
+    ...                                           unit=(u.deg, u.deg),
+    ...                                           frame='galactic'),
+    ...                            image_width=5 * u.arcmin)
 
         Found 6 targets
     Downloading http://surveys.roe.ac.uk/wsa/cgi-bin/getFImage.cgi?file=/disk24/wsa/ingest/fits/20060603_v1/w20060603_01510_sf_st_two.fit&mfid=2514752&extNo=1&lx=862&hx=1460&ly=1539&hy=2137&rf=270&flip=1&uniq=575_115_31_31555_1&xpos=300.1&ypos=299.7&band=J&ra=290.8256247&dec=14.56435
@@ -195,8 +197,9 @@ parameters. Let us now see a complete example to illustrate these points.
     >>> from astroquery.ukidss import Ukidss
     >>> import astropy.units as u
     >>> import astropy.coordinates as coord 
-    >>> image_urls = Ukidss.get_image_list(coord.ICRS(ra=83.633083,
-    ...          dec=22.0145, unit=(u.deg, u.deg)), frame_type='interleave',
+    >>> image_urls = Ukidss.get_image_list(coord.SkyFrame(ra=83.633083,
+    ...          dec=22.0145, unit=(u.deg, u.deg), frame='icrs'),
+    ...          frame_type='interleave',
     ...          programme_id="GCS", waveband="K", radius=20*u.arcmin)
     >>> image_urls
 
@@ -224,8 +227,10 @@ results are returned in a `~astropy.table.Table`.
     >>> from astroquery.ukidss import Ukidss
     >>> import astropy.coordinates as coord
     >>> import astropy.units as u
-    >>> table = Ukidss.query_region(coord.Galactic(l=10.625,
-    ...         b=-0.38,  unit=(u.deg, u.deg)), radius=6 * u.arcsec)
+    >>> table = Ukidss.query_region(coord.SkyFrame(10.625, -0.38,
+    ...                                            unit=(u.deg, u.deg),
+    ...                                            frame='galactic'),
+    ...                             radius=6 * u.arcsec)
     
     Downloading http://surveys.roe.ac.uk/wsa/tmp/tmp_sql/results1_4_45_58_24651.xml
     |===========================================| 4.6k/4.6k (100.00%)        00s
