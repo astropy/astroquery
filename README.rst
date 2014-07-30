@@ -19,18 +19,11 @@ website <http://simbad.u-strasbg.fr/simbad/>`_, use the ``simbad`` sub-package:
     ------------- ------------- ------------- ... -------- -------------- -------------------
     * tet01 Ori C 05 35 16.4637 -05 23 22.848 ...        A              O 2007A&A...474..653V
         
-Installation and Requirements    
+Installation and Requirements
 -----------------------------
 
-
-As an `astropy`_ affiliate, astroquery requires `astropy`_.  However, because
-astroquery relies heavily upon the ``astropy.coordinates`` module, the
-development version of `astropy`_ is required. `astropy`_ can be installed from
-pip:
-
-.. code-block:: bash
-
-    $ pip install git+http://github.com/astropy/astropy.git#egg=astropy
+Astroquery works with Python 2.7 and 3.3 or later.
+As an `astropy`_ affiliate, astroquery requires `astropy`_ version 0.4 or later.
 
 astroquery uses the `requests <http://docs.python-requests.org/en/latest/>`_
 module to communicate with the internet.  `requests`_ can also be installed with
@@ -67,6 +60,7 @@ pip install also works:
     
 Using astroquery
 ----------------
+
 Importing astroquery on its own doesn't get you much: you need to import each
 sub-module specifically.  Check out the `docs`_
 to find a list of the tools available.  The `API`_ 
