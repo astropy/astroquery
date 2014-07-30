@@ -1,3 +1,4 @@
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
 """Download GAMA data"""
 import re
 import os
@@ -6,7 +7,8 @@ from astropy.table import Table
 from ..query import BaseQuery
 from ..utils import commons, async_to_sync
 
-__all__ = ['GAMA','GAMAClass']
+__all__ = ['GAMA', 'GAMAClass']
+
 
 @async_to_sync
 class GAMAClass(BaseQuery):

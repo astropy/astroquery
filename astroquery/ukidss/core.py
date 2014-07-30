@@ -15,7 +15,7 @@ import astropy.io.votable as votable
 from ..query import QueryWithLogin
 from ..exceptions import InvalidQueryError, TimeoutError
 from ..utils import commons
-from . import UKIDSS_SERVER, UKIDSS_TIMEOUT
+from . import conf
 from ..exceptions import TableParseError
 
 __all__ = ['Ukidss', 'UkidssClass', 'clean_catalog']
@@ -48,12 +48,12 @@ class UkidssClass(QueryWithLogin):
     queries.  Allows registered users to login, but defaults to using the
     public UKIDSS data sets.
     """
-    BASE_URL = UKIDSS_SERVER()
+    BASE_URL = conf.server
     LOGIN_URL = BASE_URL + "DBLogin"
     IMAGE_URL = BASE_URL + "GetImage"
     ARCHIVE_URL = BASE_URL + "ImageList"
     REGION_URL = BASE_URL + "WSASQL"
-    TIMEOUT = UKIDSS_TIMEOUT()
+    TIMEOUT = conf.timeout
 
     filters = {'all': 'all', 'J': 3, 'H': 4, 'K': 5, 'Y': 2,
                'Z': 1, 'H2': 6, 'Br': 7}

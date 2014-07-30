@@ -3,7 +3,7 @@ from astropy.table import Table, Column
 import astropy.units as u
 import astropy.coordinates as coord
 from . import utils
-from . import IRSA_DUST_SERVER, IRSA_DUST_TIMEOUT
+from . import conf
 from ..utils import commons
 from ..query import BaseQuery
 
@@ -37,8 +37,8 @@ DATA_TABLE = "./data/table"
 
 class IrsaDustClass(BaseQuery):
 
-    DUST_SERVICE_URL = IRSA_DUST_SERVER()
-    TIMEOUT = IRSA_DUST_TIMEOUT()
+    DUST_SERVICE_URL = conf.server
+    TIMEOUT = conf.timeout
     image_type_to_section = {
         'temperature': 't',
         'ebv': 'r',

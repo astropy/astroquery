@@ -46,7 +46,6 @@ class MockResponseSimbad(MockResponse):
         if match:
             filename = DATA_FILES[match.group(1)]
             content = open(data_path(filename), "r").read()
-            print(filename)
             return content
 
 

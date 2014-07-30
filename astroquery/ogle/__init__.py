@@ -13,18 +13,29 @@ Note:
   If you use the data from OGLE please refer to the publication by Nataf et al.
   (2012).
 """
-from astropy.config import ConfigurationItem
-
-OGLE_SERVER = ConfigurationItem('ogle_server',
-                                ['http://ogle.astrouw.edu.pl/cgi-ogle/getext.py'],
-                                'Name of the OGLE mirror to use.')
-OGLE_TIMEOUT = ConfigurationItem('timeout', 60,
-                                 'Time limit for connecting to the OGLE server.')
+from astropy import config as _config
 
 
-from .core import Ogle,OgleClass
+class Conf(_config.ConfigNamespace):
+    """
+    Configuration parameters for `astroquery.ogle`.
+    """
+    server = _config.ConfigItem(
+        ['http://ogle.astrouw.edu.pl/cgi-ogle/getext.py'],
+        'Name of the OGLE mirror to use.'
+        )
+    timeout = _config.ConfigItem(
+        60,
+        'Time limit for connecting to OGLE server.'
+        )
 
-__all__ = ['Ogle','OgleClass']
+conf = Conf()
+
+from .core import Ogle, OgleClass
+
+__all__ = ['Ogle', 'OgleClass',
+           'Conf', 'conf',
+           ]
 
 import warnings
 warnings.warn("Experimental: OGLE has not yet been refactored to have its API match the rest of astroquery.")

@@ -13,7 +13,7 @@ import numpy as np
 from ...utils.testing_tools import MockResponse
 from ...utils import commons
 from ... import irsa
-from ...irsa import ROW_LIMIT
+from ...irsa import conf
 
 DATA_FILES = {'Cone': 'Cone.xml',
               'Box': 'Box.xml',
@@ -73,7 +73,7 @@ def test_parse_coordinates(coordinates, expected):
 
 def test_args_to_payload():
     out = irsa.core.Irsa._args_to_payload("fp_psc")
-    assert out == dict(catalog='fp_psc', outfmt=3, outrows=ROW_LIMIT())
+    assert out == dict(catalog='fp_psc', outfmt=3, outrows=conf.row_limit)
 
 
 @pytest.mark.parametrize(("coordinates"), OBJ_LIST)

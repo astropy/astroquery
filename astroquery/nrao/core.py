@@ -15,9 +15,9 @@ from ..utils import commons, async_to_sync
 from ..utils.docstr_chompers import prepend_docstr_noreturns
 from ..exceptions import TableParseError
 
-from . import NRAO_SERVER, NRAO_TIMEOUT
+from . import conf
 
-__all__ = ["Nrao","NraoClass"]
+__all__ = ["Nrao", "NraoClass"]
 
 
 def _validate_params(func):
@@ -42,8 +42,8 @@ def _validate_params(func):
 @async_to_sync
 class NraoClass(BaseQuery):
 
-    DATA_URL = NRAO_SERVER()
-    TIMEOUT = NRAO_TIMEOUT()
+    DATA_URL = conf.server
+    TIMEOUT = conf.timeout
 
     # dicts and lists for data archive queries
     telescope_code = {
@@ -238,7 +238,7 @@ class NraoClass(BaseQuery):
         new_content = days_re.sub(r'unit="days"  datatype="char" arraysize="*"', new_content)
         degrees_re = re.compile(r'unit="degrees"  datatype="double"')
         new_content = degrees_re.sub(r'unit="degrees"  datatype="char" arraysize="*"', new_content)
-                
+
         try:
             tf = tempfile.NamedTemporaryFile()
             tf.write(new_content.encode('utf-8'))

@@ -1,3 +1,4 @@
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
 from astropy import config as _config
 
 
@@ -14,4 +15,6 @@ conf = Conf()
 
 from .core import SkyView, SkyViewClass
 
-__all__ = ['SkyView', 'SkyViewClass', 'conf']
+__all__ = ['SkyView', 'SkyViewClass',
+           'Conf', 'conf',
+           ]

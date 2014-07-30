@@ -19,7 +19,7 @@ from ..query import BaseQuery
 from ..utils import commons
 from ..utils import async_to_sync
 from ..utils import schema
-from . import VIZIER_SERVER, VIZIER_TIMEOUT, ROW_LIMIT
+from . import conf
 from ..exceptions import TableParseError
 
 
@@ -39,8 +39,8 @@ class VizierClass(BaseQuery):
                                     error="catalog must be a list of strings or a single string")
 
     def __init__(self, columns=["*"], column_filters={}, catalog=None, keywords=None,
-                 ucd="", timeout=VIZIER_TIMEOUT(), vizier_server=VIZIER_SERVER(),
-                 row_limit=ROW_LIMIT()):
+                 ucd="", timeout=conf.timeout, vizier_server=conf.server,
+                 row_limit=conf.row_limit):
         super(VizierClass, self).__init__()
         self.columns = columns
         self.column_filters = column_filters

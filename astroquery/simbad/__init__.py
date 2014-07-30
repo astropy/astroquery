@@ -8,16 +8,31 @@ The SIMBAD query tool creates a `script query
 data that is then parsed into a SimbadResult object.
 This object then parses the data and returns a table parsed with `astropy.io.votable.parse`.
 """
-from astropy.config import ConfigurationItem
+from astropy import config as _config
 
-SIMBAD_SERVER = ConfigurationItem('simbad_server', ['simbad.u-strasbg.fr',
-                                                    'simbad.harvard.edu'], 'Name of the SIMBAD mirror to use.')
 
-SIMBAD_TIMEOUT = ConfigurationItem('timeout', 60, 'time limit for connecting to Simbad server')
+class Conf(_config.ConfigNamespace):
+    """
+    Configuration parameters for `astroquery.simbad`.
+    """
+    server = _config.ConfigItem(
+        ['simbad.u-strasbg.fr', 'simbad.harvard.edu'],
+        'Name of the SIMBAD mirror to use.'
+        )
+    timeout = _config.ConfigItem(
+        60,
+        'Time limit for connecting to Simbad server.'
+        )
+    row_limit = _config.ConfigItem(
+        # O defaults to the maximum limit
+        0,
+        'Maximum number of rows that will be fetched from the result.'
+        )
 
-# O defaults to the maximum limit
-ROW_LIMIT = ConfigurationItem('row_limit', 0, 'maximum number of rows that will be fetched from the result.')
+conf = Conf()
 
 from .core import Simbad, SimbadClass
 
-__all__ = ['Simbad', 'SimbadClass']
+__all__ = ['Simbad', 'SimbadClass',
+           'Conf', 'conf',
+           ]

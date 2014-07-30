@@ -4,7 +4,6 @@ from __future__ import print_function
 import os
 import requests
 
-
 from numpy import testing as npt
 from astropy.tests.helper import pytest
 from astropy.table import Table
@@ -15,12 +14,7 @@ from ...utils.testing_tools import MockResponse
 
 from ... import ned
 from ...utils import commons
-from ...ned import (HUBBLE_CONSTANT,
-               CORRECT_REDSHIFT,
-               OUTPUT_COORDINATE_FRAME,
-               OUTPUT_EQUINOX,
-               SORT_OUTPUT_BY)
-
+from ...ned import conf
 
 DATA_FILES = {
     'object': 'query_object.xml',
@@ -175,13 +169,13 @@ def test_query_refcode_async(patch_get):
     response = ned.core.Ned.query_refcode_async('1997A&A...323...31K', True)
     assert response == {'search_type': 'Search',
                         'refcode': '1997A&A...323...31K',
-                        'hconst': HUBBLE_CONSTANT(),
+                        'hconst': conf.hubble_constant,
                         'omegam': 0.27,
                         'omegav': 0.73,
-                        'corr_z': CORRECT_REDSHIFT(),
-                        'out_csys': OUTPUT_COORDINATE_FRAME(),
-                        'out_equinox': OUTPUT_EQUINOX(),
-                        'obj_sort': SORT_OUTPUT_BY(),
+                        'corr_z': conf.correct_redshift,
+                        'out_csys': conf.output_coordinate_frame,
+                        'out_equinox': conf.output_equinox,
+                        'obj_sort': conf.sort_output_by,
                         'extend': 'no',
                         'img_stamp': 'NO',
                         'list_limit': 0,

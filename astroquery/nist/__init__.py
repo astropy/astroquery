@@ -2,12 +2,26 @@
 """
 Fetches line spectra from the NIST Atomic Spectra Database.
 """
-from astropy.config import ConfigurationItem
-NIST_SERVER = ConfigurationItem('nist_server', ["http://physics.nist.gov/cgi-bin/ASD/lines1.pl"],
-                               'Name of the NIST URL to query.')
+from astropy import config as _config
 
-NIST_TIMEOUT = ConfigurationItem('timeout', 30, 'time limit for connecting to NIST server')
 
-from .core import Nist,NistClass
+class Conf(_config.ConfigNamespace):
+    """
+    Configuration parameters for `astroquery.nist`.
+    """
+    server = _config.ConfigItem(
+        ['http://physics.nist.gov/cgi-bin/ASD/lines1.pl'],
+        'Name of the NIST URL to query.'
+        )
+    timeout = _config.ConfigItem(
+        30,
+        'Time limit for connecting to NIST server.'
+        )
 
-__all__ = ['Nist','NistClass']
+conf = Conf()
+
+from .core import Nist, NistClass
+
+__all__ = ['Nist', 'NistClass',
+           'Conf', 'conf',
+           ]

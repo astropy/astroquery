@@ -1,3 +1,4 @@
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
 """
 gama
 ----
@@ -7,4 +8,4 @@ http://www.gama-survey.org/dr2/query/
 :author: James T. Allen <james.thomas.allen@gmail.com>
 """
 
-from .core import GAMA,GAMAClass
+from .core import GAMA, GAMAClass

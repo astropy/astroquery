@@ -1,12 +1,10 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-from ... import simbad
 from astropy.tests.helper import remote_data, pytest
 import astropy.coordinates as coord
 import astropy.units as u
 from astropy.table import Table
-import sys
 from ...utils.testing_tools import MockResponse
-is_python3 = (sys.version_info >= (3,))
+from ... import simbad
 
 # double-check super-undo monkeypatching...
 import requests

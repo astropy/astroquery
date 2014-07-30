@@ -7,12 +7,12 @@ import astropy.units as u
 import astropy.io.ascii as asciitable
 
 from ..query import BaseQuery
-from ..utils import commons,async_to_sync
+from ..utils import commons, async_to_sync
 from ..utils.docstr_chompers import prepend_docstr_noreturns
-from . import NIST_SERVER, NIST_TIMEOUT
+from . import conf
 from ..exceptions import TableParseError
 
-__all__ = ['Nist','NistClass']
+__all__ = ['Nist', 'NistClass']
 
 
 def _strip_blanks(table):
@@ -38,8 +38,8 @@ def _strip_blanks(table):
 
 @async_to_sync
 class NistClass(BaseQuery):
-    URL = NIST_SERVER()
-    TIMEOUT = NIST_TIMEOUT()
+    URL = conf.server
+    TIMEOUT = conf.timeout
     unit_code = {'Angstrom':0,
                  'nm': 1,
                  'um': 2}

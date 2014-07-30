@@ -8,13 +8,26 @@
 
         Adam Ginsburg (adam.g.ginsburg@gmail.com)
 """
+from astropy import config as _config
 
-from astropy.config import ConfigurationItem
 
-NVAS_SERVER = ConfigurationItem('nvas_server', ["https://webtest.aoc.nrao.edu/cgi-bin/lsjouwer/archive-pos.pl"],
-                               'Name of the NVAS mirror to use.')
-NVAS_TIMEOUT = ConfigurationItem('timeout', 60, 'time limit for connecting to NVAS server')
+class Conf(_config.ConfigNamespace):
+    """
+    Configuration parameters for `astroquery.nvas`.
+    """
+    server = _config.ConfigItem(
+        ['https://webtest.aoc.nrao.edu/cgi-bin/lsjouwer/archive-pos.pl'],
+        'Name of the NVAS mirror to use.'
+        )
+    timeout = _config.ConfigItem(
+        60,
+        'Time limit for connecting to NVAS server.'
+        )
 
-from .core import Nvas,NvasClass
+conf = Conf()
 
-__all__ = ['Nvas','NvasClass']
+from .core import Nvas, NvasClass
+
+__all__ = ['Nvas', 'NvasClass',
+           'Conf', 'conf',
+           ]
