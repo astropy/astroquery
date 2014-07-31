@@ -216,14 +216,17 @@ def coord_to_radec(coordinate):
     degrees
 
     This is a hack / temporary wrapper to deal with the unstable astropy API
+    (it may be wise to remove this hack since it's not clear that the old
+    coordinate API can even do transforms)
     """
-    if hasattr(coordinate.fk5.ra,'hour'):
-        ra = coordinate.fk5.ra.hour
-    elif hasattr(coordinate.fk5.ra,'hourangle'):
-        ra = coordinate.fk5.ra.hourangle
+    C = coordinate.transform_to('fk5')
+    if hasattr(C.ra,'hour'):
+        ra = C.ra.hour
+    elif hasattr(C.ra,'hourangle'):
+        ra = C.ra.hourangle
     else:
         raise Exception("API Error: RA cannot be converted to hour or hourangle.")
-    dec = coordinate.fk5.dec.degree
+    dec = C.dec.degree
     return ra,dec
 
 class TableList(list):
