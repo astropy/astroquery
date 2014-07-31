@@ -751,18 +751,18 @@ def _parse_coordinates(coordinates):
 
 
 def _get_frame_coords(c):
-    if c.transform_to(coord.ICRS) == c:
+    if c.frame.name == 'icrs':
         ra, dec = _to_simbad_format(c.ra, c.dec)
         return (ra, dec, 'ICRS')
-    elif c.transform_to(coord.Galactic) == c:
+    elif c.frame.name == 'galactic':
         lon, lat = (str(c.l.degree), str(c.b.degree))
         if lat[0] not in ['+', '-']:
             lat = '+' + lat
         return (lon, lat, 'GAL')
-    elif c.transform_to(coord.FK4) == c:
+    elif c.frame.name == 'fk4':
         ra, dec = _to_simbad_format(c.ra, c.dec)
         return (ra, dec,'FK4')
-    elif c.transform_to(coord.FK5) == c:
+    elif c.frame.name == 'fk5':
         ra, dec = _to_simbad_format(c.ra, c.dec)
         return (ra, dec, 'FK5')
     else:
