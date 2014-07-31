@@ -5,6 +5,7 @@ import astropy.units as u
 from astropy.tests.helper import pytest  # import this since the user may not have pytest installed
 
 from ... import irsa_dust
+from ...irsa_dust.core import IrsaDust,IrsaDustClass
 from ...utils import commons
 from astropy import coordinates
 import types
@@ -33,6 +34,13 @@ M31_URL_T = [
     'http://irsa.ipac.caltech.edu//workspace/TMP_kRQo9a_8160/DUST/m31.v0002/p338temp.fits'
 ]
 
+galcoords = {'m31': coordinates.SkyCoord(ra=10.6847083*u.deg,
+                                         dec=41.26875*u.deg, frame='icrs'),
+             'm81': coordinates.SkyCoord(ra=148.888221083*u.deg,
+                                         dec=69.065294722*u.deg,
+                                         frame='icrs'),}
+def format(coord):
+    return "{0} {1}".format(coord.fk5.ra.deg, coord.fk5.dec.deg)
 
 @pytest.fixture
 def patch_request(request):
@@ -48,12 +56,10 @@ def patch_request(request):
 def patch_fromname(request):
     mp = request.getfuncargvalue("monkeypatch")
     def fromname(self, name):
-        d = {'m31': coordinates.SkyCoord(ra=10.6847083*u.deg,
-                                         dec=41.26875*u.deg, frame='icrs'),
-             'm81': coordinates.SkyCoord(ra=148.888221083*u.deg,
-                                         dec=69.065294722*u.deg,
-                                         frame='icrs'),}
-        return d[name]
+        if isinstance(name, str):
+            return galcoords[name]
+        else:
+            raise coordinates.name_resolve.NameResolveError
     mp.setattr(commons.ICRSCoord,
                'from_name',
                types.MethodType(fromname,commons.ICRSCoord))
@@ -99,54 +105,67 @@ class TestDust(DustTestCase):
 
 # TODO : Add more examples. Add for "1 degree"-like parameters
     @pytest.mark.parametrize(('coordinate', 'radius', 'expected_payload'),
-                             [("m81", None, dict(locstr="m81")),
-                              ("m31", "5d0m", dict(locstr="m31", regSize=5.0)),
-                              ("m31", 5*u.deg, dict(locstr="m31", regSize=5))
+                             [(galcoords["m81"], None,
+                               dict(locstr=format(galcoords['m81']))),
+                              (galcoords["m31"], "5d0m",
+                               dict(locstr=format(galcoords['m31']),
+                                    regSize=5.0)),
+                              (galcoords["m31"], 5*u.deg,
+                               dict(locstr=format(galcoords['m31']),
+                                    regSize=5)),
+                              ("m31", 5*u.deg,
+                               dict(locstr='m31',
+                                    regSize=5))
                               ])
     def test_args_to_payload_instance_1(self, coordinate, radius,
                                         expected_payload, patch_fromname):
-        payload = irsa_dust.core.IrsaDust()._args_to_payload(
-            coordinate, radius=radius)
+        payload = IrsaDust()._args_to_payload(coordinate, radius=radius)
         assert payload == expected_payload
 
-    def test_args_to_payload_instance_2(self):
+    def test_args_to_payload_instance_2(self, patch_fromname):
         with pytest.raises(Exception) as ex:
-            payload = irsa_dust.core.IrsaDust()._args_to_payload(
+            payload = IrsaDust()._args_to_payload(
                 "m81", radius="5")
         assert ex.value.args[0] == "No unit specified"
 
     @pytest.mark.parametrize(('radius'), ['1d0m', '40d0m', 45*u.deg])
-    def test_args_to_payload_instance_3(self, radius):
+    def test_args_to_payload_instance_3(self, radius, patch_fromname):
         errmsg = ("Radius (in any unit) must be in the"
                   " range of 2.0 to 37.5 degrees")
         with pytest.raises(ValueError) as ex:
-            payload = irsa_dust.core.IrsaDust()._args_to_payload(
+            payload = IrsaDust()._args_to_payload(
                 "m81", radius=radius)
         assert ex.value.args[0] == errmsg
 
     @pytest.mark.parametrize(('coordinate', 'radius', 'expected_payload'),
-                             [("m81", None, dict(locstr="m81")),
-                              ("m31", "5d0m", dict(locstr="m31", regSize=5.0)),
-                              ("m31", 5*u.deg, dict(locstr="m31", regSize=5))
+                             [("m81", None,
+                               dict(locstr="m81")),
+                              (galcoords["m81"], None,
+                               dict(locstr=format(galcoords["m81"]))),
+                              (galcoords["m31"], "5d0m",
+                               dict(locstr=format(galcoords['m31']),
+                                    regSize=5.0)),
+                              (galcoords["m31"], 5*u.deg,
+                               dict(locstr=format(galcoords['m31']),
+                                    regSize=5))
                               ])
-    def test_args_to_payload_class_1(
-            self, coordinate, radius, expected_payload):
-        payload = irsa_dust.core.IrsaDust._args_to_payload(
-            coordinate, radius=radius)
+    def test_args_to_payload_class_1(self, coordinate, radius,
+                                     expected_payload, patch_fromname):
+        payload = IrsaDust._args_to_payload(coordinate, radius=radius)
         assert payload == expected_payload
 
-    def test_args_to_payload_class_2(self):
+    def test_args_to_payload_class_2(self, patch_fromname):
         with pytest.raises(Exception) as ex:
-            payload = irsa_dust.core.IrsaDust._args_to_payload(
+            payload = IrsaDust._args_to_payload(
                 "m81", radius="5")
         assert ex.value.args[0] == "No unit specified"
 
     @pytest.mark.parametrize(('radius'), ['1d0m', '40d0m', 45*u.deg])
-    def test_args_to_payload_class_3(self, radius):
+    def test_args_to_payload_class_3(self, radius, patch_fromname):
         errmsg = ("Radius (in any unit) must be in the"
                   " range of 2.0 to 37.5 degrees")
         with pytest.raises(ValueError) as ex:
-            payload = irsa_dust.core.IrsaDust._args_to_payload(
+            payload = IrsaDust._args_to_payload(
                 "m81", radius=radius)
         assert ex.value.args[0] == errmsg
 
@@ -158,14 +177,14 @@ class TestDust(DustTestCase):
                               ])
     def test_extract_image_urls_instance(self, image_type, expected_urls):
         raw_xml = open(self.data(M31_XML), "r").read()
-        url_list = irsa_dust.core.IrsaDust().extract_image_urls(
+        url_list = IrsaDust().extract_image_urls(
             raw_xml, image_type=image_type)
         assert url_list == expected_urls
 
     def test_extract_image_urls_instance__err(self):
         raw_xml = open(self.data(M31_XML), "r").read()
         with pytest.raises(ValueError):
-            irsa_dust.core.IrsaDust().extract_image_urls(
+            IrsaDust().extract_image_urls(
                 raw_xml, image_type="l")
 
     @pytest.mark.parametrize(('image_type', 'expected_urls'),
@@ -176,14 +195,14 @@ class TestDust(DustTestCase):
                               ])
     def test_extract_image_urls_class(self, image_type, expected_urls):
         raw_xml = open(self.data(M31_XML), "r").read()
-        url_list = irsa_dust.core.IrsaDust.extract_image_urls(
+        url_list = IrsaDust.extract_image_urls(
             raw_xml, image_type=image_type)
         assert url_list == expected_urls
 
     def test_extract_image_urls_class__err(self):
         raw_xml = open(self.data(M31_XML), "r").read()
         with pytest.raises(ValueError):
-            irsa_dust.core.IrsaDust.extract_image_urls(raw_xml, image_type="l")
+            IrsaDust.extract_image_urls(raw_xml, image_type="l")
 
     @pytest.mark.parametrize(('section', 'expected_length'),
                              [(None, 43),
@@ -192,9 +211,10 @@ class TestDust(DustTestCase):
                               ('ebv', 19),
                               ('temperature', 10)
                               ])
-    def test_query_table_class(self, patch_request, section, expected_length):
-        qtable = irsa_dust.core.IrsaDust.get_query_table(
-            "m31", section=section)
+    def test_query_table_class(self, patch_request, section, expected_length,
+                               patch_fromname):
+        qtable = IrsaDust.get_query_table("m31",
+                                                         section=section)
         assert len(qtable.colnames) == expected_length
 
     @pytest.mark.parametrize(('section', 'expected_length'),
@@ -204,34 +224,34 @@ class TestDust(DustTestCase):
                               ('ebv', 19),
                               ('temperature', 10)
                               ])
-    def test_query_table_instance(
-            self, patch_request, section, expected_length):
-        qtable = irsa_dust.core.IrsaDust.get_query_table(
-            "m31", section=section)
+    def test_query_table_instance(self, patch_request, section,
+                                  expected_length, patch_fromname):
+        qtable = IrsaDust.get_query_table("m31",
+                                                         section=section)
         assert len(qtable.colnames) == expected_length
 
-    def test_get_extinction_table_async_class(self, patch_request):
-        readable_obj = irsa_dust.core.IrsaDust.get_extinction_table_async(
-            "m31")
+    def test_get_extinction_table_async_class(self, patch_request,
+                                              patch_fromname):
+        readable_obj = IrsaDust.get_extinction_table_async("m31")
         assert readable_obj is not None
 
-    def test_get_extinction_table_async_instance(self, patch_request):
-        readable_obj = irsa_dust.core.IrsaDust().get_extinction_table_async(
+    def test_get_extinction_table_async_instance(self, patch_request,
+                                                 patch_fromname):
+        readable_obj = IrsaDust().get_extinction_table_async(
             "m31")
         assert readable_obj is not None
 
     def test_get_extinction_table_class(self, monkeypatch):
         monkeypatch.setattr(
-            irsa_dust.core.IrsaDust, 'get_extinction_table_async',
+            IrsaDust, 'get_extinction_table_async',
             self.get_ext_table_async_mockreturn)
-        table = irsa_dust.core.IrsaDust.get_extinction_table("m31")
+        table = IrsaDust.get_extinction_table("m31")
         assert table is not None
 
     def test_get_extinction_table_instance(self, monkeypatch):
-        monkeypatch.setattr(
-            irsa_dust.core.IrsaDustClass, 'get_extinction_table_async',
-            self.get_ext_table_async_mockreturn)
-        table = irsa_dust.core.IrsaDust().get_extinction_table("m31")
+        monkeypatch.setattr(IrsaDustClass, 'get_extinction_table_async',
+                            self.get_ext_table_async_mockreturn)
+        table = IrsaDust().get_extinction_table("m31")
         assert table is not None
 
     @pytest.mark.parametrize(('image_type', 'expected_urls'),
@@ -240,9 +260,9 @@ class TestDust(DustTestCase):
                               ('ebv', M31_URL_R),
                               ('temperature', M31_URL_T),
                               ])
-    def test_get_image_list_class(
-            self, patch_request, image_type, expected_urls):
-        url_list = irsa_dust.core.IrsaDust.get_image_list(
+    def test_get_image_list_class(self, patch_request, image_type,
+                                  expected_urls, patch_fromname):
+        url_list = IrsaDust.get_image_list(
             "m81", image_type=image_type)
         assert url_list == expected_urls
 
@@ -252,10 +272,9 @@ class TestDust(DustTestCase):
                               ('ebv', M31_URL_R),
                               ('temperature', M31_URL_T),
                               ])
-    def test_get_image_list_instance(
-            self, patch_request, image_type, expected_urls):
-        url_list = irsa_dust.core.IrsaDust().get_image_list(
-            "m81", image_type=image_type)
+    def test_get_image_list_instance(self, patch_request, image_type,
+                                     expected_urls, patch_fromname):
+        url_list = IrsaDust().get_image_list("m81", image_type=image_type)
         assert url_list == expected_urls
 
     @pytest.mark.parametrize(('image_type'),
@@ -265,10 +284,9 @@ class TestDust(DustTestCase):
                               ('temperature'),
                               ])
     def test_get_images_async_class(self, monkeypatch, image_type):
-        monkeypatch.setattr(irsa_dust.core.IrsaDust, 'get_image_list',
+        monkeypatch.setattr(IrsaDust, 'get_image_list',
                             self.get_image_list_mockreturn)
-        readable_objs = irsa_dust.core.IrsaDust.get_images_async("m81",
-                                                                 image_type=image_type)
+        readable_objs = IrsaDust.get_images_async("m81", image_type=image_type)
         assert readable_objs is not None
 
     @pytest.mark.parametrize(('image_type'),
@@ -278,30 +296,30 @@ class TestDust(DustTestCase):
                               ('temperature'),
                               ])
     def test_get_images_async_instance(self, monkeypatch, image_type):
-        monkeypatch.setattr(irsa_dust.core.IrsaDustClass, 'get_image_list',
+        monkeypatch.setattr(IrsaDustClass, 'get_image_list',
                             self.get_image_list_mockreturn)
-        readable_objs = irsa_dust.core.IrsaDust().get_images_async("m81",
+        readable_objs = IrsaDust().get_images_async("m81",
                                                                    image_type=image_type)
         assert readable_objs is not None
 
     def test_get_images_class(self, monkeypatch):
-        monkeypatch.setattr(irsa_dust.core.IrsaDust, 'get_images_async',
+        monkeypatch.setattr(IrsaDust, 'get_images_async',
                             self.get_images_async_mockreturn)
-        images = irsa_dust.core.IrsaDust.get_images("m81")
+        images = IrsaDust.get_images("m81")
         assert images is not None
 
     def test_get_images_instance(self, monkeypatch):
-        monkeypatch.setattr(irsa_dust.core.IrsaDustClass, 'get_images_async',
+        monkeypatch.setattr(IrsaDustClass, 'get_images_async',
                             self.get_images_async_mockreturn)
-        images = irsa_dust.core.IrsaDust().get_images("m81")
+        images = IrsaDust().get_images("m81")
         assert images is not None
 
     def test_list_image_types_class(self):
-        types = irsa_dust.core.IrsaDust.list_image_types()
+        types = IrsaDust.list_image_types()
         assert types is not None
 
     def test_list_image_types_instance(self):
-        types = irsa_dust.core.IrsaDust().list_image_types()
+        types = IrsaDust().list_image_types()
         assert types is not None
 
     def send_request_mockreturn(self, url, data, timeout):
@@ -310,19 +328,19 @@ class TestDust(DustTestCase):
         return MockResponse
 
     def get_ext_table_async_mockreturn(self, coordinate, radius=None,
-                                       timeout=irsa_dust.core.IrsaDust.TIMEOUT):
+                                       timeout=IrsaDust.TIMEOUT):
         return(commons.FileContainer(self.data(EXT_TBL)))
 
     def get_image_list_mockreturn(
         self, coordinate, radius=None, image_type=None,
-            timeout=irsa_dust.core.IrsaDust.TIMEOUT):
+            timeout=IrsaDust.TIMEOUT):
         return [self.data(IMG_FITS)]
 
     def get_images_async_mockreturn(self,
                                     coordinate,
                                     radius=None,
                                     image_type=None,
-                                    timeout=irsa_dust.core.IrsaDust.TIMEOUT,
+                                    timeout=IrsaDust.TIMEOUT,
                                     get_query_payload=False):
         readable_obj = commons.FileContainer(self.data(IMG_FITS),encoding='binary')
         return [readable_obj]
