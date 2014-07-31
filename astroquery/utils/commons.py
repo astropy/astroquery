@@ -201,7 +201,11 @@ def parse_coordinates(coordinates):
                               "astropy.coordinates object")
                 raise u.UnitsError
     elif isinstance(coordinates, CoordClasses):
-        c = coordinates
+        if hasattr(coordinates, 'frame'):
+            c = coordinates
+        else:
+            # Convert the "frame" object into a SkyCoord
+            c = coord.SkyCoord(coordinates)
     else:
         raise TypeError("Argument cannot be parsed as a coordinate")
     return c
