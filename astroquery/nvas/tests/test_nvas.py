@@ -77,8 +77,8 @@ def test_parse_coordinates(coordinates):
     out_str = nvas.core._parse_coordinates(coordinates)
     new_coords = commons.ICRSCoordGenerator(deparse_coordinates(out_str), unit=(u.hour, u.deg))
     # if all goes well new_coords and coordinates have same ra and dec
-    npt.assert_approx_equal(new_coords.icrs.ra.degree, coordinates.icrs.ra.degree, significant=3)
-    npt.assert_approx_equal(new_coords.icrs.dec.degree, coordinates.icrs.dec.degree, significant=3)
+    npt.assert_approx_equal(new_coords.ra.degree, coordinates.ra.degree, significant=3)
+    npt.assert_approx_equal(new_coords.dec.degree, coordinates.dec.degree, significant=3)
 
 
 def test_extract_image_urls():
