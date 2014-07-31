@@ -41,7 +41,7 @@ def test_SgrAstar(monkeypatch):
     eso = Eso()
 
     # monkeypatch instructions from https://pytest.org/latest/monkeypatch.html
-    monkeypatch.setattr(eso, 'request', eso_request)
+    monkeypatch.setattr(eso, '_request', eso_request)
     # set up local cache path to prevent remote query
     eso.cache_location = DATA_DIR
 

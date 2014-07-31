@@ -120,13 +120,13 @@ class EsoClass(QueryWithLogin):
 
         # Send payload
         if fmt == 'get':
-            response = self.request("GET", url, params=payload)
+            response = self._request("GET", url, params=payload)
         elif fmt == 'post':
-            response = self.request("POST", url, params=payload)
+            response = self._request("POST", url, params=payload)
         elif fmt == 'multipart/form-data':
-            response = self.request("POST", url, files=payload)
+            response = self._request("POST", url, files=payload)
         elif fmt == 'application/x-www-form-urlencoded':
-            response = self.request("POST", url, data=payload)
+            response = self._request("POST", url, data=payload)
 
         return response
 
@@ -141,7 +141,7 @@ class EsoClass(QueryWithLogin):
             password = password_from_keyring
         # Authenticate
         print("Authenticating {0} on www.eso.org...".format(username))
-        login_response = self.request("GET", "https://www.eso.org/sso/login")
+        login_response = self._request("GET", "https://www.eso.org/sso/login")
         login_result_response = self._activate_form(login_response,
                                                     form_index=-1,
                                                     inputs={'username': username,
@@ -166,7 +166,7 @@ class EsoClass(QueryWithLogin):
 
         """
         if self._instrument_list is None:
-            instrument_list_response = self.request("GET", "http://archive.eso.org/cms/eso-data/instrument-specific-query-forms.html")
+            instrument_list_response = self._request("GET", "http://archive.eso.org/cms/eso-data/instrument-specific-query-forms.html")
             root = BeautifulSoup(instrument_list_response.content, 'html5lib')
             self._instrument_list = []
             for element in root.select("div[id=col3] a[href]"):
@@ -186,7 +186,7 @@ class EsoClass(QueryWithLogin):
 
         """
         if self._survey_list is None:
-            survey_list_response = self.request("GET", "http://archive.eso.org/wdb/wdb/adp/phase3_main/form")
+            survey_list_response = self._request("GET", "http://archive.eso.org/wdb/wdb/adp/phase3_main/form")
             root = BeautifulSoup(survey_list_response .content, 'html5lib')
             self._survey_list = []
             for select in root.select("select[name=phase3_program]"):
@@ -220,7 +220,7 @@ class EsoClass(QueryWithLogin):
         if survey not in self.list_surveys():
             raise ValueError("Survey %s is not in the survey list." % survey)
         url = "http://archive.eso.org/wdb/wdb/adp/phase3_main/form"
-        survey_form = self.request("GET", url)
+        survey_form = self._request("GET", url)
         query_dict = kwargs
         query_dict["wdbo"] = "csv/download"
         query_dict['phase3_program'] = survey
@@ -288,7 +288,7 @@ class EsoClass(QueryWithLogin):
             print("List of the column_filters parameters accepted by the {0} instrument query.".format(instrument))
             print("The presence of a column in the result table can be controlled if prefixed with a [ ] checkbox.")
             print("The default columns in the result table are shown as already ticked: [x].")
-            resp = self.request("GET", url)
+            resp = self._request("GET", url)
             doc = BeautifulSoup(resp.content, 'html5lib')
             form = doc.select("html > body > form > pre")[0]
             for section in form.select("table"):
@@ -325,7 +325,7 @@ class EsoClass(QueryWithLogin):
                     if name != u"":
                         print("{0} {1}: {2}".format(checkbox, name, value))
         else:
-            instrument_form = self.request("GET", url)
+            instrument_form = self._request("GET", url)
             query_dict = {}
             query_dict.update(column_filters)
             # TODO: replace this with individually parsed kwargs
@@ -396,7 +396,7 @@ class EsoClass(QueryWithLogin):
         # Get all headers
         result = []
         for dp_id in product_ids:
-            response = self.request("GET", "http://archive.eso.org/hdr?DpId={0}".format(dp_id))
+            response = self._request("GET", "http://archive.eso.org/hdr?DpId={0}".format(dp_id))
             root = BeautifulSoup(response.content, 'html5lib')
             hdr = root.select('pre')[0].text
             header = {'DP.ID': dp_id}
@@ -495,7 +495,7 @@ class EsoClass(QueryWithLogin):
 
         # Second: Download the other datasets
         if datasets_to_download:
-            data_retrieval_form = self.request("GET", "http://archive.eso.org/cms/eso-data/eso-data-direct-retrieval.html")
+            data_retrieval_form = self._request("GET", "http://archive.eso.org/cms/eso-data/eso-data-direct-retrieval.html")
             print("Staging request...")
             with suspend_cache(self):  # Never cache staging operations
                 data_confirmation_form = self._activate_form(data_retrieval_form, form_index=-1, inputs={"list_of_datasets": "\n".join(datasets_to_download)})
@@ -509,7 +509,7 @@ class EsoClass(QueryWithLogin):
                 state = root.select('span[id=requestState]')[0].text
                 while state not in ('COMPLETE', 'ERROR'):
                     time.sleep(2.0)
-                    data_download_form = self.request("GET",
+                    data_download_form = self._request("GET",
                                                       data_download_form.url)
                     root = BeautifulSoup(data_download_form.content, 'html5lib')
                     state = root.select('span[id=requestState]')[0].text
@@ -519,7 +519,7 @@ class EsoClass(QueryWithLogin):
             for fileId in root.select('input[name=fileId]'):
                 fileLink = fileId.attrs['value'].split()[1]
                 fileLink = fileLink.replace("/api", "").replace("https://", "http://")
-                filename = self.request("GET", fileLink, save=True)
+                filename = self._request("GET", fileLink, save=True)
                 files.append(system_tools.gunzip(filename))
         print("Done!")
         return files
@@ -533,7 +533,7 @@ class EsoClass(QueryWithLogin):
         payload = {'dp_id': dataset, 
                    'ascii_out_mode':'true',
                   }
-        response = self.request("POST", url, params=payload)
+        response = self._request("POST", url, params=payload)
 
         return 'No data returned' not in response.content
 

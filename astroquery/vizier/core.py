@@ -160,7 +160,7 @@ class VizierClass(BaseQuery):
             keywords = " ".join(keywords)
 
         data_payload = {'-words':keywords, '-meta.all':1}
-        response = self.request(method='POST',
+        response = self._request(method='POST',
                                 url=self._server_to_url(),
                                 data=data_payload,
                                 timeout=self.TIMEOUT)
@@ -191,7 +191,7 @@ class VizierClass(BaseQuery):
         """
 
         data_payload = self._args_to_payload(catalog=catalog)
-        response = self.request(method='POST',
+        response = self._request(method='POST',
                                 url=self._server_to_url(),
                                 data=data_payload,
                                 timeout=self.TIMEOUT)
@@ -237,7 +237,7 @@ class VizierClass(BaseQuery):
         data_payload = self._args_to_payload(
             center=center,
             catalog=catalog)
-        response = self.request(method='POST',
+        response = self._request(method='POST',
                                 url=self._server_to_url(),
                                 data=data_payload,
                                 timeout=self.TIMEOUT)
@@ -361,7 +361,7 @@ class VizierClass(BaseQuery):
         if get_query_payload:
             return data_payload
 
-        response = self.request(method='POST',
+        response = self._request(method='POST',
                                 url=self._server_to_url(),
                                 data=data_payload,
                                 timeout=self.TIMEOUT)
@@ -424,7 +424,7 @@ class VizierClass(BaseQuery):
             catalog=catalog,
             column_filters=kwargs,
             center={'-c.rd':180})
-        response = self.request(method='POST',
+        response = self._request(method='POST',
                                 url=self._server_to_url(),
                                 data=data_payload,
                                 timeout=self.TIMEOUT)
