@@ -105,7 +105,7 @@ def _parse_coordinates(coordinates):
         raise Exception("Coordinates not specified correctly")
 
 def _fermi_format_coords(c):
-    c = c.fk5
+    c = c.transform_to('fk5')
     return "{0:0.5f},{1:0.5f}".format(c.ra.degree,c.dec.degree)
 
 class GetFermilatDatafile(object):

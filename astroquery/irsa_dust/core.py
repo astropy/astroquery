@@ -320,8 +320,8 @@ class IrsaDustClass(BaseQuery):
             C = commons.ICRSCoord.from_name(coordinate)
             payload = {"locstr": coordinate}
         except coord.name_resolve.NameResolveError:
-            C = commons.parse_coordinates(coordinate)
-            payload = {"locstr": "{0} {1}".format(C.fk5.ra.deg, C.fk5.dec.deg)}  # check if this is resolvable?
+            C = commons.parse_coordinates(coordinate).transform_to('fk5')
+            payload = {"locstr": "{0} {1}".format(C.ra.deg, C.dec.deg)}  # check if this is resolvable?
         # check if radius is given with proper units
         if radius is not None:
             reg_size = coord.Angle(radius).to('degree').value

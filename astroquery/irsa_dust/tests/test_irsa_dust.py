@@ -40,7 +40,8 @@ galcoords = {'m31': coordinates.SkyCoord(ra=10.6847083*u.deg,
                                          dec=69.065294722*u.deg,
                                          frame='icrs'),}
 def format(coord):
-    return "{0} {1}".format(coord.fk5.ra.deg, coord.fk5.dec.deg)
+    C = coord.transform_to('fk5')
+    return "{0} {1}".format(C.ra.deg, C.dec.deg)
 
 @pytest.fixture
 def patch_request(request):
