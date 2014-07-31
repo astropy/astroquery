@@ -6,6 +6,8 @@ from astropy.tests.helper import pytest  # import this since the user may not ha
 
 from ... import irsa_dust
 from ...utils import commons
+from astropy import coordinates
+import types
 
 M31_XML = "dustm31.xml"
 M81_XML = "dustm81.xml"
@@ -41,6 +43,21 @@ def patch_request(request):
         TestDust(
         ).send_request_mockreturn)
     return mp
+
+@pytest.fixture
+def patch_fromname(request):
+    mp = request.getfuncargvalue("monkeypatch")
+    def fromname(self, name):
+        d = {'m31': coordinates.SkyCoord(ra=10.6847083*u.deg,
+                                         dec=41.26875*u.deg, frame='icrs'),
+             'm81': coordinates.SkyCoord(ra=148.888221083*u.deg,
+                                         dec=69.065294722*u.deg,
+                                         frame='icrs'),}
+        return d[name]
+    mp.setattr(commons.ICRSCoord,
+               'from_name',
+               types.MethodType(fromname,commons.ICRSCoord))
+
 
 
 class DustTestCase(object):
@@ -86,8 +103,8 @@ class TestDust(DustTestCase):
                               ("m31", "5d0m", dict(locstr="m31", regSize=5.0)),
                               ("m31", 5*u.deg, dict(locstr="m31", regSize=5))
                               ])
-    def test_args_to_payload_instance_1(
-            self, coordinate, radius, expected_payload):
+    def test_args_to_payload_instance_1(self, coordinate, radius,
+                                        expected_payload, patch_fromname):
         payload = irsa_dust.core.IrsaDust()._args_to_payload(
             coordinate, radius=radius)
         assert payload == expected_payload
