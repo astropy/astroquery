@@ -26,7 +26,7 @@ class MiriadeClass(BaseQuery):
     
     def _observatory_codes(self):
         if self.observatory_codes is None:
-            self.observatory_codes = ascii.read(BytesIO(self.request("GET", "http://www.minorplanetcenter.net/iau/lists/ObsCodes.html").content),
+            self.observatory_codes = ascii.read(BytesIO(self._request("GET", "http://www.minorplanetcenter.net/iau/lists/ObsCodes.html").content),
                                                 format='fixed_width',
                                                 col_starts=[0,4,13,21,30], col_ends=[3,12,20,29,100],
                                                 header_start=1, data_start=2, data_end=-1)
@@ -56,7 +56,7 @@ class MiriadeClass(BaseQuery):
         params['-lat'] = latitude
         params['-mime'] = 'votable'
         params['-from'] = 'astroquery'
-        response = self.request("GET", "http://vo.imcce.fr/webservices/miriade/rts_query.php", params)
+        response = self._request("GET", "http://vo.imcce.fr/webservices/miriade/rts_query.php", params)
         table = Table.read(BytesIO(response.content))
         return table
 
