@@ -4,6 +4,7 @@ import numpy as np
 from astropy.extern.six import BytesIO
 from astropy.table import Table
 from astropy.io import ascii
+from . import conf
 from ..query import BaseQuery
 
 
@@ -23,10 +24,12 @@ class MiriadeClass(BaseQuery):
     def __init__(self):
         super(MiriadeClass, self).__init__()
         self.observatory_codes = None
+        self.obs_codes_url = conf.obs_codes_url
+        self.rts_url = conf.rts_url
     
     def _observatory_codes(self):
         if self.observatory_codes is None:
-            self.observatory_codes = ascii.read(BytesIO(self._request("GET", "http://www.minorplanetcenter.net/iau/lists/ObsCodes.html").content),
+            self.observatory_codes = ascii.read(BytesIO(self._request("GET", self.obs_codes_url).content),
                                                 format='fixed_width',
                                                 col_starts=[0,4,13,21,30], col_ends=[3,12,20,29,100],
                                                 header_start=1, data_start=2, data_end=-1)
@@ -56,7 +59,7 @@ class MiriadeClass(BaseQuery):
         params['-lat'] = latitude
         params['-mime'] = 'votable'
         params['-from'] = 'astroquery'
-        response = self._request("GET", "http://vo.imcce.fr/webservices/miriade/rts_query.php", params)
+        response = self._request("GET", self.rts_url, params)
         table = Table.read(BytesIO(response.content))
         return table
 
