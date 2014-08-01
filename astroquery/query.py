@@ -123,7 +123,7 @@ class BaseQuery(object):
         """ init a fresh copy of self """
         return self.__class__(*args, **kwargs)
     
-    def request(self, method, url, params=None, data=None, headers=None,
+    def _request(self, method, url, params=None, data=None, headers=None,
                 files=None, save=False, savedir='', timeout=None):
         """
         A generic HTTP request method, similar to `requests.Session.request` but
@@ -155,7 +155,7 @@ class BaseQuery(object):
             local_filepath = os.path.join(self.cache_location or savedir or '.', local_filename)
             print("Downloading {0}...".format(local_filename))
             with suspend_cache(self): #Never cache file downloads: they are already saved on disk
-                r = self.request(method, url, save=False, params=params,
+                r = self._request(method, url, save=False, params=params,
                                  headers=headers, data=data, files=files,
                                  timeout=timeout)
                 with open(local_filepath, 'wb') as f:
