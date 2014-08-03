@@ -8,6 +8,7 @@ import functools
 
 import astropy.units as u
 import astropy.io.votable as votable
+from astropy import coordinates
 
 from ..query import BaseQuery
 from ..utils import commons, async_to_sync
@@ -169,9 +170,9 @@ class NraoClass(BaseQuery):
                                SUBMIT="Submit Query")
 
         if 'coordinates' in kwargs:
-            c = commons.parse_coordinates(kwargs['coordinates'])
-            request_payload['CENTER_RA']  = str(c.icrs.ra.degree) + 'd'
-            request_payload['CENTER_DEC'] = str(c.icrs.dec.degree) + 'd'
+            c = commons.parse_coordinates(kwargs['coordinates']).transform_to(coordinates.ICRS)
+            request_payload['CENTER_RA']  = str(c.ra.degree) + 'd'
+            request_payload['CENTER_DEC'] = str(c.dec.degree) + 'd'
 
 
         return request_payload
