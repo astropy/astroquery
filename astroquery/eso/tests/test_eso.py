@@ -1,8 +1,14 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import os
-from ...eso import Eso
+try:
+    from ...eso import Eso
+    ESO_IMPORTED = True
+except ImportError:
+    ESO_IMPORTED = False
 from astropy.tests.helper import pytest
 from ...utils.testing_tools import MockResponse
+
+SKIP_TESTS = not ESO_IMPORTED
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
 
@@ -35,6 +41,7 @@ def eso_request(request_type, url, **kwargs):
 # This test should attempt to access the internet and therefore should fail
 # (_activate_form always connects to the internet)
 #@pytest.mark.xfail
+@pytest.mark.skipif('SKIP_TESTS')
 def test_SgrAstar(monkeypatch):
     # Local caching prevents a remote query here
 

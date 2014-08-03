@@ -1,7 +1,11 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import os
 from astropy.tests.helper import pytest, remote_data
-from ...eso import Eso
+try:
+    from ...eso import Eso
+    ESO_IMPORTED = True
+except ImportError:
+    ESO_IMPORTED = False
 from ...exceptions import LoginError
 
 CACHE_PATH = os.path.join(os.path.dirname(__file__), 'data')
@@ -12,8 +16,9 @@ try:
 except ImportError:
     HAS_KEYRING = False
 
+SKIP_TESTS = not(HAS_KEYRING and ESO_IMPORTED)
 
-@pytest.mark.skipif('not HAS_KEYRING')
+@pytest.mark.skipif('SKIP_TESTS')
 @remote_data
 class TestEso:
     def test_SgrAstar(self):
