@@ -20,7 +20,7 @@ using an `astropy.coordinates` instance use:
     >>> from astropy import coordinates
     >>> from astropy imoprt units as u
     >>> from astroquery import ogle
-    >>> co = coordinates.SkyFrame(0*u.deg, 3*u.deg, frame='galactic')
+    >>> co = coordinates.SkyCoord(0*u.deg, 3*u.deg, frame='galactic')
     >>> t = ogle.query(coord=co)
 
 Arguments can be passed to choose the interpolation algorithm, quality factor,

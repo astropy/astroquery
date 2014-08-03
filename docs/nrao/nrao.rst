@@ -76,8 +76,8 @@ Here's an example with all these optional parameters.
    >>> from astroquery.nrao import Nrao
    >>> import astropy.units as u
    >>> import astropy.coordinates as coord
-   >>> result_table = Nrao.query_region(coord.ICRS(68.29625,
-   ... 5.35431,  unit=(u.deg, u.deg)), radius=2*u.arcmin,
+   >>> result_table = Nrao.query_region(coord.SkyCoord(68.29625,
+   ... 5.35431,  unit=(u.deg, u.deg), frame='icrs'), radius=2*u.arcmin,
    ... telescope='historical_vla', start_date='1985-06-30 18:16:49',
    ... end_date='1985-06-30 18:20:19', freq_low=1600*u.MHz, freq_up=1700*u.MHz,
    ... telescope_config='BC', sub_array=1)
