@@ -168,8 +168,9 @@ For other coordinate systems, use the appropriate `astropy.coordinates` object:
     >>> from astroquery.simbad import Simbad
     >>> import astropy.coordinates as coord
     >>> import astropy.units as u
-    >>> result_table = Simbad.query_region(coord.Galactic(l=31.0087, b=14.0627,
-    ...                                    unit=(u.deg, u.deg)), radius='0d0m2s')
+    >>> result_table = Simbad.query_region(coord.SkyCoord(31.0087, 14.0627,
+    ...                                    unit=(u.deg, u.deg), frame='galactic'),
+    ...                                    radius='0d0m2s')
     >>> print(result_table)
 
                 MAIN_ID             RA      ... COO_WAVELENGTH     COO_BIBCODE    

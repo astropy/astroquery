@@ -686,10 +686,10 @@ class SDSSClass(BaseQuery):
                 coordinates = [coordinates]
             for n, target in enumerate(coordinates):
                 # Query for a region
-                target = commons.parse_coordinates(target)
+                target = commons.parse_coordinates(target).transform_to('fk5')
 
-                ra = target.fk5.ra.degree
-                dec = target.fk5.dec.degree
+                ra = target.ra.degree
+                dec = target.dec.degree
                 dr = coord.Angle(radius).to('degree').value
                 if n>0:
                     q_where += ' or '

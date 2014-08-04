@@ -106,8 +106,9 @@ a string, as specified by `astropy.coordinates`:
 
     >>> from astroquery.irsa import Irsa
     >>> import astropy.coordinates as coord
-    >>> table = Irsa.query_region(coord.Galactic(l=121.1743,
-    ...                           b=-21.5733, unit=(u.deg,u.deg)),
+    >>> table = Irsa.query_region(coord.SkyCoord(121.1743,
+    ...                           -21.5733, unit=(u.deg,u.deg),
+    ...                           frame='galactic'),
     ...                           catalog='fp_psc', radius='0d2m0s')
     >>> print(table)
 

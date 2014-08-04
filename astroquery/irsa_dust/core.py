@@ -313,7 +313,15 @@ class IrsaDustClass(BaseQuery):
         payload : dict
             A dictionary that specifies the data for an HTTP POST request
         """
-        payload = {"locstr": coordinate}  # check if this is resolvable?
+        try:
+            # If the coordinate is a resolvable name, pass that name directly
+            # to irsa_dust because it can handle it (and that changes the
+            # return value associated metadata)
+            C = commons.ICRSCoord.from_name(coordinate)
+            payload = {"locstr": coordinate}
+        except coord.name_resolve.NameResolveError:
+            C = commons.parse_coordinates(coordinate).transform_to('fk5')
+            payload = {"locstr": "{0} {1}".format(C.ra.deg, C.dec.deg)}  # check if this is resolvable?
         # check if radius is given with proper units
         if radius is not None:
             reg_size = coord.Angle(radius).to('degree').value

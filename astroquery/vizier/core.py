@@ -160,7 +160,7 @@ class VizierClass(BaseQuery):
             keywords = " ".join(keywords)
 
         data_payload = {'-words':keywords, '-meta.all':1}
-        response = self.request(method='POST',
+        response = self._request(method='POST',
                                 url=self._server_to_url(),
                                 data=data_payload,
                                 timeout=self.TIMEOUT)
@@ -191,7 +191,7 @@ class VizierClass(BaseQuery):
         """
 
         data_payload = self._args_to_payload(catalog=catalog)
-        response = self.request(method='POST',
+        response = self._request(method='POST',
                                 url=self._server_to_url(),
                                 data=data_payload,
                                 timeout=self.TIMEOUT)
@@ -237,7 +237,7 @@ class VizierClass(BaseQuery):
         data_payload = self._args_to_payload(
             center=center,
             catalog=catalog)
-        response = self.request(method='POST',
+        response = self._request(method='POST',
                                 url=self._server_to_url(),
                                 data=data_payload,
                                 timeout=self.TIMEOUT)
@@ -283,13 +283,13 @@ class VizierClass(BaseQuery):
         center = {}
         columns = []
         if isinstance(coordinates, (commons.CoordClasses,) + six.string_types):
-            c = commons.parse_coordinates(coordinates)
+            c = commons.parse_coordinates(coordinates).transform_to('fk5')
 
             if not c.isscalar:
                 pos_list = []
                 for pos in c:
-                    ra_deg = pos.fk5.ra.to_string(unit="deg", decimal=True, precision=8)
-                    dec_deg = pos.fk5.dec.to_string(unit="deg", decimal=True,
+                    ra_deg = pos.ra.to_string(unit="deg", decimal=True, precision=8)
+                    dec_deg = pos.dec.to_string(unit="deg", decimal=True,
                                                 precision=8, alwayssign=True)
                     pos_list += ["{}{}".format(ra_deg, dec_deg)]
                 center["-c"] = "<<;"+";".join(pos_list)
@@ -307,8 +307,8 @@ class VizierClass(BaseQuery):
                                           coordinates["_DEJ2000"],
                                           unit=(coordinates["_RAJ2000"].unit,
                                                 coordinates["_DEJ2000"].unit)):
-                    ra_deg = pos.fk5.ra.to_string(unit="deg", decimal=True, precision=8)
-                    dec_deg = pos.fk5.dec.to_string(unit="deg", decimal=True,
+                    ra_deg = pos.ra.to_string(unit="deg", decimal=True, precision=8)
+                    dec_deg = pos.dec.to_string(unit="deg", decimal=True,
                                                 precision=8, alwayssign=True)
                     pos_list += ["{}{}".format(ra_deg, dec_deg)]
                 center["-c"] = "<<;"+";".join(pos_list)
@@ -361,7 +361,7 @@ class VizierClass(BaseQuery):
         if get_query_payload:
             return data_payload
 
-        response = self.request(method='POST',
+        response = self._request(method='POST',
                                 url=self._server_to_url(),
                                 data=data_payload,
                                 timeout=self.TIMEOUT)
@@ -424,7 +424,7 @@ class VizierClass(BaseQuery):
             catalog=catalog,
             column_filters=kwargs,
             center={'-c.rd':180})
-        response = self.request(method='POST',
+        response = self._request(method='POST',
                                 url=self._server_to_url(),
                                 data=data_payload,
                                 timeout=self.TIMEOUT)

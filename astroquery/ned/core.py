@@ -177,7 +177,7 @@ class NedClass(BaseQuery):
         else:
             try:
                 c = commons.parse_coordinates(coordinates)
-                if hasattr(c,'galactic') and (c.galactic==c):
+                if c.frame.name == 'galactic':
                     request_payload['in_csys'] = 'Galactic'
                     request_payload['lon'] = c.l.degree
                     request_payload['lat'] = c.b.degree
