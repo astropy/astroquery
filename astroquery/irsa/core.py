@@ -409,7 +409,7 @@ def _parse_coordinates(coordinates):
 # borrowed from commons.parse_coordinates as from_name wasn't required in this case
     if isinstance(coordinates, six.string_types):
         try:
-            c = coord.ICRS(coordinates)
+            c = coord.SkyCoord(coordinates, frame='icrs')
             warnings.warn("Coordinate string is being interpreted as an ICRS coordinate.")
         except u.UnitsError as ex:
             warnings.warn("Only ICRS coordinates can be entered as strings\n"
@@ -420,7 +420,8 @@ def _parse_coordinates(coordinates):
         c = coordinates
     else:
         raise TypeError("Argument cannot be parsed as a coordinate")
-    formatted_coords = _format_decimal_coords(c.icrs.ra.degree, c.icrs.dec.degree)
+    c_icrs = c.transform_to(coord.ICRS)
+    formatted_coords = _format_decimal_coords(c_icrs.ra.degree, c_icrs.dec.degree)
     return formatted_coords
 
 def _pair_to_deg(pair):

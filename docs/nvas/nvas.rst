@@ -52,8 +52,9 @@ centre.
     >>> from astroquery.nvas import Nvas
     >>> import astropy.coordinates as coord
     >>> import astropy.units as u
-    >>> images = Nvas.get_images(coord.Galactic(l=49.489, b=-0.37,
-    ...                          unit=(u.deg, u.deg)), band="K")
+    >>> images = Nvas.get_images(coord.SkyCoord(49.489, -0.37,
+    ...                          unit=(u.deg, u.deg), frame='galactic'),
+    ...                          band="K")
 
                                  
 You may also fetch UVfits files rather than the IMfits files which is the
