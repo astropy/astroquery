@@ -41,7 +41,7 @@ class AtomicLineListClass(BaseQuery):
         """
         Parameters
         ----------
-        wavelength_range : pair of ATROPY-UNIT values
+        wavelength_range : pair of `astropy.units.Unit` values
 
         wavelength_type : str
             Either 'Air' or 'Vacuum'
