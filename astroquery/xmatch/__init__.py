@@ -1,13 +1,21 @@
-from astropy.config import ConfigurationItem
+from astropy import config as _config
 
-# TODO: use ConfigItem instead of deprecated ConfigurationItem
-XMATCH_URL = ConfigurationItem(
-    'xmatch_url', 'http://cdsxmatch.u-strasbg.fr/xmatch/api/v1/sync',
-    'xMatch URL')
 
-XMATCH_TIMEOUT = ConfigurationItem(
-    'timeout', 60, 'time limit for connecting to xMatch server')
+class Conf(_config.ConfigNamespace):
+    """
+    Configuration parameters for `astroquery.xmatch`.
+    """
+    url = _config.ConfigItem(
+        'http://cdsxmatch.u-strasbg.fr/xmatch/api/v1/sync',
+        'xMatch URL')
+
+    timeout = _config.ConfigItem(
+        60, 'time limit for connecting to xMatch server')
+
+
+conf = Conf()
+
 
 from .core import XMatch, XMatchClass
 
-__all__ = ['XMatch', 'XMatchClass']
+__all__ = ['XMatch', 'XMatchClass', 'conf']

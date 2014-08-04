@@ -5,7 +5,7 @@ from astropy.io import ascii
 from astropy.units import arcsec
 from astropy.table import Table
 
-from . import XMATCH_URL, XMATCH_TIMEOUT
+from . import conf
 from ..query import BaseQuery
 from ..utils import commons, url_helpers, prepend_docstr_noreturns,\
     async_to_sync
@@ -13,8 +13,8 @@ from ..utils import commons, url_helpers, prepend_docstr_noreturns,\
 
 @async_to_sync
 class XMatchClass(BaseQuery):
-    URL = XMATCH_URL()
-    TIMEOUT = XMATCH_TIMEOUT()
+    URL = conf.url
+    TIMEOUT = conf.timeout
 
     def query(self, cat1, cat2, max_distance, colRA1=None,
               colDec1=None, colRA2=None, colDec2=None):
