@@ -77,10 +77,8 @@ class AtomicLineListClass(BaseQuery):
             self._default_form_values = self._get_default_form_values(form)
         default_values = self._default_form_values
         wltype = (wavelength_type or default_values.get('air', '')).lower()
-        if wltype == 'air':
-            air = 'Air'
-        elif wltype == 'vacuum':
-            air = 'Vacuum'
+        if wltype in ('air', 'vacuum'):
+            air = wltype.capitalize()
         else:
             raise ValueError('parameter wavelength_type must be either "air" or "vacuum".')
         wlrange = wavelength_range or []
