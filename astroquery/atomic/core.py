@@ -1,4 +1,7 @@
-import urlparse
+try:
+    import urlparse
+except ImportError:
+    import urllib.parse as urlparse
 from StringIO import StringIO
 try:
     from itertools import izip as zip
