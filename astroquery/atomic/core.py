@@ -1,8 +1,7 @@
-try:
-    import urlparse
-except ImportError:
-    import urllib.parse as urlparse
-from six import StringIO
+from astropy.extern.six.moves.urllib import parse as urlparse
+from astropy.extern.six import StringIO
+from astropy.extern import six
+
 try:
     from itertools import izip as zip
 except ImportError:
@@ -12,7 +11,6 @@ try:
 except ImportError:
     pass
 
-import six
 from astropy.io import ascii
 from astropy.table import Table
 from astropy import units as u
