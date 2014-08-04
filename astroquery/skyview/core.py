@@ -49,8 +49,9 @@ class SkyViewClass(BaseQuery):
                     if option.get('selected') == '':
                         value = option.get('value', option.text.strip())
                         res.append((elem.get('name'), value))
-        return dict(filter(
-            lambda (k, v): v not in [None, u'None', u'null'] and v, res))
+        return dict(
+            (k, v) for (k, v) in res if v not in [None, u'None', u'null'] and v
+        )
 
     def _submit_form(self, input=None):
         """Fill out the form of the SkyView site and submit it with the
