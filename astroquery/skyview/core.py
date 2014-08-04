@@ -1,6 +1,6 @@
-import urlparse
+from astropy.extern.six.moves.urllib import parse as urlparse
+from astropy.extern import six
 
-import six
 import requests
 from bs4 import BeautifulSoup
 
