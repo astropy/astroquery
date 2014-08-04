@@ -32,7 +32,7 @@ class MockResponseXmatch(MockResponse):
 @pytest.fixture
 def patch_request(request):
     mp = request.getfuncargvalue("monkeypatch")
-    mp.setattr(requests, "request", request_mockreturn)
+    mp.setattr(requests, "_request", request_mockreturn)
     return mp
 
 
@@ -54,7 +54,7 @@ def test_xmatch_query_invalid_max_distance():
 
 def test_get_available_tables(monkeypatch):
     xm = XMatch()
-    monkeypatch.setattr(xm, 'request', request_mockreturn)
+    monkeypatch.setattr(xm, '_request', request_mockreturn)
 
     tables = xm.get_available_tables()
     assert tables
@@ -64,7 +64,7 @@ def test_get_available_tables(monkeypatch):
 
 def test_xmatch_is_avail_table(monkeypatch):
     xm = XMatch()
-    monkeypatch.setattr(xm, 'request', request_mockreturn)
+    monkeypatch.setattr(xm, '_request', request_mockreturn)
 
     assert xm.is_table_available('II/311/wise')
     assert xm.is_table_available('II/246/out')
@@ -73,7 +73,7 @@ def test_xmatch_is_avail_table(monkeypatch):
 
 def test_xmatch_query_local(monkeypatch):
     xm = XMatch()
-    monkeypatch.setattr(xm, 'request', request_mockreturn)
+    monkeypatch.setattr(xm, '_request', request_mockreturn)
     monkeypatch.setattr(
         commons,
         'send_request',
@@ -94,7 +94,7 @@ def test_xmatch_query_local(monkeypatch):
 
 def test_xmatch_query_cat1_table_local(monkeypatch):
     xm = XMatch()
-    monkeypatch.setattr(xm, 'request', request_mockreturn)
+    monkeypatch.setattr(xm, '_request', request_mockreturn)
     monkeypatch.setattr(
         commons,
         'send_request',
