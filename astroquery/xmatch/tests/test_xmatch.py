@@ -101,7 +101,10 @@ def test_xmatch_query_cat1_table_local(monkeypatch):
         lambda url, data, timeout, request_type='POST', headers={}, **kwargs:
             request_mockreturn(request_type, url, data, **kwargs))
     with open(data_path('posList.csv')) as pos_list:
-        input_table = Table.read(pos_list, names=['ra', 'dec'], format='ascii')
+        input_table = Table.read(pos_list.readlines(),
+                                 names=['ra', 'dec'],
+                                 format='ascii.csv',
+                                 guess=False)
     response = xm.query_async(
         cat1=input_table, cat2='vizier:II/246/out', max_distance=5 * arcsec)
     table = ascii.read(response.get_content(), format='csv')
