@@ -2,7 +2,7 @@ try:
     import urlparse
 except ImportError:
     import urllib.parse as urlparse
-from StringIO import StringIO
+from six import StringIO
 try:
     from itertools import izip as zip
 except ImportError:
