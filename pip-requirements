@@ -4,3 +4,4 @@ requests
 keyring
 beautifulsoup4
 html5lib
+werkzeug
