@@ -1,9 +1,17 @@
-from astropy.config import ConfigurationItem
+from astropy import config as _config
 
-SKYVIEW_URL = ConfigurationItem(
-    'skyview_url', 'http://skyview.gsfc.nasa.gov/current/cgi/basicform.pl',
-    'SkyView URL')
+
+class Conf(_config.ConfigNamespace):
+    """
+    Configuration parameters for `astroquery.skyview`.
+    """
+    url = _config.ConfigItem(
+        'http://skyview.gsfc.nasa.gov/current/cgi/basicform.pl',
+        'SkyView URL')
+
+
+conf = Conf()
 
 from .core import SkyView, SkyViewClass
 
-__all__ = ['SkyView', 'SkyViewClass']
+__all__ = ['SkyView', 'SkyViewClass', 'conf']

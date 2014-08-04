@@ -4,7 +4,7 @@ from astropy.extern import six
 import requests
 from bs4 import BeautifulSoup
 
-from . import SKYVIEW_URL
+from . import conf
 from ..query import BaseQuery
 from ..utils import prepend_docstr_noreturns, commons, async_to_sync
 
@@ -17,7 +17,7 @@ __doctest_skip__ = [
 
 @async_to_sync
 class SkyViewClass(BaseQuery):
-    URL = SKYVIEW_URL()
+    URL = conf.url
 
     def __init__(self):
         BaseQuery.__init__(self)
