@@ -100,7 +100,6 @@ class AtomicLineListClass(BaseQuery):
         return response
 
     def _parse_result(self, response):
-        # FIXME: handle "no lines were found" response text!!!
         data = StringIO(BeautifulSoup(response.text).find('pre').text.strip())
         header = data.readline().strip().strip('|')
         colnames = [colname.strip('-').replace('-', ' ') for colname in header.split('|') if colname.strip()]
