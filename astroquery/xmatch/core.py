@@ -139,7 +139,7 @@ class XMatchClass(BaseQuery):
         xMatch service and return them as a list of strings.
 
         """
-        response = self.request(
+        response = self._request(
             'GET',
             url_helpers.urljoin_keep_path(self.URL, 'tables'),
             {'action': 'getVizieRTableNames', 'RESPONSEFORMAT': 'txt'})
