@@ -82,6 +82,10 @@ class AtomicLineListClass(BaseQuery):
         else:
             raise ValueError('parameter wavelength_type must be either "air" or "vacuum".')
         wlrange = wavelength_range or []
+        if len(wlrange) not in (0, 2):
+            raise ValueError(
+                'length of `wavelength_range` must be 2 or 0, but is: {}'.format(
+                    len(wlrange)))
         # convert wavelengths in incoming wavelength range to Angstroms
         wlrange_in_angstroms = (wl.to(u.Angstrom, equivalencies=u.spectral()).value for wl in wlrange)
         input = {
