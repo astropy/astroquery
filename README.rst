@@ -6,7 +6,7 @@ This is the template for affiliated packages of the Astropy project.
 Astropy affiliated packages are astronomy-related Python packages that
 have requested to be part of the Astropy project’s community.
 Such packages can make use of the setup, installation, and documentation
-infrastructure devloped for the ``artopy`` core package simply by
+infrastructure developed for the ``astropy`` core package simply by
 using this template to lay out the package.
 
 For more information, see:
