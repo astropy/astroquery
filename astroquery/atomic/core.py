@@ -1,15 +1,8 @@
 from astropy.extern.six.moves.urllib import parse as urlparse
+from astropy.extern.six.moves import map, zip
 from astropy.extern.six import StringIO
 from astropy.extern import six
 
-try:
-    from itertools import izip as zip
-except ImportError:
-    pass
-try:
-    from itertools import imap as map
-except ImportError:
-    pass
 from collections import defaultdict
 
 from astropy.io import ascii
