@@ -10,12 +10,12 @@ try:
     from itertools import imap as map
 except ImportError:
     pass
+from collections import defaultdict
 
 from astropy.io import ascii
 from astropy.table import Table
 from astropy import units as u
 from bs4 import BeautifulSoup
-from werkzeug.datastructures import MultiDict
 
 from ..query import BaseQuery
 from ..utils import commons
@@ -148,7 +148,7 @@ class AtomicLineListClass(BaseQuery):
         form node) as a dict.
 
         """
-        res = MultiDict()
+        res = defaultdict(list)
         for elem in form.find_all(['input', 'select']):
             key = elem.get('name')
             value = None
@@ -170,10 +170,10 @@ class AtomicLineListClass(BaseQuery):
                     if option.get('selected') == '':
                         value = option.get('value', option.text.strip())
             if value and value not in [None, u'None', u'null']:
-                res.add(key, value)
+                res[key].append(value)
         # avoid values with size 1 lists
         d = dict(res)
-        for k, v in d.iteritems():
+        for k, v in six.iteritems(d):
             if len(v) == 1:
                 d[k] = v[0]
         return d
