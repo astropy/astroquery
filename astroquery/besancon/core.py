@@ -7,7 +7,6 @@ import sys
 import re
 import os
 from astropy.io import ascii
-from . import BESANCON_DOWNLOAD_URL, BESANCON_MODEL_FORM, BESANCON_PING_DELAY, BESANCON_TIMEOUT
 from astropy.extern.six.moves.urllib_error import URLError
 from astropy.extern.six import StringIO
 
@@ -15,6 +14,7 @@ from ..query import BaseQuery
 from ..utils import commons
 from ..utils import prepend_docstr_noreturns
 from ..utils import async_to_sync
+from . import conf
 
 __all__ = ['Besancon','BesanconClass','parse_besancon_model_string']
 
@@ -77,10 +77,10 @@ class BesanconClass(BaseQuery):
     # to refactor this whole project to be class-based, so they should be
     # set for class instances.
 
-    url_download = BESANCON_DOWNLOAD_URL()
-    QUERY_URL = BESANCON_MODEL_FORM()
-    ping_delay = BESANCON_PING_DELAY()
-    TIMEOUT = BESANCON_TIMEOUT()
+    url_download = conf.download_url
+    QUERY_URL = conf.model_form
+    ping_delay = conf.ping_delay
+    TIMEOUT = conf.timeout
     # sample file name:  1340900648.230224.resu
     result_re = re.compile("[0-9]{10}\.[0-9]{6}\.resu")
 

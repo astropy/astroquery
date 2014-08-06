@@ -8,14 +8,14 @@ from astropy import coordinates as coord
 
 from ..query import BaseQuery
 from ..utils import commons
-from . import NVAS_SERVER, NVAS_TIMEOUT
+from . import conf
 
-__all__ = ["Nvas","NvasClass"]
+__all__ = ["Nvas", "NvasClass"]
 
 
 class NvasClass(BaseQuery):
-    URL = NVAS_SERVER()
-    TIMEOUT = NVAS_TIMEOUT()
+    URL = conf.server
+    TIMEOUT = conf.timeout
     valid_bands = ["all","L","C","X","U","K","Q"]
 
     band_freqs = {

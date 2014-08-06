@@ -10,7 +10,7 @@ from ..query import BaseQuery
 from ..utils import commons, async_to_sync
 from ..utils.docstr_chompers import prepend_docstr_noreturns
 from astropy import units as u
-from . import SLAP_URL, QUERY_URL, SPLATALOGUE_TIMEOUT, LINES_LIMIT
+from . import conf
 from . import load_species_table
 import warnings
 
@@ -23,10 +23,10 @@ __all__ = ['Splatalogue', 'SplatalogueClass']
 @async_to_sync
 class SplatalogueClass(BaseQuery):
 
-    SLAP_URL = SLAP_URL()
-    QUERY_URL = QUERY_URL()
-    TIMEOUT = SPLATALOGUE_TIMEOUT()
-    LINES_LIMIT = LINES_LIMIT()
+    SLAP_URL = conf.slap_url
+    QUERY_URL = conf.query_url
+    TIMEOUT = conf.timeout
+    LINES_LIMIT = conf.lines_limit
     versions = ('v1.0', 'v2.0')
     # global constant, not user-configurable
     ALL_LINE_LISTS = ('Lovas', 'SLAIM', 'JPL', 'CDMS', 'ToyoMA', 'OSU',

@@ -101,20 +101,17 @@ import astropy.io.votable as votable
 
 from ..query import BaseQuery
 from ..utils import commons
-from . import (IRSA_SERVER,
-               GATOR_LIST_CATALOGS,
-               ROW_LIMIT,
-               TIMEOUT)
+from . import conf
 from ..exceptions import TableParseError
 
 __all__ = ['Irsa', 'IrsaClass']
 
 
 class IrsaClass(BaseQuery):
-    IRSA_URL = IRSA_SERVER()
-    GATOR_LIST_URL = GATOR_LIST_CATALOGS()
-    TIMEOUT = TIMEOUT()
-    ROW_LIMIT = ROW_LIMIT()
+    IRSA_URL = conf.server
+    GATOR_LIST_URL = conf.gator_list_catalogs
+    TIMEOUT = conf.timeout
+    ROW_LIMIT = conf.row_limit
 
     def query_region(self, coordinates=None, catalog=None, spatial='Cone',
                      radius=10 * u.arcsec, width=None, polygon=None,

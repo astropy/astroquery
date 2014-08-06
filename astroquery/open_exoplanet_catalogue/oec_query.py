@@ -1,8 +1,7 @@
-#!/usr/bin/python
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
 import xml.etree.ElementTree as ET
 import gzip
 import io
-import os
 from .utils import Number
 
 oec_server_url = "https://github.com/OpenExoplanetCatalogue/oec_gzip/raw/master/systems.xml.gz"

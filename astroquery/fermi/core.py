@@ -7,9 +7,11 @@ from ..query import BaseQuery
 from ..utils import commons, async_to_sync
 import astropy.units as u
 
-from . import FERMI_URL,FERMI_TIMEOUT,FERMI_RETRIEVAL_TIMEOUT
+from . import conf
 
-__all__ = ['FermiLAT', 'FermiLATClass', 'GetFermilatDatafile','get_fermilat_datafile']
+__all__ = ['FermiLAT', 'FermiLATClass',
+           'GetFermilatDatafile', 'get_fermilat_datafile',
+           ]
 
 @async_to_sync
 class FermiLATClass(BaseQuery):
@@ -17,9 +19,9 @@ class FermiLATClass(BaseQuery):
     TODO: document
     """
 
-    request_url = FERMI_URL()
+    request_url = conf.url
     result_url_re = re.compile('The results of your query may be found at <a href="(http://fermi.gsfc.nasa.gov/.*?)"')
-    TIMEOUT = FERMI_TIMEOUT()
+    TIMEOUT = conf.timeout
 
     def query_object_async(self, *args, **kwargs):
         """
@@ -117,7 +119,7 @@ class GetFermilatDatafile(object):
 
     fitsfile_re = re.compile('<a href="(.*?)">Available</a>')
 
-    TIMEOUT = FERMI_RETRIEVAL_TIMEOUT()
+    TIMEOUT = conf.retrieval_timeout
 
     check_frequency = 1  # minutes
 

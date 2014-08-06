@@ -3,28 +3,24 @@
 Simbad query class for accessing the Simbad Service
 """
 from __future__ import print_function
+import copy
 import re
 import json
 import os
 from collections import namedtuple
 import tempfile
 import warnings
-from ..query import BaseQuery
-from ..utils import commons
 import astropy.units as u
 from astropy.utils.data import get_pkg_data_filename
 import astropy.coordinates as coord
 from astropy.table import Table
-from astropy.extern import six
-import copy
-try:
-    import astropy.io.vo.table as votable
-except ImportError:
-    import astropy.io.votable as votable
-from . import SIMBAD_SERVER, SIMBAD_TIMEOUT, ROW_LIMIT
+import astropy.io.votable as votable
+from ..query import BaseQuery
+from ..utils import commons
 from ..exceptions import TableParseError
+from . import conf
 
-__all__ = ['Simbad','SimbadClass']
+__all__ = ['Simbad', 'SimbadClass']
 
 
 def validate_epoch(func):
@@ -59,7 +55,8 @@ def validate_equinox(func):
                 raise ValueError("Equinox must be a number")
         return func(*args, **kwargs)
     return wrapper
-    
+
+
 def strip_field(f, keep_filters=False):
     """Helper tool: remove parameters from VOTABLE fields
     However, this should only be applied to a subset of VOTABLE fields:
@@ -82,12 +79,13 @@ def strip_field(f, keep_filters=False):
     # the overall else (default option)
     return f
 
+
 class SimbadClass(BaseQuery):
     """
     The class for querying the Simbad web service.
     """
-    SIMBAD_URL = 'http://' + SIMBAD_SERVER() + '/simbad/sim-script'
-    TIMEOUT = SIMBAD_TIMEOUT()
+    SIMBAD_URL = 'http://' + conf.server + '/simbad/sim-script'
+    TIMEOUT = conf.timeout
     WILDCARDS = {
                 '*': 'Any string of characters (including an empty one)',
                 '?': 'Any character (exactly one character)',
@@ -109,7 +107,7 @@ class SimbadClass(BaseQuery):
         'query_bibobj_async': 'query bibobj'
     }
 
-    ROW_LIMIT = ROW_LIMIT()
+    ROW_LIMIT = conf.row_limit
 
     # also find a way to fetch the votable fields table from <http://simbad.u-strasbg.fr/simbad/sim-help?Page=sim-fscript#VotableFields>
     # tried something for this in this ipython nb
@@ -703,7 +701,7 @@ class SimbadClass(BaseQuery):
             args_str = ' '.join([str(val) for val in args])
         kwargs_str = ' '.join("{key}={value}".format(key=key, value=kwargs[key]) for
                               key in present_keys)
-        
+
         # For the record, I feel dirty for writing this wildcard-case hack.
         # This entire function should be refactored when someone has time.
         allargs_str = ' '.join([" ", args_str, kwargs_str, "\n"])

@@ -11,15 +11,15 @@ from astropy.io import fits
 from ..query import BaseQuery
 from ..utils.docstr_chompers import prepend_docstr_noreturns
 from ..utils import commons
-from . import MAGPIS_SERVER, MAGPIS_TIMEOUT
+from . import conf
 from ..exceptions import InvalidQueryError
 
-__all__ = ['Magpis','MagpisClass']
+__all__ = ['Magpis', 'MagpisClass']
 
 
 class MagpisClass(BaseQuery):
-    URL = MAGPIS_SERVER()
-    TIMEOUT = MAGPIS_TIMEOUT()
+    URL = conf.server
+    TIMEOUT = conf.timeout
     surveys = ["gps6",
                "gps6epoch2",
                "gps6epoch3",

@@ -17,11 +17,11 @@ from ..query import BaseQuery # all Query classes should inherit from this.
 from ..utils import commons # has common functions required by most modules
 from ..utils import prepend_docstr_noreturns # automatically generate docs for similar functions
 from ..utils import async_to_sync # all class methods must be callable as static as well as instance methods.
-from . import SERVER, TIMEOUT # import configurable items declared in __init__.py
+from . import conf # import configurable items declared in __init__.py
 
 
 # export all the public classes and methods
-__all__ = ['Dummy','DummyClass']
+__all__ = ['Dummy', 'DummyClass']
 
 # declare global variables and constants if any
 
@@ -35,8 +35,8 @@ class DummyClass(BaseQuery):
     Not all the methods below are necessary but these cover most of the common cases, new methods may be added if necessary, follow the guidelines at <http://astroquery.readthedocs.org/en/latest/api.html>
     """
     # use the Configuration Items imported from __init__.py to set the URL, TIMEOUT, etc.
-    URL = SERVER()
-    TIMEOUT = TIMEOUT()
+    URL = conf.server
+    TIMEOUT = conf.timeout
 
     def query_object(self, object_name, get_query_payload=False, verbose=False):
         """

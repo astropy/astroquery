@@ -11,12 +11,26 @@ MAGPIS Image and Catalog Query Tool
         Adam Ginsburg (adam.g.ginsburg@gmail.com)
 
 """
-from astropy.config import ConfigurationItem
+from astropy import config as _config
 
-MAGPIS_SERVER = ConfigurationItem('magpis_server', ["http://third.ucllnl.org/cgi-bin/gpscutout"],
-                               'Name of the MAGPIS server.')
-MAGPIS_TIMEOUT = ConfigurationItem('timeout', 60, 'time limit for connecting to MAGPIS server')
 
-from .core import Magpis,MagpisClass
+class Conf(_config.ConfigNamespace):
+    """
+    Configuration parameters for `astroquery.magpis`.
+    """
+    server = _config.ConfigItem(
+        ['http://third.ucllnl.org/cgi-bin/gpscutout'],
+        'Name of the MAGPIS server.'
+        )
+    timeout = _config.ConfigItem(
+        60,
+        'Time limit for connecting to MAGPIS server.'
+        )
 
-__all__ = ['Magpis','MagpisClass']
+conf = Conf()
+
+from .core import Magpis, MagpisClass
+
+__all__ = ['Magpis', 'MagpisClass',
+           'Conf', 'conf',
+           ]

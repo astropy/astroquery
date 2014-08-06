@@ -17,7 +17,7 @@ import astropy.coordinates as coord
 from astropy.table import Table
 import io
 from ..query import BaseQuery
-from . import SDSS_SERVER, SDSS_MAXQUERY, SDSS_TIMEOUT
+from . import conf
 from ..utils import commons, async_to_sync
 from ..utils.docstr_chompers import prepend_docstr_noreturns
 from ..exceptions import RemoteServiceError
@@ -48,13 +48,13 @@ sdss_arcsec_per_pixel = 0.396
 @async_to_sync
 class SDSSClass(BaseQuery):
 
-    BASE_URL = SDSS_SERVER()
+    BASE_URL = conf.server
     SPECTRO_OPTICAL = BASE_URL
     IMAGING = BASE_URL + '/boss/photoObj/frames'
     TEMPLATES = 'http://www.sdss.org/dr7/algorithms/spectemplates/spDR2'
-    MAXQUERIES = SDSS_MAXQUERY()
+    MAXQUERIES = conf.maxqueries
     AVAILABLE_TEMPLATES = spec_templates
-    TIMEOUT = SDSS_TIMEOUT()
+    TIMEOUT = conf.timeout
 
     QUERY_URL = 'http://skyserver.sdss3.org/public/en/tools/search/x_sql.aspx'
 

@@ -15,15 +15,10 @@ from astropy import __version__ as ASTROPY_VERSION
 
 from ..query import BaseQuery
 from ..utils import commons
-from . import (HUBBLE_CONSTANT,
-               CORRECT_REDSHIFT,
-               OUTPUT_COORDINATE_FRAME,
-               OUTPUT_EQUINOX,
-               SORT_OUTPUT_BY)
-from . import NED_SERVER, NED_TIMEOUT
-from ..exceptions import TableParseError,RemoteServiceError
+from . import conf
+from ..exceptions import TableParseError, RemoteServiceError
 
-__all__ = ["Ned","NedClass"]
+__all__ = ["Ned", "NedClass"]
 
 
 class NedClass(BaseQuery):
@@ -33,13 +28,13 @@ class NedClass(BaseQuery):
     http://ned.ipac.caltech.edu/
     """
     # make configurable
-    BASE_URL = NED_SERVER()
+    BASE_URL = conf.server
     OBJ_SEARCH_URL = BASE_URL + 'nph-objsearch'
     ALL_SKY_URL = BASE_URL + 'nph-allsky'
     DATA_SEARCH_URL = BASE_URL + 'nph-datasearch'
     IMG_DATA_URL = BASE_URL + 'imgdata'
     SPECTRA_URL = BASE_URL + 'NEDspectra'
-    TIMEOUT = NED_TIMEOUT()
+    TIMEOUT = conf.timeout
     Options = namedtuple('Options', ('display_name', 'cgi_name'))
 
     PHOTOMETRY_OUT = {1: Options('Data as Published and Homogenized (mJy)', 'bot'),
@@ -588,10 +583,10 @@ class NedClass(BaseQuery):
         ----------
         request_payload : dict
         """
-        request_payload['hconst'] = HUBBLE_CONSTANT()
+        request_payload['hconst'] = conf.hubble_constant
         request_payload['omegam'] = 0.27
         request_payload['omegav'] = 0.73
-        request_payload['corr_z'] = CORRECT_REDSHIFT()
+        request_payload['corr_z'] = conf.correct_redshift
 
     def _set_output_options(self, request_payload):
         """
@@ -601,9 +596,9 @@ class NedClass(BaseQuery):
         ----------
         request_payload : dict
         """
-        request_payload['out_csys'] = OUTPUT_COORDINATE_FRAME()
-        request_payload['out_equinox'] = OUTPUT_EQUINOX()
-        request_payload['obj_sort'] = SORT_OUTPUT_BY()
+        request_payload['out_csys'] = conf.output_coordinate_frame
+        request_payload['out_equinox'] = conf.output_equinox
+        request_payload['obj_sort'] = conf.sort_output_by
 
     def _parse_result(self, response, verbose=False):
         """
@@ -660,6 +655,7 @@ class NedClass(BaseQuery):
 
 Ned = NedClass()
 
+
 def _parse_radius(radius):
     """
     Parses the radius and returns it in the format expected by NED.
@@ -674,7 +670,6 @@ def _parse_radius(radius):
         The value of the radius in arcminutes.
     """
     return coord.Angle(radius).to('arcmin').value
-
 
 
 def _check_ned_valid(string):

@@ -5,21 +5,30 @@ SDSS Spectra/Image/SpectralTemplate Archive Query Tool
 
 :Author: Jordan Mirocha (mirochaj@gmail.com)
 """
+from astropy import config as _config
 
-from astropy.config import ConfigurationItem
 
-SDSS_SERVER = ConfigurationItem('sdss_server', 'http://data.sdss3.org/sas/dr10',
-                                'Link to SDSS website.')
+class Conf(_config.ConfigNamespace):
+    """
+    Configuration parameters for `astroquery.sdss`.
+    """
+    server = _config.ConfigItem(
+        ['http://data.sdss3.org/sas/dr10'],
+        'Link to SDSS website.'
+        )
+    timeout = _config.ConfigItem(
+        60,
+        'Time limit for connecting to SDSS server.'
+        )
+    maxqueries = _config.ConfigItem(
+        1,
+        'Max number of queries allowed per second.'
+        )
 
-SDSS_MAXQUERY = ConfigurationItem('maxqueries', 1, 'Max number of queries allowed per second')
-
-SDSS_TIMEOUT = ConfigurationItem('timeout', 30,
-                                 'Default timeout for connecting to server')
+conf = Conf()
 
 from .core import SDSS, SDSSClass
 
 import warnings
-warnings.warn("Experimental: SDSS has not yet been refactored to have its API match the rest of astroquery (but it's nearly there).")
-
-# clean up namespace - prevents doc warnings.  Unecessary if an `__all__` is added
-del ConfigurationItem
+warnings.warn("Experimental: SDSS has not yet been refactored to have its API "
+              "match the rest of astroquery (but it's nearly there).")

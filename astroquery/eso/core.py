@@ -16,7 +16,7 @@ from astropy import log
 from ..exceptions import LoginError, RemoteServiceError
 from ..utils import schema, system_tools
 from ..query import QueryWithLogin, suspend_cache
-from . import ROW_LIMIT
+from . import conf
 
 def _check_response(content):
     """
@@ -32,7 +32,7 @@ def _check_response(content):
 
 class EsoClass(QueryWithLogin):
 
-    ROW_LIMIT = ROW_LIMIT()
+    ROW_LIMIT = conf.row_limit
 
     def __init__(self):
         super(EsoClass, self).__init__()
