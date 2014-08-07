@@ -19,9 +19,9 @@ using an `astropy.coordinates` instance use:
 
     >>> from astropy import coordinates
     >>> from astropy import units as u
-    >>> from astroquery import ogle
+    >>> from astroquery.ogle import Ogle
     >>> co = coordinates.SkyCoord(0*u.deg, 3*u.deg, frame='galactic')
-    >>> t = ogle.query(coord=co)
+    >>> t = Ogle.query_region(coord=co)
 
 Arguments can be passed to choose the interpolation algorithm, quality factor,
 and coordinate system. Multiple coordinates may be queried simultaneously by
@@ -33,10 +33,10 @@ to FK5.
 
     >>> # list of coordinate instances
     >>> co_list = [co, co, co]
-    >>> t1 = ogle.query(coord=co_list)
+    >>> t1 = Ogle.query_region(coord=co_list)
     >>> # (2 x N) list of values
     >>> co_list_values = [[0, 0, 0], [3, 3, 3]]
-    >>> t2 = ogle.query(coord=co_list_values, coord_sys='LB')
+    >>> t2 = Ogle.query_region(coord=co_list_values, coord_sys='LB')
 
 Note that non-Astropy coordinates may not be supported in a future version.
 
