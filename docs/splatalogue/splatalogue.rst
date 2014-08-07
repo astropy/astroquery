@@ -145,8 +145,8 @@ Then get rid of the vibrationally excited line by setting an energy upper limit 
 .. code-block:: python
 
     >>> CO2to1 = Splatalogue.query_lines(1*u.mm, 2*u.mm, chemical_name=" CO ",
-                                         only_NRAO_recommended=True,
-                                         energy_max=50, energy_type='eu_k')
+    ...                                  only_NRAO_recommended=True,
+    ...                                  energy_max=50, energy_type='eu_k')
     >>> CO2to1.pprint()
     Species  Chemical Name  Freq-GHz ... E<sub>U</sub> (K) Linelist
     ------- --------------- -------- ... ----------------- --------

@@ -171,8 +171,8 @@ class BesanconClass(BaseQuery):
         else:
             return filename
 
-    def _parse_args(self, glon, glat, email=None, smallfield=True,
-                    extinction=0.7, area=0.0001, verbose=True, clouds=None,
+    def _parse_args(self, glon, glat, email, smallfield=True, extinction=0.7,
+                    area=0.0001, verbose=True, clouds=None,
                     absmag_limits=(-7, 15), mag_limits=copy.copy(mag_limits),
                     colors_limits=copy.copy(colors_limits),
                     **kwargs):
@@ -183,11 +183,11 @@ class BesanconClass(BaseQuery):
 
         Parameters
         ----------
-        email : string
-            A valid e-mail address to send the report of completion to
         glon : float
         glat : float
             Galactic latitude and longitude at the center
+        email : str
+            A valid e-mail address to send the report of completion to
         smallfield : bool
             Small field (True) or Large Field (False)
             LARGE FIELD NOT SUPPORTED YET

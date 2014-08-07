@@ -19,7 +19,7 @@ photometry:
 
     >>> from astroquery.sdss import SDSS
     >>> from astropy import coordinates as coords
-    >>> pos = coords.ICRS('0h8m05.63s +14d50m23.3s')
+    >>> pos = coords.SkyCoord('0h8m05.63s +14d50m23.3s', frame='icrs')
     >>> xid = SDSS.query_region(pos, spectro=True)
     >>> print xid
         ra         dec           objid        run  rerun camcol field    z    plate  mjd  fiberID     specobjid      specClass
@@ -35,12 +35,15 @@ the information we need in the elements of "xid" from the above example.
 
 .. code-block:: python
 
-    >>> sp = SDSS.get_spectra(xid)
-    >>> im = SDSS.get_images(xid, band='g')
+    >>> sp = SDSS.get_spectra(matches=xid)
+    >>> im = SDSS.get_images(matches=xid, band='g')
 
-The variables "sp" and "im" are lists of PyFITS HDUList objects, one entry for each corresponding object in xid.
+The variables "sp" and "im" are lists of `~astropy.io.fits.HDUList` objects, one entry for
+each corresponding object in xid.
 
-Note that in SDSS, image downloads retrieve the entire plate, so further processing will be required to excise an image centered around the point of interest (i.e. the object(s) returned by SDSS.query_region).
+Note that in SDSS, image downloads retrieve the entire plate, so further
+processing will be required to excise an image centered around the point of
+interest (i.e. the object(s) returned by `SDSS.query_region`).
     
 Spectral templates
 ==================

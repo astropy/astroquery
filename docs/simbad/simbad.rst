@@ -225,7 +225,9 @@ instance to query the ESO catalog:
 .. code-block:: python
 
     >>> from astroquery.simbad import Simbad
-    >>> result_table = Simbad.query_catalog('eso')
+    >>> limitedSimbad = Simbad()
+    >>> limitedSimbad.ROW_LIMIT = 6
+    >>> result_table = limitedSimbad.query_catalog('eso')
     >>> print(result_table)
 
     MAIN_ID              RA      ... COO_WAVELENGTH     COO_BIBCODE    
@@ -496,17 +498,18 @@ To set additional fields to be returned in the VOTable:
 .. code-block:: python
      
      >>> from astroquery.simbad import Simbad
+     >>> customSimbad = Simbad()
 
      # see which fields are currently set
 
-     >>> Simbad.get_votable_fields()
+     >>> customSimbad.get_votable_fields()
 
      ['main_id', 'coordinates']
 
      # To set other fields 
 
-     >>> Simbad.add_votable_fields('mk', 'rot', 'bibcodelist(1800-2014)')
-     >>> Simbad.get_votable_fields()
+     >>> customSimbad.add_votable_fields('mk', 'rot', 'bibcodelist(1800-2014)')
+     >>> customSimbad.get_votable_fields()
 
      ['main_id', 'coordinates', 'mk', 'rot', 'bibcodelist(1800-2014')]
 
@@ -515,15 +518,15 @@ Continuing from the above example:
 
 .. code-block:: python
 
-    >>> Simbad.rm_votable_fields('mk', 'coordinates')
-    >>> Simbad.get_votable_fields()
+    >>> customSimbad.remove_votable_fields('mk', 'coordinates')
+    >>> customSimbad.get_votable_fields()
      
     ['rot', 'main_id']
     
     # reset back to defaults
     
-    >>> Simbad.reset_votable_fields()
-    >>> Simbad.get_votable_fields()
+    >>> customSimbad.reset_votable_fields()
+    >>> customSimbad.get_votable_fields()
 
     ['main_id', 'coordinates']
 

@@ -83,8 +83,8 @@ def test_parse_radius(radius, expected_radius):
 
 
 @pytest.mark.parametrize(('ra', 'dec', 'expected_ra', 'expected_dec'),
-                         [(ICRS_COORDS.ra, ICRS_COORDS.dec, u'5:35:17.30000',
-                          u'-80:52:00.00000')
+                         [(ICRS_COORDS.ra, ICRS_COORDS.dec, u'5:35:17.3',
+                          u'-80:52:00')
                           ])
 def test_to_simbad_format(ra, dec, expected_ra, expected_dec):
     actual_ra, actual_dec = simbad.core._to_simbad_format(ra, dec)
@@ -127,7 +127,7 @@ votable_fields = ",".join(simbad.core.Simbad.get_votable_fields())
                                                caller='query_region_async'),
                           ("\nvotable {"+ votable_fields +"}\n"
                            "votable open\n"
-                           "query coo  5:35:17.30000 -80:52:00.00000 "
+                           "query coo  5:35:17.3 -80:52:00 "
                            "radius=5d frame=ICRS equi=2000.0 epoch=J2000 \n"
                            "votable close")),
                           (["m [0-9]"], dict(wildcard=True, caller='query_object_async'),
