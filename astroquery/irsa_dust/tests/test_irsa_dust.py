@@ -38,7 +38,8 @@ galcoords = {'m31': coordinates.SkyCoord(ra=10.6847083*u.deg,
                                          dec=41.26875*u.deg, frame='icrs'),
              'm81': coordinates.SkyCoord(ra=148.888221083*u.deg,
                                          dec=69.065294722*u.deg,
-                                         frame='icrs'),}
+                                         frame='icrs'),
+            }
 def format(coord):
     C = coord.transform_to('fk5')
     return "{0} {1}".format(C.ra.deg, C.dec.deg)
@@ -116,8 +117,16 @@ class TestDust(DustTestCase):
                                     regSize=5)),
                               ("m31", 5*u.deg,
                                dict(locstr='m31',
-                                    regSize=5))
-                              ])
+                                    regSize=5)),
+                              (coordinates.SkyCoord(ra=148.888221083*u.deg,
+                                                   dec=69.065294722*u.deg,
+                                                   frame='icrs'),
+                              5*u.deg,
+                              {'locstr':
+                               format(coordinates.SkyCoord(ra=148.888221083*u.deg,
+                                                           dec=69.065294722*u.deg,
+                                                           frame='icrs')),
+                               'regSize': 5}), ])
     def test_args_to_payload_instance_1(self, coordinate, radius,
                                         expected_payload, patch_fromname):
         payload = IrsaDust()._args_to_payload(coordinate, radius=radius)
