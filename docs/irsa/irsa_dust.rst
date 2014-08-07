@@ -51,7 +51,7 @@ images:
     >>> from astroquery.irsa_dust import IrsaDust
     >>> import astropy.units as u
     >>> image = IrsaDust.get_images("m81", image_type="100um",
-    ...                             radius=20*u.arcmin)
+    ...                             radius=2*u.deg)
 
     Downloading http://irsa.ipac.caltech.edu//workspace/TMP_007Vob_24557/DUST/m81.v0001/p414i100.fits
     |===========================================| 149k/149k (100.00%)        02s
