@@ -7,7 +7,6 @@ import requests
 import numpy.testing as npt
 from astropy.tests.helper import pytest
 import astropy.units as u
-import astropy.coordinates as coord
 
 from ...utils import commons
 from ...utils.testing_tools import MockResponse

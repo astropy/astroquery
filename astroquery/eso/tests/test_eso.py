@@ -28,19 +28,19 @@ DATA_FILES = {'GET': {'http://archive.eso.org/wdb/wdb/eso/amber/form':
               }
 
 def eso_request(request_type, url, **kwargs):
-    with open(data_path(DATA_FILES[request_type][url]),'rb') as f:
+    with open(data_path(DATA_FILES[request_type][url]), 'rb') as f:
         response = MockResponse(content=f.read(), url=url)
     return response
     
-#@pytest.fixture
-#def patch_get(request):
+# @pytest.fixture
+# def patch_get(request):
 #    mp = request.getfuncargvalue("monkeypatch")
 #    mp.setattr(Eso, 'request', eso_request)
 #    return mp
 
 # This test should attempt to access the internet and therefore should fail
 # (_activate_form always connects to the internet)
-#@pytest.mark.xfail
+# @pytest.mark.xfail
 @pytest.mark.skipif('SKIP_TESTS')
 def test_SgrAstar(monkeypatch):
     # Local caching prevents a remote query here

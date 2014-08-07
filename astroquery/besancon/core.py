@@ -16,7 +16,7 @@ from ..utils import prepend_docstr_noreturns
 from ..utils import async_to_sync
 from . import conf
 
-__all__ = ['Besancon','BesanconClass','parse_besancon_model_string']
+__all__ = ['Besancon', 'BesanconClass', 'parse_besancon_model_string']
 
 keyword_defaults = {
     'rinf':0.000000,
@@ -36,23 +36,23 @@ keyword_defaults = {
     'abm': 59.00,
     'db': 1.00,
     'adif': 0.700,
-    'ev':[""]*24,
-    'di':[""]*24,
-    'oo':[-7]+[-99]*12,
-    'ff':[15]+[99]*12,
+    'ev':[""] * 24,
+    'di':[""] * 24,
+    'oo':[-7] + [-99] * 12,
+    'ff':[15] + [99] * 12,
     'spectyp_min':1,
     'subspectyp_min': 0,
     'spectyp_max':9,
     'subspectyp_max': 5,
-    'lumi':list(range(1,8)),
-    'sous_pop':list(range(1,11)),
+    'lumi':list(range(1, 8)),
+    'sous_pop':list(range(1, 11)),
     'iband':8,
-    'band0':[8]*9,
-    'bandf':[25]*9,
-    'colind':["J-H","H-K","J-K","V-K",],
+    'band0':[8] * 9,
+    'bandf':[25] * 9,
+    'colind':["J-H", "H-K", "J-K", "V-K", ],
     'nic': 4,
     'klea':1,
-    'sc':[[0,0,0]]*9,
+    'sc':[[0, 0, 0]] * 9,
     'klee':0,
     'throughform':'ok',
     'kleb':3,  # 3 = Catalogue Simulation, 1 = tables and differential counts
@@ -63,9 +63,9 @@ keyword_defaults = {
 keyword_defaults['ff[15]'] = 500
 keyword_defaults['oo[15]'] = -500
 
-colors_limits = {"J-H":(-99,99), "H-K":(-99,99), "J-K":(-99,99), "V-K":(-99,99)}
-mag_limits = {'U':(-99,99), 'B':(-99,99), 'V':(-5,20), 'R':(-99,99),
-              'I':(-99,99), 'J':(-99,99), 'H':(-99,99), 'K':(-99,99), 'L':(-99,99)}
+colors_limits = {"J-H":(-99, 99), "H-K":(-99, 99), "J-K":(-99, 99), "V-K":(-99, 99)}
+mag_limits = {'U':(-99, 99), 'B':(-99, 99), 'V':(-5, 20), 'R':(-99, 99),
+              'I':(-99, 99), 'J':(-99, 99), 'H':(-99, 99), 'K':(-99, 99), 'L':(-99, 99)}
 mag_order = "U", "B", "V", "R", "I", "J", "H", "K", "L"
 
 
@@ -125,14 +125,14 @@ class BesanconClass(BaseQuery):
                 break
             except URLError:
                 if verbose:
-                    sys.stdout.write(u"Waiting %0.1fs for model to finish (elapsed wait time %0.1fs, total wait time %0.1f)\r" % (self.ping_delay,elapsed_time,time.time()-t0))
+                    sys.stdout.write(u"Waiting %0.1fs for model to finish (elapsed wait time %0.1fs, total wait time %0.1f)\r" % (self.ping_delay, elapsed_time, time.time() - t0))
                     sys.stdout.flush()
                 time.sleep(self.ping_delay)
                 elapsed_time += self.ping_delay
                 continue
             except socket.timeout:
                 if verbose:
-                    sys.stdout.write(u"Waiting %0.1fs for model to finish (elapsed wait time %0.1fs, total wait time %0.1f)\r" % (self.ping_delay,elapsed_time,time.time()-t0))
+                    sys.stdout.write(u"Waiting %0.1fs for model to finish (elapsed wait time %0.1fs, total wait time %0.1f)\r" % (self.ping_delay, elapsed_time, time.time() - t0))
                     sys.stdout.flush()
                 time.sleep(self.ping_delay)
                 elapsed_time += self.ping_delay
@@ -161,10 +161,10 @@ class BesanconClass(BaseQuery):
             filename = self.result_re.search(text).group()
         except AttributeError:  # if there are no matches
             errors = parse_errors(text)
-            raise ValueError("Errors: "+"\n".join(errors))
+            raise ValueError("Errors: " + "\n".join(errors))
 
         if verbose:
-            print("File is %s and can be aquired from %s" % (filename, self.url_download+'/'+filename))
+            print("File is %s and can be aquired from %s" % (filename, self.url_download + '/' + filename))
 
         if retrieve_file:
             return self.get_besancon_model_file(filename)
@@ -219,7 +219,7 @@ class BesanconClass(BaseQuery):
         """
         if email is None and hasattr(self, 'email'):
             email = self.email
-        if email is None or not isinstance(email,str) or not commons.validate_email(email):
+        if email is None or not isinstance(email, str) or not commons.validate_email(email):
             raise ValueError("Must specify a valid e-mail address.")
 
         # create a new keyword dict based on inputs + defaults
@@ -245,8 +245,8 @@ class BesanconClass(BaseQuery):
         for ii, (key, val) in enumerate(colors_limits.items()):
             if key[0] in mag_order and key[1] == '-' and key[2] in mag_order:
                 kwd['colind'][ii] = key
-                kwd['oo'][ii+9] = val[0]
-                kwd['ff'][ii+9] = val[1]
+                kwd['oo'][ii + 9] = val[0]
+                kwd['ff'][ii + 9] = val[1]
             else:
                 raise ValueError('Invalid color %s' % key)
 
@@ -280,7 +280,7 @@ class BesanconClass(BaseQuery):
 
         return request_data
 
-    @prepend_docstr_noreturns("\n"+_parse_args.__doc__+_parse_result.__doc__)
+    @prepend_docstr_noreturns("\n" + _parse_args.__doc__ + _parse_result.__doc__)
     def query_async(self, *args, **kwargs):
         """
         Returns
@@ -324,9 +324,9 @@ def parse_besancon_dict(bd):
                 for ii, listval in enumerate(val):
                     if isinstance(listval, list):
                         for jj, lv in enumerate(listval):
-                            http_dict.append((key+"[%i][%i]" % (ii, jj), lv))
+                            http_dict.append((key + "[%i][%i]" % (ii, jj), lv))
                     else:
-                        http_dict.append((key+"[%i]" % (ii), listval))
+                        http_dict.append((key + "[%i]" % (ii), listval))
         else:
             http_dict.append((key, val))
 
@@ -380,7 +380,7 @@ def parse_besancon_model_string(bms,):
     ncols = len(names)
     header_line = ii
     # data starts 1 line after header
-    first_data_line = lines[header_line+1]
+    first_data_line = lines[header_line + 1]
     # apparently ascii wants you to start 1 early though
     data_start = header_line
     # ascii.read ignores blank lines
@@ -396,15 +396,15 @@ def parse_besancon_model_string(bms,):
         if all([h in line for h in header_start]):
             break
     # most likely = -7
-    data_end = -(jj-nblanks2+1)
+    data_end = -(jj - nblanks2 + 1)
 
     # note: old col_starts/col_ends were:
     # (0,7,13,16,21,27,33,36,41,49,56,62,69,76,82,92,102,109)
     # (6,12,15,20,26,32,35,39,48,55,61,68,75,81,91,101,108,115)
-    space_indices = [first_data_line.find(" ",ii) for ii in range(len(first_data_line))]
-    col_ends = [y for x,y in zip(space_indices[:-1], space_indices[1:]) if y-x > 1] + [len(space_indices)]
-    #col_ends = [(first_data_line+" ").find(" "+x+" ")+len(x)+1 for x in first_data_line.split()]
-    if not all(x<y for x,y in zip(col_ends[:-1],col_ends[1:])):
+    space_indices = [first_data_line.find(" ", ii) for ii in range(len(first_data_line))]
+    col_ends = [y for x, y in zip(space_indices[:-1], space_indices[1:]) if y - x > 1] + [len(space_indices)]
+    # col_ends = [(first_data_line+" ").find(" "+x+" ")+len(x)+1 for x in first_data_line.split()]
+    if not all(x < y for x, y in zip(col_ends[:-1], col_ends[1:])):
         raise ValueError("Failed to parse Besancon table header.")
     col_starts = [0] + [c for c in col_ends[:-1]]
 

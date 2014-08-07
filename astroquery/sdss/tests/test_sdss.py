@@ -4,7 +4,6 @@ from ...utils.testing_tools import MockResponse
 from ...exceptions import TimeoutError
 from ...utils import commons
 from astropy.extern.six.moves.urllib_error import URLError
-from astropy import coordinates
 from astropy.tests.helper import pytest
 from contextlib import contextmanager
 import requests
@@ -39,7 +38,7 @@ def patch_get_readable_fileobj(request):
     @contextmanager
     def get_readable_fileobj_mockreturn(filename, **kwargs):
         file_obj = data_path(DATA_FILES['spectra'])  # TODO: add images option
-        yield open(file_obj,'rb')
+        yield open(file_obj, 'rb')
     mp = request.getfuncargvalue("monkeypatch")
     mp.setattr(commons, 'get_readable_fileobj', get_readable_fileobj_mockreturn)
     return mp

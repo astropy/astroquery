@@ -98,7 +98,7 @@ def query(mol, query_type=None, coll_partner_index=0, return_datafile=False):
       ...             ...    ... ...
     """
     if query_type not in query_types.keys() and not return_datafile:
-        raise ValueError("Query type must be one of "+",".join(query_type.keys()))
+        raise ValueError("Query type must be one of " + ",".join(query_type.keys()))
     # Send HTTP request to open URL
     datafile = [s.strip() for s in
                 requests.get(url.format(mol)).iter_lines()]
@@ -208,7 +208,7 @@ def _check_dtypes(data):
     dtypes = []
     for i in range(data.shape[1]):
         try:
-            data[:,i].astype('float')
+            data[:, i].astype('float')
             dtypes.append('<f8')
         except ValueError:
             dtypes.append('|S14')

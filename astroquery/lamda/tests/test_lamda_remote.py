@@ -5,6 +5,7 @@ import requests
 import imp
 imp.reload(requests)
 
+
 @remote_data
 def test_query_levels():
     result = lamda.query(mol='co', query_type='erg_levels')

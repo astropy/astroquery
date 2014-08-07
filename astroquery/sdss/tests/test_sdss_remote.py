@@ -86,13 +86,13 @@ class TestSDSSRemote:
 
     def test_query_timeout(self):
         with pytest.raises(TimeoutError):
-            xid = sdss.core.SDSS.query_region(self.coords, timeout=self.mintimeout)
+            sdss.core.SDSS.query_region(self.coords, timeout=self.mintimeout)
 
     def test_spectra_timeout(self):
         with pytest.raises(TimeoutError):
-            spec = sdss.core.SDSS.get_spectra(self.coords, timeout=self.mintimeout)
+            ssdss.core.SDSS.get_spectra(self.coords, timeout=self.mintimeout)
 
     def test_images_timeout(self):
         xid = sdss.core.SDSS.query_region(self.coords)
         with pytest.raises(TimeoutError):
-            img = sdss.core.SDSS.get_images(matches=xid, timeout=self.mintimeout)
+            sdss.core.SDSS.get_images(matches=xid, timeout=self.mintimeout)

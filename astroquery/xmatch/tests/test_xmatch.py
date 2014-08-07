@@ -12,7 +12,7 @@ from ...utils.testing_tools import MockResponse
 from ...xmatch import XMatch
 
 DATA_FILES = {
-    'get': 'tables.csv',   # .action.getVizieRTableNames
+    'get': 'tables.csv',  # .action.getVizieRTableNames
     'post': 'query_res.csv',  # .request.xmatch
 }
 

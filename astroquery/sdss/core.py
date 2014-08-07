@@ -124,7 +124,7 @@ class SDSSClass(BaseQuery):
         """
         request_payload = self._args_to_payload(coordinates=coordinates,
                                                 radius=radius, fields=fields,
-                                                spectro=spectro, photoobj_fields=photoobj_fields, 
+                                                spectro=spectro, photoobj_fields=photoobj_fields,
                                                 specobj_fields=specobj_fields)
         if get_query_payload:
             return request_payload
@@ -574,13 +574,13 @@ class SDSSClass(BaseQuery):
 
         # genfromtxt requires bytes; need to check for 'encode' for py3 compat
         bytecontent = (response.content.encode('ascii')
-                       if hasattr(response.content,'encode')
+                       if hasattr(response.content, 'encode')
                        else response.content)
         if 'error_message' in io.BytesIO(bytecontent):
             raise RemoteServiceError(response.content)
         arr = np.atleast_1d(np.genfromtxt(io.BytesIO(bytecontent),
                             names=True, dtype=None, delimiter=b',',
-                            skip_header=1, # this may be a hack; it is necessary for tests to pass
+                            skip_header=1,  # this may be a hack; it is necessary for tests to pass
                             comments=b'#'))
 
         if len(arr) == 0:
@@ -691,11 +691,11 @@ class SDSSClass(BaseQuery):
                 ra = target.ra.degree
                 dec = target.dec.degree
                 dr = coord.Angle(radius).to('degree').value
-                if n>0:
+                if n > 0:
                     q_where += ' or '
                 q_where += ('((p.ra between %g and %g) and '
                            '(p.dec between %g and %g))'
-                           % (ra-dr, ra+dr, dec-dr, dec+dr))
+                           % (ra - dr, ra + dr, dec - dr, dec + dr))
         elif spectro:
             # Spectra: query for specified plate, mjd, fiberid
             s_fields = ['s.%s=%d' % (key, val) for (key, val) in

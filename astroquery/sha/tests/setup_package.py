@@ -3,8 +3,7 @@ import os
 
 
 def get_package_data():
-    paths_test = [os.path.join('data', '*.txt'),
-                  os.path.join('data', '*.fits')]
+    paths = [os.path.join('data', '*.txt'),
+             os.path.join('data', '*.fits')]
 
-    return {'astroquery.sha.tests': paths_test}
-
+    return {'astroquery.sha.tests': paths}

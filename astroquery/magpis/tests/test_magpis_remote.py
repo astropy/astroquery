@@ -25,4 +25,4 @@ class TestMagpis:
                 coord.Galactic(10.5, 0.0, unit=(u.deg, u.deg)),
                 image_size='1 arcmin')
         assert image is not None
-        assert image[0].data.shape == (8,8)
+        assert image[0].data.shape == (8, 8)

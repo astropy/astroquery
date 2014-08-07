@@ -8,7 +8,7 @@ from astropy.table import Table
 
 from . import conf
 from ..query import BaseQuery
-from ..utils import commons, url_helpers, prepend_docstr_noreturns,\
+from ..utils import commons, url_helpers, prepend_docstr_noreturns, \
     async_to_sync
 
 

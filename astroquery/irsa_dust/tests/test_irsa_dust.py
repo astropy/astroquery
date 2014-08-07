@@ -5,7 +5,7 @@ import astropy.units as u
 from astropy.tests.helper import pytest  # import this since the user may not have pytest installed
 
 from ... import irsa_dust
-from ...irsa_dust.core import IrsaDust,IrsaDustClass
+from ...irsa_dust.core import IrsaDust, IrsaDustClass
 from ...utils import commons
 from astropy import coordinates
 import types
@@ -34,10 +34,10 @@ M31_URL_T = [
     'http://irsa.ipac.caltech.edu//workspace/TMP_kRQo9a_8160/DUST/m31.v0002/p338temp.fits'
 ]
 
-galcoords = {'m31': coordinates.SkyCoord(ra=10.6847083*u.deg,
-                                         dec=41.26875*u.deg, frame='icrs'),
-             'm81': coordinates.SkyCoord(ra=148.888221083*u.deg,
-                                         dec=69.065294722*u.deg,
+galcoords = {'m31': coordinates.SkyCoord(ra=10.6847083 * u.deg,
+                                         dec=41.26875 * u.deg, frame='icrs'),
+             'm81': coordinates.SkyCoord(ra=148.888221083 * u.deg,
+                                         dec=69.065294722 * u.deg,
                                          frame='icrs'),
             }
 def format(coord):
@@ -64,7 +64,7 @@ def patch_fromname(request):
             raise coordinates.name_resolve.NameResolveError
     mp.setattr(commons.ICRSCoord,
                'from_name',
-               types.MethodType(fromname,commons.ICRSCoord))
+               types.MethodType(fromname, commons.ICRSCoord))
 
 
 
@@ -112,19 +112,19 @@ class TestDust(DustTestCase):
                               (galcoords["m31"], "5d0m",
                                dict(locstr=format(galcoords['m31']),
                                     regSize=5.0)),
-                              (galcoords["m31"], 5*u.deg,
+                              (galcoords["m31"], 5 * u.deg,
                                dict(locstr=format(galcoords['m31']),
                                     regSize=5)),
-                              ("m31", 5*u.deg,
+                              ("m31", 5 * u.deg,
                                dict(locstr='m31',
                                     regSize=5)),
-                              (coordinates.SkyCoord(ra=148.888221083*u.deg,
-                                                   dec=69.065294722*u.deg,
+                              (coordinates.SkyCoord(ra=148.888221083 * u.deg,
+                                                   dec=69.065294722 * u.deg,
                                                    frame='icrs'),
-                              5*u.deg,
+                              5 * u.deg,
                               {'locstr':
-                               format(coordinates.SkyCoord(ra=148.888221083*u.deg,
-                                                           dec=69.065294722*u.deg,
+                               format(coordinates.SkyCoord(ra=148.888221083 * u.deg,
+                                                           dec=69.065294722 * u.deg,
                                                            frame='icrs')),
                                'regSize': 5}), ])
     def test_args_to_payload_instance_1(self, coordinate, radius,
@@ -138,7 +138,7 @@ class TestDust(DustTestCase):
                 "m81", radius="5")
         assert ex.value.args[0] == "No unit specified"
 
-    @pytest.mark.parametrize(('radius'), ['1d0m', '40d0m', 45*u.deg])
+    @pytest.mark.parametrize(('radius'), ['1d0m', '40d0m', 45 * u.deg])
     def test_args_to_payload_instance_3(self, radius, patch_fromname):
         errmsg = ("Radius (in any unit) must be in the"
                   " range of 2.0 to 37.5 degrees")
@@ -155,7 +155,7 @@ class TestDust(DustTestCase):
                               (galcoords["m31"], "5d0m",
                                dict(locstr=format(galcoords['m31']),
                                     regSize=5.0)),
-                              (galcoords["m31"], 5*u.deg,
+                              (galcoords["m31"], 5 * u.deg,
                                dict(locstr=format(galcoords['m31']),
                                     regSize=5))
                               ])
@@ -170,7 +170,7 @@ class TestDust(DustTestCase):
                 "m81", radius="5")
         assert ex.value.args[0] == "No unit specified"
 
-    @pytest.mark.parametrize(('radius'), ['1d0m', '40d0m', 45*u.deg])
+    @pytest.mark.parametrize(('radius'), ['1d0m', '40d0m', 45 * u.deg])
     def test_args_to_payload_class_3(self, radius, patch_fromname):
         errmsg = ("Radius (in any unit) must be in the"
                   " range of 2.0 to 37.5 degrees")
@@ -352,7 +352,7 @@ class TestDust(DustTestCase):
                                     image_type=None,
                                     timeout=IrsaDust.TIMEOUT,
                                     get_query_payload=False):
-        readable_obj = commons.FileContainer(self.data(IMG_FITS),encoding='binary')
+        readable_obj = commons.FileContainer(self.data(IMG_FITS), encoding='binary')
         return [readable_obj]
 
     def set_ext_table_text(self, text, xml_tree):

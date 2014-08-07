@@ -23,9 +23,10 @@ from . import conf
 from ..exceptions import TableParseError
 
 
-__all__ = ['Vizier','VizierClass']
+__all__ = ['Vizier', 'VizierClass']
 
 __doctest_skip__ = ['VizierClass.*']
+
 
 @async_to_sync
 class VizierClass(BaseQuery):
@@ -35,7 +36,7 @@ class VizierClass(BaseQuery):
     _schema_ucd = schema.Schema(_str_schema, error="ucd must be string")
     _schema_column_filters = schema.Schema({schema.Optional(_str_schema):_str_schema},
                                            error="column_filters must be a dictionary where both keys and values are strings")
-    _schema_catalog = schema.Schema(schema.Or([_str_schema],_str_schema,None),
+    _schema_catalog = schema.Schema(schema.Or([_str_schema], _str_schema, None),
                                     error="catalog must be a list of strings or a single string")
 
     def __init__(self, columns=["*"], column_filters={}, catalog=None, keywords=None,
@@ -65,7 +66,7 @@ class VizierClass(BaseQuery):
 
     @property
     def column_filters(self):
-        """ Filters to run on the individual columns.  See the Vizier website for details """
+        """Filters to run on the individual columns.  See the Vizier website for details."""
         return self._column_filters
 
     @column_filters.setter
@@ -74,7 +75,7 @@ class VizierClass(BaseQuery):
 
     @property
     def catalog(self):
-        """ The default catalog to search.  If left empty, will search all catalogs """
+        """The default catalog to search.  If left empty, will search all catalogs."""
         return self._catalog
 
     @catalog.setter
@@ -85,7 +86,7 @@ class VizierClass(BaseQuery):
     def ucd(self):
         """
         UCD criteria: see http://vizier.u-strasbg.fr/vizier/vizHelp/1.htx#ucd
-        
+
         Examples
         --------
         >>> Vizier.ucd = '(spect.dopplerVeloc*|phys.veloc*)'
@@ -159,14 +160,14 @@ class VizierClass(BaseQuery):
         if isinstance(keywords, list):
             keywords = " ".join(keywords)
 
-        data_payload = {'-words':keywords, '-meta.all':1}
+        data_payload = {'-words': keywords, '-meta.all': 1}
         response = self._request(method='POST',
-                                url=self._server_to_url(),
-                                data=data_payload,
-                                timeout=self.TIMEOUT)
+                                 url=self._server_to_url(),
+                                 data=data_payload,
+                                 timeout=self.TIMEOUT)
         result = self._parse_result(response, verbose=verbose, get_catalog_names=True)
 
-        #Filter out the obsolete catalogs, unless requested
+        # Filter out the obsolete catalogs, unless requested
         if include_obsolete is False:
             for (key, resource) in result.items():
                 for info in resource.infos:
@@ -192,9 +193,9 @@ class VizierClass(BaseQuery):
 
         data_payload = self._args_to_payload(catalog=catalog)
         response = self._request(method='POST',
-                                url=self._server_to_url(),
-                                data=data_payload,
-                                timeout=self.TIMEOUT)
+                                 url=self._server_to_url(),
+                                 data=data_payload,
+                                 timeout=self.TIMEOUT)
         return response
 
     def query_object_async(self, object_name, catalog=None, radius=None, coordinate_frame=None):
@@ -230,17 +231,17 @@ class VizierClass(BaseQuery):
             cframe = (coordinate_frame if coordinate_frame in
                       'today,J2000,B1975,B1950,B1900,B1875,B1855,Galactic,Supergal.,Ecl.J2000'.split(",")
                       else 'J2000')
-            #oname = "{name}({arcmin} {cframe})".format(name=object_name, arcmin=radius_arcmin, cframe)
-            center = {'-c': object_name, '-c.u':'arcmin', '-c.geom':'r', 
+            # oname = "{name}({arcmin} {cframe})".format(name=object_name, arcmin=radius_arcmin, cframe)
+            center = {'-c': object_name, '-c.u':'arcmin', '-c.geom':'r',
                       '-c.r': radius_arcmin, '-c.eq':cframe}
 
         data_payload = self._args_to_payload(
             center=center,
             catalog=catalog)
         response = self._request(method='POST',
-                                url=self._server_to_url(),
-                                data=data_payload,
-                                timeout=self.TIMEOUT)
+                                 url=self._server_to_url(),
+                                 data=data_payload,
+                                 timeout=self.TIMEOUT)
         return response
 
     def query_region_async(self, coordinates, radius=None, inner_radius=None,
@@ -292,8 +293,8 @@ class VizierClass(BaseQuery):
                     dec_deg = pos.dec.to_string(unit="deg", decimal=True,
                                                 precision=8, alwayssign=True)
                     pos_list += ["{}{}".format(ra_deg, dec_deg)]
-                center["-c"] = "<<;"+";".join(pos_list)
-                columns += ["_q"] # request a reference to the input table
+                center["-c"] = "<<;" + ";".join(pos_list)
+                columns += ["_q"]  # request a reference to the input table
             else:
                 ra = c.ra.to_string(unit='deg', decimal=True, precision=8)
                 dec = c.dec.to_string(unit="deg", decimal=True, precision=8,
@@ -311,8 +312,8 @@ class VizierClass(BaseQuery):
                     dec_deg = pos.dec.to_string(unit="deg", decimal=True,
                                                 precision=8, alwayssign=True)
                     pos_list += ["{}{}".format(ra_deg, dec_deg)]
-                center["-c"] = "<<;"+";".join(pos_list)
-                columns += ["_q"] # request a reference to the input table
+                center["-c"] = "<<;" + ";".join(pos_list)
+                columns += ["_q"]  # request a reference to the input table
             else:
                 raise ValueError("Table must contain '_RAJ2000' and '_DEJ2000' columns!")
         else:
@@ -362,9 +363,9 @@ class VizierClass(BaseQuery):
             return data_payload
 
         response = self._request(method='POST',
-                                url=self._server_to_url(),
-                                data=data_payload,
-                                timeout=self.TIMEOUT)
+                                 url=self._server_to_url(),
+                                 data=data_payload,
+                                 timeout=self.TIMEOUT)
         return response
 
     def query_constraints_async(self, catalog=None, **kwargs):
@@ -423,11 +424,11 @@ class VizierClass(BaseQuery):
         data_payload = self._args_to_payload(
             catalog=catalog,
             column_filters=kwargs,
-            center={'-c.rd':180})
+            center={'-c.rd': 180})
         response = self._request(method='POST',
-                                url=self._server_to_url(),
-                                data=data_payload,
-                                timeout=self.TIMEOUT)
+                                 url=self._server_to_url(),
+                                 data=data_payload,
+                                 timeout=self.TIMEOUT)
         return response
 
     def _args_to_payload(self, *args, **kwargs):
@@ -477,7 +478,7 @@ class VizierClass(BaseQuery):
             else:
                 columns_out += [column]
         body['-out.add'] = ','.join(columns_out)
-        if len(sorts_out)>0:
+        if len(sorts_out) > 0:
             body['-sort'] = ','.join(sorts_out)
         # process: maximum rows returned
         row_limit = kwargs.get('row_limit') or self.ROW_LIMIT
@@ -505,7 +506,7 @@ class VizierClass(BaseQuery):
 
         # create final script
         script = "\n".join(["{key}={val}".format(key=key, val=val)
-                   for key, val in body.items()])
+                            for key, val in body.items()])
         # add keywords
         if not isinstance(self.keywords, property) and self.keywords is not None:
             script += "\n" + str(self.keywords)
@@ -565,7 +566,7 @@ class VizierClass(BaseQuery):
                 raise ValueError("Invalid keyword 'invalid'.  Must be raise, mask, or warn")
 
             if get_catalog_names:
-                return dict([(R.name,R) for R in vo_tree.resources])
+                return dict([(R.name, R) for R in vo_tree.resources])
             else:
                 table_dict = OrderedDict()
                 for t in vo_tree.iter_tables():
@@ -594,13 +595,13 @@ class VizierClass(BaseQuery):
 
     @property
     def valid_keywords(self):
-        if not hasattr(self,'_valid_keyword_dict'):
+        if not hasattr(self, '_valid_keyword_dict'):
             file_name = aud.get_pkg_data_filename(
                 os.path.join("data", "inverse_dict.json"))
             with open(file_name, 'r') as f:
                 kwd = json.load(f)
                 self._valid_keyword_types = sorted(kwd.values())
-                self._valid_keyword_dict = OrderedDict([(k,kwd[k]) for k in sorted(kwd)])
+                self._valid_keyword_dict = OrderedDict([(k, kwd[k]) for k in sorted(kwd)])
 
         return self._valid_keyword_dict
 
@@ -639,13 +640,13 @@ class VizierKeyword(list):
         with open(file_name, 'r') as f:
             kwd = json.load(f)
             self.keyword_types = sorted(kwd.values())
-            self.keyword_dict = OrderedDict([(k,kwd[k]) for k in sorted(kwd)])
+            self.keyword_dict = OrderedDict([(k, kwd[k]) for k in sorted(kwd)])
         self._keywords = None
         self.keywords = keywords
 
     @property
     def keywords(self):
-        """ list or string for keyword(s) that must be set for the Vizier object."""
+        """List or string for keyword(s) that must be set for the Vizier object."""
         return self._keywords
 
     @keywords.setter
@@ -659,7 +660,7 @@ class VizierKeyword(list):
             warnings.warn("{val} : No such keyword".format(val=val))
         valid_keys = [
             key for key in self.keyword_dict.keys()
-            if key.lower() in list(map(str.lower,values))]
+            if key.lower() in list(map(str.lower, values))]
         # create a dict for each type of keyword
         set_keywords = OrderedDict()
         for key in self.keyword_dict:
@@ -669,7 +670,7 @@ class VizierKeyword(list):
                 else:
                     set_keywords[self.keyword_dict[key]] = [key]
         self._keywords = OrderedDict(
-                [(k,sorted(set_keywords[k]))
+                [(k, sorted(set_keywords[k]))
                  for k in set_keywords]
                 )
 

@@ -5,7 +5,6 @@ from contextlib import contextmanager
 
 from astropy.tests.helper import pytest
 from astropy.table import Table
-import astropy.coordinates as coord
 import astropy.units as u
 import numpy.testing as npt
 
@@ -79,10 +78,11 @@ def get_mockreturn(url, params=None, timeout=10, **kwargs):
 
 
 @pytest.mark.parametrize(('dim', 'expected'),
-                        [(5 * u.arcmin, 5),
-                        (5 * u.degree, 300),
-                        ('0d0m30s', 0.5)
-                         ])
+                         [(5 * u.arcmin, 5),
+                          (5 * u.degree, 300),
+                          ('0d0m30s', 0.5),
+                          ]
+                         )
 def test_parse_dimension(dim, expected):
     out = ukidss.core._parse_dimension(dim)
     npt.assert_approx_equal(out, expected, significant=3)

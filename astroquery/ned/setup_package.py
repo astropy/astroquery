@@ -3,13 +3,14 @@ import os
 
 
 def get_package_data():
-    paths_core = [os.path.join('data', 'keywords_dict.json')]
+    paths_core = [os.path.join('data', 'keywords_dict.json'),
+                  ]
 
     paths_test = [os.path.join('data', '*.xml'),
                   os.path.join('data', '*.fits'),
-                  os.path.join('data', '*.html')]
+                  os.path.join('data', '*.html'),
+                  ]
 
-    return {
-            'astroquery.ned': paths_core,
-            'astroquery.ned.tests': paths_test
-    }
+    return {'astroquery.ned': paths_core,
+            'astroquery.ned.tests': paths_test,
+            }

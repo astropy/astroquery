@@ -10,6 +10,7 @@ from astropy.tests.helper import pytest, remote_data
 
 from astropy.tests.pytest_plugins import *
 
+
 # pytest magic:
 # http://pytest.org/latest/plugins.html#_pytest.hookspec.pytest_configure
 # use pytest.set_trace() to interactively inspect config's features

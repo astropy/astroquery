@@ -1,3 +1,4 @@
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
 from __future__ import print_function
 import socket
 import requests
@@ -6,6 +7,7 @@ from astropy.tests.helper import pytest
 
 # save original socket method for restoration
 socket_original = socket.socket
+
 
 @pytest.fixture
 def turn_off_internet(verbose=False):
@@ -16,6 +18,7 @@ def turn_off_internet(verbose=False):
         pytest.fail("An attempt was made to connect to the internet")
     setattr(socket, 'socket', guard)
     return socket
+
 
 @pytest.fixture
 def turn_on_internet(verbose=False):

@@ -6,7 +6,7 @@ from .build_species_table import data_path
 
 class SpeciesLookuptable(dict):
 
-    def find(self, s, flags=0, return_dict=True, ):
+    def find(self, s, flags=0, return_dict=True,):
         """
         Search dictionary keys for a regex match to string s
 
@@ -25,9 +25,9 @@ class SpeciesLookuptable(dict):
         corresponding to matches
         """
 
-        R = re.compile(s,flags)
+        R = re.compile(s, flags)
 
-        out = SpeciesLookuptable(dict((k,v) for k,v in self.items() if R.search(k)))
+        out = SpeciesLookuptable(dict((k, v) for k, v in self.items() if R.search(k)))
 
         if return_dict:
             return out
@@ -36,9 +36,9 @@ class SpeciesLookuptable(dict):
 
 
 def species_lookuptable(filename='species.json'):
-    with open(data_path(filename),'r') as f:
+    with open(data_path(filename), 'r') as f:
         J = json.load(f)
 
-    lookuptable = SpeciesLookuptable(dict((v,k) for d in J.values() for k,v in d.items()))
+    lookuptable = SpeciesLookuptable(dict((v, k) for d in J.values() for k, v in d.items()))
 
     return lookuptable

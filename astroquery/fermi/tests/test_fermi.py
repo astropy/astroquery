@@ -13,6 +13,7 @@ DATA_FILES = {'async':"query_result_m31.html",
               'fits': ['http://fermi.gsfc.nasa.gov/FTP/fermi/data/lat/queries/L13090110364329E469B418_PH00.fits',
                        'http://fermi.gsfc.nasa.gov/FTP/fermi/data/lat/queries/L13090110364329E469B418_SC00.fits']}
 
+
 def data_path(filename):
     data_dir = os.path.join(os.path.dirname(__file__), 'data')
     return os.path.join(data_dir, filename)
@@ -25,14 +26,14 @@ def patch_post(request):
 
 def post_mockreturn(url, data=None, timeout=50, **kwargs):
     if data is not None:
-        with open(data_path(DATA_FILES['async']),'r') as r:
+        with open(data_path(DATA_FILES['async']), 'r') as r:
             response = MockResponse(r.read(), **kwargs)
     else:
-        with open(data_path(DATA_FILES['result']),'r') as r:
+        with open(data_path(DATA_FILES['result']), 'r') as r:
             response = MockResponse(r.read(), **kwargs)
     return response
 
-FK5_COORDINATES = coord.ICRS(10.68471, 41.26875, unit=('deg','deg'))
+FK5_COORDINATES = coord.ICRS(10.68471, 41.26875, unit=('deg', 'deg'))
 
 # disable waiting so tests run fast
 fermi.core.get_fermilat_datafile.TIMEOUT = 1
