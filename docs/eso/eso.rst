@@ -43,17 +43,17 @@ interaction with the ESO archive.
 
     >>> from astroquery.eso import Eso
     >>> eso = Eso()
-    >>> eso.login("TEST")
+    >>> eso.login("TEST") # doctest: +SKIP
     TEST, enter your ESO password:
 
     Authenticating TEST on www.eso.org...
     Authentication failed!
-    >>> eso.login("ICONDOR")
+    >>> eso.login("ICONDOR") # doctest: +SKIP
     ICONDOR, enter your ESO password:
 
     Authenticating ICONDOR on www.eso.org...
     Authentication successful!
-    >>> eso.login("ICONDOR")
+    >>> eso.login("ICONDOR") # doctest: +SKIP
     Authenticating ICONDOR on www.eso.org...
     Authentication successful!
 

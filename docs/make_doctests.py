@@ -4,9 +4,12 @@ import re
 
 leftarrows = re.compile("^ *>>> ")
 leftdots = re.compile("^ *\.\.\. ")
+docskip = re.compile('doctest: \+SKIP')
 
 def test_line(line):
-    if leftarrows.search(line):
+    if docskip.search(line):
+        return False
+    elif leftarrows.search(line):
         return True
     elif leftdots.search(line):
         if line.count('...') == 1:

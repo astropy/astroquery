@@ -40,8 +40,8 @@ data.
     
     # Now first instantiate a Ukidss object with login credentials
 
-    >>> u_obj = Ukidss(username='xyz', password='secret',
-    ...                community='your_community')
+    >>> u_obj = Ukidss(username='xyz', password='secret', # doctest: +SKIP
+    ...                community='your_community')        # doctest: +SKIP
 
     >>> # The prompt appears indicating successful login
 
@@ -56,9 +56,9 @@ permitted only for image queries.
 .. code-block:: python
 
     >>> from astroquery.ukidss import Ukidss
-    >>> u_obj = Ukidss(username='xyz', password='secret',
-    ...                community='your_community', database='UKIDSSDR8PLUS',
-    ...                programme_id='GPS')
+    >>> u_obj = Ukidss(username='xyz', password='secret',                    # doctest: +SKIP
+    ...                community='your_community', database='UKIDSSDR8PLUS', # doctest: +SKIP
+    ...                programme_id='GPS')                                   # doctest: +SKIP
     >>> 
 
 At any given time you may if you wish check your login status (continuing from
@@ -66,7 +66,7 @@ the above example):
 
 .. code-block:: python
 
-    >>> u_obj.logged_in()
+    >>> u_obj.logged_in() # doctest: SKIP
     
     True
 
@@ -75,8 +75,8 @@ object - say ``u_obj`` then you should do:
 
 .. code-block:: python
 
-    >>> u_obj.programme_id = 'new_id_here'
-    >>> u_obj.database = 'new_database_here'
+    >>> u_obj.programme_id = 'new_id_here'   # doctest: +SKIP
+    >>> u_obj.database = 'new_database_here' # doctest: +SKIP
 
 The above examples mention ``programme_id`` that specifies the catalog
 or survey you wish to query. If you would like to get a list of the commonly
@@ -129,7 +129,7 @@ that you already have a `~astroquery.ukidss.UkidssClass` object ``u_obj`` instan
 
 .. code-block:: python
 
-    >>> images = u_obj.get_images("m1")               
+    >>> images = u_obj.get_images("m1") # doctest: +SKIP
 
 There are several optional parameters that you can specify in image
 queries. For instance to specify the image size you should set the
