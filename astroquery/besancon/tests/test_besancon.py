@@ -1,13 +1,13 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
-from ... import besancon
-from ...utils import commons
 import os
 from contextlib import contextmanager
+import requests
 from astropy.tests.helper import pytest
 from astropy.io.ascii.tests.common import assert_equal
-import requests
 from astropy.extern.six import string_types
+from ... import besancon
+from ...utils import commons
 
 # SKIP - don't run tests because Besancon folks don't want them (based on the fact that your@email.net is now rejected)
 # def test_besancon_reader():

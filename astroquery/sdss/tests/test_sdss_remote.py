@@ -3,8 +3,7 @@ from ... import sdss
 from ...exceptions import TimeoutError
 from astropy import coordinates
 from astropy.table import Table
-from astropy.tests.helper import remote_data
-import pytest
+from astropy.tests.helper import pytest, remote_data
 import requests
 import imp
 imp.reload(requests)

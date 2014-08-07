@@ -3,9 +3,9 @@ import re
 import os
 import io
 import requests
+import numpy as np
 from astropy.table import Table
 import astropy.io.fits as fits
-import numpy as np
 
 
 __all__ = ['query', 'save_file', 'get_file']

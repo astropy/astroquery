@@ -1,8 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import os.path
 
-import pytest
-from astropy.tests.helper import remote_data
+from astropy.tests.helper import pytest, remote_data
 from astropy.table import Table
 from astropy.units import arcsec
 

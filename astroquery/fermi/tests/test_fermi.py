@@ -1,11 +1,11 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from __future__ import print_function
-from ... import fermi
-from ...utils.testing_tools import MockResponse
-from astropy.tests.helper import pytest
-import requests
 import os
+import requests
+from astropy.tests.helper import pytest
 import astropy.coordinates as coord
+from ...utils.testing_tools import MockResponse
+from ... import fermi
 
 DATA_FILES = {'async':"query_result_m31.html",
               'result':'result_page_m31.html',

@@ -1,14 +1,12 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import os
-
+import types
 import astropy.units as u
-from astropy.tests.helper import pytest  # import this since the user may not have pytest installed
-
+from astropy.tests.helper import pytest
+from astropy import coordinates
 from ... import irsa_dust
 from ...irsa_dust.core import IrsaDust, IrsaDustClass
 from ...utils import commons
-from astropy import coordinates
-import types
 
 M31_XML = "dustm31.xml"
 M81_XML = "dustm81.xml"

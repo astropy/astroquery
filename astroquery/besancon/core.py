@@ -9,7 +9,6 @@ import os
 from astropy.io import ascii
 from astropy.extern.six.moves.urllib_error import URLError
 from astropy.extern.six import StringIO
-
 from ..query import BaseQuery
 from ..utils import commons
 from ..utils import prepend_docstr_noreturns

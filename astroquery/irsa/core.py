@@ -1,4 +1,5 @@
-'''
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
+"""
 IRSA
 ====
 
@@ -86,8 +87,7 @@ If onlist=0, the following parameters are required:
                         The retrieved row number outrows is always less than or
                         equal to available to be retrieved rows under the same
                         constraints.
-'''
-# Licensed under a 3-clause BSD style license - see LICENSE.rst
+"""
 from __future__ import print_function, division
 
 import warnings

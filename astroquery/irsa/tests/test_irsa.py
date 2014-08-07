@@ -3,12 +3,12 @@ from __future__ import print_function
 import os
 import re
 import requests
+import numpy as np
 
 from astropy.tests.helper import pytest
 from astropy.table import Table
 import astropy.coordinates as coord
 import astropy.units as u
-import numpy as np
 
 from ...utils.testing_tools import MockResponse
 from ...utils import commons

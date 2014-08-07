@@ -10,12 +10,11 @@ Description: Access Sloan Digital Sky Survey database online.
 """
 
 from __future__ import print_function
-
+import io
 import numpy as np
 from astropy import units as u
 import astropy.coordinates as coord
 from astropy.table import Table
-import io
 from ..query import BaseQuery
 from . import conf
 from ..utils import commons, async_to_sync

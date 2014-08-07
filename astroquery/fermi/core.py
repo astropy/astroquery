@@ -3,10 +3,9 @@
 from __future__ import print_function
 import re
 import time
+import astropy.units as u
 from ..query import BaseQuery
 from ..utils import commons, async_to_sync
-import astropy.units as u
-
 from . import conf
 
 __all__ = ['FermiLAT', 'FermiLATClass',

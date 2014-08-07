@@ -1,8 +1,8 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import os.path
 
-import pytest
 import requests
+from astropy.tests.helper import pytest
 from astropy.io import ascii
 from astropy.table import Table
 from astropy.units import arcsec

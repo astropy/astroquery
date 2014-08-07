@@ -1,13 +1,9 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from __future__ import print_function
-
 from io import BytesIO
-
 import astropy.units as u
 import astropy.coordinates as coord
 from astropy.io import fits
-
-
 from ..query import BaseQuery
 from ..utils.docstr_chompers import prepend_docstr_noreturns
 from ..utils import commons

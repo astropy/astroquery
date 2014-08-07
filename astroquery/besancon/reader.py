@@ -2,7 +2,10 @@
 from astropy.io.ascii import core
 from astropy.io.ascii import fixedwidth
 
-__all__ = ['BesanconFixed', 'BesanconFixedWidthHeader', 'BesanconFixedWidthData']
+__all__ = ['BesanconFixed',
+           'BesanconFixedWidthHeader',
+           'BesanconFixedWidthData',
+           ]
 
 
 class BesanconFixed(fixedwidth.FixedWidth):

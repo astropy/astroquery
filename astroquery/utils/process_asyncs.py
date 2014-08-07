@@ -2,10 +2,9 @@
 """
 Process all "async" methods into direct methods.
 """
-
-from .class_or_instance import class_or_instance
 import textwrap
 import functools
+from .class_or_instance import class_or_instance
 from .docstr_chompers import remove_returns
 
 

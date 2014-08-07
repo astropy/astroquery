@@ -5,14 +5,14 @@ ftp://ftp.cv.nrao.edu/NRAO-staff/bkent/slap/idl/
 
 :author: Adam Ginsburg <adam.g.ginsburg@gmail.com>
 """
+import warnings
 from astropy.io import ascii
+from astropy import units as u
 from ..query import BaseQuery
 from ..utils import commons, async_to_sync
 from ..utils.docstr_chompers import prepend_docstr_noreturns
-from astropy import units as u
 from . import conf
 from . import load_species_table
-import warnings
 
 __all__ = ['Splatalogue', 'SplatalogueClass']
 

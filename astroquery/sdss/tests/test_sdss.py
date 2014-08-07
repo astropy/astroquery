@@ -1,14 +1,14 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-from ... import sdss
-from ...utils.testing_tools import MockResponse
-from ...exceptions import TimeoutError
-from ...utils import commons
-from astropy.extern.six.moves.urllib_error import URLError
-from astropy.tests.helper import pytest
 from contextlib import contextmanager
 import requests
 import os
 import socket
+from astropy.extern.six.moves.urllib_error import URLError
+from astropy.tests.helper import pytest
+from ... import sdss
+from ...utils.testing_tools import MockResponse
+from ...exceptions import TimeoutError
+from ...utils import commons
 
 # actual spectra/data are a bit heavy to include in astroquery, so we don't try
 # to deal with them.  Would be nice to find a few very small examples

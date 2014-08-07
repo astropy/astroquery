@@ -4,9 +4,9 @@ from __future__ import (absolute_import, division, print_function,
 import abc
 import pickle
 import hashlib
-import requests
 import os
 import warnings
+import requests
 
 from astropy.extern import six
 from astropy.config import paths

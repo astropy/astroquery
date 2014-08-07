@@ -5,10 +5,9 @@ for users / not part of the core package.
 
 :author: Adam Ginsburg <adam.g.ginsburg@gmail.com>
 """
-
 import json
-import requests
 import os
+import requests
 
 
 def data_path(filename):

@@ -11,7 +11,6 @@ import astropy.units as u
 import astropy.coordinates as coord
 import astropy.table as tbl
 import astropy.utils.data as aud
-# maintain compat with PY<2.7
 from astropy.utils import OrderedDict
 import astropy.io.votable as votable
 

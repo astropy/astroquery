@@ -1,15 +1,15 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import os
 import requests
-from astropy.tests.helper import pytest
 from numpy import testing as npt
+from astropy.tests.helper import pytest
 from astropy.table import Table
-from ... import vizier
-from ...utils import commons
-from ...utils.testing_tools import MockResponse
 import astropy.units as u
 from astropy.extern import six
 from astropy.extern.six.moves import urllib_parse as urlparse
+from ... import vizier
+from ...utils import commons
+from ...utils.testing_tools import MockResponse
 
 if six.PY3:
     str, = six.string_types

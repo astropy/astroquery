@@ -1,12 +1,11 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-from ... import alfalfa
-from astropy import coordinates
-from astropy.tests.helper import pytest
-import requests
 from contextlib import contextmanager
 import os
-
+import requests
+from astropy import coordinates
+from astropy.tests.helper import pytest
 from ...utils import commons
+from ... import alfalfa
 
 DATA_FILES = {'catalog':'alfalfa_cat_small.txt',
               'spectrum':'alfalfa_sp.fits'}

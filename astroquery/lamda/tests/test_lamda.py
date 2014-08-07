@@ -1,9 +1,9 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-from ... import lamda
-from ...utils.testing_tools import MockResponse
+import os
 import requests
 from astropy.tests.helper import pytest
-import os
+from ... import lamda
+from ...utils.testing_tools import MockResponse
 
 DATA_FILES = {'co': 'co.txt'}
 

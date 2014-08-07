@@ -2,6 +2,11 @@
 import os
 from astropy.tests.helper import pytest, remote_data
 try:
+    import keyring
+    HAS_KEYRING = True
+except ImportError:
+    HAS_KEYRING = False
+try:
     from ...eso import Eso
     ESO_IMPORTED = True
 except ImportError:
@@ -9,13 +14,6 @@ except ImportError:
 from ...exceptions import LoginError
 
 CACHE_PATH = os.path.join(os.path.dirname(__file__), 'data')
-
-try:
-    import keyring
-    HAS_KEYRING = True
-except ImportError:
-    HAS_KEYRING = False
-
 SKIP_TESTS = not(HAS_KEYRING and ESO_IMPORTED)
 
 

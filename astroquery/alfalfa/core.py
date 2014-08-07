@@ -9,12 +9,10 @@ from __future__ import print_function
 import requests
 import numpy as np
 import numpy.ma as ma
-from ..utils import commons
-
 from astropy import units as u
 from astropy.coordinates import Angle
+from ..utils import commons
 from ..query import BaseQuery
-
 from ..utils.docstr_chompers import prepend_docstr_noreturns
 
 __all__ = ['Alfalfa', 'AlfalfaClass']
