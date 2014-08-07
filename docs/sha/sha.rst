@@ -68,7 +68,7 @@ writes the file to disk. To save a file:
 .. code-block:: python
 
     >>> pid_t = sha.query(pid=30080)
-    >>> url = pid_t['accessUrl'][0]
+    >>> url = pid_t['accessUrl'][0].strip()
     >>> sha.save_file(url)
 
 or alternatively with a name and path specified:
@@ -89,7 +89,7 @@ either a `~astropy.table.Table` instance for tabular data, or
 .. code-block:: python
 
     >>> pid_t = sha.query(pid=30080)
-    >>> url = pid_t['accessUrl'][0]
+    >>> url = pid_t['accessUrl'][0].strip()
     >>> img = sha.get_file(url)
 
 Reference/API
