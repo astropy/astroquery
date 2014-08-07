@@ -3,6 +3,7 @@
 
 - Many new features.
 - Consistent with astropy 0.4 API for coordinates
+- Now uses the astropy affiliated template
 
 
 0.1 (2013-09-19)
