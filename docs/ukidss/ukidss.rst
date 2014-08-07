@@ -66,7 +66,7 @@ the above example):
 
 .. code-block:: python
 
-    >>> u_obj.logged_in() # doctest: SKIP
+    >>> u_obj.logged_in() # doctest: +SKIP
     
     True
 
