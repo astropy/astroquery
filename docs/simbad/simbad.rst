@@ -225,7 +225,9 @@ instance to query the ESO catalog:
 .. code-block:: python
 
     >>> from astroquery.simbad import Simbad
-    >>> result_table = Simbad.query_catalog('eso')
+    >>> limitedSimbad = Simbad()
+    >>> limitedSimbad.ROW_LIMIT = 6
+    >>> result_table = limitedSimbad.query_catalog('eso')
     >>> print(result_table)
 
     MAIN_ID              RA      ... COO_WAVELENGTH     COO_BIBCODE    
