@@ -113,7 +113,7 @@ SESAME. Coordinates may be entered using the suitable object from
 
 .. code-block:: python
 
-    >>> from astroquery.ukidss import
+    >>> from astroquery.ukidss import Ukidss
     >>> images = Ukidss.get_images("m1")
 
     Found 1 targets

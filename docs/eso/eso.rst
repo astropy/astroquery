@@ -138,7 +138,7 @@ return the observation date column.
 .. code-block:: python
 
     >>> table = eso.query_instrument('midi', column_filters={'target':'NGC 4151', 'stime':'2007-01-01', 'etime':'2008-01-01'}, columns=['night'])
-    >>> print(len(table)
+    >>> print(len(table))
     38
     >>> print(table.columns)
     <TableColumns names=('Object','Target Ra Dec','Target l b','DATE OBS','ProgId','DP.ID','OB.ID','OBS.TARG.NAME','DPR.CATG','DPR.TYPE','DPR.TECH','INS.MODE','DIMM S-avg')>

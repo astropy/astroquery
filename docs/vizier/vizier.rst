@@ -107,9 +107,9 @@ object, do just what you would do for a python dictionary:
 .. code-block:: python
 
     >>> for table_name in result:
-            table = result[table_name]
-            # table is now an `astropy.table.Table` object
-            # some code to apply on table
+    ...     table = result[table_name]
+    ...     # table is now an `astropy.table.Table` object
+    ...     # some code to apply on table
 
 Query a region
 --------------

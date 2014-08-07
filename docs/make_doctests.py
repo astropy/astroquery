@@ -1,5 +1,19 @@
 import glob
 import os
+import re
+
+leftarrows = re.compile("^ *>>> ")
+leftdots = re.compile("^ *\.\.\. ")
+
+def test_line(line):
+    if leftarrows.search(line):
+        return True
+    elif leftdots.search(line):
+        if line.count('...') == 1:
+            return True
+
+def strip_line(line):
+    return leftdots.sub("",leftarrows.sub("",L))
 
 with open('doctests.py','w') as doctests:
     for root,dirs,files in os.walk('.'):
@@ -9,7 +23,7 @@ with open('doctests.py','w') as doctests:
                 with open(os.path.join(root, fn),'r') as f:
                     lines = f.readlines()
 
-                pylines = [L.lstrip().lstrip(">").lstrip()
-                           for L in lines if '>>>' in L]
+                pylines = [strip_line(L)
+                           for L in lines if test_line(L)]
                 doctests.write("# {fn}\n".format(fn=fn))
                 doctests.writelines(pylines)

@@ -18,7 +18,7 @@ using an `astropy.coordinates` instance use:
 .. code-block:: python
 
     >>> from astropy import coordinates
-    >>> from astropy imoprt units as u
+    >>> from astropy import units as u
     >>> from astroquery import ogle
     >>> co = coordinates.SkyCoord(0*u.deg, 3*u.deg, frame='galactic')
     >>> t = ogle.query(coord=co)
