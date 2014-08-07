@@ -1,3 +1,9 @@
+"""
+A hacktackular (tm) script for extracting runnable code from the docs and
+writing them to 'doctests.py'.  This was easier than figuring out how to
+manipulate the doctest system to do the same thing, but it is an unsustainable
+model.  As such, this file should be deleted once we have functioning doctests.
+"""
 import glob
 import os
 import re
