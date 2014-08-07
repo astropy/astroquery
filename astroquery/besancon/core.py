@@ -186,7 +186,7 @@ class BesanconClass(BaseQuery):
         glon : float
         glat : float
             Galactic latitude and longitude at the center
-        email : string
+        email : str
             A valid e-mail address to send the report of completion to
         smallfield : bool
             Small field (True) or Large Field (False)
