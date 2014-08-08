@@ -16,22 +16,22 @@ __all__ = ["Nvas", "NvasClass"]
 class NvasClass(BaseQuery):
     URL = conf.server
     TIMEOUT = conf.timeout
-    valid_bands = ["all","L","C","X","U","K","Q"]
+    valid_bands = ["all", "L", "C", "X", "U", "K", "Q"]
 
     band_freqs = {
-        "L": (1,2),
-        "S": (2,4),
-        "C": (4,8),
-        "X": (8,12),
-        "U": (12,18),
-        "K": (18,26.5),
-        "Ka": (26.5,40),
-        "Q": (30,50),
-        "V": (50,75),
-        "E": (60,90),
-        "W": (75,110),
-        "F": (90,140),
-        "D": (110,170),
+        "L": (1, 2),
+        "S": (2, 4),
+        "C": (4, 8),
+        "X": (8, 12),
+        "U": (12, 18),
+        "K": (18, 26.5),
+        "Ka": (26.5, 40),
+        "Q": (30, 50),
+        "V": (50, 75),
+        "E": (60, 90),
+        "W": (75, 110),
+        "F": (90, 140),
+        "D": (110, 170),
     }
 
     def get_images(self, coordinates, radius=0.25 * u.arcmin, max_rms=10000,
@@ -221,7 +221,7 @@ def _parse_coordinates(coordinates):
     # hack to deal with variably astropy coordinates API
     hms = c.ra.hms
     dms = c.dec.dms
-    radecstr = "%02i %02i %09.6f %+03i %02i %09.6f" % (hms+dms)
+    radecstr = "%02i %02i %09.6f %+03i %02i %09.6f" % (hms + dms)
     return radecstr
 
 

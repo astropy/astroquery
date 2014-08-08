@@ -3,10 +3,9 @@
 from __future__ import print_function
 import re
 import time
+import astropy.units as u
 from ..query import BaseQuery
 from ..utils import commons, async_to_sync
-import astropy.units as u
-
 from . import conf
 
 __all__ = ['FermiLAT', 'FermiLATClass',
@@ -89,7 +88,7 @@ class FermiLATClass(BaseQuery):
 
         return payload
 
-    def _parse_result(self,result,verbose=False,**kwargs):
+    def _parse_result(self, result, verbose=False, **kwargs):
         """
         Use get_fermilat_datafile to download a result URL
         """
@@ -108,7 +107,7 @@ def _parse_coordinates(coordinates):
 
 def _fermi_format_coords(c):
     c = c.transform_to('fk5')
-    return "{0:0.5f},{1:0.5f}".format(c.ra.degree,c.dec.degree)
+    return "{0:0.5f},{1:0.5f}".format(c.ra.degree, c.dec.degree)
 
 class GetFermilatDatafile(object):
     """

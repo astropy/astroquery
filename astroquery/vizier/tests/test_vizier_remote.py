@@ -41,7 +41,7 @@ class TestVizierRemote(object):
         assert response is not None
 
     def test_query_Vizier_instance(self):
-        v = vizier.core.Vizier(columns=['_RAJ2000', 'DEJ2000','B-V', 'Vmag', 'Plx'],
+        v = vizier.core.Vizier(columns=['_RAJ2000', 'DEJ2000', 'B-V', 'Vmag', 'Plx'],
                                column_filters={"Vmag":">10"}, keywords=["optical", "xry"])
         result = v.query_object("HD 226868", catalog=["NOMAD", "UCAC"])
         assert isinstance(result, commons.TableList)
@@ -55,26 +55,26 @@ class TestVizierRemote(object):
         assert isinstance(result, commons.TableList)
 
     def test_query_two_wavelengths(self):
-        v = vizier.core.Vizier(columns=['_RAJ2000', 'DEJ2000','B-V', 'Vmag', 'Plx'],
+        v = vizier.core.Vizier(columns=['_RAJ2000', 'DEJ2000', 'B-V', 'Vmag', 'Plx'],
                                column_filters={"Vmag":">10"}, keywords=["optical", "radio"])
         v.query_object('M 31')
 
     def regressiontest_invalidtable(self):
         V = Vizier(columns=['all'], ucd='(spect.dopplerVeloc*|phys.veloc*)',
-                   keywords=['Radio','IR'], row_limit=5000)
-        C = coordinates.SkyCoord(359.61687*u.deg,-0.242457*u.deg,frame='galactic')
-        
-        r2 = V.query_region(C, radius=2*u.arcmin)
+                   keywords=['Radio', 'IR'], row_limit=5000)
+        C = coordinates.SkyCoord(359.61687 * u.deg, -0.242457 * u.deg, frame='galactic')
+
+        r2 = V.query_region(C, radius=2 * u.arcmin)
 
     def test_multicoord(self):
 
         # Coordinate selection is entirely arbitrary
-        targets = commons.ICRSCoordGenerator(ra=[299.590,299.90],
-                                             dec=[35.201,35.201],
+        targets = commons.ICRSCoordGenerator(ra=[299.590, 299.90],
+                                             dec=[35.201, 35.201],
                                              unit=(u.deg, u.deg))
         result = vizier.core.Vizier.query_region(targets,
-                                                radius=10 * u.arcsec,
-                                                catalog=["HIP", "NOMAD", "UCAC"])
+                                                 radius=10 * u.arcsec,
+                                                 catalog=["HIP", "NOMAD", "UCAC"])
 
         assert len(result) >= 5
         assert 'I/239/hip_main' in result.keys()

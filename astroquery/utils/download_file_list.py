@@ -19,7 +19,7 @@ valid_chars = "-_.()%s%s" % (string.ascii_letters, string.digits)
 def validify_filename(filestr):
     """ Remove invalid characters from a file string """
     filestr = filestr.strip()
-    filestr = whitespace_re.sub("_",filestr)
+    filestr = whitespace_re.sub("_", filestr)
 
     # strip out invalid characters
     filestr = "".join([c for c in filestr if c in valid_chars])
@@ -35,7 +35,7 @@ def download_list_of_fitsfiles(linklist, output_directory=None,
 
     Examples
     --------
-    
+
     >>> linklist = ['http://fermi.gsfc.nasa.gov/FTP/fermi/data/lat/queries/L130413170713F15B52BC06_PH00.fits',
     ...             'http://fermi.gsfc.nasa.gov/FTP/fermi/data/lat/queries/L130413170713F15B52BC06_PH01.fits',
     ...             'http://fermi.gsfc.nasa.gov/FTP/fermi/data/lat/queries/L130413170713F15B52BC06_SC00.fits']
@@ -66,13 +66,13 @@ def download_list_of_fitsfiles(linklist, output_directory=None,
 
         try:
             # try to open as a fits file
-            fitsfile = fits.open(S,ignore_missing_end=True)
+            fitsfile = fits.open(S, ignore_missing_end=True)
         except IOError:
             # if that fails, try to open as a gzip'd fits file
             # have to rewind to the start
             S.seek(0)
             G = gzip.GzipFile(fileobj=S)
-            fitsfile = fits.open(G,ignore_missing_end=True)
+            fitsfile = fits.open(G, ignore_missing_end=True)
 
         # Get Multiframe ID from the header
         images[link] = fitsfile
@@ -99,9 +99,9 @@ def download_list_of_fitsfiles(linklist, output_directory=None,
                 #     raise TypeError("Don't recognize ctype %s" % ctype)
                 # coordstr = coordinate.format(output_coord_format)
                 try:
-                    coordstr = output_coord_format.format(lon,lat)
+                    coordstr = output_coord_format.format(lon, lat)
                 except TypeError:
-                    coordstr = output_coord_format % (lon,lat)
+                    coordstr = output_coord_format % (lon, lat)
                 nametxt += "_" + coordstr
 
             if include_input_filename:
@@ -122,6 +122,7 @@ def download_list_of_fitsfiles(linklist, output_directory=None,
             try:
                 fitsfile.writeto(final_file, clobber=overwrite)
             except IOError:
-                print("Skipped writing file %s because it exists and overwrite=False" % final_file)
+                print("Skipped writing file {0} because it exists "
+                      "and overwrite=False".format(final_file))
 
     return images

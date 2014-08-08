@@ -1,15 +1,16 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import tempfile
 
-import six
+from astropy.extern import six
 from astropy.io import ascii
 from astropy.units import arcsec
 from astropy.table import Table
 
 from . import conf
 from ..query import BaseQuery
-from ..utils import commons, url_helpers, prepend_docstr_noreturns,\
-    async_to_sync
+from ..utils import (commons, url_helpers,
+                     prepend_docstr_noreturns, async_to_sync,
+                     )
 
 
 @async_to_sync

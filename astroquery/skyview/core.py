@@ -1,10 +1,8 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-from astropy.extern.six.moves.urllib import parse as urlparse
-from astropy.extern import six
-
 import requests
 from bs4 import BeautifulSoup
-
+from astropy.extern.six.moves.urllib import parse as urlparse
+from astropy.extern import six
 from . import conf
 from ..query import BaseQuery
 from ..utils import prepend_docstr_noreturns, commons, async_to_sync

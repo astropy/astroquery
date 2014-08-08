@@ -72,7 +72,7 @@ def strip_field(f, keep_filters=False):
     """
     if '(' in f:
         root = f[:f.find('(')]
-        if (root in ('ra','dec','otype','id','coo','bibcodelist')
+        if (root in ('ra', 'dec', 'otype', 'id', 'coo', 'bibcodelist')
                  or not keep_filters):
             return root
 
@@ -95,7 +95,7 @@ class SimbadClass(BaseQuery):
                 '[^0-9]': 'Any (one) character not in the list.'
 
                 }
-    _ORDERED_WILDCARDS = ['*','?','[abc]','[^0-9]']
+    _ORDERED_WILDCARDS = ['*', '?', '[abc]', '[^0-9]']
 
     # query around not included since this is a subcase of query_region
     _function_to_command = {
@@ -154,7 +154,7 @@ class SimbadClass(BaseQuery):
             notes = json.load(f)
         print ("--NOTES--\n")
         for i, line in list(enumerate(notes)):
-            print ("{lineno}. {msg}\n".format(lineno=i+1, msg=line))
+            print ("{lineno}. {msg}\n".format(lineno=i + 1, msg=line))
 
         # load the table
         votable_fields_table = Table.read(get_pkg_data_filename
@@ -227,7 +227,7 @@ class SimbadClass(BaseQuery):
             sf = strip_field(field)
             if sf not in fields_dict:
                 raise KeyError("{field}: no such field".format(field=field))
-            elif sf in [strip_field(f,keep_filters=True) for f in self._VOTABLE_FIELDS]:
+            elif sf in [strip_field(f, keep_filters=True) for f in self._VOTABLE_FIELDS]:
                 errmsg = "{field}: field already present.  ".format(field=field)
                 errmsg += ("Fields ra,dec,id,otype, and bibcodelist can only "
                            "be specified once.  To change their options, "
@@ -258,7 +258,7 @@ class SimbadClass(BaseQuery):
             sfields = self._VOTABLE_FIELDS
         absent_fields = set(sargs) - set(sfields)
 
-        for b,f in list(zip(sfields, self._VOTABLE_FIELDS)):
+        for b, f in list(zip(sfields, self._VOTABLE_FIELDS)):
             if b in sargs:
                 self._VOTABLE_FIELDS.remove(f)
 
@@ -295,7 +295,7 @@ class SimbadClass(BaseQuery):
             Query results table
         """
         verbose = kwargs.pop('verbose') if 'verbose' in kwargs else False
-        result = self.query_criteria_async(*args,**kwargs)
+        result = self.query_criteria_async(*args, **kwargs)
         return self._parse_result(result, SimbadVOTableResult, verbose=verbose)
 
     def query_criteria_async(self, *args, **kwargs):
@@ -690,7 +690,7 @@ class SimbadClass(BaseQuery):
                 del kwargs[key]
         # join in the order specified otherwise results in error
         all_keys = ['radius', 'frame', 'equi', 'epoch']
-        present_keys =[key for key in all_keys if key in kwargs]
+        present_keys = [key for key in all_keys if key in kwargs]
         if caller == 'query_criteria_async':
             for k in kwargs:
                 present_keys.append(k)
@@ -759,7 +759,7 @@ def _get_frame_coords(c):
         return (lon, lat, 'GAL')
     elif c.frame.name == 'fk4':
         ra, dec = _to_simbad_format(c.ra, c.dec)
-        return (ra, dec,'FK4')
+        return (ra, dec, 'FK4')
     elif c.frame.name == 'fk5':
         ra, dec = _to_simbad_format(c.ra, c.dec)
         return (ra, dec, 'FK5')
@@ -779,13 +779,13 @@ def _parse_radius(radius):
     try:
         angle = commons.parse_radius(radius)
         # find the most appropriate unit - d, m or s
-        index = min([i for (i,val) in enumerate(angle.dms) if int(val) > 0])
+        index = min([i for (i, val) in enumerate(angle.dms) if int(val) > 0])
         unit = ('d', 'm', 's')[index]
         if unit == 'd':
             return str(int(angle.degree)) + unit
         if unit == 'm':
             sec_to_min = abs(angle.dms[2]) * u.arcsec.to(u.arcmin)
-            total_min = abs(angle.dms[1])+ sec_to_min
+            total_min = abs(angle.dms[1]) + sec_to_min
             return str(total_min) + unit
         if unit == 's':
             return str(abs(angle.dms[2])) + unit
@@ -812,7 +812,7 @@ class SimbadResult(object):
 
     def __split_sections(self):
         for section in self.__sections:
-            match = re.search(r'(?ims)^::%s:+?$(?P<content>.*?)(^::|\Z)' %
+            match = re.search(r'(?ims)^::%s:+?$(?P<content>.*?)(^::|\Z)' % 
                              section, self.__txt)
             if match:
                 self.__indexes[section] = (match.start('content'),
@@ -838,7 +838,7 @@ class SimbadResult(object):
         for error in self.errors:
             warnings.warn("Warning: The script line number %i raised "
                          "an error (recorded in the `errors` attribute "
-                         "of the result table): %s" %
+                         "of the result table): %s" % 
                          (error.line, error.msg))
 
     def __get_section(self, section_name):
@@ -909,7 +909,7 @@ class SimbadBibcodeResult(SimbadResult):
         max_len = max([len(r) for r in ref_list])
         table = Table(names=['References'], dtype=['S%i' % max_len])
         for ref in ref_list:
-            if hasattr(ref,'decode'):
+            if hasattr(ref, 'decode'):
                 table.add_row([ref.decode('utf-8')])
             else:
                 table.add_row([ref])

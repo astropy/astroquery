@@ -95,7 +95,7 @@ def test_get_references_async(patch_get):
 
 @pytest.mark.xfail(reason="astropy issue #1266")
 def test_get_references(patch_get):
-    response = ned.core.Ned.get_table_async("m1",table='references', from_year=2010)
+    response = ned.core.Ned.get_table_async("m1", table='references', from_year=2010)
     assert response is not None
     result = ned.core.Ned.get_table("m1", table='references', to_year=2012, extended_search=True)
     assert isinstance(result, Table)
@@ -142,7 +142,7 @@ def test_photometry(patch_get):
 
 def test_extract_image_urls():
     html_in = open(data_path(DATA_FILES['extract_urls']), 'r').read()
-    url_list =ned.core.Ned.extract_image_urls(html_in)
+    url_list = ned.core.Ned.extract_image_urls(html_in)
     assert len(url_list) == 5
     for url in url_list:
         assert url.endswith('fits.gz')
@@ -262,7 +262,7 @@ def test_parse_result(capsys):
     response = MockResponse(content)
     with pytest.raises(RemoteServiceError) as exinfo:
         ned.core.Ned._parse_result(response)
-    if hasattr(exinfo.value,'message'):
+    if hasattr(exinfo.value, 'message'):
         assert exinfo.value.message == "The remote service returned the following error message.\nERROR:  No note found."
     else:
         assert exinfo.value.args == ("The remote service returned the following error message.\nERROR:  No note found.",)

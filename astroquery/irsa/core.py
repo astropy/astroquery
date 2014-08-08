@@ -1,4 +1,5 @@
-'''
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
+"""
 IRSA
 ====
 
@@ -86,8 +87,7 @@ If onlist=0, the following parameters are required:
                         The retrieved row number outrows is always less than or
                         equal to available to be retrieved rows under the same
                         constraints.
-'''
-# Licensed under a 3-clause BSD style license - see LICENSE.rst
+"""
 from __future__ import print_function, division
 
 import warnings
@@ -288,11 +288,11 @@ class IrsaClass(BaseQuery):
                 request_payload['objstr'] = coordinates if not commons._is_coordinate(coordinates) else _parse_coordinates(coordinates)
             try:
                 coordinates_list = [_parse_coordinates(c) for c in polygon]
-            except (ValueError,TypeError):
+            except (ValueError, TypeError):
                     coordinates_list = [_format_decimal_coords(*_pair_to_deg(pair)) for pair in polygon]
             request_payload['polygon'] = ','.join(coordinates_list)
         else:
-            raise ValueError("Unrecognized spatial query type. " +
+            raise ValueError("Unrecognized spatial query type. " + 
                              "Must be one of `Cone`, `Box`, `Polygon`, or `All-Sky`.")
 
         request_payload['spatial'] = spatial
@@ -383,7 +383,7 @@ class IrsaClass(BaseQuery):
             of the catalog.
         """
         response = commons.send_request(Irsa.GATOR_LIST_URL, dict(mode='xml'), Irsa.TIMEOUT, request_type="GET")
-        root =tree.fromstring(response.content)
+        root = tree.fromstring(response.content)
         catalogs = {}
         for catalog in root.findall('catalog'):
             catname = catalog.find('catname').text
@@ -425,13 +425,13 @@ def _pair_to_deg(pair):
     """ Turn a pair of floats, Angles, or Quantities into pairs of float degrees """
 
     # unpack
-    lon,lat = pair
+    lon, lat = pair
 
-    if hasattr(lon,'degree') and hasattr(lat,'degree'):
+    if hasattr(lon, 'degree') and hasattr(lat, 'degree'):
         pair = (lon.degree, lat.degree)
-    elif hasattr(lon,'to') and hasattr(lat,'to'):
-        pair = [lon,lat]
-        for ii,ang in enumerate((lon,lat)):
+    elif hasattr(lon, 'to') and hasattr(lat, 'to'):
+        pair = [lon, lat]
+        for ii, ang in enumerate((lon, lat)):
             if ang.unit.is_equivalent(u.degree):
                 pair[ii] = ang.to(u.degree).value
             elif ang.unit.is_equivalent(u.hour):

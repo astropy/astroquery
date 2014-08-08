@@ -1,7 +1,9 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-
 """
-This is an Astropy affiliated package.
+Accessing Online Astronomical Data.
+
+Astroquery is an astropy affiliated package that contains a collection of tools
+to access online Astronomical data. Each web service has its own sub-package.
 """
 
 # Affiliated packages may add whatever they like to this file, but

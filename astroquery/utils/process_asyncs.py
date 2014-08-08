@@ -2,10 +2,9 @@
 """
 Process all "async" methods into direct methods.
 """
-
-from .class_or_instance import class_or_instance
 import textwrap
 import functools
+from .class_or_instance import class_or_instance
 from .docstr_chompers import remove_returns
 
 
@@ -26,7 +25,7 @@ def async_to_sync(cls):
                 verbose = kwargs.pop('verbose')
             else:
                 verbose = False
-            response = getattr(self,async_method_name)(*args,**kwargs)
+            response = getattr(self, async_method_name)(*args, **kwargs)
             if kwargs.get('get_query_payload'):
                 return response
             result = self._parse_result(response, verbose=verbose)
@@ -38,20 +37,20 @@ def async_to_sync(cls):
     methods = list(cls.__dict__.keys())
 
     for k in list(methods):
-        newmethodname = k.replace("_async","")
+        newmethodname = k.replace("_async", "")
         if 'async' in k and newmethodname not in methods:
 
             newmethod = create_method(k)
 
-            newmethod.fn.__doc__ = async_to_sync_docstr(getattr(cls,k).__doc__)
-            #newmethod.__doc__ = async_to_sync_docstr(getattr(cls,k).__doc__) # for using decorator module
+            newmethod.fn.__doc__ = async_to_sync_docstr(getattr(cls, k).__doc__)
+            # newmethod.__doc__ = async_to_sync_docstr(getattr(cls,k).__doc__) # for using decorator module
 
             newmethod.fn.__name__ = newmethodname
             newmethod.__name__ = newmethodname
 
             functools.update_wrapper(newmethod, newmethod.fn)
 
-            setattr(cls,newmethodname,newmethod)
+            setattr(cls, newmethodname, newmethod)
 
     return cls
 
@@ -62,9 +61,9 @@ def async_to_sync_docstr(doc, returntype='table'):
     table" code
     """
 
-    object_dict = {'table':'~astropy.table.Table',
-                   'fits':'~astropy.io.fits.PrimaryHDU',
-                   'dict':'dict'}
+    object_dict = {'table': '~astropy.table.Table',
+                   'fits': '~astropy.io.fits.PrimaryHDU',
+                   'dict': 'dict'}
 
     firstline = "Queries the service and returns a {rt} object.\n".format(rt=returntype)
 
@@ -84,6 +83,6 @@ def async_to_sync_docstr(doc, returntype='table'):
     outlines = remove_returns(doc.lstrip('\n'))
 
     # then the '' here is to add back the blank line
-    newdoc = "\n".join(['',firstline] + outlines + [textwrap.dedent(returnstr)])
+    newdoc = "\n".join(['', firstline] + outlines + [textwrap.dedent(returnstr)])
 
     return newdoc

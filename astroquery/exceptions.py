@@ -19,13 +19,15 @@ class TimeoutError(Exception):
 class InvalidQueryError(Exception):
     pass
 
+
 class TableParseError(Exception):
     """
-    Errors related to VOTable parsing.  
+    Errors related to VOTable parsing.
     These should be either submitted as issues to astropy or to the originating
     service.
     """
     pass
+
 
 class RemoteServiceError(Exception):
     """
@@ -33,6 +35,7 @@ class RemoteServiceError(Exception):
     page
     """
     pass
+
 
 class LoginError(Exception):
     """

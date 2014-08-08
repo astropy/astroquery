@@ -1,4 +1,4 @@
-#Licensed under a 3-clause BSD style license - see LICENSE.rst
+#L icensed under a 3-clause BSD style license - see LICENSE.rst
 from __future__ import print_function
 
 # astroquery uses the pytest framework for testing
@@ -37,12 +37,14 @@ from ...template_module import (SERVER, TIMEOUT)
 # thereby saving time and bypassing unreliability for
 # an actual remote network query.
 
+
 # ./setup_package.py helps the test function locate the data file
 # define a function that can construct the full path to the file in the
 # ./data directory:
 def data_path(filename):
     data_dir = os.path.join(os.path.dirname(__file__), 'data')
     return os.path.join(data_dir, filename)
+
 
 # use a pytest fixture to create a dummy 'requests.get' function,
 # that mocks(monkeypatches) the actual 'requests.get' function:
@@ -52,6 +54,7 @@ def patch_get(request):
     mp.setattr(requests, 'get', get_mockreturn)
     return mp
 
+
 # define the 'get_mockreturn' function that returns the
 # dummy HTTP response for the dummy 'get' function, by
 # reading in data from some data file:
@@ -59,6 +62,7 @@ def get_mockreturn(url, params=None, timeout=10, **kwargs):
     filename = data_path('dummy.dat')
     content = open(filename, "r").read()
     return MockResponse(content, **kwargs)
+
 
 # finally test the methods using the mock HTTP response
 def test_query_object(patch_get):

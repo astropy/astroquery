@@ -1,8 +1,8 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import os.path
 
-import pytest
 import requests
+from astropy.tests.helper import pytest
 from astropy.io import ascii
 from astropy.table import Table
 from astropy.units import arcsec
@@ -12,7 +12,7 @@ from ...utils.testing_tools import MockResponse
 from ...xmatch import XMatch
 
 DATA_FILES = {
-    'get': 'tables.csv',   # .action.getVizieRTableNames
+    'get': 'tables.csv',  # .action.getVizieRTableNames
     'post': 'query_res.csv',  # .request.xmatch
 }
 

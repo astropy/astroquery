@@ -171,7 +171,7 @@ class OgleClass(BaseQuery):
         if not isinstance(coord, list):
             # single astropy coordinate
             try:
-                ra,dec = commons.coord_to_radec(coord)
+                ra, dec = commons.coord_to_radec(coord)
                 lon = [ra]
                 lat = [dec]
                 return lon, lat
@@ -183,7 +183,7 @@ class OgleClass(BaseQuery):
             if len(shape) == 1:
                 try:
                     radec = [commons.coord_to_radec(co) for co in coord]
-                    lon,lat = list(zip(*radec))
+                    lon, lat = list(zip(*radec))
                     return lon, lat
                 except:
                     raise CoordParseError()

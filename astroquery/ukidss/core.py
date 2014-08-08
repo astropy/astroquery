@@ -1,11 +1,11 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from __future__ import print_function
 
-import requests
 import warnings
 import re
 import time
 from math import cos, radians
+import requests
 
 from astropy.extern.six import BytesIO
 import astropy.units as u

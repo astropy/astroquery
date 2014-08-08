@@ -1,14 +1,14 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from __future__ import print_function
-from .utils import turn_off_internet
-
 from astropy.tests.helper import pytest, remote_data
+from .utils import turn_off_internet
 
 # this contains imports plugins that configure py.test for astropy tests.
 # by importing them here in conftest.py they are discoverable by py.test
 # no matter how it is invoked within the source tree.
 
 from astropy.tests.pytest_plugins import *
+
 
 # pytest magic:
 # http://pytest.org/latest/plugins.html#_pytest.hookspec.pytest_configure

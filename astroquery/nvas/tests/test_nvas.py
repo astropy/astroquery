@@ -7,7 +7,6 @@ import requests
 from contextlib import contextmanager
 
 import numpy.testing as npt
-import astropy.coordinates as coord
 import astropy.units as u
 from astropy.tests.helper import pytest
 
@@ -70,7 +69,7 @@ def deparse_coordinates(cstr):
     """
     '19 23 40.001395 +14 31 01.550347' -> '19:23:40.001395 +14:31:01.550347'
     """
-    return re.sub(" ([\+-])",r",\1",cstr).replace(" ",":").replace(","," ")
+    return re.sub(" ([\+-])", r",\1", cstr).replace(" ", ":").replace(",", " ")
 
 @pytest.mark.parametrize(('coordinates'), [COORDS_GAL, COORDS_ICRS])
 def test_parse_coordinates(coordinates):

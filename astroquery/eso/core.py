@@ -1,3 +1,4 @@
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
 import time
 import os.path
 import webbrowser
@@ -7,16 +8,15 @@ import keyring
 import numpy as np
 from bs4 import BeautifulSoup
 
-from astropy.extern.six import BytesIO, StringIO
+from astropy.extern.six import BytesIO
 from astropy.extern import six
 from astropy.table import Table, Column
-from astropy.io import ascii
-from astropy import log
 
 from ..exceptions import LoginError, RemoteServiceError
 from ..utils import schema, system_tools
 from ..query import QueryWithLogin, suspend_cache
 from . import conf
+
 
 def _check_response(content):
     """
@@ -29,6 +29,7 @@ def _check_response(content):
                                  "problem; the service may be offline.")
     elif b"# No data returned !" not in content:
         return True
+
 
 class EsoClass(QueryWithLogin):
 
@@ -318,7 +319,7 @@ class EsoClass(QueryWithLogin):
                     else:
                         name = ""
                         value = ""         
-                    if u"tab_"+name == checkbox_name:
+                    if u"tab_" + name == checkbox_name:
                         checkbox = checkbox_value
                     else:
                         checkbox = "   "
@@ -338,7 +339,7 @@ class EsoClass(QueryWithLogin):
                                        else 'on')
 
             for k in columns:
-                query_dict["tab_"+k] = True
+                query_dict["tab_" + k] = True
             if self.ROW_LIMIT >= 0:
                 query_dict["max_rows_returned"] = self.ROW_LIMIT
             else:
@@ -471,7 +472,7 @@ class EsoClass(QueryWithLogin):
         # First: Detect datasets already downloaded
         for dataset in datasets:
             
-            if os.path.splitext(dataset)[1].lower() in ('.fits','.tar'):
+            if os.path.splitext(dataset)[1].lower() in ('.fits', '.tar'):
                 local_filename = dataset
             else:
                 local_filename = dataset + ".fits"
@@ -490,7 +491,7 @@ class EsoClass(QueryWithLogin):
 
         valid_datasets = [self.verify_data_exists(ds) for ds in datasets_to_download]
         if not all(valid_datasets):
-            invalid_datasets = [ds for ds,v in zip(datasets_to_download, valid_datasets) if not v]
+            invalid_datasets = [ds for ds, v in zip(datasets_to_download, valid_datasets) if not v]
             raise ValueError("The following data sets were not found on the ESO servers: {0}".format(invalid_datasets))
 
         # Second: Download the other datasets
@@ -530,7 +531,7 @@ class EsoClass(QueryWithLogin):
         otherwise
         """
         url = 'http://archive.eso.org/wdb/wdb/eso/eso_archive_main/query'
-        payload = {'dp_id': dataset, 
+        payload = {'dp_id': dataset,
                    'ascii_out_mode':'true',
                   }
         response = self._request("POST", url, params=payload)

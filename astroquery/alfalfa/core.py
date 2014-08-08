@@ -9,18 +9,17 @@ from __future__ import print_function
 import requests
 import numpy as np
 import numpy.ma as ma
-from ..utils import commons
-
 from astropy import units as u
 from astropy.coordinates import Angle
+from ..utils import commons
 from ..query import BaseQuery
-
 from ..utils.docstr_chompers import prepend_docstr_noreturns
 
-__all__ = ['Alfalfa','AlfalfaClass']
+__all__ = ['Alfalfa', 'AlfalfaClass']
 
 # have to skip because it tries to use the internet, which is not allowed
-__doctest_skip__ = ['AlfalfaClass.query_region','Alfalfa.query_region']
+__doctest_skip__ = ['AlfalfaClass.query_region', 'Alfalfa.query_region']
+
 
 class AlfalfaClass(BaseQuery):
 
@@ -43,7 +42,7 @@ class AlfalfaClass(BaseQuery):
         result : Dictionary of results, each element is a masked array.
         """
 
-        if hasattr(self,'ALFALFACAT'):
+        if hasattr(self, 'ALFALFACAT'):
             return self.ALFALFACAT
 
         result = requests.get(self.CATALOG_PREFIX)
@@ -81,7 +80,7 @@ class AlfalfaClass(BaseQuery):
             # need to turn list -> array for boolean comparison
             colArr = np.array(catalog[col])
             # placeholder must share Type with the array
-            ph = np.array(self.PLACEHOLDER,dtype=colArr.dtype)
+            ph = np.array(self.PLACEHOLDER, dtype=colArr.dtype)
             mask[colArr == ph] = True
             catalog[col] = ma.array(catalog[col], mask=mask)
 
@@ -148,7 +147,7 @@ class AlfalfaClass(BaseQuery):
         dra = np.abs(ra_ref - ra) \
             * np.cos(dec * np.pi / 180.)
         ddec = np.abs(dec_ref - dec)
-        sep = np.sqrt(dra**2 + ddec**2)
+        sep = np.sqrt(dra ** 2 + ddec ** 2)
 
         i_minsep = np.argmin(sep)
         minsep = sep[i_minsep]

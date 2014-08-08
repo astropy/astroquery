@@ -3,16 +3,16 @@ import re
 import os
 import io
 import requests
+import numpy as np
 from astropy.table import Table
 import astropy.io.fits as fits
-import numpy as np
 
 
 __all__ = ['query', 'save_file', 'get_file']
 id_parse = re.compile('ID\=(\d+)')
 
 # should skip only if remote_data = False
-__doctest_skip__ = ['query','save_file','get_file']
+__doctest_skip__ = ['query', 'save_file', 'get_file']
 
 uri = 'http://sha.ipac.caltech.edu/applications/Spitzer/SHA/servlet/DataService?'
 
@@ -134,9 +134,11 @@ def query(coord=None, ra=None, dec=None, size=None, naifid=None, pid=None,
     field_widths = [len(s) + 1 for s in raw_data[0].split('|')][1:-1]
     col_names = [s.strip() for s in raw_data[0].split('|')][1:-1]
     type_names = [s.strip() for s in raw_data[1].split('|')][1:-1]
-    cs = [0]+np.cumsum(field_widths).tolist()
+    cs = [0] + np.cumsum(field_widths).tolist()
+
     def parse_line(line, cs=cs):
-        return [line[a:b] for a,b in zip(cs[:-1],cs[1:])]
+        return [line[a:b] for a, b in zip(cs[:-1], cs[1:])]
+
     data = [parse_line(row) for row in raw_data[4:-1]]
     # Parse type names
     dtypes = _map_dtypes(type_names, field_widths)
@@ -172,8 +174,10 @@ def save_file(url, out_dir='sha_tmp/', out_name=None):
     >>> url = sha.query(pid=30080)['accessUrl'][0]
     >>> sha.save_file(url)
     """
-    exten_types = {'image/fits': '.fits', 'text/plain; charset=UTF-8': '.tbl',
-        'application/zip': '.zip'}
+    exten_types = {'image/fits': '.fits',
+                   'text/plain; charset=UTF-8': '.tbl',
+                   'application/zip': '.zip',
+                   }
     # Make request
     response = requests.get(url, stream=True)
     response.raise_for_status()
@@ -194,7 +198,7 @@ def save_file(url, out_dir='sha_tmp/', out_name=None):
 def get_file(url):
     """
     Return object from SHA query URL.
-    
+
     Currently only supports FITS files.
 
     Parameters

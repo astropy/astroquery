@@ -3,8 +3,7 @@ from ... import sdss
 from ...exceptions import TimeoutError
 from astropy import coordinates
 from astropy.table import Table
-from astropy.tests.helper import remote_data
-import pytest
+from astropy.tests.helper import pytest, remote_data
 import requests
 import imp
 imp.reload(requests)
@@ -86,13 +85,13 @@ class TestSDSSRemote:
 
     def test_query_timeout(self):
         with pytest.raises(TimeoutError):
-            xid = sdss.core.SDSS.query_region(self.coords, timeout=self.mintimeout)
+            sdss.core.SDSS.query_region(self.coords, timeout=self.mintimeout)
 
     def test_spectra_timeout(self):
         with pytest.raises(TimeoutError):
-            spec = sdss.core.SDSS.get_spectra(self.coords, timeout=self.mintimeout)
+            ssdss.core.SDSS.get_spectra(self.coords, timeout=self.mintimeout)
 
     def test_images_timeout(self):
         xid = sdss.core.SDSS.query_region(self.coords)
         with pytest.raises(TimeoutError):
-            img = sdss.core.SDSS.get_images(matches=xid, timeout=self.mintimeout)
+            sdss.core.SDSS.get_images(matches=xid, timeout=self.mintimeout)

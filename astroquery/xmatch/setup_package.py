@@ -3,4 +3,6 @@ import os
 
 
 def get_package_data():
-    return {'astroquery.xmatch.tests': [os.path.join('data', '*.csv')]}
+    paths = [os.path.join('data', '*.csv'),
+             ]
+    return {'astroquery.xmatch.tests': paths}

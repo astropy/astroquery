@@ -14,10 +14,9 @@ def get_package_data():
 
     paths_core = [os.path.join('data', 'votable_fields_notes.json'),
                   os.path.join('data', 'votable_fields_table.txt'),
-                  os.path.join('data', 'votable_fields_dict.json')
+                  os.path.join('data', 'votable_fields_dict.json'),
                   ]
 
-    return {
-        'astroquery.simbad.tests': paths_test,
-        'astroquery.simbad': paths_core
-    }
+    return {'astroquery.simbad.tests': paths_test,
+            'astroquery.simbad': paths_core,
+            }

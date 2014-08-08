@@ -1,5 +1,4 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-
 import gzip
 import sys
 from astropy.extern.six import StringIO
@@ -7,13 +6,13 @@ from astropy.extern.six.moves import urllib
 from astropy.io import fits
 
 
-__all__ = ['chunk_report','chunk_read']
+__all__ = ['chunk_report', 'chunk_read']
 
 
 def chunk_report(bytes_so_far, chunk_size, total_size):
     if total_size > 0:
         percent = float(bytes_so_far) / total_size
-        percent = round(percent*100, 2)
+        percent = round(percent * 100, 2)
         sys.stdout.write("Downloaded %12.2g of %12.2g Mb (%6.2f%%)\r" %
             (bytes_so_far / 1024.**2, total_size / 1024.**2, percent))
     else:
@@ -65,10 +64,10 @@ def retrieve(url, outfile, opener=None, overwrite=False):
 
     S = StringIO(results)
     try:
-        fitsfile = fits.open(S,ignore_missing_end=True)
+        fitsfile = fits.open(S, ignore_missing_end=True)
     except IOError:
         S.seek(0)
         G = gzip.GzipFile(fileobj=S)
-        fitsfile = fits.open(G,ignore_missing_end=True)
+        fitsfile = fits.open(G, ignore_missing_end=True)
 
     fitsfile.writeto(outfile, clobber=overwrite)

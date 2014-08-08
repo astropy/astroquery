@@ -1,13 +1,9 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from __future__ import print_function
-
 from io import BytesIO
-
 import astropy.units as u
 import astropy.coordinates as coord
 from astropy.io import fits
-
-
 from ..query import BaseQuery
 from ..utils.docstr_chompers import prepend_docstr_noreturns
 from ..utils import commons
@@ -38,7 +34,7 @@ class MagpisClass(BaseQuery):
                "bolocam"]
     maximsize = 1024
 
-    def _args_to_payload(self, coordinates, image_size=1*u.arcmin, survey='bolocam',
+    def _args_to_payload(self, coordinates, image_size=1 * u.arcmin, survey='bolocam',
                          maximsize=None):
         """
         Fetches image cutouts from MAGPIS surveys.
@@ -73,7 +69,7 @@ class MagpisClass(BaseQuery):
         request_payload["MaxImSize"] = self.maximsize if maximsize is None else maximsize
         return request_payload
 
-    @prepend_docstr_noreturns("\n"+_args_to_payload.__doc__)
+    @prepend_docstr_noreturns("\n" + _args_to_payload.__doc__)
     def get_images(self, coordinates, image_size=1 * u.arcmin,
                    survey='bolocam', get_query_payload=False):
         """
@@ -96,7 +92,7 @@ class MagpisClass(BaseQuery):
         except IOError:
             raise InvalidQueryError(response.content) 
 
-    @prepend_docstr_noreturns("\n"+_args_to_payload.__doc__)
+    @prepend_docstr_noreturns("\n" + _args_to_payload.__doc__)
     def get_images_async(self, coordinates, image_size=1 * u.arcmin, survey='bolocam',
                          get_query_payload=False):
         """
@@ -110,7 +106,7 @@ class MagpisClass(BaseQuery):
             The HTTP response returned from the service
         """
         if survey not in self.surveys:
-            raise InvalidQueryError("Survey must be one of "+(",".join(self.list_surveys())))
+            raise InvalidQueryError("Survey must be one of " + (",".join(self.list_surveys())))
         request_payload = self._args_to_payload(coordinates, image_size=image_size,
                                                 survey=survey)
         if get_query_payload:

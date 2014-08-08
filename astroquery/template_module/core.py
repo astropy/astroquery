@@ -25,9 +25,9 @@ __all__ = ['Dummy', 'DummyClass']
 
 # declare global variables and constants if any
 
+
 # Now begin your main class
 # should be decorated with the async_to_sync imported previously
-
 @async_to_sync
 class DummyClass(BaseQuery):
 
@@ -97,9 +97,8 @@ class DummyClass(BaseQuery):
     # prepend_docstr_noreturns which will automatically generate
     # the common docs. See below for an example.
 
-
     @prepend_docstr_noreturns(query_object.__doc__)
-    def query_object_async(self, object_name, get_query_payload=False) :
+    def query_object_async(self, object_name, get_query_payload=False):
         """
         Returns
         -------
@@ -143,7 +142,6 @@ class DummyClass(BaseQuery):
                                         request_type='GET')
         return response
 
-
     # For services that can query coordinates, use the query_region method.
     # The pattern is similar to the query_object method. The query_region
     # method also has a 'radius' keyword for specifying the radius around
@@ -151,7 +149,6 @@ class DummyClass(BaseQuery):
     # the keywords 'width' and 'height' should be used instead. The coordinates
     # may be accepted as an `astropy.coordinates` object or as a
     # string, which may be further parsed.
-
     def query_region(self, coordinates, radius, width, height, get_query_payload=False, verbose=False):
         """
         Queries a region around the specified coordinates.
@@ -275,7 +272,7 @@ class DummyClass(BaseQuery):
         readable_objs = self.get_images_async(coordinates, radius,
                                               get_query_payload=get_query_payload)
         if get_query_payload:
-            return readable_objs # simply return the dict of HTTP request params
+            return readable_objs  # simply return the dict of HTTP request params
         # otherwise return the images as a list of astropy.fits.HDUList
         return [obj.get_fits() for obj in readable_objs]
 
@@ -328,7 +325,6 @@ class DummyClass(BaseQuery):
 
     # the extract_image_urls method takes in the HTML page as a string
     # and uses regexps, etc to scrape the image urls:
-
 
     def extract_image_urls(self, html_str):
         """
