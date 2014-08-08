@@ -18,6 +18,7 @@ import os
 from astropy.io import fits
 import astropy.utils.data as aud
 import astropy.version
+import tempfile
 
 
 class SimpleQueryClass(object):
@@ -401,8 +402,14 @@ def patch_getreadablefileobj(request):
 
 def test_filecontainer_save(patch_getreadablefileobj):
     ffile = commons.FileContainer(fitsfilepath, encoding='binary')
-    ffile.save_fits('/tmp/test_emptyfile.fits')
-    assert os.path.exists('/tmp/test_emptyfile.fits')
+    temp_dir = tempfile.mkdtemp()
+    empty_temp_file = temp_dir + os.sep + 'test_emptyfile.fits'
+    try:
+        ffile.save_fits(empty_temp_file)
+        assert os.path.exists(empty_temp_file)
+    finally:
+        os.remove(empty_temp_file)
+        os.rmdir(temp_dir)
 
 
 def test_filecontainer_get(patch_getreadablefileobj):
