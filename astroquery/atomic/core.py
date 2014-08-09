@@ -94,18 +94,20 @@ class AtomicLineListClass(BaseQuery):
 
     def _parse_result(self, response):
         data = StringIO(BeautifulSoup(response.text).find('pre').text.strip())
+        # `header` is e.g. "u'-LAMBDA-VAC-ANG-|-SPECTRUM--|TT|--------TERM---------|---J-J---|----LEVEL ENERGY--CM-1----'"
         header = data.readline().strip().strip('|')
+        # `colnames` is then "[u'LAMBDA VAC ANG', u'SPECTRUM', u'TT', u'TERM', u'J J', u'LEVEL ENERGY  CM 1']"
         colnames = [colname.strip('-').replace('-', ' ') for colname in header.split('|') if colname.strip()]
         indices = [i for i, c in enumerate(header) if c == '|']
         input = []
         for line in data:
-            rows = []
+            row = []
             for start, end in zip([0]+indices, indices+[None]):
-                row = line[start:end].strip()
-                if row:
-                    rows.append(row)
-            if rows:
-                input.append('\t'.join(rows))
+                value = line[start:end].strip()
+                if value:
+                    row.append(value)
+            if row:
+                input.append('\t'.join(row))
         if input:
             return ascii.read(input, data_start=0, delimiter='\t', names=colnames)
         else:
