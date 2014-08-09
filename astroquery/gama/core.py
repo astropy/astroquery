@@ -73,10 +73,12 @@ class GAMAClass(BaseQuery):
 GAMA = GAMAClass()
 
 
-def get_gama_datafile(result):
+def get_gama_datafile(result, **kwargs):
     """Turn a URL into an HDUList object."""
-    with commons.get_readable_fileobj(result) as f:
-        hdulist = fits.HDUList.fromstring(f.read())
+    fitsfile = commons.FileContainer(result,
+                                     encoding='binary',
+                                     **kwargs)
+    hdulist = fitsfile.get_fits()
     return Table(hdulist[1].data)
 
 
