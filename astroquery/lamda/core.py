@@ -100,7 +100,9 @@ def query(mol, query_type=None, coll_partner_index=0, return_datafile=False):
     if query_type not in query_types.keys() and not return_datafile:
         raise ValueError("Query type must be one of " + ",".join(query_type.keys()))
     # Send HTTP request to open URL
-    datafile = [s.strip() for s in
+    # Also, coerce to unicode
+    datafile = [s.decode().strip() if hasattr(s,'decode') else s.strip()
+                for s in
                 requests.get(url.format(mol)).iter_lines()]
     if return_datafile:
         return datafile
@@ -135,7 +137,9 @@ def _parse_datafile(datafile, query_type, coll_partner_index=0):
         i = 0
     # Select lines that contain the query identifier
     # np.in1d does not work in np < 1.7
-    sections = np.argwhere([query_identifier in line for line in datafile])
+    sections = np.argwhere([query_identifier in 
+                            (line.decode() if hasattr(line, 'decode') else line)
+                            for line in datafile])
     if len(sections) == 0:
         raise Exception('Query data not found in file.')
     start_index = sections[i][0]

@@ -51,8 +51,9 @@ def test_xmatch_query(xmatch):
 
 @remote_data
 def test_xmatch_query_astropy_table(xmatch):
-    with open(os.path.join(DATA_DIR, 'posList.csv')) as pos_list:
-        input_table = Table.read(pos_list, names=['ra', 'dec'], format='ascii')
+    datapath = os.path.join(DATA_DIR, 'posList.csv')
+    input_table = Table.read(datapath, names=['ra', 'dec'],
+                             format='ascii.csv')
     table = xmatch.query(
         cat1=input_table, cat2='vizier:II/246/out', max_distance=5 * arcsec)
     assert isinstance(table, Table)

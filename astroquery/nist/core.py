@@ -149,8 +149,11 @@ class NistClass(BaseQuery):
 
         pre_re = re.compile("<pre>(.*)</pre>", flags=re.DOTALL)
         links_re = re.compile(r"<a.*?>\s*(\w+)\s*</a>")
+        content = (response.content.decode()
+                   if hasattr(response.content, 'decode')
+                   else response.content)
         try:
-            pre = pre_re.findall(response.content)[0]
+            pre = pre_re.findall(content)[0]
         except IndexError:
             raise Exception("Result did not contain a table")
         try:
