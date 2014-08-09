@@ -231,7 +231,10 @@ class NraoClass(BaseQuery):
         # fix to replace non standard datatype 'integer' in returned VOTable
         # with 'int' to make it parsable by astropy.io.votable
         integer_re = re.compile(r'datatype="integer"')
-        new_content = integer_re.sub(r'datatype="int"', response.content)
+        content = (response.content.decode()
+                   if hasattr(response.content, 'decode')
+                   else response.content)
+        new_content = integer_re.sub(r'datatype="int"', content)
 
         # these are pretty bad hacks, but also needed...
         days_re = re.compile(r'unit="days"  datatype="double"')
