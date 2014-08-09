@@ -14,6 +14,7 @@ from astropy.table import Table, Column
 
 from ..exceptions import LoginError, RemoteServiceError
 from ..utils import schema, system_tools
+from ..utils.py3 import stringy,bitey
 from ..query import QueryWithLogin, suspend_cache
 from . import conf
 
@@ -24,10 +25,10 @@ def _check_response(content):
 
     If all is OK, return True
     """
-    if "NETWORKPROBLEM" in content:
+    if "NETWORKPROBLEM" in stringy(content):
         raise RemoteServiceError("The query resulted in a network "
                                  "problem; the service may be offline.")
-    elif "# No data returned !" not in content:
+    elif "# No data returned !" not in stringy(content):
         return True
 
 
@@ -232,8 +233,8 @@ class EsoClass(QueryWithLogin):
         survey_response = self._activate_form(survey_form, form_index=0,
                                               inputs=query_dict)
 
-        if _check_response(survey_response.text):
-            content = survey_response.text
+        content = bitey(survey_response.text)
+        if _check_response(content):
             try:
                 table = Table.read(BytesIO(content), format="ascii.csv",
                                    guess=False, header_start=1)
@@ -347,10 +348,11 @@ class EsoClass(QueryWithLogin):
             instrument_response = self._activate_form(instrument_form,
                                                       form_index=0,
                                                       inputs=query_dict)
-            if _check_response(instrument_response.text):
+            text = bitey(instrument_response.text)
+            if _check_response(text):
                 content = []
                 # The first line is garbage, don't know why
-                for line in instrument_response.text.split(b'\n')[1:]:
+                for line in text.split(b'\n')[1:]:
                     if len(line) > 0:  # Drop empty lines
                         if line[0:1] != b'#':  # And drop comments
                             content += [line]
