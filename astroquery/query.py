@@ -21,10 +21,13 @@ class AstroResponse(object):
             self.url = url
             self.encoding = encoding
             self.content = content
+            self.text = (content.decode() if hasattr(content, 'decode') else
+                         content)
         elif isinstance(response, requests.Response):
             self.url = response.url
             self.encoding = response.encoding
             self.content = response.content
+            self.text = response.text
         elif not hasattr(response, 'content'):
             raise TypeError("{0} is not a requests.Response".format(response))
         elif not isinstance(response, requests.Response):

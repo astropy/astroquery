@@ -24,8 +24,6 @@ def _check_response(content):
 
     If all is OK, return True
     """
-    if hasattr(content, 'decode'):
-        content = content.decode()
     if "NETWORKPROBLEM" in content:
         raise RemoteServiceError("The query resulted in a network "
                                  "problem; the service may be offline.")
@@ -234,8 +232,8 @@ class EsoClass(QueryWithLogin):
         survey_response = self._activate_form(survey_form, form_index=0,
                                               inputs=query_dict)
 
-        if _check_response(survey_response.content):
-            content = survey_response.content
+        if _check_response(survey_response.text):
+            content = survey_response.text
             try:
                 table = Table.read(BytesIO(content), format="ascii.csv",
                                    guess=False, header_start=1)
@@ -349,10 +347,10 @@ class EsoClass(QueryWithLogin):
             instrument_response = self._activate_form(instrument_form,
                                                       form_index=0,
                                                       inputs=query_dict)
-            if _check_response(instrument_response.content):
+            if _check_response(instrument_response.text):
                 content = []
                 # The first line is garbage, don't know why
-                for line in instrument_response.content.split(b'\n')[1:]:
+                for line in instrument_response.text.split(b'\n')[1:]:
                     if len(line) > 0:  # Drop empty lines
                         if line[0:1] != b'#':  # And drop comments
                             content += [line]
@@ -538,9 +536,7 @@ class EsoClass(QueryWithLogin):
                   }
         response = self._request("POST", url, params=payload)
 
-        content = (response.content.decode()
-                   if hasattr(response.content, 'decode')
-                   else response.content)
+        content = response.text
 
         return 'No data returned' not in content
 
