@@ -189,6 +189,8 @@ class NvasClass(BaseQuery):
         """
         imfits_re = re.compile("http://[^\"]*\\.imfits")
         uvfits_re = re.compile("http://[^\"]*\\.uvfits")
+        if hasattr(html_in, 'decode'):
+            html_in = html_in.decode()
         if get_uvfits:
             image_urls = uvfits_re.findall(html_in)
         else:

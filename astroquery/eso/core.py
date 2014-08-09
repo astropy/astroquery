@@ -24,6 +24,8 @@ def _check_response(content):
 
     If all is OK, return True
     """
+    if hasattr(content, 'decode'):
+        content = content.decode()
     if b"NETWORKPROBLEM" in content:
         raise RemoteServiceError("The query resulted in a network "
                                  "problem; the service may be offline.")
