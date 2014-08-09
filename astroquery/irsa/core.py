@@ -336,21 +336,27 @@ class IrsaClass(BaseQuery):
         """
         if not verbose:
             commons.suppress_vo_warnings()
+
+        # Coerce to unicode
+        content = (response.content.decode()
+                   if hasattr(response.content, 'decode')
+                   else response.content)
+
         # Check if results were returned
-        if 'The catalog is not on the list' in response.content:
+        if 'The catalog is not on the list' in content:
             raise Exception("Catalog not found")
 
         # Check that object name was not malformed
-        if 'Either wrong or missing coordinate/object name' in response.content:
+        if 'Either wrong or missing coordinate/object name' in content:
             raise Exception("Malformed coordinate/object name")
 
         # Check that the results are not of length zero
-        if len(response.content) == 0:
+        if len(content) == 0:
             raise Exception("The IRSA server sent back an empty reply")
 
         # Write table to temporary file
         output = tempfile.NamedTemporaryFile()
-        output.write(response.content.encode())
+        output.write(content.encode())
         output.flush()
 
         # Read it in using the astropy VO table reader
