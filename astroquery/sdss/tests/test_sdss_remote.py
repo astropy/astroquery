@@ -87,7 +87,8 @@ class TestSDSSRemote:
             [46.9155836662379, 5.50671723824944, 1237670015662686398, 5714,
              301, 3, 186, 0, 2340, 53733, 420, 2634721293362030592, 26,
              'SDSS']]
-        table = Table(data=zip(*data), names=colnames, dtype=dtypes)
+        table = Table(data=[x for x in zip(*data)],
+                      names=colnames, dtype=dtypes)
         xid = sdss.core.SDSS.query_specobj(plate=2340)
         assert isinstance(xid, Table)
         for row in table:
@@ -102,7 +103,8 @@ class TestSDSSRemote:
             [2.03003450430003, 14.7653903655885, 1237653651835846845, 1904, 301, 3, 164],
             [2.01347376262532, 14.8681488509887, 1237653651835846661, 1904, 301, 3, 164],
             [2.18077144165426, 14.8482787058708, 1237653651835847302, 1904, 301, 3, 164]]
-        table = Table(data=zip(*data), names=colnames, dtype=dtypes)
+        table = Table(data=[x for x in zip(*data)], names=colnames,
+                      dtype=dtypes)
         xid = sdss.core.SDSS.query_photoobj(run=1904, camcol=3, field=164)
         assert isinstance(xid, Table)
         for row in table:
