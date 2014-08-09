@@ -1,6 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from ... import sdss
 from ...exceptions import TimeoutError
+from ...query import suspend_cache
 from astropy import coordinates
 from astropy.table import Table
 from astropy.tests.helper import pytest, remote_data
@@ -89,9 +90,11 @@ class TestSDSSRemote:
 
     def test_spectra_timeout(self):
         with pytest.raises(TimeoutError):
-            ssdss.core.SDSS.get_spectra(self.coords, timeout=self.mintimeout)
+            sdss.core.SDSS.get_spectra(self.coords, timeout=self.mintimeout)
 
     def test_images_timeout(self):
         xid = sdss.core.SDSS.query_region(self.coords)
-        with pytest.raises(TimeoutError):
-            sdss.core.SDSS.get_images(matches=xid, timeout=self.mintimeout)
+        assert len(xid) == 18
+        with suspend_cache(sdss.core.SDSS):
+            with pytest.raises(TimeoutError):
+                failed = sdss.core.SDSS.get_images(matches=xid, timeout=self.mintimeout)
