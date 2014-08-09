@@ -101,8 +101,12 @@ class AtomicLineListClass(BaseQuery):
         indices = [i for i, c in enumerate(header) if c == '|']
         input = []
         for line in data:
+            # example for `line`:
+            # u'      1.010799    Zn XXX     E1          1-10          1/2-*            0.00 - 98933890.00\n'
             row = []
             for start, end in zip([0]+indices, indices+[None]):
+                # `value` will hold all cell values in the line, so
+                # `u'1.010799'`, `u'Zn XXX'` etc.
                 value = line[start:end].strip()
                 if value:
                     row.append(value)
