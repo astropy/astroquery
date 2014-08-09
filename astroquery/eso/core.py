@@ -26,10 +26,10 @@ def _check_response(content):
     """
     if hasattr(content, 'decode'):
         content = content.decode()
-    if b"NETWORKPROBLEM" in content:
+    if "NETWORKPROBLEM" in content:
         raise RemoteServiceError("The query resulted in a network "
                                  "problem; the service may be offline.")
-    elif b"# No data returned !" not in content:
+    elif "# No data returned !" not in content:
         return True
 
 
@@ -538,7 +538,11 @@ class EsoClass(QueryWithLogin):
                   }
         response = self._request("POST", url, params=payload)
 
-        return 'No data returned' not in response.content
+        content = (response.content.decode()
+                   if hasattr(response.content, 'decode')
+                   else response.content)
+
+        return 'No data returned' not in content
 
 
 Eso = EsoClass()
