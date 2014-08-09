@@ -398,11 +398,10 @@ class UkidssClass(QueryWithLogin):
         """
         # Parse html input for links
         ahref = re.compile('href="([a-zA-Z0-9_\.&\?=%/:-]+)"')
-        try:
-            links = ahref.findall(html_in)
-        except TypeError:
-            # py3
-            links = ahref.findall(html_in.decode())
+        html_in = (html_in.decode()
+                   if hasattr(html_in, 'decode')
+                   else html_in)
+        links = ahref.findall(html_in)
         return links
 
     def query_region(self, coordinates, radius=1 * u.arcmin,
@@ -621,9 +620,12 @@ class UkidssClass(QueryWithLogin):
         while not page_loaded and max_attempts > 0:
             response = requests.get(url)
             self.response = response
-            if re.search("error", response.content, re.IGNORECASE):
+            content = (response.content.decode()
+                       if hasattr(response.content, 'decode')
+                       else response.content)
+            if re.search("error", content, re.IGNORECASE):
                 raise InvalidQueryError("Service returned with an error!  Check self.response for more information.")
-            elif re.search(keyword, response.content, re.IGNORECASE):
+            elif re.search(keyword, content, re.IGNORECASE):
                 page_loaded = True
             max_attempts -= 1
             # wait for wait_time seconds before checking again
