@@ -9,11 +9,37 @@ import requests
 import imp
 imp.reload(requests)
 
+@remote_data
+def test_images_timeout():
+    """
+    An independent timeout test to verify that test_images_timeout in the
+    TestSDSSRemote class should be working.  Consider this a regression test.
+    """
+    coords = coordinates.ICRS('0h8m05.63s +14d50m23.3s')
+    xid = sdss.core.SDSS.query_region(coords)
+    assert len(xid) == 18
+    with pytest.raises(TimeoutError):
+        failed = sdss.core.SDSS.get_images(matches=xid, timeout=1e-6,
+                                           cache=False)
 
 @remote_data
 class TestSDSSRemote:
     # Test Case: A Seyfert 1 galaxy
     coords = coordinates.ICRS('0h8m05.63s +14d50m23.3s')
+    mintimeout = 1e-6
+
+
+    def test_images_timeout(self):
+        """
+        This test *must* be run before `test_sdss_image` because that query
+        caches!
+        """
+        xid = sdss.core.SDSS.query_region(self.coords)
+        assert len(xid) == 18
+        sdss.core.SDSS.TIMEOUT = self.mintimeout
+        with pytest.raises(TimeoutError):
+            failed = sdss.core.SDSS.get_images(matches=xid, timeout=self.mintimeout,
+                                               cache=False)
 
     def test_sdss_spectrum(self):
         xid = sdss.core.SDSS.query_region(self.coords, spectro=True)
@@ -82,8 +108,6 @@ class TestSDSSRemote:
         for row in table:
             assert row in xid
 
-    mintimeout = 1e-6
-
     def test_query_timeout(self):
         with pytest.raises(TimeoutError):
             sdss.core.SDSS.query_region(self.coords, timeout=self.mintimeout)
@@ -91,10 +115,3 @@ class TestSDSSRemote:
     def test_spectra_timeout(self):
         with pytest.raises(TimeoutError):
             sdss.core.SDSS.get_spectra(self.coords, timeout=self.mintimeout)
-
-    def test_images_timeout(self):
-        xid = sdss.core.SDSS.query_region(self.coords)
-        assert len(xid) == 18
-        with suspend_cache(sdss.core.SDSS):
-            with pytest.raises(TimeoutError):
-                failed = sdss.core.SDSS.get_images(matches=xid, timeout=self.mintimeout)

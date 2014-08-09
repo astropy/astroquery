@@ -368,7 +368,7 @@ class SDSSClass(BaseQuery):
     def get_images_async(self, coordinates=None, radius=u.degree / 1800.,
                          matches=None, run=None, rerun=301, camcol=None,
                          field=None, band='g', timeout=TIMEOUT,
-                         get_query_payload=False):
+                         get_query_payload=False, cache=True):
         """
         Download an image from SDSS.
 
@@ -412,6 +412,8 @@ class SDSSClass(BaseQuery):
         timeout : float, optional
             Time limit (in seconds) for establishing successful connection with
             remote server.  Defaults to `SDSSClass.TIMEOUT`.
+        cache : bool
+            Cache the images using astropy's caching system
 
         Returns
         -------
@@ -467,14 +469,15 @@ class SDSSClass(BaseQuery):
 
                 results.append(commons.FileContainer(link,
                                                      encoding='binary',
-                                                     remote_timeout=timeout))
+                                                     remote_timeout=timeout,
+                                                     cache=cache))
 
         return results
 
     @prepend_docstr_noreturns(get_images_async.__doc__)
     def get_images(self, coordinates=None, radius=u.degree / 1800.,
-                   matches=None, run=None, rerun=301, camcol=None,
-                   field=None, band='g', timeout=TIMEOUT):
+                   matches=None, run=None, rerun=301, camcol=None, field=None,
+                   band='g', timeout=TIMEOUT, cache=True):
         """
         Returns
         -------
