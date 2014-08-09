@@ -722,7 +722,7 @@ class SimbadClass(BaseQuery):
         """
         self.last_response = result
         try:
-            self.last_parsed_result = resultclass(result.content, verbose=verbose)
+            self.last_parsed_result = resultclass(result.content.decode(), verbose=verbose)
             if self.last_parsed_result.data is None:
                 return None
             resulttable = self.last_parsed_result.table
