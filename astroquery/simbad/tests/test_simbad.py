@@ -355,3 +355,12 @@ def test_regression_votablesettings2():
     assert simbad.core.Simbad.get_votable_fields() == ['main_id', 'coordinates', 'fluxdata(J)', 'fluxdata(H)', 'fluxdata(K)']
     simbad.core.Simbad.remove_votable_fields('fluxdata', strip_params=True)
     assert simbad.core.Simbad.get_votable_fields() == ['main_id', 'coordinates']
+
+def test_regression_issue388():
+    # This is a python-3 issue: content needs to be decoded?
+    response = MockResponseSimbad('\nvotable {main_id,coordinates}\nvotable open\nquery id  m1  \nvotable close')
+    with open(data_path('m1.data'), "r") as f:
+        response.content = f.read()
+    parsed_table = simbad.core.Simbad._parse_result(response, simbad.core.SimbadVOTableResult)
+    assert parsed_table['MAIN_ID'][0] == b'M   1'
+    assert len(parsed_table) == 1
