@@ -1,5 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import os
+import tempfile
+import shutil
 from astropy.tests.helper import pytest, remote_data
 try:
     import keyring
@@ -13,16 +15,23 @@ except ImportError:
     ESO_IMPORTED = False
 from ...exceptions import LoginError
 
-CACHE_PATH = os.path.join(os.path.dirname(__file__), 'data')
 SKIP_TESTS = not(HAS_KEYRING and ESO_IMPORTED)
 
 
 @pytest.mark.skipif('SKIP_TESTS')
 @remote_data
 class TestEso:
-    def test_SgrAstar(self):
+    @pytest.fixture()
+    def temp_dir(self, request):
+        my_temp_dir = tempfile.mkdtemp()
+        def fin():
+            shutil.rmtree(my_temp_dir)
+        request.addfinalizer(fin)
+        return my_temp_dir
+
+    def test_SgrAstar(self, temp_dir):
         eso = Eso()
-        eso.cache_location = CACHE_PATH
+        eso.cache_location = temp_dir
 
         instruments = eso.list_instruments()
         # in principle, we should run both of these tests
@@ -62,36 +71,34 @@ class TestEso:
 
         assert result_s is None
 
-    def test_SgrAstar_remotevslocal(self):
-    
+    def test_SgrAstar_remotevslocal(self, temp_dir):
         eso = Eso()
         # Remote version
         instruments = eso.list_instruments()
         # result1 = eso.query_instrument(instruments[0], target='Sgr A*')
         result1 = eso.query_instrument(instruments[0], coord1=266.41681662, coord2=-29.00782497)
-    
+
         # Local version
-        eso.cache_location = CACHE_PATH
+        eso.cache_location = temp_dir
         instruments = eso.list_instruments()
         # result2 = eso.query_instrument(instruments[0], target='Sgr A*')
         result2 = eso.query_instrument(instruments[0], coord1=266.41681662, coord2=-29.00782497)
-    
+
         assert result1 == result2
-    
 
     def test_list_instruments(self):
         # If this test fails, we may simply need to update it
-    
+
         inst = Eso.list_instruments()
-    
+
         assert inst == ['fors1', 'fors2', 'vimos', 'omegacam', 'hawki', 'isaac',
                         'naco', 'visir', 'vircam', 'apex', 'uves', 'giraffe',
                         'xshooter', 'crires', 'kmos', 'sinfoni', 'amber', 'midi']
-    
+
     # REQUIRES LOGIN!
     # Can we get a special login specifically for astroquery testing?
     # def test_data_retrieval():
-    #    
+    #
     #    data_product_id = 'AMBER.2006-03-14T07:40:03.741'
     #    data_files = eso.retrieve_data([data_product_id])
     #    # How do we know if we're going to get .fits or .fits.Z?
