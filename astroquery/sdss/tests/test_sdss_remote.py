@@ -36,7 +36,6 @@ class TestSDSSRemote:
         """
         xid = sdss.core.SDSS.query_region(self.coords)
         assert len(xid) == 18
-        sdss.core.SDSS.TIMEOUT = self.mintimeout
         with pytest.raises(TimeoutError):
             failed = sdss.core.SDSS.get_images(matches=xid, timeout=self.mintimeout,
                                                cache=False)
@@ -71,7 +70,7 @@ class TestSDSSRemote:
                     'z', 'plate', 'mjd', 'fiberID', 'specobjid', 'run2d',
                     'instrument']
         dtypes = [float, float, int, int, int, int, int, float, int, int, int,
-                  int, int, str]
+                  int, int, bytes]
         data = [
             [46.8390680395307, 5.16972676625711, 1237670015125750016, 5714,
              301, 2, 185, -0.0006390358, 2340, 53733, 291, 2634685834112034816,
