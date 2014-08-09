@@ -19,6 +19,7 @@ from ..query import BaseQuery
 from . import conf
 from ..utils import commons, async_to_sync
 from ..utils.docstr_chompers import prepend_docstr_noreturns
+from ..utils.py3 import stringy
 from ..exceptions import RemoteServiceError
 
 __all__ = ['SDSS', 'SDSSClass']
@@ -337,7 +338,7 @@ class SDSSClass(BaseQuery):
             link = ('{base}/{instrument}/spectro/redux/{run2d}/spectra'
                     '/{plate:04d}/spec-{plate:04d}-{mjd}-{fiber:04d}.fits')
             link = link.format(base=SDSS.SPECTRO_OPTICAL,
-                               instrument=row['instrument'].lower(),
+                               instrument=stringy(row['instrument'].lower()),
                                run2d=row['run2d'], plate=row['plate'],
                                fiber=row['fiberID'], mjd=row['mjd'])
 
