@@ -121,7 +121,7 @@ class NvasClass(BaseQuery):
         if verbose:
             print("{num} images found.".format(num=len(image_urls)))
 
-        return [commons.FileContainer(U) for U in image_urls]
+        return [commons.FileContainer(U, encoding='binary') for U in image_urls]
 
     def get_image_list(self, coordinates, radius=0.25 * u.arcmin, max_rms=10000,
                        band="all", get_uvfits=False, get_query_payload=False):
