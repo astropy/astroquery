@@ -8,7 +8,7 @@ from ...skyview import SkyView
 class MockResponseSkyView(MockResponse):
     def __init__(self):
         super(MockResponseSkyView, self).__init__()
-        with open(data_path('results.html')) as f:
+        with open(data_path('results.html'), 'rb') as f:
             self.content = f.read()
 
     def get_content(self):

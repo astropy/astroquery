@@ -5,19 +5,20 @@ import requests
 from astropy import coordinates
 from astropy.tests.helper import pytest
 from ...utils import commons
+from ...utils.testing_tools import MockResponse
 from ... import alfalfa
 
 DATA_FILES = {'catalog':'alfalfa_cat_small.txt',
               'spectrum':'alfalfa_sp.fits'}
 
 
-class MockResponse(object):
+class MockResponseAlfalfa(MockResponse):
 
-    def __init__(self, content):
-        self.content = content
+    def __init__(self, content, **kwargs):
+        super(MockResponseAlfalfa, self).__init__(content, **kwargs)
 
     def iter_lines(self):
-        for l in self.content.split("\n"):
+        for l in self.text.split("\n"):
             yield l
 
     def close(self):
@@ -44,8 +45,8 @@ def patch_get_readable_fileobj(request):
 
 def get_mockreturn(url, params=None, timeout=10):
     filename = data_path(DATA_FILES['catalog'])
-    content = open(filename, 'r').read()
-    return MockResponse(content)
+    content = open(filename, 'rb').read()
+    return MockResponseAlfalfa(content)
 
 
 def data_path(filename):

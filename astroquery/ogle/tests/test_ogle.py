@@ -26,7 +26,7 @@ def patch_post(request):
 
 def post_mockreturn(url, data, timeout, files=None, **kwargs):
     if files is not None:
-        content = open(data_path(DATA_FILES['gal_0_3']), 'r').read()
+        content = open(data_path(DATA_FILES['gal_0_3']), 'rb').read()
         response = MockResponse(content, **kwargs)
     else:
         raise ValueError("Unsupported post request.")

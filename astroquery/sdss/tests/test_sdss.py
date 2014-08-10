@@ -38,7 +38,12 @@ def patch_get_readable_fileobj(request):
     @contextmanager
     def get_readable_fileobj_mockreturn(filename, **kwargs):
         file_obj = data_path(DATA_FILES['spectra'])  # TODO: add images option
-        yield open(file_obj, 'rb')
+        encoding = kwargs.get('encoding', None)
+        if encoding == 'binary':
+            yield open(file_obj, 'rb')
+        else:
+            yield open(file_obj, 'r', encoding=encoding)
+
     mp = request.getfuncargvalue("monkeypatch")
     mp.setattr(commons, 'get_readable_fileobj', get_readable_fileobj_mockreturn)
     return mp

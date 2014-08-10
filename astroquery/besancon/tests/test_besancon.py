@@ -8,6 +8,7 @@ from astropy.io.ascii.tests.common import assert_equal
 from astropy.extern.six import string_types
 from ... import besancon
 from ...utils import commons
+from ...utils.testing_tools import MockResponse
 
 # SKIP - don't run tests because Besancon folks don't want them (based on the fact that your@email.net is now rejected)
 # def test_besancon_reader():
@@ -57,7 +58,8 @@ def patch_get_readable_fileobj(request):
     def get_readable_fileobj_mockreturn(filename, **kwargs):
         # file_obj = StringIO.StringIO(filename)
         if isinstance(filename, string_types):
-            file_obj = open(data_path(filename), "rb")
+            is_binary = kwargs.get('encoding',None) == 'binary'
+            file_obj = open(data_path(filename), "r"+('b' if is_binary else ''))
         else:
             file_obj = filename
         # file_obj = data_path(filename)
@@ -70,8 +72,8 @@ def patch_get_readable_fileobj(request):
 def post_mockreturn(url, data, timeout=10, stream=True, params=None, **kwargs):
     # filename = data_path('1376235131.430670.resu')
     filename = data_path('query_return.iframe.html')
-    content = open(filename, 'r').read()
-    return MockResponse(content, filename, **kwargs)
+    content = open(filename, 'rb').read()
+    return MockResponseBesancon(content, filename, **kwargs)
 
 
 def test_query(patch_post, patch_get_readable_fileobj):
@@ -81,10 +83,9 @@ def test_query(patch_post, patch_get_readable_fileobj):
     assert result is not None
 
 
-class MockResponse(object):
+class MockResponseBesancon(MockResponse):
 
-    def __init__(self, content=None, url=None, headers={}):
-        self.content = content
-        self.text = content
+    def __init__(self, content=None, url=None, headers={}, **kwargs):
+        super(MockResponseBesancon, self).__init__(content)
         self.raw = url  # StringIO.StringIO(url)
         self.headers = headers

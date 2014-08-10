@@ -65,8 +65,7 @@ def get_mockreturn(url, params=None, timeout=10, **kwargs):
         filename = data_path(DATA_FILES['extract_urls'])
     else:
         filename = data_path(DATA_FILES['object'])
-    print(filename)
-    content = open(filename, "r").read()
+    content = open(filename, "rb").read()
     return MockResponse(content, **kwargs)
 
 
@@ -258,7 +257,7 @@ def test_get_object_notes(patch_get):
 
 
 def test_parse_result(capsys):
-    content = open(data_path(DATA_FILES['error']), 'r').read()
+    content = open(data_path(DATA_FILES['error']), 'rb').read()
     response = MockResponse(content)
     with pytest.raises(RemoteServiceError) as exinfo:
         ned.core.Ned._parse_result(response)

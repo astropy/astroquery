@@ -44,7 +44,7 @@ class MockResponseSimbad(MockResponse):
         match = self.query_regex.search(script)
         if match:
             filename = DATA_FILES[match.group(1)]
-            content = open(data_path(filename), "r").read()
+            content = open(data_path(filename), "rb").read()
             return content
 
 
@@ -115,7 +115,8 @@ def test_parse_result():
                               'and the error in self.last_table_parse_error.  '
                               'The attempted parsed result is in self.last_parsed_result.'
                               '\nException: 7:115: no element found')
-    assert isinstance(simbad.core.Simbad.last_response.content, six.string_types)
+    assert isinstance(simbad.core.Simbad.last_response.text, six.string_types)
+    assert isinstance(simbad.core.Simbad.last_response.content, six.binary_type)
 
 votable_fields = ",".join(simbad.core.Simbad.get_votable_fields())
 
@@ -359,7 +360,7 @@ def test_regression_votablesettings2():
 def test_regression_issue388():
     # This is a python-3 issue: content needs to be decoded?
     response = MockResponseSimbad('\nvotable {main_id,coordinates}\nvotable open\nquery id  m1  \nvotable close')
-    with open(data_path('m1.data'), "r") as f:
+    with open(data_path('m1.data'), "rb") as f:
         response.content = f.read()
     parsed_table = simbad.core.Simbad._parse_result(response, simbad.core.SimbadVOTableResult)
     assert parsed_table['MAIN_ID'][0] == b'M   1'

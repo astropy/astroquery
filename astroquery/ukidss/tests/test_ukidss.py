@@ -37,10 +37,12 @@ def patch_get(request):
 def patch_get_readable_fileobj(request):
     @contextmanager
     def get_readable_fileobj_mockreturn(filename, **kwargs):
+        is_binary = kwargs.get('encoding', None) == 'binary'
+        mode = 'rb' if is_binary else 'r'
         if "fits" in filename:
-            file_obj = open(data_path(DATA_FILES["image"]), "rb")
+            file_obj = open(data_path(DATA_FILES["image"]), mode)
         else:
-            file_obj = open(data_path(DATA_FILES["votable"]), "r")
+            file_obj = open(data_path(DATA_FILES["votable"]), mode)
         yield file_obj
     mp = request.getfuncargvalue("monkeypatch")
     mp.setattr(commons, 'get_readable_fileobj', get_readable_fileobj_mockreturn)
@@ -73,7 +75,7 @@ def get_mockreturn(url, params=None, timeout=10, **kwargs):
         raise ValueError("Mismatch: no test made for specified URL")
     print(filename)
     print(url)
-    content = open(data_path(filename), "r").read()
+    content = open(data_path(filename), "rb").read()
     return MockResponse(content=content, url=url, **kwargs)
 
 
@@ -130,7 +132,7 @@ def test_get_image_list(patch_get, patch_get_readable_fileobj):
 
 
 def test_extract_urls():
-    html_in = open(data_path(DATA_FILES["image_results"]), 'rb').read()
+    html_in = open(data_path(DATA_FILES["image_results"]), 'r').read()
     urls = ukidss.core.Ukidss.extract_urls(html_in)
     assert len(urls) == 1
 

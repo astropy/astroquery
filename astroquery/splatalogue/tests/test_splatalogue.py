@@ -23,7 +23,7 @@ def patch_post(request):
 
 def post_mockreturn(url, data=None, timeout=10, **kwargs):
     filename = data_path(SPLAT_DATA)
-    content = open(filename, "r").read()
+    content = open(filename, "rb").read()
     return MockResponse(content, **kwargs)
 
 

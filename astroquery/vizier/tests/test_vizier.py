@@ -38,7 +38,7 @@ def post_mockreturn(self, method, url, data=None, timeout=10, files=None,
         raise ValueError("A 'post request' was made with method != POST")
     datad = dict([urlparse.parse_qsl(d)[0] for d in data.split('\n')])
     filename = data_path(VO_DATA[datad['-source']])
-    content = open(filename, "r").read()
+    content = open(filename, "rb").read()
     return MockResponse(content, **kwargs)
 
 
@@ -77,7 +77,7 @@ def test_parse_angle_err():
 @pytest.mark.parametrize(('filepath'),
                          list(set(VO_DATA.values())))
 def test_parse_result_verbose(filepath, capsys):
-    with open(data_path(filepath), 'r') as f:
+    with open(data_path(filepath), 'rb') as f:
         table_contents = f.read()
     response = MockResponse(table_contents)
     vizier.core.Vizier._parse_result(response)
@@ -92,7 +92,7 @@ def test_parse_result_verbose(filepath, capsys):
                           ]
                          )  # TODO: 1->50 because it is just 1 table
 def test_parse_result(filepath, objlen):
-    table_contents = open(data_path(filepath), 'r').read()
+    table_contents = open(data_path(filepath), 'rb').read()
     response = MockResponse(table_contents)
     result = vizier.core.Vizier._parse_result(response)
     assert isinstance(result, commons.TableList)
