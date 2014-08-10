@@ -101,10 +101,6 @@ class BesanconClass(BaseQuery):
             present.  Default 5s, which is probably reasonable.
         """
 
-        # py3 compatibility
-        if hasattr(filename, 'decode'):
-            filename = filename.decode()
-
         url = os.path.join(self.url_download, filename)
 
         elapsed_time = 0
@@ -151,11 +147,8 @@ class BesanconClass(BaseQuery):
             print("Loading request from Besancon server ...")
 
         # keep the text stored for possible later use
-        with commons.get_readable_fileobj(StringIO(response.content)) as f:
-            text = f.read()
-            # py3 compatibility; do nothing for py2:
-            if hasattr(text, 'decode') and not hasattr(text, 'encode'):
-                text = text.decode()
+        text = response.text
+
         try:
             filename = self.result_re.search(text).group()
         except AttributeError:  # if there are no matches
@@ -336,9 +329,6 @@ def parse_errors(text):
     """
     Attempt to extract the errors from a Besancon web page with error messages in it.
     """
-    # py3 compatibility:
-    if hasattr(text, 'decode'):
-        text = text.decode()
     try:
         errors = re.compile(r"""<div\ class="?errorpar"?>\s*
                         <ol>\s*
@@ -359,10 +349,6 @@ def parse_besancon_model_string(bms,):
     Given an entire Besancon model result in *string* form, parse it into an
     `~astropy.table.Table`.
     """
-
-    # py3 compatibility:
-    if hasattr(bms, 'decode'):
-        bms = bms.decode()
 
     header_start = "Dist    Mv  CL".split()
 
@@ -409,18 +395,6 @@ def parse_besancon_model_string(bms,):
 
     if len(col_starts) != ncols or len(col_ends) != ncols:
         raise ValueError("Table parsing error: mismatch between # of columns & header")
-
-    # py3 compatibility:
-    if hasattr(bms, 'decode') and not hasattr(bms, 'encode'):
-        # py3
-        bms = bms.decode()
-
-    if hasattr(bms, 'decode') and hasattr(bms, 'encode'):
-        # py2
-        names = [n.encode() if hasattr(n, 'encode') else n for n in names]
-    else:
-        # py3
-        names = [n.decode() if hasattr(n, 'decode') else n for n in names]
 
     besancon_table = ascii.read(bms, Reader=ascii.FixedWidthNoHeader,
                                 header_start=None,

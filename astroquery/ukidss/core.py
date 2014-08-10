@@ -110,7 +110,7 @@ class UkidssClass(QueryWithLogin):
         if not response.ok:
             self.session = None
             response.raise_for_status()
-        if 'FAILED to log in' in response.content:
+        if 'FAILED to log in' in response.text:
             self.session = None
             raise Exception("Unable to log in with your given credentials.\n"
                             "Please try again.\n"
@@ -368,7 +368,7 @@ class UkidssClass(QueryWithLogin):
         response = self._ukidss_send_request(query_url, request_payload)
         response = self._check_page(response.url, "row")
 
-        image_urls = self.extract_urls(response.content)
+        image_urls = self.extract_urls(response.text)
         # different links for radius queries and simple ones
         if radius is not None:
             image_urls = [link for link in image_urls if ('fits_download' in
@@ -398,9 +398,6 @@ class UkidssClass(QueryWithLogin):
         """
         # Parse html input for links
         ahref = re.compile('href="([a-zA-Z0-9_\.&\?=%/:-]+)"')
-        html_in = (html_in.decode()
-                   if hasattr(html_in, 'decode')
-                   else html_in)
         links = ahref.findall(html_in)
         return links
 
@@ -532,7 +529,7 @@ class UkidssClass(QueryWithLogin):
         -------
         table : `~astropy.table.Table`
         """
-        table_links = self.extract_urls(response.content)
+        table_links = self.extract_urls(response.text)
         # keep only one link that is not a webstart
         if len(table_links) == 0:
             raise Exception("No VOTable found on returned webpage!")
@@ -620,9 +617,7 @@ class UkidssClass(QueryWithLogin):
         while not page_loaded and max_attempts > 0:
             response = requests.get(url)
             self.response = response
-            content = (response.content.decode()
-                       if hasattr(response.content, 'decode')
-                       else response.content)
+            content = response.text
             if re.search("error", content, re.IGNORECASE):
                 raise InvalidQueryError("Service returned with an error!  Check self.response for more information.")
             elif re.search(keyword, content, re.IGNORECASE):

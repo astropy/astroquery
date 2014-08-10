@@ -292,7 +292,7 @@ class IrsaClass(BaseQuery):
                     coordinates_list = [_format_decimal_coords(*_pair_to_deg(pair)) for pair in polygon]
             request_payload['polygon'] = ','.join(coordinates_list)
         else:
-            raise ValueError("Unrecognized spatial query type. " + 
+            raise ValueError("Unrecognized spatial query type. " +
                              "Must be one of `Cone`, `Box`, `Polygon`, or `All-Sky`.")
 
         request_payload['spatial'] = spatial
@@ -337,10 +337,7 @@ class IrsaClass(BaseQuery):
         if not verbose:
             commons.suppress_vo_warnings()
 
-        # Coerce to unicode
-        content = (response.content.decode()
-                   if hasattr(response.content, 'decode')
-                   else response.content)
+        content = response.text
 
         # Check if results were returned
         if 'The catalog is not on the list' in content:
@@ -356,7 +353,7 @@ class IrsaClass(BaseQuery):
 
         # Write table to temporary file
         output = tempfile.NamedTemporaryFile()
-        output.write(content.encode())
+        output.write(response.content)
         output.flush()
 
         # Read it in using the astropy VO table reader

@@ -167,7 +167,7 @@ class NvasClass(BaseQuery):
         if get_query_payload:
             return request_payload
         response = commons.send_request(Nvas.URL, request_payload, Nvas.TIMEOUT)
-        image_urls = self.extract_image_urls(response.content, get_uvfits=get_uvfits)
+        image_urls = self.extract_image_urls(response.text, get_uvfits=get_uvfits)
         return image_urls
 
     def extract_image_urls(self, html_in, get_uvfits=False):
@@ -189,8 +189,6 @@ class NvasClass(BaseQuery):
         """
         imfits_re = re.compile("http://[^\"]*\\.imfits")
         uvfits_re = re.compile("http://[^\"]*\\.uvfits")
-        if hasattr(html_in, 'decode'):
-            html_in = html_in.decode()
         if get_uvfits:
             image_urls = uvfits_re.findall(html_in)
         else:

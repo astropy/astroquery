@@ -60,14 +60,14 @@ def validate_equinox(func):
 def strip_field(f, keep_filters=False):
     """Helper tool: remove parameters from VOTABLE fields
     However, this should only be applied to a subset of VOTABLE fields:
-    
+
      * ra
      * dec
      * otype
      * id
      * coo
      * bibcodelist
-     
+
     *if* keep_filters is specified
     """
     if '(' in f:
@@ -473,7 +473,7 @@ class SimbadClass(BaseQuery):
     def query_catalog(self, catalog, verbose=False):
         """
         Queries a whole catalog.
-        
+
         Results may be very large -number of rows
         should be controlled by configuring `SimbadClass.ROW_LIMIT`.
 
@@ -722,9 +722,7 @@ class SimbadClass(BaseQuery):
         """
         self.last_response = result
         try:
-            content = (result.content.decode()
-                       if hasattr(result.content, 'decode')
-                       else result.content)
+            content = result.text
             self.last_parsed_result = resultclass(content, verbose=verbose)
             if self.last_parsed_result.data is None:
                 return None
@@ -771,7 +769,7 @@ def _get_frame_coords(c):
 
 
 def _to_simbad_format(ra, dec):
-    # This irrelevantly raises the exception 
+    # This irrelevantly raises the exception
     # "AttributeError: Angle instance has no attribute 'hour'"
     ra = ra.to_string(u.hour, sep=':')
     dec = dec.to_string(u.degree, sep=':', alwayssign='True')
@@ -815,7 +813,7 @@ class SimbadResult(object):
 
     def __split_sections(self):
         for section in self.__sections:
-            match = re.search(r'(?ims)^::%s:+?$(?P<content>.*?)(^::|\Z)' % 
+            match = re.search(r'(?ims)^::%s:+?$(?P<content>.*?)(^::|\Z)' %
                              section, self.__txt)
             if match:
                 self.__indexes[section] = (match.start('content'),
@@ -841,7 +839,7 @@ class SimbadResult(object):
         for error in self.errors:
             warnings.warn("Warning: The script line number %i raised "
                          "an error (recorded in the `errors` attribute "
-                         "of the result table): %s" % 
+                         "of the result table): %s" %
                          (error.line, error.msg))
 
     def __get_section(self, section_name):
@@ -912,10 +910,7 @@ class SimbadBibcodeResult(SimbadResult):
         max_len = max([len(r) for r in ref_list])
         table = Table(names=['References'], dtype=['S%i' % max_len])
         for ref in ref_list:
-            if hasattr(ref, 'decode'):
-                table.add_row([ref.decode('utf-8')])
-            else:
-                table.add_row([ref])
+            table.add_row([ref])
         return table
 
 class SimbadObjectIDsResult(SimbadResult):

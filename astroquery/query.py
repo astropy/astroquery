@@ -21,8 +21,7 @@ class AstroResponse(object):
             self.url = url
             self.encoding = encoding
             self.content = content
-            self.text = (content.decode() if hasattr(content, 'decode') else
-                         content)
+            self.text = content.text
         elif isinstance(response, requests.Response):
             self.url = response.url
             self.encoding = response.encoding
@@ -33,6 +32,7 @@ class AstroResponse(object):
         elif not isinstance(response, requests.Response):
             self.url = response.url
             self.content = response.content
+            self.text = response.text
             warnings.warn("Response has 'content' attribute but is not a "
                           "requests.Response object.  This is expected when "
                           "running local tests but not otherwise.")
@@ -88,7 +88,7 @@ class AstroQuery(object):
                     request_key += (k,)
                 else:
                     raise TypeError("{0} must be a dict, tuple, str, or list")
-            self._hash = hashlib.sha224(pickle.dumps(request_key)).hexdigest() 
+            self._hash = hashlib.sha224(pickle.dumps(request_key)).hexdigest()
         return self._hash
 
     def request_file(self, cache_location):

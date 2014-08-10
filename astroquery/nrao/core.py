@@ -107,7 +107,7 @@ class NraoClass(BaseQuery):
 
                 * GBT: AGBT12A_055
                 * JVLA: 12A-256
-                
+
         querytype : str
             The type of query to perform.  "OBSSUMMARY" is the default, but it
             is only valid for VLA/VLBA observations.  ARCHIVE will not work at all
@@ -231,9 +231,7 @@ class NraoClass(BaseQuery):
         # fix to replace non standard datatype 'integer' in returned VOTable
         # with 'int' to make it parsable by astropy.io.votable
         integer_re = re.compile(r'datatype="integer"')
-        content = (response.content.decode()
-                   if hasattr(response.content, 'decode')
-                   else response.content)
+        content = response.text
         new_content = integer_re.sub(r'datatype="int"', content)
 
         # these are pretty bad hacks, but also needed...

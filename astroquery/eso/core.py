@@ -14,7 +14,6 @@ from astropy.table import Table, Column
 
 from ..exceptions import LoginError, RemoteServiceError
 from ..utils import schema, system_tools
-from ..utils.py3 import stringy,bitey
 from ..query import QueryWithLogin, suspend_cache
 from . import conf
 
@@ -25,10 +24,10 @@ def _check_response(content):
 
     If all is OK, return True
     """
-    if "NETWORKPROBLEM" in stringy(content):
+    if "NETWORKPROBLEM" in content:
         raise RemoteServiceError("The query resulted in a network "
                                  "problem; the service may be offline.")
-    elif "# No data returned !" not in stringy(content):
+    elif "# No data returned !" not in content:
         return True
 
 
@@ -233,16 +232,17 @@ class EsoClass(QueryWithLogin):
         survey_response = self._activate_form(survey_form, form_index=0,
                                               inputs=query_dict)
 
-        content = bitey(survey_response.text)
+        content = survey_response.text
+        byte_content = survey_response.content
         if _check_response(content):
             try:
-                table = Table.read(BytesIO(content), format="ascii.csv",
+                table = Table.read(BytesIO(byte_content), format="ascii.csv",
                                    guess=False, header_start=1)
             except Exception as ex:
                 # astropy 0.3.2 raises an anonymous exception; this is
                 # intended to prevent that from causing real problems
                 if 'No reader defined' in ex.args[0]:
-                    table = Table.read(BytesIO(content), format="ascii",
+                    table = Table.read(BytesIO(byte_content), format="ascii",
                                        delimiter=',', guess=False,
                                        header_start=1)
                 else:
@@ -316,10 +316,10 @@ class EsoClass(QueryWithLogin):
                         for option in tag.select("option"):
                             options += ["{0} ({1})".format(option['value'], "".join(option.stripped_strings))]
                         name = tag[u"name"]
-                        value = ", ".join(options)   
+                        value = ", ".join(options)
                     else:
                         name = ""
-                        value = ""         
+                        value = ""
                     if u"tab_" + name == checkbox_name:
                         checkbox = checkbox_value
                     else:
@@ -348,17 +348,18 @@ class EsoClass(QueryWithLogin):
             instrument_response = self._activate_form(instrument_form,
                                                       form_index=0,
                                                       inputs=query_dict)
-            text = bitey(instrument_response.text)
+            text = instrument_response.text
+            byte_content = instrument_response.content
             if _check_response(text):
                 content = []
                 # The first line is garbage, don't know why
-                for line in text.split(b'\n')[1:]:
+                for line in byte_content.split(b'\n')[1:]:
                     if len(line) > 0:  # Drop empty lines
                         if line[0:1] != b'#':  # And drop comments
                             content += [line]
                 content = b'\n'.join(content)
                 try:
-                    table = Table.read(BytesIO(content), format="ascii.csv")
+                    table = Table.read(BytesIO(content), format="ascii.csv", comment='^#')
                 except Exception as ex:
                     # astropy 0.3.2 raises an anonymous exception; this is
                     # intended to prevent that from causing real problems
@@ -473,7 +474,6 @@ class EsoClass(QueryWithLogin):
 
         # First: Detect datasets already downloaded
         for dataset in datasets:
-            
             if os.path.splitext(dataset)[1].lower() in ('.fits', '.tar'):
                 local_filename = dataset
             else:
