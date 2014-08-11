@@ -44,13 +44,13 @@ def patch_post(request):
 
 def get_mockreturn(url, params=None, timeout=10, **kwargs):
     filename = data_path(DATA_FILES['votable'])
-    content = open(filename, 'r').read()
+    content = open(filename, 'rb').read()
     return MockResponse(content, **kwargs)
 
 
 def post_mockreturn(url, data=None, timeout=10, **kwargs):
     filename = data_path(DATA_FILES['votable'])
-    content = open(filename, 'r').read()
+    content = open(filename, 'rb').read()
     return MockResponse(content, **kwargs)
 
 

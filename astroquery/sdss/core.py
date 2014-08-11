@@ -19,7 +19,6 @@ from ..query import BaseQuery
 from . import conf
 from ..utils import commons, async_to_sync
 from ..utils.docstr_chompers import prepend_docstr_noreturns
-from ..utils.py3 import stringy
 from ..exceptions import RemoteServiceError
 
 __all__ = ['SDSS', 'SDSSClass']
@@ -73,7 +72,7 @@ class SDSSClass(BaseQuery):
             appropriate `astropy.coordinates` object. ICRS coordinates may also
             be entered as strings as specified in the `astropy.coordinates`
             module.
-            
+
             Example:
             ra = np.array([220.064728084,220.064728467,220.06473483])
             dec = np.array([0.870131920218,0.87013210119,0.870138329659])
@@ -337,8 +336,9 @@ class SDSSClass(BaseQuery):
         for row in matches:
             link = ('{base}/{instrument}/spectro/redux/{run2d}/spectra'
                     '/{plate:04d}/spec-{plate:04d}-{mjd}-{fiber:04d}.fits')
+            # _parse_result returns bytes for instrunments, requiring a decode
             link = link.format(base=SDSS.SPECTRO_OPTICAL,
-                               instrument=stringy(row['instrument'].lower()),
+                               instrument=row['instrument'].decode().lower(),
                                run2d=row['run2d'], plate=row['plate'],
                                fiber=row['fiberID'], mjd=row['mjd'])
 
@@ -575,16 +575,12 @@ class SDSSClass(BaseQuery):
 
         """
 
-        # genfromtxt requires bytes; need to check for 'encode' for py3 compat
-        bytecontent = (response.content.encode('ascii')
-                       if hasattr(response.content, 'encode')
-                       else response.content)
-        if 'error_message' in io.BytesIO(bytecontent):
+        if 'error_message' in io.BytesIO(response.content):
             raise RemoteServiceError(response.content)
-        arr = np.atleast_1d(np.genfromtxt(io.BytesIO(bytecontent),
-                            names=True, dtype=None, delimiter=b',',
+        arr = np.atleast_1d(np.genfromtxt(io.BytesIO(response.content),
+                            names=True, dtype=None, delimiter=',',
                             skip_header=1,  # this may be a hack; it is necessary for tests to pass
-                            comments=b'#'))
+                            comments='#'))
 
         if len(arr) == 0:
             return None

@@ -149,9 +149,8 @@ class NistClass(BaseQuery):
 
         pre_re = re.compile("<pre>(.*)</pre>", flags=re.DOTALL)
         links_re = re.compile(r"<a.*?>\s*(\w+)\s*</a>")
-        content = (response.content.decode()
-                   if hasattr(response.content, 'decode')
-                   else response.content)
+        content = response.text
+
         try:
             pre = pre_re.findall(content)[0]
         except IndexError:

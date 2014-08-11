@@ -146,10 +146,7 @@ class XMatchClass(BaseQuery):
             url_helpers.urljoin_keep_path(self.URL, 'tables'),
             {'action': 'getVizieRTableNames', 'RESPONSEFORMAT': 'txt'})
 
-        # Coerce to unicode
-        content = (response.content.decode()
-                   if hasattr(response.content, 'decode')
-                   else response.content)
+        content = response.text
 
         return content.splitlines()
 

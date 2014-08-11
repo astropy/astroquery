@@ -378,12 +378,12 @@ class SplatalogueClass(BaseQuery):
         """
 
         try:
-            result = ascii.read(response.content.split('\n'),
+            result = ascii.read(response.text.split('\n'),
                                 delimiter=':',
                                 format='basic')
         except TypeError:
             # deprecated
-            result = ascii.read(response.content.split('\n'),
+            result = ascii.read(response.text.split('\n'),
                                 delimiter=':',
                                 Reader=ascii.Basic)
 

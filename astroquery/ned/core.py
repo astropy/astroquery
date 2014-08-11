@@ -439,7 +439,7 @@ class NedClass(BaseQuery):
             return request_payload
         url = Ned.SPECTRA_URL if item == 'spectra' else Ned.IMG_DATA_URL
         response = commons.send_request(url, request_payload, Ned.TIMEOUT, request_type='GET')
-        return self.extract_image_urls(response.content)
+        return self.extract_image_urls(response.text)
 
     def extract_image_urls(self, html_in):
         """
@@ -452,10 +452,7 @@ class NedClass(BaseQuery):
         """
         base_url = 'http://ned.ipac.caltech.edu'
         pattern = re.compile('<a\s+href\s*?="?\s*?(.+?fits.gz)"?\s*?>\s*?(?:Retrieve|FITS)</a>', re.IGNORECASE)
-        try:
-            matched_urls = pattern.findall(html_in)
-        except TypeError:
-            matched_urls = pattern.findall(html_in.decode())
+        matched_urls = pattern.findall(html_in)
         url_list = [base_url + img_url for img_url in matched_urls]
         return url_list
 
@@ -620,17 +617,7 @@ class NedClass(BaseQuery):
             commons.suppress_vo_warnings()
         try:
             tf = tempfile.NamedTemporaryFile()
-            if six.PY3:
-                # This is an exceedingly confusing section
-                # It is likely to be doubly wrong, but has caused issue #185
-                try:
-                    # Case 1: data is read in as unicode
-                    tf.write(response.content.encode())
-                except AttributeError:
-                    # Case 2: data is read in as a byte string
-                    tf.write(response.content.decode().encode('utf-8'))
-            else:
-                tf.write(response.content.encode('utf-8'))
+            tf.write(response.content)
             tf.file.flush()
             first_table = votable.parse(tf.name, pedantic=False).get_first_table()
             # For astropy version < 0.3 returns tables that have field ids as col names

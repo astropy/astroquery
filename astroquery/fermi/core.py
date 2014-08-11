@@ -40,7 +40,6 @@ class FermiLATClass(BaseQuery):
                                       payload,
                                       self.TIMEOUT)
 
-        # text returns unicode, content returns unencoded (?)
         re_result = self.result_url_re.findall(result.text)
 
         if len(re_result) == 0:
@@ -148,7 +147,7 @@ class GetFermilatDatafile(object):
                                            None,
                                            self.TIMEOUT)
 
-        pagedata = result_page.content
+        pagedata = result_page.text
 
         fitsfile_urls = self.fitsfile_re.findall(pagedata)
 

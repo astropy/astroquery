@@ -1,4 +1,4 @@
-#L icensed under a 3-clause BSD style license - see LICENSE.rst
+#Licensed under a 3-clause BSD style license - see LICENSE.rst
 from __future__ import print_function
 
 # astroquery uses the pytest framework for testing
@@ -60,7 +60,7 @@ def patch_get(request):
 # reading in data from some data file:
 def get_mockreturn(url, params=None, timeout=10, **kwargs):
     filename = data_path('dummy.dat')
-    content = open(filename, "r").read()
+    content = open(filename, "rb").read()
     return MockResponse(content, **kwargs)
 
 

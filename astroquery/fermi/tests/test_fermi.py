@@ -26,10 +26,10 @@ def patch_post(request):
 
 def post_mockreturn(url, data=None, timeout=50, **kwargs):
     if data is not None:
-        with open(data_path(DATA_FILES['async']), 'r') as r:
+        with open(data_path(DATA_FILES['async']), 'rb') as r:
             response = MockResponse(r.read(), **kwargs)
     else:
-        with open(data_path(DATA_FILES['result']), 'r') as r:
+        with open(data_path(DATA_FILES['result']), 'rb') as r:
             response = MockResponse(r.read(), **kwargs)
     return response
 

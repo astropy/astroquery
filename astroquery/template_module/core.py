@@ -311,7 +311,7 @@ class DummyClass(BaseQuery):
         #    case it should just return this dict.
         # 3. Otherwise make the HTTP request and receive the
         #    HTTP response.
-        # 4. Pass this raw response to the extract_image_urls
+        # 4. Pass this response to the extract_image_urls
         #    which scrapes it to extract the image download links.
         # 5. Return the download links as a list.
         request_payload = self._args_to_payload(coordinates, radius)
@@ -321,7 +321,7 @@ class DummyClass(BaseQuery):
                                         request_payload,
                                         self.TIMEOUT,
                                         request_type='GET')
-        return self.extract_image_urls(response.content)
+        return self.extract_image_urls(response.text)
 
     # the extract_image_urls method takes in the HTML page as a string
     # and uses regexps, etc to scrape the image urls:
