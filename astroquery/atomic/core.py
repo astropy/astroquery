@@ -30,7 +30,10 @@ class AtomicLineListClass(BaseQuery):
         self._default_form_values = None
 
     def query_object(self, wavelength_range=None, wavelength_type=None,
-                     wavelength_accuracy=None, element_spectrum=None):
+                     wavelength_accuracy=None, element_spectrum=None,
+                     minimal_abundance=None, depl_factor=None, nmax=None,
+                     multiplet=None, show_fine_structure=None,
+                     show_auto_ionizing_transitions=None):
         """
         Parameters
         ----------
@@ -39,9 +42,63 @@ class AtomicLineListClass(BaseQuery):
         wavelength_type : str
             Either 'Air' or 'Vacuum'
 
-        wavelength_accuracy :
+        wavelength_accuracy : str
+            All wavelengths in the line list have relative accuracies of
+            5% or better. The default is to list all lines, irrespective
+            of their accuracy. When a relative accuracy in percent is
+            given, only those lines with accuracies better than or equal
+            to the passed value are included in the search. Values larger
+            than 5% will be ignored.
 
-        element_spectrum :
+        element_spectrum : str
+            Restrict the search to a range of elements and/or ionization
+            stages. The elements should be entered by their usual
+            symbolic names (e.g. Fe) and the ionization stages by the
+            usual spectroscopic notation (e.g. I for neutral, II for
+            singly ionized etc.). To pass multiple values, separate them
+            by \n (newline).
+
+        minimal_abundance :str
+             Impose a lower limit on the abundances of elements to be
+             considered for possible identifications. Default is to
+             consider arbitrary low abundances. The elements are assumed
+             to have standard cosmic abundances.
+
+        depl_factor : str
+            For nebular conditions it is not a realistic assumption that
+            the elements have standard cosmic abundances since most
+            metals will be depleted on grains. To simulate this it is
+            possible to supply a depletion factor df. This factor will be
+            used to calculate the actual abundance A from the cosmic
+            abundance Ac using the formula A(elm) = Ac(elm) - df*sd(elm)
+            where sd is the standard depletion for each element.
+
+        nmax : int
+            Maximum for principal quantum number n. Default is to
+            consider all possible values for the principal quantum number
+            n to find possible identifications. However, transitions
+            involving electrons with a very high quantum number n tend to
+            be weaker and can therefore be less likely identifications.
+            These transitions can be suppressed using this parameter.
+
+        multiplet : str
+            This option (case sensitive) can be used to find all lines in
+            a specific multiplet within a certain wavelength range. The
+            lower and upper level term should be entered here exactly as
+            they appear in the output of the query. The spectrum to which
+            this multiplet belongs should of course also be supplied in
+            the `element_spectrum` parameter.
+
+        show_fine_structure : bool
+             If `True`, the fine structure components will be included in
+             the output. Refer to the documentations for more information.
+
+        show_auto_ionizing_transitions : bool
+            If `True`, transitions originating from auto-ionizing levels
+            will be included in the output. In this context, all levels
+            with energies higher than the ionization potential going to
+            the ground state of the next ion are considered auto-ionizing
+            levels.
 
         Returns
         -------
@@ -50,13 +107,18 @@ class AtomicLineListClass(BaseQuery):
 
         """
         response = self.query_object_async(
-            wavelength_range, wavelength_type, wavelength_accuracy, element_spectrum)
+            wavelength_range, wavelength_type, wavelength_accuracy,
+            element_spectrum, minimal_abundance, depl_factor, nmax, multiplet,
+            show_fine_structure, show_auto_ionizing_transitions)
         table = self._parse_result(response)
         return table
 
     @prepend_docstr_noreturns(query_object.__doc__)
     def query_object_async(self, wavelength_range=None, wavelength_type='',
-                           wavelength_accuracy=None, element_spectrum=None):
+                           wavelength_accuracy=None, element_spectrum=None,
+                           minimal_abundance=None, depl_factor=None, nmax=None,
+                           multiplet=None, show_fine_structure=None,
+                           show_auto_ionizing_transitions=None):
         """
         Returns
         -------
@@ -87,6 +149,12 @@ class AtomicLineListClass(BaseQuery):
             'air': air,
             'wacc': wavelength_accuracy,
             'elmion': element_spectrum,
+            'abun': minimal_abundance,
+            'depl': depl_factor,
+            'nmax': nmax,
+            'term': multiplet,
+            'hydr': show_fine_structure,
+            'auto': show_auto_ionizing_transitions,
             # TODO: add support for more parameters
         }
         response = self._submit_form(input)
