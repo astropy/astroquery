@@ -4,7 +4,6 @@ from __future__ import print_function
 import os
 import warnings
 import json
-import tempfile
 
 from astropy.extern import six
 import astropy.units as u
@@ -537,9 +536,7 @@ class VizierClass(BaseQuery):
         if not verbose:
             commons.suppress_vo_warnings()
         try:
-            tf = tempfile.NamedTemporaryFile()
-            tf.write(response.content)
-            tf.file.flush()
+            tf = six.BytesIO(response.content)
 
             if invalid == 'mask':
                 vo_tree = votable.parse(tf, pedantic=False, invalid='mask')

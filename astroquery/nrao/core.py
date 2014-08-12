@@ -2,13 +2,13 @@
 from __future__ import print_function
 
 import re
-import tempfile
 import warnings
 import functools
 
 import astropy.units as u
 import astropy.io.votable as votable
 from astropy import coordinates
+from astropy.extern import six
 
 from ..query import BaseQuery
 from ..utils import commons, async_to_sync
@@ -241,10 +241,8 @@ class NraoClass(BaseQuery):
         new_content = degrees_re.sub(r'unit="degrees"  datatype="char" arraysize="*"', new_content)
 
         try:
-            tf = tempfile.NamedTemporaryFile()
-            tf.write(new_content.encode('utf-8'))
-            tf.flush()
-            first_table = votable.parse(tf.name, pedantic=False).get_first_table()
+            tf = six.BytesIO(new_content.encode())
+            first_table = votable.parse(tf, pedantic=False).get_first_table()
             try:
                 table = first_table.to_table(use_names_over_ids=True)
             except TypeError:

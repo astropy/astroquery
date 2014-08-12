@@ -91,7 +91,6 @@ If onlist=0, the following parameters are required:
 from __future__ import print_function, division
 
 import warnings
-import tempfile
 import xml.etree.ElementTree as tree
 
 from astropy.extern import six
@@ -351,14 +350,10 @@ class IrsaClass(BaseQuery):
         if len(content) == 0:
             raise Exception("The IRSA server sent back an empty reply")
 
-        # Write table to temporary file
-        output = tempfile.NamedTemporaryFile()
-        output.write(response.content)
-        output.flush()
-
         # Read it in using the astropy VO table reader
         try:
-            first_table = votable.parse(output.name, pedantic=False).get_first_table()
+            first_table = votable.parse(six.BytesIO(response.content),
+                                        pedantic=False).get_first_table()
         except Exception as ex:
             self.response = response
             self.table_parse_error = ex

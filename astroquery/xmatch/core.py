@@ -1,5 +1,4 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-import tempfile
 
 from astropy.extern import six
 from astropy.io import ascii
@@ -92,8 +91,9 @@ class XMatchClass(BaseQuery):
             # write the Table's content into a new, temporary CSV-file
             # so that it can be pointed to via the `files` option
             # file will be closed when garbage-collected
-            fp = tempfile.NamedTemporaryFile()
-            cat1.write(fp.name, format='ascii.csv')
+            fp = six.StringIO()
+            cat1.write(fp, format='ascii.csv')
+            fp.seek(0)
             kwargs['files'] = {'cat1': fp}
         else:
             # assume it's a file-like object, support duck-typing
@@ -112,8 +112,9 @@ class XMatchClass(BaseQuery):
             # write the Table's content into a new, temporary CSV-file
             # so that it can be pointed to via the `files` option
             # file will be closed when garbage-collected
-            fp = tempfile.NamedTemporaryFile()
-            cat1.write(fp.name, format='ascii.csv')
+            fp = six.StringIO()
+            cat1.write(fp, format='ascii.csv')
+            fp.seek(0)
             kwargs['files'] = {'cat1': fp}
         else:
             # assume it's a file-like object, support duck-typing

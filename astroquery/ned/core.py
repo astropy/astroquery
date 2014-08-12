@@ -1,7 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from __future__ import print_function
 
-import tempfile
 import re
 from collections import namedtuple
 from xml.dom.minidom import parseString
@@ -616,10 +615,8 @@ class NedClass(BaseQuery):
         if not verbose:
             commons.suppress_vo_warnings()
         try:
-            tf = tempfile.NamedTemporaryFile()
-            tf.write(response.content)
-            tf.file.flush()
-            first_table = votable.parse(tf.name, pedantic=False).get_first_table()
+            tf = six.BytesIO(response.content)
+            first_table = votable.parse(tf, pedantic=False).get_first_table()
             # For astropy version < 0.3 returns tables that have field ids as col names
             if ASTROPY_VERSION < '0.3':
                 table = first_table.to_table()

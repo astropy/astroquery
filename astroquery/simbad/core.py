@@ -8,13 +8,13 @@ import re
 import json
 import os
 from collections import namedtuple
-import tempfile
 import warnings
 import astropy.units as u
 from astropy.utils.data import get_pkg_data_filename
 import astropy.coordinates as coord
 from astropy.table import Table
 import astropy.io.votable as votable
+from astropy.extern.six import BytesIO
 from ..query import BaseQuery
 from ..utils import commons
 from ..exceptions import TableParseError
@@ -884,7 +884,6 @@ class SimbadVOTableResult(SimbadResult):
     def __init__(self, txt, verbose=False, pedantic=False):
         SimbadResult.__init__(self, txt, verbose=verbose)
         self.__pedantic = pedantic
-        self.__file = None
         self.__table = None
         if not self.verbose:
             commons.suppress_vo_warnings()
@@ -892,11 +891,8 @@ class SimbadVOTableResult(SimbadResult):
 
     @property
     def table(self):
-        if self.__file is None:
-            self.__file = tempfile.NamedTemporaryFile()
-            self.__file.write(self.data.encode('utf-8'))
-            self.__file.flush()
-            self.__table = votable.parse_single_table(self.__file, pedantic=False).to_table()
+        if self.__table is None:
+            self.__table = votable.parse_single_table(BytesIO(self.data.encode('utf8')), pedantic=False).to_table()
         return self.__table
 
 bibcode_regex = re.compile(r'query\s+bibcode\s+(wildcard)?\s+([\w]*)')
