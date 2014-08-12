@@ -11,6 +11,7 @@ from ...utils.testing_tools import MockResponse
 DATA_FILES = {'gal_0_3':'gal_0_3.txt',
               }
 
+
 def data_path(filename):
     data_dir = os.path.join(os.path.dirname(__file__), 'data')
     return os.path.join(data_dir, filename)
@@ -22,9 +23,10 @@ def patch_post(request):
     mp.setattr(requests, 'post', post_mockreturn)
     return mp
 
+
 def post_mockreturn(url, data, timeout, files=None, **kwargs):
     if files is not None:
-        content = open(data_path(DATA_FILES['gal_0_3']),'r').read()
+        content = open(data_path(DATA_FILES['gal_0_3']), 'rb').read()
         response = MockResponse(content, **kwargs)
     else:
         raise ValueError("Unsupported post request.")

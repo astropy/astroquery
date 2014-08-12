@@ -1,4 +1,8 @@
-import six
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
+try:
+    from astropy.extern.six.moves.urllib_parse import SplitResult,urlsplit
+except ImportError:
+    from six.moves.urllib_parse import SplitResult,urlsplit
 import os.path
 
 
@@ -24,10 +28,9 @@ def urljoin_keep_path(url, path):
     """
     # urlparse.SplitResult doesn't allow overriding attribute values,
     # so ``splitted_url.path = ...`` is not possible here, unfortunately.
-    splitted_url = six.moves.urllib_parse.urlsplit(url)
-    return six.moves.urllib_parse.SplitResult(
-        splitted_url.scheme,
-        splitted_url.netloc,
-        os.path.join(splitted_url.path, path),
-        splitted_url.query,
-        splitted_url.fragment).geturl()
+    splitted_url = urlsplit(url)
+    return SplitResult(splitted_url.scheme,
+                       splitted_url.netloc,
+                       os.path.join(splitted_url.path, path),
+                       splitted_url.query,
+                       splitted_url.fragment).geturl()

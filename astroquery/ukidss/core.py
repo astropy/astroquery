@@ -1,11 +1,11 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from __future__ import print_function
 
-import requests
 import warnings
 import re
 import time
 from math import cos, radians
+import requests
 
 from astropy.extern.six import BytesIO
 import astropy.units as u
@@ -15,7 +15,7 @@ import astropy.io.votable as votable
 from ..query import QueryWithLogin
 from ..exceptions import InvalidQueryError, TimeoutError
 from ..utils import commons
-from . import UKIDSS_SERVER, UKIDSS_TIMEOUT
+from . import conf
 from ..exceptions import TableParseError
 
 __all__ = ['Ukidss', 'UkidssClass', 'clean_catalog']
@@ -48,12 +48,12 @@ class UkidssClass(QueryWithLogin):
     queries.  Allows registered users to login, but defaults to using the
     public UKIDSS data sets.
     """
-    BASE_URL = UKIDSS_SERVER()
+    BASE_URL = conf.server
     LOGIN_URL = BASE_URL + "DBLogin"
     IMAGE_URL = BASE_URL + "GetImage"
     ARCHIVE_URL = BASE_URL + "ImageList"
     REGION_URL = BASE_URL + "WSASQL"
-    TIMEOUT = UKIDSS_TIMEOUT()
+    TIMEOUT = conf.timeout
 
     filters = {'all': 'all', 'J': 3, 'H': 4, 'K': 5, 'Y': 2,
                'Z': 1, 'H2': 6, 'Br': 7}
@@ -110,7 +110,7 @@ class UkidssClass(QueryWithLogin):
         if not response.ok:
             self.session = None
             response.raise_for_status()
-        if 'FAILED to log in' in response.content:
+        if 'FAILED to log in' in response.text:
             self.session = None
             raise Exception("Unable to log in with your given credentials.\n"
                             "Please try again.\n"
@@ -273,7 +273,7 @@ class UkidssClass(QueryWithLogin):
         if verbose:
             print("Found {num} targets".format(num=len(image_urls)))
 
-        return [commons.FileContainer(U) for U in image_urls]
+        return [commons.FileContainer(U, encoding='binary') for U in image_urls]
 
     @validate_frame
     @validate_filter
@@ -368,7 +368,7 @@ class UkidssClass(QueryWithLogin):
         response = self._ukidss_send_request(query_url, request_payload)
         response = self._check_page(response.url, "row")
 
-        image_urls = self.extract_urls(response.content)
+        image_urls = self.extract_urls(response.text)
         # different links for radius queries and simple ones
         if radius is not None:
             image_urls = [link for link in image_urls if ('fits_download' in
@@ -398,11 +398,7 @@ class UkidssClass(QueryWithLogin):
         """
         # Parse html input for links
         ahref = re.compile('href="([a-zA-Z0-9_\.&\?=%/:-]+)"')
-        try:
-            links = ahref.findall(html_in)
-        except TypeError:
-            # py3
-            links = ahref.findall(html_in.decode())
+        links = ahref.findall(html_in)
         return links
 
     def query_region(self, coordinates, radius=1 * u.arcmin,
@@ -533,7 +529,7 @@ class UkidssClass(QueryWithLogin):
         -------
         table : `~astropy.table.Table`
         """
-        table_links = self.extract_urls(response.content)
+        table_links = self.extract_urls(response.text)
         # keep only one link that is not a webstart
         if len(table_links) == 0:
             raise Exception("No VOTable found on returned webpage!")
@@ -621,9 +617,10 @@ class UkidssClass(QueryWithLogin):
         while not page_loaded and max_attempts > 0:
             response = requests.get(url)
             self.response = response
-            if re.search("error", response.content, re.IGNORECASE):
+            content = response.text
+            if re.search("error", content, re.IGNORECASE):
                 raise InvalidQueryError("Service returned with an error!  Check self.response for more information.")
-            elif re.search(keyword, response.content, re.IGNORECASE):
+            elif re.search(keyword, content, re.IGNORECASE):
                 page_loaded = True
             max_attempts -= 1
             # wait for wait_time seconds before checking again

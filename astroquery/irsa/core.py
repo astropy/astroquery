@@ -1,4 +1,5 @@
-'''
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
+"""
 IRSA
 ====
 
@@ -86,12 +87,10 @@ If onlist=0, the following parameters are required:
                         The retrieved row number outrows is always less than or
                         equal to available to be retrieved rows under the same
                         constraints.
-'''
-# Licensed under a 3-clause BSD style license - see LICENSE.rst
+"""
 from __future__ import print_function, division
 
 import warnings
-import tempfile
 import xml.etree.ElementTree as tree
 
 from astropy.extern import six
@@ -101,20 +100,17 @@ import astropy.io.votable as votable
 
 from ..query import BaseQuery
 from ..utils import commons
-from . import (IRSA_SERVER,
-               GATOR_LIST_CATALOGS,
-               ROW_LIMIT,
-               TIMEOUT)
+from . import conf
 from ..exceptions import TableParseError
 
 __all__ = ['Irsa', 'IrsaClass']
 
 
 class IrsaClass(BaseQuery):
-    IRSA_URL = IRSA_SERVER()
-    GATOR_LIST_URL = GATOR_LIST_CATALOGS()
-    TIMEOUT = TIMEOUT()
-    ROW_LIMIT = ROW_LIMIT()
+    IRSA_URL = conf.server
+    GATOR_LIST_URL = conf.gator_list_catalogs
+    TIMEOUT = conf.timeout
+    ROW_LIMIT = conf.row_limit
 
     def query_region(self, coordinates=None, catalog=None, spatial='Cone',
                      radius=10 * u.arcsec, width=None, polygon=None,
@@ -291,7 +287,7 @@ class IrsaClass(BaseQuery):
                 request_payload['objstr'] = coordinates if not commons._is_coordinate(coordinates) else _parse_coordinates(coordinates)
             try:
                 coordinates_list = [_parse_coordinates(c) for c in polygon]
-            except (ValueError,TypeError):
+            except (ValueError, TypeError):
                     coordinates_list = [_format_decimal_coords(*_pair_to_deg(pair)) for pair in polygon]
             request_payload['polygon'] = ','.join(coordinates_list)
         else:
@@ -339,26 +335,25 @@ class IrsaClass(BaseQuery):
         """
         if not verbose:
             commons.suppress_vo_warnings()
+
+        content = response.text
+
         # Check if results were returned
-        if 'The catalog is not on the list' in response.content:
+        if 'The catalog is not on the list' in content:
             raise Exception("Catalog not found")
 
         # Check that object name was not malformed
-        if 'Either wrong or missing coordinate/object name' in response.content:
+        if 'Either wrong or missing coordinate/object name' in content:
             raise Exception("Malformed coordinate/object name")
 
         # Check that the results are not of length zero
-        if len(response.content) == 0:
+        if len(content) == 0:
             raise Exception("The IRSA server sent back an empty reply")
-
-        # Write table to temporary file
-        output = tempfile.NamedTemporaryFile()
-        output.write(response.content.encode())
-        output.flush()
 
         # Read it in using the astropy VO table reader
         try:
-            first_table = votable.parse(output.name, pedantic=False).get_first_table()
+            first_table = votable.parse(six.BytesIO(response.content),
+                                        pedantic=False).get_first_table()
         except Exception as ex:
             self.response = response
             self.table_parse_error = ex
@@ -386,7 +381,7 @@ class IrsaClass(BaseQuery):
             of the catalog.
         """
         response = commons.send_request(Irsa.GATOR_LIST_URL, dict(mode='xml'), Irsa.TIMEOUT, request_type="GET")
-        root =tree.fromstring(response.content)
+        root = tree.fromstring(response.content)
         catalogs = {}
         for catalog in root.findall('catalog'):
             catname = catalog.find('catname').text
@@ -428,13 +423,13 @@ def _pair_to_deg(pair):
     """ Turn a pair of floats, Angles, or Quantities into pairs of float degrees """
 
     # unpack
-    lon,lat = pair
+    lon, lat = pair
 
-    if hasattr(lon,'degree') and hasattr(lat,'degree'):
+    if hasattr(lon, 'degree') and hasattr(lat, 'degree'):
         pair = (lon.degree, lat.degree)
-    elif hasattr(lon,'to') and hasattr(lat,'to'):
-        pair = [lon,lat]
-        for ii,ang in enumerate((lon,lat)):
+    elif hasattr(lon, 'to') and hasattr(lat, 'to'):
+        pair = [lon, lat]
+        for ii, ang in enumerate((lon, lat)):
             if ang.unit.is_equivalent(u.degree):
                 pair[ii] = ang.to(u.degree).value
             elif ang.unit.is_equivalent(u.hour):

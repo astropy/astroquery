@@ -7,7 +7,6 @@ import requests
 from contextlib import contextmanager
 
 import numpy.testing as npt
-import astropy.coordinates as coord
 import astropy.units as u
 from astropy.tests.helper import pytest
 
@@ -45,7 +44,7 @@ def patch_parse_coordinates(request):
 
 def post_mockreturn(url, data, timeout, **kwargs):
     filename = data_path(DATA_FILES['image_search'])
-    content = open(filename, 'r').read()
+    content = open(filename, 'rb').read()
     response = MockResponse(content, **kwargs)
     return response
 
@@ -54,7 +53,11 @@ def post_mockreturn(url, data, timeout, **kwargs):
 def patch_get_readable_fileobj(request):
     @contextmanager
     def get_readable_fileobj_mockreturn(filename, **kwargs):
-        file_obj = open(data_path(DATA_FILES["image"]), "rb")
+        encoding = kwargs.get('encoding', None)
+        if encoding == 'binary':
+            file_obj = open(data_path(DATA_FILES["image"]), 'rb')
+        else:
+            file_obj = open(data_path(DATA_FILES["image"]), "r", encoding=encoding)
         yield file_obj
     mp = request.getfuncargvalue("monkeypatch")
     mp.setattr(commons, 'get_readable_fileobj', get_readable_fileobj_mockreturn)
@@ -70,7 +73,7 @@ def deparse_coordinates(cstr):
     """
     '19 23 40.001395 +14 31 01.550347' -> '19:23:40.001395 +14:31:01.550347'
     """
-    return re.sub(" ([\+-])",r",\1",cstr).replace(" ",":").replace(","," ")
+    return re.sub(" ([\+-])", r",\1", cstr).replace(" ", ":").replace(",", " ")
 
 @pytest.mark.parametrize(('coordinates'), [COORDS_GAL, COORDS_ICRS])
 def test_parse_coordinates(coordinates):

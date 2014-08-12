@@ -7,26 +7,39 @@ http://model.obs-besancon.fr/
 
 :Author: Adam Ginsburg (adam.g.ginsburg@gmail.com)
 """
-from astropy.config import ConfigurationItem
-# maintain a list of URLs in case the user wants to append a mirror
-BESANCON_DOWNLOAD_URL = ConfigurationItem('besancon_download_url',[
-                                    'ftp://sasftp.obs-besancon.fr/modele/modele2003/',
-                                    'ftp://sasftp.obs-besancon.fr/modele/',
-                                    ],
-    'Besancon download URL.  Changed to modele2003 in 2013.')
+from astropy import config as _config
 
-BESANCON_MODEL_FORM = ConfigurationItem('besancon_model_Form',
-                            ["http://model.obs-besancon.fr/modele_form.php"],
-                            "Besancon model form URL")
 
-BESANCON_PING_DELAY = ConfigurationItem('besancon_ping_delay', 30.0,
-                                        "Amount of time before pinging the Besancon server to see if the file is ready.  Minimum 30s.",
-                                        cfgtype="float(min=30.0)")
+class Conf(_config.ConfigNamespace):
+    """
+    Configuration parameters for `astroquery.besancon`.
+    """
 
-BESANCON_TIMEOUT = ConfigurationItem('besancon_timeout', 30.0,
-                                        "Timeout for Besancon query")
+    download_url = _config.ConfigItem(
+        ['ftp://sasftp.obs-besancon.fr/modele/modele2003/',
+         'ftp://sasftp.obs-besancon.fr/modele/',
+         ],
+        'Besancon download URL.  Changed to modele2003 in 2013.'
+        )
+    model_form = _config.ConfigItem(
+        ['http://model.obs-besancon.fr/modele_form.php'],
+        'Besancon model form URL'
+        )
+    ping_delay = _config.ConfigItem(
+        30.0,
+        'Amount of time before pinging the Besancon server to see if the file is ready.  Minimum 30s.'
+        )
+    timeout = _config.ConfigItem(
+        30.0,
+        'Timeout for Besancon query'
+        )
 
-from .core import Besancon,BesanconClass
-from .reader import BesanconFixed,BesanconFixedWidthHeader,BesanconFixedWidthData
+conf = Conf()
 
-__all__ = ['Besancon','BesanconClass','BesanconFixed','BesanconFixedWidthHeader','BesanconFixedWidthData']
+from .core import Besancon, BesanconClass
+from .reader import BesanconFixed, BesanconFixedWidthHeader, BesanconFixedWidthData
+
+__all__ = ['Besancon', 'BesanconClass', 'BesanconFixed',
+           'BesanconFixedWidthHeader', 'BesanconFixedWidthData',
+           'Conf', 'conf',
+           ]

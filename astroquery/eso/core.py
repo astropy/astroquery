@@ -1,3 +1,4 @@
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
 import time
 import os.path
 import webbrowser
@@ -7,16 +8,15 @@ import keyring
 import numpy as np
 from bs4 import BeautifulSoup
 
-from astropy.extern.six import BytesIO, StringIO
+from astropy.extern.six import BytesIO
 from astropy.extern import six
 from astropy.table import Table, Column
-from astropy.io import ascii
-from astropy import log
 
 from ..exceptions import LoginError, RemoteServiceError
 from ..utils import schema, system_tools
 from ..query import QueryWithLogin, suspend_cache
-from . import ROW_LIMIT
+from . import conf
+
 
 def _check_response(content):
     """
@@ -24,15 +24,16 @@ def _check_response(content):
 
     If all is OK, return True
     """
-    if b"NETWORKPROBLEM" in content:
+    if "NETWORKPROBLEM" in content:
         raise RemoteServiceError("The query resulted in a network "
                                  "problem; the service may be offline.")
-    elif b"# No data returned !" not in content:
+    elif "# No data returned !" not in content:
         return True
+
 
 class EsoClass(QueryWithLogin):
 
-    ROW_LIMIT = ROW_LIMIT()
+    ROW_LIMIT = conf.row_limit
 
     def __init__(self):
         super(EsoClass, self).__init__()
@@ -231,16 +232,17 @@ class EsoClass(QueryWithLogin):
         survey_response = self._activate_form(survey_form, form_index=0,
                                               inputs=query_dict)
 
-        if _check_response(survey_response.content):
-            content = survey_response.content
+        content = survey_response.text
+        byte_content = survey_response.content
+        if _check_response(content):
             try:
-                table = Table.read(BytesIO(content), format="ascii.csv",
+                table = Table.read(BytesIO(byte_content), format="ascii.csv",
                                    guess=False, header_start=1)
             except Exception as ex:
                 # astropy 0.3.2 raises an anonymous exception; this is
                 # intended to prevent that from causing real problems
                 if 'No reader defined' in ex.args[0]:
-                    table = Table.read(BytesIO(content), format="ascii",
+                    table = Table.read(BytesIO(byte_content), format="ascii",
                                        delimiter=',', guess=False,
                                        header_start=1)
                 else:
@@ -314,11 +316,11 @@ class EsoClass(QueryWithLogin):
                         for option in tag.select("option"):
                             options += ["{0} ({1})".format(option['value'], "".join(option.stripped_strings))]
                         name = tag[u"name"]
-                        value = ", ".join(options)   
+                        value = ", ".join(options)
                     else:
                         name = ""
-                        value = ""         
-                    if u"tab_"+name == checkbox_name:
+                        value = ""
+                    if u"tab_" + name == checkbox_name:
                         checkbox = checkbox_value
                     else:
                         checkbox = "   "
@@ -338,7 +340,7 @@ class EsoClass(QueryWithLogin):
                                        else 'on')
 
             for k in columns:
-                query_dict["tab_"+k] = True
+                query_dict["tab_" + k] = True
             if self.ROW_LIMIT >= 0:
                 query_dict["max_rows_returned"] = self.ROW_LIMIT
             else:
@@ -346,16 +348,18 @@ class EsoClass(QueryWithLogin):
             instrument_response = self._activate_form(instrument_form,
                                                       form_index=0,
                                                       inputs=query_dict)
-            if _check_response(instrument_response.content):
+            text = instrument_response.text
+            byte_content = instrument_response.content
+            if _check_response(text):
                 content = []
                 # The first line is garbage, don't know why
-                for line in instrument_response.content.split(b'\n')[1:]:
+                for line in byte_content.split(b'\n')[1:]:
                     if len(line) > 0:  # Drop empty lines
                         if line[0:1] != b'#':  # And drop comments
                             content += [line]
                 content = b'\n'.join(content)
                 try:
-                    table = Table.read(BytesIO(content), format="ascii.csv")
+                    table = Table.read(BytesIO(content), format="ascii.csv", comment='^#')
                 except Exception as ex:
                     # astropy 0.3.2 raises an anonymous exception; this is
                     # intended to prevent that from causing real problems
@@ -470,8 +474,7 @@ class EsoClass(QueryWithLogin):
 
         # First: Detect datasets already downloaded
         for dataset in datasets:
-            
-            if os.path.splitext(dataset)[1].lower() in ('.fits','.tar'):
+            if os.path.splitext(dataset)[1].lower() in ('.fits', '.tar'):
                 local_filename = dataset
             else:
                 local_filename = dataset + ".fits"
@@ -490,7 +493,7 @@ class EsoClass(QueryWithLogin):
 
         valid_datasets = [self.verify_data_exists(ds) for ds in datasets_to_download]
         if not all(valid_datasets):
-            invalid_datasets = [ds for ds,v in zip(datasets_to_download, valid_datasets) if not v]
+            invalid_datasets = [ds for ds, v in zip(datasets_to_download, valid_datasets) if not v]
             raise ValueError("The following data sets were not found on the ESO servers: {0}".format(invalid_datasets))
 
         # Second: Download the other datasets
@@ -530,12 +533,14 @@ class EsoClass(QueryWithLogin):
         otherwise
         """
         url = 'http://archive.eso.org/wdb/wdb/eso/eso_archive_main/query'
-        payload = {'dp_id': dataset, 
+        payload = {'dp_id': dataset,
                    'ascii_out_mode':'true',
                   }
         response = self._request("POST", url, params=payload)
 
-        return 'No data returned' not in response.content
+        content = response.text
+
+        return 'No data returned' not in content
 
 
 Eso = EsoClass()

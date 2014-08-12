@@ -17,7 +17,7 @@ import astropy.units as u
 from astropy import coordinates as coord
 from astropy.utils import OrderedDict
 import astropy.utils.data as aud
-from astropy.io import fits,votable
+from astropy.io import fits, votable
 
 try:
     from astropy.coordinates import BaseCoordinateFrame
@@ -125,6 +125,7 @@ def parse_radius(radius):
         # astropy <0.3 compatibility: Angle can't be instantiated with a unit object
         return coord.Angle(radius.to(u.degree), unit=u.degree)
 
+
 def radius_to_unit(radius, unit='degree'):
     """
     Helper function: Parse a radius, then return its value in degrees
@@ -139,33 +140,21 @@ def radius_to_unit(radius, unit='degree'):
     Floating point scalar value of radius in degrees
     """
     rad = parse_radius(radius)
-    # This is a hack to deal with astropy pre/post PR#1006
-    # the try/except clauses are to deal with python3
-    # (note that this falls under the "I really, really wish I didn't have to
-    # deal with unicode right now" category)
 
-    try:
-        unit = unit.decode()
-    except AttributeError:
-        pass # (unit has no attribute "decode": it is already a unicode string?)
-
-    try:
-        # don't check for attrs if unit is not a string and cannot be coerced to one
-        assert isinstance(unit,str)
-        if hasattr(rad,unit):
-            return getattr(rad,unit)
-        elif hasattr(rad,unit+'s'):
-            return getattr(rad,unit+'s')
-    except AssertionError:
-        pass # try the other if
+    if isinstance(unit, six.string_types):
+        if hasattr(rad, unit):
+            return getattr(rad, unit)
+        elif hasattr(rad, unit + 's'):
+            return getattr(rad, unit + 's')
 
     # major hack to deal with <0.3 Angle's not having deg/arcmin/etc equivs.
-    if hasattr(rad,'degree'):
+    if hasattr(rad, 'degree'):
         return (rad.degree * u.degree).to(unit).value
-    elif hasattr(rad,'to'):
+    elif hasattr(rad, 'to'):
         return rad.to(unit).value
     else:
         raise TypeError("Radius is an invalid type.")
+
 
 def parse_coordinates(coordinates):
     """
@@ -210,6 +199,7 @@ def parse_coordinates(coordinates):
         raise TypeError("Argument cannot be parsed as a coordinate")
     return c
 
+
 def coord_to_radec(coordinate):
     """
     Wrapper to turn any astropy coordinate into FK5 RA in Hours and FK5 Dec in
@@ -220,14 +210,15 @@ def coord_to_radec(coordinate):
     coordinate API can even do transforms)
     """
     C = coordinate.transform_to('fk5')
-    if hasattr(C.ra,'hour'):
+    if hasattr(C.ra, 'hour'):
         ra = C.ra.hour
-    elif hasattr(C.ra,'hourangle'):
+    elif hasattr(C.ra, 'hourangle'):
         ra = C.ra.hourangle
     else:
         raise Exception("API Error: RA cannot be converted to hour or hourangle.")
     dec = C.dec.degree
-    return ra,dec
+    return ra, dec
+
 
 class TableList(list):
 
@@ -248,16 +239,16 @@ class TableList(list):
             errmsg = "Input to TableList must be an OrderedDict or list of (k,v) pairs"
             try:
                 inp = OrderedDict(inp)
-            except (TypeError,ValueError):
+            except (TypeError, ValueError):
                 raise ValueError("Input to TableList must be an OrderedDict or list of (k,v) pairs")
 
         self._dict = inp
-        super(TableList,self).__init__(inp.values())
+        super(TableList, self).__init__(inp.values())
 
     def __getitem__(self, key):
         if isinstance(key, int):
             # get the value in the (key,value) pair
-            return super(TableList,self).__getitem__(key)
+            return super(TableList, self).__getitem__(key)
         elif key in self._dict:
             return self._dict[key]
         else:
@@ -306,7 +297,7 @@ class TableList(list):
                                      t_name=t_name,
                                      nrow=len(self[t_number]),
                                      ncol=len(self[t_number].colnames))
-                              for t_number,t_name in enumerate(self.keys())])
+                              for t_number, t_name in enumerate(self.keys())])
         return "\n".join([header_str, body_str])
 
     def print_table_list(self):
@@ -336,7 +327,7 @@ def _is_coordinate(coordinates):
     -------
     bool
     """
-    if hasattr(coordinates,'fk5'):
+    if hasattr(coordinates, 'fk5'):
         # its coordinate-like enough
         return True
     try:
@@ -344,6 +335,7 @@ def _is_coordinate(coordinates):
         return True
     except ValueError:
         return False
+
 
 def suppress_vo_warnings():
     """Suppresses all warnings of the class `astropy.io.votable.exceptions.VOWarning`."""
@@ -361,6 +353,7 @@ def validate_email(email):
         return validate_email.validate_email(email)
     except ImportError:
         return bool(re.compile('^\S+@\S+\.\S+$').match(email))
+
 
 class FileContainer(object):
     """
@@ -422,7 +415,7 @@ class FileContainer(object):
         if link_cache == 'hard':
             try:
                 os.link(target, savepath)
-            except (IOError,OSError) as e:
+            except (IOError, OSError) as e:
                 shutil.copy(target, savepath)
         elif link_cache == 'sym':
             os.symlink(target, savepath)
@@ -433,7 +426,7 @@ class FileContainer(object):
         """
         Download the file as a string
         """
-        if not hasattr(self,'_string'):
+        if not hasattr(self, '_string'):
             try:
                 with self._readable_object as f:
                     data = f.read()
@@ -459,8 +452,8 @@ class FileContainer(object):
             return six.StringIO(s)
 
     def __repr__(self):
-        if hasattr(self,'_fits'):
-            return "Downloaded FITS file: "+self._fits.__repr__()
+        if hasattr(self, '_fits'):
+            return "Downloaded FITS file: " + self._fits.__repr__()
         else:
             return "Downloaded object from URL {} with ID {}".format(self._target, id(self._readable_object))
 

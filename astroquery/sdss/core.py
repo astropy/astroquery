@@ -10,14 +10,13 @@ Description: Access Sloan Digital Sky Survey database online.
 """
 
 from __future__ import print_function
-
+import io
 import numpy as np
 from astropy import units as u
 import astropy.coordinates as coord
 from astropy.table import Table
-import io
 from ..query import BaseQuery
-from . import SDSS_SERVER, SDSS_MAXQUERY, SDSS_TIMEOUT
+from . import conf
 from ..utils import commons, async_to_sync
 from ..utils.docstr_chompers import prepend_docstr_noreturns
 from ..exceptions import RemoteServiceError
@@ -48,13 +47,13 @@ sdss_arcsec_per_pixel = 0.396
 @async_to_sync
 class SDSSClass(BaseQuery):
 
-    BASE_URL = SDSS_SERVER()
+    BASE_URL = conf.server
     SPECTRO_OPTICAL = BASE_URL
     IMAGING = BASE_URL + '/boss/photoObj/frames'
     TEMPLATES = 'http://www.sdss.org/dr7/algorithms/spectemplates/spDR2'
-    MAXQUERIES = SDSS_MAXQUERY()
+    MAXQUERIES = conf.maxqueries
     AVAILABLE_TEMPLATES = spec_templates
-    TIMEOUT = SDSS_TIMEOUT()
+    TIMEOUT = conf.timeout
 
     QUERY_URL = 'http://skyserver.sdss3.org/public/en/tools/search/x_sql.aspx'
 
@@ -73,7 +72,7 @@ class SDSSClass(BaseQuery):
             appropriate `astropy.coordinates` object. ICRS coordinates may also
             be entered as strings as specified in the `astropy.coordinates`
             module.
-            
+
             Example:
             ra = np.array([220.064728084,220.064728467,220.06473483])
             dec = np.array([0.870131920218,0.87013210119,0.870138329659])
@@ -124,7 +123,7 @@ class SDSSClass(BaseQuery):
         """
         request_payload = self._args_to_payload(coordinates=coordinates,
                                                 radius=radius, fields=fields,
-                                                spectro=spectro, photoobj_fields=photoobj_fields, 
+                                                spectro=spectro, photoobj_fields=photoobj_fields,
                                                 specobj_fields=specobj_fields)
         if get_query_payload:
             return request_payload
@@ -337,8 +336,9 @@ class SDSSClass(BaseQuery):
         for row in matches:
             link = ('{base}/{instrument}/spectro/redux/{run2d}/spectra'
                     '/{plate:04d}/spec-{plate:04d}-{mjd}-{fiber:04d}.fits')
+            # _parse_result returns bytes for instrunments, requiring a decode
             link = link.format(base=SDSS.SPECTRO_OPTICAL,
-                               instrument=row['instrument'].lower(),
+                               instrument=row['instrument'].decode().lower(),
                                run2d=row['run2d'], plate=row['plate'],
                                fiber=row['fiberID'], mjd=row['mjd'])
 
@@ -369,7 +369,7 @@ class SDSSClass(BaseQuery):
     def get_images_async(self, coordinates=None, radius=u.degree / 1800.,
                          matches=None, run=None, rerun=301, camcol=None,
                          field=None, band='g', timeout=TIMEOUT,
-                         get_query_payload=False):
+                         get_query_payload=False, cache=True):
         """
         Download an image from SDSS.
 
@@ -413,6 +413,8 @@ class SDSSClass(BaseQuery):
         timeout : float, optional
             Time limit (in seconds) for establishing successful connection with
             remote server.  Defaults to `SDSSClass.TIMEOUT`.
+        cache : bool
+            Cache the images using astropy's caching system
 
         Returns
         -------
@@ -468,14 +470,15 @@ class SDSSClass(BaseQuery):
 
                 results.append(commons.FileContainer(link,
                                                      encoding='binary',
-                                                     remote_timeout=timeout))
+                                                     remote_timeout=timeout,
+                                                     cache=cache))
 
         return results
 
     @prepend_docstr_noreturns(get_images_async.__doc__)
     def get_images(self, coordinates=None, radius=u.degree / 1800.,
-                   matches=None, run=None, rerun=301, camcol=None,
-                   field=None, band='g', timeout=TIMEOUT):
+                   matches=None, run=None, rerun=301, camcol=None, field=None,
+                   band='g', timeout=TIMEOUT, cache=True):
         """
         Returns
         -------
@@ -572,16 +575,12 @@ class SDSSClass(BaseQuery):
 
         """
 
-        # genfromtxt requires bytes; need to check for 'encode' for py3 compat
-        bytecontent = (response.content.encode('ascii')
-                       if hasattr(response.content,'encode')
-                       else response.content)
-        if 'error_message' in io.BytesIO(bytecontent):
+        if 'error_message' in io.BytesIO(response.content):
             raise RemoteServiceError(response.content)
-        arr = np.atleast_1d(np.genfromtxt(io.BytesIO(bytecontent),
-                            names=True, dtype=None, delimiter=b',',
-                            skip_header=1, # this may be a hack; it is necessary for tests to pass
-                            comments=b'#'))
+        arr = np.atleast_1d(np.genfromtxt(io.BytesIO(response.content),
+                            names=True, dtype=None, delimiter=',',
+                            skip_header=1,  # this may be a hack; it is necessary for tests to pass
+                            comments='#'))
 
         if len(arr) == 0:
             return None
@@ -691,11 +690,11 @@ class SDSSClass(BaseQuery):
                 ra = target.ra.degree
                 dec = target.dec.degree
                 dr = coord.Angle(radius).to('degree').value
-                if n>0:
+                if n > 0:
                     q_where += ' or '
                 q_where += ('((p.ra between %g and %g) and '
                            '(p.dec between %g and %g))'
-                           % (ra-dr, ra+dr, dec-dr, dec+dr))
+                           % (ra - dr, ra + dr, dec - dr, dec + dr))
         elif spectro:
             # Spectra: query for specified plate, mjd, fiberid
             s_fields = ['s.%s=%d' % (key, val) for (key, val) in

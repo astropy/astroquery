@@ -1,9 +1,10 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from astropy.table import Table, Column
 import astropy.units as u
-import astropy.coordinates as coord
+from astropy import coordinates
+from astropy.extern import six
 from . import utils
-from . import IRSA_DUST_SERVER, IRSA_DUST_TIMEOUT
+from . import conf
 from ..utils import commons
 from ..query import BaseQuery
 
@@ -37,8 +38,8 @@ DATA_TABLE = "./data/table"
 
 class IrsaDustClass(BaseQuery):
 
-    DUST_SERVICE_URL = IRSA_DUST_SERVER()
-    TIMEOUT = IRSA_DUST_TIMEOUT()
+    DUST_SERVICE_URL = conf.server
+    TIMEOUT = conf.timeout
     image_type_to_section = {
         'temperature': 't',
         'ebv': 'r',
@@ -133,8 +134,8 @@ class IrsaDustClass(BaseQuery):
         # they MUST be read as binary for python3 to parse them
         return [commons.FileContainer(U, encoding='binary') for U in image_urls]
 
-    def get_image_list(
-            self, coordinate, radius=None, image_type=None, timeout=TIMEOUT):
+    def get_image_list(self, coordinate, radius=None, image_type=None,
+                       timeout=TIMEOUT):
         """
         Query function that performes coordinate-based query and returns a list
         of URLs to the Irsa-Dust images.
@@ -313,18 +314,22 @@ class IrsaDustClass(BaseQuery):
         payload : dict
             A dictionary that specifies the data for an HTTP POST request
         """
-        try:
-            # If the coordinate is a resolvable name, pass that name directly
-            # to irsa_dust because it can handle it (and that changes the
-            # return value associated metadata)
-            C = commons.ICRSCoord.from_name(coordinate)
-            payload = {"locstr": coordinate}
-        except coord.name_resolve.NameResolveError:
-            C = commons.parse_coordinates(coordinate).transform_to('fk5')
-            payload = {"locstr": "{0} {1}".format(C.ra.deg, C.dec.deg)}  # check if this is resolvable?
+        if isinstance(coordinate, six.string_types):
+            try:
+                # If the coordinate is a resolvable name, pass that name directly
+                # to irsa_dust because it can handle it (and that changes the
+                # return value associated metadata)
+                C = commons.ICRSCoord.from_name(coordinate)
+                payload = {"locstr": coordinate}
+            except coordinates.name_resolve.NameResolveError:
+                C = commons.parse_coordinates(coordinate).transform_to('fk5')
+                payload = {"locstr": "{0} {1}".format(C.ra.deg, C.dec.deg)}  # check if this is resolvable?
+        elif isinstance(coordinate, coordinates.SkyCoord):
+            C = coordinate.transform_to('fk5')
+            payload = {"locstr": "{0} {1}".format(C.ra.deg, C.dec.deg)}
         # check if radius is given with proper units
         if radius is not None:
-            reg_size = coord.Angle(radius).to('degree').value
+            reg_size = coordinates.Angle(radius).to('degree').value
             # check if radius falls in the acceptable range
             if reg_size < 2 or reg_size > 37.5:
                 raise ValueError("Radius (in any unit) must be in the"

@@ -3,28 +3,24 @@
 Simbad query class for accessing the Simbad Service
 """
 from __future__ import print_function
+import copy
 import re
 import json
 import os
 from collections import namedtuple
-import tempfile
 import warnings
-from ..query import BaseQuery
-from ..utils import commons
 import astropy.units as u
 from astropy.utils.data import get_pkg_data_filename
 import astropy.coordinates as coord
 from astropy.table import Table
-from astropy.extern import six
-import copy
-try:
-    import astropy.io.vo.table as votable
-except ImportError:
-    import astropy.io.votable as votable
-from . import SIMBAD_SERVER, SIMBAD_TIMEOUT, ROW_LIMIT
+import astropy.io.votable as votable
+from astropy.extern.six import BytesIO
+from ..query import BaseQuery
+from ..utils import commons
 from ..exceptions import TableParseError
+from . import conf
 
-__all__ = ['Simbad','SimbadClass']
+__all__ = ['Simbad', 'SimbadClass']
 
 
 def validate_epoch(func):
@@ -59,35 +55,37 @@ def validate_equinox(func):
                 raise ValueError("Equinox must be a number")
         return func(*args, **kwargs)
     return wrapper
-    
+
+
 def strip_field(f, keep_filters=False):
     """Helper tool: remove parameters from VOTABLE fields
     However, this should only be applied to a subset of VOTABLE fields:
-    
+
      * ra
      * dec
      * otype
      * id
      * coo
      * bibcodelist
-     
+
     *if* keep_filters is specified
     """
     if '(' in f:
         root = f[:f.find('(')]
-        if (root in ('ra','dec','otype','id','coo','bibcodelist')
+        if (root in ('ra', 'dec', 'otype', 'id', 'coo', 'bibcodelist')
                  or not keep_filters):
             return root
 
     # the overall else (default option)
     return f
 
+
 class SimbadClass(BaseQuery):
     """
     The class for querying the Simbad web service.
     """
-    SIMBAD_URL = 'http://' + SIMBAD_SERVER() + '/simbad/sim-script'
-    TIMEOUT = SIMBAD_TIMEOUT()
+    SIMBAD_URL = 'http://' + conf.server + '/simbad/sim-script'
+    TIMEOUT = conf.timeout
     WILDCARDS = {
                 '*': 'Any string of characters (including an empty one)',
                 '?': 'Any character (exactly one character)',
@@ -97,7 +95,7 @@ class SimbadClass(BaseQuery):
                 '[^0-9]': 'Any (one) character not in the list.'
 
                 }
-    _ORDERED_WILDCARDS = ['*','?','[abc]','[^0-9]']
+    _ORDERED_WILDCARDS = ['*', '?', '[abc]', '[^0-9]']
 
     # query around not included since this is a subcase of query_region
     _function_to_command = {
@@ -109,7 +107,7 @@ class SimbadClass(BaseQuery):
         'query_bibobj_async': 'query bibobj'
     }
 
-    ROW_LIMIT = ROW_LIMIT()
+    ROW_LIMIT = conf.row_limit
 
     # also find a way to fetch the votable fields table from <http://simbad.u-strasbg.fr/simbad/sim-help?Page=sim-fscript#VotableFields>
     # tried something for this in this ipython nb
@@ -156,7 +154,7 @@ class SimbadClass(BaseQuery):
             notes = json.load(f)
         print ("--NOTES--\n")
         for i, line in list(enumerate(notes)):
-            print ("{lineno}. {msg}\n".format(lineno=i+1, msg=line))
+            print ("{lineno}. {msg}\n".format(lineno=i + 1, msg=line))
 
         # load the table
         votable_fields_table = Table.read(get_pkg_data_filename
@@ -229,7 +227,7 @@ class SimbadClass(BaseQuery):
             sf = strip_field(field)
             if sf not in fields_dict:
                 raise KeyError("{field}: no such field".format(field=field))
-            elif sf in [strip_field(f,keep_filters=True) for f in self._VOTABLE_FIELDS]:
+            elif sf in [strip_field(f, keep_filters=True) for f in self._VOTABLE_FIELDS]:
                 errmsg = "{field}: field already present.  ".format(field=field)
                 errmsg += ("Fields ra,dec,id,otype, and bibcodelist can only "
                            "be specified once.  To change their options, "
@@ -260,7 +258,7 @@ class SimbadClass(BaseQuery):
             sfields = self._VOTABLE_FIELDS
         absent_fields = set(sargs) - set(sfields)
 
-        for b,f in list(zip(sfields, self._VOTABLE_FIELDS)):
+        for b, f in list(zip(sfields, self._VOTABLE_FIELDS)):
             if b in sargs:
                 self._VOTABLE_FIELDS.remove(f)
 
@@ -297,7 +295,7 @@ class SimbadClass(BaseQuery):
             Query results table
         """
         verbose = kwargs.pop('verbose') if 'verbose' in kwargs else False
-        result = self.query_criteria_async(*args,**kwargs)
+        result = self.query_criteria_async(*args, **kwargs)
         return self._parse_result(result, SimbadVOTableResult, verbose=verbose)
 
     def query_criteria_async(self, *args, **kwargs):
@@ -475,7 +473,7 @@ class SimbadClass(BaseQuery):
     def query_catalog(self, catalog, verbose=False):
         """
         Queries a whole catalog.
-        
+
         Results may be very large -number of rows
         should be controlled by configuring `SimbadClass.ROW_LIMIT`.
 
@@ -692,7 +690,7 @@ class SimbadClass(BaseQuery):
                 del kwargs[key]
         # join in the order specified otherwise results in error
         all_keys = ['radius', 'frame', 'equi', 'epoch']
-        present_keys =[key for key in all_keys if key in kwargs]
+        present_keys = [key for key in all_keys if key in kwargs]
         if caller == 'query_criteria_async':
             for k in kwargs:
                 present_keys.append(k)
@@ -703,7 +701,7 @@ class SimbadClass(BaseQuery):
             args_str = ' '.join([str(val) for val in args])
         kwargs_str = ' '.join("{key}={value}".format(key=key, value=kwargs[key]) for
                               key in present_keys)
-        
+
         # For the record, I feel dirty for writing this wildcard-case hack.
         # This entire function should be refactored when someone has time.
         allargs_str = ' '.join([" ", args_str, kwargs_str, "\n"])
@@ -724,7 +722,8 @@ class SimbadClass(BaseQuery):
         """
         self.last_response = result
         try:
-            self.last_parsed_result = resultclass(result.content, verbose=verbose)
+            content = result.text
+            self.last_parsed_result = resultclass(content, verbose=verbose)
             if self.last_parsed_result.data is None:
                 return None
             resulttable = self.last_parsed_result.table
@@ -761,7 +760,7 @@ def _get_frame_coords(c):
         return (lon, lat, 'GAL')
     elif c.frame.name == 'fk4':
         ra, dec = _to_simbad_format(c.ra, c.dec)
-        return (ra, dec,'FK4')
+        return (ra, dec, 'FK4')
     elif c.frame.name == 'fk5':
         ra, dec = _to_simbad_format(c.ra, c.dec)
         return (ra, dec, 'FK5')
@@ -770,10 +769,10 @@ def _get_frame_coords(c):
 
 
 def _to_simbad_format(ra, dec):
-    # This irrelevantly raises the exception 
+    # This irrelevantly raises the exception
     # "AttributeError: Angle instance has no attribute 'hour'"
-    ra = ra.format(u.hour, sep=':')
-    dec = dec.format(u.degree, sep=':', alwayssign='True')
+    ra = ra.to_string(u.hour, sep=':')
+    dec = dec.to_string(u.degree, sep=':', alwayssign='True')
     return (ra.lstrip(), dec.lstrip())
 
 
@@ -781,13 +780,13 @@ def _parse_radius(radius):
     try:
         angle = commons.parse_radius(radius)
         # find the most appropriate unit - d, m or s
-        index = min([i for (i,val) in enumerate(angle.dms) if int(val) > 0])
+        index = min([i for (i, val) in enumerate(angle.dms) if int(val) > 0])
         unit = ('d', 'm', 's')[index]
         if unit == 'd':
             return str(int(angle.degree)) + unit
         if unit == 'm':
             sec_to_min = abs(angle.dms[2]) * u.arcsec.to(u.arcmin)
-            total_min = abs(angle.dms[1])+ sec_to_min
+            total_min = abs(angle.dms[1]) + sec_to_min
             return str(total_min) + unit
         if unit == 's':
             return str(abs(angle.dms[2])) + unit
@@ -885,7 +884,6 @@ class SimbadVOTableResult(SimbadResult):
     def __init__(self, txt, verbose=False, pedantic=False):
         SimbadResult.__init__(self, txt, verbose=verbose)
         self.__pedantic = pedantic
-        self.__file = None
         self.__table = None
         if not self.verbose:
             commons.suppress_vo_warnings()
@@ -893,11 +891,8 @@ class SimbadVOTableResult(SimbadResult):
 
     @property
     def table(self):
-        if self.__file is None:
-            self.__file = tempfile.NamedTemporaryFile()
-            self.__file.write(self.data.encode('utf-8'))
-            self.__file.flush()
-            self.__table = votable.parse_single_table(self.__file, pedantic=False).to_table()
+        if self.__table is None:
+            self.__table = votable.parse_single_table(BytesIO(self.data.encode('utf8')), pedantic=False).to_table()
         return self.__table
 
 bibcode_regex = re.compile(r'query\s+bibcode\s+(wildcard)?\s+([\w]*)')
@@ -911,10 +906,7 @@ class SimbadBibcodeResult(SimbadResult):
         max_len = max([len(r) for r in ref_list])
         table = Table(names=['References'], dtype=['S%i' % max_len])
         for ref in ref_list:
-            if hasattr(ref,'decode'):
-                table.add_row([ref.decode('utf-8')])
-            else:
-                table.add_row([ref])
+            table.add_row([ref])
         return table
 
 class SimbadObjectIDsResult(SimbadResult):

@@ -2,31 +2,31 @@
 from __future__ import print_function
 
 import re
-import tempfile
 import warnings
 import functools
 
 import astropy.units as u
 import astropy.io.votable as votable
 from astropy import coordinates
+from astropy.extern import six
 
 from ..query import BaseQuery
 from ..utils import commons, async_to_sync
 from ..utils.docstr_chompers import prepend_docstr_noreturns
 from ..exceptions import TableParseError
 
-from . import NRAO_SERVER, NRAO_TIMEOUT
+from . import conf
 
-__all__ = ["Nrao","NraoClass"]
+__all__ = ["Nrao", "NraoClass"]
 
 
 def _validate_params(func):
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
-        telescope = kwargs.get('telescope','all')
-        telescope_config = kwargs.get('telescope_config','all')
-        obs_band = kwargs.get('obs_band','all')
-        sub_array = kwargs.get('sub_array','all')
+        telescope = kwargs.get('telescope', 'all')
+        telescope_config = kwargs.get('telescope_config', 'all')
+        obs_band = kwargs.get('obs_band', 'all')
+        sub_array = kwargs.get('sub_array', 'all')
         if telescope not in Nrao.telescope_code:
             raise ValueError("'telescope must be one of {!s}".format(Nrao.telescope_code.keys()))
         if telescope_config.upper() not in Nrao.telescope_config:
@@ -42,8 +42,8 @@ def _validate_params(func):
 @async_to_sync
 class NraoClass(BaseQuery):
 
-    DATA_URL = NRAO_SERVER()
-    TIMEOUT = NRAO_TIMEOUT()
+    DATA_URL = conf.server
+    TIMEOUT = conf.timeout
 
     # dicts and lists for data archive queries
     telescope_code = {
@@ -107,7 +107,7 @@ class NraoClass(BaseQuery):
 
                 * GBT: AGBT12A_055
                 * JVLA: 12A-256
-                
+
         querytype : str
             The type of query to perform.  "OBSSUMMARY" is the default, but it
             is only valid for VLA/VLBA observations.  ARCHIVE will not work at all
@@ -124,14 +124,14 @@ class NraoClass(BaseQuery):
         request_payload : dict
             The dictionary of parameters to send via HTTP GET request.
         """
-        lower_frequency = kwargs.get('freq_low',None)
-        upper_frequency = kwargs.get('freq_up',None)
+        lower_frequency = kwargs.get('freq_low', None)
+        upper_frequency = kwargs.get('freq_up', None)
         if lower_frequency is not None and upper_frequency is not None:
-            freq_str = str(lower_frequency.to(u.MHz).value)+'-'+str(upper_frequency.to(u.MHz).value)
+            freq_str = str(lower_frequency.to(u.MHz).value) + '-' + str(upper_frequency.to(u.MHz).value)
         else:
             freq_str = ""
 
-        request_payload = dict(QUERYTYPE=kwargs.get('querytype',"OBSSUMMARY"),
+        request_payload = dict(QUERYTYPE=kwargs.get('querytype', "OBSSUMMARY"),
                                PROTOCOL="VOTable-XML",
                                MAX_ROWS="NO LIMIT",
                                SORT_PARM="Starttime",
@@ -144,34 +144,34 @@ class NraoClass(BaseQuery):
                                SITE_CODE="AOC",
                                DBHOST="CHEWBACCA",
                                WRITELOG=0,
-                               TELESCOPE=Nrao.telescope_code[kwargs.get('telescope','all')],
-                               PROJECT_CODE=kwargs.get('project_code',''),
+                               TELESCOPE=Nrao.telescope_code[kwargs.get('telescope', 'all')],
+                               PROJECT_CODE=kwargs.get('project_code', ''),
                                SEGMENT="",
                                MIN_EXPOSURE='',
-                               TIMERANGE1=kwargs.get('start_date',''),
+                               TIMERANGE1=kwargs.get('start_date', ''),
                                OBSERVER="",
                                ARCHIVE_VOLUME="",
-                               TIMERANGE2=kwargs.get('end_date',''),
-                               EQUINOX=kwargs.get('equinox','J2000'),
+                               TIMERANGE2=kwargs.get('end_date', ''),
+                               EQUINOX=kwargs.get('equinox', 'J2000'),
                                CENTER_RA='',
                                CENTER_DEC='',
                                SRAD=str(commons.parse_radius(kwargs['radius']).degree) + 'd' if 'radius' in kwargs else "1.0'",
-                               TELESCOPE_CONFIG=kwargs.get('telescope_config','all').upper(),
-                               OBS_BANDS=kwargs.get('obs_band','all').upper(),
-                               SUBARRAY=kwargs.get('subarray','all').upper(),
-                               SOURCE_ID=kwargs.get('source_id',''),
+                               TELESCOPE_CONFIG=kwargs.get('telescope_config', 'all').upper(),
+                               OBS_BANDS=kwargs.get('obs_band', 'all').upper(),
+                               SUBARRAY=kwargs.get('subarray', 'all').upper(),
+                               SOURCE_ID=kwargs.get('source_id', ''),
                                SRC_SEARCH_TYPE='SIMBAD or NED',
                                OBSFREQ1=freq_str,
                                OBS_POLAR="ALL",
                                RECEIVER_ID="ALL",
                                BACKEND_ID="ALL",
                                DATATYPE="ALL",
-                               PASSWD="", # TODO: implement login...
+                               PASSWD="",  # TODO: implement login...
                                SUBMIT="Submit Query")
 
         if 'coordinates' in kwargs:
             c = commons.parse_coordinates(kwargs['coordinates']).transform_to(coordinates.ICRS)
-            request_payload['CENTER_RA']  = str(c.ra.degree) + 'd'
+            request_payload['CENTER_RA'] = str(c.ra.degree) + 'd'
             request_payload['CENTER_DEC'] = str(c.dec.degree) + 'd'
 
 
@@ -231,19 +231,18 @@ class NraoClass(BaseQuery):
         # fix to replace non standard datatype 'integer' in returned VOTable
         # with 'int' to make it parsable by astropy.io.votable
         integer_re = re.compile(r'datatype="integer"')
-        new_content = integer_re.sub(r'datatype="int"', response.content)
+        content = response.text
+        new_content = integer_re.sub(r'datatype="int"', content)
 
         # these are pretty bad hacks, but also needed...
         days_re = re.compile(r'unit="days"  datatype="double"')
         new_content = days_re.sub(r'unit="days"  datatype="char" arraysize="*"', new_content)
         degrees_re = re.compile(r'unit="degrees"  datatype="double"')
         new_content = degrees_re.sub(r'unit="degrees"  datatype="char" arraysize="*"', new_content)
-                
+
         try:
-            tf = tempfile.NamedTemporaryFile()
-            tf.write(new_content.encode('utf-8'))
-            tf.flush()
-            first_table = votable.parse(tf.name, pedantic=False).get_first_table()
+            tf = six.BytesIO(new_content.encode())
+            first_table = votable.parse(tf, pedantic=False).get_first_table()
             try:
                 table = first_table.to_table(use_names_over_ids=True)
             except TypeError:

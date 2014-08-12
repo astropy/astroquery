@@ -11,22 +11,30 @@
 # See <http://docs.astropy.org/en/latest/config/index.html#developer-usage>
 # for docs and examples on how to do this
 # Below is a common use case
+from astropy import config as _config
 
-from astropy.config import ConfigurationItem
 
-# Set the server mirrors to query
-SERVER = ConfigurationItem('server',
-                           ['http://dummy_server_mirror_1',
-                            'http://dummy_server_mirror_2',
-                            'http://dummy_server_mirror_n'],
-                           'put a brief description of the item here')
+class Conf(_config.ConfigNamespace):
+    """
+    Configuration parameters for `astroquery.template_module`.
+    """
+    server = _config.ConfigItem(
+        ['http://dummy_server_mirror_1',
+         'http://dummy_server_mirror_2',
+         'http://dummy_server_mirror_n'],
+        'Name of the template_module server to use.'
+        )
+    timeout = _config.ConfigItem(
+        30,
+        'Time limit for connecting to template_module server.'
+        )
 
-# Set the timeout for connecting to the server in seconds, here we set it to 30s
-TIMEOUT = ConfigurationItem('timeout', 30, 'default timeout for connecting to server')
+conf = Conf()
 
 # Now import your public class
 # Should probably have the same name as your module
+from .core import Dummy, DummyClass
 
-from .core import Dummy,DummyClass
-
-__all__ = ['Dummy','DummyClass']
+__all__ = ['Dummy', 'DummyClass',
+           'Conf', 'conf',
+           ]

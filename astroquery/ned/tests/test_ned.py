@@ -4,7 +4,6 @@ from __future__ import print_function
 import os
 import requests
 
-
 from numpy import testing as npt
 from astropy.tests.helper import pytest
 from astropy.table import Table
@@ -15,12 +14,7 @@ from ...utils.testing_tools import MockResponse
 
 from ... import ned
 from ...utils import commons
-from ...ned import (HUBBLE_CONSTANT,
-               CORRECT_REDSHIFT,
-               OUTPUT_COORDINATE_FRAME,
-               OUTPUT_EQUINOX,
-               SORT_OUTPUT_BY)
-
+from ...ned import conf
 
 DATA_FILES = {
     'object': 'query_object.xml',
@@ -71,8 +65,7 @@ def get_mockreturn(url, params=None, timeout=10, **kwargs):
         filename = data_path(DATA_FILES['extract_urls'])
     else:
         filename = data_path(DATA_FILES['object'])
-    print(filename)
-    content = open(filename, "r").read()
+    content = open(filename, "rb").read()
     return MockResponse(content, **kwargs)
 
 
@@ -101,7 +94,7 @@ def test_get_references_async(patch_get):
 
 @pytest.mark.xfail(reason="astropy issue #1266")
 def test_get_references(patch_get):
-    response = ned.core.Ned.get_table_async("m1",table='references', from_year=2010)
+    response = ned.core.Ned.get_table_async("m1", table='references', from_year=2010)
     assert response is not None
     result = ned.core.Ned.get_table("m1", table='references', to_year=2012, extended_search=True)
     assert isinstance(result, Table)
@@ -148,7 +141,7 @@ def test_photometry(patch_get):
 
 def test_extract_image_urls():
     html_in = open(data_path(DATA_FILES['extract_urls']), 'r').read()
-    url_list =ned.core.Ned.extract_image_urls(html_in)
+    url_list = ned.core.Ned.extract_image_urls(html_in)
     assert len(url_list) == 5
     for url in url_list:
         assert url.endswith('fits.gz')
@@ -175,13 +168,13 @@ def test_query_refcode_async(patch_get):
     response = ned.core.Ned.query_refcode_async('1997A&A...323...31K', True)
     assert response == {'search_type': 'Search',
                         'refcode': '1997A&A...323...31K',
-                        'hconst': HUBBLE_CONSTANT(),
+                        'hconst': conf.hubble_constant,
                         'omegam': 0.27,
                         'omegav': 0.73,
-                        'corr_z': CORRECT_REDSHIFT(),
-                        'out_csys': OUTPUT_COORDINATE_FRAME(),
-                        'out_equinox': OUTPUT_EQUINOX(),
-                        'obj_sort': SORT_OUTPUT_BY(),
+                        'corr_z': conf.correct_redshift,
+                        'out_csys': conf.output_coordinate_frame,
+                        'out_equinox': conf.output_equinox,
+                        'obj_sort': conf.sort_output_by,
                         'extend': 'no',
                         'img_stamp': 'NO',
                         'list_limit': 0,
@@ -264,11 +257,11 @@ def test_get_object_notes(patch_get):
 
 
 def test_parse_result(capsys):
-    content = open(data_path(DATA_FILES['error']), 'r').read()
+    content = open(data_path(DATA_FILES['error']), 'rb').read()
     response = MockResponse(content)
     with pytest.raises(RemoteServiceError) as exinfo:
         ned.core.Ned._parse_result(response)
-    if hasattr(exinfo.value,'message'):
+    if hasattr(exinfo.value, 'message'):
         assert exinfo.value.message == "The remote service returned the following error message.\nERROR:  No note found."
     else:
         assert exinfo.value.args == ("The remote service returned the following error message.\nERROR:  No note found.",)

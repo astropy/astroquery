@@ -1,7 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from __future__ import print_function
 
-import tempfile
 import re
 from collections import namedtuple
 from xml.dom.minidom import parseString
@@ -15,15 +14,10 @@ from astropy import __version__ as ASTROPY_VERSION
 
 from ..query import BaseQuery
 from ..utils import commons
-from . import (HUBBLE_CONSTANT,
-               CORRECT_REDSHIFT,
-               OUTPUT_COORDINATE_FRAME,
-               OUTPUT_EQUINOX,
-               SORT_OUTPUT_BY)
-from . import NED_SERVER, NED_TIMEOUT
-from ..exceptions import TableParseError,RemoteServiceError
+from . import conf
+from ..exceptions import TableParseError, RemoteServiceError
 
-__all__ = ["Ned","NedClass"]
+__all__ = ["Ned", "NedClass"]
 
 
 class NedClass(BaseQuery):
@@ -33,13 +27,13 @@ class NedClass(BaseQuery):
     http://ned.ipac.caltech.edu/
     """
     # make configurable
-    BASE_URL = NED_SERVER()
+    BASE_URL = conf.server
     OBJ_SEARCH_URL = BASE_URL + 'nph-objsearch'
     ALL_SKY_URL = BASE_URL + 'nph-allsky'
     DATA_SEARCH_URL = BASE_URL + 'nph-datasearch'
     IMG_DATA_URL = BASE_URL + 'imgdata'
     SPECTRA_URL = BASE_URL + 'NEDspectra'
-    TIMEOUT = NED_TIMEOUT()
+    TIMEOUT = conf.timeout
     Options = namedtuple('Options', ('display_name', 'cgi_name'))
 
     PHOTOMETRY_OUT = {1: Options('Data as Published and Homogenized (mJy)', 'bot'),
@@ -184,7 +178,7 @@ class NedClass(BaseQuery):
                 # for any other, convert to ICRS and send
                 else:
                     request_payload['in_csys'] = 'Equatorial'
-                    ra,dec = commons.coord_to_radec(c)
+                    ra, dec = commons.coord_to_radec(c)
                     request_payload['lon'] = ra
                     request_payload['lat'] = dec
                 request_payload['search_type'] = 'Near Position Search'
@@ -444,7 +438,7 @@ class NedClass(BaseQuery):
             return request_payload
         url = Ned.SPECTRA_URL if item == 'spectra' else Ned.IMG_DATA_URL
         response = commons.send_request(url, request_payload, Ned.TIMEOUT, request_type='GET')
-        return self.extract_image_urls(response.content)
+        return self.extract_image_urls(response.text)
 
     def extract_image_urls(self, html_in):
         """
@@ -457,10 +451,7 @@ class NedClass(BaseQuery):
         """
         base_url = 'http://ned.ipac.caltech.edu'
         pattern = re.compile('<a\s+href\s*?="?\s*?(.+?fits.gz)"?\s*?>\s*?(?:Retrieve|FITS)</a>', re.IGNORECASE)
-        try:
-            matched_urls = pattern.findall(html_in)
-        except TypeError:
-            matched_urls = pattern.findall(html_in.decode())
+        matched_urls = pattern.findall(html_in)
         url_list = [base_url + img_url for img_url in matched_urls]
         return url_list
 
@@ -588,10 +579,10 @@ class NedClass(BaseQuery):
         ----------
         request_payload : dict
         """
-        request_payload['hconst'] = HUBBLE_CONSTANT()
+        request_payload['hconst'] = conf.hubble_constant
         request_payload['omegam'] = 0.27
         request_payload['omegav'] = 0.73
-        request_payload['corr_z'] = CORRECT_REDSHIFT()
+        request_payload['corr_z'] = conf.correct_redshift
 
     def _set_output_options(self, request_payload):
         """
@@ -601,9 +592,9 @@ class NedClass(BaseQuery):
         ----------
         request_payload : dict
         """
-        request_payload['out_csys'] = OUTPUT_COORDINATE_FRAME()
-        request_payload['out_equinox'] = OUTPUT_EQUINOX()
-        request_payload['obj_sort'] = SORT_OUTPUT_BY()
+        request_payload['out_csys'] = conf.output_coordinate_frame
+        request_payload['out_equinox'] = conf.output_equinox
+        request_payload['obj_sort'] = conf.sort_output_by
 
     def _parse_result(self, response, verbose=False):
         """
@@ -624,20 +615,8 @@ class NedClass(BaseQuery):
         if not verbose:
             commons.suppress_vo_warnings()
         try:
-            tf = tempfile.NamedTemporaryFile()
-            if six.PY3:
-                # This is an exceedingly confusing section
-                # It is likely to be doubly wrong, but has caused issue #185
-                try:
-                    # Case 1: data is read in as unicode
-                    tf.write(response.content.encode())
-                except AttributeError:
-                    # Case 2: data is read in as a byte string
-                    tf.write(response.content.decode().encode('utf-8'))
-            else:
-                tf.write(response.content.encode('utf-8'))
-            tf.file.flush()
-            first_table = votable.parse(tf.name, pedantic=False).get_first_table()
+            tf = six.BytesIO(response.content)
+            first_table = votable.parse(tf, pedantic=False).get_first_table()
             # For astropy version < 0.3 returns tables that have field ids as col names
             if ASTROPY_VERSION < '0.3':
                 table = first_table.to_table()
@@ -660,6 +639,7 @@ class NedClass(BaseQuery):
 
 Ned = NedClass()
 
+
 def _parse_radius(radius):
     """
     Parses the radius and returns it in the format expected by NED.
@@ -674,7 +654,6 @@ def _parse_radius(radius):
         The value of the radius in arcminutes.
     """
     return coord.Angle(radius).to('arcmin').value
-
 
 
 def _check_ned_valid(string):

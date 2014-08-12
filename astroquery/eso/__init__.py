@@ -1,7 +1,24 @@
-from astropy.config import ConfigurationItem
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
+"""
+ESO service.
+"""
+from astropy import config as _config
 
-ROW_LIMIT = ConfigurationItem('row_limit', 50, 'maximum number of rows returned (set to -1 for unlimited).')
+
+class Conf(_config.ConfigNamespace):
+    """
+    Configuration parameters for `astroquery.eso`.
+    """
+
+    row_limit = _config.ConfigItem(
+        50,
+        'Maximum number of rows returned (set to -1 for unlimited).'
+        )
+
+conf = Conf()
 
 from .core import Eso, EsoClass
 
-__all__ = ['Eso', 'EsoClass']
+__all__ = ['Eso', 'EsoClass',
+           'Conf', 'conf',
+           ]

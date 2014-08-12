@@ -3,13 +3,14 @@
 from __future__ import print_function
 import re
 import time
+import astropy.units as u
 from ..query import BaseQuery
 from ..utils import commons, async_to_sync
-import astropy.units as u
+from . import conf
 
-from . import FERMI_URL,FERMI_TIMEOUT,FERMI_RETRIEVAL_TIMEOUT
-
-__all__ = ['FermiLAT', 'FermiLATClass', 'GetFermilatDatafile','get_fermilat_datafile']
+__all__ = ['FermiLAT', 'FermiLATClass',
+           'GetFermilatDatafile', 'get_fermilat_datafile',
+           ]
 
 @async_to_sync
 class FermiLATClass(BaseQuery):
@@ -17,9 +18,9 @@ class FermiLATClass(BaseQuery):
     TODO: document
     """
 
-    request_url = FERMI_URL()
+    request_url = conf.url
     result_url_re = re.compile('The results of your query may be found at <a href="(http://fermi.gsfc.nasa.gov/.*?)"')
-    TIMEOUT = FERMI_TIMEOUT()
+    TIMEOUT = conf.timeout
 
     def query_object_async(self, *args, **kwargs):
         """
@@ -39,7 +40,6 @@ class FermiLATClass(BaseQuery):
                                       payload,
                                       self.TIMEOUT)
 
-        # text returns unicode, content returns unencoded (?)
         re_result = self.result_url_re.findall(result.text)
 
         if len(re_result) == 0:
@@ -87,7 +87,7 @@ class FermiLATClass(BaseQuery):
 
         return payload
 
-    def _parse_result(self,result,verbose=False,**kwargs):
+    def _parse_result(self, result, verbose=False, **kwargs):
         """
         Use get_fermilat_datafile to download a result URL
         """
@@ -106,7 +106,7 @@ def _parse_coordinates(coordinates):
 
 def _fermi_format_coords(c):
     c = c.transform_to('fk5')
-    return "{0:0.5f},{1:0.5f}".format(c.ra.degree,c.dec.degree)
+    return "{0:0.5f},{1:0.5f}".format(c.ra.degree, c.dec.degree)
 
 class GetFermilatDatafile(object):
     """
@@ -117,7 +117,7 @@ class GetFermilatDatafile(object):
 
     fitsfile_re = re.compile('<a href="(.*?)">Available</a>')
 
-    TIMEOUT = FERMI_RETRIEVAL_TIMEOUT()
+    TIMEOUT = conf.retrieval_timeout
 
     check_frequency = 1  # minutes
 
@@ -147,7 +147,7 @@ class GetFermilatDatafile(object):
                                            None,
                                            self.TIMEOUT)
 
-        pagedata = result_page.content
+        pagedata = result_page.text
 
         fitsfile_urls = self.fitsfile_re.findall(pagedata)
 

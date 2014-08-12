@@ -1,17 +1,18 @@
-#!/usr/bin/python
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
 import xml.etree.ElementTree as ET
 import gzip
 import io
-import os
 from .utils import Number
 
 oec_server_url = "https://github.com/OpenExoplanetCatalogue/oec_gzip/raw/master/systems.xml.gz"
 
-__all__ = ['xml_element_to_dict','findvalue', 'get_catalogue']
+__all__ = ['xml_element_to_dict', 'findvalue', 'get_catalogue']
+
 try:
     import urllib.request as urllib2
 except ImportError:
     import urllib2
+
 
 def get_catalogue(filepath=None):
     """
@@ -31,8 +32,9 @@ def get_catalogue(filepath=None):
         oec = ET.parse(gzip.GzipFile(filepath)) 
     return oec
 
+
 def xml_element_to_dict(e):
-    """ 
+    """
     Parameters
     ----------
     e: str
@@ -48,7 +50,8 @@ def xml_element_to_dict(e):
         d[c.tag] = c.text
     return d
 
-def findvalue( element, searchstring):
+
+def findvalue(element, searchstring):
     """
     Parameters
     ----------
@@ -63,7 +66,6 @@ def findvalue( element, searchstring):
     str if the tag cannot be expressed as a float.
     Number if the tag is a numerical value
     """
-    
     if element is not None:
         res = element.find(searchstring)
         if res is None:
@@ -83,4 +85,4 @@ def findvalue( element, searchstring):
             tempnum.upperlimit = res.attrib["upperlimit"]
         if "lowerlimit" in res.attrib:
             tempnum.lowerlimit = res.attrib["lowerlimit"]
-        return tempnum 
+        return tempnum

@@ -1,15 +1,14 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-from ... import sdss
-from ...utils.testing_tools import MockResponse
-from ...exceptions import TimeoutError
-from ...utils import commons
-from astropy.extern.six.moves.urllib_error import URLError
-from astropy import coordinates
-from astropy.tests.helper import pytest
 from contextlib import contextmanager
 import requests
 import os
 import socket
+from astropy.extern.six.moves.urllib_error import URLError
+from astropy.tests.helper import pytest
+from ... import sdss
+from ...utils.testing_tools import MockResponse
+from ...exceptions import TimeoutError
+from ...utils import commons
 
 # actual spectra/data are a bit heavy to include in astroquery, so we don't try
 # to deal with them.  Would be nice to find a few very small examples
@@ -39,7 +38,12 @@ def patch_get_readable_fileobj(request):
     @contextmanager
     def get_readable_fileobj_mockreturn(filename, **kwargs):
         file_obj = data_path(DATA_FILES['spectra'])  # TODO: add images option
-        yield open(file_obj,'rb')
+        encoding = kwargs.get('encoding', None)
+        if encoding == 'binary':
+            yield open(file_obj, 'rb')
+        else:
+            yield open(file_obj, 'r', encoding=encoding)
+
     mp = request.getfuncargvalue("monkeypatch")
     mp.setattr(commons, 'get_readable_fileobj', get_readable_fileobj_mockreturn)
     return mp

@@ -1,3 +1,4 @@
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
 from __future__ import print_function
 import socket
 import requests
@@ -17,6 +18,7 @@ def turn_off_internet(verbose=False):
     setattr(socket, 'socket', guard)
     return socket
 
+
 @pytest.fixture
 def turn_on_internet(verbose=False):
     if verbose:
@@ -29,8 +31,8 @@ class MockResponse(object):
 
     def __init__(self, content=None, url=None, headers={},
                  content_type=None):
+        assert content is None or hasattr(content, 'decode')
         self.content = content
-        self.text = content
         self.raw = content
         self.headers = headers
         if content_type is not None:
@@ -38,9 +40,13 @@ class MockResponse(object):
         self.url = url
 
     def iter_lines(self):
-        c = self.content.split("\n")
+        c = self.text.split("\n")
         for l in c:
             yield l
 
     def raise_for_status(self):
         pass
+
+    @property
+    def text(self):
+        return self.content.decode(errors='replace')

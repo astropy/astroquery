@@ -10,7 +10,7 @@ from ..query import BaseQuery
 from ..utils import commons, async_to_sync
 from ..utils.docstr_chompers import prepend_docstr_noreturns
 
-from . import OGLE_SERVER, OGLE_TIMEOUT
+from . import conf
 
 __all__ = ['Ogle', 'OgleClass']
 
@@ -46,8 +46,8 @@ class CoordParseError(ValueError):
 @async_to_sync
 class OgleClass(BaseQuery):
 
-    DATA_URL = OGLE_SERVER()
-    TIMEOUT = OGLE_TIMEOUT()
+    DATA_URL = conf.server
+    TIMEOUT = conf.timeout
 
     algorithms = ['NG', 'NN']
     quality_codes = ['GOOD', 'ALL']
@@ -171,7 +171,7 @@ class OgleClass(BaseQuery):
         if not isinstance(coord, list):
             # single astropy coordinate
             try:
-                ra,dec = commons.coord_to_radec(coord)
+                ra, dec = commons.coord_to_radec(coord)
                 lon = [ra]
                 lat = [dec]
                 return lon, lat
@@ -183,7 +183,7 @@ class OgleClass(BaseQuery):
             if len(shape) == 1:
                 try:
                     radec = [commons.coord_to_radec(co) for co in coord]
-                    lon,lat = list(zip(*radec))
+                    lon, lat = list(zip(*radec))
                     return lon, lat
                 except:
                     raise CoordParseError()

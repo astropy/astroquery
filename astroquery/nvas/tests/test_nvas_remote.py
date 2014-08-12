@@ -21,7 +21,7 @@ class TestNvas:
         assert len(image_list) > 0
 
     def test_get_images(self):
-        images = nvas.core.Nvas.get_images("3c 273", radius=2*u.arcsec, band="K", max_rms=500)
+        images = nvas.core.Nvas.get_images("3c 273", radius=2 * u.arcsec, band="K", max_rms=500)
         assert images is not None
 
     def test_get_image_list(self):

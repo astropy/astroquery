@@ -22,7 +22,7 @@ functions or as coordinates using any of the coordinate systems available in
     >>> from astropy import coordinates
     >>> from astropy import units as u
     >>> image = Magpis.get_images(coordinates.SkyCoord(10.5*u.deg, 0.0*u.deg,
-    ...                                                frame='galactic')
+    ...                                                frame='galactic'))
     >>> image
     
     [<astropy.io.fits.hdu.image.PrimaryHDU at 0x4008650>]

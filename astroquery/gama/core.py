@@ -1,3 +1,4 @@
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
 """Download GAMA data"""
 import re
 import os
@@ -6,7 +7,8 @@ from astropy.table import Table
 from ..query import BaseQuery
 from ..utils import commons, async_to_sync
 
-__all__ = ['GAMA','GAMAClass']
+__all__ = ['GAMA', 'GAMAClass']
+
 
 @async_to_sync
 class GAMAClass(BaseQuery):
@@ -71,10 +73,12 @@ class GAMAClass(BaseQuery):
 GAMA = GAMAClass()
 
 
-def get_gama_datafile(result):
+def get_gama_datafile(result, **kwargs):
     """Turn a URL into an HDUList object."""
-    with commons.get_readable_fileobj(result) as f:
-        hdulist = fits.HDUList.fromstring(f.read())
+    fitsfile = commons.FileContainer(result,
+                                     encoding='binary',
+                                     **kwargs)
+    hdulist = fitsfile.get_fits()
     return Table(hdulist[1].data)
 
 

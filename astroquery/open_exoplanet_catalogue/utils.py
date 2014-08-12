@@ -1,3 +1,5 @@
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
+
 
 class Number(object):
     """ Number class for values containing errors. Math operations use 
@@ -23,7 +25,7 @@ class Number(object):
     >>> num = Number(None, upperlimit=10)
     >>> str(num) 
     '<10.0'
-    
+
     >>> num == None
     True
 
@@ -69,7 +71,6 @@ class Number(object):
         self.lowerlimit = lowerlimit
         self.errorplus = errorplus
         self.errorminus = errorminus
-   
 
     def __str__(self):
         """
@@ -91,23 +92,23 @@ class Number(object):
         if self.value is not None:
             tempstr += str(self.value)
         if hasattr(self, "errorplus") and self.errorplus is not None and\
-                hasattr(self,"errorminus") and self.errorminus is not None:
+                hasattr(self, "errorminus") and self.errorminus is not None:
             if self.errorplus == self.errorminus:
                 tempstr += " +/-" + str(self.errorplus)
             else:
-                tempstr += " +"+str(self.errorplus) +" -"+str(self.errorminus)
-        if hasattr(self,"upperlimit") and self.upperlimit is not None:
-            tempstr += "<"+ str(self.upperlimit)
-        elif hasattr(self,"lowerlimit") and self.lowerlimit is not None:
-            tempstr += ">"+ str(self.lowerlimit)
+                tempstr += " +" + str(self.errorplus) + " -" + str(self.errorminus)
+        if hasattr(self, "upperlimit") and self.upperlimit is not None:
+            tempstr += "<" + str(self.upperlimit)
+        elif hasattr(self, "lowerlimit") and self.lowerlimit is not None:
+            tempstr += ">" + str(self.lowerlimit)
         return tempstr
 
-    def machine_readable(self, separator="\t",missingval="None"):
+    def machine_readable(self, separator="\t", missingval="None"):
         """
         Creates a string intedned for a machine to read (ex, gnuplot)
         prints as follows
         value(separator)errorplus(separator)errorminus(separator)upperlimit(separator)lowerlimit
-        
+
         if the value does not exist, the missingval is added instead
 
         Parameters
@@ -123,23 +124,23 @@ class Number(object):
         """
 
         temp = ""
-        if hasattr(self,"value") and self.value is not None:
+        if hasattr(self, "value") and self.value is not None:
             temp += str(self.value) + separator 
         else:
             temp += missingval + separator
-        if hasattr(self,"errorplus") and self.errorplus is not None:
+        if hasattr(self, "errorplus") and self.errorplus is not None:
             temp += str(self.errorplus) + separator 
         else:
             temp += missingval + separator
-        if hasattr(self,"errorminus") and self.errorminus is not None:
+        if hasattr(self, "errorminus") and self.errorminus is not None:
             temp += str(self.errorminus) + separator 
         else:
             temp += missingval + separator
-        if hasattr(self,"upperlimit") and self.upperlimit is not None:
+        if hasattr(self, "upperlimit") and self.upperlimit is not None:
             temp += str(self.upperlimit) + separator 
         else:
             temp += missingval + separator
-        if hasattr(self,"lowerlimit") and self.lowerlimit is not None:
+        if hasattr(self, "lowerlimit") and self.lowerlimit is not None:
             temp += str(self.lowerlimit) + separator 
         else:
             temp += missingval + separator
@@ -174,7 +175,6 @@ class Number(object):
         else:
             return self.value == num
 
-
     def __add__(self, num):
         return self.value + num
 
@@ -208,7 +208,7 @@ class Number(object):
 
     def __gt__(self, num):
         return self.value > num
-    
+
     def __ge__(self, num):
         return self.value >= num
 
@@ -227,8 +227,8 @@ class Number(object):
     def __divmod__(self, num):
         return divmod(self.value, num)
 
-    def __pow__(self, num,*z):
-        return pow(self.value, num,*z)
+    def __pow__(self, num, *z):
+        return pow(self.value, num, *z)
 
     def __float__(self):
         return float(self.value)
@@ -268,7 +268,7 @@ class Number(object):
 
     def __nonzero__(self):
         return self.value != 0
-    
+
     def __oct__(self):
         return oct(self.value)
 
@@ -302,14 +302,14 @@ class Number(object):
     def __rmul__(self, num):
         return num * self.value
 
-    def __ror__(self,num):
+    def __ror__(self, num):
         return num | self.value
 
-    def __rpow__(self, num,*z):
-        return pow(num, self.value,*z)
+    def __rpow__(self, num, *z):
+        return pow(num, self.value, *z)
 
     def __rrshift__(self, num):
-        return num >> self.value 
+        return num >> self.value
 
     def __rshift__(self, num):
         return self.value >> num
@@ -321,13 +321,13 @@ class Number(object):
         return num / self.value
 
     def __rxor__(self, num):
-        return num^self.value
+        return num ^ self.value
 
     def __truediv__(self, num):
         return self.value / num
 
     def __xor__(self, num):
-        return self.value^num
+        return self.value ^ num
 
     def bit_length(self):
         return self.value.bit_length()

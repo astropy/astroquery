@@ -7,5 +7,4 @@ https://github.com/hannorein/open_exoplanet_catalogue
 https://github.com/hannorein/oec_meta
 http://openexoplanetcatalogue.com
 """
-from astropy.config import ConfigurationItem
 from .oec_query import *

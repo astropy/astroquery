@@ -7,18 +7,19 @@ import astropy.units as u
 from ...utils import chunk_read, chunk_report
 from ...utils import class_or_instance
 from ...utils import commons
-from ...utils.process_asyncs import async_to_sync_docstr,async_to_sync
-from ...utils.docstr_chompers import remove_returns,prepend_docstr_noreturns
+from ...utils.process_asyncs import async_to_sync_docstr, async_to_sync
+from ...utils.docstr_chompers import remove_returns, prepend_docstr_noreturns
 from astropy.table import Table
 from astropy.tests.helper import pytest, remote_data
 import astropy.io.votable as votable
 import textwrap
-from numpy import testing as npt
 from astropy.utils import OrderedDict
 import os
 from astropy.io import fits
 import astropy.utils.data as aud
 import astropy.version
+import tempfile
+
 
 class SimpleQueryClass(object):
 
@@ -48,10 +49,9 @@ def test_class_or_instance():
 
 
 @pytest.mark.parametrize(('coordinates'),
-                         [coord.ICRS(ra=148,
-                                                dec=69,
-                                                unit=(u.deg, u.deg)),
-                          ])
+                         [coord.ICRS(ra=148, dec=69, unit=(u.deg, u.deg)),
+                          ]
+                         )
 def test_parse_coordinates_1(coordinates):
     c = commons.parse_coordinates(coordinates)
     assert c is not None
@@ -77,11 +77,12 @@ def test_parse_coordinates_3():
 # raise an exception.
 @pytest.mark.parametrize(('radius'),
                          [5,
-                          #9.8 * u.kg
+                          # 9.8 * u.kg
                           ])
 def test_parse_radius_2(radius):
     with pytest.raises(Exception):
         commons.parse_radius(radius)
+
 
 def test_send_request_post(monkeypatch):
     def mock_post(url, data, timeout, headers={}):
@@ -110,14 +111,16 @@ def test_send_request_get(monkeypatch):
                                     dict(a='b'), 60, request_type='GET')
     assert response.url == 'https://github.com/astropy/astroquery?a=b'
 
+
 def test_quantity_timeout(monkeypatch):
     def mock_get(url, params, timeout, headers={}):
         req = requests.Request('GET', url, params=params, headers=headers).prepare()
         return req
     monkeypatch.setattr(requests, 'get', mock_get)
     response = commons.send_request('https://github.com/astropy/astroquery',
-                                    dict(a='b'), 1*u.min, request_type='GET')
+                                    dict(a='b'), 1 * u.min, request_type='GET')
     assert response.url == 'https://github.com/astropy/astroquery?a=b'
+
 
 def test_send_request_err():
     with pytest.raises(ValueError):
@@ -126,7 +129,7 @@ def test_send_request_err():
 
 col_1 = [1, 2, 3]
 col_2 = [0, 1, 0, 1, 0, 1]
-col_3 = ['v','w', 'x', 'y', 'z']
+col_3 = ['v', 'w', 'x', 'y', 'z']
 # table t1 with 1 row and 3 cols
 t1 = Table([col_1[:1], col_2[:1], col_3[:1]], meta={'name': 't1'})
 # table t2 with 3 rows and 1 col
@@ -266,7 +269,7 @@ docstr2_out = textwrap.dedent("""
 
 def test_process_async_docs():
     assert async_to_sync_docstr(docstr1) == docstr1_out
-    assert async_to_sync_docstr(docstr2,returntype='dict') == docstr2_out
+    assert async_to_sync_docstr(docstr2, returntype='dict') == docstr2_out
 
 
 class Dummy:
@@ -278,7 +281,7 @@ class Dummy:
 
 def test_async_to_sync(cls=Dummy):
     newcls = async_to_sync(Dummy)
-    assert hasattr(newcls,"do_nothing")
+    assert hasattr(newcls, "do_nothing")
 
 docstr3 = """
     Returns
@@ -297,7 +300,7 @@ docstr3_out = """
 """
 
 
-def test_return_chomper(doc=docstr3,out=docstr3_out):
+def test_return_chomper(doc=docstr3, out=docstr3_out):
     assert remove_returns(doc) == [x.lstrip() for x in out.split('\n')]
 
 
@@ -334,7 +337,7 @@ docstr4_out = """
 """
 
 
-def test_prepend_docstr(doc=docstr4,func=dummyfunc,out=docstr4_out):
+def test_prepend_docstr(doc=docstr4, func=dummyfunc, out=docstr4_out):
     fn = prepend_docstr_noreturns(doc)(func)
     assert fn.__doc__ == textwrap.dedent(docstr4_out)
 
@@ -363,6 +366,7 @@ def test_payload_return(cls=DummyQuery):
 fitsfilepath = os.path.join(os.path.dirname(__file__),
                             '../../sdss/tests/data/emptyfile.fits')
 
+
 @pytest.fixture
 def patch_getreadablefileobj(request):
     # Monkeypatch hack: ALWAYS treat as a URL
@@ -373,11 +377,14 @@ def patch_getreadablefileobj(request):
 
     class MockRemote(object):
         def __init__(self, fn, *args, **kwargs):
-            self.file = open(fn,'rb')
+            self.file = open(fn, 'rb')
+
         def info(self):
-            return {'Content-Length':filesize}
-        def read(self,*args):
+            return {'Content-Length': filesize}
+
+        def read(self, *args):
             return self.file.read(*args)
+
         def close(self):
             self.file.close()
 
@@ -392,15 +399,24 @@ def patch_getreadablefileobj(request):
 
     request.addfinalizer(closing)
 
+
 def test_filecontainer_save(patch_getreadablefileobj):
     ffile = commons.FileContainer(fitsfilepath, encoding='binary')
-    ffile.save_fits('/tmp/test_emptyfile.fits')
-    assert os.path.exists('/tmp/test_emptyfile.fits')
+    temp_dir = tempfile.mkdtemp()
+    empty_temp_file = temp_dir + os.sep + 'test_emptyfile.fits'
+    try:
+        ffile.save_fits(empty_temp_file)
+        assert os.path.exists(empty_temp_file)
+    finally:
+        os.remove(empty_temp_file)
+        os.rmdir(temp_dir)
+
 
 def test_filecontainer_get(patch_getreadablefileobj):
     ffile = commons.FileContainer(fitsfilepath, encoding='binary')
     ff = ffile.get_fits()
     assert isinstance(ff, fits.HDUList)
+
 
 @pytest.mark.parametrize(('coordinates', 'expected'),
                          [("5h0m0s 0d0m0s", True),

@@ -7,12 +7,12 @@ import astropy.units as u
 import astropy.io.ascii as asciitable
 
 from ..query import BaseQuery
-from ..utils import commons,async_to_sync
+from ..utils import commons, async_to_sync
 from ..utils.docstr_chompers import prepend_docstr_noreturns
-from . import NIST_SERVER, NIST_TIMEOUT
+from . import conf
 from ..exceptions import TableParseError
 
-__all__ = ['Nist','NistClass']
+__all__ = ['Nist', 'NistClass']
 
 
 def _strip_blanks(table):
@@ -30,7 +30,7 @@ def _strip_blanks(table):
     single string joined by newlines.
     """
     numbersletters = re.compile("[0-9A-Za-z]")
-    if isinstance(table,str):
+    if isinstance(table, str):
         table = table.split('\n')
     table = [line for line in table if numbersletters.search(line)]
     return "\n".join(table)
@@ -38,14 +38,14 @@ def _strip_blanks(table):
 
 @async_to_sync
 class NistClass(BaseQuery):
-    URL = NIST_SERVER()
-    TIMEOUT = NIST_TIMEOUT()
+    URL = conf.server
+    TIMEOUT = conf.timeout
     unit_code = {'Angstrom':0,
                  'nm': 1,
                  'um': 2}
-    energy_level_code = {'cm-1':0, 'invcm':0,'cm':0,
-                'ev':1,'eV':1,'EV':1,'electronvolt':1,
-                'R':2,'Rydberg':2,'rydberg':2}
+    energy_level_code = {'cm-1':0, 'invcm':0, 'cm':0,
+                'ev':1, 'eV':1, 'EV':1, 'electronvolt':1,
+                'R':2, 'Rydberg':2, 'rydberg':2}
     order_out_code = {'wavelength':0,
                 'multiplet':1}
     wavelength_unit_code = {'vacuum': 3,
@@ -114,8 +114,8 @@ class NistClass(BaseQuery):
         request_payload["page_size"] = 15
         return request_payload
 
-    @prepend_docstr_noreturns("\n"+_args_to_payload.__doc__)
-    def query_async(self,minwav, maxwav, linename="H I", energy_level_unit='eV', output_order='wavelength',
+    @prepend_docstr_noreturns("\n" + _args_to_payload.__doc__)
+    def query_async(self, minwav, maxwav, linename="H I", energy_level_unit='eV', output_order='wavelength',
                     wavelength_type='vacuum', get_query_payload=False):
         """
         Returns
@@ -147,10 +147,12 @@ class NistClass(BaseQuery):
         table : `astropy.table.Table`
         """
 
-        pre_re = re.compile("<pre>(.*)</pre>",flags=re.DOTALL)
+        pre_re = re.compile("<pre>(.*)</pre>", flags=re.DOTALL)
         links_re = re.compile(r"<a.*?>\s*(\w+)\s*</a>")
+        content = response.text
+
         try:
-            pre = pre_re.findall(response.content)[0]
+            pre = pre_re.findall(content)[0]
         except IndexError:
             raise Exception("Result did not contain a table")
         try:

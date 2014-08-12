@@ -17,17 +17,17 @@ from ..query import BaseQuery # all Query classes should inherit from this.
 from ..utils import commons # has common functions required by most modules
 from ..utils import prepend_docstr_noreturns # automatically generate docs for similar functions
 from ..utils import async_to_sync # all class methods must be callable as static as well as instance methods.
-from . import SERVER, TIMEOUT # import configurable items declared in __init__.py
+from . import conf # import configurable items declared in __init__.py
 
 
 # export all the public classes and methods
-__all__ = ['Dummy','DummyClass']
+__all__ = ['Dummy', 'DummyClass']
 
 # declare global variables and constants if any
 
+
 # Now begin your main class
 # should be decorated with the async_to_sync imported previously
-
 @async_to_sync
 class DummyClass(BaseQuery):
 
@@ -35,8 +35,8 @@ class DummyClass(BaseQuery):
     Not all the methods below are necessary but these cover most of the common cases, new methods may be added if necessary, follow the guidelines at <http://astroquery.readthedocs.org/en/latest/api.html>
     """
     # use the Configuration Items imported from __init__.py to set the URL, TIMEOUT, etc.
-    URL = SERVER()
-    TIMEOUT = TIMEOUT()
+    URL = conf.server
+    TIMEOUT = conf.timeout
 
     def query_object(self, object_name, get_query_payload=False, verbose=False):
         """
@@ -97,9 +97,8 @@ class DummyClass(BaseQuery):
     # prepend_docstr_noreturns which will automatically generate
     # the common docs. See below for an example.
 
-
     @prepend_docstr_noreturns(query_object.__doc__)
-    def query_object_async(self, object_name, get_query_payload=False) :
+    def query_object_async(self, object_name, get_query_payload=False):
         """
         Returns
         -------
@@ -143,7 +142,6 @@ class DummyClass(BaseQuery):
                                         request_type='GET')
         return response
 
-
     # For services that can query coordinates, use the query_region method.
     # The pattern is similar to the query_object method. The query_region
     # method also has a 'radius' keyword for specifying the radius around
@@ -151,7 +149,6 @@ class DummyClass(BaseQuery):
     # the keywords 'width' and 'height' should be used instead. The coordinates
     # may be accepted as an `astropy.coordinates` object or as a
     # string, which may be further parsed.
-
     def query_region(self, coordinates, radius, width, height, get_query_payload=False, verbose=False):
         """
         Queries a region around the specified coordinates.
@@ -275,7 +272,7 @@ class DummyClass(BaseQuery):
         readable_objs = self.get_images_async(coordinates, radius,
                                               get_query_payload=get_query_payload)
         if get_query_payload:
-            return readable_objs # simply return the dict of HTTP request params
+            return readable_objs  # simply return the dict of HTTP request params
         # otherwise return the images as a list of astropy.fits.HDUList
         return [obj.get_fits() for obj in readable_objs]
 
@@ -314,7 +311,7 @@ class DummyClass(BaseQuery):
         #    case it should just return this dict.
         # 3. Otherwise make the HTTP request and receive the
         #    HTTP response.
-        # 4. Pass this raw response to the extract_image_urls
+        # 4. Pass this response to the extract_image_urls
         #    which scrapes it to extract the image download links.
         # 5. Return the download links as a list.
         request_payload = self._args_to_payload(coordinates, radius)
@@ -324,11 +321,10 @@ class DummyClass(BaseQuery):
                                         request_payload,
                                         self.TIMEOUT,
                                         request_type='GET')
-        return self.extract_image_urls(response.content)
+        return self.extract_image_urls(response.text)
 
     # the extract_image_urls method takes in the HTML page as a string
     # and uses regexps, etc to scrape the image urls:
-
 
     def extract_image_urls(self, html_str):
         """

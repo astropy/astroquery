@@ -1,17 +1,18 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from __future__ import print_function
-from ... import fermi
-from ...utils.testing_tools import MockResponse
-from astropy.tests.helper import pytest
-import requests
 import os
+import requests
+from astropy.tests.helper import pytest
 import astropy.coordinates as coord
+from ...utils.testing_tools import MockResponse
+from ... import fermi
 
 DATA_FILES = {'async':"query_result_m31.html",
               'result':'result_page_m31.html',
               'result_url':'http://fermi.gsfc.nasa.gov/cgi-bin/ssc/LAT/QueryResults.cgi?id=L13090120163429E469B432',
               'fits': ['http://fermi.gsfc.nasa.gov/FTP/fermi/data/lat/queries/L13090110364329E469B418_PH00.fits',
                        'http://fermi.gsfc.nasa.gov/FTP/fermi/data/lat/queries/L13090110364329E469B418_SC00.fits']}
+
 
 def data_path(filename):
     data_dir = os.path.join(os.path.dirname(__file__), 'data')
@@ -25,14 +26,14 @@ def patch_post(request):
 
 def post_mockreturn(url, data=None, timeout=50, **kwargs):
     if data is not None:
-        with open(data_path(DATA_FILES['async']),'r') as r:
+        with open(data_path(DATA_FILES['async']), 'rb') as r:
             response = MockResponse(r.read(), **kwargs)
     else:
-        with open(data_path(DATA_FILES['result']),'r') as r:
+        with open(data_path(DATA_FILES['result']), 'rb') as r:
             response = MockResponse(r.read(), **kwargs)
     return response
 
-FK5_COORDINATES = coord.ICRS(10.68471, 41.26875, unit=('deg','deg'))
+FK5_COORDINATES = coord.ICRS(10.68471, 41.26875, unit=('deg', 'deg'))
 
 # disable waiting so tests run fast
 fermi.core.get_fermilat_datafile.TIMEOUT = 1
