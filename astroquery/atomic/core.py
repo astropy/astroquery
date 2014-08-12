@@ -14,7 +14,7 @@ from ..query import BaseQuery
 from ..utils import commons
 from ..utils import prepend_docstr_noreturns
 from ..utils import async_to_sync
-from . import ATOMIC_LINE_LIST_URL, TIMEOUT
+from . import conf
 
 
 __all__ = ['AtomicLineList', 'AtomicLineListClass']
@@ -22,8 +22,8 @@ __all__ = ['AtomicLineList', 'AtomicLineListClass']
 
 @async_to_sync
 class AtomicLineListClass(BaseQuery):
-    FORM_URL = ATOMIC_LINE_LIST_URL()
-    TIMEOUT = TIMEOUT()
+    FORM_URL = conf.url
+    TIMEOUT = conf.timeout
 
     def __init__(self):
         BaseQuery.__init__(self)
