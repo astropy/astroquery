@@ -31,7 +31,9 @@ class AtomicLineListClass(BaseQuery):
 
     def query_object(self, wavelength_range=None, wavelength_type=None,
                      wavelength_accuracy=None, element_spectrum=None,
-                     minimal_abundance=None, depl_factor=None, nmax=None,
+                     minimal_abundance=None, depl_factor=None,
+                     lower_level_energy_range=None,
+                     upper_level_energy_range=None, nmax=None,
                      multiplet=None, show_fine_structure=None,
                      show_auto_ionizing_transitions=None):
         """
@@ -73,6 +75,15 @@ class AtomicLineListClass(BaseQuery):
             abundance Ac using the formula A(elm) = Ac(elm) - df*sd(elm)
             where sd is the standard depletion for each element.
 
+        lower_level_energy_range : `~astropy.units.Unit`
+            Default is to consider all values for the lower/upper level
+            energy to find a possible identification. To restrict the
+            search a range of energies can be supplied.
+            The supported units are: Ry, eV, 1/cm, J, erg.
+
+        upper_level_energy_range : `~astropy.units.Unit`
+            See parameter `lower_level_energy_range`.
+
         nmax : int
             Maximum for principal quantum number n. Default is to
             consider all possible values for the principal quantum number
@@ -108,15 +119,19 @@ class AtomicLineListClass(BaseQuery):
         """
         response = self.query_object_async(
             wavelength_range, wavelength_type, wavelength_accuracy,
-            element_spectrum, minimal_abundance, depl_factor, nmax, multiplet,
-            show_fine_structure, show_auto_ionizing_transitions)
+            element_spectrum, minimal_abundance, depl_factor,
+            lower_level_energy_range, upper_level_energy_range,
+            nmax, multiplet, show_fine_structure,
+            show_auto_ionizing_transitions)
         table = self._parse_result(response)
         return table
 
     @prepend_docstr_noreturns(query_object.__doc__)
     def query_object_async(self, wavelength_range=None, wavelength_type='',
                            wavelength_accuracy=None, element_spectrum=None,
-                           minimal_abundance=None, depl_factor=None, nmax=None,
+                           minimal_abundance=None, depl_factor=None,
+                           lower_level_energy_range=None,
+                           upper_level_energy_range=None, nmax=None,
                            multiplet=None, show_fine_structure=None,
                            show_auto_ionizing_transitions=None):
         """
@@ -143,6 +158,14 @@ class AtomicLineListClass(BaseQuery):
                     len(wlrange)))
         # convert wavelengths in incoming wavelength range to Angstroms
         wlrange_in_angstroms = (wl.to(u.Angstrom, equivalencies=u.spectral()).value for wl in wlrange)
+        lower_level_erange = lower_level_energy_range
+        if lower_level_erange is not None:
+            lower_level_erange = lower_level_erange.to(
+                u.cm**-1, equivalencies=u.spectral()).value()
+        upper_level_erange = upper_level_energy_range
+        if upper_level_erange is not None:
+            upper_level_erange = upper_level_erange.to(
+                u.cm**-1, equivalencies=u.spectral()).value()
         input = {
             'wavl': '-'.join(map(str, wlrange_in_angstroms)),
             'wave': 'Angstrom',
@@ -151,6 +174,9 @@ class AtomicLineListClass(BaseQuery):
             'elmion': element_spectrum,
             'abun': minimal_abundance,
             'depl': depl_factor,
+            'elo': lower_level_erange,
+            'ehi': upper_level_erange,
+            'ener': 'cm^-1',
             'nmax': nmax,
             'term': multiplet,
             'hydr': show_fine_structure,
