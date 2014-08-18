@@ -19,6 +19,9 @@ class AtomicTransition(object):
             return False
         return self.name == other.name
 
+    def __hash__(self):
+        return hash(self.name)
+
 
 class MultiTransition(object):
     def __init__(self, transitions):
