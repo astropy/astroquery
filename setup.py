@@ -43,7 +43,7 @@ LONG_DESCRIPTION = package.__doc__
 builtins._ASTROPY_PACKAGE_NAME_ = PACKAGENAME
 
 # VERSION should be PEP386 compatible (http://www.python.org/dev/peps/pep-0386)
-VERSION = '0.2.dev'
+VERSION = '0.2'
 
 # Indicates if this version is a release version
 RELEASE = 'dev' not in VERSION
@@ -104,8 +104,10 @@ setup(name=PACKAGENAME,
       version=VERSION,
       description=DESCRIPTION,
       scripts=scripts,
-      requires=['astropy', 'keyring', 'beautifulsoup4'],
-      install_requires=['astropy', 'requests', 'html5lib'],
+      requires=['astropy', 'requests', 'keyring', 'beautifulsoup4',
+                'html5lib'],
+      install_requires=['astropy', 'requests', 'keyring', 'beautifulsoup4',
+                        'html5lib'],
       include_package_data=True,
       provides=[PACKAGENAME],
       license=LICENSE,

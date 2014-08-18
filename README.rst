@@ -26,21 +26,24 @@ Astroquery works with Python 2.7 and 3.3 or later.
 As an `astropy`_ affiliate, astroquery requires `astropy`_ version 0.4 or later.
 
 astroquery uses the `requests <http://docs.python-requests.org/en/latest/>`_
-module to communicate with the internet.  `requests`_ can also be installed with
-pip.
+module to communicate with the internet.  `BeautifulSoup
+<http://www.crummy.com/software/BeautifulSoup/>`_ is needed for HTML parsing
+for some services.  The `keyring <https://pypi.python.org/pypi/keyring>`_
+module is also required for accessing services that require a login.
+These can all be installed using `pip <https://pypi.python.org/pypi/pip>`_.
 
-The `first beta release`_ of astroquery can be downloaded or pip installed:
+The `latest release`_ of astroquery can be downloaded or pip installed:
 
 .. code-block:: bash
 
    $ pip install astroquery 
    
 
-Or if pypi is down:   
+Or directly from github:
    
 .. code-block:: bash
    
-   $ pip install https://github.com/astropy/astroquery/archive/v0.1.tar.gz
+   $ pip install https://github.com/astropy/astroquery/archive/v0.2.tar.gz
 
 
 If you'd like the latest development version, you can install it with the
@@ -137,7 +140,7 @@ Badges
 .. _View on Github: https://github.com/astropy/astroquery/
 .. _docs: http://astroquery.readthedocs.org
 .. _Documentation: http://astroquery.readthedocs.org
-.. _first beta release: https://github.com/astropy/astroquery/tarball/v0.1
+.. _latest release: https://github.com/astropy/astroquery/tarball/v0.2
 .. _astropy.astroquery@gmail.com: mailto:astropy.astroquery@gmail.com
 .. _Adam Ginsburg: http://www.adamgginsburg.com
 .. _Blog: http://astropy.org/astroquery-blog
