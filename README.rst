@@ -26,8 +26,11 @@ Astroquery works with Python 2.7 and 3.3 or later.
 As an `astropy`_ affiliate, astroquery requires `astropy`_ version 0.4 or later.
 
 astroquery uses the `requests <http://docs.python-requests.org/en/latest/>`_
-module to communicate with the internet.  `requests`_ can also be installed with
-pip.
+module to communicate with the internet.  `BeautifulSoup
+<http://www.crummy.com/software/BeautifulSoup/>`_ is needed for HTML parsing
+for some services.  The `keyring <https://pypi.python.org/pypi/keyring>`_
+module is also required for accessing services that require a login.
+These can all be installed using `pip <https://pypi.python.org/pypi/pip>`_.
 
 The `latest release`_ of astroquery can be downloaded or pip installed:
 
