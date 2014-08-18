@@ -15,6 +15,7 @@ from ..utils import commons
 from ..utils import prepend_docstr_noreturns
 from ..utils import async_to_sync
 from . import conf
+from .utils import is_valid_transitions_param
 
 
 __all__ = ['AtomicLineList', 'AtomicLineListClass']
@@ -34,7 +35,8 @@ class AtomicLineListClass(BaseQuery):
                      minimal_abundance=None, depl_factor=None,
                      lower_level_energy_range=None,
                      upper_level_energy_range=None, nmax=None,
-                     multiplet=None, show_fine_structure=None,
+                     multiplet=None, transitions=None,
+                     show_fine_structure=None,
                      show_auto_ionizing_transitions=None):
         """
         Parameters
@@ -100,6 +102,18 @@ class AtomicLineListClass(BaseQuery):
             this multiplet belongs should of course also be supplied in
             the `element_spectrum` parameter.
 
+        transitions : `~astroquery.atomic.Transitions`
+            Possible values are:
+                - `~astroquery.atomic.Transition.all`:
+                    The default, consider all transition types.
+                - `~astroquery.atomic.Transition.nebular`:
+                    Consider only allowed transitions of Hydrogen or
+                    Helium and only magnetic dipole or electric quadrupole
+                    transitions of other elements.
+                - A union of the values: `~astroquery.atomic.Transition.XX`
+                  where `XX` is one of the following: `E1`, `IC`, `M1`, `E2`.
+                  Refer to the documentation for the meaning of these values.
+
         show_fine_structure : bool
              If `True`, the fine structure components will be included in
              the output. Refer to the documentations for more information.
@@ -121,7 +135,7 @@ class AtomicLineListClass(BaseQuery):
             wavelength_range, wavelength_type, wavelength_accuracy,
             element_spectrum, minimal_abundance, depl_factor,
             lower_level_energy_range, upper_level_energy_range,
-            nmax, multiplet, show_fine_structure,
+            nmax, multiplet, transitions, show_fine_structure,
             show_auto_ionizing_transitions)
         table = self._parse_result(response)
         return table
@@ -132,7 +146,8 @@ class AtomicLineListClass(BaseQuery):
                            minimal_abundance=None, depl_factor=None,
                            lower_level_energy_range=None,
                            upper_level_energy_range=None, nmax=None,
-                           multiplet=None, show_fine_structure=None,
+                           multiplet=None, transitions=None,
+                           show_fine_structure=None,
                            show_auto_ionizing_transitions=None):
         """
         Returns
@@ -156,6 +171,19 @@ class AtomicLineListClass(BaseQuery):
             raise ValueError(
                 'length of `wavelength_range` must be 2 or 0, but is: {}'.format(
                     len(wlrange)))
+        if not is_valid_transitions_param(transitions):
+            raise ValueError('invalid parameter "transitions": {0!r}'.format(transitions))
+        if transitions is None:
+            _type = self._default_form_values.get('type')
+            type2 = self._default_form_values.get('type2')
+        else:
+            s = str(transitions)
+            if len(s.split(',')) > 1:
+                _type = 'Sel'
+                type2 = s.split(',')
+            else:
+                _type = s
+                type2 = ''
         # convert wavelengths in incoming wavelength range to Angstroms
         wlrange_in_angstroms = (wl.to(u.Angstrom, equivalencies=u.spectral()).value for wl in wlrange)
         lower_level_erange = lower_level_energy_range
@@ -179,10 +207,10 @@ class AtomicLineListClass(BaseQuery):
             'ener': 'cm^-1',
             'nmax': nmax,
             'term': multiplet,
+            'type': _type,
+            'type2': type2,
             'hydr': show_fine_structure,
-            'auto': show_auto_ionizing_transitions,
-            # TODO: add support for more parameters
-        }
+            'auto': show_auto_ionizing_transitions}
         response = self._submit_form(input)
         return response
 

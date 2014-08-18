@@ -2,7 +2,9 @@ import os.path
 
 from astropy.table import Table
 
-from ...atomic import AtomicLineList
+from ...atomic import AtomicLineList, Transition, AtomicTransition,\
+    MultiTransition
+from ...atomic.utils import is_valid_transitions_param
 
 
 class MockResponseAtomicLineList(object):
@@ -46,3 +48,30 @@ LAMBDA VAC ANG SPECTRUM  TT TERM  J J  LEVEL ENERGY  CM 1
       1.016534   Zn XXX  E1  1-8 1/2-* 0.00 - 98377600.00
        1.02146   Zn XXX  E1  1-7 1/2-* 0.00 - 97904300.00
        1.02916   Zn XXX  E1  1-6 1/2-* 0.00 - 97174700.00'''.strip()
+
+
+def test_transitions():
+    assert isinstance(Transition.all, AtomicTransition)
+    assert isinstance(Transition.nebular, AtomicTransition)
+    assert isinstance(Transition.IC, MultiTransition)
+    assert isinstance(Transition.E1, MultiTransition)
+    assert isinstance(Transition.E2, MultiTransition)
+    assert isinstance(Transition.M1, MultiTransition)
+    assert len(Transition.IC | Transition.M1) == 2
+    # associativity
+    assert (Transition.IC | Transition.M1) | Transition.E1 == Transition.IC | (Transition.M1 | Transition.E1)
+    # commutativity
+    assert Transition.IC | Transition.M1 == Transition.M1 | Transition.IC
+    assert str((Transition.IC | Transition.M1))== 'IC,M1'
+
+
+def test_validate_transitions():
+    assert is_valid_transitions_param(Transition.all)
+    assert is_valid_transitions_param(Transition.nebular)
+    assert is_valid_transitions_param(Transition.E1)
+    assert is_valid_transitions_param(Transition.IC | Transition.E2)
+    assert is_valid_transitions_param(Transition.IC | Transition.E2 | Transition.M1)
+    assert not is_valid_transitions_param(Transition.all | Transition.IC)
+    assert not is_valid_transitions_param(Transition.IC | Transition.all)
+    assert not is_valid_transitions_param(Transition.nebular | Transition.IC)
+    assert not is_valid_transitions_param(Transition.IC | Transition.nebular)
