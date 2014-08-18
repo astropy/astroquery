@@ -50,6 +50,4 @@ counterparts; it is used here to limit the number of rows in the resulting table
      4.50395   322.493  12.16703 21295861+1210023 ... EEE 222   0 2451080.6935
 
 
-
-
 .. _xMatch: http://cdsxmatch.u-strasbg.fr/xmatch/doc/
