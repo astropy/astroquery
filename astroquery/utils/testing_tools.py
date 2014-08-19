@@ -28,9 +28,12 @@ def turn_on_internet(verbose=False):
 
 
 class MockResponse(object):
+    """
+    A mocked/non-remote version of `astroquery.query.AstroResponse`
+    """
 
     def __init__(self, content=None, url=None, headers={},
-                 content_type=None):
+                 content_type=None, stream=False):
         assert content is None or hasattr(content, 'decode')
         self.content = content
         self.raw = content
