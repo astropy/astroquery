@@ -19,7 +19,8 @@ __all__ = ['BaseQuery', 'QueryWithLogin']
 
 class AstroResponse(object):
 
-    def __init__(self, response=None, url=None, encoding=None, content=None):
+    def __init__(self, response=None, url=None, encoding=None, content=None,
+                 stream=False):
         if response is None:
             self.url = url
             self.encoding = encoding
@@ -28,9 +29,10 @@ class AstroResponse(object):
         elif isinstance(response, requests.Response):
             self.url = response.url
             self.encoding = response.encoding
-            self.content = response.content
             self.text = response.text
-            self.iter_content = response.iter_content
+            if stream:
+                self.iter_content = response.iter_content
+            self.content = response.content
         elif not hasattr(response, 'content'):
             raise TypeError("{0} is not a requests.Response".format(response))
         elif not isinstance(response, requests.Response):
