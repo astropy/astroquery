@@ -173,7 +173,8 @@ class BaseQuery(object):
                                headers=headers, files=files, timeout=timeout)
             if ((self.cache_location is None) or (not self._cache_active) or
                 (not cache)):
-                response = query.request(self.__session, stream=stream)
+                with suspend_cache(self):
+                    response = query.request(self.__session, stream=stream)
             else:
                 response = query.from_cache(self.cache_location)
                 if not response:

@@ -1,5 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
+from __future__ import print_function
 import time
+import sys
 import os.path
 import webbrowser
 import getpass
@@ -42,7 +44,14 @@ class EsoClass(QueryWithLogin):
         self._instrument_list = None
         self._survey_list = None
 
-    def _activate_form(self, response, form_index=0, inputs={}, cache=True):
+    def _activate_form(self, response, form_index=0, inputs={}, cache=True,
+                       method=None):
+        """
+        Parameters
+        ----------
+        method: None or str
+            Can be used to override the form-specified method
+        """
         # Extract form from response
         root = BeautifulSoup(response.content, 'html5lib')
         form = root.find_all('form')[form_index]
@@ -120,6 +129,9 @@ class EsoClass(QueryWithLogin):
 
         # for future debugging
         self._payload = payload
+
+        if method is not None:
+            fmt = method
 
         # Send payload
         if fmt == 'get':
@@ -303,45 +315,7 @@ class EsoClass(QueryWithLogin):
         if open_form:
             webbrowser.open(url)
         elif help:
-            log.info("List of the column_filters parameters accepted by the {0} instrument query.".format(instrument))
-            log.info("The presence of a column in the result table can be controlled if prefixed with a [ ] checkbox.")
-            log.info("The default columns in the result table are shown as already ticked: [x].")
-            resp = self._request("GET", url, cache=cache)
-            doc = BeautifulSoup(resp.content, 'html5lib')
-            form = doc.select("html > body > form > pre")[0]
-            for section in form.select("table"):
-                section_title = "".join(section.stripped_strings)
-                section_title = "\n".join(["", section_title, "-"*len(section_title)])
-                print(section_title)
-                checkbox_name = ""
-                checkbox_value = ""
-                for tag in section.next_siblings:
-                    if tag.name == u"table":
-                        break
-                    elif tag.name == u"input":
-                        if tag.get(u'type') == u"checkbox":
-                            checkbox_name = tag['name']
-                            checkbox_value = u"[x]" if ('checked' in tag.attrs) else u"[ ]"
-                            name = ""
-                            value = ""
-                        else:
-                            name = tag['name']
-                            value = ""
-                    elif tag.name == u"select":
-                        options = []
-                        for option in tag.select("option"):
-                            options += ["{0} ({1})".format(option['value'], "".join(option.stripped_strings))]
-                        name = tag[u"name"]
-                        value = ", ".join(options)
-                    else:
-                        name = ""
-                        value = ""
-                    if u"tab_" + name == checkbox_name:
-                        checkbox = checkbox_value
-                    else:
-                        checkbox = "   "
-                    if name != u"":
-                        print("{0} {1}: {2}".format(checkbox, name, value))
+            self._print_help(url)
         else:
             instrument_form = self._request("GET", url, cache=cache)
             query_dict = {}
@@ -543,15 +517,20 @@ class EsoClass(QueryWithLogin):
                 # should be included too
                 data_download_form = self._activate_form(data_confirmation_form,
                                                          form_index=-1)
+                log.info("Staging form is at {0}".format(data_download_form.url))
                 root = BeautifulSoup(data_download_form.content, 'html5lib')
                 state = root.select('span[id=requestState]')[0].text
+                import ipdb; ipdb.set_trace()
+                t0 = time.time()
                 while state not in ('COMPLETE', 'ERROR'):
                     time.sleep(2.0)
                     data_download_form = self._request("GET",
                                                        data_download_form.url,
-                                                       cache=cache)
+                                                       cache=False)
                     root = BeautifulSoup(data_download_form.content, 'html5lib')
                     state = root.select('span[id=requestState]')[0].text
+                    print("{0:20.0f}s elapsed".format(time.time()-t0), end='\r')
+                    sys.stdout.flush()
                 if state == 'ERROR':
                     raise RemoteServiceError("There was a remote service error;"
                                              " perhaps the requested file could not be found?")
@@ -580,5 +559,104 @@ class EsoClass(QueryWithLogin):
 
         return 'No data returned' not in content
 
+    def query_apex_quicklooks(self, project_id, help=False, open_form=False,
+                              cache=True, **kwargs):
+        """
+        APEX data are distributed with quicklook products identified with a
+        different name than other ESO products.  This query tool searches by
+        project ID or any other supported keywords.
+
+        Example
+        -------
+        >>> tbl = Eso.query_apex_quicklooks('E-093.C-0144A')
+        >>> files = Eso.retrieve_data(tbl['Product ID'])
+        """
+
+        apex_query_url = 'http://archive.eso.org/wdb/wdb/eso/apex_product/form'
+
+        table = None
+        if open_form:
+            webbrowser.open(url)
+        elif help:
+            return self._print_help(url)
+        else:
+
+            payload = {'dp_id':project_id, 'wdbo':'csv/download'}
+
+            apex_form = self._request("GET", apex_query_url, cache=cache)
+            apex_response = self._activate_form(apex_form, form_index=0,
+                                                inputs=payload, cache=cache,
+                                                method='application/x-www-form-urlencoded')
+
+            content = apex_response.text
+            byte_content = apex_response.content
+            if _check_response(content):
+                try:
+                    table = Table.read(BytesIO(byte_content), format="ascii.csv",
+                                       guess=False, header_start=1)
+                except Exception as ex:
+                    # astropy 0.3.2 raises an anonymous exception; this is
+                    # intended to prevent that from causing real problems
+                    if 'No reader defined' in ex.args[0]:
+                        table = Table.read(BytesIO(byte_content), format="ascii",
+                                           delimiter=',', guess=False,
+                                           header_start=1)
+                    else:
+                        raise ex
+            else:
+                raise RemoteServiceError("Query returned no results")
+
+            return table
+
+
+    def _print_help(self, url):
+        """
+        Download a form and print it in a quasi-human-readable way
+        """
+        log.info("List of the column_filters parameters accepted by the {0} instrument query.".format(instrument))
+        log.info("The presence of a column in the result table can be controlled if prefixed with a [ ] checkbox.")
+        log.info("The default columns in the result table are shown as already ticked: [x].")
+
+        result_string = []
+
+        resp = self._request("GET", url, cache=cache)
+        doc = BeautifulSoup(resp.content, 'html5lib')
+        form = doc.select("html > body > form > pre")[0]
+        for section in form.select("table"):
+            section_title = "".join(section.stripped_strings)
+            section_title = "\n".join(["", section_title, "-"*len(section_title)])
+            result_string.append(section_title)
+            checkbox_name = ""
+            checkbox_value = ""
+            for tag in section.next_siblings:
+                if tag.name == u"table":
+                    break
+                elif tag.name == u"input":
+                    if tag.get(u'type') == u"checkbox":
+                        checkbox_name = tag['name']
+                        checkbox_value = u"[x]" if ('checked' in tag.attrs) else u"[ ]"
+                        name = ""
+                        value = ""
+                    else:
+                        name = tag['name']
+                        value = ""
+                elif tag.name == u"select":
+                    options = []
+                    for option in tag.select("option"):
+                        options += ["{0} ({1})".format(option['value'], "".join(option.stripped_strings))]
+                    name = tag[u"name"]
+                    value = ", ".join(options)
+                else:
+                    name = ""
+                    value = ""
+                if u"tab_" + name == checkbox_name:
+                    checkbox = checkbox_value
+                else:
+                    checkbox = "   "
+                if name != u"":
+                    result_string.append("{0} {1}: {2}".format(checkbox, name, value))
+
+        print("\n".join(result_string))
+        return result_string
 
 Eso = EsoClass()
