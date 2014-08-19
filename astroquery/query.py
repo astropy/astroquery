@@ -10,6 +10,9 @@ import requests
 
 from astropy.extern import six
 from astropy.config import paths
+from astropy import log
+from astropy.utils.console import ProgressBar
+import astropy.utils.data
 
 __all__ = ['BaseQuery', 'QueryWithLogin']
 
@@ -27,6 +30,7 @@ class AstroResponse(object):
             self.encoding = response.encoding
             self.content = response.content
             self.text = response.text
+            self.iter_content = response.iter_content
         elif not hasattr(response, 'content'):
             raise TypeError("{0} is not a requests.Response".format(response))
         elif not isinstance(response, requests.Response):
@@ -36,6 +40,8 @@ class AstroResponse(object):
             warnings.warn("Response has 'content' attribute but is not a "
                           "requests.Response object.  This is expected when "
                           "running local tests but not otherwise.")
+        else:
+            raise ValueError("Empty AstroResponse created.")
 
     def to_cache(self, cache_file):
         with open(cache_file, "wb") as f:
@@ -66,13 +72,14 @@ class AstroQuery(object):
         else:
             self._timeout = value
 
-    def request(self, session, cache_location=None):
+    def request(self, session, cache_location=None, stream=False):
         return AstroResponse(session.request(self.method, self.url,
                                              params=self.params,
                                              data=self.data,
                                              headers=self.headers,
                                              files=self.files,
-                                             timeout=self.timeout))
+                                             timeout=self.timeout,
+                                             stream=stream))
 
     def hash(self):
         if self._hash is None:
@@ -126,7 +133,8 @@ class BaseQuery(object):
         return self.__class__(*args, **kwargs)
 
     def _request(self, method, url, params=None, data=None, headers=None,
-                files=None, save=False, savedir='', timeout=None):
+                 files=None, save=False, savedir='', timeout=None, cache=True,
+                 stream=False):
         """
         A generic HTTP request method, similar to `requests.Session.request` but
         with added caching-related tools
@@ -155,25 +163,45 @@ class BaseQuery(object):
         if save:
             local_filename = url.split('/')[-1]
             local_filepath = os.path.join(self.cache_location or savedir or '.', local_filename)
-            print("Downloading {0}...".format(local_filename))
-            with suspend_cache(self):  # Never cache file downloads: they are already saved on disk
-                r = self._request(method, url, save=False, params=params,
-                                 headers=headers, data=data, files=files,
-                                 timeout=timeout)
-                with open(local_filepath, 'wb') as f:
-                    f.write(r.content)
+            log.info("Downloading {0}...".format(local_filename))
+            self._download_file(url, local_filepath, timeout=timeout)
             return local_filepath
         else:
             query = AstroQuery(method, url, params=params, data=data,
                                headers=headers, files=files, timeout=timeout)
-            if (self.cache_location is None) or (not self._cache_active):
-                response = query.request(self.__session)
+            if ((self.cache_location is None) or (not self._cache_active) or
+                (not cache)):
+                response = query.request(self.__session, stream=stream)
             else:
                 response = query.from_cache(self.cache_location)
                 if not response:
-                    response = query.request(self.__session, self.cache_location)
+                    response = query.request(self.__session,
+                                             self.cache_location,
+                                             stream=stream)
                     response.to_cache(query.request_file(self.cache_location))
             return response
+
+    def _download_file(self, url, local_filepath, timeout=None):
+        """
+        Download a file.  Resembles `astropy.utils.data.download_file` but uses
+        the local ``__session``
+        """
+        query = AstroQuery(method, url, params=params, data=data,
+                           headers=headers, files=files, timeout=timeout)
+        response = query.request(self.__session, stream=True)
+        length = response.headers['content-length']
+
+        pb = ProgressBar(length)
+
+        blocksize = astropy.utils.data.conf.download_block_size
+
+        bytes_read = 0
+
+        with open(local_filepath, 'wb') as f:
+            for block in response.iter_content(blocksize):
+                f.write(block)
+                bytes_read += len(block)
+                pb.update(bytes_read)
 
 
 class suspend_cache:
