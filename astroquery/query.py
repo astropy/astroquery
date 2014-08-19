@@ -186,9 +186,7 @@ class BaseQuery(object):
         Download a file.  Resembles `astropy.utils.data.download_file` but uses
         the local ``__session``
         """
-        query = AstroQuery(method, url, params=params, data=data,
-                           headers=headers, files=files, timeout=timeout)
-        response = query.request(self.__session, stream=True)
+        response = self.__session.get(url, timeout=timeout, stream=True)
         length = response.headers['content-length']
 
         pb = ProgressBar(length)
