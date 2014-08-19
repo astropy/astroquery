@@ -520,7 +520,6 @@ class EsoClass(QueryWithLogin):
                 log.info("Staging form is at {0}".format(data_download_form.url))
                 root = BeautifulSoup(data_download_form.content, 'html5lib')
                 state = root.select('span[id=requestState]')[0].text
-                import ipdb; ipdb.set_trace()
                 t0 = time.time()
                 while state not in ('COMPLETE', 'ERROR'):
                     time.sleep(2.0)

@@ -190,7 +190,10 @@ class BaseQuery(object):
         the local ``__session``
         """
         response = self.__session.get(url, timeout=timeout, stream=True)
-        length = response.headers['content-length']
+        if 'content-length' in response.headers:
+            length = int(response.headers['content-length'])
+        else:
+            length = 1
 
         pb = ProgressBar(length)
 
@@ -201,8 +204,10 @@ class BaseQuery(object):
         with open(local_filepath, 'wb') as f:
             for block in response.iter_content(blocksize):
                 f.write(block)
-                bytes_read += len(block)
-                pb.update(bytes_read)
+                bytes_read += blocksize
+                pb.update(bytes_read if bytes_read <= length else length)
+
+        response.close()
 
 
 class suspend_cache:
