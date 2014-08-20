@@ -575,9 +575,9 @@ class EsoClass(QueryWithLogin):
 
         table = None
         if open_form:
-            webbrowser.open(url)
+            webbrowser.open(apex_query_url)
         elif help:
-            return self._print_help(url)
+            return self._print_help(apex_query_url)
         else:
 
             payload = {'dp_id':project_id, 'wdbo':'csv/download'}
