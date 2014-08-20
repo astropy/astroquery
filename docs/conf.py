@@ -40,6 +40,7 @@ except ImportError:
 
 # Load all of the global Astropy configuration
 from astropy_helpers.sphinx.conf import *
+from astropy.extern.six.moves import urllib
 
 # Get configuration information from setup.cfg
 from distutils import config
@@ -65,6 +66,16 @@ del intersphinx_mapping['scipy']
 del intersphinx_mapping['h5py']
 intersphinx_mapping['astropy'] = ('http://docs.astropy.org/en/latest/', None)
 intersphinx_mapping['requests'] = ('http://docs.python-requests.org/en/latest/', None)
+try:
+    code = urllib.request.urlopen('http://docs.scipy.org/doc/numpy/objects.inv', timeout=10).getcode()
+    if code == 200:
+        numpyOK = True
+    else:
+        numpyOK = False
+except urllib.error.URLError:
+    numpyOK = False
+if not numpyOK:
+    intersphinx_mapping['numpy'] = ('http://jiffyclub.github.io/numpy/', None)
 
 # -- Project information ------------------------------------------------------
 
