@@ -56,6 +56,7 @@ setup_cfg = dict(conf.items('metadata'))
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 exclude_patterns.append('_templates')
+exclude_patterns.append('release_not*')
 
 # This is added to the end of RST files - a good place to put substitutions to
 # be used globally.
