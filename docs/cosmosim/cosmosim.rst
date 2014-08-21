@@ -20,7 +20,7 @@ Getting started
     >>> CS = CosmoSim()
     >>> # Next, enter your credentials; caching is enabled, so after
     >>> # the initial successful login no further password is required.
-    >>> CS.login(username="uname") 
+    >>> CS.login(username="public") # doctest: +SKIP 
     uname, enter your CosmoSim password:
 
     Authenticating uname on www.cosmosim.org...
@@ -29,7 +29,7 @@ Getting started
     log_mass, COUNT(*) AS num FROM MDR1.FOF WHERE snapnum=85 GROUP BY
     FLOOR(LOG10(Mvir)/0.25) ORDER BY log_mass" # MDR1.BDMV mass
     function 
-    >>> CS.run_sql_query(query_string=sql_query)
+    >>> CS.run_sql_query(query_string=sql_query) # doctest: +SKIP 
     Job created: 359748449665484 #jobid; note: is unique to each and
     every query
 
@@ -42,21 +42,21 @@ few examples functions available to the user for these purposes.
 
 .. code-block:: python
 
-    >>> CS.check_all_jobs()
+    >>> CS.check_all_jobs() # doctest: +SKIP 
     {'359748449665484': 'COMPLETED'}
-    >>> CS.delete_job(jobid='359748449665484')
+    >>> CS.delete_job(jobid='359748449665484') # doctest: +SKIP 
     Deleted job: 359748449665484
-    >>> CS.check_all_jobs() 
+    >>> CS.check_all_jobs() # doctest: +SKIP 
     {}
 
 .. code-block:: python
 
-    >>> CS.check_all_jobs()
+    >>> CS.check_all_jobs() # doctest: +SKIP 
     {'359748449665484': 'ABORTED', '359748586913123': 'COMPLETED'}
-    >>> CS.delete_all_jobs()
+    >>> CS.delete_all_jobs() # doctest: +SKIP 
     Deleted job: 359748449665484
     Deleted job: 359748586913123
-    >>> CS.check_all_jobs()
+    >>> CS.check_all_jobs() # doctest: +SKIP 
     {}
 
 
@@ -75,7 +75,7 @@ Legend
 
 .. code-block:: python
 
-    >>> CS.explore_db(db='MDPL')
+    >>> CS.explore_db(db='MDPL') # doctest: +SKIP 
     ########
     # MDPL #
     ########
@@ -99,7 +99,7 @@ Legend
  
 .. code-block:: python
 
-    >>> CS.explore_db(db='MDPL',table='AvailHalos')
+    >>> CS.explore_db(db='MDPL',table='AvailHalos') # doctest: +SKIP 
     ########
     # MDPL #
     ########
@@ -122,7 +122,7 @@ Legend
 
 .. code-block:: python
 
-    >>> CS.explore_db(db='MDPL',table='AvailHalos',col='redshift')    
+    >>> CS.explore_db(db='MDPL',table='AvailHalos',col='redshift') # doctest: +SKIP    
     ########
     # MDPL #
     ########
