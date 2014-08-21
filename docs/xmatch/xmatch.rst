@@ -8,10 +8,12 @@ xMatch Queries (`astroquery.xmatch`)
 
 Getting started
 ===============
-The xMatch_ service is a tool to cross-identify sources between very large data sets or between a user-uploaded list
-and a large catalogue. An example for the latter case can be found below.
+The xMatch_ service is a tool to cross-identify sources between very large data
+sets or between a user-uploaded list and a large catalogue. An example for the
+latter case can be found below.
 
-First of all, a new CSV file is created which stores a list of coordinates. It has the following content::
+First of all, a new CSV file is created which stores a list of coordinates. It
+has the following content::
 
     ra,dec
     267.22029,-20.35869
@@ -21,19 +23,25 @@ First of all, a new CSV file is created which stores a list of coordinates. It h
     306.01575,33.86756
     322.493,12.16703
 
-Next, the xMatch service will be used to find cross matches between the uploaded file and a VizieR catalogue.
-The parameters ``cat1`` and ``cat2`` define the catalogues where one of them may point to a local file (in this example,
-the CSV file is stored in `/tmp/pos_list.csv`). `max_distance` denotes the maximum distance in arcsec to look for
-counterparts; it is used here to limit the number of rows in the resulting table for demonstration purposes. Finally,
-``colRa1`` and ``colDec1`` are used to denote the column names in the input file.
+Next, the xMatch service will be used to find cross matches between the
+uploaded file and a VizieR catalogue.  The parameters ``cat1`` and ``cat2``
+define the catalogues where one of them may point to a local file (in this
+example, the CSV file is stored in `/tmp/pos_list.csv`). `max_distance` denotes
+the maximum distance in arcsec to look for counterparts; it is used here to
+limit the number of rows in the resulting table for demonstration purposes.
+Finally, ``colRa1`` and ``colDec1`` are used to denote the column names in the
+input file.
 
 .. code-block:: python
 
     >>> from astropy import units as u
     >>> from astroquery.xmatch import XMatch
-    >>> table = XMatch.query(cat1=open('/tmp/pos_list.csv'), cat2='vizier:II/246/out', max_distance=5 * u.arcsec, colRA1='ra', colDec1='dec')
+    >>> table = XMatch.query(cat1=open('/tmp/pos_list.csv'),
+    ...                      cat2='vizier:II/246/out',
+    ...                      max_distance=5 * u.arcsec, colRA1='ra',
+    ...                      colDec1='dec')
     >>> type(table)
-<class 'astropy.table.table.Table'>
+    <class 'astropy.table.table.Table'>
     >>> print table
     angDist      ra       dec         2MASS       ... Qfl Rfl  X   MeasureJD
     -------- --------- --------- ---------------- ... --- --- --- ------------
