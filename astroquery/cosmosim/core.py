@@ -344,8 +344,6 @@ class CosmoSim(QueryWithLogin):
         completed_job_responses = self.completed_job_info(jobid)
         soup = BeautifulSoup(completed_job_responses[0].content)
         tableurl = soup.find("uws:result").get("xlink:href")
-
-        ipdb.set_trace()
         
         # This is where the request.content parsing happens
         raw_table_data = self.session.get(tableurl,auth=(self.username,self.password))
