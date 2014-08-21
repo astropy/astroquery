@@ -458,8 +458,8 @@ class EsoClass(QueryWithLogin):
         files : list of strings
             List of files that have been locally downloaded from the archive.
 
-        Example
-        -------
+        Examples
+        --------
         >>> dptbl = Eso.query_instrument('apex', pi_coi='ginsburg')
         >>> dpids = [row['DP.ID'] for row in dptbl if 'Map' in row['Object']]
         >>> files = Eso.retrieve_data(dpids)
@@ -565,8 +565,8 @@ class EsoClass(QueryWithLogin):
         different name than other ESO products.  This query tool searches by
         project ID or any other supported keywords.
 
-        Example
-        -------
+        Examples
+        --------
         >>> tbl = Eso.query_apex_quicklooks('E-093.C-0144A')
         >>> files = Eso.retrieve_data(tbl['Product ID'])
         """
