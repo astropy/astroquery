@@ -11,7 +11,7 @@ Getting started
 The xMatch_ service is a tool to cross-identify sources between very large data sets or between a user-uploaded list
 and a large catalogue. An example for the latter case can be found below.
 
-First of all, a new CSV file is created which stores a list of coordinates, It has the following content::
+First of all, a new CSV file is created which stores a list of coordinates. It has the following content::
 
     ra,dec
     267.22029,-20.35869
