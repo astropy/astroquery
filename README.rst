@@ -39,15 +39,8 @@ The `latest release`_ of astroquery can be downloaded or pip installed:
    $ pip install astroquery 
    
 
-Or directly from github:
-   
-.. code-block:: bash
-   
-   $ pip install https://github.com/astropy/astroquery/archive/v0.2.tar.gz
-
-
 If you'd like the latest development version, you can install it with the
-following commands:
+following commands if you have ``git`` installed:
 
 .. code-block:: bash
 
