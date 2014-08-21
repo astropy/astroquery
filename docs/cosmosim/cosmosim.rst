@@ -25,10 +25,8 @@ Getting started
 
     Authenticating uname on www.cosmosim.org...
     Authentication successful!
-    >>> sql_query = "SELECT 0.25*(0.5+FLOOR(LOG10(Mvir)/0.25)) AS
-    log_mass, COUNT(*) AS num FROM MDR1.FOF WHERE snapnum=85 GROUP BY
-    FLOOR(LOG10(Mvir)/0.25) ORDER BY log_mass" # MDR1.BDMV mass
-    function 
+    >>> # MDR1.BDMV mass function 
+    >>> sql_query = "SELECT 0.25*(0.5+FLOOR(LOG10(Mvir)/0.25)) AS log_mass, COUNT(*) AS num FROM MDR1.FOF WHERE snapnum=85 GROUP BY FLOOR(LOG10(Mvir)/0.25) ORDER BY log_mass" # doctest: +SKIP 
     >>> CS.run_sql_query(query_string=sql_query) # doctest: +SKIP 
     Job created: 359748449665484 #jobid; note: is unique to each and
     every query
