@@ -62,7 +62,7 @@ class AtomicLineListClass(BaseQuery):
             singly ionized etc.). To pass multiple values, separate them
             by \n (newline).
 
-        minimal_abundance :str
+        minimal_abundance : str
              Impose a lower limit on the abundances of elements to be
              considered for possible identifications. Default is to
              consider arbitrary low abundances. The elements are assumed
@@ -77,13 +77,13 @@ class AtomicLineListClass(BaseQuery):
             abundance Ac using the formula A(elm) = Ac(elm) - df*sd(elm)
             where sd is the standard depletion for each element.
 
-        lower_level_energy_range : `~astropy.units.Unit`
+        lower_level_energy_range : `~astropy.units.Quantity`
             Default is to consider all values for the lower/upper level
             energy to find a possible identification. To restrict the
             search a range of energies can be supplied.
             The supported units are: Ry, eV, 1/cm, J, erg.
 
-        upper_level_energy_range : `~astropy.units.Unit`
+        upper_level_energy_range : `~astropy.units.Quantity`
             See parameter `lower_level_energy_range`.
 
         nmax : int
@@ -132,11 +132,15 @@ class AtomicLineListClass(BaseQuery):
 
         """
         response = self.query_object_async(
-            wavelength_range, wavelength_type, wavelength_accuracy,
-            element_spectrum, minimal_abundance, depl_factor,
-            lower_level_energy_range, upper_level_energy_range,
-            nmax, multiplet, transitions, show_fine_structure,
-            show_auto_ionizing_transitions)
+            wavelength_range=wavelength_range, wavelength_type=wavelength_type,
+            wavelength_accuracy=wavelength_accuracy,
+            element_spectrum=element_spectrum,
+            minimal_abundance=minimal_abundance, depl_factor=depl_factor,
+            lower_level_energy_range=lower_level_energy_range,
+            upper_level_energy_range=upper_level_energy_range, nmax=nmax,
+            multiplet=multiplet, transitions=transitions,
+            show_fine_structure=show_fine_structure,
+            show_auto_ionizing_transitions=show_auto_ionizing_transitions)
         table = self._parse_result(response)
         return table
 
