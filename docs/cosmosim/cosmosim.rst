@@ -20,7 +20,9 @@ Getting started
     >>> CS = CosmoSim()
     >>> # Next, enter your credentials; caching is enabled, so after
     >>> # the initial successful login no further password is required.
-    >>> CS.login(username="uname",password="pword") 
+    >>> CS.login(username="uname") 
+    uname, enter your CosmoSim password:
+
     Authenticating uname on www.cosmosim.org...
     Authentication successful!
     >>> sql_query = "SELECT 0.25*(0.5+FLOOR(LOG10(Mvir)/0.25)) AS
