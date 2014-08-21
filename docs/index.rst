@@ -117,6 +117,8 @@ The following modules have been completed using a common API:
   nvas/nvas.rst
   gama/gama.rst
   eso/eso.rst
+  xmatch/xmatch.rst
+  atomic/atomic.rst
 
 These others are functional, but do not follow a common & consistent API:
 
@@ -159,6 +161,7 @@ for each source)
   simbad/simbad.rst
   ukidss/ukidss.rst
   vizier/vizier.rst
+  xmatch/xmatch.rst
 
 Archives
 --------
@@ -201,6 +204,7 @@ above categories.
 .. toctree::
   :maxdepth: 1
 
+  atomic/atomic.rst
   lamda/lamda.rst
   nist/nist.rst
   splatalogue/splatalogue.rst
