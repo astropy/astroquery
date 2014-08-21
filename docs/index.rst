@@ -22,19 +22,19 @@ Check out the :doc:`gallery` for some nice examples.
 
 Installation
 ------------
-Astroquery must be installed from source:
+Astroquery can be pip installed:
+
+.. code-block:: bash
+
+    $ pip install astroquery
+
+or cloned and installed from source:
 
 .. code-block:: bash
 
     $ git clone git@github.com:astropy/astroquery.git
     $ cd astroquery
     $ python setup.py install
-
-pip install also works:
-
-.. code-block:: bash
-
-    $ pip install git+http://github.com/astropy/astroquery.git#egg=astroquery
 
 Requirements
 ````````````
@@ -48,6 +48,7 @@ The following packages are required for astroquery installation & use:
 * `requests <http://docs.python-requests.org/en/latest/>`_
 * `keyring <https://pypi.python.org/pypi/keyring>`_ (required only for the
   `~astroquery.eso` module)
+* `Beautiful Soup <http://www.crummy.com/software/BeautifulSoup/>`_
 
 Using astroquery
 ----------------
