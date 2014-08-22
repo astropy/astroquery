@@ -5,7 +5,8 @@ be removed in affiliated packages.
 0.4.1 (untagged)
 ----------------
 
-- No changes yet
+- Changed order of exclusion in MANIFEST.in, excluding *.pyc *after* including
+  astropy-template
 
 0.4 (2014-08-14)
 ----------------
