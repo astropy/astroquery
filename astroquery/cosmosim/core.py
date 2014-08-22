@@ -417,6 +417,7 @@ class CosmoSim(QueryWithLogin):
 
         self.check_all_jobs()
 
+
     def delete_all_jobs(self,phase=None,regex=None):
         """
         A public function which deletes any/all jobs from the server in any phase
@@ -429,7 +430,7 @@ class CosmoSim(QueryWithLogin):
         regex : string
             A regular expression to match all tablenames to. Matching table names will be deleted.
         """
-        
+
         self.check_all_jobs()
 
         if regex:
