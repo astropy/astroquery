@@ -1,8 +1,8 @@
 .. _astroquery.cosmosim:
 
-***********************************************
+****************************************
 CosmoSim Queries (`astroquery.cosmosim`)
-***********************************************
+****************************************
 
 This module allows the user to query and download from one of three 
 cosmological simulation projects: the MultiDark project, the BolshoiP project, 
@@ -11,7 +11,7 @@ first be instantiated with valid credentials (no public username/password
 are implemented). Below are a couple of examples of usage. 
 
 Getting started
-==========
+===============
 
 
 .. code-block:: python
@@ -32,7 +32,7 @@ Getting started
     every query
 
 Managing CosmoSim Queries
-===================
+=========================
 
 The cosmosim module provides functionality for checking the completion status
 of queries, in addition to deleting them from the server. Below are a
@@ -59,7 +59,7 @@ few examples functions available to the user for these purposes.
 
 
 Exploring Database Schema
-==================
+=========================
 
 A database exploration tool is available to help the user navigate
 the structure of any simulation database in the CosmoSim database. 
@@ -132,14 +132,14 @@ Legend
                 --> description:
     
 Downloading data
-============
+================
 
  
 
 
 
 Reference/API
-=========
+=============
 
 .. automodapi:: astroquery.cosmosim
     :no-inheritance-diagram:
