@@ -24,10 +24,7 @@ from . import COSMOSIM_SERVER, COSMOSIM_TIMEOUT
 __all__ = ['CosmoSim']
 
 class CosmoSim(QueryWithLogin):
-    """
-    TO DO: documentation
-    """
-
+    
     QUERY_URL = COSMOSIM_SERVER()
     SCHEMA_URL = 'http://www.cosmosim.org/query/account/databases/json'
     TIMEOUT = COSMOSIM_TIMEOUT()
@@ -131,7 +128,12 @@ class CosmoSim(QueryWithLogin):
         Parameters
         ----------
         jobid : string
-            The jobid of the sql query. If none provided
+            The jobid of the sql query. If no jobid is given, it attemps to use the most recent job (if it exists in this session).
+            
+        Returns
+        -------
+        result : content of 'requests.models.Response' object
+            The requests response phase
         """
         
         if jobid is None:
@@ -176,8 +178,23 @@ class CosmoSim(QueryWithLogin):
             print(self.job_dict)
             return checkalljobs
 
-    def completed_job_info(self,jobid=None,output=None):
+    def completed_job_info(self,jobid=None,output=False):
+        """
+        A public function which sends an http GET request for a given jobid with phase COMPLETED, and returns a list containing the response object. If no jobid is provided, a list of all responses with phase COMPLETED is generated.
 
+        Parameters
+        ----------
+        jobid : string
+            The jobid of the sql query.
+        output : bool
+            Print output of response(s) to the terminal
+            
+        Returns
+        -------
+        result : list
+            A list of response object(s)
+        """
+        
         self.check_all_jobs()
         
         if jobid is None:
@@ -186,7 +203,7 @@ class CosmoSim(QueryWithLogin):
         else:
             response_list = [self.session.get(CosmoSim.QUERY_URL+"/{}".format(jobid),auth=(self.username,self.password))]
 
-        if output is not None:
+        if output is True:
             for i in response_list:
                 print(i.content)
         else:
@@ -197,6 +214,19 @@ class CosmoSim(QueryWithLogin):
     def delete_job(self,jobid=None,squash=None):
         """
         A public function which deletes a stored job from the server in any phase. If no jobid is given, it attemps to use the most recent job (if it exists in this session). If jobid is specified, then it deletes the corresponding job, and if it happens to match the existing current job, that variable gets deleted.
+        
+        Parameters
+        ----------
+        jobid : string
+            The jobid of the sql query. If no jobid is given, it attemps to use the most recent job (if it exists in this session).
+        output : bool
+            Print output of response(s) to the terminal
+            
+        Returns
+        -------
+        result : list
+            A list of response object(s)
+
         """
         
         self.check_all_jobs()
@@ -230,7 +260,10 @@ class CosmoSim(QueryWithLogin):
         self.check_all_jobs()
 
     def delete_all_jobs(self):
-
+        """
+        A public function which deletes all jobs from the server in any phase.
+        """
+        
         self.check_all_jobs()
         
         for key in self.job_dict.keys():
@@ -243,8 +276,9 @@ class CosmoSim(QueryWithLogin):
 
     def _generate_schema(self):
         """
-        TO DO: documentation
+        Internal function which builds a schema of all simulations within the database (in the form of a dictionary).
         """
+
         response = requests.get(CosmoSim.SCHEMA_URL,
                                 auth=(self.username,self.password),
                                 headers = {'Accept': 'application/json'})
@@ -281,7 +315,16 @@ class CosmoSim(QueryWithLogin):
 
     def explore_db(self,db=None,table=None,col=None):
         """
-        TO DO: documentation
+        A public function which allows for the exploration of any simulation and its tables within the database. This function is meant to aid the user in constructing sql queries.
+        
+        Parameters
+        ----------
+        db : string
+            The database to explore.
+        table : string
+            The table to explore.
+        col : string
+            The column to explore.
         """
         
         try:
