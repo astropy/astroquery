@@ -1,8 +1,10 @@
+from __future__ import print_function
 import requests
 import sys
 from bs4 import BeautifulSoup
 import keyring
 import getpass
+import logging
 
 # Astropy imports
 from astropy.table import Table
@@ -94,8 +96,8 @@ class CosmoSim(QueryWithLogin):
             result = self.session.post(CosmoSim.QUERY_URL,auth=(self.username,self.password),data={'query':query_string,'phase':'run'})
             soup = BeautifulSoup(result.content)
             gen_tablename = str(soup.find(id="table").string)
-            print "Table name {} is already taken.".format(tablename)
-            print "Generated table name: {}".format(gen_tablename)
+            logging.warning("Table name {} is already taken.".format(tablename))
+            print("Generated table name: {}".format(gen_tablename))
         elif tablename is None:
             result = self.session.post(CosmoSim.QUERY_URL,auth=(self.username,self.password),data={'query':query_string,'phase':'run'})
         else:
@@ -103,7 +105,7 @@ class CosmoSim(QueryWithLogin):
         
         soup = BeautifulSoup(result.content)
         self.current_job = str(soup.find("uws:jobid").string)
-        print "Job created: {}".format(self.current_job)
+        print("Job created: {}".format(self.current_job))
         self._existing_tables()
         return result
         
@@ -171,7 +173,7 @@ class CosmoSim(QueryWithLogin):
         if frame.f_code.co_name in do_not_print_job_dict: 
             return checkalljobs
         else:
-            print self.job_dict
+            print(self.job_dict)
             return checkalljobs
 
     def completed_job_info(self,jobid=None,output=None):
@@ -186,9 +188,9 @@ class CosmoSim(QueryWithLogin):
 
         if output is not None:
             for i in response_list:
-                print i.content
+                print(i.content)
         else:
-            print response_list
+            print(response_list)
             
         return response_list
 
@@ -211,13 +213,13 @@ class CosmoSim(QueryWithLogin):
         if self.job_dict[jobid] in ['COMPLETED','ERROR','ABORTED','PENDING']:
             result = self.session.delete(CosmoSim.QUERY_URL+"/{}".format(jobid),auth=(self.username,self.password),data={'follow':''})
         else:
-            print "Can only delete a job with phase: 'COMPLETED', 'ERROR', 'ABORTED', or 'PENDING'."
+            print("Can only delete a job with phase: 'COMPLETED', 'ERROR', 'ABORTED', or 'PENDING'.")
             return 
             
         if not result.ok:
             result.raise_for_status()
         if squash is None:    
-            print 'Deleted job: {}'.format(jobid)
+            print('Deleted job: {}'.format(jobid))
         
         return result
 
@@ -235,7 +237,7 @@ class CosmoSim(QueryWithLogin):
             result = self.session.delete(CosmoSim.QUERY_URL+"/{}".format(key),auth=(self.username,self.password),data={'follow':''})
             if not result.ok:
                 result.raise_for_status()
-            print "Deleted job: {}".format(key)
+            print("Deleted job: {}".format(key))
 
         return 
 
@@ -243,26 +245,38 @@ class CosmoSim(QueryWithLogin):
         """
         TO DO: documentation
         """
-        response = requests.get(CosmoSim.SCHEMA_URL,auth=(self.username,self.password),headers = {'Accept': 'application/json'})
+        response = requests.get(CosmoSim.SCHEMA_URL,
+                                auth=(self.username,self.password),
+                                headers = {'Accept': 'application/json'})
         data = response.json()
 
         self.db_dict = {}
         for i in range(len(data['databases'])):
             self.db_dict['{}'.format(data['databases'][i]['name'])] = {}
-            
-            self.db_dict['{}'.format(data['databases'][i]['name'])]['id'] = '{}'.format(data['databases'][i]['id'])
-            self.db_dict['{}'.format(data['databases'][i]['name'])]['description'] = '{}'.format(data['databases'][i]['description'])
-            self.db_dict['{}'.format(data['databases'][i]['name'])]['tables'] = {}
+
+            sstr = '{}'.format(data['databases'][i]['name'])
+            sid = '{}'.format(data['databases'][i]['id'])
+            self.db_dict[sstr]['id'] = sid
+            sdesc = '{}'.format(data['databases'][i]['description'])
+            self.db_dict[sstr]['description'] = sdesc
+            self.db_dict[sstr]['tables'] = {}
             for j in range(len(data['databases'][i]['tables'])):
-                self.db_dict['{}'.format(data['databases'][i]['name'])]['tables']['{}'.format(data['databases'][i]['tables'][j]['name'])] = {}
-                self.db_dict['{}'.format(data['databases'][i]['name'])]['tables']['{}'.format(data['databases'][i]['tables'][j]['name'])]['id'] = data['databases'][i]['tables'][j]['id']
-                self.db_dict['{}'.format(data['databases'][i]['name'])]['tables']['{}'.format(data['databases'][i]['tables'][j]['name'])]['description'] = data['databases'][i]['tables'][j]['description']
-                self.db_dict['{}'.format(data['databases'][i]['name'])]['tables']['{}'.format(data['databases'][i]['tables'][j]['name'])]['columns'] = {}
-                for k in range(len(data['databases'][i]['tables'][j]['columns'])):
-                    self.db_dict['{}'.format(data['databases'][i]['name'])]['tables']['{}'.format(data['databases'][i]['tables'][j]['name'])]['columns']['{}'.format(data['databases'][i]['tables'][j]['columns'][k]['name'])] = {}
-                    self.db_dict['{}'.format(data['databases'][i]['name'])]['tables']['{}'.format(data['databases'][i]['tables'][j]['name'])]['columns']['{}'.format(data['databases'][i]['tables'][j]['columns'][k]['name'])]['id'] = data['databases'][i]['tables'][j]['columns'][k]['id']
-                    self.db_dict['{}'.format(data['databases'][i]['name'])]['tables']['{}'.format(data['databases'][i]['tables'][j]['name'])]['columns']['{}'.format(data['databases'][i]['tables'][j]['columns'][k]['name'])]['description'] = data['databases'][i]['tables'][j]['columns'][k]['description']
-                    
+                sstr2 = '{}'.format(data['databases'][i]['tables'][j]['name'])
+                self.db_dict[sstr]['tables'][sstr2] = {}
+                sdata = data['databases'][i]['tables'][j]['id']
+                self.db_dict[sstr]['tables'][sstr2]['id'] = sdata
+                sdesc2 = data['databases'][i]['tables'][j]['description']
+                self.db_dict[sstr]['tables'][sstr2]['description'] = sdesc2
+                self.db_dict[sstr]['tables'][sstr2]['columns'] = {}
+                tmpval = len(data['databases'][i]['tables'][j]['columns'])
+                for k in range(tmpval):
+                    sstr3 = '{}'.format(data['databases'][i]['tables'][j]['columns'][k]['name'])
+                    self.db_dict[sstr]['tables'][sstr2]['columns'][sstr3] = {}
+                    sdata2 = data['databases'][i]['tables'][j]['columns'][k]['id']
+                    self.db_dict[sstr]['tables'][sstr2]['columns'][sstr3]['id'] = sdata2
+                    sdesc3 = data['databases'][i]['tables'][j]['columns'][k]['description']
+                    self.db_dict[sstr]['tables'][sstr2]['columns'][sstr3]['description'] = sdesc3
+
         return response
 
     def explore_db(self,db=None,table=None,col=None):
@@ -278,43 +292,43 @@ class CosmoSim(QueryWithLogin):
         if db is not None:
             if table is not None:
                 if col is not None:
-                    print "#"*(len(db)+4) + "\n# {} #\n".format(db) + "#"*(len(db)+4)
-                    print "@ {}".format("tables")
-                    print "   @ {}".format(table)
-                    print " "*6 + "@ {}".format("columns")
-                    print " "*9 + "@ {}".format('{}'.format(col))
+                    print("#"*(len(db)+4) + "\n# {} #\n".format(db) + "#"*(len(db)+4))
+                    print("@ {}".format("tables"))
+                    print("   @ {}".format(table))
+                    print(" "*6 + "@ {}".format("columns"))
+                    print(" "*9 + "@ {}".format('{}'.format(col)))
                     for i in self.db_dict['{}'.format(db)]['tables']['{}'.format(table)]['columns']['{}'.format(col)].keys():
-                        print " "*12 + "--> {}:{}".format(i,self.db_dict['{}'.format(db)]['tables']['{}'.format(table)]['columns']['{}'.format(col)][i])
+                        print(" "*12 + "--> {}:{}".format(i,self.db_dict['{}'.format(db)]['tables']['{}'.format(table)]['columns']['{}'.format(col)][i]))
                     
                 else:
-                    print "#"*(len(db)+4) + "\n# {} #\n".format(db) + "#"*(len(db)+4)
-                    print "@ {}".format("tables")
-                    print "   @ {}".format(table)
+                    print("#"*(len(db)+4) + "\n# {} #\n".format(db) + "#"*(len(db)+4))
+                    print("@ {}".format("tables"))
+                    print("   @ {}".format(table))
                     for i in self.db_dict['{}'.format(db)]['tables']['{}'.format(table)].keys():
                         if type(self.db_dict['{}'.format(db)]['tables']['{}'.format(table)][i]) == dict:
-                            print " "*6 + "@ {}".format(i)
+                            print(" "*6 + "@ {}".format(i))
                             for j in self.db_dict['{}'.format(db)]['tables']['{}'.format(table)][i].keys():
-                                print " "*9 + "--> {}".format(j)
+                                print(" "*9 + "--> {}".format(j))
                         else:
-                            print " "*6 + "$ {}".format(i)
-                            print " "*9 + "--> {}".format(self.db_dict['{}'.format(db)]['tables']['{}'.format(table)][i])
+                            print(" "*6 + "$ {}".format(i))
+                            print(" "*9 + "--> {}".format(self.db_dict['{}'.format(db)]['tables']['{}'.format(table)][i]))
                         
 
             else:    
-                print "#"*(len(db)+4) + "\n# {} #\n".format(db) + "#"*(len(db)+4)
+                print("#"*(len(db)+4) + "\n# {} #\n".format(db) + "#"*(len(db)+4))
                 for i in self.db_dict['{}'.format(db)].keys():
                     if type(self.db_dict['{}'.format(db)][i]) == dict:
-                        print "@ {}".format(i)
+                        print("@ {}".format(i))
                         for j in self.db_dict['{}'.format(db)][i].keys():
-                            print "   --> {}".format(j)
+                            print("   --> {}".format(j))
                     else:
-                        print "$ {}".format(i)
-                        print "   --> {}".format(self.db_dict['{}'.format(db)][i])
+                        print("$ {}".format(i))
+                        print("   --> {}".format(self.db_dict['{}'.format(db)][i]))
                             
         else:
             print("Must choose a database to explore:")
             for i in self.db_dict.keys():
-                print " ## " + "{}".format(i)
+                print(" ## " + "{}".format(i))
                             
         return 
 
@@ -323,7 +337,7 @@ class CosmoSim(QueryWithLogin):
         A public function to download data from a job with COMPLETED phase.
 
         Keyword Args
-        ----------
+        ------------
         jobid :
             Completed jobid to be downloaded
         filename : string
@@ -363,5 +377,5 @@ class CosmoSim(QueryWithLogin):
                     if not block:
                         break
                     fh.write(block)
-                print "Data written to file: {}".format(filename)
+                print("Data written to file: {}".format(filename))
             return headers, data
