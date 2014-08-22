@@ -144,7 +144,7 @@ class CosmoSim(QueryWithLogin):
                     raise AttributeError
                 
         response = self.session.get(CosmoSim.QUERY_URL+'/{}'.format(jobid)+'/phase',auth=(self.username,self.password),data={'print':'b'})
-        print "Job {}: {}".format(jobid,response.content)
+        print("Job {}: {}".format(jobid,response.content))
         return response.content
 
     def check_all_jobs(self):
