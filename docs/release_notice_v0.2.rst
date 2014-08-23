@@ -36,6 +36,7 @@ Matt Craig (@mwcraig)
 Kyle Willett (@willettk)
 Erik Bray (@embray)
 William Schoenell (@wschoenell)
+Austen Groener (@agroener)
 
 Astroquery has 30 contributors, about 1/3 that of astropy, making it the
 largest affiliated package by contributor count.
