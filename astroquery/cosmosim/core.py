@@ -629,6 +629,7 @@ class CosmoSim(QueryWithLogin):
                     print("Data written to file: {}.xml".format(filename))
             elif format in ['FITS','fits']:
                 print("Need to implement...")
+
         else:
             if not filename:
                 return headers, data
