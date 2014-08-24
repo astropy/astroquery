@@ -12,6 +12,7 @@ import astropy.units as u
 import astropy.coordinates as coord
 import astropy.io.votable as votable
 from astropy.io import fits
+from astropy.io import votable
 import astropy.utils.data as aud
 
 # Astroquery imports
@@ -19,7 +20,7 @@ from ..utils import commons
 from ..query import QueryWithLogin
 from . import COSMOSIM_SERVER, COSMOSIM_TIMEOUT
 
-
+import ipdb
 
 __all__ = ['CosmoSim']
 
@@ -375,7 +376,7 @@ class CosmoSim(QueryWithLogin):
                             
         return 
 
-    def download(self,jobid=None,filename=None):
+    def download(self,jobid=None,filename=None,format=None):
         """
         A public function to download data from a job with COMPLETED phase.
 
@@ -410,15 +411,29 @@ class CosmoSim(QueryWithLogin):
         headers = [raw_headers.split(',')[i].strip('"') for i in range(num_cols)]
         raw_data = [raw_table_data.content.split('\n')[i+1].split(",") for i in range(num_rows)]
         data = [map(eval,raw_data[i]) for i in range(num_rows)]
-        
-        if filename is None:
-            return headers, data
+
+        if format is not None:
+            tbl = Table(data=map(list, zip(*data)),names=headers)
+            if format in ['VOTable','votable']:
+                votbl = votable.from_table(tbl)
+                if filename is None:
+                    return votbl
+                else:
+                    if '.xml' in filename:
+                        filename = filename.split('.')[0]
+                    votable.writeto(votbl, "{}.xml".format(filename))
+                    print("Data written to file: {}.xml".format(filename))
+            elif format in ['FITS','fits']:
+                print("Need to implement...")
         else:
-            with open(filename, 'wb') as fh:
-                raw_table_data = self.session.get(tableurl,auth=(self.username,self.password),stream=True)
-                for block in raw_table_data.iter_content(1024):
-                    if not block:
-                        break
-                    fh.write(block)
-                print("Data written to file: {}".format(filename))
-            return headers, data
+            if filename is None:
+                return headers, data
+            else:
+                with open(filename, 'wb') as fh:
+                    raw_table_data = self.session.get(tableurl,auth=(self.username,self.password),stream=True)
+                    for block in raw_table_data.iter_content(1024):
+                        if not block:
+                            break
+                        fh.write(block)
+                    print("Data written to file: {}".format(filename))
+                return headers, data
