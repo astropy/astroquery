@@ -10,11 +10,11 @@ CosmoSim Database Query Tool
     :Author: Austen M. Groener <Austen.M.Groener@drexel.edu>
 """
 
-from astropy.config import ConfigurationItem
+from astropy.config import ConfigItem
 
-COSMOSIM_SERVER = ConfigurationItem('cosmosim_server',["http://www.cosmosim.org/uws/query"],'Name of the CosmoSim mirror to use.')
+COSMOSIM_SERVER = ConfigItem('cosmosim_server',["http://www.cosmosim.org/uws/query"],'Name of the CosmoSim mirror to use.')
 
-COSMOSIM_TIMEOUT = ConfigurationItem('timeout', 60, 'time limit for connecting to CosmoSim server')
+COSMOSIM_TIMEOUT = ConfigItem('timeout', 60, 'time limit for connecting to CosmoSim server')
 
 from .core import CosmoSim
 
