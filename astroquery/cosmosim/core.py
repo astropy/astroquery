@@ -18,17 +18,24 @@ import astropy.utils.data as aud
 # Astroquery imports
 from ..utils import commons
 from ..query import QueryWithLogin
-from . import COSMOSIM_SERVER, COSMOSIM_TIMEOUT
+#from . import COSMOSIM_SERVER, COSMOSIM_TIMEOUT
+from . import conf
 
 __all__ = ['CosmoSim']
 
 class CosmoSim(QueryWithLogin):
-    
-    QUERY_URL = COSMOSIM_SERVER()
-    SCHEMA_URL = 'http://www.cosmosim.org/query/account/databases/json'
-    TIMEOUT = COSMOSIM_TIMEOUT()
 
-    cosmosim_databases = ('MDR1','MDPL','Bolshoi','BolshoiP')
+
+    QUERY_URL = conf.query_url
+    SCHEMA_URL = conf.schema_url
+    TIMEOUT = conf.timeout
+    
+    
+    #QUERY_URL = COSMOSIM_SERVER()
+    #SCHEMA_URL = 'http://www.cosmosim.org/query/account/databases/json'
+    #TIMEOUT = COSMOSIM_TIMEOUT()
+
+    #cosmosim_databases = ('MDR1','MDPL','Bolshoi','BolshoiP')
 
     def __init__(self):
         super(CosmoSim, self).__init__()

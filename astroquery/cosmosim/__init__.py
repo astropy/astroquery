@@ -10,12 +10,34 @@ CosmoSim Database Query Tool
     :Author: Austen M. Groener <Austen.M.Groener@drexel.edu>
 """
 
-from astropy.config import ConfigItem
+from astropy import config as _config
 
-COSMOSIM_SERVER = ConfigItem('cosmosim_server',["http://www.cosmosim.org/uws/query"],'Name of the CosmoSim mirror to use.')
 
-COSMOSIM_TIMEOUT = ConfigItem('timeout', 60, 'time limit for connecting to CosmoSim server')
+class Conf(_config.ConfigNamespace):
+    """
+    Configuration parameters for `astroquery.cosmosim`.
+    """
+
+    query_url = _config.ConfigItem(
+        ['http://www.cosmosim.org/uws/query'],
+        'CosmoSim UWS query URL'
+        )
+    schema_url = _config.ConfigItem(
+        ['http://www.cosmosim.org/query/account/databases/json'],
+        'CosmoSim json query URL for generating database schema'
+        )
+    timeout = _config.ConfigItem(
+        60.0,
+        'Timeout for CosmoSim query'
+        )
+
+    
+conf = Conf()
+
+#COSMOSIM_SERVER = ConfigItem('cosmosim_server',["http://www.cosmosim.org/uws/query"],'Name of the CosmoSim mirror to use.')
+
+#COSMOSIM_TIMEOUT = ConfigItem('timeout', 60, 'time limit for connecting to CosmoSim server')
 
 from .core import CosmoSim
 
-__all__ = ['CosmoSim']
+__all__ = ['CosmoSim', 'Conf', 'conf']
