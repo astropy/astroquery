@@ -89,6 +89,7 @@ List of Modules
   * `Lamda <http://astroquery.readthedocs.org/en/latest/lamda/lamda.html>`_:             Leiden Atomic and Molecular Database; energy levels, radiative transitions, and collisional rates for astrophysically relevant atoms and molecules.
   * `Ogle <http://astroquery.readthedocs.org/en/latest/ogle/ogle.html>`_:               Optical Gravitational Lensing Experiment III; information on interstellar extinction towards the Galactic bulge.
   * `Splatalogue <http://astroquery.readthedocs.org/en/latest/splatalogue/splatalogue.html>`_: National Radio Astronomy Observatory (NRAO)-maintained (mostly) molecular radio and millimeter line list service.
+  * `CosmoSim <http://astroquery.readthedocs.org/en/latest/cosmosim/cosmosim.html>`_: The CosmoSim database provides results from cosmological simulations performed within different projects: the MultiDark project, the BolshoiP project, and the CLUES project. 
   * `ESO Archive <http://astroquery.readthedocs.org/en/latest/eso/eso.html>`_
   * `GAMA database <http://astroquery.readthedocs.org/en/latest/gama/gama.html>`_
   * `NVAS archive <http://astroquery.readthedocs.org/en/latest/nvas/nvas.html>`_

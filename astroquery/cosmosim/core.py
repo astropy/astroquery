@@ -20,8 +20,6 @@ from ..utils import commons
 from ..query import QueryWithLogin
 from . import COSMOSIM_SERVER, COSMOSIM_TIMEOUT
 
-import ipdb
-
 __all__ = ['CosmoSim']
 
 class CosmoSim(QueryWithLogin):
@@ -204,7 +202,7 @@ class CosmoSim(QueryWithLogin):
         else:
             response_list = [self.session.get(CosmoSim.QUERY_URL+"/{}".format(jobid),auth=(self.username,self.password))]
 
-        if output is True:
+        if output:
             for i in response_list:
                 print(i.content)
         else:
