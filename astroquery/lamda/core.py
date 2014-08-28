@@ -16,7 +16,7 @@ mols = {
     'C+': ['c+', 'c+@uv'],
     'O': ['oatom'],
     # Molecules
-    'CO': ['co', '13co', 'c17o', 'c18o', 'co@neufold'],
+    'CO': ['co', '13co', 'c17o', 'c18o', 'co@neufeld'],
     'CS': ['cs@xpol', '13cs@xpol', 'c34s@xpol'],
     'HCl': ['hcl', 'hcl@hfs'],
     'OCS': ['ocs@xpol'],
@@ -63,8 +63,12 @@ def print_mols():
         print(mols[mol_family], '\n')
 
 def get_molfile(mol):
-    requests.get(url.format(mol))
-    return
+    return requests.get(url.format(mol))
+
+def download_molfile(mol, outfilename):
+    molreq = get_molfile(mol)
+    with open(outfilename,'w') as f:
+        f.write(molreq.text)
 
 def query(mol, query_type=None, coll_partner_index=0, return_datafile=False):
     """
