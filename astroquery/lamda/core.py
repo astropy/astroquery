@@ -4,7 +4,7 @@ import requests
 import numpy as np
 from astropy.table import Table
 
-__all__ = ['query', 'print_mols']
+__all__ = ['query', 'print_mols', 'parse_lamda_datafile']
 
 # should skip only if remote_data = False
 __doctest_skip__ = ['query']
@@ -16,7 +16,7 @@ mols = {
     'C+': ['c+', 'c+@uv'],
     'O': ['oatom'],
     # Molecules
-    'CO': ['co', '13co', 'c17o', 'c18o', 'co@neufold'],
+    'CO': ['co', '13co', 'c17o', 'c18o', 'co@neufeld'],
     'CS': ['cs@xpol', '13cs@xpol', 'c34s@xpol'],
     'HCl': ['hcl', 'hcl@hfs'],
     'OCS': ['ocs@xpol'],
@@ -62,6 +62,13 @@ def print_mols():
         print('-- {0} :'.format(mol_family))
         print(mols[mol_family], '\n')
 
+def get_molfile(mol):
+    return requests.get(url.format(mol))
+
+def download_molfile(mol, outfilename):
+    molreq = get_molfile(mol)
+    with open(outfilename,'w') as f:
+        f.write(molreq.text)
 
 def query(mol, query_type=None, coll_partner_index=0, return_datafile=False):
     """
@@ -98,9 +105,9 @@ def query(mol, query_type=None, coll_partner_index=0, return_datafile=False):
       ...             ...    ... ...
     """
     if query_type not in query_types.keys() and not return_datafile:
-        raise ValueError("Query type must be one of " + ",".join(query_type.keys()))
+        raise ValueError("Query type must be one of " + ",".join(query_types.keys()))
     # Send HTTP request to open URL
-    datafile = [s.strip() for s in requests.get(url.format(mol)).text.splitlines()]
+    datafile = [s.strip() for s in get_molfile(mol).text.splitlines()]
     if return_datafile:
         return datafile
     # Parse datafile string list and return a table
@@ -108,6 +115,29 @@ def query(mol, query_type=None, coll_partner_index=0, return_datafile=False):
                             coll_partner_index=coll_partner_index)
     return table
 
+
+def parse_lamda_datafile(filename, max_n_coll_partners=6):
+    """
+    Extract a LAMDA datafile into a dictionary of tables
+    """
+    tables = {}
+    with open(filename,'r') as f:
+        data = f.readlines()
+
+    for qt in query_types:
+        if qt == 'coll_rates':
+            tables['coll_rates'] = {}
+            for index in range(max_n_coll_partners):
+                try:
+                    tbl = _parse_datafile(data, qt, index)
+                    collider = tbl.meta['collision_partner']
+                    tables['coll_rates'][collider] = tbl
+                except IndexError:
+                    continue
+        else:
+            tbl = _parse_datafile(data, qt)
+            tables[qt] = tbl
+    return tables
 
 def _parse_datafile(datafile, query_type, coll_partner_index=0):
     """
@@ -137,13 +167,23 @@ def _parse_datafile(datafile, query_type, coll_partner_index=0):
     sections = np.argwhere([query_identifier in line for line in datafile])
     if len(sections) == 0:
         raise Exception('Query data not found in file.')
+    meta = {}
     start_index = sections[i][0]
+    if query_type == 'coll_rates':
+        collider_line = datafile[start_index+1]
+        # find the first match from the possible collision partners
+        collision_partner = [x for x in ('pH2','oH2','H2','H',' e','He','Electron')
+                             if x in collider_line][0]
+        # Correct for odd naming of electrons
+        collision_partner = ('e' if collision_partner in (' e','Electron') else
+                             collision_partner)
+        meta['collision_partner'] = collision_partner
     # Select rows and columns from the raw datafile list
     data, col_names = _select_data(datafile, start_index,
                                    query_type=query_type)
     # Convert columns with string data types to floats if possible
     col_dtypes = _check_dtypes(data)
-    table = Table(data, names=col_names, dtype=col_dtypes)
+    table = Table(data, names=col_names, dtype=col_dtypes, meta=meta)
     return table
 
 

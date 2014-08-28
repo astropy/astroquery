@@ -40,3 +40,11 @@ def test_query_radtrans(patch_get):
 
 def test_query_collrates(patch_get):
     lamda.query(mol='co', query_type='coll_rates', coll_partner_index=1)
+
+def test_parser():
+    tabledict = lamda.core.parse_lamda_datafile(data_path('co.txt'))
+
+    assert set(tabledict.keys()) == set(['erg_levels', 'rad_trans', 'coll_rates'])
+    assert set(tabledict['coll_rates'].keys()) == set(['pH2', 'oH2'])
+    assert len(tabledict['erg_levels']) == 41
+    assert len(tabledict['rad_trans']) == 40
