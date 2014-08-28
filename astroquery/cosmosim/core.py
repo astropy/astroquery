@@ -82,7 +82,7 @@ class CosmoSim(QueryWithLogin):
         del self.password
 
 
-    def run_sql_query(self, query_string,tablename=None):
+    def run_sql_query(self, query_string,tablename=None,queue=None):
         """
         Public function which sends a POST request containing the sql query string.
 
@@ -101,16 +101,19 @@ class CosmoSim(QueryWithLogin):
         
         self._existing_tables()
 
+        if not queue:
+            queue = 'short'
+
         if tablename in self.table_dict.values():
-            result = self.session.post(CosmoSim.QUERY_URL,auth=(self.username,self.password),data={'query':query_string,'phase':'run'})
+            result = self.session.post(CosmoSim.QUERY_URL,auth=(self.username,self.password),data={'query':query_string,'phase':'run','queue':queue})
             soup = BeautifulSoup(result.content)
             gen_tablename = str(soup.find(id="table").string)
             logging.warning("Table name {} is already taken.".format(tablename))
             print("Generated table name: {}".format(gen_tablename))
         elif tablename is None:
-            result = self.session.post(CosmoSim.QUERY_URL,auth=(self.username,self.password),data={'query':query_string,'phase':'run'})
+            result = self.session.post(CosmoSim.QUERY_URL,auth=(self.username,self.password),data={'query':query_string,'phase':'run','queue':queue})
         else:
-            result = self.session.post(CosmoSim.QUERY_URL,auth=(self.username,self.password),data={'query':query_string,'table':'{}'.format(tablename),'phase':'run'})
+            result = self.session.post(CosmoSim.QUERY_URL,auth=(self.username,self.password),data={'query':query_string,'table':'{}'.format(tablename),'phase':'run','queue':queue})
         
         soup = BeautifulSoup(result.content)
         self.current_job = str(soup.find("uws:jobid").string)
@@ -224,10 +227,7 @@ class CosmoSim(QueryWithLogin):
         else:
             print(response_list)
 
-        if len(response_list) is 1:
-            return response_list[0]
-        else:
-            return response_list
+        return response_list
         
     def delete_job(self,jobid=None,squash=None):
         """
