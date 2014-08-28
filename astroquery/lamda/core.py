@@ -3,6 +3,8 @@
 import requests
 import numpy as np
 from astropy.table import Table
+from astropy import table
+from astropy import log
 
 __all__ = ['query', 'print_mols', 'parse_lamda_datafile']
 
@@ -53,6 +55,15 @@ query_types = {
     'coll_rates': '!COLLISIONS BETWEEN'
 }
 
+collider_ids = {'H2': 1,
+                'PH2': 2,
+                'OH2': 3,
+                'E': 4,
+                'H': 5,
+                'HE': 6,
+                'H+': 7}
+collider_ids.update({v:k for k,v in list(collider_ids.items())})
+
 
 def print_mols():
     """
@@ -79,179 +90,157 @@ def query(mol, query_type=None, coll_partner_index=0, return_datafile=False):
     mol : string
         Molecule or atom designation. For a list of valid designations see
         the :meth:`print_mols` method.
-    query_type : string
-        Query type to execute. Valid options:
-            ``'erg_levels'`` -> Energy Levels
-            ``'rad_trans'``  -> Radiative transitions
-            ``'coll_rates'`` -> Collisional rates
-    coll_partner_index : number, default 0
-        If collisional rates are queried, set the index of the collisional
-        partner to the order found in the LAMDA datafile. If no index is
-        specified, the first collsional partner is taken.
 
     Returns
     -------
-    table : `~astropy.table.Table`
+    Tuple of tables: ({rateid: Table, },
+                      Table,
+                      Table)
 
     Examples
     --------
     >>> from astroquery import lamda
-    >>> t = lamda.query(mol='co', query_type='erg_levels')
-    >>> t.pprint()
+    >>> collrates,radtransitions,enlevels = lamda.query(mol='co')
+    >>> enlevels.pprint()
     LEVEL ENERGIES(cm^-1) WEIGHT  J
     ----- --------------- ------ ---
         2     3.845033413    3.0   1
         3    11.534919938    5.0   2
       ...             ...    ... ...
+    >>> collrates['H2'].pprint(max_width=60)
+    Transition Upper Lower ... C_ij(T=325) C_ij(T=375)
+    ---------- ----- ----- ... ----------- -----------
+             1     2     1 ...     2.8e-11       3e-11
+             2     3     1 ...     1.8e-11     1.9e-11
     """
-    if query_type not in query_types.keys() and not return_datafile:
-        raise ValueError("Query type must be one of " + ",".join(query_types.keys()))
     # Send HTTP request to open URL
     datafile = [s.strip() for s in get_molfile(mol).text.splitlines()]
     if return_datafile:
         return datafile
     # Parse datafile string list and return a table
-    table = _parse_datafile(datafile, query_type=query_type,
-                            coll_partner_index=coll_partner_index)
-    return table
-
-
-def parse_lamda_datafile(filename, max_n_coll_partners=6):
-    """
-    Extract a LAMDA datafile into a dictionary of tables
-    """
-    tables = {}
-    with open(filename,'r') as f:
-        data = f.readlines()
-
-    for qt in query_types:
-        if qt == 'coll_rates':
-            tables['coll_rates'] = {}
-            for index in range(max_n_coll_partners):
-                try:
-                    tbl = _parse_datafile(data, qt, index)
-                    collider = tbl.meta['collision_partner']
-                    tables['coll_rates'][collider] = tbl
-                except IndexError:
-                    continue
-        else:
-            tbl = _parse_datafile(data, qt)
-            tables[qt] = tbl
+    tables = parse_lamda_lines(datafile)
     return tables
 
-def _parse_datafile(datafile, query_type, coll_partner_index=0):
-    """
-    Parse datafile according to query type and return a Table instance of
-    the data.
 
-    Parameters
-    ----------
-    datafile : `np.ndarray`
-        Raw data array pulled from LAMDA
-    query_type : string
-        Valid query_type in ['coll_rates', 'rad_trans', 'erg_levels']
-    coll_partner_index : number, default 0
-        Collision partner index, order of partner in file
-
-    Returns
-    -------
-    table : `~astropy.table.Table`
+def _cln(s):
     """
-    query_identifier = query_types[query_type]
-    if query_type == 'coll_rates':
-        i = coll_partner_index
+    Clean a string of comments, newlines
+    """
+    return s.split("!")[0].strip()
+
+def parse_lamda_datafile(filename):
+    with open(filename) as f:
+        lines = f.readlines()
+    return parse_lamda_lines(lines)
+
+def parse_lamda_lines(data):
+    """
+    Extract a LAMDA datafile into a dictionary of tables
+
+    (non-pythonic!  more like, fortranic)
+    """
+
+    meta_rad = {}
+    meta_mol = {}
+    meta_coll = {}
+    levels = []
+    radtrans = []
+    collider = None
+    ncolltrans = None
+    for ii,line in enumerate(data):
+        if line[0] == '!':
+            continue
+        if 'molecule' not in meta_mol:
+            meta_mol['molecule'] = _cln(line)
+            continue
+        if 'molwt' not in meta_mol:
+            meta_mol['molwt'] = float(_cln(line))
+            continue
+        if 'nenergylevels' not in meta_mol:
+            meta_mol['nenergylevels'] = int(_cln(line))
+            continue
+        if len(levels) < meta_mol['nenergylevels']:
+            lev,en,wt = _cln(line).split()[:3]
+            jul = " ".join(_cln(line).split()[3:])
+            levels.append([int(lev), float(en), int(float(wt)), jul])
+            continue
+        if 'radtrans' not in meta_rad:
+            meta_rad['radtrans'] = int(_cln(line))
+            continue
+        if len(radtrans) < meta_rad['radtrans']:
+            # Can have wavenumber at the end.  Ignore that.
+            trans,up,low,aval,freq,eu = _cln(line).split()[:6]
+            radtrans.append([int(trans), int(up), int(low), float(aval),
+                             float(freq), float(eu)])
+            continue
+        if 'ncoll' not in meta_coll:
+            meta_coll['ncoll'] = int(_cln(line))
+            ncollrates = {ii:0 for ii in range(1,meta_coll['ncoll']+1)}
+            collrates = {}
+            continue
+        if collider is None:
+            collider = int(line[0])
+            collname = collider_ids[collider]
+            collrates[collider] = []
+            meta_coll[collname] = {'collider': collname,
+                                   'collider_id': collider}
+            continue
+        if ncolltrans is None:
+            ncolltrans = int(_cln(line))
+            meta_coll[collname]['ntrans'] = ncolltrans
+            continue
+        if 'ntemp' not in meta_coll[collname]:
+            meta_coll[collname]['ntemp'] = int(_cln(line))
+            continue
+        if 'temperatures' not in meta_coll[collname]:
+            meta_coll[collname]['temperatures'] = [int(float(x)) for x in
+                                                   _cln(line).split()]
+            continue
+        if len(collrates[collider]) < meta_coll[collname]['ntrans']:
+            trans,up,low = [int(x) for x in _cln(line).split()[:3]]
+            temperatures = [float(x) for x in _cln(line).split()[3:]]
+            collrates[collider].append([trans,up,low]+temperatures)
+        if len(collrates[collider]) == meta_coll[collname]['ntrans']:
+            #meta_coll[collider_ids[collider]+'_collrates'] = collrates
+            log.debug("{ii} Finished loading collider {0:d}: "
+                      "{1}".format(collider, collider_ids[collider], ii=ii))
+            collider = None
+            ncolltrans = None
+            if len(collrates) == meta_coll['ncoll']:
+                # All done!
+                break
+
+    if len(levels[0]) == 4:
+        mol_table_names = ['Level','Energy','Weight','J']
+    elif len(levels[0]) == 5:
+        mol_table_names = ['Level','Energy','Weight','J','F']
     else:
-        i = 0
-    # Select lines that contain the query identifier
-    # np.in1d does not work in np < 1.7
-    sections = np.argwhere([query_identifier in line for line in datafile])
-    if len(sections) == 0:
-        raise Exception('Query data not found in file.')
-    meta = {}
-    start_index = sections[i][0]
-    if query_type == 'coll_rates':
-        collider_line = datafile[start_index+1]
-        # find the first match from the possible collision partners
-        collision_partner = [x for x in ('pH2','oH2','H2','H',' e','He','Electron')
-                             if x in collider_line][0]
-        # Correct for odd naming of electrons
-        collision_partner = ('e' if collision_partner in (' e','Electron') else
-                             collision_partner)
-        meta['collision_partner'] = collision_partner
-    # Select rows and columns from the raw datafile list
-    data, col_names = _select_data(datafile, start_index,
-                                   query_type=query_type)
-    # Convert columns with string data types to floats if possible
-    col_dtypes = _check_dtypes(data)
-    table = Table(data, names=col_names, dtype=col_dtypes, meta=meta)
-    return table
+        raise ValueError("Unrecognized levels structure.")
+    mol_table_columns = [table.Column(name=name, data=data)
+                         for name,data in zip(mol_table_names,
+                                              zip(*levels))]
+    mol_table = table.Table(data=mol_table_columns, meta=meta_mol)
 
+    rad_table_names = ['Transition','Upper','Lower','EinsteinA','Frequency','E_u(K)']
+    rad_table_columns = [table.Column(name=name, data=data)
+                         for name,data in zip(rad_table_names,
+                                              zip(*radtrans))]
+    rad_table = table.Table(data=rad_table_columns, meta=meta_rad)
 
-def _select_data(data, i, query_type):
-    """
-    Select only data relevant to a specific query type in the raw data
-    array and pick out column names from context.
+    coll_tables = {collider_ids[collider]: None for collider in collrates}
+    for collider in collrates:
+        collname = collider_ids[collider]
+        coll_table_names = (['Transition','Upper','Lower'] +
+                            ['C_ij(T={0:d})'.format(tem) for tem in
+                             meta_coll[collname]["temperatures"]])
+        coll_table_columns = [table.Column(name=name, data=data)
+                             for name,data in zip(coll_table_names,
+                                              zip(*collrates[collider]))]
+        coll_table = table.Table(data=coll_table_columns,
+                                 meta=meta_coll[collname])
+        coll_tables[collname] = coll_table
 
-    Parameters
-    ----------
-    data : `np.ndarray`
-        Raw data array pulled from LAMDA.
-    i : number
-        Row index to start reading from data in.
-    query_type : string
-        Valid query_type in ['coll_rates', 'rad_trans', 'erg_levels'].
-
-    Returns
-    -------
-    data : `np.array`
-        Data for query_type
-    col_names : list
-        Column name list
-    """
-    # LAMDA datafiles have regular formatting, so the index and an "index
-    # offset" are used to retrieve the row data.
-    if query_type == 'erg_levels':
-        num_erg_levels = int(data[i + 1])
-        col_names = [s.strip() for s in data[i + 2][1:].split('+')]
-        erg_levels = [data[i + 3 + j].split() for j in range(0, num_erg_levels)]
-        return np.array(erg_levels), col_names
-    elif query_type == 'rad_trans':
-        num_trans = int(data[i + 1])
-        col_names = [s.strip() for s in data[i + 2][1:].split('+')]
-        rad_trans = [data[i + 3 + j].split() for j in range(0, num_trans)]
-        return np.array(rad_trans), col_names
-    elif query_type == 'coll_rates':
-        num_coll_trans = int(data[i + 3])
-        coll_temps = data[i + 7].split()
-        coll_trans = [data[i + 9 + j].split() for j in range(0, num_coll_trans)]
-        col_names = ['TRANS', 'UP', 'LOW'] + coll_temps
-        return np.array(coll_trans), col_names
-    else:
-        raise ValueError('Unknown query type.')
-
-
-def _check_dtypes(data):
-    """
-    Check the data types of each column. If a column cannot be converted to
-    a float, a string is used as a fall-back.
-
-    Parameters
-    ----------
-    data : `np.ndarray`
-
-    Returns
-    -------
-    dtypes : list
-        List of a dtypes for each column in data
-    """
-    dtypes = []
-    for i in range(data.shape[1]):
-        try:
-            data[:, i].astype('float')
-            dtypes.append('<f8')
-        except ValueError:
-            dtypes.append('|S14')
-    return dtypes
+    return coll_tables,rad_table,mol_table
 
 
 if __name__ == "__main__":
