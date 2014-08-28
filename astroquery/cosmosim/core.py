@@ -213,16 +213,22 @@ class CosmoSim(QueryWithLogin):
             completed_jobids = [key for key in self.job_dict.keys() if self.job_dict[key] == 'COMPLETED']
             response_list = [self.session.get(CosmoSim.QUERY_URL+"/{}".format(completed_jobids[i]),auth=(self.username,self.password)) for i in range(len(completed_jobids))]
         else:
-            response_list = [self.session.get(CosmoSim.QUERY_URL+"/{}".format(jobid),auth=(self.username,self.password))]
+            if self.job_dict[jobid] == 'COMPLETED':
+                response_list = [self.session.get(CosmoSim.QUERY_URL+"/{}".format(jobid),auth=(self.username,self.password))]
+            else:
+                logging.warning("JobID must refer to a query with a phase of 'COMPLETED'.")
 
         if output:
             for i in response_list:
                 print(i.content)
         else:
             print(response_list)
-            
-        return response_list
 
+        if len(response_list) is 1:
+            return response_list[0]
+        else:
+            return response_list
+        
     def delete_job(self,jobid=None,squash=None):
         """
         A public function which deletes a stored job from the server in any phase. If no jobid is given, it attemps to use the most recent job (if it exists in this session). If jobid is specified, then it deletes the corresponding job, and if it happens to match the existing current job, that variable gets deleted.
