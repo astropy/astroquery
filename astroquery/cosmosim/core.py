@@ -32,7 +32,7 @@ class CosmoSim(QueryWithLogin):
         super(CosmoSim, self).__init__()
         self.session = requests.session()
  
-    def _login(self, username):
+    def _login(self, username, password=None):
         
         self.session = requests.session()
         self.username = username
@@ -40,7 +40,17 @@ class CosmoSim(QueryWithLogin):
         # Get password from keyring or prompt
         password_from_keyring = keyring.get_password("astroquery:www.cosmosim.org", self.username)
         if password_from_keyring is None:
-            self.password = getpass.getpass("{0}, enter your CosmoSim password:\n".format(self.username))
+            logging.warning("No password was found in the keychain for the provided username.")
+
+            # Check if running from scipt or interactive python session
+            import __main__ as main
+            # For script
+            if hasattr(main,'__file__'):
+                assert password is not None, "No password provided."
+                self.password = password
+            # For interactive session
+            else:
+                self.password = getpass.getpass("{0}, enter your CosmoSim password:\n".format(self.username))
         else:
             self.password = password_from_keyring
             
