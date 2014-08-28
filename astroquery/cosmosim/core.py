@@ -76,6 +76,11 @@ class CosmoSim(QueryWithLogin):
         
         return authenticated
 
+    def logout(self):
+        del self.session
+        del self.username
+        del self.password
+
 
     def run_sql_query(self, query_string,tablename=None):
         """
@@ -286,7 +291,7 @@ class CosmoSim(QueryWithLogin):
         Internal function which builds a schema of all simulations within the database (in the form of a dictionary).
         """
 
-        response = requests.get(CosmoSim.SCHEMA_URL,
+        response = self.session.get(CosmoSim.SCHEMA_URL,
                                 auth=(self.username,self.password),
                                 headers = {'Accept': 'application/json'})
         data = response.json()
