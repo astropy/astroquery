@@ -204,6 +204,17 @@ line, or alternatively they can be stored on your local machine.
       [18, 15.12, 68],
       [19, 15.38, 4]]) 
 
+Data can be stored and/or written out as a VOTable.
+
+.. code-block:: python
+
+    >>> data = CS.download(jobid='359750704009965',format='votable')
+    [<Response [200]>]
+    >>> data
+    <astropy.io.votable.tree.VOTableFile at 0x10b440150>
+    >>> data.to_xml('/Users/username/Desktop/data.xml')
+
+
 Reference/API
 =============
 
