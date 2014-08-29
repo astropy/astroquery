@@ -204,7 +204,7 @@ line, or alternatively they can be stored on your local machine.
       [18, 15.12, 68],
       [19, 15.38, 4]]) 
 
-Data can be stored and/or written out as a VOTable.
+Data can be stored and/or written out as a `VOTable`_.
 
 .. code-block:: python
 
