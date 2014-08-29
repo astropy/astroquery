@@ -206,6 +206,8 @@ line, or alternatively they can be stored on your local machine.
 
 Data can be stored and/or written out as a `VOTable`_.
 
+.. _VOTable: http://astropy.readthedocs.org/en/latest/io/votable/
+
 .. code-block:: python
 
     >>> data = CS.download(jobid='359750704009965',format='votable')
