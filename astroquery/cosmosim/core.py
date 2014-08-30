@@ -119,7 +119,7 @@ class CosmoSim(QueryWithLogin):
         self.current_job = str(soup.find("uws:jobid").string)
         print("Job created: {}".format(self.current_job))
         self._existing_tables()
-        return result
+        return self.current_job
         
     def _existing_tables(self):
         """
@@ -228,6 +228,7 @@ class CosmoSim(QueryWithLogin):
             print(response_list)
 
         return response_list
+        
         
     def delete_job(self,jobid=None,squash=None):
         """
