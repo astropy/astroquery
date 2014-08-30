@@ -12,33 +12,27 @@ import astropy.units as u
 import astropy.coordinates as coord
 import astropy.io.votable as votable
 from astropy.io import fits
+from astropy.io import votable
 import astropy.utils.data as aud
 
 # Astroquery imports
 from ..utils import commons
 from ..query import QueryWithLogin
-from . import COSMOSIM_SERVER, COSMOSIM_TIMEOUT
-
-
+from . import conf
 
 __all__ = ['CosmoSim']
 
 class CosmoSim(QueryWithLogin):
-    """
-    TO DO: documentation
-    """
 
-    QUERY_URL = COSMOSIM_SERVER()
-    SCHEMA_URL = 'http://www.cosmosim.org/query/account/databases/json'
-    TIMEOUT = COSMOSIM_TIMEOUT()
-
-    cosmosim_databases = ('MDR1','MDPL','Bolshoi','BolshoiP')
+    QUERY_URL = conf.query_url
+    SCHEMA_URL = conf.schema_url
+    TIMEOUT = conf.timeout
 
     def __init__(self):
         super(CosmoSim, self).__init__()
         self.session = requests.session()
  
-    def _login(self, username):
+    def _login(self, username, password=None):
         
         self.session = requests.session()
         self.username = username
@@ -46,7 +40,17 @@ class CosmoSim(QueryWithLogin):
         # Get password from keyring or prompt
         password_from_keyring = keyring.get_password("astroquery:www.cosmosim.org", self.username)
         if password_from_keyring is None:
-            self.password = getpass.getpass("{0}, enter your CosmoSim password:\n".format(self.username))
+            logging.warning("No password was found in the keychain for the provided username.")
+
+            # Check if running from scipt or interactive python session
+            import __main__ as main
+            # For script
+            if hasattr(main,'__file__'):
+                assert password is not None, "No password provided."
+                self.password = password
+            # For interactive session
+            else:
+                self.password = getpass.getpass("{0}, enter your CosmoSim password:\n".format(self.username))
         else:
             self.password = password_from_keyring
             
@@ -72,8 +76,13 @@ class CosmoSim(QueryWithLogin):
         
         return authenticated
 
+    def logout(self):
+        del self.session
+        del self.username
+        del self.password
 
-    def run_sql_query(self, query_string,tablename=None):
+
+    def run_sql_query(self, query_string,tablename=None,queue=None):
         """
         Public function which sends a POST request containing the sql query string.
 
@@ -92,22 +101,25 @@ class CosmoSim(QueryWithLogin):
         
         self._existing_tables()
 
+        if not queue:
+            queue = 'short'
+
         if tablename in self.table_dict.values():
-            result = self.session.post(CosmoSim.QUERY_URL,auth=(self.username,self.password),data={'query':query_string,'phase':'run'})
+            result = self.session.post(CosmoSim.QUERY_URL,auth=(self.username,self.password),data={'query':query_string,'phase':'run','queue':queue})
             soup = BeautifulSoup(result.content)
             gen_tablename = str(soup.find(id="table").string)
             logging.warning("Table name {} is already taken.".format(tablename))
             print("Generated table name: {}".format(gen_tablename))
         elif tablename is None:
-            result = self.session.post(CosmoSim.QUERY_URL,auth=(self.username,self.password),data={'query':query_string,'phase':'run'})
+            result = self.session.post(CosmoSim.QUERY_URL,auth=(self.username,self.password),data={'query':query_string,'phase':'run','queue':queue})
         else:
-            result = self.session.post(CosmoSim.QUERY_URL,auth=(self.username,self.password),data={'query':query_string,'table':'{}'.format(tablename),'phase':'run'})
+            result = self.session.post(CosmoSim.QUERY_URL,auth=(self.username,self.password),data={'query':query_string,'table':'{}'.format(tablename),'phase':'run','queue':queue})
         
         soup = BeautifulSoup(result.content)
         self.current_job = str(soup.find("uws:jobid").string)
         print("Job created: {}".format(self.current_job))
         self._existing_tables()
-        return result
+        return self.current_job
         
     def _existing_tables(self):
         """
@@ -131,7 +143,12 @@ class CosmoSim(QueryWithLogin):
         Parameters
         ----------
         jobid : string
-            The jobid of the sql query. If none provided
+            The jobid of the sql query. If no jobid is given, it attemps to use the most recent job (if it exists in this session).
+            
+        Returns
+        -------
+        result : content of 'requests.models.Response' object
+            The requests response phase
         """
         
         if jobid is None:
@@ -176,27 +193,59 @@ class CosmoSim(QueryWithLogin):
             print(self.job_dict)
             return checkalljobs
 
-    def completed_job_info(self,jobid=None,output=None):
+    def completed_job_info(self,jobid=None,output=False):
+        """
+        A public function which sends an http GET request for a given jobid with phase COMPLETED, and returns a list containing the response object. If no jobid is provided, a list of all responses with phase COMPLETED is generated.
 
+        Parameters
+        ----------
+        jobid : string
+            The jobid of the sql query.
+        output : bool
+            Print output of response(s) to the terminal
+            
+        Returns
+        -------
+        result : list
+            A list of response object(s)
+        """
+        
         self.check_all_jobs()
         
         if jobid is None:
             completed_jobids = [key for key in self.job_dict.keys() if self.job_dict[key] == 'COMPLETED']
             response_list = [self.session.get(CosmoSim.QUERY_URL+"/{}".format(completed_jobids[i]),auth=(self.username,self.password)) for i in range(len(completed_jobids))]
         else:
-            response_list = [self.session.get(CosmoSim.QUERY_URL+"/{}".format(jobid),auth=(self.username,self.password))]
+            if self.job_dict[jobid] == 'COMPLETED':
+                response_list = [self.session.get(CosmoSim.QUERY_URL+"/{}".format(jobid),auth=(self.username,self.password))]
+            else:
+                logging.warning("JobID must refer to a query with a phase of 'COMPLETED'.")
 
-        if output is not None:
+        if output:
             for i in response_list:
                 print(i.content)
         else:
             print(response_list)
-            
-        return response_list
 
+        return response_list
+        
+        
     def delete_job(self,jobid=None,squash=None):
         """
         A public function which deletes a stored job from the server in any phase. If no jobid is given, it attemps to use the most recent job (if it exists in this session). If jobid is specified, then it deletes the corresponding job, and if it happens to match the existing current job, that variable gets deleted.
+        
+        Parameters
+        ----------
+        jobid : string
+            The jobid of the sql query. If no jobid is given, it attemps to use the most recent job (if it exists in this session).
+        output : bool
+            Print output of response(s) to the terminal
+            
+        Returns
+        -------
+        result : list
+            A list of response object(s)
+
         """
         
         self.check_all_jobs()
@@ -230,7 +279,10 @@ class CosmoSim(QueryWithLogin):
         self.check_all_jobs()
 
     def delete_all_jobs(self):
-
+        """
+        A public function which deletes all jobs from the server in any phase.
+        """
+        
         self.check_all_jobs()
         
         for key in self.job_dict.keys():
@@ -243,9 +295,10 @@ class CosmoSim(QueryWithLogin):
 
     def _generate_schema(self):
         """
-        TO DO: documentation
+        Internal function which builds a schema of all simulations within the database (in the form of a dictionary).
         """
-        response = requests.get(CosmoSim.SCHEMA_URL,
+
+        response = self.session.get(CosmoSim.SCHEMA_URL,
                                 auth=(self.username,self.password),
                                 headers = {'Accept': 'application/json'})
         data = response.json()
@@ -281,7 +334,16 @@ class CosmoSim(QueryWithLogin):
 
     def explore_db(self,db=None,table=None,col=None):
         """
-        TO DO: documentation
+        A public function which allows for the exploration of any simulation and its tables within the database. This function is meant to aid the user in constructing sql queries.
+        
+        Parameters
+        ----------
+        db : string
+            The database to explore.
+        table : string
+            The table to explore.
+        col : string
+            The column to explore.
         """
         
         try:
@@ -332,7 +394,7 @@ class CosmoSim(QueryWithLogin):
                             
         return 
 
-    def download(self,jobid=None,filename=None):
+    def download(self,jobid=None,filename=None,format=None):
         """
         A public function to download data from a job with COMPLETED phase.
 
@@ -367,15 +429,29 @@ class CosmoSim(QueryWithLogin):
         headers = [raw_headers.split(',')[i].strip('"') for i in range(num_cols)]
         raw_data = [raw_table_data.content.split('\n')[i+1].split(",") for i in range(num_rows)]
         data = [map(eval,raw_data[i]) for i in range(num_rows)]
-        
-        if filename is None:
-            return headers, data
+
+        if format is not None:
+            tbl = Table(data=map(list, zip(*data)),names=headers)
+            if format in ['VOTable','votable']:
+                votbl = votable.from_table(tbl)
+                if filename is None:
+                    return votbl
+                else:
+                    if '.xml' in filename:
+                        filename = filename.split('.')[0]
+                    votable.writeto(votbl, "{}.xml".format(filename))
+                    print("Data written to file: {}.xml".format(filename))
+            elif format in ['FITS','fits']:
+                print("Need to implement...")
         else:
-            with open(filename, 'wb') as fh:
-                raw_table_data = self.session.get(tableurl,auth=(self.username,self.password),stream=True)
-                for block in raw_table_data.iter_content(1024):
-                    if not block:
-                        break
-                    fh.write(block)
-                print("Data written to file: {}".format(filename))
-            return headers, data
+            if filename is None:
+                return headers, data
+            else:
+                with open(filename, 'wb') as fh:
+                    raw_table_data = self.session.get(tableurl,auth=(self.username,self.password),stream=True)
+                    for block in raw_table_data.iter_content(1024):
+                        if not block:
+                            break
+                        fh.write(block)
+                    print("Data written to file: {}".format(filename))
+                return headers, data
