@@ -5,6 +5,8 @@ from bs4 import BeautifulSoup
 import keyring
 import getpass
 import logging
+import threading
+import ipdb
 
 # Astropy imports
 from astropy.table import Table
@@ -455,3 +457,15 @@ class CosmoSim(QueryWithLogin):
                         fh.write(block)
                     print("Data written to file: {}".format(filename))
                 return headers, data
+
+    def _check_phase(self,jobid):
+
+        self._existing_tables()
+
+        if jobid not in self.job_dict.keys():
+            logging.error("Job not present in job doctionary.")
+            return 
+
+        else:
+            phase = self.job_dict['{}'.format(jobid)]
+            return phase
