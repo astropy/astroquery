@@ -48,7 +48,7 @@ class CosmoSim(QueryWithLogin):
             import __main__ as main
             # For script
             if hasattr(main,'__file__'):
-                assert password is not None, "No password provided."
+                assert password, "No password provided."
                 self.password = password
             # For interactive session
             else:
@@ -97,8 +97,8 @@ class CosmoSim(QueryWithLogin):
 
         Returns
         -------
-        result : 'requests.models.Response' object
-            The requests response 
+        result : jobid
+            The jobid of the query 
         """
         
         self._existing_tables()
@@ -252,11 +252,11 @@ class CosmoSim(QueryWithLogin):
         
         self.check_all_jobs()
 
-        if jobid is None:
+        if not jobid:
             if hasattr(self,'current_job'):
                 jobid = self.current_job
 
-        if jobid is not None:
+        if jobid:
             if hasattr(self,'current_job'):
                 if jobid == self.current_job:
                     del self.current_job
@@ -353,9 +353,9 @@ class CosmoSim(QueryWithLogin):
         except AttributeError:
             self._generate_schema()
         
-        if db is not None:
-            if table is not None:
-                if col is not None:
+        if db:
+            if table:
+                if col:
                     print("#"*(len(db)+4) + "\n# {} #\n".format(db) + "#"*(len(db)+4))
                     print("@ {}".format("tables"))
                     print("   @ {}".format(table))
@@ -412,7 +412,7 @@ class CosmoSim(QueryWithLogin):
         headers, data : list, list
         """
 
-        if jobid is None:
+        if not jobid:
             try:
                 jobid = self.current_job
             except:
@@ -432,11 +432,11 @@ class CosmoSim(QueryWithLogin):
         raw_data = [raw_table_data.content.split('\n')[i+1].split(",") for i in range(num_rows)]
         data = [map(eval,raw_data[i]) for i in range(num_rows)]
 
-        if format is not None:
+        if format:
             tbl = Table(data=map(list, zip(*data)),names=headers)
             if format in ['VOTable','votable']:
                 votbl = votable.from_table(tbl)
-                if filename is None:
+                if not filename:
                     return votbl
                 else:
                     if '.xml' in filename:
@@ -446,7 +446,7 @@ class CosmoSim(QueryWithLogin):
             elif format in ['FITS','fits']:
                 print("Need to implement...")
         else:
-            if filename is None:
+            if not filename:
                 return headers, data
             else:
                 with open(filename, 'wb') as fh:
