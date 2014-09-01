@@ -33,11 +33,14 @@ Getting started
     >>> CS = CosmoSim()
     >>> # Next, enter your credentials; caching is enabled, so after
     >>> # the initial successful login no further password is required.
-    >>> CS.login(username="public") 
+    >>> CS.login(username="uname") 
     uname, enter your CosmoSim password:
 
     Authenticating uname on www.cosmosim.org...
     Authentication successful!
+    >>> # It also knows if you are running from a script. To login
+    >>> # from a script (rather than an interactive python session): 
+    >>> # CS.login(username="uname",password="password")
     >>> # MDR1.BDMV mass function 
     >>> sql_query = "SELECT 0.25*(0.5+FLOOR(LOG10(mass)/0.25)) AS log_mass, COUNT(*) AS num FROM MDR1.FOF WHERE snapnum=85 GROUP BY FLOOR(LOG10(mass)/0.25) ORDER BY log_mass" 
     >>> CS.run_sql_query(query_string=sql_query) 
