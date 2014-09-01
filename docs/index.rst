@@ -22,19 +22,19 @@ Check out the :doc:`gallery` for some nice examples.
 
 Installation
 ------------
-Astroquery must be installed from source:
+Astroquery can be pip installed:
+
+.. code-block:: bash
+
+    $ pip install astroquery
+
+or cloned and installed from source:
 
 .. code-block:: bash
 
     $ git clone git@github.com:astropy/astroquery.git
     $ cd astroquery
     $ python setup.py install
-
-pip install also works:
-
-.. code-block:: bash
-
-    $ pip install git+http://github.com/astropy/astroquery.git#egg=astroquery
 
 Requirements
 ````````````
@@ -48,6 +48,7 @@ The following packages are required for astroquery installation & use:
 * `requests <http://docs.python-requests.org/en/latest/>`_
 * `keyring <https://pypi.python.org/pypi/keyring>`_ (required only for the
   `~astroquery.eso` module)
+* `Beautiful Soup <http://www.crummy.com/software/BeautifulSoup/>`_
 
 Using astroquery
 ----------------
@@ -117,6 +118,8 @@ The following modules have been completed using a common API:
   nvas/nvas.rst
   gama/gama.rst
   eso/eso.rst
+  xmatch/xmatch.rst
+  atomic/atomic.rst
 
 These others are functional, but do not follow a common & consistent API:
 
@@ -130,6 +133,7 @@ These others are functional, but do not follow a common & consistent API:
   lamda/lamda.rst
   ogle/ogle.rst
   open_exoplanet_catalogue/open_exoplanet_catalogue.rst
+  cosmosim/cosmosim.rst
 
 Catalog, Archive, and Other
 ===========================
@@ -159,6 +163,7 @@ for each source)
   simbad/simbad.rst
   ukidss/ukidss.rst
   vizier/vizier.rst
+  xmatch/xmatch.rst
 
 Archives
 --------
@@ -190,6 +195,7 @@ Simulation services query databases of simulated or synthetic data
   :maxdepth: 1
 
   besancon/besancon.rst
+  cosmosim/cosmosim.rst
 
 Other
 -----
@@ -201,6 +207,7 @@ above categories.
 .. toctree::
   :maxdepth: 1
 
+  atomic/atomic.rst
   lamda/lamda.rst
   nist/nist.rst
   splatalogue/splatalogue.rst

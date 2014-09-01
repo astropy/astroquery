@@ -40,6 +40,7 @@ except ImportError:
 
 # Load all of the global Astropy configuration
 from astropy_helpers.sphinx.conf import *
+from astropy.extern.six.moves import urllib
 
 # Get configuration information from setup.cfg
 from distutils import config
@@ -55,6 +56,7 @@ setup_cfg = dict(conf.items('metadata'))
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 exclude_patterns.append('_templates')
+exclude_patterns.append('release_not*')
 
 # This is added to the end of RST files - a good place to put substitutions to
 # be used globally.
@@ -65,6 +67,16 @@ del intersphinx_mapping['scipy']
 del intersphinx_mapping['h5py']
 intersphinx_mapping['astropy'] = ('http://docs.astropy.org/en/latest/', None)
 intersphinx_mapping['requests'] = ('http://docs.python-requests.org/en/latest/', None)
+try:
+    code = urllib.request.urlopen('http://docs.scipy.org/doc/numpy/objects.inv', timeout=10).getcode()
+    if code == 200:
+        numpyOK = True
+    else:
+        numpyOK = False
+except urllib.error.URLError:
+    numpyOK = False
+if not numpyOK:
+    intersphinx_mapping['numpy'] = ('http://jiffyclub.github.io/numpy/', None)
 
 # -- Project information ------------------------------------------------------
 

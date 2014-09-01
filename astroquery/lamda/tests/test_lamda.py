@@ -40,3 +40,10 @@ def test_query_radtrans(patch_get):
 
 def test_query_collrates(patch_get):
     lamda.query(mol='co', query_type='coll_rates', coll_partner_index=1)
+
+def test_parser():
+    collrates,radtransitions,enlevels = lamda.core.parse_lamda_datafile(data_path('co.txt'))
+
+    assert set(collrates.keys()) == set(['PH2', 'OH2'])
+    assert len(enlevels) == 41
+    assert len(radtransitions) == 40
