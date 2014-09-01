@@ -1,4 +1,5 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
+from astropy.utils.data import get_pkg_data_filename
 from astropy.table import Table
 from ... import gama
 
@@ -9,8 +10,7 @@ DATA_FILES = {"fits_data": "GAMA_HzVs28.fits",
               }
 
 def data_path(filename):
-    data_dir = os.path.join(os.path.dirname(__file__), 'data')
-    return os.path.join(data_dir, filename)
+    return get_pkg_data_filename(os.path.join('data', filename))
 
 def test_GAMA_find_result():
     """Tests that the URL of the data is correctly found."""
