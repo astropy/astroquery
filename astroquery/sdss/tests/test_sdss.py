@@ -98,6 +98,20 @@ def test_sdss_spectrum_coords(patch_get, patch_get_readable_fileobj,
     sp = sdss.core.SDSS.get_spectra(coords)
 
 
+def test_sdss_sql(patch_get, patch_get_readable_fileobj):
+    query = """
+            select top 10
+              z, ra, dec, bestObjID
+            from
+              specObj
+            where
+              class = 'galaxy'
+              and z > 0.3
+              and zWarning = 0
+            """
+    xid = sdss.core.SDSS.query_sql(query)
+
+
 def test_sdss_image(patch_get, patch_get_readable_fileobj, coords=coords):
     xid = sdss.core.SDSS.query_region(coords)
     img = sdss.core.SDSS.get_images(matches=xid)
