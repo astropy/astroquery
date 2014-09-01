@@ -6,7 +6,6 @@ import keyring
 import getpass
 import logging
 import threading
-import ipdb
 
 # Astropy imports
 from astropy.table import Table
@@ -73,7 +72,6 @@ class CosmoSim(QueryWithLogin):
             keyring.set_password("astroquery:www.cosmosim.org", self.username, self.password)
 
         # Delete job
-        #ipdb.set_trace()
         soup = BeautifulSoup(authenticated.content)
         self.delete_job(jobid="{}".format(soup.find("uws:jobid").string),squash=True)
         
@@ -115,6 +113,10 @@ class CosmoSim(QueryWithLogin):
                 print("Please re-attempt to login with your cosmosim credentials.")
         else:
             print("Status: You are not logged in.")
+
+        # Clean up job
+        soup = BeautifulSoup(authenticated.content)
+        self.delete_job(jobid="{}".format(soup.find("uws:jobid").string),squash=True)
 
         
     def run_sql_query(self, query_string,tablename=None,queue=None):
