@@ -462,8 +462,8 @@ class CosmoSim(QueryWithLogin):
         """
         A public function to download data from a job with COMPLETED phase.
 
-        Keyword Args
-        ------------
+        Parameters
+        ----------
         jobid :
             Completed jobid to be downloaded
         filename : string
