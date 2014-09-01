@@ -171,7 +171,7 @@ class CosmoSim(QueryWithLogin):
             if jobid in completed_jobs:
                 self.table_dict[jobid] = '{}'.format(i.get('id'))
 
-    def check_query_status(self,jobid=None):
+    def check_job_status(self,jobid=None):
         """
         A public function which sends an http GET request for a given jobid, and checks the server status. If no jobid is provided, it uses the most recent query (if one exists).
 
@@ -199,10 +199,15 @@ class CosmoSim(QueryWithLogin):
         print("Job {}: {}".format(jobid,response.content))
         return response.content
 
-    def check_all_jobs(self):
+    def check_all_jobs(self,phase=None):
         """
         Public function which builds a dictionary whose keys are each jobid for a given set of user credentials and whose values are the phase status (e.g. - EXECUTING,COMPLETED,PENDING,ERROR).
-
+        
+        Parameters
+        ----------
+        phase = List
+            A list of phase(s) of jobs to be checked on. If nothing provided, all are checked.
+        
         Returns
         -------
         checkalljobs : 'requests.models.Response' object
@@ -225,7 +230,14 @@ class CosmoSim(QueryWithLogin):
         if frame.f_code.co_name in do_not_print_job_dict: 
             return checkalljobs
         else:
-            print(self.job_dict)
+            if not phase:
+                for i in self.job_dict.keys():
+                    print("{} : {}".format(i,self.job_dict[i]))
+            elif phase:
+                phase = [phase[i].upper() for i in range(len(phase))]
+                for i in self.job_dict.keys():
+                    if self.job_dict[i] in phase:
+                        print("{} : {}".format(i,self.job_dict[i]))
             return checkalljobs
 
     def completed_job_info(self,jobid=None,output=False):
@@ -313,18 +325,33 @@ class CosmoSim(QueryWithLogin):
 
         self.check_all_jobs()
 
-    def delete_all_jobs(self):
+    def delete_all_jobs(self, phase=None):
         """
-        A public function which deletes all jobs from the server in any phase.
+        A public function which deletes any/all jobs from the server in any phase.
+
+        Parameters
+        ----------
+        phase = List
+            A list of job phases to be deleted. If nothing provided, all are deleted.
         """
         
         self.check_all_jobs()
-        
-        for key in self.job_dict.keys():
-            result = self.session.delete(CosmoSim.QUERY_URL+"/{}".format(key),auth=(self.username,self.password),data={'follow':''})
-            if not result.ok:
-                result.raise_for_status()
-            print("Deleted job: {}".format(key))
+
+        if phase:
+            phase = [phase[i].upper() for i in range(len(phase))]
+            for key in self.job_dict.keys():
+                if self.job_dict[key] in phase:
+                    result = self.session.delete(CosmoSim.QUERY_URL+"/{}".format(key),auth=(self.username,self.password),data={'follow':''})
+                    if not result.ok:
+                        result.raise_for_status()
+                    print("Deleted job: {}".format(key))
+
+        if not phase:
+            for key in self.job_dict.keys():
+                result = self.session.delete(CosmoSim.QUERY_URL+"/{}".format(key),auth=(self.username,self.password),data={'follow':''})
+                if not result.ok:
+                    result.raise_for_status()
+                print("Deleted job: {}".format(key))
 
         return 
 
