@@ -19,3 +19,4 @@ def test_GAMA_query_sql():
     """Tests that a valid HDUList object is returned."""
     result = gama.core.GAMA.query_sql(SQL_QUERY)
     assert isinstance(result, Table)
+    assert len(result) > 0
