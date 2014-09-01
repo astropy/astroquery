@@ -100,14 +100,16 @@ for root, dirs, files in os.walk(PACKAGENAME):
                     os.path.relpath(root, PACKAGENAME), filename))
 package_info['package_data'][PACKAGENAME].extend(c_files)
 
+required_packages = ['astropy>=0.4.1', 'requests', 'keyring', 'beautifulsoup4',
+                     'html5lib']
+
 setup(name=PACKAGENAME,
       version=VERSION,
       description=DESCRIPTION,
       scripts=scripts,
       requires=['astropy', 'requests', 'keyring', 'beautifulsoup4',
                 'html5lib'],
-      install_requires=['astropy', 'requests', 'keyring', 'beautifulsoup4',
-                        'html5lib'],
+      install_requires=required_packages,
       include_package_data=True,
       provides=[PACKAGENAME],
       license=LICENSE,
