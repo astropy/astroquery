@@ -73,17 +73,50 @@ class CosmoSim(QueryWithLogin):
             keyring.set_password("astroquery:www.cosmosim.org", self.username, self.password)
 
         # Delete job
+        #ipdb.set_trace()
         soup = BeautifulSoup(authenticated.content)
         self.delete_job(jobid="{}".format(soup.find("uws:jobid").string),squash=True)
         
         return authenticated
 
-    def logout(self):
-        del self.session
-        del self.username
-        del self.password
+    def logout(self,hard=True):
+        """
+        Public function which allows the user to logout of their cosmosim credentials.
 
+        Parameters
+        ----------
+        hard : bool
+            A hard logout - delete the password to the associated username from the keychain. The default is True.
+        Returns
+        -------
+        """
+        
+        if hasattr(self,'username') and hasattr(self,'password') and hasattr(self,'session'):
+            if hard is True:
+                keyring.delete_password("astroquery:www.cosmosim.org", self.username)
+                print("Removed password for {} in the keychain.".format(self.username))
+            del self.session
+            del self.username
+            del self.password
+        else:
+            logging.error("You must log in before attempting to logout.")
 
+    def check_login_status(self):
+        """
+        Public function which checks the status of a user login attempt.
+        """
+        
+        if hasattr(self,'username') and hasattr(self,'password') and hasattr(self,'session'):
+            authenticated = self.session.post(CosmoSim.QUERY_URL,auth=(self.username,self.password))
+            if authenticated.status_code == 200:
+                print("Status: You are logged in as {}.".format(self.username))
+            else:
+                logging.warning("Status: The username/password combination for {} appears to be incorrect.".format(self.username))
+                print("Please re-attempt to login with your cosmosim credentials.")
+        else:
+            print("Status: You are not logged in.")
+
+        
     def run_sql_query(self, query_string,tablename=None,queue=None):
         """
         Public function which sends a POST request containing the sql query string.
