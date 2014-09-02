@@ -5,7 +5,12 @@ from bs4 import BeautifulSoup
 import keyring
 import getpass
 import logging
-import threading
+import time
+import smtplib
+from email.MIMEMultipart import MIMEMultipart
+from email.MIMEBase import MIMEBase
+from email.MIMEText import MIMEText
+from email import Encoders
 
 # Astropy imports
 from astropy.table import Table
@@ -40,7 +45,7 @@ class CosmoSim(QueryWithLogin):
         
         # Get password from keyring or prompt
         password_from_keyring = keyring.get_password("astroquery:www.cosmosim.org", self.username)
-        if password_from_keyring is None:
+        if not password_from_keyring:
             logging.warning("No password was found in the keychain for the provided username.")
 
             # Check if running from scipt or interactive python session
@@ -119,7 +124,7 @@ class CosmoSim(QueryWithLogin):
         self.delete_job(jobid="{}".format(soup.find("uws:jobid").string),squash=True)
 
         
-    def run_sql_query(self, query_string,tablename=None,queue=None):
+    def run_sql_query(self, query_string,tablename=None,queue=None,mail=None,text=None):
         """
         Public function which sends a POST request containing the sql query string.
 
@@ -129,7 +134,13 @@ class CosmoSim(QueryWithLogin):
             The sql query to be sent to the CosmoSim.org server.
         tablename : string
             The name of the table for which the query data will be stored under. If left blank or if it already exists, one will be generated automatically.
-
+        queue : string
+            The short/long queue option. Default is short.
+        mail : string
+            The user's email address for receiving job completeion alerts.
+        text : string
+            The user's cell phone number for receiving job completeion alerts.
+            
         Returns
         -------
         result : jobid
@@ -156,6 +167,11 @@ class CosmoSim(QueryWithLogin):
         self.current_job = str(soup.find("uws:jobid").string)
         print("Job created: {}".format(self.current_job))
         self._existing_tables()
+
+        if mail or text:
+            self._initialize_alerting(self.current_job,mail=mail,text=text)
+            self._alert(self.current_job,queue)
+        
         return self.current_job
         
     def _existing_tables(self):
@@ -228,7 +244,7 @@ class CosmoSim(QueryWithLogin):
                 self.job_dict['{}'.format(i.get('id'))] = i_phase
                 
         frame = sys._getframe(1)
-        do_not_print_job_dict = ['completed_job_info','delete_all_jobs','_existing_tables','delete_job','download'] # list of methods which use check_all_jobs() for which I would not like job_dict to be printed to the terminal
+        do_not_print_job_dict = ['completed_job_info','general_job_info','delete_all_jobs','_existing_tables','delete_job','download'] # list of methods which use check_all_jobs() for which I would not like job_dict to be printed to the terminal
         if frame.f_code.co_name in do_not_print_job_dict: 
             return checkalljobs
         else:
@@ -278,7 +294,44 @@ class CosmoSim(QueryWithLogin):
 
         return response_list
         
+    def general_job_info(self,jobid=None,output=False):
+        """
+        A public function which sends an http GET request for a given jobid with phase COMPLETED, ERROR, or ABORTED, and returns a list containing the response object. If no jobid is provided, the current job is used (if it exists).
+
+        Parameters
+        ----------
+        jobid : string
+            The jobid of the sql query.
+        output : bool
+            Print output of response(s) to the terminal
+            
+        Returns
+        -------
+        result : list
+            A list of response object(s)
+        """
         
+        self.check_all_jobs()
+        general_jobids = [key for key in self.job_dict.keys() if self.job_dict[key] in ['COMPLETED','ABORTED','ERROR']]
+        if jobid in general_jobids:
+            response_list = [self.session.get(CosmoSim.QUERY_URL+"/{}".format(jobid),auth=(self.username,self.password))]
+        else:
+            try:
+                hasattr(self,current_job)
+                response_list = [self.session.get(CosmoSim.QUERY_URL+"/{}".format(self.current_job),auth=(self.username,self.password))]
+            except (AttributeError, NameError):
+                logging.warning("No current job has been defined, and no jobid has been provided.")
+
+
+        if output:
+            for i in response_list:
+                print(i.content)
+        else:
+            print(response_list)
+
+        return response_list
+
+            
     def delete_job(self,jobid=None,squash=None):
         """
         A public function which deletes a stored job from the server in any phase. If no jobid is given, it attemps to use the most recent job (if it exists in this session). If jobid is specified, then it deletes the corresponding job, and if it happens to match the existing current job, that variable gets deleted.
@@ -521,13 +574,152 @@ class CosmoSim(QueryWithLogin):
                 return headers, data
 
     def _check_phase(self,jobid):
-
+        """
+        A private function which checks the job phase of a query.
+        
+        Parameters
+        ----------
+        jobid : string
+            The jobid of the sql query.
+        """
+        
         self._existing_tables()
 
+        time.sleep(1)
+
         if jobid not in self.job_dict.keys():
-            logging.error("Job not present in job doctionary.")
+            logging.error("Job not present in job dictionary.")
             return 
 
         else:
             phase = self.job_dict['{}'.format(jobid)]
             return phase
+
+    def _mail(self,to,subject,text,*attach):
+        """
+        A private function which sends an SMS message to an email address.
+        
+        Parameters
+        ----------
+        to : string
+            The email address receiving the job alert.
+        subject : string
+            The subject of the job alert.
+        text : string
+            The content of the job alert.
+        """
+        
+        msg = MIMEMultipart()
+        msg['From']=self._smsaddress
+        msg['To']=to
+        msg['Subject']=subject
+        msg.attach(MIMEText(text))
+        n=len(attach)
+        for i in range(n):
+            part = MIMEBase('application','octet-stream')    
+            part.set_payload(open(attach[i],'rb').read())
+            Encoders.encode_base64(part)
+            part.add_header('Content-Disposition','attachment; filename="%s"' % os.path.basename(attach[i]))    
+            msg.attach(part)
+        mailServer=smtplib.SMTP('smtp.gmail.com',587)
+        mailServer.ehlo()
+        mailServer.starttls()
+        mailServer.ehlo()
+        mailServer.login(self._smsaddress, self._smspw)
+        mailServer.sendmail(self._smsaddress, to, msg.as_string())
+        mailServer.quit()
+
+    def _text(self,fromwhom,number,text):
+        """
+        A private function which sends an SMS message to a cell phone number.
+        
+        Parameters
+        ----------
+        fromwhom : string
+            The email address sending the alert: "donotreply.astroquery.cosmosim@gmail.com"
+        number : string
+            The user-provided cell phone receiving the job alert.
+        text : string
+            The content of the job alert.
+        """
+        server = smtplib.SMTP( "smtp.gmail.com", 587 )
+        server.starttls()
+        server.login(self._smsaddress, self._smspw)
+        server.sendmail( '{}'.format(fromwhom), '{}@vtext.com'.format(number), '{}'.format(text) )
+        server.quit()
+
+    def _initialize_alerting(self,jobid,mail=None,text=None):
+        """
+        A private function which initializes the email/text alert service credentials. Also preemptively checks for job phase being COMPLETED, ABORTED, or ERROR so that users don't simply send alerts for old jobs.
+        
+        Parameters
+        ----------
+        jobid : string
+            The jobid of the sql query.
+        mail : string
+            The user-provided email address receiving the job alert.
+        text : string
+            The user-provided cell phone receiving the job alert.
+        """
+        
+        self._smsaddress = "donotreply.astroquery.cosmosim@gmail.com"
+        password_from_keyring = keyring.get_password("astroquery:cosmosim.SMSAlert", self._smsaddress)
+
+        if password_from_keyring:
+            self._smspw = password_from_keyring
+            
+        if not password_from_keyring:
+            logging.warning("CosmoSim SMS alerting has not been initialized.")
+            print("Initializing SMS alerting.")
+            keyring.set_password("astroquery:cosmosim.SMSAlert", self._smsaddress,"LambdaCDM")
+
+            
+        self.alert_email = mail
+        self.alert_text = text
+
+        # first check to see if the job has errored (or is a job that has already completed) before running on a loop
+        phase = self._check_phase(jobid)
+        if phase in ['COMPLETED','ABORTED','ERROR']:
+            print("JobID {} has finished with status {}.".format(jobid,phase))
+            self.alert_completed = True
+        elif phase in ['EXECUTING','PENDING','QUEUED']:
+            self.alert_completed = False
+        else:
+            self.alert_completed = False
+        
+
+    def _alert(self,jobid,queue='short'):
+        """
+        A private function which runs checks for job completion every 10 seconds for short-queue jobs and 60 seconds for long-queue jobs. Once job phase is COMPLETED, ERROR, or ABORTED, emails and/or texts the results of the query to the user.
+        
+        Parameters
+        ----------
+        jobid : string
+            The jobid of the sql query.
+        queue : string
+            The short/long queue option. Default is short.
+        """
+        
+        if queue == 'long':
+            deltat = 60
+        else:
+            deltat = 10
+            
+        while self.alert_completed is False:
+
+            phase = self._check_phase(jobid)
+
+            if phase in ['COMPLETED','ABORTED','ERROR']:
+                print("JobID {} has finished with status {}.".format(jobid,phase))
+                self.alert_completed = True
+                resp = self.general_job_info(jobid)
+
+                if self.alert_email:
+                    self._mail(self.alert_email,"Job {} Completed with phase {}.".format(jobid,phase),"{}".format(resp[0].content))
+
+                if self.alert_text:
+                    self._text(self._smsaddress,self.alert_text,"Job {} Completed with phase {}.".format(jobid,phase))
+
+            time.sleep(deltat)
+        
+            
