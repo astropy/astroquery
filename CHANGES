@@ -1,7 +1,8 @@
 0.3 (unreleased)
 ----------------
 
-None yet
+- Support direct transmission of SQL queries to the SDSS server (PR #410)
+
 
 0.2 (2014-08-17)
 ----------------
