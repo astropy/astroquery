@@ -4,7 +4,6 @@ import sys
 from bs4 import BeautifulSoup
 import keyring
 import getpass
-import logging
 import time
 import smtplib
 from email.MIMEMultipart import MIMEMultipart
@@ -17,6 +16,7 @@ from astropy.table import Table
 import astropy.units as u
 import astropy.coordinates as coord
 import astropy.io.votable as votable
+from astropy import log as logging
 from astropy.io import fits
 from astropy.io import votable
 import astropy.utils.data as aud
@@ -82,7 +82,7 @@ class CosmoSim(QueryWithLogin):
         
         return authenticated
 
-    def logout(self,hard=True):
+    def logout(self,detelepw=True):
         """
         Public function which allows the user to logout of their cosmosim credentials.
 
@@ -95,7 +95,7 @@ class CosmoSim(QueryWithLogin):
         """
         
         if hasattr(self,'username') and hasattr(self,'password') and hasattr(self,'session'):
-            if hard is True:
+            if deletepw is True:
                 keyring.delete_password("astroquery:www.cosmosim.org", self.username)
                 print("Removed password for {} in the keychain.".format(self.username))
             del self.session
@@ -137,9 +137,9 @@ class CosmoSim(QueryWithLogin):
         queue : string
             The short/long queue option. Default is short.
         mail : string
-            The user's email address for receiving job completeion alerts.
+            The user's email address for receiving job completion alerts.
         text : string
-            The user's cell phone number for receiving job completeion alerts.
+            The user's cell phone number for receiving job completion alerts.
             
         Returns
         -------
@@ -244,7 +244,8 @@ class CosmoSim(QueryWithLogin):
                 self.job_dict['{}'.format(i.get('id'))] = i_phase
                 
         frame = sys._getframe(1)
-        do_not_print_job_dict = ['completed_job_info','general_job_info','delete_all_jobs','_existing_tables','delete_job','download'] # list of methods which use check_all_jobs() for which I would not like job_dict to be printed to the terminal
+        do_not_print_job_dict = ['completed_job_info','general_job_info','delete_all_jobs',
+                                 '_existing_tables','delete_job','download'] # list of methods which use check_all_jobs() for which I would not like job_dict to be printed to the terminal
         if frame.f_code.co_name in do_not_print_job_dict: 
             return checkalljobs
         else:
@@ -352,7 +353,7 @@ class CosmoSim(QueryWithLogin):
         
         self.check_all_jobs()
 
-        if not jobid:
+        if jobid is None:
             if hasattr(self,'current_job'):
                 jobid = self.current_job
 
@@ -650,7 +651,9 @@ class CosmoSim(QueryWithLogin):
 
     def _initialize_alerting(self,jobid,mail=None,text=None):
         """
-        A private function which initializes the email/text alert service credentials. Also preemptively checks for job phase being COMPLETED, ABORTED, or ERROR so that users don't simply send alerts for old jobs.
+        A private function which initializes the email/text alert service credentials.
+        Also preemptively checks for job phase being COMPLETED, ABORTED, or ERROR so that
+        users don't simply send alerts for old jobs.
         
         Parameters
         ----------
@@ -690,7 +693,9 @@ class CosmoSim(QueryWithLogin):
 
     def _alert(self,jobid,queue='short'):
         """
-        A private function which runs checks for job completion every 10 seconds for short-queue jobs and 60 seconds for long-queue jobs. Once job phase is COMPLETED, ERROR, or ABORTED, emails and/or texts the results of the query to the user.
+        A private function which runs checks for job completion every 10 seconds for
+        short-queue jobs and 60 seconds for long-queue jobs. Once job phase is COMPLETED,
+        ERROR, or ABORTED, emails and/or texts the results of the query to the user.
         
         Parameters
         ----------
