@@ -51,6 +51,20 @@ class TestSDSSRemote:
     def test_sdss_spectrum_coords(self):
         sp = sdss.core.SDSS.get_spectra(self.coords)
 
+    def test_sdss_sql(self):
+        query = """
+                select top 10
+                  z, ra, dec, bestObjID
+                from
+                  specObj
+                where
+                  class = 'galaxy'
+                  and z > 0.3
+                  and zWarning = 0
+                """
+        xid = sdss.core.SDSS.query_sql(query)
+        assert isinstance(xid, Table)
+
     def test_sdss_image(self):
         xid = sdss.core.SDSS.query_region(self.coords)
         assert isinstance(xid, Table)

@@ -253,6 +253,57 @@ class SDSSClass(BaseQuery):
 
         return r
 
+    def __sanitize_query(self, stmt):
+        """Remove comments and newlines from SQL statement."""
+        fsql = ''
+        for line in stmt.split('\n'):
+            fsql += ' ' + line.split('--')[0]
+        return fsql
+
+    def query_sql_async(self, sql_query, timeout=TIMEOUT, **kwargs):
+        """
+        Query the SDSS database
+
+        Parameters
+        ----------
+        sql_query : str
+            An SQL query
+
+        Examples
+        --------
+        >>> from astroquery.sdss import SDSS
+        >>> query = "select top 10 \
+                       z, ra, dec, bestObjID \
+                     from \
+                       specObj \
+                     where \
+                       class = 'galaxy' \
+                       and z > 0.3 \
+                       and zWarning = 0"
+        >>> res = SDSS.query_sql(query)
+        >>> print(res[:5])
+            z         ra       dec         bestObjID
+        --------- --------- --------- -------------------
+        0.3000011 16.411075 4.1197892 1237678660894327022
+        0.3000012 49.459411  0.847754 1237660241924063461
+        0.3000027 156.25024 7.6586271 1237658425162858683
+        0.3000027 256.99461 25.566255 1237661387086693265
+         0.300003 175.65125  34.37548 1237665128003731630
+
+        Returns
+        -------
+        result : `~astropy.table.Table`
+            The result of the query as a `~astropy.table.Table` object.
+
+        """
+
+        request_payload = dict(cmd=self.__sanitize_query(sql_query), format='csv')
+        if kwargs.get('get_query_payload'):
+            return request_payload
+        r = commons.send_request(SDSS.QUERY_URL, request_payload, timeout,
+                                 request_type='GET')
+        return r
+
     def get_spectra_async(self, coordinates=None, radius=u.degree / 1800.,
                           matches=None, plate=None, fiberID=None, mjd=None,
                           timeout=TIMEOUT, get_query_payload=False):
