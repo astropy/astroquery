@@ -661,19 +661,6 @@ class CosmoSim(QueryWithLogin):
             The content of the job alert.
         """
 
-        Boost Mobile: PhoneNumber@myboostmobile.com
-        T-Mobile: PhoneNumber@tmomail.net
-        Virgin Mobile: PhoneNumber@vmobl.com
-        Cingular: PhoneNumber@cingularme.com
-        Sprint Nextel: PhoneNumber@messaging.sprintpcs.com
-        Verizon: PhoneNumber@vtext.com
-        Nextel: PhoneNumber@messaging.nextel.com
-        US Cellular: PhoneNumber@email.uscc.net
-        SunCom: PhoneNumber@tms.suncom.com
-        Powertel: PhoneNumber@ptel.net
-        AT&T (Cingular): PhoneNumber@txt.att.net
-        Alltel: PhoneNumber@message.alltel.com
-        Metro PCS: PhoneNumber@MyMetroPcs.com
         server = smtplib.SMTP( "smtp.gmail.com", 587 )
         server.starttls()
         server.login(self._smsaddress, self._smspw)
