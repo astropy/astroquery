@@ -176,7 +176,9 @@ class CosmoSim(QueryWithLogin):
         
     def _existing_tables(self):
         """
-        Internal function which builds a dictionary of the tables already in use for a given set of user credentials. Keys are jobids and values are the tables which are stored under those keys.
+        Internal function which builds a dictionary of the tables already in use
+        for a given set of user credentials. Keys are jobids and values are the
+        tables which are stored under those keys.
         """
 
         checkalljobs = self.check_all_jobs()
@@ -191,7 +193,9 @@ class CosmoSim(QueryWithLogin):
 
     def check_job_status(self,jobid=None):
         """
-        A public function which sends an http GET request for a given jobid, and checks the server status. If no jobid is provided, it uses the most recent query (if one exists).
+        A public function which sends an http GET request for a given jobid,
+        and checks the server status. If no jobid is provided, it uses the most
+        recent query (if one exists).
 
         Parameters
         ----------
@@ -219,7 +223,9 @@ class CosmoSim(QueryWithLogin):
 
     def check_all_jobs(self,phase=None):
         """
-        Public function which builds a dictionary whose keys are each jobid for a given set of user credentials and whose values are the phase status (e.g. - EXECUTING,COMPLETED,PENDING,ERROR).
+        Public function which builds a dictionary whose keys are each jobid for a
+        given set of user credentials and whose values are the phase status (e.g. -
+        EXECUTING,COMPLETED,PENDING,ERROR).
         
         Parameters
         ----------
@@ -261,7 +267,9 @@ class CosmoSim(QueryWithLogin):
 
     def completed_job_info(self,jobid=None,output=False):
         """
-        A public function which sends an http GET request for a given jobid with phase COMPLETED, and returns a list containing the response object. If no jobid is provided, a list of all responses with phase COMPLETED is generated.
+        A public function which sends an http GET request for a given jobid with phase
+        COMPLETED, and returns a list containing the response object. If no jobid is provided,
+        a list of all responses with phase COMPLETED is generated.
 
         Parameters
         ----------
@@ -286,6 +294,7 @@ class CosmoSim(QueryWithLogin):
                 response_list = [self.session.get(CosmoSim.QUERY_URL+"/{}".format(jobid),auth=(self.username,self.password))]
             else:
                 logging.warning("JobID must refer to a query with a phase of 'COMPLETED'.")
+                return
 
         if output is True:
             for i in response_list:
@@ -297,7 +306,9 @@ class CosmoSim(QueryWithLogin):
         
     def general_job_info(self,jobid=None,output=False):
         """
-        A public function which sends an http GET request for a given jobid with phase COMPLETED, ERROR, or ABORTED, and returns a list containing the response object. If no jobid is provided, the current job is used (if it exists).
+        A public function which sends an http GET request for a given jobid with phase COMPLETED,
+        ERROR, or ABORTED, and returns a list containing the response object. If no jobid is provided,
+        the current job is used (if it exists).
 
         Parameters
         ----------
@@ -335,7 +346,10 @@ class CosmoSim(QueryWithLogin):
             
     def delete_job(self,jobid=None,squash=None):
         """
-        A public function which deletes a stored job from the server in any phase. If no jobid is given, it attemps to use the most recent job (if it exists in this session). If jobid is specified, then it deletes the corresponding job, and if it happens to match the existing current job, that variable gets deleted.
+        A public function which deletes a stored job from the server in any phase.
+        If no jobid is given, it attemps to use the most recent job (if it exists
+        in this session). If jobid is specified, then it deletes the corresponding job,
+        and if it happens to match the existing current job, that variable gets deleted.
         
         Parameters
         ----------
@@ -413,7 +427,8 @@ class CosmoSim(QueryWithLogin):
 
     def _generate_schema(self):
         """
-        Internal function which builds a schema of all simulations within the database (in the form of a dictionary).
+        Internal function which builds a schema of all simulations within
+        the database (in the form of a dictionary).
         """
 
         response = requests.get(CosmoSim.SCHEMA_URL,
@@ -452,7 +467,9 @@ class CosmoSim(QueryWithLogin):
 
     def explore_db(self,db=None,table=None,col=None):
         """
-        A public function which allows for the exploration of any simulation and its tables within the database. This function is meant to aid the user in constructing sql queries.
+        A public function which allows for the exploration of any simulation and
+        its tables within the database. This function is meant to aid the user in
+        constructing sql queries.
         
         Parameters
         ----------
@@ -643,6 +660,20 @@ class CosmoSim(QueryWithLogin):
         text : string
             The content of the job alert.
         """
+
+        Boost Mobile: PhoneNumber@myboostmobile.com
+        T-Mobile: PhoneNumber@tmomail.net
+        Virgin Mobile: PhoneNumber@vmobl.com
+        Cingular: PhoneNumber@cingularme.com
+        Sprint Nextel: PhoneNumber@messaging.sprintpcs.com
+        Verizon: PhoneNumber@vtext.com
+        Nextel: PhoneNumber@messaging.nextel.com
+        US Cellular: PhoneNumber@email.uscc.net
+        SunCom: PhoneNumber@tms.suncom.com
+        Powertel: PhoneNumber@ptel.net
+        AT&T (Cingular): PhoneNumber@txt.att.net
+        Alltel: PhoneNumber@message.alltel.com
+        Metro PCS: PhoneNumber@MyMetroPcs.com
         server = smtplib.SMTP( "smtp.gmail.com", 587 )
         server.starttls()
         server.login(self._smsaddress, self._smspw)
