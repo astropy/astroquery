@@ -82,13 +82,13 @@ class CosmoSim(QueryWithLogin):
         
         return authenticated
 
-    def logout(self,detelepw=True):
+    def logout(self,deletepw=True):
         """
         Public function which allows the user to logout of their cosmosim credentials.
 
         Parameters
         ----------
-        hard : bool
+        deletepw : bool
             A hard logout - delete the password to the associated username from the keychain. The default is True.
         Returns
         -------
