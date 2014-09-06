@@ -2,8 +2,6 @@
 ----------------
 
 - Support direct transmission of SQL queries to the SDSS server (PR #410)
-- Added the CosmoSim module (PR#267) with email and text message updates 
-  on query progress (PR#407).
 
 
 0.2 (2014-08-17)
