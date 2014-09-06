@@ -6,9 +6,9 @@ import keyring
 import getpass
 import time
 import smtplib
-from email.MIMEMultipart import MIMEMultipart
-from email.MIMEBase import MIMEBase
-from email.MIMEText import MIMEText
+from six.moves.email_mime_multipart import MIMEMultipart
+from six.moves.email_mime_base import MIMEBase
+from six.moves.email_mime_text import MIMEText
 from email import Encoders
 
 # Astropy imports
@@ -744,5 +744,3 @@ class CosmoSim(QueryWithLogin):
                     self._text(self._smsaddress,self.alert_text,"Job {} Completed with phase {}.".format(jobid,phase))
 
             time.sleep(deltat)
-        
-            
