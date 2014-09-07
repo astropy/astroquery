@@ -11,7 +11,7 @@ from six.moves.email_mime_multipart import MIMEMultipart
 from six.moves.email_mime_base import MIMEBase
 from six.moves.email_mime_text import MIMEText
 from six.moves.email_mime_base import message
-
+import ipdb
 # Astropy imports
 from astropy.table import Table
 import astropy.units as u
@@ -163,11 +163,11 @@ class CosmoSim(QueryWithLogin):
             result = self.session.post(CosmoSim.QUERY_URL,auth=(self.username,self.password),data={'query':query_string,'phase':'run','queue':queue})
         else:
             result = self.session.post(CosmoSim.QUERY_URL,auth=(self.username,self.password),data={'query':query_string,'table':'{}'.format(tablename),'phase':'run','queue':queue})
+            self._existing_tables()
         
         soup = BeautifulSoup(result.content)
         self.current_job = str(soup.find("uws:jobid").string)
         print("Job created: {}".format(self.current_job))
-        self._existing_tables()
 
         if mail or text:
             self._initialize_alerting(self.current_job,mail=mail,text=text)
@@ -222,7 +222,7 @@ class CosmoSim(QueryWithLogin):
         print("Job {}: {}".format(jobid,response.content))
         return response.content
 
-    def check_all_jobs(self,phase=None):
+    def check_all_jobs(self,phase=None,regex=None):
         """
         Public function which builds a dictionary whose keys are each jobid for a
         given set of user credentials and whose values are the phase status (e.g. -
@@ -230,9 +230,11 @@ class CosmoSim(QueryWithLogin):
         
         Parameters
         ----------
-        phase = List
+        phase : list
             A list of phase(s) of jobs to be checked on. If nothing provided, all are checked.
-        
+        regex : string
+            A regular expression to match all table names to. Matching table names will be deleted.
+
         Returns
         -------
         checkalljobs : 'requests.models.Response' object
@@ -249,7 +251,13 @@ class CosmoSim(QueryWithLogin):
                 self.job_dict['{}'.format(i.get('xlink:href').split('/')[-1])] = i_phase
             else:
                 self.job_dict['{}'.format(i.get('id'))] = i_phase
-                
+    
+        if regex:
+            pattern = re.compile("{}".format(regex))
+            groups = [pattern.match(self.table_dict.values()[i]).group() for i in range(len(self.table_dict.values()))]
+            matching_tables = [groups[i] for i in range(len(groups)) if groups[i] in self.table_dict.values()]
+            self._existing_tables() # creates a fresh up-to-date table_dict
+            
         frame = sys._getframe(1)
         do_not_print_job_dict = ['completed_job_info','general_job_info','delete_all_jobs',
                                  '_existing_tables','delete_job','download'] # list of methods which use check_all_jobs() for which I would not like job_dict to be printed to the terminal
@@ -257,13 +265,26 @@ class CosmoSim(QueryWithLogin):
             return checkalljobs
         else:
             if not phase:
-                for i in self.job_dict.keys():
-                    print("{} : {}".format(i,self.job_dict[i]))
+                if not regex:
+                    for i in self.job_dict.keys():
+                        print("{} : {}".format(i,self.job_dict[i]))
+                if regex:
+                    for i in self.job_dict.keys():
+                        if i in self.table_dict.keys():
+                            if self.table_dict[i] in matching_tables:
+                                print("{} : {} (Table: {})".format(i,self.job_dict[i],self.table_dict[i]))
             elif phase:
                 phase = [phase[i].upper() for i in range(len(phase))]
-                for i in self.job_dict.keys():
-                    if self.job_dict[i] in phase:
-                        print("{} : {}".format(i,self.job_dict[i]))
+                if not regex:
+                    for i in self.job_dict.keys():
+                        if self.job_dict[i] in phase:
+                            print("{} : {}".format(i,self.job_dict[i]))
+                if regex:
+                    for i in self.job_dict.keys():
+                        if self.job_dict[i] in phase:
+                            if i in self.table_dict.keys():
+                                if self.table_dict[i] in matching_tables:
+                                    print("{} : {} (Table: {})".format(i,self.job_dict[i],self.table_dict[i]))
             return checkalljobs
 
     def completed_job_info(self,jobid=None,output=False):
@@ -396,16 +417,16 @@ class CosmoSim(QueryWithLogin):
 
         self.check_all_jobs()
 
-    def delete_all_jobs(self, phase=None, regex=None):
+    def delete_all_jobs(self,phase=None,regex=None):
         """
         A public function which deletes any/all jobs from the server in any phase
         and/or with its tablename matching any desired regular expression.
 
         Parameters
         ----------
-        phase = list
+        phase : list
             A list of job phases to be deleted. If nothing provided, all are deleted.
-        regex = string
+        regex : string
             A regular expression to match all table names to. Matching table names will be deleted.
         """
         
