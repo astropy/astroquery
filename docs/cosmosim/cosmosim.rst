@@ -120,7 +120,6 @@ Deleting all jobs, regardless of tablename, and job phase:
     >>> CS.check_all_jobs() 
     {}
 
-
 Exploring Database Schema
 =========================
 

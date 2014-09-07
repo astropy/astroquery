@@ -233,7 +233,7 @@ class CosmoSim(QueryWithLogin):
         phase : list
             A list of phase(s) of jobs to be checked on. If nothing provided, all are checked.
         regex : string
-            A regular expression to match all table names to. Matching table names will be deleted.
+            A regular expression to match all tablenames to. Matching table names will be deleted.
 
         Returns
         -------
@@ -427,7 +427,7 @@ class CosmoSim(QueryWithLogin):
         phase : list
             A list of job phases to be deleted. If nothing provided, all are deleted.
         regex : string
-            A regular expression to match all table names to. Matching table names will be deleted.
+            A regular expression to match all tablenames to. Matching table names will be deleted.
         """
         
         self.check_all_jobs()
