@@ -52,7 +52,7 @@ Managing CosmoSim Queries
 
 The cosmosim module provides functionality for checking the completion status
 of queries, in addition to deleting them from the server. Below are a
-few examples functions available to the user for these purposes. 
+few examples of functions available to the user for these purposes. 
 
 .. code-block:: python
 
