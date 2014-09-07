@@ -92,8 +92,7 @@ delete ALL jobs!
     {'359748449665484': '2014-09-07T05:01:40:0458'}
     {'359748449682647': 'table2'}
     {'359748449628375': 'table3'} 
-    >>>
-    CS.delete_all_jobs(phase=['Aborted','error'],regex='[a-z]*[0-9]*')
+    >>> CS.delete_all_jobs(phase=['Aborted','error'],regex='[a-z]*[0-9]*')
     # phases are case insensitive
     Deleted job: 359748449682647 (Table: table2)
     Deleted job: 359748449628375 (Table: table3)
