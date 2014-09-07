@@ -11,7 +11,7 @@ from six.moves.email_mime_multipart import MIMEMultipart
 from six.moves.email_mime_base import MIMEBase
 from six.moves.email_mime_text import MIMEText
 from six.moves.email_mime_base import message
-
+import ipdb
 # Astropy imports
 from astropy.table import Table
 import astropy.units as u
@@ -441,11 +441,13 @@ class CosmoSim(QueryWithLogin):
             phase = [phase[i].upper() for i in range(len(phase))]
             if regex:
                 for key in self.job_dict.keys():
-                    if self.job_dict[key] in phase and self.table_dict[key] in matching_tables:
-                        result = self.session.delete(CosmoSim.QUERY_URL+"/{}".format(key),auth=(self.username,self.password),data={'follow':''})
-                        if not result.ok:
-                            result.raise_for_status()
-                        print("Deleted job: {} (Table: {})".format(key,self.table_dict[key]))
+                    if self.job_dict[key] in phase:
+                        if key in self.table_dict.keys():
+                            if self.table_dict[key] in matching_tables:
+                                result = self.session.delete(CosmoSim.QUERY_URL+"/{}".format(key),auth=(self.username,self.password),data={'follow':''})
+                                if not result.ok:
+                                    result.raise_for_status()
+                                print("Deleted job: {} (Table: {})".format(key,self.table_dict[key]))
             if not regex:
                 for key in self.job_dict.keys():
                     if self.job_dict[key] in phase:
@@ -457,11 +459,12 @@ class CosmoSim(QueryWithLogin):
         if not phase:
             if regex:
                 for key in self.job_dict.keys():
-                    if self.table_dict[key] in matching_tables:
-                        result = self.session.delete(CosmoSim.QUERY_URL+"/{}".format(key),auth=(self.username,self.password),data={'follow':''})
-                        if not result.ok:
-                            result.raise_for_status()
-                        print("Deleted job: {} (Table: {})".format(key,self.table_dict[key]))
+                    if key in self.table_dict.keys():
+                        if self.table_dict[key] in matching_tables:
+                            result = self.session.delete(CosmoSim.QUERY_URL+"/{}".format(key),auth=(self.username,self.password),data={'follow':''})
+                            if not result.ok:
+                                result.raise_for_status()
+                            print("Deleted job: {} (Table: {})".format(key,self.table_dict[key]))
             if not regex:
                 for key in self.job_dict.keys():
                     result = self.session.delete(CosmoSim.QUERY_URL+"/{}".format(key),auth=(self.username,self.password),data={'follow':''})
@@ -469,6 +472,7 @@ class CosmoSim(QueryWithLogin):
                         result.raise_for_status()
                     print("Deleted job: {}".format(key))
 
+        self._existing_tables()
         return 
 
     def _generate_schema(self):
