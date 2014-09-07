@@ -63,6 +63,54 @@ few examples functions available to the user for these purposes.
     >>> CS.check_all_jobs() 
     {}
 
+The above function 'check_all_jobs' also supports the usage of a
+job's phase status in order to filter through all available CosmoSim
+jobs. 
+
+.. code-block:: python
+
+    >>> CS.check_all_jobs()
+    {'359748449665484': 'COMPLETED'}
+    {'359748449682647': 'ABORTED'}
+    {'359748449628375': 'ERROR'} 
+    >>> CS.check_all_jobs(phase=['Completed','Aborted']) 
+    {'359748449665484': 'COMPLETED'}
+    {'359748449682647': 'ABORTED'}
+
+Additionally, 'delete_all_jobs' accepts both phase and/or tablename
+(via a regular expression) as criteria for deletion of all available
+CosmoSim jobs. But be careful: Leaving both arguments blank will
+delete ALL jobs!
+
+.. code-block:: python
+
+    >>> CS.check_all_jobs()
+    {'359748449665484': 'COMPLETED'}
+    {'359748449682647': 'ABORTED'}
+    {'359748449628375': 'ERROR'} 
+    >>> CS.table_dict()
+    {'359748449665484': '2014-09-07T05:01:40:0458'}
+    {'359748449682647': 'table2'}
+    {'359748449628375': 'table3'} 
+    >>>
+    CS.delete_all_jobs(phase=['Aborted','error'],regex='[a-z]*[0-9]*')
+    # phases are case insensitive
+    Deleted job: 359748449682647 (Table: table2)
+    Deleted job: 359748449628375 (Table: table3)
+    >>> CS.check_all_jobs() 
+    {'359748449665484': 'COMPLETED'}
+
+Getting rid of this last job can be done by deleting all jobs with
+phase COMPLETED, or it can be done simply by providing the 'delete_job'
+function with its unique jobid. Lastly, this could be accomplished by
+matching its tablename to the following regular expression:
+'[0-9]*-[0-9]*-[0-9]*[A-Z]*[0-9]*:[0-9]*:[0-9]*:[0-9]*'.  All jobs
+created without specifying the tablename argument in 'run_sql_query'
+are automatically assigned one based upon the creation date and time
+of the job, and is therefore the default tablename format.
+
+Deleting all jobs, regardless of tablename, and job phase:
+
 .. code-block:: python
 
     >>> CS.check_all_jobs() 

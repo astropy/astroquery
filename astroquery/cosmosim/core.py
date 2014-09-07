@@ -6,10 +6,12 @@ import keyring
 import getpass
 import time
 import smtplib
+import re
 from six.moves.email_mime_multipart import MIMEMultipart
 from six.moves.email_mime_base import MIMEBase
 from six.moves.email_mime_text import MIMEText
 from email import Encoders
+import ipdb
 
 # Astropy imports
 from astropy.table import Table
@@ -395,33 +397,57 @@ class CosmoSim(QueryWithLogin):
 
         self.check_all_jobs()
 
-    def delete_all_jobs(self, phase=None):
+    def delete_all_jobs(self, phase=None, regex=None):
         """
-        A public function which deletes any/all jobs from the server in any phase.
+        A public function which deletes any/all jobs from the server in any phase
+        and/or with its tablename matching any desired regular expression.
 
         Parameters
         ----------
-        phase = List
+        phase = list
             A list of job phases to be deleted. If nothing provided, all are deleted.
+        regex = string
+            A regular expression to match all table names to. Matching table names will be deleted.
         """
         
         self.check_all_jobs()
 
+        if regex:
+            pattern = re.compile("{}".format(regex))
+            groups = [pattern.match(self.table_dict.values()[i]).group() for i in range(len(self.table_dict.values()))]
+            matching_tables = [groups[i] for i in range(len(groups)) if groups[i] in self.table_dict.values()]
+
         if phase:
             phase = [phase[i].upper() for i in range(len(phase))]
-            for key in self.job_dict.keys():
-                if self.job_dict[key] in phase:
+            if regex:
+                for key in self.job_dict.keys():
+                    if self.job_dict[key] in phase and self.table_dict[key] in matching_tables:
+                        result = self.session.delete(CosmoSim.QUERY_URL+"/{}".format(key),auth=(self.username,self.password),data={'follow':''})
+                        if not result.ok:
+                            result.raise_for_status()
+                        print("Deleted job: {} (Table: {})".format(key,self.table_dict[key]))
+            if not regex:
+                for key in self.job_dict.keys():
+                    if self.job_dict[key] in phase:
+                        result = self.session.delete(CosmoSim.QUERY_URL+"/{}".format(key),auth=(self.username,self.password),data={'follow':''})
+                        if not result.ok:
+                            result.raise_for_status()
+                        print("Deleted job: {}".format(key))
+
+        if not phase:
+            if regex:
+                for key in self.job_dict.keys():
+                    if self.table_dict[key] in matching_tables:
+                        result = self.session.delete(CosmoSim.QUERY_URL+"/{}".format(key),auth=(self.username,self.password),data={'follow':''})
+                        if not result.ok:
+                            result.raise_for_status()
+                        print("Deleted job: {} (Table: {})".format(key,self.table_dict[key]))
+            if not regex:
+                for key in self.job_dict.keys():
                     result = self.session.delete(CosmoSim.QUERY_URL+"/{}".format(key),auth=(self.username,self.password),data={'follow':''})
                     if not result.ok:
                         result.raise_for_status()
                     print("Deleted job: {}".format(key))
-
-        if not phase:
-            for key in self.job_dict.keys():
-                result = self.session.delete(CosmoSim.QUERY_URL+"/{}".format(key),auth=(self.username,self.password),data={'follow':''})
-                if not result.ok:
-                    result.raise_for_status()
-                print("Deleted job: {}".format(key))
 
         return 
 
