@@ -11,7 +11,7 @@ from six.moves.email_mime_multipart import MIMEMultipart
 from six.moves.email_mime_base import MIMEBase
 from six.moves.email_mime_text import MIMEText
 from six.moves.email_mime_base import message
-import ipdb
+
 # Astropy imports
 from astropy.table import Table
 import astropy.units as u
