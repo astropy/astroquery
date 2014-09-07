@@ -10,7 +10,7 @@ import re
 from six.moves.email_mime_multipart import MIMEMultipart
 from six.moves.email_mime_base import MIMEBase
 from six.moves.email_mime_text import MIMEText
-from email import Encoders
+from six.moves.email_mime_base import message
 
 # Astropy imports
 from astropy.table import Table
@@ -661,7 +661,7 @@ class CosmoSim(QueryWithLogin):
         for i in range(n):
             part = MIMEBase('application','octet-stream')    
             part.set_payload(open(attach[i],'rb').read())
-            Encoders.encode_base64(part)
+            message.email.Encoders.encode_base64(part)
             part.add_header('Content-Disposition','attachment; filename="%s"' % os.path.basename(attach[i]))    
             msg.attach(part)
         mailServer=smtplib.SMTP('smtp.gmail.com',587)
