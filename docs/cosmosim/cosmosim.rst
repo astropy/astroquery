@@ -33,11 +33,14 @@ Getting started
     >>> CS = CosmoSim()
     >>> # Next, enter your credentials; caching is enabled, so after
     >>> # the initial successful login no further password is required.
-    >>> CS.login(username="public") 
+    >>> CS.login(username="uname") 
     uname, enter your CosmoSim password:
 
     Authenticating uname on www.cosmosim.org...
     Authentication successful!
+    >>> # It also knows if you are running from a script. To login
+    >>> # from a script (rather than an interactive python session): 
+    >>> # CS.login(username="uname",password="password")
     >>> # MDR1.BDMV mass function 
     >>> sql_query = "SELECT 0.25*(0.5+FLOOR(LOG10(mass)/0.25)) AS log_mass, COUNT(*) AS num FROM MDR1.FOF WHERE snapnum=85 GROUP BY FLOOR(LOG10(mass)/0.25) ORDER BY log_mass" 
     >>> CS.run_sql_query(query_string=sql_query) 
@@ -49,7 +52,7 @@ Managing CosmoSim Queries
 
 The cosmosim module provides functionality for checking the completion status
 of queries, in addition to deleting them from the server. Below are a
-few examples functions available to the user for these purposes. 
+few examples of functions available to the user for these purposes. 
 
 .. code-block:: python
 
@@ -60,6 +63,53 @@ few examples functions available to the user for these purposes.
     >>> CS.check_all_jobs() 
     {}
 
+The above function 'check_all_jobs' also supports the usage of a
+job's phase status in order to filter through all available CosmoSim
+jobs. 
+
+.. code-block:: python
+
+    >>> CS.check_all_jobs()
+    {'359748449665484': 'COMPLETED'}
+    {'359748449682647': 'ABORTED'}
+    {'359748449628375': 'ERROR'} 
+    >>> CS.check_all_jobs(phase=['Completed','Aborted']) 
+    {'359748449665484': 'COMPLETED'}
+    {'359748449682647': 'ABORTED'}
+
+Additionally, 'delete_all_jobs' accepts both phase and/or tablename
+(via a regular expression) as criteria for deletion of all available
+CosmoSim jobs. But be careful: Leaving both arguments blank will
+delete ALL jobs!
+
+.. code-block:: python
+
+    >>> CS.check_all_jobs()
+    {'359748449665484': 'COMPLETED'}
+    {'359748449682647': 'ABORTED'}
+    {'359748449628375': 'ERROR'} 
+    >>> CS.table_dict()
+    {'359748449665484': '2014-09-07T05:01:40:0458'}
+    {'359748449682647': 'table2'}
+    {'359748449628375': 'table3'} 
+    >>> CS.delete_all_jobs(phase=['Aborted','error'],regex='[a-z]*[0-9]*')
+    # phases are case insensitive
+    Deleted job: 359748449682647 (Table: table2)
+    Deleted job: 359748449628375 (Table: table3)
+    >>> CS.check_all_jobs() 
+    {'359748449665484': 'COMPLETED'}
+
+Getting rid of this last job can be done by deleting all jobs with
+phase COMPLETED, or it can be done simply by providing the 'delete_job'
+function with its unique jobid. Lastly, this could be accomplished by
+matching its tablename to the following regular expression:
+'[0-9]*-[0-9]*-[0-9]*[A-Z]*[0-9]*:[0-9]*:[0-9]*:[0-9]*'.  All jobs
+created without specifying the tablename argument in 'run_sql_query'
+are automatically assigned one based upon the creation date and time
+of the job, and is therefore the default tablename format.
+
+Deleting all jobs, regardless of tablename, and job phase:
+
 .. code-block:: python
 
     >>> CS.check_all_jobs() 
@@ -69,7 +119,6 @@ few examples functions available to the user for these purposes.
     Deleted job: 359748586913123
     >>> CS.check_all_jobs() 
     {}
-
 
 Exploring Database Schema
 =========================
@@ -215,7 +264,29 @@ Data can be stored and/or written out as a `VOTable`_.
     >>> data
     <astropy.io.votable.tree.VOTableFile at 0x10b440150>
     >>> data.to_xml('/Users/username/Desktop/data.xml')
-
+    >>> CS.download(jobid='359750704009965',filename='/Users/username/Desktop/MDR1massfunction.dat')
+    [<Response [200]>]
+    Data written to file: /Users/username/Desktop/MDR1massfunction.dat   
+    (['row_id', 'log_mass', 'num'],
+     [[1, 10.88, 3683],
+      [2, 11.12, 452606],
+      [3, 11.38, 3024674],
+      [4, 11.62, 3828931],
+      [5, 11.88, 2638644],
+      [6, 12.12, 1572685],
+      [7, 12.38, 926764],
+      [8, 12.62, 544650],
+      [9, 12.88, 312360],
+      [10, 13.12, 174164],
+      [11, 13.38, 95263],
+      [12, 13.62, 50473],
+      [13, 13.88, 25157],
+      [14, 14.12, 11623],
+      [15, 14.38, 4769],
+      [16, 14.62, 1672],
+      [17, 14.88, 458],
+      [18, 15.12, 68],
+      [19, 15.38, 4]]) 
 
 Reference/API
 =============

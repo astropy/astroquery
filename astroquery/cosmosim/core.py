@@ -4,13 +4,20 @@ import sys
 from bs4 import BeautifulSoup
 import keyring
 import getpass
-import logging
+import time
+import smtplib
+import re
+from six.moves.email_mime_multipart import MIMEMultipart
+from six.moves.email_mime_base import MIMEBase
+from six.moves.email_mime_text import MIMEText
+from six.moves.email_mime_base import message
 
 # Astropy imports
 from astropy.table import Table
 import astropy.units as u
 import astropy.coordinates as coord
 import astropy.io.votable as votable
+from astropy import log as logging
 from astropy.io import fits
 from astropy.io import votable
 import astropy.utils.data as aud
@@ -39,14 +46,14 @@ class CosmoSim(QueryWithLogin):
         
         # Get password from keyring or prompt
         password_from_keyring = keyring.get_password("astroquery:www.cosmosim.org", self.username)
-        if password_from_keyring is None:
+        if not password_from_keyring:
             logging.warning("No password was found in the keychain for the provided username.")
 
             # Check if running from scipt or interactive python session
             import __main__ as main
             # For script
             if hasattr(main,'__file__'):
-                assert password is not None, "No password provided."
+                assert password, "No password provided."
                 self.password = password
             # For interactive session
             else:
@@ -76,13 +83,49 @@ class CosmoSim(QueryWithLogin):
         
         return authenticated
 
-    def logout(self):
-        del self.session
-        del self.username
-        del self.password
+    def logout(self,deletepw=True):
+        """
+        Public function which allows the user to logout of their cosmosim credentials.
 
+        Parameters
+        ----------
+        deletepw : bool
+            A hard logout - delete the password to the associated username from the keychain. The default is True.
+        Returns
+        -------
+        """
+        
+        if hasattr(self,'username') and hasattr(self,'password') and hasattr(self,'session'):
+            if deletepw is True:
+                keyring.delete_password("astroquery:www.cosmosim.org", self.username)
+                print("Removed password for {} in the keychain.".format(self.username))
+            del self.session
+            del self.username
+            del self.password
+        else:
+            logging.error("You must log in before attempting to logout.")
 
-    def run_sql_query(self, query_string,tablename=None,queue=None):
+    def check_login_status(self):
+        """
+        Public function which checks the status of a user login attempt.
+        """
+        
+        if hasattr(self,'username') and hasattr(self,'password') and hasattr(self,'session'):
+            authenticated = self.session.post(CosmoSim.QUERY_URL,auth=(self.username,self.password))
+            if authenticated.status_code == 200:
+                print("Status: You are logged in as {}.".format(self.username))
+            else:
+                logging.warning("Status: The username/password combination for {} appears to be incorrect.".format(self.username))
+                print("Please re-attempt to login with your cosmosim credentials.")
+        else:
+            print("Status: You are not logged in.")
+
+        # Clean up job
+        soup = BeautifulSoup(authenticated.content)
+        self.delete_job(jobid="{}".format(soup.find("uws:jobid").string),squash=True)
+
+        
+    def run_sql_query(self, query_string,tablename=None,queue=None,mail=None,text=None):
         """
         Public function which sends a POST request containing the sql query string.
 
@@ -92,11 +135,17 @@ class CosmoSim(QueryWithLogin):
             The sql query to be sent to the CosmoSim.org server.
         tablename : string
             The name of the table for which the query data will be stored under. If left blank or if it already exists, one will be generated automatically.
-
+        queue : string
+            The short/long queue option. Default is short.
+        mail : string
+            The user's email address for receiving job completion alerts.
+        text : string
+            The user's cell phone number for receiving job completion alerts.
+            
         Returns
         -------
-        result : 'requests.models.Response' object
-            The requests response 
+        result : jobid
+            The jobid of the query 
         """
         
         self._existing_tables()
@@ -114,16 +163,23 @@ class CosmoSim(QueryWithLogin):
             result = self.session.post(CosmoSim.QUERY_URL,auth=(self.username,self.password),data={'query':query_string,'phase':'run','queue':queue})
         else:
             result = self.session.post(CosmoSim.QUERY_URL,auth=(self.username,self.password),data={'query':query_string,'table':'{}'.format(tablename),'phase':'run','queue':queue})
+            self._existing_tables()
         
         soup = BeautifulSoup(result.content)
         self.current_job = str(soup.find("uws:jobid").string)
         print("Job created: {}".format(self.current_job))
-        self._existing_tables()
+
+        if mail or text:
+            self._initialize_alerting(self.current_job,mail=mail,text=text)
+            self._alert(self.current_job,queue)
+        
         return self.current_job
         
     def _existing_tables(self):
         """
-        Internal function which builds a dictionary of the tables already in use for a given set of user credentials. Keys are jobids and values are the tables which are stored under those keys.
+        Internal function which builds a dictionary of the tables already in use
+        for a given set of user credentials. Keys are jobids and values are the
+        tables which are stored under those keys.
         """
 
         checkalljobs = self.check_all_jobs()
@@ -136,9 +192,11 @@ class CosmoSim(QueryWithLogin):
             if jobid in completed_jobs:
                 self.table_dict[jobid] = '{}'.format(i.get('id'))
 
-    def check_query_status(self,jobid=None):
+    def check_job_status(self,jobid=None):
         """
-        A public function which sends an http GET request for a given jobid, and checks the server status. If no jobid is provided, it uses the most recent query (if one exists).
+        A public function which sends an http GET request for a given jobid,
+        and checks the server status. If no jobid is provided, it uses the most
+        recent query (if one exists).
 
         Parameters
         ----------
@@ -164,9 +222,18 @@ class CosmoSim(QueryWithLogin):
         print("Job {}: {}".format(jobid,response.content))
         return response.content
 
-    def check_all_jobs(self):
+    def check_all_jobs(self,phase=None,regex=None):
         """
-        Public function which builds a dictionary whose keys are each jobid for a given set of user credentials and whose values are the phase status (e.g. - EXECUTING,COMPLETED,PENDING,ERROR).
+        Public function which builds a dictionary whose keys are each jobid for a
+        given set of user credentials and whose values are the phase status (e.g. -
+        EXECUTING,COMPLETED,PENDING,ERROR).
+        
+        Parameters
+        ----------
+        phase : list
+            A list of phase(s) of jobs to be checked on. If nothing provided, all are checked.
+        regex : string
+            A regular expression to match all tablenames to. Matching table names will be deleted.
 
         Returns
         -------
@@ -184,18 +251,47 @@ class CosmoSim(QueryWithLogin):
                 self.job_dict['{}'.format(i.get('xlink:href').split('/')[-1])] = i_phase
             else:
                 self.job_dict['{}'.format(i.get('id'))] = i_phase
-                
+    
+        if regex:
+            pattern = re.compile("{}".format(regex))
+            groups = [pattern.match(self.table_dict.values()[i]).group() for i in range(len(self.table_dict.values()))]
+            matching_tables = [groups[i] for i in range(len(groups)) if groups[i] in self.table_dict.values()]
+            self._existing_tables() # creates a fresh up-to-date table_dict
+            
         frame = sys._getframe(1)
-        do_not_print_job_dict = ['completed_job_info','delete_all_jobs','_existing_tables','delete_job','download'] # list of methods which use check_all_jobs() for which I would not like job_dict to be printed to the terminal
+        do_not_print_job_dict = ['completed_job_info','general_job_info','delete_all_jobs',
+                                 '_existing_tables','delete_job','download'] # list of methods which use check_all_jobs() for which I would not like job_dict to be printed to the terminal
         if frame.f_code.co_name in do_not_print_job_dict: 
             return checkalljobs
         else:
-            print(self.job_dict)
+            if not phase:
+                if not regex:
+                    for i in self.job_dict.keys():
+                        print("{} : {}".format(i,self.job_dict[i]))
+                if regex:
+                    for i in self.job_dict.keys():
+                        if i in self.table_dict.keys():
+                            if self.table_dict[i] in matching_tables:
+                                print("{} : {} (Table: {})".format(i,self.job_dict[i],self.table_dict[i]))
+            elif phase:
+                phase = [phase[i].upper() for i in range(len(phase))]
+                if not regex:
+                    for i in self.job_dict.keys():
+                        if self.job_dict[i] in phase:
+                            print("{} : {}".format(i,self.job_dict[i]))
+                if regex:
+                    for i in self.job_dict.keys():
+                        if self.job_dict[i] in phase:
+                            if i in self.table_dict.keys():
+                                if self.table_dict[i] in matching_tables:
+                                    print("{} : {} (Table: {})".format(i,self.job_dict[i],self.table_dict[i]))
             return checkalljobs
 
     def completed_job_info(self,jobid=None,output=False):
         """
-        A public function which sends an http GET request for a given jobid with phase COMPLETED, and returns a list containing the response object. If no jobid is provided, a list of all responses with phase COMPLETED is generated.
+        A public function which sends an http GET request for a given jobid with phase
+        COMPLETED, and returns a list containing the response object. If no jobid is provided,
+        a list of all responses with phase COMPLETED is generated.
 
         Parameters
         ----------
@@ -220,6 +316,46 @@ class CosmoSim(QueryWithLogin):
                 response_list = [self.session.get(CosmoSim.QUERY_URL+"/{}".format(jobid),auth=(self.username,self.password))]
             else:
                 logging.warning("JobID must refer to a query with a phase of 'COMPLETED'.")
+                return
+
+        if output is True:
+            for i in response_list:
+                print(i.content)
+        else:
+            print(response_list)
+
+        return response_list
+        
+    def general_job_info(self,jobid=None,output=False):
+        """
+        A public function which sends an http GET request for a given jobid with phase COMPLETED,
+        ERROR, or ABORTED, and returns a list containing the response object. If no jobid is provided,
+        the current job is used (if it exists).
+
+        Parameters
+        ----------
+        jobid : string
+            The jobid of the sql query.
+        output : bool
+            Print output of response(s) to the terminal
+            
+        Returns
+        -------
+        result : list
+            A list of response object(s)
+        """
+        
+        self.check_all_jobs()
+        general_jobids = [key for key in self.job_dict.keys() if self.job_dict[key] in ['COMPLETED','ABORTED','ERROR']]
+        if jobid in general_jobids:
+            response_list = [self.session.get(CosmoSim.QUERY_URL+"/{}".format(jobid),auth=(self.username,self.password))]
+        else:
+            try:
+                hasattr(self,current_job)
+                response_list = [self.session.get(CosmoSim.QUERY_URL+"/{}".format(self.current_job),auth=(self.username,self.password))]
+            except (AttributeError, NameError):
+                logging.warning("No current job has been defined, and no jobid has been provided.")
+
 
         if output:
             for i in response_list:
@@ -228,11 +364,14 @@ class CosmoSim(QueryWithLogin):
             print(response_list)
 
         return response_list
-        
-        
+
+            
     def delete_job(self,jobid=None,squash=None):
         """
-        A public function which deletes a stored job from the server in any phase. If no jobid is given, it attemps to use the most recent job (if it exists in this session). If jobid is specified, then it deletes the corresponding job, and if it happens to match the existing current job, that variable gets deleted.
+        A public function which deletes a stored job from the server in any phase.
+        If no jobid is given, it attemps to use the most recent job (if it exists
+        in this session). If jobid is specified, then it deletes the corresponding job,
+        and if it happens to match the existing current job, that variable gets deleted.
         
         Parameters
         ----------
@@ -254,7 +393,7 @@ class CosmoSim(QueryWithLogin):
             if hasattr(self,'current_job'):
                 jobid = self.current_job
 
-        if jobid is not None:
+        if jobid:
             if hasattr(self,'current_job'):
                 if jobid == self.current_job:
                     del self.current_job
@@ -278,27 +417,71 @@ class CosmoSim(QueryWithLogin):
 
         self.check_all_jobs()
 
-    def delete_all_jobs(self):
+    def delete_all_jobs(self,phase=None,regex=None):
         """
-        A public function which deletes all jobs from the server in any phase.
+        A public function which deletes any/all jobs from the server in any phase
+        and/or with its tablename matching any desired regular expression.
+
+        Parameters
+        ----------
+        phase : list
+            A list of job phases to be deleted. If nothing provided, all are deleted.
+        regex : string
+            A regular expression to match all tablenames to. Matching table names will be deleted.
         """
         
         self.check_all_jobs()
-        
-        for key in self.job_dict.keys():
-            result = self.session.delete(CosmoSim.QUERY_URL+"/{}".format(key),auth=(self.username,self.password),data={'follow':''})
-            if not result.ok:
-                result.raise_for_status()
-            print("Deleted job: {}".format(key))
 
+        if regex:
+            pattern = re.compile("{}".format(regex))
+            groups = [pattern.match(self.table_dict.values()[i]).group() for i in range(len(self.table_dict.values()))]
+            matching_tables = [groups[i] for i in range(len(groups)) if groups[i] in self.table_dict.values()]
+
+        if phase:
+            phase = [phase[i].upper() for i in range(len(phase))]
+            if regex:
+                for key in self.job_dict.keys():
+                    if self.job_dict[key] in phase:
+                        if key in self.table_dict.keys():
+                            if self.table_dict[key] in matching_tables:
+                                result = self.session.delete(CosmoSim.QUERY_URL+"/{}".format(key),auth=(self.username,self.password),data={'follow':''})
+                                if not result.ok:
+                                    result.raise_for_status()
+                                print("Deleted job: {} (Table: {})".format(key,self.table_dict[key]))
+            if not regex:
+                for key in self.job_dict.keys():
+                    if self.job_dict[key] in phase:
+                        result = self.session.delete(CosmoSim.QUERY_URL+"/{}".format(key),auth=(self.username,self.password),data={'follow':''})
+                        if not result.ok:
+                            result.raise_for_status()
+                        print("Deleted job: {}".format(key))
+
+        if not phase:
+            if regex:
+                for key in self.job_dict.keys():
+                    if key in self.table_dict.keys():
+                        if self.table_dict[key] in matching_tables:
+                            result = self.session.delete(CosmoSim.QUERY_URL+"/{}".format(key),auth=(self.username,self.password),data={'follow':''})
+                            if not result.ok:
+                                result.raise_for_status()
+                            print("Deleted job: {} (Table: {})".format(key,self.table_dict[key]))
+            if not regex:
+                for key in self.job_dict.keys():
+                    result = self.session.delete(CosmoSim.QUERY_URL+"/{}".format(key),auth=(self.username,self.password),data={'follow':''})
+                    if not result.ok:
+                        result.raise_for_status()
+                    print("Deleted job: {}".format(key))
+
+        self._existing_tables()
         return 
 
     def _generate_schema(self):
         """
-        Internal function which builds a schema of all simulations within the database (in the form of a dictionary).
+        Internal function which builds a schema of all simulations within
+        the database (in the form of a dictionary).
         """
 
-        response = self.session.get(CosmoSim.SCHEMA_URL,
+        response = requests.get(CosmoSim.SCHEMA_URL,
                                 auth=(self.username,self.password),
                                 headers = {'Accept': 'application/json'})
         data = response.json()
@@ -334,7 +517,9 @@ class CosmoSim(QueryWithLogin):
 
     def explore_db(self,db=None,table=None,col=None):
         """
-        A public function which allows for the exploration of any simulation and its tables within the database. This function is meant to aid the user in constructing sql queries.
+        A public function which allows for the exploration of any simulation and
+        its tables within the database. This function is meant to aid the user in
+        constructing sql queries.
         
         Parameters
         ----------
@@ -351,9 +536,9 @@ class CosmoSim(QueryWithLogin):
         except AttributeError:
             self._generate_schema()
         
-        if db is not None:
-            if table is not None:
-                if col is not None:
+        if db:
+            if table:
+                if col:
                     print("#"*(len(db)+4) + "\n# {} #\n".format(db) + "#"*(len(db)+4))
                     print("@ {}".format("tables"))
                     print("   @ {}".format(table))
@@ -398,8 +583,8 @@ class CosmoSim(QueryWithLogin):
         """
         A public function to download data from a job with COMPLETED phase.
 
-        Keyword Args
-        ------------
+        Parameters
+        ----------
         jobid :
             Completed jobid to be downloaded
         filename : string
@@ -410,7 +595,7 @@ class CosmoSim(QueryWithLogin):
         headers, data : list, list
         """
 
-        if jobid is None:
+        if not jobid:
             try:
                 jobid = self.current_job
             except:
@@ -430,11 +615,11 @@ class CosmoSim(QueryWithLogin):
         raw_data = [raw_table_data.content.split('\n')[i+1].split(",") for i in range(num_rows)]
         data = [map(eval,raw_data[i]) for i in range(num_rows)]
 
-        if format is not None:
+        if format:
             tbl = Table(data=map(list, zip(*data)),names=headers)
             if format in ['VOTable','votable']:
                 votbl = votable.from_table(tbl)
-                if filename is None:
+                if not filename:
                     return votbl
                 else:
                     if '.xml' in filename:
@@ -444,7 +629,7 @@ class CosmoSim(QueryWithLogin):
             elif format in ['FITS','fits']:
                 print("Need to implement...")
         else:
-            if filename is None:
+            if not filename:
                 return headers, data
             else:
                 with open(filename, 'wb') as fh:
@@ -455,3 +640,157 @@ class CosmoSim(QueryWithLogin):
                         fh.write(block)
                     print("Data written to file: {}".format(filename))
                 return headers, data
+
+    def _check_phase(self,jobid):
+        """
+        A private function which checks the job phase of a query.
+        
+        Parameters
+        ----------
+        jobid : string
+            The jobid of the sql query.
+        """
+        
+        self._existing_tables()
+
+        time.sleep(1)
+
+        if jobid not in self.job_dict.keys():
+            logging.error("Job not present in job dictionary.")
+            return 
+
+        else:
+            phase = self.job_dict['{}'.format(jobid)]
+            return phase
+
+    def _mail(self,to,subject,text,*attach):
+        """
+        A private function which sends an SMS message to an email address.
+        
+        Parameters
+        ----------
+        to : string
+            The email address receiving the job alert.
+        subject : string
+            The subject of the job alert.
+        text : string
+            The content of the job alert.
+        """
+        
+        msg = MIMEMultipart()
+        msg['From']=self._smsaddress
+        msg['To']=to
+        msg['Subject']=subject
+        msg.attach(MIMEText(text))
+        n=len(attach)
+        for i in range(n):
+            part = MIMEBase('application','octet-stream')    
+            part.set_payload(open(attach[i],'rb').read())
+            message.email.Encoders.encode_base64(part)
+            part.add_header('Content-Disposition','attachment; filename="%s"' % os.path.basename(attach[i]))    
+            msg.attach(part)
+        mailServer=smtplib.SMTP('smtp.gmail.com',587)
+        mailServer.ehlo()
+        mailServer.starttls()
+        mailServer.ehlo()
+        mailServer.login(self._smsaddress, self._smspw)
+        mailServer.sendmail(self._smsaddress, to, msg.as_string())
+        mailServer.quit()
+
+    def _text(self,fromwhom,number,text):
+        """
+        A private function which sends an SMS message to a cell phone number.
+        
+        Parameters
+        ----------
+        fromwhom : string
+            The email address sending the alert: "donotreply.astroquery.cosmosim@gmail.com"
+        number : string
+            The user-provided cell phone receiving the job alert.
+        text : string
+            The content of the job alert.
+        """
+
+        server = smtplib.SMTP( "smtp.gmail.com", 587 )
+        server.starttls()
+        server.login(self._smsaddress, self._smspw)
+        server.sendmail( '{}'.format(fromwhom), '{}@vtext.com'.format(number), '{}'.format(text) )
+        server.quit()
+
+    def _initialize_alerting(self,jobid,mail=None,text=None):
+        """
+        A private function which initializes the email/text alert service credentials.
+        Also preemptively checks for job phase being COMPLETED, ABORTED, or ERROR so that
+        users don't simply send alerts for old jobs.
+        
+        Parameters
+        ----------
+        jobid : string
+            The jobid of the sql query.
+        mail : string
+            The user-provided email address receiving the job alert.
+        text : string
+            The user-provided cell phone receiving the job alert.
+        """
+        
+        self._smsaddress = "donotreply.astroquery.cosmosim@gmail.com"
+        password_from_keyring = keyring.get_password("astroquery:cosmosim.SMSAlert", self._smsaddress)
+
+        if password_from_keyring:
+            self._smspw = password_from_keyring
+            
+        if not password_from_keyring:
+            logging.warning("CosmoSim SMS alerting has not been initialized.")
+            print("Initializing SMS alerting.")
+            keyring.set_password("astroquery:cosmosim.SMSAlert", self._smsaddress,"LambdaCDM")
+
+            
+        self.alert_email = mail
+        self.alert_text = text
+
+        # first check to see if the job has errored (or is a job that has already completed) before running on a loop
+        phase = self._check_phase(jobid)
+        if phase in ['COMPLETED','ABORTED','ERROR']:
+            print("JobID {} has finished with status {}.".format(jobid,phase))
+            self.alert_completed = True
+        elif phase in ['EXECUTING','PENDING','QUEUED']:
+            self.alert_completed = False
+        else:
+            self.alert_completed = False
+        
+
+    def _alert(self,jobid,queue='short'):
+        """
+        A private function which runs checks for job completion every 10 seconds for
+        short-queue jobs and 60 seconds for long-queue jobs. Once job phase is COMPLETED,
+        ERROR, or ABORTED, emails and/or texts the results of the query to the user.
+        
+        Parameters
+        ----------
+        jobid : string
+            The jobid of the sql query.
+        queue : string
+            The short/long queue option. Default is short.
+        """
+        
+        if queue == 'long':
+            deltat = 60
+        else:
+            deltat = 10
+            
+        while self.alert_completed is False:
+
+            phase = self._check_phase(jobid)
+
+            if phase in ['COMPLETED','ABORTED','ERROR']:
+                print("JobID {} has finished with status {}.".format(jobid,phase))
+                self.alert_completed = True
+                resp = self.general_job_info(jobid)
+
+                if self.alert_email:
+                    self._mail(self.alert_email,"Job {} Completed with phase {}.".format(jobid,phase),"{}".format(resp[0].content))
+
+                if self.alert_text:
+                    self._text(self._smsaddress,self.alert_text,"Job {} Completed with phase {}.".format(jobid,phase))
+
+            time.sleep(deltat)
