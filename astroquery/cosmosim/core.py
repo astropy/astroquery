@@ -221,7 +221,7 @@ class CosmoSim(QueryWithLogin):
             else:
                 logging.warning("JobID must refer to a query with a phase of 'COMPLETED'.")
 
-        if output:
+        if output is True:
             for i in response_list:
                 print(i.content)
         else:
@@ -298,7 +298,7 @@ class CosmoSim(QueryWithLogin):
         Internal function which builds a schema of all simulations within the database (in the form of a dictionary).
         """
 
-        response = self.session.get(CosmoSim.SCHEMA_URL,
+        response = requests.get(CosmoSim.SCHEMA_URL,
                                 auth=(self.username,self.password),
                                 headers = {'Accept': 'application/json'})
         data = response.json()
