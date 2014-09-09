@@ -310,12 +310,15 @@ class EsoClass(QueryWithLogin):
 
         """
 
-        url = "http://archive.eso.org/wdb/wdb/eso/{0}/form".format(instrument)
+        if instrument in ('feros','harps'):
+            url = 'http://archive.eso.org/wdb/wdb/eso/repro/form'
+        else:
+            url = "http://archive.eso.org/wdb/wdb/eso/{0}/form".format(instrument)
         table = None
         if open_form:
             webbrowser.open(url)
         elif help:
-            self._print_help(url)
+            self._print_help(url, instrument)
         else:
             instrument_form = self._request("GET", url, cache=cache)
             query_dict = {}
@@ -577,7 +580,7 @@ class EsoClass(QueryWithLogin):
         if open_form:
             webbrowser.open(apex_query_url)
         elif help:
-            return self._print_help(apex_query_url)
+            return self._print_help(apex_query_url, 'apex')
         else:
 
             payload = {'dp_id':project_id, 'wdbo':'csv/download'}
@@ -608,7 +611,7 @@ class EsoClass(QueryWithLogin):
             return table
 
 
-    def _print_help(self, url):
+    def _print_help(self, url, instrument, cache=True):
         """
         Download a form and print it in a quasi-human-readable way
         """
