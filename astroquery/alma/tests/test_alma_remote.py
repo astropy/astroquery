@@ -37,7 +37,6 @@ class TestAlma:
 
         result_s = alma.query_object('Sgr A*')
         assert b'2011.0.00217.S' in result_s['Project_code']
-
         uid = result_s['Asdm_uid'][0]
 
         alma.stage_data([uid])
