@@ -81,15 +81,24 @@ class AlmaClass(QueryWithLogin):
         return response
 
     def stage_data(self, uids, cache=False):
+        """
+        Stage ALMA data
 
-        #s = requests.Session()
-        #response = s.post('http://almascience.eso.org/rh/submission', data=payload)
-        #login = s.get('http://almascience.eso.org/rh/login')
-        #scheck = s.get(login.url)
-        #req = s.get('http://almascience.eso.org/rh/requests')
-        #scheck = s.get(login.url, data={'service':'http://almascience.eso.org/rh/j_spring_cas_security_check'})
-        #sub = s.get('http://almascience.eso.org/rh/submission/e98497ee-f094-4fe4-8ea8-d4ae01d1685d')
-        #data = s.get('http://almascience.eso.org/rh/requests/anonymous/429721782')
+        Parameters
+        ----------
+        uids : list
+            A list of valid UIDs.
+            UIDs should have the form:
+                uid://A002/X391d0b/X7b
+        cache : bool
+            Whether to cache the staging process.  This should generally
+            be left as False when used interactively.
+
+        Returns
+        -------
+        data_file_urls : list
+            A list of the URLs that can be downloaded
+        """
 
         log.info("Staging files...")
 
@@ -108,9 +117,6 @@ class AlmaClass(QueryWithLogin):
         request_id = response.url.split("/")[-2]
         self._staging_log['request_id'] = request_id
 
-        login = self._request('GET', os.path.join(self.archive_url, 'rh',
-                                                  'login'),
-                              cache=False) # ALWAYS False here
 
         # Submit a request for the specific request ID identified above
         submission_url = os.path.join(self.archive_url, 'rh', 'submission',
@@ -135,6 +141,24 @@ class AlmaClass(QueryWithLogin):
         return data_file_urls
 
     def download_data(self, uids, cache=True):
+        """
+        Stage & Download ALMA data.  Will print out the expected file size
+        before attempting the download.
+
+        Parameters
+        ----------
+        uids : list
+            A list of valid UIDs.
+            UIDs should have the form:
+                uid://A002/X391d0b/X7b
+        cache : bool
+            Whether to cache the downloads.
+
+        Returns
+        -------
+        downloaded_files : list
+            A list of the downloaded file paths
+        """
 
         files = self.stage_data(uids, cache=cache)
 
@@ -142,14 +166,16 @@ class AlmaClass(QueryWithLogin):
         totalsize = 0
         pb = ProgressBar(len(files))
         for ii,fileLink in enumerate(files):
-            response = self._request('GET', fileLink, stream=True)
+            response = self._request('GET', fileLink, stream=True,
+                                     timeout=self.TIMEOUT)
             totalsize += int(response.headers['content-length'])
             pb.update(ii+1)
 
         log.info("Downloading files of size {0}...".format((totalsize*u.B).to(u.GB)))
         downloaded_files = []
         for fileLink in files:
-            filename = self._request("GET", fileLink, save=True)
+            filename = self._request("GET", fileLink, save=True,
+                                     timeout=self.TIMEOUT)
             downloaded_files.append(filename)
 
         return downloaded_files
