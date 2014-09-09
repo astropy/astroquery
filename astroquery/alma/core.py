@@ -109,9 +109,6 @@ class AlmaClass(BaseQuery):
 
         login = self._request('GET', 'http://almascience.eso.org/rh/login',
                               cache=False) # ALWAYS False here
-        cookie_domains = [c.domain for c in self._BaseQuery__session.cookies]
-        assert len(cookie_domains) == 2
-        assert 'asa.alma.cl' in cookie_domains
 
         scheck = self._request('GET', login.url,
                                data={'service':'http://almascience.eso.org/rh/j_spring_cas_security_check'},
