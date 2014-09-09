@@ -5,6 +5,7 @@ from astropy.tests.helper import pytest
 from .. import Alma
 from ...utils.testing_tools import MockResponse
 
+DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
 
 def data_path(filename):
     return os.path.join(DATA_DIR, filename)

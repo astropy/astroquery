@@ -16,6 +16,7 @@ from astropy.extern import six
 from astropy.table import Table, Column
 from astropy import log
 from astropy.utils.console import ProgressBar
+from astropy import units as u
 import astropy.io.votable as votable
 
 from ..exceptions import LoginError, RemoteServiceError
@@ -54,7 +55,7 @@ class AlmaClass(QueryWithLogin):
 
         """
         cstr = coordinate.fk5.to_string(style='hmsdms', sep=':')
-        rdc = "{cstr}, {rad}".format(cstr, radius.to(u.deg).value)
+        rdc = "{cstr}, {rad}".format(cstr=cstr, rad=radius.to(u.deg).value)
 
         payload = {'raDecCoordinates': rdc}
 
