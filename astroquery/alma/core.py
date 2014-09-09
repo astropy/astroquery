@@ -205,7 +205,6 @@ class AlmaClass(QueryWithLogin):
         self._staging_log['request_id'] = request_id
         log.debug("Request ID: {0}".format(request_id))
 
-
         # Submit a request for the specific request ID identified above
         submission_url = os.path.join(self.dataarchive_url, 'rh', 'submission',
                                       request_id)
