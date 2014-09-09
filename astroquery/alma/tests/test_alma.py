@@ -71,7 +71,6 @@ def test_SgrAstar(monkeypatch):
     monkeypatch.setattr(Alma, '_get_dataarchive_url', _get_dataarchive_url)
     alma = Alma()
     monkeypatch.setattr(alma, '_get_dataarchive_url', _get_dataarchive_url)
-
     # monkeypatch instructions from https://pytest.org/latest/monkeypatch.html
     monkeypatch.setattr(alma, '_request', alma_request)
     # set up local cache path to prevent remote query
