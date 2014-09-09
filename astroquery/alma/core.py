@@ -113,6 +113,7 @@ class AlmaClass(QueryWithLogin):
         response = self._request('POST', url, data=payload,
                                  timeout=self.TIMEOUT, cache=cache)
         self._staging_log['initial_response'] = response
+        assert 'j_spring_cas_security_check' not in response.url
 
         request_id = response.url.split("/")[-2]
         self._staging_log['request_id'] = request_id
@@ -246,4 +247,7 @@ def clean_uid(uid):
     """
     Return a uid with all unacceptable characters replaced with underscores
     """
-    return uid.replace("/","_").replace(":","_")
+    try:
+        return uid.decode('utf-8').replace(u"/",u"_").replace(u":",u"_")
+    except AttributeError:
+        return uid.replace("/","_").replace(":","_")

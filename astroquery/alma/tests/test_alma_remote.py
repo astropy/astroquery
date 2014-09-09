@@ -24,18 +24,18 @@ class TestAlma:
         alma.cache_location = temp_dir
 
         result_s = alma.query_object('Sgr A*')
-        assert '2011.0.00217.S' in result_s['Project_code']
+        assert b'2011.0.00217.S' in result_s['Project_code']
         c = coordinates.SkyCoord(266.41681662*u.deg, -29.00782497*u.deg,
                                  frame='fk5')
         result_c = alma.query_region(c, 1*u.deg)
-        assert '2011.0.00217.S' in result_c['Project_code']
+        assert b'2011.0.00217.S' in result_c['Project_code']
 
     def test_stage_data(self, temp_dir):
         alma = Alma()
         alma.cache_location = temp_dir
 
         result_s = alma.query_object('Sgr A*')
-        assert '2011.0.00217.S' in result_s['Project_code']
+        assert b'2011.0.00217.S' in result_s['Project_code']
 
         uid = result_s['Asdm_uid'][0]
 

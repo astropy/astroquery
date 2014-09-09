@@ -36,5 +36,5 @@ def test_SgrAstar(monkeypatch):
 
     # test that max_results = 50
     assert len(result) == 82
-    assert '2011.0.00217.S' in result['Project_code']
+    assert b'2011.0.00217.S' in result['Project_code']
 
