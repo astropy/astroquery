@@ -31,7 +31,6 @@ __doctest_skip__ = ['AlmaClass.*']
 @async_to_sync
 class AlmaClass(QueryWithLogin):
 
-    ROW_LIMIT = conf.row_limit
     TIMEOUT = conf.timeout
     archive_url = conf.archive_url
 
