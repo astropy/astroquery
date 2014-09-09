@@ -15,6 +15,7 @@ from astropy.extern.six import BytesIO
 from astropy.extern import six
 from astropy.table import Table, Column
 from astropy import log
+from astropy.utils.console import ProgressBar
 import astropy.io.votable as votable
 
 from ..exceptions import LoginError, RemoteServiceError
@@ -111,14 +112,6 @@ class AlmaClass(QueryWithLogin):
                                                   'login'),
                               cache=False) # ALWAYS False here
 
-        scheck = self._request('GET', login.url,
-                               data={'service':
-                                     os.path.join(self.archive_url,
-                                                  'rh',
-                                                  'j_spring_cas_security_check')
-                                    },
-                               cache=cache)
-
         # Submit a request for the specific request ID identified above
         submission_url = os.path.join(self.archive_url, 'rh', 'submission',
                                       request_id)
@@ -145,7 +138,15 @@ class AlmaClass(QueryWithLogin):
 
         files = self.stage_data(uids, cache=cache)
 
-        log.info("Downloading files...")
+        log.info("Determining download size for {0} files...".format(len(files)))
+        totalsize = 0
+        pb = ProgressBar(len(files))
+        for ii,fileLink in enumerate(files):
+            response = self._request('GET', fileLink, stream=True)
+            totalsize += int(response.headers['content-length'])
+            pb.update(ii+1)
+
+        log.info("Downloading files of size {0}...".format((totalsize*u.B).to(u.GB)))
         downloaded_files = []
         for fileLink in files:
             filename = self._request("GET", fileLink, save=True)
@@ -166,8 +167,47 @@ class AlmaClass(QueryWithLogin):
         table = first_table.to_table()
         return table
 
-    def _login(self, *args, **kwargs):
-        pass
+    def _login(self, username):
+        # Get password from keyring or prompt
+        password_from_keyring = keyring.get_password("astroquery:asa.alma.cl",
+                                                     username)
+        if password_from_keyring is None:
+            if __IPYTHON__:
+                log.warn("You may be using an ipython notebook:"
+                         " the password form will appear in your terminal.")
+            password = getpass.getpass("{0}, enter your ALMA password:"
+                                       "\n".format(username))
+        else:
+            password = password_from_keyring
+        # Authenticate
+        log.info("Authenticating {0} on asa.alma.cl ...".format(username))
+        # Do not cache pieces of the login process
+        loginpage = self._request("GET", "https://asa.alma.cl/cas/login",
+                                  cache=False)
+        root = BeautifulSoup(loginpage.content, 'html5lib')
+        data = {kw:root.find('input', {'name':kw})['value']
+                for kw in ('lt','_eventId','execution')}
+        data['username'] = username
+        data['password'] = password
+
+        login_response = self._request("POST", "https://asa.alma.cl/cas/login",
+                                       params={'service':
+                                               os.path.join(self.archive_url,
+                                                            'rh', 'login')},
+                                       data=data,
+                                       cache=False)
+
+        authenticated = ('You have successfully logged in' in
+                         login_response.content)
+
+        if authenticated:
+            log.info("Authentication successful!")
+        else:
+            log.exception("Authentication failed!")
+        # When authenticated, save password in keyring if needed
+        if authenticated and password_from_keyring is None:
+            keyring.set_password("astroquery:asa.alma.cl", username, password)
+        return authenticated
 
 Alma = AlmaClass()
 
