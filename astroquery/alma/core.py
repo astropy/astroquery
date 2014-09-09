@@ -28,7 +28,7 @@ __doctest_skip__ = ['AlmaClass.*']
 
 
 @async_to_sync
-class AlmaClass(BaseQuery):
+class AlmaClass(QueryWithLogin):
 
     ROW_LIMIT = conf.row_limit
     TIMEOUT = conf.timeout
@@ -107,20 +107,24 @@ class AlmaClass(BaseQuery):
         request_id = response.url.split("/")[-2]
         self._staging_log['request_id'] = request_id
 
-        login = self._request('GET', 'http://almascience.eso.org/rh/login',
+        login = self._request('GET', os.path.join(self.archive_url, 'rh',
+                                                  'login'),
                               cache=False) # ALWAYS False here
 
         scheck = self._request('GET', login.url,
-                               data={'service':'http://almascience.eso.org/rh/j_spring_cas_security_check'},
+                               data={'service':
+                                     os.path.join(self.archive_url,
+                                                  'rh',
+                                                  'j_spring_cas_security_check')
+                                    },
                                cache=cache)
 
         # Submit a request for the specific request ID identified above
-        submission_url = os.path.join(self.archive_url, 'rh', 'requests',
+        submission_url = os.path.join(self.archive_url, 'rh', 'submission',
                                       request_id)
         self._staging_log['submission_url'] = submission_url
         submission = self._request('GET', submission_url, cache=cache)
         self._staging_log['submission'] = submission
-        assert 'j_spring_cas_security_check' not in submission.url
 
         data_list_url = submission.url
 
@@ -161,6 +165,9 @@ class AlmaClass(BaseQuery):
         first_table = vo_tree.get_first_table()
         table = first_table.to_table()
         return table
+
+    def _login(self, *args, **kwargs):
+        pass
 
 Alma = AlmaClass()
 
