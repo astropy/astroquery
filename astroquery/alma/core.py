@@ -341,7 +341,6 @@ class AlmaClass(QueryWithLogin):
         log.info("Downloading files of size {0}...".format(totalsize.to(u.GB)))
         # TODO: Add cache=cache keyword here.  Currently would have no effect.
         downloaded_files = self.download_files(file_urls)
-
         return downloaded_files
 
     def _parse_result(self, response, verbose=False):
@@ -641,7 +640,6 @@ class AlmaClass(QueryWithLogin):
             raise InvalidQueryError("The following parameters are not accepted "
                                     "by the ALMA query service:"
                                     " {0}".format(invalid_params))
-
 
 Alma = AlmaClass()
 
