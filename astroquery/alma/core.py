@@ -1,4 +1,4 @@
-# Licensed under a 3-clause BSD style license - see LICENSE.rst
+tmp_downloadurl = urls[formatlist.index('CSV')]# Licensed under a 3-clause BSD style license - see LICENSE.rst
 from __future__ import print_function
 import time
 import sys
@@ -150,7 +150,6 @@ class AlmaClass(QueryWithLogin):
                 self.dataarchive_url = self.archive_url
         return self.dataarchive_url
 
-
     def stage_data(self, uids, cache=False):
         """
         Stage ALMA data
@@ -247,7 +246,6 @@ class AlmaClass(QueryWithLogin):
             errormessage = root.find('div', id='errorContent').string.strip()
             raise RemoteServiceError(errormessage)
 
-
         data_table = root.findAll('table', class_='list', id='report')[0]
         columns = {'uid':[], 'URL':[], 'size':[]}
         for tr in data_table.findAll('tr'):
@@ -274,7 +272,6 @@ class AlmaClass(QueryWithLogin):
         """
         Given a list of file URLs, return the data size.  This is useful for
         assessing how much data you might be downloading!
-
         (This is discouraged by the ALMA archive, as it puts unnecessary load
         on their system)
         """
