@@ -168,6 +168,14 @@ class AlmaClass(QueryWithLogin):
         return table
 
     def _login(self, username):
+        # Check if already logged in
+        loginpage = self._request("GET", "https://asa.alma.cl/cas/login",
+                                  cache=False)
+        root = BeautifulSoup(loginpage.content, 'html5lib')
+        if root.find('div', class_='success'):
+            log.info("Already logged in.")
+            return True
+
         # Get password from keyring or prompt
         password_from_keyring = keyring.get_password("astroquery:asa.alma.cl",
                                                      username)
@@ -182,9 +190,6 @@ class AlmaClass(QueryWithLogin):
         # Authenticate
         log.info("Authenticating {0} on asa.alma.cl ...".format(username))
         # Do not cache pieces of the login process
-        loginpage = self._request("GET", "https://asa.alma.cl/cas/login",
-                                  cache=False)
-        root = BeautifulSoup(loginpage.content, 'html5lib')
         data = {kw:root.find('input', {'name':kw})['value']
                 for kw in ('lt','_eventId','execution')}
         data['username'] = username
