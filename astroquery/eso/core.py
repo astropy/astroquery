@@ -196,6 +196,7 @@ class EsoClass(QueryWithLogin):
                     instrument = href.split("/")[-2]
                     if instrument not in self._instrument_list:
                         self._instrument_list.append(instrument)
+            self._instrument_list.append('harps')
         return self._instrument_list
 
     def list_surveys(self, cache=True):

@@ -93,7 +93,8 @@ class TestEso:
 
         assert inst == ['fors1', 'fors2', 'vimos', 'omegacam', 'hawki', 'isaac',
                         'naco', 'visir', 'vircam', 'apex', 'uves', 'giraffe',
-                        'xshooter', 'crires', 'kmos', 'sinfoni', 'amber', 'midi']
+                        'xshooter', 'crires', 'kmos', 'sinfoni', 'amber',
+                        'midi', 'harps']
 
     # REQUIRES LOGIN!
     # Can we get a special login specifically for astroquery testing?
