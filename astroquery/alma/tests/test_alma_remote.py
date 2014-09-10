@@ -44,7 +44,6 @@ class TestAlma:
     def test_doc_example(self, temp_dir):
         alma = Alma()
         alma.cache_location = temp_dir
-
         m83_data = alma.query_object('M83')
         assert m83_data.colnames == ['Project_code', 'Source_name', 'RA',
                                      'Dec', 'Band', 'Frequency_resolution',
