@@ -89,11 +89,10 @@ class AlmaClass(QueryWithLogin):
         ----------
         uids : list
             A list of valid UIDs.
-            UIDs should have the form:
-                uid://A002/X391d0b/X7b
+            UIDs should have the form: 'uid://A002/X391d0b/X7b'
         cache : bool
-            Whether to cache the staging process.  This should generally
-            be left as False when used interactively.
+            Whether to cache the staging process.  This should generally be
+            left as False when used interactively.
 
         Returns
         -------
@@ -177,8 +176,7 @@ class AlmaClass(QueryWithLogin):
         ----------
         uids : list
             A list of valid UIDs.
-            UIDs should have the form:
-                uid://A002/X391d0b/X7b
+            UIDs should have the form: 'uid://A002/X391d0b/X7b'
         cache : bool
             Whether to cache the downloads.
 
