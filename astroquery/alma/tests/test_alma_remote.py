@@ -61,7 +61,7 @@ class TestAlma:
         gc_data = alma.query_region(galactic_center, 1*u.deg)
 
         uids = np.unique(m83_data['Asdm_uid'])
-        assert 'uid://A002/X3b3400/X90f' in uids
+        assert b'uid://A002/X3b3400/X90f' in uids
 
         link_list = alma.stage_data(uids[0:2])
         totalsize = alma.data_size(link_list)
