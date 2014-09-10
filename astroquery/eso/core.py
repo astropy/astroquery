@@ -149,7 +149,7 @@ class EsoClass(QueryWithLogin):
         # Get password from keyring or prompt
         password_from_keyring = keyring.get_password("astroquery:www.eso.org", username)
         if password_from_keyring is None:
-            if __IPYTHON__:
+            if system_tools.in_ipynb():
                 log.warn("You may be using an ipython notebook:"
                          " the password form will appear in your terminal.")
             password = getpass.getpass("{0}, enter your ESO password:\n".format(username))

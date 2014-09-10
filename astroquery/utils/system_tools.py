@@ -40,3 +40,19 @@ def gunzip(filename):
         return filename.rsplit(".", 1)[0]
     else:
         return filename
+
+# If astropy#2793 is merged, this should be replaced with astropy.in_ipynb
+def in_ipynb():
+    try:
+        cfg = get_ipython().config 
+        app = cfg['IPKernelApp']
+        # ipython 1.0 console has no 'parent_appname',
+        # but ipynb does
+        if ('parent_appname' in app and
+            app['parent_appname'] == 'ipython-notebook'):
+            return True
+        else:
+            return False
+    except NameError:
+        # NameError will occur if this is called from python (not ipython)
+        return False
