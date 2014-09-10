@@ -333,7 +333,6 @@ class AlmaClass(QueryWithLogin):
 
         #log.info("Determining download size for {0} files...".format(len(files)))
         #each_size,totalsize = self.data_size(files)
-
         log.info("Downloading files of size {0}...".format(totalsize.to(u.GB)))
         # TODO: Add cache=cache keyword here.  Currently would have no effect.
         downloaded_files = self.download_files(file_urls)

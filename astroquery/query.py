@@ -22,7 +22,6 @@ def to_cache(response, cache_file):
     with open(cache_file, "wb") as f:
         pickle.dump(response, f)
 
-
 class AstroQuery(object):
 
     def __init__(self, method, url, params=None, data=None, headers=None,
