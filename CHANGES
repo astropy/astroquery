@@ -23,7 +23,6 @@
 - Added new tool: ALMA archive query tool
   http://astroquery.readthedocs.org/en/latest/alma/alma.html
   (#411)
-
 - setup script and installation fixes
 
 0.2 (2014-08-17)
