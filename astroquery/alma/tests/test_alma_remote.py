@@ -2,6 +2,7 @@
 import os
 import tempfile
 import shutil
+import numpy as np
 from astropy.tests.helper import pytest, remote_data
 from astropy import coordinates
 from astropy import units as u
@@ -45,11 +46,6 @@ class TestAlma:
         alma = Alma()
         alma.cache_location = temp_dir
 
-        from astroquery.alma import Alma
-        from astropy import units as u
-        from astropy import coordinates
-        import numpy as np
-        alma = Alma()
         m83_data = alma.query_object('M83')
         assert m83_data.colnames == ['Project_code', 'Source_name', 'RA',
                                      'Dec', 'Band', 'Frequency_resolution',
@@ -68,4 +64,5 @@ class TestAlma:
         assert 'uid://A002/X3b3400/X90f' in uids
 
         link_list = alma.stage_data(uids[0:2])
-        alma.data_size(link_list)
+        totalsize = alma.data_size(link_list)
+        assert totalsize.to(u.GB).value > 1
