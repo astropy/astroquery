@@ -54,6 +54,7 @@ class AlmaClass(QueryWithLogin):
         """
 
         """
+        coordinate = commons.parse_coordinates(coordinate)
         cstr = coordinate.fk5.to_string(style='hmsdms', sep=':')
         rdc = "{cstr}, {rad}".format(cstr=cstr, rad=radius.to(u.deg).value)
 
@@ -141,7 +142,33 @@ class AlmaClass(QueryWithLogin):
 
         return data_file_urls
 
-    def download_data(self, uids, cache=True):
+    def data_size(self, files):
+        """
+        Given a list of file URLs, return the data size.  This is useful for
+        assessing how much data you might be downloading!
+        """
+        totalsize = 0
+        pb = ProgressBar(len(files))
+        for ii,fileLink in enumerate(files):
+            response = self._request('HEAD', fileLink, stream=True,
+                                     cache=False, timeout=self.TIMEOUT)
+            totalsize += int(response.headers['content-length'])
+            pb.update(ii+1)
+
+        return (totalsize*u.B).to(u.GB)
+
+    def download_files(self, files, cache=True):
+        """
+        Given a list of file URLs, download them
+        """
+        downloaded_files = []
+        for fileLink in files:
+            filename = self._request("GET", fileLink, save=True,
+                                     timeout=self.TIMEOUT)
+            downloaded_files.append(filename)
+        return downloaded_files
+
+    def retrieve_data_from_uid(self, uids, cache=True):
         """
         Stage & Download ALMA data.  Will print out the expected file size
         before attempting the download.
@@ -160,24 +187,18 @@ class AlmaClass(QueryWithLogin):
         downloaded_files : list
             A list of the downloaded file paths
         """
+        if isinstance(uids, six.string_types):
+            uids = [uids]
+        if not isinstance(uids, (list, tuple, np.ndarray)):
+            raise TypeError("Datasets must be given as a list of strings.")
 
         files = self.stage_data(uids, cache=cache)
 
         log.info("Determining download size for {0} files...".format(len(files)))
-        totalsize = 0
-        pb = ProgressBar(len(files))
-        for ii,fileLink in enumerate(files):
-            response = self._request('GET', fileLink, stream=True,
-                                     timeout=self.TIMEOUT)
-            totalsize += int(response.headers['content-length'])
-            pb.update(ii+1)
+        totalsize = self.data_size(files)
 
-        log.info("Downloading files of size {0}...".format((totalsize*u.B).to(u.GB)))
-        downloaded_files = []
-        for fileLink in files:
-            filename = self._request("GET", fileLink, save=True,
-                                     timeout=self.TIMEOUT)
-            downloaded_files.append(filename)
+        log.info("Downloading files of size {0}...".format(totalsize.to(u.GB)))
+        downloaded_files = self.download_files(files, cache=cache)
 
         return downloaded_files
 

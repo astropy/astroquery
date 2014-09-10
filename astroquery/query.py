@@ -33,6 +33,8 @@ class AstroResponse(object):
             if stream:
                 self.iter_content = response.iter_content
             self.content = response.content
+            # Needed for assessing file size:
+            self.headers = response.headers
         elif not hasattr(response, 'content'):
             raise TypeError("{0} is not a requests.Response".format(response))
         elif not isinstance(response, requests.Response):

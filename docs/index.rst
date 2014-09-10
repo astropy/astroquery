@@ -120,6 +120,7 @@ The following modules have been completed using a common API:
   eso/eso.rst
   xmatch/xmatch.rst
   atomic/atomic.rst
+  alma/alma.rst
 
 These others are functional, but do not follow a common & consistent API:
 
@@ -175,6 +176,7 @@ generally return a table listing the available data first.
   :maxdepth: 1
 
   alfalfa/alfalfa.rst
+  alma/alma.rst
   eso/eso.rst
   fermi/fermi.rst
   irsa/irsa.rst

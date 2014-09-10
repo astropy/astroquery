@@ -40,3 +40,32 @@ class TestAlma:
         uid = result_s['Asdm_uid'][0]
 
         alma.stage_data([uid])
+
+    def test_doc_example(self, temp_dir):
+        alma = Alma()
+        alma.cache_location = temp_dir
+
+        from astroquery.alma import Alma
+        from astropy import units as u
+        from astropy import coordinates
+        import numpy as np
+        alma = Alma()
+        m83_data = alma.query_object('M83')
+        assert m83_data.colnames == ['Project_code', 'Source_name', 'RA',
+                                     'Dec', 'Band', 'Frequency_resolution',
+                                     'Integration', 'Release_date',
+                                     'Frequency_support',
+                                     'Velocity_resolution', 'Pol_products',
+                                     'Observation_date', 'PI_name', 'PWV',
+                                     'Member_ous_id', 'Asdm_uid',
+                                     'Project_title', 'Project_type',
+                                     'Scan_intent']
+        galactic_center = coordinates.SkyCoord(0*u.deg, 0*u.deg,
+                                               frame='galactic')
+        gc_data = alma.query_region(galactic_center, 1*u.deg)
+
+        uids = np.unique(m83_data['Asdm_uid'])
+        assert 'uid://A002/X3b3400/X90f' in uids
+
+        link_list = alma.stage_data(uids[0:2])
+        alma.data_size(link_list)

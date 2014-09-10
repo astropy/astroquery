@@ -91,6 +91,7 @@ List of Modules
   * `Splatalogue <http://astroquery.readthedocs.org/en/latest/splatalogue/splatalogue.html>`_: National Radio Astronomy Observatory (NRAO)-maintained (mostly) molecular radio and millimeter line list service.
   * `CosmoSim <http://astroquery.readthedocs.org/en/latest/cosmosim/cosmosim.html>`_: The CosmoSim database provides results from cosmological simulations performed within different projects: the MultiDark project, the BolshoiP project, and the CLUES project. 
   * `ESO Archive <http://astroquery.readthedocs.org/en/latest/eso/eso.html>`_
+  * `ALMA Archive <http://astroquery.readthedocs.org/en/latest/alma/alma.html>`_
   * `GAMA database <http://astroquery.readthedocs.org/en/latest/gama/gama.html>`_
   * `NVAS archive <http://astroquery.readthedocs.org/en/latest/nvas/nvas.html>`_
   * `Open Expolanet Catalog (OEC) <http://astroquery.readthedocs.org/en/latest/open_exoplanet_catalogue/open_exoplanet_catalogue.html>`_
