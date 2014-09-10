@@ -226,7 +226,7 @@ class AlmaClass(QueryWithLogin):
         password_from_keyring = keyring.get_password("astroquery:asa.alma.cl",
                                                      username)
         if password_from_keyring is None:
-            if __IPYTHON__:
+            if system_tools.in_ipynb():
                 log.warn("You may be using an ipython notebook:"
                          " the password form will appear in your terminal.")
             password = getpass.getpass("{0}, enter your ALMA password:"
