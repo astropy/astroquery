@@ -1,8 +1,9 @@
 0.3 (unreleased)
 ----------------
 
-- Support direct transmission of SQL queries to the SDSS server (PR #410)
-- Added email/text job completion alert (PR #407) to the CosmoSim tool (PR #267).
+- Support direct transmission of SQL queries to the SDSS server (#410)
+- Added email/text job completion alert (#407) to the CosmoSim tool (#267).
+- ESO archive now supports HARPS/FEROS reprocessed data queries (#412)
 
 
 0.2 (2014-08-17)
