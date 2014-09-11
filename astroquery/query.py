@@ -25,7 +25,7 @@ def to_cache(response, cache_file):
 class AstroQuery(object):
 
     def __init__(self, method, url, params=None, data=None, headers=None,
-                 files=None, timeout=None):
+                 auth=None, files=None, timeout=None):
         self.method = method
         self.url = url
         self.params = params
@@ -34,6 +34,7 @@ class AstroQuery(object):
         self.files = files
         self._hash = None
         self.timeout = timeout
+        self.auth = auth
 
     @property
     def timeout(self):
@@ -108,7 +109,11 @@ class BaseQuery(object):
 
     def _request(self, method, url, params=None, data=None, headers=None,
                  files=None, save=False, savedir='', timeout=None, cache=True,
+<<<<<<< HEAD
                  stream=False, auth=None):
+=======
+                 auth=None, stream=False):
+>>>>>>> 982dded... add support for 'auth' keyword
         """
         A generic HTTP request method, similar to `requests.Session.request` but
         with added caching-related tools
@@ -153,7 +158,8 @@ class BaseQuery(object):
             return local_filepath
         else:
             query = AstroQuery(method, url, params=params, data=data,
-                               headers=headers, files=files, timeout=timeout)
+                               auth=auth, headers=headers, files=files,
+                               timeout=timeout)
             if ((self.cache_location is None) or (not self._cache_active) or
                 (not cache)):
                 with suspend_cache(self):
