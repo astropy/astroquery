@@ -109,11 +109,7 @@ class BaseQuery(object):
 
     def _request(self, method, url, params=None, data=None, headers=None,
                  files=None, save=False, savedir='', timeout=None, cache=True,
-<<<<<<< HEAD
                  stream=False, auth=None):
-=======
-                 auth=None, stream=False):
->>>>>>> 982dded... add support for 'auth' keyword
         """
         A generic HTTP request method, similar to `requests.Session.request` but
         with added caching-related tools

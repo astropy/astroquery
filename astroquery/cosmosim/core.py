@@ -11,7 +11,7 @@ from six.moves.email_mime_multipart import MIMEMultipart
 from six.moves.email_mime_base import MIMEBase
 from six.moves.email_mime_text import MIMEText
 from six.moves.email_mime_base import message
-
+import ipdb
 # Astropy imports
 from astropy.table import Table
 import astropy.units as u
@@ -75,11 +75,6 @@ class CosmoSimClass(QueryWithLogin):
 
         if authenticated.status_code == 200 and password_from_keyring is None and store_password:
             keyring.set_password("astroquery:www.cosmosim.org", self.username, self.password)
-
-        # Delete job
-        soup = BeautifulSoup(authenticated.content)
-        if authenticated.status_code == 200:
-            self.delete_job(jobid="{}".format(soup.find("uws:jobid").string),squash=True)
         
         return authenticated
 
@@ -443,13 +438,13 @@ class CosmoSimClass(QueryWithLogin):
                     del self.current_job
 
         if self.job_dict[jobid] in ['COMPLETED','ERROR','ABORTED','PENDING']:
-            result = self.session.delete(CosmoSim.QUERY_URL+"/{}".format(jobid),
+            result = self._request('DELETE',CosmoSim.QUERY_URL+"/{}".format(jobid),
                                          auth=(self.username,  self.password),
                                          data={'follow':''})
         else:
             print("Can only delete a job with phase: 'COMPLETED', 'ERROR', 'ABORTED', or 'PENDING'.")
             return 
-            
+        ipdb.set_trace()
         if not result.ok:
             result.raise_for_status()
         if squash is None:    
@@ -491,7 +486,7 @@ class CosmoSimClass(QueryWithLogin):
                     if self.job_dict[key] in phase:
                         if key in self.table_dict.keys():
                             if self.table_dict[key] in matching_tables:
-                                result = self.session.delete(CosmoSim.QUERY_URL+"/{}".format(key),
+                                result = self._request('DELETE',CosmoSim.QUERY_URL+"/{}".format(key),
                                                              auth=(self.username,
                                                                    self.password),
                                                              data={'follow':''})
@@ -501,7 +496,7 @@ class CosmoSimClass(QueryWithLogin):
             if not regex:
                 for key in self.job_dict.keys():
                     if self.job_dict[key] in phase:
-                        result = self.session.delete(CosmoSim.QUERY_URL+"/{}".format(key),
+                        result = self._request('DELETE',CosmoSim.QUERY_URL+"/{}".format(key),
                                                      auth=(self.username,
                                                            self.password),
                                                      data={'follow':''})
@@ -514,7 +509,7 @@ class CosmoSimClass(QueryWithLogin):
                 for key in self.job_dict.keys():
                     if key in self.table_dict.keys():
                         if self.table_dict[key] in matching_tables:
-                            result = self.session.delete(CosmoSim.QUERY_URL+"/{}".format(key),
+                            result = self._request('DELETE',CosmoSim.QUERY_URL+"/{}".format(key),
                                                          auth=(self.username,
                                                                self.password),
                                                          data={'follow':''})
@@ -523,10 +518,11 @@ class CosmoSimClass(QueryWithLogin):
                             print("Deleted job: {} (Table: {})".format(key,self.table_dict[key]))
             if not regex:
                 for key in self.job_dict.keys():
-                    result = self.session.delete(CosmoSim.QUERY_URL+"/{}".format(key),
+                    result = self._request('DELETE',CosmoSim.QUERY_URL+"/{}".format(key),
                                                  auth=(self.username,
                                                        self.password),
                                                  data={'follow':''})
+                    ipdb.set_trace()
                     if not result.ok:
                         result.raise_for_status()
                     print("Deleted job: {}".format(key))
