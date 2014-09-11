@@ -22,6 +22,17 @@ class AstroResponse(requests.Response):
     def __init__(self, response=None, url=None, encoding=None, content=None,
                  stream=False):
         super(AstroResponse,self).__init__()
+        if response is not None:
+            self.__setstate__(response.__dict__)
+        elif not isinstance(response, requests.Response):
+            self.url = response.url
+            self.content = response.content
+            self.text = response.text
+            warnings.warn("Response has 'content' attribute but is not a "
+                          "requests.Response object.  This is expected when "
+                          "running local tests but not otherwise.")
+        else:
+            raise ValueError("Empty AstroResponse created.")
 
     def to_cache(self, cache_file):
         with open(cache_file, "wb") as f:
