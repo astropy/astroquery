@@ -39,20 +39,48 @@ class AlmaClass(QueryWithLogin):
         super(AlmaClass, self).__init__()
 
     def query_object_async(self, object_name, cache=True, public=True,
-                           science=True):
+                           science=True, **kwargs):
         """
         Query the archive with a source name
+
+        Parameters
+        ----------
+        object_name : str
+            The object name.  Will be parsed by SESAME on the ALMA servers.
+        cache : bool
+            Cache the query?
+        public : bool
+            Return only publicly available datasets?
+        science : bool
+            Return only data marked as "science" in the archive?
+        kwargs : dict
+            Passed to `query_async`
         """
 
         payload = {'source_name_sesame': object_name,}
 
         return self.query_async(payload, cache=cache, public=public,
-                                science=science)
+                                science=science, **kwargs)
 
     def query_region_async(self, coordinate, radius, cache=True, public=True,
                            science=True):
         """
+        Query the ALMA archive with a source name and radius
 
+        Parameters
+        ----------
+        coordinates : str / `astropy.coordinates`
+            the identifier or coordinates around which to query.
+        radius : str / `~astropy.units.Quantity`, optional
+            the radius of the region
+        cache : bool
+            Cache the query?
+        public : bool
+            Return only publicly available datasets?
+        science : bool
+            Return only data marked as "science" in the archive?
+        kwargs : dict
+            Passed to `query_async`
         """
         coordinate = commons.parse_coordinates(coordinate)
         cstr = coordinate.fk5.to_string(style='hmsdms', sep=':')
@@ -61,11 +89,24 @@ class AlmaClass(QueryWithLogin):
         payload = {'raDecCoordinates': rdc}
 
         return self.query_async(payload, cache=cache, public=public,
-                                science=science)
+                                science=science, **kwargs)
 
     def query_async(self, payload, cache=True, public=True, science=True):
         """
         Perform a generic query with user-specified payload
+
+        Parameters
+        ----------
+        payload : dict
+            A dictionary of payload keywords that are accepted by the ALMA
+            archive system.  You can look these up by examining the forms at
+            http://almascience.org/aq
+        cache : bool
+            Cache the query?
+        public : bool
+            Return only publicly available datasets?
+        science : bool
+            Return only data marked as "science" in the archive?
         """
         url = os.path.join(self.archive_url, 'aq', 'search.votable')
 
