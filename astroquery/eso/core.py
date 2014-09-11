@@ -145,7 +145,7 @@ class EsoClass(QueryWithLogin):
 
         return response
 
-    def _login(self, username, store_password=True):
+    def _login(self, username, store_password=False):
         # Get password from keyring or prompt
         password_from_keyring = keyring.get_password("astroquery:www.eso.org", username)
         if password_from_keyring is None:

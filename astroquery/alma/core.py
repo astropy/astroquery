@@ -254,7 +254,7 @@ class AlmaClass(QueryWithLogin):
         table = first_table.to_table()
         return table
 
-    def _login(self, username, store_password=True):
+    def _login(self, username, store_password=False):
         # Check if already logged in
         loginpage = self._request("GET", "https://asa.alma.cl/cas/login",
                                   cache=False)

@@ -30,7 +30,7 @@ via the ALMA CAS (central authentication server).
     Authenticating TEST on asa.alma.cl...
     Authentication failed!
     >>> # Second example: pretend ICONDOR is a valid username
-    >>> alma.login("ICONDOR") # doctest: +SKIP
+    >>> alma.login("ICONDOR", store_password=True) # doctest: +SKIP
     ICONDOR, enter your ALMA password:
 
     Authenticating ICONDOR on asa.alma.cl...

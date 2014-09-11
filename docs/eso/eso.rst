@@ -50,7 +50,7 @@ interaction with the ESO archive.
     Authenticating TEST on www.eso.org...
     Authentication failed!
     >>> # Second example: pretend ICONDOR is a valid username
-    >>> eso.login("ICONDOR") # doctest: +SKIP
+    >>> eso.login("ICONDOR", store_password=True) # doctest: +SKIP
     ICONDOR, enter your ESO password:
 
     Authenticating ICONDOR on www.eso.org...
