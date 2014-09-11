@@ -35,6 +35,7 @@ via the ALMA CAS (central authentication server).
 
     Authenticating ICONDOR on asa.alma.cl...
     Authentication successful!
+    >>> # After the first login, your password has been stored
     >>> alma.login("ICONDOR") # doctest: +SKIP
     Authenticating ICONDOR on asa.alma.cl...
     Authentication successful!
