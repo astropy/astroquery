@@ -22,17 +22,26 @@ Check out the :doc:`gallery` for some nice examples.
 
 Installation
 ------------
-Astroquery can be pip installed:
+The latest version of astroquery can be pip installed:
 
 .. code-block:: bash
 
     $ pip install astroquery
 
+and the 'bleeding edge' master version:
+
+.. code-block:: bash
+
+   $ pip install https://github.com/astropy/astroquery/archive/master.zip
+
 or cloned and installed from source:
 
 .. code-block:: bash
 
+    $ # If you have a github account:
     $ git clone git@github.com:astropy/astroquery.git
+    $ # If you do not: 
+    $ git clone https://github.com/astropy/astroquery.git
     $ cd astroquery
     $ python setup.py install
 

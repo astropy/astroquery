@@ -12,8 +12,10 @@ class Conf(_config.ConfigNamespace):
 
     timeout = _config.ConfigItem(60, "Timeout in seconds")
 
-    archive_url = _config.ConfigItem(['http://almascience.eso.org',
-                                      'http://almascience.nrao.edu'],
+    archive_url = _config.ConfigItem(['http://almascience.org',
+                                      'http://almascience.eso.org',
+                                      'http://almascience.nrao.edu',
+                                      'http://almascience.nao.ac.jp'],
                                      'The ALMA Archive mirror to use')
 
 conf = Conf()
