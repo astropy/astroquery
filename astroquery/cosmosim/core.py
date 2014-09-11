@@ -41,24 +41,20 @@ class CosmoSim(QueryWithLogin):
  
     def _login(self, username, password=None):
         
-        self.session = requests.session()
+        if not hasattr(self,'session'):
+            self.session = requests.session()
         self.username = username
         
         # Get password from keyring or prompt
         password_from_keyring = keyring.get_password("astroquery:www.cosmosim.org", self.username)
         if not password_from_keyring:
             logging.warning("No password was found in the keychain for the provided username.")
-
-            # Check if running from scipt or interactive python session
-            import __main__ as main
-            # For script
-            if hasattr(main,'__file__'):
-                assert password, "No password provided."
+            if password:
                 self.password = password
-            # For interactive session
             else:
                 self.password = getpass.getpass("{0}, enter your CosmoSim password:\n".format(self.username))
         else:
+            logging.warning("Using the password found in the keychain for the provided username.")
             self.password = password_from_keyring
             
         # Authenticate
@@ -79,7 +75,8 @@ class CosmoSim(QueryWithLogin):
 
         # Delete job
         soup = BeautifulSoup(authenticated.content)
-        self.delete_job(jobid="{}".format(soup.find("uws:jobid").string),squash=True)
+        if authenticated.status_code == 200:
+            self.delete_job(jobid="{}".format(soup.find("uws:jobid").string),squash=True)
         
         return authenticated
 
