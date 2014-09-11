@@ -3,7 +3,8 @@
 Astroquery
 ==========
 
-This is the documentation for the Astroquery affiliated package of astropy_.
+This is the documentation for the Astroquery affiliated package of `astropy
+<http://www.astropy.org>`__.
 
 Code and issue tracker are on `GitHub <https://github.com/astropy/astroquery>`_.
 
@@ -53,7 +54,7 @@ Astroquery works with Python 2.7 and 3.3 or later.
 The following packages are required for astroquery installation & use:
 
 * `numpy <http://www.numpy.org>`_ >= 1.6
-* astropy_ (>=0.4)
+* `astropy <http://www.astropy.org>`__ (>=0.4)
 * `requests <http://docs.python-requests.org/en/latest/>`_
 * `keyring <https://pypi.python.org/pypi/keyring>`_ (required for the
   `~astroquery.eso` and `~astroquery.alma` modules)
@@ -251,5 +252,3 @@ services in Astroquery, you can use them for your scripts, but we don't guarante
 
   utils.rst
   query.rst
-
-.. _astropy: http://www.astropy.org/
