@@ -39,7 +39,7 @@ class CosmoSim(QueryWithLogin):
         super(CosmoSim, self).__init__()
         self.session = requests.session()
  
-    def _login(self, username, password=None):
+    def _login(self, username, password=None, store_password=False):
         
         if not hasattr(self,'session'):
             self.session = requests.session()
@@ -70,7 +70,7 @@ class CosmoSim(QueryWithLogin):
         # Generating dictionary of existing tables
         self._existing_tables()
 
-        if authenticated.status_code == 200 and password_from_keyring is None:
+        if authenticated.status_code == 200 and password_from_keyring is None and store_password:
             keyring.set_password("astroquery:www.cosmosim.org", self.username, self.password)
 
         # Delete job
@@ -80,7 +80,7 @@ class CosmoSim(QueryWithLogin):
         
         return authenticated
 
-    def logout(self,deletepw=True):
+    def logout(self,deletepw=False):
         """
         Public function which allows the user to logout of their cosmosim credentials.
 
@@ -94,8 +94,12 @@ class CosmoSim(QueryWithLogin):
         
         if hasattr(self,'username') and hasattr(self,'password') and hasattr(self,'session'):
             if deletepw is True:
-                keyring.delete_password("astroquery:www.cosmosim.org", self.username)
-                print("Removed password for {} in the keychain.".format(self.username))
+                try:
+                    keyring.delete_password("astroquery:www.cosmosim.org", self.username)
+                    print("Removed password for {} in the keychain.".format(self.username))
+                except:
+                    print("Password for {} was never stored in the keychain.".format(self.username))
+                    
             del self.session
             del self.username
             del self.password
