@@ -254,7 +254,7 @@ class AlmaClass(QueryWithLogin):
         table = first_table.to_table()
         return table
 
-    def _login(self, username):
+    def _login(self, username, store_password=True):
         # Check if already logged in
         loginpage = self._request("GET", "https://asa.alma.cl/cas/login",
                                   cache=False)
@@ -297,7 +297,7 @@ class AlmaClass(QueryWithLogin):
         else:
             log.exception("Authentication failed!")
         # When authenticated, save password in keyring if needed
-        if authenticated and password_from_keyring is None:
+        if authenticated and password_from_keyring is None and store_password:
             keyring.set_password("astroquery:asa.alma.cl", username, password)
         return authenticated
 
