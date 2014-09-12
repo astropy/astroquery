@@ -105,7 +105,7 @@ class AstroQuery(object):
         try:
             with open(request_file, "rb") as f:
                 response = pickle.load(f)
-            if not isinstance(response, AstroResponse):
+            if not isinstance(response, requests.Response):
                 response = None
         except:
             response = None
