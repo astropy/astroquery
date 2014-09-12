@@ -130,6 +130,14 @@ class BaseQuery(object):
         savedir : str
             The location to save the local file if you want to save it
             somewhere other than `BaseQuery.cache_location`
+
+        Returns
+        -------
+        response : `requests.Response`
+            The response from the server if ``save`` is False
+        local_filepath : list
+            a list of strings containing the downloaded local paths if ``save``
+            is True
         """
         if save:
             local_filename = url.split('/')[-1]
