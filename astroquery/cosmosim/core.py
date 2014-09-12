@@ -48,7 +48,7 @@ class CosmoSimClass(QueryWithLogin):
 
         # login after login (interactive)
         if hasattr(self,'username'):
-            logging.warning("Attempting to login while another use is already logged in.")
+            logging.warning("Attempting to login while another user ({}) is already logged in.".format(self.username))
             self.check_login_status()
             return
             
@@ -552,7 +552,7 @@ class CosmoSimClass(QueryWithLogin):
         response = self._request('GET', CosmoSim.SCHEMA_URL,
                                  auth=(self.username,self.password),
                                  headers={'Accept': 'application/json'},
-                                 cache=True)
+                                 cache=False)
         data = response.json()
 
         self.db_dict = {}
