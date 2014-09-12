@@ -32,27 +32,28 @@ for some services.  The `keyring <https://pypi.python.org/pypi/keyring>`_
 module is also required for accessing services that require a login.
 These can all be installed using `pip <https://pypi.python.org/pypi/pip>`_.
 
-The `latest release`_ of astroquery can be downloaded or pip installed:
+The latest version of astroquery can be pip installed:
 
 .. code-block:: bash
 
-   $ pip install astroquery 
-   
+    $ pip install astroquery
 
-If you'd like the latest development version, you can install it with the
-following commands if you have ``git`` installed:
+and the 'bleeding edge' master version:
 
 .. code-block:: bash
 
+   $ pip install https://github.com/astropy/astroquery/archive/master.zip
+
+or cloned and installed from source:
+
+.. code-block:: bash
+
+    $ # If you have a github account:
     $ git clone git@github.com:astropy/astroquery.git
+    $ # If you do not: 
+    $ git clone https://github.com/astropy/astroquery.git
     $ cd astroquery
     $ python setup.py install
-
-pip install also works:
-
-.. code-block:: bash
-
-    $ pip install git+http://github.com/astropy/astroquery.git#egg=astroquery
     
 Using astroquery
 ----------------
@@ -91,6 +92,7 @@ List of Modules
   * `Splatalogue <http://astroquery.readthedocs.org/en/latest/splatalogue/splatalogue.html>`_: National Radio Astronomy Observatory (NRAO)-maintained (mostly) molecular radio and millimeter line list service.
   * `CosmoSim <http://astroquery.readthedocs.org/en/latest/cosmosim/cosmosim.html>`_: The CosmoSim database provides results from cosmological simulations performed within different projects: the MultiDark project, the BolshoiP project, and the CLUES project. 
   * `ESO Archive <http://astroquery.readthedocs.org/en/latest/eso/eso.html>`_
+  * `ALMA Archive <http://astroquery.readthedocs.org/en/latest/alma/alma.html>`_
   * `GAMA database <http://astroquery.readthedocs.org/en/latest/gama/gama.html>`_
   * `NVAS archive <http://astroquery.readthedocs.org/en/latest/nvas/nvas.html>`_
   * `Open Expolanet Catalog (OEC) <http://astroquery.readthedocs.org/en/latest/open_exoplanet_catalogue/open_exoplanet_catalogue.html>`_

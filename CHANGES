@@ -1,9 +1,25 @@
 0.3 (unreleased)
 ----------------
 
-- Support direct transmission of SQL queries to the SDSS server (PR #410)
-- Added email/text job completion alert (PR #407) to the CosmoSim tool (PR #267).
+- AstroResponse has been removed, which means that all cached objects will have
+  new hashes.  You should clear your cache: for most users, that means 
+  ``rm -r ~/.astropy/cache/astroquery/`` (#418)
+- In ESO and ALMA, default to *not* storing your password.  New keyword
+  ``store_password=False``.  (#415)
 
+0.2.2 (2014-09-10)
+------------------
+
+- Support direct transmission of SQL queries to the SDSS server (#410)
+- Added email/text job completion alert (#407) to the CosmoSim tool (#267).
+- ESO archive now supports HARPS/FEROS reprocessed data queries (#412)
+- IPython notebook checker in the ESO tool is now compatible with regular
+  python (#413)
+- Added new tool: ALMA archive query tool
+  http://astroquery.readthedocs.org/en/latest/alma/alma.html
+  (#411)
+
+- setup script and installation fixes
 
 0.2 (2014-08-17)
 ----------------

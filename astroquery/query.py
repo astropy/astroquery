@@ -17,37 +17,9 @@ import astropy.utils.data
 __all__ = ['BaseQuery', 'QueryWithLogin']
 
 
-class AstroResponse(object):
-
-    def __init__(self, response=None, url=None, encoding=None, content=None,
-                 stream=False):
-        if response is None:
-            self.url = url
-            self.encoding = encoding
-            self.content = content
-            self.text = content.text
-        elif isinstance(response, requests.Response):
-            self.url = response.url
-            self.encoding = response.encoding
-            self.text = response.text
-            if stream:
-                self.iter_content = response.iter_content
-            self.content = response.content
-        elif not hasattr(response, 'content'):
-            raise TypeError("{0} is not a requests.Response".format(response))
-        elif not isinstance(response, requests.Response):
-            self.url = response.url
-            self.content = response.content
-            self.text = response.text
-            warnings.warn("Response has 'content' attribute but is not a "
-                          "requests.Response object.  This is expected when "
-                          "running local tests but not otherwise.")
-        else:
-            raise ValueError("Empty AstroResponse created.")
-
-    def to_cache(self, cache_file):
-        with open(cache_file, "wb") as f:
-            pickle.dump(self, f)
+def to_cache(response, cache_file):
+    with open(cache_file, "wb") as f:
+        pickle.dump(response, f)
 
 
 class AstroQuery(object):
@@ -75,13 +47,10 @@ class AstroQuery(object):
             self._timeout = value
 
     def request(self, session, cache_location=None, stream=False):
-        return AstroResponse(session.request(self.method, self.url,
-                                             params=self.params,
-                                             data=self.data,
-                                             headers=self.headers,
-                                             files=self.files,
-                                             timeout=self.timeout,
-                                             stream=stream))
+        return session.request(self.method, self.url, params=self.params,
+                               data=self.data, headers=self.headers,
+                               files=self.files, timeout=self.timeout,
+                               stream=stream)
 
     def hash(self):
         if self._hash is None:
@@ -108,7 +77,7 @@ class AstroQuery(object):
         try:
             with open(request_file, "rb") as f:
                 response = pickle.load(f)
-            if not isinstance(response, AstroResponse):
+            if not isinstance(response, requests.Response):
                 response = None
         except:
             response = None
@@ -181,7 +150,7 @@ class BaseQuery(object):
                     response = query.request(self.__session,
                                              self.cache_location,
                                              stream=stream)
-                    response.to_cache(query.request_file(self.cache_location))
+                    to_cache(response, query.request_file(self.cache_location))
             return response
 
     def _download_file(self, url, local_filepath, timeout=None):

@@ -3,7 +3,8 @@
 Astroquery
 ==========
 
-This is the documentation for the Astroquery affiliated package of astropy_.
+This is the documentation for the Astroquery affiliated package of `astropy
+<http://www.astropy.org>`__.
 
 Code and issue tracker are on `GitHub <https://github.com/astropy/astroquery>`_.
 
@@ -22,17 +23,26 @@ Check out the :doc:`gallery` for some nice examples.
 
 Installation
 ------------
-Astroquery can be pip installed:
+The latest version of astroquery can be pip installed:
 
 .. code-block:: bash
 
     $ pip install astroquery
 
+and the 'bleeding edge' master version:
+
+.. code-block:: bash
+
+   $ pip install https://github.com/astropy/astroquery/archive/master.zip
+
 or cloned and installed from source:
 
 .. code-block:: bash
 
+    $ # If you have a github account:
     $ git clone git@github.com:astropy/astroquery.git
+    $ # If you do not: 
+    $ git clone https://github.com/astropy/astroquery.git
     $ cd astroquery
     $ python setup.py install
 
@@ -44,10 +54,10 @@ Astroquery works with Python 2.7 and 3.3 or later.
 The following packages are required for astroquery installation & use:
 
 * `numpy <http://www.numpy.org>`_ >= 1.6
-* astropy_ (v>=0.4)
+* `astropy <http://www.astropy.org>`__ (>=0.4)
 * `requests <http://docs.python-requests.org/en/latest/>`_
-* `keyring <https://pypi.python.org/pypi/keyring>`_ (required only for the
-  `~astroquery.eso` module)
+* `keyring <https://pypi.python.org/pypi/keyring>`_ (required for the
+  `~astroquery.eso` and `~astroquery.alma` modules)
 * `Beautiful Soup <http://www.crummy.com/software/BeautifulSoup/>`_
 
 Using astroquery
@@ -120,6 +130,7 @@ The following modules have been completed using a common API:
   eso/eso.rst
   xmatch/xmatch.rst
   atomic/atomic.rst
+  alma/alma.rst
 
 These others are functional, but do not follow a common & consistent API:
 
@@ -175,6 +186,7 @@ generally return a table listing the available data first.
   :maxdepth: 1
 
   alfalfa/alfalfa.rst
+  alma/alma.rst
   eso/eso.rst
   fermi/fermi.rst
   irsa/irsa.rst

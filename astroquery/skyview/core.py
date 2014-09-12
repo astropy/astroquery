@@ -61,7 +61,7 @@ class SkyViewClass(BaseQuery):
         if input is None:
             input = {}
         response = requests.get(self.URL)
-        bs = BeautifulSoup(response.text)
+        bs = BeautifulSoup(response.content)
         form = bs.find('form')
         # cache the default values to save HTTP traffic
         if self._default_form_values is None:
