@@ -130,6 +130,7 @@ class EsoClass(QueryWithLogin):
 
         # for future debugging
         self._payload = payload
+        log.debug("Form: payload={0}".format(payload))
 
         if method is not None:
             fmt = method
