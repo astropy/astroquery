@@ -7,6 +7,9 @@ import hashlib
 import os
 import warnings
 import requests
+import tempfile
+import webbrowser
+import types
 
 from astropy.extern import six
 from astropy.config import paths
@@ -17,26 +20,31 @@ import astropy.utils.data
 __all__ = ['BaseQuery', 'QueryWithLogin']
 
 
-class AstroResponse(requests.Response):
+def AstroResponse(response):
+    """
+    Extend a response object by adding the to_cache and show_in_browser methods
 
-    def __init__(self, response=None, url=None, encoding=None, content=None,
-                 stream=False):
-        super(AstroResponse,self).__init__()
-        if response is not None:
-            self.__setstate__(response.__dict__)
-        elif not isinstance(response, requests.Response):
-            self.url = response.url
-            self.content = response.content
-            self.text = response.text
-            warnings.warn("Response has 'content' attribute but is not a "
-                          "requests.Response object.  This is expected when "
-                          "running local tests but not otherwise.")
-        else:
-            raise ValueError("Empty AstroResponse created.")
+    We are adding methods to an existing object:
+    http://stackoverflow.com/questions/972/adding-a-method-to-an-existing-object
+
+    Note that this is only possible with requests since ~November 2013; before
+    then response objects were not pickleable
+    """
 
     def to_cache(self, cache_file):
         with open(cache_file, "wb") as f:
             pickle.dump(self, f)
+
+    def show_in_browser(self):
+        """
+        Show the contents of the response in a browser
+        """
+        tf = tempfile.NamedTemporaryFile()
+        tf.write(self.content)
+        webbrowser.open('file://'+tf.name)
+
+    response.to_cache = types.MethodType(to_cache, response)
+    response.show_in_browser = types.MethodType(show_in_browser, response)
 
 
 class AstroQuery(object):
