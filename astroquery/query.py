@@ -20,31 +20,9 @@ import astropy.utils.data
 __all__ = ['BaseQuery', 'QueryWithLogin']
 
 
-def AstroResponse(response):
-    """
-    Extend a response object by adding the to_cache and show_in_browser methods
-
-    We are adding methods to an existing object:
-    http://stackoverflow.com/questions/972/adding-a-method-to-an-existing-object
-
-    Note that this is only possible with requests since ~November 2013; before
-    then response objects were not pickleable
-    """
-
-    def to_cache(self, cache_file):
-        with open(cache_file, "wb") as f:
-            pickle.dump(self, f)
-
-    def show_in_browser(self):
-        """
-        Show the contents of the response in a browser
-        """
-        tf = tempfile.NamedTemporaryFile()
-        tf.write(self.content)
-        webbrowser.open('file://'+tf.name)
-
-    response.to_cache = types.MethodType(to_cache, response)
-    response.show_in_browser = types.MethodType(show_in_browser, response)
+def to_cache(response, cache_file):
+    with open(cache_file, "wb") as f:
+        pickle.dump(response, f)
 
 
 class AstroQuery(object):
@@ -72,13 +50,10 @@ class AstroQuery(object):
             self._timeout = value
 
     def request(self, session, cache_location=None, stream=False):
-        return AstroResponse(session.request(self.method, self.url,
-                                             params=self.params,
-                                             data=self.data,
-                                             headers=self.headers,
-                                             files=self.files,
-                                             timeout=self.timeout,
-                                             stream=stream))
+        return session.request(self.method, self.url, params=self.params,
+                               data=self.data, headers=self.headers,
+                               files=self.files, timeout=self.timeout,
+                               stream=stream)
 
     def hash(self):
         if self._hash is None:
@@ -178,7 +153,7 @@ class BaseQuery(object):
                     response = query.request(self.__session,
                                              self.cache_location,
                                              stream=stream)
-                    response.to_cache(query.request_file(self.cache_location))
+                    to_cache(response, query.request_file(self.cache_location))
             return response
 
     def _download_file(self, url, local_filepath, timeout=None):
