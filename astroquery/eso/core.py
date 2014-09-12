@@ -541,8 +541,7 @@ class EsoClass(QueryWithLogin):
                                              " perhaps the requested file could not be found?")
             log.info("Downloading files...")
             for fileId in root.select('input[name=fileId]'):
-                fileLink = fileId.attrs['value'].split()[1]
-                fileLink = fileLink.replace("/api", "").replace("https://", "http://")
+                fileLink = "http://dataportal.eso.org/dataPortal"+fileId.attrs['value'].split()[1]
                 filename = self._request("GET", fileLink, save=True)
                 files.append(system_tools.gunzip(filename))
         log.info("Done!")
