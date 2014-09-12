@@ -7,9 +7,6 @@ import hashlib
 import os
 import warnings
 import requests
-import tempfile
-import webbrowser
-import types
 
 from astropy.extern import six
 from astropy.config import paths
