@@ -43,20 +43,29 @@ interaction with the ESO archive.
 
     >>> from astroquery.eso import Eso
     >>> eso = Eso()
+    >>> # First example: TEST is not a valid username, it will fail
     >>> eso.login("TEST") # doctest: +SKIP
     TEST, enter your ESO password:
 
     Authenticating TEST on www.eso.org...
     Authentication failed!
-    >>> eso.login("ICONDOR") # doctest: +SKIP
+    >>> # Second example: pretend ICONDOR is a valid username
+    >>> eso.login("ICONDOR", store_password=True) # doctest: +SKIP
     ICONDOR, enter your ESO password:
 
     Authenticating ICONDOR on www.eso.org...
     Authentication successful!
+    >>> # After the first login, your password has been stored
     >>> eso.login("ICONDOR") # doctest: +SKIP
     Authenticating ICONDOR on www.eso.org...
     Authentication successful!
 
+Your password will be stored by the `keyring
+<https://pypi.python.org/pypi/keyring>`_ module.
+You can choose not to store your password by passing the argument
+``store_password=False`` to `Eso.login`.  You can delete your password later
+with the command ``keyring.delete_password('astroquery:www.eso.org',
+'username')``.
 
 Query and direct retrieval of instrument specific raw data
 ==========================================================

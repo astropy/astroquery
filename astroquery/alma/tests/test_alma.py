@@ -10,7 +10,7 @@ DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
 def data_path(filename):
     return os.path.join(DATA_DIR, filename)
 
-DATA_FILES = {'GET': {'http://almascience.eso.org/aq/search.votable':
+DATA_FILES = {'GET': {'http://almascience.org/aq/search.votable':
                       'sgra_query.xml',
                      },
               'POST': {}

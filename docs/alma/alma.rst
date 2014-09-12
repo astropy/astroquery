@@ -23,19 +23,29 @@ via the ALMA CAS (central authentication server).
 
     >>> from astroquery.alma import Alma
     >>> alma = Alma()
-    >>> alma("TEST") # doctest: +SKIP
+    >>> # First example: TEST is not a valid username, it will fail
+    >>> alma.login("TEST") # doctest: +SKIP
     TEST, enter your ALMA password:
 
     Authenticating TEST on asa.alma.cl...
     Authentication failed!
-    >>> alma.login("ICONDOR") # doctest: +SKIP
-    ICONDOR, enter your ESO password:
+    >>> # Second example: pretend ICONDOR is a valid username
+    >>> alma.login("ICONDOR", store_password=True) # doctest: +SKIP
+    ICONDOR, enter your ALMA password:
 
     Authenticating ICONDOR on asa.alma.cl...
     Authentication successful!
+    >>> # After the first login, your password has been stored
     >>> alma.login("ICONDOR") # doctest: +SKIP
     Authenticating ICONDOR on asa.alma.cl...
     Authentication successful!
+
+Your password will be stored by the `keyring
+<https://pypi.python.org/pypi/keyring>`_ module.
+You can choose not to store your password by passing the argument
+``store_password=False`` to `Alma.login`.  You can delete your password later
+with the command ``keyring.delete_password('astroquery:asa.alma.cl',
+'username')``.
 
 Querying Targets and Regions
 ============================

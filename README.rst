@@ -32,27 +32,28 @@ for some services.  The `keyring <https://pypi.python.org/pypi/keyring>`_
 module is also required for accessing services that require a login.
 These can all be installed using `pip <https://pypi.python.org/pypi/pip>`_.
 
-The `latest release`_ of astroquery can be downloaded or pip installed:
+The latest version of astroquery can be pip installed:
 
 .. code-block:: bash
 
-   $ pip install astroquery 
-   
+    $ pip install astroquery
 
-If you'd like the latest development version, you can install it with the
-following commands if you have ``git`` installed:
+and the 'bleeding edge' master version:
 
 .. code-block:: bash
 
+   $ pip install https://github.com/astropy/astroquery/archive/master.zip
+
+or cloned and installed from source:
+
+.. code-block:: bash
+
+    $ # If you have a github account:
     $ git clone git@github.com:astropy/astroquery.git
+    $ # If you do not: 
+    $ git clone https://github.com/astropy/astroquery.git
     $ cd astroquery
     $ python setup.py install
-
-pip install also works:
-
-.. code-block:: bash
-
-    $ pip install git+http://github.com/astropy/astroquery.git#egg=astroquery
     
 Using astroquery
 ----------------
