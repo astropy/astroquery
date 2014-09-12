@@ -119,6 +119,7 @@ class AlmaClass(QueryWithLogin):
 
         response = self._request('GET', url, params=payload,
                                  timeout=self.TIMEOUT, cache=cache)
+        response.raise_for_status()
 
         return response
 
@@ -157,6 +158,7 @@ class AlmaClass(QueryWithLogin):
                                  timeout=self.TIMEOUT, cache=cache)
         self._staging_log['initial_response'] = response
         log.debug("First response URL: {0}".format(response.url))
+        response.raise_for_status()
 
         if 'j_spring_cas_security_check' in response.url:
             response = self._request('POST', url, data=payload,
@@ -164,6 +166,7 @@ class AlmaClass(QueryWithLogin):
             self._staging_log['initial_response'] = response
             if 'j_spring_cas_security_check' in response.url:
                 log.warn("Staging request was not successful.  Try again?")
+            response.raise_for_status()
 
         request_id = response.url.split("/")[-2]
         self._staging_log['request_id'] = request_id
@@ -173,16 +176,21 @@ class AlmaClass(QueryWithLogin):
         # Submit a request for the specific request ID identified above
         submission_url = os.path.join(self.archive_url, 'rh', 'submission',
                                       request_id)
-        log.debug("Submission URL: {0}".format(sumbission_url))
+        log.debug("Submission URL: {0}".format(submission_url))
         self._staging_log['submission_url'] = submission_url
-        submission = self._request('GET', submission_url, cache=cache)
-        self._staging_log['submission'] = submission
+        staging_submission = self._request('GET', submission_url, cache=cache)
+        self._staging_log['staging_submission'] = staging_submission
+        staging_submission.raise_for_status()
+        staging_root = BeautifulSoup(staging_submission.content)
+        downloadFileURL = staging_root.find('form').attrs['action']
+        data_list_url = os.path.split(downloadFileURL)[0]
 
-        data_list_url = submission.url
+        # Old version, unreliable: data_list_url = staging_submission.url
         log.debug("Data list URL: {0}".format(data_list_url))
 
         data_list_page = self._request('GET', data_list_url, cache=cache)
         self._staging_log['data_list_page'] = data_list_page
+        data_list_page.raise_for_status()
 
         root = BeautifulSoup(data_list_page.content, 'html5lib')
 
@@ -202,10 +210,13 @@ class AlmaClass(QueryWithLogin):
         totalsize = 0
         pb = ProgressBar(len(files))
         for ii,fileLink in enumerate(files):
-            response = self._request('HEAD', fileLink, stream=True,
+            response = self._request('HEAD', fileLink, stream=False,
                                      cache=False, timeout=self.TIMEOUT)
             totalsize += int(response.headers['content-length'])
+            log.debug("File {0}: size {1}".format(fileLink,
+                                                  (int(response.headers['content-length'])*u.B).to(u.GB)))
             pb.update(ii+1)
+            response.raise_for_status()
 
         return (totalsize*u.B).to(u.GB)
 
