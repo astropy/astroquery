@@ -144,9 +144,11 @@ class AlmaClass(QueryWithLogin):
         log.info("Staging files...")
 
         url = os.path.join(self.archive_url, 'rh', 'submission')
+        log.debug("First request URL: {0}".format(url))
         #'ALMA+uid___A002_X391d0b_X7b'
         #payload = [('dataset','ALMA+'+clean_uid(uid)) for uid in uids]
         payload = {'dataset':['ALMA+'+clean_uid(uid) for uid in uids]}
+        log.debug("First request payload: {0}".format(payload))
 
         self._staging_log = {}
         
@@ -154,20 +156,30 @@ class AlmaClass(QueryWithLogin):
         response = self._request('POST', url, data=payload,
                                  timeout=self.TIMEOUT, cache=cache)
         self._staging_log['initial_response'] = response
-        assert 'j_spring_cas_security_check' not in response.url
+        log.debug("First response URL: {0}".format(response.url))
+
+        if 'j_spring_cas_security_check' in response.url:
+            response = self._request('POST', url, data=payload,
+                                     timeout=self.TIMEOUT, cache=cache)
+            self._staging_log['initial_response'] = response
+            if 'j_spring_cas_security_check' in response.url:
+                log.warn("Staging request was not successful.  Try again?")
 
         request_id = response.url.split("/")[-2]
         self._staging_log['request_id'] = request_id
+        log.debug("Request ID: {0}".format(request_id))
 
 
         # Submit a request for the specific request ID identified above
         submission_url = os.path.join(self.archive_url, 'rh', 'submission',
                                       request_id)
+        log.debug("Submission URL: {0}".format(sumbission_url))
         self._staging_log['submission_url'] = submission_url
         submission = self._request('GET', submission_url, cache=cache)
         self._staging_log['submission'] = submission
 
         data_list_url = submission.url
+        log.debug("Data list URL: {0}".format(data_list_url))
 
         data_list_page = self._request('GET', data_list_url, cache=cache)
         self._staging_log['data_list_page'] = data_list_page
