@@ -38,6 +38,7 @@ def _check_response(content):
 class EsoClass(QueryWithLogin):
 
     ROW_LIMIT = conf.row_limit
+    USERNAME = conf.username
 
     def __init__(self):
         super(EsoClass, self).__init__()
@@ -149,7 +150,10 @@ class EsoClass(QueryWithLogin):
 
     def _login(self, username=None, store_password=False):
         if username is None:
-            username = raw_input("Enter your ESO username:")
+            if self.USERNAME == "":
+                raise Exception("If you do not pass a username to login(), you should configure a default one!")
+            else:
+                username = self.USERNAME
         # Get password from keyring or prompt
         password_from_keyring = keyring.get_password("astroquery:www.eso.org", username)
         if password_from_keyring is None:
