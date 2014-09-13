@@ -22,10 +22,11 @@ def to_cache(response, cache_file):
     with open(cache_file, "wb") as f:
         pickle.dump(response, f)
 
+
 class AstroQuery(object):
 
     def __init__(self, method, url, params=None, data=None, headers=None,
-                 auth=None, files=None, timeout=None):
+                 files=None, timeout=None):
         self.method = method
         self.url = url
         self.params = params
@@ -34,7 +35,6 @@ class AstroQuery(object):
         self.files = files
         self._hash = None
         self.timeout = timeout
-        self.auth = auth
 
     @property
     def timeout(self):
@@ -154,8 +154,7 @@ class BaseQuery(object):
             return local_filepath
         else:
             query = AstroQuery(method, url, params=params, data=data,
-                               auth=auth, headers=headers, files=files,
-                               timeout=timeout)
+                               headers=headers, files=files, timeout=timeout)
             if ((self.cache_location is None) or (not self._cache_active) or
                 (not cache)):
                 with suspend_cache(self):

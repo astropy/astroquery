@@ -73,7 +73,7 @@ class CosmoSimClass(QueryWithLogin):
                                       cache=False)
         if authenticated.status_code == 200:
             print("Authentication successful!")
-        elif authenticated.status_code == 401:
+        elif authenticated.status_code == 401 or authenticated.status_code == 403:
             print("Authentication failed!")
         elif authenticated.status_code == 503:
             print("Service Temporarily Unavailable...")
