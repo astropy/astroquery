@@ -33,7 +33,7 @@ class MockResponse(object):
     """
 
     def __init__(self, content=None, url=None, headers={},
-                 content_type=None, stream=False):
+                 content_type=None, stream=False, auth=None):
         assert content is None or hasattr(content, 'decode')
         self.content = content
         self.raw = content
@@ -41,6 +41,7 @@ class MockResponse(object):
         if content_type is not None:
             self.headers.update({'Content-Type':content_type})
         self.url = url
+        self.auth = auth
 
     def iter_lines(self):
         c = self.text.split("\n")
