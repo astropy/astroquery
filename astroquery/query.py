@@ -70,9 +70,12 @@ class AstroQuery(object):
         return self._hash
 
     def request_file(self, cache_location):
-        return os.path.join(cache_location, self.hash() + ".pickle")
+        fn = os.path.join(cache_location, self.hash() + ".pickle")
+        log.debug("Request file is {0}".format(fn))
+        return fn
 
     def from_cache(self, cache_location):
+        log.debug("Retrieving data from {0}".format(cache_location))
         request_file = self.request_file(cache_location)
         try:
             with open(request_file, "rb") as f:
