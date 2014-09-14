@@ -1,5 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import os
+from distutils.version import LooseVersion
+import astropy
 try:
     from ...eso import Eso
     ESO_IMPORTED = True
@@ -61,6 +63,11 @@ def test_SgrAstar(monkeypatch):
     # test that max_results = 50
     assert len(result) == 50
     assert 'GC_IRS7' in result['Object']
+
+bad_ascii_reader = LooseVersion(astropy.__version__) > LooseVersion('1.0.dev9885')
+
+@pytest.mark.skipif('SKIP_TESTS or bad_ascii_reader')
+def test_vvv(monkeypatch):
 
     result_s = eso.query_survey('VVV', coord1=266.41681662, coord2=-29.00782497)
     assert result_s is not None
