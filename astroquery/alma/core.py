@@ -194,6 +194,10 @@ class AlmaClass(QueryWithLogin):
 
         root = BeautifulSoup(data_list_page.content, 'html5lib')
 
+        if 'Error' in data_list_page.content:
+            errormessage = root.find('div', id='errorContent').string.strip()
+            raise RemoteServiceError(errormessage)
+
         data_table = root.findAll('table', class_='list', id='report')[0]
         hrefs = data_table.findAll('a')
 
