@@ -63,7 +63,7 @@ class AlmaClass(QueryWithLogin):
                                 science=science, **kwargs)
 
     def query_region_async(self, coordinate, radius, cache=True, public=True,
-                           science=True):
+                           science=True, **kwargs):
         """
         Query the ALMA archive with a source name and radius
 
