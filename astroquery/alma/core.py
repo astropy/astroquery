@@ -37,6 +37,17 @@ class AlmaClass(QueryWithLogin):
 
     def __init__(self):
         super(AlmaClass, self).__init__()
+        self._get_archive_url()
+
+    def _get_archive_url(self):
+        """
+        If the generic ALMA URL is used, query it to determine which mirror to
+        access
+        """
+        if self.archive_url == 'http://almascience.org':
+            response = self._request('GET', self.archive_url+"/aq", cache=False)
+            response.raise_for_status()
+            self.archive_url = response.url.replace("/aq/","")
 
     def query_object_async(self, object_name, cache=True, public=True,
                            science=True, **kwargs):
