@@ -10,7 +10,7 @@
   updated file download link triggered by server side change.
   More interesting, made ``username`` optional in ``login()``:
   instead, you can now configure your preferred ``username``.
-  Finally, automatic login is now used by ``retrieve_data()``, if configured. (#420)
+  Finally, automatic login is now used by ``retrieve_data()``, if configured. (#420, #427)
 
 0.2.2 (2014-09-10)
 ------------------
