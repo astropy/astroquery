@@ -21,9 +21,13 @@ def alma_request(request_type, url, **kwargs):
         response = MockResponse(content=f.read(), url=url)
     return response
 
+def _get_dataarchive_url(*args):
+    return 'http://almascience.eso.org'
+
 def test_SgrAstar(monkeypatch):
     # Local caching prevents a remote query here
 
+    monkeypatch.setattr(Alma, '_get_dataarchive_url', _get_dataarchive_url)
     alma = Alma()
 
     # monkeypatch instructions from https://pytest.org/latest/monkeypatch.html

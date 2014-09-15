@@ -37,17 +37,6 @@ class AlmaClass(QueryWithLogin):
 
     def __init__(self):
         super(AlmaClass, self).__init__()
-        self._get_archive_url()
-
-    def _get_archive_url(self):
-        """
-        If the generic ALMA URL is used, query it to determine which mirror to
-        access
-        """
-        if self.archive_url == 'http://almascience.org':
-            response = self._request('GET', self.archive_url+"/aq", cache=False)
-            response.raise_for_status()
-            self.archive_url = response.url.replace("/aq/","")
 
     def query_object_async(self, object_name, cache=True, public=True,
                            science=True, **kwargs):
@@ -134,6 +123,20 @@ class AlmaClass(QueryWithLogin):
 
         return response
 
+    def _get_dataarchive_url(self):
+        """
+        If the generic ALMA URL is used, query it to determine which mirror to
+        access for querying data
+        """
+        if not hasattr(self, 'dataarchive_url'):
+            if self.archive_url == 'http://almascience.org':
+                response = self._request('GET', self.archive_url+"/aq", cache=False)
+                response.raise_for_status()
+                self.dataarchive_url = response.url.replace("/aq/","")
+            else:
+                self.dataarchive_url = self.archive_url
+
+
     def stage_data(self, uids, cache=False):
         """
         Stage ALMA data
@@ -155,7 +158,7 @@ class AlmaClass(QueryWithLogin):
 
         log.info("Staging files...")
 
-        url = os.path.join(self.archive_url, 'rh', 'submission')
+        url = os.path.join(self.dataarchive_url, 'rh', 'submission')
         log.debug("First request URL: {0}".format(url))
         #'ALMA+uid___A002_X391d0b_X7b'
         #payload = [('dataset','ALMA+'+clean_uid(uid)) for uid in uids]
@@ -185,7 +188,7 @@ class AlmaClass(QueryWithLogin):
 
 
         # Submit a request for the specific request ID identified above
-        submission_url = os.path.join(self.archive_url, 'rh', 'submission',
+        submission_url = os.path.join(self.dataarchive_url, 'rh', 'submission',
                                       request_id)
         log.debug("Submission URL: {0}".format(submission_url))
         self._staging_log['submission_url'] = submission_url
