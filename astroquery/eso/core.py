@@ -38,6 +38,7 @@ def _check_response(content):
 class EsoClass(QueryWithLogin):
 
     ROW_LIMIT = conf.row_limit
+    USERNAME = conf.username
 
     def __init__(self):
         super(EsoClass, self).__init__()
@@ -86,13 +87,14 @@ class EsoClass(QueryWithLogin):
             if tag_name == 'input':
                 if 'type' in form_elem.attrs:
                     is_file = form_elem.get('type') == 'file'
-                if form_elem.has_attr('checked'):
-                    if form_elem.has_attr('value'):
-                        value = form_elem.get('value')
+                    if form_elem.get('type') == 'checkbox':
+                        if form_elem.has_attr('checked'):
+                            if form_elem.has_attr('value'):
+                                value = form_elem.get('value')
+                            else:
+                                value = 'on'
                     else:
-                        value = 'on'
-                else:
-                    value = form_elem.get('value')
+                        value = form_elem.get('value')
             elif tag_name == 'select':
                 if form_elem.get('multiple') is not None:
                     value = []
@@ -129,6 +131,7 @@ class EsoClass(QueryWithLogin):
 
         # for future debugging
         self._payload = payload
+        log.debug("Form: payload={0}".format(payload))
 
         if method is not None:
             fmt = method
@@ -145,7 +148,12 @@ class EsoClass(QueryWithLogin):
 
         return response
 
-    def _login(self, username, store_password=False):
+    def _login(self, username=None, store_password=False):
+        if username is None:
+            if self.USERNAME == "":
+                raise Exception("If you do not pass a username to login(), you should configure a default one!")
+            else:
+                username = self.USERNAME
         # Get password from keyring or prompt
         password_from_keyring = keyring.get_password("astroquery:www.eso.org", username)
         if password_from_keyring is None:
@@ -503,6 +511,8 @@ class EsoClass(QueryWithLogin):
 
         # Second: Download the other datasets
         if datasets_to_download:
+            if not self.authenticated():
+                self.login()
             data_retrieval_form = self._request("GET",
                                                 "http://archive.eso.org/cms/eso-data/eso-data-direct-retrieval.html",
                                                 cache=cache)
@@ -539,8 +549,7 @@ class EsoClass(QueryWithLogin):
                                              " perhaps the requested file could not be found?")
             log.info("Downloading files...")
             for fileId in root.select('input[name=fileId]'):
-                fileLink = fileId.attrs['value'].split()[1]
-                fileLink = fileLink.replace("/api", "").replace("https://", "http://")
+                fileLink = "http://dataportal.eso.org/dataPortal"+fileId.attrs['value'].split()[1]
                 filename = self._request("GET", fileLink, save=True)
                 files.append(system_tools.gunzip(filename))
         log.info("Done!")

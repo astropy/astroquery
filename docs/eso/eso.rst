@@ -60,12 +60,40 @@ interaction with the ESO archive.
     Authenticating ICONDOR on www.eso.org...
     Authentication successful!
 
-Your password will be stored by the `keyring
-<https://pypi.python.org/pypi/keyring>`_ module.
-You can choose not to store your password by passing the argument
-``store_password=False`` to `Eso.login`.  You can delete your password later
-with the command ``keyring.delete_password('astroquery:www.eso.org',
-'username')``.
+Automatic password
+------------------
+
+As shown above, your password can be stored by the `keyring
+<https://pypi.python.org/pypi/keyring>`_ module, if you
+pass the argument ``store_password=False`` to `Eso.login`.
+For security reason, storing the password is turned off by default.
+
+MAKE SURE YOU TRUST THE MACHINE WHERE YOU USE THIS FUNCTIONALITY!!!
+
+NB: You can delete your password later with the command
+``keyring.delete_password('astroquery:www.eso.org', 'username')``.
+
+Automatic login
+---------------
+
+You can further automate the authentication process by configuring a default username.
+The astroquery configuration file, which can be found following the procedure
+detailed in `astropy.config <http://docs.astropy.org/en/stable/config/index.html>`_,
+needs to be edited by adding ``username = ICONDOR`` in the ``[eso]`` section.
+
+When configured, the username in the :meth:`~astroquery.eso.EsoClass.login` call
+can be omitted as follows:
+
+.. code-block:: python
+
+    >>> from astroquery.eso import Eso
+    >>> eso = Eso()
+    >>> eso.login() # doctest: +SKIP
+    ICONDOR, enter your ESO password:
+
+NB: If an automatic login is configured, other Eso methods can log you in
+automatically when needed.
+
 
 Query and direct retrieval of instrument specific raw data
 ==========================================================
@@ -75,7 +103,7 @@ Identifying available instruments
 
 The direct retrieval of datasets is better explained with a running example, continuing from the
 authentication example above. The first thing to do is to identify the instrument to query. The
-list of available instruments can be queried with the :meth:`~astroquery.eso.EsoClass.list_instrument`
+list of available instruments can be queried with the :meth:`~astroquery.eso.EsoClass.list_instruments`
 method.
 
 .. code-block:: python

@@ -104,3 +104,11 @@ class TestEso:
     #    data_files = eso.retrieve_data([data_product_id])
     #    # How do we know if we're going to get .fits or .fits.Z?
     #    assert 'AMBER.2006-03-14T07:40:03.741.fits' in data_files[0]
+    
+    @pytest.mark.xfail
+    def test_retrieve_data(self):
+        eso = Eso()
+        eso.login()
+        result = eso.retrieve_data("MIDI.2014-07-25T02:03:11.561")
+        assert len(result)>0
+        assert "MIDI.2014-07-25T02:03:11.561" in result[0]

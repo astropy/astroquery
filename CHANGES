@@ -6,6 +6,11 @@
   ``rm -r ~/.astropy/cache/astroquery/`` (#418)
 - In ESO and ALMA, default to *not* storing your password.  New keyword
   ``store_password=False``.  (#415)
+- In ESO, fixed a form activation issue triggered in ESO ``retrieve_data()``,
+  updated file download link triggered by server side change.
+  More interesting, made ``username`` optional in ``login()``:
+  instead, you can now configure your preferred ``username``.
+  Finally, automatic login is now used by ``retrieve_data()``, if configured. (#420)
 
 0.2.2 (2014-09-10)
 ------------------
