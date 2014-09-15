@@ -511,6 +511,8 @@ class EsoClass(QueryWithLogin):
 
         # Second: Download the other datasets
         if datasets_to_download:
+            if not self.authenticated():
+                self.login()
             data_retrieval_form = self._request("GET",
                                                 "http://archive.eso.org/cms/eso-data/eso-data-direct-retrieval.html",
                                                 cache=cache)
