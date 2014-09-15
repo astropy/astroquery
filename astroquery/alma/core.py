@@ -158,6 +158,8 @@ class AlmaClass(QueryWithLogin):
 
         log.info("Staging files...")
 
+        self._get_dataarchive_url()
+
         url = os.path.join(self.dataarchive_url, 'rh', 'submission')
         log.debug("First request URL: {0}".format(url))
         #'ALMA+uid___A002_X391d0b_X7b'
