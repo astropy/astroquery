@@ -59,7 +59,7 @@ class TestEso:
         with pytest.raises(LoginError) as exc:
             eso.retrieve_data('AMBER.2006-03-14T07:40:19.830')
 
-        assert exc.value.args[0] == "Not logged in.  You must be logged in to download data."
+        assert exc.value.args[0] == "If you do not pass a username to login(), you should configure a default one!"
 
     def test_empty_return(self):
         # test for empty return with an object from the North
