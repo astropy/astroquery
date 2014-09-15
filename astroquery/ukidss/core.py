@@ -584,7 +584,7 @@ class UkidssClass(QueryWithLogin):
             return list(self.ukidss_programmes_short.keys())
 
     def _get_databases(self):
-        if hasattr(self, 'session'):
+        if self.logged_in():
             response = self.session.get('http://surveys.roe.ac.uk:8080/wsa/getImage_form.jsp')
         else:
             response = requests.get('http://surveys.roe.ac.uk:8080/wsa/getImage_form.jsp')
@@ -628,7 +628,7 @@ class UkidssClass(QueryWithLogin):
     def _check_page(self, url, keyword, wait_time=1, max_attempts=30):
         page_loaded = False
         while not page_loaded and max_attempts > 0:
-            if hasattr(self, 'session'):
+            if self.logged_in():
                 response = self.session.get(url)
             else:
                 response = requests.get(url)
