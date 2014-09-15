@@ -93,8 +93,8 @@ class EsoClass(QueryWithLogin):
                                 value = form_elem.get('value')
                             else:
                                 value = 'on'
-                    else:
-                        value = form_elem.get('value')
+                else:
+                    value = form_elem.get('value')
             elif tag_name == 'select':
                 if form_elem.get('multiple') is not None:
                     value = []
