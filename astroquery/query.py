@@ -204,6 +204,10 @@ class QueryWithLogin(BaseQuery):
     are not stored in the cache.
     """
 
+    def __init__(self):
+        super(QueryWithLogin, self).__init__()
+        self._authenticated = False
+
     @abc.abstractmethod
     def _login(self, *args, **kwargs):
         """
@@ -218,5 +222,8 @@ class QueryWithLogin(BaseQuery):
 
     def login(self, *args, **kwargs):
         with suspend_cache(self):
-            result = self._login(*args, **kwargs)
-        return result
+            self._authenticated = self._login(*args, **kwargs)
+        return self._authenticated
+
+    def authenticated(self):
+        return self._authenticated
