@@ -93,8 +93,8 @@ class EsoClass(QueryWithLogin):
                                 value = form_elem.get('value')
                             else:
                                 value = 'on'
-                    else:
-                        value = form_elem.get('value')
+                else:
+                    value = form_elem.get('value')
             elif tag_name == 'select':
                 if form_elem.get('multiple') is not None:
                     value = []
@@ -151,7 +151,7 @@ class EsoClass(QueryWithLogin):
     def _login(self, username=None, store_password=False):
         if username is None:
             if self.USERNAME == "":
-                raise Exception("If you do not pass a username to login(), you should configure a default one!")
+                raise LoginError("If you do not pass a username to login(), you should configure a default one!")
             else:
                 username = self.USERNAME
         # Get password from keyring or prompt
