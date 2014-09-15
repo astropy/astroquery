@@ -63,7 +63,7 @@ class AlmaClass(QueryWithLogin):
                                 science=science, **kwargs)
 
     def query_region_async(self, coordinate, radius, cache=True, public=True,
-                           science=True):
+                           science=True, **kwargs):
         """
         Query the ALMA archive with a source name and radius
 
@@ -123,6 +123,20 @@ class AlmaClass(QueryWithLogin):
 
         return response
 
+    def _get_dataarchive_url(self):
+        """
+        If the generic ALMA URL is used, query it to determine which mirror to
+        access for querying data
+        """
+        if not hasattr(self, 'dataarchive_url'):
+            if self.archive_url == 'http://almascience.org':
+                response = self._request('GET', self.archive_url+"/aq", cache=False)
+                response.raise_for_status()
+                self.dataarchive_url = response.url.replace("/aq/","")
+            else:
+                self.dataarchive_url = self.archive_url
+
+
     def stage_data(self, uids, cache=False):
         """
         Stage ALMA data
@@ -144,7 +158,9 @@ class AlmaClass(QueryWithLogin):
 
         log.info("Staging files...")
 
-        url = os.path.join(self.archive_url, 'rh', 'submission')
+        self._get_dataarchive_url()
+
+        url = os.path.join(self.dataarchive_url, 'rh', 'submission')
         log.debug("First request URL: {0}".format(url))
         #'ALMA+uid___A002_X391d0b_X7b'
         #payload = [('dataset','ALMA+'+clean_uid(uid)) for uid in uids]
@@ -174,7 +190,7 @@ class AlmaClass(QueryWithLogin):
 
 
         # Submit a request for the specific request ID identified above
-        submission_url = os.path.join(self.archive_url, 'rh', 'submission',
+        submission_url = os.path.join(self.dataarchive_url, 'rh', 'submission',
                                       request_id)
         log.debug("Submission URL: {0}".format(submission_url))
         self._staging_log['submission_url'] = submission_url
