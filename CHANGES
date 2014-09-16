@@ -11,6 +11,8 @@
   More interesting, made ``username`` optional in ``login()``:
   instead, you can now configure your preferred ``username``.
   Finally, automatic login is now used by ``retrieve_data()``, if configured. (#420, #427)
+- Bugfix for UKIDSS: Login now uses the correct session to retrieve the data
+  (#425)
 
 0.2.2 (2014-09-10)
 ------------------

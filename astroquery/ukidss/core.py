@@ -6,6 +6,7 @@ import re
 import time
 from math import cos, radians
 import requests
+from bs4 import BeautifulSoup
 
 from astropy.extern.six import BytesIO
 import astropy.units as u
@@ -74,11 +75,11 @@ class UkidssClass(QueryWithLogin):
                               'Deep Extragalactic Survey': 104,
                               'Ultra Deep Survey': 105}
 
-    databases = ("UKIDSSDR9PLUS", "UKIDSSDR8PLUS", "UKIDSSDR7PLUS",
-                 "UKIDSSDR6PLUS", "UKIDSSDR5PLUS", "UKIDSSDR4PLUS",
-                 "UKIDSSDR3PLUS", "UKIDSSDR2PLUS", "UKIDSSDR1PLUS",
-                 "UKIDSSDR1", "UKIDSSEDRPLUS", "UKIDSSEDR", "UKIDSSSV",
-                 "WFCAMCAL08B")
+    all_databases = ("UKIDSSDR9PLUS", "UKIDSSDR8PLUS", "UKIDSSDR7PLUS",
+                     "UKIDSSDR6PLUS", "UKIDSSDR5PLUS", "UKIDSSDR4PLUS",
+                     "UKIDSSDR3PLUS", "UKIDSSDR2PLUS", "UKIDSSDR1PLUS",
+                     "UKIDSSDR1", "UKIDSSEDRPLUS", "UKIDSSEDR", "UKIDSSSV",
+                     "WFCAMCAL08B", "U09B8v20120403", "U09B8v20100414")
 
     def __init__(self, username=None, password=None, community=None,
                  database='UKIDSSDR7PLUS', programme_id='all'):
@@ -556,9 +557,10 @@ class UkidssClass(QueryWithLogin):
                                   "in self.response, and the error in self.table_parse_error.  "
                                   "Exception: " + str(self.table_parse_error))
 
+
     def list_catalogs(self, style='short'):
         """
-        Returns a lsit of available catalogs in UKIDSS.
+        Returns a list of available catalogs in UKIDSS.
         These can be used as ``programme_id`` in queries.
 
         Parameters
@@ -581,10 +583,21 @@ class UkidssClass(QueryWithLogin):
                           "Returning catalog list in short format.\n")
             return list(self.ukidss_programmes_short.keys())
 
+    def _get_databases(self):
+        if self.logged_in():
+            response = self.session.get('http://surveys.roe.ac.uk:8080/wsa/getImage_form.jsp')
+        else:
+            response = requests.get('http://surveys.roe.ac.uk:8080/wsa/getImage_form.jsp')
+        root = BeautifulSoup(response.content)
+        databases = [x.attrs['value'] for x in
+                    root.find('select').findAll('option')]
+        return databases
+
     def list_databases(self):
         """
         List the databases available from the UKIDSS WFCAM archive
         """
+        self.databases = set(self.all_databases + self._get_databases())
         return self.databases
 
     def _ukidss_send_request(self, url, request_payload):
@@ -615,7 +628,10 @@ class UkidssClass(QueryWithLogin):
     def _check_page(self, url, keyword, wait_time=1, max_attempts=30):
         page_loaded = False
         while not page_loaded and max_attempts > 0:
-            response = requests.get(url)
+            if self.logged_in():
+                response = self.session.get(url)
+            else:
+                response = requests.get(url)
             self.response = response
             content = response.text
             if re.search("error", content, re.IGNORECASE):
