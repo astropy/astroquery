@@ -104,7 +104,8 @@ Additional Links
 
 Maintained by `Adam Ginsburg`_ (`astropy.astroquery@gmail.com`_)
 
-To cite, use our `figshare`_ DOI (http://dx.doi.org/10.6084/m9.figshare.805208).
+To cite, use our `figshare`_ DOI (http://dx.doi.org/10.6084/m9.figshare.805208) or our Zenodo DOI.
+
 
 Badges
 ------
@@ -123,6 +124,10 @@ Badges
 
 .. image:: https://badges.gitter.im/astropy/astroquery.png
    :target: https://gitter.im/astropy/astroquery
+
+.. image:: https://zenodo.org/badge/3821/astropy/astroquery.png
+   :target: http://dx.doi.org/10.5281/zenodo.11656
+            
 
 .. .. image:: https://d2weczhvl823v0.cloudfront.net/astropy/astroquery/trend.png
 ..    :alt: Bitdeli badge
