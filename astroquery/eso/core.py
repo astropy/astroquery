@@ -269,6 +269,8 @@ class EsoClass(QueryWithLogin):
 
         content = survey_response.text
         byte_content = survey_response.content
+        #First line is always garbage
+        content = content.split('\n',1)[1]
         if _check_response(content):
             try:
                 table = Table.read(BytesIO(byte_content), format="ascii.csv",
@@ -350,16 +352,10 @@ class EsoClass(QueryWithLogin):
             instrument_response = self._activate_form(instrument_form,
                                                       form_index=0,
                                                       inputs=query_dict, cache=cache)
-            text = instrument_response.text
-            byte_content = instrument_response.content
-            if _check_response(text):
-                content = []
-                # The first line is garbage, don't know why
-                for line in byte_content.split(b'\n')[1:]:
-                    if len(line) > 0:  # Drop empty lines
-                        if line[0:1] != b'#':  # And drop comments
-                            content += [line]
-                content = b'\n'.join(content)
+            content = instrument_response.text
+            #First line is always garbage
+            content = content.split('\n', 1)[1]
+            if _check_response(content):
                 try:
                     table = Table.read(BytesIO(content), format="ascii.csv", comment='^#')
                 except Exception as ex:
