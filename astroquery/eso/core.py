@@ -271,6 +271,7 @@ class EsoClass(QueryWithLogin):
         byte_content = survey_response.content
         #First line is always garbage
         content = content.split('\n',1)[1]
+        log.debug("Response content:\n{0}".format(content))
         if _check_response(content):
             try:
                 table = Table.read(BytesIO(byte_content), format="ascii.csv",
@@ -355,6 +356,7 @@ class EsoClass(QueryWithLogin):
             content = instrument_response.text
             #First line is always garbage
             content = content.split('\n', 1)[1]
+            log.debug("Response content:\n{0}".format(content))
             if _check_response(content):
                 try:
                     table = Table.read(BytesIO(content), format="ascii.csv", comment='^#')
