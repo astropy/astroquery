@@ -161,10 +161,15 @@ class SimbadClass(BaseQuery):
                                           (os.path.join('data',
                                                         'votable_fields_table.txt')),
                                          format='ascii')
-        print (votable_fields_table)
+        print("Available VOTABLE fields: ")
+        print(votable_fields_table)
 
         print("\nFor more information on a field :\nSimbad.get_field_description "
               "('field_name')")
+
+        print()
+        print("Currently active VOTABLE fields:")
+        print(self._VOTABLE_FIELDS)
 
     def get_field_description(self, field_name):
         """
