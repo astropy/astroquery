@@ -28,10 +28,10 @@ def _check_response(content):
 
     If all is OK, return True
     """
-    if "NETWORKPROBLEM" in content:
+    if b"NETWORKPROBLEM" in content:
         raise RemoteServiceError("The query resulted in a network "
                                  "problem; the service may be offline.")
-    elif "# No data returned !" not in content:
+    elif b"# No data returned !" not in content:
         return True
 
 
@@ -204,7 +204,7 @@ class EsoClass(QueryWithLogin):
                     instrument = href.split("/")[-2]
                     if instrument not in self._instrument_list:
                         self._instrument_list.append(instrument)
-            self._instrument_list.append('harps')
+            self._instrument_list.append(u'harps')
         return self._instrument_list
 
     def list_surveys(self, cache=True):
@@ -267,17 +267,18 @@ class EsoClass(QueryWithLogin):
         survey_response = self._activate_form(survey_form, form_index=0,
                                               inputs=query_dict, cache=cache)
 
-        content = survey_response.text
-        byte_content = survey_response.content
+        content = survey_response.content
+        #First line is always garbage
+        content = content.split(b'\n',1)[1]
+        log.debug("Response content:\n{0}".format(content))
         if _check_response(content):
             try:
-                table = Table.read(BytesIO(byte_content), format="ascii.csv",
-                                   guess=False, header_start=1)
+                table = Table.read(BytesIO(content), format="ascii.csv", comment="^#")
             except Exception as ex:
                 # astropy 0.3.2 raises an anonymous exception; this is
                 # intended to prevent that from causing real problems
                 if 'No reader defined' in ex.args[0]:
-                    table = Table.read(BytesIO(byte_content), format="ascii",
+                    table = Table.read(BytesIO(content), format="ascii",
                                        delimiter=',', guess=False,
                                        header_start=1)
                 else:
@@ -350,16 +351,11 @@ class EsoClass(QueryWithLogin):
             instrument_response = self._activate_form(instrument_form,
                                                       form_index=0,
                                                       inputs=query_dict, cache=cache)
-            text = instrument_response.text
-            byte_content = instrument_response.content
-            if _check_response(text):
-                content = []
-                # The first line is garbage, don't know why
-                for line in byte_content.split(b'\n')[1:]:
-                    if len(line) > 0:  # Drop empty lines
-                        if line[0:1] != b'#':  # And drop comments
-                            content += [line]
-                content = b'\n'.join(content)
+            content = instrument_response.content
+            #First line is always garbage
+            content = content.split(b'\n', 1)[1]
+            log.debug("Response content:\n{0}".format(content))
+            if _check_response(content):
                 try:
                     table = Table.read(BytesIO(content), format="ascii.csv", comment='^#')
                 except Exception as ex:
@@ -600,17 +596,16 @@ class EsoClass(QueryWithLogin):
                                                 inputs=payload, cache=cache,
                                                 method='application/x-www-form-urlencoded')
 
-            content = apex_response.text
-            byte_content = apex_response.content
+            content = apex_response.content
             if _check_response(content):
                 try:
-                    table = Table.read(BytesIO(byte_content), format="ascii.csv",
+                    table = Table.read(BytesIO(content), format="ascii.csv",
                                        guess=False, header_start=1)
                 except Exception as ex:
                     # astropy 0.3.2 raises an anonymous exception; this is
                     # intended to prevent that from causing real problems
                     if 'No reader defined' in ex.args[0]:
-                        table = Table.read(BytesIO(byte_content), format="ascii",
+                        table = Table.read(BytesIO(content), format="ascii",
                                            delimiter=',', guess=False,
                                            header_start=1)
                     else:
