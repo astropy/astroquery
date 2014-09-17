@@ -105,7 +105,7 @@ class TestEso:
     #    # How do we know if we're going to get .fits or .fits.Z?
     #    assert 'AMBER.2006-03-14T07:40:03.741.fits' in data_files[0]
     
-    @pytest.mark.xfail
+    @pytest.mark.skipif('not Eso.USERNAME')
     def test_retrieve_data(self):
         eso = Eso()
         eso.login()
