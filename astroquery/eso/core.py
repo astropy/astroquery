@@ -10,7 +10,7 @@ import keyring
 import numpy as np
 from bs4 import BeautifulSoup
 
-from astropy.extern.six import StringIO
+from astropy.extern.six import BytesIO
 from astropy.extern import six
 from astropy.table import Table, Column
 from astropy import log
@@ -28,10 +28,10 @@ def _check_response(content):
 
     If all is OK, return True
     """
-    if "NETWORKPROBLEM" in content:
+    if b"NETWORKPROBLEM" in content:
         raise RemoteServiceError("The query resulted in a network "
                                  "problem; the service may be offline.")
-    elif "# No data returned !" not in content:
+    elif b"# No data returned !" not in content:
         return True
 
 
@@ -267,18 +267,18 @@ class EsoClass(QueryWithLogin):
         survey_response = self._activate_form(survey_form, form_index=0,
                                               inputs=query_dict, cache=cache)
 
-        content = survey_response.text
+        content = survey_response.content
         #First line is always garbage
-        content = content.split('\n',1)[1]
+        content = content.split(b'\n',1)[1]
         log.debug("Response content:\n{0}".format(content))
         if _check_response(content):
             try:
-                table = Table.read(StringIO(content), format="ascii.csv", comment="^#")
+                table = Table.read(BytesIO(content), format="ascii.csv", comment="^#")
             except Exception as ex:
                 # astropy 0.3.2 raises an anonymous exception; this is
                 # intended to prevent that from causing real problems
                 if 'No reader defined' in ex.args[0]:
-                    table = Table.read(StringIO(content), format="ascii",
+                    table = Table.read(BytesIO(content), format="ascii",
                                        delimiter=',', guess=False,
                                        header_start=1)
                 else:
@@ -351,18 +351,18 @@ class EsoClass(QueryWithLogin):
             instrument_response = self._activate_form(instrument_form,
                                                       form_index=0,
                                                       inputs=query_dict, cache=cache)
-            content = instrument_response.text
+            content = instrument_response.content
             #First line is always garbage
-            content = content.split('\n', 1)[1]
+            content = content.split(b'\n', 1)[1]
             log.debug("Response content:\n{0}".format(content))
             if _check_response(content):
                 try:
-                    table = Table.read(StringIO(content), format="ascii.csv", comment='^#')
+                    table = Table.read(BytesIO(content), format="ascii.csv", comment='^#')
                 except Exception as ex:
                     # astropy 0.3.2 raises an anonymous exception; this is
                     # intended to prevent that from causing real problems
                     if 'No reader defined' in ex.args[0]:
-                        table = Table.read(StringIO(content), format="ascii",
+                        table = Table.read(BytesIO(content), format="ascii",
                                            delimiter=',')
                     else:
                         raise ex
@@ -596,16 +596,16 @@ class EsoClass(QueryWithLogin):
                                                 inputs=payload, cache=cache,
                                                 method='application/x-www-form-urlencoded')
 
-            content = apex_response.text
+            content = apex_response.content
             if _check_response(content):
                 try:
-                    table = Table.read(StringIO(content), format="ascii.csv",
+                    table = Table.read(BytesIO(content), format="ascii.csv",
                                        guess=False, header_start=1)
                 except Exception as ex:
                     # astropy 0.3.2 raises an anonymous exception; this is
                     # intended to prevent that from causing real problems
                     if 'No reader defined' in ex.args[0]:
-                        table = Table.read(StringIO(content), format="ascii",
+                        table = Table.read(BytesIO(content), format="ascii",
                                            delimiter=',', guess=False,
                                            header_start=1)
                     else:

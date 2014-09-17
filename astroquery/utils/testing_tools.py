@@ -44,7 +44,7 @@ class MockResponse(object):
         self.auth = auth
 
     def iter_lines(self):
-        c = self.text.split("\n")
+        c = self.content.split(b"\n")
         for l in c:
             yield l
 
