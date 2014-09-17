@@ -91,10 +91,10 @@ class TestEso:
 
         inst = Eso.list_instruments()
 
-        assert inst == ['fors1', 'fors2', 'vimos', 'omegacam', 'hawki', 'isaac',
-                        'naco', 'visir', 'vircam', 'apex', 'uves', 'giraffe',
-                        'xshooter', 'crires', 'kmos', 'sinfoni', 'amber',
-                        'midi', 'harps']
+        assert inst == [u'fors1', u'fors2', u'vimos', u'omegacam', u'hawki', u'isaac',
+                        u'naco', u'visir', u'vircam', u'apex', u'uves', u'giraffe',
+                        u'xshooter', u'crires', u'kmos', u'sinfoni', u'amber',
+                        u'midi', u'harps']
 
     # REQUIRES LOGIN!
     # Can we get a special login specifically for astroquery testing?
