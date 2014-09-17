@@ -93,7 +93,7 @@ class TestEso:
 
         assert inst == [u'fors1', u'fors2', u'vimos', u'omegacam', u'hawki', u'isaac',
                         u'naco', u'visir', u'vircam', u'apex', u'uves', u'giraffe',
-                        u'xshooter', u'crires', u'kmos', u'sinfoni', u'amber',
+                        u'xshooter', u'muse', u'crires', u'kmos', u'sinfoni', u'amber',
                         u'midi', u'harps']
 
     # REQUIRES LOGIN!
