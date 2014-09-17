@@ -51,6 +51,7 @@ class TestEso:
         assert 'Object' in result_s.colnames
         assert 'b333' in result_s['Object']
 
+    @pytest.mark.skipif('Eso.USERNAME')
     def test_nologin(self):
         # WARNING: this test will fail if you haven't cleared your cache and
         # you have downloaded this file!
