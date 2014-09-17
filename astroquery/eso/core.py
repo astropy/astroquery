@@ -10,7 +10,7 @@ import keyring
 import numpy as np
 from bs4 import BeautifulSoup
 
-from astropy.extern.six import BytesIO
+from astropy.extern.six import StringIO
 from astropy.extern import six
 from astropy.table import Table, Column
 from astropy import log
@@ -268,19 +268,17 @@ class EsoClass(QueryWithLogin):
                                               inputs=query_dict, cache=cache)
 
         content = survey_response.text
-        byte_content = survey_response.content
         #First line is always garbage
         content = content.split('\n',1)[1]
         log.debug("Response content:\n{0}".format(content))
         if _check_response(content):
             try:
-                table = Table.read(BytesIO(byte_content), format="ascii.csv",
-                                   guess=False, header_start=1)
+                table = Table.read(StringIO(content), format="ascii.csv", comment="^#")
             except Exception as ex:
                 # astropy 0.3.2 raises an anonymous exception; this is
                 # intended to prevent that from causing real problems
                 if 'No reader defined' in ex.args[0]:
-                    table = Table.read(BytesIO(byte_content), format="ascii",
+                    table = Table.read(StringIO(content), format="ascii",
                                        delimiter=',', guess=False,
                                        header_start=1)
                 else:
@@ -359,12 +357,12 @@ class EsoClass(QueryWithLogin):
             log.debug("Response content:\n{0}".format(content))
             if _check_response(content):
                 try:
-                    table = Table.read(BytesIO(content), format="ascii.csv", comment='^#')
+                    table = Table.read(StringIO(content), format="ascii.csv", comment='^#')
                 except Exception as ex:
                     # astropy 0.3.2 raises an anonymous exception; this is
                     # intended to prevent that from causing real problems
                     if 'No reader defined' in ex.args[0]:
-                        table = Table.read(BytesIO(content), format="ascii",
+                        table = Table.read(StringIO(content), format="ascii",
                                            delimiter=',')
                     else:
                         raise ex
@@ -599,16 +597,15 @@ class EsoClass(QueryWithLogin):
                                                 method='application/x-www-form-urlencoded')
 
             content = apex_response.text
-            byte_content = apex_response.content
             if _check_response(content):
                 try:
-                    table = Table.read(BytesIO(byte_content), format="ascii.csv",
+                    table = Table.read(StringIO(content), format="ascii.csv",
                                        guess=False, header_start=1)
                 except Exception as ex:
                     # astropy 0.3.2 raises an anonymous exception; this is
                     # intended to prevent that from causing real problems
                     if 'No reader defined' in ex.args[0]:
-                        table = Table.read(BytesIO(byte_content), format="ascii",
+                        table = Table.read(StringIO(content), format="ascii",
                                            delimiter=',', guess=False,
                                            header_start=1)
                     else:
