@@ -123,7 +123,8 @@ class VizierClass(BaseQuery):
     def keywords(self):
         self._keywords = None
 
-    def find_catalogs(self, keywords, include_obsolete=False, verbose=False):
+    def find_catalogs(self, keywords, include_obsolete=False, verbose=False,
+                      max_catalogs=None):
         """
         Search Vizier for catalogs based on a set of keywords, e.g. author name
 
@@ -136,6 +137,9 @@ class VizierClass(BaseQuery):
             only the catalogues characterized by all the words are selected."
         include_obsolete : bool, optional
             If set to True, catalogs marked obsolete will also be returned.
+        max_catalogs : int or None
+            The maximum number of catalogs to return.  If ``None``, all
+            catalogs will be returned.
 
         Returns
         -------
@@ -159,6 +163,8 @@ class VizierClass(BaseQuery):
             keywords = " ".join(keywords)
 
         data_payload = {'-words': keywords, '-meta.all': 1}
+        if max_catalogs is not None:
+            data_payload['-meta.max'] = max_catalogs
         response = self._request(method='POST',
                                  url=self._server_to_url(),
                                  data=data_payload,
