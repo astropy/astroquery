@@ -64,9 +64,7 @@ def test_SgrAstar(monkeypatch):
     assert len(result) == 50
     assert 'GC_IRS7' in result['Object']
 
-bad_ascii_reader = LooseVersion(astropy.__version__) > LooseVersion('1.0.dev9885')
-
-@pytest.mark.skipif('SKIP_TESTS or bad_ascii_reader')
+@pytest.mark.skipif('SKIP_TESTS')
 def test_vvv(monkeypatch):
     eso = Eso()
     monkeypatch.setattr(eso, '_request', eso_request)
