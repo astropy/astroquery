@@ -85,16 +85,14 @@ class EsoClass(QueryWithLogin):
             tag_name = form_elem.name
             key = form_elem.get('name')
             if tag_name == 'input':
-                if 'type' in form_elem.attrs:
-                    is_file = form_elem.get('type') == 'file'
-                    if form_elem.get('type') == 'checkbox':
-                        if form_elem.has_attr('checked'):
-                            if form_elem.has_attr('value'):
-                                value = form_elem.get('value')
-                            else:
-                                value = 'on'
-                else:
-                    value = form_elem.get('value')
+                is_file = (form_elem.get('type') == 'file')
+                value = form_elem.get('value')
+                if form_elem.get('type') == 'checkbox':
+                    if form_elem.has_attr('checked'):
+                        if not value:
+                            value = 'on'
+                    else:
+                        value = None
             elif tag_name == 'select':
                 if form_elem.get('multiple') is not None:
                     value = []
