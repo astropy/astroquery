@@ -22,6 +22,9 @@ from astropy import log as logging
 from astropy.io import fits
 from astropy.io import votable
 import astropy.utils.data as aud
+from astropy.table.pprint import conf
+conf.max_lines = -1
+conf.max_width = -1
 
 # Astroquery imports
 from ..utils import commons
