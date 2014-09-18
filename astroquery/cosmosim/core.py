@@ -1,5 +1,6 @@
 from __future__ import print_function
 import requests
+import numpy as np
 import sys
 from bs4 import BeautifulSoup
 import keyring
@@ -554,7 +555,6 @@ class CosmoSimClass(QueryWithLogin):
                                  headers={'Accept': 'application/json'},
                                  cache=False)
         data = response.json()
-
         self.db_dict = {}
         for i in range(len(data['databases'])):
             self.db_dict['{}'.format(data['databases'][i]['name'])] = {}
@@ -604,49 +604,163 @@ class CosmoSimClass(QueryWithLogin):
             self.db_dict
         except AttributeError:
             self._generate_schema()
-        
-        if db:
-            if table:
-                if col:
-                    print("#"*(len(db)+4) + "\n# {} #\n".format(db) + "#"*(len(db)+4))
-                    print("@ {}".format("tables"))
-                    print("   @ {}".format(table))
-                    print(" "*6 + "@ {}".format("columns"))
-                    print(" "*9 + "@ {}".format('{}'.format(col)))
-                    for i in self.db_dict['{}'.format(db)]['tables']['{}'.format(table)]['columns']['{}'.format(col)].keys():
-                        print(" "*12 + "--> {}:{}".format(i,self.db_dict['{}'.format(db)]['tables']['{}'.format(table)]['columns']['{}'.format(col)][i]))
-                    
-                else:
-                    print("#"*(len(db)+4) + "\n# {} #\n".format(db) + "#"*(len(db)+4))
-                    print("@ {}".format("tables"))
-                    print("   @ {}".format(table))
-                    for i in self.db_dict['{}'.format(db)]['tables']['{}'.format(table)].keys():
-                        if type(self.db_dict['{}'.format(db)]['tables']['{}'.format(table)][i]) == dict:
-                            print(" "*6 + "@ {}".format(i))
-                            for j in self.db_dict['{}'.format(db)]['tables']['{}'.format(table)][i].keys():
-                                print(" "*9 + "--> {}".format(j))
-                        else:
-                            print(" "*6 + "$ {}".format(i))
-                            print(" "*9 + "--> {}".format(self.db_dict['{}'.format(db)]['tables']['{}'.format(table)][i]))
-                        
 
-            else:    
-                print("#"*(len(db)+4) + "\n# {} #\n".format(db) + "#"*(len(db)+4))
-                for i in self.db_dict['{}'.format(db)].keys():
-                    if type(self.db_dict['{}'.format(db)][i]) == dict:
-                        print("@ {}".format(i))
-                        for j in self.db_dict['{}'.format(db)][i].keys():
-                            print("   --> {}".format(j))
-                    else:
-                        print("$ {}".format(i))
-                        print("   --> {}".format(self.db_dict['{}'.format(db)][i]))
-                            
-        else:
-            print("Must choose a database to explore:")
-            for i in self.db_dict.keys():
-                print(" ## " + "{}".format(i))
-                            
-        return 
+        projects = np.sort(self.db_dict.keys())
+        largest = max([len(projects[i]) for i in range(len(projects))])
+        t = Table()
+        # db not specified
+        if not db:
+            print("Must first specify a database.")
+            proj_list = []
+            attr_list = []
+            info_list = []
+            tmp2_largest = 0
+            for proj in projects:
+                size = len(self.db_dict['{}'.format(proj)].keys())
+                proj_list += ['@ {}'.format(proj)]  + ['' for i in range(size-1)] + ['-'*(largest+2)]
+                tmp_largest = max([len('{}'.format(key))
+                                    for key in self.db_dict[proj].keys()])
+                attr_list += ['@ {}'.format(key)
+                                if isinstance(self.db_dict[proj][key],dict)
+                                else '{}:'.format(key)
+                                for key in self.db_dict[proj].keys()] + ['-'*(tmp_largest+2)]
+                tmpinfosize = max([len(self.db_dict[proj][key])
+                                    if isinstance(self.db_dict[proj][key],str)
+                                    else 0
+                                    for key in self.db_dict[proj].keys()])
+                if tmpinfosize > tmp2_largest:
+                    tmp2_largest = tmpinfosize
+            for proj in projects:
+                info_list += [self.db_dict[proj][key]
+                                if isinstance(self.db_dict[proj][key],str)
+                                else ""
+                                for key in self.db_dict[proj].keys()] + ['-'*tmp2_largest]
+            t['Projects'] = proj_list
+            t['Project Items'] = attr_list
+            t['Information'] = info_list
+            t.pprint()
+        # db specified
+        if db:
+            try:
+                size1 = len(self.db_dict['{}'.format(db)].keys())
+                slist = [self.db_dict[db][key].keys()
+                        if isinstance(self.db_dict[db][key],dict)
+                        else key
+                        for key in self.db_dict[db].keys()]
+                size2 = len(max(slist,key=np.size))
+            except (KeyError, NameError):
+                logging.error("Must first specify a valid database.")
+                return
+            # if col is specified, table must be specified, and I need to
+            # check the max size of any given column in the structure
+            if table:
+                try:
+                    if len(self.db_dict[db]['tables'][table]['columns'].keys()) > size2:
+                        size2 = len(self.db_dict[db]['tables'][table]['columns'].keys())
+
+                    if col:
+                        try:
+                            if len(self.db_dict[db]['tables'][table]['columns'][col].keys()) > size2:
+                                size2 = len(self.db_dict[db]['tables'][table]['columns'][col].keys())
+                        except(KeyError, NameError):
+                            logging.error("Must first specify a valid column of the `{}` table within the `{}` db.".format(table,db))
+                            return
+                except (KeyError, NameError):
+                    logging.error("Must first specify a valid table within the `{}` db.".format(db))
+                    return
+                    
+            t['Projects'] = ['--> @ {}:'.format(db)] + ['' for i in range(size2-1)]
+            t['Project Items'] = ['--> @ {}:'.format(key)
+                                    if isinstance(self.db_dict[db][key],dict)
+                                    and len(self.db_dict[db][key].keys()) == len(self.db_dict[db]['tables'].keys())
+                                    else '@ {}'.format(key)
+                                    if isinstance(self.db_dict[db][key],dict)
+                                    and len(self.db_dict[db][key].keys()) != len(self.db_dict[db]['tables'].keys())
+                                    else '{}'.format(key)
+                                    for key in self.db_dict[db].keys()] + ['' for i in range(size2-size1)]
+            # if only db is specified
+            if not table:
+                if not col:
+                    reordered = sorted(max(slist,key=np.size),key=len)
+                    t['Tables'] = ['@ {}'.format(i)
+                                    if isinstance(self.db_dict[db]['tables'][i],dict)
+                                    else '{}'.format(i)
+                                    for i in reordered]
+            # if table has been specified
+            else:
+                reordered = ['{}'.format(table)] + sorted([key
+                                                            for key in self.db_dict[db]['tables'].keys()
+                                                            if key != table],key=len)
+                t['Tables'] = ['--> @ {}:'.format(i)
+                                if i == table
+                                and isinstance(self.db_dict[db]['tables'][i],dict)
+                                else '@ {}'.format(i)
+                                if i != table
+                                and isinstance(self.db_dict[db]['tables'][i],dict)
+                                else '{}'.format(i)
+                                for i in reordered] + ['' for j in range(size2-len(reordered))]
+                # if column has been specified
+                if col:
+                    tblcols_dict = self.db_dict[db]['tables'][table].keys()
+                    t['Table Items'] = ['--> @ columns:'] + [i for i in tblcols_dict if i != 'columns'] + ['' for j in range(size2-len(tblcols_dict))]
+                    col_dict = self.db_dict[db]['tables'][table]['columns'].keys()
+                    reordered = ['{}'.format(col)] + [i for i in col_dict if i != col]
+                    if len(col_dict) < size2:
+                        t['Columns'] = ['--> @ {}:'.format(i)
+                                        if isinstance(self.db_dict[db]['tables'][table]['columns'][i],dict)
+                                        and i == col
+                                        else '--> {}:'.format(i)
+                                        if not isinstance(self.db_dict[db]['tables'][table]['columns'][i],dict)
+                                        and i == col
+                                        else '{}'.format(i)
+                                        if not isinstance(self.db_dict[db]['tables'][table]['columns'][i],dict)
+                                        and i != col
+                                        else '@ {}'.format(i)
+                                        if isinstance(self.db_dict[db]['tables'][table]['columns'][i],dict)
+                                        and i != col
+                                        else '{}'.format(i)
+                                        for i in reordered] + ['' for j in range(size2-len(col_dict))]
+                        colinfo_dict = col_dict = self.db_dict[db]['tables'][table]['columns'][col]
+                        t['Col. Info'] = ['{} : {}'.format(i,colinfo_dict[i]) for i in colinfo_dict.keys()] + ['' for j in range(size2-len(colinfo_dict))]
+                    else: 
+                        t['Columns'] = ['--> @ {}:'.format(i)
+                                             if isinstance(self.db_dict[db]['tables'][table]['columns'][i],dict)
+                                             and i == col
+                                             else '--> {}:'.format(i)
+                                             if not isinstance(self.db_dict[db]['tables'][table]['columns'][i],dict)
+                                             and i == col
+                                             else '{}'.format(i)
+                                             if not isinstance(self.db_dict[db]['tables'][table]['columns'][i],dict)
+                                             and i != col
+                                             else '@ {}'.format(i)
+                                             if isinstance(self.db_dict[db]['tables'][table]['columns'][i],dict)
+                                             and i != col
+                                             else '{}'.format(i)
+                                             for i in reordered]
+                # if column has not been specified
+                else:
+                    tblcols_dict = self.db_dict[db]['tables'][table].keys()
+                    col_dict = self.db_dict[db]['tables'][table]['columns'].keys()
+                    reordered = sorted(col_dict,key=len)
+                    if len(tblcols_dict) < size2:
+                        t['Table Items'] = ['@ {}'.format(i)
+                                             if isinstance(self.db_dict[db]['tables'][table][i],dict)
+                                             else '{}:'.format(i)
+                                             for i in tblcols_dict] + ['' for i in range(size2-len(tblcols_dict))]
+                        t['Table Info'] = ['{}'.format(self.db_dict[db]['tables'][table][i])
+                                            if not isinstance(self.db_dict[db]['tables'][table][i],dict)
+                                            else ""
+                                            for i in tblcols_dict] + ['' for i in range(size2-len(tblcols_dict))]
+                        if len(col_dict) < size2:
+                            t['Columns'] = ['@ {}'.format(i)
+                                            if isinstance(self.db_dict[db]['tables'][table]['columns'][i],dict)
+                                            else '{}'.format(i)
+                                            for i in reordered] + ['' for i in range(size2-len(col_dict))]
+                        else:
+                            t['Columns'] = reordered 
+                    else: 
+                        t['Table Items'] = tblcols_dict
+            t.pprint()
 
     def download(self,jobid=None,filename=None,format=None,cache=True):
         """
