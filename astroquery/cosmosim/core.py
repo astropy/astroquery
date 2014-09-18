@@ -12,7 +12,7 @@ from six.moves.email_mime_multipart import MIMEMultipart
 from six.moves.email_mime_base import MIMEBase
 from six.moves.email_mime_text import MIMEText
 from six.moves.email_mime_base import message
-
+import ipdb
 # Astropy imports
 from astropy.table import Table
 import astropy.units as u
@@ -342,8 +342,8 @@ class CosmoSimClass(QueryWithLogin):
             
         Returns
         -------
-        result : list
-            A list of response object(s)
+        response_dict_current : dict
+            A dictionary of completed jobs
         """
         
         self.check_all_jobs()
@@ -354,23 +354,65 @@ class CosmoSimClass(QueryWithLogin):
                                            CosmoSim.QUERY_URL+"/{}".format(completed_jobids[i]),
                                            auth=(self.username, self.password),cache=False)
                              for i in range(len(completed_jobids))]
+            self.response_dict_current = {}
+            for i,vals in enumerate(completed_jobids):
+                self.response_dict_current[vals] = self._generate_response_dict(response_list[i])
         else:
             if self.job_dict[jobid] == 'COMPLETED':
                 response_list = [self._request('GET',
                                                CosmoSim.QUERY_URL+"/{}".format(jobid),
                                                auth=(self.username,
                                                      self.password),cache=False)]
+                self.response_dict_current = {}
+                self.response_dict_current[jobid] = self._generate_response_dict(response_list[0])
             else:
                 logging.warning("JobID must refer to a query with a phase of 'COMPLETED'.")
                 return
 
+        
         if output is True:
-            for i in response_list:
-                print(i.content)
+            dictkeys = self.response_dict_current.keys()
+            if len(dictkeys) > 1:
+                for i in self.response_dict_current.keys():
+                    print("{} : COMPLETED".format(i))
+                print("Use specific jobid to get more information, or explore `self.response_dict_current`.")
+            elif len(dictkeys) == 1:
+                    print(self.response_dict_current[dictkeys[0]]['content'])
+            else:
+                logging.error('No completed jobs found.')
+            return 
         else:
-            print(response_list)
+            return
 
-        return response_list
+        
+
+    def _generate_response_dict(self,response):
+        """
+        A private function which takes in a response object and creates a response
+        dictionary .
+
+        Parameters
+        ----------
+        response : requests.models.Response
+            requests response object
+            
+        Returns
+        -------
+        response_dict : dict
+            A dictionary of some of the repspnse object's methods
+        """
+        
+        R = response
+        response_dict = {'{}'.format('content'):R.content,
+                         '{}'.format('cookies'):R.cookies,
+                         '{}'.format('elapsed'):R.elapsed,
+                         '{}'.format('encoding'):R.encoding,
+                         '{}'.format('headers'):R.headers,
+                         '{}'.format('ok'):R.ok,
+                         '{}'.format('request'):R.request,
+                         '{}'.format('url'):R.url}
+
+        return response_dict
         
     def general_job_info(self,jobid=None,output=False):
         """
