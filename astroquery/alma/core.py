@@ -177,6 +177,7 @@ class AlmaClass(QueryWithLogin):
         response.raise_for_status()
 
         if 'j_spring_cas_security_check' in response.url:
+            time.sleep(1)
             response = self._request('POST', url, data=payload,
                                      timeout=self.TIMEOUT, cache=cache)
             self._staging_log['initial_response'] = response
@@ -194,7 +195,13 @@ class AlmaClass(QueryWithLogin):
                                       request_id)
         log.debug("Submission URL: {0}".format(submission_url))
         self._staging_log['submission_url'] = submission_url
-        staging_submission = self._request('GET', submission_url, cache=cache)
+        has_completed = False
+        while not has_completed:
+            time.sleep(1)
+            staging_submission = self._request('GET', submission_url, cache=cache)
+            if 'Please wait' not in staging_submission.content:
+                has_completed = True
+            print(".",end='')
         self._staging_log['staging_submission'] = staging_submission
         staging_submission.raise_for_status()
         staging_root = BeautifulSoup(staging_submission.content)
@@ -204,6 +211,7 @@ class AlmaClass(QueryWithLogin):
         # Old version, unreliable: data_list_url = staging_submission.url
         log.debug("Data list URL: {0}".format(data_list_url))
 
+        time.sleep(1)
         data_list_page = self._request('GET', data_list_url, cache=cache)
         self._staging_log['data_list_page'] = data_list_page
         data_list_page.raise_for_status()
@@ -228,17 +236,19 @@ class AlmaClass(QueryWithLogin):
         assessing how much data you might be downloading!
         """
         totalsize = 0
+        data_sizes = {}
         pb = ProgressBar(len(files))
         for ii,fileLink in enumerate(files):
             response = self._request('HEAD', fileLink, stream=False,
                                      cache=False, timeout=self.TIMEOUT)
-            totalsize += int(response.headers['content-length'])
-            log.debug("File {0}: size {1}".format(fileLink,
-                                                  (int(response.headers['content-length'])*u.B).to(u.GB)))
+            filesize = (int(response.headers['content-length'])*u.B).to(u.GB)
+            totalsize += filesize
+            data_size[fileLink] = filesize
+            log.debug("File {0}: size {1}".format(fileLink, filesize))
             pb.update(ii+1)
             response.raise_for_status()
 
-        return (totalsize*u.B).to(u.GB)
+        return data_size,totalsize.to(u.GB)
 
     def download_files(self, files, cache=True):
         """
@@ -277,7 +287,7 @@ class AlmaClass(QueryWithLogin):
         files = self.stage_data(uids, cache=cache)
 
         log.info("Determining download size for {0} files...".format(len(files)))
-        totalsize = self.data_size(files)
+        each_size,totalsize = self.data_size(files)
 
         log.info("Downloading files of size {0}...".format(totalsize.to(u.GB)))
         downloaded_files = self.download_files(files, cache=cache)
@@ -343,6 +353,53 @@ class AlmaClass(QueryWithLogin):
         if authenticated and password_from_keyring is None and store_password:
             keyring.set_password("astroquery:asa.alma.cl", username, password)
         return authenticated
+
+    def get_uid_contents(self, uid):
+        """
+        List the file contents of a UID
+        """
+
+        # First, check if UID is in the Cycle 0 listing
+        if uid in self.cycle0_table['uid']:
+            cycle0id = self.cycle0_table[self.cycle0_table['uid'] == uid][0]
+            contents = [row['Files']
+                        for row in self._cycle0_tarfile_content
+                        if cycle0id in row['ID']]
+            return contents
+        else:
+            raise NotImplementedError("Cycle 1+ contents processing "
+                                      "not yet implemented")
+
+    @property
+    def _cycle0_tarfile_content(self):
+        """
+        In principle, this is a static file, but we'll retrieve it just in case
+        """
+        if not hasattr(self, '_cycle0_tarfile_content_table'):
+            url = os.path.join(self._get_dataarchive_url(),
+                               'alma-data/archive/cycle-0-tarfile-content')
+            response = self._request('GET', url, cache=True)
+            html_table = BeautifulSoup(response.content).find('table',
+                                                              class_='grid listing')
+            data = zip(*[(x.findAll('td')[0].text, x.findAll('td')[1].text)
+                         for x in html_table.findAll('tr')])
+            columns = [Column(data=data[0], name='ID'),
+                       Column(data=data[1], name='Files')]
+            tbl = Table(columns)
+        else:
+            tbl = self._cycle0_tarfile_content_table
+        return tbl
+
+    @property
+    def cycle0_table(self):
+        if not hasattr(self,'_cycle0_table'):
+
+            filename = os.path.join(os.path.dirname(__file__), 'data',
+                                    'cycle0_delivery_asdm_mapping.txt')
+            self._cycle0_table = Table.read(filename, format='ascii.no_header')
+            self._cycle0_table.rename('col1', 'ID')
+            self._cycle0_table.rename('col2', 'uid')
+        return self._cycle0_table
 
 Alma = AlmaClass()
 
