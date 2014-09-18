@@ -135,6 +135,7 @@ class AlmaClass(QueryWithLogin):
                 self.dataarchive_url = response.url.replace("/aq/","")
             else:
                 self.dataarchive_url = self.archive_url
+        return self.dataarchive_url
 
 
     def stage_data(self, uids, cache=False):
@@ -361,7 +362,7 @@ class AlmaClass(QueryWithLogin):
 
         # First, check if UID is in the Cycle 0 listing
         if uid in self.cycle0_table['uid']:
-            cycle0id = self.cycle0_table[self.cycle0_table['uid'] == uid][0]
+            cycle0id = self.cycle0_table[self.cycle0_table['uid'] == uid][0]['ID']
             contents = [row['Files']
                         for row in self._cycle0_tarfile_content
                         if cycle0id in row['ID']]
@@ -386,6 +387,7 @@ class AlmaClass(QueryWithLogin):
             columns = [Column(data=data[0], name='ID'),
                        Column(data=data[1], name='Files')]
             tbl = Table(columns)
+            self._cycle0_tarfile_content_table = tbl
         else:
             tbl = self._cycle0_tarfile_content_table
         return tbl
@@ -397,8 +399,8 @@ class AlmaClass(QueryWithLogin):
             filename = os.path.join(os.path.dirname(__file__), 'data',
                                     'cycle0_delivery_asdm_mapping.txt')
             self._cycle0_table = Table.read(filename, format='ascii.no_header')
-            self._cycle0_table.rename('col1', 'ID')
-            self._cycle0_table.rename('col2', 'uid')
+            self._cycle0_table.rename_column('col1', 'ID')
+            self._cycle0_table.rename_column('col2', 'uid')
         return self._cycle0_table
 
 Alma = AlmaClass()
