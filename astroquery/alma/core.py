@@ -317,14 +317,14 @@ class AlmaClass(QueryWithLogin):
             raise TypeError("Datasets must be given as a list of strings.")
 
         files = self.stage_data(uids, cache=cache)
-        file_urls = files['URLs']
-        totalsize = files['size'].sum()
+        file_urls = files['URL']
+        totalsize = files['size'].sum()*files['size'].unit
 
         #log.info("Determining download size for {0} files...".format(len(files)))
         #each_size,totalsize = self.data_size(files)
 
         log.info("Downloading files of size {0}...".format(totalsize.to(u.GB)))
-        downloaded_files = self.download_files(files, cache=cache)
+        downloaded_files = self.download_files(file_urls, cache=cache)
 
         return downloaded_files
 
