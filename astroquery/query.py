@@ -173,7 +173,7 @@ class BaseQuery(object):
     def _download_file(self, url, local_filepath, timeout=None, auth=None):
         """
         Download a file.  Resembles `astropy.utils.data.download_file` but uses
-        the local ``__session``
+        the local ``_session``
         """
         response = self._session.get(url, timeout=timeout, stream=True,
                                       auth=auth)
