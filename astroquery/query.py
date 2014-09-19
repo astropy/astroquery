@@ -18,6 +18,7 @@ __all__ = ['BaseQuery', 'QueryWithLogin']
 
 
 def to_cache(response, cache_file):
+    log.debug("Caching data to {0}".format(cache_file))
     with open(cache_file, "wb") as f:
         pickle.dump(response, f)
 
@@ -71,11 +72,9 @@ class AstroQuery(object):
 
     def request_file(self, cache_location):
         fn = os.path.join(cache_location, self.hash() + ".pickle")
-        log.debug("Request file is {0}".format(fn))
         return fn
 
     def from_cache(self, cache_location):
-        log.debug("Retrieving data from {0}".format(cache_location))
         request_file = self.request_file(cache_location)
         try:
             with open(request_file, "rb") as f:
@@ -84,6 +83,8 @@ class AstroQuery(object):
                 response = None
         except:
             response = None
+        if response:
+            log.debug("Retrieving data from {0}".format(request_file))
         return response
 
 
