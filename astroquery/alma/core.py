@@ -153,8 +153,9 @@ class AlmaClass(QueryWithLogin):
 
         Returns
         -------
-        data_file_urls : list
-            A list of the URLs that can be downloaded
+        data_file_table : Table
+            A table containing 3 columns: the UID, the file URL (for future
+            downloading), and the file size
         """
 
         log.info("Staging files...")
@@ -187,6 +188,7 @@ class AlmaClass(QueryWithLogin):
             response.raise_for_status()
 
         request_id = response.url.split("/")[-2]
+        assert len(request_id) == 36
         self._staging_log['request_id'] = request_id
         log.debug("Request ID: {0}".format(request_id))
 
@@ -197,20 +199,30 @@ class AlmaClass(QueryWithLogin):
         log.debug("Submission URL: {0}".format(submission_url))
         self._staging_log['submission_url'] = submission_url
         has_completed = False
-        while not has_completed:
-            time.sleep(1)
-            staging_submission = self._request('GET', submission_url, cache=cache)
-            if 'Please wait' not in staging_submission.content:
-                has_completed = True
-            print(".",end='')
+        staging_submission = self._request('GET', submission_url, cache=cache)
         self._staging_log['staging_submission'] = staging_submission
         staging_submission.raise_for_status()
-        staging_root = BeautifulSoup(staging_submission.content)
+
+        data_page_url = staging_submission.url
+        dpid = data_page_url.split("/")[-1]
+        assert len(dpid) == 9
+        self._staging_log['staging_page_id'] = dpid
+
+        while not has_completed:
+            time.sleep(1)
+            data_page = self._request('GET', data_page_url, cache=cache)
+            if 'Please wait' not in data_page.content:
+                has_completed = True
+            print(".",end='')
+        self._staging_log['data_page'] = data_page
+        data_page.raise_for_status()
+        staging_root = BeautifulSoup(data_page.content)
         downloadFileURL = staging_root.find('form').attrs['action']
         data_list_url = os.path.split(downloadFileURL)[0]
 
         # Old version, unreliable: data_list_url = staging_submission.url
         log.debug("Data list URL: {0}".format(data_list_url))
+        self._staging_log['data_list_url'] = data_list_url
 
         time.sleep(1)
         data_list_page = self._request('GET', data_list_url, cache=cache)
@@ -223,20 +235,36 @@ class AlmaClass(QueryWithLogin):
             errormessage = root.find('div', id='errorContent').string.strip()
             raise RemoteServiceError(errormessage)
 
+
         data_table = root.findAll('table', class_='list', id='report')[0]
-        hrefs = data_table.findAll('a')
+        columns = {'uids':[], 'URLs':[], 'size':[]}
+        for tr in data_table.findAll('tr'):
+            tds = tr.findAll('td')
+            if len(tds) > 1 and 'uid' in tds[1].text:
+                uid = tds[1].text.strip()
+            if len(tds) > 3 and tds[2].find('a'):
+                href = tds[2].find('a')
+                size,unit = re.search('([0-9\.]*)([A-Za-z]*)', tds[3].text).groups()
+                columns['uids'].append(uid)
+                columns['URLs'].append(href)
+                unit = (u.Unit(unit) if unit in ('GB','MB') 
+                        else u.Unit('kB') if 'kb' in unit.lower()
+                        else 1)
+                columns['size'].append(float(size)*u.Unit(unit))
 
-        data_file_urls = [a['href'] for a in hrefs
-                          if not a['href'].endswith('script')]
+        tbl = Table([Column(name=k, data=v) for k,v in columns.iteritems()])
 
-        return data_file_urls
+        return tbl
 
-    def data_size(self, files):
+    def _HEADER_data_size(self, files):
         """
         Given a list of file URLs, return the data size.  This is useful for
         assessing how much data you might be downloading!
+
+        (This is discouraged by the ALMA archive, as it puts unnecessary load
+        on their system)
         """
-        totalsize = 0
+        totalsize = 0*u.B
         data_sizes = {}
         pb = ProgressBar(len(files))
         for ii,fileLink in enumerate(files):
@@ -244,12 +272,12 @@ class AlmaClass(QueryWithLogin):
                                      cache=False, timeout=self.TIMEOUT)
             filesize = (int(response.headers['content-length'])*u.B).to(u.GB)
             totalsize += filesize
-            data_size[fileLink] = filesize
+            data_sizes[fileLink] = filesize
             log.debug("File {0}: size {1}".format(fileLink, filesize))
             pb.update(ii+1)
             response.raise_for_status()
 
-        return data_size,totalsize.to(u.GB)
+        return data_sizes,totalsize.to(u.GB)
 
     def download_files(self, files, cache=True):
         """
@@ -286,9 +314,11 @@ class AlmaClass(QueryWithLogin):
             raise TypeError("Datasets must be given as a list of strings.")
 
         files = self.stage_data(uids, cache=cache)
+        file_urls = files['URLs']
+        totalsize = files['size'].sum()
 
-        log.info("Determining download size for {0} files...".format(len(files)))
-        each_size,totalsize = self.data_size(files)
+        #log.info("Determining download size for {0} files...".format(len(files)))
+        #each_size,totalsize = self.data_size(files)
 
         log.info("Downloading files of size {0}...".format(totalsize.to(u.GB)))
         downloaded_files = self.download_files(files, cache=cache)
@@ -380,13 +410,14 @@ class AlmaClass(QueryWithLogin):
             url = os.path.join(self._get_dataarchive_url(),
                                'alma-data/archive/cycle-0-tarfile-content')
             response = self._request('GET', url, cache=True)
-            html_table = BeautifulSoup(response.content).find('table',
-                                                              class_='grid listing')
+            root = BeautifulSoup(response.content, 'html.parser')
+            html_table = root.find('table',class_='grid listing')
             data = zip(*[(x.findAll('td')[0].text, x.findAll('td')[1].text)
                          for x in html_table.findAll('tr')])
             columns = [Column(data=data[0], name='ID'),
                        Column(data=data[1], name='Files')]
             tbl = Table(columns)
+            assert len(tbl) == response.content.count('<tr') == 8497
             self._cycle0_tarfile_content_table = tbl
         else:
             tbl = self._cycle0_tarfile_content_table
