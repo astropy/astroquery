@@ -549,6 +549,7 @@ class EsoClass(QueryWithLogin):
                 fileLink = "http://dataportal.eso.org/dataPortal"+fileId.attrs['value'].split()[1]
                 filename = self._request("GET", fileLink, save=True)
                 files.append(system_tools.gunzip(filename))
+        self._session.redirect_cache.clear() # EMpty the redirect cache of this request session
         log.info("Done!")
         if (not return_list) and (len(files)==1):
             files = files[0]
