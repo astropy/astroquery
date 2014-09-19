@@ -139,11 +139,17 @@ extract the FITS file, then delete the tarball:
     >>> from astropy import units as u
     >>> orionkl = coordinates.SkyCoord('5:35:14.461 -5:21:54.41', frame='fk5', unit=(u.hour, u.deg))
     >>> result = Alma.query_region(orionkl, radius=0.034*u.deg)
-    >>> urls = Alma.stage_data(result['Asdm_uid'], cache=False)
+    >>> uid_url_table = Alma.stage_data(result['Asdm_uid'], cache=False)
     >>> # Extract the data with tarball file size < 1GB
-    >>> small_urls = urls[urls['size'] < 1]
+    >>> small_uid_url_table = uid_url_table[uid_url_table['size'] < 1]
     >>> # get the first 10 files...
-    >>> filelist = Alma.download_FITS_files(small_urls[:10]['URL'])
+    >>> filelist = Alma.download_and_extract_files(small_uid_url_table[:10]['URL'])
+
+You might want to look at the READMEs from a bunch of files so you know what kind of S/N to expect:
+
+.. code-block:: python
+
+    >>> filelist = Alma.download_and_extract_files(uid_url_table['URL'], regex='.*README$')
 
 
 Reference/API
