@@ -9,6 +9,7 @@ import warnings
 import keyring
 import numpy as np
 import re
+import tarfile
 from bs4 import BeautifulSoup
 
 from astropy.extern.six import BytesIO
@@ -237,7 +238,7 @@ class AlmaClass(QueryWithLogin):
 
 
         data_table = root.findAll('table', class_='list', id='report')[0]
-        columns = {'uids':[], 'URLs':[], 'size':[]}
+        columns = {'uid':[], 'URL':[], 'size':[]}
         for tr in data_table.findAll('tr'):
             tds = tr.findAll('td')
             if len(tds) > 1 and 'uid' in tds[1].text:
@@ -245,12 +246,14 @@ class AlmaClass(QueryWithLogin):
             if len(tds) > 3 and tds[2].find('a'):
                 href = tds[2].find('a')
                 size,unit = re.search('([0-9\.]*)([A-Za-z]*)', tds[3].text).groups()
-                columns['uids'].append(uid)
-                columns['URLs'].append(href)
+                columns['uid'].append(uid)
+                columns['URL'].append(href.attrs['href'])
                 unit = (u.Unit(unit) if unit in ('GB','MB') 
                         else u.Unit('kB') if 'kb' in unit.lower()
                         else 1)
                 columns['size'].append(float(size)*u.Unit(unit))
+
+        columns['size'] = u.Quantity(columns['size'], u.Gbyte)
 
         tbl = Table([Column(name=k, data=v) for k,v in columns.iteritems()])
 
@@ -385,7 +388,7 @@ class AlmaClass(QueryWithLogin):
             keyring.set_password("astroquery:asa.alma.cl", username, password)
         return authenticated
 
-    def get_uid_contents(self, uid):
+    def get_cycle0_uid_contents(self, uid):
         """
         List the file contents of a UID
         """
@@ -398,8 +401,8 @@ class AlmaClass(QueryWithLogin):
                         if cycle0id in row['ID']]
             return contents
         else:
-            raise NotImplementedError("Cycle 1+ contents processing "
-                                      "not yet implemented")
+            # http://almascience.eso.org/documents-and-tools/cycle-2/ALMAQA2Productsv1.01.pdf
+            raise ValueError("Not a Cycle 0 UID")
 
     @property
     def _cycle0_tarfile_content(self):
@@ -434,6 +437,96 @@ class AlmaClass(QueryWithLogin):
             self._cycle0_table.rename_column('col2', 'uid')
         return self._cycle0_table
 
+    def get_files_from_tarballs(self, downloaded_files, regex='.*\.fits$',
+                                path='cache_path', verbose=True):
+        """
+        Given a list of successfully downloaded tarballs, extract files
+        with names matching a specified regular expression.  The default
+        is to extract all FITS files
+
+        Parameters
+        ----------
+        downloaded_files : list
+            A list of downloaded files.  These should be paths on your local
+            machine.
+        regex : str
+            A valid regular expression
+        path : 'cache_path' or str
+            If 'cache_path', will use the astroquery.Alma cache directory
+            (``Alma.cache_location``), otherwise will use the specified path.
+            Note that the subdirectory structure of the tarball will be
+            maintained.
+
+        Returns
+        -------
+        filelist : list
+            A list of the extracted file locations on disk
+        """
+
+        if path == 'cache_path':
+            path = self.cache_location
+        elif not os.path.isdir(path):
+            raise OSError("Specified an invalid path {0}.".format(path))
+            
+
+        fitsre = re.compile(regex)
+
+        filelist = []
+
+        for fn in downloaded_files:
+            tf = tarfile.open(fn)
+            for member in tf.getmembers():
+                if fitsre.match(member.name):
+                    if verbose:
+                        log.info("Extracting {0} to {1}".format(member.name,
+                                                                path))
+                    tf.extract(member, path)
+                    filelist.append(os.path.join(path, member.name))
+
+        return filelist
+
+    def download_FITS_files(self, urls, delete=True, regex='.*\.fits$',
+                            path='cache_path', verbose=True):
+        """
+        Given a list of tarball URLs:
+
+            1. Download the tarball
+            2. Extract all FITS files
+            3. Delete the downloaded tarball
+
+        See ``Alma.get_files_from_tarballs`` for details
+        """
+        all_files = []
+        for url in urls:
+            if url[-4:] != '.tar':
+                raise ValueError("URLs should be links to tarballs.")
+
+            tarfile_name = os.path.split(url)[-1]
+            if tarfile_name in self._cycle0_tarfile_content['ID']:
+                # It is a cycle 0 file: need to check if it contains FITS
+                match = (self._cycle0_tarfile_content['ID'] == tarfile_name)
+                if not any(re.match(regex,x) for x in
+                           self._cycle0_tarfile_content['Files'][match]):
+                    log.info("No FITS files found in {0}".format(tarfile_name))
+                    continue
+            else:
+                if 'asdm' in tarfile_name:
+                    log.info("ASDM tarballs do not contain FITS files; skipping.")
+                    continue
+
+            tarball_name = self._request('GET', url, save=True,
+                                         timeout=self.TIMEOUT)
+            fitsfilelist = self.get_files_from_tarballs([tarball_name],
+                                                        regex=regex, path=path,
+                                                        verbose=verbose)
+
+            if delete:
+                log.info("Deleting {0}".format(tarball_name))
+                os.remove(tarball_name)
+
+            all_files += fitsfilelist
+        return all_files
+
 Alma = AlmaClass()
 
 def clean_uid(uid):
@@ -444,3 +537,9 @@ def clean_uid(uid):
         return uid.decode('utf-8').replace(u"/",u"_").replace(u":",u"_")
     except AttributeError:
         return uid.replace("/","_").replace(":","_")
+
+def reform_uid(uid):
+    """
+    Convert a uid with underscores to the original format
+    """
+    return uid[:3]+"://" + "/".join(uid[6:].split("_"))

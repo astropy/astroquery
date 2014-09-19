@@ -126,6 +126,23 @@ You can also do the downloading all in one step:
 
    >>> myAlma.retrieve_data_from_uid(uids[0])
 
+Downloading FITS data
+=====================
+
+If you want just the QA2-produced FITS files, you can download the tarball,
+extract the FITS file, then delete the tarball:
+
+.. code-block:: python
+
+    >>> from astroquery.alma.core import Alma
+    >>> result = Alma.query_region(coordinates.SkyCoord('5:35:14.461 -5:21:54.41', frame='fk5', unit=(u.hour, u.deg)), radius=0.034*u.deg)
+    >>> urls = Alma.stage_data(result['Asdm_uid'], cache=False)
+    >>> # Extract the data with tarball file size < 1GB
+    >>> small_urls = urls[urls['size'] < 1]
+    >>> # get the first 10 files...
+    >>> filelist = Alma.download_FITS_files(small_urls[:10]['URL'])
+
+
 Reference/API
 =============
 
