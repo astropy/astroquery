@@ -79,3 +79,15 @@ class TestVizierRemote(object):
         assert len(result) >= 5
         assert 'I/239/hip_main' in result.keys()
         assert result['I/239/hip_main']['HIP'] == 98298
+
+    def test_findcatalog_maxcatalog(self):
+        V = Vizier()
+        cats = Vizier.find_catalogs('eclipsing binary', max_catalogs=5000)
+        assert len(cats) >= 468
+
+        with pytest.raises(ValueError) as exc:
+            Vizier.find_catalogs('eclipsing binary')
+        assert str(exc.value)==("Maximum number of catalogs exceeded."
+                                "  Try setting max_catalogs "
+                                "to a large number and try again")
+            
