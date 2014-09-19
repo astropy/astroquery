@@ -485,13 +485,13 @@ class AlmaClass(QueryWithLogin):
 
         return filelist
 
-    def download_FITS_files(self, urls, delete=True, regex='.*\.fits$',
+    def download_and_extract_files(self, urls, delete=True, regex='.*\.fits$',
                             path='cache_path', verbose=True):
         """
         Given a list of tarball URLs:
 
             1. Download the tarball
-            2. Extract all FITS files
+            2. Extract all FITS files (or whatever matches the regex)
             3. Delete the downloaded tarball
 
         See ``Alma.get_files_from_tarballs`` for details
