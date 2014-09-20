@@ -12,7 +12,7 @@ import re
 import tarfile
 from bs4 import BeautifulSoup
 
-from astropy.extern.six import BytesIO
+from astropy.extern.six import BytesIO,iteritems
 from astropy.extern import six
 from astropy.table import Table, Column
 from astropy import log
@@ -212,7 +212,7 @@ class AlmaClass(QueryWithLogin):
         while not has_completed:
             time.sleep(1)
             data_page = self._request('GET', data_page_url, cache=cache)
-            if 'Please wait' not in data_page.content:
+            if 'Please wait' not in data_page.text:
                 has_completed = True
             print(".",end='')
         self._staging_log['data_page'] = data_page
@@ -232,7 +232,7 @@ class AlmaClass(QueryWithLogin):
 
         root = BeautifulSoup(data_list_page.content, 'html5lib')
 
-        if 'Error' in data_list_page.content:
+        if 'Error' in data_list_page.text:
             errormessage = root.find('div', id='errorContent').string.strip()
             raise RemoteServiceError(errormessage)
 
@@ -255,7 +255,7 @@ class AlmaClass(QueryWithLogin):
 
         columns['size'] = u.Quantity(columns['size'], u.Gbyte)
 
-        tbl = Table([Column(name=k, data=v) for k,v in columns.iteritems()])
+        tbl = Table([Column(name=k, data=v) for k,v in iteritems(columns)])
 
         return tbl
 
