@@ -18,6 +18,7 @@ __all__ = ['BaseQuery', 'QueryWithLogin']
 
 
 def to_cache(response, cache_file):
+    log.debug("Caching data to {0}".format(cache_file))
     with open(cache_file, "wb") as f:
         pickle.dump(response, f)
 
@@ -71,11 +72,9 @@ class AstroQuery(object):
 
     def request_file(self, cache_location):
         fn = os.path.join(cache_location, self.hash() + ".pickle")
-        log.debug("Request file is {0}".format(fn))
         return fn
 
     def from_cache(self, cache_location):
-        log.debug("Retrieving data from {0}".format(cache_location))
         request_file = self.request_file(cache_location)
         try:
             with open(request_file, "rb") as f:
@@ -84,6 +83,8 @@ class AstroQuery(object):
                 response = None
         except:
             response = None
+        if response:
+            log.debug("Retrieving data from {0}".format(request_file))
         return response
 
 
@@ -95,7 +96,7 @@ class BaseQuery(object):
     """
 
     def __init__(self):
-        self.__session = requests.session()
+        self._session = requests.session()
         self.cache_location = os.path.join(paths.get_cache_dir(), 'astroquery',
                                            self.__class__.__name__.split("Class")[0])
         if not os.path.exists(self.cache_location):
@@ -157,12 +158,12 @@ class BaseQuery(object):
             if ((self.cache_location is None) or (not self._cache_active) or
                 (not cache)):
                 with suspend_cache(self):
-                    response = query.request(self.__session, stream=stream,
+                    response = query.request(self._session, stream=stream,
                                              auth=auth)
             else:
                 response = query.from_cache(self.cache_location)
                 if not response:
-                    response = query.request(self.__session,
+                    response = query.request(self._session,
                                              self.cache_location,
                                              stream=stream,
                                              auth=auth)
@@ -172,9 +173,9 @@ class BaseQuery(object):
     def _download_file(self, url, local_filepath, timeout=None, auth=None):
         """
         Download a file.  Resembles `astropy.utils.data.download_file` but uses
-        the local ``__session``
+        the local ``_session``
         """
-        response = self.__session.get(url, timeout=timeout, stream=True,
+        response = self._session.get(url, timeout=timeout, stream=True,
                                       auth=auth)
         if 'content-length' in response.headers:
             length = int(response.headers['content-length'])

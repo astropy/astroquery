@@ -112,3 +112,10 @@ class TestEso:
         result = eso.retrieve_data("MIDI.2014-07-25T02:03:11.561")
         assert len(result)>0
         assert "MIDI.2014-07-25T02:03:11.561" in result[0]
+
+    @pytest.mark.skipif('not Eso.USERNAME')
+    def test_retrieve_data_twice(self):
+        eso = Eso()
+        eso.login()
+        result1 = eso.retrieve_data("MIDI.2014-07-25T02:03:11.561")
+        result2 = eso.retrieve_data("AMBER.2006-03-14T07:40:19.830")
