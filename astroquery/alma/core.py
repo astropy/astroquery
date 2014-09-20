@@ -171,7 +171,7 @@ class AlmaClass(QueryWithLogin):
         log.debug("First request payload: {0}".format(payload))
 
         self._staging_log = {}
-        
+
         # Request staging for the UIDs
         response = self._request('POST', url, data=payload,
                                  timeout=self.TIMEOUT, cache=cache)
@@ -248,7 +248,7 @@ class AlmaClass(QueryWithLogin):
                 size,unit = re.search('([0-9\.]*)([A-Za-z]*)', tds[3].text).groups()
                 columns['uid'].append(uid)
                 columns['URL'].append(href.attrs['href'])
-                unit = (u.Unit(unit) if unit in ('GB','MB') 
+                unit = (u.Unit(unit) if unit in ('GB','MB')
                         else u.Unit('kB') if 'kb' in unit.lower()
                         else 1)
                 columns['size'].append(float(size)*u.Unit(unit))
@@ -285,9 +285,12 @@ class AlmaClass(QueryWithLogin):
     def download_files(self, files, cache=True):
         """
         Given a list of file URLs, download them
+
+        Note: Given a list with repeated URLs, each will only be downloaded
+        once, so the return may have a different length than the input list
         """
         downloaded_files = []
-        for fileLink in files:
+        for fileLink in unique(files):
             filename = self._request("GET", fileLink, save=True,
                                      timeout=self.TIMEOUT)
             downloaded_files.append(filename)
@@ -324,7 +327,8 @@ class AlmaClass(QueryWithLogin):
         #each_size,totalsize = self.data_size(files)
 
         log.info("Downloading files of size {0}...".format(totalsize.to(u.GB)))
-        downloaded_files = self.download_files(file_urls, cache=cache)
+        # TODO: Add cache=cache keyword here.  Currently would have no effect.
+        downloaded_files = self.download_files(file_urls)
 
         return downloaded_files
 
@@ -566,3 +570,11 @@ def reform_uid(uid):
     Convert a uid with underscores to the original format
     """
     return uid[:3]+"://" + "/".join(uid[6:].split("_"))
+
+def unique(seq):
+    """
+    Return unique elements of a list, preserving order
+    """
+    seen = set()
+    seen_add = seen.add
+    return [x for x in seq if not (x in seen or seen_add(x))]
