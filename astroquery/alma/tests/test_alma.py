@@ -10,7 +10,7 @@ DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
 def data_path(filename):
     return os.path.join(DATA_DIR, filename)
 
-DATA_FILES = {'GET': {'http://almascience.org/aq/search.votable':
+DATA_FILES = {'GET': {'http://almascience.eso.org/aq/search.votable':
                       {'Sgr A*':'sgra_query.xml',
                        'NGC4945':'ngc4945.xml'},
                       'https://almascience.eso.org/rh/requests/anonymous/519752156':
@@ -67,6 +67,7 @@ def test_SgrAstar(monkeypatch):
 
     monkeypatch.setattr(Alma, '_get_dataarchive_url', _get_dataarchive_url)
     alma = Alma()
+    monkeypatch.setattr(alma, '_get_dataarchive_url', _get_dataarchive_url)
 
     # monkeypatch instructions from https://pytest.org/latest/monkeypatch.html
     monkeypatch.setattr(alma, '_request', alma_request)
