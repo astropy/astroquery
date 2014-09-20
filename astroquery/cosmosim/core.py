@@ -12,7 +12,7 @@ from six.moves.email_mime_multipart import MIMEMultipart
 from six.moves.email_mime_base import MIMEBase
 from six.moves.email_mime_text import MIMEText
 from six.moves.email_mime_base import message
-import ipdb
+
 # Astropy imports
 from astropy.table import Table
 import astropy.units as u
@@ -295,16 +295,47 @@ class CosmoSimClass(QueryWithLogin):
                 self.job_dict['{}'.format(i.get('xlink:href').split('/')[-1])] = i_phase
             else:
                 self.job_dict['{}'.format(i.get('id'))] = i_phase
+
+        if phase:
+            phase = [phase[i].upper() for i in range(len(phase))]
         
         if regex:
             pattern = re.compile("{}".format(regex))
-            groups = [pattern.match(self.table_dict.values()[i]).group() for i in range(len(self.table_dict.values()))]
-            matching_tables = [groups[i] for i in range(len(groups)) if groups[i] in self.table_dict.values()]
+            try:
+                groups = [pattern.match(self.table_dict.values()[i]).group()
+                          for i in range(len(self.table_dict.values()))
+                          if pattern.match(self.table_dict.values()[i]) is not None]
+                matching_tables = [groups[i]
+                                   for i in range(len(groups))
+                                   if groups[i] in self.table_dict.values()]
+            except AttributeError:
+                print('No tables matching the regular expression `{}` were found.'.format(regex))
+                matching_tables = self.table_dict.values()
+            
+            if phase:
+                if "COMPLETED" not in phase:
+                    print("No jobs found with phase `{}` matching the regular expression `{}` were found.".format(phase,regex))
+                    print("Matching regular expression `{}` to all jobs with phase `COMPLETED` instead (unsorted):".format(regex))
+                else:
+                    matching_tables = [[self.table_dict[i]
+                                            for i in self.table_dict.keys()
+                                            if self.table_dict[i] == miter
+                                            and self.job_dict[i] in phase
+                                            ][0]
+                                            for miter in matching_tables]
             self._existing_tables() # creates a fresh up-to-date table_dict
 
+        self._starttime_dict()
+
+        if not sortby:
+            if regex:
+                matching = zip(*[[(i,self.job_dict[i],self.starttime_dict[i])
+                                for i in self.table_dict.keys()
+                                if self.table_dict[i] == miter][0]
+                                for miter in matching_tables])
+                matching_jobids,matching_phases,matching_starttimes = (matching[0],matching[1],matching[2])
         if sortby:
             if sortby.upper() == "TABLENAME":
-                self._starttime_dict()
                 if not 'matching_tables' in locals():
                     matching_tables = sorted(self.table_dict.values())
                 else:
@@ -316,7 +347,6 @@ class CosmoSimClass(QueryWithLogin):
                 matching_jobids,matching_phases,matching_starttimes = (matching[0],matching[1],matching[2])
                 
             elif sortby.upper() == 'STARTTIME':
-                self._starttime_dict()
                 if not 'matching_tables' in locals():
                     matching_starttimes = sorted(self.starttime_dict.values())
                     matching = zip(*[[(i,self.job_dict[i],self.table_dict[i])
@@ -508,7 +538,6 @@ class CosmoSimClass(QueryWithLogin):
                 self.response_dict_current[jobid] = self._generate_response_dict(response_list[0])
         
         if output is True:
-            ipdb.set_trace()
             dictkeys = self.response_dict_current.keys()
             print(self.response_dict_current[dictkeys[0]]['content'])
             return 
