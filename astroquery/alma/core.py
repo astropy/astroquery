@@ -390,7 +390,11 @@ class AlmaClass(QueryWithLogin):
 
     def get_cycle0_uid_contents(self, uid):
         """
-        List the file contents of a UID
+        List the file contents of a UID from Cycle 0.  Will raise an error
+        if the UID is from cycle 1+, since those data have been released in a
+        different and more consistent format.
+        See http://almascience.org/documents-and-tools/cycle-2/ALMAQA2Productsv1.01.pdf
+        for details.
         """
 
         # First, check if UID is in the Cycle 0 listing
@@ -401,8 +405,10 @@ class AlmaClass(QueryWithLogin):
                         if cycle0id in row['ID']]
             return contents
         else:
-            # http://almascience.eso.org/documents-and-tools/cycle-2/ALMAQA2Productsv1.01.pdf
-            raise ValueError("Not a Cycle 0 UID")
+            info_url = os.path.join(self._get_dataarchive_url(),
+                                    'documents-and-tools/cycle-2/ALMAQA2Productsv1.01.pdf')
+            raise ValueError("Not a Cycle 0 UID.  See {0} for details about"
+                             " cycle 1+ data release formats.".format(info_url))
 
     @property
     def _cycle0_tarfile_content(self):
@@ -413,6 +419,9 @@ class AlmaClass(QueryWithLogin):
             url = os.path.join(self._get_dataarchive_url(),
                                'alma-data/archive/cycle-0-tarfile-content')
             response = self._request('GET', url, cache=True)
+
+            # html.parser is needed because some <tr>'s have form:
+            # <tr width="blah"> which the default parser does not pick up
             root = BeautifulSoup(response.content, 'html.parser')
             html_table = root.find('table',class_='grid listing')
             data = zip(*[(x.findAll('td')[0].text, x.findAll('td')[1].text)
@@ -428,8 +437,13 @@ class AlmaClass(QueryWithLogin):
 
     @property
     def cycle0_table(self):
-        if not hasattr(self,'_cycle0_table'):
+        """
+        Return a table of Cycle 0 Project IDs and associated UIDs.
 
+        The table is distributed with astroquery and was provided by Felix
+        Stoehr.
+        """
+        if not hasattr(self,'_cycle0_table'):
             filename = os.path.join(os.path.dirname(__file__), 'data',
                                     'cycle0_delivery_asdm_mapping.txt')
             self._cycle0_table = Table.read(filename, format='ascii.no_header')
@@ -467,7 +481,6 @@ class AlmaClass(QueryWithLogin):
             path = self.cache_location
         elif not os.path.isdir(path):
             raise OSError("Specified an invalid path {0}.".format(path))
-            
 
         fitsre = re.compile(regex)
 
