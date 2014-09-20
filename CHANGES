@@ -13,6 +13,7 @@
   Finally, automatic login is now used by ``retrieve_data()``, if configured. (#420, #427)
 - Bugfix for UKIDSS: Login now uses the correct session to retrieve the data
   (#425)
+- ALMA - many new features, including selective file retrieval (#433)
 
 0.2.2 (2014-09-10)
 ------------------

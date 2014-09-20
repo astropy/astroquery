@@ -67,6 +67,13 @@ class TestAlma:
         totalsize = alma.data_size(link_list)
         assert totalsize.to(u.GB).value > 1
 
+    def test_query(self, temp_dir):
+        alma = Alma()
+        alma.cache_location = temp_dir
+
+        result = alma.query(payload={'start_date-asu':'<11-11,2011'})
+        assert len(result) == 621
+
     def test_cycle1(self):
 
         target = 'NGC4945'
