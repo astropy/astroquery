@@ -260,7 +260,9 @@ class CosmoSim(QueryWithLogin):
             
         frame = sys._getframe(1)
         do_not_print_job_dict = ['completed_job_info','general_job_info','delete_all_jobs',
-                                 '_existing_tables','delete_job','download'] # list of methods which use check_all_jobs() for which I would not like job_dict to be printed to the terminal
+                                 '_existing_tables','delete_job','download'] # list of methods which use check_all_jobs()
+                                                                             # for which I would not like job_dict to be
+                                                                             # printed to the terminal
         if frame.f_code.co_name in do_not_print_job_dict: 
             return checkalljobs
         else:
@@ -272,7 +274,9 @@ class CosmoSim(QueryWithLogin):
                     for i in self.job_dict.keys():
                         if i in self.table_dict.keys():
                             if self.table_dict[i] in matching_tables:
-                                print("{} : {} (Table: {})".format(i,self.job_dict[i],self.table_dict[i]))
+                                print("{} : {} (Table: {})".format(i,
+                                                                   self.job_dict[i],
+                                                                   self.table_dict[i]))
             elif phase:
                 phase = [phase[i].upper() for i in range(len(phase))]
                 if not regex:
@@ -284,7 +288,9 @@ class CosmoSim(QueryWithLogin):
                         if self.job_dict[i] in phase:
                             if i in self.table_dict.keys():
                                 if self.table_dict[i] in matching_tables:
-                                    print("{} : {} (Table: {})".format(i,self.job_dict[i],self.table_dict[i]))
+                                    print("{} : {} (Table: {})".format(i,
+                                                                       self.job_dict[i],
+                                                                       self.table_dict[i]))
             return checkalljobs
 
     def completed_job_info(self,jobid=None,output=False):
@@ -309,11 +315,16 @@ class CosmoSim(QueryWithLogin):
         self.check_all_jobs()
         
         if jobid is None:
-            completed_jobids = [key for key in self.job_dict.keys() if self.job_dict[key] == 'COMPLETED']
-            response_list = [self.session.get(CosmoSim.QUERY_URL+"/{}".format(completed_jobids[i]),auth=(self.username,self.password)) for i in range(len(completed_jobids))]
+            completed_jobids = [key
+                                for key in self.job_dict.keys()
+                                if self.job_dict[key] == 'COMPLETED']
+            response_list = [self.session.get(CosmoSim.QUERY_URL+"/{}".format(completed_jobids[i]),
+                                              auth=(self.username,self.password))
+                                              for i in range(len(completed_jobids))]
         else:
             if self.job_dict[jobid] == 'COMPLETED':
-                response_list = [self.session.get(CosmoSim.QUERY_URL+"/{}".format(jobid),auth=(self.username,self.password))]
+                response_list = [self.session.get(CosmoSim.QUERY_URL+"/{}".format(jobid),
+                                                  auth=(self.username,self.password))]
             else:
                 logging.warning("JobID must refer to a query with a phase of 'COMPLETED'.")
                 return
