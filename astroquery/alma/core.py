@@ -109,7 +109,8 @@ class AlmaClass(QueryWithLogin):
         science : bool
             Return only data marked as "science" in the archive?
         """
-        url = os.path.join(self.archive_url, 'aq', 'search.votable')
+
+        url = os.path.join(self._get_dataarchive_url(), 'aq', 'search.votable')
 
         payload.update({'viewFormat':'raw',
                         'download':'true',})
@@ -428,12 +429,12 @@ class AlmaClass(QueryWithLogin):
             # <tr width="blah"> which the default parser does not pick up
             root = BeautifulSoup(response.content, 'html.parser')
             html_table = root.find('table',class_='grid listing')
-            data = zip(*[(x.findAll('td')[0].text, x.findAll('td')[1].text)
-                         for x in html_table.findAll('tr')])
+            data = list(zip(*[(x.findAll('td')[0].text, x.findAll('td')[1].text)
+                              for x in html_table.findAll('tr')]))
             columns = [Column(data=data[0], name='ID'),
                        Column(data=data[1], name='Files')]
             tbl = Table(columns)
-            assert len(tbl) == response.content.count('<tr') == 8497
+            assert len(tbl) == response.text.count('<tr') == 8497
             self._cycle0_tarfile_content_table = tbl
         else:
             tbl = self._cycle0_tarfile_content_table

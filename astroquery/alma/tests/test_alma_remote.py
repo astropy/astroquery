@@ -64,18 +64,18 @@ class TestAlma:
         assert b'uid://A002/X3b3400/X90f' in uids
 
         link_list = alma.stage_data(uids[0:2])
-        totalsize = alma.data_size(link_list)
+        totalsize = link_list['size'].sum() * u.Unit(link_list['size'].unit)
         assert totalsize.to(u.GB).value > 1
 
     def test_query(self, temp_dir):
         alma = Alma()
         alma.cache_location = temp_dir
 
-        result = alma.query(payload={'start_date-asu':'<11-11,2011'})
+        result = alma.query(payload={'start_date-asu':'<11-11-2011'})
         assert len(result) == 621
 
     @pytest.mark.bigdata
-    def test_cycle1(self):
+    def test_cycle1(self, temp_dir):
         # About 500 MB
         alma = Alma()
         alma.cache_location = temp_dir
@@ -95,7 +95,7 @@ class TestAlma:
 
         assert len(data) == 6
 
-    def test_cycle0(self):
+    def test_cycle0(self, temp_dir):
         # About 20 MB
 
         alma = Alma()
