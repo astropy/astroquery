@@ -527,8 +527,12 @@ class CosmoSimClass(QueryWithLogin):
         if output is True:
             dictkeys = self.response_dict_current.keys()
             if len(dictkeys) > 1:
-                for i in self.response_dict_current.keys():
-                    print("{} : COMPLETED".format(i))
+                keys = [i for i in self.response_dict_current.keys()]
+                phases = [self.job_dict[key] for key in keys]
+                t = Table()
+                t['JobID'] = keys
+                t['Phase'] = phases
+                t.pprint()
                 print("Use specific jobid to get more information, or explore `self.response_dict_current`.")
             elif len(dictkeys) == 1:
                     print(self.response_dict_current[dictkeys[0]]['content'])
