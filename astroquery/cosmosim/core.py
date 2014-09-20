@@ -12,7 +12,7 @@ from six.moves.email_mime_multipart import MIMEMultipart
 from six.moves.email_mime_base import MIMEBase
 from six.moves.email_mime_text import MIMEText
 from six.moves.email_mime_base import message
-import ipdb
+
 # Astropy imports
 from astropy.table import Table
 import astropy.units as u
@@ -295,16 +295,47 @@ class CosmoSimClass(QueryWithLogin):
                 self.job_dict['{}'.format(i.get('xlink:href').split('/')[-1])] = i_phase
             else:
                 self.job_dict['{}'.format(i.get('id'))] = i_phase
+
+        if phase:
+            phase = [phase[i].upper() for i in range(len(phase))]
         
         if regex:
             pattern = re.compile("{}".format(regex))
-            groups = [pattern.match(self.table_dict.values()[i]).group() for i in range(len(self.table_dict.values()))]
-            matching_tables = [groups[i] for i in range(len(groups)) if groups[i] in self.table_dict.values()]
+            try:
+                groups = [pattern.match(self.table_dict.values()[i]).group()
+                          for i in range(len(self.table_dict.values()))
+                          if pattern.match(self.table_dict.values()[i]) is not None]
+                matching_tables = [groups[i]
+                                   for i in range(len(groups))
+                                   if groups[i] in self.table_dict.values()]
+            except AttributeError:
+                print('No tables matching the regular expression `{}` were found.'.format(regex))
+                matching_tables = self.table_dict.values()
+            
+            if phase:
+                if "COMPLETED" not in phase:
+                    print("No jobs found with phase `{}` matching the regular expression `{}` were found.".format(phase,regex))
+                    print("Matching regular expression `{}` to all jobs with phase `COMPLETED` instead (unsorted):".format(regex))
+                else:
+                    matching_tables = [[self.table_dict[i]
+                                            for i in self.table_dict.keys()
+                                            if self.table_dict[i] == miter
+                                            and self.job_dict[i] in phase
+                                            ][0]
+                                            for miter in matching_tables]
             self._existing_tables() # creates a fresh up-to-date table_dict
 
+        self._starttime_dict()
+
+        if not sortby:
+            if regex:
+                matching = zip(*[[(i,self.job_dict[i],self.starttime_dict[i])
+                                for i in self.table_dict.keys()
+                                if self.table_dict[i] == miter][0]
+                                for miter in matching_tables])
+                matching_jobids,matching_phases,matching_starttimes = (matching[0],matching[1],matching[2])
         if sortby:
             if sortby.upper() == "TABLENAME":
-                self._starttime_dict()
                 if not 'matching_tables' in locals():
                     matching_tables = sorted(self.table_dict.values())
                 else:
@@ -316,7 +347,6 @@ class CosmoSimClass(QueryWithLogin):
                 matching_jobids,matching_phases,matching_starttimes = (matching[0],matching[1],matching[2])
                 
             elif sortby.upper() == 'STARTTIME':
-                self._starttime_dict()
                 if not 'matching_tables' in locals():
                     matching_starttimes = sorted(self.starttime_dict.values())
                     matching = zip(*[[(i,self.job_dict[i],self.table_dict[i])
@@ -365,24 +395,92 @@ class CosmoSimClass(QueryWithLogin):
                         t.pprint()
                            
             elif not phase and regex:
-                tmp = [print("{} : {} (Table: {})".format(i,self.job_dict[i],self.table_dict[i]))
-                       if i in self.table_dict.keys()
-                       and self.table_dict[i] in matching_tables
-                       else ""
-                       for i in self.job_dict.keys()]
+                t = Table()
+                if sortby:
+                    if sortby.upper() == 'STARTTIME':
+                        t['Starttime'] = matching_starttimes
+                        t['Tablename'] = matching_tables
+                    if sortby.upper() == 'TABLENAME':
+                        t['Tablename'] = matching_tables
+                        t['Starttime'] = matching_starttimes
+                if not sortby:
+                    t['Tablename'] = matching_tables
+                    t['Starttime'] = matching_starttimes
+                t['JobID'] = matching_jobids
+                t['Phase'] = matching_phases
+                t.pprint()
+
+                    
             if phase and not regex:
-                phase = [phase[i].upper() for i in range(len(phase))]
-                tmp = [print("{} : {}".format(i,self.job_dict[i]))
-                       for i in self.job_dict.keys()
-                       if self.job_dict[i] in phase]
+                if len(phase) == 1 and "COMPLETED" in phase:
+                    if not sortby:
+                        matching_jobids = [key
+                                           for key in self.job_dict.keys()
+                                           if self.job_dict[key] in phase]
+                        matching = zip(*[[(self.table_dict[i],self.job_dict[i],self.starttime_dict[i])
+                                for i in self.table_dict.keys()
+                                if i == miter][0]
+                                for miter in matching_jobids])
+                        matching_tables,matching_phases,matching_starttimes = (matching[0],matching[1],matching[2])
+                        t = Table()
+                        t['JobID'] = matching_jobids
+                        t['Phase'] = matching_phases
+                        t['Tablename'] = matching_tables
+                        t['Starttime'] = matching_starttimes
+                        t.pprint()
+                    if sortby:
+                        if sortby.upper() == 'TABLENAME':
+                            t = Table()
+                            t['Tablename'] = matching_tables
+                            t['Starttime'] = matching_starttimes
+                            t['JobID'] = matching_jobids
+                            t['Phase'] = matching_phases
+                            t.pprint()
+                        if sortby.upper() == 'STARTTIME':
+                            t = Table()
+                            t['Starttime'] = matching_starttimes
+                            t['Tablename'] = matching_tables
+                            t['JobID'] = matching_jobids
+                            t['Phase'] = matching_phases
+                            t.pprint()
+                else:
+                    if sortby:
+                        print('Sorting can only be applied to jobs with phase `COMPLETED`.')
+                    if not sortby:
+                        matching_jobids = [key
+                                           for key in self.job_dict.keys()
+                                           if self.job_dict[key] in phase]
+                        matching_phases = [self.job_dict[key]
+                                           for key in self.job_dict.keys()
+                                           if self.job_dict[key] in phase]
+                        t = Table()
+                        t['JobID'] = matching_jobids
+                        t['Phase'] = matching_phases
+                        t.pprint()
+                
             if phase and regex:
-                phase = [phase[i].upper() for i in range(len(phase))]
-                tmp = [print("{} : {} (Table: {})".format(i,self.job_dict[i],self.table_dict[i]))
-                       if self.job_dict[i] in phase
-                       and i in self.table_dict.keys()
-                       and self.table_dict[i] in matching_tables
-                       else ""
-                       for i in self.job_dict.keys()]
+                if not sortby:
+                    t = Table()
+                    t['Tablename'] = matching_tables
+                    t['Starttime'] = matching_starttimes
+                    t['JobID'] = matching_jobids
+                    t['Phase'] = matching_phases
+                    t.pprint()
+                else:
+                    if sortby.upper() == 'TABLENAME':
+                        t = Table()
+                        t['Tablename'] = matching_tables
+                        t['Starttime'] = matching_starttimes
+                        t['JobID'] = matching_jobids
+                        t['Phase'] = matching_phases
+                        t.pprint()
+                    if sortby.upper() == 'STARTTIME':
+                        t = Table()
+                        t['Starttime'] = matching_starttimes
+                        t['Tablename'] = matching_tables
+                        t['JobID'] = matching_jobids
+                        t['Phase'] = matching_phases
+                        t.pprint()
                 
             return checkalljobs    
 
@@ -529,7 +627,6 @@ class CosmoSimClass(QueryWithLogin):
                 self.response_dict_current[jobid] = self._generate_response_dict(response_list[0])
         
         if output is True:
-            ipdb.set_trace()
             dictkeys = self.response_dict_current.keys()
             print(self.response_dict_current[dictkeys[0]]['content'])
             return 
