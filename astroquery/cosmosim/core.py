@@ -12,7 +12,7 @@ from six.moves.email_mime_multipart import MIMEMultipart
 from six.moves.email_mime_base import MIMEBase
 from six.moves.email_mime_text import MIMEText
 from six.moves.email_mime_base import message
-
+import ipdb
 # Astropy imports
 from astropy.table import Table
 import astropy.units as u
@@ -258,8 +258,8 @@ class CosmoSimClass(QueryWithLogin):
                                  data={'print':'b'},cache=False)
         logging.info("Job {}: {}".format(jobid,response.content))
         return response.content
-
-    def check_all_jobs(self, phase=None, regex=None):
+    
+    def check_all_jobs(self, phase=None, regex=None, sortby=None):
         """
         Public function which builds a dictionary whose keys are each jobid for a
         given set of user credentials and whose values are the phase status (e.g. -
@@ -270,7 +270,11 @@ class CosmoSimClass(QueryWithLogin):
         phase : list
             A list of phase(s) of jobs to be checked on. If nothing provided, all are checked.
         regex : string
-            A regular expression to match all tablenames to. Matching table names will be deleted.
+            A regular expression to match all tablenames to. Matching table names will be included.
+            Note - Only tables/starttimes are associated with jobs which have phase COMPLETED.
+        sortby : string
+            An option to sort jobs (after phase and regex criteria have been taken into account)
+            by either the execution start time (`starttime`), or by the table name ('tablename').
 
         Returns
         -------
@@ -297,6 +301,40 @@ class CosmoSimClass(QueryWithLogin):
             groups = [pattern.match(self.table_dict.values()[i]).group() for i in range(len(self.table_dict.values()))]
             matching_tables = [groups[i] for i in range(len(groups)) if groups[i] in self.table_dict.values()]
             self._existing_tables() # creates a fresh up-to-date table_dict
+
+        if sortby:
+            if sortby.upper() == "TABLENAME":
+                self._starttime_dict()
+                if not 'matching_tables' in locals():
+                    matching_tables = sorted(self.table_dict.values())
+                else:
+                    matching_tables = sorted(matching_tables)
+                matching = zip(*[[(i,self.job_dict[i],self.starttime_dict[i])
+                                for i in self.table_dict.keys()
+                                if self.table_dict[i] == miter][0]
+                                for miter in matching_tables])
+                matching_jobids,matching_phases,matching_starttimes = (matching[0],matching[1],matching[2])
+                
+            elif sortby.upper() == 'STARTTIME':
+                self._starttime_dict()
+                if not 'matching_tables' in locals():
+                    matching_starttimes = sorted(self.starttime_dict.values())
+                    matching = zip(*[[(i,self.job_dict[i],self.table_dict[i])
+                                    for i in self.starttime_dict.keys()
+                                    if self.starttime_dict[i] == miter][0]
+                                    for miter in matching_starttimes])
+                    matching_jobids,matching_phases,matching_tables = (matching[0],matching[1],matching[2])
+                else:
+                    matching_tables = matching_tables
+                    matching_starttimes = [[self.starttime_dict[i]
+                                for i in self.table_dict.keys()
+                                if self.table_dict[i] == miter][0]
+                                for miter in matching_tables]
+                    matching = zip(*[[(i,self.job_dict[i],self.table_dict[i])
+                                    for i in self.starttime_dict.keys()
+                                    if self.starttime_dict[i] == miter][0]
+                                    for miter in matching_starttimes])
+                    matching_jobids,matching_phases,matching_tables = (matching[0],matching[1],matching[2])
             
         frame = sys._getframe(1)
         do_not_print_job_dict = ['completed_job_info','general_job_info','delete_all_jobs',
@@ -304,34 +342,57 @@ class CosmoSimClass(QueryWithLogin):
         if frame.f_code.co_name in do_not_print_job_dict: 
             return checkalljobs
         else:
-            if not phase:
-                if not regex:
-                    for i in self.job_dict.keys():
-                        print("{} : {}".format(i,self.job_dict[i]))
-                if regex:
-                    for i in self.job_dict.keys():
-                        if i in self.table_dict.keys():
-                            if self.table_dict[i] in matching_tables:
-                                print("{} : {} (Table: {})".format(i,self.job_dict[i],self.table_dict[i]))
-            elif phase:
+            if not phase and not regex:
+                if not sortby:
+                    t = Table()
+                    t['JobID'] = self.job_dict.keys()
+                    t['Phase'] = self.job_dict.values()
+                    t.pprint()
+                else:
+                    if sortby.upper() == 'TABLENAME':
+                        t = Table()
+                        t['Tablename'] = matching_tables
+                        t['Starttime'] = matching_starttimes                        
+                        t['JobID'] = matching_jobids
+                        t['Phase'] = matching_phases
+                        t.pprint()
+                    if sortby.upper() == 'STARTTIME':
+                        t = Table()
+                        t['Starttime'] = matching_starttimes
+                        t['Tablename'] = matching_tables
+                        t['JobID'] = matching_jobids
+                        t['Phase'] = matching_phases
+                        t.pprint()
+                           
+            elif not phase and regex:
+                tmp = [print("{} : {} (Table: {})".format(i,self.job_dict[i],self.table_dict[i]))
+                       if i in self.table_dict.keys()
+                       and self.table_dict[i] in matching_tables
+                       else ""
+                       for i in self.job_dict.keys()]
+            if phase and not regex:
                 phase = [phase[i].upper() for i in range(len(phase))]
-                if not regex:
-                    for i in self.job_dict.keys():
-                        if self.job_dict[i] in phase:
-                            print("{} : {}".format(i,self.job_dict[i]))
-                if regex:
-                    for i in self.job_dict.keys():
-                        if self.job_dict[i] in phase:
-                            if i in self.table_dict.keys():
-                                if self.table_dict[i] in matching_tables:
-                                    print("{} : {} (Table: {})".format(i,self.job_dict[i],self.table_dict[i]))
-            return checkalljobs
+                tmp = [print("{} : {}".format(i,self.job_dict[i]))
+                       for i in self.job_dict.keys()
+                       if self.job_dict[i] in phase]
+            if phase and regex:
+                phase = [phase[i].upper() for i in range(len(phase))]
+                tmp = [print("{} : {} (Table: {})".format(i,self.job_dict[i],self.table_dict[i]))
+                       if self.job_dict[i] in phase
+                       and i in self.table_dict.keys()
+                       and self.table_dict[i] in matching_tables
+                       else ""
+                       for i in self.job_dict.keys()]
+                
+            return checkalljobs    
 
     def completed_job_info(self,jobid=None,output=False):
         """
-        A public function which sends an http GET request for a given jobid with phase
-        COMPLETED, and returns a list containing the response object. If no jobid is provided,
-        a list of all responses with phase COMPLETED is generated.
+        A public function which sends an http GET request for a given
+        jobid with phase COMPLETED. If output is True, the function prints
+        a dictionary to the screen, while always generating a global
+        dictionary `response_dict_current`. If no jobid is provided,
+        a visual of all responses with phase COMPLETED is generated.
 
         Parameters
         ----------
@@ -339,11 +400,6 @@ class CosmoSimClass(QueryWithLogin):
             The jobid of the sql query.
         output : bool
             Print output of response(s) to the terminal
-            
-        Returns
-        -------
-        response_dict_current : dict
-            A dictionary of completed jobs
         """
         
         self.check_all_jobs()
@@ -413,12 +469,31 @@ class CosmoSimClass(QueryWithLogin):
                          '{}'.format('url'):R.url}
 
         return response_dict
+
+    def _starttime_dict(self):
+        """
+        A private function which generates a dictionary of jobids (must have phase
+        COMPLETED) linked to starttimes.
+        """
+
+        completed_ids = [key
+                         for key in self.job_dict.keys()
+                         if self.job_dict[key] == 'COMPLETED']
+        response_list = [self._request('GET',
+                            CosmoSim.QUERY_URL+"/{}".format(i),
+                            auth=(self.username,self.password),cache=False)
+                            for i in completed_ids]
+        soups = [BeautifulSoup(response_list[i].content) for i in range(len(response_list))]
+        self.starttime_dict = {}
+        for i in range(len(soups)):
+            self.starttime_dict['{}'.format(completed_ids[i])] = '{}'.format(soups[i].find('uws:starttime').string)
         
+    
     def general_job_info(self,jobid=None,output=False):
         """
-        A public function which sends an http GET request for a given jobid with phase COMPLETED,
-        ERROR, or ABORTED, and returns a list containing the response object. If no jobid is provided,
-        the current job is used (if it exists).
+        A public function which sends an http GET request for a given
+        jobid in any phase. If no jobid is provided, a summary of all
+        jobs is generated.
 
         Parameters
         ----------
@@ -426,39 +501,40 @@ class CosmoSimClass(QueryWithLogin):
             The jobid of the sql query.
         output : bool
             Print output of response(s) to the terminal
-            
-        Returns
-        -------
-        result : list
-            A list of response object(s)
         """
         
         self.check_all_jobs()
-        general_jobids = [key for key in self.job_dict.keys() if self.job_dict[key] in ['COMPLETED','ABORTED','ERROR']]
-        if jobid in general_jobids:
+        
+        if jobid is None:
+            print("Job Summary:")
+            print("There are {} jobs with phase: COMPLETED.".format(self.job_dict.values().count('COMPLETED')))
+            print("There are {} jobs with phase: ERROR.".format(self.job_dict.values().count('ERROR')))
+            print("There are {} jobs with phase: ABORTED.".format(self.job_dict.values().count('ABORTED')))
+            print("There are {} jobs with phase: PENDING.".format(self.job_dict.values().count('PENDING')))
+            print("There are {} jobs with phase: EXECUTING.".format(self.job_dict.values().count('EXECUTING')))
+            print("There are {} jobs with phase: QUEUED.".format(self.job_dict.values().count('QUEUED')))
+            print("Try providing a jobid for the job you'd like to know more about.")
+            print("To see a list of all jobs, use `check_all_jobs()`.")
+            return
+        else:
             response_list = [self._request('GET',
-                                           CosmoSim.QUERY_URL+"/{}".format(jobid),
-                                           auth=(self.username,
-                                                 self.password),cache=False)]
-        else:
-            try:
-                hasattr(self,current_job)
-                response_list = [self._request('GET',
-                                               CosmoSim.QUERY_URL+"/{}".format(self.current_job),
-                                               auth=(self.username,
+                                            CosmoSim.QUERY_URL+"/{}".format(jobid),
+                                            auth=(self.username,
                                                      self.password),cache=False)]
-            except (AttributeError, NameError):
-                logging.warning("No current job has been defined, and no jobid has been provided.")
-
-
-        if output:
-            for i in response_list:
-                print(i.content)
+            if response_list[0].ok is False:
+                logging.error('Must provide a valid jobid.')
+                return
+            else:
+                self.response_dict_current = {}
+                self.response_dict_current[jobid] = self._generate_response_dict(response_list[0])
+        
+        if output is True:
+            ipdb.set_trace()
+            dictkeys = self.response_dict_current.keys()
+            print(self.response_dict_current[dictkeys[0]]['content'])
+            return 
         else:
-            print(response_list)
-
-        return response_list
-
+            return
             
     def delete_job(self,jobid=None,squash=None):
         """
@@ -825,7 +901,7 @@ class CosmoSimClass(QueryWithLogin):
                 raise
                    
         self.check_all_jobs()
-        completed_job_responses = self.completed_job_info(jobid)
+        completed_job_responses = self.completed_job_info(jobid) # Re-do this; completed_job_info does not return anything, but rather creates/re-creates a dictionary
         soup = BeautifulSoup(completed_job_responses[0].content)
         tableurl = soup.find("uws:result").get("xlink:href")
         
