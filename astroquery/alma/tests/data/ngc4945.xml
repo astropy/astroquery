@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VOTABLE xmlns="http://www.ivoa.net/xml/VOTable/v1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.2">
+  <RESOURCE type="results">
+    <INFO name="QUERY_STATUS" value="OK" />
+    <TABLE>
+      <FIELD name="Project code" ucd="meta.code" xtype="adql:VARCHAR" datatype="char" arraysize="16*">
+        <DESCRIPTION>Project code, in the form YYYY.NNNNN.C.AAA, where:</DESCRIPTION>
+      </FIELD>
+      <FIELD name="Source name" utype="Observation.Target.name" ucd="meta.id;pos" xtype="adql:VARCHAR" datatype="char" arraysize="256*">
+        <DESCRIPTION>Name of the source as registered in the ASDM. Partial matches through wildcards (?, *), and boolean OR expressions ("|"), can be used.</DESCRIPTION>
+      </FIELD>
+      <FIELD name="RA" utype="Characterisation.SpatialAxis.Coverage.Location.coord.Position2D.Value2.C1" ucd="pos.eq.ra;meta.main" unit="deg" xtype="adql:DOUBLE" datatype="double">
+        <DESCRIPTION>Right Ascension of the field pointing.</DESCRIPTION>
+      </FIELD>
+      <FIELD name="Dec" utype="Characterisation.SpatialAxis.Coverage.Location.coord.Position2D.Value2.C2" ucd="pos.eq.dec;meta.main" unit="deg" xtype="adql:DOUBLE" datatype="double">
+        <DESCRIPTION>Declination of the field pointing.</DESCRIPTION>
+      </FIELD>
+      <FIELD name="Band" ucd="meta.code;instr.bandpass" xtype="adql:INTEGER" datatype="int">
+        <DESCRIPTION>ALMA receiver band.</DESCRIPTION>
+      </FIELD>
+      <FIELD name="Frequency resolution" utype="Char.SpectralAxis.Resolution.refval" ucd="spect.resolution" unit="kHz" xtype="adql:DOUBLE" datatype="double">
+        <DESCRIPTION>Estimated frequency resolution from all the spectral windows, using median values of channel widths.</DESCRIPTION>
+      </FIELD>
+      <FIELD name="Integration" utype="Char.TimeAxis.Coverage.Support.Extent" ucd="time.duration;obs.exposure" unit="s" xtype="adql:DOUBLE" datatype="double">
+        <DESCRIPTION>Aggregated integration time for the field in the ASDM.</DESCRIPTION>
+      </FIELD>
+      <FIELD name="Release date" ucd="time.release_date" xtype="adql:TIMESTAMP" datatype="char" arraysize="*">
+        <DESCRIPTION>RELEASE_DATE</DESCRIPTION>
+      </FIELD>
+      <FIELD name="Frequency support" utype="Char.SpectralAxis.Coverage.Location.support" ucd="em.freq;obs;meta.main" unit="GHz" xtype="adql:VARCHAR" datatype="char" arraysize="2700*">
+        <DESCRIPTION>All frequency ranges used by the field</DESCRIPTION>
+      </FIELD>
+      <FIELD name="Velocity resolution" utype="Char.VelocityAxis.Resolution.refval" ucd="phys.veloc;spect.resolution" unit="m/s" xtype="adql:DOUBLE" datatype="double">
+        <DESCRIPTION>Estimated velocity resolution from all the spectral windows, from frequency resolution.</DESCRIPTION>
+      </FIELD>
+      <FIELD name="Pol products" ucd="phys.polarization;meta.code" xtype="adql:VARCHAR" datatype="char" arraysize="64*">
+        <DESCRIPTION>Polarisation products provided.</DESCRIPTION>
+      </FIELD>
+      <FIELD name="Observation date" unit="" xtype="adql:VARCHAR" datatype="char" arraysize="*" />
+      <FIELD name="PI name" ucd="meta.id.PI" xtype="adql:VARCHAR" datatype="char" arraysize="256*">
+        <DESCRIPTION>case-insensitive partial match over the full PI name. Wildcards can be used</DESCRIPTION>
+      </FIELD>
+      <FIELD name="PWV" ucd="obs.atmos.extinction" unit="mm" xtype="adql:FLOAT" datatype="float">
+        <DESCRIPTION>Estimated precipitable water vapour from the XML_CALWVR_ENTITIES table.</DESCRIPTION>
+      </FIELD>
+      <FIELD name="Member ous id" ucd="meta.id;obs" xtype="adql:VARCHAR" datatype="char" arraysize="32*">
+        <DESCRIPTION>MEMBER_OUSS_ID generating this ASDM.</DESCRIPTION>
+      </FIELD>
+      <FIELD name="Asdm uid" ucd="meta.id" xtype="adql:VARCHAR" datatype="char" arraysize="32*">
+        <DESCRIPTION>UID of the ASDM containing this Field.</DESCRIPTION>
+      </FIELD>
+      <FIELD name="Project title" ucd="meta.title;obs.proposal" xtype="adql:VARCHAR" datatype="char" arraysize="256*">
+        <DESCRIPTION>Case-insensitive search over the project title</DESCRIPTION>
+      </FIELD>
+      <FIELD name="Project type" ucd="meta.code.class;obs.proposal" xtype="adql:VARCHAR" datatype="char" arraysize="16*">
+        <DESCRIPTION>Project type.</DESCRIPTION>
+      </FIELD>
+      <FIELD name="Scan intent" ucd="meta.code.class;obs" xtype="adql:VARCHAR" datatype="char" arraysize="256*">
+        <DESCRIPTION>Scan intent list for the observed field.</DESCRIPTION>
+      </FIELD>
+      <DATA>
+        <TABLEDATA>
+          <TR>
+            <TD>2011.0.00121.S</TD>
+            <TD>NGC4945</TD>
+            <TD>196.36366250000003</TD>
+            <TD>-49.4679</TD>
+            <TD>7</TD>
+            <TD>976.5625</TD>
+            <TD>245.89</TD>
+            <TD>2013-08-21T08:18:00.000</TD>
+            <TD>[319.69..321.56GHz,976.56kHz, XX YY]</TD>
+            <TD>913.1147716968562</TD>
+            <TD>XX YY</TD>
+            <TD>2012-06-03 22:31:16</TD>
+            <TD>Hagiwara, Yoshiaki</TD>
+            <TD>0.75131315</TD>
+            <TD>uid://A002/X327408/X248</TD>
+            <TD>uid://A002/X41e287/Xd1</TD>
+            <TD>Search for Submillimeter H2O Maser Towards Active Galactic Nuclei</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+        </TABLEDATA>
+      </DATA>
+    </TABLE>
+  </RESOURCE>
+</VOTABLE>

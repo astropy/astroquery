@@ -126,6 +126,33 @@ You can also do the downloading all in one step:
 
    >>> myAlma.retrieve_data_from_uid(uids[0])
 
+Downloading FITS data
+=====================
+
+If you want just the QA2-produced FITS files, you can download the tarball,
+extract the FITS file, then delete the tarball:
+
+.. code-block:: python
+
+    >>> from astroquery.alma.core import Alma
+    >>> from astropy import coordinates
+    >>> from astropy import units as u
+    >>> orionkl = coordinates.SkyCoord('5:35:14.461 -5:21:54.41', frame='fk5',
+    ...                                unit=(u.hour, u.deg))
+    >>> result = Alma.query_region(orionkl, radius=0.034*u.deg)
+    >>> uid_url_table = Alma.stage_data(result['Asdm_uid'], cache=False)
+    >>> # Extract the data with tarball file size < 1GB
+    >>> small_uid_url_table = uid_url_table[uid_url_table['size'] < 1]
+    >>> # get the first 10 files...
+    >>> filelist = Alma.download_and_extract_files(small_uid_url_table[:10]['URL'])
+
+You might want to look at the READMEs from a bunch of files so you know what kind of S/N to expect:
+
+.. code-block:: python
+
+    >>> filelist = Alma.download_and_extract_files(uid_url_table['URL'], regex='.*README$')
+
+
 Reference/API
 =============
 

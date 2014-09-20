@@ -66,3 +66,53 @@ class TestAlma:
         link_list = alma.stage_data(uids[0:2])
         totalsize = alma.data_size(link_list)
         assert totalsize.to(u.GB).value > 1
+
+    def test_query(self, temp_dir):
+        alma = Alma()
+        alma.cache_location = temp_dir
+
+        result = alma.query(payload={'start_date-asu':'<11-11,2011'})
+        assert len(result) == 621
+
+    @pytest.mark.bigdata
+    def test_cycle1(self):
+        # About 500 MB
+        alma = Alma()
+        alma.cache_location = temp_dir
+
+        target = 'NGC4945'
+        project_code = '2012.1.00912.S'
+        
+        payload = {'project_code-asu':project_code,
+                   'source_name-asu':target,}
+        result = alma.query(payload=payload)
+        assert len(result) == 1
+
+        uid_url_table = alma.stage_data(result['Asdm_uid'], cache=False)
+        assert len(uid_url_table) == 2
+
+        data = alma.download_and_extract_files(uid_url_table['URL'])
+
+        assert len(data) == 6
+
+    def test_cycle0(self):
+        # About 20 MB
+
+        alma = Alma()
+        alma.cache_location = temp_dir
+
+        target = 'NGC4945'
+        project_code = '2011.0.00121.S'
+        
+        payload = {'project_code-asu':project_code,
+                   'source_name-asu':target,}
+        result = alma.query(payload=payload)
+        assert len(result) == 1
+
+        uid_url_table = alma.stage_data(result['Asdm_uid'], cache=False)
+        assert len(uid_url_table) == 2
+
+        # The sizes are 4.9 and 0.016 GB respectively
+        data = alma.download_and_extract_files(uid_url_table['URL'][1:])
+
+        assert len(data) == 2

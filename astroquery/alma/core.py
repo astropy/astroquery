@@ -9,9 +9,10 @@ import warnings
 import keyring
 import numpy as np
 import re
+import tarfile
 from bs4 import BeautifulSoup
 
-from astropy.extern.six import BytesIO
+from astropy.extern.six import BytesIO,iteritems
 from astropy.extern import six
 from astropy.table import Table, Column
 from astropy import log
@@ -135,6 +136,7 @@ class AlmaClass(QueryWithLogin):
                 self.dataarchive_url = response.url.replace("/aq/","")
             else:
                 self.dataarchive_url = self.archive_url
+        return self.dataarchive_url
 
 
     def stage_data(self, uids, cache=False):
@@ -152,8 +154,9 @@ class AlmaClass(QueryWithLogin):
 
         Returns
         -------
-        data_file_urls : list
-            A list of the URLs that can be downloaded
+        data_file_table : Table
+            A table containing 3 columns: the UID, the file URL (for future
+            downloading), and the file size
         """
 
         log.info("Staging files...")
@@ -168,7 +171,7 @@ class AlmaClass(QueryWithLogin):
         log.debug("First request payload: {0}".format(payload))
 
         self._staging_log = {}
-        
+
         # Request staging for the UIDs
         response = self._request('POST', url, data=payload,
                                  timeout=self.TIMEOUT, cache=cache)
@@ -177,6 +180,7 @@ class AlmaClass(QueryWithLogin):
         response.raise_for_status()
 
         if 'j_spring_cas_security_check' in response.url:
+            time.sleep(1)
             response = self._request('POST', url, data=payload,
                                      timeout=self.TIMEOUT, cache=cache)
             self._staging_log['initial_response'] = response
@@ -185,6 +189,7 @@ class AlmaClass(QueryWithLogin):
             response.raise_for_status()
 
         request_id = response.url.split("/")[-2]
+        assert len(request_id) == 36
         self._staging_log['request_id'] = request_id
         log.debug("Request ID: {0}".format(request_id))
 
@@ -194,58 +199,98 @@ class AlmaClass(QueryWithLogin):
                                       request_id)
         log.debug("Submission URL: {0}".format(submission_url))
         self._staging_log['submission_url'] = submission_url
+        has_completed = False
         staging_submission = self._request('GET', submission_url, cache=cache)
         self._staging_log['staging_submission'] = staging_submission
         staging_submission.raise_for_status()
-        staging_root = BeautifulSoup(staging_submission.content)
+
+        data_page_url = staging_submission.url
+        dpid = data_page_url.split("/")[-1]
+        assert len(dpid) == 9
+        self._staging_log['staging_page_id'] = dpid
+
+        while not has_completed:
+            time.sleep(1)
+            data_page = self._request('GET', data_page_url, cache=cache)
+            if 'Please wait' not in data_page.text:
+                has_completed = True
+            print(".",end='')
+        self._staging_log['data_page'] = data_page
+        data_page.raise_for_status()
+        staging_root = BeautifulSoup(data_page.content)
         downloadFileURL = staging_root.find('form').attrs['action']
         data_list_url = os.path.split(downloadFileURL)[0]
 
         # Old version, unreliable: data_list_url = staging_submission.url
         log.debug("Data list URL: {0}".format(data_list_url))
+        self._staging_log['data_list_url'] = data_list_url
 
+        time.sleep(1)
         data_list_page = self._request('GET', data_list_url, cache=cache)
         self._staging_log['data_list_page'] = data_list_page
         data_list_page.raise_for_status()
 
         root = BeautifulSoup(data_list_page.content, 'html5lib')
 
-        if 'Error' in data_list_page.content:
+        if 'Error' in data_list_page.text:
             errormessage = root.find('div', id='errorContent').string.strip()
             raise RemoteServiceError(errormessage)
 
+
         data_table = root.findAll('table', class_='list', id='report')[0]
-        hrefs = data_table.findAll('a')
+        columns = {'uid':[], 'URL':[], 'size':[]}
+        for tr in data_table.findAll('tr'):
+            tds = tr.findAll('td')
+            if len(tds) > 1 and 'uid' in tds[1].text:
+                uid = tds[1].text.strip()
+            if len(tds) > 3 and tds[2].find('a'):
+                href = tds[2].find('a')
+                size,unit = re.search('([0-9\.]*)([A-Za-z]*)', tds[3].text).groups()
+                columns['uid'].append(uid)
+                columns['URL'].append(href.attrs['href'])
+                unit = (u.Unit(unit) if unit in ('GB','MB')
+                        else u.Unit('kB') if 'kb' in unit.lower()
+                        else 1)
+                columns['size'].append(float(size)*u.Unit(unit))
 
-        data_file_urls = [a['href'] for a in hrefs
-                          if not a['href'].endswith('script')]
+        columns['size'] = u.Quantity(columns['size'], u.Gbyte)
 
-        return data_file_urls
+        tbl = Table([Column(name=k, data=v) for k,v in iteritems(columns)])
 
-    def data_size(self, files):
+        return tbl
+
+    def _HEADER_data_size(self, files):
         """
         Given a list of file URLs, return the data size.  This is useful for
         assessing how much data you might be downloading!
+
+        (This is discouraged by the ALMA archive, as it puts unnecessary load
+        on their system)
         """
-        totalsize = 0
+        totalsize = 0*u.B
+        data_sizes = {}
         pb = ProgressBar(len(files))
         for ii,fileLink in enumerate(files):
             response = self._request('HEAD', fileLink, stream=False,
                                      cache=False, timeout=self.TIMEOUT)
-            totalsize += int(response.headers['content-length'])
-            log.debug("File {0}: size {1}".format(fileLink,
-                                                  (int(response.headers['content-length'])*u.B).to(u.GB)))
+            filesize = (int(response.headers['content-length'])*u.B).to(u.GB)
+            totalsize += filesize
+            data_sizes[fileLink] = filesize
+            log.debug("File {0}: size {1}".format(fileLink, filesize))
             pb.update(ii+1)
             response.raise_for_status()
 
-        return (totalsize*u.B).to(u.GB)
+        return data_sizes,totalsize.to(u.GB)
 
     def download_files(self, files, cache=True):
         """
         Given a list of file URLs, download them
+
+        Note: Given a list with repeated URLs, each will only be downloaded
+        once, so the return may have a different length than the input list
         """
         downloaded_files = []
-        for fileLink in files:
+        for fileLink in unique(files):
             filename = self._request("GET", fileLink, save=True,
                                      timeout=self.TIMEOUT)
             downloaded_files.append(filename)
@@ -275,12 +320,15 @@ class AlmaClass(QueryWithLogin):
             raise TypeError("Datasets must be given as a list of strings.")
 
         files = self.stage_data(uids, cache=cache)
+        file_urls = files['URL']
+        totalsize = files['size'].sum()*files['size'].unit
 
-        log.info("Determining download size for {0} files...".format(len(files)))
-        totalsize = self.data_size(files)
+        #log.info("Determining download size for {0} files...".format(len(files)))
+        #each_size,totalsize = self.data_size(files)
 
         log.info("Downloading files of size {0}...".format(totalsize.to(u.GB)))
-        downloaded_files = self.download_files(files, cache=cache)
+        # TODO: Add cache=cache keyword here.  Currently would have no effect.
+        downloaded_files = self.download_files(file_urls)
 
         return downloaded_files
 
@@ -344,6 +392,168 @@ class AlmaClass(QueryWithLogin):
             keyring.set_password("astroquery:asa.alma.cl", username, password)
         return authenticated
 
+    def get_cycle0_uid_contents(self, uid):
+        """
+        List the file contents of a UID from Cycle 0.  Will raise an error
+        if the UID is from cycle 1+, since those data have been released in a
+        different and more consistent format.
+        See http://almascience.org/documents-and-tools/cycle-2/ALMAQA2Productsv1.01.pdf
+        for details.
+        """
+
+        # First, check if UID is in the Cycle 0 listing
+        if uid in self.cycle0_table['uid']:
+            cycle0id = self.cycle0_table[self.cycle0_table['uid'] == uid][0]['ID']
+            contents = [row['Files']
+                        for row in self._cycle0_tarfile_content
+                        if cycle0id in row['ID']]
+            return contents
+        else:
+            info_url = os.path.join(self._get_dataarchive_url(),
+                                    'documents-and-tools/cycle-2/ALMAQA2Productsv1.01.pdf')
+            raise ValueError("Not a Cycle 0 UID.  See {0} for details about"
+                             " cycle 1+ data release formats.".format(info_url))
+
+    @property
+    def _cycle0_tarfile_content(self):
+        """
+        In principle, this is a static file, but we'll retrieve it just in case
+        """
+        if not hasattr(self, '_cycle0_tarfile_content_table'):
+            url = os.path.join(self._get_dataarchive_url(),
+                               'alma-data/archive/cycle-0-tarfile-content')
+            response = self._request('GET', url, cache=True)
+
+            # html.parser is needed because some <tr>'s have form:
+            # <tr width="blah"> which the default parser does not pick up
+            root = BeautifulSoup(response.content, 'html.parser')
+            html_table = root.find('table',class_='grid listing')
+            data = zip(*[(x.findAll('td')[0].text, x.findAll('td')[1].text)
+                         for x in html_table.findAll('tr')])
+            columns = [Column(data=data[0], name='ID'),
+                       Column(data=data[1], name='Files')]
+            tbl = Table(columns)
+            assert len(tbl) == response.content.count('<tr') == 8497
+            self._cycle0_tarfile_content_table = tbl
+        else:
+            tbl = self._cycle0_tarfile_content_table
+        return tbl
+
+    @property
+    def cycle0_table(self):
+        """
+        Return a table of Cycle 0 Project IDs and associated UIDs.
+
+        The table is distributed with astroquery and was provided by Felix
+        Stoehr.
+        """
+        if not hasattr(self,'_cycle0_table'):
+            filename = os.path.join(os.path.dirname(__file__), 'data',
+                                    'cycle0_delivery_asdm_mapping.txt')
+            self._cycle0_table = Table.read(filename, format='ascii.no_header')
+            self._cycle0_table.rename_column('col1', 'ID')
+            self._cycle0_table.rename_column('col2', 'uid')
+        return self._cycle0_table
+
+    def get_files_from_tarballs(self, downloaded_files, regex='.*\.fits$',
+                                path='cache_path', verbose=True):
+        """
+        Given a list of successfully downloaded tarballs, extract files
+        with names matching a specified regular expression.  The default
+        is to extract all FITS files
+
+        Parameters
+        ----------
+        downloaded_files : list
+            A list of downloaded files.  These should be paths on your local
+            machine.
+        regex : str
+            A valid regular expression
+        path : 'cache_path' or str
+            If 'cache_path', will use the astroquery.Alma cache directory
+            (``Alma.cache_location``), otherwise will use the specified path.
+            Note that the subdirectory structure of the tarball will be
+            maintained.
+
+        Returns
+        -------
+        filelist : list
+            A list of the extracted file locations on disk
+        """
+
+        if path == 'cache_path':
+            path = self.cache_location
+        elif not os.path.isdir(path):
+            raise OSError("Specified an invalid path {0}.".format(path))
+
+        fitsre = re.compile(regex)
+
+        filelist = []
+
+        for fn in downloaded_files:
+            tf = tarfile.open(fn)
+            for member in tf.getmembers():
+                if fitsre.match(member.name):
+                    if verbose:
+                        log.info("Extracting {0} to {1}".format(member.name,
+                                                                path))
+                    tf.extract(member, path)
+                    filelist.append(os.path.join(path, member.name))
+
+        return filelist
+
+    def download_and_extract_files(self, urls, delete=True, regex='.*\.fits$',
+                                   include_asdm=False, path='cache_path',
+                                   verbose=True):
+        """
+        Given a list of tarball URLs:
+
+            1. Download the tarball
+            2. Extract all FITS files (or whatever matches the regex)
+            3. Delete the downloaded tarball
+
+        See ``Alma.get_files_from_tarballs`` for details
+
+        Parameters
+        ----------
+        include_asdm : bool
+            Only affects cycle 1+ data.  If set, the ASDM files will be
+            downloaded in addition to the script and log files.  By default,
+            though, this file will be downloaded and deleted without extracting
+            any information: you must change the regex if you want to extract
+            data from an ASDM tarball
+        """
+        all_files = []
+        for url in urls:
+            if url[-4:] != '.tar':
+                raise ValueError("URLs should be links to tarballs.")
+
+            tarfile_name = os.path.split(url)[-1]
+            if tarfile_name in self._cycle0_tarfile_content['ID']:
+                # It is a cycle 0 file: need to check if it contains FITS
+                match = (self._cycle0_tarfile_content['ID'] == tarfile_name)
+                if not any(re.match(regex,x) for x in
+                           self._cycle0_tarfile_content['Files'][match]):
+                    log.info("No FITS files found in {0}".format(tarfile_name))
+                    continue
+            else:
+                if 'asdm' in tarfile_name and not include_asdm:
+                    log.info("ASDM tarballs do not contain FITS files; skipping.")
+                    continue
+
+            tarball_name = self._request('GET', url, save=True,
+                                         timeout=self.TIMEOUT)
+            fitsfilelist = self.get_files_from_tarballs([tarball_name],
+                                                        regex=regex, path=path,
+                                                        verbose=verbose)
+
+            if delete:
+                log.info("Deleting {0}".format(tarball_name))
+                os.remove(tarball_name)
+
+            all_files += fitsfilelist
+        return all_files
+
 Alma = AlmaClass()
 
 def clean_uid(uid):
@@ -354,3 +564,17 @@ def clean_uid(uid):
         return uid.decode('utf-8').replace(u"/",u"_").replace(u":",u"_")
     except AttributeError:
         return uid.replace("/","_").replace(":","_")
+
+def reform_uid(uid):
+    """
+    Convert a uid with underscores to the original format
+    """
+    return uid[:3]+"://" + "/".join(uid[6:].split("_"))
+
+def unique(seq):
+    """
+    Return unique elements of a list, preserving order
+    """
+    seen = set()
+    seen_add = seen.add
+    return [x for x in seq if not (x in seen or seen_add(x))]
