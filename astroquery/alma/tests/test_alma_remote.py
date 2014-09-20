@@ -66,3 +66,8 @@ class TestAlma:
         link_list = alma.stage_data(uids[0:2])
         totalsize = alma.data_size(link_list)
         assert totalsize.to(u.GB).value > 1
+
+    def test_cycle1(self):
+
+        target = 'NGC4945'
+        project_code = '2012.1.00912.S'
