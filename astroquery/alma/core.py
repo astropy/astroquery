@@ -499,7 +499,8 @@ class AlmaClass(QueryWithLogin):
         return filelist
 
     def download_and_extract_files(self, urls, delete=True, regex='.*\.fits$',
-                            path='cache_path', verbose=True):
+                                   include_asdm=False, path='cache_path',
+                                   verbose=True):
         """
         Given a list of tarball URLs:
 
@@ -508,6 +509,15 @@ class AlmaClass(QueryWithLogin):
             3. Delete the downloaded tarball
 
         See ``Alma.get_files_from_tarballs`` for details
+
+        Parameters
+        ----------
+        include_asdm : bool
+            Only affects cycle 1+ data.  If set, the ASDM files will be
+            downloaded in addition to the script and log files.  By default,
+            though, this file will be downloaded and deleted without extracting
+            any information: you must change the regex if you want to extract
+            data from an ASDM tarball
         """
         all_files = []
         for url in urls:
@@ -523,7 +533,7 @@ class AlmaClass(QueryWithLogin):
                     log.info("No FITS files found in {0}".format(tarfile_name))
                     continue
             else:
-                if 'asdm' in tarfile_name:
+                if 'asdm' in tarfile_name and not include_asdm:
                     log.info("ASDM tarballs do not contain FITS files; skipping.")
                     continue
 
