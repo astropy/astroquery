@@ -17,6 +17,8 @@ DATA_FILES = {'GET': {'http://almascience.eso.org/aq/search.votable':
                       'data_list_page.html',
                       'http://almascience.eso.org/rh/submission/d45d0552-8479-4482-9833-fecdef3f8b90':
                       'staging_submission.html',
+                      'http://almascience.eso.org/aq/':
+                      'querypage.html'
                      },
               'POST': {'http://almascience.eso.org/rh/submission':
                        'initial_response.html'}
