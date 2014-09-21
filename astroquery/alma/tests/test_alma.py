@@ -4,6 +4,7 @@ from astropy.tests.helper import pytest
 
 from .. import Alma
 from ...utils.testing_tools import MockResponse
+from ...exceptions import (InvalidQueryError)
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
 
@@ -101,3 +102,15 @@ def test_staging(monkeypatch):
     assert len(uid_url_table) == 2
 
 
+def test_validator(monkeypatch):
+
+    monkeypatch.setattr(Alma, '_get_dataarchive_url', _get_dataarchive_url)
+    alma = Alma()
+    monkeypatch.setattr(alma, '_get_dataarchive_url', _get_dataarchive_url)
+    monkeypatch.setattr(alma, '_request', alma_request)
+
+
+    with pytest.raises(InvalidQueryError) as exc:
+        alma.query(payload={'invalid_parameter': 1})
+
+    assert 'invalid_parameter' in str(exc.value)
