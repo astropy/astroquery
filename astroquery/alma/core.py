@@ -20,7 +20,8 @@ from astropy.utils.console import ProgressBar
 from astropy import units as u
 import astropy.io.votable as votable
 
-from ..exceptions import LoginError, RemoteServiceError
+from ..exceptions import (LoginError, RemoteServiceError, TableParseError,
+                          InvalidQueryError)
 from ..utils import schema, system_tools
 from ..utils import commons
 from ..utils.process_asyncs import async_to_sync
@@ -40,7 +41,7 @@ class AlmaClass(QueryWithLogin):
         super(AlmaClass, self).__init__()
 
     def query_object_async(self, object_name, cache=True, public=True,
-                           science=True, **kwargs):
+                           science=True, payload=None, **kwargs):
         """
         Query the archive with a source name
 
@@ -54,17 +55,21 @@ class AlmaClass(QueryWithLogin):
             Return only publicly available datasets?
         science : bool
             Return only data marked as "science" in the archive?
+        payload : dict
+            Dictionary of additional keywords.  See `help`.
         kwargs : dict
             Passed to `query_async`
         """
 
-        payload = {'source_name_sesame': object_name,}
+        if payload is None:
+            payload = {}
+        payload.update({'source_name_sesame': object_name,})
 
         return self.query_async(payload, cache=cache, public=public,
                                 science=science, **kwargs)
 
     def query_region_async(self, coordinate, radius, cache=True, public=True,
-                           science=True, **kwargs):
+                           science=True, payload=None, **kwargs):
         """
         Query the ALMA archive with a source name and radius
 
@@ -80,6 +85,8 @@ class AlmaClass(QueryWithLogin):
             Return only publicly available datasets?
         science : bool
             Return only data marked as "science" in the archive?
+        payload : dict
+            Dictionary of additional keywords.  See `help`.
         kwargs : dict
             Passed to `query_async`
         """
@@ -87,7 +94,10 @@ class AlmaClass(QueryWithLogin):
         cstr = coordinate.fk5.to_string(style='hmsdms', sep=':')
         rdc = "{cstr}, {rad}".format(cstr=cstr, rad=radius.to(u.deg).value)
 
-        payload = {'raDecCoordinates': rdc}
+
+        if payload is None:
+            payload = {}
+        payload.update({'raDecCoordinates': rdc})
 
         return self.query_async(payload, cache=cache, public=public,
                                 science=science, **kwargs)
@@ -101,7 +111,7 @@ class AlmaClass(QueryWithLogin):
         payload : dict
             A dictionary of payload keywords that are accepted by the ALMA
             archive system.  You can look these up by examining the forms at
-            http://almascience.org/aq
+            http://almascience.org/aq or using the `help` method
         cache : bool
             Cache the query?
         public : bool
@@ -112,12 +122,13 @@ class AlmaClass(QueryWithLogin):
 
         url = os.path.join(self._get_dataarchive_url(), 'aq', 'search.votable')
 
-        payload.update({'viewFormat':'raw',
-                        'download':'true',})
+        payload.update({'viewFormat':'raw',})
         if public:
             payload['publicFilterFlag'] = 'public'
         if science:
             payload['scan_intent-asu'] = '=*TARGET*'
+
+        self._validate_payload(payload)
 
         response = self._request('GET', url, params=payload,
                                  timeout=self.TIMEOUT, cache=cache)
@@ -554,6 +565,83 @@ class AlmaClass(QueryWithLogin):
 
             all_files += fitsfilelist
         return all_files
+
+    def help(self, cache=True):
+        """
+        Return the valid query parameters
+        """
+
+        help_list = self._get_help_page(cache=cache)
+
+        for title,section in help_list:
+            print()
+            print(title)
+            for row in section:
+                if len(row) == 2:
+                    name,payload_keyword = row
+                    print("  {0:33s}: {1:35s}".format(name,payload_keyword))
+                elif len(row) == 4:
+                    name,payload_keyword,checkbox,value = row
+                    print("  {2} {0:29s}: {1:20s} = {3:15s}".format(name,
+                                                                    payload_keyword,
+                                                                    checkbox,
+                                                                    value))
+                else:
+                    raise ValueError("Wrong number of rows - ALMA query page"
+                                     " did not parse properly.")
+
+    def _get_help_page(self, cache=True):
+        if not hasattr(self, '_help_list'):
+            querypage = self._request('GET', self._get_dataarchive_url()+"/aq/",
+                                      cache=cache, timeout=self.TIMEOUT)
+            root = BeautifulSoup(querypage.content)
+            sections = root.findAll('td', class_='category')
+
+            print("Valid ALMA keywords:")
+
+            help_list = []
+            for section in sections:
+                title = section.find('div', class_='categorytitle').text.lstrip()
+                help_section = (title,[])
+                for inp in section.findAll('div', class_='inputdiv'):
+                    sp = inp.find('span')
+                    if sp is not None:
+                        payload_keyword = sp.attrs['class'][0]
+                        name = sp.text
+                        help_section[1].append((name,payload_keyword))
+                    else:
+                        buttons = inp.findAll('input')
+                        for b in buttons:
+                            payload_keyword = b.attrs['name']
+                            bid = b.attrs['id']
+                            label = inp.find('label')
+                            checked = b.attrs['checked'] == 'checked'
+                            value = b.attrs['value']
+                            if label.attrs['for'] == bid:
+                                name = label.text
+                            else:
+                                raise TableParseError("ALMA query page has"
+                                                      " an unrecognized entry")
+                            checkbox = "[x]" if checked else "[ ]"
+                            help_section[1].append((name, payload_keyword,
+                                                    checkbox, value))
+                help_list.append(help_section)
+            self._help_list = help_list
+
+        return self._help_list
+
+    def _validate_payload(self, payload):
+        if not hasattr(self, '_valid_params'):
+            help_list = self._get_help_page()
+            self._valid_params = [row[1]
+                                  for title,section in help_list
+                                  for row in section]
+        invalid_params = [k for k in payload if k not in self._valid_params]
+        if len(invalid_params) > 0:
+            raise InvalidQueryError("The following parameters are not accepted "
+                                    "by the ALMA query service:"
+                                    " {0}".format(invalid_params))
+
 
 Alma = AlmaClass()
 

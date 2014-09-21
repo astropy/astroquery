@@ -116,3 +116,10 @@ class TestAlma:
         data = alma.download_and_extract_files(uid_url_table['URL'][1:])
 
         assert len(data) == 2
+
+    def test_help(self):
+        
+        help_list = Alma._get_help_page()
+        assert help_list[0][0] == u'Position'
+        assert help_list[1][0] == u'Energy'
+        assert help_list[1][1][0] == (u'Frequency', 'energy.frequency-asu')
