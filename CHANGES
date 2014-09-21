@@ -15,6 +15,7 @@
   (#425)
 - ALMA - many new features, including selective file retrieval.  Fixes many errors that
   were unnoticed in the previous version (#433)
+- ALMA - add ``help`` method and pass payload keywords on correctly (#438)
 
 0.2.2 (2014-09-10)
 ------------------
