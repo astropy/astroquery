@@ -40,14 +40,14 @@ class CosmoSimClass(QueryWithLogin):
 
     def __init__(self):
         super(CosmoSimClass, self).__init__()
-        self.session = self._BaseQuery__session
+        #self.session = self._BaseQuery__session
  
     def _login(self, username, password=None, store_password=False):
 
         # login after logging out (interactive)
         if not hasattr(self,'session'):
             self.session = requests.session()
-            self._BaseQuery__session = self.session # NOTE FROM AG: I hope this works...
+            #self._BaseQuery__session = self.session # NOTE FROM AG: I hope this works...
 
         # login after login (interactive)
         if hasattr(self,'username'):
