@@ -17,8 +17,8 @@ from ...exceptions import LoginError
 
 SKIP_TESTS = not(HAS_KEYRING and ESO_IMPORTED)
 
-@pytest.mark.skipif('SKIP_TESTS')
-@remote_data
-class TestEso:
-    def __init__():
+#@pytest.mark.skipif('SKIP_TESTS')
+#@remote_data
+#class TestEso:
+#    def __init__():
         
