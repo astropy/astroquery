@@ -20,7 +20,6 @@ import astropy.coordinates as coord
 import astropy.io.votable as votable
 from astropy import log as logging
 from astropy.io import fits
-from astropy.io import votable
 import astropy.utils.data as aud
 from astropy.table.pprint import conf
 conf.max_lines = -1
@@ -898,64 +897,99 @@ class CosmoSimClass(QueryWithLogin):
         ----------
         jobid :
             Completed jobid to be downloaded
-        filename : string
-            If left blank, downloaded to the terminal. If specified, data is written out to file (directory can be included here).
+        filename : str
+            If left blank, downloaded to the terminal. If specified, data is
+            written out to file (directory can be included here).
+        format : str
+            The format of the data to be downloaded. Options are `csv`, `votable`,
+            `votableB1`, and `votableB2`.
+        cache : bool
+            Whether to cache the data. By default, this is set to True.
 
         Returns
         -------
         headers, data : list, list
         """
 
+        self.check_all_jobs()
+        
         if not jobid:
             try:
                 jobid = self.current_job
-            except:
-                raise
-                   
-        self.check_all_jobs()
-        completed_job_responses = self.completed_job_info(jobid) # Re-do this; completed_job_info does not return anything, but rather creates/re-creates a dictionary
-        soup = BeautifulSoup(completed_job_responses[0].content)
-        tableurl = soup.find("uws:result").get("xlink:href")
-        
-        # This is where the request.content parsing happens
-        raw_table_data = self._request('GET', tableurl, auth=(self.username,
-                                                              self.password),cache=cache)
-        raw_headers = raw_table_data.content.split('\n')[0]
-        num_cols = len(raw_headers.split(','))
-        num_rows = len(raw_table_data.content.split('\n'))-2
-        headers = [raw_headers.split(',')[i].strip('"') for i in range(num_cols)]
-        raw_data = [raw_table_data.content.split('\n')[i+1].split(",") for i in range(num_rows)]
-        data = [map(eval,raw_data[i]) for i in range(num_rows)]
+            except AttributeError:
+                print("No current job has been defined for this session.")
+                return
 
-        if format:
-            tbl = Table(data=map(list, zip(*data)),names=headers)
-            if format in ['VOTable','votable']:
-                votbl = votable.from_table(tbl)
-                if not filename:
-                    return votbl
-                else:
-                    if '.xml' in filename:
-                        filename = filename.split('.')[0]
-                    votable.writeto(votbl, "{}.xml".format(filename))
-                    print("Data written to file: {}.xml".format(filename))
-            elif format in ['FITS','fits']:
-                print("Need to implement...")
+        if self.job_dict['{}'.format(jobid)] == 'COMPLETED':
+            if not format:
+                print("Must specify a format:")
+                t = Table()
+                t['Format'] = ['csv','votable','votableB1','votableB2']
+                t['Description'] = ['Comma-separated values file',
+                                    'Put In Description',
+                                    'Put In Description',
+                                    'Put In Description']
+                t.pprint()
+            if format:
+                results = self._request('GET',
+                                        self.QUERY_URL+"/{}/results".format(jobid),
+                                        auth=(self.username,self.password))
+                soup = BeautifulSoup(results.content)
+                urls = [i.get('xlink:href') for i in soup.findAll('uws:result')]
+                formatlist = [urls[i].split('/')[-1].upper() for i in range(len(urls))]
 
-        else:
-            if not filename:
-                return headers, data
-            else:
-                with open(filename, 'wb') as fh:
-                    raw_table_data = self._request('GET', tableurl,
-                                                   auth=(self.username,
-                                                         self.password),
-                                                   stream=True,cache=cache)
-                    for block in raw_table_data.iter_content(1024):
-                        if not block:
-                            break
-                        fh.write(block)
-                    print("Data written to file: {}".format(filename))
-                return headers, data
+            if format.upper() in formatlist:
+                index = formatlist.index(format.upper())
+                downloadurl = urls[index]
+                if filename:
+                    self._download_file(downloadurl,
+                                        local_filepath=filename,
+                                        auth=(self.username,self.password))
+                elif not filename:
+                    if format.upper() == 'CSV':
+                        raw_table_data = self._request('GET',
+                                                        downloadurl,
+                                                        auth=(self.username,self.password),
+                                                        cache=cache).content
+                        raw_headers = raw_table_data.split('\n')[0]
+                        num_cols = len(raw_headers.split(','))
+                        num_rows = len(raw_table_data.split('\n'))-2
+                        headers = [raw_headers.split(',')[i].strip('"') for i in range(num_cols)]
+                        raw_data = [raw_table_data.split('\n')[i+1].split(",") for i in range(num_rows)]
+                        data = [map(eval,raw_data[i]) for i in range(num_rows)]
+                        return headers,data
+                    elif format.upper() in  ['VOTABLEB1','VOTABLEB2']:
+                        print("Cannot view binary versions of votable within the terminal.")
+                        print("Try saving them to your disk with the `filename` option.")
+                        return
+                    elif format.upper() == 'VOTABLE':
+                        # for terminal output, get data in csv format
+                        tmp_downloadurl = urls[formatlist.index('CSV')]
+                        raw_table_data = self._request('GET',
+                                                        tmp_downloadurl,
+                                                        auth=(self.username,self.password),
+                                                        cache=cache).content
+                        raw_headers = raw_table_data.split('\n')[0]
+                        num_cols = len(raw_headers.split(','))
+                        num_rows = len(raw_table_data.split('\n'))-2
+                        headers = [raw_headers.split(',')[i].strip('"') for i in range(num_cols)]
+                        raw_data = [raw_table_data.split('\n')[i+1].split(",") for i in range(num_rows)]
+                        data = [map(eval,raw_data[i]) for i in range(num_rows)]
+                        # store in astropy.Table object
+                        tbl = Table(data=map(list, zip(*data)),names=headers)
+                        # convert to votable format
+                        votbl = votable.from_table(tbl)
+                        return votbl 
+                
+            elif format.upper() not in formatlist:
+                print('Format not recognized. Please see formatting options:')
+                t = Table()
+                t['Format'] = ['csv','votable','votableB1','votableB2']
+                t['Description'] = ['Comma-separated values file',
+                                    'Put In Description',
+                                    'Put In Description',
+                                    'Put In Description']
+                t.pprint()
 
     def _check_phase(self,jobid):
         """
