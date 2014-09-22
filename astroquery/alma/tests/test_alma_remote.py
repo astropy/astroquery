@@ -37,7 +37,6 @@ class TestAlma:
 
         result_s = alma.query_object('Sgr A*')
         assert b'2011.0.00217.S' in result_s['Project_code']
-
         uid = result_s['Asdm_uid'][0]
 
         alma.stage_data([uid])
@@ -45,7 +44,6 @@ class TestAlma:
     def test_doc_example(self, temp_dir):
         alma = Alma()
         alma.cache_location = temp_dir
-
         m83_data = alma.query_object('M83')
         assert m83_data.colnames == ['Project_code', 'Source_name', 'RA',
                                      'Dec', 'Band', 'Frequency_resolution',

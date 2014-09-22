@@ -150,7 +150,6 @@ class AlmaClass(QueryWithLogin):
                 self.dataarchive_url = self.archive_url
         return self.dataarchive_url
 
-
     def stage_data(self, uids, cache=False):
         """
         Stage ALMA data
@@ -205,7 +204,6 @@ class AlmaClass(QueryWithLogin):
         self._staging_log['request_id'] = request_id
         log.debug("Request ID: {0}".format(request_id))
 
-
         # Submit a request for the specific request ID identified above
         submission_url = os.path.join(self.dataarchive_url, 'rh', 'submission',
                                       request_id)
@@ -248,7 +246,6 @@ class AlmaClass(QueryWithLogin):
             errormessage = root.find('div', id='errorContent').string.strip()
             raise RemoteServiceError(errormessage)
 
-
         data_table = root.findAll('table', class_='list', id='report')[0]
         columns = {'uid':[], 'URL':[], 'size':[]}
         for tr in data_table.findAll('tr'):
@@ -275,7 +272,6 @@ class AlmaClass(QueryWithLogin):
         """
         Given a list of file URLs, return the data size.  This is useful for
         assessing how much data you might be downloading!
-
         (This is discouraged by the ALMA archive, as it puts unnecessary load
         on their system)
         """
@@ -337,11 +333,9 @@ class AlmaClass(QueryWithLogin):
 
         #log.info("Determining download size for {0} files...".format(len(files)))
         #each_size,totalsize = self.data_size(files)
-
         log.info("Downloading files of size {0}...".format(totalsize.to(u.GB)))
         # TODO: Add cache=cache keyword here.  Currently would have no effect.
         downloaded_files = self.download_files(file_urls)
-
         return downloaded_files
 
     def _parse_result(self, response, verbose=False):
@@ -641,7 +635,6 @@ class AlmaClass(QueryWithLogin):
             raise InvalidQueryError("The following parameters are not accepted "
                                     "by the ALMA query service:"
                                     " {0}".format(invalid_params))
-
 
 Alma = AlmaClass()
 
