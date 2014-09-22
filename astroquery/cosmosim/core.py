@@ -115,7 +115,6 @@ class CosmoSimClass(QueryWithLogin):
                     print("Password for {} was never stored in the keychain.".format(self.username))
                     
             del self.session
-            del self._BaseQuery__session
             del self.username
             del self.password
         else:
