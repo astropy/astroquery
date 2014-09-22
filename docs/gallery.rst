@@ -146,9 +146,14 @@ identifying some spectral lines in the data.
                                            only_NRAO_recommended=True)
            lines.pprint()
 
+           # Change the cube coordinate system to be in velocity with respect
+           # to the rest frequency (in the M83 rest frame)
+           rests_frequency = lines['Freq-GHz'][0]*u.GHz / (1+rvel/constants.c)
            vcube = cube.with_spectral_unit(u.km/u.s,
-                                           rest_value=lines['Freq-GHz'][0]*u.GHz,
+                                           rest_value=rest_frequency,
                                            velocity_convention='radio')
-           # Ugly, I know, but it's a clever python trick...
-           linename = "{Species}{Resolved QNs}".format(**dict(zip(row.colnames,row.data)))
+
+           # Write the cube with the specified line name
+           fmt = "{Species}{Resolved QNs}"
+           linename = fmt.format(**dict(zip(row.colnames,row.data)))
            vcube.write('M83_ALMA_{linename}.fits'.format(linename=linename))
