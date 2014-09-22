@@ -15,7 +15,7 @@ except ImportError:
     COSMOSIM_IMPORTED = False
 from ...exceptions import LoginError
 
-SKIP_TESTS = not(HAS_KEYRING and ESO_IMPORTED)
+SKIP_TESTS = not(HAS_KEYRING and COSMOSIM_IMPORTED)
 
 #@pytest.mark.skipif('SKIP_TESTS')
 #@remote_data
