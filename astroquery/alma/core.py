@@ -573,6 +573,8 @@ class AlmaClass(QueryWithLogin):
 
         help_list = self._get_help_page(cache=cache)
 
+        print("Valid ALMA keywords:")
+
         for title,section in help_list:
             print()
             print(title)
@@ -596,8 +598,6 @@ class AlmaClass(QueryWithLogin):
                                       cache=cache, timeout=self.TIMEOUT)
             root = BeautifulSoup(querypage.content)
             sections = root.findAll('td', class_='category')
-
-            print("Valid ALMA keywords:")
 
             help_list = []
             for section in sections:
