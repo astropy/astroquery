@@ -12,6 +12,44 @@ Getting started
 `astroquery.alma` provides the astroquery interface to the ALMA archive.  It
 supports object and region based querying and data staging and retrieval.
 
+You can get interactive help to find out what keywords to query for:
+
+.. code-block:: python
+
+   >>> from astroquery.alma import Alma
+   >>> Alma.help()
+   Valid ALMA keywords:
+
+   Position
+     Source name (Sesame)             : source_name_sesame
+     Source name (ALMA)               : source_name-asu
+     RA Dec                           : raDecCoordinates
+
+   Energy
+     Frequency                        : energy.frequency-asu
+     Bandwidth                        : energy.bandwidth-asu
+     Spectral resolution              : energy.resolution-asu
+     Band                             : band-asu
+
+   Time
+     Observation date                 : start_date-asu
+     Integration time                 : int_time-asu
+
+   Polarisation
+     Polarisation type                : energy.pol_num-asu
+
+   Observation
+     Water vapour                     : pwv-asu
+
+   Project
+     Project code                     : project_code-asu
+     Project title                    : project.title-substr
+     PI name                          : project.pi_name-substr
+
+   Options
+     View:                            : viewFormat
+     [x] public data only             : publicFilterFlag     = public
+     [x] science observations only    : scan_intent-asu      = =%TARGET%
 
 Authentication
 ==============
@@ -111,7 +149,7 @@ UIDs):
 
 You can then go on to download that data.  The download will be cached so that repeat
 queries of the same file will not re-download the data.  The default cache
-directory is `~/.astropy/cache/astroquery/Alma/`, but this can be changed by
+directory is ``~/.astropy/cache/astroquery/Alma/``, but this can be changed by
 changing the ``cache_location`` variable:
 
 .. code-block:: python
