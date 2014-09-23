@@ -186,6 +186,8 @@ Exploring Database Schema
 A database exploration tool is available to help the user navigate
 the structure of any simulation database in the CosmoSim database. 
 
+Note: '@' precedes entries which are dictionaries
+
 .. code-block:: python
 
     >>> CS.explore_db()
@@ -334,9 +336,11 @@ line, or alternatively they can be stored on your local machine.
 .. code-block:: python
 
     >>> CS.check_all_jobs() 
-    {'359750704009965': 'COMPLETED'}
-    >>> data = CS.download(jobid='359750704009965')
-    [<Response [200]>]
+         JobID        Phase  
+    --------------- ---------
+    359750704009965 COMPLETED
+
+    >>> data = CS.download(jobid='359750704009965',format='csv')
     >>> print(data)
     (['row_id', 'log_mass', 'num'],
      [[1, 10.88, 3683],
@@ -359,31 +363,15 @@ line, or alternatively they can be stored on your local machine.
       [18, 15.12, 68],
       [19, 15.38, 4]])
 
-.. code-block:: python
+Unless the filename attribute is specified, data is not saved out to
+file.
 
-    >>> CS.download(jobid='359750704009965',filename='/Users/username/Desktop/MDR1massfunction.dat')
-    [<Response [200]>]
-    Data written to file: /Users/username/Desktop/MDR1massfunction.dat   
-    (['row_id', 'log_mass', 'num'],
-     [[1, 10.88, 3683],
-      [2, 11.12, 452606],
-      [3, 11.38, 3024674],
-      [4, 11.62, 3828931],
-      [5, 11.88, 2638644],
-      [6, 12.12, 1572685],
-      [7, 12.38, 926764],
-      [8, 12.62, 544650],
-      [9, 12.88, 312360],
-      [10, 13.12, 174164],
-      [11, 13.38, 95263],
-      [12, 13.62, 50473],
-      [13, 13.88, 25157],
-      [14, 14.12, 11623],
-      [15, 14.38, 4769],
-      [16, 14.62, 1672],
-      [17, 14.88, 458],
-      [18, 15.12, 68],
-      [19, 15.38, 4]]) 
+    >>> data = CS.download(jobid='359750704009965',filename='/Users/uname/Desktop/test.csv',format='csv')
+    |==========================================================================================================================| 1.5k/1.5k (100.00%)         0s
+
+Other formats include votable, votableb1, and votableb2 (the latter
+two are binary files, for easier handling of large data sets; these
+formats can not be used in an interactive python session). 
 
 Data can be stored and/or written out as a `VOTable`_.
 
@@ -392,33 +380,11 @@ Data can be stored and/or written out as a `VOTable`_.
 .. code-block:: python
 
     >>> data = CS.download(jobid='359750704009965',format='votable')
-    [<Response [200]>]
     >>> data
     <astropy.io.votable.tree.VOTableFile at 0x10b440150>
-    >>> data.to_xml('/Users/username/Desktop/data.xml')
-    >>> CS.download(jobid='359750704009965',filename='/Users/username/Desktop/MDR1massfunction.dat')
-    [<Response [200]>]
-    Data written to file: /Users/username/Desktop/MDR1massfunction.dat   
-    (['row_id', 'log_mass', 'num'],
-     [[1, 10.88, 3683],
-      [2, 11.12, 452606],
-      [3, 11.38, 3024674],
-      [4, 11.62, 3828931],
-      [5, 11.88, 2638644],
-      [6, 12.12, 1572685],
-      [7, 12.38, 926764],
-      [8, 12.62, 544650],
-      [9, 12.88, 312360],
-      [10, 13.12, 174164],
-      [11, 13.38, 95263],
-      [12, 13.62, 50473],
-      [13, 13.88, 25157],
-      [14, 14.12, 11623],
-      [15, 14.38, 4769],
-      [16, 14.62, 1672],
-      [17, 14.88, 458],
-      [18, 15.12, 68],
-      [19, 15.38, 4]]) 
+    >>>data = CS.download(jobid='359750704009965',filename='/Users/uname/Desktop/test.xml',format='votable')
+    >>> |==========================================================================================================================| 4.9k/4.9k (100.00%)         0s
+
 
 Reference/API
 =============
