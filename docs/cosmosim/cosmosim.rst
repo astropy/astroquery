@@ -37,7 +37,6 @@ successful login no further password is required if desired.
 
     >>> CS.login(username="uname") 
     uname, enter your CosmoSim password:
-    
     Authenticating uname on www.cosmosim.org...
     Authentication successful!
     >>> # If running from a script (rather than an interactive python session): 
@@ -48,7 +47,6 @@ To store the password associated with your username in the keychain:
     >>> CS.login(username="uname",store_password=True)
     WARNING: No password was found in the keychain for the provided username. [astroquery.cosmosim.core]
     uname, enter your CosmoSim password:
-    
     Authenticating uname on www.cosmosim.org...
     Authentication successful!
 
