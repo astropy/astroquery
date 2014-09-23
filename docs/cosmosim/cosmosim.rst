@@ -31,17 +31,42 @@ Getting started
 
     >>> from astroquery.cosmosim import CosmoSim
     >>> CS = CosmoSim()
-    >>> # Next, enter your credentials; caching is enabled, so after
-    >>> # the initial successful login no further password is required.
+
+Next, enter your credentials; caching is enabled, so after the initial
+successful login no further password is required if desired.
+
     >>> CS.login(username="uname") 
     uname, enter your CosmoSim password:
 
     Authenticating uname on www.cosmosim.org...
     Authentication successful!
-    >>> # It also knows if you are running from a script. To login
-    >>> # from a script (rather than an interactive python session): 
+    >>> # If running from a script (rather than an interactive python session): 
     >>> # CS.login(username="uname",password="password")
-    >>> # MDR1.BDMV mass function 
+    
+To store the password associated with your username in the keychain: 
+
+    >>> CS.login(username="uname",store_password=True)
+    WARNING: No password was found in the keychain for the provided username. [astroquery.cosmosim.core]
+    uname, enter your CosmoSim password:
+
+    Authenticating uname on www.cosmosim.org...
+    Authentication successful!
+
+Logging out is as simple as:
+
+    >>> CS.logout(deletepw=True)
+    Removed password for uname in the keychain.
+
+The deletepw option will undo the storage of any password in the
+keychain. Checking whether you are successfully logged in (or who is
+currently logged in):
+
+    >>> CS.check_login_status()
+    Status: You are logged in as uname.
+
+Below is an example of running an SQL query (BDMV mass function of the
+MDR1 cosmological simulation at a redshift of z=0):
+
     >>> sql_query = "SELECT 0.25*(0.5+FLOOR(LOG10(mass)/0.25)) AS log_mass, COUNT(*) AS num FROM MDR1.FOF WHERE snapnum=85 GROUP BY FLOOR(LOG10(mass)/0.25) ORDER BY log_mass" 
     >>> CS.run_sql_query(query_string=sql_query) 
     Job created: 359748449665484 #jobid; note: is unique to each and
@@ -77,10 +102,10 @@ jobs.
     {'359748449665484': 'COMPLETED'}
     {'359748449682647': 'ABORTED'}
 
-Additionally, 'delete_all_jobs' accepts both phase and/or tablename
-(via a regular expression) as criteria for deletion of all available
-CosmoSim jobs. But be careful: Leaving both arguments blank will
-delete ALL jobs!
+Additionally, 'check_all_jobs' (and 'delete_all_jobs') accepts both
+phase and/or tablename (via a regular expression) as criteria for
+deletion of all available CosmoSim jobs. But be careful: Leaving both
+arguments blank will delete ALL jobs!
 
 .. code-block:: python
 
@@ -119,6 +144,22 @@ Deleting all jobs, regardless of tablename, and job phase:
     Deleted job: 359748586913123
     >>> CS.check_all_jobs() 
     {}
+
+In addition to the phase and regex arguments for 'check_all_jobs',
+selected queries can be sorted using two properties:
+
+    >>> CS.check_all_jobs(phase=['completed'],regex='[a-z]*[0-9]*',sortby='tablename')
+         JobID        Phase   Tablename         Starttime        
+    --------------- --------- --------- -------------------------
+    361298054830707 COMPLETED    table1 2014-09-21T19:28:48+02:00
+    361298050841687 COMPLETED    table2 2014-09-21T19:20:23+02:00
+
+    >>> CS.check_all_jobs(phase=['completed'],regex='[a-z]*[0-9]*',sortby='starttime')
+         JobID        Phase   Tablename         Starttime        
+    --------------- --------- --------- -------------------------
+    361298050841687 COMPLETED    table2 2014-09-21T19:20:23+02:00
+    361298054830707 COMPLETED    table1 2014-09-21T19:28:48+02:00
+
 
 Exploring Database Schema
 =========================
