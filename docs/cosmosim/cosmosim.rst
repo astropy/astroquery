@@ -37,7 +37,7 @@ successful login no further password is required if desired.
 
     >>> CS.login(username="uname") 
     uname, enter your CosmoSim password:
-
+    
     Authenticating uname on www.cosmosim.org...
     Authentication successful!
     >>> # If running from a script (rather than an interactive python session): 
@@ -48,7 +48,7 @@ To store the password associated with your username in the keychain:
     >>> CS.login(username="uname",store_password=True)
     WARNING: No password was found in the keychain for the provided username. [astroquery.cosmosim.core]
     uname, enter your CosmoSim password:
-
+    
     Authenticating uname on www.cosmosim.org...
     Authentication successful!
 
@@ -82,11 +82,14 @@ few examples of functions available to the user for these purposes.
 .. code-block:: python
 
     >>> CS.check_all_jobs() 
-    {'359748449665484': 'COMPLETED'}
+         JobID        Phase  
+    --------------- ---------
+    361298054830707 COMPLETED
     >>> CS.delete_job(jobid='359748449665484') 
     Deleted job: 359748449665484
-    >>> CS.check_all_jobs() 
-    {}
+    >>> CS.check_all_jobs()
+         JobID        Phase  
+    --------------- ---------
 
 The above function 'check_all_jobs' also supports the usage of a
 job's phase status in order to filter through all available CosmoSim
@@ -95,12 +98,16 @@ jobs.
 .. code-block:: python
 
     >>> CS.check_all_jobs()
-    {'359748449665484': 'COMPLETED'}
-    {'359748449682647': 'ABORTED'}
-    {'359748449628375': 'ERROR'} 
+         JobID        Phase  
+    --------------- ---------
+    359748449665484 COMPLETED
+    359748449682647 ABORTED
+    359748449628375 ERROR
     >>> CS.check_all_jobs(phase=['Completed','Aborted']) 
-    {'359748449665484': 'COMPLETED'}
-    {'359748449682647': 'ABORTED'}
+         JobID        Phase  
+    --------------- ---------
+    359748449665484 COMPLETED
+    359748449682647 ABORTED
 
 Additionally, 'check_all_jobs' (and 'delete_all_jobs') accepts both
 phase and/or tablename (via a regular expression) as criteria for
@@ -110,19 +117,26 @@ arguments blank will delete ALL jobs!
 .. code-block:: python
 
     >>> CS.check_all_jobs()
-    {'359748449665484': 'COMPLETED'}
-    {'359748449682647': 'ABORTED'}
-    {'359748449628375': 'ERROR'} 
+         JobID        Phase  
+    --------------- ---------
+    359748449665484 COMPLETED
+    359748449682647 ABORTED
+    359748449628375 ERROR
     >>> CS.table_dict()
     {'359748449665484': '2014-09-07T05:01:40:0458'}
     {'359748449682647': 'table2'}
     {'359748449628375': 'table3'} 
     >>> CS.delete_all_jobs(phase=['Aborted','error'],regex='[a-z]*[0-9]*')
-    # phases are case insensitive
     Deleted job: 359748449682647 (Table: table2)
     Deleted job: 359748449628375 (Table: table3)
+
+Note: Arguments for phase are case insensitive. Now, check to see if
+the jobs have been deleted:
+
     >>> CS.check_all_jobs() 
-    {'359748449665484': 'COMPLETED'}
+         JobID        Phase  
+    --------------- ---------
+    359748449665484 COMPLETED
 
 Getting rid of this last job can be done by deleting all jobs with
 phase COMPLETED, or it can be done simply by providing the 'delete_job'
@@ -137,16 +151,21 @@ Deleting all jobs, regardless of tablename, and job phase:
 
 .. code-block:: python
 
-    >>> CS.check_all_jobs() 
-    {'359748449665484': 'ABORTED', '359748586913123': 'COMPLETED'}
+    >>> CS.check_all_jobs()
+         JobID        Phase  
+    --------------- ---------
+    359748449665484 ABORTED
+    359748586913123 COMPLETED
+ 
     >>> CS.delete_all_jobs() 
     Deleted job: 359748449665484
     Deleted job: 359748586913123
     >>> CS.check_all_jobs() 
-    {}
+         JobID        Phase  
+    --------------- ---------
 
 In addition to the phase and regex arguments for 'check_all_jobs',
-selected queries can be sorted using two properties:
+selected jobs can be sorted using two properties:
 
     >>> CS.check_all_jobs(phase=['completed'],regex='[a-z]*[0-9]*',sortby='tablename')
          JobID        Phase   Tablename         Starttime        
