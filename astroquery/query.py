@@ -8,8 +8,11 @@ import hashlib
 import keyring
 import io
 import os
+import warnings
 import requests
 import textwrap
+
+from datetime import datetime, timedelta
 
 from astropy.config import paths
 from astroquery import log
@@ -19,6 +22,7 @@ import astropy.utils.data
 
 from . import version
 from .utils import system_tools
+from astroquery import conf
 
 __all__ = ['BaseQuery', 'QueryWithLogin']
 
@@ -108,14 +112,21 @@ class AstroQuery:
     def from_cache(self, cache_location):
         request_file = self.request_file(cache_location)
         try:
-            with open(request_file, "rb") as f:
-                response = pickle.load(f)
-            if not isinstance(response, requests.Response):
+            current_time = datetime.utcnow()
+            cache_time = datetime.utcfromtimestamp(os.path.getmtime(request_file))
+            expired = ((current_time-cache_time) > timedelta(seconds=conf.default_cache_timeout))
+            if not expired:
+                with open(request_file, "rb") as f:
+                    response = pickle.load(f)
+                if not isinstance(response, requests.Response):
+                    response = None
+            else:
+                log.debug("Cache expired for {0}...".format(request_file))
                 response = None
         except FileNotFoundError:
             response = None
         if response:
-            log.debug("Retrieving data from {0}".format(request_file))
+            log.debug("Retrieved data from {0}".format(request_file))
         return response
 
     def remove_cache_file(self, cache_location):
