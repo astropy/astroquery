@@ -84,7 +84,7 @@ few examples of functions available to the user for these purposes.
     >>> CS.check_all_jobs() 
          JobID        Phase  
     --------------- ---------
-    361298054830707 COMPLETED
+    359748449665484 COMPLETED
     >>> CS.delete_job(jobid='359748449665484') 
     Deleted job: 359748449665484
     >>> CS.check_all_jobs()
@@ -186,73 +186,145 @@ Exploring Database Schema
 A database exploration tool is available to help the user navigate
 the structure of any simulation database in the CosmoSim database. 
 
+.. code-block:: python
 
-Legend
-
-'@'  :   type == dict
-
-'$'   :   type != dict
+    >>> CS.explore_db()
+    Must first specify a database.
+            Projects         Project Items                                      Information                                      
+    ------------------------ ------------- --------------------------------------------------------------------------------------
+                   @ Bolshoi      @ tables                                                                                       
+                                       id:                                                                                      2
+                              description:                                                                  The Bolshoi Database.
+    ------------------------ ------------- --------------------------------------------------------------------------------------
+                  @ BolshoiP      @ tables                                                                                       
+                                       id:                                                                                    119
+                              description:                                                              Bolshoi Planck simulation
+    ------------------------ ------------- --------------------------------------------------------------------------------------
+               @ Clues3_LGDM      @ tables                                                                                       
+                                       id:                                                                                    134
+                              description: CLUES simulation, B64, 186592, WMAP3, Local Group resimulation, 4096, Dark Matter only
+    ------------------------ ------------- --------------------------------------------------------------------------------------
+              @ Clues3_LGGas      @ tables                                                                                       
+                                       id:                                                                                    124
+                              description:          CLUES simulation, B64, 186592, WMAP3, Local Group resimulation, 4096, Gas+SFR
+    ------------------------ ------------- --------------------------------------------------------------------------------------
+                      @ MDPL      @ tables                                                                                       
+                                       id:                                                                                    114
+                              description:                                                            The MDR1-Planck simulation.
+    ------------------------ ------------- --------------------------------------------------------------------------------------
+                      @ MDR1      @ tables                                                                                       
+                                       id:                                                                                      7
+                              description:                                                        The MultiDark Run 1 Simulation.
+    ------------------------ ------------- --------------------------------------------------------------------------------------
+    @ cosmosim_user_username      @ tables                                                                                       
+                                       id:                                                                                 userdb
+                              description:                                                                 Your personal database
+    ------------------------ ------------- --------------------------------------------------------------------------------------
 
 .. code-block:: python
 
-    >>> CS.explore_db(db='MDPL') 
-    ########
-    # MDPL #
-    ########
-    @ tables
-       --> FOF5
-       --> FOF4
-       --> FOF3
-       --> FOF2
-       --> FOF1
-       --> Particles88
-       --> FOF
-       --> LinkLength
-       --> BDMW
-       --> AvailHalos
-       --> Redshifts
-       --> Particles42
-    $ id
-       --> 114
-    $ description
-       --> The MDR1-Planck simulation.
- 
-.. code-block:: python
-
-    >>> CS.explore_db(db='MDPL',table='AvailHalos') 
-    ########
-    # MDPL #
-    ########
-    @ tables
-       @ AvailHalos
-          $ id
-             --> 932
-          @ columns
-             --> FOF5
-             --> FOF4
-             --> FOF3
-             --> FOF2
-             --> FOF1
-             --> redshift
-             --> BDM
-             --> FOF
-             --> snapnum
-          $ description
-             --> 
+    >>> CS.explore_db(db='MDPL')
+      Projects  Project Items     Tables   
+    ----------- ------------- -------------
+    --> @ MDPL: --> @ tables:         @ FOF
+                           id        @ FOF5
+                  description        @ FOF4
+                                     @ FOF3
+                                     @ FOF2
+                                     @ FOF1
+                                     @ BDMW
+                                @ Redshifts
+                               @ LinkLength
+                               @ AvailHalos
+                              @ Particles88 
 
 .. code-block:: python
 
-    >>> CS.explore_db(db='MDPL',table='AvailHalos',col='redshift') 
-    ########
-    # MDPL #
-    ########
-    @ tables
-       @ AvailHalos
-          @ columns
-             @ redshift
-                --> id:21613
-                --> description:
-    
+    >>> CS.explore_db(db='MDPL',table='FOF')
+      Projects  Project Items     Tables    Table Items  Table Info Columns 
+    ----------- ------------- ------------- ------------ ---------- --------
+    --> @ MDPL: --> @ tables:    --> @ FOF:          id:        934        y
+                           id        @ FOF5    @ columns                   x
+                  description        @ FOF4 description:                   z
+                                     @ FOF3                               ix
+                                     @ FOF2                               iz
+                                     @ FOF1                               vx
+                                     @ BDMW                               vy
+                                @ Redshifts                               vz
+                               @ LinkLength                               iy
+                               @ AvailHalos                               np
+                              @ Particles88                             disp
+                                                                        size
+                                                                        spin
+                                                                        mass
+                                                                       axis1
+                                                                       axis2
+                                                                       axis3
+                                                                       fofId
+                                                                       phkey
+                                                                       delta
+                                                                       level
+                                                                      angMom
+                                                                      disp_v
+                                                                     axis1_z
+                                                                     axis1_x
+                                                                     axis1_y
+                                                                     axis3_x
+                                                                     axis3_y
+                                                                     axis3_z
+                                                                     axis2_y
+                                                                     axis2_x
+                                                                     NInFile
+                                                                     axis2_z
+                                                                     snapnum
+                                                                    angMom_x
+                                                                    angMom_y
+                                                                    angMom_z    
+
+.. code-block:: python
+
+    >>> CS.explore_db(db='MDPL',table='FOF',col='fofId')
+      Projects  Project Items     Tables     Table Items     Columns   
+    ----------- ------------- ------------- -------------- ------------
+    --> @ MDPL: --> @ tables:    --> @ FOF: --> @ columns: --> @ fofId:
+                           id        @ FOF5             id       @ disp
+                  description        @ FOF4    description    @ axis1_z
+                                     @ FOF3                   @ axis1_x
+                                     @ FOF2                   @ axis1_y
+                                     @ FOF1                        @ ix
+                                     @ BDMW                        @ iz
+                                @ Redshifts                   @ axis3_x
+                               @ LinkLength                   @ axis3_y
+                               @ AvailHalos                   @ axis3_z
+                              @ Particles88                        @ vx
+                                                                   @ vy
+                                                                   @ vz
+                                                              @ axis2_y
+                                                              @ axis2_x
+                                                                 @ size
+                                                                @ axis1
+                                                                @ axis2
+                                                                @ axis3
+                                                                   @ iy
+                                                               @ angMom
+                                                              @ NInFile
+                                                                   @ np
+                                                              @ axis2_z
+                                                               @ disp_v
+                                                                @ phkey
+                                                                @ delta
+                                                              @ snapnum
+                                                                 @ spin
+                                                                @ level
+                                                             @ angMom_x
+                                                             @ angMom_y
+                                                             @ angMom_z
+                                                                 @ mass
+                                                                    @ y
+                                                                    @ x
+                                                                    @ z
+
+
 Downloading data
 ================
 
