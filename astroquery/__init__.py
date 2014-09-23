@@ -13,16 +13,15 @@ from ._astropy_init import *
 # ----------------------------------------------------------------------------
 
 # For egg_info test builds to pass, put package imports here.
-#if not _ASTROPY_SETUP_:
-#    from astroquery import *
+if not _ASTROPY_SETUP_:
 
-from astropy import config as _config
+    from astropy import config as _config
 
-class Conf(_config.ConfigNamespace):
-    
-    default_cache_timeout = _config.ConfigItem(
-          60.0*60.0*24.0,
-          'Astroquery-wide default cache timeout (seconds).'
-          )
+    class Conf(_config.ConfigNamespace):
 
-conf = Conf()
+        default_cache_timeout = _config.ConfigItem(
+              60.0*60.0*24.0,
+              'Astroquery-wide default cache timeout (seconds).'
+              )
+
+    conf = Conf()
