@@ -372,31 +372,116 @@ class CosmoSimClass(QueryWithLogin):
         if frame.f_code.co_name in do_not_print_job_dict: 
             return checkalljobs
         else:
-            if not phase:
-                if not regex:
-                    for i in self.job_dict.keys():
-                        print("{} : {}".format(i,self.job_dict[i]))
-                if regex:
-                    for i in self.job_dict.keys():
-                        if i in self.table_dict.keys():
-                            if self.table_dict[i] in matching_tables:
-                                print("{} : {} (Table: {})".format(i,
-                                                                   self.job_dict[i],
-                                                                   self.table_dict[i]))
-            elif phase:
-                phase = [phase[i].upper() for i in range(len(phase))]
-                if not regex:
-                    for i in self.job_dict.keys():
-                        if self.job_dict[i] in phase:
-                            print("{} : {}".format(i,self.job_dict[i]))
-                if regex:
-                    for i in self.job_dict.keys():
-                        if self.job_dict[i] in phase:
-                            if i in self.table_dict.keys():
-                                if self.table_dict[i] in matching_tables:
-                                    print("{} : {} (Table: {})".format(i,
-                                                                       self.job_dict[i],
-                                                                       self.table_dict[i]))
+            if not phase and not regex:
+                if not sortby:
+                    t = Table()
+                    t['JobID'] = self.job_dict.keys()
+                    t['Phase'] = self.job_dict.values()
+                    t.pprint()
+                else:
+                    if sortby.upper() == 'TABLENAME':
+                        t = Table()
+                        t['Tablename'] = matching_tables
+                        t['Starttime'] = matching_starttimes                        
+                        t['JobID'] = matching_jobids
+                        t['Phase'] = matching_phases
+                        t.pprint()
+                    if sortby.upper() == 'STARTTIME':
+                        t = Table()
+                        t['Starttime'] = matching_starttimes
+                        t['Tablename'] = matching_tables
+                        t['JobID'] = matching_jobids
+                        t['Phase'] = matching_phases
+                        t.pprint()
+                           
+            elif not phase and regex:
+                t = Table()
+                if sortby:
+                    if sortby.upper() == 'STARTTIME':
+                        t['Starttime'] = matching_starttimes
+                        t['Tablename'] = matching_tables
+                    if sortby.upper() == 'TABLENAME':
+                        t['Tablename'] = matching_tables
+                        t['Starttime'] = matching_starttimes
+                if not sortby:
+                    t['Tablename'] = matching_tables
+                    t['Starttime'] = matching_starttimes
+                t['JobID'] = matching_jobids
+                t['Phase'] = matching_phases
+                t.pprint()
+
+                    
+            if phase and not regex:
+                if len(phase) == 1 and "COMPLETED" in phase:
+                    if not sortby:
+                        matching_jobids = [key
+                                           for key in self.job_dict.keys()
+                                           if self.job_dict[key] in phase]
+                        matching = zip(*[[(self.table_dict[i],self.job_dict[i],self.starttime_dict[i])
+                                for i in self.table_dict.keys()
+                                if i == miter][0]
+                                for miter in matching_jobids])
+                        matching_tables,matching_phases,matching_starttimes = (matching[0],matching[1],matching[2])
+                        t = Table()
+                        t['JobID'] = matching_jobids
+                        t['Phase'] = matching_phases
+                        t['Tablename'] = matching_tables
+                        t['Starttime'] = matching_starttimes
+                        t.pprint()
+                    if sortby:
+                        if sortby.upper() == 'TABLENAME':
+                            t = Table()
+                            t['Tablename'] = matching_tables
+                            t['Starttime'] = matching_starttimes
+                            t['JobID'] = matching_jobids
+                            t['Phase'] = matching_phases
+                            t.pprint()
+                        if sortby.upper() == 'STARTTIME':
+                            t = Table()
+                            t['Starttime'] = matching_starttimes
+                            t['Tablename'] = matching_tables
+                            t['JobID'] = matching_jobids
+                            t['Phase'] = matching_phases
+                            t.pprint()
+                else:
+                    if sortby:
+                        print('Sorting can only be applied to jobs with phase `COMPLETED`.')
+                    if not sortby:
+                        matching_jobids = [key
+                                           for key in self.job_dict.keys()
+                                           if self.job_dict[key] in phase]
+                        matching_phases = [self.job_dict[key]
+                                           for key in self.job_dict.keys()
+                                           if self.job_dict[key] in phase]
+                        t = Table()
+                        t['JobID'] = matching_jobids
+                        t['Phase'] = matching_phases
+                        t.pprint()
+                
+            if phase and regex:
+                if not sortby:
+                    t = Table()
+                    t['Tablename'] = matching_tables
+                    t['Starttime'] = matching_starttimes
+                    t['JobID'] = matching_jobids
+                    t['Phase'] = matching_phases
+                    t.pprint()
+                else:
+                    if sortby.upper() == 'TABLENAME':
+                        t = Table()
+                        t['Tablename'] = matching_tables
+                        t['Starttime'] = matching_starttimes
+                        t['JobID'] = matching_jobids
+                        t['Phase'] = matching_phases
+                        t.pprint()
+                    if sortby.upper() == 'STARTTIME':
+                        t = Table()
+                        t['Starttime'] = matching_starttimes
+                        t['Tablename'] = matching_tables
+                        t['JobID'] = matching_jobids
+                        t['Phase'] = matching_phases
+                        t.pprint()
+                
             return checkalljobs
 
     def completed_job_info(self,jobid=None,output=False):
@@ -418,16 +503,22 @@ class CosmoSimClass(QueryWithLogin):
         self.check_all_jobs()
         
         if jobid is None:
-            completed_jobids = [key
-                                for key in self.job_dict.keys()
-                                if self.job_dict[key] == 'COMPLETED']
-            response_list = [self.session.get(CosmoSim.QUERY_URL+"/{}".format(completed_jobids[i]),
-                                              auth=(self.username,self.password))
-                                              for i in range(len(completed_jobids))]
+            completed_jobids = [key for key in self.job_dict.keys() if self.job_dict[key] == 'COMPLETED']
+            response_list = [self._request('GET',
+                                           CosmoSim.QUERY_URL+"/{}".format(completed_jobids[i]),
+                                           auth=(self.username, self.password),cache=False)
+                             for i in range(len(completed_jobids))]
+            self.response_dict_current = {}
+            for i,vals in enumerate(completed_jobids):
+                self.response_dict_current[vals] = self._generate_response_dict(response_list[i])
         else:
             if self.job_dict[jobid] == 'COMPLETED':
-                response_list = [self.session.get(CosmoSim.QUERY_URL+"/{}".format(jobid),
-                                                  auth=(self.username,self.password))]
+                response_list = [self._request('GET',
+                                               CosmoSim.QUERY_URL+"/{}".format(jobid),
+                                               auth=(self.username,
+                                                     self.password),cache=False)]
+                self.response_dict_current = {}
+                self.response_dict_current[jobid] = self._generate_response_dict(response_list[0])
             else:
                 logging.warning("JobID must refer to a query with a phase of 'COMPLETED'.")
                 return
