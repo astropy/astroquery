@@ -366,7 +366,9 @@ class CosmoSimClass(QueryWithLogin):
             
         frame = sys._getframe(1)
         do_not_print_job_dict = ['completed_job_info','general_job_info','delete_all_jobs',
-                                 '_existing_tables','delete_job','download'] # list of methods which use check_all_jobs() for which I would not like job_dict to be printed to the terminal
+                                 '_existing_tables','delete_job','download'] # list of methods which use check_all_jobs()
+                                                                             # for which I would not like job_dict to be
+                                                                             # printed to the terminal
         if frame.f_code.co_name in do_not_print_job_dict: 
             return checkalljobs
         else:
@@ -480,7 +482,7 @@ class CosmoSimClass(QueryWithLogin):
                         t['Phase'] = matching_phases
                         t.pprint()
                 
-            return checkalljobs    
+            return checkalljobs
 
     def completed_job_info(self,jobid=None,output=False):
         """
