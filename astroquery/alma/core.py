@@ -128,13 +128,41 @@ class AlmaClass(QueryWithLogin):
         if science:
             payload['scan_intent-asu'] = '=*TARGET*'
 
-        self._validate_payload(payload)
+        self.validate_query(payload)
 
         response = self._request('GET', url, params=payload,
                                  timeout=self.TIMEOUT, cache=cache)
         response.raise_for_status()
 
         return response
+    
+    def validate_query(self, payload, cache=True):
+        """
+        Use the ALMA query validator service to check whether the keywords are
+        valid
+        """
+        
+        # Check that the keywords specified are allowed
+        self._validate_payload(payload)
+
+        vurl = self._get_dataarchive_url() + '/aq/validate'
+
+        bad_kws = {}
+
+        for kw in payload:
+            vpayload = {'field':kw,
+                        kw: payload[kw]}
+            response = self._request('GET', vurl, params=vpayload, cache=cache,
+                                     timeout=self.TIMEOUT)
+
+            if response.content:
+                bad_kws[kw] = response.content
+
+        if bad_kws:
+            raise InvalidQueryError("Invalid query parameters: "
+                                    "{0}".format(bad_kws))
+
+
 
     def _get_dataarchive_url(self):
         """
