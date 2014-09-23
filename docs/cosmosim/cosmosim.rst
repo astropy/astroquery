@@ -380,7 +380,7 @@ Data can be stored and/or written out as a `VOTable`_.
     >>> data = CS.download(jobid='359750704009965',format='votable')
     >>> data
     <astropy.io.votable.tree.VOTableFile at 0x10b440150>
-    >>>data = CS.download(jobid='359750704009965',filename='/Users/uname/Desktop/test.xml',format='votable')
+    >>> data = CS.download(jobid='359750704009965',filename='/Users/uname/Desktop/test.xml',format='votable')
     >>> |==========================================================================================================================| 4.9k/4.9k (100.00%)         0s
 
 
