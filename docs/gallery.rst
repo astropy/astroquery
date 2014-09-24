@@ -124,9 +124,10 @@ identifying some spectral lines in the data.
 
    m83table = Alma.query_object('M83', public=True)
    m83urls = Alma.stage_data(m83table['Asdm_uid'])
-   m83files = Alma.download_and_extract_files(m83urls['URL'])
-   # Sometimes there can be duplicates
-   m83files = list(set(m83files))
+   # Sometimes there can be duplicates: avoid them with
+   # list(set())
+   m83files = Alma.download_and_extract_files(list(set(m83urls['URL'])))
+   m83files = m83files
    
    Simbad.add_votable_fields('rvel')
    m83simbad = Simbad.query_object('M83')
@@ -148,12 +149,13 @@ identifying some spectral lines in the data.
 
            # Change the cube coordinate system to be in velocity with respect
            # to the rest frequency (in the M83 rest frame)
-           rests_frequency = lines['Freq-GHz'][0]*u.GHz / (1+rvel/constants.c)
+           rest_frequency = lines['Freq-GHz'][0]*u.GHz / (1+rvel/constants.c)
            vcube = cube.with_spectral_unit(u.km/u.s,
                                            rest_value=rest_frequency,
                                            velocity_convention='radio')
 
            # Write the cube with the specified line name
            fmt = "{Species}{Resolved QNs}"
+           row = lines[0]
            linename = fmt.format(**dict(zip(row.colnames,row.data)))
            vcube.write('M83_ALMA_{linename}.fits'.format(linename=linename))
