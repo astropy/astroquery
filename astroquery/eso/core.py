@@ -571,8 +571,8 @@ class EsoClass(QueryWithLogin):
 
         return 'No data returned' not in content
 
-    def query_apex_quicklooks(self, project_id, help=False, open_form=False,
-                              cache=True, **kwargs):
+    def query_apex_quicklooks(self, project_id=None, help=False,
+                              open_form=False, cache=True, **kwargs):
         """
         APEX data are distributed with quicklook products identified with a
         different name than other ESO products.  This query tool searches by
@@ -593,7 +593,10 @@ class EsoClass(QueryWithLogin):
             return self._print_help(apex_query_url, 'apex')
         else:
 
-            payload = {'dp_id':project_id, 'wdbo':'csv/download'}
+            payload = {'wdbo':'csv/download'}
+            if project_id is not None:
+                payload['dp_id'] = project_id
+            payload.update(kwargs)
 
             apex_form = self._request("GET", apex_query_url, cache=cache)
             apex_response = self._activate_form(apex_form, form_index=0,
@@ -602,16 +605,20 @@ class EsoClass(QueryWithLogin):
 
             content = apex_response.content
             if _check_response(content):
+                #First line is always garbage
+                content = content.split(b'\n',1)[1]
                 try:
                     table = Table.read(BytesIO(content), format="ascii.csv",
-                                       guess=False, header_start=1)
+                                       guess=False,# header_start=1,
+                                       comment="#")
                 except Exception as ex:
                     # astropy 0.3.2 raises an anonymous exception; this is
                     # intended to prevent that from causing real problems
                     if 'No reader defined' in ex.args[0]:
                         table = Table.read(BytesIO(content), format="ascii",
                                            delimiter=',', guess=False,
-                                           header_start=1)
+                                           #header_start=1,
+                                           comment="#")
                     else:
                         raise ex
             else:
