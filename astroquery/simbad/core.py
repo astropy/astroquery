@@ -682,7 +682,7 @@ class SimbadClass(BaseQuery):
             ra, dec, frame = _parse_coordinates(coordinates)
             args = [ra, dec]
             kwargs['frame'] = frame
-            if kwargs.get('radius'):
+            if kwargs.get('radius') is not None:
                 kwargs['radius'] = _parse_radius(kwargs['radius'])
         # rename equinox to equi as required by SIMBAD script
         if kwargs.get('equinox'):
