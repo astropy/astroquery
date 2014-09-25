@@ -251,6 +251,17 @@ def test_query_region(patch_post, coordinates, radius, equinox, epoch):
     assert isinstance(result2, Table)
 
 
+@pytest.mark.parametrize(('coordinates', 'radius', 'equinox', 'epoch'),
+                         [(ICRS_COORDS, 0, None, None)])
+def test_query_region_radius_error(patch_post, coordinates, radius, equinox, epoch):
+    with pytest.raises(u.UnitsError):
+        result1 = simbad.core.Simbad.query_region(coordinates, radius=radius,
+                                                  equinox=equinox, epoch=epoch)
+    with pytest.raises(u.UnitsError):
+        result2 = simbad.core.Simbad().query_region(coordinates, radius=radius,
+                                                    equinox=equinox, epoch=epoch)
+
+
 @pytest.mark.parametrize(('object_name', 'wildcard'),
                          [("m1", None),
                          ("m [0-9]", True)
