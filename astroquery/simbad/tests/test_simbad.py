@@ -262,6 +262,19 @@ def test_query_region_radius_error(patch_post, coordinates, radius, equinox, epo
                                                     equinox=equinox, epoch=epoch)
 
 
+@pytest.mark.parametrize(('coordinates', 'radius', 'equinox', 'epoch'),
+                         [(ICRS_COORDS, "0d", None, None),
+                          (GALACTIC_COORDS, 1.0 * u.marcsec, 2000.0, 'J2000')
+                          ])
+def test_query_region_small_radius(patch_post, coordinates, radius, equinox, epoch):
+    result1 = simbad.core.Simbad.query_region(coordinates, radius=radius,
+                                              equinox=equinox, epoch=epoch)
+    result2 = simbad.core.Simbad().query_region(coordinates, radius=radius,
+                                                equinox=equinox, epoch=epoch)
+    assert isinstance(result1, Table)
+    assert isinstance(result2, Table)
+
+
 @pytest.mark.parametrize(('object_name', 'wildcard'),
                          [("m1", None),
                          ("m [0-9]", True)

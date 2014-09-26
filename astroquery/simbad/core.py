@@ -785,7 +785,11 @@ def _parse_radius(radius):
     try:
         angle = commons.parse_radius(radius)
         # find the most appropriate unit - d, m or s
-        index = min([i for (i, val) in enumerate(angle.dms) if int(val) > 0])
+        nonzero_indices = [i for (i, val) in enumerate(angle.dms) if int(val) > 0]
+        if len(nonzero_indices) > 0:
+            index = min(nonzero_indices)
+        else:
+            index = 2  # use arcseconds when radius smaller than 1 arcsecond
         unit = ('d', 'm', 's')[index]
         if unit == 'd':
             return str(int(angle.degree)) + unit
