@@ -274,7 +274,9 @@ class UkidssClass(QueryWithLogin):
         if verbose:
             print("Found {num} targets".format(num=len(image_urls)))
 
-        return [commons.FileContainer(U, encoding='binary') for U in image_urls]
+        return [commons.FileContainer(U, encoding='binary',
+                                      remote_timeout=self.TIMEOUT)
+                for U in image_urls]
 
     @validate_frame
     @validate_filter
