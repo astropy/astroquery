@@ -122,8 +122,19 @@ class TestSimbad(object):
 
     # Special case of null test: zero-sized region
     def test_query_region_null(self):
-        # This test will fail if some object is discovered within 1 arcsec of the origin
-        # (Due to other bugs I could not set a smaller radius, or radius=0)
-        result = simbad.core.Simbad.query_region(coord.ICRS("00h00m0.0s 00h00m0.0s"), radius=1 * u.arcsec,
+        result = simbad.core.Simbad.query_region(coord.ICRS("00h00m0.0s 00h00m0.0s"), radius="0d",
                                                  equinox=2000.0, epoch='J2000')
         assert result is None
+
+    # Special case of null test: very small region
+    def test_query_small_region_null(self):
+        result = simbad.core.Simbad.query_region(coord.ICRS("00h00m0.0s 00h00m0.0s"), radius=1.0 * u.marcsec,
+                                                 equinox=2000.0, epoch='J2000')
+        assert result is None
+
+    # Special case : zero-sized region with one object
+    def test_query_zero_sized_region(self):
+        result = simbad.core.Simbad.query_region(coord.ICRS("20h54m05.6889s 37d01m17.380s"), radius="0d",
+                                                 equinox=2000.0, epoch='J2000')
+        # This should find a single star, BD+36 4308
+        assert len(result) == 1

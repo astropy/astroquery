@@ -682,7 +682,7 @@ class SimbadClass(BaseQuery):
             ra, dec, frame = _parse_coordinates(coordinates)
             args = [ra, dec]
             kwargs['frame'] = frame
-            if kwargs.get('radius'):
+            if kwargs.get('radius') is not None:
                 kwargs['radius'] = _parse_radius(kwargs['radius'])
         # rename equinox to equi as required by SIMBAD script
         if kwargs.get('equinox'):
@@ -785,7 +785,11 @@ def _parse_radius(radius):
     try:
         angle = commons.parse_radius(radius)
         # find the most appropriate unit - d, m or s
-        index = min([i for (i, val) in enumerate(angle.dms) if int(val) > 0])
+        nonzero_indices = [i for (i, val) in enumerate(angle.dms) if int(val) > 0]
+        if len(nonzero_indices) > 0:
+            index = min(nonzero_indices)
+        else:
+            index = 2  # use arcseconds when radius smaller than 1 arcsecond
         unit = ('d', 'm', 's')[index]
         if unit == 'd':
             return str(int(angle.degree)) + unit
