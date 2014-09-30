@@ -1,7 +1,8 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
-from astropy.tests.helper import remote_data
+from astropy.tests.helper import remote_data,pytest
 import astropy.units as u
+from astropy import coordinates
 from ... import vizier
 from ...utils import commons
 import requests
@@ -59,8 +60,8 @@ class TestVizierRemote(object):
                                column_filters={"Vmag":">10"}, keywords=["optical", "radio"])
         v.query_object('M 31')
 
-    def regressiontest_invalidtable(self):
-        V = Vizier(columns=['all'], ucd='(spect.dopplerVeloc*|phys.veloc*)',
+    def test_regressiontest_invalidtable(self):
+        V = vizier.core.Vizier(columns=['all'], ucd='(spect.dopplerVeloc*|phys.veloc*)',
                    keywords=['Radio', 'IR'], row_limit=5000)
         C = coordinates.SkyCoord(359.61687 * u.deg, -0.242457 * u.deg, frame='galactic')
 
@@ -79,3 +80,14 @@ class TestVizierRemote(object):
         assert len(result) >= 5
         assert 'I/239/hip_main' in result.keys()
         assert result['I/239/hip_main']['HIP'] == 98298
+
+    def test_findcatalog_maxcatalog(self):
+        V = vizier.core.Vizier()
+        cats = V.find_catalogs('eclipsing binary', max_catalogs=5000)
+        assert len(cats) >= 468
+
+        #with pytest.raises(ValueError) as exc:
+        #    V.find_catalogs('eclipsing binary')
+        #assert str(exc.value)==("Maximum number of catalogs exceeded."
+        #                        "  Try setting max_catalogs "
+        #                        "to a large number and try again")
