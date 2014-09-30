@@ -1,6 +1,12 @@
 0.3 (unreleased)
 ----------------
 
+- None yet
+
+0.2.3 (2014-09-30)
+------------------
+
+
 - AstroResponse has been removed, which means that all cached objects will have
   new hashes.  You should clear your cache: for most users, that means 
   ``rm -r ~/.astropy/cache/astroquery/`` (#418)
