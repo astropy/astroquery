@@ -15,7 +15,9 @@ class Conf(_config.ConfigNamespace):
     archive_url = _config.ConfigItem(['http://almascience.org',
                                       'http://almascience.eso.org',
                                       'http://almascience.nrao.edu',
-                                      'http://almascience.nao.ac.jp'],
+                                      'http://almascience.nao.ac.jp',
+                                      'http://beta.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/aq', # the beta server (for testing)
+                                     ],
                                      'The ALMA Archive mirror to use')
 
 conf = Conf()
