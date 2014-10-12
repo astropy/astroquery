@@ -120,7 +120,7 @@ class TestEso:
         result1 = eso.retrieve_data("MIDI.2014-07-25T02:03:11.561")
         result2 = eso.retrieve_data("AMBER.2006-03-14T07:40:19.830")
 
-    @pytest.parametrize(('instrument',), (Eso.list_instruments()))
+    @pytest.mark.parametrize('instrument', Eso.list_instruments())
     def test_help(self, instrument):
         eso = Eso()
         eso.query_instrument(instrument, help=True)
