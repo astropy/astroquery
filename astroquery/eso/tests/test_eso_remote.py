@@ -17,6 +17,10 @@ from ...exceptions import LoginError
 
 SKIP_TESTS = not(HAS_KEYRING and ESO_IMPORTED)
 
+instrument_list = [u'fors1', u'fors2', u'vimos', u'omegacam', u'hawki',
+                   u'isaac', u'naco', u'visir', u'vircam', u'apex', u'uves',
+                   u'giraffe', u'xshooter', u'muse', u'crires', u'kmos',
+                   u'sinfoni', u'amber', u'midi', u'harps']
 
 @pytest.mark.skipif('SKIP_TESTS')
 @remote_data
@@ -91,10 +95,7 @@ class TestEso:
 
         inst = Eso.list_instruments()
 
-        assert inst == [u'fors1', u'fors2', u'vimos', u'omegacam', u'hawki', u'isaac',
-                        u'naco', u'visir', u'vircam', u'apex', u'uves', u'giraffe',
-                        u'xshooter', u'muse', u'crires', u'kmos', u'sinfoni', u'amber',
-                        u'midi', u'harps']
+        assert inst == instrument_list
 
     # REQUIRES LOGIN!
     # Can we get a special login specifically for astroquery testing?
@@ -120,7 +121,7 @@ class TestEso:
         result1 = eso.retrieve_data("MIDI.2014-07-25T02:03:11.561")
         result2 = eso.retrieve_data("AMBER.2006-03-14T07:40:19.830")
 
-    @pytest.mark.parametrize('instrument', Eso.list_instruments())
+    @pytest.mark.parametrize('instrument', instrument_list)
     def test_help(self, instrument):
         eso = Eso()
         eso.query_instrument(instrument, help=True)
