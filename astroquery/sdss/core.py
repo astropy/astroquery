@@ -93,10 +93,10 @@ class SDSSClass(BaseQuery):
         timeout : float, optional
             Time limit (in seconds) for establishing successful connection with
             remote server.  Defaults to `SDSSClass.TIMEOUT`.
-        photoobj_fields: float, optional
+        photoobj_fields : float, optional
             PhotoObj quantities to return. If photoobj_fields is None and
             specobj_fields is None then the value of fields is used
-        specobj_fields: float, optional
+        specobj_fields : float, optional
             SpecObj quantities to return. If photoobj_fields is None and
             specobj_fields is None then the value of fields is used
 
@@ -138,10 +138,11 @@ class SDSSClass(BaseQuery):
         """
         Used to query the SpecObjAll table with plate, mjd and fiberID values.
 
+        At least one of ``plate``, ``mjd`` or ``fiberID`` parameters must be
+        specified.
+
         Parameters
         ----------
-        At least one of ``plate``, ``mjd`` or ``fiberID`` must be specified.
-
         plate : integer, optional
             Plate number.
         mjd : integer, optional
@@ -198,10 +199,11 @@ class SDSSClass(BaseQuery):
         Used to query the PhotoObjAll table with run, rerun, camcol and field
         values.
 
+        At least one of ``run``, ``camcol`` or ``field`` parameters must be
+        specified.
+
         Parameters
         ----------
-        At least one of ``run``, ``camcol`` or ``field`` must be specified.
-
         run : integer, optional
             Length of a strip observed in a single continuous image observing
             scan.
@@ -262,7 +264,7 @@ class SDSSClass(BaseQuery):
 
     def query_sql_async(self, sql_query, timeout=TIMEOUT, **kwargs):
         """
-        Query the SDSS database
+        Query the SDSS database.
 
         Parameters
         ----------
@@ -310,15 +312,17 @@ class SDSSClass(BaseQuery):
         """
         Download spectrum from SDSS.
 
-        Parameters
-        ----------
         The query can be made with one the following groups of parameters
         (whichever comes first is used):
-          - ``matches`` (result of a call to `query_region`);
-          - ``coordinates``, ``radius``;
-          - ``plate``, ``mjd``, ``fiberID``.
+
+        - ``matches`` (result of a call to `query_region`);
+        - ``coordinates``, ``radius``;
+        - ``plate``, ``mjd``, ``fiberID``.
+
         See below for examples.
 
+        Parameters
+        ----------
         coordinates : str or `astropy.coordinates` object
             The target around which to search. It may be specified as a string
             in which case it is resolved using online services or as the
@@ -427,15 +431,17 @@ class SDSSClass(BaseQuery):
         Querying SDSS for images will return the entire plate. For subsequent
         analyses of individual objects
 
-        Parameters
-        ----------
         The query can be made with one the following groups of parameters
         (whichever comes first is used):
-          - ``matches`` (result of a call to `query_region`);
-          - ``coordinates``, ``radius``;
-          - ``run``, ``rerun``, ``camcol``, ``field``.
+
+        - ``matches`` (result of a call to `query_region`);
+        - ``coordinates``, ``radius``;
+        - ``run``, ``rerun``, ``camcol``, ``field``.
+
         See below for examples.
 
+        Parameters
+        ----------
         coordinates : str or `astropy.coordinates` object
             The target around which to search. It may be specified as a string
             in which case it is resolved using online services or as the
