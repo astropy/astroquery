@@ -12,7 +12,7 @@ Getting started
 This example shows how to perform an object cross-ID with SDSS. We'll start
 with the position of a source found in another survey, and search within a 5
 arcsecond radius for optical counterparts in SDSS. Note use of the keyword
-argument spectro, which requires matches to have spectroscopy, not just 
+argument spectro, which requires matches to have spectroscopy, not just
 photometry:
 
 .. code-block:: python
@@ -25,13 +25,13 @@ photometry:
         ra         dec           objid        run  rerun camcol field    z    plate  mjd  fiberID     specobjid      specClass
     ---------- ----------- ------------------ ---- ----- ------ ----- ------- ----- ----- ------- ------------------ ---------
     2.02344483 14.83982059 587727221951234166 1739    40      3   315 0.04541   751 52251     160 211612124516974592         3
- 
+
 The result is an astropy.Table.
 
 Downloading data
 ================
 If we'd like to download spectra and/or images for our match, we have all
-the information we need in the elements of "xid" from the above example. 
+the information we need in the elements of "xid" from the above example.
 
 .. code-block:: python
 
@@ -43,18 +43,19 @@ each corresponding object in xid.
 
 Note that in SDSS, image downloads retrieve the entire plate, so further
 processing will be required to excise an image centered around the point of
-interest (i.e. the object(s) returned by `SDSS.query_region`).
-    
+interest (i.e. the object(s) returned by
+`~astroquery.sdss.SDSSClass.query_region`).
+
 Spectral templates
 ==================
-It is also possible to download spectral templates from SDSS. To see what is 
+It is also possible to download spectral templates from SDSS. To see what is
 available, do
 
 .. code-block:: python
-    
+
     >>> from astroquery.sdss import SDSS
     >>> print SDSS.AVAILABLE_TEMPLATES
-    
+
 Then, to download your favorite template, do something like
 
 .. code-block:: python
