@@ -8,6 +8,8 @@ be removed in affiliated packages.
 - Changed order of exclusion in MANIFEST.in, excluding *.pyc *after* including
   astropy-template
 
+- Updated astropy-helpers to v0.4.3
+
 0.4 (2014-08-14)
 ----------------
 
