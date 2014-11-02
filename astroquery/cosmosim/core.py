@@ -52,8 +52,7 @@ class CosmoSimClass(QueryWithLogin):
 
         # login after login (interactive)
         if hasattr(self,'username'):
-            raise LoginError("Attempting to login while another user ({}) is already logged in.".format(self.username))
-            #logging.warning("Attempting to login while another user ({}) is already logged in.".format(self.username))
+            logging.warning("Attempting to login while another user ({}) is already logged in.".format(self.username))
             self.check_login_status()
             return
             
@@ -62,15 +61,13 @@ class CosmoSimClass(QueryWithLogin):
         # Get password from keyring or prompt
         password_from_keyring = keyring.get_password("astroquery:www.cosmosim.org", self.username)
         if not password_from_keyring:
-            raise LoginError("No password was found in the keychain for the provided username.")
-            #logging.warning("No password was found in the keychain for the provided username.")
+            logging.warning("No password was found in the keychain for the provided username.")
             if password:
                 self.password = password
             else:
                 self.password = getpass.getpass("{0}, enter your CosmoSim password:\n".format(self.username))
         else:
-            raise LoginError("Using the password found in the keychain for the provided username.")
-            #logging.warning("Using the password found in the keychain for the provided username.")
+            logging.warning("Using the password found in the keychain for the provided username.")
             self.password = password_from_keyring
             
         # Authenticate
@@ -84,8 +81,7 @@ class CosmoSimClass(QueryWithLogin):
             raise LoginError("Authentication failed!")
             #print("Authentication failed!")
         elif authenticated.status_code == 503:
-            raise LoginError("Service Temporarily Unavailable...")
-            #print("Service Temporarily Unavailable...")
+            print("Service Temporarily Unavailable...")
             
         # Generating dictionary of existing tables
         self._existing_tables()

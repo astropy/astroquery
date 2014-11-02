@@ -17,6 +17,7 @@ from ...exceptions import LoginError
 SKIP_TESTS = not(HAS_KEYRING and COSMOSIM_IMPORTED)
 
 @pytest.mark.skipif('SKIP_TESTS')
+@remote_data
 class TestCosmoSim:
     @pytest.fixture()
     def temp_dir(self, request):
@@ -30,4 +31,5 @@ class TestCosmoSim:
         cosmosim = CosmoSim()
         with pytest.raises(LoginError) as exc:
             cosmosim.login(username='public',password='wrong')
-        ipdb.set_trace()
+        assert exc.value.args[0] == "Authentication failed!"
+        cosmosim.login
