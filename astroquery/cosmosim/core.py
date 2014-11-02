@@ -175,10 +175,16 @@ class CosmoSimClass(QueryWithLogin):
             result = self._request('POST',
                                    CosmoSim.QUERY_URL,
                                    auth=(self.username,self.password),
-                                   data={'query':query_string,'phase':'run','queue':queue},
+                                   data={'query':query_string,'phase':'run',
+                                         'queue':queue},
                                    cache=cache)
             soup = BeautifulSoup(result.content)
-            gen_tablename = str(soup.find(id="table").string)
+            phase = soup.find("uws:phase").string
+            if phase in ['ERROR']:
+                print("No table was generated for job with phase `{}`".format(phase))
+                gen_tablename = "{}".format(phase)
+            else:
+                gen_tablename = str(soup.find(id="table").string)
             logging.warning("Table name {} is already taken.".format(tablename))
             print("Generated table name: {}".format(gen_tablename))
         elif tablename is None:
@@ -202,7 +208,8 @@ class CosmoSimClass(QueryWithLogin):
 
         if mail or text:
             self._initialize_alerting(self.current_job,mail=mail,text=text)
-            self._alert(self.current_job,queue)
+            alert = AlertThread()
+            #self._alert(self.current_job,queue)
         
         return self.current_job
         
@@ -1198,8 +1205,26 @@ class CosmoSimClass(QueryWithLogin):
         else:
             self.alert_completed = False
         
-
-    def _alert(self,jobid,queue='short'):
+class AlertThread(object):
+    """ Threading example class
+ 
+    The _alert() method will be started and it will run in the background
+    until the application exits.
+    """
+ 
+    def __init__(self, jobid, interval=1, queue='short'):
+        """ Constructor
+ 
+        :type interval: int
+        :param interval: Check interval, in seconds
+        """
+        self.interval = interval
+ 
+        thread = threading.Thread(target=self._alert, args=(jobid,queue))
+        thread.daemon = True                            # Daemonize thread
+        thread.start()                                  # Start the execution
+            
+    def _alert(self,jobid,queue):
         """
         A private function which runs checks for job completion every 10 seconds for
         short-queue jobs and 60 seconds for long-queue jobs. Once job phase is COMPLETED,
@@ -1221,17 +1246,20 @@ class CosmoSimClass(QueryWithLogin):
         while self.alert_completed is False:
 
             phase = self._check_phase(jobid)
-
             if phase in ['COMPLETED','ABORTED','ERROR']:
                 print("JobID {} has finished with status {}.".format(jobid,phase))
                 self.alert_completed = True
-                resp = self.general_job_info(jobid)
-
+                time.sleep(1)
+                self.general_job_info(jobid)
                 if self.alert_email:
-                    self._mail(self.alert_email,"Job {} Completed with phase {}.".format(jobid,phase),"{}".format(resp[0].content))
+                    self._mail(self.alert_email,
+                               "Job {} Completed with phase {}.".format(jobid,phase),
+                               "{}".format(self.response_dict_current[jobid]['content']))
 
                 if self.alert_text:
-                    self._text(self._smsaddress,self.alert_text,"Job {} Completed with phase {}.".format(jobid,phase))
+                    self._text(self._smsaddress,
+                               self.alert_text,
+                               "Job {} Completed with phase {}.".format(jobid,phase))
 
             time.sleep(deltat)
 
