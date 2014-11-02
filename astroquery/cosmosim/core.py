@@ -1082,10 +1082,10 @@ class CosmoSimClass(QueryWithLogin):
                 print('Format not recognized. Please see formatting options:')
                 t = Table()
                 t['Format'] = ['csv','votable','votableB1','votableB2']
-                t['Description'] = ['Comma-separated values file',
-                                    'Put In Description',
-                                    'Put In Description',
-                                    'Put In Description']
+                t['Description'] = ['Comma-Separated Values File',
+                                    'IVOA VOTable Format',
+                                    'IVOA VOTable Format, Binary 1',
+                                    'IVOA VOTable Format, Binary 2']
                 t.pprint()
 
     def _check_phase(self,jobid):
