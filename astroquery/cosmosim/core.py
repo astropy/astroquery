@@ -1215,7 +1215,7 @@ class AlertThread(object):
     def __init__(self, jobid, queue='short'):
         """ 
         Parameters
-        __________
+        ----------
         jobid : string
             The jobid of the sql query.
         queue : string
