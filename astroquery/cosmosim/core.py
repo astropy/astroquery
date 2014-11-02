@@ -1206,21 +1206,25 @@ class CosmoSimClass(QueryWithLogin):
             self.alert_completed = False
         
 class AlertThread(object):
-    """ Threading example class
+    """ Alert threading class
  
     The _alert() method will be started and it will run in the background
     until the application exits.
     """
  
-    def __init__(self, jobid, interval=1, queue='short'):
-        """ Constructor
- 
-        :type interval: int
-        :param interval: Check interval, in seconds
+    def __init__(self, jobid, queue='short'):
+        """ 
+        Parameters
+        __________
+        jobid : string
+            The jobid of the sql query.
+        queue : string
+            The short/long queue option. Default is short.
         """
-        self.interval = interval
- 
-        thread = threading.Thread(target=self._alert, args=(jobid,queue))
+        self.jobid = jobid
+        self.queue = queue
+        
+        thread = threading.Thread(target=self._alert, args=(self.jobid,self.queue))
         thread.daemon = True                            # Daemonize thread
         thread.start()                                  # Start the execution
             
