@@ -29,6 +29,7 @@ conf.max_width = -1
 from ..utils import commons
 from ..query import QueryWithLogin
 from . import conf
+from ..exceptions import LoginError
 
 __all__ = ['CosmoSim']
 
@@ -51,7 +52,8 @@ class CosmoSimClass(QueryWithLogin):
 
         # login after login (interactive)
         if hasattr(self,'username'):
-            logging.warning("Attempting to login while another user ({}) is already logged in.".format(self.username))
+            raise LoginError("Attempting to login while another user ({}) is already logged in.".format(self.username))
+            #logging.warning("Attempting to login while another user ({}) is already logged in.".format(self.username))
             self.check_login_status()
             return
             
@@ -60,13 +62,15 @@ class CosmoSimClass(QueryWithLogin):
         # Get password from keyring or prompt
         password_from_keyring = keyring.get_password("astroquery:www.cosmosim.org", self.username)
         if not password_from_keyring:
-            logging.warning("No password was found in the keychain for the provided username.")
+            raise LoginError("No password was found in the keychain for the provided username.")
+            #logging.warning("No password was found in the keychain for the provided username.")
             if password:
                 self.password = password
             else:
                 self.password = getpass.getpass("{0}, enter your CosmoSim password:\n".format(self.username))
         else:
-            logging.warning("Using the password found in the keychain for the provided username.")
+            raise LoginError("Using the password found in the keychain for the provided username.")
+            #logging.warning("Using the password found in the keychain for the provided username.")
             self.password = password_from_keyring
             
         # Authenticate
@@ -77,9 +81,11 @@ class CosmoSimClass(QueryWithLogin):
         if authenticated.status_code == 200:
             print("Authentication successful!")
         elif authenticated.status_code == 401 or authenticated.status_code == 403:
-            print("Authentication failed!")
+            raise LoginError("Authentication failed!")
+            #print("Authentication failed!")
         elif authenticated.status_code == 503:
-            print("Service Temporarily Unavailable...")
+            raise LoginError("Service Temporarily Unavailable...")
+            #print("Service Temporarily Unavailable...")
             
         # Generating dictionary of existing tables
         self._existing_tables()
@@ -134,6 +140,7 @@ class CosmoSimClass(QueryWithLogin):
                 soup = BeautifulSoup(authenticated.content)
                 self.delete_job(jobid=str(soup.find("uws:jobid").string),squash=True)
             else:
+                
                 logging.warning("Status: The username/password combination for {} appears to be incorrect.".format(self.username))
                 print("Please re-attempt to login with your cosmosim credentials.")
         else:
