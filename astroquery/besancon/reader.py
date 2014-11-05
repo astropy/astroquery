@@ -1,4 +1,10 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
+"""
+Abandoned attempt at creating an astropy.io.ascii-compatible reader.
+Unfortunately, the Besancon models are output in an awkward quasi-fixed-width
+format that is not readily machine parseable; its easier to hard-code
+the line widths as is done in parse_besancon_model_string
+"""
 from astropy.io.ascii import core
 from astropy.io.ascii import fixedwidth
 

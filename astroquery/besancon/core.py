@@ -343,6 +343,13 @@ def parse_errors(text):
     error_list = text_items[2:-2]
     return error_list
 
+def parse_besancon_model_file(filename):
+    """
+    Parse a besancon model from a file on disk
+    """
+    with open(filename, 'r') as f:
+        contents = f.read()
+    return parse_besancon_model_string(contents)
 
 def parse_besancon_model_string(bms,):
     """
