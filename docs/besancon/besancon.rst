@@ -73,6 +73,20 @@ A successful run should look something like this
     unnecessary strain on the Besancon servers by running queries every time we
     test.
 
+Reading a previously downloaded file
+------------------------------------
+
+If you've downloaded a ``.resu``, you can parse it with the custom parser in astroquery:
+
+.. code-block:: python
+
+   >>> from astroquery.besancon import parse_besancon_model_file
+   >>> tbl = parse_besancon_model_file('file.resu')
+   >>> tbl.pprint()
+     Dist   Mv   CL Typ  LTef logg Age Mass  J-H   H-K   J-K   V-K    V    [Fe/H]   l     b     Av   Mbol
+    ------ ---- --- --- ----- ---- --- ---- ----- ----- ----- ----- ------ ------ ----- ----- ----- ------
+     0.091 10.2   5 7.2 3.559 4.85   7 0.48 0.601 0.223 0.824 4.175 15.133   0.02 10.62 -0.38 0.056  8.671
+
 
 Reference/API
 =============
