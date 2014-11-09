@@ -1,5 +1,6 @@
 import tempfile
 import shutil
+import time
 from astropy.tests.helper import pytest, remote_data
 import ipdb
 try:
@@ -35,20 +36,23 @@ class TestCosmoSim:
         assert exc.value.args[0] == "Authentication failed!"
         cosmosim.logout()
 
-    @pytest.mark.skipif('not CosmoSim.USERNAME')
     def test_runsql(self):
         cosmosim = CosmoSim()
         cosmosim.login(username='public',password='Physics2014')
         query="SELECT p.* FROM MDR1.FOFMtree AS p, (SELECT fofTreeId, lastProgId FROM MDR1.FOFMtree WHERE fofId=85000000010) AS mycl WHERE p.fofTreeId BETWEEN mycl.fofTreeId AND mycl.lastProgId AND np>200 ORDER BY p.treeSnapnum"
         result = cosmosim.run_sql_query(query_string=query,cache=False)
-        cosmosim._existing_tables()
-        ipdb.set_trace()
+        cosmosim.check_all_jobs()
+        try:
+            cosmosim.job_dict[result]
+        except KeyError:
+            time.sleep(3)
+            cosmosim.check_all_jobs()
         assert cosmosim.job_dict[result] in ['COMPLETED','EXECUTING','ABORTED','QUEUED']
         cosmosim.delete_job(jobid=result,squash=True)
-        assert len(cosmosim.job_dict.keys()) == 0
+        cosmosim.check_all_jobs()
+        assert result not in cosmosim.job_dict.keys()
 
-    @pytest.mark.skipif('not CosmoSim.USERNAME')
-    def test_download(self):
+    def test_download(self, temp_dir):
         cosmosim = CosmoSim()
         cosmosim.cache_location = temp_dir
         cosmosim.login(username='public',password='Physics2014')
@@ -56,7 +60,7 @@ class TestCosmoSim:
         result = cosmosim.run_sql_query(query_string=query,tablename='testtable',cache=False)
         cosmosim._existing_tables()
         assert cosmosim.job_dict[result] is 'COMPLETED'
-        ipdb.set_trace()
+        #ipdb.set_trace()
         cosmosim.delete_job(jobid=result,squash=True)
         assert len(cosmosim.job_dict.keys()) == 0
 
