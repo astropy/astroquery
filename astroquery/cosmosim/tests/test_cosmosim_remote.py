@@ -2,7 +2,7 @@ import tempfile
 import shutil
 import time
 from astropy.tests.helper import pytest, remote_data
-import ipdb
+
 try:
     import keyring
     HAS_KEYRING = True
@@ -48,19 +48,6 @@ class TestCosmoSim:
             time.sleep(3)
             cosmosim.check_all_jobs()
         assert cosmosim.job_dict[result] in ['COMPLETED','EXECUTING','ABORTED','QUEUED']
-        cosmosim.delete_job(jobid=result,squash=True)
+        # clean up
+        cosmosim.delete_all_jobs()
         cosmosim.check_all_jobs()
-        assert result not in cosmosim.job_dict.keys()
-
-    def test_download(self, temp_dir):
-        cosmosim = CosmoSim()
-        cosmosim.cache_location = temp_dir
-        cosmosim.login(username='public',password='Physics2014')
-        query="SELECT 0.25*(0.5+FLOOR(LOG10(Mvir)/0.25)) AS log_mass, COUNT(*) AS num FROM MDR1.BDMV WHERE snapnum=85 GROUP BY FLOOR(LOG10(Mvir)/0.25) ORDER BY log_mass"
-        result = cosmosim.run_sql_query(query_string=query,tablename='testtable',cache=False)
-        cosmosim._existing_tables()
-        assert cosmosim.job_dict[result] is 'COMPLETED'
-        #ipdb.set_trace()
-        cosmosim.delete_job(jobid=result,squash=True)
-        assert len(cosmosim.job_dict.keys()) == 0
-
