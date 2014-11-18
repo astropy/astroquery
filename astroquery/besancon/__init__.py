@@ -36,10 +36,11 @@ class Conf(_config.ConfigNamespace):
 
 conf = Conf()
 
-from .core import Besancon, BesanconClass
-from .reader import BesanconFixed, BesanconFixedWidthHeader, BesanconFixedWidthData
+from .core import (Besancon, BesanconClass, parse_besancon_model_string,
+                   parse_besancon_model_file)
 
-__all__ = ['Besancon', 'BesanconClass', 'BesanconFixed',
-           'BesanconFixedWidthHeader', 'BesanconFixedWidthData',
+__all__ = ['Besancon', 'BesanconClass',
+           'parse_besancon_model_file',
+           'parse_besancon_model_string',
            'Conf', 'conf',
            ]
