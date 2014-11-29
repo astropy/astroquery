@@ -11,5 +11,8 @@ from astropy.tests.pytest_plugins import *
 ## Uncomment and customize the following lines to add/remove entries
 ## from the list of packages for which version numbers are displayed
 ## when running the tests
-# PYTEST_HEADER_MODULES['scikit-image'] = 'skimage'
-# del PYTEST_HEADER_MODULES['h5py']
+# try:
+#     PYTEST_HEADER_MODULES['scikit-image'] = 'skimage'
+#     del PYTEST_HEADER_MODULES['h5py']
+# except NameError:  # needed to support Astropy < 1.0
+#     pass
