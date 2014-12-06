@@ -34,7 +34,7 @@ object type is shown here.
 Example 2
 +++++++++
 
-This illustrates addinf new output fields to SIMBAD queries. 
+This illustrates adding new output fields to SIMBAD queries.
 Run `~astroquery.simbad.SimbadClass.list_votable_fields` to get the full list of valid fields.
 
 .. code-block:: python
