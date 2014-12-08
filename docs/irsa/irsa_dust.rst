@@ -14,8 +14,8 @@ This module can be used to query the `IRSA Dust Extinction Service`_.
 Fetch images
 ------------
 
-Retrieve the image cut-outs for the specified oject name or coordinates. The
-images fetched in the FITS format and the result is returned as a list of 
+Retrieve the image cut-outs for the specified object name or coordinates. The
+images fetched in the FITS format and the result is returned as a list of
 `~astropy.io.fits.HDUList` objects. For all image queries, the radius may be optionally
 specified. If missing the radius defaults to 5 degrees. Note that radius may be
 specified in any appropriate unit, however it must fall in the range of 2 to
@@ -25,7 +25,7 @@ specified in any appropriate unit, however it must fall in the range of 2 to
 
     >>> from astroquery.irsa_dust import IrsaDust
     >>> image_list = IrsaDust.get_images("m81")
-    
+
     Downloading http://irsa.ipac.caltech.edu//workspace/TMP_pdTImE_1525/DUST/m81.v0001/p414Dust.fits
     |===========================================| 331k/331k (100.00%)        15s
     Downloading http://irsa.ipac.caltech.edu//workspace/TMP_pdTImE_1525/DUST/m81.v0001/p414i100.fits
@@ -58,7 +58,7 @@ images:
 
 
     >>> image
-    
+
     [[<astropy.io.fits.hdu.image.PrimaryHDU at 0x3a5a650>]]
 
 The image types that are available can also be listed out any time:
@@ -71,7 +71,7 @@ The image types that are available can also be listed out any time:
     ['ebv', 'temperature', '100um']
 
 The target may also be specified via coordinates passed as strings. Examples of acceptable coordinate
-strings can be found on this `IRSA DUST coordinates description page`_.            
+strings can be found on this `IRSA DUST coordinates description page`_.
 
 .. code-block:: python
 
@@ -86,7 +86,7 @@ strings can be found on this `IRSA DUST coordinates description page`_.
     |==============================|  57k/ 57k (100.00%)        00s
     Downloading http://irsa.ipac.caltech.edu//workspace/TMP_46IWzq_9460/DUST/17h44m34s_-27d59m13s.v0001/p118temp.fits
     |==============================|  57k/ 57k (100.00%)        00s
-    
+
 
 A list having the download links for the FITS image may also be fetched, rather
 than the actual images, via the :meth:`~astroquery.irsa_dust.IrsaDustClass.get_image_list` method. This also
@@ -111,7 +111,7 @@ Fetching the extinction table
 
 This fetches the extinction table as a `~astropy.table.Table`. The input parameters are the same as in
 the queries discussed above, namely the target string and optionally a radius
-value: 
+value:
 
 .. code-block:: python
 
@@ -121,7 +121,7 @@ value:
     >>> # "22h57m57.5s +26d09m00.09s Equatorial B1950"
     >>> C = coord.SkyCoord("22h57m57.5s +26d09m00.09s", frame='fk4')
     >>> table = IrsaDust.get_extinction_table(C)
- 
+
     Downloading http://irsa.ipac.caltech.edu//workspace/TMP_UkhZqQ_9824/DUST/22h57m57.5s_+26d09m00.09s_Equatorial_B1950.v0001/extinction.tbl
     |===========================================| 1.3k/1.3k (100.00%)        00s
 
@@ -175,7 +175,7 @@ with all the four sections will be returned.
     ---------------- ... -------
     E(B-V) Reddening ...  0.1099
 
-  
+
 Reference/API
 =============
 

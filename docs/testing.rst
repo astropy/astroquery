@@ -23,7 +23,7 @@ The testing directory structure should look like::
 ------------------
 
 This file should contain only tests that do not require an internet connection.
-It also containts the tricky monkeypatching components.  At a minimum, monkeypatching
+It also contains the tricky monkeypatching components.  At a minimum, monkeypatching
 requires a few methods that are defined locally in the test file for each module.
 
 Monkeypatching
@@ -58,7 +58,7 @@ This function, when called, changes the `requests.get` method (i.e., the ``get``
 method of the ``requests`` module) to call the ``get_mockreturn`` function, defined
 below.  ``@pytest.fixture`` means that, if any function in this ``test_module.py``
 file accepts ``patch_get`` as an argument, ``patch_get`` will be called prior to
-running that function.  
+running that function.
 
 ``get_mockreturn`` is simple but important: this is where you define a function
 to return the appropriate data stored in the ``data/`` directory as a readable
@@ -73,7 +73,7 @@ object within the ``MockResponse`` class:
 
 ``data_path`` is a simple function that looks for the ``data`` directory local to
 the ``test_module.py`` file.
-        
+
 .. code-block:: python
 
     def data_path(filename):

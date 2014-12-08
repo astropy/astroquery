@@ -22,6 +22,7 @@ from . import conf
 
 __doctest_skip__ = ['EsoClass.*']
 
+
 def _check_response(content):
     """
     Check the response from an ESO service query for various types of error

@@ -19,7 +19,7 @@ Query an Identifier
 
 
 This is useful if you want to query a known identifier. For instance to query
-the messier object m1: 
+the messier object m1:
 
 .. code-block:: python
 
@@ -27,7 +27,7 @@ the messier object m1:
     >>> result_table = Simbad.query_object("m1")
     >>> print(result_table)
 
-    MAIN_ID      RA         DEC     RA_PREC DEC_PREC COO_ERR_MAJA COO_ERR_MINA COO_ERR_ANGLE COO_QUAL COO_WAVELENGTH     COO_BIBCODE    
+    MAIN_ID      RA         DEC     RA_PREC DEC_PREC COO_ERR_MAJA COO_ERR_MINA COO_ERR_ANGLE COO_QUAL COO_WAVELENGTH     COO_BIBCODE
     ------- ----------- ----------- ------- -------- ------------ ------------ ------------- -------- -------------- -------------------
     M   1 05 34 31.94 +22 00 52.2       6        6          nan          nan             0        C              R 2011A&A...533A..10L
 
@@ -40,7 +40,7 @@ through 9:
     >>> result_table = Simbad.query_object("m [1-9]", wildcard=True)
     >>> print(result_table)
 
-    MAIN_ID      RA         DEC     RA_PREC DEC_PREC COO_ERR_MAJA COO_ERR_MINA COO_ERR_ANGLE COO_QUAL COO_WAVELENGTH     COO_BIBCODE    
+    MAIN_ID      RA         DEC     RA_PREC DEC_PREC COO_ERR_MAJA COO_ERR_MINA COO_ERR_ANGLE COO_QUAL COO_WAVELENGTH     COO_BIBCODE
     ------- ----------- ----------- ------- -------- ------------ ------------ ------------- -------- -------------- -------------------
     M   1 05 34 31.94 +22 00 52.2       6        6          nan          nan             0        C              R 2011A&A...533A..10L
     M   2 21 33 27.02 -00 49 23.7       6        6      100.000      100.000             0        C              O 2010AJ....140.1830G
@@ -49,7 +49,7 @@ through 9:
     M   5 15 18 33.22 +02 04 51.7       6        6          nan          nan             0        C              O 2010AJ....140.1830G
     M   6    17 40 20    -32 15.2       4        4          nan          nan             0        E              O 2009MNRAS.399.2146W
     M   7    17 53 51    -34 47.6       4        4          nan          nan             0        E              O 2009MNRAS.399.2146W
-    M   8    18 03 37    -24 23.2       4        4    18000.000    18000.000           179        E                                   
+    M   8    18 03 37    -24 23.2       4        4    18000.000    18000.000           179        E
     M   9 17 19 11.78 -18 30 58.5       6        6          nan          nan             0        D                2002MNRAS.332..441F
 
 Wildcards are supported by other queries as well - where this is the case,
@@ -61,7 +61,7 @@ their functions:
 
     >>> from astroquery.simbad import Simbad
     >>> Simbad.list_wildcards()
-    
+
     * : Any string of characters (including an empty one)
 
     [^0-9] : Any (one) character not in the list.
@@ -85,7 +85,7 @@ available in Astropy.
     >>> result_table = Simbad.query_region("m81")
     >>> print(result_table)
 
-                MAIN_ID                 RA           DEC      RA_PREC DEC_PREC ... COO_ERR_ANGLE COO_QUAL COO_WAVELENGTH     COO_BIBCODE    
+                MAIN_ID                 RA           DEC      RA_PREC DEC_PREC ... COO_ERR_ANGLE COO_QUAL COO_WAVELENGTH     COO_BIBCODE
     -------------------------- ------------- ------------- ------- -------- ... ------------- -------- -------------- -------------------
     [VV2006c] J095534.0+043546 09 55 33.9854 +04 35 46.438       8        8 ...             0        B              O 2009A&A...505..385A
     ...
@@ -100,7 +100,7 @@ the `~astropy.units.Quantity` object:
     >>> from astroquery.simbad import Simbad
     >>> import astropy.units as u
     >>> result_table = Simbad.query_region("m81", radius=0.1 * u.deg)
-    >>> # another way to specify the radius.  
+    >>> # another way to specify the radius.
     >>> result_table = Simbad.query_region("m81", radius='0d6m0s')
     >>> print(result_table)
 
@@ -123,7 +123,7 @@ the `~astropy.units.Quantity` object:
                [BBC91] S02S    09 56 07.1 ...
                     PSK 489   09 56 36.55 ... 2003AJ....126.1286L
                     PSK   7    09 54 37.0 ...
-    
+
 
 
 
@@ -132,7 +132,7 @@ object. Limited support for entering the coordinates directly as a string also
 exists - only for ICRS coordinates (though these may just as well be specified
 by the `~astropy.coordinates.ICRS` object)
 
-.. code-block:: python 
+.. code-block:: python
 
     >>> from astroquery.simbad import Simbad
     >>> import astropy.coordinates as coord
@@ -159,9 +159,9 @@ by the `~astropy.coordinates.ICRS` object)
              TYC 9390-157-1  05 35 55.233 ... 2000A&A...355L..27H
              PKS J0557-8122   05 57 26.80 ... 2003MNRAS.342.1117M
                PKS 0602-813    05 57 30.7 ...
-    
 
-For other coordinate systems, use the appropriate `astropy.coordinates` object: 
+
+For other coordinate systems, use the appropriate `astropy.coordinates` object:
 
 .. code-block:: python
 
@@ -173,7 +173,7 @@ For other coordinate systems, use the appropriate `astropy.coordinates` object:
     ...                                    radius='0d0m2s')
     >>> print(result_table)
 
-                MAIN_ID             RA      ... COO_WAVELENGTH     COO_BIBCODE    
+                MAIN_ID             RA      ... COO_WAVELENGTH     COO_BIBCODE
     ------------------- ------------- ... -------------- -------------------
     NAME Barnard's star 17 57 48.4980 ...              O 2007A&A...474..653V
 
@@ -215,10 +215,10 @@ to 2000.0. So here is a query with all the options utilized:
              TYC  608-432-1  00 51 05.289 ... 2000A&A...355L..27H
              TYC  607-418-1  00 49 09.636 ... 2000A&A...355L..27H
 
- 
+
 Query a catalogue
 -----------------
- 
+
 Queries can also be formulated to return all the objects from a catalogue. For
 instance to query the ESO catalog:
 
@@ -230,7 +230,7 @@ instance to query the ESO catalog:
     >>> result_table = limitedSimbad.query_catalog('eso')
     >>> print(result_table)
 
-    MAIN_ID              RA      ... COO_WAVELENGTH     COO_BIBCODE    
+    MAIN_ID              RA      ... COO_WAVELENGTH     COO_BIBCODE
     ----------------------- ------------ ... -------------- -------------------
     2MASS J08300740-4325465  08 30 07.41 ...              I 2003yCat.2246....0C
     NGC  2573 01 41 35.091 ...              I 2006AJ....131.1163S
@@ -252,7 +252,7 @@ This retrieves the reference corresponding to a bibcode.
     >>> result_table = Simbad.query_bibcode('2005A&A.430.165F')
     >>> print(result_table)
 
-    References                                                                                                                                                             
+    References
     ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     2005A&A...430..165F  --  ?
     Astron. Astrophys., 430, 165-186 (2005)
@@ -270,7 +270,7 @@ from a given journal in a given year:
     >>> result_table = Simbad.query_bibcode('2013A&A*', wildcard=True)
     >>> print(result_table)
 
-    References                                                                                                                                        
+    References
     -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     2013A&A...549A...1G  --  ?
     Astron. Astrophys., 549A, 1-1 (2013)
@@ -320,7 +320,7 @@ associated with an object.
     >>> from astroquery.simbad import Simbad
     >>> result_table = Simbad.query_objectids("Polaris")
     >>> print(result_table)
-	     ID         
+	     ID
     --------------------
 	    ADS  1477 AP
 	    ** STF   93A
@@ -379,7 +379,7 @@ article specified by the bibcode:
     >>> result_table = Simbad.query_bibobj('2005A&A.430.165F')
     >>> print(result_table)
 
-    MAIN_ID       RA          DEC      RA_PREC DEC_PREC COO_ERR_MAJA COO_ERR_MINA COO_ERR_ANGLE COO_QUAL COO_WAVELENGTH     COO_BIBCODE    
+    MAIN_ID       RA          DEC      RA_PREC DEC_PREC COO_ERR_MAJA COO_ERR_MINA COO_ERR_ANGLE COO_QUAL COO_WAVELENGTH     COO_BIBCODE
     --------- ------------ ------------ ------- -------- ------------ ------------ ------------- -------- -------------- -------------------
     NGC   524 01 24 47.707 +09 32 19.65       7        7          nan          nan             0        B              I 2006AJ....131.1163S
     NGC  3593 11 14 37.002 +12 49 04.87       7        7          nan          nan             0        B              I 2006AJ....131.1163S
@@ -388,7 +388,7 @@ article specified by the bibcode:
     NGC  5179 13 29 30.875 +11 44 44.54       7        7          nan          nan             0        B              I 2006AJ....131.1163S
     NGC  5713 14 40 11.528 -00 17 21.16       7        7          nan          nan             0        B              I 2006AJ....131.1163S
 
-Query based on any criteria 
+Query based on any criteria
 ----------------------------
 
 
@@ -420,20 +420,20 @@ See that link for details of how these queries are formed.
          SNR G000.3+00.0  17 46 14.9   -28 37 15       5        5     3000.000     3000.000             1        D
          SNR G001.0-00.1     17 48.5      -28 09       3        3          nan          nan             0        E              R 2009BASI...37...45G
          NAME SGR A EAST    17 45 47    -29 00.2       4        4    18000.000    18000.000             1        E
-   
+
 
 Customizing the default settings
 ================================
 
 There may be times when you wish to change the defaults that have been set for
-the Simbad queries.  
+the Simbad queries.
 
 Changing the row limit
 ----------------------
 
 
 To fetch all the rows in the result, the row limit must be set to 0. However for some
-queries, results are likely to be very large, in such cases it may be best to 
+queries, results are likely to be very large, in such cases it may be best to
 limit the rows to a smaller number. If you want to do this only for the current
 python session then:
 
@@ -449,14 +449,14 @@ Changing the timeout
 --------------------
 
 
-The timeout is the time limit in seconds for estabishing connection with the
+The timeout is the time limit in seconds for establishing connection with the
 Simbad server and by default it is set to 100 seconds. You may want to modify
 this - again you can do this at run-time if you want to adjust it only for the
 current session. To make it persistent, you must modify the setting in the
 Astroquery configuration file.
 
 .. code-block:: python
-  
+
     >>> from astroquery.simbad import Simbad
     >>> Simbad.TIMEOUT = 60 # sets the timeout to 60s
 
@@ -473,14 +473,14 @@ also want to be fetched in the result. To see the list of the fields:
      >>> from astroquery.simbad import Simbad
      >>> Simbad.list_votable_fields()
 
-               col0               col1          col2     
+               col0               col1          col2
            ----------------- ------------ --------------
                      dim      main_id  propermotions
                dim_angle measurements        ra(opt)
              dim_bibcode       mesplx        ra_prec
                 dim_incl        mespm            rot
              dim_majaxis           mk       rv_value
-             
+
 
 The above shows just a small snippet of the table that is returned and has all
 the fields sorted lexicographically column-wise. For more information on a
@@ -496,7 +496,7 @@ particular field:
 To set additional fields to be returned in the VOTable:
 
 .. code-block:: python
-     
+
      >>> from astroquery.simbad import Simbad
      >>> customSimbad = Simbad()
 
@@ -506,7 +506,7 @@ To set additional fields to be returned in the VOTable:
 
      ['main_id', 'coordinates']
 
-     # To set other fields 
+     # To set other fields
 
      >>> customSimbad.add_votable_fields('mk', 'rot', 'bibcodelist(1800-2014)')
      >>> customSimbad.get_votable_fields()
@@ -520,17 +520,17 @@ Continuing from the above example:
 
     >>> customSimbad.remove_votable_fields('mk', 'coordinates')
     >>> customSimbad.get_votable_fields()
-     
+
     ['rot', 'main_id']
-    
+
     # reset back to defaults
-    
+
     >>> customSimbad.reset_votable_fields()
     >>> customSimbad.get_votable_fields()
 
     ['main_id', 'coordinates']
 
-    
+
 
 Reference/API
 =============

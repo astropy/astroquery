@@ -22,7 +22,7 @@ data.
 .. code-block:: python
 
     >>> from astroquery.ukidss import Ukidss
-    
+
     # perform any query as a class method - no instantiation required
 
     >>> images = Ukidss.get_images("m1")
@@ -37,7 +37,7 @@ data.
 .. code-block:: python
 
     >>> from astroquery.ukidss import Ukidss
-    
+
     # Now first instantiate a Ukidss object with login credentials
 
     >>> u_obj = Ukidss(username='xyz', password='secret', # doctest: +SKIP
@@ -59,7 +59,7 @@ permitted only for image queries.
     >>> u_obj = Ukidss(username='xyz', password='secret',                    # doctest: +SKIP
     ...                community='your_community', database='UKIDSSDR8PLUS', # doctest: +SKIP
     ...                programme_id='GPS')                                   # doctest: +SKIP
-    >>> 
+    >>>
 
 At any given time you may if you wish check your login status (continuing from
 the above example):
@@ -67,7 +67,7 @@ the above example):
 .. code-block:: python
 
     >>> u_obj.logged_in() # doctest: +SKIP
-    
+
     True
 
 If you want to change your programme_id and database after you have already instantiated the
@@ -105,7 +105,7 @@ Get images around a target
 
 You can fetch images around the specified target or coordinates. When a target
 name is used rather than the coordinates, this will be resolved to coordinates
-using astropy name resolving methods that utilze online services like
+using astropy name resolving methods that utilize online services like
 SESAME. Coordinates may be entered using the suitable object from
 `astropy.coordinates`. The images are returned as a list of
 `~astropy.io.fits.HDUList` objects.
@@ -121,7 +121,7 @@ SESAME. Coordinates may be entered using the suitable object from
     |===========================================| 174k/174k (100.00%)        07s
 
     >>> print(images)
-    
+
     [[<astropy.io.fits.hdu.image.PrimaryHDU object at 0x40f8b10>, <astropy.io.fits.hdu.image.ImageHDU object at 0x41026d0>]]
 
 Note if you have logged in using the procedure described earlier and assuming
@@ -144,7 +144,7 @@ with appropriate units or as a string that is parsable by
 images will be retrieved. Note that in this case the image height and width
 parameters will no longer be effective.
 
-.. code-block:: python 
+.. code-block:: python
 
     >>> from astroquery.ukidss import Ukidss
     >>> import astropy.units as u
@@ -183,7 +183,7 @@ is set by default to 'UKIDSSDR7PLUS'. Some more parameters you can set are the
 and the ``waveband`` that decides the color filter to download. This must be
 chosen from ::
 
-    'all' 'J' 'H' 'K' 'H2' 'Z' 'Y' 'Br' 
+    'all' 'J' 'H' 'K' 'H2' 'Z' 'Y' 'Br'
 
 Note that rather than fetching the actual images, you could also get the URLs of the downloadable
 images. To do this simply replace the call to
@@ -196,7 +196,7 @@ parameters. Let us now see a complete example to illustrate these points.
 
     >>> from astroquery.ukidss import Ukidss
     >>> import astropy.units as u
-    >>> import astropy.coordinates as coord 
+    >>> import astropy.coordinates as coord
     >>> image_urls = Ukidss.get_image_list(coord.SkyCoord(ra=83.633083,
     ...          dec=22.0145, unit=(u.deg, u.deg), frame='icrs'),
     ...          frame_type='interleave',
@@ -231,13 +231,13 @@ results are returned in a `~astropy.table.Table`.
     ...                                            unit=(u.deg, u.deg),
     ...                                            frame='galactic'),
     ...                             radius=6 * u.arcsec)
-    
+
     Downloading http://surveys.roe.ac.uk/wsa/tmp/tmp_sql/results1_4_45_58_24651.xml
     |===========================================| 4.6k/4.6k (100.00%)        00s
 
     >>> print(table)
 
-         sourceID    framesetID        RA      ... H2AperMag3Err     distance   
+         sourceID    framesetID        RA      ... H2AperMag3Err     distance
     ------------ ------------ ------------- ... ------------- ---------------
     438758381345 438086690175 272.615581037 ...  -9.99999e+08 0.0864656469768
     438758381157 438086690175   272.6178395 ...  -9.99999e+08 0.0717893063941
@@ -248,7 +248,7 @@ results are returned in a `~astropy.table.Table`.
     438758399832 438086690175 272.617034836 ...  -9.99999e+08 0.0665854385804
     438758414982 438086690175 272.616576986 ...  -9.99999e+08 0.0214102038115
 
- 
+
 Reference/API
 =============
 

@@ -46,8 +46,8 @@ Liedtke was our student this summer.  He changed astroquery from using lxml to
 BeautifulSoup, especially in the ESO package. He also added support for the
 services xMatch, SkyView and Atomic Line List.  Documentation has been added
 for the packages xmatch and atomic (though note that extensive documentation
-exists in form of docstrings for all packages he added, inlcuding SkyView). All
+exists in form of docstrings for all packages he added, including SkyView). All
 new services have tests that can be run both off- and online.
 
--- 
+--
 Adam Ginsburg, Christoph Deil, and Thomas Robitaille

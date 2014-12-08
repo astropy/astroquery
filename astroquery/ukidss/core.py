@@ -386,7 +386,7 @@ class UkidssClass(QueryWithLogin):
 
     def extract_urls(self, html_in):
         """
-        Helper function that uses reges to extract the image urls from the
+        Helper function that uses regexps to extract the image urls from the
         given HTML.
 
         Parameters
@@ -525,7 +525,7 @@ class UkidssClass(QueryWithLogin):
         response : `requests.Response`
             The HTTP response object
         verbose : bool, optional
-            Defaults to `False`. If `True it displaya warnings whenever the
+            Defaults to `False`. If `True` it displays warnings whenever the
             VOtable returned from the service doesn't conform to the standard.
 
         Returns
@@ -597,7 +597,7 @@ class UkidssClass(QueryWithLogin):
 
     def list_databases(self):
         """
-        List the databases available from the UKIDSS WFCAM archive
+        List the databases available from the UKIDSS WFCAM archive.
         """
         self.databases = set(self.all_databases + self._get_databases())
         return self.databases
@@ -690,7 +690,7 @@ def clean_catalog(ukidss_catalog, clean_band='K_1', badclass=-9999,
 
 def verify_programme_id(pid, query_type='catalog'):
     """
-    Verify the programme ID is valid for the query being executed
+    Verify the programme ID is valid for the query being executed.
 
     Parameters
     ----------
