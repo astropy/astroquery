@@ -43,6 +43,5 @@ Reference/API
 #.. automodapi:: astroquery.nasa_ads:no-inheritance-diagram:
 
 .. _nasa_ads: http://adsabs.harvard.edu/
-.. _SAO/NASA Astrophysics Data System: raw::html 
-    <a href="http://adsabs.harvard.edu/" target="_blank">SAO/NASA Astrophysics Data System</a>
+.. _SAO/NASA Astrophysics Data System: http://adsabs.harvard.edu/
 
