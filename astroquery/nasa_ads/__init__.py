@@ -1,0 +1,69 @@
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
+"""
+SAO/NASA ADS Query Tool
+-----------------------------------
+
+:Author: Magnus Vilhelm Persson (magnusp@vilhelm.nu)
+
+"""
+from astropy import config as _config
+
+
+class Conf(_config.ConfigNamespace):
+    """
+    Configuration parameters for `astroquery.nasa_ads`.
+    """
+   mirror_urls = _config.ConfigItem(
+        ['http://adswww.harvard.edu/',
+        'http://cdsads.u-strasbg.fr/',
+        'http://ukads.nottingham.ac.uk/',
+        'http://esoads.eso.org/',
+        'http://ads.ari.uni-heidelberg.de/'
+        'http://ads.inasan.ru/',
+        'http://ads.mao.kiev.ua/',
+        'http://ads.astro.puc.cl/',
+        'http://ads.nao.ac.jp/',
+        'http://ads.bao.ac.cn/',
+        'http://ads.iucaa.ernet.in/',
+        'http://ads.arsip.lipi.go.id/',
+        'http://saaoads.chpc.ac.za/',
+        'http://ads.on.br/'],
+        'SAO/NASA ADS mirrors around the world'
+        )
+
+    advanced_url = _config.ConfigItem(
+        'abstract_service.html',
+        'Path for advanced query'
+        )
+        
+    simple_url = _config.ConfigItem(
+        'abstract_service.html',
+        'Path for advanced query'
+        )
+
+    timeout = _config.ConfigItem(
+        60,
+        'Time limit for connecting to ADS server.'
+        )
+    lines_limit = _config.ConfigItem(
+        1000,
+        'Limit to number of hits exported.'
+        )
+
+conf = Conf()
+
+from .core import ADS, ADSClass
+
+__all__ = ['ADS', 'ADSClass',
+           'Conf', 'conf',
+           ]
+
+
+
+
+
+
+
+"""
+advanced_q = 'abstract_service.html'
+"""
