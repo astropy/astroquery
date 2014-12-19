@@ -13,12 +13,12 @@ class Conf(_config.ConfigNamespace):
     """
     Configuration parameters for `astroquery.nasa_ads`.
     """
-   mirror_urls = _config.ConfigItem(
+    servers = _config.ConfigItem(
         ['http://adswww.harvard.edu/',
         'http://cdsads.u-strasbg.fr/',
         'http://ukads.nottingham.ac.uk/',
         'http://esoads.eso.org/',
-        'http://ads.ari.uni-heidelberg.de/'
+        'http://ads.ari.uni-heidelberg.de/',
         'http://ads.inasan.ru/',
         'http://ads.mao.kiev.ua/',
         'http://ads.astro.puc.cl/',
@@ -30,24 +30,20 @@ class Conf(_config.ConfigNamespace):
         'http://ads.on.br/'],
         'SAO/NASA ADS mirrors around the world'
         )
-
+    
     advanced_url = _config.ConfigItem(
         'abstract_service.html',
         'Path for advanced query'
         )
         
     simple_url = _config.ConfigItem(
-        'abstract_service.html',
+        'index.html',
         'Path for advanced query'
         )
 
     timeout = _config.ConfigItem(
         60,
-        'Time limit for connecting to ADS server.'
-        )
-    lines_limit = _config.ConfigItem(
-        1000,
-        'Limit to number of hits exported.'
+        'Time limit for connecting to ADS server'
         )
 
 conf = Conf()
@@ -57,13 +53,3 @@ from .core import ADS, ADSClass
 __all__ = ['ADS', 'ADSClass',
            'Conf', 'conf',
            ]
-
-
-
-
-
-
-
-"""
-advanced_q = 'abstract_service.html'
-"""
