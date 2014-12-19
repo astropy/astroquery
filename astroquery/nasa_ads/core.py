@@ -20,7 +20,7 @@ from . import conf
 
 
 
-__all__ = ['Splatalogue', 'SplatalogueClass']
+__all__ = ['ADS', 'ADSClass']
 
 
 @async_to_sync
