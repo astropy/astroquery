@@ -207,7 +207,8 @@ class VizierClass(BaseQuery):
                                  timeout=self.TIMEOUT)
         return response
 
-    def query_object_async(self, object_name, catalog=None, radius=None, coordinate_frame=None):
+    def query_object_async(self, object_name, catalog=None, radius=None,
+                           coordinate_frame=None):
         """
         Serves the same purpose as `query_object` but only
         returns the HTTP response rather than the parsed result.
