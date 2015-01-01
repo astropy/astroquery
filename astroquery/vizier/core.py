@@ -4,6 +4,7 @@ from __future__ import print_function
 import os
 import warnings
 import json
+import copy
 
 from astropy.extern import six
 import astropy.units as u
@@ -460,7 +461,7 @@ class VizierClass(BaseQuery):
         # process: columns
         columns = kwargs.get('columns')
         if columns is None:
-            columns = self.columns
+            columns = copy.copy(self.columns)
         else:
             columns = self.columns + columns
 
