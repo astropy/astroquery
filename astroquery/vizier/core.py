@@ -4,6 +4,7 @@ from __future__ import print_function
 import os
 import warnings
 import json
+import copy
 
 from astropy.extern import six
 import astropy.units as u
@@ -56,7 +57,8 @@ class VizierClass(BaseQuery):
     def columns(self):
         """ Columns to include.  The special keyword 'all' will return ALL
         columns from ALL retrieved tables. """
-        return self._columns
+        # columns need to be immutable but still need to be a list
+        return list(tuple(self._columns))
 
     @columns.setter
     def columns(self, values):
@@ -459,12 +461,16 @@ class VizierClass(BaseQuery):
         # process: columns
         columns = kwargs.get('columns')
         if columns is None:
-            columns = self.columns
+            columns = copy.copy(self.columns)
         else:
             columns = self.columns + columns
 
-        if 'all' in columns:
-            columns.remove('all')
+        # keyword names that can mean 'all' need to be treated separately
+        alls = ['all','*']
+        if any(x in columns for x in alls):
+            for x in alls:
+                if x in columns:
+                    columns.remove(x)
             body['-out.all'] = 2
 
         # process: columns - always request computed positions in degrees
@@ -485,6 +491,7 @@ class VizierClass(BaseQuery):
             else:
                 columns_out += [column]
         body['-out.add'] = ','.join(columns_out)
+        body['-out'] = columns_out
         if len(sorts_out) > 0:
             body['-sort'] = ','.join(sorts_out)
         # process: maximum rows returned
