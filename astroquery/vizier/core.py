@@ -56,7 +56,8 @@ class VizierClass(BaseQuery):
     def columns(self):
         """ Columns to include.  The special keyword 'all' will return ALL
         columns from ALL retrieved tables. """
-        return self._columns
+        # columns need to be immutable but still need to be a list
+        return list(tuple(self._columns))
 
     @columns.setter
     def columns(self, values):

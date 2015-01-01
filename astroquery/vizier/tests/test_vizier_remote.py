@@ -92,6 +92,9 @@ class TestVizierRemote(object):
         targets = commons.ICRSCoordGenerator(ra=[299.590, 299.90],
                                              dec=[35.201, 35.201],
                                              unit=(u.deg, u.deg))
+        # Regression test: the columns of the default should never
+        # be modified from default
+        assert vizier.core.Vizier.columns == ['*']
         result = vizier.core.Vizier.query_region(targets,
                                                  radius=10 * u.arcsec,
                                                  catalog=["HIP", "NOMAD", "UCAC"])
