@@ -463,8 +463,12 @@ class VizierClass(BaseQuery):
         else:
             columns = self.columns + columns
 
-        if 'all' in columns:
-            columns.remove('all')
+        # keyword names that can mean 'all' need to be treated separately
+        alls = ['all','*']
+        if any(x in columns for x in alls):
+            for x in alls:
+                if x in columns:
+                    columns.remove(x)
             body['-out.all'] = 2
 
         # process: columns - always request computed positions in degrees
@@ -485,6 +489,7 @@ class VizierClass(BaseQuery):
             else:
                 columns_out += [column]
         body['-out.add'] = ','.join(columns_out)
+        body['-out'] = columns_out
         if len(sorts_out) > 0:
             body['-sort'] = ','.join(sorts_out)
         # process: maximum rows returned

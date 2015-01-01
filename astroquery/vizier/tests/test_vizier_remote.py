@@ -51,6 +51,25 @@ class TestVizierRemote(object):
                                 catalog=["NOMAD", "UCAC"])
         assert isinstance(result, commons.TableList)
 
+    def test_vizier_column_restriction(self):
+        # Check that the column restriction worked.  At least some of these
+        # catalogs include Bmag's
+        v = vizier.core.Vizier(columns=['_RAJ2000', 'DEJ2000', 'B-V', 'Vmag', 'Plx'],
+                               column_filters={"Vmag":">10"}, keywords=["optical", "xry"])
+        result = v.query_object("HD 226868", catalog=["NOMAD", "UCAC"])
+        for table in result:
+            assert 'Bmag' not in table.columns
+
+    @pytest.mark.parametrize('all',('all','*'))
+    def test_alls_withaddition(self, all):
+        # Check that all the expected columns are there plus the _r
+        # (radius from target) that we've added
+        v = vizier.core.Vizier(columns=[all, "+_r"], catalog="II/246")
+        result = v.query_region("HD 226868", radius="20s")
+        table = result['II/246/out']
+        assert 'Jmag' in table.columns
+        assert '_r' in table.columns
+
     def test_get_catalogs(self):
         result = vizier.core.Vizier.get_catalogs('J/ApJ/706/83')
         assert isinstance(result, commons.TableList)
@@ -79,6 +98,7 @@ class TestVizierRemote(object):
 
         assert len(result) >= 5
         assert 'I/239/hip_main' in result.keys()
+        assert 'HIP' in result['I/239/hip_main'].columns
         assert result['I/239/hip_main']['HIP'] == 98298
 
     def test_findcatalog_maxcatalog(self):
