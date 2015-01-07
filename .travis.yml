@@ -11,7 +11,7 @@ env:
         # The following versions are the 'default' for tests, unless
         # overidden underneath. They are defined here in order to save having
         # to repeat them for all configurations.
-        - NUMPY_VERSION=1.8
+        - NUMPY_VERSION=1.9
         - ASTROPY_VERSION=stable
         - CONDA_INSTALL='conda install -c astropy-ci-extras --yes'
         - PIP_INSTALL='pip install'
@@ -48,11 +48,11 @@ matrix:
 
         # Try older numpy versions
         - python: 2.7
+          env: NUMPY_VERSION=1.8 SETUP_CMD='test'
+        - python: 2.7
           env: NUMPY_VERSION=1.7 SETUP_CMD='test'
         - python: 2.7
           env: NUMPY_VERSION=1.6 SETUP_CMD='test'
-        - python: 2.7
-          env: NUMPY_VERSION=1.5 SETUP_CMD='test'
 
 before_install:
 
