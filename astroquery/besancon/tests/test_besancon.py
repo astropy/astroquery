@@ -83,6 +83,8 @@ def test_query(patch_post, patch_get_readable_fileobj):
     assert result is not None
 
 def test_default_params():
+    """ Ensure that the default parameters of the query match the default
+    parameters on the web form (excepting coordinates and e-mail address) """
     data = besancon.Besancon.query_async(0,0,'a@b.com',get_query_payload=True)
 
     with open(data_path('default_params.txt')) as f:
