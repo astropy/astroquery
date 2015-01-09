@@ -82,6 +82,13 @@ def test_query(patch_post, patch_get_readable_fileobj):
     result = B.query(0, 0, 'adam.g.ginsburg@gmail.com')
     assert result is not None
 
+def test_default_params():
+    data = besancon.Besancon.query_async(0,0,'a@b.com',get_query_payload=True)
+    with open('data/default_params.txt') as f:
+        dp = eval(f.read())
+    for k in dp:
+        assert dp[k] == data[k]
+        # DEBUG print "\t".join((str(x) for x in (k, dp[k] == data[k], dp[k], data[k])))
 
 class MockResponseBesancon(MockResponse):
 
