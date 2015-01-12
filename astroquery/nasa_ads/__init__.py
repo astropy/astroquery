@@ -37,12 +37,16 @@ class Conf(_config.ConfigNamespace):
             )
     advanced_path = _config.ConfigItem(
             '/cgi-bin/nph-abs_connect',
-            'Path for advanced query'    
+            'Path for advanced query (unconfirmed)'    
             )
     
+    #~ simple_path = _config.ConfigItem(
+            #~ '/cgi-bin/nph-basic_connect',
+            #~ 'Path for simple query'
+            #~ )
     simple_path = _config.ConfigItem(
-            '/cgi-bin/nph-basic_connect',
-            'Path for simple query'
+            '/cgi-bin/basic_connect',
+            'Path for simple query (return XML)'
             )
     
     timeout = _config.ConfigItem(
