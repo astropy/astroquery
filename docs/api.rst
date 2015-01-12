@@ -158,7 +158,7 @@ Directory Structure::
             if get_query_payload:
                 return request_payload
 
-            return result
+            return response
 
         @class_or_instance
         def get_images_async(self, *args):
