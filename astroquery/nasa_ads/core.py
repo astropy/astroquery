@@ -6,19 +6,20 @@ Module to search the SAO/NASA Astrophysics Data System
 
 """
 
-#~ import warnings
+import warnings
 # example warning 
 # warnings.warn("Band was specified, so blabla is overridden")
 #~ from astropy.io import ascii
 #~ from astropy import units as u
 from ..query import BaseQuery
-#~ from ..utils import commons, async_to_sync
-from ..utils.docstr_chompers import prepend_docstr_noreturns
+from ..utils import commons, async_to_sync
+#~ from ..utils.docstr_chompers import prepend_docstr_noreturns
 from . import conf
 
 from ..utils.class_or_instance import class_or_instance
 from ..utils import commons, async_to_sync
 
+from BeautifulSoup import BeautifulSoup as bfs
 
 __all__ = ['ADS', 'ADSClass']
 #~ 
@@ -46,115 +47,46 @@ class ADSClass(BaseQuery):
         request_payload = self._args_to_payload(query_string)
         
         response = commons.send_request(self.QUERY_SIMPLE_URL, request_payload, self.TIMEOUT)
-
+        
         # primarily for debug purposes, but also useful if you want to send
         # someone a URL linking directly to the data
         if get_query_payload:
             return request_payload
 
-        return response
+        return self._parse_response(response)
 
-    def _parse_result(self, result):
+    def _parse_result(self, response):
         # do something, probably with regexp's
-        return result
+        
+        adssoup_raw = bfs(response.text)
+        adssoup_cooked = adssoup_raw.findAll('record')
+        
+        # number of hits
+        nhits = len(adssoup_cooked)
+        if nhits == 0:
+            warnings.warn("No hits for {0}".format(self.))
+            return None
+        
+        """
+        Developer, how do you get list with all the fields?
+        Like this:
+        [tag.name for tag in adssoup_cooked[0].findAll()[0]]
+        """
+        
+        
+        #~ return result
+        return None
 
     def _args_to_payload(self, query_string):
         # convert arguments to a valid requests payload
         # i.e. a dictionary
-        return {'qsearch' : query_string}
+        return {'qsearch' : query_string, 'data_type' : 'XML'}
 
 
 
 
 
 ADS = ADSClass()
-
-#~ 
-    #~ # global constant, not user-configurable
-    #~ def __init__(self, **kwargs):
-        #~ """
-        #~ Initialize a ADS query class with default arguments set.
-        #~ Any default keyword arguments (see `query_lines`) can be 
-        #~ overridden here.
-        #~ """
-        #~ self.data = self._default_kwargs()
-        #~ self.set_default_options(**kwargs)
-    #~ 
-    #~ def set_default_options(self, **kwargs):
-        #~ """
-        #~ Modify the default options.
-        #~ """
-        #~ self.data.update(self._parse_kwargs(**kwargs))
-    #~ 
-    #~ def _default_kwargs(self):
-        #~ kwargs = dict()
-        #~ return self._parse_kwargs(**kwargs)
-#~ 
-    #~ def _parse_kwargs(self, search=""):
-        #~ """
-        #~ The ADS service returns.
-        #~ 
-        #~ Parameters
-        #~ ----------
-        #~ 
-        #~ Other Parameters
-        #~ ----------------
-        #~ 
-        #~ Returns
-        #~ -------
-        #~ Dictionary of the parameters to send to the SPLAT page
-        #~ payload : dict
-            #~ A dictionary of keywords
-        #~ """
-#~ 
-        #~ payload = { 'qsearch': search }
-#~ 
-        #~ return payload
-#~ 
-    #~ def _validate_simple_kwargs(self, search=None, **kwargs):
-        #~ """
-        #~ Check that a simple search query is input
-        #~ """
-        #~ if search is None:
-            #~ raise ValueError("Must specify a search string.")
-    #~ 
-    #~ @prepend_docstr_noreturns("\n" + _parse_kwargs.__doc__)
-    #~ def query_simple_async(self, search, **kwargs):
-        #~ """
-        #~ Returns
-        #~ -------
-        #~ response : `requests.Response`
-            #~ The response of the HTTP request.
-        #~ """
-        #~ # have to chomp this kwd here...
-        #~ get_query_payload = (kwargs.pop('get_query_payload')
-                             #~ if 'get_query_payload' in kwargs
-                             #~ else False)
-        #~ self._validate_kwargs(simple, **kwargs)
-#~ 
-        #~ if hasattr(self, 'data'):
-            #~ data_payload = self.data.copy()
-            #~ data_payload.update(self._parse_kwargs(min_frequency=min_frequency,
-                                                   #~ max_frequency=max_frequency,
-                                                   #~ **kwargs))
-        #~ else:
-            #~ data_payload = self._default_kwargs()
-            #~ data_payload.update(self._parse_kwargs(min_frequency=min_frequency,
-                                                   #~ max_frequency=max_frequency,
-                                                   #~ **kwargs))
-#~ 
-        #~ if get_query_payload:
-            #~ return data_payload
-#~ 
-        #~ response = commons.send_request(
-            #~ self.QUERY_URL,
-            #~ data_payload,
-            #~ self.TIMEOUT)
-#~ 
-        #~ self.response = response
-#~ 
-        #~ return response    
-
 
 
 
