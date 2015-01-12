@@ -187,7 +187,7 @@ for mod_name in MOCK_MODULES:
 
 ## -- Options for the edit_on_github extension ----------------------------------------
 #
-extensions += ['astropy.sphinx.ext.edit_on_github']
+extensions += ['astropy_helpers.sphinx.ext.edit_on_github']
 
 # Don't import the module as "version" or it will override the
 # "version" configuration parameter
@@ -200,18 +200,3 @@ else:
 
 edit_on_github_source_root = ""
 edit_on_github_doc_root = "docs"
-
-## -- Options for the edit_on_github extension ----------------------------------------
-
-if eval(setup_cfg.get('edit_on_github')):
-    extensions += ['astropy.sphinx.ext.edit_on_github']
-
-    versionmod = __import__(setup_cfg['package_name'] + '.version')
-    edit_on_github_project = setup_cfg['github_project']
-    if versionmod.version.release:
-        edit_on_github_branch = "v" + versionmod.version.version
-    else:
-        edit_on_github_branch = "master"
-
-    edit_on_github_source_root = ""
-    edit_on_github_doc_root = "docs"
