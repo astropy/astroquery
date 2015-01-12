@@ -6,123 +6,154 @@ Module to search the SAO/NASA Astrophysics Data System
 
 """
 
-import warnings
+#~ import warnings
 # example warning 
 # warnings.warn("Band was specified, so blabla is overridden")
-from astropy.io import ascii
-from astropy import units as u
+#~ from astropy.io import ascii
+#~ from astropy import units as u
 from ..query import BaseQuery
-from ..utils import commons, async_to_sync
+#~ from ..utils import commons, async_to_sync
 from ..utils.docstr_chompers import prepend_docstr_noreturns
 from . import conf
 
-
-
+from ..utils.class_or_instance import class_or_instance
+from ..utils import commons, async_to_sync
 
 
 __all__ = ['ADS', 'ADSClass']
-
-
+#~ 
+#~ 
 @async_to_sync
 class ADSClass(BaseQuery):
-    SERVERS = conf.servers
-    QUERY_ADVANCED_URL = conf.advanced_url
-    QUERY_SIMPLE_URL = conf.simple_url
-    TIMEOUT = conf.timeout
-    # global constant, not user-configurable
-    def __init__(self, **kwargs):
-        """
-        Initialize a ADS query class with default arguments set.
-        Any default keyword arguments (see `query_lines`) can be 
-        overridden here.
-        """
-        self.data = self._default_kwargs()
-        self.set_default_options(**kwargs)
     
-    def set_default_options(self, **kwargs):
-        """
-        Modify the default options.
-        """
-        self.data.update(self._parse_kwargs(**kwargs))
-    def _default_kwargs(self):
-        kwargs = dict(advanced = False,)
-        return self._parse_kwargs(**kwargs)
+    ####### FROM SPLATALOGUE
+    SERVER = conf.server
+    QUERY_ADVANCED_PATH = conf.advanced_path
+    QUERY_SIMPLE_PATH = conf.simple_path
+    TIMEOUT = conf.timeout
+    
+    QUERY_SIMPLE_URL = SERVER + QUERY_SIMPLE_PATH
+    QUERY_ADVANCED_URL = SERVER + QUERY_ADVANCED_PATH
 
-    def _parse_kwargs(self, search=""):
-        """
-        The ADS service returns ...
+    ######## FROM API DOCS
+    def __init__(self, *args):
+        """ set some parameters """
+        pass
+    
+    @class_or_instance
+    def query_simple(self, query_string, get_query_payload=False):
         
+        request_payload = self._args_to_payload(query_string)
+        
+        response = commons.send_request(self.QUERY_SIMPLE_URL, request_payload, self.TIMEOUT)
 
-        Parameters
-        ----------
-
-        Other Parameters
-        ----------------
- 
-
-        Returns
-        -------
-        Dictionary of the parameters to send to the SPLAT page
-        payload : dict
-            A dictionary of keywords
-        """
-
-        payload = {'submit': 'Search',
-                   'frequency_units': 'GHz',
-                   }
-
-            payload['qsearch'] = simple
-
-
-        return payload
-
-    def _validate_simple_kwargs(self, min_frequency=None, max_frequency=None,
-                         band='any', **kwargs):
-        """
-        Check that a simple search query is input
-        """
-        if band == 'any':
-            if min_frequency is None or max_frequency is None:
-                raise ValueError("Must specify a simple search string.")
-    @prepend_docstr_noreturns("\n" + _parse_kwargs.__doc__)
-    def query_simple_async(self, simple, **kwargs):
-        """
-        Returns
-        -------
-        response : `requests.Response`
-            The response of the HTTP request.
-        """
-        # have to chomp this kwd here...
-        get_query_payload = (kwargs.pop('get_query_payload')
-                             if 'get_query_payload' in kwargs
-                             else False)
-        self._validate_kwargs(simple, **kwargs)
-
-        if hasattr(self, 'data'):
-            data_payload = self.data.copy()
-            data_payload.update(self._parse_kwargs(min_frequency=min_frequency,
-                                                   max_frequency=max_frequency,
-                                                   **kwargs))
-        else:
-            data_payload = self._default_kwargs()
-            data_payload.update(self._parse_kwargs(min_frequency=min_frequency,
-                                                   max_frequency=max_frequency,
-                                                   **kwargs))
-
+        # primarily for debug purposes, but also useful if you want to send
+        # someone a URL linking directly to the data
         if get_query_payload:
-            return data_payload
+            return request_payload
 
-        response = commons.send_request(
-            self.QUERY_URL,
-            data_payload,
-            self.TIMEOUT)
+        return response
 
-        self.response = response
+    def _parse_result(self, result):
+        # do something, probably with regexp's
+        return result
 
-        return response    
+    def _args_to_payload(self, query_string):
+        # convert arguments to a valid requests payload
+        # i.e. a dictionary
+        return {'qsearch' : query_string}
+
+
+
+
+
 ADS = ADSClass()
 
-
+#~ 
+    #~ # global constant, not user-configurable
+    #~ def __init__(self, **kwargs):
+        #~ """
+        #~ Initialize a ADS query class with default arguments set.
+        #~ Any default keyword arguments (see `query_lines`) can be 
+        #~ overridden here.
+        #~ """
+        #~ self.data = self._default_kwargs()
+        #~ self.set_default_options(**kwargs)
+    #~ 
+    #~ def set_default_options(self, **kwargs):
+        #~ """
+        #~ Modify the default options.
+        #~ """
+        #~ self.data.update(self._parse_kwargs(**kwargs))
+    #~ 
+    #~ def _default_kwargs(self):
+        #~ kwargs = dict()
+        #~ return self._parse_kwargs(**kwargs)
+#~ 
+    #~ def _parse_kwargs(self, search=""):
+        #~ """
+        #~ The ADS service returns.
+        #~ 
+        #~ Parameters
+        #~ ----------
+        #~ 
+        #~ Other Parameters
+        #~ ----------------
+        #~ 
+        #~ Returns
+        #~ -------
+        #~ Dictionary of the parameters to send to the SPLAT page
+        #~ payload : dict
+            #~ A dictionary of keywords
+        #~ """
+#~ 
+        #~ payload = { 'qsearch': search }
+#~ 
+        #~ return payload
+#~ 
+    #~ def _validate_simple_kwargs(self, search=None, **kwargs):
+        #~ """
+        #~ Check that a simple search query is input
+        #~ """
+        #~ if search is None:
+            #~ raise ValueError("Must specify a search string.")
+    #~ 
+    #~ @prepend_docstr_noreturns("\n" + _parse_kwargs.__doc__)
+    #~ def query_simple_async(self, search, **kwargs):
+        #~ """
+        #~ Returns
+        #~ -------
+        #~ response : `requests.Response`
+            #~ The response of the HTTP request.
+        #~ """
+        #~ # have to chomp this kwd here...
+        #~ get_query_payload = (kwargs.pop('get_query_payload')
+                             #~ if 'get_query_payload' in kwargs
+                             #~ else False)
+        #~ self._validate_kwargs(simple, **kwargs)
+#~ 
+        #~ if hasattr(self, 'data'):
+            #~ data_payload = self.data.copy()
+            #~ data_payload.update(self._parse_kwargs(min_frequency=min_frequency,
+                                                   #~ max_frequency=max_frequency,
+                                                   #~ **kwargs))
+        #~ else:
+            #~ data_payload = self._default_kwargs()
+            #~ data_payload.update(self._parse_kwargs(min_frequency=min_frequency,
+                                                   #~ max_frequency=max_frequency,
+                                                   #~ **kwargs))
+#~ 
+        #~ if get_query_payload:
+            #~ return data_payload
+#~ 
+        #~ response = commons.send_request(
+            #~ self.QUERY_URL,
+            #~ data_payload,
+            #~ self.TIMEOUT)
+#~ 
+        #~ self.response = response
+#~ 
+        #~ return response    
 
 
 
