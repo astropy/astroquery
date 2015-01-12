@@ -15,10 +15,12 @@ astroquery/astroquery.cfg
 
 htmlcov
 .coverage
+MANIFEST
 
 # Sphinx
 _build
 docs/api
+docs/_build
 
 # Packages/installer info
 *.egg

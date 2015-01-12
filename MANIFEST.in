@@ -21,3 +21,4 @@ exclude astropy_helpers/.gitignore
 
 global-exclude *.pyc
 global-exclude *.o
+prune docs/api

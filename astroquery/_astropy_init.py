@@ -86,8 +86,8 @@ def test(package=None, test_path=None, args=None, plugins=None,
 
     open_files : bool, optional
         Fail when any tests leave files open.  Off by default, because
-        this adds extra run time to the test suite.  Works only on
-        platforms with a working ``lsof`` command.
+        this adds extra run time to the test suite.  Requires the
+        `psutil` package.
 
     parallel : int, optional
         When provided, run the tests in parallel on the specified
