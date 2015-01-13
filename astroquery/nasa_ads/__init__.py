@@ -10,11 +10,14 @@ SAO/NASA ADS Query Tool
 #~ from astropy.config import ConfigurationItem
 
 from astropy import config as _config
+from .utils import *
+
 
 class Conf(_config.ConfigNamespace):
     """
     Configuration parameters for `astroquery.nasa_ads`.
     """
+   
     server = _config.ConfigItem(
             'http://adswww.harvard.edu',
             'SAO/NASA ADS main server.'
@@ -57,6 +60,11 @@ class Conf(_config.ConfigNamespace):
 conf = Conf()
 
 
+conf.adsfields = ['bibcode', 'title', 'author', 'affiliation',
+        'journal', 'volume', 'pubdate', 'page', 'lastpage', 'keywords', 'keyword',
+        'origin', 'copyright', 'link', 'name', 'url', 'count', 'score', 'citations',
+        'abstract', 'doi', 'eprindit']
+
 from .core import ADSClass, ADS
 
 __all__ = ['ADSClass', 'ADS',
@@ -78,9 +86,9 @@ __all__ = ['ADSClass', 'ADS',
         #~ 'http://ads.nao.ac.jp',
         #~ 'http://ads.bao.ac.cn',
         #~ 'http://ads.iucaa.ernet.in',
-        #~ 'http://ads.arsip.lipi.go.id',
+        #~ 'http://ads.arsip.lipi.go.id',lastpage
         #~ 'http://saaoads.chpc.ac.za',
-        #~ 'http://ads.on.br'],
+        #~ 'http://ads.on.br'],lastpage
         #~ 'SAO/NASA ADS mirrors around the world'
         #~ )
     #~ 
