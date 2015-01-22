@@ -45,3 +45,6 @@ distribute-*.tar.gz
 .settings
 .project
 .pydevproject
+
+# Pycharm
+.idea
