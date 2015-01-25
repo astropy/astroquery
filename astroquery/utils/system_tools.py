@@ -35,7 +35,7 @@ def gunzip(filename):
     filename : str
         Name of the decompressed file (or input filname if gzip is not available).
     """
-    if __is_gzip_found:
+    if __is_gzip_found and not filename.endswith('.fz'):  # ".fz" denotes RICE rather than gzip compression
         subprocess.call(["gzip", "-d", "{0}".format(filename)], stdout=DEVNULL, stderr=DEVNULL)
         return filename.rsplit(".", 1)[0]
     else:

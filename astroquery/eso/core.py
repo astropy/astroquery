@@ -498,6 +498,9 @@ class EsoClass(QueryWithLogin):
             elif os.path.exists(local_filename + ".Z"):
                 log.info("Found {0}.fits.Z...".format(dataset))
                 files.append(local_filename + ".Z")
+            elif os.path.exists(local_filename + ".fz"):  # RICE-compressed
+                log.info("Found {0}.fits.fz...".format(dataset))
+                files.append(local_filename + ".fz")
             else:
                 datasets_to_download.append(dataset)
 
