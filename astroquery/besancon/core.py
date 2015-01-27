@@ -9,6 +9,7 @@ import os
 from astropy.io import ascii
 from astropy.extern.six.moves.urllib_error import URLError
 from astropy.extern.six import StringIO
+from collections import OrderedDict
 from ..query import BaseQuery
 from ..utils import commons
 from ..utils import prepend_docstr_noreturns
@@ -30,13 +31,13 @@ keyword_defaults = {
     'eq1': 2000.0,
     'al0': 200.00,
     'alm': 200.00,
-    'dl': 1.00,
+    'dl': 0,
     'ab0': 59.00,
     'abm': 59.00,
-    'db': 1.00,
+    'db': 0,
     'adif': 0.700,
-    'ev':[""] * 24,
-    'di':[""] * 24,
+    'ev':[""] * 25,
+    'di':[""] * 25,
     'oo':[-7] + [-99] * 12,
     'ff':[15] + [99] * 12,
     'spectyp_min':1,
@@ -45,10 +46,10 @@ keyword_defaults = {
     'subspectyp_max': 5,
     'lumi':list(range(1, 8)),
     'sous_pop':list(range(1, 11)),
-    'iband':8,
+    'iband':1,
     'band0':[8] * 9,
     'bandf':[25] * 9,
-    'colind':["J-H", "H-K", "J-K", "V-K", ],
+    'colind':["B-V", "U-B", "V-I", "V-K", ],
     'nic': 4,
     'klea':1,
     'sc':[[0, 0, 0]] * 9,
@@ -62,11 +63,11 @@ keyword_defaults = {
 keyword_defaults['ff[15]'] = 500
 keyword_defaults['oo[15]'] = -500
 
-colors_limits = {"J-H":(-99, 99), "H-K":(-99, 99), "J-K":(-99, 99), "V-K":(-99, 99)}
-mag_limits = {'U':(-99, 99), 'B':(-99, 99), 'V':(-5, 20), 'R':(-99, 99),
+colors_limits = OrderedDict((ci,(-99,99)) for ci in keyword_defaults['colind'])
+mag_limits = {'U':(-99, 99), 'B':(-99, 99), 'V':(10, 18), 'R':(-99, 99),
               'I':(-99, 99), 'J':(-99, 99), 'H':(-99, 99), 'K':(-99, 99), 'L':(-99, 99)}
-mag_order = "U", "B", "V", "R", "I", "J", "H", "K", "L"
-
+#mag_order = "U", "B", "V", "R", "I", "J", "H", "K", "L"
+mag_order = "VBURIJHKL"
 
 @async_to_sync
 class BesanconClass(BaseQuery):
@@ -120,14 +121,22 @@ class BesanconClass(BaseQuery):
                 break
             except URLError:
                 if verbose:
-                    sys.stdout.write(u"Waiting %0.1fs for model to finish (elapsed wait time %0.1fs, total wait time %0.1f)\r" % (self.ping_delay, elapsed_time, time.time() - t0))
+                    sys.stdout.write(u"Waiting %0.1fs for model to finish"
+                                     " (elapsed wait time %0.1fs, total "
+                                     "wait time %0.1f)\r" % (self.ping_delay,
+                                                             elapsed_time,
+                                                             time.time() - t0))
                     sys.stdout.flush()
                 time.sleep(self.ping_delay)
                 elapsed_time += self.ping_delay
                 continue
             except socket.timeout:
                 if verbose:
-                    sys.stdout.write(u"Waiting %0.1fs for model to finish (elapsed wait time %0.1fs, total wait time %0.1f)\r" % (self.ping_delay, elapsed_time, time.time() - t0))
+                    sys.stdout.write(u"Waiting %0.1fs for model to finish "
+                                     "(elapsed wait time %0.1fs, total wait "
+                                     "time %0.1f)\r" % (self.ping_delay,
+                                                        elapsed_time,
+                                                        time.time() - t0))
                     sys.stdout.flush()
                 time.sleep(self.ping_delay)
                 elapsed_time += self.ping_delay
@@ -156,7 +165,9 @@ class BesanconClass(BaseQuery):
             raise ValueError("Errors: " + "\n".join(errors))
 
         if verbose:
-            print("File is %s and can be aquired from %s" % (filename, self.url_download + '/' + filename))
+            print("File is %s and can be aquired from %s" % (filename,
+                                                             self.url_download
+                                                             + '/' + filename))
 
         if retrieve_file:
             return self.get_besancon_model_file(filename)
@@ -165,7 +176,7 @@ class BesanconClass(BaseQuery):
 
     def _parse_args(self, glon, glat, email, smallfield=True, extinction=0.7,
                     area=0.0001, verbose=True, clouds=None,
-                    absmag_limits=(-7, 15), mag_limits=copy.copy(mag_limits),
+                    absmag_limits=(-7, 20), mag_limits=copy.copy(mag_limits),
                     colors_limits=copy.copy(colors_limits),
                     **kwargs):
         """
