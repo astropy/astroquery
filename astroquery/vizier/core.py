@@ -314,13 +314,14 @@ class VizierClass(BaseQuery):
             if (("_RAJ2000" in coordinates.keys()) and ("_DEJ2000" in
                                                         coordinates.keys())):
                 pos_list = []
-                for pos in coord.SkyCoord(coordinates["_RAJ2000"],
+                sky_coord = coord.SkyCoord(coordinates["_RAJ2000"],
                                           coordinates["_DEJ2000"],
                                           unit=(coordinates["_RAJ2000"].unit,
-                                                coordinates["_DEJ2000"].unit)):
-                    ra_deg = pos.ra.to_string(unit="deg", decimal=True, precision=8)
-                    dec_deg = pos.dec.to_string(unit="deg", decimal=True,
-                                                precision=8, alwayssign=True)
+                                                coordinates["_DEJ2000"].unit))
+                for (ra, dec) in zip(sky_coord.ra, sky_coord.dec):
+                    ra_deg = ra.to_string(unit="deg", decimal=True, precision=8)
+                    dec_deg = dec.to_string(unit="deg", decimal=True,
+                                            precision=8, alwayssign=True)
                     pos_list += ["{}{}".format(ra_deg, dec_deg)]
                 center["-c"] = "<<;" + ";".join(pos_list)
                 columns += ["_q"]  # request a reference to the input table
