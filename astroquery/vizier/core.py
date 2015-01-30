@@ -513,6 +513,8 @@ class VizierClass(BaseQuery):
                 body[key] = value
         # add column metadata: name, unit, UCD1+, and description
         body["-out.meta"] = "huUD"
+        # merge tables when a list is queried against a single catalog
+        body["-out.form"] = "mini"
         # computed position should always be in decimal degrees
         body["-oc.form"] = "d"
 
