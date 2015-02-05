@@ -78,7 +78,7 @@ package_info = get_package_info()
 package_info['package_data'].setdefault(PACKAGENAME, [])
 package_info['package_data'][PACKAGENAME].append('data/*')
 
-# Adam's note: I don't know what to do with this.
+# These lines are only needed if astroquery acquires command line scripts
 # # Define entry points for command-line scripts
 # entry_points = {}
 # entry_points['console_scripts'] = [
