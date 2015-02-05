@@ -16,6 +16,7 @@ To see the list of surveys, use the `list_surveys` method:
 
 .. code-block:: python
 
+   >>> from astroquery.skyview import SkyView
    >>> SkyView.list_surveys()
    {'DiffuseX-ray': [u'RASS Background 1',
                      u'RASS Background 2',
@@ -181,8 +182,7 @@ while `get_image_list` just searches for the files.
 
 .. code-block:: python
 
-    >>> sv = SkyView()
-    >>> paths = sv.get_images(position='Eta Carinae',
+    >>> paths = SkyView.get_images(position='Eta Carinae',
     ...                       survey=['Fermi 5', 'HRI', 'DSS'])
     Downloading http://skyview.gsfc.nasa.gov/tempspace/fits/skv668576311417_1.fits
     |=========================================================================================================================| 371k/371k (100.00%)         0s
@@ -198,7 +198,7 @@ Without the download:
 .. code-block:: python
 
 
-    >>> sv.get_image_list(position='Eta Carinae',
+    >>> SkyView.get_image_list(position='Eta Carinae',
                       survey=['Fermi 5', 'HRI', 'DSS'])
     [u'http://skyview.gsfc.nasa.gov/tempspace/fits/skv669807193757_1.fits',
      u'http://skyview.gsfc.nasa.gov/tempspace/fits/skv669807193757_2.fits',

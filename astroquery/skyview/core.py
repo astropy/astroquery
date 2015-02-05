@@ -48,9 +48,10 @@ class SkyViewClass(BaseQuery):
                     if option.get('selected') == '':
                         value = option.get('value', option.text.strip())
                         res.append((elem.get('name'), value))
-        return dict(
-            (k, v) for (k, v) in res if v not in [None, u'None', u'null'] and v
-        )
+        return {k:v 
+                for (k, v) in res
+                if v not in [None, u'None', u'null'] and v
+               }
 
     def _submit_form(self, input=None, cache=True):
         """Fill out the form of the SkyView site and submit it with the
@@ -60,8 +61,8 @@ class SkyViewClass(BaseQuery):
         """
         if input is None:
             input = {}
-        response = self._request('GET', self.URL)
-        bs = BeautifulSoup(response.content)
+        form_response = self._request('GET', self.URL)
+        bs = BeautifulSoup(form_response.content, "html.parser")
         form = bs.find('form')
         # cache the default values to save HTTP traffic
         if self._default_form_values is None:
@@ -238,7 +239,7 @@ class SkyViewClass(BaseQuery):
         return urls
 
     def _parse_response(self, response):
-        bs = BeautifulSoup(response.content)
+        bs = BeautifulSoup(response.content, "html.parser")
         urls = []
         for a in bs.find_all('a'):
             if a.text == 'FITS':
@@ -251,7 +252,7 @@ class SkyViewClass(BaseQuery):
         if not hasattr(self, '_survey_dict'):
 
             response = self._request('GET', self.URL)
-            page = BeautifulSoup(response.content)
+            page = BeautifulSoup(response.content, "html.parser")
             surveys = page.findAll('select', {'name':'survey'})
             
             self._survey_dict = {sel['id']:[x.text for x in sel.findAll('option')]
