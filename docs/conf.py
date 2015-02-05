@@ -51,7 +51,11 @@ setup_cfg = dict(conf.items('metadata'))
 # -- General configuration ----------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
-#needs_sphinx = '1.1'
+#needs_sphinx = '1.2'
+
+# To perform a Sphinx version check that needs to be more specific than
+# major.minor, call `check_sphinx_version("x.y.z")` here.
+# check_sphinx_version("1.2.1")
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -183,29 +187,15 @@ for mod_name in MOCK_MODULES:
 
 ## -- Options for the edit_on_github extension ----------------------------------------
 #
-extensions += ['astropy.sphinx.ext.edit_on_github']
-
-# Don't import the module as "version" or it will override the
-# "version" configuration parameter
-from astroquery import version as versionmod
-edit_on_github_project = "astropy/astroquery"
-if versionmod.release:
-    edit_on_github_branch = "v" + versionmod.version
-else:
-    edit_on_github_branch = "master"
-
-edit_on_github_source_root = ""
-edit_on_github_doc_root = "docs"
-
-## -- Options for the edit_on_github extension ----------------------------------------
-
 if eval(setup_cfg.get('edit_on_github')):
     extensions += ['astropy.sphinx.ext.edit_on_github']
 
-    versionmod = __import__(setup_cfg['package_name'] + '.version')
-    edit_on_github_project = setup_cfg['github_project']
-    if versionmod.version.release:
-        edit_on_github_branch = "v" + versionmod.version.version
+    # Don't import the module as "version" or it will override the
+    # "version" configuration parameter
+    from astroquery import version as versionmod
+    edit_on_github_project = "astropy/astroquery"
+    if versionmod.release:
+        edit_on_github_branch = "v" + versionmod.version
     else:
         edit_on_github_branch = "master"
 
