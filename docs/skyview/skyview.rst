@@ -1,6 +1,6 @@
 .. doctest-skip-all
 
-.. _astroquery_simbad:
+.. _astroquery_skyview:
 
 **************************************
 Skyview Queries (`astroquery.skyview`)
