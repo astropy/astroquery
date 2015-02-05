@@ -1,5 +1,5 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-import requests
+import pprint
 from bs4 import BeautifulSoup
 from astropy.extern.six.moves.urllib import parse as urlparse
 from astropy.extern import six
@@ -52,7 +52,7 @@ class SkyViewClass(BaseQuery):
             (k, v) for (k, v) in res if v not in [None, u'None', u'null'] and v
         )
 
-    def _submit_form(self, input=None):
+    def _submit_form(self, input=None, cache=True):
         """Fill out the form of the SkyView site and submit it with the
         values given in `input` (a dictionary where the keys are the form
         element's names and the values are their respective values).
@@ -60,7 +60,7 @@ class SkyViewClass(BaseQuery):
         """
         if input is None:
             input = {}
-        response = requests.get(self.URL)
+        response = self._request('GET', self.URL)
         bs = BeautifulSoup(response.content)
         form = bs.find('form')
         # cache the default values to save HTTP traffic
@@ -73,13 +73,13 @@ class SkyViewClass(BaseQuery):
             if v is not None:
                 payload[k] = v
         url = urlparse.urljoin(self.URL, form.get('action'))
-        response = requests.get(url, params=payload)
+        response = self._request('GET', url, params=payload, cache=cache)
         return response
 
-    def get_images(
-            self, position, survey, coordinates=None, projection=None,
-            pixels=None, scaling=None, sampler=None, resolver=None,
-            deedger=None, lut=None, grid=None, gridlabels=None):
+    def get_images(self, position, survey, coordinates=None, projection=None,
+                   pixels=None, scaling=None, sampler=None, resolver=None,
+                   deedger=None, lut=None, grid=None, gridlabels=None,
+                   cache=True):
         """Query the SkyView service, download the FITS file that will be
         found and return a generator over the local paths to the
         downloaded FITS files.
@@ -177,33 +177,34 @@ class SkyViewClass(BaseQuery):
         A list of `astropy.fits.HDUList` objects
 
         """
-        readable_objects = self.get_images_async(
-            position, survey, coordinates, projection,
-            pixels, scaling, sampler, resolver,
-            deedger, lut, grid, gridlabels)
+        readable_objects = self.get_images_async(position, survey, coordinates,
+                                                 projection, pixels, scaling,
+                                                 sampler, resolver, deedger,
+                                                 lut, grid, gridlabels,
+                                                 cache=cache)
         return [obj.get_fits() for obj in readable_objects]
 
     @prepend_docstr_noreturns(get_images.__doc__)
-    def get_images_async(
-            self, position, survey, coordinates=None, projection=None,
-            pixels=None, scaling=None, sampler=None, resolver=None,
-            deedger=None, lut=None, grid=None, gridlabels=None):
+    def get_images_async(self, position, survey, coordinates=None,
+                         projection=None, pixels=None, scaling=None,
+                         sampler=None, resolver=None, deedger=None, lut=None,
+                         grid=None, gridlabels=None, cache=True):
         """
         Returns
         -------
         A list of context-managers that yield readable file-like objects
         """
-        image_urls = self.get_image_list(
-            position, survey, coordinates, projection,
-            pixels, scaling, sampler, resolver,
-            deedger, lut, grid, gridlabels)
+        image_urls = self.get_image_list(position, survey, coordinates,
+                                         projection, pixels, scaling, sampler,
+                                         resolver, deedger, lut, grid,
+                                         gridlabels, cache=cache)
         return [commons.FileContainer(url) for url in image_urls]
 
     @prepend_docstr_noreturns(get_images.__doc__)
-    def get_image_list(
-            self, position, survey, coordinates=None, projection=None,
-            pixels=None, scaling=None, sampler=None, resolver=None,
-            deedger=None, lut=None, grid=None, gridlabels=None):
+    def get_image_list(self, position, survey, coordinates=None,
+                       projection=None, pixels=None, scaling=None,
+                       sampler=None, resolver=None, deedger=None, lut=None,
+                       grid=None, gridlabels=None, cache=True):
         """
         Returns
         -------
@@ -216,6 +217,9 @@ class SkyViewClass(BaseQuery):
          u'http://skyview.gsfc.nasa.gov/tempspace/fits/skv6183161285798_2.fits',
          u'http://skyview.gsfc.nasa.gov/tempspace/fits/skv6183161285798_3.fits']
         """
+
+        self._validate_surveys(survey)
+
         input = {
             'Position': position,
             'survey': survey,
@@ -229,7 +233,7 @@ class SkyViewClass(BaseQuery):
             'resolver': resolver,
             'Sampler': sampler,
             'pixels': pixels}
-        response = self._submit_form(input)
+        response = self._submit_form(input, cache=cache)
         urls = self._parse_response(response)
         return urls
 
@@ -241,5 +245,38 @@ class SkyViewClass(BaseQuery):
                 href = a.get('href')
                 urls.append(urlparse.urljoin(response.url, href))
         return urls
+
+    @property
+    def survey_dict(self):
+        if not hasattr(self, '_survey_dict'):
+
+            response = self._request('GET', self.URL)
+            page = BeautifulSoup(response.content)
+            surveys = page.findAll('select', {'name':'survey'})
+            
+            self._survey_dict = {sel['id']:[x.text for x in sel.findAll('option')]
+                                for sel in surveys}
+        return self._survey_dict
+
+    @property
+    def _valid_surveys(self):
+        # Return a flat list of all valid surveys
+        return [x for v in self.survey_dict.values() for x in v]
+
+    def _validate_surveys(self, surveys):
+        if not isinstance(surveys, list):
+            surveys = [surveys]
+
+        for sv in surveys:
+            if sv not in self._valid_surveys:
+                raise ValueError("Survey is not among the surveys hosted "
+                                 "at skyview.  See list_surveys or "
+                                 "survey_dict for valid surveys.")
+
+    def list_surveys(self):
+        """
+        Print out a formatted version of the survey dict
+        """
+        pprint.pprint(self.survey_dict)
 
 SkyView = SkyViewClass()
