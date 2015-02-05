@@ -43,7 +43,7 @@ def patch_get(request):
 
 def test_get_image_list_local(patch_get):
     urls = SkyView.get_image_list(position='Eta Carinae',
-                             survey=['Fermi 5', 'HRI', 'DSS'])
+                                  survey=['Fermi 5', 'HRI', 'DSS'])
     assert len(urls) == 3
     for url in urls:
         assert url.startswith('../../tempspace/fits/')
