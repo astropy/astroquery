@@ -53,7 +53,7 @@ class SkyViewClass(BaseQuery):
                 if v not in [None, u'None', u'null'] and v
                }
 
-    def _submit_form(self, input=None, cache=True):
+    def _generate_payload(self, input=None):
         """Fill out the form of the SkyView site and submit it with the
         values given in `input` (a dictionary where the keys are the form
         element's names and the values are their respective values).
@@ -74,6 +74,10 @@ class SkyViewClass(BaseQuery):
             if v is not None:
                 payload[k] = v
         url = urlparse.urljoin(self.URL, form.get('action'))
+        return url, payload
+
+    def _submit_form(self, input=None, cache=True):
+        url, payload = self._generate_payload(input=input)
         response = self._request('GET', url, params=payload, cache=cache)
         return response
 
