@@ -1,4 +1,4 @@
-Copyright (c) 2011, Astroquery Developers
+Copyright (c) 2011,2012,2013,2014,2015 Astroquery Developers
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,

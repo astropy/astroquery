@@ -78,6 +78,14 @@ package_info = get_package_info()
 package_info['package_data'].setdefault(PACKAGENAME, [])
 package_info['package_data'][PACKAGENAME].append('data/*')
 
+# Adam's note: I don't know what to do with this.
+# # Define entry points for command-line scripts
+# entry_points = {}
+# entry_points['console_scripts'] = [
+#     'astropy-package-template-example = packagename.example_mod:main',
+# ]
+
+
 # Currently the only entry points installed by Astropy are hooks to
 # zest.releaser for doing Astropy's releases
 entry_points = {}
@@ -115,6 +123,6 @@ setup(name=PACKAGENAME,
       license=LICENSE,
       cmdclass=cmdclassd,
       zip_safe=False,
-      use_2to3=False,
+      use_2to3=True,
       **package_info
 )
