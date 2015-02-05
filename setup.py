@@ -123,6 +123,6 @@ setup(name=PACKAGENAME,
       license=LICENSE,
       cmdclass=cmdclassd,
       zip_safe=False,
-      use_2to3=True,
+      use_2to3=False,
       **package_info
 )
