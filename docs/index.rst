@@ -131,6 +131,7 @@ The following modules have been completed using a common API:
   xmatch/xmatch.rst
   atomic/atomic.rst
   alma/alma.rst
+  skyview/skyview.rst
 
 These others are functional, but do not follow a common & consistent API:
 
@@ -197,6 +198,7 @@ generally return a table listing the available data first.
   sdss/sdss.rst
   sha/sha.rst
   ukidss/ukidss.rst
+  skyview/skyview.rst
 
 Simulations
 -----------
