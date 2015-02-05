@@ -23,9 +23,9 @@ class SkyViewClass(BaseQuery):
         self._default_form_values = None
 
     def _get_default_form_values(self, form):
-        """Return the already selected values of a given form (a BeautifulSoup
+        """
+        Return the already selected values of a given form (a BeautifulSoup
         form node) as a dict.
-
         """
         res = []
         for elem in form.find_all(['input', 'select']):
@@ -54,10 +54,10 @@ class SkyViewClass(BaseQuery):
                }
 
     def _generate_payload(self, input=None):
-        """Fill out the form of the SkyView site and submit it with the
+        """
+        Fill out the form of the SkyView site and submit it with the
         values given in `input` (a dictionary where the keys are the form
         element's names and the values are their respective values).
-
         """
         if input is None:
             input = {}
@@ -85,7 +85,8 @@ class SkyViewClass(BaseQuery):
                    pixels=None, scaling=None, sampler=None, resolver=None,
                    deedger=None, lut=None, grid=None, gridlabels=None,
                    cache=True):
-        """Query the SkyView service, download the FITS file that will be
+        """
+        Query the SkyView service, download the FITS file that will be
         found and return a generator over the local paths to the
         downloaded FITS files.
 
