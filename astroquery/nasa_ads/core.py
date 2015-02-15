@@ -16,11 +16,14 @@ from ..utils import commons, async_to_sync
 #~ from ..utils.docstr_chompers import prepend_docstr_noreturns
 from . import conf
 #~ from .utils import *
+from astropy.table import Table, Column
 
 from ..utils.class_or_instance import class_or_instance
 from ..utils import commons, async_to_sync
 
-from BeautifulSoup import BeautifulSoup as bfs
+#~ from BeautifulSoup import BeautifulSoup as bfs
+
+from xml.dom import minidom
 
 __all__ = ['ADS', 'ADSClass']
 
@@ -42,7 +45,7 @@ class ADSClass(BaseQuery):
         pass
     
     @class_or_instance
-    def query_simple(self, query_string, get_query_payload=False):
+    def query_simple(self, query_string, get_query_payload=False, get_raw_response=False):
         self.query_string = query_string
         request_payload = self._args_to_payload(query_string)
         
@@ -52,10 +55,21 @@ class ADSClass(BaseQuery):
         # someone a URL linking directly to the data
         if get_query_payload:
             return request_payload
-
-        return self._parse_response(response)
-
+        if get_raw_response:
+            return response
+        # parse the XML response into Beautiful Soup
+        #~ response_bfs = self._parse_response_to_bfs(response)
+        # 
+        #self._parse_bfs_to_table(response_bfs)
+        self._parse_response(response)
+        
+        return response
+    
     def _parse_response(self, response):
+        xmlrepr = minidom.parseString(response.text.encode('utf-8'))
+        
+        
+    def _parse_response_to_bfs(self, response):
         # do something, probably with regexp's
         
         adssoup_raw = bfs(response.text)
