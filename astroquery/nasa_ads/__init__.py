@@ -53,7 +53,7 @@ class Conf(_config.ConfigNamespace):
             )
     
     timeout = _config.ConfigItem(
-            60,
+            120,
             'Time limit for connecting to ADS server'
     )
         
@@ -63,7 +63,7 @@ conf = Conf()
 conf.adsfields = ['bibcode', 'title', 'author', 'affiliation',
         'journal', 'volume', 'pubdate', 'page', 'lastpage', 'keywords', 'keyword',
         'origin', 'copyright', 'link', 'name', 'url', 'count', 'score', 'citations',
-        'abstract', 'doi', 'eprindit']
+        'abstract', 'doi', 'eprintid']
 
 from .core import ADSClass, ADS
 
