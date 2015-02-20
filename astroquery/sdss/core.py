@@ -50,7 +50,7 @@ class SDSSClass(BaseQuery):
     BASE_URL = conf.server
     SPECTRO_OPTICAL = BASE_URL
     IMAGING = BASE_URL + '/boss/photoObj/frames'
-    TEMPLATES = 'http://www.sdss.org/dr7/algorithms/spectemplates/spDR2'
+    TEMPLATES = 'http://classic.sdss.org/dr7/algorithms/spectemplates/spDR2'
     MAXQUERIES = conf.maxqueries
     AVAILABLE_TEMPLATES = spec_templates
     TIMEOUT = conf.timeout
