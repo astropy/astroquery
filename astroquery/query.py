@@ -14,6 +14,8 @@ from astropy import log
 from astropy.utils.console import ProgressBar
 import astropy.utils.data
 
+from . import version
+
 __all__ = ['BaseQuery', 'QueryWithLogin']
 
 
@@ -96,7 +98,10 @@ class BaseQuery(object):
     """
 
     def __init__(self):
-        self._session = requests.session()
+        S = self._session = requests.session()
+        S.headers['User-Agent'] = ('astroquery/{vers} {olduseragent}'
+                                   .format(vers=version.version,
+                                           olduseragent=S.headers['User-Agent']))
         self.cache_location = os.path.join(paths.get_cache_dir(), 'astroquery',
                                            self.__class__.__name__.split("Class")[0])
         if not os.path.exists(self.cache_location):

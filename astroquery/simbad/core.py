@@ -115,6 +115,7 @@ class SimbadClass(BaseQuery):
     _VOTABLE_FIELDS = ['main_id', 'coordinates']
 
     def __init__(self):
+        super(SimbadClass, self).__init__()
         self._VOTABLE_FIELDS = copy.copy(self._VOTABLE_FIELDS)
 
     def list_wildcards(self):
