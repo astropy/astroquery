@@ -99,7 +99,7 @@ class BaseQuery(object):
 
     def __init__(self):
         self._session = requests.session()
-        self._session.headers['User-Agent'] = ('astropy:astroquery.{vers} '
+        self._session.headers['User-Agent'] = ('astroquery.{vers} '
                                                '{olduseragent}'
                                                .format(vers=version.version,
                                                        olduseragent=
