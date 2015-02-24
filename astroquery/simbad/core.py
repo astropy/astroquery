@@ -723,7 +723,7 @@ class SimbadClass(BaseQuery):
         response with the .table property/method, then return the
         resulting table.  If data is not retrieved or the resulting
         table is empty, return None.  In case of problems, save
-        intermediate results for furthur debugging.
+        intermediate results for further debugging.
         """
         self.last_response = result
         try:
