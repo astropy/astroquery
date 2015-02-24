@@ -97,6 +97,11 @@ class BaseQuery(object):
 
     def __init__(self):
         self._session = requests.session()
+        self._session.headers['User-Agent'] = ('astropy:astroquery.{vers} '
+                                               '{olduseragent}'
+                                               .format(vers=version.version,
+                                                       olduseragent=
+                                                       self._session.headers['User-Agent']))
         self.cache_location = os.path.join(paths.get_cache_dir(), 'astroquery',
                                            self.__class__.__name__.split("Class")[0])
         if not os.path.exists(self.cache_location):
