@@ -14,6 +14,8 @@ from astropy import log
 from astropy.utils.console import ProgressBar
 import astropy.utils.data
 
+from . import version
+
 __all__ = ['BaseQuery', 'QueryWithLogin']
 
 
