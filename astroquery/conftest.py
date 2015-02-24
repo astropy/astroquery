@@ -26,3 +26,15 @@ def pytest_configure(config):
     except ImportError:
         # assume astropy v<0.3
         pass
+
+
+# Add astropy to test header information and remove unused packages.
+# Pytest header customisation was introduced in astropy 1.0.
+
+try:
+    PYTEST_HEADER_MODULES['astropy'] = 'astropy'
+    del PYTEST_HEADER_MODULES['h5py']
+    del PYTEST_HEADER_MODULES['Scipy']
+    del PYTEST_HEADER_MODULES['Matplotlib']
+except NameError:
+    pass
