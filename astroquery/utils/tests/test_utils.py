@@ -85,14 +85,16 @@ def test_parse_radius_2(radius):
 
 
 def test_send_request_post(monkeypatch):
-    def mock_post(url, data, timeout, headers={}):
+    def mock_post(url, data, timeout, headers={}, status_code=200):
         class SpecialMockResponse(object):
 
-            def __init__(self, url, data, headers):
+            def __init__(self, url, data, headers, status_code):
                 self.url = url
                 self.data = data
                 self.headers = headers
-        return SpecialMockResponse(url, data, headers=headers)
+                self.status_code = status_code
+        return SpecialMockResponse(url, data, headers=headers,
+                                   status_code=status_code)
     monkeypatch.setattr(requests, 'post', mock_post)
 
     response = commons.send_request('https://github.com/astropy/astroquery',
@@ -103,8 +105,9 @@ def test_send_request_post(monkeypatch):
 
 
 def test_send_request_get(monkeypatch):
-    def mock_get(url, params, timeout, headers={}):
+    def mock_get(url, params, timeout, headers={}, status_code=200):
         req = requests.Request('GET', url, params=params, headers=headers).prepare()
+        req.status_code = status_code
         return req
     monkeypatch.setattr(requests, 'get', mock_get)
     response = commons.send_request('https://github.com/astropy/astroquery',
@@ -113,8 +116,9 @@ def test_send_request_get(monkeypatch):
 
 
 def test_quantity_timeout(monkeypatch):
-    def mock_get(url, params, timeout, headers={}):
+    def mock_get(url, params, timeout, headers={}, status_code=200):
         req = requests.Request('GET', url, params=params, headers=headers).prepare()
+        req.status_code = status_code
         return req
     monkeypatch.setattr(requests, 'get', mock_get)
     response = commons.send_request('https://github.com/astropy/astroquery',
