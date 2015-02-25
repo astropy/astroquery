@@ -90,10 +90,10 @@ def send_request(url, data, timeout, request_type='POST', headers={},
         else:
             raise ValueError("request_type must be either 'GET' or 'POST'.")
 
-        if response.status_code >= 400:
-            raise response.raise_for_status()
-        else:
-            return response
+        response.raise_for_status()
+
+        return response
+
     except requests.exceptions.Timeout:
             raise TimeoutError("Query timed out, time elapsed {time}s".
                                format(time=timeout))
