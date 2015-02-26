@@ -93,6 +93,10 @@ def test_send_request_post(monkeypatch):
                 self.data = data
                 self.headers = headers
                 self.status_code = status_code
+
+            def raise_for_status(self):
+                pass
+
         return SpecialMockResponse(url, data, headers=headers,
                                    status_code=status_code)
     monkeypatch.setattr(requests, 'post', mock_post)
@@ -108,6 +112,7 @@ def test_send_request_get(monkeypatch):
     def mock_get(url, params, timeout, headers={}, status_code=200):
         req = requests.Request('GET', url, params=params, headers=headers).prepare()
         req.status_code = status_code
+        req.raise_for_status = lambda: None
         return req
     monkeypatch.setattr(requests, 'get', mock_get)
     response = commons.send_request('https://github.com/astropy/astroquery',
@@ -119,6 +124,7 @@ def test_quantity_timeout(monkeypatch):
     def mock_get(url, params, timeout, headers={}, status_code=200):
         req = requests.Request('GET', url, params=params, headers=headers).prepare()
         req.status_code = status_code
+        req.raise_for_status = lambda: None
         return req
     monkeypatch.setattr(requests, 'get', mock_get)
     response = commons.send_request('https://github.com/astropy/astroquery',
