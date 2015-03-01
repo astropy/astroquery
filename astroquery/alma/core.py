@@ -12,6 +12,7 @@ import re
 import tarfile
 from bs4 import BeautifulSoup
 
+from astropy.extern.six.moves.urllib_parse import urljoin
 from astropy.extern.six import BytesIO,iteritems
 from astropy.extern import six
 from astropy.table import Table, Column
@@ -120,7 +121,7 @@ class AlmaClass(QueryWithLogin):
             Return only data marked as "science" in the archive?
         """
 
-        url = os.path.join(self._get_dataarchive_url(), 'aq', 'search.votable')
+        url = urljoin(self._get_dataarchive_url(), 'aq/search.votable')
 
         payload.update({'viewFormat':'raw',})
         if public:
@@ -202,7 +203,7 @@ class AlmaClass(QueryWithLogin):
 
         self._get_dataarchive_url()
 
-        url = os.path.join(self.dataarchive_url, 'rh', 'submission')
+        url = urljoin(self.dataarchive_url, 'rh/submission')
         log.debug("First request URL: {0}".format(url))
         #'ALMA+uid___A002_X391d0b_X7b'
         #payload = [('dataset','ALMA+'+clean_uid(uid)) for uid in uids]
@@ -233,8 +234,8 @@ class AlmaClass(QueryWithLogin):
         log.debug("Request ID: {0}".format(request_id))
 
         # Submit a request for the specific request ID identified above
-        submission_url = os.path.join(self.dataarchive_url, 'rh', 'submission',
-                                      request_id)
+        submission_url = urljoin(self.dataarchive_url, 'rh/submission',
+                                 request_id)
         log.debug("Submission URL: {0}".format(submission_url))
         self._staging_log['submission_url'] = submission_url
         has_completed = False
@@ -268,31 +269,11 @@ class AlmaClass(QueryWithLogin):
         self._staging_log['data_list_page'] = data_list_page
         data_list_page.raise_for_status()
 
-        root = BeautifulSoup(data_list_page.content, 'html5lib')
-
         if 'Error' in data_list_page.text:
             errormessage = root.find('div', id='errorContent').string.strip()
             raise RemoteServiceError(errormessage)
 
-        data_table = root.findAll('table', class_='list', id='report')[0]
-        columns = {'uid':[], 'URL':[], 'size':[]}
-        for tr in data_table.findAll('tr'):
-            tds = tr.findAll('td')
-            if len(tds) > 1 and 'uid' in tds[1].text:
-                uid = tds[1].text.strip()
-            if len(tds) > 3 and tds[2].find('a'):
-                href = tds[2].find('a')
-                size,unit = re.search('([0-9\.]*)([A-Za-z]*)', tds[3].text).groups()
-                columns['uid'].append(uid)
-                columns['URL'].append(href.attrs['href'])
-                unit = (u.Unit(unit) if unit in ('GB','MB')
-                        else u.Unit('kB') if 'kb' in unit.lower()
-                        else 1)
-                columns['size'].append(float(size)*u.Unit(unit))
-
-        columns['size'] = u.Quantity(columns['size'], u.Gbyte)
-
-        tbl = Table([Column(name=k, data=v) for k,v in iteritems(columns)])
+        tbl = self._parse_staging_request_page(data_list_page)
 
         return tbl
 
@@ -409,8 +390,8 @@ class AlmaClass(QueryWithLogin):
 
         login_response = self._request("POST", "https://asa.alma.cl/cas/login",
                                        params={'service':
-                                               os.path.join(self.archive_url,
-                                                            'rh', 'login')},
+                                               urljoin(self.archive_url,
+                                                       'rh/login')},
                                        data=data,
                                        cache=False)
 
@@ -443,8 +424,8 @@ class AlmaClass(QueryWithLogin):
                         if cycle0id in row['ID']]
             return contents
         else:
-            info_url = os.path.join(self._get_dataarchive_url(),
-                                    'documents-and-tools/cycle-2/ALMAQA2Productsv1.01.pdf')
+            info_url = urljoin(self._get_dataarchive_url(),
+                               'documents-and-tools/cycle-2/ALMAQA2Productsv1.01.pdf')
             raise ValueError("Not a Cycle 0 UID.  See {0} for details about"
                              " cycle 1+ data release formats.".format(info_url))
 
@@ -454,8 +435,8 @@ class AlmaClass(QueryWithLogin):
         In principle, this is a static file, but we'll retrieve it just in case
         """
         if not hasattr(self, '_cycle0_tarfile_content_table'):
-            url = os.path.join(self._get_dataarchive_url(),
-                               'alma-data/archive/cycle-0-tarfile-content')
+            url = urljoin(self._get_dataarchive_url(),
+                          'alma-data/archive/cycle-0-tarfile-content')
             response = self._request('GET', url, cache=True)
 
             # html.parser is needed because some <tr>'s have form:
@@ -482,8 +463,8 @@ class AlmaClass(QueryWithLogin):
         Stoehr.
         """
         if not hasattr(self,'_cycle0_table'):
-            filename = os.path.join(os.path.dirname(__file__), 'data',
-                                    'cycle0_delivery_asdm_mapping.txt')
+            filename = urljoin(os.path.dirname(__file__),
+                               'data/cycle0_delivery_asdm_mapping.txt')
             self._cycle0_table = Table.read(filename, format='ascii.no_header')
             self._cycle0_table.rename_column('col1', 'ID')
             self._cycle0_table.rename_column('col2', 'uid')
@@ -532,7 +513,7 @@ class AlmaClass(QueryWithLogin):
                         log.info("Extracting {0} to {1}".format(member.name,
                                                                 path))
                     tf.extract(member, path)
-                    filelist.append(os.path.join(path, member.name))
+                    filelist.append(urljoin(path, member.name))
 
         return filelist
 
@@ -663,6 +644,95 @@ class AlmaClass(QueryWithLogin):
             raise InvalidQueryError("The following parameters are not accepted "
                                     "by the ALMA query service:"
                                     " {0}".format(invalid_params))
+
+    def _parse_staging_request_page(self, data_list_page):
+        """
+        Parse pages like this one:
+        https://almascience.eso.org/rh/requests/anonymous/786572566
+
+        that include links to data sets that have been requested and staged
+
+        Parameters
+        ----------
+        data_list_page : requests.Response object
+
+        """
+
+        root = BeautifulSoup(data_list_page.content, 'html5lib')
+
+        for link in root.findAll('a'):
+            if 'script.sh' in link.text:
+                download_script_url = urljoin(self.dataarchive_url,
+                                              link['href'])
+
+        download_script = self._request('GET', download_script_url,
+                                        cache=False)
+        download_script_target_urls = []
+        for line in download_script.content.split('\n'):
+            if line and line.split() and line.split()[0] == 'wget':
+                download_script_target_urls.append(line.split()[1].strip('"'))
+
+        data_table = root.findAll('table', class_='list', id='report')[0]
+        columns = {'uid':[], 'URL':[], 'size':[]}
+        for tr in data_table.findAll('tr'):
+            tds = tr.findAll('td')
+            if len(tds) > 1 and 'uid' in tds[1].text:
+                uid = tds[1].text.strip()
+            if len(tds) > 3 and tds[2].find('a'):
+                href = tds[2].find('a')
+                size,unit = re.search('([0-9\.]*)([A-Za-z]*)', tds[3].text).groups()
+                columns['uid'].append(uid)
+                columns['URL'].append(href.attrs['href'])
+                unit = (u.Unit(unit) if unit in ('GB','MB')
+                        else u.Unit('kB') if 'kb' in unit.lower()
+                        else 1)
+                columns['size'].append(float(size)*u.Unit(unit))
+            elif len(tds) > 3:
+                size,unit = re.search('(-|[0-9\.]*)([A-Za-z]*)', tds[2].text).groups()
+                if size == '':
+                    # this is a header row
+                    continue
+                authorized = ('access_authorized.png' in tds[3].findChild('img')['src'])
+                if authorized:
+                    columns['uid'].append(uid)
+                    columns['URL'].append('None_Found')
+                    unit = (u.Unit(unit) if unit in ('GB','MB')
+                            else u.Unit('kB') if 'kb' in unit.lower()
+                            else 1)
+                    try:
+                        columns['size'].append(float(size)*u.Unit(unit))
+                    except ValueError: 
+                        # size is probably a string?
+                        columns['size'].append(-1*u.byte)
+                else:
+                    log.warn("Access to {0} is not authorized.".format(uid))
+
+        columns['size'] = u.Quantity(columns['size'], u.Gbyte)
+
+        if len(download_script_target_urls) != len(columns['URL']):
+            log.warn("There was an error parsing the data staging page.  "
+                     "The results from the page and the download script "
+                     "differ.  You can access the download script directly "
+                     "from this URL: {0}".format(download_script_url))
+        else:
+            bad_urls = []
+            for ii,(rurl,url) in enumerate(zip(columns['URL'],
+                                               download_script_target_urls)):
+                if rurl == 'None_Found':
+                    columns['URL'][ii] = url
+                elif rurl != url:
+                    bad_urls.append((row['URL'], url))
+            if bad_urls:
+                log.warn("There were mismatches between the parsed URLs "
+                         "from the staging page ({0}) and the download "
+                         "script ({1})."
+                         .format(self._staging_log['data_list_url'],
+                                 download_script_url))
+
+        tbl = Table([Column(name=k, data=v) for k,v in iteritems(columns)])
+
+
+        return tbl
 
 Alma = AlmaClass()
 
