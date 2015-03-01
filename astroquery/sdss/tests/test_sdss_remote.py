@@ -15,7 +15,7 @@ def test_images_timeout():
     An independent timeout test to verify that test_images_timeout in the
     TestSDSSRemote class should be working.  Consider this a regression test.
     """
-    coords = coordinates.ICRS('0h8m05.63s +14d50m23.3s')
+    coords = coordinates.SkyCoord('0h8m05.63s +14d50m23.3s')
     xid = sdss.core.SDSS.query_region(coords)
     assert len(xid) == 18
     with pytest.raises(TimeoutError):
@@ -25,7 +25,7 @@ def test_images_timeout():
 @remote_data
 class TestSDSSRemote:
     # Test Case: A Seyfert 1 galaxy
-    coords = coordinates.ICRS('0h8m05.63s +14d50m23.3s')
+    coords = coordinates.SkyCoord('0h8m05.63s +14d50m23.3s')
     mintimeout = 1e-6
 
 

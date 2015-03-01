@@ -49,7 +49,7 @@ def test_class_or_instance():
 
 
 @pytest.mark.parametrize(('coordinates'),
-                         [coord.ICRS(ra=148, dec=69, unit=(u.deg, u.deg)),
+                         [coord.SkyCoord(ra=148, dec=69, unit=(u.deg, u.deg)),
                           ]
                          )
 def test_parse_coordinates_1(coordinates):
