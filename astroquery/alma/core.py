@@ -564,9 +564,9 @@ class AlmaClass(QueryWithLogin):
             data from an ASDM tarball
         """
 
-        if isinstance(uids, six.string_types):
-            uids = [uids]
-        if not isinstance(uids, (list, tuple, np.ndarray)):
+        if isinstance(urls, six.string_types):
+            urls = [urls]
+        if not isinstance(urls, (list, tuple, np.ndarray)):
             raise TypeError("Datasets must be given as a list of strings.")
 
         all_files = []
