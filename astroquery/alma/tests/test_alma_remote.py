@@ -44,6 +44,8 @@ class TestAlma:
     def test_doc_example(self, temp_dir):
         alma = Alma()
         alma.cache_location = temp_dir
+        alma2 = Alma()
+        alma2.cache_location = temp_dir
         m83_data = alma.query_object('M83')
         assert m83_data.colnames == ['Project_code', 'Source_name', 'RA',
                                      'Dec', 'Band', 'Frequency_resolution',
@@ -65,12 +67,16 @@ class TestAlma:
         X31 = (m83_data['Member_ous_id'] == b'uid://A002/X3216af/X31')
         assert X31.sum() == 225
 
-        link_list = alma.stage_data('uid://A002/X3216af/X31')
-        totalsize = link_list['size'].sum() * u.Unit(link_list['size'].unit)
+        link_list_asdm = alma.stage_data('uid://A002/X3b3400/X90f')
+        totalsize_asdm = link_list_asdm['size'].sum() * u.Unit(link_list_asdm['size'].unit)
+        assert (totalsize_asdm.to(u.B).value == -1.0)
+
+        link_list_mous = alma2.stage_data('uid://A002/X3216af/X31')
+        totalsize_mous = link_list_mous['size'].sum() * u.Unit(link_list_mous['size'].unit)
         # More recent ALMA request responses do not include any information
         # about file size, so we have to allow for the possibility that all
         # file sizes are replaced with -1
-        assert (totalsize.to(u.GB).value > 1) or (totalsize.to(u.B).value == -2.0)
+        assert (totalsize_mous.to(u.GB).value > 159)
 
     def test_query(self, temp_dir):
         alma = Alma()
