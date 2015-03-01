@@ -121,7 +121,7 @@ def test_validator(monkeypatch):
 
     assert 'invalid_parameter' in str(exc.value)
 
-def test_parse_staging_request_page(monkeypatch):
+def test_parse_staging_request_page_asdm(monkeypatch):
     monkeypatch.setattr(Alma, '_get_dataarchive_url', _get_dataarchive_url)
     alma = Alma()
     alma.dataarchive_url = _get_dataarchive_url()
@@ -135,3 +135,19 @@ def test_parse_staging_request_page(monkeypatch):
     assert tbl[0]['URL'] == 'https://almascience.eso.org/dataPortal/requests/anonymous/786572566/ALMA/uid___A002_X3b3400_X90f/uid___A002_X3b3400_X90f.asdm.sdm.tar'
     assert tbl[0]['uid'] == 'uid___A002_X3b3400_X90f.asdm.sdm.tar'
     np.testing.assert_approx_equal(tbl[0]['size'], -1e-9)
+
+def test_parse_staging_request_page_mous(monkeypatch):
+    monkeypatch.setattr(Alma, '_get_dataarchive_url', _get_dataarchive_url)
+    alma = Alma()
+    alma.dataarchive_url = _get_dataarchive_url()
+    monkeypatch.setattr(alma, '_request', alma_request)
+
+    with open(data_path('request_786978956.html'), 'rb') as f:
+        response = MockResponse(content=f.read())
+
+    alma._staging_log = {'data_list_url': 'request_786978956.html'}
+    tbl = alma._parse_staging_request_page(response)
+    assert tbl[0]['URL'] == 'https://almascience.eso.org/dataPortal/requests/anonymous/786978956/ALMA/2011.0.00772.S_2012-12-01_006_of_011.tar/2011.0.00772.S_2012-12-01_006_of_011.tar'
+    assert tbl[0]['uid'] == 'uid://A002/X3216af/X31'
+    np.testing.assert_approx_equal(tbl[0]['size'], 0.2093)
+    assert len(tbl) == 26

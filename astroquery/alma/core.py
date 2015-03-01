@@ -714,7 +714,7 @@ class AlmaClass(QueryWithLogin):
                                                           'Level' in tr['class'][0]):
                 # New Style
                 text = tds[0].text.strip().split()
-                if text[0] in ('Asdm', 'Mous'):
+                if text[0] in ('Asdm', 'Member'):
                     uid = text[-1]
             elif len(tds) > 1 and 'uid' in tds[1].text:
                 # Old Style
