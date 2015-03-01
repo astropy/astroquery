@@ -109,7 +109,11 @@ class TestAlma:
         assert len(uid_url_table_asdm) == 1
         assert len(uid_url_table_mous) == 2
 
-        urls_to_download = uid_url_table_mous['URL'][uid_url_table_mous['size'] < 1]
+        small = uid_url_table_mous['size'] < 1
+
+        urls_to_download = uid_url_table_mous[small]['URL']
+        # THIS IS FAIL
+        assert uid_url_table_mous['URL'][0].split("/")[-1] == uid_url_table_mous['uid'][0]
         data = alma.download_and_extract_files(urls_to_download)
 
         assert len(data) == 6
@@ -128,7 +132,7 @@ class TestAlma:
         result = alma.query(payload=payload)
         assert len(result) == 1
 
-        uid_url_table = alma.stage_data(result['Asdm_uid'], cache=False)
+        uid_url_table = alma.stage_data(result['Asdm_uid'])
         assert len(uid_url_table) == 2
 
         # The sizes are 4.9 and 0.016 GB respectively

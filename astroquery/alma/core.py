@@ -734,13 +734,17 @@ class AlmaClass(QueryWithLogin):
             if len(tds) > 3 and (cl and tr['class'][0] == 'fileRow'):
                 # New Style
                 size,unit = re.search('(-|[0-9\.]*)([A-Za-z]*)', tds[2].text).groups()
+                href = tds[1].find('a')
                 if size == '':
                     # this is a header row
                     continue
                 authorized = ('access_authorized.png' in tds[3].findChild('img')['src'])
                 if authorized:
                     columns['uid'].append(uid)
-                    columns['URL'].append('None_Found')
+                    if href and 'href' in href.attrs:
+                        columns['URL'].append(href.attrs['href'])
+                    else:
+                        columns['URL'].append('None_Found')
                     unit = (u.Unit(unit) if unit in ('GB','MB')
                             else u.Unit('kB') if 'kb' in unit.lower()
                             else 1)
@@ -778,10 +782,12 @@ class AlmaClass(QueryWithLogin):
                      "from this URL: {0}".format(download_script_url))
         else:
             bad_urls = []
-            for ii,(rurl,url) in enumerate(zip(columns['URL'],
-                                               download_script_target_urls)):
+            for (rurl,url) in (zip(columns['URL'],
+                                   download_script_target_urls)):
                 if rurl == 'None_Found':
-                    columns['URL'][ii] = url
+                    url_uid = os.path.split(url)[-1]
+                    ind = np.where(np.array(columns['uid']) == url_uid)[0][0]
+                    columns['URL'][ind] = url
                 elif rurl != url:
                     bad_urls.append((rurl, url))
             if bad_urls:

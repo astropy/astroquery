@@ -149,7 +149,7 @@ def test_parse_staging_request_page_mous(monkeypatch):
 
     alma._staging_log = {'data_list_url': 'request_786978956.html'}
     tbl = alma._parse_staging_request_page(response)
-    assert tbl[0]['URL'] == 'https://almascience.eso.org/dataPortal/requests/anonymous/786978956/ALMA/2011.0.00772.S_2012-12-01_006_of_011.tar/2011.0.00772.S_2012-12-01_006_of_011.tar'
+    assert tbl[0]['URL'] == 'https://almascience.eso.org/dataPortal/requests/anonymous/786978956/ALMA/2011.0.00772.S_2012-09-12_001_of_015.tar/2011.0.00772.S_2012-09-12_001_of_015.tar'
     assert tbl[0]['uid'] == 'uid://A002/X3216af/X31'
     np.testing.assert_approx_equal(tbl[0]['size'], 0.2093)
     assert len(tbl) == 26
