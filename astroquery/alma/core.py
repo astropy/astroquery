@@ -234,8 +234,8 @@ class AlmaClass(QueryWithLogin):
         log.debug("Request ID: {0}".format(request_id))
 
         # Submit a request for the specific request ID identified above
-        submission_url = urljoin(self.dataarchive_url, 'rh/submission',
-                                 request_id)
+        submission_url = urljoin(self.dataarchive_url,
+                                 os.path.join('rh/submission', request_id))
         log.debug("Submission URL: {0}".format(submission_url))
         self._staging_log['submission_url'] = submission_url
         has_completed = False
@@ -721,7 +721,7 @@ class AlmaClass(QueryWithLogin):
                 if rurl == 'None_Found':
                     columns['URL'][ii] = url
                 elif rurl != url:
-                    bad_urls.append((row['URL'], url))
+                    bad_urls.append((rurl, url))
             if bad_urls:
                 log.warn("There were mismatches between the parsed URLs "
                          "from the staging page ({0}) and the download "
