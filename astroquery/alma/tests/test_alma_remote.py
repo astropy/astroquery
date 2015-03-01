@@ -99,14 +99,18 @@ class TestAlma:
         result = alma.query(payload=payload)
         assert len(result) == 1
 
-        uid_url_table = alma.stage_data(result['Asdm_uid'], cache=False)
+        # Need new Alma() instances each time
+        uid_url_table_mous = alma().stage_data(result['Member_ous_id'])
+        uid_url_table_asdm = alma().stage_data(result['Asdm_uid'])
         # I believe the fixes as part of #495 have resulted in removal of a
         # redundancy in the table creation, so a 1-row table is OK here.
         # A 2-row table may not be OK any more, but that's what it used to
         # be...
-        assert len(uid_url_table) == 1
+        assert len(uid_url_table_asdm) == 1
+        assert len(uid_url_table_mous) == 2
 
-        data = alma.download_and_extract_files(uid_url_table['URL'])
+        urls_to_download = uid_url_table_mous['URL'][uid_url_table_mous['size'] < 1]
+        data = alma.download_and_extract_files(urls_to_download)
 
         assert len(data) == 6
 

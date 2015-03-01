@@ -175,7 +175,7 @@ extract the FITS file, then delete the tarball:
     >>> orionkl = coordinates.SkyCoord('5:35:14.461 -5:21:54.41', frame='fk5',
     ...                                unit=(u.hour, u.deg))
     >>> result = Alma.query_region(orionkl, radius=0.034*u.deg)
-    >>> uid_url_table = Alma.stage_data(result['Member_ous_uid'], cache=False)
+    >>> uid_url_table = Alma.stage_data(result['Member_ous_id'], cache=False)
     >>> # Extract the data with tarball file size < 1GB
     >>> small_uid_url_table = uid_url_table[uid_url_table['size'] < 1]
     >>> # get the first 10 files...

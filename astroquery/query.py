@@ -187,7 +187,7 @@ class BaseQuery(object):
         else:
             length = None
 
-        pb = ProgressBarOrSpinner(length)
+        pb = ProgressBarOrSpinner(length, 'Downloading URL {0} ...'.format(url))
 
         blocksize = astropy.utils.data.conf.download_block_size
 

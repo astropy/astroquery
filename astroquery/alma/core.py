@@ -554,6 +554,8 @@ class AlmaClass(QueryWithLogin):
 
         Parameters
         ----------
+        urls : str or list
+            A single URL or a list of URLs
         include_asdm : bool
             Only affects cycle 1+ data.  If set, the ASDM files will be
             downloaded in addition to the script and log files.  By default,
@@ -561,6 +563,12 @@ class AlmaClass(QueryWithLogin):
             any information: you must change the regex if you want to extract
             data from an ASDM tarball
         """
+
+        if isinstance(uids, six.string_types):
+            uids = [uids]
+        if not isinstance(uids, (list, tuple, np.ndarray)):
+            raise TypeError("Datasets must be given as a list of strings.")
+
         all_files = []
         for url in urls:
             if url[-4:] != '.tar':
