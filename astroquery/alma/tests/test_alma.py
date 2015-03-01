@@ -104,7 +104,7 @@ def test_staging(monkeypatch):
                'source_name-asu':target,}
     result = alma.query(payload=payload)
 
-    uid_url_table = alma.stage_data(result['Asdm_uid'], cache=False)
+    uid_url_table = alma.stage_data(result['Asdm_uid'])
     assert len(uid_url_table) == 2
 
 
@@ -130,6 +130,7 @@ def test_parse_staging_request_page(monkeypatch):
     with open(data_path('request_786572566.html'), 'rb') as f:
         response = MockResponse(content=f.read())
 
+    alma._staging_log = {'data_list_url': 'request_786572566.html'}
     tbl = alma._parse_staging_request_page(response)
     assert tbl[0]['URL'] == 'https://almascience.eso.org/dataPortal/requests/anonymous/786572566/ALMA/uid___A002_X3b3400_X90f/uid___A002_X3b3400_X90f.asdm.sdm.tar'
     assert tbl[0]['uid'] == 'uid___A002_X3b3400_X90f.asdm.sdm.tar'

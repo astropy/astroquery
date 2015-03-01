@@ -60,10 +60,17 @@ class TestAlma:
 
         uids = np.unique(m83_data['Asdm_uid'])
         assert b'uid://A002/X3b3400/X90f' in uids
+        X90f = (m83_data['Asdm_uid'] == b'uid://A002/X3b3400/X90f')
+        assert X90f.sum() == 45
+        X31 = (m83_data['Member_ous_id'] == b'uid://A002/X3216af/X31')
+        assert X31.sum() == 225
 
-        link_list = alma.stage_data(uids[0:2])
+        link_list = alma.stage_data('uid://A002/X3216af/X31')
         totalsize = link_list['size'].sum() * u.Unit(link_list['size'].unit)
-        assert totalsize.to(u.GB).value > 1
+        # More recent ALMA request responses do not include any information
+        # about file size, so we have to allow for the possibility that all
+        # file sizes are replaced with -1
+        assert (totalsize.to(u.GB).value > 1) or (totalsize.to(u.B).value == -2.0)
 
     def test_query(self, temp_dir):
         alma = Alma()
@@ -87,7 +94,11 @@ class TestAlma:
         assert len(result) == 1
 
         uid_url_table = alma.stage_data(result['Asdm_uid'], cache=False)
-        assert len(uid_url_table) == 2
+        # I believe the fixes as part of #495 have resulted in removal of a
+        # redundancy in the table creation, so a 1-row table is OK here.
+        # A 2-row table may not be OK any more, but that's what it used to
+        # be...
+        assert len(uid_url_table) == 1
 
         data = alma.download_and_extract_files(uid_url_table['URL'])
 

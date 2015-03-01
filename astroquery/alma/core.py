@@ -179,16 +179,18 @@ class AlmaClass(QueryWithLogin):
                 self.dataarchive_url = self.archive_url
         return self.dataarchive_url
 
-    def stage_data(self, uids, cache=False):
+    def stage_data(self, uids):
         """
         Stage ALMA data
 
         Parameters
         ----------
-        uids : list
-            A list of valid UIDs.
+        uids : list or str
+            A list of valid UIDs or a single UID.
             UIDs should have the form: 'uid://A002/X391d0b/X7b'
-        cache : bool
+        cache : True
+            This is *forced* true, because the ALMA servers don't support repeats
+            of the same request.
             Whether to cache the staging process.  This should generally be
             left as False when used interactively.
 
@@ -198,6 +200,22 @@ class AlmaClass(QueryWithLogin):
             A table containing 3 columns: the UID, the file URL (for future
             downloading), and the file size
         """
+
+        """
+        With log.set_level(10)
+        INFO: Staging files... [astroquery.alma.core]
+        DEBUG: First request URL: https://almascience.eso.org/rh/submission [astroquery.alma.core]
+        DEBUG: First request payload: {'dataset': [u'ALMA+uid___A002_X3b3400_X90f']} [astroquery.alma.core]
+        DEBUG: First response URL: https://almascience.eso.org/rh/checkAuthenticationStatus/3f98de33-197e-4692-9afa-496842032ea9/submission [astroquery.alma.core]
+        DEBUG: Request ID: 3f98de33-197e-4692-9afa-496842032ea9 [astroquery.alma.core]
+        DEBUG: Submission URL: https://almascience.eso.org/rh/submission/3f98de33-197e-4692-9afa-496842032ea9 [astroquery.alma.core]
+        .DEBUG: Data list URL: https://almascience.eso.org/rh/requests/anonymous/786823226 [astroquery.alma.core]
+        """
+
+        if isinstance(uids, six.string_types):
+            uids = [uids]
+        if not isinstance(uids, (list, tuple, np.ndarray)):
+            raise TypeError("Datasets must be given as a list of strings.")
 
         log.info("Staging files...")
 
@@ -213,16 +231,20 @@ class AlmaClass(QueryWithLogin):
         self._staging_log = {}
 
         # Request staging for the UIDs
+        # This component cannot be cached, since the returned data can change
+        # if new data are uploaded
         response = self._request('POST', url, data=payload,
-                                 timeout=self.TIMEOUT, cache=cache)
+                                 timeout=self.TIMEOUT, cache=False)
         self._staging_log['initial_response'] = response
         log.debug("First response URL: {0}".format(response.url))
         response.raise_for_status()
 
         if 'j_spring_cas_security_check' in response.url:
             time.sleep(1)
+            # CANNOT cache this stage: it not a real data page!  results in
+            # infinite loops
             response = self._request('POST', url, data=payload,
-                                     timeout=self.TIMEOUT, cache=cache)
+                                     timeout=self.TIMEOUT, cache=False)
             self._staging_log['initial_response'] = response
             if 'j_spring_cas_security_check' in response.url:
                 log.warn("Staging request was not successful.  Try again?")
@@ -239,7 +261,7 @@ class AlmaClass(QueryWithLogin):
         log.debug("Submission URL: {0}".format(submission_url))
         self._staging_log['submission_url'] = submission_url
         has_completed = False
-        staging_submission = self._request('GET', submission_url, cache=cache)
+        staging_submission = self._request('GET', submission_url, cache=True)
         self._staging_log['staging_submission'] = staging_submission
         staging_submission.raise_for_status()
 
@@ -250,7 +272,8 @@ class AlmaClass(QueryWithLogin):
 
         while not has_completed:
             time.sleep(1)
-            data_page = self._request('GET', data_page_url, cache=cache)
+            # CANNOT cache this step: please_wait will happen infinitely
+            data_page = self._request('GET', data_page_url, cache=False)
             if 'Please wait' not in data_page.text:
                 has_completed = True
             print(".",end='')
@@ -265,7 +288,7 @@ class AlmaClass(QueryWithLogin):
         self._staging_log['data_list_url'] = data_list_url
 
         time.sleep(1)
-        data_list_page = self._request('GET', data_list_url, cache=cache)
+        data_list_page = self._request('GET', data_list_url, cache=True)
         self._staging_log['data_list_page'] = data_list_page
         data_list_page.raise_for_status()
 
@@ -320,8 +343,8 @@ class AlmaClass(QueryWithLogin):
 
         Parameters
         ----------
-        uids : list
-            A list of valid UIDs.
+        uids : list or str
+            A list of valid UIDs or a single UID.
             UIDs should have the form: 'uid://A002/X391d0b/X7b'
         cache : bool
             Whether to cache the downloads.
@@ -672,22 +695,36 @@ class AlmaClass(QueryWithLogin):
             if line and line.split() and line.split()[0] == 'wget':
                 download_script_target_urls.append(line.split()[1].strip('"'))
 
+        if len(download_script_target_urls) == 0:
+            raise RemoteServiceError("There was an error parsing the download "
+                                     "script; it is empty.  "
+                                     "You can access the download script "
+                                     "directly from this URL: "
+                                     "{0}".format(download_script_url))
+
         data_table = root.findAll('table', class_='list', id='report')[0]
         columns = {'uid':[], 'URL':[], 'size':[]}
         for tr in data_table.findAll('tr'):
             tds = tr.findAll('td')
-            if len(tds) > 1 and 'uid' in tds[1].text:
+
+            # Cannot check class if it is not defined
+            cl = 'class' in tr.attrs
+
+            if len(tds) > 1 and 'uid' in tds[0].text and (cl and
+                                                          'Level' in tr['class'][0]):
+                # New Style
+                text = tds[0].text.strip().split()
+                if text[0] in ('Asdm', 'Mous'):
+                    uid = text[-1]
+            elif len(tds) > 1 and 'uid' in tds[1].text:
+                # Old Style
                 uid = tds[1].text.strip()
-            if len(tds) > 3 and tds[2].find('a'):
-                href = tds[2].find('a')
-                size,unit = re.search('([0-9\.]*)([A-Za-z]*)', tds[3].text).groups()
-                columns['uid'].append(uid)
-                columns['URL'].append(href.attrs['href'])
-                unit = (u.Unit(unit) if unit in ('GB','MB')
-                        else u.Unit('kB') if 'kb' in unit.lower()
-                        else 1)
-                columns['size'].append(float(size)*u.Unit(unit))
-            elif len(tds) > 3:
+            elif cl and tr['class'] == 'Level_1':
+                raise ValueError("A heading was found when parsing the download page but "
+                                 "it was not parsed correctly")
+
+            if len(tds) > 3 and (cl and tr['class'][0] == 'fileRow'):
+                # New Style
                 size,unit = re.search('(-|[0-9\.]*)([A-Za-z]*)', tds[2].text).groups()
                 if size == '':
                     # this is a header row
@@ -706,8 +743,25 @@ class AlmaClass(QueryWithLogin):
                         columns['size'].append(-1*u.byte)
                 else:
                     log.warn("Access to {0} is not authorized.".format(uid))
+            elif len(tds) > 3 and tds[2].find('a'):
+                # Old Style
+                href = tds[2].find('a')
+                size,unit = re.search('([0-9\.]*)([A-Za-z]*)', tds[3].text).groups()
+                columns['uid'].append(uid)
+                columns['URL'].append(href.attrs['href'])
+                unit = (u.Unit(unit) if unit in ('GB','MB')
+                        else u.Unit('kB') if 'kb' in unit.lower()
+                        else 1)
+                columns['size'].append(float(size)*u.Unit(unit))
 
         columns['size'] = u.Quantity(columns['size'], u.Gbyte)
+
+        if len(columns['uid']) == 0:
+            raise RemoteServiceError("No valid UIDs were found in the staged "
+                                     "data table.  Please include {0} and {1}"
+                                     "in a bug report."
+                                     .format(self._staging_log['data_list_url'],
+                                             download_script_url))
 
         if len(download_script_target_urls) != len(columns['URL']):
             log.warn("There was an error parsing the data staging page.  "

@@ -11,7 +11,7 @@ import requests
 from astropy.extern import six
 from astropy.config import paths
 from astropy import log
-from astropy.utils.console import ProgressBar
+from astropy.utils.console import ProgressBar,ProgressBarOrSpinner
 import astropy.utils.data
 
 from . import version
@@ -185,9 +185,9 @@ class BaseQuery(object):
         if 'content-length' in response.headers:
             length = int(response.headers['content-length'])
         else:
-            length = 1
+            length = None
 
-        pb = ProgressBar(length)
+        pb = ProgressBarOrSpinner(length)
 
         blocksize = astropy.utils.data.conf.download_block_size
 
