@@ -27,6 +27,8 @@ DATA_FILES = {'GET': {'http://almascience.eso.org/aq/search.votable':
                       'empty.html',
                       'http://almascience.eso.org/rh/requests/anonymous/786572566/script':
                       'downloadRequest786572566script.sh',
+                      'http://almascience.eso.org/rh/requests/anonymous/786978956/script':
+                      'downloadRequest786978956script.sh',
                      },
               'POST': {'http://almascience.eso.org/rh/submission':
                        'initial_response.html'}
