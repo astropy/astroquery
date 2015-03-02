@@ -753,6 +753,9 @@ class AlmaClass(QueryWithLogin):
                     except ValueError: 
                         # size is probably a string?
                         columns['size'].append(-1*u.byte)
+                    log.log(level=5, msg="Found a new-style entry.  "
+                            "size={0} uid={1} url={2}".format(size, uid,
+                                                              columns['URL'][-1]))
                 else:
                     log.warn("Access to {0} is not authorized.".format(uid))
             elif len(tds) > 3 and tds[2].find('a'):
@@ -765,6 +768,9 @@ class AlmaClass(QueryWithLogin):
                         else u.Unit('kB') if 'kb' in unit.lower()
                         else 1)
                 columns['size'].append(float(size)*u.Unit(unit))
+                log.log(level=5, msg="Found an old-style entry.  "
+                        "size={0} uid={1} url={2}".format(size, uid,
+                                                          columns['URL'][-1]))
 
         columns['size'] = u.Quantity(columns['size'], u.Gbyte)
 

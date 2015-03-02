@@ -132,12 +132,14 @@ class TestAlma:
         result = alma.query(payload=payload)
         assert len(result) == 1
 
-        uid_url_table_mous = alma().stage_data(result['Member_ous_id'])
-        uid_url_table_asdm = alma().stage_data(result['Asdm_uid'])
+        alma1 = alma()
+        alma2 = alma()
+        uid_url_table_mous = alma1.stage_data(result['Member_ous_id'])
+        uid_url_table_asdm = alma2.stage_data(result['Asdm_uid'])
         assert len(uid_url_table_asdm) == 1
         assert len(uid_url_table_mous) == 32
 
-        assert uid_url_table_mous[0]['URL'] == 'https://almascience.eso.org/dataPortal/requests/anonymous/787632764/ALMA/2011.0.00121.S_2012-08-16_001_of_002.tar/2011.0.00121.S_2012-08-16_001_of_002.tar'
+        assert uid_url_table_mous[0]['URL'].split("/")[-1] == '2011.0.00121.S_2012-08-16_001_of_002.tar'
         assert uid_url_table_mous[0]['uid'] == 'uid://A002/X327408/X246'
 
         small = uid_url_table_mous['size'] < 1
@@ -145,7 +147,8 @@ class TestAlma:
         urls_to_download = uid_url_table_mous[small]['URL']
         data = alma.download_and_extract_files(urls_to_download)
 
-        assert len(data) == 10
+        # There are 10 small files, but only 8 unique
+        assert len(data) == 8
 
     def test_help(self):
         
