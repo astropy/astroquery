@@ -226,10 +226,9 @@ class AlmaClass(QueryWithLogin):
         #'ALMA+uid___A002_X391d0b_X7b'
         #payload = [('dataset','ALMA+'+clean_uid(uid)) for uid in uids]
         payload = {'dataset':['ALMA+'+clean_uid(uid) for uid in uids]}
-        self._staging_log['first_post_url'] = url
         log.debug("First request payload: {0}".format(payload))
 
-        self._staging_log = {}
+        self._staging_log = {'first_post_url':url}
 
         # Request staging for the UIDs
         # This component cannot be cached, since the returned data can change
