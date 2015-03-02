@@ -1,0 +1,18 @@
+#!/bin/bash
+#Please use the current script to download the whole content of request 787632764
+wget "https://almascience.eso.org/dataPortal/requests/anonymous/787632764/ALMA/2011.0.00121.S_2012-11-06_003_of_004.tar/2011.0.00121.S_2012-11-06_003_of_004.tar"
+wget "https://almascience.eso.org/dataPortal/requests/anonymous/787632764/ALMA/2011.0.00121.S_2012-11-02_001_of_008.tar/2011.0.00121.S_2012-11-02_001_of_008.tar"
+wget "https://almascience.eso.org/dataPortal/requests/anonymous/787632764/ALMA/2011.0.00121.S_2012-08-16_001_of_002.tar/2011.0.00121.S_2012-08-16_001_of_002.tar"
+wget "https://almascience.eso.org/dataPortal/requests/anonymous/787632764/ALMA/2011.0.00121.S_2012-11-02_007_of_008.tar/2011.0.00121.S_2012-11-02_007_of_008.tar"
+wget "https://almascience.eso.org/dataPortal/requests/anonymous/787632764/ALMA/2011.0.00121.S_2012-08-16_002_of_002.tar/2011.0.00121.S_2012-08-16_002_of_002.tar"
+wget "https://almascience.eso.org/dataPortal/requests/anonymous/787632764/ALMA/2011.0.00121.S_2012-11-02_008_of_008.tar/2011.0.00121.S_2012-11-02_008_of_008.tar"
+wget "https://almascience.eso.org/dataPortal/requests/anonymous/787632764/ALMA/2011.0.00121.S_2012-11-06_004_of_004.tar/2011.0.00121.S_2012-11-06_004_of_004.tar"
+wget "https://almascience.eso.org/dataPortal/requests/anonymous/787632764/ALMA/2011.0.00121.S_2012-11-02_004_of_008.tar/2011.0.00121.S_2012-11-02_004_of_008.tar"
+wget "https://almascience.eso.org/dataPortal/requests/anonymous/787632764/ALMA/2011.0.00121.S_2012-11-02_006_of_008.tar/2011.0.00121.S_2012-11-02_006_of_008.tar"
+wget "https://almascience.eso.org/dataPortal/requests/anonymous/787632764/ALMA/2011.0.00121.S_2012-07-30_001_of_002.tar/2011.0.00121.S_2012-07-30_001_of_002.tar"
+wget "https://almascience.eso.org/dataPortal/requests/anonymous/787632764/ALMA/2011.0.00121.S_2012-11-02_002_of_008.tar/2011.0.00121.S_2012-11-02_002_of_008.tar"
+wget "https://almascience.eso.org/dataPortal/requests/anonymous/787632764/ALMA/2011.0.00121.S_2012-11-02_005_of_008.tar/2011.0.00121.S_2012-11-02_005_of_008.tar"
+wget "https://almascience.eso.org/dataPortal/requests/anonymous/787632764/ALMA/2011.0.00121.S_2012-07-30_002_of_002.tar/2011.0.00121.S_2012-07-30_002_of_002.tar"
+wget "https://almascience.eso.org/dataPortal/requests/anonymous/787632764/ALMA/2011.0.00121.S_2012-11-06_001_of_004.tar/2011.0.00121.S_2012-11-06_001_of_004.tar"
+wget "https://almascience.eso.org/dataPortal/requests/anonymous/787632764/ALMA/2011.0.00121.S_2012-11-06_002_of_004.tar/2011.0.00121.S_2012-11-06_002_of_004.tar"
+wget "https://almascience.eso.org/dataPortal/requests/anonymous/787632764/ALMA/2011.0.00121.S_2012-11-02_003_of_008.tar/2011.0.00121.S_2012-11-02_003_of_008.tar"
