@@ -699,7 +699,7 @@ class AlmaClass(QueryWithLogin):
         download_script = self._request('GET', download_script_url,
                                         cache=False)
         download_script_target_urls = []
-        for line in download_script.content.split('\n'):
+        for line in download_script.text.split('\n'):
             if line and line.split() and line.split()[0] == 'wget':
                 download_script_target_urls.append(line.split()[1].strip('"'))
 

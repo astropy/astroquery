@@ -131,7 +131,7 @@ def test_parse_staging_request_page_asdm(monkeypatch):
     alma.dataarchive_url = _get_dataarchive_url()
     monkeypatch.setattr(alma, '_request', alma_request)
 
-    with open(data_path('request_786572566.html'), 'r') as f:
+    with open(data_path('request_786572566.html'), 'rb') as f:
         response = MockResponse(content=f.read())
 
     alma._staging_log = {'data_list_url': 'request_786572566.html'}
@@ -146,7 +146,7 @@ def test_parse_staging_request_page_mous(monkeypatch):
     alma.dataarchive_url = _get_dataarchive_url()
     monkeypatch.setattr(alma, '_request', alma_request)
 
-    with open(data_path('request_786978956.html'), 'r') as f:
+    with open(data_path('request_786978956.html'), 'rb') as f:
         response = MockResponse(content=f.read())
 
     alma._staging_log = {'data_list_url': 'request_786978956.html'}
@@ -162,7 +162,7 @@ def test_parse_staging_request_page_mous_cycle0(monkeypatch):
     alma.dataarchive_url = _get_dataarchive_url()
     monkeypatch.setattr(alma, '_request', alma_request)
 
-    with open(data_path('request_787632764.html'), 'r') as f:
+    with open(data_path('request_787632764.html'), 'rb') as f:
         response = MockResponse(content=f.read())
 
     alma._staging_log = {'data_list_url': 'request_787632764.html'}
