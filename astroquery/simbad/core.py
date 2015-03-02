@@ -892,17 +892,20 @@ class SimbadResult(object):
 class SimbadVOTableResult(SimbadResult):
     """VOTable-type Simbad result"""
     def __init__(self, txt, verbose=False, pedantic=False):
-        SimbadResult.__init__(self, txt, verbose=verbose)
         self.__pedantic = pedantic
         self.__table = None
-        if not self.verbose:
+        if not verbose:
             commons.suppress_vo_warnings()
+        super(SimbadVOTableResult, self).__init__(txt, verbose=verbose)
 
 
     @property
     def table(self):
         if self.__table is None:
-            self.__table = votable.parse_single_table(BytesIO(self.data.encode('utf8')), pedantic=False).to_table()
+            self.bytes = BytesIO(self.data.encode('utf8'))
+            tbl = votable.parse_single_table(self.bytes, pedantic=False)
+            self.__table = tbl.to_table()
+            self.__table.convert_bytestring_to_unicode()
         return self.__table
 
 bibcode_regex = re.compile(r'query\s+bibcode\s+(wildcard)?\s+([\w]*)')
