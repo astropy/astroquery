@@ -1,4 +1,5 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
+import numpy as np
 import os
 from astropy.tests.helper import pytest
 
@@ -16,12 +17,20 @@ DATA_FILES = {'GET': {'http://almascience.eso.org/aq/search.votable':
                        'NGC4945':'ngc4945.xml'},
                       'https://almascience.eso.org/rh/requests/anonymous/519752156':
                       'data_list_page.html',
+                      'http://almascience.eso.org/rh/requests/anonymous/519752156/script':
+                      'downloadRequest519752156script.sh',
                       'http://almascience.eso.org/rh/submission/d45d0552-8479-4482-9833-fecdef3f8b90':
                       'staging_submission.html',
                       'http://almascience.eso.org/aq/':
                       'querypage.html',
                       'http://almascience.eso.org/aq/validate':
-                      'empty.html'
+                      'empty.html',
+                      'http://almascience.eso.org/rh/requests/anonymous/786572566/script':
+                      'downloadRequest786572566script.sh',
+                      'http://almascience.eso.org/rh/requests/anonymous/786978956/script':
+                      'downloadRequest786978956script.sh',
+                      'http://almascience.eso.org/rh/requests/anonymous/787632764/script':
+                      'downloadRequest787632764script.sh',
                      },
               'POST': {'http://almascience.eso.org/rh/submission':
                        'initial_response.html'}
@@ -99,7 +108,7 @@ def test_staging(monkeypatch):
                'source_name-asu':target,}
     result = alma.query(payload=payload)
 
-    uid_url_table = alma.stage_data(result['Asdm_uid'], cache=False)
+    uid_url_table = alma.stage_data(result['Asdm_uid'])
     assert len(uid_url_table) == 2
 
 
@@ -115,3 +124,50 @@ def test_validator(monkeypatch):
         alma.query(payload={'invalid_parameter': 1})
 
     assert 'invalid_parameter' in str(exc.value)
+
+def test_parse_staging_request_page_asdm(monkeypatch):
+    monkeypatch.setattr(Alma, '_get_dataarchive_url', _get_dataarchive_url)
+    alma = Alma()
+    alma.dataarchive_url = _get_dataarchive_url()
+    monkeypatch.setattr(alma, '_request', alma_request)
+
+    with open(data_path('request_786572566.html'), 'rb') as f:
+        response = MockResponse(content=f.read())
+
+    alma._staging_log = {'data_list_url': 'request_786572566.html'}
+    tbl = alma._parse_staging_request_page(response)
+    assert tbl[0]['URL'] == 'https://almascience.eso.org/dataPortal/requests/anonymous/786572566/ALMA/uid___A002_X3b3400_X90f/uid___A002_X3b3400_X90f.asdm.sdm.tar'
+    assert tbl[0]['uid'] == 'uid___A002_X3b3400_X90f.asdm.sdm.tar'
+    np.testing.assert_approx_equal(tbl[0]['size'], -1e-9)
+
+def test_parse_staging_request_page_mous(monkeypatch):
+    monkeypatch.setattr(Alma, '_get_dataarchive_url', _get_dataarchive_url)
+    alma = Alma()
+    alma.dataarchive_url = _get_dataarchive_url()
+    monkeypatch.setattr(alma, '_request', alma_request)
+
+    with open(data_path('request_786978956.html'), 'rb') as f:
+        response = MockResponse(content=f.read())
+
+    alma._staging_log = {'data_list_url': 'request_786978956.html'}
+    tbl = alma._parse_staging_request_page(response)
+    assert tbl[0]['URL'] == 'https://almascience.eso.org/dataPortal/requests/anonymous/786978956/ALMA/2011.0.00772.S_2012-09-12_001_of_015.tar/2011.0.00772.S_2012-09-12_001_of_015.tar'
+    assert tbl[0]['uid'] == 'uid://A002/X3216af/X31'
+    np.testing.assert_approx_equal(tbl[0]['size'], 0.2093)
+    assert len(tbl) == 26
+
+def test_parse_staging_request_page_mous_cycle0(monkeypatch):
+    monkeypatch.setattr(Alma, '_get_dataarchive_url', _get_dataarchive_url)
+    alma = Alma()
+    alma.dataarchive_url = _get_dataarchive_url()
+    monkeypatch.setattr(alma, '_request', alma_request)
+
+    with open(data_path('request_787632764.html'), 'rb') as f:
+        response = MockResponse(content=f.read())
+
+    alma._staging_log = {'data_list_url': 'request_787632764.html'}
+    tbl = alma._parse_staging_request_page(response)
+    assert tbl[0]['URL'] == 'https://almascience.eso.org/dataPortal/requests/anonymous/787632764/ALMA/2011.0.00121.S_2012-08-16_001_of_002.tar/2011.0.00121.S_2012-08-16_001_of_002.tar'
+    assert tbl[0]['uid'] == 'uid://A002/X327408/X246'
+    np.testing.assert_approx_equal(tbl[0]['size'], 5.9)
+    assert len(tbl) == 32

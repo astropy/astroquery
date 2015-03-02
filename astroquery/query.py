@@ -7,11 +7,12 @@ import hashlib
 import os
 import warnings
 import requests
+import itertools
 
 from astropy.extern import six
 from astropy.config import paths
 from astropy import log
-from astropy.utils.console import ProgressBar
+from astropy.utils.console import ProgressBar,ProgressBarOrSpinner
 import astropy.utils.data
 
 from . import version
@@ -185,19 +186,22 @@ class BaseQuery(object):
         if 'content-length' in response.headers:
             length = int(response.headers['content-length'])
         else:
-            length = 1
-
-        pb = ProgressBar(length)
+            length = None
 
         blocksize = astropy.utils.data.conf.download_block_size
 
         bytes_read = 0
 
-        with open(local_filepath, 'wb') as f:
-            for block in response.iter_content(blocksize):
-                f.write(block)
-                bytes_read += blocksize
-                pb.update(bytes_read if bytes_read <= length else length)
+        with ProgressBarOrSpinner(length,
+                                  'Downloading URL {0} ...'.format(url)) as pb:
+            with open(local_filepath, 'wb') as f:
+                for block in response.iter_content(blocksize):
+                    f.write(block)
+                    bytes_read += blocksize
+                    if length is not None:
+                        pb.update(bytes_read if bytes_read <= length else length)
+                    else:
+                        pb.update(bytes_read)
 
         response.close()
 
