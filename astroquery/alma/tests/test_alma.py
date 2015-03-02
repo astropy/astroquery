@@ -29,6 +29,8 @@ DATA_FILES = {'GET': {'http://almascience.eso.org/aq/search.votable':
                       'downloadRequest786572566script.sh',
                       'http://almascience.eso.org/rh/requests/anonymous/786978956/script':
                       'downloadRequest786978956script.sh',
+                      'http://almascience.eso.org/rh/requests/anonymous/787632764/script':
+                      'downloadRequest787632764script.sh',
                      },
               'POST': {'http://almascience.eso.org/rh/submission':
                        'initial_response.html'}
@@ -129,7 +131,7 @@ def test_parse_staging_request_page_asdm(monkeypatch):
     alma.dataarchive_url = _get_dataarchive_url()
     monkeypatch.setattr(alma, '_request', alma_request)
 
-    with open(data_path('request_786572566.html'), 'rb') as f:
+    with open(data_path('request_786572566.html'), 'r') as f:
         response = MockResponse(content=f.read())
 
     alma._staging_log = {'data_list_url': 'request_786572566.html'}
@@ -144,7 +146,7 @@ def test_parse_staging_request_page_mous(monkeypatch):
     alma.dataarchive_url = _get_dataarchive_url()
     monkeypatch.setattr(alma, '_request', alma_request)
 
-    with open(data_path('request_786978956.html'), 'rb') as f:
+    with open(data_path('request_786978956.html'), 'r') as f:
         response = MockResponse(content=f.read())
 
     alma._staging_log = {'data_list_url': 'request_786978956.html'}
@@ -153,3 +155,19 @@ def test_parse_staging_request_page_mous(monkeypatch):
     assert tbl[0]['uid'] == 'uid://A002/X3216af/X31'
     np.testing.assert_approx_equal(tbl[0]['size'], 0.2093)
     assert len(tbl) == 26
+
+def test_parse_staging_request_page_mous_cycle0(monkeypatch):
+    monkeypatch.setattr(Alma, '_get_dataarchive_url', _get_dataarchive_url)
+    alma = Alma()
+    alma.dataarchive_url = _get_dataarchive_url()
+    monkeypatch.setattr(alma, '_request', alma_request)
+
+    with open(data_path('request_787632764.html'), 'r') as f:
+        response = MockResponse(content=f.read())
+
+    alma._staging_log = {'data_list_url': 'request_787632764.html'}
+    tbl = alma._parse_staging_request_page(response)
+    assert tbl[0]['URL'] == 'https://almascience.eso.org/dataPortal/requests/anonymous/787632764/ALMA/2011.0.00121.S_2012-08-16_001_of_002.tar/2011.0.00121.S_2012-08-16_001_of_002.tar'
+    assert tbl[0]['uid'] == 'uid://A002/X327408/X246'
+    np.testing.assert_approx_equal(tbl[0]['size'], 5.9)
+    assert len(tbl) == 32

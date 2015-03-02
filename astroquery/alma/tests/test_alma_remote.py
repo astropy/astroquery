@@ -132,13 +132,20 @@ class TestAlma:
         result = alma.query(payload=payload)
         assert len(result) == 1
 
-        uid_url_table = alma.stage_data(result['Asdm_uid'])
-        assert len(uid_url_table) == 2
+        uid_url_table_mous = alma().stage_data(result['Member_ous_id'])
+        uid_url_table_asdm = alma().stage_data(result['Asdm_uid'])
+        assert len(uid_url_table_asdm) == 1
+        assert len(uid_url_table_mous) == 32
 
-        # The sizes are 4.9 and 0.016 GB respectively
-        data = alma.download_and_extract_files(uid_url_table['URL'][1:])
+        assert uid_url_table_mous[0]['URL'] == 'https://almascience.eso.org/dataPortal/requests/anonymous/787632764/ALMA/2011.0.00121.S_2012-08-16_001_of_002.tar/2011.0.00121.S_2012-08-16_001_of_002.tar'
+        assert uid_url_table_mous[0]['uid'] == 'uid://A002/X327408/X246'
 
-        assert len(data) == 2
+        small = uid_url_table_mous['size'] < 1
+
+        urls_to_download = uid_url_table_mous[small]['URL']
+        data = alma.download_and_extract_files(urls_to_download)
+
+        assert len(data) == 10
 
     def test_help(self):
         
