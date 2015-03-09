@@ -374,7 +374,7 @@ class SimbadClass(BaseQuery):
         return response
 
 
-    def query_objects(self, object_names, wildcard=False, verbose=False):
+    def query_objects(self, object_names, wildcard=False, verbose=False, keep_input=False):
         """
         Queries Simbad for the specified list of objects and returns the results
         as a `~astropy.table.Table`. Object names may be specified with
@@ -392,7 +392,47 @@ class SimbadClass(BaseQuery):
         table : `~astropy.table.Table`
             Query results table
         """
-        return self.query_object('\n'.join(object_names), wildcard)
+        result = self.query_object('\n'.join(object_names), wildcard)
+
+        if keep_input:
+            return self.add_input_column_to_simbad_result(object_names, verbose=verbose)
+        else:
+            return result
+
+
+    def add_input_column_to_simbad_result(self, input_list, verbose=False):
+        """
+        Adds 'INPUT' column to the result of a Simbad query
+
+        Parameters
+        ----------
+        object_names : sequence of strs
+                names of objects input to most recent query
+        verbose : boolean, optional
+            When `True`, verbose output is printed
+
+        Returns
+        -------
+        table : `~astropy.table.Table`
+            Query results table
+        """
+        error_string = self.last_parsed_result.error_raw
+        fails = []
+
+        for error in error_string.split("\n"):
+            start_loc = error.rfind(":") + 2
+            fail = error[start_loc:]
+            fails.append(fail)
+
+        successes = [s for s in input_list if s not in fails]
+        if verbose:
+            say = "There were {} successful Simbad matches and {} failures."
+            print say.format(len(successes), len(fails))
+
+        self.last_parsed_result.table["INPUT"] = successes
+
+        return self.last_parsed_result.table
+
 
     def query_objects_async(self, object_names, wildcard=False):
         """
