@@ -16,7 +16,7 @@ used in the SDSS example).
 
     >>> from astroquery.alfalfa import Alfalfa
     >>> from astropy import coordinates as coords
-    >>> pos = coords.ICRS('0h8m05.63s +14d50m23.3s')
+    >>> pos = coords.SkyCoord('0h8m05.63s +14d50m23.3s')
     >>> agc = Alfalfa.query_region(pos, optical_counterpart=True)
 
 This retrieves the AGC number of the object closest to the supplied ra and dec
@@ -36,7 +36,7 @@ This returns a PyFITS HDUList object.  If we want to have a look at the entire A
 .. code-block:: python
 
     >>> cat = Alfalfa.get_catalog()
-    
+
 which returns a dictionary containing HI measurements for nearly 16,000
 objects.
 
