@@ -1,4 +1,6 @@
 numpy
+matplotlib
 Cython
--e git+http://github.com/astropy/astropy.git#egg=astropy
+astropy-helpers
+astropy
 requests

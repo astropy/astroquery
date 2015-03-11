@@ -17,11 +17,7 @@ def urljoin_keep_path(url, path):
     --------
     >>> urljoin_keep_path('http://example.com/foo', 'bar')
     'http://example.com/foo/bar'
-    >>> try:
-    ...     import urlparse
-    ... except ImportError:
-    ...     import urllib.parse as urlparse
-    ...
+    >>> from astropy.extern.six.moves.urllib import parse as urlparse
     >>> urlparse.urljoin('http://example.com/foo', 'bar')
     'http://example.com/bar'
 

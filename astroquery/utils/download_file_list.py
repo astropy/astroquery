@@ -92,7 +92,7 @@ def download_list_of_fitsfiles(linklist, output_directory=None,
                 # this part will eventually be handled by astropy.coordinates directly
                 # ctype = h0['CTYPE1']
                 # if 'RA' in ctype:
-                #     coordinate = coord.ICRS(lon,lat,unit=('deg','deg'))
+                #     coordinate = coord.SkyCoord(lon,lat,unit=('deg','deg'))
                 # elif 'GLON' in ctype:
                 #     coordinate = coord.Galactic(lon,lat,unit=('deg','deg'))
                 # else:

@@ -126,15 +126,12 @@ cycle 1 data sets tend to be >100 GB!
 .. code-block:: python
 
    >>> import numpy as np
-   >>> uids = np.unique(m83_data['Asdm_uid'])
+   >>> uids = np.unique(m83_data['Member_ous_id'])
    >>> print(uids)
-           Asdm_uid
-    -----------------------
-    uid://A002/X3b3400/X90f
-    uid://A002/X3b3400/Xaf3
-    uid://A002/X3fbe56/X607
-    uid://A002/X4b29af/X24c
-     uid://A002/X4b29af/X5c
+       Member_ous_id
+    ----------------------
+    uid://A002/X3216af/X31
+
 
 You can then stage the data and see how big it is (you can ask for one or more
 UIDs):
@@ -142,10 +139,10 @@ UIDs):
 
 .. code-block:: python
 
-   >>> link_list = Alma.stage_data(uids[0:2])
-   >>> Alma.data_size(link_list)
+   >>> link_list = Alma.stage_data(uids)
    INFO: Staging files... [astroquery.alma.core]
-   <Quantity 146.51379712000002 Gbyte>
+   >>> link_list['size'].sum()
+   159.26999999999998
 
 You can then go on to download that data.  The download will be cached so that repeat
 queries of the same file will not re-download the data.  The default cache
@@ -178,7 +175,7 @@ extract the FITS file, then delete the tarball:
     >>> orionkl = coordinates.SkyCoord('5:35:14.461 -5:21:54.41', frame='fk5',
     ...                                unit=(u.hour, u.deg))
     >>> result = Alma.query_region(orionkl, radius=0.034*u.deg)
-    >>> uid_url_table = Alma.stage_data(result['Asdm_uid'], cache=False)
+    >>> uid_url_table = Alma.stage_data(result['Member_ous_id'], cache=False)
     >>> # Extract the data with tarball file size < 1GB
     >>> small_uid_url_table = uid_url_table[uid_url_table['size'] < 1]
     >>> # get the first 10 files...

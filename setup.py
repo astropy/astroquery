@@ -78,6 +78,14 @@ package_info = get_package_info()
 package_info['package_data'].setdefault(PACKAGENAME, [])
 package_info['package_data'][PACKAGENAME].append('data/*')
 
+# These lines are only needed if astroquery acquires command line scripts
+# # Define entry points for command-line scripts
+# entry_points = {}
+# entry_points['console_scripts'] = [
+#     'astropy-package-template-example = packagename.example_mod:main',
+# ]
+
+
 # Currently the only entry points installed by Astropy are hooks to
 # zest.releaser for doing Astropy's releases
 entry_points = {}
@@ -100,8 +108,8 @@ for root, dirs, files in os.walk(PACKAGENAME):
                     os.path.relpath(root, PACKAGENAME), filename))
 package_info['package_data'][PACKAGENAME].extend(c_files)
 
-required_packages = ['astropy>=0.4.1', 'requests>=2.4.1', 'keyring', 'beautifulsoup4',
-                     'html5lib']
+required_packages = ['astropy>=0.4.1', 'requests>=2.4.3', 'keyring>=4.0',
+                     'beautifulsoup4>=4.3.2', 'html5lib>=0.999']
 
 setup(name=PACKAGENAME,
       version=VERSION,

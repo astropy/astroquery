@@ -50,7 +50,7 @@ class SDSSClass(BaseQuery):
     BASE_URL = conf.server
     SPECTRO_OPTICAL = BASE_URL
     IMAGING = BASE_URL + '/boss/photoObj/frames'
-    TEMPLATES = 'http://www.sdss.org/dr7/algorithms/spectemplates/spDR2'
+    TEMPLATES = 'http://classic.sdss.org/dr7/algorithms/spectemplates/spDR2'
     MAXQUERIES = conf.maxqueries
     AVAILABLE_TEMPLATES = spec_templates
     TIMEOUT = conf.timeout
@@ -104,7 +104,7 @@ class SDSSClass(BaseQuery):
         --------
         >>> from astroquery.sdss import SDSS
         >>> from astropy import coordinates as coords
-        >>> co = coords.ICRS('0h8m05.63s +14d50m23.3s')
+        >>> co = coords.SkyCoord('0h8m05.63s +14d50m23.3s')
         >>> result = SDSS.query_region(co)
         >>> print(result[:5])
               ra           dec             objid        run  rerun camcol field
@@ -359,7 +359,7 @@ class SDSSClass(BaseQuery):
 
         >>> from astropy import coordinates as coords
         >>> from astroquery.sdss import SDSS
-        >>> co = coords.ICRS('0h8m05.63s +14d50m23.3s')
+        >>> co = coords.SkyCoord('0h8m05.63s +14d50m23.3s')
         >>> result = SDSS.query_region(co, spectro=True)
         >>> spec = SDSS.get_spectra(matches=result)
 
@@ -483,7 +483,7 @@ class SDSSClass(BaseQuery):
 
         >>> from astropy import coordinates as coords
         >>> from astroquery.sdss import SDSS
-        >>> co = coords.ICRS('0h8m05.63s +14d50m23.3s')
+        >>> co = coords.SkyCoord('0h8m05.63s +14d50m23.3s')
         >>> result = SDSS.query_region(co)
         >>> imgs = SDSS.get_images(matches=result)
 

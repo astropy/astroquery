@@ -207,23 +207,25 @@ this Vizier instance:
    
     >>> result = v.query_object("HD 226868", catalog=["NOMAD", "UCAC"])              
     >>> print(result)
-    TableList with 2 tables:
-       '0:I/289/out' with 3 column(s) and 18 row(s) 
-       '1:I/322A/out' with 4 column(s) and 10 row(s) 
-
+    TableList with 3 tables:
+        '0:I/297/out' with 3 column(s) and 50 row(s)
+        '1:I/289/out' with 3 column(s) and 18 row(s)
+        '2:I/322A/out' with 3 column(s) and 10 row(s)
+    
     >>> print(result['I/322A/out'])
-     _RAJ2000    DEJ2000    Vmag   _DEJ2000 
-    ---------- ----------- ------ ----------
-    299.572419  35.1942342 15.986  35.194234
-    299.580291  35.1768889 13.274  35.176889
-    299.582571  35.1852253 14.863  35.185225
-    299.594172  35.1799948 14.690  35.179995
-    299.601402  35.1981078 14.644  35.198108
-    299.617669  35.1869987 14.394  35.186999
-    299.561498  35.2016928 15.687  35.201693
-    299.570217  35.2256634 14.878  35.225663
-    299.601081  35.2333378 13.170  35.233338
-    299.617995  35.2058637 13.946  35.205864
+     _RAJ2000   _DEJ2000   Vmag
+       deg        deg      mag
+    ---------- ---------- ------
+    299.572419  35.194234 15.986
+    299.580291  35.176889 13.274
+    299.582571  35.185225 14.863
+    299.594172  35.179995 14.690
+    299.601402  35.198108 14.644
+    299.617669  35.186999 14.394
+    299.561498  35.201693 15.687
+    299.570217  35.225663 14.878
+    299.601081  35.233338 13.170
+    299.617995  35.205864 13.946
 
 When specifying the columns of the query, sorting of the returned table can be
 requested by adding ``+`` (or ``-`` for reverse sorting order) in front of the column

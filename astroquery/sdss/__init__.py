@@ -13,7 +13,7 @@ class Conf(_config.ConfigNamespace):
     Configuration parameters for `astroquery.sdss`.
     """
     server = _config.ConfigItem(
-        ['http://data.sdss3.org/sas/dr10'],
+        ['http://data.sdss3.org/sas/dr12'],
         'Link to SDSS website.'
         )
     timeout = _config.ConfigItem(
