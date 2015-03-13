@@ -20,7 +20,7 @@ class Conf(_config.ConfigNamespace):
     Configuration parameters for `astroquery.ukidss`.
     """
     server = _config.ConfigItem(
-        ['http://surveys.roe.ac.uk:8080/wsa/'],
+        'http://surveys.roe.ac.uk:8080/wsa/',
         'Name of the UKIDSS mirror to use.'
         )
     timeout = _config.ConfigItem(

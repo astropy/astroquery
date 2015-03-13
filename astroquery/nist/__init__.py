@@ -10,7 +10,7 @@ class Conf(_config.ConfigNamespace):
     Configuration parameters for `astroquery.nist`.
     """
     server = _config.ConfigItem(
-        ['http://physics.nist.gov/cgi-bin/ASD/lines1.pl'],
+        'http://physics.nist.gov/cgi-bin/ASD/lines1.pl',
         'Name of the NIST URL to query.'
         )
     timeout = _config.ConfigItem(

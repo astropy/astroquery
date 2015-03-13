@@ -22,16 +22,17 @@ class Conf(_config.ConfigNamespace):
     """
 
     server = _config.ConfigItem(
-        ['vizier.u-strasbg.fr',
-         'vizier.nao.ac.jp',
-         'vizier.hia.nrc.ca',
-         'vizier.ast.cam.ac.uk',
-         'vizier.cfa.harvard.edu',
-         'www.ukirt.jach.hawaii.edu',
-         'vizier.iucaa.ernet.in',
-         'vizier.china-vo.org',
-         ],
+        'vizier.u-strasbg.fr',
         'Name of the VizieR mirror to use.'
+        #['vizier.u-strasbg.fr',
+        # 'vizier.nao.ac.jp',
+        # 'vizier.hia.nrc.ca',
+        # 'vizier.ast.cam.ac.uk',
+        # 'vizier.cfa.harvard.edu',
+        # 'www.ukirt.jach.hawaii.edu',
+        # 'vizier.iucaa.ernet.in',
+        # 'vizier.china-vo.org',
+        # ],
         )
     timeout = _config.ConfigItem(
         60,

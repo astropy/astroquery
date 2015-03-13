@@ -18,7 +18,7 @@ class Conf(_config.ConfigNamespace):
     """
     # maintain a list of URLs in case the user wants to append a mirror
     server = _config.ConfigItem(
-        ['http://irsa.ipac.caltech.edu/cgi-bin/DUST/nph-dust'],
+        'http://irsa.ipac.caltech.edu/cgi-bin/DUST/nph-dust',
         'Name of the irsa_dust server to use.'
         )
     timeout = _config.ConfigItem(

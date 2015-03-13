@@ -367,7 +367,7 @@ class FileContainer(object):
     def __init__(self, target, **kwargs):
         kwargs.setdefault('cache', True)
         self._target = target
-        self._timeout = kwargs.get('remote_timeout', aud.REMOTE_TIMEOUT())
+        self._timeout = kwargs.get('remote_timeout', aud.conf.remote_timeout)
         if (os.path.splitext(target)[1] == '.fits' and not
                 ('encoding' in kwargs and kwargs['encoding'] == 'binary')):
             warnings.warn("FITS files must be read as binaries; error is likely.")
