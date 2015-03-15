@@ -20,7 +20,7 @@ from astropy.table import Table, Column
 
 from ..utils.class_or_instance import class_or_instance
 from ..utils import commons, async_to_sync
-
+from .utils import *
 #~ from BeautifulSoup import BeautifulSoup as bfs
 
 from xml.dom import minidom
@@ -61,34 +61,50 @@ class ADSClass(BaseQuery):
         #~ response_bfs = self._parse_response_to_bfs(response)
         # 
         #self._parse_bfs_to_table(response_bfs)
-        self._parse_response(response)
+        resulttable = self._parse_response(response)
         
-        return response
+        return resulttable 
     
     def _parse_response(self, response):
         xmlrepr = minidom.parseString(response.text.encode('utf-8'))
+        # Check if there are any results!
         
+        # get the list of hits
+        hitlist = xmlrepr.childNodes[0].childNodes
+        hitlist = hitlist[1::2] # every second hit is a "line break"
         
-    def _parse_response_to_bfs(self, response):
-        # do something, probably with regexp's
+        # Parse the results
+        # first single items
+        titles = get_data_from_xml(hitlist, 'title')
+        bibcode = get_data_from_xml(hitlist, 'bibcode')
+        journal = get_data_from_xml(hitlist, 'journal')
+        volume = get_data_from_xml(hitlist, 'volume')
+        pubdate = get_data_from_xml(hitlist, 'pubdate')
+        page = get_data_from_xml(hitlist, 'page')
+        score = get_data_from_xml(hitlist, 'score')
+        citations = get_data_from_xml(hitlist, 'citations')
+        abstract = get_data_from_xml(hitlist, 'abstract')
+        doi = get_data_from_xml(hitlist, 'DOI')
+        eprintid = get_data_from_xml(hitlist, 'eprintid')
+        #~ = get_data_from_xml(hitlist, '')
+        authors = get_data_from_xml(hitlist, 'author')
+ 
+        t = Table()
+        t['title'] = titles
+        t['bibcode'] = bibcode
+        t['journal'] = journal
+        t['volume'] = volume
+        t['pubdate'] = pubdate
+        t['page'] = page
+        t['score'] = score
+        t['citations'] = citations
+        t['abstract'] = abstract 
+        t['doi'] = doi
+        t['eprintid'] = eprintid 
+        t['authors'] = authors
         
-        adssoup_raw = bfs(response.text)
-        adssoup_cooked = adssoup_raw.findAll('record')
-        result = adssoup_cooked
-        
-        # number of hits
-        nhits = len(adssoup_cooked)
-        if nhits == 0:
-            warnings.warn("No hits for the search \'{0}\'".format(self.query_string))
-            return None
-        
-        """
-        Developer, how do you get list with all the fields?
-        Like this:
-        [tag.name for tag in adssoup_cooked[0].findAll()]
-        """
-        return result
-
+        return t
+         
     def _args_to_payload(self, query_string):
         # convert arguments to a valid requests payload
         # i.e. a dictionary
@@ -97,3 +113,68 @@ class ADSClass(BaseQuery):
 
 
 ADS = ADSClass()
+
+
+"""
+typical fields available:
+
+[u'bibcode',
+ u'title',
+ u'author',
+ u'author',
+ u'author',
+ u'affiliation',
+ u'journal',
+ u'volume',
+ u'pubdate',
+ u'page',
+ u'keywords',
+ u'keyword',
+ u'keyword',
+ u'keyword',
+ u'keyword',
+ u'keyword',
+ u'origin',
+ u'link',
+ u'name',
+ u'url',
+ u'link',
+ u'name',
+ u'url',
+ u'link',
+ u'name',
+ u'url',
+ u'link',
+ u'name',
+ u'url',
+ u'link',
+ u'name',
+ u'url',
+ u'count',
+ u'link',
+ u'name',
+ u'url',
+ u'count',
+ u'link',
+ u'name',
+ u'url',
+ u'count',
+ u'link',
+ u'name',
+ u'url',
+ u'link',
+ u'name',
+ u'url',
+ u'count',
+ u'link',
+ u'name',
+ u'url',
+ u'url',
+ u'score',
+ u'citations',
+ u'abstract',
+ u'doi',
+ u'eprintid']
+
+
+"""

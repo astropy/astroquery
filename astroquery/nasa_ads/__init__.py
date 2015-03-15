@@ -10,7 +10,6 @@ SAO/NASA ADS Query Tool
 #~ from astropy.config import ConfigurationItem
 
 from astropy import config as _config
-from .utils import *
 
 
 class Conf(_config.ConfigNamespace):
