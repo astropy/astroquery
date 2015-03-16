@@ -84,13 +84,16 @@ def send_request(url, data, timeout, request_type='POST', headers={},
         if request_type == 'GET':
             response = requests.get(url, params=data, timeout=timeout,
                                     headers=headers, **kwargs)
-            return response
         elif request_type == 'POST':
             response = requests.post(url, data=data, timeout=timeout,
                                      headers=headers, **kwargs)
-            return response
         else:
             raise ValueError("request_type must be either 'GET' or 'POST'.")
+
+        response.raise_for_status()
+
+        return response
+
     except requests.exceptions.Timeout:
             raise TimeoutError("Query timed out, time elapsed {time}s".
                                format(time=timeout))
@@ -159,7 +162,7 @@ def radius_to_unit(radius, unit='degree'):
 def parse_coordinates(coordinates):
     """
     Takes a string or astropy.coordinates object. Checks if the
-    string is parsable as an astropy.coordinates.ICRS
+    string is parsable as an `astropy.coordinates`
     object or is a name that is resolvable. Otherwise asserts
     that the argument is an astropy.coordinates object.
 

@@ -1,0 +1,320 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>Alma Request Handler - Request Details</title>
+<link href="/rh/css/ngrh.css" rel="stylesheet" type="text/css" />
+<link href="/rh/css/Almangrh.css" rel="stylesheet" type="text/css" />
+<link href="/rh/css/jquery-ui.css" rel="stylesheet" type="text/css" />
+
+<link rel="shortcut icon" href="/rh/images/AlmaFavicon.ico" />
+<script type="text/javascript" language="JavaScript" src="/rh/javascript/jquery.min.js"></script>
+<script type="text/javascript" src="/rh/javascript/jquery-ui-1.11.1.js"></script>
+<script type="text/javascript" language="JavaScript" src="/rh/javascript/jquery.jeditable.mini.js"></script>
+<script type="text/javascript" language="JavaScript" src="/rh/javascript/requestHandler.js"></script>
+
+<script type="text/javascript" language="JavaScript">
+/*
+ * initialize
+ */
+ 
+ 
+ 
+$(document).ready(function() {
+    
+    // get initial state of request as delivered from view
+    var requestState = $('#requestState').text()
+    if ((requestState == 'READYTOWRITE') || (requestState == 'WRITINGMEDIA')) {        
+       $('#ajaxState')
+       $('#ajaxInfo').html('Your request is being handled by our Operations team')
+    }   
+    else if ( (requestState != 'COMPLETE') && (requestState != 'ERROR') && (requestState != 'CANCELLED') 
+         && (requestState != 'ERRORONNOTIFY') && (requestState != 'READYFORDELIVERY') && (requestState != 'WRITINGERROR') ) {
+        // only if initial state is not terminal, refresh state
+        var message=''       
+        $('#ajaxInfo').html(message + 'page refreshes automatically when request is completed')
+   	    $('#ajaxState').html('<img src="/rh/images/smallheart.png" />')
+        // wait a little then refresh state using AJAX call    
+        setTimeout( "getRequestState('/rh','anonymous','786572566')", 2000)
+    }
+        
+
+    // initialize edit-in-place for request description
+    $('.inPlaceEdit').editable('/rh/requests/anonymous/786572566', {
+        indicator : 'Saving ...',
+        tooltip   : 'Click to edit ...',
+        submit    : 'OK',
+        cssclass  : 'editable'
+    });
+          
+});
+</script>
+</head>
+
+<body>
+<div id="wrapper">
+  <!-- header -->    
+  
+  <div id="portal-header-row"> 
+    <a id="portal-header-logo" href="/rh" class="main-background-color">
+      <img alt="ALMA" title="ASA HOME" src="/rh/images/almalogo.png" width="500" height="115" />
+    </a>
+     
+    <ul class="portal-siteactions left" >        
+            <li><a href="/rh/requests" class="current">Request Handler</a></li> 
+    </ul> 
+    <ul class="portal-siteactions right"> 
+         <li>
+           
+              
+                 <a href="/rh/login?redirectUrl=/requests/anonymous/786572566">
+              
+              Login</a>              
+          
+         </li>
+    </ul> 
+</div>
+
+
+
+  <!-- menu -->
+   
+  <!-- breadcrump -->
+<div id="portal-submenu">
+    <ul class="sub">
+      <li>
+	    <a onfocus="this.blur()" href="/rh/requests/anonymous/recentRequests">Archive Requests</a>
+	  </li>
+
+ 
+      <li><a onfocus="this.blur()" href="/rh/requests/anonymous/786572566">Req #786,572,566</a>
+        
+      </li>
+ 
+    </ul> 
+</div>
+   
+
+
+
+<!-- END - #menu -->   
+
+  
+  <!-- content  -->
+  <div id="content">
+    <!-- requests details -->
+    <h1>Request #786572566 by Anonymous User 
+      
+        <img src="/rh/images/state_complete.png" alt="COMPLETE" title="Completed"></img>
+      
+    </h1>
+    <div id="requestDescription" class="inPlaceEdit">ALMA </div>
+    
+    <!-- ajax request state update info -->
+    <span style="height:30px;width:30px;" id="ajaxState"></span>
+    <span style="height:30px;" id="ajaxInfo"></span>
+    <!-- hidden span to support ajax refresh -->
+    <span id="requestState" style="display:none;">COMPLETE</span>
+       
+    <!-- pagination -->
+    <div id="pagination">
+      
+      
+    </div>
+    <!-- END #pagination -->
+    
+    
+    <form action="https://almascience.eso.org/rh/requests/anonymous/786572566/downloadFile" method="post" name="fileSelectForm">
+      <!--  buttons -->
+      <div class="buttons">        
+        
+          <input type="checkbox" id="asdmCheckbox" onClick="checkUncheckAsdms();" /><b><i>Include raw</i></b>
+          <input class="button" type="button" value="Select All" onfocus="this.blur()" onClick="check($('.product'));check(this.form.dataEntityId);if ($('#asdmCheckbox').is(':checked')){check($('.asdm'))};" />
+          <input class="button" type="button" value="Unselect All" onfocus="this.blur()" onClick="uncheck($('.product'));uncheck(this.form.dataEntityId);uncheck($('.asdm'));" />
+          <input id="downloadButton" class="button" type="submit" name="downloadType" value="Download Selected" onfocus="this.blur()" onclick="return popup(this.form);" />
+          <script>
+             if ((navigator.userAgent != null) && navigator.userAgent.match(/mac/i) && navigator.userAgent.match(/safari/i)){
+               var  domainName = ("https://almascience.eso.org".indexOf('//') != -1 ? "https://almascience.eso.org".split('//')[1] : "https://almascience.eso.org");
+               $('#downloadButton').tooltip({items: 'input', content: "Due to security restrictions Apple has built into Safari, downloading files to your disk using the ALMA download manager requires some extra action. You have the options to:<br><br> 1) modify the Safari security settings for this webpage. To do this, go to Safari -> Preferences -> Security tab -> Java Manage Website Settings -> " + domainName + " -> \"Run in unsafe mode\" <br><br> 2) use the download script offered on this page (downloadRequest786572566script.sh) or, alternatively <br><br> 3) use Firefox", position: { my: "right top", at: "right bottom" }, show: false});
+             }
+          </script>                      
+        
+        
+                
+        
+      </div>
+      
+      <!--  data entities & aux files -->
+      <table class="list" id="report" >
+        <thead>
+          <tr>
+            <th colspan="5"><h2>Requested Projects / OUSets / Executionblocks</h2></th>
+          </tr>
+          <tr>
+            <td colspan="5" class="left" style="color:#005BA0">
+              
+            	  UNIX/Linux Shell script if you prefer command line download of complete request: 
+            	  
+                     <a href="/rh/requests/anonymous/786572566/script">
+                                 downloadRequest786572566script.sh</a>
+                  
+                          	
+            </td>
+          </tr>
+          
+            <tr>
+              <td class="caption" colspan="3">Data entities 1-2 of 2</td>
+              <td class="caption" colspan="3"></td>
+            </tr>            
+                               
+          <tr class="header">
+            <th class="left">Project / OUSet / Executionblock</th>
+            <th class="left">File</th>
+            <th class="right">Size</th>
+            <th>Access</th>
+          </tr>
+        </thead>             
+        
+        
+        <!-- list of data entities -->
+        <tbody>
+           
+           
+           
+                                           
+           <!-- data entity hierarchy recursive display macro-->
+            <!-- recursive_display -->
+           
+           <!-- display start -->
+                                        
+             
+               <!-- the first line contains the data entity name and the following ones file names -->
+               <tr id="row_786573669" class="Level_0">
+                 <td width="43%"  style="padding-left:0em;text-align:left" > 
+                     
+                      <img src="/rh/images/plus.gif" style="cursor:pointer;" onClick="expandCollapseAlma(786573669, '/rh');" />
+                              
+                                                
+                     <input type="checkbox" id="CB_row_786573669" name="dataEntityId" onClick="checkUncheckDE(786573669);" value="786573669" />
+                                                                                    
+                   <!-- data entity type if available + name without namespace -->
+                                           
+                     Asdm
+                   
+                   uid___A002_X3b3400_X90f                                         
+                 </td>
+                 <td width="36%"></td>
+                 <td width="12%"></td>
+                 <td width="9%">                         
+                 </td>
+               </tr>                                  
+               
+                                                          
+                 <tr class="fileRow" style="display: none" >                      
+                   
+                     <td width="43%">&nbsp;</td>
+                                                                                                                                                    
+                     <td width="36%" class="left">                      
+                       
+                         uid___A002_X3b3400_X90f.asdm.sdm.tar
+                                           
+                     </td>
+                     <td width="12%" class="right">-</td>
+                     <td width="9%" >
+                       
+                         <img src="/rh/images/access_authorized.png" alt="Authorized" title="Authorized"></img>
+                       
+                     </td>
+                 </tr>
+                  <!-- HIDDEN condition -->                 
+                <!-- files -->
+                                            
+              <!-- data entities -->
+               
+             
+               <!-- the first line contains the data entity name and the following ones file names -->
+               <tr id="row_786575516" class="Level_0">
+                 <td width="43%"  style="padding-left:0em;text-align:left" > 
+                     
+                      <img src="/rh/images/plus.gif" style="cursor:pointer;" onClick="expandCollapseAlma(786575516, '/rh');" />
+                              
+                                                
+                     <input type="checkbox" id="CB_row_786575516" name="dataEntityId" onClick="checkUncheckDE(786575516);" value="786575516" />
+                                                                                    
+                   <!-- data entity type if available + name without namespace -->
+                                           
+                     Asdm
+                   
+                   uid___A002_X3b3400_Xaf3                                         
+                 </td>
+                 <td width="36%"></td>
+                 <td width="12%"></td>
+                 <td width="9%">                         
+                 </td>
+               </tr>                                  
+               
+                                                          
+                 <tr class="fileRow" style="display: none" >                      
+                   
+                     <td width="43%">&nbsp;</td>
+                                                                                                                                                    
+                     <td width="36%" class="left">                      
+                       
+                         uid___A002_X3b3400_Xaf3.asdm.sdm.tar
+                                           
+                     </td>
+                     <td width="12%" class="right">-</td>
+                     <td width="9%" >
+                       
+                         <img src="/rh/images/access_authorized.png" alt="Authorized" title="Authorized"></img>
+                       
+                     </td>
+                 </tr>
+                  <!-- HIDDEN condition -->                 
+                <!-- files -->
+                                            
+              <!-- data entities -->
+               
+              <!-- data entities -->
+           
+                           
+           <tr>
+             
+               <!-- information on data entities range is indicated only if there are some data entities to be displayed. It may happen that  
+                        the page only contain auxiliary files -->
+               <td class="caption" colspan="3">Data entities 1-2 of 2</td>
+               <td class="caption right">-</td>
+               <td class="caption"></td>               
+                                                
+           </tr>
+        </tbody>
+        <!-- list aux files, if any -->
+        
+        </table>
+      </form>
+    </div>
+    <!-- footer -->
+     <!-- footer -->
+ 
+  <div id="portal-footer"> 
+  <table id="portal-footer-links"> 
+    <tr><td>&nbsp;</td></tr> 
+    <tr><td>Copyright &copy; 2011 ALMA</td></tr> 
+  </table> 
+  <div id="portal-footer-logos"> 
+    <div>ALMA, a worldwide collaboration</div> 
+    <a href="http://www.eso.org"><img src="/rh/images/alma_eso.png" alt="ESO" title="ESO" width="43" height="57" /></a> 
+    <a href="http://alma.mtk.nao.ac.jp/e/"><img src="/rh/images/alma_naoj.png" alt="NAOJ" title="NAOJ" width="85" height="57" /></a> 
+    <a href="http://www.nrao.edu"><img src="/rh/images/alma_nrao.png" alt="NRAO" title="NRAO" width="44" height="57" /></a> 
+  </div> 
+</div>
+
+
+
+<!-- END #footer -->
+
+
+</div>
+</body>
+</html>

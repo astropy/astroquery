@@ -4,6 +4,7 @@ from __future__ import print_function
 import os
 import warnings
 import json
+import copy
 
 from astropy.extern import six
 import astropy.units as u
@@ -56,7 +57,8 @@ class VizierClass(BaseQuery):
     def columns(self):
         """ Columns to include.  The special keyword 'all' will return ALL
         columns from ALL retrieved tables. """
-        return self._columns
+        # columns need to be immutable but still need to be a list
+        return list(tuple(self._columns))
 
     @columns.setter
     def columns(self, values):
@@ -205,7 +207,8 @@ class VizierClass(BaseQuery):
                                  timeout=self.TIMEOUT)
         return response
 
-    def query_object_async(self, object_name, catalog=None, radius=None, coordinate_frame=None):
+    def query_object_async(self, object_name, catalog=None, radius=None,
+                           coordinate_frame=None):
         """
         Serves the same purpose as `query_object` but only
         returns the HTTP response rather than the parsed result.
@@ -311,13 +314,14 @@ class VizierClass(BaseQuery):
             if (("_RAJ2000" in coordinates.keys()) and ("_DEJ2000" in
                                                         coordinates.keys())):
                 pos_list = []
-                for pos in coord.SkyCoord(coordinates["_RAJ2000"],
+                sky_coord = coord.SkyCoord(coordinates["_RAJ2000"],
                                           coordinates["_DEJ2000"],
                                           unit=(coordinates["_RAJ2000"].unit,
-                                                coordinates["_DEJ2000"].unit)):
-                    ra_deg = pos.ra.to_string(unit="deg", decimal=True, precision=8)
-                    dec_deg = pos.dec.to_string(unit="deg", decimal=True,
-                                                precision=8, alwayssign=True)
+                                                coordinates["_DEJ2000"].unit))
+                for (ra, dec) in zip(sky_coord.ra, sky_coord.dec):
+                    ra_deg = ra.to_string(unit="deg", decimal=True, precision=8)
+                    dec_deg = dec.to_string(unit="deg", decimal=True,
+                                            precision=8, alwayssign=True)
                     pos_list += ["{}{}".format(ra_deg, dec_deg)]
                 center["-c"] = "<<;" + ";".join(pos_list)
                 columns += ["_q"]  # request a reference to the input table
@@ -459,12 +463,16 @@ class VizierClass(BaseQuery):
         # process: columns
         columns = kwargs.get('columns')
         if columns is None:
-            columns = self.columns
+            columns = copy.copy(self.columns)
         else:
             columns = self.columns + columns
 
-        if 'all' in columns:
-            columns.remove('all')
+        # keyword names that can mean 'all' need to be treated separately
+        alls = ['all','*']
+        if any(x in columns for x in alls):
+            for x in alls:
+                if x in columns:
+                    columns.remove(x)
             body['-out.all'] = 2
 
         # process: columns - always request computed positions in degrees
@@ -485,6 +493,7 @@ class VizierClass(BaseQuery):
             else:
                 columns_out += [column]
         body['-out.add'] = ','.join(columns_out)
+        body['-out'] = columns_out
         if len(sorts_out) > 0:
             body['-sort'] = ','.join(sorts_out)
         # process: maximum rows returned
@@ -504,6 +513,8 @@ class VizierClass(BaseQuery):
                 body[key] = value
         # add column metadata: name, unit, UCD1+, and description
         body["-out.meta"] = "huUD"
+        # merge tables when a list is queried against a single catalog
+        body["-out.form"] = "mini"
         # computed position should always be in decimal degrees
         body["-oc.form"] = "d"
 
