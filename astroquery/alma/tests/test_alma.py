@@ -92,7 +92,7 @@ def test_SgrAstar(monkeypatch):
 
     # test that max_results = 50
     assert len(result) == 82
-    assert b'2011.0.00217.S' in result['Project_code']
+    assert b'2011.0.00217.S' in result['Project code']
 
 def test_staging(monkeypatch):
 
@@ -105,10 +105,10 @@ def test_staging(monkeypatch):
     target = 'NGC4945'
     project_code = '2011.0.00121.S'
     payload = {'project_code':project_code,
-               'source_name':target,}
+               'source_name_resolver':target,}
     result = alma.query(payload=payload)
 
-    uid_url_table = alma.stage_data(result['Asdm_uid'])
+    uid_url_table = alma.stage_data(result['Asdm uid'])
     assert len(uid_url_table) == 2
 
 

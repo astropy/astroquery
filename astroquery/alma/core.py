@@ -98,7 +98,7 @@ class AlmaClass(QueryWithLogin):
 
         if payload is None:
             payload = {}
-        payload.update({'raDecCoordinates': rdc})
+        payload.update({'ra_dec': rdc})
 
         return self.query_async(payload, cache=cache, public=public,
                                 science=science, **kwargs)
@@ -381,7 +381,7 @@ class AlmaClass(QueryWithLogin):
         tf = six.BytesIO(response.content)
         vo_tree = votable.parse(tf, pedantic=False, invalid='mask')
         first_table = vo_tree.get_first_table()
-        table = first_table.to_table()
+        table = first_table.to_table(use_names_over_ids=True)
         return table
 
     def _login(self, username, store_password=False):
@@ -714,24 +714,26 @@ class AlmaClass(QueryWithLogin):
 
         root = BeautifulSoup(data_list_page.content, 'html5lib')
 
-        for link in root.findAll('a'):
-            if 'script.sh' in link.text:
-                download_script_url = urljoin(self.dataarchive_url,
-                                              link['href'])
+        #for link in root.findAll('a'):
+        #    if 'script.sh' in link.text:
+        #        download_script_url = urljoin(self.dataarchive_url,
+        #                                      link['href'])
+        #if 'download_script_url' not in locals():
+        #    raise RemoteServiceError("No download links were found.")
 
-        download_script = self._request('GET', download_script_url,
-                                        cache=False)
-        download_script_target_urls = []
-        for line in download_script.text.split('\n'):
-            if line and line.split() and line.split()[0] == 'wget':
-                download_script_target_urls.append(line.split()[1].strip('"'))
+        #download_script = self._request('GET', download_script_url,
+        #                                cache=False)
+        #download_script_target_urls = []
+        #for line in download_script.text.split('\n'):
+        #    if line and line.split() and line.split()[0] == 'wget':
+        #        download_script_target_urls.append(line.split()[1].strip('"'))
 
-        if len(download_script_target_urls) == 0:
-            raise RemoteServiceError("There was an error parsing the download "
-                                     "script; it is empty.  "
-                                     "You can access the download script "
-                                     "directly from this URL: "
-                                     "{0}".format(download_script_url))
+        #if len(download_script_target_urls) == 0:
+        #    raise RemoteServiceError("There was an error parsing the download "
+        #                             "script; it is empty.  "
+        #                             "You can access the download script "
+        #                             "directly from this URL: "
+        #                             "{0}".format(download_script_url))
 
         data_table = root.findAll('table', class_='list', id='report')[0]
         columns = {'uid':[], 'URL':[], 'size':[]}
@@ -799,32 +801,31 @@ class AlmaClass(QueryWithLogin):
 
         if len(columns['uid']) == 0:
             raise RemoteServiceError("No valid UIDs were found in the staged "
-                                     "data table.  Please include {0} and {1}"
+                                     "data table.  Please include {0} "
                                      "in a bug report."
-                                     .format(self._staging_log['data_list_url'],
-                                             download_script_url))
+                                     .format(self._staging_log['data_list_url']))
 
-        if len(download_script_target_urls) != len(columns['URL']):
-            log.warn("There was an error parsing the data staging page.  "
-                     "The results from the page and the download script "
-                     "differ.  You can access the download script directly "
-                     "from this URL: {0}".format(download_script_url))
-        else:
-            bad_urls = []
-            for (rurl,url) in (zip(columns['URL'],
-                                   download_script_target_urls)):
-                if rurl == 'None_Found':
-                    url_uid = os.path.split(url)[-1]
-                    ind = np.where(np.array(columns['uid']) == url_uid)[0][0]
-                    columns['URL'][ind] = url
-                elif rurl != url:
-                    bad_urls.append((rurl, url))
-            if bad_urls:
-                log.warn("There were mismatches between the parsed URLs "
-                         "from the staging page ({0}) and the download "
-                         "script ({1})."
-                         .format(self._staging_log['data_list_url'],
-                                 download_script_url))
+        #if len(download_script_target_urls) != len(columns['URL']):
+        #    log.warn("There was an error parsing the data staging page.  "
+        #             "The results from the page and the download script "
+        #             "differ.  You can access the download script directly "
+        #             "from this URL: {0}".format(download_script_url))
+        #else:
+        #    bad_urls = []
+        #    for (rurl,url) in (zip(columns['URL'],
+        #                           download_script_target_urls)):
+        #        if rurl == 'None_Found':
+        #            url_uid = os.path.split(url)[-1]
+        #            ind = np.where(np.array(columns['uid']) == url_uid)[0][0]
+        #            columns['URL'][ind] = url
+        #        elif rurl != url:
+        #            bad_urls.append((rurl, url))
+        #    if bad_urls:
+        #        log.warn("There were mismatches between the parsed URLs "
+        #                 "from the staging page ({0}) and the download "
+        #                 "script ({1})."
+        #                 .format(self._staging_log['data_list_url'],
+        #                         download_script_url))
 
         tbl = Table([Column(name=k, data=v) for k,v in iteritems(columns)])
 
