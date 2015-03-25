@@ -10,6 +10,7 @@ import keyring
 import numpy as np
 import re
 import tarfile
+import string
 from bs4 import BeautifulSoup
 
 from astropy.extern.six.moves.urllib_parse import urljoin
@@ -678,6 +679,20 @@ class AlmaClass(QueryWithLogin):
                             checkbox = "[x]" if checked else "[ ]"
                             help_section[1].append((name, payload_keyword,
                                                     checkbox, value))
+                    select = inp.find('select')
+                    if select is not None:
+                        options = [(filter_printable(option.text),
+                                    option.attrs['value'])
+                                   for option in select.findAll('option')]
+                        if sp is not None:
+                            name = whitespace.sub(" ", sp.text)
+                        else:
+                            name = select.attrs['name']
+                        option_str = " , ".join(["{0} = {1}".format(o[0],o[1])
+                                                 for o in options])
+                        help_section[1].append((name, option_str))
+
+
                 help_list.append(help_section)
             self._help_list = help_list
 
@@ -856,3 +871,7 @@ def unique(seq):
     seen = set()
     seen_add = seen.add
     return [x for x in seq if not (x in seen or seen_add(x))]
+
+def filter_printable(s):
+    """ extract printable characters from a string """
+    return filter(lambda x: x in string.printable, s)
