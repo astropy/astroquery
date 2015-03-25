@@ -64,7 +64,7 @@ class AlmaClass(QueryWithLogin):
 
         if payload is None:
             payload = {}
-        payload.update({'source_name_sesame': object_name,})
+        payload.update({'source_name_resolver': object_name,})
 
         return self.query_async(payload, cache=cache, public=public,
                                 science=science, **kwargs)
@@ -121,13 +121,14 @@ class AlmaClass(QueryWithLogin):
             Return only data marked as "science" in the archive?
         """
 
-        url = urljoin(self._get_dataarchive_url(), 'aq/search.votable')
+        url = urljoin(self._get_dataarchive_url(), 'aq/')
 
-        payload.update({'viewFormat':'raw',})
+        payload.update({'result_view':'raw', 'format':'VOTABLE',
+                        'download':'true'})
         if public:
-            payload['publicFilterFlag'] = 'public'
+            payload['public_data'] = 'public'
         if science:
-            payload['scan_intent-asu'] = '=*TARGET*'
+            payload['science_observations'] = '=%TARGET%'
 
         self.validate_query(payload)
 
@@ -613,10 +614,15 @@ class AlmaClass(QueryWithLogin):
             print()
             print(title)
             for row in section:
-                if len(row) == 2:
+                if len(row) == 2: # text value
                     name,payload_keyword = row
                     print("  {0:33s}: {1:35s}".format(name,payload_keyword))
-                elif len(row) == 4:
+                #elif len(row) == 3: # radio button
+                #    name,payload_keyword,value = row
+                #    print("  {0:33s}: {1:20s} = {2:15s}".format(name,
+                #                                                    payload_keyword,
+                #                                                    value))
+                elif len(row) == 4: # radio button or checkbox
                     name,payload_keyword,checkbox,value = row
                     print("  {2} {0:29s}: {1:20s} = {3:15s}".format(name,
                                                                     payload_keyword,
@@ -633,29 +639,42 @@ class AlmaClass(QueryWithLogin):
             root = BeautifulSoup(querypage.content)
             sections = root.findAll('td', class_='category')
 
+            whitespace = re.compile("\s+")
+
             help_list = []
             for section in sections:
                 title = section.find('div', class_='categorytitle').text.lstrip()
                 help_section = (title,[])
                 for inp in section.findAll('div', class_='inputdiv'):
                     sp = inp.find('span')
-                    if sp is not None:
-                        payload_keyword = sp.attrs['class'][0]
-                        name = sp.text
-                        help_section[1].append((name,payload_keyword))
-                    else:
-                        buttons = inp.findAll('input')
-                        for b in buttons:
-                            payload_keyword = b.attrs['name']
-                            bid = b.attrs['id']
-                            label = inp.find('label')
+                    buttons = inp.findAll('input')
+                    for b in buttons:
+                        # old version:for=id=rawView; name=viewFormat
+                        # new version:for=id=rawView; name=result_view
+                        payload_keyword = b.attrs['name']
+                        bid = b.attrs['id']
+                        label = inp.find('label')
+                        if sp is not None:
+                            name = whitespace.sub(" ", sp.text)
+                        elif label.attrs['for'] == bid:
+                            name = whitespace.sub(" ", label.text)
+                        else:
+                            raise TableParseError("ALMA query page has"
+                                                  " an unrecognized entry")
+                        if b.attrs['type'] == 'text':
+                            help_section[1].append((name, payload_keyword))
+                        elif b.attrs['type'] == 'radio':
+                            value = b.attrs['value']
+                            if 'checked' in b.attrs:
+                                checked = b.attrs['checked'] == 'checked'
+                                checkbox = "(x)" if checked else "( )"
+                            else:
+                                checkbox = "( )"
+                            help_section[1].append((name, payload_keyword,
+                                                    checkbox, value))
+                        elif b.attrs['type'] == 'checkbox':
                             checked = b.attrs['checked'] == 'checked'
                             value = b.attrs['value']
-                            if label.attrs['for'] == bid:
-                                name = label.text
-                            else:
-                                raise TableParseError("ALMA query page has"
-                                                      " an unrecognized entry")
                             checkbox = "[x]" if checked else "[ ]"
                             help_section[1].append((name, payload_keyword,
                                                     checkbox, value))
@@ -666,10 +685,14 @@ class AlmaClass(QueryWithLogin):
 
     def _validate_payload(self, payload):
         if not hasattr(self, '_valid_params'):
-            help_list = self._get_help_page()
+            help_list = self._get_help_page(cache=False)
             self._valid_params = [row[1]
                                   for title,section in help_list
                                   for row in section]
+            # These parameters are entirely hidden, but Felix says they are
+            # allowed
+            self._valid_params.append('download')
+            self._valid_params.append('format')
         invalid_params = [k for k in payload if k not in self._valid_params]
         if len(invalid_params) > 0:
             raise InvalidQueryError("The following parameters are not accepted "

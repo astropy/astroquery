@@ -82,7 +82,7 @@ class TestAlma:
         alma = Alma()
         alma.cache_location = temp_dir
 
-        result = alma.query(payload={'start_date-asu':'<11-11-2011'})
+        result = alma.query(payload={'start_date':'<11-11-2011'})
         assert len(result) == 621
 
     @pytest.mark.bigdata
@@ -94,8 +94,8 @@ class TestAlma:
         target = 'NGC4945'
         project_code = '2012.1.00912.S'
         
-        payload = {'project_code-asu':project_code,
-                   'source_name-asu':target,}
+        payload = {'project_code':project_code,
+                   'source_name_alma':target,}
         result = alma.query(payload=payload)
         assert len(result) == 1
 
@@ -127,8 +127,8 @@ class TestAlma:
         target = 'NGC4945'
         project_code = '2011.0.00121.S'
         
-        payload = {'project_code-asu':project_code,
-                   'source_name-asu':target,}
+        payload = {'project_code':project_code,
+                   'source_name_alma':target,}
         result = alma.query(payload=payload)
         assert len(result) == 1
 
@@ -155,4 +155,4 @@ class TestAlma:
         help_list = Alma._get_help_page()
         assert help_list[0][0] == u'Position'
         assert help_list[1][0] == u'Energy'
-        assert help_list[1][1][0] == (u'Frequency', 'energy.frequency-asu')
+        assert help_list[1][1][0] == (u'Frequency', 'frequency')

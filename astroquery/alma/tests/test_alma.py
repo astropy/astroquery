@@ -12,7 +12,7 @@ DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
 def data_path(filename):
     return os.path.join(DATA_DIR, filename)
 
-DATA_FILES = {'GET': {'http://almascience.eso.org/aq/search.votable':
+DATA_FILES = {'GET': {'http://almascience.eso.org/aq/search':
                       {'Sgr A*':'sgra_query.xml',
                        'NGC4945':'ngc4945.xml'},
                       'https://almascience.eso.org/rh/requests/anonymous/519752156':
@@ -59,9 +59,9 @@ def alma_request(request_type, url, params=None, payload=None, data=None,
                    None)
         if payload is None:
             raise ValueError("Empty payload for query that requires a payload.")
-        source_name = (payload['source_name_sesame']
-                       if 'source_name_sesame' in payload
-                       else payload['source_name-asu'])
+        source_name = (payload['source_name_resolver']
+                       if 'source_name_resolver' in payload
+                       else payload['source_name_alma'])
         fn = DATA_FILES[request_type][url][source_name]
     else:
         fn = DATA_FILES[request_type][url]
@@ -104,8 +104,8 @@ def test_staging(monkeypatch):
 
     target = 'NGC4945'
     project_code = '2011.0.00121.S'
-    payload = {'project_code-asu':project_code,
-               'source_name-asu':target,}
+    payload = {'project_code':project_code,
+               'source_name':target,}
     result = alma.query(payload=payload)
 
     uid_url_table = alma.stage_data(result['Asdm_uid'])
