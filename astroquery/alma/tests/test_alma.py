@@ -12,17 +12,17 @@ DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
 def data_path(filename):
     return os.path.join(DATA_DIR, filename)
 
-DATA_FILES = {'GET': {'http://almascience.eso.org/aq/search':
+DATA_FILES = {'GET': {'http://almascience.eso.org/aq/':
                       {'Sgr A*':'sgra_query.xml',
-                       'NGC4945':'ngc4945.xml'},
+                       'NGC4945':'ngc4945.xml',
+                       '': 'querypage.html',
+                      },
                       'https://almascience.eso.org/rh/requests/anonymous/519752156':
                       'data_list_page.html',
                       'http://almascience.eso.org/rh/requests/anonymous/519752156/script':
                       'downloadRequest519752156script.sh',
                       'http://almascience.eso.org/rh/submission/d45d0552-8479-4482-9833-fecdef3f8b90':
                       'staging_submission.html',
-                      'http://almascience.eso.org/aq/':
-                      'querypage.html',
                       'http://almascience.eso.org/aq/validate':
                       'empty.html',
                       'http://almascience.eso.org/rh/requests/anonymous/786572566/script':
@@ -58,11 +58,12 @@ def alma_request(request_type, url, params=None, payload=None, data=None,
                    data if data is not None else
                    None)
         if payload is None:
-            raise ValueError("Empty payload for query that requires a payload.")
-        source_name = (payload['source_name_resolver']
-                       if 'source_name_resolver' in payload
-                       else payload['source_name_alma'])
-        fn = DATA_FILES[request_type][url][source_name]
+            fn = DATA_FILES[request_type][url]['']
+        else:
+            source_name = (payload['source_name_resolver']
+                           if 'source_name_resolver' in payload
+                           else payload['source_name_alma'])
+            fn = DATA_FILES[request_type][url][source_name]
     else:
         fn = DATA_FILES[request_type][url]
 
@@ -91,7 +92,7 @@ def test_SgrAstar(monkeypatch):
     result = alma.query_object('Sgr A*')
 
     # test that max_results = 50
-    assert len(result) == 82
+    assert len(result) == 92
     assert b'2011.0.00217.S' in result['Project code']
 
 def test_staging(monkeypatch):
@@ -126,18 +127,34 @@ def test_validator(monkeypatch):
     assert 'invalid_parameter' in str(exc.value)
 
 def test_parse_staging_request_page_asdm(monkeypatch):
+    """
+    Example:
+        Alma.stage_data('uid://A002/X47bd4d/X4c7')
+        Alma._staging_log
+{'data_list_page': <Response [200]>,
+ 'data_list_url': 'https://almascience.eso.org/rh/requests/anonymous/801926122',
+ 'data_page': <Response [200]>,
+ 'first_post_url': u'https://almascience.eso.org/rh/submission',
+ 'initial_response': <Response [200]>,
+ 'request_id': u'cf9ce7c8-b140-4c53-bd54-52fa3fb44f19',
+ 'staging_page_id': u'801926122',
+ 'staging_submission': <Response [200]>,
+ 'submission_url': u'https://almascience.eso.org/rh/submission/cf9ce7c8-b140-4c53-bd54-52fa3fb44f19'}
+ with open('/Users/adam/repos/astroquery/astroquery/alma/tests/data/request_801926122.html','w') as f:
+    f.write(Alma._staging_log['data_list_page'].content)
+    """
     monkeypatch.setattr(Alma, '_get_dataarchive_url', _get_dataarchive_url)
     alma = Alma()
     alma.dataarchive_url = _get_dataarchive_url()
     monkeypatch.setattr(alma, '_request', alma_request)
 
-    with open(data_path('request_786572566.html'), 'rb') as f:
+    with open(data_path('request_801926122.html'), 'rb') as f:
         response = MockResponse(content=f.read())
 
-    alma._staging_log = {'data_list_url': 'request_786572566.html'}
+    alma._staging_log = {'data_list_url': 'request_801926122.html'}
     tbl = alma._parse_staging_request_page(response)
-    assert tbl[0]['URL'] == 'https://almascience.eso.org/dataPortal/requests/anonymous/786572566/ALMA/uid___A002_X3b3400_X90f/uid___A002_X3b3400_X90f.asdm.sdm.tar'
-    assert tbl[0]['uid'] == 'uid___A002_X3b3400_X90f.asdm.sdm.tar'
+    assert tbl[0]['URL'] == 'None_Found'
+    assert tbl[0]['uid'] == 'uid___A002_X47bd4d_X4c7.asdm.sdm.tar'
     np.testing.assert_approx_equal(tbl[0]['size'], -1e-9)
 
 def test_parse_staging_request_page_mous(monkeypatch):
