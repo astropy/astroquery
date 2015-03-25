@@ -125,19 +125,19 @@ votable_fields = ",".join(simbad.core.Simbad.get_votable_fields())
                          [([ICRS_COORDS], dict(radius=5.0 * u.deg, frame='ICRS',
                                                equinox=2000.0, epoch='J2000',
                                                caller='query_region_async'),
-                          ("\nvotable {" + votable_fields + "}\n"
+                          ("set limit 50\nvotable {" + votable_fields + "}\n"
                            "votable open\n"
                            "query coo  5:35:17.3 -80:52:00 "
                            "radius=5d frame=ICRS equi=2000.0 epoch=J2000 \n"
                            "votable close")),
                           (["m [0-9]"], dict(wildcard=True, caller='query_object_async'),
-                           ("\nvotable {" + votable_fields + "}\n"
+                           ("set limit 50\nvotable {" + votable_fields + "}\n"
                             "votable open\n"
                             "query id wildcard m [0-9]  \n"
                             "votable close"
                             )),
                           (["2006ApJ"], dict(caller='query_bibcode_async', get_raw=True),
-                           ("\n\n\nquery bibcode  2006ApJ  \n"))
+                           ("set limit 50\n\n\nquery bibcode  2006ApJ  \n"))
                           ])
 def test_args_to_payload(args, kwargs, expected_script):
     script = simbad.Simbad._args_to_payload(*args, **kwargs)['script']
