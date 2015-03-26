@@ -875,3 +875,40 @@ def unique(seq):
 def filter_printable(s):
     """ extract printable characters from a string """
     return filter(lambda x: x in string.printable, s)
+
+def parse_frequency_support(frequency_support_str):
+    """
+    ALMA "Frequency Support" strings have the form:
+    [100.63..101.57GHz,488.28kHz, XX YY] U [102.43..103.37GHz,488.28kHz, XX YY] U [112.74..113.68GHz,488.28kHz, XX YY] U [114.45..115.38GHz,488.28kHz, XX YY]
+    at least, as far as we have seen.  The "U" is meant to be the Union symbol.
+    This function will parse such a string into a list of pairs of astropy
+    Quantities representing the frequency range.  It will ignore the resolution
+    and polarizations.
+    """
+    supports = frequency_support_str.split("U")
+    freq_ranges = [(float(sup.strip('[] ').split("..")[0]),
+                    float(sup.strip('[] ').split("..")[1].split(',')[0].strip(string.letters)))
+                   *u.Unit(sup.strip('[] ').split("..")[1].split(',')[0].strip(string.punctuation+string.digits))
+                   for sup in supports]
+    return freq_ranges
+
+def approximate_primary_beam_sizes(frequency_support_str, dish_diameter=12*u.m, first_null=1.220):
+    """
+    Using parse_frequency_support, determine the mean primary beam size in each
+    observed band
+
+    Parameters
+    ----------
+    frequency_support_str : str
+        The frequency support string, see `parse_frequency_support`
+    dish_diameter : `~astropy.units.Quantity`
+        Meter-equivalent unit.  The diameter of the dish.
+    first_null : float
+        The position of the first null of an Airy.  Used to compute resolution
+        as :math:`R = 1.22 \lambda/D`
+    """
+    freq_ranges = parse_frequency_support(frequency_support_str)
+    beam_sizes = [(first_null*fr.mean().to(u.m, u.spectral())/(dish_diameter)).to(u.arcsec,
+                                                                     u.dimensionless_angles())
+                  for fr in freq_ranges]
+    return beam_sizes

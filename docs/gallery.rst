@@ -159,3 +159,112 @@ identifying some spectral lines in the data.
            row = lines[0]
            linename = fmt.format(**dict(zip(row.colnames,row.data)))
            vcube.write('M83_ALMA_{linename}.fits'.format(linename=linename))
+
+Example 7
++++++++++
+Find ALMA pointings that have been observed toward M83, then overplot the
+various fields-of view on a 2MASS image retrieved from SkyView.  See
+http://nbviewer.ipython.org/gist/keflavich/19175791176e8d1fb204 for the
+notebook.
+
+.. code-block:: python
+
+    # coding: utf-8
+
+    # Querying ALMA archive for M83 pointings and plotting them on a 2MASS image
+
+    # In[1]:
+
+    from astroquery.alma import Alma
+    from astroquery.skyview import SkyView
+    import string
+    from astropy import units as u
+    import pylab as pl
+    import aplpy
+
+
+    # Retrieve M83 2MASS K-band image:
+
+    # In[2]:
+
+    m83_images = SkyView.get_images(position='M83', survey=['2MASS-K'], pixels=1500)
+
+
+    # Retrieve ALMA archive information *including* private data and non-science fields:
+    # 
+
+    # In[3]:
+
+    m83 = Alma.query_object('M83', public=False, science=False)
+
+
+    # In[4]:
+
+    m83
+
+
+    # Parse components of the ALMA data.  Specifically, find the frequency support - the frequency range covered - and convert that into a central frequency for beam radius estimation.
+
+    # In[5]:
+
+    def parse_frequency_support(frequency_support_str):
+        supports = frequency_support_str.split("U")
+        freq_ranges = [(float(sup.strip('[] ').split("..")[0]),
+                        float(sup.strip('[] ').split("..")[1].split(',')[0].strip(string.letters)))
+                       *u.Unit(sup.strip('[] ').split("..")[1].split(',')[0].strip(string.punctuation+string.digits))
+                       for sup in supports]
+        return u.Quantity(freq_ranges)
+
+    def approximate_primary_beam_sizes(frequency_support_str):
+        freq_ranges = parse_frequency_support(frequency_support_str)
+        beam_sizes = [(1.22*fr.mean().to(u.m, u.spectral())/(12*u.m)).to(u.arcsec,
+                                                                         u.dimensionless_angles())
+                      for fr in freq_ranges]
+        return u.Quantity(beam_sizes)
+
+
+    # In[6]:
+
+    primary_beam_radii = [approximate_primary_beam_sizes(row['Frequency_support']) for row in m83]
+
+
+    # Compute primary beam parameters for the public and private components of the data for plotting below
+
+    # In[7]:
+
+    private_circle_parameters = [(row['RA'],row['Dec'],np.mean(rad).to(u.deg).value)
+                                 for row,rad in zip(m83, primary_beam_radii)
+                                 if row['Release_date']!='']
+    public_circle_parameters = [(row['RA'],row['Dec'],np.mean(rad).to(u.deg).value)
+                                 for row,rad in zip(m83, primary_beam_radii)
+                                 if row['Release_date']=='']
+    unique_private_circle_parameters = np.array(list(set(private_circle_parameters)))
+    unique_public_circle_parameters = np.array(list(set(public_circle_parameters)))
+
+    print("PUBLIC: Number of rows: {0}.  Unique pointings: {1}".format(len(m83), len(unique_public_circle_parameters)))
+    print("PRIVATE: Number of rows: {0}.  Unique pointings: {1}".format(len(m83), len(unique_private_circle_parameters)))
+
+
+    # Show all of the private observation pointings that have been acquired
+
+    # In[8]:
+
+    fig = aplpy.FITSFigure(m83_images[0])
+    fig.show_grayscale(stretch='arcsinh')
+    fig.show_circles(unique_private_circle_parameters[:,0],
+                     unique_private_circle_parameters[:,1],
+                     unique_private_circle_parameters[:,2],
+                     color='r', alpha=0.2)
+
+
+    # In principle, all of the pointings shown below should be downloadable from the archive:
+
+    # In[9]:
+
+    fig = aplpy.FITSFigure(m83_images[0])
+    fig.show_grayscale(stretch='arcsinh')
+    fig.show_circles(unique_public_circle_parameters[:,0],
+                     unique_public_circle_parameters[:,1],
+                     unique_public_circle_parameters[:,2],
+                     color='b', alpha=0.2)
+
