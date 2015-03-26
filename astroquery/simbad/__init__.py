@@ -16,8 +16,9 @@ class Conf(_config.ConfigNamespace):
     Configuration parameters for `astroquery.simbad`.
     """
     server = _config.ConfigItem(
-        ['simbad.u-strasbg.fr', 'simbad.harvard.edu'],
+        'simbad.u-strasbg.fr',
         'Name of the SIMBAD mirror to use.'
+        #['simbad.u-strasbg.fr', 'simbad.harvard.edu'],
         )
     timeout = _config.ConfigItem(
         60,

@@ -88,4 +88,5 @@ conf = Conf()
 
 from .core import AtomicLineList, AtomicLineListClass
 
-__all__ = ['AtomicLineList', 'AtomicLineListClass', 'Transition', 'conf']
+__all__ = ['AtomicLineList', 'AtomicLineListClass', 'Transition', 'conf',
+           'Conf']

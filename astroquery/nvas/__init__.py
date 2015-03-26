@@ -16,7 +16,7 @@ class Conf(_config.ConfigNamespace):
     Configuration parameters for `astroquery.nvas`.
     """
     server = _config.ConfigItem(
-        ['https://webtest.aoc.nrao.edu/cgi-bin/lsjouwer/archive-pos.pl'],
+        'https://webtest.aoc.nrao.edu/cgi-bin/lsjouwer/archive-pos.pl',
         'Name of the NVAS mirror to use.'
         )
     timeout = _config.ConfigItem(

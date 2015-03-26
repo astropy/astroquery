@@ -31,7 +31,7 @@ class Conf(_config.ConfigNamespace):
     Configuration parameters for `astroquery.ned`.
     """
     server = _config.ConfigItem(
-        ['http://ned.ipac.caltech.edu/cgi-bin/'],
+        'http://ned.ipac.caltech.edu/cgi-bin/',
         'Name of the NED server to use.'
         )
     timeout = _config.ConfigItem(
@@ -55,30 +55,31 @@ class Conf(_config.ConfigNamespace):
     (4) To the Reference Frame defined by the (Virgo + GA + Shapley)
     """
     correct_redshift = _config.ConfigItem(
-        [1, 2, 3, 4],
-        'The correct redshift for NED queries, see comments above..'
+        defaultvalue=1,
+        description='The correct redshift for NED queries, see comments above..',
+        #cfgtype=[1, 2, 3, 4],
         )
 
     # Set output parameters of choice
     output_coordinate_frame = _config.ConfigItem(
-        ['Equatorial',
-         'Ecliptic',
-         'Galactic',
-         'SuperGalactic'],
-        'Frame in which to display the coordinates in the output.'
+        defaultvalue='Equatorial',
+        description='Frame in which to display the coordinates in the output.',
+        #cfgtype=['Equatorial', 'Ecliptic', 'Galactic', 'SuperGalactic']
         )
     output_equinox = _config.ConfigItem(
-        ['J2000.0', 'B1950.0'],
-        'Equinox for the output coordinates.'
+        defaultvalue='J2000.0',
+        description='Equinox for the output coordinates.',
+        #['J2000.0', 'B1950.0'],
         )
     sort_output_by = _config.ConfigItem(
-        ["RA or Longitude",
-         "DEC or Latitude",
-         "GLON",
-         "GLAT",
-         "Redshift - ascending",
-         "Redshift - descending"],
-        'Display output sorted by this criteria.'
+        defaultvalue="RA or Longitude",
+        description='Display output sorted by this criteria.',
+        #["RA or Longitude",
+        # "DEC or Latitude",
+        # "GLON",
+        # "GLAT",
+        # "Redshift - ascending",
+        # "Redshift - descending"],
         )
 
 conf = Conf()

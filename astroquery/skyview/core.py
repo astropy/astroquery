@@ -19,7 +19,7 @@ class SkyViewClass(BaseQuery):
     URL = conf.url
 
     def __init__(self):
-        BaseQuery.__init__(self)
+        super(SkyViewClass, self).__init__()
         self._default_form_values = None
 
     def _get_default_form_values(self, form):

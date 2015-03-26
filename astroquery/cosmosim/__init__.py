@@ -18,11 +18,11 @@ class Conf(_config.ConfigNamespace):
     """
 
     query_url = _config.ConfigItem(
-        ['http://www.cosmosim.org/uws/query'],
+        'http://www.cosmosim.org/uws/query',
         'CosmoSim UWS query URL'
         )
     schema_url = _config.ConfigItem(
-        ['http://www.cosmosim.org/query/account/databases/json'],
+        'http://www.cosmosim.org/query/account/databases/json',
         'CosmoSim json query URL for generating database schema'
         )
     timeout = _config.ConfigItem(

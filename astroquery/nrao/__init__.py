@@ -10,7 +10,7 @@ class Conf(_config.ConfigNamespace):
     Configuration parameters for `astroquery.nrao`.
     """
     server = _config.ConfigItem(
-        ['https://archive.nrao.edu/archive/ArchiveQuery'],
+        'https://archive.nrao.edu/archive/ArchiveQuery',
         'Name of the NRAO mirror to use.'
         )
     timeout = _config.ConfigItem(

@@ -21,7 +21,7 @@ class Conf(_config.ConfigNamespace):
     Configuration parameters for `astroquery.ogle`.
     """
     server = _config.ConfigItem(
-        ['http://ogle.astrouw.edu.pl/cgi-ogle/getext.py'],
+        'http://ogle.astrouw.edu.pl/cgi-ogle/getext.py',
         'Name of the OGLE mirror to use.'
         )
     timeout = _config.ConfigItem(
