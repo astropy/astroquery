@@ -120,8 +120,6 @@ Directory Structure::
 
     from astropy import config as _config
 
-    SERVER = ConfigurationItem('Service_server', ['url1','url2'])
-
     class Conf(_config.ConfigNamespace):
         """
         Configuration parameters for `astroquery.template_module`.
