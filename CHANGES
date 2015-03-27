@@ -3,6 +3,7 @@
 
 - Bugfix for ``utils.commons.send_request()``: Raise exception if error status
   is returned in the response. (#491)
+- Update for ALMA Cycle 3 API change (#500)
 
 0.2.3 (2014-09-30)
 ------------------

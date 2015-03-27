@@ -1,0 +1,353 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>Alma Request Handler - Request Details</title>
+<link href="/rh/css/jquery-ui.css" rel="stylesheet" type="text/css" />
+
+<link href="/rh/css/ngrh.css" rel="stylesheet" type="text/css" />
+<link href="/rh/css/Almangrh.css" rel="stylesheet" type="text/css" />
+<link rel="shortcut icon" href="/rh/images/AlmaFavicon.ico" />
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+<!-- script src="//code.jquery.com/jquery-migrate-1.2.1.js"></script -->
+
+<script type="text/javascript" language="JavaScript" src="/rh/javascript/RequestDetails.js"></script>
+<script type="text/javascript" language="JavaScript" src="/rh/javascript/jquery-ui-1.11.1.js"></script>
+<script type="text/javascript" language="JavaScript" src="https://www.java.com/js/deployJava.js"></script>
+<script type="text/javascript" language="JavaScript" src="/rh/javascript/jquery.jeditable.mini.js"></script>
+<script type="text/javascript" language="JavaScript" src="/rh/javascript/jquery.popupoverlay.js"></script>
+<script type="text/javascript" language="JavaScript" src="/rh/javascript/requestHandler.js"></script>
+<script type="text/javascript" language="JavaScript" src="/rh/javascript/jquery.cookie.js"></script>
+
+<script type="text/javascript" language="JavaScript">
+  $(document).ready(function() {
+        try {
+            RequestDetails.init();
+	    }
+	    catch (exception) {
+            alert(exception);
+	    }  
+	    
+    // get initial state of request as delivered from view
+    var requestState = $('#requestState').text()
+    if ((requestState == 'READYTOWRITE') || (requestState == 'WRITINGMEDIA')) {        
+       $('#ajaxState')
+       $('#ajaxInfo').html('Your request is being handled by our Operations team')
+    }   
+    else if ( (requestState != 'COMPLETE') && (requestState != 'ERROR') && (requestState != 'CANCELLED') 
+         && (requestState != 'ERRORONNOTIFY') && (requestState != 'READYFORDELIVERY') && (requestState != 'WRITINGERROR') ) {
+        // only if initial state is not terminal, refresh state
+        var message=''       
+        $('#ajaxInfo').html(message + 'page refreshes automatically when request is completed')
+   	    $('#ajaxState').html('<img src="/rh/images/smallheart.png" />')
+        // wait a little then refresh state using AJAX call    
+        setTimeout( "getRequestState('/rh','anonymous','801926122')", 2000)
+    }
+        
+
+    // initialize edit-in-place for request description
+    $('.inPlaceEdit').editable('/rh/requests/anonymous/801926122', {
+        indicator : 'Saving ...',
+        tooltip   : 'Click to edit ...',
+        submit    : 'OK',
+        cssclass  : 'editable'
+    });
+          
+});
+</script>
+</head>
+
+<body>
+<div id="wrapper">
+  <!-- header -->    
+  
+  <div id="portal-header-row"> 
+    <a id="portal-header-logo" href="/rh" class="main-background-color">
+      <img alt="ALMA" title="ASA HOME" src="/rh/images/almalogo.png" width="500" height="115" />
+    </a>
+     
+    <ul class="portal-siteactions left" >        
+            <li><a href="/rh/requests" class="current">Request Handler</a></li> 
+    </ul> 
+    <ul class="portal-siteactions right"> 
+         <li>
+           
+              
+                 <a href="/rh/login?redirectUrl=/requests/anonymous/801926122">
+              
+              Login</a>              
+          
+         </li>
+    </ul> 
+</div>
+
+
+
+  <!-- menu -->
+   
+  <!-- breadcrump -->
+<div id="portal-submenu">
+    <ul class="sub">
+      <li>
+	    <a onfocus="this.blur()" href="/rh/requests/anonymous/recentRequests">Archive Requests</a>
+	  </li>
+
+ 
+      <li><a onfocus="this.blur()" href="/rh/requests/anonymous/801926122">Req #801,926,122</a>
+        
+      </li>
+ 
+    </ul> 
+</div>
+   
+
+
+
+<!-- END - #menu -->   
+
+  
+  <!-- content  -->
+  <div id="content">
+    <!-- requests details -->
+    <h1>Request #801926122 by Anonymous User 
+      
+        <img src="/rh/images/state_complete.png" alt="COMPLETE" title="Completed"></img>
+      
+    </h1>
+    <div id="requestDescription" class="inPlaceEdit">ALMA </div>
+    
+    <!-- ajax request state update info -->
+    <span style="height:30px;width:30px;" id="ajaxState"></span>
+    <span style="height:30px;" id="ajaxInfo"></span>
+    <!-- hidden span to support ajax refresh -->
+    <span id="requestState" style="display:none;">COMPLETE</span>
+       
+    <!-- pagination -->
+    <div id="pagination">
+      
+      
+    </div>
+    <!-- END #pagination -->
+    
+    
+    <form id="fileSelectionForm" action="https://almascience.eso.org/rh/requests/anonymous/801926122/downloadFile" method="post" name="fileSelectForm">
+      <!-- alma download type is replacing the old buttons with name downloadType
+           Value will be set in javascript depnding on which button was pressed to select the download method
+       -->
+      <input type="hidden" id="downloadType" name="downloadType" />
+      <div class="buttons">
+        
+          <input type="checkbox" id="asdmCheckbox" onClick="checkUncheckAsdms();" /><label for="asdmCheckbox"><b><i>Include raw</i></b></label>
+          <input id="selectAllButton" class="button" type="button" value="Select All" />
+          <input id="deselectAllButton" class="button" type="button" value="Deselect All" />
+          <button type="button" id="downloadButton" class="button" disabled="disabled">Download Selected</button>
+        
+                
+        
+      </div>
+      
+      <!--  data entities & aux files -->
+      <table class="list" id="report" >
+        <thead>
+          <tr>
+            <th colspan="5"><h2>Requested Projects / OUSets / Executionblocks</h2></th>
+          </tr>
+          
+            <tr>
+              <td class="caption" colspan="3">Data entities 1-1 of 1</td>
+              <td class="caption" colspan="3"></td>
+            </tr>            
+                               
+          <tr class="header">
+            <th class="left">Project / OUSet / Executionblock</th>
+            <th class="left">File</th>
+            <th class="right">Size</th>
+            <th>Access</th>
+          </tr>
+        </thead>             
+        
+        
+        <!-- list of data entities -->
+        <tbody>
+           
+           
+           
+           <!-- data entity hierarchy recursive display macro-->
+            <!-- recursive_display -->
+           
+           <!-- display start -->
+                                        
+             
+               <!-- the first line contains the data entity name and the following ones file names -->
+               <tr id="row_801927885" class="Level_0">
+                 <td width="43%"  style="padding-left:0em;text-align:left" > 
+                     
+                      <img src="/rh/images/plus.gif" style="cursor:pointer;" onClick="expandCollapseAlma(801927885, '/rh');" />
+                              
+                                                
+                     <input type="checkbox" id="CB_row_801927885" name="dataEntityId" onClick="checkUncheckDE(801927885);" value="801927885" />
+                                                                                    
+                   <!-- data entity type if available + name without namespace -->
+                                           
+                     Asdm
+                   
+                   uid___A002_X47bd4d_X4c7                                         
+                 </td>
+                 <td width="36%"></td>
+                 <td width="12%"></td>
+                 <td width="9%">                         
+                 </td>
+               </tr>                                  
+               
+                                                          
+                 <tr class="fileRow" style="display: none" >                      
+                   
+                     <td width="43%">&nbsp;</td>
+                                                                                                                                                    
+                     <td width="36%" class="left">                      
+                       
+                         uid___A002_X47bd4d_X4c7.asdm.sdm.tar
+                                           
+                     </td>
+                     <td width="12%" class="right">-</td>
+                     <td width="9%" >
+                       
+                         <img src="/rh/images/access_authorized.png" alt="Authorized" title="Authorized"></img>
+                       
+                     </td>
+                 </tr>
+                  <!-- HIDDEN condition -->                 
+                <!-- files -->
+                                            
+              <!-- data entities -->
+               
+              <!-- data entities -->
+           
+                           
+           <tr>
+             
+               <!-- information on data entities range is indicated only if there are some data entities to be displayed. It may happen that  
+                        the page only contain auxiliary files -->
+               <td class="caption" colspan="3">Data entities 1-1 of 1</td>
+               <td class="caption right">-</td>
+               <td class="caption"></td>               
+                                                
+           </tr>
+        </tbody>
+        <!-- list aux files, if any -->
+        
+        </table>
+      </form>
+    </div>
+    <!-- footer -->
+     <!-- footer -->
+ 
+  <div id="portal-footer"> 
+  <table id="portal-footer-links"> 
+    <tr><td>&nbsp;</td></tr> 
+    <tr><td>Copyright &copy; 2011 ALMA</td></tr> 
+  </table> 
+  <div id="portal-footer-logos"> 
+    <div>ALMA, a worldwide collaboration</div> 
+    <a href="http://www.eso.org"><img src="/rh/images/alma_eso.png" alt="ESO" title="ESO" width="43" height="57" /></a> 
+    <a href="http://alma.mtk.nao.ac.jp/e/"><img src="/rh/images/alma_naoj.png" alt="NAOJ" title="NAOJ" width="85" height="57" /></a> 
+    <a href="http://www.nrao.edu"><img src="/rh/images/alma_nrao.png" alt="NRAO" title="NRAO" width="44" height="57" /></a> 
+  </div> 
+</div>
+
+
+
+<!-- END #footer -->
+
+
+</div>
+<div id="popup" class="dialogue">
+  <button type='button' id='closeDialogueButton' class='closeButton'><img src="/rh/images/dialog-close.png"/></button>
+  <div class="content">
+	  <h1>Choose one of the following download methods:</h1>
+	  <div>
+	  		<button type="button" id="downloadScriptButton">Download Script</button>
+	  		<div id="scriptExplanation">
+	  			The downloads are scripted for you. You just need to execute the script
+	  			from the command line. <a href="/rh/help/DownloadScript">Help</a>
+			</div>
+	  </div>
+	  <div>
+			<button type="button" id="downloadManagerButton">Download Manager</button>
+	  		<div class="appletExplanation">
+				ALMA's download manager is launched as a browser applet. This is a simpler, more
+				user-friendly way to download files in parallel, allowing you to pause and resume.
+	  		</div>
+	  		<div class="noJavaExplanation" style="display: none;">
+	  		    The Java plugin is required. Either use the scripts, a third-party download manager, 
+	  		    or install the Java plugin in your browser and reload this page.
+	  		    Get Java here: <a href="https://java.com/en/download/">https://java.com</a>
+	  		</div>
+	  		<div class="noJavaWinExplanation" style="display: none;">
+	  		    The appropriate Java plugin is required. Please note, Firefox requires 32-bit Java whereas 
+	  		    for Chrome it depends which Chrome version you installed (32-bit or 64-bit). IE is not supported.
+	  		    Get Java here: <a href="https://java.com/en/download/">https://java.com</a>
+	  		</div>
+	  		<div class="oldJavaExplanation" style="display: none;">
+	  		    Your java version is extremely old. Not only is this a security risk, it also means
+	  		    that you can't use ALMA's download manager. Either use the scripts, a third-party download manager, 
+	  		    or update the Java plugin in your browser and reload this page. 
+	  		    Get Java here: <a href="https://java.com/en/download/">https://java.com</a>
+	  		</div>
+	  		<div class="safariJavaExplanation" style="display: none;">
+                Due to security restrictions Apple has built into OSX, downloading files 
+                to your disk using the ALMA download manager with Safari or Chrome is not possible. 
+                Instead we recommend that you use Firefox or the the scripts option.
+	  		</div>
+	  		<div class="winChromeExplanation" style="display: none;">
+                Using the ALMA download manager with Chrome under Windows is currently not possible. 
+                Instead we recommend that you use Firefox or the the scripts option.
+	  		</div>
+	  </div>
+	  <div>
+			<button type="button" id="downloadManagerJnlpButton">Web Start Download Manager</button>
+	  		<div class="webstartExplanation">
+				ALMA's download manager is launched as a desktop application via Java Web Start. It will 
+				not stop if you close your browser.
+	  		</div>
+	  		<div class="noJavaExplanation" style="display: none;">
+	  		    The Java plugin is required. Either use the scripts, a third-party download manager, 
+	  		    or install the Java plugin in your browser and reload this page. 
+	  		    Get Java here: <a href="https://java.com/en/download/">https://java.com</a>
+	  		</div>
+	  		<div class="noJavaWinExplanation" style="display: none;">
+	  		    The appropriate Java plugin is required. Please note, Firefox requires 32-bit Java whereas 
+	  		    for Chrome it depends which Chrome version you installed (32-bit or 64-bit). IE is not supported.
+	  		    Get Java here: <a href="https://java.com/en/download/">https://java.com</a>
+	  		</div>
+	  </div>
+	  <div>
+			<button type="button" id="downloadFileListButton">File List</button>
+			<div>
+				View a text file containing a list of URLs. This is useful for using third-party download
+				manager's such as <em>DownThemAll</em>.
+			</div>
+	  </div>
+  </div>
+</div>
+<div id="safariWebstartPopup" class="dialogue">
+  <button type='button' id='closeSafariWebstartButton' class='closeButton'><img src="/rh/images/dialog-close.png"/></button>
+  <div class="content" style="width: 60em;">
+  	<h1>Java Webstart with Safari</h1>
+  	<p style="margin-top: 1em; margin-bottom: 1em;">
+        Due to security restrictions Apple has built into OSX, Java Web Start
+        cannot be started automatically when used from Safari or Chrome. 
+        We recommend that you use Firefox or the scripts option instead.
+    </p>
+    <p style="margin-top: 1em; margin-bottom: 1em;">
+        However, it's still possible to use our download manager by starting it
+        from the command line and manually adding the URLs to download. Open a 
+		terminal and paste the following command:
+	</p>
+    <textarea readonly="true" style="padding: 1em; background-color: #eef3f5; font-family: 'Lucida Console'; width: 90%;">javaws https://almascience.eso.org/rh/jar/2015.1/EsoDownloadManager.jnlp</textarea>
+    <br/>
+	<button type="button" id="okSafariWebstart" style="margin-top: 2em; margin-bottom: 1em;">OK</button>
+  </div>
+</div>
+</body>
+</html>

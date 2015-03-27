@@ -10,6 +10,7 @@ import keyring
 import numpy as np
 import re
 import tarfile
+import string
 from bs4 import BeautifulSoup
 
 from astropy.extern.six.moves.urllib_parse import urljoin
@@ -64,7 +65,7 @@ class AlmaClass(QueryWithLogin):
 
         if payload is None:
             payload = {}
-        payload.update({'source_name_sesame': object_name,})
+        payload.update({'source_name_resolver': object_name,})
 
         return self.query_async(payload, cache=cache, public=public,
                                 science=science, **kwargs)
@@ -98,7 +99,7 @@ class AlmaClass(QueryWithLogin):
 
         if payload is None:
             payload = {}
-        payload.update({'raDecCoordinates': rdc})
+        payload.update({'ra_dec': rdc})
 
         return self.query_async(payload, cache=cache, public=public,
                                 science=science, **kwargs)
@@ -121,13 +122,14 @@ class AlmaClass(QueryWithLogin):
             Return only data marked as "science" in the archive?
         """
 
-        url = urljoin(self._get_dataarchive_url(), 'aq/search.votable')
+        url = urljoin(self._get_dataarchive_url(), 'aq/')
 
-        payload.update({'viewFormat':'raw',})
+        payload.update({'result_view':'raw', 'format':'VOTABLE',
+                        'download':'true'})
         if public:
-            payload['publicFilterFlag'] = 'public'
+            payload['public_data'] = 'public'
         if science:
-            payload['scan_intent-asu'] = '=*TARGET*'
+            payload['science_observations'] = '=%TARGET%'
 
         self.validate_query(payload)
 
@@ -380,7 +382,7 @@ class AlmaClass(QueryWithLogin):
         tf = six.BytesIO(response.content)
         vo_tree = votable.parse(tf, pedantic=False, invalid='mask')
         first_table = vo_tree.get_first_table()
-        table = first_table.to_table()
+        table = first_table.to_table(use_names_over_ids=True)
         return table
 
     def _login(self, username, store_password=False):
@@ -613,10 +615,15 @@ class AlmaClass(QueryWithLogin):
             print()
             print(title)
             for row in section:
-                if len(row) == 2:
+                if len(row) == 2: # text value
                     name,payload_keyword = row
                     print("  {0:33s}: {1:35s}".format(name,payload_keyword))
-                elif len(row) == 4:
+                #elif len(row) == 3: # radio button
+                #    name,payload_keyword,value = row
+                #    print("  {0:33s}: {1:20s} = {2:15s}".format(name,
+                #                                                    payload_keyword,
+                #                                                    value))
+                elif len(row) == 4: # radio button or checkbox
                     name,payload_keyword,checkbox,value = row
                     print("  {2} {0:29s}: {1:20s} = {3:15s}".format(name,
                                                                     payload_keyword,
@@ -633,32 +640,59 @@ class AlmaClass(QueryWithLogin):
             root = BeautifulSoup(querypage.content)
             sections = root.findAll('td', class_='category')
 
+            whitespace = re.compile("\s+")
+
             help_list = []
             for section in sections:
                 title = section.find('div', class_='categorytitle').text.lstrip()
                 help_section = (title,[])
                 for inp in section.findAll('div', class_='inputdiv'):
                     sp = inp.find('span')
-                    if sp is not None:
-                        payload_keyword = sp.attrs['class'][0]
-                        name = sp.text
-                        help_section[1].append((name,payload_keyword))
-                    else:
-                        buttons = inp.findAll('input')
-                        for b in buttons:
-                            payload_keyword = b.attrs['name']
-                            bid = b.attrs['id']
-                            label = inp.find('label')
+                    buttons = inp.findAll('input')
+                    for b in buttons:
+                        # old version:for=id=rawView; name=viewFormat
+                        # new version:for=id=rawView; name=result_view
+                        payload_keyword = b.attrs['name']
+                        bid = b.attrs['id']
+                        label = inp.find('label')
+                        if sp is not None:
+                            name = whitespace.sub(" ", sp.text)
+                        elif label.attrs['for'] == bid:
+                            name = whitespace.sub(" ", label.text)
+                        else:
+                            raise TableParseError("ALMA query page has"
+                                                  " an unrecognized entry")
+                        if b.attrs['type'] == 'text':
+                            help_section[1].append((name, payload_keyword))
+                        elif b.attrs['type'] == 'radio':
+                            value = b.attrs['value']
+                            if 'checked' in b.attrs:
+                                checked = b.attrs['checked'] == 'checked'
+                                checkbox = "(x)" if checked else "( )"
+                            else:
+                                checkbox = "( )"
+                            help_section[1].append((name, payload_keyword,
+                                                    checkbox, value))
+                        elif b.attrs['type'] == 'checkbox':
                             checked = b.attrs['checked'] == 'checked'
                             value = b.attrs['value']
-                            if label.attrs['for'] == bid:
-                                name = label.text
-                            else:
-                                raise TableParseError("ALMA query page has"
-                                                      " an unrecognized entry")
                             checkbox = "[x]" if checked else "[ ]"
                             help_section[1].append((name, payload_keyword,
                                                     checkbox, value))
+                    select = inp.find('select')
+                    if select is not None:
+                        options = [(filter_printable(option.text),
+                                    option.attrs['value'])
+                                   for option in select.findAll('option')]
+                        if sp is not None:
+                            name = whitespace.sub(" ", sp.text)
+                        else:
+                            name = select.attrs['name']
+                        option_str = " , ".join(["{0} = {1}".format(o[0],o[1])
+                                                 for o in options])
+                        help_section[1].append((name, option_str))
+
+
                 help_list.append(help_section)
             self._help_list = help_list
 
@@ -666,10 +700,14 @@ class AlmaClass(QueryWithLogin):
 
     def _validate_payload(self, payload):
         if not hasattr(self, '_valid_params'):
-            help_list = self._get_help_page()
+            help_list = self._get_help_page(cache=False)
             self._valid_params = [row[1]
                                   for title,section in help_list
                                   for row in section]
+            # These parameters are entirely hidden, but Felix says they are
+            # allowed
+            self._valid_params.append('download')
+            self._valid_params.append('format')
         invalid_params = [k for k in payload if k not in self._valid_params]
         if len(invalid_params) > 0:
             raise InvalidQueryError("The following parameters are not accepted "
@@ -691,24 +729,26 @@ class AlmaClass(QueryWithLogin):
 
         root = BeautifulSoup(data_list_page.content, 'html5lib')
 
-        for link in root.findAll('a'):
-            if 'script.sh' in link.text:
-                download_script_url = urljoin(self.dataarchive_url,
-                                              link['href'])
+        #for link in root.findAll('a'):
+        #    if 'script.sh' in link.text:
+        #        download_script_url = urljoin(self.dataarchive_url,
+        #                                      link['href'])
+        #if 'download_script_url' not in locals():
+        #    raise RemoteServiceError("No download links were found.")
 
-        download_script = self._request('GET', download_script_url,
-                                        cache=False)
-        download_script_target_urls = []
-        for line in download_script.text.split('\n'):
-            if line and line.split() and line.split()[0] == 'wget':
-                download_script_target_urls.append(line.split()[1].strip('"'))
+        #download_script = self._request('GET', download_script_url,
+        #                                cache=False)
+        #download_script_target_urls = []
+        #for line in download_script.text.split('\n'):
+        #    if line and line.split() and line.split()[0] == 'wget':
+        #        download_script_target_urls.append(line.split()[1].strip('"'))
 
-        if len(download_script_target_urls) == 0:
-            raise RemoteServiceError("There was an error parsing the download "
-                                     "script; it is empty.  "
-                                     "You can access the download script "
-                                     "directly from this URL: "
-                                     "{0}".format(download_script_url))
+        #if len(download_script_target_urls) == 0:
+        #    raise RemoteServiceError("There was an error parsing the download "
+        #                             "script; it is empty.  "
+        #                             "You can access the download script "
+        #                             "directly from this URL: "
+        #                             "{0}".format(download_script_url))
 
         data_table = root.findAll('table', class_='list', id='report')[0]
         columns = {'uid':[], 'URL':[], 'size':[]}
@@ -776,32 +816,31 @@ class AlmaClass(QueryWithLogin):
 
         if len(columns['uid']) == 0:
             raise RemoteServiceError("No valid UIDs were found in the staged "
-                                     "data table.  Please include {0} and {1}"
+                                     "data table.  Please include {0} "
                                      "in a bug report."
-                                     .format(self._staging_log['data_list_url'],
-                                             download_script_url))
+                                     .format(self._staging_log['data_list_url']))
 
-        if len(download_script_target_urls) != len(columns['URL']):
-            log.warn("There was an error parsing the data staging page.  "
-                     "The results from the page and the download script "
-                     "differ.  You can access the download script directly "
-                     "from this URL: {0}".format(download_script_url))
-        else:
-            bad_urls = []
-            for (rurl,url) in (zip(columns['URL'],
-                                   download_script_target_urls)):
-                if rurl == 'None_Found':
-                    url_uid = os.path.split(url)[-1]
-                    ind = np.where(np.array(columns['uid']) == url_uid)[0][0]
-                    columns['URL'][ind] = url
-                elif rurl != url:
-                    bad_urls.append((rurl, url))
-            if bad_urls:
-                log.warn("There were mismatches between the parsed URLs "
-                         "from the staging page ({0}) and the download "
-                         "script ({1})."
-                         .format(self._staging_log['data_list_url'],
-                                 download_script_url))
+        #if len(download_script_target_urls) != len(columns['URL']):
+        #    log.warn("There was an error parsing the data staging page.  "
+        #             "The results from the page and the download script "
+        #             "differ.  You can access the download script directly "
+        #             "from this URL: {0}".format(download_script_url))
+        #else:
+        #    bad_urls = []
+        #    for (rurl,url) in (zip(columns['URL'],
+        #                           download_script_target_urls)):
+        #        if rurl == 'None_Found':
+        #            url_uid = os.path.split(url)[-1]
+        #            ind = np.where(np.array(columns['uid']) == url_uid)[0][0]
+        #            columns['URL'][ind] = url
+        #        elif rurl != url:
+        #            bad_urls.append((rurl, url))
+        #    if bad_urls:
+        #        log.warn("There were mismatches between the parsed URLs "
+        #                 "from the staging page ({0}) and the download "
+        #                 "script ({1})."
+        #                 .format(self._staging_log['data_list_url'],
+        #                         download_script_url))
 
         tbl = Table([Column(name=k, data=v) for k,v in iteritems(columns)])
 
@@ -832,6 +871,10 @@ def unique(seq):
     seen = set()
     seen_add = seen.add
     return [x for x in seq if not (x in seen or seen_add(x))]
+
+def filter_printable(s):
+    """ extract printable characters from a string """
+    return filter(lambda x: x in string.printable, s)
 
 def parse_frequency_support(frequency_support_str):
     """

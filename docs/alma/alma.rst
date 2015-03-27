@@ -21,35 +21,37 @@ You can get interactive help to find out what keywords to query for:
    Valid ALMA keywords:
 
    Position
-     Source name (Sesame)             : source_name_sesame
-     Source name (ALMA)               : source_name-asu
-     RA Dec                           : raDecCoordinates
+     Source name (Resolver)           : source_name_resolver
+     Source name (ALMA)               : source_name_alma
+     RA Dec                           : ra_dec
 
    Energy
-     Frequency                        : energy.frequency-asu
-     Bandwidth                        : energy.bandwidth-asu
-     Spectral resolution              : energy.resolution-asu
-     Band                             : band-asu
+     Frequency                        : frequency
+     Bandwidth                        : bandwidth
+     Spectral resolution              : spectral_resolution
+     Band                             : 3(84-116 GHz) = 3 , 4(125-163 GHz) = 4 , 6(211-275 GHz) = 6 , 7(275-373 GHz) = 7 , 8(385-500 GHz) = 8 , 9(602-720 GHz) = 9 , 10(787-950 GHz) = 10
 
    Time
-     Observation date                 : start_date-asu
-     Integration time                 : int_time-asu
+     Observation date                 : start_date
+     Integration time                 : integration_time
 
    Polarisation
-     Polarisation type                : energy.pol_num-asu
+     Polarisation type                : Stokes I = 0 , Single = 1 , Dual = 2 , Full = =3|4
 
    Observation
-     Water vapour                     : pwv-asu
+     Water vapour                     : water_vapour
 
    Project
-     Project code                     : project_code-asu
-     Project title                    : project.title-substr
-     PI name                          : project.pi_name-substr
+     Project code                     : project_code
+     Project title                    : project_title
+     PI name                          : pi_name
 
    Options
-     View:                            : viewFormat
-     [x] public data only             : publicFilterFlag     = public
-     [x] science observations only    : scan_intent-asu      = =%TARGET%
+     (I) View:                        : result_view          = raw
+     ( ) View:                        : result_view          = project
+     [x] public data only             : public_data          = public
+     [x] science observations only    : science_observations = =%TARGET%
+   
 
 Authentication
 ==============
