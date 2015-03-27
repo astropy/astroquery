@@ -12,7 +12,6 @@ __pycache__
 # Other generated files
 */version.py
 */cython_version.py
-astroquery/astroquery.cfg
 
 htmlcov
 .coverage
