@@ -901,7 +901,7 @@ class SDSSClass(BaseQuery):
                 for sql_field in photoobj_fields:
                     q_select += 'p.%s,' % sql_field
             if specobj_fields is not None:
-                for sql_field in photoobj_fields:
+                for sql_field in specobj_fields:
                     q_select += 's.%s,' % sql_field
         q_select = q_select.rstrip(',')
         q_select += ' '
