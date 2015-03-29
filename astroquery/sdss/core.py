@@ -362,7 +362,8 @@ class SDSSClass(BaseQuery):
             raise ValueError('must specify at least one of '
                              '`plate`, `mjd` or `fiberID`')
         request_payload = self._args_to_payload(plate=plate, mjd=mjd,
-                                                fiberID=fiberID, fields=fields,
+                                                fiberID=fiberID,
+                                                specobj_fields=fields,
                                                 spectro=True)
         if get_query_payload:
             return request_payload
@@ -426,7 +427,8 @@ class SDSSClass(BaseQuery):
                              '`run`, `camcol` or `field`')
         request_payload = self._args_to_payload(run=run, rerun=rerun,
                                                 camcol=camcol, field=field,
-                                                fields=fields, spectro=False)
+                                                photoobj_fields=fields,
+                                                spectro=False)
         if get_query_payload:
             return request_payload
         r = commons.send_request(SDSS.QUERY_URL, request_payload, timeout,
