@@ -554,7 +554,8 @@ class SDSSClass(BaseQuery):
 
         if not matches:
             request_payload = self._args_to_payload(
-                fields=['instrument', 'run2d', 'plate', 'mjd', 'fiberID'],
+                specobj_fields=['instrument', 'run2d', 'plate',
+                                'mjd', 'fiberID'],
                 coordinates=coordinates, radius=radius, spectro=True,
                 plate=plate, mjd=mjd, fiberID=fiberID)
             if get_query_payload:
@@ -826,7 +827,8 @@ class SDSSClass(BaseQuery):
     def _args_to_payload(self, coordinates=None, radius=u.degree / 1800.,
                          fields=None, spectro=False,
                          plate=None, mjd=None, fiberID=None, run=None,
-                         rerun=301, camcol=None, field=None, photoobj_fields=None, specobj_fields=None):
+                         rerun=301, camcol=None, field=None,
+                         photoobj_fields=None, specobj_fields=None):
         """
         Construct the SQL query from the arguments.
 
@@ -882,29 +884,30 @@ class SDSSClass(BaseQuery):
         request_payload : dict
 
         """
-        # Fields to return
-        if fields is None:
-            fields = list(photoobj_defs)
-            if spectro:
-                fields += specobj_defs
 
         # Construct SQL query
         q_select = 'SELECT DISTINCT '
+        q_select_field = []
         if photoobj_fields is None and specobj_fields is None:
-            for sql_field in fields:
-                if sql_field in photoobj_all:
-                    q_select += 'p.%s,' % sql_field
-                if sql_field in specobj_all:
-                    q_select += 's.%s,' % sql_field
-        else:
-            if photoobj_fields is not None:
-                for sql_field in photoobj_fields:
-                    q_select += 'p.%s,' % sql_field
-            if specobj_fields is not None:
-                for sql_field in specobj_fields:
-                    q_select += 's.%s,' % sql_field
-        q_select = q_select.rstrip(',')
-        q_select += ' '
+            # Fields to return
+            if fields is None:
+                photoobj_fields = photoobj_defs
+                if spectro:
+                    specobj_fields = specobj_defs
+            else:
+                for sql_field in fields:
+                    if sql_field.lower() in photoobj_all:
+                        q_select_field.append('p.{0}'.format(sql_field))
+                    elif sql_field.lower() in specobj_all:
+                        q_select_field.append('s.{0}'.format(sql_field))
+
+        if photoobj_fields is not None:
+            for sql_field in photoobj_fields:
+                q_select_field.append('p.{0}'.format(sql_field))
+        if specobj_fields is not None:
+            for sql_field in specobj_fields:
+                q_select_field.append('s.{0}'.format(sql_field))
+        q_select += ', '.join(q_select_field)
 
         q_from = 'FROM PhotoObjAll AS p '
         if spectro:
@@ -955,7 +958,7 @@ class SDSSClass(BaseQuery):
                 raise ValueError('must specify at least one of `coordinates`, '
                                  '`run`, `camcol` or `field`')
 
-        sql = "%s%s%s%s" % (q_select, q_from, q_join, q_where)
+        sql = "{0} {1} {2} {3}".format(q_select, q_from, q_join, q_where)
         request_payload = dict(cmd=sql, format='csv')
 
         return request_payload
