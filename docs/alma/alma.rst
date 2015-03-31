@@ -99,11 +99,10 @@ You can query by object name or by circular region:
     >>> print(len(m83_data))
     225
     >>> m83_data.colnames
-    ['Project_code', 'Source_name', 'RA', 'Dec', 'Band',
-    'Frequency_resolution', 'Integration', 'Release_date', 'Frequency_support',
-    'Velocity_resolution', 'Pol_products', 'Observation_date', 'PI_name',
-    'PWV', 'Member_ous_id', 'Asdm_uid', 'Project_title', 'Project_type',
-    'Scan_intent']
+    ['Project code', 'Source name', 'RA', 'Dec', 'Band',
+    'Frequency resolution', 'Integration', 'Release date', 'Frequency support',
+    'Velocity resolution', 'Pol products', 'Observation date', 'PI name', 'PWV',
+    'Member ous id', 'Asdm uid', 'Project title', 'Project type', 'Scan intent']
 
 
 Region queries are just like any other in astroquery:
@@ -128,7 +127,7 @@ cycle 1 data sets tend to be >100 GB!
 .. code-block:: python
 
    >>> import numpy as np
-   >>> uids = np.unique(m83_data['Member_ous_id'])
+   >>> uids = np.unique(m83_data['Member ous id'])
    >>> print(uids)
        Member_ous_id
     ----------------------
@@ -177,7 +176,7 @@ extract the FITS file, then delete the tarball:
     >>> orionkl = coordinates.SkyCoord('5:35:14.461 -5:21:54.41', frame='fk5',
     ...                                unit=(u.hour, u.deg))
     >>> result = Alma.query_region(orionkl, radius=0.034*u.deg)
-    >>> uid_url_table = Alma.stage_data(result['Member_ous_id'], cache=False)
+    >>> uid_url_table = Alma.stage_data(result['Member ous id'])
     >>> # Extract the data with tarball file size < 1GB
     >>> small_uid_url_table = uid_url_table[uid_url_table['size'] < 1]
     >>> # get the first 10 files...
