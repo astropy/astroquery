@@ -123,7 +123,7 @@ identifying some spectral lines in the data.
    from spectral_cube import SpectralCube
 
    m83table = Alma.query_object('M83', public=True)
-   m83urls = Alma.stage_data(m83table['Asdm_uid'])
+   m83urls = Alma.stage_data(m83table['Member ous id'])
    # Sometimes there can be duplicates: avoid them with
    # list(set())
    m83files = Alma.download_and_extract_files(list(set(m83urls['URL'])))
@@ -169,11 +169,9 @@ notebook.
 
 .. code-block:: python
 
-    # coding: utf-8
-
     # Querying ALMA archive for M83 pointings and plotting them on a 2MASS image
 
-    # In[1]:
+    # In[2]:
 
     from astroquery.alma import Alma
     from astroquery.skyview import SkyView
@@ -185,7 +183,7 @@ notebook.
 
     # Retrieve M83 2MASS K-band image:
 
-    # In[2]:
+    # In[3]:
 
     m83_images = SkyView.get_images(position='M83', survey=['2MASS-K'], pixels=1500)
 
@@ -193,19 +191,19 @@ notebook.
     # Retrieve ALMA archive information *including* private data and non-science fields:
     # 
 
-    # In[3]:
+    # In[4]:
 
     m83 = Alma.query_object('M83', public=False, science=False)
 
 
-    # In[4]:
+    # In[5]:
 
     m83
 
 
     # Parse components of the ALMA data.  Specifically, find the frequency support - the frequency range covered - and convert that into a central frequency for beam radius estimation.
 
-    # In[5]:
+    # In[6]:
 
     def parse_frequency_support(frequency_support_str):
         supports = frequency_support_str.split("U")
@@ -223,31 +221,44 @@ notebook.
         return u.Quantity(beam_sizes)
 
 
-    # In[6]:
-
-    primary_beam_radii = [approximate_primary_beam_sizes(row['Frequency_support']) for row in m83]
-
-
-    # Compute primary beam parameters for the public and private components of the data for plotting below
-
     # In[7]:
+
+    primary_beam_radii = [approximate_primary_beam_sizes(row['Frequency support']) for row in m83]
+
+
+    # Compute primary beam parameters for the public and private components of the data for plotting below.
+
+    # In[8]:
+
+    print "The bands used include: ",np.unique(m83['Band'])
+
+
+    # In[9]:
 
     private_circle_parameters = [(row['RA'],row['Dec'],np.mean(rad).to(u.deg).value)
                                  for row,rad in zip(m83, primary_beam_radii)
-                                 if row['Release_date']!='']
+                                 if row['Release date']!='' and row['Band']==3]
     public_circle_parameters = [(row['RA'],row['Dec'],np.mean(rad).to(u.deg).value)
                                  for row,rad in zip(m83, primary_beam_radii)
-                                 if row['Release_date']=='']
+                                 if row['Release date']=='' and row['Band']==3]
     unique_private_circle_parameters = np.array(list(set(private_circle_parameters)))
     unique_public_circle_parameters = np.array(list(set(public_circle_parameters)))
 
-    print("PUBLIC: Number of rows: {0}.  Unique pointings: {1}".format(len(m83), len(unique_public_circle_parameters)))
-    print("PRIVATE: Number of rows: {0}.  Unique pointings: {1}".format(len(m83), len(unique_private_circle_parameters)))
+    print "BAND 3"
+    print "PUBLIC:  Number of rows: {0}.  Unique pointings: {1}".format(len(m83), len(unique_public_circle_parameters))
+    print "PRIVATE: Number of rows: {0}.  Unique pointings: {1}".format(len(m83), len(unique_private_circle_parameters))
+
+    private_circle_parameters_band6 = [(row['RA'],row['Dec'],np.mean(rad).to(u.deg).value)
+                                 for row,rad in zip(m83, primary_beam_radii)
+                                 if row['Release date']!='' and row['Band']==6]
+    public_circle_parameters_band6 = [(row['RA'],row['Dec'],np.mean(rad).to(u.deg).value)
+                                 for row,rad in zip(m83, primary_beam_radii)
+                                 if row['Release date']=='' and row['Band']==6]
 
 
     # Show all of the private observation pointings that have been acquired
 
-    # In[8]:
+    # In[10]:
 
     fig = aplpy.FITSFigure(m83_images[0])
     fig.show_grayscale(stretch='arcsinh')
@@ -259,7 +270,7 @@ notebook.
 
     # In principle, all of the pointings shown below should be downloadable from the archive:
 
-    # In[9]:
+    # In[11]:
 
     fig = aplpy.FITSFigure(m83_images[0])
     fig.show_grayscale(stretch='arcsinh')
@@ -268,3 +279,159 @@ notebook.
                      unique_public_circle_parameters[:,2],
                      color='b', alpha=0.2)
 
+
+    # Use pyregion to write the observed regions to disk.  Pyregion has a very awkward API; there is (in principle) work in progress to improve that situation but for now one must do all this extra work.
+
+    # In[16]:
+
+    import pyregion
+    from pyregion.parser_helper import Shape
+    prv_regions = pyregion.ShapeList([Shape('circle',[x,y,r]) for x,y,r in private_circle_parameters])
+    pub_regions = pyregion.ShapeList([Shape('circle',[x,y,r]) for x,y,r in public_circle_parameters])
+    for r,(x,y,c) in zip(prv_regions+pub_regions,
+                         np.vstack([private_circle_parameters,
+                                    public_circle_parameters])):
+        r.coord_format = 'fk5'
+        r.coord_list = [x,y,c]
+        r.attr = ([], {'color': 'green',  'dash': '0 ',  'dashlist': '8 3 ',  'delete': '1 ',  'edit': '1 ',
+                       'fixed': '0 ',  'font': '"helvetica 10 normal roman"',  'highlite': '1 ',
+                       'include': '1 ',  'move': '1 ',  'select': '1 ',  'source': '1',  'text': '',
+                       'width': '1 '})
+    
+    prv_regions.write('M83_observed_regions_private_March2015.reg')
+    pub_regions.write('M83_observed_regions_public_March2015.reg')
+
+
+    # In[17]:
+
+    from astropy.io import fits
+
+
+    # In[18]:
+
+    prv_mask = fits.PrimaryHDU(prv_regions.get_mask(m83_images[0][0]).astype('int'),
+                               header=m83_images[0][0].header)
+    pub_mask = fits.PrimaryHDU(pub_regions.get_mask(m83_images[0][0]).astype('int'),
+                               header=m83_images[0][0].header)
+
+
+    # In[19]:
+
+    pub_mask.writeto('public_m83_almaobs_mask.fits', clobber=True)
+
+
+    # In[20]:
+
+    fig = aplpy.FITSFigure(m83_images[0])
+    fig.show_grayscale(stretch='arcsinh')
+    fig.show_contour(prv_mask, levels=[0.5,1], colors=['r','r'])
+    fig.show_contour(pub_mask, levels=[0.5,1], colors=['b','b'])
+
+
+    # ## More advanced ##
+    # 
+    # Now we create a 'hit mask' showing the relative depth of each observed field in each band
+
+    # In[21]:
+
+    hit_mask_band3_public = np.zeros_like(m83_images[0][0].data)
+    hit_mask_band3_private = np.zeros_like(m83_images[0][0].data)
+    hit_mask_band6_public = np.zeros_like(m83_images[0][0].data)
+    hit_mask_band6_private = np.zeros_like(m83_images[0][0].data)
+    from astropy import wcs
+    mywcs = wcs.WCS(m83_images[0][0].header)
+
+
+    # In[22]:
+
+    for row,rad in zip(m83, primary_beam_radii):
+        shape = Shape('circle', (row['RA'], row['Dec'],np.mean(rad).to(u.deg).value))
+        shape.coord_format = 'fk5'
+        shape.coord_list = (row['RA'], row['Dec'],np.mean(rad).to(u.deg).value)
+        shape.attr = ([], {'color': 'green',  'dash': '0 ',  'dashlist': '8 3 ',  'delete': '1 ',  'edit': '1 ',
+                       'fixed': '0 ',  'font': '"helvetica 10 normal roman"',  'highlite': '1 ',
+                       'include': '1 ',  'move': '1 ',  'select': '1 ',  'source': '1',  'text': '',
+                       'width': '1 '})
+        if row['Release date']=='' and row['Band']==3:
+            (xlo,xhi,ylo,yhi),mask = pyregion_subset(shape, hit_mask_band3_private, mywcs) 
+            hit_mask_band3_private[ylo:yhi,xlo:xhi] += row['Integration']*mask
+        elif row['Release date'] and row['Band']==3:
+            (xlo,xhi,ylo,yhi),mask = pyregion_subset(shape, hit_mask_band3_public, mywcs)
+            hit_mask_band3_public[ylo:yhi,xlo:xhi] += row['Integration']*mask
+        elif row['Release date'] and row['Band']==6:
+            (xlo,xhi,ylo,yhi),mask = pyregion_subset(shape, hit_mask_band6_public, mywcs)
+            hit_mask_band6_public[ylo:yhi,xlo:xhi] += row['Integration']*mask
+        elif row['Release date']=='' and row['Band']==6:
+            (xlo,xhi,ylo,yhi),mask = pyregion_subset(shape, hit_mask_band6_private, mywcs)
+            hit_mask_band6_private[ylo:yhi,xlo:xhi] += row['Integration']*mask
+
+
+    # In[23]:
+
+    fig = aplpy.FITSFigure(m83_images[0])
+    fig.show_grayscale(stretch='arcsinh')
+    fig.show_contour(fits.PrimaryHDU(data=hit_mask_band3_public, header=m83_images[0][0].header),
+                     levels=np.logspace(0,5,base=2, num=6), colors=['r']*6)
+    fig.show_contour(fits.PrimaryHDU(data=hit_mask_band3_private, header=m83_images[0][0].header),
+                     levels=np.logspace(0,5,base=2, num=6), colors=['y']*6)
+    fig.show_contour(fits.PrimaryHDU(data=hit_mask_band6_public, header=m83_images[0][0].header),
+                     levels=np.logspace(0,5,base=2, num=6), colors=['c']*6)
+    fig.show_contour(fits.PrimaryHDU(data=hit_mask_band6_private, header=m83_images[0][0].header),
+                     levels=np.logspace(0,5,base=2, num=6), colors=['b']*6)
+
+
+    # In[24]:
+
+    from astropy import wcs
+    import pyregion
+    from astropy import log
+
+    def pyregion_subset(region, data, mywcs):
+        """
+        Return a subset of an image (`data`) given a region.
+        """
+        shapelist = pyregion.ShapeList([region])
+        if shapelist[0].coord_format not in ('physical','image'):
+            # Requires astropy >0.4...
+            # pixel_regions = shapelist.as_imagecoord(self.wcs.celestial.to_header())
+            # convert the regions to image (pixel) coordinates
+            celhdr = mywcs.sub([wcs.WCSSUB_CELESTIAL]).to_header()
+            pixel_regions = shapelist.as_imagecoord(celhdr)
+        else:
+            # For this to work, we'd need to change the reference pixel after cropping.
+            # Alternatively, we can just make the full-sized mask... todo....
+            raise NotImplementedError("Can't use non-celestial coordinates with regions.")
+            pixel_regions = shapelist
+
+        # This is a hack to use mpl to determine the outer bounds of the regions
+        # (but it's a legit hack - pyregion needs a major internal refactor
+        # before we can approach this any other way, I think -AG)
+        mpl_objs = pixel_regions.get_mpl_patches_texts()[0]
+
+        # Find the minimal enclosing box containing all of the regions
+        # (this will speed up the mask creation below)
+        extent = mpl_objs[0].get_extents()
+        xlo, ylo = extent.min
+        xhi, yhi = extent.max
+        all_extents = [obj.get_extents() for obj in mpl_objs]
+        for ext in all_extents:
+            xlo = xlo if xlo < ext.min[0] else ext.min[0]
+            ylo = ylo if ylo < ext.min[1] else ext.min[1]
+            xhi = xhi if xhi > ext.max[0] else ext.max[0]
+            yhi = yhi if yhi > ext.max[1] else ext.max[1]
+
+        log.debug("Region boundaries: ")
+        log.debug("xlo={xlo}, ylo={ylo}, xhi={xhi}, yhi={yhi}".format(xlo=xlo,
+                                                                      ylo=ylo,
+                                                                      xhi=xhi,
+                                                                      yhi=yhi))
+
+    
+        subwcs = mywcs[ylo:yhi, xlo:xhi]
+        subhdr = subwcs.sub([wcs.WCSSUB_CELESTIAL]).to_header()
+        subdata = data[ylo:yhi, xlo:xhi]
+    
+        mask = shapelist.get_mask(header=subhdr,
+                                  shape=subdata.shape)
+        log.debug("Shapes: data={0}, subdata={2}, mask={1}".format(data.shape, mask.shape, subdata.shape))
+        return (xlo,xhi,ylo,yhi),mask
