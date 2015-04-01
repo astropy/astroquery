@@ -100,10 +100,10 @@ class SDSSClass(BaseQuery):
 
         sql_query += ', '.join(photobj_fields + specobj_fields)
 
-        sql_query += ',dbo.fPhotoTypeN(p.type) as type, FROM #upload u JOIN #x x ON x.up_id = u.up_id JOIN PhotoTag p ON p.objID = x.objID ORDER BY x.up_id'
+        sql_query += ',dbo.fPhotoTypeN(p.type) as type \
+                      FROM #upload u JOIN #x x ON x.up_id = u.up_id \
+                      JOIN PhotoTag p ON p.objID = x.objID ORDER BY x.up_id'
 
-        # still have to work on this
-        # data = "\n".join(zip(obj_names, coordinates)
         data = "obj_id ra dec \n"
         data += " \n ".join(['{0} {1} {2}'.format(obj_names[i],
                                                   coordinates[i].ra.deg,
@@ -208,7 +208,7 @@ class SDSSClass(BaseQuery):
         if get_query_payload or field_help:
             return request_payload
         r = commons.send_request(SDSS.QUERY_URL, request_payload, timeout,
-                                 request_type='POST')
+                                 request_type='GET')
 
         return r
 
