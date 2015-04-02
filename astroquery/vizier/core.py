@@ -171,15 +171,15 @@ class VizierClass(BaseQuery):
                                  url=self._server_to_url(),
                                  data=data_payload,
                                  timeout=self.TIMEOUT)
-        if 'STOP, Max. number of RESOURCE reached' in response.content:
+        if 'STOP, Max. number of RESOURCE reached' in response.text:
             raise ValueError("Maximum number of catalogs exceeded.  Try setting max_catalogs "
                              "to a large number and try again")
         result = self._parse_result(response, verbose=verbose, get_catalog_names=True)
 
         # Filter out the obsolete catalogs, unless requested
         if include_obsolete is False:
-            for (key, resource) in result.items():
-                for info in resource.infos:
+            for key in list(result):
+                for info in result[key].infos:
                     if (info.name == 'status') and (info.value == 'obsolete'):
                         del result[key]
 
