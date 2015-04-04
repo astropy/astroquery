@@ -189,6 +189,11 @@ You might want to look at the READMEs from a bunch of files so you know what kin
     >>> filelist = Alma.download_and_extract_files(uid_url_table['URL'], regex='.*README$')
 
 
+Further Examples
+================
+There are some nice examples of using the ALMA query tool in conjunction with other astroquery
+tools in :doc:`../gallery`, especially :ref:`gallery-almaskyview`.
+
 Reference/API
 =============
 
