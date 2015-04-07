@@ -3,6 +3,8 @@ import pprint
 from bs4 import BeautifulSoup
 from astropy.extern.six.moves.urllib import parse as urlparse
 from astropy.extern import six
+from astropy import units as u
+
 from . import conf
 from ..query import BaseQuery
 from ..utils import prepend_docstr_noreturns, commons, async_to_sync
@@ -84,7 +86,7 @@ class SkyViewClass(BaseQuery):
     def get_images(self, position, survey, coordinates=None, projection=None,
                    pixels=None, scaling=None, sampler=None, resolver=None,
                    deedger=None, lut=None, grid=None, gridlabels=None,
-                   cache=True):
+                   radius=None, height=None, width=None, cache=True):
         """
         Query the SkyView service, download the FITS file that will be
         found and return a generator over the local paths to the
@@ -166,6 +168,14 @@ class SkyViewClass(BaseQuery):
             overlay a coordinate grid on the image if True
         gridlabels : bool
             annotate the grid with coordinates postions if True
+        radius : `~astropy.units.Quantity` or None
+            The radius of the specified field.  Overrides width and height.
+        width : `~astropy.units.Quantity` or None
+            The width of the specified field.  Must be specified
+            with `height`
+        height : `~astropy.units.Quantity` or None
+            The height of the specified field.  Must be specified
+            with `width`
 
         References
         ----------
@@ -187,6 +197,8 @@ class SkyViewClass(BaseQuery):
                                                  projection, pixels, scaling,
                                                  sampler, resolver, deedger,
                                                  lut, grid, gridlabels,
+                                                 radius=radius, height=height,
+                                                 width=width,
                                                  cache=cache)
         return [obj.get_fits() for obj in readable_objects]
 
@@ -194,7 +206,8 @@ class SkyViewClass(BaseQuery):
     def get_images_async(self, position, survey, coordinates=None,
                          projection=None, pixels=None, scaling=None,
                          sampler=None, resolver=None, deedger=None, lut=None,
-                         grid=None, gridlabels=None, cache=True):
+                         grid=None, gridlabels=None, radius=None, height=None,
+                         width=None, cache=True):
         """
         Returns
         -------
@@ -203,14 +216,17 @@ class SkyViewClass(BaseQuery):
         image_urls = self.get_image_list(position, survey, coordinates,
                                          projection, pixels, scaling, sampler,
                                          resolver, deedger, lut, grid,
-                                         gridlabels, cache=cache)
+                                         gridlabels, radius=radius,
+                                         height=height, width=width,
+                                         cache=cache)
         return [commons.FileContainer(url) for url in image_urls]
 
     @prepend_docstr_noreturns(get_images.__doc__)
     def get_image_list(self, position, survey, coordinates=None,
                        projection=None, pixels=None, scaling=None,
                        sampler=None, resolver=None, deedger=None, lut=None,
-                       grid=None, gridlabels=None, cache=True):
+                       grid=None, gridlabels=None, radius=None, width=None,
+                       height=None, cache=True):
         """
         Returns
         -------
@@ -226,8 +242,16 @@ class SkyViewClass(BaseQuery):
 
         self._validate_surveys(survey)
 
+        if radius:
+            size_deg = str(radius.to(u.deg).value)
+        elif width and height:
+            size_deg = "{0},{1}".format(width.to(u.deg).value,
+                                        height.to(u.deg).value)
+        elif width and height:
+            raise ValueError("Must specify width and height if you specify either.")
+
         input = {
-            'Position': position,
+            'Position': parse_coordinates(position),
             'survey': survey,
             'Deedger': deedger,
             'lut': lut,
@@ -238,6 +262,8 @@ class SkyViewClass(BaseQuery):
             'grid': grid,
             'resolver': resolver,
             'Sampler': sampler,
+            'imscale': size_deg,
+            'size': size_deg,
             'pixels': pixels}
         response = self._submit_form(input, cache=cache)
         urls = self._parse_response(response)
@@ -284,5 +310,9 @@ class SkyViewClass(BaseQuery):
         Print out a formatted version of the survey dict
         """
         pprint.pprint(self.survey_dict)
+
+def parse_coordinates(position):
+    coord = commons.parse_coordinates(position)
+    return coord.fk5.to_string()
 
 SkyView = SkyViewClass()
