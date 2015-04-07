@@ -92,6 +92,38 @@ def make_finder_chart(target, radius, save_prefix, service=SkyView.get_images,
                       public_band_colors=('blue','cyan','green','turquoise','teal'),
                       integration_time_contour_levels=np.logspace(0,5,base=2, num=6),
                      ):
+    """
+    Create a "finder chart" showing where ALMA has pointed in various bands,
+    including different color coding for public/private data and each band.
+
+    Contours are set at various integration times.
+
+    Parameters
+    ----------
+    target : `astropy.coordinates` or str
+        A legitimate target name
+    radius : `astropy.units.Quantity`
+        A degree-equivalent radius
+    save_prefix : str
+        The prefix for the output files.  Both .reg and .png files will be written.
+        The .reg files will have the band numbers and public/private appended,
+        while the .png file will be named prefix_almafinderchart.png
+    service : function
+        The `get_images` function of an astroquery service, e.g. SkyView.
+    service_kwargs : dict
+        The keyword arguments to pass to the specified service.  For example,
+        for SkyView, you can give it the survey ID (e.g., 2MASS-K) and the
+        number of pixels in the resulting image.  See the documentation for the
+        individual services for more details.
+    alma_kwargs : dict
+        Keywords to pass to the ALMA archive when querying.  
+    private_band_colors / public_band_colors : tuple
+        A tuple or list of colors to be associated with private/public observations
+        in the various bands
+    integration_time_contour_levels : list or np.array
+        The levels at which to draw contours in units of seconds.  Default is
+        log-spaced (2^n) seconds: [  1.,   2.,   4.,   8.,  16.,  32.])
+    """
     log.info("Querying {0} for images".format(service))
     images = service(target, radius=radius, **service_kwargs)
 
