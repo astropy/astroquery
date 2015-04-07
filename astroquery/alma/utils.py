@@ -20,6 +20,15 @@ from astroquery.alma import Alma
 def pyregion_subset(region, data, mywcs):
     """
     Return a subset of an image (`data`) given a region.
+
+    Parameters
+    ----------
+    region : `pyregion.parser_helper.Shape`
+        A Shape from a pyregion-parsed region file
+    data : np.ndarray
+        An array with shape described by WCS
+    mywcs : `astropy.wcs.WCS`
+        A world coordinate system describing the data
     """
     shapelist = pyregion.ShapeList([region])
     if shapelist[0].coord_format not in ('physical','image'):
@@ -69,6 +78,14 @@ def pyregion_subset(region, data, mywcs):
 
 
 def parse_frequency_support(frequency_support_str):
+    """
+    Given a "Frequency Support" string from ALMA queries, parse it into a set
+    of frequency ranges
+
+    Example input:
+
+        '[86.26..88.14GHz,976.56kHz, XX YY] U [88.15..90.03GHz,976.56kHz, XX YY] U [98.19..100.07GHz,976.56kHz, XX YY] U [100.15..102.03GHz,976.56kHz, XX YY]'
+    """
     supports = frequency_support_str.split("U")
     freq_ranges = [(float(sup.strip('[] ').split("..")[0]),
                     float(sup.strip('[] ').split("..")[1].split(',')[0].strip(string.letters)))
@@ -77,6 +94,10 @@ def parse_frequency_support(frequency_support_str):
     return u.Quantity(freq_ranges)
 
 def approximate_primary_beam_sizes(frequency_support_str):
+    """
+    Given a frequency support string, return the approximate 12m array beam
+    size using 1.22 lambda / D
+    """
     freq_ranges = parse_frequency_support(frequency_support_str)
     beam_sizes = [(1.22*fr.mean().to(u.m, u.spectral())/(12*u.m)).to(u.arcsec,
                                                                      u.dimensionless_angles())
