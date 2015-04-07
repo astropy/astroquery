@@ -249,6 +249,8 @@ class SkyViewClass(BaseQuery):
                                         height.to(u.deg).value)
         elif width and height:
             raise ValueError("Must specify width and height if you specify either.")
+        else:
+            size_deg = None
 
         input = {
             'Position': parse_coordinates(position),
