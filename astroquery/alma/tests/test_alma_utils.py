@@ -3,6 +3,7 @@ import numpy as np
 from astropy import wcs
 from astropy import units as u
 from pyregion.parser_helper import Shape
+from astropy.tests.helper import pytest, remote_data
 
 from .. import utils
 
@@ -39,4 +40,11 @@ def test_parse_frequency_support(frq_sup_str=frq_sup_str, result=franges):
 def approximate_primary_beam_sizes(frq_sup_str=frq_sup_str, beamsizes=beamsizes):
     assert np.all(utils.approximate_primary_beam_sizes(frq_sup_str) == beamsizes)
     
+@remote_data
+def test_make_finder_chart():
+    result = utils.make_finder_chart('Eta Carinae', 3*u.arcmin, 'Eta Carinae')
+    images, catalog, hit_mask_public, hit_mask_private = result
 
+    assert len(catalog) >= 1
+    assert len(images) >= 7
+    assert hit_mask_public[3].mean() >= 49
