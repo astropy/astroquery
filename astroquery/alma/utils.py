@@ -4,10 +4,6 @@ Utilities for making finder charts and overlay images for ALMA proposing
 import string
 
 import numpy as np
-import aplpy
-
-import pyregion
-from pyregion.parser_helper import Shape
 
 from astropy import wcs
 from astropy import log
@@ -30,6 +26,8 @@ def pyregion_subset(region, data, mywcs):
     mywcs : `astropy.wcs.WCS`
         A world coordinate system describing the data
     """
+    import pyregion
+
     shapelist = pyregion.ShapeList([region])
     if shapelist[0].coord_format not in ('physical','image'):
         # Requires astropy >0.4...
@@ -145,6 +143,11 @@ def make_finder_chart(target, radius, save_prefix, service=SkyView.get_images,
         The levels at which to draw contours in units of seconds.  Default is
         log-spaced (2^n) seconds: [  1.,   2.,   4.,   8.,  16.,  32.])
     """
+    import aplpy
+
+    import pyregion
+    from pyregion.parser_helper import Shape
+
     log.info("Querying {0} for images".format(service))
     images = service(target, radius=radius, **service_kwargs)
 
