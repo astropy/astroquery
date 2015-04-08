@@ -86,7 +86,7 @@ def parse_frequency_support(frequency_support_str):
     """
     supports = frequency_support_str.split("U")
     freq_ranges = [(float(sup.strip('[] ').split("..")[0]),
-                    float(sup.strip('[] ').split("..")[1].split(',')[0].strip(string.letters)))
+                    float(sup.strip('[] ').split("..")[1].split(',')[0].strip(string.ascii_letters)))
                    *u.Unit(sup.strip('[] ').split("..")[1].split(',')[0].strip(string.punctuation+string.digits))
                    for sup in supports]
     return u.Quantity(freq_ranges)
