@@ -11,6 +11,7 @@ import numpy as np
 import re
 import tarfile
 import string
+from pkg_resources import resource_filename
 from bs4 import BeautifulSoup
 
 from astropy.extern.six.moves.urllib_parse import urljoin
@@ -252,6 +253,12 @@ class AlmaClass(QueryWithLogin):
                 log.warn("Staging request was not successful.  Try again?")
             response.raise_for_status()
 
+        if 'j_spring_cas_security_check' in response.url:
+            raise RemoteServiceError("Could not access data.  This error "
+                                     "can arise if the data are private and "
+                                     "you do not have access rights or are "
+                                     "not logged in.")
+
         request_id = response.url.split("/")[-2]
         assert len(request_id) == 36
         self._staging_log['request_id'] = request_id
@@ -361,7 +368,7 @@ class AlmaClass(QueryWithLogin):
         if not isinstance(uids, (list, tuple, np.ndarray)):
             raise TypeError("Datasets must be given as a list of strings.")
 
-        files = self.stage_data(uids, cache=cache)
+        files = self.stage_data(uids)
         file_urls = files['URL']
         totalsize = files['size'].sum()*files['size'].unit
 
@@ -488,8 +495,8 @@ class AlmaClass(QueryWithLogin):
         Stoehr.
         """
         if not hasattr(self,'_cycle0_table'):
-            filename = urljoin(os.path.dirname(__file__),
-                               'data/cycle0_delivery_asdm_mapping.txt')
+            filename = resource_filename('astroquery.alma',
+                                         'data/cycle0_delivery_asdm_mapping.txt')
             self._cycle0_table = Table.read(filename, format='ascii.no_header')
             self._cycle0_table.rename_column('col1', 'ID')
             self._cycle0_table.rename_column('col2', 'uid')

@@ -1,10 +1,30 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import os.path
-from astropy.tests.helper import pytest
+import types
 
+from astropy.tests.helper import pytest
+from astropy import coordinates
+from astropy import units as u
+
+from ...utils import commons
 from ...utils.testing_tools import MockResponse
 from ...skyview import SkyView
 
+objcoords = {'Eta Carinae': coordinates.SkyCoord(ra=161.264775 * u.deg,
+                                                 dec=-59.6844306 * u.deg,
+                                                 frame='icrs'), }
+
+@pytest.fixture
+def patch_fromname(request):
+    mp = request.getfuncargvalue("monkeypatch")
+    def fromname(self, name):
+        if isinstance(name, str):
+            return objcoords[name]
+        else:
+            raise coordinates.name_resolve.NameResolveError
+    mp.setattr(commons.ICRSCoord,
+               'from_name',
+               types.MethodType(fromname, commons.ICRSCoord))
 
 class MockResponseSkyView(MockResponse):
     def __init__(self):
@@ -41,7 +61,7 @@ def patch_get(request):
     mp.setattr(SkyView, '_request', MockResponseSkyviewForm)
     return mp
 
-def test_get_image_list_local(patch_get):
+def test_get_image_list_local(patch_get, patch_fromname):
     urls = SkyView.get_image_list(position='Eta Carinae',
                                   survey=['Fermi 5', 'HRI', 'DSS'])
     assert len(urls) == 3
