@@ -6,6 +6,14 @@
 ALMA Queries (`astroquery.alma`)
 ********************************
 
+Example Notebooks
+=================
+A series of example notebooks can be found here:
+
+ * `What has ALMA observed toward all Messier objects? <http://nbviewer.ipython.org/gist/keflavich/e798e10e3bf9a93d1453>`_
+ * `ALMA finder chart of the Cartwheel nebula and public Cycle 1 data quicklooks <http://nbviewer.ipython.org/gist/keflavich/d5af22578094853e2d24>`_
+ * `Finder charts toward many sources with different backgrounds <http://nbviewer.ipython.org/gist/keflavich/2ef877ec90d774645fee>`_
+
 Getting started
 ===============
 
