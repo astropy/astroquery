@@ -545,7 +545,7 @@ class AlmaClass(QueryWithLogin):
                         log.info("Extracting {0} to {1}".format(member.name,
                                                                 path))
                     tf.extract(member, path)
-                    filelist.append(urljoin(path, member.name))
+                    filelist.append(os.path.join(path, member.name))
 
         return filelist
 
