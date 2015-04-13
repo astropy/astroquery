@@ -10,21 +10,6 @@ Getting Started
 ===============
 
 This module provides an interface to the online `SAO/NASA Astrophysics Data System`_.
-It will check all the ADS mirrors, currently given by the following list:
-
-- http://adswww.harvard.edu/
-- http://cdsads.u-strasbg.fr/    
-- http://ukads.nottingham.ac.uk/    
-- http://esoads.eso.org/    
-- http://ads.ari.uni-heidelberg.de/    
-- http://ads.inasan.ru/       
-- http://ads.nao.ac.jp/    
-- http://ads.iucaa.ernet.in/  
-- http://ads.arsip.lipi.go.id/
-- http://saaoads.chpc.ac.za/    
-- http://ads.on.br/
-
-
 
 Examples
 ========

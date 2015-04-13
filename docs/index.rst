@@ -132,6 +132,7 @@ The following modules have been completed using a common API:
   atomic/atomic.rst
   alma/alma.rst
   skyview/skyview.rst
+  nasa_ads/nasa_ads.rst
 
 These others are functional, but do not follow a common & consistent API:
 
@@ -225,6 +226,7 @@ above categories.
   lamda/lamda.rst
   nist/nist.rst
   splatalogue/splatalogue.rst
+  nasa_ads/nasa_ads.rst
 
 
 Developer documentation
