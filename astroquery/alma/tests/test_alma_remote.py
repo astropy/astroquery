@@ -12,6 +12,10 @@ from ...exceptions import LoginError
 
 @remote_data
 class TestAlma:
+
+    def setup_class(cls):
+        Alma.archive_url = 'http://beta.cadc-ccda.hia-iha.nrc-cnrc.gc.ca'
+
     @pytest.fixture()
     def temp_dir(self, request):
         my_temp_dir = tempfile.mkdtemp()

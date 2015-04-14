@@ -11,8 +11,9 @@ Example Notebooks
 A series of example notebooks can be found here:
 
  * `What has ALMA observed toward all Messier objects? (an example of querying many sources) <http://nbviewer.ipython.org/gist/keflavich/e798e10e3bf9a93d1453>`_
- * `ALMA finder chart of the Cartwheel nebula and public Cycle 1 data quicklooks <http://nbviewer.ipython.org/gist/keflavich/d5af22578094853e2d24>`_
+ * `ALMA finder chart of the Cartwheel galaxy and public Cycle 1 data quicklooks <http://nbviewer.ipython.org/gist/keflavich/d5af22578094853e2d24>`_
  * `Finder charts toward many sources with different backgrounds <http://nbviewer.ipython.org/gist/keflavich/2ef877ec90d774645fee>`_
+ * `Finder chart and downloaded data from Cycle 0 observations of Sombrero Galaxy <http://nbviewer.ipython.org/gist/keflavich/9934c9412d8f58299962>`_
 
 Getting started
 ===============
