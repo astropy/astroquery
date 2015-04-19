@@ -13,11 +13,16 @@ from astropy.io import fits
 
 # 3. local imports - use relative imports
 # commonly required local imports shown below as example
-from ..query import BaseQuery # all Query classes should inherit from this.
-from ..utils import commons # has common functions required by most modules
-from ..utils import prepend_docstr_noreturns # automatically generate docs for similar functions
-from ..utils import async_to_sync # all class methods must be callable as static as well as instance methods.
-from . import conf # import configurable items declared in __init__.py
+# all Query classes should inherit from BaseQuery.
+from ..query import BaseQuery
+# has common functions required by most modules
+from ..utils import commons
+# prepend_docstr is a way to copy docstrings between methods
+from ..utils import prepend_docstr_noreturns
+# async_to_sync generates the relevant query tools from _async methods
+from ..utils import async_to_sync
+# import configurable items declared in __init__.py
+from . import conf
 
 
 # export all the public classes and methods
@@ -36,7 +41,8 @@ class TemplateClass(BaseQuery):
     cases, new methods may be added if necessary, follow the guidelines at
     <http://astroquery.readthedocs.org/en/latest/api.html>
     """
-    # use the Configuration Items imported from __init__.py to set the URL, TIMEOUT, etc.
+    # use the Configuration Items imported from __init__.py to set the URL,
+    # TIMEOUT, etc.
     URL = conf.server
     TIMEOUT = conf.timeout
 
@@ -47,7 +53,8 @@ class TemplateClass(BaseQuery):
     # this:
     """
     def query_object(object_name, get_query_payload=False)
-        response = self.query_object_async(object_name, get_query_payload=get_query_payload)
+        response = self.query_object_async(object_name,
+                                           get_query_payload=get_query_payload)
         if get_query_payload:
             return response
         result = self._parse_result(response, verbose=verbose)
@@ -123,8 +130,8 @@ class TemplateClass(BaseQuery):
     # method also has a 'radius' keyword for specifying the radius around
     # the coordinates in which to search. If the region is a box, then
     # the keywords 'width' and 'height' should be used instead. The coordinates
-    # may be accepted as an `astropy.coordinates` object or as a
-    # string, which may be further parsed.
+    # may be accepted as an `astropy.coordinates` object or as a string, which
+    # may be further parsed.
 
     # similarly we write a query_region_async method that makes the
     # actual HTTP request and returns the HTTP response
@@ -155,7 +162,8 @@ class TemplateClass(BaseQuery):
             The HTTP response returned from the service.
             All async methods should return the raw HTTP response.
         """
-        request_payload = self._args_to_payload(coordinates, radius, height, width)
+        request_payload = self._args_to_payload(coordinates, radius, height,
+                                                width)
         if get_query_payload:
             return request_payload
         response = self._request('GET', self.URL, params=request_payload,
@@ -291,7 +299,9 @@ class TemplateClass(BaseQuery):
 
     def extract_image_urls(self, html_str):
         """
-        Helper function that uses regex to extract the image urls from the given HTML.
+        Helper function that uses regex to extract the image urls from the
+        given HTML.
+
         Parameters
         ----------
         html_str : str
