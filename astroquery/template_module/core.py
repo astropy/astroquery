@@ -21,7 +21,7 @@ from . import conf # import configurable items declared in __init__.py
 
 
 # export all the public classes and methods
-__all__ = ['Dummy', 'DummyClass']
+__all__ = ['Template', 'TemplateClass']
 
 # declare global variables and constants if any
 
@@ -29,7 +29,7 @@ __all__ = ['Dummy', 'DummyClass']
 # Now begin your main class
 # should be decorated with the async_to_sync imported previously
 @async_to_sync
-class DummyClass(BaseQuery):
+class TemplateClass(BaseQuery):
 
     """
     Not all the methods below are necessary but these cover most of the common
@@ -57,7 +57,7 @@ class DummyClass(BaseQuery):
     def query_object_async(self, object_name, get_query_payload=False):
         """
         This method is for services that can parse object names. Otherwise
-        use :meth:`astroquery.template_module.DummyClass.query_region`.
+        use :meth:`astroquery.template_module.TemplateClass.query_region`.
         Put a brief description of what the class does here.
 
         Parameters
@@ -306,7 +306,7 @@ class DummyClass(BaseQuery):
         pass
 
 # the default tool for users to interact with is an instance of the Class
-Dummy = DummyClass()
+Template = TemplateClass()
 
 # once your class is done, tests should be written
 # See ./tests for examples on this
