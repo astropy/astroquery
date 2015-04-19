@@ -32,13 +32,29 @@ __all__ = ['Dummy', 'DummyClass']
 class DummyClass(BaseQuery):
 
     """
-    Not all the methods below are necessary but these cover most of the common cases, new methods may be added if necessary, follow the guidelines at <http://astroquery.readthedocs.org/en/latest/api.html>
+    Not all the methods below are necessary but these cover most of the common
+    cases, new methods may be added if necessary, follow the guidelines at
+    <http://astroquery.readthedocs.org/en/latest/api.html>
     """
     # use the Configuration Items imported from __init__.py to set the URL, TIMEOUT, etc.
     URL = conf.server
     TIMEOUT = conf.timeout
 
-    def query_object(self, object_name, get_query_payload=False, verbose=False):
+    # all query methods are implemented with an "async" method that handles
+    # making the actual HTTP request and returns the raw HTTP response, which
+    # should be parsed by a separate _parse_result method.   The query_object
+    # method is created by async_to_sync automatically.  It would look like
+    # this:
+    """
+    def query_object(object_name, get_query_payload=False)
+        response = self.query_object_async(object_name, get_query_payload=get_query_payload)
+        if get_query_payload:
+            return response
+        result = self._parse_result(response, verbose=verbose)
+        return result
+    """
+
+    def query_object_async(self, object_name, get_query_payload=False):
         """
         This method is for services that can parse object names. Otherwise
         use :meth:`astroquery.template_module.DummyClass.query_region`.
@@ -59,52 +75,16 @@ class DummyClass(BaseQuery):
 
         Returns
         -------
-        result : `~astropy.table.Table`
-            The result of the query as a `~astropy.table.Table` object.
-            All queries other than image queries should typically return
-            results like this.
+        response : `requests.Response`
+            The HTTP response returned from the service.
+            All async methods should return the raw HTTP response.
 
         Examples
         --------
         While this section is optional you may put in some examples that
         show how to use the method. The examples are written similar to
         standard doctests in python.
-        """
 
-        # typically query_object should have the following steps:
-        # 1. call the corresponding query_object_async method, and
-        #    get the HTTP response of the query
-        # 2. check if 'get_query_payload' is set to True, then
-        #    simply return the dict of HTTP request parameters.
-        # 3. otherwise call the parse_result method on the
-        #    HTTP response returned by query_object_async and
-        #    return the result parsed as astropy.Table
-        # These steps are filled in below, but may be replaced
-        # or modified as required.
-
-        response = self.query_object_async(object_name, get_query_payload=get_query_payload)
-        if get_query_payload:
-            return response
-        result = self._parse_result(response, verbose=verbose)
-        return result
-
-    # all query methods usually have a corresponding async method
-    # that handles making the actual HTTP request and returns the
-    # raw HTTP response, which should be parsed by a separate
-    # parse_result method. Since these async counterparts take in
-    # the same parameters as the corresponding query methods, but
-    # differ only in the return value, they should be decorated with
-    # prepend_docstr_noreturns which will automatically generate
-    # the common docs. See below for an example.
-
-    @prepend_docstr_noreturns(query_object.__doc__)
-    def query_object_async(self, object_name, get_query_payload=False):
-        """
-        Returns
-        -------
-        response : `requests.Response`
-            The HTTP response returned from the service.
-            All async methods should return the raw HTTP response.
         """
         # the async method should typically have the following steps:
         # 1. First construct the dictionary of the HTTP request params.
@@ -132,14 +112,10 @@ class DummyClass(BaseQuery):
 
         if get_query_payload:
             return request_payload
-        # commons.send_request takes 4 parameters - the URL to query, the dict of
-        # HTTP request parameters we constructed above, the TIMEOUT which we imported
-        # from __init__.py and the type of HTTP request - either 'GET' or 'POST', which
-        # defaults to 'GET'.
-        response = commons.send_request(self.URL,
-                                        request_payload,
-                                        self.TIMEOUT,
-                                        request_type='GET')
+        # BaseQuery classes come with a _request method that includes a
+        # built-in caching system
+        response = self._request('GET', self.URL, params=request_payload,
+                                 timeout=self.TIMEOUT, cache=cache)
         return response
 
     # For services that can query coordinates, use the query_region method.
@@ -149,7 +125,12 @@ class DummyClass(BaseQuery):
     # the keywords 'width' and 'height' should be used instead. The coordinates
     # may be accepted as an `astropy.coordinates` object or as a
     # string, which may be further parsed.
-    def query_region(self, coordinates, radius, width, height, get_query_payload=False, verbose=False):
+
+    # similarly we write a query_region_async method that makes the
+    # actual HTTP request and returns the HTTP response
+
+    def query_region_async(self, coordinates, radius, height, width,
+                           get_query_payload=False, cache=True):
         """
         Queries a region around the specified coordinates.
 
@@ -170,27 +151,6 @@ class DummyClass(BaseQuery):
 
         Returns
         -------
-        result : `~astropy.table.Table`
-            The result of the query as a `~astropy.table.Table` object.
-            All queries other than image queries should typically return
-            results like this.
-        """
-        # the documentation and code are similar to the steps outlined in the
-        # `query_object` method, but a rough sketch is provided below
-
-        response = self.query_region_async(coordinates, radius, height, width,
-                                           get_query_payload=get_query_payload)
-        result = self._parse_result(response, verbose=verbose)
-        return result
-
-    # similarly we write a query_region_async method that makes the
-    # actual HTTP request and returns the HTTP response
-
-    @prepend_docstr_noreturns(query_region.__doc__)
-    def query_region_async(self, coordinates, radius, height, width, get_query_payload=False):
-        """
-        Returns
-        -------
         response : `requests.Response`
             The HTTP response returned from the service.
             All async methods should return the raw HTTP response.
@@ -198,10 +158,8 @@ class DummyClass(BaseQuery):
         request_payload = self._args_to_payload(coordinates, radius, height, width)
         if get_query_payload:
             return request_payload
-        response = commons.send_request(self.URL,
-                                        request_payload,
-                                        self.TIMEOUT,
-                                        request_type='GET')
+        response = self._request('GET', self.URL, params=request_payload,
+                                 timeout=self.TIMEOUT, cache=cache)
         return response
 
     # as we mentioned earlier use various python regular expressions, etc
@@ -233,7 +191,12 @@ class DummyClass(BaseQuery):
             # return raw result/ handle in some way
             pass
 
-    # for image queries, the results should be returned as a
+    # Image queries do not use the async_to_sync approach: the "synchronous"
+    # version must be defined explicitly.  The example below therefore presents
+    # a complete example of how to write your own synchronous query tools if
+    # you prefer to avoid the automatic approach.
+    #
+    # For image queries, the results should be returned as a
     # list of `astropy.fits.HDUList` objects. Typically image queries
     # have the following method family:
     # 1. get_images - this is the high level method that interacts with
