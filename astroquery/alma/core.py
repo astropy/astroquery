@@ -11,6 +11,7 @@ import numpy as np
 import re
 import tarfile
 import string
+import requests
 from pkg_resources import resource_filename
 from bs4 import BeautifulSoup
 
@@ -545,7 +546,7 @@ class AlmaClass(QueryWithLogin):
                         log.info("Extracting {0} to {1}".format(member.name,
                                                                 path))
                     tf.extract(member, path)
-                    filelist.append(urljoin(path, member.name))
+                    filelist.append(os.path.join(path, member.name))
 
         return filelist
 
@@ -596,8 +597,16 @@ class AlmaClass(QueryWithLogin):
                     log.info("ASDM tarballs do not contain FITS files; skipping.")
                     continue
 
-            tarball_name = self._request('GET', url, save=True,
-                                         timeout=self.TIMEOUT)
+            try:
+                tarball_name = self._request('GET', url, save=True,
+                                             timeout=self.TIMEOUT)
+            except requests.ConnectionError as ex:
+                self.partial_file_list = all_files
+                log.error("There was an error downloading the file. "
+                          "A partially completed download list is "
+                          "in Alma.partial_file_list")
+                raise ex
+                
             fitsfilelist = self.get_files_from_tarballs([tarball_name],
                                                         regex=regex, path=path,
                                                         verbose=verbose)
