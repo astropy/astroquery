@@ -5,6 +5,7 @@ import os
 import socket
 from astropy.extern.six.moves.urllib_error import URLError
 from astropy.tests.helper import pytest
+from astropy.table import Column
 from ... import sdss
 from ...utils.testing_tools import MockResponse
 from ...exceptions import TimeoutError
@@ -83,6 +84,11 @@ def data_path(filename):
 # Test Case: A Seyfert 1 galaxy
 coords = commons.ICRSCoordGenerator('0h8m05.63s +14d50m23.3s')
 
+# Test Case: list of coordinates
+coords_list = [coords, coords]
+
+# Test Case: Column of coordinates
+coords_column = Column(coords_list, name='coordinates')
 
 def test_sdss_spectrum(patch_get, patch_get_readable_fileobj, coords=coords):
     xid = sdss.core.SDSS.query_region(coords, spectro=True)
@@ -150,3 +156,11 @@ def test_spectra_timeout(patch_get, patch_get_readable_fileobj_slow):
 def test_images_timeout(patch_get, patch_get_readable_fileobj_slow):
     with pytest.raises(TimeoutError):
         img = sdss.core.SDSS.get_images(run=1904, camcol=3, field=164)
+
+
+def test_list_coordinates(patch_get, patch_get_readable_fileobj_slow):
+    xid = sdss.core.SDSS.query_region(coords_list)
+
+
+def test_column_coordinates(patch_get, patch_get_readable_fileobj_slow):
+    xid = sdss.core.SDSS.query_region(coords_column)
