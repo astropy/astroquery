@@ -164,3 +164,19 @@ def test_list_coordinates(patch_get, patch_get_readable_fileobj_slow):
 
 def test_column_coordinates(patch_get, patch_get_readable_fileobj_slow):
     xid = sdss.core.SDSS.query_region(coords_column)
+
+
+def test_field_help_region(patch_get):
+    valid_field = sdss.core.SDSS.query_region(coords, field_help=True)
+    assert isinstance(valid_field, dict)
+    assert 'photoobj_all' in valid_field
+
+    existing_p_field = sdss.core.SDSS.query_region(coords,
+                                                   field_help='psfmag_r')
+
+    existing_p_s_field = sdss.core.SDSS.query_region(coords,
+                                                     field_help='psfmag_r')
+
+    non_existing_field = sdss.core.SDSS.query_region(coords,
+                                                     field_help='nonexist')
+
