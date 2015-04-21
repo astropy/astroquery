@@ -263,6 +263,7 @@ class SplatalogueClass(BaseQuery):
         if energy_max is not None:
             payload['energy_range_to'] = float(energy_max)
         if energy_type is not None:
+            validate_energy_type(energy_type)
             payload['energy_range_type'] = energy_type
 
         if intensity_type is not None:
@@ -417,5 +418,9 @@ class SplatalogueClass(BaseQuery):
                 table.rename_column(cn, long_to_short[cn])
         return table
 
+def validate_energy_type(etype):
+    valid_energy_types = ('el_cm1','eu_cm1','eu_k','el_k')
+    if etype not in valid_energy_types:
+        raise ValueError("Energy type must be one of {0}".format(valid_energy_types))
 
 Splatalogue = SplatalogueClass()
