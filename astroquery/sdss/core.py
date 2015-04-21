@@ -130,7 +130,7 @@ class SDSSClass(BaseQuery):
                                                 photoobj_fields=photoobj_fields,
                                                 specobj_fields=specobj_fields,
                                                 field_help=field_help)
-        if get_query_payload:
+        if get_query_payload or field_help:
             return request_payload
         r = commons.send_request(SDSS.QUERY_URL, request_payload, timeout,
                                  request_type='GET')
@@ -196,7 +196,7 @@ class SDSSClass(BaseQuery):
                                                 specobj_fields=fields,
                                                 spectro=True,
                                                 field_help=field_help)
-        if get_query_payload:
+        if get_query_payload or field_help:
             return request_payload
         r = commons.send_request(SDSS.QUERY_URL, request_payload, timeout,
                                  request_type='GET')
@@ -265,7 +265,7 @@ class SDSSClass(BaseQuery):
                                                 photoobj_fields=fields,
                                                 spectro=False,
                                                 field_help=field_help)
-        if get_query_payload:
+        if get_query_payload or field_help:
             return request_payload
         r = commons.send_request(SDSS.QUERY_URL, request_payload, timeout,
                                  request_type='GET')
@@ -741,8 +741,10 @@ class SDSSClass(BaseQuery):
             if ret > 0:
                 return
             else:
-                print("{0} isn't a valid 'photobj_field' or 'specobj_field', "
-                      "valid fields are returned.".format(field_help))
+                if field_help is not True:
+                    print("{0} isn't a valid 'photobj_field' or "
+                          "'specobj_field' field, valid fields are "
+                          "returned.".format(field_help))
                 return {'photoobj_all': photoobj_all,
                         'specobj_all': specobj_all}
 
