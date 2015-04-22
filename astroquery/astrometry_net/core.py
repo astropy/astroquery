@@ -10,6 +10,7 @@ import astropy.coordinates as coord
 import astropy.io.votable as votable
 from astropy.table import Table
 from astropy.io import fits
+from astropy import log
 
 # 3. local imports - use relative imports
 # commonly required local imports shown below as example
@@ -52,6 +53,16 @@ class AstrometryClass(BaseQuery):
 
         self._store_API_key(value)
         self._key = value
+
+    def __init__(self):
+        """ Load the cached API key, show a warning message if can't be found. """
+
+        try:
+            self._key = self._get_stored_API_key()
+        except KeyError:
+            log.warn("Astrometry.net API key not found")
+            log.warn("You need to register it with Astrometry.key = 'XXXXXXXX'")
+            self._key = None
 
     def query_object(self, object_name, get_query_payload=False, verbose=False):
         """
