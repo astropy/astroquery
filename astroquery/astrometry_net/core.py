@@ -43,6 +43,10 @@ class AstrometryClass(BaseQuery):
         """ Cache the Astrometry.net API key on disk. """
         pass
 
+    def _get_stored_API_key(self):
+        """ Return the API key, raise KeyError if not cached on disk. """
+        raise KeyError
+
     @property
     def key(self):
         """ Getter for the Astrometry.net API key. """
