@@ -26,7 +26,7 @@ from ...utils.testing_tools import MockResponse
 # finally import the module which is to be tested
 # and the various configuration items created
 from ... import template_module
-from ...template_module import (SERVER, TIMEOUT)
+from ...template_module import conf
 
 # Local tests should have the corresponding data stored
 # in the ./data folder. This is the actual HTTP response
@@ -37,6 +37,12 @@ from ...template_module import (SERVER, TIMEOUT)
 # thereby saving time and bypassing unreliability for
 # an actual remote network query.
 
+DATA_FILES = {'GET':
+              # You might have a different response for each URL you're
+              # querying:
+              {'http://dummy_server_mirror_1':
+               'dummy.dat'}}
+
 
 # ./setup_package.py helps the test function locate the data file
 # define a function that can construct the full path to the file in the
@@ -46,27 +52,31 @@ def data_path(filename):
     return os.path.join(data_dir, filename)
 
 
+
+# define a monkeypatch replacement request function that returns the
+# dummy HTTP response for the dummy 'get' function, by
+# reading in data from some data file:
+def nonremote_request(self, request_type, url, **kwargs):
+    # kwargs are ignored in this case, but they don't have to be
+    # (you could use them to define which data file to read)
+    with open(data_path(DATA_FILES[request_type][url]), 'rb') as f:
+        response = MockResponse(content=f.read(), url=url)
+    return response
+
+
+
 # use a pytest fixture to create a dummy 'requests.get' function,
 # that mocks(monkeypatches) the actual 'requests.get' function:
 @pytest.fixture
-def patch_get(request):
+def patch_request(request):
     mp = request.getfuncargvalue("monkeypatch")
-    mp.setattr(requests, 'get', get_mockreturn)
+    mp.setattr(template_module.core.TemplateClass, '_request', nonremote_request)
     return mp
 
 
-# define the 'get_mockreturn' function that returns the
-# dummy HTTP response for the dummy 'get' function, by
-# reading in data from some data file:
-def get_mockreturn(url, params=None, timeout=10, **kwargs):
-    filename = data_path('dummy.dat')
-    content = open(filename, "rb").read()
-    return MockResponse(content, **kwargs)
-
-
 # finally test the methods using the mock HTTP response
-def test_query_object(patch_get):
-    result = template_module.core.DummyClass.query_object('m1')
+def test_query_object(patch_request):
+    result = template_module.core.TemplateClass().query_object('m1')
     assert isinstance(result, Table)
 
 # similarly fill in tests for each of the methods
