@@ -21,7 +21,7 @@ from . import SERVER, TIMEOUT # import configurable items declared in __init__.p
 
 
 # export all the public classes and methods
-__all__ = ['Dummy','AstrometryClass']
+__all__ = ['Astrometry', 'AstrometryClass']
 
 # declare global variables and constants if any
 
@@ -347,7 +347,7 @@ class AstrometryClass(BaseQuery):
         pass
 
 # the default tool for users to interact with is an instance of the Class
-Dummy = AstrometryClass()
+Astrometry = AstrometryClass()
 
 # once your class is done, tests should be written
 # See ./tests for examples on this
