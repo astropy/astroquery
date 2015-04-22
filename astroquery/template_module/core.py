@@ -61,7 +61,8 @@ class TemplateClass(BaseQuery):
         return result
     """
 
-    def query_object_async(self, object_name, get_query_payload=False):
+    def query_object_async(self, object_name, get_query_payload=False,
+                           cache=True):
         """
         This method is for services that can parse object names. Otherwise
         use :meth:`astroquery.template_module.TemplateClass.query_region`.
@@ -198,6 +199,8 @@ class TemplateClass(BaseQuery):
             # catch common errors here
             # return raw result/ handle in some way
             pass
+
+        return Table()
 
     # Image queries do not use the async_to_sync approach: the "synchronous"
     # version must be defined explicitly.  The example below therefore presents
