@@ -21,7 +21,7 @@ from . import SERVER, TIMEOUT # import configurable items declared in __init__.p
 
 
 # export all the public classes and methods
-__all__ = ['Dummy','DummyClass']
+__all__ = ['Dummy','AstrometryClass']
 
 # declare global variables and constants if any
 
@@ -29,7 +29,7 @@ __all__ = ['Dummy','DummyClass']
 # should be decorated with the async_to_sync imported previously
 
 @async_to_sync
-class DummyClass(BaseQuery):
+class AstrometryClass(BaseQuery):
 
     """
     Not all the methods below are necessary but these cover most of the common cases, new methods may be added if necessary, follow the guidelines at <http://astroquery.readthedocs.org/en/latest/api.html>
@@ -347,7 +347,7 @@ class DummyClass(BaseQuery):
         pass
 
 # the default tool for users to interact with is an instance of the Class
-Dummy = DummyClass()
+Dummy = AstrometryClass()
 
 # once your class is done, tests should be written
 # See ./tests for examples on this
