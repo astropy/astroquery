@@ -133,6 +133,7 @@ The following modules have been completed using a common API:
   alma/alma.rst
   skyview/skyview.rst
   nasa_ads/nasa_ads.rst
+  heasarc/heasarc.rst
 
 These others are functional, but do not follow a common & consistent API:
 
@@ -191,6 +192,7 @@ generally return a table listing the available data first.
   alma/alma.rst
   eso/eso.rst
   fermi/fermi.rst
+  heasarc/heasarc.rst
   irsa/irsa.rst
   magpis/magpis.rst
   ned/ned.rst
