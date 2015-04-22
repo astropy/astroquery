@@ -33,8 +33,8 @@ conf = Conf()
 
 # Now import your public class
 # Should probably have the same name as your module
-from .core import Dummy, DummyClass
+from .core import Template, TemplateClass
 
-__all__ = ['Dummy', 'DummyClass',
+__all__ = ['Template', 'TemplateClass',
            'Conf', 'conf',
            ]
