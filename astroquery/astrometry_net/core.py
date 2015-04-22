@@ -38,6 +38,14 @@ class AstrometryClass(BaseQuery):
     URL = SERVER()
     TIMEOUT = TIMEOUT()
 
+    @property
+    def key(self):
+        """ Getter for the Astrometry.net API key. """
+
+        if self._key is None:
+            log.error("Astrometry.net API key not found")
+        return self._key
+
     def query_object(self, object_name, get_query_payload=False, verbose=False):
         """
         This method is for services that can parse object names. Otherwise
