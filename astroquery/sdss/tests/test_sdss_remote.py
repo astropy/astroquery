@@ -1,13 +1,13 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from ... import sdss
 from ...exceptions import TimeoutError
-from ...query import suspend_cache
 from astropy import coordinates
 from astropy.table import Table
 from astropy.tests.helper import pytest, remote_data
 import requests
 import imp
 imp.reload(requests)
+
 
 @remote_data
 def test_images_timeout():
@@ -22,12 +22,12 @@ def test_images_timeout():
         failed = sdss.core.SDSS.get_images(matches=xid, timeout=1e-6,
                                            cache=False)
 
+
 @remote_data
 class TestSDSSRemote:
     # Test Case: A Seyfert 1 galaxy
     coords = coordinates.SkyCoord('0h8m05.63s +14d50m23.3s')
     mintimeout = 1e-6
-
 
     def test_images_timeout(self):
         """
@@ -130,3 +130,15 @@ class TestSDSSRemote:
     def test_spectra_timeout(self):
         with pytest.raises(TimeoutError):
             sdss.core.SDSS.get_spectra(self.coords, timeout=self.mintimeout)
+
+    def test_query_non_default_field(self):
+        # A regression test for #469
+        query1 = sdss.core.SDSS.query_region(self.coords,
+                                             fields=['r'])
+        query2 = sdss.core.SDSS.query_region(self.coords,
+                                             fields=['ra', 'dec', 'r'])
+        assert isinstance(query1, Table)
+        assert isinstance(query2, Table)
+
+        assert query1.colnames == ['r']
+        assert query2.colnames == ['ra', 'dec', 'r']
