@@ -39,6 +39,10 @@ class AstrometryClass(BaseQuery):
     URL = SERVER()
     TIMEOUT = TIMEOUT()
 
+    def _store_API_key(self, value):
+        """ Cache the Astrometry.net API key on disk. """
+        pass
+
     @property
     def key(self):
         """ Getter for the Astrometry.net API key. """
