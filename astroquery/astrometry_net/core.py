@@ -46,6 +46,13 @@ class AstrometryClass(BaseQuery):
             log.error("Astrometry.net API key not found")
         return self._key
 
+    @key.setter
+    def key(self, value):
+        """ Setter for the API key, cache it on disk. """
+
+        self._store_API_key(value)
+        self._key = value
+
     def query_object(self, object_name, get_query_payload=False, verbose=False):
         """
         This method is for services that can parse object names. Otherwise
