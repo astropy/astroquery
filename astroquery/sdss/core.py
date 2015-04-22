@@ -14,7 +14,7 @@ import io
 import numpy as np
 from astropy import units as u
 import astropy.coordinates as coord
-from astropy.table import Table
+from astropy.table import Table, Column
 from ..query import BaseQuery
 from . import conf
 from ..utils import commons, async_to_sync
@@ -66,7 +66,8 @@ class SDSSClass(BaseQuery):
 
         Parameters
         ----------
-        coordinates : str or `astropy.coordinates` object or list of coordinates
+        coordinates : str or `astropy.coordinates` object or list of \
+        coordinates or `~astropy.table.Column` of coordinates
             The target(s) around which to search. It may be specified as a string
             in which case it is resolved using online services or as the
             appropriate `astropy.coordinates` object. ICRS coordinates may also
@@ -736,9 +737,9 @@ class SDSSClass(BaseQuery):
         q_where = 'WHERE '
         if coordinates is not None:
             if (not isinstance(coordinates, list) and
+                not isinstance(coordinates, Column) and
                 not (isinstance(coordinates, commons.CoordClasses) and
-                not coordinates.isscalar)
-            ):
+                     not coordinates.isscalar)):
                 coordinates = [coordinates]
             for n, target in enumerate(coordinates):
                 # Query for a region
@@ -750,8 +751,8 @@ class SDSSClass(BaseQuery):
                 if n > 0:
                     q_where += ' or '
                 q_where += ('((p.ra between %g and %g) and '
-                           '(p.dec between %g and %g))'
-                           % (ra - dr, ra + dr, dec - dr, dec + dr))
+                            '(p.dec between %g and %g))'
+                            % (ra - dr, ra + dr, dec - dr, dec + dr))
         elif spectro:
             # Spectra: query for specified plate, mjd, fiberid
             s_fields = ['s.%s=%d' % (key, val) for (key, val) in
