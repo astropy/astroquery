@@ -96,6 +96,12 @@ class SDSSClass(BaseQuery):
             It generates unique object names by default.
         """
 
+        if (not isinstance(coordinates, list) and
+                not isinstance(coordinates, Column) and
+                not (isinstance(coordinates, commons.CoordClasses) and
+                     not coordinates.isscalar)):
+                coordinates = [coordinates]
+
         if obj_names is None:
             obj_names = ['obj_{0}'.format(i) for i in range(len(coordinates))]
         elif len(obj_names) != len(coordinates):
