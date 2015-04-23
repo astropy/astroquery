@@ -71,7 +71,7 @@ class SDSSClass(BaseQuery):
                              "be equal")
 
         if isinstance(radius, u.Quantity):
-            radius = radius.to(u.deg).value
+            radius = radius.to(u.arcmin).value
         else:
             try:
                 float(radius)
