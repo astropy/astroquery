@@ -142,3 +142,12 @@ class TestSDSSRemote:
 
         assert query1.colnames == ['r']
         assert query2.colnames == ['ra', 'dec', 'r']
+
+    def test_query_crossid(self):
+        query1 = sdss.core.SDSS.query_crossid(self.coords)
+        query2 = sdss.core.SDSS.query_crossid([self.coords, self.coords])
+        assert isinstance(query1, Table)
+        assert query1['objID'][0] == 1237652943176138868
+
+        assert isinstance(query2, Table)
+        assert query2['objID'][0] == query1['objID'][0] == query2['objID'][1]
