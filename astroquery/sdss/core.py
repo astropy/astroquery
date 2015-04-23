@@ -25,10 +25,8 @@ __all__ = ['SDSS', 'SDSSClass']
 
 __doctest_skip__ = ['SDSSClass.*']
 
-from .field_names import photoobj_defs, specobj_defs, photoobj_all, specobj_all
-
-crossid_defs = ['ra', 'dec', 'modelMag_u', 'modelMag_g',
-                'modelMag_r', 'modelMag_i', 'modelMag_z']
+from .field_names import (photoobj_defs, specobj_defs, photoobj_all,
+                          specobj_all, crossid_defs)
 
 # Cross-correlation templates from DR-7
 spec_templates = {'star_O': 0, 'star_OB': 1, 'star_B': 2, 'star_A': [3, 4],
