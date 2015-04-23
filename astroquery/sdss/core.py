@@ -59,7 +59,7 @@ class SDSSClass(BaseQuery):
     def query_crossid_async(self, coordinates, obj_names=None,
                             photoobj_fields=None, specobj_fields=None,
                             get_query_payload=False, timeout=TIMEOUT,
-                            radius=u.degree / 1800, output_format='csv'):
+                            radius=5. * u.arcsec, output_format='csv'):
         """
         Query using the cross-identification API.
         """
@@ -122,7 +122,7 @@ class SDSSClass(BaseQuery):
 
         return r
 
-    def query_region_async(self, coordinates, radius=u.degree / 1800.,
+    def query_region_async(self, coordinates, radius=2. * u.arcsec,
                            fields=None, spectro=False, timeout=TIMEOUT,
                            get_query_payload=False, photoobj_fields=None,
                            specobj_fields=None, field_help=False,
@@ -397,7 +397,7 @@ class SDSSClass(BaseQuery):
                                  request_type='GET')
         return r
 
-    def get_spectra_async(self, coordinates=None, radius=u.degree / 1800.,
+    def get_spectra_async(self, coordinates=None, radius=2. * u.arcsec,
                           matches=None, plate=None, fiberID=None, mjd=None,
                           timeout=TIMEOUT, get_query_payload=False):
         """
@@ -496,7 +496,7 @@ class SDSSClass(BaseQuery):
         return results
 
     @prepend_docstr_noreturns(get_spectra_async.__doc__)
-    def get_spectra(self, coordinates=None, radius=u.degree / 1800.,
+    def get_spectra(self, coordinates=None, radius=2. * u.arcsec,
                     matches=None, plate=None, fiberID=None, mjd=None,
                     timeout=TIMEOUT):
         """
@@ -513,7 +513,7 @@ class SDSSClass(BaseQuery):
 
         return [obj.get_fits() for obj in readable_objs]
 
-    def get_images_async(self, coordinates=None, radius=u.degree / 1800.,
+    def get_images_async(self, coordinates=None, radius=2. * u.arcsec,
                          matches=None, run=None, rerun=301, camcol=None,
                          field=None, band='g', timeout=TIMEOUT,
                          get_query_payload=False, cache=True):
@@ -625,7 +625,7 @@ class SDSSClass(BaseQuery):
         return results
 
     @prepend_docstr_noreturns(get_images_async.__doc__)
-    def get_images(self, coordinates=None, radius=u.degree / 1800.,
+    def get_images(self, coordinates=None, radius=2. * u.arcsec,
                    matches=None, run=None, rerun=301, camcol=None, field=None,
                    band='g', timeout=TIMEOUT, cache=True):
         """
@@ -736,7 +736,7 @@ class SDSSClass(BaseQuery):
         else:
             return Table(arr)
 
-    def _args_to_payload(self, coordinates=None, radius=u.degree / 1800.,
+    def _args_to_payload(self, coordinates=None, radius=2. * u.arcsec,
                          fields=None, spectro=False,
                          plate=None, mjd=None, fiberID=None, run=None,
                          rerun=301, camcol=None, field=None,
