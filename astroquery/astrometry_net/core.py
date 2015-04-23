@@ -105,7 +105,7 @@ class AstrometryClass(BaseQuery):
         result = simplejson.loads(txt)
         stat = result.get('status')
         if stat == 'error':
-            print "Login error, exiting."
+            print("Login error, exiting.")
             os.system("rm " + anetcat_file)
             os.system("rm " + sexcat_file)
             sys.exit()
@@ -186,20 +186,6 @@ class AstrometryClass(BaseQuery):
         upload_data = fp.getvalue()
         upload_headers = {'Content-type': mp.get('Content-type')}
 
-        if False:
-            print 'Sending headers:'
-            print ' ', headers
-            print 'Sending data:'
-            print data[:1024].replace('\n', '\\n\n').replace('\r', '\\r')
-            if len(data) > 1024:
-                print '...'
-                print data[-256:].replace('\n', '\\n\n').replace('\r', '\\r')
-                print
-
-        print 'url', upload_url
-        print '\n\nheaders', upload_headers
-        print '\n\ndata', upload_data
-        
         upload_package = {
             'url': upload_url,
             'headers': upload_headers,
@@ -244,7 +230,7 @@ class AstrometryClass(BaseQuery):
         # Check submission status
         subcheck_url = apiurl + "submissions/" + str(subid)
 
-        print 'subcheckurl', subcheck_url
+        print('subcheckurl', subcheck_url)
 
         request = Request(url=subcheck_url)
         still_processing = True
@@ -256,18 +242,18 @@ class AstrometryClass(BaseQuery):
                 txt = f.read()
                 result = simplejson.loads(txt)
                 if result['jobs'][0] is None:
-                    print 'result is none'
+                    print('result is none')
                     raise Exception()
                 # print result
                 still_processing = False
             except:
-                print "Submission doesn't exist yet, sleeping for 5s."
+                print("Submission doesn't exist yet, sleeping for 5s.")
                 time.sleep(5)
                 n_failed_attempts += 1
         if n_failed_attempts > max_attempts:
             raise Exception("The submitted job has apparently timed out, exiting.")
         
-        return  result['jobs']
+        return result['jobs']
     
     def get_wcs_file(self, jobs, timeout=90):
         """
@@ -301,7 +287,7 @@ class AstrometryClass(BaseQuery):
                 f = urlopen(request)
                 txt = f.read()
                 result = simplejson.loads(txt)
-                print "Checking astrometry.net job ID", job_id, result
+                print("Checking astrometry.net job ID", job_id, result)
                 if result["status"] == "failure":
                     print('failed')
                     n_failed_jobs += 1
@@ -310,17 +296,17 @@ class AstrometryClass(BaseQuery):
                     print('success')
                     solved_job_id = job_id
                     still_processing = False
-                    print job_id, "SOLVED"
+                    print(job_id, "SOLVED")
             n_failed_attempts += 1
 
         if still_processing == True:
-            print ("Astrometry.net took too long to process, so we're exiting. Try checking "+
+            print("Astrometry.net took too long to process, so we're exiting. Try checking "+
                 "astrometry.net again later")
             return
 
         if still_processing == False:
             import wget
-            url = "http://nova.astrometry.net/wcs_file/" + str(solved_job_id))
+            url = "http://nova.astrometry.net/wcs_file/" + str(solved_job_id)
             wcs_filename = wget.download(url)
         
         # Finally, strip out the WCS header info from this solved fits file and write it
@@ -461,7 +447,7 @@ class AstrometryClass(BaseQuery):
         result = simplejson.loads(txt)
         stat = result.get('status')
         if stat == 'error':
-            print "Upload error, exiting."
+            print("Upload error, exiting.")
             os.system("rm " + temp_file)
             sys.exit()
         subid = result["subid"]
