@@ -59,9 +59,41 @@ class SDSSClass(BaseQuery):
     def query_crossid_async(self, coordinates, obj_names=None,
                             photoobj_fields=None, specobj_fields=None,
                             get_query_payload=False, timeout=TIMEOUT,
-                            radius=5. * u.arcsec, output_format='csv'):
+                            radius=5. * u.arcsec):
         """
-        Query using the cross-identification API.
+        Query using the cross-identification web interface.
+
+        Parameters
+        ----------
+        coordinates : str or `astropy.coordinates` object or list of
+            coordinates or `~astropy.table.Column` of coordinates The
+            target(s) around which to search. It may be specified as a
+            string in which case it is resolved using online services or as
+            the appropriate `astropy.coordinates` object. ICRS coordinates
+            may also be entered as strings as specified in the
+            `astropy.coordinates` module.
+
+            Example:
+            ra = np.array([220.064728084,220.064728467,220.06473483])
+            dec = np.array([0.870131920218,0.87013210119,0.870138329659])
+            coordinates = SkyCoord(ra, dec, frame='icrs', unit='deg')
+        radius : str or `~astropy.units.Quantity` object, optional The
+            string must be parsable by `~astropy.coordinates.Angle`. The
+            appropriate `~astropy.units.Quantity` object from
+            `astropy.units` may also be used. Defaults to 2 arcsec.
+        timeout : float, optional
+            Time limit (in seconds) for establishing successful connection with
+            remote server.  Defaults to `SDSSClass.TIMEOUT`.
+        photoobj_fields : float, optional
+            PhotoObj quantities to return. If photoobj_fields is None and
+            specobj_fields is None then the value of fields is used
+        specobj_fields : float, optional
+            SpecObj quantities to return. If photoobj_fields is None and
+            specobj_fields is None then the value of fields is used
+        obj_names : str, or list or `~astropy.table.Column`, optional
+            Target names. If given, every coordinate should have a
+            corresponding name, and it gets repeated in the query result.
+            It generates unique object names by default.
         """
 
         if obj_names is None:
@@ -100,7 +132,7 @@ class SDSSClass(BaseQuery):
 
         sql_query += ',dbo.fPhotoTypeN(p.type) as type \
                       FROM #upload u JOIN #x x ON x.up_id = u.up_id \
-                      JOIN PhotoTag p ON p.objID = x.objID ORDER BY x.up_id'
+                      JOIN PhotoObjAll p ON p.objID = x.objID ORDER BY x.up_id'
 
         data = "obj_id ra dec \n"
         data += " \n ".join(['{0} {1} {2}'.format(obj_names[i],
@@ -111,7 +143,7 @@ class SDSSClass(BaseQuery):
         # firstcol is hardwired, as obj_names is always passed
         request_payload = dict(uquery=sql_query, paste=data,
                                firstcol=1,
-                               format=output_format, photoScope='nearPrim',
+                               format='csv', photoScope='nearPrim',
                                radius=radius,
                                photoUpType='ra-dec', searchType='photo')
 
