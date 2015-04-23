@@ -41,7 +41,9 @@ objstr                  Target name or coordinate of the center of a spatial
                                   '00 42 44.3 -41 16 08'
                                   '00h42m44.3s -41d16m08s'
 
-catalog     Required    Catalog name in the IRSA database management system.
+catalog     Required    Catalog name in the LCOGT Archive. The database of photometry
+                        can be found using lco_cat and the database of image metadata is
+                        found using lco_img.
 
 outfmt      Optional    Defines query's output format.
                         6 - returns a program interface in XML
@@ -80,12 +82,11 @@ from ..utils import commons
 from . import conf
 from ..exceptions import TableParseError
 
-__all__ = ['Irsa', 'IrsaClass']
+__all__ = ['Lcogt', 'LcogtClass']
 
 
-class IrsaClass(BaseQuery):
-    IRSA_URL = conf.server
-    GATOR_LIST_URL = conf.gator_list_catalogs
+class LcogtClass(BaseQuery):
+    LCOGT_URL = conf.server
     TIMEOUT = conf.timeout
     ROW_LIMIT = conf.row_limit
 
@@ -94,8 +95,8 @@ class IrsaClass(BaseQuery):
                      get_query_payload=False, verbose=False):
         """
         This function can be used to perform either cone, box, polygon or
-        all-sky search in the catalogs hosted by the NASA/IPAC Infrared
-        Science Archive (IRSA).
+        all-sky search in the LCOGT public archive hosted by the NASA/IPAC Infrared
+        Science Archive.
 
         Parameters
         ----------
@@ -108,7 +109,8 @@ class IrsaClass(BaseQuery):
             details). Required if spatial is ``'Cone'`` or ``'Box'``. Optional
             if spatial is ``'Polygon'``.
         catalog : str
-            The catalog to be used (see the *Notes* section below).
+            The catalog to be used. Either ``lco_img`` for image metadata or ``lco_cat``
+            for photometry.
         spatial : str
             Type of spatial query: ``'Cone'``, ``'Box'``, ``'Polygon'``, and
             ``'All-Sky'``. If missing then defaults to ``'Cone'``.
@@ -151,7 +153,7 @@ class IrsaClass(BaseQuery):
                            polygon=None, get_query_payload=False):
         """
         This function serves the same purpose as
-        :meth:`~astroquery.irsa.IrsaClass.query_region`, but returns the raw
+        :meth:`~astroquery.irsa.LcogtClass.query_region`, but returns the raw
         HTTP response rather than the results in a `~astropy.table.Table`.
 
         Parameters
@@ -165,7 +167,8 @@ class IrsaClass(BaseQuery):
             details). Required if spatial is ``'Cone'`` or ``'Box'``. Optional
             if spatial is ``'Polygon'``.
         catalog : str
-            The catalog to be used (see the *Notes* section below).
+            The catalog to be used. Either ``lco_img`` for image metadata or ``lco_cat``
+            for photometry.
         spatial : str
             Type of spatial query: ``'Cone'``, ``'Box'``, ``'Polygon'``, and
             ``'All-Sky'``. If missing then defaults to ``'Cone'``.
@@ -202,8 +205,8 @@ class IrsaClass(BaseQuery):
 
         if get_query_payload:
             return request_payload
-        response = commons.send_request(Irsa.IRSA_URL, request_payload,
-                                        Irsa.TIMEOUT, request_type='GET')
+        response = commons.send_request(Lcogt.LCOGT_URL, request_payload,
+                                        Lcogt.TIMEOUT, request_type='GET')
         return response
 
     def _parse_spatial(self, spatial, coordinates, radius=None, width=None,
@@ -228,11 +231,11 @@ class IrsaClass(BaseQuery):
             The string must be parsable by `~astropy.coordinates.Angle`. The
             appropriate `~astropy.units.Quantity` object from `astropy.units`
             may also be used. Defaults to 10 arcsec.
-      width : str, `~astropy.units.Quantity` object [Required for spatial is ``'Polygon'``.]
+        width : str, `~astropy.units.Quantity` object [Required for spatial is ``'Polygon'``.]
             The string must be parsable by `~astropy.coordinates.Angle`. The
             appropriate `~astropy.units.Quantity` object from `astropy.units`
             may also be used.
-      polygon : list, [Required for spatial is ``'Polygon'``]
+        polygon : list, [Required for spatial is ``'Polygon'``]
             A list of ``(ra, dec)`` pairs as tuples of
             `astropy.coordinates.Angle`s outlinining the polygon to search in.
             It can also be a list of `astropy.coordinates` object or strings
@@ -290,7 +293,7 @@ class IrsaClass(BaseQuery):
         """
         request_payload = dict(catalog=catalog,
                                outfmt=3,
-                               outrows=Irsa.ROW_LIMIT)
+                               outrows=Lcogt.ROW_LIMIT)
         return request_payload
 
     def _parse_result(self, response, verbose=False):
@@ -325,7 +328,7 @@ class IrsaClass(BaseQuery):
 
         # Check that the results are not of length zero
         if len(content) == 0:
-            raise Exception("The IRSA server sent back an empty reply")
+            raise Exception("The LCOGT server sent back an empty reply")
 
         # Read it in using the astropy VO table reader
         try:
@@ -334,7 +337,7 @@ class IrsaClass(BaseQuery):
         except Exception as ex:
             self.response = response
             self.table_parse_error = ex
-            raise TableParseError("Failed to parse IRSA votable! The raw response can be found "
+            raise TableParseError("Failed to parse LCOGT votable! The raw response can be found "
                                   "in self.response, and the error in self.table_parse_error.")
 
         # Convert to astropy.table.Table instance
@@ -348,7 +351,7 @@ class IrsaClass(BaseQuery):
 
     def list_catalogs(self):
         """
-        Return a dictionary of the catalogs in the IRSA Gator tool.
+        Return a dictionary of the catalogs in the LCOGT Gator tool.
 
         Returns
         -------
@@ -357,24 +360,19 @@ class IrsaClass(BaseQuery):
             be used in query functions, and the value is the verbose description
             of the catalog.
         """
-        response = commons.send_request(Irsa.GATOR_LIST_URL, dict(mode='xml'), Irsa.TIMEOUT, request_type="GET")
-        root = tree.fromstring(response.content)
-        catalogs = {}
-        for catalog in root.findall('catalog'):
-            catname = catalog.find('catname').text
-            desc = catalog.find('desc').text
-            catalogs[catname] = desc
+        catalogs = {'lco_cat' : 'Photometry archive from LCOGT',
+                    'lco_img' : 'Image metadata archive from LCOGT'}
         return catalogs
 
     def print_catalogs(self):
         """
-        Display a table of the catalogs in the IRSA Gator tool.
+        Display a table of the catalogs in the LCOGT Gator tool.
         """
         catalogs = self.list_catalogs()
         for catname in catalogs:
             print("{:30s}  {:s}".format(catname, catalogs[catname]))
 
-Irsa = IrsaClass()
+Lcogt = LcogtClass()
 
 
 def _parse_coordinates(coordinates):
