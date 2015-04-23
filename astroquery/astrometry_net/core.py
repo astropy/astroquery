@@ -10,6 +10,7 @@ import astropy.coordinates as coord
 import astropy.io.votable as votable
 from astropy.table import Table
 from astropy.io import fits
+from astropy import log
 
 # 3. local imports - use relative imports
 # commonly required local imports shown below as example
@@ -21,7 +22,7 @@ from . import SERVER, TIMEOUT # import configurable items declared in __init__.p
 
 
 # export all the public classes and methods
-__all__ = ['Dummy','DummyClass']
+__all__ = ['Astrometry', 'AstrometryClass']
 
 # declare global variables and constants if any
 
@@ -29,7 +30,7 @@ __all__ = ['Dummy','DummyClass']
 # should be decorated with the async_to_sync imported previously
 
 @async_to_sync
-class DummyClass(BaseQuery):
+class AstrometryClass(BaseQuery):
 
     """
     Not all the methods below are necessary but these cover most of the common cases, new methods may be added if necessary, follow the guidelines at <http://astroquery.readthedocs.org/en/latest/api.html>
@@ -37,6 +38,39 @@ class DummyClass(BaseQuery):
     # use the Configuration Items imported from __init__.py to set the URL, TIMEOUT, etc.
     URL = SERVER()
     TIMEOUT = TIMEOUT()
+
+    def _store_API_key(self, value):
+        """ Cache the Astrometry.net API key on disk. """
+        pass
+
+    def _get_stored_API_key(self):
+        """ Return the API key, raise KeyError if not cached on disk. """
+        raise KeyError
+
+    @property
+    def key(self):
+        """ Getter for the Astrometry.net API key. """
+
+        if self._key is None:
+            log.error("Astrometry.net API key not found")
+        return self._key
+
+    @key.setter
+    def key(self, value):
+        """ Setter for the API key, cache it on disk. """
+
+        self._store_API_key(value)
+        self._key = value
+
+    def __init__(self):
+        """ Load the cached API key, show a warning message if can't be found. """
+
+        try:
+            self._key = self._get_stored_API_key()
+        except KeyError:
+            log.warn("Astrometry.net API key not found")
+            log.warn("You need to register it with Astrometry.key = 'XXXXXXXX'")
+            self._key = None
 
     def query_object(self, object_name, get_query_payload=False, verbose=False):
         """
@@ -347,7 +381,7 @@ class DummyClass(BaseQuery):
         pass
 
 # the default tool for users to interact with is an instance of the Class
-Dummy = DummyClass()
+Astrometry = AstrometryClass()
 
 # once your class is done, tests should be written
 # See ./tests for examples on this
