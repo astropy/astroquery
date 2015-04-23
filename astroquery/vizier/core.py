@@ -110,6 +110,10 @@ class VizierClass(BaseQuery):
         FITS binary table: asu-binfits
         plain text: asu-txt
         """
+        # Only votable is supported now, but in case we try to support
+        # something in the future we should disallow invalid ones.
+        assert return_type in ('votable', 'asu-tsv', 'asu-fits',
+                               'asu-binfits', 'asu-txt')
         return "http://" + self.VIZIER_SERVER + "/viz-bin/" + return_type
 
     @property
