@@ -3,6 +3,11 @@ photoobj_defs = ['ra', 'dec', 'objid', 'run', 'rerun', 'camcol', 'field']
 specobj_defs = ['z', 'plate', 'mjd', 'fiberID', 'specobjid', 'run2d',
                 'instrument']
 
+# Default fields for the crossid query
+crossid_defs = ['ra', 'dec', 'psfMag_u', 'psfMagerr_u', 'psfMag_g',
+                'psfMagerr_g', 'psfMag_r', 'psfMagerr_r', 'psfMag_i',
+                'psfMagerr_i', 'psfMag_z', 'psfMagerr_z']
+
 # All valid fields in PhotoObjAll and SpecObjAll
 photoobj_all = ['name', 'objid', 'up_id', 'up_name', 'up_ra', 'up_dec',
                 'up_id1', 'objid1', 'objid2', 'skyversion', 'run', 'rerun',
