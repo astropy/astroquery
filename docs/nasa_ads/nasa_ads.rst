@@ -18,21 +18,22 @@ Examples
 
 Search works by specific identifier
 -----------------------------------
+.. code-block:: python
 
-from astroquery import nasa_ads as na
-# the "^" makes ADS to return only papers where Persson 
-# is first author
-results = na.ADS.query_simple('^Persson Origin of water\
+    from astroquery import nasa_ads as na
+    # the "^" makes ADS to return only papers where Persson 
+    # is first author
+    results = na.ADS.query_simple('^Persson Origin of water\
 	 around deeply embedded low-mass protostars') results[0].title 
-
-# to sort after publication date
-results.sort(['pubdate']) 
-
-# get the title of the last hit
-title = results[-1]['title'][0] 
-
-# printout the authors of the last hit
-print results[-1]['authors']
+    
+    # to sort after publication date
+    results.sort(['pubdate']) 
+    
+    #  get the title of the last hit
+    title = results[-1]['title'][0] 
+    
+    # printout the authors of the last hit
+    print results[-1]['authors']
 
 
 Get links 

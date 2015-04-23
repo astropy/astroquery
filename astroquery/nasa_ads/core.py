@@ -61,12 +61,12 @@ class ADSClass(BaseQuery):
         #~ response_bfs = self._parse_response_to_bfs(response)
         # 
         #self._parse_bfs_to_table(response_bfs)
-        resulttable = self._parse_response(response)
+        resulttable = self._parse_response(response.encode(results.encoding).decode('utf-8'))
         
-        return resulttable 
+        return resulttable
     
     def _parse_response(self, response):
-        xmlrepr = minidom.parseString(response.text.encode('utf-8'))
+        xmlrepr = minidom.parseString(response.text)
         # Check if there are any results!
         
         # get the list of hits
