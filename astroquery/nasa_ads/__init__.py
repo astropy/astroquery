@@ -7,8 +7,6 @@ SAO/NASA ADS Query Tool
 
 """
 
-#~ from astropy.config import ConfigurationItem
-
 from astropy import config as _config
 
 
@@ -41,16 +39,10 @@ class Conf(_config.ConfigNamespace):
             '/cgi-bin/nph-abs_connect',
             'Path for advanced query (unconfirmed)'    
             )
-    
-    #~ simple_path = _config.ConfigItem(
-            #~ '/cgi-bin/nph-basic_connect',
-            #~ 'Path for simple query'
-            #~ )
     simple_path = _config.ConfigItem(
             '/cgi-bin/basic_connect',
             'Path for simple query (return XML)'
             )
-    
     timeout = _config.ConfigItem(
             120,
             'Time limit for connecting to ADS server'
@@ -68,47 +60,3 @@ from .core import ADSClass, ADS
 
 __all__ = ['ADSClass', 'ADS',
         'Conf', 'conf']
-
-#~ class Conf(_config.ConfigNamespace):
-    #~ """
-    #~ Configuration parameters for `astroquery.nasa_ads`.
-    #~ """
-    #~ servers = _config.ConfigItem(
-        #~ ['http://adswww.harvard.edu',
-        #~ 'http://cdsads.u-strasbg.fr',
-        #~ 'http://ukads.nottingham.ac.uk',
-        #~ 'http://esoads.eso.org',
-        #~ 'http://ads.ari.uni-heidelberg.de',
-        #~ 'http://ads.inasan.ru',
-        #~ 'http://ads.mao.kiev.ua',
-        #~ 'http://ads.astro.puc.cl',
-        #~ 'http://ads.nao.ac.jp',
-        #~ 'http://ads.bao.ac.cn',
-        #~ 'http://ads.iucaa.ernet.in',
-        #~ 'http://ads.arsip.lipi.go.id',lastpage
-        #~ 'http://saaoads.chpc.ac.za',
-        #~ 'http://ads.on.br'],lastpage
-        #~ 'SAO/NASA ADS mirrors around the world'
-        #~ )
-    #~ 
-    #~ advanced_url = _config.ConfigurationItem(
-        #~ '/cgi-bin/nph-abs_connect',
-        #~ 'Path for advanced query'
-        #~ )
-        #~ 
-    #~ simple_url = _config.ConfigurationItem(
-        #~ '/cgi-bin/nph-basic_connect',
-        #~ 'Path for simple query'
-        #~ )
-#~ 
-    #~ timeout = _config.ConfigurationItem(
-        #~ 60,
-        #~ 'Time limit for connecting to ADS server'
-        #~ )
-#~ 
-#~ conf = Conf()
-#~ 
-#~ from .core import ADS, ADSClass
-#~ 
-#~ __all__ = ['ADS', 'ADSClass',
-           #~ 'Conf', 'conf']
