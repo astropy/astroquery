@@ -13,6 +13,7 @@
 # Below is a common use case
 
 from astropy.config import ConfigurationItem
+from astropy import config as _config
 
 # Set the server mirrors to query
 SERVER = ConfigurationItem('server',
@@ -24,9 +25,19 @@ SERVER = ConfigurationItem('server',
 # Set the timeout for connecting to the server in seconds, here we set it to 30s
 TIMEOUT = ConfigurationItem('timeout', 30, 'default timeout for connecting to server')
 
+class Conf(_config.ConfigNamespace):
+    """ Configuration parameters for `astroquery.astrometry_net` """
+
+    api_key = _config.ConfigItem(
+        '',
+        "The Astrometry.net API key."
+        )
+
+conf = Conf()
+
 # Now import your public class
 # Should probably have the same name as your module
 
 from .core import AstrometryNet, AstrometryNetClass
 
-__all__ = ['Astrometry', 'AstrometryClass']
+__all__ = ['AstrometryNet', 'AstrometryNetClass']
