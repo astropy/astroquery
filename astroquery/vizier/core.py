@@ -212,7 +212,7 @@ class VizierClass(BaseQuery):
         return response
 
     def query_object_async(self, object_name, catalog=None, radius=None,
-                           coordinate_frame=None):
+                           coordinate_frame=None, get_query_payload=False):
         """
         Serves the same purpose as `query_object` but only
         returns the HTTP response rather than the parsed result.
@@ -252,6 +252,8 @@ class VizierClass(BaseQuery):
         data_payload = self._args_to_payload(
             center=center,
             catalog=catalog)
+        if get_query_payload:
+            return data_payload
         response = self._request(method='POST',
                                  url=self._server_to_url(),
                                  data=data_payload,
