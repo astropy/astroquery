@@ -1,5 +1,5 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-from __future__ import print_function
+#from __future__ import print_function
 
 # put all imports organized as shown below
 # 1. standard library imports
@@ -19,7 +19,7 @@ from ..utils import commons # has common functions required by most modules
 from ..utils import prepend_docstr_noreturns # automatically generate docs for similar functions
 from ..utils import async_to_sync # all class methods must be callable as static as well as instance methods.
 from . import SERVER, TIMEOUT # import configurable items declared in __init__.py
-
+import time
 
 # export all the public classes and methods
 __all__ = ['Astrometry', 'AstrometryClass']
@@ -28,6 +28,8 @@ __all__ = ['Astrometry', 'AstrometryClass']
 
 # Now begin your main class
 # should be decorated with the async_to_sync imported previously
+
+apiurl = 'http://nova.astrometry.net/api/'
 
 @async_to_sync
 class AstrometryClass(BaseQuery):
@@ -92,7 +94,13 @@ class AstrometryClass(BaseQuery):
         result: str
             String used to send request to astrometry.net
         """
-        apiurl = 'http://nova.astrometry.net/api/'
+        from urllib import urlencode
+        from urllib2 import urlopen, Request
+        from email.mime.multipart import MIMEMultipart
+        from email.mime.base import MIMEBase
+        from email.mime.application  import MIMEApplication
+        from email.encoders import encode_noop
+        import simplejson
         
         # Login to the service
         login_url = apiurl + "login"
@@ -105,10 +113,7 @@ class AstrometryClass(BaseQuery):
         result = simplejson.loads(txt)
         stat = result.get('status')
         if stat == 'error':
-            print("Login error, exiting.")
-            os.system("rm " + anetcat_file)
-            os.system("rm " + sexcat_file)
-            sys.exit()
+            raise Exception("Login error, exiting")
         session_string = result["session"]
         
         # Upload the text file to request a WCS solution
@@ -124,18 +129,24 @@ class AstrometryClass(BaseQuery):
                         'parity': 0,
                         'session': session_string
                         }
-        upload_args = upload_args.update(settings)
+        upload_args.update(settings)
         upload_json = simplejson.dumps(upload_args)
         
         # Format the list in the appropriate format
         # Currently this is just using the code from astrometry.net's client.py
         # Ideally this could probably be re-written and improved
-        src_list = '\n'.join(['{0:.3f}\t{1:.3f}'.format(row[x_colname], row[y_colname]) 
-            for row in catalog])
+        #src_list = '\n'.join(['{0:.3f}\t{1:.3f}'.format(row[x_colname], row[y_colname]) 
+        #    for row in catalog])
+        #print 'src_list:', src_list
+        
         temp_file = 'temp.cat'
-        f = open(tempfile, 'w')
-        f.write(src_list)
-        f = open(upload_filename, 'rb')
+        f = open(temp_file, 'w')
+        #f.write(src_list)
+        for source in catalog:
+            f.write('{0:.3f}\t{1:.3f}\n'.format(source[x_colname], source[y_colname]))
+        f.close()
+        
+        f = open(temp_file, 'rb')
         file_args=(temp_file, f.read())
 
         m1 = MIMEBase('text', 'plain')
@@ -207,7 +218,22 @@ class AstrometryClass(BaseQuery):
         data: str
             data packet to send in request
         """
-        request = Request(url=url, header=headers, data=data)
+        from urllib2 import urlopen, Request
+        import simplejson
+        
+        print 'header:\n', headers
+        print 'data:\n',data
+        request = Request(url=url, headers=headers, data=data)
+        f = urlopen(request)
+        txt = f.read()
+        print txt
+        result = simplejson.loads(txt)
+        stat = result.get('status')
+        if stat == 'error':
+            raise Exception("Upload error, exiting.")
+        subid = result["subid"]
+        
+        return subid
     
     def get_submit_status(self, subid, timeout=30):
         """
@@ -227,6 +253,9 @@ class AstrometryClass(BaseQuery):
             jobid astrometry.net has assigned to the submitted list
         """
         import math
+        from urllib2 import urlopen, Request
+        import simplejson
+        
         # Check submission status
         subcheck_url = apiurl + "submissions/" + str(subid)
 
@@ -272,6 +301,12 @@ class AstrometryClass(BaseQuery):
         header: `astropy.io.fits.Header`
             Header returned by astrometry.net
         """
+        import math
+        from urllib2 import urlopen, Request
+        import simplejson
+        
+        print 'jobs', jobs
+        
         # Attempt to load wcs from astrometry.net
         n_jobs = len(jobs)
         still_processing = True
@@ -280,7 +315,7 @@ class AstrometryClass(BaseQuery):
         max_attempts = math.ceil(timeout/5)
         while still_processing and n_failed_attempts < max_attempts and n_failed_jobs < n_jobs:
             time.sleep(5)
-            for job_id in job_id_list:
+            for job_id in jobs:
                 jobcheck_url = apiurl + "jobs/" + str(job_id)
                 print(jobcheck_url)
                 request = Request(url=jobcheck_url)
@@ -291,7 +326,7 @@ class AstrometryClass(BaseQuery):
                 if result["status"] == "failure":
                     print('failed')
                     n_failed_jobs += 1
-                    job_id_list.remove(job_id)
+                    jobs.remove(job_id)
                 if result["status"] == "success":
                     print('success')
                     solved_job_id = job_id
@@ -300,9 +335,8 @@ class AstrometryClass(BaseQuery):
             n_failed_attempts += 1
 
         if still_processing == True:
-            print("Astrometry.net took too long to process, so we're exiting. Try checking "+
-                "astrometry.net again later")
-            return
+            raise Exception("Astrometry.net took too long to process, so we're exiting. " +
+                "Try checking astrometry.net again later")
 
         if still_processing == False:
             import wget
@@ -363,7 +397,7 @@ class AstrometryClass(BaseQuery):
         return wcs_header        
 
     def solve(self, sources, settings, x_colname="x", y_colname="y", fwhm_colname=None, 
-            fwhm_std_cut=1, flags_colname=None, flux=None, timeout=30):
+            flag_colname=None, flux_colname=None, fwhm_std_cut=1, timeout=30):
         """
         First draft of function to send a catalog or image to astrometry.net and
         return the astrometric solution. 
@@ -403,19 +437,10 @@ class AstrometryClass(BaseQuery):
         # Temporarily import all of the modules used by astromery.net's client to get the
         # astrometric solution. In the future this can be cleaned up and done in a more
         # standard way
-        import os
-        import sys
-        from numpy import median, std
         import astropy.io.fits as pyfits
         import simplejson
-        from urllib import urlencode
+        from numpy import median, std
         from urllib2 import urlopen, Request
-        from email.mime.multipart import MIMEMultipart
-        from email.mime.base import MIMEBase
-        from email.mime.application  import MIMEApplication
-        from email.encoders import encode_noop
-        import time
-        import subprocess
         
         # Remove flagged sources
         if flag_colname is not None:
@@ -431,29 +456,21 @@ class AstrometryClass(BaseQuery):
             fwhm_upper = fwhm_med+fwhm_std_cut * fwhm_std
             catalog = catalog[(catalog[fwhm_colname]<fwhm_upper) & 
                 (catalog[fwhm_colname]>fwhm_lower)]
-        
+        #catalog = catalog.group_by(flux_colname)
+        catalog.sort(flux_colname)
+        catalog.reverse()
         # Only choose the top 50 sources
         if len(catalog)>50:
             catalog = catalog[:50]
-        catalog = catalog.group_by(flux_colname)
+        
+        print 'catalog', catalog
         
         # Create a list of coordinates in a format that astrometry.net recognizes
-        upload_kwargs = self.build_request(settings, catalog, x_colname, y_colname)
+        upload_kwargs = self.build_request(catalog, settings, x_colname, y_colname)
         
-        self.submit(**upload_kwargs)
+        print upload_kwargs['data']
         
-        f = urlopen(request)
-        txt = f.read()
-        result = simplejson.loads(txt)
-        stat = result.get('status')
-        if stat == 'error':
-            print("Upload error, exiting.")
-            os.system("rm " + temp_file)
-            sys.exit()
-        subid = result["subid"]
-
-        print('stat', stat)
-        print('id', result['subid'])
+        subid = self.submit(**upload_kwargs)
 
         time.sleep(5)
         
@@ -461,7 +478,7 @@ class AstrometryClass(BaseQuery):
         
         time.sleep(5)
         
-        wcs_fits = self.get_wcs_file(job_id, timeout)
+        wcs_fits = self.get_wcs_file(jobs, timeout)
         
         return result
 
