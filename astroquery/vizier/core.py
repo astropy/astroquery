@@ -601,51 +601,18 @@ class VizierClass(BaseQuery):
         table_list : `astroquery.utils.TableList` or str
             If there are errors in the parsing, then returns the raw results as a string.
         """
-        if not verbose:
-            commons.suppress_vo_warnings()
-        try:
-            tf = six.BytesIO(response.content)
-
-            if invalid == 'mask':
-                vo_tree = votable.parse(tf, pedantic=False, invalid='mask')
-            elif invalid == 'warn':
-                try:
-                    vo_tree = votable.parse(tf, pedantic=False, invalid='raise')
-                except Exception as ex:
-                    warnings.warn("VOTABLE parsing raised exception: {0}".format(ex))
-                    vo_tree = votable.parse(tf, pedantic=False, invalid='mask')
-            elif invalid == 'raise':
-                vo_tree = votable.parse(tf, pedantic=False, invalid='raise')
-            else:
-                raise ValueError("Invalid keyword 'invalid'.  Must be raise, mask, or warn")
-
-            if get_catalog_names:
-                return dict([(R.name, R) for R in vo_tree.resources])
-            else:
-                table_dict = OrderedDict()
-                for t in vo_tree.iter_tables():
-                    if len(t.array) > 0:
-                        if t.ref is not None:
-                            name = vo_tree.get_table_by_id(t.ref).name
-                        else:
-                            name = t.name
-                        if name not in table_dict.keys():
-                            table_dict[name] = []
-                        table_dict[name] += [t.to_table()]
-                for name in table_dict.keys():
-                    if len(table_dict[name]) > 1:
-                        table_dict[name] = tbl.vstack(table_dict[name])
-                    else:
-                        table_dict[name] = table_dict[name][0]
-                return commons.TableList(table_dict)
-
-        except Exception as ex:
-            self.response = response
-            self.table_parse_error = ex
-            raise TableParseError("Failed to parse VIZIER result! The raw response can be found "
-                                  "in self.response, and the error in self.table_parse_error."
-                                  "  The attempted parsed result is in self.parsed_result.\n"
-                                  "Exception: " + str(self.table_parse_error))
+        if response.content[:5] == '<?xml':
+            try:
+                return parse_vizier_votable(response.content, verbose=verbose)
+            except Exception as ex:
+                self.response = response
+                self.table_parse_error = ex
+                raise TableParseError("Failed to parse VIZIER result! The raw response can be found "
+                                      "in self.response, and the error in self.table_parse_error."
+                                      "  The attempted parsed result is in self.parsed_result.\n"
+                                      "Exception: " + str(self.table_parse_error))
+        elif response.content[:5] == '#\n#  ':
+            return parse_vizier_tsvfile(data, verbose=verbose)
 
     @property
     def valid_keywords(self):
@@ -659,7 +626,7 @@ class VizierClass(BaseQuery):
 
         return self._valid_keyword_dict
 
-def parse_vizier_tsvfile(data):
+def parse_vizier_tsvfile(data, verbose=False):
     """
     Parse a Vizier-generated list of tsv data tables into a list of astropy
     Tables.
@@ -678,6 +645,45 @@ def parse_vizier_tsvfile(data):
                          header_start=0, comment="#") for
               a,b in split_limits]
     return tables
+
+def parse_vizier_votable(data, verbose=False):
+    if not verbose:
+        commons.suppress_vo_warnings()
+
+    tf = BytesIO(data)
+
+    if invalid == 'mask':
+        vo_tree = votable.parse(tf, pedantic=False, invalid='mask')
+    elif invalid == 'warn':
+        try:
+            vo_tree = votable.parse(tf, pedantic=False, invalid='raise')
+        except Exception as ex:
+            warnings.warn("VOTABLE parsing raised exception: {0}".format(ex))
+            vo_tree = votable.parse(tf, pedantic=False, invalid='mask')
+    elif invalid == 'raise':
+        vo_tree = votable.parse(tf, pedantic=False, invalid='raise')
+    else:
+        raise ValueError("Invalid keyword 'invalid'.  Must be raise, mask, or warn")
+
+    if get_catalog_names:
+        return dict([(R.name, R) for R in vo_tree.resources])
+    else:
+        table_dict = OrderedDict()
+        for t in vo_tree.iter_tables():
+            if len(t.array) > 0:
+                if t.ref is not None:
+                    name = vo_tree.get_table_by_id(t.ref).name
+                else:
+                    name = t.name
+                if name not in table_dict.keys():
+                    table_dict[name] = []
+                table_dict[name] += [t.to_table()]
+        for name in table_dict.keys():
+            if len(table_dict[name]) > 1:
+                table_dict[name] = tbl.vstack(table_dict[name])
+            else:
+                table_dict[name] = table_dict[name][0]
+        return commons.TableList(table_dict)
 
 
 def _parse_angle(angle):
