@@ -130,7 +130,7 @@ class VizierClass(BaseQuery):
         self._keywords = None
 
     def find_catalogs(self, keywords, include_obsolete=False, verbose=False,
-                      max_catalogs=None):
+                      max_catalogs=None, return_type='votable'):
         """
         Search Vizier for catalogs based on a set of keywords, e.g. author name
 
@@ -172,7 +172,7 @@ class VizierClass(BaseQuery):
         if max_catalogs is not None:
             data_payload['-meta.max'] = max_catalogs
         response = self._request(method='POST',
-                                 url=self._server_to_url(),
+                                 url=self._server_to_url(return_type=return_type),
                                  data=data_payload,
                                  timeout=self.TIMEOUT)
         if 'STOP, Max. number of RESOURCE reached' in response.text:
@@ -190,7 +190,7 @@ class VizierClass(BaseQuery):
 
         return result
 
-    def get_catalogs_async(self, catalog, verbose=False):
+    def get_catalogs_async(self, catalog, verbose=False, return_type='votable'):
         """
         Query the Vizier service for a specific catalog
 
@@ -207,13 +207,14 @@ class VizierClass(BaseQuery):
 
         data_payload = self._args_to_payload(catalog=catalog)
         response = self._request(method='POST',
-                                 url=self._server_to_url(),
+                                 url=self._server_to_url(return_type=return_type),
                                  data=data_payload,
                                  timeout=self.TIMEOUT)
         return response
 
     def query_object_async(self, object_name, catalog=None, radius=None,
-                           coordinate_frame=None, get_query_payload=False):
+                           coordinate_frame=None, get_query_payload=False,
+                           return_type='votable', cache=True):
         """
         Serves the same purpose as `query_object` but only
         returns the HTTP response rather than the parsed result.
@@ -256,14 +257,15 @@ class VizierClass(BaseQuery):
         if get_query_payload:
             return data_payload
         response = self._request(method='POST',
-                                 url=self._server_to_url(),
+                                 url=self._server_to_url(return_type=return_type),
                                  data=data_payload,
-                                 timeout=self.TIMEOUT)
+                                 timeout=self.TIMEOUT,
+                                 cache=cache)
         return response
 
     def query_region_async(self, coordinates, radius=None, inner_radius=None,
                            width=None, height=None, catalog=None,
-                           get_query_payload=False):
+                           get_query_payload=False, cache=True):
         """
         Serves the same purpose as `query_region` but only
         returns the HTTP response rather than the parsed result.
@@ -381,12 +383,15 @@ class VizierClass(BaseQuery):
             return data_payload
 
         response = self._request(method='POST',
-                                 url=self._server_to_url(),
+                                 url=self._server_to_url(return_type=return_type),
                                  data=data_payload,
-                                 timeout=self.TIMEOUT)
+                                 timeout=self.TIMEOUT,
+                                 cache=cache)
         return response
 
-    def query_constraints_async(self, catalog=None, **kwargs):
+    def query_constraints_async(self, catalog=None, return_type='votable',
+                                cache=True,
+                                **kwargs):
         """
         Send a query to Vizier in which you specify constraints with keyword/value
         pairs.
@@ -444,9 +449,10 @@ class VizierClass(BaseQuery):
             column_filters=kwargs,
             center={'-c.rd': 180})
         response = self._request(method='POST',
-                                 url=self._server_to_url(),
+                                 url=self._server_to_url(return_type=return_type),
                                  data=data_payload,
-                                 timeout=self.TIMEOUT)
+                                 timeout=self.TIMEOUT,
+                                 cache=cache)
         return response
 
     def _args_to_payload(self, *args, **kwargs):
