@@ -1,0 +1,76 @@
+<?xml version="1.0"?>
+<!DOCTYPE VOTABLE SYSTEM "http://us-vo.org/xml/VOTable.dtd">
+<VOTABLE version="1.0">
+<DEFINITIONS>
+<COOSYS ID="J2000" equinox="J2000." epoch="J2000." system="eq_FK5" />
+</DEFINITIONS>
+<RESOURCE>
+<PARAM name="fixlen" datatype="char" arraysize="*" value="T" />
+<PARAM name="RowsRetrieved" datatype="char" arraysize="*" value="7" />
+<PARAM name="ORIGIN" datatype="char" arraysize="*" value="IPAC Infrared Science Archive (IRSA), Caltech/JPL" />
+<PARAM name="DATETIME" datatype="char" arraysize="*" value="2013-07-26 06:53:40" />
+<PARAM name="DataTag" datatype="char" arraysize="*" value="ADS/IRSA.Gator#2013/0726/065340_17181" />
+<PARAM name="DATABASE" datatype="char" arraysize="*" value="2MASS All-Sky Point Source Catalog (PSC) (fp_psc)" />
+<PARAM name="EQUINOX" datatype="char" arraysize="*" value="J2000" />
+<PARAM name="SKYAREA" datatype="char" arraysize="*" value="polygon(10.1 10.1,10.0 10.1,10 10)" />
+<PARAM name="StatusFile" datatype="char" arraysize="*" value="/workspace/TMP_TpvZQt_17181/Gator/irsa/17181/log.17181.html" />
+<PARAM name="SQL" datatype="char" arraysize="*" value="WHERE (no constraints)" />
+<PARAM name="SQL" datatype="char" arraysize="*" value="SELECT (37 column names follow in next row.)" />
+<TABLE>
+<FIELD name="ra" ucd="POS_EQ_RA_MAIN" ref="J2000" datatype="float" unit="deg" precision="F3" width="7" />
+<FIELD name="dec" ucd="POS_EQ_DEC_MAIN" ref="J2000" datatype="float" unit="deg" precision="F3" width="7" />
+<FIELD name="clon" datatype="char" arraysize="*"/>
+<FIELD name="clat" datatype="char" arraysize="*"/>
+<FIELD name="err_maj" datatype="double" unit="arcsec"/>
+<FIELD name="err_min" datatype="double" unit="arcsec"/>
+<FIELD name="err_ang" datatype="int" unit="deg"/>
+<FIELD name="designation" datatype="char" arraysize="*"/>
+<FIELD name="j_m" datatype="double" unit="mag"/>
+<FIELD name="j_cmsig" datatype="double" unit="mag"/>
+<FIELD name="j_msigcom" datatype="double" unit="mag"/>
+<FIELD name="j_snr" datatype="double"/>
+<FIELD name="h_m" datatype="double" unit="mag"/>
+<FIELD name="h_cmsig" datatype="double" unit="mag"/>
+<FIELD name="h_msigcom" datatype="double" unit="mag"/>
+<FIELD name="h_snr" datatype="double"/>
+<FIELD name="k_m" datatype="double" unit="mag"/>
+<FIELD name="k_cmsig" datatype="double" unit="mag"/>
+<FIELD name="k_msigcom" datatype="double" unit="mag"/>
+<FIELD name="k_snr" datatype="double"/>
+<FIELD name="ph_qual" datatype="char" arraysize="*"/>
+<FIELD name="rd_flg" datatype="char" arraysize="*"/>
+<FIELD name="bl_flg" datatype="char" arraysize="*"/>
+<FIELD name="cc_flg" datatype="char" arraysize="*"/>
+<FIELD name="ndet" datatype="char" arraysize="*"/>
+<FIELD name="gal_contam" datatype="int"/>
+<FIELD name="mp_flg" datatype="int"/>
+<FIELD name="hemis" datatype="char" arraysize="*"/>
+<FIELD name="xdate" datatype="char" arraysize="*"/>
+<FIELD name="scan" datatype="int"/>
+<FIELD name="glon" datatype="double" unit="deg"/>
+<FIELD name="glat" datatype="double" unit="deg"/>
+<FIELD name="a" datatype="char" arraysize="*"/>
+<FIELD name="dist_opt" datatype="double" unit="arcsec"/>
+<FIELD name="phi_opt" datatype="int" unit="deg"/>
+<FIELD name="b_m_opt" datatype="double" unit="mag"/>
+<FIELD name="vr_m_opt" datatype="double" unit="mag"/>
+<FIELD name="nopt_mchs" datatype="int"/>
+<FIELD name="ext_key" datatype="int"/>
+<FIELD name="j_h" datatype="double"/>
+<FIELD name="h_k" datatype="double"/>
+<FIELD name="j_k" datatype="double"/>
+<FIELD name="id" ucd="ID_MAIN" datatype="char" arraysize="*" />
+<DATA>
+<TABLEDATA>
+<TR><TD>10.015696</TD><TD>10.099228</TD><TD>00h40m03.77s</TD><TD>10d05m57.22s</TD><TD>0.10</TD><TD>0.07</TD><TD>90</TD><TD>00400376+1005572</TD><TD>15.237</TD><TD>0.052</TD><TD>0.054</TD><TD>28.0</TD><TD>14.635</TD><TD>0.066</TD><TD>0.067</TD><TD>22.4</TD><TD>14.481</TD><TD>0.094</TD><TD>0.095</TD><TD>14.6</TD><TD>AAA</TD><TD>222</TD><TD>111</TD><TD>000</TD><TD>663505</TD><TD>0</TD><TD>0</TD><TD>n</TD><TD>2000-09-21</TD><TD>64</TD><TD>118.312</TD><TD>-52.670</TD><TD>U</TD><TD>0.2</TD><TD>250</TD><TD>19.20</TD><TD>17.20</TD><TD>1</TD><TD></TD><TD>0.6020</TD><TD>0.1540</TD><TD>0.7560</TD><TD>0</TD></TR>
+<TR><TD>10.031016</TD><TD>10.063082</TD><TD>00h40m07.44s</TD><TD>10d03m47.10s</TD><TD>0.19</TD><TD>0.18</TD><TD>114</TD><TD>00400744+1003470</TD><TD>16.412</TD><TD>0.117</TD><TD>0.117</TD><TD>9.5</TD><TD>15.603</TD><TD>0.110</TD><TD>0.110</TD><TD>9.2</TD><TD>15.312</TD><TD>0.158</TD><TD>0.158</TD><TD>6.8</TD><TD>BBC</TD><TD>222</TD><TD>111</TD><TD>000</TD><TD>060606</TD><TD>0</TD><TD>0</TD><TD>n</TD><TD>2000-09-21</TD><TD>64</TD><TD>118.332</TD><TD>-52.707</TD><TD>U</TD><TD>0.6</TD><TD>73</TD><TD>19.90</TD><TD>18.60</TD><TD>1</TD><TD></TD><TD>0.8090</TD><TD>0.2910</TD><TD>1.1000</TD><TD>1</TD></TR>
+<TR><TD>10.036776</TD><TD>10.060278</TD><TD>00h40m08.83s</TD><TD>10d03m37.00s</TD><TD>0.11</TD><TD>0.06</TD><TD>90</TD><TD>00400882+1003370</TD><TD>15.354</TD><TD>0.045</TD><TD>0.046</TD><TD>25.2</TD><TD>14.886</TD><TD>0.073</TD><TD>0.073</TD><TD>17.8</TD><TD>14.514</TD><TD>0.089</TD><TD>0.089</TD><TD>14.2</TD><TD>AAA</TD><TD>222</TD><TD>111</TD><TD>000</TD><TD>662606</TD><TD>0</TD><TD>0</TD><TD>n</TD><TD>2000-09-21</TD><TD>64</TD><TD>118.341</TD><TD>-52.711</TD><TD>U</TD><TD>0.5</TD><TD>50</TD><TD>18.40</TD><TD>17.00</TD><TD>1</TD><TD></TD><TD>0.4680</TD><TD>0.3720</TD><TD>0.8400</TD><TD>2</TD></TR>
+<TR><TD>10.059964</TD><TD>10.085445</TD><TD>00h40m14.39s</TD><TD>10d05m07.60s</TD><TD>0.23</TD><TD>0.20</TD><TD>96</TD><TD>00401439+1005076</TD><TD>16.340</TD><TD>0.103</TD><TD>0.104</TD><TD>10.2</TD><TD>15.643</TD><TD>0.131</TD><TD>0.131</TD><TD>8.8</TD><TD>15.370</TD><TD>0.173</TD><TD>0.173</TD><TD>6.4</TD><TD>ABC</TD><TD>222</TD><TD>111</TD><TD>000</TD><TD>160605</TD><TD>0</TD><TD>0</TD><TD>n</TD><TD>2000-09-21</TD><TD>64</TD><TD>118.382</TD><TD>-52.687</TD><TD>U</TD><TD>0.6</TD><TD>98</TD><TD>19.40</TD><TD>18.50</TD><TD>1</TD><TD></TD><TD>0.6970</TD><TD>0.2730</TD><TD>0.9700</TD><TD>3</TD></TR>
+<TR><TD>10.015839</TD><TD>10.038061</TD><TD>00h40m03.80s</TD><TD>10d02m17.02s</TD><TD>0.09</TD><TD>0.06</TD><TD>90</TD><TD>00400380+1002170</TD><TD>14.662</TD><TD>0.026</TD><TD>0.029</TD><TD>47.6</TD><TD>14.110</TD><TD>0.039</TD><TD>0.040</TD><TD>36.3</TD><TD>13.797</TD><TD>0.050</TD><TD>0.051</TD><TD>27.4</TD><TD>AAA</TD><TD>222</TD><TD>111</TD><TD>000</TD><TD>666666</TD><TD>0</TD><TD>0</TD><TD>n</TD><TD>2000-09-21</TD><TD>64</TD><TD>118.305</TD><TD>-52.731</TD><TD>0</TD><TD></TD><TD></TD><TD></TD><TD></TD><TD>0</TD><TD></TD><TD>0.5520</TD><TD>0.3130</TD><TD>0.8650</TD><TD>4</TD></TR>
+<TR><TD>10.011170</TD><TD>10.093903</TD><TD>00h40m02.68s</TD><TD>10d05m38.05s</TD><TD>0.23</TD><TD>0.21</TD><TD>167</TD><TD>00400268+1005380</TD><TD>16.373</TD><TD>0.126</TD><TD>0.127</TD><TD>9.8</TD><TD>15.995</TD><TD>0.169</TD><TD>0.169</TD><TD>6.4</TD><TD>15.393</TD><TD>0.179</TD><TD>0.179</TD><TD>6.3</TD><TD>BCC</TD><TD>222</TD><TD>111</TD><TD>000</TD><TD>060605</TD><TD>0</TD><TD>0</TD><TD>n</TD><TD>2000-09-21</TD><TD>64</TD><TD>118.304</TD><TD>-52.675</TD><TD>U</TD><TD>2.4</TD><TD>111</TD><TD>19.70</TD><TD>18.50</TD><TD>1</TD><TD></TD><TD>0.3780</TD><TD>0.6020</TD><TD>0.9800</TD><TD>5</TD></TR>
+<TR><TD>10.005549</TD><TD>10.018401</TD><TD>00h40m01.33s</TD><TD>10d01m06.24s</TD><TD>0.16</TD><TD>0.14</TD><TD>108</TD><TD>00400133+1001062</TD><TD>16.173</TD><TD>0.097</TD><TD>0.098</TD><TD>11.8</TD><TD>15.511</TD><TD>0.135</TD><TD>0.135</TD><TD>10.0</TD><TD>14.945</TD><TD>0.112</TD><TD>0.113</TD><TD>9.5</TD><TD>ABB</TD><TD>222</TD><TD>111</TD><TD>000</TD><TD>161606</TD><TD>0</TD><TD>0</TD><TD>n</TD><TD>2000-09-21</TD><TD>64</TD><TD>118.286</TD><TD>-52.750</TD><TD>0</TD><TD></TD><TD></TD><TD></TD><TD></TD><TD>0</TD><TD></TD><TD>0.6620</TD><TD>0.5660</TD><TD>1.2280</TD><TD>6</TD></TR>
+</TABLEDATA>
+</DATA>
+</TABLE>
+</RESOURCE>
+</VOTABLE>
