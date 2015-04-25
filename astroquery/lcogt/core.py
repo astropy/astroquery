@@ -91,9 +91,15 @@ class LcogtClass(BaseQuery):
     LCOGT_URL = conf.server
     TIMEOUT = conf.timeout
     ROW_LIMIT = conf.row_limit
-    catalogs = ['lco_img', 'lco_cat']
 
-    def query_object_async(self, objstr, catalog=None):
+    @property
+    def catalogs(self):
+        """ immutable catalog listing """
+        return {'lco_cat' : 'Photometry archive from LCOGT',
+                'lco_img' : 'Image metadata archive from LCOGT'}
+
+    def query_object_async(self, objstr, catalog=None, cache=True,
+                           get_query_payload=False):
         """
         Serves the same function as `query_object`, but
         only collects the reponse from the LCOGT IPAC archive and returns.
@@ -119,14 +125,19 @@ class LcogtClass(BaseQuery):
 
         request_payload = self._args_to_payload(catalog)
         request_payload['objstr'] = objstr
+        if get_query_payload:
+            return request_payload
+
         response = self._request(method='GET', url=self.LCOGT_URL,
-                                 params=request_payload, timeout=self.TIMEOUT)
+                                 params=request_payload, timeout=self.TIMEOUT,
+                                 cache=cache)
         return response
 
 
     def query_region_async(self, coordinates=None, catalog=None,
                            spatial='Cone', radius=10*u.arcsec, width=None,
-                           polygon=None, get_query_payload=False):
+                           polygon=None, get_query_payload=False, cache=True,
+                           ):
         """
         This function serves the same purpose as
         :meth:`~astroquery.irsa.LcogtClass.query_region`, but returns the raw
@@ -188,7 +199,8 @@ class LcogtClass(BaseQuery):
         if get_query_payload:
             return request_payload
         response = self._request(method='GET', url=self.LCOGT_URL,
-                                 params=request_payload, timeout=self.TIMEOUT)
+                                 params=request_payload, timeout=self.TIMEOUT,
+                                 cache=cache)
         return response
 
     def _parse_spatial(self, spatial, coordinates, radius=None, width=None,
@@ -350,16 +362,13 @@ class LcogtClass(BaseQuery):
             be used in query functions, and the value is the verbose description
             of the catalog.
         """
-        catalogs = {'lco_cat' : 'Photometry archive from LCOGT',
-                    'lco_img' : 'Image metadata archive from LCOGT'}
-        return catalogs
+        return self.catalogs
 
     def print_catalogs(self):
         """
         Display a table of the catalogs in the LCOGT Gator tool.
         """
-        catalogs = self.list_catalogs()
-        for catname in catalogs:
+        for catname in self.catalogs:
             print("{:30s}  {:s}".format(catname, catalogs[catname]))
 
 Lcogt = LcogtClass()
