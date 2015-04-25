@@ -176,8 +176,9 @@ class VizierClass(BaseQuery):
                                  data=data_payload,
                                  timeout=self.TIMEOUT)
         if 'STOP, Max. number of RESOURCE reached' in response.text:
-            raise ValueError("Maximum number of catalogs exceeded.  Try setting max_catalogs "
-                             "to a large number and try again")
+            raise ValueError("Maximum number of catalogs exceeded.  Try "
+                             "setting max_catalogs to a large number and"
+                             " try again")
         result = self._parse_result(response, verbose=verbose, get_catalog_names=True)
 
         # Filter out the obsolete catalogs, unless requested
@@ -536,7 +537,8 @@ class VizierClass(BaseQuery):
             script += "\n" + str(self.keywords)
         return script
 
-    def _parse_result(self, response, get_catalog_names=False, verbose=False, invalid='warn'):
+    def _parse_result(self, response, get_catalog_names=False, verbose=False,
+                      invalid='warn'):
         """
         Parses the HTTP response to create a `~astropy.table.Table`.
 
