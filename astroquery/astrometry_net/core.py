@@ -135,7 +135,7 @@ There are two parameters that describe setting a license:
 """
 
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-#from __future__ import print_function
+from __future__ import print_function
 
 # put all imports organized as shown below
 # 1. standard library imports
@@ -318,9 +318,9 @@ class AstrometryNetClass(BaseQuery):
                 # doesn't provide the flexibility to override, so we
                 # have to copy-n-paste-n-modify.
                 for h, v in msg.items():
-                    print >> self._fp, ('%s: %s\r\n' % (h,v)),
+                    self._fp.write('%s: %s\r\n' % (h,v))
                 # A blank line always separates headers from body
-                print >> self._fp, '\r\n',
+                self._fp.write('\r\n')
 
             # The _write_multipart method calls "clone" for the
             # subparts.  We hijack that, setting root=False
