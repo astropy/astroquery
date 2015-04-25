@@ -8,6 +8,7 @@ import copy
 import re
 
 from astropy.extern import six
+from astropy.extern.six import BytesIO
 import astropy.units as u
 import astropy.coordinates as coord
 import astropy.table as tbl
@@ -311,7 +312,8 @@ class VizierClass(BaseQuery):
 
     def query_region_async(self, coordinates, radius=None, inner_radius=None,
                            width=None, height=None, catalog=None,
-                           get_query_payload=False, cache=True):
+                           get_query_payload=False, cache=True,
+                           return_type='votable'):
         """
         Serves the same purpose as `query_region` but only
         returns the HTTP response rather than the parsed result.
