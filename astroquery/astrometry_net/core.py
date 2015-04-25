@@ -1,3 +1,139 @@
+"""
+==============
+Astrometry.net
+==============
+Given an astropy `astropy.table.Table` as a source list, calculate the astrometric solution.
+Before querying astrometry.net you will have to register and obtain an api key from 
+[http://nova.astrometry.net/].
+
+Sample Use
+=========
+::
+
+    from astropy.table import Table
+    from astroquery.astrometry_net import AstrometryNet
+
+    AstrometryNet.api_key = 'XXXXXXXXXXXXXXXX'
+
+    sources = Table.read('catalog.fits')
+
+    settings = {
+        'scale_units': 'arcsecperpix',
+        'scale_type': 'ul', 
+        'scale_lower': 0.20,
+        'scale_upper': 0.30,
+        'center_ra': 8.711675,
+        'center_dec': -78.9810555556,
+        'radius': 15,
+        'parity': 0
+    }
+
+    AstrometryNet.solve(sources, settings, 'X_IMAGE', 'Y_IMAGE', 'FWHM_IMAGE', 'FLAGS', 'FLUX_APER')
+
+
+Settings
+========
+In order to speed up the astrometric solution it is possible to pass a dictionary of settings
+to `astroquery.AstrometryNet.build_pacakge` or `astroquery.AstrometryNet.build_pacakge`.
+If no settings are passed to the build function then a set of default parameters will be
+used, although this will increase the time it takes astrometry.net to generate a solution.
+It is recommended to at least set the bounds of the pixel scale to a reasonable value.
+
+Most of the following descriptions are taken directly from 
+[astrometry.net](http://nova.astrometry.net/upload).
+
+Scale
+-----
+It is important to set the pixel scale of the image as accurate as possible to increase the
+speed of astrometry.net. From astrometry.net: "Most digital-camera images are at least 10 
+degrees wide; most professional-grade telescopes are narrower than 2 degrees."
+
+Several parameters are available to set the pixel scale.
+
+    ``scale_units``
+        - Units used by pixel scale variables
+        - Possible values:
+            * ``arcsecperpix``: arcseconds per pixel
+            * ``arcminwidth``: width of the field (in arcminutes)
+            * ``degwidth``:width of the field (in degrees)
+            * ``focalmm``: focal length of the lens (for 35mm film equivalent sensor)
+    ``scale_type``
+        - Type of scale used
+        - Possible values:
+            * ``ul``: Set upper and lower bounds. If ``scale_type='ul'`` the parameters
+              ``scale_upper`` and ``scale_lower`` must be set to the upper and lower bounds
+              of the pixel scale respectively
+            * ``ev``: Set the estimated value with a given error. If ``scale_type='ev'`` the
+              parameters ``scale_est`` and ``scale_err`` must be set to the estiimated value 
+              (in pix) and error (percentage) of the pixel scale.
+
+Parity
+------
+Flipping an image reverses its "parity". If you point a digital camera at the sky and 
+submit the JPEG, it probably has negative parity. If you have a FITS image, it probably 
+has positive parity. Selecting the right parity will make the solving process run faster, 
+but if in doubt just try both. ``parity`` can be set to the following values:
+    - ``0``: positive parity
+    - ``1``: negative parity
+    - ``2``: try both
+
+Star Positional Error
+---------------------
+When we find a matching "landmark", we check to see how many of the stars in your field 
+match up with stars we know about. To do this, we need to know how much a star in your 
+field could have moved from where it should be.
+
+The unit for positional error is in pixels and is set by the key ``positional_error``.
+
+Limits
+------
+In order to narrow down our search, you can supply a field center along with a radius. 
+We will only search in indexes which fall within this area.
+
+To set limits use all of the following parameters:
+    ``center_ra``: center RA of the field (in degrees)
+    ``center_dec``: center DEC of the field (in degrees)
+    ``radius``: how far the actual RA and DEC might be from the estimated values (in degrees)
+
+Tweak
+-----
+By default we try to compute a SIP polynomial distortion correction with order 2. 
+You can disable this by changing the order to 0, or change the polynomial order by setting
+``tweak_order``.
+
+CRPIX Center
+------------
+By default the reference point (CRPIX) of the WCS we compute can be anywhere in your image, 
+but often it's convenient to force it to be the center of the image. This can be set by choosing
+``crpix_center=True``.
+
+License and Sharing
+-------------------
+The Astrometry.net [website](http://nova.astrometry.net/) allows users to upload images
+as well as catalogs to be used in generating an astrometric solution, so the site gives
+users the choice of licenses for their publically available images. Since the astroquery
+astrometry.net api is only uploading a source catalog the choice of ``public_visibility``,
+``allow_commercial_use``, and ``allow_modifications`` are not really relevant and can be left
+to their defaults, although their settings are described below
+
+Visibility
+^^^^^^^^^^
+By default all catalogs uploaded are publically available. To change this use the setting
+``publicly_visible='n'``.
+
+License
+^^^^^^^
+There are two parameters that describe setting a license:
+    ``allow_commercial_use``: 
+        Chooses whether or not an image uploaded to astrometry.net is licensed
+        for commercial use. This can either be set to ``y``, ``n``, or ``d``, which 
+        uses the default license associated with the api key.
+    ``allow_modifications``:
+        Whether or not images uploaded to astrometry.net are allowed to be modified by
+        other users. This can either be set to ``y``, ``n``, or ``d``, which 
+        uses the default license associated with the api key.
+"""
+
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 #from __future__ import print_function
 
@@ -22,17 +158,18 @@ from . import SERVER, TIMEOUT # import configurable items declared in __init__.p
 import time
 
 # export all the public classes and methods
-__all__ = ['Astrometry', 'AstrometryClass']
+__all__ = ['AstrometryNet', 'AstrometryNetClass']
 
 # declare global variables and constants if any
 
 # Now begin your main class
 # should be decorated with the async_to_sync imported previously
 
+astrometry_net_url = 'http://nova.astrometry.net/'
 apiurl = 'http://nova.astrometry.net/api/'
 
 @async_to_sync
-class AstrometryClass(BaseQuery):
+class AstrometryNetClass(BaseQuery):
 
     """
     Not all the methods below are necessary but these cover most of the common cases, new methods may be added if necessary, follow the guidelines at <http://astroquery.readthedocs.org/en/latest/api.html>
@@ -119,14 +256,14 @@ class AstrometryClass(BaseQuery):
         # Upload the text file to request a WCS solution
         upload_url = apiurl + "upload"
         upload_args = { 
+                        'publicly_visible': 'y', 
                         'allow_commercial_use': 'd', 
                         'allow_modifications': 'd', 
-                        'publicly_visible': 'y', 
-                        'scale_units': 'arcsecperpix',
+                        'scale_units': 'deg',
                         'scale_type': 'ul', 
-                        'scale_lower': 0.20,       # arcsec/pix
-                        'scale_upper': 0.30,       # arcsec/pix
-                        'parity': 0,
+                        'scale_lower': 0.1,
+                        'scale_upper': 180,
+                        'parity': 2,
                         'session': session_string
                         }
         upload_args.update(settings)
@@ -137,7 +274,6 @@ class AstrometryClass(BaseQuery):
         # Ideally this could probably be re-written and improved
         #src_list = '\n'.join(['{0:.3f}\t{1:.3f}'.format(row[x_colname], row[y_colname]) 
         #    for row in catalog])
-        #print 'src_list:', src_list
         
         temp_file = 'temp.cat'
         f = open(temp_file, 'w')
@@ -221,12 +357,9 @@ class AstrometryClass(BaseQuery):
         from urllib2 import urlopen, Request
         import simplejson
         
-        print 'header:\n', headers
-        print 'data:\n',data
         request = Request(url=url, headers=headers, data=data)
         f = urlopen(request)
         txt = f.read()
-        print txt
         result = simplejson.loads(txt)
         stat = result.get('status')
         if stat == 'error':
@@ -245,12 +378,12 @@ class AstrometryClass(BaseQuery):
         subid: str
             - subid returned by ``submit`` function
         timeout: int (optional):
-            Maximum time to wait for a submission status
+            - Maximum time to wait for a submission status
         
         Result
         ------
-        jobid: str
-            jobid astrometry.net has assigned to the submitted list
+        jobs: str
+            jobid's astrometry.net has assigned to the submitted list
         """
         import math
         from urllib2 import urlopen, Request
@@ -258,8 +391,6 @@ class AstrometryClass(BaseQuery):
         
         # Check submission status
         subcheck_url = apiurl + "submissions/" + str(subid)
-
-        print('subcheckurl', subcheck_url)
 
         request = Request(url=subcheck_url)
         still_processing = True
@@ -271,31 +402,32 @@ class AstrometryClass(BaseQuery):
                 txt = f.read()
                 result = simplejson.loads(txt)
                 if result['jobs'][0] is None:
-                    print('result is none')
                     raise Exception()
-                # print result
                 still_processing = False
             except:
-                print("Submission doesn't exist yet, sleeping for 5s.")
+                log.info("Submission doesn't exist yet, sleeping for 5s.")
                 time.sleep(5)
                 n_failed_attempts += 1
         if n_failed_attempts > max_attempts:
-            raise Exception("The submitted job has apparently timed out, exiting.")
+            raise Exception(
+                "The submitted job {0} has apparently timed out, exiting.".format(subid))
         
         return result['jobs']
     
-    def get_wcs_file(self, jobs, timeout=90):
+    def get_wcs_file(self, subid, jobs, timeout=90, timeout_error=True):
         """
         Get a wcs file from astrometry.net given a jobid
         
         Parameters
         ----------
+        subid: str
+            - subid returned by ``submit`` function
         jobs: list
             List of jobs returned by `get_submit_status`
         timeout: int (optional):
             Maximum time to wait for an anstrometric solution before timing out
-            
-        
+        timeout_error: bool (optional)
+            Whether or not to raise an Exception if the request times out (default is False)
         Returns
         -------
         header: `astropy.io.fits.Header`
@@ -304,8 +436,6 @@ class AstrometryClass(BaseQuery):
         import math
         from urllib2 import urlopen, Request
         import simplejson
-        
-        print 'jobs', jobs
         
         # Attempt to load wcs from astrometry.net
         n_jobs = len(jobs)
@@ -317,26 +447,27 @@ class AstrometryClass(BaseQuery):
             time.sleep(5)
             for job_id in jobs:
                 jobcheck_url = apiurl + "jobs/" + str(job_id)
-                print(jobcheck_url)
                 request = Request(url=jobcheck_url)
                 f = urlopen(request)
                 txt = f.read()
                 result = simplejson.loads(txt)
-                print("Checking astrometry.net job ID", job_id, result)
+                log.info("Checking astrometry.net for job ID {0}".format(job_id))
                 if result["status"] == "failure":
-                    print('failed')
+                    status_url = astrometry_net_url+"status/"+str(subid)
+                    log.error('job {0} failed. See {1} for details'.format(job_id, status_url))
                     n_failed_jobs += 1
                     jobs.remove(job_id)
                 if result["status"] == "success":
-                    print('success')
+                    log.info('Job {0} executed successfully'.format(job_id))
                     solved_job_id = job_id
                     still_processing = False
-                    print(job_id, "SOLVED")
             n_failed_attempts += 1
 
         if still_processing == True:
-            raise Exception("Astrometry.net took too long to process, so we're exiting. " +
-                "Try checking astrometry.net again later")
+            log.error("Astrometry.net took too long to process job {0}, so we're exiting. " +
+                "Try checking astrometry.net again later".format(jobs))
+            if timeout_error:
+                raise Exception("Astrometry.net took too long to process")
 
         if still_processing == False:
             import wget
@@ -390,14 +521,14 @@ class AstrometryClass(BaseQuery):
     
 
         wcs_image = wcs_filename
-        wcs_hdu = pyfits.open(wcs_image)
+        wcs_hdu = fits.open(wcs_image)
         wcs_header = wcs_hdu[0].header.copy()
         wcs_hdu.close()
         
         return wcs_header        
 
     def solve(self, sources, settings, x_colname="x", y_colname="y", fwhm_colname=None, 
-            flag_colname=None, flux_colname=None, fwhm_std_cut=1, timeout=30):
+            flag_colname=None, flux_colname=None, fwhm_std_cut=2, timeout=30):
         """
         First draft of function to send a catalog or image to astrometry.net and
         return the astrometric solution. 
@@ -456,34 +587,29 @@ class AstrometryClass(BaseQuery):
             fwhm_upper = fwhm_med+fwhm_std_cut * fwhm_std
             catalog = catalog[(catalog[fwhm_colname]<fwhm_upper) & 
                 (catalog[fwhm_colname]>fwhm_lower)]
-        #catalog = catalog.group_by(flux_colname)
         catalog.sort(flux_colname)
         catalog.reverse()
         # Only choose the top 50 sources
         if len(catalog)>50:
             catalog = catalog[:50]
         
-        print 'catalog', catalog
-        
         # Create a list of coordinates in a format that astrometry.net recognizes
         upload_kwargs = self.build_request(catalog, settings, x_colname, y_colname)
-        
-        print upload_kwargs['data']
-        
+        # Submit the job
+        log.info('Submitting source list to astrometry.net')
         subid = self.submit(**upload_kwargs)
-
-        time.sleep(5)
-        
+        log.info('Submission ID={0}'.format(subid))
+        time.sleep(15)
+        # Check that submission was successful
         jobs = self.get_submit_status(subid, 30)
-        
-        time.sleep(5)
-        
-        wcs_fits = self.get_wcs_file(jobs, timeout)
+        log.info('jobs generated by submission: {0}'.format(jobs))
+        # Get the header
+        wcs_fits = self.get_wcs_file(subid, jobs, timeout, True)
         
         return result
 
 # the default tool for users to interact with is an instance of the Class
-Astrometry = AstrometryClass()
+AstrometryNet = AstrometryNetClass()
 
 # once your class is done, tests should be written
 # See ./tests for examples on this
