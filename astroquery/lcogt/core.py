@@ -71,6 +71,7 @@ from __future__ import print_function, division
 
 import warnings
 import xml.etree.ElementTree as tree
+import logging
 
 from astropy.extern import six
 import astropy.units as u
@@ -90,13 +91,55 @@ class LcogtClass(BaseQuery):
     TIMEOUT = conf.timeout
     ROW_LIMIT = conf.row_limit
 
-    def query_region(self, coordinates=None, catalog=None, spatial='Cone',
-                     radius=10 * u.arcsec, width=None, polygon=None,
+    def query_object(self, objstr, catalog=None, verbose=False):
+        """
+        Queries the LCOGT public archive hosted at NASA/IPAC archive on target name
+        and returns the result as a `~astropy.table.Table`.
+        See examples below.
+
+        Parameters
+        ----------
+        objstr : str
+            name of object to be queried
+        catalog : str
+            name of the catalog to use. 'lco_img' for image meta data; 'lco_cat' for photometry.
+
+        Returns
+        -------
+        table : `~astropy.table.Table`
+            Query results table
+        """
+        response = self.query_object_async(objstr, catalog=catalog)
+        return self._parse_result(response, verbose=verbose)
+
+    def query_object_async(self, objstr, catalog=None):
+        """
+        Serves the same function as `query_object`, but
+        only collects the reponse from the LCOGT IPAC archive and returns.
+
+        Parameters
+        ----------
+        objstr : str
+            name of object to be queried
+
+        Returns
+        -------
+        response : `requests.Response`
+            Response of the query from the server
+        """
+        if catalog is None:
+            raise Exception("Catalogue name is required!")
+        request_payload = self._args_to_payload(catalog)
+        request_payload['objstr'] = objstr
+        response = commons.send_request(Lcogt.LCOGT_URL, request_payload,
+                                Lcogt.TIMEOUT, request_type='GET')
+        return response
+
+    def query_region(self, coordinates=None, catalog=None, spatial=None, radius=None, width=None, polygon=None,
                      get_query_payload=False, verbose=False):
         """
         This function can be used to perform either cone, box, polygon or
-        all-sky search in the LCOGT public archive hosted by the NASA/IPAC Infrared
-        Science Archive.
+        all-sky search in the LCOGT public archive hosted by the NASA/IPAC Archive.
 
         Parameters
         ----------
@@ -167,7 +210,7 @@ class LcogtClass(BaseQuery):
             details). Required if spatial is ``'Cone'`` or ``'Box'``. Optional
             if spatial is ``'Polygon'``.
         catalog : str
-            The catalog to be used. Either ``lco_img`` for image metadata or ``lco_cat``
+            The catalog to be used. Either ``'lco_img'`` for image metadata or ``'lco_cat'``
             for photometry.
         spatial : str
             Type of spatial query: ``'Cone'``, ``'Box'``, ``'Polygon'``, and
@@ -195,7 +238,7 @@ class LcogtClass(BaseQuery):
             The HTTP response returned from the service
         """
         if catalog is None:
-            raise Exception("Catalog name is required!")
+            raise Exception("Catalogue name is required!")
 
         request_payload = self._args_to_payload(catalog)
         request_payload.update(self._parse_spatial(spatial=spatial,
@@ -293,6 +336,7 @@ class LcogtClass(BaseQuery):
         """
         request_payload = dict(catalog=catalog,
                                outfmt=3,
+                               spatial=None,
                                outrows=Lcogt.ROW_LIMIT)
         return request_payload
 
@@ -317,10 +361,11 @@ class LcogtClass(BaseQuery):
             commons.suppress_vo_warnings()
 
         content = response.text
+        logging.debug(content)
 
         # Check if results were returned
-        if 'The catalog is not on the list' in content:
-            raise Exception("Catalog not found")
+        if 'The catalog is not in the list' in content:
+            raise Exception("Catalogue not found")
 
         # Check that object name was not malformed
         if 'Either wrong or missing coordinate/object name' in content:

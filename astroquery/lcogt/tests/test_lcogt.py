@@ -72,41 +72,40 @@ def test_parse_coordinates(coordinates, expected):
 
 
 def test_args_to_payload():
-    out = lcogt.core.Lcogt._args_to_payload("fp_psc")
-    assert out == dict(catalog='fp_psc', outfmt=3, outrows=conf.row_limit)
-
+    out = lcogt.core.Lcogt._args_to_payload("lco_img")
+    assert out == dict(catalog='lco_img', outfmt=3, outrows=conf.row_limit, spatial=None)
 
 @pytest.mark.parametrize(("coordinates"), OBJ_LIST)
 def test_query_region_cone_async(coordinates, patch_get):
-    response = lcogt.core.Lcogt.query_region_async(coordinates, catalog='fp_psc', spatial='Cone',
+    response = lcogt.core.Lcogt.query_region_async(coordinates, catalog='lco_img', spatial='Cone',
                                                  radius=2 * u.arcmin, get_query_payload=True)
     assert response['radius'] == 2
     assert response['radunits'] == 'arcmin'
-    response = lcogt.core.Lcogt.query_region_async(coordinates, catalog='fp_psc', spatial='Cone',
+    response = lcogt.core.Lcogt.query_region_async(coordinates, catalog='lco_img', spatial='Cone',
                                                  radius=2 * u.arcmin)
     assert response is not None
 
 
 @pytest.mark.parametrize(("coordinates"), OBJ_LIST)
 def test_query_region_cone(coordinates, patch_get):
-    result = lcogt.core.Lcogt.query_region(coordinates, catalog='fp_psc', spatial='Cone',
+    result = lcogt.core.Lcogt.query_region(coordinates, catalog='lco_img', spatial='Cone',
                                          radius=2 * u.arcmin)
     assert isinstance(result, Table)
 
 
 @pytest.mark.parametrize(("coordinates"), OBJ_LIST)
 def test_query_region_box_async(coordinates, patch_get):
-    response = lcogt.core.Lcogt.query_region_async(coordinates, catalog='fp_psc', spatial='Box',
+    response = lcogt.core.Lcogt.query_region_async(coordinates, catalog='lco_img', spatial='Box',
                                                  width=2 * u.arcmin, get_query_payload=True)
     assert response['size'] == 120
-    response = lcogt.core.Lcogt.query_region_async(coordinates, catalog='fp_psc', spatial='Box',
+    response = lcogt.core.Lcogt.query_region_async(coordinates, catalog='lco_img', spatial='Box',
                                                  width=2 * u.arcmin)
     assert response is not None
 
 
 @pytest.mark.parametrize(("coordinates"), OBJ_LIST)
 def test_query_region_box(coordinates, patch_get):
-    result = lcogt.core.Lcogt.query_region(coordinates, catalog='fp_psc', spatial='Box',
+    result = lcogt.core.Lcogt.query_region(coordinates, catalog='lco_img', spatial='Box',
                                          width=2 * u.arcmin)
     assert isinstance(result, Table)
 
@@ -121,7 +120,7 @@ poly2 = [(10.1 * u.deg, 10.1 * u.deg), (10.0 * u.deg, 10.1 * u.deg), (10.0 * u.d
                           poly2
                           ])
 def test_query_region_async_polygon(polygon, patch_get):
-    response = lcogt.core.Lcogt.query_region_async("m31", catalog="fp_psc", spatial="Polygon",
+    response = lcogt.core.Lcogt.query_region_async("m31", catalog="lco_img", spatial="Polygon",
                                                  polygon=polygon, get_query_payload=True)
 
     for a, b in zip(re.split("[ ,]", response["polygon"]),
@@ -131,7 +130,7 @@ def test_query_region_async_polygon(polygon, patch_get):
             b1 = float(b1)
             np.testing.assert_almost_equal(a1, b1)
 
-    response = lcogt.core.Lcogt.query_region_async("m31", catalog="fp_psc", spatial="Polygon",
+    response = lcogt.core.Lcogt.query_region_async("m31", catalog="lco_img", spatial="Polygon",
                                                  polygon=polygon)
     assert response is not None
 
@@ -141,7 +140,7 @@ def test_query_region_async_polygon(polygon, patch_get):
                           poly2,
                           ])
 def test_query_region_polygon(polygon, patch_get):
-    result = lcogt.core.Lcogt.query_region("m31", catalog="fp_psc", spatial="Polygon",
+    result = lcogt.core.Lcogt.query_region("m31", catalog="lco_img", spatial="Polygon",
                                          polygon=polygon)
     assert isinstance(result, Table)
 
