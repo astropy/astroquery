@@ -5,14 +5,17 @@ import os
 import warnings
 import json
 import copy
+import re
 
 from astropy.extern import six
+from astropy.extern.six import BytesIO
 import astropy.units as u
 import astropy.coordinates as coord
 import astropy.table as tbl
 import astropy.utils.data as aud
 from astropy.utils import OrderedDict
 import astropy.io.votable as votable
+from astropy.io import ascii
 
 from ..query import BaseQuery
 from ..utils import commons
@@ -110,6 +113,54 @@ class VizierClass(BaseQuery):
         FITS binary table: asu-binfits
         plain text: asu-txt
         """
+
+        """
+        Quasi-private performance tests:
+            It seems that these are dominated by table parsing time.
+        %timeit m83tsv = Vizier.query_object_async('M83', return_type='asu-tsv', cache=False)
+        1 loops, best of 3: 7.11 s per loop
+        %timeit m83tsv = Vizier.query_object_async('M83', return_type='votable', cache=False)
+        1 loops, best of 3: 6.79 s per loop
+        %timeit m83tsv = Vizier.query_object_async('M83', return_type='asu-fits', cache=False)
+        1 loops, best of 3: 6.21 s per loop
+        %timeit m83tsv = Vizier.query_object_async('M83', return_type='asu-binfits', cache=False)
+        1 loops, best of 3: 667 ms per loop
+        Looks like this one led to a segfault on their system?
+
+        %timeit m83tsv = Vizier.query_object_async('M83', return_type='asu-txt', cache=False)
+        1 loops, best of 3: 6.83 s per loop
+        %timeit m83tsv = Vizier.query_object_async('M83', return_type='asu-tsv', cache=False)
+        1 loops, best of 3: 6.8 s per loop
+
+        m83tsv = Vizier.query_object_async('M83', return_type='asu-tsv', cache=False)
+        m83votable = Vizier.query_object_async('M83', return_type='votable', cache=False)
+        m83fits = Vizier.query_object_async('M83', return_type='asu-fits', cache=False)
+        m83txt = Vizier.query_object_async('M83', return_type='asu-txt', cache=False)
+        #m83binfits = Vizier.query_object_async('M83', return_type='asu-binfits', cache=False)
+
+        # many of these are invalid tables
+        %timeit fitstbls = fits.open(BytesIO(m83fits.content), ignore_missing_end=True)
+        1 loops, best of 3: 541 ms per loop
+
+        %timeit tbls = parse_vizier_tsvfile(m83tsv.content)
+        1 loops, best of 3: 1.35 s per loop
+
+        %timeit votbls = parse_vizier_votable(m83votable.content)
+        1 loops, best of 3: 3.62 s per loop
+
+        """
+        # Only votable is supported now, but in case we try to support
+        # something in the future we should disallow invalid ones.
+        assert return_type in ('votable', 'asu-tsv', 'asu-fits',
+                               'asu-binfits', 'asu-txt')
+        if return_type in ('asu-txt',):
+            # I had a look at the format of these "tables" and... they just
+            # aren't.  They're quasi-fixed-width without schema.  I think they
+            # follow the general philosophy of "consistency is overrated"
+            # The CDS reader chokes on it.
+            raise TypeError("asu-txt is not and cannot be supported: the "
+                            "returned tables are not and cannot be made "
+                            "parseable.")
         return "http://" + self.VIZIER_SERVER + "/viz-bin/" + return_type
 
     @property
@@ -126,7 +177,7 @@ class VizierClass(BaseQuery):
         self._keywords = None
 
     def find_catalogs(self, keywords, include_obsolete=False, verbose=False,
-                      max_catalogs=None):
+                      max_catalogs=None, return_type='votable'):
         """
         Search Vizier for catalogs based on a set of keywords, e.g. author name
 
@@ -168,12 +219,13 @@ class VizierClass(BaseQuery):
         if max_catalogs is not None:
             data_payload['-meta.max'] = max_catalogs
         response = self._request(method='POST',
-                                 url=self._server_to_url(),
+                                 url=self._server_to_url(return_type=return_type),
                                  data=data_payload,
                                  timeout=self.TIMEOUT)
         if 'STOP, Max. number of RESOURCE reached' in response.text:
-            raise ValueError("Maximum number of catalogs exceeded.  Try setting max_catalogs "
-                             "to a large number and try again")
+            raise ValueError("Maximum number of catalogs exceeded.  Try "
+                             "setting max_catalogs to a large number and"
+                             " try again")
         result = self._parse_result(response, verbose=verbose, get_catalog_names=True)
 
         # Filter out the obsolete catalogs, unless requested
@@ -185,7 +237,7 @@ class VizierClass(BaseQuery):
 
         return result
 
-    def get_catalogs_async(self, catalog, verbose=False):
+    def get_catalogs_async(self, catalog, verbose=False, return_type='votable'):
         """
         Query the Vizier service for a specific catalog
 
@@ -202,13 +254,14 @@ class VizierClass(BaseQuery):
 
         data_payload = self._args_to_payload(catalog=catalog)
         response = self._request(method='POST',
-                                 url=self._server_to_url(),
+                                 url=self._server_to_url(return_type=return_type),
                                  data=data_payload,
                                  timeout=self.TIMEOUT)
         return response
 
     def query_object_async(self, object_name, catalog=None, radius=None,
-                           coordinate_frame=None):
+                           coordinate_frame=None, get_query_payload=False,
+                           return_type='votable', cache=True):
         """
         Serves the same purpose as `query_object` but only
         returns the HTTP response rather than the parsed result.
@@ -248,15 +301,19 @@ class VizierClass(BaseQuery):
         data_payload = self._args_to_payload(
             center=center,
             catalog=catalog)
+        if get_query_payload:
+            return data_payload
         response = self._request(method='POST',
-                                 url=self._server_to_url(),
+                                 url=self._server_to_url(return_type=return_type),
                                  data=data_payload,
-                                 timeout=self.TIMEOUT)
+                                 timeout=self.TIMEOUT,
+                                 cache=cache)
         return response
 
     def query_region_async(self, coordinates, radius=None, inner_radius=None,
                            width=None, height=None, catalog=None,
-                           get_query_payload=False):
+                           get_query_payload=False, cache=True,
+                           return_type='votable'):
         """
         Serves the same purpose as `query_region` but only
         returns the HTTP response rather than the parsed result.
@@ -374,12 +431,15 @@ class VizierClass(BaseQuery):
             return data_payload
 
         response = self._request(method='POST',
-                                 url=self._server_to_url(),
+                                 url=self._server_to_url(return_type=return_type),
                                  data=data_payload,
-                                 timeout=self.TIMEOUT)
+                                 timeout=self.TIMEOUT,
+                                 cache=cache)
         return response
 
-    def query_constraints_async(self, catalog=None, **kwargs):
+    def query_constraints_async(self, catalog=None, return_type='votable',
+                                cache=True,
+                                **kwargs):
         """
         Send a query to Vizier in which you specify constraints with keyword/value
         pairs.
@@ -437,9 +497,10 @@ class VizierClass(BaseQuery):
             column_filters=kwargs,
             center={'-c.rd': 180})
         response = self._request(method='POST',
-                                 url=self._server_to_url(),
+                                 url=self._server_to_url(return_type=return_type),
                                  data=data_payload,
-                                 timeout=self.TIMEOUT)
+                                 timeout=self.TIMEOUT,
+                                 cache=cache)
         return response
 
     def _args_to_payload(self, *args, **kwargs):
@@ -530,7 +591,8 @@ class VizierClass(BaseQuery):
             script += "\n" + str(self.keywords)
         return script
 
-    def _parse_result(self, response, get_catalog_names=False, verbose=False, invalid='warn'):
+    def _parse_result(self, response, get_catalog_names=False, verbose=False,
+                      invalid='warn'):
         """
         Parses the HTTP response to create a `~astropy.table.Table`.
 
@@ -541,9 +603,11 @@ class VizierClass(BaseQuery):
         response : `requests.Response`
             The response of the HTTP POST request
         get_catalog_names : bool
+            (only for VOTABLE queries)
             If specified, return only the table names (useful for table
-            discovery)
+            discovery).
         invalid : 'warn', 'mask' or 'raise'
+            (only for VOTABLE queries)
             The behavior if a VOTABLE cannot be parsed.  Default is 'warn',
             which will try to parse the table, then if an exception is raised,
             it will be printent but the masked table will be returned
@@ -553,51 +617,22 @@ class VizierClass(BaseQuery):
         table_list : `astroquery.utils.TableList` or str
             If there are errors in the parsing, then returns the raw results as a string.
         """
-        if not verbose:
-            commons.suppress_vo_warnings()
-        try:
-            tf = six.BytesIO(response.content)
-
-            if invalid == 'mask':
-                vo_tree = votable.parse(tf, pedantic=False, invalid='mask')
-            elif invalid == 'warn':
-                try:
-                    vo_tree = votable.parse(tf, pedantic=False, invalid='raise')
-                except Exception as ex:
-                    warnings.warn("VOTABLE parsing raised exception: {0}".format(ex))
-                    vo_tree = votable.parse(tf, pedantic=False, invalid='mask')
-            elif invalid == 'raise':
-                vo_tree = votable.parse(tf, pedantic=False, invalid='raise')
-            else:
-                raise ValueError("Invalid keyword 'invalid'.  Must be raise, mask, or warn")
-
-            if get_catalog_names:
-                return dict([(R.name, R) for R in vo_tree.resources])
-            else:
-                table_dict = OrderedDict()
-                for t in vo_tree.iter_tables():
-                    if len(t.array) > 0:
-                        if t.ref is not None:
-                            name = vo_tree.get_table_by_id(t.ref).name
-                        else:
-                            name = t.name
-                        if name not in table_dict.keys():
-                            table_dict[name] = []
-                        table_dict[name] += [t.to_table()]
-                for name in table_dict.keys():
-                    if len(table_dict[name]) > 1:
-                        table_dict[name] = tbl.vstack(table_dict[name])
-                    else:
-                        table_dict[name] = table_dict[name][0]
-                return commons.TableList(table_dict)
-
-        except Exception as ex:
-            self.response = response
-            self.table_parse_error = ex
-            raise TableParseError("Failed to parse VIZIER result! The raw response can be found "
-                                  "in self.response, and the error in self.table_parse_error."
-                                  "  The attempted parsed result is in self.parsed_result.\n"
-                                  "Exception: " + str(self.table_parse_error))
+        if response.content[:5] == b'<?xml':
+            try:
+                return parse_vizier_votable(response.content, verbose=verbose,
+                                            invalid=invalid,
+                                            get_catalog_names=get_catalog_names)
+            except Exception as ex:
+                self.response = response
+                self.table_parse_error = ex
+                raise TableParseError("Failed to parse VIZIER result! The raw response can be found "
+                                      "in self.response, and the error in self.table_parse_error."
+                                      "  The attempted parsed result is in self.parsed_result.\n"
+                                      "Exception: " + str(self.table_parse_error))
+        elif response.content[:5] == b'#\n#  ':
+            return parse_vizier_tsvfile(data, verbose=verbose)
+        elif response.content[:6] == b'SIMPLE':
+            return fits.open(BytesIO(response.content), ignore_missing_end=True)
 
     @property
     def valid_keywords(self):
@@ -610,6 +645,69 @@ class VizierClass(BaseQuery):
                 self._valid_keyword_dict = OrderedDict([(k, kwd[k]) for k in sorted(kwd)])
 
         return self._valid_keyword_dict
+
+def parse_vizier_tsvfile(data, verbose=False):
+    """
+    Parse a Vizier-generated list of tsv data tables into a list of astropy
+    Tables.
+
+    Parameters
+    ----------
+    data : ascii str
+        An ascii string containing the vizier-formatted list of tables
+    """
+    
+    # http://stackoverflow.com/questions/4664850/find-all-occurrences-of-a-substring-in-python
+    split_indices = [m.start() for m in re.finditer('\n\n#', data)]
+    # we want to slice out chunks of the file each time
+    split_limits = zip(split_indices[:-1], split_indices[1:])
+    tables = [ascii.read(BytesIO(data[a:b]), format='fast_tab', delimiter='\t',
+                         header_start=0, comment="#") for
+              a,b in split_limits]
+    return tables
+
+def parse_vizier_votable(data, verbose=False, invalid='warn',
+                         get_catalog_names=False):
+    """
+    Given a votable as string, parse it into tables
+    """
+    if not verbose:
+        commons.suppress_vo_warnings()
+
+    tf = BytesIO(data)
+
+    if invalid == 'mask':
+        vo_tree = votable.parse(tf, pedantic=False, invalid='mask')
+    elif invalid == 'warn':
+        try:
+            vo_tree = votable.parse(tf, pedantic=False, invalid='raise')
+        except Exception as ex:
+            warnings.warn("VOTABLE parsing raised exception: {0}".format(ex))
+            vo_tree = votable.parse(tf, pedantic=False, invalid='mask')
+    elif invalid == 'raise':
+        vo_tree = votable.parse(tf, pedantic=False, invalid='raise')
+    else:
+        raise ValueError("Invalid keyword 'invalid'.  Must be raise, mask, or warn")
+
+    if get_catalog_names:
+        return dict([(R.name, R) for R in vo_tree.resources])
+    else:
+        table_dict = OrderedDict()
+        for t in vo_tree.iter_tables():
+            if len(t.array) > 0:
+                if t.ref is not None:
+                    name = vo_tree.get_table_by_id(t.ref).name
+                else:
+                    name = t.name
+                if name not in table_dict.keys():
+                    table_dict[name] = []
+                table_dict[name] += [t.to_table()]
+        for name in table_dict.keys():
+            if len(table_dict[name]) > 1:
+                table_dict[name] = tbl.vstack(table_dict[name])
+            else:
+                table_dict[name] = table_dict[name][0]
+        return commons.TableList(table_dict)
 
 
 def _parse_angle(angle):
