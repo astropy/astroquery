@@ -36,7 +36,7 @@ def patch_get(request):
     return mp
 
 
-def get_mockreturn(method, url, params=None, timeout=10, **kwargs):
+def get_mockreturn(method, url, params=None, timeout=10, cache=True, **kwargs):
     filename = data_path(DATA_FILES[params['spatial']])
     content = open(filename, 'rb').read()
     return MockResponse(content, **kwargs)
