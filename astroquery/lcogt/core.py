@@ -79,38 +79,19 @@ import astropy.coordinates as coord
 import astropy.io.votable as votable
 
 from ..query import BaseQuery
-from ..utils import commons
+from ..utils import commons, async_to_sync
 from . import conf
 from ..exceptions import TableParseError
 
 __all__ = ['Lcogt', 'LcogtClass']
 
 
+@async_to_sync
 class LcogtClass(BaseQuery):
     LCOGT_URL = conf.server
     TIMEOUT = conf.timeout
     ROW_LIMIT = conf.row_limit
-
-    def query_object(self, objstr, catalog=None, verbose=False):
-        """
-        Queries the LCOGT public archive hosted at NASA/IPAC archive on target name
-        and returns the result as a `~astropy.table.Table`.
-        See examples below.
-
-        Parameters
-        ----------
-        objstr : str
-            name of object to be queried
-        catalog : str
-            name of the catalog to use. 'lco_img' for image meta data; 'lco_cat' for photometry.
-
-        Returns
-        -------
-        table : `~astropy.table.Table`
-            Query results table
-        """
-        response = self.query_object_async(objstr, catalog=catalog)
-        return self._parse_result(response, verbose=verbose)
+    catalogs = ['lco_img', 'lco_cat']
 
     def query_object_async(self, objstr, catalog=None):
         """
@@ -121,6 +102,9 @@ class LcogtClass(BaseQuery):
         ----------
         objstr : str
             name of object to be queried
+        catalog : str
+            name of the catalog to use. 'lco_img' for image meta data;
+            'lco_cat' for photometry.
 
         Returns
         -------
@@ -128,71 +112,20 @@ class LcogtClass(BaseQuery):
             Response of the query from the server
         """
         if catalog is None:
-            raise Exception("Catalogue name is required!")
+            raise ValueError("Catalogue name is required!")
+        if catalog not in self.catalogs:
+            raise ValueError("Catalog name must be one of {0}"
+                             .format(self.catalogs))
+
         request_payload = self._args_to_payload(catalog)
         request_payload['objstr'] = objstr
-        response = commons.send_request(Lcogt.LCOGT_URL, request_payload,
-                                Lcogt.TIMEOUT, request_type='GET')
+        response = self._request(method='GET', url=self.LCOGT_URL,
+                                 params=request_payload, timeout=self.TIMEOUT)
         return response
 
-    def query_region(self, coordinates=None, catalog=None, spatial=None, radius=None, width=None, polygon=None,
-                     get_query_payload=False, verbose=False):
-        """
-        This function can be used to perform either cone, box, polygon or
-        all-sky search in the LCOGT public archive hosted by the NASA/IPAC Archive.
-
-        Parameters
-        ----------
-        coordinates : str, `astropy.coordinates` object
-            Gives the position of the center of the cone or box if
-            performing a cone or box search. The string can give coordinates
-            in various coordinate systems, or the name of a source that will
-            be resolved on the server (see `here
-            <http://irsa.ipac.caltech.edu/search_help.html>`_ for more
-            details). Required if spatial is ``'Cone'`` or ``'Box'``. Optional
-            if spatial is ``'Polygon'``.
-        catalog : str
-            The catalog to be used. Either ``lco_img`` for image metadata or ``lco_cat``
-            for photometry.
-        spatial : str
-            Type of spatial query: ``'Cone'``, ``'Box'``, ``'Polygon'``, and
-            ``'All-Sky'``. If missing then defaults to ``'Cone'``.
-        radius : str or `~astropy.units.Quantity` object, [optional for spatial is ``'Cone'``]
-            The string must be parsable by `~astropy.coordinates.Angle`. The
-            appropriate `~astropy.units.Quantity` object from
-            `astropy.units` may also be used. Defaults to 10 arcsec.
-        width : str, `~astropy.units.Quantity` object [Required for spatial is ``'Polygon'``.]
-
-            The string must be parsable by `~astropy.coordinates.Angle`. The
-            appropriate `~astropy.units.Quantity` object from `astropy.units`
-            may also be used.
-        polygon : list, [Required for spatial is ``'Polygon'``]
-            A list of ``(ra, dec)`` pairs (as tuples), in decimal degrees,
-            outlinining the polygon to search in. It can also be a list of
-            `astropy.coordinates` object or strings that can be parsed by
-            `astropy.coordinates.ICRS`.
-        get_query_payload : bool, optional
-            If `True` then returns the dictionary sent as the HTTP request.
-            Defaults to `False`.
-        verbose : bool, optional.
-            If `True` then displays warnings when the returned VOTable does not
-            conform to the standard. Defaults to `False`.
-
-        Returns
-        -------
-        table : `~astropy.table.Table`
-            A table containing the results of the query
-        """
-        response = self.query_region_async(coordinates, catalog=catalog,
-                                           spatial=spatial, radius=radius,
-                                           width=width, polygon=polygon,
-                                           get_query_payload=get_query_payload)
-        if get_query_payload:
-            return response
-        return self._parse_result(response, verbose=verbose)
 
     def query_region_async(self, coordinates=None, catalog=None,
-                           spatial='Cone', radius=10 * u.arcsec, width=None,
+                           spatial='Cone', radius=10*u.arcsec, width=None,
                            polygon=None, get_query_payload=False):
         """
         This function serves the same purpose as
@@ -210,16 +143,18 @@ class LcogtClass(BaseQuery):
             details). Required if spatial is ``'Cone'`` or ``'Box'``. Optional
             if spatial is ``'Polygon'``.
         catalog : str
-            The catalog to be used. Either ``'lco_img'`` for image metadata or ``'lco_cat'``
-            for photometry.
+            The catalog to be used. Either ``'lco_img'`` for image metadata or
+            ``'lco_cat'`` for photometry.
         spatial : str
             Type of spatial query: ``'Cone'``, ``'Box'``, ``'Polygon'``, and
             ``'All-Sky'``. If missing then defaults to ``'Cone'``.
-        radius : str or `~astropy.units.Quantity` object, [optional for spatial is ``'Cone'``]
+        radius : str or `~astropy.units.Quantity` object, [optional for \\
+                spatial is ``'Cone'``]
             The string must be parsable by `~astropy.coordinates.Angle`. The
             appropriate `~astropy.units.Quantity` object from
             `astropy.units` may also be used. Defaults to 10 arcsec.
-        width : str, `~astropy.units.Quantity` object [Required for spatial is ``'Polygon'``.]
+        width : str, `~astropy.units.Quantity` object [Required for spatial \\
+                is ``'Polygon'``.]
             The string must be parsable by `~astropy.coordinates.Angle`. The
             appropriate `~astropy.units.Quantity` object from `astropy.units`
             may also be used.
@@ -238,7 +173,11 @@ class LcogtClass(BaseQuery):
             The HTTP response returned from the service
         """
         if catalog is None:
-            raise Exception("Catalogue name is required!")
+            raise ValueError("Catalogue name is required!")
+        if catalog not in self.catalogs:
+            raise ValueError("Catalog name must be one of {0}"
+                             .format(self.catalogs))
+
 
         request_payload = self._args_to_payload(catalog)
         request_payload.update(self._parse_spatial(spatial=spatial,
@@ -248,8 +187,8 @@ class LcogtClass(BaseQuery):
 
         if get_query_payload:
             return request_payload
-        response = commons.send_request(Lcogt.LCOGT_URL, request_payload,
-                                        Lcogt.TIMEOUT, request_type='GET')
+        response = self._request(method='GET', url=self.LCOGT_URL,
+                                 params=request_payload, timeout=self.TIMEOUT)
         return response
 
     def _parse_spatial(self, spatial, coordinates, radius=None, width=None,
@@ -307,15 +246,20 @@ class LcogtClass(BaseQuery):
                 request_payload['size'] = width.to(u.arcsec).value
         elif spatial == 'Polygon':
             if coordinates is not None:
-                request_payload['objstr'] = coordinates if not commons._is_coordinate(coordinates) else _parse_coordinates(coordinates)
+                request_payload['objstr'] = (coordinates if not
+                                             commons._is_coordinate(coordinates)
+                                             else
+                                             _parse_coordinates(coordinates))
             try:
                 coordinates_list = [_parse_coordinates(c) for c in polygon]
             except (ValueError, TypeError):
-                    coordinates_list = [_format_decimal_coords(*_pair_to_deg(pair)) for pair in polygon]
+                    coordinates_list = [_format_decimal_coords(*_pair_to_deg(pair))
+                                        for pair in polygon]
             request_payload['polygon'] = ','.join(coordinates_list)
         else:
-            raise ValueError("Unrecognized spatial query type. " +
-                             "Must be one of `Cone`, `Box`, `Polygon`, or `All-Sky`.")
+            raise ValueError("Unrecognized spatial query type. "
+                             "Must be one of `Cone`, `Box`, "
+                             "`Polygon`, or `All-Sky`.")
 
         request_payload['spatial'] = spatial
 
@@ -382,8 +326,9 @@ class LcogtClass(BaseQuery):
         except Exception as ex:
             self.response = response
             self.table_parse_error = ex
-            raise TableParseError("Failed to parse LCOGT votable! The raw response can be found "
-                                  "in self.response, and the error in self.table_parse_error.")
+            raise TableParseError("Failed to parse LCOGT votable! The raw "
+                                  " response can be found in self.response,"
+                                  " and the error in self.table_parse_error.")
 
         # Convert to astropy.table.Table instance
         table = first_table.to_table()

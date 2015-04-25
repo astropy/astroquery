@@ -20,7 +20,8 @@ DATA_FILES = {'Cone': 'Cone.xml',
               'Polygon': 'Polygon.xml'}
 
 OBJ_LIST = ["m31", "00h42m44.330s +41d16m07.50s",
-            commons.GalacticCoordGenerator(l=121.1743, b=-21.5733, unit=(u.deg, u.deg))]
+            commons.GalacticCoordGenerator(l=121.1743, b=-21.5733, unit=(u.deg,
+                                                                         u.deg))]
 
 
 def data_path(filename):
@@ -31,11 +32,11 @@ def data_path(filename):
 @pytest.fixture
 def patch_get(request):
     mp = request.getfuncargvalue("monkeypatch")
-    mp.setattr(requests, 'get', get_mockreturn)
+    mp.setattr(lcogt.core.Lcogt, '_request', get_mockreturn)
     return mp
 
 
-def get_mockreturn(url, params=None, timeout=10, **kwargs):
+def get_mockreturn(method, url, params=None, timeout=10, **kwargs):
     filename = data_path(DATA_FILES[params['spatial']])
     content = open(filename, 'rb').read()
     return MockResponse(content, **kwargs)
