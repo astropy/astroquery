@@ -5,6 +5,7 @@ import os
 import warnings
 import json
 import copy
+import re
 
 from astropy.extern import six
 import astropy.units as u
@@ -13,6 +14,7 @@ import astropy.table as tbl
 import astropy.utils.data as aud
 from astropy.utils import OrderedDict
 import astropy.io.votable as votable
+from astropy.io import ascii
 
 from ..query import BaseQuery
 from ..utils import commons
@@ -110,10 +112,42 @@ class VizierClass(BaseQuery):
         FITS binary table: asu-binfits
         plain text: asu-txt
         """
+
+        """
+        Quasi-private performance tests:
+        %timeit m83tsv = Vizier.query_object_async('M83', return_type='asu-tsv', cache=False)
+        1 loops, best of 3: 7.11 s per loop
+        %timeit m83tsv = Vizier.query_object_async('M83', return_type='votable', cache=False)
+        1 loops, best of 3: 6.79 s per loop
+        %timeit m83tsv = Vizier.query_object_async('M83', return_type='asu-fits', cache=False)
+        1 loops, best of 3: 6.21 s per loop
+        %timeit m83tsv = Vizier.query_object_async('M83', return_type='asu-binfits', cache=False)
+        1 loops, best of 3: 667 ms per loop
+        Looks like this one led to a segfault on their system?
+
+        %timeit m83tsv = Vizier.query_object_async('M83', return_type='asu-txt', cache=False)
+        1 loops, best of 3: 6.83 s per loop
+        %timeit m83tsv = Vizier.query_object_async('M83', return_type='asu-tsv', cache=False)
+        1 loops, best of 3: 6.8 s per loop
+
+        m83tsv = Vizier.query_object_async('M83', return_type='asu-tsv', cache=False)
+        m83votable = Vizier.query_object_async('M83', return_type='votable', cache=False)
+        m83fits = Vizier.query_object_async('M83', return_type='asu-fits', cache=False)
+        m83txt = Vizier.query_object_async('M83', return_type='asu-txt', cache=False)
+        #m83binfits = Vizier.query_object_async('M83', return_type='asu-binfits', cache=False)
+        """
         # Only votable is supported now, but in case we try to support
         # something in the future we should disallow invalid ones.
         assert return_type in ('votable', 'asu-tsv', 'asu-fits',
                                'asu-binfits', 'asu-txt')
+        if return_type in ('asu-txt',):
+            # I had a look at the format of these "tables" and... they just
+            # aren't.  They're quasi-fixed-width without schema.  I think they
+            # follow the general philosophy of "consistency is overrated"
+            # The CDS reader chokes on it.
+            raise TypeError("asu-txt is not and cannot be supported: the "
+                            "returned tables are not and cannot be made "
+                            "parseable.")
         return "http://" + self.VIZIER_SERVER + "/viz-bin/" + return_type
 
     @property
@@ -624,6 +658,26 @@ class VizierClass(BaseQuery):
                 self._valid_keyword_dict = OrderedDict([(k, kwd[k]) for k in sorted(kwd)])
 
         return self._valid_keyword_dict
+
+def parse_vizier_tsvfile(data):
+    """
+    Parse a Vizier-generated list of tsv data tables into a list of astropy
+    Tables.
+
+    Parameters
+    ----------
+    data : ascii str
+        An ascii string containing the vizier-formatted list of tables
+    """
+    
+    # http://stackoverflow.com/questions/4664850/find-all-occurrences-of-a-substring-in-python
+    split_indices = [m.start() for m in re.finditer('\n\n#', data)]
+    # we want to slice out chunks of the file each time
+    split_limits = zip(split_indices[:-1], split_indices[1:])
+    tables = [ascii.read(BytesIO(data[a:b]), format='tab', delimiter='\t',
+                         header_start=0, comment="#") for
+              a,b in split_limits]
+    return tables
 
 
 def _parse_angle(angle):
