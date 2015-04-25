@@ -115,6 +115,7 @@ class VizierClass(BaseQuery):
 
         """
         Quasi-private performance tests:
+            It seems that these are dominated by table parsing time.
         %timeit m83tsv = Vizier.query_object_async('M83', return_type='asu-tsv', cache=False)
         1 loops, best of 3: 7.11 s per loop
         %timeit m83tsv = Vizier.query_object_async('M83', return_type='votable', cache=False)
@@ -135,6 +136,17 @@ class VizierClass(BaseQuery):
         m83fits = Vizier.query_object_async('M83', return_type='asu-fits', cache=False)
         m83txt = Vizier.query_object_async('M83', return_type='asu-txt', cache=False)
         #m83binfits = Vizier.query_object_async('M83', return_type='asu-binfits', cache=False)
+
+        # many of these are invalid tables
+        %timeit fitstbls = fits.open(BytesIO(m83fits.content), ignore_missing_end=True)
+        1 loops, best of 3: 541 ms per loop
+
+        %timeit tbls = parse_vizier_tsvfile(m83tsv.content)
+        1 loops, best of 3: 1.35 s per loop
+
+        %timeit votbls = parse_vizier_votable(m83votable.content)
+        1 loops, best of 3: 3.62 s per loop
+
         """
         # Only votable is supported now, but in case we try to support
         # something in the future we should disallow invalid ones.
@@ -589,9 +601,11 @@ class VizierClass(BaseQuery):
         response : `requests.Response`
             The response of the HTTP POST request
         get_catalog_names : bool
+            (only for VOTABLE queries)
             If specified, return only the table names (useful for table
-            discovery)
+            discovery).
         invalid : 'warn', 'mask' or 'raise'
+            (only for VOTABLE queries)
             The behavior if a VOTABLE cannot be parsed.  Default is 'warn',
             which will try to parse the table, then if an exception is raised,
             it will be printent but the masked table will be returned
@@ -603,7 +617,9 @@ class VizierClass(BaseQuery):
         """
         if response.content[:5] == '<?xml':
             try:
-                return parse_vizier_votable(response.content, verbose=verbose)
+                return parse_vizier_votable(response.content, verbose=verbose,
+                                            invalid=invalid,
+                                            get_catalog_names=get_catalog_names)
             except Exception as ex:
                 self.response = response
                 self.table_parse_error = ex
@@ -613,6 +629,8 @@ class VizierClass(BaseQuery):
                                       "Exception: " + str(self.table_parse_error))
         elif response.content[:5] == '#\n#  ':
             return parse_vizier_tsvfile(data, verbose=verbose)
+        elif response.content[:6] == 'SIMPLE':
+            return fits.open(BytesIO(response.content), ignore_missing_end=True)
 
     @property
     def valid_keywords(self):
@@ -641,12 +659,16 @@ def parse_vizier_tsvfile(data, verbose=False):
     split_indices = [m.start() for m in re.finditer('\n\n#', data)]
     # we want to slice out chunks of the file each time
     split_limits = zip(split_indices[:-1], split_indices[1:])
-    tables = [ascii.read(BytesIO(data[a:b]), format='tab', delimiter='\t',
+    tables = [ascii.read(BytesIO(data[a:b]), format='fast_tab', delimiter='\t',
                          header_start=0, comment="#") for
               a,b in split_limits]
     return tables
 
-def parse_vizier_votable(data, verbose=False):
+def parse_vizier_votable(data, verbose=False, invalid='warn',
+                         get_catalog_names=False):
+    """
+    Given a votable as string, parse it into tables
+    """
     if not verbose:
         commons.suppress_vo_warnings()
 
