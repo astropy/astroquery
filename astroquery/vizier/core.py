@@ -617,7 +617,7 @@ class VizierClass(BaseQuery):
         table_list : `astroquery.utils.TableList` or str
             If there are errors in the parsing, then returns the raw results as a string.
         """
-        if response.content[:5] == '<?xml':
+        if response.content[:5] == b'<?xml':
             try:
                 return parse_vizier_votable(response.content, verbose=verbose,
                                             invalid=invalid,
@@ -629,9 +629,9 @@ class VizierClass(BaseQuery):
                                       "in self.response, and the error in self.table_parse_error."
                                       "  The attempted parsed result is in self.parsed_result.\n"
                                       "Exception: " + str(self.table_parse_error))
-        elif response.content[:5] == '#\n#  ':
+        elif response.content[:5] == b'#\n#  ':
             return parse_vizier_tsvfile(data, verbose=verbose)
-        elif response.content[:6] == 'SIMPLE':
+        elif response.content[:6] == b'SIMPLE':
             return fits.open(BytesIO(response.content), ignore_missing_end=True)
 
     @property
