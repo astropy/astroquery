@@ -513,9 +513,12 @@ class SDSSClass(BaseQuery):
             r = commons.send_request(SDSS.QUERY_URL, request_payload, timeout,
                                      request_type='GET')
             matches = self._parse_result(r)
+            if matches is None:
+                print("No result is found.")
+                return
 
         if not isinstance(matches, Table):
-            raise TypeError("Matches must be an astropy Table.")
+            raise TypeError("'matches' must be an astropy Table.")
 
         results = []
         for row in matches:
@@ -549,7 +552,11 @@ class SDSSClass(BaseQuery):
                                                plate=plate, fiberID=fiberID,
                                                mjd=mjd, timeout=timeout)
 
-        return [obj.get_fits() for obj in readable_objs]
+        if readable_objs is not None:
+            if isinstance(readable_objs, dict):
+                return readable_objs
+            else:
+                return [obj.get_fits() for obj in readable_objs]
 
     def get_images_async(self, coordinates=None, radius=2. * u.arcsec,
                          matches=None, run=None, rerun=301, camcol=None,
@@ -640,9 +647,11 @@ class SDSSClass(BaseQuery):
             r = commons.send_request(SDSS.QUERY_URL, request_payload, timeout,
                                      request_type='GET')
             matches = self._parse_result(r)
-
+            if matches is None:
+                print("No result is found.")
+                return
         if not isinstance(matches, Table):
-            raise ValueError
+            raise ValueError("'matches' must be an astropy Table")
 
         results = []
         for row in matches:
@@ -665,7 +674,8 @@ class SDSSClass(BaseQuery):
     @prepend_docstr_noreturns(get_images_async.__doc__)
     def get_images(self, coordinates=None, radius=2. * u.arcsec,
                    matches=None, run=None, rerun=301, camcol=None, field=None,
-                   band='g', timeout=TIMEOUT, cache=True):
+                   band='g', timeout=TIMEOUT, cache=True,
+                   get_query_payload=False):
         """
         Returns
         -------
@@ -678,9 +688,13 @@ class SDSSClass(BaseQuery):
                                               run=run, rerun=rerun,
                                               camcol=camcol, field=field,
                                               band=band, timeout=timeout,
-                                              get_query_payload=False)
+                                              get_query_payload=get_query_payload)
 
-        return [obj.get_fits() for obj in readable_objs]
+        if readable_objs is not None:
+            if isinstance(readable_objs, dict):
+                return readable_objs
+            else:
+                return [obj.get_fits() for obj in readable_objs]
 
     def get_spectral_template_async(self, kind='qso', timeout=TIMEOUT):
         """
@@ -744,7 +758,8 @@ class SDSSClass(BaseQuery):
         readable_objs = self.get_spectral_template_async(kind=kind,
                                                          timeout=timeout)
 
-        return [obj.get_fits() for obj in readable_objs]
+        if readable_objs is not None:
+            return [obj.get_fits() for obj in readable_objs]
 
     def _parse_result(self, response, verbose=False):
         """
