@@ -74,7 +74,9 @@ def print_mols():
         print(mols[mol_family], '\n')
 
 def get_molfile(mol):
-    return requests.get(url.format(mol))
+    response = requests.get(url.format(mol))
+    response.raise_for_status()
+    return response
 
 def download_molfile(mol, outfilename):
     molreq = get_molfile(mol)
