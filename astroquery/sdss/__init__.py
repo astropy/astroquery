@@ -2,8 +2,6 @@
 """
 SDSS Spectra/Image/SpectralTemplate Archive Query Tool
 ------------------------------------------------------
-
-:Author: Jordan Mirocha (mirochaj@gmail.com)
 """
 from astropy import config as _config
 

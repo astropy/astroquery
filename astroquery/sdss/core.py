@@ -1,12 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 """
-
-Author: Jordan Mirocha
-Affiliation: University of Colorado at Boulder
-Created on: Sun Apr 14 19:18:43 2013
-
-Description: Access Sloan Digital Sky Survey database online.
-
+Access Sloan Digital Sky Survey database online.
 """
 
 from __future__ import print_function
