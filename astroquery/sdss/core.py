@@ -20,32 +20,28 @@ __all__ = ['SDSS', 'SDSSClass']
 
 __doctest_skip__ = ['SDSSClass.*']
 
-from .field_names import (photoobj_defs, specobj_defs, photoobj_all,
-                          specobj_all, crossid_defs)
+from .field_names import photoobj_defs, specobj_defs, crossid_defs, get_field_info
 
 # Cross-correlation templates from DR-7
-spec_templates = {'star_O': 0, 'star_OB': 1, 'star_B': 2, 'star_A': [3, 4],
-                  'star_FA': 5, 'star_F': [6, 7], 'star_G': [8, 9],
-                  'star_K': 10, 'star_M1': 11, 'star_M3': 12, 'star_M5': 13,
-                  'star_M8': 14, 'star_L1': 15, 'star_wd': [16, 20, 21],
-                  'star_carbon': [17, 18, 19], 'star_Ksubdwarf': 22,
-                  'galaxy_early': 23, 'galaxy': [24, 25, 26],
-                  'galaxy_late': 27, 'galaxy_lrg': 28, 'qso': 29,
-                  'qso_bal': [30, 31], 'qso_bright': 32
-                  }
+_spec_templates = {'star_O': 0, 'star_OB': 1, 'star_B': 2, 'star_A': [3, 4],
+                   'star_FA': 5, 'star_F': [6, 7], 'star_G': [8, 9],
+                   'star_K': 10, 'star_M1': 11, 'star_M3': 12, 'star_M5': 13,
+                   'star_M8': 14, 'star_L1': 15, 'star_wd': [16, 20, 21],
+                   'star_carbon': [17, 18, 19], 'star_Ksubdwarf': 22,
+                   'galaxy_early': 23, 'galaxy': [24, 25, 26],
+                   'galaxy_late': 27, 'galaxy_lrg': 28, 'qso': 29,
+                   'qso_bal': [30, 31], 'qso_bright': 32
+                   }
 
 sdss_arcsec_per_pixel = 0.396
 
 
 @async_to_sync
 class SDSSClass(BaseQuery):
-
-    BASE_URL = conf.server
-    SPECTRO_OPTICAL = BASE_URL
-    IMAGING = BASE_URL + '/boss/photoObj/frames'
-    TEMPLATES = 'http://classic.sdss.org/dr7/algorithms/spectemplates/spDR2'
-    MAXQUERIES = conf.maxqueries
-    AVAILABLE_TEMPLATES = spec_templates
+    SPECTRO_OPTICAL = 'http://data.sdss3.org/sas/dr12'
+    IMAGING = 'http://data.sdss3.org/sas/dr12/boss/photoObj/frames'
+    TEMPLATES_URL = 'http://classic.sdss.org/dr7/algorithms/spectemplates/spDR2'
+    AVAILABLE_TEMPLATES = _spec_templates
     TIMEOUT = conf.timeout
 
     QUERY_URL = 'http://skyserver.sdss3.org/public/en/tools/search/x_sql.aspx'
@@ -727,14 +723,14 @@ class SDSSClass(BaseQuery):
         if kind == 'all':
             indices = list(np.arange(33))
         else:
-            indices = spec_templates[kind]
+            indices = SDSS.AVAILABLE_TEMPLATES[kind]
             if type(indices) is not list:
                 indices = [indices]
 
         results = []
         for index in indices:
             name = str(index).zfill(3)
-            link = '%s-%s.fit' % (SDSS.TEMPLATES, name)
+            link = '%s-%s.fit' % (SDSS.TEMPLATES_URL, name)
             results.append(commons.FileContainer(link,
                                                  remote_timeout=timeout,
                                                  encoding='binary'))
@@ -853,6 +849,9 @@ class SDSSClass(BaseQuery):
         request_payload : dict
 
         """
+        # TODO: replace this with something cleaner below
+        photoobj_all = get_field_info('PhotoObjAll', self.QUERY_URL, self.TIMEOUT)['name']
+        specobj_all = get_field_info('SpecObjAll', self.QUERY_URL, self.TIMEOUT)['name']
 
         if field_help:
             ret = 0
