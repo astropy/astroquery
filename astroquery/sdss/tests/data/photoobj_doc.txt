@@ -1,0 +1,511 @@
+#Table1
+enum,name,type,length,unit,ucd,description
+,objID,bigint,8,,,"Unique SDSS identifier composed from [skyVersion,rerun,run,camcol,field,obj]."
+,skyVersion,tinyint,1,,,"Layer of catalog (currently only one layer, 0; 0-15 available)"
+,run,smallint,2,,,Run number
+,rerun,smallint,2,,,Rerun number
+,camcol,tinyint,1,,,Camera column
+,field,smallint,2,,,Field number
+,obj,smallint,2,,,The object id within a field. Usually changes between reruns of the same field
+PhotoMode,mode,tinyint,1,,,"1: primary, 2: secondary, 3: other"
+,nChild,smallint,2,,,"Number of children if this is a composite object that has been deblended. BRIGHT (in a flags sense) objects also have nchild == 1, the non-BRIGHT sibling."
+PhotoType,type,smallint,2,,,"Type classification of the object (star, galaxy, cosmic ray, etc.)"
+,clean,int,4,,,"Clean photometry flag (1=clean, 0=unclean)."
+,probPSF,real,4,,,"Probability that the object is a star. Currently 0 if type == 3 (galaxy), 1 if type == 6 (star)."
+InsideMask,insideMask,tinyint,1,,,Flag to indicate whether object is inside a mask and why
+PhotoFlags,flags,bigint,8,,,Photo Object Attribute Flags
+,rowc,real,4,pix,,Row center position (r-band coordinates)
+,rowcErr,real,4,pix,,Row center position error (r-band coordinates)
+,colc,real,4,pix,,Column center position (r-band coordinates)
+,colcErr,real,4,pix,,Column center position error (r-band coordinates)
+,rowv,real,4,deg/day,,Row-component of object's velocity
+,rowvErr,real,4,deg/day,,Row-component of object's velocity error
+,colv,real,4,deg/day,,Column-component of object's velocity
+,colvErr,real,4,deg/day,,Column-component of object's velocity error
+,rowc_u,real,4,pix,,"Row center, u-band"
+,rowc_g,real,4,pix,,"Row center, g-band"
+,rowc_r,real,4,pix,,"Row center, r-band"
+,rowc_i,real,4,pix,,"Row center, i-band"
+,rowc_z,real,4,pix,,"Row center, z-band"
+,rowcErr_u,real,4,pix,,"ERROR Row center error, u-band"
+,rowcErr_g,real,4,pix,,"ERROR Row center error, g-band"
+,rowcErr_r,real,4,pix,,"ERROR Row center error, r-band"
+,rowcErr_i,real,4,pix,,"ERROR Row center error, i-band"
+,rowcErr_z,real,4,pix,,"ERROR Row center error, z-band"
+,colc_u,real,4,pix,,"Column center, u-band"
+,colc_g,real,4,pix,,"Column center, g-band"
+,colc_r,real,4,pix,,"Column center, r-band"
+,colc_i,real,4,pix,,"Column center, i-band"
+,colc_z,real,4,pix,,"Column center, z-band"
+,colcErr_u,real,4,pix,,"Column center error, u-band"
+,colcErr_g,real,4,pix,,"Column center error, g-band"
+,colcErr_r,real,4,pix,,"Column center error, r-band"
+,colcErr_i,real,4,pix,,"Column center error, i-band"
+,colcErr_z,real,4,pix,,"Column center error, z-band"
+,sky_u,real,4,nanomaggies/arcsec^2,,Sky flux at the center of object (allowing for siblings if blended).
+,sky_g,real,4,nanomaggies/arcsec^2,,Sky flux at the center of object (allowing for siblings if blended).
+,sky_r,real,4,nanomaggies/arcsec^2,,Sky flux at the center of object (allowing for siblings if blended).
+,sky_i,real,4,nanomaggies/arcsec^2,,Sky flux at the center of object (allowing for siblings if blended).
+,sky_z,real,4,nanomaggies/arcsec^2,,Sky flux at the center of object (allowing for siblings if blended).
+,skyIvar_u,real,4,nanomaggies/arcsec^2,,Sky flux inverse variance
+,skyIvar_g,real,4,nanomaggies/arcsec^2,,Sky flux inverse variance
+,skyIvar_r,real,4,nanomaggies/arcsec^2,,Sky flux inverse variance
+,skyIvar_i,real,4,nanomaggies/arcsec^2,,Sky flux inverse variance
+,skyIvar_z,real,4,nanomaggies/arcsec^2,,Sky flux inverse variance
+,psfMag_u,real,4,mag,,PSF magnitude
+,psfMag_g,real,4,mag,,PSF magnitude
+,psfMag_r,real,4,mag,,PSF magnitude
+,psfMag_i,real,4,mag,,PSF magnitude
+,psfMag_z,real,4,mag,,PSF magnitude
+,psfMagErr_u,real,4,mag,,PSF magnitude error
+,psfMagErr_g,real,4,mag,,PSF magnitude error
+,psfMagErr_r,real,4,mag,,PSF magnitude error
+,psfMagErr_i,real,4,mag,,PSF magnitude error
+,psfMagErr_z,real,4,mag,,PSF magnitude error
+,fiberMag_u,real,4,mag,,Magnitude in 3 arcsec diameter fiber radius
+,fiberMag_g,real,4,mag,,Magnitude in 3 arcsec diameter fiber radius
+,fiberMag_r,real,4,mag,,Magnitude in 3 arcsec diameter fiber radius
+,fiberMag_i,real,4,mag,,Magnitude in 3 arcsec diameter fiber radius
+,fiberMag_z,real,4,mag,,Magnitude in 3 arcsec diameter fiber radius
+,fiberMagErr_u,real,4,mag,,Error in magnitude in 3 arcsec diameter fiber radius
+,fiberMagErr_g,real,4,mag,,Error in magnitude in 3 arcsec diameter fiber radius
+,fiberMagErr_r,real,4,mag,,Error in magnitude in 3 arcsec diameter fiber radius
+,fiberMagErr_i,real,4,mag,,Error in magnitude in 3 arcsec diameter fiber radius
+,fiberMagErr_z,real,4,mag,,Error in magnitude in 3 arcsec diameter fiber radius
+,fiber2Mag_u,real,4,mag,,Magnitude in 2 arcsec diameter fiber radius
+,fiber2Mag_g,real,4,mag,,Magnitude in 2 arcsec diameter fiber radius
+,fiber2Mag_r,real,4,mag,,Magnitude in 2 arcsec diameter fiber radius
+,fiber2Mag_i,real,4,mag,,Magnitude in 2 arcsec diameter fiber radius
+,fiber2Mag_z,real,4,mag,,Magnitude in 2 arcsec diameter fiber radius
+,fiber2MagErr_u,real,4,mag,,Error in magnitude in 2 arcsec diameter fiber radius
+,fiber2MagErr_g,real,4,mag,,Error in magnitude in 2 arcsec diameter fiber radius
+,fiber2MagErr_r,real,4,mag,,Error in magnitude in 2 arcsec diameter fiber radius
+,fiber2MagErr_i,real,4,mag,,Error in magnitude in 2 arcsec diameter fiber radius
+,fiber2MagErr_z,real,4,mag,,Error in magnitude in 2 arcsec diameter fiber radius
+,petroMag_u,real,4,mag,,Petrosian magnitude
+,petroMag_g,real,4,mag,,Petrosian magnitude
+,petroMag_r,real,4,mag,,Petrosian magnitude
+,petroMag_i,real,4,mag,,Petrosian magnitude
+,petroMag_z,real,4,mag,,Petrosian magnitude
+,petroMagErr_u,real,4,mag,,Petrosian magnitude error
+,petroMagErr_g,real,4,mag,,Petrosian magnitude error
+,petroMagErr_r,real,4,mag,,Petrosian magnitude error
+,petroMagErr_i,real,4,mag,,Petrosian magnitude error
+,petroMagErr_z,real,4,mag,,Petrosian magnitude error
+,psfFlux_u,real,4,nanomaggies,,PSF flux
+,psfFlux_g,real,4,nanomaggies,,PSF flux
+,psfFlux_r,real,4,nanomaggies,,PSF flux
+,psfFlux_i,real,4,nanomaggies,,PSF flux
+,psfFlux_z,real,4,nanomaggies,,PSF flux
+,psfFluxIvar_u,real,4,nanomaggies^{-2},,PSF flux inverse variance
+,psfFluxIvar_g,real,4,nanomaggies^{-2},,PSF flux inverse variance
+,psfFluxIvar_r,real,4,nanomaggies^{-2},,PSF flux inverse variance
+,psfFluxIvar_i,real,4,nanomaggies^{-2},,PSF flux inverse variance
+,psfFluxIvar_z,real,4,nanomaggies^{-2},,PSF flux inverse variance
+,fiberFlux_u,real,4,nanomaggies,,Flux in 3 arcsec diameter fiber radius
+,fiberFlux_g,real,4,nanomaggies,,Flux in 3 arcsec diameter fiber radius
+,fiberFlux_r,real,4,nanomaggies,,Flux in 3 arcsec diameter fiber radius
+,fiberFlux_i,real,4,nanomaggies,,Flux in 3 arcsec diameter fiber radius
+,fiberFlux_z,real,4,nanomaggies,,Flux in 3 arcsec diameter fiber radius
+,fiberFluxIvar_u,real,4,nanomaggies^{-2},,Inverse variance in flux in 3 arcsec diameter fiber radius
+,fiberFluxIvar_g,real,4,nanomaggies^{-2},,Inverse variance in flux in 3 arcsec diameter fiber radius
+,fiberFluxIvar_r,real,4,nanomaggies^{-2},,Inverse variance in flux in 3 arcsec diameter fiber radius
+,fiberFluxIvar_i,real,4,nanomaggies^{-2},,Inverse variance in flux in 3 arcsec diameter fiber radius
+,fiberFluxIvar_z,real,4,nanomaggies^{-2},,Inverse variance in flux in 3 arcsec diameter fiber radius
+,fiber2Flux_u,real,4,nanomaggies,,Flux in 2 arcsec diameter fiber radius
+,fiber2Flux_g,real,4,nanomaggies,,Flux in 2 arcsec diameter fiber radius
+,fiber2Flux_r,real,4,nanomaggies,,Flux in 2 arcsec diameter fiber radius
+,fiber2Flux_i,real,4,nanomaggies,,Flux in 2 arcsec diameter fiber radius
+,fiber2Flux_z,real,4,nanomaggies,,Flux in 2 arcsec diameter fiber radius
+,fiber2FluxIvar_u,real,4,nanomaggies^{-2},,Inverse variance in flux in 2 arcsec diameter fiber radius
+,fiber2FluxIvar_g,real,4,nanomaggies^{-2},,Inverse variance in flux in 2 arcsec diameter fiber radius
+,fiber2FluxIvar_r,real,4,nanomaggies^{-2},,Inverse variance in flux in 2 arcsec diameter fiber radius
+,fiber2FluxIvar_i,real,4,nanomaggies^{-2},,Inverse variance in flux in 2 arcsec diameter fiber radius
+,fiber2FluxIvar_z,real,4,nanomaggies^{-2},,Inverse variance in flux in 2 arcsec diameter fiber radius
+,petroFlux_u,real,4,nanomaggies,,Petrosian flux
+,petroFlux_g,real,4,nanomaggies,,Petrosian flux
+,petroFlux_r,real,4,nanomaggies,,Petrosian flux
+,petroFlux_i,real,4,nanomaggies,,Petrosian flux
+,petroFlux_z,real,4,nanomaggies,,Petrosian flux
+,petroFluxIvar_u,real,4,nanomaggies^{-2},,Petrosian flux inverse variance
+,petroFluxIvar_g,real,4,nanomaggies^{-2},,Petrosian flux inverse variance
+,petroFluxIvar_r,real,4,nanomaggies^{-2},,Petrosian flux inverse variance
+,petroFluxIvar_i,real,4,nanomaggies^{-2},,Petrosian flux inverse variance
+,petroFluxIvar_z,real,4,nanomaggies^{-2},,Petrosian flux inverse variance
+,petroRad_u,real,4,arcsec,,Petrosian radius
+,petroRad_g,real,4,arcsec,,Petrosian radius
+,petroRad_r,real,4,arcsec,,Petrosian radius
+,petroRad_i,real,4,arcsec,,Petrosian radius
+,petroRad_z,real,4,arcsec,,Petrosian radius
+,petroRadErr_u,real,4,arcsec,,Petrosian radius error
+,petroRadErr_g,real,4,arcsec,,Petrosian radius error
+,petroRadErr_r,real,4,arcsec,,Petrosian radius error
+,petroRadErr_i,real,4,arcsec,,Petrosian radius error
+,petroRadErr_z,real,4,arcsec,,Petrosian radius error
+,petroR50_u,real,4,arcsec,,Radius containing 50% of Petrosian flux
+,petroR50_g,real,4,arcsec,,Radius containing 50% of Petrosian flux
+,petroR50_r,real,4,arcsec,,Radius containing 50% of Petrosian flux
+,petroR50_i,real,4,arcsec,,Radius containing 50% of Petrosian flux
+,petroR50_z,real,4,arcsec,,Radius containing 50% of Petrosian flux
+,petroR50Err_u,real,4,arcsec,,Error in radius with 50% of Petrosian flux error
+,petroR50Err_g,real,4,arcsec,,Error in radius with 50% of Petrosian flux error
+,petroR50Err_r,real,4,arcsec,,Error in radius with 50% of Petrosian flux error
+,petroR50Err_i,real,4,arcsec,,Error in radius with 50% of Petrosian flux error
+,petroR50Err_z,real,4,arcsec,,Error in radius with 50% of Petrosian flux error
+,petroR90_u,real,4,arcsec,,Radius containing 90% of Petrosian flux
+,petroR90_g,real,4,arcsec,,Radius containing 90% of Petrosian flux
+,petroR90_r,real,4,arcsec,,Radius containing 90% of Petrosian flux
+,petroR90_i,real,4,arcsec,,Radius containing 90% of Petrosian flux
+,petroR90_z,real,4,arcsec,,Radius containing 90% of Petrosian flux
+,petroR90Err_u,real,4,arcsec,,Error in radius with 90% of Petrosian flux error
+,petroR90Err_g,real,4,arcsec,,Error in radius with 90% of Petrosian flux error
+,petroR90Err_r,real,4,arcsec,,Error in radius with 90% of Petrosian flux error
+,petroR90Err_i,real,4,arcsec,,Error in radius with 90% of Petrosian flux error
+,petroR90Err_z,real,4,arcsec,,Error in radius with 90% of Petrosian flux error
+,q_u,real,4,,,Stokes Q parameter
+,q_g,real,4,,,Stokes Q parameter
+,q_r,real,4,,,Stokes Q parameter
+,q_i,real,4,,,Stokes Q parameter
+,q_z,real,4,,,Stokes Q parameter
+,qErr_u,real,4,,,Stokes Q parameter error
+,qErr_g,real,4,,,Stokes Q parameter error
+,qErr_r,real,4,,,Stokes Q parameter error
+,qErr_i,real,4,,,Stokes Q parameter error
+,qErr_z,real,4,,,Stokes Q parameter error
+,u_u,real,4,,,Stokes U parameter
+,u_g,real,4,,,Stokes U parameter
+,u_r,real,4,,,Stokes U parameter
+,u_i,real,4,,,Stokes U parameter
+,u_z,real,4,,,Stokes U parameter
+,uErr_u,real,4,,,Stokes U parameter error
+,uErr_g,real,4,,,Stokes U parameter error
+,uErr_r,real,4,,,Stokes U parameter error
+,uErr_i,real,4,,,Stokes U parameter error
+,uErr_z,real,4,,,Stokes U parameter error
+,mE1_u,real,4,,,Adaptive E1 shape measure (pixel coordinates)
+,mE1_g,real,4,,,Adaptive E1 shape measure (pixel coordinates)
+,mE1_r,real,4,,,Adaptive E1 shape measure (pixel coordinates)
+,mE1_i,real,4,,,Adaptive E1 shape measure (pixel coordinates)
+,mE1_z,real,4,,,Adaptive E1 shape measure (pixel coordinates)
+,mE2_u,real,4,,,Adaptive E2 shape measure (pixel coordinates)
+,mE2_g,real,4,,,Adaptive E2 shape measure (pixel coordinates)
+,mE2_r,real,4,,,Adaptive E2 shape measure (pixel coordinates)
+,mE2_i,real,4,,,Adaptive E2 shape measure (pixel coordinates)
+,mE2_z,real,4,,,Adaptive E2 shape measure (pixel coordinates)
+,mE1E1Err_u,real,4,,,Covariance in E1/E1 shape measure (pixel coordinates)
+,mE1E1Err_g,real,4,,,Covariance in E1/E1 shape measure (pixel coordinates)
+,mE1E1Err_r,real,4,,,Covariance in E1/E1 shape measure (pixel coordinates)
+,mE1E1Err_i,real,4,,,Covariance in E1/E1 shape measure (pixel coordinates)
+,mE1E1Err_z,real,4,,,Covariance in E1/E1 shape measure (pixel coordinates)
+,mE1E2Err_u,real,4,,,Covariance in E1/E2 shape measure (pixel coordinates)
+,mE1E2Err_g,real,4,,,Covariance in E1/E2 shape measure (pixel coordinates)
+,mE1E2Err_r,real,4,,,Covariance in E1/E2 shape measure (pixel coordinates)
+,mE1E2Err_i,real,4,,,Covariance in E1/E2 shape measure (pixel coordinates)
+,mE1E2Err_z,real,4,,,Covariance in E1/E2 shape measure (pixel coordinates)
+,mE2E2Err_u,real,4,,,Covariance in E2/E2 shape measure (pixel coordinates)
+,mE2E2Err_g,real,4,,,Covariance in E2/E2 shape measure (pixel coordinates)
+,mE2E2Err_r,real,4,,,Covariance in E2/E2 shape measure (pixel coordinates)
+,mE2E2Err_i,real,4,,,Covariance in E2/E2 shape measure (pixel coordinates)
+,mE2E2Err_z,real,4,,,Covariance in E2/E2 shape measure (pixel coordinates)
+,mRrCc_u,real,4,,,Adaptive ( + ) (pixel coordinates)
+,mRrCc_g,real,4,,,Adaptive ( + ) (pixel coordinates)
+,mRrCc_r,real,4,,,Adaptive ( + ) (pixel coordinates)
+,mRrCc_i,real,4,,,Adaptive ( + ) (pixel coordinates)
+,mRrCc_z,real,4,,,Adaptive ( + ) (pixel coordinates)
+,mRrCcErr_u,real,4,,,Error in adaptive ( + ) (pixel coordinates)
+,mRrCcErr_g,real,4,,,Error in adaptive ( + ) (pixel coordinates)
+,mRrCcErr_r,real,4,,,Error in adaptive ( + ) (pixel coordinates)
+,mRrCcErr_i,real,4,,,Error in adaptive ( + ) (pixel coordinates)
+,mRrCcErr_z,real,4,,,Error in adaptive ( + ) (pixel coordinates)
+,mCr4_u,real,4,,,Adaptive fourth moment of object (pixel coordinates)
+,mCr4_g,real,4,,,Adaptive fourth moment of object (pixel coordinates)
+,mCr4_r,real,4,,,Adaptive fourth moment of object (pixel coordinates)
+,mCr4_i,real,4,,,Adaptive fourth moment of object (pixel coordinates)
+,mCr4_z,real,4,,,Adaptive fourth moment of object (pixel coordinates)
+,mE1PSF_u,real,4,,,Adaptive E1 for PSF (pixel coordinates)
+,mE1PSF_g,real,4,,,Adaptive E1 for PSF (pixel coordinates)
+,mE1PSF_r,real,4,,,Adaptive E1 for PSF (pixel coordinates)
+,mE1PSF_i,real,4,,,Adaptive E1 for PSF (pixel coordinates)
+,mE1PSF_z,real,4,,,Adaptive E1 for PSF (pixel coordinates)
+,mE2PSF_u,real,4,,,Adaptive E2 for PSF (pixel coordinates)
+,mE2PSF_g,real,4,,,Adaptive E2 for PSF (pixel coordinates)
+,mE2PSF_r,real,4,,,Adaptive E2 for PSF (pixel coordinates)
+,mE2PSF_i,real,4,,,Adaptive E2 for PSF (pixel coordinates)
+,mE2PSF_z,real,4,,,Adaptive E2 for PSF (pixel coordinates)
+,mRrCcPSF_u,real,4,,,Adaptive ( + ) for PSF (pixel coordinates)
+,mRrCcPSF_g,real,4,,,Adaptive ( + ) for PSF (pixel coordinates)
+,mRrCcPSF_r,real,4,,,Adaptive ( + ) for PSF (pixel coordinates)
+,mRrCcPSF_i,real,4,,,Adaptive ( + ) for PSF (pixel coordinates)
+,mRrCcPSF_z,real,4,,,Adaptive ( + ) for PSF (pixel coordinates)
+,mCr4PSF_u,real,4,,,Adaptive fourth moment for PSF (pixel coordinates)
+,mCr4PSF_g,real,4,,,Adaptive fourth moment for PSF (pixel coordinates)
+,mCr4PSF_r,real,4,,,Adaptive fourth moment for PSF (pixel coordinates)
+,mCr4PSF_i,real,4,,,Adaptive fourth moment for PSF (pixel coordinates)
+,mCr4PSF_z,real,4,,,Adaptive fourth moment for PSF (pixel coordinates)
+,deVRad_u,real,4,arcsec,,"de Vaucouleurs fit scale radius, here defined to be the same as the half-light radius, also called the effective radius."
+,deVRad_g,real,4,arcsec,,"de Vaucouleurs fit scale radius, here defined to be the same as the half-light radius, also called the effective radius."
+,deVRad_r,real,4,arcsec,,"de Vaucouleurs fit scale radius, here defined to be the same as the half-light radius, also called the effective radius."
+,deVRad_i,real,4,arcsec,,"de Vaucouleurs fit scale radius, here defined to be the same as the half-light radius, also called the effective radius."
+,deVRad_z,real,4,arcsec,,"de Vaucouleurs fit scale radius, here defined to be the same as the half-light radius, also called the effective radius."
+,deVRadErr_u,real,4,arcsec,,Error in de Vaucouleurs fit scale radius error
+,deVRadErr_g,real,4,arcsec,,Error in de Vaucouleurs fit scale radius error
+,deVRadErr_r,real,4,arcsec,,Error in de Vaucouleurs fit scale radius error
+,deVRadErr_i,real,4,arcsec,,Error in de Vaucouleurs fit scale radius error
+,deVRadErr_z,real,4,arcsec,,Error in de Vaucouleurs fit scale radius error
+,deVAB_u,real,4,,,de Vaucouleurs fit b/a
+,deVAB_g,real,4,,,de Vaucouleurs fit b/a
+,deVAB_r,real,4,,,de Vaucouleurs fit b/a
+,deVAB_i,real,4,,,de Vaucouleurs fit b/a
+,deVAB_z,real,4,,,de Vaucouleurs fit b/a
+,deVABErr_u,real,4,,,de Vaucouleurs fit b/a error
+,deVABErr_g,real,4,,,de Vaucouleurs fit b/a error
+,deVABErr_r,real,4,,,de Vaucouleurs fit b/a error
+,deVABErr_i,real,4,,,de Vaucouleurs fit b/a error
+,deVABErr_z,real,4,,,de Vaucouleurs fit b/a error
+,deVPhi_u,real,4,deg,,de Vaucouleurs fit position angle (+N thru E)
+,deVPhi_g,real,4,deg,,de Vaucouleurs fit position angle (+N thru E)
+,deVPhi_r,real,4,deg,,de Vaucouleurs fit position angle (+N thru E)
+,deVPhi_i,real,4,deg,,de Vaucouleurs fit position angle (+N thru E)
+,deVPhi_z,real,4,deg,,de Vaucouleurs fit position angle (+N thru E)
+,deVMag_u,real,4,mag,,de Vaucouleurs magnitude fit
+,deVMag_g,real,4,mag,,de Vaucouleurs magnitude fit
+,deVMag_r,real,4,mag,,de Vaucouleurs magnitude fit
+,deVMag_i,real,4,mag,,de Vaucouleurs magnitude fit
+,deVMag_z,real,4,mag,,de Vaucouleurs magnitude fit
+,deVMagErr_u,real,4,mag,,de Vaucouleurs magnitude fit error
+,deVMagErr_g,real,4,mag,,de Vaucouleurs magnitude fit error
+,deVMagErr_r,real,4,mag,,de Vaucouleurs magnitude fit error
+,deVMagErr_i,real,4,mag,,de Vaucouleurs magnitude fit error
+,deVMagErr_z,real,4,mag,,de Vaucouleurs magnitude fit error
+,deVFlux_u,real,4,nanomaggies,,de Vaucouleurs magnitude fit
+,deVFlux_g,real,4,nanomaggies,,de Vaucouleurs magnitude fit
+,deVFlux_r,real,4,nanomaggies,,de Vaucouleurs magnitude fit
+,deVFlux_i,real,4,nanomaggies,,de Vaucouleurs magnitude fit
+,deVFlux_z,real,4,nanomaggies,,de Vaucouleurs magnitude fit
+,deVFluxIvar_u,real,4,nanomaggies^{-2},,de Vaucouleurs magnitude fit inverse variance
+,deVFluxIvar_g,real,4,nanomaggies^{-2},,de Vaucouleurs magnitude fit inverse variance
+,deVFluxIvar_r,real,4,nanomaggies^{-2},,de Vaucouleurs magnitude fit inverse variance
+,deVFluxIvar_i,real,4,nanomaggies^{-2},,de Vaucouleurs magnitude fit inverse variance
+,deVFluxIvar_z,real,4,nanomaggies^{-2},,de Vaucouleurs magnitude fit inverse variance
+,expRad_u,real,4,arcsec,,"Exponential fit scale radius, here defined to be the same as the half-light radius, also called the effective radius."
+,expRad_g,real,4,arcsec,,"Exponential fit scale radius, here defined to be the same as the half-light radius, also called the effective radius."
+,expRad_r,real,4,arcsec,,"Exponential fit scale radius, here defined to be the same as the half-light radius, also called the effective radius."
+,expRad_i,real,4,arcsec,,"Exponential fit scale radius, here defined to be the same as the half-light radius, also called the effective radius."
+,expRad_z,real,4,arcsec,,"Exponential fit scale radius, here defined to be the same as the half-light radius, also called the effective radius."
+,expRadErr_u,real,4,arcsec,,Exponential fit scale radius error
+,expRadErr_g,real,4,arcsec,,Exponential fit scale radius error
+,expRadErr_r,real,4,arcsec,,Exponential fit scale radius error
+,expRadErr_i,real,4,arcsec,,Exponential fit scale radius error
+,expRadErr_z,real,4,arcsec,,Exponential fit scale radius error
+,expAB_u,real,4,,,Exponential fit b/a
+,expAB_g,real,4,,,Exponential fit b/a
+,expAB_r,real,4,,,Exponential fit b/a
+,expAB_i,real,4,,,Exponential fit b/a
+,expAB_z,real,4,,,Exponential fit b/a
+,expABErr_u,real,4,,,Exponential fit b/a
+,expABErr_g,real,4,,,Exponential fit b/a
+,expABErr_r,real,4,,,Exponential fit b/a
+,expABErr_i,real,4,,,Exponential fit b/a
+,expABErr_z,real,4,,,Exponential fit b/a
+,expPhi_u,real,4,deg,,Exponential fit position angle (+N thru E)
+,expPhi_g,real,4,deg,,Exponential fit position angle (+N thru E)
+,expPhi_r,real,4,deg,,Exponential fit position angle (+N thru E)
+,expPhi_i,real,4,deg,,Exponential fit position angle (+N thru E)
+,expPhi_z,real,4,deg,,Exponential fit position angle (+N thru E)
+,expMag_u,real,4,mag,,Exponential fit magnitude
+,expMag_g,real,4,mag,,Exponential fit magnitude
+,expMag_r,real,4,mag,,Exponential fit magnitude
+,expMag_i,real,4,mag,,Exponential fit magnitude
+,expMag_z,real,4,mag,,Exponential fit magnitude
+,expMagErr_u,real,4,mag,,Exponential fit magnitude error
+,expMagErr_g,real,4,mag,,Exponential fit magnitude error
+,expMagErr_r,real,4,mag,,Exponential fit magnitude error
+,expMagErr_i,real,4,mag,,Exponential fit magnitude error
+,expMagErr_z,real,4,mag,,Exponential fit magnitude error
+,modelMag_u,real,4,mag,,better of DeV/Exp magnitude fit
+,modelMag_g,real,4,mag,,better of DeV/Exp magnitude fit
+,modelMag_r,real,4,mag,,better of DeV/Exp magnitude fit
+,modelMag_i,real,4,mag,,better of DeV/Exp magnitude fit
+,modelMag_z,real,4,mag,,better of DeV/Exp magnitude fit
+,modelMagErr_u,real,4,mag,,Error in better of DeV/Exp magnitude fit
+,modelMagErr_g,real,4,mag,,Error in better of DeV/Exp magnitude fit
+,modelMagErr_r,real,4,mag,,Error in better of DeV/Exp magnitude fit
+,modelMagErr_i,real,4,mag,,Error in better of DeV/Exp magnitude fit
+,modelMagErr_z,real,4,mag,,Error in better of DeV/Exp magnitude fit
+,cModelMag_u,real,4,mag,,DeV+Exp magnitude
+,cModelMag_g,real,4,mag,,DeV+Exp magnitude
+,cModelMag_r,real,4,mag,,DeV+Exp magnitude
+,cModelMag_i,real,4,mag,,DeV+Exp magnitude
+,cModelMag_z,real,4,mag,,DeV+Exp magnitude
+,cModelMagErr_u,real,4,mag,,DeV+Exp magnitude error
+,cModelMagErr_g,real,4,mag,,DeV+Exp magnitude error
+,cModelMagErr_r,real,4,mag,,DeV+Exp magnitude error
+,cModelMagErr_i,real,4,mag,,DeV+Exp magnitude error
+,cModelMagErr_z,real,4,mag,,DeV+Exp magnitude error
+,expFlux_u,real,4,nanomaggies,,Exponential fit flux
+,expFlux_g,real,4,nanomaggies,,Exponential fit flux
+,expFlux_r,real,4,nanomaggies,,Exponential fit flux
+,expFlux_i,real,4,nanomaggies,,Exponential fit flux
+,expFlux_z,real,4,nanomaggies,,Exponential fit flux
+,expFluxIvar_u,real,4,nanomaggies^{-2},,Exponential fit flux inverse variance
+,expFluxIvar_g,real,4,nanomaggies^{-2},,Exponential fit flux inverse variance
+,expFluxIvar_r,real,4,nanomaggies^{-2},,Exponential fit flux inverse variance
+,expFluxIvar_i,real,4,nanomaggies^{-2},,Exponential fit flux inverse variance
+,expFluxIvar_z,real,4,nanomaggies^{-2},,Exponential fit flux inverse variance
+,modelFlux_u,real,4,nanomaggies,,better of DeV/Exp flux fit
+,modelFlux_g,real,4,nanomaggies,,better of DeV/Exp flux fit
+,modelFlux_r,real,4,nanomaggies,,better of DeV/Exp flux fit
+,modelFlux_i,real,4,nanomaggies,,better of DeV/Exp flux fit
+,modelFlux_z,real,4,nanomaggies,,better of DeV/Exp flux fit
+,modelFluxIvar_u,real,4,nanomaggies^{-2},,Inverse variance in better of DeV/Exp flux fit
+,modelFluxIvar_g,real,4,nanomaggies^{-2},,Inverse variance in better of DeV/Exp flux fit
+,modelFluxIvar_r,real,4,nanomaggies^{-2},,Inverse variance in better of DeV/Exp flux fit
+,modelFluxIvar_i,real,4,nanomaggies^{-2},,Inverse variance in better of DeV/Exp flux fit
+,modelFluxIvar_z,real,4,nanomaggies^{-2},,Inverse variance in better of DeV/Exp flux fit
+,cModelFlux_u,real,4,nanomaggies,,better of DeV+Exp flux
+,cModelFlux_g,real,4,nanomaggies,,better of DeV+Exp flux
+,cModelFlux_r,real,4,nanomaggies,,better of DeV+Exp flux
+,cModelFlux_i,real,4,nanomaggies,,better of DeV+Exp flux
+,cModelFlux_z,real,4,nanomaggies,,better of DeV+Exp flux
+,cModelFluxIvar_u,real,4,nanomaggies^{-2},,Inverse variance in DeV+Exp flux fit
+,cModelFluxIvar_g,real,4,nanomaggies^{-2},,Inverse variance in DeV+Exp flux fit
+,cModelFluxIvar_r,real,4,nanomaggies^{-2},,Inverse variance in DeV+Exp flux fit
+,cModelFluxIvar_i,real,4,nanomaggies^{-2},,Inverse variance in DeV+Exp flux fit
+,cModelFluxIvar_z,real,4,nanomaggies^{-2},,Inverse variance in DeV+Exp flux fit
+,aperFlux7_u,real,4,nanomaggies,,Aperture flux within 7.3 arcsec
+,aperFlux7_g,real,4,nanomaggies,,Aperture flux within 7.3 arcsec
+,aperFlux7_r,real,4,nanomaggies,,Aperture flux within 7.3 arcsec
+,aperFlux7_i,real,4,nanomaggies,,Aperture flux within 7.3 arcsec
+,aperFlux7_z,real,4,nanomaggies,,Aperture flux within 7.3 arcsec
+,aperFlux7Ivar_u,real,4,nanomaggies^{-2},,Inverse variance of aperture flux within 7.3 arcsec
+,aperFlux7Ivar_g,real,4,nanomaggies^{-2},,Inverse variance of aperture flux within 7.3 arcsec
+,aperFlux7Ivar_r,real,4,nanomaggies^{-2},,Inverse variance of aperture flux within 7.3 arcsec
+,aperFlux7Ivar_i,real,4,nanomaggies^{-2},,Inverse variance of aperture flux within 7.3 arcsec
+,aperFlux7Ivar_z,real,4,nanomaggies^{-2},,Inverse variance of aperture flux within 7.3 arcsec
+,lnLStar_u,real,4,,,Star ln(likelihood)
+,lnLStar_g,real,4,,,Star ln(likelihood)
+,lnLStar_r,real,4,,,Star ln(likelihood)
+,lnLStar_i,real,4,,,Star ln(likelihood)
+,lnLStar_z,real,4,,,Star ln(likelihood)
+,lnLExp_u,real,4,,,Exponential disk fit ln(likelihood)
+,lnLExp_g,real,4,,,Exponential disk fit ln(likelihood)
+,lnLExp_r,real,4,,,Exponential disk fit ln(likelihood)
+,lnLExp_i,real,4,,,Exponential disk fit ln(likelihood)
+,lnLExp_z,real,4,,,Exponential disk fit ln(likelihood)
+,lnLDeV_u,real,4,,,de Vaucouleurs fit ln(likelihood)
+,lnLDeV_g,real,4,,,de Vaucouleurs fit ln(likelihood)
+,lnLDeV_r,real,4,,,de Vaucouleurs fit ln(likelihood)
+,lnLDeV_i,real,4,,,de Vaucouleurs fit ln(likelihood)
+,lnLDeV_z,real,4,,,de Vaucouleurs fit ln(likelihood)
+,fracDeV_u,real,4,,,Weight of deV component in deV+Exp model
+,fracDeV_g,real,4,,,Weight of deV component in deV+Exp model
+,fracDeV_r,real,4,,,Weight of deV component in deV+Exp model
+,fracDeV_i,real,4,,,Weight of deV component in deV+Exp model
+,fracDeV_z,real,4,,,Weight of deV component in deV+Exp model
+,flags_u,bigint,8,,,Object detection flags per band
+,flags_g,bigint,8,,,Object detection flags per band
+,flags_r,bigint,8,,,Object detection flags per band
+,flags_i,bigint,8,,,Object detection flags per band
+,flags_z,bigint,8,,,Object detection flags per band
+,type_u,int,4,,,Object type classification per band
+,type_g,int,4,,,Object type classification per band
+,type_r,int,4,,,Object type classification per band
+,type_i,int,4,,,Object type classification per band
+,type_z,int,4,,,Object type classification per band
+,probPSF_u,real,4,,,Probablity object is a star in each filter.
+,probPSF_g,real,4,,,Probablity object is a star in each filter.
+,probPSF_r,real,4,,,Probablity object is a star in each filter.
+,probPSF_i,real,4,,,Probablity object is a star in each filter.
+,probPSF_z,real,4,,,Probablity object is a star in each filter.
+,ra,float,8,deg,,J2000 Right Ascension (r-band)
+,dec,float,8,deg,,J2000 Declination (r-band)
+,cx,float,8,,,unit vector for ra+dec
+,cy,float,8,,,unit vector for ra+dec
+,cz,float,8,,,unit vector for ra+dec
+,raErr,float,8,arcsec,,"Error in RA (* cos(Dec), that is, proper units)"
+,decErr,float,8,arcsec,,Error in Dec
+,b,float,8,deg,,Galactic latitude
+,l,float,8,deg,,Galactic longitude
+,offsetRa_u,real,4,arcsec,,"filter position RA minus final RA (* cos(Dec), that is, proper units)"
+,offsetRa_g,real,4,arcsec,,"filter position RA minus final RA (* cos(Dec), that is, proper units)"
+,offsetRa_r,real,4,arcsec,,"filter position RA minus final RA (* cos(Dec), that is, proper units)"
+,offsetRa_i,real,4,arcsec,,"filter position RA minus final RA (* cos(Dec), that is, proper units)"
+,offsetRa_z,real,4,arcsec,,"filter position RA minus final RA (* cos(Dec), that is, proper units)"
+,offsetDec_u,real,4,arcsec,,filter position Dec minus final Dec
+,offsetDec_g,real,4,arcsec,,filter position Dec minus final Dec
+,offsetDec_r,real,4,arcsec,,filter position Dec minus final Dec
+,offsetDec_i,real,4,arcsec,,filter position Dec minus final Dec
+,offsetDec_z,real,4,arcsec,,filter position Dec minus final Dec
+,extinction_u,real,4,mag,,Extinction in u-band
+,extinction_g,real,4,mag,,Extinction in g-band
+,extinction_r,real,4,mag,,Extinction in r-band
+,extinction_i,real,4,mag,,Extinction in i-band
+,extinction_z,real,4,mag,,Extinction in z-band
+,psffwhm_u,real,4,arcsec,,FWHM in u-band
+,psffwhm_g,real,4,arcsec,,FWHM in g-band
+,psffwhm_r,real,4,arcsec,,FWHM in r-band
+,psffwhm_i,real,4,arcsec,,FWHM in i-band
+,psffwhm_z,real,4,arcsec,,FWHM in z-band
+,mjd,int,4,days,,Date of observation
+,airmass_u,real,4,,,Airmass at time of observation in u-band
+,airmass_g,real,4,,,Airmass at time of observation in g-band
+,airmass_r,real,4,,,Airmass at time of observation in r-band
+,airmass_i,real,4,,,Airmass at time of observation in i-band
+,airmass_z,real,4,,,Airmass at time of observation in z-band
+,phioffset_u,real,4,deg,,Degrees to add to CCD-aligned angle to convert to E of N
+,phioffset_g,real,4,deg,,Degrees to add to CCD-aligned angle to convert to E of N
+,phioffset_r,real,4,deg,,Degrees to add to CCD-aligned angle to convert to E of N
+,phioffset_i,real,4,deg,,Degrees to add to CCD-aligned angle to convert to E of N
+,phioffset_z,real,4,deg,,Degrees to add to CCD-aligned angle to convert to E of N
+,nProf_u,int,4,,,Number of Profile Bins
+,nProf_g,int,4,,,Number of Profile Bins
+,nProf_r,int,4,,,Number of Profile Bins
+,nProf_i,int,4,,,Number of Profile Bins
+,nProf_z,int,4,,,Number of Profile Bins
+,loadVersion,int,4,,,Load Version
+,htmID,bigint,8,,,20-deep hierarchical trangular mesh ID of this object
+,fieldID,bigint,8,,,Link to the field this object is in
+,parentID,bigint,8,,,"Pointer to parent (if object deblended) or BRIGHT detection (if object has one), else 0"
+,specObjID,bigint,8,,,"Pointer to the spectrum of object, if exists, else 0"
+,u,real,4,mag,,Shorthand alias for modelMag
+,g,real,4,mag,,Shorthand alias for modelMag
+,r,real,4,mag,,Shorthand alias for modelMag
+,i,real,4,mag,,Shorthand alias for modelMag
+,z,real,4,mag,,Shorthand alias for modelMag
+,err_u,real,4,mag,,Error in modelMag alias
+,err_g,real,4,mag,,Error in modelMag alias
+,err_r,real,4,mag,,Error in modelMag alias
+,err_i,real,4,mag,,Error in modelMag alias
+,err_z,real,4,mag,,Error in modelMag alias
+,dered_u,real,4,mag,,"Simplified mag, corrected for extinction: modelMag-extinction"
+,dered_g,real,4,mag,,"Simplified mag, corrected for extinction: modelMag-extinction"
+,dered_r,real,4,mag,,"Simplified mag, corrected for extinction: modelMag-extinction"
+,dered_i,real,4,mag,,"Simplified mag, corrected for extinction: modelMag-extinction"
+,dered_z,real,4,mag,,"Simplified mag, corrected for extinction: modelMag-extinction"
+,cloudCam_u,int,4,,,Cloud camera status for observation in u-band
+,cloudCam_g,int,4,,,Cloud camera status for observation in g-band
+,cloudCam_r,int,4,,,Cloud camera status for observation in r-band
+,cloudCam_i,int,4,,,Cloud camera status for observation in i-band
+,cloudCam_z,int,4,,,Cloud camera status for observation in z-band
+ResolveStatus,resolveStatus,int,4,,,Resolve status of object
+,thingId,int,4,,,Unique identifier from global resolve
+,balkanId,int,4,,,What balkan object is in from window
+,nObserve,int,4,,,Number of observations of this object
+,nDetect,int,4,,,Number of detections of this object
+,nEdge,int,4,,,Number of observations of this object near an edge
+,score,real,4,,,Quality of field (0-1)
+CalibStatus,calibStatus_u,int,4,,,Calibration status in u-band
+CalibStatus,calibStatus_g,int,4,,,Calibration status in g-band
+CalibStatus,calibStatus_r,int,4,,,Calibration status in r-band
+CalibStatus,calibStatus_i,int,4,,,Calibration status in i-band
+CalibStatus,calibStatus_z,int,4,,,Calibration status in z-band
+,nMgyPerCount_u,real,4,nmgy/count,,nanomaggies per count in u-band
+,nMgyPerCount_g,real,4,nmgy/count,,nanomaggies per count in g-band
+,nMgyPerCount_r,real,4,nmgy/count,,nanomaggies per count in r-band
+,nMgyPerCount_i,real,4,nmgy/count,,nanomaggies per count in i-band
+,nMgyPerCount_z,real,4,nmgy/count,,nanomaggies per count in z-band
+,TAI_u,float,8,sec,,time of observation (TAI) in each filter
+,TAI_g,float,8,sec,,time of observation (TAI) in each filter
+,TAI_r,float,8,sec,,time of observation (TAI) in each filter
+,TAI_i,float,8,sec,,time of observation (TAI) in each filter
+,TAI_z,float,8,sec,,time of observation (TAI) in each filter

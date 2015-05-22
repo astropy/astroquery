@@ -17,7 +17,10 @@ from ...utils import commons
 DATA_FILES = {'spectra_id': 'xid_sp.txt',
               'images_id': 'xid_im.txt',
               'spectra': 'emptyfile.fits',
-              'images': 'emptyfile.fits'}
+              'images': 'emptyfile.fits',
+              'photoobj_doc': 'photoobj_doc.txt',
+              'specobj_doc': 'specobj_doc.txt'
+              }
 
 
 @pytest.fixture
@@ -64,7 +67,11 @@ def patch_get_readable_fileobj_slow(request):
 
 
 def get_mockreturn(url, params=None, timeout=10, **kwargs):
-    if 'SpecObjAll' in params['cmd']:
+    if "fDocColumns('PhotoObj" in params['cmd']:
+        filename = data_path(DATA_FILES['photoobj_doc'])
+    elif "fDocColumns('SpecObj" in params['cmd']:
+        filename = data_path(DATA_FILES['specobj_doc'])
+    elif 'SpecObjAll' in params['cmd']:
         filename = data_path(DATA_FILES['spectra_id'])
     else:
         filename = data_path(DATA_FILES['images_id'])
