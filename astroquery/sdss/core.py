@@ -2,8 +2,8 @@
 """
 Access Sloan Digital Sky Survey database online.
 """
-
-from __future__ import print_function
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
 import io
 import warnings
 import numpy as np
