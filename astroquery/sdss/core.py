@@ -16,22 +16,11 @@ from ..utils import commons, async_to_sync
 from ..utils.docstr_chompers import prepend_docstr_noreturns
 from ..exceptions import RemoteServiceError, NoResultsWarning
 
-__all__ = ['SDSS', 'SDSSClass']
-
-__doctest_skip__ = ['SDSSClass.*']
-
 from .field_names import photoobj_defs, specobj_defs, crossid_defs, get_field_info
 
-# Cross-correlation templates from DR-7
-_spec_templates = {'star_O': 0, 'star_OB': 1, 'star_B': 2, 'star_A': [3, 4],
-                   'star_FA': 5, 'star_F': [6, 7], 'star_G': [8, 9],
-                   'star_K': 10, 'star_M1': 11, 'star_M3': 12, 'star_M5': 13,
-                   'star_M8': 14, 'star_L1': 15, 'star_wd': [16, 20, 21],
-                   'star_carbon': [17, 18, 19], 'star_Ksubdwarf': 22,
-                   'galaxy_early': 23, 'galaxy': [24, 25, 26],
-                   'galaxy_late': 27, 'galaxy_lrg': 28, 'qso': 29,
-                   'qso_bal': [30, 31], 'qso_bright': 32
-                   }
+__all__ = ['SDSS', 'SDSSClass']
+__doctest_skip__ = ['SDSSClass.*']
+
 
 sdss_arcsec_per_pixel = 0.396 * u.arcsec/u.pixel
 
@@ -41,10 +30,19 @@ class SDSSClass(BaseQuery):
     SPECTRO_OPTICAL = 'http://data.sdss3.org/sas/dr12'
     IMAGING = 'http://data.sdss3.org/sas/dr12/boss/photoObj/frames'
     TEMPLATES_URL = 'http://classic.sdss.org/dr7/algorithms/spectemplates/spDR2'
-    AVAILABLE_TEMPLATES = _spec_templates
+    # Cross-correlation templates from DR-7
+    AVAILABLE_TEMPLATES = {'star_O': 0, 'star_OB': 1, 'star_B': 2, 'star_A': [3, 4],
+                           'star_FA': 5, 'star_F': [6, 7], 'star_G': [8, 9],
+                           'star_K': 10, 'star_M1': 11, 'star_M3': 12, 'star_M5': 13,
+                           'star_M8': 14, 'star_L1': 15, 'star_wd': [16, 20, 21],
+                           'star_carbon': [17, 18, 19], 'star_Ksubdwarf': 22,
+                           'galaxy_early': 23, 'galaxy': [24, 25, 26],
+                           'galaxy_late': 27, 'galaxy_lrg': 28, 'qso': 29,
+                           'qso_bal': [30, 31], 'qso_bright': 32
+                           }
     TIMEOUT = conf.timeout
 
-    QUERY_URL = 'http://skyserver.sdss3.org/public/en/tools/search/x_sql.aspx'
+    QUERY_URL = 'http://skyserver.sdss.org/dr12/en/tools/search/x_sql.aspx'
     XID_URL = 'http://skyserver.sdss.org/dr12/en/tools/crossid/x_crossid.aspx'
 
     def query_crossid_async(self, coordinates, obj_names=None,
