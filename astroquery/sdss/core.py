@@ -33,7 +33,7 @@ _spec_templates = {'star_O': 0, 'star_OB': 1, 'star_B': 2, 'star_A': [3, 4],
                    'qso_bal': [30, 31], 'qso_bright': 32
                    }
 
-sdss_arcsec_per_pixel = 0.396
+sdss_arcsec_per_pixel = 0.396 * u.arcsec/u.pixel
 
 
 @async_to_sync
