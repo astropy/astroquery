@@ -10,9 +10,9 @@ class Conf(_config.ConfigNamespace):
     """
     Configuration parameters for `astroquery.sdss`.
     """
-    server = _config.ConfigItem(
-        'notused',
-        'Base URL for the '
+    skyserver_url = _config.ConfigItem(
+        'http://skyserver.sdss.org',
+        'Base URL for catalog-related queries like SQL and Cross-ID.'
         )
     timeout = _config.ConfigItem(
         60,

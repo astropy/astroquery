@@ -42,13 +42,13 @@ class SDSSClass(BaseQuery):
                            }
     TIMEOUT = conf.timeout
 
-    QUERY_URL = 'http://skyserver.sdss.org/dr12/en/tools/search/x_sql.aspx'
-    XID_URL = 'http://skyserver.sdss.org/dr12/en/tools/crossid/x_crossid.aspx'
+    QUERY_URL_SUFFIX = '/dr{dr}/en/tools/search/x_sql.aspx'
+    XID_URL_SUFFIX = '/dr{dr}/en/tools/crossid/x_crossid.aspx'
 
     def query_crossid_async(self, coordinates, obj_names=None,
                             photoobj_fields=None, specobj_fields=None,
                             get_query_payload=False, timeout=TIMEOUT,
-                            radius=5. * u.arcsec):
+                            radius=5. * u.arcsec, drorurl=12):
         """
         Query using the cross-identification web interface.
 
@@ -83,6 +83,9 @@ class SDSSClass(BaseQuery):
             Target names. If given, every coordinate should have a
             corresponding name, and it gets repeated in the query result.
             It generates unique object names by default.
+        drorurl : str or int
+            The data release of the SDSS to use (if an integer or short string)
+            or the full URL to send the query (if a longer string).
         """
 
         if (not isinstance(coordinates, list) and
@@ -144,7 +147,8 @@ class SDSSClass(BaseQuery):
 
         if get_query_payload:
             return request_payload
-        r = commons.send_request(SDSS.XID_URL, request_payload, timeout,
+        url = self._get_query_url(drorurl, self.XID_URL_SUFFIX)
+        r = commons.send_request(url, request_payload, timeout,
                                  request_type='POST')
 
         return r
@@ -153,7 +157,7 @@ class SDSSClass(BaseQuery):
                            fields=None, spectro=False, timeout=TIMEOUT,
                            get_query_payload=False, photoobj_fields=None,
                            specobj_fields=None, field_help=False,
-                           obj_names=None):
+                           obj_names=None, drorurl=12):
         """
         Used to query a region around given coordinates. Equivalent to
         the object cross-ID from the web interface.
@@ -201,6 +205,9 @@ class SDSSClass(BaseQuery):
         obj_names : str, or list or `~astropy.table.Column`, optional
             Target names. If given, every coordinate should have a
             corresponding name, and it gets repeated in the query result.
+        drorurl : str or int
+            The data release of the SDSS to use (if an integer or short string)
+            or the full URL to send the query (if a longer string).
 
         Examples
         --------
@@ -232,14 +239,17 @@ class SDSSClass(BaseQuery):
                                                 obj_names=obj_names)
         if get_query_payload or field_help:
             return request_payload
-        r = commons.send_request(SDSS.QUERY_URL, request_payload, timeout,
+
+        url = self._get_query_url(drorurl, self.QUERY_URL_SUFFIX)
+        r = commons.send_request(url, request_payload, timeout,
                                  request_type='GET')
 
         return r
 
     def query_specobj_async(self, plate=None, mjd=None, fiberID=None,
                             fields=None, timeout=TIMEOUT,
-                            get_query_payload=False, field_help=False):
+                            get_query_payload=False, field_help=False,
+                            drorurl=12):
         """
         Used to query the SpecObjAll table with plate, mjd and fiberID values.
 
@@ -266,6 +276,9 @@ class SDSSClass(BaseQuery):
             Field name to check whether a valid PhotoObjAll or SpecObjAll
             field name. If `True` or it is an invalid field name all the valid
             field names are returned as a dict.
+        drorurl : str or int
+            The data release of the SDSS to use (if an integer or short string)
+            or the full URL to send the query (if a longer string).
 
         Examples
         --------
@@ -298,14 +311,17 @@ class SDSSClass(BaseQuery):
                                                 field_help=field_help)
         if get_query_payload or field_help:
             return request_payload
-        r = commons.send_request(SDSS.QUERY_URL, request_payload, timeout,
+
+        url = self._get_query_url(drorurl, self.QUERY_URL_SUFFIX)
+        r = commons.send_request(url, request_payload, timeout,
                                  request_type='GET')
 
         return r
 
     def query_photoobj_async(self, run=None, rerun=301, camcol=None,
                              field=None, fields=None, timeout=TIMEOUT,
-                             get_query_payload=False, field_help=False):
+                             get_query_payload=False, field_help=False,
+                             drorurl=12):
         """
         Used to query the PhotoObjAll table with run, rerun, camcol and field
         values.
@@ -336,6 +352,9 @@ class SDSSClass(BaseQuery):
             Field name to check whether a valid PhotoObjAll or SpecObjAll
             field name. If `True` or it is an invalid field name all the valid
             field names are returned as a dict.
+        drorurl : str or int
+            The data release of the SDSS to use (if an integer or short string)
+            or the full URL to send the query (if a longer string).
 
         Examples
         --------
@@ -367,7 +386,9 @@ class SDSSClass(BaseQuery):
                                                 field_help=field_help)
         if get_query_payload or field_help:
             return request_payload
-        r = commons.send_request(SDSS.QUERY_URL, request_payload, timeout,
+
+        url = self._get_query_url(drorurl, self.QUERY_URL_SUFFIX)
+        r = commons.send_request(url, request_payload, timeout,
                                  request_type='GET')
 
         return r
@@ -379,7 +400,7 @@ class SDSSClass(BaseQuery):
             fsql += ' ' + line.split('--')[0]
         return fsql
 
-    def query_sql_async(self, sql_query, timeout=TIMEOUT, **kwargs):
+    def query_sql_async(self, sql_query, timeout=TIMEOUT, drorurl=12, **kwargs):
         """
         Query the SDSS database.
 
@@ -387,6 +408,12 @@ class SDSSClass(BaseQuery):
         ----------
         sql_query : str
             An SQL query
+        timeout : float, optional
+            Time limit (in seconds) for establishing successful connection with
+            remote server.  Defaults to `SDSSClass.TIMEOUT`.
+        drorurl : str or int
+            The data release of the SDSS to use (if an integer or short string)
+            or the full URL to send the query (if a longer string).
 
         Examples
         --------
@@ -420,13 +447,15 @@ class SDSSClass(BaseQuery):
                                format='csv')
         if kwargs.get('get_query_payload'):
             return request_payload
-        r = commons.send_request(SDSS.QUERY_URL, request_payload, timeout,
+
+        url = self._get_query_url(drorurl, self.QUERY_URL_SUFFIX)
+        r = commons.send_request(url, request_payload, timeout,
                                  request_type='GET')
         return r
 
     def get_spectra_async(self, coordinates=None, radius=2. * u.arcsec,
                           matches=None, plate=None, fiberID=None, mjd=None,
-                          timeout=TIMEOUT, get_query_payload=False):
+                          timeout=TIMEOUT, get_query_payload=False, drorurl=12):
         """
         Download spectrum from SDSS.
 
@@ -463,6 +492,9 @@ class SDSSClass(BaseQuery):
         timeout : float, optional
             Time limit (in seconds) for establishing successful connection with
             remote server.  Defaults to `SDSSClass.TIMEOUT`.
+        drorurl : str or int
+            The data release of the SDSS to use (if an integer or short string)
+            or the full URL to send the query (if a longer string).
 
         Returns
         -------
@@ -499,7 +531,9 @@ class SDSSClass(BaseQuery):
                 plate=plate, mjd=mjd, fiberID=fiberID)
             if get_query_payload:
                 return request_payload
-            r = commons.send_request(SDSS.QUERY_URL, request_payload, timeout,
+
+            url = self._get_query_url(drorurl, self.QUERY_URL_SUFFIX)
+            r = commons.send_request(url, request_payload, timeout,
                                      request_type='GET')
             matches = self._parse_result(r)
             if matches is None:
@@ -550,7 +584,7 @@ class SDSSClass(BaseQuery):
     def get_images_async(self, coordinates=None, radius=2. * u.arcsec,
                          matches=None, run=None, rerun=301, camcol=None,
                          field=None, band='g', timeout=TIMEOUT,
-                         get_query_payload=False, cache=True):
+                         get_query_payload=False, cache=True, drorurl=12):
         """
         Download an image from SDSS.
 
@@ -598,6 +632,9 @@ class SDSSClass(BaseQuery):
             remote server.  Defaults to `SDSSClass.TIMEOUT`.
         cache : bool
             Cache the images using astropy's caching system
+        drorurl : str or int
+            The data release of the SDSS to use (if an integer or short string)
+            or the full URL to send the query (if a longer string).
 
         Returns
         -------
@@ -633,7 +670,9 @@ class SDSSClass(BaseQuery):
                 rerun=rerun, camcol=camcol, field=field)
             if get_query_payload:
                 return request_payload
-            r = commons.send_request(SDSS.QUERY_URL, request_payload, timeout,
+
+            url = self._get_query_url(drorurl, self.QUERY_URL_SUFFIX)
+            r = commons.send_request(url, request_payload, timeout,
                                      request_type='GET')
             matches = self._parse_result(r)
             if matches is None:
@@ -947,5 +986,11 @@ class SDSSClass(BaseQuery):
         request_payload = dict(cmd=sql, format='csv')
 
         return request_payload
+
+    def _get_query_url(drorurl, suffix):
+        if isinstance(drorurl, basestring) and len(drorurl) > 2:
+            return drorurl
+        else:
+            return conf.skyserver_url + suffix.format(dr=drorurl)
 
 SDSS = SDSSClass()
