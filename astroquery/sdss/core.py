@@ -248,7 +248,8 @@ class SDSSClass(BaseQuery):
                                                 photoobj_fields=photoobj_fields,
                                                 specobj_fields=specobj_fields,
                                                 field_help=field_help,
-                                                obj_names=obj_names)
+                                                obj_names=obj_names,
+                                                drorurl=drorurl)
         if get_query_payload or field_help:
             return request_payload
 
@@ -323,7 +324,8 @@ class SDSSClass(BaseQuery):
                                                 fiberID=fiberID,
                                                 specobj_fields=fields,
                                                 spectro=True,
-                                                field_help=field_help)
+                                                field_help=field_help,
+                                                drorurl=drorurl)
         if get_query_payload or field_help:
             return request_payload
 
@@ -401,7 +403,8 @@ class SDSSClass(BaseQuery):
                                                 camcol=camcol, field=field,
                                                 photoobj_fields=fields,
                                                 spectro=False,
-                                                field_help=field_help)
+                                                field_help=field_help,
+                                                drorurl=drorurl)
         if get_query_payload or field_help:
             return request_payload
 
@@ -549,7 +552,7 @@ class SDSSClass(BaseQuery):
                 specobj_fields=['instrument', 'run2d', 'plate',
                                 'mjd', 'fiberID'],
                 coordinates=coordinates, radius=radius, spectro=True,
-                plate=plate, mjd=mjd, fiberID=fiberID)
+                plate=plate, mjd=mjd, fiberID=fiberID, drorurl=dr)
             if get_query_payload:
                 return request_payload
 
@@ -690,7 +693,7 @@ class SDSSClass(BaseQuery):
             request_payload = self._args_to_payload(
                 fields=['run', 'rerun', 'camcol', 'field'],
                 coordinates=coordinates, radius=radius, spectro=False, run=run,
-                rerun=rerun, camcol=camcol, field=field)
+                rerun=rerun, camcol=camcol, field=field, drorurl=dr)
             if get_query_payload:
                 return request_payload
 
@@ -843,7 +846,7 @@ class SDSSClass(BaseQuery):
                          plate=None, mjd=None, fiberID=None, run=None,
                          rerun=301, camcol=None, field=None,
                          photoobj_fields=None, specobj_fields=None,
-                         field_help=None, obj_names=None):
+                         field_help=None, obj_names=None, drorurl=12):
         """
         Construct the SQL query from the arguments.
 
@@ -901,6 +904,9 @@ class SDSSClass(BaseQuery):
         obj_names : str, or list or `~astropy.table.Column`, optional
             Target names. If given, every coordinate should have a
             corresponding name, and it gets repeated in the query result
+        drorurl : str or int
+            The data release of the SDSS to use (if an integer or short string)
+            or the full URL to send the query (if a longer string).
 
         Returns
         -------
@@ -908,8 +914,9 @@ class SDSSClass(BaseQuery):
 
         """
         # TODO: replace this with something cleaner below
-        photoobj_all = get_field_info('PhotoObjAll', self.QUERY_URL, self.TIMEOUT)['name']
-        specobj_all = get_field_info('SpecObjAll', self.QUERY_URL, self.TIMEOUT)['name']
+        url = self._get_query_url(drorurl, self.QUERY_URL_SUFFIX)
+        photoobj_all = get_field_info('PhotoObjAll', url, self.TIMEOUT)['name']
+        specobj_all = get_field_info('SpecObjAll', url, self.TIMEOUT)['name']
 
         if field_help:
             ret = 0
