@@ -27,10 +27,20 @@ sdss_arcsec_per_pixel = 0.396 * u.arcsec/u.pixel
 
 @async_to_sync
 class SDSSClass(BaseQuery):
-    SPECTRO_OPTICAL = 'http://data.sdss3.org/sas/dr12'
-    IMAGING = 'http://data.sdss3.org/sas/dr12/boss/photoObj/frames'
+    TIMEOUT = conf.timeout
+    QUERY_URL_SUFFIX = '/dr{dr}/en/tools/search/x_sql.aspx'
+    XID_URL_SUFFIX = '/dr{dr}/en/tools/crossid/x_crossid.aspx'
+    IMAGING_URL_SUFFIX = ('{base}/dr{dr}/boss/photoObj/frames/'
+                          '{rerun}/{run}/{camcol}/'
+                          'frame-{band}-{run:06d}-{camcol}-'
+                          '{field:04d}.fits.bz2')
+    SPECTRA_URL_SUFFIX = ('{base}/dr{dr}/{instrument}/spectro/redux/'
+                          '{run2d}/spectra/{plate:04d}/'
+                          'spec-{plate:04d}-{mjd}-{fiber:04d}.fits')
+
     TEMPLATES_URL = 'http://classic.sdss.org/dr7/algorithms/spectemplates/spDR2'
-    # Cross-correlation templates from DR-7
+    # Cross-correlation templates from DR-7 - no clear way to look this up via
+    # queries so we just name them explicitly here
     AVAILABLE_TEMPLATES = {'star_O': 0, 'star_OB': 1, 'star_B': 2, 'star_A': [3, 4],
                            'star_FA': 5, 'star_F': [6, 7], 'star_G': [8, 9],
                            'star_K': 10, 'star_M1': 11, 'star_M3': 12, 'star_M5': 13,
@@ -40,10 +50,6 @@ class SDSSClass(BaseQuery):
                            'galaxy_late': 27, 'galaxy_lrg': 28, 'qso': 29,
                            'qso_bal': [30, 31], 'qso_bright': 32
                            }
-    TIMEOUT = conf.timeout
-
-    QUERY_URL_SUFFIX = '/dr{dr}/en/tools/search/x_sql.aspx'
-    XID_URL_SUFFIX = '/dr{dr}/en/tools/crossid/x_crossid.aspx'
 
     def query_crossid_async(self, coordinates, obj_names=None,
                             photoobj_fields=None, specobj_fields=None,
@@ -467,7 +473,7 @@ class SDSSClass(BaseQuery):
 
     def get_spectra_async(self, coordinates=None, radius=2. * u.arcsec,
                           matches=None, plate=None, fiberID=None, mjd=None,
-                          timeout=TIMEOUT, get_query_payload=False, drorurl=12):
+                          timeout=TIMEOUT, get_query_payload=False, dr=12):
         """
         Download spectrum from SDSS.
 
@@ -507,9 +513,9 @@ class SDSSClass(BaseQuery):
         get_query_payload : bool
             If True, this will return the data the query would have sent out,
             but does not actually do the query.
-        drorurl : str or int
-            The data release of the SDSS to use (if an integer or short string)
-            or the full URL to send the query (if a longer string).
+        dr : int
+            The data release of the SDSS to use. With the default server, this
+            only supports DR8 or later.
 
         Returns
         -------
@@ -547,7 +553,7 @@ class SDSSClass(BaseQuery):
             if get_query_payload:
                 return request_payload
 
-            url = self._get_query_url(drorurl, self.QUERY_URL_SUFFIX)
+            url = self._get_query_url(dr, self.QUERY_URL_SUFFIX)
             r = commons.send_request(url, request_payload, timeout,
                                      request_type='GET')
             matches = self._parse_result(r)
@@ -560,13 +566,12 @@ class SDSSClass(BaseQuery):
 
         results = []
         for row in matches:
-            link = ('{base}/{instrument}/spectro/redux/{run2d}/spectra'
-                    '/{plate:04d}/spec-{plate:04d}-{mjd}-{fiber:04d}.fits')
+            linkstr = self.SPECTRA_URL_SUFFIX
             # _parse_result returns bytes for instrunments, requiring a decode
-            link = link.format(base=self.SPECTRO_OPTICAL,
-                               instrument=row['instrument'].decode().lower(),
-                               run2d=row['run2d'], plate=row['plate'],
-                               fiber=row['fiberID'], mjd=row['mjd'])
+            link = linkstr.format(base=conf.sas_baseurl, dr=dr,
+                                  instrument=row['instrument'].decode().lower(),
+                                  run2d=row['run2d'], plate=row['plate'],
+                                  fiber=row['fiberID'], mjd=row['mjd'])
 
             results.append(commons.FileContainer(link,
                                                  encoding='binary',
@@ -599,7 +604,7 @@ class SDSSClass(BaseQuery):
     def get_images_async(self, coordinates=None, radius=2. * u.arcsec,
                          matches=None, run=None, rerun=301, camcol=None,
                          field=None, band='g', timeout=TIMEOUT,
-                         get_query_payload=False, cache=True, drorurl=12):
+                         get_query_payload=False, cache=True, dr=12):
         """
         Download an image from SDSS.
 
@@ -650,9 +655,9 @@ class SDSSClass(BaseQuery):
         get_query_payload : bool
             If True, this will return the data the query would have sent out,
             but does not actually do the query.
-        drorurl : str or int
-            The data release of the SDSS to use (if an integer or short string)
-            or the full URL to send the query (if a longer string).
+        dr : int
+            The data release of the SDSS to use. With the default server, this
+            only supports DR8 or later.
 
         Returns
         -------
@@ -689,7 +694,7 @@ class SDSSClass(BaseQuery):
             if get_query_payload:
                 return request_payload
 
-            url = self._get_query_url(drorurl, self.QUERY_URL_SUFFIX)
+            url = self._get_query_url(dr, self.QUERY_URL_SUFFIX)
             r = commons.send_request(url, request_payload, timeout,
                                      request_type='GET')
             matches = self._parse_result(r)
@@ -703,10 +708,8 @@ class SDSSClass(BaseQuery):
         for row in matches:
             for b in band:
                 # Download and read in image data
-                linkstr = ('{base}/{rerun}/{run}/{camcol}/'
-                           'frame-{band}-{run:06d}-{camcol}-'
-                           '{field:04d}.fits.bz2')
-                link = linkstr.format(base=self.IMAGING, run=row['run'],
+                linkstr = self.IMAGING_URL_SUFFIX
+                link = linkstr.format(base=conf.sas_baseurl, dr=dr, run=row['run'],
                                       rerun=row['rerun'], camcol=row['camcol'],
                                       field=row['field'], band=b)
 
@@ -1009,6 +1012,6 @@ class SDSSClass(BaseQuery):
         if isinstance(drorurl, basestring) and len(drorurl) > 2:
             return drorurl
         else:
-            return conf.skyserver_url + suffix.format(dr=drorurl)
+            return conf.skyserver_baseurl + suffix.format(dr=drorurl)
 
 SDSS = SDSSClass()
