@@ -22,11 +22,22 @@ _cached_table_fields = {}
 def get_field_info(tablename, sqlurl, timeout=conf.timeout):
     key = (tablename, sqlurl)
 
-    if key in _cached_table_fields:
-        info = _cached_table_fields[key]
-    else:
-        request_payload = {'cmd': "select * from dbo.fDocColumns('PhotoObj')", 'format': 'csv'}
+    if key not in _cached_table_fields:
+        request_payload = {'cmd': "select * from dbo.fDocColumns('{0}')".format(tablename), 'format': 'json'}
         qryres = commons.send_request(sqlurl, request_payload, timeout, request_type='GET')
-        info = Table.read(qryres.text, format='ascii.csv', header_start=1, data_start=2, guess=False)
-        _cached_table_fields[key] = info
-    return info
+        # we're compelled to use JSON because CSV responses are broken in SDSS -
+        # sometimes there are improperly nested " characters.
+        _cached_table_fields[key] = _columns_json_to_table(qryres.json())
+    return _cached_table_fields[key]
+
+def _columns_json_to_table(jsonobj):
+    rows = jsonobj[0]['Rows']
+    columns = dict([(nm, []) for nm in rows[0].keys()])
+
+    for row in rows:
+        for k, v in row.items():
+            columns[k].append(v)
+
+    return Table(columns)
+
+# below here are builtin cached queries
