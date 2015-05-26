@@ -562,8 +562,8 @@ class SDSSClass(BaseQuery):
         for row in matches:
             link = ('{base}/{instrument}/spectro/redux/{run2d}/spectra'
                     '/{plate:04d}/spec-{plate:04d}-{mjd}-{fiber:04d}.fits')
-            # _parse_result returns bytes for instruments, requiring a decode
-            link = link.format(base=SDSS.SPECTRO_OPTICAL,
+            # _parse_result returns bytes for instrunments, requiring a decode
+            link = link.format(base=self.SPECTRO_OPTICAL,
                                instrument=row['instrument'].decode().lower(),
                                run2d=row['run2d'], plate=row['plate'],
                                fiber=row['fiberID'], mjd=row['mjd'])
@@ -706,7 +706,7 @@ class SDSSClass(BaseQuery):
                 linkstr = ('{base}/{rerun}/{run}/{camcol}/'
                            'frame-{band}-{run:06d}-{camcol}-'
                            '{field:04d}.fits.bz2')
-                link = linkstr.format(base=SDSS.IMAGING, run=row['run'],
+                link = linkstr.format(base=self.IMAGING, run=row['run'],
                                       rerun=row['rerun'], camcol=row['camcol'],
                                       field=row['field'], band=b)
 
@@ -778,14 +778,14 @@ class SDSSClass(BaseQuery):
         if kind == 'all':
             indices = list(np.arange(33))
         else:
-            indices = SDSS.AVAILABLE_TEMPLATES[kind]
+            indices = self.AVAILABLE_TEMPLATES[kind]
             if type(indices) is not list:
                 indices = [indices]
 
         results = []
         for index in indices:
             name = str(index).zfill(3)
-            link = '%s-%s.fit' % (SDSS.TEMPLATES_URL, name)
+            link = '%s-%s.fit' % (self.TEMPLATES_URL, name)
             results.append(commons.FileContainer(link,
                                                  remote_timeout=timeout,
                                                  encoding='binary'))
