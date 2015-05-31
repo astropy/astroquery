@@ -1,10 +1,13 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-# TODO rovib in H2O has wrong format for header
 import requests
 import numpy as np
 from astropy.table import Table
 from astropy import table
 from astropy import log
+from bs4 import BeautifulSoup
+import re
+
+from ..exceptions import InvalidQueryError
 from ..query import Query
 
 __all__ = ['Lamda']
@@ -12,6 +15,7 @@ __all__ = ['Lamda']
 # should skip only if remote_data = False
 __doctest_skip__ = ['query']
 
+# query_types and collider_ids are potentially useful but not used.
 query_types = {
     'erg_levels': '!NUMBER OF ENERGY LEVELS',
     'rad_trans': '!NUMBER OF RADIATIVE TRANSITIONS',
@@ -34,6 +38,9 @@ class LamdaClass(Query):
     def _get_molfile(self, mol):
         """
         """
+        if mol not in self.molecule_dict:
+            raise InvalidQueryError("Molecule {0} is not in the valid "
+                                    "molecule list.  See Lamda.molecule_dict")
         response = requests.get(self.url.format(mol))
         response.raise_for_status()
         return response
@@ -47,8 +54,7 @@ class LamdaClass(Query):
         with open(outfilename,'w') as f:
             f.write(molreq.text)
 
-    def query(self, mol, query_type=None, coll_partner_index=0,
-              return_datafile=False):
+    def query(self, mol, return_datafile=False):
         """
         Query the LAMDA database.
 
@@ -66,8 +72,8 @@ class LamdaClass(Query):
 
         Examples
         --------
-        >>> from astroquery import lamda
-        >>> collrates,radtransitions,enlevels = lamda.query(mol='co')
+        >>> from astroquery.lamda import Lamda
+        >>> collrates,radtransitions,enlevels = Lamda.query(mol='co')
         >>> enlevels.pprint()
         LEVEL ENERGIES(cm^-1) WEIGHT  J
         ----- --------------- ------ ---
@@ -89,7 +95,7 @@ class LamdaClass(Query):
         tables = parse_lamda_lines(datafile)
         return tables
 
-    def get_molecule_list(self, cache=True):
+    def get_molecules(self, cache=True):
         """
         Scrape the list of valid molecules
         """
@@ -111,9 +117,15 @@ class LamdaClass(Query):
         molecule_dict = {molecule_re.search(url).groups()[0]:
                          url
                          for url in datfile_urls}
-        self._molecule_dict = molecule_dict
 
         return molecule_dict
+    
+    @property
+    def molecule_dict(self):
+        if not hasattr(self, '_molecule_dict'):
+            self._molecule_dict = self.get_molecules()
+
+        return self._molecule_dict
 
 
 def _find_datfiles(url):
