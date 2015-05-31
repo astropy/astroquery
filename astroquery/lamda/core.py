@@ -1,5 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
+import os
 import requests
+import json
 import numpy as np
 from astropy.table import Table
 from astropy import table
@@ -49,7 +51,7 @@ class LamdaClass(BaseQuery):
         if mol not in self.molecule_dict:
             raise InvalidQueryError("Molecule {0} is not in the valid "
                                     "molecule list.  See Lamda.molecule_dict")
-        response = requests.get(self.url.format(mol))
+        response = self._request('GET', self.url.format(mol))
         response.raise_for_status()
         return response
 
@@ -109,11 +111,13 @@ class LamdaClass(BaseQuery):
         """
         if cache and hasattr(self, '_molecule_dict'):
             return self._molecule_dict
-        elif cache:
-            md = json.load(self._moldict_path)
+        elif cache and os.path.isfile(self._moldict_path):
+            with open(self._moldict_path, 'r') as f:
+                md = json.load(f)
+            return md
 
         main_url = 'http://home.strw.leidenuniv.nl/~moldata/'
-        response = requests.get(main_url)
+        response = self._request('GET', main_url)
         response.raise_for_status()
 
         soup = BeautifulSoup(response.content)
@@ -121,7 +125,7 @@ class LamdaClass(BaseQuery):
         links = soup.find_all('a', href=True)
         datfile_urls = [url
                         for link in ProgressBar(links)
-                        for url in _find_datfiles(link['href'], base_url=main_url)]
+                        for url in self._find_datfiles(link['href'], base_url=main_url)]
 
         molecule_re = re.compile(r'http://[a-zA-Z0-9.]*/~moldata/datafiles/([A-Z0-9a-z_-]*).dat')
         molecule_dict = {molecule_re.search(url).groups()[0]:
@@ -145,20 +149,29 @@ class LamdaClass(BaseQuery):
         return self._molecule_dict
 
 
-def _find_datfiles(url, base_url):
+    def _find_datfiles(self, url, base_url, raise_for_status=False):
+
+        response = self._request('GET', _absurl_from_url(url, base_url))
+        if raise_for_status:
+            response.raise_for_status()
+        elif not response.ok:
+            # assume this URL does not contain data b/c it does not exist
+            return []
+
+        soup = BeautifulSoup(response.content)
+
+        links = soup.find_all('a', href=True)
+
+        urls = [_absurl_from_url(link['href'], base_url)
+                for link in links if '.dat' in link['href']]
+
+        return urls
+
+def _absurl_from_url(url, base_url):
     if url[:4] != 'http':
-        url = urlparse.urljoin(base_url, url)
+        return urlparse.urljoin(base_url, url)
+    return url
 
-    response = requests.get(url)
-    response.raise_for_status()
-
-    soup = BeautifulSoup(response.content)
-
-    links = soup.find_all('a', href=True)
-
-    urls = [link['href'] for link in links if '.dat' in link['href']]
-
-    return urls
 
 def parse_lamda_datafile(filename):
     with open(filename) as f:
