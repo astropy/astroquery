@@ -74,15 +74,15 @@ def ncrit(lamda_tables, transition_upper, transition_lower, temperature, OPR=3,)
 
     # i > j: collisions from higher levels
     transition_indices_ij = {coll: np.nonzero(cr['Lower']==transition_upper)[0] for coll,cr in crates.items()}
-    coll = crates.keys()[0]
-    degeneracies_i = enlevs['Weight'][crates[coll][transition_indices_ij[coll]]['Upper']-1]
-    degeneracies_j = enlevs['Weight'][crates[coll][transition_indices_ij[coll]]['Lower']-1]
-    energy_i = enlevs['Energy'][crates[coll][transition_indices_ij[coll]]['Upper']-1] *u.cm**-1
-    energy_j = enlevs['Energy'][crates[coll][transition_indices_ij[coll]]['Lower']-1] *u.cm**-1
-    # Shirley 2015 eqn 4:
-    crates_ij = {coll: (crates_ji_all[coll][transition_indices_ij[coll]] * degeneracies_i/degeneracies_j.astype('float')
-                       * np.exp((-energy_i-energy_j).to(u.erg, u.spectral())/(constants.k_B * temperature * u.K)))
-                 for coll in crates}
+    crates_ij = {}
+    for coll in crates.keys():
+        degeneracies_i = enlevs['Weight'][crates[coll][transition_indices_ij[coll]]['Upper']-1]
+        degeneracies_j = enlevs['Weight'][crates[coll][transition_indices_ij[coll]]['Lower']-1]
+        energy_i = enlevs['Energy'][crates[coll][transition_indices_ij[coll]]['Upper']-1] *u.cm**-1
+        energy_j = enlevs['Energy'][crates[coll][transition_indices_ij[coll]]['Lower']-1] *u.cm**-1
+        # Shirley 2015 eqn 4:
+        crates_ij[coll] = (crates_ji_all[coll][transition_indices_ij[coll]] * degeneracies_i/degeneracies_j.astype('float')
+                           * np.exp((-energy_i-energy_j).to(u.erg, u.spectral())/(constants.k_B * temperature * u.K)))
 
     crates_tot_percollider = {coll: (np.sum(crates_ij[coll]) + np.sum(crates_ji[coll])) * u.cm**3/u.s
                               for coll in crates}
