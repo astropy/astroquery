@@ -4,7 +4,7 @@ from astropy import constants
 from astropy import units as u
 
 def ncrit(lamda_tables, transition_upper, transition_lower, temperature, OPR=3,
-          partners=['H2', 'oH2', 'pH2']):
+          partners=['H2', 'OH2', 'PH2']):
     """
     Compute the critical density for a transition given its temperature.
 
