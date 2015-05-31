@@ -94,6 +94,8 @@ def ncrit(lamda_tables, transition_upper, transition_lower, temperature, OPR=3,
                               for coll in crates}
     if 'OH2' in crates:
         crates_tot = fortho*crates_tot_percollider['OH2'] + (1-fortho)*crates_tot_percollider['PH2']
+    elif 'PH2' in crates:
+        crates_tot = crates_tot_percollider['PH2']
     elif 'H2' in crates:
         crates_tot = crates_tot_percollider['H2']
 

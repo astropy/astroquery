@@ -17,7 +17,7 @@ from ..query import BaseQuery
 __all__ = ['Lamda']
 
 # should skip only if remote_data = False
-__doctest_skip__ = ['query']
+__doctest_skip__ = ['LamdaClass.query']
 
 # query_types and collider_ids are potentially useful but not used.
 query_types = {
