@@ -1,6 +1,5 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import os
-import requests
 import json
 import numpy as np
 from astropy.table import Table
@@ -45,13 +44,13 @@ class LamdaClass(BaseQuery):
         self._moldict_path = os.path.join(self.cache_location,
                                           "molecules.json")
 
-    def _get_molfile(self, mol):
+    def _get_molfile(self, mol, cache=True):
         """
         """
         if mol not in self.molecule_dict:
             raise InvalidQueryError("Molecule {0} is not in the valid "
                                     "molecule list.  See Lamda.molecule_dict")
-        response = self._request('GET', self.url.format(mol))
+        response = self._request('GET', self.url.format(mol), cache=cache)
         response.raise_for_status()
         return response
 
@@ -64,7 +63,7 @@ class LamdaClass(BaseQuery):
         with open(outfilename,'w') as f:
             f.write(molreq.text)
 
-    def query(self, mol, return_datafile=False):
+    def query(self, mol, return_datafile=False, cache=True):
         """
         Query the LAMDA database.
 
@@ -98,7 +97,7 @@ class LamdaClass(BaseQuery):
         """
         # Send HTTP request to open URL
         datafile = [s.strip() for s in
-                    self._get_molfile(mol).text.splitlines()]
+                    self._get_molfile(mol, cache=cache).text.splitlines()]
         if return_datafile:
             return datafile
         # Parse datafile string list and return a table
@@ -117,7 +116,7 @@ class LamdaClass(BaseQuery):
             return md
 
         main_url = 'http://home.strw.leidenuniv.nl/~moldata/'
-        response = self._request('GET', main_url)
+        response = self._request('GET', main_url, cache=cache)
         response.raise_for_status()
 
         soup = BeautifulSoup(response.content)
@@ -127,13 +126,14 @@ class LamdaClass(BaseQuery):
                         for link in ProgressBar(links)
                         for url in self._find_datfiles(link['href'], base_url=main_url)]
 
-        molecule_re = re.compile(r'http://[a-zA-Z0-9.]*/~moldata/datafiles/([A-Z0-9a-z_-]*).dat')
+        molecule_re = re.compile(r'http://[a-zA-Z0-9.]*/~moldata/datafiles/([A-Z0-9a-z_+@-]*).dat')
         molecule_dict = {molecule_re.search(url).groups()[0]:
                          url
                          for url in datfile_urls}
 
         with open(self._moldict_path, 'w') as f:
-            json.dumps(molecule_dict, f)
+            s = json.dumps(molecule_dict)
+            f.write(s)
 
         return molecule_dict
     
@@ -151,7 +151,12 @@ class LamdaClass(BaseQuery):
 
     def _find_datfiles(self, url, base_url, raise_for_status=False):
 
-        response = self._request('GET', _absurl_from_url(url, base_url))
+        myurl = _absurl_from_url(url, base_url)
+        if 'http' not in myurl:
+            # assume this is a bad URL, like a mailto:blah href
+            return []
+
+        response = self._request('GET', myurl)
         if raise_for_status:
             response.raise_for_status()
         elif not response.ok:

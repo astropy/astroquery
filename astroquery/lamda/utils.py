@@ -5,7 +5,32 @@ from astropy import units as u
 
 def ncrit(lamda_tables, transition_upper, transition_lower, temperature, OPR=3,):
     """
+    Compute the critical density for a transition given its temperature.
 
+    The critical density is defined as the Einstein A value divided by the sum
+    of the collision rates into the state minus the collision rates out of that
+    state.  See Shirley et al 2015, eqn 4
+    (http://esoads.eso.org/cgi-bin/bib_query?arXiv:1501.01629)    
+
+    Parameters
+    ----------
+    lamda_tables : list
+        The list of LAMDA tables returned from a Lamda.query operation.  Should be
+        [ collision_rates_dict, Avals/Freqs, Energy Levels ]
+    transition_upper : int
+        The upper transition number as indexed in the lamda catalog
+    transition_lower: int
+        The lower transition number as indexed in the lamda catalog
+    temperature : float
+        Kinetic temperature in Kelvin.  Will be interpolated as appropriate.
+        Extrapolation uses nearest value
+    OPR : float
+        ortho/para ratio of h2 if para/ortho h2 are included as colliders
+
+    Returns
+    -------
+    ncrit : astropy.units.Quantity
+        A quantity with units cm^-3
     """
     
     fortho = (OPR)/(OPR-1)
