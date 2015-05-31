@@ -4,11 +4,14 @@ import numpy as np
 from astropy.table import Table
 from astropy import table
 from astropy import log
+from astropy.utils.console import ProgressBar
 from bs4 import BeautifulSoup
+from astropy.extern.six.moves import urllib_parse as urlparse
 import re
+import warnings
 
 from ..exceptions import InvalidQueryError
-from ..query import Query
+from ..query import BaseQuery
 
 __all__ = ['Lamda']
 
@@ -31,9 +34,14 @@ collider_ids = {'H2': 1,
                 'H+': 7}
 collider_ids.update({v:k for k,v in list(collider_ids.items())})
 
-class LamdaClass(Query):
+class LamdaClass(BaseQuery):
 
     url = "http://home.strw.leidenuniv.nl/~moldata/datafiles/{0}.dat"
+
+    def __init__(self, **kwargs):
+        super(LamdaClass, self).__init__(**kwargs)
+        self._moldict_path = os.path.join(self.cache_location,
+                                          "molecules.json")
 
     def _get_molfile(self, mol):
         """
@@ -101,34 +109,46 @@ class LamdaClass(Query):
         """
         if cache and hasattr(self, '_molecule_dict'):
             return self._molecule_dict
+        elif cache:
+            md = json.load(self._moldict_path)
 
-        url = 'http://home.strw.leidenuniv.nl/~moldata/'
-        response = requests.get(url)
+        main_url = 'http://home.strw.leidenuniv.nl/~moldata/'
+        response = requests.get(main_url)
         response.raise_for_status()
 
         soup = BeautifulSoup(response.content)
 
         links = soup.find_all('a', href=True)
         datfile_urls = [url
-                        for link in links
-                        for url in _find_datfiles(link['href'])]
+                        for link in ProgressBar(links)
+                        for url in _find_datfiles(link['href'], base_url=main_url)]
 
         molecule_re = re.compile(r'http://[a-zA-Z0-9.]*/~moldata/datafiles/([A-Z0-9a-z_-]*).dat')
         molecule_dict = {molecule_re.search(url).groups()[0]:
                          url
                          for url in datfile_urls}
 
+        with open(self._moldict_path, 'w') as f:
+            json.dumps(molecule_dict, f)
+
         return molecule_dict
     
     @property
     def molecule_dict(self):
         if not hasattr(self, '_molecule_dict'):
+            warnings.warn("The first time a LAMDA function is called, it must "
+                          "assemble a list of valid molecules and URLs.  This "
+                          "list will be cached so future operations will be "
+                          "faster.")
             self._molecule_dict = self.get_molecules()
 
         return self._molecule_dict
 
 
-def _find_datfiles(url):
+def _find_datfiles(url, base_url):
+    if url[:4] != 'http':
+        url = urlparse.urljoin(base_url, url)
+
     response = requests.get(url)
     response.raise_for_status()
 
