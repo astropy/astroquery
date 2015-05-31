@@ -3,7 +3,8 @@ import re
 from astropy import constants
 from astropy import units as u
 
-def ncrit(lamda_tables, transition_upper, transition_lower, temperature, OPR=3,):
+def ncrit(lamda_tables, transition_upper, transition_lower, temperature, OPR=3,
+          partners=['H2', 'oH2', 'pH2']):
     """
     Compute the critical density for a transition given its temperature.
 
@@ -26,6 +27,9 @@ def ncrit(lamda_tables, transition_upper, transition_lower, temperature, OPR=3,)
         Extrapolation uses nearest value
     OPR : float
         ortho/para ratio of h2 if para/ortho h2 are included as colliders
+    partners : list
+        A list of valid partners.  It probably does not make sense to include
+        both electrons and H2 because they'll have different densities.
 
     Returns
     -------
@@ -35,7 +39,9 @@ def ncrit(lamda_tables, transition_upper, transition_lower, temperature, OPR=3,)
     
     fortho = (OPR)/(OPR-1)
 
-    crates = lamda_tables[0]
+    # exclude partners that are explicitly excluded
+    crates = {coll: val for coll, val in lamda_tables[0].items()
+              if coll in partners}
     avals = lamda_tables[1]
     enlevs = lamda_tables[2]
 
