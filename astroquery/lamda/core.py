@@ -50,7 +50,8 @@ class LamdaClass(BaseQuery):
         if mol not in self.molecule_dict:
             raise InvalidQueryError("Molecule {0} is not in the valid "
                                     "molecule list.  See Lamda.molecule_dict")
-        response = self._request('GET', self.url.format(mol), cache=cache)
+        response = self._request('GET', self.url.format(mol), timeout=timeout,
+                                 cache=cache)
         response.raise_for_status()
         return response
 
@@ -63,7 +64,7 @@ class LamdaClass(BaseQuery):
         with open(outfilename,'w') as f:
             f.write(molreq.text)
 
-    def query(self, mol, return_datafile=False, cache=True):
+    def query(self, mol, return_datafile=False, cache=True, timeout=None):
         """
         Query the LAMDA database.
 
@@ -97,7 +98,8 @@ class LamdaClass(BaseQuery):
         """
         # Send HTTP request to open URL
         datafile = [s.strip() for s in
-                    self._get_molfile(mol, cache=cache).text.splitlines()]
+                    self._get_molfile(mol, timeout=timeout,
+                                      cache=cache).text.splitlines()]
         if return_datafile:
             return datafile
         # Parse datafile string list and return a table
