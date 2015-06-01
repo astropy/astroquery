@@ -1,54 +1,25 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-# TODO rovib in H2O has wrong format for header
-import requests
+import os
+import json
 import numpy as np
 from astropy.table import Table
 from astropy import table
 from astropy import log
+from astropy.utils.console import ProgressBar
+from bs4 import BeautifulSoup
+from astropy.extern.six.moves import urllib_parse as urlparse
+import re
+import warnings
 
-__all__ = ['query', 'print_mols', 'parse_lamda_datafile']
+from ..exceptions import InvalidQueryError
+from ..query import BaseQuery
+
+__all__ = ['Lamda']
 
 # should skip only if remote_data = False
-__doctest_skip__ = ['query']
+__doctest_skip__ = ['LamdaClass.query']
 
-url = "http://home.strw.leidenuniv.nl/~moldata/datafiles/{0}.dat"
-mols = {
-    # Atoms
-    'C': ['catom'],
-    'C+': ['c+', 'c+@uv'],
-    'O': ['oatom'],
-    # Molecules
-    'CO': ['co', '13co', 'c17o', 'c18o', 'co@neufeld'],
-    'CS': ['cs@xpol', '13cs@xpol', 'c34s@xpol'],
-    'HCl': ['hcl', 'hcl@hfs'],
-    'OCS': ['ocs@xpol'],
-    'SO': ['so'],
-    'SO2': ['so2@xpol'],
-    'SiO': ['sio', '29sio'],
-    'SiS': ['sis@xpol'],
-    'SiC2': ['o-sic2'],
-    'HCO+': ['hco+@xpol', 'h13co+@xpol', 'hc17o+@xpol', 'hc18o+@xpol',
-             'dco+@xpol'],
-    'N2H+': ['n2h+@xpol', 'n2h+_hfs'],
-    'HCS+': ['hcs+@xpol'],
-    'HC3N': ['hc3n'],
-    'HCN': ['hcn', 'hcn@xpol', 'hcn@hfs', 'h13cn@xpol', 'hc15n@xpol'],
-    'HNC': ['hnc'],
-    'C3H2': ['p-c3h2', 'o-c3h2'],
-    'H2O': ['ph2o@daniel', 'oh2o@daniel', 'ph2o@rovib', 'oh2o@rovib'],
-    'H2CO': ['p-h2co', 'o-h2co'],
-    'OH': ['oh', 'oh@hfs'],
-    'CH3OH': ['e-ch3oh', 'a-ch3oh'],
-    'NH3': ['p-nh3', 'o-nh3'],
-    'HDO': ['hdo'],
-    'H3O+': ['p-h3o+', 'o-h3o+'],
-    'HNCO': ['hnco'],
-    'NO': ['no'],
-    'CN': ['cn'],
-    'CH3CN': ['ch3cn'],
-    'O2': ['o2'],
-    'HF': ['hf']
-}
+# query_types and collider_ids are potentially useful but not used.
 query_types = {
     'erg_levels': '!NUMBER OF ENERGY LEVELS',
     'rad_trans': '!NUMBER OF RADIATIVE TRANSITIONS',
@@ -64,69 +35,150 @@ collider_ids = {'H2': 1,
                 'H+': 7}
 collider_ids.update({v:k for k,v in list(collider_ids.items())})
 
+class LamdaClass(BaseQuery):
 
-def print_mols():
-    """
-    Print molecule names available for query.
-    """
-    for mol_family in mols.keys():
-        print('-- {0} :'.format(mol_family))
-        print(mols[mol_family], '\n')
+    url = "http://home.strw.leidenuniv.nl/~moldata/datafiles/{0}.dat"
 
-def get_molfile(mol):
-    return requests.get(url.format(mol))
+    def __init__(self, **kwargs):
+        super(LamdaClass, self).__init__(**kwargs)
+        self._moldict_path = os.path.join(self.cache_location,
+                                          "molecules.json")
 
-def download_molfile(mol, outfilename):
-    molreq = get_molfile(mol)
-    with open(outfilename,'w') as f:
-        f.write(molreq.text)
+    def _get_molfile(self, mol, cache=True, timeout=None):
+        """
+        """
+        if mol not in self.molecule_dict:
+            raise InvalidQueryError("Molecule {0} is not in the valid "
+                                    "molecule list.  See Lamda.molecule_dict")
+        response = self._request('GET', self.molecule_dict[mol],
+                                 timeout=timeout, cache=cache)
+        response.raise_for_status()
+        return response
 
-def query(mol, query_type=None, coll_partner_index=0, return_datafile=False):
-    """
-    Query the LAMDA database.
+    def download_molfile(self, mol, outfilename):
+        """
+        Download a particular molecular data file `mol` to output file
+        `outfilename`
+        """
+        molreq = self._get_molfile(mol)
+        with open(outfilename,'w') as f:
+            f.write(molreq.text)
 
-    Parameters
-    ----------
-    mol : string
-        Molecule or atom designation. For a list of valid designations see
-        the :meth:`print_mols` method.
+    def query(self, mol, return_datafile=False, cache=True, timeout=None):
+        """
+        Query the LAMDA database.
 
-    Returns
-    -------
-    Tuple of tables: ({rateid: Table, },
-                      Table,
-                      Table)
+        Parameters
+        ----------
+        mol : string
+            Molecule or atom designation. For a list of valid designations see
+            the :meth:`print_mols` method.
 
-    Examples
-    --------
-    >>> from astroquery import lamda
-    >>> collrates,radtransitions,enlevels = lamda.query(mol='co')
-    >>> enlevels.pprint()
-    LEVEL ENERGIES(cm^-1) WEIGHT  J
-    ----- --------------- ------ ---
-        2     3.845033413    3.0   1
-        3    11.534919938    5.0   2
-      ...             ...    ... ...
-    >>> collrates['H2'].pprint(max_width=60)
-    Transition Upper Lower ... C_ij(T=325) C_ij(T=375)
-    ---------- ----- ----- ... ----------- -----------
-             1     2     1 ...     2.8e-11       3e-11
-             2     3     1 ...     1.8e-11     1.9e-11
-    """
-    # Send HTTP request to open URL
-    datafile = [s.strip() for s in get_molfile(mol).text.splitlines()]
-    if return_datafile:
-        return datafile
-    # Parse datafile string list and return a table
-    tables = parse_lamda_lines(datafile)
-    return tables
+        Returns
+        -------
+        Tuple of tables: ({rateid: Table, },
+                          Table,
+                          Table)
+
+        Examples
+        --------
+        >>> from astroquery.lamda import Lamda
+        >>> collrates,radtransitions,enlevels = Lamda.query(mol='co')
+        >>> enlevels.pprint()
+        LEVEL ENERGIES(cm^-1) WEIGHT  J
+        ----- --------------- ------ ---
+            2     3.845033413    3.0   1
+            3    11.534919938    5.0   2
+          ...             ...    ... ...
+        >>> collrates['H2'].pprint(max_width=60)
+        Transition Upper Lower ... C_ij(T=325) C_ij(T=375)
+        ---------- ----- ----- ... ----------- -----------
+                 1     2     1 ...     2.8e-11       3e-11
+                 2     3     1 ...     1.8e-11     1.9e-11
+        """
+        # Send HTTP request to open URL
+        datafile = [s.strip() for s in
+                    self._get_molfile(mol, timeout=timeout,
+                                      cache=cache).text.splitlines()]
+        if return_datafile:
+            return datafile
+        # Parse datafile string list and return a table
+        tables = parse_lamda_lines(datafile)
+        return tables
+
+    def get_molecules(self, cache=True):
+        """
+        Scrape the list of valid molecules
+        """
+        if cache and hasattr(self, '_molecule_dict'):
+            return self._molecule_dict
+        elif cache and os.path.isfile(self._moldict_path):
+            with open(self._moldict_path, 'r') as f:
+                md = json.load(f)
+            return md
+
+        main_url = 'http://home.strw.leidenuniv.nl/~moldata/'
+        response = self._request('GET', main_url, cache=cache)
+        response.raise_for_status()
+
+        soup = BeautifulSoup(response.content)
+
+        links = soup.find_all('a', href=True)
+        datfile_urls = [url
+                        for link in ProgressBar(links)
+                        for url in self._find_datfiles(link['href'], base_url=main_url)]
+
+        molecule_re = re.compile(r'http://[a-zA-Z0-9.]*/~moldata/datafiles/([A-Z0-9a-z_+@-]*).dat')
+        molecule_dict = {molecule_re.search(url).groups()[0]:
+                         url
+                         for url in datfile_urls}
+
+        with open(self._moldict_path, 'w') as f:
+            s = json.dumps(molecule_dict)
+            f.write(s)
+
+        return molecule_dict
+    
+    @property
+    def molecule_dict(self):
+        if not hasattr(self, '_molecule_dict'):
+            warnings.warn("The first time a LAMDA function is called, it must "
+                          "assemble a list of valid molecules and URLs.  This "
+                          "list will be cached so future operations will be "
+                          "faster.")
+            self._molecule_dict = self.get_molecules()
+
+        return self._molecule_dict
 
 
-def _cln(s):
-    """
-    Clean a string of comments, newlines
-    """
-    return s.split("!")[0].strip()
+    def _find_datfiles(self, url, base_url, raise_for_status=False):
+
+        myurl = _absurl_from_url(url, base_url)
+        if 'http' not in myurl:
+            # assume this is a bad URL, like a mailto:blah href
+            return []
+
+        response = self._request('GET', myurl)
+        if raise_for_status:
+            response.raise_for_status()
+        elif not response.ok:
+            # assume this URL does not contain data b/c it does not exist
+            return []
+
+        soup = BeautifulSoup(response.content)
+
+        links = soup.find_all('a', href=True)
+
+        urls = [_absurl_from_url(link['href'], base_url)
+                for link in links if '.dat' in link['href']]
+
+        return urls
+
+def _absurl_from_url(url, base_url):
+    if url[:4] != 'http':
+        return urlparse.urljoin(base_url, url)
+    return url
+
 
 def parse_lamda_datafile(filename):
     with open(filename) as f:
@@ -242,6 +294,10 @@ def parse_lamda_lines(data):
 
     return coll_tables,rad_table,mol_table
 
+def _cln(s):
+    """
+    Clean a string of comments, newlines
+    """
+    return s.split("!")[0].strip()
 
-if __name__ == "__main__":
-    pass
+Lamda = LamdaClass()

@@ -8,7 +8,7 @@ imp.reload(requests)
 
 @remote_data
 def test_query():
-    result = lamda.query(mol='co', query_type='erg_levels')
+    result = lamda.Lamda.query(mol='co')
     assert [len(r) for r in result] == [2, 40, 41]
     collider_dict = result[0]
     assert collider_dict.keys() == ['PH2', 'OH2']

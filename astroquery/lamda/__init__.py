@@ -15,7 +15,4 @@ Note:
   references to the original papers providing the spectroscopic and collisional
   data are encouraged.
 """
-from .core import *
-
-import warnings
-warnings.warn("Experimental: LAMDA has not yet been refactored to have its API match the rest of astroquery.")
+from .core import Lamda
