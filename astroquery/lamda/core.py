@@ -44,14 +44,14 @@ class LamdaClass(BaseQuery):
         self._moldict_path = os.path.join(self.cache_location,
                                           "molecules.json")
 
-    def _get_molfile(self, mol, cache=True):
+    def _get_molfile(self, mol, cache=True, timeout=None):
         """
         """
         if mol not in self.molecule_dict:
             raise InvalidQueryError("Molecule {0} is not in the valid "
                                     "molecule list.  See Lamda.molecule_dict")
-        response = self._request('GET', self.url.format(mol), timeout=timeout,
-                                 cache=cache)
+        response = self._request('GET', self.molecule_dict[mol],
+                                 timeout=timeout, cache=cache)
         response.raise_for_status()
         return response
 
