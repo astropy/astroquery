@@ -9,6 +9,9 @@
 - Bugfix for ``utils.commons.send_request()``: Raise exception if error status
   is returned in the response. (#491)
 - Update for ALMA Cycle 3 API change (#500)
+- Added LCOGT Archive support (#537)
+- Refactored LAMDA to match the standard API and added a critical density
+  calculation utility (#546)
 
 0.2.3 (2014-09-30)
 ------------------
