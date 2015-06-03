@@ -41,8 +41,8 @@ class LamdaClass(BaseQuery):
 
     def __init__(self, **kwargs):
         super(LamdaClass, self).__init__(**kwargs)
-        self._moldict_path = os.path.join(self.cache_location,
-                                          "molecules.json")
+        self.moldict_path = os.path.join(self.cache_location,
+                                         "molecules.json")
 
     def _get_molfile(self, mol, cache=True, timeout=None):
         """
@@ -112,8 +112,8 @@ class LamdaClass(BaseQuery):
         """
         if cache and hasattr(self, '_molecule_dict'):
             return self._molecule_dict
-        elif cache and os.path.isfile(self._moldict_path):
-            with open(self._moldict_path, 'r') as f:
+        elif cache and os.path.isfile(self.moldict_path):
+            with open(self.moldict_path, 'r') as f:
                 md = json.load(f)
             return md
 
@@ -133,7 +133,7 @@ class LamdaClass(BaseQuery):
                          url
                          for url in datfile_urls}
 
-        with open(self._moldict_path, 'w') as f:
+        with open(self.moldict_path, 'w') as f:
             s = json.dumps(molecule_dict)
             f.write(s)
 
