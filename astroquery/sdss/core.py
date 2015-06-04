@@ -20,7 +20,7 @@ from ..query import BaseQuery
 from . import conf
 from ..utils import commons, async_to_sync
 from ..utils.docstr_chompers import prepend_docstr_noreturns
-from ..exceptions import RemoteServiceError
+from ..exceptions import RemoteServiceError, NoResultsWarning
 
 __all__ = ['SDSS', 'SDSSClass']
 
@@ -515,7 +515,7 @@ class SDSSClass(BaseQuery):
                                      request_type='GET')
             matches = self._parse_result(r)
             if matches is None:
-                warnings.warn("Query returned no results.")
+                warnings.warn("Query returned no results.", NoResultsWarning)
                 return
 
         if not isinstance(matches, Table):
@@ -649,7 +649,7 @@ class SDSSClass(BaseQuery):
                                      request_type='GET')
             matches = self._parse_result(r)
             if matches is None:
-                warnings.warn("Query returned no results.")
+                warnings.warn("Query returned no results.", NoResultsWarning)
                 return
         if not isinstance(matches, Table):
             raise ValueError("'matches' must be an astropy Table")

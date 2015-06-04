@@ -15,7 +15,7 @@ from astropy.extern import six
 from astropy.table import Table, Column
 from astropy import log
 
-from ..exceptions import LoginError, RemoteServiceError
+from ..exceptions import LoginError, RemoteServiceError, NoResultsWarning
 from ..utils import schema, system_tools
 from ..query import QueryWithLogin, suspend_cache
 from . import conf
@@ -283,7 +283,7 @@ class EsoClass(QueryWithLogin):
                     raise ex
             return table
         else:
-            warnings.warn("Query returned no results")
+            warnings.warn("Query returned no results", NoResultsWarning)
 
     def query_instrument(self, instrument, column_filters={}, columns=[],
                          open_form=False, help=False, cache=True, **kwargs):
@@ -366,8 +366,7 @@ class EsoClass(QueryWithLogin):
                         raise ex
                 return table
             else:
-                warnings.warn("Query returned no results")
-
+                warnings.warn("Query returned no results", NoResultsWarning)
 
     def get_headers(self, product_ids, cache=True):
         """
