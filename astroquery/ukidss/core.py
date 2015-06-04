@@ -14,7 +14,7 @@ import astropy.coordinates as coord
 import astropy.io.votable as votable
 
 from ..query import QueryWithLogin
-from ..exceptions import InvalidQueryError, TimeoutError
+from ..exceptions import InvalidQueryError, TimeoutError, NoResultsWarning
 from ..utils import commons
 from . import conf
 from ..exceptions import TableParseError
@@ -549,7 +549,8 @@ class UkidssClass(QueryWithLogin):
             first_table = parsed_table.get_first_table()
             table = first_table.to_table()
             if len(table) == 0:
-                warnings.warn("Query returned no results, so the table will be empty")
+                warnings.warn("Query returned no results, so the table will "
+                              "be empty", NoResultsWarning)
             return table
         except Exception as ex:
             self.response = content
@@ -558,7 +559,6 @@ class UkidssClass(QueryWithLogin):
             raise TableParseError("Failed to parse UKIDSS votable! The raw response can be found "
                                   "in self.response, and the error in self.table_parse_error.  "
                                   "Exception: " + str(self.table_parse_error))
-
 
     def list_catalogs(self, style='short'):
         """

@@ -3,8 +3,10 @@
 Custom exceptions used in the astroquery query classes
 """
 
+from astropy.utils.exceptions import AstropyWarning
+
 __all__ = ['TimeoutError', 'InvalidQueryError', 'RemoteServiceError',
-           'TableParseError', 'LoginError']
+           'TableParseError', 'LoginError', 'NoResultsWarning']
 
 
 class TimeoutError(Exception):
@@ -43,3 +45,9 @@ class LoginError(Exception):
     a login is a prerequisite for the requested action
     """
     pass
+
+
+class NoResultsWarning(AstropyWarning):
+    """
+    Astroquery warning class to be issued when a query returns no result.
+    """

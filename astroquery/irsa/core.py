@@ -101,7 +101,7 @@ import astropy.io.votable as votable
 from ..query import BaseQuery
 from ..utils import commons
 from . import conf
-from ..exceptions import TableParseError
+from ..exceptions import TableParseError, NoResultsWarning
 
 __all__ = ['Irsa', 'IrsaClass']
 
@@ -365,7 +365,8 @@ class IrsaClass(BaseQuery):
 
         # Check if table is empty
         if len(table) == 0:
-            warnings.warn("Query returned no results, so the table will be empty")
+            warnings.warn("Query returned no results, so the table will "
+                          "be empty", NoResultsWarning)
 
         return table
 

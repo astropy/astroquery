@@ -57,10 +57,10 @@ desc        Optional    Short description of a specific catalog, which will
 
 order       Optional    Results ordered by this column.
 
-selcols     Optional    Select specific columns to be returned. The default 
-                        action is to return all columns in the queried catalog. 
-                        To find the names of the columns in the LCOGT Archive databases, 
-                        please read Photometry Table column descriptions [http://lcogtarchive.ipac.caltech.edu/docs/lco_cat_dd.html] 
+selcols     Optional    Select specific columns to be returned. The default
+                        action is to return all columns in the queried catalog.
+                        To find the names of the columns in the LCOGT Archive databases,
+                        please read Photometry Table column descriptions [http://lcogtarchive.ipac.caltech.edu/docs/lco_cat_dd.html]
                         and Image Table column descriptions [http://lcogtarchive.ipac.caltech.edu/docs/lco_img_dd.html].
 
 constraint  Optional    User defined query constraint(s)
@@ -70,7 +70,6 @@ constraint  Optional    User defined query constraint(s)
 from __future__ import print_function, division
 
 import warnings
-import xml.etree.ElementTree as tree
 import logging
 
 from astropy.extern import six
@@ -81,7 +80,7 @@ import astropy.io.votable as votable
 from ..query import BaseQuery
 from ..utils import commons, async_to_sync
 from . import conf
-from ..exceptions import TableParseError
+from ..exceptions import TableParseError, NoResultsWarning
 
 __all__ = ['Lcogt', 'LcogtClass']
 
@@ -347,7 +346,8 @@ class LcogtClass(BaseQuery):
 
         # Check if table is empty
         if len(table) == 0:
-            warnings.warn("Query returned no results, so the table will be empty")
+            warnings.warn("Query returned no results, so the table will "
+                          "be empty", NoResultsWarning)
 
         return table
 
