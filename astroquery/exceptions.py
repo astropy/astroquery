@@ -3,7 +3,7 @@
 Custom exceptions used in the astroquery query classes
 """
 
-from astropy.utils.exception import AstropyWarning
+from astropy.utils.exceptions import AstropyWarning
 
 __all__ = ['TimeoutError', 'InvalidQueryError', 'RemoteServiceError',
            'TableParseError', 'LoginError', 'NoResultsWarning']
