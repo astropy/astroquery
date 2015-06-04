@@ -14,27 +14,32 @@ query, use:
 
 .. code-block:: python
 
-    >>> from astroquery import lamda
-    >>> lamda.print_mols()
+    >>> from astroquery.lamda import Lamda
+    >>> lamda.molecule_dict
 
-A query type must be specified among ``'erg_levels'`` for energy levels,
-``'rad_trans'`` for radiative transitions, or ``'coll_rates'`` for collisional
-rates. Example queries are show below:
-
-.. code-block:: python
-
-    >>> erg_t = lamda.query(mol='co', query_type='erg_levels')
-    >>> rdt_t = lamda.query(mol='co', query_type='rad_trans')
-    >>> clr_t = lamda.query(mol='co', query_type='coll_rates')
-
-Catalogs are returned as `~astropy.table.Table` instances. Often molecules have
-collisional rates calculate for more than one collisional partner, specify the
-order of the partner in the datafile using the ``coll_partner_index`` parameter:
+The dictionary is created dynamically from the LAMDA website the first time it
+is called, then cached for future use.  If there has been an update and you
+want to reload the cache, you can find the cache file `molecules.json` and
+remove it:
 
 .. code-block:: python
 
-    >>> clr_t0 = lamda.query(mol='co', query_type='coll_rates', coll_partner_index=0)
-    >>> clr_t1 = lamda.query(mol='co', query_type='coll_rates', coll_partner_index=1)
+    >>> Lamda.cache_location
+    u'/Users/your_username/.astropy/cache/astroquery/Lamda'
+    >>> Lamda.moldict_path
+    u'/Users/your_username/.astropy/cache/astroquery/Lamda/molecules.json'
+    >>> os.remove(Lamda.moldict_path)
+
+
+You can query for any molecule in that dictionary.
+
+.. code-block:: python
+
+    >>> collrates,radtransitions,enlevels = Lamda.query(mol='co')
+
+Catalogs are returned as `~astropy.table.Table` instances, except for
+`collrates`, which is a dictionary of tables, with one table for each
+collisional partner.
 
 Reference/API
 =============
