@@ -6,9 +6,9 @@ import copy
 import sys
 import re
 import os
+import warnings
 from astropy.io import ascii
 from astropy.extern.six.moves.urllib_error import URLError
-from astropy.extern.six import StringIO
 from collections import OrderedDict
 from ..query import BaseQuery
 from ..utils import commons
@@ -428,9 +428,10 @@ def parse_besancon_model_string(bms,):
 
     for cn in besancon_table.columns:
         if besancon_table[cn].dtype.kind in ('s', 'S'):
-            print("WARNING: The Besancon table did not parse properly.  "
-                  "Some columns are likely to have invalid values and others incorrect values.  "
-                  "Please report this error.")
+            warnings.warn("The Besancon table did not parse properly.  "
+                          "Some columns are likely to have invalid "
+                          "values and others incorrect values.  "
+                          "Please report this error.")
             break
 
     return besancon_table
