@@ -11,6 +11,7 @@ Description: Access Sloan Digital Sky Survey database online.
 
 from __future__ import print_function
 import io
+import warnings
 import numpy as np
 from astropy import units as u
 import astropy.coordinates as coord
@@ -514,7 +515,7 @@ class SDSSClass(BaseQuery):
                                      request_type='GET')
             matches = self._parse_result(r)
             if matches is None:
-                print("No result is found.")
+                warnings.warn("Query returned no results.")
                 return
 
         if not isinstance(matches, Table):
@@ -648,7 +649,7 @@ class SDSSClass(BaseQuery):
                                      request_type='GET')
             matches = self._parse_result(r)
             if matches is None:
-                print("No result is found.")
+                warnings.warn("Query returned no results.")
                 return
         if not isinstance(matches, Table):
             raise ValueError("'matches' must be an astropy Table")
@@ -846,7 +847,7 @@ class SDSSClass(BaseQuery):
             SpecObj quantities to return. If photoobj_fields is None and
             specobj_fields is None then the value of fields is used
         field_help: str or bool, optional
-            Field name to check whether a valid PhotoObjAll or SpecObjAll
+            Field name to check whether it is a valid PhotoObjAll or SpecObjAll
             field name. If `True` or it is an invalid field name all the valid
             field names are returned as a dict.
         obj_names : str, or list or `~astropy.table.Column`, optional
@@ -872,9 +873,9 @@ class SDSSClass(BaseQuery):
                 return
             else:
                 if field_help is not True:
-                    print("{0} isn't a valid 'photobj_field' or "
-                          "'specobj_field' field, valid fields are "
-                          "returned.".format(field_help))
+                    warnings.warn("{0} isn't a valid 'photobj_field' or "
+                                  "'specobj_field' field, valid fields are"
+                                  "returned.".format(field_help))
                 return {'photoobj_all': photoobj_all,
                         'specobj_all': specobj_all}
 
