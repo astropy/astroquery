@@ -1,5 +1,4 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-import os
 import tempfile
 import shutil
 from astropy.tests.helper import pytest, remote_data
@@ -17,10 +16,11 @@ from ...exceptions import LoginError
 
 SKIP_TESTS = not(HAS_KEYRING and ESO_IMPORTED)
 
-instrument_list = [u'fors1', u'fors2', u'vimos', u'omegacam', u'hawki',
-                   u'isaac', u'naco', u'visir', u'vircam', u'apex', u'uves',
-                   u'giraffe', u'xshooter', u'muse', u'crires', u'kmos',
-                   u'sinfoni', u'amber', u'midi', u'harps']
+instrument_list = [u'fors1', u'fors2', u'sphere', u'vimos', u'omegacam',
+                   u'hawki', u'isaac', u'naco', u'visir', u'vircam', u'apex',
+                   u'uves', u'giraffe', u'xshooter', u'muse', u'crires',
+                   u'kmos', u'sinfoni', u'amber', u'midi', u'harps']
+
 
 @pytest.mark.skipif('SKIP_TESTS')
 @remote_data
@@ -28,6 +28,7 @@ class TestEso:
     @pytest.fixture()
     def temp_dir(self, request):
         my_temp_dir = tempfile.mkdtemp()
+
         def fin():
             shutil.rmtree(my_temp_dir)
         request.addfinalizer(fin)
@@ -105,7 +106,7 @@ class TestEso:
     #    data_files = eso.retrieve_data([data_product_id])
     #    # How do we know if we're going to get .fits or .fits.Z?
     #    assert 'AMBER.2006-03-14T07:40:03.741.fits' in data_files[0]
-    
+
     @pytest.mark.skipif('not Eso.USERNAME')
     def test_retrieve_data(self):
         eso = Eso()
