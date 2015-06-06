@@ -3,15 +3,24 @@
 
 - None yet
 
+0.2.5 (2015-06-06)
+------------------
+- Refactored LAMDA to match the standard API and added a critical density
+  calculation utility (#546, #548)
+- Vizier made more efficient (#526)
+- Added LCOGT Archive support (#537)
+- Many SDSS fixes (#487, #507, #508, #541)
+- Splatalogue additional argument validation & cleanup work (#505, #517)
+- Additional ALMA API fixes (#511, #512, #515)
+- ALMA finder chart tool (#506)
+
+
 0.2.4 (2015-03-27)
 ------------------
 
 - Bugfix for ``utils.commons.send_request()``: Raise exception if error status
   is returned in the response. (#491)
 - Update for ALMA Cycle 3 API change (#500)
-- Added LCOGT Archive support (#537)
-- Refactored LAMDA to match the standard API and added a critical density
-  calculation utility (#546)
 
 0.2.3 (2014-09-30)
 ------------------
