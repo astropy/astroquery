@@ -1,16 +1,19 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import os
-from distutils.version import LooseVersion
-import astropy
-try:
-    from ...eso import Eso
-    ESO_IMPORTED = True
-except ImportError:
-    ESO_IMPORTED = False
 from astropy.tests.helper import pytest
 from ...utils.testing_tools import MockResponse
 
-SKIP_TESTS = not ESO_IMPORTED
+# keyring is an optional dependency required by the eso module.
+try:
+    import keyring
+    HAS_KEYRING = True
+except ImportError:
+    HAS_KEYRING = False
+
+if HAS_KEYRING:
+    from ...eso import Eso
+
+SKIP_TESTS = not HAS_KEYRING
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
 
@@ -22,12 +25,12 @@ DATA_FILES = {'GET': {'http://archive.eso.org/wdb/wdb/eso/amber/form':
                       'amber_form.html',
                       'http://archive.eso.org/wdb/wdb/adp/phase3_main/form':
                       'vvv_sgra_form.html',
-                     },
+                      },
               'POST': {'http://archive.eso.org/wdb/wdb/eso/amber/query':
                        'amber_sgra_query.tbl',
                        'http://archive.eso.org/wdb/wdb/adp/phase3_main/query':
                        'vvv_sgra_survey_response.tbl',
-                      }
+                       }
               }
 
 
@@ -63,6 +66,7 @@ def test_SgrAstar(monkeypatch):
     # test that max_results = 50
     assert len(result) == 50
     assert 'GC_IRS7' in result['Object']
+
 
 @pytest.mark.skipif('SKIP_TESTS')
 def test_vvv(monkeypatch):
