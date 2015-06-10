@@ -2,7 +2,6 @@
 from __future__ import print_function
 import os
 import re
-import requests
 import numpy as np
 
 from astropy.tests.helper import pytest
