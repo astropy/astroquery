@@ -1,15 +1,25 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-import os
 import tempfile
 import shutil
 import numpy as np
 from astropy.tests.helper import pytest, remote_data
 from astropy import coordinates
 from astropy import units as u
-from .. import Alma
-from ...exceptions import LoginError
+
+# keyring is an optional dependency required by the alma module.
+try:
+    import keyring
+    HAS_KEYRING = True
+except ImportError:
+    HAS_KEYRING = False
+
+if HAS_KEYRING:
+    from .. import Alma
+
+SKIP_TESTS = not HAS_KEYRING
 
 
+@pytest.mark.skipif('SKIP_TESTS')
 @remote_data
 class TestAlma:
 
@@ -19,6 +29,7 @@ class TestAlma:
     @pytest.fixture()
     def temp_dir(self, request):
         my_temp_dir = tempfile.mkdtemp()
+
         def fin():
             shutil.rmtree(my_temp_dir)
         request.addfinalizer(fin)
@@ -97,7 +108,7 @@ class TestAlma:
 
         target = 'NGC4945'
         project_code = '2012.1.00912.S'
-        
+
         payload = {'project_code':project_code,
                    'source_name_alma':target,}
         result = alma.query(payload=payload)
@@ -130,7 +141,7 @@ class TestAlma:
 
         target = 'NGC4945'
         project_code = '2011.0.00121.S'
-        
+
         payload = {'project_code':project_code,
                    'source_name_alma':target,}
         result = alma.query(payload=payload)
@@ -155,7 +166,7 @@ class TestAlma:
         assert len(data) == 8
 
     def test_help(self):
-        
+
         help_list = Alma._get_help_page()
         assert help_list[0][0] == u'Position'
         assert help_list[1][0] == u'Energy'

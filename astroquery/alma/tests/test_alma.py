@@ -2,12 +2,24 @@
 import numpy as np
 import os
 from astropy.tests.helper import pytest
-
-from .. import Alma
 from ...utils.testing_tools import MockResponse
 from ...exceptions import (InvalidQueryError)
 
+# keyring is an optional dependency required by the alma module.
+try:
+    import keyring
+    HAS_KEYRING = True
+except ImportError:
+    HAS_KEYRING = False
+
+if HAS_KEYRING:
+    from .. import Alma
+
+SKIP_TESTS = not HAS_KEYRING
+
+
 DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
+
 
 def data_path(filename):
     return os.path.join(DATA_DIR, filename)
@@ -36,6 +48,7 @@ DATA_FILES = {'GET': {'http://almascience.eso.org/aq/':
                        'initial_response.html'}
               }
 
+
 def url_mapping(url):
     """
     Map input URLs to output URLs for the staging test
@@ -50,9 +63,10 @@ def url_mapping(url):
     else:
         return mapping[url]
 
+
 def alma_request(request_type, url, params=None, payload=None, data=None,
                  **kwargs):
-    if isinstance(DATA_FILES[request_type][url],dict):
+    if isinstance(DATA_FILES[request_type][url], dict):
         payload = (payload if payload is not None else
                    params if params is not None else
                    data if data is not None else
@@ -73,10 +87,11 @@ def alma_request(request_type, url, params=None, payload=None, data=None,
     return response
 
 
-
 def _get_dataarchive_url(*args):
     return 'http://almascience.eso.org'
 
+
+@pytest.mark.skipif('SKIP_TESTS')
 def test_SgrAstar(monkeypatch):
     # Local caching prevents a remote query here
 
@@ -95,6 +110,8 @@ def test_SgrAstar(monkeypatch):
     assert len(result) == 92
     assert b'2011.0.00217.S' in result['Project code']
 
+
+@pytest.mark.skipif('SKIP_TESTS')
 def test_staging(monkeypatch):
 
     monkeypatch.setattr(Alma, '_get_dataarchive_url', _get_dataarchive_url)
@@ -105,14 +122,15 @@ def test_staging(monkeypatch):
 
     target = 'NGC4945'
     project_code = '2011.0.00121.S'
-    payload = {'project_code':project_code,
-               'source_name_resolver':target,}
+    payload = {'project_code': project_code,
+               'source_name_resolver': target}
     result = alma.query(payload=payload)
 
     uid_url_table = alma.stage_data(result['Asdm uid'])
     assert len(uid_url_table) == 2
 
 
+@pytest.mark.skipif('SKIP_TESTS')
 def test_validator(monkeypatch):
 
     monkeypatch.setattr(Alma, '_get_dataarchive_url', _get_dataarchive_url)
@@ -120,12 +138,13 @@ def test_validator(monkeypatch):
     monkeypatch.setattr(alma, '_get_dataarchive_url', _get_dataarchive_url)
     monkeypatch.setattr(alma, '_request', alma_request)
 
-
     with pytest.raises(InvalidQueryError) as exc:
         alma.query(payload={'invalid_parameter': 1})
 
     assert 'invalid_parameter' in str(exc.value)
 
+
+@pytest.mark.skipif('SKIP_TESTS')
 def test_parse_staging_request_page_asdm(monkeypatch):
     """
     Example:
@@ -157,6 +176,8 @@ def test_parse_staging_request_page_asdm(monkeypatch):
     assert tbl[0]['uid'] == 'uid___A002_X47bd4d_X4c7.asdm.sdm.tar'
     np.testing.assert_approx_equal(tbl[0]['size'], -1e-9)
 
+
+@pytest.mark.skipif('SKIP_TESTS')
 def test_parse_staging_request_page_mous(monkeypatch):
     monkeypatch.setattr(Alma, '_get_dataarchive_url', _get_dataarchive_url)
     alma = Alma()
@@ -173,6 +194,8 @@ def test_parse_staging_request_page_mous(monkeypatch):
     np.testing.assert_approx_equal(tbl[0]['size'], 0.2093)
     assert len(tbl) == 26
 
+
+@pytest.mark.skipif('SKIP_TESTS')
 def test_parse_staging_request_page_mous_cycle0(monkeypatch):
     monkeypatch.setattr(Alma, '_get_dataarchive_url', _get_dataarchive_url)
     alma = Alma()
