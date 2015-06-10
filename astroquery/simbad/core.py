@@ -352,7 +352,7 @@ class SimbadClass(BaseQuery):
     def query_object_async(self, object_name, wildcard=False):
         """
         Serves the same function as `query_object`, but
-        only collects the reponse from the Simbad server and returns.
+        only collects the response from the Simbad server and returns.
 
         Parameters
         ----------
@@ -397,7 +397,7 @@ class SimbadClass(BaseQuery):
     def query_objects_async(self, object_names, wildcard=False):
         """
         Same as `query_objects`, but
-        only collects the reponse from the Simbad server and returns.
+        only collects the response from the Simbad server and returns.
 
         Parameters
         ----------
@@ -430,7 +430,7 @@ class SimbadClass(BaseQuery):
             the equinox of the coordinates. If missing set to
             default 2000.0.
         epoch : str, optional
-            the epoch of the input coordiantes. Must be specified as
+            the epoch of the input coordinates. Must be specified as
             [J|B] <epoch>. If missing, set to default J2000.
 
         Returns
@@ -448,7 +448,7 @@ class SimbadClass(BaseQuery):
                            epoch=None):
         """
         Serves the same function as `query_region`, but
-        only collects the reponse from the Simbad server and returns.
+        only collects the response from the Simbad server and returns.
 
         Parameters
         ----------
@@ -461,7 +461,7 @@ class SimbadClass(BaseQuery):
             the equinox of the coordinates. If missing set to
             default 2000.0.
         epoch : str, optional
-            the epoch of the input coordiantes. Must be specified as
+            the epoch of the input coordinates. Must be specified as
             [J|B] <epoch>. If missing, set to default J2000.
 
         Returns
@@ -499,7 +499,7 @@ class SimbadClass(BaseQuery):
     def query_catalog_async(self, catalog):
         """
         Serves the same function as `query_catalog`, but
-        only collects the reponse from the Simbad server and returns.
+        only collects the response from the Simbad server and returns.
 
         Parameters
         ----------
@@ -539,7 +539,7 @@ class SimbadClass(BaseQuery):
     def query_bibobj_async(self, bibcode):
         """
         Serves the same function as `query_bibobj`, but
-        only collects the reponse from the Simbad server and returns.
+        only collects the response from the Simbad server and returns.
 
         Parameters
         ----------
@@ -584,7 +584,7 @@ class SimbadClass(BaseQuery):
     def query_bibcode_async(self, bibcode, wildcard=False):
         """
         Serves the same function as `query_bibcode`, but
-        only collects the reponse from the Simbad server and returns.
+        only collects the response from the Simbad server and returns.
 
         Parameters
         ----------
@@ -628,7 +628,7 @@ class SimbadClass(BaseQuery):
     def query_objectids_async(self, object_name):
         """
         Serves the same function as `query_objectids`, but
-        only collects the reponse from the Simbad server and returns.
+        only collects the response from the Simbad server and returns.
 
         Parameters
         ----------
@@ -724,7 +724,7 @@ class SimbadClass(BaseQuery):
         response with the .table property/method, then return the
         resulting table.  If data is not retrieved or the resulting
         table is empty, return None.  In case of problems, save
-        intermediate results for furthur debugging.
+        intermediate results for further debugging.
         """
         self.last_response = result
         try:

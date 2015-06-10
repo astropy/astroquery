@@ -56,7 +56,7 @@ class IrsaDustClass(BaseQuery):
         ----------
         coordinate : str
             Can be either the name of an object or a coordinate string
-            If a name, must be resolveable by NED, SIMBAD, 2MASS, or SWAS.
+            If a name, must be resolvable by NED, SIMBAD, 2MASS, or SWAS.
             Examples of acceptable coordinate strings, can be found `here.
             <http://irsa.ipac.caltech.edu/applications/DUST/docs/coordinate.html>`_
         radius : str / `~astropy.units.Quantity`, optional
@@ -102,7 +102,7 @@ class IrsaDustClass(BaseQuery):
         ----------
         coordinate : str
             Can be either the name of an object or a coordinate string
-            If a name, must be resolveable by NED, SIMBAD, 2MASS, or SWAS.
+            If a name, must be resolvable by NED, SIMBAD, 2MASS, or SWAS.
             Examples of acceptable coordinate strings, can be found `here.
             <http://irsa.ipac.caltech.edu/applications/DUST/docs/coordinate.html>`_
         radius : str / `~astropy.units.Quantity`, optional
@@ -137,14 +137,14 @@ class IrsaDustClass(BaseQuery):
     def get_image_list(self, coordinate, radius=None, image_type=None,
                        timeout=TIMEOUT):
         """
-        Query function that performes coordinate-based query and returns a list
+        Query function that performs coordinate-based query and returns a list
         of URLs to the Irsa-Dust images.
 
         Parameters
         -----------
         coordinate : str
             Can be either the name of an object or a coordinate string
-            If a name, must be resolveable by NED, SIMBAD, 2MASS, or SWAS.
+            If a name, must be resolvable by NED, SIMBAD, 2MASS, or SWAS.
             Examples of acceptable coordinate strings, can be found `here.
             <http://irsa.ipac.caltech.edu/applications/DUST/docs/coordinate.html>`_
         radius : str / `~astropy.units.Quantity`, optional
@@ -181,7 +181,7 @@ class IrsaDustClass(BaseQuery):
         ----------
         coordinate : str
             Can be either the name of an object or a coordinate string
-            If a name, must be resolveable by NED, SIMBAD, 2MASS, or SWAS.
+            If a name, must be resolvable by NED, SIMBAD, 2MASS, or SWAS.
             Examples of acceptable coordinate strings, can be found `here.
             <http://irsa.ipac.caltech.edu/applications/DUST/docs/coordinate.html>`_
         radius : str / `~astropy.units.Quantity`, optional
@@ -217,7 +217,7 @@ class IrsaDustClass(BaseQuery):
         ----------
         coordinate : str
             Can be either the name of an object or a coordinate string
-            If a name, must be resolveable by NED, SIMBAD, 2MASS, or SWAS.
+            If a name, must be resolvable by NED, SIMBAD, 2MASS, or SWAS.
             Examples of acceptable coordinate strings, can be found `here.
             <http://irsa.ipac.caltech.edu/applications/DUST/docs/coordinate.html>`_
         radius : str, optional
@@ -253,7 +253,7 @@ class IrsaDustClass(BaseQuery):
         ----------
         coordinate : str
             Can be either the name of an object or a coordinate string
-            If a name, must be resolveable by NED, SIMBAD, 2MASS, or SWAS.
+            If a name, must be resolvable by NED, SIMBAD, 2MASS, or SWAS.
             Examples of acceptable coordinate strings, can be found `here.
             <http://irsa.ipac.caltech.edu/applications/DUST/docs/coordinate.html>`_
         radius : str / `~astropy.units.Quantity`, optional
@@ -300,7 +300,7 @@ class IrsaDustClass(BaseQuery):
         ----------
         coordinate : str
             Can be either the name of an object or a coordinate string
-            If a name, must be resolveable by NED, SIMBAD, 2MASS, or SWAS.
+            If a name, must be resolvable by NED, SIMBAD, 2MASS, or SWAS.
             Examples of acceptable coordinate strings, can be found `here
             <http://irsa.ipac.caltech.edu/applications/DUST/docs/coordinate.html>`_
         radius : str / `~astropy.units.Quantity`, optional

@@ -46,7 +46,7 @@ def merge_frequencies(table, prefer='measured', theor_kwd='Freq-GHz',
     table : table
         The Splatalogue table
     prefer: 'measured' or 'theoretical'
-        Which of the two colums to prefer if there is a conflict
+        Which of the two columns to prefer if there is a conflict
     """
 
     if prefer == 'measured':

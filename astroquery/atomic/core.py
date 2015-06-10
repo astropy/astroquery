@@ -280,7 +280,7 @@ class AtomicLineListClass(BaseQuery):
             # ignore the submit and reset buttons
             if elem.get('type') in ['submit', 'reset']:
                 continue
-            # check boxes: enabled boxes have the value "on" if not specificed
+            # check boxes: enabled boxes have the value "on" if not specified
             # otherwise. Found out by debugging, perhaps not documented.
             if elem.get('type') == 'checkbox' and elem.get('checked') in ["", "checked"]:
                 value = elem.get('value', 'on')

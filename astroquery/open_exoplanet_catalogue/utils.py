@@ -2,7 +2,7 @@
 
 
 class Number(object):
-    """ Number class for values containing errors. Math operations use 
+    """ Number class for values containing errors. Math operations use
     the value given. Checking for no 'value' must use "==". Numbers with
     upper or lower limits as assumed to have no value.
 
@@ -23,7 +23,7 @@ class Number(object):
     0.5
 
     >>> num = Number(None, upperlimit=10)
-    >>> str(num) 
+    >>> str(num)
     '<10.0'
 
     >>> num == None
@@ -105,7 +105,7 @@ class Number(object):
 
     def machine_readable(self, separator="\t", missingval="None"):
         """
-        Creates a string intedned for a machine to read (ex, gnuplot)
+        Creates a string intended for a machine to read (ex, gnuplot)
         prints as follows
         value(separator)errorplus(separator)errorminus(separator)upperlimit(separator)lowerlimit
 
@@ -125,23 +125,23 @@ class Number(object):
 
         temp = ""
         if hasattr(self, "value") and self.value is not None:
-            temp += str(self.value) + separator 
+            temp += str(self.value) + separator
         else:
             temp += missingval + separator
         if hasattr(self, "errorplus") and self.errorplus is not None:
-            temp += str(self.errorplus) + separator 
+            temp += str(self.errorplus) + separator
         else:
             temp += missingval + separator
         if hasattr(self, "errorminus") and self.errorminus is not None:
-            temp += str(self.errorminus) + separator 
+            temp += str(self.errorminus) + separator
         else:
             temp += missingval + separator
         if hasattr(self, "upperlimit") and self.upperlimit is not None:
-            temp += str(self.upperlimit) + separator 
+            temp += str(self.upperlimit) + separator
         else:
             temp += missingval + separator
         if hasattr(self, "lowerlimit") and self.lowerlimit is not None:
-            temp += str(self.lowerlimit) + separator 
+            temp += str(self.lowerlimit) + separator
         else:
             temp += missingval + separator
         return temp.strip(separator)

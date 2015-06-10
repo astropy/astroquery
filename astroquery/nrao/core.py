@@ -112,7 +112,7 @@ class NraoClass(BaseQuery):
             The type of query to perform.  "OBSSUMMARY" is the default, but it
             is only valid for VLA/VLBA observations.  ARCHIVE will not work at all
             because it relies on XML data.  OBSERVATION will provide full details
-            of the soruces observed and under what configurations.
+            of the sources observed and under what configurations.
         source_id : str, optional
             A source name (to be parsed by SIMBAD or NED)
         get_query_payload : bool, optional

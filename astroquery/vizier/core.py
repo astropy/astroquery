@@ -610,7 +610,7 @@ class VizierClass(BaseQuery):
             (only for VOTABLE queries)
             The behavior if a VOTABLE cannot be parsed.  Default is 'warn',
             which will try to parse the table, then if an exception is raised,
-            it will be printent but the masked table will be returned
+            it will be printed but the masked table will be returned.
 
         Returns
         -------
@@ -656,7 +656,7 @@ def parse_vizier_tsvfile(data, verbose=False):
     data : ascii str
         An ascii string containing the vizier-formatted list of tables
     """
-    
+
     # http://stackoverflow.com/questions/4664850/find-all-occurrences-of-a-substring-in-python
     split_indices = [m.start() for m in re.finditer('\n\n#', data)]
     # we want to slice out chunks of the file each time
@@ -712,7 +712,7 @@ def parse_vizier_votable(data, verbose=False, invalid='warn',
 
 def _parse_angle(angle):
     """
-    Retuns the Vizier-formatted units and values for box/radius
+    Returns the Vizier-formatted units and values for box/radius
     dimensions in case of region queries.
 
     Parameters

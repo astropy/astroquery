@@ -41,7 +41,7 @@ or cloned and installed from source:
 
     $ # If you have a github account:
     $ git clone git@github.com:astropy/astroquery.git
-    $ # If you do not: 
+    $ # If you do not:
     $ git clone https://github.com/astropy/astroquery.git
     $ cd astroquery
     $ python setup.py install
@@ -57,7 +57,7 @@ The following packages are required for astroquery installation & use:
 * `astropy <http://www.astropy.org>`__ (>=0.4)
 * `requests <http://docs.python-requests.org/en/latest/>`_
 * `keyring <https://pypi.python.org/pypi/keyring>`_ (required for the
-  `~astroquery.eso` and `~astroquery.alma` modules)
+  `~astroquery.eso` and `~astroquery.alma` and `~astroquery.cosmosim` modules)
 * `Beautiful Soup <http://www.crummy.com/software/BeautifulSoup/>`_
 
 Using astroquery
@@ -219,7 +219,7 @@ Other
 
 There are other astronomically significant services, e.g. line list and
 atomic/molecular cross section and collision rate services, that don't fit the
-above categories.  
+above categories.
 
 .. toctree::
   :maxdepth: 1

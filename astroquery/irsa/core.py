@@ -146,7 +146,7 @@ class IrsaClass(BaseQuery):
             may also be used.
         polygon : list, [Required for spatial is ``'Polygon'``]
             A list of ``(ra, dec)`` pairs (as tuples), in decimal degrees,
-            outlinining the polygon to search in. It can also be a list of
+            outlining the polygon to search in. It can also be a list of
             `astropy.coordinates` object or strings that can be parsed by
             `astropy.coordinates.ICRS`.
         get_query_payload : bool, optional
@@ -202,7 +202,7 @@ class IrsaClass(BaseQuery):
             may also be used.
         polygon : list, [Required for spatial is ``'Polygon'``]
             A list of ``(ra, dec)`` pairs (as tuples), in decimal degrees,
-            outlinining the polygon to search in. It can also be a list of
+            outlining the polygon to search in. It can also be a list of
             `astropy.coordinates` object or strings that can be parsed by
             `astropy.coordinates.ICRS`.
         get_query_payload : bool, optional
@@ -257,7 +257,7 @@ class IrsaClass(BaseQuery):
             may also be used.
       polygon : list, [Required for spatial is ``'Polygon'``]
             A list of ``(ra, dec)`` pairs as tuples of
-            `astropy.coordinates.Angle`s outlinining the polygon to search in.
+            `astropy.coordinates.Angle`s outlining the polygon to search in.
             It can also be a list of `astropy.coordinates` object or strings
             that can be parsed by `astropy.coordinates.ICRS`.
 

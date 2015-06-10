@@ -102,7 +102,7 @@ class UkidssClass(QueryWithLogin):
         community : str
         """
 
-        # Construct cookie holder, URL openenr, and retrieve login page
+        # Construct cookie holder, URL opener, and retrieve login page
         self.session = requests.session()
 
         credentials = {'user': username, 'passwd': password,

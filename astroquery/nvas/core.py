@@ -58,7 +58,7 @@ class NvasClass(BaseQuery):
             Gets the UVfits files instead of the IMfits files when set to `True`.
             Defaults to `False`.
         verbose : bool, optional
-            When `True` print out additional messgages. Defaults to `True`.
+            When `True` print out additional messages. Defaults to `True`.
         get_query_payload : bool, optional
             if set to `True` then returns the dictionary sent as the HTTP request.
             Defaults to `False`.
@@ -102,7 +102,7 @@ class NvasClass(BaseQuery):
             Gets the UVfits files instead of the IMfits files when set to `True`.
             Defaults to `False`.
         verbose : bool, optional
-            When `True` print out additional messgages. Defaults to `True`.
+            When `True` print out additional messages. Defaults to `True`.
         get_query_payload : bool, optional
             if set to `True` then returns the dictionary sent as the HTTP request.
             Defaults to `False`.
@@ -172,7 +172,7 @@ class NvasClass(BaseQuery):
 
     def extract_image_urls(self, html_in, get_uvfits=False):
         """
-        Helper function that uses reges to extract the image urls from the given HTML.
+        Helper function that uses regexps to extract the image urls from the given HTML.
 
         Parameters
         ----------
