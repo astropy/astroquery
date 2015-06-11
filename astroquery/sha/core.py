@@ -128,8 +128,8 @@ def query(coord=None, ra=None, dec=None, size=None, naifid=None, pid=None,
         return response
     response.raise_for_status()
     # Parse output
-    # requests returns unicde strings, encode back to ascii
-    # because of '|foo|bar|' delimeters, remove first and last empty columns
+    # requests returns unicode strings, encode back to ascii
+    # because of '|foo|bar|' delimiters, remove first and last empty columns
     raw_data = [line for line in response.text.split('\n')]
     field_widths = [len(s) + 1 for s in raw_data[0].split('|')][1:-1]
     col_names = [s.strip() for s in raw_data[0].split('|')][1:-1]
@@ -159,7 +159,7 @@ def save_file(url, out_dir='sha_tmp/', out_name=None):
         SHA query include columns::
 
             accessUrl -> The URL to be used to retrieve an image or table
-            withAnc1  -> The URL to be used to retrive the image or spectra
+            withAnc1  -> The URL to be used to retrieve the image or spectra
                          with important ancillary products (mask, uncertainty,
                          etc.) as a zip archive
 
@@ -208,7 +208,7 @@ def get_file(url):
         SHA query include columns::
 
             accessUrl -> The URL to be used to retrieve an image or table
-            withAnc1  -> The URL to be used to retrive the image or spectra
+            withAnc1  -> The URL to be used to retrieve the image or spectra
                          with important ancillary products (mask, uncertainty,
                          etc.) as a zip archive
 

@@ -33,7 +33,7 @@ def gunzip(filename):
     Returns
     -------
     filename : str
-        Name of the decompressed file (or input filname if gzip is not available).
+        Name of the decompressed file (or input filename if gzip is not available).
     """
     if __is_gzip_found and not filename.endswith('.fz'):  # ".fz" denotes RICE rather than gzip compression
         subprocess.call(["gzip", "-d", "{0}".format(filename)], stdout=DEVNULL, stderr=DEVNULL)
@@ -44,7 +44,7 @@ def gunzip(filename):
 # If astropy#2793 is merged, this should be replaced with astropy.in_ipynb
 def in_ipynb():
     try:
-        cfg = get_ipython().config 
+        cfg = get_ipython().config
         app = cfg['IPKernelApp']
         # ipython 1.0 console has no 'parent_appname',
         # but ipynb does

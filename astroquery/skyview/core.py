@@ -34,7 +34,7 @@ class SkyViewClass(BaseQuery):
             # ignore the submit and reset buttons
             if elem.get('type') in ['submit', 'reset']:
                 continue
-            # check boxes: enabled boxes have the value "on" if not specificed
+            # check boxes: enabled boxes have the value "on" if not specified
             # otherwise. Found out by debugging, perhaps not documented.
             if elem.get('type') == 'checkbox' and elem.get('checked') in ["", "checked"]:
                 value = elem.get('value', 'on')
@@ -50,7 +50,7 @@ class SkyViewClass(BaseQuery):
                     if option.get('selected') == '':
                         value = option.get('value', option.text.strip())
                         res.append((elem.get('name'), value))
-        return {k:v 
+        return {k:v
                 for (k, v) in res
                 if v not in [None, u'None', u'null'] and v
                }
@@ -167,7 +167,7 @@ class SkyViewClass(BaseQuery):
         grid : bool
             overlay a coordinate grid on the image if True
         gridlabels : bool
-            annotate the grid with coordinates postions if True
+            annotate the grid with coordinates positions if True
         radius : `~astropy.units.Quantity` or None
             The radius of the specified field.  Overrides width and height.
         width : `~astropy.units.Quantity` or None
@@ -287,7 +287,7 @@ class SkyViewClass(BaseQuery):
             response = self._request('GET', self.URL)
             page = BeautifulSoup(response.content, "html.parser")
             surveys = page.findAll('select', {'name':'survey'})
-            
+
             self._survey_dict = {sel['id']:[x.text for x in sel.findAll('option')]
                                 for sel in surveys}
         return self._survey_dict

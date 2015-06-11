@@ -40,7 +40,7 @@ a look at all the available catalogs:
      ...
      'xmm_cat_s05': "SWIRE XMM_LSS Region Spring '05 Spitzer Catalog"}
 
-This returns a dictinary of catalog names with their description. If you would
+This returns a dictionary of catalog names with their description. If you would
 rather just print out this information:
 
 .. code-block:: python
@@ -151,7 +151,7 @@ these queries is ``polygon``. This is a list of coordinate pairs that define a
 convex polygon. The coordinates may be specified as usual by using the
 appropriate `astropy.coordinates` object (Again ICRS coordinates may be
 directly passed as properly formatted strings). In addition to using a list of
-`astropy.coordinates` objects, one additional convenient means of specifiying
+`astropy.coordinates` objects, one additional convenient means of specifying
 the coordinates is also available - Coordinates may also be entered as a list of
 tuples, each tuple containing the ra and dec values in degrees. Each of these
 options is illustrated below:

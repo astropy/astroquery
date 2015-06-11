@@ -561,7 +561,7 @@ class CosmoSimClass(QueryWithLogin):
         Returns
         -------
         response_dict : dict
-            A dictionary of some of the repspnse object's methods
+            A dictionary of some of the response object's methods
         """
 
         R = response
@@ -644,14 +644,14 @@ class CosmoSimClass(QueryWithLogin):
     def delete_job(self,jobid=None,squash=None):
         """
         A public function which deletes a stored job from the server in any phase.
-        If no jobid is given, it attemps to use the most recent job (if it exists
+        If no jobid is given, it attempts to use the most recent job (if it exists
         in this session). If jobid is specified, then it deletes the corresponding job,
         and if it happens to match the existing current job, that variable gets deleted.
 
         Parameters
         ----------
         jobid : string
-            The jobid of the sql query. If no jobid is given, it attemps to use the most recent job (if it exists in this session).
+            The jobid of the sql query. If no jobid is given, it attempts to use the most recent job (if it exists in this session).
         output : bool
             Print output of response(s) to the terminal
 

@@ -1,8 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import os
 import json
-import numpy as np
-from astropy.table import Table
 from astropy import table
 from astropy import log
 from astropy.utils.console import ProgressBar
@@ -138,7 +136,7 @@ class LamdaClass(BaseQuery):
             f.write(s)
 
         return molecule_dict
-    
+
     @property
     def molecule_dict(self):
         if not hasattr(self, '_molecule_dict'):

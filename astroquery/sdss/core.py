@@ -525,7 +525,7 @@ class SDSSClass(BaseQuery):
         for row in matches:
             link = ('{base}/{instrument}/spectro/redux/{run2d}/spectra'
                     '/{plate:04d}/spec-{plate:04d}-{mjd}-{fiber:04d}.fits')
-            # _parse_result returns bytes for instrunments, requiring a decode
+            # _parse_result returns bytes for instruments, requiring a decode
             link = link.format(base=SDSS.SPECTRO_OPTICAL,
                                instrument=row['instrument'].decode().lower(),
                                run2d=row['run2d'], plate=row['plate'],

@@ -5,14 +5,12 @@ import abc
 import pickle
 import hashlib
 import os
-import warnings
 import requests
-import itertools
 
 from astropy.extern import six
 from astropy.config import paths
 from astropy import log
-from astropy.utils.console import ProgressBar,ProgressBarOrSpinner
+from astropy.utils.console import ProgressBarOrSpinner
 import astropy.utils.data
 
 from . import version

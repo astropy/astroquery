@@ -166,7 +166,7 @@ class BesanconClass(BaseQuery):
             raise ValueError("Errors: " + "\n".join(errors))
 
         if verbose:
-            print("File is %s and can be aquired from %s" % (filename,
+            print("File is %s and can be acquired from %s" % (filename,
                                                              self.url_download
                                                              + '/' + filename))
 

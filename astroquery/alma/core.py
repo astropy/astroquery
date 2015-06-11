@@ -1,11 +1,8 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from __future__ import print_function
 import time
-import sys
 import os.path
-import webbrowser
 import getpass
-import warnings
 import keyring
 import numpy as np
 import re
@@ -16,7 +13,7 @@ from pkg_resources import resource_filename
 from bs4 import BeautifulSoup
 
 from astropy.extern.six.moves.urllib_parse import urljoin
-from astropy.extern.six import BytesIO,iteritems
+from astropy.extern.six import iteritems
 from astropy.extern import six
 from astropy.table import Table, Column
 from astropy import log
@@ -24,12 +21,11 @@ from astropy.utils.console import ProgressBar
 from astropy import units as u
 import astropy.io.votable as votable
 
-from ..exceptions import (LoginError, RemoteServiceError, TableParseError,
+from ..exceptions import (RemoteServiceError, TableParseError,
                           InvalidQueryError)
-from ..utils import schema, system_tools
-from ..utils import commons
+from ..utils import commons, system_tools
 from ..utils.process_asyncs import async_to_sync
-from ..query import BaseQuery, QueryWithLogin, suspend_cache
+from ..query import QueryWithLogin
 from . import conf
 
 __doctest_skip__ = ['AlmaClass.*']
@@ -140,13 +136,13 @@ class AlmaClass(QueryWithLogin):
         response.raise_for_status()
 
         return response
-    
+
     def validate_query(self, payload, cache=True):
         """
         Use the ALMA query validator service to check whether the keywords are
         valid
         """
-        
+
         # Check that the keywords specified are allowed
         self._validate_payload(payload)
 
@@ -606,7 +602,7 @@ class AlmaClass(QueryWithLogin):
                           "A partially completed download list is "
                           "in Alma.partial_file_list")
                 raise ex
-                
+
             fitsfilelist = self.get_files_from_tarballs([tarball_name],
                                                         regex=regex, path=path,
                                                         verbose=verbose)
@@ -806,7 +802,7 @@ class AlmaClass(QueryWithLogin):
                             else 1)
                     try:
                         columns['size'].append(float(size)*u.Unit(unit))
-                    except ValueError: 
+                    except ValueError:
                         # size is probably a string?
                         columns['size'].append(-1*u.byte)
                     log.log(level=5, msg="Found a new-style entry.  "

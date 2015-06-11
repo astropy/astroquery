@@ -442,7 +442,7 @@ class NedClass(BaseQuery):
 
     def extract_image_urls(self, html_in):
         """
-        Helper function that uses reges to extract the image urls from the given HTML.
+        Helper function that uses regexps to extract the image urls from the given HTML.
 
         Parameters
         ----------
@@ -470,7 +470,7 @@ class NedClass(BaseQuery):
             Specifies the type of data-table that must be fetched for the given object. Defaults to
             'photometry'.
         output_table_format : int, [optional for photometry]
-            specifies teh format of the output table. Must be 1, 2 or 3.
+            specifies the format of the output table. Must be 1, 2 or 3.
             Defaults to 1. These options stand for:
             (1) Data as Published and Homogenized (mJy)
             (2) Data as Published
