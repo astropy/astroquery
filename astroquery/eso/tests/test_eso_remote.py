@@ -2,19 +2,19 @@
 import tempfile
 import shutil
 from astropy.tests.helper import pytest, remote_data
+from ...exceptions import LoginError
+
+# keyring is an optional dependency required by the eso module.
 try:
     import keyring
     HAS_KEYRING = True
 except ImportError:
     HAS_KEYRING = False
-try:
-    from ...eso import Eso
-    ESO_IMPORTED = True
-except ImportError:
-    ESO_IMPORTED = False
-from ...exceptions import LoginError
 
-SKIP_TESTS = not(HAS_KEYRING and ESO_IMPORTED)
+if HAS_KEYRING:
+    from ...eso import Eso
+
+SKIP_TESTS = not HAS_KEYRING
 
 instrument_list = [u'fors1', u'fors2', u'sphere', u'vimos', u'omegacam',
                    u'hawki', u'isaac', u'naco', u'visir', u'vircam', u'apex',
