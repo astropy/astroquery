@@ -2,7 +2,7 @@
 from ... import splatalogue
 from ...utils.testing_tools import MockResponse
 from astropy import units as u
-from astropy.tests.helper import pytest
+from astropy.tests.helper import pytest, remote_data
 import requests
 import os
 
@@ -101,6 +101,7 @@ def test_band_crashorno():
 
 
 # regression test : version selection should work
+@remote_data
 def test_version_selection():
     results = splatalogue.Splatalogue.query_lines(
     min_frequency= 703*u.GHz,
