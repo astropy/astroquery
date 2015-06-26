@@ -27,7 +27,7 @@ class SplatalogueClass(BaseQuery):
     QUERY_URL = conf.query_url
     TIMEOUT = conf.timeout
     LINES_LIMIT = conf.lines_limit
-    versions = ('v1.0', 'v2.0')
+    versions = ('v1.0', 'v2.0', 'vall')
     # global constant, not user-configurable
     ALL_LINE_LISTS = ('Lovas', 'SLAIM', 'JPL', 'CDMS', 'ToyoMA', 'OSU',
                       'Recomb', 'Lisa', 'RFI')
@@ -170,7 +170,7 @@ class SplatalogueClass(BaseQuery):
             The type of intensity on which to place a lower limit
         transition : str
             e.g. 1-0
-        version : ``'v1.0'`` or ``'v2.0'``
+        version : ``'v1.0'`` or ``'v2.0'`` or ``'vall'``
             Data version
         exclude : list
             Types of lines to exclude.  Default is:
@@ -274,7 +274,7 @@ class SplatalogueClass(BaseQuery):
             payload['tran'] = transition
 
         if version in self.versions:
-            payload['version'] = version
+            payload['data_version'] = version
         elif version is not None:
             raise ValueError("Invalid version specified.  Allowed versions are {vers}".format(vers=str(self.versions)))
 
