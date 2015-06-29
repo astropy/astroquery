@@ -102,7 +102,8 @@ class AlmaClass(QueryWithLogin):
         return self.query_async(payload, cache=cache, public=public,
                                 science=science, **kwargs)
 
-    def query_async(self, payload, cache=True, public=True, science=True):
+    def query_async(self, payload, cache=True, public=True, science=True,
+                    view_format='raw'):
         """
         Perform a generic query with user-specified payload
 
@@ -122,7 +123,7 @@ class AlmaClass(QueryWithLogin):
 
         url = urljoin(self._get_dataarchive_url(), 'aq/')
 
-        payload.update({'result_view':'raw', 'format':'VOTABLE',
+        payload.update({'result_view':view_format, 'format':'VOTABLE',
                         'download':'true'})
         if public:
             payload['public_data'] = 'public'
