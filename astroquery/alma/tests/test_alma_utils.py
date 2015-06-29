@@ -2,11 +2,16 @@
 import numpy as np
 from astropy import wcs
 from astropy import units as u
-from pyregion.parser_helper import Shape
 from astropy.tests.helper import pytest, remote_data
+try:
+    from pyregion.parser_helper import Shape
+    pyregion_OK = True
+except ImportError:
+    pyregion_OK = False
 
 from .. import utils
 
+@pytest.mark.skipif('not pyregion_OK')
 def test_pyregion_subset():
     header = dict(naxis=2, crpix1=15, crpix2=15, crval1=0.1, crval2=0.1,
                   cdelt1=-1./3600, cdelt2=1./3600., ctype1='GLON-CAR',
@@ -39,8 +44,9 @@ def test_parse_frequency_support(frq_sup_str=frq_sup_str, result=franges):
 
 def approximate_primary_beam_sizes(frq_sup_str=frq_sup_str, beamsizes=beamsizes):
     assert np.all(utils.approximate_primary_beam_sizes(frq_sup_str) == beamsizes)
-    
+
 @remote_data
+@pytest.mark.skipif('not pyregion_OK')
 def test_make_finder_chart():
     result = utils.make_finder_chart('Eta Carinae', 3*u.arcmin, 'Eta Carinae')
     images, catalog, hit_mask_public, hit_mask_private = result
