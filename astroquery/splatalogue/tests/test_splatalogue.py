@@ -2,7 +2,7 @@
 from ... import splatalogue
 from ...utils.testing_tools import MockResponse
 from astropy import units as u
-from astropy.tests.helper import pytest
+from astropy.tests.helper import pytest, remote_data
 import requests
 import os
 
@@ -61,6 +61,7 @@ def test_get_payload():
                                                        get_query_payload=True)
     assert '__utma' in q
 
+
 # regression test: line lists should ask for only one line list, not all
 def test_line_lists():
     q = splatalogue.core.Splatalogue.query_lines_async(1 * u.GHz, 10 * u.GHz,
@@ -97,3 +98,15 @@ def test_band_crashorno():
         splatalogue.core.Splatalogue.query_lines_async(band='invalid',
                                                        get_query_payload=True)
     assert exc.value.args[0] == "Invalid frequency band."
+
+
+# regression test : version selection should work
+@remote_data
+def test_version_selection():
+    results = splatalogue.Splatalogue.query_lines(
+    min_frequency= 703*u.GHz,
+    max_frequency=706*u.GHz,
+    chemical_name='Acetaldehyde',
+    version='v1.0'
+    )
+    assert len(results)==1
