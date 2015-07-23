@@ -1,7 +1,11 @@
-0.3 (unreleased)
-----------------
+0.2.6 (2015-07-23)
+------------------
 
-- None yet
+- ESO bugfixes for handling radio buttons (#560)
+- ESO: added SPHERE to list (#551)
+- ESO/ALMA test cleanup (#553)
+- Allow ALMA project view (#554)
+- Fix Splatalogue version keyword (#557)
 
 0.2.4 (2015-03-27)
 ------------------
