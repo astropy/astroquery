@@ -88,7 +88,7 @@ class EsoClass(QueryWithLogin):
             if tag_name == 'input':
                 is_file = (form_elem.get('type') == 'file')
                 value = form_elem.get('value')
-                if form_elem.get('type') == 'checkbox':
+                if form_elem.get('type') in ['checkbox','radio']:
                     if form_elem.has_attr('checked'):
                         if not value:
                             value = 'on'
