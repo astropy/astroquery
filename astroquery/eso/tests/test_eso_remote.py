@@ -2,6 +2,7 @@
 import tempfile
 import shutil
 from astropy.tests.helper import pytest, remote_data
+from astropy.extern import six
 from ...exceptions import LoginError
 
 # keyring is an optional dependency required by the eso module.
@@ -111,9 +112,11 @@ class TestEso:
     def test_retrieve_data(self):
         eso = Eso()
         eso.login()
-        result = eso.retrieve_data("MIDI.2014-07-25T02:03:11.561")
+        result = eso.retrieve_data(["MIDI.2014-07-25T02:03:11.561"])
         assert len(result)>0
         assert "MIDI.2014-07-25T02:03:11.561" in result[0]
+        result = eso.retrieve_data("MIDI.2014-07-25T02:03:11.561")
+        assert isinstance(result, six.string_types)
 
     @pytest.mark.skipif('not Eso.USERNAME')
     def test_retrieve_data_twice(self):
