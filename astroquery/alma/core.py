@@ -9,6 +9,7 @@ import re
 import tarfile
 import string
 import requests
+import sys
 from pkg_resources import resource_filename
 from bs4 import BeautifulSoup
 
@@ -189,11 +190,6 @@ class AlmaClass(QueryWithLogin):
         uids : list or str
             A list of valid UIDs or a single UID.
             UIDs should have the form: 'uid://A002/X391d0b/X7b'
-        cache : True
-            This is *forced* true, because the ALMA servers don't support repeats
-            of the same request.
-            Whether to cache the staging process.  This should generally be
-            left as False when used interactively.
 
         Returns
         -------
@@ -267,43 +263,56 @@ class AlmaClass(QueryWithLogin):
                                  os.path.join('rh/submission', request_id))
         log.debug("Submission URL: {0}".format(submission_url))
         self._staging_log['submission_url'] = submission_url
-        has_completed = False
         staging_submission = self._request('GET', submission_url, cache=True)
         self._staging_log['staging_submission'] = staging_submission
         staging_submission.raise_for_status()
 
         data_page_url = staging_submission.url
+        self._staging_log['data_page_url'] = data_page_url
         dpid = data_page_url.split("/")[-1]
         assert len(dpid) == 9
         self._staging_log['staging_page_id'] = dpid
 
-        while not has_completed:
-            time.sleep(1)
-            # CANNOT cache this step: please_wait will happen infinitely
-            data_page = self._request('GET', data_page_url, cache=False)
-            if 'Please wait' not in data_page.text:
-                has_completed = True
-            print(".",end='')
+        # CANNOT cache this step: please_wait will happen infinitely
+        data_page = self._request('GET', data_page_url, cache=False)
         self._staging_log['data_page'] = data_page
         data_page.raise_for_status()
-        staging_root = BeautifulSoup(data_page.content)
-        downloadFileURL = staging_root.find('form').attrs['action']
-        data_list_url = os.path.split(downloadFileURL)[0]
 
-        # Old version, unreliable: data_list_url = staging_submission.url
-        log.debug("Data list URL: {0}".format(data_list_url))
-        self._staging_log['data_list_url'] = data_list_url
+        has_completed = False
+        while not has_completed:
+            time.sleep(1)
+            summary = self._request('GET', os.path.join(data_page_url,
+                                                        'summary'),
+                                    cache=False)
+            summary.raise_for_status()
+            print(".",end='')
+            sys.stdout.flush()
+            has_completed = summary.json()['complete']
 
-        time.sleep(1)
-        data_list_page = self._request('GET', data_list_url, cache=True)
-        self._staging_log['data_list_page'] = data_list_page
-        data_list_page.raise_for_status()
+        self._staging_log['summary'] = summary
+        summary.raise_for_status()
+        self._staging_log['json_data'] = json_data = summary.json()
 
-        if 'Error' in data_list_page.text:
-            errormessage = root.find('div', id='errorContent').string.strip()
-            raise RemoteServiceError(errormessage)
+        tbl = self._json_summary_to_table(json_data, base_url=data_page_url)
 
-        tbl = self._parse_staging_request_page(data_list_page)
+        # staging_root = BeautifulSoup(data_page.content)
+        # downloadFileURL = staging_root.find('form').attrs['action']
+        # data_list_url = os.path.split(downloadFileURL)[0]
+
+        # # Old version, unreliable: data_list_url = staging_submission.url
+        # log.debug("Data list URL: {0}".format(data_list_url))
+        # self._staging_log['data_list_url'] = data_list_url
+
+        # time.sleep(1)
+        # data_list_page = self._request('GET', data_list_url, cache=True)
+        # self._staging_log['data_list_page'] = data_list_page
+        # data_list_page.raise_for_status()
+
+        # if 'Error' in data_list_page.text:
+        #     errormessage = staging_root.find('div', id='errorContent').string.strip()
+        #     raise RemoteServiceError(errormessage)
+
+        # tbl = self._parse_staging_request_page(data_list_page)
 
         return tbl
 
@@ -858,6 +867,32 @@ class AlmaClass(QueryWithLogin):
         tbl = Table([Column(name=k, data=v) for k,v in iteritems(columns)])
 
 
+        return tbl
+
+    def _json_summary_to_table(self, data, base_url):
+        """
+        """
+        columns = {'uid':[], 'URL':[], 'size':[]}
+        for entry in data['node_data']:
+            if entry['file_name'] != 'null':
+                # "de_name": "ALMA+uid://A001/X122/X35e",
+                columns['uid'].append(entry['de_name'][5:])
+                columns['size'].append((int(entry['file_size'])*u.B).to(u.Gbyte))
+                # example template for constructing url:
+                # https://almascience.eso.org/dataPortal/requests/keflavich/940238268/ALMA/
+                # uid___A002_X9d6f4c_X154/2013.1.00546.S_uid___A002_X9d6f4c_X154.asdm.sdm.tar
+                url = os.path.join(base_url,
+                                   entry['de_name']
+                                   .replace(":","_")
+                                   .replace("/","_")
+                                   .replace("+","/"),
+                                   entry['file_name'],
+                                  )
+                columns['URL'].append(url)
+
+        columns['size'] = u.Quantity(columns['size'], u.Gbyte)
+
+        tbl = Table([Column(name=k, data=v) for k,v in iteritems(columns)])
         return tbl
 
 Alma = AlmaClass()
