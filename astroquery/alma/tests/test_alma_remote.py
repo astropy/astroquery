@@ -18,6 +18,13 @@ if HAS_KEYRING:
 
 SKIP_TESTS = not HAS_KEYRING
 
+all_colnames = ['Project code', 'Source name', 'RA', 'Dec', 'Band',
+                'Frequency resolution', 'Integration', 'Release date',
+                'Frequency support', 'Velocity resolution', 'Pol products',
+                'Observation date', 'PI name', 'PWV', 'Member ous id',
+                'Asdm uid', 'Project title', 'Project type', 'Scan intent',
+                'Spatial resolution', 'QA0 Status', 'QA2 Status']
+
 
 @pytest.mark.skipif('SKIP_TESTS')
 @remote_data
@@ -62,15 +69,7 @@ class TestAlma:
         alma2 = Alma()
         alma2.cache_location = temp_dir
         m83_data = alma.query_object('M83')
-        assert m83_data.colnames == ['Project code', 'Source name', 'RA',
-                                     'Dec', 'Band', 'Frequency resolution',
-                                     'Integration', 'Release date',
-                                     'Frequency support',
-                                     'Velocity resolution', 'Pol products',
-                                     'Observation date', 'PI name', 'PWV',
-                                     'Member ous id', 'Asdm uid',
-                                     'Project title', 'Project type',
-                                     'Scan intent']
+        assert m83_data.colnames == all_colnames
         galactic_center = coordinates.SkyCoord(0*u.deg, 0*u.deg,
                                                frame='galactic')
         gc_data = alma.query_region(galactic_center, 1*u.deg)
@@ -98,6 +97,7 @@ class TestAlma:
         alma.cache_location = temp_dir
 
         result = alma.query(payload={'start_date':'<11-11-2011'})
+        # now 535?
         assert len(result) == 621
 
     @pytest.mark.bigdata
