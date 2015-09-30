@@ -1,6 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from __future__ import print_function
 import socket
+import json
 
 from astropy.tests.helper import pytest
 
@@ -52,6 +53,9 @@ class MockResponse(object):
 
     def raise_for_status(self):
         pass
+
+    def json(self):
+        return json.loads(self.content)
 
     @property
     def text(self):
