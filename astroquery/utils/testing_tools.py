@@ -55,7 +55,10 @@ class MockResponse(object):
         pass
 
     def json(self):
-        return json.loads(self.content)
+        try:
+            return json.loads(self.content)
+        except TypeError:
+            return json.loads(self.content.decode('utf-8'))
 
     @property
     def text(self):
