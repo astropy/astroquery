@@ -162,11 +162,22 @@ def test_images_timeout(patch_get, patch_get_readable_fileobj_slow):
     with pytest.raises(TimeoutError):
         img = sdss.core.SDSS.get_images(run=1904, camcol=3, field=164)
 
+def test_list_coordinates_payload(patch_get):
+    expect = "SELECT DISTINCT p.ra, p.dec, p.objid, p.run, p.rerun, p.camcol, p.field FROM PhotoObjAll AS p   WHERE ((p.ra between 2.02291 and 2.02402) and (p.dec between 14.8393 and 14.8404)) or ((p.ra between 2.02291 and 2.02402) and (p.dec between 14.8393 and 14.8404))"
+    query_payload = sdss.core.SDSS.query_region(coords_list,get_query_payload=True)
+    assert query_payload['cmd'] == expect
+    assert query_payload['format'] == 'csv'
 
 def test_list_coordinates(patch_get):
     xid = sdss.core.SDSS.query_region(coords_list)
     data = astropy.table.Table.read(data_path(DATA_FILES['images_id']),format='ascii.csv',comment='#')
     assert all(xid == data)
+
+def test_column_coordinates_payload(patch_get):
+    expect = "SELECT DISTINCT p.ra, p.dec, p.objid, p.run, p.rerun, p.camcol, p.field FROM PhotoObjAll AS p   WHERE ((p.ra between 2.02291 and 2.02402) and (p.dec between 14.8393 and 14.8404)) or ((p.ra between 2.02291 and 2.02402) and (p.dec between 14.8393 and 14.8404))"
+    query_payload = sdss.core.SDSS.query_region(coords_column,get_query_payload=True)
+    assert query_payload['cmd'] == expect
+    assert query_payload['format'] == 'csv'
 
 def test_column_coordinates(patch_get):
     xid = sdss.core.SDSS.query_region(coords_column)
