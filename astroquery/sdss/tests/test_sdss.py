@@ -5,7 +5,7 @@ import os
 import socket
 from astropy.extern.six.moves.urllib_error import URLError
 from astropy.tests.helper import pytest
-from astropy.table import Column
+import astropy
 from ... import sdss
 from ...utils.testing_tools import MockResponse
 from ...exceptions import TimeoutError
@@ -17,8 +17,7 @@ from ...utils import commons
 DATA_FILES = {'spectra_id': 'xid_sp.txt',
               'images_id': 'xid_im.txt',
               'spectra': 'emptyfile.fits',
-              'images': 'emptyfile.fits'
-              }
+              'images': 'emptyfile.fits'}
 
 
 @pytest.fixture
@@ -89,7 +88,7 @@ coords = commons.ICRSCoordGenerator('0h8m05.63s +14d50m23.3s')
 coords_list = [coords, coords]
 
 # Test Case: Column of coordinates
-coords_column = Column(coords_list, name='coordinates')
+coords_column = astropy.table.Column(coords_list, name='coordinates')
 
 def test_sdss_spectrum(patch_get, patch_get_readable_fileobj, coords=coords):
     xid = sdss.core.SDSS.query_region(coords, spectro=True)
@@ -119,7 +118,7 @@ def test_sdss_sql(patch_get, patch_get_readable_fileobj):
     xid = sdss.core.SDSS.query_sql(query)
 
 
-def test_sdss_image(patch_get, patch_get_readable_fileobj, coords=coords):
+def test_sdss_image_from_query_region(patch_get, patch_get_readable_fileobj, coords=coords):
     xid = sdss.core.SDSS.query_region(coords)
     img = sdss.core.SDSS.get_images(matches=xid)
 
@@ -159,12 +158,15 @@ def test_images_timeout(patch_get, patch_get_readable_fileobj_slow):
         img = sdss.core.SDSS.get_images(run=1904, camcol=3, field=164)
 
 
-def test_list_coordinates(patch_get, patch_get_readable_fileobj_slow):
+def test_list_coordinates(patch_get):
     xid = sdss.core.SDSS.query_region(coords_list)
+    data = astropy.table.Table.read(data_path(DATA_FILES['images_id']),format='ascii.csv',comment='#')
+    assert all(xid == data)
 
-
-def test_column_coordinates(patch_get, patch_get_readable_fileobj_slow):
+def test_column_coordinates(patch_get):
     xid = sdss.core.SDSS.query_region(coords_column)
+    data = astropy.table.Table.read(data_path(DATA_FILES['images_id']),format='ascii.csv',comment='#')
+    assert all(xid == data)
 
 
 def test_field_help_region(patch_get):
