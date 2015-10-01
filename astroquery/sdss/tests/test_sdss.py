@@ -3,9 +3,11 @@ from contextlib import contextmanager
 import requests
 import os
 import socket
+from types import MethodType
 from astropy.extern.six.moves.urllib_error import URLError
 from astropy.tests.helper import pytest
 import astropy
+from .. import conf
 from ... import sdss
 from ...utils.testing_tools import MockResponse
 from ...exceptions import TimeoutError
@@ -24,6 +26,7 @@ DATA_FILES = {'spectra_id': 'xid_sp.txt',
 def patch_get(request):
     mp = request.getfuncargvalue("monkeypatch")
     mp.setattr(requests, 'get', get_mockreturn)
+    mp.setattr(sdss.core.SDSS, '_get_query_url', MethodType(get_query_url,sdss.core.SDSS))
     return mp
 
 
@@ -75,6 +78,16 @@ def get_mockreturn(url, params=None, timeout=10, **kwargs):
 def get_mockreturn_slow(url, params=None, timeout=10, **kwargs):
     raise requests.exceptions.Timeout('timeout')
 
+def get_query_url(self, drorurl, suffix):
+    """Replace the _get_query_url method of the SDSS object.
+    """
+    if isinstance(drorurl, basestring) and len(drorurl) > 2:
+        self._last_url = drorurl
+        return drorurl
+    else:
+        url = conf.skyserver_baseurl + suffix.format(dr=drorurl)
+        self._last_url = url
+        return url
 
 def data_path(filename):
     data_dir = os.path.join(os.path.dirname(__file__), 'data')
@@ -120,6 +133,7 @@ def test_sdss_sql(patch_get, patch_get_readable_fileobj):
 
 def test_sdss_image_from_query_region(patch_get, patch_get_readable_fileobj, coords=coords):
     xid = sdss.core.SDSS.query_region(coords)
+    assert sdss.core.SDSS._last_url == 'http://skyserver.sdss.org/dr12/en/tools/search/x_sql.aspx'
     img = sdss.core.SDSS.get_images(matches=xid)
 
 
@@ -198,4 +212,3 @@ def test_field_help_region(patch_get):
 
     non_existing_field = sdss.core.SDSS.query_region(coords,
                                                      field_help='nonexist')
-
