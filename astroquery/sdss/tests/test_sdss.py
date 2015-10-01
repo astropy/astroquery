@@ -149,8 +149,6 @@ def test_sdss_template(patch_get, patch_get_readable_fileobj):
     template = sdss.core.SDSS.get_spectral_template('qso')
     assert type(template) == list
     data = astropy.io.fits.open(data_path(DATA_FILES['spectra']))
-    # print template[0]
-    print '!!!!!!!!'
     assert template[0][0].header == data[0].header
     assert template[0][0].data == data[0].data
 
