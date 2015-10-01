@@ -19,8 +19,9 @@ SKIP_TESTS = not HAS_KEYRING
 
 instrument_list = [u'fors1', u'fors2', u'sphere', u'vimos', u'omegacam',
                    u'hawki', u'isaac', u'naco', u'visir', u'vircam', u'apex',
-                   u'uves', u'giraffe', u'xshooter', u'muse', u'crires',
-                   u'kmos', u'sinfoni', u'amber', u'midi', u'harps']
+                   u'giraffe', u'uves', u'xshooter', u'muse', u'crires',
+                   u'kmos', u'sinfoni', u'amber', u'midi', u'pionier',
+                   u'harps']
 
 
 @pytest.mark.skipif('SKIP_TESTS')
