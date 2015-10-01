@@ -106,16 +106,26 @@ coords_column = astropy.table.Column(coords_list, name='coordinates')
 def test_sdss_spectrum(patch_get, patch_get_readable_fileobj, coords=coords):
     xid = sdss.core.SDSS.query_region(coords, spectro=True)
     sp = sdss.core.SDSS.get_spectra(matches=xid)
+    assert type(sp) == list
+    data = astropy.io.fits.open(data_path(DATA_FILES['spectra']))
+    assert sp[0][0].header == data[0].header
+    assert sp[0][0].data == data[0].data
 
 
 def test_sdss_spectrum_mjd(patch_get, patch_get_readable_fileobj):
     sp = sdss.core.SDSS.get_spectra(plate=2345, fiberID=572)
-
+    assert type(sp) == list
+    data = astropy.io.fits.open(data_path(DATA_FILES['spectra']))
+    assert sp[0][0].header == data[0].header
+    assert sp[0][0].data == data[0].data
 
 def test_sdss_spectrum_coords(patch_get, patch_get_readable_fileobj,
                               coords=coords):
     sp = sdss.core.SDSS.get_spectra(coords)
-
+    assert type(sp) == list
+    data = astropy.io.fits.open(data_path(DATA_FILES['spectra']))
+    assert sp[0][0].header == data[0].header
+    assert sp[0][0].data == data[0].data
 
 def test_sdss_sql(patch_get, patch_get_readable_fileobj):
     query = """
@@ -129,21 +139,27 @@ def test_sdss_sql(patch_get, patch_get_readable_fileobj):
               and zWarning = 0
             """
     xid = sdss.core.SDSS.query_sql(query)
-
+    data = astropy.table.Table.read(data_path(DATA_FILES['images_id']),format='ascii.csv',comment='#')
+    assert all(xid == data)
 
 def test_sdss_image_from_query_region(patch_get, patch_get_readable_fileobj, coords=coords):
     xid = sdss.core.SDSS.query_region(coords)
     assert sdss.core.SDSS._last_url == 'http://skyserver.sdss.org/dr12/en/tools/search/x_sql.aspx'
     img = sdss.core.SDSS.get_images(matches=xid)
 
-
 def test_sdss_image_run(patch_get, patch_get_readable_fileobj):
     img = sdss.core.SDSS.get_images(run=1904, camcol=3, field=164)
-
+    assert type(img) == list
+    data = astropy.io.fits.open(data_path(DATA_FILES['images']))
+    assert img[0][0].header == data[0].header
+    assert img[0][0].data == data[0].data
 
 def test_sdss_image_coord(patch_get, patch_get_readable_fileobj, coord=coords):
     img = sdss.core.SDSS.get_images(coords)
-
+    assert type(img) == list
+    data = astropy.io.fits.open(data_path(DATA_FILES['images']))
+    assert img[0][0].header == data[0].header
+    assert img[0][0].data == data[0].data
 
 def test_sdss_template(patch_get, patch_get_readable_fileobj):
     template = sdss.core.SDSS.get_spectral_template('qso')
@@ -154,11 +170,13 @@ def test_sdss_template(patch_get, patch_get_readable_fileobj):
 
 def test_sdss_specobj(patch_get):
     xid = sdss.core.SDSS.query_specobj(plate=2340)
-
+    data = astropy.table.Table.read(data_path(DATA_FILES['spectra_id']),format='ascii.csv',comment='#')
+    assert all(xid == data)
 
 def test_sdss_photoobj(patch_get):
     xid = sdss.core.SDSS.query_photoobj(run=1904, camcol=3, field=164)
-
+    data = astropy.table.Table.read(data_path(DATA_FILES['images_id']),format='ascii.csv',comment='#')
+    assert all(xid == data)
 
 def test_query_timeout(patch_get_slow, coord=coords):
     with pytest.raises(TimeoutError):
