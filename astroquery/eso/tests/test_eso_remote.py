@@ -17,11 +17,11 @@ if HAS_KEYRING:
 
 SKIP_TESTS = not HAS_KEYRING
 
-instrument_list = [u'fors1', u'fors2', u'sphere', u'vimos', u'omegacam',
-                   u'hawki', u'isaac', u'naco', u'visir', u'vircam', u'apex',
-                   u'giraffe', u'uves', u'xshooter', u'muse', u'crires',
-                   u'kmos', u'sinfoni', u'amber', u'midi', u'pionier',
-                   u'harps']
+instrument_list = set([u'fors1', u'fors2', u'sphere', u'vimos', u'omegacam',
+                       u'hawki', u'isaac', u'naco', u'visir', u'vircam', u'apex',
+                       u'giraffe', u'uves', u'xshooter', u'muse', u'crires',
+                       u'kmos', u'sinfoni', u'amber', u'midi', u'pionier',
+                       u'harps'])
 
 
 @pytest.mark.skipif('SKIP_TESTS')
@@ -96,7 +96,7 @@ class TestEso:
     def test_list_instruments(self):
         # If this test fails, we may simply need to update it
 
-        inst = Eso.list_instruments()
+        inst = set(Eso.list_instruments())
 
         assert inst == instrument_list
 
