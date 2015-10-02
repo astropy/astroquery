@@ -4,7 +4,8 @@ import requests
 import os
 import socket
 from types import MethodType
-from astropy.extern.six.moves.urllib_error import URLError
+
+from astropy.extern import six
 from astropy.tests.helper import pytest
 import astropy
 from .. import conf
@@ -57,7 +58,7 @@ def patch_get_readable_fileobj(request):
 def patch_get_readable_fileobj_slow(request):
     @contextmanager
     def get_readable_fileobj_mockreturn(filename, **kwargs):
-        e = URLError('timeout')
+        e = six.moves.urllib_error.URLError('timeout')
         e.reason = socket.timeout()
         raise e
         yield True
@@ -80,7 +81,7 @@ def get_mockreturn_slow(url, params=None, timeout=10, **kwargs):
 def get_query_url(self, drorurl, suffix):
     """Replace the _get_query_url method of the SDSS object.
     """
-    if isinstance(drorurl, basestring) and len(drorurl) > 2:
+    if isinstance(drorurl, six.string_types) and len(drorurl) > 2:
         self._last_url = drorurl
         return drorurl
     else:
