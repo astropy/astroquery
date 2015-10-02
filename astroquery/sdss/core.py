@@ -10,6 +10,7 @@ import numpy as np
 from astropy import units as u
 import astropy.coordinates as coord
 from astropy.table import Table, Column
+from astropy.extern import six
 from ..query import BaseQuery
 from . import conf
 from ..utils import commons, async_to_sync
@@ -1016,7 +1017,7 @@ class SDSSClass(BaseQuery):
         return request_payload
 
     def _get_query_url(self, drorurl, suffix):
-        if isinstance(drorurl, basestring) and len(drorurl) > 2:
+        if isinstance(drorurl, six.string_types) and len(drorurl) > 2:
             return drorurl
         else:
             return conf.skyserver_baseurl + suffix.format(dr=drorurl)
