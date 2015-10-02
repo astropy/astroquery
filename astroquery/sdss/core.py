@@ -10,7 +10,6 @@ import numpy as np
 from astropy import units as u
 import astropy.coordinates as coord
 from astropy.table import Table, Column
-from astropy.extern import six
 from ..query import BaseQuery
 from . import conf
 from ..utils import commons, async_to_sync
@@ -55,7 +54,7 @@ class SDSSClass(BaseQuery):
     def query_crossid_async(self, coordinates, obj_names=None,
                             photoobj_fields=None, specobj_fields=None,
                             get_query_payload=False, timeout=TIMEOUT,
-                            radius=5. * u.arcsec, drorurl=12):
+                            radius=5. * u.arcsec, dr=12):
         """
         Query using the cross-identification web interface.
 
@@ -93,9 +92,8 @@ class SDSSClass(BaseQuery):
         get_query_payload : bool
             If True, this will return the data the query would have sent out,
             but does not actually do the query.
-        drorurl : str or int
-            The data release of the SDSS to use (if an integer or short string)
-            or the full URL to send the query (if a longer string).
+        dr : int
+            The data release of the SDSS to use.
         """
 
         if (not isinstance(coordinates, list) and
@@ -157,7 +155,7 @@ class SDSSClass(BaseQuery):
 
         if get_query_payload:
             return request_payload
-        url = self._get_query_url(drorurl, self.XID_URL_SUFFIX)
+        url = self._get_query_url(dr, self.XID_URL_SUFFIX)
         r = commons.send_request(url, request_payload, timeout,
                                  request_type='POST')
 
@@ -167,7 +165,7 @@ class SDSSClass(BaseQuery):
                            fields=None, spectro=False, timeout=TIMEOUT,
                            get_query_payload=False, photoobj_fields=None,
                            specobj_fields=None, field_help=False,
-                           obj_names=None, drorurl=12):
+                           obj_names=None, dr=12):
         """
         Used to query a region around given coordinates. Equivalent to
         the object cross-ID from the web interface.
@@ -218,9 +216,8 @@ class SDSSClass(BaseQuery):
         get_query_payload : bool
             If True, this will return the data the query would have sent out,
             but does not actually do the query.
-        drorurl : str or int
-            The data release of the SDSS to use (if an integer or short string)
-            or the full URL to send the query (if a longer string).
+        dr : int
+            The data release of the SDSS to use.
 
         Examples
         --------
@@ -250,11 +247,11 @@ class SDSSClass(BaseQuery):
                                                 specobj_fields=specobj_fields,
                                                 field_help=field_help,
                                                 obj_names=obj_names,
-                                                drorurl=drorurl)
+                                                dr=dr)
         if get_query_payload or field_help:
             return request_payload
 
-        url = self._get_query_url(drorurl, self.QUERY_URL_SUFFIX)
+        url = self._get_query_url(dr, self.QUERY_URL_SUFFIX)
         r = commons.send_request(url, request_payload, timeout,
                                  request_type='GET')
 
@@ -263,7 +260,7 @@ class SDSSClass(BaseQuery):
     def query_specobj_async(self, plate=None, mjd=None, fiberID=None,
                             fields=None, timeout=TIMEOUT,
                             get_query_payload=False, field_help=False,
-                            drorurl=12):
+                            dr=12):
         """
         Used to query the SpecObjAll table with plate, mjd and fiberID values.
 
@@ -293,9 +290,8 @@ class SDSSClass(BaseQuery):
         get_query_payload : bool
             If True, this will return the data the query would have sent out,
             but does not actually do the query.
-        drorurl : str or int
-            The data release of the SDSS to use (if an integer or short string)
-            or the full URL to send the query (if a longer string).
+        dr : int
+            The data release of the SDSS to use.
 
         Examples
         --------
@@ -326,11 +322,11 @@ class SDSSClass(BaseQuery):
                                                 specobj_fields=fields,
                                                 spectro=True,
                                                 field_help=field_help,
-                                                drorurl=drorurl)
+                                                dr=dr)
         if get_query_payload or field_help:
             return request_payload
 
-        url = self._get_query_url(drorurl, self.QUERY_URL_SUFFIX)
+        url = self._get_query_url(dr, self.QUERY_URL_SUFFIX)
         r = commons.send_request(url, request_payload, timeout,
                                  request_type='GET')
 
@@ -339,7 +335,7 @@ class SDSSClass(BaseQuery):
     def query_photoobj_async(self, run=None, rerun=301, camcol=None,
                              field=None, fields=None, timeout=TIMEOUT,
                              get_query_payload=False, field_help=False,
-                             drorurl=12):
+                             dr=12):
         """
         Used to query the PhotoObjAll table with run, rerun, camcol and field
         values.
@@ -373,9 +369,8 @@ class SDSSClass(BaseQuery):
         get_query_payload : bool
             If True, this will return the data the query would have sent out,
             but does not actually do the query.
-        drorurl : str or int
-            The data release of the SDSS to use (if an integer or short string)
-            or the full URL to send the query (if a longer string).
+        dr : int
+            The data release of the SDSS to use.
 
         Examples
         --------
@@ -405,11 +400,11 @@ class SDSSClass(BaseQuery):
                                                 photoobj_fields=fields,
                                                 spectro=False,
                                                 field_help=field_help,
-                                                drorurl=drorurl)
+                                                dr=dr)
         if get_query_payload or field_help:
             return request_payload
 
-        url = self._get_query_url(drorurl, self.QUERY_URL_SUFFIX)
+        url = self._get_query_url(dr, self.QUERY_URL_SUFFIX)
         r = commons.send_request(url, request_payload, timeout,
                                  request_type='GET')
 
@@ -422,7 +417,7 @@ class SDSSClass(BaseQuery):
             fsql += ' ' + line.split('--')[0]
         return fsql
 
-    def query_sql_async(self, sql_query, timeout=TIMEOUT, drorurl=12, **kwargs):
+    def query_sql_async(self, sql_query, timeout=TIMEOUT, dr=12, **kwargs):
         """
         Query the SDSS database.
 
@@ -433,9 +428,8 @@ class SDSSClass(BaseQuery):
         timeout : float, optional
             Time limit (in seconds) for establishing successful connection with
             remote server.  Defaults to `SDSSClass.TIMEOUT`.
-        drorurl : str or int
-            The data release of the SDSS to use (if an integer or short string)
-            or the full URL to send the query (if a longer string).
+        dr : int
+            The data release of the SDSS to use.
 
         Examples
         --------
@@ -470,7 +464,7 @@ class SDSSClass(BaseQuery):
         if kwargs.get('get_query_payload'):
             return request_payload
 
-        url = self._get_query_url(drorurl, self.QUERY_URL_SUFFIX)
+        url = self._get_query_url(dr, self.QUERY_URL_SUFFIX)
         r = commons.send_request(url, request_payload, timeout,
                                  request_type='GET')
         return r
@@ -553,7 +547,7 @@ class SDSSClass(BaseQuery):
                 specobj_fields=['instrument', 'run2d', 'plate',
                                 'mjd', 'fiberID'],
                 coordinates=coordinates, radius=radius, spectro=True,
-                plate=plate, mjd=mjd, fiberID=fiberID, drorurl=dr)
+                plate=plate, mjd=mjd, fiberID=fiberID, dr=dr)
             if get_query_payload:
                 return request_payload
 
@@ -660,8 +654,7 @@ class SDSSClass(BaseQuery):
             If True, this will return the data the query would have sent out,
             but does not actually do the query.
         dr : int
-            The data release of the SDSS to use. With the default server, this
-            only supports DR8 or later.
+            The data release of the SDSS to use.
 
         Returns
         -------
@@ -694,7 +687,7 @@ class SDSSClass(BaseQuery):
             request_payload = self._args_to_payload(
                 fields=['run', 'rerun', 'camcol', 'field'],
                 coordinates=coordinates, radius=radius, spectro=False, run=run,
-                rerun=rerun, camcol=camcol, field=field, drorurl=dr)
+                rerun=rerun, camcol=camcol, field=field, dr=dr)
             if get_query_payload:
                 return request_payload
 
@@ -728,7 +721,7 @@ class SDSSClass(BaseQuery):
     def get_images(self, coordinates=None, radius=2. * u.arcsec,
                    matches=None, run=None, rerun=301, camcol=None, field=None,
                    band='g', timeout=TIMEOUT, cache=True,
-                   get_query_payload=False):
+                   get_query_payload=False, dr=12):
         """
         Returns
         -------
@@ -847,7 +840,7 @@ class SDSSClass(BaseQuery):
                          plate=None, mjd=None, fiberID=None, run=None,
                          rerun=301, camcol=None, field=None,
                          photoobj_fields=None, specobj_fields=None,
-                         field_help=None, obj_names=None, drorurl=12):
+                         field_help=None, obj_names=None, dr=12):
         """
         Construct the SQL query from the arguments.
 
@@ -905,9 +898,8 @@ class SDSSClass(BaseQuery):
         obj_names : str, or list or `~astropy.table.Column`, optional
             Target names. If given, every coordinate should have a
             corresponding name, and it gets repeated in the query result
-        drorurl : str or int
-            The data release of the SDSS to use (if an integer or short string)
-            or the full URL to send the query (if a longer string).
+        dr : int
+            The data release of the SDSS to use.
 
         Returns
         -------
@@ -915,7 +907,7 @@ class SDSSClass(BaseQuery):
 
         """
         # TODO: replace this with something cleaner below
-        url = self._get_query_url(drorurl, self.QUERY_URL_SUFFIX)
+        url = self._get_query_url(dr, self.QUERY_URL_SUFFIX)
         photoobj_all = get_field_info('PhotoObjAll', url, self.TIMEOUT)['name']
         specobj_all = get_field_info('SpecObjAll', url, self.TIMEOUT)['name']
 
@@ -1016,10 +1008,7 @@ class SDSSClass(BaseQuery):
 
         return request_payload
 
-    def _get_query_url(self, drorurl, suffix):
-        if isinstance(drorurl, six.string_types) and len(drorurl) > 2:
-            return drorurl
-        else:
-            return conf.skyserver_baseurl + suffix.format(dr=drorurl)
+    def _get_query_url(self, dr, suffix):
+        return conf.skyserver_baseurl + suffix.format(dr=dr)
 
 SDSS = SDSSClass()
