@@ -16,8 +16,8 @@ from . import conf
 from ..utils import commons, async_to_sync
 from ..utils.docstr_chompers import prepend_docstr_noreturns
 from ..exceptions import RemoteServiceError, NoResultsWarning
-
-from .field_names import photoobj_defs, specobj_defs, crossid_defs, get_field_info
+from .field_names import (photoobj_defs, specobj_defs,
+                          crossid_defs, get_field_info)
 
 __all__ = ['SDSS', 'SDSSClass']
 __doctest_skip__ = ['SDSSClass.*']
@@ -42,10 +42,11 @@ class SDSSClass(BaseQuery):
     TEMPLATES_URL = 'http://classic.sdss.org/dr7/algorithms/spectemplates/spDR2'
     # Cross-correlation templates from DR-7 - no clear way to look this up via
     # queries so we just name them explicitly here
-    AVAILABLE_TEMPLATES = {'star_O': 0, 'star_OB': 1, 'star_B': 2, 'star_A': [3, 4],
-                           'star_FA': 5, 'star_F': [6, 7], 'star_G': [8, 9],
-                           'star_K': 10, 'star_M1': 11, 'star_M3': 12, 'star_M5': 13,
-                           'star_M8': 14, 'star_L1': 15, 'star_wd': [16, 20, 21],
+    AVAILABLE_TEMPLATES = {'star_O': 0, 'star_OB': 1, 'star_B': 2,
+                           'star_A': [3, 4], 'star_FA': 5, 'star_F': [6, 7],
+                           'star_G': [8, 9], 'star_K': 10, 'star_M1': 11,
+                           'star_M3': 12, 'star_M5': 13, 'star_M8': 14,
+                           'star_L1': 15, 'star_wd': [16, 20, 21],
                            'star_carbon': [17, 18, 19], 'star_Ksubdwarf': 22,
                            'galaxy_early': 23, 'galaxy': [24, 25, 26],
                            'galaxy_late': 27, 'galaxy_lrg': 28, 'qso': 29,
