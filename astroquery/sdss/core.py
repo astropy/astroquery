@@ -85,10 +85,10 @@ class SDSSClass(BaseQuery):
         timeout : float, optional
             Time limit (in seconds) for establishing successful connection with
             remote server.  Defaults to `SDSSClass.TIMEOUT`.
-        photoobj_fields : float, optional
+        photoobj_fields : list, optional
             PhotoObj quantities to return. If photoobj_fields is None and
             specobj_fields is None then the value of fields is used
-        specobj_fields : float, optional
+        specobj_fields : list, optional
             SpecObj quantities to return. If photoobj_fields is None and
             specobj_fields is None then the value of fields is used
         obj_names : str, or list or `~astropy.table.Column`, optional
@@ -208,10 +208,10 @@ class SDSSClass(BaseQuery):
         timeout : float, optional
             Time limit (in seconds) for establishing successful connection with
             remote server.  Defaults to `SDSSClass.TIMEOUT`.
-        photoobj_fields : float, optional
+        photoobj_fields : list, optional
             PhotoObj quantities to return. If photoobj_fields is None and
             specobj_fields is None then the value of fields is used
-        specobj_fields : float, optional
+        specobj_fields : list, optional
             SpecObj quantities to return. If photoobj_fields is None and
             specobj_fields is None then the value of fields is used
         field_help: str or bool, optional
@@ -911,10 +911,10 @@ class SDSSClass(BaseQuery):
             Output of one camera column of CCDs.
         field : integer, optional
             Part of a camcol of size 2048 by 1489 pixels.
-        photoobj_fields: float, optional
+        photoobj_fields: list, optional
             PhotoObj quantities to return. If photoobj_fields is None and
             specobj_fields is None then the value of fields is used
-        specobj_fields: float, optional
+        specobj_fields: list, optional
             SpecObj quantities to return. If photoobj_fields is None and
             specobj_fields is None then the value of fields is used
         field_help: str or bool, optional
@@ -1002,12 +1002,11 @@ class SDSSClass(BaseQuery):
 
                 ra = target.ra.degree
                 dec = target.dec.degree
-                dr = coord.Angle(radius).to('degree').value
+                radius_degrees = coord.Angle(radius).to('degree').value
                 if n > 0:
-                    q_where += ' or '
-                q_where += ('((p.ra between %g and %g) and '
-                            '(p.dec between %g and %g))'
-                            % (ra - dr, ra + dr, dec - dr, dec + dr))
+                    q_where += ' OR '
+                q_where += ('((p.ra BETWEEN {0:g} AND {1:g}) AND (p.dec BETWEEN {2:g} AND {3:g}))'.format(
+                    ra - radius_degrees, ra + radius_degrees, dec - radius_degrees, dec + radius_degrees))
         elif spectro:
             # Spectra: query for specified plate, mjd, fiberid
             s_fields = ['s.%s=%d' % (key, val) for (key, val) in
