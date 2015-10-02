@@ -55,7 +55,7 @@ class SDSSClass(BaseQuery):
     def query_crossid_async(self, coordinates, obj_names=None,
                             photoobj_fields=None, specobj_fields=None,
                             get_query_payload=False, timeout=TIMEOUT,
-                            radius=5. * u.arcsec, drorurl=12):
+                            radius=5. * u.arcsec, drorurl=12, cache=True):
         """
         Query using the cross-identification web interface.
 
@@ -158,16 +158,16 @@ class SDSSClass(BaseQuery):
         if get_query_payload:
             return request_payload
         url = self._get_query_url(drorurl, self.XID_URL_SUFFIX)
-        r = commons.send_request(url, request_payload, timeout,
-                                 request_type='POST')
+        response = self._request("POST", url, params=request_payload,
+                                 timeout=timeout, cache=cache)
 
-        return r
+        return response
 
     def query_region_async(self, coordinates, radius=2. * u.arcsec,
                            fields=None, spectro=False, timeout=TIMEOUT,
                            get_query_payload=False, photoobj_fields=None,
                            specobj_fields=None, field_help=False,
-                           obj_names=None, drorurl=12):
+                           obj_names=None, drorurl=12, cache=True):
         """
         Used to query a region around given coordinates. Equivalent to
         the object cross-ID from the web interface.
@@ -255,15 +255,15 @@ class SDSSClass(BaseQuery):
             return request_payload
 
         url = self._get_query_url(drorurl, self.QUERY_URL_SUFFIX)
-        r = commons.send_request(url, request_payload, timeout,
-                                 request_type='GET')
+        response = self._request("GET", url, params=request_payload,
+                                 timeout=timeout, cache=cache)
 
-        return r
+        return response
 
     def query_specobj_async(self, plate=None, mjd=None, fiberID=None,
                             fields=None, timeout=TIMEOUT,
                             get_query_payload=False, field_help=False,
-                            drorurl=12):
+                            drorurl=12, cache=True):
         """
         Used to query the SpecObjAll table with plate, mjd and fiberID values.
 
@@ -331,15 +331,15 @@ class SDSSClass(BaseQuery):
             return request_payload
 
         url = self._get_query_url(drorurl, self.QUERY_URL_SUFFIX)
-        r = commons.send_request(url, request_payload, timeout,
-                                 request_type='GET')
+        response = self._request("GET", url, params=request_payload,
+                                 timeout=timeout, cache=cache)
 
-        return r
+        return response
 
     def query_photoobj_async(self, run=None, rerun=301, camcol=None,
                              field=None, fields=None, timeout=TIMEOUT,
                              get_query_payload=False, field_help=False,
-                             drorurl=12):
+                             drorurl=12, cache=True):
         """
         Used to query the PhotoObjAll table with run, rerun, camcol and field
         values.
@@ -410,10 +410,10 @@ class SDSSClass(BaseQuery):
             return request_payload
 
         url = self._get_query_url(drorurl, self.QUERY_URL_SUFFIX)
-        r = commons.send_request(url, request_payload, timeout,
-                                 request_type='GET')
+        response = self._request("GET", url, params=request_payload,
+                                 timeout=timeout, cache=cache)
 
-        return r
+        return response
 
     def __sanitize_query(self, stmt):
         """Remove comments and newlines from SQL statement."""
@@ -422,7 +422,8 @@ class SDSSClass(BaseQuery):
             fsql += ' ' + line.split('--')[0]
         return fsql
 
-    def query_sql_async(self, sql_query, timeout=TIMEOUT, drorurl=12, **kwargs):
+    def query_sql_async(self, sql_query, timeout=TIMEOUT, drorurl=12,
+                        cache=True, **kwargs):
         """
         Query the SDSS database.
 
@@ -471,13 +472,15 @@ class SDSSClass(BaseQuery):
             return request_payload
 
         url = self._get_query_url(drorurl, self.QUERY_URL_SUFFIX)
-        r = commons.send_request(url, request_payload, timeout,
-                                 request_type='GET')
-        return r
+        response = self._request("GET", url, params=request_payload,
+                                 timeout=timeout, cache=cache)
+
+        return response
 
     def get_spectra_async(self, coordinates=None, radius=2. * u.arcsec,
                           matches=None, plate=None, fiberID=None, mjd=None,
-                          timeout=TIMEOUT, get_query_payload=False, dr=12):
+                          timeout=TIMEOUT, get_query_payload=False, dr=12,
+                          cache=True):
         """
         Download spectrum from SDSS.
 
@@ -558,8 +561,8 @@ class SDSSClass(BaseQuery):
                 return request_payload
 
             url = self._get_query_url(dr, self.QUERY_URL_SUFFIX)
-            r = commons.send_request(url, request_payload, timeout,
-                                     request_type='GET')
+            r = self._request("GET", url, params=request_payload,
+                              timeout=timeout, cache=cache)
             matches = self._parse_result(r)
             if matches is None:
                 warnings.warn("Query returned no results.", NoResultsWarning)
@@ -586,7 +589,7 @@ class SDSSClass(BaseQuery):
     @prepend_docstr_noreturns(get_spectra_async.__doc__)
     def get_spectra(self, coordinates=None, radius=2. * u.arcsec,
                     matches=None, plate=None, fiberID=None, mjd=None,
-                    timeout=TIMEOUT):
+                    timeout=TIMEOUT, cache=True):
         """
         Returns
         -------
@@ -699,8 +702,9 @@ class SDSSClass(BaseQuery):
                 return request_payload
 
             url = self._get_query_url(dr, self.QUERY_URL_SUFFIX)
-            r = commons.send_request(url, request_payload, timeout,
-                                     request_type='GET')
+            r = self._request("GET", url, params=request_payload,
+                              timeout=timeout, cache=cache)
+
             matches = self._parse_result(r)
             if matches is None:
                 warnings.warn("Query returned no results.", NoResultsWarning)
