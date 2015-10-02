@@ -109,9 +109,10 @@ coords_column = astropy.table.Column(coords_list, name='coordinates')
 def _url_tester(dr):
     if dr < 11:
         pytest.xfail('DR<12 not yet supported')
-        assert sdss.core.SDSS._last_url == 'http://skyserver.sdss.org/dr' + str(dr) + '/en/tools/search/sql.asp'
-    if dr == 12:
-        assert sdss.core.SDSS._last_url == 'http://skyserver.sdss.org/dr12/en/tools/search/x_sql.aspx'
+        baseurl = 'http://skyserver.sdss.org/dr{}/en/tools/search/sql.asp'
+    if dr >= 12:
+        baseurl = 'http://skyserver.sdss.org/dr{}/en/tools/search/x_sql.aspx'
+    assert sdss.core.SDSS._last_url == baseurl.format(dr)
 
 def _compare_xid_data(xid ,data):
     if six.PY3:
