@@ -2,6 +2,7 @@
 from __future__ import print_function
 import socket
 import requests
+import json
 
 from astropy.tests.helper import pytest
 
@@ -55,3 +56,6 @@ class MockResponse(object):
     @property
     def text(self):
         return self.content.decode(errors='replace')
+
+    def json(self):
+        return json.loads(self.content)
