@@ -4,6 +4,7 @@ import requests
 import os
 import socket
 from types import MethodType
+from numpy.testing import assert_allclose
 
 from astropy.extern import six
 from astropy.io import fits
@@ -127,7 +128,8 @@ def _compare_xid_data(xid, data):
         pytest.xfail('xid/data comparison fails in PY3 because the instrument '
                      'column is bytes in xid and str in data')
     else:
-        return all(xid == data)
+        for col in xid.colnames:
+            assert_allclose(xid[col], data[col])
 
 
 @pytest.mark.parametrize("dr", [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12])
@@ -178,7 +180,7 @@ def test_sdss_sql(patch_get, patch_get_readable_fileobj, dr):
     xid = sdss.SDSS.query_sql(query)
     data = Table.read(data_path(DATA_FILES['images_id']),
                       format='ascii.csv', comment='#')
-    assert _compare_xid_data(xid, data)
+    _compare_xid_data(xid, data)
     _url_tester(dr)
 
 
@@ -227,7 +229,7 @@ def test_sdss_specobj(patch_get, dr):
     xid = sdss.SDSS.query_specobj(plate=2340)
     data = Table.read(data_path(DATA_FILES['spectra_id']),
                       format='ascii.csv', comment='#')
-    assert _compare_xid_data(xid, data)
+    _compare_xid_data(xid, data)
     _url_tester(dr)
 
 
@@ -236,7 +238,7 @@ def test_sdss_photoobj(patch_get, dr):
     xid = sdss.SDSS.query_photoobj(run=1904, camcol=3, field=164)
     data = Table.read(data_path(DATA_FILES['images_id']),
                       format='ascii.csv', comment='#')
-    assert _compare_xid_data(xid, data)
+    _compare_xid_data(xid, data)
     _url_tester(dr)
 
 
@@ -273,7 +275,7 @@ def test_list_coordinates(patch_get):
     xid = sdss.SDSS.query_region(coords_list)
     data = Table.read(data_path(DATA_FILES['images_id']),
                       format='ascii.csv', comment='#')
-    assert _compare_xid_data(xid, data)
+    _compare_xid_data(xid, data)
 
 
 def test_column_coordinates_payload(patch_get):
@@ -294,7 +296,7 @@ def test_column_coordinates(patch_get):
     xid = sdss.SDSS.query_region(coords_column)
     data = Table.read(data_path(DATA_FILES['images_id']),
                       format='ascii.csv', comment='#')
-    assert _compare_xid_data(xid, data)
+    _compare_xid_data(xid, data)
 
 
 def test_field_help_region(patch_get):
