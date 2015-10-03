@@ -115,6 +115,7 @@ coords_column = Column(coords_list, name='coordinates')
 # query: "DR11 data are distributed primarily to provide reproducibility of
 # published results based on the DR11 data set. As such, not all data-access
 # interfaces are supported for DR11."
+# This should be the first assert to carry out to xfail the test
 def _url_tester(dr):
     if dr < 11:
         pytest.xfail('DR<12 not yet supported')
@@ -141,7 +142,6 @@ def test_sdss_spectrum(patch_get, patch_get_readable_fileobj, dr,
     data = fits.open(data_path(DATA_FILES['spectra']))
     assert sp[0][0].header == data[0].header
     assert sp[0][0].data == data[0].data
-    _url_tester(dr)
 
 
 @pytest.mark.parametrize("dr", [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12])
@@ -151,7 +151,6 @@ def test_sdss_spectrum_mjd(patch_get, patch_get_readable_fileobj, dr):
     data = fits.open(data_path(DATA_FILES['spectra']))
     assert sp[0][0].header == data[0].header
     assert sp[0][0].data == data[0].data
-    _url_tester(dr)
 
 
 @pytest.mark.parametrize("dr", [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12])
@@ -162,7 +161,6 @@ def test_sdss_spectrum_coords(patch_get, patch_get_readable_fileobj, dr,
     data = fits.open(data_path(DATA_FILES['spectra']))
     assert sp[0][0].header == data[0].header
     assert sp[0][0].data == data[0].data
-    _url_tester(dr)
 
 
 @pytest.mark.parametrize("dr", [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12])
@@ -180,8 +178,8 @@ def test_sdss_sql(patch_get, patch_get_readable_fileobj, dr):
     xid = sdss.SDSS.query_sql(query)
     data = Table.read(data_path(DATA_FILES['images_id']),
                       format='ascii.csv', comment='#')
-    _compare_xid_data(xid, data)
     _url_tester(dr)
+    _compare_xid_data(xid, data)
 
 
 @pytest.mark.parametrize("dr", [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12])
@@ -190,7 +188,6 @@ def test_sdss_image_from_query_region(patch_get, patch_get_readable_fileobj,
     xid = sdss.SDSS.query_region(coords)
     assert sdss.SDSS._last_url == 'http://skyserver.sdss.org/dr12/en/tools/search/x_sql.aspx'
     img = sdss.SDSS.get_images(matches=xid)
-    _url_tester(dr)
 
 
 @pytest.mark.parametrize("dr", [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12])
@@ -200,7 +197,6 @@ def test_sdss_image_run(patch_get, patch_get_readable_fileobj, dr):
     data = fits.open(data_path(DATA_FILES['images']))
     assert img[0][0].header == data[0].header
     assert img[0][0].data == data[0].data
-    _url_tester(dr)
 
 
 @pytest.mark.parametrize("dr", [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12])
@@ -211,7 +207,6 @@ def test_sdss_image_coord(patch_get, patch_get_readable_fileobj, dr,
     data = fits.open(data_path(DATA_FILES['images']))
     assert img[0][0].header == data[0].header
     assert img[0][0].data == data[0].data
-    _url_tester(dr)
 
 
 @pytest.mark.parametrize("dr", [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12])
@@ -221,7 +216,6 @@ def test_sdss_template(patch_get, patch_get_readable_fileobj, dr):
     data = fits.open(data_path(DATA_FILES['spectra']))
     assert template[0][0].header == data[0].header
     assert template[0][0].data == data[0].data
-    _url_tester(dr)
 
 
 @pytest.mark.parametrize("dr", [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12])
@@ -229,8 +223,8 @@ def test_sdss_specobj(patch_get, dr):
     xid = sdss.SDSS.query_specobj(plate=2340)
     data = Table.read(data_path(DATA_FILES['spectra_id']),
                       format='ascii.csv', comment='#')
-    _compare_xid_data(xid, data)
     _url_tester(dr)
+    _compare_xid_data(xid, data)
 
 
 @pytest.mark.parametrize("dr", [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12])
@@ -238,8 +232,8 @@ def test_sdss_photoobj(patch_get, dr):
     xid = sdss.SDSS.query_photoobj(run=1904, camcol=3, field=164)
     data = Table.read(data_path(DATA_FILES['images_id']),
                       format='ascii.csv', comment='#')
-    _compare_xid_data(xid, data)
     _url_tester(dr)
+    _compare_xid_data(xid, data)
 
 
 def test_query_timeout(patch_get_slow, coord=coords):
