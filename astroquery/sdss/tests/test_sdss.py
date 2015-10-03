@@ -29,9 +29,7 @@ DATA_FILES = {'spectra_id': 'xid_sp.txt',
 @pytest.fixture
 def patch_get(request):
     mp = request.getfuncargvalue("monkeypatch")
-    mp.setattr(requests, 'get', get_mockreturn)
-    mp.setattr(sdss.SDSS, '_get_query_url',
-               MethodType(get_query_url, sdss.SDSS))
+    mp.setattr(sdss.SDSS, '_request', get_mockreturn)
     return mp
 
 
@@ -71,7 +69,7 @@ def patch_get_readable_fileobj_slow(request):
     return mp
 
 
-def get_mockreturn(url, params=None, timeout=10, **kwargs):
+def get_mockreturn(method, url, params=None, timeout=10, cache=True, **kwargs):
     if 'SpecObjAll' in params['cmd']:
         filename = data_path(DATA_FILES['spectra_id'])
     else:
@@ -188,7 +186,7 @@ def test_sdss_sql(patch_get, patch_get_readable_fileobj, dr):
 def test_sdss_image_from_query_region(patch_get, patch_get_readable_fileobj,
                                       dr, coords=coords):
     xid = sdss.SDSS.query_region(coords)
-    assert sdss.SDSS._last_url == 'http://skyserver.sdss.org/dr12/en/tools/search/x_sql.aspx'
+    # TODO test what img is
     img = sdss.SDSS.get_images(matches=xid)
 
 
