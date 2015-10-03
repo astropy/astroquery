@@ -8,7 +8,6 @@ from astropy.table import Table
 from astropy.utils.data import get_pkg_data_contents
 
 from . import conf
-from ..utils import commons
 
 __all__ = ['get_field_info', 'photoobj_defs', 'specobj_defs', 'crossid_defs']
 
@@ -22,12 +21,12 @@ crossid_defs = ['ra', 'dec', 'psfMag_u', 'psfMagerr_u', 'psfMag_g',
 
 
 _cached_table_fields = {}
-def get_field_info(tablename, sqlurl, timeout=conf.timeout):
+def get_field_info(cls, tablename, sqlurl, timeout=conf.timeout):
     key = (tablename, sqlurl)
 
     if key not in _cached_table_fields:
         request_payload = {'cmd': "select * from dbo.fDocColumns('{0}')".format(tablename), 'format': 'json'}
-        qryres = commons.send_request(sqlurl, request_payload, timeout, request_type='GET')
+        qryres = cls._request('GET', sqlurl, request_payload, timeout=timeout)
         # we're compelled to use JSON because CSV responses are broken in SDSS -
         # sometimes there are improperly nested " characters.
         _cached_table_fields[key] = _columns_json_to_table(qryres.json())

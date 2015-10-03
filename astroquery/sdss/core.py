@@ -28,7 +28,8 @@ sdss_arcsec_per_pixel = 0.396 * u.arcsec/u.pixel
 @async_to_sync
 class SDSSClass(BaseQuery):
     TIMEOUT = conf.timeout
-    QUERY_URL_SUFFIX = '/dr{dr}/en/tools/search/x_sql.aspx'
+    QUERY_URL_SUFFIX_DR_OLD = '/dr{dr}/en/tools/search/sql.asp'
+    QUERY_URL_SUFFIX_DR_NEW = '/dr{dr}/en/tools/search/x_sql.aspx'
     XID_URL_SUFFIX = '/dr{dr}/en/tools/crossid/x_crossid.aspx'
     IMAGING_URL_SUFFIX = ('{base}/dr{dr}/boss/photoObj/frames/'
                           '{rerun}/{run}/{camcol}/'
@@ -155,9 +156,8 @@ class SDSSClass(BaseQuery):
 
         if get_query_payload:
             return request_payload
-        url = self._get_query_url(dr, self.XID_URL_SUFFIX)
-        r = commons.send_request(url, request_payload, timeout,
-                                 request_type='POST')
+        url = self._get_crossid_url(dr)
+        r = self._request('POST', url, request_payload, timeout=timeout)
 
         return r
 
@@ -251,9 +251,8 @@ class SDSSClass(BaseQuery):
         if get_query_payload or field_help:
             return request_payload
 
-        url = self._get_query_url(dr, self.QUERY_URL_SUFFIX)
-        r = commons.send_request(url, request_payload, timeout,
-                                 request_type='GET')
+        self._get_query_url(dr)
+        r = self._request('GET', self.url, request_payload, timeout=timeout)
 
         return r
 
@@ -326,9 +325,8 @@ class SDSSClass(BaseQuery):
         if get_query_payload or field_help:
             return request_payload
 
-        url = self._get_query_url(dr, self.QUERY_URL_SUFFIX)
-        r = commons.send_request(url, request_payload, timeout,
-                                 request_type='GET')
+        self._get_query_url(dr)
+        r = self._request('GET', self.url, request_payload, timeout=timeout)
 
         return r
 
@@ -404,9 +402,8 @@ class SDSSClass(BaseQuery):
         if get_query_payload or field_help:
             return request_payload
 
-        url = self._get_query_url(dr, self.QUERY_URL_SUFFIX)
-        r = commons.send_request(url, request_payload, timeout,
-                                 request_type='GET')
+        self._get_query_url(dr)
+        r = self._request('GET', self.url, request_payload, timeout=timeout)
 
         return r
 
@@ -464,9 +461,8 @@ class SDSSClass(BaseQuery):
         if kwargs.get('get_query_payload'):
             return request_payload
 
-        url = self._get_query_url(dr, self.QUERY_URL_SUFFIX)
-        r = commons.send_request(url, request_payload, timeout,
-                                 request_type='GET')
+        self._get_query_url(dr)
+        r = self._request('GET', self.url, request_payload, timeout=timeout)
         return r
 
     def get_spectra_async(self, coordinates=None, radius=2. * u.arcsec,
@@ -551,9 +547,8 @@ class SDSSClass(BaseQuery):
             if get_query_payload:
                 return request_payload
 
-            url = self._get_query_url(dr, self.QUERY_URL_SUFFIX)
-            r = commons.send_request(url, request_payload, timeout,
-                                     request_type='GET')
+            self._get_query_url(dr)
+            r = self._request('GET', self.url, request_payload, timeout=timeout)
             matches = self._parse_result(r)
             if matches is None:
                 warnings.warn("Query returned no results.", NoResultsWarning)
@@ -691,9 +686,8 @@ class SDSSClass(BaseQuery):
             if get_query_payload:
                 return request_payload
 
-            url = self._get_query_url(dr, self.QUERY_URL_SUFFIX)
-            r = commons.send_request(url, request_payload, timeout,
-                                     request_type='GET')
+            self._get_query_url(dr)
+            r = self._request('GET', self.url, request_payload, timeout=timeout)
             matches = self._parse_result(r)
             if matches is None:
                 warnings.warn("Query returned no results.", NoResultsWarning)
@@ -907,9 +901,9 @@ class SDSSClass(BaseQuery):
 
         """
         # TODO: replace this with something cleaner below
-        url = self._get_query_url(dr, self.QUERY_URL_SUFFIX)
-        photoobj_all = get_field_info('PhotoObjAll', url, self.TIMEOUT)['name']
-        specobj_all = get_field_info('SpecObjAll', url, self.TIMEOUT)['name']
+        self._get_query_url(dr)
+        photoobj_all = get_field_info(self, 'PhotoObjAll', self.url, self.TIMEOUT)['name']
+        specobj_all = get_field_info(self, 'SpecObjAll', self.url, self.TIMEOUT)['name']
 
         if field_help:
             ret = 0
@@ -1008,7 +1002,16 @@ class SDSSClass(BaseQuery):
 
         return request_payload
 
-    def _get_query_url(self, dr, suffix):
-        return conf.skyserver_baseurl + suffix.format(dr=dr)
+    def _get_query_url(self, dr):
+        if dr < 11:
+            suffix = self.QUERY_URL_SUFFIX_DR_OLD
+        else:
+            suffix = self.QUERY_URL_SUFFIX_DR_NEW
+        self.url = conf.skyserver_baseurl + suffix.format(dr=dr)
+
+    def _get_crossid_url(self, dr):
+        suffix = self.XID_URL_SUFFIX
+        self.url = conf.skyserver_baseurl + suffix.format(dr=dr)
+
 
 SDSS = SDSSClass()

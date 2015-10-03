@@ -3,12 +3,10 @@ from contextlib import contextmanager
 import requests
 import os
 import socket
-from types import MethodType
 
 from astropy.extern import six
 from astropy.tests.helper import pytest
 import astropy
-from .. import conf
 from ... import sdss
 from ...utils.testing_tools import MockResponse
 from ...exceptions import TimeoutError
@@ -26,22 +24,20 @@ DATA_FILES = {'spectra_id': 'xid_sp.txt',
 @pytest.fixture
 def patch_get(request):
     mp = request.getfuncargvalue("monkeypatch")
-    mp.setattr(requests, 'get', get_mockreturn)
-    mp.setattr(sdss.core.SDSS, '_get_query_url', MethodType(get_query_url,sdss.core.SDSS))
+    # mp.setattr(requests, 'get', get_mockreturn)
+    mp.setattr(sdss.core.SDSS, '_request', get_mockreturn)
     return mp
 
 @pytest.fixture
 def patch_post(request):
     mp = request.getfuncargvalue("monkeypatch")
-    mp.setattr(requests, 'post', post_mockreturn)
-    mp.setattr(sdss.core.SDSS, '_get_query_url', MethodType(get_query_url,sdss.core.SDSS))
+    mp.setattr(sdss.core.SDSS, '_request', post_mockreturn)
     return mp
-
 
 @pytest.fixture
 def patch_get_slow(request):
     mp = request.getfuncargvalue("monkeypatch")
-    mp.setattr(requests, 'get', get_mockreturn_slow)
+    mp.setattr(sdss.core.SDSS, '_request', get_mockreturn_slow)
     return mp
 
 
@@ -73,7 +69,7 @@ def patch_get_readable_fileobj_slow(request):
     mp.setattr(commons, 'get_readable_fileobj', get_readable_fileobj_mockreturn)
     return mp
 
-def get_mockreturn(url, params=None, timeout=10, **kwargs):
+def get_mockreturn(method, url, params=None, timeout=0, **kwargs):
     if 'SpecObjAll' in params['cmd']:
         filename = data_path(DATA_FILES['spectra_id'])
     else:
@@ -81,24 +77,14 @@ def get_mockreturn(url, params=None, timeout=10, **kwargs):
     content = open(filename, 'rb').read()
     return MockResponse(content, **kwargs)
 
-def get_mockreturn_slow(url, params=None, timeout=10, **kwargs):
-    raise requests.exceptions.Timeout('timeout')
+def get_mockreturn_slow(method, url, params=None, timeout=0, **kwargs):
+    raise TimeoutError
+    # raise requests.exceptions.Timeout('timeout')
 
-def post_mockreturn(url, timeout=10, **kwargs):
+def post_mockreturn(method, url, params=None, timeout=0, **kwargs):
     filename = data_path(DATA_FILES['images_id'])
     content = open(filename, 'rb').read()
     return MockResponse(content)
-
-def get_query_url(self, drorurl, suffix):
-    """Replace the _get_query_url method of the SDSS object.
-    """
-    if isinstance(drorurl, six.string_types) and len(drorurl) > 2:
-        self._last_url = drorurl
-        return drorurl
-    else:
-        url = conf.skyserver_baseurl + suffix.format(dr=drorurl)
-        self._last_url = url
-        return url
 
 def data_path(filename):
     data_dir = os.path.join(os.path.dirname(__file__), 'data')
@@ -122,11 +108,11 @@ def _url_tester_search(dr):
         baseurl = 'http://skyserver.sdss.org/dr{}/en/tools/search/sql.asp'
     if dr >= 12:
         baseurl = 'http://skyserver.sdss.org/dr{}/en/tools/search/x_sql.aspx'
-    assert sdss.core.SDSS._last_url == baseurl.format(dr)
+    assert sdss.core.SDSS.url == baseurl.format(dr)
 
 def _url_tester_crossid(dr):
     baseurl = 'http://skyserver.sdss.org/dr{}/en/tools/crossid/x_crossid.aspx'
-    assert sdss.core.SDSS._last_url == baseurl.format(dr)
+    assert sdss.core.SDSS.url == baseurl.format(dr)
 
 
 def _compare_xid_data(xid ,data):
@@ -183,7 +169,6 @@ def test_sdss_sql(patch_get, patch_get_readable_fileobj, dr):
 @pytest.mark.parametrize("dr", [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12])
 def test_sdss_image_from_query_region(patch_get, patch_get_readable_fileobj, dr, coords=coords):
     xid = sdss.core.SDSS.query_region(coords, dr=dr)
-    assert sdss.core.SDSS._last_url == 'http://skyserver.sdss.org/dr12/en/tools/search/x_sql.aspx'
     img = sdss.core.SDSS.get_images(matches=xid)
     _image_tester(img,'images')
     _url_tester_search(dr)
@@ -246,14 +231,15 @@ def test_query_crossid(patch_post, dr):
 # Payload tests
 
 @pytest.mark.parametrize("dr", [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12])
-def test_list_coordinates_payload(patch_get, dr):
+def test_list_coordinates_payload(dr):
     expect = "SELECT DISTINCT p.ra, p.dec, p.objid, p.run, p.rerun, p.camcol, p.field FROM PhotoObjAll AS p   WHERE ((p.ra between 2.02291 and 2.02402) and (p.dec between 14.8393 and 14.8404)) or ((p.ra between 2.02291 and 2.02402) and (p.dec between 14.8393 and 14.8404))"
-    query_payload = sdss.core.SDSS.query_region(coords_list,get_query_payload=True)
+    query_payload = sdss.core.SDSS.query_region(coords_list,get_query_payload=True,dr=dr)
     assert query_payload['cmd'] == expect
     assert query_payload['format'] == 'csv'
+    _url_tester_search(dr)
 
 @pytest.mark.parametrize("dr", [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12])
-def test_column_coordinates_payload(patch_get, dr):
+def test_column_coordinates_payload(dr):
     expect = "SELECT DISTINCT p.ra, p.dec, p.objid, p.run, p.rerun, p.camcol, p.field FROM PhotoObjAll AS p   WHERE ((p.ra between 2.02291 and 2.02402) and (p.dec between 14.8393 and 14.8404)) or ((p.ra between 2.02291 and 2.02402) and (p.dec between 14.8393 and 14.8404))"
     query_payload = sdss.core.SDSS.query_region(coords_column,get_query_payload=True,dr=dr)
     assert query_payload['cmd'] == expect
@@ -266,7 +252,7 @@ def test_column_coordinates_payload(patch_get, dr):
 
 def test_query_timeout(patch_get_slow, coord=coords):
     with pytest.raises(TimeoutError):
-        sdss.core.SDSS.query_region(coords, timeout=1)
+        sdss.core.SDSS.query_region(coords)
 
 def test_spectra_timeout(patch_get, patch_get_readable_fileobj_slow):
     with pytest.raises(TimeoutError):
