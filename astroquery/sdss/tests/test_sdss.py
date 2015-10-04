@@ -85,7 +85,7 @@ def get_mockreturn(method, url, params=None, timeout=10, cache=True, **kwargs):
 
 
 def get_mockreturn_slow(method, url, params=None, timeout=0, **kwargs):
-    raise requests.exceptions.Timeout('timeout')
+    raise TimeoutError
 
 
 def post_mockreturn(method, url, params=None, timeout=0, **kwargs):
@@ -234,14 +234,6 @@ def test_sdss_photoobj(patch_get, dr):
     url_tester(dr)
 
 
-# TODO: This should be fixed before merging #586
-@pytest.mark.xfail(reason=("Timeout isn't raised since switching to "
-                           "self._request, fix it before merging #586"))
-def test_query_timeout(patch_get_slow, coord=coords):
-    with pytest.raises(TimeoutError):
-        sdss.SDSS.query_region(coords, timeout=1)
-
-
 @pytest.mark.parametrize("dr", [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12])
 def test_list_coordinates(patch_get, dr):
     xid = sdss.SDSS.query_region(coords_list, dr=dr)
@@ -257,6 +249,11 @@ def test_column_coordinates(patch_get, dr):
                       format='ascii.csv', comment='#')
     compare_xid_data(xid, data)
     url_tester(dr)
+
+
+def test_query_timeout(patch_get_slow, coord=coords):
+    with pytest.raises(TimeoutError):
+        sdss.SDSS.query_region(coords, timeout=1)
 
 
 def test_spectra_timeout(patch_get, patch_get_readable_fileobj_slow):
