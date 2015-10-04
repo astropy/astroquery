@@ -3,7 +3,7 @@ from contextlib import contextmanager
 import requests
 import os
 import socket
-from types import MethodType
+import numpy as np
 from numpy.testing import assert_allclose
 
 from astropy.extern import six
@@ -11,7 +11,6 @@ from astropy.io import fits
 from astropy.table import Column, Table
 from astropy.tests.helper import pytest
 
-from .. import conf
 from ... import sdss
 from ...utils.testing_tools import MockResponse
 from ...exceptions import TimeoutError
@@ -82,18 +81,6 @@ def get_mockreturn_slow(url, params=None, timeout=10, **kwargs):
     raise requests.exceptions.Timeout('timeout')
 
 
-def get_query_url(self, drorurl, suffix):
-    """Replace the _get_query_url method of the SDSS object.
-    """
-    if isinstance(drorurl, six.string_types) and len(drorurl) > 2:
-        self._last_url = drorurl
-        return drorurl
-    else:
-        url = conf.skyserver_baseurl + suffix.format(dr=drorurl)
-        self._last_url = url
-        return url
-
-
 def data_path(filename):
     data_dir = os.path.join(os.path.dirname(__file__), 'data')
     return os.path.join(data_dir, filename)
@@ -113,8 +100,7 @@ coords_column = Column(coords_list, name='coordinates')
 # query: "DR11 data are distributed primarily to provide reproducibility of
 # published results based on the DR11 data set. As such, not all data-access
 # interfaces are supported for DR11."
-# This should be the first assert to carry out to xfail the test
-def _url_tester(dr):
+def url_tester(dr):
     if dr < 12:
         pytest.xfail('DR<12 not yet supported')
         assert sdss.SDSS._last_url == 'http://skyserver.sdss.org/dr' + str(dr) + '/en/tools/search/sql.asp'
@@ -122,29 +108,34 @@ def _url_tester(dr):
         assert sdss.SDSS._last_url == 'http://skyserver.sdss.org/dr12/en/tools/search/x_sql.aspx'
 
 
-def _compare_xid_data(xid, data):
+def compare_xid_data(xid, data):
     if six.PY3:
         pytest.xfail('xid/data comparison fails in PY3 because the instrument '
                      'column is bytes in xid and str in data')
     else:
         for col in xid.colnames:
-            assert_allclose(xid[col], data[col])
+            if xid[col].dtype.type is np.string_:
+                assert xid[col] == data[col]
+            else:
+                assert_allclose(xid[col], data[col])
 
 
 @pytest.mark.parametrize("dr", [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12])
 def test_sdss_spectrum(patch_get, patch_get_readable_fileobj, dr,
                        coords=coords):
-    xid = sdss.SDSS.query_region(coords, spectro=True)
-    sp = sdss.SDSS.get_spectra(matches=xid)
+    xid = sdss.SDSS.query_region(coords, drorurl=dr, spectro=True)
+    url_tester(dr)
+    sp = sdss.SDSS.get_spectra(matches=xid, dr=dr)
     assert type(sp) == list
     data = fits.open(data_path(DATA_FILES['spectra']))
     assert sp[0][0].header == data[0].header
     assert sp[0][0].data == data[0].data
+    url_tester(dr)
 
 
 @pytest.mark.parametrize("dr", [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12])
 def test_sdss_spectrum_mjd(patch_get, patch_get_readable_fileobj, dr):
-    sp = sdss.SDSS.get_spectra(plate=2345, fiberID=572)
+    sp = sdss.SDSS.get_spectra(plate=2345, fiberID=572, dr=dr)
     assert type(sp) == list
     data = fits.open(data_path(DATA_FILES['spectra']))
     assert sp[0][0].header == data[0].header
@@ -154,15 +145,13 @@ def test_sdss_spectrum_mjd(patch_get, patch_get_readable_fileobj, dr):
 @pytest.mark.parametrize("dr", [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12])
 def test_sdss_spectrum_coords(patch_get, patch_get_readable_fileobj, dr,
                               coords=coords):
-    sp = sdss.SDSS.get_spectra(coords)
+    sp = sdss.SDSS.get_spectra(coords, dr=dr)
     assert type(sp) == list
     data = fits.open(data_path(DATA_FILES['spectra']))
     assert sp[0][0].header == data[0].header
     assert sp[0][0].data == data[0].data
 
 
-@pytest.mark.xfail(reason=("The comparison local data doesn't have z column, "
-                           "update the data to be able to run this test"))
 @pytest.mark.parametrize("dr", [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12])
 def test_sdss_sql(patch_get, patch_get_readable_fileobj, dr):
     query = """
@@ -175,19 +164,20 @@ def test_sdss_sql(patch_get, patch_get_readable_fileobj, dr):
               and z > 0.3
               and zWarning = 0
             """
-    xid = sdss.SDSS.query_sql(query)
+    xid = sdss.SDSS.query_sql(query, drorurl=dr)
     data = Table.read(data_path(DATA_FILES['images_id']),
                       format='ascii.csv', comment='#')
-    _url_tester(dr)
-    _compare_xid_data(xid, data)
+    compare_xid_data(xid, data)
+    url_tester(dr)
 
 
 @pytest.mark.parametrize("dr", [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12])
 def test_sdss_image_from_query_region(patch_get, patch_get_readable_fileobj,
                                       dr, coords=coords):
-    xid = sdss.SDSS.query_region(coords)
+    xid = sdss.SDSS.query_region(coords, drorurl=dr)
     # TODO test what img is
     img = sdss.SDSS.get_images(matches=xid)
+    url_tester(dr)
 
 
 @pytest.mark.parametrize("dr", [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12])
@@ -209,8 +199,7 @@ def test_sdss_image_coord(patch_get, patch_get_readable_fileobj, dr,
     assert img[0][0].data == data[0].data
 
 
-@pytest.mark.parametrize("dr", [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12])
-def test_sdss_template(patch_get, patch_get_readable_fileobj, dr):
+def test_sdss_template(patch_get, patch_get_readable_fileobj):
     template = sdss.SDSS.get_spectral_template('qso')
     assert type(template) == list
     data = fits.open(data_path(DATA_FILES['spectra']))
@@ -218,28 +207,22 @@ def test_sdss_template(patch_get, patch_get_readable_fileobj, dr):
     assert template[0][0].data == data[0].data
 
 
-@pytest.mark.xfail(reason=("query_specobj returns all spectra in the given "
-                           "plate rather than the single object in the "
-                           "reference, update reference?"))
 @pytest.mark.parametrize("dr", [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12])
 def test_sdss_specobj(patch_get, dr):
-    xid = sdss.SDSS.query_specobj(plate=2340)
+    xid = sdss.SDSS.query_specobj(plate=2340, drorurl=dr)
     data = Table.read(data_path(DATA_FILES['spectra_id']),
                       format='ascii.csv', comment='#')
-    _url_tester(dr)
-    _compare_xid_data(xid, data)
+    compare_xid_data(xid, data)
+    url_tester(dr)
 
 
-@pytest.mark.xfail(reason=("query_photoobj returns a longer response with 1038"
-                           " objects, rather than 18 that is the reference, "
-                           "create new reference?"))
 @pytest.mark.parametrize("dr", [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12])
 def test_sdss_photoobj(patch_get, dr):
-    xid = sdss.SDSS.query_photoobj(run=1904, camcol=3, field=164)
+    xid = sdss.SDSS.query_photoobj(run=1904, camcol=3, field=164, drorurl=dr)
     data = Table.read(data_path(DATA_FILES['images_id']),
                       format='ascii.csv', comment='#')
-    _url_tester(dr)
-    _compare_xid_data(xid, data)
+    compare_xid_data(xid, data)
+    url_tester(dr)
 
 
 # TODO: This should be fixed before merging #586
@@ -278,7 +261,7 @@ def test_list_coordinates(patch_get):
     xid = sdss.SDSS.query_region(coords_list)
     data = Table.read(data_path(DATA_FILES['images_id']),
                       format='ascii.csv', comment='#')
-    _compare_xid_data(xid, data)
+    compare_xid_data(xid, data)
 
 
 def test_column_coordinates_payload(patch_get):
@@ -299,7 +282,7 @@ def test_column_coordinates(patch_get):
     xid = sdss.SDSS.query_region(coords_column)
     data = Table.read(data_path(DATA_FILES['images_id']),
                       format='ascii.csv', comment='#')
-    _compare_xid_data(xid, data)
+    compare_xid_data(xid, data)
 
 
 def test_field_help_region(patch_get):
