@@ -590,7 +590,7 @@ class SDSSClass(BaseQuery):
     @prepend_docstr_noreturns(get_spectra_async.__doc__)
     def get_spectra(self, coordinates=None, radius=2. * u.arcsec,
                     matches=None, plate=None, fiberID=None, mjd=None,
-                    timeout=TIMEOUT, cache=True):
+                    timeout=TIMEOUT, cache=True, dr=12):
         """
         Returns
         -------
@@ -601,7 +601,7 @@ class SDSSClass(BaseQuery):
         readable_objs = self.get_spectra_async(coordinates=coordinates,
                                                radius=radius, matches=matches,
                                                plate=plate, fiberID=fiberID,
-                                               mjd=mjd, timeout=timeout)
+                                               mjd=mjd, timeout=timeout, dr=dr)
 
         if readable_objs is not None:
             if isinstance(readable_objs, dict):
@@ -733,7 +733,7 @@ class SDSSClass(BaseQuery):
     def get_images(self, coordinates=None, radius=2. * u.arcsec,
                    matches=None, run=None, rerun=301, camcol=None, field=None,
                    band='g', timeout=TIMEOUT, cache=True,
-                   get_query_payload=False):
+                   get_query_payload=False, dr=12):
         """
         Returns
         -------
@@ -743,7 +743,7 @@ class SDSSClass(BaseQuery):
 
         readable_objs = self.get_images_async(coordinates=coordinates,
                                               radius=radius, matches=matches,
-                                              run=run, rerun=rerun,
+                                              run=run, rerun=rerun, dr=dr,
                                               camcol=camcol, field=field,
                                               band=band, timeout=timeout,
                                               get_query_payload=get_query_payload)
@@ -921,8 +921,10 @@ class SDSSClass(BaseQuery):
         """
         # TODO: replace this with something cleaner below
         url = self._get_query_url(drorurl, self.QUERY_URL_SUFFIX)
-        photoobj_all = get_field_info('PhotoObjAll', url, self.TIMEOUT)['name']
-        specobj_all = get_field_info('SpecObjAll', url, self.TIMEOUT)['name']
+        photoobj_all = get_field_info(self, 'PhotoObjAll', url,
+                                      self.TIMEOUT)['name']
+        specobj_all = get_field_info(self, 'SpecObjAll', url,
+                                     self.TIMEOUT)['name']
 
         if field_help:
             ret = 0
@@ -1023,8 +1025,11 @@ class SDSSClass(BaseQuery):
 
     def _get_query_url(self, drorurl, suffix):
         if isinstance(drorurl, six.string_types) and len(drorurl) > 2:
+            self._last_url = drorurl
             return drorurl
         else:
-            return conf.skyserver_baseurl + suffix.format(dr=drorurl)
+            url = conf.skyserver_baseurl + suffix.format(dr=drorurl)
+            self._last_url = url
+            return url
 
 SDSS = SDSSClass()
