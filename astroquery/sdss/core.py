@@ -403,7 +403,7 @@ class SDSSClass(BaseQuery):
         if get_query_payload or field_help:
             return request_payload
 
-        url = self._get_query_url(dr, self.QUERY_URL_SUFFIX)
+        url = self._get_query_url(dr)
         response = self._request("GET", url, params=request_payload,
                                  timeout=timeout, cache=cache)
         return response
@@ -1023,6 +1023,6 @@ class SDSSClass(BaseQuery):
 
     def _get_crossid_url(self, dr):
         suffix = self.XID_URL_SUFFIX
-        self.url = conf.skyserver_baseurl + suffix.format(dr=dr)
+        self._last_url = conf.skyserver_baseurl + suffix.format(dr=dr)
 
 SDSS = SDSSClass()

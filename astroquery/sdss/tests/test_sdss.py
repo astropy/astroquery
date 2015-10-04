@@ -42,7 +42,7 @@ def patch_post(request):
 @pytest.fixture
 def patch_get_slow(request):
     mp = request.getfuncargvalue("monkeypatch")
-    mp.setattr(sdss.core.SDSS, '_request', get_mockreturn_slow)
+    mp.setattr(sdss.SDSS, '_request', get_mockreturn_slow)
     return mp
 
 
@@ -115,16 +115,15 @@ coords_column = Column(coords_list, name='coordinates')
 # interfaces are supported for DR11."
 def url_tester(dr):
     if dr < 12:
-        pytest.xfail('DR<12 not yet supported')
         baseurl = 'http://skyserver.sdss.org/dr{}/en/tools/search/sql.asp'
     if dr >= 12:
         baseurl = 'http://skyserver.sdss.org/dr{}/en/tools/search/x_sql.aspx'
-    assert sdss.core.SDSS.url == baseurl.format(dr)
+    assert sdss.SDSS._last_url == baseurl.format(dr)
 
 
-def _url_tester_crossid(dr):
+def url_tester_crossid(dr):
     baseurl = 'http://skyserver.sdss.org/dr{}/en/tools/crossid/x_crossid.aspx'
-    assert sdss.core.SDSS.url == baseurl.format(dr)
+    assert sdss.SDSS._last_url == baseurl.format(dr)
 
 
 def compare_xid_data(xid, data):
@@ -214,7 +213,7 @@ def test_sdss_image_coord(patch_get, patch_get_readable_fileobj, dr,
 
 def test_sdss_template(patch_get, patch_get_readable_fileobj):
     template = sdss.SDSS.get_spectral_template('qso')
-    image_tester(img, 'spectra')
+    image_tester(template, 'spectra')
 
 
 @pytest.mark.parametrize("dr", [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12])
@@ -245,17 +244,17 @@ def test_query_timeout(patch_get_slow, coord=coords):
 
 @pytest.mark.parametrize("dr", [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12])
 def test_list_coordinates(patch_get, dr):
-    xid = sdss.core.SDSS.query_region(coords_list, dr=dr)
-    data = astropy.table.Table.read(data_path(DATA_FILES['images_id']),
-                                    format='ascii.csv', comment='#')
+    xid = sdss.SDSS.query_region(coords_list, dr=dr)
+    data = Table.read(data_path(DATA_FILES['images_id']),
+                      format='ascii.csv', comment='#')
     compare_xid_data(xid, data)
 
 
 @pytest.mark.parametrize("dr", [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12])
 def test_column_coordinates(patch_get, dr):
-    xid = sdss.core.SDSS.query_region(coords_column, dr=dr)
-    data = astropy.table.Table.read(data_path(DATA_FILES['images_id']),
-                                    format='ascii.csv', comment='#')
+    xid = sdss.SDSS.query_region(coords_column, dr=dr)
+    data = Table.read(data_path(DATA_FILES['images_id']),
+                      format='ascii.csv', comment='#')
     compare_xid_data(xid, data)
     url_tester(dr)
 
