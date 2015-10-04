@@ -1,18 +1,20 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from __future__ import print_function
 import socket
-import requests
+import json
 
 from astropy.tests.helper import pytest
 
 # save original socket method for restoration
 socket_original = socket.socket
 
+
 @pytest.fixture
 def turn_off_internet(verbose=False):
     __tracebackhide__ = True
     if verbose:
         print("Internet access disabled")
+
     def guard(*args, **kwargs):
         pytest.fail("An attempt was made to connect to the internet")
     setattr(socket, 'socket', guard)
@@ -51,6 +53,12 @@ class MockResponse(object):
 
     def raise_for_status(self):
         pass
+
+    def json(self):
+        try:
+            return json.loads(self.content)
+        except TypeError:
+            return json.loads(self.content.decode('utf-8'))
 
     @property
     def text(self):

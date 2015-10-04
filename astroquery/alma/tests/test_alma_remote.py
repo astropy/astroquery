@@ -84,7 +84,7 @@ class TestAlma:
 
         link_list_asdm = alma.stage_data('uid://A002/X3b3400/X90f')
         totalsize_asdm = link_list_asdm['size'].sum() * u.Unit(link_list_asdm['size'].unit)
-        assert (totalsize_asdm.to(u.B).value == -1.0)
+        assert (totalsize_asdm.to(u.B).value == 0.0)
 
         link_list_mous = alma2.stage_data('uid://A002/X3216af/X31')
         totalsize_mous = link_list_mous['size'].sum() * u.Unit(link_list_mous['size'].unit)
