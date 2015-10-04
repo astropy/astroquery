@@ -696,7 +696,10 @@ class AlmaClass(QueryWithLogin):
                             help_section[1].append((name, payload_keyword,
                                                     checkbox, value))
                         elif b.attrs['type'] == 'checkbox':
-                            checked = b.attrs['checked'] == 'checked'
+                            if 'checked' in b.attrs:
+                                checked = b.attrs['checked'] == 'checked'
+                            else:
+                                checked = False
                             value = b.attrs['value']
                             checkbox = "[x]" if checked else "[ ]"
                             help_section[1].append((name, payload_keyword,

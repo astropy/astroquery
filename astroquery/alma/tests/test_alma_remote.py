@@ -42,6 +42,13 @@ class TestAlma:
         request.addfinalizer(fin)
         return my_temp_dir
 
+    def test_help(self):
+
+        help_list = Alma._get_help_page()
+        assert help_list[0][0] == u'Position'
+        assert help_list[1][0] == u'Energy'
+        assert help_list[1][1][0] == (u'Frequency', 'frequency')
+
     def test_SgrAstar(self, temp_dir):
         alma = Alma()
         alma.cache_location = temp_dir
@@ -165,10 +172,3 @@ class TestAlma:
 
         # There are 10 small files, but only 8 unique
         assert len(data) == 8
-
-    def test_help(self):
-
-        help_list = Alma._get_help_page()
-        assert help_list[0][0] == u'Position'
-        assert help_list[1][0] == u'Energy'
-        assert help_list[1][1][0] == (u'Frequency', 'frequency')
