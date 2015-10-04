@@ -96,7 +96,8 @@ class TestAlma:
         alma = Alma()
         alma.cache_location = temp_dir
 
-        result = alma.query(payload={'start_date':'<11-11-2011'})
+        result = alma.query(payload={'start_date':'<11-11-2011'}, public=False,
+                            science=True)
         # now 535?
         assert len(result) == 621
 
