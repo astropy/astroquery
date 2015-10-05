@@ -169,7 +169,7 @@ class SimbadClass(BaseQuery):
             self._votable_fields_table = votable_fields_table
         else:
             votable_fields_table = self._votable_fields_table
-            
+
         print("Available VOTABLE fields:\n")
         votable_fields_table.pprint(max_lines=100)
         print("For more information on a field :\n"
@@ -314,7 +314,7 @@ class SimbadClass(BaseQuery):
         result = self.query_criteria_async(*args, **kwargs)
         return self._parse_result(result, SimbadVOTableResult, verbose=verbose)
 
-    def query_criteria_async(self, *args, **kwargs):
+    def query_criteria_async(self, cache=True, *args, **kwargs):
         """
         Query SIMBAD based on any criteria.
 
@@ -334,8 +334,8 @@ class SimbadClass(BaseQuery):
         """
         request_payload = self._args_to_payload(caller='query_criteria_async',
                                                 *args, **kwargs)
-        response = commons.send_request(self.SIMBAD_URL, request_payload,
-                                        self.TIMEOUT)
+        response = self._request("POST", self.SIMBAD_URL, data=request_payload,
+                                 timeout=self.TIMEOUT, cache=cache)
         return response
 
     def query_object(self, object_name, wildcard=False, verbose=False):
@@ -360,7 +360,7 @@ class SimbadClass(BaseQuery):
         result = self.query_object_async(object_name, wildcard=wildcard)
         return self._parse_result(result, SimbadVOTableResult, verbose=verbose)
 
-    def query_object_async(self, object_name, wildcard=False):
+    def query_object_async(self, object_name, wildcard=False, cache=True):
         """
         Serves the same function as `query_object`, but
         only collects the response from the Simbad server and returns.
@@ -380,8 +380,8 @@ class SimbadClass(BaseQuery):
         """
         request_payload = self._args_to_payload(object_name, wildcard=wildcard,
                                                 caller='query_object_async')
-        response = commons.send_request(self.SIMBAD_URL, request_payload,
-                                        self.TIMEOUT)
+        response = self._request("POST", self.SIMBAD_URL, data=request_payload,
+                                 timeout=self.TIMEOUT, cache=cache)
         return response
 
     def query_objects(self, object_names, wildcard=False, verbose=False):
@@ -424,7 +424,7 @@ class SimbadClass(BaseQuery):
         return self.query_object_async('\n'.join(object_names), wildcard)
 
     def query_region(self, coordinates, radius=None,
-                     equinox=None, epoch=None, verbose=False):
+                     equinox=None, epoch=None, verbose=False, cache=True):
         """
         Queries around an object or coordinates as per the specified radius and
         returns the results in a `~astropy.table.Table`.
@@ -451,11 +451,13 @@ class SimbadClass(BaseQuery):
         # if the identifier is given rather than the coordinates, convert to
         # coordinates
         result = self.query_region_async(coordinates, radius=radius,
-                                         equinox=equinox, epoch=epoch)
+                                         equinox=equinox, epoch=epoch,
+                                         cache=True)
+
         return self._parse_result(result, SimbadVOTableResult, verbose=verbose)
 
     def query_region_async(self, coordinates, radius=None, equinox=None,
-                           epoch=None):
+                           epoch=None, cache=True):
         """
         Serves the same function as `query_region`, but
         only collects the response from the Simbad server and returns.
@@ -482,11 +484,11 @@ class SimbadClass(BaseQuery):
         request_payload = self._args_to_payload(coordinates, radius=radius,
                                                 equinox=equinox, epoch=epoch,
                                                 caller='query_region_async')
-        response = commons.send_request(self.SIMBAD_URL, request_payload,
-                                        self.TIMEOUT)
+        response = self._request("POST", self.SIMBAD_URL, data=request_payload,
+                                 timeout=self.TIMEOUT, cache=cache)
         return response
 
-    def query_catalog(self, catalog, verbose=False):
+    def query_catalog(self, catalog, verbose=False, cache=True):
         """
         Queries a whole catalog.
 
@@ -503,10 +505,10 @@ class SimbadClass(BaseQuery):
         table : `~astropy.table.Table`
             Query results table
         """
-        result = self.query_catalog_async(catalog)
+        result = self.query_catalog_async(catalog, cache=cache)
         return self._parse_result(result, SimbadVOTableResult, verbose=verbose)
 
-    def query_catalog_async(self, catalog):
+    def query_catalog_async(self, catalog, cache=True):
         """
         Serves the same function as `query_catalog`, but
         only collects the response from the Simbad server and returns.
@@ -524,8 +526,8 @@ class SimbadClass(BaseQuery):
         """
         request_payload = self._args_to_payload(catalog,
                                                 caller='query_catalog_async')
-        response = commons.send_request(self.SIMBAD_URL, request_payload,
-                                        self.TIMEOUT)
+        response = self._request("POST", self.SIMBAD_URL, data=request_payload,
+                                 timeout=self.TIMEOUT, cache=cache)
         return response
 
     def query_bibobj(self, bibcode, verbose=False):
@@ -546,7 +548,7 @@ class SimbadClass(BaseQuery):
         result = self.query_bibobj_async(bibcode)
         return self._parse_result(result, SimbadVOTableResult, verbose=verbose)
 
-    def query_bibobj_async(self, bibcode):
+    def query_bibobj_async(self, bibcode, cache=True):
         """
         Serves the same function as `query_bibobj`, but only collects the
         response from the Simbad server and returns.
@@ -564,11 +566,12 @@ class SimbadClass(BaseQuery):
         """
         request_payload = self._args_to_payload(
             bibcode, caller='query_bibobj_async')
-        response = commons.send_request(self.SIMBAD_URL, request_payload,
-                                        self.TIMEOUT)
+        response = self._request("POST", self.SIMBAD_URL, data=request_payload,
+                                 timeout=self.TIMEOUT, cache=cache)
         return response
 
-    def query_bibcode(self, bibcode, wildcard=False, verbose=False):
+    def query_bibcode(self, bibcode, wildcard=False, verbose=False,
+                      cache=True):
         """
         Queries the references corresponding to a given bibcode, and returns
         the results in a `~astropy.table.Table`. Wildcards may be used to
@@ -588,10 +591,11 @@ class SimbadClass(BaseQuery):
             Query results table
 
         """
-        result = self.query_bibcode_async(bibcode, wildcard=wildcard)
+        result = self.query_bibcode_async(bibcode, wildcard=wildcard,
+                                          cache=cache)
         return self._parse_result(result, SimbadBibcodeResult, verbose=verbose)
 
-    def query_bibcode_async(self, bibcode, wildcard=False):
+    def query_bibcode_async(self, bibcode, wildcard=False, cache=True):
         """
         Serves the same function as `query_bibcode`, but
         only collects the response from the Simbad server and returns.
@@ -613,8 +617,9 @@ class SimbadClass(BaseQuery):
         request_payload = self._args_to_payload(
             bibcode, wildcard=wildcard,
             caller='query_bibcode_async', get_raw=True)
-        response = commons.send_request(self.SIMBAD_URL, request_payload,
-                                        self.TIMEOUT)
+        response = self._request("POST", self.SIMBAD_URL, cache=cache,
+                                 data=request_payload, timeout=self.TIMEOUT)
+
         return response
 
     def query_objectids(self, object_name, verbose=False):
@@ -655,8 +660,8 @@ class SimbadClass(BaseQuery):
         """
         request_payload = dict(script="\n".join(('format object "%IDLIST"',
                                                  'query id %s' % object_name)))
-        response = commons.send_request(self.SIMBAD_URL, request_payload,
-                                        self.TIMEOUT)
+        response = self._request("POST", self.SIMBAD_URL, data=request_payload,
+                                 timeout=self.TIMEOUT, cache=cache)
         return response
 
     @validate_epoch
