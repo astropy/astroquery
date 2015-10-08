@@ -1023,6 +1023,8 @@ class SDSSClass(BaseQuery):
 
     def _get_crossid_url(self, dr):
         suffix = self.XID_URL_SUFFIX
-        self._last_url = conf.skyserver_baseurl + suffix.format(dr=dr)
+        url = conf.skyserver_baseurl + suffix.format(dr=dr)
+        self._last_url = url
+        return url
 
 SDSS = SDSSClass()
