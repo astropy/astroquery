@@ -156,7 +156,8 @@ class SDSSClass(BaseQuery):
                              for i in range(len(coordinates))])
 
         # firstcol is hardwired, as obj_names is always passed
-        request_payload = dict(uquery=sql_query, paste=data,
+        files = {'upload': ('astroquery', data)}
+        request_payload = dict(uquery=sql_query,
                                firstcol=1,
                                format='csv', photoScope='nearPrim',
                                radius=radius,
@@ -167,8 +168,10 @@ class SDSSClass(BaseQuery):
 
         if get_query_payload:
             return request_payload
+
         url = self._get_crossid_url(data_release)
         response = self._request("POST", url, data=request_payload,
+                                 files=files,
                                  timeout=timeout, cache=cache)
         return response
 
