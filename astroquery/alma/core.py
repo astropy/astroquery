@@ -13,7 +13,7 @@ import sys
 from pkg_resources import resource_filename
 from bs4 import BeautifulSoup
 
-from astropy.extern.six.moves.urllib_parse import urljoin
+from astropy.extern.six.moves.urllib_parse import urljoin,urlparse
 from astropy.extern.six import iteritems
 from astropy.extern import six
 from astropy.table import Table, Column
@@ -293,7 +293,12 @@ class AlmaClass(QueryWithLogin):
         summary.raise_for_status()
         self._staging_log['json_data'] = json_data = summary.json()
 
-        tbl = self._json_summary_to_table(json_data, base_url=data_page_url)
+        url_decomposed = urlparse(data_page_url)
+        base_url = ('{uri.scheme}://{uri.netloc}/'
+                    'dataPortal/requests/anonymous/'
+                    '{staging_page_id}/ALMA'.format(uri=url_decomposed,
+                                                    staging_page_id=dpid))
+        tbl = self._json_summary_to_table(json_data, base_url=base_url)
 
         # staging_root = BeautifulSoup(data_page.content)
         # downloadFileURL = staging_root.find('form').attrs['action']
@@ -884,11 +889,11 @@ class AlmaClass(QueryWithLogin):
                 # example template for constructing url:
                 # https://almascience.eso.org/dataPortal/requests/keflavich/940238268/ALMA/
                 # uid___A002_X9d6f4c_X154/2013.1.00546.S_uid___A002_X9d6f4c_X154.asdm.sdm.tar
+                # above is WRONG
+                # should be:
+                # 2013.1.00546.S_uid___A002_X9d6f4c_X154.asdm.sdm.tar/2013.1.00546.S_uid___A002_X9d6f4c_X154.asdm.sdm.tar
                 url = os.path.join(base_url,
-                                   entry['de_name']
-                                   .replace(":","_")
-                                   .replace("/","_")
-                                   .replace("+","/"),
+                                   entry['file_name'],
                                    entry['file_name'],
                                   )
                 columns['URL'].append(url)
