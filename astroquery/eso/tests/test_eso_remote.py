@@ -130,3 +130,12 @@ class TestEso:
     def test_help(self, instrument):
         eso = Eso()
         eso.query_instrument(instrument, help=True)
+
+    def test_apex_retrieval(self):
+        eso = Eso()
+
+        tbl = eso.query_apex_quicklooks(prog_id='095.F-9802')
+        
+        assert len(tbl) == 4
+        assert set(tbl['Release Date']) == {'2015-07-17', '2015-07-18',
+                                            '2015-09-15', '2015-09-18'}
