@@ -598,7 +598,7 @@ class EsoClass(QueryWithLogin):
 
             payload = {'wdbo':'csv/download'}
             if project_id is not None:
-                payload['dp_id'] = project_id
+                payload['prog_id'] = project_id
             payload.update(kwargs)
 
             apex_form = self._request("GET", apex_query_url, cache=cache)

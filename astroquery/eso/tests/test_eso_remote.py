@@ -1,4 +1,5 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
+import numpy as np
 import tempfile
 import shutil
 from astropy.tests.helper import pytest, remote_data
@@ -17,11 +18,11 @@ if HAS_KEYRING:
 
 SKIP_TESTS = not HAS_KEYRING
 
-instrument_list = set([u'fors1', u'fors2', u'sphere', u'vimos', u'omegacam',
-                       u'hawki', u'isaac', u'naco', u'visir', u'vircam', u'apex',
-                       u'giraffe', u'uves', u'xshooter', u'muse', u'crires',
-                       u'kmos', u'sinfoni', u'amber', u'midi', u'pionier',
-                       u'harps'])
+instrument_list = [u'fors1', u'fors2', u'sphere', u'vimos', u'omegacam',
+                   u'hawki', u'isaac', u'naco', u'visir', u'vircam', u'apex',
+                   u'giraffe', u'uves', u'xshooter', u'muse', u'crires',
+                   u'kmos', u'sinfoni', u'amber', u'midi', u'pionier',
+                   u'harps']
 
 
 @pytest.mark.skipif('SKIP_TESTS')
@@ -98,7 +99,8 @@ class TestEso:
 
         inst = set(Eso.list_instruments())
 
-        assert inst == instrument_list
+        # we only care about the sets matching
+        assert set(inst) == set(instrument_list)
 
     # REQUIRES LOGIN!
     # Can we get a special login specifically for astroquery testing?
@@ -130,3 +132,15 @@ class TestEso:
     def test_help(self, instrument):
         eso = Eso()
         eso.query_instrument(instrument, help=True)
+
+    def test_apex_retrieval(self):
+        eso = Eso()
+
+        tbl = eso.query_apex_quicklooks(prog_id='095.F-9802')
+        tblb = eso.query_apex_quicklooks('095.F-9802')
+        
+        assert len(tbl) == 4
+        assert set(tbl['Release Date']) == {'2015-07-17', '2015-07-18',
+                                            '2015-09-15', '2015-09-18'}
+
+        assert np.all(tbl==tblb)
