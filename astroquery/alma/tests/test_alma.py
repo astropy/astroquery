@@ -43,6 +43,8 @@ DATA_FILES = {'GET': {'http://almascience.eso.org/aq/':
                       'downloadRequest786978956script.sh',
                       'http://almascience.eso.org/rh/requests/anonymous/787632764/script':
                       'downloadRequest787632764script.sh',
+                      'https://almascience.eso.org/rh/requests/anonymous/519752156/summary':
+                      'summary_519752156.json',
                      },
               'POST': {'http://almascience.eso.org/rh/submission':
                        'initial_response.html'}

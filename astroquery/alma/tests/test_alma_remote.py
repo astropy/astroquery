@@ -2,9 +2,11 @@
 import tempfile
 import shutil
 import numpy as np
+import os
 from astropy.tests.helper import pytest, remote_data
 from astropy import coordinates
 from astropy import units as u
+from astropy.extern.six.moves.urllib_parse import urljoin,urlparse
 
 # keyring is an optional dependency required by the alma module.
 try:
@@ -17,6 +19,13 @@ if HAS_KEYRING:
     from .. import Alma
 
 SKIP_TESTS = not HAS_KEYRING
+
+all_colnames = ['Project code', 'Source name', 'RA', 'Dec', 'Band',
+                'Frequency resolution', 'Integration', 'Release date',
+                'Frequency support', 'Velocity resolution', 'Pol products',
+                'Observation date', 'PI name', 'PWV', 'Member ous id',
+                'Asdm uid', 'Project title', 'Project type', 'Scan intent',
+                'Spatial resolution', 'QA0 Status', 'QA2 Status']
 
 
 @pytest.mark.skipif('SKIP_TESTS')
@@ -34,6 +43,13 @@ class TestAlma:
             shutil.rmtree(my_temp_dir)
         request.addfinalizer(fin)
         return my_temp_dir
+
+    def test_help(self):
+
+        help_list = Alma._get_help_page()
+        assert help_list[0][0] == u'Position'
+        assert help_list[1][0] == u'Energy'
+        assert help_list[1][1][0] == (u'Frequency', 'frequency')
 
     def test_SgrAstar(self, temp_dir):
         alma = Alma()
@@ -62,15 +78,7 @@ class TestAlma:
         alma2 = Alma()
         alma2.cache_location = temp_dir
         m83_data = alma.query_object('M83')
-        assert m83_data.colnames == ['Project code', 'Source name', 'RA',
-                                     'Dec', 'Band', 'Frequency resolution',
-                                     'Integration', 'Release date',
-                                     'Frequency support',
-                                     'Velocity resolution', 'Pol products',
-                                     'Observation date', 'PI name', 'PWV',
-                                     'Member ous id', 'Asdm uid',
-                                     'Project title', 'Project type',
-                                     'Scan intent']
+        assert m83_data.colnames == all_colnames
         galactic_center = coordinates.SkyCoord(0*u.deg, 0*u.deg,
                                                frame='galactic')
         gc_data = alma.query_region(galactic_center, 1*u.deg)
@@ -97,7 +105,9 @@ class TestAlma:
         alma = Alma()
         alma.cache_location = temp_dir
 
-        result = alma.query(payload={'start_date':'<11-11-2011'})
+        result = alma.query(payload={'start_date':'<11-11-2011'}, public=False,
+                            science=True)
+        # now 535?
         assert len(result) == 621
 
     @pytest.mark.bigdata
@@ -115,8 +125,10 @@ class TestAlma:
         assert len(result) == 1
 
         # Need new Alma() instances each time
-        uid_url_table_mous = alma().stage_data(result['Member ous id'])
-        uid_url_table_asdm = alma().stage_data(result['Asdm uid'])
+        a1 = alma()
+        uid_url_table_mous = a1.stage_data(result['Member ous id'])
+        a2 = alma()
+        uid_url_table_asdm = a2.stage_data(result['Asdm uid'])
         # I believe the fixes as part of #495 have resulted in removal of a
         # redundancy in the table creation, so a 1-row table is OK here.
         # A 2-row table may not be OK any more, but that's what it used to
@@ -124,11 +136,24 @@ class TestAlma:
         assert len(uid_url_table_asdm) == 1
         assert len(uid_url_table_mous) == 2
 
+        # URL should look like:
+        # https://almascience.eso.org/dataPortal/requests/anonymous/944120962/ALMA/2012.1.00912.S_uid___A002_X5a9a13_X528_001_of_001.tar/2012.1.00912.S_uid___A002_X5a9a13_X528_001_of_001.tar
+        # https://almascience.eso.org/rh/requests/anonymous/944222597/2012.1.00912.S_uid___A002_X5a9a13_X528_001_of_001.tar/2012.1.00912.S_uid___A002_X5a9a13_X528_001_of_001.tar
+
         small = uid_url_table_mous['size'] < 1
 
         urls_to_download = uid_url_table_mous[small]['URL']
+
+        uri = urlparse(urls_to_download[0])
+        assert uri.path == '/dataPortal/requests/anonymous/{0}/ALMA/2012.1.00912.S_uid___A002_X5a9a13_X528_001_of_001.tar/2012.1.00912.S_uid___A002_X5a9a13_X528_001_of_001.tar'.format(a1._staging_log['staging_page_id'])
+
         # THIS IS FAIL
-        assert uid_url_table_mous['URL'][0].split("/")[-1] == uid_url_table_mous['uid'][0]
+        # '2012.1.00912.S_uid___A002_X5a9a13_X528_001_of_001.tar'
+        left = uid_url_table_mous['URL'][0].split("/")[-1] 
+        assert left == '2012.1.00912.S_uid___A002_X5a9a13_X528_001_of_001.tar'
+        right = uid_url_table_mous['uid'][0]
+        assert right == 'uid://A002/X5a9a13/X528'
+        assert left[15:-15] == right.replace(":","_").replace("/","_")
         data = alma.download_and_extract_files(urls_to_download)
 
         assert len(data) == 6
@@ -160,14 +185,12 @@ class TestAlma:
         small = uid_url_table_mous['size'] < 1
 
         urls_to_download = uid_url_table_mous[small]['URL']
+        # Check that all URLs show up in the Cycle 0 table
+        for url in urls_to_download:
+            tarfile_name = os.path.split(url)[-1]
+            assert tarfile_name in alma._cycle0_tarfile_content['ID']
+
         data = alma.download_and_extract_files(urls_to_download)
 
         # There are 10 small files, but only 8 unique
         assert len(data) == 8
-
-    def test_help(self):
-
-        help_list = Alma._get_help_page()
-        assert help_list[0][0] == u'Position'
-        assert help_list[1][0] == u'Energy'
-        assert help_list[1][1][0] == (u'Frequency', 'frequency')

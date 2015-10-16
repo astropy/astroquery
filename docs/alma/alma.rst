@@ -106,12 +106,13 @@ You can query by object name or by circular region:
     >>> from astroquery.alma import Alma
     >>> m83_data = Alma.query_object('M83')
     >>> print(len(m83_data))
-    225
+    830
     >>> m83_data.colnames
     ['Project code', 'Source name', 'RA', 'Dec', 'Band',
     'Frequency resolution', 'Integration', 'Release date', 'Frequency support',
-    'Velocity resolution', 'Pol products', 'Observation date', 'PI name', 'PWV',
-    'Member ous id', 'Asdm uid', 'Project title', 'Project type', 'Scan intent']
+    'Velocity resolution', 'Pol products', 'Observation date', 'PI name',
+    'PWV', 'Member ous id', 'Asdm uid', 'Project title', 'Project type',
+    'Scan intent', 'Spatial resolution', 'QA0 Status', 'QA2 Status']
 
 
 Region queries are just like any other in astroquery:
@@ -124,7 +125,7 @@ Region queries are just like any other in astroquery:
     ...                                        frame='galactic')
     >>> gc_data = Alma.query_region(galactic_center, 1*u.deg)
     >>> print(len(gc_data))
-    82
+    383
 
 Downloading Data
 ================
@@ -138,9 +139,10 @@ cycle 1 data sets tend to be >100 GB!
    >>> import numpy as np
    >>> uids = np.unique(m83_data['Member ous id'])
    >>> print(uids)
-       Member_ous_id
-    ----------------------
-    uid://A002/X3216af/X31
+        Member ous id
+    -----------------------
+     uid://A002/X3216af/X31
+    uid://A002/X5a9a13/X689
 
 
 You can then stage the data and see how big it is (you can ask for one or more
