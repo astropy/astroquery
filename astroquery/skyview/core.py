@@ -219,7 +219,7 @@ class SkyViewClass(BaseQuery):
                                          gridlabels, radius=radius,
                                          height=height, width=width,
                                          cache=cache)
-        return [commons.FileContainer(url) for url in image_urls]
+        return [commons.FileContainer(url, encoding='binary') for url in image_urls]
 
     @prepend_docstr_noreturns(get_images.__doc__)
     def get_image_list(self, position, survey, coordinates=None,

@@ -1,5 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from astropy.tests.helper import remote_data
+from astropy.io.fits import HDUList
 
 from ...skyview import SkyView
 from .test_skyview import data_path
@@ -15,11 +16,9 @@ def test_get_image_list():
 
 @remote_data
 def test_get_images():
-    images = SkyView().get_image_list(position='Eta Carinae',
-                                      survey=['2MASS-K'])
+    images = SkyView().get_images(position='Eta Carinae', survey=['2MASS-J'])
     assert len(images) == 1
-    for im in images:
-        assert im.startswith('http://skyview.gsfc.nasa.gov/')
+    assert isinstance(images[0], HDUList)
 
 @remote_data
 def test_survey_list():
