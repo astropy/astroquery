@@ -75,7 +75,7 @@ List of Modules
 
   * `Simbad <http://astroquery.readthedocs.org/en/latest/simbad/simbad.html>`_:           Basic data, cross-identifications, bibliography and measurements for astronomical objects outside the solar system.
   * `Vizier <http://astroquery.readthedocs.org/en/latest/vizier/vizier.html>`_:           Set of 11,000+ published, multiwavelength catalogues hosted by the CDS.
-  * `IRSA dust <http://astroquery.readthedocs.org/en/latest/irsa_dust/irsa_dust.html>`_:     Galactic dust reddening and extinction maps from IRAS 100 um data.
+  * `IRSA dust <http://astroquery.readthedocs.org/en/latest/irsa/irsa_dust.html>`_:     Galactic dust reddening and extinction maps from IRAS 100 um data.
   * `NED <http://astroquery.readthedocs.org/en/latest/ned/ned.html>`_:                 NASA/IPAC Extragalactic Database. Multiwavelength data from both surveys and publications.
   * `IRSA <http://astroquery.readthedocs.org/en/latest/irsa/irsa.html>`_:               NASA/IPAC Infrared Science Archive. Science products for all of NASA's infrared and sub-mm missions.
   * `UKIDSS <http://astroquery.readthedocs.org/en/latest/ukidss/ukidss.html>`_:           UKIRT Infrared Deep Sky Survey. JHK images of 7500 sq deg. in the northern sky.
