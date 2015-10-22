@@ -122,28 +122,39 @@ value:
     >>> C = coord.SkyCoord("22h57m57.5s +26d09m00.09s", frame='fk4')
     >>> table = IrsaDust.get_extinction_table(C)
 
-    Downloading http://irsa.ipac.caltech.edu//workspace/TMP_UkhZqQ_9824/DUST/22h57m57.5s_+26d09m00.09s_Equatorial_B1950.v0001/extinction.tbl
-    |===========================================| 1.3k/1.3k (100.00%)        00s
+    Downloading http://irsa.ipac.caltech.edu//workspace/TMP_wuevFn_3781/DUST/345.094229457703_26.418650782801027.v0001/extinction.tbl
+    |=======================================================================================| 4.4k/4.4k (100.00%)         0s
 
     >>> print(table)
 
-        Filter_name LamEff(A)  A/Av A/E(B-V) A(mag)
-    ----------- --------- ----- -------- ------
-         CTIO U    0.3683 1.521    4.968   0.21
-         CTIO B    0.4393 1.324    4.325  0.183
-       DSS-II g    0.4814 1.197    3.907  0.165
-         CTIO V    0.5519 0.992     3.24  0.137
-       DSS-II r    0.6571 0.811    2.649  0.112
-         CTIO R    0.6602 0.807    2.634  0.111
-         CTIO I    0.8046 0.601    1.962  0.083
-       DSS-II i    0.8183  0.58    1.893   0.08
-        UKIRT J     1.266 0.276    0.902  0.038
-        UKIRT H    1.6732 0.176    0.576  0.024
-        UKIRT K    2.2152 0.112    0.367  0.016
-         IRAC-1       3.6  0.06    0.197  0.008
-         IRAC-2       4.5 0.055     0.18  0.008
-         IRAC-3       5.8  0.05    0.164  0.007
-         IRAC-4       8.0 0.045    0.148  0.006
+    Filter_name  LamEff A_over_E_B_V_SandF A_SandF A_over_E_B_V_SFD A_SFD
+                microns                      mags                    mags
+    ----------- ------- ------------------ ------- ---------------- -----
+         CTIO U  0.3734              4.107   0.229            4.968 0.277
+         CTIO B  0.4309              3.641   0.203            4.325 0.241
+         CTIO V  0.5517              2.682   0.149             3.24 0.181
+         CTIO R   0.652              2.119   0.118            2.634 0.147
+         CTIO I  0.8007              1.516   0.084            1.962 0.109
+       DSS-II g  0.4621              3.381   0.188            3.907 0.218
+       DSS-II r  0.6546              2.088   0.116            2.649 0.148
+       DSS-II i  0.8111              1.487   0.083            1.893 0.105
+         SDSS u  0.3587              4.239   0.236            5.155 0.287
+         SDSS g  0.4717              3.303   0.184            3.793 0.211
+         SDSS r  0.6165              2.285   0.127            2.751 0.153
+         SDSS i  0.7476              1.698   0.095            2.086 0.116
+         SDSS z  0.8923              1.263    0.07            1.479 0.082
+        UKIRT J   1.248              0.709   0.039            0.902  0.05
+        UKIRT H   1.659              0.449   0.025            0.576 0.032
+        UKIRT K    2.19              0.302   0.017            0.367  0.02
+        2MASS J    1.23              0.723    0.04            0.937 0.052
+        2MASS H    1.64               0.46   0.026            0.591 0.033
+       2MASS Ks    2.16               0.31   0.017            0.382 0.021
+         IRAC-1    3.52              0.178    0.01             0.22 0.012
+         IRAC-2    4.46              0.148   0.008            0.183  0.01
+         IRAC-3    5.66               0.13   0.007            0.162 0.009
+         IRAC-4    7.68              0.122   0.007            0.151 0.008
+         WISE-1    3.32              0.189   0.011            0.234 0.013
+         WISE-2    4.57              0.146   0.008             0.18  0.01
 
 Get other query details
 -----------------------
@@ -161,7 +172,8 @@ with all the four sections will be returned.
     >>> table = IrsaDust.get_query_table('2MASXJ23045666+1219223') # get the whole table
     >>> print(table)
 
-           RA      Dec    coord sys regSize ... temp mean temp std temp max temp min
+        RA      Dec    coord sys regSize ... temp mean temp std temp max temp min
+       deg      deg                deg
     --------- -------- --------- ------- ... --------- -------- -------- --------
     346.23608 12.32286 equ J2000     5.0 ...   17.0721   0.0345  17.1189  17.0152
 
@@ -171,9 +183,10 @@ with all the four sections will be returned.
     ...                                   section='ebv')
     >>> print(table)
 
-          ext desc     ... ext min
-    ---------------- ... -------
-    E(B-V) Reddening ...  0.1099
+        ext desc     ... ext SFD min
+                     ...
+    ---------------- ... -----------
+    E(B-V) Reddening ...      0.1099
 
 
 Reference/API
