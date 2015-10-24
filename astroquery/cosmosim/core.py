@@ -26,8 +26,11 @@ conf.max_width = -1
 from ..query import QueryWithLogin
 from . import conf
 
-__all__ = ['CosmoSim']
+# temp imports
+import ipdb
 
+#__all__ = ['CosmoSim']
+__doctest_skip__ = ['CosmoSim.*']
 
 class CosmoSimClass(QueryWithLogin):
 
@@ -59,17 +62,17 @@ class CosmoSimClass(QueryWithLogin):
         if not password_from_keyring:
             logging.warning("No password was found in the keychain for the provided username.")
             if password:
-                self.password = password
+                self._password = password
             else:
-                self.password = getpass.getpass("{0}, enter your CosmoSim password:\n".format(self.username))
+                self._password = getpass.getpass("{0}, enter your CosmoSim password:\n".format(self.username))
         else:
             logging.warning("Using the password found in the keychain for the provided username.")
-            self.password = password_from_keyring
+            self._password = password_from_keyring
 
         # Authenticate
         warnings.warn("Authenticating {0} on www.cosmosim.org...".format(self.username))
         authenticated = self._request('POST', CosmoSim.QUERY_URL,
-                                      auth=(self.username, self.password),
+                                      auth=(self.username, self._password),
                                       cache=False)
         if authenticated.status_code == 200:
             warnings.warn("Authentication successful!")
@@ -82,12 +85,17 @@ class CosmoSimClass(QueryWithLogin):
         self._existing_tables()
 
         if authenticated.status_code == 200 and password_from_keyring is None and store_password:
-            keyring.set_password("astroquery:www.cosmosim.org", self.username, self.password)
+            keyring.set_password("astroquery:www.cosmosim.org", self.username, self._password)
 
         # Delete job; prevent them from piling up with phase PENDING
         if authenticated.status_code == 200:
             soup = BeautifulSoup(authenticated.content)
-            self.delete_job(jobid=str(soup.find("uws:jobid").string),squash=True)
+            # on first login attempt, no field 'uws:jobid', but doesn't
+            # seem to create a job when logging in
+            try:
+                self.delete_job(jobid=str(soup.find("uws:jobid").string),squash=True)
+            except:
+                pass
 
         return authenticated
 
@@ -103,7 +111,7 @@ class CosmoSimClass(QueryWithLogin):
         -------
         """
 
-        if hasattr(self,'username') and hasattr(self,'password') and hasattr(self,'session'):
+        if hasattr(self,'username') and hasattr(self,'_password') and hasattr(self,'session'):
             if deletepw is True:
                 try:
                     keyring.delete_password("astroquery:www.cosmosim.org", self.username)
@@ -113,7 +121,7 @@ class CosmoSimClass(QueryWithLogin):
 
             del self.session
             del self.username
-            del self.password
+            del self._password
         else:
             logging.error("You must log in before attempting to logout.")
 
@@ -122,9 +130,9 @@ class CosmoSimClass(QueryWithLogin):
         Public function which checks the status of a user login attempt.
         """
 
-        if hasattr(self,'username') and hasattr(self,'password') and hasattr(self,'session'):
+        if hasattr(self,'username') and hasattr(self,'_password') and hasattr(self,'session'):
             authenticated = self._request('POST', CosmoSim.QUERY_URL,
-                                          auth=(self.username,self.password),
+                                          auth=(self.username,self._password),
                                           cache=False)
             if authenticated.status_code == 200:
                 warnings.warn("Status: You are logged in as {}.".format(self.username))
@@ -171,7 +179,7 @@ class CosmoSimClass(QueryWithLogin):
         if tablename in self.table_dict.values():
             result = self._request('POST',
                                    CosmoSim.QUERY_URL,
-                                   auth=(self.username,self.password),
+                                   auth=(self.username,self._password),
                                    data={'query':query_string,'phase':'run',
                                          'queue':queue},
                                    cache=cache)
@@ -186,13 +194,13 @@ class CosmoSimClass(QueryWithLogin):
             warnings.warn("Generated table name: {}".format(gen_tablename))
         elif tablename is None:
             result = self._request('POST', CosmoSim.QUERY_URL,
-                                   auth=(self.username, self.password),
+                                   auth=(self.username, self._password),
                                    data={'query':query_string, 'phase':'run',
                                          'queue':queue},
                                    cache=cache)
         else:
             result = self._request('POST', CosmoSim.QUERY_URL,
-                                   auth=(self.username, self.password),
+                                   auth=(self.username, self._password),
                                    data={'query':query_string,
                                          'table':'{}'.format(tablename),
                                          'phase':'run', 'queue':queue},
@@ -256,7 +264,7 @@ class CosmoSimClass(QueryWithLogin):
 
         response = self._request('GET',
                                  CosmoSim.QUERY_URL+'/{}'.format(jobid)+'/phase',
-                                 auth=(self.username, self.password),
+                                 auth=(self.username, self._password),
                                  data={'print':'b'},cache=False)
         logging.info("Job {}: {}".format(jobid,response.content))
         return response.content
@@ -285,7 +293,7 @@ class CosmoSimClass(QueryWithLogin):
         """
 
         checkalljobs = self._request('GET', CosmoSim.QUERY_URL,
-                                     auth=(self.username, self.password),
+                                     auth=(self.username, self._password),
                                         params={'print':'b'},cache=False)
 
         self.job_dict={}
@@ -379,8 +387,8 @@ class CosmoSimClass(QueryWithLogin):
             if not phase and not regex:
                 if not sortby:
                     t = Table()
-                    t['JobID'] = self.job_dict.keys()
-                    t['Phase'] = self.job_dict.values()
+                    t['JobID'] = [i for i in self.job_dict.keys()]
+                    t['Phase'] = [i for i in self.job_dict.values()]
                     t.pprint()
                 else:
                     if sortby.upper() == 'TABLENAME':
@@ -510,7 +518,7 @@ class CosmoSimClass(QueryWithLogin):
             completed_jobids = [key for key in self.job_dict.keys() if self.job_dict[key] == 'COMPLETED']
             response_list = [self._request('GET',
                                            CosmoSim.QUERY_URL+"/{}".format(completed_jobids[i]),
-                                           auth=(self.username, self.password),cache=False)
+                                           auth=(self.username, self._password),cache=False)
                              for i in range(len(completed_jobids))]
             self.response_dict_current = {}
             for i,vals in enumerate(completed_jobids):
@@ -520,7 +528,7 @@ class CosmoSimClass(QueryWithLogin):
                 response_list = [self._request('GET',
                                                CosmoSim.QUERY_URL+"/{}".format(jobid),
                                                auth=(self.username,
-                                                     self.password),cache=False)]
+                                                     self._password),cache=False)]
                 self.response_dict_current = {}
                 self.response_dict_current[jobid] = self._generate_response_dict(response_list[0])
             else:
@@ -587,7 +595,7 @@ class CosmoSimClass(QueryWithLogin):
                          if self.job_dict[key] == 'COMPLETED']
         response_list = [self._request('GET',
                             CosmoSim.QUERY_URL+"/{}".format(i),
-                            auth=(self.username,self.password),cache=False)
+                            auth=(self.username,self._password),cache=False)
                             for i in completed_ids]
         soups = [BeautifulSoup(response_list[i].content) for i in range(len(response_list))]
         self.starttime_dict = {}
@@ -626,7 +634,7 @@ class CosmoSimClass(QueryWithLogin):
             response_list = [self._request('GET',
                                             CosmoSim.QUERY_URL+"/{}".format(jobid),
                                             auth=(self.username,
-                                                     self.password),cache=False)]
+                                                     self._password),cache=False)]
             if response_list[0].ok is False:
                 logging.error('Must provide a valid jobid.')
                 return
@@ -675,7 +683,7 @@ class CosmoSimClass(QueryWithLogin):
 
         if self.job_dict[jobid] in ['COMPLETED','ERROR','ABORTED','PENDING']:
             result = self.session.delete(CosmoSim.QUERY_URL+"/{}".format(jobid),
-                                         auth=(self.username,  self.password),
+                                         auth=(self.username,  self._password),
                                          data={'follow':''})
         else:
             warnings.warn("Can only delete a job with phase: 'COMPLETED', 'ERROR', 'ABORTED', or 'PENDING'.")
@@ -724,7 +732,7 @@ class CosmoSimClass(QueryWithLogin):
                             if self.table_dict[key] in matching_tables:
                                 result = self.session.delete(CosmoSim.QUERY_URL+"/{}".format(key),
                                                              auth=(self.username,
-                                                                   self.password),
+                                                                   self._password),
                                                              data={'follow':''})
                                 if not result.ok:
                                     result.raise_for_status()
@@ -734,7 +742,7 @@ class CosmoSimClass(QueryWithLogin):
                     if self.job_dict[key] in phase:
                         result = self.session.delete(CosmoSim.QUERY_URL+"/{}".format(key),
                                                      auth=(self.username,
-                                                           self.password),
+                                                           self._password),
                                                      data={'follow':''})
                         if not result.ok:
                             result.raise_for_status()
@@ -747,7 +755,7 @@ class CosmoSimClass(QueryWithLogin):
                         if self.table_dict[key] in matching_tables:
                             result = self.session.delete(CosmoSim.QUERY_URL+"/{}".format(key),
                                                          auth=(self.username,
-                                                               self.password),
+                                                               self._password),
                                                          data={'follow':''})
                             if not result.ok:
                                 result.raise_for_status()
@@ -756,7 +764,7 @@ class CosmoSimClass(QueryWithLogin):
                 for key in self.job_dict.keys():
                     result = self.session.delete(CosmoSim.QUERY_URL+"/{}".format(key),
                                                  auth=(self.username,
-                                                       self.password),
+                                                       self._password),
                                                  data={'follow':''})
                     if not result.ok:
                         result.raise_for_status()
@@ -772,7 +780,7 @@ class CosmoSimClass(QueryWithLogin):
         """
 
         response = self._request('GET', CosmoSim.SCHEMA_URL,
-                                 auth=(self.username,self.password),
+                                 auth=(self.username,self._password),
                                  headers={'Accept': 'application/json'},
                                  cache=False)
         data = response.json()
@@ -1027,7 +1035,7 @@ class CosmoSimClass(QueryWithLogin):
             if format:
                 results = self._request('GET',
                                         self.QUERY_URL+"/{}/results".format(jobid),
-                                        auth=(self.username,self.password))
+                                        auth=(self.username,self._password))
                 soup = BeautifulSoup(results.content)
                 urls = [i.get('xlink:href') for i in soup.findAll('uws:result')]
                 formatlist = [urls[i].split('/')[-1].upper() for i in range(len(urls))]
@@ -1038,12 +1046,12 @@ class CosmoSimClass(QueryWithLogin):
                 if filename:
                     self._download_file(downloadurl,
                                         local_filepath=filename,
-                                        auth=(self.username,self.password))
+                                        auth=(self.username,self._password))
                 elif not filename:
                     if format.upper() == 'CSV':
                         raw_table_data = self._request('GET',
                                                         downloadurl,
-                                                        auth=(self.username,self.password),
+                                                        auth=(self.username,self._password),
                                                         cache=cache).content
                         raw_headers = raw_table_data.split('\n')[0]
                         num_cols = len(raw_headers.split(','))
@@ -1061,7 +1069,7 @@ class CosmoSimClass(QueryWithLogin):
                         tmp_downloadurl = urls[formatlist.index('CSV')]
                         raw_table_data = self._request('GET',
                                                         tmp_downloadurl,
-                                                        auth=(self.username,self.password),
+                                                        auth=(self.username,self._password),
                                                         cache=cache).content
                         raw_headers = raw_table_data.split('\n')[0]
                         num_cols = len(raw_headers.split(','))

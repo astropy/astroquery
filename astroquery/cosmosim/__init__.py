@@ -32,6 +32,6 @@ class Conf(_config.ConfigNamespace):
     
 conf = Conf()
 
-from .core import CosmoSim,CosmoSimClass
+from .core import CosmoSim, CosmoSimClass
 
 __all__ = ['CosmoSim', 'CosmoSimClass', 'Conf', 'conf']
