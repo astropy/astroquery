@@ -197,6 +197,8 @@ class BaseQuery(object):
                                      statinfo.st_size,
                                      length))
                 else:
+                    log.info("Found cached file {0} with expected size {1}."
+                             .format(local_filepath, statinfo.st_size))
                     response.close()
                     return
             else:
