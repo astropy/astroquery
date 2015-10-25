@@ -892,7 +892,10 @@ class AlmaClass(QueryWithLogin):
         """
         columns = {'uid':[], 'URL':[], 'size':[]}
         for entry in data['node_data']:
-            if entry['file_name'] != 'null':
+            if entry['de_type'] == 'MOUS':
+                # sanity checks: if this fails, the parser will
+                assert entry['file_name'] != 'null'
+                assert entry['file_key'] != 'null'
                 # "de_name": "ALMA+uid://A001/X122/X35e",
                 columns['uid'].append(entry['de_name'][5:])
                 columns['size'].append((int(entry['file_size'])*u.B).to(u.Gbyte))
