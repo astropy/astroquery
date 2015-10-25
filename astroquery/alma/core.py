@@ -357,7 +357,7 @@ class AlmaClass(QueryWithLogin):
         downloaded_files = []
         for fileLink in unique(files):
             filename = self._request("GET", fileLink, save=True,
-                                     timeout=self.TIMEOUT)
+                                     timeout=self.TIMEOUT, cache=cache)
             downloaded_files.append(filename)
         return downloaded_files
 
