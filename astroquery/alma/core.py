@@ -295,6 +295,11 @@ class AlmaClass(QueryWithLogin):
 
         username = self._username if hasattr(self, '_username') else 'anonymous'
 
+        # templates:
+        # https://almascience.eso.org/dataPortal/requests/keflavich/946895898/ALMA/
+        # 2013.1.00308.S_uid___A001_X196_X93_001_of_001.tar/2013.1.00308.S_uid___A001_X196_X93_001_of_001.tar
+        # uid___A002_X9ee74a_X26f0/2013.1.00308.S_uid___A002_X9ee74a_X26f0.asdm.sdm.tar
+
         url_decomposed = urlparse(data_page_url)
         base_url = ('{uri.scheme}://{uri.netloc}/'
                     'dataPortal/requests/{username}/'
@@ -894,13 +899,26 @@ class AlmaClass(QueryWithLogin):
                 # example template for constructing url:
                 # https://almascience.eso.org/dataPortal/requests/keflavich/940238268/ALMA/
                 # uid___A002_X9d6f4c_X154/2013.1.00546.S_uid___A002_X9d6f4c_X154.asdm.sdm.tar
-                # above is WRONG
+                # above is WRONG... except for ASDMs, when it's right
                 # should be:
                 # 2013.1.00546.S_uid___A002_X9d6f4c_X154.asdm.sdm.tar/2013.1.00546.S_uid___A002_X9d6f4c_X154.asdm.sdm.tar
-                url = os.path.join(base_url,
-                                   entry['file_name'],
-                                   entry['file_name'],
-                                  )
+                #
+                # apparently ASDMs are different from others:
+                # templates:
+                # https://almascience.eso.org/dataPortal/requests/keflavich/946895898/ALMA/
+                # 2013.1.00308.S_uid___A001_X196_X93_001_of_001.tar/2013.1.00308.S_uid___A001_X196_X93_001_of_001.tar
+                # uid___A002_X9ee74a_X26f0/2013.1.00308.S_uid___A002_X9ee74a_X26f0.asdm.sdm.tar
+                if 'asdm' in entry['file_name']:
+                    uid = entry['de_name'][5:].replace("/","_").replace(":","_")
+                    url = os.path.join(base_url,
+                                       uid,
+                                       entry['file_name'],
+                                      )
+                else:
+                    url = os.path.join(base_url,
+                                       entry['file_name'],
+                                       entry['file_name'],
+                                      )
                 columns['URL'].append(url)
 
         columns['size'] = u.Quantity(columns['size'], u.Gbyte)
