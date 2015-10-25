@@ -152,9 +152,9 @@ class BaseQuery(object):
             local_filename = url.split('/')[-1]
             local_filepath = os.path.join(self.cache_location or savedir or
                                           '.', local_filename)
-            log.info("Downloading {0}...".format(local_filename))
+            # REDUNDANT: spinner has this log.info("Downloading {0}...".format(local_filename))
             self._download_file(url, local_filepath, timeout=timeout,
-                                auth=auth)
+                                auth=auth, cache=cache)
             return local_filepath
         else:
             query = AstroQuery(method, url, params=params, data=data,
@@ -174,7 +174,7 @@ class BaseQuery(object):
                     to_cache(response, query.request_file(self.cache_location))
             return response
 
-    def _download_file(self, url, local_filepath, timeout=None, auth=None):
+    def _download_file(self, url, local_filepath, timeout=None, auth=None, cache=False):
         """
         Download a file.  Resembles `astropy.utils.data.download_file` but uses
         the local ``_session``
@@ -187,12 +187,30 @@ class BaseQuery(object):
         else:
             length = None
 
+        if cache and os.path.exists(local_filepath):
+            if length is not None:
+                statinfo = os.stat(local_filepath)
+                if statinfo.st_size != length:
+                    log.warn("Found cached file {0} with size {1} that is "
+                             "different from expected size {2}"
+                             .format(local_filepath,
+                                     statinfo.st_size,
+                                     length))
+                else:
+                    response.close()
+                    return
+            else:
+                log.info("Found cached file {0}.".format(local_filepath))
+                response.close()
+                return
+
         blocksize = astropy.utils.data.conf.download_block_size
 
         bytes_read = 0
 
         with ProgressBarOrSpinner(length,
-                                  'Downloading URL {0} ...'.format(url)) as pb:
+                                  'Downloading URL {0} to {1} ...'.format(url,
+                                                                          local_filepath)) as pb:
             with open(local_filepath, 'wb') as f:
                 for block in response.iter_content(blocksize):
                     f.write(block)
