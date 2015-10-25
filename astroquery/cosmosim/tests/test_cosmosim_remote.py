@@ -16,8 +16,16 @@ if HAS_KEYRING:
 
 SKIP_TESTS = not HAS_KEYRING
 
-#@pytest.mark.skipif('SKIP_TESTS')
-#@remote_data
-#class TestEso:
-#    def __init__():
+@pytest.mark.skipif('SKIP_TESTS')
+@remote_data
+class TestCosmoSim:
+    @pytest.fixture()
+    def temp_dir(self, request):
+        my_temp_dir = tempfile.mkdtemp()
+        def fin():
+            shutil.rmtree(my_temp_dir)
+        request.addfinalizer(fin)
+        return my_temp_dir
 
+    def test_login(self):
+        
