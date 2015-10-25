@@ -27,7 +27,7 @@ from ..query import QueryWithLogin
 from . import conf
 
 # temp imports
-import ipdb
+#import ipdb
 
 #__all__ = ['CosmoSim']
 __doctest_skip__ = ['CosmoSim.*']
@@ -132,18 +132,20 @@ class CosmoSimClass(QueryWithLogin):
 
         if hasattr(self,'username') and hasattr(self,'_password') and hasattr(self,'session'):
             authenticated = self._request('POST', CosmoSim.QUERY_URL,
-                                          auth=(self.username,self._password),
+                                          auth=(self.username, self._password),
                                           cache=False)
             if authenticated.status_code == 200:
                 warnings.warn("Status: You are logged in as {}.".format(self.username))
                 soup = BeautifulSoup(authenticated.content)
-                self.delete_job(jobid=str(soup.find("uws:jobid").string),squash=True)
+                self.delete_job(jobid=str(soup.find("uws:jobid").string), squash=True)
+                return True
             else:
                 warnings.warn("Status: The username/password combination for {} appears to be incorrect.".format(self.username))
                 warnings.warn("Please re-attempt to login with your cosmosim credentials.")
+                return False
         else:
             warnings.warn("Status: You are not logged in.")
-
+            return False
 
     def run_sql_query(self, query_string, tablename=None, queue=None,
                       mail=None, text=None, cache=True):
@@ -387,8 +389,8 @@ class CosmoSimClass(QueryWithLogin):
             if not phase and not regex:
                 if not sortby:
                     t = Table()
-                    t['JobID'] = [i for i in self.job_dict.keys()]
-                    t['Phase'] = [i for i in self.job_dict.values()]
+                    t['JobID'] = list(self.job_dict.keys())
+                    t['Phase'] = list(self.job_dict.values())
                     t.pprint()
                 else:
                     if sortby.upper() == 'TABLENAME':
