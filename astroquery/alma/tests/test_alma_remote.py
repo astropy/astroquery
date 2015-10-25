@@ -70,7 +70,9 @@ class TestAlma:
         assert b'2011.0.00217.S' in result_s['Project code']
         uid = result_s['Asdm uid'][0]
 
-        alma.stage_data([uid])
+        result = alma.stage_data([uid])
+
+        assert os.path.split(result['URL'][0]) == 'uid___A002_X47ed8e_X6c.asdm.sdm.tar'
 
     def test_doc_example(self, temp_dir):
         alma = Alma()

@@ -180,7 +180,8 @@ class BaseQuery(object):
         the local ``_session``
         """
         response = self._session.get(url, timeout=timeout, stream=True,
-                                      auth=auth)
+                                     auth=auth)
+        response.raise_for_status()
         if 'content-length' in response.headers:
             length = int(response.headers['content-length'])
         else:

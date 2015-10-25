@@ -293,11 +293,15 @@ class AlmaClass(QueryWithLogin):
         summary.raise_for_status()
         self._staging_log['json_data'] = json_data = summary.json()
 
+        username = self._username if hasattr(self, '_username') else 'anonymous'
+
         url_decomposed = urlparse(data_page_url)
         base_url = ('{uri.scheme}://{uri.netloc}/'
-                    'dataPortal/requests/anonymous/'
+                    'dataPortal/requests/{username}/'
                     '{staging_page_id}/ALMA'.format(uri=url_decomposed,
-                                                    staging_page_id=dpid))
+                                                    staging_page_id=dpid,
+                                                    username=username,
+                                                   ))
         tbl = self._json_summary_to_table(json_data, base_url=base_url)
 
         # staging_root = BeautifulSoup(data_page.content)
@@ -444,6 +448,7 @@ class AlmaClass(QueryWithLogin):
 
         if authenticated:
             log.info("Authentication successful!")
+            self._username = username
         else:
             log.exception("Authentication failed!")
         # When authenticated, save password in keyring if needed
