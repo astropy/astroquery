@@ -19,6 +19,7 @@ SKIP_TESTS = not HAS_KEYRING
 @pytest.mark.skipif('SKIP_TESTS')
 @remote_data
 class TestCosmoSim:
+    
     @pytest.fixture()
     def temp_dir(self, request):
         my_temp_dir = tempfile.mkdtemp()
@@ -28,4 +29,10 @@ class TestCosmoSim:
         return my_temp_dir
 
     def test_login(self):
-        
+        cs = CosmoSim()
+        # wrong login credentials
+        with pytest.raises(LoginError) as exc:
+            cs.login(username='public', password='wrong')
+        assert exc.value.args[0] == 'Authentication failed!'
+        cs.logout()
+
