@@ -293,11 +293,20 @@ class AlmaClass(QueryWithLogin):
         summary.raise_for_status()
         self._staging_log['json_data'] = json_data = summary.json()
 
+        username = self._username if hasattr(self, '_username') else 'anonymous'
+
+        # templates:
+        # https://almascience.eso.org/dataPortal/requests/keflavich/946895898/ALMA/
+        # 2013.1.00308.S_uid___A001_X196_X93_001_of_001.tar/2013.1.00308.S_uid___A001_X196_X93_001_of_001.tar
+        # uid___A002_X9ee74a_X26f0/2013.1.00308.S_uid___A002_X9ee74a_X26f0.asdm.sdm.tar
+
         url_decomposed = urlparse(data_page_url)
         base_url = ('{uri.scheme}://{uri.netloc}/'
-                    'dataPortal/requests/anonymous/'
+                    'dataPortal/requests/{username}/'
                     '{staging_page_id}/ALMA'.format(uri=url_decomposed,
-                                                    staging_page_id=dpid))
+                                                    staging_page_id=dpid,
+                                                    username=username,
+                                                   ))
         tbl = self._json_summary_to_table(json_data, base_url=base_url)
 
         # staging_root = BeautifulSoup(data_page.content)
@@ -353,7 +362,7 @@ class AlmaClass(QueryWithLogin):
         downloaded_files = []
         for fileLink in unique(files):
             filename = self._request("GET", fileLink, save=True,
-                                     timeout=self.TIMEOUT)
+                                     timeout=self.TIMEOUT, cache=cache)
             downloaded_files.append(filename)
         return downloaded_files
 
@@ -444,6 +453,7 @@ class AlmaClass(QueryWithLogin):
 
         if authenticated:
             log.info("Authentication successful!")
+            self._username = username
         else:
             log.exception("Authentication failed!")
         # When authenticated, save password in keyring if needed
@@ -882,18 +892,27 @@ class AlmaClass(QueryWithLogin):
         """
         columns = {'uid':[], 'URL':[], 'size':[]}
         for entry in data['node_data']:
-            if entry['file_name'] != 'null':
+            is_file = (entry['de_type'] == 'MOUS'
+                       or (entry['file_name'] != 'null'
+                           and entry['file_key'] != 'null'))
+            if is_file:
                 # "de_name": "ALMA+uid://A001/X122/X35e",
                 columns['uid'].append(entry['de_name'][5:])
                 columns['size'].append((int(entry['file_size'])*u.B).to(u.Gbyte))
                 # example template for constructing url:
                 # https://almascience.eso.org/dataPortal/requests/keflavich/940238268/ALMA/
                 # uid___A002_X9d6f4c_X154/2013.1.00546.S_uid___A002_X9d6f4c_X154.asdm.sdm.tar
-                # above is WRONG
+                # above is WRONG... except for ASDMs, when it's right
                 # should be:
                 # 2013.1.00546.S_uid___A002_X9d6f4c_X154.asdm.sdm.tar/2013.1.00546.S_uid___A002_X9d6f4c_X154.asdm.sdm.tar
+                #
+                # apparently ASDMs are different from others:
+                # templates:
+                # https://almascience.eso.org/dataPortal/requests/keflavich/946895898/ALMA/
+                # 2013.1.00308.S_uid___A001_X196_X93_001_of_001.tar/2013.1.00308.S_uid___A001_X196_X93_001_of_001.tar
+                # uid___A002_X9ee74a_X26f0/2013.1.00308.S_uid___A002_X9ee74a_X26f0.asdm.sdm.tar
                 url = os.path.join(base_url,
-                                   entry['file_name'],
+                                   entry['file_key'],
                                    entry['file_name'],
                                   )
                 columns['URL'].append(url)
