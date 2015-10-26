@@ -1,8 +1,8 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-
-import os
+import os, sys
 import tempfile
 import shutil
+import getpass
 from astropy.tests.helper import pytest, remote_data
 
 try:
@@ -29,56 +29,91 @@ class TestCosmoSim:
         request.addfinalizer(fin)
         return my_temp_dir
 
-    def test_login_fail(self):
+    def test_login_fail(self, monkeypatch):
         """
         Tests a simple failed login with public credentials. Also, tests
         logout after a failed login attempt.
         """
-
-        cs = CosmoSim()
         
+        cs = CosmoSim()
+        cs.logout()
+
         # wrong login credentials
         auth = cs.login(username='public', password='wrong')
-        # assert auth.status_code != 200, 'Authentication succeeded (not expected).'
+        assert auth.status_code != 200, 'Authentication succeeded (not expected).'
         
-        # # logout anyway
-        # cs.logout()
+        # logout anyway
+        cs.logout()
         
-        # # check login status
-        # loggedin = cs.check_login_status()
-        # assert loggedin is False, 'Logged in successfully (not expected).'
-
+        # check login status
+        loggedin = cs.check_login_status()
+        assert loggedin is False, 'Logged in successfully (not expected).'
+        
     def test_login_pass(self):
         """
         Tests a simple successful login with public credentials. Also, tests 
         the `store_password' kwarg of login, as well as logout's `deletepw'
         kwarg.
         """
-        pass
-        #cs = CosmoSim()
+
+        cs = CosmoSim()
 
         # enter in correct login credentials, then logout
-        #auth = cs.login(username='public', password='Physics2014')
-        #assert auth.status_code == 200, 'Authentication failed (not expected).'
-        #cs.logout()
+        auth = cs.login(username='public', password='Physics2014')
+        assert auth.status_code == 200, 'Authentication failed (not expected).'
+        cs.logout()
 
         # enter in correct login credentials (store pw), logout, then login
         # without pw entered in explicitly
-        #auth = cs.login(username='public', password='Physics2014',
-        #                store_password=True)
-        #assert auth.status_code == 200, 'Authentication failed (not expected).'
-        #cs.logout()
-        #auth = cs.login(username='public')
-        #assert auth.status_code == 200, 'Authentication failed (not expected).'
-
-        # # logout and do not store password
-        # cs.logout()
-        # auth = cs.login(username='public', password='Physics2014')
-        # assert auth.status_code == 200, 'Authentication failed (not expected).'
-       
-        # # check login status
-        # loggedin = cs.check_login_status()
-        # assert loggedin is True, 'Not logged in successfully (not expected).'
-
+        auth = cs.login(username='public', password='Physics2014',
+                        store_password=True)
+        assert auth.status_code == 200, 'Authentication failed (not expected).'
+        cs.logout()
+        auth = cs.login(username='public')
+        assert auth.status_code == 200, 'Authentication failed (not expected).'
         
-    #def test_logout after
+        # now delete pw from keychain (for the current test and future tests)
+        cs.logout(deletepw=True)
+
+    def test_login_pass_prompt(self, monkeypatch):
+        """
+        Tests a simple successful login with public credentials. Tests the prompt
+        for a password.
+        """
+
+        # login and store password
+        cs = CosmoSim()
+        auth = cs.login(username='public', password='Physics2014',
+                        store_password=True)
+        assert auth.status_code == 200, 'Authentication failed (not expected).'
+        
+        def mock_raw_input(*args, **kwargs):
+            """
+            Mock raw input
+            """
+            return 'Physics2014'
+
+        # logout and delete password
+        cs.logout(deletepw=True)
+
+        # try to login without pw afterwards
+        monkeypatch.setattr(getpass, 'getpass', mock_raw_input)
+        auth = cs.login(username='public')
+
+        # using mock input by user at prompt to login
+        loggedin = cs.check_login_status()
+        assert loggedin is True, 'Logged in failed (not expected).'
+        cs.logout()
+
+    def test_login_twice(self, capsys):
+        """
+        Test that login twice prompts correct message.
+        """
+
+        cs = CosmoSim()
+        print('hello')
+        cs.login(username='public', password ='Physics2014')
+        cs.login(username='public', password ='Physics2014')
+        sys.stderr.write("world\n")
+        out, err = capsys.readouterr()
+        
