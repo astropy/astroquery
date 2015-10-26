@@ -1,5 +1,5 @@
-0.3.dev
--------
+0.3.0 (2015-10-26)
+------------------
 
 - Fix ESO APEX project ID keyword (#591)
 - Fix ALMA queries when accessing private data (#601)
