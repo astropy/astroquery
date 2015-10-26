@@ -72,7 +72,7 @@ class TestAlma:
 
         result = alma.stage_data([uid])
 
-        assert os.path.split(result['URL'][0]) == 'uid___A002_X47ed8e_X6c.asdm.sdm.tar'
+        assert os.path.split(result['URL'][0])[1] == 'uid___A002_X47ed8e_X6c.asdm.sdm.tar'
 
     def test_doc_example(self, temp_dir):
         alma = Alma()
