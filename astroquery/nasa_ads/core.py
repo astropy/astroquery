@@ -34,14 +34,20 @@ class ADSClass(BaseQuery):
 
     def __init__(self, *args):
         """ set some parameters """
-        pass
+        super(ADSClass, self).__init__()
 
     @class_or_instance
-    def query_simple(self, query_string, get_query_payload=False, get_raw_response=False):
+    def query_simple(self, query_string, get_query_payload=False,
+                     get_raw_response=False, cache=True):
+        """
+        Basic query.  Uses a string and the ADS generic query.
+        """
         self.query_string = query_string
         request_payload = self._args_to_payload(query_string)
 
-        response = commons.send_request(self.QUERY_SIMPLE_URL, request_payload, self.TIMEOUT)
+        response = self._request(method='POST', url=self.QUERY_SIMPLE_URL,
+                                 data=request_payload, timeout=self.TIMEOUT,
+                                 cache=cache)
 
         # primarily for debug purposes, but also useful if you want to send
         # someone a URL linking directly to the data
@@ -50,12 +56,15 @@ class ADSClass(BaseQuery):
         if get_raw_response:
             return response
         # parse the XML response into AstroPy Table
-        resulttable = self._parse_response(response.encode(results.encoding).decode('utf-8'))
+        resulttable = self._parse_response(response)
 
         return resulttable
 
     def _parse_response(self, response):
-        xmlrepr = minidom.parseString(response.text)
+
+        encoded_content = response.text.encode(response.encoding)
+
+        xmlrepr = minidom.parseString(encoded_content)
         # Check if there are any results!
 
         # get the list of hits
