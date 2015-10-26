@@ -42,7 +42,6 @@ class ADSClass(BaseQuery):
         """
         Basic query.  Uses a string and the ADS generic query.
         """
-        self.query_string = query_string
         request_payload = self._args_to_payload(query_string)
 
         response = self._request(method='POST', url=self.QUERY_SIMPLE_URL,
