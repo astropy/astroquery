@@ -2,6 +2,8 @@
 -------
 
 - Fix ESO APEX project ID keyword (#591)
+- Fix ALMA queries when accessing private data (#601)
+- Allow data downloads to use the cache (#601)
 
 0.2.6 (2015-07-23)
 ------------------
