@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VOTABLE version="1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="http://www.ivoa.net/xml/VOTable/v1.2"
+  xsi:schemaLocation="http://www.ivoa.net/xml/VOTable/v1.2 http://www.ivoa.net/xml/VOTable/v1.2">
+ <DESCRIPTION>
+   VizieR Astronomical Server vizier.u-strasbg.fr
+    Date: 2015-10-27T22:19:59 [V1.99+ (14-Oct-2013)]
+   Explanations and Statistics of UCDs:			See LINK below
+   In case of problem, please report to:	cds-question@unistra.fr
+   In this version, NULL integer columns are written as an empty string
+   &lt;TD&gt;&lt;/TD&gt;, explicitely possible from VOTable-1.3
+ </DESCRIPTION>
+<!-- VOTable description at http://www.ivoa.net/Documents/latest/VOT.html -->
+<INFO ID="VERSION" name="votable-version" value="1.99+ (14-Oct-2013)"/>
+<INFO ID="Ref" name="-ref" value="VOTx4321"/>
+<INFO name="MaxTuples" value="50000" />
+<INFO name="queryParameters" value="2">
+-oc.form=D.
+-words=2009ApJ...706...83K
+</INFO>
+
+<RESOURCE ID="yCat_17060083" name="J/ApJ/706/83" type="meta">
+  <DESCRIPTION>Embedded YSO candidates in W51 (Kang+, 2009)</DESCRIPTION>
+  <INFO name="ipopu" value="0.418733">popularity index</INFO>
+  <INFO name="cpopu" value="677">number of calls</INFO>
+  <INFO name="-kw.Wavelength" value="IR"/>
+  <INFO name="-kw.Astronomy" value="Nebulae"/>
+  <INFO name="-kw.Astronomy" value="HII_regions"/>
+  <INFO name="-kw.Astronomy" value="YSOs"/>
+<INFO name="media" value="SED"/>
+  <INFO name="-density" value="0"/>
+  <LINK content-role="hints" action="votable?-meta.what&amp;-source=J/ApJ/706/83"/>
+
+  <TABLE ID="yCat_17060083_1" name="J/ApJ/706/83/ysos" type="meta" nrows="737">
+    <INFO name="ipopu" value="0.418733">popularity index</INFO>
+    <INFO name="cpopu" value="677">number of calls</INFO>
+    <INFO name="-kw.Wavelength" value="IR"/>
+    <INFO name="-kw.Astronomy" value="Nebulae"/>
+    <INFO name="-kw.Astronomy" value="HII_regions"/>
+    <INFO name="-kw.Astronomy" value="YSOs"/>
+    <INFO name="nrows" value="737">Number of rows of the table</INFO>
+    <DESCRIPTION>
+      Magnitudes {\em (table 2)} and model parameters {\em (table 3)} of YSO candidates
+    </DESCRIPTION>
+  <PARAM name="-c" datatype="char" arraysize="32*" value="">
+    <DESCRIPTION>Query from a celestial position according to ASU syntax:
+      {RA{+|-}Dec|object_name}[,eq=equinox][,ep=epoch][,rm=[min/]max]
+      (see http://vizier.u-strasbg.fr/doc/asu.html)
+    </DESCRIPTION>
+  </PARAM>
+    <LINK content-role="query" action="votable?-source=J/ApJ/706/83/ysos&amp;">
+      Action to Query the current RESOURCE, to be completed by PARAMs and FIELDs contents
+    </LINK>
+    <COOSYS ID="G" system="galactic"/>
+    <!-- Definitions of GROUPs and FIELDs -->
+    <FIELD name="recno" ucd="meta.record" display="0" datatype="int" width="8"><!-- ucd="RECORD" -->
+      <DESCRIPTION>Record number assigned by the VizieR team. Should Not be used for identification.</DESCRIPTION>
+    </FIELD>
+    <FIELD name="Seq" ucd="meta.id" display="1" datatype="short" width="3"><!-- ucd="ID_NUMBER" -->
+      <DESCRIPTION>Running index number (\dicS{[KBP2009] NNN} in Simbad)</DESCRIPTION>
+    </FIELD>
+    <FIELD name="f_Seq" ucd="meta.code" display="1" datatype="char" arraysize="1"><!-- ucd="CODE_MISC" -->
+      <DESCRIPTION>[*] *: Strange upper and lower values for this object; take with caution (flag added by CDS)</DESCRIPTION>
+    </FIELD>
+    <FIELD name="SSTGLMC" ucd="meta.id;meta.main" display="1" datatype="char" arraysize="17"><!-- ucd="ID_MAIN" -->
+      <DESCRIPTION>Source name (GLLL.llll+BB.bbbb)</DESCRIPTION>
+    </FIELD>
+    <FIELD name="b_AV" ucd="stat.error" display="0" datatype="float" width="4" precision="1" unit="mag"><!-- ucd="ERROR" -->
+      <DESCRIPTION>Lower 68% (or 95%) probability limit in AV</DESCRIPTION>
+    </FIELD>
+    <FIELD name="AV" ucd="phys.absorption" display="1" datatype="float" width="4" precision="1" unit="mag"><!-- ucd="PHOT_EXTINCTION_ISM" -->
+      <DESCRIPTION>Average V band extinction</DESCRIPTION>
+    </FIELD>
+    <FIELD name="n_AV" ucd="meta.note" display="0" datatype="char" arraysize="1"><!-- ucd="NOTE" -->
+      <DESCRIPTION>[*] Range on AV is 95% probability</DESCRIPTION>
+    </FIELD>
+    <FIELD name="B_AV" ucd="stat.error" display="0" datatype="float" width="4" precision="1" unit="mag"><!-- ucd="ERROR" -->
+      <DESCRIPTION>Upper 68% (or 95%) probability limit in AV</DESCRIPTION>
+    </FIELD>
+    <FIELD name="b_Mstar" ucd="stat.error" display="0" datatype="float" width="4" precision="1" unit="Msun"><!-- ucd="ERROR" -->
+      <DESCRIPTION>Lower 68% (or 95%) probability limit in Mstar</DESCRIPTION>
+    </FIELD>
+    <FIELD name="Mstar" ucd="phys.mass" display="1" datatype="float" width="4" precision="1" unit="Msun"><!-- ucd="PHYS_MASS_MISC" -->
+      <DESCRIPTION>Average central star mass</DESCRIPTION>
+    </FIELD>
+    <FIELD name="n_Mstar" ucd="meta.note" display="0" datatype="char" arraysize="1"><!-- ucd="NOTE" -->
+      <DESCRIPTION>[*] Range on Mstar is 95% probability</DESCRIPTION>
+    </FIELD>
+    <FIELD name="B_Mstar" ucd="stat.error" display="0" datatype="float" width="4" precision="1" unit="Msun"><!-- ucd="ERROR" -->
+      <DESCRIPTION>Upper 68% (or 95%) probability limit in Mstar</DESCRIPTION>
+    </FIELD>
+    <FIELD name="b_Ltot" ucd="stat.error" display="0" datatype="int" width="5" unit="Lsun"><!-- ucd="ERROR" -->
+      <DESCRIPTION>Lower 68% (or 95%) probability limit in LTot</DESCRIPTION>
+    </FIELD>
+    <FIELD name="Ltot" ucd="phys.luminosity;em.IR" display="1" datatype="int" width="5" unit="Lsun"><!-- ucd="PHYS_LUMINOSITY_IR_MISC" -->
+      <DESCRIPTION>Average total luminosity</DESCRIPTION>
+    </FIELD>
+    <FIELD name="n_Ltot" ucd="meta.note" display="0" datatype="char" arraysize="1"><!-- ucd="NOTE" -->
+      <DESCRIPTION>[*] Range on Ltot is 95% probability</DESCRIPTION>
+    </FIELD>
+    <FIELD name="B_Ltot" ucd="stat.error" display="0" datatype="int" width="5" unit="Lsun"><!-- ucd="ERROR" -->
+      <DESCRIPTION>Upper 68% (or 95%) probability limit in LTot</DESCRIPTION>
+    </FIELD>
+    <FIELD name="Stg" ucd="src.class" display="1" datatype="char" arraysize="3"><!-- ucd="CLASS_MISC" -->
+      <DESCRIPTION>Evolutionary stage (Amb: Ambiguous source)</DESCRIPTION>
+    </FIELD>
+    <FIELD name="Cl1" ucd="src.class" display="1" datatype="char" arraysize="3"><!-- ucd="CLASS_MISC" -->
+      <DESCRIPTION>YSO class based on IRAC data (2)</DESCRIPTION>
+    </FIELD>
+    <FIELD name="Cl2" ucd="src.class" display="1" datatype="char" arraysize="3"><!-- ucd="CLASS_MISC" -->
+      <DESCRIPTION>YSO class based on the spectral slope {alpha} i between 2 and 24um (2)</DESCRIPTION>
+    </FIELD>
+    <FIELD name="Jmag" ucd="phot.mag;em.IR.J" display="1" datatype="float" width="5" precision="2" unit="mag"><!-- ucd="PHOT_JHN_J" -->
+      <DESCRIPTION>? 2MASS J band magnitude</DESCRIPTION>
+      <VALUES null="NaN" />
+    </FIELD>
+    <FIELD name="Hmag" ucd="phot.mag;em.IR.H" display="1" datatype="float" width="5" precision="2" unit="mag"><!-- ucd="PHOT_JHN_H" -->
+      <DESCRIPTION>? 2MASS H band magnitude</DESCRIPTION>
+      <VALUES null="NaN" />
+    </FIELD>
+    <FIELD name="Ksmag" ucd="phot.mag;em.IR.K" display="1" datatype="float" width="5" precision="2" unit="mag"><!-- ucd="PHOT_JHN_K" -->
+      <DESCRIPTION>? 2MASS K_s_ band magnitude</DESCRIPTION>
+      <VALUES null="NaN" />
+    </FIELD>
+    <FIELD name="[3.6]" ucd="phot.mag;em.IR.3-4um" display="1" datatype="float" width="5" precision="2" unit="mag"><!-- ucd="PHOT_IR_3.4" -->
+      <DESCRIPTION>? Spitzer/IRAC 3.6 micron filter magnitude</DESCRIPTION>
+      <VALUES null="NaN" />
+    </FIELD>
+    <FIELD name="[4.5]" ucd="phot.mag;em.IR.4-8um" display="1" datatype="float" width="5" precision="2" unit="mag"><!-- ucd="PHOT_IR_4.2" -->
+      <DESCRIPTION>? Spitzer/IRAC 4.5 micron filter magnitude</DESCRIPTION>
+      <VALUES null="NaN" />
+    </FIELD>
+    <FIELD name="[5.8]" ucd="phot.flux.density;em.IR.4-8um" display="1" datatype="float" width="5" precision="2" unit="mag"><!-- ucd="PHOT_FLUX_IR_6" -->
+      <DESCRIPTION>? Spitzer/IRAC 5.8 micron filter magnitude</DESCRIPTION>
+      <VALUES null="NaN" />
+    </FIELD>
+    <FIELD name="[8.0]" ucd="phot.flux.density;em.IR.8-15um" display="1" datatype="float" width="5" precision="2" unit="mag"><!-- ucd="PHOT_FLUX_IR_9" -->
+      <DESCRIPTION>? Spitzer/IRAC 8.0 micron filter magnitude</DESCRIPTION>
+      <VALUES null="NaN" />
+    </FIELD>
+    <FIELD name="[24]" ucd="phot.flux.density;em.IR.15-30um" display="1" datatype="float" width="5" precision="2" unit="mag"><!-- ucd="PHOT_FLUX_IR_25" -->
+      <DESCRIPTION>? Spitzer/MIPS 24 micron filter magnitude</DESCRIPTION>
+      <VALUES null="NaN" />
+    </FIELD>
+    <FIELD name="A" ucd="meta.code.member" display="1" datatype="char" arraysize="1"><!-- ucd="CODE_MEMB" -->
+      <DESCRIPTION>[W/F] W=Associated with W51, or F=foreground by A_V_</DESCRIPTION>
+    </FIELD>
+    <FIELD name="2M" ucd="meta.ref.url" display="1" datatype="char" arraysize="2"><!-- ucd="DATA_LINK" -->
+      <DESCRIPTION>Display the 2MASS data (Cutri et al. 2003, Cat. II/246)</DESCRIPTION>
+    </FIELD>
+    <FIELD name="Simbad" ucd="meta.ref" display="1" datatype="char" arraysize="6*"><!-- ucd="DATA_LINK" -->
+      <DESCRIPTION>ask the {\bf\fg{FireBrick}Simbad} data-base about this object</DESCRIPTION>
+    </FIELD>
+    <FIELD name="_Glon" ucd="pos.galactic.lon" ref="G" display="1" datatype="double" width="8" precision="4" unit="deg"><!-- ucd="POS_GAL_LON" -->
+      <DESCRIPTION>Positions from SSTGLMC name (longitude part)</DESCRIPTION>
+    </FIELD>
+    <FIELD name="_Glat" ucd="pos.galactic.lat" ref="G" display="1" datatype="double" width="8" precision="4" unit="deg"><!-- ucd="POS_GAL_LAT" -->
+      <DESCRIPTION>Positions from SSTGLMC name (latitude part)</DESCRIPTION>
+    </FIELD>
+  </TABLE>
+</RESOURCE>
+</VOTABLE>
