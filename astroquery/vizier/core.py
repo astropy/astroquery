@@ -524,6 +524,9 @@ class VizierClass(BaseQuery):
                 body['-source'] = catalog
             elif isinstance(catalog, list):
                 body['-source'] = ",".join(catalog)
+            elif hasattr(catalog, 'name'):
+                # this is probably a votable Resource, but no harm in duck-typing on `name`
+                body['-source'] = catalog.name
             else:
                 raise TypeError("Catalog must be specified as list or string")
         # process: columns
