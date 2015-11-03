@@ -43,9 +43,10 @@ def pytest_configure(config):
 # Pytest header customisation was introduced in astropy 1.0.
 
 try:
-    PYTEST_HEADER_MODULES['astropy'] = 'astropy'
+    PYTEST_HEADER_MODULES['Astropy'] = 'astropy'
+    PYTEST_HEADER_MODULES['APLpy'] = 'APLpy'
+    PYTEST_HEADER_MODULES['pyregion'] = 'pyregion'
     del PYTEST_HEADER_MODULES['h5py']
     del PYTEST_HEADER_MODULES['Scipy']
-    del PYTEST_HEADER_MODULES['Matplotlib']
 except NameError:
     pass
