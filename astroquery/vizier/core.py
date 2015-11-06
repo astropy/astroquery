@@ -606,16 +606,21 @@ class VizierClass(BaseQuery):
             (only for VOTABLE queries)
             If specified, return only the table names (useful for table
             discovery).
-        invalid : 'warn', 'mask' or 'raise'
+        invalid : 'warn', 'mask' or 'exception'
             (only for VOTABLE queries)
-            The behavior if a VOTABLE cannot be parsed.  Default is 'warn',
-            which will try to parse the table, then if an exception is raised,
-            it will be printed but the masked table will be returned.
+            The behavior if a VOTABLE cannot be parsed. The default is
+            'warn', which will try to parse the table, but if an
+            exception is raised during parsing, the exception will be
+            issued as a warning instead and a masked table will be
+            returned. A value of 'exception' will not catch the
+            exception, while a value of 'mask' will simply always mask
+            invalid values.
 
         Returns
         -------
         table_list : `astroquery.utils.TableList` or str
             If there are errors in the parsing, then returns the raw results as a string.
+
         """
         if response.content[:5] == b'<?xml':
             try:
@@ -680,14 +685,15 @@ def parse_vizier_votable(data, verbose=False, invalid='warn',
         vo_tree = votable.parse(tf, pedantic=False, invalid='mask')
     elif invalid == 'warn':
         try:
-            vo_tree = votable.parse(tf, pedantic=False, invalid='raise')
+            vo_tree = votable.parse(tf, pedantic=False, invalid='exception')
         except Exception as ex:
             warnings.warn("VOTABLE parsing raised exception: {0}".format(ex))
             vo_tree = votable.parse(tf, pedantic=False, invalid='mask')
-    elif invalid == 'raise':
-        vo_tree = votable.parse(tf, pedantic=False, invalid='raise')
+    elif invalid == 'exception':
+        vo_tree = votable.parse(tf, pedantic=False, invalid='exception')
     else:
-        raise ValueError("Invalid keyword 'invalid'.  Must be raise, mask, or warn")
+        raise ValueError("Invalid keyword for 'invalid'. "
+                         "Must be exception, mask, or warn")
 
     if get_catalog_names:
         return dict([(R.name, R) for R in vo_tree.resources])
