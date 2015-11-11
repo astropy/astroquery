@@ -24,8 +24,8 @@ env:
         # to repeat them for all configurations.
         - NUMPY_VERSION=1.9
         - ASTROPY_VERSION=stable
-        - CONDA_DEPENDENCIES='requests keyring beautiful-soup aplpy matplotlib pyregion html5lib'
-        - PIP_DEPENDENCIES=''
+        - CONDA_DEPENDENCIES='requests keyring beautiful-soup matplotlib html5lib'
+        - PIP_DEPENDENCIES='aplpy pyregion'
 
     matrix:
         - SETUP_CMD='egg_info'
@@ -54,9 +54,11 @@ matrix:
         - python: 2.7
           env: SETUP_CMD='test'
                CONDA_DEPENDENCIES='requests'
+               PIP_DEPENDENCIES=''
         - python: 3.4
           env: SETUP_CMD='test'
                CONDA_DEPENDENCIES='requests'
+               PIP_DEPENDENCIES=''
 
         # Try older numpy versions
         - python: 2.7
