@@ -24,8 +24,8 @@ env:
         # to repeat them for all configurations.
         - NUMPY_VERSION=1.9
         - ASTROPY_VERSION=stable
-        - CONDA_DEPENDENCIES='requests keyring beautiful-soup matplotlib html5lib'
-        - PIP_DEPENDENCIES='aplpy pyregion'
+        - CONDA_DEPENDENCIES='requests beautiful-soup matplotlib html5lib'
+        - PIP_DEPENDENCIES='keyring aplpy pyregion'
 
     matrix:
         - SETUP_CMD='egg_info'
