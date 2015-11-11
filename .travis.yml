@@ -16,6 +16,7 @@ python:
     - 2.7
     - 3.3
     - 3.4
+
 env:
     global:
         # The following versions are the 'default' for tests, unless
@@ -25,8 +26,9 @@ env:
         - ASTROPY_VERSION=stable
         - CONDA_DEPENDENCIES='requests keyring beautiful-soup aplpy matplotlib pyregion html5lib'
         - PIP_DEPENDENCIES=''
+
     matrix:
-        - SETUP_CMD='egg_matrix'
+        - SETUP_CMD='egg_info'
 
         - SETUP_CMD='test'
 
@@ -47,6 +49,14 @@ matrix:
           env: ASTROPY_VERSION=development SETUP_CMD='test'
         - python: 3.4
           env: ASTROPY_VERSION=development SETUP_CMD='test'
+
+        # Try with optional dependencies disabled
+        - python: 2.7
+          env: SETUP_CMD='test'
+               CONDA_DEPENDENCIES='requests'
+        - python: 3.4
+          env: SETUP_CMD='test'
+               CONDA_DEPENDENCIES='requests'
 
         # Try older numpy versions
         - python: 2.7
