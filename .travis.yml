@@ -54,11 +54,11 @@ matrix:
         - python: 2.7
           env: SETUP_CMD='test'
                CONDA_DEPENDENCIES='requests beautiful-soup'
-               PIP_DEPENDENCIES=''
+               PIP_DEPENDENCIES='keyring'
         - python: 3.4
           env: SETUP_CMD='test'
                CONDA_DEPENDENCIES='requests beautiful-soup'
-               PIP_DEPENDENCIES=''
+               PIP_DEPENDENCIES='keyring'
 
         # Try older numpy versions
         - python: 2.7
