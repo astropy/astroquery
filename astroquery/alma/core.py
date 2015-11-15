@@ -898,7 +898,10 @@ class AlmaClass(QueryWithLogin):
             if is_file:
                 # "de_name": "ALMA+uid://A001/X122/X35e",
                 columns['uid'].append(entry['de_name'][5:])
-                columns['size'].append((int(entry['file_size'])*u.B).to(u.Gbyte))
+                if entry['file_size'] == 'null':
+                    columns['size'].append(np.nan)
+                else:
+                    columns['size'].append((int(entry['file_size'])*u.B).to(u.Gbyte))
                 # example template for constructing url:
                 # https://almascience.eso.org/dataPortal/requests/keflavich/940238268/ALMA/
                 # uid___A002_X9d6f4c_X154/2013.1.00546.S_uid___A002_X9d6f4c_X154.asdm.sdm.tar
