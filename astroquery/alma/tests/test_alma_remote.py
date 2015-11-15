@@ -62,6 +62,15 @@ class TestAlma:
         result_c = alma.query_region(c, 1*u.deg)
         assert b'2011.0.00217.S' in result_c['Project code']
 
+    def test_m83(self, temp_dir):
+        alma = Alma()
+        alma.cache_location = temp_dir
+
+        result_s = alma.query_object('M83')
+        uids = np.unique(m83_data['Member ous id'])
+        link_list = Alma.stage_data(uids)
+        
+
     def test_stage_data(self, temp_dir):
         alma = Alma()
         alma.cache_location = temp_dir

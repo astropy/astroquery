@@ -899,7 +899,7 @@ class AlmaClass(QueryWithLogin):
                 # "de_name": "ALMA+uid://A001/X122/X35e",
                 columns['uid'].append(entry['de_name'][5:])
                 if entry['file_size'] == 'null':
-                    columns['size'].append(np.nan)
+                    columns['size'].append(np.nan*u.Gbyte)
                 else:
                     columns['size'].append((int(entry['file_size'])*u.B).to(u.Gbyte))
                 # example template for constructing url:
