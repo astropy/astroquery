@@ -185,7 +185,9 @@ class SplatalogueClass(BaseQuery):
         exclude : list
             Types of lines to exclude.  Default is:
             (``'potential'``, ``'atmospheric'``, ``'probable'``)
-            Can also exclude ``'known'``
+            Can also exclude ``'known'``.
+            To exclude nothing, use 'none', not the python object None, since
+            the latter is meant to indicate 'leave as default'
         only_NRAO_recommended : bool
             Show only NRAO recommended species?
         line_lists : list
