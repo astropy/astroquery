@@ -294,6 +294,10 @@ class SplatalogueClass(BaseQuery):
         if exclude is not None:
             for e in exclude:
                 payload['no_' + e] = 'no_' + e
+        elif exclude == 'none':
+            for e in exclude:
+                if 'no_e'+e in payload:
+                    del payload['no_' + e]
 
         if only_NRAO_recommended:
             payload['include_only_nrao'] = 'include_only_nrao'
