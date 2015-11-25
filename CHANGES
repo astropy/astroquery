@@ -2,6 +2,10 @@
 ---------
 
 - Fix NASA ADS, which had an internal syntax error (#602)
+- IBE - added new module for locating data from PTF, WISE, and 2MASS from IRSA.
+  See <http://irsa.ipac.caltech.edu/ibe/> for more information about IBE and
+  <http://www.ptf.caltech.edu/page/ibe> for more information about PTF survey
+  data in particular. (#450)
 
 0.3.0 (2015-10-26)
 ------------------

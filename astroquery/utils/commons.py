@@ -467,3 +467,10 @@ def get_readable_fileobj(*args, **kwargs):
     it in astroquery without affecting astropy core functionality
     """
     return aud.get_readable_fileobj(*args, **kwargs)
+
+def parse_votable(content):
+    """
+    Parse a votable in string format
+    """
+    tables = votable.parse(six.BytesIO(content), pedantic=False)
+    return tables

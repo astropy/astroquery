@@ -119,6 +119,7 @@ The following modules have been completed using a common API:
   irsa/irsa_dust.rst
   ned/ned.rst
   splatalogue/splatalogue.rst
+  ibe/ibe.rst
   irsa/irsa.rst
   ukidss/ukidss.rst
   magpis/magpis.rst
@@ -167,6 +168,7 @@ for each source)
 
   alfalfa/alfalfa.rst
   gama/gama.rst
+  ibe/ibe.rst
   irsa/irsa.rst
   irsa/irsa_dust.rst
   ned/ned.rst
@@ -193,6 +195,7 @@ generally return a table listing the available data first.
   eso/eso.rst
   fermi/fermi.rst
   heasarc/heasarc.rst
+  ibe/ibe.rst
   irsa/irsa.rst
   magpis/magpis.rst
   ned/ned.rst
