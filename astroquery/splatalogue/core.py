@@ -293,13 +293,13 @@ class SplatalogueClass(BaseQuery):
             raise ValueError("Invalid version specified.  Allowed versions "
                              "are {vers}".format(vers=str(self.versions)))
 
-        if exclude is not None:
+        if exclude == 'none':
+            for e in ('potential', 'atmospheric', 'probable', 'known'):
+                if 'no_'+e in payload:
+                    del payload['no_' + e]
+        elif exclude is not None:
             for e in exclude:
                 payload['no_' + e] = 'no_' + e
-        elif exclude == 'none':
-            for e in exclude:
-                if 'no_e'+e in payload:
-                    del payload['no_' + e]
 
         if only_NRAO_recommended:
             payload['include_only_nrao'] = 'include_only_nrao'
