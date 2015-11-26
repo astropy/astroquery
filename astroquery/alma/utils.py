@@ -84,7 +84,8 @@ def parse_frequency_support(frequency_support_str):
 
         '[86.26..88.14GHz,976.56kHz, XX YY] U [88.15..90.03GHz,976.56kHz, XX YY] U [98.19..100.07GHz,976.56kHz, XX YY] U [100.15..102.03GHz,976.56kHz, XX YY]'
     """
-    supports = frequency_support_str.split("U")
+    supports = str(frequency_support_str).split('U')
+
     freq_ranges = [(float(sup.strip('[] ').split("..")[0]),
                     float(sup.strip('[] ').split("..")[1].split(',')[0].strip(string.ascii_letters)))
                    *u.Unit(sup.strip('[] ').split("..")[1].split(',')[0].strip(string.punctuation+string.digits))
