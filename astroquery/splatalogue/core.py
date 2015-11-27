@@ -8,6 +8,7 @@ ftp://ftp.cv.nrao.edu/NRAO-staff/bkent/slap/idl/
 import warnings
 from astropy.io import ascii
 from astropy import units as u
+from astropy import log
 from ..query import BaseQuery
 from ..utils import async_to_sync
 from ..utils.docstr_chompers import prepend_docstr_noreturns
@@ -294,9 +295,11 @@ class SplatalogueClass(BaseQuery):
                              "are {vers}".format(vers=str(self.versions)))
 
         if exclude == 'none':
+            log.debug("Exclude is 'none'")
             for e in ('potential', 'atmospheric', 'probable', 'known'):
-                if 'no_'+e in payload:
-                    del payload['no_' + e]
+                # Setting a keyword value to 'None' removes it (see query_lines_async)
+                log.debug("Setting no_{0} to None".format(e))
+                payload['no_' + e] = None
         elif exclude is not None:
             for e in exclude:
                 payload['no_' + e] = 'no_' + e
@@ -388,6 +391,9 @@ class SplatalogueClass(BaseQuery):
             data_payload.update(self._parse_kwargs(min_frequency=min_frequency,
                                                    max_frequency=max_frequency,
                                                    **kwargs))
+
+        # Add an extra step: sometimes, need to REMOVE keywords
+        data_payload = {k:v for k,v in data_payload.items() if v is not None}
 
         if get_query_payload:
             return data_payload

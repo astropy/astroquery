@@ -3,6 +3,7 @@ from ... import splatalogue
 from ...utils.testing_tools import MockResponse
 from astropy import units as u
 from astropy.tests.helper import pytest, remote_data
+from astropy.extern.six.moves import urllib_parse
 import requests
 import os
 
@@ -112,7 +113,33 @@ def test_band_crashorno():
 @remote_data
 def test_version_selection():
     results = splatalogue.Splatalogue.query_lines(
-        min_frequency=703 * u.GHz, max_frequency=706 * u.GHz,
-        chemical_name='Acetaldehyde', version='v1.0')
+			    min_frequency= 703*u.GHz,
+			    max_frequency=706*u.GHz,
+			    chemical_name='Acetaldehyde',
+			    version='v1.0'
+			    )
+    assert len(results)==1
 
-    assert len(results) == 133
+def test_exclude(patch_post):
+    # regression test for issue 616
+    d = splatalogue.Splatalogue.query_lines_async(114 * u.GHz, 116 * u.GHz,
+                                                  chemical_name=' CO ',
+                                                  get_query_payload=True)
+
+    exclusions = {'no_atmospheric': 'no_atmospheric',
+                  'no_potential': 'no_potential',
+                  'no_probable': 'no_probable',}
+
+    for k,v in exclusions.items():
+        assert d[k] == v
+
+    d = splatalogue.Splatalogue.query_lines_async(114 * u.GHz, 116 * u.GHz,
+                                                  chemical_name=' CO ',
+                                                  exclude='none',
+                                                  get_query_payload=True)
+
+    for k,v in exclusions.items():
+        assert k not in d
+
+    for k in d:
+        assert k[:3] != 'no_'
