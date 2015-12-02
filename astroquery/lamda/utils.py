@@ -50,7 +50,7 @@ def ncrit(lamda_tables, transition_upper, transition_lower, temperature, OPR=3,
 
     temperature_re = re.compile("C_ij\(T=([0-9]*)\)")
     crate_temperatures = np.array([int(temperature_re.search(cn).groups()[0])
-                                   for cn in crates[crates.keys()[0]].keys()
+                                   for cn in crates[list(crates.keys())[0]].keys()
                                    if temperature_re.search(cn)
                          ])
     if temperature < crate_temperatures.min():
