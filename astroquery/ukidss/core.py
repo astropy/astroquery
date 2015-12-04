@@ -348,8 +348,8 @@ class UkidssClass(QueryWithLogin):
             radius = commons.parse_radius(radius).degree
             del request_payload['sys']
             request_payload['userSelect'] = 'default'
-            request_payload['minRA'] = str(round(ra - radius / cos(radians(dec)),2))
-            request_payload['maxRA'] = str(round(ra + radius / cos(radians(dec)),2))
+            request_payload['minRA'] = str(round(ra - radius / cos(radians(dec)), 2))
+            request_payload['maxRA'] = str(round(ra + radius / cos(radians(dec)), 2))
             request_payload['formatRA'] = 'degrees'
             request_payload['minDec'] = str(dec - radius)
             request_payload['maxDec'] = str(dec + radius)
@@ -592,7 +592,7 @@ class UkidssClass(QueryWithLogin):
             response = requests.get('http://surveys.roe.ac.uk:8080/wsa/getImage_form.jsp')
         root = BeautifulSoup(response.content)
         databases = [x.attrs['value'] for x in
-                    root.find('select').findAll('option')]
+                     root.find('select').findAll('option')]
         return databases
 
     def list_databases(self):

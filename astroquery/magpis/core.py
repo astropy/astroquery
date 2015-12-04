@@ -90,7 +90,7 @@ class MagpisClass(BaseQuery):
         try:
             return fits.open(S, ignore_missing_end=True)
         except IOError:
-            raise InvalidQueryError(response.content) 
+            raise InvalidQueryError(response.content)
 
     @prepend_docstr_noreturns("\n" + _args_to_payload.__doc__)
     def get_images_async(self, coordinates, image_size=1 * u.arcmin, survey='bolocam',

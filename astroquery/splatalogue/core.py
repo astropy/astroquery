@@ -33,28 +33,28 @@ class SplatalogueClass(BaseQuery):
                       'Recomb', 'Lisa', 'RFI')
     TOP20_LIST = ('comet', 'planet', 'top20', 'ism_hotcore', 'ism_darkcloud',
                   'ism_diffusecloud')
-    FREQUENCY_BANDS = {"any":"Any",
-                       "alma3":"ALMA Band 3 (84-116 GHz)",
-                       "alma4":" ALMA Band 4 (125-163 GHz)",
-                       "alma5":" ALMA Band 5 (163-211 GHz)",
-                       "alma6":"ALMA Band 6 (211-275 GHz)",
-                       "alma7":"ALMA Band 7 (275-373 GHz)",
-                       "alma8":"ALMA Band 8 (385-500 GHz)",
-                       "alma9":"ALMA Band 9 (602-720 GHz)",
-                       "alma10":"ALMA Band 10 (787-950 GHz)",
-                       "pf1":"GBT PF1 (0.29-0.92 GHz)",
-                       "pf2":"GBT PF2 (0.91-1.23 GHz)",
-                       "l":"GBT/VLA L (1-2 GHz)",
-                       "s":"GBT/VLA S (1.7-4 GHz)",
-                       "c":"GBT/VLA C (3.9-8 GHz)",
-                       "x":"GBT/VLA X (8-12 GHz)",
-                       "ku":" GBT/VLA Ku (12-18 GHz)",
-                       "kfpa":"GBT KFPA (18-27.5 GHz)",
-                       "k":"VLA K (18-26.5 GHz)",
-                       "ka":" GBT/VLA Ka (26-40 GHz)",
-                       "q":"GBT/VLA Q (38-50 GHz)",
-                       "w":"GBT W (67-93.3 GHz)",
-                       "mustang":"GBT Mustang (80-100 GHz)", }
+    FREQUENCY_BANDS = {"any": "Any",
+                       "alma3": "ALMA Band 3 (84-116 GHz)",
+                       "alma4": " ALMA Band 4 (125-163 GHz)",
+                       "alma5": " ALMA Band 5 (163-211 GHz)",
+                       "alma6": "ALMA Band 6 (211-275 GHz)",
+                       "alma7": "ALMA Band 7 (275-373 GHz)",
+                       "alma8": "ALMA Band 8 (385-500 GHz)",
+                       "alma9": "ALMA Band 9 (602-720 GHz)",
+                       "alma10": "ALMA Band 10 (787-950 GHz)",
+                       "pf1": "GBT PF1 (0.29-0.92 GHz)",
+                       "pf2": "GBT PF2 (0.91-1.23 GHz)",
+                       "l": "GBT/VLA L (1-2 GHz)",
+                       "s": "GBT/VLA S (1.7-4 GHz)",
+                       "c": "GBT/VLA C (3.9-8 GHz)",
+                       "x": "GBT/VLA X (8-12 GHz)",
+                       "ku": " GBT/VLA Ku (12-18 GHz)",
+                       "kfpa": "GBT KFPA (18-27.5 GHz)",
+                       "k": "VLA K (18-26.5 GHz)",
+                       "ka": " GBT/VLA Ka (26-40 GHz)",
+                       "q": "GBT/VLA Q (38-50 GHz)",
+                       "w": "GBT W (67-93.3 GHz)",
+                       "mustang": "GBT Mustang (80-100 GHz)", }
 
     def __init__(self, **kwargs):
         """
@@ -401,25 +401,26 @@ class SplatalogueClass(BaseQuery):
                        'Meas Freq-GHz', 'Log<sub>10</sub> (A<sub>ij</sub>)',
                        'E_U (K)')
         table = self.table[columns]
-        long_to_short = {'Log<sub>10</sub> (A<sub>ij</sub>)':'log10(Aij)',
-                         'E_U (K)':'EU_K',
-                         'E_U (cm^-1)':'EU_cm',
-                         'E_L (K)':'EL_K',
-                         'E_L (cm^-1)':'EL_cm',
-                         'Chemical Name':'Name',
-                         'Lovas/AST Intensity':'Intensity',
-                         'Freq-GHz':'Freq',
-                         'Freq Err':'eFreq',
-                         'Meas Freq-GHz':'MeasFreq',
-                         'Meas Freq Err':'eMeasFreq',
-                         'Resolved QNs':'QNs'}
+        long_to_short = {'Log<sub>10</sub> (A<sub>ij</sub>)': 'log10(Aij)',
+                         'E_U (K)': 'EU_K',
+                         'E_U (cm^-1)': 'EU_cm',
+                         'E_L (K)': 'EL_K',
+                         'E_L (cm^-1)': 'EL_cm',
+                         'Chemical Name': 'Name',
+                         'Lovas/AST Intensity': 'Intensity',
+                         'Freq-GHz': 'Freq',
+                         'Freq Err': 'eFreq',
+                         'Meas Freq-GHz': 'MeasFreq',
+                         'Meas Freq Err': 'eMeasFreq',
+                         'Resolved QNs': 'QNs'}
         for cn in long_to_short:
             if cn in table.colnames:
                 table.rename_column(cn, long_to_short[cn])
         return table
 
+
 def validate_energy_type(etype):
-    valid_energy_types = ('el_cm1','eu_cm1','eu_k','el_k')
+    valid_energy_types = ('el_cm1', 'eu_cm1', 'eu_k', 'el_k')
     if etype not in valid_energy_types:
         raise ValueError("Energy type must be one of {0}".format(valid_energy_types))
 

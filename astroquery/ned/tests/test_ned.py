@@ -205,8 +205,8 @@ def test_query_region_iau(patch_get):
 
 
 def mock_check_resolvable(name):
-        if name != 'm1':
-            raise coord.name_resolve.NameResolveError
+    if name != 'm1':
+        raise coord.name_resolve.NameResolveError
 
 
 def test_query_region_async(monkeypatch, patch_get):

@@ -40,16 +40,16 @@ def _strip_blanks(table):
 class NistClass(BaseQuery):
     URL = conf.server
     TIMEOUT = conf.timeout
-    unit_code = {'Angstrom':0,
+    unit_code = {'Angstrom': 0,
                  'nm': 1,
                  'um': 2}
-    energy_level_code = {'cm-1':0, 'invcm':0, 'cm':0,
-                'ev':1, 'eV':1, 'EV':1, 'electronvolt':1,
-                'R':2, 'Rydberg':2, 'rydberg':2}
-    order_out_code = {'wavelength':0,
-                'multiplet':1}
+    energy_level_code = {'cm-1': 0, 'invcm': 0, 'cm': 0,
+                         'ev': 1, 'eV': 1, 'EV': 1, 'electronvolt': 1,
+                         'R': 2, 'Rydberg': 2, 'rydberg': 2}
+    order_out_code = {'wavelength': 0,
+                      'multiplet': 1}
     wavelength_unit_code = {'vacuum': 3,
-                'vac+air':4}
+                            'vac+air': 4}
 
     def _args_to_payload(self, *args, **kwargs):
         """
@@ -168,6 +168,7 @@ class NistClass(BaseQuery):
                                   "in self.response, and the error in self.table_parse_error.")
 
 Nist = NistClass()
+
 
 def _parse_wavelength(min_wav, max_wav):
     """

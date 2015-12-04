@@ -3,6 +3,7 @@ from __future__ import print_function
 from astropy.tests.helper import remote_data, pytest
 from ...heasarc import Heasarc
 
+
 @remote_data
 class TestHeasarc:
 

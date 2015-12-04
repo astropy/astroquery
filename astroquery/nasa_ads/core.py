@@ -68,7 +68,7 @@ class ADSClass(BaseQuery):
 
         # get the list of hits
         hitlist = xmlrepr.childNodes[0].childNodes
-        hitlist = hitlist[1::2] # every second hit is a "line break"
+        hitlist = hitlist[1::2]  # every second hit is a "line break"
 
         # Grab the various fields
         titles = _get_data_from_xml(hitlist, 'title')
@@ -103,9 +103,7 @@ class ADSClass(BaseQuery):
     def _args_to_payload(self, query_string):
         # convert arguments to a valid requests payload
         # i.e. a dictionary
-        return {'qsearch' : query_string, 'data_type' : 'XML'}
-
+        return {'qsearch': query_string, 'data_type': 'XML'}
 
 
 ADS = ADSClass()
-

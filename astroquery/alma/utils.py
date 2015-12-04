@@ -13,6 +13,7 @@ from astropy.io import fits
 from astroquery.skyview import SkyView
 from astroquery.alma import Alma
 
+
 def pyregion_subset(region, data, mywcs):
     """
     Return a subset of an image (`data`) given a region.
@@ -29,7 +30,7 @@ def pyregion_subset(region, data, mywcs):
     import pyregion
 
     shapelist = pyregion.ShapeList([region])
-    if shapelist[0].coord_format not in ('physical','image'):
+    if shapelist[0].coord_format not in ('physical', 'image'):
         # Requires astropy >0.4...
         # pixel_regions = shapelist.as_imagecoord(self.wcs.celestial.to_header())
         # convert the regions to image (pixel) coordinates
@@ -64,15 +65,14 @@ def pyregion_subset(region, data, mywcs):
                                                                   xhi=xhi,
                                                                   yhi=yhi))
 
-    
     subwcs = mywcs[ylo:yhi, xlo:xhi]
     subhdr = subwcs.sub([wcs.WCSSUB_CELESTIAL]).to_header()
     subdata = data[ylo:yhi, xlo:xhi]
-    
+
     mask = shapelist.get_mask(header=subhdr,
                               shape=subdata.shape)
     log.debug("Shapes: data={0}, subdata={2}, mask={1}".format(data.shape, mask.shape, subdata.shape))
-    return (xlo,xhi,ylo,yhi),mask
+    return (xlo, xhi, ylo, yhi), mask
 
 
 def parse_frequency_support(frequency_support_str):
@@ -92,6 +92,7 @@ def parse_frequency_support(frequency_support_str):
                    for sup in supports]
     return u.Quantity(freq_ranges)
 
+
 def approximate_primary_beam_sizes(frequency_support_str):
     """
     Given a frequency support string, return the approximate 12m array beam
@@ -104,14 +105,13 @@ def approximate_primary_beam_sizes(frequency_support_str):
     return u.Quantity(beam_sizes)
 
 
-
 def make_finder_chart(target, radius, save_prefix, service=SkyView.get_images,
-                      service_kwargs={'survey':['2MASS-K'], 'pixels':500},
-                      alma_kwargs={'public':False, 'science':False},
-                      private_band_colors=('red','darkred','orange','brown','maroon'),
-                      public_band_colors=('blue','cyan','green','turquoise','teal'),
-                      integration_time_contour_levels=np.logspace(0,5,base=2, num=6),
-                     ):
+                      service_kwargs={'survey': ['2MASS-K'], 'pixels': 500},
+                      alma_kwargs={'public': False, 'science': False},
+                      private_band_colors=('red', 'darkred', 'orange', 'brown', 'maroon'),
+                      public_band_colors=('blue', 'cyan', 'green', 'turquoise', 'teal'),
+                      integration_time_contour_levels=np.logspace(0, 5, base=2, num=6),
+                      ):
     """
     Create a "finder chart" showing where ALMA has pointed in various bands,
     including different color coding for public/private data and each band.
@@ -164,13 +164,13 @@ def make_finder_chart(target, radius, save_prefix, service=SkyView.get_images,
     band_colors_priv = dict(zip(bands, private_band_colors))
     band_colors_pub = dict(zip(bands, public_band_colors))
 
-    private_circle_parameters = {band: [(row['RA'],row['Dec'],np.mean(rad).to(u.deg).value)
-                                 for row,rad in zip(catalog, primary_beam_radii)
-                                 if row['Release date']!='' and row['Band']==band]
+    private_circle_parameters = {band: [(row['RA'], row['Dec'], np.mean(rad).to(u.deg).value)
+                                        for row, rad in zip(catalog, primary_beam_radii)
+                                        if row['Release date']!='' and row['Band']==band]
                                  for band in bands}
-    public_circle_parameters = {band: [(row['RA'],row['Dec'],np.mean(rad).to(u.deg).value)
-                                 for row,rad in zip(catalog, primary_beam_radii)
-                                 if row['Release date']=='' and row['Band']==band]
+    public_circle_parameters = {band: [(row['RA'], row['Dec'], np.mean(rad).to(u.deg).value)
+                                       for row, rad in zip(catalog, primary_beam_radii)
+                                       if row['Release date']=='' and row['Band']==band]
                                  for band in bands}
 
     unique_private_circle_parameters = {band:
@@ -181,47 +181,47 @@ def make_finder_chart(target, radius, save_prefix, service=SkyView.get_images,
                                        for band in bands}
 
     for band in bands:
-        log.info( "BAND {0}".format(band) )
+        log.info("BAND {0}".format(band))
         privrows = sum((catalog['Band']==band) & (catalog['Release date'] != ''))
-        pubrows  = sum((catalog['Band']==band) & (catalog['Release date'] == ''))
+        pubrows = sum((catalog['Band']==band) & (catalog['Release date'] == ''))
         log.info("PUBLIC:  Number of rows: {0}.  Unique pointings: "
                  "{1}".format(pubrows,
-                 len(unique_public_circle_parameters[band])))
-        log.info( "PRIVATE: Number of rows: {0}.  Unique pointings: "
+                              len(unique_public_circle_parameters[band])))
+        log.info("PRIVATE: Number of rows: {0}.  Unique pointings: "
                  "{1}".format(privrows,
-                 len(unique_private_circle_parameters[band])))
+                              len(unique_private_circle_parameters[band])))
 
-    prv_regions = {band: pyregion.ShapeList([Shape('circle',[x,y,r]) for x,y,r
+    prv_regions = {band: pyregion.ShapeList([Shape('circle', [x, y, r]) for x, y, r
                                              in
                                              private_circle_parameters[band]])
                    for band in bands}
-    pub_regions = {band: pyregion.ShapeList([Shape('circle',[x,y,r]) for x,y,r
+    pub_regions = {band: pyregion.ShapeList([Shape('circle', [x, y, r]) for x, y, r
                                              in
                                              public_circle_parameters[band]])
                    for band in bands}
     for band in bands:
         circle_pars = np.vstack([x for x in (private_circle_parameters[band],
-                                        public_circle_parameters[band]) if any(x)])
-        for r,(x,y,c) in zip(prv_regions[band]+pub_regions[band],
-                             circle_pars):
+                                             public_circle_parameters[band]) if any(x)])
+        for r, (x, y, c) in zip(prv_regions[band]+pub_regions[band],
+                                circle_pars):
             r.coord_format = 'fk5'
-            r.coord_list = [x,y,c]
+            r.coord_list = [x, y, c]
             r.attr = ([], {'color': 'green',  'dash': '0 ',  'dashlist': '8 3',
                            'delete': '1 ',  'edit': '1 ', 'fixed': '0 ',
                            'font': '"helvetica 10 normal roman"',  'highlite':
                            '1 ', 'include': '1 ',  'move': '1 ',  'select': '1',
                            'source': '1',  'text': '', 'width': '1 '})
-            
+
         if prv_regions[band]:
             prv_regions[band].write('{0}_band{1}_private.reg'.format(save_prefix, band))
         if pub_regions[band]:
             pub_regions[band].write('{0}_band{1}_public.reg'.format(save_prefix, band))
 
     prv_mask = {band: fits.PrimaryHDU(prv_regions[band].get_mask(images[0][0]).astype('int'),
-                               header=images[0][0].header) for band in bands
+                                      header=images[0][0].header) for band in bands
                 if prv_regions[band]}
     pub_mask = {band: fits.PrimaryHDU(pub_regions[band].get_mask(images[0][0]).astype('int'),
-                               header=images[0][0].header) for band in bands
+                                      header=images[0][0].header) for band in bands
                 if pub_regions[band]}
 
     hit_mask_public = {band: np.zeros_like(images[0][0].data) for band in pub_mask}
@@ -230,10 +230,10 @@ def make_finder_chart(target, radius, save_prefix, service=SkyView.get_images,
 
     for band in bands:
         log.debug('Band: {0}'.format(band))
-        for row,rad in zip(catalog, primary_beam_radii):
-            shape = Shape('circle', (row['RA'], row['Dec'],np.mean(rad).to(u.deg).value))
+        for row, rad in zip(catalog, primary_beam_radii):
+            shape = Shape('circle', (row['RA'], row['Dec'], np.mean(rad).to(u.deg).value))
             shape.coord_format = 'fk5'
-            shape.coord_list = (row['RA'], row['Dec'],np.mean(rad).to(u.deg).value)
+            shape.coord_list = (row['RA'], row['Dec'], np.mean(rad).to(u.deg).value)
             shape.attr = ([], {'color': 'green',  'dash': '0 ',  'dashlist': '8 3 ',
                                'delete': '1 ',  'edit': '1 ', 'fixed': '0 ',
                                'font': '"helvetica 10 normal roman"',
@@ -242,19 +242,17 @@ def make_finder_chart(target, radius, save_prefix, service=SkyView.get_images,
                                'width': '1 '})
             log.debug('{1} {2}: {0}'.format(shape, row['Release date'], row['Band']))
             if row['Release date']!='' and row['Band']==band and band in prv_mask:
-                (xlo,xhi,ylo,yhi),mask = pyregion_subset(shape,
-                                                         hit_mask_private[band],
-                                                         mywcs) 
-                log.debug("{0},{1},{2},{3}: {4}".format(xlo,xhi,ylo,yhi,mask.sum()))
-                hit_mask_private[band][ylo:yhi,xlo:xhi] += row['Integration']*mask
+                (xlo, xhi, ylo, yhi), mask = pyregion_subset(shape,
+                                                             hit_mask_private[band],
+                                                             mywcs)
+                log.debug("{0},{1},{2},{3}: {4}".format(xlo, xhi, ylo, yhi, mask.sum()))
+                hit_mask_private[band][ylo:yhi, xlo:xhi] += row['Integration']*mask
             if row['Release date']=='' and row['Band']==band and band in pub_mask:
-                (xlo,xhi,ylo,yhi),mask = pyregion_subset(shape,
-                                                         hit_mask_public[band],
-                                                         mywcs) 
-                log.debug("{0},{1},{2},{3}: {4}".format(xlo,xhi,ylo,yhi,mask.sum()))
-                hit_mask_public[band][ylo:yhi,xlo:xhi] += row['Integration']*mask
-
-
+                (xlo, xhi, ylo, yhi), mask = pyregion_subset(shape,
+                                                             hit_mask_public[band],
+                                                             mywcs)
+                log.debug("{0},{1},{2},{3}: {4}".format(xlo, xhi, ylo, yhi, mask.sum()))
+                hit_mask_public[band][ylo:yhi, xlo:xhi] += row['Integration']*mask
 
     fig = aplpy.FITSFigure(images[0])
     fig.show_grayscale(stretch='arcsinh')

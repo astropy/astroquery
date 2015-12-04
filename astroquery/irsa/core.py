@@ -288,7 +288,7 @@ class IrsaClass(BaseQuery):
             try:
                 coordinates_list = [_parse_coordinates(c) for c in polygon]
             except (ValueError, TypeError):
-                    coordinates_list = [_format_decimal_coords(*_pair_to_deg(pair)) for pair in polygon]
+                coordinates_list = [_format_decimal_coords(*_pair_to_deg(pair)) for pair in polygon]
             request_payload['polygon'] = ','.join(coordinates_list)
         else:
             raise ValueError("Unrecognized spatial query type. " +
@@ -419,6 +419,7 @@ def _parse_coordinates(coordinates):
     c_icrs = c.transform_to(coord.ICRS)
     formatted_coords = _format_decimal_coords(c_icrs.ra.degree, c_icrs.dec.degree)
     return formatted_coords
+
 
 def _pair_to_deg(pair):
     """ Turn a pair of floats, Angles, or Quantities into pairs of float degrees """

@@ -74,7 +74,7 @@ class TestSimbad(object):
 
     def test_query_object_async(self):
         response = simbad.core.Simbad.query_object_async("m [0-9]",
-                                                        wildcard=True)
+                                                         wildcard=True)
         assert response is not None
 
     def test_query_object(self):

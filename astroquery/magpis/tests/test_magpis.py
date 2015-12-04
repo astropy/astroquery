@@ -61,8 +61,8 @@ def test_get_images(patch_post, patch_parse_coordinates):
     image = magpis.core.Magpis.get_images(commons.GalacticCoordGenerator(10.5, 0.0, unit=(u.deg, u.deg)))
     assert image is not None
 
+
 @pytest.mark.xfail
 def test_get_images_fail(patch_post, patch_parse_coordinates):
     image = magpis.core.Magpis.get_images(commons.GalacticCoordGenerator(10.5, 0.0, unit=(u.deg, u.deg)),
                                           survey='Not a survey')
-

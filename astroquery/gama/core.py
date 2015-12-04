@@ -76,6 +76,7 @@ def get_gama_datafile(result, **kwargs):
     hdulist = fitsfile.get_fits()
     return Table(hdulist[1].data)
 
+
 def find_data_url(result_page):
     """Find and return the URL of the data, given a results page."""
     result_relative_url_re = re.compile(r'Download the result file: <a href="(\.\./tmp/.*?)">')
@@ -83,5 +84,3 @@ def find_data_url(result_page):
     if len(re_result) == 0:
         raise ValueError("Results did not contain a result url")
     return re_result[0]
-
-

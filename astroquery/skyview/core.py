@@ -50,10 +50,10 @@ class SkyViewClass(BaseQuery):
                     if option.get('selected') == '':
                         value = option.get('value', option.text.strip())
                         res.append((elem.get('name'), value))
-        return {k:v
+        return {k: v
                 for (k, v) in res
                 if v not in [None, u'None', u'null'] and v
-               }
+                }
 
     def _generate_payload(self, input=None):
         """
@@ -286,10 +286,10 @@ class SkyViewClass(BaseQuery):
 
             response = self._request('GET', self.URL)
             page = BeautifulSoup(response.content, "html.parser")
-            surveys = page.findAll('select', {'name':'survey'})
+            surveys = page.findAll('select', {'name': 'survey'})
 
-            self._survey_dict = {sel['id']:[x.text for x in sel.findAll('option')]
-                                for sel in surveys}
+            self._survey_dict = {sel['id']: [x.text for x in sel.findAll('option')]
+                                 for sel in surveys}
         return self._survey_dict
 
     @property
@@ -312,6 +312,7 @@ class SkyViewClass(BaseQuery):
         Print out a formatted version of the survey dict
         """
         pprint.pprint(self.survey_dict)
+
 
 def parse_coordinates(position):
     coord = commons.parse_coordinates(position)

@@ -13,7 +13,7 @@ import sys
 from pkg_resources import resource_filename
 from bs4 import BeautifulSoup
 
-from astropy.extern.six.moves.urllib_parse import urljoin,urlparse
+from astropy.extern.six.moves.urllib_parse import urljoin, urlparse
 from astropy.extern.six import iteritems
 from astropy.extern import six
 from astropy.table import Table, Column
@@ -64,7 +64,7 @@ class AlmaClass(QueryWithLogin):
 
         if payload is None:
             payload = {}
-        payload.update({'source_name_resolver': object_name,})
+        payload.update({'source_name_resolver': object_name, })
 
         return self.query_async(payload, cache=cache, public=public,
                                 science=science, **kwargs)
@@ -95,7 +95,6 @@ class AlmaClass(QueryWithLogin):
         cstr = coordinate.fk5.to_string(style='hmsdms', sep=':')
         rdc = "{cstr}, {rad}".format(cstr=cstr, rad=radius.to(u.deg).value)
 
-
         if payload is None:
             payload = {}
         payload.update({'ra_dec': rdc})
@@ -124,8 +123,8 @@ class AlmaClass(QueryWithLogin):
 
         url = urljoin(self._get_dataarchive_url(), 'aq/')
 
-        payload.update({'result_view':view_format, 'format':'VOTABLE',
-                        'download':'true'})
+        payload.update({'result_view': view_format, 'format': 'VOTABLE',
+                        'download': 'true'})
         if public:
             payload['public_data'] = 'public'
         if science:
@@ -153,7 +152,7 @@ class AlmaClass(QueryWithLogin):
         bad_kws = {}
 
         for kw in payload:
-            vpayload = {'field':kw,
+            vpayload = {'field': kw,
                         kw: payload[kw]}
             response = self._request('GET', vurl, params=vpayload, cache=cache,
                                      timeout=self.TIMEOUT)
@@ -165,8 +164,6 @@ class AlmaClass(QueryWithLogin):
             raise InvalidQueryError("Invalid query parameters: "
                                     "{0}".format(bad_kws))
 
-
-
     def _get_dataarchive_url(self):
         """
         If the generic ALMA URL is used, query it to determine which mirror to
@@ -176,7 +173,7 @@ class AlmaClass(QueryWithLogin):
             if self.archive_url == 'http://almascience.org':
                 response = self._request('GET', self.archive_url+"/aq", cache=False)
                 response.raise_for_status()
-                self.dataarchive_url = response.url.replace("/aq/","")
+                self.dataarchive_url = response.url.replace("/aq/", "")
             else:
                 self.dataarchive_url = self.archive_url
         return self.dataarchive_url
@@ -222,10 +219,10 @@ class AlmaClass(QueryWithLogin):
         log.debug("First request URL: {0}".format(url))
         #'ALMA+uid___A002_X391d0b_X7b'
         #payload = [('dataset','ALMA+'+clean_uid(uid)) for uid in uids]
-        payload = {'dataset':['ALMA+'+clean_uid(uid) for uid in uids]}
+        payload = {'dataset': ['ALMA+'+clean_uid(uid) for uid in uids]}
         log.debug("First request payload: {0}".format(payload))
 
-        self._staging_log = {'first_post_url':url}
+        self._staging_log = {'first_post_url': url}
 
         # Request staging for the UIDs
         # This component cannot be cached, since the returned data can change
@@ -285,7 +282,7 @@ class AlmaClass(QueryWithLogin):
                                                         'summary'),
                                     cache=False)
             summary.raise_for_status()
-            print(".",end='')
+            print(".", end='')
             sys.stdout.flush()
             has_completed = summary.json()['complete']
 
@@ -306,7 +303,7 @@ class AlmaClass(QueryWithLogin):
                     '{staging_page_id}/ALMA'.format(uri=url_decomposed,
                                                     staging_page_id=dpid,
                                                     username=username,
-                                                   ))
+                                                    ))
         tbl = self._json_summary_to_table(json_data, base_url=base_url)
 
         # staging_root = BeautifulSoup(data_page.content)
@@ -340,7 +337,7 @@ class AlmaClass(QueryWithLogin):
         totalsize = 0*u.B
         data_sizes = {}
         pb = ProgressBar(len(files))
-        for ii,fileLink in enumerate(files):
+        for ii, fileLink in enumerate(files):
             response = self._request('HEAD', fileLink, stream=False,
                                      cache=False, timeout=self.TIMEOUT)
             filesize = (int(response.headers['content-length'])*u.B).to(u.GB)
@@ -350,7 +347,7 @@ class AlmaClass(QueryWithLogin):
             pb.update(ii+1)
             response.raise_for_status()
 
-        return data_sizes,totalsize.to(u.GB)
+        return data_sizes, totalsize.to(u.GB)
 
     def download_files(self, files, cache=True):
         """
@@ -436,8 +433,8 @@ class AlmaClass(QueryWithLogin):
         # Authenticate
         log.info("Authenticating {0} on asa.alma.cl ...".format(username))
         # Do not cache pieces of the login process
-        data = {kw:root.find('input', {'name':kw})['value']
-                for kw in ('lt','_eventId','execution')}
+        data = {kw: root.find('input', {'name': kw})['value']
+                for kw in ('lt', '_eventId', 'execution')}
         data['username'] = username
         data['password'] = password
 
@@ -496,7 +493,7 @@ class AlmaClass(QueryWithLogin):
             # html.parser is needed because some <tr>'s have form:
             # <tr width="blah"> which the default parser does not pick up
             root = BeautifulSoup(response.content, 'html.parser')
-            html_table = root.find('table',class_='grid listing')
+            html_table = root.find('table', class_='grid listing')
             data = list(zip(*[(x.findAll('td')[0].text, x.findAll('td')[1].text)
                               for x in html_table.findAll('tr')]))
             columns = [Column(data=data[0], name='ID'),
@@ -516,7 +513,7 @@ class AlmaClass(QueryWithLogin):
         The table is distributed with astroquery and was provided by Felix
         Stoehr.
         """
-        if not hasattr(self,'_cycle0_table'):
+        if not hasattr(self, '_cycle0_table'):
             filename = resource_filename('astroquery.alma',
                                          'data/cycle0_delivery_asdm_mapping.txt')
             self._cycle0_table = Table.read(filename, format='ascii.no_header')
@@ -609,7 +606,7 @@ class AlmaClass(QueryWithLogin):
             if tarfile_name in self._cycle0_tarfile_content['ID']:
                 # It is a cycle 0 file: need to check if it contains FITS
                 match = (self._cycle0_tarfile_content['ID'] == tarfile_name)
-                if not any(re.match(regex,x) for x in
+                if not any(re.match(regex, x) for x in
                            self._cycle0_tarfile_content['Files'][match]):
                     log.info("No FITS files found in {0}".format(tarfile_name))
                     continue
@@ -648,20 +645,20 @@ class AlmaClass(QueryWithLogin):
 
         print("Valid ALMA keywords:")
 
-        for title,section in help_list:
+        for title, section in help_list:
             print()
             print(title)
             for row in section:
-                if len(row) == 2: # text value
-                    name,payload_keyword = row
-                    print("  {0:33s}: {1:35s}".format(name,payload_keyword))
-                #elif len(row) == 3: # radio button
+                if len(row) == 2:  # text value
+                    name, payload_keyword = row
+                    print("  {0:33s}: {1:35s}".format(name, payload_keyword))
+                # elif len(row) == 3: # radio button
                 #    name,payload_keyword,value = row
                 #    print("  {0:33s}: {1:20s} = {2:15s}".format(name,
                 #                                                    payload_keyword,
                 #                                                    value))
-                elif len(row) == 4: # radio button or checkbox
-                    name,payload_keyword,checkbox,value = row
+                elif len(row) == 4:  # radio button or checkbox
+                    name, payload_keyword, checkbox, value = row
                     print("  {2} {0:29s}: {1:20s} = {3:15s}".format(name,
                                                                     payload_keyword,
                                                                     checkbox,
@@ -682,7 +679,7 @@ class AlmaClass(QueryWithLogin):
             help_list = []
             for section in sections:
                 title = section.find('div', class_='categorytitle').text.lstrip()
-                help_section = (title,[])
+                help_section = (title, [])
                 for inp in section.findAll('div', class_='inputdiv'):
                     sp = inp.find('span')
                     buttons = inp.findAll('input')
@@ -728,10 +725,9 @@ class AlmaClass(QueryWithLogin):
                             name = whitespace.sub(" ", sp.text)
                         else:
                             name = select.attrs['name']
-                        option_str = " , ".join(["{0} = {1}".format(o[0],o[1])
+                        option_str = " , ".join(["{0} = {1}".format(o[0], o[1])
                                                  for o in options])
                         help_section[1].append((name, option_str))
-
 
                 help_list.append(help_section)
             self._help_list = help_list
@@ -742,7 +738,7 @@ class AlmaClass(QueryWithLogin):
         if not hasattr(self, '_valid_params'):
             help_list = self._get_help_page(cache=False)
             self._valid_params = [row[1]
-                                  for title,section in help_list
+                                  for title, section in help_list
                                   for row in section]
             # These parameters are entirely hidden, but Felix says they are
             # allowed
@@ -769,21 +765,21 @@ class AlmaClass(QueryWithLogin):
 
         root = BeautifulSoup(data_list_page.content, 'html5lib')
 
-        #for link in root.findAll('a'):
+        # for link in root.findAll('a'):
         #    if 'script.sh' in link.text:
         #        download_script_url = urljoin(self.dataarchive_url,
         #                                      link['href'])
-        #if 'download_script_url' not in locals():
+        # if 'download_script_url' not in locals():
         #    raise RemoteServiceError("No download links were found.")
 
-        #download_script = self._request('GET', download_script_url,
+        # download_script = self._request('GET', download_script_url,
         #                                cache=False)
         #download_script_target_urls = []
-        #for line in download_script.text.split('\n'):
+        # for line in download_script.text.split('\n'):
         #    if line and line.split() and line.split()[0] == 'wget':
         #        download_script_target_urls.append(line.split()[1].strip('"'))
 
-        #if len(download_script_target_urls) == 0:
+        # if len(download_script_target_urls) == 0:
         #    raise RemoteServiceError("There was an error parsing the download "
         #                             "script; it is empty.  "
         #                             "You can access the download script "
@@ -791,7 +787,7 @@ class AlmaClass(QueryWithLogin):
         #                             "{0}".format(download_script_url))
 
         data_table = root.findAll('table', class_='list', id='report')[0]
-        columns = {'uid':[], 'URL':[], 'size':[]}
+        columns = {'uid': [], 'URL': [], 'size': []}
         for tr in data_table.findAll('tr'):
             tds = tr.findAll('td')
 
@@ -813,7 +809,7 @@ class AlmaClass(QueryWithLogin):
 
             if len(tds) > 3 and (cl and tr['class'][0] == 'fileRow'):
                 # New Style
-                size,unit = re.search('(-|[0-9\.]*)([A-Za-z]*)', tds[2].text).groups()
+                size, unit = re.search('(-|[0-9\.]*)([A-Za-z]*)', tds[2].text).groups()
                 href = tds[1].find('a')
                 if size == '':
                     # this is a header row
@@ -825,7 +821,7 @@ class AlmaClass(QueryWithLogin):
                         columns['URL'].append(href.attrs['href'])
                     else:
                         columns['URL'].append('None_Found')
-                    unit = (u.Unit(unit) if unit in ('GB','MB')
+                    unit = (u.Unit(unit) if unit in ('GB', 'MB')
                             else u.Unit('kB') if 'kb' in unit.lower()
                             else 1)
                     try:
@@ -841,10 +837,10 @@ class AlmaClass(QueryWithLogin):
             elif len(tds) > 3 and tds[2].find('a'):
                 # Old Style
                 href = tds[2].find('a')
-                size,unit = re.search('([0-9\.]*)([A-Za-z]*)', tds[3].text).groups()
+                size, unit = re.search('([0-9\.]*)([A-Za-z]*)', tds[3].text).groups()
                 columns['uid'].append(uid)
                 columns['URL'].append(href.attrs['href'])
-                unit = (u.Unit(unit) if unit in ('GB','MB')
+                unit = (u.Unit(unit) if unit in ('GB', 'MB')
                         else u.Unit('kB') if 'kb' in unit.lower()
                         else 1)
                 columns['size'].append(float(size)*u.Unit(unit))
@@ -860,12 +856,12 @@ class AlmaClass(QueryWithLogin):
                                      "in a bug report."
                                      .format(self._staging_log['data_list_url']))
 
-        #if len(download_script_target_urls) != len(columns['URL']):
+        # if len(download_script_target_urls) != len(columns['URL']):
         #    log.warn("There was an error parsing the data staging page.  "
         #             "The results from the page and the download script "
         #             "differ.  You can access the download script directly "
         #             "from this URL: {0}".format(download_script_url))
-        #else:
+        # else:
         #    bad_urls = []
         #    for (rurl,url) in (zip(columns['URL'],
         #                           download_script_target_urls)):
@@ -882,15 +878,14 @@ class AlmaClass(QueryWithLogin):
         #                 .format(self._staging_log['data_list_url'],
         #                         download_script_url))
 
-        tbl = Table([Column(name=k, data=v) for k,v in iteritems(columns)])
-
+        tbl = Table([Column(name=k, data=v) for k, v in iteritems(columns)])
 
         return tbl
 
     def _json_summary_to_table(self, data, base_url):
         """
         """
-        columns = {'uid':[], 'URL':[], 'size':[]}
+        columns = {'uid': [], 'URL': [], 'size': []}
         for entry in data['node_data']:
             is_file = (entry['de_type'] == 'MOUS'
                        or (entry['file_name'] != 'null'
@@ -917,30 +912,33 @@ class AlmaClass(QueryWithLogin):
                 url = os.path.join(base_url,
                                    entry['file_key'],
                                    entry['file_name'],
-                                  )
+                                   )
                 columns['URL'].append(url)
 
         columns['size'] = u.Quantity(columns['size'], u.Gbyte)
 
-        tbl = Table([Column(name=k, data=v) for k,v in iteritems(columns)])
+        tbl = Table([Column(name=k, data=v) for k, v in iteritems(columns)])
         return tbl
 
 Alma = AlmaClass()
+
 
 def clean_uid(uid):
     """
     Return a uid with all unacceptable characters replaced with underscores
     """
     try:
-        return uid.decode('utf-8').replace(u"/",u"_").replace(u":",u"_")
+        return uid.decode('utf-8').replace(u"/", u"_").replace(u":", u"_")
     except AttributeError:
-        return uid.replace("/","_").replace(":","_")
+        return uid.replace("/", "_").replace(":", "_")
+
 
 def reform_uid(uid):
     """
     Convert a uid with underscores to the original format
     """
     return uid[:3]+"://" + "/".join(uid[6:].split("_"))
+
 
 def unique(seq):
     """
@@ -950,9 +948,11 @@ def unique(seq):
     seen_add = seen.add
     return [x for x in seq if not (x in seen or seen_add(x))]
 
+
 def filter_printable(s):
     """ extract printable characters from a string """
     return filter(lambda x: x in string.printable, s)
+
 
 def parse_frequency_support(frequency_support_str):
     """
@@ -969,6 +969,7 @@ def parse_frequency_support(frequency_support_str):
                    *u.Unit(sup.strip('[] ').split("..")[1].split(',')[0].strip(string.punctuation+string.digits))
                    for sup in supports]
     return freq_ranges
+
 
 def approximate_primary_beam_sizes(frequency_support_str, dish_diameter=12*u.m, first_null=1.220):
     """
@@ -987,6 +988,6 @@ def approximate_primary_beam_sizes(frequency_support_str, dish_diameter=12*u.m, 
     """
     freq_ranges = parse_frequency_support(frequency_support_str)
     beam_sizes = [(first_null*fr.mean().to(u.m, u.spectral())/(dish_diameter)).to(u.arcsec,
-                                                                     u.dimensionless_angles())
+                                                                                  u.dimensionless_angles())
                   for fr in freq_ranges]
     return beam_sizes

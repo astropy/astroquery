@@ -52,13 +52,14 @@ def patch_post(request):
     mp.setattr(requests, 'post', post_mockreturn)
     return mp
 
+
 @pytest.fixture
 def patch_get_readable_fileobj(request):
     @contextmanager
     def get_readable_fileobj_mockreturn(filename, **kwargs):
         # file_obj = StringIO.StringIO(filename)
         if isinstance(filename, string_types):
-            is_binary = kwargs.get('encoding',None) == 'binary'
+            is_binary = kwargs.get('encoding', None) == 'binary'
             file_obj = open(data_path(filename), "r"+('b' if is_binary else ''))
         else:
             file_obj = filename
@@ -82,10 +83,11 @@ def test_query(patch_post, patch_get_readable_fileobj):
     result = B.query(0, 0, 'adam.g.ginsburg@gmail.com')
     assert result is not None
 
+
 def test_default_params():
     """ Ensure that the default parameters of the query match the default
     parameters on the web form (excepting coordinates and e-mail address) """
-    data = besancon.Besancon.query_async(0,0,'a@b.com',get_query_payload=True)
+    data = besancon.Besancon.query_async(0, 0, 'a@b.com', get_query_payload=True)
 
     with open(data_path('default_params.txt')) as f:
         dp = eval(f.read())
@@ -93,6 +95,7 @@ def test_default_params():
     for k in dp:
         assert dp[k] == data[k]
         # DEBUG print "\t".join((str(x) for x in (k, dp[k] == data[k], dp[k], data[k])))
+
 
 class MockResponseBesancon(MockResponse):
 

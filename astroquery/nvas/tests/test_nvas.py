@@ -22,8 +22,8 @@ DATA_FILES = {'image': 'image.imfits',
 
 
 def data_path(filename):
-        data_dir = os.path.join(os.path.dirname(__file__), 'data')
-        return os.path.join(data_dir, filename)
+    data_dir = os.path.join(os.path.dirname(__file__), 'data')
+    return os.path.join(data_dir, filename)
 
 
 @pytest.fixture
@@ -69,11 +69,13 @@ def test_parse_radius(radius):
     out = nvas.core._parse_radius(radius)
     npt.assert_approx_equal(out, 300, significant=3)
 
+
 def deparse_coordinates(cstr):
     """
     '19 23 40.001395 +14 31 01.550347' -> '19:23:40.001395 +14:31:01.550347'
     """
     return re.sub(" ([\+-])", r",\1", cstr).replace(" ", ":").replace(",", " ")
+
 
 @pytest.mark.parametrize(('coordinates'), [COORDS_GAL, COORDS_ICRS])
 def test_parse_coordinates(coordinates):
@@ -111,4 +113,3 @@ def test_get_image_list(patch_post, patch_parse_coordinates):
     image_list = nvas.core.Nvas.get_image_list(COORDS_GAL, radius=15 * u.arcsec,
                                                max_rms=500, band="all")
     assert len(image_list) == 2
-

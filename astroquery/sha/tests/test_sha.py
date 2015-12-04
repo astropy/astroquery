@@ -5,11 +5,11 @@ import os
 from astropy.tests.helper import pytest
 import requests
 
-DATA_FILES = {'img':'img.fits',
-              'nid_t':'nid_t.txt',
-              'pid_t':'pid_t.txt',  # truncated to save space
-              'pos_t':'pos_t.txt',
-              'rqk_t':'rqk_t.txt',
+DATA_FILES = {'img': 'img.fits',
+              'nid_t': 'nid_t.txt',
+              'pid_t': 'pid_t.txt',  # truncated to save space
+              'pos_t': 'pos_t.txt',
+              'rqk_t': 'rqk_t.txt',
               }
 
 

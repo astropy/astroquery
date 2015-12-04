@@ -49,8 +49,8 @@ class MockResponseSimbad(MockResponse):
 
 
 def data_path(filename):
-        data_dir = os.path.join(os.path.dirname(__file__), 'data')
-        return os.path.join(data_dir, filename)
+    data_dir = os.path.join(os.path.dirname(__file__), 'data')
+    return os.path.join(data_dir, filename)
 
 
 @pytest.fixture
@@ -83,7 +83,7 @@ def test_parse_radius(radius, expected_radius):
 
 @pytest.mark.parametrize(('ra', 'dec', 'expected_ra', 'expected_dec'),
                          [(ICRS_COORDS.ra, ICRS_COORDS.dec, u'5:35:17.3',
-                          u'-80:52:00')
+                           u'-80:52:00')
                           ])
 def test_to_simbad_format(ra, dec, expected_ra, expected_dec):
     actual_ra, actual_dec = simbad.core._to_simbad_format(ra, dec)
@@ -125,11 +125,11 @@ votable_fields = ",".join(simbad.core.Simbad.get_votable_fields())
                          [([ICRS_COORDS], dict(radius=5.0 * u.deg, frame='ICRS',
                                                equinox=2000.0, epoch='J2000',
                                                caller='query_region_async'),
-                          ("\nvotable {" + votable_fields + "}\n"
-                           "votable open\n"
-                           "query coo  5:35:17.3 -80:52:00 "
-                           "radius=5d frame=ICRS equi=2000.0 epoch=J2000 \n"
-                           "votable close")),
+                           ("\nvotable {" + votable_fields + "}\n"
+                            "votable open\n"
+                            "query coo  5:35:17.3 -80:52:00 "
+                            "radius=5d frame=ICRS equi=2000.0 epoch=J2000 \n"
+                            "votable close")),
                           (["m [0-9]"], dict(wildcard=True, caller='query_object_async'),
                            ("\nvotable {" + votable_fields + "}\n"
                             "votable open\n"
@@ -277,7 +277,7 @@ def test_query_region_small_radius(patch_post, coordinates, radius, equinox, epo
 
 @pytest.mark.parametrize(('object_name', 'wildcard'),
                          [("m1", None),
-                         ("m [0-9]", True)
+                          ("m [0-9]", True)
                           ])
 def test_query_object_async(patch_post, object_name, wildcard):
     response1 = simbad.core.Simbad.query_object_async(object_name,
@@ -290,7 +290,7 @@ def test_query_object_async(patch_post, object_name, wildcard):
 
 @pytest.mark.parametrize(('object_name', 'wildcard'),
                          [("m1", None),
-                         ("m [0-9]", True),
+                          ("m [0-9]", True),
                           ])
 def test_query_object(patch_post, object_name, wildcard):
     result1 = simbad.core.Simbad.query_object(object_name,
@@ -380,6 +380,7 @@ def test_regression_votablesettings2():
     assert simbad.core.Simbad.get_votable_fields() == ['main_id', 'coordinates', 'fluxdata(J)', 'fluxdata(H)', 'fluxdata(K)']
     simbad.core.Simbad.remove_votable_fields('fluxdata', strip_params=True)
     assert simbad.core.Simbad.get_votable_fields() == ['main_id', 'coordinates']
+
 
 def test_regression_issue388():
     # This is a python-3 issue: content needs to be decoded?

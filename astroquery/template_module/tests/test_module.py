@@ -1,4 +1,4 @@
-#Licensed under a 3-clause BSD style license - see LICENSE.rst
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
 from __future__ import print_function
 
 # astroquery uses the pytest framework for testing
@@ -52,7 +52,6 @@ def data_path(filename):
     return os.path.join(data_dir, filename)
 
 
-
 # define a monkeypatch replacement request function that returns the
 # dummy HTTP response for the dummy 'get' function, by
 # reading in data from some data file:
@@ -62,7 +61,6 @@ def nonremote_request(self, request_type, url, **kwargs):
     with open(data_path(DATA_FILES[request_type][url]), 'rb') as f:
         response = MockResponse(content=f.read(), url=url)
     return response
-
 
 
 # use a pytest fixture to create a dummy 'requests.get' function,

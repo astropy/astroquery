@@ -229,6 +229,7 @@ class suspend_cache:
     """
     A context manager that suspends caching.
     """
+
     def __init__(self, obj):
         self.obj = obj
 

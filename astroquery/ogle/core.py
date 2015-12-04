@@ -118,7 +118,7 @@ class OgleClass(BaseQuery):
         # Generate payload
         query_header = '# {0} {1} {2}\n'.format(coord_sys, algorithm, quality)
         sources = '\n'.join(['{0} {1}'.format(lon, lat) for lon, lat in
-                            zip(lon, lat)])
+                             zip(lon, lat)])
         file_data = query_header + sources
         files = {'file1': file_data}
         return files
@@ -133,7 +133,7 @@ class OgleClass(BaseQuery):
         """
         files = self._args_to_payload(*args, **kwargs)
         # Make request
-        params = {'dnfile':'submit'}
+        params = {'dnfile': 'submit'}
         response = commons.send_request(url=self.DATA_URL,
                                         data=params,
                                         timeout=self.TIMEOUT,

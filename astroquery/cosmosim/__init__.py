@@ -12,6 +12,7 @@ CosmoSim Database Query Tool
 
 from astropy import config as _config
 
+
 class Conf(_config.ConfigNamespace):
     """
     Configuration parameters for `astroquery.cosmosim`.
@@ -29,9 +30,9 @@ class Conf(_config.ConfigNamespace):
         60.0,
         'Timeout for CosmoSim query'
         )
-    
+
 conf = Conf()
 
-from .core import CosmoSim,CosmoSimClass
+from .core import CosmoSim, CosmoSimClass
 
 __all__ = ['CosmoSim', 'CosmoSimClass', 'Conf', 'conf']

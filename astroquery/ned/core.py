@@ -228,7 +228,7 @@ class NedClass(BaseQuery):
         return result
 
     def query_region_iau_async(self, iau_name, frame='Equatorial', equinox='B1950.0',
-                         get_query_payload=False):
+                               get_query_payload=False):
         """
         Serves the same purpose as `~NedClass.query_region_iau` but returns the raw HTTP response rather
         than the `astropy.table.Table` object.

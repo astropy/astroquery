@@ -94,8 +94,8 @@ class LcogtClass(BaseQuery):
     @property
     def catalogs(self):
         """ immutable catalog listing """
-        return {'lco_cat' : 'Photometry archive from LCOGT',
-                'lco_img' : 'Image metadata archive from LCOGT'}
+        return {'lco_cat': 'Photometry archive from LCOGT',
+                'lco_img': 'Image metadata archive from LCOGT'}
 
     def query_object_async(self, objstr, catalog=None, cache=True,
                            get_query_payload=False):
@@ -131,7 +131,6 @@ class LcogtClass(BaseQuery):
                                  params=request_payload, timeout=self.TIMEOUT,
                                  cache=cache)
         return response
-
 
     def query_region_async(self, coordinates=None, catalog=None,
                            spatial='Cone', radius=10*u.arcsec, width=None,
@@ -187,7 +186,6 @@ class LcogtClass(BaseQuery):
         if catalog not in self.catalogs:
             raise ValueError("Catalog name must be one of {0}"
                              .format(self.catalogs))
-
 
         request_payload = self._args_to_payload(catalog)
         request_payload.update(self._parse_spatial(spatial=spatial,
@@ -264,8 +262,8 @@ class LcogtClass(BaseQuery):
             try:
                 coordinates_list = [_parse_coordinates(c) for c in polygon]
             except (ValueError, TypeError):
-                    coordinates_list = [_format_decimal_coords(*_pair_to_deg(pair))
-                                        for pair in polygon]
+                coordinates_list = [_format_decimal_coords(*_pair_to_deg(pair))
+                                    for pair in polygon]
             request_payload['polygon'] = ','.join(coordinates_list)
         else:
             raise ValueError("Unrecognized spatial query type. "
@@ -392,6 +390,7 @@ def _parse_coordinates(coordinates):
     c_icrs = c.transform_to(coord.ICRS)
     formatted_coords = _format_decimal_coords(c_icrs.ra.degree, c_icrs.dec.degree)
     return formatted_coords
+
 
 def _pair_to_deg(pair):
     """ Turn a pair of floats, Angles, or Quantities into pairs of float degrees """

@@ -14,9 +14,11 @@ objcoords = {'Eta Carinae': coordinates.SkyCoord(ra=161.264775 * u.deg,
                                                  dec=-59.6844306 * u.deg,
                                                  frame='icrs'), }
 
+
 @pytest.fixture
 def patch_fromname(request):
     mp = request.getfuncargvalue("monkeypatch")
+
     def fromname(self, name):
         if isinstance(name, str):
             return objcoords[name]
@@ -26,12 +28,14 @@ def patch_fromname(request):
                'from_name',
                types.MethodType(fromname, commons.ICRSCoord))
 
+
 class MockResponseSkyView(MockResponse):
     def __init__(self):
         super(MockResponseSkyView, self).__init__()
 
     def get_content(self):
         return self.content
+
 
 class MockResponseSkyviewForm(MockResponse):
     def __init__(self, method, url, cache=False, params=None, **kwargs):
@@ -40,7 +44,7 @@ class MockResponseSkyviewForm(MockResponse):
 
     def get_content(self, method, url):
         if 'basicform.pl' in url and method=='GET':
-            with open(data_path('query_page.html'),'r') as f:
+            with open(data_path('query_page.html'), 'r') as f:
                 return f.read()
         elif 'runquery.pl' in url and method =='GET':
             with open(data_path('results.html'), 'r') as f:
@@ -61,12 +65,14 @@ def patch_get(request):
     mp.setattr(SkyView, '_request', MockResponseSkyviewForm)
     return mp
 
+
 def test_get_image_list_local(patch_get, patch_fromname):
     urls = SkyView.get_image_list(position='Eta Carinae',
                                   survey=['Fermi 5', 'HRI', 'DSS'])
     assert len(urls) == 3
     for url in urls:
         assert url.startswith('../../tempspace/fits/')
+
 
 def test_survey_validation(patch_get):
     with pytest.raises(ValueError) as ex:

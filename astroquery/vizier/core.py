@@ -36,7 +36,7 @@ class VizierClass(BaseQuery):
     _str_schema = schema.Or(*six.string_types)
     _schema_columns = schema.Schema([_str_schema], error="columns must be a list of strings")
     _schema_ucd = schema.Schema(_str_schema, error="ucd must be string")
-    _schema_column_filters = schema.Schema({schema.Optional(_str_schema):_str_schema},
+    _schema_column_filters = schema.Schema({schema.Optional(_str_schema): _str_schema},
                                            error="column_filters must be a dictionary where both keys and values are strings")
     _schema_catalog = schema.Schema(schema.Or([_str_schema], _str_schema, None),
                                     error="catalog must be a list of strings or a single string")
@@ -295,8 +295,8 @@ class VizierClass(BaseQuery):
                       'today,J2000,B1975,B1950,B1900,B1875,B1855,Galactic,Supergal.,Ecl.J2000'.split(",")
                       else 'J2000')
             # oname = "{name}({arcmin} {cframe})".format(name=object_name, arcmin=radius_arcmin, cframe)
-            center = {'-c': object_name, '-c.u':'arcmin', '-c.geom':'r',
-                      '-c.r': radius_arcmin, '-c.eq':cframe}
+            center = {'-c': object_name, '-c.u': 'arcmin', '-c.geom': 'r',
+                      '-c.r': radius_arcmin, '-c.eq': cframe}
 
         data_payload = self._args_to_payload(
             center=center,
@@ -372,9 +372,9 @@ class VizierClass(BaseQuery):
                                                         coordinates.keys())):
                 pos_list = []
                 sky_coord = coord.SkyCoord(coordinates["_RAJ2000"],
-                                          coordinates["_DEJ2000"],
-                                          unit=(coordinates["_RAJ2000"].unit,
-                                                coordinates["_DEJ2000"].unit))
+                                           coordinates["_DEJ2000"],
+                                           unit=(coordinates["_RAJ2000"].unit,
+                                                 coordinates["_DEJ2000"].unit))
                 for (ra, dec) in zip(sky_coord.ra, sky_coord.dec):
                     ra_deg = ra.to_string(unit="deg", decimal=True, precision=8)
                     dec_deg = dec.to_string(unit="deg", decimal=True,
@@ -529,7 +529,7 @@ class VizierClass(BaseQuery):
             columns = self.columns + columns
 
         # keyword names that can mean 'all' need to be treated separately
-        alls = ['all','*']
+        alls = ['all', '*']
         if any(x in columns for x in alls):
             for x in alls:
                 if x in columns:
@@ -651,6 +651,7 @@ class VizierClass(BaseQuery):
 
         return self._valid_keyword_dict
 
+
 def parse_vizier_tsvfile(data, verbose=False):
     """
     Parse a Vizier-generated list of tsv data tables into a list of astropy
@@ -668,8 +669,9 @@ def parse_vizier_tsvfile(data, verbose=False):
     split_limits = zip(split_indices[:-1], split_indices[1:])
     tables = [ascii.read(BytesIO(data[a:b]), format='fast_tab', delimiter='\t',
                          header_start=0, comment="#") for
-              a,b in split_limits]
+              a, b in split_limits]
     return tables
+
 
 def parse_vizier_votable(data, verbose=False, invalid='warn',
                          get_catalog_names=False):

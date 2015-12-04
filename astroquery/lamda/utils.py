@@ -3,6 +3,7 @@ import re
 from astropy import constants
 from astropy import units as u
 
+
 def ncrit(lamda_tables, transition_upper, transition_lower, temperature, OPR=3,
           partners=['H2', 'OH2', 'PH2']):
     """
@@ -36,7 +37,7 @@ def ncrit(lamda_tables, transition_upper, transition_lower, temperature, OPR=3,
     ncrit : astropy.units.Quantity
         A quantity with units cm^-3
     """
-    
+
     fortho = (OPR)/(OPR-1)
 
     # exclude partners that are explicitly excluded
@@ -52,34 +53,33 @@ def ncrit(lamda_tables, transition_upper, transition_lower, temperature, OPR=3,
     crate_temperatures = np.array([int(temperature_re.search(cn).groups()[0])
                                    for cn in crates[list(crates.keys())[0]].keys()
                                    if temperature_re.search(cn)
-                         ])
+                                   ])
     if temperature < crate_temperatures.min():
         crates_ji_all = {coll: cr['C_ij(T={0})'.format(crate_temperatures.min())]
-                         for coll,cr in crates.items()}
+                         for coll, cr in crates.items()}
     elif temperature > crate_temperatures.max():
         crates_ji_all = {coll: cr['C_ij(T={0})'.format(crate_temperatures.max())]
-                         for coll,cr in crates.items()}
+                         for coll, cr in crates.items()}
     elif temperature in crate_temperatures:
         crates_ji_all = {coll: cr['C_ij(T={0})'.format(temperature)]
-                         for coll,cr in crates.items()}
-    else: # interpolate
+                         for coll, cr in crates.items()}
+    else:  # interpolate
         nearest = np.argmin(np.abs(temperature-crate_temperatures))
         if crate_temperatures[nearest] < temperature:
             low, high = crate_temperatures[nearest], crate_temperatures[nearest+1]
         else:
             low, high = crate_temperatures[nearest-1], crate_temperatures[nearest]
-        crates_ji_all = {coll: 
+        crates_ji_all = {coll:
                               (cr['C_ij(T={0})'.format(high)]-cr['C_ij(T={0})'.format(low)])*(temperature-low)/(high-low)
                                +cr['C_ij(T={0})'.format(low)]
-                         for coll,cr in crates.items()}
+                         for coll, cr in crates.items()}
 
-    transition_indices_ji = {coll: np.nonzero(cr['Upper']==transition_upper)[0] for coll,cr in crates.items()}
+    transition_indices_ji = {coll: np.nonzero(cr['Upper']==transition_upper)[0] for coll, cr in crates.items()}
     crates_ji = {coll: crates_ji_all[coll][transition_indices_ji[coll]]
                  for coll in crates}
 
-
     # i > j: collisions from higher levels
-    transition_indices_ij = {coll: np.nonzero(cr['Lower']==transition_upper)[0] for coll,cr in crates.items()}
+    transition_indices_ij = {coll: np.nonzero(cr['Lower']==transition_upper)[0] for coll, cr in crates.items()}
     crates_ij = {}
     for coll in crates.keys():
         degeneracies_i = enlevs['Weight'][crates[coll][transition_indices_ij[coll]]['Upper']-1]
@@ -98,6 +98,5 @@ def ncrit(lamda_tables, transition_upper, transition_lower, temperature, OPR=3,
         crates_tot = crates_tot_percollider['PH2']
     elif 'H2' in crates:
         crates_tot = crates_tot_percollider['H2']
-
 
     return ((aval*u.s**-1) / crates_tot).to(u.cm**-3)

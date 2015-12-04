@@ -174,7 +174,6 @@ class NraoClass(BaseQuery):
             request_payload['CENTER_RA'] = str(c.ra.degree) + 'd'
             request_payload['CENTER_DEC'] = str(c.dec.degree) + 'd'
 
-
         return request_payload
 
     @prepend_docstr_noreturns(_args_to_payload.__doc__)
@@ -223,7 +222,6 @@ class NraoClass(BaseQuery):
                                 obs_band=obs_band,
                                 sub_array=sub_array,
                                 get_query_payload=get_query_payload)
-
 
     def _parse_result(self, response, verbose=False):
         if not verbose:

@@ -43,7 +43,7 @@ class TestIrsa:
                    coord.SkyCoord(ra=10.0, dec=10.1, unit=(u.deg, u.deg)),
                    coord.SkyCoord(ra=10.0, dec=10.0, unit=(u.deg, u.deg))]
         response = irsa.core.Irsa.query_region_async("m31", catalog="fp_psc", spatial="Polygon",
-                                                 polygon=polygon)
+                                                     polygon=polygon)
         assert response is not None
 
     def test_query_region_polygon(self):

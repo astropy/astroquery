@@ -16,8 +16,8 @@ class Conf(_config.ConfigNamespace):
                                       'http://almascience.eso.org',
                                       'http://almascience.nrao.edu',
                                       'http://almascience.nao.ac.jp',
-                                      'http://beta.cadc-ccda.hia-iha.nrc-cnrc.gc.ca', # the beta server (for testing)
-                                     ],
+                                      'http://beta.cadc-ccda.hia-iha.nrc-cnrc.gc.ca',  # the beta server (for testing)
+                                      ],
                                      'The ALMA Archive mirror to use')
 
 conf = Conf()
@@ -27,5 +27,3 @@ from .core import Alma, AlmaClass
 __all__ = ['Alma', 'AlmaClass',
            'Conf', 'conf',
            ]
-
-

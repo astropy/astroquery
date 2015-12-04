@@ -18,6 +18,5 @@ SKIP_TESTS = not HAS_KEYRING
 
 #@pytest.mark.skipif('SKIP_TESTS')
 #@remote_data
-#class TestEso:
+# class TestEso:
 #    def __init__():
-

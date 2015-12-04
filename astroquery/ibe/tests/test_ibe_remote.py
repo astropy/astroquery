@@ -9,6 +9,7 @@ from ... import ibe
 # Some very basic remote tests based on examples from
 # http://www.ptf.caltech.edu/system/media_files/binaries/5/original/ptf_irsaibeguide.pdf
 
+
 @remote_data
 def test_ibe_pos():
     table = ibe.Ibe.query_region(
@@ -16,6 +17,7 @@ def test_ibe_pos():
         where='expid <= 43010')
     assert isinstance(table, Table)
     assert len(table) == 21
+
 
 @remote_data
 def test_ibe_field_id():

@@ -95,10 +95,10 @@ def send_request(url, data, timeout, request_type='POST', headers={},
         return response
 
     except requests.exceptions.Timeout:
-            raise TimeoutError("Query timed out, time elapsed {time}s".
-                               format(time=timeout))
+        raise TimeoutError("Query timed out, time elapsed {time}s".
+                           format(time=timeout))
     except requests.exceptions.RequestException:
-            raise Exception("Query failed\n")
+        raise Exception("Query failed\n")
 
 
 def parse_radius(radius):
@@ -236,6 +236,7 @@ class TableList(list):
     >>> t['b']
     2
     """
+
     def __init__(self, inp):
         if not isinstance(inp, OrderedDict):
             # py3 doesn't let you catch 2 types of errors.
@@ -467,6 +468,7 @@ def get_readable_fileobj(*args, **kwargs):
     it in astroquery without affecting astropy core functionality
     """
     return aud.get_readable_fileobj(*args, **kwargs)
+
 
 def parse_votable(content):
     """

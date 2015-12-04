@@ -32,14 +32,14 @@ class TestUkidss:
 
     def test_get_image_list(self):
         urls = ukidss.core.Ukidss.get_image_list(coord.ICRS
-                                            (ra=83.633083, dec=22.0145, unit=(u.deg, u.deg)),
-            frame_type='all', waveband='all')
+                                                 (ra=83.633083, dec=22.0145, unit=(u.deg, u.deg)),
+                                                 frame_type='all', waveband='all')
         assert len(urls) > 0
 
     def test_query_region_async(self):
         response = ukidss.core.Ukidss.query_region_async(coord.Galactic
-                                                   (l=10.625, b=-0.38, unit=(u.deg, u.deg)),
-            radius=6 * u.arcsec)
+                                                         (l=10.625, b=-0.38, unit=(u.deg, u.deg)),
+                                                         radius=6 * u.arcsec)
         assert response is not None
 
     def test_query_region(self):

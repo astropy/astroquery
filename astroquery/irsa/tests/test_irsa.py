@@ -111,8 +111,8 @@ def test_query_region_box(coordinates, patch_get):
     assert isinstance(result, Table)
 
 poly1 = [coord.SkyCoord(ra=10.1, dec=10.1, unit=(u.deg, u.deg)),
-        coord.SkyCoord(ra=10.0, dec=10.1, unit=(u.deg, u.deg)),
-        coord.SkyCoord(ra=10.0, dec=10.0, unit=(u.deg, u.deg))]
+         coord.SkyCoord(ra=10.0, dec=10.1, unit=(u.deg, u.deg)),
+         coord.SkyCoord(ra=10.0, dec=10.0, unit=(u.deg, u.deg))]
 poly2 = [(10.1 * u.deg, 10.1 * u.deg), (10.0 * u.deg, 10.1 * u.deg), (10.0 * u.deg, 10.0 * u.deg)]
 
 
@@ -125,7 +125,7 @@ def test_query_region_async_polygon(polygon, patch_get):
                                                  polygon=polygon, get_query_payload=True)
 
     for a, b in zip(re.split("[ ,]", response["polygon"]),
-                   re.split("[ ,]", "10.1 +10.1,10.0 +10.1,10.0 +10.0")):
+                    re.split("[ ,]", "10.1 +10.1,10.0 +10.1,10.0 +10.0")):
         for a1, b1 in zip(a.split(), b.split()):
             a1 = float(a1)
             b1 = float(b1)
@@ -156,4 +156,3 @@ def test_spatial_valdi(spatial, result):
 def test_spatial_invalid(spatial):
     with pytest.raises(ValueError):
         irsa.core.Irsa._parse_spatial(spatial, coordinates='m31')
-

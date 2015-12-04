@@ -51,7 +51,7 @@ class Or(And):
             except SchemaError as _x:
                 x = _x
         raise SchemaError(['%r did not validate %r' % (self, data)] + x.autos,
-                         [self._error] + x.errors)
+                          [self._error] + x.errors)
 
 
 class Use(object):
@@ -86,7 +86,7 @@ def priority(s):
     # We exclude Optional from the test, otherwise it will make a
     # catch-all rule like "str" take precedence over any optional field,
     # which would be inintuitive.
-    if hasattr(s, 'validate')  and not type(s) is Optional:
+    if hasattr(s, 'validate') and not type(s) is Optional:
         return 4
     if type(s) is type:
         return 3
@@ -159,7 +159,7 @@ class Schema(object):
                 raise SchemaError([None] + x.autos, [e] + x.errors)
             except BaseException as x:
                 raise SchemaError('%r.validate(%r) raised %r' % (s, data, x),
-                                 self._error)
+                                  self._error)
         if type(s) is type:
             if isinstance(data, s):
                 return data

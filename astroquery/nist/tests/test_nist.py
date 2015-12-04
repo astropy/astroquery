@@ -49,4 +49,3 @@ def test_query_async(patch_get):
 def test_query(patch_get):
     result = nist.core.Nist.query(4000 * u.nm, 7000 * u.nm, "H I")
     assert isinstance(result, Table)
-

@@ -90,7 +90,7 @@ class SimbadClass(BaseQuery):
                 '*': 'Any string of characters (including an empty one)',
                 '?': 'Any character (exactly one character)',
                 '[abc]': ('Exactly one character taken in the list. '
-                'Can also be defined by a range of characters: [A-Z]'
+                          'Can also be defined by a range of characters: [A-Z]'
                           ),
                 '[^0-9]': 'Any (one) character not in the list.'
 
@@ -161,7 +161,7 @@ class SimbadClass(BaseQuery):
         votable_fields_table = Table.read(get_pkg_data_filename
                                           (os.path.join('data',
                                                         'votable_fields_table.txt')),
-                                         format='ascii')
+                                          format='ascii')
         print("Available VOTABLE fields: ")
         print(votable_fields_table)
 
@@ -324,7 +324,7 @@ class SimbadClass(BaseQuery):
         """
         request_payload = self._args_to_payload(caller='query_criteria_async', *args, **kwargs)
         response = commons.send_request(self.SIMBAD_URL, request_payload,
-                                self.TIMEOUT)
+                                        self.TIMEOUT)
         return response
 
     def query_object(self, object_name, wildcard=False, verbose=False):
@@ -370,9 +370,8 @@ class SimbadClass(BaseQuery):
         request_payload = self._args_to_payload(object_name, wildcard=wildcard,
                                                 caller='query_object_async')
         response = commons.send_request(self.SIMBAD_URL, request_payload,
-                                self.TIMEOUT)
+                                        self.TIMEOUT)
         return response
-
 
     def query_objects(self, object_names, wildcard=False, verbose=False):
         """
@@ -441,7 +440,7 @@ class SimbadClass(BaseQuery):
         # if the identifier is given rather than the coordinates, convert to
         # coordinates
         result = self.query_region_async(coordinates, radius=radius,
-                                        equinox=equinox, epoch=epoch)
+                                         equinox=equinox, epoch=epoch)
         return self._parse_result(result, SimbadVOTableResult, verbose=verbose)
 
     def query_region_async(self, coordinates, radius=None, equinox=None,
@@ -515,7 +514,7 @@ class SimbadClass(BaseQuery):
         request_payload = self._args_to_payload(catalog,
                                                 caller='query_catalog_async')
         response = commons.send_request(self.SIMBAD_URL, request_payload,
-                                self.TIMEOUT)
+                                        self.TIMEOUT)
         return response
 
     def query_bibobj(self, bibcode, verbose=False):
@@ -555,7 +554,7 @@ class SimbadClass(BaseQuery):
         request_payload = self._args_to_payload(
             bibcode, caller='query_bibobj_async')
         response = commons.send_request(self.SIMBAD_URL, request_payload,
-                                self.TIMEOUT)
+                                        self.TIMEOUT)
         return response
 
     def query_bibcode(self, bibcode, wildcard=False, verbose=False):
@@ -807,6 +806,7 @@ error_regex = re.compile(r'(?ms)\[(?P<line>\d+)\]\s?(?P<msg>.+?)(\[|\Z)')
 SimbadError = namedtuple('SimbadError', ('line', 'msg'))
 VersionInfo = namedtuple('VersionInfo', ('major', 'minor', 'micro', 'patch'))
 
+
 class SimbadResult(object):
     __sections = ('script', 'console', 'error', 'data')
 
@@ -824,16 +824,16 @@ class SimbadResult(object):
     def __split_sections(self):
         for section in self.__sections:
             match = re.search(r'(?ims)^::%s:+?$(?P<content>.*?)(^::|\Z)' %
-                             section, self.__txt)
+                              section, self.__txt)
             if match:
                 self.__indexes[section] = (match.start('content'),
-                              match.end('content'))
+                                           match.end('content'))
 
     def __parse_console_section(self):
         if self.console is None:
             return
         match = re.search(r'(?ims)total execution time: ([.\d]+?)\s*?secs',
-                         self.console)
+                          self.console)
         if match:
             try:
                 self.exectime = float(match.group(1))
@@ -841,21 +841,21 @@ class SimbadResult(object):
                 # TODO: do something useful here.
                 pass
         match = re.search(r'(?ms)SIMBAD(\d) rel (\d)[.](\d+)([^\d^\s])?',
-                         self.console)
+                          self.console)
         if match:
             self.sim_version = VersionInfo(*match.groups(None))
 
     def __warn(self):
         for error in self.errors:
             warnings.warn("Warning: The script line number %i raised "
-                         "an error (recorded in the `errors` attribute "
-                         "of the result table): %s" %
-                         (error.line, error.msg))
+                          "an error (recorded in the `errors` attribute "
+                          "of the result table): %s" %
+                          (error.line, error.msg))
 
     def __get_section(self, section_name):
         if section_name in self.__indexes:
             return self.__txt[self.__indexes[section_name][0]:
-                             self.__indexes[section_name][1]].strip()
+                              self.__indexes[section_name][1]].strip()
 
     @property
     def script(self):
@@ -880,7 +880,7 @@ class SimbadResult(object):
             return result
         for err in error_regex.finditer(self.error_raw):
             result.append(SimbadError(int(err.group('line')),
-                         err.group('msg').replace('\n', ' ')))
+                                      err.group('msg').replace('\n', ' ')))
         return result
 
     @property
@@ -889,15 +889,16 @@ class SimbadResult(object):
             return 0
         return len(self.errors)
 
+
 class SimbadVOTableResult(SimbadResult):
     """VOTable-type Simbad result"""
+
     def __init__(self, txt, verbose=False, pedantic=False):
         self.__pedantic = pedantic
         self.__table = None
         if not verbose:
             commons.suppress_vo_warnings()
         super(SimbadVOTableResult, self).__init__(txt, verbose=verbose)
-
 
     @property
     def table(self):
@@ -909,6 +910,8 @@ class SimbadVOTableResult(SimbadResult):
         return self.__table
 
 bibcode_regex = re.compile(r'query\s+bibcode\s+(wildcard)?\s+([\w]*)')
+
+
 class SimbadBibcodeResult(SimbadResult):
     """Bibliography-type Simbad result"""
     @property
@@ -921,6 +924,7 @@ class SimbadBibcodeResult(SimbadResult):
         for ref in ref_list:
             table.add_row([ref])
         return table
+
 
 class SimbadObjectIDsResult(SimbadResult):
     """Object identifier list Simbad result"""

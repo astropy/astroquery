@@ -36,20 +36,20 @@ def patch_get(request):
 
 
 def get_mockreturn(self, method, url,
-        params=None,
-        data=None,
-        headers=None,
-        cookies=None,
-        files=None,
-        auth=None,
-        timeout=None,
-        allow_redirects=True,
-        proxies=None,
-        hooks=None,
-        stream=None,
-        verify=None,
-        cert=None,
-        json=None):
+                   params=None,
+                   data=None,
+                   headers=None,
+                   cookies=None,
+                   files=None,
+                   auth=None,
+                   timeout=None,
+                   allow_redirects=True,
+                   proxies=None,
+                   hooks=None,
+                   stream=None,
+                   verify=None,
+                   cert=None,
+                   json=None):
     filename = data_path(DATA_FILES[(url, params and frozenset(params.items()))])
     content = open(filename, 'rb').read()
     return MockResponse(

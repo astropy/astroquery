@@ -104,7 +104,7 @@ class SDSSClass(BaseQuery):
                 not isinstance(coordinates, Column) and
                 not (isinstance(coordinates, commons.CoordClasses) and
                      not coordinates.isscalar)):
-                coordinates = [coordinates]
+            coordinates = [coordinates]
 
         if obj_names is None:
             obj_names = ['obj_{0}'.format(i) for i in range(len(coordinates))]
@@ -835,9 +835,9 @@ class SDSSClass(BaseQuery):
         if 'error_message' in io.BytesIO(response.content):
             raise RemoteServiceError(response.content)
         arr = np.atleast_1d(np.genfromtxt(io.BytesIO(response.content),
-                            names=True, dtype=None, delimiter=',',
-                            skip_header=1,  # this may be a hack; it is necessary for tests to pass
-                            comments='#'))
+                                          names=True, dtype=None, delimiter=',',
+                                          skip_header=1,  # this may be a hack; it is necessary for tests to pass
+                                          comments='#'))
 
         if len(arr) == 0:
             return None

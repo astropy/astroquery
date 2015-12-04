@@ -12,6 +12,7 @@ __all__ = ['FermiLAT', 'FermiLATClass',
            'GetFermilatDatafile', 'get_fermilat_datafile',
            ]
 
+
 @async_to_sync
 class FermiLATClass(BaseQuery):
     """
@@ -74,16 +75,15 @@ class FermiLATClass(BaseQuery):
         payload_dict : Requests payload in a dictionary
         """
 
-
-        payload = {'shapefield':str(searchradius),
-                   'coordsystem':'J2000',
-                   'coordfield':_parse_coordinates(name_or_coords),
-                   'destination':'query',
-                   'timefield':obsdates,
+        payload = {'shapefield': str(searchradius),
+                   'coordsystem': 'J2000',
+                   'coordfield': _parse_coordinates(name_or_coords),
+                   'destination': 'query',
+                   'timefield': obsdates,
                    'timetype': timesys,
-                   'energyfield':energyrange_MeV,
+                   'energyfield': energyrange_MeV,
                    'photonOrExtendedOrNone': LATdatatype,
-                   'spacecraft':'on' if spacecraftdata else 'off'}
+                   'spacecraft': 'on' if spacecraftdata else 'off'}
 
         return payload
 
@@ -95,6 +95,7 @@ class FermiLATClass(BaseQuery):
 
 FermiLAT = FermiLATClass()
 
+
 def _parse_coordinates(coordinates):
     try:
         c = commons.parse_coordinates(coordinates)
@@ -104,9 +105,11 @@ def _parse_coordinates(coordinates):
     except (u.UnitsError, TypeError):
         raise Exception("Coordinates not specified correctly")
 
+
 def _fermi_format_coords(c):
     c = c.transform_to('fk5')
     return "{0:0.5f},{1:0.5f}".format(c.ra.degree, c.dec.degree)
+
 
 class GetFermilatDatafile(object):
     """

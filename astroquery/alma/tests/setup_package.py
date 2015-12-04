@@ -11,4 +11,3 @@ def get_package_data():
              os.path.join('data', '*.json'),
              ]
     return {'astroquery.alma.tests': paths}
-

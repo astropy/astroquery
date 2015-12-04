@@ -42,6 +42,8 @@ def gunzip(filename):
         return filename
 
 # If astropy#2793 is merged, this should be replaced with astropy.in_ipynb
+
+
 def in_ipynb():
     try:
         cfg = get_ipython().config

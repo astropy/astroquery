@@ -197,6 +197,7 @@ class NvasClass(BaseQuery):
 
 Nvas = NvasClass()
 
+
 def _parse_coordinates(coordinates):
     """
     Helper function to parse the entered coordinates in form expected by NVAS

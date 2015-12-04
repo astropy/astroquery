@@ -88,7 +88,7 @@ class EsoClass(QueryWithLogin):
             if tag_name == 'input':
                 is_file = (form_elem.get('type') == 'file')
                 value = form_elem.get('value')
-                if form_elem.get('type') in ['checkbox','radio']:
+                if form_elem.get('type') in ['checkbox', 'radio']:
                     if form_elem.has_attr('checked'):
                         if not value:
                             value = 'on'
@@ -267,8 +267,8 @@ class EsoClass(QueryWithLogin):
                                               inputs=query_dict, cache=cache)
 
         content = survey_response.content
-        #First line is always garbage
-        content = content.split(b'\n',1)[1]
+        # First line is always garbage
+        content = content.split(b'\n', 1)[1]
         log.debug("Response content:\n{0}".format(content))
         if _check_response(content):
             try:
@@ -319,7 +319,7 @@ class EsoClass(QueryWithLogin):
 
         """
 
-        if instrument in ('feros','harps'):
+        if instrument in ('feros', 'harps'):
             url = 'http://archive.eso.org/wdb/wdb/eso/repro/form'
         elif instrument == 'grond':
             url = 'http://archive.eso.org/wdb/wdb/eso/eso_archive_main/form'
@@ -356,7 +356,7 @@ class EsoClass(QueryWithLogin):
                                                       form_index=0,
                                                       inputs=query_dict, cache=cache)
             content = instrument_response.content
-            #First line is always garbage
+            # First line is always garbage
             content = content.split(b'\n', 1)[1]
             log.debug("Response content:\n{0}".format(content))
             if _check_response(content):
@@ -557,7 +557,7 @@ class EsoClass(QueryWithLogin):
                 fileLink = "http://dataportal.eso.org/dataPortal"+fileId.attrs['value'].split()[1]
                 filename = self._request("GET", fileLink, save=True)
                 files.append(system_tools.gunzip(filename))
-        self._session.redirect_cache.clear() # Empty the redirect cache of this request session
+        self._session.redirect_cache.clear()  # Empty the redirect cache of this request session
         log.info("Done!")
         if (not return_list) and (len(files)==1):
             files = files[0]
@@ -570,8 +570,8 @@ class EsoClass(QueryWithLogin):
         """
         url = 'http://archive.eso.org/wdb/wdb/eso/eso_archive_main/query'
         payload = {'dp_id': dataset,
-                   'ascii_out_mode':'true',
-                  }
+                   'ascii_out_mode': 'true',
+                   }
         # Never cache this check as it is verifying the existence of remote content
         response = self._request("POST", url, params=payload, cache=False)
 
@@ -601,7 +601,7 @@ class EsoClass(QueryWithLogin):
             return self._print_help(apex_query_url, 'apex')
         else:
 
-            payload = {'wdbo':'csv/download'}
+            payload = {'wdbo': 'csv/download'}
             if project_id is not None:
                 payload['prog_id'] = project_id
             payload.update(kwargs)
@@ -613,11 +613,11 @@ class EsoClass(QueryWithLogin):
 
             content = apex_response.content
             if _check_response(content):
-                #First line is always garbage
-                content = content.split(b'\n',1)[1]
+                # First line is always garbage
+                content = content.split(b'\n', 1)[1]
                 try:
                     table = Table.read(BytesIO(content), format="ascii.csv",
-                                       guess=False,# header_start=1,
+                                       guess=False,  # header_start=1,
                                        comment="#")
                 except Exception as ex:
                     # astropy 0.3.2 raises an anonymous exception; this is
@@ -625,7 +625,7 @@ class EsoClass(QueryWithLogin):
                     if 'No reader defined' in ex.args[0]:
                         table = Table.read(BytesIO(content), format="ascii",
                                            delimiter=',', guess=False,
-                                           #header_start=1,
+                                           # header_start=1,
                                            comment="#")
                     else:
                         raise ex
@@ -633,7 +633,6 @@ class EsoClass(QueryWithLogin):
                 raise RemoteServiceError("Query returned no results")
 
             return table
-
 
     def _print_help(self, url, instrument, cache=True):
         """

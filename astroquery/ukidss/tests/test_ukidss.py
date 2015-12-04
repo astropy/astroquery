@@ -92,24 +92,24 @@ def test_parse_dimension(dim, expected):
 
 def test_get_images(patch_get, patch_get_readable_fileobj):
     image = ukidss.core.Ukidss.get_images(commons.ICRSCoordGenerator
-                                         (ra=83.633083, dec=22.0145, unit=(u.deg, u.deg)),
-                                         frame_type='interleave',
-                                         programme_id="GCS", waveband="K",
-                                         radius=20*u.arcmin)
+                                          (ra=83.633083, dec=22.0145, unit=(u.deg, u.deg)),
+                                          frame_type='interleave',
+                                          programme_id="GCS", waveband="K",
+                                          radius=20*u.arcmin)
     assert image is not None
 
 
 def test_get_images_async_1():
     payload = ukidss.core.Ukidss.get_images_async(commons.ICRSCoordGenerator
-                                          (ra=83.633083, dec=22.0145, unit=(u.deg, u.deg)),
-        radius=20*u.arcmin,
-        get_query_payload=True)
+                                                  (ra=83.633083, dec=22.0145, unit=(u.deg, u.deg)),
+                                                  radius=20*u.arcmin,
+                                                  get_query_payload=True)
     assert 'xsize' not in payload
     assert 'ysize' not in payload
 
     payload = ukidss.core.Ukidss.get_images_async(commons.ICRSCoordGenerator
-                                          (ra=83.633083, dec=22.0145, unit=(u.deg, u.deg)),
-        get_query_payload=True)
+                                                  (ra=83.633083, dec=22.0145, unit=(u.deg, u.deg)),
+                                                  get_query_payload=True)
     assert payload['xsize'] == payload['ysize']
     assert payload['xsize'] == 1
 
@@ -125,7 +125,7 @@ def test_get_images_async_2(patch_get, patch_get_readable_fileobj):
 
 def test_get_image_list(patch_get, patch_get_readable_fileobj):
     urls = ukidss.core.Ukidss.get_image_list(commons.ICRSCoordGenerator
-                                            (ra=83.633083, dec=22.0145, unit=(u.deg, u.deg)),
+                                             (ra=83.633083, dec=22.0145, unit=(u.deg, u.deg)),
                                              frame_type='all', waveband='all')
     print(urls)
     assert len(urls) == 1
@@ -160,4 +160,3 @@ def test_query_region_async(patch_get):
 def test_check_page_err(patch_get):
     with pytest.raises(InvalidQueryError):
         ukidss.core.Ukidss._check_page("error", "dummy")
-

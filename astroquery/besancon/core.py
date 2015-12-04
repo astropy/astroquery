@@ -19,15 +19,15 @@ from . import conf
 __all__ = ['Besancon', 'BesanconClass', 'parse_besancon_model_string']
 
 keyword_defaults = {
-    'rinf':0.000000,
-    'rsup':50.000000,
-    'dist_step_mode':0,
+    'rinf': 0.000000,
+    'rsup': 50.000000,
+    'dist_step_mode': 0,
     'dlr': 0.000,
-    'kleg':1,
+    'kleg': 1,
     'longit': 10.62,
-    'latit':-0.38,
-    'soli':0.0003,  # degrees.  0.00027777 = 1 arcsec
-    'kleh':1,
+    'latit': -0.38,
+    'soli': 0.0003,  # degrees.  0.00027777 = 1 arcsec
+    'kleh': 1,
     'eq1': 2000.0,
     'al0': 200.00,
     'alm': 200.00,
@@ -36,39 +36,40 @@ keyword_defaults = {
     'abm': 59.00,
     'db': 0,
     'adif': 0.700,
-    'ev':[""] * 25,
-    'AV':[""] * 25,
-    'di':[""] * 25,
-    'oo':[-7] + [-99] * 12,
-    'ff':[15] + [99] * 12,
-    'spectyp_min':1,
+    'ev': [""] * 25,
+    'AV': [""] * 25,
+    'di': [""] * 25,
+    'oo': [-7] + [-99] * 12,
+    'ff': [15] + [99] * 12,
+    'spectyp_min': 1,
     'subspectyp_min': 0,
-    'spectyp_max':9,
+    'spectyp_max': 9,
     'subspectyp_max': 5,
-    'lumi':list(range(1, 8)),
-    'sous_pop':list(range(1, 11)),
-    'iband':1,
-    'band0':[8] * 9,
-    'bandf':[25] * 9,
-    'colind':["B-V", "U-B", "V-I", "V-K", ],
+    'lumi': list(range(1, 8)),
+    'sous_pop': list(range(1, 11)),
+    'iband': 1,
+    'band0': [8] * 9,
+    'bandf': [25] * 9,
+    'colind': ["B-V", "U-B", "V-I", "V-K", ],
     'nic': 4,
-    'klea':1,
-    'sc':[[0, 0, 0]] * 9,
-    'klee':0,
-    'throughform':'ok',
-    'kleb':3,  # 3 = Catalogue Simulation, 1 = tables and differential counts
-    'klec':1,  # 1 = ubv, 15= cfhtls (photometric system)
-    'cinem':0,  # 0: no kinematics, 1: kinematics
-    'outmod':"",
+    'klea': 1,
+    'sc': [[0, 0, 0]] * 9,
+    'klee': 0,
+    'throughform': 'ok',
+    'kleb': 3,  # 3 = Catalogue Simulation, 1 = tables and differential counts
+    'klec': 1,  # 1 = ubv, 15= cfhtls (photometric system)
+    'cinem': 0,  # 0: no kinematics, 1: kinematics
+    'outmod': "",
 }
 keyword_defaults['ff[15]'] = 500
 keyword_defaults['oo[15]'] = -500
 
-colors_limits = OrderedDict((ci,(-99,99)) for ci in keyword_defaults['colind'])
-mag_limits = {'U':(-99, 99), 'B':(-99, 99), 'V':(10, 18), 'R':(-99, 99),
-              'I':(-99, 99), 'J':(-99, 99), 'H':(-99, 99), 'K':(-99, 99), 'L':(-99, 99)}
+colors_limits = OrderedDict((ci, (-99, 99)) for ci in keyword_defaults['colind'])
+mag_limits = {'U': (-99, 99), 'B': (-99, 99), 'V': (10, 18), 'R': (-99, 99),
+              'I': (-99, 99), 'J': (-99, 99), 'H': (-99, 99), 'K': (-99, 99), 'L': (-99, 99)}
 #mag_order = "U", "B", "V", "R", "I", "J", "H", "K", "L"
 mag_order = "VBURIJHKL"
+
 
 @async_to_sync
 class BesanconClass(BaseQuery):
@@ -167,8 +168,8 @@ class BesanconClass(BaseQuery):
 
         if verbose:
             print("File is %s and can be acquired from %s" % (filename,
-                                                             self.url_download
-                                                             + '/' + filename))
+                                                              self.url_download
+                                                              + '/' + filename))
 
         if retrieve_file:
             return self.get_besancon_model_file(filename)
@@ -355,6 +356,7 @@ def parse_errors(text):
     error_list = text_items[2:-2]
     return error_list
 
+
 def parse_besancon_model_file(filename):
     """
     Parse a besancon model from a file on disk
@@ -362,6 +364,7 @@ def parse_besancon_model_file(filename):
     with open(filename, 'r') as f:
         contents = f.read()
     return parse_besancon_model_string(contents)
+
 
 def parse_besancon_model_string(bms,):
     """

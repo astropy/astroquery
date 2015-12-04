@@ -37,10 +37,13 @@ galcoords = {'m31': coordinates.SkyCoord(ra=10.6847083 * u.deg,
              'm81': coordinates.SkyCoord(ra=148.888221083 * u.deg,
                                          dec=69.065294722 * u.deg,
                                          frame='icrs'),
-            }
+             }
+
+
 def format(coord):
     C = coord.transform_to('fk5')
     return "{0} {1}".format(C.ra.deg, C.dec.deg)
+
 
 @pytest.fixture
 def patch_request(request):
@@ -52,9 +55,11 @@ def patch_request(request):
         ).send_request_mockreturn)
     return mp
 
+
 @pytest.fixture
 def patch_fromname(request):
     mp = request.getfuncargvalue("monkeypatch")
+
     def fromname(self, name):
         if isinstance(name, str):
             return galcoords[name]
@@ -63,7 +68,6 @@ def patch_fromname(request):
     mp.setattr(commons.ICRSCoord,
                'from_name',
                types.MethodType(fromname, commons.ICRSCoord))
-
 
 
 class DustTestCase(object):
@@ -117,14 +121,14 @@ class TestDust(DustTestCase):
                                dict(locstr='m31',
                                     regSize=5)),
                               (coordinates.SkyCoord(ra=148.888221083 * u.deg,
-                                                   dec=69.065294722 * u.deg,
-                                                   frame='icrs'),
-                              5 * u.deg,
-                              {'locstr':
-                               format(coordinates.SkyCoord(ra=148.888221083 * u.deg,
-                                                           dec=69.065294722 * u.deg,
-                                                           frame='icrs')),
-                               'regSize': 5}), ])
+                                                    dec=69.065294722 * u.deg,
+                                                    frame='icrs'),
+                               5 * u.deg,
+                               {'locstr':
+                                format(coordinates.SkyCoord(ra=148.888221083 * u.deg,
+                                                            dec=69.065294722 * u.deg,
+                                                            frame='icrs')),
+                                'regSize': 5}), ])
     def test_args_to_payload_instance_1(self, coordinate, radius,
                                         expected_payload, patch_fromname):
         payload = IrsaDust()._args_to_payload(coordinate, radius=radius)
@@ -366,4 +370,3 @@ class TestDust(DustTestCase):
         image_node = results_node.find("./data/image")
         image_url = text
         image_node.text = image_url
-

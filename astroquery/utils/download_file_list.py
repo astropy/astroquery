@@ -27,9 +27,9 @@ def validify_filename(filestr):
 
 
 def download_list_of_fitsfiles(linklist, output_directory=None,
-        output_prefix=None, save=False, overwrite=False, verbose=False,
-        output_coord_format=None, filename_header_keywords=None,
-        include_input_filename=True):
+                               output_prefix=None, save=False, overwrite=False, verbose=False,
+                               output_coord_format=None, filename_header_keywords=None,
+                               include_input_filename=True):
     """
     Given a list of file URLs, download them and (optionally) rename them.
 

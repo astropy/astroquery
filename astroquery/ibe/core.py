@@ -209,7 +209,7 @@ class IbeClass(BaseQuery):
         if intersect not in ('COVERS', 'ENCLOSED', 'CENTER', 'OVERLAPS'):
             raise InvalidQueryError(
                 "Invalid value for `intersects` " +
-                "(must be 'COVERS', 'ENCLOSED', 'CENTER', or 'OVERLAPS')" )
+                "(must be 'COVERS', 'ENCLOSED', 'CENTER', or 'OVERLAPS')")
 
         if action not in ('sia', 'data', 'search'):
             raise InvalidQueryError("Valid actions are: sia, data, search.")
@@ -310,8 +310,8 @@ class IbeClass(BaseQuery):
         links = root.findAll('a')
         datasets = [a.text
                     for a in links
-                    if a.attrs['href'].count('/')>=4 # shown as '..'; ignore
-                   ]
+                    if a.attrs['href'].count('/')>=4  # shown as '..'; ignore
+                    ]
 
         return datasets
 
@@ -363,7 +363,7 @@ class IbeClass(BaseQuery):
 
     # Unfortunately, the URL construction for each data set is different, and
     # they're not obviously accessible via API
-    #def get_data(self, **kwargs):
+    # def get_data(self, **kwargs):
     #    return self.query_region_async(retrieve_data=True, **kwargs)
 
     def show_docs(self, mission=None, dataset=None, table=None):

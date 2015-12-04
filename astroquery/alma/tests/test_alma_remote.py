@@ -6,7 +6,7 @@ import os
 from astropy.tests.helper import pytest, remote_data
 from astropy import coordinates
 from astropy import units as u
-from astropy.extern.six.moves.urllib_parse import urljoin,urlparse
+from astropy.extern.six.moves.urllib_parse import urljoin, urlparse
 
 # keyring is an optional dependency required by the alma module.
 try:
@@ -69,7 +69,6 @@ class TestAlma:
         result_s = alma.query_object('M83')
         uids = np.unique(m83_data['Member ous id'])
         link_list = Alma.stage_data(uids)
-        
 
     def test_stage_data(self, temp_dir):
         alma = Alma()
@@ -116,7 +115,7 @@ class TestAlma:
         alma = Alma()
         alma.cache_location = temp_dir
 
-        result = alma.query(payload={'start_date':'<11-11-2011'}, public=False,
+        result = alma.query(payload={'start_date': '<11-11-2011'}, public=False,
                             science=True)
         # now 535?
         assert len(result) == 621
@@ -130,8 +129,8 @@ class TestAlma:
         target = 'NGC4945'
         project_code = '2012.1.00912.S'
 
-        payload = {'project_code':project_code,
-                   'source_name_alma':target,}
+        payload = {'project_code': project_code,
+                   'source_name_alma': target, }
         result = alma.query(payload=payload)
         assert len(result) == 1
 
@@ -160,11 +159,11 @@ class TestAlma:
 
         # THIS IS FAIL
         # '2012.1.00912.S_uid___A002_X5a9a13_X528_001_of_001.tar'
-        left = uid_url_table_mous['URL'][0].split("/")[-1] 
+        left = uid_url_table_mous['URL'][0].split("/")[-1]
         assert left == '2012.1.00912.S_uid___A002_X5a9a13_X528_001_of_001.tar'
         right = uid_url_table_mous['uid'][0]
         assert right == 'uid://A002/X5a9a13/X528'
-        assert left[15:-15] == right.replace(":","_").replace("/","_")
+        assert left[15:-15] == right.replace(":", "_").replace("/", "_")
         data = alma.download_and_extract_files(urls_to_download)
 
         assert len(data) == 6
@@ -178,8 +177,8 @@ class TestAlma:
         target = 'NGC4945'
         project_code = '2011.0.00121.S'
 
-        payload = {'project_code':project_code,
-                   'source_name_alma':target,}
+        payload = {'project_code': project_code,
+                   'source_name_alma': target, }
         result = alma.query(payload=payload)
         assert len(result) == 1
 

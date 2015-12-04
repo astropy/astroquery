@@ -8,8 +8,8 @@ from ...utils import commons
 from ...utils.testing_tools import MockResponse
 from ... import alfalfa
 
-DATA_FILES = {'catalog':'alfalfa_cat_small.txt',
-              'spectrum':'alfalfa_sp.fits'}
+DATA_FILES = {'catalog': 'alfalfa_cat_small.txt',
+              'spectrum': 'alfalfa_sp.fits'}
 
 
 class MockResponseAlfalfa(MockResponse):
