@@ -285,7 +285,7 @@ class CosmoSimClass(QueryWithLogin):
 
         checkalljobs = self._request('GET', CosmoSim.QUERY_URL,
                                      auth=(self.username, self.password),
-                                        params={'print': 'b'}, cache=False)
+                                     params={'print': 'b'}, cache=False)
 
         self.job_dict={}
         soup = BeautifulSoup(checkalljobs.content)
@@ -319,11 +319,11 @@ class CosmoSimClass(QueryWithLogin):
                     warnings.warn("Matching regular expression `{}` to all jobs with phase `COMPLETED` instead (unsorted):".format(regex))
                 else:
                     matching_tables = [[self.table_dict[i]
-                                            for i in self.table_dict.keys()
-                                            if self.table_dict[i] == miter
-                                            and self.job_dict[i] in phase
+                                        for i in self.table_dict.keys()
+                                        if self.table_dict[i] == miter
+                                        and self.job_dict[i] in phase
                                         ][0]
-                                            for miter in matching_tables]
+                                       for miter in matching_tables]
             self._existing_tables()  # creates a fresh up-to-date table_dict
 
         self._starttime_dict()
@@ -583,7 +583,7 @@ class CosmoSimClass(QueryWithLogin):
         response_list = [self._request('GET',
                                        CosmoSim.QUERY_URL+"/{}".format(i),
                                        auth=(self.username, self.password), cache=False)
-                            for i in completed_ids]
+                         for i in completed_ids]
         soups = [BeautifulSoup(response_list[i].content) for i in range(len(response_list))]
         self.starttime_dict = {}
         for i in range(len(soups)):
@@ -618,9 +618,9 @@ class CosmoSimClass(QueryWithLogin):
             return
         else:
             response_list = [self._request('GET',
-                                            CosmoSim.QUERY_URL+"/{}".format(jobid),
-                                            auth=(self.username,
-                                                     self.password), cache=False)]
+                                           CosmoSim.QUERY_URL+"/{}".format(jobid),
+                                           auth=(self.username,
+                                                 self.password), cache=False)]
             if response_list[0].ok is False:
                 logging.error('Must provide a valid jobid.')
                 return
@@ -833,22 +833,22 @@ class CosmoSimClass(QueryWithLogin):
                 size = len(self.db_dict['{}'.format(proj)].keys())
                 proj_list += ['@ {}'.format(proj)] + ['' for i in range(size-1)] + ['-'*(largest+2)]
                 tmp_largest = max([len('{}'.format(key))
-                                    for key in self.db_dict[proj].keys()])
+                                   for key in self.db_dict[proj].keys()])
                 attr_list += ['@ {}'.format(key)
-                                if isinstance(self.db_dict[proj][key], dict)
-                                else '{}:'.format(key)
-                                for key in self.db_dict[proj].keys()] + ['-'*(tmp_largest+2)]
+                              if isinstance(self.db_dict[proj][key], dict)
+                              else '{}:'.format(key)
+                              for key in self.db_dict[proj].keys()] + ['-'*(tmp_largest+2)]
                 tmpinfosize = max([len(self.db_dict[proj][key])
-                                    if isinstance(self.db_dict[proj][key], str)
-                                    else 0
-                                    for key in self.db_dict[proj].keys()])
+                                   if isinstance(self.db_dict[proj][key], str)
+                                   else 0
+                                   for key in self.db_dict[proj].keys()])
                 if tmpinfosize > tmp2_largest:
                     tmp2_largest = tmpinfosize
             for proj in projects:
                 info_list += [self.db_dict[proj][key]
-                                if isinstance(self.db_dict[proj][key], str)
-                                else ""
-                                for key in self.db_dict[proj].keys()] + ['-'*tmp2_largest]
+                              if isinstance(self.db_dict[proj][key], str)
+                              else ""
+                              for key in self.db_dict[proj].keys()] + ['-'*tmp2_largest]
             t['Projects'] = proj_list
             t['Project Items'] = attr_list
             t['Information'] = info_list
@@ -885,34 +885,34 @@ class CosmoSimClass(QueryWithLogin):
 
             t['Projects'] = ['--> @ {}:'.format(db)] + ['' for i in range(size2-1)]
             t['Project Items'] = ['--> @ {}:'.format(key)
-                                    if isinstance(self.db_dict[db][key], dict)
-                                    and len(self.db_dict[db][key].keys()) == len(self.db_dict[db]['tables'].keys())
-                                    else '@ {}'.format(key)
-                                    if isinstance(self.db_dict[db][key], dict)
-                                    and len(self.db_dict[db][key].keys()) != len(self.db_dict[db]['tables'].keys())
-                                    else '{}'.format(key)
-                                    for key in self.db_dict[db].keys()] + ['' for i in range(size2-size1)]
+                                  if isinstance(self.db_dict[db][key], dict)
+                                  and len(self.db_dict[db][key].keys()) == len(self.db_dict[db]['tables'].keys())
+                                  else '@ {}'.format(key)
+                                  if isinstance(self.db_dict[db][key], dict)
+                                  and len(self.db_dict[db][key].keys()) != len(self.db_dict[db]['tables'].keys())
+                                  else '{}'.format(key)
+                                  for key in self.db_dict[db].keys()] + ['' for i in range(size2-size1)]
             # if only db is specified
             if not table:
                 if not col:
                     reordered = sorted(max(slist, key=np.size), key=len)
                     t['Tables'] = ['@ {}'.format(i)
-                                    if isinstance(self.db_dict[db]['tables'][i], dict)
-                                    else '{}'.format(i)
-                                    for i in reordered]
+                                   if isinstance(self.db_dict[db]['tables'][i], dict)
+                                   else '{}'.format(i)
+                                   for i in reordered]
             # if table has been specified
             else:
                 reordered = ['{}'.format(table)] + sorted([key
-                                                            for key in self.db_dict[db]['tables'].keys()
-                                                            if key != table], key=len)
+                                                           for key in self.db_dict[db]['tables'].keys()
+                                                           if key != table], key=len)
                 t['Tables'] = ['--> @ {}:'.format(i)
-                                if i == table
-                                and isinstance(self.db_dict[db]['tables'][i], dict)
-                                else '@ {}'.format(i)
-                                if i != table
-                                and isinstance(self.db_dict[db]['tables'][i], dict)
-                                else '{}'.format(i)
-                                for i in reordered] + ['' for j in range(size2-len(reordered))]
+                               if i == table
+                               and isinstance(self.db_dict[db]['tables'][i], dict)
+                               else '@ {}'.format(i)
+                               if i != table
+                               and isinstance(self.db_dict[db]['tables'][i], dict)
+                               else '{}'.format(i)
+                               for i in reordered] + ['' for j in range(size2-len(reordered))]
                 # if column has been specified
                 if col:
                     tblcols_dict = self.db_dict[db]['tables'][table].keys()
@@ -938,19 +938,19 @@ class CosmoSimClass(QueryWithLogin):
                         t['Col. Info'] = ['{} : {}'.format(i, colinfo_dict[i]) for i in colinfo_dict.keys()] + ['' for j in range(size2-len(colinfo_dict))]
                     else:
                         t['Columns'] = ['--> @ {}:'.format(i)
-                                             if isinstance(self.db_dict[db]['tables'][table]['columns'][i], dict)
-                                             and i == col
-                                             else '--> {}:'.format(i)
-                                             if not isinstance(self.db_dict[db]['tables'][table]['columns'][i], dict)
-                                             and i == col
-                                             else '{}'.format(i)
-                                             if not isinstance(self.db_dict[db]['tables'][table]['columns'][i], dict)
-                                             and i != col
-                                             else '@ {}'.format(i)
-                                             if isinstance(self.db_dict[db]['tables'][table]['columns'][i], dict)
-                                             and i != col
-                                             else '{}'.format(i)
-                                             for i in reordered]
+                                        if isinstance(self.db_dict[db]['tables'][table]['columns'][i], dict)
+                                        and i == col
+                                        else '--> {}:'.format(i)
+                                        if not isinstance(self.db_dict[db]['tables'][table]['columns'][i], dict)
+                                        and i == col
+                                        else '{}'.format(i)
+                                        if not isinstance(self.db_dict[db]['tables'][table]['columns'][i], dict)
+                                        and i != col
+                                        else '@ {}'.format(i)
+                                        if isinstance(self.db_dict[db]['tables'][table]['columns'][i], dict)
+                                        and i != col
+                                        else '{}'.format(i)
+                                        for i in reordered]
                 # if column has not been specified
                 else:
                     tblcols_dict = self.db_dict[db]['tables'][table].keys()
@@ -958,13 +958,13 @@ class CosmoSimClass(QueryWithLogin):
                     reordered = sorted(col_dict, key=len)
                     if len(tblcols_dict) < size2:
                         t['Table Items'] = ['@ {}'.format(i)
-                                             if isinstance(self.db_dict[db]['tables'][table][i], dict)
-                                             else '{}:'.format(i)
-                                             for i in tblcols_dict] + ['' for i in range(size2-len(tblcols_dict))]
-                        t['Table Info'] = ['{}'.format(self.db_dict[db]['tables'][table][i])
-                                            if not isinstance(self.db_dict[db]['tables'][table][i], dict)
-                                            else ""
+                                            if isinstance(self.db_dict[db]['tables'][table][i], dict)
+                                            else '{}:'.format(i)
                                             for i in tblcols_dict] + ['' for i in range(size2-len(tblcols_dict))]
+                        t['Table Info'] = ['{}'.format(self.db_dict[db]['tables'][table][i])
+                                           if not isinstance(self.db_dict[db]['tables'][table][i], dict)
+                                           else ""
+                                           for i in tblcols_dict] + ['' for i in range(size2-len(tblcols_dict))]
                         if len(col_dict) < size2:
                             t['Columns'] = ['@ {}'.format(i)
                                             if isinstance(self.db_dict[db]['tables'][table]['columns'][i], dict)
@@ -1035,9 +1035,9 @@ class CosmoSimClass(QueryWithLogin):
                 elif not filename:
                     if format.upper() == 'CSV':
                         raw_table_data = self._request('GET',
-                                                        downloadurl,
-                                                        auth=(self.username, self.password),
-                                                        cache=cache).content
+                                                       downloadurl,
+                                                       auth=(self.username, self.password),
+                                                       cache=cache).content
                         raw_headers = raw_table_data.split('\n')[0]
                         num_cols = len(raw_headers.split(','))
                         num_rows = len(raw_table_data.split('\n'))-2
@@ -1053,9 +1053,9 @@ class CosmoSimClass(QueryWithLogin):
                         # for terminal output, get data in csv format
                         tmp_downloadurl = urls[formatlist.index('CSV')]
                         raw_table_data = self._request('GET',
-                                                        tmp_downloadurl,
-                                                        auth=(self.username, self.password),
-                                                        cache=cache).content
+                                                       tmp_downloadurl,
+                                                       auth=(self.username, self.password),
+                                                       cache=cache).content
                         raw_headers = raw_table_data.split('\n')[0]
                         num_cols = len(raw_headers.split(','))
                         num_rows = len(raw_table_data.split('\n'))-2

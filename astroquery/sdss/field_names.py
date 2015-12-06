@@ -32,7 +32,7 @@ def get_field_info(cls, tablename, sqlurl, timeout=conf.timeout):
         request_payload = {'cmd': "select * from dbo.fDocColumns('{0}')".format(tablename),
                            'format': 'json'}
         qryres = cls._request("GET", sqlurl, params=request_payload,
-                               timeout=timeout)
+                              timeout=timeout)
         # we're compelled to use JSON because CSV responses are broken in SDSS -
         # sometimes there are improperly nested " characters.
         try:

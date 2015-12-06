@@ -16,11 +16,11 @@ class Conf(_config.ConfigNamespace):
     """
 
     server = _config.ConfigItem(
-            'http://adswww.harvard.edu',
-            'SAO/NASA ADS main server.'
-            )
+        'http://adswww.harvard.edu',
+        'SAO/NASA ADS main server.'
+        )
     mirrors = _config.ConfigItem(
-            ['http://cdsads.u-strasbg.fr',
+        ['http://cdsads.u-strasbg.fr',
              'http://ukads.nottingham.ac.uk',
              'http://esoads.eso.org',
              'http://ads.ari.uni-heidelberg.de',
@@ -33,19 +33,19 @@ class Conf(_config.ConfigNamespace):
              'http://ads.arsip.lipi.go.id',
              'http://saaoads.chpc.ac.za',
              'http://ads.on.br'],
-            'SAO/NASA ADS mirrors around the world'
-            )
+        'SAO/NASA ADS mirrors around the world'
+        )
     advanced_path = _config.ConfigItem(
-            '/cgi-bin/nph-abs_connect',
-            'Path for advanced query (unconfirmed)'
-            )
+        '/cgi-bin/nph-abs_connect',
+        'Path for advanced query (unconfirmed)'
+        )
     simple_path = _config.ConfigItem(
-            '/cgi-bin/basic_connect',
-            'Path for simple query (return XML)'
-            )
+        '/cgi-bin/basic_connect',
+        'Path for simple query (return XML)'
+        )
     timeout = _config.ConfigItem(
-            120,
-            'Time limit for connecting to ADS server'
+        120,
+        'Time limit for connecting to ADS server'
     )
 
 conf = Conf()

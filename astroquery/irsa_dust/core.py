@@ -959,7 +959,7 @@ class ExtinctionSection(BaseResultSection):
         self._dust_nodes = [StringNode(xml_nodes[DESC], "ext desc", 100),
                             StringNode(
                             xml_nodes[
-                            DATA_IMAGE],
+                                DATA_IMAGE],
                             "ext image",
                             255),
                             StringNode(xml_nodes[DATA_TABLE], "ext table", 255)]

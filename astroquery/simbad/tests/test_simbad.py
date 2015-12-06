@@ -111,10 +111,10 @@ def test_parse_result():
     with pytest.raises(TableParseError) as ex:
         dummy = simbad.core.Simbad._parse_result(MockResponseSimbad('query error '), simbad.core.SimbadVOTableResult)
     assert str(ex.value) == ('Failed to parse SIMBAD result! '
-                              'The raw response can be found in self.last_response, '
-                              'and the error in self.last_table_parse_error.  '
-                              'The attempted parsed result is in self.last_parsed_result.'
-                              '\nException: 7:115: no element found')
+                             'The raw response can be found in self.last_response, '
+                             'and the error in self.last_table_parse_error.  '
+                             'The attempted parsed result is in self.last_parsed_result.'
+                             '\nException: 7:115: no element found')
     assert isinstance(simbad.core.Simbad.last_response.text, six.string_types)
     assert isinstance(simbad.core.Simbad.last_response.content, six.binary_type)
 

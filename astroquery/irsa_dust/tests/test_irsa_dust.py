@@ -226,7 +226,7 @@ class TestDust(DustTestCase):
     def test_query_table_class(self, patch_request, section, expected_length,
                                patch_fromname):
         qtable = IrsaDust.get_query_table("m31",
-                                                         section=section)
+                                          section=section)
         assert len(qtable.colnames) == expected_length
 
     @pytest.mark.parametrize(('section', 'expected_length'),
@@ -239,7 +239,7 @@ class TestDust(DustTestCase):
     def test_query_table_instance(self, patch_request, section,
                                   expected_length, patch_fromname):
         qtable = IrsaDust.get_query_table("m31",
-                                                         section=section)
+                                          section=section)
         assert len(qtable.colnames) == expected_length
 
     def test_get_extinction_table_async_class(self, patch_request,
@@ -311,7 +311,7 @@ class TestDust(DustTestCase):
         monkeypatch.setattr(IrsaDustClass, 'get_image_list',
                             self.get_image_list_mockreturn)
         readable_objs = IrsaDust().get_images_async("m81",
-                                                                   image_type=image_type)
+                                                    image_type=image_type)
         assert readable_objs is not None
 
     def test_get_images_class(self, monkeypatch):

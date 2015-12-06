@@ -353,8 +353,8 @@ class IbeClass(BaseQuery):
                                                                             cache=True)))
 
         url = "{URL}search/{mission}/{dataset}/".format(URL=self.URL,
-                                                         mission=mission,
-                                                         dataset=dataset)
+                                                        mission=mission,
+                                                        dataset=dataset)
         response = self._request('GET', url, timeout=self.TIMEOUT,
                                  cache=cache)
 

@@ -782,9 +782,9 @@ class VizierKeyword(list):
                 else:
                     set_keywords[self.keyword_dict[key]] = [key]
         self._keywords = OrderedDict(
-                [(k, sorted(set_keywords[k]))
+            [(k, sorted(set_keywords[k]))
                  for k in set_keywords]
-                )
+            )
 
     @keywords.deleter
     def keywords(self):

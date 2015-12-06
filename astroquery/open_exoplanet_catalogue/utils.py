@@ -168,10 +168,10 @@ class Number(object):
         """
         if isinstance(num, Number):
             return self.value == num.value and\
-                    self.errorminus == num.errorminus and\
-                    self.errorplus == num.errorplus and\
-                    self.lowerlimit == num.lowerlimit and\
-                    self.upperlimit == num.upperlimit
+                self.errorminus == num.errorminus and\
+                self.errorplus == num.errorplus and\
+                self.lowerlimit == num.lowerlimit and\
+                self.upperlimit == num.upperlimit
         else:
             return self.value == num
 
@@ -201,8 +201,8 @@ class Number(object):
 
         if isinstance(num, Number):
             return self.value != num.value and\
-                    self.errorminus != num.errorminus and\
-                    self.errorplus != num.errorplus
+                self.errorminus != num.errorminus and\
+                self.errorplus != num.errorplus
         else:
             return self.value != num
 

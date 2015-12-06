@@ -70,8 +70,8 @@ def ncrit(lamda_tables, transition_upper, transition_lower, temperature, OPR=3,
         else:
             low, high = crate_temperatures[nearest-1], crate_temperatures[nearest]
         crates_ji_all = {coll:
-                              (cr['C_ij(T={0})'.format(high)]-cr['C_ij(T={0})'.format(low)])*(temperature-low)/(high-low)
-                               +cr['C_ij(T={0})'.format(low)]
+                         (cr['C_ij(T={0})'.format(high)]-cr['C_ij(T={0})'.format(low)])*(temperature-low)/(high-low)
+                         +cr['C_ij(T={0})'.format(low)]
                          for coll, cr in crates.items()}
 
     transition_indices_ji = {coll: np.nonzero(cr['Upper']==transition_upper)[0] for coll, cr in crates.items()}

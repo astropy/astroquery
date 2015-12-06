@@ -106,13 +106,13 @@ class TestSimbad(object):
 
     # Test multiple functions correctly return "None" when SIMBAD has no data for the query
     @pytest.mark.parametrize('function', [
-            ('query_criteria'),
-            ('query_object'),
-            ('query_catalog'),
-            ('query_bibobj'),
-            ('query_bibcode'),
-            ('query_objectids')
-            ])
+        ('query_criteria'),
+        ('query_object'),
+        ('query_catalog'),
+        ('query_bibobj'),
+        ('query_bibcode'),
+        ('query_objectids')
+        ])
     def test_null_response(self, function):
         assert simbad.core.Simbad.__getattribute__(function)('idonotexist') is None
 

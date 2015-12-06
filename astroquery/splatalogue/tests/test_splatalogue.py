@@ -104,9 +104,9 @@ def test_band_crashorno():
 @remote_data
 def test_version_selection():
     results = splatalogue.Splatalogue.query_lines(
-    min_frequency= 703*u.GHz,
-    max_frequency=706*u.GHz,
-    chemical_name='Acetaldehyde',
-    version='v1.0'
+        min_frequency=703*u.GHz,
+        max_frequency=706*u.GHz,
+        chemical_name='Acetaldehyde',
+        version='v1.0'
     )
     assert len(results)==1

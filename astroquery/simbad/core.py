@@ -73,7 +73,7 @@ def strip_field(f, keep_filters=False):
     if '(' in f:
         root = f[:f.find('(')]
         if (root in ('ra', 'dec', 'otype', 'id', 'coo', 'bibcodelist')
-                 or not keep_filters):
+            or not keep_filters):
             return root
 
     # the overall else (default option)
@@ -87,14 +87,14 @@ class SimbadClass(BaseQuery):
     SIMBAD_URL = 'http://' + conf.server + '/simbad/sim-script'
     TIMEOUT = conf.timeout
     WILDCARDS = {
-                '*': 'Any string of characters (including an empty one)',
-                '?': 'Any character (exactly one character)',
-                '[abc]': ('Exactly one character taken in the list. '
+        '*': 'Any string of characters (including an empty one)',
+        '?': 'Any character (exactly one character)',
+        '[abc]': ('Exactly one character taken in the list. '
                           'Can also be defined by a range of characters: [A-Z]'
-                          ),
-                '[^0-9]': 'Any (one) character not in the list.'
+                  ),
+        '[^0-9]': 'Any (one) character not in the list.'
 
-                }
+        }
     _ORDERED_WILDCARDS = ['*', '?', '[abc]', '[^0-9]']
 
     # query around not included since this is a subcase of query_region
@@ -226,9 +226,9 @@ class SimbadClass(BaseQuery):
         with open(dict_file, "r") as f:
             fields_dict = json.load(f)
             fields_dict = dict(
-                               ((strip_field(f) if '(' in f else f, fields_dict[f])
+                ((strip_field(f) if '(' in f else f, fields_dict[f])
                                 for f in fields_dict)
-                               )
+                )
         for field in args:
             sf = strip_field(field)
             if sf not in fields_dict:
