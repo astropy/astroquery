@@ -22,6 +22,7 @@ env:
         # The following versions are the 'default' for tests, unless
         # overidden underneath. They are defined here in order to save having
         # to repeat them for all configurations.
+        - MAIN_CMD='python setup.py'
         - NUMPY_VERSION=1.9
         - ASTROPY_VERSION=stable
         - CONDA_DEPENDENCIES='requests beautiful-soup matplotlib html5lib'
@@ -68,12 +69,19 @@ matrix:
         - python: 2.7
           env: NUMPY_VERSION=1.6 SETUP_CMD='test'
 
+        # Do a PEP8 test
+        - python: 2.7
+          env: MAIN_CMD='pep8 astroquery --count' SETUP_CMD=''
+
+    allow_failures:
+        - env: MAIN_CMD='pep8 astroquery --count' SETUP_CMD=''
+
 install:
     - git clone git://github.com/astropy/ci-helpers.git
     - source ci-helpers/travis/setup_conda_$TRAVIS_OS_NAME.sh
 
 script:
-   - python setup.py $SETUP_CMD
+   - $MAIN_CMD $SETUP_CMD
 
 after_success:
     - if [[ $SETUP_CMD == 'test --coverage' ]]; then
