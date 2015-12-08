@@ -74,10 +74,12 @@ def send_request(url, data, timeout, request_type='POST', headers={},
     response : `requests.Response`
         Response object returned by the remote server
     """
-    headers['User-Agent'] = 'astropy:astroquery.{vers}'.format(vers=version.version)
+    headers['User-Agent'] = ('astropy:astroquery.{vers}'
+                             .format(vers=version.version))
 
     if hasattr(timeout, "unit"):
-        warnings.warn("Converting timeout to seconds and truncating to integer.")
+        warnings.warn("Converting timeout to seconds and truncating "
+                      "to integer.")
         timeout = int(timeout.to(u.s).value)
 
     try:
@@ -125,7 +127,8 @@ def parse_radius(radius):
     try:
         return coord.Angle(radius)
     except coord.errors.UnitsError:
-        # astropy <0.3 compatibility: Angle can't be instantiated with a unit object
+        # astropy <0.3 compatibility: Angle can't be instantiated with a
+        # unit object
         return coord.Angle(radius.to(u.degree), unit=u.degree)
 
 

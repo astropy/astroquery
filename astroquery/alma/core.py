@@ -171,7 +171,8 @@ class AlmaClass(QueryWithLogin):
         """
         if not hasattr(self, 'dataarchive_url'):
             if self.archive_url == 'http://almascience.org':
-                response = self._request('GET', self.archive_url+"/aq", cache=False)
+                response = self._request(
+                    'GET', self.archive_url + "/aq", cache=False)
                 response.raise_for_status()
                 self.dataarchive_url = response.url.replace("/aq/", "")
             else:
@@ -217,9 +218,8 @@ class AlmaClass(QueryWithLogin):
 
         url = urljoin(self.dataarchive_url, 'rh/submission')
         log.debug("First request URL: {0}".format(url))
-        #'ALMA+uid___A002_X391d0b_X7b'
-        #payload = [('dataset','ALMA+'+clean_uid(uid)) for uid in uids]
-        payload = {'dataset': ['ALMA+'+clean_uid(uid) for uid in uids]}
+        # 'ALMA+uid___A002_X391d0b_X7b'
+        payload = {'dataset': ['ALMA+' + clean_uid(uid) for uid in uids]}
         log.debug("First request payload: {0}".format(payload))
 
         self._staging_log = {'first_post_url': url}
@@ -320,7 +320,8 @@ class AlmaClass(QueryWithLogin):
         # data_list_page.raise_for_status()
 
         # if 'Error' in data_list_page.text:
-        #     errormessage = staging_root.find('div', id='errorContent').string.strip()
+        #     errormessage = staging_root.find(
+        #         'div', id='errorContent').string.strip()
         #     raise RemoteServiceError(errormessage)
 
         # tbl = self._parse_staging_request_page(data_list_page)
@@ -334,17 +335,17 @@ class AlmaClass(QueryWithLogin):
         (This is discouraged by the ALMA archive, as it puts unnecessary load
         on their system)
         """
-        totalsize = 0*u.B
+        totalsize = 0 * u.B
         data_sizes = {}
         pb = ProgressBar(len(files))
         for ii, fileLink in enumerate(files):
             response = self._request('HEAD', fileLink, stream=False,
                                      cache=False, timeout=self.TIMEOUT)
-            filesize = (int(response.headers['content-length'])*u.B).to(u.GB)
+            filesize = (int(response.headers['content-length']) * u.B).to(u.GB)
             totalsize += filesize
             data_sizes[fileLink] = filesize
             log.debug("File {0}: size {1}".format(fileLink, filesize))
-            pb.update(ii+1)
+            pb.update(ii + 1)
             response.raise_for_status()
 
         return data_sizes, totalsize.to(u.GB)
@@ -388,10 +389,9 @@ class AlmaClass(QueryWithLogin):
 
         files = self.stage_data(uids)
         file_urls = files['URL']
-        totalsize = files['size'].sum()*files['size'].unit
+        totalsize = files['size'].sum() * files['size'].unit
 
-        #log.info("Determining download size for {0} files...".format(len(files)))
-        #each_size,totalsize = self.data_size(files)
+        # each_size, totalsize = self.data_size(files)
         log.info("Downloading files of size {0}...".format(totalsize.to(u.GB)))
         # TODO: Add cache=cache keyword here.  Currently would have no effect.
         downloaded_files = self.download_files(file_urls)
@@ -461,24 +461,26 @@ class AlmaClass(QueryWithLogin):
     def get_cycle0_uid_contents(self, uid):
         """
         List the file contents of a UID from Cycle 0.  Will raise an error
-        if the UID is from cycle 1+, since those data have been released in a
-        different and more consistent format.
-        See http://almascience.org/documents-and-tools/cycle-2/ALMAQA2Productsv1.01.pdf
+        if the UID is from cycle 1+, since those data have been released in
+        a different and more consistent format.  See
+        http://almascience.org/documents-and-tools/cycle-2/ALMAQA2Productsv1.01.pdf
         for details.
         """
 
         # First, check if UID is in the Cycle 0 listing
         if uid in self.cycle0_table['uid']:
-            cycle0id = self.cycle0_table[self.cycle0_table['uid'] == uid][0]['ID']
+            cycle0id = self.cycle0_table[
+                self.cycle0_table['uid'] == uid][0]['ID']
             contents = [row['Files']
                         for row in self._cycle0_tarfile_content
                         if cycle0id in row['ID']]
             return contents
         else:
-            info_url = urljoin(self._get_dataarchive_url(),
-                               'documents-and-tools/cycle-2/ALMAQA2Productsv1.01.pdf')
-            raise ValueError("Not a Cycle 0 UID.  See {0} for details about"
-                             " cycle 1+ data release formats.".format(info_url))
+            info_url = urljoin(
+                self._get_dataarchive_url(),
+                'documents-and-tools/cycle-2/ALMAQA2Productsv1.01.pdf')
+            raise ValueError("Not a Cycle 0 UID.  See {0} for details about "
+                             "cycle 1+ data release formats.".format(info_url))
 
     @property
     def _cycle0_tarfile_content(self):
@@ -494,7 +496,8 @@ class AlmaClass(QueryWithLogin):
             # <tr width="blah"> which the default parser does not pick up
             root = BeautifulSoup(response.content, 'html.parser')
             html_table = root.find('table', class_='grid listing')
-            data = list(zip(*[(x.findAll('td')[0].text, x.findAll('td')[1].text)
+            data = list(zip(*[(x.findAll('td')[0].text,
+                               x.findAll('td')[1].text)
                               for x in html_table.findAll('tr')]))
             columns = [Column(data=data[0], name='ID'),
                        Column(data=data[1], name='Files')]
@@ -514,8 +517,9 @@ class AlmaClass(QueryWithLogin):
         Stoehr.
         """
         if not hasattr(self, '_cycle0_table'):
-            filename = resource_filename('astroquery.alma',
-                                         'data/cycle0_delivery_asdm_mapping.txt')
+            filename = resource_filename(
+                'astroquery.alma', 'data/cycle0_delivery_asdm_mapping.txt')
+
             self._cycle0_table = Table.read(filename, format='ascii.no_header')
             self._cycle0_table.rename_column('col1', 'ID')
             self._cycle0_table.rename_column('col2', 'uid')
@@ -612,7 +616,8 @@ class AlmaClass(QueryWithLogin):
                     continue
             else:
                 if 'asdm' in tarfile_name and not include_asdm:
-                    log.info("ASDM tarballs do not contain FITS files; skipping.")
+                    log.info("ASDM tarballs do not contain FITS files; "
+                             "skipping.")
                     continue
 
             try:
@@ -659,18 +664,17 @@ class AlmaClass(QueryWithLogin):
                 #                                                    value))
                 elif len(row) == 4:  # radio button or checkbox
                     name, payload_keyword, checkbox, value = row
-                    print("  {2} {0:29s}: {1:20s} = {3:15s}".format(name,
-                                                                    payload_keyword,
-                                                                    checkbox,
-                                                                    value))
+                    print("  {2} {0:29s}: {1:20s} = {3:15s}"
+                          .format(name, payload_keyword, checkbox, value))
                 else:
                     raise ValueError("Wrong number of rows - ALMA query page"
                                      " did not parse properly.")
 
     def _get_help_page(self, cache=True):
         if not hasattr(self, '_help_list'):
-            querypage = self._request('GET', self._get_dataarchive_url()+"/aq/",
-                                      cache=cache, timeout=self.TIMEOUT)
+            querypage = self._request(
+                'GET', self._get_dataarchive_url() + "/aq/",
+                cache=cache, timeout=self.TIMEOUT)
             root = BeautifulSoup(querypage.content)
             sections = root.findAll('td', class_='category')
 
@@ -678,7 +682,8 @@ class AlmaClass(QueryWithLogin):
 
             help_list = []
             for section in sections:
-                title = section.find('div', class_='categorytitle').text.lstrip()
+                title = section.find(
+                    'div', class_='categorytitle').text.lstrip()
                 help_section = (title, [])
                 for inp in section.findAll('div', class_='inputdiv'):
                     sp = inp.find('span')
@@ -746,8 +751,8 @@ class AlmaClass(QueryWithLogin):
             self._valid_params.append('format')
         invalid_params = [k for k in payload if k not in self._valid_params]
         if len(invalid_params) > 0:
-            raise InvalidQueryError("The following parameters are not accepted "
-                                    "by the ALMA query service:"
+            raise InvalidQueryError("The following parameters are not accepted"
+                                    " by the ALMA query service:"
                                     " {0}".format(invalid_params))
 
     def _parse_staging_request_page(self, data_list_page):
@@ -774,14 +779,14 @@ class AlmaClass(QueryWithLogin):
 
         # download_script = self._request('GET', download_script_url,
         #                                cache=False)
-        #download_script_target_urls = []
+        # download_script_target_urls = []
         # for line in download_script.text.split('\n'):
         #    if line and line.split() and line.split()[0] == 'wget':
         #        download_script_target_urls.append(line.split()[1].strip('"'))
 
         # if len(download_script_target_urls) == 0:
-        #    raise RemoteServiceError("There was an error parsing the download "
-        #                             "script; it is empty.  "
+        #    raise RemoteServiceError("There was an error parsing the download"
+        #                             " script; it is empty.  "
         #                             "You can access the download script "
         #                             "directly from this URL: "
         #                             "{0}".format(download_script_url))
@@ -794,8 +799,8 @@ class AlmaClass(QueryWithLogin):
             # Cannot check class if it is not defined
             cl = 'class' in tr.attrs
 
-            if len(tds) > 1 and 'uid' in tds[0].text and (cl and
-                                                          'Level' in tr['class'][0]):
+            if (len(tds) > 1 and 'uid' in tds[0].text and
+                    (cl and 'Level' in tr['class'][0])):
                 # New Style
                 text = tds[0].text.strip().split()
                 if text[0] in ('Asdm', 'Member'):
@@ -804,17 +809,19 @@ class AlmaClass(QueryWithLogin):
                 # Old Style
                 uid = tds[1].text.strip()
             elif cl and tr['class'] == 'Level_1':
-                raise ValueError("A heading was found when parsing the download page but "
-                                 "it was not parsed correctly")
+                raise ValueError("Heading was found when parsing the download "
+                                 "page but it was not parsed correctly")
 
             if len(tds) > 3 and (cl and tr['class'][0] == 'fileRow'):
                 # New Style
-                size, unit = re.search('(-|[0-9\.]*)([A-Za-z]*)', tds[2].text).groups()
+                size, unit = re.search('(-|[0-9\.]*)([A-Za-z]*)',
+                                       tds[2].text).groups()
                 href = tds[1].find('a')
                 if size == '':
                     # this is a header row
                     continue
-                authorized = ('access_authorized.png' in tds[3].findChild('img')['src'])
+                authorized = ('access_authorized.png' in
+                              tds[3].findChild('img')['src'])
                 if authorized:
                     columns['uid'].append(uid)
                     if href and 'href' in href.attrs:
@@ -825,25 +832,26 @@ class AlmaClass(QueryWithLogin):
                             else u.Unit('kB') if 'kb' in unit.lower()
                             else 1)
                     try:
-                        columns['size'].append(float(size)*u.Unit(unit))
+                        columns['size'].append(float(size) * u.Unit(unit))
                     except ValueError:
                         # size is probably a string?
-                        columns['size'].append(-1*u.byte)
+                        columns['size'].append(-1 * u.byte)
                     log.log(level=5, msg="Found a new-style entry.  "
-                            "size={0} uid={1} url={2}".format(size, uid,
-                                                              columns['URL'][-1]))
+                            "size={0} uid={1} url={2}"
+                            .format(size, uid, columns['URL'][-1]))
                 else:
                     log.warn("Access to {0} is not authorized.".format(uid))
             elif len(tds) > 3 and tds[2].find('a'):
                 # Old Style
                 href = tds[2].find('a')
-                size, unit = re.search('([0-9\.]*)([A-Za-z]*)', tds[3].text).groups()
+                size, unit = re.search('([0-9\.]*)([A-Za-z]*)',
+                                       tds[3].text).groups()
                 columns['uid'].append(uid)
                 columns['URL'].append(href.attrs['href'])
                 unit = (u.Unit(unit) if unit in ('GB', 'MB')
                         else u.Unit('kB') if 'kb' in unit.lower()
                         else 1)
-                columns['size'].append(float(size)*u.Unit(unit))
+                columns['size'].append(float(size) * u.Unit(unit))
                 log.log(level=5, msg="Found an old-style entry.  "
                         "size={0} uid={1} url={2}".format(size, uid,
                                                           columns['URL'][-1]))
@@ -851,10 +859,10 @@ class AlmaClass(QueryWithLogin):
         columns['size'] = u.Quantity(columns['size'], u.Gbyte)
 
         if len(columns['uid']) == 0:
-            raise RemoteServiceError("No valid UIDs were found in the staged "
-                                     "data table.  Please include {0} "
-                                     "in a bug report."
-                                     .format(self._staging_log['data_list_url']))
+            raise RemoteServiceError(
+                "No valid UIDs were found in the staged data table. "
+                "Please include {0} in a bug report."
+                .format(self._staging_log['data_list_url']))
 
         # if len(download_script_target_urls) != len(columns['URL']):
         #    log.warn("There was an error parsing the data staging page.  "
@@ -894,9 +902,10 @@ class AlmaClass(QueryWithLogin):
                 # "de_name": "ALMA+uid://A001/X122/X35e",
                 columns['uid'].append(entry['de_name'][5:])
                 if entry['file_size'] == 'null':
-                    columns['size'].append(np.nan*u.Gbyte)
+                    columns['size'].append(np.nan * u.Gbyte)
                 else:
-                    columns['size'].append((int(entry['file_size'])*u.B).to(u.Gbyte))
+                    columns['size'].append(
+                        (int(entry['file_size']) * u.B).to(u.Gbyte))
                 # example template for constructing url:
                 # https://almascience.eso.org/dataPortal/requests/keflavich/940238268/ALMA/
                 # uid___A002_X9d6f4c_X154/2013.1.00546.S_uid___A002_X9d6f4c_X154.asdm.sdm.tar
@@ -937,7 +946,7 @@ def reform_uid(uid):
     """
     Convert a uid with underscores to the original format
     """
-    return uid[:3]+"://" + "/".join(uid[6:].split("_"))
+    return uid[:3] + "://" + "/".join(uid[6:].split("_"))
 
 
 def unique(seq):
@@ -957,21 +966,29 @@ def filter_printable(s):
 def parse_frequency_support(frequency_support_str):
     """
     ALMA "Frequency Support" strings have the form:
-    [100.63..101.57GHz,488.28kHz, XX YY] U [102.43..103.37GHz,488.28kHz, XX YY] U [112.74..113.68GHz,488.28kHz, XX YY] U [114.45..115.38GHz,488.28kHz, XX YY]
+
+    [100.63..101.57GHz,488.28kHz, XX YY] U
+    [102.43..103.37GHz,488.28kHz, XX YY] U
+    [112.74..113.68GHz,488.28kHz, XX YY] U
+    [114.45..115.38GHz,488.28kHz, XX YY]
+
     at least, as far as we have seen.  The "U" is meant to be the Union symbol.
     This function will parse such a string into a list of pairs of astropy
     Quantities representing the frequency range.  It will ignore the resolution
     and polarizations.
     """
     supports = frequency_support_str.split("U")
-    freq_ranges = [(float(sup.strip('[] ').split("..")[0]),
-                    float(sup.strip('[] ').split("..")[1].split(',')[0].strip(string.letters)))
-                   *u.Unit(sup.strip('[] ').split("..")[1].split(',')[0].strip(string.punctuation+string.digits))
-                   for sup in supports]
+    freq_ranges = [(float(sup[0]),
+                    float(sup[1].split(',')[0].strip(string.letters)))
+                   * u.Unit(sup[1].split(',')[0].strip(string.punctuation +
+                                                       string.digits))
+                   for i in supports for sup in [i.strip('[] ').split('..'), ]]
+
     return freq_ranges
 
 
-def approximate_primary_beam_sizes(frequency_support_str, dish_diameter=12*u.m, first_null=1.220):
+def approximate_primary_beam_sizes(frequency_support_str,
+                                   dish_diameter=12 * u.m, first_null=1.220):
     """
     Using parse_frequency_support, determine the mean primary beam size in each
     observed band
@@ -987,7 +1004,7 @@ def approximate_primary_beam_sizes(frequency_support_str, dish_diameter=12*u.m, 
         as :math:`R = 1.22 \lambda/D`
     """
     freq_ranges = parse_frequency_support(frequency_support_str)
-    beam_sizes = [(first_null*fr.mean().to(u.m, u.spectral())/(dish_diameter)).to(u.arcsec,
-                                                                                  u.dimensionless_angles())
+    beam_sizes = [(first_null * fr.mean().to(u.m, u.spectral()) /
+                   (dish_diameter)).to(u.arcsec, u.dimensionless_angles())
                   for fr in freq_ranges]
     return beam_sizes

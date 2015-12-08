@@ -150,22 +150,26 @@ class EsoClass(QueryWithLogin):
     def _login(self, username=None, store_password=False):
         if username is None:
             if self.USERNAME == "":
-                raise LoginError("If you do not pass a username to login(), you should configure a default one!")
+                raise LoginError("If you do not pass a username to login(), "
+                                 "you should configure a default one!")
             else:
                 username = self.USERNAME
         # Get password from keyring or prompt
-        password_from_keyring = keyring.get_password("astroquery:www.eso.org", username)
+        password_from_keyring = keyring.get_password("astroquery:www.eso.org",
+                                                     username)
         if password_from_keyring is None:
             if system_tools.in_ipynb():
                 log.warn("You may be using an ipython notebook:"
                          " the password form will appear in your terminal.")
-            password = getpass.getpass("{0}, enter your ESO password:\n".format(username))
+            password = getpass.getpass("{0}, enter your ESO password:\n"
+                                       .format(username))
         else:
             password = password_from_keyring
         # Authenticate
         log.info("Authenticating {0} on www.eso.org...".format(username))
         # Do not cache pieces of the login process
-        login_response = self._request("GET", "https://www.eso.org/sso/login", cache=False)
+        login_response = self._request("GET", "https://www.eso.org/sso/login",
+                                       cache=False)
         login_result_response = self._activate_form(login_response,
                                                     form_index=-1,
                                                     inputs={'username': username,
@@ -192,9 +196,8 @@ class EsoClass(QueryWithLogin):
 
         """
         if self._instrument_list is None:
-            instrument_list_response = self._request("GET",
-                                                     "http://archive.eso.org/cms/eso-data/instrument-specific-query-forms.html",
-                                                     cache=cache)
+            url = "http://archive.eso.org/cms/eso-data/instrument-specific-query-forms.html"
+            instrument_list_response = self._request("GET", url, cache=cache)
             root = BeautifulSoup(instrument_list_response.content, 'html5lib')
             self._instrument_list = []
             for element in root.select("div[id=col3] a[href]"):
@@ -509,34 +512,38 @@ class EsoClass(QueryWithLogin):
             else:
                 datasets_to_download.append(dataset)
 
-        valid_datasets = [self.verify_data_exists(ds) for ds in datasets_to_download]
+        valid_datasets = [self.verify_data_exists(ds)
+                          for ds in datasets_to_download]
         if not all(valid_datasets):
             invalid_datasets = [ds for ds, v in zip(datasets_to_download, valid_datasets) if not v]
-            raise ValueError("The following data sets were not found on the ESO servers: {0}".format(invalid_datasets))
+            raise ValueError("The following data sets were not found on the "
+                             "ESO servers: {0}".format(invalid_datasets))
 
         # Second: Download the other datasets
         if datasets_to_download:
             if not self.authenticated():
                 self.login()
-            data_retrieval_form = self._request("GET",
-                                                "http://archive.eso.org/cms/eso-data/eso-data-direct-retrieval.html",
-                                                cache=cache)
+            url = "http://archive.eso.org/cms/eso-data/eso-data-direct-retrieval.html"
+            data_retrieval_form = self._request("GET", url, cache=cache)
             log.info("Staging request...")
             with suspend_cache(self):  # Never cache staging operations
                 inputs = {"list_of_datasets": "\n".join(datasets_to_download)}
                 data_confirmation_form = self._activate_form(data_retrieval_form,
                                                              form_index=-1,
                                                              inputs=inputs)
-                root = BeautifulSoup(data_confirmation_form.content, 'html5lib')
+                root = BeautifulSoup(data_confirmation_form.content,
+                                     'html5lib')
                 login_button = root.select('input[value=LOGIN]')
                 if login_button:
-                    raise LoginError("Not logged in."
-                                     "  You must be logged in to download data.")
+                    raise LoginError("Not logged in. "
+                                     "You must be logged in to download data.")
+
                 # TODO: There may be another screen for Not Authorized; that
                 # should be included too
                 data_download_form = self._activate_form(data_confirmation_form,
                                                          form_index=-1)
-                log.info("Staging form is at {0}".format(data_download_form.url))
+                log.info("Staging form is at {0}."
+                         .format(data_download_form.url))
                 root = BeautifulSoup(data_download_form.content, 'html5lib')
                 state = root.select('span[id=requestState]')[0].text
                 t0 = time.time()
@@ -545,21 +552,25 @@ class EsoClass(QueryWithLogin):
                     data_download_form = self._request("GET",
                                                        data_download_form.url,
                                                        cache=False)
-                    root = BeautifulSoup(data_download_form.content, 'html5lib')
+                    root = BeautifulSoup(data_download_form.content,
+                                         'html5lib')
                     state = root.select('span[id=requestState]')[0].text
-                    print("{0:20.0f}s elapsed".format(time.time()-t0), end='\r')
+                    print("{0:20.0f}s elapsed"
+                          .format(time.time() - t0), end='\r')
                     sys.stdout.flush()
                 if state == 'ERROR':
-                    raise RemoteServiceError("There was a remote service error;"
-                                             " perhaps the requested file could not be found?")
+                    raise RemoteServiceError("There was a remote service "
+                                             "error; perhaps the requested "
+                                             "file could not be found?")
             log.info("Downloading files...")
             for fileId in root.select('input[name=fileId]'):
                 fileLink = "http://dataportal.eso.org/dataPortal"+fileId.attrs['value'].split()[1]
                 filename = self._request("GET", fileLink, save=True)
                 files.append(system_tools.gunzip(filename))
-        self._session.redirect_cache.clear()  # Empty the redirect cache of this request session
+        # Empty the redirect cache of this request session
+        self._session.redirect_cache.clear()
         log.info("Done!")
-        if (not return_list) and (len(files)==1):
+        if (not return_list) and (len(files) == 1):
             files = files[0]
         return files
 
@@ -572,7 +583,7 @@ class EsoClass(QueryWithLogin):
         payload = {'dp_id': dataset,
                    'ascii_out_mode': 'true',
                    }
-        # Never cache this check as it is verifying the existence of remote content
+        # Never cache this as it is verifying the existence of remote content
         response = self._request("POST", url, params=payload, cache=False)
 
         content = response.text
@@ -638,9 +649,12 @@ class EsoClass(QueryWithLogin):
         """
         Download a form and print it in a quasi-human-readable way
         """
-        log.info("List of the column_filters parameters accepted by the {0} instrument query.".format(instrument))
-        log.info("The presence of a column in the result table can be controlled if prefixed with a [ ] checkbox.")
-        log.info("The default columns in the result table are shown as already ticked: [x].")
+        log.info("List of the column_filters parameters accepted by the "
+                 "{0} instrument query.".format(instrument))
+        log.info("The presence of a column in the result table can be "
+                 "controlled if prefixed with a [ ] checkbox.")
+        log.info("The default columns in the result table are shown as "
+                 "already ticked: [x].")
 
         result_string = []
 
@@ -668,7 +682,9 @@ class EsoClass(QueryWithLogin):
                 elif tag.name == u"select":
                     options = []
                     for option in tag.select("option"):
-                        options += ["{0} ({1})".format(option['value'], "".join(option.stripped_strings))]
+                        options += ["{0} ({1})"
+                                    .format(option['value'],
+                                            "".join(option.stripped_strings))]
                     name = tag[u"name"]
                     value = ", ".join(options)
                 else:
@@ -679,7 +695,8 @@ class EsoClass(QueryWithLogin):
                 else:
                     checkbox = "   "
                 if name != u"":
-                    result_string.append("{0} {1}: {2}".format(checkbox, name, value))
+                    result_string.append("{0} {1}: {2}"
+                                         .format(checkbox, name, value))
 
         print("\n".join(result_string))
         return result_string
