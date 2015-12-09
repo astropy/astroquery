@@ -17,7 +17,8 @@ __all__ = ['Nist', 'NistClass']
 
 def _strip_blanks(table):
     """
-    Remove blank lines from table (included for "human readability" but useless to us...
+    Remove blank lines from table (included for "human readability" but
+    useless to us...
     returns a single string joined by \n newlines
 
     Parameters
@@ -63,7 +64,8 @@ class NistClass(BaseQuery):
             The spectrum to fetch. Defaults to "H I"
         energy_level_unit : str, optional
             The energy level units must be one of the following -
-            ['R', 'Rydberg', 'rydberg', 'cm', 'cm-1', 'EV', 'eV', 'electronvolt', 'ev', 'invcm']
+            ['R', 'Rydberg', 'rydberg', 'cm', 'cm-1', 'EV', 'eV',
+             'electronvolt', 'ev', 'invcm']
             Defaults to 'eV'.
         output_order : str, optional
             Decide ordering of output. Must be one of following:
@@ -88,14 +90,17 @@ class NistClass(BaseQuery):
         request_payload["submit"] = "Retrieve Data"
         request_payload["format"] = 1  # ascii
         request_payload["line_out"] = 0  # All lines
-        request_payload["en_unit"] = Nist.energy_level_code[kwargs["energy_level_unit"]]
+        request_payload["en_unit"] = Nist.energy_level_code[
+            kwargs["energy_level_unit"]]
         request_payload["output"] = 0  # entirely rather than pagewise
         request_payload["bibrefs"] = 1
         request_payload["show_obs_wl"] = 1
         request_payload["show_calc_wl"] = 1
-        request_payload["order_out"] = Nist.order_out_code[kwargs['output_order']]
+        request_payload["order_out"] = Nist.order_out_code[
+            kwargs['output_order']]
         request_payload["max_low_enrg"] = ""
-        request_payload["show_av"] = Nist.wavelength_unit_code[kwargs['wavelength_type']]
+        request_payload["show_av"] = Nist.wavelength_unit_code[
+            kwargs['wavelength_type']]
         request_payload["max_upp_enrg"] = ""
         request_payload["tsb_value"] = 0
         request_payload["min_str"] = ""
@@ -115,7 +120,8 @@ class NistClass(BaseQuery):
         return request_payload
 
     @prepend_docstr_noreturns("\n" + _args_to_payload.__doc__)
-    def query_async(self, minwav, maxwav, linename="H I", energy_level_unit='eV', output_order='wavelength',
+    def query_async(self, minwav, maxwav, linename="H I",
+                    energy_level_unit='eV', output_order='wavelength',
                     wavelength_type='vacuum', get_query_payload=False):
         """
         Returns
@@ -123,14 +129,15 @@ class NistClass(BaseQuery):
         response : `requests.Response` object
             The response of the HTTP request.
         """
-        request_payload = self._args_to_payload(minwav, maxwav, linename=linename,
-                                                energy_level_unit=energy_level_unit,
-                                                output_order=output_order,
-                                                wavelength_type=wavelength_type)
+        request_payload = self._args_to_payload(
+            minwav, maxwav, linename=linename,
+            energy_level_unit=energy_level_unit, output_order=output_order,
+            wavelength_type=wavelength_type)
         if get_query_payload:
             return request_payload
 
-        response = commons.send_request(Nist.URL, request_payload, Nist.TIMEOUT, request_type='GET')
+        response = commons.send_request(Nist.URL, request_payload,
+                                        Nist.TIMEOUT, request_type='GET')
         return response
 
     def _parse_result(self, response, verbose=False):
@@ -164,8 +171,9 @@ class NistClass(BaseQuery):
         except Exception as ex:
             self.response = response
             self.table_parse_error = ex
-            raise TableParseError("Failed to parse asciitable! The raw response can be found "
-                                  "in self.response, and the error in self.table_parse_error.")
+            raise TableParseError("Failed to parse asciitable! The raw "
+                                  "response can be found in self.response, "
+                                  "and the error in self.table_parse_error.")
 
 Nist = NistClass()
 

@@ -415,6 +415,6 @@ def test_regression_issue388():
     with open(data_path('m1.data'), "rb") as f:
         response.content = f.read()
     parsed_table = simbad.Simbad._parse_result(response,
-                                               simbad.SimbadVOTableResult)
+                                               simbad.core.SimbadVOTableResult)
     assert parsed_table['MAIN_ID'][0] == b'M   1'
     assert len(parsed_table) == 1

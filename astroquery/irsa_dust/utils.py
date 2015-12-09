@@ -98,7 +98,8 @@ def find_result_node(desc, xml_tree):
 
 def xml(response):
     """
-    Parse raw xml and return as an xml tree. If status is not ``ok``, raise an exception.
+    Parse raw xml and return as an xml tree. If status is not ``ok``, raise
+    an exception.
 
     Parameters
     ----------

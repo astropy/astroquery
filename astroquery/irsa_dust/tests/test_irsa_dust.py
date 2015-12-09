@@ -17,23 +17,24 @@ IMG_FITS = "test.fits"
 M31_URL_ALL = [
     'http://irsa.ipac.caltech.edu//workspace/TMP_kRQo9a_8160/DUST/m31.v0002/p338Dust.fits',
     'http://irsa.ipac.caltech.edu//workspace/TMP_kRQo9a_8160/DUST/m31.v0002/p338i100.fits',
-    'http://irsa.ipac.caltech.edu//workspace/TMP_kRQo9a_8160/DUST/m31.v0002/p338temp.fits'
-]
+    'http://irsa.ipac.caltech.edu//workspace/TMP_kRQo9a_8160/DUST/m31.v0002/p338temp.fits']
+
 
 M31_URL_R = [
-    'http://irsa.ipac.caltech.edu//workspace/TMP_kRQo9a_8160/DUST/m31.v0002/p338Dust.fits'
-]
+    'http://irsa.ipac.caltech.edu//workspace/TMP_kRQo9a_8160/DUST/m31.v0002/p338Dust.fits']
+
 
 M31_URL_E = [
-    'http://irsa.ipac.caltech.edu//workspace/TMP_kRQo9a_8160/DUST/m31.v0002/p338i100.fits'
-]
+    'http://irsa.ipac.caltech.edu//workspace/TMP_kRQo9a_8160/DUST/m31.v0002/p338i100.fits']
+
 
 M31_URL_T = [
-    'http://irsa.ipac.caltech.edu//workspace/TMP_kRQo9a_8160/DUST/m31.v0002/p338temp.fits'
-]
+    'http://irsa.ipac.caltech.edu//workspace/TMP_kRQo9a_8160/DUST/m31.v0002/p338temp.fits']
+
 
 galcoords = {'m31': coordinates.SkyCoord(ra=10.6847083 * u.deg,
-                                         dec=41.26875 * u.deg, frame='icrs'),
+                                         dec=41.26875 * u.deg,
+                                         frame='icrs'),
              'm81': coordinates.SkyCoord(ra=148.888221083 * u.deg,
                                          dec=69.065294722 * u.deg,
                                          frame='icrs'),
@@ -104,31 +105,25 @@ class TestDust(DustTestCase):
 
     def test_xml_err(self):
         data = open(self.data(ERR_XML), "r").read()
-        with pytest.raises(Exception) as ex:
-            xml_tree = irsa_dust.utils.xml(data)
+        with pytest.raises(Exception):
+            irsa_dust.utils.xml(data)
 
 # TODO : Add more examples. Add for "1 degree"-like parameters
-    @pytest.mark.parametrize(('coordinate', 'radius', 'expected_payload'),
-                             [(galcoords["m81"], None,
-                               dict(locstr=format(galcoords['m81']))),
-                              (galcoords["m31"], "5d0m",
-                               dict(locstr=format(galcoords['m31']),
-                                    regSize=5.0)),
-                              (galcoords["m31"], 5 * u.deg,
-                               dict(locstr=format(galcoords['m31']),
-                                    regSize=5)),
-                              ("m31", 5 * u.deg,
-                               dict(locstr='m31',
-                                    regSize=5)),
-                              (coordinates.SkyCoord(ra=148.888221083 * u.deg,
-                                                    dec=69.065294722 * u.deg,
-                                                    frame='icrs'),
-                               5 * u.deg,
-                               {'locstr':
-                                format(coordinates.SkyCoord(ra=148.888221083 * u.deg,
-                                                            dec=69.065294722 * u.deg,
-                                                            frame='icrs')),
-                                'regSize': 5}), ])
+    @pytest.mark.parametrize(
+        ('coordinate', 'radius', 'expected_payload'),
+        [(galcoords["m81"], None, dict(locstr=format(galcoords['m81']))),
+         (galcoords["m31"], "5d0m", dict(locstr=format(galcoords['m31']),
+                                         regSize=5.0)),
+         (galcoords["m31"], 5 * u.deg, dict(locstr=format(galcoords['m31']),
+                                            regSize=5)),
+         ("m31", 5 * u.deg, dict(locstr='m31', regSize=5)),
+         (coordinates.SkyCoord(ra=148.888221083 * u.deg,
+                               dec=69.065294722 * u.deg, frame='icrs'),
+          5 * u.deg,
+          {'locstr': format(coordinates.SkyCoord(ra=148.888221083 * u.deg,
+                                                 dec=69.065294722 * u.deg,
+                                                 frame='icrs')),
+           'regSize': 5}), ])
     def test_args_to_payload_instance_1(self, coordinate, radius,
                                         expected_payload, patch_fromname):
         payload = IrsaDust()._args_to_payload(coordinate, radius=radius)
@@ -136,8 +131,7 @@ class TestDust(DustTestCase):
 
     def test_args_to_payload_instance_2(self, patch_fromname):
         with pytest.raises(Exception) as ex:
-            payload = IrsaDust()._args_to_payload(
-                "m81", radius="5")
+            IrsaDust()._args_to_payload("m81", radius="5")
         assert ex.value.args[0] == "No unit specified"
 
     @pytest.mark.parametrize(('radius'), ['1d0m', '40d0m', 45 * u.deg])
@@ -145,8 +139,7 @@ class TestDust(DustTestCase):
         errmsg = ("Radius (in any unit) must be in the"
                   " range of 2.0 to 37.5 degrees")
         with pytest.raises(ValueError) as ex:
-            payload = IrsaDust()._args_to_payload(
-                "m81", radius=radius)
+            IrsaDust()._args_to_payload("m81", radius=radius)
         assert ex.value.args[0] == errmsg
 
     @pytest.mark.parametrize(('coordinate', 'radius', 'expected_payload'),
@@ -168,8 +161,7 @@ class TestDust(DustTestCase):
 
     def test_args_to_payload_class_2(self, patch_fromname):
         with pytest.raises(Exception) as ex:
-            payload = IrsaDust._args_to_payload(
-                "m81", radius="5")
+            IrsaDust._args_to_payload("m81", radius="5")
         assert ex.value.args[0] == "No unit specified"
 
     @pytest.mark.parametrize(('radius'), ['1d0m', '40d0m', 45 * u.deg])
@@ -177,8 +169,7 @@ class TestDust(DustTestCase):
         errmsg = ("Radius (in any unit) must be in the"
                   " range of 2.0 to 37.5 degrees")
         with pytest.raises(ValueError) as ex:
-            payload = IrsaDust._args_to_payload(
-                "m81", radius=radius)
+            IrsaDust._args_to_payload("m81", radius=radius)
         assert ex.value.args[0] == errmsg
 
     @pytest.mark.parametrize(('image_type', 'expected_urls'),
@@ -348,13 +339,11 @@ class TestDust(DustTestCase):
             timeout=IrsaDust.TIMEOUT):
         return [self.data(IMG_FITS)]
 
-    def get_images_async_mockreturn(self,
-                                    coordinate,
-                                    radius=None,
-                                    image_type=None,
-                                    timeout=IrsaDust.TIMEOUT,
+    def get_images_async_mockreturn(self, coordinate, radius=None,
+                                    image_type=None, timeout=IrsaDust.TIMEOUT,
                                     get_query_payload=False):
-        readable_obj = commons.FileContainer(self.data(IMG_FITS), encoding='binary')
+        readable_obj = commons.FileContainer(self.data(IMG_FITS),
+                                             encoding='binary')
         return [readable_obj]
 
     def set_ext_table_text(self, text, xml_tree):

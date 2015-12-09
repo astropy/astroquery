@@ -585,11 +585,14 @@ class NedClass(BaseQuery):
         request_payload['search_type'] = SEARCH_TYPE[table]
         if table == 'photometry':
             output_table_format = 1
-            request_payload['meas_type'] = Ned.PHOTOMETRY_OUT[output_table_format].cgi_name
+            request_payload['meas_type'] = Ned.PHOTOMETRY_OUT[
+                output_table_format].cgi_name
         if table == 'references':
-            request_payload['ref_extend'] = 'yes' if kwargs.get('extended_search', False) else 'no'
+            request_payload['ref_extend'] = (
+                'yes' if kwargs.get('extended_search') else 'no')
             request_payload['begin_year'] = kwargs.get('from_year', 1800)
-            request_payload['end_year'] = kwargs.get('to_year', datetime.now().year)
+            request_payload['end_year'] = kwargs.get('to_year',
+                                                     datetime.now().year)
         if get_query_payload:
             return request_payload
         response = commons.send_request(Ned.DATA_SEARCH_URL, request_payload,

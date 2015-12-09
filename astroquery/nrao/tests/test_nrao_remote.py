@@ -15,9 +15,11 @@ from ... import nrao
 class TestNrao:
 
     def test_query_region_async(self):
-        response = nrao.core.Nrao.query_region_async(coord.SkyCoord("04h33m11.1s 05d21m15.5s"))
+        response = nrao.core.Nrao.query_region_async(
+            coord.SkyCoord("04h33m11.1s 05d21m15.5s"))
         assert response is not None
 
     def test_query_region(self):
-        result = nrao.core.Nrao.query_region(coord.SkyCoord("04h33m11.1s 05d21m15.5s"))
+        result = nrao.core.Nrao.query_region(
+            coord.SkyCoord("04h33m11.1s 05d21m15.5s"))
         assert isinstance(result, Table)

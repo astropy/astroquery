@@ -3,7 +3,8 @@
 NED Query Tool
 ==============
 
-Module containing a series of functions that execute queries to the NASA Extragalactic Database (NED):
+Module containing a series of functions that execute queries to the NASA
+Extragalactic Database (NED):
 
 .. topic:: Revision History
 
@@ -18,9 +19,9 @@ Module containing a series of functions that execute queries to the NASA Extraga
         Based off Adam Ginsburg's Splatalogue search routine:
             http://code.google.com/p/agpy/source/browse/trunk/agpy/query_splatalogue.py
 
-        Service URLs to acquire the VO Tables are taken from Mazzarella et al. (2007)
-        The National Virtual Observatory: Tools and Techniques for Astronomical Research,
-        ASP Conference Series, Vol. 382., p.165
+        Service URLs to acquire the VO Tables are taken from Mazzarella et
+        al. (2007) The National Virtual Observatory: Tools and Techniques
+        for Astronomical Research, ASP Conference Series, Vol. 382., p.165
 
 """
 from astropy import config as _config
@@ -32,19 +33,17 @@ class Conf(_config.ConfigNamespace):
     """
     server = _config.ConfigItem(
         ['http://ned.ipac.caltech.edu/cgi-bin/'],
-        'Name of the NED server to use.'
-        )
+        'Name of the NED server to use.')
+
     timeout = _config.ConfigItem(
         60,
-        'Time limit for connecting to NED server.'
-        )
+        'Time limit for connecting to NED server.')
 
     # Set input parameters of choice
 
     hubble_constant = _config.ConfigItem(
         [73, 70.5],
-        'Value of the Hubble Constant for many NED queries.'
-        )
+        'Value of the Hubble Constant for many NED queries.')
 
     """
     The correct redshift for NED queries may be chosen by specifying numbers
@@ -56,8 +55,7 @@ class Conf(_config.ConfigNamespace):
     """
     correct_redshift = _config.ConfigItem(
         [1, 2, 3, 4],
-        'The correct redshift for NED queries, see comments above..'
-        )
+        'The correct redshift for NED queries, see comments above.')
 
     # Set output parameters of choice
     output_coordinate_frame = _config.ConfigItem(
@@ -65,12 +63,12 @@ class Conf(_config.ConfigNamespace):
          'Ecliptic',
          'Galactic',
          'SuperGalactic'],
-        'Frame in which to display the coordinates in the output.'
-        )
+        'Frame in which to display the coordinates in the output.')
+
     output_equinox = _config.ConfigItem(
         ['J2000.0', 'B1950.0'],
-        'Equinox for the output coordinates.'
-        )
+        'Equinox for the output coordinates.')
+
     sort_output_by = _config.ConfigItem(
         ["RA or Longitude",
          "DEC or Latitude",
@@ -78,8 +76,7 @@ class Conf(_config.ConfigNamespace):
          "GLAT",
          "Redshift - ascending",
          "Redshift - descending"],
-        'Display output sorted by this criteria.'
-        )
+        'Display output sorted by this criteria.')
 
 conf = Conf()
 
