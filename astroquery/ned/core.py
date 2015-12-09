@@ -133,6 +133,7 @@ class NedClass(BaseQuery):
         -------
         result : `astropy.table.Table`
             The result of the query as an `astropy.table.Table` object.
+
         """
         # for NED's object near name/ near region
         response = self.query_region_async(coordinates, radius=radius,
@@ -171,6 +172,7 @@ class NedClass(BaseQuery):
         -------
         response : `requests.Response`
             The HTTP response returned from the service
+
         """
         request_payload = self._request_payload_init()
         self._set_input_options(request_payload)
@@ -268,6 +270,7 @@ class NedClass(BaseQuery):
         -------
         response : `requests.Response`
             The HTTP response returned from the service.
+
         """
         request_payload = self._request_payload_init()
         self._set_input_options(request_payload)
@@ -328,6 +331,7 @@ class NedClass(BaseQuery):
         -------
         response : `requests.Response`
             The HTTP response returned from the service.
+
         """
         request_payload = self._request_payload_init()
         self._set_input_options(request_payload)
@@ -380,6 +384,7 @@ class NedClass(BaseQuery):
         Returns
         --------
         A list of context-managers that yield readable file-like objects
+
         """
         image_urls = self.get_image_list(object_name,
                                          get_query_payload=get_query_payload)
@@ -428,6 +433,7 @@ class NedClass(BaseQuery):
         Returns
         --------
         A list of context-managers that yield readable file-like objects
+
         """
         image_urls = self.get_image_list(object_name, item='spectra',
                                          get_query_payload=get_query_payload)
@@ -456,6 +462,7 @@ class NedClass(BaseQuery):
         Returns
         -------
         list of image urls
+
         """
         request_payload = dict(objname=object_name)
         if item == 'spectra':
@@ -479,6 +486,7 @@ class NedClass(BaseQuery):
         ----------
         html_in : str
             source from which the urls are to be extracted
+
         """
         base_url = 'http://ned.ipac.caltech.edu'
         pattern = re.compile(
@@ -532,7 +540,8 @@ class NedClass(BaseQuery):
         Notes
         -----
         .. warning:: table=references does not work correctly
-        `astroquery issue #141 <https://github.com/astropy/astroquery/issues/141>`_
+            `astroquery issue #141 <https://github.com/astropy/astroquery/issues/141>`_
+
         """
         response = self.get_table_async(object_name, table=table,
                                         get_query_payload=get_query_payload,
@@ -573,6 +582,7 @@ class NedClass(BaseQuery):
         -------
         response : `requests.Response`
             The HTTP response returned from the service.
+
         """
         SEARCH_TYPE = dict(photometry='Photometry',
                            diameters='Diameters',
@@ -606,6 +616,7 @@ class NedClass(BaseQuery):
         Returns
         -------
         request_payload : dict
+
         """
         request_payload = dict(of='xml_main')
         # common settings for all queries as per NED guidelines
@@ -622,6 +633,7 @@ class NedClass(BaseQuery):
         Parameters
         ----------
         request_payload : dict
+
         """
         request_payload['hconst'] = conf.hubble_constant
         request_payload['omegam'] = 0.27
@@ -635,6 +647,7 @@ class NedClass(BaseQuery):
         Parameters
         ----------
         request_payload : dict
+
         """
         request_payload['out_csys'] = conf.output_coordinate_frame
         request_payload['out_equinox'] = conf.output_equinox
@@ -657,6 +670,7 @@ class NedClass(BaseQuery):
         Returns
         -------
         table : `astropy.table.Table`
+
         """
         if not verbose:
             commons.suppress_vo_warnings()
@@ -705,6 +719,7 @@ def _parse_radius(radius):
     -------
     radius_in_min : float
         The value of the radius in arcminutes.
+
     """
     return coord.Angle(radius).to('arcmin').value
 
@@ -723,6 +738,7 @@ def _check_ned_valid(string):
         `False` if error parameter found, `True` otherwise.
     errmsg : str
         The string containing the error message if it exists, `None` otherwise.
+
     """
     # Routine assumes input is valid Table unless error parameter is found.
     retval = True

@@ -227,6 +227,7 @@ class SplatalogueClass(BaseQuery):
         Dictionary of the parameters to send to the SPLAT page
         payload : dict
             A dictionary of keywords
+
         """
 
         payload = {'submit': 'Search',
