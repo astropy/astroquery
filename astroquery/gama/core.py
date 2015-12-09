@@ -2,7 +2,6 @@
 """Download GAMA data"""
 import re
 import os
-from astropy.io import fits
 from astropy.table import Table
 from ..query import BaseQuery
 from ..utils import commons, async_to_sync
@@ -79,7 +78,8 @@ def get_gama_datafile(result, **kwargs):
 
 def find_data_url(result_page):
     """Find and return the URL of the data, given a results page."""
-    result_relative_url_re = re.compile(r'Download the result file: <a href="(\.\./tmp/.*?)">')
+    result_relative_url_re = re.compile(r'Download the result file: '
+                                        '<a href="(\.\./tmp/.*?)">')
     re_result = result_relative_url_re.findall(result_page)
     if len(re_result) == 0:
         raise ValueError("Results did not contain a result url")

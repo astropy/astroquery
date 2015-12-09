@@ -115,7 +115,7 @@ class CosmoSimClass(QueryWithLogin):
         """
 
         if (hasattr(self, 'username') and hasattr(self, 'password') and
-            hasattr(self, 'session')):
+                hasattr(self, 'session')):
             if deletepw is True:
                 try:
                     keyring.delete_password("astroquery:www.cosmosim.org",

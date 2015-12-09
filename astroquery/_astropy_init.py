@@ -133,8 +133,8 @@ if not _ASTROPY_SETUP_:
                     config.configuration.update_default_config(
                         __package__, config_dir)
                 except config.configuration.ConfigurationDefaultMissingError as e:
-                    wmsg = (e.args[0] + " Cannot install default profile. If you are "
-                            "importing from source, this is expected.")
+                    wmsg = (e.args[0] + " Cannot install default profile. If "
+                            "you are importing from source, this is expected.")
                     warn(config.configuration.ConfigurationDefaultMissingWarning(wmsg))
                     del e
                 except:
@@ -157,9 +157,9 @@ if not _ASTROPY_SETUP_:
                 from astropy.utils import find_current_module
                 module = find_current_module(2)
                 if module is None:
-                    msg1 = 'Cannot automatically determine get_config module, '
-                    msg2 = 'because it is not called from inside a valid module'
-                    raise RuntimeError(msg1 + msg2)
+                    raise RuntimeError(
+                        "Cannot automatically determine get_config module, "
+                        "because it is not called from inside a valid module")
                 else:
                     module = module.__name__
 
@@ -173,5 +173,5 @@ if not _ASTROPY_SETUP_:
 
         # Don't apply the same monkey patch twice
         if (configuration.ConfigItem.__init__.__name__ !=
-            '_monkey_patch_1_0_1_ConfigItem__init__'):
+                '_monkey_patch_1_0_1_ConfigItem__init__'):
             configuration.ConfigItem.__init__ = _monkey_patch_1_0_1_ConfigItem__init__

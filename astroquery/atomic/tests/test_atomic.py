@@ -59,10 +59,11 @@ def test_transitions():
     assert isinstance(Transition.M1, MultiTransition)
     assert len(Transition.IC | Transition.M1) == 2
     # associativity
-    assert (Transition.IC | Transition.M1) | Transition.E1 == Transition.IC | (Transition.M1 | Transition.E1)
+    assert ((Transition.IC | Transition.M1) | Transition.E1 ==
+            Transition.IC | (Transition.M1 | Transition.E1))
     # commutativity
     assert Transition.IC | Transition.M1 == Transition.M1 | Transition.IC
-    assert str((Transition.IC | Transition.M1))== 'IC,M1'
+    assert str((Transition.IC | Transition.M1)) == 'IC,M1'
 
 
 def test_validate_transitions():
@@ -70,7 +71,8 @@ def test_validate_transitions():
     assert is_valid_transitions_param(Transition.nebular)
     assert is_valid_transitions_param(Transition.E1)
     assert is_valid_transitions_param(Transition.IC | Transition.E2)
-    assert is_valid_transitions_param(Transition.IC | Transition.E2 | Transition.M1)
+    assert is_valid_transitions_param(
+        Transition.IC | Transition.E2 | Transition.M1)
     assert not is_valid_transitions_param(Transition.all | Transition.IC)
     assert not is_valid_transitions_param(Transition.IC | Transition.all)
     assert not is_valid_transitions_param(Transition.nebular | Transition.IC)

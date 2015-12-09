@@ -68,7 +68,8 @@ def nonremote_request(self, request_type, url, **kwargs):
 @pytest.fixture
 def patch_request(request):
     mp = request.getfuncargvalue("monkeypatch")
-    mp.setattr(template_module.core.TemplateClass, '_request', nonremote_request)
+    mp.setattr(template_module.core.TemplateClass, '_request',
+               nonremote_request)
     return mp
 
 

@@ -43,10 +43,10 @@ class MockResponseSkyviewForm(MockResponse):
         self.content = self.get_content(method, url)
 
     def get_content(self, method, url):
-        if 'basicform.pl' in url and method=='GET':
+        if 'basicform.pl' in url and method == 'GET':
             with open(data_path('query_page.html'), 'r') as f:
                 return f.read()
-        elif 'runquery.pl' in url and method =='GET':
+        elif 'runquery.pl' in url and method == 'GET':
             with open(data_path('results.html'), 'r') as f:
                 return f.read()
         else:
@@ -76,8 +76,8 @@ def test_get_image_list_local(patch_get, patch_fromname):
 
 def test_survey_validation(patch_get):
     with pytest.raises(ValueError) as ex:
-        urls = SkyView.get_image_list(position='doesnt matter',
-                                      survey=['not_a_valid_survey'])
+        SkyView.get_image_list(position='doesnt matter',
+                               survey=['not_a_valid_survey'])
     assert str(ex.value) == ("Survey is not among the surveys hosted "
                              "at skyview.  See list_surveys or "
                              "survey_dict for valid surveys.")

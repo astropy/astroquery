@@ -11,7 +11,8 @@ from ...atomic import AtomicLineList
 
 @pytest.fixture(scope='module')
 def form():
-    response = commons.send_request(AtomicLineList.FORM_URL, {}, AtomicLineList.TIMEOUT, 'GET')
+    response = commons.send_request(AtomicLineList.FORM_URL, {},
+                                    AtomicLineList.TIMEOUT, 'GET')
     bs = BeautifulSoup(response.text)
     return bs.find('form')
 
@@ -54,15 +55,17 @@ def test_query_with_params():
         wavelength_accuracy=20,
         element_spectrum='C II-IV')
     assert isinstance(table, Table)
-    assert table.colnames == [
-        'LAMBDA VAC ANG', 'SPECTRUM', 'TT', 'TERM', 'J J', 'LEVEL ENERGY  CM 1']
-    assert np.all(table['LAMBDA VAC ANG'] == np.array([196.8874, 197.7992, 199.0122]))
+    assert table.colnames == ['LAMBDA VAC ANG', 'SPECTRUM', 'TT', 'TERM',
+                              'J J', 'LEVEL ENERGY  CM 1']
+    assert np.all(table['LAMBDA VAC ANG'] ==
+                  np.array([196.8874, 197.7992, 199.0122]))
     assert np.all(table['SPECTRUM'] == np.array(['C IV', 'C IV', 'C IV']))
     assert np.all(table['TT'] == np.array(['E1', 'E1', 'E1']))
     assert np.all(table['TERM'] == np.array(['2S-2Po', '2S-2Po', '2S-2Po']))
     assert np.all(table['J J'] == np.array(['1/2-*', '1/2-*', '1/2-*']))
-    assert np.all(table['LEVEL ENERGY  CM 1'] == np.array(
-        ['0.00 -   507904.40', '0.00 -   505563.30',  '0.00 -   502481.80']))
+    assert np.all(table['LEVEL ENERGY  CM 1'] ==
+                  np.array(['0.00 -   507904.40', '0.00 -   505563.30',
+                            '0.00 -   502481.80']))
 
 
 @remote_data

@@ -119,7 +119,7 @@ def test_parse_result():
                              'can be found in self.last_response, and the '
                              'error in self.last_table_parse_error. '
                              'The attempted parsed result is in '
-                             'self.last_parsed_result. \nException: 7:115: '
+                             'self.last_parsed_result.\n Exception: 7:115: '
                              'no element found')
     assert isinstance(simbad.Simbad.last_response.text, six.string_types)
     assert isinstance(simbad.Simbad.last_response.content, six.binary_type)
@@ -386,7 +386,7 @@ def test_regression_votablesettings():
     simbad.core.Simbad.add_votable_fields('ra', 'dec(5)')
     with pytest.raises(KeyError) as ex:
         simbad.core.Simbad.add_votable_fields('ra(d)', 'dec(d)')
-    assert ex.value.args[0] == ('ra(d): field already present.  Fields '
+    assert ex.value.args[0] == ('ra(d): field already present. Fields '
                                 'ra,dec,id,otype, and bibcodelist can only '
                                 'be specified once.  To change their options, '
                                 'first remove the existing entry, then add '

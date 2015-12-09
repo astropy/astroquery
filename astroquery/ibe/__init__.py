@@ -16,24 +16,23 @@ class Conf(_config.ConfigNamespace):
 
     server = _config.ConfigItem(
         'http://irsa.ipac.caltech.edu/ibe/',
-        'Name of the IBE server to use.'
-        )
+        'Name of the IBE server to use.')
     mission = _config.ConfigItem(
         'ptf',
-        'Default mission. See, for example, http://irsa.ipac.caltech.edu/ibe/search/ for options.'
-        )
+        ('Default mission. See, for example, '
+         'http://irsa.ipac.caltech.edu/ibe/search/ for options.'))
+
     dataset = _config.ConfigItem(
         'images',
-        'Default data set. See, for example, http://irsa.ipac.caltech.edu/ibe/search/ptf for options.'
-        )
+        ('Default data set. See, for example, '
+         'http://irsa.ipac.caltech.edu/ibe/search/ptf for options.'))
     table = _config.ConfigItem(
         'level1',
-        'Default table. See, for example, http://irsa.ipac.caltech.edu/ibe/search/ptf/images for options.'
-        )
+        ('Default table. See, for example, '
+         'http://irsa.ipac.caltech.edu/ibe/search/ptf/images for options.'))
     timeout = _config.ConfigItem(
         60,
-        'Time limit for connecting to the IRSA server.'
-        )
+        'Time limit for connecting to the IRSA server.')
 
 conf = Conf()
 

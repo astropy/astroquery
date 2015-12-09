@@ -11,4 +11,5 @@ found at: http://sha.ipac.caltech.edu/applications/Spitzer/SHA.
 from .core import *
 
 import warnings
-warnings.warn("Experimental: SHA has not yet been refactored to have its API match the rest of astroquery.")
+warnings.warn("Experimental: SHA has not yet been refactored to have its "
+              "API match the rest of astroquery.")

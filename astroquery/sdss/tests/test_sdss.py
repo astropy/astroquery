@@ -57,7 +57,8 @@ def patch_get_readable_fileobj(request):
             yield open(file_obj, 'r', encoding=encoding)
 
     mp = request.getfuncargvalue("monkeypatch")
-    mp.setattr(commons, 'get_readable_fileobj', get_readable_fileobj_mockreturn)
+    mp.setattr(commons, 'get_readable_fileobj',
+               get_readable_fileobj_mockreturn)
     return mp
 
 
@@ -70,7 +71,8 @@ def patch_get_readable_fileobj_slow(request):
         raise e
         yield True
     mp = request.getfuncargvalue("monkeypatch")
-    mp.setattr(commons, 'get_readable_fileobj', get_readable_fileobj_mockreturn)
+    mp.setattr(commons, 'get_readable_fileobj',
+               get_readable_fileobj_mockreturn)
     return mp
 
 
@@ -226,7 +228,8 @@ def test_sdss_specobj(patch_get, dr):
 
 @pytest.mark.parametrize("dr", [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12])
 def test_sdss_photoobj(patch_get, dr):
-    xid = sdss.SDSS.query_photoobj(run=1904, camcol=3, field=164, data_release=dr)
+    xid = sdss.SDSS.query_photoobj(
+        run=1904, camcol=3, field=164, data_release=dr)
     data = Table.read(data_path(DATA_FILES['images_id']),
                       format='ascii.csv', comment='#')
     compare_xid_data(xid, data)
@@ -287,7 +290,8 @@ def test_list_coordinates_payload(dr):
               "((p.ra between 2.02291 and 2.02402) and "
               "(p.dec between 14.8393 and 14.8404))")
     query_payload = sdss.SDSS.query_region(coords_list,
-                                           get_query_payload=True, data_release=dr)
+                                           get_query_payload=True,
+                                           data_release=dr)
     assert query_payload['cmd'] == expect
     assert query_payload['format'] == 'csv'
 
@@ -302,7 +306,8 @@ def test_column_coordinates_payload(dr):
               "((p.ra between 2.02291 and 2.02402) and "
               "(p.dec between 14.8393 and 14.8404))")
     query_payload = sdss.SDSS.query_region(coords_column,
-                                           get_query_payload=True, data_release=dr)
+                                           get_query_payload=True,
+                                           data_release=dr)
     assert query_payload['cmd'] == expect
     assert query_payload['format'] == 'csv'
 

@@ -1,7 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import os
-from ...lamda import Lamda, core
-from ...utils.testing_tools import MockResponse
+from ...lamda import core
 
 DATA_FILES = {'co': 'co.txt'}
 
@@ -12,7 +11,8 @@ def data_path(filename):
 
 
 def test_parser():
-    collrates, radtransitions, enlevels = core.parse_lamda_datafile(data_path('co.txt'))
+    collrates, radtransitions, enlevels = core.parse_lamda_datafile(
+        data_path('co.txt'))
 
     assert set(collrates.keys()) == set(['PH2', 'OH2'])
     assert len(enlevels) == 41

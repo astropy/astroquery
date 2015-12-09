@@ -160,7 +160,8 @@ class AtomicLineListClass(BaseQuery):
             The HTTP response returned from the service.
         """
         if self._default_form_values is None:
-            response = commons.send_request(self.FORM_URL, {}, self.TIMEOUT, 'GET')
+            response = commons.send_request(
+                self.FORM_URL, {}, self.TIMEOUT, 'GET')
             bs = BeautifulSoup(response.text)
             form = bs.find('form')
             self._default_form_values = self._get_default_form_values(form)
@@ -169,14 +170,15 @@ class AtomicLineListClass(BaseQuery):
         if wltype in ('air', 'vacuum'):
             air = wltype.capitalize()
         else:
-            raise ValueError('parameter wavelength_type must be either "air" or "vacuum".')
+            raise ValueError('parameter wavelength_type must be either "air" '
+                             'or "vacuum".')
         wlrange = wavelength_range or []
         if len(wlrange) not in (0, 2):
-            raise ValueError(
-                'length of `wavelength_range` must be 2 or 0, but is: {}'.format(
-                    len(wlrange)))
+            raise ValueError('Length of `wavelength_range` must be 2 or 0, '
+                             'but is: {}'.format(len(wlrange)))
         if not is_valid_transitions_param(transitions):
-            raise ValueError('invalid parameter "transitions": {0!r}'.format(transitions))
+            raise ValueError('Invalid parameter "transitions": {0!r}'
+                             .format(transitions))
         if transitions is None:
             _type = self._default_form_values.get('type')
             type2 = self._default_form_values.get('type2')
@@ -189,15 +191,18 @@ class AtomicLineListClass(BaseQuery):
                 _type = s
                 type2 = ''
         # convert wavelengths in incoming wavelength range to Angstroms
-        wlrange_in_angstroms = (wl.to(u.Angstrom, equivalencies=u.spectral()).value for wl in wlrange)
+        wlrange_in_angstroms = (wl.to(u.Angstrom,
+                                      equivalencies=u.spectral()).value
+                                for wl in wlrange)
+
         lower_level_erange = lower_level_energy_range
         if lower_level_erange is not None:
             lower_level_erange = lower_level_erange.to(
-                u.cm**-1, equivalencies=u.spectral()).value()
+                u.cm ** -1, equivalencies=u.spectral()).value()
         upper_level_erange = upper_level_energy_range
         if upper_level_erange is not None:
             upper_level_erange = upper_level_erange.to(
-                u.cm**-1, equivalencies=u.spectral()).value()
+                u.cm ** -1, equivalencies=u.spectral()).value()
         input = {
             'wavl': '-'.join(map(str, wlrange_in_angstroms)),
             'wave': 'Angstrom',
@@ -220,17 +225,21 @@ class AtomicLineListClass(BaseQuery):
 
     def _parse_result(self, response):
         data = StringIO(BeautifulSoup(response.text).find('pre').text.strip())
-        # `header` is e.g. "u'-LAMBDA-VAC-ANG-|-SPECTRUM--|TT|--------TERM---------|---J-J---|----LEVEL ENERGY--CM-1----'"
+        # `header` is e.g.:
+        # "u'-LAMBDA-VAC-ANG-|-SPECTRUM--|TT|--------TERM---------|---J-J---|----LEVEL-ENERGY--CM-1----'"
+        # `colnames` is then
+        # [u'LAMBDA VAC ANG', u'SPECTRUM', u'TT', u'TERM', u'J J',
+        #  u'LEVEL ENERGY  CM 1']
+
         header = data.readline().strip().strip('|')
-        # `colnames` is then "[u'LAMBDA VAC ANG', u'SPECTRUM', u'TT', u'TERM', u'J J', u'LEVEL ENERGY  CM 1']"
-        colnames = [colname.strip('-').replace('-', ' ') for colname in header.split('|') if colname.strip()]
+
+        colnames = [colname.strip('-').replace('-', ' ')
+                    for colname in header.split('|') if colname.strip()]
         indices = [i for i, c in enumerate(header) if c == '|']
         input = []
         for line in data:
-            # example for `line`:
-            # u'      1.010799    Zn XXX     E1          1-10          1/2-*            0.00 - 98933890.00\n'
             row = []
-            for start, end in zip([0]+indices, indices+[None]):
+            for start, end in zip([0] + indices, indices + [None]):
                 # `value` will hold all cell values in the line, so
                 # `u'1.010799'`, `u'Zn XXX'` etc.
                 value = line[start:end].strip()
@@ -239,7 +248,8 @@ class AtomicLineListClass(BaseQuery):
             if row:
                 input.append('\t'.join(row))
         if input:
-            return ascii.read(input, data_start=0, delimiter='\t', names=colnames)
+            return ascii.read(input, data_start=0, delimiter='\t',
+                              names=colnames)
         else:
             # return an empty table if the query yielded no results
             return Table()
@@ -282,7 +292,8 @@ class AtomicLineListClass(BaseQuery):
                 continue
             # check boxes: enabled boxes have the value "on" if not specified
             # otherwise. Found out by debugging, perhaps not documented.
-            if elem.get('type') == 'checkbox' and elem.get('checked') in ["", "checked"]:
+            if (elem.get('type') == 'checkbox' and
+                    elem.get('checked') in ["", "checked"]):
                 value = elem.get('value', 'on')
             # radio buttons and simple input fields
             if elem.get('type') == 'radio' and\

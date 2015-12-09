@@ -10,7 +10,8 @@ def data_path(filename):
 
 
 def test_function():
-    cata = oec.get_catalogue(data_path('systems.xml.gz'))  # use local version of database
+    # use local version of database
+    cata = oec.get_catalogue(data_path('systems.xml.gz'))
 
     assert len(cata.findall('.//planet')) > 0
 

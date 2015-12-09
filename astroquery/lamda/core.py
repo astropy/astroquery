@@ -125,7 +125,8 @@ class LamdaClass(BaseQuery):
         links = soup.find_all('a', href=True)
         datfile_urls = [url
                         for link in ProgressBar(links)
-                        for url in self._find_datfiles(link['href'], base_url=main_url)]
+                        for url in self._find_datfiles(link['href'],
+                                                       base_url=main_url)]
 
         molecule_re = re.compile(r'http://[a-zA-Z0-9.]*/~moldata/datafiles/([A-Z0-9a-z_+@-]*).dat')
         molecule_dict = {molecule_re.search(url).groups()[0]:
@@ -227,7 +228,7 @@ def parse_lamda_lines(data):
             continue
         if 'ncoll' not in meta_coll:
             meta_coll['ncoll'] = int(_cln(line))
-            ncollrates = {ii: 0 for ii in range(1, meta_coll['ncoll']+1)}
+            ncollrates = {ii: 0 for ii in range(1, meta_coll['ncoll'] + 1)}
             collrates = {}
             continue
         if collider is None:
@@ -251,9 +252,9 @@ def parse_lamda_lines(data):
         if len(collrates[collider]) < meta_coll[collname]['ntrans']:
             trans, up, low = [int(x) for x in _cln(line).split()[:3]]
             temperatures = [float(x) for x in _cln(line).split()[3:]]
-            collrates[collider].append([trans, up, low]+temperatures)
+            collrates[collider].append([trans, up, low] + temperatures)
         if len(collrates[collider]) == meta_coll[collname]['ntrans']:
-            #meta_coll[collider_ids[collider]+'_collrates'] = collrates
+            # meta_coll[collider_ids[collider]+'_collrates'] = collrates
             log.debug("{ii} Finished loading collider {0:d}: "
                       "{1}".format(collider, collider_ids[collider], ii=ii))
             collider = None
@@ -273,7 +274,8 @@ def parse_lamda_lines(data):
                                                zip(*levels))]
     mol_table = table.Table(data=mol_table_columns, meta=meta_mol)
 
-    rad_table_names = ['Transition', 'Upper', 'Lower', 'EinsteinA', 'Frequency', 'E_u(K)']
+    rad_table_names = ['Transition', 'Upper', 'Lower', 'EinsteinA',
+                       'Frequency', 'E_u(K)']
     rad_table_columns = [table.Column(name=name, data=data)
                          for name, data in zip(rad_table_names,
                                                zip(*radtrans))]
