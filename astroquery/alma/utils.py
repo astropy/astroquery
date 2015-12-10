@@ -81,12 +81,17 @@ def pyregion_subset(region, data, mywcs):
 
 def parse_frequency_support(frequency_support_str):
     """
-    Given a "Frequency Support" string from ALMA queries, parse it into a set
-    of frequency ranges
+    ALMA "Frequency Support" strings have the form:
 
-    Example input:
+    [100.63..101.57GHz,488.28kHz, XX YY] U
+    [102.43..103.37GHz,488.28kHz, XX YY] U
+    [112.74..113.68GHz,488.28kHz, XX YY] U
+    [114.45..115.38GHz,488.28kHz, XX YY]
 
-    '[86.26..88.14GHz,976.56kHz, XX YY] U [88.15..90.03GHz,976.56kHz, XX YY] U [98.19..100.07GHz,976.56kHz, XX YY] U [100.15..102.03GHz,976.56kHz, XX YY]'
+    at least, as far as we have seen.  The "U" is meant to be the Union symbol.
+    This function will parse such a string into a list of pairs of astropy
+    Quantities representing the frequency range.  It will ignore the resolution
+    and polarizations.
     """
     supports = str(frequency_support_str).split('U')
 
@@ -98,14 +103,25 @@ def parse_frequency_support(frequency_support_str):
     return u.Quantity(freq_ranges)
 
 
-def approximate_primary_beam_sizes(frequency_support_str):
+def approximate_primary_beam_sizes(frequency_support_str,
+                                   dish_diameter=12 * u.m, first_null=1.220):
     """
-    Given a frequency support string, return the approximate 12m array beam
-    size using 1.22 lambda / D
+    Using parse_frequency_support, determine the mean primary beam size in each
+    observed band
+
+    Parameters
+    ----------
+    frequency_support_str : str
+        The frequency support string, see `parse_frequency_support`
+    dish_diameter : `~astropy.units.Quantity`
+        Meter-equivalent unit.  The diameter of the dish.
+    first_null : float
+        The position of the first null of an Airy.  Used to compute resolution
+        as :math:`R = 1.22 \lambda/D`
     """
     freq_ranges = parse_frequency_support(frequency_support_str)
-    beam_sizes = [(1.22 * fr.mean().to(u.m, u.spectral()) /
-                   (12 * u.m)).to(u.arcsec, u.dimensionless_angles())
+    beam_sizes = [(first_null * fr.mean().to(u.m, u.spectral()) /
+                   (dish_diameter)).to(u.arcsec, u.dimensionless_angles())
                   for fr in freq_ranges]
     return u.Quantity(beam_sizes)
 
@@ -118,8 +134,7 @@ def make_finder_chart(target, radius, save_prefix, service=SkyView.get_images,
                       public_band_colors=('blue', 'cyan', 'green',
                                           'turquoise', 'teal'),
                       integration_time_contour_levels=np.logspace(0, 5, base=2,
-                                                                  num=6),
-                      ):
+                                                                  num=6)):
     """
     Create a "finder chart" showing where ALMA has pointed in various bands,
     including different color coding for public/private data and each band.
