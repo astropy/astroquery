@@ -54,6 +54,9 @@ class NistClass(BaseQuery):
 
     def _args_to_payload(self, *args, **kwargs):
         """
+        Serves the same purpose as `~NistClass.query` but returns
+        the raw HTTP response rather than a `~astropy.table.Table` object.
+
         Parameters
         ----------
         minwav : `astropy.units.Quantity` object
@@ -63,10 +66,9 @@ class NistClass(BaseQuery):
         linename : str, optional
             The spectrum to fetch. Defaults to "H I"
         energy_level_unit : str, optional
-            The energy level units must be one of the following -
-            ['R', 'Rydberg', 'rydberg', 'cm', 'cm-1', 'EV', 'eV',
-             'electronvolt', 'ev', 'invcm']
-            Defaults to 'eV'.
+            The energy level units must be one of the following:
+            'R', 'Rydberg', 'rydberg', 'cm', 'cm-1', 'EV', 'eV',
+            'electronvolt', 'ev', 'invcm' Defaults to 'eV'.
         output_order : str, optional
             Decide ordering of output. Must be one of following:
             ['wavelength', 'multiplet']. Defaults to 'wavelength'.
@@ -80,6 +82,7 @@ class NistClass(BaseQuery):
         -------
         request_payload : dict
             The dictionary of parameters sent with the HTTP request
+
         """
         request_payload = {}
         request_payload["spectra"] = kwargs['linename']

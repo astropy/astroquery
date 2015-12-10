@@ -85,6 +85,7 @@ class SplatalogueClass(BaseQuery):
             species whose names match
         reflags : int
             Flags to pass to `re`.
+
         """
         # loading can be an expensive operation and should not change at
         # runtime: do it lazily
@@ -130,19 +131,17 @@ class SplatalogueClass(BaseQuery):
                       show_nrao_recommended=None):
         """
         The Splatalogue service returns lines with rest frequencies in the
-        range [min_frequency, max_frequency]
+        range [min_frequency, max_frequency].
 
         Parameters
         ----------
         min_frequency : `astropy.units`
+            Minimum frequency (or any spectral() equivalent)
         max_frequency : `astropy.units`
-            Minimum and maximum frequency (or any spectral() equivalent)
+            Maximum frequency (or any spectral() equivalent)
         band : str
             The observing band.  If it is not 'any', it overrides
             minfreq/maxfreq.
-
-        Other Parameters
-        ----------------
         top20: str
             One of ``'comet'``, ``'planet'``, ``'top20'``, ``'ism_hotcore'``,
             ``'ism_darkcloud'``, ``'ism_diffusecloud'``.
@@ -150,20 +149,25 @@ class SplatalogueClass(BaseQuery):
         chemical_name : str
             Name of the chemical to search for. Treated as a regular
             expression.  An empty set ('', (), [], {}) will match *any*
-            species.
-            Example:
+            species. Examples:
+
             ``'H2CO'`` - 13 species have H2CO somewhere in their formula.
+
             ``'Formaldehyde'`` - There are 8 isotopologues of Formaldehyde
                                  (e.g., H213CO).
+
             ``'formaldehyde'`` - Thioformaldehyde,Cyanoformaldehyde.
+
             ``'formaldehyde',flags=re.I`` - Formaldehyde,thioformaldehyde,
                                             and Cyanoformaldehyde.
+
             ``' H2CO '`` - Just 1 species, H2CO. The spaces prevent including
                            others.
 
         chem_re_flags : int
             See the `re` module
         energy_min : `None` or float
+            Energy range to include.  See energy_type
         energy_max : `None` or float
             Energy range to include.  See energy_type
         energy_type : ``'el_cm1'``, ``'eu_cm1'``, ``'eu_k'``, ``'el_k'``
@@ -224,9 +228,8 @@ class SplatalogueClass(BaseQuery):
 
         Returns
         -------
-        Dictionary of the parameters to send to the SPLAT page
         payload : dict
-            A dictionary of keywords
+            Dictionary of the parameters to send to the SPLAT page
 
         """
 
@@ -353,10 +356,12 @@ class SplatalogueClass(BaseQuery):
     def query_lines_async(self, min_frequency=None, max_frequency=None,
                           **kwargs):
         """
+
         Returns
         -------
         response : `requests.Response`
             The response of the HTTP request.
+
         """
         # have to chomp this kwd here...
         get_query_payload = (kwargs.pop('get_query_payload')
