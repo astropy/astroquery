@@ -677,13 +677,7 @@ class NedClass(BaseQuery):
         try:
             tf = six.BytesIO(response.content)
             first_table = votable.parse(tf, pedantic=False).get_first_table()
-            # For astropy version < 0.3 returns tables that have field ids
-            # as col names
-            if ASTROPY_VERSION < '0.3':
-                table = first_table.to_table()
-            # For astropy versions >= 0.3 return the field names as col names
-            else:
-                table = first_table.to_table(use_names_over_ids=True)
+            table = first_table.to_table(use_names_over_ids=True)
             return table
         except Exception as ex:
             (is_valid, err_msg) = _check_ned_valid(response.content)

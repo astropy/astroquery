@@ -412,11 +412,6 @@ def _pair_to_deg(pair):
         for ii, ang in enumerate((lon, lat)):
             if ang.unit.is_equivalent(u.degree):
                 pair[ii] = ang.to(u.degree).value
-            elif ang.unit.is_equivalent(u.hour):
-                warnings.warn("Assuming angle specified with 'hour' units "
-                              "means 'hourangle'.  "
-                              "This is an astropy < 0.3 warning.")
-                pair[ii] = (ang.value * u.hourangle).to(u.degree)
     else:
         warnings.warn("Polygon endpoints are being interpreted as RA/Dec "
                       "pairs specified in decimal degree units.")
