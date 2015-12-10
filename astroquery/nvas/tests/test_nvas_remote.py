@@ -6,9 +6,10 @@ import astropy.units as u
 from astropy.tests.helper import remote_data
 import requests
 import imp
-imp.reload(requests)
 
 from ...import nvas
+
+imp.reload(requests)
 
 
 @remote_data

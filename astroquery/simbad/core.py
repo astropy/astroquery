@@ -72,8 +72,8 @@ def strip_field(f, keep_filters=False):
     """
     if '(' in f:
         root = f[:f.find('(')]
-        if (root in ('ra', 'dec', 'otype', 'id', 'coo', 'bibcodelist')
-                or not keep_filters):
+        if (root in ('ra', 'dec', 'otype', 'id', 'coo', 'bibcodelist') or
+                not keep_filters):
             return root
 
     # the overall else (default option)

@@ -5,9 +5,10 @@ from astropy.tests.helper import remote_data, pytest
 from astropy.table import Table
 import requests
 import imp
-imp.reload(requests)
 
 from ... import ned
+
+imp.reload(requests)
 
 
 @remote_data

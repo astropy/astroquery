@@ -17,13 +17,13 @@ from six.moves.email_mime_text import MIMEText
 from astropy.table import Table
 import astropy.io.votable as votable
 from astropy import log as logging
-from astropy.table.pprint import conf
-conf.max_lines = -1
-conf.max_width = -1
 
 # Astroquery imports
 from ..query import QueryWithLogin
 from . import conf
+
+conf.max_lines = -1
+conf.max_width = -1
 
 __all__ = ['CosmoSim']
 
@@ -357,9 +357,8 @@ class CosmoSimClass(QueryWithLogin):
                 else:
                     matching_tables = [[self.table_dict[i]
                                         for i in self.table_dict.keys()
-                                        if self.table_dict[i] == miter
-                                        and self.job_dict[i] in phase
-                                        ][0]
+                                        if self.table_dict[i] == miter and
+                                        self.job_dict[i] in phase][0]
                                        for miter in matching_tables]
             self._existing_tables()  # creates a fresh up-to-date table_dict
 
@@ -731,7 +730,8 @@ class CosmoSimClass(QueryWithLogin):
                 if jobid == self.current_job:
                     del self.current_job
 
-        if self.job_dict[jobid] in ['COMPLETED', 'ERROR', 'ABORTED', 'PENDING']:
+        if self.job_dict[jobid] in ['COMPLETED', 'ERROR',
+                                    'ABORTED', 'PENDING']:
             result = self.session.delete(
                 CosmoSim.QUERY_URL + "/{}".format(jobid),
                 auth=(self.username, self.password), data={'follow': ''})
@@ -905,13 +905,16 @@ class CosmoSimClass(QueryWithLogin):
             tmp2_largest = 0
             for proj in projects:
                 size = len(self.db_dict['{0}'.format(proj)].keys())
-                proj_list += ['@ {}'.format(proj)] + ['' for i in range(size-1)] + ['-'*(largest+2)]
+                proj_list += (['@ {}'.format(proj)] +
+                              ['' for i in range(size - 1)] +
+                              ['-' * (largest + 2)])
                 tmp_largest = max([len('{}'.format(key))
                                    for key in self.db_dict[proj].keys()])
-                attr_list += ['@ {}'.format(key)
+                attr_list += (['@ {}'.format(key)
                               if isinstance(self.db_dict[proj][key], dict)
                               else '{}:'.format(key)
-                              for key in self.db_dict[proj].keys()] + ['-'*(tmp_largest+2)]
+                              for key in self.db_dict[proj].keys()] +
+                              ['-' * (tmp_largest + 2)])
                 tmpinfosize = max([len(self.db_dict[proj][key])
                                    if isinstance(self.db_dict[proj][key], str)
                                    else 0
@@ -919,10 +922,11 @@ class CosmoSimClass(QueryWithLogin):
                 if tmpinfosize > tmp2_largest:
                     tmp2_largest = tmpinfosize
             for proj in projects:
-                info_list += [self.db_dict[proj][key]
+                info_list += ([self.db_dict[proj][key]
                               if isinstance(self.db_dict[proj][key], str)
                               else ""
-                              for key in self.db_dict[proj].keys()] + ['-'*tmp2_largest]
+                              for key in self.db_dict[proj].keys()] +
+                              ['-' * tmp2_largest])
             t['Projects'] = proj_list
             t['Project Items'] = attr_list
             t['Information'] = info_list
@@ -960,72 +964,81 @@ class CosmoSimClass(QueryWithLogin):
                                   "the `{0}` db.".format(db))
                     return
 
-            t['Projects'] = ['--> @ {}:'.format(db)] + ['' for i in range(size2-1)]
-            t['Project Items'] = ['--> @ {}:'.format(key)
-                                  if isinstance(self.db_dict[db][key], dict)
-                                  and len(self.db_dict[db][key].keys()) == len(self.db_dict[db]['tables'].keys())
-                                  else '@ {}'.format(key)
-                                  if isinstance(self.db_dict[db][key], dict)
-                                  and len(self.db_dict[db][key].keys()) != len(self.db_dict[db]['tables'].keys())
-                                  else '{}'.format(key)
-                                  for key in self.db_dict[db].keys()] + ['' for i in range(size2-size1)]
+            t['Projects'] = (['--> @ {}:'.format(db)] +
+                             ['' for i in range(size2 - 1)])
+            t['Project Items'] = (
+                ['--> @ {}:'.format(key)
+                 if (isinstance(self.db_dict[db][key], dict) and
+                     (len(self.db_dict[db][key].keys()) ==
+                      len(self.db_dict[db]['tables'].keys())))
+                 else '@ {}'.format(key)
+                 if (isinstance(self.db_dict[db][key], dict) and
+                     (len(self.db_dict[db][key].keys()) !=
+                      len(self.db_dict[db]['tables'].keys())))
+                 else '{}'.format(key)
+                 for key in self.db_dict[db].keys()] +
+                ['' for i in range(size2 - size1)])
             # if only db is specified
             if not table:
                 if not col:
                     reordered = sorted(max(slist, key=np.size), key=len)
                     t['Tables'] = ['@ {}'.format(i)
-                                   if isinstance(self.db_dict[db]['tables'][i], dict)
+                                   if isinstance(self.db_dict[db]['tables'][i],
+                                                 dict)
                                    else '{}'.format(i)
                                    for i in reordered]
             # if table has been specified
             else:
-                reordered = ['{}'.format(table)] + sorted([key
-                                                           for key in self.db_dict[db]['tables'].keys()
-                                                           if key != table], key=len)
-                t['Tables'] = ['--> @ {}:'.format(i)
-                               if i == table
-                               and isinstance(self.db_dict[db]['tables'][i], dict)
-                               else '@ {}'.format(i)
-                               if i != table
-                               and isinstance(self.db_dict[db]['tables'][i], dict)
-                               else '{}'.format(i)
-                               for i in reordered] + ['' for j in range(size2-len(reordered))]
+                reordered = (
+                    ['{}'.format(table)] +
+                    sorted([key for key in self.db_dict[db]['tables'].keys()
+                            if key != table], key=len))
+                t['Tables'] = (
+                    ['--> @ {}:'.format(i)
+                     if (i == table and
+                         isinstance(self.db_dict[db]['tables'][i], dict))
+                     else '@ {}'.format(i)
+                     if (i != table and
+                         isinstance(self.db_dict[db]['tables'][i], dict))
+                     else '{}'.format(i)
+                     for i in reordered] +
+                    ['' for j in range(size2 - len(reordered))])
+
                 # if column has been specified
                 if col:
                     tblcols_dict = self.db_dict[db]['tables'][table].keys()
-                    t['Table Items'] = ['--> @ columns:'] + [i for i in tblcols_dict if i != 'columns'] + ['' for j in range(size2-len(tblcols_dict))]
+                    t['Table Items'] = (
+                        ['--> @ columns:'] +
+                        [i for i in tblcols_dict if i != 'columns'] +
+                        ['' for j in range(size2 - len(tblcols_dict))])
                     col_dict = self.db_dict[db]['tables'][table]['columns'].keys()
-                    reordered = ['{}'.format(col)] + [i for i in col_dict if i != col]
+                    reordered = (['{}'.format(col)] +
+                                 [i for i in col_dict if i != col])
                     if len(col_dict) < size2:
                         t['Columns'] = ['--> @ {}:'.format(i)
-                                        if isinstance(self.db_dict[db]['tables'][table]['columns'][i], dict)
-                                        and i == col
+                                        if isinstance(self.db_dict[db]['tables'][table]['columns'][i], dict) and i == col
                                         else '--> {}:'.format(i)
-                                        if not isinstance(self.db_dict[db]['tables'][table]['columns'][i], dict)
-                                        and i == col
+                                        if not isinstance(self.db_dict[db]['tables'][table]['columns'][i], dict) and i == col
                                         else '{}'.format(i)
-                                        if not isinstance(self.db_dict[db]['tables'][table]['columns'][i], dict)
-                                        and i != col
+                                        if not isinstance(self.db_dict[db]['tables'][table]['columns'][i], dict) and i != col
                                         else '@ {}'.format(i)
-                                        if isinstance(self.db_dict[db]['tables'][table]['columns'][i], dict)
-                                        and i != col
+                                        if isinstance(self.db_dict[db]['tables'][table]['columns'][i], dict) and i != col
                                         else '{}'.format(i)
                                         for i in reordered] + ['' for j in range(size2-len(col_dict))]
                         colinfo_dict = col_dict = self.db_dict[db]['tables'][table]['columns'][col]
-                        t['Col. Info'] = ['{} : {}'.format(i, colinfo_dict[i]) for i in colinfo_dict.keys()] + ['' for j in range(size2-len(colinfo_dict))]
+                        t['Col. Info'] = (
+                            ['{} : {}'.format(i, colinfo_dict[i])
+                             for i in colinfo_dict.keys()] +
+                            ['' for j in range(size2 - len(colinfo_dict))])
                     else:
                         t['Columns'] = ['--> @ {}:'.format(i)
-                                        if isinstance(self.db_dict[db]['tables'][table]['columns'][i], dict)
-                                        and i == col
+                                        if isinstance(self.db_dict[db]['tables'][table]['columns'][i], dict) and i == col
                                         else '--> {}:'.format(i)
-                                        if not isinstance(self.db_dict[db]['tables'][table]['columns'][i], dict)
-                                        and i == col
+                                        if not isinstance(self.db_dict[db]['tables'][table]['columns'][i], dict) and i == col
                                         else '{}'.format(i)
-                                        if not isinstance(self.db_dict[db]['tables'][table]['columns'][i], dict)
-                                        and i != col
+                                        if not isinstance(self.db_dict[db]['tables'][table]['columns'][i], dict) and i != col
                                         else '@ {}'.format(i)
-                                        if isinstance(self.db_dict[db]['tables'][table]['columns'][i], dict)
-                                        and i != col
+                                        if isinstance(self.db_dict[db]['tables'][table]['columns'][i], dict) and i != col
                                         else '{}'.format(i)
                                         for i in reordered]
                 # if column has not been specified
@@ -1145,8 +1158,9 @@ class CosmoSimClass(QueryWithLogin):
                         num_rows = len(raw_table_data.split('\n')) - 2
                         headers = [raw_headers.split(',')[i].strip('"')
                                    for i in range(num_cols)]
-                        raw_data = [raw_table_data.split('\n')[i+1].split(",")
-                                    for i in range(num_rows)]
+                        raw_data = [
+                            raw_table_data.split('\n')[i + 1].split(",")
+                            for i in range(num_rows)]
                         data = [map(eval, raw_data[i])
                                 for i in range(num_rows)]
                         # store in astropy.Table object
@@ -1309,7 +1323,8 @@ class AlertThread(object):
         self.jobid = jobid
         self.queue = queue
 
-        thread = threading.Thread(target=self._alert, args=(self.jobid, self.queue))
+        thread = threading.Thread(target=self._alert, args=(self.jobid,
+                                                            self.queue))
         thread.daemon = True                            # Daemonize thread
         thread.start()                                  # Start the execution
 
@@ -1346,7 +1361,8 @@ class AlertThread(object):
                     self._mail(
                         self.alert_email, ("Job {0} Completed with phase {1}."
                                            .format(jobid, phase)),
-                        "{}".format(self.response_dict_current[jobid]['content']))
+                        "{}".format(
+                            self.response_dict_current[jobid]['content']))
 
                 if self.alert_text:
                     self._text(self._smsaddress,

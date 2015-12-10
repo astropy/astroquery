@@ -699,11 +699,11 @@ def clean_catalog(ukidss_catalog, clean_band='K_1', badclass=-9999,
     """
 
     band = clean_band
-    mask = ((ukidss_catalog[band + 'ERRBITS'] <= maxerrbits)
-            * (ukidss_catalog[band + 'ERRBITS'] >= minerrbits)
-            * ((ukidss_catalog['PRIORSEC'] == ukidss_catalog['FRAMESETID'])
-                + (ukidss_catalog['PRIORSEC'] == 0))
-            * (ukidss_catalog[band + 'PPERRBITS'] < maxpperrbits)
+    mask = ((ukidss_catalog[band + 'ERRBITS'] <= maxerrbits) *
+            (ukidss_catalog[band + 'ERRBITS'] >= minerrbits) *
+            ((ukidss_catalog['PRIORSEC'] == ukidss_catalog['FRAMESETID']) +
+             (ukidss_catalog['PRIORSEC'] == 0)) *
+            (ukidss_catalog[band + 'PPERRBITS'] < maxpperrbits)
             )
     if band + 'CLASS' in ukidss_catalog.colnames:
         mask *= (ukidss_catalog[band + 'CLASS'] != badclass)

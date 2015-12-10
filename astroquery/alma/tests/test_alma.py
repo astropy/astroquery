@@ -47,7 +47,7 @@ DATA_FILES = {
                 'summary_519752156.json',
             },
     'POST': {'http://almascience.eso.org/rh/submission':
-                 'initial_response.html'}}
+             'initial_response.html'}}
 
 
 def url_mapping(url):

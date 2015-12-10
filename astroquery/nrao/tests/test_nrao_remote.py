@@ -6,9 +6,10 @@ from astropy.table import Table
 import astropy.coordinates as coord
 import requests
 import imp
-imp.reload(requests)
 
 from ... import nrao
+
+imp.reload(requests)
 
 
 @remote_data

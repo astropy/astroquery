@@ -11,12 +11,10 @@ class Conf(_config.ConfigNamespace):
     """
     server = _config.ConfigItem(
         ['https://archive.nrao.edu/archive/ArchiveQuery'],
-        'Name of the NRAO mirror to use.'
-        )
+        'Name of the NRAO mirror to use.')
     timeout = _config.ConfigItem(
         60,
-        'Time limit for connecting to NRAO server.'
-        )
+        'Time limit for connecting to NRAO server.')
 
 conf = Conf()
 

@@ -895,9 +895,9 @@ class AlmaClass(QueryWithLogin):
         """
         columns = {'uid': [], 'URL': [], 'size': []}
         for entry in data['node_data']:
-            is_file = (entry['de_type'] == 'MOUS'
-                       or (entry['file_name'] != 'null'
-                           and entry['file_key'] != 'null'))
+            is_file = (entry['de_type'] == 'MOUS' or
+                       (entry['file_name'] != 'null' and
+                        entry['file_key'] != 'null'))
             if is_file:
                 # "de_name": "ALMA+uid://A001/X122/X35e",
                 columns['uid'].append(entry['de_name'][5:])
@@ -979,9 +979,9 @@ def parse_frequency_support(frequency_support_str):
     """
     supports = frequency_support_str.split("U")
     freq_ranges = [(float(sup[0]),
-                    float(sup[1].split(',')[0].strip(string.letters)))
-                   * u.Unit(sup[1].split(',')[0].strip(string.punctuation +
-                                                       string.digits))
+                    float(sup[1].split(',')[0].strip(string.letters))) *
+                   u.Unit(sup[1].split(',')[0].strip(string.punctuation +
+                                                     string.digits))
                    for i in supports for sup in [i.strip('[] ').split('..'), ]]
 
     return freq_ranges

@@ -8,9 +8,10 @@ import astropy.units as u
 
 import requests
 import imp
-imp.reload(requests)
 
 from ... import irsa
+
+imp.reload(requests)
 
 OBJ_LIST = ["m31", "00h42m44.330s +41d16m07.50s",
             coord.Galactic(l=121.1743, b=-21.5733, unit=(u.deg, u.deg))]

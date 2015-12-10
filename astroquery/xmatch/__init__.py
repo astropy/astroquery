@@ -8,13 +8,11 @@ class Conf(_config.ConfigNamespace):
     """
     url = _config.ConfigItem(
         'http://cdsxmatch.u-strasbg.fr/xmatch/api/v1/sync',
-        'xMatch URL'
-        )
+        'xMatch URL')
 
     timeout = _config.ConfigItem(
         60,
-        'time limit for connecting to xMatch server'
-        )
+        'time limit for connecting to xMatch server')
 
 
 conf = Conf()

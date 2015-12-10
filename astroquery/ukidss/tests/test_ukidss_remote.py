@@ -7,9 +7,10 @@ import astropy.coordinates as coord
 import astropy.units as u
 import requests
 import imp
-imp.reload(requests)
 
 from ... import ukidss
+
+imp.reload(requests)
 
 
 @remote_data

@@ -12,12 +12,10 @@ class Conf(_config.ConfigNamespace):
 
     row_limit = _config.ConfigItem(
         50,
-        'Maximum number of rows returned (set to -1 for unlimited).'
-        )
+        'Maximum number of rows returned (set to -1 for unlimited).')
     username = _config.ConfigItem(
         "",
-        'Optional default username for ESO archive.'
-        )
+        'Optional default username for ESO archive.')
 
 conf = Conf()
 

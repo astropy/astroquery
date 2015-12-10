@@ -19,12 +19,11 @@ class Conf(_config.ConfigNamespace):
     """
     server = _config.ConfigItem(
         ['http://heasarc.gsfc.nasa.gov/cgi-bin/W3Browse/w3query_noredir.pl'],
-        'Name of the HEASARC server to use.'
-        )
+        'Name of the HEASARC server to use.')
+
     timeout = _config.ConfigItem(
         30,
-        'Time limit for connecting to HEASARC server.'
-        )
+        'Time limit for connecting to HEASARC server.')
 
 conf = Conf()
 

@@ -652,8 +652,8 @@ class VizierClass(BaseQuery):
                                       "self.response, and the error in "
                                       "self.table_parse_error. The attempted "
                                       "parsed result is in "
-                                      "self.parsed_result.\n Exception: "
-                                      + str(self.table_parse_error))
+                                      "self.parsed_result.\n Exception: " +
+                                      str(self.table_parse_error))
         elif response.content[:5] == b'#\n#  ':
             return parse_vizier_tsvfile(data, verbose=verbose)
         elif response.content[:6] == b'SIMPLE':

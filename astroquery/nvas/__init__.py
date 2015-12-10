@@ -17,12 +17,11 @@ class Conf(_config.ConfigNamespace):
     """
     server = _config.ConfigItem(
         ['https://webtest.aoc.nrao.edu/cgi-bin/lsjouwer/archive-pos.pl'],
-        'Name of the NVAS mirror to use.'
-        )
+        'Name of the NVAS mirror to use.')
+
     timeout = _config.ConfigItem(
         60,
-        'Time limit for connecting to NVAS server.'
-        )
+        'Time limit for connecting to NVAS server.')
 
 conf = Conf()
 

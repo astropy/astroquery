@@ -538,8 +538,8 @@ class SingleDustResult(object):
         table : `~astropy.table.Table`
             table containing the data from the query response
         """
-        columns = (self._location_section.columns + self._ext_section.columns
-                   + self._em_section.columns + self._temp_section.columns)
+        columns = (self._location_section.columns + self._ext_section.columns +
+                   self._em_section.columns + self._temp_section.columns)
         table = Table(data=columns)
 
         values = self.values()
@@ -708,8 +708,8 @@ class StringNode(BaseDustNode):
     def __str__(self):
         """Return a string representation of this item."""
         base_string = BaseDustNode.__str__(self)
-        string = ("[StringNode: " + base_string
-                  + ", value: " + self._value + "]")
+        string = ("[StringNode: " + base_string +
+                  ", value: " + self._value + "]")
         return string
 
 
@@ -739,8 +739,8 @@ class NumberNode(BaseDustNode):
         """Return a string representation of the item."""
         base_string = BaseDustNode.__str__(self)
 
-        string = ("[NumberNode: " + base_string
-                  + ", value: " + str(self._value) + "]")
+        string = ("[NumberNode: " + base_string +
+                  ", value: " + str(self._value) + "]")
         return string
 
 

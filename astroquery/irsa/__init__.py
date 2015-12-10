@@ -16,20 +16,16 @@ class Conf(_config.ConfigNamespace):
 
     server = _config.ConfigItem(
         'http://irsa.ipac.caltech.edu/cgi-bin/Gator/nph-query',
-        'Name of the IRSA mirror to use.'
-        )
+        'Name of the IRSA mirror to use.')
     gator_list_catalogs = _config.ConfigItem(
         'http://irsa.ipac.caltech.edu/cgi-bin/Gator/nph-scan',
-        'URL from which to list all the public catalogs in IRSA.'
-        )
+        'URL from which to list all the public catalogs in IRSA.')
     row_limit = _config.ConfigItem(
         500,
-        'Maximum number of rows to retrieve in result'
-        )
+        'Maximum number of rows to retrieve in result')
     timeout = _config.ConfigItem(
         60,
-        'Time limit for connecting to the IRSA server.'
-        )
+        'Time limit for connecting to the IRSA server.')
 
 conf = Conf()
 
