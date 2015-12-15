@@ -29,12 +29,13 @@ def get_field_info(cls, tablename, sqlurl, timeout=conf.timeout):
     key = (tablename, sqlurl)
 
     if key not in _cached_table_fields:
-        request_payload = {'cmd': "select * from dbo.fDocColumns('{0}')".format(tablename),
+        request_payload = {'cmd': ("select * from dbo.fDocColumns('{0}')"
+                                   .format(tablename)),
                            'format': 'json'}
         qryres = cls._request("GET", sqlurl, params=request_payload,
-                               timeout=timeout)
-        # we're compelled to use JSON because CSV responses are broken in SDSS -
-        # sometimes there are improperly nested " characters.
+                              timeout=timeout)
+        # we're compelled to use JSON because CSV responses are broken in
+        # SDSS - sometimes there are improperly nested " characters.
         try:
             _cached_table_fields[key] = _columns_json_to_table(qryres.json())
         except ValueError:
@@ -57,16 +58,22 @@ def _columns_json_to_table(jsonobj):
 
 # below here are builtin data files
 def _load_builtin_table_fields():
-    key1 = ('PhotoObjAll', 'http://skyserver.sdss.org/dr12/en/tools/search/x_sql.aspx')
-    _cached_table_fields[key1] = _columns_json_to_table(json.loads(get_pkg_data_contents('data/PhotoObjAll_dr12.json')))
+    key1 = ('PhotoObjAll',
+            'http://skyserver.sdss.org/dr12/en/tools/search/x_sql.aspx')
+    _cached_table_fields[key1] = _columns_json_to_table(
+        json.loads(get_pkg_data_contents('data/PhotoObjAll_dr12.json')))
     # PhotoObj and PhotoObjAll are the same in DR12
-    key2 = ('PhotoObj', 'http://skyserver.sdss.org/dr12/en/tools/search/x_sql.aspx')
+    key2 = ('PhotoObj',
+            'http://skyserver.sdss.org/dr12/en/tools/search/x_sql.aspx')
     _cached_table_fields[key2] = _cached_table_fields[key1]
 
-    key1 = ('SpecObjAll', 'http://skyserver.sdss.org/dr12/en/tools/search/x_sql.aspx')
-    _cached_table_fields[key1] = _columns_json_to_table(json.loads(get_pkg_data_contents('data/SpecObjAll_dr12.json')))
+    key1 = ('SpecObjAll',
+            'http://skyserver.sdss.org/dr12/en/tools/search/x_sql.aspx')
+    _cached_table_fields[key1] = _columns_json_to_table(
+        json.loads(get_pkg_data_contents('data/SpecObjAll_dr12.json')))
     # SpecObj and SpecObjAll are the same in DR12
-    key2 = ('SpecObj', 'http://skyserver.sdss.org/dr12/en/tools/search/x_sql.aspx')
+    key2 = ('SpecObj',
+            'http://skyserver.sdss.org/dr12/en/tools/search/x_sql.aspx')
     _cached_table_fields[key2] = _cached_table_fields[key1]
 
 _load_builtin_table_fields()

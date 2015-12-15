@@ -8,19 +8,19 @@ import astropy
 # Remap column headings to something IPAC-compatible
 column_headings_map = {'Log<sub>10</sub> (A<sub>ij</sub>)': 'log10_Aij',
                        'Resolved QNs': 'QNs',
-                       'CDMS/JPL Intensity':'CDMSJPL_Intensity',
-                       'S<sub>ij</sub>':'Sij',
-                       'Freq-GHz':'FreqGHz',
-                       'Meas Freq-GHz':'MeasFreqGHz',
-                       'Lovas/AST Intensity':'LovasAST_Intensity',
-                       'E_L (cm^-1)':'EL_percm',
-                       'E_L (K)':'EL_K',
-                       'E_U (cm^-1)':'EU_percm',
-                       'E_U (K)':'EU_K',
-                       'Chemical Name':'ChemicalName',
-                       'Freq Err':'FreqErr',
-                       'Meas Freq Err':'MeasFreqErr',
-                      }
+                       'CDMS/JPL Intensity': 'CDMSJPL_Intensity',
+                       'S<sub>ij</sub>': 'Sij',
+                       'Freq-GHz': 'FreqGHz',
+                       'Meas Freq-GHz': 'MeasFreqGHz',
+                       'Lovas/AST Intensity': 'LovasAST_Intensity',
+                       'E_L (cm^-1)': 'EL_percm',
+                       'E_L (K)': 'EL_K',
+                       'E_U (cm^-1)': 'EU_percm',
+                       'E_U (K)': 'EU_K',
+                       'Chemical Name': 'ChemicalName',
+                       'Freq Err': 'FreqErr',
+                       'Meas Freq Err': 'MeasFreqErr',
+                       }
 
 
 def clean_column_headings(table, renaming_dict=column_headings_map):

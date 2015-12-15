@@ -21,12 +21,12 @@ class Conf(_config.ConfigNamespace):
     """
     server = _config.ConfigItem(
         ['http://surveys.roe.ac.uk:8080/wsa/'],
-        'Name of the UKIDSS mirror to use.'
-        )
+        'Name of the UKIDSS mirror to use.')
+
     timeout = _config.ConfigItem(
         30,
-        'Time limit for connecting to UKIDSS server.'
-        )
+        'Time limit for connecting to UKIDSS server.')
+
 
 conf = Conf()
 

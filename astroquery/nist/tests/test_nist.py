@@ -32,14 +32,16 @@ def get_mockreturn(url, params=None, timeout=10, **kwargs):
 
 
 def test_parse_wavelength():
-    minwav, maxwav, unit = nist.core._parse_wavelength(4000 * u.AA, 7000 * u.AA)
+    minwav, maxwav, unit = nist.core._parse_wavelength(4000 * u.AA,
+                                                       7000 * u.AA)
     npt.assert_approx_equal(minwav, 4000, significant=4)
     npt.assert_approx_equal(maxwav, 7000, significant=4)
     assert unit == nist.core.Nist.unit_code['Angstrom']
 
 
 def test_query_async(patch_get):
-    response = nist.core.Nist.query_async(4000 * u.nm, 7000 * u.nm, "H I", get_query_payload=True)
+    response = nist.core.Nist.query_async(4000 * u.nm, 7000 * u.nm,
+                                          "H I", get_query_payload=True)
     assert response['spectra'] == "H I"
     assert response['unit'] == nist.core.Nist.unit_code['nm']
     response = nist.core.Nist.query_async(4000 * u.nm, 7000 * u.nm, "H I")
@@ -49,4 +51,3 @@ def test_query_async(patch_get):
 def test_query(patch_get):
     result = nist.core.Nist.query(4000 * u.nm, 7000 * u.nm, "H I")
     assert isinstance(result, Table)
-

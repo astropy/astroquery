@@ -43,7 +43,8 @@ def post_mockreturn(self, method, url, data=None, timeout=10, files=None,
 
 
 def parse_objname(obj):
-    d = {'AFGL 2591': commons.ICRSCoordGenerator(307.35388 * u.deg, 40.18858 * u.deg)}
+    d = {'AFGL 2591': commons.ICRSCoordGenerator(307.35388 * u.deg,
+                                                 40.18858 * u.deg)}
     return d[obj]
 
 
@@ -103,9 +104,8 @@ def test_parse_result(filepath, objlen):
 def test_query_region_async(patch_post):
     target = commons.ICRSCoordGenerator(ra=299.590, dec=35.201,
                                         unit=(u.deg, u.deg))
-    response = vizier.core.Vizier.query_region_async(target,
-                                                     radius=5 * u.deg,
-                                                     catalog=["HIP", "NOMAD", "UCAC"])
+    response = vizier.core.Vizier.query_region_async(
+        target, radius=5 * u.deg, catalog=["HIP", "NOMAD", "UCAC"])
     assert response is not None
 
 
@@ -129,18 +129,20 @@ def test_query_regions(patch_post):
     targets = commons.ICRSCoordGenerator(ra=[299.590, 299.90],
                                          dec=[35.201, 35.201],
                                          unit=(u.deg, u.deg))
-    result = vizier.core.Vizier.query_region(targets,
-                                             radius=5 * u.deg,
-                                             catalog=["HIP", "NOMAD", "UCAC"])
+    vizier.core.Vizier.query_region(targets,
+                                    radius=5 * u.deg,
+                                    catalog=["HIP", "NOMAD", "UCAC"])
 
 
 def test_query_object_async(patch_post):
-    response = vizier.core.Vizier.query_object_async("HD 226868", catalog=["NOMAD", "UCAC"])
+    response = vizier.core.Vizier.query_object_async(
+        "HD 226868", catalog=["NOMAD", "UCAC"])
     assert response is not None
 
 
 def test_query_object(patch_post):
-    result = vizier.core.Vizier.query_object("HD 226868", catalog=["NOMAD", "UCAC"])
+    result = vizier.core.Vizier.query_object(
+        "HD 226868", catalog=["NOMAD", "UCAC"])
     assert isinstance(result, commons.TableList)
 
 
@@ -183,7 +185,8 @@ class TestVizierClass:
 
     def test_keywords(self):
         v = vizier.core.Vizier(keywords=['optical', 'chandra', 'ans'])
-        assert str(v.keywords) == '-kw.Mission=ANS\n-kw.Mission=Chandra\n-kw.Wavelength=optical'
+        assert str(v.keywords) == ('-kw.Mission=ANS\n-kw.Mission='
+                                   'Chandra\n-kw.Wavelength=optical')
         v = vizier.core.Vizier(keywords=['xy', 'optical'])
         assert str(v.keywords) == '-kw.Wavelength=optical'
         v.keywords = ['optical', 'cobe']
@@ -196,7 +199,8 @@ class TestVizierClass:
         assert len(v.columns) == 4
 
     def test_columns_unicode(self):
-        v = vizier.core.Vizier(columns=[u'Vmag', u'B-V', u'_RAJ2000', u'_DEJ2000'])
+        v = vizier.core.Vizier(columns=[u'Vmag', u'B-V',
+                                        u'_RAJ2000', u'_DEJ2000'])
         assert len(v.columns) == 4
 
     def test_column_filters(self):

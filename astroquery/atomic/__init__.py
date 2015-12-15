@@ -35,7 +35,7 @@ class MultiTransition(object):
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and\
-               set(self.transitions) == set(other.transitions)
+            set(self.transitions) == set(other.transitions)
 
     def __or__(self, other):
         if isinstance(other, MultiTransition):

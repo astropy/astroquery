@@ -26,7 +26,8 @@ class HeasarcClass(BaseQuery):
         """
         request_payload = dict()
         request_payload['object_name'] = object_name
-        request_payload['tablehead'] = 'BATCHRETRIEVALCATALOG_2.0 {}'.format(mission)
+        request_payload['tablehead'] = ('BATCHRETRIEVALCATALOG_2.0 {}'
+                                        .format(mission))
         request_payload['Action'] = 'Query'
         request_payload['displaymode'] = 'FitsDisplay'
 

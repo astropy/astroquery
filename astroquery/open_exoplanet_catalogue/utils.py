@@ -33,12 +33,14 @@ class Number(object):
     False
     """
 
-    def __init__(self, value=None, upperlimit=None, lowerlimit=None, errorplus=None, errorminus=None):
+    def __init__(self, value=None, upperlimit=None, lowerlimit=None,
+                 errorplus=None, errorminus=None):
         """
         Parameters
         ----------
         value: float
-            the value of this number. Numbers with upper or lower limits assume None as value.
+            the value of this number. Numbers with upper or lower limits
+            assume None as value.
         upperlimit: float
             if upper limit exists, there should be no value
         lowerlimit: float
@@ -52,8 +54,8 @@ class Number(object):
         -----
 
         Number object acts as a typical float object, but can hold
-        errorminus, errorplus, lowerlimit, upperlimit
-        mathematical operations only use value attribute. Number == Number will compare
+        errorminus, errorplus, lowerlimit, upperlimit mathematical
+        operations only use value attribute. Number == Number will compare
         the error values as well as value.
 
         Returns
@@ -96,7 +98,8 @@ class Number(object):
             if self.errorplus == self.errorminus:
                 tempstr += " +/-" + str(self.errorplus)
             else:
-                tempstr += " +" + str(self.errorplus) + " -" + str(self.errorminus)
+                tempstr += (" +" + str(self.errorplus) + " -" +
+                            str(self.errorminus))
         if hasattr(self, "upperlimit") and self.upperlimit is not None:
             tempstr += "<" + str(self.upperlimit)
         elif hasattr(self, "lowerlimit") and self.lowerlimit is not None:
@@ -168,10 +171,10 @@ class Number(object):
         """
         if isinstance(num, Number):
             return self.value == num.value and\
-                    self.errorminus == num.errorminus and\
-                    self.errorplus == num.errorplus and\
-                    self.lowerlimit == num.lowerlimit and\
-                    self.upperlimit == num.upperlimit
+                self.errorminus == num.errorminus and\
+                self.errorplus == num.errorplus and\
+                self.lowerlimit == num.lowerlimit and\
+                self.upperlimit == num.upperlimit
         else:
             return self.value == num
 
@@ -201,8 +204,8 @@ class Number(object):
 
         if isinstance(num, Number):
             return self.value != num.value and\
-                    self.errorminus != num.errorminus and\
-                    self.errorplus != num.errorplus
+                self.errorminus != num.errorminus and\
+                self.errorplus != num.errorplus
         else:
             return self.value != num
 

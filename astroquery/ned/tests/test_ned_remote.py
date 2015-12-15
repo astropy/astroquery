@@ -5,9 +5,10 @@ from astropy.tests.helper import remote_data, pytest
 from astropy.table import Table
 import requests
 import imp
-imp.reload(requests)
 
 from ... import ned
+
+imp.reload(requests)
 
 
 @remote_data
@@ -15,9 +16,11 @@ class TestNed:
 
     @pytest.mark.xfail(reason="astropy issue #1266")
     def test_get_references(self):
-        response = ned.core.Ned.get_table_async("m1", table='references', from_year=2010)
+        response = ned.core.Ned.get_table_async(
+            "m1", table='references', from_year=2010)
         assert response is not None
-        result = ned.core.Ned.get_table("m1", table='references', to_year=2012, extended_search=True)
+        result = ned.core.Ned.get_table(
+            "m1", table='references', to_year=2012, extended_search=True)
         assert isinstance(result, Table)
 
     def test_get_positions_async(self):

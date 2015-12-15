@@ -11,12 +11,10 @@ class Conf(_config.ConfigNamespace):
     """
     server = _config.ConfigItem(
         ['http://physics.nist.gov/cgi-bin/ASD/lines1.pl'],
-        'Name of the NIST URL to query.'
-        )
+        'Name of the NIST URL to query.')
     timeout = _config.ConfigItem(
         30,
-        'Time limit for connecting to NIST server.'
-        )
+        'Time limit for connecting to NIST server.')
 
 conf = Conf()
 

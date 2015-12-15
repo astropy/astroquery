@@ -12,6 +12,7 @@ __all__ = ['FermiLAT', 'FermiLATClass',
            'GetFermilatDatafile', 'get_fermilat_datafile',
            ]
 
+
 @async_to_sync
 class FermiLATClass(BaseQuery):
     """
@@ -19,7 +20,8 @@ class FermiLATClass(BaseQuery):
     """
 
     request_url = conf.url
-    result_url_re = re.compile('The results of your query may be found at <a href="(http://fermi.gsfc.nasa.gov/.*?)"')
+    result_url_re = re.compile('The results of your query may be found at '
+                               '<a href="(http://fermi.gsfc.nasa.gov/.*?)"')
     TIMEOUT = conf.timeout
 
     def query_object_async(self, *args, **kwargs):
@@ -28,7 +30,9 @@ class FermiLATClass(BaseQuery):
 
         Returns
         -------
-        url : The URL of the page with the results (still need to scrape this page to download the data: easy for wget)
+        url : str
+            The URL of the page with the results (still need to scrape this
+            page to download the data: easy for wget)
         """
 
         payload = self._parse_args(*args, **kwargs)
@@ -43,14 +47,17 @@ class FermiLATClass(BaseQuery):
         re_result = self.result_url_re.findall(result.text)
 
         if len(re_result) == 0:
-            raise ValueError("Results did not contain a result url... something went awry (that hasn't been tested yet)")
+            raise ValueError("Results did not contain a result url. something "
+                             "went awry (that hasn't been tested yet)")
         else:
             result_url = re_result[0]
 
         return result_url
 
-    def _parse_args(self, name_or_coords, searchradius='', obsdates='', timesys='Gregorian',
-                    energyrange_MeV='', LATdatatype='Photon', spacecraftdata=True):
+    def _parse_args(self, name_or_coords, searchradius='', obsdates='',
+                    timesys='Gregorian', energyrange_MeV='',
+                    LATdatatype='Photon', spacecraftdata=True):
+
         """
         Parameters
         ----------
@@ -74,16 +81,15 @@ class FermiLATClass(BaseQuery):
         payload_dict : Requests payload in a dictionary
         """
 
-
-        payload = {'shapefield':str(searchradius),
-                   'coordsystem':'J2000',
-                   'coordfield':_parse_coordinates(name_or_coords),
-                   'destination':'query',
-                   'timefield':obsdates,
+        payload = {'shapefield': str(searchradius),
+                   'coordsystem': 'J2000',
+                   'coordfield': _parse_coordinates(name_or_coords),
+                   'destination': 'query',
+                   'timefield': obsdates,
                    'timetype': timesys,
-                   'energyfield':energyrange_MeV,
+                   'energyfield': energyrange_MeV,
                    'photonOrExtendedOrNone': LATdatatype,
-                   'spacecraft':'on' if spacecraftdata else 'off'}
+                   'spacecraft': 'on' if spacecraftdata else 'off'}
 
         return payload
 
@@ -95,6 +101,7 @@ class FermiLATClass(BaseQuery):
 
 FermiLAT = FermiLATClass()
 
+
 def _parse_coordinates(coordinates):
     try:
         c = commons.parse_coordinates(coordinates)
@@ -104,9 +111,11 @@ def _parse_coordinates(coordinates):
     except (u.UnitsError, TypeError):
         raise Exception("Coordinates not specified correctly")
 
+
 def _fermi_format_coords(c):
     c = c.transform_to('fk5')
     return "{0:0.5f},{1:0.5f}".format(c.ra.degree, c.dec.degree)
+
 
 class GetFermilatDatafile(object):
     """

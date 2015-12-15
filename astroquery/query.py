@@ -98,11 +98,14 @@ class BaseQuery(object):
 
     def __init__(self):
         S = self._session = requests.session()
-        S.headers['User-Agent'] = ('astroquery/{vers} {olduseragent}'
-                                   .format(vers=version.version,
-                                           olduseragent=S.headers['User-Agent']))
-        self.cache_location = os.path.join(paths.get_cache_dir(), 'astroquery',
-                                           self.__class__.__name__.split("Class")[0])
+        S.headers['User-Agent'] = (
+            'astroquery/{vers} {olduseragent}'
+            .format(vers=version.version,
+                    olduseragent=S.headers['User-Agent']))
+
+        self.cache_location = os.path.join(
+            paths.get_cache_dir(), 'astroquery',
+            self.__class__.__name__.split("Class")[0])
         if not os.path.exists(self.cache_location):
             os.makedirs(self.cache_location)
         self._cache_active = True
@@ -115,8 +118,8 @@ class BaseQuery(object):
                  files=None, save=False, savedir='', timeout=None, cache=True,
                  stream=False, auth=None):
         """
-        A generic HTTP request method, similar to `requests.Session.request` but
-        with added caching-related tools
+        A generic HTTP request method, similar to `requests.Session.request`
+        but with added caching-related tools
 
         This is a low-level method not generally intended for use by astroquery
         end-users.  As such, it is likely to be renamed to, e.g., `_request` in
@@ -152,7 +155,8 @@ class BaseQuery(object):
             local_filename = url.split('/')[-1]
             local_filepath = os.path.join(self.cache_location or savedir or
                                           '.', local_filename)
-            # REDUNDANT: spinner has this log.info("Downloading {0}...".format(local_filename))
+            # REDUNDANT: spinner has this log.info("Downloading
+            # {0}...".format(local_filename))
             self._download_file(url, local_filepath, timeout=timeout,
                                 auth=auth, cache=cache)
             return local_filepath
@@ -160,7 +164,7 @@ class BaseQuery(object):
             query = AstroQuery(method, url, params=params, data=data,
                                headers=headers, files=files, timeout=timeout)
             if ((self.cache_location is None) or (not self._cache_active) or
-                (not cache)):
+                    (not cache)):
                 with suspend_cache(self):
                     response = query.request(self._session, stream=stream,
                                              auth=auth)
@@ -174,7 +178,8 @@ class BaseQuery(object):
                     to_cache(response, query.request_file(self.cache_location))
             return response
 
-    def _download_file(self, url, local_filepath, timeout=None, auth=None, cache=False):
+    def _download_file(self, url, local_filepath, timeout=None, auth=None,
+                       cache=False):
         """
         Download a file.  Resembles `astropy.utils.data.download_file` but uses
         the local ``_session``
@@ -210,15 +215,16 @@ class BaseQuery(object):
 
         bytes_read = 0
 
-        with ProgressBarOrSpinner(length,
-                                  'Downloading URL {0} to {1} ...'.format(url,
-                                                                          local_filepath)) as pb:
+        with ProgressBarOrSpinner(
+            length, ('Downloading URL {0} to {1} ...'
+                     .format(url, local_filepath))) as pb:
             with open(local_filepath, 'wb') as f:
                 for block in response.iter_content(blocksize):
                     f.write(block)
                     bytes_read += blocksize
                     if length is not None:
-                        pb.update(bytes_read if bytes_read <= length else length)
+                        pb.update(bytes_read if bytes_read <= length else
+                                  length)
                     else:
                         pb.update(bytes_read)
 
@@ -229,6 +235,7 @@ class suspend_cache:
     """
     A context manager that suspends caching.
     """
+
     def __init__(self, obj):
         self.obj = obj
 

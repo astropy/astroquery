@@ -19,20 +19,17 @@ class Conf(_config.ConfigNamespace):
         ['ftp://sasftp.obs-besancon.fr/modele/modele2003/',
          'ftp://sasftp.obs-besancon.fr/modele/',
          ],
-        'Besancon download URL.  Changed to modele2003 in 2013.'
-        )
+        'Besancon download URL.  Changed to modele2003 in 2013.')
     model_form = _config.ConfigItem(
         ['http://model.obs-besancon.fr/modele_form.php'],
-        'Besancon model form URL'
-        )
+        'Besancon model form URL')
     ping_delay = _config.ConfigItem(
         30.0,
-        'Amount of time before pinging the Besancon server to see if the file is ready.  Minimum 30s.'
-        )
+        'Amount of time before pinging the Besancon server to see if the '
+        'file is ready.  Minimum 30s.')
     timeout = _config.ConfigItem(
         30.0,
-        'Timeout for Besancon query'
-        )
+        'Timeout for Besancon query')
 
 conf = Conf()
 

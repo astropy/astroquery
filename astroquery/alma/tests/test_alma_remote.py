@@ -6,7 +6,7 @@ import os
 from astropy.tests.helper import pytest, remote_data
 from astropy import coordinates
 from astropy import units as u
-from astropy.extern.six.moves.urllib_parse import urljoin,urlparse
+from astropy.extern.six.moves.urllib_parse import urlparse
 
 # keyring is an optional dependency required by the alma module.
 try:
@@ -57,9 +57,9 @@ class TestAlma:
 
         result_s = alma.query_object('Sgr A*')
         assert b'2011.0.00217.S' in result_s['Project code']
-        c = coordinates.SkyCoord(266.41681662*u.deg, -29.00782497*u.deg,
+        c = coordinates.SkyCoord(266.41681662 * u.deg, -29.00782497 * u.deg,
                                  frame='fk5')
-        result_c = alma.query_region(c, 1*u.deg)
+        result_c = alma.query_region(c, 1 * u.deg)
         assert b'2011.0.00217.S' in result_c['Project code']
 
     def test_m83(self, temp_dir):
@@ -69,7 +69,6 @@ class TestAlma:
         result_s = alma.query_object('M83')
         uids = np.unique(m83_data['Member ous id'])
         link_list = Alma.stage_data(uids)
-        
 
     def test_stage_data(self, temp_dir):
         alma = Alma()
@@ -81,7 +80,8 @@ class TestAlma:
 
         result = alma.stage_data([uid])
 
-        assert os.path.split(result['URL'][0])[1] == 'uid___A002_X47ed8e_X6c.asdm.sdm.tar'
+        assert (os.path.split(result['URL'][0])[1] ==
+                'uid___A002_X47ed8e_X6c.asdm.sdm.tar')
 
     def test_doc_example(self, temp_dir):
         alma = Alma()
@@ -90,9 +90,9 @@ class TestAlma:
         alma2.cache_location = temp_dir
         m83_data = alma.query_object('M83')
         assert m83_data.colnames == all_colnames
-        galactic_center = coordinates.SkyCoord(0*u.deg, 0*u.deg,
+        galactic_center = coordinates.SkyCoord(0 * u.deg, 0 * u.deg,
                                                frame='galactic')
-        gc_data = alma.query_region(galactic_center, 1*u.deg)
+        gc_data = alma.query_region(galactic_center, 1 * u.deg)
 
         uids = np.unique(m83_data['Asdm uid'])
         assert b'uid://A002/X3b3400/X90f' in uids
@@ -101,12 +101,12 @@ class TestAlma:
         X31 = (m83_data['Member ous id'] == b'uid://A002/X3216af/X31')
         assert X31.sum() == 225
 
-        link_list_asdm = alma.stage_data('uid://A002/X3b3400/X90f')
-        totalsize_asdm = link_list_asdm['size'].sum() * u.Unit(link_list_asdm['size'].unit)
+        asdm = alma.stage_data('uid://A002/X3b3400/X90f')
+        totalsize_asdm = asdm['size'].sum() * u.Unit(asdm['size'].unit)
         assert (totalsize_asdm.to(u.B).value == 0.0)
 
-        link_list_mous = alma2.stage_data('uid://A002/X3216af/X31')
-        totalsize_mous = link_list_mous['size'].sum() * u.Unit(link_list_mous['size'].unit)
+        mous = alma2.stage_data('uid://A002/X3216af/X31')
+        totalsize_mous = mous['size'].sum() * u.Unit(mous['size'].unit)
         # More recent ALMA request responses do not include any information
         # about file size, so we have to allow for the possibility that all
         # file sizes are replaced with -1
@@ -116,8 +116,8 @@ class TestAlma:
         alma = Alma()
         alma.cache_location = temp_dir
 
-        result = alma.query(payload={'start_date':'<11-11-2011'}, public=False,
-                            science=True)
+        result = alma.query(payload={'start_date': '<11-11-2011'},
+                            public=False, science=True)
         # now 535?
         assert len(result) == 621
 
@@ -130,8 +130,8 @@ class TestAlma:
         target = 'NGC4945'
         project_code = '2012.1.00912.S'
 
-        payload = {'project_code':project_code,
-                   'source_name_alma':target,}
+        payload = {'project_code': project_code,
+                   'source_name_alma': target, }
         result = alma.query(payload=payload)
         assert len(result) == 1
 
@@ -156,15 +156,16 @@ class TestAlma:
         urls_to_download = uid_url_table_mous[small]['URL']
 
         uri = urlparse(urls_to_download[0])
-        assert uri.path == '/dataPortal/requests/anonymous/{0}/ALMA/2012.1.00912.S_uid___A002_X5a9a13_X528_001_of_001.tar/2012.1.00912.S_uid___A002_X5a9a13_X528_001_of_001.tar'.format(a1._staging_log['staging_page_id'])
+        assert uri.path == ('/dataPortal/requests/anonymous/{0}/ALMA/2012.1.00912.S_uid___A002_X5a9a13_X528_001_of_001.tar/2012.1.00912.S_uid___A002_X5a9a13_X528_001_of_001.tar'
+                            .format(a1._staging_log['staging_page_id']))
 
         # THIS IS FAIL
         # '2012.1.00912.S_uid___A002_X5a9a13_X528_001_of_001.tar'
-        left = uid_url_table_mous['URL'][0].split("/")[-1] 
+        left = uid_url_table_mous['URL'][0].split("/")[-1]
         assert left == '2012.1.00912.S_uid___A002_X5a9a13_X528_001_of_001.tar'
         right = uid_url_table_mous['uid'][0]
         assert right == 'uid://A002/X5a9a13/X528'
-        assert left[15:-15] == right.replace(":","_").replace("/","_")
+        assert left[15:-15] == right.replace(":", "_").replace("/", "_")
         data = alma.download_and_extract_files(urls_to_download)
 
         assert len(data) == 6
@@ -178,8 +179,8 @@ class TestAlma:
         target = 'NGC4945'
         project_code = '2011.0.00121.S'
 
-        payload = {'project_code':project_code,
-                   'source_name_alma':target,}
+        payload = {'project_code': project_code,
+                   'source_name_alma': target, }
         result = alma.query(payload=payload)
         assert len(result) == 1
 

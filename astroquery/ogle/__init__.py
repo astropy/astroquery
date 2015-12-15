@@ -22,12 +22,10 @@ class Conf(_config.ConfigNamespace):
     """
     server = _config.ConfigItem(
         ['http://ogle.astrouw.edu.pl/cgi-ogle/getext.py'],
-        'Name of the OGLE mirror to use.'
-        )
+        'Name of the OGLE mirror to use.')
     timeout = _config.ConfigItem(
         60,
-        'Time limit for connecting to OGLE server.'
-        )
+        'Time limit for connecting to OGLE server.')
 
 conf = Conf()
 
@@ -38,4 +36,5 @@ __all__ = ['Ogle', 'OgleClass',
            ]
 
 import warnings
-warnings.warn("Experimental: OGLE has not yet been refactored to have its API match the rest of astroquery.")
+warnings.warn("Experimental: OGLE has not yet been refactored to have its "
+              "API match the rest of astroquery.")

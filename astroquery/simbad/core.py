@@ -72,8 +72,8 @@ def strip_field(f, keep_filters=False):
     """
     if '(' in f:
         root = f[:f.find('(')]
-        if (root in ('ra', 'dec', 'otype', 'id', 'coo', 'bibcodelist')
-                 or not keep_filters):
+        if (root in ('ra', 'dec', 'otype', 'id', 'coo', 'bibcodelist') or
+                not keep_filters):
             return root
 
     # the overall else (default option)
@@ -87,14 +87,13 @@ class SimbadClass(BaseQuery):
     SIMBAD_URL = 'http://' + conf.server + '/simbad/sim-script'
     TIMEOUT = conf.timeout
     WILDCARDS = {
-                '*': 'Any string of characters (including an empty one)',
-                '?': 'Any character (exactly one character)',
-                '[abc]': ('Exactly one character taken in the list. '
-                'Can also be defined by a range of characters: [A-Z]'
-                          ),
-                '[^0-9]': 'Any (one) character not in the list.'
+        '*': 'Any string of characters (including an empty one)',
+        '?': 'Any character (exactly one character)',
+        '[abc]': ('Exactly one character taken in the list. '
+                  'Can also be defined by a range of characters: [A-Z]'
+                  ),
+        '[^0-9]': 'Any (one) character not in the list.'}
 
-                }
     _ORDERED_WILDCARDS = ['*', '?', '[abc]', '[^0-9]']
 
     # query around not included since this is a subcase of query_region
@@ -109,7 +108,8 @@ class SimbadClass(BaseQuery):
 
     ROW_LIMIT = conf.row_limit
 
-    # also find a way to fetch the votable fields table from <http://simbad.u-strasbg.fr/simbad/sim-help?Page=sim-fscript#VotableFields>
+    # also find a way to fetch the votable fields table from
+    # <http://simbad.u-strasbg.fr/simbad/sim-help?Page=sim-fscript#VotableFields>
     # tried something for this in this ipython nb
     # <http://nbviewer.ipython.org/5851110>
     _VOTABLE_FIELDS = ['main_id', 'coordinates']
@@ -133,10 +133,12 @@ class SimbadClass(BaseQuery):
 
         ? : Any character (exactly one character)
 
-        [abc] : Exactly one character taken in the list. Can also be defined by a range of characters: [A-Z]
+        [abc] : Exactly one character taken in the list.
+                Can also be defined by a range of characters: [A-Z]
         """
         for key in self._ORDERED_WILDCARDS:
-            print("{key} : {value}\n".format(key=key, value=self.WILDCARDS[key]))
+            print("{key} : {value}\n".format(key=key,
+                                             value=self.WILDCARDS[key]))
         return
 
     def list_votable_fields(self):
@@ -150,7 +152,8 @@ class SimbadClass(BaseQuery):
         --NOTES--...
         """
         # display additional notes:
-        notes_file = get_pkg_data_filename(os.path.join('data', 'votable_fields_notes.json'))
+        notes_file = get_pkg_data_filename(
+            os.path.join('data', 'votable_fields_notes.json'))
         with open(notes_file, "r") as f:
             notes = json.load(f)
         print ("--NOTES--\n")
@@ -158,15 +161,15 @@ class SimbadClass(BaseQuery):
             print ("{lineno}. {msg}\n".format(lineno=i + 1, msg=line))
 
         # load the table
-        votable_fields_table = Table.read(get_pkg_data_filename
-                                          (os.path.join('data',
-                                                        'votable_fields_table.txt')),
-                                         format='ascii')
+        votable_fields_table = Table.read(
+            get_pkg_data_filename(os.path.join('data',
+                                               'votable_fields_table.txt')),
+            format='ascii')
         print("Available VOTABLE fields: ")
         print(votable_fields_table)
 
-        print("\nFor more information on a field :\nSimbad.get_field_description "
-              "('field_name')")
+        print("\nFor more information on a field :\n"
+              "Simbad.get_field_description ('field_name')")
 
         print()
         print("Currently active VOTABLE fields:")
@@ -191,7 +194,8 @@ class SimbadClass(BaseQuery):
         number of references. The parameter is optional and limit the count to the references between the years y1 and y2
         """
         # first load the dictionary from json
-        dict_file = get_pkg_data_filename(os.path.join('data', 'votable_fields_dict.json'))
+        dict_file = get_pkg_data_filename(
+            os.path.join('data', 'votable_fields_dict.json'))
         with open(dict_file, "r") as f:
             fields_dict = json.load(f)
 
@@ -221,20 +225,22 @@ class SimbadClass(BaseQuery):
         ----------
         list of field_names
         """
-        dict_file = get_pkg_data_filename(os.path.join('data', 'votable_fields_dict.json'))
+        dict_file = get_pkg_data_filename(
+            os.path.join('data', 'votable_fields_dict.json'))
 
         with open(dict_file, "r") as f:
             fields_dict = json.load(f)
             fields_dict = dict(
-                               ((strip_field(f) if '(' in f else f, fields_dict[f])
-                                for f in fields_dict)
-                               )
+                ((strip_field(f) if '(' in f else f, fields_dict[f])
+                 for f in fields_dict))
+
         for field in args:
             sf = strip_field(field)
             if sf not in fields_dict:
                 raise KeyError("{field}: no such field".format(field=field))
-            elif sf in [strip_field(f, keep_filters=True) for f in self._VOTABLE_FIELDS]:
-                errmsg = "{field}: field already present.  ".format(field=field)
+            elif sf in [strip_field(f, keep_filters=True)
+                        for f in self._VOTABLE_FIELDS]:
+                errmsg = "{field}: field already present. ".format(field=field)
                 errmsg += ("Fields ra,dec,id,otype, and bibcodelist can only "
                            "be specified once.  To change their options, "
                            "first remove the existing entry, then add a new "
@@ -273,7 +279,8 @@ class SimbadClass(BaseQuery):
 
         # check if all fields are removed
         if not self._VOTABLE_FIELDS:
-            warnings.warn("All fields have been removed. Resetting to defaults.")
+            warnings.warn("All fields have been removed. "
+                          "Resetting to defaults.")
             self.reset_votable_fields()
 
     def reset_votable_fields(self):
@@ -322,16 +329,17 @@ class SimbadClass(BaseQuery):
         response : `requests.Response`
             Response of the query from the server
         """
-        request_payload = self._args_to_payload(caller='query_criteria_async', *args, **kwargs)
+        request_payload = self._args_to_payload(caller='query_criteria_async',
+                                                *args, **kwargs)
         response = commons.send_request(self.SIMBAD_URL, request_payload,
-                                self.TIMEOUT)
+                                        self.TIMEOUT)
         return response
 
     def query_object(self, object_name, wildcard=False, verbose=False):
         """
         Queries Simbad for the given object and returns the result as a
-        `~astropy.table.Table`. Object names may also be specified with wildcard.
-        See examples below.
+        `~astropy.table.Table`. Object names may also be specified with
+        wildcard.  See examples below.
 
         Parameters
         ----------
@@ -370,15 +378,14 @@ class SimbadClass(BaseQuery):
         request_payload = self._args_to_payload(object_name, wildcard=wildcard,
                                                 caller='query_object_async')
         response = commons.send_request(self.SIMBAD_URL, request_payload,
-                                self.TIMEOUT)
+                                        self.TIMEOUT)
         return response
-
 
     def query_objects(self, object_names, wildcard=False, verbose=False):
         """
-        Queries Simbad for the specified list of objects and returns the results
-        as a `~astropy.table.Table`. Object names may be specified with
-        wildcards if desired.
+        Queries Simbad for the specified list of objects and returns the
+        results as a `~astropy.table.Table`. Object names may be specified
+        with wildcards if desired.
 
         Parameters
         ----------
@@ -396,8 +403,8 @@ class SimbadClass(BaseQuery):
 
     def query_objects_async(self, object_names, wildcard=False):
         """
-        Same as `query_objects`, but
-        only collects the response from the Simbad server and returns.
+        Same as `query_objects`, but only collects the response from the
+        Simbad server and returns.
 
         Parameters
         ----------
@@ -441,7 +448,7 @@ class SimbadClass(BaseQuery):
         # if the identifier is given rather than the coordinates, convert to
         # coordinates
         result = self.query_region_async(coordinates, radius=radius,
-                                        equinox=equinox, epoch=epoch)
+                                         equinox=equinox, epoch=epoch)
         return self._parse_result(result, SimbadVOTableResult, verbose=verbose)
 
     def query_region_async(self, coordinates, radius=None, equinox=None,
@@ -515,7 +522,7 @@ class SimbadClass(BaseQuery):
         request_payload = self._args_to_payload(catalog,
                                                 caller='query_catalog_async')
         response = commons.send_request(self.SIMBAD_URL, request_payload,
-                                self.TIMEOUT)
+                                        self.TIMEOUT)
         return response
 
     def query_bibobj(self, bibcode, verbose=False):
@@ -538,8 +545,8 @@ class SimbadClass(BaseQuery):
 
     def query_bibobj_async(self, bibcode):
         """
-        Serves the same function as `query_bibobj`, but
-        only collects the response from the Simbad server and returns.
+        Serves the same function as `query_bibobj`, but only collects the
+        response from the Simbad server and returns.
 
         Parameters
         ----------
@@ -555,14 +562,14 @@ class SimbadClass(BaseQuery):
         request_payload = self._args_to_payload(
             bibcode, caller='query_bibobj_async')
         response = commons.send_request(self.SIMBAD_URL, request_payload,
-                                self.TIMEOUT)
+                                        self.TIMEOUT)
         return response
 
     def query_bibcode(self, bibcode, wildcard=False, verbose=False):
         """
         Queries the references corresponding to a given bibcode, and returns
         the results in a `~astropy.table.Table`. Wildcards may be used to
-        specify bibcodes
+        specify bibcodes.
 
         Parameters
         ----------
@@ -600,8 +607,9 @@ class SimbadClass(BaseQuery):
              Response of the query from the server.
 
         """
-        request_payload = self._args_to_payload(bibcode, wildcard=wildcard,
-                                                caller='query_bibcode_async', get_raw=True)
+        request_payload = self._args_to_payload(
+            bibcode, wildcard=wildcard,
+            caller='query_bibcode_async', get_raw=True)
         response = commons.send_request(self.SIMBAD_URL, request_payload,
                                         self.TIMEOUT)
         return response
@@ -623,7 +631,8 @@ class SimbadClass(BaseQuery):
 
         """
         result = self.query_objectids_async(object_name)
-        return self._parse_result(result, SimbadObjectIDsResult, verbose=verbose)
+        return self._parse_result(result, SimbadObjectIDsResult,
+                                  verbose=verbose)
 
     def query_objectids_async(self, object_name):
         """
@@ -651,9 +660,8 @@ class SimbadClass(BaseQuery):
     @validate_equinox
     def _args_to_payload(self, *args, **kwargs):
         """
-        Takes the arguments from any of the query functions
-        and returns a dictionary that can be used as the
-        data for an HTTP POST request.
+        Takes the arguments from any of the query functions and returns a
+        dictionary that can be used as the data for an HTTP POST request.
         """
         script = ""
         caller = kwargs['caller']
@@ -672,7 +680,8 @@ class SimbadClass(BaseQuery):
         script = "\n".join([script, votable_def, votable_open, command])
         using_wildcard = False
         if kwargs.get('wildcard'):
-            script += " wildcard "  # necessary to have a space at the beginning and end
+            # necessary to have a space at the beginning and end
+            script += " wildcard "
             del kwargs['wildcard']
             using_wildcard = True
         # now append args and kwds as per the caller
@@ -702,11 +711,13 @@ class SimbadClass(BaseQuery):
                 present_keys.append(k)
             # need ampersands to join args
             args_str = '&'.join([str(val) for val in args])
-            args_str += " & " if len(args) > 0 and len(present_keys) > 0 else ""
+            if len(args) > 0 and len(present_keys) > 0:
+                args_str += " & "
         else:
             args_str = ' '.join([str(val) for val in args])
-        kwargs_str = ' '.join("{key}={value}".format(key=key, value=kwargs[key]) for
-                              key in present_keys)
+        kwargs_str = ' '.join("{key}={value}".format(key=key,
+                                                     value=kwargs[key])
+                              for key in present_keys)
 
         # For the record, I feel dirty for writing this wildcard-case hack.
         # This entire function should be refactored when someone has time.
@@ -737,9 +748,12 @@ class SimbadClass(BaseQuery):
                 return None
         except Exception as ex:
             self.last_table_parse_error = ex
-            raise TableParseError("Failed to parse SIMBAD result! The raw response can be found "
-                                  "in self.last_response, and the error in self.last_table_parse_error."
-                                  "  The attempted parsed result is in self.last_parsed_result.\n"
+            raise TableParseError("Failed to parse SIMBAD result! The raw "
+                                  "response can be found in "
+                                  "self.last_response, and the error in "
+                                  "self.last_table_parse_error. The attempted"
+                                  " parsed result is in "
+                                  "self.last_parsed_result.\n "
                                   "Exception: " + str(ex))
         resulttable.errors = self.last_parsed_result.errors
         return resulttable
@@ -786,7 +800,8 @@ def _parse_radius(radius):
     try:
         angle = commons.parse_radius(radius)
         # find the most appropriate unit - d, m or s
-        nonzero_indices = [i for (i, val) in enumerate(angle.dms) if int(val) > 0]
+        nonzero_indices = [i for (i, val) in enumerate(angle.dms)
+                           if int(val) > 0]
         if len(nonzero_indices) > 0:
             index = min(nonzero_indices)
         else:
@@ -807,6 +822,7 @@ error_regex = re.compile(r'(?ms)\[(?P<line>\d+)\]\s?(?P<msg>.+?)(\[|\Z)')
 SimbadError = namedtuple('SimbadError', ('line', 'msg'))
 VersionInfo = namedtuple('VersionInfo', ('major', 'minor', 'micro', 'patch'))
 
+
 class SimbadResult(object):
     __sections = ('script', 'console', 'error', 'data')
 
@@ -824,16 +840,16 @@ class SimbadResult(object):
     def __split_sections(self):
         for section in self.__sections:
             match = re.search(r'(?ims)^::%s:+?$(?P<content>.*?)(^::|\Z)' %
-                             section, self.__txt)
+                              section, self.__txt)
             if match:
                 self.__indexes[section] = (match.start('content'),
-                              match.end('content'))
+                                           match.end('content'))
 
     def __parse_console_section(self):
         if self.console is None:
             return
         match = re.search(r'(?ims)total execution time: ([.\d]+?)\s*?secs',
-                         self.console)
+                          self.console)
         if match:
             try:
                 self.exectime = float(match.group(1))
@@ -841,21 +857,21 @@ class SimbadResult(object):
                 # TODO: do something useful here.
                 pass
         match = re.search(r'(?ms)SIMBAD(\d) rel (\d)[.](\d+)([^\d^\s])?',
-                         self.console)
+                          self.console)
         if match:
             self.sim_version = VersionInfo(*match.groups(None))
 
     def __warn(self):
         for error in self.errors:
             warnings.warn("Warning: The script line number %i raised "
-                         "an error (recorded in the `errors` attribute "
-                         "of the result table): %s" %
-                         (error.line, error.msg))
+                          "an error (recorded in the `errors` attribute "
+                          "of the result table): %s" %
+                          (error.line, error.msg))
 
     def __get_section(self, section_name):
         if section_name in self.__indexes:
             return self.__txt[self.__indexes[section_name][0]:
-                             self.__indexes[section_name][1]].strip()
+                              self.__indexes[section_name][1]].strip()
 
     @property
     def script(self):
@@ -880,7 +896,7 @@ class SimbadResult(object):
             return result
         for err in error_regex.finditer(self.error_raw):
             result.append(SimbadError(int(err.group('line')),
-                         err.group('msg').replace('\n', ' ')))
+                                      err.group('msg').replace('\n', ' ')))
         return result
 
     @property
@@ -889,15 +905,16 @@ class SimbadResult(object):
             return 0
         return len(self.errors)
 
+
 class SimbadVOTableResult(SimbadResult):
     """VOTable-type Simbad result"""
+
     def __init__(self, txt, verbose=False, pedantic=False):
         self.__pedantic = pedantic
         self.__table = None
         if not verbose:
             commons.suppress_vo_warnings()
         super(SimbadVOTableResult, self).__init__(txt, verbose=verbose)
-
 
     @property
     def table(self):
@@ -909,6 +926,8 @@ class SimbadVOTableResult(SimbadResult):
         return self.__table
 
 bibcode_regex = re.compile(r'query\s+bibcode\s+(wildcard)?\s+([\w]*)')
+
+
 class SimbadBibcodeResult(SimbadResult):
     """Bibliography-type Simbad result"""
     @property
@@ -921,6 +940,7 @@ class SimbadBibcodeResult(SimbadResult):
         for ref in ref_list:
             table.add_row([ref])
         return table
+
 
 class SimbadObjectIDsResult(SimbadResult):
     """Object identifier list Simbad result"""

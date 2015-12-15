@@ -6,9 +6,10 @@ from astropy.table import Table
 import astropy.units as u
 import requests
 import imp
-imp.reload(requests)
 
 from ... import nist
+
+imp.reload(requests)
 
 
 @remote_data

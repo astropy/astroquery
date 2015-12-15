@@ -61,7 +61,8 @@ class UkidssClass(QueryWithLogin):
 
     frame_types = {'stack': 'stack', 'normal': 'normal', 'interleave': 'leav',
                    'deep_stack': 'deep%stack', 'confidence': 'conf',
-                   'difference': 'diff', 'leavstack': 'leavstack', 'all': 'all'}
+                   'difference': 'diff', 'leavstack': 'leavstack',
+                   'all': 'all'}
 
     ukidss_programmes_short = {'LAS': 101,
                                'GPS': 102,
@@ -114,8 +115,8 @@ class UkidssClass(QueryWithLogin):
         if 'FAILED to log in' in response.text:
             self.session = None
             raise Exception("Unable to log in with your given credentials.\n"
-                            "Please try again.\n"
-                            "Note that you can continue to access public data without logging in.\n")
+                            "Please try again.\n Note that you can continue "
+                            "to access public data without logging in.\n")
 
     def logged_in(self):
         """
@@ -130,9 +131,19 @@ class UkidssClass(QueryWithLogin):
 
     def _args_to_payload(self, *args, **kwargs):
         request_payload = {}
-        request_payload['database'] = kwargs['database'] if 'database' in kwargs else self.database
-        programme_id = kwargs['programme_id'] if 'programme_id' in kwargs else self.programme_id
-        request_payload['programmeID'] = verify_programme_id(programme_id, query_type=kwargs['query_type'])
+
+        if 'database' in kwargs:
+            request_payload['database'] = kwargs['database']
+        else:
+            request_payload['database'] = self.database
+
+        if 'programme_id' in kwargs:
+            programme_id = kwargs['programme_id']
+        else:
+            programme_id = self.programme_id
+
+        request_payload['programmeID'] = verify_programme_id(
+            programme_id, query_type=kwargs['query_type'])
         sys = self._parse_system(kwargs.get('system'))
         request_payload['sys'] = sys
         if sys == 'J':
@@ -200,22 +211,21 @@ class UkidssClass(QueryWithLogin):
         -------
         list : A list of `~astropy.io.fits.HDUList` objects.
         """
-        readable_objs = self.get_images_async(coordinates, waveband=waveband,
-                                              frame_type=frame_type,
-                                              image_width=image_width,
-                                              image_height=image_height,
-                                              database=database,
-                                              programme_id=programme_id,
-                                              radius=radius, verbose=verbose,
-                                              get_query_payload=get_query_payload)
+        readable_objs = self.get_images_async(
+            coordinates, waveband=waveband, frame_type=frame_type,
+            image_width=image_width, image_height=image_height,
+            database=database, programme_id=programme_id, radius=radius,
+            verbose=verbose, get_query_payload=get_query_payload)
+
         if get_query_payload:
             return readable_objs
         return [obj.get_fits() for obj in readable_objs]
 
     def get_images_async(self, coordinates, waveband='all', frame_type='stack',
-                         image_width=1 * u.arcmin, image_height=None, radius=None,
-                         database='UKIDSSDR7PLUS', programme_id='all',
-                         verbose=True, get_query_payload=False):
+                         image_width=1 * u.arcmin, image_height=None,
+                         radius=None, database='UKIDSSDR7PLUS',
+                         programme_id='all', verbose=True,
+                         get_query_payload=False):
         """
         Serves the same purpose as `get_images` but
         returns a list of file handlers to remote files.
@@ -247,7 +257,8 @@ class UkidssClass(QueryWithLogin):
             may also be used. When missing only image around the given position
             rather than multi-frames are retrieved.
         programme_id : str
-            The survey or programme in which to search for. See `list_catalogs`.
+            The survey or programme in which to search for. See
+            `list_catalogs`.
         database : str
             The UKIDSS database to use.
         verbose : bool
@@ -258,7 +269,8 @@ class UkidssClass(QueryWithLogin):
 
         Returns
         -------
-        list : A list of context-managers that yield readable file-like objects.
+        list : list
+            A list of context-managers that yield readable file-like objects.
         """
 
         image_urls = self.get_image_list(coordinates, waveband=waveband,
@@ -281,9 +293,9 @@ class UkidssClass(QueryWithLogin):
     @validate_frame
     @validate_filter
     def get_image_list(self, coordinates, waveband='all', frame_type='stack',
-                       image_width=1 * u.arcmin, image_height=None, radius=None,
-                       database='UKIDSSDR7PLUS', programme_id='all',
-                       get_query_payload=False):
+                       image_width=1 * u.arcmin, image_height=None,
+                       radius=None, database='UKIDSSDR7PLUS',
+                       programme_id='all', get_query_payload=False):
         """
         Function that returns a list of urls from which to download the FITS
         images.
@@ -315,7 +327,8 @@ class UkidssClass(QueryWithLogin):
             `astropy.units` may also be used. When missing only image around
             the given position rather than multi-frames are retrieved.
         programme_id : str
-            The survey or programme in which to search for. See `list_catalogs`.
+            The survey or programme in which to search for. See
+            `list_catalogs`.
         database : str
             The UKIDSS database to use.
         verbose : bool
@@ -339,7 +352,10 @@ class UkidssClass(QueryWithLogin):
         request_payload['mfid'] = ''
         if radius is None:
             request_payload['xsize'] = _parse_dimension(image_width)
-            request_payload['ysize'] = _parse_dimension(image_width) if image_height is None else _parse_dimension(image_height)
+            if image_height is None:
+                request_payload['ysize'] = _parse_dimension(image_width)
+            else:
+                request_payload['ysize'] = _parse_dimension(image_height)
             query_url = self.IMAGE_URL
         else:
             query_url = self.ARCHIVE_URL
@@ -348,8 +364,10 @@ class UkidssClass(QueryWithLogin):
             radius = commons.parse_radius(radius).degree
             del request_payload['sys']
             request_payload['userSelect'] = 'default'
-            request_payload['minRA'] = str(round(ra - radius / cos(radians(dec)),2))
-            request_payload['maxRA'] = str(round(ra + radius / cos(radians(dec)),2))
+            request_payload['minRA'] = str(
+                round(ra - radius / cos(radians(dec)), 2))
+            request_payload['maxRA'] = str(
+                round(ra + radius / cos(radians(dec)), 2))
             request_payload['formatRA'] = 'degrees'
             request_payload['minDec'] = str(dec - radius)
             request_payload['maxDec'] = str(dec + radius)
@@ -374,10 +392,9 @@ class UkidssClass(QueryWithLogin):
         image_urls = self.extract_urls(response.text)
         # different links for radius queries and simple ones
         if radius is not None:
-            image_urls = [link for link in image_urls if ('fits_download' in
-                                                          link and '_cat.fits'
-                                                          not in link and
-                                                          '_two.fit' not in link)]
+            image_urls = [link for link in image_urls if
+                          ('fits_download' in link and '_cat.fits'
+                           not in link and '_two.fit' not in link)]
         else:
             image_urls = [link.replace("getImage", "getFImage")
                           for link in image_urls]
@@ -425,7 +442,8 @@ class UkidssClass(QueryWithLogin):
             `astropy.units` may also be used. When missing defaults to 1
             arcmin. Cannot exceed 90 arcmin.
         programme_id : str
-            The survey or programme in which to search for. See `list_catalogs`.
+            The survey or programme in which to search for. See
+            `list_catalogs`.
         database : str
             The UKIDSS database to use.
         verbose : bool, optional.
@@ -477,7 +495,8 @@ class UkidssClass(QueryWithLogin):
             `astropy.units` may also be used. When missing defaults to 1
             arcmin. Cannot exceed 90 arcmin.
         programme_id : str
-            The survey or programme in which to search for. See `list_catalogs`.
+            The survey or programme in which to search for. See
+            `list_catalogs`.
         database : str
             The UKIDSS database to use.
         get_query_payload : bool, optional
@@ -518,7 +537,8 @@ class UkidssClass(QueryWithLogin):
 
     def _parse_result(self, response, verbose=False):
         """
-        Parses the raw HTTP response and returns it as a `~astropy.table.Table`.
+        Parses the raw HTTP response and returns it as a
+        `~astropy.table.Table`.
 
         Parameters
         ----------
@@ -556,8 +576,9 @@ class UkidssClass(QueryWithLogin):
             self.response = content
             self.table_parse_error = ex
             raise
-            raise TableParseError("Failed to parse UKIDSS votable! The raw response can be found "
-                                  "in self.response, and the error in self.table_parse_error.  "
+            raise TableParseError("Failed to parse UKIDSS votable! The raw "
+                                  "response can be found in self.response, "
+                                  "and the error in self.table_parse_error.  "
                                   "Exception: " + str(self.table_parse_error))
 
     def list_catalogs(self, style='short'):
@@ -587,12 +608,14 @@ class UkidssClass(QueryWithLogin):
 
     def _get_databases(self):
         if self.logged_in():
-            response = self.session.get('http://surveys.roe.ac.uk:8080/wsa/getImage_form.jsp')
+            response = self.session.get(
+                'http://surveys.roe.ac.uk:8080/wsa/getImage_form.jsp')
         else:
-            response = requests.get('http://surveys.roe.ac.uk:8080/wsa/getImage_form.jsp')
+            response = requests.get(
+                'http://surveys.roe.ac.uk:8080/wsa/getImage_form.jsp')
         root = BeautifulSoup(response.content)
         databases = [x.attrs['value'] for x in
-                    root.find('select').findAll('option')]
+                     root.find('select').findAll('option')]
         return databases
 
     def list_databases(self):
@@ -637,7 +660,9 @@ class UkidssClass(QueryWithLogin):
             self.response = response
             content = response.text
             if re.search("error", content, re.IGNORECASE):
-                raise InvalidQueryError("Service returned with an error!  Check self.response for more information.")
+                raise InvalidQueryError(
+                    "Service returned with an error!  "
+                    "Check self.response for more information.")
             elif re.search(keyword, content, re.IGNORECASE):
                 page_loaded = True
             max_attempts -= 1
@@ -674,13 +699,13 @@ def clean_catalog(ukidss_catalog, clean_band='K_1', badclass=-9999,
     """
 
     band = clean_band
-    mask = ((ukidss_catalog[band + 'ERRBITS'] <= maxerrbits)
-            * (ukidss_catalog[band + 'ERRBITS'] >= minerrbits)
-            * ((ukidss_catalog['PRIORSEC'] == ukidss_catalog['FRAMESETID'])
-                + (ukidss_catalog['PRIORSEC'] == 0))
-            * (ukidss_catalog[band + 'PPERRBITS'] < maxpperrbits)
+    mask = ((ukidss_catalog[band + 'ERRBITS'] <= maxerrbits) *
+            (ukidss_catalog[band + 'ERRBITS'] >= minerrbits) *
+            ((ukidss_catalog['PRIORSEC'] == ukidss_catalog['FRAMESETID']) +
+             (ukidss_catalog['PRIORSEC'] == 0)) *
+            (ukidss_catalog[band + 'PPERRBITS'] < maxpperrbits)
             )
-    if band+'CLASS' in ukidss_catalog.colnames:
+    if band + 'CLASS' in ukidss_catalog.colnames:
         mask *= (ukidss_catalog[band + 'CLASS'] != badclass)
     elif 'mergedClass' in ukidss_catalog.colnames:
         mask *= (ukidss_catalog['mergedClass'] != badclass)
@@ -712,8 +737,10 @@ def verify_programme_id(pid, query_type='catalog'):
     if pid == 'all' and query_type == 'image':
         return 'all'
     elif pid == 'all' and query_type == 'catalog':
-        raise ValueError("Cannot query all catalogs at once. Valid catalogs are: {0}.  Change programmeID to one of these.".format(
-            ",".join(UkidssClass.ukidss_programmes_short.keys())))
+        raise ValueError(
+            "Cannot query all catalogs at once. Valid catalogs are: {0}.\n"
+            "Change programmeID to one of these."
+            .format(",".join(UkidssClass.ukidss_programmes_short.keys())))
     elif pid in UkidssClass.ukidss_programmes_long:
         return UkidssClass.ukidss_programmes_long[pid]
     elif pid in UkidssClass.ukidss_programmes_short:
@@ -735,13 +762,15 @@ def _parse_dimension(dim):
     dim_in_min : float
         The value of the radius in arcminutes.
     """
-    if isinstance(dim, u.Quantity) and dim.unit in u.deg.find_equivalent_units():
+    if (isinstance(dim, u.Quantity) and
+            dim.unit in u.deg.find_equivalent_units()):
         dim_in_min = dim.to(u.arcmin).value
     # otherwise must be an Angle or be specified in hours...
     else:
         try:
             new_dim = commons.parse_radius(dim).degree
-            dim_in_min = u.Quantity(value=new_dim, unit=u.deg).to(u.arcmin).value
+            dim_in_min = u.Quantity(
+                value=new_dim, unit=u.deg).to(u.arcmin).value
         except (u.UnitsError, coord.errors.UnitsError, AttributeError):
             raise u.UnitsError("Dimension not in proper units")
     return dim_in_min

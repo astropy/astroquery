@@ -27,7 +27,8 @@ class SpeciesLookuptable(dict):
 
         R = re.compile(s, flags)
 
-        out = SpeciesLookuptable(dict((k, v) for k, v in self.items() if R.search(k)))
+        out = SpeciesLookuptable(dict((k, v) for k, v in self.items()
+                                      if R.search(k)))
 
         if return_dict:
             return out
@@ -39,6 +40,7 @@ def species_lookuptable(filename='species.json'):
     with open(data_path(filename), 'r') as f:
         J = json.load(f)
 
-    lookuptable = SpeciesLookuptable(dict((v, k) for d in J.values() for k, v in d.items()))
+    lookuptable = SpeciesLookuptable(dict((v, k) for d in J.values()
+                                          for k, v in d.items()))
 
     return lookuptable

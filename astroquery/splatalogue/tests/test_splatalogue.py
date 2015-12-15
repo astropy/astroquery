@@ -28,11 +28,13 @@ def post_mockreturn(url, data=None, timeout=10, **kwargs):
 
 
 def test_simple(patch_post):
-    x = splatalogue.Splatalogue.query_lines(114 * u.GHz, 116 * u.GHz, chemical_name=' CO ')
+    splatalogue.Splatalogue.query_lines(114 * u.GHz, 116 * u.GHz,
+                                        chemical_name=' CO ')
 
 
 def test_init(patch_post):
-    x = splatalogue.Splatalogue.query_lines(114 * u.GHz, 116 * u.GHz, chemical_name=' CO ')
+    x = splatalogue.Splatalogue.query_lines(114 * u.GHz, 116 * u.GHz,
+                                            chemical_name=' CO ')
     S = splatalogue.Splatalogue(chemical_name=' CO ')
     y = S.query_lines(114 * u.GHz, 116 * u.GHz)
     # it is not currently possible to test equality between tables:
@@ -78,16 +80,17 @@ def test_linelist_type():
         splatalogue.core.Splatalogue.query_lines_async(1 * u.GHz, 10 * u.GHz,
                                                        line_lists='JPL',
                                                        get_query_payload=True)
-    assert exc.value.args[0] == "Line lists should be a list of linelist names.  See Splatalogue.ALL_LINE_LISTS"
+    assert exc.value.args[0] == ("Line lists should be a list of linelist "
+                                 "names.  See Splatalogue.ALL_LINE_LISTS")
 
 
 def test_top20_crashorno():
-    splatalogue.core.Splatalogue.query_lines_async(114 * u.GHz, 116 * u.GHz, top20='top20',
+    splatalogue.core.Splatalogue.query_lines_async(114 * u.GHz, 116 * u.GHz,
+                                                   top20='top20',
                                                    get_query_payload=True)
     with pytest.raises(ValueError) as exc:
-        splatalogue.core.Splatalogue.query_lines_async(114 * u.GHz, 116 * u.GHz,
-                                                       top20='invalid',
-                                                       get_query_payload=True)
+        splatalogue.core.Splatalogue.query_lines_async(
+            114 * u.GHz, 116 * u.GHz, top20='invalid', get_query_payload=True)
     assert exc.value.args[0] == "Top20 is not one of the allowed values"
 
 
@@ -104,9 +107,7 @@ def test_band_crashorno():
 @remote_data
 def test_version_selection():
     results = splatalogue.Splatalogue.query_lines(
-    min_frequency= 703*u.GHz,
-    max_frequency=706*u.GHz,
-    chemical_name='Acetaldehyde',
-    version='v1.0'
-    )
-    assert len(results)==1
+        min_frequency=703 * u.GHz, max_frequency=706 * u.GHz,
+        chemical_name='Acetaldehyde', version='v1.0')
+
+    assert len(results) == 1

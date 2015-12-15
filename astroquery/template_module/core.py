@@ -213,9 +213,9 @@ class TemplateClass(BaseQuery):
     # 1. get_images - this is the high level method that interacts with
     #        the user. It reads in the user input and returns the final
     #        list of fits images to the user.
-    # 2. get_images_async - This is a lazier form of the get_images function, in
-    #        that it returns just the list of handles to the image files instead
-    #        of actually downloading them.
+    # 2. get_images_async - This is a lazier form of the get_images function,
+    #        in that it returns just the list of handles to the image files
+    #        instead of actually downloading them.
     # 3. extract_image_urls - This takes in the raw HTTP response and scrapes
     #        it to get the downloadable list of image URLs.
     # 4. get_image_list - this is similar to the get_images, but it simply

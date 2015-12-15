@@ -27,9 +27,11 @@ def validify_filename(filestr):
 
 
 def download_list_of_fitsfiles(linklist, output_directory=None,
-        output_prefix=None, save=False, overwrite=False, verbose=False,
-        output_coord_format=None, filename_header_keywords=None,
-        include_input_filename=True):
+                               output_prefix=None, save=False,
+                               overwrite=False, verbose=False,
+                               output_coord_format=None,
+                               filename_header_keywords=None,
+                               include_input_filename=True):
     """
     Given a list of file URLs, download them and (optionally) rename them.
 
@@ -81,7 +83,8 @@ def download_list_of_fitsfiles(linklist, output_directory=None,
             h0 = fitsfile[0].header
 
             if filename_header_keywords:  # is not None or empty
-                nametxt = "_".join([validify_filename(str(h0[key])) for key in filename_header_keywords])
+                nametxt = "_".join([validify_filename(str(h0[key]))
+                                    for key in filename_header_keywords])
             else:
                 nametxt = ""
 
@@ -89,7 +92,8 @@ def download_list_of_fitsfiles(linklist, output_directory=None,
                 lon = h0['CRVAL1']
                 lat = h0['CRVAL2']
 
-                # this part will eventually be handled by astropy.coordinates directly
+                # this part will eventually be handled by
+                # astropy.coordinates directly
                 # ctype = h0['CTYPE1']
                 # if 'RA' in ctype:
                 #     coordinate = coord.SkyCoord(lon,lat,unit=('deg','deg'))

@@ -14,10 +14,13 @@ from ...utils.testing_tools import MockResponse
 from ...utils import commons
 from ...exceptions import TableParseError
 
-GALACTIC_COORDS = commons.GalacticCoordGenerator(l=-67.02084, b=-29.75447, unit=(u.deg, u.deg))
+GALACTIC_COORDS = commons.GalacticCoordGenerator(l=-67.02084, b=-29.75447,
+                                                 unit=(u.deg, u.deg))
 ICRS_COORDS = commons.ICRSCoordGenerator("05h35m17.3s -05h23m28s")
-FK4_COORDS = commons.FK4CoordGenerator(ra=84.90759, dec=-80.89403, unit=(u.deg, u.deg))
-FK5_COORDS = commons.FK5CoordGenerator(ra=83.82207, dec=-80.86667, unit=(u.deg, u.deg))
+FK4_COORDS = commons.FK4CoordGenerator(ra=84.90759, dec=-80.89403,
+                                       unit=(u.deg, u.deg))
+FK5_COORDS = commons.FK5CoordGenerator(ra=83.82207, dec=-80.86667,
+                                       unit=(u.deg, u.deg))
 
 DATA_FILES = {
     'id': 'query_id.data',
@@ -49,8 +52,8 @@ class MockResponseSimbad(MockResponse):
 
 
 def data_path(filename):
-        data_dir = os.path.join(os.path.dirname(__file__), 'data')
-        return os.path.join(data_dir, filename)
+    data_dir = os.path.join(os.path.dirname(__file__), 'data')
+    return os.path.join(data_dir, filename)
 
 
 @pytest.fixture
@@ -83,7 +86,7 @@ def test_parse_radius(radius, expected_radius):
 
 @pytest.mark.parametrize(('ra', 'dec', 'expected_ra', 'expected_dec'),
                          [(ICRS_COORDS.ra, ICRS_COORDS.dec, u'5:35:17.3',
-                          u'-80:52:00')
+                           u'-80:52:00')
                           ])
 def test_to_simbad_format(ra, dec, expected_ra, expected_dec):
     actual_ra, actual_dec = simbad.core._to_simbad_format(ra, dec)
@@ -106,37 +109,43 @@ def test_get_frame_coordinates(coordinates, expected_frame):
 
 
 def test_parse_result():
-    result1 = simbad.core.Simbad._parse_result(MockResponseSimbad('query id '), simbad.core.SimbadVOTableResult)
+    result1 = simbad.core.Simbad._parse_result(
+        MockResponseSimbad('query id '), simbad.core.SimbadVOTableResult)
     assert isinstance(result1, Table)
     with pytest.raises(TableParseError) as ex:
-        dummy = simbad.core.Simbad._parse_result(MockResponseSimbad('query error '), simbad.core.SimbadVOTableResult)
-    assert str(ex.value) == ('Failed to parse SIMBAD result! '
-                              'The raw response can be found in self.last_response, '
-                              'and the error in self.last_table_parse_error.  '
-                              'The attempted parsed result is in self.last_parsed_result.'
-                              '\nException: 7:115: no element found')
-    assert isinstance(simbad.core.Simbad.last_response.text, six.string_types)
-    assert isinstance(simbad.core.Simbad.last_response.content, six.binary_type)
+        simbad.core.Simbad._parse_result(MockResponseSimbad('query error '),
+                                         simbad.core.SimbadVOTableResult)
+    assert str(ex.value) == ('Failed to parse SIMBAD result! The raw response '
+                             'can be found in self.last_response, and the '
+                             'error in self.last_table_parse_error. '
+                             'The attempted parsed result is in '
+                             'self.last_parsed_result.\n Exception: 7:115: '
+                             'no element found')
+    assert isinstance(simbad.Simbad.last_response.text, six.string_types)
+    assert isinstance(simbad.Simbad.last_response.content, six.binary_type)
 
 votable_fields = ",".join(simbad.core.Simbad.get_votable_fields())
 
 
 @pytest.mark.parametrize(('args', 'kwargs', 'expected_script'),
-                         [([ICRS_COORDS], dict(radius=5.0 * u.deg, frame='ICRS',
+                         [([ICRS_COORDS], dict(radius=5.0 * u.deg,
+                                               frame='ICRS',
                                                equinox=2000.0, epoch='J2000',
                                                caller='query_region_async'),
-                          ("\nvotable {" + votable_fields + "}\n"
-                           "votable open\n"
-                           "query coo  5:35:17.3 -80:52:00 "
-                           "radius=5d frame=ICRS equi=2000.0 epoch=J2000 \n"
-                           "votable close")),
-                          (["m [0-9]"], dict(wildcard=True, caller='query_object_async'),
+                           ("\nvotable {" + votable_fields + "}\n"
+                            "votable open\n"
+                            "query coo  5:35:17.3 -80:52:00 "
+                            "radius=5d frame=ICRS equi=2000.0 epoch=J2000 \n"
+                            "votable close")),
+                          (["m [0-9]"], dict(wildcard=True,
+                                             caller='query_object_async'),
                            ("\nvotable {" + votable_fields + "}\n"
                             "votable open\n"
                             "query id wildcard m [0-9]  \n"
                             "votable close"
                             )),
-                          (["2006ApJ"], dict(caller='query_bibcode_async', get_raw=True),
+                          (["2006ApJ"], dict(caller='query_bibcode_async',
+                                             get_raw=True),
                            ("\n\n\nquery bibcode  2006ApJ  \n"))
                           ])
 def test_args_to_payload(args, kwargs, expected_script):
@@ -151,8 +160,8 @@ def test_args_to_payload(args, kwargs, expected_script):
                           ])
 def test_args_to_payload_validate(epoch, equinox):
     with pytest.raises(Exception):
-        simbad.Simbad._args_to_payload(caller='query_region_async', epoch=epoch,
-                                       equinox=equinox)
+        simbad.Simbad._args_to_payload(caller='query_region_async',
+                                       epoch=epoch, equinox=equinox)
 
 
 @pytest.mark.parametrize(('bibcode', 'wildcard'),
@@ -228,10 +237,12 @@ def test_query_catalog(patch_post):
                           (FK5_COORDS, None, None, None)
                           ])
 def test_query_region_async(patch_post, coordinates, radius, equinox, epoch):
-    response1 = simbad.core.Simbad.query_region_async(coordinates, radius=radius,
-                                                      equinox=equinox, epoch=epoch)
-    response2 = simbad.core.Simbad().query_region_async(coordinates, radius=radius,
-                                                        equinox=equinox, epoch=epoch)
+    response1 = simbad.core.Simbad.query_region_async(
+        coordinates, radius=radius, equinox=equinox, epoch=epoch)
+
+    response2 = simbad.core.Simbad().query_region_async(
+        coordinates, radius=radius, equinox=equinox, epoch=epoch)
+
     assert response1 is not None and response2 is not None
     assert response1.content == response2.content
 
@@ -253,20 +264,23 @@ def test_query_region(patch_post, coordinates, radius, equinox, epoch):
 
 @pytest.mark.parametrize(('coordinates', 'radius', 'equinox', 'epoch'),
                          [(ICRS_COORDS, 0, None, None)])
-def test_query_region_radius_error(patch_post, coordinates, radius, equinox, epoch):
+def test_query_region_radius_error(patch_post, coordinates, radius,
+                                   equinox, epoch):
     with pytest.raises(u.UnitsError):
-        result1 = simbad.core.Simbad.query_region(coordinates, radius=radius,
-                                                  equinox=equinox, epoch=epoch)
+        simbad.core.Simbad.query_region(
+            coordinates, radius=radius, equinox=equinox, epoch=epoch)
+
     with pytest.raises(u.UnitsError):
-        result2 = simbad.core.Simbad().query_region(coordinates, radius=radius,
-                                                    equinox=equinox, epoch=epoch)
+        simbad.core.Simbad().query_region(
+            coordinates, radius=radius, equinox=equinox, epoch=epoch)
 
 
 @pytest.mark.parametrize(('coordinates', 'radius', 'equinox', 'epoch'),
                          [(ICRS_COORDS, "0d", None, None),
                           (GALACTIC_COORDS, 1.0 * u.marcsec, 2000.0, 'J2000')
                           ])
-def test_query_region_small_radius(patch_post, coordinates, radius, equinox, epoch):
+def test_query_region_small_radius(patch_post, coordinates, radius,
+                                   equinox, epoch):
     result1 = simbad.core.Simbad.query_region(coordinates, radius=radius,
                                               equinox=equinox, epoch=epoch)
     result2 = simbad.core.Simbad().query_region(coordinates, radius=radius,
@@ -277,7 +291,7 @@ def test_query_region_small_radius(patch_post, coordinates, radius, equinox, epo
 
 @pytest.mark.parametrize(('object_name', 'wildcard'),
                          [("m1", None),
-                         ("m [0-9]", True)
+                          ("m [0-9]", True)
                           ])
 def test_query_object_async(patch_post, object_name, wildcard):
     response1 = simbad.core.Simbad.query_object_async(object_name,
@@ -290,7 +304,7 @@ def test_query_object_async(patch_post, object_name, wildcard):
 
 @pytest.mark.parametrize(('object_name', 'wildcard'),
                          [("m1", None),
-                         ("m [0-9]", True),
+                          ("m [0-9]", True),
                           ])
 def test_query_object(patch_post, object_name, wildcard):
     result1 = simbad.core.Simbad.query_object(object_name,
@@ -315,25 +329,30 @@ def test_get_field_description():
 
 def test_votable_fields():
     simbad.core.Simbad.add_votable_fields('rot', 'ze', 'z')
-    assert set(simbad.core.Simbad.get_votable_fields()) == set(['main_id', 'coordinates', 'rot', 'ze', 'z'])
+    assert (set(simbad.core.Simbad.get_votable_fields()) ==
+            set(['main_id', 'coordinates', 'rot', 'ze', 'z']))
     try:
         simbad.core.Simbad.add_votable_fields('z')
     except KeyError:
         pass  # this is the expected response
-    assert set(simbad.core.Simbad.get_votable_fields()) == set(['main_id', 'coordinates', 'rot', 'ze', 'z'])
+    assert (set(simbad.core.Simbad.get_votable_fields()) ==
+            set(['main_id', 'coordinates', 'rot', 'ze', 'z']))
     simbad.core.Simbad.remove_votable_fields('rot', 'main_id', 'coordinates')
     assert set(simbad.core.Simbad.get_votable_fields()) == set(['ze', 'z'])
     simbad.core.Simbad.remove_votable_fields('rot', 'main_id', 'coordinates')
     assert set(simbad.core.Simbad.get_votable_fields()) == set(['ze', 'z'])
     simbad.core.Simbad.remove_votable_fields('ze', 'z')
-    assert set(simbad.core.Simbad.get_votable_fields()) == set(['main_id', 'coordinates'])
+    assert (set(simbad.core.Simbad.get_votable_fields()) ==
+            set(['main_id', 'coordinates']))
     simbad.core.Simbad.add_votable_fields('rot', 'ze', 'z')
     simbad.core.Simbad.reset_votable_fields()
-    assert set(simbad.core.Simbad.get_votable_fields()) == set(['main_id', 'coordinates'])
+    assert (set(simbad.core.Simbad.get_votable_fields()) ==
+            set(['main_id', 'coordinates']))
 
 
 def test_query_criteria1(patch_post):
-    result = simbad.core.Simbad.query_criteria("region(box, GAL, 49.89 -0.3, 0.5d 0.5d)", otype='HII')
+    result = simbad.core.Simbad.query_criteria(
+        "region(box, GAL, 49.89 -0.3, 0.5d 0.5d)", otype='HII')
     assert isinstance(result, Table)
 
 
@@ -347,45 +366,55 @@ def test_query_criteria2(patch_post):
 
 
 def test_simbad_settings1():
-    assert simbad.core.Simbad.get_votable_fields() == ['main_id', 'coordinates']
+    assert simbad.Simbad.get_votable_fields() == ['main_id', 'coordinates']
     simbad.core.Simbad.add_votable_fields('ra', 'dec(5)')
     simbad.core.Simbad.remove_votable_fields('ra', 'dec')
-    assert simbad.core.Simbad.get_votable_fields() == ['main_id', 'coordinates', 'dec(5)']
+    assert (simbad.Simbad.get_votable_fields() ==
+            ['main_id', 'coordinates', 'dec(5)'])
     simbad.core.Simbad.reset_votable_fields()
 
 
 def test_simbad_settings2():
-    assert simbad.core.Simbad.get_votable_fields() == ['main_id', 'coordinates']
+    assert simbad.Simbad.get_votable_fields() == ['main_id', 'coordinates']
     simbad.core.Simbad.add_votable_fields('ra', 'dec(5)')
     simbad.core.Simbad.remove_votable_fields('ra', 'dec', strip_params=True)
-    assert simbad.core.Simbad.get_votable_fields() == ['main_id', 'coordinates']
+    assert simbad.Simbad.get_votable_fields() == ['main_id', 'coordinates']
 
 
 def test_regression_votablesettings():
-    assert simbad.core.Simbad.get_votable_fields() == ['main_id', 'coordinates']
+    assert simbad.Simbad.get_votable_fields() == ['main_id', 'coordinates']
     simbad.core.Simbad.add_votable_fields('ra', 'dec(5)')
     with pytest.raises(KeyError) as ex:
         simbad.core.Simbad.add_votable_fields('ra(d)', 'dec(d)')
-    assert ex.value.args[0] == 'ra(d): field already present.  Fields ra,dec,id,otype, and bibcodelist can only be specified once.  To change their options, first remove the existing entry, then add a new one.'
+    assert ex.value.args[0] == ('ra(d): field already present. Fields '
+                                'ra,dec,id,otype, and bibcodelist can only '
+                                'be specified once.  To change their options, '
+                                'first remove the existing entry, then add '
+                                'a new one.')
     # cleanup
     simbad.core.Simbad.remove_votable_fields('ra', 'dec', strip_params=True)
-    assert simbad.core.Simbad.get_votable_fields() == ['main_id', 'coordinates']
+    assert simbad.Simbad.get_votable_fields() == ['main_id', 'coordinates']
 
 
 def test_regression_votablesettings2():
-    assert simbad.core.Simbad.get_votable_fields() == ['main_id', 'coordinates']
+    assert simbad.Simbad.get_votable_fields() == ['main_id', 'coordinates']
     simbad.core.Simbad.add_votable_fields('fluxdata(J)')
     simbad.core.Simbad.add_votable_fields('fluxdata(H)')
     simbad.core.Simbad.add_votable_fields('fluxdata(K)')
-    assert simbad.core.Simbad.get_votable_fields() == ['main_id', 'coordinates', 'fluxdata(J)', 'fluxdata(H)', 'fluxdata(K)']
+    assert (simbad.Simbad.get_votable_fields() ==
+            ['main_id', 'coordinates',
+             'fluxdata(J)', 'fluxdata(H)', 'fluxdata(K)'])
     simbad.core.Simbad.remove_votable_fields('fluxdata', strip_params=True)
-    assert simbad.core.Simbad.get_votable_fields() == ['main_id', 'coordinates']
+    assert simbad.Simbad.get_votable_fields() == ['main_id', 'coordinates']
+
 
 def test_regression_issue388():
     # This is a python-3 issue: content needs to be decoded?
-    response = MockResponseSimbad('\nvotable {main_id,coordinates}\nvotable open\nquery id  m1  \nvotable close')
+    response = MockResponseSimbad('\nvotable {main_id,coordinates}\nvotable '
+                                  'open\nquery id  m1  \nvotable close')
     with open(data_path('m1.data'), "rb") as f:
         response.content = f.read()
-    parsed_table = simbad.core.Simbad._parse_result(response, simbad.core.SimbadVOTableResult)
+    parsed_table = simbad.Simbad._parse_result(response,
+                                               simbad.core.SimbadVOTableResult)
     assert parsed_table['MAIN_ID'][0] == b'M   1'
     assert len(parsed_table) == 1

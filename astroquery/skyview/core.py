@@ -36,7 +36,8 @@ class SkyViewClass(BaseQuery):
                 continue
             # check boxes: enabled boxes have the value "on" if not specified
             # otherwise. Found out by debugging, perhaps not documented.
-            if elem.get('type') == 'checkbox' and elem.get('checked') in ["", "checked"]:
+            if (elem.get('type') == 'checkbox' and
+                    elem.get('checked') in ["", "checked"]):
                 value = elem.get('value', 'on')
                 res.append((elem.get('name'), value))
             # radio buttons and simple input fields
@@ -50,10 +51,10 @@ class SkyViewClass(BaseQuery):
                     if option.get('selected') == '':
                         value = option.get('value', option.text.strip())
                         res.append((elem.get('name'), value))
-        return {k:v
+        return {k: v
                 for (k, v) in res
                 if v not in [None, u'None', u'null'] and v
-               }
+                }
 
     def _generate_payload(self, input=None):
         """
@@ -184,7 +185,8 @@ class SkyViewClass(BaseQuery):
         Examples
         --------
         >>> sv = SkyView()
-        >>> paths = sv.get_images(position='Eta Carinae', survey=['Fermi 5', 'HRI', 'DSS'])
+        >>> paths = sv.get_images(position='Eta Carinae',
+        ...                       survey=['Fermi 5', 'HRI', 'DSS'])
         >>> for path in paths:
         ...     print '\tnew file:', path
 
@@ -219,7 +221,8 @@ class SkyViewClass(BaseQuery):
                                          gridlabels, radius=radius,
                                          height=height, width=width,
                                          cache=cache)
-        return [commons.FileContainer(url, encoding='binary') for url in image_urls]
+        return [commons.FileContainer(url, encoding='binary')
+                for url in image_urls]
 
     @prepend_docstr_noreturns(get_images.__doc__)
     def get_image_list(self, position, survey, coordinates=None,
@@ -234,7 +237,8 @@ class SkyViewClass(BaseQuery):
 
         Examples
         --------
-        >>> SkyView().get_image_list(position='Eta Carinae', survey=['Fermi 5', 'HRI', 'DSS'])
+        >>> SkyView().get_image_list(position='Eta Carinae',
+        ...                          survey=['Fermi 5', 'HRI', 'DSS'])
         [u'http://skyview.gsfc.nasa.gov/tempspace/fits/skv6183161285798_1.fits',
          u'http://skyview.gsfc.nasa.gov/tempspace/fits/skv6183161285798_2.fits',
          u'http://skyview.gsfc.nasa.gov/tempspace/fits/skv6183161285798_3.fits']
@@ -248,7 +252,8 @@ class SkyViewClass(BaseQuery):
             size_deg = "{0},{1}".format(width.to(u.deg).value,
                                         height.to(u.deg).value)
         elif width and height:
-            raise ValueError("Must specify width and height if you specify either.")
+            raise ValueError("Must specify width and height if you "
+                             "specify either.")
         else:
             size_deg = None
 
@@ -286,10 +291,11 @@ class SkyViewClass(BaseQuery):
 
             response = self._request('GET', self.URL)
             page = BeautifulSoup(response.content, "html.parser")
-            surveys = page.findAll('select', {'name':'survey'})
+            surveys = page.findAll('select', {'name': 'survey'})
 
-            self._survey_dict = {sel['id']:[x.text for x in sel.findAll('option')]
-                                for sel in surveys}
+            self._survey_dict = {
+                sel['id']: [x.text for x in sel.findAll('option')]
+                for sel in surveys}
         return self._survey_dict
 
     @property
@@ -312,6 +318,7 @@ class SkyViewClass(BaseQuery):
         Print out a formatted version of the survey dict
         """
         pprint.pprint(self.survey_dict)
+
 
 def parse_coordinates(position):
     coord = commons.parse_coordinates(position)

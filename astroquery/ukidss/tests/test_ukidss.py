@@ -45,7 +45,8 @@ def patch_get_readable_fileobj(request):
             file_obj = open(data_path(DATA_FILES["votable"]), mode)
         yield file_obj
     mp = request.getfuncargvalue("monkeypatch")
-    mp.setattr(commons, 'get_readable_fileobj', get_readable_fileobj_mockreturn)
+    mp.setattr(commons, 'get_readable_fileobj',
+               get_readable_fileobj_mockreturn)
     return mp
 
 
@@ -91,42 +92,47 @@ def test_parse_dimension(dim, expected):
 
 
 def test_get_images(patch_get, patch_get_readable_fileobj):
-    image = ukidss.core.Ukidss.get_images(commons.ICRSCoordGenerator
-                                         (ra=83.633083, dec=22.0145, unit=(u.deg, u.deg)),
-                                         frame_type='interleave',
-                                         programme_id="GCS", waveband="K",
-                                         radius=20*u.arcmin)
+    image = ukidss.core.Ukidss.get_images(
+        commons.ICRSCoordGenerator(ra=83.633083, dec=22.0145,
+                                   unit=(u.deg, u.deg)),
+        frame_type='interleave', programme_id="GCS", waveband="K",
+        radius=20 * u.arcmin)
     assert image is not None
 
 
 def test_get_images_async_1():
-    payload = ukidss.core.Ukidss.get_images_async(commons.ICRSCoordGenerator
-                                          (ra=83.633083, dec=22.0145, unit=(u.deg, u.deg)),
-        radius=20*u.arcmin,
-        get_query_payload=True)
+    payload = ukidss.core.Ukidss.get_images_async(
+        commons.ICRSCoordGenerator(ra=83.633083, dec=22.0145,
+                                   unit=(u.deg, u.deg)),
+        radius=20 * u.arcmin, get_query_payload=True)
+
     assert 'xsize' not in payload
     assert 'ysize' not in payload
 
-    payload = ukidss.core.Ukidss.get_images_async(commons.ICRSCoordGenerator
-                                          (ra=83.633083, dec=22.0145, unit=(u.deg, u.deg)),
+    payload = ukidss.core.Ukidss.get_images_async(
+        commons.ICRSCoordGenerator(ra=83.633083, dec=22.0145,
+                                   unit=(u.deg, u.deg)),
         get_query_payload=True)
     assert payload['xsize'] == payload['ysize']
     assert payload['xsize'] == 1
 
-    test_mockreturn = get_mockreturn(ukidss.core.Ukidss.ARCHIVE_URL, payload)
+    get_mockreturn(ukidss.core.Ukidss.ARCHIVE_URL, payload)
 
 
 def test_get_images_async_2(patch_get, patch_get_readable_fileobj):
 
-    image_urls = ukidss.core.Ukidss.get_images_async(commons.ICRSCoordGenerator
-                                                     (ra=83.633083, dec=22.0145, unit=(u.deg, u.deg)))
+    image_urls = ukidss.core.Ukidss.get_images_async(
+        commons.ICRSCoordGenerator(ra=83.633083, dec=22.0145,
+                                   unit=(u.deg, u.deg)))
+
     assert len(image_urls) == 1
 
 
 def test_get_image_list(patch_get, patch_get_readable_fileobj):
-    urls = ukidss.core.Ukidss.get_image_list(commons.ICRSCoordGenerator
-                                            (ra=83.633083, dec=22.0145, unit=(u.deg, u.deg)),
-                                             frame_type='all', waveband='all')
+    urls = ukidss.core.Ukidss.get_image_list(
+        commons.ICRSCoordGenerator(ra=83.633083, dec=22.0145,
+                                   unit=(u.deg, u.deg)),
+        frame_type='all', waveband='all')
     print(urls)
     assert len(urls) == 1
 
@@ -138,26 +144,28 @@ def test_extract_urls():
 
 
 def test_query_region(patch_get, patch_get_readable_fileobj):
-    table = ukidss.core.Ukidss.query_region(commons.GalacticCoordGenerator
-                                            (l=10.625, b=-0.38, unit=(u.deg, u.deg)),
-                                            radius=6 * u.arcsec)
+    table = ukidss.core.Ukidss.query_region(
+        commons.GalacticCoordGenerator(l=10.625, b=-0.38,
+                                       unit=(u.deg, u.deg)),
+        radius=6 * u.arcsec)
     assert isinstance(table, Table)
     assert len(table) > 0
 
 
 def test_query_region_async(patch_get):
-    response = ukidss.core.Ukidss.query_region_async(commons.GalacticCoordGenerator
-                                                     (l=10.625, b=-0.38, unit=(u.deg, u.deg)),
-                                                     radius=6 * u.arcsec,
-                                                     get_query_payload=True)
+    response = ukidss.core.Ukidss.query_region_async(
+        commons.GalacticCoordGenerator(l=10.625, b=-0.38,
+                                       unit=(u.deg, u.deg)),
+        radius=6 * u.arcsec, get_query_payload=True)
+
     assert response['radius'] == 0.1
-    response = ukidss.core.Ukidss.query_region_async(commons.GalacticCoordGenerator
-                                                     (l=10.625, b=-0.38, unit=(u.deg, u.deg)),
-                                                     radius=6 * u.arcsec)
+    response = ukidss.core.Ukidss.query_region_async(
+        commons.GalacticCoordGenerator(l=10.625, b=-0.38,
+                                       unit=(u.deg, u.deg)),
+        radius=6 * u.arcsec)
     assert response is not None
 
 
 def test_check_page_err(patch_get):
     with pytest.raises(InvalidQueryError):
         ukidss.core.Ukidss._check_page("error", "dummy")
-

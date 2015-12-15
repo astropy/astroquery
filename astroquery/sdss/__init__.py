@@ -12,16 +12,13 @@ class Conf(_config.ConfigNamespace):
     """
     skyserver_baseurl = _config.ConfigItem(
         'http://skyserver.sdss.org',
-        'Base URL for catalog-related queries like SQL and Cross-ID.'
-        )
+        'Base URL for catalog-related queries like SQL and Cross-ID.')
     sas_baseurl = _config.ConfigItem(
         'http://data.sdss3.org/sas',
-        'Base URL for downloading data products like spectra and images.'
-        )
+        'Base URL for downloading data products like spectra and images.')
     timeout = _config.ConfigItem(
         60,
-        'Time limit for connecting to SDSS server.'
-        )
+        'Time limit for connecting to SDSS server.')
 
 conf = Conf()
 

@@ -74,7 +74,8 @@ def test_vvv(monkeypatch):
     monkeypatch.setattr(eso, '_request', eso_request)
     eso.cache_location = DATA_DIR
 
-    result_s = eso.query_survey('VVV', coord1=266.41681662, coord2=-29.00782497)
+    result_s = eso.query_survey('VVV',
+                                coord1=266.41681662, coord2=-29.00782497)
     assert result_s is not None
     assert 'Object' in result_s.colnames
     assert 'b333' in result_s['Object']

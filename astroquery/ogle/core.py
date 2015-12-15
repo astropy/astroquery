@@ -73,7 +73,8 @@ class OgleClass(BaseQuery):
                 or  floats. (May not be supported in future versions.)
 
         algorithm : string
-            Algorithm to interpolate data for desired coordinate. Valid options::
+            Algorithm to interpolate data for desired coordinate.
+            Valid options::
 
                 * 'NG': nearest grid point
                 * 'NN': natural neighbor interpolation
@@ -85,7 +86,8 @@ class OgleClass(BaseQuery):
                 * 'GOOD': QF=0 as described in Nataf et al. (2012).
 
         coord_sys : string
-            Coordinate system if using lists of RA/Decs in ``coord``. Valid options::
+            Coordinate system if using lists of RA/Decs in ``coord``.
+            Valid options::
 
                 * 'RD': equatorial coordinates
                 * 'LB': Galactic coordinates.
@@ -118,7 +120,7 @@ class OgleClass(BaseQuery):
         # Generate payload
         query_header = '# {0} {1} {2}\n'.format(coord_sys, algorithm, quality)
         sources = '\n'.join(['{0} {1}'.format(lon, lat) for lon, lat in
-                            zip(lon, lat)])
+                             zip(lon, lat)])
         file_data = query_header + sources
         files = {'file1': file_data}
         return files
@@ -133,7 +135,7 @@ class OgleClass(BaseQuery):
         """
         files = self._args_to_payload(*args, **kwargs)
         # Make request
-        params = {'dnfile':'submit'}
+        params = {'dnfile': 'submit'}
         response = commons.send_request(url=self.DATA_URL,
                                         data=params,
                                         timeout=self.TIMEOUT,
@@ -145,7 +147,8 @@ class OgleClass(BaseQuery):
     def _parse_result(self, response, verbose=False):
         # Parse table, ignore last two (blank) lines
         raw_data = response.text.split('\n')[:-2]
-        # Select first row and skip first character ('#') to find column headers
+        # Select first row and skip first character ('#') to find column
+        # headers
         header = raw_data[0][1:].split()
         data = self._parse_raw(raw_data)
         t = Table(data, names=header, dtype=self.result_dtypes)

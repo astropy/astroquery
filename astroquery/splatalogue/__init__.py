@@ -18,20 +18,16 @@ class Conf(_config.ConfigNamespace):
     """
     slap_url = _config.ConfigItem(
         'http://find.nrao.edu/splata-slap/slap',
-        'Splatalogue SLAP interface URL (not used).'
-        )
+        'Splatalogue SLAP interface URL (not used).')
     query_url = _config.ConfigItem(
         'http://www.cv.nrao.edu/php/splat/c_export.php',
-        'SSplatalogue web interface URL.'
-        )
+        'SSplatalogue web interface URL.')
     timeout = _config.ConfigItem(
         60,
-        'Time limit for connecting to Splatalogue server.'
-        )
+        'Time limit for connecting to Splatalogue server.')
     lines_limit = _config.ConfigItem(
         1000,
-        'Limit to number of lines exported.'
-        )
+        'Limit to number of lines exported.')
 
 conf = Conf()
 

@@ -16,9 +16,11 @@ __is_gzip_found = False
 try:
     subprocess.call(["gzip", "-V"], stdout=DEVNULL, stderr=DEVNULL)
 except OSError:
-    print("gzip was not found on your system! You should solve this issue for astroquery.eso to be at its best!")
-    print("  On POSIX system: make sure gzip is installed and in your path!")
-    print("  On Windows: 7-zip (http://www.7-zip.org) should do the job, but unfortunately is not yet supported!")
+    print("gzip was not found on your system! You should solve this issue for "
+          "astroquery.eso to be at its best!\n"
+          "On POSIX system: make sure gzip is installed and in your path!"
+          "On Windows: 7-zip (http://www.7-zip.org) should do the job, but "
+          "unfortunately is not yet supported!")
 else:
     __is_gzip_found = True
 
@@ -33,15 +35,20 @@ def gunzip(filename):
     Returns
     -------
     filename : str
-        Name of the decompressed file (or input filename if gzip is not available).
+        Name of the decompressed file (or input filename if gzip is not
+        available).
     """
-    if __is_gzip_found and not filename.endswith('.fz'):  # ".fz" denotes RICE rather than gzip compression
-        subprocess.call(["gzip", "-d", "{0}".format(filename)], stdout=DEVNULL, stderr=DEVNULL)
+    # ".fz" denotes RICE rather than gzip compression
+    if __is_gzip_found and not filename.endswith('.fz'):
+        subprocess.call(["gzip", "-d", "{0}".format(filename)],
+                        stdout=DEVNULL, stderr=DEVNULL)
         return filename.rsplit(".", 1)[0]
     else:
         return filename
 
 # If astropy#2793 is merged, this should be replaced with astropy.in_ipynb
+
+
 def in_ipynb():
     try:
         cfg = get_ipython().config
@@ -49,7 +56,7 @@ def in_ipynb():
         # ipython 1.0 console has no 'parent_appname',
         # but ipynb does
         if ('parent_appname' in app and
-            app['parent_appname'] == 'ipython-notebook'):
+                app['parent_appname'] == 'ipython-notebook'):
             return True
         else:
             return False

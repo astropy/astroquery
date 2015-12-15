@@ -22,12 +22,11 @@ class Conf(_config.ConfigNamespace):
         ['http://dummy_server_mirror_1',
          'http://dummy_server_mirror_2',
          'http://dummy_server_mirror_n'],
-        'Name of the template_module server to use.'
-        )
+        'Name of the template_module server to use.')
+
     timeout = _config.ConfigItem(
         30,
-        'Time limit for connecting to template_module server.'
-        )
+        'Time limit for connecting to template_module server.')
 
 conf = Conf()
 

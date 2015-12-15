@@ -23,7 +23,8 @@ class TestSimbad(object):
         simbad.core.Simbad.ROW_LIMIT = 5
 
     def test_query_criteria1(self):
-        result = simbad.core.Simbad.query_criteria("region(box, GAL, 49.89 -0.3, 0.5d 0.5d)", otype='HII')
+        result = simbad.core.Simbad.query_criteria(
+            "region(box, GAL, 49.89 -0.3, 0.5d 0.5d)", otype='HII')
         assert isinstance(result, Table)
 
     def test_query_criteria2(self):
@@ -31,7 +32,8 @@ class TestSimbad(object):
         assert isinstance(result, Table)
 
     def test_query_bibcode_async(self):
-        response = simbad.core.Simbad.query_bibcode_async('2006ApJ*', wildcard=True)
+        response = simbad.core.Simbad.query_bibcode_async(
+            '2006ApJ*', wildcard=True)
         assert response is not None
         response.raise_for_status()
         # make sure requests has *NOT* been monkeypatched
@@ -63,8 +65,9 @@ class TestSimbad(object):
         assert isinstance(result, Table)
 
     def test_query_region_async(self):
-        response = simbad.core.Simbad.query_region_async(ICRS_COORDS, radius=5 * u.deg,
-                                                         equinox=2000.0, epoch='J2000')
+        response = simbad.core.Simbad.query_region_async(
+            ICRS_COORDS, radius=5 * u.deg, equinox=2000.0, epoch='J2000')
+
         assert response is not None
 
     def test_query_region(self):
@@ -74,7 +77,7 @@ class TestSimbad(object):
 
     def test_query_object_async(self):
         response = simbad.core.Simbad.query_object_async("m [0-9]",
-                                                        wildcard=True)
+                                                         wildcard=True)
         assert response is not None
 
     def test_query_object(self):
@@ -87,7 +90,8 @@ class TestSimbad(object):
         assert len(result.errors) == 0
 
         result = simbad.core.Simbad.query_objects(['M32', 'M81', 'gHer'])
-        # 'gHer' is not a valid Simbad identifier - it should be 'g Her' to get the star
+        # 'gHer' is not a valid Simbad identifier - it should be 'g Her' to
+        # get the star
         assert len(result) == 2
         assert len(result.errors) == 1
 
@@ -104,37 +108,42 @@ class TestSimbad(object):
         # Today, there are 42 names.  There could be more in the future
         assert len(result) >= 42
 
-    # Test multiple functions correctly return "None" when SIMBAD has no data for the query
+    # Test multiple functions correctly return "None" when SIMBAD has no
+    # data for the query
     @pytest.mark.parametrize('function', [
-            ('query_criteria'),
-            ('query_object'),
-            ('query_catalog'),
-            ('query_bibobj'),
-            ('query_bibcode'),
-            ('query_objectids')
-            ])
+        ('query_criteria'),
+        ('query_object'),
+        ('query_catalog'),
+        ('query_bibobj'),
+        ('query_bibcode'),
+        ('query_objectids')])
     def test_null_response(self, function):
-        assert simbad.core.Simbad.__getattribute__(function)('idonotexist') is None
+        assert (simbad.core.Simbad.__getattribute__(function)('idonotexist')
+                is None)
 
     # Special case of null test: list of nonexistent parameters
     def test_query_objects_null(self):
-        assert simbad.core.Simbad.query_objects(['idonotexist', 'idonotexisteither']) is None
+        assert simbad.core.Simbad.query_objects(['idonotexist',
+                                                 'idonotexisteither']) is None
 
     # Special case of null test: zero-sized region
     def test_query_region_null(self):
-        result = simbad.core.Simbad.query_region(coord.SkyCoord("00h00m0.0s 00h00m0.0s"), radius="0d",
-                                                 equinox=2000.0, epoch='J2000')
+        result = simbad.core.Simbad.query_region(
+            coord.SkyCoord("00h00m0.0s 00h00m0.0s"), radius="0d",
+            equinox=2000.0, epoch='J2000')
         assert result is None
 
     # Special case of null test: very small region
     def test_query_small_region_null(self):
-        result = simbad.core.Simbad.query_region(coord.SkyCoord("00h00m0.0s 00h00m0.0s"), radius=1.0 * u.marcsec,
-                                                 equinox=2000.0, epoch='J2000')
+        result = simbad.core.Simbad.query_region(
+            coord.SkyCoord("00h00m0.0s 00h00m0.0s"), radius=1.0 * u.marcsec,
+            equinox=2000.0, epoch='J2000')
         assert result is None
 
     # Special case : zero-sized region with one object
     def test_query_zero_sized_region(self):
-        result = simbad.core.Simbad.query_region(coord.SkyCoord("20h54m05.6889s 37d01m17.380s"), radius="0d",
-                                                 equinox=2000.0, epoch='J2000')
+        result = simbad.core.Simbad.query_region(
+            coord.SkyCoord("20h54m05.6889s 37d01m17.380s"), radius="0d",
+            equinox=2000.0, epoch='J2000')
         # This should find a single star, BD+36 4308
         assert len(result) == 1

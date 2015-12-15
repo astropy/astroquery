@@ -3,7 +3,7 @@
 LCOGT public archive Query Tool
 ===============
 
-This module contains various methods for querying 
+This module contains various methods for querying
 LCOGT data archive as hosted by IPAC.
 """
 from astropy import config as _config
@@ -16,16 +16,14 @@ class Conf(_config.ConfigNamespace):
 
     server = _config.ConfigItem(
         'http://lcogtarchive.ipac.caltech.edu/cgi-bin/Gator/nph-query',
-        'Name of the LCOGT archive as hosted by IPAC to use.'
-        )
+        'Name of the LCOGT archive as hosted by IPAC to use.')
     row_limit = _config.ConfigItem(
         500,
-        'Maximum number of rows to retrieve in result'
-        )
+        'Maximum number of rows to retrieve in result')
+
     timeout = _config.ConfigItem(
         60,
-        'Time limit for connecting to the LCOGT IPAC server.'
-        )
+        'Time limit for connecting to the LCOGT IPAC server.')
 
 conf = Conf()
 

@@ -14,7 +14,8 @@ def reload_votable_fields_json():
     search_text = re.compile(r'Field names for VOTable output', re.IGNORECASE)
     foundtext = htmldoc.find('h2', text=search_text)
 
-    table = foundtext.findNext('table')  # Find the first <table> tag that follows it
+    # Find the first <table> tag that follows it
+    table = foundtext.findNext('table')
     outd = {}
     for row in table.findAll('tr'):
         cols = row.findChildren('td')

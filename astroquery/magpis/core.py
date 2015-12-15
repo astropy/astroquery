@@ -34,25 +34,28 @@ class MagpisClass(BaseQuery):
                "bolocam"]
     maximsize = 1024
 
-    def _args_to_payload(self, coordinates, image_size=1 * u.arcmin, survey='bolocam',
-                         maximsize=None):
+    def _args_to_payload(self, coordinates, image_size=1 * u.arcmin,
+                         survey='bolocam', maximsize=None):
+
         """
         Fetches image cutouts from MAGPIS surveys.
 
         Parameters
         ----------
         coordinates : str or `astropy.coordinates` object
-            The target around which to search. It may be specified as a string
-            in which case it is resolved using online services or as the appropriate
-            `astropy.coordinates` object. ICRS coordinates may also be entered as strings
-            as specified in the `astropy.coordinates` module.
+            The target around which to search. It may be specified as a
+            string in which case it is resolved using online services or as
+            the appropriate `astropy.coordinates` object. ICRS coordinates
+            may also be entered as strings as specified in the
+            `astropy.coordinates` module.
         radius : str or `~astropy.units.Quantity` object, optional
-           The string must be parsable by `astropy.coordinates.Angle`. The appropriate
-           `~astropy.units.Quantity` object from `astropy.units` may also be used. Specifies the symmetric
-           size of the image. Defaults to 1 arcmin.
+           The string must be parsable by `astropy.coordinates.Angle`. The
+           appropriate `~astropy.units.Quantity` object from `astropy.units`
+           may also be used. Specifies the symmetric size of the
+           image. Defaults to 1 arcmin.
         survey : str, optional
-            The MAGPIS survey you want to cut out. Defaults to 'bolocam'. The other
-            surveys that can be used can be listed via
+            The MAGPIS survey you want to cut out. Defaults to
+            'bolocam'. The other surveys that can be used can be listed via
             :meth:`~astroquery.magpis.MagpisClass.list_surveys`.
         maximsize : int, optional
             Specify the maximum image size (in pixels on each dimension) that
@@ -74,8 +77,8 @@ class MagpisClass(BaseQuery):
                    survey='bolocam', get_query_payload=False):
         """
         get_query_payload : bool, optional
-            if set to `True` then returns the dictionary sent as the HTTP request.
-            Defaults to `False`
+            if set to `True` then returns the dictionary sent as the HTTP
+            request.  Defaults to `False`
 
         Returns
         -------
@@ -90,15 +93,15 @@ class MagpisClass(BaseQuery):
         try:
             return fits.open(S, ignore_missing_end=True)
         except IOError:
-            raise InvalidQueryError(response.content) 
+            raise InvalidQueryError(response.content)
 
     @prepend_docstr_noreturns("\n" + _args_to_payload.__doc__)
-    def get_images_async(self, coordinates, image_size=1 * u.arcmin, survey='bolocam',
-                         get_query_payload=False):
+    def get_images_async(self, coordinates, image_size=1 * u.arcmin,
+                         survey='bolocam', get_query_payload=False):
         """
         get_query_payload : bool, optional
-            if set to `True` then returns the dictionary sent as the HTTP request.
-            Defaults to `False`
+            if set to `True` then returns the dictionary sent as the HTTP
+            request.  Defaults to `False`
 
         Returns
         -------
@@ -106,12 +109,14 @@ class MagpisClass(BaseQuery):
             The HTTP response returned from the service
         """
         if survey not in self.surveys:
-            raise InvalidQueryError("Survey must be one of " + (",".join(self.list_surveys())))
-        request_payload = self._args_to_payload(coordinates, image_size=image_size,
-                                                survey=survey)
+            raise InvalidQueryError("Survey must be one of " +
+                                    (",".join(self.list_surveys())))
+        request_payload = self._args_to_payload(
+            coordinates, image_size=image_size, survey=survey)
         if get_query_payload:
             return request_payload
-        response = commons.send_request(self.URL, request_payload, self.TIMEOUT)
+        response = commons.send_request(self.URL, request_payload,
+                                        self.TIMEOUT)
         return response
 
     def list_surveys(self):

@@ -14,9 +14,11 @@ objcoords = {'Eta Carinae': coordinates.SkyCoord(ra=161.264775 * u.deg,
                                                  dec=-59.6844306 * u.deg,
                                                  frame='icrs'), }
 
+
 @pytest.fixture
 def patch_fromname(request):
     mp = request.getfuncargvalue("monkeypatch")
+
     def fromname(self, name):
         if isinstance(name, str):
             return objcoords[name]
@@ -26,6 +28,7 @@ def patch_fromname(request):
                'from_name',
                types.MethodType(fromname, commons.ICRSCoord))
 
+
 class MockResponseSkyView(MockResponse):
     def __init__(self):
         super(MockResponseSkyView, self).__init__()
@@ -33,16 +36,17 @@ class MockResponseSkyView(MockResponse):
     def get_content(self):
         return self.content
 
+
 class MockResponseSkyviewForm(MockResponse):
     def __init__(self, method, url, cache=False, params=None, **kwargs):
         super(MockResponseSkyviewForm, self).__init__(**kwargs)
         self.content = self.get_content(method, url)
 
     def get_content(self, method, url):
-        if 'basicform.pl' in url and method=='GET':
-            with open(data_path('query_page.html'),'r') as f:
+        if 'basicform.pl' in url and method == 'GET':
+            with open(data_path('query_page.html'), 'r') as f:
                 return f.read()
-        elif 'runquery.pl' in url and method =='GET':
+        elif 'runquery.pl' in url and method == 'GET':
             with open(data_path('results.html'), 'r') as f:
                 return f.read()
         else:
@@ -61,6 +65,7 @@ def patch_get(request):
     mp.setattr(SkyView, '_request', MockResponseSkyviewForm)
     return mp
 
+
 def test_get_image_list_local(patch_get, patch_fromname):
     urls = SkyView.get_image_list(position='Eta Carinae',
                                   survey=['Fermi 5', 'HRI', 'DSS'])
@@ -68,10 +73,11 @@ def test_get_image_list_local(patch_get, patch_fromname):
     for url in urls:
         assert url.startswith('../../tempspace/fits/')
 
+
 def test_survey_validation(patch_get):
     with pytest.raises(ValueError) as ex:
-        urls = SkyView.get_image_list(position='doesnt matter',
-                                      survey=['not_a_valid_survey'])
+        SkyView.get_image_list(position='doesnt matter',
+                               survey=['not_a_valid_survey'])
     assert str(ex.value) == ("Survey is not among the surveys hosted "
                              "at skyview.  See list_surveys or "
                              "survey_dict for valid surveys.")

@@ -20,12 +20,10 @@ class Conf(_config.ConfigNamespace):
     """
     server = _config.ConfigItem(
         ['http://third.ucllnl.org/cgi-bin/gpscutout'],
-        'Name of the MAGPIS server.'
-        )
+        'Name of the MAGPIS server.')
     timeout = _config.ConfigItem(
         60,
-        'Time limit for connecting to MAGPIS server.'
-        )
+        'Time limit for connecting to MAGPIS server.')
 
 conf = Conf()
 

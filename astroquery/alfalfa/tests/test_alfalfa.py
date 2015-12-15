@@ -8,8 +8,8 @@ from ...utils import commons
 from ...utils.testing_tools import MockResponse
 from ... import alfalfa
 
-DATA_FILES = {'catalog':'alfalfa_cat_small.txt',
-              'spectrum':'alfalfa_sp.fits'}
+DATA_FILES = {'catalog': 'alfalfa_cat_small.txt',
+              'spectrum': 'alfalfa_sp.fits'}
 
 
 class MockResponseAlfalfa(MockResponse):
@@ -39,7 +39,8 @@ def patch_get_readable_fileobj(request):
         file_obj = data_path(DATA_FILES['spectrum'])  # TODO: add images option
         yield open(file_obj, 'rb')  # read as bytes, assuming FITS
     mp = request.getfuncargvalue("monkeypatch")
-    mp.setattr(commons, 'get_readable_fileobj', get_readable_fileobj_mockreturn)
+    mp.setattr(commons, 'get_readable_fileobj',
+               get_readable_fileobj_mockreturn)
     return mp
 
 
@@ -69,7 +70,8 @@ def test_alfalfa_crossID(patch_get, patch_get_readable_fileobj, coords=coords):
     assert agc == 100051
 
 
-def test_alfalfa_spectrum(patch_get, patch_get_readable_fileobj, coords=coords):
+def test_alfalfa_spectrum(patch_get, patch_get_readable_fileobj,
+                          coords=coords):
     agc = ALFALFA.query_region(coords, optical_counterpart=True)
     sp = ALFALFA.get_spectrum(agc)
     assert len(sp) == 3

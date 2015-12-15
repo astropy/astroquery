@@ -41,9 +41,9 @@ objstr                  Target name or coordinate of the center of a spatial
                                   '00 42 44.3 -41 16 08'
                                   '00h42m44.3s -41d16m08s'
 
-catalog     Required    Catalog name in the LCOGT Archive. The database of photometry
-                        can be found using lco_cat and the database of image metadata is
-                        found using lco_img.
+catalog     Required    Catalog name in the LCOGT Archive. The database of
+                        photometry can be found using lco_cat and the
+                        database of image metadata is found using lco_img.
 
 outfmt      Optional    Defines query's output format.
                         6 - returns a program interface in XML
@@ -58,10 +58,13 @@ desc        Optional    Short description of a specific catalog, which will
 order       Optional    Results ordered by this column.
 
 selcols     Optional    Select specific columns to be returned. The default
-                        action is to return all columns in the queried catalog.
-                        To find the names of the columns in the LCOGT Archive databases,
-                        please read Photometry Table column descriptions [http://lcogtarchive.ipac.caltech.edu/docs/lco_cat_dd.html]
-                        and Image Table column descriptions [http://lcogtarchive.ipac.caltech.edu/docs/lco_img_dd.html].
+                        action is to return all columns in the queried
+                        catalog. To find the names of the columns in the
+                        LCOGT Archive databases, please read Photometry
+                        Table column descriptions
+                        [http://lcogtarchive.ipac.caltech.edu/docs/lco_cat_dd.html]
+                        and Image Table column descriptions
+                        [http://lcogtarchive.ipac.caltech.edu/docs/lco_img_dd.html].
 
 constraint  Optional    User defined query constraint(s)
                         Note: The constraint should follow SQL syntax.
@@ -94,8 +97,8 @@ class LcogtClass(BaseQuery):
     @property
     def catalogs(self):
         """ immutable catalog listing """
-        return {'lco_cat' : 'Photometry archive from LCOGT',
-                'lco_img' : 'Image metadata archive from LCOGT'}
+        return {'lco_cat': 'Photometry archive from LCOGT',
+                'lco_img': 'Image metadata archive from LCOGT'}
 
     def query_object_async(self, objstr, catalog=None, cache=True,
                            get_query_payload=False):
@@ -132,9 +135,8 @@ class LcogtClass(BaseQuery):
                                  cache=cache)
         return response
 
-
     def query_region_async(self, coordinates=None, catalog=None,
-                           spatial='Cone', radius=10*u.arcsec, width=None,
+                           spatial='Cone', radius=10 * u.arcsec, width=None,
                            polygon=None, get_query_payload=False, cache=True,
                            ):
         """
@@ -187,7 +189,6 @@ class LcogtClass(BaseQuery):
         if catalog not in self.catalogs:
             raise ValueError("Catalog name must be one of {0}"
                              .format(self.catalogs))
-
 
         request_payload = self._args_to_payload(catalog)
         request_payload.update(self._parse_spatial(spatial=spatial,
@@ -257,15 +258,14 @@ class LcogtClass(BaseQuery):
                 request_payload['size'] = width.to(u.arcsec).value
         elif spatial == 'Polygon':
             if coordinates is not None:
-                request_payload['objstr'] = (coordinates if not
-                                             commons._is_coordinate(coordinates)
-                                             else
-                                             _parse_coordinates(coordinates))
+                request_payload['objstr'] = (
+                    coordinates if not commons._is_coordinate(coordinates)
+                    else _parse_coordinates(coordinates))
             try:
                 coordinates_list = [_parse_coordinates(c) for c in polygon]
             except (ValueError, TypeError):
-                    coordinates_list = [_format_decimal_coords(*_pair_to_deg(pair))
-                                        for pair in polygon]
+                coordinates_list = [_format_decimal_coords(*_pair_to_deg(pair))
+                                    for pair in polygon]
             request_payload['polygon'] = ','.join(coordinates_list)
         else:
             raise ValueError("Unrecognized spatial query type. "
@@ -358,9 +358,9 @@ class LcogtClass(BaseQuery):
         Returns
         -------
         catalogs : dict
-            A dictionary of catalogs where the key indicates the catalog name to
-            be used in query functions, and the value is the verbose description
-            of the catalog.
+            A dictionary of catalogs where the key indicates the catalog
+            name to be used in query functions, and the value is the verbose
+            description of the catalog.
         """
         return self.catalogs
 
@@ -375,11 +375,13 @@ Lcogt = LcogtClass()
 
 
 def _parse_coordinates(coordinates):
-# borrowed from commons.parse_coordinates as from_name wasn't required in this case
+    # borrowed from commons.parse_coordinates as from_name wasn't required
+    # in this case
     if isinstance(coordinates, six.string_types):
         try:
             c = coord.SkyCoord(coordinates, frame='icrs')
-            warnings.warn("Coordinate string is being interpreted as an ICRS coordinate.")
+            warnings.warn("Coordinate string is being interpreted as an "
+                          "ICRS coordinate.")
         except u.UnitsError as ex:
             warnings.warn("Only ICRS coordinates can be entered as strings\n"
                           "For other systems please use the appropriate "
@@ -390,11 +392,15 @@ def _parse_coordinates(coordinates):
     else:
         raise TypeError("Argument cannot be parsed as a coordinate")
     c_icrs = c.transform_to(coord.ICRS)
-    formatted_coords = _format_decimal_coords(c_icrs.ra.degree, c_icrs.dec.degree)
+    formatted_coords = _format_decimal_coords(c_icrs.ra.degree,
+                                              c_icrs.dec.degree)
     return formatted_coords
 
+
 def _pair_to_deg(pair):
-    """ Turn a pair of floats, Angles, or Quantities into pairs of float degrees """
+    """
+    Turn a pair of floats, Angles, or Quantities into pairs of float degrees.
+    """
 
     # unpack
     lon, lat = pair
@@ -407,11 +413,13 @@ def _pair_to_deg(pair):
             if ang.unit.is_equivalent(u.degree):
                 pair[ii] = ang.to(u.degree).value
             elif ang.unit.is_equivalent(u.hour):
-                warnings.warn("Assuming angle specified with 'hour' units means 'hourangle'.  "
+                warnings.warn("Assuming angle specified with 'hour' units "
+                              "means 'hourangle'.  "
                               "This is an astropy < 0.3 warning.")
                 pair[ii] = (ang.value * u.hourangle).to(u.degree)
     else:
-        warnings.warn("Polygon endpoints are being interpreted as RA/Dec pairs specified in decimal degree units.")
+        warnings.warn("Polygon endpoints are being interpreted as RA/Dec "
+                      "pairs specified in decimal degree units.")
     return tuple(pair)
 
 
@@ -423,7 +431,8 @@ def _format_decimal_coords(ra, dec):
 
 
 def _parse_dimension(dim):
-    if isinstance(dim, u.Quantity) and dim.unit in u.deg.find_equivalent_units():
+    if (isinstance(dim, u.Quantity) and
+            dim.unit in u.deg.find_equivalent_units()):
         if dim.unit not in ['arcsec', 'arcmin', 'deg']:
             dim = dim.to(u.degree)
     # otherwise must be an Angle or be specified in hours...

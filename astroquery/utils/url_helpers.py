@@ -1,8 +1,8 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 try:
-    from astropy.extern.six.moves.urllib_parse import SplitResult,urlsplit
+    from astropy.extern.six.moves.urllib_parse import SplitResult, urlsplit
 except ImportError:
-    from six.moves.urllib_parse import SplitResult,urlsplit
+    from six.moves.urllib_parse import SplitResult, urlsplit
 import os.path
 
 

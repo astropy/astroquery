@@ -44,7 +44,7 @@ class TestDust(DustTestCase):
 
     def test_xml_ok(self):
         response = requests.get(
-            irsa_dust.core.IrsaDust.DUST_SERVICE_URL + 
+            irsa_dust.core.IrsaDust.DUST_SERVICE_URL +
             "?locstr=m31")
         data = response.text
         xml_tree = irsa_dust.utils.xml(data)
@@ -52,11 +52,11 @@ class TestDust(DustTestCase):
 
     def test_xml_err(self):
         response = requests.get(
-            irsa_dust.core.IrsaDust.DUST_SERVICE_URL + 
+            irsa_dust.core.IrsaDust.DUST_SERVICE_URL +
             "?locstr=100")
         data = response.text
-        with pytest.raises(Exception) as ex:
-            xml_tree = irsa_dust.utils.xml(data)
+        with pytest.raises(Exception):
+            irsa_dust.utils.xml(data)
 
     @pytest.mark.parametrize(('image_type', 'expected_tails'),
                              [(None, M31_URL_ALL),
@@ -66,7 +66,7 @@ class TestDust(DustTestCase):
                               ])
     def test_extract_image_urls_instance(self, image_type, expected_tails):
         response = requests.get(
-            irsa_dust.core.IrsaDust.DUST_SERVICE_URL + 
+            irsa_dust.core.IrsaDust.DUST_SERVICE_URL +
             "?locstr=m31")
         data = response.text
         url_list = irsa_dust.core.IrsaDust().extract_image_urls(
@@ -82,7 +82,7 @@ class TestDust(DustTestCase):
                               ])
     def test_extract_image_urls_class(self, image_type, expected_tails):
         response = requests.get(
-            irsa_dust.core.IrsaDust.DUST_SERVICE_URL + 
+            irsa_dust.core.IrsaDust.DUST_SERVICE_URL +
             "?locstr=m31")
         data = response.text
         url_list = irsa_dust.core.IrsaDust.extract_image_urls(
@@ -165,8 +165,9 @@ class TestDust(DustTestCase):
                               ('temperature'),
                               ])
     def test_get_images_async_class(self, image_type):
-        readable_objs = irsa_dust.core.IrsaDust.get_images_async("m81",
-                                                                 image_type=image_type)
+        readable_objs = irsa_dust.core.IrsaDust.get_images_async(
+            "m81", image_type=image_type)
+
         assert readable_objs is not None
 
     @pytest.mark.parametrize(('image_type'),
@@ -176,8 +177,8 @@ class TestDust(DustTestCase):
                               ('temperature'),
                               ])
     def test_get_images_async_instance(self, image_type):
-        readable_objs = irsa_dust.core.IrsaDust().get_images_async("m81",
-                                                                   image_type=image_type)
+        readable_objs = irsa_dust.core.IrsaDust().get_images_async(
+            "m81", image_type=image_type)
         assert readable_objs is not None
 
     def test_get_images_class(self):

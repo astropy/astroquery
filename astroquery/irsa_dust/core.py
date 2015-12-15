@@ -83,14 +83,13 @@ class IrsaDustClass(BaseQuery):
 
         if get_query_payload:
             return self._args_to_payload(coordinate, radius=radius)
-        readable_objs = self.get_images_async(coordinate, radius=radius,
-                                              image_type=image_type,
-                                              timeout=timeout,
-                                              get_query_payload=get_query_payload)
+        readable_objs = self.get_images_async(
+            coordinate, radius=radius, image_type=image_type, timeout=timeout,
+            get_query_payload=get_query_payload)
         return [obj.get_fits() for obj in readable_objs]
 
-    def get_images_async(self, coordinate, radius=None,
-                         image_type=None, timeout=TIMEOUT, get_query_payload=False):
+    def get_images_async(self, coordinate, radius=None, image_type=None,
+                         timeout=TIMEOUT, get_query_payload=False):
         """
         A query function similar to
         `astroquery.irsa_dust.IrsaDustClass.get_images` but returns
@@ -123,16 +122,19 @@ class IrsaDustClass(BaseQuery):
 
         Returns
         --------
-        list : A list of context-managers that yield readable file-like objects.
+        list : list
+            A list of context-managers that yield readable file-like objects.
         """
 
         if get_query_payload:
             return self._args_to_payload(coordinate, radius=radius)
-        image_urls = self.get_image_list(coordinate, radius=radius,
-                                         image_type=image_type, timeout=timeout)
+        image_urls = self.get_image_list(
+            coordinate, radius=radius, image_type=image_type, timeout=timeout)
+
         # Images are assumed to be FITS files
         # they MUST be read as binary for python3 to parse them
-        return [commons.FileContainer(U, encoding='binary') for U in image_urls]
+        return [commons.FileContainer(U, encoding='binary')
+                for U in image_urls]
 
     def get_image_list(self, coordinate, radius=None, image_type=None,
                        timeout=TIMEOUT):
@@ -165,7 +167,9 @@ class IrsaDustClass(BaseQuery):
 
         Returns
         --------
-        url_list : A list of URLs to the FITS images corresponding to the queried object.
+        url_list : list
+            A list of URLs to the FITS images corresponding to the queried
+            object.
         """
         url = self.DUST_SERVICE_URL
         request_payload = self._args_to_payload(coordinate, radius=radius)
@@ -201,7 +205,8 @@ class IrsaDustClass(BaseQuery):
                                                        radius=radius,
                                                        timeout=timeout)
         # guess=False to suppress error messages related to bad guesses
-        table = Table.read(readable_obj.get_string(), format='ipac', guess=False)
+        table = Table.read(readable_obj.get_string(), format='ipac',
+                           guess=False)
         return table
 
     def get_extinction_table_async(self, coordinate, radius=None,
@@ -316,14 +321,15 @@ class IrsaDustClass(BaseQuery):
         """
         if isinstance(coordinate, six.string_types):
             try:
-                # If the coordinate is a resolvable name, pass that name directly
-                # to irsa_dust because it can handle it (and that changes the
-                # return value associated metadata)
+                # If the coordinate is a resolvable name, pass that name
+                # directly to irsa_dust because it can handle it (and that
+                # changes the return value associated metadata)
                 C = commons.ICRSCoord.from_name(coordinate)
                 payload = {"locstr": coordinate}
             except coordinates.name_resolve.NameResolveError:
                 C = commons.parse_coordinates(coordinate).transform_to('fk5')
-                payload = {"locstr": "{0} {1}".format(C.ra.deg, C.dec.deg)}  # check if this is resolvable?
+                # check if this is resolvable?
+                payload = {"locstr": "{0} {1}".format(C.ra.deg, C.dec.deg)}
         elif isinstance(coordinate, coordinates.SkyCoord):
             C = coordinate.transform_to('fk5')
             payload = {"locstr": "{0} {1}".format(C.ra.deg, C.dec.deg)}
@@ -532,8 +538,8 @@ class SingleDustResult(object):
         table : `~astropy.table.Table`
             table containing the data from the query response
         """
-        columns = (self._location_section.columns + self._ext_section.columns
-                   + self._em_section.columns + self._temp_section.columns)
+        columns = (self._location_section.columns + self._ext_section.columns +
+                   self._em_section.columns + self._temp_section.columns)
         table = Table(data=columns)
 
         values = self.values()
@@ -632,8 +638,8 @@ class SingleDustResult(object):
 class BaseDustNode(object):
 
     """
-    A node in the result xml that has been enhanced to return values and Columns
-    appropriate to its type (String, Number, or Coord).
+    A node in the result xml that has been enhanced to return values and
+    Columns appropriate to its type (String, Number, or Coord).
     """
 
     def __init__(self, xml_node):
@@ -702,8 +708,8 @@ class StringNode(BaseDustNode):
     def __str__(self):
         """Return a string representation of this item."""
         base_string = BaseDustNode.__str__(self)
-        string = ("[StringNode: " + base_string
-                  + ", value: " + self._value + "]")
+        string = ("[StringNode: " + base_string +
+                  ", value: " + self._value + "]")
         return string
 
 
@@ -733,8 +739,8 @@ class NumberNode(BaseDustNode):
         """Return a string representation of the item."""
         base_string = BaseDustNode.__str__(self)
 
-        string = ("[NumberNode: " + base_string
-                  + ", value: " + str(self._value) + "]")
+        string = ("[NumberNode: " + base_string +
+                  ", value: " + str(self._value) + "]")
         return string
 
 
@@ -764,8 +770,8 @@ class CoordNode(BaseDustNode):
     def __str__(self):
         """Return a string representation of the item."""
         base_string = BaseDustNode.__str__(self)
-        values_str = ("values: " + str(self._value[0]) + ", " + str(self._value[1])
-                      + ", " + str(self._value[2]))
+        values_str = ("values: " + str(self._value[0]) + ", " +
+                      str(self._value[1]) + ", " + str(self._value[2]))
         string = ("[CoordNode: " + base_string + ", " + values_str + "]")
         return string
 
@@ -904,17 +910,20 @@ class StatsSection(BaseResultSection):
         xml_nodes = self.node_dict(names, xml_root)
 
         # Create the DustNodes
-        self._dust_nodes = [NumberNode(
-            xml_nodes[REF_PIXEL_VALUE + suffix], col_prefix + " ref"),
+        self._dust_nodes = [
+            NumberNode(xml_nodes[REF_PIXEL_VALUE + suffix],
+                       col_prefix + " ref"),
             CoordNode(xml_nodes[REF_COORDINATE],
-                      col_names=[col_prefix + " ref RA", col_prefix + " ref Dec",
+                      col_names=[col_prefix + " ref RA",
+                                 col_prefix + " ref Dec",
                                  col_prefix + " ref coord sys"]),
             NumberNode(xml_nodes[MEAN_VALUE + suffix], col_prefix + " mean"),
             NumberNode(xml_nodes[STD + suffix], col_prefix + " std"),
             NumberNode(xml_nodes[MAX_VALUE + suffix], col_prefix + " max"),
             NumberNode(xml_nodes[MIN_VALUE + suffix], col_prefix + " min")]
 
-        self._units = utils.parse_units(xml_nodes[REF_PIXEL_VALUE + suffix].text)
+        self._units = utils.parse_units(
+            xml_nodes[REF_PIXEL_VALUE + suffix].text)
         self.create_columns()
 
     @property
@@ -957,12 +966,10 @@ class ExtinctionSection(BaseResultSection):
 
         # Build the DustNodes
         self._dust_nodes = [StringNode(xml_nodes[DESC], "ext desc", 100),
-                            StringNode(
-                            xml_nodes[
-                            DATA_IMAGE],
-                            "ext image",
-                            255),
-                            StringNode(xml_nodes[DATA_TABLE], "ext table", 255)]
+                            StringNode(xml_nodes[DATA_IMAGE],
+                                       "ext image", 255),
+                            StringNode(xml_nodes[DATA_TABLE],
+                                       "ext table", 255)]
 
         # Create statistics subsections
         self._stats_sandf = StatsSection(xml_nodes[STATISTICS],
@@ -1000,8 +1007,10 @@ class ExtinctionSection(BaseResultSection):
     def __str__(self):
         """Return a string representation of the section."""
         base_string = BaseResultSection.__str__(self)
-        string = "[ExtinctionSection: " + \
-            base_string + self._stats_sandf.__str__() + self._stats_sfd.__str__() + "]"
+        string = ("[ExtinctionSection: " + base_string +
+                  self._stats_sandf.__str__() +
+                  self._stats_sfd.__str__() + "]")
+
         return string
 
 
@@ -1075,7 +1084,8 @@ class TemperatureSection(BaseResultSection):
 
         # Create the DustNodes
         self._dust_nodes = [StringNode(xml_nodes[DESC], "temp desc", 100),
-                            StringNode(xml_nodes[DATA_IMAGE], "temp image", 255)]
+                            StringNode(xml_nodes[DATA_IMAGE],
+                                       "temp image", 255)]
 
         # Create the statistics subsection
         self._stats = StatsSection(xml_nodes[STATISTICS], "temp")

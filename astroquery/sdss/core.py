@@ -24,7 +24,7 @@ __all__ = ['SDSS', 'SDSSClass']
 __doctest_skip__ = ['SDSSClass.*']
 
 
-sdss_arcsec_per_pixel = 0.396 * u.arcsec/u.pixel
+sdss_arcsec_per_pixel = 0.396 * u.arcsec / u.pixel
 
 
 @async_to_sync
@@ -104,7 +104,7 @@ class SDSSClass(BaseQuery):
                 not isinstance(coordinates, Column) and
                 not (isinstance(coordinates, commons.CoordClasses) and
                      not coordinates.isscalar)):
-                coordinates = [coordinates]
+            coordinates = [coordinates]
 
         if obj_names is None:
             obj_names = ['obj_{0}'.format(i) for i in range(len(coordinates))]
@@ -243,14 +243,11 @@ class SDSSClass(BaseQuery):
             The result of the query as a `~astropy.table.Table` object.
 
         """
-        request_payload = self._args_to_payload(coordinates=coordinates,
-                                                radius=radius, fields=fields,
-                                                spectro=spectro,
-                                                photoobj_fields=photoobj_fields,
-                                                specobj_fields=specobj_fields,
-                                                field_help=field_help,
-                                                obj_names=obj_names,
-                                                data_release=data_release)
+        request_payload = self._args_to_payload(
+            coordinates=coordinates, radius=radius, fields=fields,
+            spectro=spectro, photoobj_fields=photoobj_fields,
+            specobj_fields=specobj_fields, field_help=field_help,
+            obj_names=obj_names, data_release=data_release)
         if get_query_payload or field_help:
             return request_payload
 
@@ -519,7 +516,8 @@ class SDSSClass(BaseQuery):
 
         Returns
         -------
-        list : A list of context-managers that yield readable file-like objects.
+        list : list
+            A list of context-managers that yield readable file-like objects.
             The function returns the spectra for only one of ``matches``, or
             ``coordinates`` and ``radius``, or ``plate``, ``mjd`` and
             ``fiberID``.
@@ -570,11 +568,11 @@ class SDSSClass(BaseQuery):
         for row in matches:
             linkstr = self.SPECTRA_URL_SUFFIX
             # _parse_result returns bytes for instrunments, requiring a decode
-            link = linkstr.format(base=conf.sas_baseurl,
-                                  dr=data_release,
-                                  instrument=row['instrument'].decode().lower(),
-                                  run2d=row['run2d'], plate=row['plate'],
-                                  fiber=row['fiberID'], mjd=row['mjd'])
+            link = linkstr.format(
+                base=conf.sas_baseurl, dr=data_release,
+                instrument=row['instrument'].decode().lower(),
+                run2d=row['run2d'], plate=row['plate'],
+                fiber=row['fiberID'], mjd=row['mjd'])
 
             results.append(commons.FileContainer(link,
                                                  encoding='binary',
@@ -737,13 +735,10 @@ class SDSSClass(BaseQuery):
 
         """
 
-        readable_objs = self.get_images_async(coordinates=coordinates,
-                                              radius=radius, matches=matches,
-                                              run=run, rerun=rerun,
-                                              data_release=data_release,
-                                              camcol=camcol, field=field,
-                                              band=band, timeout=timeout,
-                                              get_query_payload=get_query_payload)
+        readable_objs = self.get_images_async(
+            coordinates=coordinates, radius=radius, matches=matches, run=run,
+            rerun=rerun, data_release=data_release, camcol=camcol, field=field,
+            band=band, timeout=timeout, get_query_payload=get_query_payload)
 
         if readable_objs is not None:
             if isinstance(readable_objs, dict):
@@ -835,9 +830,9 @@ class SDSSClass(BaseQuery):
         if 'error_message' in io.BytesIO(response.content):
             raise RemoteServiceError(response.content)
         arr = np.atleast_1d(np.genfromtxt(io.BytesIO(response.content),
-                            names=True, dtype=None, delimiter=',',
-                            skip_header=1,  # this may be a hack; it is necessary for tests to pass
-                            comments='#'))
+                                          names=True, dtype=None,
+                                          delimiter=',', skip_header=1,
+                                          comments='#'))
 
         if len(arr) == 0:
             return None

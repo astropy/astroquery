@@ -55,20 +55,23 @@ def post_mockreturn(url, data=None, timeout=10, **kwargs):
 
 
 def test_query_region_async(patch_post, patch_parse_coordinates):
-    response = nrao.core.Nrao.query_region_async(commons.ICRSCoordGenerator("04h33m11.1s 05d21m15.5s"),
-                                                 radius='5d0m0s', equinox='B1950',
-                                                 freq_low=1000 * u.kHz, freq_up=2000 * u.kHz,
-                                                 get_query_payload=True)
+    response = nrao.core.Nrao.query_region_async(
+        commons.ICRSCoordGenerator("04h33m11.1s 05d21m15.5s"),
+        radius='5d0m0s', equinox='B1950',
+        freq_low=1000 * u.kHz, freq_up=2000 * u.kHz,
+        get_query_payload=True)
 
     assert response['SRAD'].startswith('5') and response['SRAD'].endswith('d')
     assert response['EQUINOX'] == 'B1950'
     assert response['OBSFREQ1'] == '1.0-2.0'
-    response = nrao.core.Nrao.query_region_async(commons.ICRSCoordGenerator("04h33m11.1s 05d21m15.5s"))
+    response = nrao.core.Nrao.query_region_async(
+        commons.ICRSCoordGenerator("04h33m11.1s 05d21m15.5s"))
     assert response is not None
 
 
 def test_query_region(patch_post, patch_parse_coordinates):
-    result = nrao.core.Nrao.query_region(commons.ICRSCoordGenerator("04h33m11.1s 05d21m15.5s"))
+    result = nrao.core.Nrao.query_region(
+        commons.ICRSCoordGenerator("04h33m11.1s 05d21m15.5s"))
     assert isinstance(result, Table)
     assert len(result) > 0
     if 'Start Time' in result.colnames:

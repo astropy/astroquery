@@ -1,6 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
-from astropy.tests.helper import remote_data,pytest
+from astropy.tests.helper import remote_data, pytest
 import astropy.units as u
 from astropy import coordinates
 from ... import vizier
@@ -17,33 +17,38 @@ class TestVizierRemote(object):
                                         unit=(u.deg, u.deg))
 
     def test_query_object(self):
-        result = vizier.core.Vizier.query_object("HD 226868", catalog=["NOMAD", "UCAC"])
+        result = vizier.core.Vizier.query_object(
+            "HD 226868", catalog=["NOMAD", "UCAC"])
+
         assert isinstance(result, commons.TableList)
 
     def test_query_another_object(self):
-        result = vizier.core.Vizier.query_region("AFGL 2591", radius='0d5m', catalog="B/iram/pdbi")
+        result = vizier.core.Vizier.query_region(
+            "AFGL 2591", radius='0d5m', catalog="B/iram/pdbi")
         assert isinstance(result, commons.TableList)
 
     def test_query_object_async(self):
-        response = vizier.core.Vizier.query_object_async("HD 226868", catalog=["NOMAD", "UCAC"])
+        response = vizier.core.Vizier.query_object_async(
+            "HD 226868", catalog=["NOMAD", "UCAC"])
         assert response is not None
 
     def test_query_region(self):
-        result = vizier.core.Vizier.query_region(self.target,
-                                                radius=5 * u.deg,
-                                                catalog=["HIP", "NOMAD", "UCAC"])
+        result = vizier.core.Vizier.query_region(
+            self.target, radius=5 * u.deg, catalog=["HIP", "NOMAD", "UCAC"])
 
         assert isinstance(result, commons.TableList)
 
     def test_query_region_async(self):
-        response = vizier.core.Vizier.query_region_async(self.target,
-                                                     radius=5 * u.deg,
-                                                     catalog=["HIP", "NOMAD", "UCAC"])
+        response = vizier.core.Vizier.query_region_async(
+            self.target, radius=5 * u.deg, catalog=["HIP", "NOMAD", "UCAC"])
+
         assert response is not None
 
     def test_query_Vizier_instance(self):
-        v = vizier.core.Vizier(columns=['_RAJ2000', 'DEJ2000', 'B-V', 'Vmag', 'Plx'],
-                               column_filters={"Vmag":">10"}, keywords=["optical", "xry"])
+        v = vizier.core.Vizier(
+            columns=['_RAJ2000', 'DEJ2000', 'B-V', 'Vmag', 'Plx'],
+            column_filters={"Vmag": ">10"}, keywords=["optical", "xry"])
+
         result = v.query_object("HD 226868", catalog=["NOMAD", "UCAC"])
         assert isinstance(result, commons.TableList)
         result = v.query_region(self.target,
@@ -54,13 +59,15 @@ class TestVizierRemote(object):
     def test_vizier_column_restriction(self):
         # Check that the column restriction worked.  At least some of these
         # catalogs include Bmag's
-        v = vizier.core.Vizier(columns=['_RAJ2000', 'DEJ2000', 'B-V', 'Vmag', 'Plx'],
-                               column_filters={"Vmag":">10"}, keywords=["optical", "xry"])
+        v = vizier.core.Vizier(
+            columns=['_RAJ2000', 'DEJ2000', 'B-V', 'Vmag', 'Plx'],
+            column_filters={"Vmag": ">10"}, keywords=["optical", "xry"])
+
         result = v.query_object("HD 226868", catalog=["NOMAD", "UCAC"])
         for table in result:
             assert 'Bmag' not in table.columns
 
-    @pytest.mark.parametrize('all',('all','*'))
+    @pytest.mark.parametrize('all', ('all', '*'))
     def test_alls_withaddition(self, all):
         # Check that all the expected columns are there plus the _r
         # (radius from target) that we've added
@@ -75,14 +82,18 @@ class TestVizierRemote(object):
         assert isinstance(result, commons.TableList)
 
     def test_query_two_wavelengths(self):
-        v = vizier.core.Vizier(columns=['_RAJ2000', 'DEJ2000', 'B-V', 'Vmag', 'Plx'],
-                               column_filters={"Vmag":">10"}, keywords=["optical", "radio"])
+        v = vizier.core.Vizier(
+            columns=['_RAJ2000', 'DEJ2000', 'B-V', 'Vmag', 'Plx'],
+            column_filters={"Vmag": ">10"}, keywords=["optical", "radio"])
+
         v.query_object('M 31')
 
     def test_regressiontest_invalidtable(self):
-        V = vizier.core.Vizier(columns=['all'], ucd='(spect.dopplerVeloc*|phys.veloc*)',
-                   keywords=['Radio', 'IR'], row_limit=5000)
-        C = coordinates.SkyCoord(359.61687 * u.deg, -0.242457 * u.deg, frame='galactic')
+        V = vizier.core.Vizier(
+            columns=['all'], ucd='(spect.dopplerVeloc*|phys.veloc*)',
+            keywords=['Radio', 'IR'], row_limit=5000)
+        C = coordinates.SkyCoord(359.61687 * u.deg, -0.242457 * u.deg,
+                                 frame='galactic')
 
         r2 = V.query_region(C, radius=2 * u.arcmin)
 
@@ -95,9 +106,8 @@ class TestVizierRemote(object):
         # Regression test: the columns of the default should never
         # be modified from default
         assert vizier.core.Vizier.columns == ['*']
-        result = vizier.core.Vizier.query_region(targets,
-                                                 radius=10 * u.arcsec,
-                                                 catalog=["HIP", "NOMAD", "UCAC"])
+        result = vizier.core.Vizier.query_region(
+            targets, radius=10 * u.arcsec, catalog=["HIP", "NOMAD", "UCAC"])
 
         assert len(result) >= 5
         assert 'I/239/hip_main' in result.keys()
@@ -109,8 +119,8 @@ class TestVizierRemote(object):
         cats = V.find_catalogs('eclipsing binary', max_catalogs=5000)
         assert len(cats) >= 468
 
-        #with pytest.raises(ValueError) as exc:
+        # with pytest.raises(ValueError) as exc:
         #    V.find_catalogs('eclipsing binary')
-        #assert str(exc.value)==("Maximum number of catalogs exceeded."
+        # assert str(exc.value)==("Maximum number of catalogs exceeded."
         #                        "  Try setting max_catalogs "
         #                        "to a large number and try again")

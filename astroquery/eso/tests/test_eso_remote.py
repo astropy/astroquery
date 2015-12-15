@@ -45,12 +45,14 @@ class TestEso:
         # in principle, we should run both of these tests
         # result_i = eso.query_instrument('midi', target='Sgr A*')
         # Equivalent, does not depend on SESAME:
-        result_i = eso.query_instrument('midi', coord1=266.41681662, coord2=-29.00782497)
+        result_i = eso.query_instrument('midi', coord1=266.41681662,
+                                        coord2=-29.00782497)
 
         surveys = eso.list_surveys()
         # result_s = eso.query_survey('VVV', target='Sgr A*')
         # Equivalent, does not depend on SESAME:
-        result_s = eso.query_survey('VVV', coord1=266.41681662, coord2=-29.00782497)
+        result_s = eso.query_survey('VVV', coord1=266.41681662,
+                                    coord2=-29.00782497)
 
         assert 'midi' in instruments
         assert result_i is not None
@@ -67,7 +69,9 @@ class TestEso:
         with pytest.raises(LoginError) as exc:
             eso.retrieve_data('AMBER.2006-03-14T07:40:19.830')
 
-        assert exc.value.args[0] == "If you do not pass a username to login(), you should configure a default one!"
+        assert (exc.value.args[0] ==
+                ("If you do not pass a username to login(), you should "
+                 "configure a default one!"))
 
     def test_empty_return(self):
         # test for empty return with an object from the North
@@ -75,7 +79,8 @@ class TestEso:
         surveys = eso.list_surveys()
         # result_s = eso.query_survey(surveys[0], target='M51')
         # Avoid SESAME
-        result_s = eso.query_survey(surveys[0], coord1=202.469575, coord2=47.195258)
+        result_s = eso.query_survey(surveys[0],
+                                    coord1=202.469575, coord2=47.195258)
 
         assert result_s is None
 
@@ -84,13 +89,15 @@ class TestEso:
         # Remote version
         instruments = eso.list_instruments()
         # result1 = eso.query_instrument(instruments[0], target='Sgr A*')
-        result1 = eso.query_instrument(instruments[0], coord1=266.41681662, coord2=-29.00782497)
+        result1 = eso.query_instrument(instruments[0], coord1=266.41681662,
+                                       coord2=-29.00782497)
 
         # Local version
         eso.cache_location = temp_dir
         instruments = eso.list_instruments()
         # result2 = eso.query_instrument(instruments[0], target='Sgr A*')
-        result2 = eso.query_instrument(instruments[0], coord1=266.41681662, coord2=-29.00782497)
+        result2 = eso.query_instrument(instruments[0], coord1=266.41681662,
+                                       coord2=-29.00782497)
 
         assert result1 == result2
 
@@ -116,7 +123,7 @@ class TestEso:
         eso = Eso()
         eso.login()
         result = eso.retrieve_data(["MIDI.2014-07-25T02:03:11.561"])
-        assert len(result)>0
+        assert len(result) > 0
         assert "MIDI.2014-07-25T02:03:11.561" in result[0]
         result = eso.retrieve_data("MIDI.2014-07-25T02:03:11.561")
         assert isinstance(result, six.string_types)
@@ -138,9 +145,9 @@ class TestEso:
 
         tbl = eso.query_apex_quicklooks(prog_id='095.F-9802')
         tblb = eso.query_apex_quicklooks('095.F-9802')
-        
+
         assert len(tbl) == 4
         assert set(tbl['Release Date']) == {'2015-07-17', '2015-07-18',
                                             '2015-09-15', '2015-09-18'}
 
-        assert np.all(tbl==tblb)
+        assert np.all(tbl == tblb)

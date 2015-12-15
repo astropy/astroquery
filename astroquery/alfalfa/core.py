@@ -100,17 +100,19 @@ class AlfalfaClass(BaseQuery):
         Parameters
         ----------
         coordinates : str or `astropy.coordinates` object
-            The target around which to search. It may be specified as a string
-            in which case it is resolved using online services or as the appropriate
-            `astropy.coordinates` object. ICRS coordinates may also be entered as strings
-            as specified in the `astropy.coordinates` module.
+            The target around which to search. It may be specified as a
+            string in which case it is resolved using online services or as
+            the appropriate `astropy.coordinates` object. ICRS coordinates
+            may also be entered as strings as specified in the
+            `astropy.coordinates` module.
         radius : str or `~astropy.units.Quantity` object, optional
-            The string must be parsable by `astropy.coordinates.Angle`. The appropriate
-            `~astropy.units.Quantity` object from `astropy.units` may also be used. Defaults to 3 arcmin.
+            The string must be parsable by `astropy.coordinates.Angle`. The
+            appropriate `~astropy.units.Quantity` object from
+            `astropy.units` may also be used. Defaults to 3 arcmin.
         optical_counterpart : bool
             Search for position match using radio positions or position of
-            any optical counterpart identified by ALFALFA team? Keep in mind that
-            the ALFA beam size is about 3x3 arcminutes.
+            any optical counterpart identified by ALFALFA team? Keep in mind
+            that the ALFA beam size is about 3x3 arcminutes.
 
         See documentation for astropy.coordinates.angles for more information
         about ('ra', 'dec', 'unit') parameters.
@@ -176,8 +178,9 @@ class AlfalfaClass(BaseQuery):
         See Also
         --------
         get_catalog : method that downloads ALFALFA catalog
-        query_region : find object in catalog closest to supplied position (use this
-            to determine AGC number first)
+        query_region : find object in catalog closest to supplied
+            position (use this to determine AGC number first)
+
         """
 
         agc = str(agc).zfill(6)

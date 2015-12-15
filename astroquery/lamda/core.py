@@ -31,7 +31,8 @@ collider_ids = {'H2': 1,
                 'H': 5,
                 'HE': 6,
                 'H+': 7}
-collider_ids.update({v:k for k,v in list(collider_ids.items())})
+collider_ids.update({v: k for k, v in list(collider_ids.items())})
+
 
 class LamdaClass(BaseQuery):
 
@@ -59,7 +60,7 @@ class LamdaClass(BaseQuery):
         `outfilename`
         """
         molreq = self._get_molfile(mol)
-        with open(outfilename,'w') as f:
+        with open(outfilename, 'w') as f:
             f.write(molreq.text)
 
     def query(self, mol, return_datafile=False, cache=True, timeout=None):
@@ -124,7 +125,8 @@ class LamdaClass(BaseQuery):
         links = soup.find_all('a', href=True)
         datfile_urls = [url
                         for link in ProgressBar(links)
-                        for url in self._find_datfiles(link['href'], base_url=main_url)]
+                        for url in self._find_datfiles(link['href'],
+                                                       base_url=main_url)]
 
         molecule_re = re.compile(r'http://[a-zA-Z0-9.]*/~moldata/datafiles/([A-Z0-9a-z_+@-]*).dat')
         molecule_dict = {molecule_re.search(url).groups()[0]:
@@ -147,7 +149,6 @@ class LamdaClass(BaseQuery):
             self._molecule_dict = self.get_molecules()
 
         return self._molecule_dict
-
 
     def _find_datfiles(self, url, base_url, raise_for_status=False):
 
@@ -172,6 +173,7 @@ class LamdaClass(BaseQuery):
 
         return urls
 
+
 def _absurl_from_url(url, base_url):
     if url[:4] != 'http':
         return urlparse.urljoin(base_url, url)
@@ -182,6 +184,7 @@ def parse_lamda_datafile(filename):
     with open(filename) as f:
         lines = f.readlines()
     return parse_lamda_lines(lines)
+
 
 def parse_lamda_lines(data):
     """
@@ -197,7 +200,7 @@ def parse_lamda_lines(data):
     radtrans = []
     collider = None
     ncolltrans = None
-    for ii,line in enumerate(data):
+    for ii, line in enumerate(data):
         if line[0] == '!':
             continue
         if 'molecule' not in meta_mol:
@@ -210,7 +213,7 @@ def parse_lamda_lines(data):
             meta_mol['nenergylevels'] = int(_cln(line))
             continue
         if len(levels) < meta_mol['nenergylevels']:
-            lev,en,wt = _cln(line).split()[:3]
+            lev, en, wt = _cln(line).split()[:3]
             jul = " ".join(_cln(line).split()[3:])
             levels.append([int(lev), float(en), int(float(wt)), jul])
             continue
@@ -219,13 +222,13 @@ def parse_lamda_lines(data):
             continue
         if len(radtrans) < meta_rad['radtrans']:
             # Can have wavenumber at the end.  Ignore that.
-            trans,up,low,aval,freq,eu = _cln(line).split()[:6]
+            trans, up, low, aval, freq, eu = _cln(line).split()[:6]
             radtrans.append([int(trans), int(up), int(low), float(aval),
                              float(freq), float(eu)])
             continue
         if 'ncoll' not in meta_coll:
             meta_coll['ncoll'] = int(_cln(line))
-            ncollrates = {ii:0 for ii in range(1,meta_coll['ncoll']+1)}
+            ncollrates = {ii: 0 for ii in range(1, meta_coll['ncoll'] + 1)}
             collrates = {}
             continue
         if collider is None:
@@ -247,11 +250,11 @@ def parse_lamda_lines(data):
                                                    _cln(line).split()]
             continue
         if len(collrates[collider]) < meta_coll[collname]['ntrans']:
-            trans,up,low = [int(x) for x in _cln(line).split()[:3]]
+            trans, up, low = [int(x) for x in _cln(line).split()[:3]]
             temperatures = [float(x) for x in _cln(line).split()[3:]]
-            collrates[collider].append([trans,up,low]+temperatures)
+            collrates[collider].append([trans, up, low] + temperatures)
         if len(collrates[collider]) == meta_coll[collname]['ntrans']:
-            #meta_coll[collider_ids[collider]+'_collrates'] = collrates
+            # meta_coll[collider_ids[collider]+'_collrates'] = collrates
             log.debug("{ii} Finished loading collider {0:d}: "
                       "{1}".format(collider, collider_ids[collider], ii=ii))
             collider = None
@@ -261,36 +264,38 @@ def parse_lamda_lines(data):
                 break
 
     if len(levels[0]) == 4:
-        mol_table_names = ['Level','Energy','Weight','J']
+        mol_table_names = ['Level', 'Energy', 'Weight', 'J']
     elif len(levels[0]) == 5:
-        mol_table_names = ['Level','Energy','Weight','J','F']
+        mol_table_names = ['Level', 'Energy', 'Weight', 'J', 'F']
     else:
         raise ValueError("Unrecognized levels structure.")
     mol_table_columns = [table.Column(name=name, data=data)
-                         for name,data in zip(mol_table_names,
-                                              zip(*levels))]
+                         for name, data in zip(mol_table_names,
+                                               zip(*levels))]
     mol_table = table.Table(data=mol_table_columns, meta=meta_mol)
 
-    rad_table_names = ['Transition','Upper','Lower','EinsteinA','Frequency','E_u(K)']
+    rad_table_names = ['Transition', 'Upper', 'Lower', 'EinsteinA',
+                       'Frequency', 'E_u(K)']
     rad_table_columns = [table.Column(name=name, data=data)
-                         for name,data in zip(rad_table_names,
-                                              zip(*radtrans))]
+                         for name, data in zip(rad_table_names,
+                                               zip(*radtrans))]
     rad_table = table.Table(data=rad_table_columns, meta=meta_rad)
 
     coll_tables = {collider_ids[collider]: None for collider in collrates}
     for collider in collrates:
         collname = collider_ids[collider]
-        coll_table_names = (['Transition','Upper','Lower'] +
+        coll_table_names = (['Transition', 'Upper', 'Lower'] +
                             ['C_ij(T={0:d})'.format(tem) for tem in
                              meta_coll[collname]["temperatures"]])
         coll_table_columns = [table.Column(name=name, data=data)
-                             for name,data in zip(coll_table_names,
-                                              zip(*collrates[collider]))]
+                              for name, data in zip(coll_table_names,
+                                                    zip(*collrates[collider]))]
         coll_table = table.Table(data=coll_table_columns,
                                  meta=meta_coll[collname])
         coll_tables[collname] = coll_table
 
-    return coll_tables,rad_table,mol_table
+    return coll_tables, rad_table, mol_table
+
 
 def _cln(s):
     """

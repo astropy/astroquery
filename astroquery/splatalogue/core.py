@@ -33,28 +33,28 @@ class SplatalogueClass(BaseQuery):
                       'Recomb', 'Lisa', 'RFI')
     TOP20_LIST = ('comet', 'planet', 'top20', 'ism_hotcore', 'ism_darkcloud',
                   'ism_diffusecloud')
-    FREQUENCY_BANDS = {"any":"Any",
-                       "alma3":"ALMA Band 3 (84-116 GHz)",
-                       "alma4":" ALMA Band 4 (125-163 GHz)",
-                       "alma5":" ALMA Band 5 (163-211 GHz)",
-                       "alma6":"ALMA Band 6 (211-275 GHz)",
-                       "alma7":"ALMA Band 7 (275-373 GHz)",
-                       "alma8":"ALMA Band 8 (385-500 GHz)",
-                       "alma9":"ALMA Band 9 (602-720 GHz)",
-                       "alma10":"ALMA Band 10 (787-950 GHz)",
-                       "pf1":"GBT PF1 (0.29-0.92 GHz)",
-                       "pf2":"GBT PF2 (0.91-1.23 GHz)",
-                       "l":"GBT/VLA L (1-2 GHz)",
-                       "s":"GBT/VLA S (1.7-4 GHz)",
-                       "c":"GBT/VLA C (3.9-8 GHz)",
-                       "x":"GBT/VLA X (8-12 GHz)",
-                       "ku":" GBT/VLA Ku (12-18 GHz)",
-                       "kfpa":"GBT KFPA (18-27.5 GHz)",
-                       "k":"VLA K (18-26.5 GHz)",
-                       "ka":" GBT/VLA Ka (26-40 GHz)",
-                       "q":"GBT/VLA Q (38-50 GHz)",
-                       "w":"GBT W (67-93.3 GHz)",
-                       "mustang":"GBT Mustang (80-100 GHz)", }
+    FREQUENCY_BANDS = {"any": "Any",
+                       "alma3": "ALMA Band 3 (84-116 GHz)",
+                       "alma4": " ALMA Band 4 (125-163 GHz)",
+                       "alma5": " ALMA Band 5 (163-211 GHz)",
+                       "alma6": "ALMA Band 6 (211-275 GHz)",
+                       "alma7": "ALMA Band 7 (275-373 GHz)",
+                       "alma8": "ALMA Band 8 (385-500 GHz)",
+                       "alma9": "ALMA Band 9 (602-720 GHz)",
+                       "alma10": "ALMA Band 10 (787-950 GHz)",
+                       "pf1": "GBT PF1 (0.29-0.92 GHz)",
+                       "pf2": "GBT PF2 (0.91-1.23 GHz)",
+                       "l": "GBT/VLA L (1-2 GHz)",
+                       "s": "GBT/VLA S (1.7-4 GHz)",
+                       "c": "GBT/VLA C (3.9-8 GHz)",
+                       "x": "GBT/VLA X (8-12 GHz)",
+                       "ku": " GBT/VLA Ku (12-18 GHz)",
+                       "kfpa": "GBT KFPA (18-27.5 GHz)",
+                       "k": "VLA K (18-26.5 GHz)",
+                       "ka": " GBT/VLA Ka (26-40 GHz)",
+                       "q": "GBT/VLA Q (38-50 GHz)",
+                       "w": "GBT W (67-93.3 GHz)",
+                       "mustang": "GBT Mustang (80-100 GHz)", }
 
     def __init__(self, **kwargs):
         """
@@ -85,9 +85,10 @@ class SplatalogueClass(BaseQuery):
             species whose names match
         reflags : int
             Flags to pass to `re`.
+
         """
-        # loading can be an expensive operation and should not change at runtime:
-        # do it lazily
+        # loading can be an expensive operation and should not change at
+        # runtime: do it lazily
         if not hasattr(self, '_species_ids'):
             self._species_ids = load_species_table.species_lookuptable()
 
@@ -130,35 +131,43 @@ class SplatalogueClass(BaseQuery):
                       show_nrao_recommended=None):
         """
         The Splatalogue service returns lines with rest frequencies in the
-        range [min_frequency, max_frequency]
+        range [min_frequency, max_frequency].
 
         Parameters
         ----------
         min_frequency : `astropy.units`
+            Minimum frequency (or any spectral() equivalent)
         max_frequency : `astropy.units`
-            Minimum and maximum frequency (or any spectral() equivalent)
+            Maximum frequency (or any spectral() equivalent)
         band : str
             The observing band.  If it is not 'any', it overrides
             minfreq/maxfreq.
-
-        Other Parameters
-        ----------------
         top20: str
             One of ``'comet'``, ``'planet'``, ``'top20'``, ``'ism_hotcore'``,
             ``'ism_darkcloud'``, ``'ism_diffusecloud'``.
             Overrides chemical_name
         chemical_name : str
-            Name of the chemical to search for. Treated as a regular expression.
-            An empty set ('', (), [], {}) will match *any* species.
-            Example:
+            Name of the chemical to search for. Treated as a regular
+            expression.  An empty set ('', (), [], {}) will match *any*
+            species. Examples:
+
             ``'H2CO'`` - 13 species have H2CO somewhere in their formula.
-            ``'Formaldehyde'`` - There are 8 isotopologues of Formaldehyde (e.g., H213CO).
+
+            ``'Formaldehyde'`` - There are 8 isotopologues of Formaldehyde
+                                 (e.g., H213CO).
+
             ``'formaldehyde'`` - Thioformaldehyde,Cyanoformaldehyde.
-            ``'formaldehyde',flags=re.I`` - Formaldehyde,thioformaldehyde, and Cyanoformaldehyde.
-            ``' H2CO '`` - Just 1 species, H2CO.  The spaces prevent including others.
+
+            ``'formaldehyde',flags=re.I`` - Formaldehyde,thioformaldehyde,
+                                            and Cyanoformaldehyde.
+
+            ``' H2CO '`` - Just 1 species, H2CO. The spaces prevent including
+                           others.
+
         chem_re_flags : int
             See the `re` module
         energy_min : `None` or float
+            Energy range to include.  See energy_type
         energy_max : `None` or float
             Energy range to include.  See energy_type
         energy_type : ``'el_cm1'``, ``'eu_cm1'``, ``'eu_k'``, ``'el_k'``
@@ -219,9 +228,9 @@ class SplatalogueClass(BaseQuery):
 
         Returns
         -------
-        Dictionary of the parameters to send to the SPLAT page
         payload : dict
-            A dictionary of keywords
+            Dictionary of the parameters to send to the SPLAT page
+
         """
 
         payload = {'submit': 'Search',
@@ -232,7 +241,8 @@ class SplatalogueClass(BaseQuery):
             if band not in self.FREQUENCY_BANDS:
                 raise ValueError("Invalid frequency band.")
             if min_frequency is not None or max_frequency is not None:
-                warnings.warn("Band was specified, so the frequency specification is overridden")
+                warnings.warn("Band was specified, so the frequency "
+                              "specification is overridden")
             payload['band'] = band
         elif min_frequency is not None and max_frequency is not None:
             # allow setting payload without having *ANY* valid frequencies set
@@ -277,7 +287,8 @@ class SplatalogueClass(BaseQuery):
         if version in self.versions:
             payload['data_version'] = version
         elif version is not None:
-            raise ValueError("Invalid version specified.  Allowed versions are {vers}".format(vers=str(self.versions)))
+            raise ValueError("Invalid version specified.  Allowed versions "
+                             "are {vers}".format(vers=str(self.versions)))
 
         if exclude is not None:
             for e in exclude:
@@ -288,7 +299,8 @@ class SplatalogueClass(BaseQuery):
 
         if line_lists is not None:
             if type(line_lists) not in (tuple, list):
-                raise TypeError("Line lists should be a list of linelist names.  See Splatalogue.ALL_LINE_LISTS")
+                raise TypeError("Line lists should be a list of linelist "
+                                "names.  See Splatalogue.ALL_LINE_LISTS")
             for L in self.ALL_LINE_LISTS:
                 kwd = 'display' + L
                 if L in line_lists:
@@ -304,7 +316,11 @@ class SplatalogueClass(BaseQuery):
             for EL in energy_levels:
                 payload[EL] = EL
 
-        for b in "noHFS,displayHFS,show_unres_qn,show_upper_degeneracy,show_molecule_tag,show_qn_code,show_lovas_labref,show_orderedfreq_only,show_lovas_obsref,show_nrao_recommended".split(","):
+        for b in ("noHFS", "displayHFS", "show_unres_qn",
+                  "show_upper_degeneracy", "show_molecule_tag",
+                  "show_qn_code", "show_lovas_labref",
+                  "show_orderedfreq_only", "show_lovas_obsref",
+                  "show_nrao_recommended"):
             if locals()[b]:
                 payload[b] = b
 
@@ -333,15 +349,19 @@ class SplatalogueClass(BaseQuery):
         """
         if band == 'any':
             if min_frequency is None or max_frequency is None:
-                raise ValueError("Must specify either min/max frequency or a valid Band.")
+                raise ValueError("Must specify either min/max frequency or "
+                                 "a valid Band.")
 
     @prepend_docstr_noreturns("\n" + _parse_kwargs.__doc__)
-    def query_lines_async(self, min_frequency=None, max_frequency=None, **kwargs):
+    def query_lines_async(self, min_frequency=None, max_frequency=None,
+                          **kwargs):
         """
+
         Returns
         -------
         response : `requests.Response`
             The response of the HTTP request.
+
         """
         # have to chomp this kwd here...
         get_query_payload = (kwargs.pop('get_query_payload')
@@ -401,26 +421,28 @@ class SplatalogueClass(BaseQuery):
                        'Meas Freq-GHz', 'Log<sub>10</sub> (A<sub>ij</sub>)',
                        'E_U (K)')
         table = self.table[columns]
-        long_to_short = {'Log<sub>10</sub> (A<sub>ij</sub>)':'log10(Aij)',
-                         'E_U (K)':'EU_K',
-                         'E_U (cm^-1)':'EU_cm',
-                         'E_L (K)':'EL_K',
-                         'E_L (cm^-1)':'EL_cm',
-                         'Chemical Name':'Name',
-                         'Lovas/AST Intensity':'Intensity',
-                         'Freq-GHz':'Freq',
-                         'Freq Err':'eFreq',
-                         'Meas Freq-GHz':'MeasFreq',
-                         'Meas Freq Err':'eMeasFreq',
-                         'Resolved QNs':'QNs'}
+        long_to_short = {'Log<sub>10</sub> (A<sub>ij</sub>)': 'log10(Aij)',
+                         'E_U (K)': 'EU_K',
+                         'E_U (cm^-1)': 'EU_cm',
+                         'E_L (K)': 'EL_K',
+                         'E_L (cm^-1)': 'EL_cm',
+                         'Chemical Name': 'Name',
+                         'Lovas/AST Intensity': 'Intensity',
+                         'Freq-GHz': 'Freq',
+                         'Freq Err': 'eFreq',
+                         'Meas Freq-GHz': 'MeasFreq',
+                         'Meas Freq Err': 'eMeasFreq',
+                         'Resolved QNs': 'QNs'}
         for cn in long_to_short:
             if cn in table.colnames:
                 table.rename_column(cn, long_to_short[cn])
         return table
 
+
 def validate_energy_type(etype):
-    valid_energy_types = ('el_cm1','eu_cm1','eu_k','el_k')
+    valid_energy_types = ('el_cm1', 'eu_cm1', 'eu_k', 'el_k')
     if etype not in valid_energy_types:
-        raise ValueError("Energy type must be one of {0}".format(valid_energy_types))
+        raise ValueError("Energy type must be one of {0}"
+                         .format(valid_energy_types))
 
 Splatalogue = SplatalogueClass()

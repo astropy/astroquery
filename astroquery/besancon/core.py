@@ -19,15 +19,15 @@ from . import conf
 __all__ = ['Besancon', 'BesanconClass', 'parse_besancon_model_string']
 
 keyword_defaults = {
-    'rinf':0.000000,
-    'rsup':50.000000,
-    'dist_step_mode':0,
+    'rinf': 0.000000,
+    'rsup': 50.000000,
+    'dist_step_mode': 0,
     'dlr': 0.000,
-    'kleg':1,
+    'kleg': 1,
     'longit': 10.62,
-    'latit':-0.38,
-    'soli':0.0003,  # degrees.  0.00027777 = 1 arcsec
-    'kleh':1,
+    'latit': -0.38,
+    'soli': 0.0003,  # degrees.  0.00027777 = 1 arcsec
+    'kleh': 1,
     'eq1': 2000.0,
     'al0': 200.00,
     'alm': 200.00,
@@ -36,39 +36,42 @@ keyword_defaults = {
     'abm': 59.00,
     'db': 0,
     'adif': 0.700,
-    'ev':[""] * 25,
-    'AV':[""] * 25,
-    'di':[""] * 25,
-    'oo':[-7] + [-99] * 12,
-    'ff':[15] + [99] * 12,
-    'spectyp_min':1,
+    'ev': [""] * 25,
+    'AV': [""] * 25,
+    'di': [""] * 25,
+    'oo': [-7] + [-99] * 12,
+    'ff': [15] + [99] * 12,
+    'spectyp_min': 1,
     'subspectyp_min': 0,
-    'spectyp_max':9,
+    'spectyp_max': 9,
     'subspectyp_max': 5,
-    'lumi':list(range(1, 8)),
-    'sous_pop':list(range(1, 11)),
-    'iband':1,
-    'band0':[8] * 9,
-    'bandf':[25] * 9,
-    'colind':["B-V", "U-B", "V-I", "V-K", ],
+    'lumi': list(range(1, 8)),
+    'sous_pop': list(range(1, 11)),
+    'iband': 1,
+    'band0': [8] * 9,
+    'bandf': [25] * 9,
+    'colind': ["B-V", "U-B", "V-I", "V-K", ],
     'nic': 4,
-    'klea':1,
-    'sc':[[0, 0, 0]] * 9,
-    'klee':0,
-    'throughform':'ok',
-    'kleb':3,  # 3 = Catalogue Simulation, 1 = tables and differential counts
-    'klec':1,  # 1 = ubv, 15= cfhtls (photometric system)
-    'cinem':0,  # 0: no kinematics, 1: kinematics
-    'outmod':"",
+    'klea': 1,
+    'sc': [[0, 0, 0]] * 9,
+    'klee': 0,
+    'throughform': 'ok',
+    'kleb': 3,  # 3 = Catalogue Simulation, 1 = tables and differential counts
+    'klec': 1,  # 1 = ubv, 15= cfhtls (photometric system)
+    'cinem': 0,  # 0: no kinematics, 1: kinematics
+    'outmod': "",
 }
 keyword_defaults['ff[15]'] = 500
 keyword_defaults['oo[15]'] = -500
 
-colors_limits = OrderedDict((ci,(-99,99)) for ci in keyword_defaults['colind'])
-mag_limits = {'U':(-99, 99), 'B':(-99, 99), 'V':(10, 18), 'R':(-99, 99),
-              'I':(-99, 99), 'J':(-99, 99), 'H':(-99, 99), 'K':(-99, 99), 'L':(-99, 99)}
-#mag_order = "U", "B", "V", "R", "I", "J", "H", "K", "L"
+colors_limits = OrderedDict((ci, (-99, 99))
+                            for ci in keyword_defaults['colind'])
+mag_limits = {'U': (-99, 99), 'B': (-99, 99), 'V': (10, 18), 'R': (-99, 99),
+              'I': (-99, 99), 'J': (-99, 99), 'H': (-99, 99), 'K': (-99, 99),
+              'L': (-99, 99)}
+
 mag_order = "VBURIJHKL"
+
 
 @async_to_sync
 class BesanconClass(BaseQuery):
@@ -115,8 +118,9 @@ class BesanconClass(BaseQuery):
                 sys.stdout.write(u"\r")
                 sys.stdout.flush()
             try:
-                # U = requests.get(url,timeout=timeout,stream=True)
-                # TODO: add timeout= keyword to get_readable_fileobj (when PR https://github.com/astropy/astropy/pull/1258 is merged)
+                # U = requests.get(url,timeout=timeout,stream=True) TODO:
+                # add timeout= keyword to get_readable_fileobj (when PR
+                # https://github.com/astropy/astropy/pull/1258 is merged)
                 with commons.get_readable_fileobj(url, cache=True) as f:
                     results = f.read()
                 break
@@ -166,9 +170,8 @@ class BesanconClass(BaseQuery):
             raise ValueError("Errors: " + "\n".join(errors))
 
         if verbose:
-            print("File is %s and can be acquired from %s" % (filename,
-                                                             self.url_download
-                                                             + '/' + filename))
+            print("File is {0} and can be acquired from {1}"
+                  .format(filename, self.url_download + '/' + filename))
 
         if retrieve_file:
             return self.get_besancon_model_file(filename)
@@ -202,7 +205,8 @@ class BesanconClass(BaseQuery):
         absmag_limits : (float,float)
             Absolute magnitude lower,upper limits
         colors_limits : dict of (float,float)
-            Should contain 4 elements listing color differences in the valid bands, e.g.:
+            Should contain 4 elements listing color differences in the valid
+                bands, e.g.:
                 {"J-H":(99,-99),"H-K":(99,-99),"J-K":(99,-99),"V-K":(99,-99)}
         mag_limits = dict of (float,float)
             Lower and Upper magnitude difference limits for each magnitude band
@@ -213,17 +217,18 @@ class BesanconClass(BaseQuery):
         verbose : bool
             Print out extra error messages?
         kwargs : dict
-            Can override any argument in the request if you know the name of the
-            POST keyword.
+            Can override any argument in the request if you know the name of
+            the POST keyword.
 
         Returns
         -------
-        Either the filename or the table depending on whether 'retrieve file' is
-        specified
+        Either the filename or the table depending on whether 'retrieve
+        file' is specified
         """
         if email is None and hasattr(self, 'email'):
             email = self.email
-        if email is None or not isinstance(email, str) or not commons.validate_email(email):
+        if (email is None or not isinstance(email, str) or
+                not commons.validate_email(email)):
             raise ValueError("Must specify a valid e-mail address.")
 
         # create a new keyword dict based on inputs + defaults
@@ -231,7 +236,7 @@ class BesanconClass(BaseQuery):
         for key, val in kwargs.items():
             if key in keyword_defaults:
                 kwd[key] = val
-            elif verbose and not key in ('retrieve_file',):
+            elif verbose and key not in ('retrieve_file',):
                 print("Skipped invalid key %s" % key)
 
         kwd['kleg'] = 1 if smallfield else 2
@@ -273,7 +278,8 @@ class BesanconClass(BaseQuery):
         # convert all array elements to arrays
         for dummy in range(2):  # deal with nested lists
             for k, v in list(request_data.items()):
-                if isinstance(v, list) or (isinstance(v, tuple) and len(v) > 1):
+                if (isinstance(v, list) or
+                        (isinstance(v, tuple) and len(v) > 1)):
                     if k in request_data:
                         del request_data[k]
                     for ii, x in enumerate(v):
@@ -284,7 +290,8 @@ class BesanconClass(BaseQuery):
 
         return request_data
 
-    @prepend_docstr_noreturns("\n" + _parse_args.__doc__ + _parse_result.__doc__)
+    @prepend_docstr_noreturns("\n" + _parse_args.__doc__ +
+                              _parse_result.__doc__)
     def query_async(self, *args, **kwargs):
         """
         Returns
@@ -296,11 +303,8 @@ class BesanconClass(BaseQuery):
         if kwargs.get('get_query_payload'):
             return data_payload
 
-        response = commons.send_request(
-            self.QUERY_URL,
-            data_payload,
-            self.TIMEOUT,
-            stream=True)
+        response = commons.send_request(self.QUERY_URL, data_payload,
+                                        self.TIMEOUT, stream=True)
         return response
 
 Besancon = BesanconClass()
@@ -314,8 +318,8 @@ def parse_besancon_dict(bd):
     which dictionaries do not support.
 
     .. todo::
-        In the future, a better way to do this is to make each dict entry a list;
-        requests knows how to deal with this properly
+        In the future, a better way to do this is to make each dict entry a
+        list; requests knows how to deal with this properly
     """
 
     http_dict = []
@@ -339,7 +343,8 @@ def parse_besancon_dict(bd):
 
 def parse_errors(text):
     """
-    Attempt to extract the errors from a Besancon web page with error messages in it.
+    Attempt to extract the errors from a Besancon web page with error
+    messages in it.
     """
     try:
         errors = re.compile(r"""<div\ class="?errorpar"?>\s*
@@ -349,11 +354,13 @@ def parse_errors(text):
                         </div>""", re.X)
         text = errors.search(text).group()
     except AttributeError:
-        raise ValueError("Regular expression matching to error message failed.")
+        raise ValueError("Regular expression matching to error "
+                         "message failed.")
     text_items = re.split("<li>|</li>|\n", errors.search(text).group())
     text_items = [t for t in text_items if t != ""]
     error_list = text_items[2:-2]
     return error_list
+
 
 def parse_besancon_model_file(filename):
     """
@@ -362,6 +369,7 @@ def parse_besancon_model_file(filename):
     with open(filename, 'r') as f:
         contents = f.read()
     return parse_besancon_model_string(contents)
+
 
 def parse_besancon_model_string(bms,):
     """
@@ -405,15 +413,18 @@ def parse_besancon_model_string(bms,):
     # note: old col_starts/col_ends were:
     # (0,7,13,16,21,27,33,36,41,49,56,62,69,76,82,92,102,109)
     # (6,12,15,20,26,32,35,39,48,55,61,68,75,81,91,101,108,115)
-    space_indices = [first_data_line.find(" ", ii) for ii in range(len(first_data_line))]
-    col_ends = [y for x, y in zip(space_indices[:-1], space_indices[1:]) if y - x > 1] + [len(space_indices)]
-    # col_ends = [(first_data_line+" ").find(" "+x+" ")+len(x)+1 for x in first_data_line.split()]
+    space_indices = [first_data_line.find(" ", ii)
+                     for ii in range(len(first_data_line))]
+    col_ends = [y for x, y in zip(space_indices[:-1], space_indices[1:])
+                if y - x > 1] + [len(space_indices)]
+
     if not all(x < y for x, y in zip(col_ends[:-1], col_ends[1:])):
         raise ValueError("Failed to parse Besancon table header.")
     col_starts = [0] + [c for c in col_ends[:-1]]
 
     if len(col_starts) != ncols or len(col_ends) != ncols:
-        raise ValueError("Table parsing error: mismatch between # of columns & header")
+        raise ValueError("Table parsing error: mismatch between # of "
+                         "columns & header")
 
     besancon_table = ascii.read(bms, Reader=ascii.FixedWidthNoHeader,
                                 header_start=None,

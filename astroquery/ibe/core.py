@@ -10,11 +10,9 @@ API from
 from __future__ import print_function, division
 
 import os
-import warnings
 import webbrowser
 from bs4 import BeautifulSoup
 
-import astropy.units as u
 import astropy.coordinates as coord
 from astropy.table import Table
 
@@ -126,7 +124,8 @@ class IbeClass(BaseQuery):
         # Raise exception, if request failed
         response.raise_for_status()
 
-        return commons.parse_votable(response.text).get_first_table().to_table()
+        return commons.parse_votable(
+            response.text).get_first_table().to_table()
 
     def query_region_async(
             self, coordinate=None, where=None, mission=None, dataset=None,
@@ -209,7 +208,7 @@ class IbeClass(BaseQuery):
         if intersect not in ('COVERS', 'ENCLOSED', 'CENTER', 'OVERLAPS'):
             raise InvalidQueryError(
                 "Invalid value for `intersects` " +
-                "(must be 'COVERS', 'ENCLOSED', 'CENTER', or 'OVERLAPS')" )
+                "(must be 'COVERS', 'ENCLOSED', 'CENTER', or 'OVERLAPS')")
 
         if action not in ('sia', 'data', 'search'):
             raise InvalidQueryError("Valid actions are: sia, data, search.")
@@ -267,7 +266,7 @@ class IbeClass(BaseQuery):
             # unnecessarily
             missions = self._missions
         else:
-            url = self.URL+"search/"
+            url = self.URL + "search/"
             response = self._request('GET', url, timeout=self.TIMEOUT,
                                      cache=cache)
 
@@ -299,8 +298,8 @@ class IbeClass(BaseQuery):
             mission = self.MISSION
         if mission not in self.list_missions():
             raise ValueError("Invalid mission specified: {0}."
-                             "Must be one of: {1}".format(mission,
-                                                          self.list_missions()))
+                             "Must be one of: {1}"
+                             .format(mission, self.list_missions()))
 
         url = "{URL}search/{mission}/".format(URL=self.URL, mission=mission)
         response = self._request('GET', url, timeout=self.TIMEOUT,
@@ -308,10 +307,9 @@ class IbeClass(BaseQuery):
 
         root = BeautifulSoup(response.text)
         links = root.findAll('a')
-        datasets = [a.text
-                    for a in links
-                    if a.attrs['href'].count('/')>=4 # shown as '..'; ignore
-                   ]
+        datasets = [a.text for a in links
+                    if a.attrs['href'].count('/') >= 4  # shown as '..'; ignore
+                    ]
 
         return datasets
 
@@ -343,18 +341,18 @@ class IbeClass(BaseQuery):
 
         if mission not in self.list_missions():
             raise ValueError("Invalid mission specified: {0}."
-                             "Must be one of: {1}".format(mission,
-                                                          self.list_missions()))
+                             "Must be one of: {1}"
+                             .format(mission, self.list_missions()))
 
         if dataset not in self.list_datasets(mission, cache=cache):
             raise ValueError("Invalid dataset {0} specified for mission {1}."
-                             "Must be one of: {2}".format(dataset, mission,
-                                                          self.list_datsets(mission,
-                                                                            cache=True)))
+                             "Must be one of: {2}"
+                             .format(dataset, mission,
+                                     self.list_datsets(mission, cache=True)))
 
         url = "{URL}search/{mission}/{dataset}/".format(URL=self.URL,
-                                                         mission=mission,
-                                                         dataset=dataset)
+                                                        mission=mission,
+                                                        dataset=dataset)
         response = self._request('GET', url, timeout=self.TIMEOUT,
                                  cache=cache)
 
@@ -363,7 +361,7 @@ class IbeClass(BaseQuery):
 
     # Unfortunately, the URL construction for each data set is different, and
     # they're not obviously accessible via API
-    #def get_data(self, **kwargs):
+    # def get_data(self, **kwargs):
     #    return self.query_region_async(retrieve_data=True, **kwargs)
 
     def show_docs(self, mission=None, dataset=None, table=None):

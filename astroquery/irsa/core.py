@@ -284,15 +284,19 @@ class IrsaClass(BaseQuery):
                 request_payload['size'] = width.to(u.arcsec).value
         elif spatial == 'Polygon':
             if coordinates is not None:
-                request_payload['objstr'] = coordinates if not commons._is_coordinate(coordinates) else _parse_coordinates(coordinates)
+                if commons._is_coordinate(coordinates):
+                    request_payload['objstr'] = _parse_coordinates(coordinates)
+                else:
+                    request_payload['objstr'] = coordinates
             try:
                 coordinates_list = [_parse_coordinates(c) for c in polygon]
             except (ValueError, TypeError):
-                    coordinates_list = [_format_decimal_coords(*_pair_to_deg(pair)) for pair in polygon]
+                coordinates_list = [_format_decimal_coords(*_pair_to_deg(pair))
+                                    for pair in polygon]
             request_payload['polygon'] = ','.join(coordinates_list)
         else:
-            raise ValueError("Unrecognized spatial query type. " +
-                             "Must be one of `Cone`, `Box`, `Polygon`, or `All-Sky`.")
+            raise ValueError("Unrecognized spatial query type. Must be one of "
+                             "'Cone', 'Box', 'Polygon', or 'All-Sky'.")
 
         request_payload['spatial'] = spatial
 
@@ -357,8 +361,9 @@ class IrsaClass(BaseQuery):
         except Exception as ex:
             self.response = response
             self.table_parse_error = ex
-            raise TableParseError("Failed to parse IRSA votable! The raw response can be found "
-                                  "in self.response, and the error in self.table_parse_error.")
+            raise TableParseError("Failed to parse IRSA votable! The raw "
+                                  "response can be found in self.response, "
+                                  "and the error in self.table_parse_error.")
 
         # Convert to astropy.table.Table instance
         table = first_table.to_table()
@@ -377,11 +382,12 @@ class IrsaClass(BaseQuery):
         Returns
         -------
         catalogs : dict
-            A dictionary of catalogs where the key indicates the catalog name to
-            be used in query functions, and the value is the verbose description
-            of the catalog.
+            A dictionary of catalogs where the key indicates the catalog
+            name to be used in query functions, and the value is the verbose
+            description of the catalog.
         """
-        response = commons.send_request(Irsa.GATOR_LIST_URL, dict(mode='xml'), Irsa.TIMEOUT, request_type="GET")
+        response = commons.send_request(Irsa.GATOR_LIST_URL, dict(mode='xml'),
+                                        Irsa.TIMEOUT, request_type="GET")
         root = tree.fromstring(response.content)
         catalogs = {}
         for catalog in root.findall('catalog'):
@@ -402,11 +408,13 @@ Irsa = IrsaClass()
 
 
 def _parse_coordinates(coordinates):
-# borrowed from commons.parse_coordinates as from_name wasn't required in this case
+    # borrowed from commons.parse_coordinates as from_name wasn't required in
+    # this case
     if isinstance(coordinates, six.string_types):
         try:
             c = coord.SkyCoord(coordinates, frame='icrs')
-            warnings.warn("Coordinate string is being interpreted as an ICRS coordinate.")
+            warnings.warn("Coordinate string is being interpreted as an "
+                          "ICRS coordinate.")
         except u.UnitsError as ex:
             warnings.warn("Only ICRS coordinates can be entered as strings\n"
                           "For other systems please use the appropriate "
@@ -417,11 +425,16 @@ def _parse_coordinates(coordinates):
     else:
         raise TypeError("Argument cannot be parsed as a coordinate")
     c_icrs = c.transform_to(coord.ICRS)
-    formatted_coords = _format_decimal_coords(c_icrs.ra.degree, c_icrs.dec.degree)
+    formatted_coords = _format_decimal_coords(c_icrs.ra.degree,
+                                              c_icrs.dec.degree)
     return formatted_coords
 
+
 def _pair_to_deg(pair):
-    """ Turn a pair of floats, Angles, or Quantities into pairs of float degrees """
+    """
+    Turn a pair of floats, Angles, or Quantities into pairs of float
+    degrees
+    """
 
     # unpack
     lon, lat = pair
@@ -434,11 +447,13 @@ def _pair_to_deg(pair):
             if ang.unit.is_equivalent(u.degree):
                 pair[ii] = ang.to(u.degree).value
             elif ang.unit.is_equivalent(u.hour):
-                warnings.warn("Assuming angle specified with 'hour' units means 'hourangle'.  "
+                warnings.warn("Assuming angle specified with 'hour' units "
+                              "means 'hourangle'.  "
                               "This is an astropy < 0.3 warning.")
                 pair[ii] = (ang.value * u.hourangle).to(u.degree)
     else:
-        warnings.warn("Polygon endpoints are being interpreted as RA/Dec pairs specified in decimal degree units.")
+        warnings.warn("Polygon endpoints are being interpreted as "
+                      "RA/Dec pairs specified in decimal degree units.")
     return tuple(pair)
 
 
@@ -450,7 +465,8 @@ def _format_decimal_coords(ra, dec):
 
 
 def _parse_dimension(dim):
-    if isinstance(dim, u.Quantity) and dim.unit in u.deg.find_equivalent_units():
+    if (isinstance(dim, u.Quantity) and
+            dim.unit in u.deg.find_equivalent_units()):
         if dim.unit not in ['arcsec', 'arcmin', 'deg']:
             dim = dim.to(u.degree)
     # otherwise must be an Angle or be specified in hours...

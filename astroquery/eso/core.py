@@ -88,7 +88,7 @@ class EsoClass(QueryWithLogin):
             if tag_name == 'input':
                 is_file = (form_elem.get('type') == 'file')
                 value = form_elem.get('value')
-                if form_elem.get('type') in ['checkbox','radio']:
+                if form_elem.get('type') in ['checkbox', 'radio']:
                     if form_elem.has_attr('checked'):
                         if not value:
                             value = 'on'
@@ -106,7 +106,8 @@ class EsoClass(QueryWithLogin):
                             value = option.get('value')
                     # select the first option field if none is selected
                     if value is None:
-                        value = form_elem.select('option[value]')[0].get('value')
+                        value = form_elem.select(
+                            'option[value]')[0].get('value')
 
             if key in inputs:
                 value = str(inputs[key])
@@ -150,26 +151,29 @@ class EsoClass(QueryWithLogin):
     def _login(self, username=None, store_password=False):
         if username is None:
             if self.USERNAME == "":
-                raise LoginError("If you do not pass a username to login(), you should configure a default one!")
+                raise LoginError("If you do not pass a username to login(), "
+                                 "you should configure a default one!")
             else:
                 username = self.USERNAME
         # Get password from keyring or prompt
-        password_from_keyring = keyring.get_password("astroquery:www.eso.org", username)
+        password_from_keyring = keyring.get_password("astroquery:www.eso.org",
+                                                     username)
         if password_from_keyring is None:
             if system_tools.in_ipynb():
                 log.warn("You may be using an ipython notebook:"
                          " the password form will appear in your terminal.")
-            password = getpass.getpass("{0}, enter your ESO password:\n".format(username))
+            password = getpass.getpass("{0}, enter your ESO password:\n"
+                                       .format(username))
         else:
             password = password_from_keyring
         # Authenticate
         log.info("Authenticating {0} on www.eso.org...".format(username))
         # Do not cache pieces of the login process
-        login_response = self._request("GET", "https://www.eso.org/sso/login", cache=False)
-        login_result_response = self._activate_form(login_response,
-                                                    form_index=-1,
-                                                    inputs={'username': username,
-                                                            'password': password})
+        login_response = self._request("GET", "https://www.eso.org/sso/login",
+                                       cache=False)
+        login_result_response = self._activate_form(
+            login_response, form_index=-1, inputs={'username': username,
+                                                   'password': password})
         root = BeautifulSoup(login_result_response.content, 'html5lib')
         authenticated = not root.select('.error')
         if authenticated:
@@ -192,9 +196,8 @@ class EsoClass(QueryWithLogin):
 
         """
         if self._instrument_list is None:
-            instrument_list_response = self._request("GET",
-                                                     "http://archive.eso.org/cms/eso-data/instrument-specific-query-forms.html",
-                                                     cache=cache)
+            url = "http://archive.eso.org/cms/eso-data/instrument-specific-query-forms.html"
+            instrument_list_response = self._request("GET", url, cache=cache)
             root = BeautifulSoup(instrument_list_response.content, 'html5lib')
             self._instrument_list = []
             for element in root.select("div[id=col3] a[href]"):
@@ -217,9 +220,9 @@ class EsoClass(QueryWithLogin):
 
         """
         if self._survey_list is None:
-            survey_list_response = self._request("GET",
-                                                 "http://archive.eso.org/wdb/wdb/adp/phase3_main/form",
-                                                 cache=cache)
+            survey_list_response = self._request(
+                "GET", "http://archive.eso.org/wdb/wdb/adp/phase3_main/form",
+                cache=cache)
             root = BeautifulSoup(survey_list_response .content, 'html5lib')
             self._survey_list = []
             for select in root.select("select[name=phase3_program]"):
@@ -267,12 +270,13 @@ class EsoClass(QueryWithLogin):
                                               inputs=query_dict, cache=cache)
 
         content = survey_response.content
-        #First line is always garbage
-        content = content.split(b'\n',1)[1]
+        # First line is always garbage
+        content = content.split(b'\n', 1)[1]
         log.debug("Response content:\n{0}".format(content))
         if _check_response(content):
             try:
-                table = Table.read(BytesIO(content), format="ascii.csv", comment="^#")
+                table = Table.read(BytesIO(content), format="ascii.csv",
+                                   comment="^#")
             except Exception as ex:
                 # astropy 0.3.2 raises an anonymous exception; this is
                 # intended to prevent that from causing real problems
@@ -319,12 +323,13 @@ class EsoClass(QueryWithLogin):
 
         """
 
-        if instrument in ('feros','harps'):
+        if instrument in ('feros', 'harps'):
             url = 'http://archive.eso.org/wdb/wdb/eso/repro/form'
         elif instrument == 'grond':
             url = 'http://archive.eso.org/wdb/wdb/eso/eso_archive_main/form'
         else:
-            url = "http://archive.eso.org/wdb/wdb/eso/{0}/form".format(instrument)
+            url = ("http://archive.eso.org/wdb/wdb/eso/{0}/form"
+                   .format(instrument))
         table = None
         if open_form:
             webbrowser.open(url)
@@ -338,7 +343,8 @@ class EsoClass(QueryWithLogin):
             query_dict.update(kwargs)
             query_dict["wdbo"] = "csv/download"
 
-            # Default to returning the DP.ID since it is needed for header acquisition
+            # Default to returning the DP.ID since it is needed for header
+            # acquisition
             query_dict['tab_dp_id'] = (kwargs.pop('tab_dp_id')
                                        if 'tab_db_id' in kwargs
                                        else 'on')
@@ -352,16 +358,17 @@ class EsoClass(QueryWithLogin):
                 query_dict["max_rows_returned"] = self.ROW_LIMIT
             else:
                 query_dict["max_rows_returned"] = 10000
-            instrument_response = self._activate_form(instrument_form,
-                                                      form_index=0,
-                                                      inputs=query_dict, cache=cache)
+            instrument_response = self._activate_form(
+                instrument_form, form_index=0, inputs=query_dict, cache=cache)
+
             content = instrument_response.content
-            #First line is always garbage
+            # First line is always garbage
             content = content.split(b'\n', 1)[1]
             log.debug("Response content:\n{0}".format(content))
             if _check_response(content):
                 try:
-                    table = Table.read(BytesIO(content), format="ascii.csv", comment='^#')
+                    table = Table.read(BytesIO(content), format="ascii.csv",
+                                       comment='^#')
                 except Exception as ex:
                     # astropy 0.3.2 raises an anonymous exception; this is
                     # intended to prevent that from causing real problems
@@ -396,14 +403,15 @@ class EsoClass(QueryWithLogin):
             A table where: columns are header keywords, rows are product_ids.
 
         """
-        _schema_product_ids = schema.Schema(schema.Or(Column, [schema.Or(*six.string_types)]))
+        _schema_product_ids = schema.Schema(
+            schema.Or(Column, [schema.Or(*six.string_types)]))
         _schema_product_ids.validate(product_ids)
         # Get all headers
         result = []
         for dp_id in product_ids:
-            response = self._request("GET",
-                                     "http://archive.eso.org/hdr?DpId={0}".format(dp_id),
-                                     cache=cache)
+            response = self._request(
+                "GET", "http://archive.eso.org/hdr?DpId={0}".format(dp_id),
+                cache=cache)
             root = BeautifulSoup(response.content, 'html5lib')
             hdr = root.select('pre')[0].text
             header = {'DP.ID': dp_id}
@@ -509,34 +517,39 @@ class EsoClass(QueryWithLogin):
             else:
                 datasets_to_download.append(dataset)
 
-        valid_datasets = [self.verify_data_exists(ds) for ds in datasets_to_download]
+        valid_datasets = [self.verify_data_exists(ds)
+                          for ds in datasets_to_download]
         if not all(valid_datasets):
-            invalid_datasets = [ds for ds, v in zip(datasets_to_download, valid_datasets) if not v]
-            raise ValueError("The following data sets were not found on the ESO servers: {0}".format(invalid_datasets))
+            invalid_datasets = [ds for ds, v in zip(datasets_to_download,
+                                                    valid_datasets) if not v]
+            raise ValueError("The following data sets were not found on the "
+                             "ESO servers: {0}".format(invalid_datasets))
 
         # Second: Download the other datasets
         if datasets_to_download:
             if not self.authenticated():
                 self.login()
-            data_retrieval_form = self._request("GET",
-                                                "http://archive.eso.org/cms/eso-data/eso-data-direct-retrieval.html",
-                                                cache=cache)
+            url = "http://archive.eso.org/cms/eso-data/eso-data-direct-retrieval.html"
+            data_retrieval_form = self._request("GET", url, cache=cache)
             log.info("Staging request...")
             with suspend_cache(self):  # Never cache staging operations
                 inputs = {"list_of_datasets": "\n".join(datasets_to_download)}
-                data_confirmation_form = self._activate_form(data_retrieval_form,
-                                                             form_index=-1,
-                                                             inputs=inputs)
-                root = BeautifulSoup(data_confirmation_form.content, 'html5lib')
+                data_confirmation_form = self._activate_form(
+                    data_retrieval_form, form_index=-1, inputs=inputs)
+
+                root = BeautifulSoup(data_confirmation_form.content,
+                                     'html5lib')
                 login_button = root.select('input[value=LOGIN]')
                 if login_button:
-                    raise LoginError("Not logged in."
-                                     "  You must be logged in to download data.")
+                    raise LoginError("Not logged in. "
+                                     "You must be logged in to download data.")
+
                 # TODO: There may be another screen for Not Authorized; that
                 # should be included too
-                data_download_form = self._activate_form(data_confirmation_form,
-                                                         form_index=-1)
-                log.info("Staging form is at {0}".format(data_download_form.url))
+                data_download_form = self._activate_form(
+                    data_confirmation_form, form_index=-1)
+                log.info("Staging form is at {0}."
+                         .format(data_download_form.url))
                 root = BeautifulSoup(data_download_form.content, 'html5lib')
                 state = root.select('span[id=requestState]')[0].text
                 t0 = time.time()
@@ -545,21 +558,26 @@ class EsoClass(QueryWithLogin):
                     data_download_form = self._request("GET",
                                                        data_download_form.url,
                                                        cache=False)
-                    root = BeautifulSoup(data_download_form.content, 'html5lib')
+                    root = BeautifulSoup(data_download_form.content,
+                                         'html5lib')
                     state = root.select('span[id=requestState]')[0].text
-                    print("{0:20.0f}s elapsed".format(time.time()-t0), end='\r')
+                    print("{0:20.0f}s elapsed"
+                          .format(time.time() - t0), end='\r')
                     sys.stdout.flush()
                 if state == 'ERROR':
-                    raise RemoteServiceError("There was a remote service error;"
-                                             " perhaps the requested file could not be found?")
+                    raise RemoteServiceError("There was a remote service "
+                                             "error; perhaps the requested "
+                                             "file could not be found?")
             log.info("Downloading files...")
             for fileId in root.select('input[name=fileId]'):
-                fileLink = "http://dataportal.eso.org/dataPortal"+fileId.attrs['value'].split()[1]
+                fileLink = ("http://dataportal.eso.org/dataPortal" +
+                            fileId.attrs['value'].split()[1])
                 filename = self._request("GET", fileLink, save=True)
                 files.append(system_tools.gunzip(filename))
-        self._session.redirect_cache.clear() # Empty the redirect cache of this request session
+        # Empty the redirect cache of this request session
+        self._session.redirect_cache.clear()
         log.info("Done!")
-        if (not return_list) and (len(files)==1):
+        if (not return_list) and (len(files) == 1):
             files = files[0]
         return files
 
@@ -570,9 +588,9 @@ class EsoClass(QueryWithLogin):
         """
         url = 'http://archive.eso.org/wdb/wdb/eso/eso_archive_main/query'
         payload = {'dp_id': dataset,
-                   'ascii_out_mode':'true',
-                  }
-        # Never cache this check as it is verifying the existence of remote content
+                   'ascii_out_mode': 'true',
+                   }
+        # Never cache this as it is verifying the existence of remote content
         response = self._request("POST", url, params=payload, cache=False)
 
         content = response.text
@@ -601,23 +619,23 @@ class EsoClass(QueryWithLogin):
             return self._print_help(apex_query_url, 'apex')
         else:
 
-            payload = {'wdbo':'csv/download'}
+            payload = {'wdbo': 'csv/download'}
             if project_id is not None:
                 payload['prog_id'] = project_id
             payload.update(kwargs)
 
             apex_form = self._request("GET", apex_query_url, cache=cache)
-            apex_response = self._activate_form(apex_form, form_index=0,
-                                                inputs=payload, cache=cache,
-                                                method='application/x-www-form-urlencoded')
+            apex_response = self._activate_form(
+                apex_form, form_index=0, inputs=payload, cache=cache,
+                method='application/x-www-form-urlencoded')
 
             content = apex_response.content
             if _check_response(content):
-                #First line is always garbage
-                content = content.split(b'\n',1)[1]
+                # First line is always garbage
+                content = content.split(b'\n', 1)[1]
                 try:
                     table = Table.read(BytesIO(content), format="ascii.csv",
-                                       guess=False,# header_start=1,
+                                       guess=False,  # header_start=1,
                                        comment="#")
                 except Exception as ex:
                     # astropy 0.3.2 raises an anonymous exception; this is
@@ -625,7 +643,7 @@ class EsoClass(QueryWithLogin):
                     if 'No reader defined' in ex.args[0]:
                         table = Table.read(BytesIO(content), format="ascii",
                                            delimiter=',', guess=False,
-                                           #header_start=1,
+                                           # header_start=1,
                                            comment="#")
                     else:
                         raise ex
@@ -634,14 +652,16 @@ class EsoClass(QueryWithLogin):
 
             return table
 
-
     def _print_help(self, url, instrument, cache=True):
         """
         Download a form and print it in a quasi-human-readable way
         """
-        log.info("List of the column_filters parameters accepted by the {0} instrument query.".format(instrument))
-        log.info("The presence of a column in the result table can be controlled if prefixed with a [ ] checkbox.")
-        log.info("The default columns in the result table are shown as already ticked: [x].")
+        log.info("List of the column_filters parameters accepted by the "
+                 "{0} instrument query.".format(instrument))
+        log.info("The presence of a column in the result table can be "
+                 "controlled if prefixed with a [ ] checkbox.")
+        log.info("The default columns in the result table are shown as "
+                 "already ticked: [x].")
 
         result_string = []
 
@@ -650,7 +670,8 @@ class EsoClass(QueryWithLogin):
         form = doc.select("html body form pre")[0]
         for section in form.select("table"):
             section_title = "".join(section.stripped_strings)
-            section_title = "\n".join(["", section_title, "-"*len(section_title)])
+            section_title = "\n".join(["", section_title,
+                                       "-" * len(section_title)])
             result_string.append(section_title)
             checkbox_name = ""
             checkbox_value = ""
@@ -669,7 +690,9 @@ class EsoClass(QueryWithLogin):
                 elif tag.name == u"select":
                     options = []
                     for option in tag.select("option"):
-                        options += ["{0} ({1})".format(option['value'], "".join(option.stripped_strings))]
+                        options += ["{0} ({1})"
+                                    .format(option['value'],
+                                            "".join(option.stripped_strings))]
                     name = tag[u"name"]
                     value = ", ".join(options)
                 else:
@@ -680,7 +703,8 @@ class EsoClass(QueryWithLogin):
                 else:
                     checkbox = "   "
                 if name != u"":
-                    result_string.append("{0} {1}: {2}".format(checkbox, name, value))
+                    result_string.append("{0} {1}: {2}"
+                                         .format(checkbox, name, value))
 
         print("\n".join(result_string))
         return result_string

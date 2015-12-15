@@ -24,31 +24,30 @@ DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
 def data_path(filename):
     return os.path.join(DATA_DIR, filename)
 
-DATA_FILES = {'GET': {'http://almascience.eso.org/aq/':
-                      {'Sgr A*':'sgra_query.xml',
-                       'NGC4945':'ngc4945.xml',
-                       '': 'querypage.html',
-                      },
-                      'https://almascience.eso.org/rh/requests/anonymous/519752156':
-                      'data_list_page.html',
-                      'http://almascience.eso.org/rh/requests/anonymous/519752156/script':
-                      'downloadRequest519752156script.sh',
-                      'http://almascience.eso.org/rh/submission/d45d0552-8479-4482-9833-fecdef3f8b90':
-                      'staging_submission.html',
-                      'http://almascience.eso.org/aq/validate':
-                      'empty.html',
-                      'http://almascience.eso.org/rh/requests/anonymous/786572566/script':
-                      'downloadRequest786572566script.sh',
-                      'http://almascience.eso.org/rh/requests/anonymous/786978956/script':
-                      'downloadRequest786978956script.sh',
-                      'http://almascience.eso.org/rh/requests/anonymous/787632764/script':
-                      'downloadRequest787632764script.sh',
-                      'https://almascience.eso.org/rh/requests/anonymous/519752156/summary':
-                      'summary_519752156.json',
-                     },
-              'POST': {'http://almascience.eso.org/rh/submission':
-                       'initial_response.html'}
-              }
+DATA_FILES = {
+    'GET': {'http://almascience.eso.org/aq/': {'Sgr A*': 'sgra_query.xml',
+                                               'NGC4945': 'ngc4945.xml',
+                                               '': 'querypage.html',
+                                               },
+            'https://almascience.eso.org/rh/requests/anonymous/519752156':
+                'data_list_page.html',
+            'http://almascience.eso.org/rh/requests/anonymous/519752156/script':
+                'downloadRequest519752156script.sh',
+            'http://almascience.eso.org/rh/submission/d45d0552-8479-4482-9833-fecdef3f8b90':
+                'staging_submission.html',
+            'http://almascience.eso.org/aq/validate':
+                'empty.html',
+            'http://almascience.eso.org/rh/requests/anonymous/786572566/script':
+                'downloadRequest786572566script.sh',
+            'http://almascience.eso.org/rh/requests/anonymous/786978956/script':
+                'downloadRequest786978956script.sh',
+            'http://almascience.eso.org/rh/requests/anonymous/787632764/script':
+                'downloadRequest787632764script.sh',
+            'https://almascience.eso.org/rh/requests/anonymous/519752156/summary':
+                'summary_519752156.json',
+            },
+    'POST': {'http://almascience.eso.org/rh/submission':
+             'initial_response.html'}}
 
 
 def url_mapping(url):
@@ -59,7 +58,7 @@ def url_mapping(url):
                'http://almascience.eso.org/rh/submission/d45d0552-8479-4482-9833-fecdef3f8b90/submission',
                'http://almascience.eso.org/rh/submission/d45d0552-8479-4482-9833-fecdef3f8b90':
                'https://almascience.eso.org/rh/requests/anonymous/519752156',
-              }
+               }
     if url not in mapping:
         return url
     else:

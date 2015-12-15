@@ -8,7 +8,7 @@ from astropy import coordinates as coord
 from astropy import units as u
 from ...utils.testing_tools import MockResponse
 
-DATA_FILES = {'gal_0_3':'gal_0_3.txt',
+DATA_FILES = {'gal_0_3': 'gal_0_3.txt',
               }
 
 

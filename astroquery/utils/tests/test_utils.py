@@ -110,7 +110,8 @@ def test_send_request_post(monkeypatch):
 
 def test_send_request_get(monkeypatch):
     def mock_get(url, params, timeout, headers={}, status_code=200):
-        req = requests.Request('GET', url, params=params, headers=headers).prepare()
+        req = requests.Request(
+            'GET', url, params=params, headers=headers).prepare()
         req.status_code = status_code
         req.raise_for_status = lambda: None
         return req
@@ -122,7 +123,8 @@ def test_send_request_get(monkeypatch):
 
 def test_quantity_timeout(monkeypatch):
     def mock_get(url, params, timeout, headers={}, status_code=200):
-        req = requests.Request('GET', url, params=params, headers=headers).prepare()
+        req = requests.Request(
+            'GET', url, params=params, headers=headers).prepare()
         req.status_code = status_code
         req.raise_for_status = lambda: None
         return req
@@ -173,8 +175,10 @@ def create_in_odict(t_list):
     return OrderedDict([(t.meta['name'], t) for t in t_list])
 
 
-# These tests fail on stable astropy.  I don't know why, but they're not essential
-@pytest.mark.skipif(astropy.version.minor <= 3, reason="Old versions don't do exceptions right.")
+# These tests fail on stable astropy.  I don't know why, but they're not
+# essential
+@pytest.mark.skipif(astropy.version.minor <= 3,
+                    reason="Old versions don't do exceptions right.")
 def test_suppress_vo_warnings(recwarn):
     commons.suppress_vo_warnings()
     votable.exceptions.warn_or_raise(votable.exceptions.W01)
