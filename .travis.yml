@@ -16,7 +16,6 @@ python:
     - 2.7
     - 3.3
     - 3.4
-    - 3.5
 
 env:
     global:
@@ -37,6 +36,14 @@ env:
 matrix:
     include:
 
+        # Test for py 3.5 (move this up to the main matrix once beautiful-soup is in conda)
+        - python: 3.5
+          env: SETUP_CMD='egg_info'
+        - python: 3.5
+          env: SETUP_CMD='test'
+               CONDA_DEPENDENCIES='requests matplotlib html5lib'
+               PIP_DEPENDENCIES='keyring aplpy pyregion beautifulsoup4'
+
         # Do a coverage test in Python 2.
         - python: 2.7
           env: SETUP_CMD='test --coverage'
@@ -51,10 +58,14 @@ matrix:
           env: ASTROPY_VERSION=development SETUP_CMD='test'
         - python: 3.5
           env: ASTROPY_VERSION=development SETUP_CMD='test'
+               CONDA_DEPENDENCIES='requests matplotlib html5lib'
+               PIP_DEPENDENCIES='keyring aplpy pyregion beautifulsoup4'
         - python: 2.7
           env: ASTROPY_VERSION=lts SETUP_CMD='test'
         - python: 3.5
           env: ASTROPY_VERSION=lts SETUP_CMD='test'
+               CONDA_DEPENDENCIES='requests matplotlib html5lib'
+               PIP_DEPENDENCIES='keyring aplpy pyregion beautifulsoup4'
 
         # Try with optional dependencies disabled
         - python: 2.7
@@ -63,8 +74,8 @@ matrix:
                PIP_DEPENDENCIES='keyring'
         - python: 3.5
           env: SETUP_CMD='test'
-               CONDA_DEPENDENCIES='requests beautiful-soup html5lib'
-               PIP_DEPENDENCIES='keyring'
+               CONDA_DEPENDENCIES='requests html5lib'
+               PIP_DEPENDENCIES='keyring beautifulsoup4'
 
         # Try older numpy versions
         - python: 2.7
