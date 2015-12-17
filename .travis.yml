@@ -14,7 +14,6 @@ addons:
 
 python:
     - 2.7
-    - 3.3
     - 3.4
 
 env:
@@ -23,7 +22,7 @@ env:
         # overidden underneath. They are defined here in order to save having
         # to repeat them for all configurations.
         - MAIN_CMD='python setup.py'
-        - NUMPY_VERSION=1.9
+        - NUMPY_VERSION=1.10
         - ASTROPY_VERSION=stable
         - CONDA_DEPENDENCIES='requests beautiful-soup matplotlib html5lib'
         - PIP_DEPENDENCIES='keyring aplpy pyregion'
@@ -36,6 +35,14 @@ env:
 matrix:
     include:
 
+        # Test for py 3.5 (move this up to the main matrix once beautiful-soup is in conda)
+        - python: 3.5
+          env: SETUP_CMD='egg_info'
+        - python: 3.5
+          env: SETUP_CMD='test'
+               CONDA_DEPENDENCIES='requests matplotlib html5lib'
+               PIP_DEPENDENCIES='keyring aplpy pyregion beautifulsoup4'
+
         # Do a coverage test in Python 2.
         - python: 2.7
           env: SETUP_CMD='test --coverage'
@@ -45,23 +52,40 @@ matrix:
         - python: 2.7
           env: SETUP_CMD='build_sphinx -w'
 
-        # Try Astropy development version
+        # Python 3.3 doesn't have numpy 1.10 in conda, revoke this commit once
+        # it's available in the astropy-ci-extras channel
+        - python: 3.3
+          env: SETUP_CMD='egg_info'
+        - python: 3.3
+          env: SETUP_CMD='test' NUMPY_VERSION=1.9
+
+        # Try Astropy development and LTS version
         - python: 2.7
           env: ASTROPY_VERSION=development SETUP_CMD='test'
-        - python: 3.4
+        - python: 3.5
           env: ASTROPY_VERSION=development SETUP_CMD='test'
+               CONDA_DEPENDENCIES='requests matplotlib html5lib'
+               PIP_DEPENDENCIES='keyring aplpy pyregion beautifulsoup4'
+        - python: 2.7
+          env: ASTROPY_VERSION=lts SETUP_CMD='test'
+        - python: 3.5
+          env: ASTROPY_VERSION=lts SETUP_CMD='test'
+               CONDA_DEPENDENCIES='requests matplotlib html5lib'
+               PIP_DEPENDENCIES='keyring aplpy pyregion beautifulsoup4'
 
         # Try with optional dependencies disabled
         - python: 2.7
           env: SETUP_CMD='test'
                CONDA_DEPENDENCIES='requests beautiful-soup html5lib'
                PIP_DEPENDENCIES='keyring'
-        - python: 3.4
+        - python: 3.5
           env: SETUP_CMD='test'
-               CONDA_DEPENDENCIES='requests beautiful-soup html5lib'
-               PIP_DEPENDENCIES='keyring'
+               CONDA_DEPENDENCIES='requests html5lib'
+               PIP_DEPENDENCIES='keyring beautifulsoup4'
 
         # Try older numpy versions
+        - python: 2.7
+          env: NUMPY_VERSION=1.9 SETUP_CMD='test'
         - python: 2.7
           env: NUMPY_VERSION=1.8 SETUP_CMD='test'
         - python: 2.7
