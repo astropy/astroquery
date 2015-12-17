@@ -10,7 +10,6 @@ from astropy.extern import six
 import astropy.units as u
 import astropy.coordinates as coord
 import astropy.io.votable as votable
-from astropy import __version__ as ASTROPY_VERSION
 
 from ..query import BaseQuery
 from ..utils import commons
@@ -536,11 +535,6 @@ class NedClass(BaseQuery):
         -------
         result : `astropy.table.Table`
             The result of the query as an `astropy.table.Table` object.
-
-        Notes
-        -----
-        .. warning:: table=references does not work correctly
-            `astroquery issue #141 <https://github.com/astropy/astroquery/issues/141>`_
 
         """
         response = self.get_table_async(object_name, table=table,
