@@ -14,7 +14,6 @@ addons:
 
 python:
     - 2.7
-    - 3.3
     - 3.4
 
 env:
@@ -52,6 +51,13 @@ matrix:
         # may run for a long time
         - python: 2.7
           env: SETUP_CMD='build_sphinx -w'
+
+        # Python 3.3 doesn't have numpy 1.10 in conda, revoke this commit once
+        # it's available in the astropy-ci-extras channel
+        - python: 3.3
+          env: SETUP_CMD='egg_info'
+        - python: 3.3
+          env: SETUP_CMD='test' NUMPY_VERSION=1.9
 
         # Try Astropy development and LTS version
         - python: 2.7
