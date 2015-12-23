@@ -244,11 +244,8 @@ class NraoClass(BaseQuery):
     def _parse_result(self, response, verbose=False):
         if not verbose:
             commons.suppress_vo_warnings()
-        # fix to replace non standard datatype 'integer' in returned VOTable
-        # with 'int' to make it parsable by astropy.io.votable
-        integer_re = re.compile(r'datatype="integer"')
-        content = response.text
-        new_content = integer_re.sub(r'datatype="int"', content)
+
+        new_content = response.text
 
         # these are pretty bad hacks, but also needed...
         days_re = re.compile(r'unit="days"  datatype="double"')
@@ -257,10 +254,17 @@ class NraoClass(BaseQuery):
         degrees_re = re.compile(r'unit="degrees"  datatype="double"')
         new_content = degrees_re.sub(r'unit="degrees"  datatype="char" '
                                      'arraysize="*"', new_content)
+        telconfig_re = re.compile(r'datatype="char"  name="Telescope:config"')
+        new_content = telconfig_re.sub(r'datatype="char"'
+                                       'name="Telescope:config"'
+                                       ' arraysize="*"', new_content)
+
+        datatype_mapping = {'integer':'long'}
 
         try:
             tf = six.BytesIO(new_content.encode())
-            first_table = votable.parse(tf, pedantic=False).get_first_table()
+            first_table = votable.parse(tf, pedantic=False,
+                                        datatype_mapping=datatype_mapping).get_first_table()
             try:
                 table = first_table.to_table(use_names_over_ids=True)
             except TypeError:
