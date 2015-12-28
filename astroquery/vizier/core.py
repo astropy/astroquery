@@ -15,7 +15,7 @@ import astropy.table as tbl
 import astropy.utils.data as aud
 from astropy.utils import OrderedDict
 import astropy.io.votable as votable
-from astropy.io import ascii
+from astropy.io import ascii, fits
 
 from ..query import BaseQuery
 from ..utils import commons
@@ -655,7 +655,7 @@ class VizierClass(BaseQuery):
                                       "self.parsed_result.\n Exception: " +
                                       str(self.table_parse_error))
         elif response.content[:5] == b'#\n#  ':
-            return parse_vizier_tsvfile(data, verbose=verbose)
+            return parse_vizier_tsvfile(response.content, verbose=verbose)
         elif response.content[:6] == b'SIMPLE':
             return fits.open(BytesIO(response.content),
                              ignore_missing_end=True)

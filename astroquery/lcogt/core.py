@@ -369,7 +369,7 @@ class LcogtClass(BaseQuery):
         Display a table of the catalogs in the LCOGT Gator tool.
         """
         for catname in self.catalogs:
-            print("{:30s}  {:s}".format(catname, catalogs[catname]))
+            print("{:30s}  {:s}".format(catname, self.catalogs[catname]))
 
 Lcogt = LcogtClass()
 
