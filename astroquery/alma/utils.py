@@ -31,10 +31,6 @@ def pyregion_subset(region, data, mywcs):
 
     shapelist = pyregion.ShapeList([region])
     if shapelist[0].coord_format not in ('physical', 'image'):
-        # Requires astropy >0.4...
-        # pixel_regions = shapelist.as_imagecoord(
-        #     self.wcs.celestial.to_header())
-        # convert the regions to image (pixel) coordinates
         celhdr = mywcs.sub([wcs.WCSSUB_CELESTIAL]).to_header()
         pixel_regions = shapelist.as_imagecoord(celhdr)
     else:
