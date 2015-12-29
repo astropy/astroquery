@@ -28,29 +28,20 @@ def patch_parse_coordinates(request):
     return mp
 
 
-@pytest.fixture
-def patch_get(request):
-    mp = request.getfuncargvalue("monkeypatch")
-    mp.setattr(requests, 'get', get_mockreturn)
-    return mp
-
 
 @pytest.fixture
 def patch_post(request):
     mp = request.getfuncargvalue("monkeypatch")
-    mp.setattr(requests, 'post', post_mockreturn)
+    mp.setattr(requests.Session, 'request', post_mockreturn)
     return mp
 
 
-def get_mockreturn(url, params=None, timeout=10, **kwargs):
+def post_mockreturn(self, method, url, data=None, timeout=10, files=None,
+                    params=None, headers=None, **kwargs):
+    if method != 'POST':
+        raise ValueError("A 'post request' was made with method != POST")
     filename = data_path(DATA_FILES['votable'])
-    content = open(filename, 'rb').read()
-    return MockResponse(content, **kwargs)
-
-
-def post_mockreturn(url, data=None, timeout=10, **kwargs):
-    filename = data_path(DATA_FILES['votable'])
-    content = open(filename, 'rb').read()
+    content = open(filename, "rb").read()
     return MockResponse(content, **kwargs)
 
 
