@@ -46,7 +46,8 @@ def gunzip(filename):
     else:
         return filename
 
-# If astropy#2793 is merged, this should be replaced with astropy.in_ipynb
+# If there is an update issue of astropy#2793 that got merged, this should
+# be replaced with it.
 
 
 def in_ipynb():
