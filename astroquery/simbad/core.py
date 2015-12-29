@@ -165,15 +165,11 @@ class SimbadClass(BaseQuery):
             get_pkg_data_filename(os.path.join('data',
                                                'votable_fields_table.txt')),
             format='ascii')
-        print("Available VOTABLE fields: ")
-        print(votable_fields_table)
-
-        print("\nFor more information on a field :\n"
-              "Simbad.get_field_description ('field_name')")
-
-        print()
-        print("Currently active VOTABLE fields:")
-        print(self._VOTABLE_FIELDS)
+        print("Available VOTABLE fields:\n {0} \n"
+              "For more information on a field :\n"
+              "Simbad.get_field_description ('field_name') \n"
+              "Currently active VOTABLE fields:\n {1}"
+              .format(votable_fields_table, self._VOTABLE_FIELDS))
 
     def get_field_description(self, field_name):
         """
@@ -191,7 +187,8 @@ class SimbadClass(BaseQuery):
         >>> Simbad.get_field_description('main_id')
         main identifier of an astronomical object. It is the same as id(1)
         >>> Simbad.get_field_description('bibcodelist(y1-y2)')
-        number of references. The parameter is optional and limit the count to the references between the years y1 and y2
+        number of references. The parameter is optional and limit the count to
+        the references between the years y1 and y2
         """
         # first load the dictionary from json
         dict_file = get_pkg_data_filename(
