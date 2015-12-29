@@ -231,15 +231,15 @@ class SimbadClass(BaseQuery):
         with open(dict_file, "r") as f:
             fields_dict = json.load(f)
             fields_dict = dict(
-                ((strip_field(f) if '(' in f else f, fields_dict[f])
-                 for f in fields_dict))
+                ((strip_field(ff) if '(' in ff else ff, fields_dict[ff])
+                 for ff in fields_dict))
 
         for field in args:
             sf = strip_field(field)
             if sf not in fields_dict:
                 raise KeyError("{field}: no such field".format(field=field))
-            elif sf in [strip_field(f, keep_filters=True)
-                        for f in self._VOTABLE_FIELDS]:
+            elif sf in [strip_field(ff, keep_filters=True)
+                        for ff in self._VOTABLE_FIELDS]:
                 errmsg = "{field}: field already present. ".format(field=field)
                 errmsg += ("Fields ra,dec,id,otype, and bibcodelist can only "
                            "be specified once.  To change their options, "
