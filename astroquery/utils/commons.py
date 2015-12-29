@@ -116,7 +116,7 @@ def parse_radius(radius):
 
     Parameters
     ----------
-    radius : str/`~astropy.units.Quantity`
+    radius : str or `~astropy.units.Quantity`
         The radius of a region
 
     Returns
@@ -139,7 +139,7 @@ def radius_to_unit(radius, unit='degree'):
 
     Parameters
     ----------
-    radius : str/astropy.units.Quantity
+    radius : str or `~astropy.units.Quantity`
         The radius of a region
 
     Returns
@@ -166,12 +166,13 @@ def parse_coordinates(coordinates):
 
     Parameters
     ----------
-    coordinates : str/astropy.coordinates object
+    coordinates : str or `astropy.coordinates` object
         Astronomical coordinate
 
     Returns
     -------
-    a subclass of `astropy.coordinates.BaseCoordinateFrame`
+    coordinates : a subclass of `astropy.coordinates.BaseCoordinateFrame`
+
 
     Raises
     ------
@@ -188,8 +189,8 @@ def parse_coordinates(coordinates):
                               "ICRS coordinate.")
             except u.UnitsError:
                 warnings.warn("Only ICRS coordinates can be entered as "
-                              "strings\n For other systems please use the "
-                              "appropriate astropy.coordinates object")
+                              "strings.\n For other systems please use the "
+                              "appropriate astropy.coordinates object.")
                 raise u.UnitsError
     elif isinstance(coordinates, CoordClasses):
         if hasattr(coordinates, 'frame'):
@@ -277,13 +278,6 @@ class TableList(list):
         """
 
         return self.format_table_list()
-
-        # This information is often unhelpful
-        # total_rows = sum(len(self.__getitem__(t)) for t in self.keys())
-        # info_str = "<TableList with {keylen} table(s) and {total_rows} total row(s)>".format(keylen=len(list(self.keys())),
-        #                                                                                    total_rows=total_rows)
-
-        # return info_str
 
     def format_table_list(self):
         """

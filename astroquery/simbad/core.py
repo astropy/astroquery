@@ -459,9 +459,9 @@ class SimbadClass(BaseQuery):
 
         Parameters
         ----------
-        coordinates : str/`astropy.coordinates`
+        coordinates : str or `astropy.coordinates` object
             the identifier or coordinates around which to query.
-        radius : str/`~astropy.units.Quantity`, optional
+        radius : str or `~astropy.units.Quantity`, optional
             the radius of the region. If missing, set to default
             value of 20 arcmin.
         equinox : float, optional
