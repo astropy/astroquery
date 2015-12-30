@@ -895,9 +895,11 @@ class AlmaClass(QueryWithLogin):
         """
         columns = {'uid': [], 'URL': [], 'size': []}
         for entry in data['node_data']:
-            is_file = (entry['de_type'] == 'MOUS' and
-                       (entry['file_name'] != 'null' and
-                        entry['file_key'] != 'null'))
+            # de_type can be useful (e.g., MOUS), but it is not necessarily
+            # specified
+            # file_name and file_key *must* be specified.
+            is_file = (entry['file_name'] != 'null' and
+                       entry['file_key'] != 'null')
             if is_file:
                 # "de_name": "ALMA+uid://A001/X122/X35e",
                 columns['uid'].append(entry['de_name'][5:])
