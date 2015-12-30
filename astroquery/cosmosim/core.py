@@ -348,12 +348,11 @@ class CosmoSimClass(QueryWithLogin):
 
             if phase:
                 if "COMPLETED" not in phase:
-                    warnings.warn("No jobs found with phase `{0}` matching "
-                                  "the regular expression `{1}` were found."
-                                  .format(phase, regex))
-                    warnings.warn("Matching regular expression `{0}` to all "
+                    warnings.warn("No jobs with phase `{0}` matching "
+                                  "the regular expression `{1}` were found.\n"
+                                  "Matching regular expression `{1}` to all "
                                   "jobs with phase `COMPLETED` instead "
-                                  "(unsorted):".format(regex))
+                                  "(unsorted):".format(phase, regex))
                 else:
                     matching_tables = [[self.table_dict[i]
                                         for i in self.table_dict.keys()
@@ -370,8 +369,8 @@ class CosmoSimClass(QueryWithLogin):
                                   for i in self.table_dict.keys()
                                   if self.table_dict[i] == miter][0]
                                  for miter in matching_tables])
-                matching_jobids, matching_phases, matching_starttimes = (
-                    matching[0], matching[1], matching[2])
+                (matching_jobids, matching_phases,
+                 matching_starttimes) = matching
         if sortby:
             if sortby.upper() == "TABLENAME":
                 if 'matching_tables' not in locals():
@@ -382,8 +381,8 @@ class CosmoSimClass(QueryWithLogin):
                                   for i in self.table_dict.keys()
                                   if self.table_dict[i] == miter][0]
                                  for miter in matching_tables])
-                matching_jobids, matching_phases, matching_starttimes = (
-                    matching[0], matching[1], matching[2])
+                (matching_jobids, matching_phases,
+                 matching_starttimes) = matching
 
             elif sortby.upper() == 'STARTTIME':
                 if 'matching_tables' not in locals():
@@ -392,10 +391,9 @@ class CosmoSimClass(QueryWithLogin):
                                       for i in self.starttime_dict.keys()
                                       if self.starttime_dict[i] == miter][0]
                                      for miter in matching_starttimes])
-                    matching_jobids, matching_phases, matching_tables = (
-                        matching[0], matching[1], matching[2])
+                    (matching_jobids, matching_phases,
+                     matching_tables) = matching
                 else:
-                    matching_tables = matching_tables
                     matching_starttimes = [[self.starttime_dict[i]
                                             for i in self.table_dict.keys()
                                             if self.table_dict[i] == miter][0]
@@ -404,8 +402,8 @@ class CosmoSimClass(QueryWithLogin):
                                       for i in self.starttime_dict.keys()
                                       if self.starttime_dict[i] == miter][0]
                                      for miter in matching_starttimes])
-                    matching_jobids, matching_phases, matching_tables = (
-                        matching[0], matching[1], matching[2])
+                    (matching_jobids, matching_phases,
+                     matching_tables) = matching
 
         frame = sys._getframe(1)
 
@@ -468,29 +466,25 @@ class CosmoSimClass(QueryWithLogin):
                                           for i in self.table_dict.keys()
                                           if i == miter][0]
                                          for miter in matching_jobids])
-                        matching_tables, matching_phases, matching_starttimes = (
-                            matching[0], matching[1], matching[2])
-                        t = Table()
-                        t['JobID'] = matching_jobids
-                        t['Phase'] = matching_phases
-                        t['Tablename'] = matching_tables
-                        t['Starttime'] = matching_starttimes
-                        t.pprint()
+                        (matching_tables, matching_phases,
+                         matching_starttimes) = matching
+
+                    t = Table()
+                    t['JobID'] = matching_jobids
+                    t['Phase'] = matching_phases
+                    t['Tablename'] = matching_tables
+                    t['Starttime'] = matching_starttimes
+
                     if sortby:
                         if sortby.upper() == 'TABLENAME':
-                            t = Table()
-                            t['Tablename'] = matching_tables
-                            t['Starttime'] = matching_starttimes
-                            t['JobID'] = matching_jobids
-                            t['Phase'] = matching_phases
-                            t.pprint()
+                            t['Tablename',
+                              'Starttime', 'JobID', 'Phase'].pprint()
                         if sortby.upper() == 'STARTTIME':
-                            t = Table()
-                            t['Starttime'] = matching_starttimes
-                            t['Tablename'] = matching_tables
-                            t['JobID'] = matching_jobids
-                            t['Phase'] = matching_phases
-                            t.pprint()
+                            t['Starttime',
+                              'Tablename', 'JobID', 'Phase'].pprint()
+                    else:
+                        t.pprint()
+
                 else:
                     if sortby:
                         warnings.warn('Sorting can only be applied to jobs '
@@ -508,28 +502,19 @@ class CosmoSimClass(QueryWithLogin):
                         t.pprint()
 
             if phase and regex:
-                if not sortby:
-                    t = Table()
-                    t['Tablename'] = matching_tables
-                    t['Starttime'] = matching_starttimes
-                    t['JobID'] = matching_jobids
-                    t['Phase'] = matching_phases
-                    t.pprint()
-                else:
+                t = Table()
+                t['Tablename'] = matching_tables
+                t['Starttime'] = matching_starttimes
+                t['JobID'] = matching_jobids
+                t['Phase'] = matching_phases
+
+                if sortby:
                     if sortby.upper() == 'TABLENAME':
-                        t = Table()
-                        t['Tablename'] = matching_tables
-                        t['Starttime'] = matching_starttimes
-                        t['JobID'] = matching_jobids
-                        t['Phase'] = matching_phases
                         t.pprint()
                     if sortby.upper() == 'STARTTIME':
-                        t = Table()
-                        t['Starttime'] = matching_starttimes
-                        t['Tablename'] = matching_tables
-                        t['JobID'] = matching_jobids
-                        t['Phase'] = matching_phases
-                        t.pprint()
+                        t['Starttime', 'Tablename', 'JobID', 'Phase'].pprint()
+                else:
+                    t.pprint()
 
             return checkalljobs
 
@@ -562,7 +547,8 @@ class CosmoSimClass(QueryWithLogin):
                 for i in range(len(completed_jobids))]
             self.response_dict_current = {}
             for i, vals in enumerate(completed_jobids):
-                self.response_dict_current[vals] = self._generate_response_dict(response_list[i])
+                self.response_dict_current[vals] = (
+                    self._generate_response_dict(response_list[i]))
         else:
             if self.job_dict[jobid] == 'COMPLETED':
                 response_list = [
@@ -570,7 +556,8 @@ class CosmoSimClass(QueryWithLogin):
                         'GET', CosmoSim.QUERY_URL + "/{}".format(jobid),
                         auth=(self.username, self.password), cache=False)]
                 self.response_dict_current = {}
-                self.response_dict_current[jobid] = self._generate_response_dict(response_list[0])
+                self.response_dict_current[jobid] = (
+                    self._generate_response_dict(response_list[0]))
             else:
                 warnings.warn("JobID must refer to a query with a phase "
                               "of 'COMPLETED'.")
@@ -612,14 +599,14 @@ class CosmoSimClass(QueryWithLogin):
         """
 
         R = response
-        response_dict = {'{}'.format('content'): R.content,
-                         '{}'.format('cookies'): R.cookies,
-                         '{}'.format('elapsed'): R.elapsed,
-                         '{}'.format('encoding'): R.encoding,
-                         '{}'.format('headers'): R.headers,
-                         '{}'.format('ok'): R.ok,
-                         '{}'.format('request'): R.request,
-                         '{}'.format('url'): R.url}
+        response_dict = {'content': R.content,
+                         'cookies': R.cookies,
+                         'elapsed': R.elapsed,
+                         'encoding': R.encoding,
+                         'headers': R.headers,
+                         'ok': R.ok,
+                         'request': R.request,
+                         'url': R.url}
 
         return response_dict
 
@@ -641,7 +628,8 @@ class CosmoSimClass(QueryWithLogin):
                  for i in range(len(response_list))]
         self.starttime_dict = {}
         for i in range(len(soups)):
-            self.starttime_dict['{}'.format(completed_ids[i])] = '{}'.format(soups[i].find('uws:starttime').string)
+            self.starttime_dict['{}'.format(completed_ids[i])] = (
+                '{}'.format(soups[i].find('uws:starttime').string))
 
     def general_job_info(self, jobid=None, output=False):
         """
@@ -660,22 +648,22 @@ class CosmoSimClass(QueryWithLogin):
         self.check_all_jobs()
 
         if jobid is None:
-            print("Job Summary:")
-            print("There are {} jobs with phase: COMPLETED."
-                  .format(self.job_dict.values().count('COMPLETED')))
-            print("There are {} jobs with phase: ERROR."
-                  .format(self.job_dict.values().count('ERROR')))
-            print("There are {} jobs with phase: ABORTED."
-                  .format(self.job_dict.values().count('ABORTED')))
-            print("There are {} jobs with phase: PENDING."
-                  .format(self.job_dict.values().count('PENDING')))
-            print("There are {} jobs with phase: EXECUTING."
-                  .format(self.job_dict.values().count('EXECUTING')))
-            print("There are {} jobs with phase: QUEUED."
-                  .format(self.job_dict.values().count('QUEUED')))
-            print("Try providing a jobid for the job you'd like to "
+            print("Job Summary:\n"
+                  "There are {0} jobs with phase: COMPLETED.\n"
+                  "There are {1} jobs with phase: ERROR.\n"
+                  "There are {2} jobs with phase: ABORTED.\n"
+                  "There are {3} jobs with phase: PENDING.\n"
+                  "There are {4} jobs with phase: EXECUTING.\n"
+                  "There are {5} jobs with phase: QUEUED.\n"
+                  "Try providing a jobid for the job you'd like to "
                   "know more about.\n To see a list of all jobs, use "
-                  "`check_all_jobs()`.")
+                  "`check_all_jobs()`."
+                  .format(self.job_dict.values().count('COMPLETED'),
+                          self.job_dict.values().count('ERROR'),
+                          self.job_dict.values().count('ABORTED'),
+                          self.job_dict.values().count('PENDING'),
+                          self.job_dict.values().count('EXECUTING'),
+                          self.job_dict.values().count('QUEUED')))
             return
         else:
             response_list = [self._request(
@@ -687,7 +675,8 @@ class CosmoSimClass(QueryWithLogin):
                 return
             else:
                 self.response_dict_current = {}
-                self.response_dict_current[jobid] = self._generate_response_dict(response_list[0])
+                self.response_dict_current[jobid] = (
+                    self._generate_response_dict(response_list[0]))
 
         if output is True:
             dictkeys = self.response_dict_current.keys()
@@ -863,11 +852,13 @@ class CosmoSimClass(QueryWithLogin):
                 self.db_dict[sstr]['tables'][sstr2]['columns'] = {}
                 tmpval = len(data['databases'][i]['tables'][j]['columns'])
                 for k in range(tmpval):
-                    sstr3 = '{}'.format(data['databases'][i]['tables'][j]['columns'][k]['name'])
+                    sdata2 = data['databases'][i]['tables'][j]['columns'][k]
+                    sdata2_id = sdata2['id']
+                    sstr3 = '{}'.format(sdata2['name'])
                     self.db_dict[sstr]['tables'][sstr2]['columns'][sstr3] = {}
-                    sdata2 = data['databases'][i]['tables'][j]['columns'][k]['id']
-                    self.db_dict[sstr]['tables'][sstr2]['columns'][sstr3]['id'] = sdata2
-                    sdesc3 = data['databases'][i]['tables'][j]['columns'][k]['description']
+
+                    self.db_dict[sstr]['tables'][sstr2]['columns'][sstr3]['id'] = sdata2_id
+                    sdesc3 = sdata2['description']
                     self.db_dict[sstr]['tables'][sstr2]['columns'][sstr3]['description'] = sdesc3
 
         return response
@@ -947,13 +938,13 @@ class CosmoSimClass(QueryWithLogin):
             # check the max size of any given column in the structure
             if table:
                 try:
-                    if len(self.db_dict[db]['tables'][table]['columns'].keys()) > size2:
-                        size2 = len(self.db_dict[db]['tables'][table]['columns'].keys())
-
+                    size2 = max(size2, len(self.db_dict[db]['tables']
+                                           [table]['columns'].keys()))
                     if col:
                         try:
-                            if len(self.db_dict[db]['tables'][table]['columns'][col].keys()) > size2:
-                                size2 = len(self.db_dict[db]['tables'][table]['columns'][col].keys())
+                            size2 = max(size2, len(self.db_dict[db]['tables']
+                                                   [table]['columns']
+                                                   [col].keys()))
                         except(KeyError, NameError):
                             logging.error("Must first specify a valid column "
                                           "of the `{0}` table within the `{1}`"
@@ -1011,7 +1002,8 @@ class CosmoSimClass(QueryWithLogin):
                         ['--> @ columns:'] +
                         [i for i in tblcols_dict if i != 'columns'] +
                         ['' for j in range(size2 - len(tblcols_dict))])
-                    col_dict = self.db_dict[db]['tables'][table]['columns'].keys()
+                    col_dict = (self.db_dict[db]['tables'][table]
+                                ['columns'].keys())
                     reordered = (['{}'.format(col)] +
                                  [i for i in col_dict if i != col])
                     if len(col_dict) < size2:
@@ -1044,7 +1036,8 @@ class CosmoSimClass(QueryWithLogin):
                 # if column has not been specified
                 else:
                     tblcols_dict = self.db_dict[db]['tables'][table].keys()
-                    col_dict = self.db_dict[db]['tables'][table]['columns'].keys()
+                    col_dict = (
+                        self.db_dict[db]['tables'][table]['columns'].keys())
                     reordered = sorted(col_dict, key=len)
                     if len(tblcols_dict) < size2:
                         t['Table Items'] = ['@ {}'.format(i)
@@ -1136,8 +1129,9 @@ class CosmoSimClass(QueryWithLogin):
                         num_rows = len(raw_table_data.split('\n')) - 2
                         headers = [raw_headers.split(',')[i].strip('"')
                                    for i in range(num_cols)]
-                        raw_data = [raw_table_data.split('\n')[i+1].split(",")
-                                    for i in range(num_rows)]
+                        raw_data = [
+                            raw_table_data.split('\n')[i + 1].split(",")
+                            for i in range(num_rows)]
                         data = [map(eval, raw_data[i])
                                 for i in range(num_rows)]
                         return headers, data
