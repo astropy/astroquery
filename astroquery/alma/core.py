@@ -895,9 +895,11 @@ class AlmaClass(QueryWithLogin):
         """
         columns = {'uid': [], 'URL': [], 'size': []}
         for entry in data['node_data']:
-            is_file = (entry['de_type'] == 'MOUS' or
-                       (entry['file_name'] != 'null' and
-                        entry['file_key'] != 'null'))
+            # de_type can be useful (e.g., MOUS), but it is not necessarily
+            # specified
+            # file_name and file_key *must* be specified.
+            is_file = (entry['file_name'] != 'null' and
+                       entry['file_key'] != 'null')
             if is_file:
                 # "de_name": "ALMA+uid://A001/X122/X35e",
                 columns['uid'].append(entry['de_name'][5:])
@@ -922,6 +924,9 @@ class AlmaClass(QueryWithLogin):
                                    entry['file_key'],
                                    entry['file_name'],
                                    )
+                if 'null' in url:
+                    raise ValueError("The URL {0} was created containing "
+                                     "'null', which is invalid.".format(url))
                 columns['URL'].append(url)
 
         columns['size'] = u.Quantity(columns['size'], u.Gbyte)
