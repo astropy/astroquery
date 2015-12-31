@@ -857,12 +857,11 @@ class CosmoSimClass(QueryWithLogin):
                     sdata2 = data['databases'][i]['tables'][j]['columns'][k]
                     sdata2_id = sdata2['id']
                     sstr3 = '{}'.format(sdata2['name'])
-                    self.db_dict[sstr]['tables'][sstr2]['columns'][sstr3] = {}
 
-                    self.db_dict[sstr]['tables'][sstr2]['columns'][sstr3]['id'] = sdata2_id
                     sdesc3 = sdata2['description']
-                    self.db_dict[sstr]['tables'][sstr2]['columns'][sstr3]['description'] = sdesc3
-
+                    self.db_dict[sstr]['tables'][sstr2]['columns'][sstr3] = {
+                        'id': sdata2_id,
+                        'description': sdesc3}
         return response
 
     def explore_db(self, db=None, table=None, col=None):
@@ -1008,33 +1007,34 @@ class CosmoSimClass(QueryWithLogin):
                                 ['columns'].keys())
                     reordered = (['{}'.format(col)] +
                                  [i for i in col_dict if i != col])
+
+                    temp_columns = []
+
+                    columns = self.db_dict[db]['tables'][table]['columns']
+                    for i in reordered:
+                        c = columns[i]
+                        if isinstance(c, dict) and i == col:
+                            temp_columns.append('--> @ {}:'.format(i))
+                        elif not isinstance(c, dict) and i == col:
+                            temp_columns.append('--> {}:'.format(i))
+                        elif isinstance(c, dict) and i != col:
+                            temp_columns.append('@ {}'.format(i))
+                        else:
+                            temp_columns.append('{}'.format(i))
+
                     if len(col_dict) < size2:
-                        t['Columns'] = ['--> @ {}:'.format(i)
-                                        if isinstance(self.db_dict[db]['tables'][table]['columns'][i], dict) and i == col
-                                        else '--> {}:'.format(i)
-                                        if not isinstance(self.db_dict[db]['tables'][table]['columns'][i], dict) and i == col
-                                        else '{}'.format(i)
-                                        if not isinstance(self.db_dict[db]['tables'][table]['columns'][i], dict) and i != col
-                                        else '@ {}'.format(i)
-                                        if isinstance(self.db_dict[db]['tables'][table]['columns'][i], dict) and i != col
-                                        else '{}'.format(i)
-                                        for i in reordered] + ['' for j in range(size2-len(col_dict))]
-                        colinfo_dict = col_dict = self.db_dict[db]['tables'][table]['columns'][col]
+                        size_diff = size2 - len(col_dict)
+                        t['Columns'] = (temp_columns +
+                                        ['' for j in range(size_diff)])
+
+                        colinfo_dict = col_dict = columns[col]
                         t['Col. Info'] = (
                             ['{} : {}'.format(i, colinfo_dict[i])
                              for i in colinfo_dict.keys()] +
                             ['' for j in range(size2 - len(colinfo_dict))])
                     else:
-                        t['Columns'] = ['--> @ {}:'.format(i)
-                                        if isinstance(self.db_dict[db]['tables'][table]['columns'][i], dict) and i == col
-                                        else '--> {}:'.format(i)
-                                        if not isinstance(self.db_dict[db]['tables'][table]['columns'][i], dict) and i == col
-                                        else '{}'.format(i)
-                                        if not isinstance(self.db_dict[db]['tables'][table]['columns'][i], dict) and i != col
-                                        else '@ {}'.format(i)
-                                        if isinstance(self.db_dict[db]['tables'][table]['columns'][i], dict) and i != col
-                                        else '{}'.format(i)
-                                        for i in reordered]
+                        t['Columns'] = temp_columns
+
                 # if column has not been specified
                 else:
                     tblcols_dict = self.db_dict[db]['tables'][table].keys()
@@ -1042,19 +1042,24 @@ class CosmoSimClass(QueryWithLogin):
                         self.db_dict[db]['tables'][table]['columns'].keys())
                     reordered = sorted(col_dict, key=len)
                     if len(tblcols_dict) < size2:
-                        t['Table Items'] = ['@ {}'.format(i)
-                                            if isinstance(self.db_dict[db]['tables'][table][i], dict)
-                                            else '{}:'.format(i)
-                                            for i in tblcols_dict] + ['' for i in range(size2-len(tblcols_dict))]
-                        t['Table Info'] = ['{}'.format(self.db_dict[db]['tables'][table][i])
-                                           if not isinstance(self.db_dict[db]['tables'][table][i], dict)
-                                           else ""
-                                           for i in tblcols_dict] + ['' for i in range(size2-len(tblcols_dict))]
+                        size_diff = size2 - len(tblcols_dict)
+                        tmp_table = self.db_dict[db]['tables'][table]
+                        t['Table Items'] = (
+                            ['@ {}'.format(i) if isinstance(tmp_table[i], dict)
+                             else '{}:'.format(i) for i in tblcols_dict] +
+                            ['' for i in range(size_diff)])
+                        t['Table Info'] = (
+                            ['{}'.format(tmp_table[i])
+                             if not isinstance(tmp_table[i], dict)
+                             else '' for i in tblcols_dict] +
+                            ['' for i in range(size_diff)])
                         if len(col_dict) < size2:
-                            t['Columns'] = ['@ {}'.format(i)
-                                            if isinstance(self.db_dict[db]['tables'][table]['columns'][i], dict)
-                                            else '{}'.format(i)
-                                            for i in reordered] + ['' for i in range(size2-len(col_dict))]
+                            t['Columns'] = (
+                                ['@ {}'.format(i)
+                                 if isinstance(tmp_table['columns'][i], dict)
+                                 else '{}'.format(i)
+                                 for i in reordered] +
+                                ['' for i in range(size2 - len(col_dict))])
                         else:
                             t['Columns'] = reordered
                     else:
