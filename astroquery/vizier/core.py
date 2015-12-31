@@ -125,41 +125,6 @@ class VizierClass(BaseQuery):
         plain text: asu-txt
         """
 
-        """
-        Quasi-private performance tests:
-            It seems that these are dominated by table parsing time.
-        %timeit m83tsv = Vizier.query_object_async('M83', return_type='asu-tsv', cache=False)
-        1 loops, best of 3: 7.11 s per loop
-        %timeit m83tsv = Vizier.query_object_async('M83', return_type='votable', cache=False)
-        1 loops, best of 3: 6.79 s per loop
-        %timeit m83tsv = Vizier.query_object_async('M83', return_type='asu-fits', cache=False)
-        1 loops, best of 3: 6.21 s per loop
-        %timeit m83tsv = Vizier.query_object_async('M83', return_type='asu-binfits', cache=False)
-        1 loops, best of 3: 667 ms per loop
-        Looks like this one led to a segfault on their system?
-
-        %timeit m83tsv = Vizier.query_object_async('M83', return_type='asu-txt', cache=False)
-        1 loops, best of 3: 6.83 s per loop
-        %timeit m83tsv = Vizier.query_object_async('M83', return_type='asu-tsv', cache=False)
-        1 loops, best of 3: 6.8 s per loop
-
-        m83tsv = Vizier.query_object_async('M83', return_type='asu-tsv', cache=False)
-        m83votable = Vizier.query_object_async('M83', return_type='votable', cache=False)
-        m83fits = Vizier.query_object_async('M83', return_type='asu-fits', cache=False)
-        m83txt = Vizier.query_object_async('M83', return_type='asu-txt', cache=False)
-        #m83binfits = Vizier.query_object_async('M83', return_type='asu-binfits', cache=False)
-
-        # many of these are invalid tables
-        %timeit fitstbls = fits.open(BytesIO(m83fits.content), ignore_missing_end=True)
-        1 loops, best of 3: 541 ms per loop
-
-        %timeit tbls = parse_vizier_tsvfile(m83tsv.content)
-        1 loops, best of 3: 1.35 s per loop
-
-        %timeit votbls = parse_vizier_votable(m83votable.content)
-        1 loops, best of 3: 3.62 s per loop
-
-        """
         # Only votable is supported now, but in case we try to support
         # something in the future we should disallow invalid ones.
         assert return_type in ('votable', 'asu-tsv', 'asu-fits',
