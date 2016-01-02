@@ -82,7 +82,8 @@ class VizierClass(BaseQuery):
 
     @column_filters.setter
     def column_filters(self, values):
-        self._column_filters = VizierClass._schema_column_filters.validate(values)
+        self._column_filters = (
+            VizierClass._schema_column_filters.validate(values))
 
     @property
     def catalog(self):

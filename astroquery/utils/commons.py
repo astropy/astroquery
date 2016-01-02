@@ -19,30 +19,29 @@ from astropy.utils import OrderedDict
 import astropy.utils.data as aud
 from astropy.io import fits, votable
 
-try:
-    from astropy.coordinates import BaseCoordinateFrame
-    ICRSCoordGenerator = lambda *args, **kwargs: coord.SkyCoord(
-        *args, frame='icrs', **kwargs)
-    GalacticCoordGenerator = lambda *args, **kwargs: coord.SkyCoord(
-        *args, frame='galactic', **kwargs)
-    FK5CoordGenerator = lambda *args, **kwargs: coord.SkyCoord(
-        *args, frame='fk5', **kwargs)
-    FK4CoordGenerator = lambda *args, **kwargs: coord.SkyCoord(
-        *args, frame='fk4', **kwargs)
-    ICRSCoord = coord.SkyCoord
-    CoordClasses = (coord.SkyCoord, BaseCoordinateFrame)
-except ImportError:
-    from astropy.coordinates import SphericalCoordinatesBase as BaseCoordinateFrame
-    ICRSCoordGenerator = lambda *args, **kwargs: coord.ICRS(*args, **kwargs)
-    GalacticCoordGenerator = lambda *args, **kwargs: coord.Galactic(
-        *args, **kwargs)
-    FK5CoordGenerator = lambda *args, **kwargs: coord.FK5(*args, **kwargs)
-    FK4CoordGenerator = lambda *args, **kwargs: coord.FK4(*args, **kwargs)
-    ICRSCoord = coord.ICRS
-    CoordClasses = (coord.SphericalCoordinatesBase,)
+from astropy.coordinates import BaseCoordinateFrame
 
 from ..exceptions import TimeoutError
 from .. import version
+
+
+def ICRSCoordGenerator(*args, **kwargs):
+    return coord.SkyCoord(*args, frame='icrs', **kwargs)
+
+
+def GalacticCoordGenerator(*args, **kwargs):
+    return coord.SkyCoord(*args, frame='galactic', **kwargs)
+
+
+def FK5CoordGenerator(*args, **kwargs):
+    return coord.SkyCoord(*args, frame='fk5', **kwargs)
+
+
+def FK4CoordGenerator(*args, **kwargs):
+    return coord.SkyCoord(*args, frame='fk4', **kwargs)
+
+ICRSCoord = coord.SkyCoord
+CoordClasses = (coord.SkyCoord, BaseCoordinateFrame)
 
 
 __all__ = ['send_request',
