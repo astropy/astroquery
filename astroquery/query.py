@@ -10,6 +10,7 @@ import requests
 from astropy.extern import six
 from astropy.config import paths
 from astropy import log
+import astropy.units as u
 from astropy.utils.console import ProgressBarOrSpinner
 import astropy.utils.data
 
