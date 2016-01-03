@@ -116,7 +116,7 @@ def test(package=None, test_path=None, args=None, plugins=None,
 if not _ASTROPY_SETUP_:
     import os
     from warnings import warn
-    from astropy import config
+    import astropy.config.configuration as config
 
     # add these here so we only need to cleanup the namespace at the end
     config_dir = None
@@ -126,52 +126,16 @@ if not _ASTROPY_SETUP_:
         config_template = os.path.join(config_dir, __package__ + ".cfg")
         if os.path.isfile(config_template):
             try:
-                config.configuration.update_default_config(
+                config.update_default_config(
                     __package__, config_dir, version=__version__)
             except TypeError as orig_error:
                 try:
-                    config.configuration.update_default_config(
+                    config.update_default_config(
                         __package__, config_dir)
-                except config.configuration.ConfigurationDefaultMissingError as e:
+                except config.ConfigurationDefaultMissingError as e:
                     wmsg = (e.args[0] + " Cannot install default profile. If "
                             "you are importing from source, this is expected.")
-                    warn(config.configuration.ConfigurationDefaultMissingWarning(wmsg))
+                    warn(config.ConfigurationDefaultMissingWarning(wmsg))
                     del e
                 except:
                     raise orig_error
-
-
-# This is to monkey-patch around a config system bug in astropy 1.0.1.
-# REMOVEME: when astropy 1.0.1 support is no longer needed
-if not _ASTROPY_SETUP_:
-    import astropy
-    if astropy.__version__ == '1.0.1':
-        from astropy.config import configuration
-
-        _existing_ConfigItem__init__ = configuration.ConfigItem.__init__
-
-        def _monkey_patch_1_0_1_ConfigItem__init__(
-                self, defaultvalue='', description=None, cfgtype=None,
-                module=None, aliases=None):
-            if module is None:
-                from astropy.utils import find_current_module
-                module = find_current_module(2)
-                if module is None:
-                    raise RuntimeError(
-                        "Cannot automatically determine get_config module, "
-                        "because it is not called from inside a valid module")
-                else:
-                    module = module.__name__
-
-            return _existing_ConfigItem__init__(
-                self,
-                defaultvalue=defaultvalue,
-                description=description,
-                cfgtype=cfgtype,
-                module=module,
-                aliases=aliases)
-
-        # Don't apply the same monkey patch twice
-        if (configuration.ConfigItem.__init__.__name__ !=
-                '_monkey_patch_1_0_1_ConfigItem__init__'):
-            configuration.ConfigItem.__init__ = _monkey_patch_1_0_1_ConfigItem__init__

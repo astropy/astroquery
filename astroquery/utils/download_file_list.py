@@ -92,16 +92,6 @@ def download_list_of_fitsfiles(linklist, output_directory=None,
                 lon = h0['CRVAL1']
                 lat = h0['CRVAL2']
 
-                # this part will eventually be handled by
-                # astropy.coordinates directly
-                # ctype = h0['CTYPE1']
-                # if 'RA' in ctype:
-                #     coordinate = coord.SkyCoord(lon,lat,unit=('deg','deg'))
-                # elif 'GLON' in ctype:
-                #     coordinate = coord.Galactic(lon,lat,unit=('deg','deg'))
-                # else:
-                #     raise TypeError("Don't recognize ctype %s" % ctype)
-                # coordstr = coordinate.format(output_coord_format)
                 try:
                     coordstr = output_coord_format.format(lon, lat)
                 except TypeError:

@@ -21,10 +21,8 @@ def async_to_sync(cls):
 
         @class_or_instance
         def newmethod(self, *args, **kwargs):
-            if 'verbose' in kwargs:
-                verbose = kwargs.pop('verbose')
-            else:
-                verbose = False
+            verbose = kwargs.pop('verbose', False)
+
             response = getattr(self, async_method_name)(*args, **kwargs)
             if kwargs.get('get_query_payload') or kwargs.get('field_help'):
                 return response

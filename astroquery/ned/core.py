@@ -10,7 +10,6 @@ from astropy.extern import six
 import astropy.units as u
 import astropy.coordinates as coord
 import astropy.io.votable as votable
-from astropy import __version__ as ASTROPY_VERSION
 
 from ..query import BaseQuery
 from ..utils import commons
@@ -537,11 +536,6 @@ class NedClass(BaseQuery):
         result : `astropy.table.Table`
             The result of the query as an `astropy.table.Table` object.
 
-        Notes
-        -----
-        .. warning:: table=references does not work correctly
-            `astroquery issue #141 <https://github.com/astropy/astroquery/issues/141>`_
-
         """
         response = self.get_table_async(object_name, table=table,
                                         get_query_payload=get_query_payload,
@@ -677,13 +671,7 @@ class NedClass(BaseQuery):
         try:
             tf = six.BytesIO(response.content)
             first_table = votable.parse(tf, pedantic=False).get_first_table()
-            # For astropy version < 0.3 returns tables that have field ids
-            # as col names
-            if ASTROPY_VERSION < '0.3':
-                table = first_table.to_table()
-            # For astropy versions >= 0.3 return the field names as col names
-            else:
-                table = first_table.to_table(use_names_over_ids=True)
+            table = first_table.to_table(use_names_over_ids=True)
             return table
         except Exception as ex:
             (is_valid, err_msg) = _check_ned_valid(response.content)

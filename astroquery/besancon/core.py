@@ -118,10 +118,8 @@ class BesanconClass(BaseQuery):
                 sys.stdout.write(u"\r")
                 sys.stdout.flush()
             try:
-                # U = requests.get(url,timeout=timeout,stream=True) TODO:
-                # add timeout= keyword to get_readable_fileobj (when PR
-                # https://github.com/astropy/astropy/pull/1258 is merged)
-                with commons.get_readable_fileobj(url, cache=True) as f:
+                with commons.get_readable_fileobj(url, remote_timeout=timeout,
+                                                  cache=True) as f:
                     results = f.read()
                 break
             except URLError:

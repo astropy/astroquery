@@ -132,15 +132,9 @@ class UkidssClass(QueryWithLogin):
     def _args_to_payload(self, *args, **kwargs):
         request_payload = {}
 
-        if 'database' in kwargs:
-            request_payload['database'] = kwargs['database']
-        else:
-            request_payload['database'] = self.database
+        request_payload['database'] = kwargs.get('database', self.database)
 
-        if 'programme_id' in kwargs:
-            programme_id = kwargs['programme_id']
-        else:
-            programme_id = self.programme_id
+        programme_id = kwargs.get('programme_id', self.programme_id)
 
         request_payload['programmeID'] = verify_programme_id(
             programme_id, query_type=kwargs['query_type'])
