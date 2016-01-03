@@ -221,7 +221,7 @@ class CosmoSimClass(QueryWithLogin):
             result = self._request('POST', CosmoSim.QUERY_URL,
                                    auth=(self.username, self.password),
                                    data={'query': query_string,
-                                         'table': '{}'.format(tablename),
+                                         'table': str(tablename),
                                          'phase': 'run', 'queue': queue},
                                    cache=cache)
             self._existing_tables()
@@ -251,7 +251,7 @@ class CosmoSimClass(QueryWithLogin):
         for i in soup.find_all("uws:jobref"):
             jobid = i.get('xlink:href').split('/')[-1]
             if jobid in completed_jobs:
-                self.table_dict[jobid] = '{}'.format(i.get('id'))
+                self.table_dict[jobid] = str(i.get('id'))
 
     def check_job_status(self, jobid=None):
         """
@@ -328,7 +328,7 @@ class CosmoSimClass(QueryWithLogin):
                 self.job_dict['{0}'.format(i.get('xlink:href')
                                            .split('/')[-1])] = i_phase
             else:
-                self.job_dict['{}'.format(i.get('id'))] = i_phase
+                self.job_dict[str(i.get('id'))] = i_phase
 
         if phase:
             phase = [phase[i].upper() for i in range(len(phase))]
@@ -630,8 +630,8 @@ class CosmoSimClass(QueryWithLogin):
                  for i in range(len(response_list))]
         self.starttime_dict = {}
         for i in range(len(soups)):
-            self.starttime_dict['{}'.format(completed_ids[i])] = (
-                '{}'.format(soups[i].find('uws:starttime').string))
+            self.starttime_dict[str(completed_ids[i])] = str(
+                soups[i].find('uws:starttime').string)
 
     def general_job_info(self, jobid=None, output=False):
         """
@@ -836,16 +836,16 @@ class CosmoSimClass(QueryWithLogin):
         data = response.json()
         self.db_dict = {}
         for i in range(len(data['databases'])):
-            self.db_dict['{}'.format(data['databases'][i]['name'])] = {}
+            self.db_dict[str(data['databases'][i]['name'])] = {}
 
-            sstr = '{}'.format(data['databases'][i]['name'])
-            sid = '{}'.format(data['databases'][i]['id'])
+            sstr = str(data['databases'][i]['name'])
+            sid = str(data['databases'][i]['id'])
             self.db_dict[sstr]['id'] = sid
-            sdesc = '{}'.format(data['databases'][i]['description'])
+            sdesc = str(data['databases'][i]['description'])
             self.db_dict[sstr]['description'] = sdesc
             self.db_dict[sstr]['tables'] = {}
             for j in range(len(data['databases'][i]['tables'])):
-                sstr2 = '{}'.format(data['databases'][i]['tables'][j]['name'])
+                sstr2 = str(data['databases'][i]['tables'][j]['name'])
                 self.db_dict[sstr]['tables'][sstr2] = {}
                 sdata = data['databases'][i]['tables'][j]['id']
                 self.db_dict[sstr]['tables'][sstr2]['id'] = sdata
@@ -856,7 +856,7 @@ class CosmoSimClass(QueryWithLogin):
                 for k in range(tmpval):
                     sdata2 = data['databases'][i]['tables'][j]['columns'][k]
                     sdata2_id = sdata2['id']
-                    sstr3 = '{}'.format(sdata2['name'])
+                    sstr3 = str(sdata2['name'])
 
                     sdesc3 = sdata2['description']
                     self.db_dict[sstr]['tables'][sstr2]['columns'][sstr3] = {
@@ -900,7 +900,7 @@ class CosmoSimClass(QueryWithLogin):
                 proj_list += (['@ {}'.format(proj)] +
                               ['' for i in range(size - 1)] +
                               ['-' * (largest + 2)])
-                tmp_largest = max([len('{}'.format(key))
+                tmp_largest = max([len(str(key))
                                    for key in self.db_dict[proj].keys()])
                 attr_list += (['@ {}'.format(key)
                               if isinstance(self.db_dict[proj][key], dict)
@@ -926,7 +926,7 @@ class CosmoSimClass(QueryWithLogin):
         # db specified
         if db:
             try:
-                size1 = len(self.db_dict['{}'.format(db)].keys())
+                size1 = len(self.db_dict[str(db)].keys())
                 slist = [self.db_dict[db][key].keys()
                          if isinstance(self.db_dict[db][key], dict)
                          else key
@@ -967,7 +967,7 @@ class CosmoSimClass(QueryWithLogin):
                  if (isinstance(self.db_dict[db][key], dict) and
                      (len(self.db_dict[db][key].keys()) !=
                       len(self.db_dict[db]['tables'].keys())))
-                 else '{}'.format(key)
+                 else str(key)
                  for key in self.db_dict[db].keys()] +
                 ['' for i in range(size2 - size1)])
             # if only db is specified
@@ -977,12 +977,12 @@ class CosmoSimClass(QueryWithLogin):
                     t['Tables'] = ['@ {}'.format(i)
                                    if isinstance(self.db_dict[db]['tables'][i],
                                                  dict)
-                                   else '{}'.format(i)
+                                   else str(i)
                                    for i in reordered]
             # if table has been specified
             else:
                 reordered = (
-                    ['{}'.format(table)] +
+                    [str(table)] +
                     sorted([key for key in self.db_dict[db]['tables'].keys()
                             if key != table], key=len))
                 t['Tables'] = (
@@ -992,7 +992,7 @@ class CosmoSimClass(QueryWithLogin):
                      else '@ {}'.format(i)
                      if (i != table and
                          isinstance(self.db_dict[db]['tables'][i], dict))
-                     else '{}'.format(i)
+                     else str(i)
                      for i in reordered] +
                     ['' for j in range(size2 - len(reordered))])
 
@@ -1005,7 +1005,7 @@ class CosmoSimClass(QueryWithLogin):
                         ['' for j in range(size2 - len(tblcols_dict))])
                     col_dict = (self.db_dict[db]['tables'][table]
                                 ['columns'].keys())
-                    reordered = (['{}'.format(col)] +
+                    reordered = ([str(col)] +
                                  [i for i in col_dict if i != col])
 
                     temp_columns = []
@@ -1020,7 +1020,7 @@ class CosmoSimClass(QueryWithLogin):
                         elif isinstance(c, dict) and i != col:
                             temp_columns.append('@ {}'.format(i))
                         else:
-                            temp_columns.append('{}'.format(i))
+                            temp_columns.append(str(i))
 
                     if len(col_dict) < size2:
                         size_diff = size2 - len(col_dict)
@@ -1049,7 +1049,7 @@ class CosmoSimClass(QueryWithLogin):
                              else '{}:'.format(i) for i in tblcols_dict] +
                             ['' for i in range(size_diff)])
                         t['Table Info'] = (
-                            ['{}'.format(tmp_table[i])
+                            [str(tmp_table[i])
                              if not isinstance(tmp_table[i], dict)
                              else '' for i in tblcols_dict] +
                             ['' for i in range(size_diff)])
@@ -1057,7 +1057,7 @@ class CosmoSimClass(QueryWithLogin):
                             t['Columns'] = (
                                 ['@ {}'.format(i)
                                  if isinstance(tmp_table['columns'][i], dict)
-                                 else '{}'.format(i)
+                                 else str(i)
                                  for i in reordered] +
                                 ['' for i in range(size2 - len(col_dict))])
                         else:
@@ -1098,7 +1098,7 @@ class CosmoSimClass(QueryWithLogin):
                               "this session.")
                 return
 
-        if self.job_dict['{}'.format(jobid)] == 'COMPLETED':
+        if self.job_dict[str(jobid)] == 'COMPLETED':
             if not format:
                 warnings.warn("Must specify a format:")
                 t = Table()
@@ -1199,7 +1199,7 @@ class CosmoSimClass(QueryWithLogin):
             return
 
         else:
-            phase = self.job_dict['{}'.format(jobid)]
+            phase = self.job_dict[str(jobid)]
             return phase
 
     def _mail(self, to, subject, text, *attach):
@@ -1255,8 +1255,8 @@ class CosmoSimClass(QueryWithLogin):
         server = smtplib.SMTP("smtp.gmail.com", 587)
         server.starttls()
         server.login(self._smsaddress, self._smspw)
-        server.sendmail('{}'.format(fromwhom), '{}@vtext.com'.format(number),
-                        '{}'.format(text))
+        server.sendmail(str(fromwhom), '{}@vtext.com'.format(number),
+                        str(text))
         server.quit()
 
     def _initialize_alerting(self, jobid, mail=None, text=None):
