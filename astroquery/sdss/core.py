@@ -567,7 +567,7 @@ class SDSSClass(BaseQuery):
         results = []
         for row in matches:
             linkstr = self.SPECTRA_URL_SUFFIX
-            # _parse_result returns bytes for instrunments, requiring a decode
+            # _parse_result returns bytes for instruments, requiring a decode
             link = linkstr.format(
                 base=conf.sas_baseurl, dr=data_release,
                 instrument=row['instrument'].decode().lower(),
