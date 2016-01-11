@@ -1,5 +1,5 @@
-0.3.1.dev
----------
+0.3.1 (2016-01-11)
+------------------
 
 - Fix NASA ADS, which had an internal syntax error (#602)
 - Bugifx in NRAO queries: telescope config was parsed incorrectly (#629)
