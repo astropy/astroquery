@@ -172,7 +172,8 @@ class NraoClass(BaseQuery):
             EQUINOX=kwargs.get('equinox', 'J2000'),
             CENTER_RA='',
             CENTER_DEC='',
-            SRAD=str(commons.parse_radius(kwargs['radius']).degree) + 'd' if 'radius' in kwargs else "1.0'",
+            SRAD=str(
+                commons.parse_radius(kwargs.get('radius', "1.0m")).deg) + 'd',
             TELESCOPE_CONFIG=kwargs.get('telescope_config', 'all').upper(),
             OBS_BANDS=kwargs.get('obs_band', 'all').upper(),
             SUBARRAY=kwargs.get('subarray', 'all').upper(),
@@ -258,12 +259,13 @@ class NraoClass(BaseQuery):
                                        'name="Telescope:config" '
                                        ' arraysize="*" ', new_content)
 
-        datatype_mapping = {'integer':'long'}
+        datatype_mapping = {'integer': 'long'}
 
         try:
             tf = six.BytesIO(new_content.encode())
-            first_table = votable.parse(tf, pedantic=False,
-                                        datatype_mapping=datatype_mapping).get_first_table()
+            first_table = votable.parse(
+                tf, pedantic=False,
+                datatype_mapping=datatype_mapping).get_first_table()
             try:
                 table = first_table.to_table(use_names_over_ids=True)
             except TypeError:

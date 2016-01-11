@@ -165,15 +165,11 @@ class SimbadClass(BaseQuery):
             get_pkg_data_filename(os.path.join('data',
                                                'votable_fields_table.txt')),
             format='ascii')
-        print("Available VOTABLE fields: ")
-        print(votable_fields_table)
-
-        print("\nFor more information on a field :\n"
-              "Simbad.get_field_description ('field_name')")
-
-        print()
-        print("Currently active VOTABLE fields:")
-        print(self._VOTABLE_FIELDS)
+        print("Available VOTABLE fields:\n {0} \n"
+              "For more information on a field :\n"
+              "Simbad.get_field_description ('field_name') \n"
+              "Currently active VOTABLE fields:\n {1}"
+              .format(votable_fields_table, self._VOTABLE_FIELDS))
 
     def get_field_description(self, field_name):
         """
@@ -191,7 +187,8 @@ class SimbadClass(BaseQuery):
         >>> Simbad.get_field_description('main_id')
         main identifier of an astronomical object. It is the same as id(1)
         >>> Simbad.get_field_description('bibcodelist(y1-y2)')
-        number of references. The parameter is optional and limit the count to the references between the years y1 and y2
+        number of references. The parameter is optional and limit the count to
+        the references between the years y1 and y2
         """
         # first load the dictionary from json
         dict_file = get_pkg_data_filename(
@@ -231,15 +228,15 @@ class SimbadClass(BaseQuery):
         with open(dict_file, "r") as f:
             fields_dict = json.load(f)
             fields_dict = dict(
-                ((strip_field(f) if '(' in f else f, fields_dict[f])
-                 for f in fields_dict))
+                ((strip_field(ff) if '(' in ff else ff, fields_dict[ff])
+                 for ff in fields_dict))
 
         for field in args:
             sf = strip_field(field)
             if sf not in fields_dict:
                 raise KeyError("{field}: no such field".format(field=field))
-            elif sf in [strip_field(f, keep_filters=True)
-                        for f in self._VOTABLE_FIELDS]:
+            elif sf in [strip_field(ff, keep_filters=True)
+                        for ff in self._VOTABLE_FIELDS]:
                 errmsg = "{field}: field already present. ".format(field=field)
                 errmsg += ("Fields ra,dec,id,otype, and bibcodelist can only "
                            "be specified once.  To change their options, "
@@ -459,9 +456,9 @@ class SimbadClass(BaseQuery):
 
         Parameters
         ----------
-        coordinates : str/`astropy.coordinates`
+        coordinates : str or `astropy.coordinates` object
             the identifier or coordinates around which to query.
-        radius : str/`~astropy.units.Quantity`, optional
+        radius : str or `~astropy.units.Quantity`, optional
             the radius of the region. If missing, set to default
             value of 20 arcmin.
         equinox : float, optional

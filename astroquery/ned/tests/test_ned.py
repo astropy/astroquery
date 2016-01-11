@@ -94,7 +94,6 @@ def test_get_references_async(patch_get):
     assert response['search_type'] == 'Reference'
 
 
-@pytest.mark.xfail(reason="astropy issue #1266")
 def test_get_references(patch_get):
     response = ned.core.Ned.get_table_async(
         "m1", table='references', from_year=2010)

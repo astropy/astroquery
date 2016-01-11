@@ -274,18 +274,8 @@ class EsoClass(QueryWithLogin):
         content = content.split(b'\n', 1)[1]
         log.debug("Response content:\n{0}".format(content))
         if _check_response(content):
-            try:
-                table = Table.read(BytesIO(content), format="ascii.csv",
-                                   comment="^#")
-            except Exception as ex:
-                # astropy 0.3.2 raises an anonymous exception; this is
-                # intended to prevent that from causing real problems
-                if 'No reader defined' in ex.args[0]:
-                    table = Table.read(BytesIO(content), format="ascii",
-                                       delimiter=',', guess=False,
-                                       header_start=1)
-                else:
-                    raise ex
+            table = Table.read(BytesIO(content), format="ascii.csv",
+                               comment="^#")
             return table
         else:
             warnings.warn("Query returned no results", NoResultsWarning)
@@ -366,17 +356,8 @@ class EsoClass(QueryWithLogin):
             content = content.split(b'\n', 1)[1]
             log.debug("Response content:\n{0}".format(content))
             if _check_response(content):
-                try:
-                    table = Table.read(BytesIO(content), format="ascii.csv",
-                                       comment='^#')
-                except Exception as ex:
-                    # astropy 0.3.2 raises an anonymous exception; this is
-                    # intended to prevent that from causing real problems
-                    if 'No reader defined' in ex.args[0]:
-                        table = Table.read(BytesIO(content), format="ascii",
-                                           delimiter=',')
-                    else:
-                        raise ex
+                table = Table.read(BytesIO(content), format="ascii.csv",
+                                   comment='^#')
                 return table
             else:
                 warnings.warn("Query returned no results", NoResultsWarning)
@@ -633,20 +614,9 @@ class EsoClass(QueryWithLogin):
             if _check_response(content):
                 # First line is always garbage
                 content = content.split(b'\n', 1)[1]
-                try:
-                    table = Table.read(BytesIO(content), format="ascii.csv",
-                                       guess=False,  # header_start=1,
-                                       comment="#")
-                except Exception as ex:
-                    # astropy 0.3.2 raises an anonymous exception; this is
-                    # intended to prevent that from causing real problems
-                    if 'No reader defined' in ex.args[0]:
-                        table = Table.read(BytesIO(content), format="ascii",
-                                           delimiter=',', guess=False,
-                                           # header_start=1,
-                                           comment="#")
-                    else:
-                        raise ex
+                table = Table.read(BytesIO(content), format="ascii.csv",
+                                   guess=False,  # header_start=1,
+                                   comment="#")
             else:
                 raise RemoteServiceError("Query returned no results")
 

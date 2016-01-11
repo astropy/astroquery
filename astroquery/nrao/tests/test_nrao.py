@@ -28,7 +28,6 @@ def patch_parse_coordinates(request):
     return mp
 
 
-
 @pytest.fixture
 def patch_post(request):
     mp = request.getfuncargvalue("monkeypatch")

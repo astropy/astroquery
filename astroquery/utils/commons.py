@@ -19,30 +19,29 @@ from astropy.utils import OrderedDict
 import astropy.utils.data as aud
 from astropy.io import fits, votable
 
-try:
-    from astropy.coordinates import BaseCoordinateFrame
-    ICRSCoordGenerator = lambda *args, **kwargs: coord.SkyCoord(
-        *args, frame='icrs', **kwargs)
-    GalacticCoordGenerator = lambda *args, **kwargs: coord.SkyCoord(
-        *args, frame='galactic', **kwargs)
-    FK5CoordGenerator = lambda *args, **kwargs: coord.SkyCoord(
-        *args, frame='fk5', **kwargs)
-    FK4CoordGenerator = lambda *args, **kwargs: coord.SkyCoord(
-        *args, frame='fk4', **kwargs)
-    ICRSCoord = coord.SkyCoord
-    CoordClasses = (coord.SkyCoord, BaseCoordinateFrame)
-except ImportError:
-    from astropy.coordinates import SphericalCoordinatesBase as BaseCoordinateFrame
-    ICRSCoordGenerator = lambda *args, **kwargs: coord.ICRS(*args, **kwargs)
-    GalacticCoordGenerator = lambda *args, **kwargs: coord.Galactic(
-        *args, **kwargs)
-    FK5CoordGenerator = lambda *args, **kwargs: coord.FK5(*args, **kwargs)
-    FK4CoordGenerator = lambda *args, **kwargs: coord.FK4(*args, **kwargs)
-    ICRSCoord = coord.ICRS
-    CoordClasses = (coord.SphericalCoordinatesBase,)
+from astropy.coordinates import BaseCoordinateFrame
 
 from ..exceptions import TimeoutError
 from .. import version
+
+
+def ICRSCoordGenerator(*args, **kwargs):
+    return coord.SkyCoord(*args, frame='icrs', **kwargs)
+
+
+def GalacticCoordGenerator(*args, **kwargs):
+    return coord.SkyCoord(*args, frame='galactic', **kwargs)
+
+
+def FK5CoordGenerator(*args, **kwargs):
+    return coord.SkyCoord(*args, frame='fk5', **kwargs)
+
+
+def FK4CoordGenerator(*args, **kwargs):
+    return coord.SkyCoord(*args, frame='fk4', **kwargs)
+
+ICRSCoord = coord.SkyCoord
+CoordClasses = (coord.SkyCoord, BaseCoordinateFrame)
 
 
 __all__ = ['send_request',
@@ -116,7 +115,7 @@ def parse_radius(radius):
 
     Parameters
     ----------
-    radius : str/`~astropy.units.Quantity`
+    radius : str or `~astropy.units.Quantity`
         The radius of a region
 
     Returns
@@ -129,12 +128,8 @@ def parse_radius(radius):
     astropy.coordinates.errors.UnitsError
     AttributeError
     """
-    try:
-        return coord.Angle(radius)
-    except coord.errors.UnitsError:
-        # astropy <0.3 compatibility: Angle can't be instantiated with a
-        # unit object
-        return coord.Angle(radius.to(u.degree), unit=u.degree)
+
+    return coord.Angle(radius)
 
 
 def radius_to_unit(radius, unit='degree'):
@@ -143,7 +138,7 @@ def radius_to_unit(radius, unit='degree'):
 
     Parameters
     ----------
-    radius : str/astropy.units.Quantity
+    radius : str or `~astropy.units.Quantity`
         The radius of a region
 
     Returns
@@ -158,13 +153,7 @@ def radius_to_unit(radius, unit='degree'):
         elif hasattr(rad, unit + 's'):
             return getattr(rad, unit + 's')
 
-    # major hack to deal with <0.3 Angle's not having deg/arcmin/etc equivs.
-    if hasattr(rad, 'degree'):
-        return (rad.degree * u.degree).to(unit).value
-    elif hasattr(rad, 'to'):
-        return rad.to(unit).value
-    else:
-        raise TypeError("Radius is an invalid type.")
+    return rad.to(unit).value
 
 
 def parse_coordinates(coordinates):
@@ -176,12 +165,13 @@ def parse_coordinates(coordinates):
 
     Parameters
     ----------
-    coordinates : str/astropy.coordinates object
+    coordinates : str or `astropy.coordinates` object
         Astronomical coordinate
 
     Returns
     -------
-    a subclass of `astropy.coordinates.BaseCoordinateFrame`
+    coordinates : a subclass of `astropy.coordinates.BaseCoordinateFrame`
+
 
     Raises
     ------
@@ -198,8 +188,8 @@ def parse_coordinates(coordinates):
                               "ICRS coordinate.")
             except u.UnitsError:
                 warnings.warn("Only ICRS coordinates can be entered as "
-                              "strings\n For other systems please use the "
-                              "appropriate astropy.coordinates object")
+                              "strings.\n For other systems please use the "
+                              "appropriate astropy.coordinates object.")
                 raise u.UnitsError
     elif isinstance(coordinates, CoordClasses):
         if hasattr(coordinates, 'frame'):
@@ -287,13 +277,6 @@ class TableList(list):
         """
 
         return self.format_table_list()
-
-        # This information is often unhelpful
-        # total_rows = sum(len(self.__getitem__(t)) for t in self.keys())
-        # info_str = "<TableList with {keylen} table(s) and {total_rows} total row(s)>".format(keylen=len(list(self.keys())),
-        #                                                                                    total_rows=total_rows)
-
-        # return info_str
 
     def format_table_list(self):
         """

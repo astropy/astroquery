@@ -119,7 +119,7 @@ class OgleClass(BaseQuery):
         lon, lat = self._parse_coords(coord, coord_sys)
         # Generate payload
         query_header = '# {0} {1} {2}\n'.format(coord_sys, algorithm, quality)
-        sources = '\n'.join(['{0} {1}'.format(lon, lat) for lon, lat in
+        sources = '\n'.join(['{0} {1}'.format(lo, la) for lo, la in
                              zip(lon, lat)])
         file_data = query_header + sources
         files = {'file1': file_data}

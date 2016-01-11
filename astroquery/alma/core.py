@@ -306,26 +306,6 @@ class AlmaClass(QueryWithLogin):
                                                     ))
         tbl = self._json_summary_to_table(json_data, base_url=base_url)
 
-        # staging_root = BeautifulSoup(data_page.content)
-        # downloadFileURL = staging_root.find('form').attrs['action']
-        # data_list_url = os.path.split(downloadFileURL)[0]
-
-        # # Old version, unreliable: data_list_url = staging_submission.url
-        # log.debug("Data list URL: {0}".format(data_list_url))
-        # self._staging_log['data_list_url'] = data_list_url
-
-        # time.sleep(1)
-        # data_list_page = self._request('GET', data_list_url, cache=True)
-        # self._staging_log['data_list_page'] = data_list_page
-        # data_list_page.raise_for_status()
-
-        # if 'Error' in data_list_page.text:
-        #     errormessage = staging_root.find(
-        #         'div', id='errorContent').string.strip()
-        #     raise RemoteServiceError(errormessage)
-
-        # tbl = self._parse_staging_request_page(data_list_page)
-
         return tbl
 
     def _HEADER_data_size(self, files):
@@ -770,27 +750,6 @@ class AlmaClass(QueryWithLogin):
 
         root = BeautifulSoup(data_list_page.content, 'html5lib')
 
-        # for link in root.findAll('a'):
-        #    if 'script.sh' in link.text:
-        #        download_script_url = urljoin(self.dataarchive_url,
-        #                                      link['href'])
-        # if 'download_script_url' not in locals():
-        #    raise RemoteServiceError("No download links were found.")
-
-        # download_script = self._request('GET', download_script_url,
-        #                                cache=False)
-        # download_script_target_urls = []
-        # for line in download_script.text.split('\n'):
-        #    if line and line.split() and line.split()[0] == 'wget':
-        #        download_script_target_urls.append(line.split()[1].strip('"'))
-
-        # if len(download_script_target_urls) == 0:
-        #    raise RemoteServiceError("There was an error parsing the download"
-        #                             " script; it is empty.  "
-        #                             "You can access the download script "
-        #                             "directly from this URL: "
-        #                             "{0}".format(download_script_url))
-
         data_table = root.findAll('table', class_='list', id='report')[0]
         columns = {'uid': [], 'URL': [], 'size': []}
         for tr in data_table.findAll('tr'):
@@ -863,28 +822,6 @@ class AlmaClass(QueryWithLogin):
                 "No valid UIDs were found in the staged data table. "
                 "Please include {0} in a bug report."
                 .format(self._staging_log['data_list_url']))
-
-        # if len(download_script_target_urls) != len(columns['URL']):
-        #    log.warn("There was an error parsing the data staging page.  "
-        #             "The results from the page and the download script "
-        #             "differ.  You can access the download script directly "
-        #             "from this URL: {0}".format(download_script_url))
-        # else:
-        #    bad_urls = []
-        #    for (rurl,url) in (zip(columns['URL'],
-        #                           download_script_target_urls)):
-        #        if rurl == 'None_Found':
-        #            url_uid = os.path.split(url)[-1]
-        #            ind = np.where(np.array(columns['uid']) == url_uid)[0][0]
-        #            columns['URL'][ind] = url
-        #        elif rurl != url:
-        #            bad_urls.append((rurl, url))
-        #    if bad_urls:
-        #        log.warn("There were mismatches between the parsed URLs "
-        #                 "from the staging page ({0}) and the download "
-        #                 "script ({1})."
-        #                 .format(self._staging_log['data_list_url'],
-        #                         download_script_url))
 
         tbl = Table([Column(name=k, data=v) for k, v in iteritems(columns)])
 
@@ -966,50 +903,3 @@ def unique(seq):
 def filter_printable(s):
     """ extract printable characters from a string """
     return filter(lambda x: x in string.printable, s)
-
-
-def parse_frequency_support(frequency_support_str):
-    """
-    ALMA "Frequency Support" strings have the form:
-
-    [100.63..101.57GHz,488.28kHz, XX YY] U
-    [102.43..103.37GHz,488.28kHz, XX YY] U
-    [112.74..113.68GHz,488.28kHz, XX YY] U
-    [114.45..115.38GHz,488.28kHz, XX YY]
-
-    at least, as far as we have seen.  The "U" is meant to be the Union symbol.
-    This function will parse such a string into a list of pairs of astropy
-    Quantities representing the frequency range.  It will ignore the resolution
-    and polarizations.
-    """
-    supports = frequency_support_str.split("U")
-    freq_ranges = [(float(sup[0]),
-                    float(sup[1].split(',')[0].strip(string.letters))) *
-                   u.Unit(sup[1].split(',')[0].strip(string.punctuation +
-                                                     string.digits))
-                   for i in supports for sup in [i.strip('[] ').split('..'), ]]
-
-    return freq_ranges
-
-
-def approximate_primary_beam_sizes(frequency_support_str,
-                                   dish_diameter=12 * u.m, first_null=1.220):
-    """
-    Using parse_frequency_support, determine the mean primary beam size in each
-    observed band
-
-    Parameters
-    ----------
-    frequency_support_str : str
-        The frequency support string, see `parse_frequency_support`
-    dish_diameter : `~astropy.units.Quantity`
-        Meter-equivalent unit.  The diameter of the dish.
-    first_null : float
-        The position of the first null of an Airy.  Used to compute resolution
-        as :math:`R = 1.22 \lambda/D`
-    """
-    freq_ranges = parse_frequency_support(frequency_support_str)
-    beam_sizes = [(first_null * fr.mean().to(u.m, u.spectral()) /
-                   (dish_diameter)).to(u.arcsec, u.dimensionless_angles())
-                  for fr in freq_ranges]
-    return beam_sizes
