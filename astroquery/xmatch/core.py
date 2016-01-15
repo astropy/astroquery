@@ -29,11 +29,11 @@ class XMatchClass(BaseQuery):
             Identifier of the first table. It can either be a URL, the
             payload of a local file being uploaded, a CDS table
             identifier (either *simbad* for a view of SIMBAD data / to
-            point out a given VizieR table or a an AstroPy table.
+            point out a given VizieR table) or a an AstroPy table.
             If the table is uploaded or accessed through a URL, it must be
             in VOTable or CSV format with the positions in J2000
             equatorial frame and as decimal degrees numbers.
-         cat2 : str or file
+        cat2 : str or file
             Identifier of the second table. Follows the same rules as *cat1*.
         max_distance : `~astropy.units.arcsec`
             Maximum distance in arcsec to look for counterparts.
