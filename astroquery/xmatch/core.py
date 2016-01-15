@@ -40,16 +40,16 @@ class XMatchClass(BaseQuery):
             Maximum allowed value is 180.
         colRA1 : str
             Name of the column holding the right ascension. Only required
-            if `cat1` is an uploaded table or a pointer to a URL.
+            if ``cat1`` is an uploaded table or a pointer to a URL.
         colDec1 : str
             Name of the column holding the declination. Only required if
-            `cat1` is an uploaded table or a pointer to a URL.
+            ``cat1`` is an uploaded table or a pointer to a URL.
         colRA2 : str
             Name of the column holding the right ascension. Only required
-            if `cat2` is an uploaded table or a pointer to a URL.
+            if ``cat2`` is an uploaded table or a pointer to a URL.
         colDec2 : str
             Name of the column holding the declination. Only required if
-            `cat2` is an uploaded table or a pointer to a URL.
+            ``cat2`` is an uploaded table or a pointer to a URL.
 
         Returns
         -------
@@ -61,11 +61,12 @@ class XMatchClass(BaseQuery):
             cat1, cat2, max_distance, colRA1, colDec1, colRA2, colDec2)
         return ascii.read(response.text, format='csv')
 
-    @prepend_docstr_noreturns(query.__doc__)
+    @prepend_docstr_noreturns("\n" + query.__doc__)
     def query_async(
             self, cat1, cat2, max_distance, colRA1=None,
             colDec1=None, colRA2=None, colDec2=None):
         """
+
         Returns
         -------
         response : `requests.Response`
