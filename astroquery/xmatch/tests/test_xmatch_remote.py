@@ -32,7 +32,8 @@ def test_xmatch_avail_tables(xmatch):
 def test_xmatch_is_avail_table(xmatch):
     assert xmatch.is_table_available('II/311/wise')
     assert xmatch.is_table_available('II/246/out')
-    assert not xmatch.is_table_available('vizier:II/311/wise')
+    assert xmatch.is_table_available('vizier:II/311/wise')
+    assert not xmatch.is_table_available('blablabla')
 
 
 @remote_data
@@ -43,7 +44,7 @@ def test_xmatch_query(xmatch):
             colRA1='ra', colDec1='dec')
     assert isinstance(table, Table)
     assert table.colnames == [
-        'angDist', 'ra', 'dec', '2MASS', 'RAJ2000', 'DEJ2000',
+        'angDist', 'ra', 'dec', 'my_id', '2MASS', 'RAJ2000', 'DEJ2000',
         'errHalfMaj', 'errHalfMin', 'errPosAng', 'Jmag', 'Hmag', 'Kmag',
         'e_Jmag', 'e_Hmag', 'e_Kmag', 'Qfl', 'Rfl', 'X', 'MeasureJD']
     assert len(table) == 11
@@ -52,13 +53,13 @@ def test_xmatch_query(xmatch):
 @remote_data
 def test_xmatch_query_astropy_table(xmatch):
     datapath = os.path.join(DATA_DIR, 'posList.csv')
-    input_table = Table.read(datapath, names=['ra', 'dec'],
-                             format='ascii.csv')
+    input_table = Table.read(datapath, format='ascii.csv')
     table = xmatch.query(
-        cat1=input_table, cat2='vizier:II/246/out', max_distance=5 * arcsec)
+        cat1=input_table, cat2='vizier:II/246/out', max_distance=5 * arcsec,
+        colRA1='ra', colDec1='dec')
     assert isinstance(table, Table)
     assert table.colnames == [
-        'angDist', 'ra', 'dec', '2MASS', 'RAJ2000', 'DEJ2000',
+        'angDist', 'ra', 'dec', 'my_id', '2MASS', 'RAJ2000', 'DEJ2000',
         'errHalfMaj', 'errHalfMin', 'errPosAng', 'Jmag', 'Hmag', 'Kmag',
         'e_Jmag', 'e_Hmag', 'e_Kmag', 'Qfl', 'Rfl', 'X', 'MeasureJD']
     assert len(table) == 11

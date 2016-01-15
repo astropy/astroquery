@@ -69,8 +69,8 @@ def test_xmatch_is_avail_table(monkeypatch):
 
     assert xm.is_table_available('II/311/wise')
     assert xm.is_table_available('II/246/out')
-    assert not xm.is_table_available('vizier:II/311/wise')
-
+    assert xm.is_table_available('vizier:II/311/wise')
+    assert not xm.is_table_available('blablabla')
 
 def test_xmatch_query_local(monkeypatch):
     xm = XMatch()
@@ -87,7 +87,7 @@ def test_xmatch_query_local(monkeypatch):
     table = ascii.read(response.text, format='csv')
     assert isinstance(table, Table)
     assert table.colnames == [
-        'angDist', 'ra', 'dec', '2MASS', 'RAJ2000', 'DEJ2000',
+        'angDist', 'ra', 'dec', 'my_id', '2MASS', 'RAJ2000', 'DEJ2000',
         'errHalfMaj', 'errHalfMin', 'errPosAng', 'Jmag', 'Hmag', 'Kmag',
         'e_Jmag', 'e_Hmag', 'e_Kmag', 'Qfl', 'Rfl', 'X', 'MeasureJD']
     assert len(table) == 11
@@ -103,15 +103,15 @@ def test_xmatch_query_cat1_table_local(monkeypatch):
             request_mockreturn(request_type, url, data, **kwargs))
     with open(data_path('posList.csv')) as pos_list:
         input_table = Table.read(pos_list.readlines(),
-                                 names=['ra', 'dec'],
                                  format='ascii.csv',
                                  guess=False)
     response = xm.query_async(
-        cat1=input_table, cat2='vizier:II/246/out', max_distance=5 * arcsec)
+        cat1=input_table, cat2='vizier:II/246/out', max_distance=5 * arcsec,
+        colRA1='ra', colDec1='dec')
     table = ascii.read(response.text, format='csv')
     assert isinstance(table, Table)
     assert table.colnames == [
-        'angDist', 'ra', 'dec', '2MASS', 'RAJ2000', 'DEJ2000',
+        'angDist', 'ra', 'dec', 'my_id', '2MASS', 'RAJ2000', 'DEJ2000',
         'errHalfMaj', 'errHalfMin', 'errPosAng', 'Jmag', 'Hmag', 'Kmag',
         'e_Jmag', 'e_Hmag', 'e_Kmag', 'Qfl', 'Rfl', 'X', 'MeasureJD']
     assert len(table) == 11

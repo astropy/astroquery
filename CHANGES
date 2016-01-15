@@ -1,6 +1,8 @@
 0.3.1.dev
 ---------
 
+- Fix bug in xmatch service that required astropy tables to have exactly 2
+  columns on input (#641)
 - Fix NASA ADS, which had an internal syntax error (#602)
 - Bugfix in NRAO queries: telescope config was parsed incorrectly (#629)
 - IBE - added new module for locating data from PTF, WISE, and 2MASS from IRSA.

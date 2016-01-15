@@ -57,5 +57,11 @@ input file.
     0.853178   322.493  12.16703 21295836+1210007 ... EEA 222   0 2451080.6935
      4.50395   322.493  12.16703 21295861+1210023 ... EEE 222   0 2451080.6935
 
+Reference/API
+=============
+
+.. automodapi:: astroquery.xmatch
+    :no-inheritance-diagram:
+
 
 .. _xMatch: http://cdsxmatch.u-strasbg.fr/xmatch/doc/
