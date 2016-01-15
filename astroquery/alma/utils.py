@@ -89,7 +89,10 @@ def parse_frequency_support(frequency_support_str):
     Quantities representing the frequency range.  It will ignore the resolution
     and polarizations.
     """
-    supports = frequency_support_str.tostring().decode('ascii').split('U')
+    if not isinstance(frequency_support_str, str):
+        supports = frequency_support_str.tostring().decode('ascii').split('U')
+    else:
+        supports = frequency_support_str.split('U')
 
     freq_ranges = [(float(sup[0]),
                     float(sup[1].split(',')[0].strip(string.ascii_letters))) *
