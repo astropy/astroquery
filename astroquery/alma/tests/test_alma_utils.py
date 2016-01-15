@@ -67,4 +67,4 @@ def test_make_finder_chart():
 
     assert len(catalog) >= 7
     assert len(images) >= 1
-    assert hit_mask_public[3].mean() >= 49
+    assert hit_mask_public[3][256,256] >= 60
