@@ -19,7 +19,8 @@ class XMatchClass(BaseQuery):
 
     def query(self, cat1, cat2, max_distance, colRA1=None,
               colDec1=None, colRA2=None, colDec2=None):
-        """Query the `CDS cross-match service
+        """
+        Query the `CDS cross-match service
         <http://cdsxmatch.u-strasbg.fr/xmatch>`_ by finding matches between
         two (potentially big) catalogues.
 
@@ -55,7 +56,6 @@ class XMatchClass(BaseQuery):
         -------
         table : `~astropy.table.Table`
             Query results table
-
         """
         response = self.query_async(
             cat1, cat2, max_distance, colRA1, colDec1, colRA2, colDec2)
@@ -66,12 +66,10 @@ class XMatchClass(BaseQuery):
             self, cat1, cat2, max_distance, colRA1=None,
             colDec1=None, colRA2=None, colDec2=None):
         """
-
         Returns
         -------
         response : `requests.Response`
             The HTTP response returned from the service.
-
         """
         if max_distance > 180 * arcsec:
             raise ValueError(
