@@ -67,4 +67,5 @@ def test_make_finder_chart():
 
     assert len(catalog) >= 7
     assert len(images) >= 1
+    assert 3 in hit_mask_public
     assert hit_mask_public[3][256,256] >= 60
