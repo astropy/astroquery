@@ -33,7 +33,10 @@ all_colnames = ['Project code', 'Source name', 'RA', 'Dec', 'Band',
 class TestAlma:
 
     def setup_class(cls):
-        Alma.archive_url = 'http://beta.cadc-ccda.hia-iha.nrc-cnrc.gc.ca'
+        pass
+        # starting somewhere between Nov 2015 and Jan 2016, the beta server
+        # stopped serving the actual data, making all staging attempts break
+        #Alma.archive_url = 'http://beta.cadc-ccda.hia-iha.nrc-cnrc.gc.ca'
 
     @pytest.fixture()
     def temp_dir(self, request):
@@ -68,7 +71,7 @@ class TestAlma:
 
         m83_data = alma.query_object('M83')
         uids = np.unique(m83_data['Member ous id'])
-        link_list = Alma.stage_data(uids)
+        link_list = alma.stage_data(uids)
 
     def test_stage_data(self, temp_dir):
         alma = Alma()

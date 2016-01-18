@@ -103,8 +103,8 @@ def send_request(url, data, timeout, request_type='POST', headers={},
     except requests.exceptions.Timeout:
         raise TimeoutError("Query timed out, time elapsed {time}s".
                            format(time=timeout))
-    except requests.exceptions.RequestException:
-        raise Exception("Query failed\n")
+    except requests.exceptions.RequestException as ex:
+        raise Exception("Query failed: {0}\n".format(ex))
 
 
 def parse_radius(radius):
