@@ -48,6 +48,8 @@ class ADSClass(BaseQuery):
                                  data=request_payload, timeout=self.TIMEOUT,
                                  cache=cache)
 
+        response.raise_for_status()
+
         # primarily for debug purposes, but also useful if you want to send
         # someone a URL linking directly to the data
         if get_query_payload:

@@ -129,14 +129,14 @@ class TestSimbad(object):
     # Special case of null test: zero-sized region
     def test_query_region_null(self):
         result = simbad.core.Simbad.query_region(
-            coord.SkyCoord("00h00m0.0s 00h00m0.0s"), radius="0d",
+            coord.SkyCoord("00h01m0.0s 00h00m0.0s"), radius="0d",
             equinox=2000.0, epoch='J2000')
         assert result is None
 
     # Special case of null test: very small region
     def test_query_small_region_null(self):
         result = simbad.core.Simbad.query_region(
-            coord.SkyCoord("00h00m0.0s 00h00m0.0s"), radius=1.0 * u.marcsec,
+            coord.SkyCoord("00h01m0.0s 00h00m0.0s"), radius=1.0 * u.marcsec,
             equinox=2000.0, epoch='J2000')
         assert result is None
 
