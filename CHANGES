@@ -1,4 +1,4 @@
-0.3.1 (2016-01-11)
+0.3.1 (2016-01-19)
 ------------------
 
 - Fix bug in xmatch service that required astropy tables to have exactly 2
