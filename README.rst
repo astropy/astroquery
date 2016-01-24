@@ -119,6 +119,7 @@ Badges
     :alt: Number of PyPI downloads
 
 .. image:: https://travis-ci.org/astropy/astroquery.svg?branch=master
+   :target: https://travis-ci.org/astropy/astroquery
 
 .. image:: https://coveralls.io/repos/astropy/astroquery/badge.png
    :target: https://coveralls.io/r/astropy/astroquery
