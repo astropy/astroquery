@@ -6,7 +6,7 @@ import numpy as np
 
 from astropy.tests.helper import pytest
 from astropy.table import Table
-import astropy.coordinates as coord
+from astropy.coordinates import SkyCoord
 import astropy.units as u
 
 from ...utils.testing_tools import MockResponse
@@ -117,9 +117,9 @@ def test_query_region_box(coordinates, patch_get):
 
     assert isinstance(result, Table)
 
-poly1 = [coord.ICRS(ra=10.1, dec=10.1, unit=(u.deg, u.deg)),
-         coord.ICRS(ra=10.0, dec=10.1, unit=(u.deg, u.deg)),
-         coord.ICRS(ra=10.0, dec=10.0, unit=(u.deg, u.deg))]
+poly1 = [SkyCoord(ra=10.1, dec=10.1, unit=(u.deg, u.deg), frame='icrs'),
+         SkyCoord(ra=10.0, dec=10.1, unit=(u.deg, u.deg), frame='icrs'),
+         SkyCoord(ra=10.0, dec=10.0, unit=(u.deg, u.deg), frame='icrs')]
 poly2 = [(10.1 * u.deg, 10.1 * u.deg), (10.0 * u.deg, 10.1 * u.deg),
          (10.0 * u.deg, 10.0 * u.deg)]
 

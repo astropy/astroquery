@@ -1,7 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from __future__ import print_function
 
-import astropy.coordinates as coord
+from astropy.coordinates import SkyCoord
 import astropy.units as u
 from astropy.tests.helper import remote_data
 import requests
@@ -17,7 +17,8 @@ class TestNvas:
 
     def test_get_images_async(self):
         image_list = nvas.core.Nvas.get_images_async(
-            coord.Galactic(l=49.489, b=-0.37, unit=(u.deg, u.deg)), band="K")
+            SkyCoord(l=49.489, b=-0.37, unit=(u.deg, u.deg), frame='galactic'),
+            band="K")
 
         assert len(image_list) > 0
 
