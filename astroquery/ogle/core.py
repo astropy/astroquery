@@ -105,9 +105,10 @@ class OgleClass(BaseQuery):
         --------
         Using astropy coordinates:
 
-        >>> from astropy import coordinates as coord
+        >>> from astropy.coordinates import SkyCoord
         >>> from astropy import units as u
-        >>> co = coord.Galactic(0.0, 3.0, unit=(u.degree, u.degree))
+        >>> co = SkyCoord(0.0, 3.0, unit=(u.degree, u.degree),
+        ...               frame='galactic')
         >>> from astroquery.ogle import Ogle
         >>> t = Ogle.query_region(coord=co)
         >>> t.pprint()

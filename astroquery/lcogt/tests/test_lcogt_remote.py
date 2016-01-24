@@ -3,7 +3,7 @@ from __future__ import print_function
 
 from astropy.tests.helper import remote_data
 from astropy.table import Table
-import astropy.coordinates as coord
+from astropy.coordinates import SkyCoord
 import astropy.units as u
 
 import requests
@@ -14,7 +14,8 @@ from ... import lcogt
 imp.reload(requests)
 
 OBJ_LIST = ["m31", "00h42m44.330s +41d16m07.50s",
-            coord.Galactic(l=121.1743, b=-21.5733, unit=(u.deg, u.deg))]
+            SkyCoord(l=121.1743, b=-21.5733, unit=(u.deg, u.deg),
+                     frame='galactic')]
 
 
 @remote_data
@@ -52,9 +53,12 @@ class TestLcogt:
         assert isinstance(result, Table)
 
     def test_query_region_async_polygon(self):
-        polygon = [coord.ICRS(ra=10.1, dec=10.1, unit=(u.deg, u.deg)),
-                   coord.ICRS(ra=10.0, dec=10.1, unit=(u.deg, u.deg)),
-                   coord.ICRS(ra=10.0, dec=10.0, unit=(u.deg, u.deg))]
+        polygon = [SkyCoord(ra=10.1, dec=10.1, unit=(u.deg, u.deg),
+                            frame='icrs'),
+                   SkyCoord(ra=10.0, dec=10.1, unit=(u.deg, u.deg),
+                            frame='icrs'),
+                   SkyCoord(ra=10.0, dec=10.0, unit=(u.deg, u.deg),
+                            frame='icrs')]
         response = lcogt.core.Lcogt.query_region_async(
             "m31", catalog="lco_img", spatial="Polygon", polygon=polygon)
         assert response is not None

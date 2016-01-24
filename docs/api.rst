@@ -265,9 +265,10 @@ Standard usage should be along these lines:
     result = Ukidss.query_region("5.0 0.0 gal", catalog='GPS', radius='1 arcmin')
     # SUCCEEDS!  returns an astropy.Table
 
-    import astropy.coordinates as coords
+    from astropy.coordinates import SkyCoord
     import astropy.units as u
-    result = Ukidss.query_region(coords.Galactic(5,0,unit=('deg','deg')),
+    result = Ukidss.query_region(
+        SkyCoord(5,0,unit=('deg','deg'), frame='galactic'),
         catalog='GPS', region='circle', radius=5*u.arcmin)
     # returns an astropy.Table
 
