@@ -24,7 +24,7 @@ except NameError:
 
 try:
     PYTEST_HEADER_MODULES['Astropy'] = 'astropy'
-    PYTEST_HEADER_MODULES['APLpy'] = 'APLpy'
+    PYTEST_HEADER_MODULES['APLpy'] = 'aplpy'
     PYTEST_HEADER_MODULES['pyregion'] = 'pyregion'
     del PYTEST_HEADER_MODULES['h5py']
     del PYTEST_HEADER_MODULES['Scipy']
