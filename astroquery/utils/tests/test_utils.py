@@ -13,7 +13,7 @@ from astropy.table import Table
 from astropy.tests.helper import pytest, remote_data
 import astropy.io.votable as votable
 import textwrap
-from astropy.utils import OrderedDict
+from collections import OrderedDict
 import os
 from astropy.io import fits
 import astropy.utils.data as aud
