@@ -15,7 +15,7 @@ from astropy.extern.six.moves.urllib_error import URLError
 from astropy.extern import six
 import astropy.units as u
 from astropy import coordinates as coord
-from astropy.utils import OrderedDict
+from collections import OrderedDict
 import astropy.utils.data as aud
 from astropy.io import fits, votable
 

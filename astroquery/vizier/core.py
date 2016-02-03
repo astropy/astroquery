@@ -13,7 +13,7 @@ import astropy.units as u
 import astropy.coordinates as coord
 import astropy.table as tbl
 import astropy.utils.data as aud
-from astropy.utils import OrderedDict
+from collections import OrderedDict
 import astropy.io.votable as votable
 from astropy.io import ascii, fits
 
