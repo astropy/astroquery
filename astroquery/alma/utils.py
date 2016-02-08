@@ -188,16 +188,18 @@ def make_finder_chart(target, radius, save_prefix, service=SkyView.get_images,
     band_colors_priv = dict(zip(bands, private_band_colors))
     band_colors_pub = dict(zip(bands, public_band_colors))
 
+    today = np.datetime64('today')
+
     private_circle_parameters = {
         band: [(row['RA'], row['Dec'], np.mean(rad).to(u.deg).value)
                for row, rad in zip(catalog, primary_beam_radii)
-               if row['Release date'] != '' and row['Band'] == band]
+               if np.datetime64(row['Release date']) > today and row['Band'] == band]
         for band in bands}
 
     public_circle_parameters = {
         band: [(row['RA'], row['Dec'], np.mean(rad).to(u.deg).value)
                for row, rad in zip(catalog, primary_beam_radii)
-               if row['Release date'] == '' and row['Band'] == band]
+               if np.datetime64(row['Release date']) <= today and row['Band'] == band]
         for band in bands}
 
     unique_private_circle_parameters = {
@@ -207,12 +209,14 @@ def make_finder_chart(target, radius, save_prefix, service=SkyView.get_images,
         band: np.array(list(set(public_circle_parameters[band])))
         for band in bands}
 
+    release_dates = np.array(catalog['Release date'], dtype=np.datetime64)
+
     for band in bands:
         log.info("BAND {0}".format(band))
         privrows = sum((catalog['Band'] == band) &
-                       (catalog['Release date'] != ''))
+                       (release_dates > today))
         pubrows = sum((catalog['Band'] == band) &
-                      (catalog['Release date'] == ''))
+                      (release_dates <= today))
         log.info("PUBLIC:  Number of rows: {0}.  Unique pointings: "
                  "{1}".format(pubrows,
                               len(unique_public_circle_parameters[band])))
@@ -281,15 +285,20 @@ def make_finder_chart(target, radius, save_prefix, service=SkyView.get_images,
                                'width': '1 '})
             log.debug('{1} {2}: {0}'
                       .format(shape, row['Release date'], row['Band']))
-            if (row['Release date'] != '' and row['Band'] == band and
-                    band in prv_mask):
+
+            reldate = np.datetime64(row['Release date'])
+
+            if ((reldate > today) and (row['Band'] == band) and
+                    (band in prv_mask)):
+                # private: release_date = 'sometime' says when it will be released
                 (xlo, xhi, ylo, yhi), mask = pyregion_subset(
                     shape, hit_mask_private[band], mywcs)
                 log.debug("{0},{1},{2},{3}: {4}"
                           .format(xlo, xhi, ylo, yhi, mask.sum()))
                 hit_mask_private[band][ylo:yhi, xlo:xhi] += row['Integration']*mask
-            if (row['Release date'] == '' and row['Band'] == band and
-                    band in pub_mask):
+            if ((reldate <= today) and (row['Band'] == band) and
+                    (band in pub_mask)):
+                # public: release_date = '' should mean already released
                 (xlo, xhi, ylo, yhi), mask = pyregion_subset(
                     shape, hit_mask_public[band], mywcs)
                 log.debug("{0},{1},{2},{3}: {4}"
