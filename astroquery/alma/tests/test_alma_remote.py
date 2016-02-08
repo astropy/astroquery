@@ -73,6 +73,10 @@ class TestAlma:
         uids = np.unique(m83_data['Member ous id'])
         link_list = alma.stage_data(uids)
 
+        # On Feb 8, 2016 there were 83 hits.  This number should never go down.
+        assert len(link_list) >= 83
+
+
     def test_stage_data(self, temp_dir):
         alma = Alma()
         alma.cache_location = temp_dir
@@ -83,8 +87,8 @@ class TestAlma:
 
         result = alma.stage_data([uid])
 
-        assert (os.path.split(result['URL'][0])[1] ==
-                'uid___A002_X47ed8e_X6c.asdm.sdm.tar')
+        assert ('uid___A002_X47ed8e' in
+                os.path.split(result['URL'][0])[1])
 
     def test_doc_example(self, temp_dir):
         alma = Alma()
@@ -92,10 +96,12 @@ class TestAlma:
         alma2 = Alma()
         alma2.cache_location = temp_dir
         m83_data = alma.query_object('M83')
-        assert m83_data.colnames == all_colnames
+        # the order can apparently sometimes change
+        assert set(m83_data.colnames) == set(all_colnames)
         galactic_center = coordinates.SkyCoord(0 * u.deg, 0 * u.deg,
                                                frame='galactic')
         gc_data = alma.query_region(galactic_center, 1 * u.deg)
+        assert len(gc_data) >= 425 # Feb 8, 2016
 
         uids = np.unique(m83_data['Asdm uid'])
         assert b'uid://A002/X3b3400/X90f' in uids
