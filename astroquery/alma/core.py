@@ -251,7 +251,6 @@ class AlmaClass(QueryWithLogin):
                                      "not logged in.")
 
         request_id = response.url.split("/")[-2]
-        assert len(request_id) == 36
         self._staging_log['request_id'] = request_id
         log.debug("Request ID: {0}".format(request_id))
 
@@ -267,7 +266,6 @@ class AlmaClass(QueryWithLogin):
         data_page_url = staging_submission.url
         self._staging_log['data_page_url'] = data_page_url
         dpid = data_page_url.split("/")[-1]
-        assert len(dpid) == 9
         self._staging_log['staging_page_id'] = dpid
 
         # CANNOT cache this step: please_wait will happen infinitely
