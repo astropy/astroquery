@@ -653,7 +653,7 @@ class AlmaClass(QueryWithLogin):
             querypage = self._request(
                 'GET', self._get_dataarchive_url() + "/aq/",
                 cache=cache, timeout=self.TIMEOUT)
-            root = BeautifulSoup(querypage.content)
+            root = BeautifulSoup(querypage.content, "html5lib")
             sections = root.findAll('td', class_='category')
 
             whitespace = re.compile("\s+")
