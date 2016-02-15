@@ -649,7 +649,7 @@ class AlmaClass(QueryWithLogin):
                                      " did not parse properly.")
 
     def _get_help_page(self, cache=True):
-        if not hasattr(self, '_help_list'):
+        if not hasattr(self, '_help_list') or not self._help_list:
             querypage = self._request(
                 'GET', self._get_dataarchive_url() + "/aq/",
                 cache=cache, timeout=self.TIMEOUT)

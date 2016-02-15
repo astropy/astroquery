@@ -193,13 +193,15 @@ def make_finder_chart(target, radius, save_prefix, service=SkyView.get_images,
     private_circle_parameters = {
         band: [(row['RA'], row['Dec'], np.mean(rad).to(u.deg).value)
                for row, rad in zip(catalog, primary_beam_radii)
-               if np.datetime64(row['Release date']) > today and row['Band'] == band]
+               if not row['Release date'] or
+               (np.datetime64(row['Release date']) > today and row['Band'] == band)]
         for band in bands}
 
     public_circle_parameters = {
         band: [(row['RA'], row['Dec'], np.mean(rad).to(u.deg).value)
                for row, rad in zip(catalog, primary_beam_radii)
-               if np.datetime64(row['Release date']) <= today and row['Band'] == band]
+               if row['Release date'] and
+               (np.datetime64(row['Release date']) <= today and row['Band'] == band)]
         for band in bands}
 
     unique_private_circle_parameters = {
