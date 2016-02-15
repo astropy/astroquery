@@ -288,18 +288,21 @@ def make_finder_chart(target, radius, save_prefix, service=SkyView.get_images,
             log.debug('{1} {2}: {0}'
                       .format(shape, row['Release date'], row['Band']))
 
-            reldate = np.datetime64(row['Release date'])
+            if not row['Release date']:
+                reldate = False
+            else:
+                reldate = np.datetime64(row['Release date'])
 
-            if ((reldate > today) and (row['Band'] == band) and
-                    (band in prv_mask)):
+            if not reldate or (((reldate > today) and (row['Band'] == band) and
+                               (band in prv_mask))):
                 # private: release_date = 'sometime' says when it will be released
                 (xlo, xhi, ylo, yhi), mask = pyregion_subset(
                     shape, hit_mask_private[band], mywcs)
                 log.debug("{0},{1},{2},{3}: {4}"
                           .format(xlo, xhi, ylo, yhi, mask.sum()))
                 hit_mask_private[band][ylo:yhi, xlo:xhi] += row['Integration']*mask
-            if ((reldate <= today) and (row['Band'] == band) and
-                    (band in pub_mask)):
+            elif ((reldate <= today) and (row['Band'] == band) and
+                  (band in pub_mask)):
                 # public: release_date = '' should mean already released
                 (xlo, xhi, ylo, yhi), mask = pyregion_subset(
                     shape, hit_mask_public[band], mywcs)
