@@ -424,7 +424,7 @@ class AlmaClass(QueryWithLogin):
                                        cache=False)
 
         authenticated = ('You have successfully logged in' in
-                         login_response.content)
+                         login_response.text)
 
         if authenticated:
             log.info("Authentication successful!")
