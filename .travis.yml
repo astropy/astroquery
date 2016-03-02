@@ -93,6 +93,11 @@ matrix:
         - python: 2.7
           env: NUMPY_VERSION=1.6 SETUP_CMD='test'
 
+        # Try numpy pre-release version, this runs only when a pre-release
+        # is available on pypi.
+        - python: 3.4
+          env: NUMPY_VERSION=prerelease SETUP_CMD='test'
+
         # Do a PEP8 test
         - python: 2.7
           env: MAIN_CMD='pep8 astroquery --count' SETUP_CMD=''
