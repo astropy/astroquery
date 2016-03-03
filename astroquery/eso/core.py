@@ -76,8 +76,10 @@ class EsoClass(QueryWithLogin):
                     fmt = 'multipart/form-data'  # post(url, files=payload)
                 elif form.attrs['enctype'] == 'application/x-www-form-urlencoded':
                     fmt = 'application/x-www-form-urlencoded'  # post(url, data=payload)
+                else:
+                    raise Exception("enctype={0} is not supported!".format(form.attrs['enctype']))
             else:
-                fmt = 'post'  # post(url, params=payload)
+                fmt = 'application/x-www-form-urlencoded'  # post(url, data=payload)
         # Extract payload from form
         payload = []
         for form_elem in form.find_all(['input', 'select', 'textarea']):
@@ -139,8 +141,6 @@ class EsoClass(QueryWithLogin):
         # Send payload
         if fmt == 'get':
             response = self._request("GET", url, params=payload, cache=cache)
-        elif fmt == 'post':
-            response = self._request("POST", url, params=payload, cache=cache)
         elif fmt == 'multipart/form-data':
             response = self._request("POST", url, files=payload, cache=cache)
         elif fmt == 'application/x-www-form-urlencoded':
