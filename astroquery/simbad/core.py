@@ -156,20 +156,26 @@ class SimbadClass(BaseQuery):
             os.path.join('data', 'votable_fields_notes.json'))
         with open(notes_file, "r") as f:
             notes = json.load(f)
-        print ("--NOTES--\n")
+        print("--NOTES--\n")
         for i, line in list(enumerate(notes)):
-            print ("{lineno}. {msg}\n".format(lineno=i + 1, msg=line))
+            print("{lineno}. {msg}\n".format(lineno=i + 1, msg=line))
 
-        # load the table
-        votable_fields_table = Table.read(
-            get_pkg_data_filename(os.path.join('data',
-                                               'votable_fields_table.txt')),
-            format='ascii')
-        print("Available VOTABLE fields:\n {0} \n"
-              "For more information on a field :\n"
+        if not hasattr(self,'_votable_fields_table'):
+            # load the table
+            votable_fields_table = Table.read(
+                get_pkg_data_filename(os.path.join('data',
+                                                   'votable_fields_table.txt')),
+                format='ascii')
+            self._votable_fields_table = votable_fields_table
+        else:
+            votable_fields_table = self._votable_fields_table
+            
+        print("Available VOTABLE fields:\n")
+        votable_fields_table.pprint(max_lines=100)
+        print("For more information on a field :\n"
               "Simbad.get_field_description ('field_name') \n"
-              "Currently active VOTABLE fields:\n {1}"
-              .format(votable_fields_table, self._VOTABLE_FIELDS))
+              "Currently active VOTABLE fields:\n {0}"
+              .format(self._VOTABLE_FIELDS))
 
     def get_field_description(self, field_name):
         """
