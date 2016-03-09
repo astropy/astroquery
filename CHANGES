@@ -3,6 +3,7 @@
 
 - Added new instruments for ESO: ``ambient_paranal`` and ``meteo_paranal``
   (#657)
+- Fix problem with listed votable fields being truncated in SIMBAD (#654)
 
 0.3.1 (2016-01-19)
 ------------------
