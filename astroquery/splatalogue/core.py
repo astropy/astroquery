@@ -158,8 +158,8 @@ class SplatalogueClass(BaseQuery):
 
             ``'formaldehyde'`` - Thioformaldehyde,Cyanoformaldehyde.
 
-            ``'formaldehyde',flags=re.I`` - Formaldehyde,thioformaldehyde,
-                                            and Cyanoformaldehyde.
+            ``'formaldehyde',chem_re_flags=re.I`` - Formaldehyde,thioformaldehyde,
+                                                    and Cyanoformaldehyde.
 
             ``' H2CO '`` - Just 1 species, H2CO. The spaces prevent including
                            others.
