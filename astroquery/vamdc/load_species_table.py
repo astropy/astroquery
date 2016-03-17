@@ -20,8 +20,10 @@ def species_lookuptable():
     result = request.getspecies()
     molecules = result.data['Molecules']
 
-    lookuptable = SpeciesLookuptable({molecules[key].OrdinaryStructuralFormula:
-                                      molecules[key].VAMDCSpeciesID
-                                      for key in molecules})
+    lutdict = {"{0} {1}".format(molecules[key].ChemicalName,
+                                molecules[key].OrdinaryStructuralFormula):
+               molecules[key].VAMDCSpeciesID
+               for key in molecules}
+    lookuptable = SpeciesLookuptable(lutdict)
 
     return lookuptable
