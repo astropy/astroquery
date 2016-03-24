@@ -191,15 +191,15 @@ class SplatalogueClass(BaseQuery):
             Options:
             Lovas, SLAIM, JPL, CDMS, ToyoMA, OSU, Recomb, Lisa, RFI
         line_strengths : list
-            CDMS/JPL Intensity : ls1
-            Sij : ls3
-            Aij : ls4
-            Lovas/AST : ls5
+            * CDMS/JPL Intensity : ls1
+            * Sij : ls3
+            * Aij : ls4
+            * Lovas/AST : ls5
         energy_levels : list
-            E_lower (cm^-1) : el1
-            E_lower (K) : el2
-            E_upper (cm^-1) : el3
-            E_upper (K) : el4
+            * E_lower (cm^-1) : el1
+            * E_lower (K) : el2
+            * E_upper (cm^-1) : el3
+            * E_upper (K) : el4
         export : bool
             Set up arguments for the export server (as opposed to the HTML
             server)?
