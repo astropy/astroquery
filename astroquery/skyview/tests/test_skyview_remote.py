@@ -27,4 +27,8 @@ def test_survey_list():
     with open(data_path('survey_dict.txt'), 'r') as f:
         survey_dict = eval(f.read())
 
+    for key in survey_dict.keys():
+        print(SkyView.survey_dict[key] == survey_dict[key], key)
+    print("Canned reference return", survey_dict['Radio'])
+    print("online service return", SkyView.survey_dict['Radio'])
     assert SkyView.survey_dict == survey_dict
