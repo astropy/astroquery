@@ -1,4 +1,4 @@
-`Documentation`_ | Blog_ |  `View on Github`_ |  `Download Stable ZIP`_  |  `Download Stable TAR`_  
+`Documentation`_ | Blog_ |  `View on Github`_ |  `Download Stable ZIP`_  |  `Download Stable TAR`_
 
 
 ==================================
@@ -18,7 +18,7 @@ website <http://simbad.u-strasbg.fr/simbad/>`_, use the ``simbad`` sub-package:
        MAIN_ID          RA           DEC      ... COO_QUAL COO_WAVELENGTH     COO_BIBCODE
     ------------- ------------- ------------- ... -------- -------------- -------------------
     * tet01 Ori C 05 35 16.4637 -05 23 22.848 ...        A              O 2007A&A...474..653V
-        
+
 Installation and Requirements
 -----------------------------
 
@@ -32,7 +32,13 @@ for some services.  The `keyring <https://pypi.python.org/pypi/keyring>`_
 module is also required for accessing services that require a login.
 These can all be installed using `pip <https://pypi.python.org/pypi/pip>`_.
 
-The latest version of astroquery can be pip installed:
+The latest version of astroquery can be conda installed:
+
+.. code-block:: bash
+
+    $ conda install -c astropy astroquery
+
+or pip installed:
 
 .. code-block:: bash
 
@@ -50,19 +56,19 @@ or cloned and installed from source:
 
     $ # If you have a github account:
     $ git clone git@github.com:astropy/astroquery.git
-    $ # If you do not: 
+    $ # If you do not:
     $ git clone https://github.com/astropy/astroquery.git
     $ cd astroquery
     $ python setup.py install
-    
+
 Using astroquery
 ----------------
 
 Importing astroquery on its own doesn't get you much: you need to import each
 sub-module specifically.  Check out the `docs`_
-to find a list of the tools available.  The `API`_ 
+to find a list of the tools available.  The `API`_
 shows the standard suite of tools common to most modules, e.g. `query_object`
-and `query_region`.  
+and `query_region`.
 
 To report bugs and request features, please use the issue tracker.  Code
 contributions are very welcome, though we encourage you to follow the `API`_
@@ -91,7 +97,7 @@ List of Modules
   * `Lamda <http://astroquery.readthedocs.org/en/latest/lamda/lamda.html>`_:             Leiden Atomic and Molecular Database; energy levels, radiative transitions, and collisional rates for astrophysically relevant atoms and molecules.
   * `Ogle <http://astroquery.readthedocs.org/en/latest/ogle/ogle.html>`_:               Optical Gravitational Lensing Experiment III; information on interstellar extinction towards the Galactic bulge.
   * `Splatalogue <http://astroquery.readthedocs.org/en/latest/splatalogue/splatalogue.html>`_: National Radio Astronomy Observatory (NRAO)-maintained (mostly) molecular radio and millimeter line list service.
-  * `CosmoSim <http://astroquery.readthedocs.org/en/latest/cosmosim/cosmosim.html>`_: The CosmoSim database provides results from cosmological simulations performed within different projects: the MultiDark project, the BolshoiP project, and the CLUES project. 
+  * `CosmoSim <http://astroquery.readthedocs.org/en/latest/cosmosim/cosmosim.html>`_: The CosmoSim database provides results from cosmological simulations performed within different projects: the MultiDark project, the BolshoiP project, and the CLUES project.
   * `ESO Archive <http://astroquery.readthedocs.org/en/latest/eso/eso.html>`_
   * `ALMA Archive <http://astroquery.readthedocs.org/en/latest/alma/alma.html>`_
   * `GAMA database <http://astroquery.readthedocs.org/en/latest/gama/gama.html>`_
@@ -101,7 +107,7 @@ List of Modules
 Additional Links
 ----------------
 
-`Download Development ZIP`_  |  `Download Development TAR`_  
+`Download Development ZIP`_  |  `Download Development TAR`_
 
 Maintained by `Adam Ginsburg`_ (`astropy.astroquery@gmail.com`_)
 
@@ -129,7 +135,7 @@ Badges
 
 .. image:: https://zenodo.org/badge/3821/astropy/astroquery.png
    :target: http://dx.doi.org/10.5281/zenodo.11656
-            
+
 
 .. .. image:: https://d2weczhvl823v0.cloudfront.net/astropy/astroquery/trend.png
 ..    :alt: Bitdeli badge
