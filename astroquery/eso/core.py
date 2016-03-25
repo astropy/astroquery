@@ -315,8 +315,10 @@ class EsoClass(QueryWithLogin):
 
         """
 
-        if instrument in ('feros', 'harps'):
+        if instrument == 'feros':
             url = 'http://archive.eso.org/wdb/wdb/eso/repro/form'
+        elif instrument == 'harps':
+            url = 'http://archive.eso.org/wdb/wdb/adp/phase3_spectral/form'
         elif instrument == 'grond':
             url = 'http://archive.eso.org/wdb/wdb/eso/eso_archive_main/form'
         else:
@@ -640,43 +642,78 @@ class EsoClass(QueryWithLogin):
         resp = self._request("GET", url, cache=cache)
         doc = BeautifulSoup(resp.content, 'html5lib')
         form = doc.select("html body form pre")[0]
-        for section in form.select("table"):
-            section_title = "".join(section.stripped_strings)
-            section_title = "\n".join(["", section_title,
-                                       "-" * len(section_title)])
-            result_string.append(section_title)
-            checkbox_name = ""
-            checkbox_value = ""
-            for tag in section.next_siblings:
-                if tag.name == u"table":
-                    break
-                elif tag.name == u"input":
-                    if tag.get(u'type') == u"checkbox":
-                        checkbox_name = tag['name']
-                        checkbox_value = u"[x]" if ('checked' in tag.attrs) else u"[ ]"
+
+        if instrument in ('feros', 'harps'):
+            for section in form.select("fieldset"):
+                section_title = "".join(section.stripped_strings.next())
+                print(section_title)
+                result_string.append(section_title)
+                checkbox_name = ""
+                checkbox_value = ""
+                for tag in section.select("input") + section.select("select"):
+                    if tag.name == u"input":
+                        if tag.get(u'type') == u"checkbox":
+                            checkbox_name = tag['name']
+                            checkbox_value = u"[x]" if ('checked' in tag.attrs) else u"[ ]"
+                            name = ""
+                            value = ""
+                        else:
+                            name = tag['name']
+                            value = ""
+                    elif tag.name == u"select":
+                        options = []
+                        for option in tag.select("option"):
+                            options += [u"{0}"
+                                        .format(option.stripped_strings.next())]
+                        name = tag[u"name"]
+                        value = ", ".join(options)
+                    if u"tab_" + name == checkbox_name:
+                        checkbox = checkbox_value
+                    else:
+                        checkbox = "   "
+                    if name != u"":
+                        print(checkbox, name, value)
+                        result_string.append(u"{0} {1}: {2}"
+                                             .format(checkbox, name, value))
+
+        else:
+            for section in form.select("table"):
+                section_title = "".join(section.stripped_strings)
+                section_title = "\n".join(["", section_title,
+                                           "-" * len(section_title)])
+                result_string.append(section_title)
+                checkbox_name = ""
+                checkbox_value = ""
+                for tag in section.next_siblings:
+                    if tag.name == u"table":
+                        break
+                    elif tag.name == u"input":
+                        if tag.get(u'type') == u"checkbox":
+                            checkbox_name = tag['name']
+                            checkbox_value = u"[x]" if ('checked' in tag.attrs) else u"[ ]"
+                            name = ""
+                            value = ""
+                        else:
+                            name = tag['name']
+                            value = ""
+                    elif tag.name == u"select":
+                        options = []
+                        for option in tag.select("option"):
+                            options += ["{0} ({1})"
+                                        .format(option['value'],
+                                                "".join(option.stripped_strings))]
+                        name = tag[u"name"]
+                        value = ", ".join(options)
+                    else:
                         name = ""
                         value = ""
+                    if u"tab_" + name == checkbox_name:
+                        checkbox = checkbox_value
                     else:
-                        name = tag['name']
-                        value = ""
-                elif tag.name == u"select":
-                    options = []
-                    for option in tag.select("option"):
-                        options += ["{0} ({1})"
-                                    .format(option['value'],
-                                            "".join(option.stripped_strings))]
-                    name = tag[u"name"]
-                    value = ", ".join(options)
-                else:
-                    name = ""
-                    value = ""
-                if u"tab_" + name == checkbox_name:
-                    checkbox = checkbox_value
-                else:
-                    checkbox = "   "
-                if name != u"":
-                    result_string.append("{0} {1}: {2}"
-                                         .format(checkbox, name, value))
+                        checkbox = "   "
+                    if name != u"":
+                        result_string.append("{0} {1}: {2}"
+                                             .format(checkbox, name, value))
 
         print("\n".join(result_string))
         return result_string
