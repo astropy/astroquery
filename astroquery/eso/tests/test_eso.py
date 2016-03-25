@@ -3,17 +3,7 @@ import os
 from astropy.tests.helper import pytest
 from ...utils.testing_tools import MockResponse
 
-# keyring is an optional dependency required by the eso module.
-try:
-    import keyring
-    HAS_KEYRING = True
-except ImportError:
-    HAS_KEYRING = False
-
-if HAS_KEYRING:
-    from ...eso import Eso
-
-SKIP_TESTS = not HAS_KEYRING
+from ...eso import Eso
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
 
@@ -49,7 +39,6 @@ def eso_request(request_type, url, **kwargs):
 # This test should attempt to access the internet and therefore should fail
 # (_activate_form always connects to the internet)
 # @pytest.mark.xfail
-@pytest.mark.skipif('SKIP_TESTS')
 def test_SgrAstar(monkeypatch):
     # Local caching prevents a remote query here
 
@@ -68,7 +57,6 @@ def test_SgrAstar(monkeypatch):
     assert 'GC_IRS7' in result['Object']
 
 
-@pytest.mark.skipif('SKIP_TESTS')
 def test_vvv(monkeypatch):
     eso = Eso()
     monkeypatch.setattr(eso, '_request', eso_request)

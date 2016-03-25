@@ -16,6 +16,7 @@ __pycache__
 htmlcov
 .coverage
 MANIFEST
+.ipynb_checkpoints
 
 # Sphinx
 _build
