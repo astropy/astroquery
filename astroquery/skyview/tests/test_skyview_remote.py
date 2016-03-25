@@ -1,5 +1,5 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-from astropy.tests.helper import remote_data
+from astropy.tests.helper import remote_data, pytest
 from astropy.io.fits import HDUList
 
 from ...skyview import SkyView
@@ -21,14 +21,25 @@ def test_get_images():
     assert len(images) == 1
     assert isinstance(images[0], HDUList)
 
-
 @remote_data
-def test_survey_list():
+class TestSkyviewRemote(object):
+
+    @classmethod
+    def setup_class(cls):
+        self.SkyView = SkyView()
+        self.survey_dict = self.SkyView.survey_dict
+
     with open(data_path('survey_dict.txt'), 'r') as f:
         survey_dict = eval(f.read())
 
-    for key in survey_dict.keys():
-        print(SkyView.survey_dict[key] == survey_dict[key], key)
-    print("Canned reference return", survey_dict['Radio'])
-    print("online service return", SkyView.survey_dict['Radio'])
-    assert SkyView.survey_dict == survey_dict
+    @pytest.mark.parametrize(('survey',
+                              'survey_data'),
+                             zip(survey_dict.keys(), survey_dict.values()))
+    def test_survey(self, survey, survey_data):
+
+        print(self.SkyView.survey_dict[survey] == survey_data, survey)
+        print("Canned reference return", self.__class__.survey_dict['Radio'])
+        print("online service return", self.SkyView.survey_dict['Radio'])
+
+    def test_whole_survey_list(self):
+        assert self.SkyView.survey_dict == self.__class__.survey_dict
