@@ -26,8 +26,8 @@ class TestSkyviewRemote(object):
 
     @classmethod
     def setup_class(cls):
-        self.SkyView = SkyView()
-        self.survey_dict = self.SkyView.survey_dict
+        cls.SkyView = SkyView()
+        cls.survey_dict = cls.SkyView.survey_dict
 
     with open(data_path('survey_dict.txt'), 'r') as f:
         survey_dict = eval(f.read())
