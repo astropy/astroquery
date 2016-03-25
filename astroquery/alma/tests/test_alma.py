@@ -5,18 +5,7 @@ from astropy.tests.helper import pytest
 from ...utils.testing_tools import MockResponse
 from ...exceptions import (InvalidQueryError)
 
-# keyring is an optional dependency required by the alma module.
-try:
-    import keyring
-    HAS_KEYRING = True
-except ImportError:
-    HAS_KEYRING = False
-
-if HAS_KEYRING:
-    from .. import Alma
-
-SKIP_TESTS = not HAS_KEYRING
-
+from .. import Alma
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
 
@@ -92,7 +81,6 @@ def _get_dataarchive_url(*args):
     return 'http://almascience.eso.org'
 
 
-@pytest.mark.skipif('SKIP_TESTS')
 def test_SgrAstar(monkeypatch):
     # Local caching prevents a remote query here
 
@@ -112,7 +100,6 @@ def test_SgrAstar(monkeypatch):
     assert b'2011.0.00217.S' in result['Project code']
 
 
-@pytest.mark.skipif('SKIP_TESTS')
 def test_staging(monkeypatch):
 
     monkeypatch.setattr(Alma, '_get_dataarchive_url', _get_dataarchive_url)
@@ -131,7 +118,6 @@ def test_staging(monkeypatch):
     assert len(uid_url_table) == 2
 
 
-@pytest.mark.skipif('SKIP_TESTS')
 def test_validator(monkeypatch):
 
     monkeypatch.setattr(Alma, '_get_dataarchive_url', _get_dataarchive_url)
@@ -145,7 +131,6 @@ def test_validator(monkeypatch):
     assert 'invalid_parameter' in str(exc.value)
 
 
-@pytest.mark.skipif('SKIP_TESTS')
 def test_parse_staging_request_page_asdm(monkeypatch):
     """
     Example:
@@ -178,7 +163,6 @@ def test_parse_staging_request_page_asdm(monkeypatch):
     np.testing.assert_approx_equal(tbl[0]['size'], -1e-9)
 
 
-@pytest.mark.skipif('SKIP_TESTS')
 def test_parse_staging_request_page_mous(monkeypatch):
     monkeypatch.setattr(Alma, '_get_dataarchive_url', _get_dataarchive_url)
     alma = Alma()
@@ -196,7 +180,6 @@ def test_parse_staging_request_page_mous(monkeypatch):
     assert len(tbl) == 26
 
 
-@pytest.mark.skipif('SKIP_TESTS')
 def test_parse_staging_request_page_mous_cycle0(monkeypatch):
     monkeypatch.setattr(Alma, '_get_dataarchive_url', _get_dataarchive_url)
     alma = Alma()
