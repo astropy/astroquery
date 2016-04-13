@@ -129,6 +129,7 @@ def approximate_primary_beam_sizes(frequency_support_str,
 
 def make_finder_chart(target, radius, save_prefix, service=SkyView.get_images,
                       service_kwargs={'survey': ['2MASS-K'], 'pixels': 500},
+                      alma_kwargs={'public': False, 'science': False},
                       **kwargs):
     """
     Create a "finder chart" showing where ALMA has pointed in various bands,
@@ -166,7 +167,9 @@ def make_finder_chart(target, radius, save_prefix, service=SkyView.get_images,
     log.info("Querying {0} for images".format(service))
     images = service(target, radius=radius, **service_kwargs)
 
-    return make_finder_chart_from_image(images[0], target=target,
+    image0_hdu = images[0][0]
+
+    return make_finder_chart_from_image(image0_hdu, target=target,
                                         radius=radius, save_prefix=save_prefix,
                                         alma_kwargs=alma_kwargs,
                                         **kwargs)
