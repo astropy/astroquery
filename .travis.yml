@@ -49,8 +49,10 @@ matrix:
 
         # Check for sphinx doc build warnings - we do this first because it
         # may run for a long time
+        # Version restriction is temprorary and due to some new upstream
+        # sphinx and helpers deprecation warnings
         - python: 2.7
-          env: SETUP_CMD='build_sphinx -w'
+          env: SETUP_CMD='build_sphinx -w' SPHINX_VERSION='<1.4' DEBUG=TRUE
 
         # Python 3.3 doesn't have numpy 1.10 in conda, revoke this commit once
         # it's available in the astropy-ci-extras channel
