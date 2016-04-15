@@ -335,10 +335,11 @@ class SplatalogueClass(BaseQuery):
             payload['export_type'] = 'current'
             payload['offset'] = 0
             payload['range'] = 'on'
-            if export_limit is not None:
-                payload['limit'] = export_limit
-            else:
-                payload['limit'] = self.LINES_LIMIT
+
+        if export_limit is not None:
+            payload['limit'] = export_limit
+        else:
+            payload['limit'] = self.LINES_LIMIT
 
         return payload
 
