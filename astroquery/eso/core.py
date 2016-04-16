@@ -148,16 +148,22 @@ class EsoClass(QueryWithLogin):
 
         return response
 
-    def _login(self, username=None, store_password=False):
+    def _login(self, username=None, store_password=False,
+               retype_password=False):
         if username is None:
             if self.USERNAME == "":
                 raise LoginError("If you do not pass a username to login(), "
                                  "you should configure a default one!")
             else:
                 username = self.USERNAME
+
         # Get password from keyring or prompt
-        password_from_keyring = keyring.get_password("astroquery:www.eso.org",
-                                                     username)
+        if retype_password is False:
+            password_from_keyring = keyring.get_password(
+                "astroquery:www.eso.org", username)
+        else:
+            password_from_keyring = None
+
         if password_from_keyring is None:
             if system_tools.in_ipynb():
                 log.warn("You may be using an ipython notebook:"
