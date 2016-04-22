@@ -150,6 +150,21 @@ class EsoClass(QueryWithLogin):
 
     def _login(self, username=None, store_password=False,
                retype_password=False):
+        """
+        Login to the ESO User Portal.
+
+        Parameters
+        ----------
+        username : str, optional
+            Username to the ESO Public Portal. If not given, it should be
+            specified in the config file.
+        store_password : bool, optional
+            Stores the password securely in your keyring. Default is False.
+        retype_password : bool, optional
+            Asks for the password even if it is already stored in the
+            keyring. This is the way to overwrite an already stored passwork
+            on the keyring. Default is False.
+        """
         if username is None:
             if self.USERNAME == "":
                 raise LoginError("If you do not pass a username to login(), "
