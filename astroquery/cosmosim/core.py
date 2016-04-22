@@ -23,6 +23,7 @@ from astropy import log as logging
 # Astroquery imports
 from ..query import QueryWithLogin
 from . import conf
+from ..exceptions import LoginError
 
 conf.max_lines = -1
 conf.max_width = -1
@@ -35,11 +36,34 @@ class CosmoSimClass(QueryWithLogin):
     QUERY_URL = conf.query_url
     SCHEMA_URL = conf.schema_url
     TIMEOUT = conf.timeout
+    USERNAME = conf.username
 
     def __init__(self):
         super(CosmoSimClass, self).__init__()
 
-    def _login(self, username, password=None, store_password=False):
+    def _login(self, username=None, password=None, store_password=False,
+               retype_password=False):
+        """
+        Login to the CosmoSim database.
+
+        Parameters
+        ----------
+        username : str, optional
+            Username to the CosmoSim database. If not given, it should be
+            specified in the config file.
+        store_password : bool, optional
+            Stores the password securely in your keyring. Default is False.
+        retype_password : bool, optional
+            Asks for the password even if it is already stored in the
+            keyring. This is the way to overwrite an already stored passwork
+            on the keyring. Default is False.
+        """
+        if username is None:
+            if self.USERNAME == "":
+                raise LoginError("If you do not pass a username to login(), "
+                                 "you should configure a default one!")
+            else:
+                username = self.USERNAME
 
         # login after logging out (interactive)
         if not hasattr(self, 'session'):
@@ -55,9 +79,13 @@ class CosmoSimClass(QueryWithLogin):
         self.username = username
 
         # Get password from keyring or prompt
-        password_from_keyring = keyring.get_password(
-            "astroquery:www.cosmosim.org", self.username)
-        if not password_from_keyring:
+        if retype_password is False:
+            password_from_keyring = keyring.get_password(
+                "astroquery:www.cosmosim.org", self.username)
+        else:
+            password_from_keyring = None
+
+        if password_from_keyring is None:
             logging.warning("No password was found in the keychain for the "
                             "provided username.")
             if password:
