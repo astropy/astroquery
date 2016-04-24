@@ -27,7 +27,7 @@
   "flux_bibcode(filtername)": "bibcode", 
   "flux_error(filtername)": "error value of the flux measurement", 
   "flux_name(filtername)": "name of the filter", 
-  "flux_quality(filtername)": "quality (A:best, E:worst) of the flux", 
+  "flux_qual(filtername)": "quality (A:best, E:worst) of the flux", 
   "flux_unit(filtername)": "flux unit (mag, jy, ...)", 
   "fluxdata(filtername)": "all fields related with a particular filter.", 
   "gcrv": "General Catalogue of Radial Velocities", 
