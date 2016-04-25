@@ -147,3 +147,10 @@ class TestSimbad(object):
             equinox=2000.0, epoch='J2000')
         # This should find a single star, BD+36 4308
         assert len(result) == 1
+
+    def test_simbad_flux_qual():
+	    '''Regression test for issue 680'''
+	    request = Simbad()
+	    request.add_votable_fields("flux_qual(V)")
+	    response = request.query_object('algol')
+	    assert("FLUX_QUAL_V" in response.keys())
