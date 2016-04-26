@@ -27,6 +27,6 @@ flux(filtername) otype(opt) rvz_wavelength
 flux_bibcode(filtername) parallax sao
 flux_error(filtername) plx sp
 flux_name(filtername) plx_bibcode sp_bibcode
-flux_quality(filtername) plx_error sp_nature
+flux_qual(filtername) plx_error sp_nature
 flux_unit(filtername) plx_prec sp_qual
 sptype -- --

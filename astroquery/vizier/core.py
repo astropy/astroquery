@@ -216,8 +216,8 @@ class VizierClass(BaseQuery):
 
         return result
 
-    def get_catalogs_async(self, catalog, verbose=False,
-                           return_type='votable'):
+    def get_catalogs_async(self, catalog, verbose=False, return_type='votable',
+                           get_query_payload=False):
         """
         Query the Vizier service for a specific catalog
 
@@ -233,6 +233,9 @@ class VizierClass(BaseQuery):
         """
 
         data_payload = self._args_to_payload(catalog=catalog)
+        if get_query_payload:
+            return data_payload
+
         response = self._request(
             method='POST', url=self._server_to_url(return_type=return_type),
             data=data_payload, timeout=self.TIMEOUT)

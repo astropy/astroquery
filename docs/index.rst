@@ -23,8 +23,11 @@ Check out the :doc:`gallery` for some nice examples.
 
 Installation
 ------------
-The latest version of astroquery can be pip installed:
+The latest version of astroquery can be conda installed while the latest and
+development versions can be pip installed or be downloaded directly from GitHub.
 
+Using pip
+^^^^^^^^^
 .. code-block:: bash
 
     $ pip install astroquery
@@ -35,7 +38,21 @@ and the 'bleeding edge' master version:
 
    $ pip install https://github.com/astropy/astroquery/archive/master.zip
 
-or cloned and installed from source:
+Using conda
+^^^^^^^^^^^
+
+It is also possible to install the latest astroquery with `anaconda
+<http://continuum.io/>`_ from the astropy channel:
+
+.. code-block:: bash
+
+    $ conda install -c astropy astroquery
+
+
+Building from source
+^^^^^^^^^^^^^^^^^^^^
+
+The development version can be obtained and installed from github:
 
 .. code-block:: bash
 
@@ -46,8 +63,9 @@ or cloned and installed from source:
     $ cd astroquery
     $ python setup.py install
 
+
 Requirements
-````````````
+------------
 
 Astroquery works with Python 2.7 and 3.3 or later.
 

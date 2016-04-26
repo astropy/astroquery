@@ -8,17 +8,7 @@ from astropy import coordinates
 from astropy import units as u
 from astropy.extern.six.moves.urllib_parse import urlparse
 
-# keyring is an optional dependency required by the alma module.
-try:
-    import keyring
-    HAS_KEYRING = True
-except ImportError:
-    HAS_KEYRING = False
-
-if HAS_KEYRING:
-    from .. import Alma
-
-SKIP_TESTS = not HAS_KEYRING
+from .. import Alma
 
 all_colnames = ['Project code', 'Source name', 'RA', 'Dec', 'Band',
                 'Frequency resolution', 'Integration', 'Release date',
@@ -28,7 +18,6 @@ all_colnames = ['Project code', 'Source name', 'RA', 'Dec', 'Band',
                 'Spatial resolution', 'QA0 Status', 'QA2 Status']
 
 
-@pytest.mark.skipif('SKIP_TESTS')
 @remote_data
 class TestAlma:
 

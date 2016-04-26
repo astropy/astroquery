@@ -6,6 +6,11 @@
 ESO Queries (`astroquery.eso`)
 ******************************
 
+.. warning::
+    ESO is deploying new query forms in the first half of April 2016. While
+    we aim to accommodate the changes as soon as possible into astroquery,
+    please be advised that things might break temporarily.
+
 Getting started
 ===============
 

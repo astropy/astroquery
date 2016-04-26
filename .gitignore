@@ -12,10 +12,11 @@ __pycache__
 # Other generated files
 */version.py
 */cython_version.py
-
+.cache
 htmlcov
 .coverage
 MANIFEST
+.ipynb_checkpoints
 
 # Sphinx
 _build

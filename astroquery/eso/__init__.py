@@ -2,6 +2,8 @@
 """
 ESO service.
 """
+import warnings
+
 from astropy import config as _config
 
 
@@ -24,3 +26,8 @@ from .core import Eso, EsoClass
 __all__ = ['Eso', 'EsoClass',
            'Conf', 'conf',
            ]
+
+warnings.warn("ESO is deploying new query forms in the first half of April "
+              "2016. While we aim to accommodate the changes as soon as "
+              "possible into astroquery, please be advised that things "
+              "might break temporarily.")

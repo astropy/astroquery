@@ -6,17 +6,7 @@ from astropy.tests.helper import pytest, remote_data
 from astropy.extern import six
 from ...exceptions import LoginError
 
-# keyring is an optional dependency required by the eso module.
-try:
-    import keyring
-    HAS_KEYRING = True
-except ImportError:
-    HAS_KEYRING = False
-
-if HAS_KEYRING:
-    from ...eso import Eso
-
-SKIP_TESTS = not HAS_KEYRING
+from ...eso import Eso
 
 instrument_list = [u'fors1', u'fors2', u'sphere', u'vimos', u'omegacam',
                    u'hawki', u'isaac', u'naco', u'visir', u'vircam', u'apex',
@@ -25,7 +15,6 @@ instrument_list = [u'fors1', u'fors2', u'sphere', u'vimos', u'omegacam',
                    u'harps', u'ambient_paranal', u'meteo_paranal']
 
 
-@pytest.mark.skipif('SKIP_TESTS')
 @remote_data
 class TestEso:
     @pytest.fixture()
