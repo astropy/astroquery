@@ -33,7 +33,7 @@ def _get_test_runner():
 
 def test(package=None, test_path=None, args=None, plugins=None,
          verbose=False, pastebin=None, remote_data=False, pep8=False,
-         pdb=False, coverage=False, open_files=False, **kwargs):
+         pdb=False, coverage=False, open_files=False, config=None, **kwargs):
     """
     Run the tests using `py.test <http://pytest.org/latest>`__. A proper set
     of arguments is constructed and passed to `pytest.main`_.
@@ -111,7 +111,7 @@ def test(package=None, test_path=None, args=None, plugins=None,
         package=package, test_path=test_path, args=args,
         plugins=plugins, verbose=verbose, pastebin=pastebin,
         remote_data=remote_data, pep8=pep8, pdb=pdb,
-        coverage=coverage, open_files=open_files, **kwargs)
+        coverage=coverage, open_files=open_files, config=config, **kwargs)
 
 if not _ASTROPY_SETUP_:
     import os
