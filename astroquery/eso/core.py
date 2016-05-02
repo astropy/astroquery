@@ -223,7 +223,7 @@ class EsoClass(QueryWithLogin):
             self._instrument_list = []
             for element in root.select("div[id=col3] a[href]"):
                 href = element.attrs["href"]
-                if u"http://archive.eso.org/wdb/wdb/asm" in href:
+                if u"http://archive.eso.org/wdb/wdb/eso" in href:
                     instrument = href.split("/")[-2]
                     if instrument not in self._instrument_list:
                         self._instrument_list.append(instrument)
