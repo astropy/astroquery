@@ -228,8 +228,6 @@ class EsoClass(QueryWithLogin):
                     if instrument not in self._instrument_list:
                         self._instrument_list.append(instrument)
             self._instrument_list.append(u'harps')
-            self._instrument_list.append(u'ambient_paranal')
-            self._instrument_list.append(u'meteo_paranal')
         return self._instrument_list
 
     def list_surveys(self, cache=True):
