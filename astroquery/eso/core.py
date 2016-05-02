@@ -230,30 +230,8 @@ class EsoClass(QueryWithLogin):
             self._instrument_list.append(u'harps')
         return self._instrument_list
 
-    def list_surveys(self, cache=True):
-        """ List all the available surveys (phase 3) in the ESO archive.
-
-        Returns
-        -------
-        survey_list : list of strings
-        cache : bool
-            Cache the response for faster subsequent retrieval
-
-        """
-        if self._survey_list is None:
-            survey_list_response = self._request(
-                "GET", "http://archive.eso.org/wdb/wdb/adp/phase3_main/form",
-                cache=cache)
-            root = BeautifulSoup(survey_list_response .content, 'html5lib')
-            self._survey_list = []
-            for select in root.select("select[name=phase3_program]"):
-                for element in select.select('option'):
-                    survey = element.text.strip()
-                    if survey not in self._survey_list and 'Any' not in survey:
-                        self._survey_list.append(survey)
-        return self._survey_list
-
-    def query_survey(self, survey, cache=True, **kwargs):
+    def query_surveys(self, surveys='any_collection_id', cache=True,
+                      help=False, **kwargs):
         """
         Query survey Phase 3 data contained in the ESO archive.
 
@@ -276,13 +254,11 @@ class EsoClass(QueryWithLogin):
 
         """
 
-        if survey not in self.list_surveys():
-            raise ValueError("Survey %s is not in the survey list." % survey)
         url = "http://archive.eso.org/wdb/wdb/adp/phase3_main/form"
         survey_form = self._request("GET", url, cache=cache)
         query_dict = kwargs
         query_dict["wdbo"] = "csv/download"
-        query_dict['phase3_program'] = survey
+        query_dict['collection_name'] = surveys
         if self.ROW_LIMIT >= 0:
             query_dict["max_rows_returned"] = self.ROW_LIMIT
         else:
@@ -345,7 +321,7 @@ class EsoClass(QueryWithLogin):
         if open_form:
             webbrowser.open(url)
         elif help:
-            self._print_help(url, instrument)
+            self._print_instrument_help(url, instrument)
         else:
             instrument_form = self._request("GET", url, cache=cache)
             query_dict = {}
@@ -618,7 +594,7 @@ class EsoClass(QueryWithLogin):
         if open_form:
             webbrowser.open(apex_query_url)
         elif help:
-            return self._print_help(apex_query_url, 'apex')
+            return self._print_instrument_help(apex_query_url, 'apex')
         else:
 
             payload = {'wdbo': 'csv/download'}
@@ -643,7 +619,7 @@ class EsoClass(QueryWithLogin):
 
             return table
 
-    def _print_help(self, url, instrument, cache=True):
+    def _print_instrument_help(self, url, instrument, cache=True):
         """
         Download a form and print it in a quasi-human-readable way
         """
@@ -696,6 +672,83 @@ class EsoClass(QueryWithLogin):
                 if name != u"":
                     result_string.append("{0} {1}: {2}"
                                          .format(checkbox, name, value))
+
+        print("\n".join(result_string))
+        return result_string
+
+    def _print_surveys_help(self, url, cache=True):
+        """
+        Download a form and print it in a quasi-human-readable way
+        """
+        log.info("List of the parameters accepted by the "
+                 "surveys query.")
+        log.info("The presence of a column in the result table can be "
+                 "controlled if prefixed with a [ ] checkbox.")
+        log.info("The default columns in the result table are shown as "
+                 "already ticked: [x].")
+
+        result_string = []
+
+        resp = self._request("GET", url, cache=cache)
+        doc = BeautifulSoup(resp.content, 'html5lib')
+        form = doc.select("html body form")[0]
+
+        # hovertext from different labels are used to give more info on forms
+        helptext_dict = {abbr['title'].split(":")[0].strip():
+                         ":".join(abbr['title'].split(":")[1:])
+                         for abbr in form.findAll('abbr')
+                         if 'title' in abbr.attrs and ":" in abbr['title']}
+
+        for fieldset in form.select('fieldset'):
+            legend = fieldset.select('legend')
+            if len(legend) > 1:
+                raise ValueError("Form parsing error: too many legends.")
+            elif len(legend) == 0:
+                continue
+            section_title = "\n\n"+"".join(legend[0].stripped_strings)+"\n"
+
+            result_string.append(section_title)
+
+            for section in fieldset.select('table'):
+
+                checkbox_name = ""
+                checkbox_value = ""
+                for tag in section.next_elements:
+                    if tag.name == u"table":
+                        break
+                    elif tag.name == u"input":
+                        if tag.get(u'type') == u"checkbox":
+                            checkbox_name = tag['name']
+                            checkbox_value = (u"[x]"
+                                              if ('checked' in tag.attrs)
+                                              else u"[ ]")
+                            name = ""
+                            value = ""
+                        else:
+                            name = tag['name']
+                            value = ""
+                    elif tag.name == u"select":
+                        options = []
+                        for option in tag.select("option"):
+                            options += ["{0} ({1})"
+                                        .format(option['value']
+                                                if 'value' in option
+                                                else "",
+                                                "".join(option.stripped_strings))]
+                        name = tag[u"name"]
+                        value = ", ".join(options)
+                    else:
+                        name = ""
+                        value = ""
+                    if u"tab_" + name == checkbox_name:
+                        checkbox = checkbox_value
+                    else:
+                        checkbox = "   "
+                    if name != u"":
+                        result_string.append("{0} {1}: {2}"
+                                             .format(checkbox, name, value))
+                        if name.strip() in helptext_dict:
+                            result_string.append(helptext_dict[name.strip()])
 
         print("\n".join(result_string))
         return result_string

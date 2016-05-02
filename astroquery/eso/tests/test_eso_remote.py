@@ -30,18 +30,19 @@ class TestEso:
         eso = Eso()
         eso.cache_location = temp_dir
 
-        instruments = eso.list_instruments()
+        instruments = eso.list_instruments(cache=False)
         # in principle, we should run both of these tests
         # result_i = eso.query_instrument('midi', target='Sgr A*')
         # Equivalent, does not depend on SESAME:
         result_i = eso.query_instrument('midi', coord1=266.41681662,
-                                        coord2=-29.00782497)
+                                        coord2=-29.00782497, cache=False)
 
-        surveys = eso.list_surveys()
+        surveys = eso.list_surveys(cache=False)
+        assert len(surveys) > 0
         # result_s = eso.query_survey('VVV', target='Sgr A*')
         # Equivalent, does not depend on SESAME:
         result_s = eso.query_survey('VVV', coord1=266.41681662,
-                                    coord2=-29.00782497)
+                                    coord2=-29.00782497, cache=False)
 
         assert 'midi' in instruments
         assert result_i is not None
@@ -65,35 +66,36 @@ class TestEso:
     def test_empty_return(self):
         # test for empty return with an object from the North
         eso = Eso()
-        surveys = eso.list_surveys()
+        surveys = eso.list_surveys(cache=False)
+        assert len(surveys) > 0
         # result_s = eso.query_survey(surveys[0], target='M51')
         # Avoid SESAME
-        result_s = eso.query_survey(surveys[0],
-                                    coord1=202.469575, coord2=47.195258)
+        result_s = eso.query_survey(surveys[0], coord1=202.469575,
+                                    coord2=47.195258, cache=False)
 
         assert result_s is None
 
     def test_SgrAstar_remotevslocal(self, temp_dir):
         eso = Eso()
         # Remote version
-        instruments = eso.list_instruments()
+        instruments = eso.list_instruments(cache=False)
         # result1 = eso.query_instrument(instruments[0], target='Sgr A*')
         result1 = eso.query_instrument(instruments[0], coord1=266.41681662,
-                                       coord2=-29.00782497)
+                                       coord2=-29.00782497, cache=False)
 
         # Local version
         eso.cache_location = temp_dir
-        instruments = eso.list_instruments()
+        instruments = eso.list_instruments(cache=False)
         # result2 = eso.query_instrument(instruments[0], target='Sgr A*')
         result2 = eso.query_instrument(instruments[0], coord1=266.41681662,
-                                       coord2=-29.00782497)
+                                       coord2=-29.00782497, cache=False)
 
         assert result1 == result2
 
     def test_list_instruments(self):
         # If this test fails, we may simply need to update it
 
-        inst = set(Eso.list_instruments())
+        inst = set(Eso.list_instruments(cache=False))
 
         # we only care about the sets matching
         assert set(inst) == set(instrument_list)
