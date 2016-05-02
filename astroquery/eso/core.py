@@ -335,11 +335,11 @@ class EsoClass(QueryWithLogin):
         """
 
         if instrument in ('feros', 'harps'):
-            url = 'http://archive.eso.org/wdb/wdb/asm/repro/form'
+            url = 'http://archive.eso.org/wdb/wdb/eso/repro/form'
         elif instrument == 'grond':
-            url = 'http://archive.eso.org/wdb/wdb/asm/eso_archive_main/form'
+            url = 'http://archive.eso.org/wdb/wdb/eso/eso_archive_main/form'
         else:
-            url = ("http://archive.eso.org/wdb/wdb/asm/{0}/form"
+            url = ("http://archive.eso.org/wdb/wdb/eso/{0}/form"
                    .format(instrument))
         table = None
         if open_form:
@@ -588,7 +588,7 @@ class EsoClass(QueryWithLogin):
         Given a data set name, return 'True' if ESO has the file and 'False'
         otherwise
         """
-        url = 'http://archive.eso.org/wdb/wdb/asm/eso_archive_main/query'
+        url = 'http://archive.eso.org/wdb/wdb/eso/eso_archive_main/query'
         payload = {'dp_id': dataset,
                    'ascii_out_mode': 'true',
                    }
@@ -612,7 +612,7 @@ class EsoClass(QueryWithLogin):
         >>> files = Eso.retrieve_data(tbl['Product ID'])
         """
 
-        apex_query_url = 'http://archive.eso.org/wdb/wdb/asm/apex_product/form'
+        apex_query_url = 'http://archive.eso.org/wdb/wdb/eso/apex_product/form'
 
         table = None
         if open_form:
