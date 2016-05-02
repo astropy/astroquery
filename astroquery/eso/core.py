@@ -127,7 +127,7 @@ class EsoClass(QueryWithLogin):
 
             if key in inputs:
                 value = str(inputs[key])
-            if (key is not None) and (value is not None):
+            if (key is not None):# and (value is not None):
                 if fmt == 'multipart/form-data':
                     if is_file:
                         payload.append(
@@ -136,6 +136,8 @@ class EsoClass(QueryWithLogin):
                         if type(value) is list:
                             for v in value:
                                 payload.append((key, ('', v)))
+                        elif value is None:
+                            payload.append((key, ('', '')))
                         else:
                             payload.append((key, ('', value)))
                 else:
@@ -151,6 +153,8 @@ class EsoClass(QueryWithLogin):
 
         if method is not None:
             fmt = method
+
+        log.debug("Method/format = {0}".format(fmt))
 
         # Send payload
         if fmt == 'get':
@@ -244,7 +248,7 @@ class EsoClass(QueryWithLogin):
             self._instrument_list.append(u'harps')
         return self._instrument_list
 
-    def query_surveys(self, surveys='any_collection_id', cache=True,
+    def query_surveys(self, surveys='', cache=True,
                       help=False, open_form=False, **kwargs):
         """
         Query survey Phase 3 data contained in the ESO archive.
@@ -283,17 +287,6 @@ class EsoClass(QueryWithLogin):
             else:
                 query_dict["max_rows_returned"] = 10000
     
-            # missing entries:
-            # filter: Any
-            # tel_id: Any
-            # ins_id: Any
-            # obstech: Any
-            # date_obs:
-            # mjd_obs:
-            # exptime:
-            # 
-            # collection_name should be blank (?)
-
             survey_response = self._activate_form(survey_form, form_index=0,
                                                   inputs=query_dict, cache=cache)
 
