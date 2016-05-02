@@ -99,17 +99,31 @@ class EsoClass(QueryWithLogin):
             elif tag_name == 'select':
                 if form_elem.get('multiple') is not None:
                     value = []
-                    for option in form_elem.select('option[value]'):
-                        if option.get('selected') is not None:
-                            value.append(option.get('value'))
+                    if form_elem.select('option[value]'):
+                        for option in form_elem.select('option[value]'):
+                            if option.get('selected') is not None:
+                                value.append(option.get('value'))
+                    else:
+                        for option in form_elem.select('option'):
+                            if option.get('selected') is not None:
+                                value.append(option.string)
                 else:
-                    for option in form_elem.select('option[value]'):
-                        if option.get('selected') is not None:
-                            value = option.get('value')
-                    # select the first option field if none is selected
-                    if value is None:
-                        value = form_elem.select(
-                            'option[value]')[0].get('value')
+                    if form_elem.select('option[value]'):
+                        for option in form_elem.select('option[value]'):
+                            if option.get('selected') is not None:
+                                value = option.get('value')
+                        # select the first option field if none is selected
+                        if value is None:
+                            value = form_elem.select(
+                                'option[value]')[0].get('value')
+                    else:
+                        # survey form just uses text, not value
+                        for option in form_elem.select('option'):
+                            if option.get('selected') is not None:
+                                value = option.string
+                        # select the first option field if none is selected
+                        if value is None:
+                            value = form_elem.select('option')[0].string
 
             if key in inputs:
                 value = str(inputs[key])
@@ -231,7 +245,7 @@ class EsoClass(QueryWithLogin):
         return self._instrument_list
 
     def query_surveys(self, surveys='any_collection_id', cache=True,
-                      help=False, **kwargs):
+                      help=False, open_form=False, **kwargs):
         """
         Query survey Phase 3 data contained in the ESO archive.
 
@@ -255,27 +269,44 @@ class EsoClass(QueryWithLogin):
         """
 
         url = "http://archive.eso.org/wdb/wdb/adp/phase3_main/form"
-        survey_form = self._request("GET", url, cache=cache)
-        query_dict = kwargs
-        query_dict["wdbo"] = "csv/download"
-        query_dict['collection_name'] = surveys
-        if self.ROW_LIMIT >= 0:
-            query_dict["max_rows_returned"] = self.ROW_LIMIT
+        if open_form:
+            webbrowser.open(url)
+        elif help:
+            self._print_surveys_help(url, cache=cache)
         else:
-            query_dict["max_rows_returned"] = 10000
-        survey_response = self._activate_form(survey_form, form_index=0,
-                                              inputs=query_dict, cache=cache)
+            survey_form = self._request("GET", url, cache=cache)
+            query_dict = kwargs
+            query_dict["wdbo"] = "csv/download"
+            query_dict['collection_name'] = surveys
+            if self.ROW_LIMIT >= 0:
+                query_dict["max_rows_returned"] = self.ROW_LIMIT
+            else:
+                query_dict["max_rows_returned"] = 10000
+    
+            # missing entries:
+            # filter: Any
+            # tel_id: Any
+            # ins_id: Any
+            # obstech: Any
+            # date_obs:
+            # mjd_obs:
+            # exptime:
+            # 
+            # collection_name should be blank (?)
 
-        content = survey_response.content
-        # First line is always garbage
-        content = content.split(b'\n', 1)[1]
-        log.debug("Response content:\n{0}".format(content))
-        if _check_response(content):
-            table = Table.read(BytesIO(content), format="ascii.csv",
-                               comment="^#")
-            return table
-        else:
-            warnings.warn("Query returned no results", NoResultsWarning)
+            survey_response = self._activate_form(survey_form, form_index=0,
+                                                  inputs=query_dict, cache=cache)
+
+            content = survey_response.content
+            # First line is always garbage
+            content = content.split(b'\n', 1)[1]
+            log.debug("Response content:\n{0}".format(content))
+            if _check_response(content):
+                table = Table.read(BytesIO(content), format="ascii.csv",
+                                   comment="^#")
+                return table
+            else:
+                warnings.warn("Query returned no results", NoResultsWarning)
 
     def query_instrument(self, instrument, column_filters={}, columns=[],
                          open_form=False, help=False, cache=True, **kwargs):
