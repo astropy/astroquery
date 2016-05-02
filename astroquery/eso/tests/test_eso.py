@@ -10,12 +10,12 @@ DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
 def data_path(filename):
     return os.path.join(DATA_DIR, filename)
 
-DATA_FILES = {'GET': {'http://archive.eso.org/wdb/wdb/asm/amber/form':
+DATA_FILES = {'GET': {'http://archive.eso.org/wdb/wdb/eso/amber/form':
                       'amber_form.html',
                       'http://archive.eso.org/wdb/wdb/adp/phase3_main/form':
                       'vvv_sgra_form.html',
                       },
-              'POST': {'http://archive.eso.org/wdb/wdb/asm/amber/query':
+              'POST': {'http://archive.eso.org/wdb/wdb/eso/amber/query':
                        'amber_sgra_query.tbl',
                        'http://archive.eso.org/wdb/wdb/adp/phase3_main/query':
                        'vvv_sgra_survey_response.tbl',
