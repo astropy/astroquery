@@ -73,7 +73,7 @@
 - IPython notebook checker in the ESO tool is now compatible with regular
   python (#413)
 - Added new tool: ALMA archive query tool
-  http://astroquery.readthedocs.org/en/latest/alma/alma.html
+  http://astroquery.readthedocs.io/en/latest/alma/alma.html
   (#411)
 - setup script and installation fixes
 

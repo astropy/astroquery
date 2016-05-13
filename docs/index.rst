@@ -15,7 +15,7 @@ Astroquery is a set of tools for querying astronomical web forms and databases.
 
 There are two other packages with complimentary functionality as Astroquery:
 `astropy.vo <http://docs.astropy.org/en/latest/vo/index.html>`_ is in the Astropy core and
-`pyvo <https://pyvo.readthedocs.org/en/latest/>`_ is an Astropy affiliated package.
+`pyvo <https://pyvo.readthedocs.io/en/latest/>`_ is an Astropy affiliated package.
 They are more oriented to general `virtual observatory <http://www.virtualobservatory.org>`_
 discovery and queries, whereas Astroquery has web service specific interfaces.
 
