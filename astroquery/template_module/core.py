@@ -39,7 +39,7 @@ class TemplateClass(BaseQuery):
     """
     Not all the methods below are necessary but these cover most of the common
     cases, new methods may be added if necessary, follow the guidelines at
-    <http://astroquery.readthedocs.org/en/latest/api.html>
+    <http://astroquery.readthedocs.io/en/latest/api.html>
     """
     # use the Configuration Items imported from __init__.py to set the URL,
     # TIMEOUT, etc.

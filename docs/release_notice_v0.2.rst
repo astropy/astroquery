@@ -8,7 +8,7 @@ or directly from github:
 https://github.com/astropy/astroquery/releases/tag/v0.2
 
 The documents are hosted at:
-http://astroquery.readthedocs.org/en/v0.2/
+http://astroquery.readthedocs.io/en/v0.2/
 
 
 v0.2 has a few new features and includes major internal improvements.

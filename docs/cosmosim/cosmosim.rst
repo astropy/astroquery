@@ -373,7 +373,7 @@ formats can not be used in an interactive python session).
 
 Data can be stored and/or written out as a `VOTable`_.
 
-.. _VOTable: http://astropy.readthedocs.org/en/latest/io/votable/
+.. _VOTable: http://astropy.readthedocs.io/en/latest/io/votable/
 
 .. code-block:: python
 
