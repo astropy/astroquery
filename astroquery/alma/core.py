@@ -613,6 +613,13 @@ class AlmaClass(QueryWithLogin):
                           "A partially completed download list is "
                           "in Alma.partial_file_list")
                 raise ex
+            except requests.HTTPError as ex:
+                if ex.response.status_code == 401:
+                    log.info("Access denied to {url}.  Skipping to"
+                             " next file".format(url=url))
+                    continue
+                else:
+                    raise ex
 
             fitsfilelist = self.get_files_from_tarballs([tarball_name],
                                                         regex=regex, path=path,
