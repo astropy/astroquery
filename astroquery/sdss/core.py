@@ -31,7 +31,7 @@ sdss_arcsec_per_pixel = 0.396 * u.arcsec / u.pixel
 class SDSSClass(BaseQuery):
     TIMEOUT = conf.timeout
     QUERY_URL_SUFFIX_DR_OLD = '/dr{dr}/en/tools/search/sql.asp'
-    QUERY_URL_SUFFIX_DR_NEW = '/dr{dr}/en/tools/search/x_sql.aspx'
+    QUERY_URL_SUFFIX_DR_NEW = '/dr{dr}/en/tools/search/x_results.aspx'
     XID_URL_SUFFIX = '/dr{dr}/en/tools/crossid/x_crossid.aspx'
     IMAGING_URL_SUFFIX = ('{base}/dr{dr}/boss/photoObj/frames/'
                           '{rerun}/{run}/{camcol}/'
@@ -1010,8 +1010,8 @@ class SDSSClass(BaseQuery):
                                  '`run`, `camcol` or `field`')
 
         sql = "{0} {1} {2} {3}".format(q_select, q_from, q_join, q_where)
-        request_payload = dict(cmd=sql, format='csv')
 
+        request_payload = dict(cmd=sql, format='csv', searchtool='SQL')
         return request_payload
 
     def _get_query_url(self, data_release):
