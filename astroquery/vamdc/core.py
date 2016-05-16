@@ -44,10 +44,12 @@ class VamdcClass(BaseQuery):
 
         from vamdclib import nodes as vnodes
         from vamdclib import request as vrequest
+        from vamdclib import results as vresults
         from vamdclib import specmodel
 
         self._vnodes = vnodes
         self._vrequest = vrequest
+        self._vresults = vresults
 
         self._nl = vnodes.Nodelist()
         self._cdms = self._nl.findnode('cdms')
@@ -91,10 +93,9 @@ class VamdcClass(BaseQuery):
         myhashpath = os.path.join(self.CACHE_LOCATION,
                                   myhash)
         if os.path.exists(myhashpath) and cache:
-            with open(myhashpath, 'r') as fh:
+            with open(myhashpath, 'rb') as fh:
                 xml = fh.read()
-            result = self._vrequest.Result()
-            result.Xml = xml
+            result = self._vresults.Result(xml=xml)
             result.populate_model()
         else:
             species_id_dict = self.species_lookuptable.find(molecule_name,
@@ -111,7 +112,7 @@ class VamdcClass(BaseQuery):
             result = request.dorequest()
             
             if cache:
-                with open(myhashpath, 'w') as fh:
+                with open(myhashpath, 'wb') as fh:
                     xml = fh.write(result.Xml)
 
         return result
