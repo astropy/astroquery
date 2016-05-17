@@ -30,7 +30,8 @@ sdss_arcsec_per_pixel = 0.396 * u.arcsec / u.pixel
 @async_to_sync
 class SDSSClass(BaseQuery):
     TIMEOUT = conf.timeout
-    QUERY_URL_SUFFIX_DR_OLD = '/dr{dr}/en/tools/search/sql.asp'
+    QUERY_URL_SUFFIX_DR_OLD = '/dr{dr}/en/tools/search/x_sql.asp'
+    QUERY_URL_SUFFIX_DR_10 = '/dr{dr}/en/tools/search/x_sql.aspx'
     QUERY_URL_SUFFIX_DR_NEW = '/dr{dr}/en/tools/search/x_results.aspx'
     XID_URL_SUFFIX = '/dr{dr}/en/tools/crossid/x_crossid.aspx'
     IMAGING_URL_SUFFIX = ('{base}/dr{dr}/boss/photoObj/frames/'
@@ -1010,13 +1011,17 @@ class SDSSClass(BaseQuery):
                                  '`run`, `camcol` or `field`')
 
         sql = "{0} {1} {2} {3}".format(q_select, q_from, q_join, q_where)
-
-        request_payload = dict(cmd=sql, format='csv', searchtool='SQL')
+        if data_release < 11:
+            request_payload = dict(cmd=sql, format='csv')
+        else:
+            request_payload = dict(cmd=sql, format='csv', searchtool='SQL')
         return request_payload
 
     def _get_query_url(self, data_release):
-        if data_release < 11:
+        if data_release < 10:
             suffix = self.QUERY_URL_SUFFIX_DR_OLD
+        elif data_release == 10:
+            suffix = self.QUERY_URL_SUFFIX_DR_10
         else:
             suffix = self.QUERY_URL_SUFFIX_DR_NEW
 
