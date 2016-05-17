@@ -27,11 +27,16 @@ _cached_table_fields = {}
 
 def get_field_info(cls, tablename, sqlurl, timeout=conf.timeout):
     key = (tablename, sqlurl)
+    # Figure out the DR from the url
+    data_release = int(sqlurl.split('/dr')[1].split('/')[0])
 
     if key not in _cached_table_fields:
         request_payload = {'cmd': ("select * from dbo.fDocColumns('{0}')"
                                    .format(tablename)),
                            'format': 'json'}
+        if data_release > 11:
+            request_payload['searchtool'] = 'SQL'
+
         qryres = cls._request("GET", sqlurl, params=request_payload,
                               timeout=timeout)
         # we're compelled to use JSON because CSV responses are broken in

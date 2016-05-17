@@ -115,15 +115,20 @@ coords_column = Column(coords_list, name='coordinates')
 # published results based on the DR11 data set. As such, not all data-access
 # interfaces are supported for DR11."
 def url_tester(data_release):
-    if data_release < 12:
-        baseurl = 'http://skyserver.sdss.org/dr{}/en/tools/search/sql.asp'
-    if data_release >= 12:
+    if data_release < 10:
+        baseurl = 'http://skyserver.sdss.org/dr{}/en/tools/search/x_sql.asp'
+    if data_release == 10:
         baseurl = 'http://skyserver.sdss.org/dr{}/en/tools/search/x_sql.aspx'
+    if data_release >= 12:
+        baseurl = 'http://skyserver.sdss.org/dr{}/en/tools/search/x_results.aspx'
     assert sdss.SDSS._last_url == baseurl.format(data_release)
 
 
 def url_tester_crossid(data_release):
-    baseurl = 'http://skyserver.sdss.org/dr{}/en/tools/crossid/x_crossid.aspx'
+    if data_release < 11:
+        baseurl = 'http://skyserver.sdss.org/dr{}/en/tools/crossid/x_crossid.aspx'
+    if data_release >= 12:
+        baseurl = 'http://skyserver.sdss.org/dr{}/en/tools/crossid/X_Results.aspx'
     assert sdss.SDSS._last_url == baseurl.format(data_release)
 
 
