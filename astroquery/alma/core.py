@@ -360,7 +360,7 @@ class AlmaClass(QueryWithLogin):
         downloaded_files : list
             A list of the downloaded file paths
         """
-        if isinstance(uids, six.string_types):
+        if isinstance(uids, six.string_types, np.bytes_):
             uids = [uids]
         if not isinstance(uids, (list, tuple, np.ndarray)):
             raise TypeError("Datasets must be given as a list of strings.")
