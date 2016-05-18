@@ -63,10 +63,9 @@ def approximate_primary_beam_sizes(frq_sup_str=frq_sup_str,
 def test_make_finder_chart():
     result = utils.make_finder_chart('Eta Carinae', 3 * u.arcmin,
                                      'Eta Carinae')
-    images, catalog, hit_mask_public, hit_mask_private = result
+    image, catalog, hit_mask_public, hit_mask_private = result
 
     assert len(catalog) >= 7
-    assert len(images) >= 1
     assert 3 in hit_mask_public
     # Feb 8 2016: apparently the 60s integration hasn't actually been released yet...
     assert hit_mask_public[3][256,256] >= 30.23

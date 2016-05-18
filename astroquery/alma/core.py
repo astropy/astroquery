@@ -9,6 +9,7 @@ import re
 import tarfile
 import string
 import requests
+from requests import HTTPError
 import sys
 from pkg_resources import resource_filename
 from bs4 import BeautifulSoup
@@ -207,7 +208,7 @@ class AlmaClass(QueryWithLogin):
         .DEBUG: Data list URL: https://almascience.eso.org/rh/requests/anonymous/786823226 [astroquery.alma.core]
         """
 
-        if isinstance(uids, six.string_types):
+        if isinstance(uids, six.string_types + (np.bytes_,)):
             uids = [uids]
         if not isinstance(uids, (list, tuple, np.ndarray)):
             raise TypeError("Datasets must be given as a list of strings.")
@@ -231,6 +232,10 @@ class AlmaClass(QueryWithLogin):
                                  timeout=self.TIMEOUT, cache=False)
         self._staging_log['initial_response'] = response
         log.debug("First response URL: {0}".format(response.url))
+        if response.status_code == 405:
+            raise HTTPError("Received an error 405: this may indicate you "
+                            "have already staged the data.  Try downloading "
+                            "the file URLs directly with download_files.")
         response.raise_for_status()
 
         if 'j_spring_cas_security_check' in response.url:
@@ -303,6 +308,7 @@ class AlmaClass(QueryWithLogin):
                                                     username=username,
                                                     ))
         tbl = self._json_summary_to_table(json_data, base_url=base_url)
+        self._staging_log['result'] = tbl
 
         return tbl
 
@@ -360,7 +366,7 @@ class AlmaClass(QueryWithLogin):
         downloaded_files : list
             A list of the downloaded file paths
         """
-        if isinstance(uids, six.string_types):
+        if isinstance(uids, six.string_types + (np.bytes_,)):
             uids = [uids]
         if not isinstance(uids, (list, tuple, np.ndarray)):
             raise TypeError("Datasets must be given as a list of strings.")
@@ -876,6 +882,8 @@ def clean_uid(uid):
     """
     Return a uid with all unacceptable characters replaced with underscores
     """
+    if not hasattr(uid, 'replace'):
+        return clean_uid(str(uid.astype('S')))
     try:
         return uid.decode('utf-8').replace(u"/", u"_").replace(u":", u"_")
     except AttributeError:
