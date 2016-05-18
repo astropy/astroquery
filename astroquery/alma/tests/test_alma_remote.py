@@ -71,9 +71,9 @@ class TestAlma:
         # test re-staging
         with pytest.raises(requests.HTTPError) as ex:
             link_list = alma.stage_data(uids)
-        assert ex.value == ('Received an error 405: this may indicate you have '
-                            'already staged the data.  Try downloading the '
-                            'file URLs directly with download_files.')
+        assert ex.value.args[0] == ('Received an error 405: this may indicate you have '
+                                    'already staged the data.  Try downloading the '
+                                    'file URLs directly with download_files.')
 
 
     def test_stage_data(self, temp_dir):
@@ -86,7 +86,7 @@ class TestAlma:
         match = result_s['Asdm uid'] == b'uid://A002/X47ed8e/X3cd'
         uid = result_s['Asdm uid'][match]
 
-        result = alma.stage_data([uid])
+        result = alma.stage_data(uid)
 
         assert ('uid___A002_X47ed8e' in
                 os.path.split(result['URL'][0])[1])
@@ -94,9 +94,9 @@ class TestAlma:
         # test re-staging
         with pytest.raises(requests.HTTPError) as ex:
             result = alma.stage_data([uid])
-        assert ex.value == ('Received an error 405: this may indicate you have '
-                            'already staged the data.  Try downloading the '
-                            'file URLs directly with download_files.')
+        assert ex.value.args[0] == ('Received an error 405: this may indicate you have '
+                                    'already staged the data.  Try downloading the '
+                                    'file URLs directly with download_files.')
 
 
     def test_doc_example(self, temp_dir):

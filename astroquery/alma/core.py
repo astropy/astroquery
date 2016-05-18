@@ -882,6 +882,8 @@ def clean_uid(uid):
     """
     Return a uid with all unacceptable characters replaced with underscores
     """
+    if not hasattr(uid, 'replace'):
+        return clean_uid(str(uid.astype('S')))
     try:
         return uid.decode('utf-8').replace(u"/", u"_").replace(u":", u"_")
     except AttributeError:
