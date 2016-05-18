@@ -34,7 +34,7 @@ class SDSSClass(BaseQuery):
     QUERY_URL_SUFFIX_DR_10 = '/dr{dr}/en/tools/search/x_sql.aspx'
     QUERY_URL_SUFFIX_DR_NEW = '/dr{dr}/en/tools/search/x_results.aspx'
     XID_URL_SUFFIX_OLD = '/dr{dr}/en/tools/crossid/x_crossid.aspx'
-    XID_URL_SUFFIX_NEW = '/dr{dr}/en/tools/crossid/X_Results.aspx'
+    XID_URL_SUFFIX_NEW = '/dr{dr}/en/tools/search/X_Results.aspx'
     IMAGING_URL_SUFFIX = ('{base}/dr{dr}/boss/photoObj/frames/'
                           '{rerun}/{run}/{camcol}/'
                           'frame-{band}-{run:06d}-{camcol}-'

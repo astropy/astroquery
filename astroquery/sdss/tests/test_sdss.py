@@ -128,7 +128,7 @@ def url_tester_crossid(data_release):
     if data_release < 11:
         baseurl = 'http://skyserver.sdss.org/dr{}/en/tools/crossid/x_crossid.aspx'
     if data_release >= 12:
-        baseurl = 'http://skyserver.sdss.org/dr{}/en/tools/crossid/X_Results.aspx'
+        baseurl = 'http://skyserver.sdss.org/dr{}/en/tools/search/X_Results.aspx'
     assert sdss.SDSS._last_url == baseurl.format(data_release)
 
 
