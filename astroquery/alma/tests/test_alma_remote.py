@@ -3,6 +3,7 @@ import tempfile
 import shutil
 import numpy as np
 import os
+import requests
 from astropy.tests.helper import pytest, remote_data
 from astropy import coordinates
 from astropy import units as u
@@ -78,6 +79,14 @@ class TestAlma:
 
         assert ('uid___A002_X47ed8e' in
                 os.path.split(result['URL'][0])[1])
+
+        # test re-staging
+        with pytest.raises(requests.HTTPError) as ex:
+            result = alma.stage_data([uid])
+        assert ex.value == ('Received an error 405: this may indicate you have '
+                            'already staged the data.  Try downloading the '
+                            'file URLs directly with download_files.')
+
 
     def test_doc_example(self, temp_dir):
         alma = Alma()
