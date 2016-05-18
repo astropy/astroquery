@@ -30,7 +30,9 @@ def get_field_info(cls, tablename, sqlurl, timeout=conf.timeout):
     # Figure out the DR from the url
     data_release = int(sqlurl.split('/dr')[1].split('/')[0])
 
-    if key not in _cached_table_fields:
+    # Empty tables could be cached when running local mock tests, those should
+    # always be discarded
+    if key not in _cached_table_fields or not _cached_table_fields[key]:
         request_payload = {'cmd': ("select * from dbo.fDocColumns('{0}')"
                                    .format(tablename)),
                            'format': 'json'}
