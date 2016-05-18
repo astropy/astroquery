@@ -16,7 +16,8 @@ all_colnames = ['Project code', 'Source name', 'RA', 'Dec', 'Band',
                 'Frequency support', 'Velocity resolution', 'Pol products',
                 'Observation date', 'PI name', 'PWV', 'Member ous id',
                 'Asdm uid', 'Project title', 'Project type', 'Scan intent',
-                'Spatial resolution', 'QA0 Status', 'QA2 Status']
+                'Spatial resolution', 'Largest angular scale', 'QA0 Status',
+                'QA2 Status', 'Project abstract']
 
 
 @remote_data
@@ -64,7 +65,15 @@ class TestAlma:
         link_list = alma.stage_data(uids)
 
         # On Feb 8, 2016 there were 83 hits.  This number should never go down.
-        assert len(link_list) >= 83
+        # Except it has.  On May 18, 2016, there were 47.
+        assert len(link_list) >= 47
+
+        # test re-staging
+        with pytest.raises(requests.HTTPError) as ex:
+            link_list = alma.stage_data(uids)
+        assert ex.value == ('Received an error 405: this may indicate you have '
+                            'already staged the data.  Try downloading the '
+                            'file URLs directly with download_files.')
 
 
     def test_stage_data(self, temp_dir):
@@ -73,7 +82,9 @@ class TestAlma:
 
         result_s = alma.query_object('Sgr A*')
         assert b'2011.0.00217.S' in result_s['Project code']
-        uid = result_s['Asdm uid'][0]
+        assert b'uid://A002/X47ed8e/X3cd' in result_s['Asdm uid']
+        match = result_s['Asdm uid'] == b'uid://A002/X47ed8e/X3cd'
+        uid = result_s['Asdm uid'][match]
 
         result = alma.stage_data([uid])
 
