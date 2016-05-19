@@ -30,9 +30,11 @@ sdss_arcsec_per_pixel = 0.396 * u.arcsec / u.pixel
 @async_to_sync
 class SDSSClass(BaseQuery):
     TIMEOUT = conf.timeout
-    QUERY_URL_SUFFIX_DR_OLD = '/dr{dr}/en/tools/search/sql.asp'
-    QUERY_URL_SUFFIX_DR_NEW = '/dr{dr}/en/tools/search/x_sql.aspx'
-    XID_URL_SUFFIX = '/dr{dr}/en/tools/crossid/x_crossid.aspx'
+    QUERY_URL_SUFFIX_DR_OLD = '/dr{dr}/en/tools/search/x_sql.asp'
+    QUERY_URL_SUFFIX_DR_10 = '/dr{dr}/en/tools/search/x_sql.aspx'
+    QUERY_URL_SUFFIX_DR_NEW = '/dr{dr}/en/tools/search/x_results.aspx'
+    XID_URL_SUFFIX_OLD = '/dr{dr}/en/tools/crossid/x_crossid.aspx'
+    XID_URL_SUFFIX_NEW = '/dr{dr}/en/tools/search/X_Results.aspx'
     IMAGING_URL_SUFFIX = ('{base}/dr{dr}/boss/photoObj/frames/'
                           '{rerun}/{run}/{camcol}/'
                           'frame-{band}-{run:06d}-{camcol}-'
@@ -156,6 +158,9 @@ class SDSSClass(BaseQuery):
                                format='csv', photoScope='nearPrim',
                                radius=radius,
                                photoUpType='ra-dec', searchType='photo')
+
+        if data_release > 11:
+            request_payload['searchtool'] = 'CrossID'
 
         if get_query_payload:
             return request_payload
@@ -459,6 +464,9 @@ class SDSSClass(BaseQuery):
 
         request_payload = dict(cmd=self.__sanitize_query(sql_query),
                                format='csv')
+        if data_release > 11:
+            request_payload['searchtool'] = 'SQL'
+
         if kwargs.get('get_query_payload'):
             return request_payload
 
@@ -910,10 +918,11 @@ class SDSSClass(BaseQuery):
         request_payload : dict
 
         """
-        # TODO: replace this with something cleaner below
         url = self._get_query_url(data_release)
+        # TODO: replace this with something cleaner below
         photoobj_all = get_field_info(self, 'PhotoObjAll', url,
                                       self.TIMEOUT)['name']
+
         specobj_all = get_field_info(self, 'SpecObjAll', url,
                                      self.TIMEOUT)['name']
 
@@ -1010,13 +1019,19 @@ class SDSSClass(BaseQuery):
                                  '`run`, `camcol` or `field`')
 
         sql = "{0} {1} {2} {3}".format(q_select, q_from, q_join, q_where)
+
         request_payload = dict(cmd=sql, format='csv')
+
+        if data_release > 11:
+            request_payload['searchtool'] = 'SQL'
 
         return request_payload
 
     def _get_query_url(self, data_release):
-        if data_release < 11:
+        if data_release < 10:
             suffix = self.QUERY_URL_SUFFIX_DR_OLD
+        elif data_release == 10:
+            suffix = self.QUERY_URL_SUFFIX_DR_10
         else:
             suffix = self.QUERY_URL_SUFFIX_DR_NEW
 
@@ -1025,7 +1040,11 @@ class SDSSClass(BaseQuery):
         return url
 
     def _get_crossid_url(self, data_release):
-        suffix = self.XID_URL_SUFFIX
+        if data_release < 11:
+            suffix = self.XID_URL_SUFFIX_OLD
+        else:
+            suffix = self.XID_URL_SUFFIX_NEW
+
         url = conf.skyserver_baseurl + suffix.format(dr=data_release)
         self._last_url = url
         return url
