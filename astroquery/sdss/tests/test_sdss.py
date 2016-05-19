@@ -286,7 +286,7 @@ def test_query_crossid(patch_post, dr):
 # Payload tests
 
 @pytest.mark.parametrize("dr", [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12])
-def test_list_coordinates_payload(dr):
+def test_list_coordinates_payload(patch_get, dr):
     expect = ("SELECT DISTINCT "
               "p.ra, p.dec, p.objid, p.run, p.rerun, p.camcol, p.field "
               "FROM PhotoObjAll AS p   WHERE "
@@ -302,7 +302,7 @@ def test_list_coordinates_payload(dr):
 
 
 @pytest.mark.parametrize("dr", [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12])
-def test_column_coordinates_payload(dr):
+def test_column_coordinates_payload(patch_get, dr):
     expect = ("SELECT DISTINCT "
               "p.ra, p.dec, p.objid, p.run, p.rerun, p.camcol, p.field "
               "FROM PhotoObjAll AS p   WHERE "
