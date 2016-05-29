@@ -3,7 +3,7 @@ from bs4 import BeautifulSoup
 from astropy import units as u
 from astropy.table import Table
 from astropy.tests.helper import remote_data
-import pytest
+from astropy.tests.helper import pytest
 
 from ...utils import commons
 from ...atomic import AtomicLineList
