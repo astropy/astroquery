@@ -126,7 +126,11 @@ class EsoClass(QueryWithLogin):
                             value = form_elem.select('option')[0].string
 
             if key in inputs:
-                value = str(inputs[key])
+                if isinstance(inputs[key], list):
+                    # list input is accepted (for array uploads)
+                    value = inputs[key]
+                else:
+                    value = str(inputs[key])
             if (key is not None):# and (value is not None):
                 if fmt == 'multipart/form-data':
                     if is_file:
@@ -248,6 +252,30 @@ class EsoClass(QueryWithLogin):
             self._instrument_list.append(u'harps')
         return self._instrument_list
 
+    def list_surveys(self, cache=True):
+        """ List all the available surveys (phase 3) in the ESO archive.
+        Returns
+        -------
+        survey_list : list of strings
+        cache : bool
+            Cache the response for faster subsequent retrieval
+        """
+        if self._survey_list is None:
+            survey_list_response = self._request(
+                "GET", "http://archive.eso.org/wdb/wdb/adp/phase3_main/form",
+                cache=cache)
+            root = BeautifulSoup(survey_list_response.content, 'html5lib')
+            self._survey_list = []
+            collections_table = root.find('table', id='collections_table')
+            other_collections = root.find('select', id='collection_name_option')
+            for element in (collections_table.findAll('input', type='checkbox') +
+                            other_collections.findAll('option')):
+                if 'value' in element.attrs:
+                    survey = element.attrs['value']
+                    if survey and survey not in self._survey_list and 'Any' not in survey:
+                        self._survey_list.append(survey)
+        return self._survey_list
+
     def query_surveys(self, surveys='', cache=True,
                       help=False, open_form=False, **kwargs):
         """
@@ -255,9 +283,10 @@ class EsoClass(QueryWithLogin):
 
         Parameters
         ----------
-        survey : string
-            Name of the survey to query, one of the names returned by
-            `list_surveys()`.
+        survey : string or list
+            Name of the survey(s) to query.  Should beone or more of the names
+            returned by `list_surveys()`.  If specified as a string, should be
+            a comma-separated list of survey names.
         cache : bool
             Cache the response for faster subsequent retrieval
 
@@ -281,6 +310,8 @@ class EsoClass(QueryWithLogin):
             survey_form = self._request("GET", url, cache=cache)
             query_dict = kwargs
             query_dict["wdbo"] = "csv/download"
+            if isinstance(surveys, six.string_types):
+                surveys = surveys.split(",")
             query_dict['collection_name'] = surveys
             if self.ROW_LIMIT >= 0:
                 query_dict["max_rows_returned"] = self.ROW_LIMIT
@@ -300,6 +331,7 @@ class EsoClass(QueryWithLogin):
                 return table
             else:
                 warnings.warn("Query returned no results", NoResultsWarning)
+
 
     def query_instrument(self, instrument, column_filters={}, columns=[],
                          open_form=False, help=False, cache=True, **kwargs):

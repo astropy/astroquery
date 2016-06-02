@@ -39,10 +39,12 @@ class TestEso:
 
         surveys = eso.list_surveys(cache=False)
         assert len(surveys) > 0
-        # result_s = eso.query_survey('VVV', target='Sgr A*')
+        # result_s = eso.query_surveys('VVV', target='Sgr A*')
         # Equivalent, does not depend on SESAME:
-        result_s = eso.query_survey('VVV', coord1=266.41681662,
-                                    coord2=-29.00782497, cache=False)
+        result_s = eso.query_surveys('VVV', coord1=266.41681662,
+                                     coord2=-29.00782497,
+                                     box='01 00 00',
+                                     cache=False)
 
         assert 'midi' in instruments
         assert result_i is not None
@@ -50,6 +52,23 @@ class TestEso:
         assert result_s is not None
         assert 'Object' in result_s.colnames
         assert 'b333' in result_s['Object']
+
+    def test_multisurvey(self, temp_dir):
+
+        eso = Eso()
+        eso.cache_location = temp_dir
+        eso.ROW_LIMIT = 200 #first b333 is at 157
+
+        result_s = eso.query_surveys(['VVV','XSHOOTER'],
+                                     coord1=266.41681662,
+                                     coord2=-29.00782497,
+                                     box='01 00 00',
+                                     cache=False)
+
+        assert result_s is not None
+        assert 'Object' in result_s.colnames
+        assert 'b333' in result_s['Object']
+        assert 'Pistol-Star' in result_s['Object']
 
     def test_nologin(self):
         # WARNING: this test will fail if you haven't cleared your cache and
@@ -70,8 +89,8 @@ class TestEso:
         assert len(surveys) > 0
         # result_s = eso.query_survey(surveys[0], target='M51')
         # Avoid SESAME
-        result_s = eso.query_survey(surveys[0], coord1=202.469575,
-                                    coord2=47.195258, cache=False)
+        result_s = eso.query_surveys(surveys[0], coord1=202.469575,
+                                     coord2=47.195258, cache=False)
 
         assert result_s is None
 
