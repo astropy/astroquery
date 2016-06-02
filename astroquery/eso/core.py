@@ -254,6 +254,7 @@ class EsoClass(QueryWithLogin):
 
     def list_surveys(self, cache=True):
         """ List all the available surveys (phase 3) in the ESO archive.
+
         Returns
         -------
         survey_list : list of strings
