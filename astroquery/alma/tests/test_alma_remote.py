@@ -24,6 +24,7 @@ all_colnames = ['Project code', 'Source name', 'RA', 'Dec', 'Band',
 class TestAlma:
 
     def setup_class(cls):
+        pass
         # new test server
         # this server seems not to serve a help page?
         # Alma.archive_url = "https://2016-03.asa-test.alma.cl/aq/"
