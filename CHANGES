@@ -4,6 +4,9 @@
 - Added new instruments for ESO: ``ambient_paranal`` and ``meteo_paranal``
   (#657)
 - Fix problem with listed votable fields being truncated in SIMBAD (#654)
+- SDSS remote API fixes (#690)
+- Continued minor ALMA fixes (#655,#672,#687,#688)
+- Splatalogue bugfix (#673)
 
 0.3.1 (2016-01-19)
 ------------------
