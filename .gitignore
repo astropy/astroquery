@@ -1,5 +1,5 @@
 # Compiled files
-*.py[co]
+*.py[cod]
 *.a
 *.o
 *.so
@@ -12,7 +12,6 @@ __pycache__
 # Other generated files
 */version.py
 */cython_version.py
-.cache
 htmlcov
 .coverage
 MANIFEST
@@ -34,7 +33,6 @@ docs/_build
 # Packages/installer info
 *.egg
 *.egg-info
-.eggs
 dist
 build
 eggs
@@ -47,16 +45,10 @@ develop-eggs
 distribute-*.tar.gz
 
 # Other
-.*.swp
+.cache
+.tox
+.*.sw[op]
 *~
 
 # Mac OSX
 .DS_Store
-
-# Eclipse
-.settings
-.project
-.pydevproject
-
-# Pycharm
-.idea
