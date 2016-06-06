@@ -42,7 +42,7 @@ class CosmoSimClass(QueryWithLogin):
         super(CosmoSimClass, self).__init__()
 
     def _login(self, username=None, password=None, store_password=False,
-               retype_password=False):
+               reenter_password=False):
         """
         Login to the CosmoSim database.
 
@@ -53,7 +53,7 @@ class CosmoSimClass(QueryWithLogin):
             specified in the config file.
         store_password : bool, optional
             Stores the password securely in your keyring. Default is False.
-        retype_password : bool, optional
+        reenter_password : bool, optional
             Asks for the password even if it is already stored in the
             keyring. This is the way to overwrite an already stored passwork
             on the keyring. Default is False.
@@ -79,7 +79,7 @@ class CosmoSimClass(QueryWithLogin):
         self.username = username
 
         # Get password from keyring or prompt
-        if retype_password is False:
+        if reenter_password is False:
             password_from_keyring = keyring.get_password(
                 "astroquery:www.cosmosim.org", self.username)
         else:
