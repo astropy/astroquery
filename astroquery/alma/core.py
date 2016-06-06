@@ -24,7 +24,7 @@ from astropy import units as u
 import astropy.io.votable as votable
 
 from ..exceptions import (RemoteServiceError, TableParseError,
-                          InvalidQueryError)
+                          InvalidQueryError, LoginError)
 from ..utils import commons, system_tools
 from ..utils.process_asyncs import async_to_sync
 from ..query import QueryWithLogin
@@ -38,6 +38,7 @@ class AlmaClass(QueryWithLogin):
 
     TIMEOUT = conf.timeout
     archive_url = conf.archive_url
+    USERNAME = conf.username
 
     def __init__(self):
         super(AlmaClass, self).__init__()
@@ -394,7 +395,31 @@ class AlmaClass(QueryWithLogin):
         table = first_table.to_table(use_names_over_ids=True)
         return table
 
-    def _login(self, username, store_password=False):
+    def _login(self, username=None, store_password=False,
+               reenter_password=False):
+        """
+        Login to the ALMA Science Portal.
+
+        Parameters
+        ----------
+        username : str, optional
+            Username to the ALMA Science Portal. If not given, it should be
+            specified in the config file.
+        store_password : bool, optional
+            Stores the password securely in your keyring. Default is False.
+        reenter_password : bool, optional
+            Asks for the password even if it is already stored in the
+            keyring. This is the way to overwrite an already stored passwork
+            on the keyring. Default is False.
+        """
+
+        if username is None:
+            if self.USERNAME == "":
+                raise LoginError("If you do not pass a username to login(), "
+                                 "you should configure a default one!")
+            else:
+                username = self.USERNAME
+
         # Check if already logged in
         loginpage = self._request("GET", "https://asa.alma.cl/cas/login",
                                   cache=False)
@@ -404,8 +429,12 @@ class AlmaClass(QueryWithLogin):
             return True
 
         # Get password from keyring or prompt
-        password_from_keyring = keyring.get_password("astroquery:asa.alma.cl",
-                                                     username)
+        if reenter_password is False:
+            password_from_keyring = keyring.get_password(
+                "astroquery:asa.alma.cl", username)
+        else:
+            password_from_keyring = None
+
         if password_from_keyring is None:
             if system_tools.in_ipynb():
                 log.warn("You may be using an ipython notebook:"

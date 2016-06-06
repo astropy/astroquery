@@ -171,7 +171,7 @@ class EsoClass(QueryWithLogin):
         return response
 
     def _login(self, username=None, store_password=False,
-               retype_password=False):
+               reenter_password=False):
         """
         Login to the ESO User Portal.
 
@@ -182,7 +182,7 @@ class EsoClass(QueryWithLogin):
             specified in the config file.
         store_password : bool, optional
             Stores the password securely in your keyring. Default is False.
-        retype_password : bool, optional
+        reenter_password : bool, optional
             Asks for the password even if it is already stored in the
             keyring. This is the way to overwrite an already stored passwork
             on the keyring. Default is False.
@@ -195,7 +195,7 @@ class EsoClass(QueryWithLogin):
                 username = self.USERNAME
 
         # Get password from keyring or prompt
-        if retype_password is False:
+        if reenter_password is False:
             password_from_keyring = keyring.get_password(
                 "astroquery:www.eso.org", username)
         else:
@@ -318,7 +318,7 @@ class EsoClass(QueryWithLogin):
                 query_dict["max_rows_returned"] = self.ROW_LIMIT
             else:
                 query_dict["max_rows_returned"] = 10000
-    
+
             survey_response = self._activate_form(survey_form, form_index=0,
                                                   inputs=query_dict, cache=cache)
 

@@ -10,7 +10,7 @@ class Conf(_config.ConfigNamespace):
     Configuration parameters for `astroquery.alma`.
     """
 
-    timeout = _config.ConfigItem(60, "Timeout in seconds")
+    timeout = _config.ConfigItem(60, "Timeout in seconds.")
 
     archive_url = _config.ConfigItem(
         ['http://almascience.org',
@@ -18,7 +18,11 @@ class Conf(_config.ConfigNamespace):
          'http://almascience.nrao.edu',
          'http://almascience.nao.ac.jp',
          'http://beta.cadc-ccda.hia-iha.nrc-cnrc.gc.ca'],
-        'The ALMA Archive mirror to use')
+        'The ALMA Archive mirror to use.')
+
+    username = _config.ConfigItem(
+        "",
+        'Optional default username for ALMA archive.')
 
 conf = Conf()
 

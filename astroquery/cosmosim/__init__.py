@@ -21,13 +21,16 @@ class Conf(_config.ConfigNamespace):
 
     query_url = _config.ConfigItem(
         ['http://www.cosmosim.org/uws/query'],
-        'CosmoSim UWS query URL')
+        'CosmoSim UWS query URL.')
     schema_url = _config.ConfigItem(
         ['http://www.cosmosim.org/query/account/databases/json'],
-        'CosmoSim json query URL for generating database schema')
+        'CosmoSim json query URL for generating database schema.')
     timeout = _config.ConfigItem(
         60.0,
-        'Timeout for CosmoSim query')
+        'Timeout for CosmoSim query.')
+    username = _config.ConfigItem(
+        "",
+        'Optional default username for CosmoSim database.')
 
 conf = Conf()
 
