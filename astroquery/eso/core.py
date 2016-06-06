@@ -99,21 +99,39 @@ class EsoClass(QueryWithLogin):
             elif tag_name == 'select':
                 if form_elem.get('multiple') is not None:
                     value = []
-                    for option in form_elem.select('option[value]'):
-                        if option.get('selected') is not None:
-                            value.append(option.get('value'))
+                    if form_elem.select('option[value]'):
+                        for option in form_elem.select('option[value]'):
+                            if option.get('selected') is not None:
+                                value.append(option.get('value'))
+                    else:
+                        for option in form_elem.select('option'):
+                            if option.get('selected') is not None:
+                                value.append(option.string)
                 else:
-                    for option in form_elem.select('option[value]'):
-                        if option.get('selected') is not None:
-                            value = option.get('value')
-                    # select the first option field if none is selected
-                    if value is None:
-                        value = form_elem.select(
-                            'option[value]')[0].get('value')
+                    if form_elem.select('option[value]'):
+                        for option in form_elem.select('option[value]'):
+                            if option.get('selected') is not None:
+                                value = option.get('value')
+                        # select the first option field if none is selected
+                        if value is None:
+                            value = form_elem.select(
+                                'option[value]')[0].get('value')
+                    else:
+                        # survey form just uses text, not value
+                        for option in form_elem.select('option'):
+                            if option.get('selected') is not None:
+                                value = option.string
+                        # select the first option field if none is selected
+                        if value is None:
+                            value = form_elem.select('option')[0].string
 
             if key in inputs:
-                value = str(inputs[key])
-            if (key is not None) and (value is not None):
+                if isinstance(inputs[key], list):
+                    # list input is accepted (for array uploads)
+                    value = inputs[key]
+                else:
+                    value = str(inputs[key])
+            if (key is not None):# and (value is not None):
                 if fmt == 'multipart/form-data':
                     if is_file:
                         payload.append(
@@ -122,6 +140,8 @@ class EsoClass(QueryWithLogin):
                         if type(value) is list:
                             for v in value:
                                 payload.append((key, ('', v)))
+                        elif value is None:
+                            payload.append((key, ('', '')))
                         else:
                             payload.append((key, ('', value)))
                 else:
@@ -138,6 +158,8 @@ class EsoClass(QueryWithLogin):
         if method is not None:
             fmt = method
 
+        log.debug("Method/format = {0}".format(fmt))
+
         # Send payload
         if fmt == 'get':
             response = self._request("GET", url, params=payload, cache=cache)
@@ -148,16 +170,37 @@ class EsoClass(QueryWithLogin):
 
         return response
 
-    def _login(self, username=None, store_password=False):
+    def _login(self, username=None, store_password=False,
+               retype_password=False):
+        """
+        Login to the ESO User Portal.
+
+        Parameters
+        ----------
+        username : str, optional
+            Username to the ESO Public Portal. If not given, it should be
+            specified in the config file.
+        store_password : bool, optional
+            Stores the password securely in your keyring. Default is False.
+        retype_password : bool, optional
+            Asks for the password even if it is already stored in the
+            keyring. This is the way to overwrite an already stored passwork
+            on the keyring. Default is False.
+        """
         if username is None:
             if self.USERNAME == "":
                 raise LoginError("If you do not pass a username to login(), "
                                  "you should configure a default one!")
             else:
                 username = self.USERNAME
+
         # Get password from keyring or prompt
-        password_from_keyring = keyring.get_password("astroquery:www.eso.org",
-                                                     username)
+        if retype_password is False:
+            password_from_keyring = keyring.get_password(
+                "astroquery:www.eso.org", username)
+        else:
+            password_from_keyring = None
+
         if password_from_keyring is None:
             if system_tools.in_ipynb():
                 log.warn("You may be using an ipython notebook:"
@@ -207,8 +250,6 @@ class EsoClass(QueryWithLogin):
                     if instrument not in self._instrument_list:
                         self._instrument_list.append(instrument)
             self._instrument_list.append(u'harps')
-            self._instrument_list.append(u'ambient_paranal')
-            self._instrument_list.append(u'meteo_paranal')
         return self._instrument_list
 
     def list_surveys(self, cache=True):
@@ -219,30 +260,34 @@ class EsoClass(QueryWithLogin):
         survey_list : list of strings
         cache : bool
             Cache the response for faster subsequent retrieval
-
         """
         if self._survey_list is None:
             survey_list_response = self._request(
                 "GET", "http://archive.eso.org/wdb/wdb/adp/phase3_main/form",
                 cache=cache)
-            root = BeautifulSoup(survey_list_response .content, 'html5lib')
+            root = BeautifulSoup(survey_list_response.content, 'html5lib')
             self._survey_list = []
-            for select in root.select("select[name=phase3_program]"):
-                for element in select.select('option'):
-                    survey = element.text.strip()
-                    if survey not in self._survey_list and 'Any' not in survey:
+            collections_table = root.find('table', id='collections_table')
+            other_collections = root.find('select', id='collection_name_option')
+            for element in (collections_table.findAll('input', type='checkbox') +
+                            other_collections.findAll('option')):
+                if 'value' in element.attrs:
+                    survey = element.attrs['value']
+                    if survey and survey not in self._survey_list and 'Any' not in survey:
                         self._survey_list.append(survey)
         return self._survey_list
 
-    def query_survey(self, survey, cache=True, **kwargs):
+    def query_surveys(self, surveys='', cache=True,
+                      help=False, open_form=False, **kwargs):
         """
         Query survey Phase 3 data contained in the ESO archive.
 
         Parameters
         ----------
-        survey : string
-            Name of the survey to query, one of the names returned by
-            `list_surveys()`.
+        survey : string or list
+            Name of the survey(s) to query.  Should beone or more of the names
+            returned by `list_surveys()`.  If specified as a string, should be
+            a comma-separated list of survey names.
         cache : bool
             Cache the response for faster subsequent retrieval
 
@@ -257,30 +302,37 @@ class EsoClass(QueryWithLogin):
 
         """
 
-        if survey not in self.list_surveys():
-            raise ValueError("Survey %s is not in the survey list." % survey)
         url = "http://archive.eso.org/wdb/wdb/adp/phase3_main/form"
-        survey_form = self._request("GET", url, cache=cache)
-        query_dict = kwargs
-        query_dict["wdbo"] = "csv/download"
-        query_dict['phase3_program'] = survey
-        if self.ROW_LIMIT >= 0:
-            query_dict["max_rows_returned"] = self.ROW_LIMIT
+        if open_form:
+            webbrowser.open(url)
+        elif help:
+            self._print_surveys_help(url, cache=cache)
         else:
-            query_dict["max_rows_returned"] = 10000
-        survey_response = self._activate_form(survey_form, form_index=0,
-                                              inputs=query_dict, cache=cache)
+            survey_form = self._request("GET", url, cache=cache)
+            query_dict = kwargs
+            query_dict["wdbo"] = "csv/download"
+            if isinstance(surveys, six.string_types):
+                surveys = surveys.split(",")
+            query_dict['collection_name'] = surveys
+            if self.ROW_LIMIT >= 0:
+                query_dict["max_rows_returned"] = self.ROW_LIMIT
+            else:
+                query_dict["max_rows_returned"] = 10000
+    
+            survey_response = self._activate_form(survey_form, form_index=0,
+                                                  inputs=query_dict, cache=cache)
 
-        content = survey_response.content
-        # First line is always garbage
-        content = content.split(b'\n', 1)[1]
-        log.debug("Response content:\n{0}".format(content))
-        if _check_response(content):
-            table = Table.read(BytesIO(content), format="ascii.csv",
-                               comment="^#")
-            return table
-        else:
-            warnings.warn("Query returned no results", NoResultsWarning)
+            content = survey_response.content
+            # First line is always garbage
+            content = content.split(b'\n', 1)[1]
+            log.debug("Response content:\n{0}".format(content))
+            if _check_response(content):
+                table = Table.read(BytesIO(content), format="ascii.csv",
+                                   comment="^#")
+                return table
+            else:
+                warnings.warn("Query returned no results", NoResultsWarning)
+
 
     def query_instrument(self, instrument, column_filters={}, columns=[],
                          open_form=False, help=False, cache=True, **kwargs):
@@ -326,7 +378,7 @@ class EsoClass(QueryWithLogin):
         if open_form:
             webbrowser.open(url)
         elif help:
-            self._print_help(url, instrument)
+            self._print_instrument_help(url, instrument)
         else:
             instrument_form = self._request("GET", url, cache=cache)
             query_dict = {}
@@ -599,7 +651,7 @@ class EsoClass(QueryWithLogin):
         if open_form:
             webbrowser.open(apex_query_url)
         elif help:
-            return self._print_help(apex_query_url, 'apex')
+            return self._print_instrument_help(apex_query_url, 'apex')
         else:
 
             payload = {'wdbo': 'csv/download'}
@@ -624,7 +676,7 @@ class EsoClass(QueryWithLogin):
 
             return table
 
-    def _print_help(self, url, instrument, cache=True):
+    def _print_instrument_help(self, url, instrument, cache=True):
         """
         Download a form and print it in a quasi-human-readable way
         """
@@ -677,6 +729,88 @@ class EsoClass(QueryWithLogin):
                 if name != u"":
                     result_string.append("{0} {1}: {2}"
                                          .format(checkbox, name, value))
+
+        print("\n".join(result_string))
+        return result_string
+
+    def query_survey(self, **kwargs):
+        raise DeprecationWarning("query_survey is deprecated; use "
+                                 "query_surveys instead.  It should "
+                                 "accept the same arguments.")
+
+    def _print_surveys_help(self, url, cache=True):
+        """
+        Download a form and print it in a quasi-human-readable way
+        """
+        log.info("List of the parameters accepted by the "
+                 "surveys query.")
+        log.info("The presence of a column in the result table can be "
+                 "controlled if prefixed with a [ ] checkbox.")
+        log.info("The default columns in the result table are shown as "
+                 "already ticked: [x].")
+
+        result_string = []
+
+        resp = self._request("GET", url, cache=cache)
+        doc = BeautifulSoup(resp.content, 'html5lib')
+        form = doc.select("html body form")[0]
+
+        # hovertext from different labels are used to give more info on forms
+        helptext_dict = {abbr['title'].split(":")[0].strip():
+                         ":".join(abbr['title'].split(":")[1:])
+                         for abbr in form.findAll('abbr')
+                         if 'title' in abbr.attrs and ":" in abbr['title']}
+
+        for fieldset in form.select('fieldset'):
+            legend = fieldset.select('legend')
+            if len(legend) > 1:
+                raise ValueError("Form parsing error: too many legends.")
+            elif len(legend) == 0:
+                continue
+            section_title = "\n\n"+"".join(legend[0].stripped_strings)+"\n"
+
+            result_string.append(section_title)
+
+            for section in fieldset.select('table'):
+
+                checkbox_name = ""
+                checkbox_value = ""
+                for tag in section.next_elements:
+                    if tag.name == u"table":
+                        break
+                    elif tag.name == u"input":
+                        if tag.get(u'type') == u"checkbox":
+                            checkbox_name = tag['name']
+                            checkbox_value = (u"[x]"
+                                              if ('checked' in tag.attrs)
+                                              else u"[ ]")
+                            name = ""
+                            value = ""
+                        else:
+                            name = tag['name']
+                            value = ""
+                    elif tag.name == u"select":
+                        options = []
+                        for option in tag.select("option"):
+                            options += ["{0} ({1})"
+                                        .format(option['value']
+                                                if 'value' in option
+                                                else "",
+                                                "".join(option.stripped_strings))]
+                        name = tag[u"name"]
+                        value = ", ".join(options)
+                    else:
+                        name = ""
+                        value = ""
+                    if u"tab_" + name == checkbox_name:
+                        checkbox = checkbox_value
+                    else:
+                        checkbox = "   "
+                    if name != u"":
+                        result_string.append("{0} {1}: {2}"
+                                             .format(checkbox, name, value))
+                        if name.strip() in helptext_dict:
+                            result_string.append(helptext_dict[name.strip()])
 
         print("\n".join(result_string))
         return result_string

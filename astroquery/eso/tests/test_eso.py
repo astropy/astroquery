@@ -1,6 +1,5 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import os
-from astropy.tests.helper import pytest
 from ...utils.testing_tools import MockResponse
 
 from ...eso import Eso
@@ -62,8 +61,10 @@ def test_vvv(monkeypatch):
     monkeypatch.setattr(eso, '_request', eso_request)
     eso.cache_location = DATA_DIR
 
-    result_s = eso.query_survey('VVV',
-                                coord1=266.41681662, coord2=-29.00782497)
+    result_s = eso.query_surveys('VVV',
+                                 coord1=266.41681662, coord2=-29.00782497,
+                                 box='01 00 00',
+                                )
     assert result_s is not None
     assert 'Object' in result_s.colnames
     assert 'b333' in result_s['Object']
