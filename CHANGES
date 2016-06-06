@@ -5,6 +5,8 @@
   (#657)
 - Fix problem with listed votable fields being truncated in SIMBAD (#654)
 - SDSS remote API fixes (#690)
+- ALMA file downloader will skip over, rather than crashing on, access denied
+  (HTTP 401) errors (#687)
 - Continued minor ALMA fixes (#655,#672,#687,#688)
 - Splatalogue export limit bugfix (#673)
 - SIMBAD flux_quality flag corrected to flux_qual (#680)
