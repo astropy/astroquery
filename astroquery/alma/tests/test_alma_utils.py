@@ -1,5 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import numpy as np
+import warnings
+
 from astropy import wcs
 from astropy import units as u
 from astropy.tests.helper import pytest, remote_data
@@ -24,7 +26,11 @@ def test_pyregion_subset():
     shape.coord_list = (0.1, 0.1, 10. / 3600.)
     shape.attr = ([], {})
     data = np.ones([40, 40])
-    (xlo, xhi, ylo, yhi), d = utils.pyregion_subset(shape, data, mywcs)
+
+    # The following line raises a DeprecationWarning from pyregion, ignore it
+    with warnings.catch_warnings():
+        warnings.filterwarnings('ignore')
+        (xlo, xhi, ylo, yhi), d = utils.pyregion_subset(shape, data, mywcs)
 
     # sticky note over check-engine light solution... but this problem is too
     # large in scope to address here.  See
@@ -38,7 +44,6 @@ def test_pyregion_subset():
                                    data.shape[1] / 2 - mywcs.wcs.crpix[1] - 1)
     np.testing.assert_almost_equal(yhi,
                                    data.shape[1] - mywcs.wcs.crpix[1] - 1)
-
 frq_sup_str = ('[86.26..88.14GHz,976.56kHz, XX YY] U '
                '[88.15..90.03GHz,976.56kHz, XX YY] U '
                '[98.19..100.07GHz,976.56kHz, XX YY] U '
