@@ -6,7 +6,9 @@
 - Fix problem with listed votable fields being truncated in SIMBAD (#654)
 - SDSS remote API fixes (#690)
 - Continued minor ALMA fixes (#655,#672,#687,#688)
-- Splatalogue bugfix (#673)
+- Splatalogue export limit bugfix (#673)
+- SIMBAD flux_quality flag corrected to flux_qual (#680)
+- VIZIER add a flag to return the query payload for debugging (#668)
 
 0.3.1 (2016-01-19)
 ------------------
