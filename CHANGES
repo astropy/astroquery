@@ -1,6 +1,7 @@
 0.3.2.dev
 ---------
 
+- Update ESO tool to work with new web API (#696)
 - Added new instruments for ESO: ``ambient_paranal`` and ``meteo_paranal``
   (#657)
 - Fix problem with listed votable fields being truncated in SIMBAD (#654)
