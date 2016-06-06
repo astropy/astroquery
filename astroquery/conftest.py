@@ -25,9 +25,9 @@ try:
 except (NameError, KeyError):
     pass
 
-## Uncomment the following line to treat all DeprecationWarnings as
-## exceptions
-# enable_deprecations_as_exceptions()
+# Uncomment the following line to treat all DeprecationWarnings as
+# exceptions
+enable_deprecations_as_exceptions()
 
 
 # This is to figure out the affiliated package version, rather than
