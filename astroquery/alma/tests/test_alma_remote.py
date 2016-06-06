@@ -25,6 +25,9 @@ class TestAlma:
 
     def setup_class(cls):
         pass
+        # new test server
+        # this server seems not to serve a help page?
+        # Alma.archive_url = "https://2016-03.asa-test.alma.cl/aq/"
         # starting somewhere between Nov 2015 and Jan 2016, the beta server
         # stopped serving the actual data, making all staging attempts break
         #Alma.archive_url = 'http://beta.cadc-ccda.hia-iha.nrc-cnrc.gc.ca'
