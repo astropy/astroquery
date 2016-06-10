@@ -1,5 +1,10 @@
-0.3.2.dev
+0.3.3.dev
 ---------
+
+- none yet
+
+0.3.2 (2016-06-10)
+------------------
 
 - Update ESO tool to work with new web API (#696)
 - Added new instruments for ESO: ``ambient_paranal`` and ``meteo_paranal``
