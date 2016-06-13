@@ -1,28 +1,40 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from __future__ import print_function
 import subprocess
+import os
 
 
 # Import DEVNULL for py3 or py3
 try:
     from subprocess import DEVNULL
 except ImportError:
-    import os
     DEVNULL = open(os.devnull, 'wb')
 
 # Check availability of some system tools
 # Exceptions are raised if not found
 __is_gzip_found = False
-try:
-    subprocess.call(["gzip", "-V"], stdout=DEVNULL, stderr=DEVNULL)
-except OSError:
+for test_cmd in (["gzip", "-V"], ["7z"]):
+    try:
+        subprocess.call(test_cmd, stdout=DEVNULL, stderr=DEVNULL)
+    except OSError:
+        pass
+    else:
+        __is_gzip_found = test_cmd[0]
+
+
+if __is_gzip_found == 'gzip':
+    def _unzip_cmd(filename):
+        return ["gzip", "-d", "{0}".format(filename)]
+elif __is_gzip_found == '7z':
+    def _unzip_cmd(filename):
+        return ["7z", "x",
+                "{0}".format(filename),
+                "-o{0}".format(os.path.split(filename)[0])]
+else:
     print("gzip was not found on your system! You should solve this issue for "
           "astroquery.eso to be at its best!\n"
           "On POSIX system: make sure gzip is installed and in your path!"
-          "On Windows: 7-zip (http://www.7-zip.org) should do the job, but "
-          "unfortunately is not yet supported!")
-else:
-    __is_gzip_found = True
+          "On Windows: same for 7-zip (http://www.7-zip.org)!")
 
 
 def gunzip(filename):
@@ -40,8 +52,7 @@ def gunzip(filename):
     """
     # ".fz" denotes RICE rather than gzip compression
     if __is_gzip_found and not filename.endswith('.fz'):
-        subprocess.call(["gzip", "-d", "{0}".format(filename)],
-                        stdout=DEVNULL, stderr=DEVNULL)
+        subprocess.call(_unzip_cmd(filename), stdout=DEVNULL, stderr=DEVNULL)
         return filename.rsplit(".", 1)[0]
     else:
         return filename
