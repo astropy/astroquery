@@ -98,12 +98,12 @@ matrix:
         - python: 3.4
           env: NUMPY_VERSION=prerelease SETUP_CMD='test'
 
-        # Do a PEP8 test
+        # Do a PEP8 test with pycodestyle
         - python: 2.7
-          env: MAIN_CMD='pep8 astroquery --count' SETUP_CMD=''
+          env: MAIN_CMD='pycodestyle astroquery --count' SETUP_CMD=''
 
     allow_failures:
-        - env: MAIN_CMD='pep8 astroquery --count' SETUP_CMD=''
+        - env: MAIN_CMD='pycodestyle astroquery --count' SETUP_CMD=''
 
 install:
     - git clone git://github.com/astropy/ci-helpers.git
