@@ -10,7 +10,7 @@ environment:
       PYTHON_ARCH: "64" # needs to be set for CMD_IN_ENV to succeed. If a mix
                         # of 32 bit and 64 bit builds are needed, move this
                         # to the matrix section.
-      CONDA_DEPENDENCIES: "requests beautiful-soup matplotlib html5lib"
+      CONDA_DEPENDENCIES: "requests beautifulsoup4 matplotlib html5lib"
       PIP_DEPENDENCIES: "keyring aplpy pyregion"
 
   matrix:
