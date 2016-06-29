@@ -372,8 +372,8 @@ def test_payload_return(cls=DummyQuery):
     result = DummyQuery.query(get_query_payload=False)
     assert isinstance(result, six.string_types)
 
-fitsfilepath = os.path.join(os.path.dirname(__file__), '..', '..',
-                            'sdss', 'tests', 'data', 'empyfile.fits')
+fitsfilepath = os.path.abspath(os.path.join('..', '..', 'sdss', 'tests',
+                                            'data', 'empyfile.fits'))
 
 
 @pytest.fixture
