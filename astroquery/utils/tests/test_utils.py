@@ -17,7 +17,6 @@ from collections import OrderedDict
 import os
 from astropy.io import fits
 import astropy.utils.data as aud
-import astropy.version
 import tempfile
 
 
@@ -373,8 +372,8 @@ def test_payload_return(cls=DummyQuery):
     result = DummyQuery.query(get_query_payload=False)
     assert isinstance(result, six.string_types)
 
-fitsfilepath = os.path.join(os.path.dirname(__file__),
-                            '../../sdss/tests/data/emptyfile.fits')
+fitsfilepath = os.path.join(os.path.dirname(__file__), '..', '..',
+                            'sdss', 'tests', 'data', 'empyfile.fits')
 
 
 @pytest.fixture
