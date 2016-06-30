@@ -25,6 +25,10 @@ def to_cache(response, cache_file):
         pickle.dump(response, f)
 
 
+def _replace_none_iterable(iterable):
+    return tuple('' if i is None else i for i in iterable)
+
+
 class AstroQuery(object):
 
     def __init__(self, method, url, params=None, data=None, headers=None,
@@ -60,9 +64,11 @@ class AstroQuery(object):
             request_key = (self.method, self.url)
             for k in (self.params, self.data, self.headers, self.files):
                 if isinstance(k, dict):
-                    request_key += (tuple(sorted(k.items())),)
+                    request_key += (tuple(sorted(k.items(),
+                                                 key=_replace_none_iterable)),)
                 elif isinstance(k, tuple) or isinstance(k, list):
-                    request_key += (tuple(sorted(k)),)
+                    request_key += (tuple(sorted(k,
+                                                 key=_replace_none_iterable)),)
                 elif k is None:
                     request_key += (None,)
                 elif isinstance(k, six.string_types):
@@ -154,6 +160,10 @@ class BaseQuery(object):
         """
         if save:
             local_filename = url.split('/')[-1]
+            if os.name == 'nt':
+                # Windows doesn't allow special characters in filenames like
+                # ":" so replace them with an underscore
+                local_filename = local_filename.replace(':', '_')
             local_filepath = os.path.join(self.cache_location or savedir or
                                           '.', local_filename)
             # REDUNDANT: spinner has this log.info("Downloading
