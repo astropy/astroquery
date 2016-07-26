@@ -15,6 +15,7 @@ addons:
 python:
     - 2.7
     - 3.4
+    - 3.5
 
 env:
     global:
@@ -24,8 +25,8 @@ env:
         - MAIN_CMD='python setup.py'
         - NUMPY_VERSION=1.10
         - ASTROPY_VERSION=stable
-        - CONDA_DEPENDENCIES='requests beautiful-soup matplotlib html5lib'
-        - PIP_DEPENDENCIES='keyring aplpy pyregion'
+        - CONDA_DEPENDENCIES='requests beautifulsoup4 matplotlib html5lib keyring aplpy pyregion'
+        - SETUP_CMD='test'
 
     matrix:
         - SETUP_CMD='egg_info'
@@ -34,15 +35,6 @@ env:
 
 matrix:
     include:
-
-        # Test for py 3.5 (move this up to the main matrix once beautiful-soup is in conda)
-        - python: 3.5
-          env: SETUP_CMD='egg_info'
-        - python: 3.5
-          env: SETUP_CMD='test'
-               CONDA_DEPENDENCIES='requests matplotlib html5lib'
-               PIP_DEPENDENCIES='keyring aplpy pyregion beautifulsoup4'
-
         # Do a coverage test in Python 2.
         - python: 2.7
           env: SETUP_CMD='test --coverage'
@@ -57,46 +49,38 @@ matrix:
         - python: 3.3
           env: SETUP_CMD='egg_info'
         - python: 3.3
-          env: SETUP_CMD='test' NUMPY_VERSION=1.9
+          env: NUMPY_VERSION=1.9
 
         # Try Astropy development and LTS version
         - python: 2.7
-          env: ASTROPY_VERSION=development SETUP_CMD='test'
+          env: ASTROPY_VERSION=development
         - python: 3.5
-          env: ASTROPY_VERSION=development SETUP_CMD='test'
-               CONDA_DEPENDENCIES='requests matplotlib html5lib'
-               PIP_DEPENDENCIES='keyring aplpy pyregion beautifulsoup4'
+          env: ASTROPY_VERSION=development
         - python: 2.7
-          env: ASTROPY_VERSION=lts SETUP_CMD='test'
+          env: ASTROPY_VERSION=lts
         - python: 3.5
-          env: ASTROPY_VERSION=lts SETUP_CMD='test'
-               CONDA_DEPENDENCIES='requests matplotlib html5lib'
-               PIP_DEPENDENCIES='keyring aplpy pyregion beautifulsoup4'
+          env: ASTROPY_VERSION=lts
 
         # Try with optional dependencies disabled
         - python: 2.7
-          env: SETUP_CMD='test'
-               CONDA_DEPENDENCIES='requests beautiful-soup html5lib'
-               PIP_DEPENDENCIES='keyring'
+          env: CONDA_DEPENDENCIES='requests beautifulsoup4 html5lib keyring'
         - python: 3.5
-          env: SETUP_CMD='test'
-               CONDA_DEPENDENCIES='requests html5lib'
-               PIP_DEPENDENCIES='keyring beautifulsoup4'
+          env: CONDA_DEPENDENCIES='requests beautifulsoup4 html5lib keyring'
 
         # Try older numpy versions
         - python: 2.7
-          env: NUMPY_VERSION=1.9 SETUP_CMD='test'
+          env: NUMPY_VERSION=1.9
         - python: 2.7
-          env: NUMPY_VERSION=1.8 SETUP_CMD='test'
+          env: NUMPY_VERSION=1.8
         - python: 2.7
-          env: NUMPY_VERSION=1.7 SETUP_CMD='test'
+          env: NUMPY_VERSION=1.7
         - python: 2.7
-          env: NUMPY_VERSION=1.6 SETUP_CMD='test'
+          env: NUMPY_VERSION=1.6
 
         # Try numpy pre-release version, this runs only when a pre-release
         # is available on pypi.
         - python: 3.4
-          env: NUMPY_VERSION=prerelease SETUP_CMD='test'
+          env: NUMPY_VERSION=prerelease
 
         # Do a PEP8 test with pycodestyle
         - python: 2.7
