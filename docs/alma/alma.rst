@@ -210,3 +210,6 @@ Reference/API
 
 .. automodapi:: astroquery.alma
     :no-inheritance-diagram:
+
+.. automodapi:: astroquery.alma.utils
+    :no-inheritance-diagram:
