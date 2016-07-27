@@ -49,7 +49,7 @@ matrix:
         - python: 3.3
           env: SETUP_CMD='egg_info'
         - python: 3.3
-          env: NUMPY_VERSION=1.9
+          env: NUMPY_VERSION=1.9 CONDA_DEPENDENCIES='requests beautiful-soup matplotlib html5lib keyring aplpy pyregion'
 
         # Try Astropy development and LTS version
         - python: 2.7
