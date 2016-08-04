@@ -167,6 +167,7 @@ These others are functional, but do not follow a common & consistent API:
   ogle/ogle.rst
   open_exoplanet_catalogue/open_exoplanet_catalogue.rst
   cosmosim/cosmosim.rst
+  tevcat/tevcat.rst
 
 Catalog, Archive, and Other
 ===========================
@@ -198,6 +199,7 @@ for each source)
   ukidss/ukidss.rst
   vizier/vizier.rst
   xmatch/xmatch.rst
+  tevcat/tevcat.rst
 
 Archives
 --------
@@ -250,7 +252,6 @@ above categories.
   nist/nist.rst
   splatalogue/splatalogue.rst
   nasa_ads/nasa_ads.rst
-
 
 Developer documentation
 -----------------------
