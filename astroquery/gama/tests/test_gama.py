@@ -19,8 +19,8 @@ def test_GAMA_find_result():
     with open(data_path(DATA_FILES["html_page"])) as f_html:
         result_page = f_html.read()
     url = gama.core.find_data_url(result_page)
-    expected_url = os.path.join("../tmp", DATA_FILES["fits_data"])
-    assert url == expected_url
+    expected_url = os.path.join("..", "tmp", DATA_FILES["fits_data"])
+    assert os.path.abspath(url) == os.path.abspath(expected_url)
 
 
 def test_GAMA_read_data():

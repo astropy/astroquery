@@ -417,10 +417,13 @@ class FileContainer(object):
         if link_cache == 'hard':
             try:
                 os.link(target, savepath)
-            except (IOError, OSError) as e:
+            except (IOError, OSError, AttributeError) as e:
                 shutil.copy(target, savepath)
         elif link_cache == 'sym':
-            os.symlink(target, savepath)
+            try:
+                os.symlink(target, savepath)
+            except AttributeError:
+                raise OSError('Creating symlinks is not possible on this OS.')
         else:
             shutil.copy(target, savepath)
 

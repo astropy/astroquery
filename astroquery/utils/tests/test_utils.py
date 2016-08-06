@@ -372,8 +372,8 @@ def test_payload_return(cls=DummyQuery):
     result = DummyQuery.query(get_query_payload=False)
     assert isinstance(result, six.string_types)
 
-fitsfilepath = os.path.abspath(os.path.join('..', '..', 'sdss', 'tests',
-                                            'data', 'empyfile.fits'))
+fitsfilepath = os.path.join(os.path.dirname(__file__),
+                            '../../sdss/tests/data/emptyfile.fits')
 
 
 @pytest.fixture
@@ -413,12 +413,8 @@ def test_filecontainer_save(patch_getreadablefileobj):
     ffile = commons.FileContainer(fitsfilepath, encoding='binary')
     temp_dir = tempfile.mkdtemp()
     empty_temp_file = temp_dir + os.sep + 'test_emptyfile.fits'
-    try:
-        ffile.save_fits(empty_temp_file)
-        assert os.path.exists(empty_temp_file)
-    finally:
-        os.remove(empty_temp_file)
-        os.rmdir(temp_dir)
+    ffile.save_fits(empty_temp_file)
+    assert os.path.exists(empty_temp_file)
 
 
 def test_filecontainer_get(patch_getreadablefileobj):

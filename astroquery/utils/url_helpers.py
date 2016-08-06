@@ -27,6 +27,22 @@ def urljoin_keep_path(url, path):
     splitted_url = urlsplit(url)
     return SplitResult(splitted_url.scheme,
                        splitted_url.netloc,
-                       os.path.join(splitted_url.path, path),
+                       join(splitted_url.path, path),
                        splitted_url.query,
                        splitted_url.fragment).geturl()
+
+
+def join(a, *p):
+    """Taken from python posixpath."""
+    sep = '/'
+    path = a
+    if not p:
+        path[:0] + sep
+    for b in p:
+        if b.startswith(sep):
+            path = b
+        elif not path or path.endswith(sep):
+            path += b
+        else:
+            path += sep + b
+    return path
