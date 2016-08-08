@@ -100,7 +100,7 @@ matrix:
         # Try numpy pre-release version, this runs only when a pre-release
         # is available on pypi.
         - os: linux
-          env: NUMPY_VERSION=prerelease
+          env: NUMPY_VERSION=prerelease DEBUG=True
 
         # Do a PEP8 test with pycodestyle
         - os: linux
