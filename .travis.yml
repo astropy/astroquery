@@ -30,6 +30,7 @@ env:
         - CONDA_DEPENDENCIES='requests beautifulsoup4 matplotlib html5lib keyring aplpy pyregion'
         - PIP_DEPENDENCIES=''
         - SETUP_CMD='test'
+        - CONDA_CHANNELS='astropy-ci-extras astropy'
 
     matrix:
         - PYTHON_VERSION=2.7 SETUP_CMD='egg_info'
