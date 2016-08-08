@@ -96,7 +96,6 @@ matrix:
         - os: linux
           env: CONDA_DEPENDENCIES='requests beautifulsoup4 html5lib keyring'
 
-
         # Try numpy pre-release version, this runs only when a pre-release
         # is available on pypi.
         - os: linux

@@ -278,7 +278,7 @@ def test_query_crossid(patch_post, dr):
     xid = sdss.SDSS.query_crossid(coords_column, data_release=dr)
     data = Table.read(data_path(DATA_FILES['images_id']),
                       format='ascii.csv', comment='#')
-    assert all(xid == data)
+    compare_xid_data(xid, data)
     url_tester_crossid(dr)
 
 

@@ -15,6 +15,7 @@ from bs4 import BeautifulSoup
 
 import astropy.coordinates as coord
 from astropy.table import Table
+from astropy.extern import six
 
 from ..exceptions import InvalidQueryError
 from ..query import BaseQuery
@@ -240,15 +241,16 @@ class IbeClass(BaseQuery):
             args['where'] = where
 
         if columns:
-            if isinstance(columns, basestring):
+            if isinstance(columns, six.string_types):
                 columns = columns.split()
             args['columns'] = ','.join(columns)
 
-        url = os.path.join(
-            self.URL, action,
-            mission or self.MISSION,
-            dataset or self.DATASET,
-            table or self.TABLE)
+        url = "{URL}{action}/{mission}/{dataset}/{table}".format(
+                URL=self.URL,
+                action=action,
+                mission=mission or self.MISSION,
+                dataset=dataset or self.DATASET,
+                table=table or self.TABLE)
 
         return self._request('GET', url, args, timeout=self.TIMEOUT)
 
@@ -378,11 +380,11 @@ class IbeClass(BaseQuery):
             The table to be queried (if not the default table).
         """
 
-        url = os.path.join(
-            self.URL, 'docs',
-            mission or self.MISSION,
-            dataset or self.DATASET,
-            table or self.TABLE)
+        url = "{URL}docs/{mission}/{dataset}/{table}".format(
+                URL=self.URL,
+                mission=mission or self.MISSION,
+                dataset=dataset or self.DATASET,
+                table=table or self.TABLE)
 
         return webbrowser.open(url)
 
@@ -405,11 +407,11 @@ class IbeClass(BaseQuery):
             A table containing a description of the columns
         """
 
-        url = os.path.join(
-            self.URL, 'search',
-            mission or self.MISSION,
-            dataset or self.DATASET,
-            table or self.TABLE)
+        url = "{URL}search/{mission}/{dataset}/{table}".format(
+                URL=self.URL,
+                mission=mission or self.MISSION,
+                dataset=dataset or self.DATASET,
+                table=table or self.TABLE)
 
         response = self._request(
             'GET', url, {'FORMAT': 'METADATA'}, timeout=self.TIMEOUT)
