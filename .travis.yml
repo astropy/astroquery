@@ -31,7 +31,7 @@ env:
         - PIP_DEPENDENCIES=''
         - SETUP_CMD='test'
         - CONDA_CHANNELS='astropy-ci-extras astropy'
-        - CONDA_DEPENDENCIES_OLD='requests beautifulsoup4 matplotlib html5lib keyring'
+        - CONDA_DEPENDENCIES_OLD='requests beautiful-soup matplotlib html5lib keyring'
         - PIP_DEPENDENCIES_OLD='pyregion aplpy'
 
     matrix:
