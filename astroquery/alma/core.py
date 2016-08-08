@@ -25,7 +25,7 @@ import astropy.io.votable as votable
 
 from ..exceptions import (RemoteServiceError, TableParseError,
                           InvalidQueryError, LoginError)
-from ..utils import commons, system_tools
+from ..utils import commons, system_tools, url_helpers
 from ..utils.process_asyncs import async_to_sync
 from ..query import QueryWithLogin
 from . import conf
@@ -262,7 +262,7 @@ class AlmaClass(QueryWithLogin):
 
         # Submit a request for the specific request ID identified above
         submission_url = urljoin(self.dataarchive_url,
-                                 os.path.join('rh/submission', request_id))
+                                 url_helpers.join('rh/submission', request_id))
         log.debug("Submission URL: {0}".format(submission_url))
         self._staging_log['submission_url'] = submission_url
         staging_submission = self._request('GET', submission_url, cache=True)
@@ -282,8 +282,8 @@ class AlmaClass(QueryWithLogin):
         has_completed = False
         while not has_completed:
             time.sleep(1)
-            summary = self._request('GET', os.path.join(data_page_url,
-                                                        'summary'),
+            summary = self._request('GET', url_helpers.join(data_page_url,
+                                                            'summary'),
                                     cache=False)
             summary.raise_for_status()
             print(".", end='')
