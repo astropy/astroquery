@@ -1,4 +1,10 @@
-language: python
+# We set the language to c because python isn't supported on the MacOS X nodes
+# on Travis. However, the language ends up being irrelevant anyway, since we
+# install Python ourselves using conda.
+language: c
+
+os:
+    - linux
 
 # Setting sudo to false opts in to Travis-CI container-based builds.
 sudo: false
@@ -12,98 +18,99 @@ addons:
             - texlive-latex-extra
             - dvipng
 
-python:
-    - 2.7
-    - 3.4
-
 env:
     global:
         # The following versions are the 'default' for tests, unless
         # overridden underneath. They are defined here in order to save having
         # to repeat them for all configurations.
+        - PYTHON_VERSION=3.5
         - MAIN_CMD='python setup.py'
-        - NUMPY_VERSION=1.10
+        - NUMPY_VERSION=stable
         - ASTROPY_VERSION=stable
-        - CONDA_DEPENDENCIES='requests beautiful-soup matplotlib html5lib'
-        - PIP_DEPENDENCIES='keyring aplpy pyregion'
+        - CONDA_DEPENDENCIES='requests beautifulsoup4 matplotlib html5lib keyring aplpy pyregion'
+        - PIP_DEPENDENCIES=''
+        - SETUP_CMD='test'
+        - CONDA_CHANNELS='astropy-ci-extras astropy'
+        - CONDA_DEPENDENCIES_OLD='requests beautiful-soup matplotlib html5lib'
+        - PIP_DEPENDENCIES_OLD='pyregion aplpy keyring'
 
     matrix:
-        - SETUP_CMD='egg_info'
-
-        - SETUP_CMD='test'
+        - PYTHON_VERSION=2.7 SETUP_CMD='egg_info'
+        - PYTHON_VERSION=3.3 SETUP_CMD='egg_info'
+        - PYTHON_VERSION=3.4 SETUP_CMD='egg_info'
+        - PYTHON_VERSION=3.5 SETUP_CMD='egg_info'
 
 matrix:
+
+    # Don't wait for allowed failures
+    fast_finish: true
+
     include:
-
-        # Test for py 3.5 (move this up to the main matrix once beautiful-soup is in conda)
-        - python: 3.5
-          env: SETUP_CMD='egg_info'
-        - python: 3.5
+        # Try MacOS X
+        - os: osx
           env: SETUP_CMD='test'
-               CONDA_DEPENDENCIES='requests matplotlib html5lib'
-               PIP_DEPENDENCIES='keyring aplpy pyregion beautifulsoup4'
 
-        # Do a coverage test in Python 2.
-        - python: 2.7
-          env: SETUP_CMD='test --coverage'
+        # Do a coverage test in Python 2. Move coverage to 3.x once speed
+        # issues have been solved; astropy/astropy#4826
+        - os: linux
+          env: PYTHON_VERSION=2.7 SETUP_CMD='test --coverage'
 
         # Check for sphinx doc build warnings - we do this first because it
         # may run for a long time
-        - python: 2.7
-          env: SETUP_CMD='build_sphinx -w'
+        - os: linux
+          env: PYTHON_VERSION=2.7 SETUP_CMD='build_sphinx -w'
 
-        # Python 3.3 doesn't have numpy 1.10 in conda, revoke this commit once
-        # it's available in the astropy-ci-extras channel
-        - python: 3.3
-          env: SETUP_CMD='egg_info'
-        - python: 3.3
-          env: SETUP_CMD='test' NUMPY_VERSION=1.9
+        # Try all python versions and Numpy versions. Since we can assume that
+        # the Numpy developers have taken care of testing Numpy with different
+        # versions of Python, we can vary Python and Numpy versions at the same
+        # time.
+        - os: linux
+          env: PYTHON_VERSION=2.7 NUMPY_VERSION=1.7
+               CONDA_DEPENDENCIES=$CONDA_DEPENDENCIES_OLD
+               PIP_DEPENDENCIES=$PIP_DEPENDENCIES_OLD
+        - os: linux
+          env: PYTHON_VERSION=3.3 NUMPY_VERSION=1.8
+               CONDA_DEPENDENCIES=$CONDA_DEPENDENCIES_OLD
+               PIP_DEPENDENCIES=$PIP_DEPENDENCIES_OLD
+        - os: linux
+          env: PYTHON_VERSION=3.4 NUMPY_VERSION=1.9
+               CONDA_DEPENDENCIES=$CONDA_DEPENDENCIES_OLD
+               PIP_DEPENDENCIES=$PIP_DEPENDENCIES_OLD
+        - os: linux
+          env: PYTHON_VERSION=3.5 NUMPY_VERSION=1.10
 
-        # Try Astropy development and LTS version
-        - python: 2.7
-          env: ASTROPY_VERSION=development SETUP_CMD='test'
-        - python: 3.5
-          env: ASTROPY_VERSION=development SETUP_CMD='test'
-               CONDA_DEPENDENCIES='requests matplotlib html5lib'
-               PIP_DEPENDENCIES='keyring aplpy pyregion beautifulsoup4'
-        - python: 2.7
-          env: ASTROPY_VERSION=lts SETUP_CMD='test'
-        - python: 3.5
-          env: ASTROPY_VERSION=lts SETUP_CMD='test'
-               CONDA_DEPENDENCIES='requests matplotlib html5lib'
-               PIP_DEPENDENCIES='keyring aplpy pyregion beautifulsoup4'
+        # Now try Astropy dev and LTS vesions with the latest 3.x and 2.7.
+        - os: linux
+          env: PYTHON_VERSION=2.7 ASTROPY_VERSION=development
+        - os: linux
+          env: ASTROPY_VERSION=development
+        - os: linux
+          env: PYTHON_VERSION=2.7 ASTROPY_VERSION=lts
+        - os: linux
+          env: ASTROPY_VERSION=lts
 
         # Try with optional dependencies disabled
-        - python: 2.7
-          env: SETUP_CMD='test'
-               CONDA_DEPENDENCIES='requests beautiful-soup html5lib'
-               PIP_DEPENDENCIES='keyring'
-        - python: 3.5
-          env: SETUP_CMD='test'
-               CONDA_DEPENDENCIES='requests html5lib'
-               PIP_DEPENDENCIES='keyring beautifulsoup4'
+        - os: linux
+          env: PYTHON_VERSION=2.7
+               CONDA_DEPENDENCIES='requests beautifulsoup4 html5lib keyring'
+        - os: linux
+          env: CONDA_DEPENDENCIES='requests beautifulsoup4 html5lib keyring'
 
-        # Try older numpy versions
-        - python: 2.7
-          env: NUMPY_VERSION=1.9 SETUP_CMD='test'
-        - python: 2.7
-          env: NUMPY_VERSION=1.8 SETUP_CMD='test'
-        - python: 2.7
-          env: NUMPY_VERSION=1.7 SETUP_CMD='test'
-        - python: 2.7
-          env: NUMPY_VERSION=1.6 SETUP_CMD='test'
 
         # Try numpy pre-release version, this runs only when a pre-release
         # is available on pypi.
-        - python: 3.4
-          env: NUMPY_VERSION=prerelease SETUP_CMD='test'
+        - os: linux
+          env: NUMPY_VERSION=prerelease DEBUG=True
 
         # Do a PEP8 test with pycodestyle
-        - python: 2.7
-          env: MAIN_CMD='pycodestyle astroquery --count' SETUP_CMD=''
+        - os: linux
+          env: PYTHON_VERSION=2.7 MAIN_CMD='pycodestyle astroquery --count'
+               SETUP_CMD=''
 
     allow_failures:
-        - env: MAIN_CMD='pycodestyle astroquery --count' SETUP_CMD=''
+        - os: linux
+          env: PYTHON_VERSION=2.7 MAIN_CMD='pycodestyle astroquery --count'
+               SETUP_CMD=''
 
 install:
     - git clone git://github.com/astropy/ci-helpers.git
