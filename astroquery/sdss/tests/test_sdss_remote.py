@@ -5,6 +5,8 @@ from astropy import coordinates
 from astropy.table import Table
 from astropy.tests.helper import pytest, remote_data
 
+import numpy as np
+
 
 @remote_data
 def test_images_timeout():
@@ -79,8 +81,8 @@ class TestSDSSRemote:
         colnames = ['ra', 'dec', 'objid', 'run', 'rerun', 'camcol', 'field',
                     'z', 'plate', 'mjd', 'fiberID', 'specobjid', 'run2d',
                     'instrument']
-        dtypes = [float, float, int, int, int, int, int, float, int, int, int,
-                  int, int, bytes]
+        dtypes = [float, float, np.int64, int, int, int, int, float, int, int,
+                  int, np.int64, int, bytes]
         data = [
             [46.8390680395307, 5.16972676625711, 1237670015125750016, 5714,
              301, 2, 185, -0.0006390358, 2340, 53733, 291, 2634685834112034816,
@@ -105,7 +107,7 @@ class TestSDSSRemote:
 
     def test_sdss_photoobj(self):
         colnames = ['ra', 'dec', 'objid', 'run', 'rerun', 'camcol', 'field']
-        dtypes = [float, float, int, int, int, int, int]
+        dtypes = [float, float, np.int64, int, int, int, int]
         data = [
             [2.01401566011947, 14.9014376776107, 1237653651835846751,
              1904, 301, 3, 164],
