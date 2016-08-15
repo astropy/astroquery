@@ -161,3 +161,23 @@ class TestEso:
                                             '2015-09-15', '2015-09-18'}
 
         assert np.all(tbl == tblb)
+
+    def test_each_instrument_SgrAstar(self, temp_dir):
+        eso = Eso()
+        eso.cache_location = temp_dir
+
+        instruments = eso.list_instruments(cache=False)
+        for instrument in instruments:
+            result_i = eso.query_instrument(instrument, coord1=266.41681662,
+                                            coord2=-29.00782497, cache=False)
+
+    def test_each_survey_SgrAstar(self, temp_dir):
+        eso = Eso()
+        eso.cache_location = temp_dir
+
+        surveys = eso.list_surveys(cache=False)
+        for survey in surveys:
+            result_s = eso.query_surveys(survey, coord1=266.41681662,
+                                         coord2=-29.00782497,
+                                         box='01 00 00',
+                                         cache=False)

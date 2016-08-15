@@ -269,8 +269,14 @@ class EsoClass(QueryWithLogin):
             self._survey_list = []
             collections_table = root.find('table', id='collections_table')
             other_collections = root.find('select', id='collection_name_option')
-            for element in (collections_table.findAll('input', type='checkbox') +
-                            other_collections.findAll('option')):
+            # it is possible to have empty collections or other collections...
+            collection_elts = (collections_table.findAll('input', type='checkbox')
+                               if collections_table is not None
+                               else [])
+            other_elts = (other_collections.findAll('option')
+                          if other_collections is not None
+                          else [])
+            for element in (collection_elts + other_elts):
                 if 'value' in element.attrs:
                     survey = element.attrs['value']
                     if survey and survey not in self._survey_list and 'Any' not in survey:
@@ -402,8 +408,11 @@ class EsoClass(QueryWithLogin):
                 query_dict["max_rows_returned"] = self.ROW_LIMIT
             else:
                 query_dict["max_rows_returned"] = 10000
-            instrument_response = self._activate_form(
-                instrument_form, form_index=0, inputs=query_dict, cache=cache)
+            # used to be form 0, but now there's a new 'logout' form at the top
+            instrument_response = self._activate_form(instrument_form,
+                                                      form_index=-1,
+                                                      inputs=query_dict,
+                                                      cache=cache)
 
             content = instrument_response.content
             # First line is always garbage
