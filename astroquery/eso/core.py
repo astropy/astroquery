@@ -269,8 +269,14 @@ class EsoClass(QueryWithLogin):
             self._survey_list = []
             collections_table = root.find('table', id='collections_table')
             other_collections = root.find('select', id='collection_name_option')
-            for element in (collections_table.findAll('input', type='checkbox') +
-                            other_collections.findAll('option')):
+            # it is possible to have empty collections or other collections...
+            collection_elts = (collections_table.findAll('input', type='checkbox')
+                               if collections_table is not None
+                               else [])
+            other_elts = (other_collections.findAll('option')
+                          if other_collections is not None
+                          else [])
+            for element in (collection_elts + other_elts):
                 if 'value' in element.attrs:
                     survey = element.attrs['value']
                     if survey and survey not in self._survey_list and 'Any' not in survey:
