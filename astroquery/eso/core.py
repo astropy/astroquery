@@ -402,8 +402,11 @@ class EsoClass(QueryWithLogin):
                 query_dict["max_rows_returned"] = self.ROW_LIMIT
             else:
                 query_dict["max_rows_returned"] = 10000
-            instrument_response = self._activate_form(
-                instrument_form, form_index=0, inputs=query_dict, cache=cache)
+            # used to be form 0, but now there's a new 'logout' form at the top
+            instrument_response = self._activate_form(instrument_form,
+                                                      form_index=-1,
+                                                      inputs=query_dict,
+                                                      cache=cache)
 
             content = instrument_response.content
             # First line is always garbage
