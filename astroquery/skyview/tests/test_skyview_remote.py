@@ -46,4 +46,5 @@ class TestSkyviewRemote(object):
         assert set(self.SkyView.survey_dict[survey]) == set(survey_data)
 
     def test_whole_survey_list(self):
-        assert self.SkyView.survey_dict == self.survey_dict
+        # Content was already checked, test for the keys
+        assert set(self.SkyView.survey_dict) == set(self.survey_dict)
