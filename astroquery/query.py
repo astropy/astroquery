@@ -207,11 +207,11 @@ class BaseQuery(object):
             if length is not None:
                 statinfo = os.stat(local_filepath)
                 if statinfo.st_size != length:
-                    log.warn("Found cached file {0} with size {1} that is "
-                             "different from expected size {2}"
-                             .format(local_filepath,
-                                     statinfo.st_size,
-                                     length))
+                    log.warning("Found cached file {0} with size {1} that is "
+                                "different from expected size {2}"
+                                .format(local_filepath,
+                                        statinfo.st_size,
+                                        length))
                 else:
                     log.info("Found cached file {0} with expected size {1}."
                              .format(local_filepath, statinfo.st_size))
