@@ -247,7 +247,7 @@ class AlmaClass(QueryWithLogin):
                                      timeout=self.TIMEOUT, cache=False)
             self._staging_log['initial_response'] = response
             if 'j_spring_cas_security_check' in response.url:
-                log.warn("Staging request was not successful.  Try again?")
+                log.warning("Staging request was not successful.  Try again?")
             response.raise_for_status()
 
         if 'j_spring_cas_security_check' in response.url:
@@ -437,8 +437,8 @@ class AlmaClass(QueryWithLogin):
 
         if password_from_keyring is None:
             if system_tools.in_ipynb():
-                log.warn("You may be using an ipython notebook:"
-                         " the password form will appear in your terminal.")
+                log.warning("You may be using an ipython notebook:"
+                            " the password form will appear in your terminal.")
             password = getpass.getpass("{0}, enter your ALMA password:"
                                        "\n".format(username))
         else:
@@ -839,7 +839,7 @@ class AlmaClass(QueryWithLogin):
                             "size={0} uid={1} url={2}"
                             .format(size, uid, columns['URL'][-1]))
                 else:
-                    log.warn("Access to {0} is not authorized.".format(uid))
+                    log.warning("Access to {0} is not authorized.".format(uid))
             elif len(tds) > 3 and tds[2].find('a'):
                 # Old Style
                 href = tds[2].find('a')
