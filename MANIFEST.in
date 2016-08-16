@@ -2,13 +2,11 @@ include README.rst
 include CHANGES.rst
 include astroquery/splatalogue/data/*
 
-recursive-include astroquery *.pyx *.c
-
 include ez_setup.py
 include ah_bootstrap.py
 include setup.cfg
 
-recursive-include *.pyx *.c *.pxd
+recursive-include astroquery *.pyx *.c *.pxd
 recursive-include docs *
 recursive-include licenses *
 recursive-include cextern *

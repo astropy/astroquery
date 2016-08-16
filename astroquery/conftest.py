@@ -22,6 +22,7 @@ try:
     PYTEST_HEADER_MODULES['pyregion'] = 'pyregion'
     del PYTEST_HEADER_MODULES['h5py']
     del PYTEST_HEADER_MODULES['Scipy']
+    del PYTEST_HEADER_MODULES['Pandas']
 except (NameError, KeyError):
     pass
 
