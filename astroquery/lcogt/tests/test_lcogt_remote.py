@@ -1,7 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from __future__ import print_function
 
-from astropy.tests.helper import remote_data
+from astropy.tests.helper import pytest, remote_data
 from astropy.table import Table
 from astropy.coordinates import SkyCoord
 import astropy.units as u
@@ -19,6 +19,8 @@ OBJ_LIST = ["m31", "00h42m44.330s +41d16m07.50s",
 
 
 @remote_data
+@pytest.mark.xfail(reason="Changed remote API, xfailing until fixing"
+                   "https://github.com/astropy/astroquery/issues/725")
 class TestLcogt:
 
     def test_query_object_meta(self):

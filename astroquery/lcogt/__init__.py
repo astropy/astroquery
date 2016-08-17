@@ -7,6 +7,11 @@ This module contains various methods for querying
 LCOGT data archive as hosted by IPAC.
 """
 from astropy import config as _config
+import warnings
+
+warnings.warn("The LCOGT archive API has been changed. While we aim to "
+              "accommodate the changes into astroqeury, pleased be advised "
+              "that this module is not working at the moment.")
 
 
 class Conf(_config.ConfigNamespace):
