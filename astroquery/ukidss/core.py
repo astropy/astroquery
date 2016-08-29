@@ -161,7 +161,8 @@ class UkidssClass(QueryWithLogin):
     def get_images(self, coordinates, waveband='all', frame_type='stack',
                    image_width=1 * u.arcmin, image_height=None, radius=None,
                    database='UKIDSSDR7PLUS', programme_id='all',
-                   verbose=True, get_query_payload=False):
+                   verbose=True, get_query_payload=False,
+                   show_progress=True):
         """
         Get an image around a target/ coordinates from UKIDSS catalog.
 
@@ -209,7 +210,8 @@ class UkidssClass(QueryWithLogin):
             coordinates, waveband=waveband, frame_type=frame_type,
             image_width=image_width, image_height=image_height,
             database=database, programme_id=programme_id, radius=radius,
-            verbose=verbose, get_query_payload=get_query_payload)
+            verbose=verbose, get_query_payload=get_query_payload,
+            show_progress=show_progress)
 
         if get_query_payload:
             return readable_objs
@@ -219,7 +221,8 @@ class UkidssClass(QueryWithLogin):
                          image_width=1 * u.arcmin, image_height=None,
                          radius=None, database='UKIDSSDR7PLUS',
                          programme_id='all', verbose=True,
-                         get_query_payload=False):
+                         get_query_payload=False,
+                         show_progress=True):
         """
         Serves the same purpose as `get_images` but
         returns a list of file handlers to remote files.
@@ -281,7 +284,8 @@ class UkidssClass(QueryWithLogin):
             print("Found {num} targets".format(num=len(image_urls)))
 
         return [commons.FileContainer(U, encoding='binary',
-                                      remote_timeout=self.TIMEOUT)
+                                      remote_timeout=self.TIMEOUT,
+                                      show_progress=show_progress)
                 for U in image_urls]
 
     @validate_frame

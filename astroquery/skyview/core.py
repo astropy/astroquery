@@ -87,7 +87,8 @@ class SkyViewClass(BaseQuery):
     def get_images(self, position, survey, coordinates=None, projection=None,
                    pixels=None, scaling=None, sampler=None, resolver=None,
                    deedger=None, lut=None, grid=None, gridlabels=None,
-                   radius=None, height=None, width=None, cache=True):
+                   radius=None, height=None, width=None, cache=True,
+                   show_progress=True):
         """
         Query the SkyView service, download the FITS file that will be
         found and return a generator over the local paths to the
@@ -201,7 +202,8 @@ class SkyViewClass(BaseQuery):
                                                  lut, grid, gridlabels,
                                                  radius=radius, height=height,
                                                  width=width,
-                                                 cache=cache)
+                                                 cache=cache,
+                                                 show_progress=show_progress)
         return [obj.get_fits() for obj in readable_objects]
 
     @prepend_docstr_noreturns(get_images.__doc__)
@@ -209,7 +211,7 @@ class SkyViewClass(BaseQuery):
                          projection=None, pixels=None, scaling=None,
                          sampler=None, resolver=None, deedger=None, lut=None,
                          grid=None, gridlabels=None, radius=None, height=None,
-                         width=None, cache=True):
+                         width=None, cache=True, show_progress=True):
         """
         Returns
         -------
@@ -221,7 +223,8 @@ class SkyViewClass(BaseQuery):
                                          gridlabels, radius=radius,
                                          height=height, width=width,
                                          cache=cache)
-        return [commons.FileContainer(url, encoding='binary')
+        return [commons.FileContainer(url, encoding='binary',
+                                      show_progress=show_progress)
                 for url in image_urls]
 
     @prepend_docstr_noreturns(get_images.__doc__)
