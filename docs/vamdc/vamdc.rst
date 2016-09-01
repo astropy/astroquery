@@ -15,7 +15,9 @@ to nonexistant, but installation is straightforward::
     pip install https://github.com/keflavich/vamdclib/archive/master.zip
 
 This is the personal fork of the astroquery maintainer that includes astropy's
-setup helpers on top of the vamdclib infrastructure.
+setup helpers on top of the vamdclib infrastructure.  If the infrastructure is
+`merged <https://github.com/VAMDC/vamdclib/pull/1>`_ into the main vamdclib
+library, we'll change these instructions.
 
 Examples
 ========
