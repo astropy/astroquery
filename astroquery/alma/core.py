@@ -235,10 +235,10 @@ class AlmaClass(QueryWithLogin):
         log.debug("First response URL: {0}".format(response.url))
         if response.status_code == 405:
             if hasattr(self,'_last_successful_staging_log'):
-                print("Error 405 received.  If you have previously staged "
-                      "the same UIDs, the result returned is probably "
-                      "correct, otherwise you may need to create a fresh "
-                      "astroquery.Alma instance.")
+                log.warn("Error 405 received.  If you have previously staged "
+                         "the same UIDs, the result returned is probably "
+                         "correct, otherwise you may need to create a fresh "
+                         "astroquery.Alma instance.")
                 return self._last_successful_staging_log['result']
             else:
                 raise HTTPError("Received an error 405: this may indicate you "
