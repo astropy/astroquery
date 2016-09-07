@@ -1,0 +1,25 @@
+<VOTABLE version="1.2" xmlns="http://www.ivoa.net/xml/VOTable/v1.2">
+<RESOURCE>
+<INFO name='QUERY_STATUS' value='OK'/>
+<TABLE>
+<FIELD arraysize="*" datatype="char" name="name">
+<DESCRIPTION>name</DESCRIPTION>
+</FIELD>
+<FIELD datatype="double" name="ra" ucd="pos.eq.ra">
+<DESCRIPTION>ra</DESCRIPTION>
+</FIELD>
+<FIELD datatype="double" name="dec" ucd="pos.eq.dec">
+<DESCRIPTION>dec</DESCRIPTION>
+</FIELD>
+<DATA>
+<BINARY>
+<STREAM encoding='base64'>
+AAAAATI/bxusN5Wsu8Azf7PT5BlsAAAAATM/dIM1gC4iXUBDbf0RdFQfAAAAATQ/
+gSqEz8dtUMBJ8l/BqxuCAAAAATU/hGiKPRL1RcBES601j7KxAAAAATY/kpOEVIU0
+DEAPkmhMsjTM
+</STREAM>
+</BINARY>
+</DATA>
+</TABLE>
+</RESOURCE>
+</VOTABLE>

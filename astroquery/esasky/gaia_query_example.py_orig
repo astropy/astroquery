@@ -1,0 +1,85 @@
+#ASYNCHRONOUS REQUEST
+
+import httplib
+import urllib
+#import http.client in Python 3
+#import urllib.parse in Python 3
+import time
+from xml.dom.minidom import parseString
+
+#host = "gaia.esac.esa.int"
+host = "sky.esa.int"
+port = 80
+#pathinfo = "/tap-server/tap/async"
+pathinfo = "/esasky-tap/tap/async"
+
+
+#-------------------------------------
+#Create job
+
+params = urllib.urlencode({\
+	"REQUEST": "doQuery", \
+	"LANG":    "ADQL", \
+	"FORMAT":  "votable", \
+	"PHASE":  "RUN", \
+	"QUERY":   "SELECT DISTANCE(POINT('ICRS',ra,dec), POINT('ICRS',266.41683,-29.00781)) AS dist, * FROM public.gaia_source  WHERE 1=CONTAINS(POINT('ICRS',ra,dec),CIRCLE('ICRS',266.41683,-29.00781, 0.08333333)) ORDER BY dist ASC"
+	})
+
+headers = {\
+	"Content-type": "application/x-www-form-urlencoded", \
+	"Accept":       "text/plain" \
+	}
+
+connection = httplib.HTTPConnection(host, port)
+connection.request("POST",pathinfo,params,headers)
+
+#Status
+response = connection.getresponse()
+print "Status: " +str(response.status), "Reason: " + str(response.reason)
+
+#Server job location (URL)
+location = response.getheader("location")
+print "Location: " + location
+
+#Jobid
+jobid = location[location.rfind('/')+1:]
+print "Job id: " + jobid
+
+connection.close()
+
+#-------------------------------------
+#Check job status, wait until finished
+
+while True:
+	connection = httplib.HTTPConnection(host, port)
+	connection.request("GET",pathinfo+"/"+jobid)
+	response = connection.getresponse()
+	data = response.read()
+	#XML response: parse it to obtain the current status
+	dom = parseString(data)
+	phaseElement = dom.getElementsByTagName('uws:phase')[0]
+	phaseValueElement = phaseElement.firstChild
+	phase = phaseValueElement.toxml()
+	print "Status: " + phase
+	#Check finished
+	if phase == 'COMPLETED': break
+	#wait and repeat
+	time.sleep(0.2)
+
+#print "Data:"
+#print data
+
+connection.close()
+
+#-------------------------------------
+#Get results
+connection = httplib.HTTPConnection(host, port)
+connection.request("GET",pathinfo+"/"+jobid+"/results/result")
+response = connection.getresponse()
+data = response.read()
+outputFileName = "example3_votable_output.vot"
+outputFile = open(outputFileName, "w")
+outputFile.write(data)
+outputFile.close()
+connection.close()
+print "Data saved in: " + outputFileName
