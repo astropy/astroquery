@@ -575,11 +575,17 @@ class SDSSClass(BaseQuery):
         results = []
         for row in matches:
             linkstr = self.SPECTRA_URL_SUFFIX
-            # _parse_result returns bytes for instruments, requiring a decode
+            # _parse_result returns bytes (requiring a decode) for
+            # - instruments
+            # - run2d sometimes (#739)
+            if isinstance(row['run2d'], bytes):
+                run2d = row['run2d'].decode()
+            else:
+                run2d = row['run2d']
             link = linkstr.format(
                 base=conf.sas_baseurl, dr=data_release,
                 instrument=row['instrument'].decode().lower(),
-                run2d=row['run2d'], plate=row['plate'],
+                run2d=run2d, plate=row['plate'],
                 fiber=row['fiberID'], mjd=row['mjd'])
 
             results.append(commons.FileContainer(link,
