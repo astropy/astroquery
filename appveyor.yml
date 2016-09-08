@@ -11,6 +11,7 @@ environment:
                         # of 32 bit and 64 bit builds are needed, move this
                         # to the matrix section.
       CONDA_DEPENDENCIES: "requests beautifulsoup4 matplotlib html5lib keyring aplpy pyregion"
+      CONDA_CHANNELS: "astropy"
 
   matrix:
       - PYTHON_VERSION: "2.7"
