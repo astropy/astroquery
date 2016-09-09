@@ -234,9 +234,16 @@ class AlmaClass(QueryWithLogin):
         self._staging_log['initial_response'] = response
         log.debug("First response URL: {0}".format(response.url))
         if response.status_code == 405:
-            raise HTTPError("Received an error 405: this may indicate you "
-                            "have already staged the data.  Try downloading "
-                            "the file URLs directly with download_files.")
+            if hasattr(self,'_last_successful_staging_log'):
+                log.warn("Error 405 received.  If you have previously staged "
+                         "the same UIDs, the result returned is probably "
+                         "correct, otherwise you may need to create a fresh "
+                         "astroquery.Alma instance.")
+                return self._last_successful_staging_log['result']
+            else:
+                raise HTTPError("Received an error 405: this may indicate you "
+                                "have already staged the data.  Try downloading "
+                                "the file URLs directly with download_files.")
         response.raise_for_status()
 
         if 'j_spring_cas_security_check' in response.url:
@@ -310,6 +317,8 @@ class AlmaClass(QueryWithLogin):
                                                     ))
         tbl = self._json_summary_to_table(json_data, base_url=base_url)
         self._staging_log['result'] = tbl
+        self._staging_log['file_urls'] = tbl['URL']
+        self._last_successful_staging_log = self._staging_log
 
         return tbl
 
