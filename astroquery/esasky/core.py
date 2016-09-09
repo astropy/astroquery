@@ -54,36 +54,18 @@ class ESASkyClass(BaseQuery):
     #URL = "ammidev.n1data.lan:8080/esasky-tap/tap/sync"
     URLbase = conf.urlBase
     TIMEOUT = conf.timeout
-
+        
     def get_esasky_catalogs(self):
         """
-        # get the available TAP catalogs in ESASky
+        Get the available TAP catalogs in ESASky
         """
-        urlcats = self.URLbase + '/catalogs'
-        with urllib.request.urlopen(urlcats) as response:
-            r = response.read().decode('utf-8')
-        # this is a json bytes output that's why it needs decoding to string 
-        tmp = json.loads(r)
-        a = tmp["catalogs"]
-        catsList = []
-        for i in range(len(a)):
-            catsList.append(a[i]["tapTable"])
-        return catsList
+        return self._fetch_and_parse_json("catalogs")
 
     def get_esasky_obs(self):
         """
-        # get the available TAP observations in ESASky
+        Get the available TAP observations in ESASky
         """
-        urlobs = self.URLbase + '/observations'
-        with urllib.request.urlopen(urlobs) as response:
-            r = response.read().decode('utf-8')
-        # this is a json bytes output that's why it needs decoding to string 
-        tmp = json.loads(r)
-        a = tmp["observations"]
-        obsList = []
-        for i in range(len(a)):
-            obsList.append(a[i]["tapTable"])
-        return obsList
+        return self._fetch_and_parse_json("observations")
 
     
     def query_object_obs(self, object_name, observation=None, get_query_payload=False,
@@ -91,16 +73,15 @@ class ESASkyClass(BaseQuery):
         """
         This method is for services that can parse object names. Otherwise
         use :meth:`astroquery.template_module.TemplateClass.query_region`.
-        Put a brief description of what the class does here.
 
         Parameters
         ----------
         object_name : str
             name of the identifier to query.
         get_query_payload : bool, optional
-            This should default to False. When set to `True` the method
+            This defaults to False. When set to `True` the method
             should return the HTTP request parameters as a dict.
-        obs : string, mandatory
+        obs : string, mandatory 
             The observations in ESASKy to search for the name
         verbose : bool, optional
            This should default to `False`, when set to `True` it displays
@@ -121,60 +102,51 @@ class ESASkyClass(BaseQuery):
         standard doctests in python.
 
         """
-        URL = self.URLbase + "/tap/sync"
-        #
+        
         # check if the catalog is available
         esaskyobs = self.get_esasky_obs()
         if (not observation in esaskyobs): 
-            raise ValueError("Input observation %s not available."%observation)
+            raise ValueError("Input observation %s not available." %observation)
             return None
-        #
-        # first initialize the dictionary of HTTP request parameters
-        #request_payload = dict()
-        #
-        query = "SELECT * FROM %s WHERE name='%s';"%(observation,object_name)
-        request_payload = {'REQUEST':'doQuery', 'LANG':'ADQL', 'FORMAT': 'VOTABLE', 'QUERY': query}
+        
+        # Initialize the dictionary of HTTP request parameters
+        # request_payload = dict()
+        query = "SELECT * FROM %s WHERE name='%s';"%(observation, object_name)
+        request_payload = self._create_request_payload(query)
 
         if get_query_payload:
             return request_payload
-        # BaseQuery classes come with a _request method that includes a
-        # built-in caching system
-        response = self._request('GET', URL, params=request_payload,
-                                 timeout=self.TIMEOUT, cache=cache)
-        result = self._parse_result(response,verbose=verbose)
-        return result
-    
-    def query_herschel_observations(self, obsid, get_query_payload=False,cache=True, verbose=True):
+
+        return self._fetch_and_parse_from_tap(request_payload, cache, verbose)
+         
+    def query_herschel_observations(self, obsid, get_query_payload=False, cache=True, verbose=True):
         """
+        TODO
         """
-        URL = self.URLbase + "/tap/sync"
-        query = "SELECT DISTINCT postcard_url, product_url,  observation_id,  instrument,  "
-        query += "filter,  ra_deg as ra,  dec_deg as dec, start_time,  duration FROM mv_hsa_esasky_photo_table_fdw "
-        query += "WHERE observation_id='%i'"%obsid
-        #request_payload = {'REQUEST':'doQuery', 'LANG':'ADQL', 'FORMAT': 'JSON', 'QUERY': query}
-        request_payload = {'REQUEST':'doQuery', 'LANG':'ADQL', 'FORMAT': 'VOTABLE', 'QUERY': query}
+        
+        query = ("SELECT DISTINCT postcard_url, product_url,  observation_id,  instrument,  "
+        + "filter,  ra_deg as ra,  dec_deg as dec, start_time,  duration FROM mv_hsa_esasky_photo_table_fdw "
+        + "WHERE observation_id='%i'"%obsid)
+
+        request_payload = self._create_request_payload(query)
         if get_query_payload:
             return request_payload
-        # BaseQuery classes come with a _request method that includes a
-        # built-in caching system
-        response = self._request('GET', URL, params=request_payload,
-                                 timeout=self.TIMEOUT, cache=cache)
-        result = self._parse_result(response, verbose=verbose)
-        return result
+        
+        return self._fetch_and_parse_from_tap(request_payload, cache, verbose)
     
-    def get_herschel_default_maps(self, resultTable,instrument='both',verbose=True):
+    def get_herschel_default_maps(self, resultTable, instrument='both', verbose=True):
         """
         From the results table, download the standalone browse product tar file and extract the maps in a 
         dictionary with FITS files per band:
         for SPIRE with keywords '250', '350' and '500'
         for PACS with keywords 'blue', 'red'
-        
         """
+        
         if (not 'product_url' in resultTable.colnames):
             raise TableParseError("The input table has no column 'product_url'"
                                   ". Cannot continue")
             return None
-        #
+
         tar_file = tempfile.NamedTemporaryFile()
         if (verbose):
             print ("Will search for maps from %s instrument(s)"%instrument)
@@ -191,7 +163,7 @@ class ESASkyClass(BaseQuery):
                     for member in tar.getmembers():
                         if (verbose): print (member.name)
                         if ('hspire' in member.name or 'hpacs' in member.name):
-                            f=tar.extract(member,path=tmp_dir)
+                            tar.extract(member,path=tmp_dir)
                             if ('hspireplw' in member.name):
                                 array = '500'
                             elif ('hspirepmw' in member.name):
@@ -241,18 +213,38 @@ class ESASkyClass(BaseQuery):
             The HTTP response returned from the service.
             All async methods should return the raw HTTP response.
         """
-        URL = self.URLbase + "/tap/sync"
-        #
+
         if (mission == None):
             raise ValueError("Mission must be provided. Use .get_missions() method to get a listing of the available missions.")
         request_payload = self._args_to_payload(coordinates=coordinates, radius=radius, mission=mission)
         if get_query_payload:
             return request_payload
+        
+        return self._fetch_and_parse_from_tap(request_payload, cache, verbose)
+
+    def _fetch_and_parse_json(self, object_name):
+        url = self.URLbase + "/" + object_name
+        with urllib.request.urlopen(url) as response:
+            decoded_response = response.read().decode('utf-8')
+        deserialized_response = json.loads(decoded_response)
+        desired_object = deserialized_response[object_name]
+        response_list = []
+        for i in range(len(desired_object)):
+            response_list.append(desired_object[i]["tapTable"])
+        return response_list
+    
+    def _fetch_and_parse_from_tap(self, request_payload, cache, verbose):
+        URL = self.URLbase + "/tap/sync"
+        # BaseQuery classes come with a _request method that includes a
+        # built-in caching system
         response = self._request('GET', URL, params=request_payload,
                                  timeout=self.TIMEOUT, cache=cache)
         result = self._parse_result(response, verbose=verbose)
         return result
-
+    
+    def _create_request_payload(self, query):
+        return {'REQUEST':'doQuery', 'LANG':'ADQL', 'FORMAT': 'VOTABLE', 'QUERY': query}
+    
     # as we mentioned earlier use various python regular expressions, etc
     # to create the dict of HTTP request parameters by parsing the user
     # entered values. For cleaner code keep this as a separate private method:
@@ -260,15 +252,15 @@ class ESASkyClass(BaseQuery):
     def _args_to_payload(self, coordinates = None, radius = 0 *u.arcmin, mission=None):
         if (mission == None):
             raise ValueError("Mission cannot be None")
-        c = commons.parse_coordinates(coordinates)
-        raHours, dec = commons.coord_to_radec(c) # note, RA is in hours 
+        coordinates = commons.parse_coordinates(coordinates)
+        raHours, dec = commons.coord_to_radec(coordinates) # note, RA is in hours 
         ra = raHours* 15.0 # it's need it in degrees
         #
         radiusDeg = commons.radius_to_unit(radius,unit='deg')
         #
         table = 'mv_hsa_esasky_photo_table_fdw'
-        query = "SELECT DISTINCT postcard_url, product_url,  observation_id,  instrument,  "
-        query += "filter,  ra_deg as ra,  dec_deg as dec, start_time,  duration FROM  %s "%table
+        query = ("SELECT DISTINCT postcard_url, product_url,  observation_id,  instrument,  "
+        + "filter,  ra_deg as ra,  dec_deg as dec, start_time,  duration FROM  %s "%table)
         if (radiusDeg == 0):
             query += "WHERE 1=CONTAINS(POINT('ICRS',%f,%f),%s.fov) ORDER BY observation_id;"%(ra,dec,table)
         else:
@@ -346,12 +338,12 @@ class ESASkyClass(BaseQuery):
         -------
         A list of `astropy.fits.HDUList` objects
         """
-        readable_objs = self.get_images_async(coordinates, radius,
+        readable_objects = self.get_images_async(coordinates, radius,
                                               get_query_payload=get_query_payload)
         if get_query_payload:
-            return readable_objs  # simply return the dict of HTTP request params
+            return readable_objects  # simply return the dict of HTTP request params
         # otherwise return the images as a list of astropy.fits.HDUList
-        return [obj.get_fits() for obj in readable_objs]
+        return [obj.get_fits() for obj in readable_objects]
 
     @prepend_docstr_noreturns(get_images.__doc__)
     def get_images_async(self, coordinates, radius, get_query_payload=False):
