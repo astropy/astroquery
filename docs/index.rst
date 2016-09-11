@@ -75,8 +75,9 @@ The following packages are required for astroquery installation & use:
 * `astropy <http://www.astropy.org>`__ (>=0.4)
 * `requests <http://docs.python-requests.org/en/latest/>`_
 * `keyring <https://pypi.python.org/pypi/keyring>`_ (required for the
-  `~astroquery.eso` and `~astroquery.alma` and `~astroquery.cosmosim` modules)
+  `~astroquery.eso`, `~astroquery.alma` and `~astroquery.cosmosim` modules)
 * `Beautiful Soup <http://www.crummy.com/software/BeautifulSoup/>`_
+* `html5lib <https://pypi.python.org/pypi/html5lib>`_
 
 Using astroquery
 ----------------
