@@ -5,18 +5,18 @@ from astropy.coordinates import SkyCoord
 import astropy.units as u
 
 ea = ESASky()
-esaskyMaps = ea.get_esasky_obs()
+esaskyMaps = ea.get_esasky_obs_list()
 print (esaskyMaps)
-esaskyCats = ea.get_esasky_catalogs()
+esaskyCats = ea.get_esasky_catalog_tap_list()
 print (esaskyCats)
 #
 #
 ra = 265.05 * u.degree
 dec = 69.0 * u.degree
-coo= SkyCoord(ra, dec, frame='icrs', unit='deg')
+coordinates= SkyCoord(ra, dec, frame='icrs', unit='deg')
 #
 obsx = 'mv_hsa_esasky_photo_table_fdw'
-result = ea.query_region_obs(coo,radius=0 * u.arcmin,mission=obsx, get_query_payload=False)
+result = ea.query_region_obs(coordinates,radius=0 * u.arcmin, get_query_payload=False)
 print ("Found total of %i observations in %s"%(len(result),obsx))
 print ("Listing of the OBSIDS")
 print (result['observation_id'])

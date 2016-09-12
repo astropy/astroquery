@@ -55,17 +55,32 @@ class ESASkyClass(BaseQuery):
     URLbase = conf.urlBase
     TIMEOUT = conf.timeout
         
-    def get_esasky_catalogs(self):
+    def get_esasky_catalog_tap_list(self):
+        """
+        Get the list available TAP catalogs in ESASky
+        """
+        json = self._fetch_and_parse_json("catalogs")
+        return self._json_object_to_list(json, "tapTable")
+     
+    def get_catalogs(self):
         """
         Get the available TAP catalogs in ESASky
         """
         return self._fetch_and_parse_json("catalogs")
+    
+    def get_esasky_catalog_mission_list(self):
+        """
+        Get the available mission catalogs in ESASky
+        """
+        json = self._fetch_and_parse_json("catalogs")
+        return self._json_object_to_list(json, "mission")    
 
-    def get_esasky_obs(self):
+    def get_esasky_obs_list(self):
         """
         Get the available TAP observations in ESASky
         """
-        return self._fetch_and_parse_json("observations")
+        json = self._fetch_and_parse_json("observations")
+        return self._json_object_to_list(json, "tapTable")
 
     
     def query_object_obs(self, object_name, observation=None, get_query_payload=False,
@@ -81,7 +96,7 @@ class ESASkyClass(BaseQuery):
         get_query_payload : bool, optional
             This defaults to False. When set to `True` the method
             should return the HTTP request parameters as a dict.
-        obs : string, mandatory 
+        observation : string, mandatory 
             The observations in ESASKy to search for the name
         verbose : bool, optional
            This should default to `False`, when set to `True` it displays
@@ -104,7 +119,7 @@ class ESASkyClass(BaseQuery):
         """
         
         # check if the catalog is available
-        esaskyobs = self.get_esasky_obs()
+        esaskyobs = self.get_esasky_obs_list()
         if (not observation in esaskyobs): 
             raise ValueError("Input observation %s not available." %observation)
             return None
@@ -118,12 +133,53 @@ class ESASkyClass(BaseQuery):
             return request_payload
 
         return self._fetch_and_parse_from_tap(request_payload, cache, verbose)
-         
+     
+    def query_region_catalogs(self, position, radius, catalog_name):
+        coordinates = commons.parse_coordinates(position)
+        dictionary = {}
+        if(catalog_name == 'all'):
+            catalogs = self.get_esasky_catalog_mission_list()
+            for catalog in catalogs:
+                dictionary[catalog] = self._query_region_catalog(coordinates, radius, catalog)
+        else:
+            dictionary[catalog_name] = self._query_region_catalog(coordinates, radius, catalog_name)
+            
+        return dictionary
+    
+    def _query_region_catalog(self, coordinates, radius, catalog_name):
+        catalog_tap_name = self._get_catalog_tap_name(catalog_name)
+        query = self._build_catalog_query(coordinates, radius, catalog_tap_name)
+        request_payload = self._create_request_payload(query)
+        return self._fetch_and_parse_from_tap(request_payload)
+            
+    def _build_catalog_query(self, coordinates,radius, catalog_name):
+        catalog = self._find_catalog(catalog_name)
+
+        raHours, dec = commons.coord_to_radec(coordinates) # note, RA is in hours 
+        ra = raHours* 15.0 # it's need it in degrees
+        radiusDeg = commons.radius_to_unit(radius,unit='deg')
+        
+        query = ("SELECT TOP %s %s as name, " %(catalog["sourceLimit"], catalog["polygonNameTapColumn"])
+            + "%s as ra, %s as dec " %(catalog["polygonRaTapColumn"], catalog["polygonDecTapColumn"])
+            + "FROM %s " %catalog["tapTable"])
+        if (radiusDeg == 0):
+            query += "WHERE 1=CONTAINS(%s, POINT('ICRS',%f,%f)) "%(catalog["posTapColumn"], ra, dec)
+        else:
+            query += "WHERE 1=CONTAINS(%s, CIRCLE('ICRS', %f, %f, %f)) "%(catalog["posTapColumn"], ra, dec, radiusDeg)  
+            
+        query += "ORDER BY %s;" %catalog["orderBy"]
+        return query            
+            
+    def _find_catalog(self, catalog_name):
+        catalogs = self.get_catalogs()
+        for catalog in catalogs:
+            if (catalog["tapTable"] == catalog_name):
+                return catalog
+    
     def query_herschel_observations(self, obsid, get_query_payload=False, cache=True, verbose=True):
         """
         TODO
         """
-        
         query = ("SELECT DISTINCT postcard_url, product_url,  observation_id,  instrument,  "
         + "filter,  ra_deg as ra,  dec_deg as dec, start_time,  duration FROM mv_hsa_esasky_photo_table_fdw "
         + "WHERE observation_id='%i'"%obsid)
@@ -191,7 +247,7 @@ class ESASkyClass(BaseQuery):
     # similarly we write a query_region_async method that makes the
     # actual HTTP request and returns the HTTP response
 
-    def query_region_obs(self, coordinates, radius = 0 *u.arcmin, mission=None,
+    def query_region_obs(self, coordinates, radius = 0 *u.arcmin,
                            get_query_payload=False, cache=True, verbose=True):
         """
         Queries a region around the specified coordinates.
@@ -214,9 +270,7 @@ class ESASkyClass(BaseQuery):
             All async methods should return the raw HTTP response.
         """
 
-        if (mission == None):
-            raise ValueError("Mission must be provided. Use .get_missions() method to get a listing of the available missions.")
-        request_payload = self._args_to_payload(coordinates=coordinates, radius=radius, mission=mission)
+        request_payload = self._args_to_payload(position=coordinates, radius=radius, table_name='mv_hsa_esasky_photo_table_fdw')
         if get_query_payload:
             return request_payload
         
@@ -225,23 +279,28 @@ class ESASkyClass(BaseQuery):
     def _fetch_and_parse_json(self, object_name):
         url = self.URLbase + "/" + object_name
         with urllib.request.urlopen(url) as response:
-            decoded_response = response.read().decode('utf-8')
-        deserialized_response = json.loads(decoded_response)
-        desired_object = deserialized_response[object_name]
+            string_response = response.read().decode('utf-8')
+        json_response = json.loads(string_response)
+        return json_response[object_name]
+    
+    def _json_object_to_list(self, json, field_name):
         response_list = []
-        for i in range(len(desired_object)):
-            response_list.append(desired_object[i]["tapTable"])
+        for i in range(len(json)):
+            response_list.append(json[i][field_name])
         return response_list
     
-    def _fetch_and_parse_from_tap(self, request_payload, cache, verbose):
-        URL = self.URLbase + "/tap/sync"
-        # BaseQuery classes come with a _request method that includes a
-        # built-in caching system
-        response = self._request('GET', URL, params=request_payload,
-                                 timeout=self.TIMEOUT, cache=cache)
-        result = self._parse_result(response, verbose=verbose)
-        return result
+    def _fetch_and_parse_from_tap(self, request_payload, cache = True, verbose = True):
+        response = self._fetch("/tap/sync", request_payload, cache, verbose)
+        return self._parse_xml_table(response, verbose=verbose)
     
+    def _fetch(self, url_extension, request_payload, cache, verbose):
+        URL = self.URLbase + url_extension
+     
+        # BaseQuery classes come with a _request method that includes a
+        # built-in caching system   
+        return self._request('GET', URL, params=request_payload,
+                                 timeout=self.TIMEOUT, cache=cache)
+        
     def _create_request_payload(self, query):
         return {'REQUEST':'doQuery', 'LANG':'ADQL', 'FORMAT': 'VOTABLE', 'QUERY': query}
     
@@ -249,34 +308,30 @@ class ESASkyClass(BaseQuery):
     # to create the dict of HTTP request parameters by parsing the user
     # entered values. For cleaner code keep this as a separate private method:
 
-    def _args_to_payload(self, coordinates = None, radius = 0 *u.arcmin, mission=None):
-        if (mission == None):
-            raise ValueError("Mission cannot be None")
-        coordinates = commons.parse_coordinates(coordinates)
+    def _args_to_payload(self, position = None, radius = 0 *u.arcmin, table_name=None):
+        coordinates = commons.parse_coordinates(position)
         raHours, dec = commons.coord_to_radec(coordinates) # note, RA is in hours 
         ra = raHours* 15.0 # it's need it in degrees
         #
         radiusDeg = commons.radius_to_unit(radius,unit='deg')
         #
-        table = 'mv_hsa_esasky_photo_table_fdw'
         query = ("SELECT DISTINCT postcard_url, product_url,  observation_id,  instrument,  "
-        + "filter,  ra_deg as ra,  dec_deg as dec, start_time,  duration FROM  %s "%table)
+        + "filter,  ra_deg as ra,  dec_deg as dec, start_time,  duration FROM  %s "%table_name)
         if (radiusDeg == 0):
-            query += "WHERE 1=CONTAINS(POINT('ICRS',%f,%f),%s.fov) ORDER BY observation_id;"%(ra,dec,table)
+            query += "WHERE 1=CONTAINS(POINT('ICRS',%f,%f),%s.fov) ORDER BY observation_id;"%(ra,dec,table_name)
         else:
-            query += "WHERE 1=INTERSECTS(%s.fov,CIRCLE('ICRS',%f,%f,%f)) ORDER BY observation_id;"%(table,ra,dec,radiusDeg)        
-        request_payload = {'REQUEST':'doQuery', 'LANG':'ADQL', 'FORMAT': 'VOTABLE', 'QUERY': query}
-        
+            query += "WHERE 1=INTERSECTS(%s.fov,CIRCLE('ICRS',%f,%f,%f)) ORDER BY observation_id;"%(table_name,ra,dec,radiusDeg)        
+                
         # code to parse input and construct the dict
         # goes here. Then return the dict to the caller
         
-        return request_payload
+        return self._create_request_payload(query)
 
-    # the methods above call the private _parse_result method.
+    # the methods above call the private _parse_xml_table method.
     # This should parse the raw HTTP response and return it as
     # an `astropy.table.Table`. Below is the skeleton:
 
-    def _parse_result(self, response, verbose=False):
+    def _parse_xml_table(self, response, verbose=False):
         # if verbose is False then suppress any VOTable related warnings
         if not verbose:
             commons.suppress_vo_warnings()
@@ -284,7 +339,8 @@ class ESASkyClass(BaseQuery):
         # return the raw result with an informative error message.
         try:
             tf = six.BytesIO(response.content)
-            first_table = votable.parse(tf, pedantic=False).get_first_table()
+            vo_table = votable.parse(tf, pedantic=False)
+            first_table = vo_table.get_first_table()
             table = first_table.to_table(use_names_over_ids=True)
             return table
         except Exception as ex:
@@ -294,8 +350,29 @@ class ESASkyClass(BaseQuery):
                 "Failed to parse ESASky VOTABLE result! The raw response can be "
                 "found in self.response, and the error in "
                 "self.table_parse_error.")
-
         return Table()
+  
+  
+    #TODO Make dynamic like catalogs
+    def _get_observation_tap_name(self, mission_name):
+        return {
+            'INTEGRAL': 'integral_data',
+            'XMM-EPIC': 'xmm_data',
+            'XMM-OM-OPTICAL': 'xmm_om_optical_data',
+            'XMM-OM-UV': 'xmm_om_uv_data',
+            'SUZAKU': 'suzaku_data',
+            'HST': 'mv_hst_observation_fdw',
+            'Herschel': 'mv_hsa_esasky_photo_table_fdw',
+            'ISO': 'ida_data',
+        }[mission_name]
+        
+    def _get_catalog_tap_name(self, mission_name):
+        
+        json = self._fetch_and_parse_json("catalogs")
+        
+        for i in range(len(json)):
+            if (json[i]["mission"] == mission_name):
+                return json[i]["tapTable"]
 
     # Image queries do not use the async_to_sync approach: the "synchronous"
     # version must be defined explicitly.  The example below therefore presents
@@ -383,7 +460,7 @@ class ESASkyClass(BaseQuery):
         # 4. Pass this response to the extract_image_urls
         #    which scrapes it to extract the image download links.
         # 5. Return the download links as a list.
-        request_payload = self._args_to_payload(coordinates, radius)
+        request_payload = self._args_to_payload(coordinates, radius, table_name='mv_hsa_esasky_photo_table_fdw')
         if get_query_payload:
             return request_payload
         response = commons.send_request(self.URL,
