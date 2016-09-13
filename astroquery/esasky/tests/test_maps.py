@@ -7,7 +7,6 @@ dec = 69.0 * u.degree
 coordinates = SkyCoord(ra, dec, frame='icrs', unit='deg')
 
 esasky = ESASky()
-print(esasky.query_region_catalogs(coordinates, 1*u.arcmin, "all"))
-print(esasky.query_region_catalogs(coordinates, 1*u.arcmin, "XMM-SLEW"))
-print(esasky.query_region_catalogs("m81", 1*u.arcmin, "INTEGRAL"))
-
+print(esasky.query_region_maps("m51", 1*u.arcmin, "all"))
+print(esasky.query_region_maps(coordinates, 1*u.arcmin, "all"))
+print(esasky.query_region_maps("m51", 1*u.arcmin, "INTEGRAL"))

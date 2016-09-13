@@ -54,14 +54,7 @@ class ESASkyClass(BaseQuery):
     #URL = "ammidev.n1data.lan:8080/esasky-tap/tap/sync"
     URLbase = conf.urlBase
     TIMEOUT = conf.timeout
-        
-    def get_esasky_catalog_tap_list(self):
-        """
-        Get the list available TAP catalogs in ESASky
-        """
-        json = self._fetch_and_parse_json("catalogs")
-        return self._json_object_to_list(json, "tapTable")
-     
+           
     def get_catalogs(self):
         """
         Get the available TAP catalogs in ESASky
@@ -72,16 +65,34 @@ class ESASkyClass(BaseQuery):
         """
         Get the available mission catalogs in ESASky
         """
-        json = self._fetch_and_parse_json("catalogs")
-        return self._json_object_to_list(json, "mission")    
-
-    def get_esasky_obs_list(self):
+        return self._json_object_to_list(self.get_catalogs(), "mission")    
+    
+    def get_esasky_catalog_tap_list(self):
+        """
+        Get the list available TAP catalogs in ESASky
+        """
+        return self._json_object_to_list(self.get_catalogs(), "tapTable")
+    
+    def get_observations(self):
+        return self._fetch_and_parse_json("observations")
+    
+    def get_observation_mission_list(self):
         """
         Get the available TAP observations in ESASky
         """
-        json = self._fetch_and_parse_json("observations")
-        return self._json_object_to_list(json, "tapTable")
+        return self._json_object_to_list(self.get_observations(), "mission")
 
+    def query_region_maps(self, position, radius, mission_name):
+        coordinates = commons.parse_coordinates(position)
+        dictionary = {}
+        if(mission_name == 'all'):
+            mission_name_list = self.get_observation_mission_list()
+            for mission_name in mission_name_list:
+                dictionary[mission_name] = self._query_region_observation(coordinates, radius, mission_name)
+        else:
+            dictionary[mission_name] = self._query_region_observation(coordinates, radius, mission_name)
+            
+        return dictionary        
     
     def query_object_obs(self, object_name, observation=None, get_query_payload=False,
                            cache=True, verbose=True):
@@ -148,33 +159,69 @@ class ESASkyClass(BaseQuery):
     
     def _query_region_catalog(self, coordinates, radius, catalog_name):
         catalog_tap_name = self._get_catalog_tap_name(catalog_name)
-        query = self._build_catalog_query(coordinates, radius, catalog_tap_name)
+        query = self._build_catalog_query(coordinates, radius, self._find_catalog_parameters(catalog_tap_name))
         request_payload = self._create_request_payload(query)
         return self._fetch_and_parse_from_tap(request_payload)
-            
-    def _build_catalog_query(self, coordinates,radius, catalog_name):
-        catalog = self._find_catalog(catalog_name)
+    
+    def _query_region_observation(self, coordinates, radius, observation_name):
+        observation_tap_name = self._get_observation_tap_name(observation_name)
+        query = self._build_observation_query(coordinates, radius, self._find_observation_parameters(observation_tap_name))
+        request_payload = self._create_request_payload(query)
+        return self._fetch_and_parse_from_tap(request_payload)
+    
+    def _build_observation_query(self, coordinates, radius, json):
 
         raHours, dec = commons.coord_to_radec(coordinates) # note, RA is in hours 
-        ra = raHours* 15.0 # it's need it in degrees
+        ra = raHours * 15.0 # it's need it in degrees
         radiusDeg = commons.radius_to_unit(radius,unit='deg')
         
-        query = ("SELECT TOP %s %s as name, " %(catalog["sourceLimit"], catalog["polygonNameTapColumn"])
-            + "%s as ra, %s as dec " %(catalog["polygonRaTapColumn"], catalog["polygonDecTapColumn"])
-            + "FROM %s " %catalog["tapTable"])
-        if (radiusDeg == 0):
-            query += "WHERE 1=CONTAINS(%s, POINT('ICRS',%f,%f)) "%(catalog["posTapColumn"], ra, dec)
+        query_part1 = "SELECT DISTINCT postcard_url,  product_url,  observation_id, ra_deg, dec_deg, "
+        if (json["isSurveyMission"]):
+            query_part2 = "tstart_iso, telapse "
+            query_part4 = "WHERE 1=CONTAINS(pos, "
         else:
-            query += "WHERE 1=CONTAINS(%s, CIRCLE('ICRS', %f, %f, %f)) "%(catalog["posTapColumn"], ra, dec, radiusDeg)  
+            query_part2 = "stc_s "
+            query_part4 = "WHERE 1=CONTAINS(fov, "
             
-        query += "ORDER BY %s;" %catalog["orderBy"]
+        query_part3 = "FROM %s " %json["tapTable"]
+        
+        if (radiusDeg == 0):
+            query_part5 = "POINT('ICRS', %f, %f));" %(ra, dec) 
+        else:
+            query_part5 = "CIRCLE('ICRS', %f, %F, %f));" %(ra, dec, radiusDeg) 
+        
+        query = query_part1 + query_part2 + query_part3 + query_part4 + query_part5
+        return query  
+               
+    def _build_catalog_query(self, coordinates, radius, json):
+
+        raHours, dec = commons.coord_to_radec(coordinates) # note, RA is in hours 
+        ra = raHours * 15.0 # it's need it in degrees
+        radiusDeg = commons.radius_to_unit(radius,unit='deg')
+        
+        query = ("SELECT TOP %s %s as name, " %(json["sourceLimit"], json["polygonNameTapColumn"])
+            + "%s as ra, %s as dec " %(json["polygonRaTapColumn"], json["polygonDecTapColumn"])
+            + "FROM %s " %json["tapTable"])
+        if (radiusDeg == 0):
+            query += "WHERE 1=CONTAINS(%s, POINT('ICRS',%f,%f)) "%(json["posTapColumn"], ra, dec)
+        else:
+            query += "WHERE 1=CONTAINS(%s, CIRCLE('ICRS', %f, %f, %f)) "%(json["posTapColumn"], ra, dec, radiusDeg)  
+            
+        query += "ORDER BY %s;" %json["orderBy"]
         return query            
             
-    def _find_catalog(self, catalog_name):
-        catalogs = self.get_catalogs()
-        for catalog in catalogs:
-            if (catalog["tapTable"] == catalog_name):
-                return catalog
+    def _find_catalog_parameters(self, catalog_name):
+        return self._find_mission_parameters(catalog_name, self.get_catalogs())
+    
+    def _find_observation_parameters(self, mission_name):
+        return self._find_mission_parameters(mission_name, self.get_observations())
+    
+    def _find_mission_parameters(self, tap_name, json):
+        for mission in json:
+            if (mission["tapTable"] == tap_name):
+                return mission
+        raise ValueError("Input tap name %s not available." %tap_name)
+        return None
     
     def query_herschel_observations(self, obsid, get_query_payload=False, cache=True, verbose=True):
         """
@@ -352,28 +399,22 @@ class ESASkyClass(BaseQuery):
                 "self.table_parse_error.")
         return Table()
   
-  
-    #TODO Make dynamic like catalogs
     def _get_observation_tap_name(self, mission_name):
-        return {
-            'INTEGRAL': 'integral_data',
-            'XMM-EPIC': 'xmm_data',
-            'XMM-OM-OPTICAL': 'xmm_om_optical_data',
-            'XMM-OM-UV': 'xmm_om_uv_data',
-            'SUZAKU': 'suzaku_data',
-            'HST': 'mv_hst_observation_fdw',
-            'Herschel': 'mv_hsa_esasky_photo_table_fdw',
-            'ISO': 'ida_data',
-        }[mission_name]
-        
+        return self._get_tap_name(self._fetch_and_parse_json("observations"), mission_name)
+
     def _get_catalog_tap_name(self, mission_name):
-        
-        json = self._fetch_and_parse_json("catalogs")
-        
+        return self._get_tap_name(self._fetch_and_parse_json("catalogs"), mission_name)
+
+    
+    def _get_tap_name(self, json, mission_name):
         for i in range(len(json)):
             if (json[i]["mission"] == mission_name):
                 return json[i]["tapTable"]
-
+        
+        raise ValueError("Input catalog %s not available." %mission_name)
+        return None
+    
+    
     # Image queries do not use the async_to_sync approach: the "synchronous"
     # version must be defined explicitly.  The example below therefore presents
     # a complete example of how to write your own synchronous query tools if
