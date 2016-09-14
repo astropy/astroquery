@@ -355,7 +355,7 @@ class SplatalogueClass(BaseQuery):
 
     @prepend_docstr_noreturns("\n" + _parse_kwargs.__doc__)
     def query_lines_async(self, min_frequency=None, max_frequency=None,
-                          **kwargs):
+                          cache=True, **kwargs):
         """
 
         Returns
@@ -385,10 +385,11 @@ class SplatalogueClass(BaseQuery):
         if get_query_payload:
             return data_payload
 
-        response = commons.send_request(
-            self.QUERY_URL,
-            data_payload,
-            self.TIMEOUT)
+        response = self._request(method='POST',
+                                 url=self.QUERY_URL,
+                                 data=data_payload,
+                                 timeout=self.TIMEOUT,
+                                 cache=cache)
 
         self.response = response
 
