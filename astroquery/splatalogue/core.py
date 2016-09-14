@@ -9,7 +9,7 @@ import warnings
 from astropy.io import ascii
 from astropy import units as u
 from ..query import BaseQuery
-from ..utils import commons, async_to_sync
+from ..utils import async_to_sync
 from ..utils.docstr_chompers import prepend_docstr_noreturns
 from . import conf
 from . import load_species_table
