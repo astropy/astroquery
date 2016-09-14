@@ -63,6 +63,7 @@ class SplatalogueClass(BaseQuery):
         default keyword arguments (see `query_lines`) can be overridden
         here.
         """
+        super(SplatalogueClass, self).__init__()
         self.data = self._default_kwargs()
         self.set_default_options(**kwargs)
 
