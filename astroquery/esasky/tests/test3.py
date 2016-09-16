@@ -5,9 +5,9 @@ from astropy.coordinates import SkyCoord
 import astropy.units as u
 
 ea = ESASky()
-esaskyMaps = ea.get_esasky_obs_list()
+esaskyMaps = ea.get_observation_mission_list()
 print (esaskyMaps)
-esaskyCats = ea.get_esasky_catalog_tap_list()
+esaskyCats = ea.get_catalog_tap_list()
 print (esaskyCats)
 #
 #
@@ -29,10 +29,10 @@ print ("Now searching for Herschel observation %i"%obsid)
 output = ea.query_herschel_observations(obsid, get_query_payload=False)
 #
 maps = ea.get_herschel_default_maps(output, instrument='SPIRE')
-#
-#targetName = maps['250'][0].header['OBJECT']
-#plt.imshow(maps['250']['image'].data)
-#plt.title(targetName)
-#plt.show()
-#
+
+targetName = maps['250'][0].header['OBJECT']
+plt.imshow(maps['250']['image'].data)
+plt.title(targetName)
+plt.show()
+
 

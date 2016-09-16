@@ -1,28 +1,27 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
-#from __future__ import print_function
 
 # put all imports organized as shown below
 # 1. standard library imports
+import urllib.request
+import gzip
+import json
+import os
+import tempfile
+import tarfile
+import sys
 
 # 2. third party imports
 import astropy.units as u
 from astropy.extern import six
-import astropy.coordinates as coord
 import astropy.io.votable as votable
+from astropy.utils.data import download_file
 from astropy.table import Table
 from astropy.io import fits
-import urllib.request
-#import xml.etree.ElementTree as ET
-import json
-#from pprint import pprint
-import os
-import tempfile
-import tarfile
-
 
 # 3. local imports - use relative imports
+
 # commonly required local imports shown below as example
 # all Query classes should inherit from BaseQuery.
 from ..query import BaseQuery
@@ -34,7 +33,7 @@ from ..utils import prepend_docstr_noreturns
 from ..utils import async_to_sync
 # import configurable items declared in __init__.py
 from . import conf
-from ..exceptions import TableParseError, RemoteServiceError
+from ..exceptions import TableParseError
 
 # declare global variables and constants if any
 
@@ -51,23 +50,26 @@ class ESASkyClass(BaseQuery):
     """
     # use the Configuration Items imported from __init__.py to set the URL,
     # TIMEOUT, etc.
-    #URL = "ammidev.n1data.lan:8080/esasky-tap/tap/sync"
     URLbase = conf.urlBase
     TIMEOUT = conf.timeout
-           
+    
+    __FITS_STRING = ".fits"
+    __FTZ_STRING = ".FTZ"
+    __TAR_STRING = ".tar"
+
     def get_catalogs(self):
         """
         Get the available TAP catalogs in ESASky
         """
         return self._fetch_and_parse_json("catalogs")
     
-    def get_esasky_catalog_mission_list(self):
+    def get_catalog_mission_list(self):
         """
         Get the available mission catalogs in ESASky
         """
         return self._json_object_to_list(self.get_catalogs(), "mission")    
     
-    def get_esasky_catalog_tap_list(self):
+    def get_catalog_tap_list(self):
         """
         Get the list available TAP catalogs in ESASky
         """
@@ -82,15 +84,15 @@ class ESASkyClass(BaseQuery):
         """
         return self._json_object_to_list(self.get_observations(), "mission")
 
-    def query_region_maps(self, position, radius, mission_name):
+    def query_region_maps(self, position, radius, mission_name = "all"):
         coordinates = commons.parse_coordinates(position)
         dictionary = {}
-        if(mission_name == 'all'):
+        if(mission_name.lower() == 'all'):
             mission_name_list = self.get_observation_mission_list()
             for mission_name in mission_name_list:
                 dictionary[mission_name] = self._query_region_observation(coordinates, radius, mission_name)
         else:
-            dictionary[mission_name] = self._query_region_observation(coordinates, radius, mission_name)
+            dictionary[mission_name.upper()] = self._query_region_observation(coordinates, radius, mission_name)
             
         return dictionary        
     
@@ -145,17 +147,127 @@ class ESASkyClass(BaseQuery):
 
         return self._fetch_and_parse_from_tap(request_payload, cache, verbose)
      
-    def query_region_catalogs(self, position, radius, catalog_name):
+    def query_region_catalogs(self, position, radius, catalog_name = "all"):
         coordinates = commons.parse_coordinates(position)
         dictionary = {}
         if(catalog_name == 'all'):
-            catalogs = self.get_esasky_catalog_mission_list()
+            catalogs = self.get_catalog_mission_list()
             for catalog in catalogs:
                 dictionary[catalog] = self._query_region_catalog(coordinates, radius, catalog)
         else:
             dictionary[catalog_name] = self._query_region_catalog(coordinates, radius, catalog_name)
             
         return dictionary
+    
+    def get_maps(self, mission_table, verbose = True):
+        maps = dict()
+        for mission in mission_table:
+            maps[mission] = self._get_maps_mission(mission_table[mission], mission)
+        
+        print("Observations available at %s" %os.path.abspath("Observations"))
+        return maps
+  
+    def _get_maps_mission(self, maps_table, mission):
+        maps = dict()
+        
+        #HST dev server down
+        if(mission == "HST"):
+            return maps
+        #INTEGRAL does not have a product url yet.
+        if(mission == "INTEGRAL"):
+            return maps
+        
+        if(len(maps_table["product_url"]) > 0):
+            mission_directory = self._create_directory(mission)    
+            print("Starting download of %s data." %mission)
+            for product_url_in_bytes in maps_table["product_url"]:
+                directory_path = mission_directory + "/"
+                product_url = product_url_in_bytes.decode('utf-8')
+                print("Downloading from " + product_url, end=" ")
+                sys.stdout.flush()
+                if(mission == "HERSCHEL"):
+                    herschel_data = self._get_herschel_map(product_url, directory_path)
+                    
+                else:
+                    with urllib.request.urlopen(product_url) as response:
+                        file_name = ""
+                        if(product_url.endswith(self.__FITS_STRING)):
+                            file_name = directory_path + self._get_file_name_from_url(product_url)
+                        else:
+                            file_name = directory_path + self._get_file_name_from_response(response)
+                        
+                        fits_data = response.read()
+                        with open(file_name, 'wb') as fits_file:
+                            fits_file.write(fits_data)
+                            fits_file.close()
+                            maps[file_name] = fits.open(file_name)
+                
+                print("[Done]")
+            print("Downloading of %s data complete." %mission)
+        
+        return maps
+    
+    def _get_herschel_map(self, product_url, directory_path, instrument = "both", verbose = True):
+        fitsOut = dict()            
+        tar_file = tempfile.NamedTemporaryFile()
+        with urllib.request.urlopen(product_url) as response:
+            tar_file.write(response.read())    
+        with tarfile.open(tar_file.name,'r') as tar:
+            for member in tar.getmembers():
+                member_name = member.name.lower()
+                if ('hspire' in member_name or 'hpacs' in member_name):
+                    tar.extract(member, path = directory_path)
+                    if ('hspireplw' in member_name):
+                        array = '500'
+                    elif ('hspirepmw' in member_name):
+                        array = '350'
+                    elif ('hspirepsw' in member_name):
+                        array = '250'
+                    elif ('hppjsmapb' in member_name):
+                        array = 'blue'
+                    elif ('hppjsmapr' in member_name):
+                        array = 'red'
+                    else:
+                        array = 'unknown'
+                    fitsOut[array] = fits.open(directory_path + member.name)
+        return fitsOut
+    
+    def _create_directory(self, mission):
+        maps_directory = "Maps"
+        mission_directory = maps_directory + "/" + mission
+        if not os.path.exists(mission_directory):
+            os.makedirs(mission_directory)
+        return mission_directory
+        
+    def _decompress_map_data(self, file, telescope_name):
+        telescope_name = telescope_name.lower()
+        if(telescope_name == "hst"):
+            file = gzip.decompress(file)
+        return file
+    
+    def _get_file_name_from_response(self, response):
+        content_disposition = response.headers.get('Content-Disposition')
+        filename_string = "filename="
+        start_index = content_disposition.index(filename_string) + len(filename_string)
+        if (content_disposition[start_index] == "\""):
+            start_index += 1
+       
+        if (self.__FITS_STRING in content_disposition[start_index : ]):
+            end_index = content_disposition.index(self.__FITS_STRING, start_index + 1) + len(self.__FITS_STRING)
+            return content_disposition[start_index : end_index]
+        elif (self.__FTZ_STRING in content_disposition[start_index : ]):
+            end_index = content_disposition.index(self.__FTZ_STRING, start_index + 1) + len(self.__FTZ_STRING)
+            return content_disposition[start_index : end_index]
+        elif (self.__TAR_STRING in content_disposition[start_index : ]):
+            end_index = content_disposition.index(self.__TAR_STRING, start_index + 1) + len(self.__TAR_STRING)
+            return content_disposition[start_index : end_index]
+        else:
+            raise ValueError("Could not find file name in header. Content disposition: %s." %content_disposition)
+            return None
+    
+    def _get_file_name_from_url(self, product_url):
+        start_index = product_url.rindex("/") + 1
+        return product_url[start_index:]
     
     def _query_region_catalog(self, coordinates, radius, catalog_name):
         catalog_tap_name = self._get_catalog_tap_name(catalog_name)
@@ -408,10 +520,10 @@ class ESASkyClass(BaseQuery):
     
     def _get_tap_name(self, json, mission_name):
         for i in range(len(json)):
-            if (json[i]["mission"] == mission_name):
+            if (json[i]["mission"].lower() == mission_name.lower()):
                 return json[i]["tapTable"]
         
-        raise ValueError("Input catalog %s not available." %mission_name)
+        raise ValueError("Input %s not available." %mission_name)
         return None
     
     
