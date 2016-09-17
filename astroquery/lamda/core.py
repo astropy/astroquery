@@ -228,7 +228,6 @@ def parse_lamda_lines(data):
             continue
         if 'ncoll' not in meta_coll:
             meta_coll['ncoll'] = int(_cln(line))
-            ncollrates = {ii: 0 for ii in range(1, meta_coll['ncoll'] + 1)}
             collrates = {}
             continue
         if collider is None:
