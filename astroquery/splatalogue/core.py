@@ -17,7 +17,7 @@ from . import load_species_table
 __all__ = ['Splatalogue', 'SplatalogueClass']
 
 # example query of SPLATALOGUE directly:
-# http://www.cv.nrao.edu/php/splat/c.php?sid%5B%5D=64&sid%5B%5D=108&calcIn=&data_version=v2.0&from=&to=&frequency_units=MHz&energy_range_from=&energy_range_to=&lill=on&tran=&submit=Search&no_atmospheric=no_atmospheric&no_potential=no_potential&no_probable=no_probable&include_only_nrao=include_only_nrao&displayLovas=displayLovas&displaySLAIM=displaySLAIM&displayJPL=displayJPL&displayCDMS=displayCDMS&displayToyaMA=displayToyaMA&displayOSU=displayOSU&displayRecomb=displayRecomb&displayLisa=displayLisa&displayRFI=displayRFI&ls1=ls1&ls5=ls5&el1=el1
+# http://www.cv.nrao.edu/php/splat/c.php?sid%5B%5D=64&sid%5B%5D=108&calcIn=&data_version=v3.0&from=&to=&frequency_units=MHz&energy_range_from=&energy_range_to=&lill=on&tran=&submit=Search&no_atmospheric=no_atmospheric&no_potential=no_potential&no_probable=no_probable&include_only_nrao=include_only_nrao&displayLovas=displayLovas&displaySLAIM=displaySLAIM&displayJPL=displayJPL&displayCDMS=displayCDMS&displayToyaMA=displayToyaMA&displayOSU=displayOSU&displayRecomb=displayRecomb&displayLisa=displayLisa&displayRFI=displayRFI&ls1=ls1&ls5=ls5&el1=el1
 
 
 @async_to_sync
@@ -27,7 +27,7 @@ class SplatalogueClass(BaseQuery):
     QUERY_URL = conf.query_url
     TIMEOUT = conf.timeout
     LINES_LIMIT = conf.lines_limit
-    versions = ('v1.0', 'v2.0', 'vall')
+    versions = ('v1.0', 'v2.0', 'v3.0', 'vall')
     # global constant, not user-configurable
     ALL_LINE_LISTS = ('Lovas', 'SLAIM', 'JPL', 'CDMS', 'ToyoMA', 'OSU',
                       'Recomb', 'Lisa', 'RFI')
@@ -105,7 +105,7 @@ class SplatalogueClass(BaseQuery):
                       line_strengths=('ls1', 'ls3', 'ls4', 'ls5'),
                       energy_levels=('el1', 'el2', 'el3', 'el4'),
                       exclude=('potential', 'atmospheric', 'probable'),
-                      version='v2.0',
+                      version='v3.0',
                       only_NRAO_recommended=None,
                       export=True,
                       export_limit=self.LINES_LIMIT,
@@ -179,7 +179,7 @@ class SplatalogueClass(BaseQuery):
             The type of intensity on which to place a lower limit
         transition : str
             e.g. 1-0
-        version : ``'v1.0'`` or ``'v2.0'`` or ``'vall'``
+        version : ``'v1.0'``, ``'v2.0'``, ``'v3.0'`` or ``'vall'``
             Data version
         exclude : list
             Types of lines to exclude.  Default is:
