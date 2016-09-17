@@ -27,11 +27,11 @@ env:
         - MAIN_CMD='python setup.py'
         - NUMPY_VERSION=stable
         - ASTROPY_VERSION=stable
-        - CONDA_DEPENDENCIES='requests beautifulsoup4 matplotlib html5lib keyring aplpy pyregion'
+        - CONDA_DEPENDENCIES='requests beautifulsoup4 matplotlib html5lib keyring aplpy pyregion qt=4'
         - PIP_DEPENDENCIES=''
         - SETUP_CMD='test'
         - CONDA_CHANNELS='astropy-ci-extras astropy'
-        - CONDA_DEPENDENCIES_OLD='requests beautiful-soup matplotlib html5lib'
+        - CONDA_DEPENDENCIES_OLD='requests beautiful-soup matplotlib html5lib qt=4'
         - PIP_DEPENDENCIES_OLD='pyregion aplpy keyring'
 
     matrix:
