@@ -7,7 +7,7 @@ from astropy.table import Table
 
 from . import conf
 from ..query import BaseQuery
-from ..utils import (commons, url_helpers,
+from ..utils import (url_helpers,
                      prepend_docstr_noreturns, async_to_sync,
                      )
 
@@ -17,8 +17,8 @@ class XMatchClass(BaseQuery):
     URL = conf.url
     TIMEOUT = conf.timeout
 
-    def query(self, cat1, cat2, max_distance, colRA1=None,
-              colDec1=None, colRA2=None, colDec2=None):
+    def query(self, cat1, cat2, max_distance, colRA1=None, colDec1=None,
+              colRA2=None, colDec2=None, cache=True):
         """
         Query the `CDS cross-match service
         <http://cdsxmatch.u-strasbg.fr/xmatch>`_ by finding matches between
@@ -57,14 +57,13 @@ class XMatchClass(BaseQuery):
         table : `~astropy.table.Table`
             Query results table
         """
-        response = self.query_async(
-            cat1, cat2, max_distance, colRA1, colDec1, colRA2, colDec2)
+        response = self.query_async(cat1, cat2, max_distance, colRA1, colDec1,
+                                    colRA2, colDec2, cache=cache)
         return ascii.read(response.text, format='csv')
 
     @prepend_docstr_noreturns("\n" + query.__doc__)
-    def query_async(
-            self, cat1, cat2, max_distance, colRA1=None,
-            colDec1=None, colRA2=None, colDec2=None):
+    def query_async(self, cat1, cat2, max_distance, colRA1=None, colDec1=None,
+                    colRA2=None, colDec2=None, cache=True):
         """
         Returns
         -------
@@ -84,8 +83,8 @@ class XMatchClass(BaseQuery):
         self._prepare_sending_table(1, payload, kwargs, cat1, colRA1, colDec1)
         self._prepare_sending_table(2, payload, kwargs, cat2, colRA2, colDec2)
 
-        response = commons.send_request(
-            self.URL, payload, self.TIMEOUT, **kwargs)
+        response = self._request(method='POST', url=self.URL, data=payload,
+                                 timeout=self.TIMEOUT, cache=cache, **kwargs)
         return response
 
     def _prepare_sending_table(self, i, payload, kwargs, cat, colRA, colDec):
@@ -125,7 +124,7 @@ class XMatchClass(BaseQuery):
             table_id = table_id[7:]
         return table_id in self.get_available_tables()
 
-    def get_available_tables(self):
+    def get_available_tables(self, cache=True):
         """Get the list of the VizieR tables which are available in the
         xMatch service and return them as a list of strings.
 
@@ -133,7 +132,9 @@ class XMatchClass(BaseQuery):
         response = self._request(
             'GET',
             url_helpers.urljoin_keep_path(self.URL, 'tables'),
-            {'action': 'getVizieRTableNames', 'RESPONSEFORMAT': 'txt'})
+            {'action': 'getVizieRTableNames', 'RESPONSEFORMAT': 'txt'},
+            cache=cache,
+        )
 
         content = response.text
 
