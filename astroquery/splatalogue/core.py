@@ -9,7 +9,7 @@ import warnings
 from astropy.io import ascii
 from astropy import units as u
 from ..query import BaseQuery
-from ..utils import commons, async_to_sync
+from ..utils import async_to_sync
 from ..utils.docstr_chompers import prepend_docstr_noreturns
 from . import conf
 from . import load_species_table
@@ -63,6 +63,7 @@ class SplatalogueClass(BaseQuery):
         default keyword arguments (see `query_lines`) can be overridden
         here.
         """
+        super(SplatalogueClass, self).__init__()
         self.data = self._default_kwargs()
         self.set_default_options(**kwargs)
 
@@ -355,7 +356,7 @@ class SplatalogueClass(BaseQuery):
 
     @prepend_docstr_noreturns("\n" + _parse_kwargs.__doc__)
     def query_lines_async(self, min_frequency=None, max_frequency=None,
-                          **kwargs):
+                          cache=True, **kwargs):
         """
 
         Returns
@@ -385,10 +386,11 @@ class SplatalogueClass(BaseQuery):
         if get_query_payload:
             return data_payload
 
-        response = commons.send_request(
-            self.QUERY_URL,
-            data_payload,
-            self.TIMEOUT)
+        response = self._request(method='POST',
+                                 url=self.QUERY_URL,
+                                 data=data_payload,
+                                 timeout=self.TIMEOUT,
+                                 cache=cache)
 
         self.response = response
 
