@@ -70,7 +70,7 @@ def post_mockreturn(url, data, timeout, **kwargs):
 
 @pytest.mark.parametrize(('radius', 'expected_radius'),
                          [('5d0m0s', '5.0d'),
-                          ('5d', '5d'),
+                          ('5d', '5.0d'),
                           ('5.0d', '5.0d'),
                           (5 * u.deg, '5.0d'),
                           (5.0 * u.deg, '5.0d'),
