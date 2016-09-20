@@ -7,7 +7,7 @@ import astropy.units as u
 ea = ESASky()
 esaskyMaps = ea.get_observation_mission_list()
 print (esaskyMaps)
-esaskyCats = ea.get_catalog_tap_list()
+esaskyCats = ea._get_catalog_tap_table_list()
 print (esaskyCats)
 #
 #
