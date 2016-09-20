@@ -811,13 +811,11 @@ def _parse_radius(radius):
             index = 2  # use arcseconds when radius smaller than 1 arcsecond
         unit = ('d', 'm', 's')[index]
         if unit == 'd':
-            return str(int(angle.degree)) + unit
+            return str(angle.degree) + unit
         if unit == 'm':
-            sec_to_min = abs(angle.dms[2]) * u.arcsec.to(u.arcmin)
-            total_min = abs(angle.dms[1]) + sec_to_min
-            return str(total_min) + unit
+            return str(angle.arcmin) + unit
         if unit == 's':
-            return str(abs(angle.dms[2])) + unit
+            return str(angle.arcsec) + unit
     except (coord.errors.UnitsError, AttributeError):
         raise ValueError("Radius specified incorrectly")
 

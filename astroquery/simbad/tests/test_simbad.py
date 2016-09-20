@@ -74,6 +74,7 @@ def post_mockreturn(url, data, timeout, **kwargs):
                           ('5.0d', '5d'),
                           (5 * u.deg, '5d'),
                           (5.0 * u.deg, '5d'),
+                          (1.2 * u.deg, '1.2d'),
                           (0.432 * u.deg, '25.92m'),
                           ('0d1m12s', '1.2m'),
                           (0.003 * u.deg, '10.8s'),
