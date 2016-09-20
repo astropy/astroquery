@@ -69,13 +69,13 @@ def post_mockreturn(url, data, timeout, **kwargs):
 
 
 @pytest.mark.parametrize(('radius', 'expected_radius'),
-                         [('5d0m0s', '5d'),
+                         [('5d0m0s', '5.0d'),
                           ('5d', '5d'),
-                          ('5.0d', '5d'),
-                          (5 * u.deg, '5d'),
-                          (5.0 * u.deg, '5d'),
+                          ('5.0d', '5.0d'),
+                          (5 * u.deg, '5.0d'),
+                          (5.0 * u.deg, '5.0d'),
                           (1.2 * u.deg, '1.2d'),
-                          (0.432 * u.deg, '25.92m'),
+                          (0.5 * u.deg, '30.0m'),
                           ('0d1m12s', '1.2m'),
                           (0.003 * u.deg, '10.8s'),
                           ('0d0m15s', '15.0s')
@@ -136,7 +136,7 @@ votable_fields = ",".join(simbad.core.Simbad.get_votable_fields())
                            ("\nvotable {" + votable_fields + "}\n"
                             "votable open\n"
                             "query coo  5:35:17.3 -80:52:00 "
-                            "radius=5d frame=ICRS equi=2000.0 epoch=J2000 \n"
+                            "radius=5.0d frame=ICRS equi=2000.0 epoch=J2000 \n"
                             "votable close")),
                           (["m [0-9]"], dict(wildcard=True,
                                              caller='query_object_async'),
