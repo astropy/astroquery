@@ -5,7 +5,7 @@ from astropy.coordinates import SkyCoord
 import astropy.units as u
 
 ea = ESASky()
-esaskyMaps = ea.get_observation_mission_list()
+esaskyMaps = ea.get_map_mission_list()
 print (esaskyMaps)
 esaskyCats = ea._get_catalog_tap_table_list()
 print (esaskyCats)

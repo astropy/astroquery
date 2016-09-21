@@ -1,53 +1,33 @@
-# Licensed under a 3-clause BSD style license - see LICENSE.rst
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+# once your class is done, tests should be written
+# See ./tests for examples on this
 
-# put all imports organized as shown below
-# 1. standard library imports
+# Next you should write the docs in astroquery/docs/module_name
+# using Sphinx.
+
+
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
+
 import urllib.request
 import json
 import os
 import tempfile
 import tarfile
 import sys
-from enum import Enum
 
-# 2. third party imports
-import astropy.units as u
 from astropy.extern import six
 import astropy.io.votable as votable
 from astropy.table import Table
 from astropy.io import fits
 
-# 3. local imports - use relative imports
-
-# commonly required local imports shown below as example
-# all Query classes should inherit from BaseQuery.
 from ..query import BaseQuery
-# has common functions required by most modules
 from ..utils import commons
-# prepend_docstr is a way to copy docstrings between methods
-from ..utils import prepend_docstr_noreturns
-# async_to_sync generates the relevant query tools from _async methods
 from ..utils import async_to_sync
 from . import conf
 from ..exceptions import TableParseError
 
-# declare global variables and constants if any
-
-
-# Now begin your main class
-# should be decorated with the async_to_sync imported previously
 @async_to_sync
 class ESASkyClass(BaseQuery):
 
-    """
-    Not all the methods below are necessary but these cover most of the common
-    cases, new methods may be added if necessary, follow the guidelines at
-    <http://astroquery.readthedocs.io/en/latest/api.html>
-    """
-    # use the Configuration Items imported from __init__.py to set the URL,
-    # TIMEOUT, etc.
     URLbase = conf.urlBase
     TIMEOUT = conf.timeout
     
@@ -74,46 +54,57 @@ class ESASkyClass(BaseQuery):
     __POS_TAP_STRING = "posTapColumn"
     __ORDER_BY_STRING = "orderBy"
     __IS_SURVEY_MISSION_STRING = "isSurveyMission"
-    
-    class _MISSION(Enum):
-        HERSCHEL = 'herschel',
-        HIPPARCOS_2 = 'hipparcos-2'
-        HSC = 'hsc'
-        HST = 'hst'
-        INTEGRAL = 'integral'
-        ISO = 'iso'
-        GAIA_DR1_TGAS = 'gaia dr1 tgas'
-        PLANCK_PCCS2E = 'planck-pccs2e'
-        PLANCK_PCCS2_HFI = 'planck-pccs2-hfi'
-        PLANCK_PCCS2_LFI = 'planck-pccs2-lfi'
-        PLANCK_PGCC2 = 'planck-pgcc2'
-        PLANCK_PSZ = 'planck-psz'
-        SUZAKU = 'suzaku'
-        TYCHO_2 = 'tycho-2'
-        XMM_EPIC = 'xmm-epic'
-        XMM_OM_OPTICAL = 'xmm-om-optical'
-        XMM_OM_UV = 'xmm-om-uv'
-        XMM_SLEW = 'xmm-slew'
+
+    __HERSCHEL_STRING = 'herschel'
+    __HST_STRING = 'hst'
+    __INTEGRAL_STRING = 'integral'
 
     
-    def get_observation_mission_list(self):
+    def get_map_mission_list(self):
         """
         Get a list of the mission names of the available observations in ESASky
         """
         return self._json_object_field_to_list(self._get_observation_json(), self.__MISSION_STRING)
+    
     def get_catalog_mission_list(self):
         """
         Get a list of the mission names of the available catalogs in ESASky
         """
         return self._json_object_field_to_list(self._get_catalogs_json(), self.__MISSION_STRING)    
 
-###################################TODO#################################################
     def query_region_maps(self, position, radius, mission_name = __ALL_STRING):
+        """
+        This method queries a chosen region for all available maps
+        and returns a dictionary with all the found maps metadata for the chosen missions and region.
+
+        Parameters
+        ----------
+        position : str or `astropy.coordinates` object
+            Can either be a string of the location, eg 'M51', or the coordinates of the object.
+        radius : str or `~astropy.units.Quantity`
+            The radius of a region.
+        mission_name : string, optional
+            Can be either a specific mission (all mission names are found in get_mission_list()) 
+            or 'all' to search in all missions. Defaults to 'all'. 
+
+        Returns
+        -------
+        response : `dict`
+            Each mission returns a table with the metadata and observations available for the chosen mission and region.
+            It is structured in a dictionary like this:
+                dict: {'HST': <Table masked=True length=97>, 'HERSCHEL': <Table masked=True length=2>, ...} 
         
+        Examples
+        --------
+        query_region_maps("m101", "14'", "all")
+        
+        import astropy.units as u
+        query_region_maps("265.05, 69.0", 14*u.arcmin, "Herschel")
+        """        
         coordinates = commons.parse_coordinates(position)
         dictionary = {}
         if(mission_name.lower() == self.__ALL_STRING):
-            mission_name_list = self.get_observation_mission_list()
+            mission_name_list = self.get_map_mission_list()
             for mission_name in mission_name_list:
                 dictionary[mission_name] = self._query_region_observation(coordinates, radius, mission_name)
         else:
@@ -122,6 +113,34 @@ class ESASkyClass(BaseQuery):
         return dictionary
      
     def query_region_catalogs(self, position, radius, catalog_name = __ALL_STRING):
+        """
+        This method queries a chosen region for all available catalogs
+        and returns a dictionary with all the found catalogs metadata for the chosen missions and region.
+
+        Parameters
+        ----------
+        position : str or `astropy.coordinates` object
+            Can either be a string of the location, eg 'M51', or the coordinates of the object.
+        radius : str or `~astropy.units.Quantity`
+            The radius of a region.
+        mission_name : string, optional
+            Can be either a specific mission (all mission names are found in get_mission_list()) 
+            or 'all' to search in all missions. Defaults to 'all'. 
+
+        Returns
+        -------
+        response : `dict`
+            Each mission returns a table with the metadata of the catalogs available for the chosen mission and region.
+            It is structured in a dictionary like this:
+                dict: {'HST': <Table masked=True length=97>, 'HERSCHEL': <Table masked=True length=2>, ...} 
+        
+        Examples
+        --------
+        query_region_catalogs("m101", "14'", "all")
+        
+        import astropy.units as u
+        query_region_catalogs("265.05, 69.0", 14*u.arcmin, "Herschel")
+        """    
         coordinates = commons.parse_coordinates(position)
         dictionary = {}
         if(catalog_name.lower() == self.__ALL_STRING):
@@ -133,8 +152,33 @@ class ESASkyClass(BaseQuery):
             
         return dictionary
     
-    #######################################TODO ############################################
-    def get_maps(self, mission_table, verbose = True):
+    def get_maps(self, mission_table):
+        """
+        This method takes the dictionary of missions and metadata as returned by query_region_maps
+        and downloads all maps to the folder /Maps.
+        The method returns a dictionary which is divided by mission and observation id. 
+
+        Parameters
+        ----------
+        mission_table : 
+            A dictionary with all the missions wanted and their respective metadata.
+            Usually the return value of query_region_maps.
+
+        Returns
+        -------
+        response : `dict`
+            Each mission returns dictionary where each observation id has a HDUList. 
+            The exception is Herschel as it has multiple fits files per observation id.
+            For Herschel each observation id got the used filters with their respective HDULists.
+            It is structured in a dictionary like this:
+                dict: {'XMM-EPIC': {'observationID_x': [HDUList], 'observationID_y': [HDUList], ...}, 'HST': {'observationID_z': [HDUList], ...},
+                    'HERSCHEL': {'observationID_a': {'filter_a':[HDUList], filter_b: [HDUList]}, 'observationID_b': {'filter_a':[HDUList], filter_b: [HDUList]}, ... }}
+        
+        Examples
+        --------
+        get_maps(query_region_catalogs("m101", "14'", "all"))
+        
+        """    
         maps = dict()
         for mission in mission_table:
             maps[mission] = self._get_maps_for_mission(mission_table[mission], mission)
@@ -145,12 +189,12 @@ class ESASkyClass(BaseQuery):
     def _get_maps_for_mission(self, maps_table, mission):
         maps = dict()
         
-        ########################################################TEMPORARILY DISABLED HST FOR DEVELOPMENT PURPOSES ###############################################
-        if(mission == self._MISSION.HST):
+        ########################################################TODO: TEMPORARILY DISABLED HST FOR DEVELOPMENT PURPOSES ###############################################
+        if(mission.lower() == self.__HST_STRING):
             return maps
         
         #INTEGRAL does not have a product url yet.
-        if(mission == self._MISSION.INTEGRAL):
+        if(mission.lower() == self.__INTEGRAL_STRING):
             return maps
         
         if(len(maps_table[self.__PRODUCT_URL_STRING]) > 0):
@@ -162,7 +206,7 @@ class ESASkyClass(BaseQuery):
                 print("Downloading Observation ID: %s from %s" %(observation_id, product_url), end=" ")
                 sys.stdout.flush()
                 directory_path = mission_directory + "/"
-                if(mission == self._MISSION.HERSCHEL):
+                if(mission.lower() == self.__HERSCHEL_STRING):
                     herschel_filter = maps_table[self.__FILTER_STRING][index].decode('utf-8').split(",")
                     maps[observation_id] = self._get_herschel_observation(product_url, directory_path, herschel_filter)
                     
@@ -253,7 +297,7 @@ class ESASkyClass(BaseQuery):
     def _build_observation_query(self, coordinates, radius, json):
         raHours, dec = commons.coord_to_radec(coordinates)
         ra = raHours * 15.0 # Converts to degrees
-        radiusDeg = commons.radius_to_unit(radius,unit='deg')
+        radiusDeg = commons.radius_to_unit(radius, unit='deg')
         
         metadata = json[self.__METADATA_STRING]
         filter_tap_name = ""
@@ -381,11 +425,4 @@ class ESASkyClass(BaseQuery):
                 "self.table_parse_error.")
         return Table()
 
-# the default tool for users to interact with is an instance of the Class
 ESASky = ESASkyClass()
-
-# once your class is done, tests should be written
-# See ./tests for examples on this
-
-# Next you should write the docs in astroquery/docs/module_name
-# using Sphinx.

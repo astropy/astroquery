@@ -11,7 +11,9 @@ esasky = ESASky()
 # print(esasky.query_region_maps(coordinates, 1*u.arcmin, "all"))
 
 name = "all"
-result = esasky.query_region_maps("m31", 14 * u.arcmin, name)
+# result = esasky.query_region_maps(coordinates, "14'", name)
+# print(result)
+result = esasky.query_region_maps("M51", 20 * u.arcmin, name)
 print(result)
  
 maps = esasky.get_maps(result)
