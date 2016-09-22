@@ -22,7 +22,7 @@ def get_json_species_ids(outfile='species.json'):
     import bs4
 
     result = requests.get('http://www.cv.nrao.edu/php/splat/b.php')
-    page = bs4.BeautifulSoup(result.content)
+    page = bs4.BeautifulSoup(result.content, 'html5lib')
     sid = page.findAll('select', attrs={'id': 'sid'})[0]
 
     species_types = set()
@@ -40,3 +40,6 @@ def get_json_species_ids(outfile='species.json'):
         json.dump(species, f)
 
     return json.dumps(species)
+
+if __name__ == "__main__":
+    get_json_species_ids()
