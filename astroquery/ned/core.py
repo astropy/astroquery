@@ -343,7 +343,8 @@ class NedClass(BaseQuery):
                                         Ned.TIMEOUT, request_type='GET')
         return response
 
-    def get_images(self, object_name, get_query_payload=False):
+    def get_images(self, object_name, get_query_payload=False,
+                   show_progress=True):
         """
         Query function to fetch FITS images for a given identifier.
 
@@ -361,13 +362,15 @@ class NedClass(BaseQuery):
 
         """
         readable_objs = self.get_images_async(
-            object_name, get_query_payload=get_query_payload)
+            object_name, get_query_payload=get_query_payload,
+            show_progress=show_progress)
 
         if get_query_payload:
             return readable_objs
         return [obj.get_fits() for obj in readable_objs]
 
-    def get_images_async(self, object_name, get_query_payload=False):
+    def get_images_async(self, object_name, get_query_payload=False,
+                         show_progress=True):
         """
         Serves the same purpose as `~NedClass.get_images` but returns
         file-handlers to the remote files rather than downloading them.
@@ -389,10 +392,12 @@ class NedClass(BaseQuery):
                                          get_query_payload=get_query_payload)
         if get_query_payload:
             return image_urls
-        return [commons.FileContainer(U, encoding='binary')
+        return [commons.FileContainer(U, encoding='binary',
+                                      show_progress=show_progress)
                 for U in image_urls]
 
-    def get_spectra(self, object_name, get_query_payload=False):
+    def get_spectra(self, object_name, get_query_payload=False,
+                    show_progress=True):
         """
         Query function to fetch FITS files of spectra for a given identifier.
 
@@ -410,13 +415,15 @@ class NedClass(BaseQuery):
 
         """
         readable_objs = self.get_spectra_async(
-            object_name, get_query_payload=get_query_payload)
+            object_name, get_query_payload=get_query_payload,
+            show_progress=show_progress)
 
         if get_query_payload:
             return readable_objs
         return [obj.get_fits() for obj in readable_objs]
 
-    def get_spectra_async(self, object_name, get_query_payload=False):
+    def get_spectra_async(self, object_name, get_query_payload=False,
+                          show_progress=True):
         """
         Serves the same purpose as `~NedClass.get_spectra` but returns
         file-handlers to the remote files rather than downloading them.
@@ -438,7 +445,8 @@ class NedClass(BaseQuery):
                                          get_query_payload=get_query_payload)
         if get_query_payload:
             return image_urls
-        return [commons.FileContainer(U, encoding='binary')
+        return [commons.FileContainer(U, encoding='binary',
+                                      show_progress=show_progress)
                 for U in image_urls]
 
     def get_image_list(self, object_name, item='image',

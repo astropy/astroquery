@@ -36,7 +36,7 @@ class NvasClass(BaseQuery):
 
     def get_images(self, coordinates, radius=0.25 * u.arcmin, max_rms=10000,
                    band="all", get_uvfits=False, verbose=True,
-                   get_query_payload=False):
+                   get_query_payload=False, show_progress=True):
         """
         Get an image around a target/ coordinates from the NVAS image archive.
 
@@ -74,7 +74,7 @@ class NvasClass(BaseQuery):
         readable_objs = self.get_images_async(
             coordinates, radius=radius, max_rms=max_rms,
             band=band, get_uvfits=get_uvfits, verbose=verbose,
-            get_query_payload=get_query_payload)
+            get_query_payload=get_query_payload, show_progress=show_progress)
         if get_query_payload:
             return readable_objs
 
@@ -84,7 +84,8 @@ class NvasClass(BaseQuery):
 
     def get_images_async(self, coordinates, radius=0.25 * u.arcmin,
                          max_rms=10000, band="all", get_uvfits=False,
-                         verbose=True, get_query_payload=False):
+                         verbose=True, get_query_payload=False,
+                         show_progress=True):
         """
         Serves the same purpose as `get_images` but
         returns a list of file handlers to remote files.
@@ -131,7 +132,8 @@ class NvasClass(BaseQuery):
         if verbose:
             print("{num} images found.".format(num=len(image_urls)))
 
-        return [commons.FileContainer(U, encoding='binary')
+        return [commons.FileContainer(U, encoding='binary',
+                                      show_progress=show_progress)
                 for U in image_urls]
 
     def get_image_list(self, coordinates, radius=0.25 * u.arcmin,

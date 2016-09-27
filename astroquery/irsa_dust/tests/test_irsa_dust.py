@@ -331,8 +331,10 @@ class TestDust(DustTestCase):
         return MockResponse
 
     def get_ext_table_async_mockreturn(self, coordinate, radius=None,
-                                       timeout=IrsaDust.TIMEOUT):
-        return(commons.FileContainer(self.data(EXT_TBL)))
+                                       timeout=IrsaDust.TIMEOUT,
+                                       show_progress=True):
+        return(commons.FileContainer(self.data(EXT_TBL),
+                                     show_progress=show_progress))
 
     def get_image_list_mockreturn(
         self, coordinate, radius=None, image_type=None,
@@ -341,9 +343,11 @@ class TestDust(DustTestCase):
 
     def get_images_async_mockreturn(self, coordinate, radius=None,
                                     image_type=None, timeout=IrsaDust.TIMEOUT,
-                                    get_query_payload=False):
+                                    get_query_payload=False,
+                                    show_progress=True):
         readable_obj = commons.FileContainer(self.data(IMG_FITS),
-                                             encoding='binary')
+                                             encoding='binary',
+                                             show_progress=show_progress)
         return [readable_obj]
 
     def set_ext_table_text(self, text, xml_tree):

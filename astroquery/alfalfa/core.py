@@ -160,7 +160,7 @@ class AlfalfaClass(BaseQuery):
         else:
             return None
 
-    def get_spectrum_async(self, agc):
+    def get_spectrum_async(self, agc, show_progress=True):
         """
         Download spectrum from ALFALFA catalogue.
 
@@ -186,11 +186,11 @@ class AlfalfaClass(BaseQuery):
         agc = str(agc).zfill(6)
 
         link = "%s/A%s.fits" % (self.FITS_PREFIX, agc)
-        result = commons.FileContainer(link)
+        result = commons.FileContainer(link, show_progress=show_progress)
         return result
 
     @prepend_docstr_noreturns(get_spectrum_async.__doc__)
-    def get_spectrum(self, agc):
+    def get_spectrum(self, agc, show_progress=True):
         """
         Returns
         -------
@@ -199,7 +199,7 @@ class AlfalfaClass(BaseQuery):
 
         """
 
-        result = self.get_spectrum_async(agc)
+        result = self.get_spectrum_async(agc, show_progress=show_progress)
         hdulist = result.get_fits()
         return hdulist
 

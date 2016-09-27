@@ -478,7 +478,7 @@ class SDSSClass(BaseQuery):
     def get_spectra_async(self, coordinates=None, radius=2. * u.arcsec,
                           matches=None, plate=None, fiberID=None, mjd=None,
                           timeout=TIMEOUT, get_query_payload=False,
-                          data_release=12, cache=True):
+                          data_release=12, cache=True, show_progress=True):
         """
         Download spectrum from SDSS.
 
@@ -590,14 +590,16 @@ class SDSSClass(BaseQuery):
 
             results.append(commons.FileContainer(link,
                                                  encoding='binary',
-                                                 remote_timeout=timeout))
+                                                 remote_timeout=timeout,
+                                                 show_progress=show_progress))
 
         return results
 
     @prepend_docstr_noreturns(get_spectra_async.__doc__)
     def get_spectra(self, coordinates=None, radius=2. * u.arcsec,
                     matches=None, plate=None, fiberID=None, mjd=None,
-                    timeout=TIMEOUT, cache=True, data_release=12):
+                    timeout=TIMEOUT, cache=True, data_release=12,
+                    show_progress=True):
         """
         Returns
         -------
@@ -609,7 +611,8 @@ class SDSSClass(BaseQuery):
                                                radius=radius, matches=matches,
                                                plate=plate, fiberID=fiberID,
                                                mjd=mjd, timeout=timeout,
-                                               data_release=data_release)
+                                               data_release=data_release,
+                                               show_progress=show_progress)
 
         if readable_objs is not None:
             if isinstance(readable_objs, dict):
@@ -620,7 +623,8 @@ class SDSSClass(BaseQuery):
     def get_images_async(self, coordinates=None, radius=2. * u.arcsec,
                          matches=None, run=None, rerun=301, camcol=None,
                          field=None, band='g', timeout=TIMEOUT,
-                         get_query_payload=False, cache=True, data_release=12):
+                         get_query_payload=False, cache=True, data_release=12,
+                         show_progress=True):
         """
         Download an image from SDSS.
 
@@ -730,10 +734,9 @@ class SDSSClass(BaseQuery):
                                       rerun=row['rerun'], camcol=row['camcol'],
                                       field=row['field'], band=b)
 
-                results.append(commons.FileContainer(link,
-                                                     encoding='binary',
-                                                     remote_timeout=timeout,
-                                                     cache=cache))
+                results.append(commons.FileContainer(
+                    link, encoding='binary', remote_timeout=timeout,
+                    cache=cache, show_progress=show_progress))
 
         return results
 
@@ -741,7 +744,8 @@ class SDSSClass(BaseQuery):
     def get_images(self, coordinates=None, radius=2. * u.arcsec,
                    matches=None, run=None, rerun=301, camcol=None, field=None,
                    band='g', timeout=TIMEOUT, cache=True,
-                   get_query_payload=False, data_release=12):
+                   get_query_payload=False, data_release=12,
+                   show_progress=True):
         """
         Returns
         -------
@@ -752,7 +756,8 @@ class SDSSClass(BaseQuery):
         readable_objs = self.get_images_async(
             coordinates=coordinates, radius=radius, matches=matches, run=run,
             rerun=rerun, data_release=data_release, camcol=camcol, field=field,
-            band=band, timeout=timeout, get_query_payload=get_query_payload)
+            band=band, timeout=timeout, get_query_payload=get_query_payload,
+            show_progress=show_progress)
 
         if readable_objs is not None:
             if isinstance(readable_objs, dict):
@@ -760,7 +765,8 @@ class SDSSClass(BaseQuery):
             else:
                 return [obj.get_fits() for obj in readable_objs]
 
-    def get_spectral_template_async(self, kind='qso', timeout=TIMEOUT):
+    def get_spectral_template_async(self, kind='qso', timeout=TIMEOUT,
+                                    show_progress=True):
         """
         Download spectral templates from SDSS DR-2.
 
@@ -806,12 +812,14 @@ class SDSSClass(BaseQuery):
             link = '%s-%s.fit' % (self.TEMPLATES_URL, name)
             results.append(commons.FileContainer(link,
                                                  remote_timeout=timeout,
-                                                 encoding='binary'))
+                                                 encoding='binary',
+                                                 show_progress=show_progress))
 
         return results
 
     @prepend_docstr_noreturns(get_spectral_template_async.__doc__)
-    def get_spectral_template(self, kind='qso', timeout=TIMEOUT):
+    def get_spectral_template(self, kind='qso', timeout=TIMEOUT,
+                              show_progress=True):
         """
         Returns
         -------
@@ -819,8 +827,8 @@ class SDSSClass(BaseQuery):
 
         """
 
-        readable_objs = self.get_spectral_template_async(kind=kind,
-                                                         timeout=timeout)
+        readable_objs = self.get_spectral_template_async(
+            kind=kind, timeout=timeout, show_progress=show_progress)
 
         if readable_objs is not None:
             return [obj.get_fits() for obj in readable_objs]

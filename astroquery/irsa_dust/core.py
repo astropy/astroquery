@@ -47,7 +47,8 @@ class IrsaDustClass(BaseQuery):
     }
 
     def get_images(self, coordinate, radius=None,
-                   image_type=None, timeout=TIMEOUT, get_query_payload=False):
+                   image_type=None, timeout=TIMEOUT, get_query_payload=False,
+                   show_progress=True):
         """
         A query function that performs a coordinate-based query to acquire
         Irsa-Dust images.
@@ -85,11 +86,12 @@ class IrsaDustClass(BaseQuery):
             return self._args_to_payload(coordinate, radius=radius)
         readable_objs = self.get_images_async(
             coordinate, radius=radius, image_type=image_type, timeout=timeout,
-            get_query_payload=get_query_payload)
+            get_query_payload=get_query_payload, show_progress=show_progress)
         return [obj.get_fits() for obj in readable_objs]
 
     def get_images_async(self, coordinate, radius=None, image_type=None,
-                         timeout=TIMEOUT, get_query_payload=False):
+                         timeout=TIMEOUT, get_query_payload=False,
+                         show_progress=True):
         """
         A query function similar to
         `astroquery.irsa_dust.IrsaDustClass.get_images` but returns
@@ -133,7 +135,8 @@ class IrsaDustClass(BaseQuery):
 
         # Images are assumed to be FITS files
         # they MUST be read as binary for python3 to parse them
-        return [commons.FileContainer(U, encoding='binary')
+        return [commons.FileContainer(U, encoding='binary',
+                                      show_progress=show_progress)
                 for U in image_urls]
 
     def get_image_list(self, coordinate, radius=None, image_type=None,
@@ -176,7 +179,8 @@ class IrsaDustClass(BaseQuery):
         response = commons.send_request(url, request_payload, timeout)
         return self.extract_image_urls(response.text, image_type=image_type)
 
-    def get_extinction_table(self, coordinate, radius=None, timeout=TIMEOUT):
+    def get_extinction_table(self, coordinate, radius=None, timeout=TIMEOUT,
+                             show_progress=True):
         """
         Query function that fetches the extinction table from the query
         result.
@@ -201,16 +205,16 @@ class IrsaDustClass(BaseQuery):
         --------
         table : `~astropy.table.Table`
         """
-        readable_obj = self.get_extinction_table_async(coordinate,
-                                                       radius=radius,
-                                                       timeout=timeout)
+        readable_obj = self.get_extinction_table_async(
+            coordinate, radius=radius, timeout=timeout,
+            show_progress=show_progress)
         # guess=False to suppress error messages related to bad guesses
         table = Table.read(readable_obj.get_string(), format='ipac',
                            guess=False)
         return table
 
     def get_extinction_table_async(self, coordinate, radius=None,
-                                   timeout=TIMEOUT):
+                                   timeout=TIMEOUT, show_progress=True):
         """
         A query function similar to
         `astroquery.irsa_dust.IrsaDustClass.get_extinction_table` but
@@ -242,7 +246,8 @@ class IrsaDustClass(BaseQuery):
         response = commons.send_request(url, request_payload, timeout)
         xml_tree = utils.xml(response.text)
         result = SingleDustResult(xml_tree, coordinate)
-        return commons.FileContainer(result.ext_detail_table())
+        return commons.FileContainer(result.ext_detail_table(),
+                                     show_progress=show_progress)
 
     def get_query_table(self, coordinate, radius=None,
                         section=None, timeout=TIMEOUT, url=DUST_SERVICE_URL):

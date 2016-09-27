@@ -48,7 +48,8 @@ def patch_get(request):
 
 @pytest.fixture
 def patch_get_readable_fileobj(request):
-    def get_readable_fileobj_mockreturn(filename, cache=True, encoding=None):
+    def get_readable_fileobj_mockreturn(filename, cache=True, encoding=None,
+                                        show_progress=True):
         # Need to read FITS files with binary encoding: should raise error
         # otherwise
         assert encoding == 'binary'
