@@ -1,9 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from __future__ import print_function
 
-# astroquery uses the pytest framework for testing
-# this is already available in astropy and does
-# not require a separate install. Import it using:
 from astropy.tests.helper import pytest
 
 # It would be best if tests are separated in two
@@ -12,7 +9,6 @@ from astropy.tests.helper import pytest
 # same functions on the remote server, put the relevant
 # tests in the 'test_module_remote.py'
 
-# Now import other commonly used modules for tests
 import os
 import requests
 
@@ -23,10 +19,8 @@ import astropy.units as u
 
 from ...utils.testing_tools import MockResponse
 
-# finally import the module which is to be tested
-# and the various configuration items created
-from ... import template_module
-from ...template_module import conf
+from ... import esasky
+from ...esasky import conf
 
 # Local tests should have the corresponding data stored
 # in the ./data folder. This is the actual HTTP response
@@ -40,8 +34,11 @@ from ...template_module import conf
 DATA_FILES = {'GET':
               # You might have a different response for each URL you're
               # querying:
-              {'http://dummy_server_mirror_1':
-               'dummy.dat'}}
+              {
+              'http://ammidev.n1data.lan:8080/esasky-tap/observations':
+               'observations.txt' 
+               },
+              }
 
 
 # ./setup_package.py helps the test function locate the data file
@@ -68,15 +65,22 @@ def nonremote_request(self, request_type, url, **kwargs):
 @pytest.fixture
 def patch_request(request):
     mp = request.getfuncargvalue("monkeypatch")
-    mp.setattr(template_module.core.TemplateClass, '_request',
+    mp.setattr(esasky.core.ESASkyClass, '_request',
                nonremote_request)
     return mp
 
 
 # finally test the methods using the mock HTTP response
 def test_query_object(patch_request):
-    result = template_module.core.TemplateClass().query_object('m1')
+    result = esasky.core.ESASkyClass().query_object('m1')
     assert isinstance(result, Table)
 
 # similarly fill in tests for each of the methods
 # look at tests in existing modules for more examples
+
+def test_list_catalogs():
+    result = esasky.core.ESASkyClass().list_catalogs()
+    assert (len(result) == 13)
+    
+test_list_catalogs()
+

@@ -1,6 +1,3 @@
-# once your class is done, tests should be written
-# See ./tests for examples on this
-
 # Next you should write the docs in astroquery/docs/module_name
 # using Sphinx.
 
@@ -60,19 +57,80 @@ class ESASkyClass(BaseQuery):
     __INTEGRAL_STRING = 'integral'
 
     
-    def get_map_mission_list(self):
+    def list_maps(self):
         """
         Get a list of the mission names of the available observations in ESASky
         """
         return self._json_object_field_to_list(self._get_observation_json(), self.__MISSION_STRING)
     
-    def get_catalog_mission_list(self):
+    def list_catalogs(self):
         """
         Get a list of the mission names of the available catalogs in ESASky
         """
         return self._json_object_field_to_list(self._get_catalogs_json(), self.__MISSION_STRING)    
+    
+    def query_object_maps(self, position, mission = __ALL_STRING, get_query_payload = False):
+        """
+        This method queries a chosen object or coordinate for all available maps
+        and returns a dictionary with all the found maps metadata for the chosen missions and object.
 
-    def query_region_maps(self, position, radius, mission_name = __ALL_STRING):
+        Parameters
+        ----------
+        position : str or `astropy.coordinates` object
+            Can either be a string of the location, eg 'M51', or the coordinates of the object.
+        mission : string, optional
+            Can be either a specific mission (all mission names are found in list_missions()) 
+            or 'all' to search in all missions. Defaults to 'all'. 
+        get_query_payload : bool, optional
+            When set to True the method returns the HTTP request parameters. Defaults to False.
+        Returns
+        -------
+        maps : `dict`
+            Each mission returns a table with the metadata and observations available for the chosen mission and object.
+            It is structured in a dictionary like this:
+                dict: {'HST': <Table masked=True length=97>, 'HERSCHEL': <Table masked=True length=2>, ...} 
+        
+        Examples
+        --------
+        query_object_maps("m101", "all")
+        
+        import astropy.units as u
+        query_object_maps("265.05, 69.0", "Herschel")
+        """
+        self.query_region_maps(position, 0, mission, get_query_payload)
+        
+    def query_object_catalogs(self, position, catalog = __ALL_STRING, get_query_payload = False):
+        """
+        This method queries a chosen object or coordinate for all available catalogs
+        and returns a dictionary with all the found catalogs metadata for the chosen missions and object.
+
+        Parameters
+        ----------
+        position : str or `astropy.coordinates` object
+            Can either be a string of the location, eg 'M51', or the coordinates of the object.
+        catalog : string, optional
+            Can be either a specific catalog (all catalogs names are found in list_catalogs()) 
+            or 'all' to search in all catalogs. Defaults to 'all'. 
+        get_query_payload : bool, optional
+            When set to True the method returns the HTTP request parameters. Defaults to False.
+
+        Returns
+        -------
+        catalogs : `dict`
+            Each mission returns a table with the metadata of the catalogs available for the chosen mission and object.
+            It is structured in a dictionary like this:
+                dict: {'HST': <Table masked=True length=97>, 'HERSCHEL': <Table masked=True length=2>, ...} 
+        
+        Examples
+        --------
+        query_object_catalogs("m101", "all")
+        
+        import astropy.units as u
+        query_object_catalogs("265.05, 69.0", "Herschel")
+        """    
+        self.query_region_catalogs(position, 0, catalog, get_query_payload)
+
+    def query_region_maps(self, position, radius, mission = __ALL_STRING, get_query_payload = False):
         """
         This method queries a chosen region for all available maps
         and returns a dictionary with all the found maps metadata for the chosen missions and region.
@@ -83,10 +141,12 @@ class ESASkyClass(BaseQuery):
             Can either be a string of the location, eg 'M51', or the coordinates of the object.
         radius : str or `~astropy.units.Quantity`
             The radius of a region.
-        mission_name : string, optional
-            Can be either a specific mission (all mission names are found in get_mission_list()) 
+        mission : string, optional
+            Can be either a specific mission (all mission names are found in list_missions()) 
             or 'all' to search in all missions. Defaults to 'all'. 
-
+        get_query_payload : bool, optional
+            When set to True the method returns the HTTP request parameters. Defaults to False.
+            
         Returns
         -------
         response : `dict`
@@ -103,16 +163,16 @@ class ESASkyClass(BaseQuery):
         """        
         coordinates = commons.parse_coordinates(position)
         dictionary = {}
-        if(mission_name.lower() == self.__ALL_STRING):
-            mission_name_list = self.get_map_mission_list()
-            for mission_name in mission_name_list:
-                dictionary[mission_name] = self._query_region_observation(coordinates, radius, mission_name)
+        if(mission.lower() == self.__ALL_STRING):
+            mission_name_list = self.list_maps()
+            for mission in mission_name_list:
+                dictionary[mission] = self._query_region_observation(coordinates, radius, mission, get_query_payload)
         else:
-            dictionary[mission_name.upper()] = self._query_region_observation(coordinates, radius, mission_name)
+            dictionary[mission.upper()] = self._query_region_observation(coordinates, radius, mission, get_query_payload)
             
         return dictionary
      
-    def query_region_catalogs(self, position, radius, catalog_name = __ALL_STRING):
+    def query_region_catalogs(self, position, radius, catalog = __ALL_STRING, get_query_payload = False):
         """
         This method queries a chosen region for all available catalogs
         and returns a dictionary with all the found catalogs metadata for the chosen missions and region.
@@ -123,13 +183,15 @@ class ESASkyClass(BaseQuery):
             Can either be a string of the location, eg 'M51', or the coordinates of the object.
         radius : str or `~astropy.units.Quantity`
             The radius of a region.
-        mission_name : string, optional
-            Can be either a specific mission (all mission names are found in get_mission_list()) 
-            or 'all' to search in all missions. Defaults to 'all'. 
+        catalog : string, optional
+            Can be either a specific catalog (all catalogs names are found in list_catalogs()) 
+            or 'all' to search in all catalogs. Defaults to 'all'. 
+        get_query_payload : bool, optional
+            When set to True the method returns the HTTP request parameters. Defaults to False.
 
         Returns
         -------
-        response : `dict`
+        catalogs : `dict`
             Each mission returns a table with the metadata of the catalogs available for the chosen mission and region.
             It is structured in a dictionary like this:
                 dict: {'HST': <Table masked=True length=97>, 'HERSCHEL': <Table masked=True length=2>, ...} 
@@ -143,12 +205,12 @@ class ESASkyClass(BaseQuery):
         """    
         coordinates = commons.parse_coordinates(position)
         dictionary = {}
-        if(catalog_name.lower() == self.__ALL_STRING):
-            catalogs = self.get_catalog_mission_list()
+        if(catalog.lower() == self.__ALL_STRING):
+            catalogs = self.list_catalogs()
             for catalog in catalogs:
-                dictionary[catalog] = self._query_region_catalog(coordinates, radius, catalog)
+                dictionary[catalog] = self._query_region_catalog(coordinates, radius, catalog, get_query_payload)
         else:
-            dictionary[catalog_name] = self._query_region_catalog(coordinates, radius, catalog_name)
+            dictionary[catalog] = self._query_region_catalog(coordinates, radius, catalog, get_query_payload)
             
         return dictionary
     
@@ -166,7 +228,7 @@ class ESASkyClass(BaseQuery):
 
         Returns
         -------
-        response : `dict`
+        maps : `dict`
             Each mission returns dictionary where each observation id has a HDUList. 
             The exception is Herschel as it has multiple fits files per observation id.
             For Herschel each observation id got the used filters with their respective HDULists.
@@ -185,13 +247,50 @@ class ESASkyClass(BaseQuery):
         
         print("Maps available at %s" %os.path.abspath(self.__MAPS_STRING))
         return maps
+    
+    def get_images(self, position, radius = 0, mission = __ALL_STRING, get_query_payload = False):
+        """
+        This method gets the fits files available for the selected position and mission
+        and downloads all maps to the folder /Maps.
+        The method returns a dictionary which is divided by mission and observation id. 
+
+        Parameters
+        ----------
+        position : str or `astropy.coordinates` object
+            Can either be a string of the location, eg 'M51', or the coordinates of the object.
+        radius : str or `~astropy.units.Quantity`, optional
+            The radius of a region. Defaults to 0.
+        mission : string, optional
+            Can be either a specific mission (all mission names are found in list_missions()) 
+            or 'all' to search in all mission. Defaults to 'all'. 
+        get_query_payload : bool, optional
+            When set to True the method returns the HTTP request parameters. Defaults to False.
+
+        Returns
+        -------
+        maps : `dict`
+            Each mission returns dictionary where each observation id has a HDUList. 
+            The exception is Herschel as it has multiple fits files per observation id.
+            For Herschel each observation id got the used filters with their respective HDULists.
+            It is structured in a dictionary like this:
+                dict: {'XMM-EPIC': {'observationID_x': [HDUList], 'observationID_y': [HDUList], ...}, 'HST': {'observationID_z': [HDUList], ...},
+                    'HERSCHEL': {'observationID_a': {'filter_a':[HDUList], filter_b: [HDUList]}, 'observationID_b': {'filter_a':[HDUList], filter_b: [HDUList]}, ... }}
+        
+        Examples
+        --------
+        get_images("m101", "14'", "all")
+        
+        """    
+        mission_table = self.query_object_maps(position, mission, get_query_payload)
+        maps = list()
+        for mission in mission_table:
+            maps.append(self._get_maps_for_mission(mission_table[mission], mission))
+        
+        print("Maps available at %s" %os.path.abspath(self.__MAPS_STRING))
+        return maps
       
     def _get_maps_for_mission(self, maps_table, mission):
         maps = dict()
-        
-        ########################################################TODO: TEMPORARILY DISABLED HST FOR DEVELOPMENT PURPOSES ###############################################
-        if(mission.lower() == self.__HST_STRING):
-            return maps
         
         #INTEGRAL does not have a product url yet.
         if(mission.lower() == self.__INTEGRAL_STRING):
@@ -229,7 +328,7 @@ class ESASkyClass(BaseQuery):
         
         return maps
     
-    def _get_herschel_observation(self, product_url, directory_path, filters, verbose = True):
+    def _get_herschel_observation(self, product_url, directory_path, filters):
         observation = dict()            
         tar_file = tempfile.NamedTemporaryFile()
         with urllib.request.urlopen(product_url) as response:
@@ -282,16 +381,20 @@ class ESASkyClass(BaseQuery):
         start_index = product_url.rindex("/") + 1
         return product_url[start_index:]
     
-    def _query_region_observation(self, coordinates, radius, observation_name):
+    def _query_region_observation(self, coordinates, radius, observation_name, get_query_payload):
         observation_tap_name = self._find_observation_tap_table_name(observation_name)
         query = self._build_observation_query(coordinates, radius, self._find_observation_parameters(observation_tap_name))
         request_payload = self._create_request_payload(query)
+        if(get_query_payload):
+            return request_payload
         return self._get_and_parse_from_tap(request_payload)
     
-    def _query_region_catalog(self, coordinates, radius, catalog_name):
+    def _query_region_catalog(self, coordinates, radius, catalog_name, get_query_payload):
         catalog_tap_name = self._find_catalog_tap_table_name(catalog_name)
         query = self._build_catalog_query(coordinates, radius, self._find_catalog_parameters(catalog_tap_name))
         request_payload = self._create_request_payload(query)
+        if(get_query_payload):
+            return request_payload
         return self._get_and_parse_from_tap(request_payload)
         
     def _build_observation_query(self, coordinates, radius, json):
@@ -341,7 +444,7 @@ class ESASkyClass(BaseQuery):
         if (radiusDeg == 0):
             query += "WHERE 1=CONTAINS(%s, POINT('ICRS',%f,%f)) "%(json[self.__POS_TAP_STRING], ra, dec)
         else:
-            query += "WHERE 1=CONTAINS(%s, CIRCLE('ICRS', %f, %f, %f)) "%(json[self.__SOURCE_STRING], ra, dec, radiusDeg)  
+            query += "WHERE 1=CONTAINS(%s, CIRCLE('ICRS', %f, %f, %f)) "%(json[self.__POS_TAP_STRING], ra, dec, radiusDeg)  
             
         query += "ORDER BY %s;" %json[self.__ORDER_BY_STRING]
         return query            
@@ -395,26 +498,23 @@ class ESASkyClass(BaseQuery):
     def _create_request_payload(self, query):
         return {'REQUEST':'doQuery', 'LANG':'ADQL', 'FORMAT': 'VOTABLE', 'QUERY': query}
     
-    def _get_and_parse_from_tap(self, request_payload, cache = True, verbose = True):
-        response = self._send_get_request("/tap/sync", request_payload, cache, verbose)
-        return self._parse_xml_table(response, verbose=verbose)
+    def _get_and_parse_from_tap(self, request_payload, cache = True):
+        response = self._send_get_request("/tap/sync", request_payload, cache)
+        return self._parse_xml_table(response)
     
-    def _send_get_request(self, url_extension, request_payload, cache, verbose):
+    def _send_get_request(self, url_extension, request_payload, cache):
         URL = self.URLbase + url_extension
         return self._request('GET', URL, params=request_payload,
                                  timeout=self.TIMEOUT, cache=cache)
 
-    def _parse_xml_table(self, response, verbose=False):
-        # if verbose is False then suppress any VOTable related warnings
-        if not verbose:
-            commons.suppress_vo_warnings()
+    def _parse_xml_table(self, response):
         # try to parse the result into an astropy.Table, else
         # return the raw result with an informative error message.
         try:
             tf = six.BytesIO(response.content)
-            vo_table = votable.parse(tf, pedantic=False)
+            vo_table = votable.parse(tf, pedantic = False)
             first_table = vo_table.get_first_table()
-            table = first_table.to_table(use_names_over_ids=True)
+            table = first_table.to_table(use_names_over_ids = True)
             return table
         except Exception as ex:
             self.response = response
