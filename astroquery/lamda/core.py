@@ -181,6 +181,21 @@ def _absurl_from_url(url, base_url):
 
 
 def parse_lamda_datafile(filename):
+    """
+    Read a datafile that follows the format adopted for the atomic and
+    molecular data in the LAMDA database.
+
+    Parameters
+    ----------
+    filename : str
+        Fully qualified path of the file to read.
+
+    Returns
+    -------
+    Tuple of tables: ({rateid: Table, },
+                        Table,
+                        Table)
+    """
     with open(filename) as f:
         lines = f.readlines()
     return parse_lamda_lines(lines)
