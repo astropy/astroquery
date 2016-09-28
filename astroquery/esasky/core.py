@@ -168,11 +168,7 @@ class ESASkyClass(BaseQuery):
         coordinates = commons.parse_coordinates(position)
         query_result = {}
                 
-        if (not isinstance(missions, list)):
-            if(missions.lower() == self.__ALL_STRING):
-                missions = self.list_maps()
-            else:
-                missions = [missions]
+        missions = self._sanatize_input_mission(missions)
                 
         self._store_query_result_maps(query_result, missions, coordinates, radius, get_query_payload)
         return query_result
@@ -221,7 +217,7 @@ class ESASkyClass(BaseQuery):
         self._store_query_result_catalogs(query_result, catalogs, coordinates, radius, get_query_payload)
         return query_result
     
-    def get_maps(self, map_query_result):
+    def get_maps(self, map_query_result, missions = __ALL_STRING):
         """
         This method takes the dictionary of missions and metadata as returned by query_region_maps
         and downloads all maps to the folder /Maps.
@@ -232,6 +228,9 @@ class ESASkyClass(BaseQuery):
         map_query_result : 
             A dictionary with all the missions wanted and their respective metadata.
             Usually the return value of query_region_maps.
+        missions : string or list, optional
+            Can be either a specific mission or a list of missions (all mission names are found in list_missions()) 
+            or 'all' to search in all missions. Defaults to 'all'. 
 
         Returns
         -------
@@ -249,8 +248,17 @@ class ESASkyClass(BaseQuery):
         
         """    
         maps = dict()
-        for mission in map_query_result:
-            maps[mission] = self._get_maps_for_mission(map_query_result[mission], mission)
+        
+        missions = self._sanatize_input_mission(missions)
+         
+        for query_mission in map_query_result:
+            for mission in missions:
+                #INTEGRAL does not have a product url yet.
+                if(mission.lower() == self.__INTEGRAL_STRING):
+                    break
+                if(query_mission.lower() == mission.lower()):
+                    maps[query_mission] = self._get_maps_for_mission(map_query_result[query_mission], query_mission)
+                    break
         
         print("Maps available at %s" %os.path.abspath(self.__MAPS_STRING))
         return maps
@@ -288,20 +296,33 @@ class ESASkyClass(BaseQuery):
         get_images("m101", "14'", "all")
         
         """    
-        mission_table = self.query_object_maps(position, missions, get_query_payload)
-        maps = list()
-        for mission in mission_table:
-            maps.append(self._get_maps_for_mission(mission_table[mission], mission))
+        map_query_result = self.query_object_maps(position, missions, get_query_payload)
+        maps = dict()
+        
+        missions = self._sanatize_input_mission(missions)
+                
+        for query_mission in map_query_result:
+            for mission in missions:
+                #INTEGRAL does not have a product url yet.
+                if(mission.lower() == self.__INTEGRAL_STRING):
+                    break
+                if(query_mission.lower() == mission.lower()):
+                    maps[query_mission] = self._get_maps_for_mission(map_query_result[query_mission], query_mission)
+                    break
         
         print("Maps available at %s" %os.path.abspath(self.__MAPS_STRING))
         return maps
+    
+    def _sanatize_input_mission(self, missions):
+        if (not isinstance(missions, list)):
+            if(missions.lower() == self.__ALL_STRING):
+                return self.list_maps()
+            else:
+                return [missions]
+        return missions
       
     def _get_maps_for_mission(self, maps_table, mission):
         maps = dict()
-        
-        #INTEGRAL does not have a product url yet.
-        if(mission.lower() == self.__INTEGRAL_STRING):
-            return maps
         
         if(len(maps_table[self.__PRODUCT_URL_STRING]) > 0):
             mission_directory = self._create_mission_directory(mission)    
