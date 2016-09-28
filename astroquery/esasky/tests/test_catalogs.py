@@ -11,7 +11,8 @@ esasky = ESASky()
 # result = esasky.list_catalogs()
 # assert (len(result) == 13)
 # assert (len(result) != 13)
-    
+result = esasky.query_region_catalogs("Abell 1689", 30*u.arcmin, ["Gaia DR1 TGAS", "XMM-SLEW"])
+print(result)
     
 print(esasky.query_region_catalogs(coordinates, 10*u.arcmin, "all"))
 
