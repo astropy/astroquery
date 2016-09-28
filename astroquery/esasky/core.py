@@ -83,6 +83,7 @@ class ESASkyClass(BaseQuery):
             or 'all' to search in all missions. Defaults to 'all'. 
         get_query_payload : bool, optional
             When set to True the method returns the HTTP request parameters. Defaults to False.
+            
         Returns
         -------
         maps : `dict`
@@ -166,9 +167,13 @@ class ESASkyClass(BaseQuery):
         if(mission.lower() == self.__ALL_STRING):
             mission_name_list = self.list_maps()
             for mission in mission_name_list:
-                dictionary[mission] = self._query_region_observation(coordinates, radius, mission, get_query_payload)
+                mission_table = self._query_region_observation(coordinates, radius, mission, get_query_payload)
+                if (len(mission_table) > 0):
+                    dictionary[mission.upper()] = mission_table
         else:
-            dictionary[mission.upper()] = self._query_region_observation(coordinates, radius, mission, get_query_payload)
+            mission_table = self._query_region_observation(coordinates, radius, mission, get_query_payload)
+            if (len(mission_table) > 0):
+                dictionary[mission.upper()] = mission_table
             
         return dictionary
      
@@ -208,10 +213,14 @@ class ESASkyClass(BaseQuery):
         if(catalog.lower() == self.__ALL_STRING):
             catalogs = self.list_catalogs()
             for catalog in catalogs:
-                dictionary[catalog] = self._query_region_catalog(coordinates, radius, catalog, get_query_payload)
+                catalog_table = self._query_region_catalog(coordinates, radius, catalog, get_query_payload)
+                if (len(catalog_table) > 0):
+                    dictionary[catalog.upper()] = catalog_table
+                
         else:
-            dictionary[catalog] = self._query_region_catalog(coordinates, radius, catalog, get_query_payload)
-            
+            catalog_table = self._query_region_catalog(coordinates, radius, catalog, get_query_payload)
+            if (len(catalog_table) > 0):
+                dictionary[catalog.upper()] = catalog_table
         return dictionary
     
     def get_maps(self, mission_table):
