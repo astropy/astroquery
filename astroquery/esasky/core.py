@@ -1,7 +1,3 @@
-# Next you should write the docs in astroquery/docs/module_name
-# using Sphinx.
-
-
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
 import urllib.request
