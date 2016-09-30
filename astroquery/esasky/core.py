@@ -34,7 +34,6 @@ class ESASkyClass(BaseQuery):
     __TAP_TABLE_STRING = "tapTable"
     __TAP_NAME_STRING = "tapName"
     __FILTER_STRING = "filter"
-    __INSTRUMENT_STRING = "Instrument"
     __LABEL_STRING = "label"
     __OBSERVATION_ID_STRING = "observation_id"
     __METADATA_STRING = "metadata"
@@ -444,31 +443,25 @@ class ESASkyClass(BaseQuery):
         ra = raHours * 15.0 # Converts to degrees
         radiusDeg = commons.radius_to_unit(radius, unit='deg')
         
-        metadata = json[self.__METADATA_STRING]
-        filter_tap_name = ""
-        instrument_tap_name = ""
-        for data in metadata: 
-            if (data[self.__LABEL_STRING] == self.__INSTRUMENT_STRING):
-                instrument_tap_name = data[self.__TAP_NAME_STRING]
-            elif(data[self.__TAP_NAME_STRING] == self.__FILTER_STRING):
-                filter_tap_name = data[self.__TAP_NAME_STRING]
-                
-        query_part1 = "SELECT DISTINCT postcard_url,  product_url,  observation_id, ra_deg, dec_deg, "
-        if (instrument_tap_name):
-            query_part1 += "%s, " %instrument_tap_name
-        if (filter_tap_name):
-            query_part1 += "%s, " %filter_tap_name
-        if (json[self.__IS_SURVEY_MISSION_STRING]):
-            query_part2 = "tstart_iso, telapse "
-            query_part4 = "WHERE 1=CONTAINS(pos, "
-        else:
-            query_part2 = "stc_s "
-            query_part4 = "WHERE 1=CONTAINS(fov, "
-            
-        query_part3 = "FROM %s " %json[self.__TAP_TABLE_STRING]
-        query_part5 = "CIRCLE('ICRS', %f, %f, %f));" %(ra, dec, radiusDeg) 
+        select_query = "SELECT DISTINCT"
         
-        query = query_part1 + query_part2 + query_part3 + query_part4 + query_part5
+        metadata = json[self.__METADATA_STRING]
+        metadata_tap_names = ""
+        for i in range(len(metadata)): 
+            if(i < len(metadata) - 1):
+                metadata_tap_names += " %s," %metadata[i][self.__TAP_NAME_STRING]
+            else:
+                metadata_tap_names += " %s" %metadata[i][self.__TAP_NAME_STRING]
+
+        from_query = " FROM %s" %json[self.__TAP_TABLE_STRING]
+        if (json[self.__IS_SURVEY_MISSION_STRING]):
+            where_query = " WHERE 1=CONTAINS(pos,"
+        else:
+            where_query = " WHERE 1=CONTAINS(fov,"
+            
+        region_query = " CIRCLE('ICRS', %f, %f, %f));" %(ra, dec, radiusDeg) 
+        
+        query = select_query + metadata_tap_names + from_query + where_query + region_query
         return query  
                
     def _build_catalog_query(self, coordinates, radius, json):
@@ -476,11 +469,22 @@ class ESASkyClass(BaseQuery):
         ra = raHours * 15.0 # Converts to degrees
         radiusDeg = commons.radius_to_unit(radius, unit='deg')
         
-        query = ("SELECT TOP %s %s as name, " %(json[self.__SOURCE_LIMIT_STRING], json[self.__POLYGON_NAME_STRING])
-            + "%s as ra, %s as dec " %(json[self.__POLYGON_RA_STRING], json[self.__POLYGON_DEC_STRING])
-            + "FROM %s " %json[self.__TAP_TABLE_STRING]
-            + "WHERE 1=CONTAINS(%s, CIRCLE('ICRS', %f, %f, %f)) "%(json[self.__POS_TAP_STRING], ra, dec, radiusDeg)  
-            + "ORDER BY %s;" %json[self.__ORDER_BY_STRING])
+        select_query = "SELECT TOP %s " %json[self.__SOURCE_LIMIT_STRING]
+          
+        metadata = json[self.__METADATA_STRING]
+        metadata_tap_names = ""
+        for i in range(len(metadata)): 
+            if(i < len(metadata) - 1):
+                metadata_tap_names += " %s," %metadata[i][self.__TAP_NAME_STRING]
+            else:
+                metadata_tap_names += " %s" %metadata[i][self.__TAP_NAME_STRING]
+
+        from_query = " FROM %s" %json[self.__TAP_TABLE_STRING]
+        where_query = " WHERE 1=CONTAINS(%s, CIRCLE('ICRS', %f, %f, %f))"%(json[self.__POS_TAP_STRING], ra, dec, radiusDeg)  
+        order_by_query = " ORDER BY %s;" %json[self.__ORDER_BY_STRING]
+        
+        query = select_query + metadata_tap_names + from_query + where_query + order_by_query      
+        
         return query    
     
     def _store_query_result_maps(self, query_result, missions, coordinates, radius, get_query_payload):
