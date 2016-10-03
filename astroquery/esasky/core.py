@@ -11,6 +11,8 @@ from astropy.extern import six
 import astropy.io.votable as votable
 from astropy.table import Table
 from astropy.io import fits
+import astropy.units
+import astropy.utils
 
 from ..query import BaseQuery
 from ..utils import commons
@@ -170,12 +172,15 @@ class ESASkyClass(BaseQuery):
         query_region_maps("265.05, 69.0", 14*u.arcmin, "Herschel")
         query_region_maps("265.05, 69.0", ["Herschel", "HST"])
         """        
-        coordinates = commons.parse_coordinates(position)
-        query_result = {}
-                
+        sanatized_position = self._sanatize_input_position(position)
+        sanatized_radius = self._sanatize_input_radius(radius)
         sanatized_missions = self._sanatize_input_mission(missions)
+                
+        query_result = {}
+
+        coordinates = commons.parse_coordinates(sanatized_position)
             
-        self._store_query_result_maps(query_result, sanatized_missions, coordinates, radius, get_query_payload)
+        self._store_query_result_maps(query_result, sanatized_missions, coordinates, sanatized_radius, get_query_payload)
         
         if(get_query_payload):
             return query_result
@@ -217,12 +222,15 @@ class ESASkyClass(BaseQuery):
         query_region_catalogs("265.05, 69.0", 14*u.arcmin, "Gaia DR1 TGA")
         query_region_catalogs("265.05, 69.0", 14*u.arcmin, ["Gaia DR1 TGA", "HSC"])
         """  
-        coordinates = commons.parse_coordinates(position)
+        sanatized_position = self._sanatize_input_position(position)
+        sanatized_radius = self._sanatize_input_radius(radius)
+        sanatized_catalogs = self._sanatize_input_catalogs(catalogs)
+
+        coordinates = commons.parse_coordinates(sanatized_position)
+        
         query_result = {}
                 
-        sanatized_catalogs = self._sanatize_input_catalogs(catalogs)
-                
-        self._store_query_result_catalogs(query_result, sanatized_catalogs, coordinates, radius, get_query_payload)
+        self._store_query_result_catalogs(query_result, sanatized_catalogs, coordinates, sanatized_radius, get_query_payload)
         
         if(get_query_payload):
             return query_result
@@ -262,20 +270,23 @@ class ESASkyClass(BaseQuery):
         get_maps(query_region_catalogs("m101", "14'", "all"))
         
         """    
-        maps = dict()
-        
+        sanatized_query_table_list = self._sanatize_input_table_list(query_table_list)
         sanatized_missions = self._sanatize_input_mission(missions)
+
+        maps = dict()
          
-        for query_mission in query_table_list.keys():
+        for query_mission in sanatized_query_table_list.keys():
             for mission in sanatized_missions:
                 #INTEGRAL does not have a product url yet.
-                if(mission.lower() == self.__INTEGRAL_STRING):
+                if(query_mission.lower() == self.__INTEGRAL_STRING):
                     break
                 if(query_mission.lower() == mission.lower()):
-                    maps[query_mission] = self._get_maps_for_mission(query_table_list[query_mission], query_mission, download_folder)
+                    maps[query_mission] = self._get_maps_for_mission(sanatized_query_table_list[query_mission], query_mission, download_folder)
                     break
-        
-        print("Maps available at %s" %os.path.abspath(download_folder))
+        if(len(sanatized_query_table_list) > 0):
+            print("Maps available at %s" %os.path.abspath(download_folder))
+        else:
+            print("No maps found")
         return commons.TableList(maps)
     
     def get_images(self, position, radius = 0, missions = __ALL_STRING, download_folder = __MAPS_STRING):
@@ -312,11 +323,13 @@ class ESASkyClass(BaseQuery):
         get_images("m101", "14'", "all")
         
         """    
+        sanatized_position = self._sanatize_input_position(position)
+        sanatized_radius = self._sanatize_input_radius(radius)
+        sanatized_missions = self._sanatize_input_mission(missions)
+        
         maps = dict()
         
-        sanatized_missions = self._sanatize_input_mission(missions)
-
-        map_query_result = self.query_region_maps(position, radius, sanatized_missions, False)
+        map_query_result = self.query_region_maps(sanatized_position, sanatized_radius, sanatized_missions, False)
                 
         for query_mission in map_query_result:
             #INTEGRAL does not have a product url yet.
@@ -328,21 +341,42 @@ class ESASkyClass(BaseQuery):
         print("Maps available at %s" %os.path.abspath(self.download_folder))
         return maps
     
+    def _sanatize_input_position(self, position):
+        if (isinstance(position, str) or isinstance(position, commons.CoordClasses)):
+            return position
+        else:
+            raise ValueError("Position must be either a string or astropy.coordinates")
+
+    def _sanatize_input_radius(self, radius):
+        if (isinstance(radius, str) or isinstance(radius, astropy.units.Quantity)):
+            return radius
+        else:
+            raise ValueError("Radius must be either a string or astropy.units.Quantity")
+
     def _sanatize_input_mission(self, missions):
-        if (not isinstance(missions, list)):
+        if (isinstance(missions, list)):
+            return missions
+        if (isinstance(missions, str)):
             if(missions.lower() == self.__ALL_STRING):
                 return self.list_maps()
             else:
                 return [missions]
-        return missions
+        raise ValueError("Mission must be either a string or a list of missions")
     
     def _sanatize_input_catalogs(self, catalogs):
-        if (not isinstance(catalogs, list)):
+        if (isinstance(catalogs, list)):
+            return catalogs
+        if (isinstance(catalogs, str)):
             if(catalogs.lower() == self.__ALL_STRING):
-                return self.list_catalogs()
+                return self.list_maps()
             else:
                 return [catalogs]
-        return catalogs
+        raise ValueError("Catalog must be either a string or a list of catalogs")
+
+    def _sanatize_input_table_list(self, table_list):
+        if (isinstance(table_list, commons.TableList)):
+            return table_list
+        raise ValueError("Query_table_list must be an astropy.utils.TableList")
       
     def _get_maps_for_mission(self, maps_table, mission, download_folder):
         maps = dict()
