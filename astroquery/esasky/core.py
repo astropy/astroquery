@@ -173,9 +173,13 @@ class ESASkyClass(BaseQuery):
         coordinates = commons.parse_coordinates(position)
         query_result = {}
                 
-        missions = self._sanatize_input_mission(missions)
-                
-        self._store_query_result_maps(query_result, missions, coordinates, radius, get_query_payload)
+        sanatized_missions = self._sanatize_input_mission(missions)
+            
+        self._store_query_result_maps(query_result, sanatized_missions, coordinates, radius, get_query_payload)
+        
+        if(get_query_payload):
+            return query_result
+        
         return commons.TableList(query_result)
     
     def query_region_catalogs(self, position, radius, catalogs = __ALL_STRING, get_query_payload = False):
@@ -216,13 +220,12 @@ class ESASkyClass(BaseQuery):
         coordinates = commons.parse_coordinates(position)
         query_result = {}
                 
-        if (not isinstance(catalogs, list)):
-            if(catalogs.lower() == self.__ALL_STRING):
-                catalogs = self.list_catalogs()
-            else:
-                catalogs = [catalogs]
+        sanatized_catalogs = self._sanatize_input_catalogs(catalogs)
                 
-        self._store_query_result_catalogs(query_result, catalogs, coordinates, radius, get_query_payload)
+        self._store_query_result_catalogs(query_result, sanatized_catalogs, coordinates, radius, get_query_payload)
+        
+        if(get_query_payload):
+            return query_result
         
         return commons.TableList(query_result)
     
@@ -261,10 +264,10 @@ class ESASkyClass(BaseQuery):
         """    
         maps = dict()
         
-        missions = self._sanatize_input_mission(missions)
+        sanatized_missions = self._sanatize_input_mission(missions)
          
         for query_mission in query_table_list.keys():
-            for mission in missions:
+            for mission in sanatized_missions:
                 #INTEGRAL does not have a product url yet.
                 if(mission.lower() == self.__INTEGRAL_STRING):
                     break
@@ -309,10 +312,11 @@ class ESASkyClass(BaseQuery):
         get_images("m101", "14'", "all")
         
         """    
-        map_query_result = self.query_region_maps(position, radius, missions, False)
         maps = dict()
         
-        missions = self._sanatize_input_mission(missions)
+        sanatized_missions = self._sanatize_input_mission(missions)
+
+        map_query_result = self.query_region_maps(position, radius, sanatized_missions, False)
                 
         for query_mission in map_query_result:
             #INTEGRAL does not have a product url yet.
@@ -331,6 +335,14 @@ class ESASkyClass(BaseQuery):
             else:
                 return [missions]
         return missions
+    
+    def _sanatize_input_catalogs(self, catalogs):
+        if (not isinstance(catalogs, list)):
+            if(catalogs.lower() == self.__ALL_STRING):
+                return self.list_catalogs()
+            else:
+                return [catalogs]
+        return catalogs
       
     def _get_maps_for_mission(self, maps_table, mission, download_folder):
         maps = dict()
