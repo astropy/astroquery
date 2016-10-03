@@ -1,6 +1,5 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
-import urllib.request
 import json
 import os
 import tempfile
@@ -12,7 +11,6 @@ import astropy.io.votable as votable
 from astropy.table import Table
 from astropy.io import fits
 import astropy.units
-import astropy.utils
 
 from ..query import BaseQuery
 from ..utils import commons
@@ -59,15 +57,15 @@ class ESASkyClass(BaseQuery):
         """
         Get a list of the mission names of the available observations in ESASky
         """
-        return self._json_object_field_to_list(self._get_observation_json(), self.__MISSION_STRING)
+        return self._json_object_field_to_list(self._get_observation_json(cache = True), self.__MISSION_STRING)
     
     def list_catalogs(self):
         """
         Get a list of the mission names of the available catalogs in ESASky
         """
-        return self._json_object_field_to_list(self._get_catalogs_json(), self.__MISSION_STRING)    
+        return self._json_object_field_to_list(self._get_catalogs_json(cache = True), self.__MISSION_STRING)    
     
-    def query_object_maps(self, position, missions = __ALL_STRING, get_query_payload = False):
+    def query_object_maps(self, position, missions = __ALL_STRING, get_query_payload = False, cache = True):
         """
         This method queries a chosen object or coordinate for all available maps
         and returns a TableList with all the found maps metadata for the chosen missions and object.
@@ -100,9 +98,9 @@ class ESASkyClass(BaseQuery):
         query_object_maps("265.05, 69.0", "Herschel")
         query_object_maps("265.05, 69.0", ["Herschel", "HST"])
         """
-        self.query_region_maps(position, self.__ZERO_ARCMIN_STRING, missions, get_query_payload)
+        self.query_region_maps(position, self.__ZERO_ARCMIN_STRING, missions, get_query_payload, cache)
         
-    def query_object_catalogs(self, position, catalogs = __ALL_STRING, get_query_payload = False):
+    def query_object_catalogs(self, position, catalogs = __ALL_STRING, get_query_payload = False, cache = True):
         """
         This method queries a chosen object or coordinate for all available catalogs
         and returns a TableList with all the found catalogs metadata for the chosen missions and object.
@@ -135,9 +133,9 @@ class ESASkyClass(BaseQuery):
         query_object_catalogs("265.05, 69.0", "Gaia DR1 TGA")
         query_object_catalogs("265.05, 69.0", ["Gaia DR1 TGA", "HSC"])
         """
-        self.query_region_catalogs(position, self.__ZERO_ARCMIN_STRING, catalogs, get_query_payload)
+        self.query_region_catalogs(position, self.__ZERO_ARCMIN_STRING, catalogs, get_query_payload, cache)
 
-    def query_region_maps(self, position, radius, missions = __ALL_STRING, get_query_payload = False):
+    def query_region_maps(self, position, radius, missions = __ALL_STRING, get_query_payload = False, cache = True):
         """
         This method queries a chosen region for all available maps
         and returns a TableList with all the found maps metadata for the chosen missions and region.
@@ -180,14 +178,14 @@ class ESASkyClass(BaseQuery):
 
         coordinates = commons.parse_coordinates(sanatized_position)
             
-        self._store_query_result_maps(query_result, sanatized_missions, coordinates, sanatized_radius, get_query_payload)
+        self._store_query_result_maps(query_result, sanatized_missions, coordinates, sanatized_radius, get_query_payload, cache)
         
         if(get_query_payload):
             return query_result
         
         return commons.TableList(query_result)
     
-    def query_region_catalogs(self, position, radius, catalogs = __ALL_STRING, get_query_payload = False):
+    def query_region_catalogs(self, position, radius, catalogs = __ALL_STRING, get_query_payload = False, cache = True):
         """
         This method queries a chosen region for all available catalogs
         and returns a TableList with all the found catalogs metadata for the chosen missions and region.
@@ -230,14 +228,14 @@ class ESASkyClass(BaseQuery):
         
         query_result = {}
                 
-        self._store_query_result_catalogs(query_result, sanatized_catalogs, coordinates, sanatized_radius, get_query_payload)
+        self._store_query_result_catalogs(query_result, sanatized_catalogs, coordinates, sanatized_radius, get_query_payload, cache)
         
         if(get_query_payload):
             return query_result
         
         return commons.TableList(query_result)
     
-    def get_maps(self, query_table_list, missions = __ALL_STRING, download_folder = __MAPS_STRING):
+    def get_maps(self, query_table_list, missions = __ALL_STRING, download_folder = __MAPS_STRING, cache = True):
         """
         This method takes the dictionary of missions and metadata as returned by query_region_maps
         and downloads all maps to the selected folder.
@@ -281,7 +279,7 @@ class ESASkyClass(BaseQuery):
                 if(query_mission.lower() == self.__INTEGRAL_STRING):
                     break
                 if(query_mission.lower() == mission.lower()):
-                    maps[query_mission] = self._get_maps_for_mission(sanatized_query_table_list[query_mission], query_mission, download_folder)
+                    maps[query_mission] = self._get_maps_for_mission(sanatized_query_table_list[query_mission], query_mission, download_folder, cache)
                     break
         if(len(sanatized_query_table_list) > 0):
             print("Maps available at %s" %os.path.abspath(download_folder))
@@ -289,7 +287,7 @@ class ESASkyClass(BaseQuery):
             print("No maps found")
         return commons.TableList(maps)
     
-    def get_images(self, position, radius = 0, missions = __ALL_STRING, download_folder = __MAPS_STRING):
+    def get_images(self, position, radius = 0, missions = __ALL_STRING, download_folder = __MAPS_STRING, cache = True):
         """
         This method gets the fits files available for the selected position and mission
         and downloads all maps to the folder /Maps.
@@ -331,14 +329,14 @@ class ESASkyClass(BaseQuery):
         
         map_query_result = self.query_region_maps(sanatized_position, sanatized_radius, sanatized_missions, False)
                 
-        for query_mission in map_query_result:
+        for query_mission in map_query_result.keys():
             #INTEGRAL does not have a product url yet.
             if(query_mission.lower() == self.__INTEGRAL_STRING):
                 continue
-            maps[query_mission] = self._get_maps_for_mission(map_query_result[query_mission], query_mission, download_folder)
+            maps[query_mission] = self._get_maps_for_mission(map_query_result[query_mission], query_mission, download_folder, cache)
 
         
-        print("Maps available at %s" %os.path.abspath(self.download_folder))
+        print("Maps available at %s" %os.path.abspath(download_folder))
         return maps
     
     def _sanatize_input_position(self, position):
@@ -368,7 +366,7 @@ class ESASkyClass(BaseQuery):
             return catalogs
         if (isinstance(catalogs, str)):
             if(catalogs.lower() == self.__ALL_STRING):
-                return self.list_maps()
+                return self.list_catalogs()
             else:
                 return [catalogs]
         raise ValueError("Catalog must be either a string or a list of catalogs")
@@ -378,7 +376,7 @@ class ESASkyClass(BaseQuery):
             return table_list
         raise ValueError("Query_table_list must be an astropy.utils.TableList")
       
-    def _get_maps_for_mission(self, maps_table, mission, download_folder):
+    def _get_maps_for_mission(self, maps_table, mission, download_folder, cache):
         maps = dict()
         
         if(len(maps_table[self.__PRODUCT_URL_STRING]) > 0):
@@ -392,31 +390,31 @@ class ESASkyClass(BaseQuery):
                 directory_path = mission_directory + "/"
                 if(mission.lower() == self.__HERSCHEL_STRING):
                     herschel_filter = maps_table[self.__FILTER_STRING][index].decode('utf-8').split(",")
-                    maps[observation_id] = self._get_herschel_observation(product_url, directory_path, herschel_filter)
+                    maps[observation_id] = self._get_herschel_observation(product_url, directory_path, herschel_filter, cache)
                     
                 else:
-                    with urllib.request.urlopen(product_url) as response:
-                        file_name = ""
-                        if(product_url.endswith(self.__FITS_STRING)):
-                            file_name = directory_path + self._extract_file_name_from_url(product_url)
-                        else:
-                            file_name = directory_path + self._extract_file_name_from_response_header(response.headers)
-                        
-                        fits_data = response.read()
-                        with open(file_name, 'wb') as fits_file:
-                            fits_file.write(fits_data)
-                            fits_file.close()
-                            maps[observation_id] = fits.open(file_name)
-                
+                    response = self._request('GET', product_url, cache = cache)
+                    file_name = ""
+                    if(product_url.endswith(self.__FITS_STRING)):
+                        file_name = directory_path + self._extract_file_name_from_url(product_url)
+                    else:
+                        file_name = directory_path + self._extract_file_name_from_response_header(response.headers)
+                    
+                    fits_data = response.content
+                    with open(file_name, 'wb') as fits_file:
+                        fits_file.write(fits_data)
+                        fits_file.close()
+                        maps[observation_id] = fits.open(file_name)
+            
                 print("[Done]")
             print("Downloading of %s data complete." %mission)
         
         return maps
     
-    def _get_herschel_observation(self, product_url, directory_path, filters):
+    def _get_herschel_observation(self, product_url, directory_path, filters, cache):
         observation = dict()            
         tar_file = tempfile.NamedTemporaryFile()
-        with urllib.request.urlopen(product_url) as response:
+        with self._request('GET', product_url, cache = cache) as response:
             tar_file.write(response.read())    
         with tarfile.open(tar_file.name,'r') as tar:
             i = 0
@@ -468,21 +466,21 @@ class ESASkyClass(BaseQuery):
         start_index = product_url.rindex("/") + 1
         return product_url[start_index:]
     
-    def _query_region_maps(self, coordinates, radius, observation_name, get_query_payload):
-        observation_tap_name = self._find_observation_tap_table_name(observation_name)
-        query = self._build_observation_query(coordinates, radius, self._find_observation_parameters(observation_tap_name))
+    def _query_region_maps(self, coordinates, radius, observation_name, get_query_payload, cache):
+        observation_tap_name = self._find_observation_tap_table_name(observation_name, cache)
+        query = self._build_observation_query(coordinates, radius, self._find_observation_parameters(observation_tap_name, cache))
         request_payload = self._create_request_payload(query)
         if(get_query_payload):
             return request_payload
-        return self._get_and_parse_from_tap(request_payload)
+        return self._get_and_parse_from_tap(request_payload, cache)
     
-    def _query_region_catalog(self, coordinates, radius, catalog_name, get_query_payload):
-        catalog_tap_name = self._find_catalog_tap_table_name(catalog_name)
-        query = self._build_catalog_query(coordinates, radius, self._find_catalog_parameters(catalog_tap_name))
+    def _query_region_catalog(self, coordinates, radius, catalog_name, get_query_payload, cache):
+        catalog_tap_name = self._find_catalog_tap_table_name(catalog_name, cache)
+        query = self._build_catalog_query(coordinates, radius, self._find_catalog_parameters(catalog_tap_name, cache))
         request_payload = self._create_request_payload(query)
         if(get_query_payload):
             return request_payload
-        return self._get_and_parse_from_tap(request_payload)
+        return self._get_and_parse_from_tap(request_payload, cache)
         
     def _build_observation_query(self, coordinates, radius, json):
         raHours, dec = commons.coord_to_radec(coordinates)
@@ -533,25 +531,25 @@ class ESASkyClass(BaseQuery):
         
         return query    
     
-    def _store_query_result_maps(self, query_result, missions, coordinates, radius, get_query_payload):
+    def _store_query_result_maps(self, query_result, missions, coordinates, radius, get_query_payload, cache):
         for mission in missions:
-            mission_table = self._query_region_maps(coordinates, radius, mission, get_query_payload)
+            mission_table = self._query_region_maps(coordinates, radius, mission, get_query_payload, cache)
             if (len(mission_table) > 0):
                 query_result[mission.upper()] = mission_table
         return
     
-    def _store_query_result_catalogs(self, query_result, catalogs, coordinates, radius, get_query_payload):
+    def _store_query_result_catalogs(self, query_result, catalogs, coordinates, radius, get_query_payload, cache):
         for catalog in catalogs:
-            catalog_table = self._query_region_catalog(coordinates, radius, catalog, get_query_payload)
+            catalog_table = self._query_region_catalog(coordinates, radius, catalog, get_query_payload, cache)
             if (len(catalog_table) > 0):
                 query_result[catalog.upper()] = catalog_table
         return        
             
-    def _find_observation_parameters(self, mission_name):
-        return self._find_mission_parameters_in_json(mission_name, self._get_observation_json())
+    def _find_observation_parameters(self, mission_name, cache):
+        return self._find_mission_parameters_in_json(mission_name, self._get_observation_json(cache))
     
-    def _find_catalog_parameters(self, catalog_name):
-        return self._find_mission_parameters_in_json(catalog_name, self._get_catalogs_json())
+    def _find_catalog_parameters(self, catalog_name, cache):
+        return self._find_mission_parameters_in_json(catalog_name, self._get_catalogs_json(cache))
         
     def _find_mission_parameters_in_json(self, mission_tap_name, json):
         for mission in json:
@@ -560,11 +558,11 @@ class ESASkyClass(BaseQuery):
         raise ValueError("Input tap name %s not available." %mission_tap_name)
         return None  
 
-    def _find_observation_tap_table_name(self, mission_name):
-        return self._find_mission_tap_table_name(self._fetch_and_parse_json(self.__OBSERVATIONS_STRING), mission_name)
+    def _find_observation_tap_table_name(self, mission_name, cache):
+        return self._find_mission_tap_table_name(self._fetch_and_parse_json(self.__OBSERVATIONS_STRING, cache), mission_name)
 
-    def _find_catalog_tap_table_name(self, mission_name):
-        return self._find_mission_tap_table_name(self._fetch_and_parse_json(self.__CATALOGS_STRING), mission_name)
+    def _find_catalog_tap_table_name(self, mission_name, cache):
+        return self._find_mission_tap_table_name(self._fetch_and_parse_json(self.__CATALOGS_STRING, cache), mission_name)
     
     def _find_mission_tap_table_name(self, json, mission_name):
         for i in range(len(json)):
@@ -574,16 +572,16 @@ class ESASkyClass(BaseQuery):
         raise ValueError("Input %s not available." %mission_name)
         return None  
   
-    def _get_observation_json(self):
-        return self._fetch_and_parse_json(self.__OBSERVATIONS_STRING)
+    def _get_observation_json(self, cache):
+        return self._fetch_and_parse_json(self.__OBSERVATIONS_STRING, cache)
 
-    def _get_catalogs_json(self):
-        return self._fetch_and_parse_json(self.__CATALOGS_STRING)
+    def _get_catalogs_json(self, cache):
+        return self._fetch_and_parse_json(self.__CATALOGS_STRING, cache)
   
-    def _fetch_and_parse_json(self, object_name):
+    def _fetch_and_parse_json(self, object_name, cache):
         url = self.URLbase + "/" + object_name
-        with urllib.request.urlopen(url) as response:
-            string_response = response.read().decode('utf-8')
+        response = self._request('GET', url, cache = cache)
+        string_response = response.content.decode('utf-8')
         json_response = json.loads(string_response)
         return json_response[object_name]
     
@@ -596,7 +594,7 @@ class ESASkyClass(BaseQuery):
     def _create_request_payload(self, query):
         return {'REQUEST':'doQuery', 'LANG':'ADQL', 'FORMAT': 'VOTABLE', 'QUERY': query}
     
-    def _get_and_parse_from_tap(self, request_payload, cache = True):
+    def _get_and_parse_from_tap(self, request_payload, cache):
         response = self._send_get_request("/tap/sync", request_payload, cache)
         return self._parse_xml_table(response)
     
