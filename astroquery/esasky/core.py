@@ -109,7 +109,7 @@ class ESASkyClass(BaseQuery):
         query_object_maps("265.05, 69.0", "Herschel")
         query_object_maps("265.05, 69.0", ["Herschel", "HST"])
         """
-        self.query_region_maps(position, self.__ZERO_ARCMIN_STRING, missions, 
+        return self.query_region_maps(position, self.__ZERO_ARCMIN_STRING, missions, 
                                get_query_payload, cache)
         
     def query_object_catalogs(self, position, catalogs=__ALL_STRING, 
@@ -153,7 +153,7 @@ class ESASkyClass(BaseQuery):
         query_object_catalogs("265.05, 69.0", "Gaia DR1 TGA")
         query_object_catalogs("265.05, 69.0", ["Gaia DR1 TGA", "HSC"])
         """
-        self.query_region_catalogs(position, self.__ZERO_ARCMIN_STRING, 
+        return self.query_region_catalogs(position, self.__ZERO_ARCMIN_STRING, 
                                    catalogs, get_query_payload, cache)
 
     def query_region_maps(self, position, radius, missions=__ALL_STRING, 
@@ -326,7 +326,7 @@ class ESASkyClass(BaseQuery):
 
         maps = dict()
          
-        for query_mission in sanitized_query_table_list:
+        for query_mission in sanitized_query_table_list.keys():
             for mission in sanitized_missions:
                 #INTEGRAL does not have a product url yet.
                 if (query_mission.lower() == self.__INTEGRAL_STRING):
@@ -399,10 +399,11 @@ class ESASkyClass(BaseQuery):
         
         map_query_result = self.query_region_maps(sanitized_position, 
                                                   sanitized_radius, 
-                                                  sanitized_missions, 
-                                                  cache)
+                                                  sanitized_missions,
+                                                  get_query_payload=False, 
+                                                  cache=cache)
                 
-        for query_mission in map_query_result:
+        for query_mission in map_query_result.keys():
             #INTEGRAL does not have a product url yet.
             if (query_mission.lower() == self.__INTEGRAL_STRING):
                 continue
@@ -611,15 +612,17 @@ class ESASkyClass(BaseQuery):
                                         for entry in metadata])
 
         from_query = " FROM %s" %json[self.__TAP_TABLE_STRING]
-        if (json[self.__IS_SURVEY_MISSION_STRING]):
-            where_query = " WHERE 1=CONTAINS(pos,"
+        area_or_point_string = "pos"
+        if (json[self.__IS_SURVEY_MISSION_STRING] or radius == 0):
+            area_or_point_string = "fov"
+        if (radiusDeg == 0):
+            where_query = (" WHERE 1=CONTAINS(POINT('ICRS', %f, %f), %s);"
+                           %(ra, dec, area_or_point_string))
         else:
-            where_query = " WHERE 1=CONTAINS(fov,"
-            
-        region_query = " CIRCLE('ICRS', %f, %f, %f));" %(ra, dec, radiusDeg) 
-        
+            where_query = (" WHERE 1=CONTAINS(%s, CIRCLE('ICRS', %f, %f, %f));" 
+                           %(area_or_point_string, ra, dec, radiusDeg)) 
         query = "".join([select_query, metadata_tap_names, from_query, 
-                         where_query, region_query])
+             where_query])
         return query  
                
     def _build_catalog_query(self, coordinates, radius, json):
@@ -634,8 +637,13 @@ class ESASkyClass(BaseQuery):
                                         for entry in metadata])
 
         from_query = " FROM %s" %json[self.__TAP_TABLE_STRING]
-        where_query = (" WHERE 1=CONTAINS(%s, CIRCLE('ICRS', %f, %f, %f))"
-                       %(json[self.__POS_TAP_STRING], ra, dec, radiusDeg))  
+        if (radiusDeg == 0):
+            where_query = (" WHERE 1=CONTAINS(%s, CIRCLE('ICRS', %f, %f, %f))"
+                           %(json[self.__POS_TAP_STRING], ra, dec, 
+                             commons.radius_to_unit("0.001 arcsec", unit='deg')))  
+        else:
+            where_query = (" WHERE 1=CONTAINS(%s, CIRCLE('ICRS', %f, %f, %f))"
+                           %(json[self.__POS_TAP_STRING], ra, dec, radiusDeg))  
         order_by_query = " ORDER BY %s;" %json[self.__ORDER_BY_STRING]
         
         query = "".join([select_query, metadata_tap_names, from_query, 
