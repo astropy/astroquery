@@ -82,5 +82,4 @@ def test_list_catalogs():
     result = esasky.core.ESASkyClass().list_catalogs()
     assert (len(result) == 13)
     
-test_list_catalogs()
 

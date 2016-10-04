@@ -10,12 +10,8 @@ from astropy.tests.helper import remote_data, pytest
 from ... import esasky
 
 
-"""Tests that a valid HDUList object is returned."""
-"""Tests that a valid table is returned."""
-
 
 @remote_data
 def test_esasky_list_catalogs():
     result = esasky.core.ESASkyClass().list_catalogs()
     assert(len(result) == 13)
-    pass
