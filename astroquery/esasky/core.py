@@ -604,7 +604,7 @@ class ESASkyClass(BaseQuery):
         ra = raHours * 15.0 # Converts to degrees
         radiusDeg = commons.radius_to_unit(radius, unit='deg')
         
-        select_query = "SELECT DISTINCT"
+        select_query = "SELECT DISTINCT "
         
         metadata = json[self.__METADATA_STRING]
         metadata_tap_names = ", ".join(["%s" % entry[self.__TAP_NAME_STRING] 
@@ -630,12 +630,8 @@ class ESASkyClass(BaseQuery):
         select_query = "SELECT TOP %s " %json[self.__SOURCE_LIMIT_STRING]
           
         metadata = json[self.__METADATA_STRING]
-        metadata_tap_names = ""
-        for i in range(len(metadata)): 
-            if (i < len(metadata) - 1):
-                metadata_tap_names += " %s," %metadata[i][self.__TAP_NAME_STRING]
-            else:
-                metadata_tap_names += " %s" %metadata[i][self.__TAP_NAME_STRING]
+        metadata_tap_names = ", ".join(["%s" % entry[self.__TAP_NAME_STRING] 
+                                        for entry in metadata])
 
         from_query = " FROM %s" %json[self.__TAP_TABLE_STRING]
         where_query = (" WHERE 1=CONTAINS(%s, CIRCLE('ICRS', %f, %f, %f))"
