@@ -48,6 +48,7 @@ class ESASkyClass(BaseQuery):
     __ORDER_BY_STRING = "orderBy"
     __IS_SURVEY_MISSION_STRING = "isSurveyMission"
     __ZERO_ARCMIN_STRING = "0 arcmin"
+    __MIN_RADIUS_CATALOG_STRING = "5 arcsec"
 
     __HERSCHEL_STRING = 'herschel'
     __HST_STRING = 'hst'
@@ -72,8 +73,9 @@ class ESASkyClass(BaseQuery):
                           get_query_payload=False, cache=True):
         """
         This method queries a chosen object or coordinate for all available maps
-        and returns a TableList with all the found maps metadata for the chosen 
-        missions and object.
+        which have observation data on the chosen position. It returns a 
+        TableList with all the found maps metadata for the chosen missions 
+        and object.
 
         Parameters
         ----------
@@ -105,7 +107,6 @@ class ESASkyClass(BaseQuery):
         --------
         query_object_maps("m101", "all")
         
-        import astropy.units as u
         query_object_maps("265.05, 69.0", "Herschel")
         query_object_maps("265.05, 69.0", ["Herschel", "HST"])
         """
@@ -117,7 +118,9 @@ class ESASkyClass(BaseQuery):
         """
         This method queries a chosen object or coordinate for all available 
         catalogs and returns a TableList with all the found catalogs metadata 
-        for the chosen missions and object.
+        for the chosen missions and object. To account for errors in telescope
+        position, the method will look for any sources within a radius of 
+        5 arcsec of the chosen position.
 
         Parameters
         ----------
@@ -149,7 +152,6 @@ class ESASkyClass(BaseQuery):
         --------
         query_object_catalogs("m101", "all")
         
-        import astropy.units as u
         query_object_catalogs("265.05, 69.0", "Gaia DR1 TGA")
         query_object_catalogs("265.05, 69.0", ["Gaia DR1 TGA", "HSC"])
         """
@@ -330,6 +332,8 @@ class ESASkyClass(BaseQuery):
             for mission in sanitized_missions:
                 #INTEGRAL does not have a product url yet.
                 if (query_mission.lower() == self.__INTEGRAL_STRING):
+                    print("INTEGRAL does not yet support downloading of "
+                          "fits files")
                     break
                 if (query_mission.lower() == mission.lower()):
                     maps[query_mission] = (
@@ -512,7 +516,7 @@ class ESASkyClass(BaseQuery):
         observation = dict()            
         tar_file = tempfile.NamedTemporaryFile()
         response = self._request('GET', product_url, cache = cache)
-        tar_file.write(response.read())    
+        tar_file.write(response.content)    
         with tarfile.open(tar_file.name,'r') as tar:
             i = 0
             for member in tar.getmembers():
@@ -613,7 +617,7 @@ class ESASkyClass(BaseQuery):
 
         from_query = " FROM %s" %json[self.__TAP_TABLE_STRING]
         area_or_point_string = "pos"
-        if (json[self.__IS_SURVEY_MISSION_STRING] or radius == 0):
+        if (json[self.__IS_SURVEY_MISSION_STRING] or radiusDeg == 0):
             area_or_point_string = "fov"
         if (radiusDeg == 0):
             where_query = (" WHERE 1=CONTAINS(POINT('ICRS', %f, %f), %s);"
@@ -640,7 +644,8 @@ class ESASkyClass(BaseQuery):
         if (radiusDeg == 0):
             where_query = (" WHERE 1=CONTAINS(%s, CIRCLE('ICRS', %f, %f, %f))"
                            %(json[self.__POS_TAP_STRING], ra, dec, 
-                             commons.radius_to_unit("0.001 arcsec", unit='deg')))  
+                             commons.radius_to_unit(
+                                 self.__MIN_RADIUS_CATALOG_STRING, unit='deg')))  
         else:
             where_query = (" WHERE 1=CONTAINS(%s, CIRCLE('ICRS', %f, %f, %f))"
                            %(json[self.__POS_TAP_STRING], ra, dec, radiusDeg))  
@@ -694,9 +699,9 @@ class ESASkyClass(BaseQuery):
             mission_name)
     
     def _find_mission_tap_table_name(self, json, mission_name):
-        for i in range(len(json)):
-            if (json[i][self.__MISSION_STRING].lower() == mission_name.lower()):
-                return json[i][self.__TAP_TABLE_STRING]
+        for index in range(len(json)):
+            if (json[index][self.__MISSION_STRING].lower() == mission_name.lower()):
+                return json[index][self.__TAP_TABLE_STRING]
         
         raise ValueError("Input %s not available." %mission_name)
         return None  
@@ -716,8 +721,8 @@ class ESASkyClass(BaseQuery):
     
     def _json_object_field_to_list(self, json, field_name):
         response_list = []
-        for i in range(len(json)):
-            response_list.append(json[i][field_name])
+        for index in range(len(json)):
+            response_list.append(json[index][field_name])
         return response_list
     
     def _create_request_payload(self, query):
