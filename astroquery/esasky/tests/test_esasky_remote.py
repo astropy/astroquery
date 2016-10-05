@@ -1,17 +1,27 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from __future__ import print_function
 
-# performs similar tests as test_module.py, but performs
-# the actual HTTP request rather than monkeypatching them.
-# should be disabled or enabled at will - use the
-# remote_data decorator from astropy:
+from astropy.table import Table
+from astropy.tests.helper import remote_data
 
-from astropy.tests.helper import remote_data, pytest
 from ... import esasky
 
-
-
 @remote_data
-def test_esasky_list_catalogs():
-    result = esasky.core.ESASkyClass().list_catalogs()
-    assert(len(result) == 13)
+class TestESASky:
+        
+    def test_esasky_query_region_maps(self):
+        result = esasky.core.ESASkyClass().query_region_maps("M51", "5 arcmin")
+        assert isinstance(result, Table)
+
+    def test_esasky_query_object_maps(self):
+        result = esasky.core.ESASkyClass().query_object_maps("M51")
+        assert isinstance(result, Table)
+        
+    def test_esasky_query_region_catalogs(self):
+        result = esasky.core.ESASkyClass().query_region_catalogs("M51", "5 arcmin")
+        assert isinstance(result, Table)
+        
+    def test_esasky_query_object_catalogs(self):
+        result = esasky.core.ESASkyClass().query_object_maps("M51")
+        assert isinstance(result, Table)
+        
