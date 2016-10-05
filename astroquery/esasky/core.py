@@ -8,7 +8,6 @@ import sys
 
 from astropy.extern import six
 import astropy.io.votable as votable
-from astropy.table import Table
 from astropy.io import fits
 import astropy.units
 
@@ -616,15 +615,18 @@ class ESASkyClass(BaseQuery):
                                         for entry in metadata])
 
         from_query = " FROM %s" %json[self.__TAP_TABLE_STRING]
-        area_or_point_string = "pos"
-        if (json[self.__IS_SURVEY_MISSION_STRING] or radiusDeg == 0):
-            area_or_point_string = "fov"
-        if (radiusDeg == 0):
-            where_query = (" WHERE 1=CONTAINS(POINT('ICRS', %f, %f), %s);"
-                           %(ra, dec, area_or_point_string))
-        else:
+        if (radiusDeg != 0 or json[self.__IS_SURVEY_MISSION_STRING]):
+            if (json[self.__IS_SURVEY_MISSION_STRING]):
+                area_or_point_string = "pos"
+            else:
+                area_or_point_string = "fov"
             where_query = (" WHERE 1=CONTAINS(%s, CIRCLE('ICRS', %f, %f, %f));" 
                            %(area_or_point_string, ra, dec, radiusDeg)) 
+        else:
+            area_or_point_string = "fov"
+            where_query = (" WHERE 1=CONTAINS(POINT('ICRS', %f, %f), %s);"
+                           %(ra, dec, area_or_point_string))
+
         query = "".join([select_query, metadata_tap_names, from_query, 
              where_query])
         return query  
