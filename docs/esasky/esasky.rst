@@ -16,7 +16,7 @@ radius. The queries may be further constrained by specifying
 a choice of catalogs or missions.
 
 Get the available catalog names
--------------------
+-------------------------------
 
 If you know the names of all the available catalogs you can use
 :meth:`~astroquery.esasky.ESASkyClass.list_catalogs`:
@@ -30,7 +30,7 @@ If you know the names of all the available catalogs you can use
 		'Planck-PCCS2-HFI', 'Planck-PCCS2-LFI', 'Planck-PSZ']
 
 Get the available maps mission names
--------------------
+------------------------------------
 
 If you know the names of all the available maps missions you can use
 :meth:`~astroquery.esasky.ESASkyClass.list_maps`:
@@ -45,17 +45,20 @@ If you know the names of all the available maps missions you can use
 Query an object
 ---------------
 
-There are two query objects methods in this module query_object_catalogs
-and query_object_maps. They both work in exactly the same way except 
+There are two query objects methods in this module :meth:`~query_object_catalogs`
+and :meth:`~query_object_maps`. They both work in almost the same way except 
 that one has catalogs as input and output and the other one has mission
-names and observations as input and output.
+names and observations as input and output. 
+
+For catalogs, the query returns a maximum of 2000 sources per mission.
+To account for observation errors, this method will search for any sources
+within 5 arcsec from the object. 
 
 For instance to query an object around M51 in the integral catalog:
 
 .. code-block:: python
 
     >>> from astroquery.esasky import ESASky
-	>>> import astropy.units as u
     >>> result = ESASky.query_object_catalogs("M51", "integral")
 
 Note that the catalog may also be specified as a list. 
@@ -65,8 +68,8 @@ So the above query may also be written as:
 
     >>> result = ESASky.query_object_catalogs("M51", ["integral", "XMM-OM"])
 
-To search in all available catalogs you can write "all" instead of a catalog name.
-The same thing will happen if you don't write any catalog name.
+To search in all available catalogs you can write "all" instead of a catalog 
+name. The same thing will happen if you don't write any catalog name.
 
 .. code-block:: python
     >>> result = ESASky.query_object_catalogs("M51", "all")
@@ -83,10 +86,9 @@ To see the result:
 		'2:XMM-OM' with 12 column(s) and 220 row(s) 
 		'3:PLANCK-PCCS2-HFI' with 8 column(s) and 1 row(s) 
 
-All the results are returned as a `astroquery.utils.TableList` object. This is a container for
-`~astropy.table.Table` objects. It is basically an extension to
-`collections.OrderedDict` for storing a `~astropy.table.Table` against its
-name.
+All the results are returned as a `astroquery.utils.TableList` object. This is a 
+container for `~astropy.table.Table` objects. It is basically an extension to
+`collections.OrderedDict` for storing a `~astropy.table.Table` against its name.
 
 To access an individual table from the `astroquery.utils.TableList` object
 
@@ -98,17 +100,19 @@ To access an individual table from the `astroquery.utils.TableList` object
 	----------------------- ------------- -------------
 	PCCS2 217 G104.83+68.55 202.485459453 47.2001843799
 
-To do some common processing to all the tables in the returned `astroquery.utils.TableList`
-object, do just what you would do for a python dictionary:
+To do some common processing to all the tables in the returned 
+`astroquery.utils.TableList` object, do just what you would do for a python 
+dictionary:
 
 .. code-block:: python
 
-    >>> for table_name in result.keys():
+    >>> for table_name in result:
     ...     table = result[table_name]
     ...     # table is now an `astropy.table.Table` object
     ...     # some code to apply on table
 
-As mentioned earlier, query_object_maps works extremely similar.
+As mentioned earlier, :meth:`query_object_maps` works extremely similar. It will
+return all maps that contain the chosen object or coordinate.
 To execute the same command as above you write this:
 
 .. code-block:: python
@@ -119,13 +123,14 @@ The parameters are interchangeable in the same way as in query_object_catalogs
 
 Query a region
 --------------
-The region queries work in a similar way as query_object, except that you must choose a 
-radius as well. There are two query region methods in this module 
-query_region_catalogs and query_region_maps.
+The region queries work in a similar way as query_object, except that you must 
+choose a radius as well. There are two query region methods in this module 
+:meth:`query_region_catalogs` and :meth:`query_region_maps`. 
+The query returns a maximum of 2000 sources per mission.
 
 To query a region either the coordinates or the object name around which to
-query should be specified along with the value for the radius
-of the region. For instance to query region around M51 in the integral catalog:
+query should be specified along with the value for the radius of the region. 
+For instance to query region around M51 in the integral catalog:
 
 .. code-block:: python
 
@@ -140,8 +145,8 @@ So the above query may also be written as:
 
     >>> result = ESASky.query_region_catalogs("M51", 10 * u.arcmin, ["integral", "XMM-OM"])
 
-To search in all available catalogs you can write "all" instead of a catalog name.
-The same thing will happen if you don't write any catalog name.
+To search in all available catalogs you can write "all" instead of a catalog 
+name. The same thing will happen if you don't write any catalog name.
 
 .. code-block:: python
     >>> result = ESASky.query_region_catalogs("M51", 10 * u.arcmin, "all")
@@ -173,6 +178,64 @@ To execute the same command as above you write this:
     >>> result = ESASky.query_region_maps("M51", 10 * u.arcmin, "all")
 
 The parameters are interchangeable in the same way as in query_region_catalogs 
+
+Get images
+----------
+
+You can fetch images around the specified target or coordinates. When a target
+name is used rather than the coordinates, this will be resolved to coordinates
+using astropy name resolving methods that utilize online services like
+SESAME. Coordinates may be entered using the suitable object from
+`astropy.coordinates`. 
+
+The method returns a `dict` to separate the different
+missions. All mission except Herschel returns a list of 
+`~astropy.io.fits.HDUList`. For Herschel each item in the list is a 
+dictionary where the used filter is the key and the HDUList is the value.
+
+.. code-block:: python
+
+    >>> from astroquery.esasky import ESASky
+    >>> images = ESASky.get_images("m51", radius="20 arcmin", missions=['Herschel', 'XMM-EPIC'])
+
+	Starting download of HERSCHEL data. (12 files)
+	Downloading Observation ID: 1342183910 from http://archives.esac.esa.int/hsa/aio/jsp/standaloneproduct.jsp?RETRIEVAL_TYPE=STANDALONE&OBSERVATION.OBSERVATION_ID=1342183910&OBSERVING_MODE.OBSERVING_MODE_NAME=PacsPhoto&INSTRUMENT.INSTRUMENT_NAME=PACS [Done]
+	Downloading Observation ID: 1342183907 from http://archives.esac.esa.int/hsa/aio/jsp/standaloneproduct.jsp?RETRIEVAL_TYPE=STANDALONE&OBSERVATION.OBSERVATION_ID=1342183907&OBSERVING_MODE.OBSERVING_MODE_NAME=PacsPhoto&INSTRUMENT.INSTRUMENT_NAME=PACS [Done]
+	...
+	
+    >>> print(images)
+ 	{
+    'HERSCHEL': [{'70': [HDUList], ' 160': [HDUList]}, {'70': [HDUList], ' 160': [HDUList]}, ...],
+    'XMM-EPIC' : [HDUList], HDUList], HDUList], HDUList], ...]
+    ...
+    }
+
+Note that the fits files also are stored to disk. By default they are saved to 
+the working directory but the location can be chosen by the download_directory 
+parameter:
+
+.. code-block:: python
+
+    >>> images = ESASky.get_images("m51", radius="20 arcmin", missions=['Herschel', 'XMM-EPIC'], download_directory="/home/user/esasky")
+
+Get maps
+--------
+
+You can also fetch images using :meth:`get_maps`. It works exactly as 
+:meth:`get_images` except that it takes a `~astropy.utils.TableList` instead 
+of position, radius and missions. 
+
+.. code-block:: python
+
+    >>> table_list = ESASky.query_region_maps("m51", radius="20 arcmin", missions=['Herschel', 'XMM-EPIC'])
+    >>> images = ESASky.get_maps(table_list, download_directory="/home/user/esasky")
+
+This example is equivalent to:
+
+.. code-block:: python
+
+    >>> images = ESASky.get_images("m51", radius="20 arcmin", missions=['Herschel', 'XMM-EPIC'], download_directory="/home/user/esasky")
+
 
 Reference/API
 =============
