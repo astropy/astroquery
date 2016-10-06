@@ -1,5 +1,4 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-
 import json
 import os
 import tempfile
@@ -75,7 +74,7 @@ class ESASkyClass(BaseQuery):
         which have observation data on the chosen position. It returns a 
         TableList with all the found maps metadata for the chosen missions 
         and object.
-
+        
         Parameters
         ----------
         position : str or `astropy.coordinates` object
@@ -120,7 +119,7 @@ class ESASkyClass(BaseQuery):
         for the chosen missions and object. To account for errors in telescope
         position, the method will look for any sources within a radius of 
         5 arcsec of the chosen position.
-
+        
         Parameters
         ----------
         position : str or `astropy.coordinates` object
@@ -136,7 +135,6 @@ class ESASkyClass(BaseQuery):
         cache : bool, optional
             When set to True the method will use a cache located at 
             .astropy/astroquery/cache. Defaults to True.
-
         Returns
         -------
         table_list : `astroquery.utils.TableList`
@@ -163,7 +161,7 @@ class ESASkyClass(BaseQuery):
         This method queries a chosen region for all available maps and returns a
         TableList with all the found maps metadata for the chosen missions and
         region.
-
+        
         Parameters
         ----------
         position : str or `astropy.coordinates` object
@@ -223,7 +221,7 @@ class ESASkyClass(BaseQuery):
         This method queries a chosen region for all available catalogs and 
         returns a TableList with all the found catalogs metadata for the chosen
         missions and region.
-
+        
         Parameters
         ----------
         position : str or `astropy.coordinates` object
@@ -279,13 +277,15 @@ class ESASkyClass(BaseQuery):
         return commons.TableList(query_result)
     
     def get_maps(self, query_table_list, missions=__ALL_STRING, 
-                 download_folder=__MAPS_STRING, cache=True):
+                 download_directory=__MAPS_STRING, cache=True):
         """
         This method takes the dictionary of missions and metadata as returned by 
         query_region_maps and downloads all maps to the selected folder. 
-        The method returns a dictionary which is divided by mission and 
-        observation id. 
-
+        The method returns a dictionary which is divided by mission.
+        All mission except Herschel returns a list of HDULists. 
+        For Herschel each item in the list is a dictionary where the used 
+        filter is the key and the HDUList is the value. 
+        
         Parameters
         ----------
         query_table_list : `astroquery.utils.TableList`
@@ -295,7 +295,7 @@ class ESASkyClass(BaseQuery):
             Can be either a specific mission or a list of missions (all mission 
             names are found in list_missions()) or 'all' to search in all 
             missions. Defaults to 'all'. 
-        download_folder : string, optional
+        download_directory : string, optional
             The folder where all downloaded maps should be stored. 
             Defaults to a folder called 'Maps' in the current working directory. 
         cache : bool, optional
@@ -304,18 +304,17 @@ class ESASkyClass(BaseQuery):
             
         Returns
         -------
-        maps : dict
-            Each mission returns dict where each observation id has a HDUList. 
-            The exception is Herschel as it has multiple fits files per 
-            observation id. For Herschel each observation id got the used 
-            filters with their respective HDULists.
+        maps : `dict`
+            All mission except Herschel returns a list of HDULists. 
+            For Herschel each item in the list is a dictionary where the used 
+            filter is the key and the HDUList is the value.
             It is structured in a dictionary like this:
                 dict: {
-                'XMM-EPIC': {'observationID_x': [HDUList], 'observationID_y': [HDUList], ...}, 
-                'HST': {'observationID_z': [HDUList], ...},
-                'HERSCHEL': {'observationID_a': {'filter_a':[HDUList], filter_b: [HDUList]}, 
-                             'observationID_b': {'filter_a':[HDUList], filter_b: [HDUList]}, 
-                             ... }}
+                    'HERSCHEL': [{'70': [HDUList], ' 160': [HDUList]}, {'70': [HDUList], ' 160': [HDUList]}, ...],
+                    'HST':[[HDUList], HDUList], HDUList], HDUList], HDUList], ...],
+                    'XMM-EPIC' : [HDUList], HDUList], HDUList], HDUList], ...]
+                    ...
+                    }
         
         Examples
         --------
@@ -339,22 +338,24 @@ class ESASkyClass(BaseQuery):
                         self._get_maps_for_mission(
                             sanitized_query_table_list[query_mission], 
                             query_mission, 
-                            download_folder, 
+                            download_directory, 
                             cache))
                     break
         if (len(sanitized_query_table_list) > 0):
-            log.info("Maps available at %s" %os.path.abspath(download_folder))
+            log.info("Maps available at %s" %os.path.abspath(download_directory))
         else:
             print("No maps found")
         return commons.TableList(maps)
     
-    def get_images(self, position, radius=0, missions=__ALL_STRING, 
-                   download_folder=__MAPS_STRING, cache=True):
+    def get_images(self, position, radius=__ZERO_ARCMIN_STRING, missions=__ALL_STRING, 
+                   download_directory=__MAPS_STRING, cache=True):
         """
         This method gets the fits files available for the selected position and 
-        mission and downloads all maps to the folder /Maps.
-        The method returns a dictionary which is divided by mission and 
-        observation id. 
+        mission and downloads all maps to the the selected folder.
+        The method returns a dictionary which is divided by mission.
+        All mission except Herschel returns a list of HDULists. 
+        For Herschel each item in the list is a dictionary where the used 
+        filter is the key and the HDUList is the value.
 
         Parameters
         ----------
@@ -367,7 +368,7 @@ class ESASkyClass(BaseQuery):
             Can be either a specific mission or a list of missions (all mission 
             names are found in list_missions()) or 'all' to search in all 
             missions. Defaults to 'all'. 
-        download_folder : string, optional
+        download_directory : string, optional
             The folder where all downloaded maps should be stored. 
             Defaults to a folder called 'Maps' in the current working directory. 
         cache : bool, optional
@@ -377,17 +378,16 @@ class ESASkyClass(BaseQuery):
         Returns
         -------
         maps : `dict`
-            Each mission returns dictionary where each observation id has a 
-            HDUList. The exception is Herschel as it has multiple fits files 
-            per observation id. For Herschel each observation id got the used 
-            filters with their respective HDULists.
+            All mission except Herschel returns a list of HDULists. 
+            For Herschel each item in the list is a dictionary where the used 
+            filter is the key and the HDUList is the value.
             It is structured in a dictionary like this:
                 dict: {
-                'XMM-EPIC': {'observationID_x': [HDUList], 'observationID_y': [HDUList], ...}, 
-                'HST': {'observationID_z': [HDUList], ...},
-                'HERSCHEL': {'observationID_a': {'filter_a':[HDUList], filter_b: [HDUList]}, 
-                             'observationID_b': {'filter_a':[HDUList], filter_b: [HDUList]}, 
-                            ... }}
+                    'HERSCHEL': [{'70': [HDUList], ' 160': [HDUList]}, {'70': [HDUList], ' 160': [HDUList]}, ...],
+                    'HST':[[HDUList], HDUList], HDUList], HDUList], HDUList], ...],
+                    'XMM-EPIC' : [HDUList], HDUList], HDUList], HDUList], ...]
+                    ...
+                    }
         
         Examples
         --------
@@ -409,15 +409,17 @@ class ESASkyClass(BaseQuery):
         for query_mission in map_query_result.keys():
             #INTEGRAL does not have a product url yet.
             if (query_mission.lower() == self.__INTEGRAL_STRING):
+                print("INTEGRAL does not yet support downloading of "
+                      "fits files")
                 continue
             maps[query_mission] = (
                 self._get_maps_for_mission(
                     map_query_result[query_mission], 
                     query_mission, 
-                    download_folder, 
+                    download_directory, 
                     cache))
 
-        print("Maps available at %s" %os.path.abspath(download_folder))
+        print("Maps available at %s" %os.path.abspath(download_directory))
         return maps
     
     def _sanitize_input_position(self, position):
@@ -463,12 +465,12 @@ class ESASkyClass(BaseQuery):
             return table_list
         raise ValueError("Query_table_list must be an astropy.utils.TableList")
       
-    def _get_maps_for_mission(self, maps_table, mission, download_folder, cache):
-        maps = dict()
+    def _get_maps_for_mission(self, maps_table, mission, download_directory, cache):
+        maps = []
         
         if (len(maps_table[self.__PRODUCT_URL_STRING]) > 0):
             mission_directory = self._create_mission_directory(mission, 
-                                                               download_folder)    
+                                                               download_directory)    
             print("Starting download of %s data. (%d files)" 
                   %(mission, len(maps_table[self.__PRODUCT_URL_STRING])))
             for index in range(len(maps_table)):
@@ -483,11 +485,10 @@ class ESASkyClass(BaseQuery):
                 if (mission.lower() == self.__HERSCHEL_STRING):
                     herschel_filter = (maps_table[self.__FILTER_STRING][index]
                                        .decode('utf-8').split(","))
-                    maps[observation_id] = (
-                        self._get_herschel_observation(product_url, 
-                                                       directory_path, 
-                                                       herschel_filter, 
-                                                       cache))
+                    maps.append(self._get_herschel_observation(product_url, 
+                                                               directory_path, 
+                                                               herschel_filter, 
+                                                               cache))
                     
                 else:
                     response = self._request('GET', product_url, cache = cache)
@@ -503,7 +504,7 @@ class ESASkyClass(BaseQuery):
                     with open(file_name, 'wb') as fits_file:
                         fits_file.write(fits_data)
                         fits_file.close()
-                        maps[observation_id] = fits.open(file_name)
+                        maps.append(fits.open(file_name))
             
                 print("[Done]")
             print("Downloading of %s data complete." %mission)
@@ -538,11 +539,11 @@ class ESASkyClass(BaseQuery):
                    os.path.join(full_directory_path, file_name))
         return file_name
     
-    def _create_mission_directory(self, mission, download_folder):
-        if (download_folder == self.__MAPS_STRING):
+    def _create_mission_directory(self, mission, download_directory):
+        if (download_directory == self.__MAPS_STRING):
             mission_directory = self.__MAPS_STRING + "/" + mission
         else:
-            mission_directory = (download_folder + "/" + self.__MAPS_STRING + 
+            mission_directory = (download_directory + "/" + self.__MAPS_STRING + 
                                  "/" + mission)
         if not os.path.exists(mission_directory):
             os.makedirs(mission_directory)
