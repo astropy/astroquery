@@ -41,7 +41,7 @@ def test_esasky_query_region_maps_invalid_radius(self):
 
 def test_esasky_query_region_maps_invalid_mission(self):
         self.assertRaises(ValueError, ESASky
-                          .query_region_maps("M51", "5 arcmin", True))
+                          .query_region_maps("M51", "5 arcmin", mission=True))
         
 def test_list_catalogs():
     result = ESASky.list_catalogs()
