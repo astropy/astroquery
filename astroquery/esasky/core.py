@@ -1,10 +1,10 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import json
 import os
+from __future__ import print_function
 import tempfile
 import tarfile
 import sys
-from __future__ import print_function
 
 from astropy.extern import six
 from astropy.io import fits
