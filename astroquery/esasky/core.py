@@ -345,7 +345,7 @@ class ESASkyClass(BaseQuery):
             log.info("Maps available at %s" %os.path.abspath(download_directory))
         else:
             print("No maps found")
-        return commons.TableList(maps)
+        return maps
     
     def get_images(self, position, radius=__ZERO_ARCMIN_STRING, missions=__ALL_STRING, 
                    download_directory=__MAPS_STRING, cache=True):
