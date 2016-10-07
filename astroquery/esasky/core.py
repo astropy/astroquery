@@ -4,18 +4,19 @@ import os
 import tempfile
 import tarfile
 import sys
+from __future__ import print_function
 
 from astropy.extern import six
-import astropy.io.votable as votable
 from astropy.io import fits
+from astropy import log
 import astropy.units
+import astropy.io.votable as votable
 
 from ..query import BaseQuery
 from ..utils import commons
 from ..utils import async_to_sync
 from . import conf
 from ..exceptions import TableParseError
-from astropy import log
 
 @async_to_sync
 class ESASkyClass(BaseQuery):
