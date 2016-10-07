@@ -9,7 +9,7 @@ Module to search the SAO/NASA Astrophysics Data System
 from astropy.table import Table
 
 from ..query import BaseQuery
-from ..utils import commons, async_to_sync
+from ..utils import async_to_sync
 from ..utils.class_or_instance import class_or_instance
 
 from .utils import _get_data_from_xml
