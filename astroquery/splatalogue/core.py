@@ -103,7 +103,7 @@ class SplatalogueClass(BaseQuery):
                       max_frequency=100 * u.THz,
                       chemical_name='',
                       line_lists=self.ALL_LINE_LISTS,
-                      line_strengths=('ls1', 'ls3', 'ls4', 'ls5'),
+                      line_strengths=('ls1', 'ls2', 'ls3', 'ls4', 'ls5'),
                       energy_levels=('el1', 'el2', 'el3', 'el4'),
                       exclude=('potential', 'atmospheric', 'probable'),
                       version='v3.0',
