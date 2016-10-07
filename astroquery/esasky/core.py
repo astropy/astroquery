@@ -1,7 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
+from __future__ import print_function
 import json
 import os
-from __future__ import print_function
 import tempfile
 import tarfile
 import sys
