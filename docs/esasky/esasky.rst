@@ -72,6 +72,7 @@ To search in all available catalogs you can write "all" instead of a catalog
 name. The same thing will happen if you don't write any catalog name.
 
 .. code-block:: python
+
     >>> result = ESASky.query_object_catalogs("M51", "all")
     >>> result = ESASky.query_object_catalogs("M51")
 
@@ -149,6 +150,7 @@ To search in all available catalogs you can write "all" instead of a catalog
 name. The same thing will happen if you don't write any catalog name.
 
 .. code-block:: python
+
     >>> result = ESASky.query_region_catalogs("M51", 10 * u.arcmin, "all")
     >>> result = ESASky.query_region_catalogs("M51", 10 * u.arcmin)
 

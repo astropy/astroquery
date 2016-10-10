@@ -98,9 +98,9 @@ class ESASkyClass(BaseQuery):
             Each mission returns a `astroquery.table.Table` with the metadata 
             and observations available for the chosen missions and object.
             It is structured in a TableList like this:
-                TableList with 8 tables:
-                    '0:HERSCHEL' with 8 column(s) and 25 row(s) 
-                    '1:HST' with 8 column(s) and 735 row(s) 
+            TableList with 8 tables:
+            '0:HERSCHEL' with 8 column(s) and 25 row(s) 
+            '1:HST' with 8 column(s) and 735 row(s) 
         
         Examples
         --------
@@ -142,9 +142,9 @@ class ESASkyClass(BaseQuery):
             Each mission returns a `astroquery.table.Table` with the metadata 
             of the catalogs available for the chosen mission and object.
             It is structured in a TableList like this:
-                TableList with 8 tables:
-                    '0:Gaia DR1 TGA' with 8 column(s) and 25 row(s) 
-                    '1:HSC' with 8 column(s) and 75 row(s) 
+            TableList with 8 tables:
+            '0:Gaia DR1 TGA' with 8 column(s) and 25 row(s) 
+            '1:HSC' with 8 column(s) and 75 row(s) 
         
         Examples
         --------
@@ -187,9 +187,9 @@ class ESASkyClass(BaseQuery):
             Each mission returns a `astroquery.table.Table` with the metadata 
             and observations available for the chosen missions and region.
             It is structured in a TableList like this:
-                TableList with 8 tables:
-                    '0:HERSCHEL' with 8 column(s) and 25 row(s) 
-                    '1:HST' with 8 column(s) and 735 row(s) 
+            TableList with 8 tables:
+            '0:HERSCHEL' with 8 column(s) and 25 row(s) 
+            '1:HST' with 8 column(s) and 735 row(s) 
         
         Examples
         --------
@@ -248,9 +248,9 @@ class ESASkyClass(BaseQuery):
             the catalogs available 
             for the chosen mission and region.
             It is structured in a TableList like this:
-                TableList with 8 tables:
-                    '0:Gaia DR1 TGA' with 8 column(s) and 25 row(s) 
-                    '1:HSC' with 8 column(s) and 75 row(s) 
+            TableList with 8 tables:
+            '0:Gaia DR1 TGA' with 8 column(s) and 25 row(s) 
+            '1:HSC' with 8 column(s) and 75 row(s) 
         
         Examples
         --------
@@ -310,12 +310,12 @@ class ESASkyClass(BaseQuery):
             For Herschel each item in the list is a dictionary where the used 
             filter is the key and the HDUList is the value.
             It is structured in a dictionary like this:
-                dict: {
-                    'HERSCHEL': [{'70': [HDUList], ' 160': [HDUList]}, {'70': [HDUList], ' 160': [HDUList]}, ...],
-                    'HST':[[HDUList], HDUList], HDUList], HDUList], HDUList], ...],
-                    'XMM-EPIC' : [HDUList], HDUList], HDUList], HDUList], ...]
-                    ...
-                    }
+            dict: {
+            'HERSCHEL': [{'70': [HDUList], ' 160': [HDUList]}, {'70': [HDUList], ' 160': [HDUList]}, ...],
+            'HST':[[HDUList], HDUList], HDUList], HDUList], HDUList], ...],
+            'XMM-EPIC' : [HDUList], HDUList], HDUList], HDUList], ...]
+            ...
+            }
         
         Examples
         --------
@@ -383,12 +383,12 @@ class ESASkyClass(BaseQuery):
             For Herschel each item in the list is a dictionary where the used 
             filter is the key and the HDUList is the value.
             It is structured in a dictionary like this:
-                dict: {
-                    'HERSCHEL': [{'70': [HDUList], ' 160': [HDUList]}, {'70': [HDUList], ' 160': [HDUList]}, ...],
-                    'HST':[[HDUList], HDUList], HDUList], HDUList], HDUList], ...],
-                    'XMM-EPIC' : [HDUList], HDUList], HDUList], HDUList], ...]
-                    ...
-                    }
+            dict: {
+            'HERSCHEL': [{'70': [HDUList], ' 160': [HDUList]}, {'70': [HDUList], ' 160': [HDUList]}, ...],
+            'HST':[[HDUList], HDUList], HDUList], HDUList], HDUList], ...],
+            'XMM-EPIC' : [HDUList], HDUList], HDUList], HDUList], ...]
+            ...
+            }
         
         Examples
         --------
