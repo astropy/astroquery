@@ -135,6 +135,7 @@ The following modules have been completed using a common API:
 
   simbad/simbad.rst
   vizier/vizier.rst
+  esasky/esasky.rst
   irsa/irsa_dust.rst
   ned/ned.rst
   splatalogue/splatalogue.rst

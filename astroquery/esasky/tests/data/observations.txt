@@ -1,0 +1,626 @@
+{
+  "observations" : [ {
+    "mission" : "INTEGRAL",
+    "wavelength" : "HARD_X_RAY",
+    "tapTable" : "integral_data",
+    "countColumn" : "sur_integral",
+    "countFovLimit" : 3.0,
+    "tapSTCSColumn" : "",
+    "tapObservationId" : "scw_id",
+    "guiLabel" : "INTEGRAL",
+    "histoColor" : "#87CEFA",
+    "fovLimit" : 90.0,
+    "mocTapTable" : "integral_moc",
+    "mocSTCSColumn" : "aladin_lite_polygon",
+    "mocLimit" : 3000,
+    "metadata" : [ {
+      "tapName" : "postcard_url",
+      "label" : "",
+      "visible" : false,
+      "type" : "LINK",
+      "index" : 1
+    }, {
+      "tapName" : "product_url",
+      "label" : "ProductURL",
+      "visible" : false,
+      "type" : "LINK",
+      "index" : 1
+    }, {
+      "tapName" : "observation_id",
+      "label" : "Science Window Id",
+      "visible" : true,
+      "type" : "STRING",
+      "index" : 3
+    }, {
+      "tapName" : "instrument",
+      "label" : "Instrument",
+      "visible" : true,
+      "type" : "STRING",
+      "index" : 4
+    }, {
+      "tapName" : "ra_deg",
+      "label" : "RA (J2000)",
+      "visible" : true,
+      "type" : "RA",
+      "index" : 5
+    }, {
+      "tapName" : "dec_deg",
+      "label" : "DEC (J2000)",
+      "visible" : true,
+      "type" : "DEC",
+      "index" : 6
+    }, {
+      "tapName" : "tstart_iso",
+      "label" : "Start time",
+      "visible" : true,
+      "type" : "STRING",
+      "index" : 7
+    }, {
+      "tapName" : "telapse",
+      "label" : "Duration (s)",
+      "visible" : true,
+      "type" : "STRING",
+      "index" : 7
+    } ],
+    "archiveURL" : "http://www.isdc.unige.ch/browse/isdcvo2Browse.pl?instrument=integral_jemx&goodTime=%3E200&radius=180&resultMax=1000&",
+    "archiveProductURI" : "ra=@@@RA (J2000)@@@&dec=@@@DEC (J2000)@@@",
+    "ddProductURI" : "",
+    "ddBaseURL" : "",
+    "ddProductIDParameter" : "",
+    "ddProductIDColumn" : null,
+    "sampEnabled" : true,
+    "isSurveyMission" : true
+  }, {
+    "mission" : "XMM-EPIC",
+    "wavelength" : "SOFT_X_RAY",
+    "tapTable" : "xmm_data",
+    "countColumn" : "obs_xmm_epic",
+    "countFovLimit" : 3.0,
+    "tapSTCSColumn" : "stc_s",
+    "tapObservationId" : "observation_id",
+    "guiLabel" : "XMM-Newton",
+    "histoColor" : "#0000cc",
+    "fovLimit" : 90.0,
+    "mocTapTable" : "xmm_moc",
+    "mocSTCSColumn" : "aladin_lite_polygon",
+    "mocLimit" : 2000,
+    "metadata" : [ {
+      "tapName" : "postcard_url",
+      "label" : "",
+      "visible" : true,
+      "type" : "LINK",
+      "index" : 1
+    }, {
+      "tapName" : "product_url",
+      "label" : "ProductURL",
+      "visible" : false,
+      "type" : "LINK",
+      "index" : 2
+    }, {
+      "tapName" : "observation_id",
+      "label" : "ObservationId",
+      "visible" : true,
+      "type" : "LINK2ARCHIVE",
+      "index" : 3
+    }, {
+      "tapName" : "instrument",
+      "label" : "Instrument",
+      "visible" : true,
+      "type" : "STRING",
+      "index" : 4
+    }, {
+      "tapName" : "ra_deg",
+      "label" : "RA (J2000)",
+      "visible" : true,
+      "type" : "RA",
+      "index" : 5
+    }, {
+      "tapName" : "dec_deg",
+      "label" : "DEC (J2000)",
+      "visible" : true,
+      "type" : "DEC",
+      "index" : 6
+    }, {
+      "tapName" : "start_time",
+      "label" : "Start Time",
+      "visible" : true,
+      "type" : "STRING",
+      "index" : 7
+    }, {
+      "tapName" : "duration",
+      "label" : "Duration (s)",
+      "visible" : true,
+      "type" : "STRING",
+      "index" : 8
+    }, {
+      "tapName" : "stc_s",
+      "label" : "",
+      "visible" : false,
+      "type" : "STRING",
+      "index" : 9
+    } ],
+    "archiveURL" : "http://nxsa.esac.esa.int/nxsa-web/#",
+    "archiveProductURI" : "obsid=@@@ObservationId@@@",
+    "ddProductURI" : "obsno=@@@ObservationId@@@",
+    "ddBaseURL" : "",
+    "ddProductIDParameter" : "obsno",
+    "ddProductIDColumn" : "ObservationId",
+    "sampEnabled" : true,
+    "isSurveyMission" : false
+  }, {
+    "mission" : "SUZAKU",
+    "wavelength" : "SOFT_X_RAY",
+    "tapTable" : "suzaku_data",
+    "countColumn" : "obs_suzaku",
+    "countFovLimit" : 3.0,
+    "tapSTCSColumn" : "stc_s",
+    "tapObservationId" : "observation_id",
+    "guiLabel" : "SUZAKU",
+    "histoColor" : "#0099ff",
+    "fovLimit" : 90.0,
+    "mocTapTable" : "suzaku_moc",
+    "mocSTCSColumn" : "aladin_lite_polygon",
+    "mocLimit" : 1000,
+    "metadata" : [ {
+      "tapName" : "postcard_url",
+      "label" : "",
+      "visible" : true,
+      "type" : "LINK",
+      "index" : 1
+    }, {
+      "tapName" : "product_url",
+      "label" : "ProductURL",
+      "visible" : false,
+      "type" : "LINK",
+      "index" : 2
+    }, {
+      "tapName" : "observation_id",
+      "label" : "ObservationId",
+      "visible" : true,
+      "type" : "LINK2ARCHIVE",
+      "index" : 3
+    }, {
+      "tapName" : "instrument",
+      "label" : "Instrument",
+      "visible" : true,
+      "type" : "STRING",
+      "index" : 4
+    }, {
+      "tapName" : "ra_deg",
+      "label" : "RA (J2000)",
+      "visible" : true,
+      "type" : "RA",
+      "index" : 5
+    }, {
+      "tapName" : "dec_deg",
+      "label" : "DEC (J2000)",
+      "visible" : true,
+      "type" : "DEC",
+      "index" : 6
+    }, {
+      "tapName" : "stc_s",
+      "label" : "",
+      "visible" : false,
+      "type" : "STRING",
+      "index" : 0
+    } ],
+    "archiveURL" : "http://darts.isas.jaxa.jp/astro/judo2/meta_info_page/html/SUZAKU/",
+    "archiveProductURI" : "@@@ObservationId@@@.html",
+    "ddProductURI" : "",
+    "ddBaseURL" : "",
+    "ddProductIDParameter" : "",
+    "ddProductIDColumn" : "",
+    "sampEnabled" : true,
+    "isSurveyMission" : false
+  }, {
+    "mission" : "XMM-OM-OPTICAL",
+    "wavelength" : "VISIBLE",
+    "tapTable" : "xmm_om_optical_data",
+    "countColumn" : "obs_xmm_om_optical",
+    "countFovLimit" : 3.0,
+    "tapSTCSColumn" : "stc_s",
+    "tapObservationId" : "observation_id",
+    "guiLabel" : "XMM-OM(Optical)",
+    "histoColor" : "#DAA520",
+    "fovLimit" : 90.0,
+    "mocTapTable" : "xmm_om_vub_moc",
+    "mocSTCSColumn" : "icrs_polygon",
+    "mocLimit" : 2000,
+    "metadata" : [ {
+      "tapName" : "postcard_url",
+      "label" : "",
+      "visible" : true,
+      "type" : "LINK",
+      "index" : 1
+    }, {
+      "tapName" : "product_url",
+      "label" : "ProductURL",
+      "visible" : false,
+      "type" : "LINK",
+      "index" : 1
+    }, {
+      "tapName" : "observation_id",
+      "label" : "ObservationId",
+      "visible" : true,
+      "type" : "LINK2ARCHIVE",
+      "index" : 3
+    }, {
+      "tapName" : "instrument",
+      "label" : "Instrument",
+      "visible" : true,
+      "type" : "STRING",
+      "index" : 4
+    }, {
+      "tapName" : "filter",
+      "label" : "Filter",
+      "visible" : true,
+      "type" : "STRING",
+      "index" : 4
+    }, {
+      "tapName" : "ra_deg",
+      "label" : "RA (J2000)",
+      "visible" : true,
+      "type" : "RA",
+      "index" : 5
+    }, {
+      "tapName" : "dec_deg",
+      "label" : "DEC (J2000)",
+      "visible" : true,
+      "type" : "DEC",
+      "index" : 6
+    }, {
+      "tapName" : "start_utc",
+      "label" : "Start Time",
+      "visible" : true,
+      "type" : "STRING",
+      "index" : 6
+    }, {
+      "tapName" : "duration",
+      "label" : "Duration (s)",
+      "visible" : true,
+      "type" : "STRING",
+      "index" : 6
+    }, {
+      "tapName" : "stc_s",
+      "label" : "",
+      "visible" : false,
+      "type" : "STRING",
+      "index" : 0
+    } ],
+    "archiveURL" : "http://nxsa.esac.esa.int/nxsa-web/#",
+    "archiveProductURI" : "obsid=@@@ObservationId@@@",
+    "ddProductURI" : "",
+    "ddBaseURL" : "",
+    "ddProductIDParameter" : "",
+    "ddProductIDColumn" : "",
+    "sampEnabled" : true,
+    "isSurveyMission" : false
+  }, {
+    "mission" : "XMM-OM-UV",
+    "wavelength" : "UV",
+    "tapTable" : "xmm_om_uv_data",
+    "countColumn" : "obs_xmm_om_uv",
+    "countFovLimit" : 3.0,
+    "tapSTCSColumn" : "stc_s",
+    "tapObservationId" : "observation_id",
+    "guiLabel" : "XMM-OM(UV)",
+    "histoColor" : "#800080",
+    "fovLimit" : 90.0,
+    "mocTapTable" : "xmm_om_uv_moc",
+    "mocSTCSColumn" : "icrs_polygon",
+    "mocLimit" : 2000,
+    "metadata" : [ {
+      "tapName" : "postcard_url",
+      "label" : "",
+      "visible" : true,
+      "type" : "LINK",
+      "index" : 1
+    }, {
+      "tapName" : "product_url",
+      "label" : "ProductURL",
+      "visible" : false,
+      "type" : "LINK",
+      "index" : 1
+    }, {
+      "tapName" : "observation_id",
+      "label" : "ObservationId",
+      "visible" : true,
+      "type" : "LINK2ARCHIVE",
+      "index" : 3
+    }, {
+      "tapName" : "instrument",
+      "label" : "Instrument",
+      "visible" : true,
+      "type" : "STRING",
+      "index" : 4
+    }, {
+      "tapName" : "filter",
+      "label" : "Filter",
+      "visible" : true,
+      "type" : "STRING",
+      "index" : 4
+    }, {
+      "tapName" : "ra_deg",
+      "label" : "RA (J2000)",
+      "visible" : true,
+      "type" : "RA",
+      "index" : 5
+    }, {
+      "tapName" : "dec_deg",
+      "label" : "DEC (J2000)",
+      "visible" : true,
+      "type" : "DEC",
+      "index" : 6
+    }, {
+      "tapName" : "start_utc",
+      "label" : "Start Time",
+      "visible" : true,
+      "type" : "STRING",
+      "index" : 6
+    }, {
+      "tapName" : "duration",
+      "label" : "Duration (s)",
+      "visible" : true,
+      "type" : "STRING",
+      "index" : 6
+    }, {
+      "tapName" : "stc_s",
+      "label" : "",
+      "visible" : false,
+      "type" : "STRING",
+      "index" : 0
+    } ],
+    "archiveURL" : "http://nxsa.esac.esa.int/nxsa-web/#",
+    "archiveProductURI" : "obsid=@@@ObservationId@@@",
+    "ddProductURI" : "",
+    "ddBaseURL" : "",
+    "ddProductIDParameter" : "",
+    "ddProductIDColumn" : "",
+    "sampEnabled" : true,
+    "isSurveyMission" : false
+  }, {
+    "mission" : "HST",
+    "wavelength" : "VISIBLE",
+    "tapTable" : "mv_hst_observation_fdw",
+    "countColumn" : "obs_hst",
+    "countFovLimit" : 3.0,
+    "tapSTCSColumn" : "stc_s",
+    "tapObservationId" : "observation_id",
+    "guiLabel" : "HST",
+    "histoColor" : "#FFD700",
+    "fovLimit" : 90.0,
+    "mocTapTable" : "hst_moc7",
+    "mocSTCSColumn" : "aladin_lite_polygon",
+    "mocLimit" : 5000,
+    "metadata" : [ {
+      "tapName" : "postcard_url",
+      "label" : "",
+      "visible" : true,
+      "type" : "LINK",
+      "index" : 1
+    }, {
+      "tapName" : "product_url",
+      "label" : "ProductURL",
+      "visible" : false,
+      "type" : "LINK",
+      "index" : 2
+    }, {
+      "tapName" : "observation_id",
+      "label" : "ObservationId",
+      "visible" : true,
+      "type" : "LINK2ARCHIVE",
+      "index" : 3
+    }, {
+      "tapName" : "collection",
+      "label" : "Collection",
+      "visible" : true,
+      "type" : "STRING",
+      "index" : 4
+    }, {
+      "tapName" : "instrument_name",
+      "label" : "Instrument",
+      "visible" : true,
+      "type" : "STRING",
+      "index" : 5
+    }, {
+      "tapName" : "filter",
+      "label" : "Filter",
+      "visible" : true,
+      "type" : "STRING",
+      "index" : 6
+    }, {
+      "tapName" : "ra_deg",
+      "label" : "RA (J2000)",
+      "visible" : true,
+      "type" : "RA",
+      "index" : 7
+    }, {
+      "tapName" : "dec_deg",
+      "label" : "DEC (J2000)",
+      "visible" : true,
+      "type" : "DEC",
+      "index" : 8
+    }, {
+      "tapName" : "start_time",
+      "label" : "Start Time",
+      "visible" : true,
+      "type" : "STRING",
+      "index" : 9
+    }, {
+      "tapName" : "exposure_duration",
+      "label" : "Duration (s)",
+      "visible" : true,
+      "type" : "STRING",
+      "index" : 10
+    }, {
+      "tapName" : "stc_s",
+      "label" : "",
+      "visible" : false,
+      "type" : "STRING",
+      "index" : 11
+    } ],
+    "archiveURL" : "http://archives.esac.esa.int/ehst/#",
+    "archiveProductURI" : "observationid=@@@ObservationId@@@",
+    "ddProductURI" : "ARTIFACT_ID=@@@ObservationId@@@_DRZ",
+    "ddBaseURL" : "",
+    "ddProductIDParameter" : "ARTIFACT_ID",
+    "ddProductIDColumn" : "ObservationId",
+    "sampEnabled" : true,
+    "isSurveyMission" : false
+  }, {
+    "mission" : "Herschel",
+    "wavelength" : "IR_RADIO",
+    "tapTable" : "mv_hsa_esasky_photo_table_fdw",
+    "countColumn" : "obs_hsa_photo",
+    "countFovLimit" : 3.0,
+    "tapSTCSColumn" : "stc_s",
+    "tapObservationId" : "observation_id",
+    "guiLabel" : "Herschel",
+    "histoColor" : "#20B2AA",
+    "fovLimit" : 90.0,
+    "mocTapTable" : "hsa_moc",
+    "mocSTCSColumn" : "aladin_lite_polygon",
+    "mocLimit" : 2000,
+    "metadata" : [ {
+      "tapName" : "postcard_url",
+      "label" : "",
+      "visible" : true,
+      "type" : "LINK",
+      "index" : 1
+    }, {
+      "tapName" : "product_url",
+      "label" : "ProductURL",
+      "visible" : false,
+      "type" : "LINK",
+      "index" : 2
+    }, {
+      "tapName" : "observation_id",
+      "label" : "ObservationId",
+      "visible" : true,
+      "type" : "LINK2ARCHIVE",
+      "index" : 3
+    }, {
+      "tapName" : "observation_oid",
+      "label" : "ObservationOid",
+      "visible" : false,
+      "type" : "STRING",
+      "index" : 4
+    }, {
+      "tapName" : "instrument",
+      "label" : "Instrument",
+      "visible" : true,
+      "type" : "STRING",
+      "index" : 5
+    }, {
+      "tapName" : "filter",
+      "label" : "Filter (microns)",
+      "visible" : true,
+      "type" : "STRING",
+      "index" : 6
+    }, {
+      "tapName" : "ra_deg",
+      "label" : "RA (J2000)",
+      "visible" : true,
+      "type" : "RA",
+      "index" : 7
+    }, {
+      "tapName" : "dec_deg",
+      "label" : "DEC (J2000)",
+      "visible" : true,
+      "type" : "DEC",
+      "index" : 8
+    }, {
+      "tapName" : "start_time",
+      "label" : "Start Time",
+      "visible" : true,
+      "type" : "STRING",
+      "index" : 9
+    }, {
+      "tapName" : "duration",
+      "label" : "Duration (s)",
+      "visible" : true,
+      "type" : "STRING",
+      "index" : 10
+    }, {
+      "tapName" : "stc_s",
+      "label" : "",
+      "visible" : false,
+      "type" : "STRING",
+      "index" : 11
+    } ],
+    "archiveURL" : "http://archives.esac.esa.int/hsa/aio/jsp/postcardPage.jsp?",
+    "archiveProductURI" : "OBSERVATION_ID=@@@ObservationId@@@&INSTRUMENT=@@@Instrument@@@",
+    "ddProductURI" : "OBSERVATION.OBSERVATION_OID=@@@ObservationOid@@@",
+    "ddBaseURL" : "",
+    "ddProductIDParameter" : "OBSERVATION.OBSERVATION_OID",
+    "ddProductIDColumn" : "ObservationOid",
+    "sampEnabled" : false,
+    "isSurveyMission" : false
+  }, {
+    "mission" : "ISO",
+    "wavelength" : "IR_RADIO",
+    "tapTable" : "ida_data",
+    "countColumn" : "obs_iso",
+    "countFovLimit" : 3.0,
+    "tapSTCSColumn" : "stc_s",
+    "tapObservationId" : "observation_id",
+    "guiLabel" : "ISO",
+    "histoColor" : "#BF3030",
+    "fovLimit" : 90.0,
+    "mocTapTable" : "ida_moc",
+    "mocSTCSColumn" : "aladin_lite_polygon",
+    "mocLimit" : 2000,
+    "metadata" : [ {
+      "tapName" : "postcard_url",
+      "label" : "",
+      "visible" : true,
+      "type" : "LINK",
+      "index" : 1
+    }, {
+      "tapName" : "product_url",
+      "label" : "ProductURL",
+      "visible" : false,
+      "type" : "LINK",
+      "index" : 1
+    }, {
+      "tapName" : "observation_id",
+      "label" : "ObservationId",
+      "visible" : true,
+      "type" : "LINK2ARCHIVE",
+      "index" : 3
+    }, {
+      "tapName" : "instrument",
+      "label" : "Instrument",
+      "visible" : true,
+      "type" : "STRING",
+      "index" : 4
+    }, {
+      "tapName" : "ra_deg",
+      "label" : "RA (J2000)",
+      "visible" : true,
+      "type" : "RA",
+      "index" : 5
+    }, {
+      "tapName" : "dec_deg",
+      "label" : "DEC (J2000)",
+      "visible" : true,
+      "type" : "DEC",
+      "index" : 6
+    }, {
+      "tapName" : "stc_s",
+      "label" : "",
+      "visible" : false,
+      "type" : "STRING",
+      "index" : 0
+    } ],
+    "archiveURL" : "http://archives.esac.esa.int/ida/aio/jsp/createPostcards.jsp?",
+    "archiveProductURI" : "obsno=@@@ObservationId@@@",
+    "ddProductURI" : "",
+    "ddBaseURL" : "",
+    "ddProductIDParameter" : "",
+    "ddProductIDColumn" : null,
+    "sampEnabled" : true,
+    "isSurveyMission" : false
+  } ],
+  "total" : 8
+}

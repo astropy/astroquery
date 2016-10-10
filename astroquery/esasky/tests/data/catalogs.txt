@@ -1,0 +1,845 @@
+{
+  "catalogs" : [ {
+    "mission" : "INTEGRAL",
+    "wavelength" : "HARD_X_RAY",
+    "tapTable" : "integral_40_fits",
+    "countColumn" : "cat_integral40",
+    "countFovLimit" : 3.0,
+    "guiLabel" : "INTEGRAL",
+    "histoColor" : "#87CEFA",
+    "sourceLimit" : 2000,
+    "sourceLimitDescription" : "Showing the first 2000 sources ordered by Flux at 20-60 keV",
+    "posTapColumn" : "pos",
+    "polygonRaTapColumn" : "ra",
+    "polygonDecTapColumn" : "dec",
+    "polygonNameTapColumn" : "name",
+    "archiveURL" : "",
+    "archiveProductURI" : "",
+    "fovLimit" : 90.0,
+    "orderBy" : "isgr_flux_1 DESC",
+    "metadata" : [ {
+      "tapName" : "name",
+      "label" : "Name",
+      "visible" : true,
+      "type" : "STRING",
+      "index" : 1
+    }, {
+      "tapName" : "ra",
+      "label" : "Right Ascension<br/>(RA) <i>(J2000)</i>",
+      "visible" : true,
+      "type" : "RA",
+      "index" : 2
+    }, {
+      "tapName" : "dec",
+      "label" : "Declination<br/>(DEC) <i>(J2000)</i>",
+      "visible" : true,
+      "type" : "DEC",
+      "index" : 3
+    }, {
+      "tapName" : "isgr_flux_1",
+      "label" : "Flux<sub>20-60 keV</sub><br/>(erg cm<sup>-2</sup>s<sup>-1</sup>)",
+      "visible" : true,
+      "type" : "DOUBLE",
+      "index" : 4
+    }, {
+      "tapName" : "isgr_flux_2",
+      "label" : "Flux<sub>60-200 keV</sub><br/>(erg cm<sup>-2</sup>s<sup>-1</sup>)",
+      "visible" : true,
+      "type" : "DOUBLE",
+      "index" : 5
+    }, {
+      "tapName" : "isgri_flag",
+      "label" : "isgri flag1",
+      "visible" : true,
+      "type" : "DOUBLE",
+      "index" : 6
+    }, {
+      "tapName" : "isgri_flag2",
+      "label" : "isgri flag2",
+      "visible" : true,
+      "type" : "DOUBLE",
+      "index" : 7
+    } ]
+  }, {
+    "mission" : "XMM-EPIC",
+    "wavelength" : "SOFT_X_RAY",
+    "tapTable" : "mv_xsa_epic_source_cat",
+    "countColumn" : "cat_xmm_epic",
+    "countFovLimit" : 3.0,
+    "guiLabel" : "3XMM EPIC",
+    "histoColor" : "#0000FF",
+    "sourceLimit" : 2000,
+    "sourceLimitDescription" : "Showing the first 2000 sources ordered by Flux",
+    "posTapColumn" : "pos",
+    "polygonRaTapColumn" : "ra",
+    "polygonDecTapColumn" : "dec",
+    "polygonNameTapColumn" : "name",
+    "archiveURL" : "http://nxsa.esac.esa.int/nxsa-web/#",
+    "archiveProductURI" : "iauname=@@@Name@@@",
+    "fovLimit" : 90.0,
+    "orderBy" : "ep_8_flux DESC",
+    "metadata" : [ {
+      "tapName" : "name",
+      "label" : "Name",
+      "visible" : true,
+      "type" : "LINK2ARCHIVE",
+      "index" : 2
+    }, {
+      "tapName" : "ra",
+      "label" : "Right Ascension<br/>(RA) <i>(J2000)</i>",
+      "visible" : true,
+      "type" : "RA",
+      "index" : 3
+    }, {
+      "tapName" : "dec",
+      "label" : "Declination<br/>(DEC) <i>(J2000)</i>",
+      "visible" : true,
+      "type" : "DEC",
+      "index" : 4
+    }, {
+      "tapName" : "ep_8_flux",
+      "label" : "Flux<br/>(erg cm<sup>-2</sup>s<sup>-1</sup>)",
+      "visible" : true,
+      "type" : "DOUBLE",
+      "index" : 5
+    } ]
+  }, {
+    "mission" : "XMM-OM",
+    "wavelength" : "UV",
+    "tapTable" : " mv_xsa_om_source_cat",
+    "countColumn" : "cat_xmm_om",
+    "countFovLimit" : 3.0,
+    "guiLabel" : "XMM OM",
+    "histoColor" : "#800080",
+    "sourceLimit" : 2000,
+    "sourceLimitDescription" : "Showing the first 2000 sources ordered by flux starting with the UVW1 filter",
+    "posTapColumn" : "pos",
+    "polygonRaTapColumn" : "ra",
+    "polygonDecTapColumn" : "dec",
+    "polygonNameTapColumn" : "name",
+    "archiveURL" : "",
+    "archiveProductURI" : "",
+    "fovLimit" : 90.0,
+    "orderBy" : "uvw1_ab_flux,uvw2_ab_flux,uvm2_ab_flux,u_ab_flux,v_ab_flux,b_ab_flux DESC",
+    "metadata" : [ {
+      "tapName" : "name",
+      "label" : "Name",
+      "visible" : true,
+      "type" : "STRING",
+      "index" : 2
+    }, {
+      "tapName" : "observation_id",
+      "label" : "ObservationId",
+      "visible" : true,
+      "type" : "STRING",
+      "index" : 5
+    }, {
+      "tapName" : "ra",
+      "label" : "Right Ascension<br/>(RA) <i>(J2000)</i>",
+      "visible" : true,
+      "type" : "RA",
+      "index" : 3
+    }, {
+      "tapName" : "dec",
+      "label" : "Declination<br/>(DEC) <i>(J2000)</i>",
+      "visible" : true,
+      "type" : "DEC",
+      "index" : 4
+    }, {
+      "tapName" : "poserr",
+      "label" : "&Delta;Pos",
+      "visible" : true,
+      "type" : "STRING",
+      "index" : 5
+    }, {
+      "tapName" : "date_obs",
+      "label" : "Date obs",
+      "visible" : true,
+      "type" : "STRING",
+      "index" : 4
+    }, {
+      "tapName" : "uvw1_ab_flux",
+      "label" : "UVW1 Flux<br/>(erg cm<sup>-2</sup>s<sup>-1</sup>)",
+      "visible" : true,
+      "type" : "STRING",
+      "index" : 5
+    }, {
+      "tapName" : "uvw2_ab_flux",
+      "label" : "UVW2 Flux<br/>(erg cm<sup>-2</sup>s<sup>-1</sup>)",
+      "visible" : true,
+      "type" : "STRING",
+      "index" : 5
+    }, {
+      "tapName" : "uvm2_ab_flux",
+      "label" : "UVM2 Flux<br/>(erg cm<sup>-2</sup>s<sup>-1</sup>)",
+      "visible" : true,
+      "type" : "STRING",
+      "index" : 5
+    }, {
+      "tapName" : "u_ab_flux",
+      "label" : "U Flux<br/>(erg cm<sup>-2</sup>s<sup>-1</sup>)",
+      "visible" : true,
+      "type" : "STRING",
+      "index" : 5
+    }, {
+      "tapName" : "v_ab_flux",
+      "label" : "V Flux<br/>(erg cm<sup>-2</sup>s<sup>-1</sup>)",
+      "visible" : true,
+      "type" : "STRING",
+      "index" : 5
+    }, {
+      "tapName" : "b_ab_flux",
+      "label" : "B Flux<br/>(erg cm<sup>-2</sup>s<sup>-1</sup>)",
+      "visible" : true,
+      "type" : "STRING",
+      "index" : 5
+    } ]
+  }, {
+    "mission" : "XMM-SLEW",
+    "wavelength" : "SOFT_X_RAY",
+    "tapTable" : "xmm_slew_source_cat",
+    "countColumn" : "cat_xmm_slew",
+    "countFovLimit" : 3.0,
+    "guiLabel" : "XMM Slew",
+    "histoColor" : "#3F96C3",
+    "sourceLimit" : 2000,
+    "sourceLimitDescription" : "Showing the first 2000 sources ordered by Flux",
+    "posTapColumn" : "pos",
+    "polygonRaTapColumn" : "ra",
+    "polygonDecTapColumn" : "dec",
+    "polygonNameTapColumn" : "name",
+    "archiveURL" : "",
+    "archiveProductURI" : "",
+    "fovLimit" : 90.0,
+    "orderBy" : "flux DESC",
+    "metadata" : [ {
+      "tapName" : "postcard_url",
+      "label" : "",
+      "visible" : true,
+      "type" : "LINK",
+      "index" : 1
+    }, {
+      "tapName" : "name",
+      "label" : "Name",
+      "visible" : true,
+      "type" : "STRING",
+      "index" : 2
+    }, {
+      "tapName" : "ra",
+      "label" : "Right Ascension<br/>(RA) <i>(J2000)</i>",
+      "visible" : true,
+      "type" : "RA",
+      "index" : 3
+    }, {
+      "tapName" : "dec",
+      "label" : "Declination<br/>(Dec) <i>(J2000)</i>",
+      "visible" : true,
+      "type" : "DEC",
+      "index" : 4
+    }, {
+      "tapName" : "flux",
+      "label" : "Flux<br/>(erg cm<sup>-2</sup>s<sup>-1</sup>)",
+      "visible" : true,
+      "type" : "STRING",
+      "index" : 5
+    } ]
+  }, {
+    "mission" : "Tycho-2",
+    "wavelength" : "VISIBLE",
+    "tapTable" : "mv_tycho2_fdw",
+    "countColumn" : "cat_tycho2",
+    "countFovLimit" : 3.0,
+    "guiLabel" : "Tycho-2",
+    "histoColor" : "#DAA520",
+    "sourceLimit" : 2000,
+    "sourceLimitDescription" : "Showing the first 2000 sources ordered by BT Magnitude",
+    "posTapColumn" : "pos",
+    "polygonRaTapColumn" : "ra",
+    "polygonDecTapColumn" : "dec",
+    "polygonNameTapColumn" : "name",
+    "archiveURL" : "",
+    "archiveProductURI" : "",
+    "fovLimit" : 90.0,
+    "orderBy" : "bt_mag DESC",
+    "metadata" : [ {
+      "tapName" : "name",
+      "label" : "Name",
+      "visible" : true,
+      "type" : "STRING",
+      "index" : 2
+    }, {
+      "tapName" : "ra",
+      "label" : "Right Ascension<br/>(RA) <i>(J2000)</i>",
+      "visible" : true,
+      "type" : "RA",
+      "index" : 3
+    }, {
+      "tapName" : "dec",
+      "label" : "Declination<br/>(Dec) <i>(J2000)</i>",
+      "visible" : true,
+      "type" : "DEC",
+      "index" : 4
+    }, {
+      "tapName" : "pm_ra",
+      "label" : "Proper Motion in RA<br/><i>(mas/yr)</i>",
+      "visible" : true,
+      "type" : "DOUBLE",
+      "index" : 3
+    }, {
+      "tapName" : "pm_de",
+      "label" : "Proper Motion in Dec<br/><i>(mas/yr)</i>",
+      "visible" : true,
+      "type" : "DOUBLE",
+      "index" : 4
+    }, {
+      "tapName" : "bt_mag",
+      "label" : "BT Magnitude<br/><i>(mag)</i>",
+      "visible" : true,
+      "type" : "STRING",
+      "index" : 5
+    }, {
+      "tapName" : "vt_mag",
+      "label" : "VT Magnitude<br/><i>(mag)</i>",
+      "visible" : true,
+      "type" : "STRING",
+      "index" : 6
+    } ]
+  }, {
+    "mission" : "Gaia DR1 TGAS",
+    "wavelength" : "VISIBLE",
+    "tapTable" : "mv_tgas_source_fdw",
+    "countColumn" : "cat_tgas",
+    "countFovLimit" : 3.0,
+    "guiLabel" : "Gaia DR1 TGAS",
+    "histoColor" : "#ffb74d",
+    "sourceLimit" : 2000,
+    "sourceLimitDescription" : "Showing the first 2000 sources ordered by G magnitude",
+    "posTapColumn" : "pos",
+    "polygonRaTapColumn" : "ra",
+    "polygonDecTapColumn" : "dec",
+    "polygonNameTapColumn" : "name",
+    "archiveURL" : "",
+    "archiveProductURI" : "",
+    "fovLimit" : 90.0,
+    "orderBy" : "phot_g_mean_mag ASC",
+    "metadata" : [ {
+      "tapName" : "name",
+      "label" : "Name",
+      "visible" : true,
+      "type" : "STRING",
+      "index" : 2
+    }, {
+      "tapName" : "ra",
+      "label" : "Right Ascension<br/>(RA) <i>(J2015)</i>",
+      "visible" : true,
+      "type" : "RA",
+      "index" : 3
+    }, {
+      "tapName" : "dec",
+      "label" : "Declination<br/>(Dec) <i>(J2015)</i>",
+      "visible" : true,
+      "type" : "DEC",
+      "index" : 4
+    }, {
+      "tapName" : "parallax",
+      "label" : "Parallax<br/><i>(mas)</i>",
+      "visible" : true,
+      "type" : "DOUBLE",
+      "index" : 5
+    }, {
+      "tapName" : "parallax_error",
+      "label" : "Parallax error<br/><i>(mas)</i>",
+      "visible" : true,
+      "type" : "DOUBLE",
+      "index" : 5
+    }, {
+      "tapName" : "pmra",
+      "label" : "Proper Motion in RA<br/><i>(mas/yr)</i>",
+      "visible" : true,
+      "type" : "DOUBLE",
+      "index" : 3
+    }, {
+      "tapName" : "pmra_error",
+      "label" : "PM in RA error<br/><i>(mas/yr)</i>",
+      "visible" : true,
+      "type" : "DOUBLE",
+      "index" : 3
+    }, {
+      "tapName" : "pmdec",
+      "label" : "Proper Motion in Dec<br/><i>(mas/yr)</i>",
+      "visible" : true,
+      "type" : "DOUBLE",
+      "index" : 4
+    }, {
+      "tapName" : "pmdec_error",
+      "label" : "PM in Dec error<br/><i>(mas/yr)</i>",
+      "visible" : true,
+      "type" : "DOUBLE",
+      "index" : 4
+    }, {
+      "tapName" : "phot_g_mean_mag",
+      "label" : "G mean Mag<br/><i>(mag)</i>",
+      "visible" : true,
+      "type" : "DOUBLE",
+      "index" : 6
+    } ]
+  }, {
+    "mission" : "Hipparcos-2",
+    "wavelength" : "VISIBLE",
+    "tapTable" : "mv_hipparcos_fdw",
+    "countColumn" : "cat_hip2_mv",
+    "countFovLimit" : 3.0,
+    "guiLabel" : "Hipparcos-2",
+    "histoColor" : "#ffb74d",
+    "sourceLimit" : 2000,
+    "sourceLimitDescription" : "Showing the first 2000 sources ordered by Hp magnitude",
+    "posTapColumn" : "pos",
+    "polygonRaTapColumn" : "ra",
+    "polygonDecTapColumn" : "dec",
+    "polygonNameTapColumn" : "name",
+    "archiveURL" : "",
+    "archiveProductURI" : "",
+    "fovLimit" : 90.0,
+    "orderBy" : "hp_mag DESC",
+    "metadata" : [ {
+      "tapName" : "name",
+      "label" : "Name",
+      "visible" : true,
+      "type" : "STRING",
+      "index" : 2
+    }, {
+      "tapName" : "ra",
+      "label" : "Right Ascension<br/>(RA) <i>(J2000)</i>",
+      "visible" : true,
+      "type" : "RA",
+      "index" : 3
+    }, {
+      "tapName" : "dec",
+      "label" : "Declination<br/>(Dec) <i>(J2000)</i>",
+      "visible" : true,
+      "type" : "DEC",
+      "index" : 4
+    }, {
+      "tapName" : "pm_ra",
+      "label" : "Proper Motion in RA<br/><i>(mas/yr)</i>",
+      "visible" : true,
+      "type" : "DOUBLE",
+      "index" : 3
+    }, {
+      "tapName" : "pm_de",
+      "label" : "Proper Motion in Dec<br/><i>(mas/yr)</i>",
+      "visible" : true,
+      "type" : "DOUBLE",
+      "index" : 4
+    }, {
+      "tapName" : "plx",
+      "label" : "Parallax<br/><i>(mas)</i>",
+      "visible" : true,
+      "type" : "STRING",
+      "index" : 5
+    }, {
+      "tapName" : "hp_mag",
+      "label" : "Magnitude<br/><i>(mag)</i>",
+      "visible" : true,
+      "type" : "STRING",
+      "index" : 6
+    } ]
+  }, {
+    "mission" : "HSC",
+    "wavelength" : "VISIBLE",
+    "tapTable" : "mv_hubble_sc_fdw",
+    "countColumn" : "cat_hubble",
+    "countFovLimit" : 3.0,
+    "guiLabel" : "HSC",
+    "histoColor" : "#FFD700",
+    "sourceLimit" : 2000,
+    "sourceLimitDescription" : "Showing the 2000 most observed sources (NumImages)",
+    "posTapColumn" : "pos",
+    "polygonRaTapColumn" : "ra",
+    "polygonDecTapColumn" : "dec",
+    "polygonNameTapColumn" : "name",
+    "archiveURL" : "",
+    "archiveProductURI" : "",
+    "fovLimit" : 90.0,
+    "orderBy" : "numimages DESC",
+    "metadata" : [ {
+      "tapName" : "name",
+      "label" : "Name",
+      "visible" : true,
+      "type" : "STRING",
+      "index" : 1
+    }, {
+      "tapName" : "numimages",
+      "label" : "NumImages",
+      "visible" : true,
+      "type" : "DOUBLE",
+      "index" : 2
+    }, {
+      "tapName" : "ra",
+      "label" : "Right Ascension<br/>(RA) <i>(J2000)</i>",
+      "visible" : true,
+      "type" : "RA",
+      "index" : 3
+    }, {
+      "tapName" : "dec",
+      "label" : "Declination<br/>(Dec) <i>(J2000)</i>",
+      "visible" : true,
+      "type" : "DEC",
+      "index" : 4
+    }, {
+      "tapName" : "w2_f450w",
+      "label" : "F450W<br/><i>(mag)</i>",
+      "visible" : true,
+      "type" : "DOUBLE",
+      "index" : 5
+    }, {
+      "tapName" : "w2_f606w",
+      "label" : "F606W<br/><i>(mag)</i>",
+      "visible" : true,
+      "type" : "DOUBLE",
+      "index" : 6
+    }, {
+      "tapName" : "w2_f702w",
+      "label" : "F702W<br/><i>(mag)</i>",
+      "visible" : true,
+      "type" : "DOUBLE",
+      "index" : 7
+    }, {
+      "tapName" : "w2_f814w",
+      "label" : "F814W<br/><i>(mag)</i>",
+      "visible" : true,
+      "type" : "DOUBLE",
+      "index" : 8
+    } ]
+  }, {
+    "mission" : "Planck-PGCC2",
+    "wavelength" : "IR_RADIO",
+    "tapTable" : "mv_v_gcc_catalog_fdw",
+    "countColumn" : "cat_plank_pgss",
+    "countFovLimit" : 3.0,
+    "guiLabel" : "PGCC2",
+    "histoColor" : "#FF4500",
+    "sourceLimit" : 2000,
+    "sourceLimitDescription" : "Showing the first 2000 sources ordered by Signal to Noise",
+    "posTapColumn" : "pos",
+    "polygonRaTapColumn" : "ra",
+    "polygonDecTapColumn" : "dec",
+    "polygonNameTapColumn" : "name",
+    "archiveURL" : "",
+    "archiveProductURI" : "",
+    "fovLimit" : 90.0,
+    "orderBy" : "snr DESC",
+    "metadata" : [ {
+      "tapName" : "name",
+      "label" : "Name",
+      "visible" : true,
+      "type" : "STRING",
+      "index" : 1
+    }, {
+      "tapName" : "ra",
+      "label" : "Right Ascension<br/>(RA) <i>(J2000)</i>",
+      "visible" : true,
+      "type" : "RA",
+      "index" : 2
+    }, {
+      "tapName" : "dec",
+      "label" : "Declination<br/>(Dec) <i>(J2000)</i>",
+      "visible" : true,
+      "type" : "DEC",
+      "index" : 3
+    }, {
+      "tapName" : "snr",
+      "label" : "Signal to Noise",
+      "visible" : true,
+      "type" : "DOUBLE",
+      "index" : 4
+    }, {
+      "tapName" : "gau_major_axis",
+      "label" : "Major<br/>FWHM<br/><i>(arcmin)</i>",
+      "visible" : true,
+      "type" : "DOUBLE",
+      "index" : 5
+    }, {
+      "tapName" : "gau_major_axis_sig",
+      "label" : "Major FWHM error<br/><i>(arcmin)</i>",
+      "visible" : true,
+      "type" : "DOUBLE",
+      "index" : 6
+    }, {
+      "tapName" : "gau_minor_axis",
+      "label" : "Minor FWHM<br/><i>(arcmin)</i>",
+      "visible" : true,
+      "type" : "DOUBLE",
+      "index" : 7
+    }, {
+      "tapName" : "gau_minor_axis_sig",
+      "label" : "Minor FWHM error<br/><i>(arcmin)</i>",
+      "visible" : true,
+      "type" : "DOUBLE",
+      "index" : 8
+    } ]
+  }, {
+    "mission" : "Planck-PCCS2E",
+    "wavelength" : "IR_RADIO",
+    "tapTable" : "mv_pcss_catalog_excluded_fdw",
+    "countColumn" : "cat_planck_pccse",
+    "countFovLimit" : 3.0,
+    "guiLabel" : "PCCS2E",
+    "histoColor" : "#ff4000",
+    "sourceLimit" : 2000,
+    "sourceLimitDescription" : "Showing the first 2000 sources ordered by Flux density",
+    "posTapColumn" : "pos",
+    "polygonRaTapColumn" : "ra",
+    "polygonDecTapColumn" : "dec",
+    "polygonNameTapColumn" : "name",
+    "archiveURL" : "",
+    "archiveProductURI" : "",
+    "fovLimit" : 90.0,
+    "orderBy" : "detflux DESC",
+    "metadata" : [ {
+      "tapName" : "name",
+      "label" : "Name",
+      "visible" : true,
+      "type" : "STRING",
+      "index" : 1
+    }, {
+      "tapName" : "ra",
+      "label" : "Right Ascension<br/>(RA)<i>(J2000)</i>",
+      "visible" : true,
+      "type" : "RA",
+      "index" : 2
+    }, {
+      "tapName" : "dec",
+      "label" : "Declination<br/>(Dec) <i>(J2000)</i>",
+      "visible" : true,
+      "type" : "DEC",
+      "index" : 3
+    }, {
+      "tapName" : "frequency",
+      "label" : "Frequency<br/><i>(GHz)</i>",
+      "visible" : true,
+      "type" : "DOUBLE",
+      "index" : 4
+    }, {
+      "tapName" : "detflux",
+      "label" : "Flux density<br/><i>(mJy)</i>",
+      "visible" : true,
+      "type" : "DOUBLE",
+      "index" : 5
+    }, {
+      "tapName" : "detflux_err",
+      "label" : "Flux density error<br/><i>(mJy)</i>",
+      "visible" : true,
+      "type" : "DOUBLE",
+      "index" : 6
+    }, {
+      "tapName" : "extended",
+      "label" : "Extended<br/>source flag",
+      "visible" : true,
+      "type" : "DOUBLE",
+      "index" : 7
+    }, {
+      "tapName" : "highest_reliability_cat",
+      "label" : "Cat. reliability",
+      "visible" : true,
+      "type" : "DOUBLE",
+      "index" : 8
+    } ]
+  }, {
+    "mission" : "Planck-PCCS2-HFI",
+    "wavelength" : "IR_RADIO",
+    "tapTable" : "mv_pcss_catalog_hfi_fdw",
+    "countColumn" : "cat_planck_pccs_hfi",
+    "countFovLimit" : 3.0,
+    "guiLabel" : "PCCS2-HFI",
+    "histoColor" : "#ff0000",
+    "sourceLimit" : 2000,
+    "sourceLimitDescription" : "Showing the first 2000 sources ordered by Flux density",
+    "posTapColumn" : "pos",
+    "polygonRaTapColumn" : "ra",
+    "polygonDecTapColumn" : "dec",
+    "polygonNameTapColumn" : "name",
+    "archiveURL" : "",
+    "archiveProductURI" : "",
+    "fovLimit" : 90.0,
+    "orderBy" : "detflux DESC",
+    "metadata" : [ {
+      "tapName" : "name",
+      "label" : "Name",
+      "visible" : true,
+      "type" : "STRING",
+      "index" : 1
+    }, {
+      "tapName" : "ra",
+      "label" : "Right Ascension<br/>(RA)<i>(J2000)</i>",
+      "visible" : true,
+      "type" : "RA",
+      "index" : 2
+    }, {
+      "tapName" : "dec",
+      "label" : "Declination<br/>(Dec) <i>(J2000)</i>",
+      "visible" : true,
+      "type" : "DEC",
+      "index" : 3
+    }, {
+      "tapName" : "frequency",
+      "label" : "Frequency<br/><i>(GHz)</i>",
+      "visible" : true,
+      "type" : "DOUBLE",
+      "index" : 4
+    }, {
+      "tapName" : "detflux",
+      "label" : "Flux density<br/><i>(mJy)</i>",
+      "visible" : true,
+      "type" : "DOUBLE",
+      "index" : 5
+    }, {
+      "tapName" : "detflux_err",
+      "label" : "Flux density error<br/><i>(mJy)</i>",
+      "visible" : true,
+      "type" : "DOUBLE",
+      "index" : 6
+    }, {
+      "tapName" : "extended",
+      "label" : "Extended<br/>source flag",
+      "visible" : true,
+      "type" : "DOUBLE",
+      "index" : 7
+    }, {
+      "tapName" : "highest_reliability_cat",
+      "label" : "Cat. reliability",
+      "visible" : true,
+      "type" : "DOUBLE",
+      "index" : 8
+    } ]
+  }, {
+    "mission" : "Planck-PCCS2-LFI",
+    "wavelength" : "IR_RADIO",
+    "tapTable" : "mv_pcss_catalog_lfi_fdw",
+    "countColumn" : "cat_planck_pccs_lfi",
+    "countFovLimit" : 3.0,
+    "guiLabel" : "PCCS2-LFI",
+    "histoColor" : "#ff8566",
+    "sourceLimit" : 2000,
+    "sourceLimitDescription" : "Showing the first 2000 sources ordered by Flux density",
+    "posTapColumn" : "pos",
+    "polygonRaTapColumn" : "ra",
+    "polygonDecTapColumn" : "dec",
+    "polygonNameTapColumn" : "name",
+    "archiveURL" : "",
+    "archiveProductURI" : "",
+    "fovLimit" : 90.0,
+    "orderBy" : "detflux DESC",
+    "metadata" : [ {
+      "tapName" : "name",
+      "label" : "Name",
+      "visible" : true,
+      "type" : "STRING",
+      "index" : 1
+    }, {
+      "tapName" : "ra",
+      "label" : "Right Ascension<br/>(RA)<i>(J2000)</i>",
+      "visible" : true,
+      "type" : "RA",
+      "index" : 2
+    }, {
+      "tapName" : "dec",
+      "label" : "Declination<br/>(Dec) <i>(J2000)</i>",
+      "visible" : true,
+      "type" : "DEC",
+      "index" : 3
+    }, {
+      "tapName" : "frequency",
+      "label" : "Frequency<br/><i>(GHz)</i>",
+      "visible" : true,
+      "type" : "DOUBLE",
+      "index" : 4
+    }, {
+      "tapName" : "detflux",
+      "label" : "Flux density<br/><i>(mJy)</i>",
+      "visible" : true,
+      "type" : "DOUBLE",
+      "index" : 5
+    }, {
+      "tapName" : "detflux_err",
+      "label" : "Flux density error<br/><i>(mJy)</i>",
+      "visible" : true,
+      "type" : "DOUBLE",
+      "index" : 6
+    }, {
+      "tapName" : "extended",
+      "label" : "Extended<br/>source flag",
+      "visible" : true,
+      "type" : "DOUBLE",
+      "index" : 7
+    }, {
+      "tapName" : "highest_reliability_cat",
+      "label" : "Cat. reliability",
+      "visible" : true,
+      "type" : "DOUBLE",
+      "index" : 8
+    } ]
+  }, {
+    "mission" : "Planck-PSZ",
+    "wavelength" : "IR_RADIO",
+    "tapTable" : "mv_v_sz_catalog_fdw",
+    "countColumn" : "cat_plank_psz",
+    "countFovLimit" : 3.0,
+    "guiLabel" : "PSZ",
+    "histoColor" : "#C71585",
+    "sourceLimit" : 2000,
+    "sourceLimitDescription" : "Showing the first 2000 sources ordered by Signal to Noise",
+    "posTapColumn" : "pos",
+    "polygonRaTapColumn" : "ra",
+    "polygonDecTapColumn" : "dec",
+    "polygonNameTapColumn" : "name",
+    "archiveURL" : "",
+    "archiveProductURI" : "",
+    "fovLimit" : 90.0,
+    "orderBy" : "snr DESC",
+    "metadata" : [ {
+      "tapName" : "name",
+      "label" : "Name",
+      "visible" : true,
+      "type" : "STRING",
+      "index" : 1
+    }, {
+      "tapName" : "ra",
+      "label" : "Right Ascension<br/>(RA) <i>(J2000)</i>",
+      "visible" : true,
+      "type" : "RA",
+      "index" : 2
+    }, {
+      "tapName" : "dec",
+      "label" : "Declination<br/>(Dec) <i>(J2000)</i>",
+      "visible" : true,
+      "type" : "DEC",
+      "index" : 3
+    }, {
+      "tapName" : "snr",
+      "label" : "Signal to Noise",
+      "visible" : true,
+      "type" : "DOUBLE",
+      "index" : 4
+    }, {
+      "tapName" : "redshift",
+      "label" : "Redshift",
+      "visible" : true,
+      "type" : "DOUBLE",
+      "index" : 5
+    }, {
+      "tapName" : "msz",
+      "label" : "Sunyaev-Zeldovich Mass</br>(10<sup>14</sup> M<sub>solar</sub>)",
+      "visible" : true,
+      "type" : "DOUBLE",
+      "index" : 6
+    }, {
+      "tapName" : "validation",
+      "label" : "Validation",
+      "visible" : true,
+      "type" : "DOUBLE",
+      "index" : 7
+    } ]
+  } ],
+  "total" : 13
+}
