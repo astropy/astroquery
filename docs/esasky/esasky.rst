@@ -127,7 +127,8 @@ Query a region
 --------------
 The region queries work in a similar way as query_object, except that you must 
 choose a radius as well. There are two query region methods in this module 
-:meth:`query_region_catalogs` and :meth:`query_region_maps`. 
+:meth:`astroquery.esasky.ESASkyClass.query_region_catalogs` and 
+:meth:`astroquery.esasky.ESASkyClass.query_region_maps`. 
 The query returns a maximum of 2000 sources per mission.
 
 To query a region either the coordinates or the object name around which to
@@ -224,9 +225,9 @@ parameter:
 Get maps
 --------
 
-You can also fetch images using :meth:`get_maps`. It works exactly as 
-:meth:`get_images` except that it takes a `~astropy.utils.TableList` instead 
-of position, radius and missions. 
+You can also fetch images using :meth:`astroquery.esasky.ESASkyClass.get_maps`. 
+It works exactly as :meth:`astroquery.esasky.ESASkyClass.get_images` except that 
+it takes a `~astropy.utils.TableList` instead of position, radius and missions. 
 
 .. code-block:: python
 
