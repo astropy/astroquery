@@ -45,10 +45,11 @@ If you know the names of all the available maps missions you can use
 Query an object
 ---------------
 
-There are two query objects methods in this module :meth:`~query_object_catalogs`
-and :meth:`~query_object_maps`. They both work in almost the same way except 
-that one has catalogs as input and output and the other one has mission
-names and observations as input and output. 
+There are two query objects methods in this module 
+:meth:`~astroquery.esasky.ESASkyClass.query_object_catalogs` and 
+:meth:`~astroquery.esasky.ESASkyClass.query_object_maps`. They both work in 
+almost the same way except that one has catalogs as input and output and the 
+other one has mission names and observations as input and output. 
 
 For catalogs, the query returns a maximum of 2000 sources per mission.
 To account for observation errors, this method will search for any sources
@@ -112,9 +113,9 @@ dictionary:
     ...     # table is now an `astropy.table.Table` object
     ...     # some code to apply on table
 
-As mentioned earlier, :meth:`query_object_maps` works extremely similar. It will
-return all maps that contain the chosen object or coordinate.
-To execute the same command as above you write this:
+As mentioned earlier, :meth:`astroquery.esasky.ESASkyClass.query_object_maps` 
+works extremely similar. It will return all maps that contain the chosen object 
+or coordinate. To execute the same command as above you write this:
 
 .. code-block:: python
 
