@@ -278,7 +278,7 @@ class ESASkyClass(BaseQuery):
         return commons.TableList(query_result)
     
     def get_maps(self, query_table_list, missions=__ALL_STRING, 
-                 download_directory=__MAPS_STRING, cache=True):
+                 download_dir=__MAPS_STRING, cache=True):
         """
         This method takes the dictionary of missions and metadata as returned by 
         query_region_maps and downloads all maps to the selected folder. 
@@ -296,7 +296,7 @@ class ESASkyClass(BaseQuery):
             Can be either a specific mission or a list of missions (all mission 
             names are found in list_missions()) or 'all' to search in all 
             missions. Defaults to 'all'. 
-        download_directory : string, optional
+        download_dir : string, optional
             The folder where all downloaded maps should be stored. 
             Defaults to a folder called 'Maps' in the current working directory. 
         cache : bool, optional
@@ -339,11 +339,11 @@ class ESASkyClass(BaseQuery):
                         self._get_maps_for_mission(
                             sanitized_query_table_list[query_mission], 
                             query_mission, 
-                            download_directory, 
+                            download_dir, 
                             cache))
                     break
         if (len(sanitized_query_table_list) > 0):
-            log.info("Maps available at %s" %os.path.abspath(download_directory))
+            log.info("Maps available at %s" %os.path.abspath(download_dir))
         else:
             print("No maps found")
         return maps

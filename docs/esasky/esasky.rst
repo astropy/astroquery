@@ -25,9 +25,9 @@ If you know the names of all the available catalogs you can use
 
     >>> catalog_list = ESASky.list_catalogs()
     >>> print(catalog_list)
-		['INTEGRAL', 'XMM-EPIC', 'XMM-OM', 'XMM-SLEW', 'Tycho-2', 
-		'Gaia DR1 TGAS', 'Hipparcos-2', 'HSC', 'Planck-PGCC2', 'Planck-PCCS2E', 
-		'Planck-PCCS2-HFI', 'Planck-PCCS2-LFI', 'Planck-PSZ']
+	['INTEGRAL', 'XMM-EPIC', 'XMM-OM', 'XMM-SLEW', 'Tycho-2', 
+	'Gaia DR1 TGAS', 'Hipparcos-2', 'HSC', 'Planck-PGCC2', 'Planck-PCCS2E', 
+	'Planck-PCCS2-HFI', 'Planck-PCCS2-LFI', 'Planck-PSZ']
 
 Get the available maps mission names
 ------------------------------------
@@ -39,8 +39,8 @@ If you know the names of all the available maps missions you can use
 
     >>> maps_list = ESASky.list_maps()
     >>> print(maps_list)
-    	['INTEGRAL', 'XMM-EPIC', 'SUZAKU', 'XMM-OM-OPTICAL', 'XMM-OM-UV', 
-    	'HST', 'Herschel', 'ISO']
+	['INTEGRAL', 'XMM-EPIC', 'SUZAKU', 'XMM-OM-OPTICAL', 'XMM-OM-UV', 
+	'HST', 'Herschel', 'ISO']
 
 Query an object
 ---------------
@@ -209,36 +209,36 @@ dictionary where the used filter is the key and the HDUList is the value.
 	
     >>> print(images)
  	{
-    'HERSCHEL': [{'70': [HDUList], ' 160': [HDUList]}, {'70': [HDUList], ' 160': [HDUList]}, ...],
-    'XMM-EPIC' : [HDUList], HDUList], HDUList], HDUList], ...]
-    ...
-    }
+	'HERSCHEL': [{'70': [HDUList], ' 160': [HDUList]}, {'70': [HDUList], ' 160': [HDUList]}, ...],
+	'XMM-EPIC' : [HDUList], HDUList], HDUList], HDUList], ...]
+	...
+	}
 
 Note that the fits files also are stored to disk. By default they are saved to 
-the working directory but the location can be chosen by the download_directory 
+the working directory but the location can be chosen by the download_dir 
 parameter:
 
 .. code-block:: python
 
-    >>> images = ESASky.get_images("m51", radius="20 arcmin", missions=['Herschel', 'XMM-EPIC'], download_directory="/home/user/esasky")
+    >>> images = ESASky.get_images("m51", radius="20 arcmin", missions=['Herschel', 'XMM-EPIC'], download_dir="/home/user/esasky")
 
 Get maps
 --------
 
 You can also fetch images using :meth:`astroquery.esasky.ESASkyClass.get_maps`. 
 It works exactly as :meth:`astroquery.esasky.ESASkyClass.get_images` except that 
-it takes a `~astropy.utils.TableList` instead of position, radius and missions. 
+it takes a `~astroquery.utils.TableList` instead of position, radius and missions. 
 
 .. code-block:: python
 
     >>> table_list = ESASky.query_region_maps("m51", radius="20 arcmin", missions=['Herschel', 'XMM-EPIC'])
-    >>> images = ESASky.get_maps(table_list, download_directory="/home/user/esasky")
+    >>> images = ESASky.get_maps(table_list, download_dir="/home/user/esasky")
 
 This example is equivalent to:
 
 .. code-block:: python
 
-    >>> images = ESASky.get_images("m51", radius="20 arcmin", missions=['Herschel', 'XMM-EPIC'], download_directory="/home/user/esasky")
+    >>> images = ESASky.get_images("m51", radius="20 arcmin", missions=['Herschel', 'XMM-EPIC'], download_dir="/home/user/esasky")
 
 
 Reference/API

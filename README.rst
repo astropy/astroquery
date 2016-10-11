@@ -82,6 +82,7 @@ List of Modules
 
   * `Simbad <http://astroquery.readthedocs.io/en/latest/simbad/simbad.html>`_:           Basic data, cross-identifications, bibliography and measurements for astronomical objects outside the solar system.
   * `Vizier <http://astroquery.readthedocs.io/en/latest/vizier/vizier.html>`_:           Set of 11,000+ published, multiwavelength catalogues hosted by the CDS.
+  * `ESASky <http://astroquery.readthedocs.io/en/latest/esasky/esasky.html>`_:           ESASky is a science driven discovery portal providing easy visualizations and full access to the entire sky as observed with ESA Space astronomy missions.
   * `IRSA Image Server program interface (IBE) Query Tool<http://astroquery.readthedocs.io/en/latest/ibe/ibe.html>`_: provides access to the 2MASS, WISE, and PTF image archives.
   * `IRSA dust <http://astroquery.readthedocs.io/en/latest/irsa/irsa_dust.html>`_:     Galactic dust reddening and extinction maps from IRAS 100 um data.
   * `NED <http://astroquery.readthedocs.io/en/latest/ned/ned.html>`_:                 NASA/IPAC Extragalactic Database. Multiwavelength data from both surveys and publications.
