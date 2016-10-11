@@ -9,11 +9,12 @@ ESASky Queries (`astroquery.esasky`)
 Getting started
 ===============
 
-This is a python interface for querying the ESASky web service. This supports
-querying an object as well as querying a region around the target. For region
-queries, the region dimensions may be specified as a
-radius. The queries may be further constrained by specifying 
-a choice of catalogs or missions.
+This is a python interface for querying the `ESASky web service
+<http://www.cosmos.esa.int/web/esdc/esasky>`__. This supports querying an object
+as well as querying a region around the target. For region queries, the region
+dimensions may be specified as a radius. The queries may be further constrained
+by specifying a choice of catalogs or missions.  `Documentation on the ESASky
+web service can be found here. <http://www.cosmos.esa.int/web/esdc/esasky-help>`__
 
 Get the available catalog names
 -------------------------------
@@ -25,9 +26,9 @@ If you know the names of all the available catalogs you can use
 
     >>> catalog_list = ESASky.list_catalogs()
     >>> print(catalog_list)
-	['INTEGRAL', 'XMM-EPIC', 'XMM-OM', 'XMM-SLEW', 'Tycho-2', 
-	'Gaia DR1 TGAS', 'Hipparcos-2', 'HSC', 'Planck-PGCC2', 'Planck-PCCS2E', 
-	'Planck-PCCS2-HFI', 'Planck-PCCS2-LFI', 'Planck-PSZ']
+    ['INTEGRAL', 'XMM-EPIC', 'XMM-OM', 'XMM-SLEW', 'Tycho-2', 
+    'Gaia DR1 TGAS', 'Hipparcos-2', 'HSC', 'Planck-PGCC2', 'Planck-PCCS2E', 
+    'Planck-PCCS2-HFI', 'Planck-PCCS2-LFI', 'Planck-PSZ']
 
 Get the available maps mission names
 ------------------------------------
@@ -39,8 +40,8 @@ If you know the names of all the available maps missions you can use
 
     >>> maps_list = ESASky.list_maps()
     >>> print(maps_list)
-	['INTEGRAL', 'XMM-EPIC', 'SUZAKU', 'XMM-OM-OPTICAL', 'XMM-OM-UV', 
-	'HST', 'Herschel', 'ISO']
+    ['INTEGRAL', 'XMM-EPIC', 'SUZAKU', 'XMM-OM-OPTICAL', 'XMM-OM-UV', 
+    'HST', 'Herschel', 'ISO']
 
 Query an object
 ---------------
@@ -82,11 +83,11 @@ To see the result:
 .. code-block:: python
 
     >>> print(result)
-	TableList with 4 tables:
-		'0:XMM-EPIC' with 4 column(s) and 3 row(s) 
-		'1:HSC' with 8 column(s) and 2000 row(s) 
-		'2:XMM-OM' with 12 column(s) and 220 row(s) 
-		'3:PLANCK-PCCS2-HFI' with 8 column(s) and 1 row(s) 
+    TableList with 4 tables:
+        '0:XMM-EPIC' with 4 column(s) and 3 row(s) 
+        '1:HSC' with 8 column(s) and 2000 row(s) 
+        '2:XMM-OM' with 12 column(s) and 220 row(s) 
+        '3:PLANCK-PCCS2-HFI' with 8 column(s) and 1 row(s) 
 
 All the results are returned as a `astroquery.utils.TableList` object. This is a 
 container for `~astropy.table.Table` objects. It is basically an extension to
@@ -98,9 +99,9 @@ To access an individual table from the `astroquery.utils.TableList` object
 
     >>> interesting_table = result['PLANCK-PCCS2-HFI']
     >>> print(interesting_table)
-	          name              ra [1]       dec [1]   
-	----------------------- ------------- -------------
-	PCCS2 217 G104.83+68.55 202.485459453 47.2001843799
+              name              ra [1]       dec [1]   
+    ----------------------- ------------- -------------
+    PCCS2 217 G104.83+68.55 202.485459453 47.2001843799
 
 To do some common processing to all the tables in the returned 
 `astroquery.utils.TableList` object, do just what you would do for a python 
@@ -138,7 +139,7 @@ For instance to query region around M51 in the integral catalog:
 .. code-block:: python
 
     >>> from astroquery.esasky import ESASky
-	>>> import astropy.units as u
+    >>> import astropy.units as u
     >>> result = ESASky.query_region_catalogs("M51", 10 * u.arcmin, "integral")
 
 Note that the catalog may also be specified as a list. 
@@ -168,11 +169,11 @@ To see the result:
 .. code-block:: python
 
     >>> print(result)
-	TableList with 4 tables:
-		'0:XMM-EPIC' with 4 column(s) and 3 row(s) 
-		'1:HSC' with 8 column(s) and 2000 row(s) 
-		'2:XMM-OM' with 12 column(s) and 220 row(s) 
-		'3:PLANCK-PCCS2-HFI' with 8 column(s) and 1 row(s) 
+    TableList with 4 tables:
+        '0:XMM-EPIC' with 4 column(s) and 3 row(s) 
+        '1:HSC' with 8 column(s) and 2000 row(s) 
+        '2:XMM-OM' with 12 column(s) and 220 row(s) 
+        '3:PLANCK-PCCS2-HFI' with 8 column(s) and 1 row(s) 
 
 As mentioned earlier, query_region_maps works extremely similar.
 To execute the same command as above you write this:
@@ -202,17 +203,17 @@ dictionary where the used filter is the key and the HDUList is the value.
     >>> from astroquery.esasky import ESASky
     >>> images = ESASky.get_images("m51", radius="20 arcmin", missions=['Herschel', 'XMM-EPIC'])
 
-	Starting download of HERSCHEL data. (12 files)
-	Downloading Observation ID: 1342183910 from http://archives.esac.esa.int/hsa/aio/jsp/standaloneproduct.jsp?RETRIEVAL_TYPE=STANDALONE&OBSERVATION.OBSERVATION_ID=1342183910&OBSERVING_MODE.OBSERVING_MODE_NAME=PacsPhoto&INSTRUMENT.INSTRUMENT_NAME=PACS [Done]
-	Downloading Observation ID: 1342183907 from http://archives.esac.esa.int/hsa/aio/jsp/standaloneproduct.jsp?RETRIEVAL_TYPE=STANDALONE&OBSERVATION.OBSERVATION_ID=1342183907&OBSERVING_MODE.OBSERVING_MODE_NAME=PacsPhoto&INSTRUMENT.INSTRUMENT_NAME=PACS [Done]
-	...
-	
+    Starting download of HERSCHEL data. (12 files)
+    Downloading Observation ID: 1342183910 from http://archives.esac.esa.int/hsa/aio/jsp/standaloneproduct.jsp?RETRIEVAL_TYPE=STANDALONE&OBSERVATION.OBSERVATION_ID=1342183910&OBSERVING_MODE.OBSERVING_MODE_NAME=PacsPhoto&INSTRUMENT.INSTRUMENT_NAME=PACS [Done]
+    Downloading Observation ID: 1342183907 from http://archives.esac.esa.int/hsa/aio/jsp/standaloneproduct.jsp?RETRIEVAL_TYPE=STANDALONE&OBSERVATION.OBSERVATION_ID=1342183907&OBSERVING_MODE.OBSERVING_MODE_NAME=PacsPhoto&INSTRUMENT.INSTRUMENT_NAME=PACS [Done]
+    ...
+    
     >>> print(images)
- 	{
-	'HERSCHEL': [{'70': [HDUList], ' 160': [HDUList]}, {'70': [HDUList], ' 160': [HDUList]}, ...],
-	'XMM-EPIC' : [HDUList], HDUList], HDUList], HDUList], ...]
-	...
-	}
+    {
+    'HERSCHEL': [{'70': [HDUList], ' 160': [HDUList]}, {'70': [HDUList], ' 160': [HDUList]}, ...],
+    'XMM-EPIC' : [HDUList], HDUList], HDUList], HDUList], ...]
+    ...
+    }
 
 Note that the fits files also are stored to disk. By default they are saved to 
 the working directory but the location can be chosen by the download_dir 
