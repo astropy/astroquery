@@ -2,6 +2,7 @@
 ---------
 
 - Option to toggle the display of the download bar (#734)
+- ESASKY - added new module for querying the ESASKY archive (#758,#763)
 
 0.3.2 (2016-06-10)
 ------------------
