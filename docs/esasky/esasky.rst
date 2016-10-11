@@ -70,7 +70,7 @@ So the above query may also be written as:
 
     >>> result = ESASky.query_object_catalogs("M51", ["integral", "XMM-OM"])
 
-To search in all available catalogs you can write "all" instead of a catalog 
+To search in all available catalogs you can write ``"all"`` instead of a catalog 
 name. The same thing will happen if you don't write any catalog name.
 
 .. code-block:: python
@@ -122,14 +122,14 @@ or coordinate. To execute the same command as above you write this:
 
     >>> result = ESASky.query_object_maps("M51", "all")
 
-The parameters are interchangeable in the same way as in query_object_catalogs 
+The parameters are interchangeable in the same way as in :meth:`~astroquery.esasky.ESASkyClass.query_object_catalogs`.
 
 Query a region
 --------------
 The region queries work in a similar way as query_object, except that you must 
-choose a radius as well. There are two query region methods in this module 
-:meth:`astroquery.esasky.ESASkyClass.query_region_catalogs` and 
-:meth:`astroquery.esasky.ESASkyClass.query_region_maps`. 
+choose a radius as well. There are two query region methods in this module:
+:meth:`~astroquery.esasky.ESASkyClass.query_region_catalogs` and 
+:meth:`~astroquery.esasky.ESASkyClass.query_region_maps`. 
 The query returns a maximum of 2000 sources per mission.
 
 To query a region either the coordinates or the object name around which to
@@ -149,7 +149,7 @@ So the above query may also be written as:
 
     >>> result = ESASky.query_region_catalogs("M51", 10 * u.arcmin, ["integral", "XMM-OM"])
 
-To search in all available catalogs you can write "all" instead of a catalog 
+To search in all available catalogs you can write ``"all"`` instead of a catalog 
 name. The same thing will happen if you don't write any catalog name.
 
 .. code-block:: python
@@ -175,14 +175,15 @@ To see the result:
         '2:XMM-OM' with 12 column(s) and 220 row(s) 
         '3:PLANCK-PCCS2-HFI' with 8 column(s) and 1 row(s) 
 
-As mentioned earlier, query_region_maps works extremely similar.
+As mentioned earlier, :meth:`~astroquery.esasky.ESASkyClass.query_region_maps` works extremely similar.
 To execute the same command as above you write this:
 
 .. code-block:: python
 
     >>> result = ESASky.query_region_maps("M51", 10 * u.arcmin, "all")
 
-The parameters are interchangeable in the same way as in query_region_catalogs 
+The parameters are interchangeable in the same way as in
+:meth:`~astroquery.esasky.ESASkyClass.query_region_catalogs`.
 
 Get images
 ----------
@@ -201,7 +202,8 @@ dictionary where the used filter is the key and the HDUList is the value.
 .. code-block:: python
 
     >>> from astroquery.esasky import ESASky
-    >>> images = ESASky.get_images("m51", radius="20 arcmin", missions=['Herschel', 'XMM-EPIC'])
+    >>> images = ESASky.get_images("m51", radius="20 arcmin",
+    ...                            missions=['Herschel', 'XMM-EPIC'])
 
     Starting download of HERSCHEL data. (12 files)
     Downloading Observation ID: 1342183910 from http://archives.esac.esa.int/hsa/aio/jsp/standaloneproduct.jsp?RETRIEVAL_TYPE=STANDALONE&OBSERVATION.OBSERVATION_ID=1342183910&OBSERVING_MODE.OBSERVING_MODE_NAME=PacsPhoto&INSTRUMENT.INSTRUMENT_NAME=PACS [Done]
@@ -221,7 +223,9 @@ parameter:
 
 .. code-block:: python
 
-    >>> images = ESASky.get_images("m51", radius="20 arcmin", missions=['Herschel', 'XMM-EPIC'], download_dir="/home/user/esasky")
+    >>> images = ESASky.get_images("m51", radius="20 arcmin",
+    ...                            missions=['Herschel', 'XMM-EPIC'],
+    ...                            download_dir="/home/user/esasky")
 
 Get maps
 --------
@@ -232,14 +236,17 @@ it takes a `~astroquery.utils.TableList` instead of position, radius and mission
 
 .. code-block:: python
 
-    >>> table_list = ESASky.query_region_maps("m51", radius="20 arcmin", missions=['Herschel', 'XMM-EPIC'])
+    >>> table_list = ESASky.query_region_maps("m51", radius="20 arcmin",
+    ...                                       missions=['Herschel', 'XMM-EPIC'])
     >>> images = ESASky.get_maps(table_list, download_dir="/home/user/esasky")
 
 This example is equivalent to:
 
 .. code-block:: python
 
-    >>> images = ESASky.get_images("m51", radius="20 arcmin", missions=['Herschel', 'XMM-EPIC'], download_dir="/home/user/esasky")
+    >>> images = ESASky.get_images("m51", radius="20 arcmin",
+    ...                            missions=['Herschel', 'XMM-EPIC'],
+    ...                            download_dir="/home/user/esasky")
 
 
 Reference/API
