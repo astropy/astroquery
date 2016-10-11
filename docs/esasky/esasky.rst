@@ -215,12 +215,12 @@ dictionary where the used filter is the key and the HDUList is the value.
 	}
 
 Note that the fits files also are stored to disk. By default they are saved to 
-the working directory but the location can be chosen by the savename 
+the working directory but the location can be chosen by the download_dir 
 parameter:
 
 .. code-block:: python
 
-    >>> images = ESASky.get_images("m51", radius="20 arcmin", missions=['Herschel', 'XMM-EPIC'], savename="/home/user/esasky")
+    >>> images = ESASky.get_images("m51", radius="20 arcmin", missions=['Herschel', 'XMM-EPIC'], download_dir="/home/user/esasky")
 
 Get maps
 --------
@@ -232,13 +232,13 @@ it takes a `~astroquery.utils.TableList` instead of position, radius and mission
 .. code-block:: python
 
     >>> table_list = ESASky.query_region_maps("m51", radius="20 arcmin", missions=['Herschel', 'XMM-EPIC'])
-    >>> images = ESASky.get_maps(table_list, savename="/home/user/esasky")
+    >>> images = ESASky.get_maps(table_list, download_dir="/home/user/esasky")
 
 This example is equivalent to:
 
 .. code-block:: python
 
-    >>> images = ESASky.get_images("m51", radius="20 arcmin", missions=['Herschel', 'XMM-EPIC'], savename="/home/user/esasky")
+    >>> images = ESASky.get_images("m51", radius="20 arcmin", missions=['Herschel', 'XMM-EPIC'], download_dir="/home/user/esasky")
 
 
 Reference/API
