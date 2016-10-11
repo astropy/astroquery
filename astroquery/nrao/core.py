@@ -4,16 +4,20 @@ from __future__ import print_function
 import re
 import warnings
 import functools
+import getpass
+import keyring
 
 import astropy.units as u
 import astropy.io.votable as votable
 from astropy import coordinates
 from astropy.extern import six
+from astropy import log
+from bs4 import BeautifulSoup
 
-from ..query import BaseQuery
-from ..utils import commons, async_to_sync
+from ..query import QueryWithLogin
+from ..utils import commons, async_to_sync, system_tools
 from ..utils.docstr_chompers import prepend_docstr_noreturns
-from ..exceptions import TableParseError
+from ..exceptions import TableParseError, LoginError
 
 from . import conf
 
@@ -44,7 +48,7 @@ def _validate_params(func):
 
 
 @async_to_sync
-class NraoClass(BaseQuery):
+class NraoClass(QueryWithLogin):
 
     DATA_URL = conf.server
     TIMEOUT = conf.timeout
@@ -194,6 +198,87 @@ class NraoClass(BaseQuery):
             request_payload['CENTER_DEC'] = str(c.dec.degree) + 'd'
 
         return request_payload
+
+    def _login(self, username=None, store_password=False,
+               reenter_password=False):
+        """
+        Login to the NRAO archive
+
+        Parameters
+        ----------
+        username : str, optional
+            Username to the NRAO archive. If not given, it should be specified
+            in the config file.
+        store_password : bool, optional
+            Stores the password securely in your keyring. Default is False.
+        reenter_password : bool, optional
+            Asks for the password even if it is already stored in the
+            keyring. This is the way to overwrite an already stored passwork
+            on the keyring. Default is False.
+        """
+
+        # Developer notes:
+        # Login via https://my.nrao.edu/cas/login
+        # # this can be added to auto-redirect back to the query tool: ?service=https://archive.nrao.edu/archive/advquery.jsp
+
+        if username is None:
+            if self.USERNAME == "":
+                raise LoginError("If you do not pass a username to login(), "
+                                 "you should configure a default one!")
+            else:
+                username = self.USERNAME
+
+        # Check if already logged in
+        loginpage = self._request("GET", "https://my.nrao.edu/cas/login",
+                                  cache=False)
+        root = BeautifulSoup(loginpage.content, 'html5lib')
+        if root.find('div', class_='success'):
+            log.info("Already logged in.")
+            return True
+
+        # Get password from keyring or prompt
+        if reenter_password is False:
+            password_from_keyring = keyring.get_password(
+                "astroquery:my.nrao.edu", username)
+        else:
+            password_from_keyring = None
+
+        if password_from_keyring is None:
+            if system_tools.in_ipynb():
+                log.warning("You may be using an ipython notebook:"
+                            " the password form will appear in your terminal.")
+            password = getpass.getpass("{0}, enter your NRAO archive password:"
+                                       "\n".format(username))
+        else:
+            password = password_from_keyring
+        # Authenticate
+        log.info("Authenticating {0} on my.nrao.edu ...".format(username))
+        # Do not cache pieces of the login process
+        data = {kw: root.find('input', {'name': kw})['value']
+                for kw in ('lt', '_eventId', 'execution')}
+        data['username'] = username
+        data['password'] = password
+        data['execution'] = 'e1s1' # not sure if needed
+        data['_eventId'] = 'submit'
+        data['submit'] = 'LOGIN'
+
+        login_response = self._request("POST", "https://my.nrao.edu/cas/login",
+                                       data=data,
+                                       cache=False)
+
+        authenticated = ('You have successfully logged in' in
+                         login_response.text)
+
+        if authenticated:
+            log.info("Authentication successful!")
+            self._username = username
+        else:
+            log.exception("Authentication failed!")
+        # When authenticated, save password in keyring if needed
+        if authenticated and password_from_keyring is None and store_password:
+            keyring.set_password("astroquery:my.nrao.edu", username, password)
+
+        return authenticated
 
     @prepend_docstr_noreturns(_args_to_payload.__doc__)
     def query_async(self,
