@@ -349,7 +349,7 @@ class ESASkyClass(BaseQuery):
         return maps
     
     def get_images(self, position, radius=__ZERO_ARCMIN_STRING, missions=__ALL_STRING, 
-                   download_directory=__MAPS_STRING, cache=True):
+                   download_dir=__MAPS_STRING, cache=True):
         """
         This method gets the fits files available for the selected position and 
         mission and downloads all maps to the the selected folder.
@@ -369,7 +369,7 @@ class ESASkyClass(BaseQuery):
             Can be either a specific mission or a list of missions (all mission 
             names are found in list_missions()) or 'all' to search in all 
             missions. Defaults to 'all'. 
-        download_directory : string, optional
+        download_dir : string, optional
             The folder where all downloaded maps should be stored. 
             Defaults to a folder called 'Maps' in the current working directory. 
         cache : bool, optional
@@ -417,10 +417,10 @@ class ESASkyClass(BaseQuery):
                 self._get_maps_for_mission(
                     map_query_result[query_mission], 
                     query_mission, 
-                    download_directory, 
+                    download_dir, 
                     cache))
 
-        print("Maps available at %s" %os.path.abspath(download_directory))
+        print("Maps available at %s" %os.path.abspath(download_dir))
         return maps
     
     def _sanitize_input_position(self, position):
@@ -466,12 +466,12 @@ class ESASkyClass(BaseQuery):
             return table_list
         raise ValueError("Query_table_list must be an astropy.utils.TableList")
       
-    def _get_maps_for_mission(self, maps_table, mission, download_directory, cache):
+    def _get_maps_for_mission(self, maps_table, mission, download_dir, cache):
         maps = []
         
         if (len(maps_table[self.__PRODUCT_URL_STRING]) > 0):
             mission_directory = self._create_mission_directory(mission, 
-                                                               download_directory)    
+                                                               download_dir)    
             print("Starting download of %s data. (%d files)" 
                   %(mission, len(maps_table[self.__PRODUCT_URL_STRING])))
             for index in range(len(maps_table)):
@@ -540,11 +540,11 @@ class ESASkyClass(BaseQuery):
                    os.path.join(full_directory_path, file_name))
         return file_name
     
-    def _create_mission_directory(self, mission, download_directory):
-        if (download_directory == self.__MAPS_STRING):
+    def _create_mission_directory(self, mission, download_dir):
+        if (download_dir == self.__MAPS_STRING):
             mission_directory = self.__MAPS_STRING + "/" + mission
         else:
-            mission_directory = (download_directory + "/" + self.__MAPS_STRING + 
+            mission_directory = (download_dir + "/" + self.__MAPS_STRING + 
                                  "/" + mission)
         if not os.path.exists(mission_directory):
             os.makedirs(mission_directory)
