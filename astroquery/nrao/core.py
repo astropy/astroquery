@@ -52,6 +52,7 @@ class NraoClass(QueryWithLogin):
 
     DATA_URL = conf.server
     TIMEOUT = conf.timeout
+    USERNAME = conf.username
 
     # dicts and lists for data archive queries
     telescope_code = {
@@ -222,7 +223,7 @@ class NraoClass(QueryWithLogin):
         # # this can be added to auto-redirect back to the query tool: ?service=https://archive.nrao.edu/archive/advquery.jsp
 
         if username is None:
-            if self.USERNAME == "":
+            if not self.USERNAME:
                 raise LoginError("If you do not pass a username to login(), "
                                  "you should configure a default one!")
             else:
@@ -263,15 +264,14 @@ class NraoClass(QueryWithLogin):
         data['submit'] = 'LOGIN'
 
         login_response = self._request("POST", "https://my.nrao.edu/cas/login",
-                                       data=data,
-                                       cache=False)
+                                       data=data, cache=False)
 
         authenticated = ('You have successfully logged in' in
                          login_response.text)
 
         if authenticated:
             log.info("Authentication successful!")
-            self._username = username
+            self.USERNAME = username
         else:
             log.exception("Authentication failed!")
         # When authenticated, save password in keyring if needed
@@ -305,8 +305,8 @@ class NraoClass(QueryWithLogin):
                            equinox='J2000', telescope='all', start_date="",
                            end_date="", freq_low=None, freq_up=None,
                            telescope_config='all', obs_band='all',
-                           querytype='OBSSUMMARY',
-                           sub_array='all', get_query_payload=False):
+                           querytype='OBSSUMMARY', sub_array='all',
+                           get_query_payload=False, cache=True):
         """
         Returns
         -------
@@ -326,7 +326,8 @@ class NraoClass(QueryWithLogin):
                                 obs_band=obs_band,
                                 sub_array=sub_array,
                                 querytype=querytype,
-                                get_query_payload=get_query_payload)
+                                get_query_payload=get_query_payload,
+                                cache=cache)
 
     def _parse_result(self, response, verbose=False):
         if not verbose:
