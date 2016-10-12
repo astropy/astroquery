@@ -447,7 +447,7 @@ class AlmaClass(QueryWithLogin):
         """
 
         if username is None:
-            if self.USERNAME == "":
+            if not self.USERNAME:
                 raise LoginError("If you do not pass a username to login(), "
                                  "you should configure a default one!")
             else:
