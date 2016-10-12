@@ -11,6 +11,7 @@ import astropy.units as u
 import astropy.io.votable as votable
 from astropy import coordinates
 from astropy.extern import six
+from astropy.table import Table
 from astropy import log
 from bs4 import BeautifulSoup
 
@@ -129,12 +130,18 @@ class NraoClass(QueryWithLogin):
 
         querytype : str
             The type of query to perform.  "OBSSUMMARY" is the default, but
-            it is only valid for VLA/VLBA observations.  ARCHIVE will not
-            work at all because it relies on XML data.  OBSERVATION will
+            it is only valid for VLA/VLBA observations.  ARCHIVE will give
+            the list of files available for download.  OBSERVATION will
             provide full details of the sources observed and under what
             configurations.
         source_id : str, optional
             A source name (to be parsed by SIMBAD or NED)
+        protocol : 'VOTable-XML' or 'HTML'
+            The type of table to return.  In theory, this should not matter,
+            but in practice the different table types actually have different
+            content.  For ``querytype='ARCHIVE'``, the protocol will be force
+            to HTML because the archive doesn't support votable returns for
+            archive queries.
         get_query_payload : bool, optional
             if set to `True` then returns the dictionary sent as the HTTP
             request.  Defaults to `False`
@@ -154,7 +161,7 @@ class NraoClass(QueryWithLogin):
 
         request_payload = dict(
             QUERYTYPE=kwargs.get('querytype', "OBSSUMMARY"),
-            PROTOCOL="VOTable-XML",
+            PROTOCOL=kwargs.get('protocol',"VOTable-XML"),
             MAX_ROWS="NO LIMIT",
             SORT_PARM="Starttime",
             SORT_ORDER="Asc",
@@ -191,6 +198,20 @@ class NraoClass(QueryWithLogin):
             DATATYPE="ALL",
             PASSWD="",  # TODO: implement login...
             SUBMIT="Submit Query")
+
+        if (request_payload['QUERYTYPE'] == "ARCHIVE" and
+            request_payload['PROTOCOL'] != 'HTML'):
+            warnings.warn("Changing protocol to HTML: ARCHIVE queries do not"
+                          " support votable returns")
+            request_payload['PROTOCOL'] = 'HTML'
+
+        if request_payload['PROTOCOL'] not in ('HTML','VOTable-XML'):
+            raise ValueError("Only HTML and VOTable-XML returns are supported")
+
+        if request_payload['QUERYTYPE'] not in ('ARCHIVE', 'OBSSUMMARY',
+                                                'OBSERVATION'):
+            raise ValueError("Only ARCHIVE, OBSSUMMARY, and OBSERVATION "
+                             "querytypes are supported")
 
         if 'coordinates' in kwargs:
             c = commons.parse_coordinates(
@@ -306,6 +327,7 @@ class NraoClass(QueryWithLogin):
                            end_date="", freq_low=None, freq_up=None,
                            telescope_config='all', obs_band='all',
                            querytype='OBSSUMMARY', sub_array='all',
+                           protocol='VOTable-XML',
                            get_query_payload=False, cache=True):
         """
         Returns
@@ -326,10 +348,20 @@ class NraoClass(QueryWithLogin):
                                 obs_band=obs_band,
                                 sub_array=sub_array,
                                 querytype=querytype,
+                                protocol=protocol,
                                 get_query_payload=get_query_payload,
                                 cache=cache)
 
     def _parse_result(self, response, verbose=False):
+        if '<?xml' in response.text[:5]:
+            return self._parse_votable_result(response, verbose=verbose)
+        elif '<html>' in response.text[:6]:
+            return self._parse_html_result(response, verbose=verbose)
+        else:
+            raise ValueError("Unrecognized response type; it does not appear "
+                             "to be VO-XML or HTML")
+
+    def _parse_votable_result(self, response, verbose=False):
         if not verbose:
             commons.suppress_vo_warnings()
 
@@ -368,5 +400,18 @@ class NraoClass(QueryWithLogin):
             raise TableParseError("Failed to parse NRAO votable result! The "
                                   "raw response can be found in self.response,"
                                   " and the error in self.table_parse_error.")
+
+    def _parse_html_result(self, response, verbose=False):
+        # pares the HTML return...
+        root = BeautifulSoup(response.content, 'html5lib')
+
+        htmltable = root.findAll('table')
+        #if len(htmltable) != 1:
+        #    raise ValueError("Found the wrong number of tables: {0}"
+        #                     .format(len(htmltable)))
+
+        table = Table.read(str(htmltable[-1]), format='ascii.html')
+
+        return table
 
 Nrao = NraoClass()
