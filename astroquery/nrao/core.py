@@ -305,6 +305,7 @@ class NraoClass(QueryWithLogin):
                            equinox='J2000', telescope='all', start_date="",
                            end_date="", freq_low=None, freq_up=None,
                            telescope_config='all', obs_band='all',
+                           querytype='OBSSUMMARY',
                            sub_array='all', get_query_payload=False):
         """
         Returns
@@ -324,6 +325,7 @@ class NraoClass(QueryWithLogin):
                                 telescope_config=telescope_config,
                                 obs_band=obs_band,
                                 sub_array=sub_array,
+                                querytype=querytype,
                                 get_query_payload=get_query_payload)
 
     def _parse_result(self, response, verbose=False):
