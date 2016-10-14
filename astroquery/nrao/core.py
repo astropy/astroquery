@@ -435,7 +435,9 @@ class NraoClass(QueryWithLogin):
         #    raise ValueError("Found the wrong number of tables: {0}"
         #                     .format(len(htmltable)))
 
-        table = Table.read(str(htmltable[-1]), format='ascii.html')
+        string_to_parse = htmltable[-1].encode('ascii').decode('utf-8')
+
+        table = Table.read(string_to_parse, format='ascii.html')
 
         return table
 
