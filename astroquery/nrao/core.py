@@ -2,6 +2,7 @@
 from __future__ import print_function
 
 import re
+import os
 import warnings
 import functools
 import getpass
@@ -145,6 +146,12 @@ class NraoClass(QueryWithLogin):
         get_query_payload : bool, optional
             if set to `True` then returns the dictionary sent as the HTTP
             request.  Defaults to `False`
+        cache : bool
+            Cache the query results
+        retry : bool or int
+            The number of times to retry querying the server if it doesn't
+            raise an exception but returns a null result (this sort of behavior
+            seems unique to the NRAO archive)
 
         Returns
         -------
@@ -305,6 +312,7 @@ class NraoClass(QueryWithLogin):
     def query_async(self,
                     get_query_payload=False,
                     cache=True,
+                    retry=False,
                     **kwargs):
         """
         Returns
@@ -319,6 +327,21 @@ class NraoClass(QueryWithLogin):
             return request_payload
         response = self._request('POST', self.DATA_URL, params=request_payload,
                                  timeout=self.TIMEOUT, cache=cache)
+        self._last_response = response
+
+        response.raise_for_status()
+
+        if not response.content:
+            if cache:
+                last_pickle = self._last_query.hash()+".pickle"
+                cache_fn = os.path.join(self.cache_location, last_pickle)
+                os.remove(cache_fn)
+            if retry > 0:
+                self.query_async(cache=cache, retry=retry-1, **kwargs)
+            else:
+                raise ValueError("Query resulted in an empty result but "
+                                 "the server did not raise an error.")
+        
         return response
 
     @prepend_docstr_noreturns(_args_to_payload.__doc__)
@@ -328,6 +351,7 @@ class NraoClass(QueryWithLogin):
                            telescope_config='all', obs_band='all',
                            querytype='OBSSUMMARY', sub_array='all',
                            protocol='VOTable-XML',
+                           retry=False,
                            get_query_payload=False, cache=True):
         """
         Returns
@@ -350,6 +374,7 @@ class NraoClass(QueryWithLogin):
                                 querytype=querytype,
                                 protocol=protocol,
                                 get_query_payload=get_query_payload,
+                                retry=retry,
                                 cache=cache)
 
     def _parse_result(self, response, verbose=False):
