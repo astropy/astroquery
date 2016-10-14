@@ -17,7 +17,7 @@ def data_path(filename):
     return os.path.join(data_dir, filename)
 
 DATA_FILES = {'votable': 'votable.xml',
-              'archive': 'archive.html',
+              'archive': 'archive_html.html',
              }
 
 
