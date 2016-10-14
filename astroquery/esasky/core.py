@@ -23,6 +23,7 @@ class ESASkyClass(BaseQuery):
 
     URLbase = conf.urlBase
     TIMEOUT = conf.timeout
+    DEFAULT_ROW_LIMIT = conf.row_limit
     
     __FITS_STRING = ".fits"
     __FTZ_STRING = ".FTZ"
@@ -48,7 +49,6 @@ class ESASkyClass(BaseQuery):
     __IS_SURVEY_MISSION_STRING = "isSurveyMission"
     __ZERO_ARCMIN_STRING = "0 arcmin"
     __MIN_RADIUS_CATALOG_STRING = "5 arcsec"
-    __DEFAULT_SOURCE_LIMIT = "default"
 
     __HERSCHEL_STRING = 'herschel'
     __HST_STRING = 'hst'
@@ -481,7 +481,7 @@ class ESASkyClass(BaseQuery):
         raise ValueError("Query_table_list must be an astropy.utils.TableList")
     
     def _sanitize_input_row_limit(self, row_limit):
-        if (isinstance(row_limit, int) or row_limit == self.__DEFAULT_SOURCE_LIMIT):
+        if (isinstance(row_limit, int)):
             return row_limit
         
         raise ValueError("Row_limit must be an integer")
@@ -659,9 +659,7 @@ class ESASkyClass(BaseQuery):
         radiusDeg = commons.radius_to_unit(radius, unit='deg')
 
         select_query = "SELECT "
-        if(row_limit == self.__DEFAULT_SOURCE_LIMIT):
-            select_query = "".join([select_query, "TOP %s " %json[self.__SOURCE_LIMIT_STRING]])
-        elif(row_limit > 0):
+        if(row_limit > 0):
             select_query = "".join([select_query, "TOP %s " %row_limit])
         elif(not row_limit == -1):
             raise ValueError("Invalid value of row_limit")
