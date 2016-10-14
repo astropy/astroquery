@@ -51,7 +51,10 @@ There are two query objects methods in this module
 almost the same way except that one has catalogs as input and output and the 
 other one has mission names and observations as input and output. 
 
-For catalogs, the query returns a maximum of 2000 sources per mission.
+For catalogs, the query returns a maximum of 2000 sources per mission by 
+default. However, this can be modified by the row_limit parameter.
+You can set the parameter to -1, which will result in the maximum number of
+sources (currently 100 000).
 To account for observation errors, this method will search for any sources
 within 5 arcsec from the object. 
 
@@ -129,7 +132,10 @@ The region queries work in a similar way as query_object, except that you must
 choose a radius as well. There are two query region methods in this module 
 :meth:`astroquery.esasky.ESASkyClass.query_region_catalogs` and 
 :meth:`astroquery.esasky.ESASkyClass.query_region_maps`. 
-The query returns a maximum of 2000 sources per mission.
+The row_limit parameter can be set to choose the maximum number of row to be 
+selected. If this parameter is not set, the method will return the first 2000
+sources. You can set the parameter to -1, which will result in the maximum 
+number of sources (currently 100 000).
 
 To query a region either the coordinates or the object name around which to
 query should be specified along with the value for the radius of the region. 
