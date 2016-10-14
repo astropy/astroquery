@@ -39,6 +39,9 @@ class AtomicLineListClass(BaseQuery):
                      show_fine_structure=None,
                      show_auto_ionizing_transitions=None):
         """
+        Queries Atomic Line List for the given parameters adnd returns the
+        result as a `~astropy.table.Table`. All parameters are optional.
+
         Parameters
         ----------
         wavelength_range : pair of `astropy.units.Unit` values
