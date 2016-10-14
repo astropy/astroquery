@@ -17,18 +17,22 @@ class TestNrao:
 
     def test_query_region_async(self):
         response = nrao.core.Nrao.query_region_async(
-            coord.SkyCoord("04h33m11.1s 05d21m15.5s"))
+            coord.SkyCoord("04h33m11.1s 05d21m15.5s"),
+            retry=5)
         assert response is not None
+        assert response.content
 
     def test_query_region(self):
         result = nrao.core.Nrao.query_region(
-            coord.SkyCoord("04h33m11.1s 05d21m15.5s"))
+            coord.SkyCoord("04h33m11.1s 05d21m15.5s"),
+            retry=5)
         assert isinstance(result, Table)
         # I don't know why this is byte-typed
         assert b'0430+052' in result['Source']
 
     def test_query_region_archive(self):
         result = nrao.core.Nrao.query_region(
-            coord.SkyCoord("05h35.8m 35d43m"), querytype='ARCHIVE')
+            coord.SkyCoord("05h35.8m 35d43m"), querytype='ARCHIVE',
+            retry=5)
         assert len(result) >= 230
         assert 'VLA_XH78003_file15.dat' in result['Archive File']
