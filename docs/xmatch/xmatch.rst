@@ -26,11 +26,11 @@ has the following content::
 Next, the xMatch service will be used to find cross matches between the
 uploaded file and a VizieR catalogue.  The parameters ``cat1`` and ``cat2``
 define the catalogues where one of them may point to a local file (in this
-example, the CSV file is stored in `/tmp/pos_list.csv`). `max_distance` denotes
-the maximum distance in arcsec to look for counterparts; it is used here to
-limit the number of rows in the resulting table for demonstration purposes.
-Finally, ``colRa1`` and ``colDec1`` are used to denote the column names in the
-input file.
+example, the CSV file is stored in
+``'/tmp/pos_list.csv'``). ``max_distance`` denotes the maximum distance in
+arcsec to look for counterparts; it is used here to limit the number of rows
+in the resulting table for demonstration purposes.  Finally, ``colRa1`` and
+``colDec1`` are used to denote the column names in the input file.
 
 .. code-block:: python
 

@@ -256,17 +256,17 @@ class VizierClass(BaseQuery):
         catalog : str or list, optional
             The catalog(s) which must be searched for this identifier.
             If not specified, all matching catalogs will be searched.
-        radius : `astropy.unit.Unit` or None
-            A degree-equivalent unit (optional)
+        radius : `~astropy.units.Quantity` or None
+            A degree-equivalent radius (optional).
         coordinate_system : str or None
             If the object name is given as a coordinate, you *should* use
-            `query_region`, but you can specify a coordinate frame here
-            instead (today, J2000, B1975, B1950, B1900, B1875, B1855,
-            Galactic, Supergal., Ecl.J2000, )
+            `~astroquery.vizier.VizierClass.query_region`, but you can
+            specify a coordinate frame here instead (today, J2000, B1975,
+            B1950, B1900, B1875, B1855, Galactic, Supergal., Ecl.J2000, )
 
         Returns
         -------
-        response : `requests.Response`
+        response : `~requests.Response`
             The response of the HTTP request.
 
         """

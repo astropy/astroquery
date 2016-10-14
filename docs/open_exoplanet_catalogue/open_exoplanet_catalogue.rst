@@ -7,7 +7,7 @@ Open Exoplanet Catalogue(`astroquery.open_exoplanet_catalogue`)
 Getting started
 ===============
 
-This module gives easy access to the open exoplanet catalogue in the form of an XML element tree. 
+This module gives easy access to the open exoplanet catalogue in the form of an XML element tree.
 
 To start import the catalog and generate the catalogue.
 
@@ -52,7 +52,7 @@ Prints all of the planets with known mass around stars of known mass in a machin
             print findvalue(planet, 'mass').machine_readable(), findvalue(star, 'mass').machine_readable()
 
 Print all the names of stars in binaries.
-         
+
 .. code-block:: python
 
     for star in oec.findall(".//binary/star"):
@@ -65,7 +65,7 @@ Prints all the planet names and period of planets around binaries
     for planet in oec.findall(".//binary/planet"):
         print findvalue( planet, 'name'), findvalue( planet, 'period')
 
-Prints the name, radius and mass of the planet Kepler-68 b. 
+Prints the name, radius and mass of the planet Kepler-68 b.
 
 .. code-block:: python
 
@@ -103,7 +103,7 @@ Prints planets whose mass has an upper limit
 
     for planet in oec.findall(".//planet/mass[@upperlimit].."):
         print findvalue( planet, 'name'), findvalue(planet, 'mass')
-   
+
 Prints all stars with the number of planets orbiting them
 
 .. code-block:: python
@@ -134,7 +134,11 @@ Prints the names of rogue planets.
     for planets in oec.findall(".//system/planet"):
         print findvalue( planets, 'name')
 
-Reference
-=========
+Reference/API
+=============
+
+.. automodapi:: astroquery.open_exoplanet_catalogue
+    :no-inheritance-diagram:
+
 To contribute to the open exoplanet catalogue, fork the project on github!
 https://github.com/OpenExoplanetCatalogue/open_exoplanet_catalogue

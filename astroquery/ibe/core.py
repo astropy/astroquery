@@ -41,20 +41,21 @@ class IbeClass(BaseQuery):
         catalog files based on a point, a box (bounded by great circles) and/or
         an SQL-like ``where`` clause.
 
-        If `coordinates` is specified, then the optional `width` and `height`
-        arguments control the width and height of the search box. If neither
-        `width` nor `height` are provided, then the search area is a point. If
-        only one of `width` or `height` are specified, then the search area is
-        a square with that side length centered at the coordinate.
+        If ``coordinates`` is specified, then the optional ``width`` and
+        ``height`` arguments control the width and height of the search
+        box. If neither ``width`` nor ``height`` are provided, then the
+        search area is a point. If only one of ``width`` or ``height`` are
+        specified, then the search area is a square with that side length
+        centered at the coordinate.
 
         Parameters
         ----------
         coordinate : str, `astropy.coordinates` object
             Gives the position of the center of the box if performing a box
             search. If it is a string, then it must be a valid argument to
-            `astropy.coordinates.SkyCoord`. Required if `where` is absent.
+            `~astropy.coordinates.SkyCoord`. Required if ``where`` is absent.
         where : str
-            SQL-like query string. Required if `coordinates` is absent.
+            SQL-like query string. Required if ``coordinates`` is absent.
         mission : str
             The mission to be used (if not the default mission).
         dataset : str
@@ -65,31 +66,31 @@ class IbeClass(BaseQuery):
             A space-separated string or a list of strings of the names of the
             columns to return.
         width : str or `~astropy.units.Quantity` object
-            Width of the search box if `coordinates` is present.
+            Width of the search box if ``coordinates`` is present.
 
             The string must be parsable by `~astropy.coordinates.Angle`. The
             appropriate `~astropy.units.Quantity` object from `astropy.units`
             may also be used.
         height : str, `~astropy.units.Quantity` object
-            Height of the search box if `coordinates` is present.
+            Height of the search box if ``coordinates`` is present.
 
             The string must be parsable by `~astropy.coordinates.Angle`. The
             appropriate `~astropy.units.Quantity` object from `astropy.units`
             may also be used.
-        intersect : ``COVERS``, ``ENCLOSED``, ``CENTER``, ``OVERLAPS``
+        intersect : ``'COVERS'``, ``'ENCLOSED'``, ``'CENTER'``, ``'OVERLAPS'``
             Spatial relationship between search box and image footprint.
 
-            ``COVERS``: X must completely contain S. Equivalent to ``CENTER``
-            and ``OVERLAPS`` if S is a point.
+            ``'COVERS'``: X must completely contain S. Equivalent to
+            ``'CENTER'`` and ``'OVERLAPS'`` if S is a point.
 
-            ``ENCLOSED``: S must completely contain X. If S is a point, the
+            ``'ENCLOSED'``: S must completely contain X. If S is a point, the
             query will always return an empty image table.
 
-            ``CENTER``: X must contain the center of S. If S is a point, this
-            is equivalent to ``COVERS`` and ``OVERLAPS``.
+            ``'CENTER'``: X must contain the center of S. If S is a point, this
+            is equivalent to ``'COVERS'`` and ``'OVERLAPS'``.
 
-            ``OVERLAPS``: The intersection of S and X is non-empty. If S is a
-            point, this is equivalent to ``CENTER`` and ``COVERS``.
+            ``'OVERLAPS'``: The intersection of S and X is non-empty. If S is a
+            point, this is equivalent to ``'CENTER'`` and ``'COVERS'``.
         most_centered : bool
             If True, then only the most centered image is returned.
 
@@ -113,7 +114,7 @@ class IbeClass(BaseQuery):
                          height=None, intersect='OVERLAPS',
                          most_centered=False):
         """
-        Query using simple image access protocol.  See `query_region` for
+        Query using simple image access protocol.  See ``query_region`` for
         details.  The returned table will include a list of URLs.
         """
         response = self.query_region_async(
@@ -138,20 +139,21 @@ class IbeClass(BaseQuery):
         catalog files based on a point, a box (bounded by great circles) and/or
         an SQL-like ``where`` clause.
 
-        If `coordinates` is specified, then the optional `width` and `height`
-        arguments control the width and height of the search box. If neither
-        `width` nor `height` are provided, then the search area is a point. If
-        only one of `width` or `height` are specified, then the search area is
-        a square with that side length centered at the coordinate.
+        If ``coordinates`` is specified, then the optional ``width`` and
+        ``height`` arguments control the width and height of the search
+        box. If neither ``width`` nor ``height`` are provided, then the
+        search area is a point. If only one of ``width`` or ``height`` are
+        specified, then the search area is a square with that side length
+        centered at the coordinate.
 
         Parameters
         ----------
         coordinate : str, `astropy.coordinates` object
             Gives the position of the center of the box if performing a box
             search. If it is a string, then it must be a valid argument to
-            `astropy.coordinates.SkyCoord`. Required if `where` is absent.
+            `~astropy.coordinates.SkyCoord`. Required if ``where`` is absent.
         where : str
-            SQL-like query string. Required if `coordinates` is absent.
+            SQL-like query string. Required if ``coordinates`` is absent.
         mission : str
             The mission to be used (if not the default mission).
         dataset : str
@@ -162,42 +164,42 @@ class IbeClass(BaseQuery):
             A space-separated string or a list of strings of the names of the
             columns to return.
         width : str or `~astropy.units.Quantity` object
-            Width of the search box if `coordinates` is present.
+            Width of the search box if ``coordinates`` is present.
 
             The string must be parsable by `~astropy.coordinates.Angle`. The
             appropriate `~astropy.units.Quantity` object from `astropy.units`
             may also be used.
         height : str, `~astropy.units.Quantity` object
-            Height of the search box if `coordinates` is present.
+            Height of the search box if ``coordinates`` is present.
 
             The string must be parsable by `~astropy.coordinates.Angle`. The
             appropriate `~astropy.units.Quantity` object from `astropy.units`
             may also be used.
-        intersect : ``COVERS``, ``ENCLOSED``, ``CENTER``, ``OVERLAPS``
+        intersect : ``'COVERS'``, ``'ENCLOSED'``, ``'CENTER'``, ``'OVERLAPS'``
             Spatial relationship between search box and image footprint.
 
-            ``COVERS``: X must completely contain S. Equivalent to ``CENTER``
-            and ``OVERLAPS`` if S is a point.
+            ``'COVERS'``: X must completely contain S. Equivalent to
+            ``'CENTER'`` and ``'OVERLAPS'`` if S is a point.
 
-            ``ENCLOSED``: S must completely contain X. If S is a point, the
+            ``'ENCLOSED'``: S must completely contain X. If S is a point, the
             query will always return an empty image table.
 
-            ``CENTER``: X must contain the center of S. If S is a point, this
-            is equivalent to ``COVERS`` and ``OVERLAPS``.
+            ``'CENTER'``: X must contain the center of S. If S is a point, this
+            is equivalent to ``'COVERS'`` and ``'OVERLAPS'``.
 
-            ``OVERLAPS``: The intersection of S and X is non-empty. If S is a
-            point, this is equivalent to ``CENTER`` and ``COVERS``.
+            ``'OVERLAPS'``: The intersection of S and X is non-empty. If S is a
+            point, this is equivalent to ``'CENTER'`` and ``'COVERS'``.
         most_centered : bool
             If True, then only the most centered image is returned.
-        action : 'search', 'data', or 'sia'
-            The action to perform at the server.  The default is 'search',
-            which returns a table of the available data.  'data' requires
-            advanced path construction that is not yet supported. 'sia'
+        action : ``'search'``, ``'data'``, or ``'sia'``
+            The action to perform at the server.  The default is ``'search'``,
+            which returns a table of the available data.  ``'data'`` requires
+            advanced path construction that is not yet supported. ``'sia'``
             provides access to the 'simple image access' IVOA protocol
 
         Returns
         -------
-        response : `requests.Response`
+        response : `~requests.Response`
             The HTTP response returned from the service
         """
 
@@ -287,7 +289,8 @@ class IbeClass(BaseQuery):
         ----------
         mission : str
             A mission name.  Must be one of the valid missions from
-            `list_missions`.  Defaults to the configured Mission
+            `~astroquery.ibe.IbeClass.list_missions`.  Defaults to the
+            configured Mission
         cache : bool
             Cache the query result
 
@@ -317,17 +320,20 @@ class IbeClass(BaseQuery):
 
     def list_tables(self, mission=None, dataset=None, cache=True):
         """
-        For a given mission and dataset (see `list_missions`, `list_datasets`),
-        return the list of valid table names to query
+        For a given mission and dataset (see
+        `~.astroquery.ibe.IbeClass.list_missions`,
+        `~astroquery.ibe.IbeClass.list_datasets`), return the list of valid
+        table names to query.
 
         Parameters
         ----------
         mission : str
             A mission name.  Must be one of the valid missions from
-            `list_missions`.  Defaults to the configured Mission
+            `~.astroquery.ibe.IbeClass.list_missions`.  Defaults to the
+            configured Mission
         dataset : str
             A dataset name.  Must be one of the valid dataset from
-            `list_datsets(mission)`.  Defaults to the configured Dataset
+            ``list_datsets(mission)``.  Defaults to the configured Dataset
         cache : bool
             Cache the query result
 

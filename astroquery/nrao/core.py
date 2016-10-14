@@ -80,7 +80,7 @@ class NraoClass(BaseQuery):
             may also be entered as a string.
         radius : str or `~astropy.units.Quantity` object, optional
             The string must be parsable by `astropy.coordinates.Angle`. The
-            appropriate `Quantity` object from `astropy.units` may also be
+            appropriate `~astropy.units.Quantity` object may also be
             used. Defaults to 1 arcminute.
         equinox : str, optional
             One of 'J2000' or 'B1950'. Defaults to 'J2000'.
@@ -203,7 +203,7 @@ class NraoClass(BaseQuery):
         """
         Returns
         -------
-        response : `requests.Response`
+        response : `~requests.Response`
             The HTTP response returned from the service.
         """
 
@@ -224,7 +224,7 @@ class NraoClass(BaseQuery):
         """
         Returns
         -------
-        response : `requests.Response`
+        response : `~requests.Response`
             The HTTP response returned from the service.
         """
 

@@ -69,7 +69,7 @@ class NvasClass(BaseQuery):
 
         Returns
         -------
-        A list of `astropy.fits.HDUList` objects
+        A list of `~astropy.io.fits.HDUList` objects
         """
         readable_objs = self.get_images_async(
             coordinates, radius=radius, max_rms=max_rms,
@@ -87,7 +87,7 @@ class NvasClass(BaseQuery):
                          verbose=True, get_query_payload=False,
                          show_progress=True):
         """
-        Serves the same purpose as `get_images` but
+        Serves the same purpose as `~astroquery.nvas.NvasClass.get_images` but
         returns a list of file handlers to remote files.
 
         Parameters

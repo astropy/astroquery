@@ -19,7 +19,7 @@ query, use:
 
 The dictionary is created dynamically from the LAMDA website the first time it
 is called, then cached for future use.  If there has been an update and you
-want to reload the cache, you can find the cache file `molecules.json` and
+want to reload the cache, you can find the cache file ``'molecules.json'`` and
 remove it:
 
 .. code-block:: python
@@ -35,10 +35,10 @@ You can query for any molecule in that dictionary.
 
 .. code-block:: python
 
-    >>> collrates,radtransitions,enlevels = Lamda.query(mol='co')
+    >>> collrates, radtransitions, enlevels = Lamda.query(mol='co')
 
 Catalogs are returned as `~astropy.table.Table` instances, except for
-`collrates`, which is a dictionary of tables, with one table for each
+``collrates``, which is a dictionary of tables, with one table for each
 collisional partner.
 
 Reference/API
