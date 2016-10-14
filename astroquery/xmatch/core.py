@@ -36,9 +36,9 @@ class XMatchClass(BaseQuery):
             equatorial frame and as decimal degrees numbers.
         cat2 : str or file
             Identifier of the second table. Follows the same rules as *cat1*.
-        max_distance : `~astropy.units.arcsec`
-            Maximum distance in arcsec to look for counterparts.
-            Maximum allowed value is 180.
+        max_distance : `~astropy.units.Quantity`
+            Maximum distance to look for counterparts.
+            Maximum allowed value is 180 arcsec.
         colRA1 : str
             Name of the column holding the right ascension. Only required
             if ``cat1`` is an uploaded table or a pointer to a URL.
@@ -67,7 +67,7 @@ class XMatchClass(BaseQuery):
         """
         Returns
         -------
-        response : `requests.Response`
+        response : `~requests.Response`
             The HTTP response returned from the service.
         """
         if max_distance > 180 * arcsec:
@@ -75,7 +75,7 @@ class XMatchClass(BaseQuery):
                 'max_distance argument must not be greater than 180')
         payload = {
             'request': 'xmatch',
-            'distMaxArcsec': max_distance.value,
+            'distMaxArcsec': max_distance.to(arcsec).value,
             'RESPONSEFORMAT': 'csv',
         }
         kwargs = {}

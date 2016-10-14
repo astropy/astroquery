@@ -224,8 +224,9 @@ class UkidssClass(QueryWithLogin):
                          get_query_payload=False,
                          show_progress=True):
         """
-        Serves the same purpose as `get_images` but
-        returns a list of file handlers to remote files.
+        Serves the same purpose as
+        `~astroquery.ukidss.UkidssClass.get_images` but returns a list of
+        file handlers to remote files.
 
         Parameters
         ----------

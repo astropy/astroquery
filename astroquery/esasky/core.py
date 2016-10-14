@@ -18,6 +18,7 @@ from ..utils import async_to_sync
 from . import conf
 from ..exceptions import TableParseError
 
+
 @async_to_sync
 class ESASkyClass(BaseQuery):
 
@@ -94,8 +95,8 @@ class ESASkyClass(BaseQuery):
 
         Returns
         -------
-        table_list : `astroquery.utils.TableList`
-            Each mission returns a `astroquery.table.Table` with the metadata
+        table_list : `~astroquery.utils.TableList`
+            Each mission returns a `~astropy.table.Table` with the metadata
             and observations available for the chosen missions and object.
             It is structured in a TableList like this:
             TableList with 8 tables:
@@ -138,8 +139,8 @@ class ESASkyClass(BaseQuery):
             .astropy/astroquery/cache. Defaults to True.
         Returns
         -------
-        table_list : `astroquery.utils.TableList`
-            Each mission returns a `astroquery.table.Table` with the metadata
+        table_list : `~astroquery.utils.TableList`
+            Each mission returns a `~astropy.table.Table` with the metadata
             of the catalogs available for the chosen mission and object.
             It is structured in a TableList like this:
             TableList with 8 tables:
@@ -183,8 +184,8 @@ class ESASkyClass(BaseQuery):
 
         Returns
         -------
-        table_list : `astroquery.utils.TableList`
-            Each mission returns a `astroquery.table.Table` with the metadata
+        table_list : `~astroquery.utils.TableList`
+            Each mission returns a `~astropy.table.Table` with the metadata
             and observations available for the chosen missions and region.
             It is structured in a TableList like this:
             TableList with 8 tables:
@@ -243,10 +244,9 @@ class ESASkyClass(BaseQuery):
 
         Returns
         -------
-        table_list : `astroquery.utils.TableList`
-            Each mission returns a `astroquery.table.Table` with the metadata of
-            the catalogs available
-            for the chosen mission and region.
+        table_list : `~astroquery.utils.TableList`
+            Each mission returns a `~astropy.table.Table` with the metadata of
+            the catalogs available for the chosen mission and region.
             It is structured in a TableList like this:
             TableList with 8 tables:
             '0:Gaia DR1 TGA' with 8 column(s) and 25 row(s)
@@ -289,7 +289,7 @@ class ESASkyClass(BaseQuery):
 
         Parameters
         ----------
-        query_table_list : `astroquery.utils.TableList`
+        query_table_list : `~astroquery.utils.TableList`
             A TableList with all the missions wanted and their respective
             metadata. Usually the return value of query_region_maps.
         missions : string or list, optional

@@ -291,9 +291,10 @@ class EsoClass(QueryWithLogin):
         Parameters
         ----------
         survey : string or list
-            Name of the survey(s) to query.  Should beone or more of the names
-            returned by `list_surveys()`.  If specified as a string, should be
-            a comma-separated list of survey names.
+            Name of the survey(s) to query.  Should beone or more of the
+            names returned by `~astroquery.eso.EsoClass.list_surveys`.  If
+            specified as a string, should be a comma-separated list of
+            survey names.
         cache : bool
             Cache the response for faster subsequent retrieval
 
@@ -339,7 +340,6 @@ class EsoClass(QueryWithLogin):
             else:
                 warnings.warn("Query returned no results", NoResultsWarning)
 
-
     def query_instrument(self, instrument, column_filters={}, columns=[],
                          open_form=False, help=False, cache=True, **kwargs):
         """
@@ -349,7 +349,7 @@ class EsoClass(QueryWithLogin):
         ----------
         instrument : string
             Name of the instrument to query, one of the names returned by
-            `list_instruments()`.
+            `~astroquery.eso.EsoClass.list_instruments`.
         column_filters : dict
             Constraints applied to the query.
         columns : list of strings
@@ -359,9 +359,10 @@ class EsoClass(QueryWithLogin):
             for the requested instrument.
         help : bool
             If `True`, prints all the parameters accepted in
-            `column_filters` and `columns` for the requested `instrument`.
+            ``column_filters`` and ``columns`` for the requested
+            ``instrument``.
         cache : bool
-            Cache the response for faster subsequent retrieval
+            Cache the response for faster subsequent retrieval.
 
         Returns
         -------
@@ -498,7 +499,7 @@ class EsoClass(QueryWithLogin):
 
     def data_retrieval(self, datasets):
         """
-        DEPRECATED: see `retrieve_datasets`
+        DEPRECATED: see ``retrieve_datasets``
         """
 
         warnings.warn("data_retrieval has been replaced with retrieve_data",

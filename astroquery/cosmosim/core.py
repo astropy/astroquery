@@ -295,7 +295,7 @@ class CosmoSimClass(QueryWithLogin):
 
         Returns
         -------
-        result : content of 'requests.models.Response' object
+        result : content of `~requests.Response` object
             The requests response phase
         """
 
@@ -334,11 +334,11 @@ class CosmoSimClass(QueryWithLogin):
         sortby : string
             An option to sort jobs (after phase and regex criteria have been
             taken into account) by either the execution start time
-            (`starttime`), or by the table name ('tablename').
+            (``starttime``), or by the table name (``'tablename'``).
 
         Returns
         -------
-        checkalljobs : ``requests.models.Response`` object
+        checkalljobs : `~requests.Response` object
             The requests response for the GET request for finding all
             existing jobs.
         """
@@ -553,7 +553,7 @@ class CosmoSimClass(QueryWithLogin):
         A public function which sends an http GET request for a given
         jobid with phase COMPLETED. If output is True, the function prints
         a dictionary to the screen, while always generating a global
-        dictionary `response_dict_current`. If no jobid is provided,
+        dictionary ``response_dict_current``. If no jobid is provided,
         a visual of all responses with phase COMPLETED is generated.
 
         Parameters
@@ -619,7 +619,7 @@ class CosmoSimClass(QueryWithLogin):
 
         Parameters
         ----------
-        response : requests.models.Response
+        response : `~requests.Response`
             requests response object
 
         Returns
@@ -1106,8 +1106,8 @@ class CosmoSimClass(QueryWithLogin):
             If left blank, downloaded to the terminal. If specified, data is
             written out to file (directory can be included here).
         format : str
-            The format of the data to be downloaded. Options are `csv`,
-            `votable`, `votableB1`, and `votableB2`.
+            The format of the data to be downloaded. Options are ``'csv'``,
+            ``'votable'``, ``'votableB1'``, and ``'votableB2'``.
         cache : bool
             Whether to cache the data. By default, this is set to True.
 

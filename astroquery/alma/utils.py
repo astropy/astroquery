@@ -18,11 +18,11 @@ from astroquery.alma import Alma
 
 def pyregion_subset(region, data, mywcs):
     """
-    Return a subset of an image (`data`) given a region.
+    Return a subset of an image (``data``) given a region.
 
     Parameters
     ----------
-    region : `pyregion.parser_helper.Shape`
+    region : `~pyregion.Shape`
         A Shape from a pyregion-parsed region file
     data : np.ndarray
         An array with shape described by WCS
@@ -141,15 +141,15 @@ def make_finder_chart(target, radius, save_prefix, service=SkyView.get_images,
     ----------
     target : `astropy.coordinates` or str
         A legitimate target name
-    radius : `astropy.units.Quantity`
-        A degree-equivalent radius
+    radius : `~astropy.units.Quantity`
+        A degree-equivalent radius.
     save_prefix : str
         The prefix for the output files.  Both .reg and .png files will be
         written.  The .reg files will have the band numbers and
         public/private appended, while the .png file will be named
         prefix_almafinderchart.png
     service : function
-        The `get_images` function of an astroquery service, e.g. SkyView.
+        The ``get_images`` function of an astroquery service, e.g. SkyView.
     service_kwargs : dict
         The keyword arguments to pass to the specified service.  For example,
         for SkyView, you can give it the survey ID (e.g., 2MASS-K) and the

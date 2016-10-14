@@ -12,7 +12,7 @@ Getting started
 The `SkyView <skyview.gsfc.nasa.gov>`_ service offers a cutout service for a
 number of imaging surveys.
 
-To see the list of surveys, use the `list_surveys` method:
+To see the list of surveys, use the `~astroquery.skyview.SkyViewClass.list_surveys` method:
 
 .. code-block:: python
 
@@ -177,8 +177,10 @@ To see the list of surveys, use the `list_surveys` method:
                   u'COBE DIRBE/AAM',
                   u'COBE DIRBE/ZSMA']}
 
-There are two essential methods: `get_images` searches for and downloads files,
-while `get_image_list` just searches for the files.
+There are two essential methods:
+`~astroquery.skyview.SkyViewClass.get_images` searches for and downloads
+files, while `~astroquery.skyview.SkyViewClass.get_image_list` just searches
+for the files.
 
 .. code-block:: python
 
@@ -203,7 +205,7 @@ Without the download:
     [u'http://skyview.gsfc.nasa.gov/tempspace/fits/skv669807193757_1.fits',
      u'http://skyview.gsfc.nasa.gov/tempspace/fits/skv669807193757_2.fits',
      u'http://skyview.gsfc.nasa.gov/tempspace/fits/skv669807193757_3.fits']
-    
+
 
 Reference/API
 =============
