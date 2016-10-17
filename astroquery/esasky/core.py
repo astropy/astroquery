@@ -115,7 +115,7 @@ class ESASkyClass(BaseQuery):
                                get_query_payload, cache)
         
     def query_object_catalogs(self, position, catalogs=__ALL_STRING, 
-                              row_limit=__DEFAULT_SOURCE_LIMIT, 
+                              row_limit=DEFAULT_ROW_LIMIT, 
                               get_query_payload=False, cache=True):
         """
         This method queries a chosen object or coordinate for all available
@@ -225,7 +225,7 @@ class ESASkyClass(BaseQuery):
         return commons.TableList(query_result)
     
     def query_region_catalogs(self, position, radius, catalogs=__ALL_STRING,  
-                              row_limit=__DEFAULT_SOURCE_LIMIT, 
+                              row_limit=DEFAULT_ROW_LIMIT, 
                               get_query_payload=False, cache=True):
         """
         This method queries a chosen region for all available catalogs and
