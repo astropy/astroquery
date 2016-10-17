@@ -75,6 +75,7 @@ del intersphinx_mapping['scipy']
 del intersphinx_mapping['h5py']
 intersphinx_mapping['astropy'] = ('http://docs.astropy.org/en/latest/', None)
 intersphinx_mapping['requests'] = ('http://docs.python-requests.org/en/latest/', None)
+intersphinx_mapping['pyregion'] = ('http://pyregion.readthedocs.io/en/latest/', None)
 try:
     code = urllib.request.urlopen('http://docs.scipy.org/doc/numpy/objects.inv', timeout=10).getcode()
     if code == 200:
@@ -205,3 +206,6 @@ if eval(setup_cfg.get('edit_on_github')):
 
     edit_on_github_source_root = ""
     edit_on_github_doc_root = "docs"
+
+nitpicky = True
+nitpick_ignore = []

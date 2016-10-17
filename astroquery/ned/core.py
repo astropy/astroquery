@@ -358,7 +358,7 @@ class NedClass(BaseQuery):
 
         Returns
         -------
-        A list of `astropy.fits.HDUList` objects
+        A list of `~astropy.io.fits.HDUList` objects
 
         """
         readable_objs = self.get_images_async(
@@ -411,7 +411,7 @@ class NedClass(BaseQuery):
 
         Returns
         -------
-        A list of `astropy.fits.HDUList` objects
+        A list of `~astropy.io.fits.HDUList` objects
 
         """
         readable_objs = self.get_spectra_async(

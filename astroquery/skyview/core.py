@@ -59,7 +59,7 @@ class SkyViewClass(BaseQuery):
     def _generate_payload(self, input=None):
         """
         Fill out the form of the SkyView site and submit it with the
-        values given in `input` (a dictionary where the keys are the form
+        values given in ``input`` (a dictionary where the keys are the form
         element's names and the values are their respective values).
         """
         if input is None:
@@ -149,7 +149,7 @@ class SkyViewClass(BaseQuery):
             be resampled so that it can be displayed.
         resolver : str
             The name resolver allows to choose a name resolver to use when
-            looking up a name which was passed in the `position` parameter
+            looking up a name which was passed in the ``position`` parameter
             (as opposed to a numeric coordinate value). The default choice
             is to call the SIMBAD name resolver first and then the NED
             name resolver if the SIMBAD search fails.
@@ -174,10 +174,10 @@ class SkyViewClass(BaseQuery):
             The radius of the specified field.  Overrides width and height.
         width : `~astropy.units.Quantity` or None
             The width of the specified field.  Must be specified
-            with `height`
+            with ``height``.
         height : `~astropy.units.Quantity` or None
             The height of the specified field.  Must be specified
-            with `width`
+            with ``width``.
 
         References
         ----------
@@ -193,7 +193,7 @@ class SkyViewClass(BaseQuery):
 
         Returns
         -------
-        A list of `astropy.fits.HDUList` objects
+        A list of `~astropy.io.fits.HDUList` objects.
 
         """
         readable_objects = self.get_images_async(position, survey, coordinates,

@@ -39,12 +39,21 @@ class AtomicLineListClass(BaseQuery):
                      show_fine_structure=None,
                      show_auto_ionizing_transitions=None):
         """
+        Queries Atomic Line List for the given parameters adnd returns the
+        result as a `~astropy.table.Table`. All parameters are optional.
+
         Parameters
         ----------
         wavelength_range : pair of `astropy.units.Unit` values
+            Wavelength range. Can be done in two ways: supply a lower and
+            upper limit for the region or, supply the central wavelength and
+            the 1 sigma error (68 % confidence value) for that line. If the
+            first number is smaller than the second number, this implies
+            that the first option has been chosen, and otherwise the second
+            option.
 
         wavelength_type : str
-            Either 'Air' or 'Vacuum'
+            Either ``'Air'`` or ``'Vacuum'``.
 
         wavelength_accuracy : str
             All wavelengths in the line list have relative accuracies of
@@ -60,7 +69,7 @@ class AtomicLineListClass(BaseQuery):
             symbolic names (e.g. Fe) and the ionization stages by the
             usual spectroscopic notation (e.g. I for neutral, II for
             singly ionized etc.). To pass multiple values, separate them
-            by \n (newline).
+            by ``\\n`` (newline).
 
         minimal_abundance : str
              Impose a lower limit on the abundances of elements to be
@@ -84,7 +93,7 @@ class AtomicLineListClass(BaseQuery):
             The supported units are: Ry, eV, 1/cm, J, erg.
 
         upper_level_energy_range : `~astropy.units.Quantity`
-            See parameter `lower_level_energy_range`.
+            See parameter ``lower_level_energy_range``.
 
         nmax : int
             Maximum for principal quantum number n. Default is to
@@ -100,23 +109,23 @@ class AtomicLineListClass(BaseQuery):
             lower and upper level term should be entered here exactly as
             they appear in the output of the query. The spectrum to which
             this multiplet belongs should of course also be supplied in
-            the `element_spectrum` parameter.
+            the ``element_spectrum`` parameter.
 
-        transitions : `~astroquery.atomic.Transitions`
+        transitions : str`
             Possible values are:
-                - `~astroquery.atomic.Transition.all`:
+                - ``'all'``:
                     The default, consider all transition types.
-                - `~astroquery.atomic.Transition.nebular`:
+                - ``'nebular'``:
                     Consider only allowed transitions of Hydrogen or
                     Helium and only magnetic dipole or electric quadrupole
                     transitions of other elements.
-                - A union of the values: `~astroquery.atomic.Transition.XX`
-                  where `XX` is one of the following: `E1`, `IC`, `M1`, `E2`.
-                  Refer to the documentation for the meaning of these values.
+                - A union of the values: One of the following:
+                  ``'E1'``, ``'IC'``, ``'M1'``, ``'E2'``
+                  Refer to the documentation_ for the meaning of these values.
 
         show_fine_structure : bool
              If `True`, the fine structure components will be included in
-             the output. Refer to the documentations for more information.
+             the output. Refer to the documentation_ for more information.
 
         show_auto_ionizing_transitions : bool
             If `True`, transitions originating from auto-ionizing levels
@@ -130,6 +139,7 @@ class AtomicLineListClass(BaseQuery):
         result : `~astropy.table.Table`
             The result of the query as a `~astropy.table.Table` object.
 
+        .. _documentation: http://www.pa.uky.edu/~peter/atomic/instruction.html
         """
         response = self.query_object_async(
             wavelength_range=wavelength_range, wavelength_type=wavelength_type,

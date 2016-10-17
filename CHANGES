@@ -1,7 +1,13 @@
-0.3.3.dev
----------
+0.3.4 (unreleased)
+------------------
+
+- none yet
+
+0.3.3 (2016-10-11)
+------------------
 
 - Option to toggle the display of the download bar (#734)
+- ESASKY - added new module for querying the ESASKY archive (#758,#763,#765)
 
 0.3.2 (2016-06-10)
 ------------------

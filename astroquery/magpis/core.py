@@ -82,7 +82,7 @@ class MagpisClass(BaseQuery):
 
         Returns
         -------
-        A list of `astropy.fits.HDUList` objects
+        A list of `~astropy.io.fits.HDUList` objects
         """
         response = self.get_images_async(coordinates, image_size=image_size,
                                          survey=survey,

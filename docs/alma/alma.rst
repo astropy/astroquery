@@ -60,7 +60,7 @@ You can get interactive help to find out what keywords to query for:
      ( ) View:                        : result_view          = project
      [x] public data only             : public_data          = public
      [x] science observations only    : science_observations = =%TARGET%
-   
+
 
 Authentication
 ==============
@@ -92,7 +92,7 @@ via the ALMA CAS (central authentication server).
 Your password will be stored by the `keyring
 <https://pypi.python.org/pypi/keyring>`_ module.
 You can choose not to store your password by passing the argument
-``store_password=False`` to `Alma.login`.  You can delete your password later
+``store_password=False`` to ``Alma.login``.  You can delete your password later
 with the command ``keyring.delete_password('astroquery:asa.alma.cl',
 'username')``.
 
