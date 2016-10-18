@@ -24,6 +24,9 @@ You can access the Exoplanet Archive parameters like so
         <Quantity 3.52474859 d>
         >>> planet.pl_orbincl
         <Quantity 86.929 deg>
+        >>> planet.coord
+        <SkyCoord (ICRS): (ra, dec) in deg
+            (330.794891, 18.884319)>
 
 or the exoplanets.org parameters like so
 
@@ -35,6 +38,13 @@ or the exoplanets.org parameters like so
         <Quantity 3.52474859 d>
         >>> planet.tt
         <Time object: scale='utc' format='jd' value=2452826.628514>
+        >>> planet.coord
+        <SkyCoord (ICRS): (ra, dec) in deg
+            (330.79479167, 18.88436389)>
+
+The common attributes on the `~astroquery.exoplanets.PlanetParams` object from
+either source include ``name`` and ``coord`` (which returns a
+`~astropy.coordinates.SkyCoord` object).
 
 Reference/API
 =============

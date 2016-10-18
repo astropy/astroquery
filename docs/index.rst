@@ -201,6 +201,7 @@ for each source)
   :maxdepth: 1
 
   alfalfa/alfalfa.rst
+  exoplanets/exoplanets.rst
   gama/gama.rst
   ibe/ibe.rst
   irsa/irsa.rst

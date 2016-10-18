@@ -135,7 +135,9 @@ class PlanetParams(object):
 
     @property
     def coord(self):
-
+        """
+        `~astropy.coordinates.SkyCoord` for the host star.
+        """
         # If target comes from the Exoplanet Archive:
         if hasattr(self, 'pl_hostname'):
             coord = SkyCoord(ra=self.ra, dec=self.dec)
