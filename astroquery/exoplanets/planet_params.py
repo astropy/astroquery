@@ -4,6 +4,7 @@ from __future__ import (absolute_import, division, print_function,
 
 import astropy.units as u
 from astropy.time import Time
+from astropy.coordinates import SkyCoord
 
 __all__ = ['PlanetParams']
 
@@ -47,7 +48,7 @@ class PlanetParams(object):
 
         row = table.loc[exoplanet_name.lower().strip()]
 
-        kwargs = dict()
+        kwargs = dict(parameter_source="exoplanets.org")
         for column in row.colnames:
             value = row[column]
 
@@ -106,7 +107,7 @@ class PlanetParams(object):
 
         row = table.loc[exoplanet_name.lower().strip()]
 
-        kwargs = dict()
+        kwargs = dict(parameter_source="Exoplanet Archive")
         for column in row.colnames:
             value = row[column]
 
@@ -128,4 +129,28 @@ class PlanetParams(object):
             # Attributes should be all lowercase:
             kwargs[column.lower()] = parameter
 
+        kwargs['name'] = ' '.join([kwargs['pl_hostname'], kwargs['pl_letter']])
+
         return cls(**kwargs)
+
+    @property
+    def coord(self):
+
+        # If target comes from the Exoplanet Archive:
+        if hasattr(self, 'pl_hostname'):
+            coord = SkyCoord(ra=self.ra, dec=self.dec)
+
+        # if Target comes from exoplanets.org
+        elif hasattr(self, 'orbref'):
+            coord = SkyCoord(ra=self.ra, dec=self.dec)
+
+        else:
+            raise NotImplementedError("This planet parameter source is not "
+                                      "recognized.")
+
+        return coord
+
+    def __repr__(self):
+        return ('<{0} for "{1}" from "{2}">'
+                .format(self.__class__.__name__, self.name,
+                        self.parameter_source))
