@@ -161,7 +161,7 @@ class ESASkyClass(BaseQuery):
         query_object_catalogs("265.05, 69.0", ["Gaia DR1 TGA", "HSC"])
         """
         return self.query_region_catalogs(position, self.__ZERO_ARCMIN_STRING, 
-                                          row_limit, catalogs, 
+                                          catalogs, row_limit, 
                                           get_query_payload, cache)
 
     def query_region_maps(self, position, radius, missions=__ALL_STRING,
