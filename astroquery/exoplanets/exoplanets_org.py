@@ -68,8 +68,8 @@ def exoplanets_org_units():
     global PARAM_UNITS
 
     if PARAM_UNITS is None:
-        pkg_dir = os.path.dirname(os.path.abspath(__file__))
-        units_file = open(os.path.join(pkg_dir, os.path.pardir, 'data',
+        module_dir = os.path.dirname(os.path.abspath(__file__))
+        units_file = open(os.path.join(module_dir, 'data',
                                        'exoplanet_org_units.json'))
         PARAM_UNITS = json.load(units_file)
 

@@ -31,18 +31,6 @@ class PlanetParams(object):
             Show progress of exoplanet table download (if no cached copy is
             available). Default is `True`.
 
-        Examples
-        --------
-        To get the orbital period and mid-transit time of the
-        planet HD 209458 b, run:
-
-        >>> from astroquery.exoplanets import PlanetParams
-        >>> planet = PlanetParams.from_exoplanets_org('HD 209458 b')
-        >>> planet.per  # doctest: +FLOAT_CMP
-        <Quantity 3.52474859 d>
-        >>> planet.tt
-        <Time object: scale='utc' format='jd' value=2452826.628514>
-
         References
         ----------
         .. [1] http://www.exoplanets.org
@@ -100,18 +88,6 @@ class PlanetParams(object):
         show_progress : bool (optional)
             Show progress of exoplanet table download (if no cached copy is
             available). Default is `True`.
-
-        Examples
-        --------
-        To get the orbital period and orbital inclination of the
-        planet HD 209458 b, run:
-
-        >>> from astroquery.exoplanets import PlanetParams
-        >>> planet = PlanetParams.from_exoplanet_archive('HD 209458 b')
-        >>> planet.pl_orbper  # doctest: +FLOAT_CMP
-        <Quantity 3.52474859 d>
-        >>> planet.pl_orbincl  # doctest: +FLOAT_CMP
-        <Quantity 86.929 deg>
 
         References
         ----------

@@ -30,7 +30,7 @@ def test_parameter_units():
     assert param_units['A'] == u.Unit('AU')
     assert param_units['PER'] == u.Unit('day')
     assert param_units['RR'] == u.Unit('')
-    assert param_units['R'] == u.Unit('jupiterRad')
+    assert param_units['R'] == u.Unit('R_jup')
     assert param_units['RA'] == u.Unit('hourangle')
     assert param_units['DEC'] == u.Unit('degree')
 
