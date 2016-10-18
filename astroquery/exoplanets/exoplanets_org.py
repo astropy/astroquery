@@ -1,6 +1,4 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-from __future__ import print_function, absolute_import
-
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 import json
@@ -9,9 +7,8 @@ import os
 from astropy.utils.data import download_file
 from astropy.io import ascii
 import astropy.units as u
-from astropy.time import Time
 
-__all__ = ['PlanetParams']
+__all__ = ['query_exoplanets_org_catalog']
 
 # Set global variables
 EXOPLANETS_CSV_URL = 'http://exoplanets.org/csv-files/exoplanets.csv'
@@ -22,7 +19,27 @@ BOOL_ATTRS = ('ASTROMETRY', 'BINARY', 'EOD', 'KDE', 'MICROLENSING', 'MULT',
               'SE', 'TIMING', 'TRANSIT', 'TREND')
 
 
-def exoplanets_table(cache=True, show_progress=True):
+def query_exoplanets_org_catalog(cache=True, show_progress=True):
+    """
+    Download (and optionally cache) the exoplanets.org planets table [1]_.
+
+    Parameters
+    ----------
+    cache : bool (optional)
+        Cache exoplanet table to local astropy cache? Default is `True`.
+    show_progress : bool (optional)
+        Show progress of exoplanet table download (if no cached copy is
+        available). Default is `True`.
+
+    Returns
+    -------
+    table : `~astropy.table.Table`
+        Table of exoplanet properties.
+
+    References
+    ----------
+    .. [1] http://www.exoplanets.org
+    """
     global EXOPLANETS_TABLE
 
     if EXOPLANETS_TABLE is None:
@@ -35,10 +52,16 @@ def exoplanets_table(cache=True, show_progress=True):
         EXOPLANETS_TABLE['NAME_LOWERCASE'] = lowercase_names
         EXOPLANETS_TABLE.add_index('NAME_LOWERCASE')
 
+        # Assign units to columns where possible
+        units = exoplanets_org_units()
+        for col in EXOPLANETS_TABLE.colnames:
+            if col in units:
+                EXOPLANETS_TABLE[col].unit = u.Unit(units[col])
+
     return EXOPLANETS_TABLE
 
 
-def parameter_units():
+def exoplanets_org_units():
     """
     Dictionary of exoplanet parameters and their associated units.
     """
@@ -51,57 +74,3 @@ def parameter_units():
         PARAM_UNITS = json.load(units_file)
 
     return PARAM_UNITS
-
-
-class PlanetParams(object):
-    """
-    Exoplanet system parameters.
-
-    Caches a local copy of the http://exoplanets.org table, and queries
-    for a planet's properties. Unitful quantities are returned whenever
-    possible.
-    """
-    def __init__(self, exoplanet_name, cache=True, show_progress=True):
-        """
-        Parameters
-        ----------
-        exoplanet_name : str
-            Name of exoplanet (case insensitive)
-        cache : bool (optional)
-            Cache exoplanet table to local astropy cache? Default is `True`.
-        show_progress : bool (optional)
-            Show progress of exoplanet table download (if no cached copy is
-            available). Default is `True`.
-        """
-        # Load exoplanets table, corresponding units
-        table = exoplanets_table(cache=cache, show_progress=show_progress)
-        param_units = parameter_units()
-
-        if not exoplanet_name.lower().strip() in table['NAME_LOWERCASE'].data:
-            raise ValueError('Planet "{0}" not found in exoplanets.org catalog')
-
-        row = table.loc[exoplanet_name.lower().strip()]
-        for column in row.colnames:
-            value = row[column]
-
-            # If param is unitful quantity, make it a `astropy.units.Quantity`
-            if column in param_units:
-                parameter = u.Quantity(value, unit=param_units[column])
-
-            # If param describes a time, make it a `astropy.time.Time`
-            elif column in TIME_ATTRS:
-                parameter = Time(value, format=TIME_ATTRS[column])
-
-            elif column in BOOL_ATTRS:
-                parameter = bool(value)
-
-            # Otherwise, simply set the parameter to its raw value
-            else:
-                parameter = value
-
-            # Attributes should be all lowercase:
-            setattr(self, column.lower(), parameter)
-
-    def __repr__(self):
-        return ('<{0}: name="{1}" from exoplanets.org>'
-                .format(self.__class__.__name__, self.name))
