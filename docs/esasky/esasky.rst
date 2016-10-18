@@ -52,7 +52,7 @@ There are two query objects methods in this module
 almost the same way except that one has catalogs as input and output and the 
 other one has mission names and observations as input and output. 
 
-For catalogs, the query returns a maximum of 2000 sources per mission by 
+For catalogs, the query returns a maximum of 10000 sources per mission by 
 default. However, this can be modified by the row_limit parameter.
 You can set the parameter to -1, which will result in the maximum number of
 sources (currently 100 000).
@@ -86,11 +86,10 @@ To see the result:
 .. code-block:: python
 
     >>> print(result)
-    TableList with 4 tables:
-        '0:XMM-EPIC' with 4 column(s) and 3 row(s) 
-        '1:HSC' with 8 column(s) and 2000 row(s) 
-        '2:XMM-OM' with 12 column(s) and 220 row(s) 
-        '3:PLANCK-PCCS2-HFI' with 8 column(s) and 1 row(s) 
+    TableList with 3 tables:
+        '0:HSC' with 8 column(s) and 135 row(s) 
+        '1:XMM-EPIC' with 4 column(s) and 2 row(s) 
+        '2:XMM-OM' with 12 column(s) and 3 row(s) 
 
 All the results are returned as a `astroquery.utils.TableList` object. This is a 
 container for `~astropy.table.Table` objects. It is basically an extension to
@@ -134,7 +133,7 @@ choose a radius as well. There are two query region methods in this module
 :meth:`astroquery.esasky.ESASkyClass.query_region_catalogs` and 
 :meth:`astroquery.esasky.ESASkyClass.query_region_maps`. 
 The row_limit parameter can be set to choose the maximum number of row to be 
-selected. If this parameter is not set, the method will return the first 2000
+selected. If this parameter is not set, the method will return the first 10000
 sources. You can set the parameter to -1, which will result in the maximum 
 number of sources (currently 100 000).
 
@@ -177,7 +176,7 @@ To see the result:
     >>> print(result)
     TableList with 4 tables:
         '0:XMM-EPIC' with 4 column(s) and 3 row(s) 
-        '1:HSC' with 8 column(s) and 2000 row(s) 
+        '1:HSC' with 8 column(s) and 10000 row(s) 
         '2:XMM-OM' with 12 column(s) and 220 row(s) 
         '3:PLANCK-PCCS2-HFI' with 8 column(s) and 1 row(s) 
 

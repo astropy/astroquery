@@ -136,7 +136,7 @@ class ESASkyClass(BaseQuery):
         row_limit : int, optional
             Determines how many rows that will be fetched from the database
             for each mission. Can be -1 to select maximum (currently 100 000).
-            Defaults to 2000. 
+            Defaults to 10000. 
         get_query_payload : bool, optional
             When set to True the method returns the HTTP request parameters.
             Defaults to False.
@@ -246,7 +246,7 @@ class ESASkyClass(BaseQuery):
         row_limit : int, optional
             Determines how many rows that will be fetched from the database
             for each mission. Can be -1 to select maximum (currently 100 000).
-            Defaults to 2000. 
+            Defaults to 10000. 
         get_query_payload : bool, optional
             When set to True the method returns the HTTP request parameters.
             Defaults to False.
