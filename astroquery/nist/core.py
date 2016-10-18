@@ -159,7 +159,7 @@ class NistClass(BaseQuery):
 
         pre_re = re.compile("<pre>(.*)</pre>", flags=re.DOTALL)
         links_re = re.compile(r"<a.*?>\s*(\w+)\s*</a>")
-        content = response.text
+        content = str(response.text)
 
         try:
             pre = pre_re.findall(content)[0]
