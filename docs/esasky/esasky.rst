@@ -217,7 +217,7 @@ dictionary where the used filter is the key and the HDUList is the value.
     
     >>> print(images)
     {
-    'HERSCHEL': [{'70': [HDUList], ' 160': [HDUList]}, {'70': [HDUList], ' 160': [HDUList]}, ...],
+    'HERSCHEL': [{'70': [HDUList], '160': [HDUList]}, {'70': [HDUList], '160': [HDUList]}, ...],
     'XMM-EPIC' : [HDUList], HDUList], HDUList], HDUList], ...]
     ...
     }
