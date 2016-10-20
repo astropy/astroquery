@@ -105,7 +105,7 @@ class AlmaClass(QueryWithLogin):
                                 science=science, **kwargs)
 
     def query_async(self, payload, cache=True, public=True, science=True,
-                    view_format='raw'):
+                    view_format='raw', get_query_payload=False):
         """
         Perform a generic query with user-specified payload
 
@@ -134,8 +134,12 @@ class AlmaClass(QueryWithLogin):
 
         self.validate_query(payload)
 
+        if get_query_payload:
+            return payload
+
         response = self._request('GET', url, params=payload,
                                  timeout=self.TIMEOUT, cache=cache)
+        self._last_response = response
         response.raise_for_status()
 
         return response
@@ -398,11 +402,31 @@ class AlmaClass(QueryWithLogin):
         if not verbose:
             commons.suppress_vo_warnings()
 
-        tf = six.BytesIO(response.content)
+        fixed_content = self._hack_band_vofix(response.content)
+        tf = six.BytesIO(fixed_content)
         vo_tree = votable.parse(tf, pedantic=False, invalid='mask')
         first_table = vo_tree.get_first_table()
         table = first_table.to_table(use_names_over_ids=True)
         return table
+
+    def _hack_band_vofix(self, text):
+        """
+        Hack to fix an error in the ALMA votables present in most 2016 queries.
+
+        The problem is that this entry:
+        '      <FIELD name="Band" datatype="char" ID="32817" xtype="adql:VARCHAR" arraysize="0*">\r',
+        has an invalid ``arraysize`` entry.
+        """
+        lines = text.split(b"\n")
+        newlines = []
+
+        for ln in lines:
+            if b'FIELD name="Band"' in ln:
+                ln = ln.replace(b'arraysize="0*"', b'arraysize="1*"')
+            newlines.append(ln)
+
+        return b"\n".join(newlines)
+
 
     def _login(self, username=None, store_password=False,
                reenter_password=False):
