@@ -18,7 +18,8 @@ class Conf(_config.ConfigNamespace):
 
 conf = Conf()
 
-from .core import Vamdc, VamdcClass
+from .core import VamdcClass
+from .core import Vamdc
 
 __all__ = ['Vamdc', 'VamdcClass',
            'Conf', 'conf',
