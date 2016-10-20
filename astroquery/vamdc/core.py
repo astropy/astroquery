@@ -122,4 +122,7 @@ class VamdcClass(BaseQuery):
         #                                  temperature=tex)[species_id]
 
 
-Vamdc = VamdcClass()
+try:
+    Vamdc = VamdcClass()
+except ImportError:
+    Vamdc = NotImplementedError
