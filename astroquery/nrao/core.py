@@ -445,7 +445,7 @@ class NraoClass(QueryWithLogin):
             htmlreader.outputter.default_converters.append(convert_numpy(np.unicode))
             table = htmlreader.read(txt)
         else:
-            table = Table.read(string_to_parse, format='ascii.html')
+            table = Table.read(string_to_parse.decode('utf-8'), format='ascii.html')
 
         return table
 
