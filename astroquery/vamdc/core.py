@@ -83,7 +83,7 @@ class VamdcClass(BaseQuery):
 
         Returns
         -------
-        result: `vamdclib.request.Result`
+        result: ``vamdclib.request.Result``
             A vamdclib Result object that has a data attribute.  The result
             object has dictionary-like entries but has more functionality built
             on top of that
