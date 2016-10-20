@@ -39,8 +39,14 @@ class VamdcClass(BaseQuery):
     TIMEOUT = conf.timeout
     CACHE_LOCATION = conf.cache_location
 
-    def __init__(self):
+
+    def __init__(self, doimport=True):
         super(VamdcClass, self).__init__()
+
+        if not doimport:
+            # this is a hack to allow the docstrings to be produced without
+            # importing the necessary modules
+            return
 
         from vamdclib import nodes as vnodes
         from vamdclib import request as vrequest
@@ -125,4 +131,5 @@ class VamdcClass(BaseQuery):
 try:
     Vamdc = VamdcClass()
 except ImportError:
-    Vamdc = NotImplementedError
+    log.warn("vamdclib could not be imported; the vamdc astroquery module will not work")
+    Vamdc = VamdcClass(doimport=False)
