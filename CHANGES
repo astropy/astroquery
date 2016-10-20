@@ -1,7 +1,7 @@
 0.3.4 (unreleased)
 ------------------
 
-- none yet
+- Fix #737, an issue with broken ALMA archive tables, via a hack (#775)
 
 0.3.3 (2016-10-11)
 ------------------
