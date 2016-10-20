@@ -8,6 +8,7 @@ import functools
 import getpass
 import keyring
 
+import numpy as np
 import astropy.units as u
 import astropy.io.votable as votable
 from astropy import coordinates
@@ -437,7 +438,14 @@ class NraoClass(QueryWithLogin):
 
         string_to_parse = htmltable[-1].encode('ascii')
 
-        table = Table.read(string_to_parse, format='ascii.html')
+        if six.PY2:
+            from astropy.io.ascii import html
+            from astropy.io.ascii.core import convert_numpy
+            htmlreader = html.HTML()
+            htmlreader.outputter.default_converters.append(convert_numpy(np.unicode))
+            table = htmlreader.read(txt)
+        else:
+            table = Table.read(string_to_parse, format='ascii.html')
 
         return table
 
