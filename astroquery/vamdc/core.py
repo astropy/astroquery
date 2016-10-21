@@ -131,5 +131,5 @@ class VamdcClass(BaseQuery):
 try:
     Vamdc = VamdcClass()
 except ImportError:
-    log.warn("vamdclib could not be imported; the vamdc astroquery module will not work")
+    log.warning("vamdclib could not be imported; the vamdc astroquery module will not work")
     Vamdc = VamdcClass(doimport=False)
