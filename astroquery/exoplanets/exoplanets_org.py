@@ -21,7 +21,8 @@ BOOL_ATTRS = ('ASTROMETRY', 'BINARY', 'EOD', 'KDE', 'MICROLENSING', 'MULT',
 
 def query_exoplanets_org_catalog(cache=True, show_progress=True):
     """
-    Download (and optionally cache) the exoplanets.org planets table [1]_.
+    Download (and optionally cache) the `exoplanets.org planets table
+    <http://www.exoplanets.org>`_.
 
     Parameters
     ----------
@@ -35,10 +36,6 @@ def query_exoplanets_org_catalog(cache=True, show_progress=True):
     -------
     table : `~astropy.table.Table`
         Table of exoplanet properties.
-
-    References
-    ----------
-    .. [1] http://www.exoplanets.org
     """
     global EXOPLANETS_TABLE
 

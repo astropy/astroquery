@@ -35,8 +35,8 @@ def exoplanet_archive_units():
 
 def query_exoplanet_archive_catalog(cache=True, show_progress=True):
     """
-    Download (and optionally cache) the NExScI Exoplanet Archive Confirmed
-    Planets table [1]_.
+    Download (and optionally cache) the `NExScI Exoplanet Archive Confirmed
+    Planets table <http://exoplanetarchive.ipac.caltech.edu/index.html>`_.
 
     Parameters
     ----------
@@ -50,10 +50,6 @@ def query_exoplanet_archive_catalog(cache=True, show_progress=True):
     -------
     table : `~astropy.table.Table`
         Table of exoplanet properties.
-
-    References
-    ----------
-    .. [1] http://exoplanetarchive.ipac.caltech.edu/index.html
     """
     global EXOPLANETS_TABLE
 

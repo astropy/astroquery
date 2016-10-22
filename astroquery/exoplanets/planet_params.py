@@ -20,7 +20,7 @@ class PlanetParams(object):
     def from_exoplanets_org(cls, exoplanet_name, cache=True,
                             show_progress=True):
         """
-        Gather exoplanet parameters from exoplanets.org [1]_.
+        Gather exoplanet parameters from `exoplanets.org http://www.exoplanets.org`_.
 
         Parameters
         ----------
@@ -31,10 +31,6 @@ class PlanetParams(object):
         show_progress : bool (optional)
             Show progress of exoplanet table download (if no cached copy is
             available). Default is `True`.
-
-        References
-        ----------
-        .. [1] http://www.exoplanets.org
         """
         from .exoplanets_org import (query_exoplanets_org_catalog, TIME_ATTRS,
                                      BOOL_ATTRS)
@@ -76,9 +72,11 @@ class PlanetParams(object):
     def from_exoplanet_archive(cls, exoplanet_name, cache=True,
                                show_progress=True):
         """
-        Gather exoplanet parameters from NExScI's Exoplanet Archive [1]_.
+        Gather exoplanet parameters from `NExScI's Exoplanet Archive
+        <http://exoplanetarchive.ipac.caltech.edu/index.html>`.
 
-        More information on each column is available here [2]_.
+        More information on each column is available `here
+        <http://exoplanetarchive.ipac.caltech.edu/docs/API_exoplanet_columns.html>`_.
 
         Parameters
         ----------
@@ -89,11 +87,6 @@ class PlanetParams(object):
         show_progress : bool (optional)
             Show progress of exoplanet table download (if no cached copy is
             available). Default is `True`.
-
-        References
-        ----------
-        .. [1] http://exoplanetarchive.ipac.caltech.edu/index.html
-        .. [2] http://exoplanetarchive.ipac.caltech.edu/docs/API_exoplanet_columns.html
         """
         from .exoplanet_archive import (query_exoplanet_archive_catalog,
                                         TIME_ATTRS, BOOL_ATTRS)
