@@ -111,8 +111,11 @@ class ESASkyClass(BaseQuery):
         query_object_maps("265.05, 69.0", "Herschel")
         query_object_maps("265.05, 69.0", ["Herschel", "HST"])
         """
-        return self.query_region_maps(position, self.__ZERO_ARCMIN_STRING, missions,
-                               get_query_payload, cache)
+        return self.query_region_maps(position=position, 
+                                      radius=self.__ZERO_ARCMIN_STRING, 
+                                      missions=missions,
+                                      get_query_payload=get_query_payload, 
+                                      cache=cache)
         
     def query_object_catalogs(self, position, catalogs=__ALL_STRING, 
                               row_limit=DEFAULT_ROW_LIMIT, 
@@ -136,7 +139,7 @@ class ESASkyClass(BaseQuery):
         row_limit : int, optional
             Determines how many rows that will be fetched from the database
             for each mission. Can be -1 to select maximum (currently 100 000).
-            Defaults to 2000. 
+            Defaults to 10000. 
         get_query_payload : bool, optional
             When set to True the method returns the HTTP request parameters.
             Defaults to False.
@@ -160,9 +163,12 @@ class ESASkyClass(BaseQuery):
         query_object_catalogs("265.05, 69.0", "Gaia DR1 TGA")
         query_object_catalogs("265.05, 69.0", ["Gaia DR1 TGA", "HSC"])
         """
-        return self.query_region_catalogs(position, self.__ZERO_ARCMIN_STRING, 
-                                          row_limit, catalogs, 
-                                          get_query_payload, cache)
+        return self.query_region_catalogs(position=position, 
+                                          radius=self.__ZERO_ARCMIN_STRING, 
+                                          catalogs=catalogs, 
+                                          row_limit=row_limit, 
+                                          get_query_payload=get_query_payload,
+                                          cache=cache)
 
     def query_region_maps(self, position, radius, missions=__ALL_STRING,
                           get_query_payload=False, cache=True):
@@ -246,7 +252,7 @@ class ESASkyClass(BaseQuery):
         row_limit : int, optional
             Determines how many rows that will be fetched from the database
             for each mission. Can be -1 to select maximum (currently 100 000).
-            Defaults to 2000. 
+            Defaults to 10000. 
         get_query_payload : bool, optional
             When set to True the method returns the HTTP request parameters.
             Defaults to False.
@@ -325,7 +331,7 @@ class ESASkyClass(BaseQuery):
             filter is the key and the HDUList is the value.
             It is structured in a dictionary like this:
             dict: {
-            'HERSCHEL': [{'70': [HDUList], ' 160': [HDUList]}, {'70': [HDUList], ' 160': [HDUList]}, ...],
+            'HERSCHEL': [{'70': [HDUList], '160': [HDUList]}, {'70': [HDUList], '160': [HDUList]}, ...],
             'HST':[[HDUList], HDUList], HDUList], HDUList], HDUList], ...],
             'XMM-EPIC' : [HDUList], HDUList], HDUList], HDUList], ...]
             ...
@@ -398,7 +404,7 @@ class ESASkyClass(BaseQuery):
             filter is the key and the HDUList is the value.
             It is structured in a dictionary like this:
             dict: {
-            'HERSCHEL': [{'70': [HDUList], ' 160': [HDUList]}, {'70': [HDUList], ' 160': [HDUList]}, ...],
+            'HERSCHEL': [{'70': [HDUList], '160': [HDUList]}, {'70': [HDUList], '160': [HDUList]}, ...],
             'HST':[[HDUList], HDUList], HDUList], HDUList], HDUList], ...],
             'XMM-EPIC' : [HDUList], HDUList], HDUList], HDUList], ...]
             ...
@@ -504,7 +510,7 @@ class ESASkyClass(BaseQuery):
                 directory_path = mission_directory + "/"
                 if (mission.lower() == self.__HERSCHEL_STRING):
                     herschel_filter = (maps_table[self.__FILTER_STRING][index]
-                                       .decode('utf-8').split(","))
+                                       .decode('utf-8').split(", "))
                     maps.append(self._get_herschel_observation(product_url,
                                                                directory_path,
                                                                herschel_filter,
@@ -641,8 +647,8 @@ class ESASkyClass(BaseQuery):
                 area_or_point_string = "pos"
             else:
                 area_or_point_string = "fov"
-            where_query = (" WHERE 1=CONTAINS(%s, CIRCLE('ICRS', %f, %f, %f));"
-                           %(area_or_point_string, ra, dec, radiusDeg))
+            where_query = (" WHERE 1=INTERSECTS(CIRCLE('ICRS', %f, %f, %f), %s);"
+                           %(ra, dec, radiusDeg, area_or_point_string))
         else:
             area_or_point_string = "fov"
             where_query = (" WHERE 1=CONTAINS(POINT('ICRS', %f, %f), %s);"

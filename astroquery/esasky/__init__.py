@@ -15,7 +15,7 @@ class Conf(_config.ConfigNamespace):
         'Time limit for connecting to template_module server.')
     
     row_limit = _config.ConfigItem(
-        2000,
+        10000,
         'Maximum number of rows returned (set to -1 for unlimited).')
 
 conf = Conf()
