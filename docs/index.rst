@@ -283,3 +283,8 @@ services in Astroquery, you can use them for your scripts, but we don't guarante
 
   utils.rst
   query.rst
+
+License
+-------
+
+Astroquery is licensed under a 3-clause BSD style license - see :doc:`license`.
