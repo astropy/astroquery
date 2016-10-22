@@ -139,6 +139,7 @@ The following modules have been completed using a common API:
   irsa/irsa_dust.rst
   ned/ned.rst
   splatalogue/splatalogue.rst
+  vamdc/vamdc.rst
   ibe/ibe.rst
   irsa/irsa.rst
   ukidss/ukidss.rst
@@ -252,6 +253,7 @@ above categories.
   nist/nist.rst
   splatalogue/splatalogue.rst
   nasa_ads/nasa_ads.rst
+  vamdc/vamdc.rst
 
 
 Developer documentation
