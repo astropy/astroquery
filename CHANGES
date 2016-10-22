@@ -2,6 +2,9 @@
 ------------------
 
 - Fix #737, an issue with broken ALMA archive tables, via a hack (#775)
+- Add license statements to appropriate places (#776)
+- Correct HEASARC tool, which was sending incorrect data to the server (#774)
+- Fix NIST issue #714 which led to badly-parsed tables (#773)
 
 0.3.3 (2016-10-11)
 ------------------
