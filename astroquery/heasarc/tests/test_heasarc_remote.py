@@ -14,4 +14,4 @@ class TestHeasarc:
         heasarc = Heasarc()
         table = heasarc.query_object(object_name, mission=mission)
 
-        assert len(table) == 1000
+        assert len(table) == 63
