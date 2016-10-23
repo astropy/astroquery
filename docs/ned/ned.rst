@@ -256,17 +256,6 @@ for the specified object. We look at a simple example:
      10    12h29m06.5s     +02d02m53s ...             FK4    Broad-band measurement                                             From new, raw data
      11    12h29m06.5s     +02d02m52s ...             FK4    Broad-band measurement                                      From reprocessed raw data
 
-.. note::
-
-    All query methods that return the results in a `~astropy.table.Table` will
-    return meaningful column names only with Astropy version >= 0.3. For
-    versions older than this, the table headers will have column names of the form
-    ``main_col_number`` because of the way in which the NED returns VOTables.
-
-.. warning::
-
-    table=references does not work correctly `astroquery issue #141`_
-
 Reference/API
 =============
 
@@ -274,4 +263,3 @@ Reference/API
     :no-inheritance-diagram:
 
 .. _IAU format: http://cdsweb.u-strasbg.fr/Dic/iau-spec.html.
-.. _astroquery issue #141: https://github.com/astropy/astroquery/issues/141
