@@ -443,7 +443,7 @@ class NraoClass(QueryWithLogin):
             from astropy.io.ascii.core import convert_numpy
             htmlreader = html.HTML()
             htmlreader.outputter.default_converters.append(convert_numpy(np.unicode))
-            table = htmlreader.read(txt)
+            table = htmlreader.read(string_to_parse)
         else:
             table = Table.read(string_to_parse.decode('utf-8'), format='ascii.html')
 
