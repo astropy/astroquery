@@ -15,6 +15,9 @@ class Conf(_config.ConfigNamespace):
     timeout = _config.ConfigItem(
         60,
         'Time limit for connecting to NRAO server.')
+    username = _config.ConfigItem(
+        "",
+        'Optional default username for ALMA archive.')
 
 conf = Conf()
 

@@ -16,7 +16,9 @@ def data_path(filename):
     data_dir = os.path.join(os.path.dirname(__file__), 'data')
     return os.path.join(data_dir, filename)
 
-DATA_FILES = {'votable': 'votable.xml'}
+DATA_FILES = {'votable': 'votable.xml',
+              'archive': 'archive_html.html',
+             }
 
 
 @pytest.fixture
@@ -39,7 +41,14 @@ def post_mockreturn(self, method, url, data=None, timeout=10, files=None,
                     params=None, headers=None, **kwargs):
     if method != 'POST':
         raise ValueError("A 'post request' was made with method != POST")
-    filename = data_path(DATA_FILES['votable'])
+
+    if params['PROTOCOL'] == "VOTable-XML":
+        filename = data_path(DATA_FILES['votable'])
+    elif params['PROTOCOL'] == "HTML" and params['QUERYTYPE'] == 'ARCHIVE':
+        filename = data_path(DATA_FILES['archive'])
+    else:
+        raise NotImplementedError("Test type not implemented")
+
     content = open(filename, "rb").read()
     return MockResponse(content, **kwargs)
 
@@ -69,3 +78,10 @@ def test_query_region(patch_post, patch_parse_coordinates):
     else:
         assert result['Start_Time'][0] == b'83-Sep-27 09:19:30'
     assert result['RA'][0] == b'04h33m11.096s'
+
+def test_query_region_archive(patch_post, patch_parse_coordinates):
+    result = nrao.core.Nrao.query_region(
+        commons.ICRSCoordGenerator("05h35.8m 35d43m"), querytype='ARCHIVE')
+    assert isinstance(result, Table)
+    assert len(result) == 230
+    assert result['Obs. Data Starts'][0] == '78-Jun-18 14:17:49'

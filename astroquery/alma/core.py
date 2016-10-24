@@ -305,7 +305,7 @@ class AlmaClass(QueryWithLogin):
         summary.raise_for_status()
         self._staging_log['json_data'] = json_data = summary.json()
 
-        username = self._username if hasattr(self, '_username') else 'anonymous'
+        username = self.USERNAME if self.USERNAME else 'anonymous'
 
         # templates:
         # https://almascience.eso.org/dataPortal/requests/keflavich/946895898/ALMA/
@@ -447,7 +447,7 @@ class AlmaClass(QueryWithLogin):
         """
 
         if username is None:
-            if self.USERNAME == "":
+            if not self.USERNAME:
                 raise LoginError("If you do not pass a username to login(), "
                                  "you should configure a default one!")
             else:
@@ -496,7 +496,7 @@ class AlmaClass(QueryWithLogin):
 
         if authenticated:
             log.info("Authentication successful!")
-            self._username = username
+            self.USERNAME = username
         else:
             log.exception("Authentication failed!")
         # When authenticated, save password in keyring if needed

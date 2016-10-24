@@ -187,6 +187,7 @@ class BaseQuery(object):
                                              stream=stream,
                                              auth=auth)
                     to_cache(response, query.request_file(self.cache_location))
+            self._last_query = query
             return response
 
     def _download_file(self, url, local_filepath, timeout=None, auth=None,
