@@ -781,6 +781,8 @@ class ESASkyClass(BaseQuery):
             table = first_table.to_table(use_names_over_ids = True)
             return table
         except Exception as ex:
+            print(response.status_code())
+            print(response)
             self.response = response
             self.table_parse_error = ex
             raise TableParseError(
