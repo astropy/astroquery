@@ -339,6 +339,8 @@ class NraoClass(QueryWithLogin):
                 cache_fn = os.path.join(self.cache_location, last_pickle)
                 os.remove(cache_fn)
             if retry > 0:
+                log.warning("Query resulted in an empty result.  Retrying {0}"
+                            " more times.".format(retry))
                 self.query_async(cache=cache, retry=retry-1, **kwargs)
             else:
                 raise ValueError("Query resulted in an empty result but "
