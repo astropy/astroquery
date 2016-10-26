@@ -40,7 +40,12 @@ def _validate_params(func):
         if telescope_config.upper() not in Nrao.telescope_config:
             raise ValueError("'telescope_config' must be one of {!s}"
                              .format(Nrao.telescope_config))
-        if obs_band.upper() not in Nrao.obs_bands:
+        if isinstance(obs_band, (list, tuple)):
+            for ob in obs_band:
+                if ob.upper() not in Nrao.obs_bands:
+                    raise ValueError("'obs_band' must be one of {!s}"
+                                     .format(Nrao.obs_bands))
+        elif obs_band.upper() not in Nrao.obs_bands:
             raise ValueError("'obs_band' must be one of {!s}"
                              .format(Nrao.obs_bands))
         if sub_array not in Nrao.subarrays and sub_array != 'all':
@@ -167,6 +172,12 @@ class NraoClass(QueryWithLogin):
         else:
             freq_str = ""
 
+        obs_bands = kwargs.get('obs_band', 'all')
+        if isinstance(obs_bands, six.string_types):
+            obs_bands = obs_bands.upper()
+        elif isinstance(obs_bands, (list,tuple)):
+            obs_bands = [x.upper() for x in obs_bands]
+
         request_payload = dict(
             QUERYTYPE=kwargs.get('querytype', "OBSSUMMARY"),
             PROTOCOL=kwargs.get('protocol',"VOTable-XML"),
@@ -195,7 +206,7 @@ class NraoClass(QueryWithLogin):
             SRAD=str(
                 commons.parse_radius(kwargs.get('radius', "1.0m")).deg) + 'd',
             TELESCOPE_CONFIG=kwargs.get('telescope_config', 'all').upper(),
-            OBS_BANDS=kwargs.get('obs_band', 'all').upper(),
+            OBS_BANDS=obs_bands,
             SUBARRAY=kwargs.get('subarray', 'all').upper(),
             SOURCE_ID=kwargs.get('source_id', ''),
             SRC_SEARCH_TYPE='SIMBAD or NED',
