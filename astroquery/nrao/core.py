@@ -332,7 +332,8 @@ class NraoClass(QueryWithLogin):
 
         response.raise_for_status()
 
-        if not response.content:
+        # fail if response is entirely whitespace or if it is empty
+        if not response.content.strip():
             if cache:
                 last_pickle = self._last_query.hash()+".pickle"
                 cache_fn = os.path.join(self.cache_location, last_pickle)
