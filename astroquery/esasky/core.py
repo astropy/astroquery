@@ -644,15 +644,14 @@ class ESASkyClass(BaseQuery):
         from_query = " FROM %s" %json[self.__TAP_TABLE_STRING]
         if (radiusDeg != 0 or json[self.__IS_SURVEY_MISSION_STRING]):
             if (json[self.__IS_SURVEY_MISSION_STRING]):
-                area_or_point_string = "pos"
+                where_query = (" WHERE 1=CONTAINS(pos, CIRCLE('ICRS', %f, %f, %f));"
+                               %(ra, dec, radiusDeg))           
             else:
-                area_or_point_string = "fov"
-            where_query = (" WHERE 1=INTERSECTS(CIRCLE('ICRS', %f, %f, %f), %s);"
-                           %(ra, dec, radiusDeg, area_or_point_string))
+                where_query = (" WHERE 1=INTERSECTS(CIRCLE('ICRS', %f, %f, %f), fov);"
+                               %(ra, dec, radiusDeg))
         else:
-            area_or_point_string = "fov"
-            where_query = (" WHERE 1=CONTAINS(POINT('ICRS', %f, %f), %s);"
-                           %(ra, dec, area_or_point_string))
+            where_query = (" WHERE 1=CONTAINS(POINT('ICRS', %f, %f), fov);"
+                           %(ra, dec))
 
         query = "".join([select_query, metadata_tap_names, from_query,
              where_query])
@@ -781,8 +780,6 @@ class ESASkyClass(BaseQuery):
             table = first_table.to_table(use_names_over_ids = True)
             return table
         except Exception as ex:
-            print(response.status_code())
-            print(response)
             self.response = response
             self.table_parse_error = ex
             raise TableParseError(
