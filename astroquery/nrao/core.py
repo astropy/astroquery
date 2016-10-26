@@ -351,6 +351,7 @@ class NraoClass(QueryWithLogin):
                            end_date="", freq_low=None, freq_up=None,
                            telescope_config='all', obs_band='all',
                            querytype='OBSSUMMARY', sub_array='all',
+                           project_code=None,
                            protocol='VOTable-XML',
                            retry=False,
                            get_query_payload=False, cache=True):
