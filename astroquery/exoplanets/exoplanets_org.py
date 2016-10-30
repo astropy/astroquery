@@ -66,4 +66,21 @@ class ExoplanetsOrgClass(object):
 
         return self._table
 
+    def query_planet(self, planet_name):
+        """
+        Get table of exoplanet properties.
+
+        Parameters
+        ----------
+        planet_name : str
+            Name of planet
+
+        Return
+        ------
+        table : `~astropy.table.Table`
+            Table of one exoplanet's properties.
+        """
+        exoplanet_table = self.get_table()
+        return exoplanet_table.loc[planet_name.strip().lower()]
+
 ExoplanetsOrg = ExoplanetsOrgClass()
