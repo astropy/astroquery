@@ -7,15 +7,15 @@ from astropy.utils import minversion
 from astropy.coordinates import SkyCoord
 
 from ..planet_params import PlanetParams
-from ..exoplanets_org import query_exoplanets_org_catalog, exoplanets_org_units
-from ..exoplanet_archive import query_exoplanet_archive_catalog
+from ..exoplanets_org import ExoplanetsOrg
+from ..exoplanet_archive import ExoplanetArchive
 
 APY_LT12 = not minversion('astropy', '1.2')
 
 
 @remote_data
 def test_exoplanets_org_table():
-    table = query_exoplanets_org_catalog()
+    table = ExoplanetsOrg.get_table()
 
     # Number of columns expected as of Oct 8, 2016
     assert len(table) >= 315
@@ -29,7 +29,7 @@ def test_exoplanets_org_table():
 
 @remote_data
 def test_exoplanet_archive_table():
-    table = query_exoplanet_archive_catalog()
+    table = ExoplanetArchive.get_table()
 
     # Check some planets are in the table
     expected_planets = ['HD 189733 b', 'Kepler-186 f', 'TRAPPIST-1 b',
@@ -40,7 +40,7 @@ def test_exoplanet_archive_table():
 
 
 def test_parameter_units():
-    param_units = exoplanets_org_units()
+    param_units = ExoplanetsOrg.param_units
 
     assert param_units['A'] == u.Unit('AU')
     assert param_units['PER'] == u.Unit('day')

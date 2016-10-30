@@ -2,6 +2,6 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from .exoplanet_archive import *
-from .exoplanets_org import *
-from .planet_params import *
+from .exoplanet_archive import ExoplanetArchive
+from .exoplanets_org import ExoplanetsOrg
+from .planet_params import PlanetParams

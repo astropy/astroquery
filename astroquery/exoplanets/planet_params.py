@@ -8,6 +8,7 @@ from astropy.coordinates import SkyCoord
 
 __all__ = ['PlanetParams']
 
+
 class PlanetParams(object):
     """
     Exoplanet and host star parameters.
@@ -32,12 +33,12 @@ class PlanetParams(object):
             Show progress of exoplanet table download (if no cached copy is
             available). Default is `True`.
         """
-        from .exoplanets_org import (query_exoplanets_org_catalog, TIME_ATTRS,
+        from .exoplanets_org import (ExoplanetsOrg, TIME_ATTRS,
                                      BOOL_ATTRS)
 
         # Load exoplanets table
-        table = query_exoplanets_org_catalog(cache=cache,
-                                             show_progress=show_progress)
+        table = ExoplanetsOrg.get_table(cache=cache,
+                                        show_progress=show_progress)
 
         if not exoplanet_name.lower().strip() in table['NAME_LOWERCASE'].data:
             raise ValueError('Planet "{0}" not found in exoplanets.org catalog')
@@ -88,12 +89,12 @@ class PlanetParams(object):
             Show progress of exoplanet table download (if no cached copy is
             available). Default is `True`.
         """
-        from .exoplanet_archive import (query_exoplanet_archive_catalog,
-                                        TIME_ATTRS, BOOL_ATTRS)
+        from .exoplanet_archive import (ExoplanetArchive, TIME_ATTRS,
+                                        BOOL_ATTRS)
 
         # Load exoplanets table
-        table = query_exoplanet_archive_catalog(cache=cache,
-                                                show_progress=show_progress)
+        table = ExoplanetArchive.get_table(cache=cache,
+                                           show_progress=show_progress)
 
         if not exoplanet_name.lower().strip() in table['NAME_LOWERCASE'].data:
             raise ValueError('Planet "{0}" not found in exoplanets.org catalog')
