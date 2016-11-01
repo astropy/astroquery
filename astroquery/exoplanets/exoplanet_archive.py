@@ -67,7 +67,9 @@ class ExoplanetArchiveClass(object):
             # Assign units to columns where possible
             for col in exoplanets_table.colnames:
                 if col in self.param_units:
-                    exoplanets_table[col].unit = u.Unit(self.param_units[col])
+                    # Check that unit is implemented in this version of astropy
+                    if hasattr(u, self.param_units[col]):
+                        exoplanets_table[col].unit = u.Unit(self.param_units[col])
 
             self._table = exoplanets_table
 

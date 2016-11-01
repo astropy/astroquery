@@ -27,6 +27,7 @@ def test_exoplanets_org_table():
     for planet in expected_planets:
         assert planet.lower() in table['NAME_LOWERCASE']
 
+
 @remote_data
 def test_exoplanet_archive_table():
     table = ExoplanetArchive.get_table()
@@ -63,6 +64,7 @@ def test_hd209458b_exoplanets_org():
     assert not params.microlensing
     assert params.transit
 
+
 @remote_data
 @pytest.mark.skipif('APY_LT12')
 def test_hd209458b_exoplanets_org_apy_lt12():
@@ -70,6 +72,16 @@ def test_hd209458b_exoplanets_org_apy_lt12():
     params = PlanetParams.from_exoplanets_org('HD 209458 b ')
     assert_quantity_allclose(params.r, 1.320 * u.Unit('R_jup'),
                              atol=0.1 * u.Unit('R_jup'))
+
+
+@remote_data
+@pytest.mark.skipif('not APY_LT12')
+def test_hd209458b_exoplanets_org_apy_gt12():
+    # Testing intentionally un-stripped string:
+    with pytest.raises(ValueError):
+        params = PlanetParams.from_exoplanets_org('HD 209458 b ')
+        assert_quantity_allclose(params.r, 1.320 * u.Unit('R_jup'),
+                                 atol=0.1 * u.Unit('R_jup'))
 
 
 @remote_data
@@ -95,6 +107,16 @@ def test_hd209458b_exoplanets_archive_apy_lt12():
 
 
 @remote_data
+@pytest.mark.skipif('not APY_LT12')
+def test_hd209458b_exoplanets_archive_apy_gt12():
+    # Testing intentionally un-stripped string:
+    with pytest.raises(ValueError):
+        params = PlanetParams.from_exoplanet_archive('HD 209458 b ')
+        assert_quantity_allclose(params.pl_radj, 1.320 * u.Unit('R_jup'),
+                                 atol=0.1 * u.Unit('R_jup'))
+
+
+@remote_data
 def test_hd209458b_exoplanet_archive_coords():
     params = PlanetParams.from_exoplanet_archive('HD 209458 b ')
     simbad_coords = SkyCoord(ra='22h03m10.77207s', dec='+18d53m03.5430s')
@@ -102,6 +124,7 @@ def test_hd209458b_exoplanet_archive_coords():
     sep = params.coord.separation(simbad_coords)
 
     assert abs(sep) < 1 * u.arcsec
+
 
 @remote_data
 def test_hd209458b_exoplanets_org_coords():
@@ -111,4 +134,3 @@ def test_hd209458b_exoplanets_org_coords():
     sep = params.coord.separation(simbad_coords)
 
     assert abs(sep) < 1 * u.arcsec
-
