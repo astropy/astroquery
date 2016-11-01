@@ -5,7 +5,7 @@ LAMDA Query Tool
 
 :Author: Brian Svoboda (svobodb@email.arizona.edu)
 
-This packaged is for querying the Leiden Atomic and Molecular Database (LAMDA)
+This package is for querying the Leiden Atomic and Molecular Database (LAMDA)
 hosted at: http://home.strw.leidenuniv.nl/~moldata/.
 
 Note:
