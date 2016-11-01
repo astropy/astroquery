@@ -66,9 +66,9 @@ def pyregion_subset(region, data, mywcs):
                                                                   xhi=xhi,
                                                                   yhi=yhi))
 
-    subwcs = mywcs[ylo:yhi, xlo:xhi]
+    subwcs = mywcs[int(ylo):int(yhi), int(xlo):int(xhi)]
     subhdr = subwcs.sub([wcs.WCSSUB_CELESTIAL]).to_header()
-    subdata = data[ylo:yhi, xlo:xhi]
+    subdata = data[int(ylo):int(yhi), int(xlo):int(xhi)]
 
     mask = shapelist.get_mask(header=subhdr,
                               shape=subdata.shape)
