@@ -21,7 +21,8 @@ class PlanetParams(object):
     def from_exoplanets_org(cls, exoplanet_name, cache=True,
                             show_progress=True):
         """
-        Gather exoplanet parameters from `exoplanets.org http://www.exoplanets.org`_.
+        Gather exoplanet parameters from `exoplanets.org
+        <http://www.exoplanets.org>`_.
 
         Parameters
         ----------
@@ -74,7 +75,7 @@ class PlanetParams(object):
                                show_progress=True):
         """
         Gather exoplanet parameters from `NExScI's Exoplanet Archive
-        <http://exoplanetarchive.ipac.caltech.edu/index.html>`.
+        <http://exoplanetarchive.ipac.caltech.edu/index.html>`_.
 
         More information on each column is available `here
         <http://exoplanetarchive.ipac.caltech.edu/docs/API_exoplanet_columns.html>`_.

@@ -35,6 +35,7 @@ class ExoplanetsOrgClass(object):
         """
         Download (and optionally cache) the `exoplanets.org planets table
         <http://www.exoplanets.org>`_.
+
         Parameters
         ----------
         cache : bool (optional)
@@ -49,7 +50,7 @@ class ExoplanetsOrgClass(object):
         """
         if self._table is None:
             table_path = download_file(EXOPLANETS_CSV_URL, cache=cache,
-                                       show_progress=show_progress, timeout=120)
+                                       show_progress=show_progress)
             exoplanets_table = ascii.read(table_path)
 
             # Store column of lowercase names for indexing:

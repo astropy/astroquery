@@ -35,6 +35,7 @@ class ExoplanetArchiveClass(object):
         """
         Download (and optionally cache) the `NExScI Exoplanet Archive Confirmed
         Planets table <http://exoplanetarchive.ipac.caltech.edu/index.html>`_.
+
         Parameters
         ----------
         cache : bool (optional)
@@ -49,7 +50,7 @@ class ExoplanetArchiveClass(object):
         """
         if self._table is None:
             table_path = download_file(EXOPLANETS_CSV_URL, cache=cache,
-                                       show_progress=show_progress)
+                                       show_progress=show_progress, timeout=120)
             exoplanets_table = ascii.read(table_path)
 
             # Group by the host name
