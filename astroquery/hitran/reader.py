@@ -1,16 +1,13 @@
 from collections import OrderedDict
 from astropy.table import Table
-from astropy import log
 from astropy.config import paths
+from astropy.utils.console import ProgressBar
+from ..utils import commons
 import os
-try:
-    import urllib.request as urllib2
-except ImportError:
-    import urllib2
 
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
-HITRAN_URL = 'http://hitran.org'
+HITRAN_URL = 'http://hitran.org/lbl/api'
 cache_location = os.path.join(paths.get_cache_dir(), 'astroquery', 'hitran')
 if not os.path.exists(cache_location):
     os.makedirs(cache_location)
@@ -279,24 +276,21 @@ def download_hitran(m, i, numin, numax):
     """
     iso_id = str(ISO[(m,i)][ISO_INDEX['id']])
     mol_name = ISO[(m,i)][ISO_INDEX['mol_name']]
-    url = HITRAN_URL + '/lbl/api?' + \
-        'iso_ids_list=' + iso_id + '&' + \
-        'numin=' + str(numin) + '&' + \
-        'numax=' + str(numax)
-    try:
-        req = urllib2.urlopen(url)
-    except urllib2.HTTPError:
-        raise Exception('Failed to retrieve data for given parameters.')
-    except urllib2.URLError:
-        raise Exception('Cannot connect to {0}.'.format(HITRAN_URL))
-    CHUNK = 64 * 1024
     filename = os.path.join(cache_location, '{0}.data'.format(mol_name))
+    CHUNK = 64 * 1024
+    data = dict(iso_ids_list=iso_id, numin=numin, numax=numax)
     with open(filename, 'w') as fp:
-       while True:
-          chunk = req.read(CHUNK)
-          if not chunk: break
-          fp.write(chunk.decode('utf-8'))
-          log.info('{0} bytes written to {1}'.format(CHUNK, filename))
+        response = commons.send_request(HITRAN_URL, data, 10,
+                                        request_type='GET')
+        if 'Content-Length' in response.headers:
+            total_length = response.headers.get('Content-Length')
+            pb = ProgressBar(int(total_length))
+        for chunk in response.iter_content(chunk_size=CHUNK):
+            fp.write(chunk.decode('utf-8'))
+            try:
+                pb.update(CHUNK)
+            except NameError:
+                pass
 
 def read_hitran_file(filename, formats=None,
                      formatfile=os.path.join(DATA_DIR, 'readme.txt')):
