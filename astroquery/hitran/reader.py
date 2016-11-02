@@ -1,5 +1,4 @@
 from collections import OrderedDict
-import numpy as np
 from astropy.table import Table
 import os
 
