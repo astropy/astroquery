@@ -18,7 +18,8 @@ fmt_dict = {'f': float, 's':str, 'd':int, 'e':float, 'A': str, 'I':int,
 
 ISO_INDEX = { 'id':0, 'iso_name':1, 'abundance':2, 'mass':3, 'mol_name':4 }
 
-# Copied from hapi.py code
+# Copied from the hapi.py code (Academic Free License)
+# http://hitran.org/static/hapi/hapi.py
 ISO = {
     (   1, 1): [  1,  'H2(16O)',           0.997317,       18.010565,      'H2O'  ],
     (   1, 2): [  2,  'H2(18O)',           0.00199983,     20.014811,      'H2O'  ],
