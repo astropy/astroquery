@@ -9,7 +9,7 @@ Getting started
 
 This module provides an interface to the `HITRAN`_ database API.  It can
 download a data file including transitions for a particular molecule in a given
-wavenumber range.  The file is downloaded in the `~hitran.cache_location`
+wavenumber range.  The file is downloaded in the `~astroquery.hitran.cache_location`
 directory and can be opened with a reader function that returns a table of
 spectral lines including all accessible parameters.
 
