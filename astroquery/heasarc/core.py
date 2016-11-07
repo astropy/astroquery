@@ -3,13 +3,18 @@ from __future__ import print_function
 from astropy.extern.six import BytesIO
 from astropy.table import Table
 from astropy.io import fits
+from astropy.io.registry import IORegistryError
+from astropy.utils.exceptions import AstropyWarning
 from ..query import BaseQuery
 from ..utils import commons
 from ..utils import async_to_sync
 from . import conf
+import warnings
 
 __all__ = ['Heasarc', 'HeasarcClass']
 
+_obj_not_found_msg = "is not recognized by the GRB or SIMBAD+Sesame or NED name resolvers."
+_table_not_found_msg = "Error: No table info found for heasarc"
 
 @async_to_sync
 class HeasarcClass(BaseQuery):
@@ -80,6 +85,14 @@ class HeasarcClass(BaseQuery):
             return table
         except ValueError:
             return self._fallback(response.content)
+        except IORegistryError:
+            if _obj_not_found_msg in response.content:
+                object_name = response.request.path_url.split("Entry=")[-1].split("&")[0]
+                warnings.warn(AstropyWarning("Object {obj} ".format(obj=object_name) +
+                                             _obj_not_found_msg))
+            elif _table_not_found_msg in response.content:
+                table_name = response.request.path_url.split("BATCHRETRIEVALCATALOG_2.0+")[-1].split("&")[0]
+                warnings.warn(AstropyWarning(_table_not_found_msg + " for table {tbl}".format(tbl=table_name)))
 
 
 Heasarc = HeasarcClass()

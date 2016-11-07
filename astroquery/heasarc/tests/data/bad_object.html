@@ -1,0 +1,112 @@
+BatchStart
+
+BATCH_RETRIEVAL_MSG ERROR: ImABadObject is not recognized by the GRB or SIMBAD+Sesame or NED name resolvers.
+
+
+If you are trying to enter a coordinate string give at least minutes for sexagesimal coordinates or use a decimal point in decimal coordinates.  Also separate the longitude/RA and latitude/Dec by a comma or the sign of the latitude/declination.  
+E.g., use 12.,14. or 12 00 +14 00 rather than 12,14
+Information on coordinate formats can be found on our Browse Help page:
+./W3Browse/w3browse-help.html#Coordinates_Name_Search
+
+BatchEnd
+Content-type: text/html
+
+    <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+            "http://www.w3.org/TR/html4/loose.dtd">
+    <html><head><title>HEASARC Browse: Error from Browse</title>
+    <link rel="stylesheet" href="/W3Browse/w3browsetable.css" title="colortable style" type="text/css" media="screen">
+    <link rel="alternate stylesheet" href="/W3Browse/w3browse.css" title="scrolltable style" type="text/css" media="screen">
+<link rel="stylesheet" type="text/css" href="/W3Browse/plotting/codebase/dhtmlx.css"/>
+    <link rel="stylesheet" href="/W3Browse/w3browseprint.css" title="print style" type="text/css" media="print"> 
+    <script type='text/javascript' src="/W3Browse/plotting/codebase/dhtmlx.js"></script> 
+    <script type='text/javascript' src="/W3Browse/tips/tips.js"></script> 
+    <script type='text/javascript' src="/W3Browse/w3main.js"></script>
+    <script type='text/javascript' src="/W3Browse/w3summaryhtml.js"></script> 
+    <script type='text/javascript' src="http://heasarc.gsfc.nasa.gov/xamin/js/browseplot.js"></script>
+    <script type="text/javascript" src="http://heasarc.gsfc.nasa.gov/xamin/js/keywordQuery.js"></script>
+    <script type="text/javascript" src="http://heasarc.gsfc.nasa.gov/xamin/extjs/adapter/ext/ext-base.js"></script>
+    <script type="text/javaScript" src="http://heasarc.gsfc.nasa.gov/xamin/extjs/ext-all-debug.js"></script>
+
+    <script language='JavaScript' type='text/javascript'>
+
+    //--- Prevent submit when return key is pressed
+    function noenter(evt) {
+        //return !(window.event && window.event.keyCode == 13); 
+       evt = (evt) ? evt : event;
+       var charCode = (evt.charCode) ? evt.charCode :
+	   ((evt.which) ? evt.which : evt.keyCode); 
+       if (charCode == 13 || charCode == 3) {
+          return  false;
+       } else {
+          return  true;
+       }
+       
+    }
+    </script>
+
+    <style type="text/css">
+       table.w3b_missions  {
+           border:1px  !important;
+       }
+       table.w3b_missions td {
+          font-size: .95em;
+          /*background-color: #F4F4F4; */
+       
+       }
+    </style>
+<script>
+		
+		var myPop;
+		var myForm;
+		
+		function showPlotNotes(inp) {
+			if (!myPop) {
+				myPop = new dhtmlXPopup();
+				myPop.attachHTML("Browse and Xamin data may be up to 12 hours out of sync.<br> Some complex Browse query constraints may be ignored in Xamin.");
+			}
+			if (myPop.isVisible()) {
+				myPop.hide();
+			} else {
+				var x = window.dhx4.absLeft(inp);
+				var y = window.dhx4.absTop(inp);
+				var w = inp.offsetWidth;
+				var h = inp.offsetHeight;
+				myPop.show(x,y,w,h);
+			}
+		}
+		
+		function hidePopup() {
+			if (myPop) myPop.hide();
+		}
+	</script>
+       </head>
+       <body bgcolor="#ffffff" text="#090909" 
+       link="#0505ff" vlink="#ff0000" alink="#c0f0c0" onLoad="pageLoaded();changeLink()"> 
+    <script type='text/javascript' src="/W3Browse/wz_tooltip.js"></script> 
+    <table width="100%" border="1">
+    <tr><td>
+      <table width="100%" cellspacing="0">
+        <tr class='standard'>
+              <td width="10%" align="left">&nbsp;&nbsp;&nbsp;&nbsp;<a href="/docs/archive.html"><b>Archive</b></a></td>
+              <!--<td align="center" class="larger">Error from Browse</td>-->
+              <td align="center" >Error from Browse</td>
+              <td align="right">
+<a href="/W3Browse/w3btipsarchive.html" ><img src="/Images/w3b/tiparchive.jpg" border="0" alt="Tips Archive"></a>
+
+<a href="http://heasarc.gsfc.nasa.gov/hera"><img border="0" alt="You are using the Hera-enabled Browse" height="32" width="45" src="/Images/w3b/test/hera_white_on_gold-red_oval.gif"></a> <a target="helpwin" href="/W3Browse/w3browse-help.html"><img border="0" alt="Help" src="/Images/w3b/help.gif" height="30" width="30"></a></td>
+        </tr>
+      </table>
+    </td></tr>
+    </table>
+<br><h2>The object name or coordinate inputs generated errors: ImABadObject is not recognized by the GRB or SIMBAD+Sesame or NED name resolvers.
+
+
+If you are trying to enter a coordinate string give at least minutes for sexagesimal coordinates or use a decimal point in decimal coordinates.  Also separate the longitude/RA and latitude/Dec by a comma or the sign of the latitude/declination.  
+E.g., use 12.,14. or 12 00 +14 00 rather than 12,14
+Information on coordinate formats can be found on our Browse Help page:
+./W3Browse/w3browse-help.html#Coordinates_Name_Search
+</h2><br><b>General Help</b> can be found on the <a href='/W3Browse/w3browse-help.html'>Browse Help Page</a><br><b>Coordinate Format Help</b> can be found  in the <a href='/W3Browse/w3browse-help.html#name_coords'>Explanation of Name/Coordinates Input Formats section</a><br><b>Parameter Search Help</b> can be found  in the <a href='/W3Browse/w3browse-help.html#Parameter_Search'>Search by Parameter section</a></table></table></table><p>
+<span style='font-size:90%'>Page maintainer: 
+<a href="/cgi-bin/Feedback?selected=w3browse" target="feedback"> Browse Feedback</a></span>
+</body>
+</html>
