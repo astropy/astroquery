@@ -1,6 +1,7 @@
 0.3.4 (unreleased)
 ------------------
 
+- Added basic HITRAN queries support (#617)
 - Fix #737, an issue with broken ALMA archive tables, via a hack (#775)
 - Add license statements to appropriate places (#776)
 - Correct HEASARC tool, which was sending incorrect data to the server (#774)

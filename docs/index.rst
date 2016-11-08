@@ -170,6 +170,7 @@ These others are functional, but do not follow a common & consistent API:
   ogle/ogle.rst
   open_exoplanet_catalogue/open_exoplanet_catalogue.rst
   cosmosim/cosmosim.rst
+  hitran/hitran.rst
 
 Catalog, Archive, and Other
 ===========================
@@ -254,6 +255,7 @@ above categories.
   splatalogue/splatalogue.rst
   nasa_ads/nasa_ads.rst
   vamdc/vamdc.rst
+  hitran/hitran.rst
 
 
 Developer documentation
