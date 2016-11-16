@@ -85,13 +85,18 @@ class TestAlma:
 
         result_s = alma.query_object('Sgr A*')
         assert b'2011.0.00217.S' in result_s['Project code']
-        assert b'uid://A002/X47ed8e/X3cd' in result_s['Asdm uid']
-        match = result_s['Asdm uid'] == b'uid://A002/X47ed8e/X3cd'
+        # UID comes from:
+        # 2011.0.00217.S  G0.25+0.02 266.53995833333346 -28.709500000000009      3 1.4544413048949709             976.5625    2280.739   2013-09-07 [86.26..88.14GHz,976.56kHz,null] U [88.15..90.03GHz,976.56kHz,null] U [98.19..100.07GHz,976.56kHz,null] U [100.15..102.03GHz,976.56kHz,null]  3110.9112850878114        XX YY 2012-07-29 02:01:54 Rathborne, Jill 1.7593164              uid://A002/X391d0b/X7b uid://A002/X47aefc/X369 Globular cluster formation: caught in the act            S      TARGET    365.55225721174787          Y     7
+        # (this information is included in comments because the ALMA archive
+        # has apparently changed UIDs, but the associated data should never go
+        # missing)
+        assert b'uid://A002/X47aefc/X369' in result_s['Asdm uid']
+        match = result_s['Asdm uid'] == b'uid://A002/X47aefc/X369'
         uid = result_s['Asdm uid'][match]
 
         result = alma.stage_data(uid)
 
-        assert ('uid___A002_X47ed8e' in
+        assert ('uid___A002_X47aefc' in
                 os.path.split(result['URL'][0])[1])
 
         # test re-staging
@@ -113,14 +118,15 @@ class TestAlma:
         galactic_center = coordinates.SkyCoord(0 * u.deg, 0 * u.deg,
                                                frame='galactic')
         gc_data = alma.query_region(galactic_center, 1 * u.deg)
-        assert len(gc_data) >= 425 # Feb 8, 2016
+        #assert len(gc_data) >= 425 # Feb 8, 2016
+        assert len(gc_data) >= 50 # Nov 16, 2016
 
         uids = np.unique(m83_data['Asdm uid'])
         assert b'uid://A002/X3b3400/X90f' in uids
         X90f = (m83_data['Asdm uid'] == b'uid://A002/X3b3400/X90f')
-        assert X90f.sum() == 45
+        assert X90f.sum() == 1 # Nov 16, 2016: reduced from 45
         X31 = (m83_data['Member ous id'] == b'uid://A002/X3216af/X31')
-        assert X31.sum() == 225
+        assert X31.sum() == 1 # Nov 16, 2016: reduced from 225
 
         asdm = alma.stage_data('uid://A002/X3b3400/X90f')
         totalsize_asdm = asdm['size'].sum() * u.Unit(asdm['size'].unit)
@@ -139,8 +145,8 @@ class TestAlma:
 
         result = alma.query(payload={'start_date': '<11-11-2011'},
                             public=False, science=True)
-        # now 535?
-        assert len(result) == 621
+        # Nov 16, 2016: 159
+        assert len(result) == 159
 
     @pytest.mark.bigdata
     def test_cycle1(self, temp_dir):
