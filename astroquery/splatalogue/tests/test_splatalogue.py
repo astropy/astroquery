@@ -143,3 +143,20 @@ def test_exclude(patch_post):
 
     for k in d:
         assert k[:3] != 'no_'
+
+@remote_data
+def test_exclude_remote():
+    # regression test for issue 616
+    results = splatalogue.Splatalogue.query_lines(
+        min_frequency=351.9*u.GHz,
+        max_frequency=352.*u.GHz,
+        chemical_name='Formaldehyde',
+        energy_max=4000,
+        energy_type='eu_k',
+        line_lists=['CDMS'],
+        export_limit=1000.,
+        exclude=None,
+        version='v2.0',
+        show_upper_degeneracy=True,
+        )
+    assert len(results) >= 1
