@@ -123,14 +123,15 @@ class SplatalogueClass(BaseQuery):
                       chem_re_flags=0, energy_min=None, energy_max=None,
                       energy_type=None, intensity_lower_limit=None,
                       intensity_type=None, transition=None, version=None,
-                      exclude=None, only_NRAO_recommended=None,
+                      exclude='none', only_NRAO_recommended=None,
                       line_lists=None, line_strengths=None, energy_levels=None,
                       export=None, export_limit=None, noHFS=None,
                       displayHFS=None, show_unres_qn=None,
                       show_upper_degeneracy=None, show_molecule_tag=None,
                       show_qn_code=None, show_lovas_labref=None,
                       show_lovas_obsref=None, show_orderedfreq_only=None,
-                      show_nrao_recommended=None):
+                      show_nrao_recommended=None,
+                      parse_chemistry_locally=False):
         """
         The Splatalogue service returns lines with rest frequencies in the
         range [min_frequency, max_frequency].
@@ -165,7 +166,9 @@ class SplatalogueClass(BaseQuery):
 
             ``' H2CO '`` - Just 1 species, H2CO. The spaces prevent including
                            others.
-
+        parse_chemistry_locally : bool
+            Attempt to determine the species ID #'s locally before sending the
+            query?  This will prevent queries that have no matching species.
         chem_re_flags : int
             See the `re` module
         energy_min : `None` or float
@@ -267,10 +270,13 @@ class SplatalogueClass(BaseQuery):
             # include all
             payload['sid[]'] = []
         elif chemical_name is not None:
-            species_ids = self.get_species_ids(chemical_name, chem_re_flags)
-            if len(species_ids) == 0:
-                raise ValueError("No matching chemical species found.")
-            payload['sid[]'] = list(species_ids.values())
+            if parse_chemistry_locally:
+                species_ids = self.get_species_ids(chemical_name, chem_re_flags)
+                if len(species_ids) == 0:
+                    raise ValueError("No matching chemical species found.")
+                payload['sid[]'] = list(species_ids.values())
+            else:
+                payload['chemical_name'] = chemical_name
 
         if energy_min is not None:
             payload['energy_range_from'] = float(energy_min)
@@ -295,7 +301,6 @@ class SplatalogueClass(BaseQuery):
                              "are {vers}".format(vers=str(self.versions)))
 
         if exclude == 'none':
-            log.debug("Exclude is 'none'")
             for e in ('potential', 'atmospheric', 'probable', 'known'):
                 # Setting a keyword value to 'None' removes it (see query_lines_async)
                 log.debug("Setting no_{0} to None".format(e))
