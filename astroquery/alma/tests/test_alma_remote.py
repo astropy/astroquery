@@ -16,8 +16,8 @@ all_colnames = {'Project code', 'Source name', 'RA', 'Dec', 'Band',
                 'Frequency support', 'Velocity resolution', 'Pol products',
                 'Observation date', 'PI name', 'PWV', 'Member ous id',
                 'Asdm uid', 'Project title', 'Project type', 'Scan intent',
-                'Spatial resolution', 'Largest angular scale', 'QA0 Status',
-                'QA2 Status', 'Project abstract', 'Group ous id', 'Pub'}
+                'Spatial resolution', 'Largest angular scale',
+                'QA2 Status', 'Group ous id', 'Pub'}
 
 
 @remote_data
