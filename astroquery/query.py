@@ -64,8 +64,12 @@ class AstroQuery(object):
             request_key = (self.method, self.url)
             for k in (self.params, self.data, self.headers, self.files):
                 if isinstance(k, dict):
-                    request_key += (tuple(sorted(k.items(),
-                                                 key=_replace_none_iterable)),)
+                    entry = (tuple(sorted(k.items(),
+                                          key=_replace_none_iterable)),)
+                    entry = tuple((k_,v_.read()) if hasattr(v_,'read')
+                                  else (k_,v_) for k_,v_ in entry)
+
+                    request_key += entry
                 elif isinstance(k, tuple) or isinstance(k, list):
                     request_key += (tuple(sorted(k,
                                                  key=_replace_none_iterable)),)
