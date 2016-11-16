@@ -11,13 +11,13 @@ from astropy.extern.six.moves.urllib_parse import urlparse
 
 from .. import Alma
 
-all_colnames = ['Project code', 'Source name', 'RA', 'Dec', 'Band',
+all_colnames = {'Project code', 'Source name', 'RA', 'Dec', 'Band',
                 'Frequency resolution', 'Integration', 'Release date',
                 'Frequency support', 'Velocity resolution', 'Pol products',
                 'Observation date', 'PI name', 'PWV', 'Member ous id',
                 'Asdm uid', 'Project title', 'Project type', 'Scan intent',
                 'Spatial resolution', 'Largest angular scale', 'QA0 Status',
-                'QA2 Status', 'Project abstract']
+                'QA2 Status', 'Project abstract', 'Group ous id', 'Pub'}
 
 
 @remote_data
