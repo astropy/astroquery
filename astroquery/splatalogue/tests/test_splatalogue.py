@@ -107,23 +107,25 @@ def test_band_crashorno():
     assert exc.value.args[0] == "Invalid frequency band."
 
 
-# regression test : version selection should work
-# Unfortunately, it looks like version1 = version2 on the web page now, so this
-# may no longer be a valid test
-@remote_data
-def test_version_selection():
-    results = splatalogue.Splatalogue.query_lines(
-			    min_frequency= 703*u.GHz,
-			    max_frequency=706*u.GHz,
-			    chemical_name='Acetaldehyde',
-			    version='v1.0'
-			    )
-    assert len(results)==1
+#Upstream changed: there is no distinction between versions for this molecule
+# # regression test : version selection should work
+# # Unfortunately, it looks like version1 = version2 on the web page now, so this
+# # may no longer be a valid test
+# @remote_data
+# def test_version_selection():
+#     results = splatalogue.Splatalogue.query_lines(
+# 			    min_frequency= 703*u.GHz,
+# 			    max_frequency=706*u.GHz,
+# 			    chemical_name='Acetaldehyde',
+# 			    version='v1.0'
+# 			    )
+#     assert len(results)==1
 
 def test_exclude(patch_post):
     # regression test for issue 616
     d = splatalogue.Splatalogue.query_lines_async(114 * u.GHz, 116 * u.GHz,
                                                   chemical_name=' CO ',
+                                                  exclude=None,
                                                   get_query_payload=True)
 
     exclusions = {'no_atmospheric': 'no_atmospheric',
@@ -155,7 +157,7 @@ def test_exclude_remote():
         energy_type='eu_k',
         line_lists=['CDMS'],
         export_limit=1000.,
-        exclude=None,
+        exclude='none',
         version='v2.0',
         show_upper_degeneracy=True,
         )

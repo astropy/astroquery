@@ -123,7 +123,7 @@ class SplatalogueClass(BaseQuery):
                       chem_re_flags=0, energy_min=None, energy_max=None,
                       energy_type=None, intensity_lower_limit=None,
                       intensity_type=None, transition=None, version=None,
-                      exclude='none', only_NRAO_recommended=None,
+                      exclude=None, only_NRAO_recommended=None,
                       line_lists=None, line_strengths=None, energy_levels=None,
                       export=None, export_limit=None, noHFS=None,
                       displayHFS=None, show_unres_qn=None,
