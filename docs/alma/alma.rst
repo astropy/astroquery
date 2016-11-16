@@ -127,6 +127,16 @@ Region queries are just like any other in astroquery:
     >>> print(len(gc_data))
     383
 
+Querying by other parameters
+============================
+
+As of version 0.3.4, you can also query other fields by keyword. For example,
+if you want to find all projects with a particular PI, you could do:
+
+.. code-block:: python
+
+   >>> rslt = Alma.query_object('W51', pi_name='Ginsburg', public=False)
+
 Downloading Data
 ================
 
