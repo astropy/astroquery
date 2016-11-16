@@ -149,6 +149,7 @@ def test_exclude(patch_post):
 @remote_data
 def test_exclude_remote():
     # regression test for issue 616
+    # only entry should be  D213CO  Formaldehyde 351.96064  3.9e-06            --            -- 6(2,4)-5(2,3)            -2.0065 ...            0.0                          -2.94058                  --      44.097 63.44616    55.83714 80.33772     CDMS
     results = splatalogue.Splatalogue.query_lines(
         min_frequency=351.9*u.GHz,
         max_frequency=352.*u.GHz,
