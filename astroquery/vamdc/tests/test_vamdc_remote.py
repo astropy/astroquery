@@ -8,9 +8,15 @@ from __future__ import print_function
 
 from astropy.tests.helper import remote_data, pytest
 
-from ... import vamdc
+try:
+    from ... import vamdc
+    import vamdclib
+    HAS_VAMDCLIB = True
+except ImportError:
+    HAS_VAMDCLIB = False
 
 
+@pytest.mark.skipif('not HAS_VAMDCLIB')
 @remote_data
 class TestVamdcClass:
     # now write tests for each method here
