@@ -65,7 +65,7 @@ class AstroQuery(object):
             for k in (self.params, self.data, self.headers, self.files):
                 if isinstance(k, dict):
                     entry = (tuple(sorted(k.items(),
-                                          key=_replace_none_iterable)),)
+                                          key=_replace_none_iterable)))
                     entry = tuple((k_,v_.read()) if hasattr(v_,'read')
                                   else (k_,v_) for k_,v_ in entry)
 
