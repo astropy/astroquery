@@ -59,7 +59,7 @@ class TestAlma:
         result_c = alma.query_region(c, 1 * u.deg)
         assert b'2011.0.00217.S' in result_c['Project code']
 
-    def test_m83(self, temp_dir):
+    def test_m83(self, temp_dir, recwarn):
         alma = Alma()
         alma.cache_location = temp_dir
 
@@ -72,14 +72,19 @@ class TestAlma:
         assert len(link_list) >= 47
 
         # test re-staging
-        with pytest.raises(requests.HTTPError) as ex:
-            link_list = alma.stage_data(uids)
-        assert ex.value.args[0] == ('Received an error 405: this may indicate you have '
-                                    'already staged the data.  Try downloading the '
-                                    'file URLs directly with download_files.')
+        # (has been replaced with warning)
+        #with pytest.raises(requests.HTTPError) as ex:
+        #    link_list = alma.stage_data(uids)
+        #assert ex.value.args[0] == ('Received an error 405: this may indicate you have '
+        #                            'already staged the data.  Try downloading the '
+        #                            'file URLs directly with download_files.')
+        link_list = alma.stage_data(uids)
+        w = recwarn.pop()
+        assert (str(w.message) == ('Error 405 received.  If you have previously staged the '
+                                   'same UIDs, the result returned is probably correct,'
+                                   ' otherwise you may need to create a fresh astroquery.Alma instance.'))
 
-
-    def test_stage_data(self, temp_dir):
+    def test_stage_data(self, temp_dir, recwarn):
         alma = Alma()
         alma.cache_location = temp_dir
 
@@ -100,11 +105,16 @@ class TestAlma:
                 os.path.split(result['URL'][0])[1])
 
         # test re-staging
-        with pytest.raises(requests.HTTPError) as ex:
-            result = alma.stage_data([uid])
-        assert ex.value.args[0] == ('Received an error 405: this may indicate you have '
-                                    'already staged the data.  Try downloading the '
-                                    'file URLs directly with download_files.')
+        #with pytest.raises(requests.HTTPError) as ex:
+        #    result = alma.stage_data([uid])
+        #assert ex.value.args[0] == ('Received an error 405: this may indicate you have '
+        #                            'already staged the data.  Try downloading the '
+        #                            'file URLs directly with download_files.')
+        result = alma.stage_data([uid])
+        w = recwarn.pop()
+        assert (str(w.message) == ('Error 405 received.  If you have previously staged the '
+                                   'same UIDs, the result returned is probably correct,'
+                                   ' otherwise you may need to create a fresh astroquery.Alma instance.'))
 
 
     def test_doc_example(self, temp_dir):
