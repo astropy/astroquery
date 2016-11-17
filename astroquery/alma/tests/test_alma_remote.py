@@ -11,13 +11,13 @@ from astropy.extern.six.moves.urllib_parse import urlparse
 
 from .. import Alma
 
-all_colnames = ['Project code', 'Source name', 'RA', 'Dec', 'Band',
+all_colnames = {'Project code', 'Source name', 'RA', 'Dec', 'Band',
                 'Frequency resolution', 'Integration', 'Release date',
                 'Frequency support', 'Velocity resolution', 'Pol products',
                 'Observation date', 'PI name', 'PWV', 'Member ous id',
                 'Asdm uid', 'Project title', 'Project type', 'Scan intent',
-                'Spatial resolution', 'Largest angular scale', 'QA0 Status',
-                'QA2 Status', 'Project abstract']
+                'Spatial resolution', 'Largest angular scale',
+                'QA2 Status', 'Group ous id', 'Pub'}
 
 
 @remote_data
@@ -59,7 +59,7 @@ class TestAlma:
         result_c = alma.query_region(c, 1 * u.deg)
         assert b'2011.0.00217.S' in result_c['Project code']
 
-    def test_m83(self, temp_dir):
+    def test_m83(self, temp_dir, recwarn):
         alma = Alma()
         alma.cache_location = temp_dir
 
@@ -72,14 +72,21 @@ class TestAlma:
         assert len(link_list) >= 47
 
         # test re-staging
-        with pytest.raises(requests.HTTPError) as ex:
-            link_list = alma.stage_data(uids)
-        assert ex.value.args[0] == ('Received an error 405: this may indicate you have '
-                                    'already staged the data.  Try downloading the '
-                                    'file URLs directly with download_files.')
+        # (has been replaced with warning)
+        #with pytest.raises(requests.HTTPError) as ex:
+        #    link_list = alma.stage_data(uids)
+        #assert ex.value.args[0] == ('Received an error 405: this may indicate you have '
+        #                            'already staged the data.  Try downloading the '
+        #                            'file URLs directly with download_files.')
 
+        # log.warning doesn't actually make a warning
+        #link_list = alma.stage_data(uids)
+        #w = recwarn.pop()
+        #assert (str(w.message) == ('Error 405 received.  If you have previously staged the '
+        #                           'same UIDs, the result returned is probably correct,'
+        #                           ' otherwise you may need to create a fresh astroquery.Alma instance.'))
 
-    def test_stage_data(self, temp_dir):
+    def test_stage_data(self, temp_dir, recwarn):
         alma = Alma()
         alma.cache_location = temp_dir
 
@@ -100,11 +107,18 @@ class TestAlma:
                 os.path.split(result['URL'][0])[1])
 
         # test re-staging
-        with pytest.raises(requests.HTTPError) as ex:
-            result = alma.stage_data([uid])
-        assert ex.value.args[0] == ('Received an error 405: this may indicate you have '
-                                    'already staged the data.  Try downloading the '
-                                    'file URLs directly with download_files.')
+        #with pytest.raises(requests.HTTPError) as ex:
+        #    result = alma.stage_data([uid])
+        #assert ex.value.args[0] == ('Received an error 405: this may indicate you have '
+        #                            'already staged the data.  Try downloading the '
+        #                            'file URLs directly with download_files.')
+
+        # log.warning doesn't actually make a warning
+        #result = alma.stage_data([uid])
+        #w = recwarn.pop()
+        #assert (str(w.message) == ('Error 405 received.  If you have previously staged the '
+        #                           'same UIDs, the result returned is probably correct,'
+        #                           ' otherwise you may need to create a fresh astroquery.Alma instance.'))
 
 
     def test_doc_example(self, temp_dir):
@@ -172,7 +186,7 @@ class TestAlma:
         # A 2-row table may not be OK any more, but that's what it used to
         # be...
         assert len(uid_url_table_asdm) == 1
-        assert len(uid_url_table_mous) == 2
+        assert len(uid_url_table_mous) >= 2 # now is len=3 (Nov 17, 2016)
 
         # URL should look like:
         # https://almascience.eso.org/dataPortal/requests/anonymous/944120962/ALMA/2012.1.00912.S_uid___A002_X5a9a13_X528_001_of_001.tar/2012.1.00912.S_uid___A002_X5a9a13_X528_001_of_001.tar

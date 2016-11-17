@@ -441,13 +441,13 @@ def make_finder_chart_from_image_and_catalog(image, catalog, save_prefix,
             fig.show_contour(fits.PrimaryHDU(data=hit_mask_public[band],
                                              header=image.header),
                              levels=integration_time_contour_levels,
-                             colors=[band_colors_pub[band]] * len(integration_time_contour_levels),
+                             colors=[band_colors_pub[int(band)]] * len(integration_time_contour_levels),
                              convention='calabretta')
         if band in hit_mask_private:
             fig.show_contour(fits.PrimaryHDU(data=hit_mask_private[band],
                                              header=image.header),
                              levels=integration_time_contour_levels,
-                             colors=[band_colors_priv[band]] * len(integration_time_contour_levels),
+                             colors=[band_colors_priv[int(band)]] * len(integration_time_contour_levels),
                              convention='calabretta')
 
     fig.save('{0}_almafinderchart.png'.format(save_prefix))

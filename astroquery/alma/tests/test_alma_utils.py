@@ -70,7 +70,12 @@ def test_make_finder_chart():
                                      'Eta Carinae')
     image, catalog, hit_mask_public, hit_mask_private = result
 
-    assert len(catalog) >= 7
-    assert 3 in hit_mask_public
+    assert len(catalog) >= 6 # down to 6 on Nov 17, 2016
+    assert 3 in [int(x) for x in hit_mask_public]
     # Feb 8 2016: apparently the 60s integration hasn't actually been released yet...
-    assert hit_mask_public[3][256,256] >= 30.23
+    if 3 in hit_mask_public:
+        assert hit_mask_public[3][256,256] >= 30.23
+    elif b'3' in hit_mask_public:
+        assert hit_mask_public[b'3'][256,256] >= 30.23
+    else:
+        raise ValueError("hit_mask keys are not of any known type")
