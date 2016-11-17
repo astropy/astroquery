@@ -8,6 +8,7 @@ ftp://ftp.cv.nrao.edu/NRAO-staff/bkent/slap/idl/
 import warnings
 from astropy.io import ascii
 from astropy import units as u
+from astropy import log
 from ..query import BaseQuery
 from ..utils import async_to_sync
 from ..utils.docstr_chompers import prepend_docstr_noreturns
@@ -129,7 +130,8 @@ class SplatalogueClass(BaseQuery):
                       show_upper_degeneracy=None, show_molecule_tag=None,
                       show_qn_code=None, show_lovas_labref=None,
                       show_lovas_obsref=None, show_orderedfreq_only=None,
-                      show_nrao_recommended=None):
+                      show_nrao_recommended=None,
+                      parse_chemistry_locally=False):
         """
         The Splatalogue service returns lines with rest frequencies in the
         range [min_frequency, max_frequency].
@@ -164,7 +166,9 @@ class SplatalogueClass(BaseQuery):
 
             ``' H2CO '`` - Just 1 species, H2CO. The spaces prevent including
                            others.
-
+        parse_chemistry_locally : bool
+            Attempt to determine the species ID #'s locally before sending the
+            query?  This will prevent queries that have no matching species.
         chem_re_flags : int
             See the `re` module
         energy_min : `None` or float
@@ -185,7 +189,9 @@ class SplatalogueClass(BaseQuery):
         exclude : list
             Types of lines to exclude.  Default is:
             (``'potential'``, ``'atmospheric'``, ``'probable'``)
-            Can also exclude ``'known'``
+            Can also exclude ``'known'``.
+            To exclude nothing, use 'none', not the python object None, since
+            the latter is meant to indicate 'leave as default'
         only_NRAO_recommended : bool
             Show only NRAO recommended species?
         line_lists : list
@@ -264,10 +270,13 @@ class SplatalogueClass(BaseQuery):
             # include all
             payload['sid[]'] = []
         elif chemical_name is not None:
-            species_ids = self.get_species_ids(chemical_name, chem_re_flags)
-            if len(species_ids) == 0:
-                raise ValueError("No matching chemical species found.")
-            payload['sid[]'] = list(species_ids.values())
+            if parse_chemistry_locally:
+                species_ids = self.get_species_ids(chemical_name, chem_re_flags)
+                if len(species_ids) == 0:
+                    raise ValueError("No matching chemical species found.")
+                payload['sid[]'] = list(species_ids.values())
+            else:
+                payload['chemical_name'] = chemical_name
 
         if energy_min is not None:
             payload['energy_range_from'] = float(energy_min)
@@ -291,7 +300,12 @@ class SplatalogueClass(BaseQuery):
             raise ValueError("Invalid version specified.  Allowed versions "
                              "are {vers}".format(vers=str(self.versions)))
 
-        if exclude is not None:
+        if exclude == 'none':
+            for e in ('potential', 'atmospheric', 'probable', 'known'):
+                # Setting a keyword value to 'None' removes it (see query_lines_async)
+                log.debug("Setting no_{0} to None".format(e))
+                payload['no_' + e] = None
+        elif exclude is not None:
             for e in exclude:
                 payload['no_' + e] = 'no_' + e
 
@@ -382,6 +396,9 @@ class SplatalogueClass(BaseQuery):
             data_payload.update(self._parse_kwargs(min_frequency=min_frequency,
                                                    max_frequency=max_frequency,
                                                    **kwargs))
+
+        # Add an extra step: sometimes, need to REMOVE keywords
+        data_payload = {k:v for k,v in data_payload.items() if v is not None}
 
         if get_query_payload:
             return data_payload

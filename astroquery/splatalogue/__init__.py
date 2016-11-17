@@ -7,7 +7,7 @@ Splatalogue Catalog Query Tool
 
 :Originally contributed by:
 
-     Magnus Vilehlm Persson (magnusp@vilhelm.nu)
+     Magnus Vilhelm Persson (magnusp@vilhelm.nu)
 """
 from astropy import config as _config
 

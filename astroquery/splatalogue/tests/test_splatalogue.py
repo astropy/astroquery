@@ -3,6 +3,7 @@ from ... import splatalogue
 from ...utils.testing_tools import MockResponse
 from astropy import units as u
 from astropy.tests.helper import pytest, remote_data
+from astropy.extern.six.moves import urllib_parse
 import requests
 import os
 
@@ -106,13 +107,53 @@ def test_band_crashorno():
     assert exc.value.args[0] == "Invalid frequency band."
 
 
-# regression test : version selection should work
-# Unfortunately, it looks like version1 = version2 on the web page now, so this
-# may no longer be a valid test
-@remote_data
-def test_version_selection():
-    results = splatalogue.Splatalogue.query_lines(
-        min_frequency=703 * u.GHz, max_frequency=706 * u.GHz,
-        chemical_name='Acetaldehyde', version='v1.0')
+#Upstream changed: there is no distinction between versions for this molecule
+# # regression test : version selection should work
+# # Unfortunately, it looks like version1 = version2 on the web page now, so this
+# # may no longer be a valid test
+# @remote_data
+# def test_version_selection():
+#     results = splatalogue.Splatalogue.query_lines(
+# 			    min_frequency= 703*u.GHz,
+# 			    max_frequency=706*u.GHz,
+# 			    chemical_name='Acetaldehyde',
+# 			    version='v1.0'
+# 			    )
+#     assert len(results)==1
 
-    assert len(results) == 133
+def test_exclude(patch_post):
+    # regression test for issue 616
+    d = splatalogue.Splatalogue.query_lines_async(114 * u.GHz, 116 * u.GHz,
+                                                  chemical_name=' CO ',
+                                                  exclude=None,
+                                                  get_query_payload=True)
+
+    exclusions = {'no_atmospheric': 'no_atmospheric',
+                  'no_potential': 'no_potential',
+                  'no_probable': 'no_probable',}
+
+    for k,v in exclusions.items():
+        assert d[k] == v
+
+    d = splatalogue.Splatalogue.query_lines_async(114 * u.GHz, 116 * u.GHz,
+                                                  chemical_name=' CO ',
+                                                  exclude='none',
+                                                  get_query_payload=True)
+
+    for k,v in exclusions.items():
+        assert k not in d
+
+    for k in d:
+        assert k[:3] != 'no_'
+
+@remote_data
+def test_exclude_remote():
+    # regression test for issue 616
+    # only entry should be  D213CO  Formaldehyde 351.96064  3.9e-06            --            -- 6(2,4)-5(2,3)            -2.0065 ...            0.0                          -2.94058                  --      44.097 63.44616    55.83714 80.33772     CDMS
+    results = splatalogue.Splatalogue.query_lines(
+        min_frequency=351.9*u.GHz,
+        max_frequency=352.*u.GHz,
+        chemical_name='Formaldehyde',
+        exclude='none',
+        )
+    assert len(results) >= 1
