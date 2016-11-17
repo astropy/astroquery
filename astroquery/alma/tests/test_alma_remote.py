@@ -172,7 +172,7 @@ class TestAlma:
         # A 2-row table may not be OK any more, but that's what it used to
         # be...
         assert len(uid_url_table_asdm) == 1
-        assert len(uid_url_table_mous) == 2
+        assert len(uid_url_table_mous) >= 2 # now is len=3 (Nov 17, 2016)
 
         # URL should look like:
         # https://almascience.eso.org/dataPortal/requests/anonymous/944120962/ALMA/2012.1.00912.S_uid___A002_X5a9a13_X528_001_of_001.tar/2012.1.00912.S_uid___A002_X5a9a13_X528_001_of_001.tar
