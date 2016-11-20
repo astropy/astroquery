@@ -514,13 +514,20 @@ class VizierClass(BaseQuery):
         else:
             columns = self.columns + columns
 
-        # keyword names that can mean 'all' need to be treated separately
+        # special keywords need to be treated separately
+        # keyword names that can mean 'all'
         alls = ['all', '**']
         if any(x in columns for x in alls):
             for x in alls:
                 if x in columns:
                     columns.remove(x)
             body['-out.all'] = 2
+        # keyword name that means default columns
+        if '*' in columns:
+            columns.remove('*')
+            columns_default = True
+        else:
+            columns_default = False
 
         # process: columns - identify sorting requests
         columns_out = []
@@ -534,8 +541,15 @@ class VizierClass(BaseQuery):
                 sorts_out += [column]
             else:
                 columns_out += [column]
-        body['-out.add'] = ','.join(columns_out)
-        body['-out'] = columns_out
+
+        if columns_default:
+            body['-out'] = '*'
+        else:
+            body['-out'] = columns_out
+
+        if columns_out:
+            body['-out.add'] = ','.join(columns_out)
+
         if len(sorts_out) > 0:
             body['-sort'] = ','.join(sorts_out)
         # process: maximum rows returned
@@ -664,7 +678,7 @@ def parse_vizier_tsvfile(data, verbose=False):
 def parse_vizier_votable(data, verbose=False, invalid='warn',
                          get_catalog_names=False):
     """
-    Given a votable as string, parse it into tables
+    Given a votable as string, parse it into dict or tables
     """
     if not verbose:
         commons.suppress_vo_warnings()
