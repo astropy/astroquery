@@ -515,7 +515,7 @@ class VizierClass(BaseQuery):
             columns = self.columns + columns
 
         # keyword names that can mean 'all' need to be treated separately
-        alls = ['all', '*']
+        alls = ['all', '**']
         if any(x in columns for x in alls):
             for x in alls:
                 if x in columns:
