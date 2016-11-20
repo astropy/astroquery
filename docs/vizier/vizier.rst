@@ -26,10 +26,9 @@ the :meth:`~astroquery.vizier.VizierClass.find_catalogs` tool can be used:
 
     >>> from astroquery.vizier import Vizier
     >>> catalog_list = Vizier.find_catalogs('Kang W51')
-    >>> print(['{!r}: {!r}'.format(k, v.description)
-    ...     for k,v in catalog_list.items()])
-    ["'J/ApJ/706/83': 'Embedded YSO candidates in W51 (Kang+, 2009)'",
-     "'J/ApJS/191/232': 'CO survey of W51 molecular cloud (Bieging+, 2010)'"]
+    >>> print({k:v.description for k,v in catalog_list.items()})
+    {'J/ApJS/191/232': 'CO survey of W51 molecular cloud (Bieging+, 2010)',
+     'J/ApJ/706/83': 'Embedded YSO candidates in W51 (Kang+, 2009)'}
 
 From this result, you could either get any of these as a complete catalog or
 query them for individual objects or regions.
