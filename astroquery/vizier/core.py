@@ -520,11 +520,6 @@ class VizierClass(BaseQuery):
                     columns.remove(x)
             body['-out.all'] = 2
 
-        # process: columns - always request computed positions in degrees
-        if "_RAJ2000" not in columns:
-            columns += ["_RAJ2000"]
-        if "_DEJ2000" not in columns:
-            columns += ["_DEJ2000"]
         # process: columns - identify sorting requests
         columns_out = []
         sorts_out = []
