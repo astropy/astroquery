@@ -686,7 +686,7 @@ def parse_vizier_votable(data, verbose=False, invalid='warn',
                          "Must be exception, mask, or warn")
 
     if get_catalog_names:
-        return dict([(R.name, R) for R in vo_tree.resources])
+        return OrderedDict([(R.name, R) for R in vo_tree.resources])
     else:
         table_dict = OrderedDict()
         for t in vo_tree.iter_tables():
