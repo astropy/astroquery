@@ -26,15 +26,13 @@ the :meth:`~astroquery.vizier.VizierClass.find_catalogs` tool can be used:
 
     >>> from astroquery.vizier import Vizier
     >>> catalog_list = Vizier.find_catalogs('Kang W51')
-    >>> print(catalog_list)
-    {u'J/ApJ/706/83': <astropy.io.votable.tree.Resource at 0x108d4d490>,
-     u'J/ApJS/191/232': <astropy.io.votable.tree.Resource at 0x108d50490>}
-    >>> print({k:v.description for k,v in catalog_list.items()})
-    {u'J/ApJ/706/83': u'Embedded YSO candidates in W51 (Kang+, 2009)',
-     u'J/ApJS/191/232': u'CO survey of W51 molecular cloud (Bieging+, 2010)'}
+    >>> print(['{!r}: {!r}'.format(k, v.description)
+    ...     for k,v in catalog_list.items()])
+    ["'J/ApJ/706/83': 'Embedded YSO candidates in W51 (Kang+, 2009)'",
+     "'J/ApJS/191/232': 'CO survey of W51 molecular cloud (Bieging+, 2010)'"]
 
 From this result, you could either get any of these as a complete catalog or
-query them for individual objects or regions. 
+query them for individual objects or regions.
 
 Get a whole catalog
 -------------------
@@ -49,9 +47,9 @@ the complete contents of those catalogs:
     >>> catalogs = Vizier.get_catalogs(catalog_list.keys())
     >>> print(catalogs)
     TableList with 3 tables:
-       '0:J/ApJ/706/83/ysos' with 22 column(s) and 50 row(s) 
-       '1:J/ApJS/191/232/table1' with 13 column(s) and 50 row(s) 
-       '2:J/ApJS/191/232/map' with 2 column(s) and 2 row(s) 
+       '0:J/ApJ/706/83/ysos' with 22 column(s) and 50 row(s)
+       '1:J/ApJS/191/232/table1' with 13 column(s) and 50 row(s)
+       '2:J/ApJS/191/232/map' with 2 column(s) and 2 row(s)
 
 Note that the row limit is set to 50 by default, so if you want to get a truly
 complete catalog, you need to change that:
@@ -62,9 +60,9 @@ complete catalog, you need to change that:
     >>> catalogs = Vizier.get_catalogs(catalog_list.keys())
     >>> print(catalogs)
     TableList with 3 tables:
-       '0:J/ApJ/706/83/ysos' with 22 column(s) and 737 row(s) 
-       '1:J/ApJS/191/232/table1' with 13 column(s) and 218 row(s) 
-       '2:J/ApJS/191/232/map' with 2 column(s) and 2 row(s) 
+       '0:J/ApJ/706/83/ysos' with 22 column(s) and 737 row(s)
+       '1:J/ApJS/191/232/table1' with 13 column(s) and 218 row(s)
+       '2:J/ApJS/191/232/map' with 2 column(s) and 2 row(s)
     >>> Vizier.ROW_LIMIT = 50
 
 Query an object
@@ -147,14 +145,14 @@ To see the result:
 
     >>> print(result)
     TableList with 3 tables:
-       '0:I/254/out' with 10 column(s) and 17 row(s) 
-       '1:I/271/out' with 11 column(s) and 50 row(s) 
-       '2:I/305/out' with 11 column(s) and 50 row(s) 
+       '0:I/254/out' with 10 column(s) and 17 row(s)
+       '1:I/271/out' with 11 column(s) and 50 row(s)
+       '2:I/305/out' with 11 column(s) and 50 row(s)
 
 As mentioned earlier, the region may also be mentioned by specifying the height
 and width of a box. If only one of the height or width is mentioned, then the
 region is treated to be a square having sides equal to the specified
-dimension. 
+dimension.
 
 .. code-block:: python
 
@@ -168,9 +166,9 @@ dimension.
     ...                         catalog=["NOMAD", "UCAC"])
     >>> print(result)
     TableList with 3 tables:
-       '0:I/297/out' with 19 column(s) and 50 row(s) 
-       '1:I/289/out' with 13 column(s) and 50 row(s) 
-       '2:I/322A/out' with 24 column(s) and 50 row(s) 
+       '0:I/297/out' with 19 column(s) and 50 row(s)
+       '1:I/289/out' with 13 column(s) and 50 row(s)
+       '2:I/322A/out' with 24 column(s) and 50 row(s)
 
 
 One more thing to note in the above example is that the coordinates may be
@@ -188,7 +186,7 @@ Specifying keywords, output columns and constraints on columns
 To specify keywords on which to search as well as conditions on the output
 columns, an instance of the `~astroquery.vizier.VizierClass` class specifying these must be first
 created. All further queries may then be performed on this instance rather than
-on the Vizier class. 
+on the Vizier class.
 
 .. code-block:: python
 
@@ -204,14 +202,14 @@ interface (`for details see here`_). Now we call the different query methods on
 this Vizier instance:
 
 .. code-block:: python
-   
-    >>> result = v.query_object("HD 226868", catalog=["NOMAD", "UCAC"])              
+
+    >>> result = v.query_object("HD 226868", catalog=["NOMAD", "UCAC"])
     >>> print(result)
     TableList with 3 tables:
         '0:I/297/out' with 3 column(s) and 50 row(s)
         '1:I/289/out' with 3 column(s) and 18 row(s)
         '2:I/322A/out' with 3 column(s) and 10 row(s)
-    
+
     >>> print(result['I/322A/out'])
      _RAJ2000   _DEJ2000   Vmag
        deg        deg      mag
