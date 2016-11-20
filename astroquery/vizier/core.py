@@ -232,6 +232,8 @@ class VizierClass(BaseQuery):
             Returned if asynchronous method used
         """
 
+        if not isinstance(catalog, six.string_types):
+            catalog = list(catalog)
         data_payload = self._args_to_payload(catalog=catalog)
         if get_query_payload:
             return data_payload
