@@ -76,31 +76,33 @@ For instance to query Sirius across all catalogs:
     >>> from astroquery.vizier import Vizier
     >>> result = Vizier.query_object("sirius")
     >>> print(result)
-    TableList with 232 tables:
-       '0:ReadMeObj' with 5 column(s) and 5 row(s) 
-       '1:I/34/greenw2a' with 16 column(s) and 1 row(s) 
-       '2:I/40/catalog' with 11 column(s) and 1 row(s) 
+    TableList with 275 tables:
+       '0:METAobj' with 5 column(s) and 5 row(s)
+       '1:ReadMeObj' with 5 column(s) and 5 row(s)
+       '2:I/34/greenw2a' with 16 column(s) and 1 row(s)
        ...
 
-All the results are returned as a `astroquery.utils.TableList` object. This is a container for
-`~astropy.table.Table` objects. It is basically an extension to
-`collections.OrderedDict` for storing a `~astropy.table.Table` against its
-name.
+All the results are returned as a `~astroquery.utils.TableList` object. This
+is a container for `~astropy.table.Table` objects. It is basically an
+extension to `~collections.OrderedDict` for storing a `~astropy.table.Table`
+against its name.
 
-To access an individual table from the `astroquery.utils.TableList` object
+To access an individual table from the `~astroquery.utils.TableList` object:
 
 .. code-block:: python
 
     >>> interesting_table = result['IX/10A/cor_ros']
     >>> print(interesting_table)
          _1RXS       Rank        sourceID       RAJ2000  DEJ2000  Sep
-    ---------------- ---- --------------------- -------- -------- ---
-    J064509.3-164241    2 1RXH J064509.2-164242 101.2885 -16.7119   2
-    J064509.3-164241   14 1RXP J0645 8.4-164302 101.2854 -16.7174  24
-    J064509.3-164241   20 1RXH J064515.7-164402 101.3156 -16.7339 123
+                                                  deg      deg    arcs
+    ---------------- ---- --------------------- -------- -------- ----
+    J064509.3-164241    2 1RXH J064509.2-164242 101.2885 -16.7119    2
+    J064509.3-164241   14 1RXP J0645 8.4-164302 101.2854 -16.7174   24
+    J064509.3-164241   20 1RXH J064515.7-164402 101.3156 -16.7339  123
 
-To do some common processing to all the tables in the returned `astroquery.utils.TableList`
-object, do just what you would do for a python dictionary:
+To do some common processing to all the tables in the returned
+`~astroquery.utils.TableList` object, do just what you would do for a python
+dictionary:
 
 .. code-block:: python
 
