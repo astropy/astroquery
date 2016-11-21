@@ -6,12 +6,16 @@
 0.3.4 (2016-11-21)
 ------------------
 
-- Added basic HITRAN queries support (#617)
+- New tool: basic HITRAN queries support (#617)
 - Fix #737, an issue with broken ALMA archive tables, via a hack (#775)
-- Add license statements to appropriate places (#776)
 - Correct HEASARC tool, which was sending incorrect data to the server (#774)
 - Fix NIST issue #714 which led to badly-parsed tables (#773)
-- NRAO archive tool allows user logins and HTML-based queries (#767)
+- NRAO archive tool allows user logins and HTML-based queries (#767, #780)
+- ALMA allows kwargs as input, and various small fixes (#785, #790, #782)
+- XMatch caching bug fixed (#789)
+- Various fixes to ESASky (#779, #772, #770)
+- New tool: VAMDC-cdms interface (#658)
+- Fix issue with exclude keyword in Splatalogue queries (#616)
 
 0.3.3 (2016-10-11)
 ------------------
