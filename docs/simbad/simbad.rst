@@ -533,7 +533,12 @@ Continuing from the above example:
 Specifying the format of the included VOTable fields
 ----------------------------------------------------
 
-The output for several of the VOTable fields can be formatted in many different ways described in the help page of the SIMBAD query interface (see Sect. 4.3 of this page: http://simbad.u-strasbg.fr/simbad/sim-help?Page=sim-fscript). As an example, the epoch and equinox for the Right Ascension and Declination can be specified as follows (e.g. epoch of J2017.5 and equinox of 2000):
+The output for several of the VOTable fields can be formatted in many
+different ways described in the help page of the SIMBAD query interface (see
+Sect. 4.3 of `this page
+<http://simbad.u-strasbg.fr/simbad/sim-help?Page=sim-fscript>`__). As an
+example, the epoch and equinox for the Right Ascension and Declination can
+be specified as follows (e.g. epoch of J2017.5 and equinox of 2000):
 
 .. code-block:: python
 
