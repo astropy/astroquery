@@ -537,7 +537,15 @@ The output for several of the VOTable fields can be formatted in many different 
 
 .. code-block:: python
 
-    >>> customSimbad.add_votable_fields('ra(2;A;ICRS;J2017.5;2000)','dec(2;D;ICRS;2017.5;2000)')
+    >>> customSimbad.add_votable_fields('ra(2;A;ICRS;J2017.5;2000)', 'dec(2;D;ICRS;2017.5;2000)')
+    >>> customSimbad.remove_votable_fields('coordinates')
+    >>> customSimbad.query_object("HD189733")
+    <Table masked=True length=1>
+     MAIN_ID  RA_2_A_ICRS_J2017_5_2000 DEC_2_D_ICRS_2017_5_2000
+                       "h:m:s"                  "d:m:s"
+      object           str13                    str13
+    --------- ------------------------ ------------------------
+    HD 189733            20 00 43.7107            +22 42 39.064
 
 
 Reference/API
