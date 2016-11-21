@@ -1,4 +1,4 @@
-0.3.4 (unreleased)
+0.3.4 (2016-11-21)
 ------------------
 
 - Added basic HITRAN queries support (#617)
