@@ -530,6 +530,27 @@ Continuing from the above example:
 
     ['main_id', 'coordinates']
 
+Specifying the format of the included VOTable fields
+----------------------------------------------------
+
+The output for several of the VOTable fields can be formatted in many
+different ways described in the help page of the SIMBAD query interface (see
+Sect. 4.3 of `this page
+<http://simbad.u-strasbg.fr/simbad/sim-help?Page=sim-fscript>`__). As an
+example, the epoch and equinox for the Right Ascension and Declination can
+be specified as follows (e.g. epoch of J2017.5 and equinox of 2000):
+
+.. code-block:: python
+
+    >>> customSimbad.add_votable_fields('ra(2;A;ICRS;J2017.5;2000)', 'dec(2;D;ICRS;2017.5;2000)')
+    >>> customSimbad.remove_votable_fields('coordinates')
+    >>> customSimbad.query_object("HD189733")
+    <Table masked=True length=1>
+     MAIN_ID  RA_2_A_ICRS_J2017_5_2000 DEC_2_D_ICRS_2017_5_2000
+                       "h:m:s"                  "d:m:s"
+      object           str13                    str13
+    --------- ------------------------ ------------------------
+    HD 189733            20 00 43.7107            +22 42 39.064
 
 
 Reference/API
