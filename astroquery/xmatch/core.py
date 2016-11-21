@@ -18,7 +18,7 @@ class XMatchClass(BaseQuery):
     TIMEOUT = conf.timeout
 
     def query(self, cat1, cat2, max_distance, colRA1=None, colDec1=None,
-              colRA2=None, colDec2=None, cache=True):
+              colRA2=None, colDec2=None, cache=True, get_query_payload=False):
         """
         Query the `CDS cross-match service
         <http://cdsxmatch.u-strasbg.fr/xmatch>`_ by finding matches between
@@ -58,12 +58,16 @@ class XMatchClass(BaseQuery):
             Query results table
         """
         response = self.query_async(cat1, cat2, max_distance, colRA1, colDec1,
-                                    colRA2, colDec2, cache=cache)
+                                    colRA2, colDec2, cache=cache,
+                                    get_query_payload=get_query_payload)
+        if get_query_payload:
+            return response
         return ascii.read(response.text, format='csv')
 
     @prepend_docstr_noreturns("\n" + query.__doc__)
     def query_async(self, cat1, cat2, max_distance, colRA1=None, colDec1=None,
-                    colRA2=None, colDec2=None, cache=True):
+                    colRA2=None, colDec2=None, cache=True,
+                    get_query_payload=False):
         """
         Returns
         -------
@@ -83,8 +87,13 @@ class XMatchClass(BaseQuery):
         self._prepare_sending_table(1, payload, kwargs, cat1, colRA1, colDec1)
         self._prepare_sending_table(2, payload, kwargs, cat2, colRA2, colDec2)
 
+        if get_query_payload:
+            return payload, kwargs
+
         response = self._request(method='POST', url=self.URL, data=payload,
                                  timeout=self.TIMEOUT, cache=cache, **kwargs)
+        response.raise_for_status()
+
         return response
 
     def _prepare_sending_table(self, i, payload, kwargs, cat, colRA, colDec):
@@ -101,10 +110,10 @@ class XMatchClass(BaseQuery):
             fp = six.StringIO()
             cat.write(fp, format='ascii.csv')
             fp.seek(0)
-            kwargs['files'] = {catstr: fp}
+            kwargs['files'] = {catstr: ('cat1.csv', fp.read())}
         else:
             # assume it's a file-like object, support duck-typing
-            kwargs['files'] = {catstr: cat}
+            kwargs['files'] = {catstr: ('cat1.csv', cat.read())}
         if not self.is_table_available(cat):
             if ((colRA is None) or (colDec is None)):
                 raise ValueError('Specify the name of the RA/Dec columns in' +

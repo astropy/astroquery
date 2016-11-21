@@ -68,6 +68,9 @@ class AstroQuery(object):
                                           key=_replace_none_iterable)))
                     entry = tuple((k_,v_.read()) if hasattr(v_,'read')
                                   else (k_,v_) for k_,v_ in entry)
+                    for k_,v_ in entry:
+                        if hasattr(v_,'read') and hasattr(v_,'seek'):
+                            v_.seek(0)
 
                     request_key += entry
                 elif isinstance(k, tuple) or isinstance(k, list):
