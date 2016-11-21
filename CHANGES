@@ -21,7 +21,12 @@
 ------------------
 
 - Option to toggle the display of the download bar (#734)
-- ESASKY - added new module for querying the ESASKY archive (#758,#763,#765)
+- ESASKY - added new module for querying the ESASKY archive (#758, #763, #765)
+- Refactor Splatalogue and XMatch to use the caching (#747, #751)
+- Minor data updates to Splatalogue (#746, #754, #760)
+- Fix parsing bug for ``_parse_radius`` in Simbad (#753)
+- Multiple fixes to ensure Windows compatibility (#709, #726)
+- Minor fixes to ESO to match upstream form changes (#729)
 
 0.3.2 (2016-06-10)
 ------------------
