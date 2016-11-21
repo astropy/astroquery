@@ -232,6 +232,8 @@ class VizierClass(BaseQuery):
             Returned if asynchronous method used
         """
 
+        if not isinstance(catalog, six.string_types):
+            catalog = list(catalog)
         data_payload = self._args_to_payload(catalog=catalog)
         if get_query_payload:
             return data_payload
@@ -512,19 +514,21 @@ class VizierClass(BaseQuery):
         else:
             columns = self.columns + columns
 
-        # keyword names that can mean 'all' need to be treated separately
-        alls = ['all', '*']
+        # special keywords need to be treated separately
+        # keyword names that can mean 'all'
+        alls = ['all', '**']
         if any(x in columns for x in alls):
             for x in alls:
                 if x in columns:
                     columns.remove(x)
             body['-out.all'] = 2
+        # keyword name that means default columns
+        if '*' in columns:
+            columns.remove('*')
+            columns_default = True
+        else:
+            columns_default = False
 
-        # process: columns - always request computed positions in degrees
-        if "_RAJ2000" not in columns:
-            columns += ["_RAJ2000"]
-        if "_DEJ2000" not in columns:
-            columns += ["_DEJ2000"]
         # process: columns - identify sorting requests
         columns_out = []
         sorts_out = []
@@ -537,8 +541,15 @@ class VizierClass(BaseQuery):
                 sorts_out += [column]
             else:
                 columns_out += [column]
-        body['-out.add'] = ','.join(columns_out)
-        body['-out'] = columns_out
+
+        if columns_default:
+            body['-out'] = '*'
+        else:
+            body['-out'] = columns_out
+
+        if columns_out:
+            body['-out.add'] = ','.join(columns_out)
+
         if len(sorts_out) > 0:
             body['-sort'] = ','.join(sorts_out)
         # process: maximum rows returned
@@ -667,7 +678,7 @@ def parse_vizier_tsvfile(data, verbose=False):
 def parse_vizier_votable(data, verbose=False, invalid='warn',
                          get_catalog_names=False):
     """
-    Given a votable as string, parse it into tables
+    Given a votable as string, parse it into dict or tables
     """
     if not verbose:
         commons.suppress_vo_warnings()
@@ -689,7 +700,7 @@ def parse_vizier_votable(data, verbose=False, invalid='warn',
                          "Must be exception, mask, or warn")
 
     if get_catalog_names:
-        return dict([(R.name, R) for R in vo_tree.resources])
+        return OrderedDict([(R.name, R) for R in vo_tree.resources])
     else:
         table_dict = OrderedDict()
         for t in vo_tree.iter_tables():
