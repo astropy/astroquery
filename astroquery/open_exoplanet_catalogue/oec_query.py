@@ -16,9 +16,11 @@ except ImportError:
 
 def get_catalogue(filepath=None):
     """
+    Parses the Open Exoplanet Catalogue file.
+
     Parameters
     -----------
-    filepath: str or None
+    filepath : str or None
         if no filepath is given, remote source is used.
 
     Returns
@@ -36,9 +38,11 @@ def get_catalogue(filepath=None):
 
 def xml_element_to_dict(e):
     """
+    Creates a dictionary of the given xml tree.
+
     Parameters
     ----------
-    e: str
+    e : str
         str of an xml tree
 
     Returns
@@ -54,11 +58,13 @@ def xml_element_to_dict(e):
 
 def findvalue(element, searchstring):
     """
+    Searches given string in element.
+
     Parameters
     ----------
-    element: Element
+    element : Element
         Element from the ElementTree module.
-    searchstring: str
+    searchstring : str
         name of the tag to look for in element
 
     Returns
