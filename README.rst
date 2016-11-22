@@ -33,7 +33,7 @@ some services.  The `keyring <https://pypi.python.org/pypi/keyring>`_ module is
 also required for accessing services that require a login.  These can all be
 installed using `pip <https://pypi.python.org/pypi/pip>`_ or `anaconda
 <http://continuum.io/>`_.  Running the tests requires `curl
-<<https://curl.haxx.se/>`_ to be installed.
+<https://curl.haxx.se/>`_ to be installed.
 
 The latest version of astroquery can be conda installed:
 
