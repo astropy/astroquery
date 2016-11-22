@@ -79,6 +79,10 @@ The following packages are required for astroquery installation & use:
 * `Beautiful Soup <http://www.crummy.com/software/BeautifulSoup/>`_
 * `html5lib <https://pypi.python.org/pypi/html5lib>`_
 
+and for running the tests:
+
+* `curl <https://curl.haxx.se/>`__
+
 Using astroquery
 ----------------
 

@@ -27,11 +27,13 @@ As an `astropy`_ affiliate, astroquery requires `astropy`_ version 0.4 or later.
 
 astroquery uses the `requests <http://docs.python-requests.org/en/latest/>`_
 module to communicate with the internet.  `BeautifulSoup
-<http://www.crummy.com/software/BeautifulSoup/>`_  and `html5lib'
-<https://html5lib.readthedocs.io/en/latest/>`_ are needed for HTML parsing
-for some services.  The `keyring <https://pypi.python.org/pypi/keyring>`_
-module is also required for accessing services that require a login.
-These can all be installed using `pip <https://pypi.python.org/pypi/pip>`_.
+<http://www.crummy.com/software/BeautifulSoup/>`_ and `html5lib'
+<https://html5lib.readthedocs.io/en/latest/>`_ are needed for HTML parsing for
+some services.  The `keyring <https://pypi.python.org/pypi/keyring>`_ module is
+also required for accessing services that require a login.  These can all be
+installed using `pip <https://pypi.python.org/pypi/pip>`_ or `anaconda
+<http://continuum.io/>`_.  Running the tests requires `curl
+<<https://curl.haxx.se/>`_ to be installed.
 
 The latest version of astroquery can be conda installed:
 
