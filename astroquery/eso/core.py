@@ -46,8 +46,8 @@ class EsoClass(QueryWithLogin):
         self._instrument_list = None
         self._survey_list = None
 
-    def _activate_form(self, response, form_index=0, inputs={}, cache=True,
-                       method=None):
+    def _activate_form(self, response, form_index=0, form_id=None, inputs={},
+                       cache=True, method=None):
         """
         Parameters
         ----------
@@ -56,7 +56,10 @@ class EsoClass(QueryWithLogin):
         """
         # Extract form from response
         root = BeautifulSoup(response.content, 'html5lib')
-        form = root.find_all('form')[form_index]
+        if form_id is None:
+            form = root.find_all('form')[form_index]
+        else:
+            form = root.find_all('form', id=form_id)[form_index]
         # Construct base url
         form_action = form.get('action')
         if "://" in form_action:
@@ -230,6 +233,7 @@ class EsoClass(QueryWithLogin):
         # Do not cache pieces of the login process
         login_response = self._request("GET", "https://www.eso.org/sso/login",
                                        cache=False)
+        # login form: method=post action=login [no id]
         login_result_response = self._activate_form(
             login_response, form_index=-1, inputs={'username': username,
                                                    'password': password})
@@ -343,6 +347,7 @@ class EsoClass(QueryWithLogin):
                 query_dict["max_rows_returned"] = 10000
 
             survey_response = self._activate_form(survey_form, form_index=0,
+                                                  form_id='queryform',
                                                   inputs=query_dict, cache=cache)
 
             content = survey_response.content
@@ -426,8 +431,10 @@ class EsoClass(QueryWithLogin):
             else:
                 query_dict["max_rows_returned"] = 10000
             # used to be form 0, but now there's a new 'logout' form at the top
+            # (form_index = -1 and 0 both work now that form_id is included)
             instrument_response = self._activate_form(instrument_form,
                                                       form_index=-1,
+                                                      form_id='queryform',
                                                       inputs=query_dict,
                                                       cache=cache)
 
@@ -607,6 +614,7 @@ class EsoClass(QueryWithLogin):
 
                 # TODO: There may be another screen for Not Authorized; that
                 # should be included too
+                # form name is "retrieve"; no id
                 data_download_form = self._activate_form(
                     data_confirmation_form, form_index=-1)
                 log.info("Staging form is at {0}."
@@ -687,8 +695,8 @@ class EsoClass(QueryWithLogin):
 
             apex_form = self._request("GET", apex_query_url, cache=cache)
             apex_response = self._activate_form(
-                apex_form, form_index=0, inputs=payload, cache=cache,
-                method='application/x-www-form-urlencoded')
+                apex_form, form_id='queryform', form_index=0, inputs=payload,
+                cache=cache, method='application/x-www-form-urlencoded')
 
             content = apex_response.content
             if _check_response(content):

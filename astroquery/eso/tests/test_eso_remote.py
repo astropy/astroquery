@@ -181,3 +181,14 @@ class TestEso:
                                          coord2=-29.00782497,
                                          box='01 00 00',
                                          cache=False)
+
+    @pytest.mark.parametrize('cache',(False,True))
+    def test_each_survey_nosource(self, temp_dir, cache):
+        eso = Eso()
+        eso.cache_location = temp_dir
+        eso.ROW_LIMIT = 5
+
+        surveys = eso.list_surveys(cache=cache)
+        for survey in surveys:
+            # just test that it doesn't crash
+            eso.query_surveys(survey, cache=cache)
