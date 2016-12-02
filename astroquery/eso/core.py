@@ -106,7 +106,10 @@ class EsoClass(QueryWithLogin):
                     else:
                         for option in form_elem.select('option'):
                             if option.get('selected') is not None:
-                                value.append(option.string)
+                                # bs4 NavigableString types have bad,
+                                # undesirable properties that result
+                                # in recursion errors when caching
+                                value.append(str(option.string))
                 else:
                     if form_elem.select('option[value]'):
                         for option in form_elem.select('option[value]'):
@@ -120,10 +123,10 @@ class EsoClass(QueryWithLogin):
                         # survey form just uses text, not value
                         for option in form_elem.select('option'):
                             if option.get('selected') is not None:
-                                value = option.string
+                                value = str(option.string)
                         # select the first option field if none is selected
                         if value is None:
-                            value = form_elem.select('option')[0].string
+                            value = str(form_elem.select('option')[0].string)
 
             if key in inputs:
                 if isinstance(inputs[key], list):
@@ -131,6 +134,7 @@ class EsoClass(QueryWithLogin):
                     value = inputs[key]
                 else:
                     value = str(inputs[key])
+
             if (key is not None):# and (value is not None):
                 if fmt == 'multipart/form-data':
                     if is_file:
@@ -139,17 +143,29 @@ class EsoClass(QueryWithLogin):
                     else:
                         if type(value) is list:
                             for v in value:
-                                payload.append((key, ('', v)))
+                                entry = (key, ('', v))
+                                # Prevent redundant key, value pairs
+                                # (can happen if the form repeats them)
+                                if entry not in payload:
+                                    payload.append(entry)
                         elif value is None:
-                            payload.append((key, ('', '')))
+                            entry = (key, ('', ''))
+                            if entry not in payload:
+                                payload.append(entry)
                         else:
-                            payload.append((key, ('', value)))
+                            entry = (key, ('', value))
+                            if entry not in payload:
+                                payload.append(entry)
                 else:
                     if type(value) is list:
                         for v in value:
-                            payload.append((key, v))
+                            entry = (key, v)
+                            if entry not in payload:
+                                payload.append(entry)
                     else:
-                        payload.append((key, value))
+                        entry = (key, value)
+                        if entry not in payload:
+                            payload.append(entry)
 
         # for future debugging
         self._payload = payload
