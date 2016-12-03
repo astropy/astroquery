@@ -46,8 +46,8 @@ class EsoClass(QueryWithLogin):
         self._instrument_list = None
         self._survey_list = None
 
-    def _activate_form(self, response, form_index=0, inputs={}, cache=True,
-                       method=None):
+    def _activate_form(self, response, form_index=0, form_id=None, inputs={},
+                       cache=True, method=None):
         """
         Parameters
         ----------
@@ -56,7 +56,10 @@ class EsoClass(QueryWithLogin):
         """
         # Extract form from response
         root = BeautifulSoup(response.content, 'html5lib')
-        form = root.find_all('form')[form_index]
+        if form_id is None:
+            form = root.find_all('form')[form_index]
+        else:
+            form = root.find_all('form', id=form_id)[form_index]
         # Construct base url
         form_action = form.get('action')
         if "://" in form_action:
@@ -106,7 +109,10 @@ class EsoClass(QueryWithLogin):
                     else:
                         for option in form_elem.select('option'):
                             if option.get('selected') is not None:
-                                value.append(option.string)
+                                # bs4 NavigableString types have bad,
+                                # undesirable properties that result
+                                # in recursion errors when caching
+                                value.append(str(option.string))
                 else:
                     if form_elem.select('option[value]'):
                         for option in form_elem.select('option[value]'):
@@ -120,10 +126,10 @@ class EsoClass(QueryWithLogin):
                         # survey form just uses text, not value
                         for option in form_elem.select('option'):
                             if option.get('selected') is not None:
-                                value = option.string
+                                value = str(option.string)
                         # select the first option field if none is selected
                         if value is None:
-                            value = form_elem.select('option')[0].string
+                            value = str(form_elem.select('option')[0].string)
 
             if key in inputs:
                 if isinstance(inputs[key], list):
@@ -131,6 +137,7 @@ class EsoClass(QueryWithLogin):
                     value = inputs[key]
                 else:
                     value = str(inputs[key])
+
             if (key is not None):# and (value is not None):
                 if fmt == 'multipart/form-data':
                     if is_file:
@@ -139,17 +146,29 @@ class EsoClass(QueryWithLogin):
                     else:
                         if type(value) is list:
                             for v in value:
-                                payload.append((key, ('', v)))
+                                entry = (key, ('', v))
+                                # Prevent redundant key, value pairs
+                                # (can happen if the form repeats them)
+                                if entry not in payload:
+                                    payload.append(entry)
                         elif value is None:
-                            payload.append((key, ('', '')))
+                            entry = (key, ('', ''))
+                            if entry not in payload:
+                                payload.append(entry)
                         else:
-                            payload.append((key, ('', value)))
+                            entry = (key, ('', value))
+                            if entry not in payload:
+                                payload.append(entry)
                 else:
                     if type(value) is list:
                         for v in value:
-                            payload.append((key, v))
+                            entry = (key, v)
+                            if entry not in payload:
+                                payload.append(entry)
                     else:
-                        payload.append((key, value))
+                        entry = (key, value)
+                        if entry not in payload:
+                            payload.append(entry)
 
         # for future debugging
         self._payload = payload
@@ -214,6 +233,7 @@ class EsoClass(QueryWithLogin):
         # Do not cache pieces of the login process
         login_response = self._request("GET", "https://www.eso.org/sso/login",
                                        cache=False)
+        # login form: method=post action=login [no id]
         login_result_response = self._activate_form(
             login_response, form_index=-1, inputs={'username': username,
                                                    'password': password})
@@ -327,6 +347,7 @@ class EsoClass(QueryWithLogin):
                 query_dict["max_rows_returned"] = 10000
 
             survey_response = self._activate_form(survey_form, form_index=0,
+                                                  form_id='queryform',
                                                   inputs=query_dict, cache=cache)
 
             content = survey_response.content
@@ -410,8 +431,10 @@ class EsoClass(QueryWithLogin):
             else:
                 query_dict["max_rows_returned"] = 10000
             # used to be form 0, but now there's a new 'logout' form at the top
+            # (form_index = -1 and 0 both work now that form_id is included)
             instrument_response = self._activate_form(instrument_form,
                                                       form_index=-1,
+                                                      form_id='queryform',
                                                       inputs=query_dict,
                                                       cache=cache)
 
@@ -591,6 +614,7 @@ class EsoClass(QueryWithLogin):
 
                 # TODO: There may be another screen for Not Authorized; that
                 # should be included too
+                # form name is "retrieve"; no id
                 data_download_form = self._activate_form(
                     data_confirmation_form, form_index=-1)
                 log.info("Staging form is at {0}."
@@ -671,8 +695,8 @@ class EsoClass(QueryWithLogin):
 
             apex_form = self._request("GET", apex_query_url, cache=cache)
             apex_response = self._activate_form(
-                apex_form, form_index=0, inputs=payload, cache=cache,
-                method='application/x-www-form-urlencoded')
+                apex_form, form_id='queryform', form_index=0, inputs=payload,
+                cache=cache, method='application/x-www-form-urlencoded')
 
             content = apex_response.content
             if _check_response(content):
