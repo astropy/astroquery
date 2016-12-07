@@ -46,6 +46,14 @@ matrix:
     fast_finish: true
 
     include:
+        # Testing remote-data when running builds on master or with
+        # cron. Starting these early as they take much longer to run.
+        - os: linux
+          env: EVENT_TYPE='push cron' DEBUG=True
+               SETUP_CMD='test --remote-data'
+        - os: linux
+          env: EVENT_TYPE='push cron' PYTHON_VERSION=2.7
+               SETUP_CMD='test --remote-data'
         # Try MacOS X
         - os: osx
           env: SETUP_CMD='test'
