@@ -46,9 +46,19 @@ matrix:
     fast_finish: true
 
     include:
+        # Testing remote-data when running builds on master or with
+        # cron. Starting these early as they take much longer to run.
+        - os: linux
+          env: EVENT_TYPE='push cron' DEBUG=True
+               SETUP_CMD='test --remote-data'
+        - os: linux
+          env: EVENT_TYPE='push cron' PYTHON_VERSION=2.7
+               SETUP_CMD='test --remote-data'
+
+        # No need to run it from cron
         # Try MacOS X
         - os: osx
-          env: SETUP_CMD='test'
+          env: SETUP_CMD='test'  EVENT_TYPE='push pull_request'
 
         # Do a coverage test in Python 2. Move coverage to 3.x once speed
         # issues have been solved; astropy/astropy#4826
@@ -63,21 +73,21 @@ matrix:
         # Try all python versions and Numpy versions. Since we can assume that
         # the Numpy developers have taken care of testing Numpy with different
         # versions of Python, we can vary Python and Numpy versions at the same
-        # time.
+        # time. We don't expect any of these to fail in master for cron jobs.
         - os: linux
           env: PYTHON_VERSION=2.7 NUMPY_VERSION=1.7
                CONDA_DEPENDENCIES=$CONDA_DEPENDENCIES_OLD
-               PIP_DEPENDENCIES=$PIP_DEPENDENCIES_OLD
+               PIP_DEPENDENCIES=$PIP_DEPENDENCIES_OLD EVENT_TYPE='push pull_request'
         - os: linux
           env: PYTHON_VERSION=3.3 NUMPY_VERSION=1.8
                CONDA_DEPENDENCIES=$CONDA_DEPENDENCIES_OLD
-               PIP_DEPENDENCIES=$PIP_DEPENDENCIES_OLD
+               PIP_DEPENDENCIES=$PIP_DEPENDENCIES_OLD EVENT_TYPE='push pull_request'
         - os: linux
           env: PYTHON_VERSION=3.4 NUMPY_VERSION=1.9
                CONDA_DEPENDENCIES=$CONDA_DEPENDENCIES_OLD
-               PIP_DEPENDENCIES=$PIP_DEPENDENCIES_OLD
+               PIP_DEPENDENCIES=$PIP_DEPENDENCIES_OLD EVENT_TYPE='push pull_request'
         - os: linux
-          env: PYTHON_VERSION=3.5 NUMPY_VERSION=1.10
+          env: PYTHON_VERSION=3.5 NUMPY_VERSION=1.10 EVENT_TYPE='push pull_request'
 
         # Now try Astropy dev and LTS vesions with the latest 3.x and 2.7.
         - os: linux
@@ -104,12 +114,12 @@ matrix:
         # Do a PEP8 test with pycodestyle
         - os: linux
           env: PYTHON_VERSION=2.7 MAIN_CMD='pycodestyle astroquery --count'
-               SETUP_CMD=''
+               SETUP_CMD='' EVENT_TYPE='push pull_request'
 
     allow_failures:
         - os: linux
           env: PYTHON_VERSION=2.7 MAIN_CMD='pycodestyle astroquery --count'
-               SETUP_CMD=''
+               SETUP_CMD='' EVENT_TYPE='push pull_request'
 
 install:
     - git clone git://github.com/astropy/ci-helpers.git
