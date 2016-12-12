@@ -50,10 +50,10 @@ matrix:
         # cron. Starting these early as they take much longer to run.
         - os: linux
           env: EVENT_TYPE='push cron' DEBUG=True
-               SETUP_CMD='test --remote-data'
+               SETUP_CMD='test --remote-data -V'
         - os: linux
           env: EVENT_TYPE='push cron' PYTHON_VERSION=2.7
-               SETUP_CMD='test --remote-data'
+               SETUP_CMD='test --remote-data -V'
 
         # No need to run it from cron
         # Try MacOS X
