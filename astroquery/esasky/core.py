@@ -61,14 +61,14 @@ class ESASkyClass(BaseQuery):
         Get a list of the mission names of the available observations in ESASky
         """
         return self._json_object_field_to_list(
-            self._get_observation_json(cache = True), self.__MISSION_STRING)
+            self._get_observation_json(), self.__MISSION_STRING)
 
     def list_catalogs(self):
         """
         Get a list of the mission names of the available catalogs in ESASky
         """
         return self._json_object_field_to_list(
-            self._get_catalogs_json(cache = True), self.__MISSION_STRING)
+            self._get_catalogs_json(), self.__MISSION_STRING)
 
     def query_object_maps(self, position, missions=__ALL_STRING,
                           get_query_payload=False, cache=True):
@@ -609,11 +609,10 @@ class ESASkyClass(BaseQuery):
     def _query_region_maps(self, coordinates, radius, observation_name,
                            get_query_payload, cache):
         observation_tap_name = (
-            self._find_observation_tap_table_name(observation_name, cache))
+            self._find_observation_tap_table_name(observation_name))
         query = (
             self._build_observation_query(coordinates, radius,
-                                          self._find_observation_parameters(observation_tap_name,
-                                                                            cache)))
+                                          self._find_observation_parameters(observation_tap_name)))
         request_payload = self._create_request_payload(query)
         if (get_query_payload):
             return request_payload
@@ -621,10 +620,9 @@ class ESASkyClass(BaseQuery):
     
     def _query_region_catalog(self, coordinates, radius, catalog_name, row_limit, 
                               get_query_payload, cache):
-        catalog_tap_name = self._find_catalog_tap_table_name(catalog_name, cache)
+        catalog_tap_name = self._find_catalog_tap_table_name(catalog_name)
         query = self._build_catalog_query(coordinates, radius, row_limit,
-                                          self._find_catalog_parameters(catalog_tap_name, 
-                                                                        cache))
+                                          self._find_catalog_parameters(catalog_tap_name))
         request_payload = self._create_request_payload(query)
         if (get_query_payload):
             return request_payload
@@ -706,13 +704,13 @@ class ESASkyClass(BaseQuery):
             if (len(catalog_table) > 0):
                 query_result[catalog.upper()] = catalog_table
 
-    def _find_observation_parameters(self, mission_name, cache):
+    def _find_observation_parameters(self, mission_name):
         return self._find_mission_parameters_in_json(mission_name,
-                                                     self._get_observation_json(cache))
+                                                     self._get_observation_json())
 
-    def _find_catalog_parameters(self, catalog_name, cache):
+    def _find_catalog_parameters(self, catalog_name):
         return self._find_mission_parameters_in_json(catalog_name,
-                                                     self._get_catalogs_json(cache))
+                                                     self._get_catalogs_json())
 
     def _find_mission_parameters_in_json(self, mission_tap_name, json):
         for mission in json:
@@ -720,14 +718,14 @@ class ESASkyClass(BaseQuery):
                 return mission
         raise ValueError("Input tap name %s not available." %mission_tap_name)
 
-    def _find_observation_tap_table_name(self, mission_name, cache):
+    def _find_observation_tap_table_name(self, mission_name):
         return self._find_mission_tap_table_name(
-            self._fetch_and_parse_json(self.__OBSERVATIONS_STRING, cache),
+            self._fetch_and_parse_json(self.__OBSERVATIONS_STRING),
             mission_name)
 
-    def _find_catalog_tap_table_name(self, mission_name, cache):
+    def _find_catalog_tap_table_name(self, mission_name):
         return self._find_mission_tap_table_name(
-            self._fetch_and_parse_json(self.__CATALOGS_STRING, cache),
+            self._fetch_and_parse_json(self.__CATALOGS_STRING),
             mission_name)
 
     def _find_mission_tap_table_name(self, json, mission_name):
@@ -738,18 +736,18 @@ class ESASkyClass(BaseQuery):
         raise ValueError("Input %s not available." %mission_name)
         return None
 
-    def _get_observation_json(self, cache):
-        return self._fetch_and_parse_json(self.__OBSERVATIONS_STRING, cache)
+    def _get_observation_json(self):
+        return self._fetch_and_parse_json(self.__OBSERVATIONS_STRING)
 
-    def _get_catalogs_json(self, cache):
-        return self._fetch_and_parse_json(self.__CATALOGS_STRING, cache)
+    def _get_catalogs_json(self):
+        return self._fetch_and_parse_json(self.__CATALOGS_STRING)
 
-    def _fetch_and_parse_json(self, object_name, cache):
+    def _fetch_and_parse_json(self, object_name):
         url = self.URLbase + "/" + object_name
-        response = self._request('GET', url, cache = cache)
+        response = self._request('GET', url, cache = False)
         string_response = response.content.decode('utf-8')
         json_response = json.loads(string_response)
-        return json_response[object_name]
+        return json_response["descriptors"]
 
     def _json_object_field_to_list(self, json, field_name):
         response_list = []
