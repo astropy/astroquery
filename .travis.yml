@@ -47,10 +47,12 @@ matrix:
 
     include:
         # Testing remote-data when running builds on master or with
-        # cron. Starting these early as they take much longer to run.
+        # cron. Starting these early as they take much longer to run. Using
+        # both short and long versions for remote-data to help test the
+        # astropy test command.
         - os: linux
-          env: EVENT_TYPE='push cron' DEBUG=True
-               SETUP_CMD='test --remote-data -V'
+          env: EVENT_TYPE='push cron' DEBUG=True ASTROPY_VERSION=dev
+               SETUP_CMD='test -R -V'
         - os: linux
           env: EVENT_TYPE='push cron' PYTHON_VERSION=2.7
                SETUP_CMD='test --remote-data -V'
