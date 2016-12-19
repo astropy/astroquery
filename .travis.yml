@@ -33,6 +33,7 @@ env:
         - CONDA_CHANNELS='astropy-ci-extras astropy'
         - CONDA_DEPENDENCIES_OLD='requests beautiful-soup matplotlib html5lib'
         - PIP_DEPENDENCIES_OLD='pyregion aplpy keyring'
+        - EVENT_TYPE='pull_request push'
 
     matrix:
         - PYTHON_VERSION=2.7 SETUP_CMD='egg_info'
@@ -60,7 +61,7 @@ matrix:
         # No need to run it from cron
         # Try MacOS X
         - os: osx
-          env: SETUP_CMD='test'  EVENT_TYPE='push pull_request'
+          env: SETUP_CMD='test'
 
         # Do a coverage test in Python 2. Move coverage to 3.x once speed
         # issues have been solved; astropy/astropy#4826
@@ -79,27 +80,27 @@ matrix:
         - os: linux
           env: PYTHON_VERSION=2.7 NUMPY_VERSION=1.7
                CONDA_DEPENDENCIES=$CONDA_DEPENDENCIES_OLD
-               PIP_DEPENDENCIES=$PIP_DEPENDENCIES_OLD EVENT_TYPE='push pull_request'
+               PIP_DEPENDENCIES=$PIP_DEPENDENCIES_OLD
         - os: linux
           env: PYTHON_VERSION=3.3 NUMPY_VERSION=1.8
                CONDA_DEPENDENCIES=$CONDA_DEPENDENCIES_OLD
-               PIP_DEPENDENCIES=$PIP_DEPENDENCIES_OLD EVENT_TYPE='push pull_request'
+               PIP_DEPENDENCIES=$PIP_DEPENDENCIES_OLD
         - os: linux
           env: PYTHON_VERSION=3.4 NUMPY_VERSION=1.9
                CONDA_DEPENDENCIES=$CONDA_DEPENDENCIES_OLD
-               PIP_DEPENDENCIES=$PIP_DEPENDENCIES_OLD EVENT_TYPE='push pull_request'
+               PIP_DEPENDENCIES=$PIP_DEPENDENCIES_OLD
         - os: linux
-          env: PYTHON_VERSION=3.5 NUMPY_VERSION=1.10 EVENT_TYPE='push pull_request'
+          env: PYTHON_VERSION=3.5 NUMPY_VERSION=1.10
 
         # Now try Astropy dev and LTS vesions with the latest 3.x and 2.7.
         - os: linux
-          env: PYTHON_VERSION=2.7 ASTROPY_VERSION=development
+          env: PYTHON_VERSION=2.7 ASTROPY_VERSION=development EVENT_TYPE='push pull_request cron'
         - os: linux
           env: ASTROPY_VERSION=development
         - os: linux
-          env: PYTHON_VERSION=2.7 ASTROPY_VERSION=lts
+          env: PYTHON_VERSION=2.7 ASTROPY_VERSION=lts EVENT_TYPE='push pull_request cron'
         - os: linux
-          env: ASTROPY_VERSION=lts
+          env: ASTROPY_VERSION=lts EVENT_TYPE='push pull_request cron'
 
         # Try with optional dependencies disabled
         - os: linux
@@ -111,7 +112,7 @@ matrix:
         # Try numpy pre-release version, this runs only when a pre-release
         # is available on pypi.
         - os: linux
-          env: NUMPY_VERSION=prerelease DEBUG=True
+          env: NUMPY_VERSION=prerelease DEBUG=True EVENT_TYPE='push pull_request cron'
 
         # Do a PEP8 test with pycodestyle
         - os: linux
