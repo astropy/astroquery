@@ -90,7 +90,10 @@ class SplatalogueClass(BaseQuery):
 
         Examples
         --------
-        >>> Splatalogue.get_species_ids('Formaldehyde')
+        >>> import re
+        >>> import pprint # unfortunate hack required for documentation testing
+        >>> rslt = Splatalogue.get_species_ids('Formaldehyde')
+        >>> pprint.pprint(rslt)
         {'03023 H2CO - Formaldehyde': '194',
          '03106 H213CO - Formaldehyde': '324',
          '03107 HDCO - Formaldehyde': '109',
@@ -101,7 +104,8 @@ class SplatalogueClass(BaseQuery):
          '03301 D213CO - Formaldehyde': '1220',
          '03315 HDC18O - Formaldehyde': '21141',
          '0348 D2C18O - Formaldehyde': '21140'}
-        >>> Splatalogue.get_species_ids('H2CO')
+        >>> rslt = Splatalogue.get_species_ids('H2CO')
+        >>> pprint.pprint(rslt)
         {'03023 H2CO - Formaldehyde': '194',
          '03109 H2COH+ - Hydroxymethylium ion': '224',
          '04406 c-H2COCH2 - Ethylene Oxide': '21',
