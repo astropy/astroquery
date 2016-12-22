@@ -522,13 +522,13 @@ class EsoClass(QueryWithLogin):
 
     def data_retrieval(self, datasets):
         """
-        DEPRECATED: see ``retrieve_datasets``
+        DEPRECATED: see ``retrieve_data``
         """
 
         warnings.warn("data_retrieval has been replaced with retrieve_data",
                       DeprecationWarning)
 
-    def retrieve_data(self, datasets, cache=True):
+    def retrieve_data(self, datasets, cache=True, continuation=False):
         """
         Retrieve a list of datasets form the ESO archive.
 
@@ -575,13 +575,22 @@ class EsoClass(QueryWithLogin):
                                               local_filename)
             if os.path.exists(local_filename):
                 log.info("Found {0}.fits...".format(dataset))
-                files.append(local_filename)
+                if continuation:
+                    datasets_to_download.append(dataset)
+                else:
+                    files.append(local_filename)
             elif os.path.exists(local_filename + ".Z"):
                 log.info("Found {0}.fits.Z...".format(dataset))
-                files.append(local_filename + ".Z")
+                if continuation:
+                    datasets_to_download.append(dataset)
+                else:
+                    files.append(local_filename + ".Z")
             elif os.path.exists(local_filename + ".fz"):  # RICE-compressed
                 log.info("Found {0}.fits.fz...".format(dataset))
-                files.append(local_filename + ".fz")
+                if continuation:
+                    datasets_to_download.append(dataset)
+                else:
+                    files.append(local_filename + ".fz")
             else:
                 datasets_to_download.append(dataset)
 
@@ -641,7 +650,8 @@ class EsoClass(QueryWithLogin):
             for fileId in root.select('input[name=fileId]'):
                 fileLink = ("http://dataportal.eso.org/dataPortal" +
                             fileId.attrs['value'].split()[1])
-                filename = self._request("GET", fileLink, save=True)
+                filename = self._request("GET", fileLink, save=True,
+                                         continuation=True)
                 files.append(system_tools.gunzip(filename))
         # Empty the redirect cache of this request session
         self._session.redirect_cache.clear()
