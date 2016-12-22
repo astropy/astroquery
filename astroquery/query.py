@@ -219,9 +219,17 @@ class BaseQuery(object):
             open_mode = 'ab'
 
             existing_file_length = os.stat(local_filepath).st_size
-            if existing_file_length == length:
+            if existing_file_length >= length:
                 # all done!
+                log.info("Found cached file {0} with expected size {1}."
+                         .format(local_filepath, existing_file_length))
                 return
+            else:
+                log.info("Continuing download of file {0}, with {1} bytes to "
+                         "go ({2}%)".format(local_filepath,
+                                            length - existing_file_length,
+                                            (length-existing_file_length)/length*100))
+
 
             self._session.headers['Range'] = "bytes={0}-{1}".format(existing_file_length, length)
             response = self._session.get(url, timeout=timeout, stream=True,
