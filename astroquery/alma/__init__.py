@@ -13,11 +13,11 @@ class Conf(_config.ConfigNamespace):
     timeout = _config.ConfigItem(60, "Timeout in seconds.")
 
     archive_url = _config.ConfigItem(
-        ['http://almascience.org',
-         'http://almascience.eso.org',
-         'http://almascience.nrao.edu',
-         'http://almascience.nao.ac.jp',
-         'http://beta.cadc-ccda.hia-iha.nrc-cnrc.gc.ca'],
+        ['https://almascience.org',
+         'https://almascience.eso.org',
+         'https://almascience.nrao.edu',
+         'https://almascience.nao.ac.jp',
+         'https://beta.cadc-ccda.hia-iha.nrc-cnrc.gc.ca'],
         'The ALMA Archive mirror to use.')
 
     username = _config.ConfigItem(
