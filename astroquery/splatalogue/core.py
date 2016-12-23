@@ -1,4 +1,5 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
+# -*- coding: utf-8 -*-
 """
 Module to search Splatalogue.net via splat, modeled loosely on
 ftp://ftp.cv.nrao.edu/NRAO-staff/bkent/slap/idl/
