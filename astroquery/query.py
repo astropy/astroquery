@@ -131,7 +131,7 @@ class BaseQuery(object):
 
     def _request(self, method, url, params=None, data=None, headers=None,
                  files=None, save=False, savedir='', timeout=None, cache=True,
-                 stream=False, auth=None, continuation=False):
+                 stream=False, auth=None, continuation=True):
         """
         A generic HTTP request method, similar to `requests.Session.request`
         but with added caching-related tools
@@ -200,7 +200,7 @@ class BaseQuery(object):
             return response
 
     def _download_file(self, url, local_filepath, timeout=None, auth=None,
-                       continuation=False, cache=False, **kwargs):
+                       continuation=True, cache=False, **kwargs):
         """
         Download a file.  Resembles `astropy.utils.data.download_file` but uses
         the local ``_session``

@@ -349,7 +349,7 @@ class AlmaClass(QueryWithLogin):
 
         return data_sizes, totalsize.to(u.GB)
 
-    def download_files(self, files, cache=True):
+    def download_files(self, files, cache=True, continuation=True):
         """
         Given a list of file URLs, download them
 
@@ -359,7 +359,8 @@ class AlmaClass(QueryWithLogin):
         downloaded_files = []
         for fileLink in unique(files):
             filename = self._request("GET", fileLink, save=True,
-                                     timeout=self.TIMEOUT, cache=cache)
+                                     timeout=self.TIMEOUT, cache=cache,
+                                     continuation=continuation)
             downloaded_files.append(filename)
         return downloaded_files
 
