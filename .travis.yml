@@ -130,7 +130,7 @@ install:
     - pip install https://github.com/keflavich/httpbin/archive/master.zip
 
 script:
-   - python -c 'import httpbin; httpbin.app.run()'
+   - python -c 'import httpbin; httpbin.app.run()' &
    - $MAIN_CMD $SETUP_CMD
 
 after_success:
