@@ -24,7 +24,7 @@ __all__ = ['Splatalogue', 'SplatalogueClass']
 
 if sys.version_info.major == 2:
     # can't do unicode doctests in py2
-    __doctest_skip__ = ['get_species_ids']
+    __doctest_skip__ = ['SplatalogueClass.get_species_ids']
 
 @async_to_sync
 class SplatalogueClass(BaseQuery):
