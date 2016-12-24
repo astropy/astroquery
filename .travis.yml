@@ -27,7 +27,7 @@ env:
         - MAIN_CMD='python setup.py'
         - NUMPY_VERSION=stable
         - ASTROPY_VERSION=stable
-        - CONDA_DEPENDENCIES='requests beautifulsoup4 html5lib keyring aplpy pyregion jinja2'
+        - CONDA_DEPENDENCIES='requests beautifulsoup4 html5lib keyring aplpy pyregion jinja2 flask httpbin'
         - PIP_DEPENDENCIES=''
         - SETUP_CMD='test'
         - CONDA_CHANNELS='astropy-ci-extras astropy'
@@ -125,9 +125,9 @@ matrix:
                SETUP_CMD='' EVENT_TYPE='push pull_request'
 
 install:
-    - pip install https://github.com/keflavich/httpbin/archive/master.zip
     - git clone git://github.com/astropy/ci-helpers.git
     - source ci-helpers/travis/setup_conda_$TRAVIS_OS_NAME.sh
+    - pip install https://github.com/keflavich/httpbin/archive/master.zip
 
 script:
    - python -c 'import httpbin; httpbin.app.run()'
