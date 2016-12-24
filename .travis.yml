@@ -125,10 +125,12 @@ matrix:
                SETUP_CMD='' EVENT_TYPE='push pull_request'
 
 install:
+    - pip install https://github.com/keflavich/httpbin/archive/master.zip
     - git clone git://github.com/astropy/ci-helpers.git
     - source ci-helpers/travis/setup_conda_$TRAVIS_OS_NAME.sh
 
 script:
+   - python -c 'import httpbin; httpbin.app.run()'
    - $MAIN_CMD $SETUP_CMD
 
 after_success:

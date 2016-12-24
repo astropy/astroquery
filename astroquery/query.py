@@ -224,16 +224,21 @@ class BaseQuery(object):
                 log.info("Found cached file {0} with expected size {1}."
                          .format(local_filepath, existing_file_length))
                 return
+            elif existing_file_length == 0:
+                open_mode = 'wb'
             else:
                 log.info("Continuing download of file {0}, with {1} bytes to "
                          "go ({2}%)".format(local_filepath,
                                             length - existing_file_length,
                                             (length-existing_file_length)/length*100))
 
+                # bytes are indexed from 0:
+                # https://en.wikipedia.org/wiki/List_of_HTTP_header_fields#range-request-header
+                self._session.headers['Range'] = "bytes={0}-{1}".format(existing_file_length,
+                                                                        length-1)
 
-            self._session.headers['Range'] = "bytes={0}-{1}".format(existing_file_length, length)
-            response = self._session.get(url, timeout=timeout, stream=True,
-                                         auth=auth, **kwargs)
+                response = self._session.get(url, timeout=timeout, stream=True,
+                                             auth=auth, **kwargs)
 
         elif cache and os.path.exists(local_filepath):
             if length is not None:
