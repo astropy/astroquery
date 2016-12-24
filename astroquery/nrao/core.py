@@ -356,11 +356,11 @@ class NraoClass(QueryWithLogin):
             else:
                 raise ValueError("Query resulted in an empty result but "
                                  "the server did not raise an error.")
-        
+
         return response
 
     @prepend_docstr_noreturns(_args_to_payload.__doc__)
-    def query_region_async(self, coordinates, radius=1 * u.deg,
+    def query_region_async(self, coordinates, radius=1 * u.arcmin,
                            equinox='J2000', telescope='all', start_date="",
                            end_date="", freq_low=None, freq_up=None,
                            telescope_config='all', obs_band='all',
