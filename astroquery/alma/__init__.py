@@ -13,7 +13,7 @@ class Conf(_config.ConfigNamespace):
     timeout = _config.ConfigItem(60, "Timeout in seconds.")
 
     archive_url = _config.ConfigItem(
-        ['https://almascience.org',
+        ['http://almascience.org',
          'https://almascience.eso.org',
          'https://almascience.nrao.edu',
          'https://almascience.nao.ac.jp',
