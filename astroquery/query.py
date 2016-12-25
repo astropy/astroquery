@@ -249,6 +249,7 @@ class BaseQuery(object):
                                 .format(local_filepath,
                                         statinfo.st_size,
                                         length))
+                    open_mode = 'wb'
                 else:
                     log.info("Found cached file {0} with expected size {1}."
                              .format(local_filepath, statinfo.st_size))
