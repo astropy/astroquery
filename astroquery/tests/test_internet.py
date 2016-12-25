@@ -2,7 +2,7 @@
 from astropy.tests.helper import remote_data
 import requests
 
-from . import version
+from .. import version
 
 
 @remote_data
