@@ -1,4 +1,5 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
+# -*- coding: utf-8 -*-
 """
 Module to search Splatalogue.net via splat, modeled loosely on
 ftp://ftp.cv.nrao.edu/NRAO-staff/bkent/slap/idl/
@@ -6,6 +7,7 @@ ftp://ftp.cv.nrao.edu/NRAO-staff/bkent/slap/idl/
 :author: Adam Ginsburg <adam.g.ginsburg@gmail.com>
 """
 import warnings
+import sys
 from astropy.io import ascii
 from astropy import units as u
 from astropy import log
@@ -20,6 +22,9 @@ __all__ = ['Splatalogue', 'SplatalogueClass']
 # example query of SPLATALOGUE directly:
 # http://www.cv.nrao.edu/php/splat/c.php?sid%5B%5D=64&sid%5B%5D=108&calcIn=&data_version=v3.0&from=&to=&frequency_units=MHz&energy_range_from=&energy_range_to=&lill=on&tran=&submit=Search&no_atmospheric=no_atmospheric&no_potential=no_potential&no_probable=no_probable&include_only_nrao=include_only_nrao&displayLovas=displayLovas&displaySLAIM=displaySLAIM&displayJPL=displayJPL&displayCDMS=displayCDMS&displayToyaMA=displayToyaMA&displayOSU=displayOSU&displayRecomb=displayRecomb&displayLisa=displayLisa&displayRFI=displayRFI&ls1=ls1&ls5=ls5&el1=el1
 
+if sys.version_info.major == 2:
+    # can't do unicode doctests in py2
+    __doctest_skip__ = ['SplatalogueClass.get_species_ids']
 
 @async_to_sync
 class SplatalogueClass(BaseQuery):
@@ -88,6 +93,44 @@ class SplatalogueClass(BaseQuery):
         reflags : int
             Flags to pass to `re`.
 
+        Examples
+        --------
+        >>> import re
+        >>> import pprint # unfortunate hack required for documentation testing
+        >>> rslt = Splatalogue.get_species_ids('Formaldehyde')
+        >>> pprint.pprint(rslt)
+        {'03023 H2CO - Formaldehyde': '194',
+         '03106 H213CO - Formaldehyde': '324',
+         '03107 HDCO - Formaldehyde': '109',
+         '03108 H2C17O - Formaldehyde': '982',
+         '03202 H2C18O - Formaldehyde': '155',
+         '03203 D2CO - Formaldehyde': '94',
+         '03204 HD13CO - Formaldehyde': '1219',
+         '03301 D213CO - Formaldehyde': '1220',
+         '03315 HDC18O - Formaldehyde': '21141',
+         '0348 D2C18O - Formaldehyde': '21140'}
+        >>> rslt = Splatalogue.get_species_ids('H2CO')
+        >>> pprint.pprint(rslt)
+        {'03023 H2CO - Formaldehyde': '194',
+         '03109 H2COH+ - Hydroxymethylium ion': '224',
+         '04406 c-H2COCH2 - Ethylene Oxide': '21',
+         '07510 H2NCH2COOH - I v=0 - Glycine': '389',
+         '07511 H2NCH2COOH - I v=1 - Glycine': '1312',
+         '07512 H2NCH2COOH - I v=2 - Glycine': '1313',
+         '07513 H2NCH2COOH - II v=0 - Glycine': '262',
+         '07514 H2NCH2COOH - II v=1 - Glycine': '1314',
+         '07515 H2NCH2COOH - II v=2 - Glycine': '1315',
+         '07517 NH2CO2CH3 v=0 - Methyl Carbamate': '1334',
+         '07518 NH2CO2CH3 v=1 - Methyl Carbamate': '1335',
+         '08902 CH3CHNH2COOH - I - α-Alanine': '1321',
+         '08903 CH3CHNH2COOH - II - α-Alanine': '1322'}
+        >>> # note the whitespace, preventing H2CO within other
+        >>> # more complex molecules
+        >>> Splatalogue.get_species_ids(' H2CO ')
+        {'03023 H2CO - Formaldehyde': '194'}
+        >>> Splatalogue.get_species_ids(' h2co ', re.IGNORECASE)
+        {'03023 H2CO - Formaldehyde': '194'}
+
         """
         # loading can be an expensive operation and should not change at
         # runtime: do it lazily
@@ -131,7 +174,7 @@ class SplatalogueClass(BaseQuery):
                       show_qn_code=None, show_lovas_labref=None,
                       show_lovas_obsref=None, show_orderedfreq_only=None,
                       show_nrao_recommended=None,
-                      parse_chemistry_locally=False):
+                      parse_chemistry_locally=True):
         """
         The Splatalogue service returns lines with rest frequencies in the
         range [min_frequency, max_frequency].
@@ -169,6 +212,8 @@ class SplatalogueClass(BaseQuery):
         parse_chemistry_locally : bool
             Attempt to determine the species ID #'s locally before sending the
             query?  This will prevent queries that have no matching species.
+            It also performs a more flexible regular expression match to the
+            species IDs.  See the examples in `get_species_ids`
         chem_re_flags : int
             See the `re` module
         energy_min : `None` or float
