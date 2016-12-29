@@ -19,7 +19,7 @@ environment:
         ASTROPY_VERSION: "stable"
         NUMPY_VERSION: "stable"
 
-      - PYTHON_VERSION: "3.5"
+      - PYTHON_VERSION: "3.6"
         ASTROPY_VERSION: "stable"
         NUMPY_VERSION: "stable"
 
