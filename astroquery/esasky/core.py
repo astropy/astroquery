@@ -672,13 +672,13 @@ class ESASkyClass(BaseQuery):
 
         from_query = " FROM %s" %json[self.__TAP_TABLE_STRING]
         if (radiusDeg == 0):
-            where_query = (" WHERE 1=CONTAINS(%s, CIRCLE('ICRS', %f, %f, %f))"
-                           %(json[self.__POS_TAP_STRING], ra, dec,
+            where_query = (" WHERE 1=CONTAINS(POINT('ICRS', ra, dec), CIRCLE('ICRS', %f, %f, %f))"
+                           %(ra, dec,
                              commons.radius_to_unit(
                                  self.__MIN_RADIUS_CATALOG_STRING, unit='deg')))
         else:
-            where_query = (" WHERE 1=CONTAINS(%s, CIRCLE('ICRS', %f, %f, %f))"
-                           %(json[self.__POS_TAP_STRING], ra, dec, radiusDeg))
+            where_query = (" WHERE 1=CONTAINS(POINT('ICRS', ra, dec), CIRCLE('ICRS', %f, %f, %f))"
+                           %(ra, dec, radiusDeg))
         order_by_query = " ORDER BY %s;" %json[self.__ORDER_BY_STRING]
 
         query = "".join([select_query, metadata_tap_names, from_query,
