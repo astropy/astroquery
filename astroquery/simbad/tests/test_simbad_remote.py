@@ -170,7 +170,7 @@ class TestSimbad(object):
         request.add_votable_fields("otype(S)")
         request.add_votable_fields("otype(3)")
         request.add_votable_fields("id(1)")
-        request.add_votable_fields("id(2MASS)")
+        request.add_votable_fields("id(2mass)")
         request.add_votable_fields("id(s)")
 
         response = request.query_object('algol')
@@ -182,6 +182,6 @@ class TestSimbad(object):
         assert("RA___A_fk5_J2000" in response.keys())
         assert("OTYPE_S" in response.keys())
         assert("OTYPE_3" in response.keys())
-        assert("id_1" in response.keys())
-        assert("id_2mass" in response.keys())
-        assert("id_s" in response.keys())
+        assert("ID_1" in response.keys())
+        assert("ID_2mass" in response.keys())
+        assert("ID_s" in response.keys())
