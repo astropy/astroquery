@@ -33,6 +33,6 @@ class TestNrao:
     def test_query_region_archive(self):
         result = nrao.core.Nrao.query_region(
             coord.SkyCoord("05h35.8m 35d43m"), querytype='ARCHIVE',
-            retry=5)
+            retry=5, radius='1d')
         assert len(result) >= 230
         assert 'VLA_XH78003_file15.dat' in result['Archive File']
