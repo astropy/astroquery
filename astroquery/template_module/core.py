@@ -275,7 +275,8 @@ class TemplateClass(BaseQuery):
     # links for the images as a list
 
     @prepend_docstr_noreturns(get_images.__doc__)
-    def get_image_list(self, coordinates, radius, get_query_payload=False):
+    def get_image_list(self, coordinates, radius, get_query_payload=False,
+                       cache=True):
         """
         Returns
         -------
@@ -295,7 +296,7 @@ class TemplateClass(BaseQuery):
             return request_payload
         response = self._request(method="GET", url=self.URL,
                                  data=request_payload,
-                                 timeout=self.TIMEOUT)
+                                 timeout=self.TIMEOUT, cache=cache)
 
         return self.extract_image_urls(response.text)
 
