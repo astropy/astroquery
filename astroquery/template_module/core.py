@@ -99,9 +99,11 @@ class TemplateClass(BaseQuery):
         # 2. If get_query_payload is `True` then simply return this dict.
         # 3. Else make the actual HTTP request and return the corresponding
         #    HTTP response
-        # All HTTP requests are made via the `commons.send_request` method.
-        # This uses the Python Requests library internally, and also takes
-        # care of error handling.
+        # All HTTP requests are made via the `BaseQuery._request` method. This
+        # use a generic HTTP request method internally, similar to
+        # `requests.Session.request` of the Python Requests library, but
+        # with added caching-related tools.
+
         # See below for an example:
 
         # first initialize the dictionary of HTTP request parameters
@@ -291,10 +293,10 @@ class TemplateClass(BaseQuery):
         request_payload = self._args_to_payload(coordinates, radius)
         if get_query_payload:
             return request_payload
-        response = commons.send_request(self.URL,
-                                        request_payload,
-                                        self.TIMEOUT,
-                                        request_type='GET')
+        response = self._request(method="GET", url=self.URL,
+                                 data=request_payload,
+                                 timeout=self.TIMEOUT)
+
         return self.extract_image_urls(response.text)
 
     # the extract_image_urls method takes in the HTML page as a string
