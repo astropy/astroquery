@@ -27,7 +27,7 @@ env:
         - MAIN_CMD='python setup.py'
         - NUMPY_VERSION=stable
         - ASTROPY_VERSION=stable
-        - CONDA_DEPENDENCIES='requests beautifulsoup4 matplotlib html5lib keyring aplpy pyregion'
+        - CONDA_DEPENDENCIES='requests beautifulsoup4 html5lib keyring aplpy pyregion'
         - PIP_DEPENDENCIES=''
         - SETUP_CMD='test'
         - CONDA_CHANNELS='astropy-ci-extras astropy'
