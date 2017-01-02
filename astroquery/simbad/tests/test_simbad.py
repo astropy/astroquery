@@ -385,13 +385,11 @@ def test_simbad_settings2():
 def test_regression_votablesettings():
     assert simbad.Simbad.get_votable_fields() == ['main_id', 'coordinates']
     simbad.core.Simbad.add_votable_fields('ra', 'dec(5)')
-    with pytest.raises(KeyError) as ex:
-        simbad.core.Simbad.add_votable_fields('ra(d)', 'dec(d)')
-    assert ex.value.args[0] == ('ra(d): field already present. Fields '
-                                'ra,dec,id,otype, and bibcodelist can only '
-                                'be specified once.  To change their options, '
-                                'first remove the existing entry, then add '
-                                'a new one.')
+    # this is now allowed:
+    simbad.core.Simbad.add_votable_fields('ra(d)', 'dec(d)')
+    assert simbad.Simbad.get_votable_fields() == ['main_id', 'coordinates',
+                                                  'ra', 'dec(5)', 'ra(d)',
+                                                  'dec(d)']
     # cleanup
     simbad.core.Simbad.remove_votable_fields('ra', 'dec', strip_params=True)
     assert simbad.Simbad.get_votable_fields() == ['main_id', 'coordinates']
