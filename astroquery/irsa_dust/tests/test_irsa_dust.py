@@ -49,11 +49,8 @@ def format(coord):
 @pytest.fixture
 def patch_request(request):
     mp = request.getfuncargvalue("monkeypatch")
-    mp.setattr(
-        commons,
-        'send_request',
-        TestDust(
-        ).send_request_mockreturn)
+    mp.setattr(irsa_dust.IrsaDustClass, '_request',
+               TestDust().send_request_mockreturn)
     return mp
 
 
@@ -325,7 +322,7 @@ class TestDust(DustTestCase):
         types = IrsaDust().list_image_types()
         assert types is not None
 
-    def send_request_mockreturn(self, url, data, timeout):
+    def send_request_mockreturn(self, method, url, data, timeout):
         class MockResponse:
             text = open(self.data(M31_XML), "r").read()
         return MockResponse
