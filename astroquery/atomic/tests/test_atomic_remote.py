@@ -5,14 +5,14 @@ from astropy.table import Table
 from astropy.tests.helper import remote_data
 from astropy.tests.helper import pytest
 
-from ...utils import commons
 from ...atomic import AtomicLineList
 
 
 @pytest.fixture(scope='module')
 def form():
-    response = commons.send_request(AtomicLineList.FORM_URL, {},
-                                    AtomicLineList.TIMEOUT, 'GET')
+    response = AtomicLineList._request("GET", url=AtomicLineList.FORM_URL,
+                                       data={}, timeout=AtomicLineList.TIMEOUT)
+
     bs = BeautifulSoup(response.text)
     return bs.find('form')
 
