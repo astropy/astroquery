@@ -3,22 +3,18 @@ from bs4 import BeautifulSoup
 from astropy import units as u
 from astropy.table import Table
 from astropy.tests.helper import remote_data
-from astropy.tests.helper import pytest
 
 from ...atomic import AtomicLineList
 
 
-@pytest.fixture(scope='module')
-def form():
-    response = AtomicLineList._request("GET", url=AtomicLineList.FORM_URL,
-                                       data={}, timeout=AtomicLineList.TIMEOUT)
-
-    bs = BeautifulSoup(response.text)
-    return bs.find('form')
-
-
 @remote_data
-def test_default_form_values(form):
+def test_default_form_values():
+    default_response = AtomicLineList._request(
+        method="GET", url=AtomicLineList.FORM_URL,
+        data={}, timeout=AtomicLineList.TIMEOUT)
+    bs = BeautifulSoup(default_response.text)
+    form = bs.find('form')
+
     default_form_values = AtomicLineList._get_default_form_values(form)
     assert default_form_values == {
         'air': u'Vacuum',
