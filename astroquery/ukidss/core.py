@@ -611,7 +611,8 @@ class UkidssClass(QueryWithLogin):
                 'http://surveys.roe.ac.uk:8080/wsa/getImage_form.jsp')
         else:
             response = requests.get(
-                'http://surveys.roe.ac.uk:8080/wsa/getImage_form.jsp')
+                url='http://surveys.roe.ac.uk:8080/wsa/getImage_form.jsp')
+
         root = BeautifulSoup(response.content)
         databases = [x.attrs['value'] for x in
                      root.find('select').findAll('option')]
@@ -645,8 +646,8 @@ class UkidssClass(QueryWithLogin):
             response = self.session.get(url, params=request_payload,
                                         timeout=self.TIMEOUT)
         else:
-            response = commons.send_request(url, request_payload, self.TIMEOUT,
-                                            request_type='GET')
+            response = self._request("GET", url=url, params=request_payload,
+                                     timeout=self.TIMEOUT)
         return response
 
     def _check_page(self, url, keyword, wait_time=1, max_attempts=30):
@@ -655,7 +656,7 @@ class UkidssClass(QueryWithLogin):
             if self.logged_in():
                 response = self.session.get(url)
             else:
-                response = requests.get(url)
+                response = requests.get(url=url)
             self.response = response
             content = response.text
             if re.search("error", content, re.IGNORECASE):
