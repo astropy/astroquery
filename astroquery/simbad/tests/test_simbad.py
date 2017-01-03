@@ -1,7 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import os
 import re
-import requests
 
 from astropy.extern import six
 from astropy.tests.helper import pytest
@@ -59,11 +58,11 @@ def data_path(filename):
 @pytest.fixture
 def patch_post(request):
     mp = request.getfuncargvalue("monkeypatch")
-    mp.setattr(simbad.Simbad, '_request', post_mockreturn)
+    mp.setattr(simbad.SimbadClass, '_request', post_mockreturn)
     return mp
 
 
-def post_mockreturn(method, url, data=None, timeout=0, **kwargs):
+def post_mockreturn(self, method, url, data, timeout, **kwargs):
     response = MockResponseSimbad(data['script'], **kwargs)
     return response
 

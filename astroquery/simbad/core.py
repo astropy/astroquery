@@ -642,7 +642,7 @@ class SimbadClass(BaseQuery):
         return self._parse_result(result, SimbadObjectIDsResult,
                                   verbose=verbose)
 
-    def query_objectids_async(self, object_name):
+    def query_objectids_async(self, object_name, cache=True):
         """
         Serves the same function as `query_objectids`, but
         only collects the response from the Simbad server and returns.
