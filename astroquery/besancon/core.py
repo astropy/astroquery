@@ -301,8 +301,8 @@ class BesanconClass(BaseQuery):
         if kwargs.get('get_query_payload'):
             return data_payload
 
-        response = commons.send_request(self.QUERY_URL, data_payload,
-                                        self.TIMEOUT, stream=True)
+        response = self._request("POST", url=self.QUERY_URL, data=data_payload,
+                                 timeout=self.TIMEOUT, stream=True)
         return response
 
 Besancon = BesanconClass()
