@@ -84,6 +84,7 @@ class UkidssClass(QueryWithLogin):
 
     def __init__(self, username=None, password=None, community=None,
                  database='UKIDSSDR7PLUS', programme_id='all'):
+        super(UkidssClass, self).__init__()
         self.database = database
         self.programme_id = programme_id  # 102 = GPS
         self.session = None
