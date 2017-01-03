@@ -2,6 +2,7 @@
 """Download of Fermi LAT (Large Area Telescope) data"""
 from __future__ import print_function
 import re
+import requests
 import time
 import astropy.units as u
 from ..query import BaseQuery
@@ -40,10 +41,8 @@ class FermiLATClass(BaseQuery):
         if kwargs.get('get_query_payload'):
             return payload
 
-        result = commons.send_request(self.request_url,
-                                      payload,
-                                      self.TIMEOUT)
-
+        result = self._request("POST", url=self.request_url,
+                               data=payload, timeout=self.TIMEOUT)
         re_result = self.result_url_re.findall(result.text)
 
         if len(re_result) == 0:
@@ -152,9 +151,9 @@ class GetFermilatDatafile(object):
         return fitsfile_urls
 
     def _check_page(self):
-        result_page = commons.send_request(self.result_url,
-                                           None,
-                                           self.TIMEOUT)
+        result_page = requests.post(url=self.result_url,
+                                    data=None,
+                                    timeout=self.TIMEOUT)
 
         pagedata = result_page.text
 
