@@ -81,7 +81,8 @@ class AstroQuery(object):
                 elif isinstance(k, six.string_types):
                     request_key += (k,)
                 else:
-                    raise TypeError("{0} must be a dict, tuple, str, or list")
+                    raise TypeError("{0} must be a dict, tuple, str, or "
+                                    "list".format(k))
             self._hash = hashlib.sha224(pickle.dumps(request_key)).hexdigest()
         return self._hash
 
