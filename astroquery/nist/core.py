@@ -7,7 +7,7 @@ import astropy.units as u
 import astropy.io.ascii as asciitable
 
 from ..query import BaseQuery
-from ..utils import commons, async_to_sync
+from ..utils import async_to_sync
 from ..utils.docstr_chompers import prepend_docstr_noreturns
 from . import conf
 from ..exceptions import TableParseError
@@ -139,8 +139,8 @@ class NistClass(BaseQuery):
         if get_query_payload:
             return request_payload
 
-        response = commons.send_request(Nist.URL, request_payload,
-                                        Nist.TIMEOUT, request_type='GET')
+        response = self._request("GET", url=Nist.URL, params=request_payload,
+                                 timeout=Nist.TIMEOUT)
         return response
 
     def _parse_result(self, response, verbose=False):
