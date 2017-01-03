@@ -154,3 +154,34 @@ class TestSimbad(object):
         request.add_votable_fields("flux_qual(V)")
         response = request.query_object('algol')
         assert("FLUX_QUAL_V" in response.keys())
+
+    def test_multi_vo_fields(self):
+        '''Regression test for issue 820'''
+        request = simbad.core.Simbad()
+
+        request.add_votable_fields("flux_qual(V)")
+        request.add_votable_fields("flux_qual(R)")
+        request.add_votable_fields("coo(s)") # sexagesimal coordinates
+        request.add_votable_fields("coo(d)") # degree coordinates
+        request.add_votable_fields("ra(:;A;ICRS;J2000)")
+        request.add_votable_fields("ra(:;A;fk5;J2000)")
+        request.add_votable_fields("bibcodelist(2000-2006)")
+        request.add_votable_fields("bibcodelist(1990-2000)")
+        request.add_votable_fields("otype(S)")
+        request.add_votable_fields("otype(3)")
+        request.add_votable_fields("id(1)")
+        request.add_votable_fields("id(2mass)")
+        request.add_votable_fields("id(s)")
+
+        response = request.query_object('algol')
+        assert("FLUX_QUAL_V" in response.keys())
+        assert("FLUX_QUAL_R" in response.keys())
+        assert("RA_d" in response.keys())
+        assert("RA_s" in response.keys())
+        assert("RA___A_ICRS_J2000" in response.keys())
+        assert("RA___A_fk5_J2000" in response.keys())
+        assert("OTYPE_S" in response.keys())
+        assert("OTYPE_3" in response.keys())
+        assert("ID_1" in response.keys())
+        assert("ID_2mass" in response.keys())
+        assert("ID_s" in response.keys())
