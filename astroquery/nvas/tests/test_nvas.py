@@ -3,7 +3,6 @@ from __future__ import print_function
 
 import os
 import re
-import requests
 from contextlib import contextmanager
 
 import numpy.testing as npt
@@ -31,7 +30,7 @@ def data_path(filename):
 @pytest.fixture
 def patch_post(request):
     mp = request.getfuncargvalue("monkeypatch")
-    mp.setattr(requests, 'post', post_mockreturn)
+    mp.setattr(nvas.Nvas, '_request', post_mockreturn)
     return mp
 
 
@@ -44,7 +43,7 @@ def patch_parse_coordinates(request):
     return mp
 
 
-def post_mockreturn(url, data, timeout, **kwargs):
+def post_mockreturn(method, url, data, timeout, **kwargs):
     filename = data_path(DATA_FILES['image_search'])
     content = open(filename, 'rb').read()
     response = MockResponse(content, **kwargs)
