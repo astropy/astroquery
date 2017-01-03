@@ -96,8 +96,9 @@ class NedClass(BaseQuery):
         request_payload['objname'] = object_name
         if get_query_payload:
             return request_payload
-        response = commons.send_request(Ned.OBJ_SEARCH_URL, request_payload,
-                                        Ned.TIMEOUT, request_type='GET')
+        response = self._request("GET", url=Ned.OBJ_SEARCH_URL,
+                                 params=request_payload, timeout=Ned.TIMEOUT)
+
         return response
 
     def query_region(self, coordinates, radius=1 * u.arcmin, equinox='J2000.0',
@@ -201,8 +202,8 @@ class NedClass(BaseQuery):
                 raise TypeError("Coordinates not specified correctly")
         if get_query_payload:
             return request_payload
-        response = commons.send_request(Ned.OBJ_SEARCH_URL, request_payload,
-                                        Ned.TIMEOUT, request_type='GET')
+        response = self._request("GET", url=Ned.OBJ_SEARCH_URL,
+                                 params=request_payload, timeout=Ned.TIMEOUT)
         return response
 
     def query_region_iau(self, iau_name, frame='Equatorial', equinox='B1950.0',
@@ -280,8 +281,8 @@ class NedClass(BaseQuery):
         request_payload['in_equinox'] = equinox
         if get_query_payload:
             return request_payload
-        response = commons.send_request(Ned.OBJ_SEARCH_URL, request_payload,
-                                        Ned.TIMEOUT, request_type='GET')
+        response = self._request("GET", url=Ned.OBJ_SEARCH_URL,
+                                 params=request_payload, timeout=Ned.TIMEOUT)
         return response
 
     def query_refcode(self, refcode, get_query_payload=False, verbose=False):
@@ -339,8 +340,8 @@ class NedClass(BaseQuery):
         request_payload['refcode'] = refcode
         if get_query_payload:
             return request_payload
-        response = commons.send_request(Ned.OBJ_SEARCH_URL, request_payload,
-                                        Ned.TIMEOUT, request_type='GET')
+        response = self._request("GET", url=Ned.OBJ_SEARCH_URL,
+                                 params=request_payload, timeout=Ned.TIMEOUT)
         return response
 
     def get_images(self, object_name, get_query_payload=False,
@@ -480,8 +481,8 @@ class NedClass(BaseQuery):
         if get_query_payload:
             return request_payload
         url = Ned.SPECTRA_URL if item == 'spectra' else Ned.IMG_DATA_URL
-        response = commons.send_request(url, request_payload,
-                                        Ned.TIMEOUT, request_type='GET')
+        response = self._request("GET", url=url, params=request_payload,
+                                 timeout=Ned.TIMEOUT)
         return self.extract_image_urls(response.text)
 
     def extract_image_urls(self, html_in):
@@ -607,8 +608,8 @@ class NedClass(BaseQuery):
                                                      datetime.now().year)
         if get_query_payload:
             return request_payload
-        response = commons.send_request(Ned.DATA_SEARCH_URL, request_payload,
-                                        Ned.TIMEOUT, request_type='GET')
+        response = self._request("GET", url=Ned.DATA_SEARCH_URL,
+                                 params=request_payload, timeout=Ned.TIMEOUT)
         return response
 
     def _request_payload_init(self):

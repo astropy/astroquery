@@ -2,7 +2,6 @@
 from __future__ import print_function
 
 import os
-import requests
 
 from numpy import testing as npt
 from astropy.tests.helper import pytest
@@ -42,7 +41,7 @@ def data_path(filename):
 @pytest.fixture
 def patch_get(request):
     mp = request.getfuncargvalue("monkeypatch")
-    mp.setattr(requests, 'get', get_mockreturn)
+    mp.setattr(ned.Ned, '_request', get_mockreturn)
     return mp
 
 
@@ -60,7 +59,7 @@ def patch_get_readable_fileobj(request):
     return mp
 
 
-def get_mockreturn(url, params=None, timeout=10, **kwargs):
+def get_mockreturn(method, url, params=None, timeout=10, **kwargs):
     search_type = params.get('search_type')
     if search_type is not None:
         filename = data_path(DATA_FILES[search_type])
