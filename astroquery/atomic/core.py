@@ -26,7 +26,7 @@ class AtomicLineListClass(BaseQuery):
     TIMEOUT = conf.timeout
 
     def __init__(self):
-        BaseQuery.__init__(self)
+        super(AtomicLineListClass, self).__init__()
         self._default_form_values = None
 
     def query_object(self, wavelength_range=None, wavelength_type=None,
