@@ -3,6 +3,8 @@
 
 - Fix VizieR to respect specification to return default columns only (#792)
 - SIMBAD queries allow multiple configurable parameters (#820)
+- Add a capability to resume partially-completed downloads for services that
+  support the http 'range' keyword.  Currently applied to ESO and ALMA (#812)
 
 0.3.4 (2016-11-21)
 ------------------
