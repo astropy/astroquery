@@ -83,7 +83,7 @@ def post_mockreturn(method, url, data, timeout=10, stream=True, **kwargs):
 
 
 def test_query(patch_post, patch_get_readable_fileobj):
-    result = besancon.Besancon.query(0, 0, 'adam.g.ginsburg@gmail.com')
+    result = besancon.Besancon.query(0, 0, 'a@b.com')
     assert result is not None
 
 
