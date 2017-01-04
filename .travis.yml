@@ -27,8 +27,8 @@ env:
         - MAIN_CMD='python setup.py'
         - NUMPY_VERSION=stable
         - ASTROPY_VERSION=stable
-        - CONDA_DEPENDENCIES='requests beautifulsoup4 html5lib keyring aplpy pyregion'
-        - PIP_DEPENDENCIES=''
+        - CONDA_DEPENDENCIES='requests beautifulsoup4 html5lib keyring aplpy pyregion jinja2 flask'
+        - PIP_DEPENDENCIES='https://github.com/keflavich/httpbin/archive/master.zip'
         - SETUP_CMD='test'
         - CONDA_CHANNELS='astropy-ci-extras astropy'
         - CONDA_DEPENDENCIES_OLD='requests beautiful-soup matplotlib html5lib'
@@ -129,6 +129,7 @@ install:
     - source ci-helpers/travis/setup_conda_$TRAVIS_OS_NAME.sh
 
 script:
+   - python -c 'import httpbin; httpbin.app.run()' &
    - $MAIN_CMD $SETUP_CMD
 
 after_success:

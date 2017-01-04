@@ -131,7 +131,7 @@ class BaseQuery(object):
 
     def _request(self, method, url, params=None, data=None, headers=None,
                  files=None, save=False, savedir='', timeout=None, cache=True,
-                 stream=False, auth=None):
+                 stream=False, auth=None, continuation=True):
         """
         A generic HTTP request method, similar to `requests.Session.request`
         but with added caching-related tools
@@ -177,7 +177,8 @@ class BaseQuery(object):
             # REDUNDANT: spinner has this log.info("Downloading
             # {0}...".format(local_filename))
             self._download_file(url, local_filepath, timeout=timeout,
-                                auth=auth, cache=cache)
+                                auth=auth, cache=cache,
+                                continuation=continuation)
             return local_filepath
         else:
             query = AstroQuery(method, url, params=params, data=data,
@@ -199,20 +200,47 @@ class BaseQuery(object):
             return response
 
     def _download_file(self, url, local_filepath, timeout=None, auth=None,
-                       cache=False):
+                       continuation=True, cache=False, **kwargs):
         """
         Download a file.  Resembles `astropy.utils.data.download_file` but uses
         the local ``_session``
         """
         response = self._session.get(url, timeout=timeout, stream=True,
-                                     auth=auth)
+                                     auth=auth, **kwargs)
         response.raise_for_status()
         if 'content-length' in response.headers:
             length = int(response.headers['content-length'])
         else:
             length = None
 
-        if cache and os.path.exists(local_filepath):
+        if ((os.path.exists(local_filepath) and ('Accept-Ranges' in
+                                                 response.headers) and
+             continuation)):
+            open_mode = 'ab'
+
+            existing_file_length = os.stat(local_filepath).st_size
+            if existing_file_length >= length:
+                # all done!
+                log.info("Found cached file {0} with expected size {1}."
+                         .format(local_filepath, existing_file_length))
+                return
+            elif existing_file_length == 0:
+                open_mode = 'wb'
+            else:
+                log.info("Continuing download of file {0}, with {1} bytes to "
+                         "go ({2}%)".format(local_filepath,
+                                            length - existing_file_length,
+                                            (length-existing_file_length)/length*100))
+
+                # bytes are indexed from 0:
+                # https://en.wikipedia.org/wiki/List_of_HTTP_header_fields#range-request-header
+                self._session.headers['Range'] = "bytes={0}-{1}".format(existing_file_length,
+                                                                        length-1)
+
+                response = self._session.get(url, timeout=timeout, stream=True,
+                                             auth=auth, **kwargs)
+
+        elif cache and os.path.exists(local_filepath):
             if length is not None:
                 statinfo = os.stat(local_filepath)
                 if statinfo.st_size != length:
@@ -221,6 +249,7 @@ class BaseQuery(object):
                                 .format(local_filepath,
                                         statinfo.st_size,
                                         length))
+                    open_mode = 'wb'
                 else:
                     log.info("Found cached file {0} with expected size {1}."
                              .format(local_filepath, statinfo.st_size))
@@ -230,6 +259,8 @@ class BaseQuery(object):
                 log.info("Found cached file {0}.".format(local_filepath))
                 response.close()
                 return
+        else:
+            open_mode = 'wb'
 
         blocksize = astropy.utils.data.conf.download_block_size
 
@@ -238,7 +269,7 @@ class BaseQuery(object):
         with ProgressBarOrSpinner(
             length, ('Downloading URL {0} to {1} ...'
                      .format(url, local_filepath))) as pb:
-            with open(local_filepath, 'wb') as f:
+            with open(local_filepath, open_mode) as f:
                 for block in response.iter_content(blocksize):
                     f.write(block)
                     bytes_read += blocksize
