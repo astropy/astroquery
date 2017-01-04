@@ -22,11 +22,12 @@ def data_path(filename):
 @pytest.fixture
 def patch_post(request):
     mp = request.getfuncargvalue("monkeypatch")
+    mp.setattr(fermi.FermiLAT, '_request', post_mockreturn)
     mp.setattr(requests, 'post', post_mockreturn)
     return mp
 
 
-def post_mockreturn(url, data=None, timeout=50, **kwargs):
+def post_mockreturn(method="POST", url=None, data=None, timeout=50, **kwargs):
     if data is not None:
         with open(data_path(DATA_FILES['async']), 'rb') as r:
             response = MockResponse(r.read(), **kwargs)

@@ -2,7 +2,6 @@
 from ... import ogle
 
 import os
-import requests
 from astropy.tests.helper import pytest
 from astropy.coordinates import SkyCoord
 from astropy import units as u
@@ -20,11 +19,11 @@ def data_path(filename):
 @pytest.fixture
 def patch_post(request):
     mp = request.getfuncargvalue("monkeypatch")
-    mp.setattr(requests, 'post', post_mockreturn)
+    mp.setattr(ogle.Ogle, '_request', post_mockreturn)
     return mp
 
 
-def post_mockreturn(url, data, timeout, files=None, **kwargs):
+def post_mockreturn(method, url, data, timeout, files=None, **kwargs):
     if files is not None:
         content = open(data_path(DATA_FILES['gal_0_3']), 'rb').read()
         response = MockResponse(content, **kwargs)

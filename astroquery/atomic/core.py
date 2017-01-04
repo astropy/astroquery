@@ -11,7 +11,6 @@ from astropy import units as u
 from bs4 import BeautifulSoup
 
 from ..query import BaseQuery
-from ..utils import commons
 from ..utils import prepend_docstr_noreturns
 from ..utils import async_to_sync
 from . import conf
@@ -27,7 +26,7 @@ class AtomicLineListClass(BaseQuery):
     TIMEOUT = conf.timeout
 
     def __init__(self):
-        BaseQuery.__init__(self)
+        super(AtomicLineListClass, self).__init__()
         self._default_form_values = None
 
     def query_object(self, wavelength_range=None, wavelength_type=None,
@@ -170,8 +169,8 @@ class AtomicLineListClass(BaseQuery):
             The HTTP response returned from the service.
         """
         if self._default_form_values is None:
-            response = commons.send_request(
-                self.FORM_URL, {}, self.TIMEOUT, 'GET')
+            response = self._request("GET", url=self.FORM_URL, data={},
+                                     timeout=self.TIMEOUT)
             bs = BeautifulSoup(response.text)
             form = bs.find('form')
             self._default_form_values = self._get_default_form_values(form)
@@ -272,7 +271,8 @@ class AtomicLineListClass(BaseQuery):
         """
         if input is None:
             input = {}
-        response = commons.send_request(self.FORM_URL, {}, self.TIMEOUT, 'GET')
+        response = self._request("GET", url=self.FORM_URL, data={},
+                                 timeout=self.TIMEOUT)
         bs = BeautifulSoup(response.text)
         form = bs.find('form')
         # cache the default values to save HTTP traffic
@@ -285,7 +285,8 @@ class AtomicLineListClass(BaseQuery):
             if v is not None:
                 payload[k] = v
         url = urlparse.urljoin(self.FORM_URL, form.get('action'))
-        response = commons.send_request(url, payload, self.TIMEOUT)
+        response = self._request("POST", url=url, data=payload,
+                                 timeout=self.TIMEOUT)
         return response
 
     def _get_default_form_values(self, form):

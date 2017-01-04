@@ -32,11 +32,11 @@ def patch_parse_coordinates(request):
 @pytest.fixture
 def patch_post(request):
     mp = request.getfuncargvalue("monkeypatch")
-    mp.setattr(requests, 'post', post_mockreturn)
+    mp.setattr(magpis.Magpis, '_request', post_mockreturn)
     return mp
 
 
-def post_mockreturn(url, data, timeout, **kwargs):
+def post_mockreturn(method, url, data, timeout, **kwargs):
     filename = data_path(DATA_FILES['image'])
     content = open(filename, 'rb').read()
     return MockResponse(content, **kwargs)

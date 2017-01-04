@@ -32,11 +32,11 @@ def data_path(filename):
 @pytest.fixture
 def patch_get(request):
     mp = request.getfuncargvalue("monkeypatch")
-    mp.setattr(requests, 'get', get_mockreturn)
+    mp.setattr(irsa.Irsa, '_request', get_mockreturn)
     return mp
 
 
-def get_mockreturn(url, params=None, timeout=10, **kwargs):
+def get_mockreturn(method, url, params=None, timeout=10, **kwargs):
     filename = data_path(DATA_FILES[params['spatial']])
     content = open(filename, 'rb').read()
     return MockResponse(content, **kwargs)

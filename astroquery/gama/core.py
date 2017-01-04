@@ -32,9 +32,8 @@ class GAMAClass(BaseQuery):
         if kwargs.get('get_query_payload'):
             return payload
 
-        result = commons.send_request(self.request_url,
-                                      payload,
-                                      self.timeout)
+        result = self._request("POST", url=self.request_url,
+                               data=payload, timeout=self.timeout)
 
         result_url_relative = find_data_url(result.text)
         result_url = os.path.join(self.request_url, result_url_relative)

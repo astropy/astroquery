@@ -2,7 +2,6 @@
 
 import os
 from contextlib import contextmanager
-import requests
 from astropy.tests.helper import pytest
 from astropy.io.ascii.tests.common import assert_equal
 from astropy.extern.six import string_types
@@ -55,7 +54,7 @@ def test_reader(filename, length, ncols, d1, mv1):
 @pytest.fixture
 def patch_post(request):
     mp = request.getfuncargvalue("monkeypatch")
-    mp.setattr(requests, 'post', post_mockreturn)
+    mp.setattr(besancon.Besancon, '_request', post_mockreturn)
     return mp
 
 
@@ -63,14 +62,13 @@ def patch_post(request):
 def patch_get_readable_fileobj(request):
     @contextmanager
     def get_readable_fileobj_mockreturn(filename, **kwargs):
-        # file_obj = StringIO.StringIO(filename)
         if isinstance(filename, string_types):
-            is_binary = kwargs.get('encoding', None) == 'binary'
-            file_obj = open(data_path(filename),
-                            "r" + ('b' if is_binary else ''))
+            if '1376235131.430670' in filename:
+                is_binary = kwargs.get('encoding', None) == 'binary'
+                file_obj = open(data_path('1376235131.430670.resu'),
+                                "r" + ('b' if is_binary else ''))
         else:
             file_obj = filename
-        # file_obj = data_path(filename)
         yield file_obj
     mp = request.getfuncargvalue("monkeypatch")
     mp.setattr(commons, 'get_readable_fileobj',
@@ -78,17 +76,14 @@ def patch_get_readable_fileobj(request):
     return mp
 
 
-def post_mockreturn(url, data, timeout=10, stream=True, params=None, **kwargs):
-    # filename = data_path('1376235131.430670.resu')
+def post_mockreturn(method, url, data, timeout=10, stream=True, **kwargs):
     filename = data_path('query_return.iframe.html')
     content = open(filename, 'rb').read()
     return MockResponseBesancon(content, filename, **kwargs)
 
 
 def test_query(patch_post, patch_get_readable_fileobj):
-    B = besancon.Besancon()
-    B.url_download = ''
-    result = B.query(0, 0, 'adam.g.ginsburg@gmail.com')
+    result = besancon.Besancon.query(0, 0, 'a@b.com')
     assert result is not None
 
 

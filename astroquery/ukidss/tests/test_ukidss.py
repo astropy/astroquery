@@ -30,6 +30,7 @@ def data_path(filename):
 def patch_get(request):
     mp = request.getfuncargvalue("monkeypatch")
     mp.setattr(requests, 'get', get_mockreturn)
+    mp.setattr(ukidss.Ukidss, '_request', get_mockreturn)
     return mp
 
 
@@ -54,15 +55,15 @@ def patch_get_readable_fileobj(request):
 def patch_parse_coordinates(request):
     def parse_coordinates_mock_return(c):
         return c
-    # This should probably be request, not requests, but this mistake has lead
-    # to no errors
+
     # TODO: determine if this patch is ever used
-    mp = requests.getfuncargvalue("monkeypatch")
+    mp = request.getfuncargvalue("monkeypatch")
     mp.setattr(commons, 'parse_coordinates', parse_coordinates_mock_return)
     return mp
 
 
-def get_mockreturn(url, params=None, timeout=10, **kwargs):
+def get_mockreturn(method='GET', url='default_url',
+                   params=None, timeout=10, **kwargs):
     if "Image" in url:
         filename = DATA_FILES["image_results"]
         url = "Image_URL"
@@ -74,8 +75,7 @@ def get_mockreturn(url, params=None, timeout=10, **kwargs):
         url = "error.html"
     else:
         raise ValueError("Mismatch: no test made for specified URL")
-    print(filename)
-    print(url)
+
     content = open(data_path(filename), "rb").read()
     return MockResponse(content=content, url=url, **kwargs)
 
@@ -116,7 +116,7 @@ def test_get_images_async_1():
     assert payload['xsize'] == payload['ysize']
     assert payload['xsize'] == 1
 
-    get_mockreturn(ukidss.core.Ukidss.ARCHIVE_URL, payload)
+    get_mockreturn(url=ukidss.core.Ukidss.ARCHIVE_URL, params=payload)
 
 
 def test_get_images_async_2(patch_get, patch_get_readable_fileobj):

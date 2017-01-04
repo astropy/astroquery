@@ -176,7 +176,8 @@ class IrsaDustClass(BaseQuery):
         """
         url = self.DUST_SERVICE_URL
         request_payload = self._args_to_payload(coordinate, radius=radius)
-        response = commons.send_request(url, request_payload, timeout)
+        response = self._request("POST", url, data=request_payload,
+                                 timeout=timeout)
         return self.extract_image_urls(response.text, image_type=image_type)
 
     def get_extinction_table(self, coordinate, radius=None, timeout=TIMEOUT,
@@ -243,7 +244,8 @@ class IrsaDustClass(BaseQuery):
         """
         url = self.DUST_SERVICE_URL
         request_payload = self._args_to_payload(coordinate, radius=radius)
-        response = commons.send_request(url, request_payload, timeout)
+        response = self._request("POST", url, data=request_payload,
+                                 timeout=timeout)
         xml_tree = utils.xml(response.text)
         result = SingleDustResult(xml_tree, coordinate)
         return commons.FileContainer(result.ext_detail_table(),
@@ -288,7 +290,8 @@ class IrsaDustClass(BaseQuery):
             Table representing the query results, (all or as per  specified).
         """
         request_payload = self._args_to_payload(coordinate, radius=radius)
-        response = commons.send_request(url, request_payload, timeout)
+        response = self._request("POST", url, data=request_payload,
+                                 timeout=timeout)
         xml_tree = utils.xml(response.text)
         result = SingleDustResult(xml_tree, coordinate)
         if section is None or section in ["location", "loc", "l"]:

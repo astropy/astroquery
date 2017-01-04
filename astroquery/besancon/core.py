@@ -89,6 +89,7 @@ class BesanconClass(BaseQuery):
     result_re = re.compile("[0-9]{10}\.[0-9]{6}\.resu")
 
     def __init__(self, email=None):
+        super(BesanconClass, self).__init__()
         self.email = email
 
     def get_besancon_model_file(self, filename, verbose=True, timeout=5.0):
@@ -107,7 +108,6 @@ class BesanconClass(BaseQuery):
         """
 
         url = os.path.join(self.url_download, filename)
-
         elapsed_time = 0
         t0 = time.time()
 
@@ -301,8 +301,8 @@ class BesanconClass(BaseQuery):
         if kwargs.get('get_query_payload'):
             return data_payload
 
-        response = commons.send_request(self.QUERY_URL, data_payload,
-                                        self.TIMEOUT, stream=True)
+        response = self._request("POST", url=self.QUERY_URL, data=data_payload,
+                                 timeout=self.TIMEOUT, stream=True)
         return response
 
 Besancon = BesanconClass()
