@@ -177,11 +177,13 @@ class AlmaClass(QueryWithLogin):
         access for querying data
         """
         if not hasattr(self, 'dataarchive_url'):
-            if self.archive_url == 'http://almascience.org':
-                response = self._request(
-                    'GET', self.archive_url + "/aq", cache=False)
+            if self.archive_url in ('http://almascience.org', 'https://almascience.org'):
+                response = self._request('GET', self.archive_url + "/aq",
+                                         cache=False)
                 response.raise_for_status()
-                self.dataarchive_url = response.url.replace("/aq/", "")
+                # Jan 2017: we have to force https because the archive doesn't
+                # tell us it needs https.
+                self.dataarchive_url = response.url.replace("/aq/", "").replace("http://", "https://")
             else:
                 self.dataarchive_url = self.archive_url
         return self.dataarchive_url
