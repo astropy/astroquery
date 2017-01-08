@@ -51,7 +51,6 @@ class HeasarcClass(BaseQuery):
         Blank columns which have to be converted to float or in fail so
         lets fix that by replacing with -1's
         """
-
         data = BytesIO(content)
         header = fits.getheader(data, 1)  # Get header for column info
         colstart = [y for x, y in header.items() if "TBCOL" in x]
@@ -87,11 +86,11 @@ class HeasarcClass(BaseQuery):
             return self._fallback(response.content)
         except IORegistryError:
             if _obj_not_found_msg in response.content:
-                object_name = response.request.path_url.split("Entry=")[-1].split("&")[0]
+                object_name = response.url.split("Entry=")[-1].split("&")[0]
                 warnings.warn(AstropyWarning("Object {obj} ".format(obj=object_name) +
                                              _obj_not_found_msg))
             elif _table_not_found_msg in response.content:
-                table_name = response.request.path_url.split("BATCHRETRIEVALCATALOG_2.0+")[-1].split("&")[0]
+                table_name = response.url.split("BATCHRETRIEVALCATALOG_2.0+")[-1].split("&")[0]
                 warnings.warn(AstropyWarning(_table_not_found_msg + " for table {tbl}".format(tbl=table_name)))
 
 
