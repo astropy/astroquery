@@ -111,9 +111,10 @@ method.
 
     >>> eso.list_instruments()
     ['fors1', 'fors2', 'vimos', 'omegacam', 'hawki', 'isaac', 'naco', 'visir', 'vircam',
-    'apex', 'uves', 'giraffe', 'xshooter', 'crires', 'kmos', 'sinfoni', 'amber', 'midi']
+    'apex', 'uves', 'giraffe', 'xshooter', 'muse, 'crires', 'kmos', 'sinfoni',
+    'amber', 'gravity', 'midi', 'pionier', 'harps']
 
-In the example above, 18 instruments are available, they correspond to the instrument listed on
+In the example above, 23 instruments are available, they correspond to the instrument listed on
 the following web page: http://archive.eso.org/cms/eso-data/instrument-specific-query-forms.html.
 
 Inspecting available query options
@@ -126,7 +127,7 @@ method.
 .. code-block:: python
 
     >>> eso.query_instrument('midi', help=True)
-    List of the column_filters parameters accepted by the amber instrument query.
+    List of the column_filters parameters accepted by the midi instrument query.
     The presence of a column in the result table can be controlled if prefixed with a [ ] checkbox.
     The default columns in the result table are shown as already ticked: [x].
 
@@ -145,15 +146,16 @@ method.
     ------------------------------------
     [ ] night:
         stime:
-        starttime: 01 (01 hrs [UT]), 02 (02 hrs [UT]), 03 (03 hrs [UT]), 04 (04 hrs [UT]), 05 (05 hrs [UT]), 06 (06 hrs [UT]), 07 (07 hrs [UT]), 08 (08 hrs [UT]), 09 (09 hrs [UT]), 10 (10 hrs [UT]), 11 (11 hrs [UT]), 12 (12 hrs [UT]), 13 (13 hrs [UT]), 14 (14 hrs [UT]), 15 (15 hrs [UT]), 16 (16 hrs [UT]), 17 (17 hrs [UT]), 18 (18 hrs [UT]), 19 (19 hrs [UT]), 20 (20 hrs [UT]), 21 (21 hrs [UT]), 22 (22 hrs [UT]), 23 (23 hrs [UT]), 24 (24 hrs [UT])
+        starttime: 00 (00 hrs [UT]), 01 (01 hrs [UT]), 02 (02 hrs [UT]), 03 (03 hrs [UT]), 04 (04 hrs [UT]), 05 (05 hrs [UT]), 06 (06 hrs [UT]), 07 (07 hrs [UT]), 08 (08 hrs [UT]), 09 (09 hrs [UT]), 10 (10 hrs [UT]), 11 (11 hrs [UT]), 12 (12 hrs [UT]), 13 (13 hrs [UT]), 14 (14 hrs [UT]), 15 (15 hrs [UT]), 16 (16 hrs [UT]), 17 (17 hrs [UT]), 18 (18 hrs [UT]), 19 (19 hrs [UT]), 20 (20 hrs [UT]), 21 (21 hrs [UT]), 22 (22 hrs [UT]), 23 (23 hrs [UT]), 24 (24 hrs [UT])
         etime:
-        endtime: 01 (01 hrs [UT]), 02 (02 hrs [UT]), 03 (03 hrs [UT]), 04 (04 hrs [UT]), 05 (05 hrs [UT]), 06 (06 hrs [UT]), 07 (07 hrs [UT]), 08 (08 hrs [UT]), 09 (09 hrs [UT]), 10 (10 hrs [UT]), 11 (11 hrs [UT]), 12 (12 hrs [UT]), 13 (13 hrs [UT]), 14 (14 hrs [UT]), 15 (15 hrs [UT]), 16 (16 hrs [UT]), 17 (17 hrs [UT]), 18 (18 hrs [UT]), 19 (19 hrs [UT]), 20 (20 hrs [UT]), 21 (21 hrs [UT]), 22 (22 hrs [UT]), 23 (23 hrs [UT]), 24 (24 hrs [UT])
+        endtime: 00 (00 hrs [UT]), 01 (01 hrs [UT]), 02 (02 hrs [UT]), 03 (03 hrs [UT]), 04 (04 hrs [UT]), 05 (05 hrs [UT]), 06 (06 hrs [UT]), 07 (07 hrs [UT]), 08 (08 hrs [UT]), 09 (09 hrs [UT]), 10 (10 hrs [UT]), 11 (11 hrs [UT]), 12 (12 hrs [UT]), 13 (13 hrs [UT]), 14 (14 hrs [UT]), 15 (15 hrs [UT]), 16 (16 hrs [UT]), 17 (17 hrs [UT]), 18 (18 hrs [UT]), 19 (19 hrs [UT]), 20 (20 hrs [UT]), 21 (21 hrs [UT]), 22 (22 hrs [UT]), 23 (23 hrs [UT]), 24 (24 hrs [UT])
     [x] prog_id:
     [ ] prog_type: % (Any), 0 (Normal), 1 (GTO), 2 (DDT), 3 (ToO), 4 (Large), 5 (Short), 6 (Calibration)
     [ ] obs_mode: % (All modes), s (Service), v (Visitor)
     [ ] pi_coi:
         pi_coi_name: PI_only (as PI only), none (as PI or CoI)
     [ ] prog_title:
+    ...
 
 Only the first two sections, of the parameters accepted by the ``midi`` instrument query,
 are shown in the example above: ``Target Information`` and ``Observation and proposal parameters``.
@@ -162,7 +164,7 @@ As stated at the beginning of the help message, the parameters accepted by the q
 the first ``:`` sign (e.g. ``target``, ``resolver``, ``stime``, ``etime``...). When a parameter is prefixed
 by ``[ ]``, the presence of the associated column in the query result can be controlled.
 
-Note: the instrument query forms can be opened in your web browser directly using the ``show_form`` option of
+Note: the instrument query forms can be opened in your web browser directly using the ``open_form`` option of
 the :meth:`~astroquery.eso.EsoClass.query_instrument` method. This should also help with the identification of
 acceptable keywords.
 
@@ -179,7 +181,7 @@ return the observation date column.
     >>> print(len(table))
     38
     >>> print(table.columns)
-    <TableColumns names=('Object','Target Ra Dec','Target l b','DATE OBS','ProgId','DP.ID','OB.ID','OBS.TARG.NAME','DPR.CATG','DPR.TYPE','DPR.TECH','INS.MODE','DIMM S-avg')>
+    <TableColumns names=('Object','RA', 'DEC','Target l b','DATE OBS','ProgId','DP.ID','OB.ID','OBS.TARG.NAME','DPR.CATG','DPR.TYPE','DPR.TECH','INS.MODE','DIMM S-avg')>
     >>> table.pprint(max_width=100)
              Object              Target Ra Dec           Target l b      ... INS.MODE  DIMM S-avg
     ----------------------- ----------------------- -------------------- ... -------- -----------
@@ -206,13 +208,15 @@ return the observation date column.
      TRACK,OBJECT,DISPERSED 12:10:32.63 +39:24:20.7 155.076719 75.063247 ... STARINTF 0.51 [0.01]
           PHOTOMETRY,OBJECT 12:10:32.63 +39:24:20.7 155.076719 75.063247 ... STARINTF 0.54 [0.01]
           PHOTOMETRY,OBJECT 12:10:32.63 +39:24:20.7 155.076719 75.063247 ... STARINTF 0.54 [0.01]
+    Length = 38 rows
 
 And indeed, 38 datasets are found, and the ``DATE OBS`` column is in the result table.
 
 Downloading identified datasets
 -------------------------------
 
-Continuing from the previous example, the first two datasets are selected, using their data product IDs ``DP.ID``, and retrieved from the ESO archive.
+Continuing from the previous example, the first two datasets are selected,
+using their data product IDs ``DP.ID``, and retrieved from the ESO archive.
 
 .. code-block:: python
 
@@ -223,7 +227,9 @@ Continuing from the previous example, the first two datasets are selected, using
     Downloading MIDI.2007-02-07T07:02:49.000.fits.Z...
     Done!
 
-The file names, returned in data_files, points to the decompressed datasets (without the .Z extension) that have been locally downloaded.
+The file names, returned in data_files, points to the decompressed datasets
+(without the .Z extension) that have been locally downloaded.
+
 They are ready to be used with `~astropy.io.fits`.
 
 
@@ -265,6 +271,7 @@ This method is detailed in the example below, continuing with the previously obt
     MIDI.2007-02-07T08:06:11.013.fits     16 ... ESO-VLTI-U23 29014.5
     MIDI.2007-02-07T08:08:19.000.fits     16 ... ESO-VLTI-U23 29288.5
     MIDI.2007-02-07T08:09:33.506.fits     16 ... ESO-VLTI-U23 29288.5
+    Length = 38 rows
     >>> len(table_headers.columns)
     340
 
