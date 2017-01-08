@@ -18,7 +18,6 @@ _table_not_found_msg = "Error: No table info found for heasarc"
 
 @async_to_sync
 class HeasarcClass(BaseQuery):
-
     """HEASARC query class.
     """
 
@@ -85,13 +84,15 @@ class HeasarcClass(BaseQuery):
         except ValueError:
             return self._fallback(response.content)
         except IORegistryError:
-            if _obj_not_found_msg in response.content:
+            if _obj_not_found_msg in str(response.content):
                 object_name = response.url.split("Entry=")[-1].split("&")[0]
                 warnings.warn(AstropyWarning("Object {obj} ".format(obj=object_name) +
                                              _obj_not_found_msg))
-            elif _table_not_found_msg in response.content:
+            elif _table_not_found_msg in str(response.content):
                 table_name = response.url.split("BATCHRETRIEVALCATALOG_2.0+")[-1].split("&")[0]
                 warnings.warn(AstropyWarning(_table_not_found_msg + " for table {tbl}".format(tbl=table_name)))
+            else:
+                warnings.warn(AstropyWarning("Something went wrong with heasarc table convertion."))
 
 
 Heasarc = HeasarcClass()

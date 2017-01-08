@@ -3,7 +3,7 @@ from __future__ import print_function
 from astropy.tests.helper import pytest, catch_warnings
 from astropy.utils.exceptions import AstropyWarning
 from ...utils.testing_tools import MockResponse
-from ... import heasarc
+from ...heasarc import Heasarc
 import os
 
 
@@ -19,8 +19,6 @@ good_table = "rospublic"
 bad_object = "ImABadObject"
 bad_table = "ImABadTable"
 fallback_table = "numaster"
-Heasarc = heasarc.core.HeasarcClass()
-
 
 def get_mockreturn(type, url, params=None, timeout=10, cache=True, **kwargs):
     object_name = params.get('Entry')
@@ -29,9 +27,9 @@ def get_mockreturn(type, url, params=None, timeout=10, cache=True, **kwargs):
     if object_name == good_object and table_name == good_table:
         content = open(data_path(data_filenames['good']), "rb").read()
     elif object_name == bad_object:
-        content = open(data_path(data_filenames['bad_object']), "r").read()
+        content = open(data_path(data_filenames['bad_object']), "rb").read()
     elif table_name == bad_table:
-        content = open(data_path(data_filenames['bad_table']), "r").read()
+        content = open(data_path(data_filenames['bad_table']), "rb").read()
     elif table_name == fallback_table:
         content = open(data_path(data_filenames['fallback']), "rb").read()
     payload = "?Entry={object_name}&tablehead=BATCHRETRIEVALCATALOG_2.0+{table_name}".format(object_name=object_name, table_name=table_name)
@@ -50,7 +48,6 @@ def patch_get(request):
     return mp
 
 
-Heasarc = heasarc.core.HeasarcClass()
 bad_table_msg = 'Error: No table info found for heasarc for table ImABadTable'
 bad_object_msg = 'Object ImABadObject is not recognized by the GRB or SIMBAD+Sesame or NED name resolvers.'
 
@@ -60,7 +57,7 @@ def test_good(patch_get):
     table = Heasarc.query_object(good_object, good_table)
     table.sort("NAME")
     col = table[:3]['NAME']
-    assert col.tostring().replace(" ", "").lower() == 3 * good_object.lower()
+    assert col[0].replace(" ", "").lower() == good_object.lower()
 
 
 def test_bad_table(patch_get):
