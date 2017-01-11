@@ -34,7 +34,7 @@ def validate_epoch(value):
 def validate_equinox(value):
     try:
         return float(value)
-    except ValueError:
+    except (ValueError,TypeError):
         raise ValueError("Equinox must be a number")
 
 def validate_epoch_decorator(func):
@@ -557,8 +557,8 @@ class SimbadClass(BaseQuery):
         """
         return self.query_object_async('\n'.join(object_names), wildcard)
 
-    def query_region_async(self, coordinates, radius=2*u.arcmin, equinox=2000.0,
-                           epoch='J2000', cache=True):
+    def query_region_async(self, coordinates, radius=2*u.arcmin,
+                           equinox=2000.0, epoch='J2000', cache=True):
         """
         Serves the same function as `query_region`, but
         only collects the response from the Simbad server and returns.
@@ -622,7 +622,7 @@ class SimbadClass(BaseQuery):
         else:
             radius = _parse_radius(radius)
             query_str = base_query_str.format(ra=ra, dec=dec, frame=frame,
-                                              radius=radius, equinox=equinox)
+                                              rad=radius, equinox=equinox)
 
 
         request_payload = {'script': "\n".join([header,query_str,footer])}

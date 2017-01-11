@@ -12,7 +12,9 @@ import imp
 imp.reload(requests)
 
 # M42 coordinates
-ICRS_COORDS = coord.SkyCoord("05h35m17.3s -05h23m28s", frame='icrs')
+ICRS_COORDS_M42 = coord.SkyCoord("05h35m17.3s -05h23m28s", frame='icrs')
+ICRS_COORDS_SgrB2 = coord.SkyCoord(266.835*u.deg, -28.38528*u.deg, frame='icrs')
+multicoords = coord.SkyCoord([ICRS_COORDS_M42, ICRS_COORDS_SgrB2])
 
 
 @remote_data
@@ -66,12 +68,22 @@ class TestSimbad(object):
 
     def test_query_region_async(self):
         response = simbad.core.Simbad.query_region_async(
-            ICRS_COORDS, radius=5 * u.deg, equinox=2000.0, epoch='J2000')
+            ICRS_COORDS_M42, radius=5 * u.deg, equinox=2000.0, epoch='J2000')
 
         assert response is not None
 
+    def test_query_region_async_vector(self):
+        response1 = simbad.core.Simbad.query_region_async(multicoords,
+                                                          radius=0.5*u.arcsec)
+        assert response1.request.body == 'script=votable+%7Bmain_id%2Ccoordinates%7D%0Avotable+open%0Aquery+coo+5%3A35%3A17.3+-80%3A52%3A00+radius%3D0.5s+frame%3DICRS+equi%3D2000.0%0Aquery+coo+17%3A47%3A20.4+-28%3A23%3A07.008+radius%3D0.5s+frame%3DICRS+equi%3D2000.0%0Avotable+close'
+
     def test_query_region(self):
-        result = simbad.core.Simbad.query_region(ICRS_COORDS, radius=5 * u.deg,
+        result = simbad.core.Simbad.query_region(ICRS_COORDS_M42, radius=5 * u.deg,
+                                                 equinox=2000.0, epoch='J2000')
+        assert isinstance(result, Table)
+
+    def test_query_regions(self):
+        result = simbad.core.Simbad.query_region(multicoords, radius=1 * u.arcmin,
                                                  equinox=2000.0, epoch='J2000')
         assert isinstance(result, Table)
 

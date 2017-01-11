@@ -12,6 +12,7 @@ from ... import simbad
 from ...utils.testing_tools import MockResponse
 from ...utils import commons
 from ...exceptions import TableParseError
+from .test_simbad_remote import multicoords
 
 GALACTIC_COORDS = commons.GalacticCoordGenerator(l=-67.02084, b=-29.75447,
                                                  unit=(u.deg, u.deg))
@@ -128,16 +129,7 @@ votable_fields = ",".join(simbad.core.Simbad.get_votable_fields())
 
 
 @pytest.mark.parametrize(('args', 'kwargs', 'expected_script'),
-                         [([ICRS_COORDS], dict(radius=5.0 * u.deg,
-                                               frame='ICRS',
-                                               equinox=2000.0, epoch='J2000',
-                                               caller='query_region_async'),
-                           ("\nvotable {" + votable_fields + "}\n"
-                            "votable open\n"
-                            "query coo  5:35:17.3 -80:52:00 "
-                            "radius=5.0d frame=ICRS equi=2000.0 epoch=J2000 \n"
-                            "votable close")),
-                          (["m [0-9]"], dict(wildcard=True,
+                         [(["m [0-9]"], dict(wildcard=True,
                                              caller='query_object_async'),
                            ("\nvotable {" + votable_fields + "}\n"
                             "votable open\n"
@@ -146,7 +138,7 @@ votable_fields = ",".join(simbad.core.Simbad.get_votable_fields())
                             )),
                           (["2006ApJ"], dict(caller='query_bibcode_async',
                                              get_raw=True),
-                           ("\n\n\nquery bibcode  2006ApJ  \n"))
+                           ("\n\nquery bibcode  2006ApJ  \n"))
                           ])
 def test_args_to_payload(args, kwargs, expected_script):
     script = simbad.Simbad._args_to_payload(*args, **kwargs)['script']
@@ -156,12 +148,15 @@ def test_args_to_payload(args, kwargs, expected_script):
 @pytest.mark.parametrize(('epoch', 'equinox'),
                          [(2000, 'thousand'),
                           ('J-2000', None),
-                          (None, '10e3')
+                          (None, '10e3b')
                           ])
-def test_args_to_payload_validate(epoch, equinox):
-    with pytest.raises(Exception):
-        simbad.Simbad._args_to_payload(caller='query_region_async',
-                                       epoch=epoch, equinox=equinox)
+def test_validation(epoch, equinox):
+    with pytest.raises(ValueError):
+        # only one of these has to raise an exception
+        if equinox is not None:
+            simbad.core.validate_equinox(equinox)
+        if epoch is not None:
+            simbad.core.validate_epoch(epoch)
 
 
 @pytest.mark.xfail()
@@ -232,10 +227,11 @@ def test_query_catalog(patch_post):
 
 
 @pytest.mark.parametrize(('coordinates', 'radius', 'equinox', 'epoch'),
-                         [(ICRS_COORDS, None, None, None),
+                         [(ICRS_COORDS, None, 2000.0, 'J2000'),
                           (GALACTIC_COORDS, 5 * u.deg, 2000.0, 'J2000'),
-                          (FK4_COORDS, '5d0m0s', None, None),
-                          (FK5_COORDS, None, None, None)
+                          (FK4_COORDS, '5d0m0s', 2000.0, 'J2000'),
+                          (FK5_COORDS, None, 2000.0, 'J2000'),
+                          (multicoords, 0.5*u.arcsec, 2000.0, 'J2000'),
                           ])
 def test_query_region_async(patch_post, coordinates, radius, equinox, epoch):
     response1 = simbad.core.Simbad.query_region_async(
@@ -246,13 +242,14 @@ def test_query_region_async(patch_post, coordinates, radius, equinox, epoch):
 
     assert response1 is not None and response2 is not None
     assert response1.content == response2.content
+    
 
 
 @pytest.mark.parametrize(('coordinates', 'radius', 'equinox', 'epoch'),
-                         [(ICRS_COORDS, None, None, None),
+                         [(ICRS_COORDS, None, 2000.0, 'J2000'),
                           (GALACTIC_COORDS, 5 * u.deg, 2000.0, 'J2000'),
-                          (FK4_COORDS, '5d0m0s', None, None),
-                          (FK5_COORDS, None, None, None)
+                          (FK4_COORDS, '5d0m0s', 2000.0, 'J2000'),
+                          (FK5_COORDS, None, 2000.0, 'J2000')
                           ])
 def test_query_region(patch_post, coordinates, radius, equinox, epoch):
     result1 = simbad.core.Simbad.query_region(coordinates, radius=radius,
@@ -264,7 +261,7 @@ def test_query_region(patch_post, coordinates, radius, equinox, epoch):
 
 
 @pytest.mark.parametrize(('coordinates', 'radius', 'equinox', 'epoch'),
-                         [(ICRS_COORDS, 0, None, None)])
+                         [(ICRS_COORDS, 0, 2000.0, 'J2000')])
 def test_query_region_radius_error(patch_post, coordinates, radius,
                                    equinox, epoch):
     with pytest.raises(u.UnitsError):
@@ -277,7 +274,7 @@ def test_query_region_radius_error(patch_post, coordinates, radius,
 
 
 @pytest.mark.parametrize(('coordinates', 'radius', 'equinox', 'epoch'),
-                         [(ICRS_COORDS, "0d", None, None),
+                         [(ICRS_COORDS, "0d", 2000.0, 'J2000'),
                           (GALACTIC_COORDS, 1.0 * u.marcsec, 2000.0, 'J2000')
                           ])
 def test_query_region_small_radius(patch_post, coordinates, radius,
