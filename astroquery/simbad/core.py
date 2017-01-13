@@ -17,7 +17,7 @@ import astropy.io.votable as votable
 from astropy.extern.six import BytesIO
 from ..query import BaseQuery
 from ..utils import commons
-from ..exceptions import TableParseError
+from ..exceptions import TableParseError, LargeQueryWarning
 from . import conf
 from ..utils.process_asyncs import async_to_sync
 
@@ -225,6 +225,11 @@ class SimbadObjectIDsResult(SimbadResult):
 class SimbadClass(BaseQuery):
     """
     The class for querying the Simbad web service.
+
+    Note that SIMBAD suggests submitting no more than 6 queries per second; if
+    you submit more than that, your IP may be temporarily blacklisted
+    (http://simbad.u-strasbg.fr/simbad/sim-help?Page=sim-url)
+
     """
     SIMBAD_URL = 'http://' + conf.server + '/simbad/sim-script'
     TIMEOUT = conf.timeout
@@ -599,6 +604,12 @@ class SimbadClass(BaseQuery):
         # handle the vector case
         if isinstance(ra, list):
             vector = True
+
+            if len(ra) > 10000:
+                warnings.warn("For very large queries, you may receive a "
+                              "timeout error.  SIMBAD suggests splitting "
+                              "queries with >10000 entries into multiple "
+                              "threads", LargeQueryWarning)
 
             if len(set(frame)) > 1:
                 raise ValueError("Coordinates have different frames")
