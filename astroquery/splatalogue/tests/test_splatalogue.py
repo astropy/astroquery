@@ -1,11 +1,14 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
+
+import os
+import pytest
+import requests
+
+from astropy import units as u
+from astropy.tests.helper import remote_data
+
 from ... import splatalogue
 from ...utils.testing_tools import MockResponse
-from astropy import units as u
-from astropy.tests.helper import pytest, remote_data
-from astropy.extern.six.moves import urllib_parse
-import requests
-import os
 
 SPLAT_DATA = 'CO_colons.csv'
 

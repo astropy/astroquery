@@ -1,6 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
+import pytest
 
-from astropy.tests.helper import remote_data, pytest
+from astropy.tests.helper import remote_data
 import astropy.units as u
 from astropy import coordinates
 from ... import vizier

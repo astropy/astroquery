@@ -3,7 +3,7 @@ from __future__ import print_function
 import socket
 import json
 
-from astropy.tests.helper import pytest
+import pytest
 
 # save original socket method for restoration
 socket_original = socket.socket

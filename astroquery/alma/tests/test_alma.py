@@ -1,7 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import numpy as np
 import os
-from astropy.tests.helper import pytest
+import pytest
 from ...utils.testing_tools import MockResponse
 from ...exceptions import (InvalidQueryError)
 

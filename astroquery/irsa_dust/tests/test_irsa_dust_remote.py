@@ -1,10 +1,13 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
+import imp
 import os
-from astropy.tests.helper import pytest, remote_data
+import pytest
+import requests
+
+from astropy.tests.helper import remote_data
 from astropy.table import Table
 from ... import irsa_dust
-import requests
-import imp
+
 imp.reload(requests)
 
 M31_XML = "dustm31.xml"

@@ -1,11 +1,13 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-from ... import sdss
-from ...exceptions import TimeoutError
+import numpy as np
+import pytest
+
 from astropy import coordinates
 from astropy.table import Table
-from astropy.tests.helper import pytest, remote_data
+from astropy.tests.helper import remote_data
 
-import numpy as np
+from ... import sdss
+from ...exceptions import TimeoutError
 
 
 @remote_data

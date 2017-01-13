@@ -2,7 +2,7 @@
 
 import os
 from contextlib import contextmanager
-from astropy.tests.helper import pytest
+import pytest
 from astropy.io.ascii.tests.common import assert_equal
 from astropy.extern.six import string_types
 from ... import besancon

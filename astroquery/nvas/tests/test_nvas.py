@@ -7,7 +7,7 @@ from contextlib import contextmanager
 
 import numpy.testing as npt
 import astropy.units as u
-from astropy.tests.helper import pytest
+import pytest
 
 from ...import nvas
 from ...utils.testing_tools import MockResponse

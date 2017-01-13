@@ -1,23 +1,25 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-import requests
-from astropy.extern.six.moves import urllib
-from astropy.extern import six
-import astropy.coordinates as coord
-import astropy.units as u
-from ...utils import chunk_read, chunk_report
-from ...utils import class_or_instance
-from ...utils import commons
-from ...utils.process_asyncs import async_to_sync_docstr, async_to_sync
-from ...utils.docstr_chompers import remove_returns, prepend_docstr_noreturns
-from astropy.table import Table
-from astropy.tests.helper import pytest, remote_data
-import astropy.io.votable as votable
-import textwrap
+
 from collections import OrderedDict
 import os
-from astropy.io import fits
-import astropy.utils.data as aud
+import requests
+import pytest
 import tempfile
+import textwrap
+
+import astropy.coordinates as coord
+from astropy.extern.six.moves import urllib
+from astropy.extern import six
+from astropy.io import fits
+import astropy.io.votable as votable
+import astropy.units as u
+from astropy.table import Table
+from astropy.tests.helper import remote_data
+import astropy.utils.data as aud
+
+from ...utils import chunk_read, chunk_report, class_or_instance, commons
+from ...utils.process_asyncs import async_to_sync_docstr, async_to_sync
+from ...utils.docstr_chompers import remove_returns, prepend_docstr_noreturns
 
 
 class SimpleQueryClass(object):

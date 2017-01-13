@@ -3,7 +3,7 @@ import os
 import re
 
 from astropy.extern import six
-from astropy.tests.helper import pytest
+import pytest
 import astropy.units as u
 from astropy.table import Table
 import numpy as np

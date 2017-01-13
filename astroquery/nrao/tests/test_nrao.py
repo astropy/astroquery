@@ -3,7 +3,7 @@ from __future__ import print_function
 import os
 import requests
 
-from astropy.tests.helper import pytest
+import pytest
 import astropy.units as u
 from astropy.table import Table
 

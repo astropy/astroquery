@@ -1,10 +1,11 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import numpy as np
+import pytest
 import warnings
 
 from astropy import wcs
 from astropy import units as u
-from astropy.tests.helper import pytest, remote_data
+from astropy.tests.helper import remote_data
 try:
     from pyregion.parser_helper import Shape
     pyregion_OK = True

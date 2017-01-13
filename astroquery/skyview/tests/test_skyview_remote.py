@@ -1,5 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-from astropy.tests.helper import remote_data, pytest
+import pytest
+
+from astropy.tests.helper import remote_data
 from astropy.io.fits import HDUList
 
 from ...skyview import SkyView
