@@ -17,13 +17,27 @@ import astropy.io.votable as votable
 from astropy.extern.six import BytesIO
 from ..query import BaseQuery
 from ..utils import commons
-from ..exceptions import TableParseError
+from ..exceptions import TableParseError, LargeQueryWarning
 from . import conf
+from ..utils.process_asyncs import async_to_sync
 
 __all__ = ['Simbad', 'SimbadClass']
 
 
-def validate_epoch(func):
+def validate_epoch(value):
+    p = re.compile('^[JB]\d+[.]?\d+$', re.IGNORECASE)
+    if p.match(value) is None:
+        raise ValueError("Epoch must be specified as [J|B]<epoch>.\n"
+                         "Example: epoch='J2000'")
+    return value
+
+def validate_equinox(value):
+    try:
+        return float(value)
+    except (ValueError,TypeError):
+        raise ValueError("Equinox must be a number")
+
+def validate_epoch_decorator(func):
     """
     A method decorator that checks if the epoch value entered by the user
     is acceptable.
@@ -31,17 +45,12 @@ def validate_epoch(func):
     def wrapper(*args, **kwargs):
         if kwargs.get('epoch'):
             value = kwargs['epoch']
-            try:
-                p = re.compile('^[JB]\d+[.]?\d+$', re.IGNORECASE)
-                assert p.match(value) is not None
-            except (AssertionError, TypeError):
-                raise ValueError("Epoch must be specified as [J|B]<epoch>.\n"
-                                 "Example: epoch='J2000'")
+            validate_epoch(value)
         return func(*args, **kwargs)
     return wrapper
 
 
-def validate_equinox(func):
+def validate_equinox_decorator(func):
     """
     A method decorator that checks if the equinox value entered by the user
     is acceptable.
@@ -49,10 +58,7 @@ def validate_equinox(func):
     def wrapper(*args, **kwargs):
         if kwargs.get('equinox'):
             value = kwargs['equinox']
-            try:
-                float(value)
-            except ValueError:
-                raise ValueError("Equinox must be a number")
+            validate_equinox(value)
         return func(*args, **kwargs)
     return wrapper
 
@@ -79,10 +85,151 @@ def strip_field(f, keep_filters=False):
     # the overall else (default option)
     return f
 
+error_regex = re.compile(r'(?ms)\[(?P<line>\d+)\]\s?(?P<msg>.+?)(\[|\Z)')
+SimbadError = namedtuple('SimbadError', ('line', 'msg'))
+VersionInfo = namedtuple('VersionInfo', ('major', 'minor', 'micro', 'patch'))
 
+
+class SimbadResult(object):
+    __sections = ('script', 'console', 'error', 'data')
+
+    def __init__(self, txt, verbose=False):
+        self.__txt = txt
+        self.__stringio = None
+        self.__indexes = {}
+        self.verbose = verbose
+        self.exectime = None
+        self.sim_version = None
+        self.__split_sections()
+        self.__parse_console_section()
+        self.__warn()
+
+    def __split_sections(self):
+        for section in self.__sections:
+            match = re.search(r'(?ims)^::%s:+?$(?P<content>.*?)(^::|\Z)' %
+                              section, self.__txt)
+            if match:
+                self.__indexes[section] = (match.start('content'),
+                                           match.end('content'))
+
+    def __parse_console_section(self):
+        if self.console is None:
+            return
+        match = re.search(r'(?ims)total execution time: ([.\d]+?)\s*?secs',
+                          self.console)
+        if match:
+            try:
+                self.exectime = float(match.group(1))
+            except:
+                # TODO: do something useful here.
+                pass
+        match = re.search(r'(?ms)SIMBAD(\d) rel (\d)[.](\d+)([^\d^\s])?',
+                          self.console)
+        if match:
+            self.sim_version = VersionInfo(*match.groups(None))
+
+    def __warn(self):
+        for error in self.errors:
+            warnings.warn("Warning: The script line number %i raised "
+                          "an error (recorded in the `errors` attribute "
+                          "of the result table): %s" %
+                          (error.line, error.msg))
+
+    def __get_section(self, section_name):
+        if section_name in self.__indexes:
+            return self.__txt[self.__indexes[section_name][0]:
+                              self.__indexes[section_name][1]].strip()
+
+    @property
+    def script(self):
+        return self.__get_section('script')
+
+    @property
+    def console(self):
+        return self.__get_section('console')
+
+    @property
+    def error_raw(self):
+        return self.__get_section('error')
+
+    @property
+    def data(self):
+        return self.__get_section('data')
+
+    @property
+    def errors(self):
+        result = []
+        if self.error_raw is None:
+            return result
+        for err in error_regex.finditer(self.error_raw):
+            result.append(SimbadError(int(err.group('line')),
+                                      err.group('msg').replace('\n', ' ')))
+        return result
+
+    @property
+    def nb_errors(self):
+        if self.error_raw is None:
+            return 0
+        return len(self.errors)
+
+
+class SimbadVOTableResult(SimbadResult):
+    """VOTable-type Simbad result"""
+
+    def __init__(self, txt, verbose=False, pedantic=False):
+        self.__pedantic = pedantic
+        self.__table = None
+        if not verbose:
+            commons.suppress_vo_warnings()
+        super(SimbadVOTableResult, self).__init__(txt, verbose=verbose)
+
+    @property
+    def table(self):
+        if self.__table is None:
+            self.bytes = BytesIO(self.data.encode('utf8'))
+            tbl = votable.parse_single_table(self.bytes, pedantic=False)
+            self.__table = tbl.to_table()
+            self.__table.convert_bytestring_to_unicode()
+        return self.__table
+
+bibcode_regex = re.compile(r'query\s+bibcode\s+(wildcard)?\s+([\w]*)')
+
+
+class SimbadBibcodeResult(SimbadResult):
+    """Bibliography-type Simbad result"""
+    @property
+    def table(self):
+        bibcode_match = bibcode_regex.search(self.script)
+        splitter = bibcode_match.group(2)
+        ref_list = [splitter + ref for ref in self.data.split(splitter)][1:]
+        max_len = max([len(r) for r in ref_list])
+        table = Table(names=['References'], dtype=['S%i' % max_len])
+        for ref in ref_list:
+            table.add_row([ref])
+        return table
+
+
+class SimbadObjectIDsResult(SimbadResult):
+    """Object identifier list Simbad result"""
+    @property
+    def table(self):
+        max_len = max([len(i) for i in self.data.splitlines()])
+        table = Table(names=['ID'], dtype=['S%i' % max_len])
+        for id in self.data.splitlines():
+            table.add_row([id.strip()])
+        return table
+
+
+
+@async_to_sync
 class SimbadClass(BaseQuery):
     """
     The class for querying the Simbad web service.
+
+    Note that SIMBAD suggests submitting no more than 6 queries per second; if
+    you submit more than that, your IP may be temporarily blacklisted
+    (http://simbad.u-strasbg.fr/simbad/sim-help?Page=sim-url)
+
     """
     SIMBAD_URL = 'http://' + conf.server + '/simbad/sim-script'
     TIMEOUT = conf.timeout
@@ -415,41 +562,8 @@ class SimbadClass(BaseQuery):
         """
         return self.query_object_async('\n'.join(object_names), wildcard)
 
-    def query_region(self, coordinates, radius=None,
-                     equinox=None, epoch=None, verbose=False, cache=True):
-        """
-        Queries around an object or coordinates as per the specified radius and
-        returns the results in a `~astropy.table.Table`.
-
-        Parameters
-        ----------
-        coordinates : str / `astropy.coordinates`
-            the identifier or coordinates around which to query.
-        radius : str / `~astropy.units.Quantity`, optional
-            the radius of the region. If missing, set to default
-            value of 20 arcmin.
-        equinox : float, optional
-            the equinox of the coordinates. If missing set to
-            default 2000.0.
-        epoch : str, optional
-            the epoch of the input coordinates. Must be specified as
-            [J|B] <epoch>. If missing, set to default J2000.
-
-        Returns
-        -------
-        table : `~astropy.table.Table`
-            Query results table
-        """
-        # if the identifier is given rather than the coordinates, convert to
-        # coordinates
-        result = self.query_region_async(coordinates, radius=radius,
-                                         equinox=equinox, epoch=epoch,
-                                         cache=True)
-
-        return self._parse_result(result, SimbadVOTableResult, verbose=verbose)
-
-    def query_region_async(self, coordinates, radius=None, equinox=None,
-                           epoch=None, cache=True):
+    def query_region_async(self, coordinates, radius=2*u.arcmin,
+                           equinox=2000.0, epoch='J2000', cache=True):
         """
         Serves the same function as `query_region`, but
         only collects the response from the Simbad server and returns.
@@ -460,7 +574,7 @@ class SimbadClass(BaseQuery):
             the identifier or coordinates around which to query.
         radius : str or `~astropy.units.Quantity`, optional
             the radius of the region. If missing, set to default
-            value of 20 arcmin.
+            value of 2 arcmin.
         equinox : float, optional
             the equinox of the coordinates. If missing set to
             default 2000.0.
@@ -473,9 +587,57 @@ class SimbadClass(BaseQuery):
         response : `requests.Response`
              Response of the query from the server.
         """
-        request_payload = self._args_to_payload(coordinates, radius=radius,
-                                                equinox=equinox, epoch=epoch,
-                                                caller='query_region_async')
+
+        equinox = validate_equinox(equinox)
+        epoch = validate_epoch(epoch)
+
+        base_query_str = "query coo {ra} {dec} radius={rad} frame={frame} equi={equinox}"
+
+        if radius is None:
+            radius = 2*u.arcmin
+
+        header = self._get_query_header()
+        footer = self._get_query_footer()
+
+        ra, dec, frame = _parse_coordinates(coordinates)
+
+        # handle the vector case
+        if isinstance(ra, list):
+            vector = True
+
+            if len(ra) > 10000:
+                warnings.warn("For very large queries, you may receive a "
+                              "timeout error.  SIMBAD suggests splitting "
+                              "queries with >10000 entries into multiple "
+                              "threads", LargeQueryWarning)
+
+            if len(set(frame)) > 1:
+                raise ValueError("Coordinates have different frames")
+            else:
+                frame = set(frame).pop()
+
+            if vector and _has_length(radius) and len(radius) == len(ra):
+                # all good, continue
+                pass
+            elif vector and _has_length(radius) and len(radius) != len(ra):
+                raise ValueError("Mismatch between radii and coordinates")
+            elif vector and not _has_length(radius):
+                radius = [_parse_radius(radius)] * len(ra)
+
+            if vector:
+                query_str = "\n".join([base_query_str
+                                      .format(ra=ra_, dec=dec_, rad=rad_,
+                                              frame=frame, equinox=equinox)
+                                      for ra_,dec_,rad_ in zip(ra,dec,radius)])
+
+        else:
+            radius = _parse_radius(radius)
+            query_str = base_query_str.format(ra=ra, dec=dec, frame=frame,
+                                              rad=radius, equinox=equinox)
+
+
+        request_payload = {'script': "\n".join([header,query_str,footer])}
+
         response = self._request("POST", self.SIMBAD_URL, data=request_payload,
                                  timeout=self.TIMEOUT, cache=cache)
         return response
@@ -656,28 +818,43 @@ class SimbadClass(BaseQuery):
                                  timeout=self.TIMEOUT, cache=cache)
         return response
 
-    @validate_epoch
-    @validate_equinox
+    def _get_query_header(self, get_raw=False):
+        votable_fields = ','.join(self.get_votable_fields())
+        # if get_raw is set then don't fetch as votable
+        if get_raw:
+            return ""
+        votable_def = "votable {" + votable_fields + "}"
+        votable_open = "votable open"
+        return "\n".join([votable_def, votable_open])
+
+    def _get_query_footer(self, get_raw=False):
+        if get_raw:
+            return ""
+        votable_close = "votable close"
+
+        return votable_close
+
+
+    @validate_epoch_decorator
+    @validate_equinox_decorator
     def _args_to_payload(self, *args, **kwargs):
         """
         Takes the arguments from any of the query functions and returns a
         dictionary that can be used as the data for an HTTP POST request.
         """
+    
         script = ""
         caller = kwargs['caller']
         del kwargs['caller']
-        get_raw = kwargs.get('get_raw', False)
-        if get_raw:
-            del kwargs['get_raw']
+        get_raw = kwargs.pop('get_raw') if 'get_raw' in kwargs else False
         command = self._function_to_command[caller]
-        votable_fields = ','.join(self.get_votable_fields())
-        # if get_raw is set then don't fetch as votable
-        votable_def = ("votable {" + votable_fields + "}", "")[get_raw]
-        votable_open = ("votable open", "")[get_raw]
-        votable_close = ("votable close", "")[get_raw]
+
+        votable_header = self._get_query_header(get_raw)
+        votable_footer = self._get_query_footer(get_raw)
+
         if self.ROW_LIMIT > 0:
             script = "set limit " + str(self.ROW_LIMIT)
-        script = "\n".join([script, votable_def, votable_open, command])
+        script = "\n".join([script, votable_header, command])
         using_wildcard = False
         if kwargs.get('wildcard'):
             # necessary to have a space at the beginning and end
@@ -686,14 +863,6 @@ class SimbadClass(BaseQuery):
             using_wildcard = True
         # now append args and kwds as per the caller
         # if caller is query_region_async write coordinates as separate ra dec
-        if caller == 'query_region_async':
-            coordinates = args[0]
-            args = args[1:]
-            ra, dec, frame = _parse_coordinates(coordinates)
-            args = [ra, dec]
-            kwargs['frame'] = frame
-            if kwargs.get('radius') is not None:
-                kwargs['radius'] = _parse_radius(kwargs['radius'])
         # rename equinox to equi as required by SIMBAD script
         if kwargs.get('equinox'):
             kwargs['equi'] = kwargs['equinox']
@@ -726,10 +895,11 @@ class SimbadClass(BaseQuery):
             allargs_str = allargs_str.lstrip()
 
         script += allargs_str
-        script += votable_close
+        script += votable_footer
         return dict(script=script)
 
-    def _parse_result(self, result, resultclass, verbose=False):
+    def _parse_result(self, result, resultclass=SimbadVOTableResult,
+                      verbose=False):
         """
         Instantiate a Simbad*Result class and try to parse the
         response with the .table property/method, then return the
@@ -769,7 +939,21 @@ def _parse_coordinates(coordinates):
         raise ValueError("Coordinates not specified correctly")
 
 
+def _has_length(x):
+    # some objects have '__len__' attributes but have no len()
+    try:
+        len(x)
+        return True
+    except (TypeError,AttributeError):
+        return False
+
 def _get_frame_coords(c):
+    if _has_length(c):
+        # deal with vectors differently
+        parsed = [_get_frame_coords(cc) for cc in c]
+        return ([ra for ra,dec,frame in parsed],
+                [dec for ra,dec,frame in parsed],
+                [frame for ra,dec,frame in parsed])
     if c.frame.name == 'icrs':
         ra, dec = _to_simbad_format(c.ra, c.dec)
         return (ra, dec, 'ICRS')
@@ -815,139 +999,5 @@ def _parse_radius(radius):
             return str(angle.arcsec) + unit
     except (coord.errors.UnitsError, AttributeError):
         raise ValueError("Radius specified incorrectly")
-
-error_regex = re.compile(r'(?ms)\[(?P<line>\d+)\]\s?(?P<msg>.+?)(\[|\Z)')
-SimbadError = namedtuple('SimbadError', ('line', 'msg'))
-VersionInfo = namedtuple('VersionInfo', ('major', 'minor', 'micro', 'patch'))
-
-
-class SimbadResult(object):
-    __sections = ('script', 'console', 'error', 'data')
-
-    def __init__(self, txt, verbose=False):
-        self.__txt = txt
-        self.__stringio = None
-        self.__indexes = {}
-        self.verbose = verbose
-        self.exectime = None
-        self.sim_version = None
-        self.__split_sections()
-        self.__parse_console_section()
-        self.__warn()
-
-    def __split_sections(self):
-        for section in self.__sections:
-            match = re.search(r'(?ims)^::%s:+?$(?P<content>.*?)(^::|\Z)' %
-                              section, self.__txt)
-            if match:
-                self.__indexes[section] = (match.start('content'),
-                                           match.end('content'))
-
-    def __parse_console_section(self):
-        if self.console is None:
-            return
-        match = re.search(r'(?ims)total execution time: ([.\d]+?)\s*?secs',
-                          self.console)
-        if match:
-            try:
-                self.exectime = float(match.group(1))
-            except:
-                # TODO: do something useful here.
-                pass
-        match = re.search(r'(?ms)SIMBAD(\d) rel (\d)[.](\d+)([^\d^\s])?',
-                          self.console)
-        if match:
-            self.sim_version = VersionInfo(*match.groups(None))
-
-    def __warn(self):
-        for error in self.errors:
-            warnings.warn("Warning: The script line number %i raised "
-                          "an error (recorded in the `errors` attribute "
-                          "of the result table): %s" %
-                          (error.line, error.msg))
-
-    def __get_section(self, section_name):
-        if section_name in self.__indexes:
-            return self.__txt[self.__indexes[section_name][0]:
-                              self.__indexes[section_name][1]].strip()
-
-    @property
-    def script(self):
-        return self.__get_section('script')
-
-    @property
-    def console(self):
-        return self.__get_section('console')
-
-    @property
-    def error_raw(self):
-        return self.__get_section('error')
-
-    @property
-    def data(self):
-        return self.__get_section('data')
-
-    @property
-    def errors(self):
-        result = []
-        if self.error_raw is None:
-            return result
-        for err in error_regex.finditer(self.error_raw):
-            result.append(SimbadError(int(err.group('line')),
-                                      err.group('msg').replace('\n', ' ')))
-        return result
-
-    @property
-    def nb_errors(self):
-        if self.error_raw is None:
-            return 0
-        return len(self.errors)
-
-
-class SimbadVOTableResult(SimbadResult):
-    """VOTable-type Simbad result"""
-
-    def __init__(self, txt, verbose=False, pedantic=False):
-        self.__pedantic = pedantic
-        self.__table = None
-        if not verbose:
-            commons.suppress_vo_warnings()
-        super(SimbadVOTableResult, self).__init__(txt, verbose=verbose)
-
-    @property
-    def table(self):
-        if self.__table is None:
-            self.bytes = BytesIO(self.data.encode('utf8'))
-            tbl = votable.parse_single_table(self.bytes, pedantic=False)
-            self.__table = tbl.to_table()
-            self.__table.convert_bytestring_to_unicode()
-        return self.__table
-
-bibcode_regex = re.compile(r'query\s+bibcode\s+(wildcard)?\s+([\w]*)')
-
-
-class SimbadBibcodeResult(SimbadResult):
-    """Bibliography-type Simbad result"""
-    @property
-    def table(self):
-        bibcode_match = bibcode_regex.search(self.script)
-        splitter = bibcode_match.group(2)
-        ref_list = [splitter + ref for ref in self.data.split(splitter)][1:]
-        max_len = max([len(r) for r in ref_list])
-        table = Table(names=['References'], dtype=['S%i' % max_len])
-        for ref in ref_list:
-            table.add_row([ref])
-        return table
-
-
-class SimbadObjectIDsResult(SimbadResult):
-    """Object identifier list Simbad result"""
-    @property
-    def table(self):
-        max_len = max([len(i) for i in self.data.splitlines()])
-        table = Table(names=['ID'], dtype=['S%i' % max_len])
-        for id in self.data.splitlines():
-            table.add_row([id.strip()])
-        return table
 
 Simbad = SimbadClass()

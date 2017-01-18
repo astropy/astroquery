@@ -5,6 +5,12 @@
 - SIMBAD queries allow multiple configurable parameters (#820)
 - Add a capability to resume partially-completed downloads for services that
   support the http 'range' keyword.  Currently applied to ESO and ALMA (#812)
+- SIMBAD now supports vectorized region queries.  A list of coordinates can be
+  sent to SIMBAD simultaneously.  Users will also be warned if they submit
+  queries with >10000 entries, which is the SIMBAD-recommended upper limit.
+  Also, SIMBAD support has noted that any IP submitting >6 queries/second
+  will be soft-banned, so we have added a warning to this effect in the
+  documentation (#833)
 
 0.3.4 (2016-11-21)
 ------------------
