@@ -417,7 +417,7 @@ class UkidssClass(QueryWithLogin):
             The list of URLS extracted from the input.
         """
         # Parse html input for links
-        ahref = re.compile('href="([a-zA-Z0-9_\.&\?=%/:-]+)"')
+        ahref = re.compile(r'href="([a-zA-Z0-9_\.&\?=%/:-]+)"')
         links = ahref.findall(html_in)
         return links
 

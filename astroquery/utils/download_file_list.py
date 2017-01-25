@@ -12,7 +12,7 @@ __all__ = ['download_list_of_fitsfiles']
 
 __doctest_skip__ = ["download_list_of_fitsfiles"]
 
-whitespace_re = re.compile("\s")
+whitespace_re = re.compile(r"\s")
 valid_chars = "-_.()%s%s" % (string.ascii_letters, string.digits)
 
 

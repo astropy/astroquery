@@ -9,7 +9,7 @@ import astropy.io.fits as fits
 
 
 __all__ = ['query', 'save_file', 'get_file']
-id_parse = re.compile('ID\=(\d+)')
+id_parse = re.compile(r'ID\=(\d+)')
 
 # should skip only if remote_data = False
 __doctest_skip__ = ['query', 'save_file', 'get_file']

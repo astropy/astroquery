@@ -106,7 +106,7 @@ def parse_frequency_support(frequency_support_str):
 
 def approximate_primary_beam_sizes(frequency_support_str,
                                    dish_diameter=12 * u.m, first_null=1.220):
-    """
+    r"""
     Using parse_frequency_support, determine the mean primary beam size in each
     observed band
 
