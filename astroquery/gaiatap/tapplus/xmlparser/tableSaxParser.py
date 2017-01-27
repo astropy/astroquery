@@ -17,9 +17,9 @@ Created on 30 jun. 2016
 
 import xml.sax
 
-from gaiatap.tapplus.model.table import Table
-from gaiatap.tapplus.model.column import Column
-from gaiatap.tapplus.xmlparser import utils as Utils
+from astroquery.gaiatap.tapplus.model.table import Table
+from astroquery.gaiatap.tapplus.model.column import Column
+from astroquery.gaiatap.tapplus.xmlparser import utils as Utils
 
 READING_SCHEMA = 10
 READING_TABLE = 20

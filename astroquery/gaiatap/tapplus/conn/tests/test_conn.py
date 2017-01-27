@@ -18,8 +18,8 @@ import unittest
 import os
 
 from unittest.mock import Mock, MagicMock, patch
-from gaiatap.tapplus.conn.tapconn import TapConn
-from gaiatap.tapplus.conn.tests.DummyConn import DummyConn
+from astroquery.gaiatap.tapplus.conn.tapconn import TapConn
+from astroquery.gaiatap.tapplus.conn.tests.DummyConn import DummyConn
 
 
 def data_path(filename):

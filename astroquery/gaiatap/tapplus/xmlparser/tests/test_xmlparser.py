@@ -17,10 +17,10 @@ Created on 30 jun. 2016
 
 import unittest
 import os
-from gaiatap.tapplus.xmlparser.tableSaxParser import TableSaxParser
-from gaiatap.tapplus.xmlparser.jobListSaxParser import JobListSaxParser
-from gaiatap.tapplus.xmlparser.jobSaxParser import JobSaxParser
-from gaiatap.tapplus.xmlparser import utils
+from astroquery.gaiatap.tapplus.xmlparser.tableSaxParser import TableSaxParser
+from astroquery.gaiatap.tapplus.xmlparser.jobListSaxParser import JobListSaxParser
+from astroquery.gaiatap.tapplus.xmlparser.jobSaxParser import JobSaxParser
+from astroquery.gaiatap.tapplus.xmlparser import utils
 
 def data_path(filename):
     data_dir = os.path.join(os.path.dirname(__file__), 'data')

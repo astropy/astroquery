@@ -17,7 +17,7 @@ Created on 30 jun. 2016
 
 import os
 
-from gaiatap import gaiatap
+from astroquery.gaiatap import gaiatap
 
 import astropy.units as u
 from astropy.coordinates.sky_coordinate import SkyCoord
@@ -34,7 +34,7 @@ def data_path(filename):
 # >>> import os
 # #provide the location (directory) of the Gaia TAP plus code
 # >>> sys.path.append(os.path.abspath('/abs_path_to_module/gaia-py-tap'))
-# >>> from gaiatap.tapplus.tap import TapPlus
+# >>> from astroquery.gaiatap.tapplus.tap import TapPlus
 # >>> 
 
 
@@ -162,7 +162,7 @@ print (j)
 
 #It is possible to use TapPlus to connect to a different tap server:
 #TapPlus is fully compatible with TAP specification
-#from gaiatap.tapplus.tap import TapPlus
+#from astroquery.gaiatap.tapplus.tap import TapPlus
 #tap = TapPlus(url="http://TAPVizieR.u-strasbg.fr/TAPVizieR/tap")
 ##Inspect tables
 #tables = tap.load_tables()
@@ -173,7 +173,7 @@ print (j)
 #print (job.get_results())
 
 #Example2
-#from gaiatap.tapplus.tap import TapPlus
+#from astroquery.gaiatap.tapplus.tap import TapPlus
 #tap = TapPlus(url="http://irsa.ipac.caltech.edu/TAP")
 #job = tap.launch_job("SELECT TOP 10 * FROM fp_psc", async=True)
 #r = job.get_results()

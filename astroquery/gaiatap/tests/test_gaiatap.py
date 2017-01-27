@@ -16,8 +16,8 @@ Created on 30 jun. 2016
 """
 import unittest
 import os
-from gaiatap.core import GaiaTapClass
-from gaiatap.tests.DummyTapHandler import DummyTapHandler
+from astroquery.gaiatap.core import GaiaTapClass
+from astroquery.gaiatap.tests.DummyTapHandler import DummyTapHandler
 
 
 def data_path(filename):

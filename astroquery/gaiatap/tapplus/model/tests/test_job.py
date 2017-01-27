@@ -16,10 +16,10 @@ Created on 30 jun. 2016
 """
 import unittest
 import os
-from gaiatap.tapplus.model.job import Job
-from gaiatap.tapplus.conn.tests.DummyConnHandler import DummyConnHandler
-from gaiatap.tapplus.conn.tests.DummyResponse import DummyResponse
-from gaiatap.tapplus.xmlparser import utils
+from astroquery.gaiatap.tapplus.model.job import Job
+from astroquery.gaiatap.tapplus.conn.tests.DummyConnHandler import DummyConnHandler
+from astroquery.gaiatap.tapplus.conn.tests.DummyResponse import DummyResponse
+from astroquery.gaiatap.tapplus.xmlparser import utils
 
 
 def data_path(filename):

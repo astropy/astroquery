@@ -16,16 +16,16 @@ Created on 30 jun. 2016
 """
 from astropy import units
 from astropy.units import Quantity
-from gaiatap.tapplus import taputils
-from gaiatap.tapplus.conn.tapconn import TapConn
-from gaiatap.tapplus.xmlparser.tableSaxParser import TableSaxParser
-from gaiatap.tapplus.model.job import Job
+from astroquery.gaiatap.tapplus import taputils
+from astroquery.gaiatap.tapplus.conn.tapconn import TapConn
+from astroquery.gaiatap.tapplus.xmlparser.tableSaxParser import TableSaxParser
+from astroquery.gaiatap.tapplus.model.job import Job
 from datetime import datetime
-from gaiatap.tapplus.gui.login import LoginDialog
-from gaiatap.tapplus.xmlparser.jobSaxParser import JobSaxParser
-from gaiatap.tapplus.xmlparser.jobListSaxParser import JobListSaxParser
-from gaiatap.tapplus.xmlparser import utils
-from gaiatap.tapplus.model.filter import Filter
+from astroquery.gaiatap.tapplus.gui.login import LoginDialog
+from astroquery.gaiatap.tapplus.xmlparser.jobSaxParser import JobSaxParser
+from astroquery.gaiatap.tapplus.xmlparser.jobListSaxParser import JobListSaxParser
+from astroquery.gaiatap.tapplus.xmlparser import utils
+from astroquery.gaiatap.tapplus.model.filter import Filter
 from astroquery.utils import commons
 import astropy.units
 

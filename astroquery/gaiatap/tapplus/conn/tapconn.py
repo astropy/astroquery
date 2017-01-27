@@ -14,8 +14,8 @@ Created on 30 jun. 2016
 
 
 """
-from gaiatap.tapplus.xmlparser import utils
-from gaiatap.tapplus import taputils
+from astroquery.gaiatap.tapplus.xmlparser import utils
+from astroquery.gaiatap.tapplus import taputils
 
 try:
     #python 3

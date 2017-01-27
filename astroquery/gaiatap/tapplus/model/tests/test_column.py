@@ -17,7 +17,7 @@ Created on 30 jun. 2016
 
 import unittest
 import os
-from gaiatap.tapplus.model.column import Column
+from astroquery.gaiatap.tapplus.model.column import Column
 
 def data_path(filename):
     data_dir = os.path.join(os.path.dirname(__file__), 'data')

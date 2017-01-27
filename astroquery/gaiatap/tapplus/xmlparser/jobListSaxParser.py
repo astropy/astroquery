@@ -17,10 +17,10 @@ Created on 30 jun. 2016
 
 import xml.sax
 
-from gaiatap.tapplus.model.table import Table
-from gaiatap.tapplus.model.column import Column
-from gaiatap.tapplus.model.job import Job
-from gaiatap.tapplus.xmlparser import utils as Utils
+from astroquery.gaiatap.tapplus.model.table import Table
+from astroquery.gaiatap.tapplus.model.column import Column
+from astroquery.gaiatap.tapplus.model.job import Job
+from astroquery.gaiatap.tapplus.xmlparser import utils as Utils
 
 READING_JOB = 10
 READING_PHASE = 20

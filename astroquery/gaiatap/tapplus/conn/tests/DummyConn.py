@@ -14,7 +14,7 @@ Created on 30 jun. 2016
 
 
 """
-from gaiatap.tapplus.conn.tests.DummyResponse import DummyResponse
+from astroquery.gaiatap.tapplus.conn.tests.DummyResponse import DummyResponse
 
 class DummyConn(object):
     '''

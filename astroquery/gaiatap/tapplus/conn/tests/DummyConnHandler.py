@@ -14,7 +14,7 @@ Created on 30 jun. 2016
 
 
 """
-from gaiatap.tapplus import taputils
+from astroquery.gaiatap.tapplus import taputils
 
 try:
     #python 3

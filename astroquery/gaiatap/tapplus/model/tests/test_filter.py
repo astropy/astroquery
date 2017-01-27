@@ -16,7 +16,7 @@ Created on 30 jun. 2016
 """
 import unittest
 import os
-from gaiatap.tapplus.model.filter import Filter
+from astroquery.gaiatap.tapplus.model.filter import Filter
 
 
 def data_path(filename):

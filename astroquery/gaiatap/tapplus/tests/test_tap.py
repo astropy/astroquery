@@ -18,12 +18,12 @@ import unittest
 import os
 import numpy as np
 import astropy.units as u
-from gaiatap.tapplus.model.job import Job
-from gaiatap.tapplus.conn.tests.DummyConnHandler import DummyConnHandler
-from gaiatap.tapplus.conn.tests.DummyResponse import DummyResponse
-from gaiatap.tapplus.tap import TapPlus
-from gaiatap.tapplus.xmlparser import utils
-from gaiatap.tapplus import taputils
+from astroquery.gaiatap.tapplus.model.job import Job
+from astroquery.gaiatap.tapplus.conn.tests.DummyConnHandler import DummyConnHandler
+from astroquery.gaiatap.tapplus.conn.tests.DummyResponse import DummyResponse
+from astroquery.gaiatap.tapplus.tap import TapPlus
+from astroquery.gaiatap.tapplus.xmlparser import utils
+from astroquery.gaiatap.tapplus import taputils
 from astropy.coordinates.sky_coordinate import SkyCoord
 from astropy.units import Quantity
 

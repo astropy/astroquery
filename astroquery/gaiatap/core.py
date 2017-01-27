@@ -15,7 +15,7 @@ Created on 30 jun. 2016
 
 """
 
-from gaiatap.tapplus.tap import TapPlus
+from astroquery.gaiatap.tapplus.tap import TapPlus
 
 __all__ = ['GaiaTap', 'GaiaTapClass']
 

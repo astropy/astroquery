@@ -15,10 +15,10 @@ Created on 30 jun. 2016
 
 """
 
-from gaiatap.tapplus.xmlparser import utils
+from astroquery.gaiatap.tapplus.xmlparser import utils
 import time
 import os
-from gaiatap.tapplus.model import modelutils
+from astroquery.gaiatap.tapplus.model import modelutils
 
 __all__ = ['Job']
 

@@ -15,11 +15,20 @@ Created on 30 jun. 2016
 
 """
 
-from gaiatap.tapplus.tap import TapPlus
-from gaiatap.tapplus.model.job import Job
+from astroquery.gaiatap.tapplus.tap import TapPlus
+from astroquery.gaiatap.tapplus.model.job import Job
+from astropy import config as _config
+
+class Conf(_config.ConfigNamespace):
+    """
+    Configuration parameters for `astroquery.esasky`.
+    """
+    pass
+
+conf = Conf()
 
 gaiatap = TapPlus(url="http://gea.esac.esa.int/tap-server/tap", verbose=False)
 
 from .core import GaiaTap, GaiaTapClass
 
-__all__ = ['GaiaTap', 'GaiaTapClass', 'TapPlus', 'Job']
+__all__ = ['GaiaTap', 'GaiaTapClass', 'TapPlus', 'Job', 'Conf', 'conf']
