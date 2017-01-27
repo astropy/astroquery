@@ -14,12 +14,12 @@ Created on 30 jun. 2016
 
 
 """
-
+from __future__ import absolute_import
 
 import os
 
-def get_pakcage_data():
-    paths= [os.path.join('data', '*.data'),
-            os.path.join('data', '*.xml')
-            ]
-    return {'astroquery.gaiatap.tapplus.model': paths}
+
+def get_package_data():
+    paths = [os.path.join('data', '*.vot'),
+             ]
+    return {'astroquery.gaiatap.tapplus.model.tests': paths}
