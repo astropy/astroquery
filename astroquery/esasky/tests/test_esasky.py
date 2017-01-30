@@ -29,7 +29,10 @@ def nonremote_request(request_type, url, **kwargs):
 
 @pytest.fixture
 def esasky_request(request):
-    mp = request.getfuncargvalue("monkeypatch")
+    try:
+        mp = request.getfixturevalue("monkeypatch")
+    except AttributeError:  # pytest < 3
+        mp = request.getfuncargvalue("monkeypatch")
     mp.setattr(ESASky, '_request', nonremote_request)
     return mp
 

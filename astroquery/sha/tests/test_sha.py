@@ -40,7 +40,10 @@ def get_mockreturn(url, params=None, stream=False, timeout=10, **kwargs):
 
 @pytest.fixture
 def patch_get(request):
-    mp = request.getfuncargvalue("monkeypatch")
+    try:
+        mp = request.getfixturevalue("monkeypatch")
+    except AttributeError:  # pytest < 3
+        mp = request.getfuncargvalue("monkeypatch")
     mp.setattr(requests, 'get', get_mockreturn)
     return mp
 

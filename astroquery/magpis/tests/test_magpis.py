@@ -24,14 +24,20 @@ def data_path(filename):
 def patch_parse_coordinates(request):
     def parse_coordinates_mock_return(c):
         return c
-    mp = request.getfuncargvalue("monkeypatch")
+    try:
+        mp = request.getfixturevalue("monkeypatch")
+    except AttributeError:  # pytest < 3
+        mp = request.getfuncargvalue("monkeypatch")
     mp.setattr(commons, 'parse_coordinates', parse_coordinates_mock_return)
     return mp
 
 
 @pytest.fixture
 def patch_post(request):
-    mp = request.getfuncargvalue("monkeypatch")
+    try:
+        mp = request.getfixturevalue("monkeypatch")
+    except AttributeError:  # pytest < 3
+        mp = request.getfuncargvalue("monkeypatch")
     mp.setattr(magpis.Magpis, '_request', post_mockreturn)
     return mp
 

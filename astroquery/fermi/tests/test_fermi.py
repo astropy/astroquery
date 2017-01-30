@@ -21,7 +21,10 @@ def data_path(filename):
 
 @pytest.fixture
 def patch_post(request):
-    mp = request.getfuncargvalue("monkeypatch")
+    try:
+        mp = request.getfixturevalue("monkeypatch")
+    except AttributeError:  # pytest < 3
+        mp = request.getfuncargvalue("monkeypatch")
     mp.setattr(fermi.FermiLAT, '_request', post_mockreturn)
     mp.setattr(requests, 'post', post_mockreturn)
     return mp

@@ -28,7 +28,10 @@ def data_path(filename):
 
 @pytest.fixture
 def patch_get(request):
-    mp = request.getfuncargvalue("monkeypatch")
+    try:
+        mp = request.getfixturevalue("monkeypatch")
+    except AttributeError:  # pytest < 3
+        mp = request.getfuncargvalue("monkeypatch")
     mp.setattr(requests, 'get', get_mockreturn)
     mp.setattr(ukidss.Ukidss, '_request', get_mockreturn)
     return mp
@@ -45,7 +48,10 @@ def patch_get_readable_fileobj(request):
         else:
             file_obj = open(data_path(DATA_FILES["votable"]), mode)
         yield file_obj
-    mp = request.getfuncargvalue("monkeypatch")
+    try:
+        mp = request.getfixturevalue("monkeypatch")
+    except AttributeError:  # pytest < 3
+        mp = request.getfuncargvalue("monkeypatch")
     mp.setattr(commons, 'get_readable_fileobj',
                get_readable_fileobj_mockreturn)
     return mp
@@ -57,7 +63,10 @@ def patch_parse_coordinates(request):
         return c
 
     # TODO: determine if this patch is ever used
-    mp = request.getfuncargvalue("monkeypatch")
+    try:
+        mp = request.getfixturevalue("monkeypatch")
+    except AttributeError:  # pytest < 3
+        mp = request.getfuncargvalue("monkeypatch")
     mp.setattr(commons, 'parse_coordinates', parse_coordinates_mock_return)
     return mp
 

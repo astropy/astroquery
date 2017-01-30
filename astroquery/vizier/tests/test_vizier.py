@@ -27,7 +27,10 @@ def data_path(filename):
 
 @pytest.fixture
 def patch_post(request):
-    mp = request.getfuncargvalue("monkeypatch")
+    try:
+        mp = request.getfixturevalue("monkeypatch")
+    except AttributeError:  # pytest < 3
+        mp = request.getfuncargvalue("monkeypatch")
     mp.setattr(requests.Session, 'request', post_mockreturn)
     return mp
 
@@ -50,7 +53,10 @@ def parse_objname(obj):
 
 @pytest.fixture
 def patch_coords(request):
-    mp = request.getfuncargvalue("monkeypatch")
+    try:
+        mp = request.getfixturevalue("monkeypatch")
+    except AttributeError:  # pytest < 3
+        mp = request.getfuncargvalue("monkeypatch")
     mp.setattr(commons, 'parse_coordinates', parse_objname)
     return mp
 
