@@ -26,7 +26,7 @@ def data_path(filename):
 
 class TestTap(unittest.TestCase):
 
-    def testLoadTables(self):
+    def test_load_tables(self):
         dummyTapHandler = DummyTapHandler()
         tap = GaiaTapClass(dummyTapHandler)
         #default parameters
@@ -46,7 +46,7 @@ class TestTap(unittest.TestCase):
         dummyTapHandler.check_call('load_tables', parameters)
         pass
     
-    def testLoadTable(self):
+    def test_load_table(self):
         dummyTapHandler = DummyTapHandler()
         tap = GaiaTapClass(dummyTapHandler)
         #default parameters
@@ -64,7 +64,7 @@ class TestTap(unittest.TestCase):
         dummyTapHandler.check_call('load_table', parameters)
         pass
     
-    def testLaunchJob(self):
+    def test_launch_job(self):
         dummyTapHandler = DummyTapHandler()
         tap = GaiaTapClass(dummyTapHandler)
         query = "query"
@@ -108,7 +108,7 @@ class TestTap(unittest.TestCase):
         dummyTapHandler.check_call('launch_job', parameters)
         pass
     
-    def testLaunchAsyncJob(self):
+    def test_launch_async_job(self):
         dummyTapHandler = DummyTapHandler()
         tap = GaiaTapClass(dummyTapHandler)
         query = "query"
@@ -149,7 +149,7 @@ class TestTap(unittest.TestCase):
         dummyTapHandler.check_call('launch_async_job', parameters)
         pass
     
-    def testLaunchSyncJob(self):
+    def test_launch_sync_job(self):
         dummyTapHandler = DummyTapHandler()
         tap = GaiaTapClass(dummyTapHandler)
         query = "query"
@@ -187,7 +187,7 @@ class TestTap(unittest.TestCase):
         dummyTapHandler.check_call('launch_sync_job', parameters)
         pass
     
-    def testListAsyncJobs(self):
+    def test_list_async_jobs(self):
         dummyTapHandler = DummyTapHandler()
         tap = GaiaTapClass(dummyTapHandler)
         #default parameters
@@ -202,7 +202,7 @@ class TestTap(unittest.TestCase):
         dummyTapHandler.check_call('list_async_jobs', parameters)
         pass
     
-    def testQueryObject(self):
+    def test_query_object(self):
         dummyTapHandler = DummyTapHandler()
         tap = GaiaTapClass(dummyTapHandler)
         sc = 'coord'
@@ -233,7 +233,7 @@ class TestTap(unittest.TestCase):
         dummyTapHandler.check_call('query_object', parameters)
         pass
     
-    def testQueryObjectAsync(self):
+    def test_query_object_async(self):
         dummyTapHandler = DummyTapHandler()
         tap = GaiaTapClass(dummyTapHandler)
         sc = 'coord'
@@ -261,7 +261,7 @@ class TestTap(unittest.TestCase):
         dummyTapHandler.check_call('query_object_async', parameters)
         pass
     
-    def testConeSearchSync(self):
+    def test_cone_search_sync(self):
         dummyTapHandler = DummyTapHandler()
         tap = GaiaTapClass(dummyTapHandler)
         #default parameters
