@@ -36,12 +36,12 @@ class LoginDialog(object):
     
     
     def __init__(self, host):
-        self.__internalInit()
+        self.__interna_init()
         self.__host = host
-        self.__createContent()
+        self.__create_content()
         pass
     
-    def __internalInit(self):
+    def __interna_init(self):
         self.__rootFrame = None
         self.__top = None
         self.__usrEntry = None
@@ -52,23 +52,23 @@ class LoginDialog(object):
         self.__pwd = None
         pass
     
-    def __cancelAction(self):
+    def __cancel_action(self):
         self.__accepted = False
         self.__rootFrame.destroy()
         pass
     
-    def __loginAction(self):
+    def __login_action(self):
         self.__accepted = True
         self.__usr = self.__usrEntry.get()
         self.__pwd = self.__pwdEntry.get()
         self.__rootFrame.destroy()
         pass
     
-    def __enterAction(self, event):
-        self.__loginAction()
+    def __enter_action(self, event):
+        self.__login_action()
         pass
     
-    def __createContent(self):
+    def __create_content(self):
         self.__rootFrame = TKTk()
         self.__rootFrame.withdraw()
         
@@ -76,7 +76,7 @@ class LoginDialog(object):
         self.__top.title("Login")
         self.__top.protocol("WM_DELETE_WINDOW", self.__rootFrame.destroy)
 
-        self.__top.bind('<Return>', self.__enterAction)
+        self.__top.bind('<Return>', self.__enter_action)
         
         self.__top.update_idletasks()
         width = self.__top.winfo_width()
@@ -109,9 +109,9 @@ class LoginDialog(object):
         self.__pwdEntry.grid(row=row,column=2,columnspan=2, padx=5, pady=5)
         
         row = row+1
-        cancelButton = TKButton(self.__top, text='Cancel', command=self.__cancelAction)
+        cancelButton = TKButton(self.__top, text='Cancel', command=self.__cancel_action)
         cancelButton.grid(row=row,column=1, padx=5, pady=5)
-        loginButton = TKButton(self.__top, text='Login', command=self.__loginAction)
+        loginButton = TKButton(self.__top, text='Login', command=self.__login_action)
         loginButton.grid(row=row,column=2, padx=5, pady=5)
         pass
     
