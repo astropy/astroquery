@@ -29,7 +29,7 @@ def data_path(filename):
 class TestJob(unittest.TestCase):
 
 
-    def testJobBasic(self):
+    def test_job_basic(self):
         job = Job(async=False)
         res = job.is_sync()
         assert res == True, "Sync job, expected: %s, found: %s" % (str(True), str(res))
@@ -99,7 +99,7 @@ class TestJob(unittest.TestCase):
         assert job.get_quote() == quote, "quote, expected: %s, found: %s" % (quote, job.get_quote())
         pass
     
-    def testJobGetResults(self):
+    def test_job_get_results(self):
         job = Job(async=True)
         jobid = "12345"
         outputFormat = "votable"

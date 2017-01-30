@@ -27,7 +27,7 @@ def data_path(filename):
 class TestFilter(unittest.TestCase):
 
 
-    def testFilter(self):
+    def test_filter(self):
         f = Filter()
         res = f.create_url_data_request()
         expected = {}

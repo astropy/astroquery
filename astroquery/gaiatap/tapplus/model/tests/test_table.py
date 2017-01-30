@@ -25,7 +25,7 @@ def data_path(filename):
 
 class TestTable(unittest.TestCase):
     
-    def testTable(self):
+    def test_table(self):
         table = Table()
         schemaName = "sch"
         tableName = "tbl"
@@ -36,7 +36,7 @@ class TestTable(unittest.TestCase):
         assert res == expected, "Qualified name, expected: %s, found: %s" % (expected, res)
         pass
     
-    def testTableColumns(self):
+    def test_table_columns(self):
         table = Table()
         c1 = Column()
         c2 = Column()
