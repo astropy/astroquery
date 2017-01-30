@@ -35,7 +35,7 @@ class TestTap(unittest.TestCase):
         parameters['include_shared_tables'] = False
         parameters['verbose'] = False
         tap.load_tables()
-        dummyTapHandler.checkCall('load_tables', parameters)
+        dummyTapHandler.check_call('load_tables', parameters)
         #test with parameters
         dummyTapHandler.reset()
         parameters = {}
@@ -43,7 +43,7 @@ class TestTap(unittest.TestCase):
         parameters['include_shared_tables'] = True
         parameters['verbose'] = True
         tap.load_tables(True, True, True)
-        dummyTapHandler.checkCall('load_tables', parameters)
+        dummyTapHandler.check_call('load_tables', parameters)
         pass
     
     def testLoadTable(self):
@@ -54,14 +54,14 @@ class TestTap(unittest.TestCase):
         parameters['table'] = 'table'
         parameters['verbose'] = False
         tap.load_table('table')
-        dummyTapHandler.checkCall('load_table', parameters)
+        dummyTapHandler.check_call('load_table', parameters)
         #test with parameters
         dummyTapHandler.reset()
         parameters = {}
         parameters['table'] = 'table'
         parameters['verbose'] = True
         tap.load_table('table', verbose=True)
-        dummyTapHandler.checkCall('load_table', parameters)
+        dummyTapHandler.check_call('load_table', parameters)
         pass
     
     def testLaunchJob(self):
@@ -81,7 +81,7 @@ class TestTap(unittest.TestCase):
         parameters['upload_resource'] = None
         parameters['upload_table_name'] = None
         tap.launch_job(query)
-        dummyTapHandler.checkCall('launch_job', parameters)
+        dummyTapHandler.check_call('launch_job', parameters)
         #test with parameters
         dummyTapHandler.reset()
         name = 'name'
@@ -105,7 +105,7 @@ class TestTap(unittest.TestCase):
         parameters['upload_table_name'] = upload_table_name
         tap.launch_job(query, name=name, async=async, output_file=output_file, output_format=output_format, \
                        verbose=verbose, dump_to_file=dump_to_file, background=background, upload_resource=upload_resource, upload_table_name=upload_table_name)
-        dummyTapHandler.checkCall('launch_job', parameters)
+        dummyTapHandler.check_call('launch_job', parameters)
         pass
     
     def testLaunchAsyncJob(self):
@@ -124,7 +124,7 @@ class TestTap(unittest.TestCase):
         parameters['upload_resource'] = None
         parameters['upload_table_name'] = None
         tap.launch_async_job(query)
-        dummyTapHandler.checkCall('launch_async_job', parameters)
+        dummyTapHandler.check_call('launch_async_job', parameters)
         #test with parameters
         dummyTapHandler.reset()
         name = 'name'
@@ -146,7 +146,7 @@ class TestTap(unittest.TestCase):
         parameters['upload_table_name'] = upload_table_name
         tap.launch_async_job(query, name=name, output_file=output_file, output_format=output_format, \
                        verbose=verbose, dump_to_file=dump_to_file, background=background, upload_resource=upload_resource, upload_table_name=upload_table_name)
-        dummyTapHandler.checkCall('launch_async_job', parameters)
+        dummyTapHandler.check_call('launch_async_job', parameters)
         pass
     
     def testLaunchSyncJob(self):
@@ -164,7 +164,7 @@ class TestTap(unittest.TestCase):
         parameters['upload_resource'] = None
         parameters['upload_table_name'] = None
         tap.launch_sync_job(query)
-        dummyTapHandler.checkCall('launch_sync_job', parameters)
+        dummyTapHandler.check_call('launch_sync_job', parameters)
         #test with parameters
         dummyTapHandler.reset()
         name = 'name'
@@ -184,7 +184,7 @@ class TestTap(unittest.TestCase):
         parameters['upload_table_name'] = upload_table_name
         tap.launch_sync_job(query, name=name, output_file=output_file, output_format=output_format, \
                        verbose=verbose, dump_to_file=dump_to_file, upload_resource=upload_resource, upload_table_name=upload_table_name)
-        dummyTapHandler.checkCall('launch_sync_job', parameters)
+        dummyTapHandler.check_call('launch_sync_job', parameters)
         pass
     
     def testListAsyncJobs(self):
@@ -194,12 +194,12 @@ class TestTap(unittest.TestCase):
         parameters = {}
         parameters['verbose'] = False
         tap.list_async_jobs()
-        dummyTapHandler.checkCall('list_async_jobs', parameters)
+        dummyTapHandler.check_call('list_async_jobs', parameters)
         #test with parameters
         dummyTapHandler.reset()
         parameters['verbose'] = True
         tap.list_async_jobs(verbose=True)
-        dummyTapHandler.checkCall('list_async_jobs', parameters)
+        dummyTapHandler.check_call('list_async_jobs', parameters)
         pass
     
     def testQueryObject(self):
@@ -215,7 +215,7 @@ class TestTap(unittest.TestCase):
         parameters['async'] = False
         parameters['verbose'] = False
         tap.query_object(sc)
-        dummyTapHandler.checkCall('query_object', parameters)
+        dummyTapHandler.check_call('query_object', parameters)
         #test with parameters
         dummyTapHandler.reset()
         width = 'w'
@@ -230,7 +230,7 @@ class TestTap(unittest.TestCase):
         parameters['async'] = async
         parameters['verbose'] = verbose
         tap.query_object(sc, radius=radius, width=width, height=height, async=async, verbose=verbose)
-        dummyTapHandler.checkCall('query_object', parameters)
+        dummyTapHandler.check_call('query_object', parameters)
         pass
     
     def testQueryObjectAsync(self):
@@ -245,7 +245,7 @@ class TestTap(unittest.TestCase):
         parameters['height'] = None
         parameters['verbose'] = False
         tap.query_object_async(sc)
-        dummyTapHandler.checkCall('query_object_async', parameters)
+        dummyTapHandler.check_call('query_object_async', parameters)
         #test with parameters
         dummyTapHandler.reset()
         width = 'w'
@@ -258,7 +258,7 @@ class TestTap(unittest.TestCase):
         parameters['height'] = height
         parameters['verbose'] = verbose
         tap.query_object_async(sc, radius=radius, width=width, height=height, verbose=verbose)
-        dummyTapHandler.checkCall('query_object_async', parameters)
+        dummyTapHandler.check_call('query_object_async', parameters)
         pass
     
     def testConeSearchSync(self):
@@ -277,7 +277,7 @@ class TestTap(unittest.TestCase):
         parameters['verbose'] = False
         parameters['dump_to_file'] = False
         tap.cone_search(coordinate, radius)
-        dummyTapHandler.checkCall('cone_search', parameters)
+        dummyTapHandler.check_call('cone_search', parameters)
         #test with parameters
         dummyTapHandler.reset()
         async = True
@@ -295,7 +295,7 @@ class TestTap(unittest.TestCase):
         parameters['verbose'] = verbose
         parameters['dump_to_file'] = dump_to_file
         tap.cone_search(coordinate, radius, async=async, background=background, output_file=output_file, output_format=output_format, verbose=verbose, dump_to_file=dump_to_file)
-        dummyTapHandler.checkCall('cone_search', parameters)
+        dummyTapHandler.check_call('cone_search', parameters)
         pass
     
     pass

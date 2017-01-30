@@ -27,18 +27,18 @@ class DummyTapHandler(object):
         self.__invokedMethod = None
         pass
         
-    def checkCall(self, method_name, parameters):
-        self.checkMethod(method_name)
-        self.checkParameters(parameters, method_name)
+    def check_call(self, method_name, parameters):
+        self.check_method(method_name)
+        self.check_parameters(parameters, method_name)
         pass
     
-    def checkMethod(self, method):
+    def check_method(self, method):
         if method == self.__invokedMethod:
             return
         else:
             raise Exception("Method '"+str(method)+"' not invoked. (Invoked method is '"+str(self.__invokedMethod)+"')")
     
-    def checkParameters(self, parameters, method_name):
+    def check_parameters(self, parameters, method_name):
         if parameters == None:
             return len(self.__parameters) == 0
         if len(parameters) != len(self.__parameters):
