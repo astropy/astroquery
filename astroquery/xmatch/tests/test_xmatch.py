@@ -32,7 +32,10 @@ class MockResponseXmatch(MockResponse):
 
 @pytest.fixture
 def patch_request(request):
-    mp = request.getfuncargvalue("monkeypatch")
+    try:
+        mp = request.getfixturevalue("monkeypatch")
+    except AttributeError:  # pytest < 3
+        mp = request.getfuncargvalue("monkeypatch")
     mp.setattr(requests, "_request", request_mockreturn)
     return mp
 

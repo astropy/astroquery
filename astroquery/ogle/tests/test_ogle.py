@@ -18,7 +18,10 @@ def data_path(filename):
 
 @pytest.fixture
 def patch_post(request):
-    mp = request.getfuncargvalue("monkeypatch")
+    try:
+        mp = request.getfixturevalue("monkeypatch")
+    except AttributeError:  # pytest < 3
+        mp = request.getfuncargvalue("monkeypatch")
     mp.setattr(ogle.Ogle, '_request', post_mockreturn)
     return mp
 

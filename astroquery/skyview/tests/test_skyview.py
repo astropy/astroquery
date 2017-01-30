@@ -17,7 +17,11 @@ objcoords = {'Eta Carinae': coordinates.SkyCoord(ra=161.264775 * u.deg,
 
 @pytest.fixture
 def patch_fromname(request):
-    mp = request.getfuncargvalue("monkeypatch")
+
+    try:
+        mp = request.getfixturevalue("monkeypatch")
+    except AttributeError:  # pytest < 3
+        mp = request.getfuncargvalue("monkeypatch")
 
     def fromname(self, name):
         if isinstance(name, str):
@@ -61,7 +65,10 @@ def data_path(filename):
 
 @pytest.fixture
 def patch_get(request):
-    mp = request.getfuncargvalue("monkeypatch")
+    try:
+        mp = request.getfixturevalue("monkeypatch")
+    except AttributeError:  # pytest < 3
+        mp = request.getfuncargvalue("monkeypatch")
     mp.setattr(SkyView, '_request', MockResponseSkyviewForm)
     return mp
 
