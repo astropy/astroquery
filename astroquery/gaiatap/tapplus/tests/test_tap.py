@@ -34,7 +34,7 @@ def data_path(filename):
 
 class TestTap(unittest.TestCase):
 
-    def testLoadTables(self):
+    def test_load_tables(self):
         connHandler = DummyConnHandler()
         tap = TapPlus("http://test:1111/tap", connhandler=connHandler)
         responseLoadTable = DummyResponse()
@@ -55,28 +55,28 @@ class TestTap(unittest.TestCase):
         res = tap.load_tables()
         assert len(res) == 2, "Number of tables expected: %d, found: %d" % (2, len(res))
         #Table 1
-        table = self.__findTable('public', 'table1', res)
+        table = self.__find_table('public', 'table1', res)
         assert table.get_description() == 'Table1 desc', "Wrong description for table1. Expected: %s, found %s" % ('Table1 desc', table.get_description())
         columns = table.get_columns()
         assert len(columns) == 2, "Number of columns for table1. Expected: %d, found: %d" % (2, len(columns))
-        col = self.__findColumn('table1_col1', columns)
-        self.__checkColumn(col, 'Table1 Column1 desc', '', 'VARCHAR', 'indexed')
-        col = self.__findColumn('table1_col2', columns)
-        self.__checkColumn(col, 'Table1 Column2 desc', '', 'INTEGER', None)
+        col = self.__find_column('table1_col1', columns)
+        self.__check_column(col, 'Table1 Column1 desc', '', 'VARCHAR', 'indexed')
+        col = self.__find_column('table1_col2', columns)
+        self.__check_column(col, 'Table1 Column2 desc', '', 'INTEGER', None)
         #Table 2
-        table = self.__findTable('public', 'table2', res)
+        table = self.__find_table('public', 'table2', res)
         assert table.get_description() == 'Table2 desc', "Wrong description for table2. Expected: %s, found %s" % ('Table2 desc', table.get_description())
         columns = table.get_columns()
         assert len(columns) == 3, "Number of columns for table2. Expected: %d, found: %d" % (3, len(columns))
-        col = self.__findColumn('table2_col1', columns)
-        self.__checkColumn(col, 'Table2 Column1 desc', '', 'VARCHAR', 'indexed')
-        col = self.__findColumn('table2_col2', columns)
-        self.__checkColumn(col, 'Table2 Column2 desc', '', 'INTEGER', None)
-        col = self.__findColumn('table2_col3', columns)
-        self.__checkColumn(col, 'Table2 Column3 desc', '', 'INTEGER', None)
+        col = self.__find_column('table2_col1', columns)
+        self.__check_column(col, 'Table2 Column1 desc', '', 'VARCHAR', 'indexed')
+        col = self.__find_column('table2_col2', columns)
+        self.__check_column(col, 'Table2 Column2 desc', '', 'INTEGER', None)
+        col = self.__find_column('table2_col3', columns)
+        self.__check_column(col, 'Table2 Column3 desc', '', 'INTEGER', None)
         pass
     
-    def testLoadTable(self):
+    def test_load_table(self):
         connHandler = DummyConnHandler()
         tap = TapPlus("http://test:1111/tap", connhandler=connHandler)
         responseLoadTable = DummyResponse()
@@ -102,13 +102,13 @@ class TestTap(unittest.TestCase):
         assert table.get_description() == 'Table1 desc', "Wrong description for table1. Expected: %s, found %s" % ('Table1 desc', table.get_description())
         columns = table.get_columns()
         assert len(columns) == 2, "Number of columns for table1. Expected: %d, found: %d" % (2, len(columns))
-        col = self.__findColumn('table1_col1', columns)
-        self.__checkColumn(col, 'Table1 Column1 desc', '', 'VARCHAR', 'indexed')
-        col = self.__findColumn('table1_col2', columns)
-        self.__checkColumn(col, 'Table1 Column2 desc', '', 'INTEGER', None)
+        col = self.__find_column('table1_col1', columns)
+        self.__check_column(col, 'Table1 Column1 desc', '', 'VARCHAR', 'indexed')
+        col = self.__find_column('table1_col2', columns)
+        self.__check_column(col, 'Table1 Column2 desc', '', 'INTEGER', None)
         pass
     
-    def testLaunchSyncJob(self):
+    def test_launch_sync_job(self):
         connHandler = DummyConnHandler()
         tap = TapPlus("http://test:1111/tap", connhandler=connHandler)
         responseLaunchJob = DummyResponse()
@@ -146,13 +146,13 @@ class TestTap(unittest.TestCase):
         #results
         results = job.get_results()
         assert len(results) == 3,  "Wrong job results (num rows). Expected: %d, found %d" % (3, len(results))
-        self.__checkResultsColumn(results, 'alpha', 'alpha', None, np.float64)
-        self.__checkResultsColumn(results, 'delta', 'delta', None, np.float64)
-        self.__checkResultsColumn(results, 'source_id', 'source_id', None, np.object)
-        self.__checkResultsColumn(results, 'table1_oid', 'table1_oid', None, np.int32)
+        self.__check_results_column(results, 'alpha', 'alpha', None, np.float64)
+        self.__check_results_column(results, 'delta', 'delta', None, np.float64)
+        self.__check_results_column(results, 'source_id', 'source_id', None, np.object)
+        self.__check_results_column(results, 'table1_oid', 'table1_oid', None, np.int32)
         pass
     
-    def testLauncAsyncJob(self):
+    def test_launc_async_job(self):
         connHandler = DummyConnHandler()
         tap = TapPlus("http://test:1111/tap", connhandler=connHandler)
         jobid = '12345'
@@ -220,13 +220,13 @@ class TestTap(unittest.TestCase):
         #results
         results = job.get_results()
         assert len(results) == 3,  "Wrong job results (num rows). Expected: %d, found %d" % (3, len(results))
-        self.__checkResultsColumn(results, 'alpha', 'alpha', None, np.float64)
-        self.__checkResultsColumn(results, 'delta', 'delta', None, np.float64)
-        self.__checkResultsColumn(results, 'source_id', 'source_id', None, np.object)
-        self.__checkResultsColumn(results, 'table1_oid', 'table1_oid', None, np.int32)
+        self.__check_results_column(results, 'alpha', 'alpha', None, np.float64)
+        self.__check_results_column(results, 'delta', 'delta', None, np.float64)
+        self.__check_results_column(results, 'source_id', 'source_id', None, np.object)
+        self.__check_results_column(results, 'table1_oid', 'table1_oid', None, np.int32)
         pass
     
-    def testListAsyncJobs(self):
+    def test_list_async_jobs(self):
         connHandler = DummyConnHandler()
         tap = TapPlus("http://test:1111/tap", connhandler=connHandler)
         response = DummyResponse()
@@ -252,7 +252,7 @@ class TestTap(unittest.TestCase):
         assert jobs[1].get_phase() == 'ERROR', "Wrong job phase for job %s. Expected: %s, found %s" % (jobs[1].get_jobid(), 'ERROR', jobs[1].get_phase())
         pass
     
-    def testQueryObject(self):
+    def test_query_object(self):
         connHandler = DummyConnHandler()
         tap = TapPlus("http://test:1111/tap", connhandler=connHandler)
         #Launch response: we use default response because the query contains decimals 
@@ -279,21 +279,21 @@ class TestTap(unittest.TestCase):
         height = Quantity(10, u.deg)
         table = tap.query_object(sc, width=width, height=height)
         assert len(table) == 3,  "Wrong job results (num rows). Expected: %d, found %d" % (3, len(table))
-        self.__checkResultsColumn(table, 'alpha', 'alpha', None, np.float64)
-        self.__checkResultsColumn(table, 'delta', 'delta', None, np.float64)
-        self.__checkResultsColumn(table, 'source_id', 'source_id', None, np.object)
-        self.__checkResultsColumn(table, 'table1_oid', 'table1_oid', None, np.int32)
+        self.__check_results_column(table, 'alpha', 'alpha', None, np.float64)
+        self.__check_results_column(table, 'delta', 'delta', None, np.float64)
+        self.__check_results_column(table, 'source_id', 'source_id', None, np.object)
+        self.__check_results_column(table, 'table1_oid', 'table1_oid', None, np.int32)
         #by radius
         radius = Quantity(1,u.deg)
         table = tap.query_object(sc, radius=radius)
         assert len(table) == 3,  "Wrong job results (num rows). Expected: %d, found %d" % (3, len(table))
-        self.__checkResultsColumn(table, 'alpha', 'alpha', None, np.float64)
-        self.__checkResultsColumn(table, 'delta', 'delta', None, np.float64)
-        self.__checkResultsColumn(table, 'source_id', 'source_id', None, np.object)
-        self.__checkResultsColumn(table, 'table1_oid', 'table1_oid', None, np.int32)
+        self.__check_results_column(table, 'alpha', 'alpha', None, np.float64)
+        self.__check_results_column(table, 'delta', 'delta', None, np.float64)
+        self.__check_results_column(table, 'source_id', 'source_id', None, np.object)
+        self.__check_results_column(table, 'table1_oid', 'table1_oid', None, np.int32)
         pass
     
-    def testQueryObjectAsync(self):
+    def test_query_object_async(self):
         connHandler = DummyConnHandler()
         tap = TapPlus("http://test:1111/tap", connhandler=connHandler)
         jobid = '12345'
@@ -328,21 +328,21 @@ class TestTap(unittest.TestCase):
         height = Quantity(10, u.deg)
         table = tap.query_object_async(sc, width=width, height=height)
         assert len(table) == 3,  "Wrong job results (num rows). Expected: %d, found %d" % (3, len(table))
-        self.__checkResultsColumn(table, 'alpha', 'alpha', None, np.float64)
-        self.__checkResultsColumn(table, 'delta', 'delta', None, np.float64)
-        self.__checkResultsColumn(table, 'source_id', 'source_id', None, np.object)
-        self.__checkResultsColumn(table, 'table1_oid', 'table1_oid', None, np.int32)
+        self.__check_results_column(table, 'alpha', 'alpha', None, np.float64)
+        self.__check_results_column(table, 'delta', 'delta', None, np.float64)
+        self.__check_results_column(table, 'source_id', 'source_id', None, np.object)
+        self.__check_results_column(table, 'table1_oid', 'table1_oid', None, np.int32)
         #by radius
         radius = Quantity(1,u.deg)
         table = tap.query_object_async(sc, radius=radius)
         assert len(table) == 3,  "Wrong job results (num rows). Expected: %d, found %d" % (3, len(table))
-        self.__checkResultsColumn(table, 'alpha', 'alpha', None, np.float64)
-        self.__checkResultsColumn(table, 'delta', 'delta', None, np.float64)
-        self.__checkResultsColumn(table, 'source_id', 'source_id', None, np.object)
-        self.__checkResultsColumn(table, 'table1_oid', 'table1_oid', None, np.int32)
+        self.__check_results_column(table, 'alpha', 'alpha', None, np.float64)
+        self.__check_results_column(table, 'delta', 'delta', None, np.float64)
+        self.__check_results_column(table, 'source_id', 'source_id', None, np.object)
+        self.__check_results_column(table, 'table1_oid', 'table1_oid', None, np.int32)
         pass
     
-    def testConeSearchSync(self):
+    def test_cone_search_sync(self):
         connHandler = DummyConnHandler()
         tap = TapPlus("http://test:1111/tap", connhandler=connHandler)
         #Launch response: we use default response because the query contains decimals 
@@ -386,13 +386,13 @@ class TestTap(unittest.TestCase):
         #results
         results = job.get_results()
         assert len(results) == 3,  "Wrong job results (num rows). Expected: %d, found %d" % (3, len(results))
-        self.__checkResultsColumn(results, 'alpha', 'alpha', None, np.float64)
-        self.__checkResultsColumn(results, 'delta', 'delta', None, np.float64)
-        self.__checkResultsColumn(results, 'source_id', 'source_id', None, np.object)
-        self.__checkResultsColumn(results, 'table1_oid', 'table1_oid', None, np.int32)
+        self.__check_results_column(results, 'alpha', 'alpha', None, np.float64)
+        self.__check_results_column(results, 'delta', 'delta', None, np.float64)
+        self.__check_results_column(results, 'source_id', 'source_id', None, np.object)
+        self.__check_results_column(results, 'table1_oid', 'table1_oid', None, np.int32)
         pass
     
-    def testConeSearchAsync(self):
+    def test_cone_search_async(self):
         connHandler = DummyConnHandler()
         tap = TapPlus("http://test:1111/tap", connhandler=connHandler)
         jobid = '12345'
@@ -455,13 +455,13 @@ class TestTap(unittest.TestCase):
         #results
         results = job.get_results()
         assert len(results) == 3,  "Wrong job results (num rows). Expected: %d, found %d" % (3, len(results))
-        self.__checkResultsColumn(results, 'alpha', 'alpha', None, np.float64)
-        self.__checkResultsColumn(results, 'delta', 'delta', None, np.float64)
-        self.__checkResultsColumn(results, 'source_id', 'source_id', None, np.object)
-        self.__checkResultsColumn(results, 'table1_oid', 'table1_oid', None, np.int32)
+        self.__check_results_column(results, 'alpha', 'alpha', None, np.float64)
+        self.__check_results_column(results, 'delta', 'delta', None, np.float64)
+        self.__check_results_column(results, 'source_id', 'source_id', None, np.object)
+        self.__check_results_column(results, 'table1_oid', 'table1_oid', None, np.int32)
         pass
     
-    def __findTable(self, schemaName, tableName, tables):
+    def __find_table(self, schemaName, tableName, tables):
         qualifiedName = schemaName + "." + tableName
         for table in (tables):
             if table.get_qualified_name() == qualifiedName:
@@ -471,7 +471,7 @@ class TestTap(unittest.TestCase):
         self.fail("Table '"+qualifiedName+"' not found")
         pass
     
-    def __findColumn(self, columnName, columns):
+    def __find_column(self, columnName, columns):
         for c in (columns):
             if c.get_name() == columnName:
                 return c
@@ -480,14 +480,14 @@ class TestTap(unittest.TestCase):
         self.fail("Column '"+columnName+"' not found")
         pass
     
-    def __checkColumn(self, column, description, unit, dataType, flag):
+    def __check_column(self, column, description, unit, dataType, flag):
         assert column.get_description() == description, "Wrong description for table %s. Expected: '%s', found '%s'" % (column.get_name(), description, column.get_description())
         assert column.get_unit() == unit, "Wrong unit for table %s. Expected: '%s', found '%s'" % (column.get_name(), unit, column.get_unit())
         assert column.get_data_type() == dataType, "Wrong dataType for table %s. Expected: '%s', found '%s'" % (column.get_name(), dataType, column.get_data_type())
         assert column.get_flag() == flag, "Wrong flag for table %s. Expected: '%s', found '%s'" % (column.get_name(), flag, column.get_flag())
         pass
     
-    def __checkResultsColumn(self, results, columnName, description, unit, dataType):
+    def __check_results_column(self, results, columnName, description, unit, dataType):
         c = results[columnName]
         assert c.description == description, "Wrong description for results column '%s'. Expected: '%s', found '%s'" % (columnName, description, c.description)
         assert c.unit == unit, "Wrong unit for results column '%s'. Expected: '%s', found '%s'" % (columnName, unit, c.unit)
