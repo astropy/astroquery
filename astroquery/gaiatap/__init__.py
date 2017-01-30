@@ -32,3 +32,4 @@ gaiatap = TapPlus(url="http://gea.esac.esa.int/tap-server/tap", verbose=False)
 from .core import GaiaTap, GaiaTapClass
 
 __all__ = ['GaiaTap', 'GaiaTapClass', 'TapPlus', 'Job', 'Conf', 'conf']
+

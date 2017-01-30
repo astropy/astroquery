@@ -19,7 +19,7 @@ from astroquery.gaiatap.tapplus.tap import TapPlus
 
 __all__ = ['GaiaTap', 'GaiaTapClass']
 
-class GaiaTapClass():
+class GaiaTapClass(object):
     
     """
     Proxy class to default TapPlus object (pointing to Gaia Archive)

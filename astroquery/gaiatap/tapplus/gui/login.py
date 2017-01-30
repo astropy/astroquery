@@ -32,7 +32,7 @@ except ImportError:
     from tkinter import Entry as TKEntry
     from tkinter import Grid as TKGrid
 
-class LoginDialog:
+class LoginDialog(object):
     
     
     def __init__(self, host):

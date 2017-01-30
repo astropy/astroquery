@@ -23,7 +23,7 @@ except ImportError:
     #python 2
     from urllib import urlencode as urlEncode
     
-class DummyConnHandler:
+class DummyConnHandler(object):
     
     def __init__(self):
         self.request = None

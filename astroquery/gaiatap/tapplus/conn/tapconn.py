@@ -399,7 +399,7 @@ class TapConn(object):
     
     pass
 
-class ConnectionHandler:
+class ConnectionHandler(object):
     def __init__(self, host, port, sslport):
         self.__connHost = host
         self.__connPort = port

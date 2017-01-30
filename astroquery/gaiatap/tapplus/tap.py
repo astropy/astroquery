@@ -38,7 +38,7 @@ MAIN_GAIA_TABLE_RA = "ra"
 MAIN_GAIA_TABLE_DEC = "dec"
 
 
-class TapPlus():
+class TapPlus(object):
     """TAP plus class
     Provides TAP and TAP+ capabilities
     """

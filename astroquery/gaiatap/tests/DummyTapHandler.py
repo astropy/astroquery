@@ -15,7 +15,7 @@ Created on 30 jun. 2016
 
 """
 
-class DummyTapHandler:
+class DummyTapHandler(object):
     
     def __init__(self):
         self.__invokedMethod = None
