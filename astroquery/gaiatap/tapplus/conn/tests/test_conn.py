@@ -28,7 +28,7 @@ def data_path(filename):
 
 class ConnTest(unittest.TestCase):
     
-    def testGet(self):
+    def test_get(self):
         mock = Mock()
         conn = DummyConn("http")
         conn.response.status = 222
@@ -54,7 +54,7 @@ class ConnTest(unittest.TestCase):
         assert r.get_body() == None, "Request body. Expected %s, found %s" % ('None', str(r.get_body()))
         pass
     
-    def testPost(self):
+    def test_post(self):
         mock = Mock()
         conn = DummyConn('http')
         conn.response.status = 111
@@ -81,7 +81,7 @@ class ConnTest(unittest.TestCase):
         assert r.get_body() == data, "Request body. Expected %s, found %s" % (data, str(r.get_body()))
         pass
     
-    def testLogin(self):
+    def test_login(self):
         mock = Mock()
         connSecure = DummyConn("https")
         connSecure.response.status = 333
