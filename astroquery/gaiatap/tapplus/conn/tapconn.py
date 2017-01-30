@@ -64,7 +64,7 @@ class TapConn(object):
         connhandler connection handler object, optional, default None
             HTTP(s) connection hander (creator). If no handler is provided, a new one is created.
         """
-        self.__internalInit()
+        self.__interna_init()
         self.__isHttps = ishttps
         self.__connHost = host
         self.__connPort = port
@@ -89,7 +89,7 @@ class TapConn(object):
             self.__connectionHandler = connhandler
         pass
     
-    def __internalInit(self):
+    def __interna_init(self):
         self.__connectionHandler = None
         self.__isHttps = False
         self.__connHost = ""
@@ -107,10 +107,10 @@ class TapConn(object):
         self.__currentReason = ""
         pass
     
-    def __getTapContext(self, listName):
+    def __get_tap_context(self, listName):
         return self.__tapContext + "/" + listName
     
-    def __getServerContext(self, subContext):
+    def __get_server_context(self, subContext):
         return self.__serverContext + "/" + subContext
     
     def execute_get(self, subcontext, verbose=False):
@@ -128,8 +128,8 @@ class TapConn(object):
         -------
         An HTTP(s) response object
         """
-        conn = self.__getConnection(verbose)
-        context = self.__getTapContext(subcontext)
+        conn = self.__get_connection(verbose)
+        context = self.__get_tap_context(subcontext)
         conn.request("GET", context, None, self.__getHeaders)
         response = conn.getresponse()
         self.__currentReason = response.reason
@@ -155,8 +155,8 @@ class TapConn(object):
         -------
         An HTTP(s) response object
         """
-        conn = self.__getConnection(verbose)
-        context = self.__getTapContext(subcontext)
+        conn = self.__get_connection(verbose)
+        context = self.__get_tap_context(subcontext)
         self.__postHeaders["Content-type"] = content_type
         conn.request("POST", context, data, self.__postHeaders)
         response = conn.getresponse()
@@ -179,8 +179,8 @@ class TapConn(object):
         -------
         An HTTPS response object
         """
-        conn = self.__getConnectionSecure()
-        context = self.__getServerContext(subcontext)
+        conn = self.__get_connection_secure()
+        context = self.__get_server_context(subcontext)
         self.__postHeaders["Content-type"] = CONTENT_TYPE_POST_DEFAULT
         conn.request("POST", context, data, self.__postHeaders)
         response = conn.getresponse()
@@ -315,7 +315,7 @@ class TapConn(object):
         -------
         A string composed of: 'host:port/server_context'
         """
-        return str(self.__connHost) + ":" + str(self.__connPort) + str(self.__getTapContext(""))
+        return str(self.__connHost) + ":" + str(self.__connPort) + str(self.__get_tap_context(""))
     
     def get_host_url_secure(self):
         """Returns the host+portSsl+serverContext
@@ -324,7 +324,7 @@ class TapConn(object):
         -------
         A string composed of: 'host:portSsl/server_context'
         """
-        return str(self.__connHost) + ":" + str(self.__connPortSsl) + str(self.__getTapContext(""))
+        return str(self.__connHost) + ":" + str(self.__connPortSsl) + str(self.__get_tap_context(""))
     
     def check_launch_response_status(self, response, debug, expected_response_status):
         """Checks the response status code
@@ -350,10 +350,10 @@ class TapConn(object):
             isError = True
         return isError
     
-    def __getConnection(self, verbose=False):
+    def __get_connection(self, verbose=False):
         return self.__connectionHandler.get_connection(self.__isHttps, self.__cookie, verbose)
     
-    def __getConnectionSecure(self, verbose=False):
+    def __get_connection_secure(self, verbose=False):
         return self.__connectionHandler.get_connection_secure(verbose)
     
     def encode_multipart(self, fields, files):
