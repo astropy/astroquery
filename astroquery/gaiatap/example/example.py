@@ -101,8 +101,7 @@ print ("Jobs async list:")
 if jobs is None:
     print ("No jobs")
 else:
-    for j in jobs:
-        print (j)
+    print (jobs)
 
 
 #Cone search
