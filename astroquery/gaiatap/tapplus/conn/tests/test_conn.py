@@ -49,9 +49,9 @@ class ConnTest(unittest.TestCase):
         context = "/" + serverContext + "/" + tapContext + "/" + subContext
         r = tap.execute_get(subcontext=subContext)
         assert r.status == 222, "Status code, expected: %d, found: %d" % (222, r.status)
-        assert r.getMethod() == 'GET', "Request method. Expected %s, found %s" % ('GET', r.getMethod())
-        assert r.getContext() == context, "Request context. Expected %s, found %s" % (context, r.getContext())
-        assert r.getBody() == None, "Request body. Expected %s, found %s" % ('None', str(r.getBody()))
+        assert r.get_method() == 'GET', "Request method. Expected %s, found %s" % ('GET', r.get_method())
+        assert r.get_context() == context, "Request context. Expected %s, found %s" % (context, r.get_context())
+        assert r.get_body() == None, "Request body. Expected %s, found %s" % ('None', str(r.get_body()))
         pass
     
     def testPost(self):
@@ -76,9 +76,9 @@ class ConnTest(unittest.TestCase):
         data = "postData"
         r = tap.execute_post(subcontext=subContext, data=data)
         assert r.status == 111, "Status code, expected: %d, found: %d" % (111, r.status)
-        assert r.getMethod() == 'POST', "Request method. Expected %s, found %s" % ('POST', r.getMethod())
-        assert r.getContext() == context, "Request context. Expected %s, found %s" % (context, r.getContext())
-        assert r.getBody() == data, "Request body. Expected %s, found %s" % (data, str(r.getBody()))
+        assert r.get_method() == 'POST', "Request method. Expected %s, found %s" % ('POST', r.get_method())
+        assert r.get_context() == context, "Request context. Expected %s, found %s" % (context, r.get_context())
+        assert r.get_body() == data, "Request body. Expected %s, found %s" % (data, str(r.get_body()))
         pass
     
     def testLogin(self):
@@ -103,9 +103,9 @@ class ConnTest(unittest.TestCase):
         data = "testData"
         r = tap.execute_secure(subcontext=subContext, data=data)
         assert r.status == 333, "Status code, expected: %d, found: %d" % (333, r.status)
-        assert r.getMethod() == 'POST', "Request method. Expected %s, found %s" % ('POST', r.getMethod())
-        assert r.getContext() == context, "Request context. Expected %s, found %s" % (context, r.getContext())
-        assert r.getBody() == data, "Request body. Expected %s, found %s" % (data, str(r.getBody()))
+        assert r.get_method() == 'POST', "Request method. Expected %s, found %s" % ('POST', r.get_method())
+        assert r.get_context() == context, "Request context. Expected %s, found %s" % (context, r.get_context())
+        assert r.get_body() == data, "Request body. Expected %s, found %s" % (data, str(r.get_body()))
         pass
     
     pass

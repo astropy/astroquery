@@ -106,9 +106,9 @@ class TestJob(unittest.TestCase):
         job.set_jobid(jobid)
         job.set_output_format(outputFormat)
         responseCheckPhase = DummyResponse()
-        responseCheckPhase.setStatusCode(500)
-        responseCheckPhase.setMessage("ERROR")
-        responseCheckPhase.setData(method='GET', context=None, body='FINISHED', headers=None)
+        responseCheckPhase.set_status_code(500)
+        responseCheckPhase.set_message("ERROR")
+        responseCheckPhase.set_data(method='GET', context=None, body='FINISHED', headers=None)
         waitRequest = "async/"+str(jobid)+"/phase"
         connHandler = DummyConnHandler()
         connHandler.set_response(waitRequest, responseCheckPhase)
@@ -118,14 +118,14 @@ class TestJob(unittest.TestCase):
             self.fail("Exception expected: wrong HTTP status code I must raise an exception")
         except:
             pass
-        responseCheckPhase.setStatusCode(200)
-        responseCheckPhase.setMessage("OK")
+        responseCheckPhase.set_status_code(200)
+        responseCheckPhase.set_message("OK")
         responseGetData = DummyResponse()
-        responseGetData.setStatusCode(500)
-        responseGetData.setMessage("ERROR")
+        responseGetData.set_status_code(500)
+        responseGetData.set_message("ERROR")
         jobContentFileName = data_path('result_1.vot')
         jobContent = utils.readFileContent(jobContentFileName)
-        responseGetData.setData(method='GET', context=None, body=jobContent, headers=None)
+        responseGetData.set_data(method='GET', context=None, body=jobContent, headers=None)
         dataRequest = "async/" + str(jobid) + "/results/result"
         connHandler.set_response(dataRequest, responseGetData)
         try:
@@ -134,8 +134,8 @@ class TestJob(unittest.TestCase):
         except Exception as ex:
             #print (str(ex))
             pass
-        responseGetData.setStatusCode(200)
-        responseGetData.setMessage("OK")
+        responseGetData.set_status_code(200)
+        responseGetData.set_message("OK")
         res = job.get_results()
         assert len(res) == 3, "Num rows. Expected %d, found %d" % (3, len(res))
         assert len(res.columns) == 4, "Num cols. Expected %d, found %d" % (4, len(res.columns))

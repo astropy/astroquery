@@ -38,11 +38,11 @@ class TestTap(unittest.TestCase):
         connHandler = DummyConnHandler()
         tap = TapPlus("http://test:1111/tap", connhandler=connHandler)
         responseLoadTable = DummyResponse()
-        responseLoadTable.setStatusCode(500)
-        responseLoadTable.setMessage("ERROR")
+        responseLoadTable.set_status_code(500)
+        responseLoadTable.set_message("ERROR")
         tableDataFile = data_path('test_tables.xml')
         tableData = utils.readFileContent(tableDataFile)
-        responseLoadTable.setData(method='GET', context=None, body=tableData, headers=None)
+        responseLoadTable.set_data(method='GET', context=None, body=tableData, headers=None)
         tableRequest = "tables"
         connHandler.set_response(tableRequest, responseLoadTable)
         try:
@@ -50,8 +50,8 @@ class TestTap(unittest.TestCase):
             self.fail("Exception expected: no connection handeler defined")
         except:
             pass
-        responseLoadTable.setStatusCode(200)
-        responseLoadTable.setMessage("OK")
+        responseLoadTable.set_status_code(200)
+        responseLoadTable.set_message("OK")
         res = tap.load_tables()
         assert len(res) == 2, "Number of tables expected: %d, found: %d" % (2, len(res))
         #Table 1
@@ -80,11 +80,11 @@ class TestTap(unittest.TestCase):
         connHandler = DummyConnHandler()
         tap = TapPlus("http://test:1111/tap", connhandler=connHandler)
         responseLoadTable = DummyResponse()
-        responseLoadTable.setStatusCode(500)
-        responseLoadTable.setMessage("ERROR")
+        responseLoadTable.set_status_code(500)
+        responseLoadTable.set_message("ERROR")
         tableDataFile = data_path('test_table1.xml')
         tableData = utils.readFileContent(tableDataFile)
-        responseLoadTable.setData(method='GET', context=None, body=tableData, headers=None)
+        responseLoadTable.set_data(method='GET', context=None, body=tableData, headers=None)
         tableSchema = "public"
         tableName = "table1"
         fullQualifiedTableName = tableSchema + "." + tableName
@@ -95,8 +95,8 @@ class TestTap(unittest.TestCase):
             self.fail("Exception expected: no connection handeler defined")
         except:
             pass
-        responseLoadTable.setStatusCode(200)
-        responseLoadTable.setMessage("OK")
+        responseLoadTable.set_status_code(200)
+        responseLoadTable.set_message("OK")
         table = tap.load_table(fullQualifiedTableName)
         assert table is not None, "Table '%s' not found" % (fullQualifiedTableName)
         assert table.get_description() == 'Table1 desc', "Wrong description for table1. Expected: %s, found %s" % ('Table1 desc', table.get_description())
@@ -112,11 +112,11 @@ class TestTap(unittest.TestCase):
         connHandler = DummyConnHandler()
         tap = TapPlus("http://test:1111/tap", connhandler=connHandler)
         responseLaunchJob = DummyResponse()
-        responseLaunchJob.setStatusCode(500)
-        responseLaunchJob.setMessage("ERROR")
+        responseLaunchJob.set_status_code(500)
+        responseLaunchJob.set_message("ERROR")
         jobDataFile = data_path('job_1.vot')
         jobData = utils.readFileContent(jobDataFile)
-        responseLaunchJob.setData(method='POST', context=None, body=jobData, headers=None)
+        responseLaunchJob.set_data(method='POST', context=None, body=jobData, headers=None)
         query = 'select top 5 * from table'
         dTmp = {"q": query}
         dTmpEncoded = connHandler.url_encode(dTmp)
@@ -136,8 +136,8 @@ class TestTap(unittest.TestCase):
             self.fail("Exception expected: no connection handler defined")
         except:
             pass
-        responseLaunchJob.setStatusCode(200)
-        responseLaunchJob.setMessage("OK")
+        responseLaunchJob.set_status_code(200)
+        responseLaunchJob.set_message("OK")
         job = tap.launch_job(query)
         assert job is not None, "Expected a valid job"
         assert job.is_sync() == True, "Expected a synchronous job"
@@ -158,13 +158,13 @@ class TestTap(unittest.TestCase):
         jobid = '12345'
         #Launch response
         responseLaunchJob = DummyResponse()
-        responseLaunchJob.setStatusCode(500)
-        responseLaunchJob.setMessage("ERROR")
+        responseLaunchJob.set_status_code(500)
+        responseLaunchJob.set_message("ERROR")
         #list of list (httplib implementation for headers in response)
         launchResponseHeaders = [
             ['location', 'http://test:1111/tap/async/' + jobid]
             ]
-        responseLaunchJob.setData(method='POST', context=None, body=None, headers=launchResponseHeaders)
+        responseLaunchJob.set_data(method='POST', context=None, body=None, headers=launchResponseHeaders)
         query = 'query'
         dictTmp = {
             "REQUEST": "doQuery", \
@@ -177,18 +177,18 @@ class TestTap(unittest.TestCase):
         connHandler.set_response(req, responseLaunchJob)
         #Phase response
         responsePhase = DummyResponse()
-        responsePhase.setStatusCode(500)
-        responsePhase.setMessage("ERROR")
-        responsePhase.setData(method='GET', context=None, body="COMPLETED", headers=None)
+        responsePhase.set_status_code(500)
+        responsePhase.set_message("ERROR")
+        responsePhase.set_data(method='GET', context=None, body="COMPLETED", headers=None)
         req = "async/" + jobid + "/phase"
         connHandler.set_response(req, responsePhase)
         #Results response
         responseResultsJob = DummyResponse()
-        responseResultsJob.setStatusCode(500)
-        responseResultsJob.setMessage("ERROR")
+        responseResultsJob.set_status_code(500)
+        responseResultsJob.set_message("ERROR")
         jobDataFile = data_path('job_1.vot')
         jobData = utils.readFileContent(jobDataFile)
-        responseResultsJob.setData(method='GET', context=None, body=jobData, headers=None)
+        responseResultsJob.set_data(method='GET', context=None, body=jobData, headers=None)
         req = "async/" + jobid + "/results/result"
         connHandler.set_response(req, responseResultsJob)
         try:
@@ -196,22 +196,22 @@ class TestTap(unittest.TestCase):
             self.fail("Exception expected: job launch response 500")
         except:
             pass
-        responseLaunchJob.setStatusCode(303)
-        responseLaunchJob.setMessage("OK")
+        responseLaunchJob.set_status_code(303)
+        responseLaunchJob.set_message("OK")
         try:
             tap.launch_job(query, async=True)
             self.fail("Exception expected: job phase response 500")
         except:
             pass
-        responsePhase.setStatusCode(200)
-        responsePhase.setMessage("OK")
+        responsePhase.set_status_code(200)
+        responsePhase.set_message("OK")
         try:
             tap.launch_job(query, async=True)
             self.fail("Exception expected: job results response 500")
         except:
             pass
-        responseResultsJob.setStatusCode(200)
-        responseResultsJob.setMessage("OK")
+        responseResultsJob.set_status_code(200)
+        responseResultsJob.set_message("OK")
         job = tap.launch_job(query, async=True)
         assert job is not None, "Expected a valid job"
         assert job.is_sync() == False, "Expected an asynchronous job"
@@ -230,11 +230,11 @@ class TestTap(unittest.TestCase):
         connHandler = DummyConnHandler()
         tap = TapPlus("http://test:1111/tap", connhandler=connHandler)
         response = DummyResponse()
-        response.setStatusCode(500)
-        response.setMessage("ERROR")
+        response.set_status_code(500)
+        response.set_message("ERROR")
         jobDataFile = data_path('jobs_list.xml')
         jobData = utils.readFileContent(jobDataFile)
-        response.setData(method='GET', context=None, body=jobData, headers=None)
+        response.set_data(method='GET', context=None, body=jobData, headers=None)
         req = "async"
         connHandler.set_response(req, response)
         try:
@@ -242,8 +242,8 @@ class TestTap(unittest.TestCase):
             self.fail("Exception expected: job list response 500")
         except:
             pass
-        response.setStatusCode(200)
-        response.setMessage("OK")
+        response.set_status_code(200)
+        response.set_message("OK")
         jobs = tap.list_async_jobs()
         assert len(jobs) == 2,  "Wrong jobs number. Expected: %d, found %d" % (2, len(jobs))
         assert jobs[0].get_jobid() == '12345', "Wrong job id. Expected: %s, found %s" % ('12345', jobs[0].get_jobid())
@@ -257,11 +257,11 @@ class TestTap(unittest.TestCase):
         tap = TapPlus("http://test:1111/tap", connhandler=connHandler)
         #Launch response: we use default response because the query contains decimals 
         responseLaunchJob = DummyResponse()
-        responseLaunchJob.setStatusCode(200)
-        responseLaunchJob.setMessage("OK")
+        responseLaunchJob.set_status_code(200)
+        responseLaunchJob.set_message("OK")
         jobDataFile = data_path('job_1.vot')
         jobData = utils.readFileContent(jobDataFile)
-        responseLaunchJob.setData(method='POST', context=None, body=jobData, headers=None)
+        responseLaunchJob.set_data(method='POST', context=None, body=jobData, headers=None)
         #The query contains decimals: force default response
         connHandler.set_default_response(responseLaunchJob)
         sc = SkyCoord(ra=29.0, dec=15.0, unit=(u.degree, u.degree), frame='icrs')
@@ -299,28 +299,28 @@ class TestTap(unittest.TestCase):
         jobid = '12345'
         #Launch response
         responseLaunchJob = DummyResponse()
-        responseLaunchJob.setStatusCode(303)
-        responseLaunchJob.setMessage("OK")
+        responseLaunchJob.set_status_code(303)
+        responseLaunchJob.set_message("OK")
         #list of list (httplib implementation for headers in response)
         launchResponseHeaders = [
             ['location', 'http://test:1111/tap/async/' + jobid]
             ]
-        responseLaunchJob.setData(method='POST', context=None, body=None, headers=launchResponseHeaders)
+        responseLaunchJob.set_data(method='POST', context=None, body=None, headers=launchResponseHeaders)
         connHandler.set_default_response(responseLaunchJob)
         #Phase response
         responsePhase = DummyResponse()
-        responsePhase.setStatusCode(200)
-        responsePhase.setMessage("OK")
-        responsePhase.setData(method='GET', context=None, body="COMPLETED", headers=None)
+        responsePhase.set_status_code(200)
+        responsePhase.set_message("OK")
+        responsePhase.set_data(method='GET', context=None, body="COMPLETED", headers=None)
         req = "async/" + jobid + "/phase"
         connHandler.set_response(req, responsePhase)
         #Results response
         responseResultsJob = DummyResponse()
-        responseResultsJob.setStatusCode(200)
-        responseResultsJob.setMessage("OK")
+        responseResultsJob.set_status_code(200)
+        responseResultsJob.set_message("OK")
         jobDataFile = data_path('job_1.vot')
         jobData = utils.readFileContent(jobDataFile)
-        responseResultsJob.setData(method='GET', context=None, body=jobData, headers=None)
+        responseResultsJob.set_data(method='GET', context=None, body=jobData, headers=None)
         req = "async/" + jobid + "/results/result"
         connHandler.set_response(req, responseResultsJob)
         sc = SkyCoord(ra=29.0, dec=15.0, unit=(u.degree, u.degree), frame='icrs')
@@ -347,11 +347,11 @@ class TestTap(unittest.TestCase):
         tap = TapPlus("http://test:1111/tap", connhandler=connHandler)
         #Launch response: we use default response because the query contains decimals 
         responseLaunchJob = DummyResponse()
-        responseLaunchJob.setStatusCode(200)
-        responseLaunchJob.setMessage("OK")
+        responseLaunchJob.set_status_code(200)
+        responseLaunchJob.set_message("OK")
         jobDataFile = data_path('job_1.vot')
         jobData = utils.readFileContent(jobDataFile)
-        responseLaunchJob.setData(method='POST', context=None, body=jobData, headers=None)
+        responseLaunchJob.set_data(method='POST', context=None, body=jobData, headers=None)
         ra = 19.0
         dec = 20.0
         sc = SkyCoord(ra=ra, dec=dec, unit=(u.degree, u.degree), frame='icrs')
@@ -398,13 +398,13 @@ class TestTap(unittest.TestCase):
         jobid = '12345'
         #Launch response
         responseLaunchJob = DummyResponse()
-        responseLaunchJob.setStatusCode(303)
-        responseLaunchJob.setMessage("OK")
+        responseLaunchJob.set_status_code(303)
+        responseLaunchJob.set_message("OK")
         #list of list (httplib implementation for headers in response)
         launchResponseHeaders = [
             ['location', 'http://test:1111/tap/async/' + jobid]
             ]
-        responseLaunchJob.setData(method='POST', context=None, body=None, headers=launchResponseHeaders)
+        responseLaunchJob.set_data(method='POST', context=None, body=None, headers=launchResponseHeaders)
         ra = 19
         dec = 20
         sc = SkyCoord(ra=ra, dec=dec, unit=(u.degree, u.degree), frame='icrs')
@@ -433,18 +433,18 @@ class TestTap(unittest.TestCase):
         connHandler.set_default_response(responseLaunchJob)
         #Phase response
         responsePhase = DummyResponse()
-        responsePhase.setStatusCode(200)
-        responsePhase.setMessage("OK")
-        responsePhase.setData(method='GET', context=None, body="COMPLETED", headers=None)
+        responsePhase.set_status_code(200)
+        responsePhase.set_message("OK")
+        responsePhase.set_data(method='GET', context=None, body="COMPLETED", headers=None)
         req = "async/" + jobid + "/phase"
         connHandler.set_response(req, responsePhase)
         #Results response
         responseResultsJob = DummyResponse()
-        responseResultsJob.setStatusCode(200)
-        responseResultsJob.setMessage("OK")
+        responseResultsJob.set_status_code(200)
+        responseResultsJob.set_message("OK")
         jobDataFile = data_path('job_1.vot')
         jobData = utils.readFileContent(jobDataFile)
-        responseResultsJob.setData(method='GET', context=None, body=jobData, headers=None)
+        responseResultsJob.set_data(method='GET', context=None, body=jobData, headers=None)
         req = "async/" + jobid + "/results/result"
         connHandler.set_response(req, responseResultsJob)
         job = tap.cone_search(sc, radius, async=True)

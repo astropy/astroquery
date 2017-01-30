@@ -24,15 +24,15 @@ class DummyResponse(object):
         self.index = 0
         pass
     
-    def setStatusCode(self, status):
+    def set_status_code(self, status):
         self.status = status
         pass
     
-    def setMessage(self, reason):
+    def set_message(self, reason):
         self.reason = reason
         pass
     
-    def setData(self, method, context, body, headers):
+    def set_data(self, method, context, body, headers):
         self.method = method
         self.context = context
         self.body = body
@@ -40,17 +40,17 @@ class DummyResponse(object):
         self.index = 0
         pass
     
-    def getMethod(self):
+    def get_method(self):
         return self.method
     
-    def getContext(self):
+    def get_context(self):
         return self.context
     
-    def getBody(self):
+    def get_body(self):
         return self.body
     
     def read(self, size=None):
-        v = self.getBody()
+        v = self.get_body()
         if v == None:
             return None
         else:

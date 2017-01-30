@@ -27,7 +27,7 @@ class DummyConn(object):
         pass
     
     def request(self, method, context, body, headers):
-        self.response.setData(method, context, body, headers)
+        self.response.set_data(method, context, body, headers)
         pass
     
     def getresponse(self):
