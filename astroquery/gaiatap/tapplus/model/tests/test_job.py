@@ -111,7 +111,7 @@ class TestJob(unittest.TestCase):
         responseCheckPhase.setData(method='GET', context=None, body='FINISHED', headers=None)
         waitRequest = "async/"+str(jobid)+"/phase"
         connHandler = DummyConnHandler()
-        connHandler.setResponse(waitRequest, responseCheckPhase)
+        connHandler.set_response(waitRequest, responseCheckPhase)
         job.set_connhandler(connHandler)
         try:
             job.get_results()
@@ -127,7 +127,7 @@ class TestJob(unittest.TestCase):
         jobContent = utils.readFileContent(jobContentFileName)
         responseGetData.setData(method='GET', context=None, body=jobContent, headers=None)
         dataRequest = "async/" + str(jobid) + "/results/result"
-        connHandler.setResponse(dataRequest, responseGetData)
+        connHandler.set_response(dataRequest, responseGetData)
         try:
             job.get_results()
             self.fail("Exception expected: wrong HTTP status code II must raise an exception")

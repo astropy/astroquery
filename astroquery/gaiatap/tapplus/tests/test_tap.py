@@ -44,7 +44,7 @@ class TestTap(unittest.TestCase):
         tableData = utils.readFileContent(tableDataFile)
         responseLoadTable.setData(method='GET', context=None, body=tableData, headers=None)
         tableRequest = "tables"
-        connHandler.setResponse(tableRequest, responseLoadTable)
+        connHandler.set_response(tableRequest, responseLoadTable)
         try:
             tap.load_tables()
             self.fail("Exception expected: no connection handeler defined")
@@ -89,7 +89,7 @@ class TestTap(unittest.TestCase):
         tableName = "table1"
         fullQualifiedTableName = tableSchema + "." + tableName
         tableRequest = "tables?tables=" + fullQualifiedTableName
-        connHandler.setResponse(tableRequest, responseLoadTable)
+        connHandler.set_response(tableRequest, responseLoadTable)
         try:
             tap.load_table(fullQualifiedTableName)
             self.fail("Exception expected: no connection handeler defined")
@@ -130,7 +130,7 @@ class TestTap(unittest.TestCase):
             "QUERY":   str(q)}
         sortedKey = taputils.tapUtilCreateSortedDictKey(dictTmp)
         jobRequest = "sync?" + sortedKey
-        connHandler.setResponse(jobRequest, responseLaunchJob)
+        connHandler.set_response(jobRequest, responseLaunchJob)
         try:
             tap.launch_job(query)
             self.fail("Exception expected: no connection handler defined")
@@ -174,14 +174,14 @@ class TestTap(unittest.TestCase):
             "QUERY":   str(query)}
         sortedKey = taputils.tapUtilCreateSortedDictKey(dictTmp)
         req = "async?" + sortedKey
-        connHandler.setResponse(req, responseLaunchJob)
+        connHandler.set_response(req, responseLaunchJob)
         #Phase response
         responsePhase = DummyResponse()
         responsePhase.setStatusCode(500)
         responsePhase.setMessage("ERROR")
         responsePhase.setData(method='GET', context=None, body="COMPLETED", headers=None)
         req = "async/" + jobid + "/phase"
-        connHandler.setResponse(req, responsePhase)
+        connHandler.set_response(req, responsePhase)
         #Results response
         responseResultsJob = DummyResponse()
         responseResultsJob.setStatusCode(500)
@@ -190,7 +190,7 @@ class TestTap(unittest.TestCase):
         jobData = utils.readFileContent(jobDataFile)
         responseResultsJob.setData(method='GET', context=None, body=jobData, headers=None)
         req = "async/" + jobid + "/results/result"
-        connHandler.setResponse(req, responseResultsJob)
+        connHandler.set_response(req, responseResultsJob)
         try:
             tap.launch_job(query, async=True)
             self.fail("Exception expected: job launch response 500")
@@ -236,7 +236,7 @@ class TestTap(unittest.TestCase):
         jobData = utils.readFileContent(jobDataFile)
         response.setData(method='GET', context=None, body=jobData, headers=None)
         req = "async"
-        connHandler.setResponse(req, response)
+        connHandler.set_response(req, response)
         try:
             tap.list_async_jobs()
             self.fail("Exception expected: job list response 500")
@@ -263,7 +263,7 @@ class TestTap(unittest.TestCase):
         jobData = utils.readFileContent(jobDataFile)
         responseLaunchJob.setData(method='POST', context=None, body=jobData, headers=None)
         #The query contains decimals: force default response
-        connHandler.setDefaultResponse(responseLaunchJob)
+        connHandler.set_default_response(responseLaunchJob)
         sc = SkyCoord(ra=29.0, dec=15.0, unit=(u.degree, u.degree), frame='icrs')
         try:
             tap.query_object(sc)
@@ -306,14 +306,14 @@ class TestTap(unittest.TestCase):
             ['location', 'http://test:1111/tap/async/' + jobid]
             ]
         responseLaunchJob.setData(method='POST', context=None, body=None, headers=launchResponseHeaders)
-        connHandler.setDefaultResponse(responseLaunchJob)
+        connHandler.set_default_response(responseLaunchJob)
         #Phase response
         responsePhase = DummyResponse()
         responsePhase.setStatusCode(200)
         responsePhase.setMessage("OK")
         responsePhase.setData(method='GET', context=None, body="COMPLETED", headers=None)
         req = "async/" + jobid + "/phase"
-        connHandler.setResponse(req, responsePhase)
+        connHandler.set_response(req, responsePhase)
         #Results response
         responseResultsJob = DummyResponse()
         responseResultsJob.setStatusCode(200)
@@ -322,7 +322,7 @@ class TestTap(unittest.TestCase):
         jobData = utils.readFileContent(jobDataFile)
         responseResultsJob.setData(method='GET', context=None, body=jobData, headers=None)
         req = "async/" + jobid + "/results/result"
-        connHandler.setResponse(req, responseResultsJob)
+        connHandler.set_response(req, responseResultsJob)
         sc = SkyCoord(ra=29.0, dec=15.0, unit=(u.degree, u.degree), frame='icrs')
         width = Quantity(12, u.deg)
         height = Quantity(10, u.deg)
@@ -377,7 +377,7 @@ class TestTap(unittest.TestCase):
         #    "QUERY":   str(q)}
         #sortedKey = taputils.tapUtilCreateSortedDictKey(dictTmp)
         #jobRequest = "sync?" + sortedKey
-        connHandler.setDefaultResponse(responseLaunchJob)
+        connHandler.set_default_response(responseLaunchJob)
         job = tap.cone_search(sc, radius, async=False)
         assert job is not None, "Expected a valid job"
         assert job.is_sync() == True, "Expected a synchronous job"
@@ -430,14 +430,14 @@ class TestTap(unittest.TestCase):
         #    "QUERY":   str(q)}
         #sortedKey = taputils.tapUtilCreateSortedDictKey(dictTmp)
         #req = "async?" + sortedKey
-        connHandler.setDefaultResponse(responseLaunchJob)
+        connHandler.set_default_response(responseLaunchJob)
         #Phase response
         responsePhase = DummyResponse()
         responsePhase.setStatusCode(200)
         responsePhase.setMessage("OK")
         responsePhase.setData(method='GET', context=None, body="COMPLETED", headers=None)
         req = "async/" + jobid + "/phase"
-        connHandler.setResponse(req, responsePhase)
+        connHandler.set_response(req, responsePhase)
         #Results response
         responseResultsJob = DummyResponse()
         responseResultsJob.setStatusCode(200)
@@ -446,7 +446,7 @@ class TestTap(unittest.TestCase):
         jobData = utils.readFileContent(jobDataFile)
         responseResultsJob.setData(method='GET', context=None, body=jobData, headers=None)
         req = "async/" + jobid + "/results/result"
-        connHandler.setResponse(req, responseResultsJob)
+        connHandler.set_response(req, responseResultsJob)
         job = tap.cone_search(sc, radius, async=True)
         assert job is not None, "Expected a valid job"
         assert job.is_sync() == False, "Expected an asynchronous job"

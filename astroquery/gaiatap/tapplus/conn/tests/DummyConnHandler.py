@@ -35,36 +35,36 @@ class DummyConnHandler(object):
         self.errorReceivedResponse = None
         pass
     
-    def setDefaultResponse(self, defaultResponse):
+    def set_default_response(self, defaultResponse):
         self.defaultResponse = defaultResponse
         pass
     
-    def getDefaultResponse(self):
+    def get_default_response(self):
         return self.defaultResponse
     
-    def getLastRequest(self):
+    def get_last_request(self):
         return self.request
     
-    def getLastData(self):
+    def get_last_data(self):
         return self.data
     
-    def getErrorFileOutput(self):
+    def get_error_file_output(self):
         return self.errorFileOutput
     
-    def getErrorReceivedResponse(self):
+    def get_error_received_response(self):
         return self.errorReceivedResponse
     
-    def setResponse(self, request, response):
+    def set_response(self, request, response):
         self.responses[str(request)] = response
         pass
     
     def execute_get(self, request):
         self.request = request
-        return self.__getResponse(request)
+        return self.__get_response(request)
     
     def execute_post(self, subcontext, data):
         self.data = data
-        sortedKey = self.__createSortedDictKey(data)
+        sortedKey = self.__create_sorted_dict_key(data)
         if subcontext.find('?') == -1:
             self.request = subcontext + "?" + sortedKey
         else:
@@ -72,7 +72,7 @@ class DummyConnHandler(object):
                 self.request = subcontext + sortedKey
             else:
                 self.request = subcontext + "&" + sortedKey
-        return self.__getResponse(self.request)
+        return self.__get_response(self.request)
     
     def dump_to_file(self, fileOutput, response):
         self.errorFileOutput = fileOutput
@@ -80,7 +80,7 @@ class DummyConnHandler(object):
         print ("DummyConnHandler - dump to file: file: '%s', response status: %s, response msg: %s", (str(fileOutput), str(response.status), str(response.reason)))
         pass
     
-    def __getResponse(self, responseid):
+    def __get_response(self, responseid):
         try:
             return self.responses[str(responseid)]
         except KeyError as e:
@@ -106,7 +106,7 @@ class DummyConnHandler(object):
                         #                print ("not equals")
                 raise (e)
     
-    def __createSortedDictKey(self, data):
+    def __create_sorted_dict_key(self, data):
         dictTmp = {}
         items = data.split('&')
         for i in (items):
