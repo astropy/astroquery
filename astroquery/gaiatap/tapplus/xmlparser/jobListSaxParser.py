@@ -38,11 +38,11 @@ class JobListSaxParser(xml.sax.ContentHandler):
         '''
         Constructor
         '''
-        self.__internalInit()
+        self.__internal_init()
         self.__async = async
         pass
     
-    def __internalInit(self):
+    def __internal_init(self):
         self.__concatData = False
         self.__charBuffer = []
         self.__job = None
@@ -52,20 +52,20 @@ class JobListSaxParser(xml.sax.ContentHandler):
         self.__async = False
         pass
         
-    def _createStringFromBuffer(self):
+    def __create_string_from_buffer(self):
         return Utils.utilCreateStringFromBuffer(self.__charBuffer)
         
-    def _checkItemId(self, itemId, tmpValue):
+    def __check_item_id(self, itemId, tmpValue):
         if str(itemId).lower() == str(tmpValue).lower():
             return True
         return False 
     
-    def _startReadingData(self):
+    def __start_reading_data(self):
         self.__concatData = True
         del self.__charBuffer[:]
         pass
     
-    def _stopReadingData(self):
+    def __stop_reading_data(self):
         self.__concatData = False
         pass
     
@@ -76,16 +76,16 @@ class JobListSaxParser(xml.sax.ContentHandler):
 
     def startElement(self, name, attrs):
         if self.__status == READING_JOB:
-            self._readingJob(name, attrs)
+            self.__reading_job(name, attrs)
         elif self.__status == READING_PHASE:
-            self._readingPhase(name, attrs)
+            self.__reading_phase(name, attrs)
         pass
     
     def endElement(self, name):
         if self.__status == READING_JOB:
-            self._endJob(name)
+            self.__end_job(name)
         elif self.__status == READING_PHASE:
-            self._endPhase(name)
+            self.__end_phase(name)
         pass
     
     def characters(self, content):
@@ -93,26 +93,26 @@ class JobListSaxParser(xml.sax.ContentHandler):
             self.__charBuffer.append(content)
         pass
     
-    def _readingJob(self, name, attrs):
-        if self._checkItemId(UWS_JOBREF, name):
+    def __reading_job(self, name, attrs):
+        if self.__check_item_id(UWS_JOBREF, name):
             self.__job = Job(self.__async)
             self.__job.set_jobid(attrs.get("id"))
             self.__status = READING_PHASE
         pass
     
-    def _endJob(self, name):
-        if self._checkItemId(UWS_JOBREF, name):
+    def __end_job(self, name):
+        if self.__check_item_id(UWS_JOBREF, name):
             self.__jobs.append(self.__job)
         pass
     
-    def _readingPhase(self, name, attrs):
-        if self._checkItemId(UWS_PHASE, name):
-            self._startReadingData()
+    def __reading_phase(self, name, attrs):
+        if self.__check_item_id(UWS_PHASE, name):
+            self.__start_reading_data()
         pass
     
-    def _endPhase(self, name):
-        if self._checkItemId(UWS_PHASE, name):
-            self.__job.set_phase(self._createStringFromBuffer())
+    def __end_phase(self, name):
+        if self.__check_item_id(UWS_PHASE, name):
+            self.__job.set_phase(self.__create_string_from_buffer())
             self.__status = READING_JOB
         pass
     
