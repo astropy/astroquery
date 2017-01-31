@@ -223,10 +223,14 @@ The main differences are:
 * Asynchronous results are kept at server side for ever (until the user decides to remove one of them).
 * Users can access to shared tables.
 
+
 2.1. Login/Logout
 ~~~~~~~~~~~~~~~~~
 
 Graphic interface
+
+
+*Note: Tkinter module is required to use login_gui method.*
 
 ::
 
@@ -237,6 +241,7 @@ Graphic interface
 
 Command line
 
+
 ::
 
   from astroquery.gaia import Gaia
@@ -246,6 +251,8 @@ Command line
 
 It is possible to use a file where the credentials are stored:
 
+*The file must containing user and password in two different lines.*
+
 ::
 
   from astroquery.gaia import Gaia
@@ -253,10 +260,9 @@ It is possible to use a file where the credentials are stored:
   Gaia.login(credentials_file='my_credentials_file')
 
 
-The file must containing user and password in two different lines.
-
 
 To perform a logout
+
 
 ::
 
