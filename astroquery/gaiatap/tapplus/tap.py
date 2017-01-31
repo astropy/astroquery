@@ -512,22 +512,18 @@ class TapPlus(object):
         """
         return self.query_object(coordinate, radius, width, height, async=True, verbose=verbose)
     
-    def query_region(self, coordinate, radius=None, width=None):
-        print ("Not available")
-        return None
-    
-    def query_region_async(self, coordinate, radius=None, width=None):
-        print ("Not available")
-        return None
-    
-    def get_images(self, coordinate):
-        print ("Not available")
-        return None
-    
-    def get_images_async(self, coordinate):
-        print ("Not available")
-        return None
-    
+    #def query_region(self, coordinate, radius=None, width=None):
+    #    raise NotImplementedError()
+    #
+    #def query_region_async(self, coordinate, radius=None, width=None):
+    #    raise NotImplementedError()
+    #
+    #def get_images(self, coordinate):
+    #    raise NotImplementedError()
+    #
+    #def get_images_async(self, coordinate):
+    #    raise NotImplementedError()
+    #
     def cone_search(self, coordinate, radius, async=False, background=False, output_file=None, output_format="votable", verbose=False, dump_to_file=False):
         """Cone search sorted by distance
         TAP & TAP+

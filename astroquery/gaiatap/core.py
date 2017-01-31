@@ -263,22 +263,18 @@ class GaiaTapClass(object):
         """
         return self.__gaiatap.query_object_async(coordinate, radius=radius, width=width, height=height, verbose=verbose)
     
-    def query_region(self, coordinate, radius=None, width=None):
-        print ("Not available")
-        return None
-    
-    def query_region_async(self, coordinate, radius=None, width=None):
-        print ("Not available")
-        return None
-    
-    def get_images(self, coordinate):
-        print ("Not available")
-        return None
-    
-    def get_images_async(self, coordinate):
-        print ("Not available")
-        return None
-    
+    #def query_region(self, coordinate, radius=None, width=None):
+    #    raise NotImplementedError()
+    #
+    #def query_region_async(self, coordinate, radius=None, width=None):
+    #    raise NotImplementedError()
+    #
+    #def get_images(self, coordinate):
+    #    raise NotImplementedError()
+    #
+    #def get_images_async(self, coordinate):
+    #    raise NotImplementedError()
+    #
     def cone_search(self, coordinate, radius=None, async=False, background=False, output_file=None, output_format="votable", verbose=False, dump_to_file=False):
         """Cone search sorted by distance
         TAP & TAP+
