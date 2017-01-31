@@ -20,7 +20,7 @@ import io
 from astropy.table import Table as APTable
 
 
-def utilCreateStringFromBuffer(buffer):
+def util_create_string_from_buffer(buffer):
     if sys.version_info < (3,0,0):
         #2.7
         return ''.join(x.encode('utf-8') for x in buffer)
@@ -28,8 +28,8 @@ def utilCreateStringFromBuffer(buffer):
         #3.0
         return ''.join(map(str, buffer))
 
-def readHttpResponse(response, outputFormat):
-    astropyFormat = getSuitableAstropyFormat(outputFormat)
+def read_http_response(response, outputFormat):
+    astropyFormat = get_suitable_astropy_format(outputFormat)
     if sys.version_info < (3,0,0):
         #2.7
         return APTable.read(response, format=astropyFormat)
@@ -39,13 +39,13 @@ def readHttpResponse(response, outputFormat):
         data = io.BytesIO(response.read())
         return APTable.read(data, format=astropyFormat)
 
-def getSuitableAstropyFormat(outputFormat):
+def get_suitable_astropy_format(outputFormat):
     if "csv" == outputFormat:
         return "ascii.csv"
     return outputFormat
 
 
-def readFileContent(filePath):
+def read_file_content(filePath):
     fileHandler = open(filePath, 'r')
     fileContent = fileHandler.read()
     fileHandler.close()

@@ -124,7 +124,7 @@ class TestJob(unittest.TestCase):
         responseGetData.set_status_code(500)
         responseGetData.set_message("ERROR")
         jobContentFileName = data_path('result_1.vot')
-        jobContent = utils.readFileContent(jobContentFileName)
+        jobContent = utils.read_file_content(jobContentFileName)
         responseGetData.set_data(method='GET', context=None, body=jobContent, headers=None)
         dataRequest = "async/" + str(jobid) + "/results/result"
         connHandler.set_response(dataRequest, responseGetData)

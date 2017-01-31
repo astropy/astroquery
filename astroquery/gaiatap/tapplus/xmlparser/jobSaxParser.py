@@ -65,7 +65,7 @@ class JobSaxParser(xml.sax.ContentHandler):
         pass
         
     def __create_string_from_buffer(self):
-        return Utils.utilCreateStringFromBuffer(self.__charBuffer)
+        return Utils.util_create_string_from_buffer(self.__charBuffer)
         
     def __check_item_id(self, itemId, tmpValue):
         if str(itemId).lower() == str(tmpValue).lower():

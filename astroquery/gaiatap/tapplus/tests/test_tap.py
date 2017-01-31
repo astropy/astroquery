@@ -41,7 +41,7 @@ class TestTap(unittest.TestCase):
         responseLoadTable.set_status_code(500)
         responseLoadTable.set_message("ERROR")
         tableDataFile = data_path('test_tables.xml')
-        tableData = utils.readFileContent(tableDataFile)
+        tableData = utils.read_file_content(tableDataFile)
         responseLoadTable.set_data(method='GET', context=None, body=tableData, headers=None)
         tableRequest = "tables"
         connHandler.set_response(tableRequest, responseLoadTable)
@@ -83,7 +83,7 @@ class TestTap(unittest.TestCase):
         responseLoadTable.set_status_code(500)
         responseLoadTable.set_message("ERROR")
         tableDataFile = data_path('test_table1.xml')
-        tableData = utils.readFileContent(tableDataFile)
+        tableData = utils.read_file_content(tableDataFile)
         responseLoadTable.set_data(method='GET', context=None, body=tableData, headers=None)
         tableSchema = "public"
         tableName = "table1"
@@ -115,7 +115,7 @@ class TestTap(unittest.TestCase):
         responseLaunchJob.set_status_code(500)
         responseLaunchJob.set_message("ERROR")
         jobDataFile = data_path('job_1.vot')
-        jobData = utils.readFileContent(jobDataFile)
+        jobData = utils.read_file_content(jobDataFile)
         responseLaunchJob.set_data(method='POST', context=None, body=jobData, headers=None)
         query = 'select top 5 * from table'
         dTmp = {"q": query}
@@ -187,7 +187,7 @@ class TestTap(unittest.TestCase):
         responseResultsJob.set_status_code(500)
         responseResultsJob.set_message("ERROR")
         jobDataFile = data_path('job_1.vot')
-        jobData = utils.readFileContent(jobDataFile)
+        jobData = utils.read_file_content(jobDataFile)
         responseResultsJob.set_data(method='GET', context=None, body=jobData, headers=None)
         req = "async/" + jobid + "/results/result"
         connHandler.set_response(req, responseResultsJob)
@@ -233,7 +233,7 @@ class TestTap(unittest.TestCase):
         response.set_status_code(500)
         response.set_message("ERROR")
         jobDataFile = data_path('jobs_list.xml')
-        jobData = utils.readFileContent(jobDataFile)
+        jobData = utils.read_file_content(jobDataFile)
         response.set_data(method='GET', context=None, body=jobData, headers=None)
         req = "async"
         connHandler.set_response(req, response)
@@ -260,7 +260,7 @@ class TestTap(unittest.TestCase):
         responseLaunchJob.set_status_code(200)
         responseLaunchJob.set_message("OK")
         jobDataFile = data_path('job_1.vot')
-        jobData = utils.readFileContent(jobDataFile)
+        jobData = utils.read_file_content(jobDataFile)
         responseLaunchJob.set_data(method='POST', context=None, body=jobData, headers=None)
         #The query contains decimals: force default response
         connHandler.set_default_response(responseLaunchJob)
@@ -319,7 +319,7 @@ class TestTap(unittest.TestCase):
         responseResultsJob.set_status_code(200)
         responseResultsJob.set_message("OK")
         jobDataFile = data_path('job_1.vot')
-        jobData = utils.readFileContent(jobDataFile)
+        jobData = utils.read_file_content(jobDataFile)
         responseResultsJob.set_data(method='GET', context=None, body=jobData, headers=None)
         req = "async/" + jobid + "/results/result"
         connHandler.set_response(req, responseResultsJob)
@@ -350,7 +350,7 @@ class TestTap(unittest.TestCase):
         responseLaunchJob.set_status_code(200)
         responseLaunchJob.set_message("OK")
         jobDataFile = data_path('job_1.vot')
-        jobData = utils.readFileContent(jobDataFile)
+        jobData = utils.read_file_content(jobDataFile)
         responseLaunchJob.set_data(method='POST', context=None, body=jobData, headers=None)
         ra = 19.0
         dec = 20.0
@@ -443,7 +443,7 @@ class TestTap(unittest.TestCase):
         responseResultsJob.set_status_code(200)
         responseResultsJob.set_message("OK")
         jobDataFile = data_path('job_1.vot')
-        jobData = utils.readFileContent(jobDataFile)
+        jobData = utils.read_file_content(jobDataFile)
         responseResultsJob.set_data(method='GET', context=None, body=jobData, headers=None)
         req = "async/" + jobid + "/results/result"
         connHandler.set_response(req, responseResultsJob)

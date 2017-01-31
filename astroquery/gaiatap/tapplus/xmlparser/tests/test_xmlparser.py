@@ -64,7 +64,7 @@ class XmlParserTest(unittest.TestCase):
     def test_job_results_parser(self):
         fileName = data_path('test_job_results.xml')
         file = open(fileName, 'rb')
-        resultTable = utils.readHttpResponse(file, 'votable')
+        resultTable = utils.read_http_response(file, 'votable')
         assert len(resultTable.columns) == 57, "Expected 57 columsn, found %d" % len(resultTable.columns)
         file.close()
         pass

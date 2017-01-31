@@ -257,7 +257,7 @@ class TapPlus(object):
             if dump_to_file:
                 self.__connHandler.dump_to_file(suitableOutputFile, response)
             else:
-                results = utils.readHttpResponse(response, output_format)
+                results = utils.read_http_response(response, output_format)
                 job.set_results(results)
             print ("Query finished.")
             job.set_phase('COMPLETED')
@@ -894,7 +894,7 @@ class TapPlus(object):
             data = []
             for i in range(1, itemsSize-1):
                 data.append("/"+items[i])
-            serverContext = utils.utilCreateStringFromBuffer(data)
+            serverContext = utils.util_create_string_from_buffer(data)
             tapContext = "/"+items[itemsSize-1]
             pass
         if verbose:

@@ -598,7 +598,7 @@ class Job(object):
             raise Exception(resultsResponse.reason)
         else:
             outputFormat = self.get_output_format()
-            results = utils.readHttpResponse(resultsResponse, outputFormat)
+            results = utils.read_http_response(resultsResponse, outputFormat)
             self.set_results(results)
             self.__phase = wjData
         pass
