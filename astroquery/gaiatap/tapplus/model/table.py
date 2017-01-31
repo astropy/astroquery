@@ -22,10 +22,10 @@ class Table(object):
     def __init__(self):
         """Constructor
         """
-        self.__internalInit()
+        self.__internal_init()
         pass
     
-    def __internalInit(self):
+    def __internal_init(self):
         self.__columns = []
         self.__name = None
         self.__schema = None

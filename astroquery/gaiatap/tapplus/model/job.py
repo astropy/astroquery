@@ -38,13 +38,13 @@ class Job(object):
         connhandler : TapConn, optional, default None
             Connection handler
         """
-        self.__internalInit()
+        self.__internal_init()
         self.__connHandler = connhandler
         self.__async = async
         self.__parameters['query'] = query
         pass
     
-    def __internalInit(self):
+    def __internal_init(self):
         self.__connHandler = None
         self.__isFinished = None
         self.__jobid = None
@@ -511,7 +511,7 @@ class Job(object):
             return None
         else:
             #async: result is in the server once the job is finished
-            self.__loadAsyncJobResults()
+            self.__load_async_job_results()
             return self.__results
         pass
     
@@ -584,7 +584,7 @@ class Job(object):
             time.sleep(0.5)
         return currentResponse, responseData
     
-    def __loadAsyncJobResults(self, debug=False):
+    def __load_async_job_results(self, debug=False):
         wjResponse, wjData = self.wait_for_job_end()
         subContext = "async/" + str(self.__jobid) + "/results/result"
         resultsResponse = self.__connHandler.execute_get(subContext);

@@ -23,10 +23,10 @@ class Column(object):
         """
         Constructor
         """
-        self.__internalInit()
+        self.__internal_init()
         pass
         
-    def __internalInit(self):
+    def __internal_init(self):
         self.__name = None
         self.__description = None
         self.__unit = None

@@ -29,10 +29,10 @@ class Filter(object):
     
     
     def __init__(self):
-        self.__internalInit()
+        self.__internal_init()
         pass
     
-    def __internalInit(self):
+    def __internal_init(self):
         self.__filters = {}
         self.__order = None
         self.__offset = None
