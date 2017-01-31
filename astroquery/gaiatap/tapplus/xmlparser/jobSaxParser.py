@@ -50,11 +50,11 @@ class JobSaxParser(xml.sax.ContentHandler):
         '''
         Constructor
         '''
-        self.__internalInit()
+        self.__internal_init()
         self.__async = async
         pass
     
-    def __internalInit(self):
+    def __internal_init(self):
         self.__concatData = False
         self.__charBuffer = []
         self.__job = None
@@ -64,26 +64,26 @@ class JobSaxParser(xml.sax.ContentHandler):
         self.__async = False
         pass
         
-    def _createStringFromBuffer(self):
+    def __create_string_from_buffer(self):
         return Utils.utilCreateStringFromBuffer(self.__charBuffer)
         
-    def _checkItemId(self, itemId, tmpValue):
+    def __check_item_id(self, itemId, tmpValue):
         if str(itemId).lower() == str(tmpValue).lower():
             return True
         return False 
     
-    def _checkValidItemId(self, name):
+    def __check_valid_item_id(self, name):
         for id in VALID_ITEMS:
-            if self._checkItemId(id, name):
+            if self.__check_item_id(id, name):
                 return True
         return False
     
-    def _startReadingData(self):
+    def __start_reading_data(self):
         self.__concatData = True
         del self.__charBuffer[:]
         pass
     
-    def _stopReadingData(self):
+    def __stop_reading_data(self):
         self.__concatData = False
         pass
     
@@ -93,25 +93,25 @@ class JobSaxParser(xml.sax.ContentHandler):
         return self.__jobs
 
     def startElement(self, name, attrs):
-        if self._checkItemId(UWS_JOBID, name):
+        if self.__check_item_id(UWS_JOBID, name):
             self.__job = Job(self.__async)
             self.__jobs.append(self.__job)
-            self._startReadingData()
-        elif self._checkValidItemId(name):
-            self._startReadingData()
-            if self._checkItemId(UWS_PARAMETER, name):
+            self.__start_reading_data()
+        elif self.__check_valid_item_id(name):
+            self.__start_reading_data()
+            if self.__check_item_id(UWS_PARAMETER, name):
                 self.__paramKey = attrs.get("id")
         else:
-            self._stopReadingData()
+            self.__stop_reading_data()
         pass
     
     def endElement(self, name):
-        if self._checkValidItemId(name):
-            value = self._createStringFromBuffer()
-            self._populateJobValue(value, name)
-            self._stopReadingData()
+        if self.__check_valid_item_id(name):
+            value = self.__create_string_from_buffer()
+            self.__populate_job_value(value, name)
+            self.__stop_reading_data()
         else:
-            self._stopReadingData()
+            self.__stop_reading_data()
         pass
     
     def characters(self, content):
@@ -119,7 +119,7 @@ class JobSaxParser(xml.sax.ContentHandler):
             self.__charBuffer.append(content)
         pass
     
-    def _populateJobValue(self, value, name):
+    def __populate_job_value(self, value, name):
         nameLower = name.lower()
         if UWS_JOBID == nameLower:
             self.__job.set_jobid(value)
