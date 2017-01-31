@@ -137,7 +137,7 @@ class TapPlus(object):
         tsp = TableSaxParser()
         tsp.parseData(response)
         print ("Done.")
-        return tsp.getTables()
+        return tsp.get_tables()
     
     def load_table(self, table, verbose=False):
         """Loads the specified table
@@ -167,7 +167,7 @@ class TapPlus(object):
         tsp = TableSaxParser()
         tsp.parseData(response)
         print ("Done.")
-        return tsp.getTable()
+        return tsp.get_table()
     
     def launch_job(self, query, name=None, async=False, output_file=None, output_format="votable", verbose=False, dump_to_file=False, background=False, upload_resource=None, upload_table_name=None):
         """Launches a job. By default: it is synchronous
