@@ -28,40 +28,40 @@ def data_path(filename):
 
 class XmlParserTest(unittest.TestCase):
     
-    def testJobsListParser(self):
+    def test_jobs_list_parser(self):
         fileName = data_path('test_jobs_list.xml')
         file = open(fileName, 'r')
         parser = JobListSaxParser()
         jobs = parser.parseData(file)
         assert len(jobs) == 2, "Expected table list size: 1, found %d" % len(jobs)
-        self.checkJob(jobs[0], "1479386030738O", "COMPLETED", None)
-        self.checkJob(jobs[1], "14793860307381", "ERROR", None)
+        self.__check_job(jobs[0], "1479386030738O", "COMPLETED", None)
+        self.__check_job(jobs[1], "14793860307381", "ERROR", None)
         file.close()
         pass
     
-    def testJobsParser(self):
+    def test_jobs_parser(self):
         fileName = data_path('test_jobs_async.xml')
         file = open(fileName, 'r')
         parser = JobSaxParser()
         jobs = parser.parseData(file)
         assert len(jobs) == 2, "Expected table list size: 1, found %d" % len(jobs)
-        self.checkJob(jobs[0], "1479386030738O", "COMPLETED", "anonymous")
-        self.checkJob(jobs[1], "14793860307381", "ERROR", "anonymous")
+        self.__check_job(jobs[0], "1479386030738O", "COMPLETED", "anonymous")
+        self.__check_job(jobs[1], "14793860307381", "ERROR", "anonymous")
         file.close()
         pass
     
-    def testTableListParser(self):
+    def test_table_list_parser(self):
         fileName = data_path('test_tables.xml')
         file = open(fileName, 'r')
         parser = TableSaxParser()
         tables = parser.parseData(file)
         assert len(tables) == 2, "Expected table list size: 2, found %d" % len(tables)
-        self.checkTable(tables[0], "table1", 2, ['table1_col1','table1_col2'])
-        self.checkTable(tables[1], "table2", 3, ['table2_col1','table2_col2', 'table2_col3'])
+        self.__check_table(tables[0], "table1", 2, ['table1_col1','table1_col2'])
+        self.__check_table(tables[1], "table2", 3, ['table2_col1','table2_col2', 'table2_col3'])
         file.close()
         pass
     
-    def testJobResultsParser(self):
+    def test_job_results_parser(self):
         fileName = data_path('test_job_results.xml')
         file = open(fileName, 'rb')
         resultTable = utils.readHttpResponse(file, 'votable')
@@ -69,7 +69,7 @@ class XmlParserTest(unittest.TestCase):
         file.close()
         pass
     
-    def checkTable(self, table, baseName, numColumns, columnsData):
+    def __check_table(self, table, baseName, numColumns, columnsData):
         qualifiedName = "public.%s" % baseName
         assert str(table.get_qualified_name()) == str(qualifiedName) , \
             "Expected qualified table name: '%s', found '%s'" % (qualifiedName, table.get_qualified_name())
@@ -79,7 +79,7 @@ class XmlParserTest(unittest.TestCase):
             assert str(c[i].get_name()) == str(columnsData[i]), "Expected column name '%s', found: '%s'" % (columnsData[i], c[i].get_name()) 
         pass
     
-    def checkJob(self, job, jobid, jobPhase, jobOwner):
+    def __check_job(self, job, jobid, jobPhase, jobOwner):
         assert str(job.get_jobid()) == str(jobid) , \
             "Expected job id: '%s', found '%s'" % (jobid, job.get_jobid())
         p = job.get_phase()
