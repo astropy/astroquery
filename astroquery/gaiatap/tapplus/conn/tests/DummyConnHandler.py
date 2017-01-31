@@ -114,7 +114,7 @@ class DummyConnHandler(object):
             dictTmp[subItems[0]] = subItems[1]
             pass
         #sort dict
-        return taputils.tapUtilCreateSortedDictKey(dictTmp)
+        return taputils.taputil_create_sorted_dict_key(dictTmp)
     
     def check_launch_response_status(self, response, debug, expected_response_status):
         isError = False
@@ -134,7 +134,7 @@ class DummyConnHandler(object):
         self.fileExt = ext
     
     def find_header(self, headers, key):
-        return taputils.tapUtilFindHeader(headers, key)
+        return taputils.taputil_find_header(headers, key)
     
     pass
         

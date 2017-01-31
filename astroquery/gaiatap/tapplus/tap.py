@@ -233,7 +233,7 @@ class TapPlus(object):
         -------
         A Job object
         """
-        query = taputils.setTopInQuery(query, 2000)
+        query = taputils.set_top_in_query(query, 2000)
         print ("Launched query: '"+str(query)+"'")
         if upload_resource is not None:
             if upload_table_name is None:

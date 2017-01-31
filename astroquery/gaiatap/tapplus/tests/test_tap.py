@@ -128,7 +128,7 @@ class TestTap(unittest.TestCase):
             "FORMAT":  "votable", \
             "PHASE":  "RUN", \
             "QUERY":   str(q)}
-        sortedKey = taputils.tapUtilCreateSortedDictKey(dictTmp)
+        sortedKey = taputils.taputil_create_sorted_dict_key(dictTmp)
         jobRequest = "sync?" + sortedKey
         connHandler.set_response(jobRequest, responseLaunchJob)
         try:
@@ -172,7 +172,7 @@ class TestTap(unittest.TestCase):
             "FORMAT":  "votable", \
             "PHASE":  "RUN", \
             "QUERY":   str(query)}
-        sortedKey = taputils.tapUtilCreateSortedDictKey(dictTmp)
+        sortedKey = taputils.taputil_create_sorted_dict_key(dictTmp)
         req = "async?" + sortedKey
         connHandler.set_response(req, responseLaunchJob)
         #Phase response
@@ -375,7 +375,7 @@ class TestTap(unittest.TestCase):
         #    "FORMAT":  "votable", \
         #    "PHASE":  "RUN", \
         #    "QUERY":   str(q)}
-        #sortedKey = taputils.tapUtilCreateSortedDictKey(dictTmp)
+        #sortedKey = taputils.taputil_create_sorted_dict_key(dictTmp)
         #jobRequest = "sync?" + sortedKey
         connHandler.set_default_response(responseLaunchJob)
         job = tap.cone_search(sc, radius, async=False)
@@ -428,7 +428,7 @@ class TestTap(unittest.TestCase):
         #    "FORMAT":  "votable", \
         #    "PHASE":  "RUN", \
         #    "QUERY":   str(q)}
-        #sortedKey = taputils.tapUtilCreateSortedDictKey(dictTmp)
+        #sortedKey = taputils.taputil_create_sorted_dict_key(dictTmp)
         #req = "async?" + sortedKey
         connHandler.set_default_response(responseLaunchJob)
         #Phase response

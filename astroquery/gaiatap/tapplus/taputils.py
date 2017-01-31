@@ -20,7 +20,7 @@ import re
 TAP_UTILS_QUERY_TOP_PATTERN = re.compile("\s*SELECT\s+(ALL\s+|DISTINCT\s+)?TOP\s+\d+\s+", re.IGNORECASE)
 TAP_UTILS_QUERY_ALL_DISTINCT_PATTERN = re.compile("\s*SELECT\s+(ALL\s+|DISTINCT\s+)", re.IGNORECASE)
 
-def tapUtilFindHeader(headers, key):
+def taputil_find_header(headers, key):
     """Searches for the specified keyword
      
     Parameters
@@ -39,7 +39,7 @@ def tapUtilFindHeader(headers, key):
             return entry[1]
     return None
 
-def tapUtilCreateSortedDictKey(dictionaryObject):
+def taputil_create_sorted_dict_key(dictionaryObject):
     """Searches for the specified keyword
      
     Parameters
@@ -58,7 +58,7 @@ def tapUtilCreateSortedDictKey(dictionaryObject):
         listTmp.append(str(k) + '=' + str(dictionaryObject[k]))
     return '&'.join(listTmp)
 
-def setTopInQuery(query, top):
+def set_top_in_query(query, top):
         if query is None:
             return query
         if top is None:

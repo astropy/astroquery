@@ -230,7 +230,7 @@ class TapConn(object):
         -------
         The requested header value or None if the header is not found
         """
-        return taputils.tapUtilFindHeader(headers, key)
+        return taputils.taputil_find_header(headers, key)
     
     def dump_to_file(self, output, response):
         """Writes the connection response into the specified output
