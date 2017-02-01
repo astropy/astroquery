@@ -44,7 +44,10 @@ class TapPlus(object):
     """
 
 
-    def __init__(self, url=None, host=None, server_context=None, tap_context=None, port=80, sslport=443, default_protocol_is_https=False, connhandler=None, verbose=True):
+    def __init__(self, url=None, host=None, server_context=None, 
+                 tap_context=None, port=80, sslport=443, 
+                 default_protocol_is_https=False, connhandler=None, 
+                 verbose=True):
         """Constructor
          
         Parameters
@@ -64,7 +67,8 @@ class TapPlus(object):
         default_protocol_is_https : bool, optional, default False
             Specifies whether the default protocol to be used is HTTPS
         connhandler connection handler object, optional, default None
-            HTTP(s) connection hander (creator). If no handler is provided, a new one is created.
+            HTTP(s) connection hander (creator). If no handler is provided, a 
+            new one is created.
         verbose : bool, optional, default 'True' 
             flag to display information about the process
         """
@@ -72,12 +76,27 @@ class TapPlus(object):
         if url is not None:
             protocol, host, port, server_context, tap_context = self.__parseUrl(url)
             if protocol == "http":
-                self.__connHandler = TapConn(False, host, server_context, tap_context, port, sslport)
+                self.__connHandler = TapConn(False, 
+                                             host, 
+                                             server_context, 
+                                             tap_context, 
+                                             port, 
+                                             sslport)
             else:
                 #https port -> sslPort
-                self.__connHandler = TapConn(True, host, server_context, tap_context, port, port)
+                self.__connHandler = TapConn(True, 
+                                             host, 
+                                             server_context, 
+                                             tap_context, 
+                                             port, 
+                                             port)
         else:
-            self.__connHandler = TapConn(default_protocol_is_https, host, server_context, tap_context, port, sslport)
+            self.__connHandler = TapConn(default_protocol_is_https, 
+                                         host, 
+                                         server_context, 
+                                         tap_context, 
+                                         port, 
+                                         sslport)
             pass
         #if connectionHandler is set, use it (useful for testing)
         if connhandler is not None:
@@ -93,7 +112,8 @@ class TapPlus(object):
         self.__isLoggedIn=False
         pass
         
-    def load_tables(self, only_names=False, include_shared_tables=False, verbose=False):
+    def load_tables(self, only_names=False, include_shared_tables=False, 
+                    verbose=False):
         """Loads all public tables
         TAP & TAP+
          
@@ -128,7 +148,9 @@ class TapPlus(object):
             response = self.__connHandler.execute_get("tables")
         if verbose:
             print(response.status, response.reason)
-        isError = self.__connHandler.check_launch_response_status(response, verbose, 200)
+        isError = self.__connHandler.check_launch_response_status(response, 
+                                                                  verbose, 
+                                                                  200)
         if isError:
             print(response.status, response.reason)
             raise Exception(response.reason)
@@ -158,7 +180,9 @@ class TapPlus(object):
         response = self.__connHandler.execute_get("tables?tables="+table)
         if verbose:
             print(response.status, response.reason)
-        isError = self.__connHandler.check_launch_response_status(response, verbose, 200)
+        isError = self.__connHandler.check_launch_response_status(response, 
+                                                                  verbose, 
+                                                                  200)
         if isError:
             print(response.status, response.reason)
             raise Exception(response.reason)
@@ -169,7 +193,10 @@ class TapPlus(object):
         print ("Done.")
         return tsp.get_table()
     
-    def launch_job(self, query, name=None, async=False, output_file=None, output_format="votable", verbose=False, dump_to_file=False, background=False, upload_resource=None, upload_table_name=None):
+    def launch_job(self, query, name=None, async=False, output_file=None, 
+                   output_format="votable", verbose=False, dump_to_file=False, 
+                   background=False, upload_resource=None, 
+                   upload_table_name=None):
         """Launches a job. By default: it is synchronous
         TAP & TAP+
          
@@ -191,8 +218,8 @@ class TapPlus(object):
         dump_to_file : bool, optional, default 'False'
             if True, the results are saved in a file instead of using memory
         background : bool, optional, default 'False'
-            when the job is executed in asynchronous mode, this flag specifies whether 
-            the execution will wait until results are available
+            when the job is executed in asynchronous mode, this flag specifies 
+            whether the execution will wait until results are available
         upload_resource: str, optional, default None
             resource to be uploaded to UPLOAD_SCHEMA
         upload_table_name: str, required if uploadResource is provided, default None
@@ -203,11 +230,29 @@ class TapPlus(object):
         A Job object
         """
         if async:
-            return self.launch_async_job(query, name, output_file, output_format, verbose, dump_to_file, background, upload_resource, upload_table_name)
+            return self.launch_async_job(query, 
+                                         name, 
+                                         output_file, 
+                                         output_format, 
+                                         verbose, 
+                                         dump_to_file, 
+                                         background, 
+                                         upload_resource, 
+                                         upload_table_name)
         else:
-            return self.launch_sync_job(query, name, output_file, output_format, verbose, dump_to_file, upload_resource, upload_table_name)
+            return self.launch_sync_job(query, 
+                                        name, 
+                                        output_file, 
+                                        output_format, 
+                                        verbose, 
+                                        dump_to_file, 
+                                        upload_resource, 
+                                        upload_table_name)
     
-    def launch_sync_job(self, query, name=None, output_file=None, output_format="votable", verbose=False, dump_to_file=False, upload_resource=None, upload_table_name=None):
+    def launch_sync_job(self, query, name=None, output_file=None, 
+                        output_format="votable", verbose=False, 
+                        dump_to_file=False, upload_resource=None, 
+                        upload_table_name=None):
         """Launches a synchronous job
         TAP & TAP+
         
@@ -238,12 +283,27 @@ class TapPlus(object):
         if upload_resource is not None:
             if upload_table_name is None:
                 raise ValueError("Table name is required when a resource is uploaded")
-            response = self.__launchJobMultipart(query, upload_resource, upload_table_name, output_format, "sync", verbose, name)
+            response = self.__launchJobMultipart(query, 
+                                                 upload_resource, 
+                                                 upload_table_name, 
+                                                 output_format, 
+                                                 "sync", 
+                                                 verbose, 
+                                                 name)
         else:
-            response = self.__launchJob(query, output_format, "sync", verbose, name)
+            response = self.__launchJob(query, 
+                                        output_format, 
+                                        "sync", 
+                                        verbose, 
+                                        name)
         job = Job(async=False, query=query, connhandler=self.__connHandler)
-        isError = self.__connHandler.check_launch_response_status(response, verbose, 200)
-        suitableOutputFile = self.__getSuitableOutputFile(False, output_file, response.getheaders(), isError)
+        isError = self.__connHandler.check_launch_response_status(response, 
+                                                                  verbose, 
+                                                                  200)
+        suitableOutputFile = self.__getSuitableOutputFile(False, 
+                                                          output_file, 
+                                                          response.getheaders(), 
+                                                          isError)
         job.set_output_file(suitableOutputFile)
         job.set_output_format(output_format)
         job.set_response_status(response.status, response.reason)
@@ -263,7 +323,10 @@ class TapPlus(object):
             job.set_phase('COMPLETED')
         return job
     
-    def launch_async_job(self, query, name=None, output_file=None, output_format="votable", verbose=False, dump_to_file=False, background=False, upload_resource=None, upload_table_name=None):
+    def launch_async_job(self, query, name=None, output_file=None, 
+                         output_format="votable", verbose=False, 
+                         dump_to_file=False, background=False, 
+                         upload_resource=None, upload_table_name=None):
         """Launches an asynchronous job
         TAP & TAP+
         
@@ -281,8 +344,8 @@ class TapPlus(object):
         dump_to_file : bool, optional, default 'False'
             if True, the results are saved in a file instead of using memory
         background : bool, optional, default 'False'
-            when the job is executed in asynchronous mode, this flag specifies whether 
-            the execution will wait until results are available
+            when the job is executed in asynchronous mode, this flag specifies 
+            whether the execution will wait until results are available
         upload_resource: str, optional, default None
             resource to be uploaded to UPLOAD_SCHEMA
         upload_table_name: str, required if uploadResource is provided, default None
@@ -295,13 +358,29 @@ class TapPlus(object):
         print ("Launched query: '"+str(query)+"'")
         if upload_resource is not None:
             if upload_table_name is None:
-                raise ValueError("Table name is required when a resource is uploaded")
-            response = self.__launchJobMultipart(query, upload_resource, upload_table_name, output_format, "async", verbose, name)
+                raise ValueError(
+                    "Table name is required when a resource is uploaded")
+            response = self.__launchJobMultipart(query, 
+                                                 upload_resource, 
+                                                 upload_table_name, 
+                                                 output_format, 
+                                                 "async", 
+                                                 verbose, 
+                                                 name)
         else:
-            response = self.__launchJob(query, output_format, "async", verbose, name)
-        isError = self.__connHandler.check_launch_response_status(response, verbose, 303)
+            response = self.__launchJob(query, 
+                                        output_format, 
+                                        "async", 
+                                        verbose, 
+                                        name)
+        isError = self.__connHandler.check_launch_response_status(response, 
+                                                                  verbose, 
+                                                                  303)
         job = Job(async=True, query=query, connhandler=self.__connHandler)
-        suitableOutputFile = self.__getSuitableOutputFile(True, output_file, response.getheaders(), isError)
+        suitableOutputFile = self.__getSuitableOutputFile(True, 
+                                                          output_file, 
+                                                          response.getheaders(), 
+                                                          isError)
         job.set_output_file(suitableOutputFile)
         job.set_response_status(response.status, response.reason)
         job.set_output_format(output_format)
@@ -311,7 +390,9 @@ class TapPlus(object):
                 self.__connHandler.dump_to_file(suitableOutputFile, response)
             raise Exception(response.reason)
         else:
-            location = self.__connHandler.find_header(response.getheaders(), "location")
+            location = self.__connHandler.find_header(
+                response.getheaders(), 
+                "location")
             jobid = self.__getJobId(location)
             if verbose:
                 print ("job "+ str(jobid) + ", at: " + str(location))
@@ -361,7 +442,9 @@ class TapPlus(object):
         if verbose:
             print(response.status, response.reason)
             print(response.getheaders())
-        isError = self.__connHandler.check_launch_response_status(response, verbose, 200)
+        isError = self.__connHandler.check_launch_response_status(response, 
+                                                                  verbose, 
+                                                                  200)
         if isError:
             print (response.reason)
             raise Exception(response.reason)
@@ -400,7 +483,9 @@ class TapPlus(object):
         if verbose:
             print(response.status, response.reason)
             print(response.getheaders())
-        isError = self.__connHandler.check_launch_response_status(response, verbose, 200)
+        isError = self.__connHandler.check_launch_response_status(response, 
+                                                                  verbose, 
+                                                                  200)
         if isError:
             print (response.reason)
             raise Exception(response.reason)
@@ -431,7 +516,9 @@ class TapPlus(object):
         if verbose:
             print(response.status, response.reason)
             print(response.getheaders())
-        isError = self.__connHandler.check_launch_response_status(response, verbose, 200)
+        isError = self.__connHandler.check_launch_response_status(response, 
+                                                                  verbose, 
+                                                                  200)
         if isError:
             print (response.reason)
             raise Exception(response.reason)
@@ -444,7 +531,8 @@ class TapPlus(object):
                 j.set_connhandler(self.__connHandler)
         return jobs
     
-    def query_object(self, coordinate, radius=None, width=None, height=None, async=False, verbose=False):
+    def query_object(self, coordinate, radius=None, width=None, height=None, 
+                     async=False, verbose=False):
         """Launches a job
         TAP & TAP+
         
@@ -459,7 +547,8 @@ class TapPlus(object):
         height : astropy.units, required if no 'radius' is provided
             box height
         async : bool, optional, default 'False'
-            executes the query (job) in asynchronous/synchronous mode (default synchronous)
+            executes the query (job) in asynchronous/synchronous mode (default 
+            synchronous)
         verbose : bool, optional, default 'False' 
             flag to display information about the process
 
@@ -478,16 +567,20 @@ class TapPlus(object):
             heightQuantity = self.__getQuantityInput(height, "height")
             widthDeg = widthQuantity.to(units.deg)
             heightDeg = heightQuantity.to(units.deg)
-            query = "SELECT DISTANCE(POINT('ICRS',"+str(MAIN_GAIA_TABLE_RA)+","+str(MAIN_GAIA_TABLE_DEC)+"), \
+            query = "SELECT DISTANCE(POINT('ICRS',"+str(MAIN_GAIA_TABLE_RA)+","\
+                +str(MAIN_GAIA_TABLE_DEC)+"), \
                 POINT('ICRS',"+str(ra)+","+str(dec)+")) AS dist, * \
                 FROM "+str(MAIN_GAIA_TABLE)+" WHERE CONTAINS(\
-                POINT('ICRS',"+str(MAIN_GAIA_TABLE_RA)+","+str(MAIN_GAIA_TABLE_DEC)+"),\
-                BOX('ICRS',"+str(ra)+","+str(dec)+", "+str(widthDeg.value)+", "+str(heightDeg.value)+"))=1 \
+                POINT('ICRS',"+str(MAIN_GAIA_TABLE_RA)+","\
+                +str(MAIN_GAIA_TABLE_DEC)+"),\
+                BOX('ICRS',"+str(ra)+","+str(dec)+", "+str(widthDeg.value)+", "\
+                +str(heightDeg.value)+"))=1 \
                 ORDER BY dist ASC"
             job = self.launch_job(query, async=async, verbose=verbose)
         return job.get_results()
     
-    def query_object_async(self, coordinate, radius=None, width=None, height=None, verbose=False):
+    def query_object_async(self, coordinate, radius=None, width=None, 
+                           height=None, verbose=False):
         """Launches a job (async)
         TAP & TAP+
         
@@ -502,7 +595,8 @@ class TapPlus(object):
         height : astropy.units, required if no 'radius' is provided
             box height
         async : bool, optional, default 'False'
-            executes the query (job) in asynchronous/synchronous mode (default synchronous)
+            executes the query (job) in asynchronous/synchronous mode (default 
+            synchronous)
         verbose : bool, optional, default 'False' 
             flag to display information about the process
 
@@ -510,7 +604,12 @@ class TapPlus(object):
         -------
         The job results (astropy.table).
         """
-        return self.query_object(coordinate, radius, width, height, async=True, verbose=verbose)
+        return self.query_object(coordinate, 
+                                 radius, 
+                                 width, 
+                                 height, 
+                                 async=True, 
+                                 verbose=verbose)
     
     #def query_region(self, coordinate, radius=None, width=None):
     #    raise NotImplementedError()
@@ -524,7 +623,9 @@ class TapPlus(object):
     #def get_images_async(self, coordinate):
     #    raise NotImplementedError()
     #
-    def cone_search(self, coordinate, radius, async=False, background=False, output_file=None, output_format="votable", verbose=False, dump_to_file=False):
+    def cone_search(self, coordinate, radius, async=False, background=False, 
+                    output_file=None, output_format="votable", verbose=False, 
+                    dump_to_file=False):
         """Cone search sorted by distance
         TAP & TAP+
         
@@ -535,10 +636,11 @@ class TapPlus(object):
         radius : astropy.units, mandatory
             radius
         async : bool, optional, default 'False'
-            executes the job in asynchronous/synchronous mode (default synchronous)
+            executes the job in asynchronous/synchronous mode (default 
+            synchronous)
         background : bool, optional, default 'False'
-            when the job is executed in asynchronous mode, this flag specifies whether 
-            the execution will wait until results are available
+            when the job is executed in asynchronous mode, this flag specifies 
+            whether the execution will wait until results are available
         output_file : str, optional, default None
             file name where the results are saved if dumpToFile is True. 
             If this parameter is not provided, the jobid is used instead
@@ -559,16 +661,26 @@ class TapPlus(object):
         if radius is not None:
             radiusQuantity = self.__getQuantityInput(radius, "radius")
             radiusDeg = commons.radius_to_unit(radiusQuantity, unit='deg')
-        query = "SELECT DISTANCE(POINT('ICRS',"+str(MAIN_GAIA_TABLE_RA)+","+str(MAIN_GAIA_TABLE_DEC)+"), \
+        query = "SELECT DISTANCE(POINT('ICRS',"+str(MAIN_GAIA_TABLE_RA)+","\
+            +str(MAIN_GAIA_TABLE_DEC)+"), \
             POINT('ICRS',"+str(ra)+","+str(dec)+")) AS dist, * \
             FROM "+str(MAIN_GAIA_TABLE)+" WHERE CONTAINS(\
             POINT('ICRS',"+str(MAIN_GAIA_TABLE_RA)+","+str(MAIN_GAIA_TABLE_DEC)+"),\
             CIRCLE('ICRS',"+str(ra)+","+str(dec)+", "+str(radiusDeg)+"))=1 \
             ORDER BY dist ASC"
         if async:
-            return self.launch_async_job(query=query, output_file=output_file, output_format=output_format, verbose=verbose, dump_to_file=dump_to_file, background=background)
+            return self.launch_async_job(query=query, 
+                                         output_file=output_file, 
+                                         output_format=output_format, 
+                                         verbose=verbose, 
+                                         dump_to_file=dump_to_file, 
+                                         background=background)
         else:
-            return self.launch_sync_job(query=query, output_file=output_file, output_format=output_format, verbose=verbose, dump_to_file=dump_to_file)
+            return self.launch_sync_job(query=query, 
+                                        output_file=output_file, 
+                                        output_format=output_format, 
+                                        verbose=verbose, 
+                                        dump_to_file=dump_to_file)
         pass
     
     def remove_jobs(self, jobs_list, verbose=False):
@@ -601,7 +713,9 @@ class TapPlus(object):
         if verbose:
             print(response.status, response.reason)
             print(response.getheaders())
-        isError = self.__connHandler.check_launch_response_status(response, verbose, 200)
+        isError = self.__connHandler.check_launch_response_status(response, 
+                                                                  verbose, 
+                                                                  200)
         if isError:
             print (response.reason)
             raise Exception(response.reason)
@@ -638,7 +752,8 @@ class TapPlus(object):
         jobid = location[pos:]
         return jobid
     
-    def __launchJobMultipart(self, query, uploadResource, uploadTableName, outputFormat, context, verbose, name=None):
+    def __launchJobMultipart(self, query, uploadResource, uploadTableName, 
+                             outputFormat, context, verbose, name=None):
         uploadValue = str(uploadTableName) + ",param:" + str(uploadTableName)
         args = {
             "REQUEST": "doQuery", \
@@ -693,10 +808,12 @@ class TapPlus(object):
             fileName += ".error"
         return fileName
     
-    def login(self, user=None, password=None, credentials_file=None, verbose=False):
+    def login(self, user=None, password=None, credentials_file=None, 
+              verbose=False):
         """Performs a login.
         TAP+ only
-        User and password can be used or a file that contains user name and password
+        User and password can be used or a file that contains user name and 
+        password
         (2 lines: one for user name and the following one for the password)
         
         Parameters
@@ -752,7 +869,9 @@ class TapPlus(object):
         self.__isLoggedIn = False
         response = self.__execLogin(self.__user, self.__pwd, verbose)
         #check response
-        isError = self.__connHandler.check_launch_response_status(response, verbose, 200)
+        isError = self.__connHandler.check_launch_response_status(response, 
+                                                                  verbose, 
+                                                                  200)
         if isError:
             print ("Login error: " + str(response.reason))
             raise Exception("Login error: " + str(response.reason))
@@ -810,13 +929,15 @@ class TapPlus(object):
     
     def __checkQuantityInput(self, value, msg):
         if not (isinstance(value, str) or isinstance(value, astropy.units.Quantity)):
-            raise ValueError(str(msg) + " must be either a string or astropy.coordinates")
+            raise ValueError(
+                str(msg) + " must be either a string or astropy.coordinates")
     
     def __getQuantityInput(self, value, msg):
         if value is None:
             raise ValueError("Missing required argument: '"+str(msg)+"'")
         if not (isinstance(value, str) or isinstance(value, astropy.units.Quantity)):
-            raise ValueError(str(msg) + " must be either a string or astropy.coordinates")
+            raise ValueError(
+                str(msg) + " must be either a string or astropy.coordinates")
         if isinstance(value, str):
             q = Quantity(value)
             return q
@@ -825,11 +946,13 @@ class TapPlus(object):
     
     def __checkCoordInput(self, value, msg):
         if not (isinstance(value, str) or isinstance(value, commons.CoordClasses)):
-            raise ValueError(str(msg) + " must be either a string or astropy.coordinates")
+            raise ValueError(
+                str(msg) + " must be either a string or astropy.coordinates")
     
     def __getCoordInput(self, value, msg):
         if not (isinstance(value, str) or isinstance(value, commons.CoordClasses)):
-            raise ValueError(str(msg) + " must be either a string or astropy.coordinates")
+            raise ValueError(
+                str(msg) + " must be either a string or astropy.coordinates")
         if isinstance(value, str):
             c = commons.parse_coordinates(value)
             return c

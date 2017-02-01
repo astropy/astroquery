@@ -17,8 +17,10 @@ Created on 30 jun. 2016
 
 import re
 
-TAP_UTILS_QUERY_TOP_PATTERN = re.compile("\s*SELECT\s+(ALL\s+|DISTINCT\s+)?TOP\s+\d+\s+", re.IGNORECASE)
-TAP_UTILS_QUERY_ALL_DISTINCT_PATTERN = re.compile("\s*SELECT\s+(ALL\s+|DISTINCT\s+)", re.IGNORECASE)
+TAP_UTILS_QUERY_TOP_PATTERN = re.compile(
+    "\s*SELECT\s+(ALL\s+|DISTINCT\s+)?TOP\s+\d+\s+", re.IGNORECASE)
+TAP_UTILS_QUERY_ALL_DISTINCT_PATTERN = re.compile(
+    "\s*SELECT\s+(ALL\s+|DISTINCT\s+)", re.IGNORECASE)
 
 def taputil_find_header(headers, key):
     """Searches for the specified keyword
