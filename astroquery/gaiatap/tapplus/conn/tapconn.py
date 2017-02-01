@@ -44,7 +44,8 @@ class TapConn(object):
     Provides low level HTTP connection capabilities
     """
     
-    def __init__(self, ishttps, host, server_context, tap_context=None, port=80, sslport=443, connhandler=None):
+    def __init__(self, ishttps, host, server_context, tap_context=None, port=80, 
+                 sslport=443, connhandler=None):
         """Constructor
          
         Parameters
@@ -62,7 +63,8 @@ class TapConn(object):
         sslport : int, optional, default 443
             HTTPS port
         connhandler connection handler object, optional, default None
-            HTTP(s) connection hander (creator). If no handler is provided, a new one is created.
+            HTTP(s) connection hander (creator). If no handler is provided, a 
+            new one is created.
         """
         self.__interna_init()
         self.__isHttps = ishttps
@@ -84,7 +86,9 @@ class TapConn(object):
         else:
             self.__tapContext = self.__serverContext
         if connhandler is None:
-            self.__connectionHandler = ConnectionHandler(self.__connHost, self.__connPort, self.__connPortSsl)
+            self.__connectionHandler = ConnectionHandler(self.__connHost, 
+                                                         self.__connPort, 
+                                                         self.__connPortSsl)
         else:
             self.__connectionHandler = connhandler
         pass
@@ -115,12 +119,14 @@ class TapConn(object):
     
     def execute_get(self, subcontext, verbose=False):
         """Executes a GET request
-        The connection is done through HTTP or HTTPS depending on the login status (logged in -> HTTPS)
+        The connection is done through HTTP or HTTPS depending on the login 
+        status (logged in -> HTTPS)
          
         Parameters
         ----------
         subcontext : str, mandatory
-            context to be added to host+serverContext+tapContext, usually the TAP list name
+            context to be added to host+serverContext+tapContext, usually the 
+            TAP list name
         verbose : bool, optional, default 'False' 
             flag to display information about the process
             
@@ -136,14 +142,17 @@ class TapConn(object):
         self.__currentStatus = response.status
         return response
     
-    def execute_post(self, subcontext, data, content_type=CONTENT_TYPE_POST_DEFAULT, verbose=False):
+    def execute_post(self, subcontext, data, 
+                     content_type=CONTENT_TYPE_POST_DEFAULT, verbose=False):
         """Executes a POST request
-        The connection is done through HTTP or HTTPS depending on the login status (logged in -> HTTPS)
+        The connection is done through HTTP or HTTPS depending on the login 
+        status (logged in -> HTTPS)
          
         Parameters
         ----------
         subcontext : str, mandatory
-            context to be added to host+serverContext+tapContext, usually the TAP list name
+            context to be added to host+serverContext+tapContext, usually the 
+            TAP list name
         data : str, mandatory
             POST data
         content_type: str, optional, default 'application/x-www-form-urlencoded'
@@ -252,7 +261,8 @@ class TapConn(object):
         pass
     
     def get_suitable_extension(self, headers):
-        """Returns the suitable extension for a file based on the headers received
+        """Returns the suitable extension for a file based on the headers 
+        received
          
         Parameters
         ----------
@@ -315,7 +325,8 @@ class TapConn(object):
         -------
         A string composed of: 'host:port/server_context'
         """
-        return str(self.__connHost) + ":" + str(self.__connPort) + str(self.__get_tap_context(""))
+        return str(self.__connHost) + ":" + str(self.__connPort) \
+            + str(self.__get_tap_context(""))
     
     def get_host_url_secure(self):
         """Returns the host+portSsl+serverContext
@@ -324,9 +335,11 @@ class TapConn(object):
         -------
         A string composed of: 'host:portSsl/server_context'
         """
-        return str(self.__connHost) + ":" + str(self.__connPortSsl) + str(self.__get_tap_context(""))
+        return str(self.__connHost) + ":" + str(self.__connPortSsl) \
+            + str(self.__get_tap_context(""))
     
-    def check_launch_response_status(self, response, debug, expected_response_status):
+    def check_launch_response_status(self, response, debug, 
+                                     expected_response_status):
         """Checks the response status code
         Returns True if the response status code is the expected_response_status
          
@@ -341,17 +354,21 @@ class TapConn(object):
             
         Returns
         -------
-        'True' if the HTTP(s) response status is the provided 'expected_response_status' argument
+        'True' if the HTTP(s) response status is the provided 
+        'expected_response_status' argument
         """
         isError = False
         if response.status != expected_response_status:
             if debug:
-                print ("ERROR: " + str(response.status) + ": " + str(response.reason))
+                print ("ERROR: " + str(response.status) + ": " \
+                       + str(response.reason))
             isError = True
         return isError
     
     def __get_connection(self, verbose=False):
-        return self.__connectionHandler.get_connection(self.__isHttps, self.__cookie, verbose)
+        return self.__connectionHandler.get_connection(self.__isHttps, 
+                                                       self.__cookie, 
+                                                       verbose)
     
     def __get_connection_secure(self, verbose=False):
         return self.__connectionHandler.get_connection_secure(verbose)
@@ -376,13 +393,18 @@ class TapConn(object):
         multiparItems = []
         for key in fields:
             multiparItems.append('--' + boundary + CRLF)
-            multiparItems.append('Content-Disposition: form-data; name="%s"%s' % (key, CRLF))
+            multiparItems.append(
+                'Content-Disposition: form-data; name="%s"%s' % (key, CRLF))
             multiparItems.append(CRLF)
             multiparItems.append(fields[key]+CRLF)
         for (key, filename, value) in files:
             multiparItems.append('--' + boundary + CRLF)
-            multiparItems.append('Content-Disposition: form-data; name="%s"; filename="%s"%s' % (key, filename, CRLF))
-            multiparItems.append('Content-Type: %s%s' % (mimetypes.guess_extension(filename), CRLF))
+            multiparItems.append(
+                'Content-Disposition: form-data; name="%s"; filename="%s"%s' % 
+                (key, filename, CRLF))
+            multiparItems.append(
+                'Content-Type: %s%s' % 
+                (mimetypes.guess_extension(filename), CRLF))
             multiparItems.append(CRLF)
             multiparItems.append(value)
             multiparItems.append(CRLF)
@@ -394,8 +416,10 @@ class TapConn(object):
         return contentType, body
     
     def __str__(self):
-        return "\tHost: " + str(self.__connHost) + "\n\tUse HTTPS: " + str(self.__isHttps) + \
-            "\n\tPort: " + str(self.__connPort) + "\n\tSSL Port: " + str(self.__connPortSsl)
+        return "\tHost: " + str(self.__connHost) + "\n\tUse HTTPS: " \
+            + str(self.__isHttps) \
+            + "\n\tPort: " + str(self.__connPort) + "\n\tSSL Port: " \
+            + str(self.__connPortSsl)
     
     pass
 

@@ -77,7 +77,11 @@ class DummyConnHandler(object):
     def dump_to_file(self, fileOutput, response):
         self.errorFileOutput = fileOutput
         self.errorReceivedResponse = response
-        print ("DummyConnHandler - dump to file: file: '%s', response status: %s, response msg: %s", (str(fileOutput), str(response.status), str(response.reason)))
+        print ("DummyConnHandler - dump to file: file: '%s', \
+        response status: %s, response msg: %s", (
+            str(fileOutput), 
+            str(response.status), 
+            str(response.reason)))
         pass
     
     def __get_response(self, responseid):
@@ -94,16 +98,6 @@ class DummyConnHandler(object):
                 else:
                     for k in self.responses.keys():
                         print ("\t'"+str(k)+"'")
-                        #if (str(k) == str(responseid)):
-                        #    print ("\t\tfound")
-                        #else:
-                        #    l1 = len(k)
-                        #    l2 = len(responseid)
-                        #    if l1 == l2:
-                        #        for i in range(0,l1):
-                        #            print("'"+str(k[i])+"' - '"+str(responseid[i])+"'")
-                        #            if str(k[i]) != str(responseid[i]):
-                        #                print ("not equals")
                 raise (e)
     
     def __create_sorted_dict_key(self, data):
@@ -116,11 +110,13 @@ class DummyConnHandler(object):
         #sort dict
         return taputils.taputil_create_sorted_dict_key(dictTmp)
     
-    def check_launch_response_status(self, response, debug, expected_response_status):
+    def check_launch_response_status(self, response, debug, 
+                                     expected_response_status):
         isError = False
         if response.status != expected_response_status:
             if debug:
-                print ("ERROR: " + str(response.status) + ": " + str(response.reason))
+                print ("ERROR: " + str(response.status) + ": " \
+                       + str(response.reason))
             isError = True
         return isError
     
