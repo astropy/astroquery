@@ -32,7 +32,8 @@ class TestFilter(unittest.TestCase):
         res = f.create_url_data_request()
         expected = {}
         expected['metadata_only'] = True
-        assert res == expected, "Parameters I, expected: %s, found: %s" % (str(expected), str(res))
+        assert res == expected, \
+            "Parameters I, expected: %s, found: %s" % (str(expected), str(res))
         filter1 = "f1"
         value1 = "v1"
         filter2 = "f2"
@@ -42,7 +43,8 @@ class TestFilter(unittest.TestCase):
         res = f.create_url_data_request()
         expected = {filter1: value1, filter2: value2}
         expected['metadata_only'] = True
-        assert res == expected, "Parameters II, expected: %s, found: %s" % (str(expected), str(res))
+        assert res == expected, \
+            "Parameters II, expected: %s, found: %s" % (str(expected), str(res))
         offset = "offset"
         order = "order"
         limit = "limit"
@@ -52,8 +54,14 @@ class TestFilter(unittest.TestCase):
         f.set_limit(limit)
         f.set_metadata_only(metadataOnly)
         res = f.create_url_data_request()
-        expected = {filter1: value1, filter2: value2, offset: offset, order: order, limit: limit, 'metadata_only': metadataOnly}
-        assert res == expected, "Parameters III, expected: %s, found: %s" % (str(expected), str(res))
+        expected = {filter1: value1, 
+                    filter2: value2, 
+                    offset: offset, 
+                    order: order, 
+                    limit: limit, 
+                    'metadata_only': metadataOnly}
+        assert res == expected, \
+            "Parameters III, expected: %s, found: %s" % (str(expected), str(res))
         pass
 
 

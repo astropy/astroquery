@@ -33,7 +33,8 @@ class TestTable(unittest.TestCase):
         table.set_schema(schemaName)
         table.set_name(tableName)
         res = table.get_qualified_name()
-        assert res == expected, "Qualified name, expected: %s, found: %s" % (expected, res)
+        assert res == expected, \
+            "Qualified name, expected: %s, found: %s" % (expected, res)
         pass
     
     def test_table_columns(self):
@@ -43,7 +44,8 @@ class TestTable(unittest.TestCase):
         table.add_column(c1)
         table.add_column(c2)
         res = table.get_columns()
-        assert len(res) == 2, "Num columns, expected: %d, found: %d" % (2, len(res))
+        assert len(res) == 2, \
+            "Num columns, expected: %d, found: %d" % (2, len(res))
         pass
     
     pass

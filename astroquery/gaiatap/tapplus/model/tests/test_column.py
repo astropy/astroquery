@@ -43,14 +43,30 @@ class TestTableColumn(unittest.TestCase):
         c.set_unit(unit)
         c.set_utype(utype)
         c.set_description(description)
-        assert c.get_name() == name, "Invalid name, expected: %s, found: %s" % (name, c.get_name())
-        assert c.get_array_size() == arraysize, "Invalid arraysize, expected: %s, found: %s" % (arraysize, c.get_array_size())
-        assert c.get_data_type() == datatype, "Invalid datatype, expected: %s, found: %s" % (datatype, c.get_data_type())
-        assert c.get_flag() == flag, "Invalid flag, expected: %s, found: %s" % (flag, c.get_flag())
-        assert c.get_ucd() == ucd, "Invalid ucd, expected: %s, found: %s" % (ucd, c.get_ucd())
-        assert c.get_utype() == utype, "Invalid utype, expected: %s, found: %s" % (utype, c.get_utype())
-        assert c.get_unit() == unit, "Invalid unit, expected: %s, found: %s" % (unit, c.get_unit())
-        assert c.get_description() == description, "Invalid description, expected: %s, found: %s" % (description, c.get_description())
+        assert c.get_name() == name, \
+            "Invalid name, expected: %s, found: %s" % (name, 
+                                                       c.get_name())
+        assert c.get_array_size() == arraysize, \
+            "Invalid arraysize, expected: %s, found: %s" % (arraysize, 
+                                                            c.get_array_size())
+        assert c.get_data_type() == datatype, \
+            "Invalid datatype, expected: %s, found: %s" % (datatype, 
+                                                           c.get_data_type())
+        assert c.get_flag() == flag, \
+            "Invalid flag, expected: %s, found: %s" % (flag, 
+                                                       c.get_flag())
+        assert c.get_ucd() == ucd, \
+            "Invalid ucd, expected: %s, found: %s" % (ucd, 
+                                                      c.get_ucd())
+        assert c.get_utype() == utype, \
+            "Invalid utype, expected: %s, found: %s" % (utype, 
+                                                        c.get_utype())
+        assert c.get_unit() == unit, \
+            "Invalid unit, expected: %s, found: %s" % (unit, 
+                                                       c.get_unit())
+        assert c.get_description() == description, \
+            "Invalid description, expected: %s, found: %s" % (description, 
+                                                              c.get_description())
         pass
     
     pass

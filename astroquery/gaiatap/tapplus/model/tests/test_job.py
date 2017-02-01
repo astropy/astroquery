@@ -32,14 +32,18 @@ class TestJob(unittest.TestCase):
     def test_job_basic(self):
         job = Job(async=False)
         res = job.is_sync()
-        assert res == True, "Sync job, expected: %s, found: %s" % (str(True), str(res))
+        assert res == True, \
+            "Sync job, expected: %s, found: %s" % (str(True), str(res))
         res = job.is_async()
-        assert res == False, "Sync job, expected: %s, found: %s" % (str(False), str(res))
+        assert res == False, \
+            "Sync job, expected: %s, found: %s" % (str(False), str(res))
         job = Job(async=True)
         res = job.is_sync()
-        assert res == False, "Async job, expected: %s, found: %s" % (str(False), str(res))
+        assert res == False, \
+            "Async job, expected: %s, found: %s" % (str(False), str(res))
         res = job.is_async()
-        assert res == True, "Async job, expected: %s, found: %s" % (str(True), str(res))
+        assert res == True, \
+            "Async job, expected: %s, found: %s" % (str(True), str(res))
         try:
             job.get_results()
             self.fail("Exception expected: no connection handeler defined")
@@ -79,24 +83,60 @@ class TestJob(unittest.TestCase):
         job.set_locationid(locationid)
         job.set_name(name)
         job.set_quote(quote)
-        assert job.get_query() == query, "query, expected: %s, found: %s" % (query, job.get_query())
-        assert job.get_jobid() == jobid, "jobid, expected: %s, found: %s" % (jobid, job.get_jobid())
-        assert job.get_remote_location() == remoteLocation, "remoteLocation, expected: %s, found: %s" % (remoteLocation, job.get_remote_location())
-        assert job.get_phase() == phase, "phase, expected: %s, found: %s" % (phase, job.get_phase())
-        assert job.get_output_file() == outputFile, "outputFile, expected: %s, found: %s" % (outputFile, job.get_output_file())
-        assert job.get_response_status() == responseStatus, "responseStatus, expected: %s, found: %s" % (responseStatus, job.get_response_status())
-        assert job.get_response_msg() == responseMsg, "responseMsg, expected: %s, found: %s" % (responseMsg, job.get_response_msg())
-        assert job.get_results() == None, "results, expected: %s, found: %s" % (str(None), job.get_results())
-        assert job.get_runid() == runid, "runid, expected: %s, found: %s" % (runid, job.get_runid())
-        assert job.get_ownerid() == ownerid, "ownerid, expected: %s, found: %s" % (ownerid, job.get_ownerid())
-        assert job.get_start_time() == startTime, "startTime, expected: %s, found: %s" % (startTime, job.get_start_time())
-        assert job.get_end_time() == endTime, "endTime, expected: %s, found: %s" % (endTime, job.get_end_time())
-        assert job.get_creation_time() == creationTime, "creationTime, expected: %s, found: %s" % (creationTime, job.get_creation_time())
-        assert job.get_execution_duration() == executionDuration, "executionDuration, expected: %s, found: %s" % (executionDuration, job.get_execution_duration())
-        assert job.get_destruction() == destruction, "destruction, expected: %s, found: %s" % (destruction, job.get_destruction())
-        assert job.get_locationid() == locationid, "locationid, expected: %s, found: %s" % (locationid, job.get_locationid())
-        assert job.get_name() == name, "name, expected: %s, found: %s" % (name, job.get_name())
-        assert job.get_quote() == quote, "quote, expected: %s, found: %s" % (quote, job.get_quote())
+        assert job.get_query() == query, \
+            "query, expected: %s, found: %s" % (query, 
+                                                job.get_query())
+        assert job.get_jobid() == jobid, \
+            "jobid, expected: %s, found: %s" % (jobid, 
+                                                job.get_jobid())
+        assert job.get_remote_location() == remoteLocation, \
+            "remoteLocation, expected: %s, found: %s" % (remoteLocation, 
+                                                         job.get_remote_location())
+        assert job.get_phase() == phase, \
+            "phase, expected: %s, found: %s" % (phase, 
+                                                job.get_phase())
+        assert job.get_output_file() == outputFile, \
+            "outputFile, expected: %s, found: %s" % (outputFile, 
+                                                     job.get_output_file())
+        assert job.get_response_status() == responseStatus, \
+            "responseStatus, expected: %s, found: %s" % (responseStatus, 
+                                                         job.get_response_status())
+        assert job.get_response_msg() == responseMsg, \
+            "responseMsg, expected: %s, found: %s" % (responseMsg, 
+                                                      job.get_response_msg())
+        assert job.get_results() == None, \
+            "results, expected: %s, found: %s" % (str(None), 
+                                                  job.get_results())
+        assert job.get_runid() == runid, \
+            "runid, expected: %s, found: %s" % (runid, 
+                                                job.get_runid())
+        assert job.get_ownerid() == ownerid, \
+            "ownerid, expected: %s, found: %s" % (ownerid, 
+                                                  job.get_ownerid())
+        assert job.get_start_time() == startTime, \
+            "startTime, expected: %s, found: %s" % (startTime, 
+                                                    job.get_start_time())
+        assert job.get_end_time() == endTime, \
+            "endTime, expected: %s, found: %s" % (endTime, 
+                                                  job.get_end_time())
+        assert job.get_creation_time() == creationTime, \
+            "creationTime, expected: %s, found: %s" % (creationTime, 
+                                                       job.get_creation_time())
+        assert job.get_execution_duration() == executionDuration, \
+            "executionDuration, expected: %s, found: %s" % (executionDuration, 
+                                                            job.get_execution_duration())
+        assert job.get_destruction() == destruction, \
+            "destruction, expected: %s, found: %s" % (destruction, 
+                                                      job.get_destruction())
+        assert job.get_locationid() == locationid, \
+            "locationid, expected: %s, found: %s" % (locationid, 
+                                                     job.get_locationid())
+        assert job.get_name() == name, \
+            "name, expected: %s, found: %s" % (name, 
+                                               job.get_name())
+        assert job.get_quote() == quote, \
+            "quote, expected: %s, found: %s" % (quote, 
+                                                job.get_quote())
         pass
     
     def test_job_get_results(self):
@@ -108,14 +148,18 @@ class TestJob(unittest.TestCase):
         responseCheckPhase = DummyResponse()
         responseCheckPhase.set_status_code(500)
         responseCheckPhase.set_message("ERROR")
-        responseCheckPhase.set_data(method='GET', context=None, body='FINISHED', headers=None)
+        responseCheckPhase.set_data(method='GET', 
+                                    context=None, 
+                                    body='FINISHED', 
+                                    headers=None)
         waitRequest = "async/"+str(jobid)+"/phase"
         connHandler = DummyConnHandler()
         connHandler.set_response(waitRequest, responseCheckPhase)
         job.set_connhandler(connHandler)
         try:
             job.get_results()
-            self.fail("Exception expected: wrong HTTP status code I must raise an exception")
+            self.fail("Exception expected: wrong HTTP status code I \
+            must raise an exception")
         except:
             pass
         responseCheckPhase.set_status_code(200)
@@ -125,23 +169,29 @@ class TestJob(unittest.TestCase):
         responseGetData.set_message("ERROR")
         jobContentFileName = data_path('result_1.vot')
         jobContent = utils.read_file_content(jobContentFileName)
-        responseGetData.set_data(method='GET', context=None, body=jobContent, headers=None)
+        responseGetData.set_data(method='GET', 
+                                context=None, 
+                                body=jobContent, 
+                                headers=None)
         dataRequest = "async/" + str(jobid) + "/results/result"
         connHandler.set_response(dataRequest, responseGetData)
         try:
             job.get_results()
-            self.fail("Exception expected: wrong HTTP status code II must raise an exception")
+            self.fail("Exception expected: wrong HTTP status code II \
+            must raise an exception")
         except Exception as ex:
             #print (str(ex))
             pass
         responseGetData.set_status_code(200)
         responseGetData.set_message("OK")
         res = job.get_results()
-        assert len(res) == 3, "Num rows. Expected %d, found %d" % (3, len(res))
-        assert len(res.columns) == 4, "Num cols. Expected %d, found %d" % (4, len(res.columns))
+        assert len(res) == 3, \
+            "Num rows. Expected %d, found %d" % (3, len(res))
+        assert len(res.columns) == 4, \
+            "Num cols. Expected %d, found %d" % (4, len(res.columns))
         for cn in ['alpha','delta','source_id','table1_oid']:
             if cn not in res.colnames:
-                self.fail(cn + " columna name not found" + str(res.colnames))
+                self.fail(cn + " column name not found" + str(res.colnames))
                 pass
             pass
         #

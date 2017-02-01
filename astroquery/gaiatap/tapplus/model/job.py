@@ -480,7 +480,8 @@ class Job(object):
     
     def get_data(self):
         """Returns the job results (Astroquery API specification)
-        This method will block if the job is asynchronous and the job has not finished yet.
+        This method will block if the job is asynchronous and the job has not 
+        finished yet.
 
         Returns
         -------
@@ -490,7 +491,8 @@ class Job(object):
     
     def get_results(self):
         """Returns the job results
-        This method will block if the job is asynchronous and the job has not finished yet.
+        This method will block if the job is asynchronous and the job has not 
+        finished yet.
 
         Returns
         -------
@@ -501,7 +503,8 @@ class Job(object):
         #try load results from file
         #read_results_table_from_file checks whether the file already exists or not
         outputFormat = self.get_output_format()
-        results = modelutils.read_results_table_from_file(self.__outputFile, outputFormat)
+        results = modelutils.read_results_table_from_file(self.__outputFile, 
+                                                          outputFormat)
         if results is not None:
             self.set_results(results)
             return results
@@ -529,7 +532,8 @@ class Job(object):
         
     def save_results(self, verbose=False):
         """Saves job results
-        If the job is asynchronous, this method will block until the results are available.
+        If the job is asynchronous, this method will block until the results 
+        are available.
         
         Parameters
         ----------
@@ -546,11 +550,14 @@ class Job(object):
             else:
                 #Async
                 self.wait_for_job_end(verbose)
-                response = self.__connHandler.execute_get("async/"+str(self.__jobid)+"/results/result")
+                response = self.__connHandler.execute_get(
+                    "async/"+str(self.__jobid)+"/results/result")
                 if verbose:
                     print(response.status, response.reason)
                     print(response.getheaders())
-                isError = self.__connHandler.check_launch_response_status(response, verbose, 200)
+                isError = self.__connHandler.check_launch_response_status(response, 
+                                                                          verbose, 
+                                                                          200)
                 if isError:
                     print (response.reason)
                     raise Exception(response.reason)
@@ -580,7 +587,8 @@ class Job(object):
                 print("Job " + self.__jobid + " status: " + data)
             if "pending" != data and "queued" != data and "executing" != data:
                 break
-            #PENDING, QUEUED, EXECUTING, COMPLETED, ERROR, ABORTED, UNKNOWN, HELD, SUSPENDED, ARCHIVED:
+            #PENDING, QUEUED, EXECUTING, COMPLETED, ERROR, ABORTED, UNKNOWN, 
+            #HELD, SUSPENDED, ARCHIVED:
             time.sleep(0.5)
         return currentResponse, responseData
     
@@ -592,7 +600,9 @@ class Job(object):
         if debug:
             print(resultsResponse.status, resultsResponse.reason)
             print(resultsResponse.getheaders())
-        isError = self.__connHandler.check_launch_response_status(resultsResponse, debug, 200)
+        isError = self.__connHandler.check_launch_response_status(resultsResponse, 
+                                                                  debug, 
+                                                                  200)
         if isError:
             print (resultsResponse.reason)
             raise Exception(resultsResponse.reason)
