@@ -2,6 +2,17 @@
 Gaia TAP+
 =========
 
+Gaia is an ambitious mission to chart a three-dimensional map of our Galaxy, the Milky Way, 
+in the process revealing the composition, formation and evolution of the Galaxy. 
+Gaia will provide unprecedented positional and radial velocity measurements with the accuracies needed 
+to produce a stereoscopic and kinematic census of about one billion stars in our Galaxy and 
+throughout the Local Group. This amounts to about 1 per cent of the Galactic stellar population.
+
+If you use public Gaia DR1 data in your paper, please take note of our guide_ on how to acknowledge and cite Gaia DR1.
+
+.. _guide: http://gaia.esac.esa.int/documentation/GDR1/Miscellaneous/sec_credit_and_citation_instructions.html
+
+This package allows the access to the European Space Agency Gaia Archive (http://archives.esac.esa.int/gaia)
 This package allows the access to the European Space Agency Gaia Archive (http://archives.esac.esa.int/gaia)
 
 Gaia Archive access is based on a TAP+ REST service. TAP+ is an extension of Table Access Protocol
