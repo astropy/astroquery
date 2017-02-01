@@ -32,7 +32,8 @@ class GaiaTapClass(object):
             self.__gaiatap = tap_plus_handler
         pass
     
-    def load_tables(self, only_names=False, include_shared_tables=False, verbose=False):
+    def load_tables(self, only_names=False, include_shared_tables=False, 
+                    verbose=False):
         """Loads all public tables
         TAP & TAP+
          
@@ -49,7 +50,9 @@ class GaiaTapClass(object):
         -------
         A list of table objects
         """
-        return self.__gaiatap.load_tables(only_names, include_shared_tables, verbose)
+        return self.__gaiatap.load_tables(only_names, 
+                                          include_shared_tables, 
+                                          verbose)
     
     def load_table(self, table, verbose=False):
         """Loads the specified table
@@ -68,7 +71,9 @@ class GaiaTapClass(object):
         """
         return self.__gaiatap.load_table(table, verbose)
     
-    def launch_job(self, query, name=None, async=False, output_file=None, output_format="votable", verbose=False, dump_to_file=False, background=False, upload_resource=None, upload_table_name=None):
+    def launch_job(self, query, name=None, async=False, output_file=None, 
+                   output_format="votable", verbose=False, dump_to_file=False, 
+                   background=False, upload_resource=None, upload_table_name=None):
         """Launches a job. By default: it is synchronous
         TAP & TAP+
          
@@ -101,9 +106,21 @@ class GaiaTapClass(object):
         -------
         A Job object
         """
-        return self.__gaiatap.launch_job(query, name=name, async=async, output_file=output_file, output_format=output_format, verbose=verbose, dump_to_file=dump_to_file, background=background, upload_resource=upload_resource, upload_table_name=upload_table_name)
+        return self.__gaiatap.launch_job(query, 
+                                         name=name, 
+                                         async=async, 
+                                         output_file=output_file, 
+                                         output_format=output_format, 
+                                         verbose=verbose, 
+                                         dump_to_file=dump_to_file, 
+                                         background=background, 
+                                         upload_resource=upload_resource, 
+                                         upload_table_name=upload_table_name)
     
-    def launch_sync_job(self, query, name=None, output_file=None, output_format="votable", verbose=False, dump_to_file=False, upload_resource=None, upload_table_name=None):
+    def launch_sync_job(self, query, name=None, output_file=None, 
+                        output_format="votable", verbose=False, 
+                        dump_to_file=False, upload_resource=None, 
+                        upload_table_name=None):
         """Launches a synchronous job
         TAP & TAP+
         
@@ -129,9 +146,19 @@ class GaiaTapClass(object):
         -------
         A Job object
         """
-        return self.__gaiatap.launch_sync_job(query, name=name, output_file=output_file, output_format=output_format, verbose=verbose, dump_to_file=dump_to_file, upload_resource=upload_resource, upload_table_name=upload_table_name)
+        return self.__gaiatap.launch_sync_job(query, 
+                                              name=name, 
+                                              output_file=output_file, 
+                                              output_format=output_format, 
+                                              verbose=verbose, 
+                                              dump_to_file=dump_to_file, 
+                                              upload_resource=upload_resource, 
+                                              upload_table_name=upload_table_name)
     
-    def launch_async_job(self, query, name=None, output_file=None, output_format="votable", verbose=False, dump_to_file=False, background=False, upload_resource=None, upload_table_name=None):
+    def launch_async_job(self, query, name=None, output_file=None, 
+                         output_format="votable", verbose=False, 
+                         dump_to_file=False, background=False, 
+                         upload_resource=None, upload_table_name=None):
         """Launches an asynchronous job
         TAP & TAP+
         
@@ -160,7 +187,15 @@ class GaiaTapClass(object):
         -------
         A Job object
         """
-        return self.__gaiatap.launch_async_job(query, name=name, output_file=output_file, output_format=output_format, verbose=verbose, dump_to_file=dump_to_file, background=background, upload_resource=upload_resource, upload_table_name=upload_table_name)
+        return self.__gaiatap.launch_async_job(query, 
+                                               name=name, 
+                                               output_file=output_file, 
+                                               output_format=output_format, 
+                                               verbose=verbose, 
+                                               dump_to_file=dump_to_file, 
+                                               background=background, 
+                                               upload_resource=upload_resource, 
+                                               upload_table_name=upload_table_name)
     
     def load_async_job(self, jobid=None, name=None, verbose=False):
         """Loads an asynchronous job
@@ -213,7 +248,8 @@ class GaiaTapClass(object):
         """
         return self.__gaiatap.list_async_jobs(verbose)
     
-    def query_object(self, coordinate, radius=None, width=None, height=None, async=False, verbose=False):
+    def query_object(self, coordinate, radius=None, width=None, height=None, 
+                     async=False, verbose=False):
         """Launches a job
         TAP & TAP+
         
@@ -236,9 +272,15 @@ class GaiaTapClass(object):
         -------
         The job results (astropy.table).
         """
-        return self.__gaiatap.query_object(coordinate, radius=radius, width=width, height=height, async=async, verbose=verbose)
+        return self.__gaiatap.query_object(coordinate, 
+                                           radius=radius, 
+                                           width=width, 
+                                           height=height, 
+                                           async=async, 
+                                           verbose=verbose)
     
-    def query_object_async(self, coordinate, radius=None, width=None, height=None, verbose=False):
+    def query_object_async(self, coordinate, radius=None, width=None, 
+                           height=None, verbose=False):
         """Launches a job (async)
         TAP & TAP+
         
@@ -261,7 +303,11 @@ class GaiaTapClass(object):
         -------
         The job results (astropy.table).
         """
-        return self.__gaiatap.query_object_async(coordinate, radius=radius, width=width, height=height, verbose=verbose)
+        return self.__gaiatap.query_object_async(coordinate, 
+                                                 radius=radius, 
+                                                 width=width, 
+                                                 height=height, 
+                                                 verbose=verbose)
     
     #def query_region(self, coordinate, radius=None, width=None):
     #    raise NotImplementedError()
@@ -275,7 +321,9 @@ class GaiaTapClass(object):
     #def get_images_async(self, coordinate):
     #    raise NotImplementedError()
     #
-    def cone_search(self, coordinate, radius=None, async=False, background=False, output_file=None, output_format="votable", verbose=False, dump_to_file=False):
+    def cone_search(self, coordinate, radius=None, async=False, background=False, 
+                    output_file=None, output_format="votable", verbose=False, 
+                    dump_to_file=False):
         """Cone search sorted by distance
         TAP & TAP+
         
@@ -304,7 +352,14 @@ class GaiaTapClass(object):
         -------
         A Job object
         """
-        return self.__gaiatap.cone_search(coordinate=coordinate, radius=radius, async=async, background=background, output_file=output_file, output_format=output_format, verbose=verbose, dump_to_file=dump_to_file)
+        return self.__gaiatap.cone_search(coordinate=coordinate, 
+                                          radius=radius, 
+                                          async=async, 
+                                          background=background, 
+                                          output_file=output_file, 
+                                          output_format=output_format, 
+                                          verbose=verbose, 
+                                          dump_to_file=dump_to_file)
     
     def remove_jobs(self, jobs_list, verbose=False):
         """Removes the specified jobs
@@ -333,7 +388,8 @@ class GaiaTapClass(object):
         """
         return self.__gaiatap.save_results(job, verbose)
     
-    def login(self, user=None, password=None, credentials_file=None, verbose=False):
+    def login(self, user=None, password=None, credentials_file=None, 
+              verbose=False):
         """Performs a login.
         TAP+ only
         User and password can be used or a file that contains user name and password
@@ -350,7 +406,10 @@ class GaiaTapClass(object):
         verbose : bool, optional, default 'False' 
             flag to display information about the process
         """
-        return self.__gaiatap.login(user=user, password=password, credentials_file=credentials_file, verbose=verbose)
+        return self.__gaiatap.login(user=user, 
+                                    password=password, 
+                                    credentials_file=credentials_file, 
+                                    verbose=verbose)
     
     def login_gui(self, verbose=False):
         """Performs a login using a GUI dialog
