@@ -36,23 +36,36 @@ class DummyTapHandler(object):
         if method == self.__invokedMethod:
             return
         else:
-            raise Exception("Method '"+str(method)+"' not invoked. (Invoked method is '"+str(self.__invokedMethod)+"')")
+            raise Exception("Method '"+str(method)\
+                            +"' not invoked. (Invoked method is '"\
+                            +str(self.__invokedMethod)+"')")
     
     def check_parameters(self, parameters, method_name):
         if parameters == None:
             return len(self.__parameters) == 0
         if len(parameters) != len(self.__parameters):
-            raise Exception("Wrong number of parameters for method '%s'. Found: %d. Expected %d", (method_name, len(self.__parameters), len(parameters)))
+            raise Exception("Wrong number of parameters for method '%s'. \
+            Found: %d. Expected %d", 
+                            (method_name, 
+                             len(self.__parameters), 
+                             len(parameters)))
         for key in parameters:
             if key in self.__parameters:
                 #check value
                 if self.__parameters[key] != parameters[key]:
-                    raise Exception("Wrong '%s' parameter value for method '%s'. Found: '%s'. Expected: '%s'", (method_name, key, self.__parameters[key], parameters[key]));
+                    raise Exception("Wrong '%s' parameter value for method '%s'. \
+                    Found: '%s'. Expected: '%s'", (
+                        method_name, 
+                        key, 
+                        self.__parameters[key], 
+                        parameters[key]));
             else:
-                raise Exception("Parameter '%s' not found for method '%s'", (str(key), method_name))
+                raise Exception("Parameter '%s' not found for method '%s'", 
+                                (str(key), method_name))
         return False
     
-    def load_tables(self, only_names=False, include_shared_tables=False, verbose=False):
+    def load_tables(self, only_names=False, include_shared_tables=False, 
+                    verbose=False):
         self.__invokedMethod = 'load_tables'
         self.__parameters['only_names'] = only_names
         self.__parameters['include_shared_tables'] = include_shared_tables
@@ -65,7 +78,9 @@ class DummyTapHandler(object):
         self.__parameters['verbose'] = verbose
         return None
     
-    def launch_job(self, query, name=None, async=False, output_file=None, output_format="votable", verbose=False, dump_to_file=False, background=False, upload_resource=None, upload_table_name=None):
+    def launch_job(self, query, name=None, async=False, output_file=None, 
+                   output_format="votable", verbose=False, dump_to_file=False, 
+                   background=False, upload_resource=None, upload_table_name=None):
         self.__invokedMethod = 'launch_job'
         self.__parameters['query'] = query
         self.__parameters['name'] = name
@@ -79,7 +94,10 @@ class DummyTapHandler(object):
         self.__parameters['upload_table_name'] = upload_table_name
         return None
     
-    def launch_sync_job(self, query, name=None, output_file=None, output_format="votable", verbose=False, dump_to_file=False, upload_resource=None, upload_table_name=None):
+    def launch_sync_job(self, query, name=None, output_file=None, 
+                        output_format="votable", verbose=False, 
+                        dump_to_file=False, upload_resource=None, 
+                        upload_table_name=None):
         self.__invokedMethod = 'launch_sync_job'
         self.__parameters['query'] = query
         self.__parameters['name'] = name
@@ -91,7 +109,10 @@ class DummyTapHandler(object):
         self.__parameters['upload_table_name'] = upload_table_name
         return None
     
-    def launch_async_job(self, query, name=None, output_file=None, output_format="votable", verbose=False, dump_to_file=False, background=False, upload_resource=None, upload_table_name=None):
+    def launch_async_job(self, query, name=None, output_file=None, 
+                         output_format="votable", verbose=False, 
+                         dump_to_file=False, background=False, 
+                         upload_resource=None, upload_table_name=None):
         self.__invokedMethod = 'launch_async_job'
         self.__parameters['query'] = query
         self.__parameters['name'] = name
@@ -122,7 +143,8 @@ class DummyTapHandler(object):
         self.__parameters['verbose'] = verbose
         return None
     
-    def query_object(self, coordinate, radius=None, width=None, height=None, async=False, verbose=False):
+    def query_object(self, coordinate, radius=None, width=None, height=None, 
+                     async=False, verbose=False):
         self.__invokedMethod = 'query_object'
         self.__parameters['coordinate'] = coordinate
         self.__parameters['radius'] = radius
@@ -132,7 +154,8 @@ class DummyTapHandler(object):
         self.__parameters['verbose'] = verbose
         return None
     
-    def query_object_async(self, coordinate, radius=None, width=None, height=None, verbose=False):
+    def query_object_async(self, coordinate, radius=None, width=None, 
+                           height=None, verbose=False):
         self.__invokedMethod = 'query_object_async'
         self.__parameters['coordinate'] = coordinate
         self.__parameters['radius'] = radius
@@ -165,7 +188,9 @@ class DummyTapHandler(object):
         self.__parameters['coordinate'] = coordinate
         return None
     
-    def cone_search(self, coordinate, radius, async=False, background=False, output_file=None, output_format="votable", verbose=False, dump_to_file=False):
+    def cone_search(self, coordinate, radius, async=False, background=False, 
+                    output_file=None, output_format="votable", verbose=False, 
+                    dump_to_file=False):
         self.__invokedMethod = 'cone_search'
         self.__parameters['coordinate'] = coordinate
         self.__parameters['radius'] = radius
@@ -189,7 +214,8 @@ class DummyTapHandler(object):
         self.__parameters['verbose'] = verbose
         return None
     
-    def login(self, user=None, password=None, credentials_file=None, verbose=False):
+    def login(self, user=None, password=None, credentials_file=None, 
+              verbose=False):
         self.__invokedMethod = 'login'
         self.__parameters['user'] = verbose
         self.__parameters['password'] = verbose
