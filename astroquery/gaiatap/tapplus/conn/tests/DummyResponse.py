@@ -22,6 +22,7 @@ class DummyResponse(object):
         self.reason = ""
         self.status = 0
         self.index = 0
+        self.set_data(None, None, None, None)
         pass
     
     def set_status_code(self, status):
