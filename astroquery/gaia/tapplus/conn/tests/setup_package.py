@@ -18,4 +18,4 @@ import os
 
 def get_pakcage_data():
     paths= []
-    return {'astroquery.gaia.tapplus.conn': paths}
+    return {'astroquery.gaia.tapplus.conn.tests': paths}
