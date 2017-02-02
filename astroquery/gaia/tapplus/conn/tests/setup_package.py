@@ -14,6 +14,8 @@ Created on 30 jun. 2016
 
 
 """
+from __future__ import absolute_import
+
 import os
 
 def get_pakcage_data():
