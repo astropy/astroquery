@@ -78,29 +78,12 @@ class DummyTapHandler(object):
         self.__parameters['verbose'] = verbose
         return None
     
-    def launch_job(self, query, name=None, async=False, output_file=None, 
+    def launch_job(self, query, name=None, output_file=None, 
                    output_format="votable", verbose=False, dump_to_file=False, 
-                   background=False, upload_resource=None, upload_table_name=None):
+                   upload_resource=None, upload_table_name=None):
         self.__invokedMethod = 'launch_job'
         self.__parameters['query'] = query
         self.__parameters['name'] = name
-        self.__parameters['async'] = async
-        self.__parameters['output_file'] = output_file
-        self.__parameters['output_format'] = output_format
-        self.__parameters['verbose'] = verbose
-        self.__parameters['dump_to_file'] = dump_to_file
-        self.__parameters['background'] = background
-        self.__parameters['upload_resource'] = upload_resource
-        self.__parameters['upload_table_name'] = upload_table_name
-        return None
-    
-    def launch_sync_job(self, query, name=None, output_file=None, 
-                        output_format="votable", verbose=False, 
-                        dump_to_file=False, upload_resource=None, 
-                        upload_table_name=None):
-        self.__invokedMethod = 'launch_sync_job'
-        self.__parameters['query'] = query
-        self.__parameters['name'] = name
         self.__parameters['output_file'] = output_file
         self.__parameters['output_format'] = output_format
         self.__parameters['verbose'] = verbose
@@ -109,11 +92,11 @@ class DummyTapHandler(object):
         self.__parameters['upload_table_name'] = upload_table_name
         return None
     
-    def launch_async_job(self, query, name=None, output_file=None, 
+    def launch_job_async(self, query, name=None, output_file=None, 
                          output_format="votable", verbose=False, 
                          dump_to_file=False, background=False, 
                          upload_resource=None, upload_table_name=None):
-        self.__invokedMethod = 'launch_async_job'
+        self.__invokedMethod = 'launch_job_async'
         self.__parameters['query'] = query
         self.__parameters['name'] = name
         self.__parameters['output_file'] = output_file
@@ -144,13 +127,12 @@ class DummyTapHandler(object):
         return None
     
     def query_object(self, coordinate, radius=None, width=None, height=None, 
-                     async=False, verbose=False):
+                     verbose=False):
         self.__invokedMethod = 'query_object'
         self.__parameters['coordinate'] = coordinate
         self.__parameters['radius'] = radius
         self.__parameters['width'] = width
         self.__parameters['height'] = height
-        self.__parameters['async'] = async
         self.__parameters['verbose'] = verbose
         return None
     
@@ -188,13 +170,23 @@ class DummyTapHandler(object):
         self.__parameters['coordinate'] = coordinate
         return None
     
-    def cone_search(self, coordinate, radius, async=False, background=False, 
-                    output_file=None, output_format="votable", verbose=False, 
-                    dump_to_file=False):
+    def cone_search(self, coordinate, radius, output_file=None, 
+                    output_format="votable", verbose=False, dump_to_file=False):
         self.__invokedMethod = 'cone_search'
         self.__parameters['coordinate'] = coordinate
         self.__parameters['radius'] = radius
-        self.__parameters['async'] = async
+        self.__parameters['output_file'] = output_file
+        self.__parameters['output_format'] = output_format
+        self.__parameters['verbose'] = verbose
+        self.__parameters['dump_to_file'] = dump_to_file
+        return None
+    
+    def cone_search_async(self, coordinate, radius, background=False, 
+                    output_file=None, output_format="votable", verbose=False, 
+                    dump_to_file=False):
+        self.__invokedMethod = 'cone_search_async'
+        self.__parameters['coordinate'] = coordinate
+        self.__parameters['radius'] = radius
         self.__parameters['background'] = background
         self.__parameters['output_file'] = output_file
         self.__parameters['output_format'] = output_format

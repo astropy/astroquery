@@ -71,53 +71,7 @@ class GaiaClass(object):
         """
         return self.__gaiatap.load_table(table, verbose)
     
-    def launch_job(self, query, name=None, async=False, output_file=None, 
-                   output_format="votable", verbose=False, dump_to_file=False, 
-                   background=False, upload_resource=None, upload_table_name=None):
-        """Launches a job. By default: it is synchronous
-        TAP & TAP+
-         
-        Parameters
-        ----------
-        query : str, mandatory
-            query to be executed
-        name : str, optional
-            job name
-        async : bool, optional, default 'False' (synchronous)
-            executes the job in asynchronous/synchronous mode
-        output_file : str, optional, default None
-            file name where the results are saved if dumpToFile is True. 
-            If this parameter is not provided, the jobid is used instead
-        output_format : str, optional, default 'votable'
-            results format
-        verbose : bool, optional, default 'False' 
-            flag to display information about the process
-        dump_to_file : bool, optional, default 'False'
-            if True, the results are saved in a file instead of using memory
-        background : bool, optional, default 'False'
-            when the job is executed in asynchronous mode, this flag specifies whether 
-            the execution will wait until results are available
-        upload_resource: str, optional, default None
-            resource to be uploaded to UPLOAD_SCHEMA
-        upload_table_name: str, required if uploadResource is provided, default None
-            resource temporary table name associated to the uploaded resource
-
-        Returns
-        -------
-        A Job object
-        """
-        return self.__gaiatap.launch_job(query, 
-                                         name=name, 
-                                         async=async, 
-                                         output_file=output_file, 
-                                         output_format=output_format, 
-                                         verbose=verbose, 
-                                         dump_to_file=dump_to_file, 
-                                         background=background, 
-                                         upload_resource=upload_resource, 
-                                         upload_table_name=upload_table_name)
-    
-    def launch_sync_job(self, query, name=None, output_file=None, 
+    def launch_job(self, query, name=None, output_file=None, 
                         output_format="votable", verbose=False, 
                         dump_to_file=False, upload_resource=None, 
                         upload_table_name=None):
@@ -146,7 +100,7 @@ class GaiaClass(object):
         -------
         A Job object
         """
-        return self.__gaiatap.launch_sync_job(query, 
+        return self.__gaiatap.launch_job(query, 
                                               name=name, 
                                               output_file=output_file, 
                                               output_format=output_format, 
@@ -155,7 +109,7 @@ class GaiaClass(object):
                                               upload_resource=upload_resource, 
                                               upload_table_name=upload_table_name)
     
-    def launch_async_job(self, query, name=None, output_file=None, 
+    def launch_job_async(self, query, name=None, output_file=None, 
                          output_format="votable", verbose=False, 
                          dump_to_file=False, background=False, 
                          upload_resource=None, upload_table_name=None):
@@ -187,7 +141,7 @@ class GaiaClass(object):
         -------
         A Job object
         """
-        return self.__gaiatap.launch_async_job(query, 
+        return self.__gaiatap.launch_job_async(query, 
                                                name=name, 
                                                output_file=output_file, 
                                                output_format=output_format, 
@@ -249,7 +203,7 @@ class GaiaClass(object):
         return self.__gaiatap.list_async_jobs(verbose)
     
     def query_object(self, coordinate, radius=None, width=None, height=None, 
-                     async=False, verbose=False):
+                     verbose=False):
         """Launches a job
         TAP & TAP+
         
@@ -263,8 +217,6 @@ class GaiaClass(object):
             box width
         height : astropy.units, required if no 'radius' is provided
             box height
-        async : bool, optional, default 'False'
-            executes the query (job) in asynchronous/synchronous mode (default synchronous)
         verbose : bool, optional, default 'False' 
             flag to display information about the process
 
@@ -276,7 +228,6 @@ class GaiaClass(object):
                                            radius=radius, 
                                            width=width, 
                                            height=height, 
-                                           async=async, 
                                            verbose=verbose)
     
     def query_object_async(self, coordinate, radius=None, width=None, 
@@ -321,10 +272,10 @@ class GaiaClass(object):
     #def get_images_async(self, coordinate):
     #    raise NotImplementedError()
     #
-    def cone_search(self, coordinate, radius=None, async=False, background=False, 
-                    output_file=None, output_format="votable", verbose=False, 
+    def cone_search(self, coordinate, radius=None, output_file=None, 
+                    output_format="votable", verbose=False, 
                     dump_to_file=False):
-        """Cone search sorted by distance
+        """Cone search sorted by distance (sync.)
         TAP & TAP+
         
         Parameters
@@ -333,8 +284,39 @@ class GaiaClass(object):
             coordinates center point
         radius : astropy.units, mandatory
             radius
-        async : bool, optional, default 'False'
-            executes the job in asynchronous/synchronous mode (default synchronous)
+        output_file : str, optional, default None
+            file name where the results are saved if dumpToFile is True. 
+            If this parameter is not provided, the jobid is used instead
+        output_format : str, optional, default 'votable'
+            results format
+        verbose : bool, optional, default 'False' 
+            flag to display information about the process
+        dump_to_file : bool, optional, default 'False'
+            if True, the results are saved in a file instead of using memory
+
+        Returns
+        -------
+        A Job object
+        """
+        return self.__gaiatap.cone_search(coordinate=coordinate, 
+                                          radius=radius, 
+                                          output_file=output_file, 
+                                          output_format=output_format, 
+                                          verbose=verbose, 
+                                          dump_to_file=dump_to_file)
+    
+    def cone_search_async(self, coordinate, radius=None, background=False, 
+                    output_file=None, output_format="votable", verbose=False, 
+                    dump_to_file=False):
+        """Cone search sorted by distance (async)
+        TAP & TAP+
+        
+        Parameters
+        ----------
+        coordinate : astropy.coordinate, mandatory
+            coordinates center point
+        radius : astropy.units, mandatory
+            radius
         background : bool, optional, default 'False'
             when the job is executed in asynchronous mode, this flag specifies whether 
             the execution will wait until results are available
@@ -352,9 +334,8 @@ class GaiaClass(object):
         -------
         A Job object
         """
-        return self.__gaiatap.cone_search(coordinate=coordinate, 
+        return self.__gaiatap.cone_search_async(coordinate=coordinate, 
                                           radius=radius, 
-                                          async=async, 
                                           background=background, 
                                           output_file=output_file, 
                                           output_format=output_format, 

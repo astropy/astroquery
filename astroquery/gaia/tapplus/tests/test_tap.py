@@ -244,27 +244,27 @@ class TestTap(unittest.TestCase):
         req = "async/" + jobid + "/results/result"
         connHandler.set_response(req, responseResultsJob)
         try:
-            tap.launch_job(query, async=True)
+            tap.launch_job_async(query)
             self.fail("Exception expected: job launch response 500")
         except:
             pass
         responseLaunchJob.set_status_code(303)
         responseLaunchJob.set_message("OK")
         try:
-            tap.launch_job(query, async=True)
+            tap.launch_job_async(query)
             self.fail("Exception expected: job phase response 500")
         except:
             pass
         responsePhase.set_status_code(200)
         responsePhase.set_message("OK")
         try:
-            tap.launch_job(query, async=True)
+            tap.launch_job_async(query)
             self.fail("Exception expected: job results response 500")
         except:
             pass
         responseResultsJob.set_status_code(200)
         responseResultsJob.set_message("OK")
-        job = tap.launch_job(query, async=True)
+        job = tap.launch_job_async(query)
         assert job is not None, "Expected a valid job"
         assert job.is_sync() == False, "Expected an asynchronous job"
         assert job.get_phase() == 'COMPLETED', \
@@ -529,7 +529,7 @@ class TestTap(unittest.TestCase):
         sc = SkyCoord(ra=ra, dec=dec, unit=(u.degree, u.degree), frame='icrs')
         radius = Quantity(1.0, u.deg)
         connHandler.set_default_response(responseLaunchJob)
-        job = tap.cone_search(sc, radius, async=False)
+        job = tap.cone_search(sc, radius)
         assert job is not None, "Expected a valid job"
         assert job.is_sync() == True, "Expected a synchronous job"
         assert job.get_phase() == 'COMPLETED', \
@@ -606,7 +606,7 @@ class TestTap(unittest.TestCase):
                                     headers=None)
         req = "async/" + jobid + "/results/result"
         connHandler.set_response(req, responseResultsJob)
-        job = tap.cone_search(sc, radius, async=True)
+        job = tap.cone_search_async(sc, radius)
         assert job is not None, "Expected a valid job"
         assert job.is_sync() == False, "Expected an asynchronous job"
         assert job.get_phase() == 'COMPLETED', \

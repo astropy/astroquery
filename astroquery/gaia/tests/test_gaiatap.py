@@ -64,7 +64,7 @@ class TestTap(unittest.TestCase):
         dummyTapHandler.check_call('load_table', parameters)
         pass
     
-    def test_launch_job(self):
+    def test_launch_sync_job(self):
         dummyTapHandler = DummyTapHandler()
         tap = GaiaClass(dummyTapHandler)
         query = "query"
@@ -72,12 +72,10 @@ class TestTap(unittest.TestCase):
         parameters = {}
         parameters['query'] = query
         parameters['name'] = None
-        parameters['async'] = False
         parameters['output_file'] = None
         parameters['output_format'] = 'votable'
         parameters['verbose'] = False
         parameters['dump_to_file'] = False
-        parameters['background'] = False
         parameters['upload_resource'] = None
         parameters['upload_table_name'] = None
         tap.launch_job(query)
@@ -85,32 +83,26 @@ class TestTap(unittest.TestCase):
         #test with parameters
         dummyTapHandler.reset()
         name = 'name'
-        async = True
         output_file = 'output'
         output_format = 'format'
         verbose = True
         dump_to_file = True
-        background = True
         upload_resource = 'upload_res'
         upload_table_name = 'upload_table'
         parameters['query'] = query
         parameters['name'] = name
-        parameters['async'] = async
         parameters['output_file'] = output_file
         parameters['output_format'] = output_format
         parameters['verbose'] = verbose
         parameters['dump_to_file'] = dump_to_file
-        parameters['background'] = background
         parameters['upload_resource'] = upload_resource
         parameters['upload_table_name'] = upload_table_name
         tap.launch_job(query, 
                        name=name, 
-                       async=async, 
                        output_file=output_file, 
                        output_format=output_format, 
                        verbose=verbose, 
                        dump_to_file=dump_to_file, 
-                       background=background, 
                        upload_resource=upload_resource, 
                        upload_table_name=upload_table_name)
         dummyTapHandler.check_call('launch_job', parameters)
@@ -131,8 +123,8 @@ class TestTap(unittest.TestCase):
         parameters['background'] = False
         parameters['upload_resource'] = None
         parameters['upload_table_name'] = None
-        tap.launch_async_job(query)
-        dummyTapHandler.check_call('launch_async_job', parameters)
+        tap.launch_job_async(query)
+        dummyTapHandler.check_call('launch_job_async', parameters)
         #test with parameters
         dummyTapHandler.reset()
         name = 'name'
@@ -152,7 +144,7 @@ class TestTap(unittest.TestCase):
         parameters['background'] = background
         parameters['upload_resource'] = upload_resource
         parameters['upload_table_name'] = upload_table_name
-        tap.launch_async_job(query, 
+        tap.launch_job_async(query, 
                              name=name, 
                              output_file=output_file, 
                              output_format=output_format, 
@@ -161,51 +153,7 @@ class TestTap(unittest.TestCase):
                              background=background, 
                              upload_resource=upload_resource, 
                              upload_table_name=upload_table_name)
-        dummyTapHandler.check_call('launch_async_job', parameters)
-        pass
-    
-    def test_launch_sync_job(self):
-        dummyTapHandler = DummyTapHandler()
-        tap = GaiaClass(dummyTapHandler)
-        query = "query"
-        #default parameters
-        parameters = {}
-        parameters['query'] = query
-        parameters['name'] = None
-        parameters['output_file'] = None
-        parameters['output_format'] = 'votable'
-        parameters['verbose'] = False
-        parameters['dump_to_file'] = False
-        parameters['upload_resource'] = None
-        parameters['upload_table_name'] = None
-        tap.launch_sync_job(query)
-        dummyTapHandler.check_call('launch_sync_job', parameters)
-        #test with parameters
-        dummyTapHandler.reset()
-        name = 'name'
-        output_file = 'output'
-        output_format = 'format'
-        verbose = True
-        dump_to_file = True
-        upload_resource = 'upload_res'
-        upload_table_name = 'upload_table'
-        parameters['query'] = query
-        parameters['name'] = name
-        parameters['output_file'] = output_file
-        parameters['output_format'] = output_format
-        parameters['verbose'] = verbose
-        parameters['dump_to_file'] = dump_to_file
-        parameters['upload_resource'] = upload_resource
-        parameters['upload_table_name'] = upload_table_name
-        tap.launch_sync_job(query, 
-                            name=name, 
-                            output_file=output_file, 
-                            output_format=output_format, 
-                            verbose=verbose, 
-                            dump_to_file=dump_to_file, 
-                            upload_resource=upload_resource, 
-                            upload_table_name=upload_table_name)
-        dummyTapHandler.check_call('launch_sync_job', parameters)
+        dummyTapHandler.check_call('launch_job_async', parameters)
         pass
     
     def test_list_async_jobs(self):
@@ -233,7 +181,6 @@ class TestTap(unittest.TestCase):
         parameters['radius'] = None
         parameters['width'] = None
         parameters['height'] = None
-        parameters['async'] = False
         parameters['verbose'] = False
         tap.query_object(sc)
         dummyTapHandler.check_call('query_object', parameters)
@@ -242,19 +189,16 @@ class TestTap(unittest.TestCase):
         width = 'w'
         height = 'h'
         radius = 'r'
-        async = True
         verbose = True
         parameters['coordinate'] = sc
         parameters['radius'] = radius
         parameters['width'] = width
         parameters['height'] = height
-        parameters['async'] = async
         parameters['verbose'] = verbose
         tap.query_object(sc, 
                          radius=radius, 
                          width=width, 
                          height=height, 
-                         async=async, 
                          verbose=verbose)
         dummyTapHandler.check_call('query_object', parameters)
         pass
@@ -300,8 +244,6 @@ class TestTap(unittest.TestCase):
         parameters = {}
         parameters['coordinate'] = coordinate
         parameters['radius'] = radius
-        parameters['async'] = False
-        parameters['background'] = False
         parameters['output_file'] = None
         parameters['output_format'] = 'votable'
         parameters['verbose'] = False
@@ -310,7 +252,43 @@ class TestTap(unittest.TestCase):
         dummyTapHandler.check_call('cone_search', parameters)
         #test with parameters
         dummyTapHandler.reset()
-        async = True
+        output_file = 'output'
+        output_format = 'format'
+        verbose = True
+        dump_to_file = True
+        parameters['coordinate'] = coordinate
+        parameters['radius'] = radius
+        parameters['output_file'] = output_file
+        parameters['output_format'] = output_format
+        parameters['verbose'] = verbose
+        parameters['dump_to_file'] = dump_to_file
+        tap.cone_search(coordinate, 
+                        radius, 
+                        output_file=output_file, 
+                        output_format=output_format, 
+                        verbose=verbose, 
+                        dump_to_file=dump_to_file)
+        dummyTapHandler.check_call('cone_search', parameters)
+        pass
+    
+    def test_cone_search_async(self):
+        dummyTapHandler = DummyTapHandler()
+        tap = GaiaClass(dummyTapHandler)
+        #default parameters
+        coordinate = 'coord'
+        radius = 'r'
+        parameters = {}
+        parameters['coordinate'] = coordinate
+        parameters['radius'] = radius
+        parameters['background'] = False
+        parameters['output_file'] = None
+        parameters['output_format'] = 'votable'
+        parameters['verbose'] = False
+        parameters['dump_to_file'] = False
+        tap.cone_search_async(coordinate, radius)
+        dummyTapHandler.check_call('cone_search_async', parameters)
+        #test with parameters
+        dummyTapHandler.reset()
         background = True
         output_file = 'output'
         output_format = 'format'
@@ -318,21 +296,19 @@ class TestTap(unittest.TestCase):
         dump_to_file = True
         parameters['coordinate'] = coordinate
         parameters['radius'] = radius
-        parameters['async'] = async
         parameters['background'] = background
         parameters['output_file'] = output_file
         parameters['output_format'] = output_format
         parameters['verbose'] = verbose
         parameters['dump_to_file'] = dump_to_file
-        tap.cone_search(coordinate, 
+        tap.cone_search_async(coordinate, 
                         radius, 
-                        async=async, 
                         background=background, 
                         output_file=output_file, 
                         output_format=output_format, 
                         verbose=verbose, 
                         dump_to_file=dump_to_file)
-        dummyTapHandler.check_call('cone_search', parameters)
+        dummyTapHandler.check_call('cone_search_async', parameters)
         pass
     
     pass
