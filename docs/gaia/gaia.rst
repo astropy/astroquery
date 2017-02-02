@@ -187,7 +187,7 @@ Query without saving results in a file:
 
   from astroquery.gaia import Gaia
 
-  job = Gaia.launch_job("select top 100 * from gaiadr1.gaia_source order by source_id", async=True)
+  job = Gaia.launch_job_async("select top 100 * from gaiadr1.gaia_source order by source_id")
   
   print (job)
   r = job.get_results()
@@ -199,7 +199,7 @@ Query saving results in a file:
 
   from astroquery.gaia import Gaia
   
-  job = Gaia.launch_job("select top 100 * from gaiadr1.gaia_source order by source_id", async=True, dump_to_file=True)
+  job = Gaia.launch_job_async("select top 100 * from gaiadr1.gaia_source order by source_id", dump_to_file=True)
   
   print (job)
   r = job.get_results()
@@ -326,7 +326,7 @@ Example 2: irsa.ipac.caltech.edu
   
   tap = TapPlus(url="http://irsa.ipac.caltech.edu/TAP")
   
-  job = tap.launch_job("SELECT TOP 10 * FROM fp_psc", async=True)
+  job = tap.launch_job_async("SELECT TOP 10 * FROM fp_psc")
   r = job.get_results()
   print (r)
 
