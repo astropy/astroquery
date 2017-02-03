@@ -1,3 +1,7 @@
+.. doctest-skip-all
+
+.. _astroquery.gaia:
+
 =========
 Gaia TAP+
 =========
