@@ -165,6 +165,7 @@ The following modules have been completed using a common API:
   skyview/skyview.rst
   nasa_ads/nasa_ads.rst
   heasarc/heasarc.rst
+  gaia/gaia/rst
 
 These others are functional, but do not follow a common & consistent API:
 
