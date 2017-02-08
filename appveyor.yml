@@ -22,13 +22,6 @@ environment:
         ASTROPY_VERSION: "stable"
         NUMPY_VERSION: "stable"
 
-matrix:
-  # Allow to fail the 2.7 build until #823 is fixed
-  allow_failures:
-      - PYTHON_VERSION: "2.7"
-        ASTROPY_VERSION: "stable"
-        NUMPY_VERSION: "stable"
-
 platform:
     -x64
 
