@@ -270,6 +270,7 @@ class EsoClass(QueryWithLogin):
                     if instrument not in self._instrument_list:
                         self._instrument_list.append(instrument)
             self._instrument_list.append(u'harps')
+            self._instrument_list.append(u'uves')
         return self._instrument_list
 
     def list_surveys(self, cache=True):
@@ -395,9 +396,7 @@ class EsoClass(QueryWithLogin):
 
         """
 
-        if instrument in ('feros', 'harps'):
-            url = 'http://archive.eso.org/wdb/wdb/eso/repro/form'
-        elif instrument == 'grond':
+        if instrument in ('feros', 'harps', 'grond'):
             url = 'http://archive.eso.org/wdb/wdb/eso/eso_archive_main/form'
         else:
             url = ("http://archive.eso.org/wdb/wdb/eso/{0}/form"
@@ -421,8 +420,8 @@ class EsoClass(QueryWithLogin):
                                        if 'tab_db_id' in kwargs
                                        else 'on')
 
-            if instrument == 'grond':
-                query_dict['instrument'] = "GROND"
+            if instrument in ('feros', 'harps', 'ground'):
+                query_dict['instrument'] = instrument.upper()
 
             for k in columns:
                 query_dict["tab_" + k] = True
