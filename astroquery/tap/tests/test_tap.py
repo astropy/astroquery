@@ -17,12 +17,12 @@ Created on 30 jun. 2016
 import unittest
 import os
 import numpy as np
-from tap.model.job import Job
-from tap.conn.tests.DummyConnHandler import DummyConnHandler
-from tap.conn.tests.DummyResponse import DummyResponse
-from tap.core import TapPlus
-from tap.xmlparser import utils
-from tap import taputils
+from astroquery.tap.model.job import Job
+from astroquery.tap.conn.tests.DummyConnHandler import DummyConnHandler
+from astroquery.tap.conn.tests.DummyResponse import DummyResponse
+from astroquery.tap.core import TapPlus
+from astroquery.tap.xmlparser import utils
+from astroquery.tap import taputils
 
 
 def data_path(filename):

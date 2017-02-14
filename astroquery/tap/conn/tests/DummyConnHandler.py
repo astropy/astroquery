@@ -14,7 +14,7 @@ Created on 30 jun. 2016
 
 
 """
-from tap import taputils
+from astroquery.tap import taputils
 
 try:
     #python 3

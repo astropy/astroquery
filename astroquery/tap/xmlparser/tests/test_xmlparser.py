@@ -17,10 +17,10 @@ Created on 30 jun. 2016
 
 import unittest
 import os
-from tap.xmlparser.tableSaxParser import TableSaxParser
-from tap.xmlparser.jobListSaxParser import JobListSaxParser
-from tap.xmlparser.jobSaxParser import JobSaxParser
-from tap.xmlparser import utils
+from astroquery.tap.xmlparser.tableSaxParser import TableSaxParser
+from astroquery.tap.xmlparser.jobListSaxParser import JobListSaxParser
+from astroquery.tap.xmlparser.jobSaxParser import JobSaxParser
+from astroquery.tap.xmlparser import utils
 
 def data_path(filename):
     data_dir = os.path.join(os.path.dirname(__file__), 'data')

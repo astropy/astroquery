@@ -14,8 +14,8 @@ Created on 30 jun. 2016
 
 
 """
-from tap.xmlparser import utils
-from tap import taputils
+from astroquery.tap.xmlparser import utils
+from astroquery.tap import taputils
 
 try:
     #python 3

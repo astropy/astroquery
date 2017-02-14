@@ -17,10 +17,10 @@ Created on 30 jun. 2016
 
 import xml.sax
 
-from tap.model.table import Table
-from tap.model.column import Column
-from tap.model.job import Job
-from tap.xmlparser import utils as Utils
+from astroquery.tap.model.table import Table
+from astroquery.tap.model.column import Column
+from astroquery.tap.model.job import Job
+from astroquery.tap.xmlparser import utils as Utils
 
 READING_JOB = 10
 READING_PHASE = 20

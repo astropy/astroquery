@@ -14,7 +14,7 @@ Created on 30 jun. 2016
 
 
 """
-from tap.conn.tests.DummyResponse import DummyResponse
+from astroquery.tap.conn.tests.DummyResponse import DummyResponse
 
 class DummyConn(object):
     '''

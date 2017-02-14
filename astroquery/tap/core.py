@@ -14,16 +14,16 @@ Created on 30 jun. 2016
 
 
 """
-from tap import taputils
-from tap.conn.tapconn import TapConn
-from tap.xmlparser.tableSaxParser import TableSaxParser
-from tap.model.job import Job
+from astroquery.tap import taputils
+from astroquery.tap.conn.tapconn import TapConn
+from astroquery.tap.xmlparser.tableSaxParser import TableSaxParser
+from astroquery.tap.model.job import Job
 from datetime import datetime
-from tap.gui.login import LoginDialog
-from tap.xmlparser.jobSaxParser import JobSaxParser
-from tap.xmlparser.jobListSaxParser import JobListSaxParser
-from tap.xmlparser import utils
-from tap.model.filter import Filter
+from astroquery.tap.gui.login import LoginDialog
+from astroquery.tap.xmlparser.jobSaxParser import JobSaxParser
+from astroquery.tap.xmlparser.jobListSaxParser import JobListSaxParser
+from astroquery.tap.xmlparser import utils
+from astroquery.tap.model.filter import Filter
 
 __all__ = ['Tap', 'TapPlus']
 

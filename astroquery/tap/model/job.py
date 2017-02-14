@@ -15,10 +15,10 @@ Created on 30 jun. 2016
 
 """
 
-from tap.xmlparser import utils
+from astroquery.tap.xmlparser import utils
 import time
 import os
-from tap.model import modelutils
+from astroquery.tap.model import modelutils
 
 __all__ = ['Job']
 

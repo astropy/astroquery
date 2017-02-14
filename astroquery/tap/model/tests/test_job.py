@@ -16,10 +16,10 @@ Created on 30 jun. 2016
 """
 import unittest
 import os
-from tap.model.job import Job
-from tap.conn.tests.DummyConnHandler import DummyConnHandler
-from tap.conn.tests.DummyResponse import DummyResponse
-from tap.xmlparser import utils
+from astroquery.tap.model.job import Job
+from astroquery.tap.conn.tests.DummyConnHandler import DummyConnHandler
+from astroquery.tap.conn.tests.DummyResponse import DummyResponse
+from astroquery.tap.xmlparser import utils
 
 
 def data_path(filename):

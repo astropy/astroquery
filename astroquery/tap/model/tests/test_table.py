@@ -16,8 +16,8 @@ Created on 30 jun. 2016
 """
 import unittest
 import os
-from tap.model.table import Table
-from tap.model.column import Column
+from astroquery.tap.model.table import Table
+from astroquery.tap.model.column import Column
 
 def data_path(filename):
     data_dir = os.path.join(os.path.dirname(__file__), 'data')

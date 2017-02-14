@@ -17,8 +17,8 @@ Created on 30 jun. 2016
 import unittest
 import os
 
-from tap.conn.tapconn import TapConn
-from tap.conn.tests.DummyConn import DummyConn
+from astroquery.tap.conn.tapconn import TapConn
+from astroquery.tap.conn.tests.DummyConn import DummyConn
 
 
 def data_path(filename):

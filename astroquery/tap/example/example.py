@@ -17,7 +17,7 @@ Created on 30 jun. 2016
 
 import os
 
-from tap.core import TapPlus
+from astroquery.tap.core import TapPlus
 
 
 def data_path(filename):

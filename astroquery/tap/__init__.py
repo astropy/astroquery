@@ -15,7 +15,7 @@ Created on 30 jun. 2016
 
 """
 
-from tap.core import Tap
-from tap.core import TapPlus
+from astroquery.tap.core import Tap
+from astroquery.tap.core import TapPlus
 
 __all__ = ['Tap', 'TapPlus', 'Job']

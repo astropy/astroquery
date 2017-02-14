@@ -16,7 +16,7 @@ Created on 30 jun. 2016
 """
 import unittest
 import os
-from tap.model.filter import Filter
+from astroquery.tap.model.filter import Filter
 
 
 def data_path(filename):
