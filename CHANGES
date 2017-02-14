@@ -11,6 +11,9 @@
   Also, SIMBAD support has noted that any IP submitting >6 queries/second
   will be soft-banned, so we have added a warning to this effect in the
   documentation (#833)
+- Gaia - added module to access the European Space Agency Gaia Archive.
+- TAP/TAP+ - added Table Access Protocol utility and the ESAC 
+  Science Data Centre (ESDC) extension.
 
 0.3.4 (2016-11-21)
 ------------------

@@ -17,13 +17,12 @@ If you use public Gaia DR1 data in your paper, please take note of our guide_ on
 .. _guide: http://gaia.esac.esa.int/documentation/GDR1/Miscellaneous/sec_credit_and_citation_instructions.html
 
 This package allows the access to the European Space Agency Gaia Archive (http://archives.esac.esa.int/gaia)
-This package allows the access to the European Space Agency Gaia Archive (http://archives.esac.esa.int/gaia)
 
 Gaia Archive access is based on a TAP+ REST service. TAP+ is an extension of Table Access Protocol
 (TAP: http://www.ivoa.net/documents/TAP/) specified by the International Virtual Observatory Alliance
 (IVOA: http://www.ivoa.net).
 
-TAP query language is Astronomical Data Query Language (ADQL: http://www.ivoa.net/documents/ADQL/2.0), which is similar
+The TAP query language is Astronomical Data Query Language (ADQL: http://www.ivoa.net/documents/ADQL/2.0), which is similar
 to Structured Query Language (SQL), widely used to query databases.
 
 TAP provides two operation modes: Synchronous and Asynchronous:
@@ -299,39 +298,4 @@ To perform a logout
     print (table.get_qualified_name())
   
 
--------------------------------------------
-3. Using TAP+ to connect other TAP services
--------------------------------------------
 
-TAP+ can be used to connect other TAP services.
-
-Example 1: TAPVizieR.u-strasbg.fr
-
-::
-
-  from gaia.tapplus.tap import TapPlus
-  
-  tap = TapPlus(url="http://TAPVizieR.u-strasbg.fr/TAPVizieR/tap")
-  
-  #Inspect tables
-  tables = tap.load_tables()
-  for table in (tables):
-    print (table.get_name())
-  
-  #Launch sync job
-  job = tap.launch_job("SELECT top 10 * from " + tables[0].get_name())
-  print (job.get_results())
-  
-Example 2: irsa.ipac.caltech.edu
-
-::
-
-  from gaia.tapplus.tap import TapPlus
-  
-  tap = TapPlus(url="http://irsa.ipac.caltech.edu/TAP")
-  
-  job = tap.launch_job_async("SELECT TOP 10 * FROM fp_psc")
-  r = job.get_results()
-  print (r)
-
-Please, check methods documentation to determine whether a method is TAP compatible.

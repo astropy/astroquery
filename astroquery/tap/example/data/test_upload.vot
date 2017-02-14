@@ -1,0 +1,36 @@
+<?xml version='1.0'?>
+<VOTABLE version="1.2"
+ xmlns="http://www.ivoa.net/xml/VOTable/v1.2">
+<!--
+ !  VOTable written by STIL version 3.0-5 (uk.ac.starlink.votable.VOTableWriter)
+ !  at 2013-09-30T13:09:32
+ !-->
+<RESOURCE>
+<TABLE name="/home/jsegovia/gaia/table_example/test.csv" nrows="3">
+<FIELD arraysize="1" datatype="char" name="source_id"/>
+<FIELD datatype="double" name="alpha">
+</FIELD>
+<FIELD datatype="double" name="delta">
+</FIELD>
+<DATA>
+<TABLEDATA>
+  <TR>
+    <TD>a</TD>
+    <TD>1</TD>
+    <TD>2</TD>
+  </TR>
+  <TR>
+    <TD>b</TD>
+    <TD>3</TD>
+    <TD>4</TD>
+  </TR>
+  <TR>
+    <TD>c</TD>
+    <TD>5</TD>
+    <TD>6</TD>
+  </TR>
+</TABLEDATA>
+</DATA>
+</TABLE>
+</RESOURCE>
+</VOTABLE>
