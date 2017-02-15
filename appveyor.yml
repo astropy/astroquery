@@ -10,7 +10,8 @@ environment:
       PYTHON_ARCH: "64" # needs to be set for CMD_IN_ENV to succeed. If a mix
                         # of 32 bit and 64 bit builds are needed, move this
                         # to the matrix section.
-      CONDA_DEPENDENCIES: "requests beautifulsoup4 matplotlib html5lib keyring aplpy pyregion"
+      CONDA_DEPENDENCIES: "requests beautifulsoup4 matplotlib html5lib keyring aplpy"
+      PIP_DEPENDENCIES: "pyregion"
       CONDA_CHANNELS: "astropy"
 
   matrix:
