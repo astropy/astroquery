@@ -144,6 +144,7 @@ class TestTap(unittest.TestCase):
             "REQUEST": "doQuery", \
             "LANG":    "ADQL", \
             "FORMAT":  "votable", \
+            "tapclient": "aqtappy-1.0",\
             "PHASE":  "RUN", \
             "QUERY":   str(q)}
         sortedKey = taputils.taputil_create_sorted_dict_key(dictTmp)
@@ -210,6 +211,7 @@ class TestTap(unittest.TestCase):
             "REQUEST": "doQuery", \
             "LANG":    "ADQL", \
             "FORMAT":  "votable", \
+            "tapclient": "aqtappy-1.0",\
             "PHASE":  "RUN", \
             "QUERY":   str(query)}
         sortedKey = taputils.taputil_create_sorted_dict_key(dictTmp)

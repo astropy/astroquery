@@ -28,10 +28,10 @@ from astroquery.tap.model.filter import Filter
 __all__ = ['Tap', 'TapPlus']
 
 VERSION = "1.0"
-TAP_CLIENT_ID = "aqtappy " + VERSION
+TAP_CLIENT_ID = "aqtappy-" + VERSION
 
 class Tap(object):
-    """TAP plus class
+    """TAP class
     Provides TAP capabilities
     """
 
@@ -97,10 +97,23 @@ class Tap(object):
     def __internalInit(self):
         self.__connHandler = None
     
-    def load_tables(self, only_names=False, include_shared_tables=False, 
+    def load_tables(self, verbose=False):
+        """Loads all public tables
+         
+        Parameters
+        ----------
+        verbose : bool, optional, default 'False' 
+            flag to display information about the process
+
+        Returns
+        -------
+        A list of table objects
+        """
+        return self.__load_tables(verbose=verbose)
+    
+    def __load_tables(self, only_names=False, include_shared_tables=False, 
                     verbose=False):
         """Loads all public tables
-        TAP & TAP+
          
         Parameters
         ----------
@@ -146,44 +159,11 @@ class Tap(object):
         print ("Done.")
         return tsp.get_tables()
     
-    def load_table(self, table, verbose=False):
-        """Loads the specified table
-        TAP+ only
-         
-        Parameters
-        ----------
-        table : str, mandatory
-            full qualified table name (i.e. schema name + table name)
-        verbose : bool, optional, default 'False' 
-            flag to display information about the process
-
-        Returns
-        -------
-        A table object
-        """
-        print ("Retrieving table '"+str(table)+"'")
-        response = self.__connHandler.execute_get("tables?tables="+table)
-        if verbose:
-            print(response.status, response.reason)
-        isError = self.__connHandler.check_launch_response_status(response, 
-                                                                  verbose, 
-                                                                  200)
-        if isError:
-            print(response.status, response.reason)
-            raise Exception(response.reason)
-            return None
-        print ("Parsing table '"+str(table)+"'...")
-        tsp = TableSaxParser()
-        tsp.parseData(response)
-        print ("Done.")
-        return tsp.get_table()
-    
     def launch_job(self, query, name=None, output_file=None, 
                         output_format="votable", verbose=False, 
                         dump_to_file=False, upload_resource=None, 
                         upload_table_name=None):
         """Launches a synchronous job
-        TAP & TAP+
         
         Parameters
         ----------
@@ -257,7 +237,6 @@ class Tap(object):
                          dump_to_file=False, background=False, 
                          upload_resource=None, upload_table_name=None):
         """Launches an asynchronous job
-        TAP & TAP+
         
         Parameters
         ----------
@@ -339,7 +318,6 @@ class Tap(object):
     
     def load_async_job(self, jobid=None, name=None, verbose=False):
         """Loads an asynchronous job
-        TAP & TAP+
         
         Parameters
         ----------
@@ -387,7 +365,6 @@ class Tap(object):
     
     def list_async_jobs(self, verbose=False):
         """Returns all the asynchronous jobs
-        TAP & TAP+
         
         Parameters
         ----------
@@ -418,42 +395,6 @@ class Tap(object):
                 j.set_connhandler(self.__connHandler)
         return jobs
     
-    def remove_jobs(self, jobs_list, verbose=False):
-        """Removes the specified jobs
-        TAP+
-        
-        Parameters
-        ----------
-        jobs_list : str, mandatory
-            jobs identifiers to be removed
-        verbose : bool, optional, default 'False' 
-            flag to display information about the process
-
-        """
-        if jobs_list is None:
-            return
-        jobsIds = None
-        if isinstance(jobs_list, str):
-            jobsIds = str
-        elif isinstance(jobs_list, list):
-            jobsIds = ','.join(jobs_list)
-        else:
-            raise Exception("Invalid object type")
-        if verbose:
-            print ("Jobs to be removed: " + str(jobsIds))
-        data = "JOB_IDS=" + jobsIds
-        subContext = "deletejobs"
-        response = self.__connHandler.execute_post(subContext, data)
-        if verbose:
-            print(response.status, response.reason)
-            print(response.getheaders())
-        isError = self.__connHandler.check_launch_response_status(response, 
-                                                                  verbose, 
-                                                                  200)
-        if isError:
-            print (response.reason)
-            raise Exception(response.reason)
-    
     def __appendData(self, args):
         data = self.__connHandler.url_encode(args)
         result = ""
@@ -468,7 +409,6 @@ class Tap(object):
 
     def save_results(self, job, verbose=False):
         """Saves job results
-        TAP & TAP+
         
         Parameters
         ----------
@@ -491,6 +431,7 @@ class Tap(object):
             "REQUEST": "doQuery", \
             "LANG":    "ADQL", \
             "FORMAT":  str(outputFormat), \
+            "tapclient": str(TAP_CLIENT_ID), \
             "PHASE":  "RUN", \
             "QUERY":   str(query), \
             "UPLOAD": ""+str(uploadValue)}
@@ -514,6 +455,7 @@ class Tap(object):
             "REQUEST": "doQuery", \
             "LANG":    "ADQL", \
             "FORMAT":  str(outputFormat), \
+            "tapclient": str(TAP_CLIENT_ID), \
             "PHASE":  "RUN", \
             "QUERY":   str(query)}
         if name is not None:
@@ -631,7 +573,7 @@ class TapPlus(Tap):
                  default_protocol_is_https=False, connhandler=None, 
                  verbose=True):
         """Constructor
-         
+        
         Parameters
         ----------
         url : str, mandatory if no host is specified, default None
@@ -654,7 +596,9 @@ class TapPlus(Tap):
         verbose : bool, optional, default 'True' 
             flag to display information about the process
         """
-        super(TapPlus, self).__init__(url, host, server_context, tap_context, port, sslport, default_protocol_is_https, connhandler, verbose)
+        super(TapPlus, self).__init__(url, host, server_context, tap_context, \
+                                      port, sslport, default_protocol_is_https, \
+                                      connhandler, verbose)
         self.__internalInit()
         
     def __internalInit(self):
@@ -662,9 +606,59 @@ class TapPlus(Tap):
         self.__pwd=None
         self.__isLoggedIn=False
         
+    def load_tables(self, only_names=False, include_shared_tables=False, 
+                    verbose=False):
+        """Loads all public tables
+        
+        Parameters
+        ----------
+        only_names : bool, TAP+ only, optional, default 'False'
+            True to load table names only
+        include_shared_tables : bool, TAP+, optional, default 'False'
+            True to include shared tables
+        verbose : bool, optional, default 'False' 
+            flag to display information about the process
+
+        Returns
+        -------
+        A list of table objects
+        """
+        return self._Tap__load_tables(only_names=only_names, \
+                                  include_shared_tables=include_shared_tables, \
+                                  verbose=verbose)
+    
+    def load_table(self, table, verbose=False):
+        """Loads the specified table
+        
+        Parameters
+        ----------
+        table : str, mandatory
+            full qualified table name (i.e. schema name + table name)
+        verbose : bool, optional, default 'False' 
+            flag to display information about the process
+
+        Returns
+        -------
+        A table object
+        """
+        print ("Retrieving table '"+str(table)+"'")
+        connHandler = self.__getconnhandler()
+        response = connHandler.execute_get("tables?tables="+table)
+        if verbose:
+            print(response.status, response.reason)
+        isError = connHandler.check_launch_response_status(response, verbose, 200)
+        if isError:
+            print(response.status, response.reason)
+            raise Exception(response.reason)
+            return None
+        print ("Parsing table '"+str(table)+"'...")
+        tsp = TableSaxParser()
+        tsp.parseData(response)
+        print ("Done.")
+        return tsp.get_table()
+    
     def search_async_jobs(self, jobfilter=None, verbose=False):
         """Searches for jobs applying the specified filter
-        TAP+ only
         
         Parameters
         ----------
@@ -703,10 +697,43 @@ class TapPlus(Tap):
                 j.set_connhandler(connHandler)
         return jobs
     
+    def remove_jobs(self, jobs_list, verbose=False):
+        """Removes the specified jobs
+        
+        Parameters
+        ----------
+        jobs_list : str, mandatory
+            jobs identifiers to be removed
+        verbose : bool, optional, default 'False' 
+            flag to display information about the process
+
+        """
+        if jobs_list is None:
+            return
+        jobsIds = None
+        if isinstance(jobs_list, str):
+            jobsIds = str
+        elif isinstance(jobs_list, list):
+            jobsIds = ','.join(jobs_list)
+        else:
+            raise Exception("Invalid object type")
+        if verbose:
+            print ("Jobs to be removed: " + str(jobsIds))
+        data = "JOB_IDS=" + jobsIds
+        subContext = "deletejobs"
+        connHandler = self.__getconnhandler()
+        response = connHandler.execute_post(subContext, data)
+        if verbose:
+            print(response.status, response.reason)
+            print(response.getheaders())
+        isError = connHandler.check_launch_response_status(response, verbose, 200)
+        if isError:
+            print (response.reason)
+            raise Exception(response.reason)
+    
     def login(self, user=None, password=None, credentials_file=None, 
               verbose=False):
         """Performs a login.
-        TAP+ only
         User and password can be used or a file that contains user name and 
         password
         (2 lines: one for user name and the following one for the password)
@@ -739,7 +766,6 @@ class TapPlus(Tap):
     
     def login_gui(self, verbose=False):
         """Performs a login using a GUI dialog
-        TAP+ only
         
         Parameters
         ----------
@@ -778,7 +804,6 @@ class TapPlus(Tap):
     
     def logout(self, verbose=False):
         """Performs a logout
-        TAP+ only
         
         Parameters
         ----------
