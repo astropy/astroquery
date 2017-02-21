@@ -18,7 +18,7 @@ from __future__ import absolute_import
 
 import os
 
-def get_pakcage_data():
+def get_package_data():
     paths= [os.path.join('data', '*.data'),
             os.path.join('data', '*.xml')
             ]
