@@ -16,12 +16,7 @@ Created on 30 jun. 2016
 """
 from astroquery.tap import taputils
 
-try:
-    #python 3
-    from urllib.parse import urlencode as urlEncode
-except ImportError:
-    #python 2
-    from urllib import urlencode as urlEncode
+from astropy.extern.six.moves.urllib.parse import urlencode
     
 class DummyConnHandler(object):
     
@@ -116,7 +111,7 @@ class DummyConnHandler(object):
         return isError
     
     def url_encode(self, data):
-        return urlEncode(data)
+        return urlencode(data)
     
     def get_suitable_extension(self, headers):
         return self.fileExt

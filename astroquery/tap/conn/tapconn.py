@@ -24,12 +24,7 @@ except ImportError:
     #python 2
     import httplib
     
-try:
-    #python 3
-    from urllib.parse import urlencode as urlEncode
-except ImportError:
-    #python 2
-    from urllib import urlencode as urlEncode
+from astropy.extern.six.moves.urllib.parse import urlencode
     
 import mimetypes
 import time
@@ -221,7 +216,7 @@ class TapConn(object):
         data : dictionary, mandatory
             dictionary to be encoded
         """
-        return urlEncode(data)
+        return urlencode(data)
     
     def find_header(self, headers, key):
         """Searches for the specified keyword
