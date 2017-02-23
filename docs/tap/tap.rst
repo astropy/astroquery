@@ -30,6 +30,10 @@ like authenticated access and persistent user storage area.
 
 Please, check methods documentation to determine whether a method is TAP compatible.
 
+========
+Examples
+========
+
 
 ---------------------------
 1. Non authenticated access
@@ -479,29 +483,73 @@ Example 1: TAPVizieR.u-strasbg.fr
 
 .. code-block:: python
 
-  >>>> from gaia.tapplus.tap import TapPlus
-  >>>> 
+  >>>> from astroquery.tap.core import TapPlus
   >>>> tap = TapPlus(url="http://TAPVizieR.u-strasbg.fr/TAPVizieR/tap")
-  >>>> 
   >>>> #Inspect tables
   >>>> tables = tap.load_tables()
   >>>> for table in (tables):
   >>>>   print (table.get_name())
+  ...
+  J/ApJS/173/104/memb
+  J/A+A/376/441/table1
+  J/A+AS/110/81/table2
+  J/ApJS/73/781/snr_indx
+  V/15/notes
+  J/A+AS/115/285/refs
+  J/ApJS/165/338/table1
+  IX/24/obsnames
+  J/A+AS/122/463/tab2-14
+  J/ApJS/107/521/table1
+  J/MNRAS/275/1102/table1a
+  J/ApJ/647/328/table4
+  J/A+A/402/1/table1a
+  J/AJ/115/1856/v12
+  ...
   >>>> 
   >>>> #Launch sync job
   >>>> job = tap.launch_job("SELECT top 10 * from " + tables[0].get_name())
-  >>>> print (job.get_results())
-  
-Example 2: irsa.ipac.caltech.edu
+  >>>> r = job.get_results()
+  >>>> r.pprint()
+                         title                         class [1] ... comment
+  ---------------------------------------------------- --------- ... -------
+  The 2MASS Point Source and 2MASS6x catalogues (2003)       2 ...        
+          The 2MASS Extended Source Catalogue (2003)         2 ...        
+       Astrographic catalog (mean epoch around 1900)         2 ...        
+  AKARI IRC (9/18um) and FIS (60-160um)all-sky Surveys       2 ...        
+           All-Sky Compiled Catalog of 2.5M*  (2003)         2 ...        
+       The DENIS database (3rd Release 2005 version)         2 ...        
+     The Carlsberg Meridian Catalog 14 (-30<Dec<+50)         2 ...        
+           GALEX-DR5 sources from AIS and MIS (2011)         2 ...        
+         Spitzer's GLIMPSE catalogs (Galactic Plane)         2 ...        
+   The HST Guide Star Catalog reduced on Tycho (ACT)         2 ...        
+  Example 2: irsa.ipac.caltech.edu
 
 .. code-block:: python
 
-  >>>> from gaia.tapplus.tap import TapPlus
-  >>>> 
+  >>>> from astroquery.tap.core import TapPlus
   >>>> tap = TapPlus(url="http://irsa.ipac.caltech.edu/TAP")
-  >>>> 
   >>>> job = tap.launch_job_async("SELECT TOP 10 * FROM fp_psc")
   >>>> r = job.get_results()
-  >>>> print (r)
+  >>>> r.pprint()
+     name      dtype   unit format n_bad
+  ------------- ------- ----- ------ -----
+         cntr   int32                  0
+        hemis  object                  0
+        xdate  object                  0
+         scan   int32                  0
+           id   int32                  0
+           ra float64   deg     %r     0
+          dec float64   deg     %r     0
+         glon float64   deg     %r     0
+         glat float64   deg     %r     0
+            x float64           %r     0
+            y float64           %r     0
+            z float64           %r     0
+      err_maj float64  arcs     %r     0
+      err_min float64  arcs     %r     0
+      err_ang   int32   deg            0
+       x_scan float64  arcs     %r     0
+       y_scan float64  arcs     %r     0
+  ...
 
 Please, check methods documentation to determine whether a method is TAP compatible.
