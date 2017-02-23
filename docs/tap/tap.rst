@@ -48,12 +48,13 @@ To load only table names (TAP+ capability)
 
 .. code-block:: python
 
-  >>>> from astroquery.tap.core import TapPlus
-  >>>> 
-  >>>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
-  >>>> tables = gaia.load_tables(only_names=True)
-  >>>> for table in (tables):
-  >>>>   print (table.get_qualified_name())
+  >>> from astroquery.tap.core import TapPlus
+  >>> 
+  >>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
+  >>> tables = gaia.load_tables(only_names=True)
+  >>> for table in (tables):
+  >>>   print (table.get_qualified_name())
+  
   public.dual
   public.tycho2
   public.igsl_source
@@ -80,12 +81,13 @@ To load table names (TAP compatible)
 
 .. code-block:: python
 
-  >>>> from astroquery.tap.core import TapPlus
-  >>>> 
-  >>>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
-  >>>> tables = gaia.load_tables()
-  >>>> for table in (tables):
-  >>>>   print (table.get_qualified_name())
+  >>> from astroquery.tap.core import TapPlus
+  >>> 
+  >>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
+  >>> tables = gaia.load_tables()
+  >>> for table in (tables):
+  >>>   print (table.get_qualified_name())
+  
   public.dual
   public.tycho2
   public.igsl_source
@@ -112,10 +114,11 @@ To load only a table (TAP+ capability)
 
 .. code-block:: python
 
-  >>>> from astroquery.tap.core import TapPlus
-  >>>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
-  >>>> table = gaia.load_table('gaiadr1.gaia_source')
-  >>>> print (table)
+  >>> from astroquery.tap.core import TapPlus
+  >>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
+  >>> table = gaia.load_table('gaiadr1.gaia_source')
+  >>> print (table)
+  
   Table name: gaiadr1.gaia_source
   Description: This table has an entry for every Gaia observed source as listed in the
   Main Database accumulating catalogue version from which the catalogue
@@ -128,12 +131,13 @@ Once a table is loaded, columns can be inspected
 
 .. code-block:: python
 
-  >>>> from astroquery.tap.core import TapPlus
-  >>>> 
-  >>>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
-  >>>> table = gaia.load_table('gaiadr1.gaia_source')
-  >>>> for column in (gaiadr1_table.get_columns()):
-  >>>>   print (column.get_name())
+  >>> from astroquery.tap.core import TapPlus
+  >>> 
+  >>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
+  >>> table = gaia.load_table('gaiadr1.gaia_source')
+  >>> for column in (gaiadr1_table.get_columns()):
+  >>>   print (column.get_name())
+  
   solution_id
   source_id
   random_index
@@ -160,22 +164,25 @@ Query without saving results in a file:
 
 .. code-block:: python
 
-  >>>> from astroquery.tap.core import TapPlus
-  >>>> 
-  >>>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
-  >>>> 
-  >>>> job = gaia.launch_job("select top 100 \
-  >>>> solution_id,ref_epoch,ra_dec_corr,astrometric_n_obs_al,matched_observations,duplicated_source,phot_variable_flag \
-  >>>> from gaiadr1.gaia_source order by source_id")
-  >>>> 
-  >>>> print (job)
+  >>> from astroquery.tap.core import TapPlus
+  >>> 
+  >>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
+  >>> 
+  >>> job = gaia.launch_job("select top 100 \
+  >>> solution_id,ref_epoch,ra_dec_corr,astrometric_n_obs_al,matched_observations,duplicated_source,phot_variable_flag \
+  >>> from gaiadr1.gaia_source order by source_id")
+  >>> 
+  >>> print (job)
+  
   Jobid: None
   Phase: COMPLETED
   Owner: None
   Output file: sync_20170223111452.xml.gz
   Results: None
-  >>>> r = job.get_results()
-  >>>> print (r['solution_id'])
+  
+  >>> r = job.get_results()
+  >>> print (r['solution_id'])
+  
     solution_id    
   -------------------
   1635378410781933568
@@ -206,21 +213,24 @@ Query saving results in a file:
 
 .. code-block:: python
 
-  >>>> from astroquery.tap.core import TapPlus
-  >>>> 
-  >>>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
-  >>>> job = gaia.launch_job("select top 100 \
-  >>>> solution_id,ref_epoch,ra_dec_corr,astrometric_n_obs_al,matched_observations,duplicated_source,phot_variable_flag \
-  >>>> from gaiadr1.gaia_source order by source_id", dump_to_file=True)
-  >>>> 
-  >>>> print (job)
+  >>> from astroquery.tap.core import TapPlus
+  >>> 
+  >>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
+  >>> job = gaia.launch_job("select top 100 \
+  >>> solution_id,ref_epoch,ra_dec_corr,astrometric_n_obs_al,matched_observations,duplicated_source,phot_variable_flag \
+  >>> from gaiadr1.gaia_source order by source_id", dump_to_file=True)
+  >>> 
+  >>> print (job)
+  
   Jobid: None
   Phase: COMPLETED
   Owner: None
   Output file: sync_20170223111452.xml.gz
   Results: None
-  >>>> r = job.get_results()
-  >>>> print (r['solution_id'])
+  
+  >>> r = job.get_results()
+  >>> print (r['solution_id'])
+  
     solution_id    
   -------------------
   1635378410781933568
@@ -255,15 +265,16 @@ A table can be uploaded to the server in order to be used in a query.
 
 .. code-block:: python
 
-  >>>> from astroquery.tap.core import TapPlus
-  >>>> 
-  >>>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
-  >>>> 
-  >>>> upload_resource = 'my_table.xml'
-  >>>> j = gaia.launch_job(query="select * from tap_upload.table_test", upload_resource=upload_resource, \
-  >>>> upload_table_name="table_test", verbose=True)
-  >>>> r = j.get_results()
-  >>>> r.pprint()
+  >>> from astroquery.tap.core import TapPlus
+  >>> 
+  >>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
+  >>> 
+  >>> upload_resource = 'my_table.xml'
+  >>> j = gaia.launch_job(query="select * from tap_upload.table_test", upload_resource=upload_resource, \
+  >>> upload_table_name="table_test", verbose=True)
+  >>> r = j.get_results()
+  >>> r.pprint()
+  
   source_id alpha delta
   --------- ----- -----
           a   1.0   2.0
@@ -282,19 +293,22 @@ Query without saving results in a file:
 
 .. code-block:: python
 
-  >>>> from astroquery.tap.core import TapPlus
-  >>>> 
-  >>>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
-  >>>> job = gaia.launch_job_async("select top 100 * from gaiadr1.gaia_source order by source_id")
-  >>>> 
-  >>>> print (job)
+  >>> from astroquery.tap.core import TapPlus
+  >>> 
+  >>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
+  >>> job = gaia.launch_job_async("select top 100 * from gaiadr1.gaia_source order by source_id")
+  >>> 
+  >>> print (job)
+  
   Jobid: 1487845273526O
   Phase: COMPLETED
   Owner: None
   Output file: async_20170223112113.vot
   Results: None
-  >>>> r = job.get_results()
-  >>>> print (r['solution_id'])
+  
+  >>> r = job.get_results()
+  >>> print (r['solution_id'])
+  
     solution_id    
   -------------------
   1635378410781933568
@@ -325,19 +339,22 @@ Query saving results in a file:
 
 .. code-block:: python
 
-  >>>> from astroquery.tap.core import TapPlus
-  >>>>
-  >>>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
-  >>>> job = gaia.launch_job_async("select top 100 * from gaiadr1.gaia_source order by source_id", dump_to_file=True)
-  >>>> 
-  >>>> print (job)
+  >>> from astroquery.tap.core import TapPlus
+  >>>
+  >>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
+  >>> job = gaia.launch_job_async("select top 100 * from gaiadr1.gaia_source order by source_id", dump_to_file=True)
+  >>> 
+  >>> print (job)
+  
   Jobid: 1487845273526O
   Phase: COMPLETED
   Owner: None
   Output file: async_20170223112113.vot
   Results: None
-  >>>> r = job.get_results()
-  >>>> print (r['solution_id'])
+  
+  >>> r = job.get_results()
+  >>> print (r['solution_id'])
+  
     solution_id    
   -------------------
   1635378410781933568
@@ -372,9 +389,9 @@ To remove asynchronous
 
 .. code-block:: python
 
-  >>>> from astroquery.tap.core import TapPlus
-  >>>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
-  >>>> job = gaia.remove_jobs(["job_id_1","job_id_2",...])
+  >>> from astroquery.tap.core import TapPlus
+  >>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
+  >>> job = gaia.remove_jobs(["job_id_1","job_id_2",...])
 
 
 -----------------------------------
@@ -404,10 +421,9 @@ Graphic interface
 
 .. code-block:: python
 
-  >>>> from astroquery.tap.core import TapPlus
-  >>>> 
-  >>>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
-  >>>> gaia.login_gui()
+  >>> from astroquery.tap.core import TapPlus
+  >>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
+  >>> gaia.login_gui()
 
 
 Command line
@@ -415,9 +431,9 @@ Command line
 
 .. code-block:: python
 
-  >>>> from astroquery.tap.core import TapPlus
-  >>>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
-  >>>> gaia.login(user='userName', password='userPassword')
+  >>> from astroquery.tap.core import TapPlus
+  >>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
+  >>> gaia.login(user='userName', password='userPassword')
 
 
 It is possible to use a file where the credentials are stored:
@@ -426,9 +442,9 @@ It is possible to use a file where the credentials are stored:
 
 .. code-block:: python
 
-  >>>> from astroquery.tap.core import TapPlus
-  >>>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
-  >>>> gaia.login(credentials_file='my_credentials_file')
+  >>> from astroquery.tap.core import TapPlus
+  >>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
+  >>> gaia.login(credentials_file='my_credentials_file')
 
 
 
@@ -437,12 +453,12 @@ To perform a logout
 
 .. code-block:: python
 
-  >>>> from astroquery.tap.core import TapPlus
-  >>>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
-  >>>> gaia.login(credentials_file='my_credentials_file')
-  >>>> ...
-  >>>> 
-  >>>> gaia.logout()
+  >>> from astroquery.tap.core import TapPlus
+  >>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
+  >>> gaia.login(credentials_file='my_credentials_file')
+  >>> ...
+  >>> 
+  >>> gaia.logout()
 
 
 
@@ -451,13 +467,13 @@ To perform a logout
 
 .. code-block:: python
 
-  >>>> from astroquery.tap.core import TapPlus
-  >>>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
-  >>>> gaia.login(credentials_file='my_credentials_file')
-  >>>> 
-  >>>> tables = gaia.load_tables(only_names=True, include_shared_tables=True)
-  >>>> for table in (tables):
-  >>>>   print (table.get_qualified_name())
+  >>> from astroquery.tap.core import TapPlus
+  >>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
+  >>> gaia.login(credentials_file='my_credentials_file')
+  >>> tables = gaia.load_tables(only_names=True, include_shared_tables=True)
+  >>> for table in (tables):
+  >>>   print (table.get_qualified_name())
+  
   public.dual
   public.tycho2
   public.igsl_source
@@ -485,12 +501,13 @@ Example 1: TAPVizieR.u-strasbg.fr
 
 .. code-block:: python
 
-  >>>> from astroquery.tap.core import TapPlus
-  >>>> tap = TapPlus(url="http://TAPVizieR.u-strasbg.fr/TAPVizieR/tap")
-  >>>> #Inspect tables
-  >>>> tables = tap.load_tables()
-  >>>> for table in (tables):
-  >>>>   print (table.get_name())
+  >>> from astroquery.tap.core import TapPlus
+  >>> tap = TapPlus(url="http://TAPVizieR.u-strasbg.fr/TAPVizieR/tap")
+  >>> #Inspect tables
+  >>> tables = tap.load_tables()
+  >>> for table in (tables):
+  >>>   print (table.get_name())
+  
   ...
   J/ApJS/173/104/memb
   J/A+A/376/441/table1
@@ -507,11 +524,12 @@ Example 1: TAPVizieR.u-strasbg.fr
   J/A+A/402/1/table1a
   J/AJ/115/1856/v12
   ...
-  >>>> 
-  >>>> #Launch sync job
-  >>>> job = tap.launch_job("SELECT top 10 * from " + tables[0].get_name())
-  >>>> r = job.get_results()
-  >>>> r.pprint()
+  
+  >>> #Launch sync job
+  >>> job = tap.launch_job("SELECT top 10 * from " + tables[0].get_name())
+  >>> r = job.get_results()
+  >>> r.pprint()
+  
                          title                         class [1] ... comment
   ---------------------------------------------------- --------- ... -------
   The 2MASS Point Source and 2MASS6x catalogues (2003)       2 ...        
@@ -528,11 +546,12 @@ Example 1: TAPVizieR.u-strasbg.fr
 
 .. code-block:: python
 
-  >>>> from astroquery.tap.core import TapPlus
-  >>>> tap = TapPlus(url="http://irsa.ipac.caltech.edu/TAP")
-  >>>> job = tap.launch_job_async("SELECT TOP 10 * FROM fp_psc")
-  >>>> r = job.get_results()
-  >>>> r.pprint()
+  >>> from astroquery.tap.core import TapPlus
+  >>> tap = TapPlus(url="http://irsa.ipac.caltech.edu/TAP")
+  >>> job = tap.launch_job_async("SELECT TOP 10 * FROM fp_psc")
+  >>> r = job.get_results()
+  >>> r.pprint()
+  
      name      dtype   unit format n_bad
   ------------- ------- ----- ------ -----
          cntr   int32                  0
