@@ -34,7 +34,7 @@ Gaia TAP+ server provides two access mode: public and authenticated:
 
 * Public: this is the standard TAP access. A user can execute ADQL queries and upload tables to be used in a query 'on-the-fly' (these tables will be removed once the query is executed). The results are available to any other user and they will remain in the server for a limited space of time.
 
-* Authenticated: some functionalities are restricted to authenticated users only The results are saved in a private user space and they will remain in the server for ever (they can be removed by the user).
+* Authenticated: some functionalities are restricted to authenticated users only. The results are saved in a private user space and they will remain in the server for ever (they can be removed by the user).
 
   * ADQL queries and results are saved in a user private area.
 
