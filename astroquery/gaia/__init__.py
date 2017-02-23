@@ -15,8 +15,8 @@ Created on 30 jun. 2016
 
 """
 
-from astroquery.gaia.tapplus.tap import TapPlus
-from astroquery.gaia.tapplus.model.job import Job
+from astroquery.tap.core import TapPlus
+from astroquery.tap.model.job import Job
 from astropy import config as _config
 
 class Conf(_config.ConfigNamespace):
