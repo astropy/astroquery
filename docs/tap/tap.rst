@@ -20,7 +20,9 @@ to Structured Query Language (SQL), widely used to query databases.
 TAP provides two operation modes: Synchronous and Asynchronous:
 
 * Synchronous: the response to the request will be generated as soon as the 
-  request received by the server.
+  request received by the server. (Do not use this method for queries that 
+  generate a big amount of results.)
+  
 * Asynchronous: the server will start a job that will execute the request. 
   The first response to the request is the required information (a link) to obtain 
   the job status. Once the job is finished, the results can be retrieved.
