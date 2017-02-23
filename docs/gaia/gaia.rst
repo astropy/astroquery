@@ -77,16 +77,17 @@ Examples
 
 .. code-block:: python
 
-  >>>> import astropy.units as u
-  >>>> from astropy.coordinates.sky_coordinate import SkyCoord
-  >>>> from astropy.units import Quantity
-  >>>> from astroquery.gaia import Gaia
-  >>>> 
-  >>>> coord = SkyCoord(ra=280, dec=-60, unit=(u.degree, u.degree), frame='icrs')
-  >>>> width = Quantity(0.1, u.deg)
-  >>>> height = Quantity(0.1, u.deg)
-  >>>> r = Gaia.query_object_async(coordinate=coord, width=width, height=height)
-  >>>> r.pprint()
+  >>> import astropy.units as u
+  >>> from astropy.coordinates.sky_coordinate import SkyCoord
+  >>> from astropy.units import Quantity
+  >>> from astroquery.gaia import Gaia
+  >>> 
+  >>> coord = SkyCoord(ra=280, dec=-60, unit=(u.degree, u.degree), frame='icrs')
+  >>> width = Quantity(0.1, u.deg)
+  >>> height = Quantity(0.1, u.deg)
+  >>> r = Gaia.query_object_async(coordinate=coord, width=width, height=height)
+  >>> r.pprint()
+  
            dist             solution_id     ...       ecl_lat      
                                             ...      Angle[deg]    
   --------------------- ------------------- ... -------------------
@@ -119,16 +120,17 @@ Examples
 
 .. code-block:: python
 
-  >>>> import astropy.units as u
-  >>>> from astropy.coordinates.sky_coordinate import SkyCoord
-  >>>> from astropy.units import Quantity
-  >>>> from astroquery.gaia import Gaia
-  >>>> 
-  >>>> coord = SkyCoord(ra=280, dec=-60, unit=(u.degree, u.degree), frame='icrs')
-  >>>> radius = Quantity(1.0, u.deg)
-  >>>> j = Gaia.cone_search_async(coord, radius)
-  >>>> r = j.get_results()
-  >>>> r.pprint()
+  >>> import astropy.units as u
+  >>> from astropy.coordinates.sky_coordinate import SkyCoord
+  >>> from astropy.units import Quantity
+  >>> from astroquery.gaia import Gaia
+  >>> 
+  >>> coord = SkyCoord(ra=280, dec=-60, unit=(u.degree, u.degree), frame='icrs')
+  >>> radius = Quantity(1.0, u.deg)
+  >>> j = Gaia.cone_search_async(coord, radius)
+  >>> r = j.get_results()
+  >>> r.pprint()
+  
            dist             solution_id     ...       ecl_lat      
                                           ...      Angle[deg]    
   --------------------- ------------------- ... -------------------
@@ -164,10 +166,11 @@ To load only table names (TAP+ capability)
 
 .. code-block:: python
 
-  >>>> from astroquery.gaia import Gaia
-  >>>> tables = Gaia.load_tables(only_names=True)
-  >>>> for table in (tables):
-  >>>>   print (table.get_qualified_name())
+  >>> from astroquery.gaia import Gaia
+  >>> tables = Gaia.load_tables(only_names=True)
+  >>> for table in (tables):
+  >>>   print (table.get_qualified_name())
+  
   public.dual
   public.tycho2
   public.igsl_source
@@ -194,10 +197,11 @@ To load table names (TAP compatible)
 
 .. code-block:: python
 
-  >>>> from astroquery.gaia import Gaia
-  >>>> tables = Gaia.load_tables()
-  >>>> for table in (tables):
-  >>>>   print (table.get_qualified_name())
+  >>> from astroquery.gaia import Gaia
+  >>> tables = Gaia.load_tables()
+  >>> for table in (tables):
+  >>>   print (table.get_qualified_name())
+  
   public.dual
   public.tycho2
   public.igsl_source
@@ -224,9 +228,10 @@ To load only a table (TAP+ capability)
 
 .. code-block:: python
 
-  >>>> from astroquery.gaia import Gaia
-  >>>> table = Gaia.load_table('gaiadr1.gaia_source')
-  >>>> print (table)
+  >>> from astroquery.gaia import Gaia
+  >>> table = Gaia.load_table('gaiadr1.gaia_source')
+  >>> print (table)
+  
   Table name: gaiadr1.gaia_source
   Description: This table has an entry for every Gaia observed source as listed in the
   Main Database accumulating catalogue version from which the catalogue
@@ -240,10 +245,11 @@ Once a table is loaded, columns can be inspected
 
 .. code-block:: python
 
-  >>>> from astroquery.gaia import Gaia
-  >>>> table = Gaia.load_table('gaiadr1.gaia_source')
-  >>>> for column in (gaiadr1_table.get_columns()):
-  >>>>   print (column.get_name())
+  >>> from astroquery.gaia import Gaia
+  >>> table = Gaia.load_table('gaiadr1.gaia_source')
+  >>> for column in (gaiadr1_table.get_columns()):
+  >>>   print (column.get_name())
+  
   solution_id
   source_id
   random_index
@@ -269,20 +275,23 @@ Query without saving results in a file:
 
 .. code-block:: python
 
-  >>>> from astroquery.gaia import Gaia
-  >>>> 
-  >>>> job = Gaia.launch_job("select top 100 \
-  >>>> solution_id,ref_epoch,ra_dec_corr,astrometric_n_obs_al,matched_observations,duplicated_source,phot_variable_flag \
-  >>>> from gaiadr1.gaia_source order by source_id")
-  >>>> 
-  >>>> print (job)
+  >>> from astroquery.gaia import Gaia
+  >>> 
+  >>> job = Gaia.launch_job("select top 100 \
+  >>> solution_id,ref_epoch,ra_dec_corr,astrometric_n_obs_al,matched_observations,duplicated_source,phot_variable_flag \
+  >>> from gaiadr1.gaia_source order by source_id")
+  >>> 
+  >>> print (job)
+  
   Jobid: None
   Phase: COMPLETED
   Owner: None
   Output file: sync_20170223111452.xml.gz
   Results: None
-  >>>> r = job.get_results()
-  >>>> print (r['solution_id'])
+  
+  >>> r = job.get_results()
+  >>> print (r['solution_id'])
+  
     solution_id    
   -------------------
   1635378410781933568
@@ -313,19 +322,22 @@ Query saving results in a file:
 
 .. code-block:: python
 
-  >>>> from astroquery.gaia import Gaia
-  >>>> job = Gaia.launch_job("select top 100 \
-  >>>> solution_id,ref_epoch,ra_dec_corr,astrometric_n_obs_al,matched_observations,duplicated_source,phot_variable_flag \
-  >>>> from gaiadr1.gaia_source order by source_id", dump_to_file=True)
-  >>>> 
-  >>>> print (job)
+  >>> from astroquery.gaia import Gaia
+  >>> job = Gaia.launch_job("select top 100 \
+  >>> solution_id,ref_epoch,ra_dec_corr,astrometric_n_obs_al,matched_observations,duplicated_source,phot_variable_flag \
+  >>> from gaiadr1.gaia_source order by source_id", dump_to_file=True)
+  >>> 
+  >>> print (job)
+  
   Jobid: None
   Phase: COMPLETED
   Owner: None
   Output file: sync_20170223111452.xml.gz
   Results: None
-  >>>> r = job.get_results()
-  >>>> print (r['solution_id'])
+  
+  >>> r = job.get_results()
+  >>> print (r['solution_id'])
+  
     solution_id    
   -------------------
   1635378410781933568
@@ -362,11 +374,12 @@ A table can be uploaded to the server in order to be used in a query.
 
   from astroquery.gaia import Gaia
   
-  >>>> upload_resource = 'my_table.xml'
-  >>>> j = Gaia.launch_job(query="select * from tap_upload.table_test", upload_resource=upload_resource, \
-  >>>> upload_table_name="table_test", verbose=True)
-  >>>> r = j.get_results()
-  >>>> r.pprint()
+  >>> upload_resource = 'my_table.xml'
+  >>> j = Gaia.launch_job(query="select * from tap_upload.table_test", upload_resource=upload_resource, \
+  >>> upload_table_name="table_test", verbose=True)
+  >>> r = j.get_results()
+  >>> r.pprint()
+  
   source_id alpha delta
   --------- ----- -----
           a   1.0   2.0
@@ -385,18 +398,21 @@ Query without saving results in a file:
 
 .. code-block:: python
 
-  >>>> from astroquery.gaia import Gaia
-  >>>> 
-  >>>> job = Gaia.launch_job_async("select top 100 * from gaiadr1.gaia_source order by source_id")
-  >>>> 
-  >>>> print (job)
+  >>> from astroquery.gaia import Gaia
+  >>> 
+  >>> job = Gaia.launch_job_async("select top 100 * from gaiadr1.gaia_source order by source_id")
+  >>> 
+  >>> print (job)
+  
   Jobid: 1487845273526O
   Phase: COMPLETED
   Owner: None
   Output file: async_20170223112113.vot
   Results: None
-  >>>> r = job.get_results()
-  >>>> print (r['solution_id'])
+  
+  >>> r = job.get_results()
+  >>> print (r['solution_id'])
+  
     solution_id    
   -------------------
   1635378410781933568
@@ -427,18 +443,21 @@ Query saving results in a file:
 
 .. code-block:: python
 
-  >>>> from astroquery.gaia import Gaia
-  >>>> 
-  >>>> job = Gaia.launch_job_async("select top 100 * from gaiadr1.gaia_source order by source_id", dump_to_file=True)
-  >>>> 
-  >>>> print (job)
+  >>> from astroquery.gaia import Gaia
+  >>> 
+  >>> job = Gaia.launch_job_async("select top 100 * from gaiadr1.gaia_source order by source_id", dump_to_file=True)
+  >>> 
+  >>> print (job)
+  
   Jobid: 1487845273526O
   Phase: COMPLETED
   Owner: None
   Output file: async_20170223112113.vot
   Results: None
-  >>>> r = job.get_results()
-  >>>> print (r['solution_id'])
+  
+  >>> r = job.get_results()
+  >>> print (r['solution_id'])
+  
     solution_id    
   -------------------
   1635378410781933568
@@ -473,8 +492,8 @@ To remove asynchronous
 
 .. code-block:: python
 
-  >>>> from astroquery.gaia import Gaia
-  >>>> job = Gaia.remove_jobs(["job_id_1","job_id_2",...])
+  >>> from astroquery.gaia import Gaia
+  >>> job = Gaia.remove_jobs(["job_id_1","job_id_2",...])
 
 
 ---------------------------
@@ -504,8 +523,8 @@ Graphic interface
 
 .. code-block:: python
 
-  >>>> from astroquery.gaia import Gaia
-  >>>> Gaia.login_gui()
+  >>> from astroquery.gaia import Gaia
+  >>> Gaia.login_gui()
 
 
 Command line
@@ -513,8 +532,8 @@ Command line
 
 .. code-block:: python
 
-  >>>> from astroquery.gaia import Gaia
-  >>>> Gaia.login(user='userName', password='userPassword')
+  >>> from astroquery.gaia import Gaia
+  >>> Gaia.login(user='userName', password='userPassword')
 
 
 It is possible to use a file where the credentials are stored:
@@ -523,8 +542,8 @@ It is possible to use a file where the credentials are stored:
 
 .. code-block:: python
 
-  >>>> from astroquery.gaia import Gaia
-  >>>> Gaia.login(credentials_file='my_credentials_file')
+  >>> from astroquery.gaia import Gaia
+  >>> Gaia.login(credentials_file='my_credentials_file')
 
 
 
@@ -533,8 +552,8 @@ To perform a logout
 
 .. code-block:: python
 
-  >>>> from astroquery.gaia import Gaia
-  >>>> Gaia.logout()
+  >>> from astroquery.gaia import Gaia
+  >>> Gaia.logout()
 
 
 
@@ -543,10 +562,11 @@ To perform a logout
 
 .. code-block:: python
 
-  >>>> from astroquery.gaia import Gaia
-  >>>> tables = Gaia.load_tables(only_names=True, include_shared_tables=True)
-  >>>> for table in (tables):
-  >>>>   print (table.get_qualified_name())
+  >>> from astroquery.gaia import Gaia
+  >>> tables = Gaia.load_tables(only_names=True, include_shared_tables=True)
+  >>> for table in (tables):
+  >>>   print (table.get_qualified_name())
+  
   public.dual
   public.tycho2
   public.igsl_source
