@@ -6,46 +6,63 @@
 Gaia TAP+
 =========
 
-Gaia is an ambitious mission to chart a three-dimensional map of our Galaxy, the Milky Way, 
-in the process revealing the composition, formation and evolution of the Galaxy. 
-Gaia will provide unprecedented positional and radial velocity measurements with the accuracies needed 
-to produce a stereoscopic and kinematic census of about one billion stars in our Galaxy and 
-throughout the Local Group. This amounts to about 1 per cent of the Galactic stellar population.
+Gaia is an ambitious mission to chart a three-dimensional map of our Galaxy, 
+the Milky Way, in the process revealing the composition, formation and evolution 
+of the Galaxy. Gaia will provide unprecedented positional and radial velocity 
+measurements with the accuracies needed to produce a stereoscopic and kinematic 
+census of about one billion stars in our Galaxy and throughout the Local Group.
+This amounts to about 1 per cent of the Galactic stellar population.
 
-If you use public Gaia DR1 data in your paper, please take note of our guide_ on how to acknowledge and cite Gaia DR1.
+If you use public Gaia DR1 data in your paper, please take note of our guide_ on 
+how to acknowledge and cite Gaia DR1.
 
 .. _guide: http://gaia.esac.esa.int/documentation/GDR1/Miscellaneous/sec_credit_and_citation_instructions.html
 
 This package allows the access to the European Space Agency Gaia Archive (http://archives.esac.esa.int/gaia)
 
-Gaia Archive access is based on a TAP+ REST service. TAP+ is an extension of Table Access Protocol
-(TAP: http://www.ivoa.net/documents/TAP/) specified by the International Virtual Observatory Alliance
-(IVOA: http://www.ivoa.net).
+Gaia Archive access is based on a TAP+ REST service. TAP+ is an extension of 
+Table Access Protocol (TAP: http://www.ivoa.net/documents/TAP/) specified by the 
+International Virtual Observatory Alliance (IVOA: http://www.ivoa.net).
 
-The TAP query language is Astronomical Data Query Language (ADQL: http://www.ivoa.net/documents/ADQL/2.0), which is similar
+The TAP query language is Astronomical Data Query Language 
+(ADQL: http://www.ivoa.net/documents/ADQL/2.0), which is similar
 to Structured Query Language (SQL), widely used to query databases.
 
 TAP provides two operation modes: Synchronous and Asynchronous:
 
-* Synchronous: the response to the request will be generated as soon as the request received by the server.
-* Asynchronous: the server will start a job that will execute the request. The first response to the request is the required information (a link) to obtain the job status. Once the job is finished, the results can be retrieved.
+* Synchronous: the response to the request will be generated as soon as the 
+  request received by the server. 
+  (Do not use this method for queries that generate a big amount of results.)
+* Asynchronous: the server will start a job that will execute the request. 
+  The first response to the request is the required information (a link) 
+  to obtain the job status. 
+  Once the job is finished, the results can be retrieved.
 
 Gaia TAP+ server provides two access mode: public and authenticated:
 
-* Public: this is the standard TAP access. A user can execute ADQL queries and upload tables to be used in a query 'on-the-fly' (these tables will be removed once the query is executed). The results are available to any other user and they will remain in the server for a limited space of time.
+* Public: this is the standard TAP access. A user can execute ADQL queries and 
+  upload tables to be used in a query 'on-the-fly' (these tables will be removed 
+  once the query is executed). The results are available to any other user and 
+  they will remain in the server for a limited space of time.
 
-* Authenticated: some functionalities are restricted to authenticated users only. The results are saved in a private user space and they will remain in the server for ever (they can be removed by the user).
+* Authenticated: some functionalities are restricted to authenticated users only.
+  The results are saved in a private user space and they will remain in the server 
+  for ever (they can be removed by the user).
 
   * ADQL queries and results are saved in a user private area.
 
-  * Cross-match operations: a catalog cross-match operation can be executed. Cross-match operations results are saved in a user private area.
+  * Cross-match operations: a catalog cross-match operation can be executed. 
+    Cross-match operations results are saved in a user private area.
 
-  * Persistence of uploaded tables: a user can upload a table in a private space. These tables can be used in queries as well as in cross-matches operations.
+  * Persistence of uploaded tables: a user can upload a table in a private space. 
+    These tables can be used in queries as well as in cross-matches operations.
 
 
-This python module provides an Astroquery API access. Nevertheless, only ``query_object`` and ``query_object_async`` are implemented.
+This python module provides an Astroquery API access. Nevertheless, only 
+``query_object`` and ``query_object_async`` are implemented.
 
-The Gaia Archive table used for the methods where no table is specified is ``gaiadr1.gaia_source``
+The Gaia Archive table used for the methods where no table is specified is 
+``gaiadr1.gaia_source``
 
 ========
 Examples
@@ -68,7 +85,7 @@ Examples
   >>>> coord = SkyCoord(ra=280, dec=-60, unit=(u.degree, u.degree), frame='icrs')
   >>>> width = Quantity(0.1, u.deg)
   >>>> height = Quantity(0.1, u.deg)
-  >>>> r = Gaia.query_object(coordinate=coord, width=width, height=height)
+  >>>> r = Gaia.query_object_async(coordinate=coord, width=width, height=height)
   >>>> r.pprint()
            dist             solution_id     ...       ecl_lat      
                                             ...      Angle[deg]    
@@ -109,7 +126,7 @@ Examples
   >>>> 
   >>>> coord = SkyCoord(ra=280, dec=-60, unit=(u.degree, u.degree), frame='icrs')
   >>>> radius = Quantity(1.0, u.deg)
-  >>>> j = Gaia.cone_search(coord, radius)
+  >>>> j = Gaia.cone_search_async(coord, radius)
   >>>> r = j.get_results()
   >>>> r.pprint()
            dist             solution_id     ...       ecl_lat      
