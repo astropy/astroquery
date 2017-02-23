@@ -20,17 +20,14 @@ class DummyTapHandler(object):
     def __init__(self):
         self.__invokedMethod = None
         self.__parameters = {}
-        pass
     
     def reset(self):
         self.__parameters = {}
         self.__invokedMethod = None
-        pass
         
     def check_call(self, method_name, parameters):
         self.check_method(method_name)
         self.check_parameters(parameters, method_name)
-        pass
     
     def check_method(self, method):
         if method == self.__invokedMethod:
@@ -225,4 +222,3 @@ class DummyTapHandler(object):
         self.__parameters['verbose'] = verbose
         return None
 
-    pass

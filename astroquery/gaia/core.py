@@ -15,9 +15,17 @@ Created on 30 jun. 2016
 
 """
 
-from astroquery.gaia.tapplus.tap import TapPlus
+from astroquery.tap import TapPlus
+from astroquery.utils import commons
+from astropy import units
+from astropy.units import Quantity
 
 __all__ = ['Gaia', 'GaiaClass']
+
+MAIN_GAIA_TABLE = "gaiadr1.gaia_source"
+MAIN_GAIA_TABLE_RA = "ra"
+MAIN_GAIA_TABLE_DEC = "dec"
+
 
 class GaiaClass(object):
     
@@ -202,6 +210,57 @@ class GaiaClass(object):
         """
         return self.__gaiatap.list_async_jobs(verbose)
     
+    def __query_object(self, coordinate, radius=None, width=None, height=None, 
+                     async=False, verbose=False):
+        """Launches a job
+        TAP & TAP+
+        
+        Parameters
+        ----------
+        coordinate : astropy.coordinate, mandatory
+            coordinates center point
+        radius : astropy.units, required if no 'width' nor 'height' are provided
+            radius (deg)
+        width : astropy.units, required if no 'radius' is provided
+            box width
+        height : astropy.units, required if no 'radius' is provided
+            box height
+        async : bool, optional, default 'False'
+            executes the query (job) in asynchronous/synchronous mode (default 
+            synchronous)
+        verbose : bool, optional, default 'False' 
+            flag to display information about the process
+
+        Returns
+        -------
+        The job results (astropy.table).
+        """
+        coord = self.__getCoordInput(coordinate, "coordinate")
+        job = None
+        if radius is not None:
+            job = self.__cone_search(coord, radius, async=async, verbose=verbose)
+        else:
+            raHours, dec = commons.coord_to_radec(coord)
+            ra = raHours * 15.0 # Converts to degrees
+            widthQuantity = self.__getQuantityInput(width, "width")
+            heightQuantity = self.__getQuantityInput(height, "height")
+            widthDeg = widthQuantity.to(units.deg)
+            heightDeg = heightQuantity.to(units.deg)
+            query = "SELECT DISTANCE(POINT('ICRS',"+str(MAIN_GAIA_TABLE_RA)+","\
+                +str(MAIN_GAIA_TABLE_DEC)+"), \
+                POINT('ICRS',"+str(ra)+","+str(dec)+")) AS dist, * \
+                FROM "+str(MAIN_GAIA_TABLE)+" WHERE CONTAINS(\
+                POINT('ICRS',"+str(MAIN_GAIA_TABLE_RA)+","\
+                +str(MAIN_GAIA_TABLE_DEC)+"),\
+                BOX('ICRS',"+str(ra)+","+str(dec)+", "+str(widthDeg.value)+", "\
+                +str(heightDeg.value)+"))=1 \
+                ORDER BY dist ASC"
+            if async:
+                job = self.__gaiatap.launch_job_async(query, verbose=verbose)
+            else:
+                job = self.__gaiatap.launch_job(query, verbose=verbose)
+        return job.get_results()
+    
     def query_object(self, coordinate, radius=None, width=None, height=None, 
                      verbose=False):
         """Launches a job
@@ -224,11 +283,12 @@ class GaiaClass(object):
         -------
         The job results (astropy.table).
         """
-        return self.__gaiatap.query_object(coordinate, 
-                                           radius=radius, 
-                                           width=width, 
-                                           height=height, 
-                                           verbose=verbose)
+        return self.__query_object(coordinate, 
+                                 radius, 
+                                 width, 
+                                 height, 
+                                 async=False, 
+                                 verbose=verbose)
     
     def query_object_async(self, coordinate, radius=None, width=None, 
                            height=None, verbose=False):
@@ -254,24 +314,73 @@ class GaiaClass(object):
         -------
         The job results (astropy.table).
         """
-        return self.__gaiatap.query_object_async(coordinate, 
-                                                 radius=radius, 
-                                                 width=width, 
-                                                 height=height, 
-                                                 verbose=verbose)
+        return self.__query_object(coordinate, 
+                                 radius, 
+                                 width, 
+                                 height, 
+                                 async=True, 
+                                 verbose=verbose)
     
-    #def query_region(self, coordinate, radius=None, width=None):
-    #    raise NotImplementedError()
-    #
-    #def query_region_async(self, coordinate, radius=None, width=None):
-    #    raise NotImplementedError()
-    #
-    #def get_images(self, coordinate):
-    #    raise NotImplementedError()
-    #
-    #def get_images_async(self, coordinate):
-    #    raise NotImplementedError()
-    #
+    def __cone_search(self, coordinate, radius, async=False, background=False, 
+                    output_file=None, output_format="votable", verbose=False, 
+                    dump_to_file=False):
+        """Cone search sorted by distance
+        TAP & TAP+
+        
+        Parameters
+        ----------
+        coordinate : astropy.coordinate, mandatory
+            coordinates center point
+        radius : astropy.units, mandatory
+            radius
+        async : bool, optional, default 'False'
+            executes the job in asynchronous/synchronous mode (default 
+            synchronous)
+        background : bool, optional, default 'False'
+            when the job is executed in asynchronous mode, this flag specifies 
+            whether the execution will wait until results are available
+        output_file : str, optional, default None
+            file name where the results are saved if dumpToFile is True. 
+            If this parameter is not provided, the jobid is used instead
+        output_format : str, optional, default 'votable'
+            results format
+        verbose : bool, optional, default 'False' 
+            flag to display information about the process
+        dump_to_file : bool, optional, default 'False'
+            if True, the results are saved in a file instead of using memory
+
+        Returns
+        -------
+        A Job object
+        """
+        coord = self.__getCoordInput(coordinate, "coordinate")
+        raHours, dec = commons.coord_to_radec(coord)
+        ra = raHours * 15.0 # Converts to degrees
+        if radius is not None:
+            radiusQuantity = self.__getQuantityInput(radius, "radius")
+            radiusDeg = commons.radius_to_unit(radiusQuantity, unit='deg')
+        query = "SELECT DISTANCE(POINT('ICRS',"+str(MAIN_GAIA_TABLE_RA)+","\
+            +str(MAIN_GAIA_TABLE_DEC)+"), \
+            POINT('ICRS',"+str(ra)+","+str(dec)+")) AS dist, * \
+            FROM "+str(MAIN_GAIA_TABLE)+" WHERE CONTAINS(\
+            POINT('ICRS',"+str(MAIN_GAIA_TABLE_RA)+","+str(MAIN_GAIA_TABLE_DEC)+"),\
+            CIRCLE('ICRS',"+str(ra)+","+str(dec)+", "+str(radiusDeg)+"))=1 \
+            ORDER BY dist ASC"
+        if async:
+            return self.__gaiatap.launch_job_async(query=query, 
+                                         output_file=output_file, 
+                                         output_format=output_format, 
+                                         verbose=verbose, 
+                                         dump_to_file=dump_to_file, 
+                                         background=background)
+        else:
+            return self.__gaiatap.launch_job(query=query, 
+                                        output_file=output_file, 
+                                        output_format=output_format, 
+                                        verbose=verbose, 
+                                        dump_to_file=dump_to_file)
+        
+
     def cone_search(self, coordinate, radius=None, output_file=None, 
                     output_format="votable", verbose=False, 
                     dump_to_file=False):
@@ -298,12 +407,14 @@ class GaiaClass(object):
         -------
         A Job object
         """
-        return self.__gaiatap.cone_search(coordinate=coordinate, 
-                                          radius=radius, 
-                                          output_file=output_file, 
-                                          output_format=output_format, 
-                                          verbose=verbose, 
-                                          dump_to_file=dump_to_file)
+        return self.__cone_search(coordinate, 
+                                  radius=radius, 
+                                  async=False, 
+                                  background=False, 
+                                  output_file=output_file, 
+                                  output_format=output_format, 
+                                  verbose=verbose, 
+                                  dump_to_file=dump_to_file)
     
     def cone_search_async(self, coordinate, radius=None, background=False, 
                     output_file=None, output_format="votable", verbose=False, 
@@ -334,13 +445,14 @@ class GaiaClass(object):
         -------
         A Job object
         """
-        return self.__gaiatap.cone_search_async(coordinate=coordinate, 
-                                          radius=radius, 
-                                          background=background, 
-                                          output_file=output_file, 
-                                          output_format=output_format, 
-                                          verbose=verbose, 
-                                          dump_to_file=dump_to_file)
+        return self.__cone_search(coordinate, 
+                                  radius=radius, 
+                                  async=True, 
+                                  background=background, 
+                                  output_file=output_file, 
+                                  output_format=output_format, 
+                                  verbose=verbose, 
+                                  dump_to_file=dump_to_file)
     
     def remove_jobs(self, jobs_list, verbose=False):
         """Removes the specified jobs
@@ -414,6 +526,36 @@ class GaiaClass(object):
         """
         return self.__gaiatap.logout(verbose)
     
-    pass
+    def __checkQuantityInput(self, value, msg):
+        if not (isinstance(value, str) or isinstance(value, units.Quantity)):
+            raise ValueError(
+                str(msg) + " must be either a string or astropy.coordinates")
+    
+    def __getQuantityInput(self, value, msg):
+        if value is None:
+            raise ValueError("Missing required argument: '"+str(msg)+"'")
+        if not (isinstance(value, str) or isinstance(value, units.Quantity)):
+            raise ValueError(
+                str(msg) + " must be either a string or astropy.coordinates")
+        if isinstance(value, str):
+            q = Quantity(value)
+            return q
+        else:
+            return value
+    
+    def __checkCoordInput(self, value, msg):
+        if not (isinstance(value, str) or isinstance(value, commons.CoordClasses)):
+            raise ValueError(
+                str(msg) + " must be either a string or astropy.coordinates")
+    
+    def __getCoordInput(self, value, msg):
+        if not (isinstance(value, str) or isinstance(value, commons.CoordClasses)):
+            raise ValueError(
+                str(msg) + " must be either a string or astropy.coordinates")
+        if isinstance(value, str):
+            c = commons.parse_coordinates(value)
+            return c
+        else:
+            return value
 
 Gaia = GaiaClass()
