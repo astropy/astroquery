@@ -119,6 +119,9 @@ class DummyConnHandler(object):
     def set_suitable_extension(self, ext):
         self.fileExt = ext
     
+    def get_suitable_extension_by_format(self, output_format):
+        return self.fileExt
+    
     def find_header(self, headers, key):
         return taputils.taputil_find_header(headers, key)
     

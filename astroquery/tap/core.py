@@ -212,7 +212,8 @@ class Tap(object):
         suitableOutputFile = self.__getSuitableOutputFile(False, 
                                                           output_file, 
                                                           response.getheaders(), 
-                                                          isError)
+                                                          isError,
+                                                          output_format)
         job.set_output_file(suitableOutputFile)
         job.set_output_format(output_format)
         job.set_response_status(response.status, response.reason)
@@ -288,7 +289,8 @@ class Tap(object):
         suitableOutputFile = self.__getSuitableOutputFile(True, 
                                                           output_file, 
                                                           response.getheaders(), 
-                                                          isError)
+                                                          isError,
+                                                          output_format)
         job.set_output_file(suitableOutputFile)
         job.set_response_status(response.status, response.reason)
         job.set_output_format(output_format)
@@ -467,7 +469,8 @@ class Tap(object):
             print(response.getheaders())
         return response
     
-    def __getSuitableOutputFile(self, async, outputFile, headers, isError):
+    def __getSuitableOutputFile(self, async, outputFile, headers, isError, 
+                                output_format):
         dateTime = datetime.now().strftime("%Y%m%d%H%M%S")
         ext = self.__connHandler.get_suitable_extension(headers)
         fileName = ""
@@ -475,6 +478,8 @@ class Tap(object):
             if async == False:
                 fileName = "sync_" + str(dateTime) + ext
             else:
+                ext = self.__connHandler.get_suitable_extension_by_format(
+                    output_format)
                 fileName = "async_" + str(dateTime) + ext
         else:
             fileName = outputFile

@@ -252,6 +252,35 @@ class TapConn(object):
                 f.write(data)
             f.close()
     
+    def get_suitable_extension_by_format(self, output_format):
+        """Returns the suitable extension for a file based on the output format 
+         
+        Parameters
+        ----------
+        output_format : output format, mandatory
+            
+        Returns
+        -------
+        The suitable file extension based on the output format
+        """
+        if output_format is None:
+            return ".vot"
+        ext = ""
+        outputFormat = output_format.lower()
+        if "vot" in outputFormat:
+            ext += ".vot"
+        elif "xml" in outputFormat:
+            ext += ".xml"
+        elif "json" in outputFormat:
+            ext += ".json"
+        elif "plain" in outputFormat:
+            ext += ".txt"
+        elif "csv" in outputFormat:
+            ext += ".csv"
+        elif "ascii" in outputFormat:
+            ext += ".ascii"
+        return ext
+    
     def get_suitable_extension(self, headers):
         """Returns the suitable extension for a file based on the headers 
         received
