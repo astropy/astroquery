@@ -35,7 +35,6 @@ class ESASkyClass(BaseQuery):
     __MISSION_STRING = "mission"
     __TAP_TABLE_STRING = "tapTable"
     __TAP_NAME_STRING = "tapName"
-    __FILTER_STRING = "filter"
     __LABEL_STRING = "label"
     __OBSERVATION_ID_STRING = "observation_id"
     __METADATA_STRING = "metadata"
@@ -54,6 +53,13 @@ class ESASkyClass(BaseQuery):
     __HERSCHEL_STRING = 'herschel'
     __HST_STRING = 'hst'
     __INTEGRAL_STRING = 'integral'
+    
+    __HERSCHEL_FILTERS = {'psw': '250', 
+           'pmw': '350',
+           'plw': '500',
+           'mapb_blue': '70',
+           'mapb_green': '100',
+           'mapr_': '160'}
 
 
     def list_maps(self):
@@ -509,11 +515,8 @@ class ESASkyClass(BaseQuery):
                 sys.stdout.flush()
                 directory_path = mission_directory + "/"
                 if (mission.lower() == self.__HERSCHEL_STRING):
-                    herschel_filter = (maps_table[self.__FILTER_STRING][index]
-                                       .decode('utf-8').split(", "))
                     maps.append(self._get_herschel_observation(product_url,
                                                                directory_path,
-                                                               herschel_filter,
                                                                cache))
 
                 else:
@@ -537,7 +540,7 @@ class ESASkyClass(BaseQuery):
 
         return maps
 
-    def _get_herschel_observation(self, product_url, directory_path, filters,
+    def _get_herschel_observation(self, product_url, directory_path,
                                   cache):
         observation = dict()
         tar_file = tempfile.NamedTemporaryFile()
@@ -548,15 +551,24 @@ class ESASkyClass(BaseQuery):
             for member in tar.getmembers():
                 member_name = member.name.lower()
                 if ('hspire' in member_name or 'hpacs' in member_name):
+                    herschel_filter = self._get_filter_name(member_name)
                     tar.extract(member, directory_path)
                     member.name = (
                         self._remove_extra_herschel_directory(member.name,
                                                               directory_path))
-                    observation[filters[i]] = fits.open(directory_path +
+                    observation[herschel_filter] = fits.open(directory_path +
                                                         member.name)
                     i += 1
         return observation
 
+
+    
+    def _get_filter_name(self, member_name):
+        for herschel_filter in self.__HERSCHEL_FILTERS.keys():
+            if herschel_filter in member_name:
+                return self.__HERSCHEL_FILTERS[herschel_filter]
+        
+        
     def _remove_extra_herschel_directory(self, file_and_directory_name,
                                          directory_path):
         full_directory_path = os.path.abspath(directory_path)
