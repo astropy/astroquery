@@ -61,7 +61,7 @@ matrix:
         # No need to run it from cron
         # Try MacOS X
         - os: osx
-          env: SETUP_CMD='test'
+          env: SETUP_CMD='test' CONDA_CHANNELS='conda-forge astropy-ci-extras astropy'
 
         # Do a coverage test in Python 2. Move coverage to 3.x once speed
         # issues have been solved; astropy/astropy#4826
