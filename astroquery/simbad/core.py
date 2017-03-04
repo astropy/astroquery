@@ -307,18 +307,14 @@ class SimbadClass(BaseQuery):
         for i, line in list(enumerate(notes)):
             print("{lineno}. {msg}\n".format(lineno=i + 1, msg=line))
 
-        if not hasattr(self, '_votable_fields_table'):
-            # load the table
-            votable_fields_table = Table.read(
-                get_pkg_data_filename(os.path.join('data',
-                                                   'votable_fields_table.txt')),
-                format='ascii')
-            self._votable_fields_table = votable_fields_table
-        else:
-            votable_fields_table = self._votable_fields_table
+        dict_file = get_pkg_data_filename(
+            os.path.join('data', 'votable_fields_dict.json'))
+        with open(dict_file, "r") as f:
+            fields_dict = json.load(f)
 
         print("Available VOTABLE fields:\n")
-        votable_fields_table.pprint(max_lines=100)
+        for i, field in list(enumerate(sorted(fields_dict.keys()))):
+            print("{lno}. {field}\n".format(lno=i + 1, field=field))
         print("For more information on a field :\n"
               "Simbad.get_field_description ('field_name') \n"
               "Currently active VOTABLE fields:\n {0}"
