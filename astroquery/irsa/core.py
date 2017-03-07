@@ -131,7 +131,7 @@ class IrsaClass(BaseQuery):
             details). Required if spatial is ``'Cone'`` or ``'Box'``. Optional
             if spatial is ``'Polygon'``.
         catalog : str
-            The catalog to be used (see the *Notes* section below).
+            The catalog to be used can be found using ``'Irsa.print_catalogs()'`` which returns a dictionary of catalog names with their description.
         spatial : str
             Type of spatial query: ``'Cone'``, ``'Box'``, ``'Polygon'``, and
             ``'All-Sky'``. If missing then defaults to ``'Cone'``.
@@ -188,7 +188,7 @@ class IrsaClass(BaseQuery):
             details). Required if spatial is ``'Cone'`` or ``'Box'``. Optional
             if spatial is ``'Polygon'``.
         catalog : str
-            The catalog to be used (see the *Notes* section below).
+            The catalog to be used can be found using ``'Irsa.print_catalogs()'`` which returns a dictionary of catalog names with their description.
         spatial : str
             Type of spatial query: ``'Cone'``, ``'Box'``, ``'Polygon'``, and
             ``'All-Sky'``. If missing then defaults to ``'Cone'``.
