@@ -131,7 +131,7 @@ class IrsaClass(BaseQuery):
             details). Required if spatial is ``'Cone'`` or ``'Box'``. Optional
             if spatial is ``'Polygon'``.
         catalog : str
-            Using `~astroquery.irsa.IrsaClass.print_catalogs( )` a dictionary of catalog names can be found.
+            Using :meth:`~astroquery.irsa.IrsaClass.print_catalogs` a dictionary of catalog names can be found.
         spatial : str
             Type of spatial query: ``'Cone'``, ``'Box'``, ``'Polygon'``, and
             ``'All-Sky'``. If missing then defaults to ``'Cone'``.
@@ -188,7 +188,7 @@ class IrsaClass(BaseQuery):
             details). Required if spatial is ``'Cone'`` or ``'Box'``. Optional
             if spatial is ``'Polygon'``.
         catalog : str
-            The catalog to be used can be found using ``'Irsa.print_catalogs()'`` which returns a dictionary of catalog names with their description.
+            Using :meth:`~astroquery.irsa.IrsaClass.print_catalogs` a dictionary of catalog names can be found.
         spatial : str
             Type of spatial query: ``'Cone'``, ``'Box'``, ``'Polygon'``, and
             ``'All-Sky'``. If missing then defaults to ``'Cone'``.
