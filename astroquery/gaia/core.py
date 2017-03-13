@@ -15,7 +15,7 @@ Created on 30 jun. 2016
 
 """
 
-from astroquery.tap import TapPlus
+from astroquery.utils.tap import TapPlus
 from astroquery.utils import commons
 from astropy import units
 from astropy.units import Quantity
@@ -38,7 +38,6 @@ class GaiaClass(object):
             self.__gaiatap = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
         else:
             self.__gaiatap = tap_plus_handler
-        pass
     
     def load_tables(self, only_names=False, include_shared_tables=False, 
                     verbose=False):

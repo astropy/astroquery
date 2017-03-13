@@ -18,14 +18,14 @@ import unittest
 import os
 from astroquery.gaia.core import GaiaClass
 from astroquery.gaia.tests.DummyTapHandler import DummyTapHandler
-from astroquery.tap.conn.tests.DummyConnHandler import DummyConnHandler
-from astroquery.tap.conn.tests.DummyResponse import DummyResponse
+from astroquery.utils.tap.conn.tests.DummyConnHandler import DummyConnHandler
+from astroquery.utils.tap.conn.tests.DummyResponse import DummyResponse
 import astropy.units as u
 from astropy.coordinates.sky_coordinate import SkyCoord
 from astropy.units import Quantity
 import numpy as np
-from astroquery.tap.xmlparser import utils
-from astroquery.tap.core import TapPlus
+from astroquery.utils.tap.xmlparser import utils
+from astroquery.utils.tap.core import TapPlus
 
 
 def data_path(filename):

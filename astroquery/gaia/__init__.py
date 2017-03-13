@@ -15,8 +15,7 @@ Created on 30 jun. 2016
 
 """
 
-from astroquery.tap.core import TapPlus
-from astroquery.tap.model.job import Job
+from astroquery.utils.tap.core import TapPlus
 from astropy import config as _config
 
 class Conf(_config.ConfigNamespace):
