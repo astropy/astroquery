@@ -48,7 +48,7 @@ To load only table names (TAP+ capability)
 
 .. code-block:: python
 
-  >>> from astroquery.tap.core import TapPlus
+  >>> from astroquery.utils.tap.core import TapPlus
   >>> 
   >>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
   >>> tables = gaia.load_tables(only_names=True)
@@ -81,7 +81,7 @@ To load table names (TAP compatible)
 
 .. code-block:: python
 
-  >>> from astroquery.tap.core import TapPlus
+  >>> from astroquery.utils.tap.core import TapPlus
   >>> 
   >>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
   >>> tables = gaia.load_tables()
@@ -114,7 +114,7 @@ To load only a table (TAP+ capability)
 
 .. code-block:: python
 
-  >>> from astroquery.tap.core import TapPlus
+  >>> from astroquery.utils.tap.core import TapPlus
   >>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
   >>> table = gaia.load_table('gaiadr1.gaia_source')
   >>> print (table)
@@ -131,7 +131,7 @@ Once a table is loaded, columns can be inspected
 
 .. code-block:: python
 
-  >>> from astroquery.tap.core import TapPlus
+  >>> from astroquery.utils.tap.core import TapPlus
   >>> 
   >>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
   >>> table = gaia.load_table('gaiadr1.gaia_source')
@@ -164,7 +164,7 @@ Query without saving results in a file:
 
 .. code-block:: python
 
-  >>> from astroquery.tap.core import TapPlus
+  >>> from astroquery.utils.tap.core import TapPlus
   >>> 
   >>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
   >>> 
@@ -213,7 +213,7 @@ Query saving results in a file:
 
 .. code-block:: python
 
-  >>> from astroquery.tap.core import TapPlus
+  >>> from astroquery.utils.tap.core import TapPlus
   >>> 
   >>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
   >>> job = gaia.launch_job("select top 100 \
@@ -265,7 +265,7 @@ A table can be uploaded to the server in order to be used in a query.
 
 .. code-block:: python
 
-  >>> from astroquery.tap.core import TapPlus
+  >>> from astroquery.utils.tap.core import TapPlus
   >>> 
   >>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
   >>> 
@@ -293,7 +293,7 @@ Query without saving results in a file:
 
 .. code-block:: python
 
-  >>> from astroquery.tap.core import TapPlus
+  >>> from astroquery.utils.tap.core import TapPlus
   >>> 
   >>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
   >>> job = gaia.launch_job_async("select top 100 * from gaiadr1.gaia_source order by source_id")
@@ -339,7 +339,7 @@ Query saving results in a file:
 
 .. code-block:: python
 
-  >>> from astroquery.tap.core import TapPlus
+  >>> from astroquery.utils.tap.core import TapPlus
   >>>
   >>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
   >>> job = gaia.launch_job_async("select top 100 * from gaiadr1.gaia_source order by source_id", dump_to_file=True)
@@ -389,7 +389,7 @@ To remove asynchronous
 
 .. code-block:: python
 
-  >>> from astroquery.tap.core import TapPlus
+  >>> from astroquery.utils.tap.core import TapPlus
   >>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
   >>> job = gaia.remove_jobs(["job_id_1","job_id_2",...])
 
@@ -421,7 +421,7 @@ Graphic interface
 
 .. code-block:: python
 
-  >>> from astroquery.tap.core import TapPlus
+  >>> from astroquery.utils.tap.core import TapPlus
   >>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
   >>> gaia.login_gui()
 
@@ -431,7 +431,7 @@ Command line
 
 .. code-block:: python
 
-  >>> from astroquery.tap.core import TapPlus
+  >>> from astroquery.utils.tap.core import TapPlus
   >>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
   >>> gaia.login(user='userName', password='userPassword')
 
@@ -442,7 +442,7 @@ It is possible to use a file where the credentials are stored:
 
 .. code-block:: python
 
-  >>> from astroquery.tap.core import TapPlus
+  >>> from astroquery.utils.tap.core import TapPlus
   >>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
   >>> gaia.login(credentials_file='my_credentials_file')
 
@@ -453,7 +453,7 @@ To perform a logout
 
 .. code-block:: python
 
-  >>> from astroquery.tap.core import TapPlus
+  >>> from astroquery.utils.tap.core import TapPlus
   >>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
   >>> gaia.login(credentials_file='my_credentials_file')
   >>> ...
@@ -467,7 +467,7 @@ To perform a logout
 
 .. code-block:: python
 
-  >>> from astroquery.tap.core import TapPlus
+  >>> from astroquery.utils.tap.core import TapPlus
   >>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
   >>> gaia.login(credentials_file='my_credentials_file')
   >>> tables = gaia.load_tables(only_names=True, include_shared_tables=True)
@@ -501,7 +501,7 @@ Example 1: TAPVizieR.u-strasbg.fr
 
 .. code-block:: python
 
-  >>> from astroquery.tap.core import TapPlus
+  >>> from astroquery.utils.tap.core import TapPlus
   >>> tap = TapPlus(url="http://TAPVizieR.u-strasbg.fr/TAPVizieR/tap")
   >>> #Inspect tables
   >>> tables = tap.load_tables()
@@ -546,7 +546,7 @@ Example 1: TAPVizieR.u-strasbg.fr
 
 .. code-block:: python
 
-  >>> from astroquery.tap.core import TapPlus
+  >>> from astroquery.utils.tap.core import TapPlus
   >>> tap = TapPlus(url="http://irsa.ipac.caltech.edu/TAP")
   >>> job = tap.launch_job_async("SELECT TOP 10 * FROM fp_psc")
   >>> r = job.get_results()
