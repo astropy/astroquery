@@ -21,7 +21,7 @@ from astropy import config as _config
 
 class Conf(_config.ConfigNamespace):
     """
-    Configuration parameters for `astroquery.esasky`.
+    Configuration parameters for `astroquery.gaia`.
     """
     pass
 
