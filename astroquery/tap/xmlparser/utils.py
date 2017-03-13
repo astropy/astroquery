@@ -15,13 +15,13 @@ Created on 30 jun. 2016
 
 """
 
-import sys
 import io
 from astropy.table import Table as APTable
+import six
 
 
 def util_create_string_from_buffer(buffer):
-    if sys.version_info < (3,0,0):
+    if six.PY2:
         #2.7
         return ''.join(x.encode('utf-8') for x in buffer)
     else:
@@ -30,7 +30,7 @@ def util_create_string_from_buffer(buffer):
 
 def read_http_response(response, outputFormat):
     astropyFormat = get_suitable_astropy_format(outputFormat)
-    if sys.version_info < (3,0,0):
+    if six.PY2:
         #2.7
         return APTable.read(response, format=astropyFormat)
     else:
