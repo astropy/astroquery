@@ -1,0 +1,29 @@
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/gaia/!svn/ver/2717/cl/trunk/apps/py/utils/tap/xmlparser/tests/data
+END
+test_jobs_list.xml
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/gaia/!svn/ver/2717/cl/trunk/apps/py/utils/tap/xmlparser/tests/data/test_jobs_list.xml
+END
+test_jobs_async.xml
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/gaia/!svn/ver/2717/cl/trunk/apps/py/utils/tap/xmlparser/tests/data/test_jobs_async.xml
+END
+test_tables.xml
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/gaia/!svn/ver/2717/cl/trunk/apps/py/utils/tap/xmlparser/tests/data/test_tables.xml
+END
+test_job_results.xml
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/gaia/!svn/ver/2717/cl/trunk/apps/py/utils/tap/xmlparser/tests/data/test_job_results.xml
+END

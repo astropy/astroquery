@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<vod:tableset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:vod="http://www.ivoa.net/xml/VODataService/v1.1" xsi:type="vod:TableSet" xmlns:esatapplus="http://esa.int/xml/EsaTapPlus" xsi:schemaLocation="http://www.ivoa.net/xml/VODataService/v1.1 http://www.ivoa.net/xml/VODataService/v1.1 http://esa.int/xml/EsaTapPlus http://gea.esac.esa.int/tap-server/xml/esaTapPlusAttributes.xsd">
+	<schema  esatapplus:public="true">
+		<name>public</name>
+		<table type="base_table" esatapplus:size="2539913" esatapplus:flags="1">
+			<name>table1</name>
+			<description>Table1 desc</description>
+			<column std="false" esatapplus:flags="16">
+				<name>table1_col1</name>
+				<description>Table1 Column1 desc</description>
+				<unit></unit>
+				<dataType xsi:type="vod:TAPType">VARCHAR</dataType>
+				<flag>indexed</flag>
+			</column>
+			<column std="false" esatapplus:flags="0">
+				<name>table1_col2</name>
+				<description>Table1 Column2 desc</description>
+				<unit></unit>
+				<dataType xsi:type="vod:TAPType">INTEGER</dataType>
+			</column>
+		</table>
+		<table type="base_table" esatapplus:size="13" esatapplus:flags="1">
+			<name>table2</name>
+			<description>Table2 desc</description>
+			<column std="false" esatapplus:flags="16">
+				<name>table2_col1</name>
+				<description>Table2 Column1 desc</description>
+				<unit></unit>
+				<dataType xsi:type="vod:TAPType">VARCHAR</dataType>
+				<flag>indexed</flag>
+			</column>
+			<column std="false" esatapplus:flags="0">
+				<name>table2_col2</name>
+				<description>Table2 Column2 desc</description>
+				<unit></unit>
+				<dataType xsi:type="vod:TAPType">INTEGER</dataType>
+			</column>
+			<column std="false" esatapplus:flags="0">
+				<name>table2_col3</name>
+				<description>Table2 Column3 desc</description>
+				<unit></unit>
+				<dataType xsi:type="vod:TAPType">INTEGER</dataType>
+			</column>
+		</table>
+	</schema>
+</vod:tableset>

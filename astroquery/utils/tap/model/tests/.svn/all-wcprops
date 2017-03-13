@@ -1,0 +1,41 @@
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/gaia/!svn/ver/2715/cl/trunk/apps/py/utils/tap/model/tests
+END
+test_job.py
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/gaia/!svn/ver/2714/cl/trunk/apps/py/utils/tap/model/tests/test_job.py
+END
+setup_package.py
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/gaia/!svn/ver/2714/cl/trunk/apps/py/utils/tap/model/tests/setup_package.py
+END
+test_column.py
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/gaia/!svn/ver/2714/cl/trunk/apps/py/utils/tap/model/tests/test_column.py
+END
+__init__.py
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/gaia/!svn/ver/2714/cl/trunk/apps/py/utils/tap/model/tests/__init__.py
+END
+test_filter.py
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/gaia/!svn/ver/2714/cl/trunk/apps/py/utils/tap/model/tests/test_filter.py
+END
+test_table.py
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/gaia/!svn/ver/2714/cl/trunk/apps/py/utils/tap/model/tests/test_table.py
+END

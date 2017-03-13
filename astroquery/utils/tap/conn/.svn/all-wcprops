@@ -1,0 +1,17 @@
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/gaia/!svn/ver/2718/cl/trunk/apps/py/utils/tap/conn
+END
+__init__.py
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/gaia/!svn/ver/2718/cl/trunk/apps/py/utils/tap/conn/__init__.py
+END
+tapconn.py
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/gaia/!svn/ver/2710/cl/trunk/apps/py/utils/tap/conn/tapconn.py
+END

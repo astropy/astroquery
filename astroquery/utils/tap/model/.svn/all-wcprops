@@ -1,0 +1,41 @@
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/gaia/!svn/ver/2715/cl/trunk/apps/py/utils/tap/model
+END
+job.py
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/gaia/!svn/ver/2713/cl/trunk/apps/py/utils/tap/model/job.py
+END
+taptable.py
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/gaia/!svn/ver/2713/cl/trunk/apps/py/utils/tap/model/taptable.py
+END
+__init__.py
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/gaia/!svn/ver/2713/cl/trunk/apps/py/utils/tap/model/__init__.py
+END
+modelutils.py
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/gaia/!svn/ver/2713/cl/trunk/apps/py/utils/tap/model/modelutils.py
+END
+tapcolumn.py
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/gaia/!svn/ver/2713/cl/trunk/apps/py/utils/tap/model/tapcolumn.py
+END
+filter.py
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/gaia/!svn/ver/2713/cl/trunk/apps/py/utils/tap/model/filter.py
+END

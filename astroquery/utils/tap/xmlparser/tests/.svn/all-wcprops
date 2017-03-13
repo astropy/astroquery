@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/gaia/!svn/ver/2717/cl/trunk/apps/py/utils/tap/xmlparser/tests
+END
+setup_package.py
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/gaia/!svn/ver/2717/cl/trunk/apps/py/utils/tap/xmlparser/tests/setup_package.py
+END
+test_xmlparser.py
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/gaia/!svn/ver/2717/cl/trunk/apps/py/utils/tap/xmlparser/tests/test_xmlparser.py
+END
+__init__.py
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/gaia/!svn/ver/2717/cl/trunk/apps/py/utils/tap/xmlparser/tests/__init__.py
+END

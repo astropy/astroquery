@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/gaia/!svn/ver/2716/cl/trunk/apps/py/utils/tap/tests
+END
+setup_package.py
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/gaia/!svn/ver/2716/cl/trunk/apps/py/utils/tap/tests/setup_package.py
+END
+__init__.py
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/gaia/!svn/ver/2716/cl/trunk/apps/py/utils/tap/tests/__init__.py
+END
+test_tap.py
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/gaia/!svn/ver/2716/cl/trunk/apps/py/utils/tap/tests/test_tap.py
+END
