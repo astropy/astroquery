@@ -16,7 +16,7 @@ Created on 30 jun. 2016
 """
 import unittest
 import os
-from astroquery.tap.model.table import Table
+from astroquery.tap.model.taptable import TapTableMeta
 from astroquery.tap.model.tapcolumn import TapColumn
 
 def data_path(filename):
@@ -26,7 +26,7 @@ def data_path(filename):
 class TestTable(unittest.TestCase):
     
     def test_table(self):
-        table = Table()
+        table = TapTableMeta()
         schemaName = "sch"
         tableName = "tbl"
         expected = schemaName + "." + tableName
@@ -37,7 +37,7 @@ class TestTable(unittest.TestCase):
             "Qualified name, expected: %s, found: %s" % (expected, res)
     
     def test_table_columns(self):
-        table = Table()
+        table = TapTableMeta()
         c1 = TapColumn()
         c2 = TapColumn()
         table.add_column(c1)

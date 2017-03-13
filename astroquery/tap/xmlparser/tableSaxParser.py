@@ -17,7 +17,7 @@ Created on 30 jun. 2016
 
 import xml.sax
 
-from astroquery.tap.model.table import Table
+from astroquery.tap.model.taptable import TapTableMeta
 from astroquery.tap.model.tapcolumn import TapColumn
 from astroquery.tap.xmlparser import utils as Utils
 
@@ -92,7 +92,7 @@ class TableSaxParser(xml.sax.ContentHandler):
             self.__start_reading_data()
         if self.__check_item_id("table", name):
             self.__status = READING_TABLE
-            self.__currentTable = Table()
+            self.__currentTable = TapTableMeta()
             self.__currentTable.set_schema(self.__currentSchemaName)
     
     def __end_schema(self, name):
