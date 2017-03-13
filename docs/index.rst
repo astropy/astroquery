@@ -226,6 +226,7 @@ generally return a table listing the available data first.
   alma/alma.rst
   eso/eso.rst
   fermi/fermi.rst
+  gaia/gaia.rst
   heasarc/heasarc.rst
   ibe/ibe.rst
   irsa/irsa.rst
@@ -296,6 +297,7 @@ services in Astroquery, you can use them for your scripts, but we don't guarante
 
   utils.rst
   query.rst
+  tap/tap.rst
 
 License
 -------

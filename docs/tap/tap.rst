@@ -2,32 +2,32 @@
 
 .. _astroquery.tap:
 
-=========
-TAP/TAP+
-=========
+*********************************
+TAP/TAP+ (`astroquery.utils.tap`)
+*********************************
 
-Table Access Protocol (TAP: http://www.ivoa.net/documents/TAP/) specified by the 
+Table Access Protocol (TAP: http://www.ivoa.net/documents/TAP/) specified by the
 International Virtual Observatory Alliance (IVOA: http://www.ivoa.net) defines
 a service protocol for accessing general table data.
 
-TAP+ is the ESAC Space Data Centre (ESDC: http://www.cosmos.esa.int/web/esdc/) 
+TAP+ is the ESAC Space Data Centre (ESDC: http://www.cosmos.esa.int/web/esdc/)
 extension of the Table Access Protocol.
 
-The TAP query language is Astronomical Data Query Language (ADQL: 
+The TAP query language is Astronomical Data Query Language (ADQL:
 http://www.ivoa.net/documents/ADQL/2.0), which is similar
 to Structured Query Language (SQL), widely used to query databases.
 
 TAP provides two operation modes: Synchronous and Asynchronous:
 
-* Synchronous: the response to the request will be generated as soon as the 
-  request received by the server. (Do not use this method for queries that 
+* Synchronous: the response to the request will be generated as soon as the
+  request received by the server. (Do not use this method for queries that
   generate a big amount of results.)
-  
-* Asynchronous: the server will start a job that will execute the request. 
-  The first response to the request is the required information (a link) to obtain 
+
+* Asynchronous: the server will start a job that will execute the request.
+  The first response to the request is the required information (a link) to obtain
   the job status. Once the job is finished, the results can be retrieved.
 
-TAP+ is fully compatible with TAP specification. TAP+ adds more capabilities 
+TAP+ is fully compatible with TAP specification. TAP+ adds more capabilities
 like authenticated access and persistent user storage area.
 
 Please, check methods documentation to determine whether a method is TAP compatible.
@@ -49,12 +49,12 @@ To load only table names (TAP+ capability)
 .. code-block:: python
 
   >>> from astroquery.utils.tap.core import TapPlus
-  >>> 
+  >>>
   >>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
   >>> tables = gaia.load_tables(only_names=True)
   >>> for table in (tables):
   >>>   print (table.get_qualified_name())
-  
+
   public.dual
   public.tycho2
   public.igsl_source
@@ -76,18 +76,18 @@ To load only table names (TAP+ capability)
   gaiadr1.tgas_source
   gaiadr1.urat1_original_valid
   gaiadr1.allwise_original_valid
-  
+
 To load table names (TAP compatible)
 
 .. code-block:: python
 
   >>> from astroquery.utils.tap.core import TapPlus
-  >>> 
+  >>>
   >>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
   >>> tables = gaia.load_tables()
   >>> for table in (tables):
   >>>   print (table.get_qualified_name())
-  
+
   public.dual
   public.tycho2
   public.igsl_source
@@ -109,7 +109,7 @@ To load table names (TAP compatible)
   gaiadr1.tgas_source
   gaiadr1.urat1_original_valid
   gaiadr1.allwise_original_valid
-  
+
 To load only a table (TAP+ capability)
 
 .. code-block:: python
@@ -118,26 +118,26 @@ To load only a table (TAP+ capability)
   >>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
   >>> table = gaia.load_table('gaiadr1.gaia_source')
   >>> print (table)
-  
+
   Table name: gaiadr1.gaia_source
   Description: This table has an entry for every Gaia observed source as listed in the
   Main Database accumulating catalogue version from which the catalogue
   release has been generated. It contains the basic source parameters,
   that is only final data (no epoch data) and no spectra (neither final
   nor epoch).
-  Num. columns: 57  
+  Num. columns: 57
 
 Once a table is loaded, columns can be inspected
 
 .. code-block:: python
 
   >>> from astroquery.utils.tap.core import TapPlus
-  >>> 
+  >>>
   >>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
   >>> table = gaia.load_table('gaiadr1.gaia_source')
   >>> for column in (gaiadr1_table.get_columns()):
   >>>   print (column.get_name())
-  
+
   solution_id
   source_id
   random_index
@@ -165,25 +165,25 @@ Query without saving results in a file:
 .. code-block:: python
 
   >>> from astroquery.utils.tap.core import TapPlus
-  >>> 
+  >>>
   >>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
-  >>> 
+  >>>
   >>> job = gaia.launch_job("select top 100 \
   >>> solution_id,ref_epoch,ra_dec_corr,astrometric_n_obs_al,matched_observations,duplicated_source,phot_variable_flag \
   >>> from gaiadr1.gaia_source order by source_id")
-  >>> 
+  >>>
   >>> print (job)
-  
+
   Jobid: None
   Phase: COMPLETED
   Owner: None
   Output file: sync_20170223111452.xml.gz
   Results: None
-  
+
   >>> r = job.get_results()
   >>> print (r['solution_id'])
-  
-    solution_id    
+
+    solution_id
   -------------------
   1635378410781933568
   1635378410781933568
@@ -214,24 +214,24 @@ Query saving results in a file:
 .. code-block:: python
 
   >>> from astroquery.utils.tap.core import TapPlus
-  >>> 
+  >>>
   >>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
   >>> job = gaia.launch_job("select top 100 \
   >>> solution_id,ref_epoch,ra_dec_corr,astrometric_n_obs_al,matched_observations,duplicated_source,phot_variable_flag \
   >>> from gaiadr1.gaia_source order by source_id", dump_to_file=True)
-  >>> 
+  >>>
   >>> print (job)
-  
+
   Jobid: None
   Phase: COMPLETED
   Owner: None
   Output file: sync_20170223111452.xml.gz
   Results: None
-  
+
   >>> r = job.get_results()
   >>> print (r['solution_id'])
-  
-    solution_id    
+
+    solution_id
   -------------------
   1635378410781933568
   1635378410781933568
@@ -266,15 +266,15 @@ A table can be uploaded to the server in order to be used in a query.
 .. code-block:: python
 
   >>> from astroquery.utils.tap.core import TapPlus
-  >>> 
+  >>>
   >>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
-  >>> 
+  >>>
   >>> upload_resource = 'my_table.xml'
   >>> j = gaia.launch_job(query="select * from tap_upload.table_test", upload_resource=upload_resource, \
   >>> upload_table_name="table_test", verbose=True)
   >>> r = j.get_results()
   >>> r.pprint()
-  
+
   source_id alpha delta
   --------- ----- -----
           a   1.0   2.0
@@ -294,22 +294,22 @@ Query without saving results in a file:
 .. code-block:: python
 
   >>> from astroquery.utils.tap.core import TapPlus
-  >>> 
+  >>>
   >>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
   >>> job = gaia.launch_job_async("select top 100 * from gaiadr1.gaia_source order by source_id")
-  >>> 
+  >>>
   >>> print (job)
-  
+
   Jobid: 1487845273526O
   Phase: COMPLETED
   Owner: None
   Output file: async_20170223112113.vot
   Results: None
-  
+
   >>> r = job.get_results()
   >>> print (r['solution_id'])
-  
-    solution_id    
+
+    solution_id
   -------------------
   1635378410781933568
   1635378410781933568
@@ -343,19 +343,19 @@ Query saving results in a file:
   >>>
   >>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
   >>> job = gaia.launch_job_async("select top 100 * from gaiadr1.gaia_source order by source_id", dump_to_file=True)
-  >>> 
+  >>>
   >>> print (job)
-  
+
   Jobid: 1487845273526O
   Phase: COMPLETED
   Owner: None
   Output file: async_20170223112113.vot
   Results: None
-  
+
   >>> r = job.get_results()
   >>> print (r['solution_id'])
-  
-    solution_id    
+
+    solution_id
   -------------------
   1635378410781933568
   1635378410781933568
@@ -457,7 +457,7 @@ To perform a logout
   >>> gaia = TapPlus(url="http://gea.esac.esa.int/tap-server/tap")
   >>> gaia.login(credentials_file='my_credentials_file')
   >>> ...
-  >>> 
+  >>>
   >>> gaia.logout()
 
 
@@ -473,7 +473,7 @@ To perform a logout
   >>> tables = gaia.load_tables(only_names=True, include_shared_tables=True)
   >>> for table in (tables):
   >>>   print (table.get_qualified_name())
-  
+
   public.dual
   public.tycho2
   public.igsl_source
@@ -489,7 +489,7 @@ To perform a logout
   user_schema_1.table1
   user_schema_2.table1
   ...
-  
+
 
 -------------------------------------------
 3. Using TAP+ to connect other TAP services
@@ -507,7 +507,7 @@ Example 1: TAPVizieR.u-strasbg.fr
   >>> tables = tap.load_tables()
   >>> for table in (tables):
   >>>   print (table.get_name())
-  
+
   ...
   J/ApJS/173/104/memb
   J/A+A/376/441/table1
@@ -524,24 +524,24 @@ Example 1: TAPVizieR.u-strasbg.fr
   J/A+A/402/1/table1a
   J/AJ/115/1856/v12
   ...
-  
+
   >>> #Launch sync job
   >>> job = tap.launch_job("SELECT top 10 * from " + tables[0].get_name())
   >>> r = job.get_results()
   >>> r.pprint()
-  
+
                          title                         class [1] ... comment
   ---------------------------------------------------- --------- ... -------
-  The 2MASS Point Source and 2MASS6x catalogues (2003)       2 ...        
-          The 2MASS Extended Source Catalogue (2003)         2 ...        
-       Astrographic catalog (mean epoch around 1900)         2 ...        
-  AKARI IRC (9/18um) and FIS (60-160um)all-sky Surveys       2 ...        
-           All-Sky Compiled Catalog of 2.5M*  (2003)         2 ...        
-       The DENIS database (3rd Release 2005 version)         2 ...        
-     The Carlsberg Meridian Catalog 14 (-30<Dec<+50)         2 ...        
-           GALEX-DR5 sources from AIS and MIS (2011)         2 ...        
-         Spitzer's GLIMPSE catalogs (Galactic Plane)         2 ...        
-   The HST Guide Star Catalog reduced on Tycho (ACT)         2 ...        
+  The 2MASS Point Source and 2MASS6x catalogues (2003)       2 ...
+          The 2MASS Extended Source Catalogue (2003)         2 ...
+       Astrographic catalog (mean epoch around 1900)         2 ...
+  AKARI IRC (9/18um) and FIS (60-160um)all-sky Surveys       2 ...
+           All-Sky Compiled Catalog of 2.5M*  (2003)         2 ...
+       The DENIS database (3rd Release 2005 version)         2 ...
+     The Carlsberg Meridian Catalog 14 (-30<Dec<+50)         2 ...
+           GALEX-DR5 sources from AIS and MIS (2011)         2 ...
+         Spitzer's GLIMPSE catalogs (Galactic Plane)         2 ...
+   The HST Guide Star Catalog reduced on Tycho (ACT)         2 ...
   Example 2: irsa.ipac.caltech.edu
 
 .. code-block:: python
@@ -551,7 +551,7 @@ Example 1: TAPVizieR.u-strasbg.fr
   >>> job = tap.launch_job_async("SELECT TOP 10 * FROM fp_psc")
   >>> r = job.get_results()
   >>> r.pprint()
-  
+
      name      dtype   unit format n_bad
   ------------- ------- ----- ------ -----
          cntr   int32                  0
