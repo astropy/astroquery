@@ -584,4 +584,8 @@ To perform a logout
   ...
 
 
+Reference/API
+=============
 
+.. automodapi:: astroquery.gaia
+    :no-inheritance-diagram:

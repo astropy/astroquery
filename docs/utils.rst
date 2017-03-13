@@ -12,8 +12,8 @@ Reference/API
 .. automodapi:: astroquery.utils
     :no-inheritance-diagram:
 
-    
+
 TAP/TAP+
 --------
 
-Table Access Protocol implementation. See :doc:`tap/tap.rst`
+Table Access Protocol implementation. See :doc:`utils/tap`

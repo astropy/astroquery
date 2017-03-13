@@ -1,6 +1,6 @@
 .. doctest-skip-all
 
-.. _astroquery.tap:
+.. _astroquery.utils.tap:
 
 *********************************
 TAP/TAP+ (`astroquery.utils.tap`)
@@ -37,12 +37,11 @@ Examples
 ========
 
 
----------------------------
 1. Non authenticated access
 ---------------------------
 
 1.1 Getting public tables
-~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^
 
 To load only table names (TAP+ capability)
 
@@ -152,7 +151,7 @@ Once a table is loaded, columns can be inspected
 
 
 1.2 Synchronous query
-~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^
 
 A synchronous query will not store the results at server side. These queries must be used when the amount of data to be retrieve is 'small'.
 
@@ -259,7 +258,7 @@ Query saving results in a file:
 
 
 1.3 Synchronous query on an 'on-the-fly' uploaded table
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 A table can be uploaded to the server in order to be used in a query.
 
@@ -283,7 +282,7 @@ A table can be uploaded to the server in order to be used in a query.
 
 
 1.4 Asynchronous query
-~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^
 
 Asynchronous queries save results at server side. These queries can be accessed at any time. For anonymous users, results are kept for three days.
 
@@ -383,7 +382,7 @@ Query saving results in a file:
 
 
 1.5 Asynchronous job removal
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 To remove asynchronous
 
@@ -394,7 +393,6 @@ To remove asynchronous
   >>> job = gaia.remove_jobs(["job_id_1","job_id_2",...])
 
 
------------------------------------
 2. Authenticated access (TAP+ only)
 -----------------------------------
 
@@ -412,7 +410,7 @@ The main differences are:
 
 
 2.1. Login/Logout
-~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^
 
 Graphic interface
 
@@ -463,7 +461,7 @@ To perform a logout
 
 
 2.2. Listing shared tables
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code-block:: python
 
@@ -491,7 +489,7 @@ To perform a logout
   ...
 
 
--------------------------------------------
+
 3. Using TAP+ to connect other TAP services
 -------------------------------------------
 
@@ -574,3 +572,11 @@ Example 1: TAPVizieR.u-strasbg.fr
   ...
 
 Please, check methods documentation to determine whether a method is TAP compatible.
+
+
+=============
+Reference/API
+=============
+
+.. automodapi:: astroquery.utils.tap
+    :no-inheritance-diagram:

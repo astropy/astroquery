@@ -20,4 +20,4 @@ from astroquery.utils.tap.core import TapPlus
 from astroquery.utils.tap.model.taptable import TapTableMeta
 from astroquery.utils.tap.model.tapcolumn import TapColumn
 
-__all__ = ['Tap', 'TapPlus', 'Job', 'TapTableMeta', 'TapColumn']
+__all__ = ['Tap', 'TapPlus', 'TapTableMeta', 'TapColumn']

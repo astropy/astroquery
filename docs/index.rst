@@ -267,7 +267,7 @@ above categories.
   nasa_ads/nasa_ads.rst
   vamdc/vamdc.rst
   hitran/hitran.rst
-  tap/tap.rst
+  utils/tap.rst
 
 
 Developer documentation
@@ -297,7 +297,7 @@ services in Astroquery, you can use them for your scripts, but we don't guarante
 
   utils.rst
   query.rst
-  tap/tap.rst
+  utils/tap.rst
 
 License
 -------
