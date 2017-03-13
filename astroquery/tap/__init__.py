@@ -17,5 +17,6 @@ Created on 30 jun. 2016
 
 from astroquery.tap.core import Tap
 from astroquery.tap.core import TapPlus
+from astroquery.tap.model.tapcolumn import TapColumn
 
-__all__ = ['Tap', 'TapPlus', 'Job']
+__all__ = ['Tap', 'TapPlus', 'Job', 'TapColumn']

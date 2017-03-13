@@ -105,15 +105,15 @@ class Table(object):
         """
         return self.__columns
     
-    def add_column(self, column):
-        """Adds a table column
+    def add_column(self, tap_column):
+        """Adds a table TAP column
         
         Parameters
         ----------
-        column : Column object, mandatory
-            table column
+        tap_column : TAP Column object, mandatory
+            table TAP column
         """
-        self.__columns.append(column)
+        self.__columns.append(tap_column)
     
     def __str__(self):
         return "Table name: " + str(self.get_qualified_name()) + \

@@ -17,8 +17,6 @@ Created on 30 jun. 2016
 
 import xml.sax
 
-from astroquery.tap.model.table import Table
-from astroquery.tap.model.column import Column
 from astroquery.tap.model.job import Job
 from astroquery.tap.xmlparser import utils as Utils
 
@@ -72,8 +70,8 @@ class JobSaxParser(xml.sax.ContentHandler):
         return False 
     
     def __check_valid_item_id(self, name):
-        for id in VALID_ITEMS:
-            if self.__check_item_id(id, name):
+        for idTmp in VALID_ITEMS:
+            if self.__check_item_id(idTmp, name):
                 return True
         return False
     

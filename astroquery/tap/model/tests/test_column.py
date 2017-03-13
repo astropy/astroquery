@@ -17,7 +17,7 @@ Created on 30 jun. 2016
 
 import unittest
 import os
-from astroquery.tap.model.column import Column
+from astroquery.tap.model.tapcolumn import TapColumn
 
 def data_path(filename):
     data_dir = os.path.join(os.path.dirname(__file__), 'data')
@@ -34,7 +34,7 @@ class TestTableColumn(unittest.TestCase):
         utype = "utype"
         unit = "unit"
         description = "description"
-        c = Column()
+        c = TapColumn()
         c.set_name(name)
         c.set_array_size(arraysize)
         c.set_data_type(datatype)

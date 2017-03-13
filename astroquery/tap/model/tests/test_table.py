@@ -17,7 +17,7 @@ Created on 30 jun. 2016
 import unittest
 import os
 from astroquery.tap.model.table import Table
-from astroquery.tap.model.column import Column
+from astroquery.tap.model.tapcolumn import TapColumn
 
 def data_path(filename):
     data_dir = os.path.join(os.path.dirname(__file__), 'data')
@@ -38,8 +38,8 @@ class TestTable(unittest.TestCase):
     
     def test_table_columns(self):
         table = Table()
-        c1 = Column()
-        c2 = Column()
+        c1 = TapColumn()
+        c2 = TapColumn()
         table.add_column(c1)
         table.add_column(c2)
         res = table.get_columns()

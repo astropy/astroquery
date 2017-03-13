@@ -17,8 +17,6 @@ Created on 30 jun. 2016
 
 import xml.sax
 
-from astroquery.tap.model.table import Table
-from astroquery.tap.model.column import Column
 from astroquery.tap.model.job import Job
 from astroquery.tap.xmlparser import utils as Utils
 
