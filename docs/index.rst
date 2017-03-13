@@ -166,7 +166,6 @@ The following modules have been completed using a common API:
   nasa_ads/nasa_ads.rst
   heasarc/heasarc.rst
   gaia/gaia.rst
-  tap/tap.rst
 
 These others are functional, but do not follow a common & consistent API:
 
@@ -267,6 +266,7 @@ above categories.
   nasa_ads/nasa_ads.rst
   vamdc/vamdc.rst
   hitran/hitran.rst
+  tap/tap.rst
 
 
 Developer documentation
