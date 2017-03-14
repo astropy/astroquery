@@ -165,6 +165,7 @@ The following modules have been completed using a common API:
   skyview/skyview.rst
   nasa_ads/nasa_ads.rst
   heasarc/heasarc.rst
+  gaia/gaia.rst
 
 These others are functional, but do not follow a common & consistent API:
 
@@ -225,6 +226,7 @@ generally return a table listing the available data first.
   alma/alma.rst
   eso/eso.rst
   fermi/fermi.rst
+  gaia/gaia.rst
   heasarc/heasarc.rst
   ibe/ibe.rst
   irsa/irsa.rst
@@ -265,6 +267,7 @@ above categories.
   nasa_ads/nasa_ads.rst
   vamdc/vamdc.rst
   hitran/hitran.rst
+  utils/tap.rst
 
 
 Developer documentation
@@ -294,6 +297,7 @@ services in Astroquery, you can use them for your scripts, but we don't guarante
 
   utils.rst
   query.rst
+  utils/tap.rst
 
 License
 -------

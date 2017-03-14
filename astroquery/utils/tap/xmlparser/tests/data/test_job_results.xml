@@ -1,0 +1,221 @@
+<VOTABLE version="1.3" xmlns="http://www.ivoa.net/xml/VOTable/v1.3">
+<RESOURCE type="results">
+<INFO name="QUERY_STATUS" value="OK"/>
+<INFO name="ADQL_QUERY" value="select top 5 * from gaiadr1.gaia_source" />
+<INFO name="CAPTION" value="If you use public Gaia DR1 data in your paper, please take note of our guide on how to acknowledge and cite Gaia DR1: http://gaia.esac.esa.int/documentation/GDR1/Miscellaneous/sec_credit_and_citation_instructions.html" />
+<TABLE>
+<FIELD datatype="long" name="solution_id" ucd="meta.id;meta.version">
+<DESCRIPTION>solution_id</DESCRIPTION>
+</FIELD>
+<FIELD datatype="long" name="source_id" ucd="meta.id;meta.main">
+<DESCRIPTION>source_id</DESCRIPTION>
+</FIELD>
+<FIELD datatype="long" name="random_index" ucd="meta.code">
+<DESCRIPTION>random_index</DESCRIPTION>
+</FIELD>
+<FIELD datatype="double" name="ref_epoch" ucd="meta.ref;time.epoch" unit="Time[Julian Years]">
+<DESCRIPTION>ref_epoch</DESCRIPTION>
+</FIELD>
+<FIELD datatype="double" name="ra" ucd="pos.eq.ra;meta.main" unit="Angle[deg]" utype="Char.SpatialAxis.Coverage.Location.Coord.Position2D.Value2.C1">
+<DESCRIPTION>ra</DESCRIPTION>
+</FIELD>
+<FIELD datatype="double" name="ra_error" ucd="stat.error;pos.eq.ra" unit="Angle[mas]">
+<DESCRIPTION>ra_error</DESCRIPTION>
+</FIELD>
+<FIELD datatype="double" name="dec" ucd="pos.eq.dec;meta.main" unit="Angle[deg]" utype="Char.SpatialAxis.Coverage.Location.Coord.Position2D.Value2.C2">
+<DESCRIPTION>dec</DESCRIPTION>
+</FIELD>
+<FIELD datatype="double" name="dec_error" ucd="stat.error;pos.eq.dec" unit="Angle[mas]">
+<DESCRIPTION>dec_error</DESCRIPTION>
+</FIELD>
+<FIELD datatype="double" name="parallax" ucd="pos.parallax" unit="Angle[mas]">
+<DESCRIPTION>parallax</DESCRIPTION>
+</FIELD>
+<FIELD datatype="double" name="parallax_error" ucd="stat.error;pos.parallax" unit="Angle[mas]">
+<DESCRIPTION>parallax_error</DESCRIPTION>
+</FIELD>
+<FIELD datatype="double" name="pmra" ucd="pos.pm;pos.eq.ra" unit="Angular Velocity[mas/year]">
+<DESCRIPTION>pmra</DESCRIPTION>
+</FIELD>
+<FIELD datatype="double" name="pmra_error" ucd="stat.error;pos.pm;pos.eq.ra" unit="Angular Velocity[mas/year]">
+<DESCRIPTION>pmra_error</DESCRIPTION>
+</FIELD>
+<FIELD datatype="double" name="pmdec" ucd="pos.pm;pos.eq.dec" unit="Angular Velocity[mas/year]">
+<DESCRIPTION>pmdec</DESCRIPTION>
+</FIELD>
+<FIELD datatype="double" name="pmdec_error" ucd="stat.error;pos.pm;pos.eq.dec" unit="Angular Velocity[mas/year]">
+<DESCRIPTION>pmdec_error</DESCRIPTION>
+</FIELD>
+<FIELD datatype="float" name="ra_dec_corr" ucd="stat.correlation" unit="Dimensionless[see description]">
+<DESCRIPTION>ra_dec_corr</DESCRIPTION>
+</FIELD>
+<FIELD datatype="float" name="ra_parallax_corr" ucd="stat.correlation" unit="Dimensionless[see description]">
+<DESCRIPTION>ra_parallax_corr</DESCRIPTION>
+</FIELD>
+<FIELD datatype="float" name="ra_pmra_corr" ucd="stat.correlation" unit="Dimensionless[see description]">
+<DESCRIPTION>ra_pmra_corr</DESCRIPTION>
+</FIELD>
+<FIELD datatype="float" name="ra_pmdec_corr" ucd="stat.correlation" unit="Dimensionless[see description]">
+<DESCRIPTION>ra_pmdec_corr</DESCRIPTION>
+</FIELD>
+<FIELD datatype="float" name="dec_parallax_corr" ucd="stat.correlation" unit="Dimensionless[see description]">
+<DESCRIPTION>dec_parallax_corr</DESCRIPTION>
+</FIELD>
+<FIELD datatype="float" name="dec_pmra_corr" ucd="stat.correlation" unit="Dimensionless[see description]">
+<DESCRIPTION>dec_pmra_corr</DESCRIPTION>
+</FIELD>
+<FIELD datatype="float" name="dec_pmdec_corr" ucd="stat.correlation" unit="Dimensionless[see description]">
+<DESCRIPTION>dec_pmdec_corr</DESCRIPTION>
+</FIELD>
+<FIELD datatype="float" name="parallax_pmra_corr" ucd="stat.correlation" unit="Dimensionless[see description]">
+<DESCRIPTION>parallax_pmra_corr</DESCRIPTION>
+</FIELD>
+<FIELD datatype="float" name="parallax_pmdec_corr" ucd="stat.correlation" unit="Dimensionless[see description]">
+<DESCRIPTION>parallax_pmdec_corr</DESCRIPTION>
+</FIELD>
+<FIELD datatype="float" name="pmra_pmdec_corr" ucd="stat.correlation" unit="Dimensionless[see description]">
+<DESCRIPTION>pmra_pmdec_corr</DESCRIPTION>
+</FIELD>
+<FIELD datatype="int" name="astrometric_n_obs_al" ucd="meta.number">
+<DESCRIPTION>astrometric_n_obs_al</DESCRIPTION>
+</FIELD>
+<FIELD datatype="int" name="astrometric_n_obs_ac" ucd="meta.number">
+<DESCRIPTION>astrometric_n_obs_ac</DESCRIPTION>
+</FIELD>
+<FIELD datatype="int" name="astrometric_n_good_obs_al" ucd="meta.number">
+<DESCRIPTION>astrometric_n_good_obs_al</DESCRIPTION>
+</FIELD>
+<FIELD datatype="int" name="astrometric_n_good_obs_ac" ucd="meta.number">
+<DESCRIPTION>astrometric_n_good_obs_ac</DESCRIPTION>
+</FIELD>
+<FIELD datatype="int" name="astrometric_n_bad_obs_al" ucd="meta.number">
+<DESCRIPTION>astrometric_n_bad_obs_al</DESCRIPTION>
+</FIELD>
+<FIELD datatype="int" name="astrometric_n_bad_obs_ac" ucd="meta.number">
+<DESCRIPTION>astrometric_n_bad_obs_ac</DESCRIPTION>
+</FIELD>
+<FIELD datatype="float" name="astrometric_delta_q" ucd="stat.value">
+<DESCRIPTION>astrometric_delta_q</DESCRIPTION>
+</FIELD>
+<FIELD datatype="double" name="astrometric_excess_noise" ucd="stat.value" unit="Angle[mas]">
+<DESCRIPTION>astrometric_excess_noise</DESCRIPTION>
+</FIELD>
+<FIELD datatype="double" name="astrometric_excess_noise_sig" ucd="stat.value">
+<DESCRIPTION>astrometric_excess_noise_sig</DESCRIPTION>
+</FIELD>
+<FIELD datatype="boolean" name="astrometric_primary_flag" ucd="meta.code">
+<DESCRIPTION>astrometric_primary_flag</DESCRIPTION>
+</FIELD>
+<FIELD datatype="float" name="astrometric_relegation_factor" ucd="arith.factor">
+<DESCRIPTION>astrometric_relegation_factor</DESCRIPTION>
+</FIELD>
+<FIELD datatype="float" name="astrometric_weight_al" ucd="stat.weight;stat.mean" unit="Angle[mas^-2]">
+<DESCRIPTION>astrometric_weight_al</DESCRIPTION>
+</FIELD>
+<FIELD datatype="float" name="astrometric_weight_ac" ucd="stat.weight;stat.mean" unit="Angle[mas^-2]">
+<DESCRIPTION>astrometric_weight_ac</DESCRIPTION>
+</FIELD>
+<FIELD datatype="int" name="astrometric_priors_used">
+<DESCRIPTION>astrometric_priors_used</DESCRIPTION>
+</FIELD>
+<FIELD datatype="short" name="matched_observations" ucd="meta.number">
+<DESCRIPTION>matched_observations</DESCRIPTION>
+</FIELD>
+<FIELD datatype="boolean" name="duplicated_source">
+<DESCRIPTION>duplicated_source</DESCRIPTION>
+</FIELD>
+<FIELD datatype="float" name="scan_direction_strength_k1">
+<DESCRIPTION>scan_direction_strength_k1</DESCRIPTION>
+</FIELD>
+<FIELD datatype="float" name="scan_direction_strength_k2">
+<DESCRIPTION>scan_direction_strength_k2</DESCRIPTION>
+</FIELD>
+<FIELD datatype="float" name="scan_direction_strength_k3">
+<DESCRIPTION>scan_direction_strength_k3</DESCRIPTION>
+</FIELD>
+<FIELD datatype="float" name="scan_direction_strength_k4">
+<DESCRIPTION>scan_direction_strength_k4</DESCRIPTION>
+</FIELD>
+<FIELD datatype="float" name="scan_direction_mean_k1" unit="Angle[deg]">
+<DESCRIPTION>scan_direction_mean_k1</DESCRIPTION>
+</FIELD>
+<FIELD datatype="float" name="scan_direction_mean_k2" unit="Angle[deg]">
+<DESCRIPTION>scan_direction_mean_k2</DESCRIPTION>
+</FIELD>
+<FIELD datatype="float" name="scan_direction_mean_k3" unit="Angle[deg]">
+<DESCRIPTION>scan_direction_mean_k3</DESCRIPTION>
+</FIELD>
+<FIELD datatype="float" name="scan_direction_mean_k4" unit="Angle[deg]">
+<DESCRIPTION>scan_direction_mean_k4</DESCRIPTION>
+</FIELD>
+<FIELD datatype="int" name="phot_g_n_obs" ucd="meta.number">
+<DESCRIPTION>phot_g_n_obs</DESCRIPTION>
+</FIELD>
+<FIELD datatype="double" name="phot_g_mean_flux" ucd="phot.flux;stat.mean;em.opt" unit="Flux[e-/s]">
+<DESCRIPTION>phot_g_mean_flux</DESCRIPTION>
+</FIELD>
+<FIELD datatype="double" name="phot_g_mean_flux_error" ucd="stat.error;phot.flux;stat.mean;em.opt" unit="Flux[e-/s]">
+<DESCRIPTION>phot_g_mean_flux_error</DESCRIPTION>
+</FIELD>
+<FIELD datatype="double" name="phot_g_mean_mag" ucd="phot.mag;stat.mean;em.opt" unit="Magnitude[mag]">
+<DESCRIPTION>phot_g_mean_mag</DESCRIPTION>
+</FIELD>
+<FIELD arraysize="*" datatype="char" name="phot_variable_flag" ucd="meta.code;src.var" unit="Dimensionless[see description]">
+<DESCRIPTION>phot_variable_flag</DESCRIPTION>
+</FIELD>
+<FIELD datatype="double" name="l" ucd="pos.galactic.lon" unit="Angle[deg]">
+<DESCRIPTION>l</DESCRIPTION>
+</FIELD>
+<FIELD datatype="double" name="b" ucd="pos.galactic.lat" unit="Angle[deg]">
+<DESCRIPTION>b</DESCRIPTION>
+</FIELD>
+<FIELD datatype="double" name="ecl_lon" ucd="pos.ecliptic.lon" unit="Angle[deg]">
+<DESCRIPTION>ecl_lon</DESCRIPTION>
+</FIELD>
+<FIELD datatype="double" name="ecl_lat" ucd="pos.ecliptic.lat" unit="Angle[deg]">
+<DESCRIPTION>ecl_lat</DESCRIPTION>
+</FIELD>
+<DATA>
+<BINARY2>
+<STREAM encoding='base64'>
+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
+</STREAM>
+</BINARY2>
+</DATA>
+</TABLE>
+</RESOURCE>
+</VOTABLE>
