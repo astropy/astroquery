@@ -76,16 +76,6 @@ del intersphinx_mapping['h5py']
 intersphinx_mapping['astropy'] = ('http://docs.astropy.org/en/latest/', None)
 intersphinx_mapping['requests'] = ('http://docs.python-requests.org/en/latest/', None)
 intersphinx_mapping['pyregion'] = ('http://pyregion.readthedocs.io/en/latest/', None)
-try:
-    code = urllib.request.urlopen('http://docs.scipy.org/doc/numpy/objects.inv', timeout=10).getcode()
-    if code == 200:
-        numpyOK = True
-    else:
-        numpyOK = False
-except urllib.error.URLError:
-    numpyOK = False
-if not numpyOK:
-    intersphinx_mapping['numpy'] = ('http://jiffyclub.github.io/numpy/', None)
 
 # -- Project information ------------------------------------------------------
 
