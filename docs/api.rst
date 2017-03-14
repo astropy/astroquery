@@ -211,10 +211,11 @@ For multiple parallel queries logged in to the same object, you could do:
     QC = QueryClass(login_information)
 
     results = parallel_map(QC.query_object,['m31','m51','m17'],radius=['1"','1"','1"'])
-    # Here "parallel_map()" is a parallel implementation of some map function.
     
     results = [QC.query_object_async(obj, radius=r)
         for obj,r in zip(['m31','m51','m17'],['1"','1"','1"'])]
+
+Here `parallel_map()` is a parallel implementation of some map function.
 
 .. TODO::
 
