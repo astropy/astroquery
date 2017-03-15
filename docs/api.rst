@@ -6,8 +6,8 @@ Astroquery API Specification
 
 Service Class
 -------------
-The query tools will be implemented as class methods, so that the standard approach
-for a given web service (e.g., IRSA, UKIDSS, SIMBAD) will be
+The query tools will be implemented as class methods, so that the standard
+approach for a given web service (e.g., IRSA, UKIDSS, SIMBAD) will be
 
 .. code-block:: python
 
@@ -36,8 +36,8 @@ The classes will have the following methods where appropriate:
     query_region(coordinate, radius=, width=)
     get_images(coordinate)
 
-They may also have other methods for querying non-standard data types (e.g.,
-ADS queries that may return a ``bibtex`` text block).
+They may also have other methods for querying non-standard data types
+(e.g., ADS queries that may return a ``bibtex`` text block).
 
 query_object
 ````````````
@@ -54,8 +54,9 @@ Query a region around a coordinate.
 
 One of these keywords *must* be specified (no default is assumed)::
 
-    radius - an astropy Quantity object, or a string that can be parsed into one.  e.g., '1 degree' or 1*u.degree.
-        If radius is specified, the shape is assumed to be a circle
+    radius - an astropy Quantity object, or a string that can be parsed into one.
+            e.g., '1 degree' or 1*u.degree.
+            If radius is specified, the shape is assumed to be a circle
     width - a Quantity.  Specifies the edge length of a square box
     height - a Quantity.  Specifies the height of a rectangular box.  Must be passed with width.
 
@@ -206,14 +207,17 @@ For multiple parallel queries logged in to the same object, you could do:
 
 .. code-block:: python
 
-    from astroquery import module
+    from astroquery.module import QueryClass
 
     QC = QueryClass(login_information)
 
-    results = parallel_map(QC.query_object,['m31','m51','m17'],radius=['1"','1"','1"'])
+    results = parallel_map(QC.query_object, ['m31', 'm51', 'm17'],
+                           radius=['1"', '1"', '1"'])
 
     results = [QC.query_object_async(obj, radius=r)
-        for obj,r in zip(['m31','m51','m17'],['1"','1"','1"'])]
+               for obj,r in zip(['m31', 'm51', 'm17'], ['1"', '1"', '1"'])]
+
+Here ``parallel_map()`` is a parallel implementation of some map function.
 
 .. TODO::
 
