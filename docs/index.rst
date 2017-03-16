@@ -166,6 +166,7 @@ The following modules have been completed using a common API:
   nasa_ads/nasa_ads.rst
   heasarc/heasarc.rst
   gaia/gaia.rst
+  vo_conesearch/vo_conesearch.rst
 
 These others are functional, but do not follow a common & consistent API:
 
@@ -212,6 +213,7 @@ for each source)
   ukidss/ukidss.rst
   vizier/vizier.rst
   xmatch/xmatch.rst
+  vo_conesearch/vo_conesearch.rst
 
 Archives
 --------

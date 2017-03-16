@@ -90,6 +90,8 @@ These keywords are common to all query methods::
     timeout - timeout in seconds
 
 
+.. _api_async_queries:
+
 Asynchronous Queries
 --------------------
 Some services require asynchronous query submission & download, e.g. Besancon,
