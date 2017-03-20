@@ -19,12 +19,14 @@ import os
 from astroquery.utils.tap.model.taptable import TapTableMeta
 from astroquery.utils.tap.model.tapcolumn import TapColumn
 
+
 def data_path(filename):
     data_dir = os.path.join(os.path.dirname(__file__), 'data')
     return os.path.join(data_dir, filename)
 
+
 class TestTable(unittest.TestCase):
-    
+
     def test_table(self):
         table = TapTableMeta()
         schemaName = "sch"
@@ -35,7 +37,7 @@ class TestTable(unittest.TestCase):
         res = table.get_qualified_name()
         assert res == expected, \
             "Qualified name, expected: %s, found: %s" % (expected, res)
-    
+
     def test_table_columns(self):
         table = TapTableMeta()
         c1 = TapColumn()
@@ -45,7 +47,7 @@ class TestTable(unittest.TestCase):
         res = table.get_columns()
         assert len(res) == 2, \
             "Num columns, expected: %d, found: %d" % (2, len(res))
-    
+
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']

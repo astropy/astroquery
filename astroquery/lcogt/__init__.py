@@ -30,6 +30,7 @@ class Conf(_config.ConfigNamespace):
         60,
         'Time limit for connecting to the LCOGT IPAC server.')
 
+
 conf = Conf()
 
 

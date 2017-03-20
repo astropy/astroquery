@@ -18,6 +18,7 @@ from __future__ import absolute_import
 
 import os
 
+
 def get_pakcage_data():
-    paths= []
+    paths = []
     return {'astroquery.utils.tap.conn.tests': paths}

@@ -139,7 +139,6 @@ class NvasClass(BaseQuery):
     def get_image_list(self, coordinates, radius=0.25 * u.arcmin,
                        max_rms=10000, band="all", get_uvfits=False,
                        get_query_payload=False):
-
         """
         Function that returns a list of urls from which to download the FITS
         images.
@@ -217,6 +216,7 @@ class NvasClass(BaseQuery):
         else:
             image_urls = imfits_re.findall(html_in)
         return image_urls
+
 
 Nvas = NvasClass()
 

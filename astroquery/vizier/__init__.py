@@ -45,6 +45,7 @@ class Conf(_config.ConfigNamespace):
         'Maximum number of rows that will be fetched from the result '
         '(set to -1 for unlimited).')
 
+
 conf = Conf()
 
 from .core import Vizier, VizierClass

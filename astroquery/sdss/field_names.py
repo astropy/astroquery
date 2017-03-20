@@ -83,4 +83,5 @@ def _load_builtin_table_fields():
             'http://skyserver.sdss.org/dr12/en/tools/search/x_sql.aspx')
     _cached_table_fields[key2] = _cached_table_fields[key1]
 
+
 _load_builtin_table_fields()

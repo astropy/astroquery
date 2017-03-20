@@ -1071,6 +1071,7 @@ class EmissionSection(BaseResultSection):
             base_string + self._stats.__str__() + "]"
         return string
 
+
 IrsaDust = IrsaDustClass()
 
 

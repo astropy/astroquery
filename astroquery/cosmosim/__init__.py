@@ -32,6 +32,7 @@ class Conf(_config.ConfigNamespace):
         "",
         'Optional default username for CosmoSim database.')
 
+
 conf = Conf()
 
 from .core import CosmoSim, CosmoSimClass

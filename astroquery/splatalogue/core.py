@@ -26,6 +26,7 @@ if sys.version_info.major == 2:
     # can't do unicode doctests in py2
     __doctest_skip__ = ['SplatalogueClass.get_species_ids']
 
+
 @async_to_sync
 class SplatalogueClass(BaseQuery):
 
@@ -443,7 +444,7 @@ class SplatalogueClass(BaseQuery):
                                                    **kwargs))
 
         # Add an extra step: sometimes, need to REMOVE keywords
-        data_payload = {k:v for k,v in data_payload.items() if v is not None}
+        data_payload = {k: v for k, v in data_payload.items() if v is not None}
 
         if get_query_payload:
             return data_payload
@@ -509,5 +510,6 @@ def validate_energy_type(etype):
     if etype not in valid_energy_types:
         raise ValueError("Energy type must be one of {0}"
                          .format(valid_energy_types))
+
 
 Splatalogue = SplatalogueClass()

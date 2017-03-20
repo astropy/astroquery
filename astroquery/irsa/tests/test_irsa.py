@@ -120,6 +120,7 @@ def test_query_region_box(coordinates, patch_get):
 
     assert isinstance(result, Table)
 
+
 poly1 = [coord.SkyCoord(ra=10.1, dec=10.1, unit=(u.deg, u.deg)),
          coord.SkyCoord(ra=10.0, dec=10.1, unit=(u.deg, u.deg)),
          coord.SkyCoord(ra=10.0, dec=10.0, unit=(u.deg, u.deg))]

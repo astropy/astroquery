@@ -27,6 +27,7 @@ class Conf(_config.ConfigNamespace):
         60,
         'Time limit for connecting to OGLE server.')
 
+
 conf = Conf()
 
 from .core import Ogle, OgleClass

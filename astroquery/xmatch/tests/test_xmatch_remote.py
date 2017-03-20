@@ -54,6 +54,7 @@ def test_xmatch_query(xmatch):
     http_test_table = http_test()
     assert all(table == http_test_table)
 
+
 @remote_data
 def test_xmatch_query_astropy_table(xmatch):
     datapath = os.path.join(DATA_DIR, 'posList.csv')
@@ -70,6 +71,7 @@ def test_xmatch_query_astropy_table(xmatch):
 
     http_test_table = http_test()
     assert all(table == http_test_table)
+
 
 @remote_data
 def http_test():

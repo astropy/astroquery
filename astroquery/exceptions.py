@@ -52,6 +52,7 @@ class NoResultsWarning(AstropyWarning):
     Astroquery warning class to be issued when a query returns no result.
     """
 
+
 class LargeQueryWarning(AstropyWarning):
     """
     Astroquery warning class to be issued when a query is larger than

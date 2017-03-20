@@ -16,6 +16,7 @@ class Conf(_config.ConfigNamespace):
         30,
         'Time limit for connecting to NIST server.')
 
+
 conf = Conf()
 
 from .core import Nist, NistClass

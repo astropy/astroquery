@@ -13,6 +13,7 @@ DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
 def data_path(filename):
     return os.path.join(DATA_DIR, filename)
 
+
 DATA_FILES = {
     'GET': {'http://almascience.eso.org/aq/': {'Sgr A*': 'sgra_query.xml',
                                                'NGC4945': 'ngc4945.xml',

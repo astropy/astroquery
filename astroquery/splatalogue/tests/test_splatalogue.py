@@ -110,7 +110,7 @@ def test_band_crashorno():
     assert exc.value.args[0] == "Invalid frequency band."
 
 
-#Upstream changed: there is no distinction between versions for this molecule
+# Upstream changed: there is no distinction between versions for this molecule
 # # regression test : version selection should work
 # # Unfortunately, it looks like version1 = version2 on the web page now, so this
 # # may no longer be a valid test
@@ -133,9 +133,9 @@ def test_exclude(patch_post):
 
     exclusions = {'no_atmospheric': 'no_atmospheric',
                   'no_potential': 'no_potential',
-                  'no_probable': 'no_probable',}
+                  'no_probable': 'no_probable', }
 
-    for k,v in exclusions.items():
+    for k, v in exclusions.items():
         assert d[k] == v
 
     d = splatalogue.Splatalogue.query_lines_async(114 * u.GHz, 116 * u.GHz,
@@ -143,11 +143,12 @@ def test_exclude(patch_post):
                                                   exclude='none',
                                                   get_query_payload=True)
 
-    for k,v in exclusions.items():
+    for k, v in exclusions.items():
         assert k not in d
 
     for k in d:
         assert k[:3] != 'no_'
+
 
 @remote_data
 def test_exclude_remote():

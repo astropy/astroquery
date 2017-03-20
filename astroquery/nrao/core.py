@@ -175,12 +175,12 @@ class NraoClass(QueryWithLogin):
         obs_bands = kwargs.get('obs_band', 'all')
         if isinstance(obs_bands, six.string_types):
             obs_bands = obs_bands.upper()
-        elif isinstance(obs_bands, (list,tuple)):
+        elif isinstance(obs_bands, (list, tuple)):
             obs_bands = [x.upper() for x in obs_bands]
 
         request_payload = dict(
             QUERYTYPE=kwargs.get('querytype', "OBSSUMMARY"),
-            PROTOCOL=kwargs.get('protocol',"VOTable-XML"),
+            PROTOCOL=kwargs.get('protocol', "VOTable-XML"),
             MAX_ROWS="NO LIMIT",
             SORT_PARM="Starttime",
             SORT_ORDER="Asc",
@@ -224,7 +224,7 @@ class NraoClass(QueryWithLogin):
                           " support votable returns")
             request_payload['PROTOCOL'] = 'HTML'
 
-        if request_payload['PROTOCOL'] not in ('HTML','VOTable-XML'):
+        if request_payload['PROTOCOL'] not in ('HTML', 'VOTable-XML'):
             raise ValueError("Only HTML and VOTable-XML returns are supported")
 
         if request_payload['QUERYTYPE'] not in ('ARCHIVE', 'OBSSUMMARY',
@@ -299,7 +299,7 @@ class NraoClass(QueryWithLogin):
                 for kw in ('lt', '_eventId', 'execution')}
         data['username'] = username
         data['password'] = password
-        data['execution'] = 'e1s1' # not sure if needed
+        data['execution'] = 'e1s1'  # not sure if needed
         data['_eventId'] = 'submit'
         data['submit'] = 'LOGIN'
 
@@ -447,7 +447,7 @@ class NraoClass(QueryWithLogin):
         root = BeautifulSoup(response.content, 'html5lib')
 
         htmltable = root.findAll('table')
-        #if len(htmltable) != 1:
+        # if len(htmltable) != 1:
         #    raise ValueError("Found the wrong number of tables: {0}"
         #                     .format(len(htmltable)))
 
@@ -463,5 +463,6 @@ class NraoClass(QueryWithLogin):
             table = Table.read(string_to_parse.decode('utf-8'), format='ascii.html')
 
         return table
+
 
 Nrao = NraoClass()

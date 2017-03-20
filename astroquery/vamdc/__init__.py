@@ -16,6 +16,7 @@ class Conf(_config.ConfigNamespace):
 
     cache_location = os.path.join(paths.get_cache_dir(), 'astroquery/vamdc',)
 
+
 conf = Conf()
 
 from .core import VamdcClass

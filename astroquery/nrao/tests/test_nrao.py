@@ -16,9 +16,10 @@ def data_path(filename):
     data_dir = os.path.join(os.path.dirname(__file__), 'data')
     return os.path.join(data_dir, filename)
 
+
 DATA_FILES = {'votable': 'votable.xml',
               'archive': 'archive_html.html',
-             }
+              }
 
 
 @pytest.fixture
@@ -84,6 +85,7 @@ def test_query_region(patch_post, patch_parse_coordinates):
     else:
         assert result['Start_Time'][0] == b'83-Sep-27 09:19:30'
     assert result['RA'][0] == b'04h33m11.096s'
+
 
 def test_query_region_archive(patch_post, patch_parse_coordinates):
     result = nrao.core.Nrao.query_region(

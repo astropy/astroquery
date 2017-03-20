@@ -5,6 +5,7 @@ import json
 from ..splatalogue.load_species_table import SpeciesLookuptable
 from . import Conf
 
+
 def species_lookuptable(cache=True):
     """
     Get a lookuptable from chemical name + OrdinaryStructuralFormula to VAMDC

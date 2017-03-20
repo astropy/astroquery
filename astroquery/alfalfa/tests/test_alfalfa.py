@@ -60,6 +60,7 @@ def data_path(filename):
     data_dir = os.path.join(os.path.dirname(__file__), 'data')
     return os.path.join(data_dir, filename)
 
+
 # Test Case: A Seyfert 1 galaxy
 coords = coordinates.SkyCoord('0h8m05.63s +14d50m23.3s')
 

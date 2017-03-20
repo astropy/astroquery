@@ -25,6 +25,7 @@ def check_file_exists(file_name):
         return False
     return os.path.exists(file_name)
 
+
 def read_results_table_from_file(file_name, output_format):
     if check_file_exists(file_name):
         return APTable.read(file_name, format=output_format)

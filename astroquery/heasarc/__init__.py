@@ -25,6 +25,7 @@ class Conf(_config.ConfigNamespace):
         30,
         'Time limit for connecting to HEASARC server.')
 
+
 conf = Conf()
 
 from .core import Heasarc, HeasarcClass

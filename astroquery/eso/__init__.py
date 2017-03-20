@@ -17,6 +17,7 @@ class Conf(_config.ConfigNamespace):
         "",
         'Optional default username for ESO archive.')
 
+
 conf = Conf()
 
 from .core import Eso, EsoClass

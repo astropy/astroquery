@@ -26,7 +26,6 @@ def data_path(filename):
 
 class TestFilter(unittest.TestCase):
 
-
     def test_filter(self):
         f = Filter()
         res = f.create_url_data_request()
@@ -54,11 +53,11 @@ class TestFilter(unittest.TestCase):
         f.set_limit(limit)
         f.set_metadata_only(metadataOnly)
         res = f.create_url_data_request()
-        expected = {filter1: value1, 
-                    filter2: value2, 
-                    offset: offset, 
-                    order: order, 
-                    limit: limit, 
+        expected = {filter1: value1,
+                    filter2: value2,
+                    offset: offset,
+                    order: order,
+                    limit: limit,
                     'metadata_only': metadataOnly}
         assert res == expected, \
             "Parameters III, expected: %s, found: %s" % (str(expected), str(res))

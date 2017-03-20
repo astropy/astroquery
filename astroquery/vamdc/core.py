@@ -1,30 +1,10 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from __future__ import print_function
-import time
+
 import os.path
-import getpass
-import keyring
-import numpy as np
-import re
-import tarfile
-import string
-import requests
-import sys
-from pkg_resources import resource_filename
-from bs4 import BeautifulSoup
 
-from astropy.extern.six.moves.urllib_parse import urljoin, urlparse
-from astropy.extern.six import iteritems
-from astropy.extern import six
-from astropy.table import Table, Column
 from astropy import log
-from astropy.utils.console import ProgressBar
-from astropy import units as u
-import astropy.io.votable as votable
 
-from ..exceptions import (RemoteServiceError, TableParseError,
-                          InvalidQueryError)
-from ..utils import commons, system_tools
 from ..utils.process_asyncs import async_to_sync
 from ..query import BaseQuery
 from . import conf
@@ -38,7 +18,6 @@ class VamdcClass(BaseQuery):
 
     TIMEOUT = conf.timeout
     CACHE_LOCATION = conf.cache_location
-
 
     def __init__(self, doimport=True):
         super(VamdcClass, self).__init__()
@@ -111,12 +90,12 @@ class VamdcClass(BaseQuery):
             else:
                 raise ValueError("Too many species matched: {0}"
                                  .format(species_id_dict))
-             
+
             request = self._vrequest.Request(node=self._cdms)
             query_string = "SELECT ALL WHERE VAMDCSpeciesID='%s'" % species_id
             request.setquery(query_string)
             result = request.dorequest()
-            
+
             if cache:
                 with open(myhashpath, 'wb') as fh:
                     xml = fh.write(result.Xml)
@@ -124,7 +103,7 @@ class VamdcClass(BaseQuery):
         return result
 
         # example use of specmodel; return to this later...
-        #Q = self.specmodel.calculate_partitionfunction(result.data['States'],
+        # Q = self.specmodel.calculate_partitionfunction(result.data['States'],
         #                                  temperature=tex)[species_id]
 
 

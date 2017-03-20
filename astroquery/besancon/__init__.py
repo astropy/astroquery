@@ -31,6 +31,7 @@ class Conf(_config.ConfigNamespace):
         30.0,
         'Timeout for Besancon query')
 
+
 conf = Conf()
 
 from .core import (Besancon, BesanconClass, parse_besancon_model_string,

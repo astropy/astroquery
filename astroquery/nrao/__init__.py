@@ -19,6 +19,7 @@ class Conf(_config.ConfigNamespace):
         "",
         'Optional default username for ALMA archive.')
 
+
 conf = Conf()
 
 from .core import Nrao, NraoClass

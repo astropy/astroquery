@@ -138,6 +138,7 @@ def test_send_request_err():
         commons.send_request('https://github.com/astropy/astroquery',
                              dict(a='b'), 60, request_type='PUT')
 
+
 col_1 = [1, 2, 3]
 col_2 = [0, 1, 0, 1, 0, 1]
 col_3 = ['v', 'w', 'x', 'y', 'z']
@@ -292,6 +293,7 @@ def test_async_to_sync(cls=Dummy):
     newcls = async_to_sync(Dummy)
     assert hasattr(newcls, "do_nothing")
 
+
 docstr3 = """
     Returns
     -------
@@ -324,6 +326,7 @@ def dummyfunc():
     Nada
     """
     pass
+
 
 docstr4 = """
     Blah Blah Blah
@@ -371,6 +374,7 @@ def test_payload_return(cls=DummyQuery):
     assert isinstance(result, dict)
     result = DummyQuery.query(get_query_payload=False)
     assert isinstance(result, six.string_types)
+
 
 fitsfilepath = os.path.join(os.path.dirname(__file__),
                             '../../sdss/tests/data/emptyfile.fits')

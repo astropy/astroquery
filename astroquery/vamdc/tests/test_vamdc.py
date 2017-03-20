@@ -12,7 +12,7 @@ def data_path(filename):
 
 
 # finally test the methods using the mock HTTP response
-#def test_query_molecule(patch_request):
+# def test_query_molecule(patch_request):
 #    ch3oh = vamdc.core.VamdcClass().query_molecule('CH3OH')
 #    assert 'SCDMS-2369983' in ch3oh.data['States']
 

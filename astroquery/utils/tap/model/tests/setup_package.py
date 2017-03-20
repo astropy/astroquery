@@ -18,7 +18,8 @@ from __future__ import absolute_import
 
 import os
 
+
 def get_package_data():
-    paths= [os.path.join('data', '*.vot')
-            ]
+    paths = [os.path.join('data', '*.vot')
+             ]
     return {'astroquery.utils.tap.model.tests': paths}

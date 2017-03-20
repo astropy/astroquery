@@ -75,16 +75,16 @@ class TestAlma:
 
         # test re-staging
         # (has been replaced with warning)
-        #with pytest.raises(requests.HTTPError) as ex:
+        # with pytest.raises(requests.HTTPError) as ex:
         #    link_list = alma.stage_data(uids)
-        #assert ex.value.args[0] == ('Received an error 405: this may indicate you have '
+        # assert ex.value.args[0] == ('Received an error 405: this may indicate you have '
         #                            'already staged the data.  Try downloading the '
         #                            'file URLs directly with download_files.')
 
         # log.warning doesn't actually make a warning
         #link_list = alma.stage_data(uids)
         #w = recwarn.pop()
-        #assert (str(w.message) == ('Error 405 received.  If you have previously staged the '
+        # assert (str(w.message) == ('Error 405 received.  If you have previously staged the '
         #                           'same UIDs, the result returned is probably correct,'
         #                           ' otherwise you may need to create a fresh astroquery.Alma instance.'))
 
@@ -104,19 +104,18 @@ class TestAlma:
                 os.path.split(result['URL'][0])[1])
 
         # test re-staging
-        #with pytest.raises(requests.HTTPError) as ex:
+        # with pytest.raises(requests.HTTPError) as ex:
         #    result = alma.stage_data([uid])
-        #assert ex.value.args[0] == ('Received an error 405: this may indicate you have '
+        # assert ex.value.args[0] == ('Received an error 405: this may indicate you have '
         #                            'already staged the data.  Try downloading the '
         #                            'file URLs directly with download_files.')
 
         # log.warning doesn't actually make a warning
         #result = alma.stage_data([uid])
         #w = recwarn.pop()
-        #assert (str(w.message) == ('Error 405 received.  If you have previously staged the '
+        # assert (str(w.message) == ('Error 405 received.  If you have previously staged the '
         #                           'same UIDs, the result returned is probably correct,'
         #                           ' otherwise you may need to create a fresh astroquery.Alma instance.'))
-
 
     def test_doc_example(self, temp_dir):
         alma = Alma()
@@ -130,15 +129,15 @@ class TestAlma:
         galactic_center = coordinates.SkyCoord(0 * u.deg, 0 * u.deg,
                                                frame='galactic')
         gc_data = alma.query_region(galactic_center, 1 * u.deg)
-        #assert len(gc_data) >= 425 # Feb 8, 2016
-        assert len(gc_data) >= 50 # Nov 16, 2016
+        # assert len(gc_data) >= 425 # Feb 8, 2016
+        assert len(gc_data) >= 50  # Nov 16, 2016
 
         uids = np.unique(m83_data['Asdm uid'])
         assert b'uid://A002/X3b3400/X90f' in uids
         X90f = (m83_data['Asdm uid'] == b'uid://A002/X3b3400/X90f')
-        assert X90f.sum() == 1 # Nov 16, 2016: reduced from 45
+        assert X90f.sum() == 1  # Nov 16, 2016: reduced from 45
         X31 = (m83_data['Member ous id'] == b'uid://A002/X3216af/X31')
-        assert X31.sum() == 1 # Nov 16, 2016: reduced from 225
+        assert X31.sum() == 1  # Nov 16, 2016: reduced from 225
 
         asdm = alma.stage_data('uid://A002/X3b3400/X90f')
         totalsize_asdm = asdm['size'].sum() * u.Unit(asdm['size'].unit)
@@ -184,7 +183,7 @@ class TestAlma:
         # A 2-row table may not be OK any more, but that's what it used to
         # be...
         assert len(uid_url_table_asdm) == 1
-        assert len(uid_url_table_mous) >= 2 # now is len=3 (Nov 17, 2016)
+        assert len(uid_url_table_mous) >= 2  # now is len=3 (Nov 17, 2016)
 
         # URL should look like:
         # https://almascience.eso.org/dataPortal/requests/anonymous/944120962/ALMA/2012.1.00912.S_uid___A002_X5a9a13_X528_001_of_001.tar/2012.1.00912.S_uid___A002_X5a9a13_X528_001_of_001.tar

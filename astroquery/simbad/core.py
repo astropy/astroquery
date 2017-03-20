@@ -31,11 +31,13 @@ def validate_epoch(value):
                          "Example: epoch='J2000'")
     return value
 
+
 def validate_equinox(value):
     try:
         return float(value)
-    except (ValueError,TypeError):
+    except (ValueError, TypeError):
         raise ValueError("Equinox must be a number")
+
 
 def validate_epoch_decorator(func):
     """
@@ -84,6 +86,7 @@ def strip_field(f, keep_filters=False):
 
     # the overall else (default option)
     return f
+
 
 error_regex = re.compile(r'(?ms)\[(?P<line>\d+)\]\s?(?P<msg>.+?)(\[|\Z)')
 SimbadError = namedtuple('SimbadError', ('line', 'msg'))
@@ -192,6 +195,7 @@ class SimbadVOTableResult(SimbadResult):
             self.__table.convert_bytestring_to_unicode()
         return self.__table
 
+
 bibcode_regex = re.compile(r'query\s+bibcode\s+(wildcard)?\s+([\w]*)')
 
 
@@ -218,7 +222,6 @@ class SimbadObjectIDsResult(SimbadResult):
         for id in self.data.splitlines():
             table.add_row([id.strip()])
         return table
-
 
 
 @async_to_sync
@@ -307,7 +310,7 @@ class SimbadClass(BaseQuery):
         for i, line in list(enumerate(notes)):
             print("{lineno}. {msg}\n".format(lineno=i + 1, msg=line))
 
-        if not hasattr(self,'_votable_fields_table'):
+        if not hasattr(self, '_votable_fields_table'):
             # load the table
             votable_fields_table = Table.read(
                 get_pkg_data_filename(os.path.join('data',
@@ -350,7 +353,7 @@ class SimbadClass(BaseQuery):
             fields_dict = json.load(f)
 
         try:
-            print (fields_dict[field_name])
+            print(fields_dict[field_name])
         except KeyError:
             raise KeyError("No such field_name")
 
@@ -628,15 +631,14 @@ class SimbadClass(BaseQuery):
                 query_str = "\n".join([base_query_str
                                       .format(ra=ra_, dec=dec_, rad=rad_,
                                               frame=frame, equinox=equinox)
-                                      for ra_,dec_,rad_ in zip(ra,dec,radius)])
+                                      for ra_, dec_, rad_ in zip(ra, dec, radius)])
 
         else:
             radius = _parse_radius(radius)
             query_str = base_query_str.format(ra=ra, dec=dec, frame=frame,
                                               rad=radius, equinox=equinox)
 
-
-        request_payload = {'script': "\n".join([header,query_str,footer])}
+        request_payload = {'script': "\n".join([header, query_str, footer])}
 
         response = self._request("POST", self.SIMBAD_URL, data=request_payload,
                                  timeout=self.TIMEOUT, cache=cache)
@@ -834,7 +836,6 @@ class SimbadClass(BaseQuery):
 
         return votable_close
 
-
     @validate_epoch_decorator
     @validate_equinox_decorator
     def _args_to_payload(self, *args, **kwargs):
@@ -842,7 +843,7 @@ class SimbadClass(BaseQuery):
         Takes the arguments from any of the query functions and returns a
         dictionary that can be used as the data for an HTTP POST request.
         """
-    
+
         script = ""
         caller = kwargs['caller']
         del kwargs['caller']
@@ -944,16 +945,17 @@ def _has_length(x):
     try:
         len(x)
         return True
-    except (TypeError,AttributeError):
+    except (TypeError, AttributeError):
         return False
+
 
 def _get_frame_coords(c):
     if _has_length(c):
         # deal with vectors differently
         parsed = [_get_frame_coords(cc) for cc in c]
-        return ([ra for ra,dec,frame in parsed],
-                [dec for ra,dec,frame in parsed],
-                [frame for ra,dec,frame in parsed])
+        return ([ra for ra, dec, frame in parsed],
+                [dec for ra, dec, frame in parsed],
+                [frame for ra, dec, frame in parsed])
     if c.frame.name == 'icrs':
         ra, dec = _to_simbad_format(c.ra, c.dec)
         return (ra, dec, 'ICRS')
@@ -999,5 +1001,6 @@ def _parse_radius(radius):
             return str(angle.arcsec) + unit
     except (coord.errors.UnitsError, AttributeError):
         raise ValueError("Radius specified incorrectly")
+
 
 Simbad = SimbadClass()

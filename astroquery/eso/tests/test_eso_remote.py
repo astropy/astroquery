@@ -57,9 +57,9 @@ class TestEso:
 
         eso = Eso()
         eso.cache_location = temp_dir
-        eso.ROW_LIMIT = 200 #first b333 is at 157
+        eso.ROW_LIMIT = 200  # first b333 is at 157
 
-        result_s = eso.query_surveys(['VVV','XSHOOTER'],
+        result_s = eso.query_surveys(['VVV', 'XSHOOTER'],
                                      coord1=266.41681662,
                                      coord2=-29.00782497,
                                      box='01 00 00',
@@ -182,7 +182,7 @@ class TestEso:
                                          box='01 00 00',
                                          cache=False)
 
-    @pytest.mark.parametrize('cache',(False,True))
+    @pytest.mark.parametrize('cache', (False, True))
     def test_each_survey_nosource(self, temp_dir, cache):
         eso = Eso()
         eso.cache_location = temp_dir

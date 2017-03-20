@@ -56,7 +56,6 @@ class FermiLATClass(BaseQuery):
     def _parse_args(self, name_or_coords, searchradius='', obsdates='',
                     timesys='Gregorian', energyrange_MeV='',
                     LATdatatype='Photon', spacecraftdata=True):
-
         """
         Parameters
         ----------
@@ -97,6 +96,7 @@ class FermiLATClass(BaseQuery):
         Use get_fermilat_datafile to download a result URL
         """
         return get_fermilat_datafile(result)
+
 
 FermiLAT = FermiLATClass()
 
@@ -163,5 +163,6 @@ class GetFermilatDatafile(object):
             return False
         else:
             return fitsfile_urls
+
 
 get_fermilat_datafile = GetFermilatDatafile()

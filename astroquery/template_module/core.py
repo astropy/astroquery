@@ -321,6 +321,7 @@ class TemplateClass(BaseQuery):
         # return the list of image URLs
         pass
 
+
 # the default tool for users to interact with is an instance of the Class
 Template = TemplateClass()
 

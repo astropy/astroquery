@@ -203,4 +203,5 @@ class AlfalfaClass(BaseQuery):
         hdulist = result.get_fits()
         return hdulist
 
+
 Alfalfa = AlfalfaClass()

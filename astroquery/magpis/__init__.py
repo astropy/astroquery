@@ -25,6 +25,7 @@ class Conf(_config.ConfigNamespace):
         60,
         'Time limit for connecting to MAGPIS server.')
 
+
 conf = Conf()
 
 from .core import Magpis, MagpisClass
