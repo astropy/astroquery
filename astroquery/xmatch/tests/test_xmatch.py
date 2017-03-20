@@ -75,6 +75,7 @@ def test_xmatch_is_avail_table(monkeypatch):
     assert xm.is_table_available('vizier:II/311/wise')
     assert not xm.is_table_available('blablabla')
 
+
 def test_xmatch_query_local(monkeypatch):
     xm = XMatch()
     monkeypatch.setattr(xm, '_request', request_mockreturn)

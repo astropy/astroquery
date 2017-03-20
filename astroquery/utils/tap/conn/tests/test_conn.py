@@ -25,8 +25,9 @@ def data_path(filename):
     data_dir = os.path.join(os.path.dirname(__file__), 'data')
     return os.path.join(data_dir, filename)
 
+
 class ConnTest(unittest.TestCase):
-    
+
     def test_get(self):
         conn = DummyConn("http")
         conn.response.status = 222
@@ -35,13 +36,13 @@ class ConnTest(unittest.TestCase):
         tapContext = "testTapContext"
         connPort = 90
         connPortSsl = 943
-        #TapConn
-        tap = TapConn(ishttps=False, 
-                      host=host, 
-                      server_context=serverContext, 
-                      tap_context=tapContext, 
-                      port=connPort, 
-                      sslport=connPortSsl, 
+        # TapConn
+        tap = TapConn(ishttps=False,
+                      host=host,
+                      server_context=serverContext,
+                      tap_context=tapContext,
+                      port=connPort,
+                      sslport=connPortSsl,
                       connhandler=conn)
         hostUrl = host + ":" + str(connPort) + "/" + serverContext + "/" \
             + tapContext + "/"
@@ -50,9 +51,9 @@ class ConnTest(unittest.TestCase):
         hostUrlSecure = host + ":" + str(connPortSsl) + "/" + serverContext \
             + "/" + tapContext + "/"
         assert tap.get_host_url_secure() == hostUrlSecure, \
-            "Tap host secure. Expected %s, found %s" % (hostUrlSecure, 
+            "Tap host secure. Expected %s, found %s" % (hostUrlSecure,
                                                         tap.get_host_url_secure())
-        #GET
+        # GET
         subContext = "testSubContextGet"
         context = "/" + serverContext + "/" + tapContext + "/" + subContext
         r = tap.execute_get(subcontext=subContext)
@@ -62,9 +63,9 @@ class ConnTest(unittest.TestCase):
             "Request method. Expected %s, found %s" % ('GET', r.get_method())
         assert r.get_context() == context, \
             "Request context. Expected %s, found %s" % (context, r.get_context())
-        assert r.get_body() == None, \
+        assert r.get_body() is None, \
             "Request body. Expected %s, found %s" % ('None', str(r.get_body()))
-    
+
     def test_post(self):
         conn = DummyConn('http')
         conn.response.status = 111
@@ -73,13 +74,13 @@ class ConnTest(unittest.TestCase):
         tapContext = "testTapContext"
         connPort = 90
         connPortSsl = 943
-        #TapConn
-        tap = TapConn(ishttps=False, 
-                      host=host, 
-                      server_context=serverContext, 
-                      tap_context=tapContext, 
-                      port=connPort, 
-                      sslport=connPortSsl, 
+        # TapConn
+        tap = TapConn(ishttps=False,
+                      host=host,
+                      server_context=serverContext,
+                      tap_context=tapContext,
+                      port=connPort,
+                      sslport=connPortSsl,
                       connhandler=conn)
         hostUrl = host + ":" + str(connPort) + "/" + serverContext + "/" \
             + tapContext + "/"
@@ -88,9 +89,9 @@ class ConnTest(unittest.TestCase):
         hostUrlSecure = host + ":" + str(connPortSsl) + "/" + serverContext \
             + "/" + tapContext + "/"
         assert tap.get_host_url_secure() == hostUrlSecure, \
-            "Tap host secure. Expected %s, found %s" % (hostUrlSecure, 
+            "Tap host secure. Expected %s, found %s" % (hostUrlSecure,
                                                         tap.get_host_url_secure())
-        #GET
+        # GET
         subContext = "testSubContextGet"
         context = "/" + serverContext + "/" + tapContext + "/" + subContext
         data = "postData"
@@ -103,7 +104,7 @@ class ConnTest(unittest.TestCase):
             "Request context. Expected %s, found %s" % (context, r.get_context())
         assert r.get_body() == data, \
             "Request body. Expected %s, found %s" % (data, str(r.get_body()))
-    
+
     def test_login(self):
         connSecure = DummyConn("https")
         connSecure.response.status = 333
@@ -112,13 +113,13 @@ class ConnTest(unittest.TestCase):
         tapContext = "testTapContext"
         connPort = 90
         connPortSsl = 943
-        #TapConn
-        tap = TapConn(ishttps=False, 
-                      host=host, 
-                      server_context=serverContext, 
-                      tap_context=tapContext, 
-                      port=connPort, 
-                      sslport=connPortSsl, 
+        # TapConn
+        tap = TapConn(ishttps=False,
+                      host=host,
+                      server_context=serverContext,
+                      tap_context=tapContext,
+                      port=connPort,
+                      sslport=connPortSsl,
                       connhandler=connSecure)
         hostUrl = host + ":" + str(connPort) + "/" + serverContext + "/" \
             + tapContext + "/"
@@ -127,9 +128,9 @@ class ConnTest(unittest.TestCase):
         hostUrlSecure = host + ":" + str(connPortSsl) + "/" + serverContext \
             + "/" + tapContext + "/"
         assert tap.get_host_url_secure() == hostUrlSecure, \
-            "Tap host secure. Expected %s, found %s" % (hostUrlSecure, 
+            "Tap host secure. Expected %s, found %s" % (hostUrlSecure,
                                                         tap.get_host_url_secure())
-        #POST SECURE
+        # POST SECURE
         subContext = "testSubContextPost"
         context = "/" + serverContext + "/" + subContext
         data = "testData"
@@ -142,4 +143,3 @@ class ConnTest(unittest.TestCase):
             "Request context. Expected %s, found %s" % (context, r.get_context())
         assert r.get_body() == data, \
             "Request body. Expected %s, found %s" % (data, str(r.get_body()))
-    

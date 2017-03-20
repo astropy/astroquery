@@ -371,6 +371,7 @@ class LcogtClass(BaseQuery):
         for catname in self.catalogs:
             print("{:30s}  {:s}".format(catname, self.catalogs[catname]))
 
+
 Lcogt = LcogtClass()
 
 

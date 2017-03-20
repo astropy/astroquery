@@ -221,4 +221,5 @@ class OgleClass(BaseQuery):
         data = list(map(list, zip(*data)))
         return data
 
+
 Ogle = OgleClass()

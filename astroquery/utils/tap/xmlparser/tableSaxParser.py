@@ -25,18 +25,18 @@ READING_SCHEMA = 10
 READING_TABLE = 20
 READING_TABLE_COLUMN = 30
 
+
 class TableSaxParser(xml.sax.ContentHandler):
     '''
     classdocs
     '''
 
-    
     def __init__(self):
         '''
         Constructor
         '''
         self.__internal_init()
-    
+
     def __internal_init(self):
         self.__concatData = False
         self.__charBuffer = []
@@ -45,22 +45,22 @@ class TableSaxParser(xml.sax.ContentHandler):
         self.__currentSchemaName = None
         self.__currentTable = None
         self.__currentColumn = None
-        
+
     def __create_string_from_buffer(self):
         return Utils.util_create_string_from_buffer(self.__charBuffer)
-        
+
     def __check_item_id(self, itemId, tmpValue):
         if str(itemId).lower() == str(tmpValue).lower():
             return True
-        return False 
-    
+        return False
+
     def __start_reading_data(self):
         self.__concatData = True
         del self.__charBuffer[:]
-    
+
     def __stop_reading_data(self):
         self.__concatData = False
-    
+
     def parseData(self, data):
         del self.__tables[:]
         self.__status = READING_SCHEMA
@@ -74,7 +74,7 @@ class TableSaxParser(xml.sax.ContentHandler):
             self.__reading_table(name, attrs)
         elif self.__status == READING_TABLE_COLUMN:
             self.__reading_table_column(name, attrs)
-    
+
     def endElement(self, name):
         if self.__status == READING_SCHEMA:
             self.__end_schema(name)
@@ -82,11 +82,11 @@ class TableSaxParser(xml.sax.ContentHandler):
             self.__end_table(name)
         elif self.__status == READING_TABLE_COLUMN:
             self.__end_table_column(name)
-    
+
     def characters(self, content):
         if self.__concatData:
             self.__charBuffer.append(content)
-    
+
     def __reading_schema(self, name, attrs):
         if self.__check_item_id("name", name):
             self.__start_reading_data()
@@ -94,12 +94,12 @@ class TableSaxParser(xml.sax.ContentHandler):
             self.__status = READING_TABLE
             self.__currentTable = TapTableMeta()
             self.__currentTable.set_schema(self.__currentSchemaName)
-    
+
     def __end_schema(self, name):
         if self.__check_item_id("name", name):
             self.__currentSchemaName = self.__create_string_from_buffer()
             self.__stop_reading_data()
-    
+
     def __reading_table(self, name, attrs):
         if self.__check_item_id("name", name):
             self.__start_reading_data()
@@ -108,7 +108,7 @@ class TableSaxParser(xml.sax.ContentHandler):
         elif self.__check_item_id("column", name):
             self.__status = READING_TABLE_COLUMN
             self.__currentColumn = TapColumn()
-    
+
     def __end_table(self, name):
         if self.__check_item_id("name", name):
             self.__stop_reading_data()
@@ -119,7 +119,7 @@ class TableSaxParser(xml.sax.ContentHandler):
         elif self.__check_item_id("table", name):
             self.__tables.append(self.__currentTable)
             self.__status = READING_SCHEMA
-    
+
     def __reading_table_column(self, name, attrs):
         if self.__check_item_id("name", name):
             self.__start_reading_data()
@@ -135,7 +135,7 @@ class TableSaxParser(xml.sax.ContentHandler):
             self.__start_reading_data()
         elif self.__check_item_id("flag", name):
             self.__start_reading_data()
-    
+
     def __end_table_column(self, name):
         if self.__check_item_id("name", name):
             self.__currentColumn.set_name(self.__create_string_from_buffer())
@@ -161,16 +161,14 @@ class TableSaxParser(xml.sax.ContentHandler):
         if self.__check_item_id("column", name):
             self.__status = READING_TABLE
             self.__currentTable.add_column(self.__currentColumn)
-    
+
     def __nothing(self, name, attrs):
         pass
-    
+
     def get_table(self):
         if len(self.__tables) < 1:
             return None
         return self.__tables[0]
-    
+
     def get_tables(self):
         return self.__tables
-    
-

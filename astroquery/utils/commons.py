@@ -40,6 +40,7 @@ def FK5CoordGenerator(*args, **kwargs):
 def FK4CoordGenerator(*args, **kwargs):
     return coord.SkyCoord(*args, frame='fk4', **kwargs)
 
+
 ICRSCoord = coord.SkyCoord
 CoordClasses = (coord.SkyCoord, BaseCoordinateFrame)
 

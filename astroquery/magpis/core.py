@@ -36,7 +36,6 @@ class MagpisClass(BaseQuery):
 
     def _args_to_payload(self, coordinates, image_size=1 * u.arcmin,
                          survey='bolocam', maximsize=None):
-
         """
         Fetches image cutouts from MAGPIS surveys.
 
@@ -122,5 +121,6 @@ class MagpisClass(BaseQuery):
     def list_surveys(self):
         """Return a list of surveys for MAGPIS"""
         return self.surveys
+
 
 Magpis = MagpisClass()

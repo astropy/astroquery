@@ -305,6 +305,7 @@ class BesanconClass(BaseQuery):
                                  timeout=self.TIMEOUT, stream=True)
         return response
 
+
 Besancon = BesanconClass()
 
 

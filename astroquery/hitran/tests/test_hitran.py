@@ -2,9 +2,11 @@
 import os
 from ...hitran import read_hitran_file
 
+
 def data_path(filename):
     data_dir = os.path.join(os.path.dirname(__file__), 'data')
     return os.path.join(data_dir, filename)
+
 
 def test_parser():
     tbl = read_hitran_file(data_path('H2O.data'))

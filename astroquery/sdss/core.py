@@ -1063,4 +1063,5 @@ class SDSSClass(BaseQuery):
         self._last_url = url
         return url
 
+
 SDSS = SDSSClass()

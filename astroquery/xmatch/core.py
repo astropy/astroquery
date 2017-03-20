@@ -123,7 +123,6 @@ class XMatchClass(BaseQuery):
             payload['colRA{0}'.format(i)] = colRA
             payload['colDec{0}'.format(i)] = colDec
 
-
     def is_table_available(self, table_id):
         """Return True if the passed CDS table identifier is one of the
         available VizieR tables, otherwise False.
@@ -148,5 +147,6 @@ class XMatchClass(BaseQuery):
         content = response.text
 
         return content.splitlines()
+
 
 XMatch = XMatchClass()

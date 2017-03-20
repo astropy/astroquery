@@ -701,6 +701,7 @@ class NedClass(BaseQuery):
                     "found in self.response, and the error in "
                     "self.table_parse_error.")
 
+
 Ned = NedClass()
 
 

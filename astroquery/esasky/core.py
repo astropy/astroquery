@@ -19,13 +19,14 @@ from . import conf
 from ..exceptions import TableParseError
 from .. import version
 
+
 @async_to_sync
 class ESASkyClass(BaseQuery):
 
     URLbase = conf.urlBase
     TIMEOUT = conf.timeout
     DEFAULT_ROW_LIMIT = conf.row_limit
-    
+
     __FITS_STRING = ".fits"
     __FTZ_STRING = ".FTZ"
     __TAR_STRING = ".tar"
@@ -53,14 +54,13 @@ class ESASkyClass(BaseQuery):
     __HERSCHEL_STRING = 'herschel'
     __HST_STRING = 'hst'
     __INTEGRAL_STRING = 'integral'
-    
-    __HERSCHEL_FILTERS = {'psw': '250', 
+
+    __HERSCHEL_FILTERS = {'psw': '250',
            'pmw': '350',
            'plw': '500',
            'mapb_blue': '70',
            'mapb_green': '100',
            'mapr_': '160'}
-
 
     def list_maps(self):
         """
@@ -117,14 +117,14 @@ class ESASkyClass(BaseQuery):
         query_object_maps("265.05, 69.0", "Herschel")
         query_object_maps("265.05, 69.0", ["Herschel", "HST"])
         """
-        return self.query_region_maps(position=position, 
-                                      radius=self.__ZERO_ARCMIN_STRING, 
+        return self.query_region_maps(position=position,
+                                      radius=self.__ZERO_ARCMIN_STRING,
                                       missions=missions,
-                                      get_query_payload=get_query_payload, 
+                                      get_query_payload=get_query_payload,
                                       cache=cache)
-        
-    def query_object_catalogs(self, position, catalogs=__ALL_STRING, 
-                              row_limit=DEFAULT_ROW_LIMIT, 
+
+    def query_object_catalogs(self, position, catalogs=__ALL_STRING,
+                              row_limit=DEFAULT_ROW_LIMIT,
                               get_query_payload=False, cache=True):
         """
         This method queries a chosen object or coordinate for all available
@@ -139,13 +139,13 @@ class ESASkyClass(BaseQuery):
             Can either be a string of the location, eg 'M51', or the coordinates
             of the object.
         catalogs : string or list, optional
-            Can be either a specific catalog or a list of catalogs (all catalog 
-            names are found in list_catalogs()) or 'all' to search in all 
-            catalogs. Defaults to 'all'. 
+            Can be either a specific catalog or a list of catalogs (all catalog
+            names are found in list_catalogs()) or 'all' to search in all
+            catalogs. Defaults to 'all'.
         row_limit : int, optional
             Determines how many rows that will be fetched from the database
             for each mission. Can be -1 to select maximum (currently 100 000).
-            Defaults to 10000. 
+            Defaults to 10000.
         get_query_payload : bool, optional
             When set to True the method returns the HTTP request parameters.
             Defaults to False.
@@ -169,10 +169,10 @@ class ESASkyClass(BaseQuery):
         query_object_catalogs("265.05, 69.0", "Gaia DR1 TGA")
         query_object_catalogs("265.05, 69.0", ["Gaia DR1 TGA", "HSC"])
         """
-        return self.query_region_catalogs(position=position, 
-                                          radius=self.__ZERO_ARCMIN_STRING, 
-                                          catalogs=catalogs, 
-                                          row_limit=row_limit, 
+        return self.query_region_catalogs(position=position,
+                                          radius=self.__ZERO_ARCMIN_STRING,
+                                          catalogs=catalogs,
+                                          row_limit=row_limit,
                                           get_query_payload=get_query_payload,
                                           cache=cache)
 
@@ -235,9 +235,9 @@ class ESASkyClass(BaseQuery):
             return query_result
 
         return commons.TableList(query_result)
-    
-    def query_region_catalogs(self, position, radius, catalogs=__ALL_STRING,  
-                              row_limit=DEFAULT_ROW_LIMIT, 
+
+    def query_region_catalogs(self, position, radius, catalogs=__ALL_STRING,
+                              row_limit=DEFAULT_ROW_LIMIT,
                               get_query_payload=False, cache=True):
         """
         This method queries a chosen region for all available catalogs and
@@ -252,13 +252,13 @@ class ESASkyClass(BaseQuery):
         radius : str or `~astropy.units.Quantity`
             The radius of a region.
         catalogs : string or list, optional
-            Can be either a specific catalog or a list of catalogs (all catalog 
-            names are found in list_catalogs()) or 'all' to search in all 
-            catalogs. Defaults to 'all'. 
+            Can be either a specific catalog or a list of catalogs (all catalog
+            names are found in list_catalogs()) or 'all' to search in all
+            catalogs. Defaults to 'all'.
         row_limit : int, optional
             Determines how many rows that will be fetched from the database
             for each mission. Can be -1 to select maximum (currently 100 000).
-            Defaults to 10000. 
+            Defaults to 10000.
         get_query_payload : bool, optional
             When set to True the method returns the HTTP request parameters.
             Defaults to False.
@@ -292,10 +292,10 @@ class ESASkyClass(BaseQuery):
         coordinates = commons.parse_coordinates(sanitized_position)
 
         query_result = {}
-                
-        self._store_query_result_catalogs(query_result, sanitized_catalogs, 
+
+        self._store_query_result_catalogs(query_result, sanitized_catalogs,
                                           coordinates, sanitized_radius,
-                                          sanitized_row_limit, 
+                                          sanitized_row_limit,
                                           get_query_payload, cache)
 
         if (get_query_payload):
@@ -355,7 +355,7 @@ class ESASkyClass(BaseQuery):
 
         for query_mission in sanitized_query_table_list.keys():
             for mission in sanitized_missions:
-                #INTEGRAL does not have a product url yet.
+                # INTEGRAL does not have a product url yet.
                 if (query_mission.lower() == self.__INTEGRAL_STRING):
                     print("INTEGRAL does not yet support downloading of "
                           "fits files")
@@ -369,7 +369,7 @@ class ESASkyClass(BaseQuery):
                             cache))
                     break
         if (len(sanitized_query_table_list) > 0):
-            log.info("Maps available at %s" %os.path.abspath(download_dir))
+            log.info("Maps available at %s" % os.path.abspath(download_dir))
         else:
             print("No maps found")
         return maps
@@ -392,9 +392,9 @@ class ESASkyClass(BaseQuery):
         radius : str or `~astropy.units.Quantity`, optional
             The radius of a region. Defaults to 0.
         missions : string or list, optional
-            Can be either a specific mission or a list of missions (all mission 
-            names are found in list_missions()) or 'all' to search in all 
-            missions. Defaults to 'all'. 
+            Can be either a specific mission or a list of missions (all mission
+            names are found in list_missions()) or 'all' to search in all
+            missions. Defaults to 'all'.
         download_dir : string, optional
             The folder where all downloaded maps should be stored.
             Defaults to a folder called 'Maps' in the current working directory.
@@ -434,7 +434,7 @@ class ESASkyClass(BaseQuery):
                                                   cache=cache)
 
         for query_mission in map_query_result.keys():
-            #INTEGRAL does not have a product url yet.
+            # INTEGRAL does not have a product url yet.
             if (query_mission.lower() == self.__INTEGRAL_STRING):
                 print("INTEGRAL does not yet support downloading of "
                       "fits files")
@@ -446,7 +446,7 @@ class ESASkyClass(BaseQuery):
                     download_dir,
                     cache))
 
-        print("Maps available at %s" %os.path.abspath(download_dir))
+        print("Maps available at %s" % os.path.abspath(download_dir))
         return maps
 
     def _sanitize_input_position(self, position):
@@ -491,12 +491,12 @@ class ESASkyClass(BaseQuery):
         if (isinstance(table_list, commons.TableList)):
             return table_list
         raise ValueError("Query_table_list must be an astropy.utils.TableList")
-    
+
     def _sanitize_input_row_limit(self, row_limit):
         if (isinstance(row_limit, int)):
             return row_limit
         raise ValueError("Row_limit must be an integer")
-      
+
     def _get_maps_for_mission(self, maps_table, mission, download_dir, cache):
         maps = []
 
@@ -504,14 +504,14 @@ class ESASkyClass(BaseQuery):
             mission_directory = self._create_mission_directory(mission,
                                                                download_dir)
             print("Starting download of %s data. (%d files)"
-                  %(mission, len(maps_table[self.__PRODUCT_URL_STRING])))
+                  % (mission, len(maps_table[self.__PRODUCT_URL_STRING])))
             for index in range(len(maps_table)):
                 product_url = (maps_table[self.__PRODUCT_URL_STRING][index]
                                .decode('utf-8'))
                 observation_id = (maps_table[self.__OBSERVATION_ID_STRING][index]
                                   .decode('utf-8'))
                 print("Downloading Observation ID: %s from %s"
-                      %(observation_id, product_url), end=" ")
+                      % (observation_id, product_url), end=" ")
                 sys.stdout.flush()
                 directory_path = mission_directory + "/"
                 if (mission.lower() == self.__HERSCHEL_STRING):
@@ -520,8 +520,8 @@ class ESASkyClass(BaseQuery):
                                                                cache))
 
                 else:
-                    response = self._request('GET', product_url, cache = cache,
-                                             headers={'User-Agent': 
+                    response = self._request('GET', product_url, cache=cache,
+                                             headers={'User-Agent':
                                                       ('astropy:astroquery.esasky.{vers}'.format(vers=version.version))})
                     file_name = ""
                     if (product_url.endswith(self.__FITS_STRING)):
@@ -538,7 +538,7 @@ class ESASkyClass(BaseQuery):
                         maps.append(fits.open(file_name))
 
                 print("[Done]")
-            print("Downloading of %s data complete." %mission)
+            print("Downloading of %s data complete." % mission)
 
         return maps
 
@@ -546,11 +546,11 @@ class ESASkyClass(BaseQuery):
                                   cache):
         observation = dict()
         tar_file = tempfile.NamedTemporaryFile()
-        response = self._request('GET', product_url, cache = cache, 
+        response = self._request('GET', product_url, cache=cache,
                                  headers={'User-Agent':
                                           ('astropy:astroquery.esasky.{vers}'.format(vers=version.version))})
         tar_file.write(response.content)
-        with tarfile.open(tar_file.name,'r') as tar:
+        with tarfile.open(tar_file.name, 'r') as tar:
             i = 0
             for member in tar.getmembers():
                 member_name = member.name.lower()
@@ -565,14 +565,11 @@ class ESASkyClass(BaseQuery):
                     i += 1
         return observation
 
-
-    
     def _get_filter_name(self, member_name):
         for herschel_filter in self.__HERSCHEL_FILTERS.keys():
             if herschel_filter in member_name:
                 return self.__HERSCHEL_FILTERS[herschel_filter]
-        
-        
+
     def _remove_extra_herschel_directory(self, file_and_directory_name,
                                          directory_path):
         full_directory_path = os.path.abspath(directory_path)
@@ -599,24 +596,24 @@ class ESASkyClass(BaseQuery):
         if (content_disposition[start_index] == '\"'):
             start_index += 1
 
-        if (self.__FITS_STRING in content_disposition[start_index : ]):
+        if (self.__FITS_STRING in content_disposition[start_index:]):
             end_index = (
                 content_disposition.index(self.__FITS_STRING, start_index + 1) +
                 len(self.__FITS_STRING))
-            return content_disposition[start_index : end_index]
-        elif (self.__FTZ_STRING in content_disposition[start_index : ]):
+            return content_disposition[start_index: end_index]
+        elif (self.__FTZ_STRING in content_disposition[start_index:]):
             end_index = (
                 content_disposition.index(self.__FTZ_STRING, start_index + 1) +
                 len(self.__FTZ_STRING))
-            return content_disposition[start_index : end_index]
-        elif (self.__TAR_STRING in content_disposition[start_index : ]):
+            return content_disposition[start_index: end_index]
+        elif (self.__TAR_STRING in content_disposition[start_index:]):
             end_index = (
                 content_disposition.index(self.__TAR_STRING, start_index + 1) +
                 len(self.__TAR_STRING))
-            return content_disposition[start_index : end_index]
+            return content_disposition[start_index: end_index]
         else:
             raise ValueError("Could not find file name in header. "
-                             "Content disposition: %s." %content_disposition)
+                             "Content disposition: %s." % content_disposition)
 
     def _extract_file_name_from_url(self, product_url):
         start_index = product_url.rindex("/") + 1
@@ -633,8 +630,8 @@ class ESASkyClass(BaseQuery):
         if (get_query_payload):
             return request_payload
         return self._get_and_parse_from_tap(request_payload, cache)
-    
-    def _query_region_catalog(self, coordinates, radius, catalog_name, row_limit, 
+
+    def _query_region_catalog(self, coordinates, radius, catalog_name, row_limit,
                               get_query_payload, cache):
         catalog_tap_name = self._find_catalog_tap_table_name(catalog_name)
         query = self._build_catalog_query(coordinates, radius, row_limit,
@@ -646,7 +643,7 @@ class ESASkyClass(BaseQuery):
 
     def _build_observation_query(self, coordinates, radius, json):
         raHours, dec = commons.coord_to_radec(coordinates)
-        ra = raHours * 15.0 # Converts to degrees
+        ra = raHours * 15.0  # Converts to degrees
         radiusDeg = commons.radius_to_unit(radius, unit='deg')
 
         select_query = "SELECT DISTINCT "
@@ -655,47 +652,47 @@ class ESASkyClass(BaseQuery):
         metadata_tap_names = ", ".join(["%s" % entry[self.__TAP_NAME_STRING]
                                         for entry in metadata])
 
-        from_query = " FROM %s" %json[self.__TAP_TABLE_STRING]
+        from_query = " FROM %s" % json[self.__TAP_TABLE_STRING]
         if (radiusDeg != 0 or json[self.__IS_SURVEY_MISSION_STRING]):
             if (json[self.__IS_SURVEY_MISSION_STRING]):
                 where_query = (" WHERE 1=CONTAINS(pos, CIRCLE('ICRS', %f, %f, %f));"
-                               %(ra, dec, radiusDeg))           
+                               % (ra, dec, radiusDeg))
             else:
                 where_query = (" WHERE 1=INTERSECTS(CIRCLE('ICRS', %f, %f, %f), fov);"
-                               %(ra, dec, radiusDeg))
+                               % (ra, dec, radiusDeg))
         else:
             where_query = (" WHERE 1=CONTAINS(POINT('ICRS', %f, %f), fov);"
-                           %(ra, dec))
+                           % (ra, dec))
 
         query = "".join([select_query, metadata_tap_names, from_query,
              where_query])
-        return query  
-               
+        return query
+
     def _build_catalog_query(self, coordinates, radius, row_limit, json):
-        raHours, dec = commons.coord_to_radec(coordinates) 
-        ra = raHours * 15.0 # Converts to degrees
+        raHours, dec = commons.coord_to_radec(coordinates)
+        ra = raHours * 15.0  # Converts to degrees
         radiusDeg = commons.radius_to_unit(radius, unit='deg')
 
         select_query = "SELECT "
         if(row_limit > 0):
-            select_query = "".join([select_query, "TOP %s " %row_limit])
+            select_query = "".join([select_query, "TOP %s " % row_limit])
         elif(not row_limit == -1):
             raise ValueError("Invalid value of row_limit")
-        
+
         metadata = json[self.__METADATA_STRING]
         metadata_tap_names = ", ".join(["%s" % entry[self.__TAP_NAME_STRING]
                                         for entry in metadata])
 
-        from_query = " FROM %s" %json[self.__TAP_TABLE_STRING]
+        from_query = " FROM %s" % json[self.__TAP_TABLE_STRING]
         if (radiusDeg == 0):
             where_query = (" WHERE 1=CONTAINS(POINT('ICRS', ra, dec), CIRCLE('ICRS', %f, %f, %f))"
-                           %(ra, dec,
+                           % (ra, dec,
                              commons.radius_to_unit(
                                  self.__MIN_RADIUS_CATALOG_STRING, unit='deg')))
         else:
             where_query = (" WHERE 1=CONTAINS(POINT('ICRS', ra, dec), CIRCLE('ICRS', %f, %f, %f))"
-                           %(ra, dec, radiusDeg))
-        order_by_query = " ORDER BY %s;" %json[self.__ORDER_BY_STRING]
+                           % (ra, dec, radiusDeg))
+        order_by_query = " ORDER BY %s;" % json[self.__ORDER_BY_STRING]
 
         query = "".join([select_query, metadata_tap_names, from_query,
                         where_query, order_by_query])
@@ -710,11 +707,11 @@ class ESASkyClass(BaseQuery):
                                                     cache)
             if (len(mission_table) > 0):
                 query_result[mission.upper()] = mission_table
-    
-    def _store_query_result_catalogs(self, query_result, catalogs, coordinates, 
+
+    def _store_query_result_catalogs(self, query_result, catalogs, coordinates,
                                      radius, row_limit, get_query_payload, cache):
         for catalog in catalogs:
-            catalog_table = self._query_region_catalog(coordinates, radius, 
+            catalog_table = self._query_region_catalog(coordinates, radius,
                                                        catalog, row_limit,
                                                        get_query_payload, cache)
             if (len(catalog_table) > 0):
@@ -732,7 +729,7 @@ class ESASkyClass(BaseQuery):
         for mission in json:
             if (mission[self.__TAP_TABLE_STRING] == mission_tap_name):
                 return mission
-        raise ValueError("Input tap name %s not available." %mission_tap_name)
+        raise ValueError("Input tap name %s not available." % mission_tap_name)
 
     def _find_observation_tap_table_name(self, mission_name):
         return self._find_mission_tap_table_name(
@@ -749,7 +746,7 @@ class ESASkyClass(BaseQuery):
             if (json[index][self.__MISSION_STRING].lower() == mission_name.lower()):
                 return json[index][self.__TAP_TABLE_STRING]
 
-        raise ValueError("Input %s not available." %mission_name)
+        raise ValueError("Input %s not available." % mission_name)
         return None
 
     def _get_observation_json(self):
@@ -760,9 +757,9 @@ class ESASkyClass(BaseQuery):
 
     def _fetch_and_parse_json(self, object_name):
         url = self.URLbase + "/" + object_name
-        response = self._request('GET', url, 
-                                 cache = False, 
-                                 headers={'User-Agent':('astropy:astroquery.esasky.{vers}'.format(vers=version.version))})
+        response = self._request('GET', url,
+                                 cache=False,
+                                 headers={'User-Agent': ('astropy:astroquery.esasky.{vers}'.format(vers=version.version))})
         string_response = response.content.decode('utf-8')
         json_response = json.loads(string_response)
         return json_response["descriptors"]
@@ -774,7 +771,7 @@ class ESASkyClass(BaseQuery):
         return response_list
 
     def _create_request_payload(self, query):
-        return {'REQUEST':'doQuery', 'LANG':'ADQL', 'FORMAT': 'VOTABLE',
+        return {'REQUEST': 'doQuery', 'LANG': 'ADQL', 'FORMAT': 'VOTABLE',
                 'QUERY': query}
 
     def _get_and_parse_from_tap(self, request_payload, cache):
@@ -784,7 +781,7 @@ class ESASkyClass(BaseQuery):
     def _send_get_request(self, url_extension, request_payload, cache):
         url = self.URLbase + url_extension
         return self._request('GET', url, params=request_payload,
-                             timeout=self.TIMEOUT, cache=cache, 
+                             timeout=self.TIMEOUT, cache=cache,
                              headers={'User-Agent': ('astropy:astroquery.esasky.{vers}'.format(vers=version.version))})
 
     def _parse_xml_table(self, response):
@@ -792,9 +789,9 @@ class ESASkyClass(BaseQuery):
         # return the raw result with an informative error message.
         try:
             tf = six.BytesIO(response.content)
-            vo_table = votable.parse(tf, pedantic = False)
+            vo_table = votable.parse(tf, pedantic=False)
             first_table = vo_table.get_first_table()
-            table = first_table.to_table(use_names_over_ids = True)
+            table = first_table.to_table(use_names_over_ids=True)
             return table
         except Exception as ex:
             self.response = response
@@ -803,5 +800,6 @@ class ESASkyClass(BaseQuery):
                 "Failed to parse ESASky VOTABLE result! The raw response can be "
                 "found in self.response, and the error in "
                 "self.table_parse_error.")
+
 
 ESASky = ESASkyClass()

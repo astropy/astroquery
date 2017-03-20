@@ -28,6 +28,7 @@ class Conf(_config.ConfigNamespace):
         30,
         'Time limit for connecting to template_module server.')
 
+
 conf = Conf()
 
 # Now import your public class

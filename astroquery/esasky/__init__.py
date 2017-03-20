@@ -13,16 +13,16 @@ class Conf(_config.ConfigNamespace):
     timeout = _config.ConfigItem(
         1000,
         'Time limit for connecting to template_module server.')
-    
+
     row_limit = _config.ConfigItem(
         10000,
         'Maximum number of rows returned (set to -1 for unlimited).')
 
+
 conf = Conf()
 
-from .core import ESASky, ESASkyClass 
+from .core import ESASky, ESASkyClass
 
 __all__ = ['ESASky', 'ESASkyClass',
            'Conf', 'conf',
            ]
-

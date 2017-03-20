@@ -23,6 +23,7 @@ class Conf(_config.ConfigNamespace):
         60,
         'Time limit for connecting to NVAS server.')
 
+
 conf = Conf()
 
 from .core import Nvas, NvasClass

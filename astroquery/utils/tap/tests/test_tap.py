@@ -29,6 +29,7 @@ def data_path(filename):
     data_dir = os.path.join(os.path.dirname(__file__), 'data')
     return os.path.join(data_dir, filename)
 
+
 class TestTap(unittest.TestCase):
 
     def test_load_tables(self):
@@ -39,9 +40,9 @@ class TestTap(unittest.TestCase):
         responseLoadTable.set_message("ERROR")
         tableDataFile = data_path('test_tables.xml')
         tableData = utils.read_file_content(tableDataFile)
-        responseLoadTable.set_data(method='GET', 
-                                   context=None, 
-                                   body=tableData, 
+        responseLoadTable.set_data(method='GET',
+                                   context=None,
+                                   body=tableData,
                                    headers=None)
         tableRequest = "tables"
         connHandler.set_response(tableRequest, responseLoadTable)
@@ -55,7 +56,7 @@ class TestTap(unittest.TestCase):
         res = tap.load_tables()
         assert len(res) == 2, \
             "Number of tables expected: %d, found: %d" % (2, len(res))
-        #Table 1
+        # Table 1
         table = self.__find_table('public', 'table1', res)
         assert table.get_description() == 'Table1 desc', \
             "Wrong description for table1. Expected: %s, found %s" % \
@@ -68,7 +69,7 @@ class TestTap(unittest.TestCase):
         self.__check_column(col, 'Table1 Column1 desc', '', 'VARCHAR', 'indexed')
         col = self.__find_column('table1_col2', columns)
         self.__check_column(col, 'Table1 Column2 desc', '', 'INTEGER', None)
-        #Table 2
+        # Table 2
         table = self.__find_table('public', 'table2', res)
         assert table.get_description() == 'Table2 desc', \
             "Wrong description for table2. Expected: %s, found %s" % \
@@ -83,7 +84,7 @@ class TestTap(unittest.TestCase):
         self.__check_column(col, 'Table2 Column2 desc', '', 'INTEGER', None)
         col = self.__find_column('table2_col3', columns)
         self.__check_column(col, 'Table2 Column3 desc', '', 'INTEGER', None)
-    
+
     def test_load_table(self):
         connHandler = DummyConnHandler()
         tap = TapPlus("http://test:1111/tap", connhandler=connHandler)
@@ -92,9 +93,9 @@ class TestTap(unittest.TestCase):
         responseLoadTable.set_message("ERROR")
         tableDataFile = data_path('test_table1.xml')
         tableData = utils.read_file_content(tableDataFile)
-        responseLoadTable.set_data(method='GET', 
-                                   context=None, 
-                                   body=tableData, 
+        responseLoadTable.set_data(method='GET',
+                                   context=None,
+                                   body=tableData,
                                    headers=None)
         tableSchema = "public"
         tableName = "table1"
@@ -122,7 +123,7 @@ class TestTap(unittest.TestCase):
         self.__check_column(col, 'Table1 Column1 desc', '', 'VARCHAR', 'indexed')
         col = self.__find_column('table1_col2', columns)
         self.__check_column(col, 'Table1 Column2 desc', '', 'INTEGER', None)
-    
+
     def test_launch_sync_job(self):
         connHandler = DummyConnHandler()
         tap = TapPlus("http://test:1111/tap", connhandler=connHandler)
@@ -131,9 +132,9 @@ class TestTap(unittest.TestCase):
         responseLaunchJob.set_message("ERROR")
         jobDataFile = data_path('job_1.vot')
         jobData = utils.read_file_content(jobDataFile)
-        responseLaunchJob.set_data(method='POST', 
-                                   context=None, 
-                                   body=jobData, 
+        responseLaunchJob.set_data(method='POST',
+                                   context=None,
+                                   body=jobData,
                                    headers=None)
         query = 'select top 5 * from table'
         dTmp = {"q": query}
@@ -141,12 +142,12 @@ class TestTap(unittest.TestCase):
         p = dTmpEncoded.find("=")
         q = dTmpEncoded[p+1:]
         dictTmp = {
-            "REQUEST": "doQuery", \
-            "LANG":    "ADQL", \
-            "FORMAT":  "votable", \
-            "tapclient": "aqtappy-1.0",\
-            "PHASE":  "RUN", \
-            "QUERY":   str(q)}
+            "REQUEST": "doQuery",
+            "LANG": "ADQL",
+            "FORMAT": "votable",
+            "tapclient": "aqtappy-1.0",
+            "PHASE": "RUN",
+            "QUERY": str(q)}
         sortedKey = taputils.taputil_create_sorted_dict_key(dictTmp)
         jobRequest = "sync?" + sortedKey
         connHandler.set_response(jobRequest, responseLaunchJob)
@@ -159,83 +160,83 @@ class TestTap(unittest.TestCase):
         responseLaunchJob.set_message("OK")
         job = tap.launch_job(query)
         assert job is not None, "Expected a valid job"
-        assert job.is_sync() == True, "Expected a synchronous job"
+        assert job.is_sync(), "Expected a synchronous job"
         assert job.get_phase() == 'COMPLETED', \
             "Wrong job phase. Expected: %s, found %s" % \
             ('COMPLETED', job.get_phase())
         assert job.is_failed() == False, "Wrong job status (set Failed = True)"
-        #results
+        # results
         results = job.get_results()
         assert len(results) == 3, \
             "Wrong job results (num rows). Expected: %d, found %d" % \
             (3, len(results))
-        self.__check_results_column(results, 
-                                    'alpha', 
-                                    'alpha', 
-                                    None, 
+        self.__check_results_column(results,
+                                    'alpha',
+                                    'alpha',
+                                    None,
                                     np.float64)
-        self.__check_results_column(results, 
-                                    'delta', 
-                                    'delta', 
-                                    None, 
+        self.__check_results_column(results,
+                                    'delta',
+                                    'delta',
+                                    None,
                                     np.float64)
-        self.__check_results_column(results, 
-                                    'source_id', 
-                                    'source_id', 
-                                    None, 
+        self.__check_results_column(results,
+                                    'source_id',
+                                    'source_id',
+                                    None,
                                     np.object)
-        self.__check_results_column(results, 
-                                    'table1_oid', 
-                                    'table1_oid', 
-                                    None, 
+        self.__check_results_column(results,
+                                    'table1_oid',
+                                    'table1_oid',
+                                    None,
                                     np.int32)
-    
+
     def test_launc_async_job(self):
         connHandler = DummyConnHandler()
         tap = TapPlus("http://test:1111/tap", connhandler=connHandler)
         jobid = '12345'
-        #Launch response
+        # Launch response
         responseLaunchJob = DummyResponse()
         responseLaunchJob.set_status_code(500)
         responseLaunchJob.set_message("ERROR")
-        #list of list (httplib implementation for headers in response)
+        # list of list (httplib implementation for headers in response)
         launchResponseHeaders = [
             ['location', 'http://test:1111/tap/async/' + jobid]
             ]
-        responseLaunchJob.set_data(method='POST', 
-                                   context=None, 
-                                   body=None, 
+        responseLaunchJob.set_data(method='POST',
+                                   context=None,
+                                   body=None,
                                    headers=launchResponseHeaders)
         query = 'query'
         dictTmp = {
-            "REQUEST": "doQuery", \
-            "LANG":    "ADQL", \
-            "FORMAT":  "votable", \
-            "tapclient": "aqtappy-1.0",\
-            "PHASE":  "RUN", \
-            "QUERY":   str(query)}
+            "REQUEST": "doQuery",
+            "LANG": "ADQL",
+            "FORMAT": "votable",
+            "tapclient": "aqtappy-1.0",
+            "PHASE": "RUN",
+            "QUERY": str(query)}
         sortedKey = taputils.taputil_create_sorted_dict_key(dictTmp)
         req = "async?" + sortedKey
         connHandler.set_response(req, responseLaunchJob)
-        #Phase response
+        # Phase response
         responsePhase = DummyResponse()
         responsePhase.set_status_code(500)
         responsePhase.set_message("ERROR")
-        responsePhase.set_data(method='GET', 
-                               context=None, 
-                               body="COMPLETED", 
+        responsePhase.set_data(method='GET',
+                               context=None,
+                               body="COMPLETED",
                                headers=None)
         req = "async/" + jobid + "/phase"
         connHandler.set_response(req, responsePhase)
-        #Results response
+        # Results response
         responseResultsJob = DummyResponse()
         responseResultsJob.set_status_code(500)
         responseResultsJob.set_message("ERROR")
         jobDataFile = data_path('job_1.vot')
         jobData = utils.read_file_content(jobDataFile)
-        responseResultsJob.set_data(method='GET', 
-                                    context=None, 
-                                    body=jobData, 
+        responseResultsJob.set_data(method='GET',
+                                    context=None,
+                                    body=jobData,
                                     headers=None)
         req = "async/" + jobid + "/results/result"
         connHandler.set_response(req, responseResultsJob)
@@ -267,32 +268,32 @@ class TestTap(unittest.TestCase):
             "Wrong job phase. Expected: %s, found %s" % \
             ('COMPLETED', job.get_phase())
         assert job.is_failed() == False, "Wrong job status (set Failed = True)"
-        #results
+        # results
         results = job.get_results()
         assert len(results) == 3, \
             "Wrong job results (num rows). Expected: %d, found %d" % \
             (3, len(results))
-        self.__check_results_column(results, 
-                                    'alpha', 
-                                    'alpha', 
-                                    None, 
+        self.__check_results_column(results,
+                                    'alpha',
+                                    'alpha',
+                                    None,
                                     np.float64)
-        self.__check_results_column(results, 
-                                    'delta', 
-                                    'delta', 
-                                    None, 
+        self.__check_results_column(results,
+                                    'delta',
+                                    'delta',
+                                    None,
                                     np.float64)
-        self.__check_results_column(results, 
-                                    'source_id', 
-                                    'source_id', 
-                                    None, 
+        self.__check_results_column(results,
+                                    'source_id',
+                                    'source_id',
+                                    None,
                                     np.object)
-        self.__check_results_column(results, 
-                                    'table1_oid', 
-                                    'table1_oid', 
-                                    None, 
+        self.__check_results_column(results,
+                                    'table1_oid',
+                                    'table1_oid',
+                                    None,
                                     np.int32)
-    
+
     def test_list_async_jobs(self):
         connHandler = DummyConnHandler()
         tap = TapPlus("http://test:1111/tap", connhandler=connHandler)
@@ -301,9 +302,9 @@ class TestTap(unittest.TestCase):
         response.set_message("ERROR")
         jobDataFile = data_path('jobs_list.xml')
         jobData = utils.read_file_content(jobDataFile)
-        response.set_data(method='GET', 
-                          context=None, 
-                          body=jobData, 
+        response.set_data(method='GET',
+                          context=None,
+                          body=jobData,
                           headers=None)
         req = "async"
         connHandler.set_response(req, response)
@@ -330,22 +331,22 @@ class TestTap(unittest.TestCase):
         assert jobs[1].get_phase() == 'ERROR', \
             "Wrong job phase for job %s. Expected: %s, found %s" % \
             (jobs[1].get_jobid(), 'ERROR', jobs[1].get_phase())
-    
+
     def __find_table(self, schemaName, tableName, tables):
         qualifiedName = schemaName + "." + tableName
         for table in (tables):
             if table.get_qualified_name() == qualifiedName:
                 return table
-        #not found: raise exception
+        # not found: raise exception
         self.fail("Table '"+qualifiedName+"' not found")
-    
+
     def __find_column(self, columnName, columns):
         for c in (columns):
             if c.get_name() == columnName:
                 return c
-        #not found: raise exception
+        # not found: raise exception
         self.fail("Column '"+columnName+"' not found")
-    
+
     def __check_column(self, column, description, unit, dataType, flag):
         assert column.get_description() == description, \
             "Wrong description for table %s. Expected: '%s', found '%s'" % \
@@ -359,8 +360,8 @@ class TestTap(unittest.TestCase):
         assert column.get_flag() == flag, \
             "Wrong flag for table %s. Expected: '%s', found '%s'" % \
             (column.get_name(), flag, column.get_flag())
-    
-    def __check_results_column(self, results, columnName, description, unit, 
+
+    def __check_results_column(self, results, columnName, description, unit,
                                dataType):
         c = results[columnName]
         assert c.description == description, \
@@ -372,8 +373,7 @@ class TestTap(unittest.TestCase):
         assert c.dtype == dataType, \
             "Wrong dataType for results column '%s'. Expected: '%s', found '%s'" % \
             (columnName, dataType, c.dtype)
-    
-    
+
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']

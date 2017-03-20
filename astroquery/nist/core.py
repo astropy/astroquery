@@ -178,6 +178,7 @@ class NistClass(BaseQuery):
                                   "response can be found in self.response, "
                                   "and the error in self.table_parse_error.")
 
+
 Nist = NistClass()
 
 

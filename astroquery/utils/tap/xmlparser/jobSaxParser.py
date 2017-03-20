@@ -34,24 +34,24 @@ UWS_LOCATIONID = "uws:locationid"
 UWS_NAME = "uws:name"
 UWS_PARAMETER = "uws:parameter"
 
-VALID_ITEMS = [UWS_JOBID, UWS_RUNID, UWS_OWNERID, UWS_PHASE,UWS_QUOTE,\
-               UWS_START_TIME, UWS_END_TIME, UWS_CREATION_TIME, \
-               UWS_EXECUTION_DURATION, UWS_DESTRUCTION, UWS_LOCATIONID,\
+VALID_ITEMS = [UWS_JOBID, UWS_RUNID, UWS_OWNERID, UWS_PHASE, UWS_QUOTE,
+               UWS_START_TIME, UWS_END_TIME, UWS_CREATION_TIME,
+               UWS_EXECUTION_DURATION, UWS_DESTRUCTION, UWS_LOCATIONID,
                UWS_NAME, UWS_PARAMETER]
+
 
 class JobSaxParser(xml.sax.ContentHandler):
     '''
     classdocs
     '''
 
-    
     def __init__(self, async=False):
         '''
         Constructor
         '''
         self.__internal_init()
         self.__async = async
-    
+
     def __internal_init(self):
         self.__concatData = False
         self.__charBuffer = []
@@ -60,28 +60,28 @@ class JobSaxParser(xml.sax.ContentHandler):
         self.__status = 0
         self.__paramKey = None
         self.__async = False
-        
+
     def __create_string_from_buffer(self):
         return Utils.util_create_string_from_buffer(self.__charBuffer)
-        
+
     def __check_item_id(self, itemId, tmpValue):
         if str(itemId).lower() == str(tmpValue).lower():
             return True
-        return False 
-    
+        return False
+
     def __check_valid_item_id(self, name):
         for idTmp in VALID_ITEMS:
             if self.__check_item_id(idTmp, name):
                 return True
         return False
-    
+
     def __start_reading_data(self):
         self.__concatData = True
         del self.__charBuffer[:]
-    
+
     def __stop_reading_data(self):
         self.__concatData = False
-    
+
     def parseData(self, data):
         #self.__job = Job(True)
         xml.sax.parse(data, self)
@@ -98,7 +98,7 @@ class JobSaxParser(xml.sax.ContentHandler):
                 self.__paramKey = attrs.get("id")
         else:
             self.__stop_reading_data()
-    
+
     def endElement(self, name):
         if self.__check_valid_item_id(name):
             value = self.__create_string_from_buffer()
@@ -106,11 +106,11 @@ class JobSaxParser(xml.sax.ContentHandler):
             self.__stop_reading_data()
         else:
             self.__stop_reading_data()
-    
+
     def characters(self, content):
         if self.__concatData:
             self.__charBuffer.append(content)
-    
+
     def __populate_job_value(self, value, name):
         nameLower = name.lower()
         if UWS_JOBID == nameLower:
@@ -139,7 +139,3 @@ class JobSaxParser(xml.sax.ContentHandler):
             self.__job.set_destruction(value)
         elif UWS_PARAMETER == nameLower:
             self.__job.set_parameter(self.__paramKey, value)
-    
-    
-    
-

@@ -128,6 +128,7 @@ def test_parse_result():
     assert isinstance(simbad.Simbad.last_response.text, six.string_types)
     assert isinstance(simbad.Simbad.last_response.content, six.binary_type)
 
+
 votable_fields = ",".join(simbad.core.Simbad.get_votable_fields())
 
 
@@ -245,7 +246,6 @@ def test_query_region_async(patch_post, coordinates, radius, equinox, epoch):
 
     assert response1 is not None and response2 is not None
     assert response1.content == response2.content
-    
 
 
 @pytest.mark.parametrize(('coordinates', 'radius', 'equinox', 'epoch'),

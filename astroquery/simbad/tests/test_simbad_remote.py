@@ -173,8 +173,8 @@ class TestSimbad(object):
 
         request.add_votable_fields("flux_qual(V)")
         request.add_votable_fields("flux_qual(R)")
-        request.add_votable_fields("coo(s)") # sexagesimal coordinates
-        request.add_votable_fields("coo(d)") # degree coordinates
+        request.add_votable_fields("coo(s)")  # sexagesimal coordinates
+        request.add_votable_fields("coo(d)")  # degree coordinates
         request.add_votable_fields("ra(:;A;ICRS;J2000)")
         request.add_votable_fields("ra(:;A;fk5;J2000)")
         request.add_votable_fields("bibcodelist(2000-2006)")

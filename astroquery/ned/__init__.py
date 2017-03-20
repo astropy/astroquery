@@ -78,6 +78,7 @@ class Conf(_config.ConfigNamespace):
          "Redshift - descending"],
         'Display output sorted by this criteria.')
 
+
 conf = Conf()
 
 from .core import Ned, NedClass

@@ -22,22 +22,24 @@ import six
 
 def util_create_string_from_buffer(buffer):
     if six.PY2:
-        #2.7
+        # 2.7
         return ''.join(x.encode('utf-8') for x in buffer)
     else:
-        #3.0
+        # 3.0
         return ''.join(map(str, buffer))
+
 
 def read_http_response(response, outputFormat):
     astropyFormat = get_suitable_astropy_format(outputFormat)
     if six.PY2:
-        #2.7
+        # 2.7
         return APTable.read(response, format=astropyFormat)
     else:
-        #3.0
-        #If we want to use astropy.table, we have to read the data
+        # 3.0
+        # If we want to use astropy.table, we have to read the data
         data = io.BytesIO(response.read())
         return APTable.read(data, format=astropyFormat)
+
 
 def get_suitable_astropy_format(outputFormat):
     if "csv" == outputFormat:

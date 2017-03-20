@@ -138,7 +138,7 @@ class EsoClass(QueryWithLogin):
                 else:
                     value = str(inputs[key])
 
-            if (key is not None):# and (value is not None):
+            if (key is not None):  # and (value is not None):
                 if fmt == 'multipart/form-data':
                     if is_file:
                         payload.append(
@@ -857,5 +857,6 @@ class EsoClass(QueryWithLogin):
 
         print("\n".join(result_string))
         return result_string
+
 
 Eso = EsoClass()

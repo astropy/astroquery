@@ -174,6 +174,7 @@ def make_finder_chart(target, radius, save_prefix, service=SkyView.get_images,
                                         alma_kwargs=alma_kwargs,
                                         **kwargs)
 
+
 def make_finder_chart_from_image(image, target, radius, save_prefix,
                                  alma_kwargs={'public': False,
                                               'science': False},
@@ -214,10 +215,11 @@ def make_finder_chart_from_image(image, target, radius, save_prefix,
                                                     save_prefix=save_prefix,
                                                     **kwargs)
 
+
 def make_finder_chart_from_image_and_catalog(image, catalog, save_prefix,
                                              alma_kwargs={'public': False,
                                                           'science': False},
-                                             bands=(3,4,5,6,7,8,9),
+                                             bands=(3, 4, 5, 6, 7, 8, 9),
                                              private_band_colors=('maroon',
                                                                   'red',
                                                                   'orange',
@@ -238,7 +240,7 @@ def make_finder_chart_from_image_and_catalog(image, catalog, save_prefix,
                                                                                          num=6),
                                              save_masks=False,
                                              use_saved_masks=False,
-                                            ):
+                                             ):
     """
     Create a "finder chart" showing where ALMA has pointed in various bands,
     including different color coding for public/private data and each band.
@@ -269,8 +271,6 @@ def make_finder_chart_from_image_and_catalog(image, catalog, save_prefix,
 
     import pyregion
     from pyregion.parser_helper import Shape
-
-
 
     primary_beam_radii = [
         approximate_primary_beam_sizes(row['Frequency support'])
@@ -405,7 +405,7 @@ def make_finder_chart_from_image_and_catalog(image, catalog, save_prefix,
                 if (((not reldate) or (reldate > today)) and
                     (row['Band'] == band) and
                     (band in prv_mask)
-                   ):
+                    ):
                     # private: release_date = 'sometime' says when it will be released
                     (xlo, xhi, ylo, yhi), mask = pyregion_subset(
                         shape, hit_mask_private[band], mywcs)
@@ -453,4 +453,3 @@ def make_finder_chart_from_image_and_catalog(image, catalog, save_prefix,
     fig.save('{0}_almafinderchart.png'.format(save_prefix))
 
     return image, catalog, hit_mask_public, hit_mask_private
-

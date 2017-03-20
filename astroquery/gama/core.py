@@ -63,6 +63,7 @@ class GAMAClass(BaseQuery):
         """
         return get_gama_datafile(result)
 
+
 GAMA = GAMAClass()
 
 

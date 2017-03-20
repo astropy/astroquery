@@ -327,4 +327,5 @@ def parse_coordinates(position):
     coord = commons.parse_coordinates(position)
     return coord.fk5.to_string()
 
+
 SkyView = SkyViewClass()

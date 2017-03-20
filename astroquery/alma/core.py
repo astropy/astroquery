@@ -241,7 +241,7 @@ class AlmaClass(QueryWithLogin):
         self._staging_log['initial_response'] = response
         log.debug("First response URL: {0}".format(response.url))
         if response.status_code == 405:
-            if hasattr(self,'_last_successful_staging_log'):
+            if hasattr(self, '_last_successful_staging_log'):
                 log.warning("Error 405 received.  If you have previously staged "
                             "the same UIDs, the result returned is probably "
                             "correct, otherwise you may need to create a fresh "
@@ -430,7 +430,6 @@ class AlmaClass(QueryWithLogin):
             newlines.append(ln)
 
         return b"\n".join(newlines)
-
 
     def _login(self, username=None, store_password=False,
                reenter_password=False):
@@ -946,6 +945,7 @@ class AlmaClass(QueryWithLogin):
 
         tbl = Table([Column(name=k, data=v) for k, v in iteritems(columns)])
         return tbl
+
 
 Alma = AlmaClass()
 

@@ -44,6 +44,8 @@ def test_pyregion_subset():
                                    data.shape[1] / 2 - mywcs.wcs.crpix[1] - 1)
     np.testing.assert_almost_equal(yhi,
                                    data.shape[1] - mywcs.wcs.crpix[1] - 1)
+
+
 frq_sup_str = ('[86.26..88.14GHz,976.56kHz, XX YY] U '
                '[88.15..90.03GHz,976.56kHz, XX YY] U '
                '[98.19..100.07GHz,976.56kHz, XX YY] U '
@@ -70,12 +72,12 @@ def test_make_finder_chart():
                                      'Eta Carinae')
     image, catalog, hit_mask_public, hit_mask_private = result
 
-    assert len(catalog) >= 6 # down to 6 on Nov 17, 2016
+    assert len(catalog) >= 6  # down to 6 on Nov 17, 2016
     assert 3 in [int(x) for x in hit_mask_public]
     # Feb 8 2016: apparently the 60s integration hasn't actually been released yet...
     if 3 in hit_mask_public:
-        assert hit_mask_public[3][256,256] >= 30.23
+        assert hit_mask_public[3][256, 256] >= 30.23
     elif b'3' in hit_mask_public:
-        assert hit_mask_public[b'3'][256,256] >= 30.23
+        assert hit_mask_public[b'3'][256, 256] >= 30.23
     else:
         raise ValueError("hit_mask keys are not of any known type")

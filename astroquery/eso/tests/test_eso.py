@@ -10,6 +10,7 @@ DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
 def data_path(filename):
     return os.path.join(DATA_DIR, filename)
 
+
 DATA_FILES = {'GET': {'http://archive.eso.org/wdb/wdb/eso/amber/form':
                       'amber_form.html',
                       'http://archive.eso.org/wdb/wdb/adp/phase3_main/form':
@@ -67,7 +68,7 @@ def test_vvv(monkeypatch):
     result_s = eso.query_surveys('VVV',
                                  coord1=266.41681662, coord2=-29.00782497,
                                  box='01 00 00',
-                                )
+                                 )
     assert result_s is not None
     assert 'Object' in result_s.colnames
     assert 'b333' in result_s['Object']
