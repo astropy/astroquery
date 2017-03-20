@@ -253,11 +253,11 @@ class IrsaClass(BaseQuery):
             The string must be parsable by `~astropy.coordinates.Angle`. The
             appropriate `~astropy.units.Quantity` object from `astropy.units`
             may also be used. Defaults to 10 arcsec.
-      width : str, `~astropy.units.Quantity` object [Required for spatial is ``'Polygon'``.]
+        width : str, `~astropy.units.Quantity` object [Required for spatial is ``'Polygon'``.]
             The string must be parsable by `~astropy.coordinates.Angle`. The
             appropriate `~astropy.units.Quantity` object from `astropy.units`
             may also be used.
-      polygon : list, [Required for spatial is ``'Polygon'``]
+        polygon : list, [Required for spatial is ``'Polygon'``]
             A list of ``(ra, dec)`` pairs as tuples of
             `astropy.coordinates.Angle`s outlining the polygon to search in.
             It can also be a list of `astropy.coordinates` object or strings

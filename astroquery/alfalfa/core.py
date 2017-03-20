@@ -134,7 +134,7 @@ class AlfalfaClass(BaseQuery):
 
         ra = coordinates.ra.degree
         dec = coordinates.dec.degree
-        dr = Angle(radius).to('degree').value
+        dr = commons.parse_radius(radius).deg
 
         cat = self.get_catalog()
 

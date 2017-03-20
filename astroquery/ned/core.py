@@ -718,7 +718,7 @@ def _parse_radius(radius):
         The value of the radius in arcminutes.
 
     """
-    return coord.Angle(radius).to('arcmin').value
+    return commons.parse_radius(radius).to('arcmin').value
 
 
 def _check_ned_valid(string):

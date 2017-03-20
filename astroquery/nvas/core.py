@@ -264,4 +264,4 @@ def _parse_radius(radius):
     radius_in_min : float
         The value of the radius in arcminutes.
     """
-    return coord.Angle(radius).to('arcmin').value
+    return commons.parse_radius(radius).to('arcmin').value

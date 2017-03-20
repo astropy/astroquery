@@ -95,7 +95,7 @@ class AlmaClass(QueryWithLogin):
         """
         coordinate = commons.parse_coordinates(coordinate)
         cstr = coordinate.fk5.to_string(style='hmsdms', sep=':')
-        rdc = "{cstr}, {rad}".format(cstr=cstr, rad=radius.to(u.deg).value)
+        rdc = "{cstr}, {rad}".format(cstr=cstr, rad=commons.parse_radius(radius).deg)
 
         if payload is None:
             payload = {}
