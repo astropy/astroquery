@@ -30,14 +30,14 @@ def data_path(filename):
 class TestJob(unittest.TestCase):
 
     def test_job_basic(self):
-        job = Job(async=False)
+        job = Job(async_job=False)
         res = job.is_sync()
         assert res, \
             "Sync job, expected: %s, found: %s" % (str(True), str(res))
         res = job.is_async()
         assert res == False, \
             "Sync job, expected: %s, found: %s" % (str(False), str(res))
-        job = Job(async=True)
+        job = Job(async_job=True)
         res = job.is_sync()
         assert res == False, \
             "Async job, expected: %s, found: %s" % (str(False), str(res))
@@ -67,7 +67,7 @@ class TestJob(unittest.TestCase):
         locationid = "locationid"
         name = "name"
         quote = "quote"
-        job = Job(async=False, query=query)
+        job = Job(async_job=False, query=query)
         job.set_jobid(jobid)
         job.set_remote_location(remoteLocation)
         job.set_phase(phase)
@@ -139,7 +139,7 @@ class TestJob(unittest.TestCase):
                                                 job.get_quote())
 
     def test_job_get_results(self):
-        job = Job(async=True)
+        job = Job(async_job=True)
         jobid = "12345"
         outputFormat = "votable"
         job.set_jobid(jobid)

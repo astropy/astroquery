@@ -45,12 +45,12 @@ class JobSaxParser(xml.sax.ContentHandler):
     classdocs
     '''
 
-    def __init__(self, async=False):
+    def __init__(self, async_job=False):
         '''
         Constructor
         '''
         self.__internal_init()
-        self.__async = async
+        self.__async = async_job
 
     def __internal_init(self):
         self.__concatData = False
