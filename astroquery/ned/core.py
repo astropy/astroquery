@@ -498,7 +498,7 @@ class NedClass(BaseQuery):
         """
         base_url = 'http://ned.ipac.caltech.edu'
         pattern = re.compile(
-            '<a\s+href\s*?="?\s*?(.+?fits.gz)"?\s*?>\s*?(?:Retrieve|FITS)</a>',
+            r'<a\s+href\s*?="?\s*?(.+?fits.gz)"?\s*?>\s*?(?:Retrieve|FITS)</a>',
             re.IGNORECASE)
         matched_urls = pattern.findall(html_in)
         url_list = [base_url + img_url for img_url in matched_urls]

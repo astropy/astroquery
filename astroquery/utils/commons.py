@@ -354,7 +354,7 @@ def validate_email(email):
         import validate_email
         return validate_email.validate_email(email)
     except ImportError:
-        return bool(re.compile('^\S+@\S+\.\S+$').match(email))
+        return bool(re.compile(r'^\S+@\S+\.\S+$').match(email))
 
 
 class FileContainer(object):

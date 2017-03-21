@@ -86,7 +86,7 @@ class BesanconClass(BaseQuery):
     ping_delay = conf.ping_delay
     TIMEOUT = conf.timeout
     # sample file name:  1340900648.230224.resu
-    result_re = re.compile("[0-9]{10}\.[0-9]{6}\.resu")
+    result_re = re.compile(r"[0-9]{10}\.[0-9]{6}\.resu")
 
     def __init__(self, email=None):
         super(BesanconClass, self).__init__()
@@ -355,7 +355,7 @@ def parse_errors(text):
     except AttributeError:
         raise ValueError("Regular expression matching to error "
                          "message failed.")
-    text_items = re.split("<li>|</li>|\n", errors.search(text).group())
+    text_items = re.split(r"<li>|</li>|\n", errors.search(text).group())
     text_items = [t for t in text_items if t != ""]
     error_list = text_items[2:-2]
     return error_list

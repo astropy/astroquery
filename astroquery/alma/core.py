@@ -574,7 +574,7 @@ class AlmaClass(QueryWithLogin):
             self._cycle0_table.rename_column('col2', 'uid')
         return self._cycle0_table
 
-    def get_files_from_tarballs(self, downloaded_files, regex='.*\.fits$',
+    def get_files_from_tarballs(self, downloaded_files, regex=r'.*\.fits$',
                                 path='cache_path', verbose=True):
         """
         Given a list of successfully downloaded tarballs, extract files
@@ -621,7 +621,7 @@ class AlmaClass(QueryWithLogin):
 
         return filelist
 
-    def download_and_extract_files(self, urls, delete=True, regex='.*\.fits$',
+    def download_and_extract_files(self, urls, delete=True, regex=r'.*\.fits$',
                                    include_asdm=False, path='cache_path',
                                    verbose=True):
         """
@@ -734,7 +734,7 @@ class AlmaClass(QueryWithLogin):
             root = BeautifulSoup(querypage.content, "html5lib")
             sections = root.findAll('td', class_='category')
 
-            whitespace = re.compile("\s+")
+            whitespace = re.compile(r"\s+")
 
             help_list = []
             for section in sections:
@@ -849,7 +849,7 @@ class AlmaClass(QueryWithLogin):
 
             if len(tds) > 3 and (cl and tr['class'][0] == 'fileRow'):
                 # New Style
-                size, unit = re.search('(-|[0-9\.]*)([A-Za-z]*)',
+                size, unit = re.search(r'(-|[0-9\.]*)([A-Za-z]*)',
                                        tds[2].text).groups()
                 href = tds[1].find('a')
                 if size == '':
@@ -879,7 +879,7 @@ class AlmaClass(QueryWithLogin):
             elif len(tds) > 3 and tds[2].find('a'):
                 # Old Style
                 href = tds[2].find('a')
-                size, unit = re.search('([0-9\.]*)([A-Za-z]*)',
+                size, unit = re.search(r'([0-9\.]*)([A-Za-z]*)',
                                        tds[3].text).groups()
                 columns['uid'].append(uid)
                 columns['URL'].append(href.attrs['href'])

@@ -49,7 +49,7 @@ def ncrit(lamda_tables, transition_upper, transition_lower, temperature, OPR=3,
     aval = avals[(avals['Upper'] == transition_upper) &
                  (avals['Lower'] == transition_lower)]['EinsteinA'][0]
 
-    temperature_re = re.compile("C_ij\(T=([0-9]*)\)")
+    temperature_re = re.compile(r"C_ij\(T=([0-9]*)\)")
     crate_temperatures = np.array(
         [int(temperature_re.search(cn).groups()[0])
          for cn in crates[list(crates.keys())[0]].keys()

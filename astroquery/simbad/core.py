@@ -25,7 +25,7 @@ __all__ = ['Simbad', 'SimbadClass']
 
 
 def validate_epoch(value):
-    p = re.compile('^[JB]\d+[.]?\d+$', re.IGNORECASE)
+    p = re.compile(r'^[JB]\d+[.]?\d+$', re.IGNORECASE)
     if p.match(value) is None:
         raise ValueError("Epoch must be specified as [J|B]<epoch>.\n"
                          "Example: epoch='J2000'")

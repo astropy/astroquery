@@ -30,7 +30,7 @@ def nonremote_request(request_type, url, **kwargs):
     return response
 
 
-@pytest.fixture
+@pytest.fixture(autouse=True)
 def esasky_request(request):
     try:
         mp = request.getfixturevalue("monkeypatch")
@@ -40,7 +40,6 @@ def esasky_request(request):
     return mp
 
 
-@pytest.mark.usefixtures("esasky_request")
 class TestEsaSkyLocal(unittest.TestCase):
     def test_esasky_query_region_maps_invalid_position(self):
         with self.assertRaises(ValueError):
