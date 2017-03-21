@@ -15,10 +15,10 @@ Created on 30 jun. 2016
 
 """
 
-from astroquery.utils.tap.xmlparser import utils
 import time
-import os
+
 from astroquery.utils.tap.model import modelutils
+from astroquery.utils.tap.xmlparser import utils
 
 __all__ = ['Job']
 
@@ -27,12 +27,12 @@ class Job(object):
     """Job class
     """
 
-    def __init__(self, async, query=None, connhandler=None):
+    def __init__(self, async_job, query=None, connhandler=None):
         """Constructor
 
         Parameters
         ----------
-        async : bool, mandatory
+        async_job : bool, mandatory
             'True' if the job is asynchronous
         query : str, optional, default None
             Query
@@ -41,7 +41,7 @@ class Job(object):
         """
         self.__internal_init()
         self.__connHandler = connhandler
-        self.__async = async
+        self.__async = async_job
         self.__parameters['query'] = query
 
     def __internal_init(self):

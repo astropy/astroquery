@@ -210,7 +210,7 @@ class GaiaClass(object):
         return self.__gaiatap.list_async_jobs(verbose)
 
     def __query_object(self, coordinate, radius=None, width=None, height=None,
-                     async=False, verbose=False):
+                       async_job=False, verbose=False):
         """Launches a job
         TAP & TAP+
 
@@ -224,7 +224,7 @@ class GaiaClass(object):
             box width
         height : astropy.units, required if no 'radius' is provided
             box height
-        async : bool, optional, default 'False'
+        async_job : bool, optional, default 'False'
             executes the query (job) in asynchronous/synchronous mode (default
             synchronous)
         verbose : bool, optional, default 'False'
@@ -237,7 +237,8 @@ class GaiaClass(object):
         coord = self.__getCoordInput(coordinate, "coordinate")
         job = None
         if radius is not None:
-            job = self.__cone_search(coord, radius, async=async, verbose=verbose)
+            job = self.__cone_search(coord, radius,
+                                     async_job=async_job, verbose=verbose)
         else:
             raHours, dec = commons.coord_to_radec(coord)
             ra = raHours * 15.0  # Converts to degrees
@@ -254,7 +255,7 @@ class GaiaClass(object):
                 BOX('ICRS',"+str(ra)+","+str(dec)+", "+str(widthDeg.value)+", "\
                 + str(heightDeg.value)+"))=1 \
                 ORDER BY dist ASC"
-            if async:
+            if async_job:
                 job = self.__gaiatap.launch_job_async(query, verbose=verbose)
             else:
                 job = self.__gaiatap.launch_job(query, verbose=verbose)
@@ -286,7 +287,7 @@ class GaiaClass(object):
                                  radius,
                                  width,
                                  height,
-                                 async=False,
+                                 async_job=False,
                                  verbose=verbose)
 
     def query_object_async(self, coordinate, radius=None, width=None,
@@ -304,7 +305,7 @@ class GaiaClass(object):
             box width
         height : astropy.units, required if no 'radius' is provided
             box height
-        async : bool, optional, default 'False'
+        async_job : bool, optional, default 'False'
             executes the query (job) in asynchronous/synchronous mode (default synchronous)
         verbose : bool, optional, default 'False'
             flag to display information about the process
@@ -317,12 +318,13 @@ class GaiaClass(object):
                                  radius,
                                  width,
                                  height,
-                                 async=True,
+                                 async_job=True,
                                  verbose=verbose)
 
-    def __cone_search(self, coordinate, radius, async=False, background=False,
-                    output_file=None, output_format="votable", verbose=False,
-                    dump_to_file=False):
+    def __cone_search(self, coordinate, radius, async_job=False,
+                      background=False,
+                      output_file=None, output_format="votable", verbose=False,
+                      dump_to_file=False):
         """Cone search sorted by distance
         TAP & TAP+
 
@@ -332,7 +334,7 @@ class GaiaClass(object):
             coordinates center point
         radius : astropy.units, mandatory
             radius
-        async : bool, optional, default 'False'
+        async_job : bool, optional, default 'False'
             executes the job in asynchronous/synchronous mode (default
             synchronous)
         background : bool, optional, default 'False'
@@ -365,7 +367,7 @@ class GaiaClass(object):
             POINT('ICRS',"+str(MAIN_GAIA_TABLE_RA)+","+str(MAIN_GAIA_TABLE_DEC)+"),\
             CIRCLE('ICRS',"+str(ra)+","+str(dec)+", "+str(radiusDeg)+"))=1 \
             ORDER BY dist ASC"
-        if async:
+        if async_job:
             return self.__gaiatap.launch_job_async(query=query,
                                          output_file=output_file,
                                          output_format=output_format,
@@ -407,7 +409,7 @@ class GaiaClass(object):
         """
         return self.__cone_search(coordinate,
                                   radius=radius,
-                                  async=False,
+                                  async_job=False,
                                   background=False,
                                   output_file=output_file,
                                   output_format=output_format,
@@ -445,7 +447,7 @@ class GaiaClass(object):
         """
         return self.__cone_search(coordinate,
                                   radius=radius,
-                                  async=True,
+                                  async_job=True,
                                   background=background,
                                   output_file=output_file,
                                   output_format=output_format,

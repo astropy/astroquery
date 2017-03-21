@@ -206,7 +206,7 @@ class Tap(object):
                                         "sync",
                                         verbose,
                                         name)
-        job = Job(async=False, query=query, connhandler=self.__connHandler)
+        job = Job(async_job=False, query=query, connhandler=self.__connHandler)
         isError = self.__connHandler.check_launch_response_status(response,
                                                                   verbose,
                                                                   200)
@@ -286,7 +286,7 @@ class Tap(object):
         isError = self.__connHandler.check_launch_response_status(response,
                                                                   verbose,
                                                                   303)
-        job = Job(async=True, query=query, connhandler=self.__connHandler)
+        job = Job(async_job=True, query=query, connhandler=self.__connHandler)
         suitableOutputFile = self.__getSuitableOutputFile(True,
                                                           output_file,
                                                           response.getheaders(),
@@ -359,7 +359,7 @@ class Tap(object):
             raise Exception(response.reason)
             return None
         # parse job
-        jsp = JobSaxParser(async=True)
+        jsp = JobSaxParser(async_job=True)
         job = jsp.parseData(response)[0]
         job.set_connhandler(self.__connHandler)
         # load resulst
@@ -391,7 +391,7 @@ class Tap(object):
             raise Exception(response.reason)
             return None
         # parse jobs
-        jsp = JobListSaxParser(async=True)
+        jsp = JobListSaxParser(async_job=True)
         jobs = jsp.parseData(response)
         if jobs is not None:
             for j in jobs:
@@ -470,13 +470,13 @@ class Tap(object):
             print(response.getheaders())
         return response
 
-    def __getSuitableOutputFile(self, async, outputFile, headers, isError,
+    def __getSuitableOutputFile(self, async_job, outputFile, headers, isError,
                                 output_format):
         dateTime = datetime.now().strftime("%Y%m%d%H%M%S")
         ext = self.__connHandler.get_suitable_extension(headers)
         fileName = ""
         if outputFile is None:
-            if not async:
+            if not async_job:
                 fileName = "sync_" + str(dateTime) + ext
             else:
                 ext = self.__connHandler.get_suitable_extension_by_format(
@@ -697,7 +697,7 @@ class TapPlus(Tap):
             raise Exception(response.reason)
             return None
         # parse jobs
-        jsp = JobSaxParser(async=True)
+        jsp = JobSaxParser(async_job=True)
         jobs = jsp.parseData(response)
         if jobs is not None:
             for j in jobs:
