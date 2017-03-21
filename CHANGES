@@ -12,8 +12,10 @@
   will be soft-banned, so we have added a warning to this effect in the
   documentation (#833)
 - Gaia - added module to access the European Space Agency Gaia Archive.
-- TAP/TAP+ - added Table Access Protocol utility and the ESAC 
+- TAP/TAP+ - added Table Access Protocol utility and the ESAC
   Science Data Centre (ESDC) extension.
+- VO Cone Search - added module to access Virtual Observatory's Simple
+  Cone Search. This is ported from ``astropy.vo``. [#859]
 
 0.3.4 (2016-11-21)
 ------------------
