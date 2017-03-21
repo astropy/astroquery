@@ -343,7 +343,7 @@ class IrsaDustClass(BaseQuery):
             payload = {"locstr": "{0} {1}".format(C.ra.deg, C.dec.deg)}
         # check if radius is given with proper units
         if radius is not None:
-            reg_size = commons.parse_radius(radius).to('degree').value
+            reg_size = commons.parse_radius(radius).deg
             # check if radius falls in the acceptable range
             if reg_size < 2 or reg_size > 37.5:
                 raise ValueError("Radius (in any unit) must be in the"
