@@ -121,11 +121,6 @@ matrix:
           env: PYTHON_VERSION=2.7 MAIN_CMD='pycodestyle astroquery --count'
                SETUP_CMD='' EVENT_TYPE='push pull_request'
 
-    allow_failures:
-        - os: linux
-          env: PYTHON_VERSION=2.7 MAIN_CMD='pycodestyle astroquery --count'
-               SETUP_CMD='' EVENT_TYPE='push pull_request'
-
 install:
     - git clone git://github.com/astropy/ci-helpers.git
     - source ci-helpers/travis/setup_conda_$TRAVIS_OS_NAME.sh
