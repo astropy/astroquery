@@ -1,6 +1,12 @@
 0.3.5 (unreleased)
 ------------------
 
+- New tool: Gaia - added module to access the European Space Agency Gaia
+  Archive. (#836)
+- New tool: VO Cone Search - added module to access Virtual Observatory's
+  Simple Cone Search. This is ported from ``astropy.vo``. (#859)
+- New utility: TAP/TAP+ - added Table Access Protocol utility and the ESAC
+  Science Data Centre (ESDC) extension. (#836)
 - Fix VizieR to respect specification to return default columns only (#792)
 - SIMBAD queries allow multiple configurable parameters (#820)
 - Add a capability to resume partially-completed downloads for services that
@@ -11,11 +17,12 @@
   Also, SIMBAD support has noted that any IP submitting >6 queries/second
   will be soft-banned, so we have added a warning to this effect in the
   documentation (#833)
-- Gaia - added module to access the European Space Agency Gaia Archive.
-- TAP/TAP+ - added Table Access Protocol utility and the ESAC
-  Science Data Centre (ESDC) extension.
-- VO Cone Search - added module to access Virtual Observatory's Simple
-  Cone Search. This is ported from ``astropy.vo``. [#859]
+- ALMA: Fix to always use https as the archive now requires it. (#814, #828)
+- ESASky: Fix various issues related to remote API changes. (#805, #817)
+- ESASky: Corrected Herschel filter indexing. (#844)
+- ESO: Fix picking issue with simple ``query_survey()`` queries. (#801)
+- ESO: Fix FEROS and HARPS instrument queries. (#840)
+- NRAO: Change default radius from 1 degree to 1 arcmin. (#813)
 
 0.3.4 (2016-11-21)
 ------------------
