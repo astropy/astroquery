@@ -440,8 +440,6 @@ class Tap(object):
             "UPLOAD": ""+str(uploadValue)}
         if name is not None:
             args['jobname'] = name
-        #f = open(uploadResource, "rb")
-        #chunk = f.read().decode('utf8')
         f = open(uploadResource, "r")
         chunk = f.read()
         f.close()

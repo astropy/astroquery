@@ -431,7 +431,6 @@ class TapConn(object):
             multiparItems.append(CRLF)
         multiparItems.append('--' + boundary + '--' + CRLF)
         multiparItems.append(CRLF)
-        #body = CRLF.join(multiparItems)
         body = utils.util_create_string_from_buffer(multiparItems)
         contentType = 'multipart/form-data; boundary=%s' % boundary
         return contentType, body

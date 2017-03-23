@@ -51,14 +51,12 @@ class Job(object):
         self.__remoteLocation = None
         self.__phase = None
         self.__async = None
-        #self.query = None
         self.__outputFile = None
         self.__responseStatus = 0
         self.__responseMsg = None
         self.__results = None
         self.__resultInMemory = False
         self.__failed = False
-        # self.__outputFormat="votable"
         self.__runid = None
         self.__ownerid = None
         self.__startTime = None

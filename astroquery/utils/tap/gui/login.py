@@ -81,8 +81,6 @@ class LoginDialog(object):
 
         self.__top.geometry("+%d+%d" % (x, y))
 
-        #top.geometry("+%d+%d" % (root.winfo_rootx()+350, root.winfo_rooty()+350))
-
         row = 0
         expLabel = TKLabel(self.__top, text='Login to host:')
         expLabel.grid(row=row, column=0, columnspan=4, padx=5, pady=2)
