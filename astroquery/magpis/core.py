@@ -67,7 +67,7 @@ class MagpisClass(BaseQuery):
         ra_dec_str = str(c.l.degree) + ' ' + str(c.b.degree)
         request_payload["RA"] = ra_dec_str
         request_payload["Equinox"] = "Galactic"
-        request_payload["ImageSize"] = coord.Angle(image_size).to('arcmin').value
+        request_payload["ImageSize"] = coord.Angle(image_size).arcmin
         request_payload["ImageType"] = "FITS File"
         request_payload["MaxImSize"] = self.maximsize if maximsize is None else maximsize
         return request_payload

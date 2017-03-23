@@ -46,7 +46,6 @@ CoordClasses = (coord.SkyCoord, BaseCoordinateFrame)
 
 __all__ = ['send_request',
            'parse_coordinates',
-           'parse_radius',
            'TableList',
            'suppress_vo_warnings',
            'validate_email']
@@ -107,31 +106,6 @@ def send_request(url, data, timeout, request_type='POST', headers={},
         raise Exception("Query failed: {0}\n".format(ex))
 
 
-def parse_radius(radius):
-    """
-    Given a radius checks that it is either parsable as an
-    `~astropy.coordinates.Angle` or a `~astropy.units.Quantity`
-    and returns an `~astropy.coordinates.Angle` object.
-
-    Parameters
-    ----------
-    radius : str or `~astropy.units.Quantity`
-        The radius of a region
-
-    Returns
-    -------
-    angle : `~astropy.coordinates.Angle`
-
-    Raises
-    ------
-    astropy.units.UnitsError
-    astropy.coordinates.errors.UnitsError
-    AttributeError
-    """
-
-    return coord.Angle(radius)
-
-
 def radius_to_unit(radius, unit='degree'):
     """
     Helper function: Parse a radius, then return its value in degrees
@@ -145,7 +119,7 @@ def radius_to_unit(radius, unit='degree'):
     -------
     Floating point scalar value of radius in degrees
     """
-    rad = parse_radius(radius)
+    rad = coord.Angle(radius)
 
     if isinstance(unit, six.string_types):
         if hasattr(rad, unit):

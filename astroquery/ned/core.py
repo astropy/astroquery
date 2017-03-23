@@ -181,7 +181,7 @@ class NedClass(BaseQuery):
         if not commons._is_coordinate(coordinates):
             request_payload['objname'] = coordinates
             request_payload['search_type'] = 'Near Name Search'
-            request_payload['radius'] = _parse_radius(radius)
+            request_payload['radius'] = coord.Angle(radius).arcmin
         else:
             try:
                 c = commons.parse_coordinates(coordinates)
@@ -197,7 +197,7 @@ class NedClass(BaseQuery):
                     request_payload['lat'] = dec
                 request_payload['search_type'] = 'Near Position Search'
                 request_payload['in_equinox'] = equinox
-                request_payload['radius'] = _parse_radius(radius)
+                request_payload['radius'] = coord.Angle(radius).arcmin
             except (u.UnitsError, TypeError):
                 raise TypeError("Coordinates not specified correctly")
         if get_query_payload:
@@ -702,23 +702,6 @@ class NedClass(BaseQuery):
                     "self.table_parse_error.")
 
 Ned = NedClass()
-
-
-def _parse_radius(radius):
-    """
-    Parses the radius and returns it in the format expected by NED.
-
-    Parameters
-    ----------
-    radius : str, `~astropy.units.Quantity`
-
-    Returns
-    -------
-    radius_in_min : float
-        The value of the radius in arcminutes.
-
-    """
-    return commons.parse_radius(radius).arcmin
 
 
 def _check_ned_valid(string):

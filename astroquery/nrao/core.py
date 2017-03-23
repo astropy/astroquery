@@ -204,7 +204,7 @@ class NraoClass(QueryWithLogin):
             CENTER_RA='',
             CENTER_DEC='',
             SRAD=str(
-                commons.parse_radius(kwargs.get('radius', "1.0m")).deg) + 'd',
+                coordinates.Angle(kwargs.get('radius', "1.0m")).deg) + 'd',
             TELESCOPE_CONFIG=kwargs.get('telescope_config', 'all').upper(),
             OBS_BANDS=obs_bands,
             SUBARRAY=kwargs.get('subarray', 'all').upper(),

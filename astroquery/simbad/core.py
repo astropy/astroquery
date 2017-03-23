@@ -982,7 +982,7 @@ def _to_simbad_format(ra, dec):
 
 def _parse_radius(radius):
     try:
-        angle = commons.parse_radius(radius)
+        angle = coord.Angle(radius)
         # find the most appropriate unit - d, m or s
         nonzero_indices = [i for (i, val) in enumerate(angle.dms)
                            if int(val) > 0]

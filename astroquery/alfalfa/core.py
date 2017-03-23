@@ -10,7 +10,7 @@ import requests
 import numpy as np
 import numpy.ma as ma
 from astropy import units as u
-from astropy.coordinates import Angle
+from astropy import coordinates as coord
 from ..utils import commons
 from ..query import BaseQuery
 from ..utils.docstr_chompers import prepend_docstr_noreturns
@@ -134,7 +134,7 @@ class AlfalfaClass(BaseQuery):
 
         ra = coordinates.ra.degree
         dec = coordinates.dec.degree
-        dr = commons.parse_radius(radius).deg
+        dr = coord.Angle(radius).deg
 
         cat = self.get_catalog()
 

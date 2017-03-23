@@ -234,10 +234,10 @@ class IbeClass(BaseQuery):
             args['POS'] = '{0},{1}'.format(c.ra.deg, c.dec.deg)
             if width and height:
                 args['SIZE'] = '{0},{1}'.format(
-                    commons.parse_radius(width).value,
-                    commons.parse_radius(height).value)
+                    coord.Angle(width).value,
+                    coord.Angle(height).value)
             elif width or height:
-                args['SIZE'] = str(commons.parse_radius(width or height).value)
+                args['SIZE'] = str(coord.Angle(width or height).value)
 
         if where:
             args['where'] = where

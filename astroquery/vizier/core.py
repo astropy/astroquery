@@ -734,7 +734,7 @@ def _parse_angle(angle):
     (unit, value) : tuple
         formatted for Vizier.
     """
-    angle = commons.parse_radius(angle)
+    angle = coord.Angle(angle)
     if angle.unit == u.arcsec:
         unit, value = 's', angle.value
     elif angle.unit == u.arcmin:
