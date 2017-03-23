@@ -179,7 +179,7 @@ class NvasClass(BaseQuery):
                              .format(Nvas.valid_bands))
         request_payload = {}
         request_payload["nvas_pos"] = _parse_coordinates(coordinates)
-        request_payload["nvas_rad"] = coord.Angle(radius).arcmin
+        request_payload["nvas_rad"] = _parse_radius(radius).arcmin
         request_payload["nvas_rms"] = max_rms
         request_payload["nvas_scl"] = "yes"
         request_payload["submit"] = "Search"
@@ -249,3 +249,19 @@ def _parse_coordinates(coordinates):
     dms = c.dec.dms
     radecstr = "%02i %02i %09.6f %+03i %02i %09.6f" % (hms + dms)
     return radecstr
+
+
+def _parse_radius(radius):
+    """
+    Parses the radius and returns it in the format expected by UKIDSS.
+
+    Parameters
+    ----------
+    radius : str, `~astropy.units.Quantity`
+
+    Returns
+    -------
+    radius_in_min : float
+        The value of the radius in arcminutes.
+    """
+    return coord.Angle(radius).arcmin
