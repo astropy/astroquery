@@ -17,7 +17,6 @@ Created on 30 jun. 2016
 import unittest
 import os
 import numpy as np
-from astroquery.utils.tap.model.job import Job
 from astroquery.utils.tap.conn.tests.DummyConnHandler import DummyConnHandler
 from astroquery.utils.tap.conn.tests.DummyResponse import DummyResponse
 from astroquery.utils.tap.core import TapPlus
@@ -164,7 +163,7 @@ class TestTap(unittest.TestCase):
         assert job.get_phase() == 'COMPLETED', \
             "Wrong job phase. Expected: %s, found %s" % \
             ('COMPLETED', job.get_phase())
-        assert job.is_failed() == False, "Wrong job status (set Failed = True)"
+        assert job.is_failed() is False, "Wrong job status (set Failed = True)"
         # results
         results = job.get_results()
         assert len(results) == 3, \
@@ -263,11 +262,11 @@ class TestTap(unittest.TestCase):
         responseResultsJob.set_message("OK")
         job = tap.launch_job_async(query)
         assert job is not None, "Expected a valid job"
-        assert job.is_sync() == False, "Expected an asynchronous job"
+        assert job.is_sync() is False, "Expected an asynchronous job"
         assert job.get_phase() == 'COMPLETED', \
             "Wrong job phase. Expected: %s, found %s" % \
             ('COMPLETED', job.get_phase())
-        assert job.is_failed() == False, "Wrong job status (set Failed = True)"
+        assert job.is_failed() is False, "Wrong job status (set Failed = True)"
         # results
         results = job.get_results()
         assert len(results) == 3, \
@@ -376,5 +375,5 @@ class TestTap(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    #import sys;sys.argv = ['', 'Test.testName']
+    # import sys;sys.argv = ['', 'Test.testName']
     unittest.main()

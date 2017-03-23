@@ -70,10 +70,10 @@ def set_top_in_query(query, top):
         return query
     q = query.upper()
     if TAP_UTILS_QUERY_TOP_PATTERN.search(q):
-        #top is present
+        # top is present
         return query
     else:
-        #top is not present
+        # top is not present
         # check all|distinct
         m = TAP_UTILS_QUERY_ALL_DISTINCT_PATTERN.search(q)
         if m:

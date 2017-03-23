@@ -83,7 +83,7 @@ class JobSaxParser(xml.sax.ContentHandler):
         self.__concatData = False
 
     def parseData(self, data):
-        #self.__job = Job(True)
+        # self.__job = Job(True)
         xml.sax.parse(data, self)
         return self.__jobs
 

@@ -300,7 +300,7 @@ class TapConn(object):
             return ""
         ext = ""
         contentType = self.find_header(headers, 'Content-Type')
-        if not contentType is None:
+        if contentType is not None:
             contentType = contentType.lower()
             if "xml" in contentType:
                 ext += ".xml"
@@ -313,7 +313,7 @@ class TapConn(object):
             elif "ascii" in contentType:
                 ext += ".ascii"
         contentEncoding = self.find_header(headers, 'Content-Encoding')
-        if not contentEncoding is None:
+        if contentEncoding is not None:
             if "gzip" == contentEncoding.lower():
                 ext += ".gz"
         return ext
@@ -431,7 +431,6 @@ class TapConn(object):
             multiparItems.append(CRLF)
         multiparItems.append('--' + boundary + '--' + CRLF)
         multiparItems.append(CRLF)
-        #body = CRLF.join(multiparItems)
         body = utils.util_create_string_from_buffer(multiparItems)
         contentType = 'multipart/form-data; boundary=%s' % boundary
         return contentType, body

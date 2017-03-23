@@ -3,7 +3,6 @@ import tempfile
 import shutil
 import numpy as np
 import os
-import requests
 from astropy.tests.helper import pytest, remote_data
 from astropy import coordinates
 from astropy import units as u
@@ -30,7 +29,7 @@ class TestAlma:
         # Alma.archive_url = "https://2016-03.asa-test.alma.cl/aq/"
         # starting somewhere between Nov 2015 and Jan 2016, the beta server
         # stopped serving the actual data, making all staging attempts break
-        #Alma.archive_url = 'http://beta.cadc-ccda.hia-iha.nrc-cnrc.gc.ca'
+        # Alma.archive_url = 'http://beta.cadc-ccda.hia-iha.nrc-cnrc.gc.ca'
 
     @pytest.fixture()
     def temp_dir(self, request):
@@ -82,8 +81,8 @@ class TestAlma:
         #                            'file URLs directly with download_files.')
 
         # log.warning doesn't actually make a warning
-        #link_list = alma.stage_data(uids)
-        #w = recwarn.pop()
+        # link_list = alma.stage_data(uids)
+        # w = recwarn.pop()
         # assert (str(w.message) == ('Error 405 received.  If you have previously staged the '
         #                           'same UIDs, the result returned is probably correct,'
         #                           ' otherwise you may need to create a fresh astroquery.Alma instance.'))
@@ -111,8 +110,8 @@ class TestAlma:
         #                            'file URLs directly with download_files.')
 
         # log.warning doesn't actually make a warning
-        #result = alma.stage_data([uid])
-        #w = recwarn.pop()
+        # result = alma.stage_data([uid])
+        # w = recwarn.pop()
         # assert (str(w.message) == ('Error 405 received.  If you have previously staged the '
         #                           'same UIDs, the result returned is probably correct,'
         #                           ' otherwise you may need to create a fresh astroquery.Alma instance.'))
@@ -125,7 +124,7 @@ class TestAlma:
         m83_data = alma.query_object('M83')
         # the order can apparently sometimes change
         # These column names change too often to keep testing.
-        #assert set(m83_data.colnames) == set(all_colnames)
+        # assert set(m83_data.colnames) == set(all_colnames)
         galactic_center = coordinates.SkyCoord(0 * u.deg, 0 * u.deg,
                                                frame='galactic')
         gc_data = alma.query_region(galactic_center, 1 * u.deg)
