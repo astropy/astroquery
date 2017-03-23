@@ -579,7 +579,7 @@ class Job(object):
                 print("Job " + self.__jobid + " status: " + data)
             if "pending" != data and "queued" != data and "executing" != data:
                 break
-            #PENDING, QUEUED, EXECUTING, COMPLETED, ERROR, ABORTED, UNKNOWN,
+            # PENDING, QUEUED, EXECUTING, COMPLETED, ERROR, ABORTED, UNKNOWN,
             # HELD, SUSPENDED, ARCHIVED:
             time.sleep(0.5)
         return currentResponse, responseData
@@ -588,7 +588,7 @@ class Job(object):
         wjResponse, wjData = self.wait_for_job_end()
         subContext = "async/" + str(self.__jobid) + "/results/result"
         resultsResponse = self.__connHandler.execute_get(subContext)
-        #resultsResponse = self.__readAsyncResults(self.__jobid, debug)
+        # resultsResponse = self.__readAsyncResults(self.__jobid, debug)
         if debug:
             print(resultsResponse.status, resultsResponse.reason)
             print(resultsResponse.getheaders())

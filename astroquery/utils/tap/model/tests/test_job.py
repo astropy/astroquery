@@ -35,11 +35,11 @@ class TestJob(unittest.TestCase):
         assert res, \
             "Sync job, expected: %s, found: %s" % (str(True), str(res))
         res = job.is_async()
-        assert res == False, \
+        assert res is False, \
             "Sync job, expected: %s, found: %s" % (str(False), str(res))
         job = Job(async_job=True)
         res = job.is_sync()
-        assert res == False, \
+        assert res is False, \
             "Async job, expected: %s, found: %s" % (str(False), str(res))
         res = job.is_async()
         assert res, \
@@ -179,7 +179,7 @@ class TestJob(unittest.TestCase):
             self.fail("Exception expected: wrong HTTP status code II \
             must raise an exception")
         except Exception as ex:
-            #print (str(ex))
+            # print (str(ex))
             pass
         responseGetData.set_status_code(200)
         responseGetData.set_message("OK")
@@ -194,5 +194,5 @@ class TestJob(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    #import sys;sys.argv = ['', 'Test.testName']
+    # import sys;sys.argv = ['', 'Test.testName']
     unittest.main()
