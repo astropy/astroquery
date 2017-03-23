@@ -15,22 +15,13 @@ Created on 30 jun. 2016
 
 """
 
-try:
-    # python 3
-    from Tkinter import Tk as TKTk
-    from Tkinter import Toplevel as TKToplevel
-    from Tkinter import Button as TKButton
-    from Tkinter import Label as TKLabel
-    from Tkinter import Entry as TKEntry
-    from Tkinter import Grid as TKGrid
-except ImportError:
-    # python 2
-    from tkinter import Tk as TKTk
-    from tkinter import Toplevel as TKToplevel
-    from tkinter import Button as TKButton
-    from tkinter import Label as TKLabel
-    from tkinter import Entry as TKEntry
-    from tkinter import Grid as TKGrid
+from astropy.extern import six
+
+from six.moves.tkinter import Tk as TKTk
+from six.moves.tkinter import Toplevel as TKToplevel
+from six.moves.tkinter import Button as TKButton
+from six.moves.tkinter import Label as TKLabel
+from six.moves.tkinter import Entry as TKEntry
 
 
 class LoginDialog(object):
