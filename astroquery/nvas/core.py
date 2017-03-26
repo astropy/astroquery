@@ -179,7 +179,7 @@ class NvasClass(BaseQuery):
                              .format(Nvas.valid_bands))
         request_payload = {}
         request_payload["nvas_pos"] = _parse_coordinates(coordinates)
-        request_payload["nvas_rad"] = _parse_radius(radius).arcmin
+        request_payload["nvas_rad"] = _parse_radius(radius)
         request_payload["nvas_rms"] = max_rms
         request_payload["nvas_scl"] = "yes"
         request_payload["submit"] = "Search"

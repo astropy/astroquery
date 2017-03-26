@@ -181,7 +181,7 @@ class NedClass(BaseQuery):
         if not commons._is_coordinate(coordinates):
             request_payload['objname'] = coordinates
             request_payload['search_type'] = 'Near Name Search'
-            request_payload['radius'] = _parse_radius(radius).arcmin
+            request_payload['radius'] = _parse_radius(radius)
         else:
             try:
                 c = commons.parse_coordinates(coordinates)
@@ -197,7 +197,7 @@ class NedClass(BaseQuery):
                     request_payload['lat'] = dec
                 request_payload['search_type'] = 'Near Position Search'
                 request_payload['in_equinox'] = equinox
-                request_payload['radius'] = _parse_radius(radius).arcmin
+                request_payload['radius'] = _parse_radius(radius)
             except (u.UnitsError, TypeError):
                 raise TypeError("Coordinates not specified correctly")
         if get_query_payload:
