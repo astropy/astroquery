@@ -69,6 +69,7 @@ def test_parse_coordinates_3():
     with pytest.raises(Exception):
         commons.parse_coordinates(9.8 * u.kg)
 
+
 def test_send_request_post(monkeypatch):
     def mock_post(url, data, timeout, headers={}, status_code=200):
         class SpecialMockResponse(object):
