@@ -152,7 +152,7 @@ class CosmoSimClass(QueryWithLogin):
                                             self.username)
                     warnings.warn("Removed password for {0} in the keychain."
                                   .format(self.username))
-                except:
+                except keyring.errors.PasswordDeleteError:
                     warnings.warn("Password for {0} was never stored in the "
                                   "keychain.".format(self.username))
 
@@ -303,10 +303,7 @@ class CosmoSimClass(QueryWithLogin):
             if hasattr(self, 'current_job'):
                 jobid = self.current_job
             else:
-                try:
-                    jobid = self.current_job
-                except:
-                    raise AttributeError
+                jobid = self.current_job
 
         response = self._request(
             'GET', CosmoSim.QUERY_URL + '/{}'.format(jobid) + '/phase',

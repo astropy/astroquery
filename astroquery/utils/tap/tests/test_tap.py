@@ -17,6 +17,8 @@ Created on 30 jun. 2016
 import unittest
 import os
 import numpy as np
+import pytest
+
 from astroquery.utils.tap.conn.tests.DummyConnHandler import DummyConnHandler
 from astroquery.utils.tap.conn.tests.DummyResponse import DummyResponse
 from astroquery.utils.tap.core import TapPlus
@@ -45,11 +47,9 @@ class TestTap(unittest.TestCase):
                                    headers=None)
         tableRequest = "tables"
         connHandler.set_response(tableRequest, responseLoadTable)
-        try:
+        with pytest.raises(Exception):
             tap.load_tables()
-            self.fail("Exception expected: no connection handeler defined")
-        except:
-            pass
+
         responseLoadTable.set_status_code(200)
         responseLoadTable.set_message("OK")
         res = tap.load_tables()
@@ -101,11 +101,10 @@ class TestTap(unittest.TestCase):
         fullQualifiedTableName = tableSchema + "." + tableName
         tableRequest = "tables?tables=" + fullQualifiedTableName
         connHandler.set_response(tableRequest, responseLoadTable)
-        try:
+
+        with pytest.raises(Exception):
             tap.load_table(fullQualifiedTableName)
-            self.fail("Exception expected: no connection handeler defined")
-        except:
-            pass
+
         responseLoadTable.set_status_code(200)
         responseLoadTable.set_message("OK")
         table = tap.load_table(fullQualifiedTableName)
@@ -150,11 +149,10 @@ class TestTap(unittest.TestCase):
         sortedKey = taputils.taputil_create_sorted_dict_key(dictTmp)
         jobRequest = "sync?" + sortedKey
         connHandler.set_response(jobRequest, responseLaunchJob)
-        try:
+
+        with pytest.raises(Exception):
             tap.launch_job(query)
-            self.fail("Exception expected: no connection handler defined")
-        except:
-            pass
+
         responseLaunchJob.set_status_code(200)
         responseLaunchJob.set_message("OK")
         job = tap.launch_job(query)
@@ -239,25 +237,20 @@ class TestTap(unittest.TestCase):
                                     headers=None)
         req = "async/" + jobid + "/results/result"
         connHandler.set_response(req, responseResultsJob)
-        try:
+
+        with pytest.raises(Exception):
             tap.launch_job_async(query)
-            self.fail("Exception expected: job launch response 500")
-        except:
-            pass
+
         responseLaunchJob.set_status_code(303)
         responseLaunchJob.set_message("OK")
-        try:
+        with pytest.raises(Exception):
             tap.launch_job_async(query)
-            self.fail("Exception expected: job phase response 500")
-        except:
-            pass
+
         responsePhase.set_status_code(200)
         responsePhase.set_message("OK")
-        try:
+        with pytest.raises(Exception):
             tap.launch_job_async(query)
-            self.fail("Exception expected: job results response 500")
-        except:
-            pass
+
         responseResultsJob.set_status_code(200)
         responseResultsJob.set_message("OK")
         job = tap.launch_job_async(query)
@@ -307,11 +300,9 @@ class TestTap(unittest.TestCase):
                           headers=None)
         req = "async"
         connHandler.set_response(req, response)
-        try:
+        with pytest.raises(Exception):
             tap.list_async_jobs()
-            self.fail("Exception expected: job list response 500")
-        except:
-            pass
+
         response.set_status_code(200)
         response.set_message("OK")
         jobs = tap.list_async_jobs()

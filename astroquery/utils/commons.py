@@ -218,8 +218,8 @@ def coord_to_radec(coordinate):
     elif hasattr(C.ra, 'hourangle'):
         ra = C.ra.hourangle
     else:
-        raise Exception("API Error: RA cannot be converted to hour "
-                        "or hourangle.")
+        raise ValueError("API Error: RA cannot be converted to hour "
+                         "or hourangle.")
     dec = C.dec.degree
     return ra, dec
 

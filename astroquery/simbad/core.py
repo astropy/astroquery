@@ -121,11 +121,8 @@ class SimbadResult(object):
         match = re.search(r'(?ims)total execution time: ([.\d]+?)\s*?secs',
                           self.console)
         if match:
-            try:
-                self.exectime = float(match.group(1))
-            except:
-                # TODO: do something useful here.
-                pass
+            self.exectime = float(match.group(1))
+
         match = re.search(r'(?ms)SIMBAD(\d) rel (\d)[.](\d+)([^\d^\s])?',
                           self.console)
         if match:

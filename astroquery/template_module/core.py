@@ -197,8 +197,8 @@ class TemplateClass(BaseQuery):
             # do something with regex to get the result into
             # astropy.Table form. return the Table.
             pass
-        except:
-            # catch common errors here
+        except ValueError:
+            # catch common errors here, but never use bare excepts
             # return raw result/ handle in some way
             pass
 
