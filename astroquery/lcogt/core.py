@@ -434,7 +434,7 @@ def _parse_dimension(dim):
     # otherwise must be an Angle or be specified in hours...
     else:
         try:
-            new_dim = commons.parse_radius(dim)
+            new_dim = coord.Angle(dim)
             dim = u.Quantity(new_dim.degree, u.Unit('degree'))
         except (u.UnitsError, coord.errors.UnitsError, AttributeError):
             raise u.UnitsError("Dimension not in proper units")

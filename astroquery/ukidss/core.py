@@ -361,7 +361,7 @@ class UkidssClass(QueryWithLogin):
             query_url = self.ARCHIVE_URL
             ra = request_payload.pop('ra')
             dec = request_payload.pop('dec')
-            radius = commons.parse_radius(radius).degree
+            radius = coord.Angle(radius).degree
             del request_payload['sys']
             request_payload['userSelect'] = 'default'
             request_payload['minRA'] = str(
@@ -770,7 +770,7 @@ def _parse_dimension(dim):
     # otherwise must be an Angle or be specified in hours...
     else:
         try:
-            new_dim = commons.parse_radius(dim).degree
+            new_dim = coord.Angle(dim).degree
             dim_in_min = u.Quantity(
                 value=new_dim, unit=u.deg).to(u.arcmin).value
         except (u.UnitsError, coord.errors.UnitsError, AttributeError):

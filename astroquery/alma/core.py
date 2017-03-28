@@ -21,6 +21,7 @@ from astropy.table import Table, Column
 from astropy import log
 from astropy.utils.console import ProgressBar
 from astropy import units as u
+import astropy.coordinates as coord
 import astropy.io.votable as votable
 
 from ..exceptions import (RemoteServiceError, TableParseError,
@@ -95,7 +96,7 @@ class AlmaClass(QueryWithLogin):
         """
         coordinate = commons.parse_coordinates(coordinate)
         cstr = coordinate.fk5.to_string(style='hmsdms', sep=':')
-        rdc = "{cstr}, {rad}".format(cstr=cstr, rad=radius.to(u.deg).value)
+        rdc = "{cstr}, {rad}".format(cstr=cstr, rad=coord.Angle(radius).deg)
 
         if payload is None:
             payload = {}
