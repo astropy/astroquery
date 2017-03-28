@@ -1,9 +1,14 @@
 import string
+import os
 import requests
 
 from astropy.tests.helper import remote_data
+from astropy.tests.helper import pytest
 from .. import query
 
+ACTIVE_HTTPBIN = os.getenv('ACTIVE_HTTPBIN') is not None
+
+@pytest.mark.skipif('not ACTIVE_HTTPBIN')
 def test_resume():
     # Test that a resumed query will finish
 
