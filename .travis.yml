@@ -105,8 +105,11 @@ matrix:
           env: ASTROPY_VERSION=development ASTROPY_USE_SYSTEM_PYTEST=1  EVENT_TYPE='pull_request'
         - os: linux
           env: PYTHON_VERSION=2.7 ASTROPY_VERSION=lts EVENT_TYPE='push pull_request cron'
+        # Need to test with python3.5 for now as py3.6 requires pytest3 (due
+        # to the usage of unittest) that is incompatible with LTS
         - os: linux
-          env: ASTROPY_VERSION=lts EVENT_TYPE='push pull_request cron' ASTROPY_USE_SYSTEM_PYTEST=1
+          env: PYTHON_VERSION=3.5 ASTROPY_VERSION=lts EVENT_TYPE='push pull_request cron'
+
 
         # Try with optional dependencies disabled
         - os: linux
