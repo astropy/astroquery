@@ -97,7 +97,7 @@ class AstroQuery(object):
                 response = pickle.load(f)
             if not isinstance(response, requests.Response):
                 response = None
-        except:
+        except FileNotFoundError:
             response = None
         if response:
             log.debug("Retrieving data from {0}".format(request_file))

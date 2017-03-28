@@ -109,8 +109,8 @@ def query(coord=None, ra=None, dec=None, size=None, naifid=None, pid=None,
         try:
             ra = coord.transform_to('fk5').ra.degree
             dec = coord.transform_to('fk5').dec.degree
-        except:
-            raise Exception('Cannot parse `coord` variable.')
+        except ValueError:
+            raise ValueError('Cannot parse `coord` variable.')
     # Query parameters
     payload = {'RA': ra,
                'DEC': dec,
