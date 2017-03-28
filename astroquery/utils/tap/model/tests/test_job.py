@@ -16,6 +16,8 @@ Created on 30 jun. 2016
 """
 import unittest
 import os
+import pytest
+
 from astroquery.utils.tap.model.job import Job
 from astroquery.utils.tap.conn.tests.DummyConnHandler import DummyConnHandler
 from astroquery.utils.tap.conn.tests.DummyResponse import DummyResponse
@@ -44,11 +46,10 @@ class TestJob(unittest.TestCase):
         res = job.is_async()
         assert res, \
             "Async job, expected: %s, found: %s" % (str(True), str(res))
-        try:
+
+        with pytest.raises(AttributeError):
             job.get_results()
-            self.fail("Exception expected: no connection handeler defined")
-        except:
-            pass
+
         # parameters
         query = "query"
         jobid = "jobid"
@@ -155,12 +156,10 @@ class TestJob(unittest.TestCase):
         connHandler = DummyConnHandler()
         connHandler.set_response(waitRequest, responseCheckPhase)
         job.set_connhandler(connHandler)
-        try:
+
+        with pytest.raises(Exception):
             job.get_results()
-            self.fail("Exception expected: wrong HTTP status code I \
-            must raise an exception")
-        except:
-            pass
+
         responseCheckPhase.set_status_code(200)
         responseCheckPhase.set_message("OK")
         responseGetData = DummyResponse()
@@ -174,13 +173,10 @@ class TestJob(unittest.TestCase):
                                 headers=None)
         dataRequest = "async/" + str(jobid) + "/results/result"
         connHandler.set_response(dataRequest, responseGetData)
-        try:
+
+        with pytest.raises(Exception):
             job.get_results()
-            self.fail("Exception expected: wrong HTTP status code II \
-            must raise an exception")
-        except Exception as ex:
-            # print (str(ex))
-            pass
+
         responseGetData.set_status_code(200)
         responseGetData.set_message("OK")
         res = job.get_results()

@@ -16,6 +16,8 @@ Created on 30 jun. 2016
 """
 import unittest
 import os
+import pytest
+
 from astroquery.gaia.core import GaiaClass
 from astroquery.gaia.tests.DummyTapHandler import DummyTapHandler
 from astroquery.utils.tap.conn.tests.DummyConnHandler import DummyConnHandler
@@ -192,17 +194,16 @@ class TestTap(unittest.TestCase):
         # The query contains decimals: force default response
         connHandler.set_default_response(responseLaunchJob)
         sc = SkyCoord(ra=29.0, dec=15.0, unit=(u.degree, u.degree), frame='icrs')
-        try:
+        with pytest.raises(ValueError) as err:
             tap.query_object(sc)
-            self.fail("Exception expected: Missing width")
-        except:
-            pass
+        assert "Missing required argument: 'width'" in err.value.args[0]
+
         width = Quantity(12, u.deg)
-        try:
+
+        with pytest.raises(ValueError) as err:
             tap.query_object(sc, width=width)
-            self.fail("Exception expected: Missing height")
-        except:
-            pass
+        assert "Missing required argument: 'height'" in err.value.args[0]
+
         height = Quantity(10, u.deg)
         table = tap.query_object(sc, width=width, height=height)
         assert len(table) == 3, \
