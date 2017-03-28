@@ -77,17 +77,6 @@ def get_mockreturn(method, url, params=None, timeout=10, **kwargs):
     return MockResponse(content, **kwargs)
 
 
-@pytest.mark.parametrize(('radius', 'expected'),
-                         [(5 * u.deg, 300),
-                          ('0d5m0s', 5),
-                          (5 * u.arcsec, 0.0833)
-                          ])
-def test_parse_radius(radius, expected):
-    # radius in any equivalent unit must be converted to minutes
-    actual_radius = ned.core._parse_radius(radius)
-    npt.assert_approx_equal(actual_radius, expected, significant=3)
-
-
 def test_get_references_async(patch_get):
     response = ned.core.Ned.get_table_async("m1", table='references',
                                             from_year=2010,

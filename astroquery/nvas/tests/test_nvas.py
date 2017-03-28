@@ -76,12 +76,6 @@ def patch_get_readable_fileobj(request):
     return mp
 
 
-@pytest.mark.parametrize(('radius'), ['5d0m0s', 5 * u.deg])
-def test_parse_radius(radius):
-    out = nvas.core._parse_radius(radius)
-    npt.assert_approx_equal(out, 300, significant=3)
-
-
 def deparse_coordinates(cstr):
     """
     '19 23 40.001395 +14 31 01.550347' -> '19:23:40.001395 +14:31:01.550347'
