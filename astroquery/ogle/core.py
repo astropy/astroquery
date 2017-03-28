@@ -177,7 +177,7 @@ class OgleClass(BaseQuery):
                 lon = [ra]
                 lat = [dec]
                 return lon, lat
-            except:
+            except ValueError:
                 raise CoordParseError()
         elif isinstance(coord, list):
             shape = np.shape(coord)
@@ -187,7 +187,7 @@ class OgleClass(BaseQuery):
                     radec = [commons.coord_to_radec(co) for co in coord]
                     lon, lat = list(zip(*radec))
                     return lon, lat
-                except:
+                except ValueError:
                     raise CoordParseError()
             # list-like of values
             elif (len(shape) == 2) & (shape[0] == 2):
