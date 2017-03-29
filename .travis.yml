@@ -23,7 +23,7 @@ env:
         # The following versions are the 'default' for tests, unless
         # overridden underneath. They are defined here in order to save having
         # to repeat them for all configurations.
-        - PYTHON_VERSION=3.5
+        - PYTHON_VERSION=3.6
         - MAIN_CMD='python setup.py'
         - NUMPY_VERSION=stable
         - ASTROPY_VERSION=stable
@@ -40,6 +40,7 @@ env:
         - PYTHON_VERSION=3.3 SETUP_CMD='egg_info'
         - PYTHON_VERSION=3.4 SETUP_CMD='egg_info'
         - PYTHON_VERSION=3.5 SETUP_CMD='egg_info'
+        - PYTHON_VERSION=3.6 SETUP_CMD='egg_info'
 
 matrix:
 
@@ -53,7 +54,7 @@ matrix:
         # astropy test command.
         - os: linux
           env: EVENT_TYPE='push cron' DEBUG=True ASTROPY_VERSION=dev
-               SETUP_CMD='test -R -V'
+               SETUP_CMD='test -R -V' ASTROPY_USE_SYSTEM_PYTEST=1
         - os: linux
           env: EVENT_TYPE='push cron' PYTHON_VERSION=2.7
                SETUP_CMD='test --remote-data -V'
@@ -62,6 +63,7 @@ matrix:
         # Try MacOS X
         - os: osx
           env: SETUP_CMD='test' CONDA_CHANNELS='conda-forge astropy-ci-extras astropy'
+               ASTROPY_USE_SYSTEM_PYTEST=1
 
         # Do a coverage test in Python 2. Move coverage to 3.x once speed
         # issues have been solved; astropy/astropy#4826
@@ -95,31 +97,37 @@ matrix:
           env: PYTHON_VERSION=3.5 NUMPY_VERSION=1.11
 
         # Now try Astropy dev and LTS vesions with the latest 3.x and 2.7.
+        # The dev version only need to be tested on PRs as there are pull
+        # and cron builds above already.
         - os: linux
-          env: PYTHON_VERSION=2.7 ASTROPY_VERSION=development EVENT_TYPE='push pull_request cron'
+          env: PYTHON_VERSION=2.7 ASTROPY_VERSION=development EVENT_TYPE='pull_request'
         - os: linux
-          env: ASTROPY_VERSION=development
+          env: ASTROPY_VERSION=development ASTROPY_USE_SYSTEM_PYTEST=1  EVENT_TYPE='pull_request'
         - os: linux
           env: PYTHON_VERSION=2.7 ASTROPY_VERSION=lts EVENT_TYPE='push pull_request cron'
+        # Need to test with python3.5 for now as py3.6 requires pytest3 (due
+        # to the usage of unittest) that is incompatible with LTS
         - os: linux
-          env: ASTROPY_VERSION=lts EVENT_TYPE='push pull_request cron'
+          env: PYTHON_VERSION=3.5 ASTROPY_VERSION=lts EVENT_TYPE='push pull_request cron'
+
 
         # Try with optional dependencies disabled
         - os: linux
           env: PYTHON_VERSION=2.7
                CONDA_DEPENDENCIES='requests beautifulsoup4 html5lib keyring'
         - os: linux
-          env: CONDA_DEPENDENCIES='requests beautifulsoup4 html5lib keyring'
+          env: CONDA_DEPENDENCIES='requests beautifulsoup4 html5lib keyring' ASTROPY_USE_SYSTEM_PYTEST=1
 
         # Try numpy pre-release version, this runs only when a pre-release
         # is available on pypi.
         - os: linux
           env: NUMPY_VERSION=prerelease DEBUG=True EVENT_TYPE='push pull_request cron'
+               ASTROPY_USE_SYSTEM_PYTEST=1
 
         # Do a PEP8 test with pycodestyle
         - os: linux
-          env: PYTHON_VERSION=2.7 MAIN_CMD='pycodestyle astroquery --count'
-               SETUP_CMD='' EVENT_TYPE='push pull_request'
+          env: MAIN_CMD='pycodestyle astroquery --count'
+               SETUP_CMD='' EVENT_TYPE='push pull_request' ASTROPY_USE_SYSTEM_PYTEST=1
 
 install:
     - git clone git://github.com/astropy/ci-helpers.git
