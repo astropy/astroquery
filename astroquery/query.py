@@ -219,7 +219,7 @@ class BaseQuery(object):
             open_mode = 'ab'
 
             existing_file_length = os.stat(local_filepath).st_size
-            if existing_file_length >= length:
+            if length is not None and existing_file_length >= length:
                 # all done!
                 log.info("Found cached file {0} with expected size {1}."
                          .format(local_filepath, existing_file_length))
@@ -234,8 +234,9 @@ class BaseQuery(object):
 
                 # bytes are indexed from 0:
                 # https://en.wikipedia.org/wiki/List_of_HTTP_header_fields#range-request-header
+                end = "{0}".format(length-1) if length is not None else ""
                 self._session.headers['Range'] = "bytes={0}-{1}".format(existing_file_length,
-                                                                        length-1)
+                                                                        end)
 
                 response = self._session.get(url, timeout=timeout, stream=True,
                                              auth=auth, **kwargs)

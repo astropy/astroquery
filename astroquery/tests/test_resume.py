@@ -2,11 +2,11 @@ import string
 import os
 import requests
 
-from astropy.tests.helper import remote_data
 from astropy.tests.helper import pytest
 from .. import query
 
 ACTIVE_HTTPBIN = os.getenv('ACTIVE_HTTPBIN') is not None
+
 
 @pytest.mark.skipif('not ACTIVE_HTTPBIN')
 def test_resume():
@@ -25,12 +25,12 @@ def test_resume():
     result_1 = qu._request('GET', target_url, save=True)
     # now the full file is written, so we have to delete parts of it
 
-    with open(result_1,'rb') as fh:
+    with open(result_1, 'rb') as fh:
         data = fh.read()
-    with open(result_1,'wb') as fh:
+    with open(result_1, 'wb') as fh:
         # overwrite with a partial file
         fh.write(data[:1024])
-    with open(result_1,'rb') as fh:
+    with open(result_1, 'rb') as fh:
         data = fh.read()
         assert len(data) == 1024
 
@@ -39,7 +39,7 @@ def test_resume():
     assert 'range' in qu._session.headers
     assert qu._session.headers['range'] == 'bytes={0}-{1}'.format(1024, length-1)
 
-    with open(result_2,'rb') as fh:
+    with open(result_2, 'rb') as fh:
         data = fh.read()
     assert len(data) == length
     assert data == (string.ascii_lowercase*80)[:length].encode('ascii')
