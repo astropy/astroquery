@@ -10,7 +10,8 @@
 - Fix VizieR to respect specification to return default columns only (#792)
 - SIMBAD queries allow multiple configurable parameters (#820)
 - Add a capability to resume partially-completed downloads for services that
-  support the http 'range' keyword.  Currently applied to ESO and ALMA (#812)
+  support the http 'range' keyword.  Currently applied to ESO and ALMA
+  (#812,#876)
 - SIMBAD now supports vectorized region queries.  A list of coordinates can be
   sent to SIMBAD simultaneously.  Users will also be warned if they submit
   queries with >10000 entries, which is the SIMBAD-recommended upper limit.
