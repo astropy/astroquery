@@ -47,7 +47,7 @@ class MagpisClass(BaseQuery):
             the appropriate `astropy.coordinates` object. ICRS coordinates
             may also be entered as strings as specified in the
             `astropy.coordinates` module.
-        radius : str or `~astropy.units.Quantity` object, optional
+        image_size : str or `~astropy.units.Quantity` object, optional
            The string must be parsable by `astropy.coordinates.Angle`. The
            appropriate `~astropy.units.Quantity` object from `astropy.units`
            may also be used. Specifies the symmetric size of the
