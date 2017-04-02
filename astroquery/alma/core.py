@@ -560,7 +560,7 @@ class AlmaClass(QueryWithLogin):
             columns = [Column(data=data[0], name='ID'),
                        Column(data=data[1], name='Files')]
             tbl = Table(columns)
-            assert len(tbl) == response.text.count('<tr') == 8497
+            assert len(tbl) == 8497
             self._cycle0_tarfile_content_table = tbl
         else:
             tbl = self._cycle0_tarfile_content_table
