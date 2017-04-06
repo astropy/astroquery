@@ -78,7 +78,7 @@ def query(coord=None, ra=None, dec=None, size=None, naifid=None, pid=None,
     >>> import astropy.coordinates as coord
     >>> import astropy.units as u
     >>> from astroquery import sha
-    >>> pos_t = sha.query(coord=coord.FK5(ra=163.6136, dec=-11.784,
+    >>> pos_t = sha.query(coord=coord.SkyCoord(ra=163.6136, dec=-11.784,
     ... unit=(u.degree, u.degree)), size=0.5)
 
     Position query with optional ``ra`` and ``dec`` parameters
@@ -131,9 +131,9 @@ def query(coord=None, ra=None, dec=None, size=None, naifid=None, pid=None,
     # requests returns unicode strings, encode back to ascii
     # because of '|foo|bar|' delimiters, remove first and last empty columns
     raw_data = [line for line in response.text.split('\n')]
-    field_widths = [len(s) + 1 for s in raw_data[0].split('|')][1:-1]
-    col_names = [s.strip() for s in raw_data[0].split('|')][1:-1]
-    type_names = [s.strip() for s in raw_data[1].split('|')][1:-1]
+    field_widths = [len(s) + 1 for s in raw_data[1].split('|')][1:-1]
+    col_names = [s.strip() for s in raw_data[1].split('|')][1:-1]
+    type_names = [s.strip() for s in raw_data[2].split('|')][1:-1]
     cs = [0] + np.cumsum(field_widths).tolist()
 
     def parse_line(line, cs=cs):

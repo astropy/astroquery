@@ -25,7 +25,7 @@ Query with an astropy coordinate instance (preferred):
 
 .. code-block:: python
 
-    >>> pos_t1 = sha.query(coord=coord.FK5(ra=163.6136, dec=-11.784,
+    >>> pos_t1 = sha.query(coord=coord.SkyCoord(ra=163.6136, dec=-11.784,
     ... unit=(u.degree, u.degree)), size=0.5)
 
 Query with the alternate ``ra`` and ``dec`` parameters:
