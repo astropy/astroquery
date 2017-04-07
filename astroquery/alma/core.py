@@ -352,7 +352,7 @@ class AlmaClass(QueryWithLogin):
 
         return data_sizes, totalsize.to(u.GB)
 
-    def download_files(self, files, cache=True, continuation=True):
+    def download_files(self, files, savedir=None, cache=True, continuation=True):
         """
         Given a list of file URLs, download them
 
@@ -360,8 +360,11 @@ class AlmaClass(QueryWithLogin):
         once, so the return may have a different length than the input list
         """
         downloaded_files = []
+        if savedir is None:
+            savedir = self.cache_location
         for fileLink in unique(files):
             filename = self._request("GET", fileLink, save=True,
+                                     savedir=savedir,
                                      timeout=self.TIMEOUT, cache=cache,
                                      continuation=continuation)
             downloaded_files.append(filename)
