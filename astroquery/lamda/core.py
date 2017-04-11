@@ -201,6 +201,62 @@ def parse_lamda_datafile(filename):
     return parse_lamda_lines(lines)
 
 
+def write_lamda_datafile(filename, tables):
+    """
+    Write tuple of tables with LAMDA data into a datafile that follows the
+    format adopted for the LAMDA database.
+
+    Parameters
+    ----------
+    filename : str
+        Fully qualified path of the file to write.
+
+    tables: tuple
+        Tuple of Tables ({rateid: coll_table}, rad_table, mol_table)
+    """
+
+    collrates, radtransitions, enlevels = tables
+
+    levels_hdr = ("! MOLECULE\n"
+              "{0}\n"
+              "! MOLECULAR WEIGHT\n"
+              "{1}\n"
+              "! NUMBER OF ENERGY LEVELS\n"
+              "{2}\n"
+              "! LEVEL + ENERGIES(cm^-1) + WEIGHT + J\n")
+    radtrans_hdr = ("! NUMBER OF RADIATIVE TRANSITIONS\n"
+                    "{0}\n"
+                    "! TRANS + UP + LOW + EINSTEINA(s^-1) + FREQ(GHz) + E_u(K)\n")
+    coll_hdr = ("! NUMBER OF COLL PARTNERS\n"
+                "{0}\n")
+    coll_part_hdr = ("! COLLISION PARTNER\n"
+                "{0} {1}\n"
+                "! NUMBER OF COLLISIONAL TRANSITIONS\n"
+                "{2}\n"
+                "! NUMBER OF COLLISION TEMPERATURES\n"
+                "{3}\n"
+                "! COLLISION TEMPERATURES\n"
+                "{4}\n"
+                "! TRANS + UP + LOW + RATE COEFFS(cm^3 s^-1)\n")
+
+    with open(filename, 'w') as f:
+        f.write(levels_hdr.format(enlevels.meta['molecule'],
+                                 enlevels.meta['molwt'],
+                                 enlevels.meta['nenergylevels']))
+        enlevels.write(f, format='ascii.no_header')
+        f.write(radtrans_hdr.format(radtransitions.meta['radtrans']))
+        radtransitions.write(f, format='ascii.no_header')
+        f.write(coll_hdr.format(len(collrates)))
+        for k, v in collrates.items():
+            temperatures = ' '.join([str(i) for i in v.meta['temperatures']])
+            f.write(coll_part_hdr.format(v.meta['collider_id'],
+                                         v.meta['collider'],
+                                         v.meta['ntrans'],
+                                         v.meta['ntemp'],
+                                         temperatures))
+            v.write(f, format='ascii.no_header')
+
+
 def parse_lamda_lines(data):
     """
     Extract a LAMDA datafile into a dictionary of tables

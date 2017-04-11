@@ -15,4 +15,4 @@ Note:
   references to the original papers providing the spectroscopic and collisional
   data are encouraged.
 """
-from .core import Lamda, parse_lamda_datafile
+from .core import Lamda, parse_lamda_datafile, write_lamda_datafile
