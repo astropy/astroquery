@@ -15,7 +15,7 @@ query, use:
 .. code-block:: python
 
     >>> from astroquery.lamda import Lamda
-    >>> lamda.molecule_dict
+    >>> Lamda.molecule_dict
 
 The dictionary is created dynamically from the LAMDA website the first time it
 is called, then cached for future use.  If there has been an update and you
