@@ -201,6 +201,70 @@ def parse_lamda_datafile(filename):
     return parse_lamda_lines(lines)
 
 
+def write_lamda_datafile(filename, tables):
+    """
+    Write tuple of tables with LAMDA data into a datafile that follows the
+    format adopted for the LAMDA database.
+
+    Parameters
+    ----------
+    filename : str
+        Fully qualified path of the file to write.
+
+    tables: tuple
+        Tuple of Tables ({rateid: coll_table}, rad_table, mol_table)
+    """
+
+    collrates, radtransitions, enlevels = tables
+
+    levels_hdr = ("""! MOLECULE
+                  {0}
+                  ! MOLECULAR WEIGHT
+                  {1}
+                  ! NUMBER OF ENERGY LEVELS
+                  {2}
+                  ! LEVEL + ENERGIES(cm^-1) + WEIGHT + J
+                  """)
+    levels_hdr = re.sub('^ +', '', levels_hdr, flags=re.MULTILINE)
+    radtrans_hdr = ("""! NUMBER OF RADIATIVE TRANSITIONS
+                    {0}
+                    ! TRANS + UP + LOW + EINSTEINA(s^-1) + FREQ(GHz) + E_u(K)
+                    """)
+    radtrans_hdr = re.sub('^ +', '', radtrans_hdr, flags=re.MULTILINE)
+    coll_hdr = ("""! NUMBER OF COLL PARTNERS
+                {0}
+                """)
+    coll_hdr = re.sub('^ +', '', coll_hdr, flags=re.MULTILINE)
+    coll_part_hdr = ("""! COLLISION PARTNER
+                     {0} {1}
+                     ! NUMBER OF COLLISIONAL TRANSITIONS
+                     {2}
+                     ! NUMBER OF COLLISION TEMPERATURES
+                     {3}
+                     ! COLLISION TEMPERATURES
+                     {4}
+                     ! TRANS + UP + LOW + RATE COEFFS(cm^3 s^-1)
+                     """)
+    coll_part_hdr = re.sub('^ +', '', coll_part_hdr, flags=re.MULTILINE)
+
+    with open(filename, 'w') as f:
+        f.write(levels_hdr.format(enlevels.meta['molecule'],
+                                  enlevels.meta['molwt'],
+                                  enlevels.meta['nenergylevels']))
+        enlevels.write(f, format='ascii.no_header')
+        f.write(radtrans_hdr.format(radtransitions.meta['radtrans']))
+        radtransitions.write(f, format='ascii.no_header')
+        f.write(coll_hdr.format(len(collrates)))
+        for k, v in collrates.items():
+            temperatures = ' '.join([str(i) for i in v.meta['temperatures']])
+            f.write(coll_part_hdr.format(v.meta['collider_id'],
+                                         v.meta['collider'],
+                                         v.meta['ntrans'],
+                                         v.meta['ntemp'],
+                                         temperatures))
+            v.write(f, format='ascii.no_header')
+
+
 def parse_lamda_lines(data):
     """
     Extract a LAMDA datafile into a dictionary of tables
