@@ -1,7 +1,7 @@
-0.3.5 (unreleased)
+0.3.6 (unreleased)
 ------------------
 
- - none yet
+- LAMDA: Add function to write LAMDA-formatted Tables to a datafile
 
 0.3.5 (2017-03-29)
 ------------------
