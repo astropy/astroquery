@@ -277,7 +277,10 @@ def make_finder_chart_from_image_and_catalog(image, catalog, save_prefix,
         for row in catalog]
 
     all_bands = bands
-    bands = used_bands = np.unique(catalog['Band'])
+    bands = used_bands = [band.decode('utf-8') if hasattr(band, 'decode')
+                          else band
+                          for band in
+                          np.unique(catalog['Band'])]
     log.info("The bands used include: {0}".format(used_bands))
     band_colors_priv = dict(zip(all_bands, private_band_colors))
     band_colors_pub = dict(zip(all_bands, public_band_colors))
