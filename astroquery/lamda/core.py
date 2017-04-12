@@ -217,32 +217,40 @@ def write_lamda_datafile(filename, tables):
 
     collrates, radtransitions, enlevels = tables
 
-    levels_hdr = ("! MOLECULE\n"
-              "{0}\n"
-              "! MOLECULAR WEIGHT\n"
-              "{1}\n"
-              "! NUMBER OF ENERGY LEVELS\n"
-              "{2}\n"
-              "! LEVEL + ENERGIES(cm^-1) + WEIGHT + J\n")
-    radtrans_hdr = ("! NUMBER OF RADIATIVE TRANSITIONS\n"
-                    "{0}\n"
-                    "! TRANS + UP + LOW + EINSTEINA(s^-1) + FREQ(GHz) + E_u(K)\n")
-    coll_hdr = ("! NUMBER OF COLL PARTNERS\n"
-                "{0}\n")
-    coll_part_hdr = ("! COLLISION PARTNER\n"
-                "{0} {1}\n"
-                "! NUMBER OF COLLISIONAL TRANSITIONS\n"
-                "{2}\n"
-                "! NUMBER OF COLLISION TEMPERATURES\n"
-                "{3}\n"
-                "! COLLISION TEMPERATURES\n"
-                "{4}\n"
-                "! TRANS + UP + LOW + RATE COEFFS(cm^3 s^-1)\n")
+    levels_hdr = ("""! MOLECULE
+                  {0}
+                  ! MOLECULAR WEIGHT
+                  {1}
+                  ! NUMBER OF ENERGY LEVELS
+                  {2}
+                  ! LEVEL + ENERGIES(cm^-1) + WEIGHT + J
+                  """)
+    levels_hdr = re.sub('^ +', '', levels_hdr, flags=re.MULTILINE)
+    radtrans_hdr = ("""! NUMBER OF RADIATIVE TRANSITIONS
+                    {0}
+                    ! TRANS + UP + LOW + EINSTEINA(s^-1) + FREQ(GHz) + E_u(K)
+                    """)
+    radtrans_hdr = re.sub('^ +', '', radtrans_hdr, flags=re.MULTILINE)
+    coll_hdr = ("""! NUMBER OF COLL PARTNERS
+                {0}
+                """)
+    coll_hdr = re.sub('^ +', '', coll_hdr, flags=re.MULTILINE)
+    coll_part_hdr = ("""! COLLISION PARTNER
+                     {0} {1}
+                     ! NUMBER OF COLLISIONAL TRANSITIONS
+                     {2}
+                     ! NUMBER OF COLLISION TEMPERATURES
+                     {3}
+                     ! COLLISION TEMPERATURES
+                     {4}
+                     ! TRANS + UP + LOW + RATE COEFFS(cm^3 s^-1)
+                     """)
+    coll_part_hdr = re.sub('^ +', '', coll_part_hdr, flags=re.MULTILINE)
 
     with open(filename, 'w') as f:
         f.write(levels_hdr.format(enlevels.meta['molecule'],
-                                 enlevels.meta['molwt'],
-                                 enlevels.meta['nenergylevels']))
+                                  enlevels.meta['molwt'],
+                                  enlevels.meta['nenergylevels']))
         enlevels.write(f, format='ascii.no_header')
         f.write(radtrans_hdr.format(radtransitions.meta['radtrans']))
         radtransitions.write(f, format='ascii.no_header')
