@@ -1,0 +1,741 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
+"http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<!--RAW FILE-->
+<head>
+<base href="http://adsabs.harvard.edu/cgi-bin/nph-abs_connect" />
+<META NAME="robots" CONTENT="noarchive">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<TITLE>Author Query Results</TITLE>
+<SCRIPT language="JavaScript" type="text/javascript">
+<!-- protect from old browsers
+var adr = [ "http://adsabs" , "harvard" , "edu" ] ;
+document.write("" + String.fromCharCode(60) + "link rel=\"alternate\" type=\"application/rss+xml\" title=\"ADS RSS feed\" href=\"" + adr.join(".") + "/cgi-bin/nph-abs_connect?type=RSS&#38;data_type=RSS&#38;cookie=5503ea9ccb13993\"" + String.fromCharCode(62) + "");
+//-->
+</SCRIPT>
+<script language="JavaScript" type="text/javascript">
+<!-- Begin
+var Geometry = {};
+if(window.screenLeft === undefined){
+        Geometry.getWindowX = function() { return window.screenLeft; };
+        Geometry.getWindowY = function() { return window.screenTop; };
+}
+else if (window.screenX) {
+    Geometry.getWindowX = function() { return window.screenX; };
+    Geometry.getWindowY = function() { return window.screenY; };
+}
+
+if (window.innerWidth) {
+    Geometry.getViewportWidth = function() { return window.innerWidth; };
+    Geometry.getViewportHeight = function() { return window.innerHeight; };
+    Geometry.getHorizontalScroll = function() { return window.pageXOffset; };
+    Geometry.getVerticalScroll = function() { return window.pageYOffset; };
+}
+else if (document.documentElement && document.documentElement.clientWidth) {
+    Geometry.getViewportWidth =
+        function() { return document.documentElement.clientWidth; };
+    Geometry.getViewportHeight =
+        function() { return document.documentElement.clientHeight; };
+    Geometry.getHorizontalScroll =
+        function() { return document.documentElement.scrollLeft; };
+    Geometry.getVerticalScroll =
+        function() { return document.documentElement.scrollTop; };
+}
+else if (document.body.clientWidth) {
+    Geometry.getViewportWidth =
+        function() { return document.body.clientWidth; };
+    Geometry.getViewportHeight =
+        function() { return document.body.clientHeight; };
+    Geometry.getHorizontalScroll =
+        function() { return document.body.scrollLeft; };
+    Geometry.getVerticalScroll =
+        function() { return document.body.scrollTop; };
+}
+var vers = navigator.appVersion;
+var nvers = vers.substring(0,4);
+var desc;
+var x,y,a;
+var checkflag = "false";
+var isNav = (navigator.appName.indexOf("Netscape") !=-1);
+if(isNav === undefined)
+  isNav = 0;
+function hl(a){
+  if ((isNav) && (nvers<5)) {
+    document.object1.top=a;
+  } else {
+    df = document.getElementById('object1');
+    df.innerHTML="";
+  }
+}
+function handlerMM(e){
+  if (!e) e = window.event;
+  x = (isNav) ? e.pageX : e.clientX + Geometry.getHorizontalScroll();
+  y = (isNav) ? e.pageY : e.clientY + Geometry.getVerticalScroll();
+}
+document.onmousemove = handlerMM;
+// end --> 
+</SCRIPT>
+<script language="JavaScript" type="text/javascript">
+<!-- Begin
+function check(name,field1,field2) {
+  if (checkflag == "false") {
+    field1.checked = true;
+    for (i = 0; i < field1.length; i++) {
+      field1[i].checked = true;
+    }
+    if ( field2 ) {
+      field2.checked = true;
+      for (i = 0; i < field2.length; i++) {
+        field2[i].checked = true;
+      }
+    }
+    checkflag = "true";
+    desc = " Deselect All " + name + " ";
+    return desc;
+  }
+  else {
+    field1.checked = false;
+    for (i = 0; i < field1.length; i++) {
+      field1[i].checked = false;
+    }
+    if ( field2 ) {
+      field2.checked = false;
+      for (i = 0; i < field2.length; i++) {
+        field2[i].checked = false;
+      }
+    }
+    checkflag = "false";
+    desc = "    Select All " + name + "    ";
+    return desc;
+  }
+}
+//  End -->
+</script>
+<SCRIPT language="JavaScript" type="text/javascript">
+<!-- Begin
+function mkemail(parts) {
+    var sep = ".";
+    var str = arguments[0];
+    for ( var i = 1 ; i < arguments.length ; i++ ) {
+        if ( arguments[i] == "" ) {
+            sep = String.fromCharCode(29+35) ;
+           continue ;
+        } else {
+            str = str.concat ( sep ) ;
+            str = str.concat ( arguments[i] ) ;
+            sep = ".";
+        }
+    }
+    return(str);
+}
+var toggle = 0 ;
+function t(){
+if ( toggle == 0 ) {
+setStyleByClass("span","a","backgroundColor","#ffffff");
+setStyleByClass("div","h","backgroundColor","#ffffff");
+setStyleByClass("div","h","opacity","0");
+setStyleByClass("div","h","filter","alpha(opacity=0)");
+setStyleByClass("span","b","backgroundColor","#ffffff");
+setStyleByClass("div","i","backgroundColor","#ffffff");
+setStyleByClass("div","i","opacity","0");
+setStyleByClass("div","i","filter","alpha(opacity=0)");
+setStyleByClass("span","c","backgroundColor","#ffffff");
+setStyleByClass("div","j","backgroundColor","#ffffff");
+setStyleByClass("div","j","opacity","0");
+setStyleByClass("div","j","filter","alpha(opacity=0)");
+setStyleByClass("span","d","backgroundColor","#ffffff");
+setStyleByClass("div","k","backgroundColor","#ffffff");
+setStyleByClass("div","k","opacity","0");
+setStyleByClass("div","k","filter","alpha(opacity=0)");
+setStyleByClass("span","e","backgroundColor","#ffffff");
+setStyleByClass("div","l","backgroundColor","#ffffff");
+setStyleByClass("div","l","opacity","0");
+setStyleByClass("div","l","filter","alpha(opacity=0)");
+setStyleByClass("span","f","backgroundColor","#ffffff");
+setStyleByClass("div","m","backgroundColor","#ffffff");
+setStyleByClass("div","m","opacity","0");
+setStyleByClass("div","m","filter","alpha(opacity=0)");
+setStyleByClass("span","g","backgroundColor","#ffffff");
+setStyleByClass("div","n","backgroundColor","#ffffff");
+setStyleByClass("div","n","opacity","0");
+setStyleByClass("div","n","filter","alpha(opacity=0)");
+toggle = 1 ;
+} else {
+setStyleByClass("span","a","backgroundColor","#ffff88");
+setStyleByClass("div","h","backgroundColor","#ffff00");
+setStyleByClass("div","h","opacity","0.3");
+setStyleByClass("div","h","filter","alpha(opacity=30)");
+setStyleByClass("span","b","backgroundColor","#ccccff");
+setStyleByClass("div","i","backgroundColor","#3333ff");
+setStyleByClass("div","i","opacity","0.3");
+setStyleByClass("div","i","filter","alpha(opacity=30)");
+setStyleByClass("span","c","backgroundColor","#ffcccc");
+setStyleByClass("div","j","backgroundColor","#ff3333");
+setStyleByClass("div","j","opacity","0.3");
+setStyleByClass("div","j","filter","alpha(opacity=30)");
+setStyleByClass("span","d","backgroundColor","#bbffff");
+setStyleByClass("div","k","backgroundColor","#00ffff");
+setStyleByClass("div","k","opacity","0.3");
+setStyleByClass("div","k","filter","alpha(opacity=30)");
+setStyleByClass("span","e","backgroundColor","#ffdd77");
+setStyleByClass("div","l","backgroundColor","#ff6600");
+setStyleByClass("div","l","opacity","0.3");
+setStyleByClass("div","l","filter","alpha(opacity=30)");
+setStyleByClass("span","f","backgroundColor","#ccffaa");
+setStyleByClass("div","m","backgroundColor","#33ff00");
+setStyleByClass("div","m","opacity","0.3");
+setStyleByClass("div","m","filter","alpha(opacity=30)");
+setStyleByClass("span","g","backgroundColor","#ffccff");
+setStyleByClass("div","n","backgroundColor","#ff00ff");
+setStyleByClass("div","n","opacity","0.3");
+setStyleByClass("div","n","filter","alpha(opacity=30)");
+toggle = 0 ;
+}
+}
+var ie = (document.all) ? true : false;
+
+function setStyleByClass(t,c,p,v){
+	var elements;
+	if(t == '*') {
+		elements = (ie) ? document.all : document.getElementsByTagName('*');
+	} else {
+		elements = document.getElementsByTagName(t);
+	}
+	for (var i = 0; i < elements.length; i++)
+    {
+		var node = elements.item(i);
+		for(var j = 0; j < node.attributes.length; j++)
+		{
+			if(node.attributes.item(j).nodeName == 'class')
+			{
+				if(node.attributes.item(j).nodeValue == c)
+				{
+				eval('node.style.' + p + " = '" +v + "'");
+				}
+			}
+		}
+	}
+}
+//  End -->
+</SCRIPT>
+<style>.a{background-color: #ffff88}</style>
+<style>.h{background-color: #ffff00}</style>
+<style>.b{background-color: #ccccff}</style>
+<style>.i{background-color: #3333ff}</style>
+<style>.c{background-color: #ffcccc}</style>
+<style>.j{background-color: #ff3333}</style>
+<style>.d{background-color: #bbffff}</style>
+<style>.k{background-color: #00ffff}</style>
+<style>.e{background-color: #ffdd77}</style>
+<style>.l{background-color: #ff6600}</style>
+<style>.f{background-color: #ccffaa}</style>
+<style>.m{background-color: #33ff00}</style>
+<style>.g{background-color: #ffccff}</style>
+<style>.n{background-color: #ff00ff}</style>
+<script language="JavaScript" type="text/javascript">
+<!-- Begin
+function pl(a,off){
+  desc = "<table border=\"1\" cellpadding=\"3\" cellspacing=\"0\">";
+  switch (a) {
+    case 0:
+      color="rgb(255,255,176)";desc += "<tr bgcolor=FFFFB0><td>Abstract";
+      break;
+    case 1:
+      color="rgb(255,255,176)";desc += "<tr bgcolor=FFFFB0><td>Custom Format";
+      break;
+    case 2:
+      color="rgb(255,176,224)";desc += "<tr bgcolor=FFB0E0><td>Electronic On-line Article (HTML)<br>(link outside ADS)";
+      break;
+    case 3:
+      color="rgb(255,255,176)";desc += "<tr bgcolor=FFFFB0><td>Full Printable Article (PDF/Postscript)";
+      break;
+    case 53:
+      color="rgb(255,176,224)";desc += "<tr bgcolor=FFB0E0><td>Full Printable Article (PDF/Postscript)<br>(link outside ADS)";
+      break;
+    case 4:
+      color="rgb(255,255,176)";desc += "<tr bgcolor=FFFFB0><td>Scanned Article (GIF)";
+      break;
+    case 5:
+      color="rgb(255,176,224)";desc += "<tr bgcolor=FFB0E0><td>Library Link Server<br>(link outside ADS)";
+      break;
+    case 6:
+      color="rgb(255,176,224)";desc += "<tr bgcolor=FFB0E0><td>arXiv e-print<br>(link outside ADS)";
+      break;
+    case 7:
+      color="rgb(255,176,224)";desc += "<tr bgcolor=FFB0E0><td>PDS Information<br>(link outside ADS)";
+      break;
+    case 8:
+      color="rgb(255,176,224)";desc += "<tr bgcolor=FFB0E0><td>Multimedia Presentation<br>(link outside ADS)";
+      break;
+    case 9:
+      color="rgb(255,176,224)";desc += "<tr bgcolor=FFB0E0><td>On-line Data<br>(link outside ADS)";
+      break;
+    case 10:
+      color="rgb(255,255,176)";desc += "<tr bgcolor=FFFFB0><td>Table of Contents";
+      break;
+    case 11:
+      color="rgb(255,176,224)";desc += "<tr bgcolor=FFB0E0><td>Document Delivery Service<br>(link outside ADS)";
+      break;
+    case 12:
+      color="rgb(255,255,176)";desc += "<tr bgcolor=FFFFB0><td>References in the Article";
+      break;
+    case 62:
+      color="rgb(255,176,224)";desc += "<tr bgcolor=FFB0E0><td>References in the Article<br>(link outside ADS)";
+      break;
+    case 13:
+      color="rgb(255,255,176)";desc += "<tr bgcolor=FFFFB0><td>Citations to the Article";
+      break;
+    case 14:
+      color="rgb(255,255,176)";desc += "<tr bgcolor=FFFFB0><td>Refereed Citations to the Article";
+      break;
+    case 15:
+      color="rgb(255,255,176)";desc += "<tr bgcolor=FFFFB0><td>Author Comments";
+      break;
+    case 16:
+      color="rgb(255,176,224)";desc += "<tr bgcolor=FFB0E0><td>SIMBAD Objects<br>(link outside ADS)";
+      break;
+    case 17:
+      color="rgb(255,176,224)";desc += "<tr bgcolor=FFB0E0><td>NED Objects<br>(link outside ADS)";
+      break;
+    case 18:
+      color="rgb(255,176,224)";desc += "<tr bgcolor=FFB0E0><td>Library Entry<br>(link outside ADS)";
+      break;
+    case 19:
+      color="rgb(255,255,176)";desc += "<tr bgcolor=FFFFB0><td>Associated Articles";
+      break;
+    case 20:
+      color="rgb(255,255,176)";desc += "<tr bgcolor=FFFFB0><td>Also-Read Articles";
+      break;
+    case 21:
+      color="rgb(255,176,224)";desc += "<tr bgcolor=FFB0E0><td>HEP/Spires Information<br>(link outside ADS)";
+      break;
+  }
+  desc += "<\/td><\/tr><\/table>";
+
+  if ((isNav) && (nvers<5)) {
+    df = document.object1;
+    df.document.write(desc);
+    df.document.close();
+    df.left=x+10;
+    document.object1.top=y+off;
+  } else {
+    df = document.getElementById('object1');
+    df.innerHTML=desc;
+    df.style.background=color;
+    df.style.left=x+10;
+    df.style.top=y+off;
+  }
+}
+
+//  End -->
+</script>
+<link rel="icon" href="/favicon.ico" type="image/x-icon">
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+<style type="text/css">
+a:link {color: #0000ff}
+a.oa:link {color: #00a000}
+a:visited {color: #4000a0}
+a.oa:visited {color: #006666}
+a:hover {color: #ff0000}
+a.oa:hover {color: #cc33cc}
+</style>
+</head>
+<body  style="background-color: #ffffff; color: #000000">
+<script language="JavaScript" type="text/javascript">
+<!-- hide from old browsers
+if((isNav)&&(nvers<5)) {
+document.write("<layer name=\"object1\" visibility=\"show\" left=\"25\" top=\"-50\" z-index=\"2\"><br><\/layer>") ;
+} else {
+document.write("<div ID=\"object1\" style=\"position:absolute; visibility:visible; left:25px; top:-50px; z-index:2\"><br><\/div>") ;
+}
+// end hide from old browsers -->
+</script>
+<div align="right" style="font-size:84%;padding-bottom:4px"><a href="http://adsabs.harvard.edu/cgi-bin/nph-manage_account?man_cmd=login&amp;man_url=http://adswww.harvard.edu/cgi-bin/nph-abs%5fconnect">Sign on</a></div>
+<h3><A HREF="http://www.adsabs.harvard.edu/">SAO/NASA Astrophysics Data System (ADS)</A></h3>
+<table width="100%%"><tr valign="top"><td align="left">
+<h3>Query Results from the ADS Database</h3>
+
+</td>
+<td align="right"><a href="#bottom">Go to bottom of page</a></td></tr></table>
+<form method="POST" name="myform" action="http://adsabs.harvard.edu/cgi-bin/nph-abs_connect">
+<table width="100%"><tr><td valign="top" align="left">
+Selected and retrieved <strong>39</strong> abstracts.</td><td valign="top" align="right">
+<select name="qsort" onchange="document.myform.submit();return false">
+<option value=""> Sort options
+<option value="QSORT_DATE"> Sort by date
+<option value="QSORT_CITES"> Sort by citations
+<option value="QSORT_NORM_CITES"> Sort by normalized citations
+<option value="QSORT_AUTHOR"> Sort by author
+<option value="QAUTHOR_CNT"> Sort by author count
+<option value="QRBIBCODE"> Sort by page (ToC sort)
+</select></td>
+</tr></table>
+<p>
+
+<HR>
+<table>
+<tr>
+<th align="left" valign="top">#</th>
+<th align="left" valign="top">Bibcode</th>
+<th><br></th>
+<th align="left" valign="top">Score</th>
+<th align="left" valign="top">Date</th>
+<th align="left" valign="top"><A HREF="http://doc.adsabs.harvard.edu/abs_doc/help_pages/results.html#available_items">List of Links</a></th></tr>
+<tr>
+<th align="left" valign="top"></th>
+<th align="left" valign="top">Authors</th>
+<th><br></th>
+<th align="left" valign="top">Title</th>
+<th><br></th>
+<th align="left" valign="top"><A HREF="http://doc.adsabs.harvard.edu/abs_doc/help_pages/results.html#access_links">Access Control Help</a></th>
+</tr>
+<tr><td colspan=6><HR></td></tr>
+<tr><td align="left" valign="baseline" nowrap>1</td><td align="left" valign="baseline" width="5%"><input type="checkbox"  name="bibcode" value="2015A&amp;A...573A.106G">&nbsp;<a href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2015A%26A...573A.106G&amp;db_key=AST&amp;link_type=ABSTRACT&amp;high=5503ea9ccb13993">2015A&amp;A...573A.106G</a></td><td><br></td><td align="left" valign="baseline">0.000</td><td align="left" valign="baseline">01/2015</td><td align="left" valign="baseline"><a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2015A%26A...573A.106G&#38;db_key=AST&#38;link_type=ABSTRACT&#38;high=5503ea9ccb13993" onMouseOver="pl(0,+20)" onMouseOut="hl(+20)">A</a>&#160;&#160;&#160;&#160;&#160;&#160;<a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2015A%26A...573A.106G&#38;db_key=AST&#38;link_type=EJOURNAL" onMouseOver="pl(2,+20)" onMouseOut="hl(+20)">E</a>&#160;&#160;<a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2015A%26A...573A.106G&#38;db_key=AST&#38;link_type=ARTICLE" onMouseOver="pl(53,+20)" onMouseOut="hl(+20)">F</a>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<a class="oa" href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2015A%26A...573A.106G&#38;db_key=AST&#38;link_type=PREPRINT" onMouseOver="pl(6,+20)" onMouseOut="hl(+20)">X</a>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2015A%26A...573A.106G&#38;db_key=AST&#38;link_type=REFERENCES" onMouseOver="pl(12,+20)" onMouseOut="hl(+20)">R</a>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2015A%26A...573A.106G&#38;db_key=AST&#38;link_type=AR" onMouseOver="pl(20,+20)" onMouseOut="hl(+20)">U</a>&#160;&#160;&#160;&#160;&#160;&#160;</td></tr>
+<tr><td></td><td align="left" valign="top" width="25%">Ginsburg,&#160;Adam; Bally,&#160;John; Battersby,&#160;Cara; Youngblood,&#160;Allison; Darling,&#160;Jeremy; Rosolowsky,&#160;Erik; Arce,&#160;H&#233;ctor; Lebr&#243;n&#160;Santos,&#160;Mayra&#160;E.</td><td><br></td><td align="left" valign="top" colspan=3>The dense gas mass fraction in the W51 cloud and its protoclusters</td></tr>
+<tr><td colspan=6><HR></td></tr>
+<tr><td align="left" valign="baseline" nowrap>2</td><td align="left" valign="baseline" width="5%"><input type="checkbox"  name="bibcode" value="2014ASSP...36..245G">&nbsp;<a href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2014ASSP...36..245G&amp;db_key=AST&amp;link_type=ABSTRACT&amp;high=5503ea9ccb13993">2014ASSP...36..245G</a></td><td><br></td><td align="left" valign="baseline">0.000</td><td align="left" valign="baseline">00/2014</td><td align="left" valign="baseline"><a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2014ASSP...36..245G&#38;db_key=AST&#38;link_type=ABSTRACT&#38;high=5503ea9ccb13993" onMouseOver="pl(0,+20)" onMouseOut="hl(+20)">A</a>&#160;&#160;&#160;&#160;&#160;&#160;<a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2014ASSP...36..245G&#38;db_key=AST&#38;link_type=EJOURNAL" onMouseOver="pl(2,+20)" onMouseOut="hl(+20)">E</a>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2014ASSP...36..245G&#38;db_key=AST&#38;link_type=REFERENCES" onMouseOver="pl(12,+20)" onMouseOut="hl(+20)">R</a>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2014ASSP...36..245G&#38;db_key=AST&#38;link_type=AR" onMouseOver="pl(20,+20)" onMouseOut="hl(+20)">U</a>&#160;&#160;&#160;&#160;&#160;&#160;</td></tr>
+<tr><td></td><td align="left" valign="top" width="25%">Ginsburg,&#160;Adam; Bressert,&#160;Eli; Bally,&#160;J.; Battersby,&#160;Cara</td><td><br></td><td align="left" valign="top" colspan=3>Surveying Dense Gas with Bolocam: There Are No Pre-stellar Massive Clusters in the First Quadrant</td></tr>
+<tr><td colspan=6><HR></td></tr>
+<tr><td align="left" valign="baseline" nowrap>3</td><td align="left" valign="baseline" width="5%"><input type="checkbox"  name="bibcode" value="2013ApJ...779...50G">&nbsp;<a href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2013ApJ...779...50G&amp;db_key=AST&amp;link_type=ABSTRACT&amp;high=5503ea9ccb13993">2013ApJ...779...50G</a></td><td><br></td><td align="left" valign="baseline">0.000</td><td align="left" valign="baseline">12/2013</td><td align="left" valign="baseline"><a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2013ApJ...779...50G&#38;db_key=AST&#38;link_type=ABSTRACT&#38;high=5503ea9ccb13993" onMouseOver="pl(0,+20)" onMouseOut="hl(+20)">A</a>&#160;&#160;&#160;&#160;&#160;&#160;<a class="oa" href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2013ApJ...779...50G&#38;db_key=AST&#38;link_type=EJOURNAL" onMouseOver="pl(2,+20)" onMouseOut="hl(+20)">E</a>&#160;&#160;<a class="oa" href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2013ApJ...779...50G&#38;db_key=AST&#38;link_type=ARTICLE" onMouseOver="pl(53,+20)" onMouseOut="hl(+20)">F</a>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<a class="oa" href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2013ApJ...779...50G&#38;db_key=AST&#38;link_type=PREPRINT" onMouseOver="pl(6,+20)" onMouseOut="hl(+20)">X</a>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2013ApJ...779...50G&#38;db_key=AST&#38;link_type=REFERENCES" onMouseOver="pl(12,+20)" onMouseOut="hl(+20)">R</a>&#160;&#160;<a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2013ApJ...779...50G&#38;db_key=AST&#38;link_type=CITATIONS" onMouseOver="pl(13,+20)" onMouseOut="hl(+20)">C</a>&#160;&#160;&#160;&#160;&#160;&#160;<a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2013ApJ...779...50G&#38;db_key=AST&#38;link_type=SIMBAD" onMouseOver="pl(16,+20)" onMouseOut="hl(+20)">S</a>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2013ApJ...779...50G&#38;db_key=AST&#38;link_type=AR" onMouseOver="pl(20,+20)" onMouseOut="hl(+20)">U</a>&#160;&#160;&#160;&#160;&#160;&#160;</td></tr>
+<tr><td></td><td align="left" valign="top" width="25%">Ginsburg,&#160;Adam; Federrath,&#160;Christoph; Darling,&#160;Jeremy</td><td><br></td><td align="left" valign="top" colspan=3>A Measurement of the Turbulence-driven Density Distribution in a Non-star-forming Molecular Cloud</td></tr>
+<tr><td colspan=6><HR></td></tr>
+<tr><td align="left" valign="baseline" nowrap>4</td><td align="left" valign="baseline" width="5%"><input type="checkbox"  name="bibcode" value="2013ApJS..208...14G">&nbsp;<a href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2013ApJS..208...14G&amp;db_key=AST&amp;link_type=ABSTRACT&amp;high=5503ea9ccb13993">2013ApJS..208...14G</a></td><td><br></td><td align="left" valign="baseline">0.000</td><td align="left" valign="baseline">10/2013</td><td align="left" valign="baseline"><a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2013ApJS..208...14G&#38;db_key=AST&#38;link_type=ABSTRACT&#38;high=5503ea9ccb13993" onMouseOver="pl(0,+20)" onMouseOut="hl(+20)">A</a>&#160;&#160;&#160;&#160;&#160;&#160;<a class="oa" href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2013ApJS..208...14G&#38;db_key=AST&#38;link_type=EJOURNAL" onMouseOver="pl(2,+20)" onMouseOut="hl(+20)">E</a>&#160;&#160;<a class="oa" href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2013ApJS..208...14G&#38;db_key=AST&#38;link_type=ARTICLE" onMouseOver="pl(53,+20)" onMouseOut="hl(+20)">F</a>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<a class="oa" href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2013ApJS..208...14G&#38;db_key=AST&#38;link_type=PREPRINT" onMouseOver="pl(6,+20)" onMouseOut="hl(+20)">X</a>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2013ApJS..208...14G&#38;db_key=AST&#38;link_type=REFERENCES" onMouseOver="pl(12,+20)" onMouseOut="hl(+20)">R</a>&#160;&#160;<a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2013ApJS..208...14G&#38;db_key=AST&#38;link_type=CITATIONS" onMouseOver="pl(13,+20)" onMouseOut="hl(+20)">C</a>&#160;&#160;&#160;&#160;&#160;&#160;<a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2013ApJS..208...14G&#38;db_key=AST&#38;link_type=SIMBAD" onMouseOver="pl(16,+20)" onMouseOut="hl(+20)">S</a>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2013ApJS..208...14G&#38;db_key=AST&#38;link_type=AR" onMouseOver="pl(20,+20)" onMouseOut="hl(+20)">U</a>&#160;&#160;&#160;&#160;&#160;&#160;</td></tr>
+<tr><td></td><td align="left" valign="top" width="25%">Ginsburg,&#160;Adam; Glenn,&#160;Jason; Rosolowsky,&#160;Erik; Ellsworth-Bowers,&#160;Timothy&#160;P.; Battersby,&#160;Cara; Dunham,&#160;Miranda; Merello,&#160;Manuel; Shirley,&#160;Yancy; Bally,&#160;John; Evans,&#160;Neal&#160;J.,&#160;II; <span style="color: red">and 2 coauthors</span></td><td><br></td><td align="left" valign="top" colspan=3>The Bolocam Galactic Plane Survey. IX. Data Release 2 and Outer Galaxy Extension</td></tr>
+<tr><td colspan=6><HR></td></tr>
+<tr><td align="left" valign="baseline" nowrap>5</td><td align="left" valign="baseline" width="5%"><input type="checkbox"  name="bibcode" value="2013prpl.conf1B009G">&nbsp;<a href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2013prpl.conf1B009G&amp;db_key=AST&amp;link_type=ABSTRACT&amp;high=5503ea9ccb13993">2013prpl.conf1B009G</a></td><td><br></td><td align="left" valign="baseline">0.000</td><td align="left" valign="baseline">07/2013</td><td align="left" valign="baseline"><a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2013prpl.conf1B009G&#38;db_key=AST&#38;link_type=ABSTRACT&#38;high=5503ea9ccb13993" onMouseOver="pl(0,+20)" onMouseOut="hl(+20)">A</a>&#160;&#160;&#160;&#160;&#160;&#160;<a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2013prpl.conf1B009G&#38;db_key=AST&#38;link_type=EJOURNAL" onMouseOver="pl(2,+20)" onMouseOut="hl(+20)">E</a>&#160;&#160;<a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2013prpl.conf1B009G&#38;db_key=AST&#38;link_type=ARTICLE" onMouseOver="pl(53,+20)" onMouseOut="hl(+20)">F</a>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2013prpl.conf1B009G&#38;db_key=AST&#38;link_type=TOC" onMouseOver="pl(10,+20)" onMouseOut="hl(+20)">T</a>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2013prpl.conf1B009G&#38;db_key=AST&#38;link_type=AR" onMouseOver="pl(20,+20)" onMouseOut="hl(+20)">U</a>&#160;&#160;&#160;&#160;&#160;&#160;</td></tr>
+<tr><td></td><td align="left" valign="top" width="25%">Ginsburg,&#160;Adam; Bally,&#160;John; Youngblood,&#160;Allison</td><td><br></td><td align="left" valign="top" colspan=3>The Orion Bullets: New GEMS MCAO images</td></tr>
+<tr><td colspan=6><HR></td></tr>
+<tr><td align="left" valign="baseline" nowrap>6</td><td align="left" valign="baseline" width="5%"><input type="checkbox"  name="bibcode" value="2013yCat..74182121G">&nbsp;<a href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2013yCat..74182121G&amp;db_key=AST&amp;link_type=ABSTRACT&amp;high=5503ea9ccb13993">2013yCat..74182121G</a></td><td><br></td><td align="left" valign="baseline">0.000</td><td align="left" valign="baseline">01/2013</td><td align="left" valign="baseline"><a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2013yCat..74182121G&#38;db_key=AST&#38;link_type=ABSTRACT&#38;high=5503ea9ccb13993" onMouseOver="pl(0,+20)" onMouseOut="hl(+20)">A</a>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2013yCat..74182121G&#38;db_key=AST&#38;link_type=DATA" onMouseOver="pl(9,+20)" onMouseOut="hl(+20)">D</a>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2013yCat..74182121G&#38;db_key=AST&#38;link_type=ASSOCIATED" onMouseOver="pl(19,+20)" onMouseOut="hl(+20)">O</a>&#160;&#160;&#160;&#160;&#160;&#160;</td></tr>
+<tr><td></td><td align="left" valign="top" width="25%">Ginsburg,&#160;A.; Bally,&#160;J.; Williams,&#160;J.&#160;P.</td><td><br></td><td align="left" valign="top" colspan=3>VizieR Online Data Catalog: W5 molecular outflows CO 3-2 observations (Ginsburg+, 2011)</td></tr>
+<tr><td colspan=6><HR></td></tr>
+<tr><td align="left" valign="baseline" nowrap>7</td><td align="left" valign="baseline" width="5%"><input type="checkbox"  name="bibcode" value="2013AAS...22141307G">&nbsp;<a href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2013AAS...22141307G&amp;db_key=AST&amp;link_type=ABSTRACT&amp;high=5503ea9ccb13993">2013AAS...22141307G</a></td><td><br></td><td align="left" valign="baseline">0.000</td><td align="left" valign="baseline">01/2013</td><td align="left" valign="baseline"><a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2013AAS...22141307G&#38;db_key=AST&#38;link_type=ABSTRACT&#38;high=5503ea9ccb13993" onMouseOver="pl(0,+20)" onMouseOut="hl(+20)">A</a>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2013AAS...22141307G&#38;db_key=AST&#38;link_type=TOC" onMouseOver="pl(10,+20)" onMouseOut="hl(+20)">T</a>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</td></tr>
+<tr><td></td><td align="left" valign="top" width="25%">Ginsburg,&#160;Adam</td><td><br></td><td align="left" valign="top" colspan=3>Surveying Galactic Massive Star Formation and the Initial Conditions for Cluster Formation</td></tr>
+<tr><td colspan=6><HR></td></tr>
+<tr><td align="left" valign="baseline" nowrap>8</td><td align="left" valign="baseline" width="5%"><input type="checkbox"  name="bibcode" value="2013PhDT.......141G">&nbsp;<a href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2013PhDT.......141G&amp;db_key=AST&amp;link_type=ABSTRACT&amp;high=5503ea9ccb13993">2013PhDT.......141G</a></td><td><br></td><td align="left" valign="baseline">0.000</td><td align="left" valign="baseline">00/2013</td><td align="left" valign="baseline"><a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2013PhDT.......141G&#38;db_key=AST&#38;link_type=ABSTRACT&#38;high=5503ea9ccb13993" onMouseOver="pl(0,+20)" onMouseOut="hl(+20)">A</a>&#160;&#160;&#160;&#160;&#160;&#160;<a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2013PhDT.......141G&#38;db_key=AST&#38;link_type=EJOURNAL" onMouseOver="pl(2,+20)" onMouseOut="hl(+20)">E</a>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2013PhDT.......141G&#38;db_key=AST&#38;link_type=AR" onMouseOver="pl(20,+20)" onMouseOut="hl(+20)">U</a>&#160;&#160;&#160;&#160;&#160;&#160;</td></tr>
+<tr><td></td><td align="left" valign="top" width="25%">Ginsburg,&#160;Adam&#160;G.</td><td><br></td><td align="left" valign="top" colspan=3>Surveying Star Formation in the Galaxy</td></tr>
+<tr><td colspan=6><HR></td></tr>
+<tr><td align="left" valign="baseline" nowrap>9</td><td align="left" valign="baseline" width="5%"><input type="checkbox"  name="bibcode" value="2012ApJ...758L..29G">&nbsp;<a href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2012ApJ...758L..29G&amp;db_key=AST&amp;link_type=ABSTRACT&amp;high=5503ea9ccb13993">2012ApJ...758L..29G</a></td><td><br></td><td align="left" valign="baseline">0.000</td><td align="left" valign="baseline">10/2012</td><td align="left" valign="baseline"><a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2012ApJ...758L..29G&#38;db_key=AST&#38;link_type=ABSTRACT&#38;high=5503ea9ccb13993" onMouseOver="pl(0,+20)" onMouseOut="hl(+20)">A</a>&#160;&#160;&#160;&#160;&#160;&#160;<a class="oa" href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2012ApJ...758L..29G&#38;db_key=AST&#38;link_type=EJOURNAL" onMouseOver="pl(2,+20)" onMouseOut="hl(+20)">E</a>&#160;&#160;<a class="oa" href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2012ApJ...758L..29G&#38;db_key=AST&#38;link_type=ARTICLE" onMouseOver="pl(53,+20)" onMouseOut="hl(+20)">F</a>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<a class="oa" href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2012ApJ...758L..29G&#38;db_key=AST&#38;link_type=PREPRINT" onMouseOver="pl(6,+20)" onMouseOut="hl(+20)">X</a>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2012ApJ...758L..29G&#38;db_key=AST&#38;link_type=REFERENCES" onMouseOver="pl(12,+20)" onMouseOut="hl(+20)">R</a>&#160;&#160;<a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2012ApJ...758L..29G&#38;db_key=AST&#38;link_type=CITATIONS" onMouseOver="pl(13,+20)" onMouseOut="hl(+20)">C</a>&#160;&#160;&#160;&#160;&#160;&#160;<a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2012ApJ...758L..29G&#38;db_key=AST&#38;link_type=SIMBAD" onMouseOver="pl(16,+20)" onMouseOut="hl(+20)">S</a>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2012ApJ...758L..29G&#38;db_key=AST&#38;link_type=AR" onMouseOver="pl(20,+20)" onMouseOut="hl(+20)">U</a>&#160;&#160;&#160;&#160;&#160;&#160;</td></tr>
+<tr><td></td><td align="left" valign="top" width="25%">Ginsburg,&#160;A.; Bressert,&#160;E.; Bally,&#160;J.; Battersby,&#160;C.</td><td><br></td><td align="left" valign="top" colspan=3>There are No Starless Massive Proto-clusters in the First Quadrant of the Galaxy</td></tr>
+<tr><td colspan=6><HR></td></tr>
+<tr><td align="left" valign="baseline" nowrap>10</td><td align="left" valign="baseline" width="5%"><input type="checkbox"  name="bibcode" value="2011MNRAS.418.2121G">&nbsp;<a href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2011MNRAS.418.2121G&amp;db_key=AST&amp;link_type=ABSTRACT&amp;high=5503ea9ccb13993">2011MNRAS.418.2121G</a></td><td><br></td><td align="left" valign="baseline">0.000</td><td align="left" valign="baseline">12/2011</td><td align="left" valign="baseline"><a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2011MNRAS.418.2121G&#38;db_key=AST&#38;link_type=ABSTRACT&#38;high=5503ea9ccb13993" onMouseOver="pl(0,+20)" onMouseOut="hl(+20)">A</a>&#160;&#160;&#160;&#160;&#160;&#160;<a class="oa" href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2011MNRAS.418.2121G&#38;db_key=AST&#38;link_type=EJOURNAL" onMouseOver="pl(2,+20)" onMouseOut="hl(+20)">E</a>&#160;&#160;<a class="oa" href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2011MNRAS.418.2121G&#38;db_key=AST&#38;link_type=ARTICLE" onMouseOver="pl(53,+20)" onMouseOut="hl(+20)">F</a>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<a class="oa" href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2011MNRAS.418.2121G&#38;db_key=AST&#38;link_type=PREPRINT" onMouseOver="pl(6,+20)" onMouseOut="hl(+20)">X</a>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2011MNRAS.418.2121G&#38;db_key=AST&#38;link_type=DATA" onMouseOver="pl(9,+20)" onMouseOut="hl(+20)">D</a>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2011MNRAS.418.2121G&#38;db_key=AST&#38;link_type=REFERENCES" onMouseOver="pl(12,+20)" onMouseOut="hl(+20)">R</a>&#160;&#160;<a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2011MNRAS.418.2121G&#38;db_key=AST&#38;link_type=CITATIONS" onMouseOver="pl(13,+20)" onMouseOut="hl(+20)">C</a>&#160;&#160;&#160;&#160;&#160;&#160;<a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2011MNRAS.418.2121G&#38;db_key=AST&#38;link_type=SIMBAD" onMouseOver="pl(16,+20)" onMouseOut="hl(+20)">S</a>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2011MNRAS.418.2121G&#38;db_key=AST&#38;link_type=ASSOCIATED" onMouseOver="pl(19,+20)" onMouseOut="hl(+20)">O</a>&#160;&#160;<a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2011MNRAS.418.2121G&#38;db_key=AST&#38;link_type=AR" onMouseOver="pl(20,+20)" onMouseOut="hl(+20)">U</a>&#160;&#160;&#160;&#160;&#160;&#160;</td></tr>
+<tr><td></td><td align="left" valign="top" width="25%">Ginsburg,&#160;Adam; Bally,&#160;John; Williams,&#160;Jonathan&#160;P.</td><td><br></td><td align="left" valign="top" colspan=3>JCMT HARP CO 3-2 observations of molecular outflows in W5</td></tr>
+<tr><td colspan=6><HR></td></tr>
+<tr><td align="left" valign="baseline" nowrap>11</td><td align="left" valign="baseline" width="5%"><input type="checkbox"  name="bibcode" value="2011AGUFM.V23E2603G">&nbsp;<a href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2011AGUFM.V23E2603G&amp;db_key=PHY&amp;link_type=ABSTRACT&amp;high=5503ea9ccb13993">2011AGUFM.V23E2603G</a></td><td><br></td><td align="left" valign="baseline">0.000</td><td align="left" valign="baseline">12/2011</td><td align="left" valign="baseline"><a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2011AGUFM.V23E2603G&#38;db_key=PHY&#38;link_type=ABSTRACT&#38;high=5503ea9ccb13993" onMouseOver="pl(0,+20)" onMouseOut="hl(+20)">A</a>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</td></tr>
+<tr><td></td><td align="left" valign="top" width="25%">Ginsburg,&#160;A.&#160;A.; Hacker,&#160;B.&#160;R.; Kylander-Clark,&#160;A.&#160;R.</td><td><br></td><td align="left" valign="top" colspan=3>Slab vs. Slivers: U-Pb Geochronologic Constraints on the Exhumation of the Western Gneiss Region, Norway</td></tr>
+<tr><td colspan=6><HR></td></tr>
+<tr><td align="left" valign="baseline" nowrap>12</td><td align="left" valign="baseline" width="5%"><input type="checkbox"  name="bibcode" value="2011ascl.soft09001G">&nbsp;<a href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2011ascl.soft09001G&amp;db_key=AST&amp;link_type=ABSTRACT&amp;high=5503ea9ccb13993">2011ascl.soft09001G</a></td><td><br></td><td align="left" valign="baseline">0.000</td><td align="left" valign="baseline">09/2011</td><td align="left" valign="baseline"><a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2011ascl.soft09001G&#38;db_key=AST&#38;link_type=ABSTRACT&#38;high=5503ea9ccb13993" onMouseOver="pl(0,+20)" onMouseOut="hl(+20)">A</a>&#160;&#160;&#160;&#160;&#160;&#160;<a class="oa" href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2011ascl.soft09001G&#38;db_key=AST&#38;link_type=EJOURNAL" onMouseOver="pl(2,+20)" onMouseOut="hl(+20)">E</a>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2011ascl.soft09001G&#38;db_key=AST&#38;link_type=CITATIONS" onMouseOver="pl(13,+20)" onMouseOut="hl(+20)">C</a>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2011ascl.soft09001G&#38;db_key=AST&#38;link_type=ASSOCIATED" onMouseOver="pl(19,+20)" onMouseOut="hl(+20)">O</a>&#160;&#160;<a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2011ascl.soft09001G&#38;db_key=AST&#38;link_type=AR" onMouseOver="pl(20,+20)" onMouseOut="hl(+20)">U</a>&#160;&#160;&#160;&#160;&#160;&#160;</td></tr>
+<tr><td></td><td align="left" valign="top" width="25%">Ginsburg,&#160;Adam; Mirocha,&#160;Jordan</td><td><br></td><td align="left" valign="top" colspan=3>PySpecKit: Python Spectroscopic Toolkit</td></tr>
+<tr><td colspan=6><HR></td></tr>
+<tr><td align="left" valign="baseline" nowrap>13</td><td align="left" valign="baseline" width="5%"><input type="checkbox"  name="bibcode" value="2011ApJ...736..149G">&nbsp;<a href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2011ApJ...736..149G&amp;db_key=AST&amp;link_type=ABSTRACT&amp;high=5503ea9ccb13993">2011ApJ...736..149G</a></td><td><br></td><td align="left" valign="baseline">0.000</td><td align="left" valign="baseline">08/2011</td><td align="left" valign="baseline"><a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2011ApJ...736..149G&#38;db_key=AST&#38;link_type=ABSTRACT&#38;high=5503ea9ccb13993" onMouseOver="pl(0,+20)" onMouseOut="hl(+20)">A</a>&#160;&#160;&#160;&#160;&#160;&#160;<a class="oa" href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2011ApJ...736..149G&#38;db_key=AST&#38;link_type=EJOURNAL" onMouseOver="pl(2,+20)" onMouseOut="hl(+20)">E</a>&#160;&#160;<a class="oa" href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2011ApJ...736..149G&#38;db_key=AST&#38;link_type=ARTICLE" onMouseOver="pl(53,+20)" onMouseOut="hl(+20)">F</a>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<a class="oa" href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2011ApJ...736..149G&#38;db_key=AST&#38;link_type=PREPRINT" onMouseOver="pl(6,+20)" onMouseOut="hl(+20)">X</a>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2011ApJ...736..149G&#38;db_key=AST&#38;link_type=REFERENCES" onMouseOver="pl(12,+20)" onMouseOut="hl(+20)">R</a>&#160;&#160;<a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2011ApJ...736..149G&#38;db_key=AST&#38;link_type=CITATIONS" onMouseOver="pl(13,+20)" onMouseOut="hl(+20)">C</a>&#160;&#160;&#160;&#160;&#160;&#160;<a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2011ApJ...736..149G&#38;db_key=AST&#38;link_type=SIMBAD" onMouseOver="pl(16,+20)" onMouseOut="hl(+20)">S</a>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2011ApJ...736..149G&#38;db_key=AST&#38;link_type=ASSOCIATED" onMouseOver="pl(19,+20)" onMouseOut="hl(+20)">O</a>&#160;&#160;<a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2011ApJ...736..149G&#38;db_key=AST&#38;link_type=AR" onMouseOver="pl(20,+20)" onMouseOut="hl(+20)">U</a>&#160;&#160;&#160;&#160;&#160;&#160;</td></tr>
+<tr><td></td><td align="left" valign="top" width="25%">Ginsburg,&#160;Adam; Darling,&#160;Jeremy; Battersby,&#160;Cara; Zeiger,&#160;Ben; Bally,&#160;John</td><td><br></td><td align="left" valign="top" colspan=3>Galactic H<SUB>2</SUB>CO Densitometry. I. Pilot Survey of Ultracompact H II Regions and Methodology</td></tr>
+<tr><td colspan=6><HR></td></tr>
+<tr><td align="left" valign="baseline" nowrap>14</td><td align="left" valign="baseline" width="5%"><input type="checkbox"  name="bibcode" value="2011BpJ...100..449G">&nbsp;<a href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2011BpJ...100..449G&amp;db_key=PHY&amp;link_type=ABSTRACT&amp;high=5503ea9ccb13993">2011BpJ...100..449G</a></td><td><br></td><td align="left" valign="baseline">0.000</td><td align="left" valign="baseline">02/2011</td><td align="left" valign="baseline">&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2011BpJ...100..449G&#38;db_key=PHY&#38;link_type=EJOURNAL" onMouseOver="pl(2,+20)" onMouseOut="hl(+20)">E</a>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</td></tr>
+<tr><td></td><td align="left" valign="top" width="25%">Ginsburg,&#160;Avi; Raviv,&#160;Uri</td><td><br></td><td align="left" valign="top" colspan=3>Microtubule Structural Modeling and Analysis Using Small Angle X-Ray Scattering</td></tr>
+<tr><td colspan=6><HR></td></tr>
+<tr><td align="left" valign="baseline" nowrap>15</td><td align="left" valign="baseline" width="5%"><input type="checkbox"  name="bibcode" value="2011AAS...21725803G">&nbsp;<a href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2011AAS...21725803G&amp;db_key=AST&amp;link_type=ABSTRACT&amp;high=5503ea9ccb13993">2011AAS...21725803G</a></td><td><br></td><td align="left" valign="baseline">0.000</td><td align="left" valign="baseline">01/2011</td><td align="left" valign="baseline"><a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2011AAS...21725803G&#38;db_key=AST&#38;link_type=ABSTRACT&#38;high=5503ea9ccb13993" onMouseOver="pl(0,+20)" onMouseOut="hl(+20)">A</a>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2011AAS...21725803G&#38;db_key=AST&#38;link_type=TOC" onMouseOver="pl(10,+20)" onMouseOut="hl(+20)">T</a>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</td></tr>
+<tr><td></td><td align="left" valign="top" width="25%">Ginsburg,&#160;Adam; Battersby,&#160;C.; Zeiger,&#160;B.; Darling,&#160;J.; Bally,&#160;J.</td><td><br></td><td align="left" valign="top" colspan=3>Formaldehyde Densitometry of Dust Clumps: The Shapes and Densities of Massive Star Forming Regions</td></tr>
+<tr><td colspan=6><HR></td></tr>
+<tr><td align="left" valign="baseline" nowrap>16</td><td align="left" valign="baseline" width="5%"><input type="checkbox"  name="bibcode" value="2010AGUFM.V13D2391G">&nbsp;<a href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2010AGUFM.V13D2391G&amp;db_key=PHY&amp;link_type=ABSTRACT&amp;high=5503ea9ccb13993">2010AGUFM.V13D2391G</a></td><td><br></td><td align="left" valign="baseline">0.000</td><td align="left" valign="baseline">12/2010</td><td align="left" valign="baseline"><a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2010AGUFM.V13D2391G&#38;db_key=PHY&#38;link_type=ABSTRACT&#38;high=5503ea9ccb13993" onMouseOver="pl(0,+20)" onMouseOut="hl(+20)">A</a>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</td></tr>
+<tr><td></td><td align="left" valign="top" width="25%">Ginsburg,&#160;A.&#160;A.; Hacker,&#160;B.&#160;R.; Kylander-Clark,&#160;A.&#160;R.; Cottle,&#160;J.&#160;M.</td><td><br></td><td align="left" valign="top" colspan=3>Subduction and Exhumation of the Western Gneiss Region, Norway: Application of Zircon U-Pb Geochronology</td></tr>
+<tr><td colspan=6><HR></td></tr>
+<tr><td align="left" valign="baseline" nowrap>17</td><td align="left" valign="baseline" width="5%"><input type="checkbox"  name="bibcode" value="2010fsgc.confE.112G">&nbsp;<a href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2010fsgc.confE.112G&amp;db_key=AST&amp;link_type=ABSTRACT&amp;high=5503ea9ccb13993">2010fsgc.confE.112G</a></td><td><br></td><td align="left" valign="baseline">0.000</td><td align="left" valign="baseline">04/2010</td><td align="left" valign="baseline">&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2010fsgc.confE.112G&#38;db_key=AST&#38;link_type=ARTICLE" onMouseOver="pl(53,+20)" onMouseOut="hl(+20)">F</a>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</td></tr>
+<tr><td></td><td align="left" valign="top" width="25%">Ginsburg,&#160;Adam</td><td><br></td><td align="left" valign="top" colspan=3>Star Formation in Perseus Arm Complexes</td></tr>
+<tr><td colspan=6><HR></td></tr>
+<tr><td align="left" valign="baseline" nowrap>18</td><td align="left" valign="baseline" width="5%"><input type="checkbox"  name="bibcode" value="2010AAS...21541406G">&nbsp;<a href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2010AAS...21541406G&amp;db_key=AST&amp;link_type=ABSTRACT&amp;high=5503ea9ccb13993">2010AAS...21541406G</a></td><td><br></td><td align="left" valign="baseline">0.000</td><td align="left" valign="baseline">01/2010</td><td align="left" valign="baseline"><a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2010AAS...21541406G&#38;db_key=AST&#38;link_type=ABSTRACT&#38;high=5503ea9ccb13993" onMouseOver="pl(0,+20)" onMouseOut="hl(+20)">A</a>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2010AAS...21541406G&#38;db_key=AST&#38;link_type=TOC" onMouseOver="pl(10,+20)" onMouseOut="hl(+20)">T</a>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</td></tr>
+<tr><td></td><td align="left" valign="top" width="25%">Ginsburg,&#160;Adam; Bolocam&#160;Galactic&#160;Plane&#160;Survey&#160;Team</td><td><br></td><td align="left" valign="top" colspan=3>The Bolocam Galactic Plane Survey: Data, Early Results, and Future Directions</td></tr>
+<tr><td colspan=6><HR></td></tr>
+<tr><td align="left" valign="baseline" nowrap>19</td><td align="left" valign="baseline" width="5%"><input type="checkbox"  name="bibcode" value="2009ApJ...707..310G">&nbsp;<a href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2009ApJ...707..310G&amp;db_key=AST&amp;link_type=ABSTRACT&amp;high=5503ea9ccb13993">2009ApJ...707..310G</a></td><td><br></td><td align="left" valign="baseline">0.000</td><td align="left" valign="baseline">12/2009</td><td align="left" valign="baseline"><a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2009ApJ...707..310G&#38;db_key=AST&#38;link_type=ABSTRACT&#38;high=5503ea9ccb13993" onMouseOver="pl(0,+20)" onMouseOut="hl(+20)">A</a>&#160;&#160;&#160;&#160;&#160;&#160;<a class="oa" href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2009ApJ...707..310G&#38;db_key=AST&#38;link_type=EJOURNAL" onMouseOver="pl(2,+20)" onMouseOut="hl(+20)">E</a>&#160;&#160;<a class="oa" href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2009ApJ...707..310G&#38;db_key=AST&#38;link_type=ARTICLE" onMouseOver="pl(53,+20)" onMouseOut="hl(+20)">F</a>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<a class="oa" href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2009ApJ...707..310G&#38;db_key=AST&#38;link_type=PREPRINT" onMouseOver="pl(6,+20)" onMouseOut="hl(+20)">X</a>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2009ApJ...707..310G&#38;db_key=AST&#38;link_type=DATA" onMouseOver="pl(9,+20)" onMouseOut="hl(+20)">D</a>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2009ApJ...707..310G&#38;db_key=AST&#38;link_type=REFERENCES" onMouseOver="pl(12,+20)" onMouseOut="hl(+20)">R</a>&#160;&#160;<a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2009ApJ...707..310G&#38;db_key=AST&#38;link_type=CITATIONS" onMouseOver="pl(13,+20)" onMouseOut="hl(+20)">C</a>&#160;&#160;&#160;&#160;&#160;&#160;<a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2009ApJ...707..310G&#38;db_key=AST&#38;link_type=SIMBAD" onMouseOver="pl(16,+20)" onMouseOut="hl(+20)">S</a>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2009ApJ...707..310G&#38;db_key=AST&#38;link_type=AR" onMouseOver="pl(20,+20)" onMouseOut="hl(+20)">U</a>&#160;&#160;&#160;&#160;&#160;&#160;</td></tr>
+<tr><td></td><td align="left" valign="top" width="25%">Ginsburg,&#160;Adam&#160;G.; Bally,&#160;John; Yan,&#160;Chi-Hung; Williams,&#160;Jonathan&#160;P.</td><td><br></td><td align="left" valign="top" colspan=3>Outflows and Massive Stars in the Protocluster IRAS 05358+3543</td></tr>
+<tr><td colspan=6><HR></td></tr>
+<tr><td align="left" valign="baseline" nowrap>20</td><td align="left" valign="baseline" width="5%"><input type="checkbox"  name="bibcode" value="2006AAS...20910003G">&nbsp;<a href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2006AAS...20910003G&amp;db_key=AST&amp;link_type=ABSTRACT&amp;high=5503ea9ccb13993">2006AAS...20910003G</a></td><td><br></td><td align="left" valign="baseline">0.000</td><td align="left" valign="baseline">12/2006</td><td align="left" valign="baseline"><a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2006AAS...20910003G&#38;db_key=AST&#38;link_type=ABSTRACT&#38;high=5503ea9ccb13993" onMouseOver="pl(0,+20)" onMouseOut="hl(+20)">A</a>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</td></tr>
+<tr><td></td><td align="left" valign="top" width="25%">Ginsburg,&#160;Adam</td><td><br></td><td align="left" valign="top" colspan=3>Searching for the Young Super-Star Clusters in NGC 3627</td></tr>
+<tr><td colspan=6><HR></td></tr>
+<tr><td align="left" valign="baseline" nowrap>21</td><td align="left" valign="baseline" width="5%"><input type="checkbox"  name="bibcode" value="2004SPIE.5292...15G">&nbsp;<a href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2004SPIE.5292...15G&amp;db_key=PHY&amp;link_type=ABSTRACT&amp;high=5503ea9ccb13993">2004SPIE.5292...15G</a></td><td><br></td><td align="left" valign="baseline">0.000</td><td align="left" valign="baseline">06/2004</td><td align="left" valign="baseline"><a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2004SPIE.5292...15G&#38;db_key=PHY&#38;link_type=ABSTRACT&#38;high=5503ea9ccb13993" onMouseOver="pl(0,+20)" onMouseOut="hl(+20)">A</a>&#160;&#160;&#160;&#160;&#160;&#160;<a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2004SPIE.5292...15G&#38;db_key=PHY&#38;link_type=EJOURNAL" onMouseOver="pl(2,+20)" onMouseOut="hl(+20)">E</a>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2004SPIE.5292...15G&#38;db_key=PHY&#38;link_type=TOC" onMouseOver="pl(10,+20)" onMouseOut="hl(+20)">T</a>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</td></tr>
+<tr><td></td><td align="left" valign="top" width="25%">Ginsburg,&#160;Arthur&#160;P.</td><td><br></td><td align="left" valign="top" colspan=3>Vision channels, contrast sensitivity, and functional vision</td></tr>
+<tr><td colspan=6><HR></td></tr>
+<tr><td align="left" valign="baseline" nowrap>22</td><td align="left" valign="baseline" width="5%"><input type="checkbox"  name="bibcode" value="1994SPIE.2127...36G">&nbsp;<a href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=1994SPIE.2127...36G&amp;db_key=PHY&amp;link_type=ABSTRACT&amp;high=5503ea9ccb13993">1994SPIE.2127...36G</a></td><td><br></td><td align="left" valign="baseline">0.000</td><td align="left" valign="baseline">05/1994</td><td align="left" valign="baseline">&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=1994SPIE.2127...36G&#38;db_key=PHY&#38;link_type=EJOURNAL" onMouseOver="pl(2,+20)" onMouseOut="hl(+20)">E</a>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=1994SPIE.2127...36G&#38;db_key=PHY&#38;link_type=TOC" onMouseOver="pl(10,+20)" onMouseOut="hl(+20)">T</a>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</td></tr>
+<tr><td></td><td align="left" valign="top" width="25%">Ginsburg,&#160;Arthur&#160;P.</td><td><br></td><td align="left" valign="top" colspan=3>Testing functional vision: important relationships between grating contrast sensitivity and low-contrast letter acuity tests</td></tr>
+<tr><td colspan=6><HR></td></tr>
+<tr><td align="left" valign="baseline" nowrap>23</td><td align="left" valign="baseline" width="5%"><input type="checkbox"  name="bibcode" value="1987JOSAA...4....7G">&nbsp;<a href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=1987JOSAA...4....7G&amp;db_key=PHY&amp;link_type=ABSTRACT&amp;high=5503ea9ccb13993">1987JOSAA...4....7G</a></td><td><br></td><td align="left" valign="baseline">0.000</td><td align="left" valign="baseline">01/1987</td><td align="left" valign="baseline">&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</td></tr>
+<tr><td></td><td align="left" valign="top" width="25%">Ginsburg,&#160;Arthur&#160;P.; Richburg,&#160;Frederick&#160;A.; Tedesco,&#160;John</td><td><br></td><td align="left" valign="top" colspan=3>Evaluation of functional vision of 257 cataract patients using the Vistech sensitivity chart (A)</td></tr>
+<tr><td colspan=6><HR></td></tr>
+<tr><td align="left" valign="baseline" nowrap>24</td><td align="left" valign="baseline" width="5%"><input type="checkbox"  name="bibcode" value="1985JOSAA...2...89G">&nbsp;<a href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=1985JOSAA...2...89G&amp;db_key=PHY&amp;link_type=ABSTRACT&amp;high=5503ea9ccb13993">1985JOSAA...2...89G</a></td><td><br></td><td align="left" valign="baseline">0.000</td><td align="left" valign="baseline">01/1985</td><td align="left" valign="baseline">&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</td></tr>
+<tr><td></td><td align="left" valign="top" width="25%">Ginsburg,&#160;Arthur&#160;P.</td><td><br></td><td align="left" valign="top" colspan=3>Low spatial frequencies are necessary and sufficient for generalization of form (A)</td></tr>
+<tr><td colspan=6><HR></td></tr>
+<tr><td align="left" valign="baseline" nowrap>25</td><td align="left" valign="baseline" width="5%"><input type="checkbox"  name="bibcode" value="1984JOSAA...1.1301G">&nbsp;<a href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=1984JOSAA...1.1301G&amp;db_key=PHY&amp;link_type=ABSTRACT&amp;high=5503ea9ccb13993">1984JOSAA...1.1301G</a></td><td><br></td><td align="left" valign="baseline">0.000</td><td align="left" valign="baseline">00/1984</td><td align="left" valign="baseline">&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</td></tr>
+<tr><td></td><td align="left" valign="top" width="25%">Ginsburg,&#160;Arthur&#160;P.</td><td><br></td><td align="left" valign="top" colspan=3>Sine-wave gratings are more visually-sensitive than disks or letters (A)</td></tr>
+<tr><td colspan=6><HR></td></tr>
+<tr><td align="left" valign="baseline" nowrap>26</td><td align="left" valign="baseline" width="5%"><input type="checkbox"  name="bibcode" value="1983JOSA...73.1958G">&nbsp;<a href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=1983JOSA...73.1958G&amp;db_key=PHY&amp;link_type=ABSTRACT&amp;high=5503ea9ccb13993">1983JOSA...73.1958G</a></td><td><br></td><td align="left" valign="baseline">0.000</td><td align="left" valign="baseline">00/1983</td><td align="left" valign="baseline">&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</td></tr>
+<tr><td></td><td align="left" valign="top" width="25%">Ginsburg,&#160;Arthur&#160;P.; Easterly,&#160;Jill&#160;A.; Evans,&#160;David&#160;W.</td><td><br></td><td align="left" valign="top" colspan=3>Target detection field performance of pilots is predicted by contrast sensitivity (A)</td></tr>
+<tr><td colspan=6><HR></td></tr>
+<tr><td align="left" valign="baseline" nowrap>27</td><td align="left" valign="baseline" width="5%"><input type="checkbox"  name="bibcode" value="1983JOSA...73.1956G">&nbsp;<a href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=1983JOSA...73.1956G&amp;db_key=PHY&amp;link_type=ABSTRACT&amp;high=5503ea9ccb13993">1983JOSA...73.1956G</a></td><td><br></td><td align="left" valign="baseline">0.000</td><td align="left" valign="baseline">00/1983</td><td align="left" valign="baseline">&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</td></tr>
+<tr><td></td><td align="left" valign="top" width="25%">Ginsburg,&#160;Arthur&#160;P.</td><td><br></td><td align="left" valign="top" colspan=3>Effect of spatial bandwidth on the synthesis of perceived form (A)</td></tr>
+<tr><td colspan=6><HR></td></tr>
+<tr><td align="left" valign="baseline" nowrap>28</td><td align="left" valign="baseline" width="5%"><input type="checkbox"  name="bibcode" value="1982JOSA...72.1797G">&nbsp;<a href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=1982JOSA...72.1797G&amp;db_key=PHY&amp;link_type=ABSTRACT&amp;high=5503ea9ccb13993">1982JOSA...72.1797G</a></td><td><br></td><td align="left" valign="baseline">0.000</td><td align="left" valign="baseline">12/1982</td><td align="left" valign="baseline">&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</td></tr>
+<tr><td></td><td align="left" valign="top" width="25%">Ginsburg,&#160;Arthur&#160;P.; Evans,&#160;David&#160;W.</td><td><br></td><td align="left" valign="top" colspan=3>Zero crossings do not predict perceived line length of biologically filtered visual illusions (A)</td></tr>
+<tr><td colspan=6><HR></td></tr>
+<tr><td align="left" valign="baseline" nowrap>29</td><td align="left" valign="baseline" width="5%"><input type="checkbox"  name="bibcode" value="1982JOSA...72.1786G">&nbsp;<a href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=1982JOSA...72.1786G&amp;db_key=PHY&amp;link_type=ABSTRACT&amp;high=5503ea9ccb13993">1982JOSA...72.1786G</a></td><td><br></td><td align="left" valign="baseline">0.000</td><td align="left" valign="baseline">12/1982</td><td align="left" valign="baseline">&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=1982JOSA...72.1786G&#38;db_key=PHY&#38;link_type=REFERENCES" onMouseOver="pl(12,+20)" onMouseOut="hl(+20)">R</a>&#160;&#160;<a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=1982JOSA...72.1786G&#38;db_key=PHY&#38;link_type=CITATIONS" onMouseOver="pl(13,+20)" onMouseOut="hl(+20)">C</a>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</td></tr>
+<tr><td></td><td align="left" valign="top" width="25%">Ginsburg,&#160;Arthur&#160;P.; Evans,&#160;David&#160;W.; Cannon,&#160;Mark&#160;W.,&#160;Jr.</td><td><br></td><td align="left" valign="top" colspan=3>Effects of age on contrast sensitivity (A)</td></tr>
+<tr><td colspan=6><HR></td></tr>
+<tr><td align="left" valign="baseline" nowrap>30</td><td align="left" valign="baseline" width="5%"><input type="checkbox"  name="bibcode" value="1981JOSA...71.1618G">&nbsp;<a href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=1981JOSA...71.1618G&amp;db_key=PHY&amp;link_type=ABSTRACT&amp;high=5503ea9ccb13993">1981JOSA...71.1618G</a></td><td><br></td><td align="left" valign="baseline">0.000</td><td align="left" valign="baseline">12/1981</td><td align="left" valign="baseline">&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=1981JOSA...71.1618G&#38;db_key=PHY&#38;link_type=CITATIONS" onMouseOver="pl(13,+20)" onMouseOut="hl(+20)">C</a>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</td></tr>
+<tr><td></td><td align="left" valign="top" width="25%">Ginsburg,&#160;Arthur&#160;P.; Cannon,&#160;Mark&#160;W.,&#160;Jr.; Sekuler,&#160;Robert&#160;W.; Evans,&#160;David&#160;W.; Owsley,&#160;Cynthia&#160;J.; Mulvanny,&#160;W.&#160;Patrick</td><td><br></td><td align="left" valign="top" colspan=3>Large-population spatiotemporal contrast sensitivity functions (A)</td></tr>
+<tr><td colspan=6><HR></td></tr>
+<tr><td align="left" valign="baseline" nowrap>31</td><td align="left" valign="baseline" width="5%"><input type="checkbox"  name="bibcode" value="1981JOSA...71.1555G">&nbsp;<a href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=1981JOSA...71.1555G&amp;db_key=PHY&amp;link_type=ABSTRACT&amp;high=5503ea9ccb13993">1981JOSA...71.1555G</a></td><td><br></td><td align="left" valign="baseline">0.000</td><td align="left" valign="baseline">12/1981</td><td align="left" valign="baseline">&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</td></tr>
+<tr><td></td><td align="left" valign="top" width="25%">Ginsburg,&#160;Arthur&#160;P.; Evans,&#160;D.; Sekuler,&#160;Robert&#160;W.; Harp,&#160;S.</td><td><br></td><td align="left" valign="top" colspan=3>Predicting visual target detection by pilots from their contrast sensitivity (A)</td></tr>
+<tr><td colspan=6><HR></td></tr>
+<tr><td align="left" valign="baseline" nowrap>32</td><td align="left" valign="baseline" width="5%"><input type="checkbox"  name="bibcode" value="1981SPIE..283...78G">&nbsp;<a href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=1981SPIE..283...78G&amp;db_key=PHY&amp;link_type=ABSTRACT&amp;high=5503ea9ccb13993">1981SPIE..283...78G</a></td><td><br></td><td align="left" valign="baseline">0.000</td><td align="left" valign="baseline">10/1981</td><td align="left" valign="baseline"><a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=1981SPIE..283...78G&#38;db_key=PHY&#38;link_type=ABSTRACT&#38;high=5503ea9ccb13993" onMouseOver="pl(0,+20)" onMouseOut="hl(+20)">A</a>&#160;&#160;&#160;&#160;&#160;&#160;<a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=1981SPIE..283...78G&#38;db_key=PHY&#38;link_type=EJOURNAL" onMouseOver="pl(2,+20)" onMouseOut="hl(+20)">E</a>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=1981SPIE..283...78G&#38;db_key=PHY&#38;link_type=TOC" onMouseOver="pl(10,+20)" onMouseOut="hl(+20)">T</a>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</td></tr>
+<tr><td></td><td align="left" valign="top" width="25%">Ginsburg,&#160;Arthur&#160;P.</td><td><br></td><td align="left" valign="top" colspan=3>Perceptual Capabilities, Ambiguities, And Artifacts In Man And Machine</td></tr>
+<tr><td colspan=6><HR></td></tr>
+<tr><td align="left" valign="baseline" nowrap>33</td><td align="left" valign="baseline" width="5%"><input type="checkbox"  name="bibcode" value="1980JOSA...70.1629G">&nbsp;<a href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=1980JOSA...70.1629G&amp;db_key=PHY&amp;link_type=ABSTRACT&amp;high=5503ea9ccb13993">1980JOSA...70.1629G</a></td><td><br></td><td align="left" valign="baseline">0.000</td><td align="left" valign="baseline">12/1980</td><td align="left" valign="baseline">&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</td></tr>
+<tr><td></td><td align="left" valign="top" width="25%">Ginsburg,&#160;Arthur&#160;P.; Cannon,&#160;Mark&#160;W.,&#160;Jr.</td><td><br></td><td align="left" valign="top" colspan=3>Perceived contrast of complex waveforms II: square, sawtooth, and aperiodic waveforms (A)</td></tr>
+<tr><td colspan=6><HR></td></tr>
+<tr><td align="left" valign="baseline" nowrap>34</td><td align="left" valign="baseline" width="5%"><input type="checkbox"  name="bibcode" value="1980Sci...208..619G">&nbsp;<a href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=1980Sci...208..619G&amp;db_key=GEN&amp;link_type=ABSTRACT&amp;high=5503ea9ccb13993">1980Sci...208..619G</a></td><td><br></td><td align="left" valign="baseline">0.000</td><td align="left" valign="baseline">05/1980</td><td align="left" valign="baseline"><a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=1980Sci...208..619G&#38;db_key=GEN&#38;link_type=ABSTRACT&#38;high=5503ea9ccb13993" onMouseOver="pl(0,+20)" onMouseOut="hl(+20)">A</a>&#160;&#160;&#160;&#160;&#160;&#160;<a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=1980Sci...208..619G&#38;db_key=GEN&#38;link_type=EJOURNAL" onMouseOver="pl(2,+20)" onMouseOut="hl(+20)">E</a>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=1980Sci...208..619G&#38;db_key=GEN&#38;link_type=CITATIONS" onMouseOver="pl(13,+20)" onMouseOut="hl(+20)">C</a>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</td></tr>
+<tr><td></td><td align="left" valign="top" width="25%">Ginsburg,&#160;Arthur&#160;P.; Cannon,&#160;Mark&#160;W.; Nelson,&#160;Michael&#160;A.</td><td><br></td><td align="left" valign="top" colspan=3>Suprathreshold Processing of Complex Visual Stimuli: Evidence for Linearity in Contrast Perception</td></tr>
+<tr><td colspan=6><HR></td></tr>
+<tr><td align="left" valign="baseline" nowrap>35</td><td align="left" valign="baseline" width="5%"><input type="checkbox"  name="bibcode" value="1979JOSA...69.1452G">&nbsp;<a href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=1979JOSA...69.1452G&amp;db_key=PHY&amp;link_type=ABSTRACT&amp;high=5503ea9ccb13993">1979JOSA...69.1452G</a></td><td><br></td><td align="left" valign="baseline">0.000</td><td align="left" valign="baseline">00/1979</td><td align="left" valign="baseline">&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</td></tr>
+<tr><td></td><td align="left" valign="top" width="25%">Ginsburg,&#160;Arthur&#160;P.; Cannon,&#160;Mark&#160;W.</td><td><br></td><td align="left" valign="top" colspan=3>Evidence for linearity in the suprathreshold contrast perception of complex objects (A)</td></tr>
+<tr><td colspan=6><HR></td></tr>
+<tr><td align="left" valign="baseline" nowrap>36</td><td align="left" valign="baseline" width="5%"><input type="checkbox"  name="bibcode" value="1979JOSA...69.1443G">&nbsp;<a href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=1979JOSA...69.1443G&amp;db_key=PHY&amp;link_type=ABSTRACT&amp;high=5503ea9ccb13993">1979JOSA...69.1443G</a></td><td><br></td><td align="left" valign="baseline">0.000</td><td align="left" valign="baseline">00/1979</td><td align="left" valign="baseline">&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=1979JOSA...69.1443G&#38;db_key=PHY&#38;link_type=CITATIONS" onMouseOver="pl(13,+20)" onMouseOut="hl(+20)">C</a>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</td></tr>
+<tr><td></td><td align="left" valign="top" width="25%">Ginsburg,&#160;Arthur&#160;P.; Evans,&#160;David&#160;W.</td><td><br></td><td align="left" valign="top" colspan=3>Predicting visual illusions from filtered images based upon biological data (A)</td></tr>
+<tr><td colspan=6><HR></td></tr>
+<tr><td align="left" valign="baseline" nowrap>37</td><td align="left" valign="baseline" width="5%"><input type="checkbox"  name="bibcode" value="1978JOSA...68.1455G">&nbsp;<a href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=1978JOSA...68.1455G&amp;db_key=PHY&amp;link_type=ABSTRACT&amp;high=5503ea9ccb13993">1978JOSA...68.1455G</a></td><td><br></td><td align="left" valign="baseline">0.000</td><td align="left" valign="baseline">10/1978</td><td align="left" valign="baseline">&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</td></tr>
+<tr><td></td><td align="left" valign="top" width="25%">Ginsburg,&#160;Arthur&#160;P.</td><td><br></td><td align="left" valign="top" colspan=3>Relationship between the detection and recognition of Snellen letters and contrast sensitivity for normal and abnormal visual systems (A)</td></tr>
+<tr><td colspan=6><HR></td></tr>
+<tr><td align="left" valign="baseline" nowrap>38</td><td align="left" valign="baseline" width="5%"><input type="checkbox"  name="bibcode" value="1975Natur.257..219G">&nbsp;<a href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=1975Natur.257..219G&amp;db_key=GEN&amp;link_type=ABSTRACT&amp;high=5503ea9ccb13993">1975Natur.257..219G</a></td><td><br></td><td align="left" valign="baseline">0.000</td><td align="left" valign="baseline">09/1975</td><td align="left" valign="baseline"><a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=1975Natur.257..219G&#38;db_key=GEN&#38;link_type=ABSTRACT&#38;high=5503ea9ccb13993" onMouseOver="pl(0,+20)" onMouseOut="hl(+20)">A</a>&#160;&#160;&#160;&#160;&#160;&#160;<a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=1975Natur.257..219G&#38;db_key=GEN&#38;link_type=EJOURNAL" onMouseOver="pl(2,+20)" onMouseOut="hl(+20)">E</a>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=1975Natur.257..219G&#38;db_key=GEN&#38;link_type=REFERENCES" onMouseOver="pl(12,+20)" onMouseOut="hl(+20)">R</a>&#160;&#160;<a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=1975Natur.257..219G&#38;db_key=GEN&#38;link_type=CITATIONS" onMouseOver="pl(13,+20)" onMouseOut="hl(+20)">C</a>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</td></tr>
+<tr><td></td><td align="left" valign="top" width="25%">Ginsburg,&#160;Arthur&#160;P.</td><td><br></td><td align="left" valign="top" colspan=3>Is the illusory triangle physical or imaginary?</td></tr>
+<tr><td colspan=6><HR></td></tr>
+<tr><td align="left" valign="baseline" nowrap>39</td><td align="left" valign="baseline" width="5%"><input type="checkbox"  name="bibcode" value="1970JPhE....3..699G">&nbsp;<a href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=1970JPhE....3..699G&amp;db_key=PHY&amp;link_type=ABSTRACT&amp;high=5503ea9ccb13993">1970JPhE....3..699G</a></td><td><br></td><td align="left" valign="baseline">0.000</td><td align="left" valign="baseline">09/1970</td><td align="left" valign="baseline">&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=1970JPhE....3..699G&#38;db_key=PHY&#38;link_type=EJOURNAL" onMouseOver="pl(2,+20)" onMouseOut="hl(+20)">E</a>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=1970JPhE....3..699G&#38;db_key=PHY&#38;link_type=REFERENCES" onMouseOver="pl(12,+20)" onMouseOut="hl(+20)">R</a>&#160;&#160;<a  href="http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=1970JPhE....3..699G&#38;db_key=PHY&#38;link_type=CITATIONS" onMouseOver="pl(13,+20)" onMouseOut="hl(+20)">C</a>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</td></tr>
+<tr><td></td><td align="left" valign="top" width="25%">Ginsburg,&#160;A.; Lipman,&#160;A.; Navon,&#160;G.</td><td><br></td><td align="left" valign="top" colspan=3>An improved, low cost, spin-echo attachment to Varian HA-100 high resolution nmr spectrometer</td></tr>
+<tr><td colspan=6><HR></td></tr>
+</table>
+<input type="hidden" name="bibcodes" value="2015A&#38;A...573A.106G;2014ASSP...36..245G;2013ApJ...779...50G;2013ApJS..208...14G;2013prpl.conf1B009G;2013yCat..74182121G;2013AAS...22141307G;2013PhDT.......141G;2012ApJ...758L..29G;2011MNRAS.418.2121G;2011AGUFM.V23E2603G;2011ascl.soft09001G;2011ApJ...736..149G;2011BpJ...100..449G;2011AAS...21725803G;2010AGUFM.V13D2391G;2010fsgc.confE.112G;2010AAS...21541406G;2009ApJ...707..310G;2006AAS...20910003G;2004SPIE.5292...15G;1994SPIE.2127...36G;1987JOSAA...4....7G;1985JOSAA...2...89G;1984JOSAA...1.1301G;1983JOSA...73.1958G;1983JOSA...73.1956G;1982JOSA...72.1797G;1982JOSA...72.1786G;1981JOSA...71.1618G;1981JOSA...71.1555G;1981SPIE..283...78G;1980JOSA...70.1629G;1980Sci...208..619G;1979JOSA...69.1452G;1979JOSA...69.1443G;1978JOSA...68.1455G;1975Natur.257..219G;1970JPhE....3..699G">
+<a name="bottom"></a><h4><input type="button" value="    Select All Records    " onClick="this.value=check('Records',this.form.bibcode,this.form.doi)">&nbsp;&nbsp;&nbsp;or select individual records above for the retrieval options below</h4>
+<hr>
+
+<h4>Retrieve the above records in other formats or sort order</h4><table>
+<tr><td align="left">Return <select name="data_type">
+<option  value="HTML"> HTML abstracts
+<option  value="PLAINTEXT"> plain text abstracts
+<option  value="BIBTEX"> BibTeX reference list
+<option selected value="SHORT"> short list format
+<option  value="PORTABLE"> generic tagged abstracts
+<option  value="ENDNOTE"> EndNote format (UTF-8)
+<option  value="PROCITE"> ProCite format
+<option  value="REFMAN"> Refman format (UTF-8)
+<option  value="REFWORKS"> RefWorks format (UTF-8)
+<option  value="MEDLARS"> MEDLARS format
+<option  value="DUBLINCORE"> Dublin Core XML
+<option  value="XML"> XML abstracts
+<option  value="SHORT_XML"> XML references
+<option  value="VOTABLE"> VOTables
+<option  value="RSS"> RSS
+<option  value="BIBTEXPLUS"> BibTeX with abstracts
+<option  value="AASTeX"> AASTeX format
+<option  value="Icarus"> Icarus format
+<option  value="MNRAS"> MNRAS format
+<option  value="SoPh"> SoPh format
+<option  value="Link"> Link format
+<option  value="Custom"> Custom format
+</select></td>
+<td>
+</td>
+<td align="left"><select name="type">
+<option selected value="SCREEN_VIEW"> Display on screen
+<option  value="FILE"> Save to file
+<option  value="PRINTER"> Send to printer
+<option  value="EndNote"> Load into EndNote
+<option  value="ProCite"> Load into ProCite
+<option  value="RefMan"> Load into RefMan
+<option  value="RefWorks"> Load into RefWorks
+<option  value="Medlars"> Load into Medlars
+<option  value="XML"> Load into XML
+<option  value="VOTABLE"> Load into VOTABLE
+<option  value="RSS"> Load into RSS
+</select></td>
+<td>
+</td>
+<td align="left">Sort by <select name="sort">
+<option  value="CITATIONS"> citation count
+<option  value="NORMCITATIONS"> normalized citation count
+<option  value="AUTHOR"> first author name
+<option  value="AUTHOR_CNT"> author count
+<option selected value="NDATE"> date (most recent first)
+<option  value="ODATE"> date (oldest first)
+<option  value="ENTRY"> entry date
+<option  value="NORMSCORE"> inverse author count<option  value="RBIBCODE"> page (ToC sort)</select></td>
+</tr>
+<tr><td colspan="6">Custom <a href="http://doc.adsabs.harvard.edu/abs_doc/help_pages/customformat.html">format</a>: <input name="format" value="" size="45"></td></tr>
+<tr><td align="left" colspan="6"><input type="checkbox" name="email_ret" value="YES">  Email results to: <input name="email_addr" size="42"></td></tr>
+</table>
+<input type="hidden" name="method" value="POST">
+<input type="hidden" name="return_req" value="no_params"><p><input type="submit" name="select" value=" Retrieve selected records ">&#160;&#160;&#160;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;To retrieve all records above, use the "Select All Records" button above.<HR>
+<br>
+<input value=" Add selected articles to private library " onclick="submit_sel_bibs_to_service('priv_lib');" type="button" id="priv_lib_orig_button">&#160;&#160;&#160;<input value=" Remove selected articles from private library " onclick="submit_sel_bibs_to_service('priv_lib_remove');" type="button" id="priv_lib_remove_orig_button">
+<br>
+<HR>
+<h4>Find papers related to the above articles&nbsp;&nbsp;&nbsp;(Sort by <select name="sort2">
+<option value="AUTHOR"> first author name
+<option value="NDATE"> date (most recent first)
+<option value="ODATE"> date (oldest first)
+<option value="ENTRY"> entry date
+<option selected value="SCORE"> score
+</select>)</h4>
+To get lists for all records above, use the "Select All Records" button above.<br><br><table>
+<tr><td valign="top" rowspan="2"><br><input type="submit" name="selfeedback" value=" Find papers similar to selected articles"></td>
+<td valign="bottom">Use: <input type="checkbox" name="use_auth" value="YES"> Authors
+<input type="checkbox" checked name="use_title" value="YES">&#160;Titles
+<input type="checkbox" name="use_kwds" value="YES">Key&#160;words
+<input type="checkbox" checked name="use_text" value="YES">&#160;Abstract
+<input type="hidden" checked name="defaultset" value="YES"></td></tr>
+<tr><td valign="top">   Return: <input type="radio" checked name="return_req" value="feedback">&#160;Results <input type="radio" name="return_req" value="form">&#160;Form for manual query
+</td></tr><tr><td><br></td>
+</tr>
+<tr valign="top"><td><br><input type="submit" name="selreferences" value=" Get reference lists for selected articles "></td><td valign="middle" rowspan="2" align="left">Number of records to return: <input name="nr_to_return" size="4" value="200">&nbsp;&nbsp;starting with record number: <input name="start_nr" size="4" value="1"><br>Publication Date between <input name="start_mon" size="3">&#160;&#160;<input name="start_year" size="5">&#160;&#160;and&#160;&#160;<input name="end_mon" size="3">&#160;&#160;<input name="end_year" size="5">
+</td></tr>
+<tr valign="top"><td><br><input type="submit" name="selar" value=" Get also-read lists for selected articles"></td></tr>
+<tr valign="top"><td><br><input type="submit" name="selcitations" value=" Get citation lists for selected articles"></td><td valign="middle" rowspan="2" align="left">
+<input type="checkbox" name="ex_self" value="list"> Exclude self-citations from list<br>
+<input type="checkbox" name="ex_self" value="5503ea9ccb13993"> Exclude self-citations from author in query<br>
+&#160;&#160;&#160;&#160;&#160;&#160;<a href="http://doc.adsabs.harvard.edu/abs_doc/help_pages/results.html#selfcitations">Self-citations help</a></td></tr>
+<tr valign="top"><td><br><input type="submit" name="selrefcits" value=" Get refereed citation lists for selected articles"></td></tr>
+<tr><td colspan="3"><hr></td></tr>
+<tr valign="top"><td><br><input type="submit" name="allqf" value=" Get form to query selected articles only"></td><td>
+<input type="checkbox" name="high" value="5503ea9ccb13993"> Include terms from previous search in the form<br>This button brings up a query form that returns only articles selected from the above list.  This allows you to further refine the previous query.</td></tr>
+</table>
+<HR>
+</form>
+
+<script type="text/javascript" src="http://code.jquery.com/jquery-1.5.1.min.js">&nbsp;</script>
+<script type="text/javascript">
+function submit_sel_bibs_to_service(service_name)
+{
+   // variable that will contain the bibcodes string
+   var bibcodes = '';
+   //get all the input checked
+   var $inputs = $("input[name=bibcode]");
+   $inputs.each(function() {
+      if ($(this).attr('checked'))
+         bibcodes = bibcodes + (($(this).val()).replace('&amp;', '&')) + ', ';
+   });
+   if ((bibcodes != '') && (service_name == 'authoraffiliations'))
+   {
+      $('#authoraffiliations_bibcodes').val(bibcodes);
+      $('#authoraffiliations_form').submit();
+   }
+   else if ((bibcodes != '') && (service_name == 'adslabs_streamlined'))
+   {
+      $('#adslabs_streamlined_bibcodes').val(bibcodes);
+      $('#adslabs_streamlined_form').submit();
+   }
+   else if ((bibcodes != '') && (service_name == 'ads_metrics'))
+   {
+      $('#ads_metrics_bibcodes').val(bibcodes);
+      $('#ads_metrics_form').submit();
+   }
+   else if ((bibcodes != '') && (service_name == 'citehelper'))
+   {
+      $('#citehelper_bibcodes').val(bibcodes);
+      $('#citehelper_form').submit();
+   }
+   else if ((bibcodes != '') && (service_name == 'priv_lib'))
+   {
+      val_to_pass = $('#priv_lib_orig_button').val();
+      $('#priv_lib_bibcodes').val(bibcodes);
+      $('#priv_lib_library').val(val_to_pass);
+      $('#priv_lib_form').submit();
+   }
+   else if ((bibcodes != '') && (service_name == 'priv_lib_remove'))
+   {
+      val_to_pass = $('#priv_lib_remove_orig_button').val();
+      $('#priv_lib_remove_bibcodes').val(bibcodes);
+      $('#priv_lib_remove_library').val(val_to_pass);
+      $('#priv_lib_remove_form').submit();
+   }
+}
+</script>
+<form method="post" action="http://labs.adsabs.harvard.edu/adsabs/search/bigquery/" id="adslabs_streamlined_form">
+   <input type="hidden" name="bigquerydata" id="adslabs_streamlined_bibcodes" value="">
+   <input type="button" value=" Export selected articles to ADSLabs " onclick="submit_sel_bibs_to_service('adslabs_streamlined');">
+</form>
+<br>
+<form method="post" action="http://adsabs.harvard.edu/tools/metrics/" id="ads_metrics_form">
+   <input type="hidden" name="bibcode" id="ads_metrics_bibcodes" value="">
+   <input type="button" value=" Get Metrics Summary for selected articles " onclick="submit_sel_bibs_to_service('ads_metrics');">
+</form>
+<br>
+ <form method="post" action="http://adsabs.harvard.edu/tools/authoraffiliations/" id="authoraffiliations_form">
+   <input type="hidden" name="bibcodes" id="authoraffiliations_bibcodes" value="">
+   <input type="button" value=" Get Author-Affiliation form for selected articles " onclick="submit_sel_bibs_to_service('authoraffiliations');">
+</form>
+<br>
+ <form method="post" action="http://adsabs.harvard.edu/tools/citehelper/" id="citehelper_form">
+   <input type="hidden" name="bibcode" id="citehelper_bibcodes" value="">
+   <input type="button" value=" Run citation helper on selected articles " onclick="submit_sel_bibs_to_service('citehelper');">
+</form>
+<form method="post" action="http://adsabs.harvard.edu/cgi-bin/nph-abs_connect" id="priv_lib_form">
+   <input name="bibcode" id="priv_lib_bibcodes" value="" type="hidden">
+   <input name="library" id="priv_lib_library" value="" type="hidden">
+</form>
+<hr>
+<form method="post" action="http://adsabs.harvard.edu/cgi-bin/nph-abs_connect" id="priv_lib_remove_form">
+   <input name="bibcode" id="priv_lib_remove_bibcodes" value="" type="hidden">
+   <input name="library" id="priv_lib_remove_library" value="" type="hidden">
+</form>
+<hr>
+<h3>Query Parameters:</h3>
+<pre>
+Databases queried:       <b>Astronomy Physics arXiv e-prints General Science </b>
+Authors:                 <b>^GINSBURG, A</b>
+arXiv categories:        <b>All categories</b>
+Author Query Settings:   <b>Use for weighting:       OFF
+                         Synonym replacement:     OFF
+</b>
+Object Query Settings:   <b>Use for weighting:       OFF
+                         Do not query:            NED
+                         Do not query:            SIMBAD
+</b>
+Title Query Settings:    <b>Use for weighting:       OFF
+                         Weighted scoring:        OFF
+                         Synonym replacement:     OFF
+</b>
+Abstract Query Settings: <b>Use for weighting:       OFF
+                         Weighted scoring:        OFF
+                         Synonym replacement:     OFF
+</b>
+</pre>
+<SCRIPT language="JavaScript" type="text/javascript">
+<!-- protect from old browsers
+var adr = [ "http://adsabs" , "harvard" , "edu" ] ;
+document.write("" + String.fromCharCode(60) + "a href=\"" + adr.join(".") + "/cgi-bin/nph-abs_connect?type=RSS&#38;data_type=RSS&#38;cookie=5503ea9ccb13993\"" + String.fromCharCode(62) + "" + String.fromCharCode(60) + "img src=\"http://adsabs.harvard.edu/figs/xml.gif\" alt=\"xml\"" + String.fromCharCode(62) + "Get RSS feed for this query" + String.fromCharCode(60) + "/a" + String.fromCharCode(62) + "&#160;&#160;");
+//-->
+</SCRIPT>
+<NOSCRIPT>
+<a href="http://adsabs.harvard.edu/cgi-bin/nph-abs_connect?type=RSS&#38;data_type=RSS&#38;cookie=5503ea9ccb13993"><img src="http://adsabs.harvard.edu/figs/xml.gif" alt="xml">Get RSS feed for this query</a>&#160;&#160;
+</NOSCRIPT>
+<SCRIPT language="JavaScript" type="text/javascript">
+<!-- protect from old browsers
+var adr = [ "http://adsabs" , "harvard" , "edu" ] ;
+document.write("" + String.fromCharCode(60) + "a href=\"http://add.my.yahoo.com/content?url=" + adr.join(".") + "/cgi-bin/nph-abs_connect?type=RSS%2526data_type=RSS%2526cookie=5503ea9ccb13993\"" + String.fromCharCode(62) + "" + String.fromCharCode(60) + "img src=\"http://adsabs.harvard.edu/figs/addtomyyahoo.gif\" alt=\"xml\"" + String.fromCharCode(62) + "" + String.fromCharCode(60) + "/a" + String.fromCharCode(62) + " ");
+//-->
+</SCRIPT>
+<NOSCRIPT>
+<a href="http://add.my.yahoo.com/content?url=http://adsabs.harvard.edu/cgi-bin/nph-abs_connect?type=RSS%2526data_type=RSS%2526cookie=5503ea9ccb13993"><img src="http://adsabs.harvard.edu/figs/addtomyyahoo.gif" alt="xml"></a>
+
+</NOSCRIPT>
+<hr>
+<p>
+<center>
+<a href="http://www.adsabs.harvard.edu/">SAO/NASA ADS Homepage</a> | <a href="http://doc.adsabs.harvard.edu/abs_doc/site_map/">ADS Sitemap</a> | <a href="http://adsabs.harvard.edu/abstract_service.html">Query Form</a> | <a href="http://adsabs.harvard.edu/basic_search.html">Basic Search</a> | <a href="http://adsabs.harvard.edu/cgi-bin/pref_set">Preferences</a> | <a href="http://doc.adsabs.harvard.edu/abs_doc/help_pages/help.results_main.html">HELP</a> | <a href="http://doc.adsabs.harvard.edu/abs_doc/faq.html">FAQ</a>
+</center>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-37369750-3', 'harvard.edu');
+  ga('send', 'pageview');
+
+</script>
+</body>
+</HTML>
