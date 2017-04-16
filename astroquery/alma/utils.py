@@ -125,12 +125,21 @@ def footprint_to_reg(footprint):
 
     reglist = []
     for start,stop in zip(polygons, polygons[1:]+[None]):
-        reg = Shape('Polygon', [float(x) for x in entries[start+2:stop]])
-        reg.coord_format = footprint.split()[1]
+        reg = Shape('polygon', [float(x) for x in entries[start+2:stop]])
+        reg.coord_format = footprint.split()[1].lower()
         reg.coord_list = reg.params # the coord_list attribute is needed somewhere
+        reg.attr = ([], {'color': 'green', 'dash': '0 ', 'dashlist': '8 3',
+                         'delete': '1 ', 'edit': '1 ', 'fixed': '0 ', 'font':
+                         '"helvetica 10 normal roman"', 'highlite': '1 ',
+                         'include': '1 ', 'move': '1 ', 'select': '1',
+                         'source': '1', 'text': '', 'width': '1 '})
         reglist.append(reg)
 
     return reglist
+
+def add_meta_to_reg(reg, meta):
+    reg.meta = meta
+    return reg
 
 def approximate_primary_beam_sizes(frequency_support_str,
                                    dish_diameter=12 * u.m, first_null=1.220):
@@ -367,7 +376,8 @@ def make_finder_chart_from_image_and_catalog(image, catalog, save_prefix,
             log.info("PRIVATE: Number of rows: {0}.".format(privrows))
 
         prv_regions = {
-            band: pyregion.ShapeList([fp
+            band: pyregion.ShapeList([add_meta_to_reg(fp,
+                                                      {'integration':row['Integration']})
                                       for row in catalog
                                       for fp in footprint_to_reg(row['Footprint'])
                                       if (not row['Release date']) or
@@ -375,7 +385,8 @@ def make_finder_chart_from_image_and_catalog(image, catalog, save_prefix,
                                        today and row['Band'] == band)])
             for band in bands}
         pub_regions = {
-            band: pyregion.ShapeList([fp
+            band: pyregion.ShapeList([add_meta_to_reg(fp,
+                                                      {'integration':row['Integration']})
                                       for row in catalog
                                       for fp in footprint_to_reg(row['Footprint'])
                                       if row['Release date'] and
@@ -384,36 +395,6 @@ def make_finder_chart_from_image_and_catalog(image, catalog, save_prefix,
             for band in bands}
 
 
-        #At least temporarily obsolete
-        # prv_regions = {
-        #     band: pyregion.ShapeList([Shape('circle', [x, y, r]) for x, y, r
-        #                               in private_circle_parameters[band]])
-        #     for band in bands}
-        # pub_regions = {
-        #     band: pyregion.ShapeList([Shape('circle', [x, y, r]) for x, y, r
-        #                               in public_circle_parameters[band]])
-        #     for band in bands}
-
-        # for band in bands:
-        #     circle_pars = np.vstack(
-        #         [x for x in (private_circle_parameters[band],
-        #                      public_circle_parameters[band]) if any(x)])
-        #     for r, (x, y, c) in zip(prv_regions[band] + pub_regions[band],
-        #                             circle_pars):
-        #         r.coord_format = 'fk5'
-        #         r.coord_list = [x, y, c]
-        #         r.attr = ([], {'color': 'green', 'dash': '0 ', 'dashlist': '8 3',
-        #                        'delete': '1 ', 'edit': '1 ', 'fixed': '0 ',
-        #                        'font': '"helvetica 10 normal roman"', 'highlite':
-        #                        '1 ', 'include': '1 ', 'move': '1 ', 'select': '1',
-        #                        'source': '1', 'text': '', 'width': '1 '})
-
-        #     if prv_regions[band]:
-        #         prv_regions[band].write(
-        #             '{0}_band{1}_private.reg'.format(save_prefix, band))
-        #     if pub_regions[band]:
-        #         pub_regions[band].write(
-        #             '{0}_band{1}_public.reg'.format(save_prefix, band))
 
         prv_mask = {
             band: fits.PrimaryHDU(
@@ -432,45 +413,25 @@ def make_finder_chart_from_image_and_catalog(image, catalog, save_prefix,
 
         for band in bands:
             log.debug('Band: {0}'.format(band))
-            for row, rad in ProgressBar(list(zip(catalog, primary_beam_radii))):
-                shape = Shape('circle', (row['RA'], row['Dec'],
-                                         np.mean(rad).to(u.deg).value))
-                shape.coord_format = 'fk5'
-                shape.coord_list = (row['RA'], row['Dec'],
-                                    np.mean(rad).to(u.deg).value)
-                shape.attr = ([], {'color': 'green', 'dash': '0 ',
-                                   'dashlist': '8 3 ',
-                                   'delete': '1 ', 'edit': '1 ', 'fixed': '0 ',
-                                   'font': '"helvetica 10 normal roman"',
-                                   'highlite': '1 ', 'include': '1 ', 'move': '1 ',
-                                   'select': '1 ', 'source': '1', 'text': '',
-                                   'width': '1 '})
-                log.debug('{1} {2}: {0}'
-                          .format(shape, row['Release date'], row['Band']))
 
-                if not row['Release date']:
-                    reldate = False
-                else:
-                    reldate = np.datetime64(row['Release date'])
 
-                if (((not reldate) or (reldate > today)) and
-                    (row['Band'] == band) and
-                    (band in prv_mask)
-                    ):
-                    # private: release_date = 'sometime' says when it will be released
-                    (xlo, xhi, ylo, yhi), mask = pyregion_subset(
-                        shape, hit_mask_private[band], mywcs)
-                    log.debug("{0},{1},{2},{3}: {4}"
-                              .format(xlo, xhi, ylo, yhi, mask.sum()))
-                    hit_mask_private[band][ylo:yhi, xlo:xhi] += row['Integration']*mask
-                elif (reldate and (reldate <= today) and (row['Band'] == band) and
-                      (band in pub_mask)):
-                    # public: release_date = '' should mean already released
-                    (xlo, xhi, ylo, yhi), mask = pyregion_subset(
-                        shape, hit_mask_public[band], mywcs)
-                    log.debug("{0},{1},{2},{3}: {4}"
-                              .format(xlo, xhi, ylo, yhi, mask.sum()))
-                    hit_mask_public[band][ylo:yhi, xlo:xhi] += row['Integration']*mask
+            shapes = prv_regions[band]
+            for shape in shapes:
+                # private: release_date = 'sometime' says when it will be released
+                (xlo, xhi, ylo, yhi), mask = pyregion_subset(
+                    shape, hit_mask_private[band], mywcs)
+                log.debug("{0},{1},{2},{3}: {4}"
+                          .format(xlo, xhi, ylo, yhi, mask.sum()))
+                hit_mask_private[band][ylo:yhi, xlo:xhi] += shape.meta['integration']*mask
+
+            shapes = pub_regions[band]
+            for shape in shapes:
+                # public: release_date = '' should mean already released
+                (xlo, xhi, ylo, yhi), mask = pyregion_subset(
+                    shape, hit_mask_public[band], mywcs)
+                log.debug("{0},{1},{2},{3}: {4}"
+                          .format(xlo, xhi, ylo, yhi, mask.sum()))
+                hit_mask_public[band][ylo:yhi, xlo:xhi] += shape.meta['integration']*mask
 
         if save_masks:
             for band in bands:
