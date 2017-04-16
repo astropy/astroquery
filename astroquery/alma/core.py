@@ -15,7 +15,7 @@ from pkg_resources import resource_filename
 from bs4 import BeautifulSoup
 
 from astropy.extern.six.moves.urllib_parse import urljoin, urlparse
-from astropy.extern.six import iteritems
+from astropy.extern.six import iteritems, StringIO
 from astropy.extern import six
 from astropy.table import Table, Column
 from astropy import log
@@ -106,7 +106,7 @@ class AlmaClass(QueryWithLogin):
                                 science=science, **kwargs)
 
     def query_async(self, payload, cache=True, public=True, science=True,
-                    view_format='raw', get_query_payload=False, **kwargs):
+                    get_html_version=False, get_query_payload=False, **kwargs):
         """
         Perform a generic query with user-specified payload
 
@@ -122,13 +122,18 @@ class AlmaClass(QueryWithLogin):
             Return only publicly available datasets?
         science : bool
             Return only data marked as "science" in the archive?
+
         """
 
         url = urljoin(self._get_dataarchive_url(), 'aq/')
 
         payload.update(kwargs)
-        payload.update({'result_view': view_format, 'format': 'VOTABLE',
-                        'download': 'true'})
+        if get_html_version:
+            payload.update({'result_view': 'observation', 'format': 'VOTABLE',
+                            'download': 'true'})
+        else:
+            payload.update({'result_view': 'raw', 'format': 'VOTABLE',
+                            'download': 'true'})
         if public:
             payload['public_data'] = 'public'
         if science:
@@ -144,7 +149,13 @@ class AlmaClass(QueryWithLogin):
         self._last_response = response
         response.raise_for_status()
 
-        return response
+        if get_html_version:
+            response2 = self._request.get(self._get_dataarchive_url()+response.text,
+                                          params={'query_url': response.url.split("?")[-1]})
+            return response2
+
+        else:
+            return response
 
     def validate_query(self, payload, cache=True):
         """
@@ -409,12 +420,19 @@ class AlmaClass(QueryWithLogin):
         """
         if not verbose:
             commons.suppress_vo_warnings()
+        
+        if 'run?' in response.url:
+            # this is a CSV-like table returned via a direct browser request
+            import pandas
+            table = Table.from_pandas(pandas.read_csv(StringIO(response.text)))
 
-        fixed_content = self._hack_bad_arraysize_vofix(response.content)
-        tf = six.BytesIO(fixed_content)
-        vo_tree = votable.parse(tf, pedantic=False, invalid='mask')
-        first_table = vo_tree.get_first_table()
-        table = first_table.to_table(use_names_over_ids=True)
+        else:
+            fixed_content = self._hack_bad_arraysize_vofix(response.content)
+            tf = six.BytesIO(fixed_content)
+            vo_tree = votable.parse(tf, pedantic=False, invalid='mask')
+            first_table = vo_tree.get_first_table()
+            table = first_table.to_table(use_names_over_ids=True)
+
         return table
 
     def _hack_bad_arraysize_vofix(self, text):
@@ -423,7 +441,8 @@ class AlmaClass(QueryWithLogin):
 
         The problem is that this entry:
         '      <FIELD name="Band" datatype="char" ID="32817" xtype="adql:VARCHAR" arraysize="0*">\r',
-        has an invalid ``arraysize`` entry.
+        has an invalid ``arraysize`` entry.  Also, it returns a char, but it
+        should be an int.
 
         Since that problem was discovered and fixed, many other entries have
         the same error.
@@ -437,6 +456,7 @@ class AlmaClass(QueryWithLogin):
         for ln in lines:
             if b'FIELD name="Band"' in ln:
                 ln = ln.replace(b'arraysize="0*"', b'arraysize="1*"')
+                ln = ln.replace(b'datatype="char"', b'datatype="int"')
             elif b'arraysize="0*"' in ln:
                 ln = ln.replace(b'arraysize="0*"', b'arraysize="*"')
             newlines.append(ln)
@@ -813,6 +833,9 @@ class AlmaClass(QueryWithLogin):
             self._valid_params = [row[1]
                                   for title, section in help_list
                                   for row in section]
+            if len(self._valid_params) == 0:
+                raise ValueError("The query validation failed for unknown "
+                                 "reasons.  Try again?")
             # These parameters are entirely hidden, but Felix says they are
             # allowed
             self._valid_params.append('download')
