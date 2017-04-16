@@ -125,8 +125,9 @@ def footprint_to_reg(footprint):
 
     reglist = []
     for start,stop in zip(polygons, polygons[1:]+[None]):
-        reg = Shape('Polgyon', [float(x) for x in entries[start+2:stop]])
+        reg = Shape('Polygon', [float(x) for x in entries[start+2:stop]])
         reg.coord_format = footprint.split()[1]
+        reg.coord_list = reg.params # the coord_list attribute is needed somewhere
         reglist.append(reg)
 
     return reglist

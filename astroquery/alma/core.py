@@ -106,6 +106,7 @@ class AlmaClass(QueryWithLogin):
                                 science=science, **kwargs)
 
     def query_async(self, payload, cache=True, public=True, science=True,
+                    max_retries=5,
                     get_html_version=False, get_query_payload=False, **kwargs):
         """
         Perform a generic query with user-specified payload
@@ -129,7 +130,7 @@ class AlmaClass(QueryWithLogin):
 
         payload.update(kwargs)
         if get_html_version:
-            payload.update({'result_view': 'observation', 'format': 'VOTABLE',
+            payload.update({'result_view': 'observation', 'format': 'URL',
                             'download': 'true'})
         else:
             payload.update({'result_view': 'raw', 'format': 'VOTABLE',
@@ -150,8 +151,39 @@ class AlmaClass(QueryWithLogin):
         response.raise_for_status()
 
         if get_html_version:
-            response2 = self._request.get(self._get_dataarchive_url()+response.text,
-                                          params={'query_url': response.url.split("?")[-1]})
+            if 'run' not in response.text:
+                if max_retries > 0:
+                    log.info("Failed query.  Retrying up to {0} more times"
+                             .format(max_retries))
+                    return self.query_async(payload=payload, cache=cache,
+                                            public=public, science=science,
+                                            max_retries=max_retries-1,
+                                            get_html_version=get_html_version,
+                                            get_query_payload=get_query_payload,
+                                            **kwargs)
+                raise RemoteServiceError("Incorrect return from HTML table query.")
+            response2 = self._request('GET',
+                                      "{0}/{1}/{2}".format(
+                                          self._get_dataarchive_url(), 'aq',
+                                          response.text),
+                                      params={'query_url':
+                                              response.url.split("?")[-1]},
+                                      timeout=self.TIMEOUT,
+                                      cache=cache,
+                                     )
+            self._last_response = response2
+            response2.raise_for_status()
+            if len(response2.text) == 0:
+                if max_retries > 0:
+                    log.info("Failed (empty) query.  Retrying up to {0} more times"
+                             .format(max_retries))
+                    return self.query_async(payload=payload, cache=cache,
+                                            public=public, science=science,
+                                            max_retries=max_retries-1,
+                                            get_html_version=get_html_version,
+                                            get_query_payload=get_query_payload,
+                                            **kwargs)
+                raise RemoteServiceError("Empty return.")
             return response2
 
         else:
@@ -422,6 +454,8 @@ class AlmaClass(QueryWithLogin):
             commons.suppress_vo_warnings()
         
         if 'run?' in response.url:
+            if response.text == "":
+                raise RemoteServiceError("Empty return.")
             # this is a CSV-like table returned via a direct browser request
             import pandas
             table = Table.from_pandas(pandas.read_csv(StringIO(response.text)))
