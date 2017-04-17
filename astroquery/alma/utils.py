@@ -370,6 +370,7 @@ def make_finder_chart_from_image_and_catalog(image, catalog, save_prefix,
             log.info("PUBLIC:  Number of rows: {0}".format(pubrows,))
             log.info("PRIVATE: Number of rows: {0}.".format(privrows))
 
+        log.debug('Creating regions')
         prv_regions = {
             band: pyregion.ShapeList([add_meta_to_reg(fp,
                                                       {'integration':row['Integration']})
@@ -391,6 +392,7 @@ def make_finder_chart_from_image_and_catalog(image, catalog, save_prefix,
 
 
 
+        log.debug('Creating masks')
         prv_mask = {
             band: fits.PrimaryHDU(
                 prv_regions[band].get_mask(image).astype('int'),
@@ -407,7 +409,7 @@ def make_finder_chart_from_image_and_catalog(image, catalog, save_prefix,
         mywcs = wcs.WCS(image.header)
 
         for band in bands:
-            log.debug('Band: {0}'.format(band))
+            log.debug('Adding integration-scaled masks for Band: {0}'.format(band))
 
 
             shapes = prv_regions[band]
@@ -420,7 +422,7 @@ def make_finder_chart_from_image_and_catalog(image, catalog, save_prefix,
                 hit_mask_private[band][ylo:yhi, xlo:xhi] += shape.meta['integration']*mask
 
             if save_masks:
-                shapes.writeto('{0}_band{1}_private.fits'.format(save_prefix, band))
+                shapes.write('{0}_band{1}_private.reg'.format(save_prefix, band))
 
             shapes = pub_regions[band]
             for shape in shapes:
@@ -432,7 +434,7 @@ def make_finder_chart_from_image_and_catalog(image, catalog, save_prefix,
                 hit_mask_public[band][ylo:yhi, xlo:xhi] += shape.meta['integration']*mask
 
             if save_masks:
-                shapes.writeto('{0}_band{1}_public.fits'.format(save_prefix, band))
+                shapes.write('{0}_band{1}_public.reg'.format(save_prefix, band))
 
         if save_masks:
             for band in bands:

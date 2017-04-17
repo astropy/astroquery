@@ -119,6 +119,8 @@ class AlmaClass(QueryWithLogin):
             http://almascience.org/aq or using the `help` method
         cache : bool
             Cache the query?
+            (note: HTML queries *cannot* be cached using the standard caching
+            mechanism because the URLs are different each time
         public : bool
             Return only publicly available datasets?
         science : bool
@@ -146,7 +148,8 @@ class AlmaClass(QueryWithLogin):
             return payload
 
         response = self._request('GET', url, params=payload,
-                                 timeout=self.TIMEOUT, cache=cache)
+                                 timeout=self.TIMEOUT,
+                                 cache=cache and not get_html_version)
         self._last_response = response
         response.raise_for_status()
 
@@ -155,7 +158,7 @@ class AlmaClass(QueryWithLogin):
                 if max_retries > 0:
                     log.info("Failed query.  Retrying up to {0} more times"
                              .format(max_retries))
-                    return self.query_async(payload=payload, cache=cache,
+                    return self.query_async(payload=payload, cache=False,
                                             public=public, science=science,
                                             max_retries=max_retries-1,
                                             get_html_version=get_html_version,
@@ -169,7 +172,7 @@ class AlmaClass(QueryWithLogin):
                                       params={'query_url':
                                               response.url.split("?")[-1]},
                                       timeout=self.TIMEOUT,
-                                      cache=cache,
+                                      cache=False,
                                      )
             self._last_response = response2
             response2.raise_for_status()
