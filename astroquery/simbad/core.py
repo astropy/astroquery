@@ -473,8 +473,7 @@ class SimbadClass(BaseQuery):
         response : `requests.Response`
             Response of the query from the server
         """
-        if 'cache' in kwargs:
-            cache = kwargs.pop('cache')
+        cache = kwargs.pop('cache') if 'cache' in kwargs else True
 
         request_payload = self._args_to_payload(caller='query_criteria_async',
                                                 *args, **kwargs)
