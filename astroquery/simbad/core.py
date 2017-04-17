@@ -453,7 +453,7 @@ class SimbadClass(BaseQuery):
         result = self.query_criteria_async(*args, **kwargs)
         return self._parse_result(result, SimbadVOTableResult, verbose=verbose)
 
-    def query_criteria_async(self, cache=True, *args, **kwargs):
+    def query_criteria_async(self, *args, cache=True, **kwargs):
         """
         Query SIMBAD based on any criteria.
 
