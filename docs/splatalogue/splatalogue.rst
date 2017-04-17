@@ -152,6 +152,40 @@ Then get rid of the vibrationally excited line by setting an energy upper limit 
     ------- --------------- -------- ... ----------------- --------
       COv=0 Carbon Monoxide  230.538 ...          16.59608    SLAIM
 
+A note on recombination lines
++++++++++++++++++++++++++++++
+
+Radio recombination lines are included in the splatalogue catalog under the
+names "Hydrogen Recombination Line", "Helium Recombination Line", and "Carbon
+Recombination Line".  If you want to search specifically for the alpha, beta,
+delta, gamma, epsilon, or zeta lines, you need to use the unicode character for
+these symbols (Hα, Hβ, Hγ, Hδ, Hε, Hζ), even though they will show up as
+``&alpha;`` in the ASCII table.  For example:
+
+.. code-block:: python
+
+   >>> Splatalogue.query_lines(84*u.GHz, 115*u.GHz, chemical_name='Hα')
+   <Table masked=True length=4>
+   Species         Chemical Name         Freq-GHz Freq Err Meas Freq-GHz Meas Freq Err ... Lovas/AST Intensity E_L (cm^-1) E_L (K) E_U (cm^-1) E_U (K) Linelist
+     str8              str27             float64   int64       int64         int64     ...        int64          float64   float64   float64   float64   str6
+   -------- --------------------------- --------- -------- ------------- ------------- ... ------------------- ----------- ------- ----------- ------- --------
+   H&alpha; Hydrogen Recombination Line  85.68839        0            --            -- ...                  --         0.0     0.0         0.0     0.0   Recomb
+   H&alpha; Hydrogen Recombination Line  92.03443        0            --            -- ...                  --         0.0     0.0         0.0     0.0   Recomb
+   H&alpha; Hydrogen Recombination Line  99.02295        0            --            -- ...                  --         0.0     0.0         0.0     0.0   Recomb
+   H&alpha; Hydrogen Recombination Line 106.73736        0            --            -- ...                  --         0.0     0.0         0.0     0.0   Recomb
+
+You could also search by specifying the line list
+
+.. code-block:: python
+
+    >>> Splatalogue.query_lines(84*u.GHz, 85*u.GHz, line_lists=['Recomb'])
+    <Table masked=True length=3>
+     Species         Chemical Name        Freq-GHz Freq Err Meas Freq-GHz Meas Freq Err ... Lovas/AST Intensity E_L (cm^-1) E_L (K) E_U (cm^-1) E_U (K) Linelist
+       str9              str27            float64   int64       int64         int64     ...        int64          float64   float64   float64   float64   str6
+    --------- --------------------------- -------- -------- ------------- ------------- ... ------------------- ----------- ------- ----------- ------- --------
+     H&gamma; Hydrogen Recombination Line 84.91439        0            --            -- ...                  --         0.0     0.0         0.0     0.0   Recomb
+    He&gamma;   Helium Recombination Line   84.949        0            --            -- ...                  --         0.0     0.0         0.0     0.0   Recomb
+     C&gamma;   Carbon Recombination Line 84.95676        0            --            -- ...                  --         0.0     0.0         0.0     0.0   Recomb
 
 Cleaning Up the Returned Data
 -----------------------------
