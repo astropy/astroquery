@@ -424,6 +424,9 @@ def make_finder_chart_from_image_and_catalog(image, catalog, save_prefix,
                           .format(xlo, xhi, ylo, yhi, mask.sum()))
                 hit_mask_private[band][ylo:yhi, xlo:xhi] += shape.meta['integration']*mask
 
+            if save_masks:
+                shapes.writeto('{0}_band{1}_private.fits'.format(save_prefix, band))
+
             shapes = pub_regions[band]
             for shape in shapes:
                 # public: release_date = '' should mean already released
@@ -432,6 +435,9 @@ def make_finder_chart_from_image_and_catalog(image, catalog, save_prefix,
                 log.debug("{0},{1},{2},{3}: {4}"
                           .format(xlo, xhi, ylo, yhi, mask.sum()))
                 hit_mask_public[band][ylo:yhi, xlo:xhi] += shape.meta['integration']*mask
+
+            if save_masks:
+                shapes.writeto('{0}_band{1}_public.fits'.format(save_prefix, band))
 
         if save_masks:
             for band in bands:
