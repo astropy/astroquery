@@ -311,11 +311,6 @@ def make_finder_chart_from_image_and_catalog(image, catalog, save_prefix,
     import aplpy
 
     import pyregion
-    from pyregion.parser_helper import Shape
-
-    primary_beam_radii = [
-        approximate_primary_beam_sizes(row['Frequency support'])
-        for row in catalog]
 
     all_bands = bands
     bands = used_bands = [int(band)
