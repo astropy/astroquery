@@ -453,7 +453,7 @@ class SimbadClass(BaseQuery):
         result = self.query_criteria_async(*args, **kwargs)
         return self._parse_result(result, SimbadVOTableResult, verbose=verbose)
 
-    def query_criteria_async(self, *args, cache=True, **kwargs):
+    def query_criteria_async(self, *args, **kwargs):
         """
         Query SIMBAD based on any criteria.
 
@@ -465,12 +465,17 @@ class SimbadClass(BaseQuery):
         kwargs:
             Keyword / value pairs passed to SIMBAD's script engine
             (e.g., {'otype':'SNR'} will be rendered as otype=SNR)
+        cache : bool
+            Cache the query?
 
         Returns
         -------
         response : `requests.Response`
             Response of the query from the server
         """
+        if 'cache' in kwargs:
+            cache = kwargs.pop('cache')
+
         request_payload = self._args_to_payload(caller='query_criteria_async',
                                                 *args, **kwargs)
         response = self._request("POST", self.SIMBAD_URL, data=request_payload,

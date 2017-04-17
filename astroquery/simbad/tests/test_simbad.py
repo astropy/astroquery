@@ -68,6 +68,8 @@ def patch_post(request):
 
 def post_mockreturn(self, method, url, data, timeout, **kwargs):
     response = MockResponseSimbad(data['script'], **kwargs)
+    response._last_query = object
+    response._last_query.data = data
     return response
 
 
