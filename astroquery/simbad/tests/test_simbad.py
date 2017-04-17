@@ -360,7 +360,7 @@ def test_query_criteria1(patch_post):
     result = Simbad.query_criteria(
         "region(box, GAL, 49.89 -0.3, 0.5d 0.5d)", otype='HII')
     assert isinstance(result, Table)
-    assert "region(box, GAL, 49.89 -0.3, 0.5d 0.5d)" in Simbad._last_query.data
+    assert "region(box, GAL, 49.89 -0.3, 0.5d 0.5d)" in Simbad._last_query.data['script']
 
 
 def test_query_criteria2(patch_post):
@@ -370,7 +370,7 @@ def test_query_criteria2(patch_post):
     assert S.get_votable_fields() == ['main_id', 'ra(d)', 'dec(d)']
     result = S.query_criteria(otype='SNR')
     assert isinstance(result, Table)
-    assert 'otype=SNR' in S._last_query.data
+    assert 'otype=SNR' in S._last_query.data['script']
 
 
 def test_simbad_settings1():
