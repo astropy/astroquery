@@ -445,7 +445,7 @@ class SimbadClass(BaseQuery):
         table : `~astropy.table.Table`
             Query results table
         """
-        verbose = kwargs.pop('verbose') if 'verbose' in kwargs else False
+        verbose = kwargs.pop('verbose', False)
         result = self.query_criteria_async(*args, **kwargs)
         return self._parse_result(result, SimbadVOTableResult, verbose=verbose)
 
@@ -469,7 +469,7 @@ class SimbadClass(BaseQuery):
         response : `requests.Response`
             Response of the query from the server
         """
-        cache = kwargs.pop('cache') if 'cache' in kwargs else True
+        cache = kwargs.pop('cache', True)
 
         request_payload = self._args_to_payload(caller='query_criteria_async',
                                                 *args, **kwargs)
@@ -844,7 +844,7 @@ class SimbadClass(BaseQuery):
         script = ""
         caller = kwargs['caller']
         del kwargs['caller']
-        get_raw = kwargs.pop('get_raw') if 'get_raw' in kwargs else False
+        get_raw = kwargs.pop('get_raw', False)
         command = self._function_to_command[caller]
 
         votable_header = self._get_query_header(get_raw)

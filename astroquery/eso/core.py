@@ -416,9 +416,7 @@ class EsoClass(QueryWithLogin):
 
             # Default to returning the DP.ID since it is needed for header
             # acquisition
-            query_dict['tab_dp_id'] = (kwargs.pop('tab_dp_id')
-                                       if 'tab_db_id' in kwargs
-                                       else 'on')
+            query_dict['tab_dp_id'] = kwargs.pop('tab_dp_id', 'on')
 
             if instrument in ('feros', 'harps', 'ground'):
                 query_dict['instrument'] = instrument.upper()
