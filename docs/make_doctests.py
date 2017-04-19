@@ -23,7 +23,7 @@ def test_line(line):
 
 
 def strip_line(line):
-    return leftdots.sub("", leftarrows.sub("", L))
+    return leftdots.sub("", leftarrows.sub("", line))
 
 
 with open('doctests.py', 'w') as doctests:
@@ -31,7 +31,7 @@ with open('doctests.py', 'w') as doctests:
         for fn in files:
             if os.path.splitext(fn)[1] == '.rst':
                 with open(os.path.join(root, fn), 'r') as f:
-                    lines = f.readlines()
+                    lines = f.read().splitlines()
 
                 pylines = [strip_line(L)
                            for L in lines if test_line(L)]
