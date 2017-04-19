@@ -1,6 +1,8 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import os
 import json
+from io import open
+
 from astropy import table
 from astropy import log
 from astropy.utils.console import ProgressBar
@@ -197,7 +199,7 @@ def parse_lamda_datafile(filename):
                         Table)
     """
     with open(filename) as f:
-        lines = f.readlines()
+        lines = f.read().splitlines()
     return parse_lamda_lines(lines)
 
 
@@ -216,6 +218,9 @@ def write_lamda_datafile(filename, tables):
     """
 
     collrates, radtransitions, enlevels = tables
+    print("111111111111111111111111111111")
+    print(enlevels)
+    print("111111111111111111111111111111")
 
     levels_hdr = ("""! MOLECULE
                   {0}
@@ -340,7 +345,6 @@ def parse_lamda_lines(data):
             if len(collrates) == meta_coll['ncoll']:
                 # All done!
                 break
-
     if len(levels[0]) == 4:
         mol_table_names = ['Level', 'Energy', 'Weight', 'J']
     elif len(levels[0]) == 5:
@@ -379,7 +383,7 @@ def _cln(s):
     """
     Clean a string of comments, newlines
     """
-    return s.split("!")[0].strip()
+    return s.strip().split("!")[0].strip()
 
 
 Lamda = LamdaClass()

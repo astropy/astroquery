@@ -35,6 +35,10 @@ def test_writer():
     tmpfd, tmpname = tempfile.mkstemp()
     core.write_lamda_datafile(tmpname, tables)
 
+    with open(tmpname) as ff:
+        print("====================")
+        print(ff.read())
+        print("====================")
     coll2, radtrans2, enlevels2 = core.parse_lamda_datafile(tmpname)
 
     np.testing.assert_almost_equal(enlevels['Energy'], enlevels2['Energy'])
