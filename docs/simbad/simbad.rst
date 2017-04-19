@@ -390,7 +390,7 @@ See that link for details of how these queries are formed.
 
    >>> from astroquery.simbad import Simbad
    >>> result = Simbad.query_criteria('region(box, GAL, 0 +0, 3d 1d)', otype='SNR')
-   >>> print result
+   >>> print(result)
           MAIN_ID             RA         DEC     RA_PREC DEC_PREC COO_ERR_MAJA COO_ERR_MINA COO_ERR_ANGLE COO_QUAL COO_WAVELENGTH     COO_BIBCODE
    --------------------- ----------- ----------- ------- -------- ------------ ------------ ------------- -------- -------------- -------------------
      EQ J174702.6-282733  17 47 02.6   -28 27 33       5        5          nan          nan             0        D                2002ApJ...565.1017S
