@@ -53,9 +53,10 @@ class HeasarcClass(BaseQuery):
         collens = [int(float(y[1:]))
                    for x, y in header.items() if "TFORM" in x]
         new_table = []
-
-        old_table = content.split("END")[-1].strip()
-        for line in old_table.split("\n"):
+        # this stops lines which end in spaces being stripped to much
+        old_table = content.split("END")[-1].strip(" ")
+        # remove empty lines
+        for line in filter(None, old_table.split("\n")):
             newline = []
             for n, tup in enumerate(zip(colstart, collens), start=1):
                 cstart, clen = tup
