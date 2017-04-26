@@ -55,10 +55,10 @@ def pyregion_subset(region, data, mywcs):
     xhi, yhi = extent.max
     all_extents = [obj.get_extents() for obj in mpl_objs]
     for ext in all_extents:
-        xlo = int(np.round(xlo) if xlo < ext.min[0] else ext.min[0])
-        ylo = int(np.round(ylo) if ylo < ext.min[1] else ext.min[1])
-        xhi = int(np.round(xhi) if xhi > ext.max[0] else ext.max[0])
-        yhi = int(np.round(yhi) if yhi > ext.max[1] else ext.max[1])
+        xlo = int(np.round(xlo) if xlo < ext.min[0] else np.round(ext.min[0]))
+        ylo = int(np.round(ylo) if ylo < ext.min[1] else np.round(ext.min[1]))
+        xhi = int(np.round(xhi) if xhi > ext.max[0] else np.round(ext.max[0]))
+        yhi = int(np.round(yhi) if yhi > ext.max[1] else np.round(ext.max[1]))
 
     log.debug("Region boundaries: ")
     log.debug("xlo={xlo}, ylo={ylo}, xhi={xhi}, yhi={yhi}".format(xlo=xlo,
