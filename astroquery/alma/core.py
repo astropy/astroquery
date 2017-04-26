@@ -455,7 +455,7 @@ class AlmaClass(QueryWithLogin):
         """
         if not verbose:
             commons.suppress_vo_warnings()
-        
+
         if 'run?' in response.url:
             if response.text == "":
                 raise RemoteServiceError("Empty return.")

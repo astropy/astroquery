@@ -59,7 +59,7 @@ class TestAlma:
         result_c = alma.query_region(c, 1 * u.deg)
         assert b'2013.1.00857.S' in result_c['Project code']
         # "The Brick", g0.253, is in this one
-        #assert b'2011.0.00217.S' in result_c['Project code'] # missing cycle 1 data
+        # assert b'2011.0.00217.S' in result_c['Project code'] # missing cycle 1 data
         assert b'2012.1.00932.S' in result_c['Project code']
 
     def test_m83(self, temp_dir, recwarn):
@@ -94,11 +94,11 @@ class TestAlma:
         alma.cache_location = temp_dir
 
         result_s = alma.query_object('Sgr A*')
-        #assert b'2011.0.00887.S' in result_s['Project code']
+        # assert b'2011.0.00887.S' in result_s['Project code']
         assert b'2013.1.00857.S' in result_s['Project code']
-        #assert b'uid://A002/X40d164/X1b3' in result_s['Asdm uid']
+        # assert b'uid://A002/X40d164/X1b3' in result_s['Asdm uid']
         assert b'uid://A002/X651f57/Xade' in result_s['Asdm uid']
-        #match = result_s['Asdm uid'] == b'uid://A002/X40d164/X1b3'
+        # match = result_s['Asdm uid'] == b'uid://A002/X40d164/X1b3'
         match = result_s['Asdm uid'] == b'uid://A002/X651f57/Xade'
         uid = result_s['Asdm uid'][match]
 

@@ -124,10 +124,10 @@ def footprint_to_reg(footprint):
     polygons = [ii for ii, xx in enumerate(entries) if xx == 'Polygon']
 
     reglist = []
-    for start,stop in zip(polygons, polygons[1:]+[None]):
+    for start, stop in zip(polygons, polygons[1:]+[None]):
         reg = Shape('polygon', [float(x) for x in entries[start+2:stop]])
         reg.coord_format = footprint.split()[1].lower()
-        reg.coord_list = reg.params # the coord_list attribute is needed somewhere
+        reg.coord_list = reg.params  # the coord_list attribute is needed somewhere
         reg.attr = ([], {'color': 'green', 'dash': '0 ', 'dashlist': '8 3',
                          'delete': '1 ', 'edit': '1 ', 'fixed': '0 ', 'font':
                          '"helvetica 10 normal roman"', 'highlite': '1 ',
@@ -137,9 +137,11 @@ def footprint_to_reg(footprint):
 
     return reglist
 
+
 def add_meta_to_reg(reg, meta):
     reg.meta = meta
     return reg
+
 
 def approximate_primary_beam_sizes(frequency_support_str,
                                    dish_diameter=12 * u.m, first_null=1.220):
@@ -341,7 +343,7 @@ def make_finder_chart_from_image_and_catalog(image, catalog, save_prefix,
     else:
         today = np.datetime64('today')
 
-        #At least temporarily obsolete
+        # At least temporarily obsolete
         # private_circle_parameters = {
         #     band: [(row['RA'], row['Dec'], np.mean(rad).to(u.deg).value)
         #            for row, rad in zip(catalog, primary_beam_radii)
@@ -377,7 +379,8 @@ def make_finder_chart_from_image_and_catalog(image, catalog, save_prefix,
         log.debug('Creating regions')
         prv_regions = {
             band: pyregion.ShapeList([add_meta_to_reg(fp,
-                                                      {'integration':row['Integration']})
+                                                      {'integration':
+                                                       row['Integration']})
                                       for row in catalog
                                       for fp in footprint_to_reg(row['Footprint'])
                                       if (not row['Release date']) or
@@ -386,15 +389,14 @@ def make_finder_chart_from_image_and_catalog(image, catalog, save_prefix,
             for band in bands}
         pub_regions = {
             band: pyregion.ShapeList([add_meta_to_reg(fp,
-                                                      {'integration':row['Integration']})
+                                                      {'integration':
+                                                       row['Integration']})
                                       for row in catalog
                                       for fp in footprint_to_reg(row['Footprint'])
                                       if row['Release date'] and
                                       (np.datetime64(row['Release date']) <=
                                        today and row['Band'] == band)])
             for band in bands}
-
-
 
         log.debug('Creating masks')
         prv_mask = {
@@ -414,7 +416,6 @@ def make_finder_chart_from_image_and_catalog(image, catalog, save_prefix,
 
         for band in bands:
             log.debug('Adding integration-scaled masks for Band: {0}'.format(band))
-
 
             shapes = prv_regions[band]
             for shape in shapes:
