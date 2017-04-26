@@ -60,7 +60,7 @@ class TestAlma:
         assert b'2013.1.00857.S' in result_c['Project code']
         # "The Brick", g0.253, is in this one
         #assert b'2011.0.00217.S' in result_c['Project code'] # missing cycle 1 data
-        assert b'2012.0.00932.S' in result_c['Project code']
+        assert b'2012.1.00932.S' in result_c['Project code']
 
     def test_m83(self, temp_dir, recwarn):
         alma = Alma()
