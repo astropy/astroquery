@@ -352,7 +352,7 @@ class AlmaClass(QueryWithLogin):
 
         return data_sizes, totalsize.to(u.GB)
 
-    def download_files(self, files, cache=True, continuation=True):
+    def download_files(self, files, savedir=None, cache=True, continuation=True):
         """
         Given a list of file URLs, download them
 
@@ -360,8 +360,11 @@ class AlmaClass(QueryWithLogin):
         once, so the return may have a different length than the input list
         """
         downloaded_files = []
+        if savedir is None:
+            savedir = self.cache_location
         for fileLink in unique(files):
             filename = self._request("GET", fileLink, save=True,
+                                     savedir=savedir,
                                      timeout=self.TIMEOUT, cache=cache,
                                      continuation=continuation)
             downloaded_files.append(filename)
@@ -407,20 +410,26 @@ class AlmaClass(QueryWithLogin):
         if not verbose:
             commons.suppress_vo_warnings()
 
-        fixed_content = self._hack_band_vofix(response.content)
+        fixed_content = self._hack_bad_arraysize_vofix(response.content)
         tf = six.BytesIO(fixed_content)
         vo_tree = votable.parse(tf, pedantic=False, invalid='mask')
         first_table = vo_tree.get_first_table()
         table = first_table.to_table(use_names_over_ids=True)
         return table
 
-    def _hack_band_vofix(self, text):
+    def _hack_bad_arraysize_vofix(self, text):
         """
-        Hack to fix an error in the ALMA votables present in most 2016 queries.
+        Hack to fix an error in the ALMA votables present in most 2016 and 2017 queries.
 
         The problem is that this entry:
         '      <FIELD name="Band" datatype="char" ID="32817" xtype="adql:VARCHAR" arraysize="0*">\r',
         has an invalid ``arraysize`` entry.
+
+        Since that problem was discovered and fixed, many other entries have
+        the same error.
+
+        According to the IVOA, the tables are wrong, not astropy.io.votable:
+        http://www.ivoa.net/documents/VOTable/20130315/PR-VOTable-1.3-20130315.html#ToC11
         """
         lines = text.split(b"\n")
         newlines = []
@@ -428,6 +437,8 @@ class AlmaClass(QueryWithLogin):
         for ln in lines:
             if b'FIELD name="Band"' in ln:
                 ln = ln.replace(b'arraysize="0*"', b'arraysize="1*"')
+            elif b'arraysize="0*"' in ln:
+                ln = ln.replace(b'arraysize="0*"', b'arraysize="*"')
             newlines.append(ln)
 
         return b"\n".join(newlines)
@@ -552,7 +563,7 @@ class AlmaClass(QueryWithLogin):
             columns = [Column(data=data[0], name='ID'),
                        Column(data=data[1], name='Files')]
             tbl = Table(columns)
-            assert len(tbl) == response.text.count('<tr') == 8497
+            assert len(tbl) == 8497
             self._cycle0_tarfile_content_table = tbl
         else:
             tbl = self._cycle0_tarfile_content_table
