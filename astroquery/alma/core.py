@@ -15,7 +15,7 @@ from pkg_resources import resource_filename
 from bs4 import BeautifulSoup
 
 from astropy.extern.six.moves.urllib_parse import urljoin, urlparse
-from astropy.extern.six import iteritems
+from astropy.extern.six import iteritems, StringIO
 from astropy.extern import six
 from astropy.table import Table, Column
 from astropy import log
@@ -106,7 +106,8 @@ class AlmaClass(QueryWithLogin):
                                 science=science, **kwargs)
 
     def query_async(self, payload, cache=True, public=True, science=True,
-                    view_format='raw', get_query_payload=False, **kwargs):
+                    max_retries=5,
+                    get_html_version=False, get_query_payload=False, **kwargs):
         """
         Perform a generic query with user-specified payload
 
@@ -118,17 +119,24 @@ class AlmaClass(QueryWithLogin):
             http://almascience.org/aq or using the `help` method
         cache : bool
             Cache the query?
+            (note: HTML queries *cannot* be cached using the standard caching
+            mechanism because the URLs are different each time
         public : bool
             Return only publicly available datasets?
         science : bool
             Return only data marked as "science" in the archive?
+
         """
 
         url = urljoin(self._get_dataarchive_url(), 'aq/')
 
         payload.update(kwargs)
-        payload.update({'result_view': view_format, 'format': 'VOTABLE',
-                        'download': 'true'})
+        if get_html_version:
+            payload.update({'result_view': 'observation', 'format': 'URL',
+                            'download': 'true'})
+        else:
+            payload.update({'result_view': 'raw', 'format': 'VOTABLE',
+                            'download': 'true'})
         if public:
             payload['public_data'] = 'public'
         if science:
@@ -140,11 +148,49 @@ class AlmaClass(QueryWithLogin):
             return payload
 
         response = self._request('GET', url, params=payload,
-                                 timeout=self.TIMEOUT, cache=cache)
+                                 timeout=self.TIMEOUT,
+                                 cache=cache and not get_html_version)
         self._last_response = response
         response.raise_for_status()
 
-        return response
+        if get_html_version:
+            if 'run' not in response.text:
+                if max_retries > 0:
+                    log.info("Failed query.  Retrying up to {0} more times"
+                             .format(max_retries))
+                    return self.query_async(payload=payload, cache=False,
+                                            public=public, science=science,
+                                            max_retries=max_retries-1,
+                                            get_html_version=get_html_version,
+                                            get_query_payload=get_query_payload,
+                                            **kwargs)
+                raise RemoteServiceError("Incorrect return from HTML table query.")
+            response2 = self._request('GET',
+                                      "{0}/{1}/{2}".format(
+                                          self._get_dataarchive_url(), 'aq',
+                                          response.text),
+                                      params={'query_url':
+                                              response.url.split("?")[-1]},
+                                      timeout=self.TIMEOUT,
+                                      cache=False,
+                                     )
+            self._last_response = response2
+            response2.raise_for_status()
+            if len(response2.text) == 0:
+                if max_retries > 0:
+                    log.info("Failed (empty) query.  Retrying up to {0} more times"
+                             .format(max_retries))
+                    return self.query_async(payload=payload, cache=cache,
+                                            public=public, science=science,
+                                            max_retries=max_retries-1,
+                                            get_html_version=get_html_version,
+                                            get_query_payload=get_query_payload,
+                                            **kwargs)
+                raise RemoteServiceError("Empty return.")
+            return response2
+
+        else:
+            return response
 
     def validate_query(self, payload, cache=True):
         """
@@ -352,7 +398,7 @@ class AlmaClass(QueryWithLogin):
 
         return data_sizes, totalsize.to(u.GB)
 
-    def download_files(self, files, cache=True, continuation=True):
+    def download_files(self, files, savedir=None, cache=True, continuation=True):
         """
         Given a list of file URLs, download them
 
@@ -360,8 +406,11 @@ class AlmaClass(QueryWithLogin):
         once, so the return may have a different length than the input list
         """
         downloaded_files = []
+        if savedir is None:
+            savedir = self.cache_location
         for fileLink in unique(files):
             filename = self._request("GET", fileLink, save=True,
+                                     savedir=savedir,
                                      timeout=self.TIMEOUT, cache=cache,
                                      continuation=continuation)
             downloaded_files.append(filename)
@@ -407,20 +456,36 @@ class AlmaClass(QueryWithLogin):
         if not verbose:
             commons.suppress_vo_warnings()
 
-        fixed_content = self._hack_band_vofix(response.content)
-        tf = six.BytesIO(fixed_content)
-        vo_tree = votable.parse(tf, pedantic=False, invalid='mask')
-        first_table = vo_tree.get_first_table()
-        table = first_table.to_table(use_names_over_ids=True)
+        if 'run?' in response.url:
+            if response.text == "":
+                raise RemoteServiceError("Empty return.")
+            # this is a CSV-like table returned via a direct browser request
+            import pandas
+            table = Table.from_pandas(pandas.read_csv(StringIO(response.text)))
+
+        else:
+            fixed_content = self._hack_bad_arraysize_vofix(response.content)
+            tf = six.BytesIO(fixed_content)
+            vo_tree = votable.parse(tf, pedantic=False, invalid='mask')
+            first_table = vo_tree.get_first_table()
+            table = first_table.to_table(use_names_over_ids=True)
+
         return table
 
-    def _hack_band_vofix(self, text):
+    def _hack_bad_arraysize_vofix(self, text):
         """
-        Hack to fix an error in the ALMA votables present in most 2016 queries.
+        Hack to fix an error in the ALMA votables present in most 2016 and 2017 queries.
 
         The problem is that this entry:
         '      <FIELD name="Band" datatype="char" ID="32817" xtype="adql:VARCHAR" arraysize="0*">\r',
-        has an invalid ``arraysize`` entry.
+        has an invalid ``arraysize`` entry.  Also, it returns a char, but it
+        should be an int.
+
+        Since that problem was discovered and fixed, many other entries have
+        the same error.
+
+        According to the IVOA, the tables are wrong, not astropy.io.votable:
+        http://www.ivoa.net/documents/VOTable/20130315/PR-VOTable-1.3-20130315.html#ToC11
         """
         lines = text.split(b"\n")
         newlines = []
@@ -428,6 +493,9 @@ class AlmaClass(QueryWithLogin):
         for ln in lines:
             if b'FIELD name="Band"' in ln:
                 ln = ln.replace(b'arraysize="0*"', b'arraysize="1*"')
+                ln = ln.replace(b'datatype="char"', b'datatype="int"')
+            elif b'arraysize="0*"' in ln:
+                ln = ln.replace(b'arraysize="0*"', b'arraysize="*"')
             newlines.append(ln)
 
         return b"\n".join(newlines)
@@ -552,7 +620,7 @@ class AlmaClass(QueryWithLogin):
             columns = [Column(data=data[0], name='ID'),
                        Column(data=data[1], name='Files')]
             tbl = Table(columns)
-            assert len(tbl) == response.text.count('<tr') == 8497
+            assert len(tbl) == 8497
             self._cycle0_tarfile_content_table = tbl
         else:
             tbl = self._cycle0_tarfile_content_table
@@ -802,6 +870,9 @@ class AlmaClass(QueryWithLogin):
             self._valid_params = [row[1]
                                   for title, section in help_list
                                   for row in section]
+            if len(self._valid_params) == 0:
+                raise ValueError("The query validation failed for unknown "
+                                 "reasons.  Try again?")
             # These parameters are entirely hidden, but Felix says they are
             # allowed
             self._valid_params.append('download')

@@ -52,13 +52,15 @@ class TestAlma:
         alma.cache_location = temp_dir
 
         result_s = alma.query_object('Sgr A*')
-        assert b'2011.0.00887.S' in result_s['Project code']
+        # cycle 1 data are missing from the archive assert b'2011.0.00887.S' in result_s['Project code']
+        assert b'2013.1.00857.S' in result_s['Project code']
         c = coordinates.SkyCoord(266.41681662 * u.deg, -29.00782497 * u.deg,
                                  frame='fk5')
         result_c = alma.query_region(c, 1 * u.deg)
-        assert b'2011.0.00887.S' in result_c['Project code']
+        assert b'2013.1.00857.S' in result_c['Project code']
         # "The Brick", g0.253, is in this one
-        assert b'2011.0.00217.S' in result_c['Project code']
+        # assert b'2011.0.00217.S' in result_c['Project code'] # missing cycle 1 data
+        assert b'2012.1.00932.S' in result_c['Project code']
 
     def test_m83(self, temp_dir, recwarn):
         alma = Alma()
@@ -92,14 +94,17 @@ class TestAlma:
         alma.cache_location = temp_dir
 
         result_s = alma.query_object('Sgr A*')
-        assert b'2011.0.00887.S' in result_s['Project code']
-        assert b'uid://A002/X40d164/X1b3' in result_s['Asdm uid']
-        match = result_s['Asdm uid'] == b'uid://A002/X40d164/X1b3'
+        # assert b'2011.0.00887.S' in result_s['Project code']
+        assert b'2013.1.00857.S' in result_s['Project code']
+        # assert b'uid://A002/X40d164/X1b3' in result_s['Asdm uid']
+        assert b'uid://A002/X651f57/Xade' in result_s['Asdm uid']
+        # match = result_s['Asdm uid'] == b'uid://A002/X40d164/X1b3'
+        match = result_s['Asdm uid'] == b'uid://A002/X651f57/Xade'
         uid = result_s['Asdm uid'][match]
 
         result = alma.stage_data(uid)
 
-        assert ('uid___A002_X40d164_X1b3' in
+        assert ('uid___A002_X651f57_Xade' in
                 os.path.split(result['URL'][0])[1])
 
         # test re-staging
@@ -156,8 +161,12 @@ class TestAlma:
         result = alma.query(payload={'start_date': '<11-11-2011'},
                             public=False, science=True)
         # Nov 16, 2016: 159
-        assert len(result) == 159
+        # Apr 25, 2017: 150
+        assert len(result) == 150
 
+    # As of April 2017, these data are *MISSING FROM THE ARCHIVE*.
+    # This has been reported, as it is definitely a bug.
+    @pytest.mark.xfail
     @pytest.mark.bigdata
     def test_cycle1(self, temp_dir):
         # About 500 MB

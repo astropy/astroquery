@@ -55,10 +55,10 @@ def pyregion_subset(region, data, mywcs):
     xhi, yhi = extent.max
     all_extents = [obj.get_extents() for obj in mpl_objs]
     for ext in all_extents:
-        xlo = xlo if xlo < ext.min[0] else ext.min[0]
-        ylo = ylo if ylo < ext.min[1] else ext.min[1]
-        xhi = xhi if xhi > ext.max[0] else ext.max[0]
-        yhi = yhi if yhi > ext.max[1] else ext.max[1]
+        xlo = int(np.round(xlo if xlo < ext.min[0] else ext.min[0]))
+        ylo = int(np.round(ylo if ylo < ext.min[1] else ext.min[1]))
+        xhi = int(np.round(xhi if xhi > ext.max[0] else ext.max[0]))
+        yhi = int(np.round(yhi if yhi > ext.max[1] else ext.max[1]))
 
     log.debug("Region boundaries: ")
     log.debug("xlo={xlo}, ylo={ylo}, xhi={xhi}, yhi={yhi}".format(xlo=xlo,
@@ -102,6 +102,45 @@ def parse_frequency_support(frequency_support_str):
                                                      string.digits))
                    for i in supports for sup in [i.strip('[] ').split('..'), ]]
     return u.Quantity(freq_ranges)
+
+
+def footprint_to_reg(footprint):
+    """
+    ALMA footprints have the form:
+    'Polygon ICRS 266.519781 -28.724666 266.524678 -28.731930 266.536683
+    -28.737784 266.543860 -28.737586 266.549277 -28.733370 266.558133
+    -28.729545 266.560136 -28.724666 266.558845 -28.719605 266.560133
+    -28.694332 266.555234 -28.687069 266.543232 -28.681216 266.536058
+    -28.681414 266.530644 -28.685630 266.521788 -28.689453 266.519784
+    -28.694332 266.521332 -28.699778'
+    Some of them have *additional* polygons
+    """
+    if footprint[:7] != 'Polygon':
+        raise ValueError("Unrecognized footprint type")
+
+    from pyregion.parser_helper import Shape
+
+    entries = footprint.split()
+    polygons = [ii for ii, xx in enumerate(entries) if xx == 'Polygon']
+
+    reglist = []
+    for start, stop in zip(polygons, polygons[1:]+[None]):
+        reg = Shape('polygon', [float(x) for x in entries[start+2:stop]])
+        reg.coord_format = footprint.split()[1].lower()
+        reg.coord_list = reg.params  # the coord_list attribute is needed somewhere
+        reg.attr = ([], {'color': 'green', 'dash': '0 ', 'dashlist': '8 3',
+                         'delete': '1 ', 'edit': '1 ', 'fixed': '0 ', 'font':
+                         '"helvetica 10 normal roman"', 'highlite': '1 ',
+                         'include': '1 ', 'move': '1 ', 'select': '1',
+                         'source': '1', 'text': '', 'width': '1 '})
+        reglist.append(reg)
+
+    return reglist
+
+
+def add_meta_to_reg(reg, meta):
+    reg.meta = meta
+    return reg
 
 
 def approximate_primary_beam_sizes(frequency_support_str,
@@ -177,7 +216,9 @@ def make_finder_chart(target, radius, save_prefix, service=SkyView.get_images,
 
 def make_finder_chart_from_image(image, target, radius, save_prefix,
                                  alma_kwargs={'public': False,
-                                              'science': False},
+                                              'science': False,
+                                              'cache': False,
+                                             },
                                  **kwargs):
     """
     Create a "finder chart" showing where ALMA has pointed in various bands,
@@ -209,6 +250,7 @@ def make_finder_chart_from_image(image, target, radius, save_prefix,
     """
     log.info("Querying ALMA around {0}".format(target))
     catalog = Alma.query_region(coordinate=target, radius=radius,
+                                get_html_version=True,
                                 **alma_kwargs)
 
     return make_finder_chart_from_image_and_catalog(image, catalog=catalog,
@@ -219,27 +261,32 @@ def make_finder_chart_from_image(image, target, radius, save_prefix,
 def make_finder_chart_from_image_and_catalog(image, catalog, save_prefix,
                                              alma_kwargs={'public': False,
                                                           'science': False},
-                                             bands=(3, 4, 5, 6, 7, 8, 9),
+                                             bands=(3, 4, 5, 6, 7, 8, 9, 10),
                                              private_band_colors=('maroon',
                                                                   'red',
                                                                   'orange',
                                                                   'coral',
                                                                   'brown',
                                                                   'yellow',
-                                                                  'mediumorchid'),
+                                                                  'mediumorchid',
+                                                                  'palegoldenrod',
+                                                                 ),
                                              public_band_colors=('blue',
                                                                  'cyan',
                                                                  'green',
                                                                  'turquoise',
                                                                  'teal',
                                                                  'darkslategrey',
-                                                                 'chartreuse'),
+                                                                 'chartreuse',
+                                                                 'lime',
+                                                                ),
                                              integration_time_contour_levels=np.logspace(0,
                                                                                          5,
                                                                                          base=2,
                                                                                          num=6),
                                              save_masks=False,
                                              use_saved_masks=False,
+                                             linewidth=1,
                                              ):
     """
     Create a "finder chart" showing where ALMA has pointed in various bands,
@@ -270,14 +317,11 @@ def make_finder_chart_from_image_and_catalog(image, catalog, save_prefix,
     import aplpy
 
     import pyregion
-    from pyregion.parser_helper import Shape
-
-    primary_beam_radii = [
-        approximate_primary_beam_sizes(row['Frequency support'])
-        for row in catalog]
 
     all_bands = bands
-    bands = used_bands = np.unique(catalog['Band'])
+    bands = used_bands = [int(band)
+                          for band in
+                          np.unique(catalog['Band'])]
     log.info("The bands used include: {0}".format(used_bands))
     band_colors_priv = dict(zip(all_bands, private_band_colors))
     band_colors_pub = dict(zip(all_bands, public_band_colors))
@@ -299,26 +343,27 @@ def make_finder_chart_from_image_and_catalog(image, catalog, save_prefix,
     else:
         today = np.datetime64('today')
 
-        private_circle_parameters = {
-            band: [(row['RA'], row['Dec'], np.mean(rad).to(u.deg).value)
-                   for row, rad in zip(catalog, primary_beam_radii)
-                   if not row['Release date'] or
-                   (np.datetime64(row['Release date']) > today and row['Band'] == band)]
-            for band in bands}
+        # At least temporarily obsolete
+        # private_circle_parameters = {
+        #     band: [(row['RA'], row['Dec'], np.mean(rad).to(u.deg).value)
+        #            for row, rad in zip(catalog, primary_beam_radii)
+        #            if not row['Release date'] or
+        #            (np.datetime64(row['Release date']) > today and row['Band'] == band)]
+        #     for band in bands}
 
-        public_circle_parameters = {
-            band: [(row['RA'], row['Dec'], np.mean(rad).to(u.deg).value)
-                   for row, rad in zip(catalog, primary_beam_radii)
-                   if row['Release date'] and
-                   (np.datetime64(row['Release date']) <= today and row['Band'] == band)]
-            for band in bands}
+        # public_circle_parameters = {
+        #     band: [(row['RA'], row['Dec'], np.mean(rad).to(u.deg).value)
+        #            for row, rad in zip(catalog, primary_beam_radii)
+        #            if row['Release date'] and
+        #            (np.datetime64(row['Release date']) <= today and row['Band'] == band)]
+        #     for band in bands}
 
-        unique_private_circle_parameters = {
-            band: np.array(list(set(private_circle_parameters[band])))
-            for band in bands}
-        unique_public_circle_parameters = {
-            band: np.array(list(set(public_circle_parameters[band])))
-            for band in bands}
+        # unique_private_circle_parameters = {
+        #     band: np.array(list(set(private_circle_parameters[band])))
+        #     for band in bands}
+        # unique_public_circle_parameters = {
+        #     band: np.array(list(set(public_circle_parameters[band])))
+        #     for band in bands}
 
         release_dates = np.array(catalog['Release date'], dtype=np.datetime64)
 
@@ -328,42 +373,32 @@ def make_finder_chart_from_image_and_catalog(image, catalog, save_prefix,
                            (release_dates > today))
             pubrows = sum((catalog['Band'] == band) &
                           (release_dates <= today))
-            log.info("PUBLIC:  Number of rows: {0}.  Unique pointings: "
-                     "{1}".format(pubrows,
-                                  len(unique_public_circle_parameters[band])))
-            log.info("PRIVATE: Number of rows: {0}.  Unique pointings: "
-                     "{1}".format(privrows,
-                                  len(unique_private_circle_parameters[band])))
+            log.info("PUBLIC:  Number of rows: {0}".format(pubrows,))
+            log.info("PRIVATE: Number of rows: {0}.".format(privrows))
 
+        log.debug('Creating regions')
         prv_regions = {
-            band: pyregion.ShapeList([Shape('circle', [x, y, r]) for x, y, r
-                                      in private_circle_parameters[band]])
+            band: pyregion.ShapeList([add_meta_to_reg(fp,
+                                                      {'integration':
+                                                       row['Integration']})
+                                      for row in catalog
+                                      for fp in footprint_to_reg(row['Footprint'])
+                                      if (not row['Release date']) or
+                                      (np.datetime64(row['Release date']) >
+                                       today and row['Band'] == band)])
             for band in bands}
         pub_regions = {
-            band: pyregion.ShapeList([Shape('circle', [x, y, r]) for x, y, r
-                                      in public_circle_parameters[band]])
+            band: pyregion.ShapeList([add_meta_to_reg(fp,
+                                                      {'integration':
+                                                       row['Integration']})
+                                      for row in catalog
+                                      for fp in footprint_to_reg(row['Footprint'])
+                                      if row['Release date'] and
+                                      (np.datetime64(row['Release date']) <=
+                                       today and row['Band'] == band)])
             for band in bands}
-        for band in bands:
-            circle_pars = np.vstack(
-                [x for x in (private_circle_parameters[band],
-                             public_circle_parameters[band]) if any(x)])
-            for r, (x, y, c) in zip(prv_regions[band] + pub_regions[band],
-                                    circle_pars):
-                r.coord_format = 'fk5'
-                r.coord_list = [x, y, c]
-                r.attr = ([], {'color': 'green', 'dash': '0 ', 'dashlist': '8 3',
-                               'delete': '1 ', 'edit': '1 ', 'fixed': '0 ',
-                               'font': '"helvetica 10 normal roman"', 'highlite':
-                               '1 ', 'include': '1 ', 'move': '1 ', 'select': '1',
-                               'source': '1', 'text': '', 'width': '1 '})
 
-            if prv_regions[band]:
-                prv_regions[band].write(
-                    '{0}_band{1}_private.reg'.format(save_prefix, band))
-            if pub_regions[band]:
-                pub_regions[band].write(
-                    '{0}_band{1}_public.reg'.format(save_prefix, band))
-
+        log.debug('Creating masks')
         prv_mask = {
             band: fits.PrimaryHDU(
                 prv_regions[band].get_mask(image).astype('int'),
@@ -380,46 +415,31 @@ def make_finder_chart_from_image_and_catalog(image, catalog, save_prefix,
         mywcs = wcs.WCS(image.header)
 
         for band in bands:
-            log.debug('Band: {0}'.format(band))
-            for row, rad in ProgressBar(list(zip(catalog, primary_beam_radii))):
-                shape = Shape('circle', (row['RA'], row['Dec'],
-                                         np.mean(rad).to(u.deg).value))
-                shape.coord_format = 'fk5'
-                shape.coord_list = (row['RA'], row['Dec'],
-                                    np.mean(rad).to(u.deg).value)
-                shape.attr = ([], {'color': 'green', 'dash': '0 ',
-                                   'dashlist': '8 3 ',
-                                   'delete': '1 ', 'edit': '1 ', 'fixed': '0 ',
-                                   'font': '"helvetica 10 normal roman"',
-                                   'highlite': '1 ', 'include': '1 ', 'move': '1 ',
-                                   'select': '1 ', 'source': '1', 'text': '',
-                                   'width': '1 '})
-                log.debug('{1} {2}: {0}'
-                          .format(shape, row['Release date'], row['Band']))
+            log.debug('Adding integration-scaled masks for Band: {0}'.format(band))
 
-                if not row['Release date']:
-                    reldate = False
-                else:
-                    reldate = np.datetime64(row['Release date'])
+            shapes = prv_regions[band]
+            for shape in shapes:
+                # private: release_date = 'sometime' says when it will be released
+                (xlo, xhi, ylo, yhi), mask = pyregion_subset(
+                    shape, hit_mask_private[band], mywcs)
+                log.debug("{0},{1},{2},{3}: {4}"
+                          .format(xlo, xhi, ylo, yhi, mask.sum()))
+                hit_mask_private[band][ylo:yhi, xlo:xhi] += shape.meta['integration']*mask
 
-                if (((not reldate) or (reldate > today)) and
-                    (row['Band'] == band) and
-                    (band in prv_mask)
-                    ):
-                    # private: release_date = 'sometime' says when it will be released
-                    (xlo, xhi, ylo, yhi), mask = pyregion_subset(
-                        shape, hit_mask_private[band], mywcs)
-                    log.debug("{0},{1},{2},{3}: {4}"
-                              .format(xlo, xhi, ylo, yhi, mask.sum()))
-                    hit_mask_private[band][ylo:yhi, xlo:xhi] += row['Integration']*mask
-                elif (reldate and (reldate <= today) and (row['Band'] == band) and
-                      (band in pub_mask)):
-                    # public: release_date = '' should mean already released
-                    (xlo, xhi, ylo, yhi), mask = pyregion_subset(
-                        shape, hit_mask_public[band], mywcs)
-                    log.debug("{0},{1},{2},{3}: {4}"
-                              .format(xlo, xhi, ylo, yhi, mask.sum()))
-                    hit_mask_public[band][ylo:yhi, xlo:xhi] += row['Integration']*mask
+            if save_masks:
+                shapes.write('{0}_band{1}_private.reg'.format(save_prefix, band))
+
+            shapes = pub_regions[band]
+            for shape in shapes:
+                # public: release_date = '' should mean already released
+                (xlo, xhi, ylo, yhi), mask = pyregion_subset(
+                    shape, hit_mask_public[band], mywcs)
+                log.debug("{0},{1},{2},{3}: {4}"
+                          .format(xlo, xhi, ylo, yhi, mask.sum()))
+                hit_mask_public[band][ylo:yhi, xlo:xhi] += shape.meta['integration']*mask
+
+            if save_masks:
+                shapes.write('{0}_band{1}_public.reg'.format(save_prefix, band))
 
         if save_masks:
             for band in bands:
@@ -442,12 +462,14 @@ def make_finder_chart_from_image_and_catalog(image, catalog, save_prefix,
                                              header=image.header),
                              levels=integration_time_contour_levels,
                              colors=[band_colors_pub[int(band)]] * len(integration_time_contour_levels),
+                             linewidth=linewidth,
                              convention='calabretta')
         if band in hit_mask_private:
             fig.show_contour(fits.PrimaryHDU(data=hit_mask_private[band],
                                              header=image.header),
                              levels=integration_time_contour_levels,
                              colors=[band_colors_priv[int(band)]] * len(integration_time_contour_levels),
+                             linewidth=linewidth,
                              convention='calabretta')
 
     fig.save('{0}_almafinderchart.png'.format(save_prefix))

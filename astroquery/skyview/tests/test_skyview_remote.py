@@ -12,7 +12,7 @@ def test_get_image_list():
                                     survey=['Fermi 5', 'HRI', 'DSS'])
     assert len(urls) == 3
     for url in urls:
-        assert url.startswith('http://skyview.gsfc.nasa.gov/tempspace/fits/')
+        assert url.startswith('https://skyview.gsfc.nasa.gov/tempspace/fits/')
 
 
 @remote_data
