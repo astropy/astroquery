@@ -20,7 +20,6 @@ from ..exceptions import TableParseError
 from .. import version
 from astropy.coordinates.name_resolve import sesame_database
 
-
 @async_to_sync
 class ESASkyClass(BaseQuery):
 
@@ -452,8 +451,6 @@ class ESASkyClass(BaseQuery):
         print("Maps available at %s" % os.path.abspath(download_dir))
         return maps
 
-
-
     def _sanitize_input_position(self, position):
         if (isinstance(position, str) or isinstance(position,
                                                     commons.CoordClasses)):
@@ -501,8 +498,6 @@ class ESASkyClass(BaseQuery):
         if (isinstance(row_limit, int)):
             return row_limit
         raise ValueError("Row_limit must be an integer")
-
-
 
     def _get_maps_for_mission(self, maps_table, mission, download_dir, cache):
         maps = []
@@ -585,8 +580,6 @@ class ESASkyClass(BaseQuery):
                    os.path.join(full_directory_path, file_name))
         return file_name
 
-
-
     def _create_mission_directory(self, mission, download_dir):
         if (download_dir == self.__MAPS_STRING):
             mission_directory = self.__MAPS_STRING + "/" + mission
@@ -628,8 +621,6 @@ class ESASkyClass(BaseQuery):
         start_index = product_url.rindex("/") + 1
         return product_url[start_index:]
 
-
-
     def _query_region_maps(self, coordinates, radius, observation_name,
                            get_query_payload, cache):
         observation_tap_name = (
@@ -651,8 +642,6 @@ class ESASkyClass(BaseQuery):
         if (get_query_payload):
             return request_payload
         return self._get_and_parse_from_tap(request_payload, cache)
-
-
 
     def _build_observation_query(self, coordinates, radius, json):
         raHours, dec = commons.coord_to_radec(coordinates)
@@ -712,8 +701,6 @@ class ESASkyClass(BaseQuery):
 
         return query
 
-
-
     def _store_query_result_maps(self, query_result, missions, coordinates,
                                  radius, get_query_payload, cache):
         for mission in missions:
@@ -731,8 +718,6 @@ class ESASkyClass(BaseQuery):
                                                        get_query_payload, cache)
             if (len(catalog_table) > 0):
                 query_result[catalog.upper()] = catalog_table
-
-
 
     def _find_observation_parameters(self, mission_name):
         return self._find_mission_parameters_in_json(mission_name,
@@ -766,8 +751,6 @@ class ESASkyClass(BaseQuery):
         raise ValueError("Input %s not available." % mission_name)
         return None
 
-
-
     def _get_observation_json(self):
         return self._fetch_and_parse_json(self.__OBSERVATIONS_STRING)
 
@@ -788,8 +771,6 @@ class ESASkyClass(BaseQuery):
         for index in range(len(json)):
             response_list.append(json[index][field_name])
         return response_list
-
-
 
     def _create_request_payload(self, query):
         return {'REQUEST': 'doQuery', 'LANG': 'ADQL', 'FORMAT': 'VOTABLE',
