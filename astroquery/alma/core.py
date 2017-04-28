@@ -173,7 +173,7 @@ class AlmaClass(QueryWithLogin):
                                               response.url.split("?")[-1]},
                                       timeout=self.TIMEOUT,
                                       cache=False,
-                                     )
+                                      )
             self._last_response = response2
             response2.raise_for_status()
             if len(response2.text) == 0:
