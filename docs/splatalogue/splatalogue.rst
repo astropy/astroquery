@@ -153,7 +153,7 @@ Then get rid of the vibrationally excited line by setting an energy upper limit 
       COv=0 Carbon Monoxide  230.538 ...          16.59608    SLAIM
 
 A note on recombination lines
-+++++++++++++++++++++++++++++
+-----------------------------
 
 Radio recombination lines are included in the splatalogue catalog under the
 names "Hydrogen Recombination Line", "Helium Recombination Line", and "Carbon
