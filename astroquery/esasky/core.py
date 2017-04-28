@@ -20,6 +20,7 @@ from ..exceptions import TableParseError
 from .. import version
 from astropy.coordinates.name_resolve import sesame_database
 
+
 @async_to_sync
 class ESASkyClass(BaseQuery):
 
