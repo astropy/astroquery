@@ -10,7 +10,6 @@ from astropy import wcs
 from astropy import log
 from astropy import units as u
 from astropy.io import fits
-from astropy.utils.console import ProgressBar
 
 from astroquery.skyview import SkyView
 from astroquery.alma import Alma
@@ -218,7 +217,7 @@ def make_finder_chart_from_image(image, target, radius, save_prefix,
                                  alma_kwargs={'public': False,
                                               'science': False,
                                               'cache': False,
-                                             },
+                                              },
                                  **kwargs):
     """
     Create a "finder chart" showing where ALMA has pointed in various bands,
@@ -270,7 +269,7 @@ def make_finder_chart_from_image_and_catalog(image, catalog, save_prefix,
                                                                   'yellow',
                                                                   'mediumorchid',
                                                                   'palegoldenrod',
-                                                                 ),
+                                                                  ),
                                              public_band_colors=('blue',
                                                                  'cyan',
                                                                  'green',
@@ -279,7 +278,7 @@ def make_finder_chart_from_image_and_catalog(image, catalog, save_prefix,
                                                                  'darkslategrey',
                                                                  'chartreuse',
                                                                  'lime',
-                                                                ),
+                                                                 ),
                                              integration_time_contour_levels=np.logspace(0,
                                                                                          5,
                                                                                          base=2,
