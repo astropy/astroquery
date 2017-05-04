@@ -18,6 +18,7 @@ from ..utils import async_to_sync
 from . import conf
 from ..exceptions import TableParseError
 from .. import version
+from astropy.coordinates.name_resolve import sesame_database
 
 
 @async_to_sync
@@ -225,6 +226,7 @@ class ESASkyClass(BaseQuery):
 
         query_result = {}
 
+        sesame_database.set('simbad')
         coordinates = commons.parse_coordinates(sanitized_position)
 
         self._store_query_result_maps(query_result, sanitized_missions,
@@ -289,6 +291,7 @@ class ESASkyClass(BaseQuery):
         sanitized_catalogs = self._sanitize_input_catalogs(catalogs)
         sanitized_row_limit = self._sanitize_input_row_limit(row_limit)
 
+        sesame_database.set('simbad')
         coordinates = commons.parse_coordinates(sanitized_position)
 
         query_result = {}
@@ -515,7 +518,7 @@ class ESASkyClass(BaseQuery):
                 sys.stdout.flush()
                 directory_path = mission_directory + "/"
                 if (mission.lower() == self.__HERSCHEL_STRING):
-                    maps.append(self._get_herschel_observation(product_url,
+                    maps.append(self._get_herschel_map(product_url,
                                                                directory_path,
                                                                cache))
 
@@ -542,7 +545,7 @@ class ESASkyClass(BaseQuery):
 
         return maps
 
-    def _get_herschel_observation(self, product_url, directory_path,
+    def _get_herschel_map(self, product_url, directory_path,
                                   cache):
         observation = dict()
         tar_file = tempfile.NamedTemporaryFile()
@@ -555,7 +558,7 @@ class ESASkyClass(BaseQuery):
             for member in tar.getmembers():
                 member_name = member.name.lower()
                 if ('hspire' in member_name or 'hpacs' in member_name):
-                    herschel_filter = self._get_filter_name(member_name)
+                    herschel_filter = self._get_herschel_filter_name(member_name)
                     tar.extract(member, directory_path)
                     member.name = (
                         self._remove_extra_herschel_directory(member.name,
@@ -565,7 +568,7 @@ class ESASkyClass(BaseQuery):
                     i += 1
         return observation
 
-    def _get_filter_name(self, member_name):
+    def _get_herschel_filter_name(self, member_name):
         for herschel_filter in self.__HERSCHEL_FILTERS.keys():
             if herschel_filter in member_name:
                 return self.__HERSCHEL_FILTERS[herschel_filter]
