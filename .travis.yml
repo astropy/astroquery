@@ -39,7 +39,6 @@ env:
 
     matrix:
         - PYTHON_VERSION=2.7 SETUP_CMD='egg_info'
-        - PYTHON_VERSION=3.3 SETUP_CMD='egg_info'
         - PYTHON_VERSION=3.4 SETUP_CMD='egg_info'
         - PYTHON_VERSION=3.5 SETUP_CMD='egg_info'
         - PYTHON_VERSION=3.6 SETUP_CMD='egg_info'
@@ -82,22 +81,9 @@ matrix:
         # versions of Python, we can vary Python and Numpy versions at the same
         # time. We don't expect any of these to fail in master for cron jobs.
         - os: linux
-          env: PYTHON_VERSION=2.7 NUMPY_VERSION=1.7
-               CONDA_DEPENDENCIES=$CONDA_DEPENDENCIES_OLD
-               PIP_DEPENDENCIES=$PIP_DEPENDENCIES_OLD
-               RUN_HTTPBIN=""
+          env: PYTHON_VERSION=2.7 NUMPY_VERSION=1.9
         - os: linux
-          env: PYTHON_VERSION=3.3 NUMPY_VERSION=1.8
-               CONDA_DEPENDENCIES=$CONDA_DEPENDENCIES_OLD
-               PIP_DEPENDENCIES=$PIP_DEPENDENCIES_OLD
-               RUN_HTTPBIN=""
-        - os: linux
-          env: PYTHON_VERSION=3.4 NUMPY_VERSION=1.9
-               CONDA_DEPENDENCIES=$CONDA_DEPENDENCIES_OLD
-               PIP_DEPENDENCIES=$PIP_DEPENDENCIES_OLD
-               RUN_HTTPBIN=""
-        - os: linux
-          env: PYTHON_VERSION=3.5 NUMPY_VERSION=1.10
+          env: PYTHON_VERSION=3.4 NUMPY_VERSION=1.10
         - os: linux
           env: PYTHON_VERSION=3.5 NUMPY_VERSION=1.11
 

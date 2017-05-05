@@ -67,12 +67,12 @@ The development version can be obtained and installed from github:
 Requirements
 ------------
 
-Astroquery works with Python 2.7 and 3.3 or later.
+Astroquery works with Python 2.7 and 3.4 or later.
 
 The following packages are required for astroquery installation & use:
 
-* `numpy <http://www.numpy.org>`_ >= 1.6
-* `astropy <http://www.astropy.org>`__ (>=0.4)
+* `numpy <http://www.numpy.org>`_ >= 1.9
+* `astropy <http://www.astropy.org>`__ (>=1.0)
 * `requests <http://docs.python-requests.org/en/latest/>`_
 * `keyring <https://pypi.python.org/pypi/keyring>`_
 * `Beautiful Soup <http://www.crummy.com/software/BeautifulSoup/>`_
