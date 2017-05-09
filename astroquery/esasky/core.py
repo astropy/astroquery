@@ -27,7 +27,7 @@ class ESASkyClass(BaseQuery):
     URLbase = conf.urlBase
     TIMEOUT = conf.timeout
     DEFAULT_ROW_LIMIT = conf.row_limit
-    
+
     __FITS_STRING = ".fits"
     __FTZ_STRING = ".FTZ"
     __TAR_STRING = ".tar"
