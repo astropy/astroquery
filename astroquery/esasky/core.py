@@ -27,7 +27,7 @@ class ESASkyClass(BaseQuery):
     URLbase = conf.urlBase
     TIMEOUT = conf.timeout
     DEFAULT_ROW_LIMIT = conf.row_limit
-
+    
     __FITS_STRING = ".fits"
     __FTZ_STRING = ".FTZ"
     __TAR_STRING = ".tar"
@@ -62,6 +62,8 @@ class ESASkyClass(BaseQuery):
            'mapb_blue': '70',
            'mapb_green': '100',
            'mapr_': '160'}
+
+    __isTest = ""
 
     def list_maps(self):
         """
@@ -525,7 +527,7 @@ class ESASkyClass(BaseQuery):
                 else:
                     response = self._request('GET', product_url, cache=cache,
                                              headers={'User-Agent':
-                                                      ('astropy:astroquery.esasky.{vers}'.format(vers=version.version))})
+                                                      ('astropy:astroquery.esasky.{vers} {isTest}'.format(vers=version.version, isTest=self.__isTest))})
                     file_name = ""
                     if (product_url.endswith(self.__FITS_STRING)):
                         file_name = (directory_path +
@@ -551,7 +553,7 @@ class ESASkyClass(BaseQuery):
         tar_file = tempfile.NamedTemporaryFile()
         response = self._request('GET', product_url, cache=cache,
                                  headers={'User-Agent':
-                                          ('astropy:astroquery.esasky.{vers}'.format(vers=version.version))})
+                                          ('astropy:astroquery.esasky.{vers} {isTest}'.format(vers=version.version, isTest=self.__isTest))})
         tar_file.write(response.content)
         with tarfile.open(tar_file.name, 'r') as tar:
             i = 0
@@ -762,7 +764,8 @@ class ESASkyClass(BaseQuery):
         url = self.URLbase + "/" + object_name
         response = self._request('GET', url,
                                  cache=False,
-                                 headers={'User-Agent': ('astropy:astroquery.esasky.{vers}'.format(vers=version.version))})
+                                 headers={'User-Agent': 
+                                          ('astropy:astroquery.esasky.{vers} {isTest}'.format(vers=version.version, isTest=self.__isTest))})
         string_response = response.content.decode('utf-8')
         json_response = json.loads(string_response)
         return json_response["descriptors"]
@@ -785,7 +788,8 @@ class ESASkyClass(BaseQuery):
         url = self.URLbase + url_extension
         return self._request('GET', url, params=request_payload,
                              timeout=self.TIMEOUT, cache=cache,
-                             headers={'User-Agent': ('astropy:astroquery.esasky.{vers}'.format(vers=version.version))})
+                             headers={'User-Agent': 
+                                      ('astropy:astroquery.esasky.{vers} {isTest}'.format(vers=version.version, isTest=self.__isTest))})
 
     def _parse_xml_table(self, response):
         # try to parse the result into an astropy.Table, else
