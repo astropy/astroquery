@@ -167,7 +167,6 @@ def test_validation(epoch, equinox):
             simbad.core.validate_epoch(epoch)
 
 
-@pytest.mark.xfail()
 @pytest.mark.parametrize(('bibcode', 'wildcard'),
                          [('2006ApJ*', True),
                           ('2005A&A.430.165F', None)
