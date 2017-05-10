@@ -11,7 +11,7 @@ from ...esasky import ESASky
 
 
 DATA_FILES = {'GET':
-              {'http://ammidev.n1data.lan:8080/esasky-tap/observations':
+              {'http://sky.esa.int/esasky-tap/observations':
                'observations.txt',
                'http://sky.esa.int/esasky-tap/catalogs':
                'catalogs.txt'
