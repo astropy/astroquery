@@ -13,6 +13,7 @@ environment:
       CONDA_DEPENDENCIES: "requests beautifulsoup4 matplotlib html5lib keyring aplpy"
       PIP_DEPENDENCIES: "pyregion"
       CONDA_CHANNELS: "astropy conda-forge"
+      ASTROPY_USE_SYSTEM_PYTEST: 1
 
   matrix:
       - PYTHON_VERSION: "2.7"
@@ -22,7 +23,6 @@ environment:
       - PYTHON_VERSION: "3.6"
         ASTROPY_VERSION: "stable"
         NUMPY_VERSION: "stable"
-        ASTROPY_USE_SYSTEM_PYTEST: 1
 
 platform:
     -x64

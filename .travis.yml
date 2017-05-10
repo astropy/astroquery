@@ -36,6 +36,7 @@ env:
         - CONDA_DEPENDENCIES_OLD='requests beautiful-soup matplotlib html5lib'
         - PIP_DEPENDENCIES_OLD='pyregion aplpy keyring'
         - EVENT_TYPE='pull_request push'
+        - ASTROPY_USE_SYSTEM_PYTEST=1
 
     matrix:
         - PYTHON_VERSION=2.7 SETUP_CMD='egg_info'
@@ -55,7 +56,7 @@ matrix:
         # astropy test command.
         - os: linux
           env: EVENT_TYPE='push cron' DEBUG=True ASTROPY_VERSION=dev
-               SETUP_CMD='test -R -V' ASTROPY_USE_SYSTEM_PYTEST=1
+               SETUP_CMD='test -R -V'
         - os: linux
           env: EVENT_TYPE='push cron' PYTHON_VERSION=2.7
                SETUP_CMD='test --remote-data -V'
@@ -64,7 +65,6 @@ matrix:
         # Try MacOS X
         - os: osx
           env: SETUP_CMD='test' CONDA_CHANNELS='conda-forge astropy-ci-extras astropy'
-               ASTROPY_USE_SYSTEM_PYTEST=1
 
         # Do a coverage test in Python 2. Move coverage to 3.x once speed
         # issues have been solved; astropy/astropy#4826
@@ -93,7 +93,7 @@ matrix:
         - os: linux
           env: PYTHON_VERSION=2.7 ASTROPY_VERSION=development EVENT_TYPE='pull_request'
         - os: linux
-          env: ASTROPY_VERSION=development ASTROPY_USE_SYSTEM_PYTEST=1  EVENT_TYPE='pull_request'
+          env: ASTROPY_VERSION=development EVENT_TYPE='pull_request'
         - os: linux
           env: PYTHON_VERSION=2.7 ASTROPY_VERSION=lts EVENT_TYPE='push pull_request cron'
         # Need to test with python3.5 for now as py3.6 requires pytest3 (due
@@ -107,18 +107,17 @@ matrix:
           env: PYTHON_VERSION=2.7
                CONDA_DEPENDENCIES='requests beautifulsoup4 html5lib keyring'
         - os: linux
-          env: CONDA_DEPENDENCIES='requests beautifulsoup4 html5lib keyring' ASTROPY_USE_SYSTEM_PYTEST=1
+          env: CONDA_DEPENDENCIES='requests beautifulsoup4 html5lib keyring'
 
         # Try numpy pre-release version, this runs only when a pre-release
         # is available on pypi.
         - os: linux
           env: NUMPY_VERSION=prerelease DEBUG=True EVENT_TYPE='push pull_request cron'
-               ASTROPY_USE_SYSTEM_PYTEST=1
 
         # Do a PEP8 test with pycodestyle
         - os: linux
           env: MAIN_CMD='pycodestyle astroquery --count'
-               SETUP_CMD='' EVENT_TYPE='push pull_request' ASTROPY_USE_SYSTEM_PYTEST=1
+               SETUP_CMD='' EVENT_TYPE='push pull_request'
 
 install:
     - git clone git://github.com/astropy/ci-helpers.git
