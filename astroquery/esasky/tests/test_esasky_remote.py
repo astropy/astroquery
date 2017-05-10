@@ -6,11 +6,14 @@ from astropy.tests.helper import remote_data
 
 from ... import esasky
 
+
 ESASkyClass = esasky.core.ESASkyClass()
 
 @remote_data
 class TestESASky:
+    
     ESASkyClass.__isTest = "Remote Test"
+    
     def test_esasky_query_region_maps(self):
         result = ESASkyClass.query_region_maps("M51", "5 arcmin")
         assert isinstance(result, TableList)

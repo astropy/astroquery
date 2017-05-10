@@ -764,7 +764,7 @@ class ESASkyClass(BaseQuery):
         url = self.URLbase + "/" + object_name
         response = self._request('GET', url,
                                  cache=False,
-                                 headers={'User-Agent': 
+                                 headers={'User-Agent':
                                           ('astropy:astroquery.esasky.{vers} {isTest}'.format(vers=version.version, isTest=self.__isTest))})
         string_response = response.content.decode('utf-8')
         json_response = json.loads(string_response)
@@ -788,7 +788,7 @@ class ESASkyClass(BaseQuery):
         url = self.URLbase + url_extension
         return self._request('GET', url, params=request_payload,
                              timeout=self.TIMEOUT, cache=cache,
-                             headers={'User-Agent': 
+                             headers={'User-Agent':
                                       ('astropy:astroquery.esasky.{vers} {isTest}'.format(vers=version.version, isTest=self.__isTest))})
 
     def _parse_xml_table(self, response):
