@@ -136,8 +136,7 @@ by the `~astropy.coordinates.ICRS` object)
 
     >>> from astroquery.simbad import Simbad
     >>> import astropy.coordinates as coord
-    >>> # works only for ICRS coordinates:
-    >>> result_table = Simbad.query_region("05h35m17.3s -05h23m28s", radius='1d0m0s')
+    >>> result_table = Simbad.query_region(coord.SkyCoord("05h35m17.3s -05h23m28s", frame='icrs'), radius='1d0m0s')
     >>> print(result_table)
 
             MAIN_ID               RA      ...     COO_BIBCODE
