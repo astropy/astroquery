@@ -7,18 +7,14 @@ This module contains various methods for querying
 Las Cumbres Observatory data archive as hosted by IPAC.
 """
 from astropy import config as _config
-import warnings
-
-warnings.warn("The Las Cumbres Observatory archive API has been changed. While we aim to "
-              "accommodate the changes into astroqeury, pleased be advised "
-              "that this module is not working at the moment.")
-
 
 class Conf(_config.ConfigNamespace):
     """
     Configuration parameters for `astroquery.lco`.
     """
+
     _base_path = 'https://archive-api.lco.global'
+
     server = _config.ConfigItem(
         _base_path,
         'Las Cumbres Observatory archive API base URL')
@@ -56,12 +52,24 @@ class Conf(_config.ConfigNamespace):
         'Returns information about the currently authenticated user.')
 
     row_limit = _config.ConfigItem(
-        500,
+        10,
         'Maximum number of rows to retrieve in result')
 
     timeout = _config.ConfigItem(
         60,
         'Time limit for connecting to the Las Cumbres Observatory archive')
+
+    username = _config.ConfigItem(
+        "",
+        'Optional default username for Las Cumbres Observatory archive.')
+
+    dtypes = _config.ConfigItem(
+            ['i','str','str','str','str','str','str','str','str','f','str','str'],
+            "NumPy data types for archive response")
+
+    names  = _config.ConfigItem(
+            ['id','filename','url','RLEVEL','DATE_OBS','PROPID','OBJECT','SITEID','TELID','EXPTIME','FILTER','REQNUM'],
+            "Archive response items")
 
 
 conf = Conf()
