@@ -188,8 +188,9 @@ to 2000.0. So here is a query with all the options utilized:
     >>> from astroquery.simbad import Simbad
     >>> import astropy.coordinates as coord
     >>> import astropy.units as u
-    >>> result_table = Simbad.query_region(coord.FK5(ra=11.70*u.deg, dec=10.90*u.deg),
-    ...                                    radius=0.5 * u.degree,
+    >>> result_table = Simbad.query_region(coord.SkyCoord(ra=11.70, dec=10.90, 
+    ...                                    unit=(u.deg, u.deg), frame='fk5'),
+    ...                                    radius=0.5 * u.deg,
     ...                                    epoch='B1950',
     ...                                    equinox=1950)
     >>> print(result_table)
