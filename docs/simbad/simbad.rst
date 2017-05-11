@@ -127,17 +127,14 @@ the `~astropy.units.Quantity` object:
 
 
 
-If coordinates are used, then they should be entered using an `astropy.coordinates`
-object. Limited support for entering the coordinates directly as a string also
-exists - only for ICRS coordinates (though these may just as well be specified
-by the `~astropy.coordinates.ICRS` object)
+If coordinates are used, then they should be entered using an `astropy.coordinates.SkyCoord`
+object.
 
 .. code-block:: python
 
     >>> from astroquery.simbad import Simbad
     >>> import astropy.coordinates as coord
-    >>> # works only for ICRS coordinates:
-    >>> result_table = Simbad.query_region("05h35m17.3s -05h23m28s", radius='1d0m0s')
+    >>> result_table = Simbad.query_region(coord.SkyCoord("05h35m17.3s -05h23m28s", frame='icrs'), radius='1d0m0s')
     >>> print(result_table)
 
             MAIN_ID               RA      ...     COO_BIBCODE
@@ -160,8 +157,6 @@ by the `~astropy.coordinates.ICRS` object)
              PKS J0557-8122   05 57 26.80 ... 2003MNRAS.342.1117M
                PKS 0602-813    05 57 30.7 ...
 
-
-For other coordinate systems, use the appropriate `astropy.coordinates` object:
 
 .. code-block:: python
 
@@ -188,9 +183,9 @@ to 2000.0. So here is a query with all the options utilized:
     >>> from astroquery.simbad import Simbad
     >>> import astropy.coordinates as coord
     >>> import astropy.units as u
-    >>> result_table = Simbad.query_region(coord.FK5(ra=11.70, dec=10.90,
-    ...                                    unit=(u.deg, u.deg)),
-    ...                                    radius=0.5 * u.degree,
+    >>> result_table = Simbad.query_region(coord.SkyCoord(ra=11.70, dec=10.90, 
+    ...                                    unit=(u.deg, u.deg), frame='fk5'),
+    ...                                    radius=0.5 * u.deg,
     ...                                    epoch='B1950',
     ...                                    equinox=1950)
     >>> print(result_table)
