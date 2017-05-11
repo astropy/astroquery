@@ -9,7 +9,7 @@ import astropy.units as u
 import requests
 import imp
 
-from ... import lcogt
+from ... import lco
 
 imp.reload(requests)
 
