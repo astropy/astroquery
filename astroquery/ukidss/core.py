@@ -76,14 +76,15 @@ class UkidssClass(QueryWithLogin):
                               'Deep Extragalactic Survey': 104,
                               'Ultra Deep Survey': 105}
 
-    all_databases = ("UKIDSSDR9PLUS", "UKIDSSDR8PLUS", "UKIDSSDR7PLUS",
+    all_databases = ("UKIDSSDR10PLUS", "UKIDSSDR9PLUS",
+                     "UKIDSSDR8PLUS", "UKIDSSDR7PLUS",
                      "UKIDSSDR6PLUS", "UKIDSSDR5PLUS", "UKIDSSDR4PLUS",
                      "UKIDSSDR3PLUS", "UKIDSSDR2PLUS", "UKIDSSDR1PLUS",
                      "UKIDSSDR1", "UKIDSSEDRPLUS", "UKIDSSEDR", "UKIDSSSV",
                      "WFCAMCAL08B", "U09B8v20120403", "U09B8v20100414")
 
     def __init__(self, username=None, password=None, community=None,
-                 database='UKIDSSDR7PLUS', programme_id='all'):
+                 database='UKIDSSDR10PLUS', programme_id='all'):
         super(UkidssClass, self).__init__()
         self.database = database
         self.programme_id = programme_id  # 102 = GPS
@@ -92,14 +93,16 @@ class UkidssClass(QueryWithLogin):
             pass
         else:
             self.login(username, password, community)
+        self.vista = False
 
     def setup_vista(self, username=None, password=None, community=None,
-                 database='VISTAOPENTIME', programme_id='all'):
+                 database='VVVDR4', programme_id='VVV'):
         """
         Configure parameters to query the VISTA surveys
         (structure of the website is identical to UKIDSS)
         """
 
+        self.vista = True
         self.BASE_URL = 'http://horus.roe.ac.uk:8080/vdfs/'
         self.LOGIN_URL = self.BASE_URL + "DBLogin"
         self.IMAGE_URL = self.BASE_URL + "GetImage"
@@ -213,7 +216,7 @@ class UkidssClass(QueryWithLogin):
 
     def get_images(self, coordinates, waveband='all', frame_type='stack',
                    image_width=1 * u.arcmin, image_height=None, radius=None,
-                   database='UKIDSSDR7PLUS', programme_id='all',
+                   database=None, programme_id=None,
                    verbose=True, get_query_payload=False,
                    show_progress=True):
         """
@@ -259,6 +262,13 @@ class UkidssClass(QueryWithLogin):
         -------
         list : A list of `~astropy.io.fits.HDUList` objects.
         """
+
+        if database is None:
+            database = self.database
+
+        if programme_id is None:
+            programme_id = self.programme_id
+
         readable_objs = self.get_images_async(
             coordinates, waveband=waveband, frame_type=frame_type,
             image_width=image_width, image_height=image_height,
@@ -272,8 +282,8 @@ class UkidssClass(QueryWithLogin):
 
     def get_images_async(self, coordinates, waveband='all', frame_type='stack',
                          image_width=1 * u.arcmin, image_height=None,
-                         radius=None, database='UKIDSSDR7PLUS',
-                         programme_id='all', verbose=True,
+                         radius=None, database=None,
+                         programme_id=None, verbose=True,
                          get_query_payload=False,
                          show_progress=True):
         """
@@ -324,6 +334,12 @@ class UkidssClass(QueryWithLogin):
             A list of context-managers that yield readable file-like objects.
         """
 
+        if database is None:
+            database = self.database
+
+        if programme_id is None:
+            programme_id = self.programme_id
+
         image_urls = self.get_image_list(coordinates, waveband=waveband,
                                          frame_type=frame_type,
                                          image_width=image_width,
@@ -346,8 +362,8 @@ class UkidssClass(QueryWithLogin):
     @validate_filter
     def get_image_list(self, coordinates, waveband='all', frame_type='stack',
                        image_width=1 * u.arcmin, image_height=None,
-                       radius=None, database='UKIDSSDR7PLUS',
-                       programme_id='all', get_query_payload=False):
+                       radius=None, database=None,
+                       programme_id=None, get_query_payload=False):
         """
         Function that returns a list of urls from which to download the FITS
         images.
@@ -394,6 +410,12 @@ class UkidssClass(QueryWithLogin):
         url_list : list of image urls
 
         """
+
+        if database is None:
+            database = self.database
+
+        if programme_id is None:
+            programme_id = self.programme_id
 
         request_payload = self._args_to_payload(coordinates, database=database,
                                                 programme_id=programme_id,
@@ -474,7 +496,7 @@ class UkidssClass(QueryWithLogin):
         return links
 
     def query_region(self, coordinates, radius=1 * u.arcmin,
-                     programme_id='GPS', database='UKIDSSDR7PLUS',
+                     programme_id=None, database=None,
                      verbose=False, get_query_payload=False, system='J2000'):
         """
         Used to query a region around a known identifier or given
@@ -514,6 +536,15 @@ class UkidssClass(QueryWithLogin):
             Query result table.
         """
 
+        if database is None:
+            database = self.database
+
+        if programme_id is None:
+            if self.programme_id != 'all':
+                programme_id = self.programme_id
+            else:
+                programme_id = 'VVV' if self.vista else 'GPS'
+
         response = self.query_region_async(coordinates, radius=radius,
                                            programme_id=programme_id,
                                            database=database,
@@ -526,8 +557,8 @@ class UkidssClass(QueryWithLogin):
         return result
 
     def query_region_async(self, coordinates, radius=1 * u.arcmin,
-                           programme_id='GPS',
-                           database='UKIDSSDR7PLUS', get_query_payload=False,
+                           programme_id=None,
+                           database=None, get_query_payload=False,
                            system='J2000'):
         """
         Serves the same purpose as `query_region`. But
@@ -560,6 +591,15 @@ class UkidssClass(QueryWithLogin):
         response : `requests.Response`
             The HTTP response returned from the service.
         """
+
+        if database is None:
+            database = self.database
+
+        if programme_id is None:
+            if self.programme_id != 'all':
+                programme_id = self.programme_id
+            else:
+                programme_id = 'VVV' if self.vista else 'GPS'
 
         request_payload = self._args_to_payload(coordinates,
                                                 programme_id=programme_id,

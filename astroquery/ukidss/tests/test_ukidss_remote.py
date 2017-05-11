@@ -51,14 +51,16 @@ class TestUkidss:
         assert isinstance(table, Table)
         assert len(table) > 0
 
-class TestVista:
 
-    vista = ukidss.core.UkidssClass()
-    vista.setup_vista(database='VVVDR4', programme_id='VVV')
+vista = ukidss.core.UkidssClass()
+vista.setup_vista()
+
+@remote_data
+class TestVista:
 
     def test_get_images(self):
 
         images = vista.get_images(
-                 SkyCoord(l=336.489, b=-1.48, unit=(u.deg, u.deg), frame='galactic'),
-                 image_width=5 * u.arcmin)
+                 SkyCoord(l=336.489, b=-1.48, unit=(u.deg, u.deg), frame='galactic'), frame_type='stack',
+                 image_width=5 * u.arcmin, waveband='H')
         assert images is not None
