@@ -61,6 +61,6 @@ class TestVista:
     def test_get_images(self):
 
         images = vista.get_images(
-                 SkyCoord(l=336.489, b=-1.48, unit=(u.deg, u.deg), frame='galactic'), frame_type='stack',
+                 SkyCoord(l=336.489, b=-1.48, unit=(u.deg, u.deg), frame='galactic'), frame_type='tilestack',
                  image_width=5 * u.arcmin, waveband='H')
         assert images is not None
