@@ -216,8 +216,26 @@ class SimbadObjectIDsResult(SimbadResult):
     def table(self):
         max_len = max([len(i) for i in self.data.splitlines()])
         table = Table(names=['ID'], dtype=['S%i' % max_len])
+        
         for id in self.data.splitlines():
             table.add_row([id.strip()])
+        return table
+
+
+class SimbadBibcodelistResult(SimbadResult):
+    """
+    Bibcodes list Simbad result for one object (the "main name" is given)
+    (The bibcodes are given in one row and are separated by ";" 
+    """
+    @property
+    def table(self):
+        
+        MID,list_bib=self.data.splitlines()[0].split("=====")
+        list_bib=list_bib+";"+";".join(self.data.splitlines()[1:])
+        
+        table = Table(names=['MAIN_ID','BIBCODE'], dtype=['S%i' % len(MID) ,'S%i' %len(list_bib)])
+        table.add_row([MID,list_bib])
+        
         return table
 
 
@@ -820,6 +838,51 @@ class SimbadClass(BaseQuery):
         response = self._request("POST", self.SIMBAD_URL, data=request_payload,
                                  timeout=self.TIMEOUT, cache=cache)
         return response
+        
+    def query_bibcodelist(self, object_name, verbose=False):
+        """
+        Query Simbad with an object name, and return a table of all
+        bibcodes associated with that object in a `~astropy.table.Table`.
+        (Two columns, 1 row; Main Id with all the bibcodes (separates by";"))
+
+        Parameters
+        ----------
+        object_name : str
+            name of object to be queried
+
+        Returns
+        -------
+        table : `~astropy.table.Table`
+            Query results table
+
+        """
+        result = self.query_bibcodelist_async(object_name)
+        return self._parse_result(result, SimbadBibcodelistResult,
+                                  verbose=verbose)
+
+    def query_bibcodelist_async(self, object_name, cache=True):
+        """
+        Serves the same function as `query_bibcodelist`, but
+        only collects the response from the Simbad server and returns.
+
+        Parameters
+        ----------
+        object_name : str
+            name of object to be queried
+
+        Returns
+        -------
+        response : `requests.Response`
+             Response of the query from the server.
+
+        """
+        request_payload = dict(script="\n".join(('format object "%IDLIST(1)====="+','"%BIBCODELIST"',
+                                                 'query id %s' % object_name)))
+                ### (The "=====" are ugly, but a jump line in the format doesn't seem to be accepted -when it is trough Simbad's website)
+        response = self._request("POST", self.SIMBAD_URL, data=request_payload,
+                                 timeout=self.TIMEOUT, cache=cache)
+        return response
+
 
     def _get_query_header(self, get_raw=False):
         votable_fields = ','.join(self.get_votable_fields())
