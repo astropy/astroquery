@@ -376,20 +376,21 @@ article specified by the bibcode:
 .. code-block:: python
 
     >>> from astroquery.simbad import Simbad
-    >>> result_table = Simbad.query_bibobj('2005A&A.430.165F')
+    >>> result_table = Simbad.query_bibobj('2006AJ....131.1163S')
     >>> print(result_table)
 
-        MAIN_ID              RA          DEC      RA_PREC DEC_PREC ... COO_ERR_MINA COO_ERR_ANGLE COO_QUAL COO_WAVELENGTH     COO_BIBCODE    
-                          "h:m:s"      "d:m:s"                     ...     mas           deg                                                 
------------------------ ------------ ------------ ------- -------- ... ------------ ------------- -------- -------------- -------------------
-                  M  32 00 42 41.825 +40 51 54.61       7        7 ...           --             0        B              I 2006AJ....131.1163S
-                  M  31 00 42 44.330 +41 16 07.50       7        7 ...           --             0        B              I 2006AJ....131.1163S
-               NAME SMC   00 52 38.0    -72 48 01       5        5 ...           --             0        D              O 2003A&A...412...45P
-        Cl Melotte   22     03 47 00     +24 07.0       4        4 ...           --             0        E              O 2009MNRAS.399.2146W
-2MASX J04504846-7531580 04 50 48.462 -75 31 58.08       7        7 ...           --             0        B              I 2006AJ....131.1163S
-               NAME LMC   05 23 34.6    -69 45 22       5        5 ...           --             0        D              O 2003A&A...412...45P
-      NAME Lockman Hole   10 45 00.0    +58 00 00       5        5 ...           --             0        E                2011ApJ...734...99H
-        NAME Gal Center  17 45 40.04  -29 00 28.1       6        6 ...           --             0        E                                   
+            MAIN_ID              RA          DEC      RA_PREC DEC_PREC ... COO_ERR_MINA COO_ERR_ANGLE COO_QUAL COO_WAVELENGTH     COO_BIBCODE    
+                              "h:m:s"      "d:m:s"                     ...     mas           deg                                                 
+    ----------------------- ------------ ------------ ------- -------- ... ------------ ------------- -------- -------------- -------------------
+                      M  32 00 42 41.825 +40 51 54.61       7        7 ...           --             0        B              I 2006AJ....131.1163S
+                      M  31 00 42 44.330 +41 16 07.50       7        7 ...           --             0        B              I 2006AJ....131.1163S
+                   NAME SMC   00 52 38.0    -72 48 01       5        5 ...           --             0        D              O 2003A&A...412...45P
+            Cl Melotte   22     03 47 00     +24 07.0       4        4 ...           --             0        E              O 2009MNRAS.399.2146W
+    2MASX J04504846-7531580 04 50 48.462 -75 31 58.08       7        7 ...           --             0        B              I 2006AJ....131.1163S
+                   NAME LMC   05 23 34.6    -69 45 22       5        5 ...           --             0        D              O 2003A&A...412...45P
+          NAME Lockman Hole   10 45 00.0    +58 00 00       5        5 ...           --             0        E                2011ApJ...734...99H
+            NAME Gal Center  17 45 40.04  -29 00 28.1       6        6 ...           --             0        E                                   
+
 
 Query based on any criteria
 ----------------------------
