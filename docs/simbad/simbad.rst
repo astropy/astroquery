@@ -320,51 +320,43 @@ associated with an object.
     >>> from astroquery.simbad import Simbad
     >>> result_table = Simbad.query_objectids("Polaris")
     >>> print(result_table)
-	     ID
-    --------------------
-	    ADS  1477 AP
-	    ** STF   93A
-	WDS J02318+8916A
-	     ** WRH   39
-	   NAME Lodestar
-		PLX  299
-		 SBC9 76
-	       *   1 UMi
-	       * alf UMi
-	   AAVSO 0122+88
-	     ADS  1477 A
-	      AG+89    4
-	     BD+88     8
-       CCDM J02319+8915A
-	 CSI+88     8  1
-		FK5  907
-		GC  2243
-	      GCRV  1037
-       GEN# +1.00008890A
-	 GSC 04628-00237
-	       HD   8890
-	      HIC  11767
-	      HIP  11767
-		HR   424
-	IDS 01226+8846 A
-	 IRAS 01490+8901
-	      JP11   498
-		N30  381
-	 NAME NORTH STAR
-	    NAME POLARIS
-	 PMC 90-93   640
-	      PPM    431
-	       ROT  3491
-	      SAO    308
-	      SBC7    51
-	      SKY#  3738
-	       TD1   835
-	  TYC 4628-237-1
-	     UBV   21589
-	    UBV M   8201
-	      V* alf UMi
-	     PLX  299.00
-    WDS J02318+8916Aa,Ab
+               ID          
+    -----------------------
+               NAME Polaris
+            NAME North Star
+              NAME Lodestar
+                   PLX  299
+                    SBC9 76
+                  *   1 UMi
+                  * alf UMi
+              AAVSO 0122+88
+                ADS  1477 A
+                 AG+89    4
+                BD+88     8
+          CCDM J02319+8915A
+            CSI+88     8  1
+                   FK5  907
+                   GC  2243
+                 GCRV  1037
+                        ...
+                 PPM    431
+                  ROT  3491
+                 SAO    308
+                 SBC7    51
+                 SKY#  3738
+                  TD1   835
+             TYC 4628-237-1
+                UBV   21589
+               UBV M   8201
+                 V* alf UMi
+                PLX  299.00
+       WDS J02318+8916Aa,Ab
+               ADS  1477 AP
+                ** WRH   39
+           WDS J02318+8916A
+               ** STF   93A
+    2MASS J02314822+8915503
+
 
 Query a bibobj
 --------------
