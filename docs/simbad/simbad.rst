@@ -477,13 +477,15 @@ also want to be fetched in the result. To see the list of the fields:
      >>> from astroquery.simbad import Simbad
      >>> Simbad.list_votable_fields()
 
-               col0               col1          col2
-           ----------------- ------------ --------------
-                     dim      main_id  propermotions
-               dim_angle measurements        ra(opt)
-             dim_bibcode       mesplx        ra_prec
-                dim_incl        mespm            rot
-             dim_majaxis           mk       rv_value
+              col0                   col1              col2     
+    ------------------------ -------------------- --------------
+          bibcodelist(y1-y2) fluxdata(filtername)       plx_qual
+                         cel                 gcrv             pm
+                        cl.g                  gen     pm_bibcode
+                    coo(opt)                   gj   pm_err_angle
+                 coo_bibcode                 hbet    pm_err_maja
+               coo_err_angle                hbet1    pm_err_mina
+                coo_err_maja                 hgam        pm_qual
 
 
 The above shows just a small snippet of the table that is returned and has all
@@ -525,7 +527,7 @@ Continuing from the above example:
     >>> customSimbad.remove_votable_fields('mk', 'coordinates')
     >>> customSimbad.get_votable_fields()
 
-    ['rot', 'main_id']
+    ['main_id', 'rot', 'bibcodelist(1800-2014)']
 
     # reset back to defaults
 
