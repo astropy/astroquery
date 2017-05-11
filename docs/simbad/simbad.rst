@@ -356,6 +356,8 @@ associated with an object.
            WDS J02318+8916A
                ** STF   93A
     2MASS J02314822+8915503
+
+
 Query a bibobj
 --------------
 
