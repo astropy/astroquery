@@ -93,6 +93,58 @@ class UkidssClass(QueryWithLogin):
         else:
             self.login(username, password, community)
 
+    def setup_vista(self, username=None, password=None, community=None,
+                 database='VISTAOPENTIME', programme_id='all'):
+        """
+        Configure parameters to query the VISTA surveys
+        (structure of the website is identical to UKIDSS)
+        """
+
+        self.BASE_URL = 'http://horus.roe.ac.uk:8080/vdfs/'
+        self.LOGIN_URL = self.BASE_URL + "DBLogin"
+        self.IMAGE_URL = self.BASE_URL + "GetImage"
+        self.ARCHIVE_URL = self.BASE_URL + "ImageList"
+        self.REGION_URL = self.BASE_URL + "WSASQL"
+
+        self.filters = {'all': 'all', 'Z': 1, 'Y': 2, 'J': 3,
+                        'H': 4, 'Ks': 5, 'NB118': 9, 'NB980': 10}
+
+        self.frame_types = {'tilestack': 'tilestack', 'stack': 'stack',
+                            'normal': 'normal', 'deep_stack': 'deep%stack',
+                            'confidence': 'conf', 'difference': 'diff',
+                            'all': 'all'}
+
+        self.ukidss_programmes_short = {'VHS': 110,
+                                        'VVV': 120,
+                                        'VMC': 130,
+                                        'VIKING': 140,
+                                        'VIDEO': 150,
+                                        'UltraVISTA': 160,
+                                        'Calibration': 200}
+
+        self.ukidss_programmes_long = {'VISTA Hemisphere Survey': 110,
+                                       'VISTA Variables in the Via Lactea': 120,
+                                       'VISTA Magellanic Clouds Survey': 130,
+                                       'VISTA Kilo-degree Infrared Galaxy Survey': 140,
+                                       'VISTA Deep Extragalactic Observations': 150,
+                                       'An ultra-deep survey with VISTA': 160,
+                                       'Calibration data': 200}
+
+        self.all_databases = ('VHSDR4', 'VHSDR3', 'VHSDR2', 'VHSDR1',
+                              'VVVDR4', 'VVVDR2', 'VVVDR1',
+                              'VMCDR4', 'VMCDR3', 'VMCDR2', 'VMCDR1',
+                              'VIKINGDR4', 'VIKINGDR3', 'VIKINGDR2',
+                              'VIDEODR5', 'VIDEODR4', 'VIDEODR3', 'VIDEODR2',
+                              'VISTAOPENTIME')
+
+        self.database = database
+        self.programme_id = programme_id
+        self.session = None
+        if username is None or password is None or community is None:
+            pass
+        else:
+            self.login(username, password, community)
+
     def _login(self, username, password, community):
         """
         Login to non-public data as a known user.
