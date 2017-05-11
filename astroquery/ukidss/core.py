@@ -22,26 +22,6 @@ from ..exceptions import TableParseError
 __all__ = ['Ukidss', 'UkidssClass', 'clean_catalog']
 
 
-def validate_frame(func):
-    def wrapper(*args, **kwargs):
-        frame_type = kwargs.get('frame_type')
-        if frame_type not in UkidssClass.frame_types:
-            raise ValueError("Invalid frame type. Valid frame types are: {!s}"
-                             .format(UkidssClass.frame_types))
-        return func(*args, **kwargs)
-    return wrapper
-
-
-def validate_filter(func):
-    def wrapper(*args, **kwargs):
-        waveband = kwargs.get('waveband')
-        if waveband not in UkidssClass.filters:
-            raise ValueError("Invalid waveband. Valid wavebands are: {!s}"
-                             .format(UkidssClass.filters.keys()))
-        return func(*args, **kwargs)
-    return wrapper
-
-
 class UkidssClass(QueryWithLogin):
 
     """
@@ -358,8 +338,6 @@ class UkidssClass(QueryWithLogin):
                                       show_progress=show_progress)
                 for U in image_urls]
 
-    @validate_frame
-    @validate_filter
     def get_image_list(self, coordinates, waveband='all', frame_type='stack',
                        image_width=1 * u.arcmin, image_height=None,
                        radius=None, database=None,
@@ -410,6 +388,14 @@ class UkidssClass(QueryWithLogin):
         url_list : list of image urls
 
         """
+
+        if frame_type not in self.frame_types:
+            raise ValueError("Invalid frame type. Valid frame types are: {!s}"
+                             .format(self.frame_types))
+
+        if waveband not in self.filters:
+            raise ValueError("Invalid waveband. Valid wavebands are: {!s}"
+                             .format(self.filters.keys()))
 
         if database is None:
             database = self.database
