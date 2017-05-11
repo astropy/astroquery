@@ -366,6 +366,27 @@ associated with an object.
 	     PLX  299.00
     WDS J02318+8916Aa,Ab
 
+Query object bibcodes
+------------------------
+
+
+These queries can be used to retrieve all bibcodes associated with an object.
+
+.. code-block:: python
+
+    >>> from astroquery.simbad import Simbad
+    >>> result_table = Simbad.query_bibcode("QSO J0210+0118")
+    >>>  print(result_table["MAIN_ID"])
+   	    MAIN_ID    
+	--------------
+	QSO J0210+0118
+    >>> print(result_table["BIBCODE"])
+	      BIBCODE                                                                  
+-------------------------------------------------------------------------------------------------------------------------------------------
+2014A&A...563A..54P;2012MNRAS.426..851K;2010A&A...518A..10V;2009A&A...505..385A;2006A&A...455..773V;2001ApJS..135..227B;1998ApJ...494..503B
+
+
+
 Query a bibobj
 --------------
 
