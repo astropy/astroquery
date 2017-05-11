@@ -64,3 +64,28 @@ class TestVista:
                  SkyCoord(l=336.489, b=-1.48, unit=(u.deg, u.deg), frame='galactic'), frame_type='tilestack',
                  image_width=5 * u.arcmin, waveband='H')
         assert images is not None
+
+    def test_get_images_async(self):
+        images = vista.get_images_async(
+                 SkyCoord(l=336.489, b=-1.48, unit=(u.deg, u.deg), frame='galactic'), frame_type='tilestack',
+                 image_width=5 * u.arcmin, waveband='H')
+        assert images is not None
+
+    def test_get_image_list(self):
+        urls = vista.get_image_list(
+               SkyCoord(l=350.488, b=0.949, unit=(u.deg, u.deg), frame='galactic'),
+               frame_type='all', waveband='all')
+        assert len(urls) > 0
+
+    def test_query_region_async(self):
+        response = vista.query_region_async(
+                   SkyCoord(l=350.488, b=0.949, unit=(u.deg, u.deg), frame='galactic'),
+                   radius=6 * u.arcsec)
+        assert response is not None
+
+    def test_query_region(self):
+        table = vista.query_region(
+                SkyCoord(l=350.488, b=0.949, unit=(u.deg, u.deg), frame='galactic'),
+                radius=6 * u.arcsec)
+        assert isinstance(table, Table)
+        assert len(table) > 0

@@ -172,8 +172,8 @@ class UkidssClass(QueryWithLogin):
 
         programme_id = kwargs.get('programme_id', self.programme_id)
 
-        request_payload['programmeID'] = verify_programme_id(
-            programme_id, query_type=kwargs['query_type'])
+        request_payload['programmeID'] = self._verify_programme_id(
+                                         programme_id, query_type=kwargs['query_type'])
         sys = self._parse_system(kwargs.get('system'))
         request_payload['sys'] = sys
         if sys == 'J':
@@ -185,6 +185,41 @@ class UkidssClass(QueryWithLogin):
             request_payload['ra'] = C.l.degree
             request_payload['dec'] = C.b.degree
         return request_payload
+
+    def _verify_programme_id(self, pid, query_type='catalog'):
+        """
+        Verify the programme ID is valid for the query being executed.
+
+        Parameters
+        ----------
+        pid : int or str
+            The programme ID, either an integer (i.e., the # that will get passed
+            to the URL) or a string using the three-letter acronym for the
+            programme or its long name
+
+        Returns
+        -------
+        pid : int
+            Returns the integer version of the programme ID
+
+        Raises
+        ------
+        ValueError if the pid is 'all' and the query type is a catalog.
+        You can query all surveys for images, but not all catalogs.
+        """
+        if pid == 'all' and query_type == 'image':
+            return 'all'
+        elif pid == 'all' and query_type == 'catalog':
+            raise ValueError(
+                "Cannot query all catalogs at once. Valid catalogs are: {0}.\n"
+                "Change programmeID to one of these."
+                .format(",".join(self.ukidss_programmes_short.keys())))
+        elif pid in self.ukidss_programmes_long:
+            return self.ukidss_programmes_long[pid]
+        elif pid in self.ukidss_programmes_short:
+            return self.ukidss_programmes_short[pid]
+        elif query_type != 'image':
+            raise ValueError("programme_id {0} not recognized".format(pid))
 
     def _parse_system(self, system):
         if system is None:
@@ -605,6 +640,10 @@ class UkidssClass(QueryWithLogin):
         request_payload['select'] = 'default'
         request_payload['where'] = ''
 
+        # for some reason, this is required on the VISTA website
+        if self.vista:
+            request_payload['archive'] = 'VSA'
+
         if get_query_payload:
             return request_payload
 
@@ -791,42 +830,6 @@ def clean_catalog(ukidss_catalog, clean_band='K_1', badclass=-9999,
         mask *= (ukidss_catalog['mergedClass'] != badclass)
 
     return ukidss_catalog.data[mask]
-
-
-def verify_programme_id(pid, query_type='catalog'):
-    """
-    Verify the programme ID is valid for the query being executed.
-
-    Parameters
-    ----------
-    pid : int or str
-        The programme ID, either an integer (i.e., the # that will get passed
-        to the URL) or a string using the three-letter acronym for the
-        programme or its long name
-
-    Returns
-    -------
-    pid : int
-        Returns the integer version of the programme ID
-
-    Raises
-    ------
-    ValueError if the pid is 'all' and the query type is a catalog.
-    You can query all surveys for images, but not all catalogs.
-    """
-    if pid == 'all' and query_type == 'image':
-        return 'all'
-    elif pid == 'all' and query_type == 'catalog':
-        raise ValueError(
-            "Cannot query all catalogs at once. Valid catalogs are: {0}.\n"
-            "Change programmeID to one of these."
-            .format(",".join(UkidssClass.ukidss_programmes_short.keys())))
-    elif pid in UkidssClass.ukidss_programmes_long:
-        return UkidssClass.ukidss_programmes_long[pid]
-    elif pid in UkidssClass.ukidss_programmes_short:
-        return UkidssClass.ukidss_programmes_short[pid]
-    elif query_type != 'image':
-        raise ValueError("programme_id {0} not recognized".format(pid))
 
 
 def _parse_dimension(dim):
