@@ -205,6 +205,37 @@ def test_query_objectids(patch_post):
     assert isinstance(result2, Table)
 
 
+def test_query_bibcodelist_async(patch_post):
+    response1 = simbad.core.Simbad.query_bibcodelist_async('Polaris')
+    response2 = simbad.core.Simbad().query_bibcodelist_async('Polaris')
+    
+    response3 = simbad.core.Simbad.query_bibcodelist_async('QSO J0210+0118')
+    response4 = simbad.core.Simbad().query_bibcodelist_async('QSO J0210+0118')
+    
+    assert response1 is not None and response2 is not None
+    assert response1.content == response2.content
+    
+    assert response3 is not None and response4 is not None
+    assert response3.content == response4.content
+
+
+def test_query_bibcodelist(patch_post):
+    response1 = simbad.core.Simbad.query_bibcodelist('Polaris')
+    response2 = simbad.core.Simbad().query_bibcodelist('Polaris')
+    
+    response3 = simbad.core.Simbad.query_bibcodelist('QSO J0210+0118')
+    response4 = simbad.core.Simbad().query_bibcodelist('QSO J0210+0118')
+    
+    assert isinstance(result1, Table)
+    assert isinstance(result2, Table)
+    
+    assert isinstance(result3, Table)
+    assert isinstance(result4, Table)
+    assert "2009A&A...505..385A" in reponse3["BIBCODE"][0]
+    assert "QSO J0210+0118"==reponse3["MAIN_ID"][0]
+    
+    
+    
 def test_query_bibobj_async(patch_post):
     response1 = simbad.core.Simbad.query_bibobj_async('2005A&A.430.165F')
     response2 = simbad.core.Simbad().query_bibobj_async('2005A&A.430.165F')
