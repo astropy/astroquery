@@ -16,6 +16,7 @@ htmlcov
 .coverage
 MANIFEST
 .ipynb_checkpoints
+.eggs
 
 # Sphinx
 _build
