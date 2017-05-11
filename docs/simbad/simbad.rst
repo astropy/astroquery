@@ -127,10 +127,8 @@ the `~astropy.units.Quantity` object:
 
 
 
-If coordinates are used, then they should be entered using an `astropy.coordinates`
-object. Limited support for entering the coordinates directly as a string also
-exists - only for ICRS coordinates (though these may just as well be specified
-by the `~astropy.coordinates.ICRS` object)
+If coordinates are used, then they should be entered using an `astropy.coordinates.SkyCoord`
+object.
 
 .. code-block:: python
 
@@ -159,8 +157,6 @@ by the `~astropy.coordinates.ICRS` object)
              PKS J0557-8122   05 57 26.80 ... 2003MNRAS.342.1117M
                PKS 0602-813    05 57 30.7 ...
 
-
-For other coordinate systems, use the appropriate `astropy.coordinates` object:
 
 .. code-block:: python
 
