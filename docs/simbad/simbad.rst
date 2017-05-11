@@ -527,7 +527,7 @@ Continuing from the above example:
     >>> customSimbad.remove_votable_fields('mk', 'coordinates')
     >>> customSimbad.get_votable_fields()
 
-    ['rot', 'main_id']
+    ['main_id', 'rot', 'bibcodelist(1800-2014)']
 
     # reset back to defaults
 
