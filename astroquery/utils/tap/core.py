@@ -463,6 +463,10 @@ class Tap(object):
             args['jobname'] = name
         data = self.__connHandler.url_encode(args)
         response = self.__connHandler.execute_post(context, data)
+        if response.status == 303:
+            # the redirect should contain the location to the run entry of the job
+            run_context = 'sync/{}'.format(response.msg['location'].split('sync')[1])
+            response = self.__connHandler.execute_get(run_context)
         if verbose:
             print(response.status, response.reason)
             print(response.getheaders())
