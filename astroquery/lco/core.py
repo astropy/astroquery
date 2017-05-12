@@ -3,7 +3,7 @@ from __future__ import print_function
 
 """
 Las Cumbres Observatory
-====
+=======================
 
 API from
 
@@ -77,14 +77,25 @@ class LcoClass(QueryWithLogin):
         Returns
         -------
         response : `requests.Response`
-            The HTTP response returned from the service.
-            All async methods should return the raw HTTP response.
+            Returns an astropy Table with results. See below for table headers
+            id - ID of each Frame
+            filename - Name of Frame file
+            url - Download URL
+            RLEVEL
+            DATE_OBS - Observation data
+            PROPID - LCO proposal code
+            OBJECT - Object Name
+            SITEID - LCO 3-letter site ID of where observation was made
+            TELID - LCO 4-letter telescope ID of where observation was made
+            EXPTIME - Exposure time in seconds
+            FILTER - Filter name
+            REQNUM - LCO ID of the observing request which originated this frame
 
         Examples
         --------
-        While this section is optional you may put in some examples that
-        show how to use the method. The examples are written similar to
-        standard doctests in python.
+        # from astroquery.lco import Lco
+        # Lco.login(username='mpalin')
+        # Lco.query_object_async('M15', start='2016-01-01 00:00', end='2017-02-01 00:00')
 
         """
 

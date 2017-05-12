@@ -1,10 +1,10 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 """
 Las Cumbres Observatory public archive Query Tool
-===============
+=================================================
 
 This module contains various methods for querying
-Las Cumbres Observatory data archive as hosted by IPAC.
+Las Cumbres Observatory data archive.
 """
 from astropy import config as _config
 
