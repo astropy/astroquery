@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VOTABLE xmlns="http://www.ivoa.net/xml/VOTable/v1.3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.3">
+  <RESOURCE type="results">
+    <INFO name="QUERY_STATUS" value="OK" />
+    <INFO name="QUERY" value="SELECT  TOP 2000 Observation.collection AS &quot;Collection&quot;, Observation.observationID AS &quot;Obs. ID&quot;, COORD1(CENTROID(Plane.position_bounds)) AS &quot;RA (J2000.0)&quot;, COORD2(CENTROID(Plane.position_bounds)) AS &quot;Dec. (J2000.0)&quot;, Plane.time_bounds_lower AS &quot;Start Date&quot;, Observation.instrument_name AS &quot;Instrument&quot;, Plane.time_exposure AS &quot;Int. Time&quot;, Observation.target_name AS &quot;Target Name&quot;, Plane.energy_bandpassName AS &quot;Filter&quot;, Plane.calibrationLevel AS &quot;Cal. Lev.&quot;, Observation.type AS &quot;Obs. Type&quot; FROM caom2.Plane AS Plane JOIN caom2.Observation AS Observation ON Plane.obsID = Observation.obsID WHERE ( Plane.quality_flag IS NULL OR Plane.quality_flag != 'junk' ) AND ( lower(Observation.target_name) = 'm80' )" />
+    <TABLE>
+      <FIELD name="Collection" datatype="char" utype="caom2:Observation.collection" xtype="adql:VARCHAR" arraysize="32*">
+        <DESCRIPTION>data collection this observation belongs to</DESCRIPTION>
+      </FIELD>
+      <FIELD name="Obs. ID" datatype="char" utype="caom2:Observation.observationID" xtype="adql:VARCHAR" arraysize="128*">
+        <DESCRIPTION>collection-specific unique observation identifier</DESCRIPTION>
+      </FIELD>
+      <FIELD name="RA (J2000.0)" datatype="double" unit="deg" xtype="adql:DOUBLE" />
+      <FIELD name="Dec. (J2000.0)" datatype="double" unit="deg" xtype="adql:DOUBLE" />
+      <FIELD name="Start Date" datatype="double" unit="d" utype="caom2:Plane.time.bounds.lower" xtype="adql:DOUBLE">
+        <DESCRIPTION>lower bound on time axis (Modified Julian Day)</DESCRIPTION>
+      </FIELD>
+      <FIELD name="Instrument" datatype="char" utype="caom2:Observation.instrument.name" xtype="adql:VARCHAR" arraysize="32*">
+        <DESCRIPTION>name of instrument used to acquire observation</DESCRIPTION>
+      </FIELD>
+      <FIELD name="Int. Time" datatype="double" unit="s" utype="caom2:Plane.time.exposure" xtype="adql:DOUBLE">
+        <DESCRIPTION>median exposure time per pixel</DESCRIPTION>
+      </FIELD>
+      <FIELD name="Target Name" datatype="char" utype="caom2:Observation.target.name" xtype="adql:VARCHAR" arraysize="32*">
+        <DESCRIPTION>name of intended target</DESCRIPTION>
+      </FIELD>
+      <FIELD name="Filter" datatype="char" utype="caom2:Plane.energy.bandpassName" xtype="adql:VARCHAR" arraysize="32*">
+        <DESCRIPTION>collection-specific name for energy band (e.g. filter name)</DESCRIPTION>
+      </FIELD>
+      <FIELD name="Cal. Lev." datatype="int" utype="caom2:Plane.calibrationLevel" xtype="adql:INTEGER">
+        <DESCRIPTION>IVOA ObsCore calibration level (0,1,2,3,...)</DESCRIPTION>
+      </FIELD>
+      <FIELD name="Obs. Type" datatype="char" utype="caom2:Observation.type" xtype="adql:VARCHAR" arraysize="32*">
+        <DESCRIPTION>type of data collected (e.g. FITS OBSTYPE header)</DESCRIPTION>
+      </FIELD>
+      <DATA>
+        <TABLEDATA>
+          <TR>
+            <TD>HST</TD>
+            <TD>j8y501020</TD>
+            <TD>244.26038568976307</TD>
+            <TD>-22.97496816109731</TD>
+            <TD>53260.03122779</TD>
+            <TD>ACS</TD>
+            <TD>2584.0</TD>
+            <TD>M80</TD>
+            <TD>F165LP</TD>
+            <TD>3</TD>
+            <TD>object</TD>
+          </TR>
+          <TR>
+            <TD>HST</TD>
+            <TD>j8y501030</TD>
+            <TD>244.26038568991981</TD>
+            <TD>-22.974968160992844</TD>
+            <TD>53260.09785964</TD>
+            <TD>ACS</TD>
+            <TD>2584.0</TD>
+            <TD>M80</TD>
+            <TD>F165LP</TD>
+            <TD>3</TD>
+            <TD>object</TD>
+          </TR>
+          <TR>
+            <TD>HST</TD>
+            <TD>j8y503010</TD>
+            <TD>244.2603849744359</TD>
+            <TD>-22.974968483459676</TD>
+            <TD>53274.82798704</TD>
+            <TD>ACS</TD>
+            <TD>2480.0</TD>
+            <TD>M80</TD>
+            <TD>F140LP</TD>
+            <TD>3</TD>
+            <TD>object</TD>
+          </TR>
+        </TABLEDATA>
+      </DATA>
+    </TABLE>
+    <INFO name="QUERY_STATUS" value="OK" />
+  </RESOURCE>
+</VOTABLE>
