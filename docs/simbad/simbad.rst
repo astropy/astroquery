@@ -127,17 +127,14 @@ the `~astropy.units.Quantity` object:
 
 
 
-If coordinates are used, then they should be entered using an `astropy.coordinates`
-object. Limited support for entering the coordinates directly as a string also
-exists - only for ICRS coordinates (though these may just as well be specified
-by the `~astropy.coordinates.ICRS` object)
+If coordinates are used, then they should be entered using an `astropy.coordinates.SkyCoord`
+object.
 
 .. code-block:: python
 
     >>> from astroquery.simbad import Simbad
     >>> import astropy.coordinates as coord
-    >>> # works only for ICRS coordinates:
-    >>> result_table = Simbad.query_region("05h35m17.3s -05h23m28s", radius='1d0m0s')
+    >>> result_table = Simbad.query_region(coord.SkyCoord("05h35m17.3s -05h23m28s", frame='icrs'), radius='1d0m0s')
     >>> print(result_table)
 
             MAIN_ID               RA      ...     COO_BIBCODE
@@ -160,8 +157,6 @@ by the `~astropy.coordinates.ICRS` object)
              PKS J0557-8122   05 57 26.80 ... 2003MNRAS.342.1117M
                PKS 0602-813    05 57 30.7 ...
 
-
-For other coordinate systems, use the appropriate `astropy.coordinates` object:
 
 .. code-block:: python
 
@@ -188,9 +183,9 @@ to 2000.0. So here is a query with all the options utilized:
     >>> from astroquery.simbad import Simbad
     >>> import astropy.coordinates as coord
     >>> import astropy.units as u
-    >>> result_table = Simbad.query_region(coord.FK5(ra=11.70, dec=10.90,
-    ...                                    unit=(u.deg, u.deg)),
-    ...                                    radius=0.5 * u.degree,
+    >>> result_table = Simbad.query_region(coord.SkyCoord(ra=11.70, dec=10.90, 
+    ...                                    unit=(u.deg, u.deg), frame='fk5'),
+    ...                                    radius=0.5 * u.deg,
     ...                                    epoch='B1950',
     ...                                    equinox=1950)
     >>> print(result_table)
@@ -320,51 +315,43 @@ associated with an object.
     >>> from astroquery.simbad import Simbad
     >>> result_table = Simbad.query_objectids("Polaris")
     >>> print(result_table)
-	     ID
-    --------------------
-	    ADS  1477 AP
-	    ** STF   93A
-	WDS J02318+8916A
-	     ** WRH   39
-	   NAME Lodestar
-		PLX  299
-		 SBC9 76
-	       *   1 UMi
-	       * alf UMi
-	   AAVSO 0122+88
-	     ADS  1477 A
-	      AG+89    4
-	     BD+88     8
-       CCDM J02319+8915A
-	 CSI+88     8  1
-		FK5  907
-		GC  2243
-	      GCRV  1037
-       GEN# +1.00008890A
-	 GSC 04628-00237
-	       HD   8890
-	      HIC  11767
-	      HIP  11767
-		HR   424
-	IDS 01226+8846 A
-	 IRAS 01490+8901
-	      JP11   498
-		N30  381
-	 NAME NORTH STAR
-	    NAME POLARIS
-	 PMC 90-93   640
-	      PPM    431
-	       ROT  3491
-	      SAO    308
-	      SBC7    51
-	      SKY#  3738
-	       TD1   835
-	  TYC 4628-237-1
-	     UBV   21589
-	    UBV M   8201
-	      V* alf UMi
-	     PLX  299.00
-    WDS J02318+8916Aa,Ab
+               ID          
+    -----------------------
+               NAME Polaris
+            NAME North Star
+              NAME Lodestar
+                   PLX  299
+                    SBC9 76
+                  *   1 UMi
+                  * alf UMi
+              AAVSO 0122+88
+                ADS  1477 A
+                 AG+89    4
+                BD+88     8
+          CCDM J02319+8915A
+            CSI+88     8  1
+                   FK5  907
+                   GC  2243
+                 GCRV  1037
+                        ...
+                 PPM    431
+                  ROT  3491
+                 SAO    308
+                 SBC7    51
+                 SKY#  3738
+                  TD1   835
+             TYC 4628-237-1
+                UBV   21589
+               UBV M   8201
+                 V* alf UMi
+                PLX  299.00
+       WDS J02318+8916Aa,Ab
+               ADS  1477 AP
+                ** WRH   39
+           WDS J02318+8916A
+               ** STF   93A
+    2MASS J02314822+8915503
+
 
 Query a bibobj
 --------------
@@ -376,17 +363,21 @@ article specified by the bibcode:
 .. code-block:: python
 
     >>> from astroquery.simbad import Simbad
-    >>> result_table = Simbad.query_bibobj('2005A&A.430.165F')
+    >>> result_table = Simbad.query_bibobj('2006AJ....131.1163S')
     >>> print(result_table)
 
-    MAIN_ID       RA          DEC      RA_PREC DEC_PREC COO_ERR_MAJA COO_ERR_MINA COO_ERR_ANGLE COO_QUAL COO_WAVELENGTH     COO_BIBCODE
-    --------- ------------ ------------ ------- -------- ------------ ------------ ------------- -------- -------------- -------------------
-    NGC   524 01 24 47.707 +09 32 19.65       7        7          nan          nan             0        B              I 2006AJ....131.1163S
-    NGC  3593 11 14 37.002 +12 49 04.87       7        7          nan          nan             0        B              I 2006AJ....131.1163S
-    NGC  4138 12 09 29.788 +43 41 07.14       7        7          nan          nan             0        B              I 2006AJ....131.1163S
-    NGC  4550 12 35 30.612 +12 13 15.44       7        7          nan          nan             0        B              I 2006AJ....131.1163S
-    NGC  5179 13 29 30.875 +11 44 44.54       7        7          nan          nan             0        B              I 2006AJ....131.1163S
-    NGC  5713 14 40 11.528 -00 17 21.16       7        7          nan          nan             0        B              I 2006AJ....131.1163S
+            MAIN_ID              RA          DEC      RA_PREC DEC_PREC ... COO_ERR_MINA COO_ERR_ANGLE COO_QUAL COO_WAVELENGTH     COO_BIBCODE    
+                              "h:m:s"      "d:m:s"                     ...     mas           deg                                                 
+    ----------------------- ------------ ------------ ------- -------- ... ------------ ------------- -------- -------------- -------------------
+                      M  32 00 42 41.825 +40 51 54.61       7        7 ...           --             0        B              I 2006AJ....131.1163S
+                      M  31 00 42 44.330 +41 16 07.50       7        7 ...           --             0        B              I 2006AJ....131.1163S
+                   NAME SMC   00 52 38.0    -72 48 01       5        5 ...           --             0        D              O 2003A&A...412...45P
+            Cl Melotte   22     03 47 00     +24 07.0       4        4 ...           --             0        E              O 2009MNRAS.399.2146W
+    2MASX J04504846-7531580 04 50 48.462 -75 31 58.08       7        7 ...           --             0        B              I 2006AJ....131.1163S
+                   NAME LMC   05 23 34.6    -69 45 22       5        5 ...           --             0        D              O 2003A&A...412...45P
+          NAME Lockman Hole   10 45 00.0    +58 00 00       5        5 ...           --             0        E                2011ApJ...734...99H
+            NAME Gal Center  17 45 40.04  -29 00 28.1       6        6 ...           --             0        E                                   
+
 
 Query based on any criteria
 ----------------------------
@@ -473,13 +464,15 @@ also want to be fetched in the result. To see the list of the fields:
      >>> from astroquery.simbad import Simbad
      >>> Simbad.list_votable_fields()
 
-               col0               col1          col2
-           ----------------- ------------ --------------
-                     dim      main_id  propermotions
-               dim_angle measurements        ra(opt)
-             dim_bibcode       mesplx        ra_prec
-                dim_incl        mespm            rot
-             dim_majaxis           mk       rv_value
+              col0                   col1              col2     
+    ------------------------ -------------------- --------------
+          bibcodelist(y1-y2) fluxdata(filtername)       plx_qual
+                         cel                 gcrv             pm
+                        cl.g                  gen     pm_bibcode
+                    coo(opt)                   gj   pm_err_angle
+                 coo_bibcode                 hbet    pm_err_maja
+               coo_err_angle                hbet1    pm_err_mina
+                coo_err_maja                 hgam        pm_qual
 
 
 The above shows just a small snippet of the table that is returned and has all
@@ -521,7 +514,7 @@ Continuing from the above example:
     >>> customSimbad.remove_votable_fields('mk', 'coordinates')
     >>> customSimbad.get_votable_fields()
 
-    ['rot', 'main_id']
+    ['main_id', 'rot', 'bibcodelist(1800-2014)']
 
     # reset back to defaults
 
