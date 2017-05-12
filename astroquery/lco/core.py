@@ -42,23 +42,9 @@ from ..query import BaseQuery, QueryWithLogin
 from ..utils import commons, system_tools, prepend_docstr_noreturns, async_to_sync
 from . import conf
 
-
-# export all the public classes and methods
-# __all__ = ['Lco', 'LcoClass']
-
-# declare global variables and constants if any
-
-
-# Now begin your main class
-# should be decorated with the async_to_sync imported previously
 @async_to_sync
 class LcoClass(QueryWithLogin):
 
-    """
-    Not all the methods below are necessary but these cover most of the common
-    cases, new methods may be added if necessary, follow the guidelines at
-    <http://astroquery.readthedocs.io/en/latest/api.html>
-    """
     # use the Configuration Items imported from __init__.py to set the URL,
     # TIMEOUT, etc.
     URL = conf.server
@@ -67,21 +53,6 @@ class LcoClass(QueryWithLogin):
     DTYPES = ['i','S39','S230','i','S19','S16','S20','S3','S4','f','S2','i']
     DATA_NAMES = ['id','filename','url','RLEVEL','DATE_OBS','PROPID','OBJECT','SITEID','TELID','EXPTIME','FILTER','REQNUM']
     TOKEN = None
-
-    # all query methods are implemented with an "async" method that handles
-    # making the actual HTTP request and returns the raw HTTP response, which
-    # should be parsed by a separate _parse_result method.   The query_object
-    # method is created by async_to_sync automatically.  It would look like
-    # this:
-    """
-    def query_object(object_name, get_query_payload=False)
-        response = self.query_object_async(object_name,
-                                           get_query_payload=get_query_payload)
-        if get_query_payload:
-            return response
-        result = self._parse_result(response, verbose=verbose)
-        return result
-    """
 
     def query_object_async(self, object_name, get_query_payload=False,
                            cache=True, start=None, end=None):
@@ -241,5 +212,5 @@ def validate_datetime(input):
         datetime.strptime(input, format_string)
         return input
     except ValueError:
-        warning.warning('Input {} is not in format {} for ignoring'.format(input, format_string))
+        warning.warning('Input {} is not in format {} - ignoring input'.format(input, format_string))
         return ''

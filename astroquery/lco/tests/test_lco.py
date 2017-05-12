@@ -11,8 +11,8 @@ import astropy.units as u
 
 from ...utils.testing_tools import MockResponse
 from ...utils import commons
-from ... import lcogt
-from ...lcogt import conf
+from ... import lco
+from ...lco import conf
 
 DATA_FILES = {'Cone': 'Cone.xml',
               'Box': 'Box.xml',
