@@ -56,12 +56,13 @@ class ESASkyClass(BaseQuery):
     __HST_STRING = 'hst'
     __INTEGRAL_STRING = 'integral'
 
-    __HERSCHEL_FILTERS = {'psw': '250',
-           'pmw': '350',
-           'plw': '500',
-           'mapb_blue': '70',
-           'mapb_green': '100',
-           'mapr_': '160'}
+    __HERSCHEL_FILTERS = {
+        'psw': '250',
+        'pmw': '350',
+        'plw': '500',
+        'mapb_blue': '70',
+        'mapb_green': '100',
+        'mapr_': '160'}
 
     _isTest = ""
 
@@ -520,14 +521,25 @@ class ESASkyClass(BaseQuery):
                 sys.stdout.flush()
                 directory_path = mission_directory + "/"
                 if (mission.lower() == self.__HERSCHEL_STRING):
-                    maps.append(self._get_herschel_map(product_url,
-                                                               directory_path,
-                                                               cache))
+                    maps.append(self._get_herschel_map(
+                        product_url,
+                        directory_path,
+                        cache))
 
                 else:
-                    response = self._request('GET', product_url, cache=cache,
-                                             headers={'User-Agent':
-                                                      ('astropy:astroquery.esasky.{vers} {isTest}'.format(vers=version.version, isTest=self._isTest))})
+                    response = self._request(
+                        'GET',
+                        product_url,
+                        cache=cache,
+                        headers={
+                            'User-Agent':(
+                                'astropy:astroquery.esasky.{vers} {isTest}'
+                                .format(
+                                    vers=version.version, 
+                                    isTest=self._isTest)
+                                          )
+                                 }
+                                             )
                     file_name = ""
                     if (product_url.endswith(self.__FITS_STRING)):
                         file_name = (directory_path +
@@ -547,13 +559,22 @@ class ESASkyClass(BaseQuery):
 
         return maps
 
-    def _get_herschel_map(self, product_url, directory_path,
-                                  cache):
+    def _get_herschel_map(self, product_url, directory_path, cache):
         observation = dict()
         tar_file = tempfile.NamedTemporaryFile()
-        response = self._request('GET', product_url, cache=cache,
-                                 headers={'User-Agent':
-                                          ('astropy:astroquery.esasky.{vers} {isTest}'.format(vers=version.version, isTest=self._isTest))})
+        response = self._request(
+            'GET',
+            product_url,
+            cache=cache,
+            headers={
+                'User-Agent':(
+                    'astropy:astroquery.esasky.{vers} {isTest}'
+                    .format(
+                        vers=version.version, 
+                        isTest=self._isTest)
+                              )
+                     }
+                                 )
         tar_file.write(response.content)
         with tarfile.open(tar_file.name, 'r') as tar:
             i = 0
@@ -564,9 +585,10 @@ class ESASkyClass(BaseQuery):
                     tar.extract(member, directory_path)
                     member.name = (
                         self._remove_extra_herschel_directory(member.name,
-                                                              directory_path))
+                                                              directory_path)
+                                   )
                     observation[herschel_filter] = fits.open(directory_path +
-                                                        member.name)
+                                                             member.name)
                     i += 1
         return observation
 
@@ -669,8 +691,11 @@ class ESASkyClass(BaseQuery):
             where_query = (" WHERE 1=CONTAINS(POINT('ICRS', %f, %f), fov);"
                            % (ra, dec))
 
-        query = "".join([select_query, metadata_tap_names, from_query,
-             where_query])
+        query = "".join([
+            select_query, 
+            metadata_tap_names, 
+            from_query,
+            where_query])
         return query
 
     def _build_catalog_query(self, coordinates, radius, row_limit, json):
@@ -693,7 +718,8 @@ class ESASkyClass(BaseQuery):
             where_query = (" WHERE 1=CONTAINS(POINT('ICRS', ra, dec), CIRCLE('ICRS', %f, %f, %f))"
                            % (ra, dec,
                              commons.radius_to_unit(
-                                 self.__MIN_RADIUS_CATALOG_STRING, unit='deg')))
+                                 self.__MIN_RADIUS_CATALOG_STRING, 
+                                 unit='deg')))
         else:
             where_query = (" WHERE 1=CONTAINS(POINT('ICRS', ra, dec), CIRCLE('ICRS', %f, %f, %f))"
                            % (ra, dec, radiusDeg))
@@ -762,10 +788,13 @@ class ESASkyClass(BaseQuery):
 
     def _fetch_and_parse_json(self, object_name):
         url = self.URLbase + "/" + object_name
-        response = self._request('GET', url,
-                                 cache=False,
-                                 headers={'User-Agent':
-                                          ('astropy:astroquery.esasky.{vers} {isTest}'.format(vers=version.version, isTest=self._isTest))})
+        response = self._request(
+            'GET', 
+            url,
+            cache=False,
+            headers={'User-Agent':
+                     ('astropy:astroquery.esasky.{vers} {isTest}'
+                      .format(vers=version.version, isTest=self._isTest))})
         string_response = response.content.decode('utf-8')
         json_response = json.loads(string_response)
         return json_response["descriptors"]
@@ -786,10 +815,14 @@ class ESASkyClass(BaseQuery):
 
     def _send_get_request(self, url_extension, request_payload, cache):
         url = self.URLbase + url_extension
-        return self._request('GET', url, params=request_payload,
-                             timeout=self.TIMEOUT, cache=cache,
+        return self._request('GET', 
+                             url, 
+                             params=request_payload,
+                             timeout=self.TIMEOUT, 
+                             cache=cache,
                              headers={'User-Agent':
-                                      ('astropy:astroquery.esasky.{vers} {isTest}'.format(vers=version.version, isTest=self._isTest))})
+                                      ('astropy:astroquery.esasky.{vers} {isTest}'
+                                       .format(vers=version.version, isTest=self._isTest))})
 
     def _parse_xml_table(self, response):
         # try to parse the result into an astropy.Table, else
