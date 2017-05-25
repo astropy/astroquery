@@ -3,7 +3,7 @@ import os
 import re
 
 from astropy.extern import six
-from astropy.tests.helper import pytest
+import pytest
 import astropy.units as u
 from astropy.table import Table
 import numpy as np
@@ -68,8 +68,10 @@ def patch_post(request):
 
 def post_mockreturn(self, method, url, data, timeout, **kwargs):
     response = MockResponseSimbad(data['script'], **kwargs)
+
     class last_query(object):
         pass
+
     self._last_query = last_query()
     self._last_query.data = data
     return response

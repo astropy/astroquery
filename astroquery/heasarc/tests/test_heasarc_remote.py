@@ -1,6 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from __future__ import print_function
-from astropy.tests.helper import remote_data, pytest
+
+from astropy.tests.helper import remote_data
 from ...heasarc import Heasarc
 
 

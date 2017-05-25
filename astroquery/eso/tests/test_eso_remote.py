@@ -1,8 +1,9 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import numpy as np
+import pytest
 import tempfile
 import shutil
-from astropy.tests.helper import pytest, remote_data
+from astropy.tests.helper import remote_data
 from astropy.extern import six
 from ...exceptions import LoginError
 

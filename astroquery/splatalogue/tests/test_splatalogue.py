@@ -1,11 +1,14 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
+
+import os
+import pytest
+import requests
+
+from astropy import units as u
+from astropy.tests.helper import remote_data
+
 from ... import splatalogue
 from ...utils.testing_tools import MockResponse
-from astropy import units as u
-from astropy.tests.helper import pytest, remote_data
-from astropy.extern.six.moves import urllib_parse
-import requests
-import os
 
 SPLAT_DATA = 'CO_colons.csv'
 
@@ -153,11 +156,10 @@ def test_exclude(patch_post):
 @remote_data
 def test_exclude_remote():
     # regression test for issue 616
-    # only entry should be  D213CO  Formaldehyde 351.96064  3.9e-06            --            -- 6(2,4)-5(2,3)            -2.0065 ...            0.0                          -2.94058                  --      44.097 63.44616    55.83714 80.33772     CDMS
+    # only entry should be  "D213CO  Formaldehyde 351.96064  3.9e-06   ...."
     results = splatalogue.Splatalogue.query_lines(
         min_frequency=351.9*u.GHz,
         max_frequency=352.*u.GHz,
         chemical_name='Formaldehyde',
-        exclude='none',
-        )
+        exclude='none')
     assert len(results) >= 1

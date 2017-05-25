@@ -2,7 +2,7 @@
 from __future__ import print_function
 import os
 import requests
-from astropy.tests.helper import pytest
+import pytest
 import astropy.coordinates as coord
 from ...utils.testing_tools import MockResponse
 from ... import fermi

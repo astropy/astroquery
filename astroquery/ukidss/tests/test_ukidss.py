@@ -3,7 +3,7 @@ import os
 import requests
 from contextlib import contextmanager
 
-from astropy.tests.helper import pytest
+import pytest
 from astropy.table import Table
 import astropy.units as u
 import numpy.testing as npt

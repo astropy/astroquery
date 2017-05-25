@@ -4,7 +4,7 @@ import os
 import re
 import numpy as np
 
-from astropy.tests.helper import pytest
+import pytest
 from astropy.table import Table
 from astropy.coordinates import SkyCoord
 import astropy.units as u

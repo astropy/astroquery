@@ -2,7 +2,7 @@
 import os
 
 import numpy.testing as npt
-from astropy.tests.helper import pytest
+import pytest
 from astropy.table import Table
 import astropy.units as u
 

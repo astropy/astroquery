@@ -2,7 +2,7 @@
 import os
 import types
 import astropy.units as u
-from astropy.tests.helper import pytest
+import pytest
 from astropy import coordinates
 from ... import irsa_dust
 from ...irsa_dust.core import IrsaDust, IrsaDustClass

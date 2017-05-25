@@ -1,8 +1,9 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import os.path
 import os
+import pytest
 
-from astropy.tests.helper import pytest, remote_data
+from astropy.tests.helper import remote_data
 from astropy.table import Table
 from astropy.units import arcsec
 from astropy.io import ascii
@@ -78,7 +79,9 @@ def http_test():
     # this can be used to check that the API is still functional & doing as expected
     infile = os.path.join(DATA_DIR, 'posList.csv')
     outfile = os.path.join(DATA_DIR, 'http_result.csv')
-    os.system('curl -X POST -F request=xmatch -F distMaxArcsec=5 -F RESPONSEFORMAT=csv -F cat1=@{1} -F colRA1=ra -F colDec1=dec -F cat2=vizier:II/246/out  http://cdsxmatch.u-strasbg.fr/xmatch/api/v1/sync > {0}'.format(outfile,
-                                                                                                                                                                                                                          infile))
+    os.system('curl -X POST -F request=xmatch -F distMaxArcsec=5 -F RESPONSEFORMAT=csv '
+              '-F cat1=@{1} -F colRA1=ra -F colDec1=dec -F cat2=vizier:II/246/out  '
+              'http://cdsxmatch.u-strasbg.fr/xmatch/api/v1/sync > {0}'.
+              format(outfile, infile))
     table = ascii.read(outfile, format='csv')
     return table

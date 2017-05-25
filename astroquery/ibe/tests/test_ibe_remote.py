@@ -1,8 +1,8 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-import os
+import pytest
 from astropy.coordinates import SkyCoord
 import astropy.units as u
-from astropy.tests.helper import pytest, remote_data
+from astropy.tests.helper import remote_data
 from astropy.table import Table
 from ... import ibe
 
