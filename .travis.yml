@@ -33,8 +33,6 @@ env:
         - RUN_HTTPBIN='python -c "$HTTP_BIN_CMD" & ACTIVE_HTTPBIN=True'
         - SETUP_CMD='test'
         - CONDA_CHANNELS='astropy-ci-extras astropy'
-        - CONDA_DEPENDENCIES_OLD='requests beautiful-soup matplotlib html5lib'
-        - PIP_DEPENDENCIES_OLD='pyregion aplpy keyring'
         - EVENT_TYPE='pull_request push'
         - ASTROPY_USE_SYSTEM_PYTEST=1
 
