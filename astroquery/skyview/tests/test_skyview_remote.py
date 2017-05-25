@@ -41,9 +41,9 @@ class TestSkyviewRemote(object):
         # The print should help discover changes
         print("Survey: {0} \n Canned reference return: {1} \n"
               "Online service return: {2}".format(
-                survey, survey_data,
-                self.SkyView.survey_dict.get(
-                    survey, "{0} is not in online version".format(survey))))
+                  survey, survey_data,
+                  self.SkyView.survey_dict.get(
+                      survey, "{0} is not in online version".format(survey))))
 
         assert set(self.SkyView.survey_dict[survey]) == set(survey_data)
 

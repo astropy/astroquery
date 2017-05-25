@@ -1,2 +1,6 @@
 pycodestyle:
   max-line-length: 120 # Default is 79 in PEP8
+
+  ignore:
+    - E741  # l and b are valid variable names for the galactic frame
+    - E226  # Don't force "missing whitespace around arithmetic operator"

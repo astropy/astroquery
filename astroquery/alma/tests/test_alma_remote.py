@@ -204,7 +204,7 @@ class TestAlma:
         urls_to_download = uid_url_table_mous[small]['URL']
 
         uri = urlparse(urls_to_download[0])
-        assert uri.path == ('/dataPortal/requests/anonymous/{0}/ALMA/2012.1.00912.S_uid___A002_X5a9a13_X528_001_of_001.tar/2012.1.00912.S_uid___A002_X5a9a13_X528_001_of_001.tar'
+        assert uri.path == ('/dataPortal/requests/anonymous/{0}/ALMA/2012.1.00912.S_uid___A002_X5a9a13_X528_001_of_001.tar/2012.1.00912.S_uid___A002_X5a9a13_X528_001_of_001.tar'  # noqa
                             .format(a1._staging_log['staging_page_id']))
 
         # THIS IS FAIL
