@@ -570,8 +570,7 @@ class ESASkyClass(BaseQuery):
                     tar.extract(member, directory_path)
                     member.name = (
                         self._remove_extra_herschel_directory(member.name,
-                                                              directory_path)
-                                   )
+                                                              directory_path))
                     observation[herschel_filter] = fits.open(
                         directory_path +
                         member.name)
@@ -705,8 +704,8 @@ class ESASkyClass(BaseQuery):
                            % (ra,
                               dec,
                               commons.radius_to_unit(
-                                 self.__MIN_RADIUS_CATALOG_STRING,
-                                 unit='deg')))
+                                  self.__MIN_RADIUS_CATALOG_STRING,
+                                  unit='deg')))
         else:
             where_query = (" WHERE 1=CONTAINS(POINT('ICRS', ra, dec), CIRCLE('ICRS', %f, %f, %f))"
                            % (ra, dec, radiusDeg))
@@ -823,10 +822,10 @@ class ESASkyClass(BaseQuery):
                 "Failed to parse ESASky VOTABLE result! The raw response can be "
                 "found in self.response, and the error in "
                 "self.table_parse_error.")
-    
+
     def _get_header(self):
         user_agent = 'astropy:astroquery.esasky.{vers} {isTest}'.format(
-            vers=version.version, 
+            vers=version.version,
             isTest=self._isTest)
         return {'User-Agent': user_agent}
 
