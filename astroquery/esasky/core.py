@@ -19,7 +19,6 @@ from . import conf
 from ..exceptions import TableParseError
 from .. import version
 from astropy.coordinates.name_resolve import sesame_database
-from conda.connection import user_agent
 
 
 @async_to_sync
