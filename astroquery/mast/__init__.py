@@ -20,14 +20,15 @@ class Conf(_config.ConfigNamespace):
         600,
         'Time limit for requests from the STScI server.')
     pagesize = _config.ConfigItem(
-        10000,
+        50000,
         'Number of results to request at once from the STScI server.')
 
 conf = Conf()
 
 
-from .core import Mast, MastClass
+from .core import Mast, MastClass, Raw, RawClass
 
 __all__ = ['Mast', 'MastClass',
+           'Raw','RawClass',
            'Conf', 'conf',
            ]

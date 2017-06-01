@@ -56,11 +56,57 @@ Radius is an optional parameter, the default is 0.2 degrees.
                         spectrum            IUE             LWR ...           0.0 
                         spectrum            IUE             LWR ...           0.0
                         
+Filtered Queries
+----------------
+
+To search for observations based on parameters other than position, use query_filter.
+The filter dictionary has the format ``{"filtername":[value(s)]}``.
+The columns that can be filtered on are described `here <https://masttest.stsci.edu/api/v0/_c_a_o_mfields.html>`_. Columns with datatype 'float' should be filtered by giving a min and max, all other data types are filtered by giving a list of acceptable values.
+RA and Dec must be given in decimal degrees, and datetimes in MJD.
+
+.. code-block:: python
+                
+                >>> from astroquery.mast import Mast
+                >>> observations = Mast.query_filter({"dataproduct_type":["image"],
+                                                      "proposal_pi":"Osten",
+                                                      "s_dec":[43.5,45.5]})
+                >>> print(observations)
+
+                dataproduct_type calib_level obs_collection ... dataURL   obsid      objID   
+                ---------------- ----------- -------------- ... ------- ---------- ----------
+                           image           1            HST ...    None 2003520266 2011133418
+                           image           1            HST ...    None 2003520267 2011133419
+                           image           1            HST ...    None 2003520268 2011133420
+
+Filtered queries may also specify a sky position.
+
+.. code-block:: python
+                
+                >>> from astroquery.mast import Mast
+                >>> observations = Mast.query_filter({"filters":["NUV","FUV"]},objectname="M101")
+                >>> print(observations)
+
+                dataproduct_type calib_level obs_collection ...   objID1      distance  
+                ---------------- ----------- -------------- ... ---------- -------------
+                           image           2          GALEX ... 1000055044           0.0
+                           image           2          GALEX ... 1000004937 3.83290685323
+                           image           2          GALEX ... 1000045953 371.718371962
+                           image           2          GALEX ... 1000055047 229.810616011
+                           image           2          GALEX ... 1000016644 229.810616011
+                           image           2          GALEX ... 1000045952           0.0
+                           image           2          GALEX ... 1000048357           0.0
+                           image           2          GALEX ... 1000001326           0.0
+                           image           2          GALEX ... 1000001327 371.718371962
+                           image           2          GALEX ... 1000004203           0.0
+                           image           2          GALEX ... 1000016641           0.0
+                           image           2          GALEX ... 1000048943 3.83290685323
+                           
+
 
 Getting Observation Counts
 --------------------------
 
-To get the number of observations in a particular region of the sky without being returned the observations themself (for example, to decide if the number of observations will fit comfortable in memory, or if the query shoudl be proken up) query_counts functions are available.
+To get the number of observations in a particular region of the sky without being returned the observations themselves (for example, to decide if the number of observations will fit comfortable in memory, or if the query should be broken up) query_counts functions are available.
 
 .. code-block:: python
                 
@@ -70,6 +116,11 @@ To get the number of observations in a particular region of the sky without bein
                 
                 >>> print(Mast.query_object_count("M8",radius=".02 deg"))
                 196
+
+                >>> print(Mast.query_filter_count({"dataproduct_type":"image",
+                                                   "filters":["NUV","FUV"],
+                                                   "t_max":[52264.4586,54452.8914]}))
+                59033
 
 
 Downloading Data
@@ -137,7 +188,7 @@ or a list (or single) obsid.
 Filters can be applied to download only certain types of data products.
 Available filters are as follows:
 
-* mrp_only: **Defaults to True.** If true only download "Minimum Reccommended Products." 
+* mrp_only: **Defaults to True.** If true only download "Minimum Recommended Products." 
 * group: Product subgroup, e.g. Q2F, RAMP, RAW, UNCAL, TRM.
 * extension: File extension, e.g. .fits or .tar.gz.
 * product type: Data product type, e.g. image, cube.
@@ -146,6 +197,7 @@ Available filters are as follows:
 Filter behavior is AND between the filters and OR with a filter set.
 
 .. code-block:: python
+                
                 >>> filters = {"mrp_only":False,
                                "group":["RAW", "UNCAL"],
                                "extenstion":"fits"}
@@ -166,6 +218,64 @@ As an alternative to downloading the data files now, the curl_flag can be used t
                 ------- -------------------------------- ---- --------
                 None    ./mastDownload_20170504141044.sh None COMPLETE
 
+
+
+Raw Queries
+===========
+
+The Raw class provides more direct access to the MAST interface.
+It requres more knowledge of the inner workings of the MAST API, and should be rarely needed.
+However in the case of new functionality not yet implemented in astroquery, this class does allow access.
+See the `MAST api documentation <https://masttest.stsci.edu/api>` for more information.
+
+The basic mast query function returns query results as an `astropy.table.Table`.
+
+.. code-block:: python
+
+                >>> from astroquery.mast import Raw
+                >>> service = 'Mast.Caom.Cone'
+                >>> params = {'ra':184.3,
+                              'dec':54.5,
+                              'radius':0.2}
+        
+                >>> observations = Raw.mashup_request(service, params)
+                >>> print(observations)
+
+                dataproduct_type obs_collection instrument_name ...    distance   _selected_
+                ---------------- -------------- --------------- ... ------------- ----------
+                           image          GALEX           GALEX ...           0.0      False
+                           image          GALEX           GALEX ...           0.0      False
+                           image          GALEX           GALEX ...           0.0      False
+                           image          GALEX           GALEX ...           0.0      False
+                           image          GALEX           GALEX ...           0.0      False
+                           image          GALEX           GALEX ... 302.405835798      False
+                           image          GALEX           GALEX ... 302.405835798      False
+
+
+If the output is not the MAST json result type it cannot be properly parsed into an `astropy.table.Table` so the async method shoudl be used to get the raw http response, which can then be manually parsed.
+
+.. code-block:: python
+
+                >>> from astroquery.mast import Raw
+                >>> service = 'Mast.Name.Lookup'
+                >>> params ={'input':"M8",
+                             'format':'json'}
+        
+                >>> response = Raw.mashup_request_async(service,params)        
+                >>> result = response[0].json()
+                >>> print(result)
+
+                {'resolvedCoordinate': [{'cacheDate': 'Apr 12, 2017 9:28:24 PM',
+                                         'cached': True,
+                                         'canonicalName': 'MESSIER 008',
+                                         'decl': -24.38017,
+                                         'objectType': 'Neb',
+                                         'ra': 270.92194,
+                                         'resolver': 'NED',
+                                         'resolverTime': 113,
+                                         'searchRadius': -1.0,
+                                         'searchString': 'm8'}],
+                 'status': ''}
 
 
 Reference/API
