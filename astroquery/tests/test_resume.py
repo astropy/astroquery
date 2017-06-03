@@ -2,7 +2,7 @@ import string
 import os
 import requests
 
-from astropy.tests.helper import pytest
+import pytest
 from .. import query
 
 ACTIVE_HTTPBIN = os.getenv('ACTIVE_HTTPBIN') is not None
