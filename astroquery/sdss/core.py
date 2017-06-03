@@ -584,7 +584,7 @@ class SDSSClass(BaseQuery):
                 run2d = row['run2d']
             link = linkstr.format(
                 base=conf.sas_baseurl, dr=data_release,
-                instrument=row['instrument'].decode().lower(),
+                instrument=row['instrument'].lower(),
                 run2d=run2d, plate=row['plate'],
                 fiber=row['fiberID'], mjd=row['mjd'])
 
