@@ -9,12 +9,12 @@ import time
 
 # THIRD-PARTY
 import numpy as np
-# import pytest  # Future
+import pytest
 
 # ASTROPY
 from astropy import units as u
 from astropy.coordinates import ICRS, SkyCoord
-from astropy.tests.helper import pytest, remote_data
+from astropy.tests.helper import remote_data
 from astropy.utils.data import get_pkg_data_filename
 from astropy.utils import data
 
