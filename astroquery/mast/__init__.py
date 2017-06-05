@@ -14,7 +14,7 @@ class Conf(_config.ConfigNamespace):
     """
 
     server = _config.ConfigItem(
-        'https://dwmastiisv3.stsci.edu',
+        'https://mast.stsci.edu',
         'Name of the MAST mirror to use.')
     timeout = _config.ConfigItem(
         600,
@@ -26,9 +26,9 @@ class Conf(_config.ConfigNamespace):
 conf = Conf()
 
 
-from .core import Mast, MastClass, Raw, RawClass
+from .core import Observations, ObservationsClass, Mast, MastClass
 
-__all__ = ['Mast', 'MastClass',
-           'Raw','RawClass',
+__all__ = ['Observations', 'ObservationsClass',
+           'Mast','MastClass',
            'Conf', 'conf',
            ]
