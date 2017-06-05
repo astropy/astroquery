@@ -9,6 +9,7 @@ import numpy as np
 from astropy.table import Table
 from astropy.tests.helper import pytest
 import astropy.coordinates as coord
+import astropy.units as u
 
 from ...utils.testing_tools import MockResponse
 
@@ -77,11 +78,11 @@ def test_observations_query_region_async(patch_post):
     assert isinstance(responses, list)
 
 def test_observations_query_region(patch_post):
-    result = mast.Observations.query_region(regionCoords,radius="0.2 deg")
+    result = mast.Observations.query_region(regionCoords,radius=0.2 * u.deg)
     assert isinstance(result, Table)
 
 def test_observations_query_object_async(patch_post):
-    responses = mast.Observations.query_object_async("M103",radius=".02 deg")
+    responses = mast.Observations.query_object_async("M103",radius=0.02 * u.deg)
     assert isinstance(responses, list)
 
 def test_observations_query_object(patch_post):

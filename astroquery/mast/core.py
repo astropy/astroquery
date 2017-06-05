@@ -16,10 +16,7 @@ import os
 
 import numpy as np
 
-try: # Python 3.x
-    from urllib.parse import quote as urlencode
-except ImportError:  # Python 2.x
-    from urllib import pathname2url as urlencode
+from six.moves.urllib.parse import quote as urlencode
 
 from requests import HTTPError
 
@@ -42,33 +39,33 @@ class ResolverError(Exception):
     pass
 
 
-def _prepare_service_request_string(jsonObj):
+def _prepare_service_request_string(json_obj):
     """
-    Takes a mashup json request object and turns it into a url-safe string.
+    Takes a mashup JSON request object and turns it into a url-safe string.
 
     Parameters
     ----------
-    jsonObj : dict
-        A Mashup request json object (python dictionary)
+    json_obj : dict
+        A Mashup request JSON object (python dictionary).
         
     Returns
     -------
     response : str
         URL encoded Mashup Request string.
     """
-    requestString = json.dumps(jsonObj)
+    requestString = json.dumps(json_obj)
     requestString = urlencode(requestString)
     return "request="+requestString
 
 
-def _mashup_json_to_table(jsonObj):
+def _mashup_json_to_table(json_obj):
     """
-    Takes a json object as returned from a Mashup request and turns it into an astropy Table.
+    Takes a JSON object as returned from a Mashup request and turns it into an `astropy.table.Table`.
 
     Parameters
     ----------
-    jsonObj : dict
-        A Mashup response json object (python dictionary)
+    json_obj : dict
+        A Mashup response JSON object (python dictionary)
         
     Returns
     -------
@@ -77,15 +74,15 @@ def _mashup_json_to_table(jsonObj):
 
     dataTable = Table()
     
-    if not (jsonObj.get('fields') and jsonObj.get('data')):
+    if not (json_obj.get('fields') and json_obj.get('data')):
         raise KeyError("Missing required key(s) 'data' and/or 'fields.'")  
 
-    for col,atype in [(x['name'],x['type']) for x in jsonObj['fields']]:
+    for col,atype in [(x['name'],x['type']) for x in json_obj['fields']]:
         if atype=="string":
             atype="str"
         if atype=="boolean":
             atype="bool"
-        dataTable[col] = np.array([x.get(col,None) for x in jsonObj['data']],dtype=atype)
+        dataTable[col] = np.array([x.get(col,None) for x in json_obj['data']],dtype=atype)
 
     # Removing "_selected_" column
     if "_selected_" in dataTable.colnames:
@@ -100,12 +97,12 @@ class MastClass(BaseQuery):
     MAST query class.
 
     Class that allows direct programatic access to the MAST Portal, 
-    more flexible but less user friendly than ObservationsClass.
+    more flexible but less user friendly than `ObservationsClass`.
     """
 
     def __init__(self):
         
-        super().__init__()
+        super(MastClass, self).__init__()
         
         self._SERVER = conf.server
         self.TIMEOUT = conf.timeout
@@ -160,7 +157,7 @@ class MastClass(BaseQuery):
             status = "EXECUTING"
             
             while status == "EXECUTING":
-                response = super()._request(method, url, params=params, data=data, headers=headers,
+                response = super(MastClass, self)._request(method, url, params=params, data=data, headers=headers,
                                             files=files, cache=False,
                                             stream=stream, auth=auth)
                     
@@ -192,9 +189,9 @@ class MastClass(BaseQuery):
         
         Parameters
         ----------
-        responses : list(`requests.Response`)
+        responses : list of `requests.Response`
             List of `requests.Response` objects.
-        verbose : bool (optional)
+        verbose : bool, optional
             Default False. Setting to True provides more extensive output.
         """
     
@@ -214,7 +211,7 @@ class MastClass(BaseQuery):
     def service_request_async(self, service, params, pagesize=None, page=None, verbose=False):
         """
         Given a Mashup service and parameters, builds and excecutes a Mashup query.
-        See documentation `here <https://masttest.stsci.edu/api/v0/class_mashup_1_1_mashup_request.html>`_ 
+        See documentation `here <https://mast.stsci.edu/api/v0/class_mashup_1_1_mashup_request.html>`_ 
         for information about how to build a Mashup request.
         
         Parameters
@@ -222,24 +219,24 @@ class MastClass(BaseQuery):
         service : str
             The Mashup service to query.
         params : dict
-            Json object containing service parameters.
-        pagesize : int or None (optional)
+            JSON object containing service parameters.
+        pagesize : int or None, optional
             Default None. 
             Can be used to override the default pagesize (set in configs) for this query only. 
             E.g. when using a slow internet connection.
-        page : int or None (optional)
+        page : int or None, optional
             Default None. 
             Can be used to override the default behavior of all results being returned to obtain 
             a sepcific page of results.
-        verbose : bool (optional)
+        verbose : bool, optional
             Default False. Setting to True provides more extensive output.
         **kwargs: 
-            See MashupRequest properties `here <https://masttest.stsci.edu/api/v0/class_mashup_1_1_mashup_request.html>`_ for additional keyword arguments.
+            See MashupRequest properties `here <https://mast.stsci.edu/api/v0/class_mashup_1_1_mashup_request.html>`_ for additional keyword arguments.
         
         
         Returns
         -------
-            response: list(`requests.Response`)
+            response: list of `requests.Response`
         """
         
         # setting up pagination
@@ -277,7 +274,7 @@ class MastClass(BaseQuery):
         ----------
         objectname : str
             Name of astronimical object to resolve.
-        verbose : bool (optional)
+        verbose : bool, optional
             Default False. Setting to True provides more extensive output.    
         """
         
@@ -311,41 +308,41 @@ class ObservationsClass(MastClass):
     
         
     @class_or_instance
-    def query_region_async(self, coordinates, radius="0.2 deg", pagesize=None, page=None, verbose=False):
+    def query_region_async(self, coordinates, radius=0.2*u.deg, pagesize=None, page=None, verbose=False):
         """
         Given a sky position and radius, returns a list of MAST observations.
-        See column documentation `here <https://masttest.stsci.edu/api/v0/_c_a_o_mfields.html>`_.
+        See column documentation `here <https://mast.stsci.edu/api/v0/_c_a_o_mfields.html>`_.
         
         Parameters
         ----------
         coordinates : str or `astropy.coordinates` object
             The target around which to search. It may be specified as a
             string or as the appropriate `astropy.coordinates` object. 
-        radius : str or `~astropy.units.Quantity` object (optional)
+        radius : str or `~astropy.units.Quantity` object, optional
             Default 0.2 degrees.
             The string must be parsable by `astropy.coordinates.Angle`. The
             appropriate `~astropy.units.Quantity` object from
             `astropy.units` may also be used. Defaults to 0.2 deg.
-        pagesize : int or None (optional)
+        pagesize : int or None, optional
             Default None. 
             Can be used to override the default pagesize for (set in configs) this query only. 
             E.g. when using a slow internet connection.
-        page : int or None (optional)
+        page : int or None, optional
             Default None.
             Can be used to override the default behavior of all results being returned to 
             obtain a sepcific page of results.
-        verbose : bool (optional)
+        verbose : bool, optional
             Default False. Setting to True provides more extensive output. 
         
         
         Returns
         -------
-            response: list(`requests.Response`)
+            response: list of `requests.Response`
         """       
         
         # Put coordinates and radius into consistant format
         coordinates = commons.parse_coordinates(coordinates)
-        radius = commons.parse_radius(radius.lower())
+        radius = coord.Angle(radius)
         
         service = 'Mast.Caom.Cone'
         params = {'ra':coordinates.ra.deg,
@@ -357,35 +354,35 @@ class ObservationsClass(MastClass):
 
         
     @class_or_instance
-    def query_object_async(self, objectname, radius="0.2 deg", pagesize=None, page=None, verbose=False):
+    def query_object_async(self, objectname, radius=0.2*u.deg, pagesize=None, page=None, verbose=False):
         """
         Given an object name, returns a list of MAST observations.
-        See column documentation `here <https://masttest.stsci.edu/api/v0/_c_a_o_mfields.html>`_.
+        See column documentation `here <https://mast.stsci.edu/api/v0/_c_a_o_mfields.html>`_.
         
         Parameters
         ----------
         objectname : str 
             The name of the target around which to search. 
-        radius : str or `~astropy.units.Quantity` object (optional)
+        radius : str or `~astropy.units.Quantity` object, optional
             Default 0.2 degrees.
             The string must be parsable by `astropy.coordinates.Angle`. The
             appropriate `~astropy.units.Quantity` object from
             `astropy.units` may also be used. Defaults to 0.2 deg.
-        pagesize : int or None (optional)
+        pagesize : int or None, optional
             Default None.
             Can be used to override the default pagesize for (set in configs) this query only. 
             E.g. when using a slow internet connection.
-        page : int or None (optional)
+        page : int or None, optional
             Defaulte None.
             Can be used to override the default behavior of all results being returned 
             to obtain a sepcific page of results.
-        verbose : bool (optional)
+        verbose : bool, optional
             Default False. Setting to True provides more extensive output. 
         
         
         Returns
         -------
-        response: list(`requests.Response`)
+        response: list of `requests.Response`
         """
         
         coordinates = self._resolve_object(objectname,verbose=verbose)

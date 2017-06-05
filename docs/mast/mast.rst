@@ -14,7 +14,7 @@ This module can be used to query the Barbara A. Mikulski Archive for Space Teles
 Positional Queries
 ------------------
 
-Positional queries can be based on a sky position or a target name.  The observation fields are documented `here <https://masttest.stsci.edu/api/v0/_c_a_o_mfields.html>`_.
+Positional queries can be based on a sky position or a target name.  The observation fields are documented `here <https://mast.stsci.edu/api/v0/_c_a_o_mfields.html>`_.
 
 .. code-block:: python
 
@@ -66,7 +66,7 @@ Direct Mast Queries
 The Mast class provides more direct access to the MAST interface.
 It requres more knowledge of the inner workings of the MAST API, and should be rarely needed.
 However in the case of new functionality not yet implemented in astroquery, this class does allow access.
-See the `MAST api documentation <https://masttest.stsci.edu/api>` for more information.
+See the `MAST api documentation <https://mast.stsci.edu/api>` for more information.
 
 The basic mast query function returns query results as an `astropy.table.Table`.
 
