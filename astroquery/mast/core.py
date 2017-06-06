@@ -16,13 +16,13 @@ import os
 
 import numpy as np
 
-from six.moves.urllib.parse import quote as urlencode
-
 from requests import HTTPError
 
 import astropy.units as u
 import astropy.coordinates as coord
+
 from astropy.table import Table, Row, vstack
+from astropy.extern.six.moves.urllib.parse import quote as urlencode
 
 from ..query import BaseQuery
 from ..utils import commons, async_to_sync
@@ -342,6 +342,10 @@ class ObservationsClass(MastClass):
         
         # Put coordinates and radius into consistant format
         coordinates = commons.parse_coordinates(coordinates)
+
+        # if radius is just a number we assume degrees
+        if isinstance(radius,(int,float)):
+            radius = radius * u.deg
         radius = coord.Angle(radius)
         
         service = 'Mast.Caom.Cone'

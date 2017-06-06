@@ -82,7 +82,7 @@ def test_observations_query_region(patch_post):
     assert isinstance(result, Table)
 
 def test_observations_query_object_async(patch_post):
-    responses = mast.Observations.query_object_async("M103",radius=0.02 * u.deg)
+    responses = mast.Observations.query_object_async("M103",radius=0.02)
     assert isinstance(responses, list)
 
 def test_observations_query_object(patch_post):
