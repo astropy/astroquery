@@ -37,7 +37,7 @@ def patch_post(request):
 
 
 def post_mockreturn(method="POST", url=None, data=None, timeout=10, **kwargs):
-    service  = re.search("service%22%3A%20%22([\w\.]*)%22", data).group(1)
+    service  = re.search(r"service%22%3A%20%22([\w\.]*)%22", data).group(1)
     filename = data_path(DATA_FILES[service])
     content = open(filename, 'rb').read()
     
