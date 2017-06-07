@@ -113,7 +113,7 @@ class MastClass(BaseQuery):
                 files=None, stream=False, auth=None, retrieve_all=True, verbose=False):        
         """
         Override of the parent method:
-        A generic HTTP request method, similar to `requests.Session.request`
+        A generic HTTP request method, similar to ``requests.Session.request``
         
         This is a low-level method not generally intended for use by astroquery
         end-users.
@@ -136,7 +136,7 @@ class MastClass(BaseQuery):
         auth : None or dict 
         files : None or dict 
         stream : bool
-            See `requests.request`
+            See ``requests.request``
         retrieve_all : bool
             Default True. Retrieve all pages of data or just the one indicated in the params value.
         verbose : bool
@@ -144,7 +144,7 @@ class MastClass(BaseQuery):
         
         Returns
         -------
-        response : `requests.Response`
+        response : ``requests.Response``
             The response from the server.
         """
         
@@ -185,12 +185,12 @@ class MastClass(BaseQuery):
 
     def _parse_result(self,responses,verbose=False):
         """
-        Parse the results of a list of `requests.Response` objects and returns an `astropy.table.Table` of results.
+        Parse the results of a list of ``requests.Response`` objects and returns an `astropy.table.Table` of results.
         
         Parameters
         ----------
-        responses : list of `requests.Response`
-            List of `requests.Response` objects.
+        responses : list of ``requests.Response``
+            List of ``requests.Response`` objects.
         verbose : bool, optional
             Default False. Setting to True provides more extensive output.
         """
@@ -236,7 +236,7 @@ class MastClass(BaseQuery):
         
         Returns
         -------
-            response: list of `requests.Response`
+            response: list of ``requests.Response``
         """
         
         # setting up pagination
@@ -337,7 +337,7 @@ class ObservationsClass(MastClass):
         
         Returns
         -------
-            response: list of `requests.Response`
+            response: list of ``requests.Response``
         """       
         
         # Put coordinates and radius into consistant format
@@ -386,7 +386,7 @@ class ObservationsClass(MastClass):
         
         Returns
         -------
-        response: list of `requests.Response`
+        response: list of ``requests.Response``
         """
         
         coordinates = self._resolve_object(objectname,verbose=verbose)
