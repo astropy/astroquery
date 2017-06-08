@@ -179,7 +179,7 @@ class MastClass(BaseQuery):
 
         return allResponses
 
-    def _parse_result(self, responses):
+    def _parse_result(self, responses, verbose=False):
         """
         Parse the results of a list of ``requests.Response`` objects and returns an `astropy.table.Table` of results.
 
@@ -187,6 +187,8 @@ class MastClass(BaseQuery):
         ----------
         responses : list of ``requests.Response``
             List of ``requests.Response`` objects.
+        verbose : bool
+            Default False.  Setting to True provides more extensive output.
         """
 
         resultList = []
