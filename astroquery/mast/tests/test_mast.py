@@ -49,7 +49,7 @@ def post_mockreturn(method="POST", url=None, data=None, timeout=10, **kwargs):
 def test_mast_service_request_async(patch_post):
     service = 'Mast.Name.Lookup'
     params = {'input': "M103",
-             'format': 'json'}
+              'format': 'json'}
     responses = mast.Mast.service_request_async(service, params)
     print(responses[0].content)
     output = responses[0].json()
@@ -61,8 +61,8 @@ def test_mast_service_request_async(patch_post):
 def test_mast_service_request(patch_post):
     service = 'Mast.Caom.Cone'
     params = {'ra': 23.34086,
-             'dec': 60.658,
-             'radius': 0.2}
+              'dec': 60.658,
+              'radius': 0.2}
     result = mast.Mast.service_request(service, params)
 
     assert isinstance(result, Table)

@@ -96,7 +96,7 @@ class MastClass(BaseQuery):
     """
     MAST query class.
 
-    Class that allows direct programatic access to the MAST Portal, 
+    Class that allows direct programatic access to the MAST Portal,
     more flexible but less user friendly than `ObservationsClass`.
     """
 
@@ -109,7 +109,7 @@ class MastClass(BaseQuery):
         self.PAGESIZE = conf.pagesize
 
     def _request(self, method, url, params=None, data=None, headers=None,
-                files=None, stream=False, auth=None, retrieve_all=True, verbose=False):
+                 files=None, stream=False, auth=None, retrieve_all=True):
         """
         Override of the parent method:
         A generic HTTP request method, similar to ``requests.Session.request``
@@ -117,10 +117,10 @@ class MastClass(BaseQuery):
         This is a low-level method not generally intended for use by astroquery
         end-users.
 
-        The main difference in this function is that it takes care of the long 
+        The main difference in this function is that it takes care of the long
         polling requirements of the mashup server.
-        Thus the cache parameter of the parent method is hard coded to false 
-        (the mast server does it's own caching, no need to cache locally and it 
+        Thus the cache parameter of the parent method is hard coded to false
+        (the mast server does it's own caching, no need to cache locally and it
         interferes with follow requests after an 'Executing' response was returned.)
         Also parameters that allow for file download through this method are removed
 
@@ -132,14 +132,12 @@ class MastClass(BaseQuery):
         params : None or dict
         data : None or dict
         headers : None or dict
-        auth : None or dict 
-        files : None or dict 
+        auth : None or dict
+        files : None or dict
         stream : bool
             See ``requests.request``
         retrieve_all : bool
             Default True. Retrieve all pages of data or just the one indicated in the params value.
-        verbose : bool
-            Default False.  Setting to True provides more extensive output.
 
         Returns
         -------
@@ -156,9 +154,9 @@ class MastClass(BaseQuery):
             status = "EXECUTING"
 
             while status == "EXECUTING":
-                response = super(MastClass, self)._request(method, url, params=params, data=data, headers=headers,
-                                            files=files, cache=False,
-                                            stream=stream, auth=auth)
+                response = super(MastClass, self)._request(method, url, params=params, data=data,
+                                                           headers=headers, files=files, cache=False,
+                                                           stream=stream, auth=auth)
 
                 if (time.time() - startTime) >=  self.TIMEOUT:
                     raise TimeoutError("Timeout limit of %f exceeded." % self.TIMEOUT)
@@ -172,7 +170,7 @@ class MastClass(BaseQuery):
                 break
 
             paging = result.get("paging")
-            if not paging:
+            if paging == None:
                 break
             totalPages = paging['pagesFiltered']
             curPage = paging['page']
@@ -181,7 +179,7 @@ class MastClass(BaseQuery):
 
         return allResponses
 
-    def _parse_result(self, responses, verbose=False):
+    def _parse_result(self, responses):
         """
         Parse the results of a list of ``requests.Response`` objects and returns an `astropy.table.Table` of results.
 
@@ -189,11 +187,7 @@ class MastClass(BaseQuery):
         ----------
         responses : list of ``requests.Response``
             List of ``requests.Response`` objects.
-        verbose : bool, optional
-            Default False. Setting to True provides more extensive output.
         """
-
-       # NOTE (TODO) verbose does not currently have any affect
 
         resultList = []
 
@@ -205,7 +199,7 @@ class MastClass(BaseQuery):
         return vstack(resultList)
 
     @class_or_instance
-    def service_request_async(self, service, params, pagesize=None, page=None, verbose=False):
+    def service_request_async(self, service, params, pagesize=None, page=None):
         """
         Given a Mashup service and parameters, builds and excecutes a Mashup query.
         See documentation `here <https://mast.stsci.edu/api/v0/class_mashup_1_1_mashup_request.html>`_ 
@@ -218,18 +212,13 @@ class MastClass(BaseQuery):
         params : dict
             JSON object containing service parameters.
         pagesize : int or None, optional
-            Default None. 
-            Can be used to override the default pagesize (set in configs) for this query only. 
+            Default None.
+            Can be used to override the default pagesize (set in configs) for this query only.
             E.g. when using a slow internet connection.
         page : int or None, optional
-            Default None. 
-            Can be used to override the default behavior of all results being returned to obtain 
+            Default None.
+            Can be used to override the default behavior of all results being returned to obtain
             a sepcific page of results.
-        verbose : bool, optional
-            Default False. Setting to True provides more extensive output.
-        **kwargs: 
-            See MashupRequest properties `here <https://mast.stsci.edu/api/v0/class_mashup_1_1_mashup_request.html>`_ for additional keyword arguments.
-
 
         Returns
         -------
@@ -257,20 +246,18 @@ class MastClass(BaseQuery):
 
         reqString = _prepare_service_request_string(mashupRequest)
         response = self._request("POST", self._SERVER+"/api/v0/invoke", data=reqString, headers=headers,
-                                 retrieve_all=retrieveAll, verbose=verbose)
+                                 retrieve_all=retrieveAll)
 
         return response
 
-    def _resolve_object(self, objectname, verbose=False):
+    def _resolve_object(self, objectname):
         """
         Resolves an object name to a position on the sky.
 
         Parameters
         ----------
         objectname : str
-            Name of astronimical object to resolve.
-        verbose : bool, optional
-            Default False. Setting to True provides more extensive output.    
+            Name of astronimical object to resolve.   
         """
 
         service = 'Mast.Name.Lookup'
@@ -300,7 +287,7 @@ class ObservationsClass(MastClass):
     """
 
     @class_or_instance
-    def query_region_async(self, coordinates, radius=0.2*u.deg, pagesize=None, page=None, verbose=False):
+    def query_region_async(self, coordinates, radius=0.2*u.deg, pagesize=None, page=None):
         """
         Given a sky position and radius, returns a list of MAST observations.
         See column documentation `here <https://mast.stsci.edu/api/v0/_c_a_o_mfields.html>`_.
@@ -309,23 +296,20 @@ class ObservationsClass(MastClass):
         ----------
         coordinates : str or `astropy.coordinates` object
             The target around which to search. It may be specified as a
-            string or as the appropriate `astropy.coordinates` object. 
+            string or as the appropriate `astropy.coordinates` object.
         radius : str or `~astropy.units.Quantity` object, optional
             Default 0.2 degrees.
             The string must be parsable by `astropy.coordinates.Angle`. The
             appropriate `~astropy.units.Quantity` object from
             `astropy.units` may also be used. Defaults to 0.2 deg.
         pagesize : int or None, optional
-            Default None. 
-            Can be used to override the default pagesize for (set in configs) this query only. 
+            Default None.
+            Can be used to override the default pagesize for (set in configs) this query only.
             E.g. when using a slow internet connection.
         page : int or None, optional
             Default None.
-            Can be used to override the default behavior of all results being returned to 
+            Can be used to override the default behavior of all results being returned to
             obtain a sepcific page of results.
-        verbose : bool, optional
-            Default False. Setting to True provides more extensive output. 
-
 
         Returns
         -------
@@ -345,43 +329,40 @@ class ObservationsClass(MastClass):
                   'dec': coordinates.dec.deg,
                   'radius': radius.deg}
 
-        return self.service_request_async(service, params, pagesize, page, verbose)
+        return self.service_request_async(service, params, pagesize, page)
 
     @class_or_instance
-    def query_object_async(self, objectname, radius=0.2*u.deg, pagesize=None, page=None, verbose=False):
+    def query_object_async(self, objectname, radius=0.2*u.deg, pagesize=None, page=None):
         """
         Given an object name, returns a list of MAST observations.
         See column documentation `here <https://mast.stsci.edu/api/v0/_c_a_o_mfields.html>`_.
 
         Parameters
         ----------
-        objectname : str 
-            The name of the target around which to search. 
+        objectname : str
+            The name of the target around which to search.
         radius : str or `~astropy.units.Quantity` object, optional
             Default 0.2 degrees.
-            The string must be parsable by `astropy.coordinates.Angle`. The
-            appropriate `~astropy.units.Quantity` object from
+            The string must be parsable by `astropy.coordinates.Angle`.
+            The appropriate `~astropy.units.Quantity` object from
             `astropy.units` may also be used. Defaults to 0.2 deg.
         pagesize : int or None, optional
             Default None.
-            Can be used to override the default pagesize for (set in configs) this query only. 
+            Can be used to override the default pagesize for (set in configs) this query only.
             E.g. when using a slow internet connection.
         page : int or None, optional
             Defaulte None.
-            Can be used to override the default behavior of all results being returned 
+            Can be used to override the default behavior of all results being returned
             to obtain a sepcific page of results.
-        verbose : bool, optional
-            Default False. Setting to True provides more extensive output. 
-
 
         Returns
         -------
         response: list of ``requests.Response``
         """
 
-        coordinates = self._resolve_object(objectname, verbose=verbose)
+        coordinates = self._resolve_object(objectname)
 
-        return self.query_region_async(coordinates, radius, pagesize, page, verbose)
+        return self.query_region_async(coordinates, radius, pagesize, page)
 
 
 Observations = ObservationsClass()

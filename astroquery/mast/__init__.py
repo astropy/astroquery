@@ -5,6 +5,7 @@ MAST Query Tool
 
 This module contains various methods for querying the MAST Portal.
 """
+
 from astropy import config as _config
 
 
