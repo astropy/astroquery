@@ -15,7 +15,7 @@ class Conf(_config.ConfigNamespace):
 
     server = _config.ConfigItem(
         'https://mast.stsci.edu',
-        'Name of the MAST mirror to use.')
+        'Name of the MAST server.')
     timeout = _config.ConfigItem(
         600,
         'Time limit for requests from the STScI server.')
@@ -23,12 +23,13 @@ class Conf(_config.ConfigNamespace):
         50000,
         'Number of results to request at once from the STScI server.')
 
+
 conf = Conf()
 
 
 from .core import Observations, ObservationsClass, Mast, MastClass
 
 __all__ = ['Observations', 'ObservationsClass',
-           'Mast','MastClass',
+           'Mast', 'MastClass',
            'Conf', 'conf',
            ]
