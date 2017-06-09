@@ -158,7 +158,7 @@ class MastClass(BaseQuery):
                                                            headers=headers, files=files, cache=False,
                                                            stream=stream, auth=auth)
 
-                if (time.time() - startTime) >=  self.TIMEOUT:
+                if (time.time() - startTime) >= self.TIMEOUT:
                     raise TimeoutError("Timeout limit of %f exceeded." % self.TIMEOUT)
 
                 result = response.json()
@@ -166,11 +166,11 @@ class MastClass(BaseQuery):
 
             allResponses.append(response)
 
-            if (status != "COMPLETE") or (retrieve_all == False):
+            if (status != "COMPLETE") or (not retrieve_all):
                 break
 
             paging = result.get("paging")
-            if paging == None:
+            if paging is None:
                 break
             totalPages = paging['pagesFiltered']
             curPage = paging['page']
@@ -204,7 +204,7 @@ class MastClass(BaseQuery):
     def service_request_async(self, service, params, pagesize=None, page=None):
         """
         Given a Mashup service and parameters, builds and excecutes a Mashup query.
-        See documentation `here <https://mast.stsci.edu/api/v0/class_mashup_1_1_mashup_request.html>`_ 
+        See documentation `here <https://mast.stsci.edu/api/v0/class_mashup_1_1_mashup_request.html>`_
         for information about how to build a Mashup request.
 
         Parameters
@@ -259,12 +259,12 @@ class MastClass(BaseQuery):
         Parameters
         ----------
         objectname : str
-            Name of astronimical object to resolve.   
+            Name of astronimical object to resolve.
         """
 
         service = 'Mast.Name.Lookup'
         params = {'input': objectname,
-                 'format': 'json'}
+                  'format': 'json'}
 
         response = self.service_request_async(service, params)
 
