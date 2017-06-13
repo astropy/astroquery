@@ -64,7 +64,7 @@ Direct Mast Queries
 ===================
 
 The Mast class provides more direct access to the MAST interface.
-It requres more knowledge of the inner workings of the MAST API, and should be rarely needed.
+It requires more knowledge of the inner workings of the MAST API, and should be rarely needed.
 However in the case of new functionality not yet implemented in astroquery, this class does allow access.
 See the `MAST api documentation <https://mast.stsci.edu/api>`_ for more information.
 
@@ -92,7 +92,7 @@ The basic mast query function returns query results as an `astropy.table.Table`.
                            image          GALEX           GALEX ... 302.405835798      False
 
 
-If the output is not the MAST json result type it cannot be properly parsed into an `astropy.table.Table` so the async method shoudl be used to get the raw http response, which can then be manually parsed.
+If the output is not the MAST json result type it cannot be properly parsed into an `astropy.table.Table` so the async method should be used to get the raw http response, which can then be manually parsed.
 
 .. code-block:: python
 

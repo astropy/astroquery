@@ -188,6 +188,8 @@ class MastClass(BaseQuery):
         responses : list of ``requests.Response``
             List of ``requests.Response`` objects.
         verbose : bool
+            (presently does nothing - there is no output with verbose set to
+            True or False)
             Default False.  Setting to True provides more extensive output.
         """
 
@@ -220,11 +222,11 @@ class MastClass(BaseQuery):
         page : int or None, optional
             Default None.
             Can be used to override the default behavior of all results being returned to obtain
-            a sepcific page of results.
+            a specific page of results.
 
         Returns
         -------
-            response: list of ``requests.Response``
+        response: list of ``requests.Response``
         """
 
         # setting up pagination
@@ -259,7 +261,7 @@ class MastClass(BaseQuery):
         Parameters
         ----------
         objectname : str
-            Name of astronimical object to resolve.
+            Name of astronomical object to resolve.
         """
 
         service = 'Mast.Name.Lookup'
@@ -311,11 +313,11 @@ class ObservationsClass(MastClass):
         page : int or None, optional
             Default None.
             Can be used to override the default behavior of all results being returned to
-            obtain a sepcific page of results.
+            obtain a specific page of results.
 
         Returns
         -------
-            response: list of ``requests.Response``
+        response: list of ``requests.Response``
         """
 
         # Put coordinates and radius into consistant format
@@ -355,7 +357,7 @@ class ObservationsClass(MastClass):
         page : int or None, optional
             Defaulte None.
             Can be used to override the default behavior of all results being returned
-            to obtain a sepcific page of results.
+            to obtain a specific page of results.
 
         Returns
         -------
