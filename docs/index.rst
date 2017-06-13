@@ -167,6 +167,7 @@ The following modules have been completed using a common API:
   heasarc/heasarc.rst
   gaia/gaia.rst
   vo_conesearch/vo_conesearch.rst
+  mast/mast.rst
 
 These others are functional, but do not follow a common & consistent API:
 
