@@ -9,12 +9,16 @@ MAST Queries (`astroquery.mast`)
 Getting Started
 ===============
 
-This module can be used to query the Barbara A. Mikulski Archive for Space Telescopes (MAST). Below are examples of the types of queries that can be used, and how to access data products.
+This module can be used to query the Barbara A. Mikulski Archive for Space
+Telescopes (MAST). Below are examples of the types of queries that can be used,
+and how to access data products.
 
 Positional Queries
 ------------------
 
-Positional queries can be based on a sky position or a target name.  The observation fields are documented `here <https://mast.stsci.edu/api/v0/_c_a_o_mfields.html>`_.
+Positional queries can be based on a sky position or a target name.  The
+observation fields are documented `here
+<https://mast.stsci.edu/api/v0/_c_a_o_mfields.html>`_.
 
 .. code-block:: python
 
@@ -63,12 +67,13 @@ Radius is an optional parameter, the default is 0.2 degrees.
 Direct Mast Queries
 ===================
 
-The Mast class provides more direct access to the MAST interface.
-It requires more knowledge of the inner workings of the MAST API, and should be rarely needed.
-However in the case of new functionality not yet implemented in astroquery, this class does allow access.
-See the `MAST api documentation <https://mast.stsci.edu/api>`_ for more information.
+The Mast class provides more direct access to the MAST interface.  It requires
+more knowledge of the inner workings of the MAST API, and should be rarely
+needed.  However in the case of new functionality not yet implemented in
+astroquery, this class does allow access.  See the `MAST api documentation
+<https://mast.stsci.edu/api>`_ for more information.
 
-The basic mast query function returns query results as an `astropy.table.Table`.
+The basic MAST query function returns query results as an `astropy.table.Table`.
 
 .. code-block:: python
 
@@ -92,7 +97,9 @@ The basic mast query function returns query results as an `astropy.table.Table`.
                            image          GALEX           GALEX ... 302.405835798      False
 
 
-If the output is not the MAST json result type it cannot be properly parsed into an `astropy.table.Table` so the async method should be used to get the raw http response, which can then be manually parsed.
+If the output is not the MAST json result type it cannot be properly parsed
+into an `astropy.table.Table` so the async method should be used to get the raw
+http response, which can then be manually parsed.
 
 .. code-block:: python
 

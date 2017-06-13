@@ -120,7 +120,7 @@ class MastClass(BaseQuery):
         The main difference in this function is that it takes care of the long
         polling requirements of the mashup server.
         Thus the cache parameter of the parent method is hard coded to false
-        (the mast server does it's own caching, no need to cache locally and it
+        (the MAST server does it's own caching, no need to cache locally and it
         interferes with follow requests after an 'Executing' response was returned.)
         Also parameters that allow for file download through this method are removed
 
