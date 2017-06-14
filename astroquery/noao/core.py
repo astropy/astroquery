@@ -3,6 +3,10 @@ from __future__ import print_function
 
 # put all imports organized as shown below
 # 1. standard library imports
+from bs4 import BeautifulSoup
+import urllib 
+import requests
+
 
 # 2. third party imports
 import astropy.units as u
@@ -34,7 +38,7 @@ __all__ = ['Template', 'TemplateClass']
 # Now begin your main class
 # should be decorated with the async_to_sync imported previously
 @async_to_sync
-class TemplateClass(BaseQuery):
+class NOAOClass(BaseQuery):
 
     """
     Not all the methods below are necessary but these cover most of the common
@@ -117,8 +121,50 @@ class TemplateClass(BaseQuery):
         # All this parsing may be done in a separate private `_args_to_payload`
         # method for cleaner code.
 
-        request_payload['object_name'] = object_name
-        # similarly fill up the rest of the dict ...
+        request_payload['object'] = object_name
+        request_payload['reset_datagrid'] = 'true'
+        request_payload['raw_proctype'] = 'false'
+        request_payload['instcal_proctype'] = 'false'
+        request_payload['resampled_proctype'] ='false'
+        request_payload['stacked_proctype'] = 'false'
+        request_payload['mastercal_proctype'] = 'false'
+        request_payload['tile_proctype'] = 'false'
+        request_payload['skysub_proctype'] = 'false'
+        # Optional Parameters for the object search
+        # request_payload['conditions']
+        # request_payload['ra']
+        # request_payload['dec']
+        # request_payload['searchbox']
+        # request_payload['dtpropid']
+        # request_payload['dtpi']
+        # request_payload['dtacqnam']
+        # request_payload['archive_file']
+        # request_payload['telescope_instrument']
+
+        session = requests.Session()
+        base_response = session.get('http://archive.noao.edu/search/query')
+
+        session.headers['X-CSRF-Token'] = BeautifulSoup(base_response.text, 
+                                                        'html5lib').find('meta',{'name':'csrf-token'}).attrs['content']
+
+        # Validating the queries for the request by ensuring the staging cookies are validated in the stagin area
+        header_content = session.get('http://archive.noao.edu/application/header_content')
+        query_content = session.get('http://archive.noao.edu/search/query_content')
+        main_notice = session.get('http://archive.noao.edu/application/get_main_notice')
+        stage_area = session.get('http://archive.noao.edu/application/render_stage_area')
+
+
+
+        result_send_query = S.post('http://archive.noao.edu/search/send_simple_query', data=request_payload)
+        result_send_query.raise_for_status()
+        assert result_send_query.text == 'OK'
+
+        result_get_resource_list = S.post('http://archive.noao.edu/search/list_resources')
+        result_get_resource_list.raise_for_status()
+
+        result_populate_list = S.post('http://archive.noao.edu/search/get_selected_rows_length')
+        result_populate_list.raise_for_status()
+
 
         if get_query_payload:
             return request_payload
