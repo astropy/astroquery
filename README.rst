@@ -121,12 +121,8 @@ To cite, use our `figshare`_ DOI (http://dx.doi.org/10.6084/m9.figshare.805208) 
 Badges
 ------
 .. image:: https://pypip.in/v/astroquery/badge.png
-    :target: https://crate.io/packages/astroquery/
+    :target: https://img.shields.io/pypi/v/astroquery.svg
     :alt: Latest PyPI version
-
-.. image:: https://pypip.in/d/astroquery/badge.png
-    :target: https://crate.io/packages/astroquery/
-    :alt: Number of PyPI downloads
 
 .. image:: https://travis-ci.org/astropy/astroquery.svg?branch=master
    :target: https://travis-ci.org/astropy/astroquery
