@@ -290,6 +290,95 @@ class ObservationsClass(MastClass):
     Class for querying MAST observational data.
     """
 
+    def __init__(self):
+        
+        super(ObservationsClass, self).__init__()
+        
+        self._caomCols = None # Hold Mast.Caom.Cone columns config 
+    
+
+    def _get_caom_col_config(self):
+        """
+        Gets the columnsConfig entry for Mast.Caom.Cone and stores it in self.caomCols.
+        """
+        
+        headers = {"User-Agent":self._session.headers["User-Agent"],
+                   "Content-type": "application/x-www-form-urlencoded",
+                   "Accept": "text/plain"}
+
+        response = Mast._request("POST", self._SERVER+"/portal/Mashup/Mashup.asmx/columnsconfig", 
+                                 data="colConfigId=Mast.Caom.Cone", headers=headers)
+        
+        self._caomCols = response[0].json()
+
+
+    def _build_filter_set(self, filters):
+        """
+        Takes user input dictionary of filters and returns a filterlist that the Mashup can understand.
+        
+        Parameters
+        ----------
+        filters : dict
+            Dictionary of filters to apply to a CAOM query.
+            Filters are of the form {"filter1":"value","filter2":[val1,val2],"filter3":[minval,maxval]}
+            
+        Returns
+        -------
+        response: list(dict)
+            The mashup json filter object.
+        """
+    
+        if not self._caomCols:
+            self._get_caom_col_config()
+            
+
+        mashupFilters = []
+        for colname in filters:
+            value = filters[colname]
+            
+            # make sure value is a list-like thing
+            if np.isscalar(value,):
+                value = [value]
+            
+            # Get the column type and seperator
+            colInfo = self._caomCols.get(colname)
+            if not colInfo:
+                print("Filter %s does not exist. This filter will be skipped." % colname)
+                continue
+            
+            colType = "discrete"
+            if colInfo.get("vot.datatype",colInfo.get("type")) == "double":
+                colType = "continuous"
+                
+            seperator = colInfo.get("seperator")
+            
+            # validate user input
+            if colType == "continuous":
+                if len(value) < 2:
+                    print("%s is continuous, and filters based on min and max values." % colname)
+                    print("Not enough values provided, skipping...")
+                    continue
+                elif len(value) > 2:
+                    print("%s is continuous, and filters based on min and max values." % colname)
+                    print("Too many values provided, the first two will be assumed to be the min and max values.")
+            else: # coltype is discrete, all values should be represented as strings, even if numerical
+                value = [str(x) for x in value]
+            
+            # craft mashup filter entry
+            entry = {}
+            entry["paramName"] = colname
+            if seperator:
+                entry["separator"] = seperator
+            if colType == "continuous":
+                entry["values"] = [{"min":value[0],"max":value[1]}]
+            else:
+                entry["values"] = value
+                
+            mashupFilters.append(entry)
+            
+        return mashupFilters
+    
+        
     @class_or_instance
     def query_region_async(self, coordinates, radius=0.2*u.deg, pagesize=None, page=None):
         """
@@ -368,6 +457,485 @@ class ObservationsClass(MastClass):
 
         return self.query_region_async(coordinates, radius, pagesize, page)
 
+    @class_or_instance
+    def query_criteria_async(self, filters, objectname=None, coordinates=None, radius="0.2 deg", 
+                           pagesize=None, page=None):
+        """
+        Given an set of filters, returns a list of MAST observations.
+        See column documentation `here <https://masttest.stsci.edu/api/v0/_c_a_o_mfields.html>`_.
+        
+        Parameters
+        ----------
+        filters : dict
+            Dictionary of filters to apply to query.
+            Filters are of the form {"filter1":"value","filter2":[val1,val2],"filter3":[minval,maxval]}
+            See `documentation <../../mast/mast.html#filtered-queries>`_ for more information.
+        coordinates : str or `astropy.coordinates` object
+            Optional target position around which to search. It may be specified as a
+            string or as the appropriate `astropy.coordinates` object. 
+        objectname : str 
+            Optional name of target around which to search. 
+        radius : str or `~astropy.units.Quantity` object, optional
+            Optional.  Only has an affect if coordinates or objectname are set.
+            The string must be parsable by `astropy.coordinates.Angle`. The
+            appropriate `~astropy.units.Quantity` object from
+            `astropy.units` may also be used. Defaults to 0.2 deg.
+        pagesize : int or None
+            Can be used to override the default pagesize for (set in configs) this query only. 
+            E.g. when using a slow internet connection.
+        page : int or None
+            Can be used to override the default behavior of all results being returned to obtain 
+            a sepcific page of results.
+        
+        
+        Returns
+        -------
+        response: list(`requests.Response`)
+        """
+        
+        # Build the mashup filter object        
+        mashupFilters = self._build_filter_set(filters)
+            
+        # handle position info (if any)
+        position = None
+        
+        if objectname and coordinates:
+            raise InvalidQueryError("Only one of objectname and coordinates may be specified.") 
+        
+        if objectname:
+            coordinates = self._resolve_object(objectname)
+        
+        if coordinates:
+            # Put coordinates and radius into consitant format
+            coordinates = commons.parse_coordinates(coordinates)
+            
+            # if radius is just a number we assume degrees
+            if isinstance(radius, (int, float)):
+                radius = radius * u.deg
+            radius = coord.Angle(radius)
 
+            # build the coordinates string needed by Mast.Caom.Filtered.Position
+            position = ', '.join([str(x) for x in (coordinates.ra.deg,coordinates.dec.deg,radius.deg)])
+            
+                  
+        # send query
+        if position:
+            service = "Mast.Caom.Filtered.Position"
+            params = {"columns": "*",
+                      "filters": mashupFilters,
+                      "position": position} 
+        else:
+            service = "Mast.Caom.Filtered"
+            params = {"columns": "*",
+                      "filters": mashupFilters}   
+            
+        return self.service_request_async(service, params)
+                
+
+    def query_region_count(self, coordinates, radius="0.2 deg", pagesize=None, page=None):
+        """
+        Given a sky position and radius, returns the number of MAST observations in that region.
+        
+        Parameters
+        ----------
+        coordinates : str or `astropy.coordinates` object
+            The target around which to search. It may be specified as a
+            string or as the appropriate `astropy.coordinates` object. 
+        radius : str or `~astropy.units.Quantity` object, optional
+            The string must be parsable by `astropy.coordinates.Angle`. The
+            appropriate `~astropy.units.Quantity` object from
+            `astropy.units` may also be used. Defaults to 0.2 deg.
+        pagesize : int or None
+            Can be used to override the default pagesize for (set in configs) this query only. E.g. when using a slow internet connection.
+        page : int or None
+            Can be used to override the default behavior of all results being returned to obtain a sepcific page of results.
+        
+        Returns
+        -------
+            response: int
+        """       
+        
+        # build the coordinates string needed by Mast.Caom.Filtered.Position
+        coordinates = commons.parse_coordinates(coordinates)
+        
+        # if radius is just a number we assume degrees
+        if isinstance(radius, (int, float)):
+            radius = radius * u.deg
+        radius = coord.Angle(radius)
+        
+        # turn coordinates into the format 
+        position = ', '.join([str(x) for x in (coordinates.ra.deg,coordinates.dec.deg,radius.deg)])
+        
+        service = "Mast.Caom.Filtered.Position"
+        params = {"columns": "COUNT_BIG(*)",
+                  "filters": [],
+                  "position": position}
+        
+        return self.service_request(service, params, pagesize, page)[0][0].astype(int)
+        
+    
+    
+    def query_object_count(self, objectname, radius="0.2 deg", pagesize=None, page=None):
+        """
+        Given an object name, returns the number of MAST observations.
+        
+        Parameters
+        ----------
+        objectname : str 
+            The name of the target around which to search. 
+        radius : str or `~astropy.units.Quantity` object, optional
+            The string must be parsable by `astropy.coordinates.Angle`. The
+            appropriate `~astropy.units.Quantity` object from
+            `astropy.units` may also be used. Defaults to 0.2 deg.
+        pagesize : int or None
+            Can be used to override the default pagesize for (set in configs) this query only. E.g. when using a slow internet connection.
+        page : int or None
+            Can be used to override the default behavior of all results being returned to obtain a sepcific page of results.       
+        
+        Returns
+        -------
+        response: int
+        """
+        
+        coordinates = self._resolve_object(objectname)
+        
+        return self.query_region_count(coordinates, radius, pagesize, page)
+    
+    
+    def query_criteria_count(self, filters, objectname=None, coordinates=None, radius="0.2 deg", 
+                           pagesize=None, page=None):
+        """
+        Given an set of filters, returns the number of MAST observations meeting those criteria.
+        
+        Parameters
+        ----------
+        filters : dict
+            Dictionary of filters to apply to query.
+            Filters are of the form {"filter1":"value","filter2":[val1,val2],"filter3":[minval,maxval]}
+            See `documentation <../../mast/mast.html#filtered-queries>`_ for more information.
+        coordinates : str or `astropy.coordinates` object
+            Optional target position around which to search. It may be specified as a
+            string or as the appropriate `astropy.coordinates` object. 
+        objectname : str 
+            Optional name of target around which to search. 
+        radius : str or `~astropy.units.Quantity` object, optional
+            Optional.  Only has an affect if coordinates or objectname are set.
+            The string must be parsable by `astropy.coordinates.Angle`. The
+            appropriate `~astropy.units.Quantity` object from
+            `astropy.units` may also be used. Defaults to 0.2 deg.
+        pagesize : int or None
+            Can be used to override the default pagesize for (set in configs) this query only. E.g. when using a slow internet connection.
+        page : int or None
+            Can be used to override the default behavior of all results being returned to obtain a sepcific page of results.
+
+  
+        Returns
+        -------
+        response: int
+        """
+        
+        # Build the mashup filter object        
+        mashupFilters = self._build_filter_set(filters)
+            
+        # handle position info (if any)
+        position = None
+        
+        if objectname and coordinates:
+            raise InvalidQueryError("Only one of objectname and coordinates may be specified.")
+        
+        if objectname:
+            coordinates = self._resolve_object(objectname)
+        
+        if coordinates:
+            # Put coordinates and radius into consitant format
+            coordinates = commons.parse_coordinates(coordinates)
+            
+            # if radius is just a number we assume degrees
+            if isinstance(radius, (int, float)):
+                radius = radius * u.deg
+            radius = coord.Angle(radius)
+
+            # build the coordinates string needed by Mast.Caom.Filtered.Position
+            position = ', '.join([str(x) for x in (coordinates.ra.deg,coordinates.dec.deg,radius.deg)])
+            
+                  
+        # send query
+        if position:
+            service = "Mast.Caom.Filtered.Position"
+            params = {"columns": "COUNT_BIG(*)",
+                      "filters": mashupFilters,
+                      "position": position} 
+        else:
+            service = "Mast.Caom.Filtered"
+            params = {"columns": "COUNT_BIG(*)",
+                      "filters": mashupFilters}   
+            
+        return self.service_request(service, params)[0][0].astype(int)
+    
+    
+    
+    @class_or_instance
+    def get_product_list_async(self,observation):
+        """
+        Given a "Product Group Id" (column name obsid) returns a list of associated data products.
+        See column documentation `here <https://masttest.stsci.edu/api/v0/_productsfields.html>`_.
+        
+        Parameters
+        ----------
+        observation : str or `astropy.table.Row`
+            Row of MAST query results table (e.g. as output from query_object) or MAST Product Group Id (obsid). 
+            See description `here <https://masttest.stsci.edu/api/v0/_c_a_o_mfields.html>`_.
+            
+        Returns
+        -------
+            response: list(`requests.Response`)    
+        """
+        
+        # getting the obsid
+        obsid = observation
+        if type(observation) == Row:
+            obsid = observation['obsid']
+            
+            
+        service = 'Mast.Caom.Products'
+        params = {'obsid':obsid}
+        
+        return self.service_request_async(service, params)
+    
+   
+
+    def filter_products(self, products,filters):
+        """
+        Takes an `astropy.table.Table` of MAST observation data products and filters it based on given dictionary of filters.
+        Note: Filtering is done in place, the products Table is changes.
+    
+        Parameters
+        ----------
+        products: `astropy.table.Table`
+            Table containing data products to be filtered.
+        filters: dict
+            Dictionary of filters to be applied.  Filter values may be strings or arrays of strings representing desired values.
+        """
+        
+        filterDict = {"group":'productSubGroupDescription',
+                      "extension":'productFilename', # this one is special (sigh)
+                      "product type":'dataproduct_type',
+                      "product category":'productType'}
+        
+        
+        # Dealing with mrp first, b/c it's special
+        if filters.get("mrp_only") == True:
+            products.remove_rows(np.where(products['productGroupDescription'] != "Minimum Recommended Products"))
+                
+        filterMask = np.full(len(products),True,dtype=bool)
+                
+        for filt in filters.keys():
+            
+            colname = filterDict.get(filt.lower())
+            if not colname:
+                continue
+            
+            vals = filters[filt]
+            if type(vals) == str:
+                vals = [vals]
+                
+            mask = np.full(len(products[colname]),False,dtype=bool)
+            for elt in vals:
+                if colname == 'productFilename':
+                    mask |= [x.endswith(elt) for x in products[colname]] 
+                elif colname == "productGroupDescription":
+                    mask |= [products[colname] == "Minimum Recommended Products"]
+                else:
+                    mask |= (products[colname] == elt) 
+                            
+            filterMask &= mask
+                    
+        return products[np.where(filterMask)]
+
+
+    def _download_curl_script(self, products, outputDirectory):
+        """
+        Takes an `astropy.table.Table` of data products and downloads a curl script to pull the datafiles.
+        
+        Parameters
+        ----------
+        products : `astropy.table.Table`
+            Table containing products to be included in the curl script.
+        outputDirectory : str
+            Directory in which the curl script will be saved.
+            
+        Returns
+        -------
+            response : `astropy.table.Table`
+        """
+        
+        urlList = products['dataURI']
+        descriptionList = products['description']
+        productTypeList = products['dataproduct_type']
+
+        downloadFile = "mastDownload_" + time.strftime("%Y%m%d%H%M%S")
+        pathList = [downloadFile+"/"+x['obs_collection']+'/'+x['obs_id']+'/'+x['productFilename'] for x in products]
+        
+        service = "Mast.Bundle.Request"
+        params = {"urlList":",".join(urlList),
+                  "filename":downloadFile,
+                  "pathList":",".join(pathList),
+                  "descriptionList":list(descriptionList),
+                  "productTypeList":list(productTypeList),
+                  "extension":'curl'}
+        
+        response = self.service_request_async(service, params)
+        
+
+        bundlerResponse = response[0].json() 
+            
+        localPath = outputDirectory.rstrip('/') + "/" + downloadFile + ".sh"
+        Mast._download_file(bundlerResponse['url'],localPath)           
+            
+        status = "COMPLETE"
+        msg = None
+        url = None
+            
+        if not os.path.isfile(localPath):
+            status = "ERROR"
+            msg = "Curl could not be downloaded"
+            url = bundlerResponse['url']
+        else:
+            missingFiles = [x for x in bundlerResponse['statusList'].keys() if bundlerResponse['statusList'][x] != 'COMPLETE']
+            if len(missingFiles):
+                msg = "%d files could not be added to the curl script" % len(missingFiles)
+                url = ",".join(missingFiles)
+            
+            
+        manifest = Table({'Local Path':[localPath],
+                          'Status':[status],
+                          'Message':[msg],
+                          "URL":[url]})
+        return manifest
+
+
+   
+        
+    def _download_files(self, products, baseDir):
+        """
+        Takes an `astropy.table.Table` of data products and downloads them into the dirctor given by baseDir.
+        
+        Parameters
+        ----------
+        products : `astropy.table.Table`
+            Table containing products to be downloaded.
+        baseDir : str
+            Directory in which files will be downloaded.
+            
+        Returns
+        -------
+            response : `astropy.table.Table`
+        """
+        manifestArray = []
+        for dataProduct in products:
+            
+            localPath = baseDir + "/" + dataProduct['obs_collection'] + "/" + dataProduct['obs_id']
+
+            dataUrl = dataProduct['dataURI']
+            if "http" not in dataUrl: # url is actually a uri
+                dataUrl = self._SERVER + "/api/v0/download/file/" + dataUrl.lstrip("mast:")
+                
+            if not os.path.exists(localPath):
+                    os.makedirs(localPath)
+                    
+            localPath += '/' + dataProduct['productFilename']
+                
+            status = "COMPLETE"
+            msg = None
+            url = None
+                    
+            try:
+                Mast._download_file(dataUrl, localPath)
+
+                # check file size also this is where would perform md5
+                if not os.path.isfile(localPath):
+                    status = "ERROR"
+                    msg = "File was not downloaded"
+                    url = dataUrl
+                else:
+                    fileSize = os.stat(localPath).st_size
+                    if fileSize != dataProduct["size"]:
+                        status = "ERROR"
+                        msg = "Downloaded filesize is %d, but should be %d, file may be partial or corrupt." % (fileSize,dataProduct['size'])
+                        url = dataUrl
+            except HTTPError as err:
+                status = "ERROR"
+                msg = "HTTPError: {0}".format(err)
+                url = dataUrl
+                    
+            manifestArray.append([localPath,status,msg,url])
+          
+        manifest = Table(rows=manifestArray, names=('Local Path','Status','Message',"URL")) 
+        
+        return manifest
+            
+            
+    
+    def download_products(self,products,download_dir=None,filters={},curl_flag=False):
+        """
+        Download data products.
+
+        Parameters
+        ----------
+        products : str, list, `astropy.table.Table`
+            Either a single or list of obsids (as can be given to `get_product_list`), 
+            or a Table of products (as is returned by `get_product_list`)
+        download_dir : str
+            Optional.  Directory to download files to.  Defaults to current directory.
+        filters : dict
+            Default is {'mrp_only':True}. Dictionary of filters to apply, see `TODO: ADD LINK`. 
+        curl_flag : bool
+            Default is False.  If true instead of downloading files directly, a curl script will be downloaded
+            that can be used to download the data files at a later time.
+        
+        Return
+        ------
+        response: `astropy.table.Table`
+            The manifest of files downloaded, or status of files on disk if curl option chosen.
+        """
+        
+        # If the products list is not already a table of producs we need to  get the products and
+        # filter them appropriately
+        if type(products) != Table:
+            
+            if type(products) == str:
+                products = [products]
+
+            # collect list of products
+            productLists = []
+            for oid in products:
+                productLists.append(self.get_product_list(oid))
+
+            products = vstack(productLists) 
+            
+        # apply filters 
+        if "mrp_only" not in filters.keys():
+            filters["mrp_only"] = True    
+        products = self.filter_products(products,filters) 
+            
+        
+        if not len(products):
+            print("No products to download.")
+            return
+        
+        # set up the download directory and paths
+        if not download_dir:
+            download_dir = '.'
+                  
+        if curl_flag: # don't want to download the files now, just the curl script
+            manifest = self._download_curl_script(products, download_dir)
+            
+        else:
+            baseDir = download_dir.rstrip('/') + "/mastDownload_" + time.strftime("%Y%m%d%H%M%S")
+            manifest = self._download_files(products, baseDir)                     
+            
+        return manifest
+
+    
 Observations = ObservationsClass()
 Mast = MastClass()
