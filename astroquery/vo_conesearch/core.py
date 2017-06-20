@@ -30,8 +30,8 @@ class ConeSearchClass(BaseQuery):
     The class for querying the Virtual Observatory (VO)
     Cone Search web service.
 
-    Example
-    -------
+    Examples
+    --------
     >>> from astropy import units as u
     >>> from astropy.coordinates import SkyCoord
     >>> from astroquery.vo_conesearch import ConeSearch
