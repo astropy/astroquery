@@ -2,8 +2,7 @@
 from __future__ import print_function
 
 import os.path
-
-from astropy import log
+import warnings
 
 from ..utils.process_asyncs import async_to_sync
 from ..query import BaseQuery
@@ -110,5 +109,6 @@ class VamdcClass(BaseQuery):
 try:
     Vamdc = VamdcClass()
 except ImportError:
-    log.warning("vamdclib could not be imported; the vamdc astroquery module will not work")
+    warnings.warn("vamdclib could not be imported; the vamdc astroquery module "
+                  "will not work")
     Vamdc = VamdcClass(doimport=False)
