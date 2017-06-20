@@ -53,11 +53,12 @@ class AstroQuery(object):
         else:
             self._timeout = value
 
-    def request(self, session, cache_location=None, stream=False, auth=None):
+    def request(self, session, cache_location=None, stream=False,
+                auth=None, verify=True):
         return session.request(self.method, self.url, params=self.params,
                                data=self.data, headers=self.headers,
                                files=self.files, timeout=self.timeout,
-                               stream=stream, auth=auth)
+                               stream=stream, auth=auth, verify=verify)
 
     def hash(self):
         if self._hash is None:
@@ -131,7 +132,7 @@ class BaseQuery(object):
 
     def _request(self, method, url, params=None, data=None, headers=None,
                  files=None, save=False, savedir='', timeout=None, cache=True,
-                 stream=False, auth=None, continuation=True):
+                 stream=False, auth=None, continuation=True, verify=True):
         """
         A generic HTTP request method, similar to `requests.Session.request`
         but with added caching-related tools
@@ -142,7 +143,8 @@ class BaseQuery(object):
 
         Parameters
         ----------
-        method : 'GET' or 'POST'
+        method : str
+            'GET' or 'POST'
         url : str
         params : None or dict
         data : None or dict
@@ -157,6 +159,11 @@ class BaseQuery(object):
         savedir : str
             The location to save the local file if you want to save it
             somewhere other than `BaseQuery.cache_location`
+        timeout : int
+        cache : bool
+        verify : bool
+        continuation : bool
+        stream : bool
 
         Returns
         -------
@@ -187,14 +194,15 @@ class BaseQuery(object):
                     (not cache)):
                 with suspend_cache(self):
                     response = query.request(self._session, stream=stream,
-                                             auth=auth)
+                                             auth=auth, verify=verify)
             else:
                 response = query.from_cache(self.cache_location)
                 if not response:
                     response = query.request(self._session,
                                              self.cache_location,
                                              stream=stream,
-                                             auth=auth)
+                                             auth=auth,
+                                             verify=verify)
                     to_cache(response, query.request_file(self.cache_location))
             self._last_query = query
             return response

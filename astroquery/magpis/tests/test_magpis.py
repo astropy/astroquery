@@ -2,7 +2,6 @@
 from __future__ import print_function
 
 import os
-import requests
 
 import numpy.testing as npt
 import pytest
