@@ -35,7 +35,8 @@ class MockResponse(object):
     """
 
     def __init__(self, content=None, url=None, headers={},
-                 content_type=None, stream=False, auth=None, status_code=200):
+                 content_type=None, stream=False, auth=None, status_code=200,
+                 verify=True):
         assert content is None or hasattr(content, 'decode')
         self.content = content
         self.raw = content
