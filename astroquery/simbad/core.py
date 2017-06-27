@@ -109,7 +109,7 @@ class SimbadResult(object):
 
     def __split_sections(self):
         for section in self.__sections:
-            match = re.search(r'(?ims)^::%s:+?$(?P<content>.*?)(^::|\Z)' %
+            match = re.search(r'(?ims)^::%s:+?\r?$(?P<content>.*?)(^::|\Z)' %
                               section, self.__txt)
             if match:
                 self.__indexes[section] = (match.start('content'),
