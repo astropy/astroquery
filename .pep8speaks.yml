@@ -5,3 +5,10 @@ pycodestyle:
     - E741  # l and b are valid variable names for the galactic frame
     - E226  # Don't force "missing whitespace around arithmetic operator"
     - E402  # .conf has to be set in the __init__.py modules imports
+
+  exclude:
+    - ez_setup.py
+    - ah_bootstrap.py
+    - astropy_helpers/
+    - _astropy_init.py
+    - version.py
