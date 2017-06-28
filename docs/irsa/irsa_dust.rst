@@ -98,8 +98,8 @@ supports the ``image_type`` argument, in the same way as described for
     >>> from astroquery.irsa_dust import IrsaDust
     >>> import astropy.coordinates as coord
     >>> import astropy.units as u
-    >>> C = coord.SkyCoord(34.5565*u.deg, 54.2321*u.deg, frame='galactic')
-    >>> image_urls = IrsaDust.get_image_list(C)
+    >>> coo = coord.SkyCoord(34.5565*u.deg, 54.2321*u.deg, frame='galactic')
+    >>> image_urls = IrsaDust.get_image_list(coo)
     >>> image_urls
 
     ['http://irsa.ipac.caltech.edu//workspace/TMP_gB3awn_6492/DUST/34.5565_54.2321_gal.v0001/p292Dust.fits',
@@ -119,8 +119,8 @@ value:
     >>> import astropy.coordinates as coord
     >>> import astropy.units as u
     >>> # "22h57m57.5s +26d09m00.09s Equatorial B1950"
-    >>> C = coord.SkyCoord("22h57m57.5s +26d09m00.09s", frame='fk4')
-    >>> table = IrsaDust.get_extinction_table(C)
+    >>> coo = coord.SkyCoord("22h57m57.5s +26d09m00.09s", frame='fk4')
+    >>> table = IrsaDust.get_extinction_table(coo)
 
     Downloading http://irsa.ipac.caltech.edu//workspace/TMP_wuevFn_3781/DUST/345.094229457703_26.418650782801027.v0001/extinction.tbl
     |=======================================================================================| 4.4k/4.4k (100.00%)         0s
