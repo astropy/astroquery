@@ -23,8 +23,8 @@ The observation fields are documented
 .. code-block:: python
 
                 >>> from astroquery.mast import Observations
-                >>> observations = Observations.query_region("322.49324 12.16683")
-                >>> print(observations[:10])
+                >>> obsTable = Observations.query_region("322.49324 12.16683")
+                >>> print(obsTable[:10])
 
                 dataproduct_type obs_collection instrument_name ... distance 
                 ---------------- -------------- --------------- ... -------- 
@@ -65,20 +65,28 @@ Radius is an optional parameter, the default is 0.2 degrees.
 Observation Criteria Queries
 ----------------------------
 
-To search for observations based on parameters other than position, use query_criteria.
-The criteria dictionary has the format ``{"filterName":[value(s)]}``.
-The columns that can be filtered on are described `here <https://mast.stsci.edu/api/v0/_c_a_o_mfields.html>`_.
-Columns with datatype 'float' should be filtered by giving a min and max,
-all other data types are filtered by giving a list of acceptable values.
+To search for observations based on parameters other than position, use
+`~astroquery.mast.ObservationsClass.query_criteria`.
+Criteria are supplied as keyword arguments, where valid criteria are "coordinates",
+"objectname", "radius" (as in `~astroquery.mast.ObservationsClass.query_region` and
+`~astroquery.mast.ObservationsClass.query_object`), and all observation fields listed
+`here <https://mast.stsci.edu/api/v0/_c_a_o_mfields.html>`_.
+
+Argument values are one or more acceptable values for the criterion,
+except for fields with a float datatype where the argument should be in the form
+[minVal, maxVal]. For non-float type criteria wildcards may be used
+(both * and % are considered wildcards), however only one wildcarded value can
+be processed per criterion.
+
 RA and Dec must be given in decimal degrees, and datetimes in MJD.
 
 .. code-block:: python
                 
                 >>> from astroquery.mast import Observations
-                >>> observations = Observations.query_criteria({"dataproduct_type":["image"],
-                                                                "proposal_pi":"Osten",
-                                                                "s_dec":[43.5,45.5]})
-                >>> print(observations)
+                >>> obsTable = Observations.query_criteria(dataproduct_type=["image"],
+                                                           proposal_pi="Osten",
+                                                           s_dec=[43.5,45.5])
+                >>> print(obsTable)
 
                 dataproduct_type calib_level obs_collection ... dataURL   obsid      objID   
                 ---------------- ----------- -------------- ... ------- ---------- ----------
@@ -86,13 +94,8 @@ RA and Dec must be given in decimal degrees, and datetimes in MJD.
                            image           1            HST ...    None 2003520267 2011133419
                            image           1            HST ...    None 2003520268 2011133420
 
-Criteria queries may also specify a sky position.
-
-.. code-block:: python
-                
-                >>> from astroquery.mast import Observations
-                >>> observations = Observations.query_criteria({"filters":["NUV","FUV"]},objectname="M101")
-                >>> print(observations)
+                >>> obsTable = Observations.query_criteria(filters=["*UV","Kepler"],objectname="M101")
+                >>> print(obsTable)
 
                 dataproduct_type calib_level obs_collection ...   objID1      distance  
                 ---------------- ----------- -------------- ... ---------- -------------
@@ -113,10 +116,9 @@ Criteria queries may also specify a sky position.
 Getting Observation Counts
 --------------------------
 
-To get the number of observations in a particular region of the sky without being returned
-the observations themselves (for example, to decide if the number of observations will fit
-comfortable in memory, or if the query should be broken up) query_counts functions are
-available.
+To get the number of observations without being returned the observations themselves
+(for example, to decide if the number of observations will fit comfortably in memory,
+or if the query should be broken up) counts functions are available.
 
 .. code-block:: python
                 
@@ -127,9 +129,9 @@ available.
                 >>> print(Observations.query_object_count("M8",radius=".02 deg"))
                 196
 
-                >>> print(Observations.query_criteria_count({"dataproduct_type":"image",
-                                                             "filters":["NUV","FUV"],
-                                                             "t_max":[52264.4586,54452.8914]}))
+                >>> print(Observations.query_criteria_count(dataproduct_type="image",
+                                                            filters=["NUV","FUV"],
+                                                            t_max=[52264.4586,54452.8914]))
                 59033
                            
 
@@ -141,93 +143,140 @@ Getting Product Lists
 ---------------------
 
 Each observation returned from a MAST query can have one or more associated data products.
-Given a single observation or observation id (obsid) `get_product_list` will return
-an `astropy.table.Table` containing the associated data products.
+Given one or more observations or observation ids ("obsid")
+`~astroquery.mast.ObservationsClass.get_product_list` will return
+an `~astropy.table.Table` containing the associated data products.
 The product fields are documented `here <https://mast.stsci.edu/api/v0/_productsfields.html>`_.
 
 .. code-block:: python
                 
                 >>> from astroquery.mast import Observations
-                >>> observations = Observations.query_object("M8",radius=".02 deg")
-                >>> dataProductsByObservation = Observations.get_product_list(observations[0])
+                >>> obsTable = Observations.query_object("M8",radius=".02 deg")
+                >>> dataProductsByObservation = Observations.get_product_list(obsTable[0:2])
                 >>> print(dataProductsByObservation)
                 
-                  obsID    obs_collection dataproduct_type ...   size   
-                ---------- -------------- ---------------- ... -------- 
-                9500243833             K2             cube ...     9009 
-                9500243833             K2             cube ... 39930404 
-                9500243833             K2             cube ... 62213068 
-                9500243833             K2             cube ...     1301
+                  obsID    obs_collection ...          productFilename             size  
+                ---------- -------------- ... ---------------------------------- --------
+                3000007760            IUE ...                  lwp13058.elbll.gz   185727
+                3000007760            IUE ...                  lwp13058.elbls.gz   183350
+                3000007760            IUE ...                   lwp13058.lilo.gz   612715
+                3000007760            IUE ...                  lwp13058.melol.gz    12416
+                3000007760            IUE ...                  lwp13058.melos.gz    12064
+                3000007760            IUE ...                    lwp13058.raw.gz   410846
+                3000007760            IUE ...                   lwp13058.rilo.gz   416435
+                3000007760            IUE ...                   lwp13058.silo.gz   100682
+                3000007760            IUE ...                       lwp13058.gif     8971
+                3000007760            IUE ...                   lwp13058.mxlo.gz    18206
+                3000007760            IUE ...               lwp13058mxlo_vo.fits    48960
+                3000007760            IUE ...                       lwp13058.gif     3967
+                9500243833             K2 ...    k2-tpf-only-target_bw_large.png     9009
+                9500243833             K2 ... ktwo200071160-c91_lpd-targ.fits.gz 39930404
+                9500243833             K2 ... ktwo200071160-c92_lpd-targ.fits.gz 62213068
+                9500243833             K2 ...    k2-tpf-only-target_bw_thumb.png     1301
                 
-                >>> obsid = observations[0]['obsid']
-                >>> dataProductsByID = Observations.get_product_list(obsid)
+                >>> obsids = obsTable[0:2]['obsid']
+                >>> dataProductsByID = Observations.get_product_list(obsids)
                 >>> print(dataProductsByID)
                 
-                  obsID    obs_collection dataproduct_type ...   size   
-                ---------- -------------- ---------------- ... -------- 
-                9500243833             K2             cube ...     9009 
-                9500243833             K2             cube ... 39930404 
-                9500243833             K2             cube ... 62213068 
-                9500243833             K2             cube ...     1301
+                  obsID    obs_collection ...          productFilename             size  
+                ---------- -------------- ... ---------------------------------- --------
+                3000007760            IUE ...                  lwp13058.elbll.gz   185727
+                3000007760            IUE ...                  lwp13058.elbls.gz   183350
+                3000007760            IUE ...                   lwp13058.lilo.gz   612715
+                3000007760            IUE ...                  lwp13058.melol.gz    12416
+                3000007760            IUE ...                  lwp13058.melos.gz    12064
+                3000007760            IUE ...                    lwp13058.raw.gz   410846
+                3000007760            IUE ...                   lwp13058.rilo.gz   416435
+                3000007760            IUE ...                   lwp13058.silo.gz   100682
+                3000007760            IUE ...                       lwp13058.gif     8971
+                3000007760            IUE ...                   lwp13058.mxlo.gz    18206
+                3000007760            IUE ...               lwp13058mxlo_vo.fits    48960
+                3000007760            IUE ...                       lwp13058.gif     3967
+                9500243833             K2 ...    k2-tpf-only-target_bw_large.png     9009
+                9500243833             K2 ... ktwo200071160-c91_lpd-targ.fits.gz 39930404
+                9500243833             K2 ... ktwo200071160-c92_lpd-targ.fits.gz 62213068
+                9500243833             K2 ...    k2-tpf-only-target_bw_thumb.png     1301
                 
-                >>> print(dataProductsByObservation == dataProductsByID)
+                >>> print((dataProductsByObservation == dataProductsByID).all())
                 True
+
+                
 
 
 
 Downloading Data Products
 -------------------------
 
-Products can be downloaded by giving `download_products` an `astropy.table.Table` of data products,
-or a list (or single) obsid.
+Products can be downloaded by giving `~astroquery.mast.ObservationsClass.download_products` a
+`~astropy.table.Table` of data products, or a list (or single) obsid.
 
 .. code-block:: python
                 
                 >>> from astroquery.mast import Observations
+                >>> obsid = '3000007760'
+                >>> dataProductsByID = Observations.get_product_list(obsid)
                 >>> manifest = Observations.download_products(dataProductsByID)
+                Downloading URL http://archive.stsci.edu/pub/iue/data/lwp/13000/lwp13058.mxlo.gz to ./mastDownload/IUE/lwp13058/lwp13058.mxlo.gz ... [Done]
+                Downloading URL http://archive.stsci.edu/pub/vospectra/iue2/lwp13058mxlo_vo.fits to ./mastDownload/IUE/lwp13058/lwp13058mxlo_vo.fits ... [Done]
                 >>> print(manifest)
                 
-                                                       Local Path                                         Status  ...
-                ---------------------------------------------------------------------------------------- -------- ...
-                   ./mastDownload_20170504125901/K2/ktwo200071160-c92_lc/k2-tpf-only-target_bw_large.png COMPLETE ...
-                ./mastDownload_20170504125901/K2/ktwo200071160-c92_lc/ktwo200071160-c91_lpd-targ.fits.gz    ERROR ...
-                ./mastDownload_20170504125901/K2/ktwo200071160-c92_lc/ktwo200071160-c92_lpd-targ.fits.gz COMPLETE ...
-                   ./mastDownload_20170504125901/K2/ktwo200071160-c92_lc/k2-tpf-only-target_bw_thumb.png COMPLETE ...
+                                   Local Path                     Status  Message URL 
+                ------------------------------------------------ -------- ------- ----
+                    ./mastDownload/IUE/lwp13058/lwp13058.mxlo.gz COMPLETE    None None
+                ./mastDownload/IUE/lwp13058/lwp13058mxlo_vo.fits COMPLETE    None None
 
 ​
+Filter keyword arguments can be applied to download only certain types of data products.
+Available filters are "mrp_only" (Minium Recommended Products), "extension" (file extension),
+and all products fields listed `here <https://mast.stsci.edu/api/v0/_productsfields.html>`_.
 
-Filters can be applied to download only certain types of data products.
-Available filters are as follows:
-
-* mrp_only: **Defaults to True.** If true only download "Minimum Recommended Products." 
-* group: Product subgroup, e.g. Q2F, RAMP, RAW, UNCAL, TRM.
-* extension: File extension, e.g. .fits or .tar.gz.
-* product type: Data product type, e.g. image, cube.
-* product category: Data product category, e.g. SCIENCE, AUXILIARY, CATALOG.
+**Important: mrp_only defaults to True.**
 
 Filter behavior is AND between the filters and OR within a filter set.
+The bellow snippet downloads all product files with the extension "fits"
+that are either "RAW" or "UNCAL."
 
 .. code-block:: python
-                
-                >>> filters = {"mrp_only":False,
-                               "group":["RAW", "UNCAL"],
-                               "extenstion":"fits"}
 
-Yields all product files with the extension "fits" that are either "RAW" or "UNCAL."
+                >>> from astroquery.mast import Observations
+                >>> Observations.download_products('2003839997',
+                                                   mrp_only=False,
+                                                   productSubGroupDescription=["RAW", "UNCAL"],
+                                                   extension="fits")
+                Downloading URL https://mast.stsci.edu/api/v0/download/file/HST/product/ib3p11p7q_raw.fits to ./mastDownload/HST/IB3P11P7Q/ib3p11p7q_raw.fits ... [Done]
+                Downloading URL https://mast.stsci.edu/api/v0/download/file/HST/product/ib3p11p8q_raw.fits to ./mastDownload/HST/IB3P11P8Q/ib3p11p8q_raw.fits ... [Done]
+                Downloading URL https://mast.stsci.edu/api/v0/download/file/HST/product/ib3p11phq_raw.fits to ./mastDownload/HST/IB3P11PHQ/ib3p11phq_raw.fits ... [Done]
+                Downloading URL https://mast.stsci.edu/api/v0/download/file/HST/product/ib3p11q9q_raw.fits to ./mastDownload/HST/IB3P11Q9Q/ib3p11q9q_raw.fits ... [Done]
+
+
+Product filtering can also be appllied directly to a table of products without proceeding to the download step. 
+
+.. code-block:: python
+
+                >>> from astroquery.mast import Observations
+                >>> dataProductsByID = Observations.get_product_list('2003839997')
+                >>> print(len(dataProductsByID))
+                31
+                
+                >>> dataProductsByID = Observations.filter_products(dataProductsByID,
+                                                                    mrp_only=False,
+                                                                    productSubGroupDescription=["RAW", "UNCAL"],
+                                                                    extenstion="fits")
+                >>> print(len(dataProductsByID))
+                4
 
 As an alternative to downloading the data files now, the curl_flag can be used to instead get a curl script that can be used to download the files at a later time.
 
 .. code-block:: python
-                
+
                 >>> from astroquery.mast import Observations
-                >>> manifest = Observations.download_products(dataProductsByID,
-                                                              filters={"mrp_only":False, "product category":"SCIENCE"},
-                                                              curl_flag=True)
-                >>> print(manifest)
-                
-                Message            Local Path            URL   Status 
-                ------- -------------------------------- ---- --------
-                None    ./mastDownload_20170504141044.sh None COMPLETE
+                >>> Observations.download_products('2003839997',
+                                                   mrp_only=False,
+                                                   productType="SCIENCE",
+                                                   curl_flag=True)
+                                                   
+                Downloading URL https://mast.stsci.edu/portal/Download/stage/anonymous/public/514cfaa9-fdc1-4799-b043-4488b811db4f/mastDownload_20170629162916.sh to ./mastDownload_20170629162916.sh ... [Done]
+               
 
 
    
@@ -240,7 +289,7 @@ needed.  However in the case of new functionality not yet implemented in
 astroquery, this class does allow access.  See the `MAST api documentation
 <https://mast.stsci.edu/api>`_ for more information.
 
-The basic MAST query function returns query results as an `astropy.table.Table`.
+The basic MAST query function returns query results as an `~astropy.table.Table`.
 
 .. code-block:: python
 
@@ -265,7 +314,7 @@ The basic MAST query function returns query results as an `astropy.table.Table`.
 
 
 If the output is not the MAST json result type it cannot be properly parsed
-into an `astropy.table.Table` so the async method should be used to get the raw
+into an `~astropy.table.Table` so the async method should be used to get the raw
 http response, which can then be manually parsed.
 
 .. code-block:: python
