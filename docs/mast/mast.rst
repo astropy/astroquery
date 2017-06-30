@@ -39,7 +39,7 @@ The observation fields are documented
                             cube          SWIFT            UVOT ...      0.0 
                             cube          SWIFT            UVOT ...      0.0 
 
-Radius is an optional parameter, the default is 0.2 degrees.
+Radius is an optional parameter and the default is 0.2 degrees.
 
 .. code-block:: python
 
@@ -65,8 +65,8 @@ Radius is an optional parameter, the default is 0.2 degrees.
 Observation Criteria Queries
 ----------------------------
 
-To search for observations based on parameters other than position, use
-`~astroquery.mast.ObservationsClass.query_criteria`.
+To search for observations based on parameters other than position or target name,
+use `~astroquery.mast.ObservationsClass.query_criteria`.
 Criteria are supplied as keyword arguments, where valid criteria are "coordinates",
 "objectname", "radius" (as in `~astroquery.mast.ObservationsClass.query_region` and
 `~astroquery.mast.ObservationsClass.query_object`), and all observation fields listed
@@ -74,9 +74,8 @@ Criteria are supplied as keyword arguments, where valid criteria are "coordinate
 
 Argument values are one or more acceptable values for the criterion,
 except for fields with a float datatype where the argument should be in the form
-[minVal, maxVal]. For non-float type criteria wildcards may be used
-(both * and % are considered wildcards), however only one wildcarded value can
-be processed per criterion.
+[minVal, maxVal]. For non-float type criteria, wildcards (both * and %) may be used.
+However, only one wildcarded value can be processed per criterion.
 
 RA and Dec must be given in decimal degrees, and datetimes in MJD.
 
@@ -116,9 +115,8 @@ RA and Dec must be given in decimal degrees, and datetimes in MJD.
 Getting Observation Counts
 --------------------------
 
-To get the number of observations without being returned the observations themselves
-(for example, to decide if the number of observations will fit comfortably in memory,
-or if the query should be broken up) counts functions are available.
+To get the number of observations and not the observations themselves, query_counts functions are available.
+This can be useful if trying to decide whether the available memory is sufficient for the number of observations.
 
 .. code-block:: python
                 
@@ -145,7 +143,7 @@ Getting Product Lists
 Each observation returned from a MAST query can have one or more associated data products.
 Given one or more observations or observation ids ("obsid")
 `~astroquery.mast.ObservationsClass.get_product_list` will return
-an `~astropy.table.Table` containing the associated data products.
+a `~astropy.table.Table` containing the associated data products.
 The product fields are documented `here <https://mast.stsci.edu/api/v0/_productsfields.html>`_.
 
 .. code-block:: python
@@ -207,8 +205,9 @@ The product fields are documented `here <https://mast.stsci.edu/api/v0/_products
 Downloading Data Products
 -------------------------
 
-Products can be downloaded by giving `~astroquery.mast.ObservationsClass.download_products` a
-`~astropy.table.Table` of data products, or a list (or single) obsid.
+Products can be downloaded by using `~astroquery.mast.ObservationsClass.download_products`,
+with a `~astropy.table.Table` of data products, or a list (or single) obsid as the argument.
+**By default only Minimum Recommended Products will be downloaded.**
 
 .. code-block:: python
                 
@@ -225,16 +224,30 @@ Products can be downloaded by giving `~astroquery.mast.ObservationsClass.downloa
                     ./mastDownload/IUE/lwp13058/lwp13058.mxlo.gz COMPLETE    None None
                 ./mastDownload/IUE/lwp13058/lwp13058mxlo_vo.fits COMPLETE    None None
 
-​
-Filter keyword arguments can be applied to download only certain types of data products.
+​As an alternative to downloading the data files now, the curl_flag can be used instead to instead get a curl script that can be used to download the files at a later time.
+
+.. code-block:: python
+
+                >>> from astroquery.mast import Observations
+                >>> Observations.download_products('2003839997',
+                                                   mrp_only=False,
+                                                   productType="SCIENCE",
+                                                   curl_flag=True)
+                                                   
+                Downloading URL https://mast.stsci.edu/portal/Download/stage/anonymous/public/514cfaa9-fdc1-4799-b043-4488b811db4f/mastDownload_20170629162916.sh to ./mastDownload_20170629162916.sh ... [Done]
+
+                
+Filtering
+^^^^^^^^^
+
+Filter keyword arguments can be applied to download only data products that meet the given criteria.
 Available filters are "mrp_only" (Minium Recommended Products), "extension" (file extension),
 and all products fields listed `here <https://mast.stsci.edu/api/v0/_productsfields.html>`_.
 
 **Important: mrp_only defaults to True.**
 
-Filter behavior is AND between the filters and OR within a filter set.
-The bellow snippet downloads all product files with the extension "fits"
-that are either "RAW" or "UNCAL."
+The ‘AND' operation is performed for a list of filters, and the ‘OR' operation is performed within a filter set.
+The below example illustrates downloading all product files with the extension "fits" that are either "RAW" or "UNCAL."
 
 .. code-block:: python
 
@@ -265,17 +278,7 @@ Product filtering can also be appllied directly to a table of products without p
                 >>> print(len(dataProductsByID))
                 4
 
-As an alternative to downloading the data files now, the curl_flag can be used to instead get a curl script that can be used to download the files at a later time.
 
-.. code-block:: python
-
-                >>> from astroquery.mast import Observations
-                >>> Observations.download_products('2003839997',
-                                                   mrp_only=False,
-                                                   productType="SCIENCE",
-                                                   curl_flag=True)
-                                                   
-                Downloading URL https://mast.stsci.edu/portal/Download/stage/anonymous/public/514cfaa9-fdc1-4799-b043-4488b811db4f/mastDownload_20170629162916.sh to ./mastDownload_20170629162916.sh ... [Done]
                
 
 
@@ -313,9 +316,8 @@ The basic MAST query function returns query results as an `~astropy.table.Table`
                            image          GALEX           GALEX ... 302.405835798      False
 
 
-If the output is not the MAST json result type it cannot be properly parsed
-into an `~astropy.table.Table` so the async method should be used to get the raw
-http response, which can then be manually parsed.
+If the output is not the MAST json result type it cannot be properly parsed into a `~astropy.table.Table`.
+In this case, the async method should be used to get the raw http response, which can then be manually parsed.
 
 .. code-block:: python
 
