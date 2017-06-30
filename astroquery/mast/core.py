@@ -23,11 +23,12 @@ import astropy.coordinates as coord
 
 from astropy.table import Table, Row, vstack
 from astropy.extern.six.moves.urllib.parse import quote as urlencode
+from astropy.utils.exceptions import AstropyWarning
 
 from ..query import BaseQuery
 from ..utils import commons, async_to_sync
 from ..utils.class_or_instance import class_or_instance
-from ..exceptions import TimeoutError, InvalidQueryError
+from ..exceptions import TimeoutError, InvalidQueryError, NoResultsWarning
 from . import conf
 
 
@@ -36,6 +37,9 @@ __all__ = ['Observations', 'ObservationsClass',
 
 
 class ResolverError(Exception):
+    pass
+
+class InputWarning(AstropyWarning):
     pass
 
 
@@ -104,10 +108,14 @@ class MastClass(BaseQuery):
 
         super(MastClass, self).__init__()
 
-        self._SERVER = conf.server
+        self._MAST_REQUEST_URL = conf.server + "/api/v0/invoke"
+        self._MAST_DOWNLOAD_URL = conf.server + "/api/v0/download/file/"
+        self._COLUMNS_CONFIG_URL = conf.server + "/portal/Mashup/Mashup.asmx/columnsconfig"
+
         self.TIMEOUT = conf.timeout
         self.PAGESIZE = conf.pagesize
 
+        
     def _request(self, method, url, params=None, data=None, headers=None,
                  files=None, stream=False, auth=None, retrieve_all=True):
         """
@@ -159,7 +167,7 @@ class MastClass(BaseQuery):
                                                            stream=stream, auth=auth)
 
                 if (time.time() - startTime) >= self.TIMEOUT:
-                    raise TimeoutError("Timeout limit of %f exceeded." % self.TIMEOUT)
+                    raise TimeoutError("Timeout limit of {} exceeded.".format(self.TIMEOUT))
 
                 result = response.json()
                 status = result.get("status")
@@ -206,7 +214,7 @@ class MastClass(BaseQuery):
     def service_request_async(self, service, params, pagesize=None, page=None, **kwargs):
         """
         Given a Mashup service and parameters, builds and excecutes a Mashup query.
-        See documentation `here <https://mast.stsci.edu/api/v0/class_mashup_1_1_mashup_request.html>`_
+        See documentation `here <https://mast.stsci.edu/api/v0/class_mashup_1_1_mashup_request.html>`__
         for information about how to build a Mashup request.
 
         Parameters
@@ -223,9 +231,9 @@ class MastClass(BaseQuery):
             Default None.
             Can be used to override the default behavior of all results being returned to obtain
             a specific page of results.
-        **kwargs : 
-            See MashupRequest properties 
-            `here <https://mast.stsci.edu/api/v0/class_mashup_1_1_mashup_request.html>`_ 
+        **kwargs :
+            See MashupRequest properties
+            `here <https://mast.stsci.edu/api/v0/class_mashup_1_1_mashup_request.html>`__
             for additional keyword arguments.
 
         Returns
@@ -256,7 +264,7 @@ class MastClass(BaseQuery):
             mashupRequest[prop] = value
 
         reqString = _prepare_service_request_string(mashupRequest)
-        response = self._request("POST", self._SERVER+"/api/v0/invoke", data=reqString, headers=headers,
+        response = self._request("POST", self._MAST_REQUEST_URL, data=reqString, headers=headers,
                                  retrieve_all=retrieveAll)
 
         return response
@@ -280,7 +288,7 @@ class MastClass(BaseQuery):
         result = response[0].json()
 
         if len(result['resolvedCoordinate']) == 0:
-            raise ResolverError("Could not resolve %s to a sky position." % objectname)
+            raise ResolverError("Could not resolve {} to a sky position.".format(objectname))
 
         ra = result['resolvedCoordinate'][0]['ra']
         dec = result['resolvedCoordinate'][0]['decl']
@@ -312,7 +320,7 @@ class ObservationsClass(MastClass):
                    "Content-type": "application/x-www-form-urlencoded",
                    "Accept": "text/plain"}
 
-        response = Mast._request("POST", self._SERVER+"/portal/Mashup/Mashup.asmx/columnsconfig",
+        response = Mast._request("POST", self._COLUMNS_CONFIG_URL,
                                  data="colConfigId=Mast.Caom.Cone", headers=headers)
 
         self._caomCols = response[0].json()
@@ -323,10 +331,10 @@ class ObservationsClass(MastClass):
 
         Parameters
         ----------
-        **filters : 
+        **filters :
             Filters to apply. At least one filter must be supplied.
             Valid criteria are coordinates, objectname, radius (as in `query_region` and `query_object`),
-            and all observation fields listed `here <https://mast.stsci.edu/api/v0/_c_a_o_mfields.html>`_.
+            and all observation fields listed `here <https://mast.stsci.edu/api/v0/_c_a_o_mfields.html>`__.
             The Column Name is the keyword, with the argument being one or more acceptable values for that parameter,
             except for fields with a float datatype where the argument should be in the form [minVal, maxVal].
             For example: filters=["FUV","NUV"],proposal_pi="Osten",t_max=[52264.4586,54452.8914]
@@ -350,7 +358,7 @@ class ObservationsClass(MastClass):
             # Get the column type and separator
             colInfo = self._caomCols.get(colname)
             if not colInfo:
-                print("Filter %s does not exist. This filter will be skipped." % colname)
+                warnings.warn("Filter {} does not exist. This filter will be skipped.".format(colname), InputWarning)
                 continue
 
             colType = "discrete"
@@ -363,12 +371,17 @@ class ObservationsClass(MastClass):
             # validate user input
             if colType == "continuous":
                 if len(value) < 2:
-                    print("%s is continuous, and filters based on min and max values." % colname)
-                    print("Not enough values provided, skipping...")
+                    warningString = "{} is continuous, ".format(colname) + \
+                                    "and filters based on min and max values.\n" + \
+                                    "Not enough values provided, skipping..."
+                    warnings.warn(warningString,InputWarning)
                     continue
                 elif len(value) > 2:
-                    print("%s is continuous, and filters based on min and max values." % colname)
-                    print("Too many values provided, the first two will be assumed to be the min and max values.")
+                    warningString = "{} is continuous, ".format(colname) + \
+                                    "and filters based on min and max values.\n" + \
+                                    "Too many values provided, the first two will be " + \
+                                    "assumed to be the min and max values."
+                    warnings.warn(warningString,InputWarning)
             else:  # coltype is discrete, all values should be represented as strings, even if numerical
                 value = [str(x) for x in value]
 
@@ -377,8 +390,10 @@ class ObservationsClass(MastClass):
                 for i, val in enumerate(value):
                     if ('*' in val) or ('%' in val):
                         if freeText:  # freeText is already set cannot set again
-                            print("Only one wildcarded value may be used per filter, all others must be exact.")
-                            print("Skipping %s..." % val)
+                            warningString = "Only one wildcarded value may be used per filter, " + \
+                                            "all others must be exact.\n" + \
+                                            "Skipping {}...".format(val)
+                            warnings.warn(warningString,InputWarning)
                         else:
                             freeText = val.replace('*', '%')
                         value.pop(i)
@@ -403,7 +418,7 @@ class ObservationsClass(MastClass):
     def query_region_async(self, coordinates, radius=0.2*u.deg, pagesize=None, page=None):
         """
         Given a sky position and radius, returns a list of MAST observations.
-        See column documentation `here <https://mast.stsci.edu/api/v0/_c_a_o_mfields.html>`_.
+        See column documentation `here <https://mast.stsci.edu/api/v0/_c_a_o_mfields.html>`__.
 
         Parameters
         ----------
@@ -448,7 +463,7 @@ class ObservationsClass(MastClass):
     def query_object_async(self, objectname, radius=0.2*u.deg, pagesize=None, page=None):
         """
         Given an object name, returns a list of MAST observations.
-        See column documentation `here <https://mast.stsci.edu/api/v0/_c_a_o_mfields.html>`_.
+        See column documentation `here <https://mast.stsci.edu/api/v0/_c_a_o_mfields.html>`__.
 
         Parameters
         ----------
@@ -481,20 +496,20 @@ class ObservationsClass(MastClass):
     def query_criteria_async(self, pagesize=None, page=None, **criteria):
         """
         Given an set of filters, returns a list of MAST observations.
-        See column documentation `here <https://masttest.stsci.edu/api/v0/_c_a_o_mfields.html>`_.
+        See column documentation `here <https://masttest.stsci.edu/api/v0/_c_a_o_mfields.html>`__.
 
         Parameters
         ----------
         pagesize : int, optional
-            Can be used to override the default pagesize. 
+            Can be used to override the default pagesize.
             E.g. when using a slow internet connection.
         page : int, optional
-            Can be used to override the default behavior of all results being returned to obtain 
+            Can be used to override the default behavior of all results being returned to obtain
             one sepcific page of results.
         **criteria
             Criteria to apply. At least one non-positional criteria must be supplied.
             Valid criteria are coordinates, objectname, radius (as in `query_region` and `query_object`),
-            and all observation fields listed `here <https://mast.stsci.edu/api/v0/_c_a_o_mfields.html>`_.
+            and all observation fields listed `here <https://mast.stsci.edu/api/v0/_c_a_o_mfields.html>`__.
             The Column Name is the keyword, with the argument being one or more acceptable values for that parameter,
             except for fields with a float datatype where the argument should be in the form [minVal, maxVal].
             For non-float type criteria wildcards maybe used (both * and % are considered wildcards), however
@@ -561,16 +576,16 @@ class ObservationsClass(MastClass):
         ----------
         coordinates : str or `astropy.coordinates` object
             The target around which to search. It may be specified as a
-            string or as the appropriate `astropy.coordinates` object. 
+            string or as the appropriate `astropy.coordinates` object.
         radius : str or `~astropy.units.Quantity` object, optional
             The string must be parsable by `astropy.coordinates.Angle`. The
             appropriate `~astropy.units.Quantity` object from
             `astropy.units` may also be used. Defaults to 0.2 deg.
         pagesize : int, optional
-            Can be used to override the default pagesize for. 
+            Can be used to override the default pagesize for.
             E.g. when using a slow internet connection.
         page : int, optional
-            Can be used to override the default behavior of all results being returned to 
+            Can be used to override the default behavior of all results being returned to
             obtain a specific page of results.
 
         Returns
@@ -594,7 +609,7 @@ class ObservationsClass(MastClass):
                   "filters": [],
                   "position": position}
 
-        return self.service_request(service, params, pagesize, page)[0][0].astype(int)
+        return int(self.service_request(service, params, pagesize, page)[0][0])
 
     def query_object_count(self, objectname, radius=0.2*u.deg, pagesize=None, page=None):
         """
@@ -602,18 +617,18 @@ class ObservationsClass(MastClass):
 
         Parameters
         ----------
-        objectname : str 
-            The name of the target around which to search. 
+        objectname : str
+            The name of the target around which to search.
         radius : str or `~astropy.units.Quantity` object, optional
             The string must be parsable by `astropy.coordinates.Angle`. The
             appropriate `~astropy.units.Quantity` object from
             `astropy.units` may also be used. Defaults to 0.2 deg.
         pagesize : int, optional
-            Can be used to override the default pagesize. 
+            Can be used to override the default pagesize.
             E.g. when using a slow internet connection.
         page : int, optional
-            Can be used to override the default behavior of all results being returned to obtain 
-            one sepcific page of results.       
+            Can be used to override the default behavior of all results being returned to obtain
+            one sepcific page of results.
 
         Returns
         -------
@@ -631,15 +646,15 @@ class ObservationsClass(MastClass):
         Parameters
         ----------
         pagesize : int, optional
-            Can be used to override the default pagesize. 
+            Can be used to override the default pagesize.
             E.g. when using a slow internet connection.
         page : int, optional
-            Can be used to override the default behavior of all results being returned to obtain 
+            Can be used to override the default behavior of all results being returned to obtain
             one sepcific page of results.
         **criteria
             Criteria to apply. At least one non-positional criterion must be supplied.
             Valid criteria are coordinates, objectname, radius (as in `query_region` and `query_object`),
-            and all observation fields listed `here <https://mast.stsci.edu/api/v0/_c_a_o_mfields.html>`_.
+            and all observation fields listed `here <https://mast.stsci.edu/api/v0/_c_a_o_mfields.html>`__.
             The Column Name is the keyword, with the argument being one or more acceptable values for that parameter,
             except for fields with a float datatype where the argument should be in the form [minVal, maxVal].
             For non-float type criteria wildcards maybe used (both * and % are considered wildcards), however
@@ -699,18 +714,18 @@ class ObservationsClass(MastClass):
     def get_product_list_async(self, observations):
         """
         Given a "Product Group Id" (column name obsid) returns a list of associated data products.
-        See column documentation `here <https://masttest.stsci.edu/api/v0/_productsfields.html>`_.
+        See column documentation `here <https://masttest.stsci.edu/api/v0/_productsfields.html>`__.
 
         Parameters
         ----------
         observations : str or `astropy.table.Row` or list/Table of same
             Row/Table of MAST query results (e.g. output from `query_object`)
-            or single/list of MAST Product Group Id(s) (obsid). 
-            See description `here <https://masttest.stsci.edu/api/v0/_c_a_o_mfields.html>`_.
+            or single/list of MAST Product Group Id(s) (obsid).
+            See description `here <https://masttest.stsci.edu/api/v0/_c_a_o_mfields.html>`__.
 
         Returns
         -------
-            response: list(`requests.Response`)    
+            response: list(`requests.Response`)
         """
 
         # getting the obsid list
@@ -736,11 +751,11 @@ class ObservationsClass(MastClass):
             Table containing data products to be filtered.
         mrp_only: bool, optional
             Default True. When set to true only "Minimum Recommended Products" will be returned.
-        **filters: 
-            Filters to be applied.  Valid filters are all products fields listed 
-            `here <https://masttest.stsci.edu/api/v0/_productsfields.html>`_ and 'extension' 
-            which is the desired file extension. 
-            The Column Name (or 'extension') is the keyword, with the argument being one or 
+        **filters:
+            Filters to be applied.  Valid filters are all products fields listed
+            `here <https://masttest.stsci.edu/api/v0/_productsfields.html>`__ and 'extension'
+            which is the desired file extension.
+            The Column Name (or 'extension') is the keyword, with the argument being one or
             more acceptable values for that parameter.
             Filter behavior is AND between the filters and OR within a filter set.
             For example: productType="SCIENCE",extension=["fits","jpg"]
@@ -819,9 +834,10 @@ class ObservationsClass(MastClass):
             msg = "Curl could not be downloaded"
             url = bundlerResponse['url']
         else:
-            missingFiles = [x for x in bundlerResponse['statusList'].keys() if bundlerResponse['statusList'][x] != 'COMPLETE']
+            missingFiles = [x for x in bundlerResponse['statusList'].keys() \
+                            if bundlerResponse['statusList'][x] != 'COMPLETE']
             if len(missingFiles):
-                msg = "%d files could not be added to the curl script" % len(missingFiles)
+                msg = "{} files could not be added to the curl script".format(len(missingFiles))
                 url = ",".join(missingFiles)
 
         manifest = Table({'Local Path': [localPath],
@@ -854,7 +870,7 @@ class ObservationsClass(MastClass):
 
             dataUrl = dataProduct['dataURI']
             if "http" not in dataUrl:  # url is actually a uri
-                dataUrl = self._SERVER + "/api/v0/download/file/" + dataUrl.lstrip("mast:")
+                dataUrl = self._MAST_DOWNLOAD_URL + dataUrl.lstrip("mast:")
 
             if not os.path.exists(localPath):
                 os.makedirs(localPath)
@@ -877,7 +893,8 @@ class ObservationsClass(MastClass):
                     fileSize = os.stat(localPath).st_size
                     if fileSize != dataProduct["size"]:
                         status = "ERROR"
-                        msg = "Downloaded filesize is %d, but should be %d, file may be partial or corrupt." % (fileSize, dataProduct['size'])
+                        msg = "Downloaded filesize is {},".format(dataProduct['size']) + \
+                              "but should be {}, file may be partial or corrupt.".format(fileSize)
                         url = dataUrl
             except HTTPError as err:
                 status = "ERROR"
@@ -898,23 +915,23 @@ class ObservationsClass(MastClass):
         Parameters
         ----------
         products : str, list, `astropy.table.Table`
-            Either a single or list of obsids (as can be given to `get_product_list`), 
+            Either a single or list of obsids (as can be given to `get_product_list`),
             or a Table of products (as is returned by `get_product_list`)
         download_dir : str, optional
             Optional.  Directory to download files to.  Defaults to current directory.
         cache : bool, optional
-            Default is True. If file is found on disc it will not be downloaded again. 
+            Default is True. If file is found on disc it will not be downloaded again.
             Note: has no affect when downloading curl script.
         curl_flag : bool, optional
-            Default is False.  If true instead of downloading files directly, a curl script 
+            Default is False.  If true instead of downloading files directly, a curl script
             will be downloaded that can be used to download the data files at a later time.
         mrp_only : bool, optional
             Default True. When set to true only "Minimum Recommended Products" will be returned.
-        **filters : 
-            Filters to be applied.  Valid filters are all products fields listed 
-            `here <https://masttest.stsci.edu/api/v0/_productsfields.html>`_ and 'extension' 
-            which is the desired file extension. 
-            The Column Name (or 'extension') is the keyword, with the argument being one or 
+        **filters :
+            Filters to be applied.  Valid filters are all products fields listed
+            `here <https://masttest.stsci.edu/api/v0/_productsfields.html>`__ and 'extension'
+            which is the desired file extension.
+            The Column Name (or 'extension') is the keyword, with the argument being one or
             more acceptable values for that parameter.
             Filter behavior is AND between the filters and OR within a filter set.
             For example: productType="SCIENCE",extension=["fits","jpg"]
@@ -943,7 +960,7 @@ class ObservationsClass(MastClass):
         products = self.filter_products(products, mrp_only, **filters)
 
         if not len(products):
-            print("No products to download.")
+            warnings.warn("No products to download.",NoResultsWarning)
             return
 
         # set up the download directory and paths

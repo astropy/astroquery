@@ -4,7 +4,7 @@ from __future__ import print_function
 import os
 import re
 import requests
-import numpy as np
+import numpy
 
 from astropy.table import Table
 from astropy.tests.helper import pytest
@@ -93,8 +93,6 @@ def test_mast_service_request(patch_post):
 regionCoords = coord.SkyCoord(23.34086, 60.658, unit=('deg', 'deg'))
 
 # query functions
-
-
 def test_observations_query_region_async(patch_post):
     responses = mast.Observations.query_region_async(regionCoords, radius=0.2)
     assert isinstance(responses, list)
@@ -144,19 +142,19 @@ def test_query_criteria(patch_post):
 # count functions
 def test_observations_query_region_count(patch_post):
     result = mast.Observations.query_region_count(regionCoords, radius="0.2 deg")
-    assert isinstance(result, np.int64)
+    assert isinstance(result, (numpy.int64, int))
 
 
 def test_observations_query_object_count(patch_post):
     result = mast.Observations.query_object_count("M8", radius=0.2*u.deg)
-    assert isinstance(result, np.int64)
+    assert isinstance(result, (numpy.int64, int))
 
 
 def test_query_criteria_count(patch_post):
     result = mast.Observations.query_criteria_count(dataproduct_type=["image"],
                                                     proposal_pi="Ost*",
                                                     s_dec=[43.5, 45.5])
-    assert isinstance(result, np.int64)
+    assert isinstance(result, (numpy.int64, int))
 
 
 # product functions

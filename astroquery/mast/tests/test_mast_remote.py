@@ -1,7 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from __future__ import print_function
 
-import numpy as np
+import numpy
 
 from astropy.tests.helper import remote_data
 from astropy.table import Table
@@ -79,17 +79,17 @@ class TestMast(object):
     # count functions
     def test_observations_query_region_count(self):
         result = mast.Observations.query_region_count("322.49324 12.16683", radius="0.4 deg")
-        assert isinstance(result, np.int64)
+        assert isinstance(result, (numpy.int64, int))
 
     def test_observations_query_object_count(self):
         result = mast.Observations.query_object_count("M8", radius=".02 deg")
-        assert isinstance(result, np.int64)
+        assert isinstance(result, (numpy.int64, int))
 
     def test_query_criteria_count(self):
         result = mast.Observations.query_criteria_count({"dataproduct_type": ["image"],
                                                          "proposal_pi": "Osten",
                                                          "s_dec": [43.5, 45.5]})
-        assert isinstance(result, np.int64)
+        assert isinstance(result, (numpy.int64, int))
 
     # product functions
     def test_get_product_list_async(self):

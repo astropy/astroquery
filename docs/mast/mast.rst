@@ -18,7 +18,7 @@ Positional Queries
 
 Positional queries can be based on a sky position or a target name.
 The observation fields are documented
-`here <https://mast.stsci.edu/api/v0/_c_a_o_mfields.html>`_.
+`here <https://mast.stsci.edu/api/v0/_c_a_o_mfields.html>`__.
 
 .. code-block:: python
 
@@ -70,7 +70,7 @@ use `~astroquery.mast.ObservationsClass.query_criteria`.
 Criteria are supplied as keyword arguments, where valid criteria are "coordinates",
 "objectname", "radius" (as in `~astroquery.mast.ObservationsClass.query_region` and
 `~astroquery.mast.ObservationsClass.query_object`), and all observation fields listed
-`here <https://mast.stsci.edu/api/v0/_c_a_o_mfields.html>`_.
+`here <https://mast.stsci.edu/api/v0/_c_a_o_mfields.html>`__.
 
 Argument values are one or more acceptable values for the criterion,
 except for fields with a float datatype where the argument should be in the form
@@ -144,7 +144,7 @@ Each observation returned from a MAST query can have one or more associated data
 Given one or more observations or observation ids ("obsid")
 `~astroquery.mast.ObservationsClass.get_product_list` will return
 a `~astropy.table.Table` containing the associated data products.
-The product fields are documented `here <https://mast.stsci.edu/api/v0/_productsfields.html>`_.
+The product fields are documented `here <https://mast.stsci.edu/api/v0/_productsfields.html>`__.
 
 .. code-block:: python
                 
