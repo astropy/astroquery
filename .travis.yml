@@ -28,6 +28,8 @@ env:
         - NUMPY_VERSION=stable
         - ASTROPY_VERSION=stable
         - CONDA_DEPENDENCIES='requests beautifulsoup4 html5lib keyring aplpy pyregion jinja2 flask'
+        # pandas is used as a workaround of an astropy issue, sometimes it's required for the remote tests
+        - CONDA_DEPENDENCIES_REMOTE='requests beautifulsoup4 html5lib keyring aplpy pyregion jinja2 flask pandas'
         - PIP_DEPENDENCIES='https://github.com/keflavich/httpbin/archive/master.zip'
         - HTTP_BIN_CMD="import httpbin; httpbin.app.run()"
         - RUN_HTTPBIN='python -c "$HTTP_BIN_CMD" & ACTIVE_HTTPBIN=True'
@@ -54,10 +56,10 @@ matrix:
         # astropy test command.
         - os: linux
           env: EVENT_TYPE='push cron' DEBUG=True ASTROPY_VERSION=dev
-               SETUP_CMD='test -R -V'
+               SETUP_CMD='test -R -V' CONDA_DEPENDENCIES=$CONDA_DEPENDENCIES_REMOTE
         - os: linux
           env: EVENT_TYPE='push cron' PYTHON_VERSION=2.7
-               SETUP_CMD='test --remote-data -V'
+               SETUP_CMD='test --remote-data -V' CONDA_DEPENDENCIES=$CONDA_DEPENDENCIES_REMOTE
 
         # No need to run it from cron
         # Try MacOS X
