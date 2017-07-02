@@ -93,6 +93,8 @@ def test_mast_service_request(patch_post):
 regionCoords = coord.SkyCoord(23.34086, 60.658, unit=('deg', 'deg'))
 
 # query functions
+
+
 def test_observations_query_region_async(patch_post):
     responses = mast.Observations.query_region_async(regionCoords, radius=0.2)
     assert isinstance(responses, list)

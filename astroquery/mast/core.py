@@ -1,4 +1,4 @@
-# Licensed under a 3-clause BSD style license - see LICENSE.rst
+g# Licensed under a 3-clause BSD style license - see LICENSE.rst
 """
 MAST Portal
 ===========
@@ -38,6 +38,7 @@ __all__ = ['Observations', 'ObservationsClass',
 
 class ResolverError(Exception):
     pass
+
 
 class InputWarning(AstropyWarning):
     pass
@@ -115,7 +116,6 @@ class MastClass(BaseQuery):
         self.TIMEOUT = conf.timeout
         self.PAGESIZE = conf.pagesize
 
-        
     def _request(self, method, url, params=None, data=None, headers=None,
                  files=None, stream=False, auth=None, retrieve_all=True):
         """
@@ -374,14 +374,14 @@ class ObservationsClass(MastClass):
                     warningString = "{} is continuous, ".format(colname) + \
                                     "and filters based on min and max values.\n" + \
                                     "Not enough values provided, skipping..."
-                    warnings.warn(warningString,InputWarning)
+                    warnings.warn(warningString, InputWarning)
                     continue
                 elif len(value) > 2:
                     warningString = "{} is continuous, ".format(colname) + \
                                     "and filters based on min and max values.\n" + \
                                     "Too many values provided, the first two will be " + \
                                     "assumed to be the min and max values."
-                    warnings.warn(warningString,InputWarning)
+                    warnings.warn(warningString, InputWarning)
             else:  # coltype is discrete, all values should be represented as strings, even if numerical
                 value = [str(x) for x in value]
 
@@ -393,7 +393,7 @@ class ObservationsClass(MastClass):
                             warningString = "Only one wildcarded value may be used per filter, " + \
                                             "all others must be exact.\n" + \
                                             "Skipping {}...".format(val)
-                            warnings.warn(warningString,InputWarning)
+                            warnings.warn(warningString, InputWarning)
                         else:
                             freeText = val.replace('*', '%')
                         value.pop(i)
@@ -834,7 +834,7 @@ class ObservationsClass(MastClass):
             msg = "Curl could not be downloaded"
             url = bundlerResponse['url']
         else:
-            missingFiles = [x for x in bundlerResponse['statusList'].keys() \
+            missingFiles = [x for x in bundlerResponse['statusList'].keys()
                             if bundlerResponse['statusList'][x] != 'COMPLETE']
             if len(missingFiles):
                 msg = "{} files could not be added to the curl script".format(len(missingFiles))
@@ -960,7 +960,7 @@ class ObservationsClass(MastClass):
         products = self.filter_products(products, mrp_only, **filters)
 
         if not len(products):
-            warnings.warn("No products to download.",NoResultsWarning)
+            warnings.warn("No products to download.", NoResultsWarning)
             return
 
         # set up the download directory and paths
