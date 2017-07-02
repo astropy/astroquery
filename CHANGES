@@ -4,7 +4,10 @@
 - LAMDA: Add function to write LAMDA-formatted Tables to a datafile
 - ALMA: Fix to queries and tests that were broken by changes in the archive.
   Note that as of April 2017, the archive is significantly broken and missing
-  many data sets (#881,#888).
+  many data sets. [#881,#888]
+- ``turn_off_internet`` and ``turn_on_internet`` is not available any more
+  from the main ``utils`` namespace, use them directly from
+  ``utils.testing_tools``. [940]
 
 0.3.5 (2017-03-29)
 ------------------
