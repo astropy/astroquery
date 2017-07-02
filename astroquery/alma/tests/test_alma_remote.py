@@ -141,9 +141,9 @@ class TestAlma:
         uids = np.unique(m83_data['Asdm uid'])
         assert b'uid://A002/X3b3400/X90f' in uids
         X90f = (m83_data['Asdm uid'] == b'uid://A002/X3b3400/X90f')
-        assert X90f.sum() == 1  # Nov 16, 2016: reduced from 45
+        assert X90f.sum() == 2  # Jul 2, 2017: increased from 1
         X31 = (m83_data['Member ous id'] == b'uid://A002/X3216af/X31')
-        assert X31.sum() == 1  # Nov 16, 2016: reduced from 225
+        assert X31.sum() == 2  # Jul 2, 2017: increased from 1
 
         asdm = alma.stage_data('uid://A002/X3b3400/X90f')
         totalsize_asdm = asdm['size'].sum() * u.Unit(asdm['size'].unit)
@@ -164,7 +164,8 @@ class TestAlma:
                             public=False, science=True)
         # Nov 16, 2016: 159
         # Apr 25, 2017: 150
-        assert len(result) == 150
+        # Jul 2, 2017: 160
+        assert len(result) == 160
 
     # As of April 2017, these data are *MISSING FROM THE ARCHIVE*.
     # This has been reported, as it is definitely a bug.
