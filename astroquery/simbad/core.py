@@ -313,9 +313,9 @@ class SimbadClass(BaseQuery):
             fields_dict = json.load(f)
 
         print("Available VOTABLE fields:\n")
-        for i, field in list(enumerate(sorted(fields_dict.keys()))):
-            print("{lno}. {field}\n".format(lno=i + 1, field=field))
-        print("For more information on a field :\n"
+        for field in list(sorted(fields_dict.keys())):
+            print("{}".format(field))
+        print("For more information on a field:\n"
               "Simbad.get_field_description ('field_name') \n"
               "Currently active VOTABLE fields:\n {0}"
               .format(self._VOTABLE_FIELDS))
