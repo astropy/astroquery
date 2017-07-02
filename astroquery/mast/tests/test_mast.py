@@ -6,8 +6,6 @@ import re
 import requests
 import numpy
 
-from builtins import int
-
 from astropy.table import Table
 from astropy.tests.helper import pytest
 import astropy.coordinates as coord
@@ -146,19 +144,19 @@ def test_query_criteria(patch_post):
 # count functions
 def test_observations_query_region_count(patch_post):
     result = mast.Observations.query_region_count(regionCoords, radius="0.2 deg")
-    assert isinstance(result, (numpy.int64, int))
+    assert result == 599
 
 
 def test_observations_query_object_count(patch_post):
     result = mast.Observations.query_object_count("M8", radius=0.2*u.deg)
-    assert isinstance(result, (numpy.int64, int))
+    assert result == 599
 
 
 def test_query_criteria_count(patch_post):
     result = mast.Observations.query_criteria_count(dataproduct_type=["image"],
                                                     proposal_pi="Ost*",
                                                     s_dec=[43.5, 45.5])
-    assert isinstance(result, (numpy.int64, int))
+    assert result == 599
 
 
 # product functions
