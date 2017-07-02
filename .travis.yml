@@ -37,6 +37,7 @@ env:
         - CONDA_CHANNELS='astropy-ci-extras astropy'
         - EVENT_TYPE='pull_request push'
         - ASTROPY_USE_SYSTEM_PYTEST=1
+        - SPHINX_VERSION='>=1.6'
 
     matrix:
         - PYTHON_VERSION=2.7 SETUP_CMD='egg_info'
