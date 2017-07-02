@@ -6,6 +6,8 @@ import re
 import requests
 import numpy
 
+from builtins import int
+
 from astropy.table import Table
 from astropy.tests.helper import pytest
 import astropy.coordinates as coord
