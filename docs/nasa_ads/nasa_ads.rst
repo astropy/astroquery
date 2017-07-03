@@ -33,7 +33,7 @@ Search works by specific identifier
     title = results[-1]['title'][0]
 
     # printout the authors of the last hit
-    print results[-1]['authors']
+    print(results[-1]['authors'])
 
 
 Get links

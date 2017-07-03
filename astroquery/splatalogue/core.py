@@ -426,9 +426,8 @@ class SplatalogueClass(BaseQuery):
 
         """
         # have to chomp this kwd here...
-        get_query_payload = (kwargs.pop('get_query_payload')
-                             if 'get_query_payload' in kwargs
-                             else False)
+        get_query_payload = kwargs.pop('get_query_payload', False)
+
         self._validate_kwargs(min_frequency=min_frequency,
                               max_frequency=max_frequency, **kwargs)
 

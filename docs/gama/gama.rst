@@ -26,7 +26,7 @@ first 100 spectroscopic objects in the database:
     >>> result = GAMA.query_sql('SELECT * FROM SpecAll LIMIT 100')
     Downloading http://www.gama-survey.org/dr2/query/../tmp/GAMA_VHI6pj.fits
     |===========================================|  37k/ 37k (100.00%)        00s
-    >>> print result
+    >>> print(result)
           SPECID       SURVEY SURVEY_CODE     RA    ... DIST IS_SBEST IS_BEST
     ------------------ ------ ----------- --------- ... ---- -------- -------
     131671727225700352   SDSS           1 132.16668 ...  0.1        1       1

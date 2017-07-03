@@ -192,7 +192,7 @@ for the files.
     |=========================================================================================================================| 371k/371k (100.00%)         0s
     Downloading http://skyview.gsfc.nasa.gov/tempspace/fits/skv668576311417_3.fits
     |=========================================================================================================================| 374k/374k (100.00%)         0s
-    >>> print paths
+    >>> print(paths)
     [[<astropy.io.fits.hdu.image.PrimaryHDU object at 0x10ef3a250>], [<astropy.io.fits.hdu.image.PrimaryHDU object at 0x10f096f10>], [<astropy.io.fits.hdu.image.PrimaryHDU object at 0x10f0aea50>]]
 
 Without the download:

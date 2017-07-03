@@ -497,9 +497,8 @@ class VizierClass(BaseQuery):
         body = OrderedDict()
         center = kwargs.get('center')
         # process: catalog
-        catalog = kwargs.get('catalog')
-        if catalog is None:
-            catalog = self.catalog
+        catalog = kwargs.get('catalog', self.catalog)
+
         if catalog is not None:
             if isinstance(catalog, six.string_types):
                 body['-source'] = catalog
@@ -508,10 +507,9 @@ class VizierClass(BaseQuery):
             else:
                 raise TypeError("Catalog must be specified as list or string")
         # process: columns
-        columns = kwargs.get('columns')
-        if columns is None:
-            columns = copy.copy(self.columns)
-        else:
+        columns = kwargs.get('columns', copy.copy(self.columns))
+
+        if columns is not None:
             columns = self.columns + columns
 
         # special keywords need to be treated separately
