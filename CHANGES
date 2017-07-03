@@ -1,13 +1,20 @@
-0.3.6 (unreleased)
+0.3.6 (2017-07-03)
 ------------------
 
-- LAMDA: Add function to write LAMDA-formatted Tables to a datafile
+- New tool: MAST - added module to access the Barbara A. Mikulski Archive
+  for Space Telescopes. [#920, #937]
+- LAMDA: Add function to write LAMDA-formatted Tables to a datafile. [#887]
 - ALMA: Fix to queries and tests that were broken by changes in the archive.
   Note that as of April 2017, the archive is significantly broken and missing
-  many data sets. [#881,#888]
+  many data sets. [#888]
+- SIMBAD: "dist" is now available as a valid votable field. [#849]
+  Additional minor fixes. [#932,#892]
+- SHA: fix bug with the coordinate handling. [#885]
 - ``turn_off_internet`` and ``turn_on_internet`` is not available any more
   from the main ``utils`` namespace, use them directly from
-  ``utils.testing_tools``. [940]
+  ``utils.testing_tools``. [#940]
+- Added the 'verify' kwarg to ``Astroquery.request`` to provide a workaround
+  for services that have HTTPS URLs but missing certificates. [#928]
 
 0.3.5 (2017-03-29)
 ------------------
