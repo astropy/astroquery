@@ -133,7 +133,19 @@ This can be useful if trying to decide whether the available memory is sufficien
                 59033
                            
 
+Listing Available Missions
+--------------------------
 
+To list data missions archived by MAST and avaiable through `astroquery.mast`, use the `~astroquery.mast.ObservationsClass.list_missions` function.
+
+.. code-block:: python
+                
+                >>> from astroquery.mast import Observations
+                >>> print(Observations.list_missions())
+                ['IUE', 'Kepler', 'K2FFI', 'EUVE', 'HLA', 'KeplerFFI','FUSE',
+                'K2', 'HST', 'WUPPE', 'BEFS', 'GALEX', 'TUES','HUT', 'SWIFT']
+
+                
 Downloading Data
 ================
 

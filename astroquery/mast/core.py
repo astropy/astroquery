@@ -325,14 +325,14 @@ class ObservationsClass(MastClass):
 
         self._caomCols = response[0].json()
 
-    def list_collections(self):
+    def list_missions(self):
         """
-        Lists data collections archived by MAST and avaiable through `astroquery.mast`.
+        Lists data missions archived by MAST and avaiable through `astroquery.mast`.
 
         Returns
         --------
         response : list
-            List of available collections.
+            List of available missions.
         """
 
         # getting all the hitogram information
@@ -345,10 +345,10 @@ class ObservationsClass(MastClass):
         histData = jsonResponse['data']['Tables'][0]['Columns']
         for facet in histData:
             if facet['text'] == "obs_collection":
-                collectionInfo = facet['ExtendedProperties']['histObj']
-                collections = list(collectionInfo.keys())
-                collections.remove('hist')
-                return collections
+                missionInfo = facet['ExtendedProperties']['histObj']
+                missions = list(missionInfo.keys())
+                missions.remove('hist')
+                return missions
 
     def _build_filter_set(self, **filters):
         """

@@ -42,6 +42,12 @@ class TestMast(object):
 
     ## ObservationsClass tests ##
 
+    def test_list_missions(self):
+        missions = mast.Observations.list_missions()
+        assert isinstance(missions, list)
+        for m in ['HST', 'HLA', 'GALEX', 'Kepler']:
+            assert m in missions
+
     # query functions
     def test_observations_query_region_async(self):
         responses = mast.Observations.query_region_async("322.49324 12.16683", radius="0.4 deg")
@@ -99,14 +105,14 @@ class TestMast(object):
         result = mast.Observations.query_region_count("322.49324 12.16683", radius="0.4 deg")
         assert isinstance(result, (np.int64, int))
         assert result >= 1826
-        assert result < self.maxRes
+        assert result < maxRes
 
     def test_observations_query_object_count(self):
         maxRes = mast.Observations.query_criteria_count()
         result = mast.Observations.query_object_count("M8", radius=".02 deg")
         assert isinstance(result, (np.int64, int))
         assert result >= 196
-        assert result < self.maxRes
+        assert result < maxRes
 
     def test_query_criteria_count(self):
         maxRes = mast.Observations.query_criteria_count()
@@ -114,7 +120,7 @@ class TestMast(object):
                                                         proposal_id=8880)
         assert isinstance(result, (np.int64, int))
         assert result == 7
-        assert result < self.maxRes
+        assert result < maxRes
 
     # product functions
     def test_get_product_list_async(self):
