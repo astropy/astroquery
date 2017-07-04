@@ -13,10 +13,6 @@ from ... import mast
 @remote_data
 class TestMast(object):
 
-    # getting the totally number of caom observations
-    # (needed) for counts tests
-    maxRes = mast.Observations.query_criteria_count()
-
     # MastClass tests
     def test_mast_service_request_async(self):
         service = 'Mast.Caom.Cone'
@@ -99,18 +95,21 @@ class TestMast(object):
 
     # count functions
     def test_observations_query_region_count(self):
+        maxRes = mast.Observations.query_criteria_count()
         result = mast.Observations.query_region_count("322.49324 12.16683", radius="0.4 deg")
         assert isinstance(result, (np.int64, int))
         assert result >= 1826
         assert result < self.maxRes
 
     def test_observations_query_object_count(self):
+        maxRes = mast.Observations.query_criteria_count()
         result = mast.Observations.query_object_count("M8", radius=".02 deg")
         assert isinstance(result, (np.int64, int))
         assert result >= 196
         assert result < self.maxRes
 
     def test_query_criteria_count(self):
+        maxRes = mast.Observations.query_criteria_count()
         result = mast.Observations.query_criteria_count(proposal_pi="Osten",
                                                         proposal_id=8880)
         assert isinstance(result, (np.int64, int))
