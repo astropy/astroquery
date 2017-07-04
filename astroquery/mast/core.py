@@ -325,6 +325,33 @@ class ObservationsClass(MastClass):
 
         self._caomCols = response[0].json()
 
+        
+    def list_collections(self):
+        """
+        Lists data collections archived by MAST and avaiable through `astroquery.mast`.
+
+        Returns
+        --------
+        response : list
+            List of available collections.
+        """
+
+        # getting all the hitogram information
+        service = "Mast.Caom.All"
+        params = {}
+        response = Mast.service_request_async(service,params,format='extjs')
+        jsonResponse = response[0].json()
+        
+        # getting the list of missions
+        histData = jsonResponse['data']['Tables'][0]['Columns']
+        for facet in histData:
+            if facet['text'] == "obs_collection":
+                collectionInfo = facet['ExtendedProperties']['histObj']
+                collections = list(collectionInfo.keys())
+                collections.remove('hist')
+                return collections
+
+            
     def _build_filter_set(self, **filters):
         """
         Takes user input dictionary of filters and returns a filterlist that the Mashup can understand.
@@ -787,7 +814,7 @@ class ObservationsClass(MastClass):
 
         return products[np.where(filterMask)]
 
-    def _download_curl_script(self, products, outputDirectory):
+    def _download_curl_script(self, products, out_dir):
         """
         Takes an `astropy.table.Table` of data products and downloads a curl script to pull the datafiles.
 
@@ -795,7 +822,7 @@ class ObservationsClass(MastClass):
         ----------
         products : `astropy.table.Table`
             Table containing products to be included in the curl script.
-        outputDirectory : str
+        out_dir : str
             Directory in which the curl script will be saved.
 
         Returns
@@ -822,7 +849,7 @@ class ObservationsClass(MastClass):
 
         bundlerResponse = response[0].json()
 
-        localPath = outputDirectory.rstrip('/') + "/" + downloadFile + ".sh"
+        localPath = out_dir.rstrip('/') + "/" + downloadFile + ".sh"
         Mast._download_file(bundlerResponse['url'], localPath)
 
         status = "COMPLETE"
@@ -846,15 +873,15 @@ class ObservationsClass(MastClass):
                           "URL": [url]})
         return manifest
 
-    def _download_files(self, products, baseDir, cache=True):
+    def _download_files(self, products, base_dir, cache=True):
         """
-        Takes an `astropy.table.Table` of data products and downloads them into the dirctor given by baseDir.
+        Takes an `astropy.table.Table` of data products and downloads them into the dirctor given by base_dir.
 
         Parameters
         ----------
         products : `astropy.table.Table`
             Table containing products to be downloaded.
-        baseDir : str
+        base_dir : str
             Directory in which files will be downloaded.
         cache : bool
             Default is True. If file is found on disc it will not be downloaded again.
@@ -866,7 +893,7 @@ class ObservationsClass(MastClass):
         manifestArray = []
         for dataProduct in products:
 
-            localPath = baseDir + "/" + dataProduct['obs_collection'] + "/" + dataProduct['obs_id']
+            localPath = base_dir + "/" + dataProduct['obs_collection'] + "/" + dataProduct['obs_id']
 
             dataUrl = dataProduct['dataURI']
             if "http" not in dataUrl:  # url is actually a uri
@@ -971,8 +998,8 @@ class ObservationsClass(MastClass):
             manifest = self._download_curl_script(products, download_dir)
 
         else:
-            baseDir = download_dir.rstrip('/') + "/mastDownload"
-            manifest = self._download_files(products, baseDir, cache)
+            base_dir = download_dir.rstrip('/') + "/mastDownload"
+            manifest = self._download_files(products, base_dir, cache)
 
         return manifest
 
