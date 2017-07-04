@@ -44,8 +44,6 @@ class TestMast(object):
         # Are the two GALEX observations with obs_id 6374399093149532160 in the results table
         assert len(result[np.where(result["obs_id"] == "6374399093149532160")]) == 2
 
-        
-
     ## ObservationsClass tests ##
 
     # query functions
@@ -100,7 +98,7 @@ class TestMast(object):
         assert sum(result['filters'] == 'NUV') == 6
 
     # count functions
-    def test_observations_query_region_count(self):         
+    def test_observations_query_region_count(self):
         result = mast.Observations.query_region_count("322.49324 12.16683", radius="0.4 deg")
         assert isinstance(result, (np.int64, int))
         assert result >= 1826
@@ -118,7 +116,7 @@ class TestMast(object):
         assert isinstance(result, (np.int64, int))
         assert result == 7
         assert result < self.maxRes
-        
+
     # product functions
     def test_get_product_list_async(self):
         responses = mast.Observations.get_product_list_async('2003738726')
@@ -152,7 +150,7 @@ class TestMast(object):
         assert isinstance(result, Table)
         assert len(result) == 4
 
-        obsLocs = np.where((observations['target_name']=='NGC6523') & (observations['obs_collection'] == "IUE"))
+        obsLocs = np.where((observations['target_name'] == 'NGC6523') & (observations['obs_collection'] == "IUE"))
         result = mast.Observations.get_product_list(observations[obsLocs])
         assert isinstance(result, Table)
         assert len(result) == 30
@@ -163,7 +161,7 @@ class TestMast(object):
                                                    productType=["SCIENCE"],
                                                    mrp_only=False)
         assert isinstance(result, Table)
-        assert len(result) == sum(products['productType']=="SCIENCE")
+        assert len(result) == sum(products['productType'] == "SCIENCE")
 
     def test_download_products(self, tmpdir):
         # actually download the products

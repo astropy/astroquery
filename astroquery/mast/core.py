@@ -325,7 +325,6 @@ class ObservationsClass(MastClass):
 
         self._caomCols = response[0].json()
 
-        
     def list_collections(self):
         """
         Lists data collections archived by MAST and avaiable through `astroquery.mast`.
@@ -339,9 +338,9 @@ class ObservationsClass(MastClass):
         # getting all the hitogram information
         service = "Mast.Caom.All"
         params = {}
-        response = Mast.service_request_async(service,params,format='extjs')
+        response = Mast.service_request_async(service, params, format='extjs')
         jsonResponse = response[0].json()
-        
+
         # getting the list of missions
         histData = jsonResponse['data']['Tables'][0]['Columns']
         for facet in histData:
@@ -351,7 +350,6 @@ class ObservationsClass(MastClass):
                 collections.remove('hist')
                 return collections
 
-            
     def _build_filter_set(self, **filters):
         """
         Takes user input dictionary of filters and returns a filterlist that the Mashup can understand.
