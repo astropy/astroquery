@@ -23,7 +23,8 @@ DATA_FILES = {'Mast.Caom.Cone': 'caom.json',
               'Mast.Caom.Filtered.Position': 'advSearchPos.json',
               'Counts': 'countsResp.json',
               'Mast.Caom.Products': 'products.json',
-              'Mast.Bundle.Request': 'bundleResponse.json'}
+              'Mast.Bundle.Request': 'bundleResponse.json',
+              'Mast.Caom.All': 'missions.extjs'}
 
 
 def data_path(filename):
@@ -66,6 +67,13 @@ def download_mockreturn(method="GET", url=None, data=None, timeout=10, **kwargs)
 
 
 ## Mast MastClass tests ##
+def test_list_missions(patch_post):
+        missions = mast.Observations.list_missions()
+        assert isinstance(missions,list)
+        for m in ['HST','HLA','GALEX','Kepler']:
+            assert m in missions
+
+            
 def test_mast_service_request_async(patch_post):
     service = 'Mast.Name.Lookup'
     params = {'input': "M103",
