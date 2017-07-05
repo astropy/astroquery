@@ -1,4 +1,4 @@
-LICENSE.rst
+include LICENSE.rst
 include README.rst
 include CHANGES.rst
 include astroquery/splatalogue/data/*
