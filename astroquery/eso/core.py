@@ -605,11 +605,14 @@ class EsoClass(QueryWithLogin):
                 self.login()
             url = "http://archive.eso.org/cms/eso-data/eso-data-direct-retrieval.html"
             data_retrieval_form = self._request("GET", url, cache=cache)
+            data_retrieval_form.raise_for_status()
             log.info("Staging request...")
             with suspend_cache(self):  # Never cache staging operations
                 inputs = {"list_of_datasets": "\n".join(datasets_to_download)}
                 data_confirmation_form = self._activate_form(
                     data_retrieval_form, form_index=-1, inputs=inputs)
+
+                data_confirmation_form.raise_for_status()
 
                 root = BeautifulSoup(data_confirmation_form.content,
                                      'html5lib')
