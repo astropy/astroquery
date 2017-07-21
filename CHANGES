@@ -1,7 +1,7 @@
 0.3.7 (unreleased)
 ------------------
 
-- No changes yet
+- MAST: Added convenience function to list available missions. [#947]
 
 
 0.3.6 (2017-07-03)
