@@ -40,7 +40,7 @@ class TestMast(object):
         # Are the two GALEX observations with obs_id 6374399093149532160 in the results table
         assert len(result[np.where(result["obs_id"] == "6374399093149532160")]) == 2
 
-    ## ObservationsClass tests ##
+    # ObservationsClass tests ##
 
     def test_list_missions(self):
         missions = mast.Observations.list_missions()

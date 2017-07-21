@@ -3,8 +3,6 @@ from __future__ import print_function
 
 import os
 import re
-import requests
-import numpy
 
 from astropy.table import Table
 from astropy.tests.helper import pytest
@@ -66,7 +64,8 @@ def download_mockreturn(method="GET", url=None, data=None, timeout=10, **kwargs)
     return
 
 
-## Mast MastClass tests ##
+# Mast MastClass tests ##
+
 def test_list_missions(patch_post):
     missions = mast.Observations.list_missions()
     assert isinstance(missions, list)
@@ -96,7 +95,7 @@ def test_mast_service_request(patch_post):
     assert isinstance(result, Table)
 
 
-## ObservationsClass tests ##
+# ObservationsClass tests ##
 
 regionCoords = coord.SkyCoord(23.34086, 60.658, unit=('deg', 'deg'))
 
