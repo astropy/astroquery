@@ -21,14 +21,14 @@ from requests import HTTPError
 import astropy.units as u
 import astropy.coordinates as coord
 
-from astropy.table import Table, Row, vstack
+from astropy.table import Table, Row, vstack, MaskedColumn
 from astropy.extern.six.moves.urllib.parse import quote as urlencode
 from astropy.utils.exceptions import AstropyWarning
 
 from ..query import BaseQuery
 from ..utils import commons, async_to_sync
 from ..utils.class_or_instance import class_or_instance
-from ..exceptions import TimeoutError, InvalidQueryError, NoResultsWarning
+from ..exceptions import TimeoutError, InvalidQueryError, NoResultsWarning, RemoteServiceError
 from . import conf
 
 
@@ -41,6 +41,10 @@ class ResolverError(Exception):
 
 
 class InputWarning(AstropyWarning):
+    pass
+
+
+class MaxResultsWarning(AstropyWarning):
     pass
 
 
@@ -63,7 +67,7 @@ def _prepare_service_request_string(json_obj):
     return "request="+requestString
 
 
-def _mashup_json_to_table(json_obj):
+def _mashup_json_to_table(json_obj, col_config=None):
     """
     Takes a JSON object as returned from a Mashup request and turns it into an `astropy.table.Table`.
 
@@ -71,27 +75,54 @@ def _mashup_json_to_table(json_obj):
     ----------
     json_obj : dict
         A Mashup response JSON object (python dictionary)
+    TODO: finish documenting
 
     Returns
     -------
     response : `~astropy.table.Table`
     """
 
-    dataTable = Table()
+    dataTable = Table(masked=True)
+    absCorr = None
 
-    if not (json_obj.get('fields') and json_obj.get('data')):
+    if not all(x in json_obj.keys() for x in ['fields','data']):
         raise KeyError("Missing required key(s) 'data' and/or 'fields.'")
 
     for col, atype in [(x['name'], x['type']) for x in json_obj['fields']]:
+        
+        # Removing "_selected_" column
+        if col == "_selected_":
+            continue
+
+        # reading the colum config if given
+        ignoreValue = None
+        if col_config:
+            colProps = col_config.get(col,{})
+            ignoreValue = colProps.get("ignoreValue",None)
+
+        # making type adjustments
         if atype == "string":
             atype = "str"
+            ignoreValue = "" if (ignoreValue == None) else ignoreValue
         if atype == "boolean":
             atype = "bool"
-        dataTable[col] = np.array([x.get(col, None) for x in json_obj['data']], dtype=atype)
+        if atype == "int": # int arrays do not admit Non/nan vals
+            ignoreValue = -999 if (ignoreValue == None) else ignoreValue
 
-    # Removing "_selected_" column
-    if "_selected_" in dataTable.colnames:
-        dataTable.remove_column("_selected_")
+        # Make the column list (don't assign final type yet or there will be errors)
+        colData = np.array([x.get(col, ignoreValue) for x in json_obj['data']],dtype=object)
+        if ignoreValue != None:
+            colData[np.where(np.equal(colData,None))] = ignoreValue
+
+        # no consistant way to make the mask because np.equal fails on ''
+        # and array == value fails with None 
+        if atype == 'str': 
+            colMask = (colData == ignoreValue)
+        else:
+            colMask = np.equal(colData,ignoreValue)
+
+        # add the column
+        dataTable.add_column(MaskedColumn(colData.astype(atype), name=col, mask=colMask))
 
     return dataTable
 
@@ -115,6 +146,10 @@ class MastClass(BaseQuery):
 
         self.TIMEOUT = conf.timeout
         self.PAGESIZE = conf.pagesize
+
+        self._column_configs = {}
+        self._current_service = None
+        
 
     def _request(self, method, url, params=None, data=None, headers=None,
                  files=None, stream=False, auth=None, retrieve_all=True):
@@ -170,7 +205,11 @@ class MastClass(BaseQuery):
                     raise TimeoutError("Timeout limit of {} exceeded.".format(self.TIMEOUT))
 
                 result = response.json()
-                status = result.get("status")
+
+                if not result: # kind of hacky, but col_config service returns nothing if there is an error
+                    status = "ERROR"
+                else:
+                    status = result.get("status")
 
             allResponses.append(response)
 
@@ -187,6 +226,22 @@ class MastClass(BaseQuery):
 
         return allResponses
 
+
+    def _get_col_config(self,service):
+        """
+        Gets the columnsConfig entry for given service and stores it in self._column_configs.
+        """
+
+        headers = {"User-Agent": self._session.headers["User-Agent"],
+                   "Content-type": "application/x-www-form-urlencoded",
+                   "Accept": "text/plain"}
+
+        response = Mast._request("POST", self._COLUMNS_CONFIG_URL,
+                                 data=("colConfigId="+service), headers=headers)
+
+        self._column_configs[service] = response[0].json()
+
+    
     def _parse_result(self, responses, verbose=False):
         """
         Parse the results of a list of ``requests.Response`` objects and returns an `astropy.table.Table` of results.
@@ -201,15 +256,27 @@ class MastClass(BaseQuery):
             Default False.  Setting to True provides more extensive output.
         """
 
+        # loading the columns config
+        colConfig = None
+        if self._current_service:
+            colConfig = self._column_configs.get(self._current_service)
+            self._current_service = None # clearing current service
+        
         resultList = []
 
         for resp in responses:
             result = resp.json()
-            resTable = _mashup_json_to_table(result)
+
+            # check for error message
+            if result['status'] == "ERROR":
+                raise RemoteServiceError(result.get('msg',"There was an error with your request."))
+
+            resTable = _mashup_json_to_table(result, colConfig)
             resultList.append(resTable)
 
         return vstack(resultList)
 
+    
     @class_or_instance
     def service_request_async(self, service, params, pagesize=None, page=None, **kwargs):
         """
@@ -241,6 +308,11 @@ class MastClass(BaseQuery):
         response : list of ``requests.Response``
         """
 
+        # setting self._current_service
+        if service not in self._column_configs.keys():
+            self._get_col_config(service)
+        self._current_service = service
+        
         # setting up pagination
         if not pagesize:
             pagesize = self.PAGESIZE
@@ -250,7 +322,8 @@ class MastClass(BaseQuery):
         else:
             retrieveAll = False
 
-        headers = {"User-Agent": self._session.headers["User-Agent"],
+        # TODO: remove "Clara development" before pull request
+        headers = {"User-Agent": self._session.headers["User-Agent"] + " Clara development",
                    "Content-type": "application/x-www-form-urlencoded",
                    "Accept": "text/plain"}
 
@@ -305,26 +378,6 @@ class ObservationsClass(MastClass):
     Class for querying MAST observational data.
     """
 
-    def __init__(self):
-
-        super(ObservationsClass, self).__init__()
-
-        self._caomCols = None  # Hold Mast.Caom.Cone columns config
-
-    def _get_caom_col_config(self):
-        """
-        Gets the columnsConfig entry for Mast.Caom.Cone and stores it in self.caomCols.
-        """
-
-        headers = {"User-Agent": self._session.headers["User-Agent"],
-                   "Content-type": "application/x-www-form-urlencoded",
-                   "Accept": "text/plain"}
-
-        response = Mast._request("POST", self._COLUMNS_CONFIG_URL,
-                                 data="colConfigId=Mast.Caom.Cone", headers=headers)
-
-        self._caomCols = response[0].json()
-
     def list_missions(self):
         """
         Lists data missions archived by MAST and avaiable through `astroquery.mast`.
@@ -370,8 +423,10 @@ class ObservationsClass(MastClass):
             The mashup json filter object.
         """
 
-        if not self._caomCols:
-            self._get_caom_col_config()
+        if not self._column_configs.get("Mast.Caom.Cone"):
+            self._get_col_config("Mast.Caom.Cone")
+
+        caomColConfig = self._column_configs["Mast.Caom.Cone"]
 
         mashupFilters = []
         for colname, value in filters.items():
@@ -381,7 +436,7 @@ class ObservationsClass(MastClass):
                 value = [value]
 
             # Get the column type and separator
-            colInfo = self._caomCols.get(colname)
+            colInfo = caomColConfig.get(colname)
             if not colInfo:
                 warnings.warn("Filter {} does not exist. This filter will be skipped.".format(colname), InputWarning)
                 continue
@@ -1000,7 +1055,6 @@ class ObservationsClass(MastClass):
             manifest = self._download_files(products, base_dir, cache)
 
         return manifest
-
 
 Observations = ObservationsClass()
 Mast = MastClass()
