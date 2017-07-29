@@ -147,7 +147,7 @@ ISO = {
 
 def parse_readme(filename, group_global=None, group_local=None):
     with open(filename, 'r') as f:
-        lines = f.readlines()
+        lines = f.read().splitlines()
 
     formats = OrderedDict()
 
