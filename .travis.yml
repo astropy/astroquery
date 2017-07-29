@@ -67,10 +67,8 @@ matrix:
         - os: osx
           env: SETUP_CMD='test' CONDA_CHANNELS='conda-forge astropy-ci-extras astropy'
 
-        # Do a coverage test in Python 2. Move coverage to 3.x once speed
-        # issues have been solved; astropy/astropy#4826
         - os: linux
-          env: PYTHON_VERSION=2.7 SETUP_CMD='test --coverage'
+          env: SETUP_CMD='test --coverage'
 
         # Check for sphinx doc build warnings - we do this first because it
         # may run for a long time
@@ -87,6 +85,8 @@ matrix:
           env: PYTHON_VERSION=3.4 NUMPY_VERSION=1.10
         - os: linux
           env: PYTHON_VERSION=3.5 NUMPY_VERSION=1.11
+        - os: linux
+          env: NUMPY_VERSION=1.12 ASTROPY_VERSION=1.3
 
         # Now try Astropy dev and LTS vesions with the latest 3.x and 2.7.
         # The dev version only need to be tested on PRs as there are pull
@@ -95,14 +95,16 @@ matrix:
           env: PYTHON_VERSION=2.7 ASTROPY_VERSION=development EVENT_TYPE='pull_request'
         - os: linux
           env: ASTROPY_VERSION=development EVENT_TYPE='pull_request'
-        - os: linux
-          env: PYTHON_VERSION=2.7 ASTROPY_VERSION=lts
-               EVENT_TYPE='push pull_request' PYTEST_VERSION=2.7
-        # Need to test with python3.5 for now as py3.6 requires pytest3 (due
-        # to the usage of unittest) that is incompatible with LTS
-        - os: linux
-          env: PYTHON_VERSION=3.5 ASTROPY_VERSION=lts
-               EVENT_TYPE='push pull_request' PYTEST_VERSION=2.7
+
+        # Astropy stable and LTS currently the same, enable these back when 3.0 is out
+        # - os: linux
+        #   env: PYTHON_VERSION=2.7 ASTROPY_VERSION=lts
+        #        EVENT_TYPE='push pull_request' PYTEST_VERSION=2.7
+        ## Need to test with python3.5 for now as py3.6 requires pytest3 (due
+        ## to the usage of unittest) that is incompatible with LTS
+        # - os: linux
+        #   env: PYTHON_VERSION=3.5 ASTROPY_VERSION=lts
+        #        EVENT_TYPE='push pull_request' PYTEST_VERSION=2.7
 
         # Try with optional dependencies disabled
         - os: linux
