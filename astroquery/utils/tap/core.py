@@ -130,7 +130,7 @@ class Tap(object):
         A list of table objects
         """
         # share_info=true&share_accessible=true&only_tables=true
-        flags = None
+        flags = ""
         addedItem = False
         if only_names:
             flags = "only_tables=true"
