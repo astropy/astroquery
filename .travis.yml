@@ -27,9 +27,9 @@ env:
         - MAIN_CMD='python setup.py'
         - NUMPY_VERSION=stable
         - ASTROPY_VERSION=stable
-        - CONDA_DEPENDENCIES='requests beautifulsoup4 html5lib keyring aplpy pyregion jinja2 flask'
+        - CONDA_DEPENDENCIES='requests beautifulsoup4 html5lib keyring aplpy matplotlib pyregion jinja2 flask'
         # pandas is used as a workaround of an astropy issue, sometimes it's required for the remote tests
-        - CONDA_DEPENDENCIES_REMOTE='requests beautifulsoup4 html5lib keyring aplpy pyregion jinja2 flask pandas'
+        - CONDA_DEPENDENCIES_REMOTE='requests beautifulsoup4 html5lib keyring aplpy matplotlib pyregion jinja2 flask pandas'
         - PIP_DEPENDENCIES='https://github.com/keflavich/httpbin/archive/master.zip'
         - HTTP_BIN_CMD="import httpbin; httpbin.app.run()"
         - RUN_HTTPBIN='python -c "$HTTP_BIN_CMD" & ACTIVE_HTTPBIN=True'
