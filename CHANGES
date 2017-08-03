@@ -2,6 +2,8 @@
 ------------------
 
 - MAST: Added convenience function to list available missions. [#947]
+- SIMBAD: adding 'get_query_payload' kwarg to all public methods to return
+  the request parameters. [#962]
 
 
 0.3.6 (2017-07-03)

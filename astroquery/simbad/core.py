@@ -477,7 +477,8 @@ class SimbadClass(BaseQuery):
                                  timeout=self.TIMEOUT, cache=cache)
         return response
 
-    def query_object(self, object_name, wildcard=False, verbose=False):
+    def query_object(self, object_name, wildcard=False, verbose=False,
+                     get_query_payload=False):
         """
         Queries Simbad for the given object and returns the result as a
         `~astropy.table.Table`. Object names may also be specified with
@@ -490,16 +491,26 @@ class SimbadClass(BaseQuery):
         wildcard : boolean, optional
             When it is set to `True` it implies that the object is specified
             with wildcards. Defaults to `False`.
+        get_query_payload : bool, optional
+            When set to `True` the method returns the HTTP request parameters.
+            Defaults to `False`.
 
         Returns
         -------
         table : `~astropy.table.Table`
             Query results table
         """
-        result = self.query_object_async(object_name, wildcard=wildcard)
-        return self._parse_result(result, SimbadVOTableResult, verbose=verbose)
+        response = self.query_object_async(object_name, wildcard=wildcard,
+                                           get_query_payload=get_query_payload)
+        if get_query_payload:
+            return response
 
-    def query_object_async(self, object_name, wildcard=False, cache=True):
+        return self._parse_result(response, SimbadVOTableResult,
+                                  verbose=verbose)
+
+    def query_object_async(self, object_name, wildcard=False, cache=True,
+                           get_query_payload=False):
+
         """
         Serves the same function as `query_object`, but
         only collects the response from the Simbad server and returns.
@@ -511,6 +522,9 @@ class SimbadClass(BaseQuery):
         wildcard : boolean, optional
             When it is set to `True` it implies that the object is specified
             with wildcards. Defaults to `False`.
+        get_query_payload : bool, optional
+            When set to `True` the method returns the HTTP request parameters.
+            Defaults to `False`.
 
         Returns
         -------
@@ -519,11 +533,16 @@ class SimbadClass(BaseQuery):
         """
         request_payload = self._args_to_payload(object_name, wildcard=wildcard,
                                                 caller='query_object_async')
+
+        if get_query_payload:
+            return request_payload
+
         response = self._request("POST", self.SIMBAD_URL, data=request_payload,
                                  timeout=self.TIMEOUT, cache=cache)
         return response
 
-    def query_objects(self, object_names, wildcard=False, verbose=False):
+    def query_objects(self, object_names, wildcard=False, verbose=False,
+                      get_query_payload=False):
         """
         Queries Simbad for the specified list of objects and returns the
         results as a `~astropy.table.Table`. Object names may be specified
@@ -534,16 +553,22 @@ class SimbadClass(BaseQuery):
         object_names : sequence of strs
             names of objects to be queried
         wildcard : boolean, optional
-            When `True`, the names may have wildcards in them.
+            When `True`, the names may have wildcards in them. Defaults to
+            `False`.
+        get_query_payload : bool, optional
+            When set to `True` the method returns the HTTP request parameters.
+            Defaults to `False`.
 
         Returns
         -------
         table : `~astropy.table.Table`
             Query results table
         """
-        return self.query_object('\n'.join(object_names), wildcard)
+        return self.query_object('\n'.join(object_names), wildcard=wildcard,
+                                 get_query_payload=get_query_payload)
 
-    def query_objects_async(self, object_names, wildcard=False):
+    def query_objects_async(self, object_names, wildcard=False, cache=True,
+                            get_query_payload=False):
         """
         Same as `query_objects`, but only collects the response from the
         Simbad server and returns.
@@ -553,17 +578,24 @@ class SimbadClass(BaseQuery):
         object_names : sequence of strs
             names of objects to be queried
         wildcard : boolean, optional
-            When `True`, the names may have wildcards in them.
+            When `True`, the names may have wildcards in them. Defaults to
+            `False`.
+        get_query_payload : bool, optional
+            When set to `True` the method returns the HTTP request parameters.
+            Defaults to `False`.
 
         Returns
         -------
         response : `requests.Response`
             Response of the query from the server
         """
-        return self.query_object_async('\n'.join(object_names), wildcard)
+        return self.query_object_async('\n'.join(object_names),
+                                       wildcard=wildcard, cache=cache,
+                                       get_query_payload=get_query_payload)
 
     def query_region_async(self, coordinates, radius=2*u.arcmin,
-                           equinox=2000.0, epoch='J2000', cache=True):
+                           equinox=2000.0, epoch='J2000', cache=True,
+                           get_query_payload=False):
         """
         Serves the same function as `query_region`, but
         only collects the response from the Simbad server and returns.
@@ -581,6 +613,9 @@ class SimbadClass(BaseQuery):
         epoch : str, optional
             the epoch of the input coordinates. Must be specified as
             [J|B] <epoch>. If missing, set to default J2000.
+        get_query_payload : bool, optional
+            When set to `True` the method returns the HTTP request parameters.
+            Defaults to `False`.
 
         Returns
         -------
@@ -637,11 +672,15 @@ class SimbadClass(BaseQuery):
 
         request_payload = {'script': "\n".join([header, query_str, footer])}
 
+        if get_query_payload:
+            return request_payload
+
         response = self._request("POST", self.SIMBAD_URL, data=request_payload,
                                  timeout=self.TIMEOUT, cache=cache)
         return response
 
-    def query_catalog(self, catalog, verbose=False, cache=True):
+    def query_catalog(self, catalog, verbose=False, cache=True,
+                      get_query_payload=False):
         """
         Queries a whole catalog.
 
@@ -652,16 +691,24 @@ class SimbadClass(BaseQuery):
         ----------
         catalog : str
             the name of the catalog.
+        get_query_payload : bool, optional
+            When set to `True` the method returns the HTTP request parameters.
+            Defaults to `False`.
 
         Returns
         -------
         table : `~astropy.table.Table`
             Query results table
         """
-        result = self.query_catalog_async(catalog, cache=cache)
-        return self._parse_result(result, SimbadVOTableResult, verbose=verbose)
+        response = self.query_catalog_async(catalog, cache=cache,
+                                            get_query_payload=get_query_payload)
+        if get_query_payload:
+            return response
 
-    def query_catalog_async(self, catalog, cache=True):
+        return self._parse_result(response, SimbadVOTableResult,
+                                  verbose=verbose)
+
+    def query_catalog_async(self, catalog, cache=True, get_query_payload=False):
         """
         Serves the same function as `query_catalog`, but
         only collects the response from the Simbad server and returns.
@@ -670,6 +717,9 @@ class SimbadClass(BaseQuery):
         ----------
         catalog : str
             the name of the catalog.
+        get_query_payload : bool, optional
+            When set to `True` the method returns the HTTP request parameters.
+            Defaults to `False`.
 
         Returns
         -------
@@ -679,11 +729,14 @@ class SimbadClass(BaseQuery):
         """
         request_payload = self._args_to_payload(catalog,
                                                 caller='query_catalog_async')
+        if get_query_payload:
+            return request_payload
+
         response = self._request("POST", self.SIMBAD_URL, data=request_payload,
                                  timeout=self.TIMEOUT, cache=cache)
         return response
 
-    def query_bibobj(self, bibcode, verbose=False):
+    def query_bibobj(self, bibcode, verbose=False, get_query_payload=False):
         """
         Query all the objects that are contained in the article specified by
         the bibcode, and return results as a `~astropy.table.Table`.
@@ -692,16 +745,24 @@ class SimbadClass(BaseQuery):
         ----------
         bibcode : str
             the bibcode of the article
+        get_query_payload : bool, optional
+            When set to `True` the method returns the HTTP request parameters.
+            Defaults to `False`.
 
         Returns
         -------
         table : `~astropy.table.Table`
             Query results table
         """
-        result = self.query_bibobj_async(bibcode)
-        return self._parse_result(result, SimbadVOTableResult, verbose=verbose)
+        response = self.query_bibobj_async(bibcode,
+                                           get_query_payload=get_query_payload)
+        if get_query_payload:
+            return response
 
-    def query_bibobj_async(self, bibcode, cache=True):
+        return self._parse_result(response, SimbadVOTableResult,
+                                  verbose=verbose)
+
+    def query_bibobj_async(self, bibcode, cache=True, get_query_payload=False):
         """
         Serves the same function as `query_bibobj`, but only collects the
         response from the Simbad server and returns.
@@ -710,6 +771,9 @@ class SimbadClass(BaseQuery):
         ----------
         bibcode : str
             the bibcode of the article
+        get_query_payload : bool, optional
+            When set to `True` the method returns the HTTP request parameters.
+            Defaults to `False`.
 
         Returns
         -------
@@ -719,12 +783,16 @@ class SimbadClass(BaseQuery):
         """
         request_payload = self._args_to_payload(
             bibcode, caller='query_bibobj_async')
+
+        if get_query_payload:
+            return request_payload
+
         response = self._request("POST", self.SIMBAD_URL, data=request_payload,
                                  timeout=self.TIMEOUT, cache=cache)
         return response
 
     def query_bibcode(self, bibcode, wildcard=False, verbose=False,
-                      cache=True):
+                      cache=True, get_query_payload=False):
         """
         Queries the references corresponding to a given bibcode, and returns
         the results in a `~astropy.table.Table`. Wildcards may be used to
@@ -737,6 +805,9 @@ class SimbadClass(BaseQuery):
         wildcard : boolean, optional
             When it is set to `True` it implies that the object is specified
             with wildcards. Defaults to `False`.
+        get_query_payload : bool, optional
+            When set to `True` the method returns the HTTP request parameters.
+            Defaults to `False`.
 
         Returns
         -------
@@ -744,11 +815,18 @@ class SimbadClass(BaseQuery):
             Query results table
 
         """
-        result = self.query_bibcode_async(bibcode, wildcard=wildcard,
-                                          cache=cache)
-        return self._parse_result(result, SimbadBibcodeResult, verbose=verbose)
+        response = self.query_bibcode_async(bibcode, wildcard=wildcard,
+                                            cache=cache,
+                                            get_query_payload=get_query_payload)
 
-    def query_bibcode_async(self, bibcode, wildcard=False, cache=True):
+        if get_query_payload:
+            return response
+
+        return self._parse_result(response, SimbadBibcodeResult,
+                                  verbose=verbose)
+
+    def query_bibcode_async(self, bibcode, wildcard=False, cache=True,
+                            get_query_payload=False):
         """
         Serves the same function as `query_bibcode`, but
         only collects the response from the Simbad server and returns.
@@ -760,6 +838,9 @@ class SimbadClass(BaseQuery):
         wildcard : boolean, optional
             When it is set to `True` it implies that the object is specified
             with wildcards. Defaults to `False`.
+        get_query_payload : bool, optional
+            When set to `True` the method returns the HTTP request parameters.
+            Defaults to `False`.
 
         Returns
         -------
@@ -770,12 +851,17 @@ class SimbadClass(BaseQuery):
         request_payload = self._args_to_payload(
             bibcode, wildcard=wildcard,
             caller='query_bibcode_async', get_raw=True)
+
+        if get_query_payload:
+            return request_payload
+
         response = self._request("POST", self.SIMBAD_URL, cache=cache,
                                  data=request_payload, timeout=self.TIMEOUT)
 
         return response
 
-    def query_objectids(self, object_name, verbose=False):
+    def query_objectids(self, object_name, verbose=False, cache=True,
+                        get_query_payload=False):
         """
         Query Simbad with an object name, and return a table of all
         names associated with that object in a `~astropy.table.Table`.
@@ -784,6 +870,9 @@ class SimbadClass(BaseQuery):
         ----------
         object_name : str
             name of object to be queried
+        get_query_payload : bool, optional
+            When set to `True` the method returns the HTTP request parameters.
+            Defaults to `False`.
 
         Returns
         -------
@@ -791,11 +880,16 @@ class SimbadClass(BaseQuery):
             Query results table
 
         """
-        result = self.query_objectids_async(object_name)
-        return self._parse_result(result, SimbadObjectIDsResult,
+        response = self.query_objectids_async(object_name, cache=cache,
+                                              get_query_payload=get_query_payload)
+        if get_query_payload:
+            return response
+
+        return self._parse_result(response, SimbadObjectIDsResult,
                                   verbose=verbose)
 
-    def query_objectids_async(self, object_name, cache=True):
+    def query_objectids_async(self, object_name, cache=True,
+                              get_query_payload=False):
         """
         Serves the same function as `query_objectids`, but
         only collects the response from the Simbad server and returns.

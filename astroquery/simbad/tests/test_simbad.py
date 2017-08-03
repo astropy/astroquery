@@ -313,6 +313,12 @@ def test_query_object_async(patch_post, object_name, wildcard):
                           ("m [0-9]", True),
                           ])
 def test_query_object(patch_post, object_name, wildcard):
+    payload = simbad.core.Simbad.query_object(
+        object_name, wildcard=wildcard, get_query_payload=True)
+    expected_payload = {'script': '\nvotable {main_id,coordinates}\nvotable' +
+                        ' open\nquery id {} {}  \nvotable close'.
+                        format('wildcard' if wildcard else '', object_name)}
+    assert payload == expected_payload
     result1 = simbad.core.Simbad.query_object(object_name,
                                               wildcard=wildcard)
     result2 = simbad.core.Simbad().query_object(object_name,
