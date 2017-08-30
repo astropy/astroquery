@@ -148,9 +148,9 @@ class MastClass(BaseQuery):
         self._COLUMNS_CONFIG_URL = conf.server + "/portal/Mashup/Mashup.asmx/columnsconfig"
 
         # shibbolith urls
-        self._SP_TARGET = "https://masttest.stsci.edu/portal/Mashup/Login/login.html" # TODO: change to ops
-        self._IDP_ENDPOINT = "https://sso-testadx.stsci.edu/idp/profile/SAML2/SOAP/ECP" # TODO: change to ops
-        self._SESSION_INFO_URL = "https://masttest.stsci.edu/Shibboleth.sso/Session" # TODO: change to ops
+        self._SP_TARGET = "https://mast.stsci.edu/portal/Mashup/Login/login.html" 
+        self._IDP_ENDPOINT = "https://ssoportal.stsci.edu/idp/profile/SAML2/SOAP/ECP"
+        self._SESSION_INFO_URL = "https://mast.stsci.edu/Shibboleth.sso/Session" 
 
         self.TIMEOUT = conf.timeout
         self.PAGESIZE = conf.pagesize
