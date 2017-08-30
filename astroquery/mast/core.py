@@ -13,10 +13,13 @@ import warnings
 import json
 import time
 import os
+import re
 
 import numpy as np
 
 from requests import HTTPError
+from getpass import getpass
+from base64 import b64encode
 
 import astropy.units as u
 import astropy.coordinates as coord
@@ -136,7 +139,7 @@ class MastClass(BaseQuery):
     more flexible but less user friendly than `ObservationsClass`.
     """
 
-    def __init__(self):
+    def __init__(self, username=None, password=None):
 
         super(MastClass, self).__init__()
 
@@ -144,11 +147,93 @@ class MastClass(BaseQuery):
         self._MAST_DOWNLOAD_URL = conf.server + "/api/v0/download/file/"
         self._COLUMNS_CONFIG_URL = conf.server + "/portal/Mashup/Mashup.asmx/columnsconfig"
 
+        # shibbolith urls
+        self._SP_TARGET = "https://masttest.stsci.edu/portal/Mashup/Login/login.html" # TODO: change to ops
+        self._IDP_ENDPOINT = "https://sso-testadx.stsci.edu/idp/profile/SAML2/SOAP/ECP" # TODO: change to ops
+        self._SESSION_INFO_URL = "https://masttest.stsci.edu/Shibboleth.sso/Session" # TODO: change to ops
+
         self.TIMEOUT = conf.timeout
         self.PAGESIZE = conf.pagesize
 
         self._column_configs = {}
         self._current_service = None
+
+        if username:
+            self.login(username,password)
+
+            
+    def login(self, username, password=None):
+
+        if not password:
+            password = getpass("Enter password for {}: ".format(username))
+            
+        authenticationString = b64encode((('{}:{}'.format(username, password)).replace('\n', '')).encode('utf-8'))
+        del password # do not let password hang around
+
+        # The initial get request (will direct the user to the sso login)
+        self._session.headers['Accept-Encoding'] = 'identity'
+        self._session.headers['Connection'] = 'close'
+        self._session.headers['Accept'] = 'text/html; application/vnd.paos+xml'
+        self._session.headers['PAOS']   = 'ver="urn:liberty:paos:2003-08";"urn:oasis:names:tc:SAML:2.0:profiles:SSO:ecp"'
+        resp = self._session.request("GET",self._SP_TARGET)
+
+        # The idp request is the sp response sanse header
+        sp_response = resp.text
+        idp_request = re.sub('<S:Header>.*?</S:Header>','',sp_response)
+
+        # Removing unneeded headers
+        del self._session.headers['PAOS']
+        del self._session.headers['Accept']
+        
+        self._session.headers['Content-Type'] = 'text/xml; charset=utf-8'
+        self._session.headers['Authorization'] = 'Basic {}'.format(authenticationString.decode('utf-8'))
+        responseIdp = self._session.request("POST", self._IDP_ENDPOINT, data=idp_request)
+        idp_response = responseIdp.text
+
+        # Do not let the password hang around in the session headers (or anywhere else)
+        del self._session.headers['Authorization']
+        del authenticationString
+
+        # collecting the information we need
+        relay_state = re.findall('<ecp:RelayState.*ecp:RelayState>',sp_response)[0]
+        response_consumer_url = re.findall('<paos:Request.*?responseConsumerURL="(.*?)".*?/>',sp_response)[0]
+        assertion_consumer_service = re.findall('<ecp:Response.*?AssertionConsumerServiceURL="(.*?)".*?/>',idp_response)[0]
+
+        # the response_consumer_url and assertion_consumer_service should be the same
+        assert response_consumer_url == assertion_consumer_service # TODO: do I need to check this some other way?
+
+        # adding the relay_state to the sp_packacge and removing the xml header
+        relay_state = re.sub('S:','soap11:',relay_state) # is this exactly how I want to do this?
+        sp_package = re.sub('<\?xml version="1.0" encoding="UTF-8"\?>\n(.*?)<ecp:Response.*?/>','\g<1>'+relay_state, idp_response)
+
+        # Sending the last post (that should result in the shibbolith session cookie being set)
+        self._session.headers['Content-Type'] = 'application/vnd.paos+xml'
+        response = self._session.request("POST", assertion_consumer_service, data=sp_package)
+        
+        # setting the headers back to where they should be
+        del self._session.headers['Content-Type']
+        self._session.headers['Accept-Encoding'] = 'gzip, deflate'
+        self._session.headers['Accept'] = '*/*'
+        self._session.headers['Connection'] = 'keep-alive'
+
+        # check that the cookie was set
+
+        # get user information
+        response = self._session.request("GET", self._SESSION_INFO_URL)
+
+        if response.status_code != 200:
+            print("Authentication failed!")
+            return
+
+        exp = re.findall('<strong>Session Expiration \(barring inactivity\):</strong> (.*?)\n',response.text)
+        if len(exp) == 0:
+            exp = 'unknown'
+        else:
+            exp = exp[0]
+            
+        print("Authentication successful!")
+        print("Session Expiration: {}".format(exp))
+        
         
 
     def _request(self, method, url, params=None, data=None, headers=None,
