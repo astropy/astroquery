@@ -413,11 +413,7 @@ class EsoClass(QueryWithLogin):
 
         """
 
-        if instrument in ('feros', 'harps', 'grond'):
-            url = 'http://archive.eso.org/wdb/wdb/eso/eso_archive_main/form'
-        else:
-            url = ("http://archive.eso.org/wdb/wdb/eso/{0}/form"
-                   .format(instrument))
+        url = 'http://archive.eso.org/wdb/wdb/eso/eso_archive_main/form'
         table = None
         if open_form:
             webbrowser.open(url)
@@ -435,8 +431,7 @@ class EsoClass(QueryWithLogin):
             # acquisition
             query_dict['tab_dp_id'] = kwargs.pop('tab_dp_id', 'on')
 
-            if instrument in ('feros', 'harps', 'ground'):
-                query_dict['instrument'] = instrument.upper()
+            query_dict['instrument'] = instrument.upper()
 
             for k in columns:
                 query_dict["tab_" + k] = True
