@@ -246,7 +246,7 @@ class EsoClass(QueryWithLogin):
                                                     'execution': execution,
                                                     '_eventId': 'submit',
                                                     'geolocation': '',
-                                                   })
+                                                    })
         login_result_response.raise_for_status()
         root = BeautifulSoup(login_result_response.content, 'html5lib')
         authenticated = root.find('h4').text == 'Login successful'
