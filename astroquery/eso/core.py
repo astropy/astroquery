@@ -235,15 +235,11 @@ class EsoClass(QueryWithLogin):
         login_response = self._request("GET", "https://www.eso.org/sso/login",
                                        cache=False)
         root = BeautifulSoup(login_response.content, 'html5lib')
-        login_input = root.find(name='input', attrs={'name':'execution'})
+        login_input = root.find(name='input', attrs={'name': 'execution'})
         if login_input is None:
             raise ValueError("ESO login page did not have the correct attributes.")
         execution = login_input.get('value')
 
-        # login form: method=post action=login [no id]
-        #login_result_response = self._activate_form(
-        #    login_response, form_index=-1, inputs={'username': username,
-        #                                           'password': password})
         login_result_response = self._request("POST", "https://www.eso.org/sso/login",
                                               data={'username': username,
                                                     'password': password,
