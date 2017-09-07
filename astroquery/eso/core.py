@@ -697,7 +697,7 @@ class EsoClass(QueryWithLogin):
 
         Examples
         --------
-        >>> tbl = Eso.query_apex_quicklooks('E-093.C-0144A')
+        >>> tbl = Eso.query_apex_quicklooks('093.C-0144')
         >>> files = Eso.retrieve_data(tbl['Product ID'])
         """
 
