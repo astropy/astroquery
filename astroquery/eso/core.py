@@ -230,19 +230,32 @@ class EsoClass(QueryWithLogin):
             password = password_from_keyring
         # Authenticate
         log.info("Authenticating {0} on www.eso.org...".format(username))
+
         # Do not cache pieces of the login process
         login_response = self._request("GET", "https://www.eso.org/sso/login",
                                        cache=False)
-        # login form: method=post action=login [no id]
-        login_result_response = self._activate_form(
-            login_response, form_index=-1, inputs={'username': username,
-                                                   'password': password})
+        root = BeautifulSoup(login_response.content, 'html5lib')
+        login_input = root.find(name='input', attrs={'name': 'execution'})
+        if login_input is None:
+            raise ValueError("ESO login page did not have the correct attributes.")
+        execution = login_input.get('value')
+
+        login_result_response = self._request("POST", "https://www.eso.org/sso/login",
+                                              data={'username': username,
+                                                    'password': password,
+                                                    'execution': execution,
+                                                    '_eventId': 'submit',
+                                                    'geolocation': '',
+                                                    })
+        login_result_response.raise_for_status()
         root = BeautifulSoup(login_result_response.content, 'html5lib')
-        authenticated = not root.select('.error')
+        authenticated = root.find('h4').text == 'Login successful'
+
         if authenticated:
             log.info("Authentication successful!")
         else:
             log.exception("Authentication failed!")
+
         # When authenticated, save password in keyring if needed
         if authenticated and password_from_keyring is None and store_password:
             keyring.set_password("astroquery:www.eso.org", username, password)
@@ -396,11 +409,7 @@ class EsoClass(QueryWithLogin):
 
         """
 
-        if instrument in ('feros', 'harps', 'grond'):
-            url = 'http://archive.eso.org/wdb/wdb/eso/eso_archive_main/form'
-        else:
-            url = ("http://archive.eso.org/wdb/wdb/eso/{0}/form"
-                   .format(instrument))
+        url = 'http://archive.eso.org/wdb/wdb/eso/eso_archive_main/form'
         table = None
         if open_form:
             webbrowser.open(url)
@@ -418,8 +427,7 @@ class EsoClass(QueryWithLogin):
             # acquisition
             query_dict['tab_dp_id'] = kwargs.pop('tab_dp_id', 'on')
 
-            if instrument in ('feros', 'harps', 'ground'):
-                query_dict['instrument'] = instrument.upper()
+            query_dict['instrument'] = instrument.upper()
 
             for k in columns:
                 query_dict["tab_" + k] = True
@@ -685,7 +693,7 @@ class EsoClass(QueryWithLogin):
 
         Examples
         --------
-        >>> tbl = Eso.query_apex_quicklooks('E-093.C-0144A')
+        >>> tbl = Eso.query_apex_quicklooks('093.C-0144')
         >>> files = Eso.retrieve_data(tbl['Product ID'])
         """
 

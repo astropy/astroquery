@@ -68,7 +68,7 @@ class TestEso:
 
         assert result_s is not None
         assert 'Object' in result_s.colnames
-        assert 'b333' in result_s['Object']
+        assert 'b333_414_58214' in result_s['Object']
         assert 'Pistol-Star' in result_s['Object']
 
     def test_nologin(self):
@@ -110,7 +110,7 @@ class TestEso:
         result2 = eso.query_instrument(instruments[0], coord1=266.41681662,
                                        coord2=-29.00782497, cache=False)
 
-        assert result1 == result2
+        assert all(result1 == result2)
 
     def test_list_instruments(self):
         # If this test fails, we may simply need to update it
