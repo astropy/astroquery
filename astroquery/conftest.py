@@ -27,7 +27,19 @@ except (NameError, KeyError):
 
 # Uncomment the following line to treat all DeprecationWarnings as
 # exceptions
-enable_deprecations_as_exceptions()
+#
+# These warnings can be removed once pyopenssl 1.7.20+ is out. The workaround requires astropy 2.0+
+_warnings = {
+    (2, 7): set([
+        r"DeprecationWarning: OpenSSL.rand is deprecated - you should use os.urandom instead", ]),
+    (3, 4): set([
+        r"DeprecationWarning: OpenSSL.rand is deprecated - you should use os.urandom instead", ]),
+    (3, 5): set([
+        r"DeprecationWarning: OpenSSL.rand is deprecated - you should use os.urandom instead", ]),
+    (3, 6): set([
+        r"DeprecationWarning: OpenSSL.rand is deprecated - you should use os.urandom instead", ])}
+
+enable_deprecations_as_exceptions(warnings_to_ignore_by_pyver=_warnings)
 
 
 # This is to figure out the affiliated package version, rather than
