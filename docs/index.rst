@@ -168,6 +168,7 @@ The following modules have been completed using a common API:
   gaia/gaia.rst
   vo_conesearch/vo_conesearch.rst
   mast/mast.rst
+  exoplanets/exoplanets.rst
 
 These others are functional, but do not follow a common & consistent API:
 
