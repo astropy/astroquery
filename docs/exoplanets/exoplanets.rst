@@ -50,8 +50,8 @@ Access a single planet's parameters
 ===================================
 
 The exoplanets module allows you to download (and optionally cache) the
-exoplanet parameter tables from `exoplanets.org <http://www.exoplanets.org>`_ or
-from NExScI's
+exoplanet parameter tables from the `Exoplanet Orbit Database (exoplanets.org)
+<http://www.exoplanets.org>`_ or from NExScI's
 `Exoplanet Archive <http://exoplanetarchive.ipac.caltech.edu/index.html>`_.
 
 You can access the Exoplanet Archive parameters like so
