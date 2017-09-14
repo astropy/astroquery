@@ -15,7 +15,7 @@ to columns wherever possible.
 .. code-block:: python
 
         >>> from astroquery.exoplanet_archive import ExoplanetArchive
-        >>> exoplanet_archive_table = ExoplanetArchive.get_table()
+        >>> exoplanet_archive_table = ExoplanetArchive.get_confirmed_planets_table()
 
         >>> exoplanet_archive_table[:2]
         <Table masked=True length=2>

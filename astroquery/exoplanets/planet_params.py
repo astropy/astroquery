@@ -34,12 +34,11 @@ class PlanetParams(object):
             Show progress of exoplanet table download (if no cached copy is
             available). Default is `True`.
         """
-        from ..exoplanets_org import (ExoplanetsOrg, TIME_ATTRS,
-                                      BOOL_ATTRS)
+        from ..exoplanets_org.exoplanets_org import (ExoplanetsOrg, TIME_ATTRS,
+                                                     BOOL_ATTRS)
 
         # Load exoplanets table
-        table = ExoplanetsOrg.get_table(cache=cache,
-                                        show_progress=show_progress)
+        table = ExoplanetsOrg.get_table(cache=cache, show_progress=show_progress)
 
         if not exoplanet_name.lower().strip() in table['NAME_LOWERCASE'].data:
             raise ValueError('Planet "{0}" not found in exoplanets.org catalog')
@@ -90,12 +89,13 @@ class PlanetParams(object):
             Show progress of exoplanet table download (if no cached copy is
             available). Default is `True`.
         """
-        from ..exoplanet_archive import (ExoplanetArchive, TIME_ATTRS,
-                                         BOOL_ATTRS)
+        from ..exoplanet_archive.exoplanet_archive import (ExoplanetArchive,
+                                                           TIME_ATTRS,
+                                                           BOOL_ATTRS)
 
         # Load exoplanets table
-        table = ExoplanetArchive.get_table(cache=cache,
-                                           show_progress=show_progress)
+        table = ExoplanetArchive.get_confirmed_planets_table(cache=cache,
+                                                             show_progress=show_progress)
 
         if not exoplanet_name.lower().strip() in table['NAME_LOWERCASE'].data:
             raise ValueError('Planet "{0}" not found in exoplanets.org catalog')

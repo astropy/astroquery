@@ -17,6 +17,10 @@ BOOL_ATTRS = ('ASTROMETRY', 'BINARY', 'EOD', 'KDE', 'MICROLENSING', 'MULT',
 
 
 class ExoplanetsOrgClass(object):
+    """
+    Exoplanets.org querying object. Use the ``get_table`` or ``get_planet``
+    methods to get information about exoplanets via the Exoplanets.org
+    """
     def __init__(self):
         self._param_units = None
         self._table = None
@@ -83,6 +87,7 @@ class ExoplanetsOrgClass(object):
         table : `~astropy.table.Table`
             Table of one exoplanet's properties.
         """
+
         exoplanet_table = self.get_table()
         return exoplanet_table.loc[planet_name.strip().lower()]
 

@@ -17,6 +17,10 @@ BOOL_ATTRS = ('pl_kepflag', 'pl_ttvflag', 'pl_k2flag', 'st_massblend',
 
 
 class ExoplanetArchiveClass(object):
+    """
+    Exoplanet Archive querying object. Use the ``get_table`` or ``get_planet``
+    methods to get information about exoplanets via the Exoplanet Archive.
+    """
     def __init__(self):
         self._param_units = None
         self._table = None
@@ -31,10 +35,14 @@ class ExoplanetArchiveClass(object):
 
         return self._param_units
 
-    def get_table(self, cache=True, show_progress=True):
+    def get_confirmed_planets_table(self, cache=True, show_progress=True):
         """
         Download (and optionally cache) the `NExScI Exoplanet Archive Confirmed
         Planets table <http://exoplanetarchive.ipac.caltech.edu/index.html>`_.
+
+        The Exoplanet Archive table returns lots of columns of data. A full
+        description of the columns can be found `here
+        <https://exoplanetarchive.ipac.caltech.edu/docs/API_exoplanet_columns.html>`_
 
         Parameters
         ----------
@@ -89,7 +97,8 @@ class ExoplanetArchiveClass(object):
         table : `~astropy.table.Table`
             Table of one exoplanet's properties.
         """
-        exoplanet_table = self.get_table()
+
+        exoplanet_table = self.get_confirmed_planets_table()
         return exoplanet_table.loc[planet_name.strip().lower()]
 
 ExoplanetArchive = ExoplanetArchiveClass()
