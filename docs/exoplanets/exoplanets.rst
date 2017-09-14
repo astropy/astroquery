@@ -14,7 +14,7 @@ to columns wherever possible.
 
 .. code-block:: python
 
-        >>> from astroquery.exoplanets import ExoplanetArchive
+        >>> from astroquery.exoplanet_archive import ExoplanetArchive
         >>> exoplanet_archive_table = ExoplanetArchive.get_table()
 
         >>> exoplanet_archive_table[:2]
@@ -26,7 +26,7 @@ to columns wherever possible.
          Kepler-151         b       Transit ...         1 2014-05-14   kepler-151 b
          Kepler-152         b       Transit ...         1 2014-05-14   kepler-152 b
 
-        >>> from astroquery.exoplanets import ExoplanetsOrg
+        >>> from astroquery.exoplanets_org import ExoplanetsOrg
         >>> exoplanets_org_table = ExoplanetsOrg.get_table()
 
         >>> exoplanets_org_table[:2]
@@ -42,7 +42,7 @@ You can query for the row from each table corresponding to one exoplanet:
 
 .. code-block:: python
 
-        >>> from astroquery.exoplanets import ExoplanetsOrg
+        >>> from astroquery.exoplanets_org import ExoplanetsOrg
         >>> hatp11b = ExoplanetsOrg.query_planet('HAT-P-11 b')
 
 

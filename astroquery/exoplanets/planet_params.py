@@ -34,8 +34,8 @@ class PlanetParams(object):
             Show progress of exoplanet table download (if no cached copy is
             available). Default is `True`.
         """
-        from .exoplanets_org import (ExoplanetsOrg, TIME_ATTRS,
-                                     BOOL_ATTRS)
+        from ..exoplanets_org import (ExoplanetsOrg, TIME_ATTRS,
+                                      BOOL_ATTRS)
 
         # Load exoplanets table
         table = ExoplanetsOrg.get_table(cache=cache,
@@ -90,8 +90,8 @@ class PlanetParams(object):
             Show progress of exoplanet table download (if no cached copy is
             available). Default is `True`.
         """
-        from .exoplanet_archive import (ExoplanetArchive, TIME_ATTRS,
-                                        BOOL_ATTRS)
+        from ..exoplanet_archive import (ExoplanetArchive, TIME_ATTRS,
+                                         BOOL_ATTRS)
 
         # Load exoplanets table
         table = ExoplanetArchive.get_table(cache=cache,

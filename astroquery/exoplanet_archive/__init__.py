@@ -2,6 +2,6 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-__all__ = ['PlanetParams']
+__all__ = ['ExoplanetArchive']
 
-from .planet_params import PlanetParams
+from .exoplanet_archive import ExoplanetArchive
