@@ -8,4 +8,4 @@ def get_package_data():
 
     paths_core = [os.path.join('data', '*.json')]
 
-    return {'astroquery.exoplanets_org': paths_core}
+    return {'astroquery.exoplanet_orbit_database': paths_core}

@@ -8,7 +8,7 @@ from astropy.utils.data import download_file
 from astropy.io import ascii
 import astropy.units as u
 
-__all__ = ['ExoplanetsOrg']
+__all__ = ['ExoplanetOrbitDatabase']
 
 EXOPLANETS_CSV_URL = 'http://exoplanets.org/csv-files/exoplanets.csv'
 TIME_ATTRS = {'TT': 'jd', 'T0': 'jd'}
@@ -16,7 +16,7 @@ BOOL_ATTRS = ('ASTROMETRY', 'BINARY', 'EOD', 'KDE', 'MICROLENSING', 'MULT',
               'SE', 'TIMING', 'TRANSIT', 'TREND')
 
 
-class ExoplanetsOrgClass(object):
+class ExoplanetOrbitDatabaseClass(object):
     """
     Exoplanets.org querying object. Use the ``get_table`` or ``get_planet``
     methods to get information about exoplanets via the Exoplanets.org
@@ -91,4 +91,4 @@ class ExoplanetsOrgClass(object):
         exoplanet_table = self.get_table()
         return exoplanet_table.loc[planet_name.strip().lower()]
 
-ExoplanetsOrg = ExoplanetsOrgClass()
+ExoplanetOrbitDatabase = ExoplanetOrbitDatabaseClass()

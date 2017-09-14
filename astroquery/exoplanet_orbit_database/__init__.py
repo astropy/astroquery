@@ -2,6 +2,6 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-__all__ = ['ExoplanetsOrg']
+__all__ = ['ExoplanetOrbitDatabase']
 
-from .exoplanets_org import ExoplanetsOrg
+from .exoplanet_orbit_database import ExoplanetOrbitDatabase

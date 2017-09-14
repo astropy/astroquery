@@ -26,10 +26,10 @@ to columns wherever possible.
          Kepler-151         b       Transit ...         1 2014-05-14   kepler-151 b
          Kepler-152         b       Transit ...         1 2014-05-14   kepler-152 b
 
-        >>> from astroquery.exoplanets_org import ExoplanetsOrg
-        >>> exoplanets_org_table = ExoplanetsOrg.get_table()
+        >>> from astroquery.exoplanet_orbit_database import ExoplanetOrbitDatabase
+        >>> exoplanet_orbit_database_table = ExoplanetOrbitDatabase.get_table()
 
-        >>> exoplanets_org_table[:2]
+        >>> exoplanet_orbit_database_table[:2]
         <Table masked=True length=2>
             A        AUPPER      ALOWER        UA     ... KEPID  KDE  NAME_LOWERCASE
             AU         AU          AU          AU     ...
@@ -42,8 +42,8 @@ You can query for the row from each table corresponding to one exoplanet:
 
 .. code-block:: python
 
-        >>> from astroquery.exoplanets_org import ExoplanetsOrg
-        >>> hatp11b = ExoplanetsOrg.query_planet('HAT-P-11 b')
+        >>> from astroquery.exoplanet_orbit_database import ExoplanetOrbitDatabase
+        >>> hatp11b = ExoplanetOrbitDatabase.query_planet('HAT-P-11 b')
 
 
 Access a single planet's parameters
@@ -73,7 +73,7 @@ or the exoplanets.org parameters like so
 .. code-block:: python
 
         >>> from astroquery.exoplanets import PlanetParams
-        >>> planet = PlanetParams.from_exoplanets_org('HD 209458 b')
+        >>> planet = PlanetParams.from_exoplanet_orbit_database('HD 209458 b')
         >>> planet.per
         <Quantity 3.52474859 d>
         >>> planet.tt

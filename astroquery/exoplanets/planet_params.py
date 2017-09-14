@@ -18,7 +18,7 @@ class PlanetParams(object):
             setattr(self, key, kwargs[key])
 
     @classmethod
-    def from_exoplanets_org(cls, exoplanet_name, cache=True,
+    def from_exoplanet_orbit_database(cls, exoplanet_name, cache=True,
                             show_progress=True):
         """
         Gather exoplanet parameters from `exoplanets.org
@@ -34,11 +34,11 @@ class PlanetParams(object):
             Show progress of exoplanet table download (if no cached copy is
             available). Default is `True`.
         """
-        from ..exoplanets_org.exoplanets_org import (ExoplanetsOrg, TIME_ATTRS,
+        from ..exoplanet_orbit_database.exoplanet_orbit_database import (ExoplanetOrbitDatabase, TIME_ATTRS,
                                                      BOOL_ATTRS)
 
         # Load exoplanets table
-        table = ExoplanetsOrg.get_table(cache=cache, show_progress=show_progress)
+        table = ExoplanetOrbitDatabase.get_table(cache=cache, show_progress=show_progress)
 
         if not exoplanet_name.lower().strip() in table['NAME_LOWERCASE'].data:
             raise ValueError('Planet "{0}" not found in exoplanets.org catalog')
