@@ -217,7 +217,8 @@ for each source)
   vizier/vizier.rst
   xmatch/xmatch.rst
   vo_conesearch/vo_conesearch.rst
-  exoplanets/exoplanets.rst
+  nasa_exoplanet_archive/nasa_exoplanet_archive.rst
+  exoplanet_orbit_database/exoplanet_orbit_database.rst
 
 Archives
 --------

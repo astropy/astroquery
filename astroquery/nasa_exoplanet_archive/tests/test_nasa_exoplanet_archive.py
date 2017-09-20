@@ -6,43 +6,42 @@ from astropy.tests.helper import assert_quantity_allclose, remote_data, pytest
 from astropy.utils import minversion
 from astropy.coordinates import SkyCoord
 
-from ...exoplanet_archive import ExoplanetArchive
-from ...exoplanets import PlanetParams
+from ...nasa_exoplanet_archive import NasaExoplanetArchive
 
 APY_LT12 = not minversion('astropy', '1.2')
 
 
 @remote_data
 def test_exoplanet_archive_table():
-    table = ExoplanetArchive.get_confirmed_planets_table()
+    table = NasaExoplanetArchive.get_confirmed_planets_table()
 
     # Check some planets are in the table
     expected_planets = ['HD 189733 b', 'Kepler-186 f', 'TRAPPIST-1 b',
                         'HD 209458 b', 'Kepler-62 f', 'GJ 1214 b']
 
     for planet in expected_planets:
-        assert planet.lower() in table['NAME_LOWERCASE']
+        assert planet.lower().replace(" ", "") in table['NAME_LOWERCASE']
 
 
 @remote_data
 def test_hd209458b_exoplanet_archive():
-    # Testing intentionally un-stripped string:
-    params = PlanetParams.from_exoplanet_archive('HD 209458 b ')
+    # Testing intentionally un-stripped string, no spaced:
+    params = NasaExoplanetArchive.query_planet('HD209458b ')
 
-    assert params.pl_hostname == 'HD 209458'
-    assert_quantity_allclose(params.pl_orbper, 3.52474859 * u.day,
+    assert str(params['pl_hostname']) == 'HD 209458'
+    assert_quantity_allclose(params['pl_orbper'], 3.52474859 * u.day,
                              atol=1e-5 * u.day)
 
-    assert not params.pl_kepflag
-    assert not params.pl_ttvflag
+    assert not params['pl_kepflag']
+    assert not params['pl_ttvflag']
 
 
 @remote_data
 @pytest.mark.skipif('APY_LT12')
 def test_hd209458b_exoplanets_archive_apy_lt12():
     # Testing intentionally un-stripped string:
-    params = PlanetParams.from_exoplanet_archive('HD 209458 b ')
-    assert_quantity_allclose(params.pl_radj, 1.320 * u.Unit('R_jup'),
+    params = NasaExoplanetArchive.query_planet('HD 209458 b ')
+    assert_quantity_allclose(params['pl_radj'], 1.320 * u.Unit('R_jup'),
                              atol=0.1 * u.Unit('R_jup'))
 
 
@@ -51,16 +50,16 @@ def test_hd209458b_exoplanets_archive_apy_lt12():
 def test_hd209458b_exoplanets_archive_apy_gt12():
     # Testing intentionally un-stripped string:
     with pytest.raises(ValueError):
-        params = PlanetParams.from_exoplanet_archive('HD 209458 b ')
-        assert_quantity_allclose(params.pl_radj, 1.320 * u.Unit('R_jup'),
+        params = NasaExoplanetArchive.query_planet('HD 209458 b ')
+        assert_quantity_allclose(params['pl_radj'], 1.320 * u.Unit('R_jup'),
                                  atol=0.1 * u.Unit('R_jup'))
 
 
 @remote_data
 def test_hd209458b_exoplanet_archive_coords():
-    params = PlanetParams.from_exoplanet_archive('HD 209458 b ')
+    params = NasaExoplanetArchive.query_planet('HD 209458 b ')
     simbad_coords = SkyCoord(ra='22h03m10.77207s', dec='+18d53m03.5430s')
 
-    sep = params.coord.separation(simbad_coords)
+    sep = params['sky_coord'].separation(simbad_coords)
 
-    assert abs(sep) < 1 * u.arcsec
+    assert abs(sep) < 5 * u.arcsec

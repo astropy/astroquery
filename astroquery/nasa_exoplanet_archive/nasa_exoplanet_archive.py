@@ -5,9 +5,11 @@ import json
 import os
 from astropy.utils.data import download_file
 from astropy.io import ascii
+from astropy.table import QTable
+from astropy.coordinates import SkyCoord
 import astropy.units as u
 
-__all__ = ['ExoplanetArchive']
+__all__ = ['NasaExoplanetArchive']
 
 EXOPLANETS_CSV_URL = ('http://exoplanetarchive.ipac.caltech.edu/cgi-bin/'
                       'nstedAPI/nph-nstedAPI?table=exoplanets')
@@ -16,10 +18,11 @@ BOOL_ATTRS = ('pl_kepflag', 'pl_ttvflag', 'pl_k2flag', 'st_massblend',
               'st_optmagblend', 'st_radblend', 'st_teffblend')
 
 
-class ExoplanetArchiveClass(object):
+class NasaExoplanetArchiveClass(object):
     """
-    Exoplanet Archive querying object. Use the ``get_table`` or ``get_planet``
-    methods to get information about exoplanets via the Exoplanet Archive.
+    Exoplanet Archive querying object. Use the ``get_confirmed_planets_table``
+    or ``get_planet`` methods to get information about exoplanets via the NASA
+    Exoplanet Archive.
     """
     def __init__(self):
         self._param_units = None
@@ -53,7 +56,7 @@ class ExoplanetArchiveClass(object):
             available). Default is `True`.
         Returns
         -------
-        table : `~astropy.table.Table`
+        table : `~astropy.table.QTable`
             Table of exoplanet properties.
         """
         if self._table is None:
@@ -61,16 +64,17 @@ class ExoplanetArchiveClass(object):
                                        show_progress=show_progress, timeout=120)
             exoplanets_table = ascii.read(table_path)
 
-            # Group by the host name
-            exoplanets_table.group_by('pl_hostname')
-
             # Store column of lowercase names for indexing:
-            lowercase_names = [' '.join([host_name.lower(), letter])
+            lowercase_names = [''.join([host_name.lower().replace(' ', ''), letter])
                                for host_name, letter in
                                zip(exoplanets_table['pl_hostname'].data,
                                    exoplanets_table['pl_letter'].data)]
             exoplanets_table['NAME_LOWERCASE'] = lowercase_names
             exoplanets_table.add_index('NAME_LOWERCASE')
+
+            # Create sky coordinate mixin column
+            exoplanets_table['sky_coord'] = SkyCoord(ra=exoplanets_table['ra'] * u.deg,
+                                                     dec=exoplanets_table['dec'] * u.deg)
 
             # Assign units to columns where possible
             for col in exoplanets_table.colnames:
@@ -79,7 +83,7 @@ class ExoplanetArchiveClass(object):
                     if hasattr(u, self.param_units[col]):
                         exoplanets_table[col].unit = u.Unit(self.param_units[col])
 
-            self._table = exoplanets_table
+            self._table = QTable(exoplanets_table)
 
         return self._table
 
@@ -94,11 +98,11 @@ class ExoplanetArchiveClass(object):
 
         Return
         ------
-        table : `~astropy.table.Table`
+        table : `~astropy.table.QTable`
             Table of one exoplanet's properties.
         """
 
         exoplanet_table = self.get_confirmed_planets_table()
-        return exoplanet_table.loc[planet_name.strip().lower()]
+        return exoplanet_table.loc[planet_name.strip().lower().replace(' ', '')]
 
-ExoplanetArchive = ExoplanetArchiveClass()
+NasaExoplanetArchive = NasaExoplanetArchiveClass()

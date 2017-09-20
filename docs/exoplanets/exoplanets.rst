@@ -14,8 +14,8 @@ to columns wherever possible.
 
 .. code-block:: python
 
-        >>> from astroquery.exoplanet_archive import ExoplanetArchive
-        >>> exoplanet_archive_table = ExoplanetArchive.get_confirmed_planets_table()
+        >>> from astroquery.exoplanet_archive import NasaExoplanetArchive
+        >>> exoplanet_archive_table = NasaExoplanetArchive.get_confirmed_planets_table()
 
         >>> exoplanet_archive_table[:2]
         <Table masked=True length=2>
@@ -54,7 +54,7 @@ exoplanet parameter tables from the `Exoplanet Orbit Database (exoplanets.org)
 <http://www.exoplanets.org>`_ or from NExScI's
 `Exoplanet Archive <http://exoplanetarchive.ipac.caltech.edu/index.html>`_.
 
-You can access the Exoplanet Archive parameters like so
+You can access the NASA Exoplanet Archive parameters like so
 
 .. code-block:: python
 
@@ -68,7 +68,7 @@ You can access the Exoplanet Archive parameters like so
         <SkyCoord (ICRS): (ra, dec) in deg
             (330.794891, 18.884319)>
 
-or the exoplanets.org parameters like so
+or the Exoplanet Orbit Database parameters like so
 
 .. code-block:: python
 

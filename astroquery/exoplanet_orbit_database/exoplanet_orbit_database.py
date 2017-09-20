@@ -6,7 +6,9 @@ import os
 
 from astropy.utils.data import download_file
 from astropy.io import ascii
+from astropy.table import QTable
 import astropy.units as u
+from astropy.coordinates import SkyCoord
 
 __all__ = ['ExoplanetOrbitDatabase']
 
@@ -18,8 +20,9 @@ BOOL_ATTRS = ('ASTROMETRY', 'BINARY', 'EOD', 'KDE', 'MICROLENSING', 'MULT',
 
 class ExoplanetOrbitDatabaseClass(object):
     """
-    Exoplanets.org querying object. Use the ``get_table`` or ``get_planet``
-    methods to get information about exoplanets via the Exoplanets.org
+    Exoplanet Orbit Database querying object. Use the ``get_table`` or
+    ``get_planet`` methods to get information about exoplanets via the
+    Exoplanet Orbit Database.
     """
     def __init__(self):
         self._param_units = None
@@ -30,15 +33,15 @@ class ExoplanetOrbitDatabaseClass(object):
         if self._param_units is None:
             module_dir = os.path.dirname(os.path.abspath(__file__))
             units_file = open(os.path.join(module_dir, 'data',
-                                           'exoplanet_org_units.json'))
+                                           'exoplanet_orbit_database_units.json'))
             self._param_units = json.load(units_file)
 
         return self._param_units
 
     def get_table(self, cache=True, show_progress=True):
         """
-        Download (and optionally cache) the `exoplanets.org planets table
-        <http://www.exoplanets.org>`_.
+        Download (and optionally cache) the `Exoplanet Orbit Database planets
+        table <http://www.exoplanets.org>`_.
 
         Parameters
         ----------
@@ -49,7 +52,7 @@ class ExoplanetOrbitDatabaseClass(object):
             available). Default is `True`.
         Returns
         -------
-        table : `~astropy.table.Table`
+        table : `~astropy.table.QTable`
             Table of exoplanet properties.
         """
         if self._table is None:
@@ -58,9 +61,14 @@ class ExoplanetOrbitDatabaseClass(object):
             exoplanets_table = ascii.read(table_path)
 
             # Store column of lowercase names for indexing:
-            lowercase_names = [i.lower() for i in exoplanets_table['NAME'].data]
+            lowercase_names = [i.lower().replace(" ", "")
+                               for i in exoplanets_table['NAME'].data]
             exoplanets_table['NAME_LOWERCASE'] = lowercase_names
             exoplanets_table.add_index('NAME_LOWERCASE')
+
+            # Create sky coordinate mixin column
+            exoplanets_table['sky_coord'] = SkyCoord(ra=exoplanets_table['RA'] * u.hourangle,
+                                                     dec=exoplanets_table['DEC'] * u.deg)
 
             # Assign units to columns where possible
             for col in exoplanets_table.colnames:
@@ -69,7 +77,7 @@ class ExoplanetOrbitDatabaseClass(object):
                     if hasattr(u, self.param_units[col]):
                         exoplanets_table[col].unit = u.Unit(self.param_units[col])
 
-            self._table = exoplanets_table
+            self._table = QTable(exoplanets_table)
 
         return self._table
 
@@ -84,11 +92,11 @@ class ExoplanetOrbitDatabaseClass(object):
 
         Return
         ------
-        table : `~astropy.table.Table`
+        table : `~astropy.table.QTable`
             Table of one exoplanet's properties.
         """
 
         exoplanet_table = self.get_table()
-        return exoplanet_table.loc[planet_name.strip().lower()]
+        return exoplanet_table.loc[planet_name.strip().lower().replace(' ', '')]
 
 ExoplanetOrbitDatabase = ExoplanetOrbitDatabaseClass()

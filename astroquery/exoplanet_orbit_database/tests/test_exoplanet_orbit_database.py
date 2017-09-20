@@ -7,7 +7,6 @@ from astropy.utils import minversion
 from astropy.coordinates import SkyCoord
 
 from ...exoplanet_orbit_database import ExoplanetOrbitDatabase
-from ...exoplanets import PlanetParams
 
 APY_LT12 = not minversion('astropy', '1.2')
 
@@ -24,7 +23,7 @@ def test_exoplanet_orbit_database_table():
                         'HD 209458 b', 'Kepler-62 f', 'GJ 1214 b']
 
     for planet in expected_planets:
-        assert planet.lower() in table['NAME_LOWERCASE']
+        assert planet.lower().replace(" ", "") in table['NAME_LOWERCASE']
 
 
 def test_parameter_units():
@@ -40,24 +39,25 @@ def test_parameter_units():
 @remote_data
 def test_hd209458b_exoplanet_orbit_database():
     # Testing intentionally un-stripped string:
-    params = PlanetParams.from_exoplanet_orbit_database('HD 209458 b ')
+    params = ExoplanetOrbitDatabase.query_planet('HD 209458 b ')
 
-    assert params.name == 'HD 209458 b'
-    assert_quantity_allclose(params.per, 3.52474859 * u.day, atol=1e-5 * u.day)
-    assert_quantity_allclose(params.depth, u.Quantity(0.014607),
+    assert params['NAME'] == 'HD 209458 b'
+    assert_quantity_allclose(params['PER'], 3.52474859 * u.day,
+                             atol=1e-5 * u.day)
+    assert_quantity_allclose(params['DEPTH'], u.Quantity(0.014607),
                              atol=u.Quantity(1e-5))
 
-    assert not params.binary
-    assert not params.microlensing
-    assert params.transit
+    assert not params['BINARY']
+    assert not params['MICROLENSING']
+    assert params['TRANSIT']
 
 
 @remote_data
 @pytest.mark.skipif('APY_LT12')
 def test_hd209458b_exoplanet_orbit_database_apy_lt12():
     # Testing intentionally un-stripped string:
-    params = PlanetParams.from_exoplanet_orbit_database('HD 209458 b ')
-    assert_quantity_allclose(params.r, 1.320 * u.Unit('R_jup'),
+    params = ExoplanetOrbitDatabase.query_planet('HD 209458 b ')
+    assert_quantity_allclose(params["R"], 1.320 * u.Unit('R_jup'),
                              atol=0.1 * u.Unit('R_jup'))
 
 
@@ -66,17 +66,17 @@ def test_hd209458b_exoplanet_orbit_database_apy_lt12():
 def test_hd209458b_exoplanet_orbit_database_apy_gt12():
     # Testing intentionally un-stripped string:
     with pytest.raises(ValueError):
-        params = PlanetParams.from_exoplanet_orbit_database('HD 209458 b ')
-        assert_quantity_allclose(params.r, 1.320 * u.Unit('R_jup'),
+        params = ExoplanetOrbitDatabase.query_planet('HD 209458 b ')
+        assert_quantity_allclose(params['R'], 1.320 * u.Unit('R_jup'),
                                  atol=0.1 * u.Unit('R_jup'))
 
 
 @remote_data
 def test_hd209458b_exoplanet_orbit_database_coords():
-    params = PlanetParams.from_exoplanet_orbit_database('HD 209458 b ')
+    params = ExoplanetOrbitDatabase.query_planet('HD 209458 b ')
     simbad_coords = SkyCoord(ra='22h03m10.77207s', dec='+18d53m03.5430s')
 
-    sep = params.coord.separation(simbad_coords)
+    sep = params['sky_coord'].separation(simbad_coords)
 
-    assert abs(sep) < 1 * u.arcsec
-
+    print(sep, type(sep))
+    assert abs(sep) < 5 * u.arcsec
