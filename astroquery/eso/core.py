@@ -376,10 +376,46 @@ class EsoClass(QueryWithLogin):
             else:
                 warnings.warn("Query returned no results", NoResultsWarning)
 
+
+    def query_main(self, column_filters={}, columns=[],
+                    open_form=False, help=False, cache=True, **kwargs):
+        """
+        Query raw data contained in the ESO archive.
+
+        Parameters
+        ----------
+        column_filters : dict
+            Constraints applied to the query.
+        columns : list of strings
+            Columns returned by the query.
+        open_form : bool
+            If `True`, opens in your default browser the query form
+            for the requested instrument.
+        help : bool
+            If `True`, prints all the parameters accepted in
+            ``column_filters`` and ``columns`` for the requested
+            ``instrument``.
+        cache : bool
+            Cache the response for faster subsequent retrieval.
+
+        Returns
+        -------
+        table : `~astropy.table.Table`
+            A table representing the data available in the archive for the
+            specified instrument, matching the constraints specified in
+            ``kwargs``. The number of rows returned is capped by the
+            ROW_LIMIT configuration item.
+
+        """
+        url = "http://archive.eso.org/wdb/wdb/eso/eso_archive_main/form"
+        return self._query(url, column_filters=column_filters, columns=columns,
+                            open_form=open_form, help=help, cache=cache, **kwargs)
+
+
     def query_instrument(self, instrument, column_filters={}, columns=[],
                          open_form=False, help=False, cache=True, **kwargs):
         """
-        Query instrument specific raw data contained in the ESO archive.
+        Query instrument-specific raw data contained in the ESO archive.
 
         Parameters
         ----------
@@ -410,12 +446,19 @@ class EsoClass(QueryWithLogin):
 
         """
 
-        url = 'http://archive.eso.org/wdb/wdb/eso/eso_archive_main/form'
+        url = 'http://archive.eso.org/wdb/wdb/eso/{0}/form'.format(instrument)
+        return self._query(url, column_filters=column_filters, columns=columns,
+                            open_form=open_form, help=help, cache=cache, **kwargs)
+
+
+    def _query(self, url, column_filters={}, columns=[],
+                open_form=False, help=False, cache=True, **kwargs):
+
         table = None
         if open_form:
             webbrowser.open(url)
         elif help:
-            self._print_instrument_help(url, instrument)
+            self._print_query_help(url)
         else:
             instrument_form = self._request("GET", url, cache=cache)
             query_dict = {}
@@ -427,8 +470,6 @@ class EsoClass(QueryWithLogin):
             # Default to returning the DP.ID since it is needed for header
             # acquisition
             query_dict['tab_dp_id'] = kwargs.pop('tab_dp_id', 'on')
-
-            query_dict['instrument'] = instrument.upper()
 
             for k in columns:
                 query_dict["tab_" + k] = True
@@ -454,6 +495,7 @@ class EsoClass(QueryWithLogin):
                 return table
             else:
                 warnings.warn("Query returned no results", NoResultsWarning)
+
 
     def get_headers(self, product_ids, cache=True):
         """
@@ -744,12 +786,11 @@ class EsoClass(QueryWithLogin):
 
             return table
 
-    def _print_instrument_help(self, url, instrument, cache=True):
+    def _print_query_help(self, url, cache=True):
         """
         Download a form and print it in a quasi-human-readable way
         """
-        log.info("List of the column_filters parameters accepted by the "
-                 "{0} instrument query.".format(instrument))
+        log.info("List of accepted column_filters parameters.")
         log.info("The presence of a column in the result table can be "
                  "controlled if prefixed with a [ ] checkbox.")
         log.info("The default columns in the result table are shown as "
@@ -786,7 +827,7 @@ class EsoClass(QueryWithLogin):
                                     .format(option['value'],
                                             "".join(option.stripped_strings))]
                     name = tag[u"name"]
-                    value = ", ".join(options)
+                    value = ", ".join(options)                    
                 else:
                     name = ""
                     value = ""
