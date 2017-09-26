@@ -3,6 +3,7 @@ from __future__ import print_function
 import time
 import sys
 import os.path
+import shutil
 import webbrowser
 import getpass
 import warnings
@@ -533,7 +534,7 @@ class EsoClass(QueryWithLogin):
         warnings.warn("data_retrieval has been replaced with retrieve_data",
                       DeprecationWarning)
 
-    def retrieve_data(self, datasets, cache=True, continuation=False):
+    def retrieve_data(self, datasets, cache=True, continuation=False, destination=None):
         """
         Retrieve a list of datasets form the ESO archive.
 
@@ -544,6 +545,10 @@ class EsoClass(QueryWithLogin):
         cache : bool
             Cache the retrieval forms (not the data - they are downloaded
             independent of this keyword)
+        destination: string
+            Directory where the files are copied.
+            Files already found in the destination directory are skipped.
+            Default to astropy cache.
 
         Returns
         -------
@@ -575,7 +580,10 @@ class EsoClass(QueryWithLogin):
             else:
                 local_filename = dataset + ".fits"
 
-            if self.cache_location is not None:
+            if destination is not None:
+                local_filename = os.path.join(destination,
+                                              local_filename)
+            elif self.cache_location is not None:
                 local_filename = os.path.join(self.cache_location,
                                               local_filename)
             if os.path.exists(local_filename):
@@ -660,7 +668,11 @@ class EsoClass(QueryWithLogin):
                             fileId.attrs['value'].split()[1])
                 filename = self._request("GET", fileLink, save=True,
                                          continuation=True)
-                files.append(system_tools.gunzip(filename))
+                filename = system_tools.gunzip(filename)
+                if destination is not None:
+                    log.info("Copying file to {0}...".format(destination))
+                    shutil.move(filename, os.path.join(destination,os.path.split(filename)[1]))
+                
         # Empty the redirect cache of this request session
         # Only available and needed for requests versions < 2.17
         try:
