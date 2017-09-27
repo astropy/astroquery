@@ -661,6 +661,12 @@ class EsoClass(QueryWithLogin):
                 filename = self._request("GET", fileLink, save=True,
                                          continuation=True)
                 files.append(system_tools.gunzip(filename))
+        # Empty the redirect cache of this request session
+        # Only available and needed for requests versions < 2.17
+        try:
+            self._session.redirect_cache.clear()
+        except:
+            pass
         log.info("Done!")
         if (not return_list) and (len(files) == 1):
             files = files[0]
