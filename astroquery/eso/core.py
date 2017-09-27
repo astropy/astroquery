@@ -665,7 +665,7 @@ class EsoClass(QueryWithLogin):
         # Only available and needed for requests versions < 2.17
         try:
             self._session.redirect_cache.clear()
-        except:
+        except AttributeError:
             pass
         log.info("Done!")
         if (not return_list) and (len(files) == 1):
