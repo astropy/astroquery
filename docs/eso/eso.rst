@@ -99,22 +99,22 @@ automatically when needed.
 Query the ESO archive
 =====================
 
-Identifying available instruments
----------------------------------
+Identifying available instrument-specific queries
+-------------------------------------------------
 
 The direct retrieval of datasets is better explained with a running example, continuing from the
 authentication example above. The first thing to do is to identify the instrument to query. The
-list of available instruments can be queried with the :meth:`~astroquery.eso.EsoClass.list_instruments`
-method.
+list of available instrument-specific queries can be obtiained with the
+:meth:`~astroquery.eso.EsoClass.list_instruments` method.
 
 .. code-block:: python
 
     >>> eso.list_instruments()
     ['fors1', 'fors2', 'vimos', 'omegacam', 'hawki', 'isaac', 'naco', 'visir', 'vircam',
     'apex', 'uves', 'giraffe', 'xshooter', 'muse, 'crires', 'kmos', 'sinfoni',
-    'amber', 'gravity', 'midi', 'pionier', 'harps']
+    'amber', 'gravity', 'midi', 'pionier']
 
-In the example above, 23 instruments are available, they correspond to the instrument listed on
+In the example above, 22 instruments are available, they correspond to the instruments listed on
 the following web page: http://archive.eso.org/cms/eso-data/instrument-specific-query-forms.html.
 
 Inspecting available query options
@@ -221,12 +221,16 @@ The associated query form on the ESO archive website is http://archive.eso.org/w
 Except for the keyword specifying the instrument the behaviour of :meth:`~astroquery.eso.EsoClass.query_main`
 is identical to :meth:`~astroquery.eso.EsoClass.query_instrument`.
 
+ESO instruments without a specific query interface can be queried with
+:meth:`~astroquery.eso.EsoClass.query_main`, specifying the ``instrument`` constraint.
+This is the case of e.g. ``harps`` or ``feros``.
+
 
 Obtaining extended information on data products
 ===============================================
 
 Only a small subset of the keywords presents in the data products can be obtained
-with :meth:`~astroquery.eso.EsoClass.query_instrument` or :meth:`~astroquery.eso.EsoClass.query`.
+with :meth:`~astroquery.eso.EsoClass.query_instrument` or :meth:`~astroquery.eso.EsoClass.query_main`.
 There is however a way to get the full primary header of the FITS data products,
 using :meth:`~astroquery.eso.EsoClass.get_headers`.
 This method is detailed in the example below, continuing with the previously obtained table.
