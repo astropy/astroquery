@@ -375,7 +375,7 @@ class EsoClass(QueryWithLogin):
                 warnings.warn("Query returned no results", NoResultsWarning)
 
     def query_main(self, column_filters={}, columns=[],
-                    open_form=False, help=False, cache=True, **kwargs):
+                   open_form=False, help=False, cache=True, **kwargs):
         """
         Query raw data contained in the ESO archive.
 
@@ -406,7 +406,7 @@ class EsoClass(QueryWithLogin):
         """
         url = "http://archive.eso.org/wdb/wdb/eso/eso_archive_main/form"
         return self._query(url, column_filters=column_filters, columns=columns,
-                            open_form=open_form, help=help, cache=cache, **kwargs)
+                           open_form=open_form, help=help, cache=cache, **kwargs)
 
     def query_instrument(self, instrument, column_filters={}, columns=[],
                          open_form=False, help=False, cache=True, **kwargs):
@@ -444,10 +444,10 @@ class EsoClass(QueryWithLogin):
 
         url = 'http://archive.eso.org/wdb/wdb/eso/{0}/form'.format(instrument)
         return self._query(url, column_filters=column_filters, columns=columns,
-                            open_form=open_form, help=help, cache=cache, **kwargs)
+                           open_form=open_form, help=help, cache=cache, **kwargs)
 
     def _query(self, url, column_filters={}, columns=[],
-                open_form=False, help=False, cache=True, **kwargs):
+               open_form=False, help=False, cache=True, **kwargs):
 
         table = None
         if open_form:
