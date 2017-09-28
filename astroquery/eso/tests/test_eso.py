@@ -13,10 +13,14 @@ def data_path(filename):
 
 DATA_FILES = {'GET': {'http://archive.eso.org/wdb/wdb/eso/eso_archive_main/form':
                       'main_query_form.html',
+                      'http://archive.eso.org/wdb/wdb/eso/amber/form':
+                      'amber_query_form.html',
                       'http://archive.eso.org/wdb/wdb/adp/phase3_main/form':
                       'vvv_sgra_form.html',
                       },
               'POST': {'http://archive.eso.org/wdb/wdb/eso/eso_archive_main/query':
+                       'main_sgra_query.tbl',
+                       'http://archive.eso.org/wdb/wdb/eso/amber/query':
                        'amber_sgra_query.tbl',
                        'http://archive.eso.org/wdb/wdb/adp/phase3_main/query':
                        'vvv_sgra_survey_response.tbl',
@@ -42,7 +46,7 @@ def eso_request(request_type, url, **kwargs):
 # This test should attempt to access the internet and therefore should fail
 # (_activate_form always connects to the internet)
 # @pytest.mark.xfail
-def test_SgrAstar(monkeypatch):
+def test_amber_SgrAstar(monkeypatch):
     # Local caching prevents a remote query here
 
     eso = Eso()
@@ -58,6 +62,24 @@ def test_SgrAstar(monkeypatch):
     # test that max_results = 50
     assert len(result) == 50
     assert 'GC_IRS7' in result['Object']
+
+
+def test_main_SgrAstar(monkeypatch):
+    # Local caching prevents a remote query here
+
+    eso = Eso()
+
+    # monkeypatch instructions from https://pytest.org/latest/monkeypatch.html
+    monkeypatch.setattr(eso, '_request', eso_request)
+    # set up local cache path to prevent remote query
+    eso.cache_location = DATA_DIR
+
+    # the failure should occur here
+    result = eso.query_main(target='Sgr A*')
+
+    # test that max_results = 50
+    assert len(result) == 50
+    assert 'GC_IRS7' in result['OBJECT']
 
 
 def test_vvv(monkeypatch):
