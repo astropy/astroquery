@@ -374,7 +374,6 @@ class EsoClass(QueryWithLogin):
             else:
                 warnings.warn("Query returned no results", NoResultsWarning)
 
-
     def query_main(self, column_filters={}, columns=[],
                     open_form=False, help=False, cache=True, **kwargs):
         """
@@ -408,7 +407,6 @@ class EsoClass(QueryWithLogin):
         url = "http://archive.eso.org/wdb/wdb/eso/eso_archive_main/form"
         return self._query(url, column_filters=column_filters, columns=columns,
                             open_form=open_form, help=help, cache=cache, **kwargs)
-
 
     def query_instrument(self, instrument, column_filters={}, columns=[],
                          open_form=False, help=False, cache=True, **kwargs):
@@ -447,7 +445,6 @@ class EsoClass(QueryWithLogin):
         url = 'http://archive.eso.org/wdb/wdb/eso/{0}/form'.format(instrument)
         return self._query(url, column_filters=column_filters, columns=columns,
                             open_form=open_form, help=help, cache=cache, **kwargs)
-
 
     def _query(self, url, column_filters={}, columns=[],
                 open_form=False, help=False, cache=True, **kwargs):
@@ -493,7 +490,6 @@ class EsoClass(QueryWithLogin):
                 return table
             else:
                 warnings.warn("Query returned no results", NoResultsWarning)
-
 
     def get_headers(self, product_ids, cache=True):
         """
@@ -710,8 +706,8 @@ class EsoClass(QueryWithLogin):
                 filename = system_tools.gunzip(filename)
                 if destination is not None:
                     log.info("Copying file to {0}...".format(destination))
-                    shutil.move(filename, os.path.join(destination,os.path.split(filename)[1]))
-                
+                    shutil.move(filename, os.path.join(destination, os.path.split(filename)[1]))
+
         # Empty the redirect cache of this request session
         # Only available and needed for requests versions < 2.17
         try:
@@ -824,7 +820,7 @@ class EsoClass(QueryWithLogin):
                                     .format(option['value'],
                                             "".join(option.stripped_strings))]
                     name = tag[u"name"]
-                    value = ", ".join(options)                    
+                    value = ", ".join(options)
                 else:
                     name = ""
                     value = ""
