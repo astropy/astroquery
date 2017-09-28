@@ -576,7 +576,7 @@ class EsoClass(QueryWithLogin):
         warnings.warn("data_retrieval has been replaced with retrieve_data",
                       DeprecationWarning)
 
-    def retrieve_data(self, datasets, cache=True, continuation=False, destination=None):
+    def retrieve_data(self, datasets, continuation=False, destination=None):
         """
         Retrieve a list of datasets form the ESO archive.
 
@@ -584,9 +584,6 @@ class EsoClass(QueryWithLogin):
         ----------
         datasets : list of strings or string
             List of datasets strings to retrieve from the archive.
-        cache : bool
-            Cache the retrieval forms (not the data - they are downloaded
-            independent of this keyword)
         destination: string
             Directory where the files are copied.
             Files already found in the destination directory are skipped.
@@ -662,13 +659,14 @@ class EsoClass(QueryWithLogin):
             if not self.authenticated():
                 self.login()
             url = "http://archive.eso.org/cms/eso-data/eso-data-direct-retrieval.html"
-            data_retrieval_form = self._request("GET", url, cache=cache)
-            data_retrieval_form.raise_for_status()
-            log.info("Staging request...")
             with suspend_cache(self):  # Never cache staging operations
+                data_retrieval_form = self._request("GET", url, cache=False)
+                data_retrieval_form.raise_for_status()
+                log.info("Staging request...")
                 inputs = {"list_of_datasets": "\n".join(datasets_to_download)}
                 data_confirmation_form = self._activate_form(
-                    data_retrieval_form, form_index=-1, inputs=inputs)
+                    data_retrieval_form, form_index=-1, inputs=inputs,
+                    cache=False)
 
                 data_confirmation_form.raise_for_status()
 
@@ -683,7 +681,8 @@ class EsoClass(QueryWithLogin):
                 # should be included too
                 # form name is "retrieve"; no id
                 data_download_form = self._activate_form(
-                    data_confirmation_form, form_index=-1)
+                    data_confirmation_form, form_index=-1,
+                    cache=False)
                 log.info("Staging form is at {0}."
                          .format(data_download_form.url))
                 root = BeautifulSoup(data_download_form.content, 'html5lib')
