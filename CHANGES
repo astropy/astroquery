@@ -6,6 +6,13 @@
 - SIMBAD: adding 'get_query_payload' kwarg to all public methods to return
   the request parameters. [#962]
 - ESO: The upstream API changed.  We have adapted.  [#970]
+- ESO: Added 'destination' keyword to Eso.retrieve_data(), to download files
+  to a specific location (other than the cache). [#976]
+- ESO: Fixed Eso.query_instrument() to use instrument specific query forms
+  (it was using the main form before). [#976]
+- ESO: Implemented Eso.query_main() to query all instruments with the main form
+  (even the ones without a specific form). [#976]
+- ESO: Disabled caching for all Eso.retrieve_data() operations. [#976]
 
 
 0.3.6 (2017-07-03)
