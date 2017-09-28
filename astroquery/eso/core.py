@@ -773,7 +773,7 @@ class EsoClass(QueryWithLogin):
                 content = content.split(b'\n', 1)[1]
                 table = Table.read(BytesIO(content), format="ascii.csv",
                                    guess=False,  # header_start=1,
-                                   comment="#")
+                                   comment="#", encoding='utf-8')
             else:
                 raise RemoteServiceError("Query returned no results")
 
