@@ -66,7 +66,7 @@ Automatic password
 
 As shown above, your password can be stored by the `keyring
 <https://pypi.python.org/pypi/keyring>`_ module, if you
-pass the argument ``store_password=False`` to ``Eso.login()``.
+pass the argument ``store_password=True`` to ``Eso.login()``.
 For security reason, storing the password is turned off by default.
 
 MAKE SURE YOU TRUST THE MACHINE WHERE YOU USE THIS FUNCTIONALITY!!!
