@@ -794,6 +794,12 @@ class EsoClass(QueryWithLogin):
         resp = self._request("GET", url, cache=cache)
         doc = BeautifulSoup(resp.content, 'html5lib')
         form = doc.select("html body form pre")[0]
+        # Unwrap all paragraphs
+        paragraph = form.find('p')
+        while paragraph:
+            paragraph.unwrap()
+            paragraph = form.find('p')
+        # For all sections
         for section in form.select("table"):
             section_title = "".join(section.stripped_strings)
             section_title = "\n".join(["", section_title,
