@@ -558,7 +558,7 @@ class ESASkyClass(BaseQuery):
             'GET',
             product_url,
             cache=cache,
-            headers=self.get_header())
+            headers=self._get_header())
         tar_file.write(response.content)
         with tarfile.open(tar_file.name, 'r') as tar:
             i = 0

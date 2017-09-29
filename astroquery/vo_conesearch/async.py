@@ -3,8 +3,14 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-# ASTROPY
-from astropy.utils.compat.futures import ThreadPoolExecutor
+HAS_FUTURES = True
+try:  # pragma: PY3
+    from concurrent.futures import ThreadPoolExecutor
+except ImportError:
+    try:  # pragma: PY2
+        from astropy.utils.compat.futures import ThreadPoolExecutor
+    except ImportError:
+        HAS_FUTURES = False
 
 __all__ = ['AsyncBase']
 
@@ -41,6 +47,9 @@ class AsyncBase(object):
 
     """
     def __init__(self, func, *args, **kwargs):
+        if not HAS_FUTURES:
+            raise ImportError('concurrent.futures library not found')
+
         kwargs['verbose'] = False
         self.executor = ThreadPoolExecutor(1)
         self.future = self.executor.submit(func, *args, **kwargs)
