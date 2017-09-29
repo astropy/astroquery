@@ -454,6 +454,7 @@ def parse_votable(content):
     tables = votable.parse(six.BytesIO(content), pedantic=False)
     return tables
 
+
 def _open_shelve(shelffn, withclosing=False):
     """
     Opens a shelf file.  If `withclosing` is  True, it will be opened with closing,
