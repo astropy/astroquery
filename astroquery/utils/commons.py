@@ -383,7 +383,7 @@ class FileContainer(object):
             estr = '' if len(e.args) < 1 else (': ' + str(e))
             warn(aud.CacheMissingWarning(msg + e.__class__.__name__ + estr))
 
-        with aud._open_shelve(urlmapfn, True) as url2hash:
+        with _open_shelve(urlmapfn, True) as url2hash:
             if str(self._target) in url2hash:
                 target = url2hash[str(self._target)]
             else:
@@ -453,3 +453,21 @@ def parse_votable(content):
     """
     tables = votable.parse(six.BytesIO(content), pedantic=False)
     return tables
+
+def _open_shelve(shelffn, withclosing=False):
+    """
+    Opens a shelf file.  If `withclosing` is  True, it will be opened with closing,
+    allowing use like:
+
+        with _open_shelve('somefile',True) as s:
+            ...
+    """
+    import shelve
+    import contextlib
+
+    shelf = shelve.open(shelffn, protocol=2)
+
+    if withclosing:
+        return contextlib.closing(shelf)
+    else:
+        return shelf
