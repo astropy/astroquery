@@ -187,3 +187,15 @@ class TestEso:
         for survey in surveys:
             # just test that it doesn't crash
             eso.query_surveys(survey, cache=cache)
+
+    def test_mixed_case_instrument(self, temp_dir):
+        eso = Eso()
+        eso.cache_location = temp_dir
+        eso.ROW_LIMIT = 5
+        
+        result1 = eso.query_instrument('midi', coord1=266.41681662,
+                                       coord2=-29.00782497, cache=False)
+        result2 = eso.query_instrument('MiDi', coord1=266.41681662,
+                                       coord2=-29.00782497, cache=False)
+
+        assert np.all(result1 == result2)
