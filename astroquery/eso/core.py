@@ -442,7 +442,7 @@ class EsoClass(QueryWithLogin):
 
         """
 
-        url = 'http://archive.eso.org/wdb/wdb/eso/{0}/form'.format(instrument)
+        url = 'http://archive.eso.org/wdb/wdb/eso/{0}/form'.format(instrument.lower())
         return self._query(url, column_filters=column_filters, columns=columns,
                            open_form=open_form, help=help, cache=cache, **kwargs)
 
