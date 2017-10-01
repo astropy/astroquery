@@ -12,6 +12,7 @@ APY_LT12 = not minversion('astropy', '1.2')
 LOCAL_TABLE_PATH = os.path.join(os.path.abspath(os.path.dirname(__file__)),
                                 'data', 'nasa_exoplanet_archive.csv')
 
+
 @remote_data
 def test_exoplanet_archive_table():
     table = NasaExoplanetArchive.get_confirmed_planets_table()

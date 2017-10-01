@@ -106,4 +106,5 @@ class ExoplanetOrbitDatabaseClass(object):
         exoplanet_table = self.get_table(table_path=table_path)
         return exoplanet_table.loc[planet_name.strip().lower().replace(' ', '')]
 
+
 ExoplanetOrbitDatabase = ExoplanetOrbitDatabaseClass()
