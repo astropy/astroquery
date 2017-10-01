@@ -38,7 +38,8 @@ class NasaExoplanetArchiveClass(object):
 
         return self._param_units
 
-    def get_confirmed_planets_table(self, cache=True, show_progress=True):
+    def get_confirmed_planets_table(self, cache=True, show_progress=True,
+                                    table_path=None):
         """
         Download (and optionally cache) the `NExScI Exoplanet Archive Confirmed
         Planets table <http://exoplanetarchive.ipac.caltech.edu/index.html>`_.
@@ -54,14 +55,19 @@ class NasaExoplanetArchiveClass(object):
         show_progress : bool (optional)
             Show progress of exoplanet table download (if no cached copy is
             available). Default is `True`.
+        table_path : str (optional)
+            Path to a local table file. Default `None` will trigger a
+            download of the table from the internet.
         Returns
         -------
         table : `~astropy.table.QTable`
             Table of exoplanet properties.
         """
         if self._table is None:
-            table_path = download_file(EXOPLANETS_CSV_URL, cache=cache,
-                                       show_progress=show_progress, timeout=120)
+            if table_path is None:
+                table_path = download_file(EXOPLANETS_CSV_URL, cache=cache,
+                                           show_progress=show_progress,
+                                           timeout=120)
             exoplanets_table = ascii.read(table_path)
 
             # Store column of lowercase names for indexing:
@@ -87,7 +93,7 @@ class NasaExoplanetArchiveClass(object):
 
         return self._table
 
-    def query_planet(self, planet_name):
+    def query_planet(self, planet_name, table_path=None):
         """
         Get table of exoplanet properties.
 
@@ -95,14 +101,16 @@ class NasaExoplanetArchiveClass(object):
         ----------
         planet_name : str
             Name of planet
-
+        table_path : str (optional)
+            Path to a local table file. Default `None` will trigger a
+            download of the table from the internet.
         Return
         ------
         table : `~astropy.table.QTable`
             Table of one exoplanet's properties.
         """
 
-        exoplanet_table = self.get_confirmed_planets_table()
+        exoplanet_table = self.get_confirmed_planets_table(table_path=table_path)
         return exoplanet_table.loc[planet_name.strip().lower().replace(' ', '')]
 
 NasaExoplanetArchive = NasaExoplanetArchiveClass()

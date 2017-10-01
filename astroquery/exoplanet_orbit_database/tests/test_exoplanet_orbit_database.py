@@ -10,7 +10,7 @@ from ...exoplanet_orbit_database import ExoplanetOrbitDatabase
 
 APY_LT12 = not minversion('astropy', '1.2')
 LOCAL_TABLE_PATH = os.path.join(os.path.abspath(os.path.dirname(__file__)),
-                                'data', 'exoplanets_csv_examples.csv')
+                                'data', 'exoplanet_orbit_database.csv')
 
 @remote_data
 def test_exoplanet_orbit_database_table():

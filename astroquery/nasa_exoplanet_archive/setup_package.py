@@ -6,6 +6,7 @@ import os
 
 def get_package_data():
 
-    paths_core = [os.path.join('data', '*.json')]
+    paths_core = [os.path.join('data', '*.json'),
+                  os.path.join('tests', 'data', '*.csv')]
 
     return {'astroquery.nasa_exoplanet_archive': paths_core}
