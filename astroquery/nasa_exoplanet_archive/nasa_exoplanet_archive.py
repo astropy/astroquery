@@ -65,7 +65,7 @@ class NasaExoplanetArchiveClass(object):
             exoplanets_table = ascii.read(table_path)
 
             # Store column of lowercase names for indexing:
-            lowercase_names = [''.join([host_name.lower().replace(' ', ''), letter])
+            lowercase_names = [host_name.lower().replace(' ', '') + letter
                                for host_name, letter in
                                zip(exoplanets_table['pl_hostname'].data,
                                    exoplanets_table['pl_letter'].data)]
