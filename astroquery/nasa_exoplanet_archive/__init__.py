@@ -18,4 +18,5 @@ class Conf(_config.ConfigNamespace):
     """
     pass
 
+
 __all__ = ['NasaExoplanetArchive', 'NasaExoplanetArchiveClass', 'Conf']
