@@ -21,7 +21,7 @@ BOOL_ATTRS = ('ASTROMETRY', 'BINARY', 'EOD', 'KDE', 'MICROLENSING', 'MULT',
 class ExoplanetOrbitDatabaseClass(object):
     """
     Exoplanet Orbit Database querying object. Use the ``get_table`` or
-    ``get_planet`` methods to get information about exoplanets via the
+    ``query_planet`` methods to get information about exoplanets via the
     Exoplanet Orbit Database.
     """
     def __init__(self):

@@ -21,7 +21,7 @@ BOOL_ATTRS = ('pl_kepflag', 'pl_ttvflag', 'pl_k2flag', 'st_massblend',
 class NasaExoplanetArchiveClass(object):
     """
     Exoplanet Archive querying object. Use the ``get_confirmed_planets_table``
-    or ``get_planet`` methods to get information about exoplanets via the NASA
+    or ``query_planet`` methods to get information about exoplanets via the NASA
     Exoplanet Archive.
     """
     def __init__(self):

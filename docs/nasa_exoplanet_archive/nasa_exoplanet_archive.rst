@@ -57,3 +57,8 @@ There is also a special column of sky coordinates for each target, named
         <SkyCoord (ICRS): (ra, dec) in deg
             ( 297.709351,  48.080856)>
 
+Reference/API
+=============
+
+.. automodapi:: astroquery.nasa_exoplanet_archive
+    :no-inheritance-diagram:

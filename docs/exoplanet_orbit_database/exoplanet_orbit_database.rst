@@ -55,3 +55,9 @@ is also a special column of sky coordinates for each target, named ``sky_coord``
         >>> hatp11b['sky_coord'] # Position of host star
         <SkyCoord (ICRS): (ra, dec) in deg
             ( 297.70891666,  48.08029444)>
+
+Reference/API
+=============
+
+.. automodapi:: astroquery.exoplanet_orbit_database
+    :no-inheritance-diagram:
