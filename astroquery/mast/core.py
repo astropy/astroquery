@@ -20,6 +20,7 @@ import numpy as np
 from requests import HTTPError
 from getpass import getpass
 from base64 import b64encode
+from http.cookiejar import Cookie
 
 import astropy.units as u
 import astropy.coordinates as coord
@@ -28,7 +29,7 @@ from astropy.table import Table, Row, vstack, MaskedColumn
 from astropy.extern.six.moves.urllib.parse import quote as urlencode
 from astropy.utils.exceptions import AstropyWarning
 
-from ..query import BaseQuery
+from ..query import QueryWithLogin
 from ..utils import commons, async_to_sync
 from ..utils.class_or_instance import class_or_instance
 from ..exceptions import TimeoutError, InvalidQueryError, NoResultsWarning, RemoteServiceError
@@ -42,10 +43,14 @@ __all__ = ['Observations', 'ObservationsClass',
 class ResolverError(Exception):
     pass
 
+class SessionTokenError(Exception):
+    pass
 
 class InputWarning(AstropyWarning):
     pass
 
+class AuthenticationWarning(AstropyWarning):
+    pass
 
 class MaxResultsWarning(AstropyWarning):
     pass
@@ -131,7 +136,7 @@ def _mashup_json_to_table(json_obj, col_config=None):
 
 
 @async_to_sync
-class MastClass(BaseQuery):
+class MastClass(QueryWithLogin):
     """
     MAST query class.
 
@@ -139,7 +144,7 @@ class MastClass(BaseQuery):
     more flexible but less user friendly than `ObservationsClass`.
     """
 
-    def __init__(self, username=None, password=None):
+    def __init__(self, username=None, password=None, session_token=None):
 
         super(MastClass, self).__init__()
 
@@ -148,24 +153,82 @@ class MastClass(BaseQuery):
         self._COLUMNS_CONFIG_URL = conf.server + "/portal/Mashup/Mashup.asmx/columnsconfig"
 
         # shibbolith urls
-        self._SP_TARGET = "https://mast.stsci.edu/portal/Mashup/Login/login.html" 
-        self._IDP_ENDPOINT = "https://ssoportal.stsci.edu/idp/profile/SAML2/SOAP/ECP"
-        self._SESSION_INFO_URL = "https://mast.stsci.edu/Shibboleth.sso/Session" 
+        self._SP_TARGET = conf.server + "/api/v0/Mashup/Login/login.html" 
+        self._IDP_ENDPOINT = conf.ssoserver + "/idp/profile/SAML2/SOAP/ECP"
+        self._SESSION_INFO_URL = conf.server + "/Shibboleth.sso/Session" 
 
         self.TIMEOUT = conf.timeout
         self.PAGESIZE = conf.pagesize
 
         self._column_configs = {}
         self._current_service = None
+        
+        if username or session_token:
+            self.login(username, password, session_token)
 
-        if username:
-            self.login(username,password)
 
+    def _attach_cookie(self, session_token):
+
+        # clear any previous shib cookies TODO: is this overkill?
+        self._session.cookies.clear_session_cookies() 
+        
+        if isinstance(session_token, Cookie):
+            # check it's a shibsession cookie
+            if not "shibsession" in session_token.name:
+                raise SessionTokenError("Invalid session token")
+    
+            # add cookie to session
+            self._session.cookies.set_cookie(session_token)
             
-    def login(self, username, password=None):
+        elif isinstance(session_token, dict):
+            if len(session_token) > 1:
+                warnings.warn("Too many entries in token dictionary, only shibsession cookie will be used", InputWarning)
 
-        if not password:
-            password = getpass("Enter password for {}: ".format(username))
+            # get the shibsession cookie
+            value = None
+            for name in session_token.keys():
+                if "shibsession" in name:
+                    value = session_token[name]
+                    break
+                
+            if not value:
+                raise SessionTokenError("Invalid session token")
+            
+            # add cookie to session
+            self._session.cookies.set(name,value)
+            
+        else:
+            # raise datatype error
+            raise SessionTokenError("Session token must be given as a dictionary or http.cookiejar.Cookie object")
+
+        # Print session info
+        # get user information
+        response = self._session.request("GET", self._SESSION_INFO_URL)
+
+        if response.status_code != 200:
+            print("Status code:",response.status_code)
+            print("Authentication failed!")
+            return
+
+        exp = re.findall(r'<strong>Session Expiration \(barring inactivity\):</strong> (.*?)\n',response.text)
+        if len(exp) == 0:
+            print(response.text)
+            print("Authentication failed!")
+            return
+        else:
+            exp = exp[0]
+            
+        print("Authentication successful!")
+        print("Session Expiration: {}".format(exp))
+                
+             
+    def _shib_login(self, username, password):
+        """
+        TODO: document
+        """
+
+        # clear any previous shib cookies TODO: is this overkill?
+        self._session.cookies.clear_session_cookies()
             
         authenticationString = b64encode((('{}:{}'.format(username, password)).replace('\n', '')).encode('utf-8'))
         del password # do not let password hang around
@@ -179,12 +242,13 @@ class MastClass(BaseQuery):
 
         # The idp request is the sp response sanse header
         sp_response = resp.text
-        idp_request = re.sub('<S:Header>.*?</S:Header>','',sp_response)
+        idp_request = re.sub(r'<S:Header>.*?</S:Header>','',sp_response)
 
         # Removing unneeded headers
         del self._session.headers['PAOS']
         del self._session.headers['Accept']
-        
+
+        # Getting the idp response
         self._session.headers['Content-Type'] = 'text/xml; charset=utf-8'
         self._session.headers['Authorization'] = 'Basic {}'.format(authenticationString.decode('utf-8'))
         responseIdp = self._session.request("POST", self._IDP_ENDPOINT, data=idp_request)
@@ -195,16 +259,16 @@ class MastClass(BaseQuery):
         del authenticationString
 
         # collecting the information we need
-        relay_state = re.findall('<ecp:RelayState.*ecp:RelayState>',sp_response)[0]
-        response_consumer_url = re.findall('<paos:Request.*?responseConsumerURL="(.*?)".*?/>',sp_response)[0]
-        assertion_consumer_service = re.findall('<ecp:Response.*?AssertionConsumerServiceURL="(.*?)".*?/>',idp_response)[0]
+        relay_state = re.findall(r'<ecp:RelayState.*ecp:RelayState>',sp_response)[0]
+        response_consumer_url = re.findall(r'<paos:Request.*?responseConsumerURL="(.*?)".*?/>',sp_response)[0]
+        assertion_consumer_service = re.findall(r'<ecp:Response.*?AssertionConsumerServiceURL="(.*?)".*?/>',idp_response)[0]
 
         # the response_consumer_url and assertion_consumer_service should be the same
         assert response_consumer_url == assertion_consumer_service # TODO: do I need to check this some other way?
 
         # adding the relay_state to the sp_packacge and removing the xml header
-        relay_state = re.sub('S:','soap11:',relay_state) # is this exactly how I want to do this?
-        sp_package = re.sub('<\?xml version="1.0" encoding="UTF-8"\?>\n(.*?)<ecp:Response.*?/>','\g<1>'+relay_state, idp_response)
+        relay_state = re.sub(r'S:','soap11:',relay_state) # is this exactly how I want to do this?
+        sp_package = re.sub(r'<\?xml version="1.0" encoding="UTF-8"\?>\n(.*?)<ecp:Response.*?/>',r'\g<1>'+relay_state, idp_response)
 
         # Sending the last post (that should result in the shibbolith session cookie being set)
         self._session.headers['Content-Type'] = 'application/vnd.paos+xml'
@@ -217,6 +281,15 @@ class MastClass(BaseQuery):
         self._session.headers['Connection'] = 'keep-alive'
 
         # check that the cookie was set
+        # (the name of the shib session cookie is not fixed so we have to search for it)
+        cookieFound = False
+        for cookie in self._session.cookies:
+            if "shibsession" in cookie.name:
+                cookieFound = True
+                break
+        if not cookieFound:
+            warnings.warn("Authentication failed!",AuthenticationWarning)
+            return
 
         # get user information
         response = self._session.request("GET", self._SESSION_INFO_URL)
@@ -225,15 +298,15 @@ class MastClass(BaseQuery):
             print("Authentication failed!")
             return
 
-        exp = re.findall('<strong>Session Expiration \(barring inactivity\):</strong> (.*?)\n',response.text)
+        exp = re.findall(r'<strong>Session Expiration \(barring inactivity\):</strong> (.*?)\n',response.text)
         if len(exp) == 0:
-            exp = 'unknown'
+            print("Authentication failed!")
+            return
         else:
             exp = exp[0]
             
         print("Authentication successful!")
         print("Session Expiration: {}".format(exp))
-        
         
 
     def _request(self, method, url, params=None, data=None, headers=None,
@@ -321,7 +394,7 @@ class MastClass(BaseQuery):
                    "Content-type": "application/x-www-form-urlencoded",
                    "Accept": "text/plain"}
 
-        response = Mast._request("POST", self._COLUMNS_CONFIG_URL,
+        response = self._request("POST", self._COLUMNS_CONFIG_URL,
                                  data=("colConfigId="+service), headers=headers)
 
         self._column_configs[service] = response[0].json()
@@ -361,7 +434,88 @@ class MastClass(BaseQuery):
 
         return vstack(resultList)
 
-    
+
+    def _login(self, username=None, password=None, session_token=None,
+               store_password=False, reenter_password=False):
+        """
+        TODO: document
+        """
+
+        # checking the inputs
+        if username and session_token:
+            warnings.warn("Both username and session token supplied, session token will be ignored.",
+                          InputWarning)
+            session_token = None
+        elif session_token and store_password:
+            warnings.warn("Password is not used for token based login, therefor password cannot be stored.",
+                          InputWarning)
+
+        if session_token:
+            self._attach_cookie(session_token)
+        else:
+            # get username if not supplied
+            if not username:
+                username = input("Enter your username: ")
+
+            # check keyring get password if not supplied    
+            if not password and not reenter_password:
+                password = keyring.get_password("astroquery:mast.stsci.edu", username)
+
+            # get password if no password is found (or reenter_password is set)
+            if not password:
+                password = getpass("Enter password for {}: ".format(username))
+
+            # store password if desired
+            if store_password:
+                keyring.set_password("astroquery:mast.stsci.edu", username, password)
+            
+            self._shib_login(username, password)
+
+            
+    def logout(self):
+        self._session.cookies.clear_session_cookies()
+
+
+    def get_token(self):
+
+        shibCookie = None
+        for cookie in self._session.cookies:
+            if "shibsession" in cookie.name:
+                shibCookie = cookie
+                break
+
+        if not shibCookie:
+            warnings.warn("No session token found.", AuthenticationWarning)
+
+        return shibCookie
+
+
+    def session_info(self, silent=False):
+
+        # get user information
+        response = self._session.request("GET", self._SESSION_INFO_URL)
+
+        sessionInfo = response.text
+
+        patternString = r'Session Expiration \(barring inactivity\):</strong> (.*?)\n.*?STScI_Email</strong>: (.*?)\n<strong>STScI_FirstName</strong>: (.*?)\n<strong>STScI_LastName</strong>: (.*?)\n'
+
+        userCats = ("Session Expiration", "Username", "First Name","Last Name")
+        userInfo = re.findall(patternString,sessionInfo,re.DOTALL)
+        
+        if len(userInfo) == 0:
+            infoDict = dict(zip(userCats,(None,"anonymous","","")))
+        else:
+            infoDict = dict(zip(userCats,userInfo[0]))
+            infoDict['Session Expiration'] = int(re.findall("(\d+) minute\(s\)",
+                                                            infoDict['Session Expiration'])[0])*u.min
+
+        if not silent:
+            for key in infoDict:
+                print(key+":",infoDict[key])
+
+        return infoDict
+
+        
     @class_or_instance
     def service_request_async(self, service, params, pagesize=None, page=None, **kwargs):
         """
@@ -462,7 +616,7 @@ class ObservationsClass(MastClass):
 
     Class for querying MAST observational data.
     """
-
+    
     def list_missions(self):
         """
         Lists data missions archived by MAST and avaiable through `astroquery.mast`.
@@ -693,6 +847,9 @@ class ObservationsClass(MastClass):
         objectname = criteria.pop('objectname', None)
         radius = criteria.pop('radius', 0.2*u.deg)
 
+        # grabbing the observation type (science vs calibration)
+        obstype = criteria.pop('obstype','science')
+
         # Build the mashup filter object
         mashupFilters = self._build_filter_set(**criteria)
 
@@ -723,13 +880,15 @@ class ObservationsClass(MastClass):
         # send query
         if position:
             service = "Mast.Caom.Filtered.Position"
-            params = {"columns": "*",
-                      "filters": mashupFilters,
+            params = {"columns" : "*",
+                      "filters" : mashupFilters,
+                      "obstype" : obstype, 
                       "position": position}
         else:
             service = "Mast.Caom.Filtered"
             params = {"columns": "*",
-                      "filters": mashupFilters}
+                      "filters": mashupFilters,
+                      "obstype": obstype}
 
         return self.service_request_async(service, params)
 
@@ -838,6 +997,9 @@ class ObservationsClass(MastClass):
         objectname = criteria.pop('objectname', None)
         radius = criteria.pop('radius', 0.2*u.deg)
 
+        # grabbing the observation type (science vs calibration)
+        obstype = criteria.pop('obstype','science')
+
         # Build the mashup filter object
         mashupFilters = self._build_filter_set(**criteria)
 
@@ -867,11 +1029,13 @@ class ObservationsClass(MastClass):
             service = "Mast.Caom.Filtered.Position"
             params = {"columns": "COUNT_BIG(*)",
                       "filters": mashupFilters,
+                      "obstype": obstype,
                       "position": position}
         else:
             service = "Mast.Caom.Filtered"
             params = {"columns": "COUNT_BIG(*)",
-                      "filters": mashupFilters}
+                      "filters": mashupFilters,
+                      "obstype": obstype}
 
         return self.service_request(service, params)[0][0].astype(int)
 
@@ -988,7 +1152,7 @@ class ObservationsClass(MastClass):
         bundlerResponse = response[0].json()
 
         localPath = out_dir.rstrip('/') + "/" + downloadFile + ".sh"
-        Mast._download_file(bundlerResponse['url'], localPath)
+        self._download_file(bundlerResponse['url'], localPath)
 
         status = "COMPLETE"
         msg = None
@@ -1028,6 +1192,7 @@ class ObservationsClass(MastClass):
         -------
         response : `~astropy.table.Table`
         """
+        
         manifestArray = []
         for dataProduct in products:
 
@@ -1036,6 +1201,12 @@ class ObservationsClass(MastClass):
             dataUrl = dataProduct['dataURI']
             if "http" not in dataUrl:  # url is actually a uri
                 dataUrl = self._MAST_DOWNLOAD_URL + dataUrl.lstrip("mast:")
+
+                # HACK: user identity info not passed properly to downloader
+                # using /api/v0 url, so if user is logged in go through
+                # portal url (showd be fixed server side, this is a workaround)
+                if self.session_info(True)["Username"] != "anonymous": 
+                    dataUrl = dataUrl.replace("api/v0","portal")
 
             if not os.path.exists(localPath):
                 os.makedirs(localPath)
@@ -1047,7 +1218,7 @@ class ObservationsClass(MastClass):
             url = None
 
             try:
-                Mast._download_file(dataUrl, localPath, cache=cache)
+                self._download_file(dataUrl, localPath, cache=cache)
 
                 # check file size also this is where would perform md5
                 if not os.path.isfile(localPath):
@@ -1107,7 +1278,7 @@ class ObservationsClass(MastClass):
             The manifest of files downloaded, or status of files on disk if curl option chosen.
         """
 
-        # If the products list is not already a table of producs we need to  get the products and
+        # If the products list is not already a table of products we need to  get the products and
         # filter them appropriately
         if type(products) != Table:
 
@@ -1140,6 +1311,7 @@ class ObservationsClass(MastClass):
             manifest = self._download_files(products, base_dir, cache)
 
         return manifest
+
 
 Observations = ObservationsClass()
 Mast = MastClass()
