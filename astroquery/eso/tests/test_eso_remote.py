@@ -13,7 +13,7 @@ instrument_list = [u'fors1', u'fors2', u'sphere', u'vimos', u'omegacam',
                    u'hawki', u'isaac', u'naco', u'visir', u'vircam', u'apex',
                    u'giraffe', u'uves', u'xshooter', u'muse', u'crires',
                    u'kmos', u'sinfoni', u'amber', u'midi', u'pionier',
-                   u'harps', u'gravity', u'feros']
+                   u'gravity']
 
 
 @remote_data
@@ -98,18 +98,12 @@ class TestEso:
     def test_SgrAstar_remotevslocal(self, temp_dir):
         eso = Eso()
         # Remote version
-        instruments = eso.list_instruments(cache=False)
-        # result1 = eso.query_instrument(instruments[0], target='Sgr A*')
-        result1 = eso.query_instrument(instruments[0], coord1=266.41681662,
+        result1 = eso.query_instrument('gravity', coord1=266.41681662,
                                        coord2=-29.00782497, cache=False)
-
         # Local version
         eso.cache_location = temp_dir
-        instruments = eso.list_instruments(cache=False)
-        # result2 = eso.query_instrument(instruments[0], target='Sgr A*')
-        result2 = eso.query_instrument(instruments[0], coord1=266.41681662,
-                                       coord2=-29.00782497, cache=False)
-
+        result2 = eso.query_instrument('gravity', coord1=266.41681662,
+                                       coord2=-29.00782497, cache=True)
         assert all(result1 == result2)
 
     def test_list_instruments(self):

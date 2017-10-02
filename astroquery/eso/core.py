@@ -3,6 +3,7 @@ from __future__ import print_function
 import time
 import sys
 import os.path
+import shutil
 import webbrowser
 import getpass
 import warnings
@@ -262,7 +263,7 @@ class EsoClass(QueryWithLogin):
         return authenticated
 
     def list_instruments(self, cache=True):
-        """ List all the available instruments in the ESO archive.
+        """ List all the available instrument-specific queries offered by the ESO archive.
 
         Returns
         -------
@@ -282,8 +283,6 @@ class EsoClass(QueryWithLogin):
                     instrument = href.split("/")[-2]
                     if instrument not in self._instrument_list:
                         self._instrument_list.append(instrument)
-            self._instrument_list.append(u'harps')
-            self._instrument_list.append(u'feros')
         return self._instrument_list
 
     def list_surveys(self, cache=True):
@@ -375,10 +374,44 @@ class EsoClass(QueryWithLogin):
             else:
                 warnings.warn("Query returned no results", NoResultsWarning)
 
+    def query_main(self, column_filters={}, columns=[],
+                   open_form=False, help=False, cache=True, **kwargs):
+        """
+        Query raw data contained in the ESO archive.
+
+        Parameters
+        ----------
+        column_filters : dict
+            Constraints applied to the query.
+        columns : list of strings
+            Columns returned by the query.
+        open_form : bool
+            If `True`, opens in your default browser the query form
+            for the requested instrument.
+        help : bool
+            If `True`, prints all the parameters accepted in
+            ``column_filters`` and ``columns`` for the requested
+            ``instrument``.
+        cache : bool
+            Cache the response for faster subsequent retrieval.
+
+        Returns
+        -------
+        table : `~astropy.table.Table`
+            A table representing the data available in the archive for the
+            specified instrument, matching the constraints specified in
+            ``kwargs``. The number of rows returned is capped by the
+            ROW_LIMIT configuration item.
+
+        """
+        url = "http://archive.eso.org/wdb/wdb/eso/eso_archive_main/form"
+        return self._query(url, column_filters=column_filters, columns=columns,
+                           open_form=open_form, help=help, cache=cache, **kwargs)
+
     def query_instrument(self, instrument, column_filters={}, columns=[],
                          open_form=False, help=False, cache=True, **kwargs):
         """
-        Query instrument specific raw data contained in the ESO archive.
+        Query instrument-specific raw data contained in the ESO archive.
 
         Parameters
         ----------
@@ -409,12 +442,18 @@ class EsoClass(QueryWithLogin):
 
         """
 
-        url = 'http://archive.eso.org/wdb/wdb/eso/eso_archive_main/form'
+        url = 'http://archive.eso.org/wdb/wdb/eso/{0}/form'.format(instrument)
+        return self._query(url, column_filters=column_filters, columns=columns,
+                           open_form=open_form, help=help, cache=cache, **kwargs)
+
+    def _query(self, url, column_filters={}, columns=[],
+               open_form=False, help=False, cache=True, **kwargs):
+
         table = None
         if open_form:
             webbrowser.open(url)
         elif help:
-            self._print_instrument_help(url, instrument)
+            self._print_query_help(url)
         else:
             instrument_form = self._request("GET", url, cache=cache)
             query_dict = {}
@@ -426,8 +465,6 @@ class EsoClass(QueryWithLogin):
             # Default to returning the DP.ID since it is needed for header
             # acquisition
             query_dict['tab_dp_id'] = kwargs.pop('tab_dp_id', 'on')
-
-            query_dict['instrument'] = instrument.upper()
 
             for k in columns:
                 query_dict["tab_" + k] = True
@@ -533,7 +570,7 @@ class EsoClass(QueryWithLogin):
         warnings.warn("data_retrieval has been replaced with retrieve_data",
                       DeprecationWarning)
 
-    def retrieve_data(self, datasets, cache=True, continuation=False):
+    def retrieve_data(self, datasets, continuation=False, destination=None):
         """
         Retrieve a list of datasets form the ESO archive.
 
@@ -541,9 +578,10 @@ class EsoClass(QueryWithLogin):
         ----------
         datasets : list of strings or string
             List of datasets strings to retrieve from the archive.
-        cache : bool
-            Cache the retrieval forms (not the data - they are downloaded
-            independent of this keyword)
+        destination: string
+            Directory where the files are copied.
+            Files already found in the destination directory are skipped.
+            Default to astropy cache.
 
         Returns
         -------
@@ -575,7 +613,10 @@ class EsoClass(QueryWithLogin):
             else:
                 local_filename = dataset + ".fits"
 
-            if self.cache_location is not None:
+            if destination is not None:
+                local_filename = os.path.join(destination,
+                                              local_filename)
+            elif self.cache_location is not None:
                 local_filename = os.path.join(self.cache_location,
                                               local_filename)
             if os.path.exists(local_filename):
@@ -612,13 +653,14 @@ class EsoClass(QueryWithLogin):
             if not self.authenticated():
                 self.login()
             url = "http://archive.eso.org/cms/eso-data/eso-data-direct-retrieval.html"
-            data_retrieval_form = self._request("GET", url, cache=cache)
-            data_retrieval_form.raise_for_status()
-            log.info("Staging request...")
             with suspend_cache(self):  # Never cache staging operations
+                data_retrieval_form = self._request("GET", url, cache=False)
+                data_retrieval_form.raise_for_status()
+                log.info("Staging request...")
                 inputs = {"list_of_datasets": "\n".join(datasets_to_download)}
                 data_confirmation_form = self._activate_form(
-                    data_retrieval_form, form_index=-1, inputs=inputs)
+                    data_retrieval_form, form_index=-1, inputs=inputs,
+                    cache=False)
 
                 data_confirmation_form.raise_for_status()
 
@@ -633,7 +675,8 @@ class EsoClass(QueryWithLogin):
                 # should be included too
                 # form name is "retrieve"; no id
                 data_download_form = self._activate_form(
-                    data_confirmation_form, form_index=-1)
+                    data_confirmation_form, form_index=-1,
+                    cache=False)
                 log.info("Staging form is at {0}."
                          .format(data_download_form.url))
                 root = BeautifulSoup(data_download_form.content, 'html5lib')
@@ -660,7 +703,11 @@ class EsoClass(QueryWithLogin):
                             fileId.attrs['value'].split()[1])
                 filename = self._request("GET", fileLink, save=True,
                                          continuation=True)
-                files.append(system_tools.gunzip(filename))
+                filename = system_tools.gunzip(filename)
+                if destination is not None:
+                    log.info("Copying file to {0}...".format(destination))
+                    shutil.move(filename, os.path.join(destination, os.path.split(filename)[1]))
+
         # Empty the redirect cache of this request session
         # Only available and needed for requests versions < 2.17
         try:
@@ -732,12 +779,11 @@ class EsoClass(QueryWithLogin):
 
             return table
 
-    def _print_instrument_help(self, url, instrument, cache=True):
+    def _print_query_help(self, url, cache=True):
         """
         Download a form and print it in a quasi-human-readable way
         """
-        log.info("List of the column_filters parameters accepted by the "
-                 "{0} instrument query.".format(instrument))
+        log.info("List of accepted column_filters parameters.")
         log.info("The presence of a column in the result table can be "
                  "controlled if prefixed with a [ ] checkbox.")
         log.info("The default columns in the result table are shown as "
@@ -748,6 +794,12 @@ class EsoClass(QueryWithLogin):
         resp = self._request("GET", url, cache=cache)
         doc = BeautifulSoup(resp.content, 'html5lib')
         form = doc.select("html body form pre")[0]
+        # Unwrap all paragraphs
+        paragraph = form.find('p')
+        while paragraph:
+            paragraph.unwrap()
+            paragraph = form.find('p')
+        # For all sections
         for section in form.select("table"):
             section_title = "".join(section.stripped_strings)
             section_title = "\n".join(["", section_title,

@@ -66,7 +66,7 @@ Automatic password
 
 As shown above, your password can be stored by the `keyring
 <https://pypi.python.org/pypi/keyring>`_ module, if you
-pass the argument ``store_password=False`` to ``Eso.login()``.
+pass the argument ``store_password=True`` to ``Eso.login()``.
 For security reason, storing the password is turned off by default.
 
 MAKE SURE YOU TRUST THE MACHINE WHERE YOU USE THIS FUNCTIONALITY!!!
@@ -96,25 +96,25 @@ NB: If an automatic login is configured, other Eso methods can log you in
 automatically when needed.
 
 
-Query and direct retrieval of instrument specific raw data
-==========================================================
+Query the ESO archive
+=====================
 
-Identifying available instruments
----------------------------------
+Identifying available instrument-specific queries
+-------------------------------------------------
 
 The direct retrieval of datasets is better explained with a running example, continuing from the
 authentication example above. The first thing to do is to identify the instrument to query. The
-list of available instruments can be queried with the :meth:`~astroquery.eso.EsoClass.list_instruments`
-method.
+list of available instrument-specific queries can be obtiained with the
+:meth:`~astroquery.eso.EsoClass.list_instruments` method.
 
 .. code-block:: python
 
     >>> eso.list_instruments()
     ['fors1', 'fors2', 'vimos', 'omegacam', 'hawki', 'isaac', 'naco', 'visir', 'vircam',
     'apex', 'uves', 'giraffe', 'xshooter', 'muse, 'crires', 'kmos', 'sinfoni',
-    'amber', 'gravity', 'midi', 'pionier', 'harps']
+    'amber', 'gravity', 'midi', 'pionier']
 
-In the example above, 23 instruments are available, they correspond to the instrument listed on
+In the example above, 22 instruments are available, they correspond to the instruments listed on
 the following web page: http://archive.eso.org/cms/eso-data/instrument-specific-query-forms.html.
 
 Inspecting available query options
@@ -212,32 +212,25 @@ return the observation date column.
 
 And indeed, 38 datasets are found, and the ``DATE OBS`` column is in the result table.
 
-Downloading identified datasets
--------------------------------
+Querying all instruments
+------------------------
 
-Continuing from the previous example, the first two datasets are selected,
-using their data product IDs ``DP.ID``, and retrieved from the ESO archive.
+The ESO database can also be queried without a specific instrument in mind.
+This is what the method :meth:`~astroquery.eso.EsoClass.query_main` is for.
+The associated query form on the ESO archive website is http://archive.eso.org/wdb/wdb/eso/eso_archive_main/form.
+Except for the keyword specifying the instrument the behaviour of :meth:`~astroquery.eso.EsoClass.query_main`
+is identical to :meth:`~astroquery.eso.EsoClass.query_instrument`.
 
-.. code-block:: python
-
-    >>> data_files = eso.retrieve_data(table['DP.ID'][:2])
-    Staging request...
-    Downloading files...
-    Downloading MIDI.2007-02-07T07:01:51.000.fits.Z...
-    Downloading MIDI.2007-02-07T07:02:49.000.fits.Z...
-    Done!
-
-The file names, returned in data_files, points to the decompressed datasets
-(without the .Z extension) that have been locally downloaded.
-
-They are ready to be used with `~astropy.io.fits`.
+ESO instruments without a specific query interface can be queried with
+:meth:`~astroquery.eso.EsoClass.query_main`, specifying the ``instrument`` constraint.
+This is the case of e.g. ``harps`` or ``feros``.
 
 
 Obtaining extended information on data products
 ===============================================
 
 Only a small subset of the keywords presents in the data products can be obtained
-with :meth:`~astroquery.eso.EsoClass.query_instrument`.
+with :meth:`~astroquery.eso.EsoClass.query_instrument` or :meth:`~astroquery.eso.EsoClass.query_main`.
 There is however a way to get the full primary header of the FITS data products,
 using :meth:`~astroquery.eso.EsoClass.get_headers`.
 This method is detailed in the example below, continuing with the previously obtained table.
@@ -277,6 +270,33 @@ This method is detailed in the example below, continuing with the previously obt
 
 As shown above, for each data product ID (``DP.ID``), the full header (570 columns in our case) of the archive
 FITS file is collected. In the above table ``table_headers``, there are as many rows as in the column ``table['DP.ID']``.
+
+
+Downloading datasets from the archive
+=====================================
+
+Continuing from the query with constraints example, the first two datasets are selected,
+using their data product IDs ``DP.ID``, and retrieved from the ESO archive.
+
+.. code-block:: python
+
+    >>> data_files = eso.retrieve_data(table['DP.ID'][:2])
+    Staging request...
+    Downloading files...
+    Downloading MIDI.2007-02-07T07:01:51.000.fits.Z...
+    Downloading MIDI.2007-02-07T07:02:49.000.fits.Z...
+    Done!
+
+The file names, returned in data_files, points to the decompressed datasets
+(without the .Z extension) that have been locally downloaded.
+They are ready to be used with `~astropy.io.fits`.
+
+The default location (in the astropy cache) of the decompressed datasets can be adjusted by providing
+a ``location`` keyword in the call to :meth:`~astroquery.eso.EsoClass.retrieve_data`.
+
+In all cases, if a requested dataset is already found,
+it is not downloaded again from the archive.
+
 
 Reference/API
 =============
