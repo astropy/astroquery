@@ -442,7 +442,7 @@ class EsoClass(QueryWithLogin):
 
         """
 
-        url = 'http://archive.eso.org/wdb/wdb/eso/{0}/form'.format(instrument)
+        url = 'http://archive.eso.org/wdb/wdb/eso/{0}/form'.format(instrument.lower())
         return self._query(url, column_filters=column_filters, columns=columns,
                            open_form=open_form, help=help, cache=cache, **kwargs)
 
@@ -773,7 +773,7 @@ class EsoClass(QueryWithLogin):
                 content = content.split(b'\n', 1)[1]
                 table = Table.read(BytesIO(content), format="ascii.csv",
                                    guess=False,  # header_start=1,
-                                   comment="#")
+                                   comment="#", encoding='utf-8')
             else:
                 raise RemoteServiceError("Query returned no results")
 
