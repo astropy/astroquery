@@ -83,7 +83,8 @@ def _mashup_json_to_table(json_obj, col_config=None):
     ----------
     json_obj : dict
         A Mashup response JSON object (python dictionary)
-    TODO: finish documenting
+    col_config : dict, optional
+        Dictionary that defines column properties, e.g. default value.
 
     Returns
     -------
@@ -168,8 +169,16 @@ class MastClass(QueryWithLogin):
 
 
     def _attach_cookie(self, session_token):
+        """
+        Attaches a valid shibboleth session cookie to the current session.
 
-        # clear any previous shib cookies TODO: is this overkill?
+        Parameters
+        ----------
+        session_token : dict or  `http.cookiejar.Cookie`
+            A valid MAST shibboleth session cookie.
+        """
+
+        # clear any previous shib cookies 
         self._session.cookies.clear_session_cookies() 
         
         if isinstance(session_token, Cookie):
@@ -224,10 +233,17 @@ class MastClass(QueryWithLogin):
              
     def _shib_login(self, username, password):
         """
-        TODO: document
+        Given username and password, logs into the MAST shibboleth client.
+
+        Parameters
+        ----------
+        username : string
+            The user's username, will usually be the users email address.
+        password : string
+            Password associated with the given username.
         """
 
-        # clear any previous shib cookies TODO: is this overkill?
+        # clear any previous shib cookies 
         self._session.cookies.clear_session_cookies()
             
         authenticationString = b64encode((('{}:{}'.format(username, password)).replace('\n', '')).encode('utf-8'))
@@ -264,7 +280,7 @@ class MastClass(QueryWithLogin):
         assertion_consumer_service = re.findall(r'<ecp:Response.*?AssertionConsumerServiceURL="(.*?)".*?/>',idp_response)[0]
 
         # the response_consumer_url and assertion_consumer_service should be the same
-        assert response_consumer_url == assertion_consumer_service # TODO: do I need to check this some other way?
+        assert response_consumer_url == assertion_consumer_service 
 
         # adding the relay_state to the sp_packacge and removing the xml header
         relay_state = re.sub(r'S:','soap11:',relay_state) # is this exactly how I want to do this?
@@ -388,6 +404,11 @@ class MastClass(QueryWithLogin):
     def _get_col_config(self,service):
         """
         Gets the columnsConfig entry for given service and stores it in self._column_configs.
+
+        Parameters
+        ----------
+        service : string
+            The service for which the columns config will be fetched.
         """
 
         headers = {"User-Agent": self._session.headers["User-Agent"],
@@ -412,6 +433,10 @@ class MastClass(QueryWithLogin):
             (presently does nothing - there is no output with verbose set to
             True or False)
             Default False.  Setting to True provides more extensive output.
+
+        Returns
+        -------
+        response : `astropy.table.Table`
         """
 
         # loading the columns config
@@ -438,11 +463,36 @@ class MastClass(QueryWithLogin):
     def _login(self, username=None, password=None, session_token=None,
                store_password=False, reenter_password=False):
         """
-        TODO: document
+        Log into the MAST portal.
+
+        Parameters
+        ----------
+        username : string, optional
+            Default is None.
+            The username for the user logging in.  
+            Usually this will be the user's email address.
+            If a username is necessary but not supplied it will be prompted for.
+        password : string, optional
+            Default is None.
+            The password associated with the given username.
+            For security passwords should not be typed into the terminal or jupyter
+            notebook, but input using a more secure method such as `~getpass.getpass`.
+            If a password is necessary but not supplied it will be prompted for.
+        session_token : dict or `~http.cookiejar.Cookie`, optional
+            A valid MAST session cookie that will be attached to the current session in lieu of 
+            logging in with a username/password.
+            If username and/or password is supplied, this argument will be ignored.
+        store_password : bool, optional
+            Default False.
+            If true, username and password will be stored securely in your keyring.
+        reenter_password : bool, optional
+            Default False.
+            Asks for the password even if it is already stored in the keyring. 
+            This is the way to overwrite an already stored password on the keyring.
         """
 
         # checking the inputs
-        if username and session_token:
+        if (username or password) and session_token:
             warnings.warn("Both username and session token supplied, session token will be ignored.",
                           InputWarning)
             session_token = None
@@ -473,10 +523,20 @@ class MastClass(QueryWithLogin):
 
             
     def logout(self):
+        """
+        Logs out of current MAST session.
+        """
         self._session.cookies.clear_session_cookies()
 
 
     def get_token(self):
+        """
+        Returns MAST session cookie.
+
+        Returns
+        -------
+        response : `~http.cookiejar.Cookie`
+        """
 
         shibCookie = None
         for cookie in self._session.cookies:
@@ -491,6 +551,19 @@ class MastClass(QueryWithLogin):
 
 
     def session_info(self, silent=False):
+        """
+        Displays information about current MAST session, and returns session info dictionary.
+
+        Parameters
+        ----------
+        silent : bool, optional
+            Default False.
+            Suppresses output to stdout.
+
+        Returns
+        -------
+        response : dict
+        """
 
         # get user information
         response = self._session.request("GET", self._SESSION_INFO_URL)
@@ -1205,8 +1278,8 @@ class ObservationsClass(MastClass):
                 # HACK: user identity info not passed properly to downloader
                 # using /api/v0 url, so if user is logged in go through
                 # portal url (showd be fixed server side, this is a workaround)
-                if self.session_info(True)["Username"] != "anonymous": 
-                    dataUrl = dataUrl.replace("api/v0","portal")
+                #if self.session_info(True)["Username"] != "anonymous": 
+                #    dataUrl = dataUrl.replace("api/v0","portal")
 
             if not os.path.exists(localPath):
                 os.makedirs(localPath)
