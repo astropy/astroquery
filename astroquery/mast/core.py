@@ -20,20 +20,20 @@ import numpy as np
 from requests import HTTPError
 from getpass import getpass
 from base64 import b64encode
-from http.cookiejar import Cookie
 
 import astropy.units as u
 import astropy.coordinates as coord
 
 from astropy.table import Table, Row, vstack, MaskedColumn
 from astropy.extern.six.moves.urllib.parse import quote as urlencode
+from astropy.extern.six.moves.http_cookiejar import Cookie
 from astropy.utils.exceptions import AstropyWarning
 
 from ..query import QueryWithLogin
 from ..utils import commons, async_to_sync
 from ..utils.class_or_instance import class_or_instance
-from ..exceptions import TimeoutError, InvalidQueryError, RemoteServiceError, LoginError
-from ..exceptions import NoResultsWarning
+from ..exceptions import (TimeoutError, InvalidQueryError, RemoteServiceError,
+                          LoginError, NoResultsWarning)
 from . import conf
 
 
@@ -43,6 +43,7 @@ __all__ = ['Observations', 'ObservationsClass',
 
 class ResolverError(Exception):
     pass
+
 
 class InputWarning(AstropyWarning):
     pass
@@ -148,7 +149,7 @@ class MastClass(QueryWithLogin):
     def __init__(self, username=None, password=None, session_token=None):
 
         super(MastClass, self).__init__()
-
+        
         self._MAST_REQUEST_URL = conf.server + "/api/v0/invoke"
         self._MAST_DOWNLOAD_URL = conf.server + "/api/v0/download/file/"
         self._COLUMNS_CONFIG_URL = conf.server + "/portal/Mashup/Mashup.asmx/columnsconfig"
@@ -182,7 +183,7 @@ class MastClass(QueryWithLogin):
 
         if isinstance(session_token, Cookie):
             # check it's a shibsession cookie
-            if not "shibsession" in session_token.name:
+            if "shibsession" not in session_token.name:
                 raise LoginError("Invalid session token")
 
             # add cookie to session
@@ -190,7 +191,8 @@ class MastClass(QueryWithLogin):
 
         elif isinstance(session_token, dict):
             if len(session_token) > 1:
-                warnings.warn("Too many entries in token dictionary, only shibsession cookie will be used", InputWarning)
+                warnings.warn("Too many entries in token dictionary, only shibsession cookie will be used",
+                              InputWarning)
 
             # get the shibsession cookie
             value = None
@@ -276,14 +278,16 @@ class MastClass(QueryWithLogin):
         # collecting the information we need
         relay_state = re.findall(r'<ecp:RelayState.*ecp:RelayState>', sp_response)[0]
         response_consumer_url = re.findall(r'<paos:Request.*?responseConsumerURL="(.*?)".*?/>', sp_response)[0]
-        assertion_consumer_service = re.findall(r'<ecp:Response.*?AssertionConsumerServiceURL="(.*?)".*?/>', idp_response)[0]
+        assertion_consumer_service = re.findall(r'<ecp:Response.*?AssertionConsumerServiceURL="(.*?)".*?/>',
+                                                idp_response)[0]
 
         # the response_consumer_url and assertion_consumer_service should be the same
         assert response_consumer_url == assertion_consumer_service
 
         # adding the relay_state to the sp_packacge and removing the xml header
         relay_state = re.sub(r'S:', 'soap11:', relay_state)  # is this exactly how I want to do this?
-        sp_package = re.sub(r'<\?xml version="1.0" encoding="UTF-8"\?>\n(.*?)<ecp:Response.*?/>', r'\g<1>'+relay_state, idp_response)
+        sp_package = re.sub(r'<\?xml version="1.0" encoding="UTF-8"\?>\n(.*?)<ecp:Response.*?/>', r'\g<1>'+relay_state,
+                            idp_response)
 
         # Sending the last post (that should result in the shibbolith session cookie being set)
         self._session.headers['Content-Type'] = 'application/vnd.paos+xml'
@@ -548,10 +552,8 @@ class MastClass(QueryWithLogin):
             This is the way to overwrite an already stored password on the keyring.
         """
 
-        return super(MastClass, self).login(username=username, password=password,
-                                                 session_token=session_token,
-                                                 store_password=store_password,
-                                                 reenter_password=reenter_password)
+        return super(MastClass, self).login(username=username, password=password, session_token=session_token,
+                                            store_password=store_password, reenter_password=reenter_password)
 
     def logout(self):
         """
@@ -600,7 +602,8 @@ class MastClass(QueryWithLogin):
 
         sessionInfo = response.text
 
-        patternString = r'Session Expiration \(barring inactivity\):</strong> (.*?)\n.*?STScI_Email</strong>: (.*?)\n<strong>STScI_FirstName</strong>: (.*?)\n<strong>STScI_LastName</strong>: (.*?)\n'
+        patternString = r'Session Expiration \(barring inactivity\):</strong> (.*?)\n.*?STScI_Email</strong>: ' + \
+                        r'(.*?)\n<strong>STScI_FirstName</strong>: (.*?)\n<strong>STScI_LastName</strong>: (.*?)\n'
 
         userCats = ("Session Expiration", "Username", "First Name", "Last Name")
         userInfo = re.findall(patternString, sessionInfo, re.DOTALL)
