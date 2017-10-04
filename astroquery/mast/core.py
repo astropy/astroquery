@@ -217,18 +217,19 @@ class MastClass(QueryWithLogin):
         if response.status_code != 200:
             print("Status code:",response.status_code)
             print("Authentication failed!")
-            return
+            return False
 
         exp = re.findall(r'<strong>Session Expiration \(barring inactivity\):</strong> (.*?)\n',response.text)
         if len(exp) == 0:
             print(response.text)
             print("Authentication failed!")
-            return
+            return False
         else:
             exp = exp[0]
             
         print("Authentication successful!")
         print("Session Expiration: {}".format(exp))
+        return True
                 
              
     def _shib_login(self, username, password):
@@ -317,12 +318,13 @@ class MastClass(QueryWithLogin):
         exp = re.findall(r'<strong>Session Expiration \(barring inactivity\):</strong> (.*?)\n',response.text)
         if len(exp) == 0:
             print("Authentication failed!")
-            return
+            return False
         else:
             exp = exp[0]
             
         print("Authentication successful!")
         print("Session Expiration: {}".format(exp))
+        return True
         
 
     def _request(self, method, url, params=None, data=None, headers=None,
@@ -501,7 +503,7 @@ class MastClass(QueryWithLogin):
                           InputWarning)
 
         if session_token:
-            self._attach_cookie(session_token)
+            return self._attach_cookie(session_token)
         else:
             # get username if not supplied
             if not username:
@@ -519,14 +521,52 @@ class MastClass(QueryWithLogin):
             if store_password:
                 keyring.set_password("astroquery:mast.stsci.edu", username, password)
             
-            self._shib_login(username, password)
+            return self._shib_login(username, password)
 
+
+    def login(self, username=None, password=None, session_token=None,
+              store_password=False, reenter_password=False):
+        """
+        Log into the MAST portal.
+
+        Parameters
+        ----------
+        username : string, optional
+            Default is None.
+            The username for the user logging in.  
+            Usually this will be the user's email address.
+            If a username is necessary but not supplied it will be prompted for.
+        password : string, optional
+            Default is None.
+            The password associated with the given username.
+            For security passwords should not be typed into the terminal or jupyter
+            notebook, but input using a more secure method such as `~getpass.getpass`.
+            If a password is necessary but not supplied it will be prompted for.
+        session_token : dict or `~http.cookiejar.Cookie`, optional
+            A valid MAST session cookie that will be attached to the current session in lieu of 
+            logging in with a username/password.
+            If username and/or password is supplied, this argument will be ignored.
+        store_password : bool, optional
+            Default False.
+            If true, username and password will be stored securely in your keyring.
+        reenter_password : bool, optional
+            Default False.
+            Asks for the password even if it is already stored in the keyring. 
+            This is the way to overwrite an already stored password on the keyring.
+        """
+
+        return super(MastClass, self).login(username=username, password=password,
+                                                 session_token=session_token,
+                                                 store_password=store_password,
+                                                 reenter_password=reenter_password)
+        
             
     def logout(self):
         """
-        Logs out of current MAST session.
+        Log out of current MAST session.
         """
         self._session.cookies.clear_session_cookies()
+        selt._authenticated = False
 
 
     def get_token(self):
@@ -1276,10 +1316,10 @@ class ObservationsClass(MastClass):
                 dataUrl = self._MAST_DOWNLOAD_URL + dataUrl.lstrip("mast:")
 
                 # HACK: user identity info not passed properly to downloader
-                # using /api/v0 url, so if user is logged in go through
-                # portal url (showd be fixed server side, this is a workaround)
-                #if self.session_info(True)["Username"] != "anonymous": 
-                #    dataUrl = dataUrl.replace("api/v0","portal")
+                # using /api/v0 url, so if user is logged in go through portal url
+                # (will be fixed server side in next, this is a temporary workaround)
+                if self.session_info(True)["Username"] != "anonymous": 
+                    dataUrl = dataUrl.replace("api/v0","portal")
 
             if not os.path.exists(localPath):
                 os.makedirs(localPath)

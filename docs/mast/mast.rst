@@ -356,9 +356,10 @@ MAST login can also be achieved with a "session token," from an existing valid M
 
 
 MAST sessions expire after 600 minutes, at which point the user must login again.
-The store_password argument can be used to store the username and password securely in the users keyring.
+The ``store_password`` argument can be used to store the username and password securely in the user's keyring.
 If the username/password are thus stored, only the username need be entered to login.
-This password can be overwritten using the reenter_password argument.
+This password can be overwritten using the ``reenter_password`` argument.
+To logout before a session expires, the `~astroquery.mast.MastClass.logout` method may be used.
 
 
    

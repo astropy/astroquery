@@ -39,6 +39,9 @@ def patch_post(request):
     mp.setattr(mast.Mast, '_request', post_mockreturn)
     mp.setattr(mast.Observations, '_request', post_mockreturn)
     mp.setattr(mast.Mast, '_download_file', download_mockreturn)
+    mp.setattr(mast.Observations, '_download_file', download_mockreturn)
+    mp.setattr(mast.Mast, 'session_info', session_info_mockreturn)
+    mp.setattr(mast.Observations, 'session_info', session_info_mockreturn)
     return mp
 
 
@@ -48,6 +51,8 @@ def post_mockreturn(method="POST", url=None, data=None, timeout=10, **kwargs):
         service = "columnsconfig"
     else:
         service = re.search(r"service%22%3A%20%22([\w\.]*)%22", data).group(1)
+
+    print(service)
 
     # need to distiguish counts queries
     if ("Filtered" in service) and (re.search(r"COUNT_BIG%28%2A%29", data)):
@@ -62,6 +67,14 @@ def post_mockreturn(method="POST", url=None, data=None, timeout=10, **kwargs):
 
 def download_mockreturn(method="GET", url=None, data=None, timeout=10, **kwargs):
     return
+
+def session_info_mockreturn(silent=False):
+    anonSession = {'First Name': '',
+                   'Last Name': '',
+                   'Session Expiration': None,
+                   'Username': 'anonymous'}
+    
+    return anonSession
 
 
 # Mast MastClass tests ##

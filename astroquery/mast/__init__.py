@@ -16,9 +16,13 @@ class Conf(_config.ConfigNamespace):
 
     server = _config.ConfigItem(
         'https://mast.stsci.edu',
+        #'https://dwmastiisv3.stsci.edu',
+        #'https://masttest.stsci.edu',
         'Name of the MAST server.')
     ssoserver = _config.ConfigItem(
         'https://ssoportal.stsci.edu',
+        #'https://ssodevidp.stsci.edu',
+        #'https://sso-testadx.stsci.edu',
         'MAST SSO Portal server.')
     timeout = _config.ConfigItem(
         600,
