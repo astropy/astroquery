@@ -68,12 +68,13 @@ def post_mockreturn(method="POST", url=None, data=None, timeout=10, **kwargs):
 def download_mockreturn(method="GET", url=None, data=None, timeout=10, **kwargs):
     return
 
+
 def session_info_mockreturn(silent=False):
     anonSession = {'First Name': '',
                    'Last Name': '',
                    'Session Expiration': None,
                    'Username': 'anonymous'}
-    
+
     return anonSession
 
 
