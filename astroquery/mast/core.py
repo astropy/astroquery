@@ -562,7 +562,7 @@ class MastClass(QueryWithLogin):
         Log out of current MAST session.
         """
         self._session.cookies.clear_session_cookies()
-        selt._authenticated = False
+        self._authenticated = False
 
     def get_token(self):
         """
