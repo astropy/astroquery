@@ -32,7 +32,8 @@ from astropy.utils.exceptions import AstropyWarning
 from ..query import QueryWithLogin
 from ..utils import commons, async_to_sync
 from ..utils.class_or_instance import class_or_instance
-from ..exceptions import TimeoutError, InvalidQueryError, NoResultsWarning, RemoteServiceError
+from ..exceptions import TimeoutError, InvalidQueryError, RemoteServiceError, LoginError
+from ..exceptions import NoResultsWarning
 from . import conf
 
 
@@ -42,11 +43,6 @@ __all__ = ['Observations', 'ObservationsClass',
 
 class ResolverError(Exception):
     pass
-
-
-class SessionTokenError(Exception):
-    pass
-
 
 class InputWarning(AstropyWarning):
     pass
@@ -187,7 +183,7 @@ class MastClass(QueryWithLogin):
         if isinstance(session_token, Cookie):
             # check it's a shibsession cookie
             if not "shibsession" in session_token.name:
-                raise SessionTokenError("Invalid session token")
+                raise LoginError("Invalid session token")
 
             # add cookie to session
             self._session.cookies.set_cookie(session_token)
@@ -204,14 +200,14 @@ class MastClass(QueryWithLogin):
                     break
 
             if not value:
-                raise SessionTokenError("Invalid session token")
+                raise LoginError("Invalid session token")
 
             # add cookie to session
             self._session.cookies.set(name, value)
 
         else:
             # raise datatype error
-            raise SessionTokenError("Session token must be given as a dictionary or http.cookiejar.Cookie object")
+            raise LoginError("Session token must be given as a dictionary or http.cookiejar.Cookie object")
 
         # Print session info
         # get user information
@@ -613,7 +609,7 @@ class MastClass(QueryWithLogin):
             infoDict = dict(zip(userCats, (None, "anonymous", "", "")))
         else:
             infoDict = dict(zip(userCats, userInfo[0]))
-            infoDict['Session Expiration'] = int(re.findall("(\d+) minute\(s\)",
+            infoDict['Session Expiration'] = int(re.findall(r"(\d+) minute\(s\)",
                                                             infoDict['Session Expiration'])[0])*u.min
 
         if not silent:
