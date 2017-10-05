@@ -457,8 +457,8 @@ def parse_votable(content):
 
 def _open_shelve(shelffn, withclosing=False):
     """
-    Opens a shelf file.  If `withclosing` is  True, it will be opened with closing,
-    allowing use like:
+    Opens a shelf file.  If ``withclosing`` is True, it will be opened with
+    closing, allowing use like:
 
         with _open_shelve('somefile',True) as s:
             ...
