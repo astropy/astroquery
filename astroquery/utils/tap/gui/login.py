@@ -17,11 +17,31 @@ Created on 30 jun. 2016
 
 from astropy.extern import six
 
-from six.moves.tkinter import Tk as TKTk
-from six.moves.tkinter import Toplevel as TKToplevel
-from six.moves.tkinter import Button as TKButton
-from six.moves.tkinter import Label as TKLabel
-from six.moves.tkinter import Entry as TKEntry
+try:
+    from six.moves.tkinter import Tk as TKTk
+except ImportError:
+    TKTk = None
+
+try:
+    from six.moves.tkinter import Toplevel as TKToplevel
+except ImportError:
+    TKToplevel = None
+
+try:
+    from six.moves.tkinter import Button as TKButton
+except ImportError:
+    TKButton = None
+
+try:
+    from six.moves.tkinter import Label as TKLabel
+except ImportError:
+    TKLabel = None
+
+try:
+    from six.moves.tkinter import Entry as TKEntry
+except ImportError:
+    TKEntry = None
+
 
 
 class LoginDialog(object):
@@ -29,7 +49,10 @@ class LoginDialog(object):
     def __init__(self, host):
         self.__interna_init()
         self.__host = host
-        self.__create_content()
+        self.__initialized = False
+        if TKTk is not None:
+            self.__create_content()
+            self.__initialized = True
 
     def __interna_init(self):
         self.__rootFrame = None
@@ -99,8 +122,11 @@ class LoginDialog(object):
         loginButton.grid(row=row, column=2, padx=5, pady=5)
 
     def show_login(self):
-        self.__usrEntry.focus_set()
-        self.__rootFrame.mainloop()
+        if self.__initialized:
+            self.__usrEntry.focus_set()
+            self.__rootFrame.mainloop()
+        else:
+            print("tkinter python module is not available.\nPlease, install tkinter module or use command line login utility.")
 
     def is_accepted(self):
         return self.__accepted
