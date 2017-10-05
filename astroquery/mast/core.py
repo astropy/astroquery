@@ -667,8 +667,7 @@ class MastClass(QueryWithLogin):
         else:
             retrieveAll = False
 
-        # TODO: remove "Clara development" before pull request
-        headers = {"User-Agent": self._session.headers["User-Agent"] + " Clara development",
+        headers = {"User-Agent": self._session.headers["User-Agent"],
                    "Content-type": "application/x-www-form-urlencoded",
                    "Accept": "text/plain"}
 
