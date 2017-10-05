@@ -79,4 +79,5 @@ class UkidssClass(BaseWFAUClass):
         else:
             self.login(username, password, community)
 
+
 Ukidss = UkidssClass()

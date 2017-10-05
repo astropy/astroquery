@@ -35,7 +35,6 @@ class BaseWFAUClass(QueryWithLogin):
     REGION_URL = BASE_URL + "WSASQL"
     TIMEOUT = ""
 
-
     def __init__(self, username=None, password=None, community=None,
                  database='', programme_id='all'):
         """
@@ -49,7 +48,6 @@ class BaseWFAUClass(QueryWithLogin):
             pass
         else:
             self.login(username, password, community)
-
 
     def _login(self, username, password, community):
         """
@@ -712,7 +710,6 @@ class BaseWFAUClass(QueryWithLogin):
         if page_loaded is False:
             raise TimeoutError("Page did not load.")
         return response
-
 
 
 def clean_catalog(wfau_catalog, clean_band='K_1', badclass=-9999,

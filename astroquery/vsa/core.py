@@ -80,4 +80,5 @@ class VsaClass(BaseWFAUClass):
         else:
             self.login(username, password, community)
 
+
 Vsa = VsaClass()
