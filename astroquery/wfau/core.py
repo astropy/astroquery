@@ -16,7 +16,6 @@ import astropy.io.votable as votable
 from ..query import QueryWithLogin
 from ..exceptions import InvalidQueryError, TimeoutError, NoResultsWarning
 from ..utils import commons
-from . import conf
 from ..exceptions import TableParseError
 
 __all__ = ['BaseWFAUClass', 'clean_catalog']
@@ -29,12 +28,12 @@ class BaseWFAUClass(QueryWithLogin):
     that implement specific interfaces to Wide-Field Astronomy Unit
     (http://www.roe.ac.uk/ifa/wfau/) archives
     """
-    BASE_URL = conf.server
+    BASE_URL = ""
     LOGIN_URL = BASE_URL + "DBLogin"
     IMAGE_URL = BASE_URL + "GetImage"
     ARCHIVE_URL = BASE_URL + "ImageList"
     REGION_URL = BASE_URL + "WSASQL"
-    TIMEOUT = conf.timeout
+    TIMEOUT = ""
 
 
     def __init__(self, username=None, password=None, community=None,
@@ -50,7 +49,6 @@ class BaseWFAUClass(QueryWithLogin):
             pass
         else:
             self.login(username, password, community)
-        self.vista = False
 
 
     def _login(self, username, password, community):
@@ -98,7 +96,7 @@ class BaseWFAUClass(QueryWithLogin):
         programme_id = kwargs.get('programme_id', self.programme_id)
 
         request_payload['programmeID'] = self._verify_programme_id(
-                                         programme_id, query_type=kwargs['query_type'])
+            programme_id, query_type=kwargs['query_type'])
         sys = self._parse_system(kwargs.get('system'))
         request_payload['sys'] = sys
         if sys == 'J':
@@ -489,7 +487,7 @@ class BaseWFAUClass(QueryWithLogin):
             if self.programme_id != 'all':
                 programme_id = self.programme_id
             else:
-                programme_id = 'VVV' if self.vista else 'GPS'
+                raise ValueError("Must specify a programme_id")
 
         response = self.query_region_async(coordinates, radius=radius,
                                            programme_id=programme_id,
@@ -545,7 +543,7 @@ class BaseWFAUClass(QueryWithLogin):
             if self.programme_id != 'all':
                 programme_id = self.programme_id
             else:
-                programme_id = 'VVV' if self.vista else 'GPS'
+                raise ValueError("Must specify a programme_id")
 
         request_payload = self._args_to_payload(coordinates,
                                                 programme_id=programme_id,
@@ -566,8 +564,8 @@ class BaseWFAUClass(QueryWithLogin):
         request_payload['where'] = ''
 
         # for some reason, this is required on the VISTA website
-        if self.vista:
-            request_payload['archive'] = 'VSA'
+        if self.archive is not None:
+            request_payload['archive'] = self.archive
 
         if get_query_payload:
             return request_payload

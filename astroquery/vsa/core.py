@@ -21,12 +21,12 @@ class VsaClass(BaseWFAUClass):
     REGION_URL = BASE_URL + "WSASQL"
     TIMEOUT = conf.timeout
 
-    filters = {'all': 'all', 'J': 3, 'H': 4, 'K': 5, 'Y': 2,
-               'Z': 1, 'H2': 6, 'Br': 7}
+    filters = {'all': 'all', 'Z': 1, 'Y': 2, 'J': 3,
+               'H': 4, 'Ks': 5, 'NB118': 9, 'NB980': 10}
 
-    frame_types = {'stack': 'stack', 'normal': 'normal', 'interleave': 'leav',
-                   'deep_stack': 'deep%stack', 'confidence': 'conf',
-                   'difference': 'diff', 'leavstack': 'leavstack',
+    frame_types = {'tilestack': 'tilestack', 'stack': 'stack',
+                   'normal': 'normal', 'deep_stack': 'deep%stack',
+                   'confidence': 'conf', 'difference': 'diff',
                    'all': 'all'}
 
     programmes_short = {'VHS': 110,
@@ -51,31 +51,25 @@ class VsaClass(BaseWFAUClass):
                      'VIDEODR5', 'VIDEODR4', 'VIDEODR3', 'VIDEODR2',
                      'VISTAOPENTIME')
 
+    # apparently needed for some queries
+    archive = 'VSA'
+
     def __init__(self, username=None, password=None, community=None,
                  database='VVVDR4', programme_id='all'):
         super(VsaClass, self).__init__()
         self.database = database
-        self.programme_id = programme_id  # 102 = GPS
+        self.programme_id = programme_id
         self.session = None
         if username is None or password is None or community is None:
             pass
         else:
             self.login(username, password, community)
-        self.vista = False
 
         self.BASE_URL = 'http://horus.roe.ac.uk:8080/vdfs/'
         self.LOGIN_URL = self.BASE_URL + "DBLogin"
         self.IMAGE_URL = self.BASE_URL + "GetImage"
         self.ARCHIVE_URL = self.BASE_URL + "ImageList"
         self.REGION_URL = self.BASE_URL + "WSASQL"
-
-        self.filters = {'all': 'all', 'Z': 1, 'Y': 2, 'J': 3,
-                        'H': 4, 'Ks': 5, 'NB118': 9, 'NB980': 10}
-
-        self.frame_types = {'tilestack': 'tilestack', 'stack': 'stack',
-                            'normal': 'normal', 'deep_stack': 'deep%stack',
-                            'confidence': 'conf', 'difference': 'diff',
-                            'all': 'all'}
 
 
         self.database = database

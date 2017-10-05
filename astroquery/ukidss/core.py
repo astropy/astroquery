@@ -65,6 +65,9 @@ class UkidssClass(BaseWFAUClass):
                      "UKIDSSDR1", "UKIDSSEDRPLUS", "UKIDSSEDR", "UKIDSSSV",
                      "WFCAMCAL08B", "U09B8v20120403", "U09B8v20100414")
 
+    # needed for some WFAU queries, not for UKIDSS
+    archive = None
+
     def __init__(self, username=None, password=None, community=None,
                  database='UKIDSSDR10PLUS', programme_id='all'):
         super(UkidssClass, self).__init__()
@@ -75,6 +78,5 @@ class UkidssClass(BaseWFAUClass):
             pass
         else:
             self.login(username, password, community)
-        self.vista = False
 
 Ukidss = UkidssClass()
