@@ -14,6 +14,7 @@ import json
 import time
 import os
 import re
+import keyring
 
 import numpy as np
 
@@ -149,7 +150,7 @@ class MastClass(QueryWithLogin):
     def __init__(self, username=None, password=None, session_token=None):
 
         super(MastClass, self).__init__()
-        
+
         self._MAST_REQUEST_URL = conf.server + "/api/v0/invoke"
         self._MAST_DOWNLOAD_URL = conf.server + "/api/v0/download/file/"
         self._COLUMNS_CONFIG_URL = conf.server + "/portal/Mashup/Mashup.asmx/columnsconfig"
