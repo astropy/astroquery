@@ -646,13 +646,13 @@ class BaseWFAUClass(QueryWithLogin):
 
     def _get_databases(self):
         if self.logged_in():
-            response = self.session.get(
-                'http://surveys.roe.ac.uk:8080/wsa/getImage_form.jsp')
+            response = self.session.get(url="/".join([self.BASE_URL,
+                                                      self.IMAGE_FORM]))
         else:
-            response = requests.get(
-                url='http://surveys.roe.ac.uk:8080/wsa/getImage_form.jsp')
+            response = requests.get(url="/".join([self.BASE_URL,
+                                                  self.IMAGE_FORM]))
 
-        root = BeautifulSoup(response.content)
+        root = BeautifulSoup(response.content, features='html5lib')
         databases = [x.attrs['value'] for x in
                      root.find('select').findAll('option')]
         return databases

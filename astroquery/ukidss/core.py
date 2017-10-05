@@ -37,6 +37,7 @@ class UkidssClass(BaseWFAUClass):
     ARCHIVE_URL = BASE_URL + "ImageList"
     REGION_URL = BASE_URL + "WSASQL"
     TIMEOUT = conf.timeout
+    IMAGE_FORM = 'VgetImage_form.jsp'
 
     filters = {'all': 'all', 'J': 3, 'H': 4, 'K': 5, 'Y': 2,
                'Z': 1, 'H2': 6, 'Br': 7}

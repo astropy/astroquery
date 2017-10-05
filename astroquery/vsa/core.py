@@ -20,6 +20,7 @@ class VsaClass(BaseWFAUClass):
     ARCHIVE_URL = BASE_URL + "ImageList"
     REGION_URL = BASE_URL + "WSASQL"
     TIMEOUT = conf.timeout
+    IMAGE_FORM = 'VgetImage_form.jsp'
 
     filters = {'all': 'all', 'Z': 1, 'Y': 2, 'J': 3,
                'H': 4, 'Ks': 5, 'NB118': 9, 'NB980': 10}
