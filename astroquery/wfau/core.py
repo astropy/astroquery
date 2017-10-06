@@ -7,6 +7,7 @@ import time
 from math import cos, radians
 import requests
 from bs4 import BeautifulSoup
+from io import StringIO
 
 from astropy.extern.six import BytesIO
 import astropy.units as u
@@ -33,6 +34,7 @@ class BaseWFAUClass(QueryWithLogin):
     IMAGE_URL = BASE_URL + "GetImage"
     ARCHIVE_URL = BASE_URL + "ImageList"
     REGION_URL = BASE_URL + "WSASQL"
+    CROSSID_URL = BASE_URL + "CrossID"
     TIMEOUT = ""
 
     def __init__(self, username=None, password=None, community=None,
@@ -710,6 +712,111 @@ class BaseWFAUClass(QueryWithLogin):
         if page_loaded is False:
             raise TimeoutError("Page did not load.")
         return response
+
+    def query_cross_id_async(self, coordinates, radius=1*u.arcsec,
+                             programme_id=None, database=None, table="source",
+                             constraints="", attributes='default',
+                             pairing='all', system='J2000',
+                             get_query_payload=False,
+                      ):
+        """
+        Query the crossID server
+
+        Parameters
+        ----------
+        coordinates : astropy.SkyCoord
+            An array of one or more astropy SkyCoord objects specifying the
+            objects to crossmatch against.
+        radius : str or `~astropy.units.Quantity` object, optional
+            The string must be parsable by `~astropy.coordinates.Angle`. The
+            appropriate `~astropy.units.Quantity` object from
+            `astropy.units` may also be used. When missing defaults to 1
+            arcsec.
+        programme_id : str
+            The survey or programme in which to search for. See
+            `list_catalogs`.
+        database : str
+            The WFAU database to use.
+        table : str
+            The table ID, one of: "source", "detection", "synopticSource"
+        constraints : str
+            SQL constraints.  If 'source' is selected, this will be expanded
+            automatically
+        attributes : str
+            Additional attributes to select from the table.  See, e.g.,
+            http://horus.roe.ac.uk/vsa/crossID_notes.html
+        system : 'J2000' or 'Galactic'
+            The system in which to perform the query. Can affect the output
+            data columns.
+        get_query_payload : bool, optional
+            If `True` then returns the dictionary sent as the HTTP request.
+            Defaults to `False`.
+        """
+
+        if table == "source":
+            constraints += "(priOrSec<=0 OR priOrSec=frameSetID)"
+        if database is None:
+            database = self.database
+
+        if programme_id is None:
+            if self.programme_id != 'all':
+                programme_id = self.programme_id
+            else:
+                raise ValueError("Must specify a programme_id")
+
+        request_payload = self._args_to_payload(coordinates,
+                                                programme_id=programme_id,
+                                                database=database,
+                                                system=system,
+                                                query_type='catalog')
+        request_payload['radius'] = _parse_dimension(radius)
+        request_payload['from'] = 'source'
+        request_payload['formaction'] = 'region'
+        request_payload['xSize'] = ''
+        request_payload['ySize'] = ''
+        request_payload['boxAlignment'] = 'RADec'
+        request_payload['emailAddress'] = ''
+        request_payload['format'] = 'VOT'
+        request_payload['compress'] = 'NONE'
+        request_payload['rows'] = 1
+        request_payload['select'] = 'default'
+        request_payload['where'] = ''
+        request_payload['disp'] = ''
+        request_payload['baseTable'] = table
+        request_payload['whereClause'] = constraints
+        request_payload['qType'] = 'form'
+        request_payload['selectList'] = attributes
+        if pairing not in ('nearest','all'):
+            raise ValueError("pairing must be one of 'nearest' or 'all'")
+        request_payload['nearest'] = 0 if pairing=='nearest' else 1
+
+        # for some reason, this is required on the VISTA website
+        if self.archive is not None:
+            request_payload['archive'] = self.archive
+
+        if get_query_payload:
+            return request_payload
+
+        fh = StringIO()
+        for crd in coordinates:
+            fh.write("{0} {1}\n".format(crd.ra.deg, crd.dec.deg))
+        
+
+        if hasattr(self, 'session') and self.logged_in():
+            response = self.session.post(self.CROSSID_URL,
+                                         params=request_payload,
+                                         data=fh,
+                                         timeout=self.TIMEOUT)
+        else:
+            response = self._request("POST", url=self.CROSSID_URL,
+                                     params=request_payload,
+                                     data=fh,
+                                     timeout=self.TIMEOUT)
+
+        response = self._check_page(response.url, "query finished")
+
+        return response
+
 
 
 def clean_catalog(wfau_catalog, clean_band='K_1', badclass=-9999,
