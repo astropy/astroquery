@@ -805,18 +805,30 @@ class BaseWFAUClass(QueryWithLogin):
         if hasattr(self, 'session') and self.logged_in():
             response = self.session.post(self.CROSSID_URL,
                                          params=request_payload,
-                                         data=fh,
+                                         files={'file.txt': fh},
                                          timeout=self.TIMEOUT)
         else:
             response = self._request("POST", url=self.CROSSID_URL,
                                      params=request_payload,
-                                     data=fh,
+                                     files={'file.txt': fh},
                                      timeout=self.TIMEOUT)
 
         response = self._check_page(response.url, "query finished")
 
         return response
 
+    def query_cross_id(self, *args, get_query_payload=False, verbose=False,
+                       **kwargs):
+        """
+        See `query_cross_id_async`
+        """
+        response = self.query_cross_id_async(*args, **kwargs)
+
+        if get_query_payload:
+            return response
+
+        result = self._parse_result(response, verbose=verbose)
+        return result
 
 
 def clean_catalog(wfau_catalog, clean_band='K_1', badclass=-9999,
