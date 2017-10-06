@@ -718,7 +718,7 @@ class BaseWFAUClass(QueryWithLogin):
                              constraints="", attributes='default',
                              pairing='all', system='J2000',
                              get_query_payload=False,
-                      ):
+                             ):
         """
         Query the crossID server
 
@@ -787,9 +787,9 @@ class BaseWFAUClass(QueryWithLogin):
         request_payload['qType'] = 'form'
         request_payload['selectList'] = attributes
         request_payload['uploadFile'] = 'file.txt'
-        if pairing not in ('nearest','all'):
+        if pairing not in ('nearest', 'all'):
             raise ValueError("pairing must be one of 'nearest' or 'all'")
-        request_payload['nearest'] = 0 if pairing=='nearest' else 1
+        request_payload['nearest'] = 0 if pairing == 'nearest' else 1
 
         # for some reason, this is required on the VISTA website
         if self.archive is not None:
@@ -803,7 +803,6 @@ class BaseWFAUClass(QueryWithLogin):
         for crd in coordinates:
             fh.write("{0} {1}\n".format(crd.ra.deg, crd.dec.deg))
         fh.seek(0)
-        
 
         if hasattr(self, 'session') and self.logged_in():
             response = self.session.post(self.CROSSID_URL,
@@ -818,9 +817,8 @@ class BaseWFAUClass(QueryWithLogin):
 
         raise NotImplementedError("It appears we haven't implemented the file "
                                   "upload correctly.  Help is needed.")
-                                  
 
-        #response = self._check_page(response.url, "query finished")
+        # response = self._check_page(response.url, "query finished")
 
         return response
 

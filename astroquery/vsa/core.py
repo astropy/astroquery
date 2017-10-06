@@ -74,7 +74,6 @@ class VsaClass(BaseWFAUClass):
         self.ARCHIVE_URL = self.BASE_URL + "ImageList"
         self.REGION_URL = self.BASE_URL + "WSASQL"
 
-
         self.database = database
         self.programme_id = programme_id
         self.session = None

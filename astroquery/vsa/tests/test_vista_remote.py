@@ -15,6 +15,7 @@ imp.reload(requests)
 
 vista = vsa.core.VsaClass()
 
+
 @remote_data
 class TestVista:
 
