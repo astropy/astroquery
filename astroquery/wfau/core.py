@@ -824,11 +824,13 @@ class BaseWFAUClass(QueryWithLogin):
 
         return response
 
-    def query_cross_id(self, *args, get_query_payload=False, verbose=False,
-                       **kwargs):
+    def query_cross_id(self, *args, **kwargs):
         """
         See `query_cross_id_async`
         """
+        get_query_payload = kwargs.get('get_query_payload', False)
+        verbose = kwargs.get('verbose', False)
+
         response = self.query_cross_id_async(*args, **kwargs)
 
         if get_query_payload:
