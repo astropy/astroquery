@@ -18,3 +18,4 @@ Reference/API
 
 .. automodapi:: astroquery.vsa
     :no-inheritance-diagram:
+    :inherited-members:

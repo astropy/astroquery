@@ -250,3 +250,4 @@ Reference/API
 
 .. automodapi:: astroquery.ukidss
     :no-inheritance-diagram:
+    :inherited-members:
