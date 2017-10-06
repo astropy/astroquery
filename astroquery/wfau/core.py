@@ -786,6 +786,7 @@ class BaseWFAUClass(QueryWithLogin):
         request_payload['whereClause'] = constraints
         request_payload['qType'] = 'form'
         request_payload['selectList'] = attributes
+        request_payload['uploadFile'] = 'file.txt'
         if pairing not in ('nearest','all'):
             raise ValueError("pairing must be one of 'nearest' or 'all'")
         request_payload['nearest'] = 0 if pairing=='nearest' else 1
@@ -798,8 +799,10 @@ class BaseWFAUClass(QueryWithLogin):
             return request_payload
 
         fh = StringIO()
+        assert len(coordinates) > 0
         for crd in coordinates:
             fh.write("{0} {1}\n".format(crd.ra.deg, crd.dec.deg))
+        fh.seek(0)
         
 
         if hasattr(self, 'session') and self.logged_in():
@@ -813,7 +816,11 @@ class BaseWFAUClass(QueryWithLogin):
                                      files={'file.txt': fh},
                                      timeout=self.TIMEOUT)
 
-        response = self._check_page(response.url, "query finished")
+        raise NotImplementedError("It appears we haven't implemented the file "
+                                  "upload correctly.  Help is needed.")
+                                  
+
+        #response = self._check_page(response.url, "query finished")
 
         return response
 
