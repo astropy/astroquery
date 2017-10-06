@@ -21,7 +21,7 @@ import pytest
 
 from astroquery.utils.tap.conn.tests.DummyConnHandler import DummyConnHandler
 from astroquery.utils.tap.conn.tests.DummyResponse import DummyResponse
-from astroquery.utils.tap.core import TapPlus
+from astroquery.utils.tap.core import TapPlus, TAP_CLIENT_ID
 from astroquery.utils.tap.xmlparser import utils
 from astroquery.utils.tap import taputils
 
@@ -143,7 +143,7 @@ class TestTap(unittest.TestCase):
             "REQUEST": "doQuery",
             "LANG": "ADQL",
             "FORMAT": "votable",
-            "tapclient": "aqtappy-1.0",
+            "tapclient": str(TAP_CLIENT_ID),
             "PHASE": "RUN",
             "QUERY": str(q)}
         sortedKey = taputils.taputil_create_sorted_dict_key(dictTmp)
@@ -209,7 +209,7 @@ class TestTap(unittest.TestCase):
             "REQUEST": "doQuery",
             "LANG": "ADQL",
             "FORMAT": "votable",
-            "tapclient": "aqtappy-1.0",
+            "tapclient": str(TAP_CLIENT_ID),
             "PHASE": "RUN",
             "QUERY": str(query)}
         sortedKey = taputils.taputil_create_sorted_dict_key(dictTmp)
