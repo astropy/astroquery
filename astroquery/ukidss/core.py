@@ -1,23 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from __future__ import print_function
 
-import warnings
-import re
-import time
-from math import cos, radians
-import requests
-from bs4 import BeautifulSoup
-
-from astropy.extern.six import BytesIO
-import astropy.units as u
-import astropy.coordinates as coord
-import astropy.io.votable as votable
-
-from ..query import QueryWithLogin
-from ..exceptions import InvalidQueryError, TimeoutError, NoResultsWarning
-from ..utils import commons
 from . import conf
-from ..exceptions import TableParseError
 
 from ..wfau import BaseWFAUClass, clean_catalog
 
@@ -47,17 +31,17 @@ class UkidssClass(BaseWFAUClass):
                    'difference': 'diff', 'leavstack': 'leavstack',
                    'all': 'all'}
 
-    ukidss_programmes_short = {'LAS': 101,
-                               'GPS': 102,
-                               'GCS': 103,
-                               'DXS': 104,
-                               'UDS': 105, }
+    programmes_short = {'LAS': 101,
+                        'GPS': 102,
+                        'GCS': 103,
+                        'DXS': 104,
+                        'UDS': 105, }
 
-    ukidss_programmes_long = {'Large Area Survey': 101,
-                              'Galactic Plane Survey': 102,
-                              'Galactic Clusters Survey': 103,
-                              'Deep Extragalactic Survey': 104,
-                              'Ultra Deep Survey': 105}
+    programmes_long = {'Large Area Survey': 101,
+                       'Galactic Plane Survey': 102,
+                       'Galactic Clusters Survey': 103,
+                       'Deep Extragalactic Survey': 104,
+                       'Ultra Deep Survey': 105}
 
     all_databases = ("UKIDSSDR10PLUS", "UKIDSSDR9PLUS",
                      "UKIDSSDR8PLUS", "UKIDSSDR7PLUS",
