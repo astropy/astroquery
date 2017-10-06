@@ -227,9 +227,9 @@ These others are functional, but do not follow a common & consistent API:
 There are also subpackages that serve as the basis of others.
 
 .. toctree::
-   :maxdepth: 1
+  :maxdepth: 1
 
-    wfau/wfau.rst
+  wfau/wfau.rst
 
 Catalog, Archive, and Other
 ===========================
