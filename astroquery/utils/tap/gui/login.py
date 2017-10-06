@@ -43,7 +43,6 @@ except ImportError:
     TKEntry = None
 
 
-
 class LoginDialog(object):
 
     def __init__(self, host):
@@ -126,7 +125,8 @@ class LoginDialog(object):
             self.__usrEntry.focus_set()
             self.__rootFrame.mainloop()
         else:
-            print("tkinter python module is not available.\nPlease, install tkinter module or use command line login utility.")
+            print("tkinter python module is not available.\n\
+            Please, install tkinter module or use command line login utility.")
 
     def is_accepted(self):
         return self.__accepted
