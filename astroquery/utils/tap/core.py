@@ -27,7 +27,7 @@ from astroquery.utils.tap.model.filter import Filter
 
 __all__ = ['Tap', 'TapPlus']
 
-VERSION = "1.0"
+VERSION = "1.0.1"
 TAP_CLIENT_ID = "aqtappy-" + VERSION
 
 
