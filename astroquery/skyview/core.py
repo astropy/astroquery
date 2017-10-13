@@ -238,13 +238,6 @@ class SkyViewClass(BaseQuery):
         -------
         list of image urls
 
-        Examples
-        --------
-        >>> SkyView().get_image_list(position='Eta Carinae',
-        ...                          survey=['Fermi 5', 'HRI', 'DSS'])
-        [u'http://skyview.gsfc.nasa.gov/tempspace/fits/skv6183161285798_1.fits',
-         u'http://skyview.gsfc.nasa.gov/tempspace/fits/skv6183161285798_2.fits',
-         u'http://skyview.gsfc.nasa.gov/tempspace/fits/skv6183161285798_3.fits']
         """
 
         self._validate_surveys(survey)
