@@ -74,7 +74,7 @@ def _mashup_json_to_table(json_obj):
 
     Returns
     -------
-    response: `astropy.table.Table`
+    response : `~astropy.table.Table`
     """
 
     dataTable = Table()
@@ -238,7 +238,7 @@ class MastClass(BaseQuery):
 
         Returns
         -------
-        response: list of ``requests.Response``
+        response : list of ``requests.Response``
         """
 
         # setting up pagination
@@ -366,7 +366,7 @@ class ObservationsClass(MastClass):
 
         Returns
         -------
-        response: list(dict)
+        response : list(dict)
             The mashup json filter object.
         """
 
@@ -466,7 +466,7 @@ class ObservationsClass(MastClass):
 
         Returns
         -------
-        response: list of ``requests.Response``
+        response : list of ``requests.Response``
         """
 
         # Put coordinates and radius into consistant format
@@ -510,7 +510,7 @@ class ObservationsClass(MastClass):
 
         Returns
         -------
-        response: list of ``requests.Response``
+        response : list of ``requests.Response``
         """
 
         coordinates = self._resolve_object(objectname)
@@ -545,7 +545,7 @@ class ObservationsClass(MastClass):
 
         Returns
         -------
-        response: list(`requests.Response`)
+        response : list(`requests.Response`)
         """
 
         # Seperating any position info from the rest of the filters
@@ -615,7 +615,7 @@ class ObservationsClass(MastClass):
 
         Returns
         -------
-            response: int
+        response : int
         """
 
         # build the coordinates string needed by Mast.Caom.Filtered.Position
@@ -657,7 +657,7 @@ class ObservationsClass(MastClass):
 
         Returns
         -------
-        response: int
+        response : int
         """
 
         coordinates = self._resolve_object(objectname)
@@ -690,7 +690,7 @@ class ObservationsClass(MastClass):
 
         Returns
         -------
-        response: int
+        response : int
         """
 
         # Seperating any position info from the rest of the filters
@@ -750,7 +750,7 @@ class ObservationsClass(MastClass):
 
         Returns
         -------
-            response: list(`requests.Response`)
+            response : list(`requests.Response`)
         """
 
         # getting the obsid list
@@ -772,11 +772,11 @@ class ObservationsClass(MastClass):
 
         Parameters
         ----------
-        products: `astropy.table.Table`
+        products : `astropy.table.Table`
             Table containing data products to be filtered.
-        mrp_only: bool, optional
+        mrp_only : bool, optional
             Default True. When set to true only "Minimum Recommended Products" will be returned.
-        **filters:
+        **filters :
             Filters to be applied.  Valid filters are all products fields listed
             `here <https://masttest.stsci.edu/api/v0/_productsfields.html>`__ and 'extension'
             which is the desired file extension.
@@ -787,7 +787,7 @@ class ObservationsClass(MastClass):
 
         Returns
         -------
-            response : `astropy.table.Table`
+        response : `~astropy.table.Table`
         """
 
         # Dealing with mrp first, b/c it's special
@@ -825,7 +825,7 @@ class ObservationsClass(MastClass):
 
         Returns
         -------
-            response : `astropy.table.Table`
+        response : `astropy.table.Table`
         """
 
         urlList = products['dataURI']
@@ -886,7 +886,7 @@ class ObservationsClass(MastClass):
 
         Returns
         -------
-            response : `astropy.table.Table`
+        response : `~astropy.table.Table`
         """
         manifestArray = []
         for dataProduct in products:
@@ -961,9 +961,9 @@ class ObservationsClass(MastClass):
             Filter behavior is AND between the filters and OR within a filter set.
             For example: productType="SCIENCE",extension=["fits","jpg"]
 
-        Return
-        ------
-        response: `astropy.table.Table`
+        Returns
+        -------
+        response : `~astropy.table.Table`
             The manifest of files downloaded, or status of files on disk if curl option chosen.
         """
 

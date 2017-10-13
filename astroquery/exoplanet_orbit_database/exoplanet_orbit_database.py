@@ -53,6 +53,7 @@ class ExoplanetOrbitDatabaseClass(object):
         table_path : str (optional)
             Path to a local table file. Default `None` will trigger a
             download of the table from the internet.
+
         Returns
         -------
         table : `~astropy.table.QTable`
@@ -97,8 +98,8 @@ class ExoplanetOrbitDatabaseClass(object):
             Path to a local table file. Default `None` will trigger a
             download of the table from the internet.
 
-        Return
-        ------
+        Returns
+        -------
         table : `~astropy.table.QTable`
             Table of one exoplanet's properties.
         """
