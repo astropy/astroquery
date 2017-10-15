@@ -13,9 +13,9 @@ from astropy import units as u
 from bs4 import BeautifulSoup
 
 from ..query import BaseQuery
-from ..utils import prepend_docstr_nosections, async_to_sync, is_valid_transitions_param
+from ..utils import prepend_docstr_nosections, async_to_sync
 from . import conf
-
+from .utils import is_valid_transitions_param
 
 __all__ = ['AtomicLineList', 'AtomicLineListClass']
 
