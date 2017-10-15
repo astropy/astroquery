@@ -5,8 +5,7 @@ import astropy.units as u
 import astropy.coordinates as coord
 from astropy.io import fits
 from ..query import BaseQuery
-from ..utils.docstr_chompers import prepend_docstr_noreturns
-from ..utils import commons
+from ..utils import commons, prepend_docstr_nosections
 from . import conf
 from ..exceptions import InvalidQueryError
 
@@ -71,7 +70,7 @@ class MagpisClass(BaseQuery):
         request_payload["MaxImSize"] = self.maximsize if maximsize is None else maximsize
         return request_payload
 
-    @prepend_docstr_noreturns("\n" + _args_to_payload.__doc__)
+    @prepend_docstr_nosections("\n" + _args_to_payload.__doc__)
     def get_images(self, coordinates, image_size=1 * u.arcmin,
                    survey='bolocam', get_query_payload=False):
         """
@@ -94,7 +93,7 @@ class MagpisClass(BaseQuery):
         except IOError:
             raise InvalidQueryError(response.content)
 
-    @prepend_docstr_noreturns("\n" + _args_to_payload.__doc__)
+    @prepend_docstr_nosections("\n" + _args_to_payload.__doc__)
     def get_images_async(self, coordinates, image_size=1 * u.arcmin,
                          survey='bolocam', get_query_payload=False):
         """

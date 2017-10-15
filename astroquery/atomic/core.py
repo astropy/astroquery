@@ -13,10 +13,8 @@ from astropy import units as u
 from bs4 import BeautifulSoup
 
 from ..query import BaseQuery
-from ..utils import prepend_docstr_noreturns
-from ..utils import async_to_sync
+from ..utils import prepend_docstr_nosections, async_to_sync, is_valid_transitions_param
 from . import conf
-from .utils import is_valid_transitions_param
 
 
 __all__ = ['AtomicLineList', 'AtomicLineListClass']
@@ -155,7 +153,7 @@ class AtomicLineListClass(BaseQuery):
         table = self._parse_result(response)
         return table
 
-    @prepend_docstr_noreturns(query_object.__doc__)
+    @prepend_docstr_nosections(query_object.__doc__)
     def query_object_async(self, wavelength_range=None, wavelength_type='',
                            wavelength_accuracy=None, element_spectrum=None,
                            minimal_abundance=None, depl_factor=None,

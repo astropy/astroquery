@@ -5,7 +5,7 @@ Process all "async" methods into direct methods.
 import textwrap
 import functools
 from .class_or_instance import class_or_instance
-from .docstr_chompers import remove_returns
+from .docstr_chompers import remove_sections
 
 
 def async_to_sync(cls):
@@ -79,7 +79,7 @@ def async_to_sync_docstr(doc, returntype='table'):
 
     # all docstrings have a blank first line
     # strip it out, so that we can prepend
-    outlines = remove_returns(doc.lstrip('\n'))
+    outlines = remove_sections(doc.lstrip('\n'), sections=['Returns', ])
 
     # then the '' here is to add back the blank line
     newdoc = "\n".join(
