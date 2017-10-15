@@ -19,7 +19,7 @@ import astropy.utils.data as aud
 
 from ...utils import chunk_read, chunk_report, class_or_instance, commons
 from ...utils.process_asyncs import async_to_sync_docstr, async_to_sync
-from ...utils.docstr_chompers import remove_returns, prepend_docstr_noreturns
+from ...utils.docstr_chompers import remove_sections, prepend_docstr_nosections
 
 
 class SimpleQueryClass(object):
@@ -284,6 +284,10 @@ def test_async_to_sync(cls=Dummy):
 
 
 docstr3 = """
+    Parameters
+    ----------
+    first_param
+
     Returns
     -------
     Nothing!
@@ -301,10 +305,12 @@ docstr3_out = """
 
 
 def test_return_chomper(doc=docstr3, out=docstr3_out):
-    assert remove_returns(doc) == [x.lstrip() for x in out.split('\n')]
+    assert (remove_sections(doc, sections=['Returns', 'Parameters']) ==
+                [x.lstrip() for x in out.split('\n')])
 
 
-def dummyfunc():
+
+def dummyfunc1():
     """
     Returns
     -------
@@ -317,15 +323,28 @@ def dummyfunc():
     pass
 
 
+def dummyfunc2():
+    """
+    Returns
+    -------
+    Nothing!
+    """
+    pass
+
+
 docstr4 = """
     Blah Blah Blah
 
     Returns
     -------
     nothing
+
+    Examples
+    --------
+    no_examples_at_all
 """
 
-docstr4_out = """
+docstr4_out1 = """
     Blah Blah Blah
 
     Returns
@@ -337,10 +356,20 @@ docstr4_out = """
     Nada
 """
 
+docstr4_out2 = """
+    Blah Blah Blah
 
-def test_prepend_docstr(doc=docstr4, func=dummyfunc, out=docstr4_out):
-    fn = prepend_docstr_noreturns(doc)(func)
-    assert fn.__doc__ == textwrap.dedent(docstr4_out)
+    Returns
+    -------
+    Nothing!
+"""
+
+
+@pytest.mark.parametrize("func, out", [(dummyfunc1, docstr4_out1),
+                                       (dummyfunc2, docstr4_out2)])
+def test_prepend_docstr(func, out, doc=docstr4):
+    fn = prepend_docstr_nosections(doc, sections=['Returns', 'Examples'])(func)
+    assert fn.__doc__ == textwrap.dedent(out)
 
 
 @async_to_sync
