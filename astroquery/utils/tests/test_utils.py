@@ -309,7 +309,6 @@ def test_return_chomper(doc=docstr3, out=docstr3_out):
                 [x.lstrip() for x in out.split('\n')])
 
 
-
 def dummyfunc1():
     """
     Returns
