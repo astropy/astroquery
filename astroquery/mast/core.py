@@ -1213,7 +1213,7 @@ class ObservationsClass(MastClass):
             mask = np.full(len(products), False, dtype=bool)
             for elt in vals:
                 if colname == 'extension':  # extension is not actually a column
-                    mask |= [False if isinstance(x, np.ma.core.MaskedConstant) else x.endswith(elt) \
+                    mask |= [False if isinstance(x, np.ma.core.MaskedConstant) else x.endswith(elt) 
                              for x in products["productFilename"]]
                 else:
                     mask |= (products[colname] == elt)
