@@ -169,7 +169,7 @@ class MastClass(QueryWithLogin):
         if username or session_token:
             self.login(username, password, session_token)
 
-    def _attach_cookie(self, session_token):
+    def _attach_cookie(self, session_token): # pragma: no cover
         """
         Attaches a valid shibboleth session cookie to the current session.
 
@@ -233,7 +233,7 @@ class MastClass(QueryWithLogin):
         print("Session Expiration: {}".format(exp))
         return True
 
-    def _shib_login(self, username, password):
+    def _shib_login(self, username, password): # pragma: no cover
         """
         Given username and password, logs into the MAST shibboleth client.
 
@@ -462,7 +462,7 @@ class MastClass(QueryWithLogin):
         return vstack(resultList)
 
     def _login(self, username=None, password=None, session_token=None,
-               store_password=False, reenter_password=False):
+               store_password=False, reenter_password=False): # pragma: no cover
         """
         Log into the MAST portal.
 
@@ -523,7 +523,7 @@ class MastClass(QueryWithLogin):
             return self._shib_login(username, password)
 
     def login(self, username=None, password=None, session_token=None,
-              store_password=False, reenter_password=False):
+              store_password=False, reenter_password=False): # pragma: no cover
         """
         Log into the MAST portal.
 
@@ -556,14 +556,14 @@ class MastClass(QueryWithLogin):
         return super(MastClass, self).login(username=username, password=password, session_token=session_token,
                                             store_password=store_password, reenter_password=reenter_password)
 
-    def logout(self):
+    def logout(self): # pragma: no cover 
         """
         Log out of current MAST session.
         """
         self._session.cookies.clear_session_cookies()
         self._authenticated = False
 
-    def get_token(self):
+    def get_token(self): # pragma: no cover
         """
         Returns MAST session cookie.
 
@@ -1213,7 +1213,7 @@ class ObservationsClass(MastClass):
             mask = np.full(len(products), False, dtype=bool)
             for elt in vals:
                 if colname == 'extension':  # extension is not actually a column
-                    mask |= [x.endswith(elt) for x in products["productFilename"]]
+                    mask |= [False if isinstance(x,np.ma.core.MaskedConstant) else x.endswith(elt) for x in products["productFilename"]]
                 else:
                     mask |= (products[colname] == elt)
 
