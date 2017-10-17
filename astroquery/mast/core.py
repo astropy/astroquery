@@ -1384,8 +1384,8 @@ class ObservationsClass(MastClass):
             The manifest of files downloaded, or status of files on disk if curl option chosen.
         """
 
-        # If the products list is not already a table of products we need to  get the products and
-        # filter them appropriately
+        # If the products list is not already a table of products we need to
+        # get the products and filter them appropriately
         if type(products) != Table:
 
             if type(products) == str:
