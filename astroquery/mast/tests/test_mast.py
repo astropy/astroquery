@@ -52,8 +52,6 @@ def post_mockreturn(method="POST", url=None, data=None, timeout=10, **kwargs):
     else:
         service = re.search(r"service%22%3A%20%22([\w\.]*)%22", data).group(1)
 
-    print(service)
-
     # need to distiguish counts queries
     if ("Filtered" in service) and (re.search(r"COUNT_BIG%28%2A%29", data)):
         service = "Counts"
