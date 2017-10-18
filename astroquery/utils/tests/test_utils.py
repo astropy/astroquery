@@ -381,6 +381,12 @@ def patch_getreadablefileobj(request):
         def __init__(self, fn, *args, **kwargs):
             self.file = open(fn, 'rb')
 
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc_val, exc_tb):
+            self.close()
+
         def info(self):
             return {'Content-Length': filesize}
 
