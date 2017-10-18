@@ -1419,6 +1419,5 @@ class ObservationsClass(MastClass):
         return manifest
 
 
-
 Observations = ObservationsClass()
 Mast = MastClass()
