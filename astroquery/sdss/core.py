@@ -1007,7 +1007,7 @@ class SDSSClass(BaseQuery):
                     q_where += ' or '
                 q_where += ('((p.ra between %g and %g) and '
                             '(p.dec between %g and %g))'
-                             % (ra - dr, ra + dr, dec - dr, dec + dr))
+                            % (ra - dr, ra + dr, dec - dr, dec + dr))
         elif spectro:
             # Spectra: query for specified plate, mjd, fiberid
             s_fields = ['s.%s=%d' % (key, val) for (key, val) in
