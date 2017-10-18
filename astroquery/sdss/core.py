@@ -1002,11 +1002,12 @@ class SDSSClass(BaseQuery):
 
                 ra = target.ra.degree
                 dec = target.dec.degree
-                radius_degrees = coord.Angle(radius).to('degree').value
+                dr = coord.Angle(radius).to('degree').value
                 if n > 0:
-                    q_where += ' OR '
-                q_where += ('((p.ra BETWEEN {0:g} AND {1:g}) AND (p.dec BETWEEN {2:g} AND {3:g}))'.format(
-                    ra - radius_degrees, ra + radius_degrees, dec - radius_degrees, dec + radius_degrees))
+                    q_where += ' or '
+                q_where += ('((p.ra between %g and %g) and '
+                            '(p.dec between %g and %g))'
+                             % (ra - dr, ra + dr, dec - dr, dec + dr))
         elif spectro:
             # Spectra: query for specified plate, mjd, fiberid
             s_fields = ['s.%s=%d' % (key, val) for (key, val) in
