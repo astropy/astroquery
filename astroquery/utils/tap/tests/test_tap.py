@@ -84,6 +84,57 @@ class TestTap(unittest.TestCase):
         col = self.__find_column('table2_col3', columns)
         self.__check_column(col, 'Table2 Column3 desc', '', 'INTEGER', None)
 
+    def test_load_tables_parameters(self):
+        connHandler = DummyConnHandler()
+        tap = TapPlus("http://test:1111/tap", connhandler=connHandler)
+        responseLoadTable = DummyResponse()
+        responseLoadTable.set_status_code(200)
+        responseLoadTable.set_message("OK")
+        tableDataFile = data_path('test_tables.xml')
+        tableData = utils.read_file_content(tableDataFile)
+        responseLoadTable.set_data(method='GET',
+                                   context=None,
+                                   body=tableData,
+                                   headers=None)
+        tableRequest = "tables"
+        connHandler.set_response(tableRequest, responseLoadTable)
+        # empty request
+        tap.load_tables()
+        request = connHandler.get_last_request()
+        assert request == tableRequest, \
+            "Empty request. Expected: '%s', found: '%s'" % \
+            (tableRequest, request)
+        # flag only_names=false & share_accessible=false: equals to empty request
+        tap.load_tables(only_names=False, include_shared_tables=False)
+        request = connHandler.get_last_request()
+        assert request == tableRequest, \
+            "Empty request. Expected: '%s', found: '%s'" % \
+            (tableRequest, request)
+        # flag only_names
+        tableRequest = "tables?only_tables=true"
+        connHandler.set_response(tableRequest, responseLoadTable)
+        tap.load_tables(only_names=True)
+        request = connHandler.get_last_request()
+        assert request == tableRequest, \
+            "Flag only_names. Expected: '%s', found: '%s'" % \
+            (tableRequest, request)
+        # flag share_accessible=true
+        tableRequest = "tables?share_accessible=true"
+        connHandler.set_response(tableRequest, responseLoadTable)
+        tap.load_tables(include_shared_tables=True)
+        request = connHandler.get_last_request()
+        assert request == tableRequest, \
+            "Flag share_accessigle. Expected: '%s', found: '%s'" % \
+            (tableRequest, request)
+        # flag only_names=true & share_accessible=true
+        tableRequest = "tables?only_tables=true&share_accessible=true"
+        connHandler.set_response(tableRequest, responseLoadTable)
+        tap.load_tables(only_names=True, include_shared_tables=True)
+        request = connHandler.get_last_request()
+        assert request == tableRequest, \
+            "Flags only_names and share_accessible. Expected: '%s', found: '%s'" % \
+            (tableRequest, request)
+
     def test_load_table(self):
         connHandler = DummyConnHandler()
         tap = TapPlus("http://test:1111/tap", connhandler=connHandler)
