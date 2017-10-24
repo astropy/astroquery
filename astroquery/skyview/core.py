@@ -7,7 +7,7 @@ from astropy import units as u
 
 from . import conf
 from ..query import BaseQuery
-from ..utils import prepend_docstr_noreturns, commons, async_to_sync
+from ..utils import prepend_docstr_nosections, commons, async_to_sync
 
 
 __doctest_skip__ = [
@@ -206,7 +206,7 @@ class SkyViewClass(BaseQuery):
                                                  show_progress=show_progress)
         return [obj.get_fits() for obj in readable_objects]
 
-    @prepend_docstr_noreturns(get_images.__doc__)
+    @prepend_docstr_nosections(get_images.__doc__)
     def get_images_async(self, position, survey, coordinates=None,
                          projection=None, pixels=None, scaling=None,
                          sampler=None, resolver=None, deedger=None, lut=None,
@@ -227,7 +227,7 @@ class SkyViewClass(BaseQuery):
                                       show_progress=show_progress)
                 for url in image_urls]
 
-    @prepend_docstr_noreturns(get_images.__doc__)
+    @prepend_docstr_nosections(get_images.__doc__, sections=['Returns', 'Examples'])
     def get_image_list(self, position, survey, coordinates=None,
                        projection=None, pixels=None, scaling=None,
                        sampler=None, resolver=None, deedger=None, lut=None,
@@ -238,6 +238,13 @@ class SkyViewClass(BaseQuery):
         -------
         list of image urls
 
+        Examples
+        --------
+        >>> SkyView().get_image_list(position='Eta Carinae',
+        ...                          survey=['Fermi 5', 'HRI', 'DSS'])
+        [u'http://skyview.gsfc.nasa.gov/tempspace/fits/skv6183161285798_1.fits',
+         u'http://skyview.gsfc.nasa.gov/tempspace/fits/skv6183161285798_2.fits',
+         u'http://skyview.gsfc.nasa.gov/tempspace/fits/skv6183161285798_3.fits']
         """
 
         self._validate_surveys(survey)

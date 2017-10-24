@@ -12,8 +12,7 @@ from astropy.io import ascii
 from astropy import units as u
 from astropy import log
 from ..query import BaseQuery
-from ..utils import async_to_sync
-from ..utils.docstr_chompers import prepend_docstr_noreturns
+from ..utils import async_to_sync, prepend_docstr_nosections
 from . import conf
 from . import load_species_table
 
@@ -414,7 +413,7 @@ class SplatalogueClass(BaseQuery):
                 raise ValueError("Must specify either min/max frequency or "
                                  "a valid Band.")
 
-    @prepend_docstr_noreturns("\n" + _parse_kwargs.__doc__)
+    @prepend_docstr_nosections("\n" + _parse_kwargs.__doc__)
     def query_lines_async(self, min_frequency=None, max_frequency=None,
                           cache=True, **kwargs):
         """
