@@ -6,7 +6,9 @@ Custom exceptions used in the astroquery query classes
 from astropy.utils.exceptions import AstropyWarning
 
 __all__ = ['TimeoutError', 'InvalidQueryError', 'RemoteServiceError',
-           'TableParseError', 'LoginError', 'NoResultsWarning']
+           'TableParseError', 'LoginError', 'ResolverError',
+           'NoResultsWarning', 'LargeQueryWarning', 'InputWarning',
+           'AuthenticationWarning', 'MaxResultsWarning']
 
 
 class TimeoutError(Exception):
@@ -19,6 +21,9 @@ class TimeoutError(Exception):
 
 
 class InvalidQueryError(Exception):
+    """
+    Errors related to invalid queries.
+    """
     pass
 
 
@@ -46,37 +51,47 @@ class LoginError(Exception):
     """
     pass
 
+
 class ResolverError(Exception):
     """
-    Errors due to failing to resolve an object name/id to a specific 
+    Errors due to failing to resolve an object name/id to a specific
     sky coordinate.
     """
+    pass
+
     
 class NoResultsWarning(AstropyWarning):
     """
     Astroquery warning class to be issued when a query returns no result.
     """
+    pass
 
+    
 class LargeQueryWarning(AstropyWarning):
     """
     Astroquery warning class to be issued when a query is larger than
     recommended for a given service.
     """
+    pass
 
+    
 class InputWarning(AstropyWarning):
     """
     Astroquery warning class to be issued when use input is incorrect
     in some way but doesn't prevent the function from running.
     """
+    pass
 
+    
 class AuthenticationWarning(AstropyWarning):
     """
-    Astroquery warning class to be issued when there are problems with 
+    Astroquery warning class to be issued when there are problems with
     user authentication.
     """
 
 class MaxResultsWarning(AstropyWarning):
     """
-    Astroquery warning class to be issued when the maximum allowed 
+    Astroquery warning class to be issued when the maximum allowed
     results are returned.
     """
+    pass
