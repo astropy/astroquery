@@ -46,15 +46,37 @@ class LoginError(Exception):
     """
     pass
 
-
+class ResolverError(Exception):
+    """
+    Errors due to failing to resolve an object name/id to a specific 
+    sky coordinate.
+    """
+    
 class NoResultsWarning(AstropyWarning):
     """
     Astroquery warning class to be issued when a query returns no result.
     """
 
-
 class LargeQueryWarning(AstropyWarning):
     """
     Astroquery warning class to be issued when a query is larger than
     recommended for a given service.
+    """
+
+class InputWarning(AstropyWarning):
+    """
+    Astroquery warning class to be issued when use input is incorrect
+    in some way but doesn't prevent the function from running.
+    """
+
+class AuthenticationWarning(AstropyWarning):
+    """
+    Astroquery warning class to be issued when there are problems with 
+    user authentication.
+    """
+
+class MaxResultsWarning(AstropyWarning):
+    """
+    Astroquery warning class to be issued when the maximum allowed 
+    results are returned.
     """

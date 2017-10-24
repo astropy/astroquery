@@ -29,12 +29,14 @@ from astropy.table import Table, Row, vstack, MaskedColumn
 from astropy.extern.six.moves.urllib.parse import quote as urlencode
 from astropy.extern.six.moves.http_cookiejar import Cookie
 from astropy.utils.exceptions import AstropyWarning
+from astropy.logger import log
 
 from ..query import QueryWithLogin
 from ..utils import commons, async_to_sync
 from ..utils.class_or_instance import class_or_instance
 from ..exceptions import (TimeoutError, InvalidQueryError, RemoteServiceError,
-                          LoginError, NoResultsWarning)
+                          LoginError, ResolverError, MaxResultsWarning,
+                          NoResultsWarning, InputWarning, AuthenticationWarning)
 from . import conf
 
 
@@ -42,20 +44,7 @@ __all__ = ['Observations', 'ObservationsClass',
            'Mast', 'MastClass']
 
 
-class ResolverError(Exception):
-    pass
 
-
-class InputWarning(AstropyWarning):
-    pass
-
-
-class AuthenticationWarning(AstropyWarning):
-    pass
-
-
-class MaxResultsWarning(AstropyWarning):
-    pass
 
 
 def _prepare_service_request_string(json_obj):
@@ -217,20 +206,19 @@ class MastClass(QueryWithLogin):
         response = self._session.request("GET", self._SESSION_INFO_URL)
 
         if response.status_code != 200:
-            print("Status code:", response.status_code)
-            print("Authentication failed!")
+            warnings.warn("Status code: {}\nAuthentication failed!".format(response.status_code),
+                          AuthenticationWarning)
             return False
 
         exp = re.findall(r'<strong>Session Expiration \(barring inactivity\):</strong> (.*?)\n', response.text)
         if len(exp) == 0:
-            print(response.text)
-            print("Authentication failed!")
+            warnings.warn("{}\nAuthentication failed!".format(response.text),
+                          AuthenticationWarning)
             return False
         else:
             exp = exp[0]
 
-        print("Authentication successful!")
-        print("Session Expiration: {}".format(exp))
+        log.info("Authentication successful!\nSession Expiration: {}".format(exp))
         return True
 
     def _shib_login(self, username, password):  # pragma: no cover
@@ -315,18 +303,17 @@ class MastClass(QueryWithLogin):
         response = self._session.request("GET", self._SESSION_INFO_URL)
 
         if response.status_code != 200:
-            print("Authentication failed!")
+            warnings.warn("Authentication failed!", AuthenticationWarning)
             return
 
         exp = re.findall(r'<strong>Session Expiration \(barring inactivity\):</strong> (.*?)\n', response.text)
         if len(exp) == 0:
-            print("Authentication failed!")
+            warnings.warn("Authentication failed!", AuthenticationWarning)
             return False
         else:
             exp = exp[0]
 
-        print("Authentication successful!")
-        print("Session Expiration: {}".format(exp))
+        log.info("Authentication successful!\nSession Expiration: {}".format(exp))
         return True
 
     def _request(self, method, url, params=None, data=None, headers=None,
