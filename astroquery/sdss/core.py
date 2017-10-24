@@ -14,8 +14,7 @@ from astropy.table import Table, Column
 
 from ..query import BaseQuery
 from . import conf
-from ..utils import commons, async_to_sync
-from ..utils.docstr_chompers import prepend_docstr_noreturns
+from ..utils import commons, async_to_sync, prepend_docstr_nosections
 from ..exceptions import RemoteServiceError, NoResultsWarning
 from .field_names import (photoobj_defs, specobj_defs,
                           crossid_defs, get_field_info)
@@ -595,7 +594,7 @@ class SDSSClass(BaseQuery):
 
         return results
 
-    @prepend_docstr_noreturns(get_spectra_async.__doc__)
+    @prepend_docstr_nosections(get_spectra_async.__doc__)
     def get_spectra(self, coordinates=None, radius=2. * u.arcsec,
                     matches=None, plate=None, fiberID=None, mjd=None,
                     timeout=TIMEOUT, cache=True, data_release=12,
@@ -740,7 +739,7 @@ class SDSSClass(BaseQuery):
 
         return results
 
-    @prepend_docstr_noreturns(get_images_async.__doc__)
+    @prepend_docstr_nosections(get_images_async.__doc__)
     def get_images(self, coordinates=None, radius=2. * u.arcsec,
                    matches=None, run=None, rerun=301, camcol=None, field=None,
                    band='g', timeout=TIMEOUT, cache=True,
@@ -817,7 +816,7 @@ class SDSSClass(BaseQuery):
 
         return results
 
-    @prepend_docstr_noreturns(get_spectral_template_async.__doc__)
+    @prepend_docstr_nosections(get_spectral_template_async.__doc__)
     def get_spectral_template(self, kind='qso', timeout=TIMEOUT,
                               show_progress=True):
         """

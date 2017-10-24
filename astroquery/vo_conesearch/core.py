@@ -131,7 +131,13 @@ class ConeSearchClass(BaseQuery):
         if get_query_payload:
             return request_payload
 
-        response = self._request('GET', self.URL, params=request_payload,
+        # && in URL can break some queries, so remove trailing & if needed
+        if self.URL.endswith('&'):
+            url = self.URL[:-1]
+        else:
+            url = self.URL
+
+        response = self._request('GET', url, params=request_payload,
                                  timeout=self.TIMEOUT, cache=cache)
         result = self._parse_result(response, pars=request_payload,
                                     verbose=verbose)
