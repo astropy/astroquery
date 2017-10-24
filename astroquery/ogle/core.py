@@ -7,8 +7,7 @@ import numpy as np
 from astropy.table import Table
 
 from ..query import BaseQuery
-from ..utils import commons, async_to_sync
-from ..utils.docstr_chompers import prepend_docstr_noreturns
+from ..utils import commons, async_to_sync, prepend_docstr_nosections
 
 from . import conf
 
@@ -126,7 +125,7 @@ class OgleClass(BaseQuery):
         files = {'file1': file_data}
         return files
 
-    @prepend_docstr_noreturns(_args_to_payload.__doc__)
+    @prepend_docstr_nosections(_args_to_payload.__doc__)
     def query_region_async(self, *args, **kwargs):
         """
         Returns

@@ -11,9 +11,8 @@ import numpy as np
 import numpy.ma as ma
 from astropy import units as u
 from astropy import coordinates as coord
-from ..utils import commons
+from ..utils import commons, prepend_docstr_nosections
 from ..query import BaseQuery
-from ..utils.docstr_chompers import prepend_docstr_noreturns
 
 __all__ = ['Alfalfa', 'AlfalfaClass']
 
@@ -189,7 +188,7 @@ class AlfalfaClass(BaseQuery):
         result = commons.FileContainer(link, show_progress=show_progress)
         return result
 
-    @prepend_docstr_noreturns(get_spectrum_async.__doc__)
+    @prepend_docstr_nosections(get_spectrum_async.__doc__)
     def get_spectrum(self, agc, show_progress=True):
         """
         Returns

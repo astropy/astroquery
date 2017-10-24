@@ -18,8 +18,7 @@ from astropy import log
 from bs4 import BeautifulSoup
 
 from ..query import QueryWithLogin
-from ..utils import commons, async_to_sync, system_tools
-from ..utils.docstr_chompers import prepend_docstr_noreturns
+from ..utils import commons, async_to_sync, system_tools, prepend_docstr_nosections
 from ..exceptions import TableParseError, LoginError
 
 from . import conf
@@ -320,7 +319,7 @@ class NraoClass(QueryWithLogin):
 
         return authenticated
 
-    @prepend_docstr_noreturns(_args_to_payload.__doc__)
+    @prepend_docstr_nosections(_args_to_payload.__doc__)
     def query_async(self,
                     get_query_payload=False,
                     cache=True,
@@ -359,7 +358,7 @@ class NraoClass(QueryWithLogin):
 
         return response
 
-    @prepend_docstr_noreturns(_args_to_payload.__doc__)
+    @prepend_docstr_nosections(_args_to_payload.__doc__)
     def query_region_async(self, coordinates, radius=1 * u.arcmin,
                            equinox='J2000', telescope='all', start_date="",
                            end_date="", freq_low=None, freq_up=None,

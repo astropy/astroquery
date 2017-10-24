@@ -7,9 +7,7 @@ from astropy.table import Table
 
 from . import conf
 from ..query import BaseQuery
-from ..utils import (url_helpers,
-                     prepend_docstr_noreturns, async_to_sync,
-                     )
+from ..utils import url_helpers, prepend_docstr_nosections, async_to_sync
 
 
 @async_to_sync
@@ -64,7 +62,7 @@ class XMatchClass(BaseQuery):
             return response
         return ascii.read(response.text, format='csv')
 
-    @prepend_docstr_noreturns("\n" + query.__doc__)
+    @prepend_docstr_nosections("\n" + query.__doc__)
     def query_async(self, cat1, cat2, max_distance, colRA1=None, colDec1=None,
                     colRA2=None, colDec2=None, cache=True,
                     get_query_payload=False):

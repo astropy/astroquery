@@ -27,7 +27,7 @@ from astroquery.utils.tap.model.filter import Filter
 
 __all__ = ['Tap', 'TapPlus']
 
-VERSION = "1.0"
+VERSION = "1.0.1"
 TAP_CLIENT_ID = "aqtappy-" + VERSION
 
 
@@ -113,7 +113,7 @@ class Tap(object):
         return self.__load_tables(verbose=verbose)
 
     def __load_tables(self, only_names=False, include_shared_tables=False,
-                    verbose=False):
+                      verbose=False):
         """Loads all public tables
 
         Parameters
@@ -130,7 +130,7 @@ class Tap(object):
         A list of table objects
         """
         # share_info=true&share_accessible=true&only_tables=true
-        flags = None
+        flags = ""
         addedItem = False
         if only_names:
             flags = "only_tables=true"
@@ -141,7 +141,7 @@ class Tap(object):
             flags += "share_accessible=true"
             addedItem = True
         print("Retrieving tables...")
-        if flags is not None:
+        if flags != "":
             response = self.__connHandler.execute_get("tables?"+flags)
         else:
             response = self.__connHandler.execute_get("tables")
@@ -161,9 +161,9 @@ class Tap(object):
         return tsp.get_tables()
 
     def launch_job(self, query, name=None, output_file=None,
-                        output_format="votable", verbose=False,
-                        dump_to_file=False, upload_resource=None,
-                        upload_table_name=None):
+                   output_format="votable", verbose=False,
+                   dump_to_file=False, upload_resource=None,
+                   upload_table_name=None):
         """Launches a synchronous job
 
         Parameters
@@ -629,8 +629,8 @@ class TapPlus(Tap):
         A list of table objects
         """
         return self._Tap__load_tables(only_names=only_names,
-                                  include_shared_tables=include_shared_tables,
-                                  verbose=verbose)
+                                      include_shared_tables=include_shared_tables,
+                                      verbose=verbose)
 
     def load_table(self, table, verbose=False):
         """Loads the specified table
@@ -688,8 +688,8 @@ class TapPlus(Tap):
             print(response.status, response.reason)
             print(response.getheaders())
         isError = connHandler.check_launch_response_status(response,
-                                                                  verbose,
-                                                                  200)
+                                                           verbose,
+                                                           200)
         if isError:
             print(response.reason)
             raise Exception(response.reason)
@@ -795,8 +795,8 @@ class TapPlus(Tap):
         # check response
         connHandler = self.__getconnhandler()
         isError = connHandler.check_launch_response_status(response,
-                                                                  verbose,
-                                                                  200)
+                                                           verbose,
+                                                           200)
         if isError:
             print("Login error: " + str(response.reason))
             raise Exception("Login error: " + str(response.reason))
