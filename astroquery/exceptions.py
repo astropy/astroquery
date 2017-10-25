@@ -59,14 +59,14 @@ class ResolverError(Exception):
     """
     pass
 
-    
+
 class NoResultsWarning(AstropyWarning):
     """
     Astroquery warning class to be issued when a query returns no result.
     """
     pass
 
-    
+
 class LargeQueryWarning(AstropyWarning):
     """
     Astroquery warning class to be issued when a query is larger than
@@ -74,7 +74,7 @@ class LargeQueryWarning(AstropyWarning):
     """
     pass
 
-    
+
 class InputWarning(AstropyWarning):
     """
     Astroquery warning class to be issued when use input is incorrect
@@ -82,12 +82,13 @@ class InputWarning(AstropyWarning):
     """
     pass
 
-    
+
 class AuthenticationWarning(AstropyWarning):
     """
     Astroquery warning class to be issued when there are problems with
     user authentication.
     """
+
 
 class MaxResultsWarning(AstropyWarning):
     """
