@@ -390,7 +390,7 @@ class MastClass(QueryWithLogin):
 
     def _get_col_config(self, service):
         """
-        Gets the columnsConfig entry for given service and stores it in self._column_configs.
+        Gets the columnsConfig entry for given service and stores it in `self._column_configs`.
 
         Parameters
         ----------
