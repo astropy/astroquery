@@ -293,6 +293,74 @@ Product filtering can also be appllied directly to a table of products without p
 
                
 
+Accessing Proprietary Data
+==========================
+
+To access data that is not publicly available users may log into their
+`MyST Account <https://archive.stsci.edu/registration/index.html>`_.
+This can be done by using the `~astroquery.mast.MastClass.login` function,
+or by initializing a class instance with a username/password.
+If a password is not supplied, the user will be prompted to enter one.
+
+.. code-block:: python
+
+                >>> from astroquery.mast import Observations
+                >>> Observations.login(username="testUser@stsci.edu",password="testPwd")
+
+                Authentication successful!
+                Session Expiration: 600 minute(s)
+
+                >>> sessionInfo = Observations.session_info()
+
+                Session Expiration: 559.0 min
+                Username: testUser@stsci.edu
+                First Name: Test
+                Last Name: User
+
+              
+.. code-block:: python
+
+                >>> from astroquery.mast import Observations
+                >>> mySession = Observations(username="testUser@stsci.edu",password="testPwd")
+
+                Authentication successful!
+                Session Expiration: 600 minute(s)
+
+                >>> sessionInfo = mySession.session_info()
+
+                Session Expiration: 559.0 min
+                Username: testUser@stsci.edu
+                First Name: Test
+                Last Name: User
+
+\* For security passwords should not be typed into a terminal or Jupyter notebook
+but instead input using a more secure method such as `~getpass.getpass`.
+
+
+MAST login can also be achieved with a "session token," from an existing valid MAST session.
+
+.. code-block:: python
+
+                >>> from astroquery.mast import Observations
+                >>> from astroquery.mast import Mast
+                >>> myObsSession = Observations(username="testUser@stsci.edu",password="testPwd")
+
+                Authentication successful!
+                Session Expiration: 600 minute(s)
+
+                >>> myToken = myObsSession.get_token()
+                >>> Mast.login(session_token=myToken)
+
+                Authentication successful!
+                Session Expiration: 599 minute(s)
+
+
+MAST sessions expire after 600 minutes, at which point the user must login again.
+The ``store_password`` argument can be used to store the username and password securely in the user's keyring.
+If the username/password are thus stored, only the username need be entered to login.
+This password can be overwritten using the ``reenter_password`` argument.
+To logout before a session expires, the `~astroquery.mast.MastClass.logout` method may be used.
+
 
    
 Direct Mast Queries

@@ -238,6 +238,7 @@ generally return a table listing the available data first.
   ibe/ibe.rst
   irsa/irsa.rst
   magpis/magpis.rst
+  mast/mast.rst
   ned/ned.rst
   nrao/nrao.rst
   nvas/nvas.rst

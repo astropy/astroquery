@@ -13,7 +13,10 @@ from ... import mast
 @remote_data
 class TestMast(object):
 
-    # MastClass tests
+    #####################
+    ## MastClass tests ##
+    #####################
+
     def test_mast_service_request_async(self):
         service = 'Mast.Caom.Cone'
         params = {'ra': 184.3,
@@ -40,7 +43,14 @@ class TestMast(object):
         # Are the two GALEX observations with obs_id 6374399093149532160 in the results table
         assert len(result[np.where(result["obs_id"] == "6374399093149532160")]) == 2
 
-    # ObservationsClass tests ##
+    def test_sesion_info(self):
+        sessionInfo = mast.Mast.session_info(True)
+        assert sessionInfo['Username'] == 'anonymous'
+        assert sessionInfo['Session Expiration'] is None
+
+    #############################
+    ## ObservationsClass tests ##
+    #############################
 
     def test_list_missions(self):
         missions = mast.Observations.list_missions()
@@ -58,6 +68,11 @@ class TestMast(object):
         assert isinstance(result, Table)
         assert len(result) >= 1826
         assert result[np.where(result['obs_id'] == '00031992001')]
+
+        result = mast.Observations.query_region("322.49324 12.16683", radius="0.1 deg",
+                                                pagesize=1, page=1)
+        assert isinstance(result, Table)
+        assert len(result) == 1
 
     def test_observations_query_object_async(self):
         responses = mast.Observations.query_object_async("M8", radius=".02 deg")
