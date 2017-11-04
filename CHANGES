@@ -5,6 +5,7 @@
 - MAST: Added convenience function to list available missions. [#947]
 - SIMBAD: adding 'get_query_payload' kwarg to all public methods to return
   the request parameters. [#962]
+- CosmoSim: Fixed login service. [#999]
 - ESO: The upstream API changed.  We have adapted.  [#970]
 - ESO: Added 'destination' keyword to Eso.retrieve_data(), to download files
   to a specific location (other than the cache). [#976]
