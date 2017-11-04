@@ -154,7 +154,7 @@ class VizierClass(BaseQuery):
         self._keywords = None
 
     def find_catalogs(self, keywords, include_obsolete=False, verbose=False,
-                      max_catalogs=None, return_type='votable'):
+                      ucd='', max_catalogs=None, return_type='votable'):
         """
         Search Vizier for catalogs based on a set of keywords, e.g. author name
 
@@ -165,6 +165,12 @@ class VizierClass(BaseQuery):
             From `Vizier <http://vizier.u-strasbg.fr/doc/asu-summary.htx>`_:
             "names or words of title of catalog. The words are and'ed, i.e.
             only the catalogues characterized by all the words are selected."
+        ucd : string
+            "Unified Content Description" column descriptions.  Specifying
+            these will select only catalogs that have columns matching the
+            column descriptions defined on the Vizier web pages.
+            See http://vizier.u-strasbg.fr/vizier/vizHelp/1.htx#ucd and
+            http://cds.u-strasbg.fr/w/doc/UCD/
         include_obsolete : bool, optional
             If set to True, catalogs marked obsolete will also be returned.
         max_catalogs : int or None
@@ -194,6 +200,10 @@ class VizierClass(BaseQuery):
             keywords = " ".join(keywords)
 
         data_payload = {'-words': keywords, '-meta.all': 1}
+
+        ucd_ = self._schema_ucd.validate(ucd)
+        data_payload['-ucd'] = ucd_
+
         if max_catalogs is not None:
             data_payload['-meta.max'] = max_catalogs
         response = self._request(
