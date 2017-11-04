@@ -354,7 +354,7 @@ class CosmoSimClass(QueryWithLogin):
                                            .split('/')[-1])] = i_phase
             else:
                 self.job_dict[str(i.get('id'))] = i_phase
-        
+
         if phase:
             phase = [phase[i].upper() for i in range(len(phase))]
 
