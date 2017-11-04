@@ -125,8 +125,8 @@ class CosmoSimClass(QueryWithLogin):
 
         # Delete job; prevent them from piling up with phase PENDING
         if authenticated.status_code == 200:
-            soup = BeautifulSoup(authenticated.content)
-            self.delete_job(jobid=str(soup.find("uws:jobid").string),
+            soup = BeautifulSoup(authenticated.content, "lxml")
+            self.delete_job(jobid=str(soup.find("uws:jobref")["id"]),
                             squash=True)
 
         return authenticated
@@ -177,8 +177,8 @@ class CosmoSimClass(QueryWithLogin):
             if authenticated.status_code == 200:
                 warnings.warn("Status: You are logged in as {0}."
                               .format(self.username))
-                soup = BeautifulSoup(authenticated.content)
-                self.delete_job(jobid=str(soup.find("uws:jobid").string),
+                soup = BeautifulSoup(authenticated.content, "lxml")
+                self.delete_job(jobid=str(soup.find("uws:jobref")["id"]),
                                 squash=True)
             else:
                 warnings.warn("Status: The username/password combination "
@@ -230,7 +230,7 @@ class CosmoSimClass(QueryWithLogin):
                                    data={'query': query_string, 'phase': 'run',
                                          'queue': queue},
                                    cache=cache)
-            soup = BeautifulSoup(result.content)
+            soup = BeautifulSoup(result.content, "lxml")
             phase = soup.find("uws:phase").string
             if phase in ['ERROR']:
                 warnings.warn("No table was generated for job with phase "
@@ -256,8 +256,8 @@ class CosmoSimClass(QueryWithLogin):
                                    cache=cache)
             self._existing_tables()
 
-        soup = BeautifulSoup(result.content)
-        self.current_job = str(soup.find("uws:jobid").string)
+        soup = BeautifulSoup(result.content, "lxml")
+        self.current_job = str(soup.find("uws:jobref")["id"])
         warnings.warn("Job created: {}".format(self.current_job))
 
         if mail or text:
@@ -271,14 +271,13 @@ class CosmoSimClass(QueryWithLogin):
         use for a given set of user credentials. Keys are jobids and values
         are the tables which are stored under those keys.
         """
-
         checkalljobs = self.check_all_jobs()
         completed_jobs = [key for key in self.job_dict.keys()
                           if self.job_dict[key] in ['COMPLETED', 'EXECUTING']]
-        soup = BeautifulSoup(checkalljobs.content)
+        soup = BeautifulSoup(checkalljobs.content, "lxml")
         self.table_dict = {}
 
-        for i in soup.find_all("uws:jobref"):
+        for i in soup.find_all({"uws:jobref"}):
             jobid = i.get('xlink:href').split('/')[-1]
             if jobid in completed_jobs:
                 self.table_dict[jobid] = str(i.get('id'))
@@ -341,22 +340,21 @@ class CosmoSimClass(QueryWithLogin):
             The requests response for the GET request for finding all
             existing jobs.
         """
-
         checkalljobs = self._request('GET', CosmoSim.QUERY_URL,
                                      auth=(self.username, self.password),
                                      params={'print': 'b'}, cache=False)
 
         self.job_dict = {}
-        soup = BeautifulSoup(checkalljobs.content)
+        soup = BeautifulSoup(checkalljobs.content, "lxml")
 
-        for i in soup.find_all("uws:jobref"):
+        for i in soup.find_all({"uws:jobref"}):
             i_phase = str(i.find('uws:phase').string)
             if i_phase in ['COMPLETED', 'EXECUTING', 'ABORTED', 'ERROR']:
                 self.job_dict['{0}'.format(i.get('xlink:href')
                                            .split('/')[-1])] = i_phase
             else:
                 self.job_dict[str(i.get('id'))] = i_phase
-
+        
         if phase:
             phase = [phase[i].upper() for i in range(len(phase))]
 
@@ -448,8 +446,8 @@ class CosmoSimClass(QueryWithLogin):
             if not phase and not regex:
                 if not sortby:
                     t = Table()
-                    t['JobID'] = self.job_dict.keys()
-                    t['Phase'] = self.job_dict.values()
+                    t['JobID'] = list(self.job_dict.keys())
+                    t['Phase'] = list(self.job_dict.values())
                     t.pprint()
                 else:
                     if sortby.upper() == 'TABLENAME':
@@ -653,7 +651,7 @@ class CosmoSimClass(QueryWithLogin):
                                        auth=(self.username, self.password),
                                        cache=False)
                          for i in completed_ids]
-        soups = [BeautifulSoup(response_list[i].content)
+        soups = [BeautifulSoup(response_list[i].content, "lxml")
                  for i in range(len(response_list))]
         self.starttime_dict = {}
         for i in range(len(soups)):
@@ -912,7 +910,7 @@ class CosmoSimClass(QueryWithLogin):
         except AttributeError:
             self._generate_schema()
 
-        projects = np.sort(self.db_dict.keys())
+        projects = np.sort(list(self.db_dict.keys()))
         largest = max([len(projects[i]) for i in range(len(projects))])
         t = Table()
         # db not specified
@@ -923,7 +921,7 @@ class CosmoSimClass(QueryWithLogin):
             info_list = []
             tmp2_largest = 0
             for proj in projects:
-                size = len(self.db_dict['{0}'.format(proj)].keys())
+                size = len((self.db_dict['{0}'.format(proj)].keys()))
                 proj_list += (['@ {}'.format(proj)] +
                               ['' for i in range(size - 1)] +
                               ['-' * (largest + 2)])
@@ -953,8 +951,8 @@ class CosmoSimClass(QueryWithLogin):
         # db specified
         if db:
             try:
-                size1 = len(self.db_dict[str(db)].keys())
-                slist = [self.db_dict[db][key].keys()
+                size1 = len(list(self.db_dict[str(db)].keys()))
+                slist = [list(self.db_dict[db][key].keys())
                          if isinstance(self.db_dict[db][key], dict)
                          else key
                          for key in self.db_dict[db].keys()]
@@ -966,13 +964,13 @@ class CosmoSimClass(QueryWithLogin):
             # check the max size of any given column in the structure
             if table:
                 try:
-                    size2 = max(size2, len(self.db_dict[db]['tables']
-                                           [table]['columns'].keys()))
+                    size2 = max(size2, len(list(self.db_dict[db]['tables']
+                                           [table]['columns'].keys())))
                     if col:
                         try:
-                            size2 = max(size2, len(self.db_dict[db]['tables']
+                            size2 = max(size2, len(list(self.db_dict[db]['tables']
                                                    [table]['columns']
-                                                   [col].keys()))
+                                                   [col].keys())))
                         except(KeyError, NameError):
                             logging.error("Must first specify a valid column "
                                           "of the `{0}` table within the `{1}`"
@@ -988,11 +986,11 @@ class CosmoSimClass(QueryWithLogin):
             t['Project Items'] = (
                 ['--> @ {}:'.format(key)
                  if (isinstance(self.db_dict[db][key], dict) and
-                     (len(self.db_dict[db][key].keys()) ==
-                      len(self.db_dict[db]['tables'].keys())))
+                     (len(list(self.db_dict[db][key].keys())) ==
+                      len(list(self.db_dict[db]['tables'].keys()))))
                  else '@ {}'.format(key)
                  if (isinstance(self.db_dict[db][key], dict) and
-                     (len(self.db_dict[db][key].keys()) !=
+                     (len(list(self.db_dict[db][key].keys())) !=
                       len(self.db_dict[db]['tables'].keys())))
                  else str(key)
                  for key in self.db_dict[db].keys()] +
@@ -1139,9 +1137,9 @@ class CosmoSimClass(QueryWithLogin):
                 results = self._request(
                     'GET', self.QUERY_URL + "/{}/results".format(jobid),
                     auth=(self.username, self.password))
-                soup = BeautifulSoup(results.content)
+                soup = BeautifulSoup(results.content, "lxml")
                 urls = [i.get('xlink:href')
-                        for i in soup.findAll('uws:result')]
+                        for i in soup.findAll({'uws:result'})]
                 formatlist = [urls[i].split('/')[-1].upper()
                               for i in range(len(urls))]
 
