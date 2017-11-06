@@ -15,8 +15,9 @@
   (even the ones without a specific form). [#976]
 - ESO: Disabled caching for all Eso.retrieve_data() operations. [#976]
 - MAST: Added login capabilities [#982]
-- vo_conesearch: Fix bad query for service that cannot accept '&&'
+- vo_conesearch: Fixed bad query for service that cannot accept '&&'
   in URL. [#993]
+- vo_conesearch: Removed broken services from default list. [#997]
 - utils: upgrade ``prepend_docstr_noreturns`` to work with multiple
   sections, and thus rename it to ``prepend_docstr_nosections``. [#988]
 
