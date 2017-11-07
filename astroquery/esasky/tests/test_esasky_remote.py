@@ -52,7 +52,6 @@ class TestESASky:
         assert os.path.exists(file_path)
 
         shutil.rmtree(download_directory)
-        #//assert that file exists
 
     def test_esasky_query_region_catalogs(self):
         result = ESASkyClass.query_region_catalogs("M51", "5 arcmin")

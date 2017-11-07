@@ -514,7 +514,7 @@ class ESASkyClass(BaseQuery):
                 product_url = (maps_table[self.__PRODUCT_URL_STRING][index]
                                .decode('utf-8'))
                 if(mission.lower() == self.__HERSCHEL_STRING):
-                    observation_id = (maps_table["observation_id"][index].decode('utf-8'))
+                    observation_id = maps_table["observation_id"][index].decode('utf-8')
                 else:
                     observation_id = (maps_table[self._get_tap_observation_id(mission)][index]
                                       .decode('utf-8'))
@@ -587,9 +587,6 @@ class ESASkyClass(BaseQuery):
         full_directory_path = os.path.abspath(directory_path)
         file_name = file_and_directory_name[file_and_directory_name.index("/") + 1:]
         
-        print("full path: %s" %(full_directory_path))
-        print("file and directory name: %s" %(file_and_directory_name))
-        print("file name: %s" %(file_name))
         os.renames(os.path.join(full_directory_path, file_and_directory_name),
                    os.path.join(full_directory_path, file_name))
         return file_name
