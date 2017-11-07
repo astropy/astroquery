@@ -1,6 +1,4 @@
-http://archive.noao.edu/nvo/usno.php?cat=a&amp;
 http://gsss.stsci.edu/webservices/vo/ConeSearch.aspx?CAT=GSC23&amp;
-http://irsa.ipac.caltech.edu/cgi-bin/Oasis/CatSearch/nph-catsearch?CAT=fp_psc&amp;
 http://vizier.u-strasbg.fr/viz-bin/votable/-A?-out.all&amp;-source=I/220/out&amp;
 http://vizier.u-strasbg.fr/viz-bin/votable/-A?-out.all&amp;-source=I/243/out&amp;
 http://vizier.u-strasbg.fr/viz-bin/votable/-A?-out.all&amp;-source=I/252/out&amp;

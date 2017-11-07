@@ -17,7 +17,7 @@
 - MAST: Added login capabilities [#982]
 - vo_conesearch: Fixed bad query for service that cannot accept '&&'
   in URL. [#993]
-- vo_conesearch: Removed broken services from default list. [#997]
+- vo_conesearch: Removed broken services from default list. [#997, #1002]
 - utils: upgrade ``prepend_docstr_noreturns`` to work with multiple
   sections, and thus rename it to ``prepend_docstr_nosections``. [#988]
 
