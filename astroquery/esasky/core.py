@@ -586,7 +586,7 @@ class ESASkyClass(BaseQuery):
                                          directory_path):
         full_directory_path = os.path.abspath(directory_path)
         file_name = file_and_directory_name[file_and_directory_name.index("/") + 1:]
-        
+
         os.renames(os.path.join(full_directory_path, file_and_directory_name),
                    os.path.join(full_directory_path, file_name))
         return file_name
@@ -789,7 +789,7 @@ class ESASkyClass(BaseQuery):
         for index in range(len(json)):
             response_list.append(json[index][field_name])
         return response_list
-    
+
     def _get_json_data_for_mission(self, json, mission):
         for index in range(len(json)):
             if(json[index][self.__MISSION_STRING].lower() == mission.lower()):
