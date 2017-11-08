@@ -511,8 +511,7 @@ class ESASkyClass(BaseQuery):
             print("Starting download of %s data. (%d files)"
                   % (mission, len(maps_table[self.__PRODUCT_URL_STRING])))
             for index in range(len(maps_table)):
-                product_url = (maps_table[self.__PRODUCT_URL_STRING][index]
-                               .decode('utf-8'))
+                product_url = maps_table[self.__PRODUCT_URL_STRING][index].decode('utf-8')
                 if(mission.lower() == self.__HERSCHEL_STRING):
                     observation_id = maps_table["observation_id"][index].decode('utf-8')
                 else:
