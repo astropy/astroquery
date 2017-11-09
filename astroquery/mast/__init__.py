@@ -31,9 +31,10 @@ class Conf(_config.ConfigNamespace):
 conf = Conf()
 
 
-from .core import Observations, ObservationsClass, Mast, MastClass
+from .core import Observations, ObservationsClass, Catalogs, CatalogsClass, Mast, MastClass
 
 __all__ = ['Observations', 'ObservationsClass',
+           'Catalogs', 'CatalogsClass',
            'Mast', 'MastClass',
            'Conf', 'conf',
            ]

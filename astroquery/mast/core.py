@@ -1394,5 +1394,278 @@ class ObservationsClass(MastClass):
         return manifest
 
 
+@async_to_sync
+class CatalogsClass(MastClass):
+    """
+    MAST catalog query class.
+
+    Class for querying MAST catalog data.
+    """
+
+    def __init__(self):
+
+        super(CatalogsClass, self).__init__()
+
+        self.catalogLimit = None
+
+    def _parse_result(self, response, verbose=False):
+
+        resultsTable = super(CatalogsClass, self)._parse_result(response, verbose)
+
+        if len(resultsTable) == self.catalogLimit:
+            warnings.warn("Maximum catalog results returned, may not include all sources within radius.",
+                          MaxResultsWarning)
+
+        return resultsTable
+
+    @class_or_instance
+    def query_region_async(self, coordinates, radius=0.2*u.deg, catalog="Hsc",
+                           pagesize=None, page=None, **kwargs):
+        """
+        Given a sky position and radius, returns a `~astropy.table.Table` of catalog entries.
+
+        Parameters
+        ----------
+        coordinates : str or `astropy.coordinates` object
+            The target around which to search. It may be specified as a
+            string or as the appropriate `astropy.coordinates` object.
+        radius : str or `~astropy.units.Quantity` object, optional
+            Default 0.2 degrees.
+            The string must be parsable by `astropy.coordinates.Angle`. The
+            appropriate `~astropy.units.Quantity` object from
+            `astropy.units` may also be used. Defaults to 0.2 deg.
+        catalog : str, optional
+            Default HSC.
+            The catalog to be queried.
+        pagesize : int, optional
+            Default None.
+            Can be used to override the default pagesize for (set in configs) this query only.
+            E.g. when using a slow internet connection.
+        page : int, optional
+            Default None.
+            Can be used to override the default behavior of all results being returned to
+            obtain a specific page of results.
+        **kwargs
+            Catalog-specific keyword args.
+            TODO: Add actual explanation of options.
+
+        Returns
+        -------
+        response: list of ``requests.Response``
+        """
+
+        # Put coordinates and radius into consistant format
+        coordinates = commons.parse_coordinates(coordinates)
+
+        # if radius is just a number we assume degrees
+        if isinstance(radius, (int, float)):
+            radius = radius * u.deg
+        radius = coord.Angle(radius)
+
+        # Figuring out the service
+        if catalog.lower() == "hsc":
+            service = "Mast.Hsc.Db"
+            self.catalogLimit = kwargs.get('nr', 50000)
+        elif catalog.lower() == "galex":
+            service = "Mast.Galex.Catalog"
+            self.catalogLimit = kwargs.get('maxrecords', 50000)
+        else:
+            service = "Mast.Catalogs." + catalog + ".Cone"
+            self.catalogLimit = None
+
+        # basic params
+        params = {'ra': coordinates.ra.deg,
+                  'dec': coordinates.dec.deg,
+                  'radius': radius.deg}
+
+        # Hsc specific parameters (can be overridden by user)
+        params['nr'] =  50000
+        params['ni'] = 1
+        params['magtype'] = 1
+
+        # galex specific parameters (can be overridden by user)
+        params['maxrecords'] = 50000
+
+        # adding additional parameters
+        for prop, value in kwargs.items():
+            params[prop] = value
+
+        return self.service_request_async(service, params, pagesize, page)
+
+    @class_or_instance
+    def query_object_async(self, objectname, radius=0.2*u.deg, catalog="Hsc",
+                           pagesize=None, page=None, **kwargs):
+        """
+        Given an object name, returns a list of MAST observations.
+        See column documentation `here <https://mast.stsci.edu/api/v0/_c_a_o_mfields.html>`__.
+
+        Parameters
+        ----------
+        objectname : str
+            The name of the target around which to search.
+        radius : str or `~astropy.units.Quantity` object, optional
+            Default 0.2 degrees.
+            The string must be parsable by `astropy.coordinates.Angle`.
+            The appropriate `~astropy.units.Quantity` object from
+            `astropy.units` may also be used. Defaults to 0.2 deg.
+        pagesize : int, optional
+            Default None.
+            Can be used to override the default pagesize for (set in configs) this query only.
+            E.g. when using a slow internet connection.
+        page : int, optional
+            Defaulte None.
+            Can be used to override the default behavior of all results being returned
+            to obtain a specific page of results.
+        TODO: changs documentation to be about catalogs
+
+        Returns
+        -------
+        response: list of ``requests.Response``
+        """
+
+        coordinates = self._resolve_object(objectname)
+
+        return self.query_region_async(coordinates, radius, catalog, pagesize, page, **kwargs)
+
+    @class_or_instance
+    def query_hsc_matchid_async(self, match, pagesize=None, page=None):
+        """
+        TODO: Document
+
+        Note: Do I need to check for someone passing in a table? (currently it throws a json serializer error....
+        """
+
+        if isinstance(match, Row):
+            match = str(match["MatchID"])  # 'int64' is not JSON serializable, so make str
+
+        service = "Mast.HscMatches.Db"
+        params = {"input": match}
+
+        return self.service_request_async(service, params, pagesize, page)
+
+    @class_or_instance
+    def get_hsc_spectra_async(self, pagesize=None, page=None):
+        """
+        TODO: Document
+        """
+
+        service = "Mast.HscSpectra.Db.All"
+        params = {}
+
+        return self.service_request_async(service, params, pagesize, page)
+
+    def download_hsc_spectra(self, spectra, download_dir=None, cache=True, curl_flag=False):
+        """
+        TODO: Document
+        """
+
+        # if spectra is not a Table, put it in a list
+        if isinstance(spectra, Row):
+            spectra = [spectra]
+
+        # set up the download directory and paths
+        if not download_dir:
+            download_dir = '.'
+
+        if curl_flag:  # don't want to download the files now, just the curl script
+
+            downloadFile = "mastDownload_" + time.strftime("%Y%m%d%H%M%S")
+
+            urlList = []
+            pathList = []
+            for spec in spectra:
+                if spec['SpectrumType'] < 2:
+                    urlList.append('https://hla.stsci.edu/cgi-bin/getdata.cgi?config=ops&dataset='
+                                   + spec['DatasetName'])
+
+                else:
+                    urlList.append('https://hla.stsci.edu/cgi-bin/ecfproxy?file_id='
+                                   + spec['DatasetName'] + '.fits')
+
+                pathList.append(downloadFile + "/HSC/" + spec['DatasetName'] + '.fits')
+
+            descriptionList = [""]*len(spectra)
+            productTypeList = ['spectrum']*len(spectra)
+
+            service = "Mast.Bundle.Request"
+            params = {"urlList": ",".join(urlList),
+                      "filename": downloadFile,
+                      "pathList": ",".join(pathList),
+                      "descriptionList": list(descriptionList),
+                      "productTypeList": list(productTypeList),
+                      "extension": 'curl'}
+
+            response = self.service_request_async(service, params)
+            bundlerResponse = response[0].json()
+
+            localPath = download_dir.rstrip('/') + "/" + downloadFile + ".sh"
+            self._download_file(bundlerResponse['url'], localPath)
+
+            status = "COMPLETE"
+            msg = None
+            url = None
+
+            if not os.path.isfile(localPath):
+                status = "ERROR"
+                msg = "Curl could not be downloaded"
+                url = bundlerResponse['url']
+            else:
+                missingFiles = [x for x in bundlerResponse['statusList'].keys()
+                                if bundlerResponse['statusList'][x] != 'COMPLETE']
+                if len(missingFiles):
+                    msg = "{} files could not be added to the curl script".format(len(missingFiles))
+                    url = ",".join(missingFiles)
+
+            manifest = Table({'Local Path': [localPath],
+                              'Status': [status],
+                              'Message': [msg],
+                              "URL": [url]})
+
+        else:
+            base_dir = download_dir.rstrip('/') + "/mastDownload/HSC"
+
+            if not os.path.exists(base_dir):
+                os.makedirs(base_dir)
+
+            manifestArray = []
+            for spec in spectra:
+
+                # localPath = base_dir + "/HSC"# + spec['DatasetName'] + ".fits"
+
+                if spec['SpectrumType'] < 2:
+                    dataUrl = 'https://hla.stsci.edu/cgi-bin/getdata.cgi?config=ops&dataset=' \
+                              + spec['DatasetName']
+                else:
+                    dataUrl = 'https://hla.stsci.edu/cgi-bin/ecfproxy?file_id=' \
+                              + spec['DatasetName'] + '.fits'
+
+                localPath = base_dir + '/' + spec['DatasetName'] + ".fits"
+
+                status = "COMPLETE"
+                msg = None
+                url = None
+
+                try:
+                    self._download_file(dataUrl, localPath, cache=cache)
+
+                    # check file size also this is where would perform md5
+                    if not os.path.isfile(localPath):
+                        status = "ERROR"
+                        msg = "File was not downloaded"
+                        url = dataUrl
+
+                except HTTPError as err:
+                    status = "ERROR"
+                    msg = "HTTPError: {0}".format(err)
+                    url = dataUrl
+
+                manifestArray.append([localPath, status, msg, url])
+
+                manifest = Table(rows=manifestArray, names=('Local Path', 'Status', 'Message', "URL"))
+
+        return manifest
+
+    
 Observations = ObservationsClass()
+Catalogs = CatalogsClass()
 Mast = MastClass()
