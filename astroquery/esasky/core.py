@@ -38,9 +38,7 @@ class ESASkyClass(BaseQuery):
     __TAP_TABLE_STRING = "tapTable"
     __TAP_NAME_STRING = "tapName"
     __LABEL_STRING = "label"
-    __OBSERVATION_ID_STRING = "observation_id"
     __METADATA_STRING = "metadata"
-    __MAPS_STRING = "Maps"
     __PRODUCT_URL_STRING = "product_url"
     __SOURCE_LIMIT_STRING = "sourceLimit"
     __POLYGON_NAME_STRING = "polygonNameTapColumn"
@@ -64,6 +62,7 @@ class ESASkyClass(BaseQuery):
         'mapb_green': '100',
         'mapr_': '160'}
 
+    _MAPS_DOWNLOAD_DIR = "Maps"
     _isTest = ""
 
     def list_maps(self):
@@ -310,7 +309,7 @@ class ESASkyClass(BaseQuery):
         return commons.TableList(query_result)
 
     def get_maps(self, query_table_list, missions=__ALL_STRING,
-                 download_dir=__MAPS_STRING, cache=True):
+                 download_dir=_MAPS_DOWNLOAD_DIR, cache=True):
         """
         This method takes the dictionary of missions and metadata as returned by
         query_region_maps and downloads all maps to the selected folder.
@@ -344,8 +343,8 @@ class ESASkyClass(BaseQuery):
             It is structured in a dictionary like this:
             dict: {
             'HERSCHEL': [{'70': [HDUList], '160': [HDUList]}, {'70': [HDUList], '160': [HDUList]}, ...],
-            'HST':[[HDUList], HDUList], HDUList], HDUList], HDUList], ...],
-            'XMM-EPIC' : [HDUList], HDUList], HDUList], HDUList], ...]
+            'HST':[[HDUList], [HDUList], [HDUList], [HDUList], [HDUList], ...],
+            'XMM-EPIC' : [[HDUList], [HDUList], [HDUList], [HDUList], ...]
             ...
             }
 
@@ -381,7 +380,7 @@ class ESASkyClass(BaseQuery):
         return maps
 
     def get_images(self, position, radius=__ZERO_ARCMIN_STRING, missions=__ALL_STRING,
-                   download_dir=__MAPS_STRING, cache=True):
+                   download_dir=_MAPS_DOWNLOAD_DIR, cache=True):
         """
         This method gets the fits files available for the selected position and
         mission and downloads all maps to the the selected folder.
@@ -417,8 +416,8 @@ class ESASkyClass(BaseQuery):
             It is structured in a dictionary like this:
             dict: {
             'HERSCHEL': [{'70': [HDUList], '160': [HDUList]}, {'70': [HDUList], '160': [HDUList]}, ...],
-            'HST':[[HDUList], HDUList], HDUList], HDUList], HDUList], ...],
-            'XMM-EPIC' : [HDUList], HDUList], HDUList], HDUList], ...]
+            'HST':[[HDUList], [HDUList], [HDUList], [HDUList], [HDUList], ...],
+            'XMM-EPIC' : [[HDUList], [HDUList], [HDUList], [HDUList], ...]
             ...
             }
 
@@ -512,10 +511,12 @@ class ESASkyClass(BaseQuery):
             print("Starting download of %s data. (%d files)"
                   % (mission, len(maps_table[self.__PRODUCT_URL_STRING])))
             for index in range(len(maps_table)):
-                product_url = (maps_table[self.__PRODUCT_URL_STRING][index]
-                               .decode('utf-8'))
-                observation_id = (maps_table[self.__OBSERVATION_ID_STRING][index]
-                                  .decode('utf-8'))
+                product_url = maps_table[self.__PRODUCT_URL_STRING][index].decode('utf-8')
+                if(mission.lower() == self.__HERSCHEL_STRING):
+                    observation_id = maps_table["observation_id"][index].decode('utf-8')
+                else:
+                    observation_id = (maps_table[self._get_tap_observation_id(mission)][index]
+                                      .decode('utf-8'))
                 print("Downloading Observation ID: %s from %s"
                       % (observation_id, product_url), end=" ")
                 sys.stdout.flush()
@@ -553,13 +554,14 @@ class ESASkyClass(BaseQuery):
 
     def _get_herschel_map(self, product_url, directory_path, cache):
         observation = dict()
-        tar_file = tempfile.NamedTemporaryFile()
+        tar_file = tempfile.NamedTemporaryFile(delete=False)
         response = self._request(
             'GET',
             product_url,
             cache=cache,
             headers=self._get_header())
         tar_file.write(response.content)
+        tar_file.close()
         with tarfile.open(tar_file.name, 'r') as tar:
             i = 0
             for member in tar.getmembers():
@@ -567,13 +569,11 @@ class ESASkyClass(BaseQuery):
                 if ('hspire' in member_name or 'hpacs' in member_name):
                     herschel_filter = self._get_herschel_filter_name(member_name)
                     tar.extract(member, directory_path)
-                    member.name = (
-                        self._remove_extra_herschel_directory(member.name,
-                                                              directory_path))
                     observation[herschel_filter] = fits.open(
                         directory_path +
                         member.name)
                     i += 1
+        os.remove(tar_file.name)
         return observation
 
     def _get_herschel_filter_name(self, member_name):
@@ -585,15 +585,16 @@ class ESASkyClass(BaseQuery):
                                          directory_path):
         full_directory_path = os.path.abspath(directory_path)
         file_name = file_and_directory_name[file_and_directory_name.index("/") + 1:]
+
         os.renames(os.path.join(full_directory_path, file_and_directory_name),
                    os.path.join(full_directory_path, file_name))
         return file_name
 
     def _create_mission_directory(self, mission, download_dir):
-        if (download_dir == self.__MAPS_STRING):
-            mission_directory = self.__MAPS_STRING + "/" + mission
+        if (download_dir == self._MAPS_DOWNLOAD_DIR):
+            mission_directory = self._MAPS_DOWNLOAD_DIR + "/" + mission
         else:
-            mission_directory = (download_dir + "/" + self.__MAPS_STRING +
+            mission_directory = (download_dir + "/" + self._MAPS_DOWNLOAD_DIR +
                                  "/" + mission)
         if not os.path.exists(mission_directory):
             os.makedirs(mission_directory)
@@ -787,6 +788,14 @@ class ESASkyClass(BaseQuery):
         for index in range(len(json)):
             response_list.append(json[index][field_name])
         return response_list
+
+    def _get_json_data_for_mission(self, json, mission):
+        for index in range(len(json)):
+            if(json[index][self.__MISSION_STRING].lower() == mission.lower()):
+                return json[index]
+
+    def _get_tap_observation_id(self, mission):
+        return self._get_json_data_for_mission(self._get_observation_json(), mission)["tapObservationId"]
 
     def _create_request_payload(self, query):
         return {'REQUEST': 'doQuery', 'LANG': 'ADQL', 'FORMAT': 'VOTABLE',
