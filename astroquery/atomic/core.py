@@ -37,7 +37,7 @@ class AtomicLineListClass(BaseQuery):
                      multiplet=None, transitions=None,
                      show_fine_structure=None,
                      show_auto_ionizing_transitions=None,
-                     output_format=('spec', 'type', 'conf',
+                     output_columns=('spec', 'type', 'conf',
                                     'term', 'angm', 'prob',
                                     'ener')):
         """
@@ -136,7 +136,7 @@ class AtomicLineListClass(BaseQuery):
             the ground state of the next ion are considered auto-ionizing
             levels.
 
-        output_format : tuple
+        output_columns : tuple
             A Tuple of strings indicating which output columns are retrieved.
             A subset of ('spec', 'type', 'conf', 'term', 'angm', 'prob',
             'ener') should be used. Where each string corresponds to the
@@ -161,7 +161,7 @@ class AtomicLineListClass(BaseQuery):
             multiplet=multiplet, transitions=transitions,
             show_fine_structure=show_fine_structure,
             show_auto_ionizing_transitions=show_auto_ionizing_transitions,
-            output_format=output_format)
+            output_columns=output_columns)
         table = self._parse_result(response)
         return table
 
@@ -174,7 +174,7 @@ class AtomicLineListClass(BaseQuery):
                            multiplet=None, transitions=None,
                            show_fine_structure=None,
                            show_auto_ionizing_transitions=None,
-                           output_format=('spec', 'type', 'conf',
+                           output_columns=('spec', 'type', 'conf',
                                           'term', 'angm', 'prob',
                                           'ener')):
         """
@@ -244,7 +244,7 @@ class AtomicLineListClass(BaseQuery):
             'type2': type2,
             'hydr': show_fine_structure,
             'auto': show_auto_ionizing_transitions,
-            'form': output_format,
+            'form': output_columns,
             'tptype': 'as_a'}
         response = self._submit_form(input)
         return response
