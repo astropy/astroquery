@@ -86,7 +86,7 @@ matrix:
         - os: linux
           env: PYTHON_VERSION=3.5 NUMPY_VERSION=1.11
         - os: linux
-          env: NUMPY_VERSION=1.12 ASTROPY_VERSION=1.3
+          env: NUMPY_VERSION=1.12 ASTROPY_VERSION=1.3 PYTEST_VERSION='<3.2'
 
         # Now try Astropy dev and LTS vesions with the latest Python.
         # The dev version only need to be tested on PRs as there are pull
