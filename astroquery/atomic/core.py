@@ -36,7 +36,10 @@ class AtomicLineListClass(BaseQuery):
                      upper_level_energy_range=None, nmax=None,
                      multiplet=None, transitions=None,
                      show_fine_structure=None,
-                     show_auto_ionizing_transitions=None):
+                     show_auto_ionizing_transitions=None,
+                     output_format=('spec', 'type', 'conf',
+                                    'term', 'angm', 'prob',
+                                    'ener')):
         """
         Queries Atomic Line List for the given parameters adnd returns the
         result as a `~astropy.table.Table`. All parameters are optional.
@@ -133,6 +136,14 @@ class AtomicLineListClass(BaseQuery):
             the ground state of the next ion are considered auto-ionizing
             levels.
 
+        output_format : tuple
+            A Tuple of strings indicating which output columns are retrieved.
+            A subset of ('spec', 'type', 'conf', 'term', 'angm', 'prob',
+            'ener') should be used. Where each string corresponds to the
+            column titled Spectrum, Transition type, Configuration, Term,
+            Angular momentum, Transition probability and Level energies
+            respectively.
+
         Returns
         -------
         result : `~astropy.table.Table`
@@ -149,7 +160,8 @@ class AtomicLineListClass(BaseQuery):
             upper_level_energy_range=upper_level_energy_range, nmax=nmax,
             multiplet=multiplet, transitions=transitions,
             show_fine_structure=show_fine_structure,
-            show_auto_ionizing_transitions=show_auto_ionizing_transitions)
+            show_auto_ionizing_transitions=show_auto_ionizing_transitions,
+            output_format=output_format)
         table = self._parse_result(response)
         return table
 
@@ -161,7 +173,10 @@ class AtomicLineListClass(BaseQuery):
                            upper_level_energy_range=None, nmax=None,
                            multiplet=None, transitions=None,
                            show_fine_structure=None,
-                           show_auto_ionizing_transitions=None):
+                           show_auto_ionizing_transitions=None,
+                           output_format=('spec', 'type', 'conf',
+                                          'term', 'angm', 'prob',
+                                          'ener')):
         """
         Returns
         -------
@@ -229,7 +244,7 @@ class AtomicLineListClass(BaseQuery):
             'type2': type2,
             'hydr': show_fine_structure,
             'auto': show_auto_ionizing_transitions,
-            'form': ['spec', 'type', 'term', 'angm', 'prob', 'ener'],
+            'form': output_format,
             'tptype': 'as_a'}
         response = self._submit_form(input)
         return response
@@ -257,6 +272,7 @@ class AtomicLineListClass(BaseQuery):
                 if value:
                     row.append(value)
                 else:
+                    # maintain table dimensions when data missing
                     row.append('None')
             if row:
                 input.append('\t'.join(row))
