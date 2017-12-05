@@ -15,7 +15,7 @@ class GAMAClass(BaseQuery):
     TODO: document
     """
 
-    request_url = 'http://www.gama-survey.org/dr2/query/'
+    request_url = 'http://www.gama-survey.org/dr3/query/'
     timeout = 60
 
     def query_sql_async(self, *args, **kwargs):
