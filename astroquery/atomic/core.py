@@ -38,8 +38,8 @@ class AtomicLineListClass(BaseQuery):
                      show_fine_structure=None,
                      show_auto_ionizing_transitions=None,
                      output_columns=('spec', 'type', 'conf',
-                                    'term', 'angm', 'prob',
-                                    'ener')):
+                                     'term', 'angm', 'prob',
+                                     'ener')):
         """
         Queries Atomic Line List for the given parameters adnd returns the
         result as a `~astropy.table.Table`. All parameters are optional.
@@ -175,8 +175,8 @@ class AtomicLineListClass(BaseQuery):
                            show_fine_structure=None,
                            show_auto_ionizing_transitions=None,
                            output_columns=('spec', 'type', 'conf',
-                                          'term', 'angm', 'prob',
-                                          'ener')):
+                                           'term', 'angm', 'prob',
+                                           'ener')):
         """
         Returns
         -------
