@@ -23,9 +23,10 @@ stage: Initial tests
 stages:
    - name: Initial tests
    - name: Test docs, astropy dev, and without optional dependencies
-   - name: Tests with other Python/Numpy versions
    - name: Cron tests
      if: type = cron
+   - name: Tests with other Python/Numpy versions, remote data
+
 
 env:
     global:
@@ -65,15 +66,18 @@ matrix:
         # both short and long versions for remote-data to help test the
         # astropy test command.
         - os: linux
+          stage: Tests with other Python/Numpy versions, remote data
           env: EVENT_TYPE='push cron' DEBUG=True ASTROPY_VERSION=dev
                SETUP_CMD='test -R -V' CONDA_DEPENDENCIES=$CONDA_DEPENDENCIES_REMOTE
         - os: linux
+          stage: Tests with other Python/Numpy versions, remote data
           env: EVENT_TYPE='push cron' PYTHON_VERSION=2.7
                SETUP_CMD='test --remote-data -V' CONDA_DEPENDENCIES=$CONDA_DEPENDENCIES_REMOTE
 
         # No need to run it from cron
         # Try MacOS X
         - os: osx
+          stage: Cron tests
           env: SETUP_CMD='test' CONDA_CHANNELS='conda-forge astropy-ci-extras astropy'
                EVENT_TYPE='cron'
 
@@ -91,16 +95,16 @@ matrix:
         # versions of Python, we can vary Python and Numpy versions at the same
         # time. We don't expect any of these to fail in master for cron jobs.
         - os: linux
-          stage: Tests with other Python/Numpy versions
+          stage: Tests with other Python/Numpy versions, remote data
           env: PYTHON_VERSION=2.7 NUMPY_VERSION=1.9
         - os: linux
-          stage: Tests with other Python/Numpy versions
+          stage: Tests with other Python/Numpy versions, remote data
           env: PYTHON_VERSION=3.4 NUMPY_VERSION=1.10
         - os: linux
-          stage: Tests with other Python/Numpy versions
+          stage: Tests with other Python/Numpy versions, remote data
           env: PYTHON_VERSION=3.5 NUMPY_VERSION=1.11
         - os: linux
-          stage: Tests with other Python/Numpy versions
+          stage: Tests with other Python/Numpy versions, remote data
           env: NUMPY_VERSION=1.12 ASTROPY_VERSION=1.3 PYTEST_VERSION='<3.2'
 
         # Now try Astropy dev and LTS vesions with the latest Python.
@@ -134,7 +138,7 @@ matrix:
         # Try numpy pre-release version, this runs only when a pre-release
         # is available on pypi.
         - os: linux
-          stage: Tests with other Python/Numpy versions
+          stage: Tests with other Python/Numpy versions, remote data
           env: NUMPY_VERSION=prerelease DEBUG=True EVENT_TYPE='push pull_request cron'
 
         # Do a PEP8 test with pycodestyle
