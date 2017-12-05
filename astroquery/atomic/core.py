@@ -228,7 +228,9 @@ class AtomicLineListClass(BaseQuery):
             'type': _type,
             'type2': type2,
             'hydr': show_fine_structure,
-            'auto': show_auto_ionizing_transitions}
+            'auto': show_auto_ionizing_transitions,
+            'form': ['spec', 'type', 'term', 'angm', 'prob', 'ener'],
+            'tptype': 'as_a'}
         response = self._submit_form(input)
         return response
 
@@ -254,6 +256,8 @@ class AtomicLineListClass(BaseQuery):
                 value = line[start:end].strip()
                 if value:
                     row.append(value)
+                else:
+                    row.append('None')
             if row:
                 input.append('\t'.join(row))
         if input:
@@ -318,6 +322,7 @@ class AtomicLineListClass(BaseQuery):
                         value = option.get('value', option.text.strip())
             if value and value not in [None, u'None', u'null']:
                 res[key].append(value)
+
         # avoid values with size 1 lists
         d = dict(res)
         for k, v in six.iteritems(d):
