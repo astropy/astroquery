@@ -5,11 +5,11 @@ IRSA
 
 API from
 
- http://irsa.ipac.caltech.edu/applications/Gator/GatorAid/irsa/catsearch.html
+ https://irsa.ipac.caltech.edu/applications/Gator/GatorAid/irsa/catsearch.html
 
 The URL of the IRSA catalog query service, CatQuery, is
 
- http://irsa.ipac.caltech.edu/cgi-bin/Gator/nph-query
+ https://irsa.ipac.caltech.edu/cgi-bin/Gator/nph-query
 
 The service accepts the following keywords, which are analogous to the search
 fields on the Gator search form:
@@ -127,7 +127,7 @@ class IrsaClass(BaseQuery):
             performing a cone or box search. The string can give coordinates
             in various coordinate systems, or the name of a source that will
             be resolved on the server (see `here
-            <http://irsa.ipac.caltech.edu/search_help.html>`_ for more
+            <https://irsa.ipac.caltech.edu/search_help.html>`_ for more
             details). Required if spatial is ``'Cone'`` or ``'Box'``. Optional
             if spatial is ``'Polygon'``.
         catalog : str
@@ -185,7 +185,7 @@ class IrsaClass(BaseQuery):
             performing a cone or box search. The string can give coordinates
             in various coordinate systems, or the name of a source that will
             be resolved on the server (see `here
-            <http://irsa.ipac.caltech.edu/search_help.html>`_ for more
+            <https://irsa.ipac.caltech.edu/search_help.html>`_ for more
             details). Required if spatial is ``'Cone'`` or ``'Box'``. Optional
             if spatial is ``'Polygon'``.
         catalog : str
@@ -246,7 +246,7 @@ class IrsaClass(BaseQuery):
             performing a cone or box search. The string can give coordinates
             in various coordinate systems, or the name of a source that will
             be resolved on the server (see `here
-            <http://irsa.ipac.caltech.edu/search_help.html>`_ for more
+            <https://irsa.ipac.caltech.edu/search_help.html>`_ for more
             details). Required if spatial is ``'Cone'`` or ``'Box'``. Optional
             if spatial is ``'Polygon'``.
         radius : str or `~astropy.units.Quantity` object, [optional for spatial is ``'Cone'``]
