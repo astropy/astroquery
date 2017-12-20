@@ -443,7 +443,12 @@ class MastClass(QueryWithLogin):
             resTable = _mashup_json_to_table(result, colConfig)
             resultList.append(resTable)
 
-        return vstack(resultList)
+        allResults = vstack(resultList)
+
+        # Check for no results
+        if not allResults:
+            warnings.warn("Query returned no results.", NoResultsWarning)
+        return allResults
 
     def _login(self, username=None, password=None, session_token=None,
                store_password=False, reenter_password=False):  # pragma: no cover

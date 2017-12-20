@@ -23,6 +23,8 @@
 - MAST: Updated dowload functionality [#1004]
 - ATOMIC: Added ability to select which rows are returned from the atomic
   line database. [#1006]
+- MAST: Fixed no results bug [#1003]
+
 
 0.3.6 (2017-07-03)
 ------------------
