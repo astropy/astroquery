@@ -82,7 +82,7 @@ matrix:
                EVENT_TYPE='cron'
 
         - os: linux
-          env: SETUP_CMD='test --coverage'
+          env: SETUP_CMD='test --coverage' PIP_DEPENDENCIES="`echo $PIP_DEPENDENCIES codecov`"
 
         # Check for sphinx doc build warnings - we do this first because it
         # may run for a long time
@@ -156,5 +156,5 @@ script:
 
 after_success:
     - if [[ $SETUP_CMD == 'test --coverage' ]]; then
-          coveralls --rcfile='astroquery/tests/coveragerc';
+          codecov;
       fi
