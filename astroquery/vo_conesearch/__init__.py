@@ -19,7 +19,7 @@ class Conf(_config.ConfigNamespace):
 
     # Config related to individual Cone Search query
     timeout = _config.ConfigItem(
-        30.0, 'Time limit for connecting to Cone Search service.')
+        10.0, 'Time limit for connecting to Cone Search service.')
     fallback_url = _config.ConfigItem(
         'http://gsss.stsci.edu/webservices/vo/ConeSearch.aspx?CAT=GSC23&',
         'Just ignore database above and use STScI HST Guide Star Catalog.')
