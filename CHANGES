@@ -1,6 +1,7 @@
 0.3.7 (unreleased)
 ------------------
 
+- IRSA Dust: fix units in extinction by band table. [#1016]
 - New tool: Exoplanet Orbit Catalog, NASA Exoplanet Archive [#771]
 - MAST: Added convenience function to list available missions. [#947]
 - SIMBAD: adding 'get_query_payload' kwarg to all public methods to return
