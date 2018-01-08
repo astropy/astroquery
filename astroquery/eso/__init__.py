@@ -16,6 +16,9 @@ class Conf(_config.ConfigNamespace):
     username = _config.ConfigItem(
         "",
         'Optional default username for ESO archive.')
+    query_instrument_url = _config.ConfigItem(
+        "http://archive.eso.org/wdb/wdb/eso",
+        'Root query URL for main and instrument queries.')
 
 
 conf = Conf()
