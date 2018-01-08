@@ -41,6 +41,7 @@ class EsoClass(QueryWithLogin):
 
     ROW_LIMIT = conf.row_limit
     USERNAME = conf.username
+    QUERY_INSTRUMENT_URL = conf.query_instrument_url
 
     def __init__(self):
         super(EsoClass, self).__init__()
@@ -404,7 +405,7 @@ class EsoClass(QueryWithLogin):
             ROW_LIMIT configuration item.
 
         """
-        url = "http://archive.eso.org/wdb/wdb/eso/eso_archive_main/form"
+        url = self.QUERY_INSTRUMENT_URL+"/eso_archive_main/form"
         return self._query(url, column_filters=column_filters, columns=columns,
                            open_form=open_form, help=help, cache=cache, **kwargs)
 
@@ -442,7 +443,7 @@ class EsoClass(QueryWithLogin):
 
         """
 
-        url = 'http://archive.eso.org/wdb/wdb/eso/{0}/form'.format(instrument.lower())
+        url = self.QUERY_INSTRUMENT_URL+'/{0}/form'.format(instrument.lower())
         return self._query(url, column_filters=column_filters, columns=columns,
                            open_form=open_form, help=help, cache=cache, **kwargs)
 
