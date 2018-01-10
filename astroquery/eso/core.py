@@ -563,14 +563,6 @@ class EsoClass(QueryWithLogin):
         # Return as Table
         return Table(result)
 
-    def data_retrieval(self, datasets):
-        """
-        DEPRECATED: see ``retrieve_data``
-        """
-
-        warnings.warn("data_retrieval has been replaced with retrieve_data",
-                      DeprecationWarning)
-
     def retrieve_data(self, datasets, continuation=False, destination=None):
         """
         Retrieve a list of datasets form the ESO archive.

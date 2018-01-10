@@ -114,15 +114,6 @@ class TestEso:
         # we only care about the sets matching
         assert set(inst) == set(instrument_list)
 
-    # REQUIRES LOGIN!
-    # Can we get a special login specifically for astroquery testing?
-    # def test_data_retrieval():
-    #
-    #    data_product_id = 'AMBER.2006-03-14T07:40:03.741'
-    #    data_files = eso.retrieve_data([data_product_id])
-    #    # How do we know if we're going to get .fits or .fits.Z?
-    #    assert 'AMBER.2006-03-14T07:40:03.741.fits' in data_files[0]
-
     @pytest.mark.skipif('not Eso.USERNAME')
     def test_retrieve_data(self):
         eso = Eso()
