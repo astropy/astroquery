@@ -93,3 +93,14 @@ def test_query_region_archive(patch_post, patch_parse_coordinates):
     assert isinstance(result, Table)
     assert len(result) == 230
     assert result['Obs. Data Starts'][0] == '78-Jun-18 14:17:49'
+
+def test_query_region_multiconfig(patch_post, patch_parse_coordinates):
+    # regression test for issue 1020
+    # All we're testing for is that the list-form telescope_config is parsed
+    # properly and doesn't crash; this does NOT test for correctness (see
+    # remote tests for that)
+    result = nrao.core.Nrao.query_region(
+        commons.ICRSCoordGenerator("05h35.8m 35d43m"), querytype='ARCHIVE',
+        telescope_config=['A','AB','B','BC','C','CD','D'],
+    )
+    assert isinstance(result, Table)
