@@ -88,7 +88,6 @@ class TestEso:
         eso = Eso()
         surveys = eso.list_surveys(cache=False)
         assert len(surveys) > 0
-        # result_s = eso.query_survey(surveys[0], target='M51')
         # Avoid SESAME
         result_s = eso.query_surveys(surveys[0], coord1=202.469575,
                                      coord2=47.195258, cache=False)

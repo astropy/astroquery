@@ -834,11 +834,6 @@ class EsoClass(QueryWithLogin):
         print("\n".join(result_string))
         return result_string
 
-    def query_survey(self, **kwargs):
-        raise DeprecationWarning("query_survey is deprecated; use "
-                                 "query_surveys instead.  It should "
-                                 "accept the same arguments.")
-
     def _print_surveys_help(self, url, cache=True):
         """
         Download a form and print it in a quasi-human-readable way
