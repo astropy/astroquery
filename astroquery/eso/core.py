@@ -647,12 +647,12 @@ class EsoClass(QueryWithLogin):
                 self.login()
             url = "http://archive.eso.org/cms/eso-data/eso-data-direct-retrieval.html"
             with suspend_cache(self):  # Never cache staging operations
-                data_retrieval_form = self._request("GET", url, cache=False)
-                data_retrieval_form.raise_for_status()
+                retrieve_data_form = self._request("GET", url, cache=False)
+                retrieve_data_form.raise_for_status()
                 log.info("Staging request...")
                 inputs = {"list_of_datasets": "\n".join(datasets_to_download)}
                 data_confirmation_form = self._activate_form(
-                    data_retrieval_form, form_index=-1, inputs=inputs,
+                    retrieve_data_form, form_index=-1, inputs=inputs,
                     cache=False)
 
                 data_confirmation_form.raise_for_status()
