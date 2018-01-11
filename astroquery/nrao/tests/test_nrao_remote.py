@@ -44,8 +44,8 @@ class TestNrao:
         result = nrao.core.Nrao.query_region(coordinates=orion,
                                              radius=1*u.arcmin,
                                              telescope='jansky_vla',
-                                             telescope_config=['A','AB','B'],
-                                             obs_band=['K','Ka', 'Q'])
+                                             telescope_config=['A', 'AB', 'B'],
+                                             obs_band=['K', 'Ka', 'Q'])
         assert b'ORION-KL' in [x.strip() for x in result['Source']]
 
         # NOTE: This could change if future observations in AB config are ever

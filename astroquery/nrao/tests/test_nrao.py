@@ -101,6 +101,6 @@ def test_query_region_multiconfig(patch_post, patch_parse_coordinates):
     # remote tests for that)
     result = nrao.core.Nrao.query_region(
         commons.ICRSCoordGenerator("05h35.8m 35d43m"), querytype='ARCHIVE',
-        telescope_config=['A','AB','B','BC','C','CD','D'],
+        telescope_config=['A', 'AB', 'B', 'BC', 'C', 'CD', 'D'],
     )
     assert isinstance(result, Table)
