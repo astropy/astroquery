@@ -94,6 +94,7 @@ def test_query_region_archive(patch_post, patch_parse_coordinates):
     assert len(result) == 230
     assert result['Obs. Data Starts'][0] == '78-Jun-18 14:17:49'
 
+
 def test_query_region_multiconfig(patch_post, patch_parse_coordinates):
     # regression test for issue 1020
     # All we're testing for is that the list-form telescope_config is parsed
