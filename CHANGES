@@ -14,6 +14,8 @@
 - ESO: Implemented Eso.query_main() to query all instruments with the main form
   (even the ones without a specific form). [#976]
 - ESO: Disabled caching for all Eso.retrieve_data() operations. [#976]
+- ESO: Removed deprecated Eso.data_retrieval() and Eso.query_survey().
+  Please use Eso.retrieve_data() and Eso.query_surveys() instead. [#1019]
 - MAST: Added login capabilities [#982]
 - vo_conesearch: Fixed bad query for service that cannot accept '&&'
   in URL. [#993]
