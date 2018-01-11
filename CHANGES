@@ -1,6 +1,7 @@
 0.3.7 (unreleased)
 ------------------
 
+- NRAO: Allow multiple configurations, telescopes in queries [#1020]
 - New tool: Exoplanet Orbit Catalog, NASA Exoplanet Archive [#771]
 - MAST: Added convenience function to list available missions. [#947]
 - SIMBAD: adding 'get_query_payload' kwarg to all public methods to return
