@@ -600,6 +600,7 @@ class EsoClass(QueryWithLogin):
             raise TypeError("Datasets must be given as a list of strings.")
 
         # First: Detect datasets already downloaded
+        log.info("Detecting already downloaded datasets...")
         for dataset in datasets:
             if os.path.splitext(dataset)[1].lower() in ('.fits', '.tar'):
                 local_filename = dataset
@@ -633,6 +634,8 @@ class EsoClass(QueryWithLogin):
             else:
                 datasets_to_download.append(dataset)
 
+        # Second: Check that the datasets to download are in the archive
+        log.info("Checking availability of datasets to download...")
         valid_datasets = [self.verify_data_exists(ds)
                           for ds in datasets_to_download]
         if not all(valid_datasets):
@@ -641,12 +644,14 @@ class EsoClass(QueryWithLogin):
             raise ValueError("The following data sets were not found on the "
                              "ESO servers: {0}".format(invalid_datasets))
 
-        # Second: Download the other datasets
+        # Third: Download the other datasets
+        log.info("Downloading datasets...")
         if datasets_to_download:
             if not self.authenticated():
                 self.login()
             url = "http://archive.eso.org/cms/eso-data/eso-data-direct-retrieval.html"
             with suspend_cache(self):  # Never cache staging operations
+                log.info("Contacting retrieval server...")
                 retrieve_data_form = self._request("GET", url, cache=False)
                 retrieve_data_form.raise_for_status()
                 log.info("Staging request...")
@@ -690,15 +695,16 @@ class EsoClass(QueryWithLogin):
                     raise RemoteServiceError("There was a remote service "
                                              "error; perhaps the requested "
                                              "file could not be found?")
-            log.info("Downloading files...")
             for fileId in root.select('input[name=fileId]'):
+                log.info("Downloading file {0}...".format(fileId.attrs['value'].split()[0]))
                 fileLink = ("http://dataportal.eso.org/dataPortal" +
                             fileId.attrs['value'].split()[1])
                 filename = self._request("GET", fileLink, save=True,
                                          continuation=True)
+                log.info("Unzipping file {0}...".format(fileId.attrs['value'].split()[0]))
                 filename = system_tools.gunzip(filename)
                 if destination is not None:
-                    log.info("Copying file to {0}...".format(destination))
+                    log.info("Copying file {0} to {1}...".format(fileId.attrs['value'].split()[0], destination))
                     shutil.move(filename, os.path.join(destination, os.path.split(filename)[1]))
 
         # Empty the redirect cache of this request session
