@@ -534,5 +534,5 @@ except with a different background.::
     ax.plot(tbl_crds2.ra, tbl_crds2.dec, 'o', transform=ax.get_transform('fk5'),
             mec='r', mfc='none')
     # zoom in on the relevant region
-    ax.axis([117,217,200,300])
+    ax.axis([100,200,100,200])
 
