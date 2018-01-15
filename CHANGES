@@ -31,6 +31,7 @@
 - CosmoSim: Fixed login service. [#999]
 - utils: upgrade ``prepend_docstr_noreturns`` to work with multiple
   sections, and thus rename it to ``prepend_docstr_nosections``. [#988]
+- Vizier: find_catalogs will now respect UCD specifications [#1000]
 - ATOMIC: Added ability to select which rows are returned from the atomic
   line database. [#1006]
 - ESASKY: Added Windows support, various bugfixes. [#1001, #977]
