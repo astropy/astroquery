@@ -2,6 +2,7 @@
 ------------------
 
 - IRSA Dust: fix units in extinction by band table. [#1016]
+- NRAO: Allow multiple configurations, telescopes in queries [#1020]
 - New tool: Exoplanet Orbit Catalog, NASA Exoplanet Archive [#771]
 - MAST: Added convenience function to list available missions. [#947]
 - SIMBAD: adding 'get_query_payload' kwarg to all public methods to return
@@ -15,6 +16,8 @@
 - ESO: Implemented Eso.query_main() to query all instruments with the main form
   (even the ones without a specific form). [#976]
 - ESO: Disabled caching for all Eso.retrieve_data() operations. [#976]
+- ESO: Removed deprecated Eso.data_retrieval() and Eso.query_survey().
+  Please use Eso.retrieve_data() and Eso.query_surveys() instead. [#1019]
 - MAST: Added login capabilities [#982]
 - vo_conesearch: Fixed bad query for service that cannot accept '&&'
   in URL. [#993]
