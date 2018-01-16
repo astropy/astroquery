@@ -241,7 +241,7 @@ class VizierClass(BaseQuery):
 
         Parameters
         ----------
-        catalog : str or list, optional
+        catalog : str, Resource, or list, optional
             The catalog(s) that will be retrieved
 
         Returns
