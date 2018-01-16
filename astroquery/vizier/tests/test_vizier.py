@@ -178,12 +178,13 @@ def test_get_catalogs(patch_post):
     result = vizier.core.Vizier.get_catalogs('J/ApJ/706/83')
     assert isinstance(result, commons.TableList)
 
+
 def test_find_resource_then_get(patch_post):
     reses = vizier.core.Vizier.find_catalogs('2009ApJ...706...83K')
-    res = reses.values()[0]
+    res = next(iter(reses.values()))
     result = vizier.core.Vizier.get_catalogs(res)
     assert isinstance(result, commons.TableList)
-    assert result.keys()[0].startswith(res.name)
+    assert next(iter(result.keys())).startswith(res.name)
 
 
 
