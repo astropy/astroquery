@@ -250,7 +250,7 @@ class VizierClass(BaseQuery):
             Returned if asynchronous method used
         """
 
-        if not isinstance(catalog, six.string_types):
+        if not isinstance(catalog, six.string_types + (votable.tree.Resource,)):
             catalog = list(catalog)
         data_payload = self._args_to_payload(catalog=catalog)
         if get_query_payload:
