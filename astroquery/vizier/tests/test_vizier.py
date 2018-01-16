@@ -182,9 +182,15 @@ def test_get_catalogs(patch_post):
 def test_find_resource_then_get(patch_post):
     reses = vizier.core.Vizier.find_catalogs('2009ApJ...706...83K')
     res = next(iter(reses.values()))
+
     result = vizier.core.Vizier.get_catalogs(res)
     assert isinstance(result, commons.TableList)
     assert next(iter(result.keys())).startswith(res.name)
+
+    resultl = vizier.core.Vizier.get_catalogs([res])
+    assert type(result) == type(resultl)
+    assert len(result) == len(resultl)
+    assert len(result[0]) == len(resultl[0])
 
 
 
