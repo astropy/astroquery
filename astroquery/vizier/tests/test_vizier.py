@@ -21,7 +21,6 @@ VO_DATA = {'HIP,NOMAD,UCAC': "viz.xml",
            "find_2009ApJ...706...83K": "find_kangapj70683.xml"}
 
 
-
 def data_path(filename):
     data_dir = os.path.join(os.path.dirname(__file__), 'data')
     return os.path.join(data_dir, filename)
