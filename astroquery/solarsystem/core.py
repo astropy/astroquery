@@ -29,9 +29,10 @@ from . import conf
 
 __all__ = ['JPL', 'JPLClass']
 
+
 @async_to_sync
 class JPLClass(BaseQuery):
-    
+
     TIMEOUT = conf.timeout
 
     def __init__(self, id=None, location=None, epochs=None,
@@ -40,7 +41,7 @@ class JPLClass(BaseQuery):
 
         Parameters
         ----------
-        id : str, required 
+        id : str, required
             Name, number, or designation of the object to be queried
         location: str, optional
             Observer's location for ephemerides queries or center body
@@ -49,13 +50,13 @@ class JPLClass(BaseQuery):
             center is used for ephemerides queries and the Sun's
             center for elements and vectors queries.
         epochs: scalar, list, or dictionary, optional
-            Either a list of epochs in JD format or a dictionary 
-            defining a range of times and dates; the range dictionary has to 
-            be of the form {``'start'``:'YYYY-MM-DD [HH:MM:SS]', 
-            ``'stop'``:'YYYY-MM-DD [HH:MM:SS]', ``'step'``:'n[y|d|m|s]'}. If no 
+            Either a list of epochs in JD format or a dictionary
+            defining a range of times and dates; the range dictionary has to
+            be of the form {``'start'``:'YYYY-MM-DD [HH:MM:SS]',
+            ``'stop'``:'YYYY-MM-DD [HH:MM:SS]', ``'step'``:'n[y|d|m|s]'}. If no
             epochs are provided, the current time is used.
         id_type: str, optional
-            Identifier type, options: 
+            Identifier type, options:
             ```smallbody```, ```majorbody``` (planets but also
             anything that is not a small body), ``'designation'``,
             ``'name'``, ``'asteroid_name'``, ``'comet_name'``,
@@ -66,20 +67,19 @@ class JPLClass(BaseQuery):
         Examples
         --------
             >>> from astroquery.solarsystem import JPL
-            >>> eros = JPL(id='433', location='568', 
-            ...            epochs={'start':'2017-01-01', 
-            ...                    'stop':'2017-02-01', 
+            >>> eros = JPL(id='433', location='568',
+            ...            epochs={'start':'2017-01-01',
+            ...                    'stop':'2017-02-01',
             ...                    'step':'1d'})
-            >>> print(eros) 
-            JPL instance "433"; location=568, epochs={'start': '2017-01-01', 'stop': '2017-02-01', 'step': '1d'}, id_type=smallbody
-
+            >>> print(eros)
+            JPL instance "433"; location=568, epochs={'start': '2017-01-01',
+            'stop': '2017-02-01', 'step': '1d'}, id_type=smallbody
         """
-        super(JPLClass, self).__init__()        
+        super(JPLClass, self).__init__()
         self.id = id
         self.location = location
-        
-        # check for epochs to be dict or list-like; else: make it a list
 
+        # check for epochs to be dict or list-like; else: make it a list
         if epochs is not None:
             if isinstance(epochs, (list, tuple, ndarray)):
                 pass
@@ -88,39 +88,39 @@ class JPLClass(BaseQuery):
                         'stop' in epochs and
                         'step' in epochs):
                     raise ValueError('time range ({:s}) requires start, stop, '
-                                     'and step'.format(str(epochs))) 
+                                     'and step'.format(str(epochs)))
             else:
                 # turn scalars into list
                 epochs = [epochs]
         self.epochs = epochs
 
         # check for id_type
-        if id_type not in ['smallbody', 'majorbody', 
-                           'designation', 'name', 
+        if id_type not in ['smallbody', 'majorbody',
+                           'designation', 'name',
                            'asteroid_name', 'comet_name', 'id']:
             raise ValueError('id_type ({:s}) not allowed'.format(id_type))
         self.id_type = id_type
 
         # return raw response?
         self.return_raw = False
-        
-        self.query_type = None # ['ephemerides', 'elements', 'vectors']
 
+        self.query_type = None  # ['ephemerides', 'elements', 'vectors']
 
     def __str__(self):
-        """ 
+        """
         String representation of JPL object instance'
 
 
         Examples
         --------
             >>> from astroquery.solarsystem import JPL
-            >>> eros = JPL(id='433', location='568', 
-            ...            epochs={'start':'2017-01-01', 
-            ...                    'stop':'2017-02-01', 
+            >>> eros = JPL(id='433', location='568',
+            ...            epochs={'start':'2017-01-01',
+            ...                    'stop':'2017-02-01',
             ...                    'step':'1d'})
-            >>> print(eros) 
-            JPL instance "433"; location=568, epochs={'start': '2017-01-01', 'stop': '2017-02-01', 'step': '1d'}, id_type=smallbody
+            >>> print(eros)
+            JPL instance "433"; location=568, epochs={'start': '2017-01-01',
+            'stop': '2017-02-01', 'step': '1d'}, id_type=smallbody
         """
         return ('JPL instance \"{:s}\"; location={:s}, epochs={:s}, '
                 'id_type={:s}').format(
@@ -128,16 +128,18 @@ class JPLClass(BaseQuery):
                     str(self.location),
                     str(self.epochs),
                     str(self.id_type))
-    
+
+    # ---------------------------------- query functions
+
     def ephemerides_async(self, airmass_lessthan=99,
-                          solar_elongation=(0,180), hour_angle=0,
+                          solar_elongation=(0, 180), hour_angle=0,
                           skip_daylight=False,
                           closest_apparition=False, no_fragments=False,
                           get_query_payload=False,
                           get_raw_response=False, cache=True):
-        
+
         """Query JPL Horizons for ephemerides. This method requires the
-        ``id``, ``location``, and ``epochs`` parameters of the 
+        ``id``, ``location``, and ``epochs`` parameters of the
         ``JPL`` object to be set.
 
 
@@ -146,7 +148,7 @@ class JPLClass(BaseQuery):
         airmass_lessthan : float, optional
             Defines a maximum airmass for the query, default: 99
         solar_elongation : tuple, optional
-            Permissible solar elongation range: (minimum, maximum); default: 
+            Permissible solar elongation range: (minimum, maximum); default:
             (0,180)
         hour_angle : float, optional
             Defines a maximum hour angle for the query, default: 0
@@ -162,10 +164,10 @@ class JPLClass(BaseQuery):
             selection; default: False. Do not use this option for
             non-cometary objects.
         get_query_payload : boolean, optional
-            When set to `True` the method returns the HTTP request parameters 
+            When set to `True` the method returns the HTTP request parameters
             as a dict, default: False
         get_raw_response : boolean, optional
-            Return raw data as obtained by JPL Horizons without parsing the 
+            Return raw data as obtained by JPL Horizons without parsing the
             data into a table, default: False
 
 
@@ -218,7 +220,7 @@ class JPLClass(BaseQuery):
         +------------------+-----------------------------------------------+
         | V                | V magnitude (float, mag, "APmag")             |
         +------------------+-----------------------------------------------+
-        | Tmag             | comet Total magnitude (float, mag, "T-mag")   |  
+        | Tmag             | comet Total magnitude (float, mag, "T-mag")   |
         +------------------+-----------------------------------------------+
         | Nmag             | comet Nucleaus magnitude (float, mag, "N-mag")|
         +------------------+-----------------------------------------------+
@@ -273,32 +275,40 @@ class JPLClass(BaseQuery):
         --------
             >>> from astroquery.solarsystem import JPL
             >>> obj = JPL(id='Ceres', location='568',
-            ...		 epochs={'start':'2010-01-01', 'stop':'2010-03-01',
+            ...          epochs={'start':'2010-01-01', 'stop':'2010-03-01',
             ...                   'step':'10d'})
             >>> eph = obj.ephemerides() # doctest: +SKIP
             >>> print(eph) # doctest: +SKIP
-            targetname    datetime_str   datetime_jd ...   GlxLat  RA_3sigma DEC_3sigma
-               ---            ---             d      ...    deg      arcsec    arcsec  
-            ---------- ----------------- ----------- ... --------- --------- ----------
-               1 Ceres 2010-Jan-01 00:00   2455197.5 ... 24.120057       0.0        0.0
-               1 Ceres 2010-Jan-11 00:00   2455207.5 ... 20.621496       0.0        0.0
-               1 Ceres 2010-Jan-21 00:00   2455217.5 ... 17.229529       0.0        0.0
-               1 Ceres 2010-Jan-31 00:00   2455227.5 ...  13.97264       0.0        0.0
-               1 Ceres 2010-Feb-10 00:00   2455237.5 ... 10.877201       0.0        0.0
-               1 Ceres 2010-Feb-20 00:00   2455247.5 ...  7.976737       0.0        0.0
-
+            targetname    datetime_str   datetime_jd ...   GlxLat  RA_3sigma
+            DEC_3sigma
+               ---            ---             d      ...    deg      arcsec
+            arcsec
+            ---------- ----------------- ----------- ... --------- ---------
+            ----------
+               1 Ceres 2010-Jan-01 00:00   2455197.5 ... 24.120057       0.0
+            0.0
+               1 Ceres 2010-Jan-11 00:00   2455207.5 ... 20.621496       0.0
+            0.0
+               1 Ceres 2010-Jan-21 00:00   2455217.5 ... 17.229529       0.0
+            0.0
+               1 Ceres 2010-Jan-31 00:00   2455227.5 ...  13.97264       0.0
+            0.0
+               1 Ceres 2010-Feb-10 00:00   2455237.5 ... 10.877201       0.0
+            0.0
+               1 Ceres 2010-Feb-20 00:00   2455247.5 ...  7.976737       0.0
+            0.0
         """
 
         URL = conf.horizons_server
-        
+
         # check for required information
         if self.id is None:
-            raise ValueError("'id' parameter not set. Query aborted.") 
+            raise ValueError("'id' parameter not set. Query aborted.")
         if self.location is None:
             self.location = '500@399'
         if self.epochs is None:
             self.epochs = Time.now().jd
-    
+
         # assemble commandline based on self.id_type
         commandline = str(self.id)
         if self.id_type in ['designation', 'name',
@@ -318,15 +328,14 @@ class JPLClass(BaseQuery):
             if no_fragments:
                 commandline += ' NOFRAG;'
 
-            
         request_payload = OrderedDict([
             ('batch',      1),
             ('TABLE_TYPE', 'OBSERVER'),
             ('QUANTITIES', conf.eph_quantities),
             ('COMMAND',    '"' + commandline + '"'),
-            ('CENTER',     ("'"+str(self.location)+"'")),
-            ('SOLAR_ELONG', ('"'+str(solar_elongation[0])+","\
-                             +str(solar_elongation[1])+'"')),
+            ('CENTER',     ("'" + str(self.location) + "'")),
+            ('SOLAR_ELONG', ('"' + str(solar_elongation[0]) + "," +
+                             str(solar_elongation[1]) + '"')),
             ('LHA_CUTOFF', (str(hour_angle))),
             ('CSV_FORMAT', ('YES')),
             ('CAL_FORMAT', ('BOTH')),
@@ -338,12 +347,12 @@ class JPLClass(BaseQuery):
             if len(self.epochs) > 15:
                 self.epochs = self.epochs[:15]
                 warnings.warn("Only the first 15 elements of 'epochs' will " +
-                              "be queried") 
+                              "be queried")
             request_payload['TLIST'] = "".join(['"'+str(epoch)+'"' for epoch
-                                        in self.epochs])
+                                                in self.epochs])
         elif type(self.epochs) is dict:
-            if (not 'start' in self.epochs or not 'stop' in self.epochs or
-                not 'step' in self.epochs):
+            if ('start' not in self.epochs or 'stop' not in self.epochs or
+                'step' not in self.epochs):
                 raise ValueError("'epochs' parameter must contain start, " +
                                  "stop, step")
             request_payload['START_TIME'] = self.epochs['start']
@@ -360,9 +369,9 @@ class JPLClass(BaseQuery):
             request_payload['SKIP_DAYLT'] = 'YES'
         else:
             request_payload['SKIP_DAYLT'] = 'NO'
-            
+
         self.query_type = 'ephemerides'
-            
+
         # return request_payload if desired
         if get_query_payload:
             return request_payload
@@ -370,18 +379,16 @@ class JPLClass(BaseQuery):
         # set return_raw flag, if raw response desired
         if get_raw_response:
             self.return_raw = True
-        
+
         # query and parse
         response = self._request('GET', URL, params=request_payload,
-                                 timeout=self.TIMEOUT, cache=cache)        
+                                 timeout=self.TIMEOUT, cache=cache)
         return response
-
-    
 
     def elements_async(self, get_query_payload=False,
                        closest_apparition=False, no_fragments=False,
                        get_raw_response=False, cache=True):
-        
+
         """
         Query JPL Horizons for osculating orbital elements. This method
         requires the ``id``, ``location``, and ``epochs`` parameters
@@ -401,10 +408,10 @@ class JPLClass(BaseQuery):
             selection; default: False. Do not use this option for
             non-cometary objects.
         get_query_payload : boolean, optional
-            When set to `True` the method returns the HTTP request parameters 
+            When set to `True` the method returns the HTTP request parameters
             as a dict, default: False
         get_raw_response: boolean, optional
-            Return raw data as obtained by JPL Horizons without parsing the 
+            Return raw data as obtained by JPL Horizons without parsing the
             data into a table, default: False
 
 
@@ -470,20 +477,20 @@ class JPLClass(BaseQuery):
         --------
             >>> from astroquery.solarsystem import JPL
             >>> obj = JPL(id='433', location='500@10',
-            ...		 epochs=2458133.33546)
+            ...          epochs=2458133.33546)
             >>> el = obj.elements() # doctest: +SKIP
             >>> print(el) # doctest: +SKIP
-                targetname      datetime_jd  ...       Q            P      
-                   ---               d       ...       AU           d      
+                targetname      datetime_jd  ...       Q            P
+                   ---               d       ...       AU           d
             ------------------ ------------- ... ------------- ------------
             433 Eros (1898 DQ) 2458133.33546 ... 1.78244263804 642.93873484
         """
 
         URL = conf.horizons_server
-        
+
         # check for required information
         if self.id is None:
-            raise ValueError("'id' parameter not set. Query aborted.") 
+            raise ValueError("'id' parameter not set. Query aborted.")
         if self.location is None:
             self.location = '500@10'
         if self.epochs is None:
@@ -519,7 +526,7 @@ class JPLClass(BaseQuery):
             ('REF_PLANE',  'ECLIPTIC'),
             ('REF_SYSTEM', 'J2000'),
             ('TP_TYPE',    'ABSOLUTE'),
-            ('ELEM_LABELS','YES'),
+            ('ELEM_LABELS', 'YES'),
             ('OBJ_DATA',   'YES')]
         )
 
@@ -528,24 +535,24 @@ class JPLClass(BaseQuery):
             if len(self.epochs) > 15:
                 self.epochs = self.epochs[:15]
                 warnings.warn("Only the first 15 elements of 'epochs' will " +
-                              "be queried") 
+                              "be queried")
             request_payload['TLIST'] = "".join(['"'+str(epoch)+'"' for epoch
-                                        in self.epochs])
+                                                in self.epochs])
         elif type(self.epochs) is dict:
-            if (not 'start' in self.epochs or not 'stop' in self.epochs or
-                not 'step' in self.epochs):
+            if ('start' not in self.epochs or 'stop' not in self.epochs or
+                'step' not in self.epochs):
                 raise ValueError("'epochs' parameter must contain start, " +
                                  "stop, step")
             request_payload['START_TIME'] = self.epochs['start']
             request_payload['STOP_TIME'] = self.epochs['stop']
             request_payload['STEP_SIZE'] = self.epochs['step']
-            
+
         else:
             # treat epochs as a list
             request_payload['TLIST'] = str(self.epochs)
 
         self.query_type = 'elements'
-            
+
         # return request_payload if desired
         if get_query_payload:
             return request_payload
@@ -553,17 +560,16 @@ class JPLClass(BaseQuery):
         # set return_raw flag, if raw response desired
         if get_raw_response:
             self.return_raw = True
-        
+
         # query and parse
         response = self._request('GET', URL, params=request_payload,
-                                 timeout=self.TIMEOUT, cache=cache)        
+                                 timeout=self.TIMEOUT, cache=cache)
         return response
-
 
     def vectors_async(self, get_query_payload=False,
                       closest_apparition=False, no_fragments=False,
                       get_raw_response=False, cache=True):
-        
+
         """
         Query JPL Horizons for state vectors. This method
         requires the ``id``, ``location``, and ``epochs`` parameters
@@ -583,10 +589,10 @@ class JPLClass(BaseQuery):
             selection; default: False. Do not use this option for
             non-cometary objects.
         get_query_payload : boolean, optional
-            When set to `True` the method returns the HTTP request parameters 
+            When set to `True` the method returns the HTTP request parameters
             as a dict, default: False
         get_raw_response: boolean, optional
-            Return raw data as obtained by JPL Horizons without parsing the 
+            Return raw data as obtained by JPL Horizons without parsing the
             data into a table, default: False
 
 
@@ -647,11 +653,11 @@ class JPLClass(BaseQuery):
             >>> from astroquery.solarsystem import JPL
             >>> obj = JPL(id='2012 TC4', location='257',
             ...           epochs={'start':'2017-10-01', 'stop':'2017-10-02',
-            ...                   'step':'10m'}) 
+            ...                   'step':'10m'})
             >>> vec = obj.vectors() # doctest: +SKIP
             >>> print(vec) # doctest: +SKIP
-            targetname  datetime_jd  ...      range          range_rate   
-               ---           d       ...        AU             AU / d     
+            targetname  datetime_jd  ...      range          range_rate
+               ---           d       ...        AU             AU / d
             ---------- ------------- ... --------------- -----------------
             (2012 TC4)     2458027.5 ... 0.0429332099306 -0.00408018711862
             (2012 TC4) 2458027.50694 ... 0.0429048742906 -0.00408040726527
@@ -671,10 +677,10 @@ class JPLClass(BaseQuery):
         """
 
         URL = conf.horizons_server
-        
+
         # check for required information
         if self.id is None:
-            raise ValueError("'id' parameter not set. Query aborted.") 
+            raise ValueError("'id' parameter not set. Query aborted.")
         if self.location is None:
             self.location = '500@10'
         if self.epochs is None:
@@ -711,7 +717,7 @@ class JPLClass(BaseQuery):
             ('REF_PLANE',  'ECLIPTIC'),
             ('REF_SYSTEM', 'J2000'),
             ('TP_TYPE',    'ABSOLUTE'),
-            ('LABELS','YES'),
+            ('LABELS',     'YES'),
             ('OBJ_DATA',   'YES')]
         )
 
@@ -720,24 +726,24 @@ class JPLClass(BaseQuery):
             if len(self.epochs) > 15:
                 self.epochs = self.epochs[:15]
                 warnings.warn("Only the first 15 elements of 'epochs' will " +
-                              "be queried") 
+                              "be queried")
             request_payload['TLIST'] = "".join(['"'+str(epoch)+'"' for epoch
-                                        in self.epochs])
+                                                in self.epochs])
         elif type(self.epochs) is dict:
-            if (not 'start' in self.epochs or not 'stop' in self.epochs or
-                not 'step' in self.epochs):
+            if ('start' not in self.epochs or 'stop' not in self.epochs or
+                'step' not in self.epochs):
                 raise ValueError("'epochs' parameter must contain start, " +
                                  "stop, step")
             request_payload['START_TIME'] = self.epochs['start']
             request_payload['STOP_TIME'] = self.epochs['stop']
             request_payload['STEP_SIZE'] = self.epochs['step']
-            
+
         else:
             # treat epochs as a list
             request_payload['TLIST'] = str(self.epochs)
 
         self.query_type = 'vectors'
-            
+
         # return request_payload if desired
         if get_query_payload:
             return request_payload
@@ -745,15 +751,14 @@ class JPLClass(BaseQuery):
         # set return_raw flag, if raw response desired
         if get_raw_response:
             self.return_raw = True
-        
+
         # query and parse
         response = self._request('GET', URL, params=request_payload,
-                                 timeout=self.TIMEOUT, cache=cache)        
+                                 timeout=self.TIMEOUT, cache=cache)
         return response
 
+    # ---------------------------------- parser functions
 
-    # parser functions
-    
     def _parse_horizons(self, src):
         """
         Routine for parsing data from JPL Horizons
@@ -779,11 +784,11 @@ class JPLClass(BaseQuery):
 
         # split response by line break
         src = src.split('\n')
-        
+
         data_start_idx = 0
         data_end_idx = 0
         H, G = nan, nan
-        M1, M2, k1, k2, phcof= nan, nan, nan, nan, nan
+        M1, M2, k1, k2, phcof = nan, nan, nan, nan, nan
         result_type = 'ephemerides'
         headerline = []
         for idx, line in enumerate(src):
@@ -816,11 +821,11 @@ class JPLClass(BaseQuery):
             # read in H and G (if available)
             if "rotational period in hours)" in line:
                 HGline = src[idx+2].split('=')
-                if 'B-V' in HGline[2]  and 'G' in HGline[1]:
+                if 'B-V' in HGline[2] and 'G' in HGline[1]:
                     H = float(HGline[1].rstrip('G'))
                     G = float(HGline[2].rstrip('B-V'))
             # read in M1, M2, k1, k2, and phcof (if available)
-            if "Comet physical" in line: 
+            if "Comet physical" in line:
                 HGline = src[idx+2].split('=')
                 M1 = float(HGline[1].rstrip('M2'))
                 k1 = float(HGline[3].rstrip('k2'))
@@ -834,7 +839,7 @@ class JPLClass(BaseQuery):
                     phcof = nan
             # catch unambiguous names
             if (("Multiple major-bodies match string" in line or
-                "Matching small-bodies:" in line) and
+                 "Matching small-bodies:" in line) and
                 ("No matches found" not in src[idx+1])):
                 for i in range(idx+2, len(src), 1):
                     if (('To SELECT, enter record' in src[i]) or
@@ -858,17 +863,17 @@ class JPLClass(BaseQuery):
                 errormsg = line[line.find('Cannot output elements'):]
                 errormsg = errormsg[:errormsg.find('\n')]
                 raise ValueError('Horizons Error: {:s}'.format(errormsg))
-            
+
         if headerline == []:
             raise IOError('Cannot parse table column names.')
-    
+
         # remove all 'Cut-off' messages
         raw_data = [line for line in src[data_start_idx:data_end_idx]
-                    if not 'Cut-off' in line]
+                    if 'Cut-off' not in line]
 
         # read in data
         data = ascii.read(raw_data,
-                          names = headerline,
+                          names=headerline,
                           fill_values=[('.n.a.', '0'),
                                        ('n.a.', '0')])
 
@@ -878,10 +883,10 @@ class JPLClass(BaseQuery):
         # does currently not work, unit assignment in columns creates error
         # results in:
         # TypeError: The value must be a valid Python or Numpy numeric type.
-        
+
         # remove last column as it is empty
         data.remove_column('_dump')
-        
+
         # add targetname and physical properties as columns
         data.add_column(Column([targetname]*len(data),
                                name='targetname'), index=0)
@@ -906,7 +911,7 @@ class JPLClass(BaseQuery):
         if not isnan(phcof):
             data.add_column(Column([phcof]*len(data),
                                    name='phasecoeff'), index=7)
-        
+
         # set column definition dictionary
         if self.query_type is 'ephemerides':
             column_defs = conf.eph_columns
@@ -916,7 +921,7 @@ class JPLClass(BaseQuery):
             column_defs = conf.vec_columns
         else:
             raise TypeError('Query type unknown.')
-                
+
         # set column units
         rename = []
         for col in data.columns:
@@ -927,13 +932,12 @@ class JPLClass(BaseQuery):
         # rename columns
         for col in rename:
             data.rename_column(data[col].name, column_defs[col][0])
-        
+
         return data
-            
 
     def _parse_result(self, response, verbose=None):
         """
-        Routine for managing parser calls; 
+        Routine for managing parser calls;
 
 
         This routine decides based on `self.query_type` which parser
@@ -962,4 +966,3 @@ class JPLClass(BaseQuery):
 
 # the default tool for users to interact with is an instance of the Class
 JPL = JPLClass()
-
