@@ -71,7 +71,7 @@ class JPLClass(BaseQuery):
             ...                    'stop':'2017-02-01', 
             ...                    'step':'1d'})
             >>> print(eros) 
-            JPL instance "433"; location=568, epochs={'start': '2017-01-01', 'stop': '2017-02-01', 'step': '1d'}, id_type=any, smallbody=True
+            JPL instance "433"; location=568, epochs={'start': '2017-01-01', 'stop': '2017-02-01', 'step': '1d'}, id_type=smallbody
 
         """
         super(JPLClass, self).__init__()        

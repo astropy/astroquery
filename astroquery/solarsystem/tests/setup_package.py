@@ -5,6 +5,6 @@ import os
 
 def get_package_data():
     paths = [os.path.join('data', '*.txt'),
-    ]  # etc, add other extensions
+            ]  # etc, add other extensions
 
     return {'astroquery.solarsystem.tests': paths}
