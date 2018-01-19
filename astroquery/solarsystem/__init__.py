@@ -11,13 +11,6 @@ from astropy import config as _config
 from collections import OrderedDict
 import astropy.units as u
 
-from .core import JPL, JPLClass
-
-__all__ = ['JPL', 'JPLClass',
-           'Conf', 'conf',
-           ]
-
-
 class Conf(_config.ConfigNamespace):
     """
     Configuration parameters for `astroquery.solarsystem`.
@@ -134,4 +127,11 @@ class Conf(_config.ConfigNamespace):
                    '                     RR':         ('range_rate',
                                                        'AU/d')}
 
+
 conf = Conf()
+
+from .core import JPL, JPLClass
+
+__all__ = ['JPL', 'JPLClass',
+           'Conf', 'conf',
+           ]

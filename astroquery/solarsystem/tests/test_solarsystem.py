@@ -14,7 +14,6 @@ import astropy.units as u
 from ...utils.testing_tools import MockResponse
 
 from ... import solarsystem
-from ...solarsystem import conf
 
 # files in data/ for different query types
 DATA_FILES = {'ephemerides': 'ceres_ephemerides.txt',

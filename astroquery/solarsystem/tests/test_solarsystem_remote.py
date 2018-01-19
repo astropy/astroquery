@@ -7,7 +7,6 @@ from numpy.ma import is_masked
 import numpy.testing as npt
 
 from ... import solarsystem
-from ...solarsystem import conf
 
 
 @remote_data
