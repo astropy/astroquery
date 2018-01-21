@@ -5,6 +5,7 @@ import pytest
 from astropy.tests.helper import remote_data
 from numpy.ma import is_masked
 import numpy.testing as npt
+from collections import OrderedDict
 
 from ... import solarsystem
 
@@ -47,9 +48,102 @@ class TestJPLClass:
              res['ObsEclLon'], res['ObsEclLat'], res['GlxLon'], res['GlxLat'],
              res['RA_3sigma'], res['DEC_3sigma']])
 
+    def test_ephemerides_query_two(patch_request):
+        # check comet ephemerides using solarsystem.ephemerides options
+        obj = solarsystem.JPL(id='Halley', id_type='comet_name',
+                              location='290',
+                              epochs={'start': '2080-01-01',
+                                      'stop': '2080-02-01',
+                                      'step': '3h'})
+        res = obj.ephemerides(airmass_lessthan=1.2, skip_daylight=True,
+                              closest_apparition=True,
+                              hour_angle=10,
+                              solar_elongation=(150, 180))
+        assert len(res) == 1
+
+        res = res[0]
+
+        assert res['targetname'] == "1P/Halley"
+        assert res['datetime_str'] == "2080-Jan-11 09:00"
+        assert res['solar_presence'] == ""
+        assert res['flags'] == "m"
+        assert res['elongFlag'] == '/L'
+
+        # Horizons web query does not provide uncertainties, this query does...
+        # assert is_masked(res['RA_3sigma'])
+        # assert is_masked(res['DEC_3sigma'])
+
+        assert 'H' not in res
+        assert 'G' not in res
+
+        npt.assert_allclose(
+            [2480774.875,
+             131.43810, -0.46854, -5.16997, 0.817370,
+             186.2443, 56.3752, 1.200, 0.153,
+             24.39, 28.15, 99.993,
+             133.1934, -17.2515,  28.74258872620, 3.0860235,
+             27.8838008488718, -8.7436257, 231.902500,
+             150.3437, 0.9736, 320.367, 112.201,
+             135.1522279, -17.7924130, 227.331393, 24.964856,
+             5.5, 13.6, 8, 5, 0.03],
+            [res['datetime_jd'],
+             res['RA'], res['DEC'], res['RA_rate'], res['DEC_rate'],
+             res['AZ'], res['EL'], res['airmass'], res['magextinct'],
+             res['Tmag'], res['Nmag'], res['illumination'],
+             res['EclLon'], res['EclLat'], res['r'], res['r_rate'],
+             res['delta'], res['delta_rate'], res['lighttime'],
+             res['elong'], res['alpha'], res['sunTargetPA'], res['velocityPA'],
+             res['ObsEclLon'], res['ObsEclLat'], res['GlxLon'], res['GlxLat'],
+             res['M1'], res['M2'], res['k1'], res['k2'], res['phasecoeff']])
+
+    def test_ephemerides_query_three(patch_request):
+        # checks no_fragments option for comets
+        obj = solarsystem.JPL(id='73P', id_type='designation',
+                              location='290',
+                              epochs={'start': '2080-01-01',
+                                      'stop': '2080-02-01',
+                                      'step': '3h'})
+
+        res = obj.ephemerides(closest_apparition=True,
+                              no_fragments=True)
+
+    def test_ephemerides_query_raw(patch_request):
+        res = (solarsystem.JPL(id='Ceres', location='500',
+                               epochs=2451544.5).
+               ephemerides(get_raw_response=True))
+
+        assert len(res) == 15335
+
+    def test_ephemerides_query_payload(patch_request):
+        obj = solarsystem.JPL(id='Halley', id_type='comet_name',
+                              location='290',
+                              epochs={'start': '2080-01-01',
+                                      'stop': '2080-02-01',
+                                      'step': '3h'})
+        res = obj.ephemerides(airmass_lessthan=1.2, skip_daylight=True,
+                              closest_apparition=True,
+                              hour_angle=10,
+                              solar_elongation=(150, 180),
+                              get_query_payload=True)
+
+        assert res == OrderedDict([
+            ('batch', 1),
+            ('TABLE_TYPE', 'OBSERVER'),
+            ('QUANTITIES', '"1,3,4,8,9,10,18,19,20,21,23,24,27,31,33,36"'),
+            ('COMMAND', '"COMNAM=Halley; CAP;"'),
+            ('CENTER', "'290'"),
+            ('SOLAR_ELONG', '"150,180"'),
+            ('LHA_CUTOFF', '10'),
+            ('CSV_FORMAT', 'YES'),
+            ('CAL_FORMAT', 'BOTH'),
+            ('ANG_FORMAT', 'DEG'),
+            ('START_TIME', '2080-01-01'),
+            ('STOP_TIME', '2080-02-01'),
+            ('STEP_SIZE', '3h'),
+            ('AIRMASS', '1.2'),
+            ('SKIP_DAYLT', 'YES')])
+
     def test_elements_query(patch_request):
-        # check values of Ceres for a given epoch
-        # orbital uncertainty of Ceres is basically zero
         res = solarsystem.JPL(id='Ceres', location='500@10',
                               epochs=2451544.5).elements()[0]
 
@@ -76,7 +170,32 @@ class TestJPLClass:
              res['a'], res['Q'],
              res['P']])
 
-    def test_elements_vectors(patch_request):
+    def test_elements_query_raw(patch_request):
+        res = solarsystem.JPL(id='Ceres', location='500@10',
+                              epochs=2451544.5).elements(get_raw_response=True)
+
+        assert len(res) == 7576
+
+    def test_elements_query_payload(patch_request):
+        res = (solarsystem.JPL(id='Ceres', location='500@10',
+                               epochs=2451544.5).elements(
+                                   get_query_payload=True))
+
+        assert res == OrderedDict([
+            ('batch', 1),
+            ('TABLE_TYPE', 'ELEMENTS'),
+            ('OUT_UNITS', 'AU-D'),
+            ('COMMAND', '"Ceres;"'),
+            ('CENTER', "'500@10'"),
+            ('CSV_FORMAT', '"YES"'),
+            ('REF_PLANE', 'ECLIPTIC'),
+            ('REF_SYSTEM', 'J2000'),
+            ('TP_TYPE', 'ABSOLUTE'),
+            ('ELEM_LABELS', 'YES'),
+            ('OBJ_DATA', 'YES'),
+            ('TLIST', '"2451544.5"')])
+
+    def test_vectors_query(patch_request):
         # check values of Ceres for a given epoch
         # orbital uncertainty of Ceres is basically zero
         res = solarsystem.JPL(id='Ceres', location='500@10',
@@ -100,3 +219,41 @@ class TestJPLClass:
              res['vz'],
              res['lighttime'], res['range'],
              res['range_rate']])
+
+    def test_vectors_query_raw(patch_request):
+        res = solarsystem.JPL(id='Ceres', location='500@10',
+                              epochs=2451544.5).vectors(get_raw_response=True)
+
+        assert len(res) == 7032
+
+    def test_vectors_query_payload(patch_request):
+        res = solarsystem.JPL(id='Ceres', location='500@10',
+                              epochs=2451544.5).vectors(get_query_payload=True)
+
+        assert res == OrderedDict([
+            ('batch', 1),
+            ('TABLE_TYPE', 'VECTORS'),
+            ('OUT_UNITS', 'AU-D'),
+            ('COMMAND', '"Ceres;"'),
+            ('CENTER', "'500@10'"),
+            ('CSV_FORMAT', '"YES"'),
+            ('REF_PLANE', 'ECLIPTIC'),
+            ('REF_SYSTEM', 'J2000'),
+            ('TP_TYPE', 'ABSOLUTE'),
+            ('LABELS', 'YES'),
+            ('OBJ_DATA', 'YES'),
+            ('TLIST', '"2451544.5"')])
+
+    def test_unknownobject(patch_request):
+        try:
+            solarsystem.JPL(id='spamspamspameggsspam', location='500',
+                            epochs=2451544.5).ephemerides()
+        except ValueError:
+            pass
+
+    def test_multipleobjects(patch_request):
+        try:
+            solarsystem.JPL(id='73P', location='500',
+                            epochs=2451544.5).ephemerides()
+        except ValueError:
+            pass
