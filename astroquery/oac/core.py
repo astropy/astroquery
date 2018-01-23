@@ -14,53 +14,54 @@ from __future__ import print_function
 import json
 
 import astropy.units as u
-import astropy.coordinates as coord
-import astropy.io.votable as votable
-from astropy.table import Table, Column
-from astropy.io import fits
+from astropy.table import Column, Table
 
-from ..query import BaseQuery
-from ..utils import commons, prepend_docstr_nosections, async_to_sync
 from . import conf
+from ..query import BaseQuery
+from ..utils import async_to_sync, commons
 
-__all__ = ['OACAPI', 'OACAPIClass']
+__all__ = ('OAC', 'OACClass')
+
 
 @async_to_sync
-class OACAPIClass(BaseQuery):
+class OACClass(BaseQuery):
+    """OAC class."""
 
     URL = conf.server
     TIMEOUT = conf.timeout
     HEADERS = {'Content-type': 'application/json', 'Accept': 'text/plain'}
 
-    def query_object_async(self, 
+    def query_object_async(self,
                            object_name,
-                           quantity_name =  'photometry',
-                           attribute_name=['time', 'magnitude', 'e_magnitude','band','instrument'],
-                           get_query_payload = False,
+                           quantity_name='photometry',
+                           attribute_name=['time', 'magnitude',
+                                           'e_magnitude', 'band',
+                                           'instrument'],
+                           get_query_payload=False,
                            cache=False):
+        """Retrieve object(s) asynchronously.
 
-        """
-        Query method to retrieve the desired quantities and 
-        attributes for an object specified by a transient name. 
+        Query method to retrieve the desired quantities and
+        attributes for an object specified by a transient name.
 
-        The complete list of available quantities and attributes 
+        The complete list of available quantities and attributes
         can be found at https://github.com/astrocatalogs/schema.
 
         Parameters
         ----------
         object_name : str or list, required
             Name of the event to query. Can be a list
-            of event names. 
+            of event names.
         quantity_name : str or list, optional
-            Name of quantity to retrieve. Can be a 
+            Name of quantity to retrieve. Can be a
             a list of quantities. If no quantity is specified,
             then photometry is returned by default.
         attribute_name : str or list, optional
             Name of specific attributes to retrieve. Can be a list
             of attributes. If no attributes are specified,
-            then a time vs. magnitude light curve is returned. 
+            then a time vs. magnitude light curve is returned.
         get_query_payload : bool, optional
-            When set to `True` the method returns the HTTP request 
+            When set to `True` the method returns the HTTP request
             parameters as a dict. The actual HTTP request is not made.
             The default value is False.
         verbose : bool, optional
@@ -74,10 +75,13 @@ class OACAPIClass(BaseQuery):
 
         Examples
         --------
-        >>> from astroquery.astrocats import OACAPI
-        >>> photometry = OACAPI.query_object(object_name=['GW170817'],
-                                             quantity_name='photometry',
-                                             attribute_name=['time', 'magnitude', 'e_magnitude','band','instrument'])
+        >>> from astroquery.oac import OAC
+        >>> photometry = OAC.query_object(object_name=['GW170817'],
+                                          quantity_name='photometry',
+                                          attribute_name=[
+                                          'time', 'magnitude',
+                                          'e_magnitude','band','instrument']
+                                         )
         >>> print(photometry[:5])
 
         >>> time   magnitude e_magnitude band instrument
@@ -89,40 +93,42 @@ class OACAPIClass(BaseQuery):
             57793.335     21.10                r
 
         """
-
         request_payload = self._args_to_payload(object_name,
-                                                quantity_name, 
+                                                quantity_name,
                                                 attribute_name)
 
-        print (request_payload)
+        print(request_payload)
 
         if get_query_payload:
             return request_payload
 
         response = self._request('GET', self.URL,
                                  data=json.dumps(request_payload),
-                                 timeout=self.TIMEOUT, 
-                                 headers = self.HEADERS,
+                                 timeout=self.TIMEOUT,
+                                 headers=self.HEADERS,
                                  cache=cache)
 
         return response
 
-    def query_region_async(self, coordinates, 
-                           radius=None, 
+    def query_region_async(self, coordinates,
+                           radius=None,
                            height=None, width=None,
-                           quantity_name =  'photometry',
-                           attribute_name = ['time', 'magnitude', 'e_magnitude','band','instrument'],
+                           quantity_name='photometry',
+                           attribute_name=['time', 'magnitude',
+                                           'e_magnitude', 'band',
+                                           'instrument'],
                            get_query_payload=False, cache=False):
+        """Query a region asynchronously.
 
-        """
-        Query method to retrieve the desired quantities and 
+        Query method to retrieve the desired quantities and
         attributes for an object specified by a region on the sky.
-        The search can be either a cone search (using the radius 
+        The search can be either a cone search (using the radius
         parameter) or a box search (using the width/height parameters).
 
-        IMPORTANT: The API can only query a single set of coordinates at a time.
+        IMPORTANT: The API can only query a single set of coordinates at a
+        time.
 
-        The complete list of available quantities and attributes 
+        The complete list of available quantities and attributes
         can be found at https://github.com/astrocatalogs/schema.
 
         Parameters
@@ -132,21 +138,21 @@ class OACAPIClass(BaseQuery):
             a list with [ra,dec] or an astropy coordinates object.
             Can be given in sexigesimal or decimal format.
         radius : str, float or `astropy.units.Quantity`, optional
-            The radius, in arcseconds, of the cone search centered 
-            on coordinates. Should be a single, float-convertable value 
+            The radius, in arcseconds, of the cone search centered
+            on coordinates. Should be a single, float-convertable value
             or an astropy quantity. The default value is 10 arcsecons.
         width : str, float or `astropy.units.Quantity`, optional
-            The width, in arcseconds, of the box search centered 
-            on coordinates. Should be a single, float-convertable value 
+            The width, in arcseconds, of the box search centered
+            on coordinates. Should be a single, float-convertable value
             or an astropy quantity. The default value is None (e.g.,
             a cone search is performed by default).
         height : str, float or `astropy.units.Quantity`, optional
-            The height, in arcseconds, of the box search centered 
-            on coordinates. Should be a single, float-convertable value 
+            The height, in arcseconds, of the box search centered
+            on coordinates. Should be a single, float-convertable value
             or an astropy quantity. The default value is None (e.g.,
             a cone search is performed by default).
         quantity_name : str or list, optional
-            Name of quantity to retrieve. Can be a 
+            Name of quantity to retrieve. Can be a
             a list of quantities. If no quantity is specified,
             then photometry is returned by default.
         attribute_name : str or list, optional
@@ -154,7 +160,7 @@ class OACAPIClass(BaseQuery):
             of attributes. If no attributes are specified,
             then a time vs. magnitude light curve is returned.
         get_query_payload : bool, optional
-            When set to `True` the method returns the HTTP request 
+            When set to `True` the method returns the HTTP request
             parameters as a dict. The actual HTTP request is not made.
             The default value is False.
         verbose : bool, optional
@@ -167,12 +173,11 @@ class OACAPIClass(BaseQuery):
             The HTTP response returned from the service.
             All async methods should return the raw HTTP response.
         """
-
         # No object name is used for coordinate-based queries
         object_name = 'catalog'
 
-        request_payload = self._args_to_payload(object_name, 
-                                                quantity_name, 
+        request_payload = self._args_to_payload(object_name,
+                                                quantity_name,
                                                 attribute_name)
 
         # Add coordinate information to payload.
@@ -182,7 +187,7 @@ class OACAPIClass(BaseQuery):
         if (not isinstance(coordinates, list) and
             not isinstance(coordinates, Column) and
             not (isinstance(coordinates, commons.CoordClasses) and
-            not coordinates.isscalar)):
+                 not coordinates.isscalar)):
 
             request_payload['ra'] = coordinates.ra.deg
             request_payload['dec'] = coordinates.dec.deg
@@ -191,7 +196,7 @@ class OACAPIClass(BaseQuery):
             try:
                 request_payload['ra'] = coordinates[0]
                 request_payload['dec'] = coordinates[1]
-            except:
+            except Exception:
                 raise ValueError("Please check format of input coordinates")
 
         # Check that the user entered a radius or width/height.
@@ -200,16 +205,18 @@ class OACAPIClass(BaseQuery):
 
         # Check that user is only requesting cone OR box search.
         if (radius and (height or width)):
-           raise ValueError("Please specify ONLY a radius or height/width pair.")
+            raise ValueError(
+                "Please specify ONLY a radius or height/width pair.")
 
         # Check that a box search has both width and height.
         if ((not radius) and ((not height) or (not width))):
-           raise ValueError("Please enter both a width and height for a box search.")
+            raise ValueError(
+                "Please enter both a width and height for a box search.")
 
         # Check that any values are in the proper format.
         # Criteria/Code from ../sdss/core.py
         if radius:
-            if  isinstance(radius, u.Quantity):
+            if isinstance(radius, u.Quantity):
                 radius = radius.to(u.arcsec).value
             else:
                 try:
@@ -242,15 +249,15 @@ class OACAPIClass(BaseQuery):
             request_payload['width'] = width
             request_payload['height'] = height
 
-        print (request_payload)
+        print(request_payload)
 
         if get_query_payload:
             return request_payload
 
         response = self._request('GET', self.URL,
                                  data=json.dumps(request_payload),
-                                 timeout=self.TIMEOUT, 
-                                 headers = self.HEADERS,
+                                 timeout=self.TIMEOUT,
+                                 headers=self.HEADERS,
                                  cache=cache)
 
         return response
@@ -267,40 +274,42 @@ class OACAPIClass(BaseQuery):
 
         return request_payload
 
-
     def _parse_result(self, response, verbose=False):
         # if verbose is False then suppress any VOTable related warnings
         if not verbose:
             commons.suppress_vo_warnings()
 
         try:
-            if response.status_code != 200: raise AttributeError
+            if response.status_code != 200:
+                raise AttributeError
 
             raw_output = response.text.splitlines()
 
-            if 'message' in raw_output: raise KeyError
+            if 'message' in raw_output:
+                raise KeyError
 
             columns = raw_output[0].split(',')
             rows = raw_output[1:]
 
-            output_dict = {key : [] for key in columns}
+            output_dict = {key: [] for key in columns}
 
             for row in rows:
 
                 split_row = row.split(',')
 
-                for ct,key in enumerate(columns):
+                for ct, key in enumerate(columns):
                     output_dict[key].append(split_row[ct])
 
             output_table = Table(output_dict)
 
         except AttributeError:
-            print ("ERROR: The web service returned error code: %s" %response.status_code)
+            print("ERROR: The web service returned error code: %s" %
+                  response.status_code)
             return
 
         except KeyError:
-            print ("ERROR: API Server returned the following error:")
-            print (raw_output['message'])
+            print("ERROR: API Server returned the following error:")
+            print(raw_output['message'])
             return
 
         except ValueError:
@@ -310,4 +319,4 @@ class OACAPIClass(BaseQuery):
         return output_table
 
 
-OACAPI = OACAPIClass()
+OAC = OACClass()

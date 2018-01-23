@@ -12,11 +12,13 @@ and James Guillochon (jguillochon@cfa.harvard.edu)
 
 from astropy import config as _config
 
+# Now import your public class
+# Should probably have the same name as your module
+
 
 class Conf(_config.ConfigNamespace):
-    """
-    Configuration parameters for `astroquery.oacapi`.
-    """
+    """Configuration parameters for `astroquery.oac`."""
+
     server = _config.ConfigItem(
         ['https://api.astrocats.space/'],
         'URL of the primary API Server')
@@ -25,12 +27,12 @@ class Conf(_config.ConfigNamespace):
         60,
         'Timeout limit for API Server')
 
+
 conf = Conf()
 
-# Now import your public class
-# Should probably have the same name as your module
-from .core import OACAPI, OACAPIClass
+from .core import OAC, OACClass
 
-__all__ = ['OACAPI', 'OACAPIClass',
+
+__all__ = ('OAC', 'OACClass',
            'Conf', 'conf',
-           ]
+           )
