@@ -11,6 +11,8 @@ and James Guillochon (jguillochon@cfa.harvard.edu)
 
 from __future__ import print_function
 
+import json
+
 import astropy.units as u
 import astropy.coordinates as coord
 import astropy.io.votable as votable
@@ -29,53 +31,70 @@ class OACAPIClass(BaseQuery):
 
     URL = conf.server
     TIMEOUT = conf.timeout
+    HEADERS = {"Content-Type":"application/json","Accept":"application/json"}
 
-    def query_object_async(self, object_name,
-                           attribute_name='alias',
-                           get_query_payload=False,
+    def query_object_async(self, 
+                           object_name = 'all',
+                           quantity_name =  None,
+                           attribute_name = None,
+                           get_query_payload = False,
                            cache=True):
+
         """
         Query method to retrieve the desired attributes for
         an object specified by a transient name. An attribute
         must be specified to return an astropy table. If no
         attribute given, then just 'alias' is returned.
 
+        The complete list of available quantities and attributes 
+        can be found at https://github.com/astrocatalogs/schema.
+
         Parameters
         ----------
-        object_name : str
-            name of the identifier to query.
-        attribute_name : str, optional
-            name of attribute to retrieve (e.g., redshift, photometry)
-            see API documents for details
+        object_name : str or list
+            Name of the object to query. Can be a list
+            of object names.
+        quantity_name : str or list, optional
+            Name of quantity to retrieve. Can be a 
+            a list of quantities. If no quantity is specified,
+            then all quantities for each event are returned.
+        attribute_name : str or list, optional
+            Name of specific attributes to retrieve. Can be a list
+            of attributes. If no attributes are specified,
+            all attributes for a given quantity are returned. 
         get_query_payload : bool, optional
-            This should default to False. When set to `True` the method
-            should return the HTTP request parameters as a dict.
+            When set to `True` the method returns the HTTP request 
+            parameters as a dict. The actual HTTP request is not made.
+            The default value is False.
         verbose : bool, optional
-           This should default to `False`, when set to `True` it displays
-           VOTable warnings.
+            When set to `True` it displays VOTable warnings. The
+            default value is False.
 
         Returns
         -------
         response : `requests.Response`
             The HTTP response returned from the service.
-            All async methods should return the raw HTTP response.
 
         Examples
         --------
         >>> from astroquery.astrocats import OACAPI
         >>> photometry = OACAPI.query_object(object_name = 'GW170817',
-                                             attribute = 'photometry')
+                                             quantity_name = 'photometry')
         >>> print(photometry[:3])
 
         """
 
-        request_payload = self._args_to_payload(object_name, attribute_name)
+        request_payload = self._args_to_payload(object_name, quantity_name, 
+                                                attribute_name)
 
         if get_query_payload:
             return request_payload
 
-        response = self._request('GET', self.URL, params=request_payload,
+        response = self._request('POST', self.URL,
+                                 data=request_payload,
+                                 headers=self.HEADERS,
                                  timeout=self.TIMEOUT, cache=cache)
+
         return response
 
     def query_region_async(self, coordinates, radius, height, width,
@@ -108,6 +127,7 @@ class OACAPIClass(BaseQuery):
                                                 width)
         if get_query_payload:
             return request_payload
+
         response = self._request('GET', self.URL, params=request_payload,
                                  timeout=self.TIMEOUT, cache=cache)
         return response
@@ -119,10 +139,11 @@ class OACAPIClass(BaseQuery):
     def _args_to_payload(self, *args, **kwargs):
         request_payload = dict()
 
-        request_payload['EVENT'] = args[0]
-        request_payload['ATTRIBUTE'] = args[1]
+        request_payload['event'] = args[0]
+        request_payload['quantity'] = args[1]
+        request_payload['attribute'] = args[2]
 
-        return request_payload
+        return json.dumps(request_payload)
 
     # the methods above call the private _parse_result method.
     # This should parse the raw HTTP response and return it as
@@ -134,15 +155,22 @@ class OACAPIClass(BaseQuery):
             commons.suppress_vo_warnings()
         # try to parse the result into an astropy.Table, else
         # return the raw result with an informative error message.
+
+        raw_output = response.text
+
         try:
-            print(response)
+            if 'message' in raw_output: raise KeyError
             pass
+
+        except KeyError:
+            print ("ERROR: API Server returned the following error:")
+            print (raw_output['message'])
+            return
+
         except ValueError:
             # catch common errors here, but never use bare excepts
             # return raw result/ handle in some way
             pass
-
-        return Table()
 
 
 OACAPI = OACAPIClass()

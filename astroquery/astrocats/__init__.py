@@ -18,13 +18,12 @@ class Conf(_config.ConfigNamespace):
     Configuration parameters for `astroquery.oacapi`.
     """
     server = _config.ConfigItem(
-        ['https://api.astrocats.space'],
+        ['https://api.astrocats.space/'],
         'URL of the primary API Server')
 
     timeout = _config.ConfigItem(
         60,
         'Timeout limit for API Server')
-
 
 conf = Conf()
 
