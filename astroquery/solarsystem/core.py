@@ -54,10 +54,10 @@ class JPLClass(BaseQuery):
             epochs are provided, the current time is used.
         id_type: str, optional
             Identifier type, options:
-            ```smallbody```, ```majorbody``` (planets but also
+            ``'smallbody'``, ``'majorbody'`` (planets but also
             anything that is not a small body), ``'designation'``,
             ``'name'``, ``'asteroid_name'``, ``'comet_name'``,
-            ```id``` (Horizons id number), or ``'any'`` (find the
+            ``'id'`` (Horizons id number), or ``'any'`` (find the
             closest match under any id_type), default: ``'any'``
 
 
@@ -135,7 +135,8 @@ class JPLClass(BaseQuery):
                           get_query_payload=False,
                           get_raw_response=False, cache=True):
 
-        """Query JPL Horizons for ephemerides. This method requires the
+        """
+        Query JPL Horizons for ephemerides. This method requires the
         ``id``, ``location``, and ``epochs`` parameters of the
         ``JPL`` object to be set.
 
@@ -153,7 +154,7 @@ class JPLClass(BaseQuery):
             Crop daylight epochs in query, default: False
         closest_apparition : boolean, optional
             Only applies to comets. This option will choose the
-            closest apparation available in time to the selected
+            closest apparition available in time to the selected
             epoch; default: False. Do not use this option for
             non-cometary objects.
         no_fragments : boolean, optional
@@ -265,7 +266,9 @@ class JPLClass(BaseQuery):
 
         Returns
         -------
-        response : `astropy.Table`
+        response : `requests.Response`
+            The response of the HTTP request.
+
 
 
         Examples
@@ -397,7 +400,7 @@ class JPLClass(BaseQuery):
         ----------
         closest_apparition : boolean, optional
             Only applies to comets. This option will choose the
-            closest apparation available in time to the selected
+            closest apparition available in time to the selected
             epoch; default: False. Do not use this option for
             non-cometary objects.
         no_fragments : boolean, optional
@@ -467,7 +470,8 @@ class JPLClass(BaseQuery):
 
         Returns
         -------
-        response : `astropy.Table`
+        response : `requests.Response`
+            The response of the HTTP request.
 
 
         Examples
@@ -578,7 +582,7 @@ class JPLClass(BaseQuery):
         ----------
         closest_apparition : boolean, optional
             Only applies to comets. This option will choose the
-            closest apparation available in time to the selected
+            closest apparition available in time to the selected
             epoch; default: False. Do not use this option for
             non-cometary objects.
         no_fragments : boolean, optional
@@ -642,7 +646,8 @@ class JPLClass(BaseQuery):
 
         Returns
         -------
-        response : `astropy.Table`
+        response : `requests.Response`
+            The response of the HTTP request.
 
 
         Examples
