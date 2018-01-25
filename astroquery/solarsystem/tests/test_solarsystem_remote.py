@@ -106,6 +106,33 @@ class TestJPLClass:
         res = obj.ephemerides(closest_apparition=True,
                               no_fragments=True)
 
+        assert len(res) == 249
+
+        res = res[0]
+
+        assert res['targetname'] == "73P/Schwassmann-Wachmann 3"
+        assert res['datetime_str'] == "2080-Jan-01 00:00"
+        assert res['solar_presence'] == "*"
+        assert res['flags'] == "m"
+        assert res['elongFlag'] == '/L'
+
+        assert 'H' not in res
+        assert 'G' not in res
+
+        npt.assert_allclose(
+            [2480764.5, 113.69316, 25.23735, -27.3432, 5.448306, 49.8614,
+             -11.5331, 24.93, 24.57, 99.948, 108.8549, 2.8081, 4.693889064392,
+             -5.393314, 3.72911425790038, -11.5677314, 31.014098, 167.4705,
+             2.6095, 263.007, 279.03, 112.4792072, 3.5468999, 194.164396,
+             20.23123, 12.0, 15.0],
+            [res['datetime_jd'], res['RA'], res['DEC'], res['RA_rate'],
+             res['DEC_rate'], res['AZ'], res['EL'], res['Tmag'], res['Nmag'],
+             res['illumination'], res['EclLon'], res['EclLat'], res['r'],
+             res['r_rate'], res['delta'], res['delta_rate'], res['lighttime'],
+             res['elong'], res['alpha'], res['sunTargetPA'], res['velocityPA'],
+             res['ObsEclLon'], res['ObsEclLat'], res['GlxLon'], res['GlxLat'],
+             res['M1'], res['k1']])
+
     def test_ephemerides_query_raw(patch_request):
         res = (solarsystem.JPL(id='Ceres', location='500',
                                epochs=2451544.5).
