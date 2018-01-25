@@ -127,8 +127,9 @@ class BaseWFAUClass(QueryWithLogin):
 
         Raises
         ------
-        ValueError if the pid is 'all' and the query type is a catalog.
-        You can query all surveys for images, but not all catalogs.
+        ValueError
+            If the pid is 'all' and the query type is a catalog.  You can query
+            all surveys for images, but not all catalogs.
         """
         if pid == 'all' and query_type == 'image':
             return 'all'
@@ -200,12 +201,6 @@ class BaseWFAUClass(QueryWithLogin):
         -------
         list : A list of `~astropy.io.fits.HDUList` objects.
         """
-
-        if database is None:
-            database = self.database
-
-        if programme_id is None:
-            programme_id = self.programme_id
 
         readable_objs = self.get_images_async(
             coordinates, waveband=waveband, frame_type=frame_type,
