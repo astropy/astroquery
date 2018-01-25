@@ -44,7 +44,7 @@ class BaseWFAUClass(QueryWithLogin):
         """
         super(BaseWFAUClass, self).__init__()
         self.database = database
-        self.programme_id = programme_id  # 102 = GPS
+        self.programme_id = programme_id
         self.session = None
         if username is None or password is None or community is None:
             pass

@@ -28,6 +28,8 @@
 0.3.7 (2018-01-25)
 ------------------
 
+- WFAU: New tool / refactor of the UKIDSS query tool [#984].
+- UKIDSS: Update to DR10 as default database [#984].
 - New tool: Exoplanet Orbit Catalog, NASA Exoplanet Archive [#771]
 - ESO: The upstream API changed.  We have adapted.  [#970]
 - ESO: Added 'destination' keyword to Eso.retrieve_data(), to download files

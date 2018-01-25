@@ -57,14 +57,11 @@ class UkidssClass(BaseWFAUClass):
 
     def __init__(self, username=None, password=None, community=None,
                  database='UKIDSSDR10PLUS', programme_id='all'):
-        super(UkidssClass, self).__init__()
-        self.database = database
-        self.programme_id = programme_id  # 102 = GPS
-        self.session = None
-        if username is None or password is None or community is None:
-            pass
-        else:
-            self.login(username, password, community)
+        super(UkidssClass, self).__init__(database=database,
+                                          programme_id=programme_id,
+                                          username=username,
+                                          community=community,
+                                          password=password)
 
 
 Ukidss = UkidssClass()

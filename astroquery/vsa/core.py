@@ -59,28 +59,16 @@ class VsaClass(BaseWFAUClass):
 
     def __init__(self, username=None, password=None, community=None,
                  database='VVVDR4', programme_id='all'):
-        super(VsaClass, self).__init__()
-        self.database = database
-        self.programme_id = programme_id
-        self.session = None
-        if username is None or password is None or community is None:
-            pass
-        else:
-            self.login(username, password, community)
+        super(VsaClass, self).__init__(database=database,
+                                       programme_id=programme_id,
+                                       username=username,
+                                       community=community,
+                                       password=password)
 
         self.BASE_URL = 'http://horus.roe.ac.uk:8080/vdfs/'
         self.LOGIN_URL = self.BASE_URL + "DBLogin"
         self.IMAGE_URL = self.BASE_URL + "GetImage"
         self.ARCHIVE_URL = self.BASE_URL + "ImageList"
         self.REGION_URL = self.BASE_URL + "WSASQL"
-
-        self.database = database
-        self.programme_id = programme_id
-        self.session = None
-        if username is None or password is None or community is None:
-            pass
-        else:
-            self.login(username, password, community)
-
 
 Vsa = VsaClass()
