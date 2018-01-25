@@ -22,15 +22,15 @@ of `astropy table`_, enabling comfortable data access and the use of
 `astropy units`_.
 
 
-JPL (`~astroquery.solarsystem.JPL`)
-===================================
+JPL (`~astroquery.solarsystem.JPLClass`)
+========================================
 
-The :class:`~astroquery.solarsystem.JPL` class provides an interface
+The :class:`~astroquery.solarsystem.JPLClass` class provides an interface
 to services provided by the `Solar System Dynamics group at the Jet
 Propulation Laboratory`_.
 
 In order to query information for a specific Solar System body, a
-`JPL` object has to be instantiated:
+``JPL`` object has to be instantiated:
 
 .. code-block:: python
 
@@ -39,36 +39,36 @@ In order to query information for a specific Solar System body, a
    >>> print(obj)
    JPL instance "Ceres"; location=568, epochs=[2458133.33546], id_type=smallbody
    
-`id` refers to the target identifier and is mandatory; the exact
+``id`` refers to the target identifier and is mandatory; the exact
 string will be used in the query to the Horizons system.
 
-`location` means either the observer's location (e.g., Horizons
+``location`` means either the observer's location (e.g., Horizons
 ephemerides query) or the body relative to which orbital elements are
 provided (e.g., Horizons orbital elements or vectors query); the same
 codes as used by Horizons are used here, which includes `MPC
-Observatory codes`_. The default is `location=None`, which uses a
+Observatory codes`_. The default is ``location=None``, which uses a
 geocentric location for ephemerides queries and the Sun as location
 for orbital elements and state vector queries.
 
-`epochs` is either a scalor or list of Julian Dates (floats or
+``epochs`` is either a scalar or list of Julian Dates (floats or
 strings) in the case of discrete epochs, or, in the case of a range of
-epochs, a dictionary that has to include the keywords `start`, `stop`
-(both using the following format "YYYY-MM-DD [HH:MM:SS]"), and `step`
+epochs, a dictionary that has to include the keywords ``start``, ``stop``
+(both using the following format "YYYY-MM-DD [HH:MM:SS]"), and ``step``
 (e.g., "1m" for one minute, "3h" three hours, "10d" for ten days). By
-default, `epochs=None`, which uses the current date and time.
+default, ``epochs=None``, which uses the current date and time.
 
-`id_type` describes what type of target identifier has been provided
+``id_type`` describes what type of target identifier has been provided
 in order to minimize the risk of confusion when identifying the
-target: `smallbody` (default; refers to an asteroid or comet),
-`majorbody` (planets or satellites), `designation` (any type of
-asteroid or comet designation), `name` (any type of target name),
-`asteroid_name` (name of an asteroid), or `comet_name` (name of a
+target: ``smallbody`` (default; refers to an asteroid or comet),
+``majorbody`` (planets or satellites), ``designation`` (any type of
+asteroid or comet designation), ``name`` (any type of target name),
+``asteroid_name`` (name of an asteroid), or ``comet_name`` (name of a
 comet). In order to minimize confusion, try to be as specific as
-possible; namely, in the case of comets, make use of `comet_name`
-(e.g., "Halley") and `designation` (e.g., "73P"). In the case of
-ambiguitites in the name resolving, a list of matching objects will be
+possible; namely, in the case of comets, make use of ``comet_name``
+(e.g., "Halley") and ``designation`` (e.g., "73P"). In the case of
+ambiguities in the name resolving, a list of matching objects will be
 provided. In order to select an object from this list, provide the
-respective id number or record number as `id` and use `id_type=id`:
+respective id number or record number as ``id`` and use ``id_type=id``:
 
 .. code-block:: python
 
@@ -97,9 +97,9 @@ The `JPL Horizons`_ system provides ephemerides, orbital elements, and
 state vectors for almost all known Solar System bodies. These queries
 are provided through three functions:
 
-:meth:`~astroquery.solarsystem.JPL.ephemerides` returns
-ephemerides for a given observer location (`location`) and epoch or
-range of epochs (`epochs`) in the form of an astropy table. The
+:meth:`~astroquery.solarsystem.JPLClass.ephemerides` returns
+ephemerides for a given observer location (``location``) and epoch or
+range of epochs (``epochs``) in the form of an astropy table. The
 following example queries the ephemerides of asteroid (1) Ceres for
 a range of dates as seen from Maunakea:
 
@@ -131,30 +131,30 @@ The following fields are available for each ephemerides query:
 		
 The values in these columns are the same as those defined in the
 Horizons `Definition of Observer Table Quantities`_; names have been
-simplified in a few cases. Quantities `H` and `G` are the target's
+simplified in a few cases. Quantities ``H`` and ``G`` are the target's
 Solar System absolute magnitude and photometric phase curve slope,
-respectively. In the case of comets, `H` and `G` are replaced by `M1`,
-`M2`, `k1`, `k2`, and `phasecoeff`; please refer to the `Horizons
+respectively. In the case of comets, ``H`` and ``G`` are replaced by ``M1``,
+``M2``, ``k1``, ``k2``, and ``phasecoeff``; please refer to the `Horizons
 documentation`_ for definitions.
 
-Optional parameters of :meth:`~astroquery.solarsystem.JPL.ephemerides`
+Optional parameters of :meth:`~astroquery.solarsystem.JPLClass.ephemerides`
 are corresponding to optional features of the Horizons system:
-`airmass_lessthan` sets an upper limit to airmass, `solar_elongation`
-enables the definition of a solar elongation range, `hour_angle` sets
-a cutoff of the hour angle, and `skip_daylight=True` reject epochs
-during daylight. For comets, the options `closest_apparation` and
-`no_fragments` are available, which select the closest apparition in
+``airmass_lessthan`` sets an upper limit to airmass, ``solar_elongation``
+enables the definition of a solar elongation range, ``hour_angle`` sets
+a cutoff of the hour angle, and ``skip_daylight=True`` reject epochs
+during daylight. For comets, the options ``closest_apparation`` and
+``no_fragments`` are available, which select the closest apparition in
 time and reject fragments, respectively. Note that these options
 should only be used for comets and will crash the query for other
-object types.  Furthermore, `get_query_payload=True` skips the query
-and only returns the query payload, whereas `get_raw_response=True`
+object types.  Furthermore, ``get_query_payload=True`` skips the query
+and only returns the query payload, whereas ``get_raw_response=True``
 the raw query response instead of the astropy table returns.
       
 
-:meth:`~astroquery.solarsystem.JPL.elements` returns orbital
-elements relative to some Solar System body (`location`, referred to as 
+:meth:`~astroquery.solarsystem.JPLClass.elements` returns orbital
+elements relative to some Solar System body (``location``, referred to as 
 "CENTER" in Horizons) and for a given epoch or a range of epochs
-(`epochs`) in the form of an astropy table. The following example
+(``epochs``) in the form of an astropy table. The following example
 queries the osculating elements of asteroid (433) Eros for a given
 data relative to the Sun:
 
@@ -178,19 +178,19 @@ The following fields are queried:
    >>> print(el.columns)
    <TableColumns names=('targetname','datetime_jd','datetime_str','H','G','e','q','incl','Omega','w','Tp_jd','n','M','nu','a','Q','P')>
 
-Optional parameters of :meth:`~astroquery.solarsystem.JPL.elements`
-are `get_query_payload=True`, which skips the query and only returns
-the query payload, and `get_raw_response=True`, which returns the raw
+Optional parameters of :meth:`~astroquery.solarsystem.JPLClass.elements`
+are ``get_query_payload=True``, which skips the query and only returns
+the query payload, and ``get_raw_response=True``, which returns the raw
 query response instead of the astropy table. For comets, the options
-`closest_apparation` and `no_fragments` are available, which select
+``closest_apparation`` and ``no_fragments`` are available, which select
 the closest apparition in time and reject fragments,
 respectively. Note that these options should only be used for comets
 and will crash the query for other object types.
 
-:meth:`~astroquery.solarsystem.JPL.vectors` returns the state
+:meth:`~astroquery.solarsystem.JPLClass.vectors` returns the state
 vector of the target body relative to some Solar System body
-(`location`, referred to as "CENTER" in Horizons) and for a given
-epoch or a range of epochs (`epochs`) in the form of an astropy
+(``location``, referred to as "CENTER" in Horizons) and for a given
+epoch or a range of epochs (``epochs``) in the form of an astropy
 table. The following example queries the state vector of asteroid 2012
 TC4 as seen from Goldstone for a range of epochs:
 
@@ -227,12 +227,12 @@ The following fields are queried:
    <TableColumns names=('targetname','datetime_jd','datetime_str','H','G','x','y','z','vx','vy','vz','lighttime','range','range_rate')>
 
 
-Similar to the other :class:`~astroquery.solarsystem.JPL` functions,
-optional parameters of :meth:`~astroquery.solarsystem.JPL.vectors` are
-`get_query_payload=True`, which skips the query and only returns the
-query payload, and `get_raw_response=True`, which returns the raw
+Similar to the other :class:`~astroquery.solarsystem.JPLClass` functions,
+optional parameters of :meth:`~astroquery.solarsystem.JPLClass.vectors` are
+``get_query_payload=True``, which skips the query and only returns the
+query payload, and ``get_raw_response=True``, which returns the raw
 query response instead of the astropy table. For comets, the options
-`closest_apparation` and `no_fragments` are available, which select
+``closest_apparation`` and ``no_fragments`` are available, which select
 the closest apparition in time and reject fragments,
 respectively. Note that these options should only be used for comets
 and will crash the query for other object types.
@@ -259,7 +259,7 @@ Don Quixote since its year of Discovery:
    >>> eph = obj.ephemerides()
 
 As we have seen before, we can display a truncated version of table
-`eph` by simply using
+``eph`` by simply using
 
 .. code-block:: python
 
@@ -390,10 +390,10 @@ use of astropy QTables in the future).
 Units
 -----
 
-Columns have units assigned to them. For instance, the `RA` column has
-the unit `deg` assigned to it, i.e., degrees. More complex units are
-available, too, e.g., the `RA_rate` column is expressed in `arcsec /
-h` - arcseconds per hour:
+Columns have units assigned to them. For instance, the ``RA`` column has
+the unit ``deg`` assigned to it, i.e., degrees. More complex units are
+available, too, e.g., the ``RA_rate`` column is expressed in ``arcsec /
+h`` - arcseconds per hour:
 
 .. code-block:: python
 
@@ -419,8 +419,8 @@ h` - arcseconds per hour:
 
 
 The unit of this column can be easily converted to any other unit
-describing the same dimensions. For instance, we can turn `RA_rate`
-into `arcsec / s`:
+describing the same dimensions. For instance, we can turn ``RA_rate``
+into ``arcsec / s``:
 
 .. code-block:: python
 
