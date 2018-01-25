@@ -6,11 +6,10 @@ from numpy import nan as nan
 from numpy import isnan
 from numpy import ndarray
 from collections import OrderedDict
-import json
+import warnings
 
 # 2. third party imports
-import astropy.units as u
-from astropy.table import Table, Column
+from astropy.table import Column
 from astropy.io import ascii
 from astropy.time import Time
 
@@ -18,8 +17,6 @@ from astropy.time import Time
 # commonly required local imports shown below as example
 # all Query classes should inherit from BaseQuery.
 from ..query import BaseQuery
-# has common functions required by most modules
-from ..utils import commons
 # prepend_docstr is a way to copy docstrings between methods
 from ..utils import prepend_docstr_nosections
 # async_to_sync generates the relevant query tools from _async methods
@@ -789,7 +786,6 @@ class JPLClass(BaseQuery):
         data_end_idx = 0
         H, G = nan, nan
         M1, M2, k1, k2, phcof = nan, nan, nan, nan, nan
-        result_type = 'ephemerides'
         headerline = []
         for idx, line in enumerate(src):
             # read in ephemerides header line; replace some field names

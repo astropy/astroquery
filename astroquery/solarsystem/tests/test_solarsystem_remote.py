@@ -1,7 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from __future__ import print_function
 
-import pytest
 from astropy.tests.helper import remote_data
 from numpy.ma import is_masked
 import numpy.testing as npt

@@ -3,14 +3,9 @@ from __future__ import print_function
 
 import pytest
 import os
-import requests
 
 from numpy import testing as npt
-from numpy import nan
 from numpy.ma import is_masked
-from astropy.table import Table
-import astropy.coordinates as coord
-import astropy.units as u
 from ...utils.testing_tools import MockResponse
 
 from ... import solarsystem

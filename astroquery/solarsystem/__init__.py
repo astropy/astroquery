@@ -8,8 +8,6 @@ Solar System
 """
 
 from astropy import config as _config
-from collections import OrderedDict
-import astropy.units as u
 
 class Conf(_config.ConfigNamespace):
     """
