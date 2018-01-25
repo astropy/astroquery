@@ -8,7 +8,7 @@ from astropy.table import Table
 import astropy.units as u
 import numpy.testing as npt
 
-from ... import ukidss, wfau
+from ... import ukidss
 from ...utils import commons
 from ...utils.testing_tools import MockResponse
 from ...exceptions import InvalidQueryError
@@ -88,16 +88,6 @@ def get_mockreturn(method='GET', url='default_url',
     content = open(data_path(filename), "rb").read()
     return MockResponse(content=content, url=url, **kwargs)
 
-
-@pytest.mark.parametrize(('dim', 'expected'),
-                         [(5 * u.arcmin, 5),
-                          (5 * u.degree, 300),
-                          ('0d0m30s', 0.5),
-                          ]
-                         )
-def test_parse_dimension(dim, expected):
-    out = wfau.core._parse_dimension(dim)
-    npt.assert_approx_equal(out, expected, significant=3)
 
 
 def test_get_images(patch_get, patch_get_readable_fileobj):
