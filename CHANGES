@@ -1,6 +1,8 @@
 0.3.7 (unreleased)
 ------------------
 
+- New tool: JPL Horizons service to obtain ephemerides, orbital elements, and
+  state vectors for Solar System objects.
 - New tool: Exoplanet Orbit Catalog, NASA Exoplanet Archive [#771]
 - MAST: Added convenience function to list available missions. [#947]
 - SIMBAD: adding 'get_query_payload' kwarg to all public methods to return
