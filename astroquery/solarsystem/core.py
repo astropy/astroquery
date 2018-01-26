@@ -57,8 +57,8 @@ class JPLClass(BaseQuery):
             ``'smallbody'``, ``'majorbody'`` (planets but also
             anything that is not a small body), ``'designation'``,
             ``'name'``, ``'asteroid_name'``, ``'comet_name'``,
-            ``'id'`` (Horizons id number), or ``'any'`` (find the
-            closest match under any id_type), default: ``'any'``
+            ``'id'`` (Horizons id number), or ``'smallbody'`` (find the
+            closest match under any id_type), default: ``'smallbody'``
 
 
         Examples
@@ -136,10 +136,8 @@ class JPLClass(BaseQuery):
                           get_raw_response=False, cache=True):
 
         """
-        Query JPL Horizons for ephemerides. This method requires the
-        ``id``, ``location``, and ``epochs`` parameters of the
-        ``JPL`` object to be set.
-
+        Query JPL Horizons for ephemerides. The ``location`` parameter in
+        ``JPLClass`` refers in this case to the location of the observer.
 
         Parameters
         ----------
@@ -390,9 +388,8 @@ class JPLClass(BaseQuery):
                        get_raw_response=False, cache=True):
 
         """
-        Query JPL Horizons for osculating orbital elements. This method
-        requires the ``id``, ``location``, and ``epochs`` parameters
-        of the ``JPL`` object to be set. ``location`` refers to the center
+        Query JPL Horizons for osculating orbital elements. The ``location``
+        parameter in ``JPLClass`` refers in this case to the  center
         body relative to which the elements are provided.
 
 
@@ -572,9 +569,8 @@ class JPLClass(BaseQuery):
                       get_raw_response=False, cache=True):
 
         """
-        Query JPL Horizons for state vectors. This method
-        requires the ``id``, ``location``, and ``epochs`` parameters
-        of the ``JPL`` object to be set. ``location`` refers to the
+        Query JPL Horizons for state vectors. The ``location``
+        parameter in ``JPLClass`` refers in this case to the center
         body relative to which the vectors are provided.
 
 
