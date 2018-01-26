@@ -1,13 +1,13 @@
 0.3.8 (unreleased)
 ------------------
 
-None yet
+- New tool: JPL Horizons service to obtain ephemerides, orbital elements, and
+  state vectors for Solar System objects.
+
 
 0.3.7 (2018-01-25)
 ------------------
 
-- New tool: JPL Horizons service to obtain ephemerides, orbital elements, and
-  state vectors for Solar System objects.
 - New tool: Exoplanet Orbit Catalog, NASA Exoplanet Archive [#771]
 - ESO: The upstream API changed.  We have adapted.  [#970]
 - ESO: Added 'destination' keyword to Eso.retrieve_data(), to download files
