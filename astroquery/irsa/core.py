@@ -352,6 +352,11 @@ class IrsaClass(BaseQuery):
         if 'Either wrong or missing coordinate/object name' in content:
             raise Exception("Malformed coordinate/object name")
 
+        # Check to see that output table size limit hasn't been exceeded
+        if 'Exceeding output table size limit' in content:
+            raise Exception("Exceeded output table size - reduce number "
+                            "of output columns and/or limit search area")
+
         # Check that the results are not of length zero
         if len(content) == 0:
             raise Exception("The IRSA server sent back an empty reply")
