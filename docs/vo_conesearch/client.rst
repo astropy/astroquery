@@ -247,7 +247,7 @@ also see :ref:`Cone Search Examples <vo-sec-scs-examples>`):
 
 >>> from astroquery.vo_conesearch import vos_catalog
 >>> my_db = vos_catalog.get_remote_catalog_db('conesearch_good')
-Downloading http://stsdas.stsci.edu/astrolib/vo_databases/conesearch_good.json
+Downloading https://astropy.stsci.edu/aux/vo_databases/conesearch_good.json
 |==========================================|  37k/ 37k (100.00%)         0s
 >>> print(my_db)
 Guide Star Catalog v2 1
@@ -663,7 +663,7 @@ validation warnings. One should use these sites with caution:
 >>> from astroquery.vo_conesearch import conf
 >>> conf.conesearch_dbname = 'conesearch_warn'
 >>> conesearch.list_catalogs()
-Downloading http://stsdas.stsci.edu/astrolib/vo_databases/conesearch_warn.json
+Downloading https://astropy.stsci.edu/aux/vo_databases/conesearch_warn.json
 |==========================================| 312k/312k (100.00%)         0s
 ['2MASS All-Sky Catalog of Point Sources (Cutri+ 2003) 1',
  'Data release 7 of Sloan Digital Sky Survey catalogs 1',
