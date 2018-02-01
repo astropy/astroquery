@@ -357,6 +357,10 @@ class IrsaClass(BaseQuery):
             raise Exception("Exceeded output table size - reduce number "
                             "of output columns and/or limit search area")
 
+        # Check to see that the query engine is working
+        if 'SQLConnect failed' in content:
+            raise Exception("The IRSA server is currently down")
+
         # Check that the results are not of length zero
         if len(content) == 0:
             raise Exception("The IRSA server sent back an empty reply")
