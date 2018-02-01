@@ -1,7 +1,8 @@
 0.3.8 (unreleased)
 ------------------
 
-None yet
+- Empty out and deprecate the ``astroquery.ibe`` module because IRSA has
+  stopped supporting IBE and migrated to TAP. [#1036]
 
 0.3.7 (2018-01-25)
 ------------------
