@@ -1,7 +1,8 @@
 0.3.8 (unreleased)
 ------------------
 
-None yet
+- vo_conesearch: URL for validated services have changed. Old URL should still
+  redirect but it is deprecated. [#1033]
 
 0.3.7 (2018-01-25)
 ------------------
