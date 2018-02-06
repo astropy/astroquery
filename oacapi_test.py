@@ -4,8 +4,10 @@ import astropy.units as u
 from astroquery.oac import OAC
 
 # Test object query
-photometry = OAC.query_object(object_name='GW170817')
-print(photometry[:5])
+photometry = OAC.query_object(event='GW170817', quantity = 'photometry',
+    attribute = 'magnitude?=18', special_key = 'closest')
+
+print(photometry)
 
 
 '''ra = 197.45037
@@ -19,5 +21,5 @@ test_table = OAC.query_region(coordinates=test_coords,
                               get_query_payload=False,
                               verbose=True)
 
-print(test_table[:5])
+print(test_table)
 '''

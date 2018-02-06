@@ -30,6 +30,7 @@ class OACClass(BaseQuery):
     URL = conf.server
     TIMEOUT = conf.timeout
     HEADERS = {'Content-type': 'application/json', 'Accept': 'text/plain'}
+    FORMAT = None
 
     def query_object_async(self,
                            event,
@@ -103,7 +104,7 @@ class OACClass(BaseQuery):
         request_payload = self._args_to_payload(event,
                                                 quantity,
                                                 attribute,
-                                                special_keys,
+                                                special_key,
                                                 data_format)
 
         if get_query_payload:
@@ -269,10 +270,6 @@ class OACClass(BaseQuery):
 
     def get_photometry(self,
                        event,
-                       quantity='photometry',
-                       attribute=['time', 'magnitude',
-                                       'e_magnitude', 'band',
-                                       'instrument']
                        data_format='csv',
                        get_query_payload=False, cache=False):
         """Retrieve object(s) photometry.
@@ -292,15 +289,6 @@ class OACClass(BaseQuery):
         event : str or list, required
             Name of the event to query. Can be a list
             of event names.
-        quantity : str or list, optional
-            Name of quantity to retrieve. Can be a
-            a list of quantities. This is set to 'photometry'
-            by default.
-        attribute : str or list, optional
-            Name of specific attributes to retrieve. Can be a list
-            of attributes. This is set to return a light curve with
-            times, magnitudes and errors, and band/instruments by
-            default.
         data_format: str, optional
             Specify the format for the returned data. The default is 
             `CSV` for easy conversion to Astropy Tables. The user can
@@ -325,7 +313,7 @@ class OACClass(BaseQuery):
         Examples
         --------
         >>> from astroquery.oac import OAC
-        >>> photometry = OAC.query_object(event=['GW170817'])
+        >>> photometry = OAC.get_photometry(event=['GW170817'])
         >>> print(photometry[:5])
 
         >>> time   magnitude e_magnitude band instrument
@@ -337,21 +325,18 @@ class OACClass(BaseQuery):
             57793.335     21.10                r
 
         """
-        request_payload = self._args_to_payload(event,
-                                                quantity,
-                                                attribute,
-                                                data_format)
+        
+        response = self.query_object_async(event=event,
+                                           quantity='photometry',
+                                           attribute=['time', 'magnitude',
+                                                      'e_magnitude', 'band',
+                                                      'instrument'],
+                                           special_key = None
+                                           )
 
-        if get_query_payload:
-            return request_payload
+        output = self._parse_result(response)
 
-        response = self._request('GET', self.URL,
-                                 data=json.dumps(request_payload),
-                                 timeout=self.TIMEOUT,
-                                 headers=self.HEADERS,
-                                 cache=cache)
-
-        return response
+        return output
 
     # Get Single Spectrum - Require time (closest by default)
 
@@ -361,24 +346,41 @@ class OACClass(BaseQuery):
                          attribute, special_key, data_format):
         request_payload = dict()
 
-        # If special keys are included, append to attribute list.
-        if special_key:
-            attributes.extend
+        # Convert non-list entries to lists
+        if (event) and not isinstance(event, list):
+            event = [event]
 
-        request_payload['event'] = objects
-        request_payload['quantity'] = quantities
-        request_payload['attribute'] = attributes
+        if (quantity) and (not isinstance(quantity, list)):
+            quantity = [quantity]
+
+        if (attribute) and (not isinstance(attribute, list)):
+            attribute = [attribute]
+
+        if (special_key) and (not isinstance(special_key, list)):
+            special_key = [special_key]
+
+        # If special keys are included, append to attribute list
+
+        request_payload['event'] = event
+        request_payload['quantity'] = quantity
+        request_payload['attribute'] = attribute
+
+        if special_key:
+            for key in special_key:
+                request_payload[key] = None
 
         if ((data_format.lower() == 'csv') or 
             (data_format.lower() == 'json')):
-            request_payload['format'] = data_format
+            request_payload['format'] = data_format.lower()
         else:
             raise ValueError("The format must be either csv "
                              "or JSON.")
 
+        self.FORMAT = data_format.lower()
+
         return request_payload
 
-    def _format_output(self, raw_output, data_format):
+    def _format_output(self, raw_output):
         '''
         This module converts the raw HTTP output to a usable format.
         If the format is CSV, then an Astropy table is returned. If
@@ -389,18 +391,20 @@ class OACClass(BaseQuery):
             if 'message' in raw_output:
                 raise KeyError
 
-            if data_format = 'csv':
+            if self.FORMAT == 'csv':
                 columns = raw_output[0].split(',')
                 rows = raw_output[1:]
 
-                output = {key: [] for key in columns}
+                output_dict = {key: [] for key in columns}
 
                 for row in rows:
 
                     split_row = row.split(',')
 
                     for ct, key in enumerate(columns):
-                        output[key].append(split_row[ct])
+                        output_dict[key].append(split_row[ct])
+
+                output = Table(output_dict)
 
             else:
                 output = json.loads(raw_output)
@@ -422,7 +426,8 @@ class OACClass(BaseQuery):
             if response.status_code != 200:
                 raise AttributeError
 
-            output_response = _format_output(raw_output, self.data_format)
+            raw_output = response.text.splitlines()
+            output_response = self._format_output(raw_output)
 
         except AttributeError:
             print("ERROR: The web service returned error code: %s" %
@@ -432,7 +437,7 @@ class OACClass(BaseQuery):
         except Exception:
             print("ERROR: An error occured with astropy table construction.")
             return
-
+                        
         return output_response
 
 
