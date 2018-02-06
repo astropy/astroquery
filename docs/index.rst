@@ -42,7 +42,7 @@ Using conda
 ^^^^^^^^^^^
 
 It is also possible to install the latest astroquery with `anaconda
-<http://continuum.io/>`_ from the astropy channel:
+<https://anaconda.com/>`_ from the astropy channel:
 
 .. code-block:: bash
 
@@ -75,7 +75,7 @@ The following packages are required for astroquery installation & use:
 * `astropy <http://www.astropy.org>`__ (>=1.0)
 * `requests <http://docs.python-requests.org/en/latest/>`_
 * `keyring <https://pypi.python.org/pypi/keyring>`_
-* `Beautiful Soup <http://www.crummy.com/software/BeautifulSoup/>`_
+* `Beautiful Soup <https://www.crummy.com/software/BeautifulSoup/>`_
 * `html5lib <https://pypi.python.org/pypi/html5lib>`_
 
 and for running the tests:
