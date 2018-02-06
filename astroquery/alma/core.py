@@ -287,6 +287,9 @@ class AlmaClass(QueryWithLogin):
                                  timeout=self.TIMEOUT, cache=False)
         self._staging_log['initial_response'] = response
         log.debug("First response URL: {0}".format(response.url))
+        if 'login' in response.url:
+            raise ValueError("You must login before downloading this data set.")
+
         if response.status_code == 405:
             if hasattr(self, '_last_successful_staging_log'):
                 log.warning("Error 405 received.  If you have previously staged "

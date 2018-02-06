@@ -1,11 +1,14 @@
-0.3.7 (unreleased)
+0.3.8 (unreleased)
+------------------
+
+- ATOMIC: Fixed remote tests that were broken. [#1038]
+- vo_conesearch: URL for validated services have changed. Old URL should still
+  redirect but it is deprecated. [#1033]
+
+0.3.7 (2018-01-25)
 ------------------
 
 - New tool: Exoplanet Orbit Catalog, NASA Exoplanet Archive [#771]
-- MAST: Added convenience function to list available missions. [#947]
-- SIMBAD: adding 'get_query_payload' kwarg to all public methods to return
-  the request parameters. [#962]
-- CosmoSim: Fixed login service. [#999]
 - ESO: The upstream API changed.  We have adapted.  [#970]
 - ESO: Added 'destination' keyword to Eso.retrieve_data(), to download files
   to a specific location (other than the cache). [#976]
@@ -14,12 +17,32 @@
 - ESO: Implemented Eso.query_main() to query all instruments with the main form
   (even the ones without a specific form). [#976]
 - ESO: Disabled caching for all Eso.retrieve_data() operations. [#976]
+- ESO: Removed deprecated Eso.data_retrieval() and Eso.query_survey().
+  Please use Eso.retrieve_data() and Eso.query_surveys() instead. [#1019]
+- ESO: Added configurable URL. [#1017]
+- ESO: Fixed string related bugs. [#981]
+- MAST: Added convenience function to list available missions. [#947]
 - MAST: Added login capabilities [#982]
+- MAST: Updated download functionality [#1004]
+- MAST: Fixed no results bug [#1003]
+- utils.tap: Made tkinter optional dependency. [#983]
+- utils.tap: Fixed a bug in load_tables. [#990]
 - vo_conesearch: Fixed bad query for service that cannot accept '&&'
   in URL. [#993]
 - vo_conesearch: Removed broken services from default list. [#997, #1002]
+- IRSA Dust: fix units in extinction by band table. [#1016]
+- IRSA: Updated links that switched to use https. [#1010]
+- NRAO: Allow multiple configurations, telescopes in queries [#1020]
+- SIMBAD: adding 'get_query_payload' kwarg to all public methods to return
+  the request parameters. [#962]
+- CosmoSim: Fixed login service. [#999]
 - utils: upgrade ``prepend_docstr_noreturns`` to work with multiple
   sections, and thus rename it to ``prepend_docstr_nosections``. [#988]
+- Vizier: find_catalogs will now respect UCD specifications [#1000]
+- ATOMIC: Added ability to select which rows are returned from the atomic
+  line database. [#1006]
+- ESASKY: Added Windows support, various bugfixes. [#1001, #977]
+- GAMA: Updated to use the newer DR3 release. [#1005]
 
 
 0.3.6 (2017-07-03)
