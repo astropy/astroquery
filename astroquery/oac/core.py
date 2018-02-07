@@ -362,24 +362,17 @@ class OACClass(BaseQuery):
             argument = [argument]
 
         # If special keys are included, append to attribute list
-
-        request_payload['event'] = event
-        request_payload['quantity'] = quantity
-        request_payload['attribute'] = attribute
-
         if argument:
-
-            special_args = []
-
             for arg in argument:
                 if '=' in arg:
                     split_arg = arg.split('=')
                     request_payload[split_arg[0]] = split_arg[1]
                 else:
-                    special_args.append(arg)
+                    request_payload[arg] = True
 
-            if len(special_args) > 0:
-                request_payload['argument'] = special_args
+        request_payload['event'] = event
+        request_payload['quantity'] = quantity
+        request_payload['attribute'] = attribute
 
         if ((data_format.lower() == 'csv') or
                 (data_format.lower() == 'json')):

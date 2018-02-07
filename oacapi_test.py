@@ -5,8 +5,8 @@ from astroquery.oac import OAC
 
 # Test object query
 photometry = OAC.query_object(event='GW170817', quantity='photometry',
-                              attribute=['time', 'magnitude'],
-                              argument=['first'])
+                              attribute=['magnitude', 'band'],
+                              argument=['band=i'])
 
 print(photometry)
 
