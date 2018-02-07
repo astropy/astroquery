@@ -1,4 +1,4 @@
-# Licensed under a 3-clause BSD style license - see LICENSE.rst
+# Licensed under a 3-clause BSD style license - see LICENSE.rst.
 """
 OPEN ASTRONOMY CATALOG (OAC) API TOOL
 -------------------------
@@ -36,7 +36,7 @@ class OACClass(BaseQuery):
                            event,
                            quantity=None,
                            attribute=None,
-                           special_key=None,
+                           argument=None,
                            data_format='csv',
                            get_query_payload=False, cache=False):
         """Retrieve object(s) asynchronously.
@@ -61,10 +61,10 @@ class OACClass(BaseQuery):
             of attributes. If no attributes are specified,
             then a time vs. magnitude light curve is returned.
         data_format: str, optional
-            Specify the format for the returned data. The default is 
+            Specify the format for the returned data. The default is
             `CSV` for easy conversion to Astropy Tables. The user can
-            also specify `JSON` which will return the raw JSON output 
-            from the API. 
+            also specify `JSON` which will return the raw JSON output
+            from the API.
             Note 1: Not all queries can support CSV output.
             Note 2: Setting the format to JSON will return the JSON
             file instead of an Astropy Table.
@@ -104,11 +104,13 @@ class OACClass(BaseQuery):
         request_payload = self._args_to_payload(event,
                                                 quantity,
                                                 attribute,
-                                                special_key,
+                                                argument,
                                                 data_format)
 
         if get_query_payload:
             return request_payload
+
+        print(request_payload)
 
         response = self._request('GET', self.URL,
                                  data=json.dumps(request_payload),
@@ -143,7 +145,7 @@ class OACClass(BaseQuery):
         coordinates : str or `astropy.coordinates`.
             A single set of ra/dec coorindates to query. Can be either
             a list with [ra,dec] or an astropy coordinates object.
-            Can be given in sexigesimal or decimal format. The API 
+            Can be given in sexigesimal or decimal format. The API
             can not query multiple sets of coordinates.
         radius : str, float or `astropy.units.Quantity`, optional
             The radius, in arcseconds, of the cone search centered
@@ -181,6 +183,7 @@ class OACClass(BaseQuery):
             The HTTP response returned from the service.
             All async methods should return the raw HTTP response.
         """
+
         # No object name is used for coordinate-based queries
         event = 'catalog'
 
@@ -276,9 +279,9 @@ class OACClass(BaseQuery):
 
         This is a version of the query_object_async method
         that is set up to quickly return the light curve(s)
-        for a given object or set of objects. 
+        for a given object or set of objects.
 
-        The light curves are returned by default as an 
+        The light curves are returned by default as an
         Astropy Table.
 
         More complicated queries should make use of the base
@@ -290,10 +293,10 @@ class OACClass(BaseQuery):
             Name of the event to query. Can be a list
             of event names.
         data_format: str, optional
-            Specify the format for the returned data. The default is 
+            Specify the format for the returned data. The default is
             `CSV` for easy conversion to Astropy Tables. The user can
-            also specify `JSON` which will return the raw JSON output 
-            from the API. 
+            also specify `JSON` which will return the raw JSON output
+            from the API.
             Note 1: Not all queries can support CSV output.
             Note 2: Setting the format to JSON will return the JSON
             file instead of an Astropy Table.
@@ -325,13 +328,12 @@ class OACClass(BaseQuery):
             57793.335     21.10                r
 
         """
-        
         response = self.query_object_async(event=event,
                                            quantity='photometry',
                                            attribute=['time', 'magnitude',
                                                       'e_magnitude', 'band',
                                                       'instrument'],
-                                           special_key = None
+                                           argument=None
                                            )
 
         output = self._parse_result(response)
@@ -340,10 +342,10 @@ class OACClass(BaseQuery):
 
     # Get Single Spectrum - Require time (closest by default)
 
-    # Get spectra - JSON dump all spectra 
+    # Get spectra - JSON dump all spectra
 
-    def _args_to_payload(self, event, quantity, 
-                         attribute, special_key, data_format):
+    def _args_to_payload(self, event, quantity,
+                         attribute, argument, data_format):
         request_payload = dict()
 
         # Convert non-list entries to lists
@@ -356,8 +358,8 @@ class OACClass(BaseQuery):
         if (attribute) and (not isinstance(attribute, list)):
             attribute = [attribute]
 
-        if (special_key) and (not isinstance(special_key, list)):
-            special_key = [special_key]
+        if (argument) and (not isinstance(argument, list)):
+            argument = [argument]
 
         # If special keys are included, append to attribute list
 
@@ -365,12 +367,22 @@ class OACClass(BaseQuery):
         request_payload['quantity'] = quantity
         request_payload['attribute'] = attribute
 
-        if special_key:
-            for key in special_key:
-                request_payload[key] = None
+        if argument:
 
-        if ((data_format.lower() == 'csv') or 
-            (data_format.lower() == 'json')):
+            special_args = []
+
+            for arg in argument:
+                if '=' in arg:
+                    split_arg = arg.split('=')
+                    request_payload[split_arg[0]] = split_arg[1]
+                else:
+                    special_args.append(arg)
+
+            if len(special_args) > 0:
+                request_payload['argument'] = special_args
+
+        if ((data_format.lower() == 'csv') or
+                (data_format.lower() == 'json')):
             request_payload['format'] = data_format.lower()
         else:
             raise ValueError("The format must be either csv "
@@ -381,11 +393,11 @@ class OACClass(BaseQuery):
         return request_payload
 
     def _format_output(self, raw_output):
-        '''
+        """
         This module converts the raw HTTP output to a usable format.
         If the format is CSV, then an Astropy table is returned. If
         the format is JSON, then a JSON-compliant dictionary is returned.
-        '''
+        """
 
         try:
             if 'message' in raw_output:
@@ -416,7 +428,6 @@ class OACClass(BaseQuery):
             print(raw_output['message'])
             return
 
-
     def _parse_result(self, response, verbose=False):
         # if verbose is False then suppress any VOTable related warnings
         if not verbose:
@@ -437,7 +448,7 @@ class OACClass(BaseQuery):
         except Exception:
             print("ERROR: An error occured with astropy table construction.")
             return
-                        
+
         return output_response
 
 
