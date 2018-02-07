@@ -15,6 +15,7 @@ import time
 import os
 import re
 import keyring
+import threading
 
 import numpy as np
 
@@ -28,6 +29,7 @@ import astropy.coordinates as coord
 from astropy.table import Table, Row, vstack, MaskedColumn
 from astropy.extern.six.moves.urllib.parse import quote as urlencode
 from astropy.extern.six.moves.http_cookiejar import Cookie
+from astropy.utils.console import ProgressBarOrSpinner
 from astropy.utils.exceptions import AstropyWarning
 from astropy.logger import log
 
@@ -1364,10 +1366,25 @@ class ObservationsClass(MastClass):
                         print("WARNING: New URI %s" % dataUri)
 
                     bucketPath = "hst/public/" + obs_id[:4] + dataUri.replace("mast:HST/product", "")
-                    print("Pulling %s from s3://stpubdata/%s" % (dataProduct['productFilename'], bucketPath))
 
                     try:
-                        bkt.download_file(bucketPath, localPath, ExtraArgs={"RequestPayer": "requester"})
+                        with ProgressBarOrSpinner(dataProduct["size"], ('Downloading URL s3://stpubdata/{0} to {1} ...'.format(bucketPath, localPath))) as pb:
+                            global bytes_read
+                            bytes_read = 0
+
+                            progress_lock = threading.Lock()
+
+                            def progress_callback(numbytes):
+                                global bytes_read
+
+                                # This callback can be called in multiple threads
+                                # Access to updating the console needs to be locked
+                                with progress_lock:
+                                    bytes_read += numbytes
+                                    pb.update(bytes_read)
+
+                            bkt.download_file(bucketPath, localPath, ExtraArgs={"RequestPayer": "requester"}, Callback=progress_callback)
+
                         used_boto3 = True
                     except Exception as ex:
                         print("Error pulling from S3 bucket: %s" % ex)
