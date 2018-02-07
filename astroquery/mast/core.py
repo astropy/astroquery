@@ -1331,6 +1331,7 @@ class ObservationsClass(MastClass):
         if boto3 is not None:
             # This is a cheap operation and does not perform any actual work yet
             s3 = boto3.resource('s3')
+            s3_client = boto3.client('s3')
             bkt = s3.Bucket('stpubdata')
             
 
@@ -1352,45 +1353,68 @@ class ObservationsClass(MastClass):
             url = None
 
             try:
-                used_boto3 = False
+                s3_fetch_ok = False
                 if boto3 is not None and dataUri.startswith("mast:HST/product"):
-                    obs_id = obs_id.lower()
-
-                    # magic associations logic per Brian - 0-9/a-e we convert to 0
-                    magicValues = "123456789abcde"
-                    if obs_id[-1] in magicValues:
-                        print("WARNING: IPPPSSOOT Magic in %s" % dataUri)
-                        new_obs_id = obs_id[:-1] + "0"
-                        dataUri = dataUri.replace(obs_id, new_obs_id)
-                        obs_id = new_obs_id
-                        print("WARNING: New URI %s" % dataUri)
-
-                    bucketPath = "hst/public/" + obs_id[:4] + dataUri.replace("mast:HST/product", "")
+                    # The following is a mishmash of BaseQuery._download_file and s3 access through boto
 
                     try:
-                        with ProgressBarOrSpinner(dataProduct["size"], ('Downloading URL s3://stpubdata/{0} to {1} ...'.format(bucketPath, localPath))) as pb:
-                            global bytes_read
-                            bytes_read = 0
+                        obs_id = obs_id.lower()
 
-                            progress_lock = threading.Lock()
+                        # magic associations logic per Brian - 0-9/a-e we convert to 0
+                        magicValues = "123456789abcde"
+                        if obs_id[-1] in magicValues:
+                            print("WARNING: IPPPSSOOT Magic in %s" % dataUri)
+                            new_obs_id = obs_id[:-1] + "0"
+                            dataUri = dataUri.replace(obs_id, new_obs_id)
+                            obs_id = new_obs_id
+                            print("WARNING: New URI %s" % dataUri)
 
-                            def progress_callback(numbytes):
+                        bucketPath = "hst/public/" + obs_id[:4] + dataUri.replace("mast:HST/product", "")
+
+                        # CAOM LIES!
+                        # We can't use the reported file size
+                        #length = dataProduct["size"]
+                        info_lookup = s3_client.head_object(Bucket='stpubdata', Key=bucketPath, RequestPayer='requester')
+                        length = info_lookup["ContentLength"]
+
+                        if cache and os.path.exists(localPath):
+                            if length is not None:
+                                statinfo = os.stat(localPath)
+                                if statinfo.st_size != length:
+                                    log.warning("Found cached file {0} with size {1} that is "
+                                                "different from expected size {2}"
+                                                .format(localPath,
+                                                        statinfo.st_size,
+                                                    length))
+                                else:
+                                    log.info("Found cached file {0} with expected size {1}."
+                                             .format(localPath, statinfo.st_size))
+                                    s3_fetch_ok = True
+
+                        if not s3_fetch_ok:
+                            with ProgressBarOrSpinner(length, ('Downloading URL s3://stpubdata/{0} to {1} ...'.format(bucketPath, localPath))) as pb:
                                 global bytes_read
+                                bytes_read = 0
 
-                                # This callback can be called in multiple threads
-                                # Access to updating the console needs to be locked
-                                with progress_lock:
-                                    bytes_read += numbytes
-                                    pb.update(bytes_read)
+                                progress_lock = threading.Lock()
 
-                            bkt.download_file(bucketPath, localPath, ExtraArgs={"RequestPayer": "requester"}, Callback=progress_callback)
+                                def progress_callback(numbytes):
+                                    global bytes_read
 
-                        used_boto3 = True
+                                    # This callback can be called in multiple threads
+                                    # Access to updating the console needs to be locked
+                                    with progress_lock:
+                                        bytes_read += numbytes
+                                        pb.update(bytes_read)
+
+                                bkt.download_file(bucketPath, localPath, ExtraArgs={"RequestPayer": "requester"}, Callback=progress_callback)
+
+                            s3_fetch_ok = True
                     except Exception as ex:
                         print("Error pulling from S3 bucket: %s" % ex)
                         print("Falling back to mast download...")
 
-                if not used_boto3:
+                if not s3_fetch_ok:
                     self._download_file(dataUrl, localPath, cache=cache)
 
                 # check if file exists also this is where would perform md5,
