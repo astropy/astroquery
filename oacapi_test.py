@@ -4,12 +4,15 @@ import astropy.units as u
 from astroquery.oac import OAC
 
 # Test object query
-photometry = OAC.query_object(event='GW170817', quantity='photometry',
-                              attribute=['magnitude', 'band'],
-                              argument=['band=i'])
+'''photometry = OAC.query_object(event='GW170817', quantity='spectra',
+                              attribute=['time', 'data'],
+                              argument=None,
+                              data_format='json')
 
-print(photometry)
+print(photometry)'''
 
+spectrum = OAC.get_spectra(event="GW170817")
+print(spectrum)
 
 '''ra = 197.45037
 dec = -23.38148

@@ -38,11 +38,14 @@ class OACClass(BaseQuery):
                            attribute=None,
                            argument=None,
                            data_format='csv',
-                           get_query_payload=False, cache=False):
+                           get_query_payload=False, cache=True):
         """Retrieve object(s) asynchronously.
 
         Query method to retrieve the desired quantities and
         attributes for an object specified by a transient name.
+
+        If no quantities or attributes are given then the query
+        returns the top-level metadata about the event(s).
 
         The complete list of available quantities and attributes
         can be found at https://github.com/astrocatalogs/schema.
@@ -60,6 +63,15 @@ class OACClass(BaseQuery):
             Name of specific attributes to retrieve. Can be a list
             of attributes. If no attributes are specified,
             then a time vs. magnitude light curve is returned.
+        argument : str or list, optional
+            These are special conditional arguments that can be applied
+            to a query to refine.
+            Examples include: 'band=i' returns only i-band photometry,
+            'first' returns the first result, 'sorby=attribute' returns
+            a table sorted by the given attribute, and 'complete' returns
+            only those table rows with all of the requested attributes.
+            A complete list of commands and their usage can be found at:
+            https://github.com/astrocatalogs/OACAPI
         data_format: str, optional
             Specify the format for the returned data. The default is
             `CSV` for easy conversion to Astropy Tables. The user can
@@ -67,14 +79,11 @@ class OACClass(BaseQuery):
             from the API.
             Note 1: Not all queries can support CSV output.
             Note 2: Setting the format to JSON will return the JSON
-            file instead of an Astropy Table.
+            dictionary instead of an Astropy Table.
         get_query_payload : bool, optional
             When set to `True` the method returns the HTTP request
             parameters as a dict. The actual HTTP request is not made.
             The default value is False.
-        verbose : bool, optional
-            When set to `True` it displays VOTable warnings. The
-            default value is False.
 
         Returns
         -------
@@ -125,8 +134,9 @@ class OACClass(BaseQuery):
                            height=None, width=None,
                            quantity=None,
                            attribute=None,
+                           argument=None,
                            data_format='csv',
-                           get_query_payload=False, cache=False):
+                           get_query_payload=False, cache=True):
         """Query a region asynchronously.
 
         Query method to retrieve the desired quantities and
@@ -169,13 +179,19 @@ class OACClass(BaseQuery):
             Name of specific attributes to retrieve. Can be a list
             of attributes. If no attributes are specified,
             then a time vs. magnitude light curve is returned.
+        argument : str or list, optional
+            These are special conditional arguments that can be applied
+            to a query to refine.
+            Examples include: 'band=i' returns only i-band photometry,
+            'first' returns the first result, 'sorby=attribute' returns
+            a table sorted by the given attribute, and 'complete' returns
+            only those table rows with all of the requested attributes.
+            A complete list of commands and their usage can be found at:
+            https://github.com/astrocatalogs/OACAPI
         get_query_payload : bool, optional
             When set to `True` the method returns the HTTP request
             parameters as a dict. The actual HTTP request is not made.
             The default value is False.
-        verbose : bool, optional
-            When set to `True` it displays VOTable warnings. The
-            default value is False.
 
         Returns
         -------
@@ -189,10 +205,11 @@ class OACClass(BaseQuery):
 
         request_payload = self._args_to_payload(event,
                                                 quantity,
-                                                attribute)
+                                                attribute,
+                                                argument,
+                                                data_format)
 
         # Add coordinate information to payload.
-
         # Check that coordinate object is a valid astropy coordinate object
         # Criteria/Code from ../sdss/core.py
         if (not isinstance(coordinates, list) and
@@ -271,42 +288,124 @@ class OACClass(BaseQuery):
 
         return response
 
-    def get_photometry(self,
-                       event,
-                       data_format='csv',
-                       get_query_payload=False, cache=False):
+    def get_photometry(self, event,
+                       argument=None):
         """Retrieve object(s) photometry.
 
-        This is a version of the query_object_async method
-        that is set up to quickly return the light curve(s)
-        for a given object or set of objects.
+        This is a version of the query_object method
+        that is set up to quickly return the complete set
+        of light curve(s) for the given event(s).
 
         The light curves are returned by default as an
         Astropy Table.
 
-        More complicated queries should make use of the base
-        query_object_async method instead
+        Additional arguments can be specified but more complicated
+        queries should make use of the base query_object method
+        instead of get_photometry.
 
         Parameters
         ----------
         event : str or list, required
             Name of the event to query. Can be a list
             of event names.
-        data_format: str, optional
-            Specify the format for the returned data. The default is
-            `CSV` for easy conversion to Astropy Tables. The user can
-            also specify `JSON` which will return the raw JSON output
-            from the API.
-            Note 1: Not all queries can support CSV output.
-            Note 2: Setting the format to JSON will return the JSON
-            file instead of an Astropy Table.
+        argument : str or list, optional
+            These are special conditional arguments that can be applied
+            to a query to refine.
+            Examples include: 'band=i' returns only i-band photometry,
+            'first' returns the first result, 'sorby=attribute' returns
+            a table sorted by the given attribute, and 'complete' returns
+            only those table rows with all of the requested attributes.
+            A complete list of commands and their usage can be found at:
+            https://github.com/astrocatalogs/OACAPI
+
+        Returns
+        -------
+        output : `Astropy Table`
+            An astropy table of all requested photometry with
+            columns:
+            ['event', 'time', 'magnitude', 'e_magnitude', 'band', 'instrument']
+
+        Examples
+        --------
+
+        """
+        response = self.query_object_async(event=event,
+                                           quantity='photometry',
+                                           attribute=['time', 'magnitude',
+                                                      'e_magnitude', 'band',
+                                                      'instrument'],
+                                           argument=argument
+                                           )
+
+        output = self._parse_result(response)
+
+        return output
+
+    # Get Single Spectrum - Require time (closest by default)
+    def get_single_spectrum(self, event, time):
+        """Retrieve a single spectrum at a specified time for
+        the given event.
+
+        This is a version of the query_object method
+        that is set up to quickly return a single spectrum
+        at a user-specified time. The time does not have to be
+        precise as the method uses the closest option by default.
+
+        The spectrum is returned as an astropy table.
+
+        More complicated queries, or queries requesting multiple spectra,
+        should make use of the base query_object or get_spectra methods.
+
+        Parameters
+        ----------
+        event : str, required
+            Name of the event to query. Should be a single event.
+        time : float, required
+            A single MJD time
+
+        Returns
+        -------
+        output : `Astropy Table`
+            An Astropy Table with columns:
+            [wavelength, flux, e_flux (if available)]
+
+
+        Examples
+        --------
+        """
+        query_time = 'time=%s' % time
+        response = self.query_object_async(event=event,
+                                           quantity='spectra',
+                                           attribute=['data'],
+                                           argument=[query_time, 'closest']
+                                           )
+
+        output = self._parse_result(response)
+
+        return output
+
+    # Get spectra - JSON dump all spectra
+    def get_spectra(self, event):
+        """Retrieve all available spectra for the given event.
+
+        This is a version of the query_object method
+        that is set up to quickly return a single spectrum
+        at a user-specified time. The time does not have to be
+        precise as the method uses the closest option by default.
+
+        The spectra must be returned as a JSON-compliant dictionary
+
+        More complicated queries should make use of the
+        base query_object methods.
+
+        Parameters
+        ----------
+        event : str, required
+            Name of the event to query. Should be a single event.
         get_query_payload : bool, optional
             When set to `True` the method returns the HTTP request
             parameters as a dict. The actual HTTP request is not made.
             The default value is False.
-        verbose : bool, optional
-            When set to `True` it displays VOTable warnings. The
-            default value is False.
 
         Returns
         -------
@@ -315,34 +414,17 @@ class OACClass(BaseQuery):
 
         Examples
         --------
-        >>> from astroquery.oac import OAC
-        >>> photometry = OAC.get_photometry(event=['GW170817'])
-        >>> print(photometry[:5])
-
-        >>> time   magnitude e_magnitude band instrument
-            --------- --------- ----------- ---- ----------
-            57743.334     20.44                r
-            57790.358     21.39                r
-            57791.323     21.34                r
-            57792.326     21.26                r
-            57793.335     21.10                r
-
         """
+
         response = self.query_object_async(event=event,
-                                           quantity='photometry',
-                                           attribute=['time', 'magnitude',
-                                                      'e_magnitude', 'band',
-                                                      'instrument'],
-                                           argument=None
+                                           quantity='spectra',
+                                           attribute=['time', 'data'],
+                                           data_format='json'
                                            )
 
         output = self._parse_result(response)
 
         return output
-
-    # Get Single Spectrum - Require time (closest by default)
-
-    # Get spectra - JSON dump all spectra
 
     def _args_to_payload(self, event, quantity,
                          attribute, argument, data_format):
@@ -361,6 +443,10 @@ class OACClass(BaseQuery):
         if (argument) and (not isinstance(argument, list)):
             argument = [argument]
 
+        request_payload['event'] = event
+        request_payload['quantity'] = quantity
+        request_payload['attribute'] = attribute
+
         # If special keys are included, append to attribute list
         if argument:
             for arg in argument:
@@ -369,10 +455,6 @@ class OACClass(BaseQuery):
                     request_payload[split_arg[0]] = split_arg[1]
                 else:
                     request_payload[arg] = True
-
-        request_payload['event'] = event
-        request_payload['quantity'] = quantity
-        request_payload['attribute'] = attribute
 
         if ((data_format.lower() == 'csv') or
                 (data_format.lower() == 'json')):
@@ -386,40 +468,26 @@ class OACClass(BaseQuery):
         return request_payload
 
     def _format_output(self, raw_output):
-        """
-        This module converts the raw HTTP output to a usable format.
-        If the format is CSV, then an Astropy table is returned. If
-        the format is JSON, then a JSON-compliant dictionary is returned.
-        """
+        if self.FORMAT == 'csv':
+            raw_output = raw_output.splitlines()
+            columns = raw_output[0].split(',')
+            rows = raw_output[1:]
 
-        try:
-            if 'message' in raw_output:
-                raise KeyError
+            output_dict = {key: [] for key in columns}
 
-            if self.FORMAT == 'csv':
-                columns = raw_output[0].split(',')
-                rows = raw_output[1:]
+            for row in rows:
 
-                output_dict = {key: [] for key in columns}
+                split_row = row.split(',')
 
-                for row in rows:
+                for ct, key in enumerate(columns):
+                    output_dict[key].append(split_row[ct])
 
-                    split_row = row.split(',')
+            output = Table(output_dict)
 
-                    for ct, key in enumerate(columns):
-                        output_dict[key].append(split_row[ct])
+        else:
+            output = json.loads(raw_output)
 
-                output = Table(output_dict)
-
-            else:
-                output = json.loads(raw_output)
-
-            return output
-
-        except KeyError:
-            print("ERROR: API Server returned the following error:")
-            print(raw_output['message'])
-            return
+        return output
 
     def _parse_result(self, response, verbose=False):
         # if verbose is False then suppress any VOTable related warnings
@@ -430,12 +498,20 @@ class OACClass(BaseQuery):
             if response.status_code != 200:
                 raise AttributeError
 
-            raw_output = response.text.splitlines()
+            if 'message' in response:
+                raise KeyError
+
+            raw_output = response.text
             output_response = self._format_output(raw_output)
 
         except AttributeError:
             print("ERROR: The web service returned error code: %s" %
                   response.status_code)
+            return
+
+        except KeyError:
+            print("ERROR: API Server returned the following error:")
+            print(response['message'])
             return
 
         except Exception:
