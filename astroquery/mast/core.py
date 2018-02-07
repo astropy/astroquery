@@ -1294,6 +1294,9 @@ class ObservationsClass(MastClass):
         return manifest
 
     def enable_s3_hst_dataset(self):
+        """
+        Attempts to enable downloading HST public files from S3 instead of MAST
+        """
         try:
             global boto3
             import boto3
@@ -1307,6 +1310,9 @@ class ObservationsClass(MastClass):
         print("If you have not configured boto3, follow the instructions here: https://boto3.readthedocs.io/en/latest/guide/configuration.html")
 
     def disable_s3_hst_dataset(self):
+        """
+        Disables downloading HST public files from S3 instead of MAST
+        """
         global boto3
         boto3 = None
 
