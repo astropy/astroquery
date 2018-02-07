@@ -1307,7 +1307,8 @@ class ObservationsClass(MastClass):
         print("Using the S3 HST public dataset")
         print("Your AWS account will be charged for access to the S3 bucket")
         print("See Request Pricing in https://aws.amazon.com/s3/pricing/ for details")
-        print("If you have not configured boto3, follow the instructions here: https://boto3.readthedocs.io/en/latest/guide/configuration.html")
+        print("If you have not configured boto3, follow the instructions here: " +
+              "https://boto3.readthedocs.io/en/latest/guide/configuration.html")
 
     def disable_s3_hst_dataset(self):
         """
@@ -1338,14 +1339,14 @@ class ObservationsClass(MastClass):
             # This is a cheap operation and does not perform any actual work yet
             s3 = boto3.resource('s3')
             s3_client = boto3.client('s3')
-            bkt = s3.Bucket('stpubdata')
-            
+            bkt_name = 'stpubdata'
+            bkt = s3.Bucket(bkt_name)
 
         manifestArray = []
         for dataProduct in products:
 
-            obs_id = dataProduct['obs_id'];
-            localPath = base_dir + "/" + dataProduct['obs_collection'] + "/" + obs_id 
+            obs_id = dataProduct['obs_id']
+            localPath = base_dir + "/" + dataProduct['obs_collection'] + "/" + obs_id
             dataUri = dataProduct['dataURI']
             dataUrl = self._MAST_DOWNLOAD_URL + "?uri=" + dataUri
 
@@ -1379,8 +1380,8 @@ class ObservationsClass(MastClass):
 
                         # CAOM LIES!
                         # We can't use the reported file size
-                        #length = dataProduct["size"]
-                        info_lookup = s3_client.head_object(Bucket='stpubdata', Key=bucketPath, RequestPayer='requester')
+                        # length = dataProduct["size"]
+                        info_lookup = s3_client.head_object(Bucket=bkt_name, Key=bucketPath, RequestPayer='requester')
                         length = info_lookup["ContentLength"]
 
                         if cache and os.path.exists(localPath):
@@ -1391,14 +1392,16 @@ class ObservationsClass(MastClass):
                                                 "different from expected size {2}"
                                                 .format(localPath,
                                                         statinfo.st_size,
-                                                    length))
+                                                        length))
                                 else:
                                     log.info("Found cached file {0} with expected size {1}."
                                              .format(localPath, statinfo.st_size))
                                     s3_fetch_ok = True
 
                         if not s3_fetch_ok:
-                            with ProgressBarOrSpinner(length, ('Downloading URL s3://stpubdata/{0} to {1} ...'.format(bucketPath, localPath))) as pb:
+                            with ProgressBarOrSpinner(length, ('Downloading URL s3://{0}/{1} to {2} ...'.format(
+                                    bkt_name, bucketPath, localPath))) as pb:
+
                                 global bytes_read
                                 bytes_read = 0
 
@@ -1413,7 +1416,8 @@ class ObservationsClass(MastClass):
                                         bytes_read += numbytes
                                         pb.update(bytes_read)
 
-                                bkt.download_file(bucketPath, localPath, ExtraArgs={"RequestPayer": "requester"}, Callback=progress_callback)
+                                bkt.download_file(bucketPath, localPath, ExtraArgs={"RequestPayer": "requester"},
+                                                  Callback=progress_callback)
 
                             s3_fetch_ok = True
                     except Exception as ex:
