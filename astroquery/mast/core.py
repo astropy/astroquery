@@ -1299,7 +1299,8 @@ class ObservationsClass(MastClass):
 
     def enable_s3_hst_dataset(self):
         """
-        Attempts to enable downloading HST public files from S3 instead of MAST.  Requires the boto3 library to function.
+        Attempts to enable downloading HST public files from S3 instead of MAST.
+        Requires the boto3 library to function.
         """
         import boto3
         self._boto3 = boto3
@@ -1418,7 +1419,6 @@ class ObservationsClass(MastClass):
                 if self._boto3 is not None and dataProduct["dataURI"].startswith("mast:HST/product"):
                     try:
                         self._download_from_s3(dataProduct, localPath, cache)
-                        s3_fetch_ok = True
                     except Exception as ex:
                         log.exception("Error pulling from S3 bucket: %s" % ex)
                         log.warn("Falling back to mast download...")
