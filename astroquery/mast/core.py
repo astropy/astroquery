@@ -39,6 +39,7 @@ from ..exceptions import (TimeoutError, InvalidQueryError, RemoteServiceError,
                           NoResultsWarning, InputWarning, AuthenticationWarning)
 from . import conf
 
+boto3 = None
 
 __all__ = ['Observations', 'ObservationsClass',
            'Mast', 'MastClass']
@@ -1290,6 +1291,23 @@ class ObservationsClass(MastClass):
                           "URL": [url]})
         return manifest
 
+    def enable_s3_hst_dataset(self):
+        try:
+            global boto3
+            import boto3
+        except ImportError:
+            print("Unable to import boto3.  Using the S3 hst dataset can not be enabled")
+            return
+
+        print("Using the S3 HST public dataset")
+        print("Your AWS account will be charged for access to the S3 bucket")
+        print("See Request Pricing in https://aws.amazon.com/s3/pricing/ for details")
+        print("If you have not configured boto3, follow the instructions here: https://boto3.readthedocs.io/en/latest/guide/configuration.html")
+
+    def disable_s3_hst_dataset(self):
+        global boto3
+        boto3 = None
+
     def _download_files(self, products, base_dir, cache=True):
         """
         Takes an `astropy.table.Table` of data products and downloads them into the dirctor given by base_dir.
@@ -1308,11 +1326,19 @@ class ObservationsClass(MastClass):
         response : `~astropy.table.Table`
         """
 
+        if boto3 is not None:
+            # This is a cheap operation and does not perform any actual work yet
+            s3 = boto3.resource('s3')
+            bkt = s3.Bucket('stpubdata')
+            
+
         manifestArray = []
         for dataProduct in products:
 
-            localPath = base_dir + "/" + dataProduct['obs_collection'] + "/" + dataProduct['obs_id']
-            dataUrl = self._MAST_DOWNLOAD_URL + "?uri=" + dataProduct['dataURI']
+            obs_id = dataProduct['obs_id'];
+            localPath = base_dir + "/" + dataProduct['obs_collection'] + "/" + obs_id 
+            dataUri = dataProduct['dataURI']
+            dataUrl = self._MAST_DOWNLOAD_URL + "?uri=" + dataUri
 
             if not os.path.exists(localPath):
                 os.makedirs(localPath)
@@ -1324,7 +1350,31 @@ class ObservationsClass(MastClass):
             url = None
 
             try:
-                self._download_file(dataUrl, localPath, cache=cache)
+                used_boto3 = False
+                if boto3 is not None and dataUri.startswith("mast:HST/product"):
+                    obs_id = obs_id.lower()
+
+                    # magic associations logic per Brian - 0-9/a-e we convert to 0
+                    magicValues = "123456789abcde"
+                    if obs_id[-1] in magicValues:
+                        print("WARNING: IPPPSSOOT Magic in %s" % dataUri)
+                        new_obs_id = obs_id[:-1] + "0"
+                        dataUri = dataUri.replace(obs_id, new_obs_id)
+                        obs_id = new_obs_id
+                        print("WARNING: New URI %s" % dataUri)
+
+                    bucketPath = "hst/public/" + obs_id[:4] + dataUri.replace("mast:HST/product", "")
+                    print("Pulling %s from s3://stpubdata/%s" % (dataProduct['productFilename'], bucketPath))
+
+                    try:
+                        bkt.download_file(bucketPath, localPath, ExtraArgs={"RequestPayer": "requester"})
+                        used_boto3 = True
+                    except Exception as ex:
+                        print("Error pulling from S3 bucket: %s" % ex)
+                        print("Falling back to mast download...")
+
+                if not used_boto3:
+                    self._download_file(dataUrl, localPath, cache=cache)
 
                 # check if file exists also this is where would perform md5,
                 # and also check the filesize if the database reliably reported file sizes
