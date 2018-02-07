@@ -41,8 +41,6 @@ from ..exceptions import (TimeoutError, InvalidQueryError, RemoteServiceError,
                           NoResultsWarning, InputWarning, AuthenticationWarning)
 from . import conf
 
-boto3 = None
-
 __all__ = ['Observations', 'ObservationsClass',
            'Mast', 'MastClass']
 
@@ -819,6 +817,12 @@ class ObservationsClass(MastClass):
     Class for querying MAST observational data.
     """
 
+    def __init__(self, *args, **kwargs):
+
+        super(ObservationsClass, self).__init__(*args, **kwargs)
+
+        self._boto3 = None
+
     def list_missions(self):
         """
         Lists data missions archived by MAST and avaiable through `astroquery.mast`.
@@ -1295,27 +1299,87 @@ class ObservationsClass(MastClass):
 
     def enable_s3_hst_dataset(self):
         """
-        Attempts to enable downloading HST public files from S3 instead of MAST
+        Attempts to enable downloading HST public files from S3 instead of MAST.  Requires the boto3 library to function.
         """
-        try:
-            global boto3
-            import boto3
-        except ImportError:
-            print("Unable to import boto3.  Using the S3 hst dataset can not be enabled")
-            return
+        import boto3
+        self._boto3 = boto3
 
-        print("Using the S3 HST public dataset")
-        print("Your AWS account will be charged for access to the S3 bucket")
-        print("See Request Pricing in https://aws.amazon.com/s3/pricing/ for details")
-        print("If you have not configured boto3, follow the instructions here: " +
-              "https://boto3.readthedocs.io/en/latest/guide/configuration.html")
+        log.info("Using the S3 HST public dataset")
+        log.warning("Your AWS account will be charged for access to the S3 bucket")
+        log.info("See Request Pricing in https://aws.amazon.com/s3/pricing/ for details")
+        log.info("If you have not configured boto3, follow the instructions here: " +
+                 "https://boto3.readthedocs.io/en/latest/guide/configuration.html")
 
     def disable_s3_hst_dataset(self):
         """
         Disables downloading HST public files from S3 instead of MAST
         """
-        global boto3
-        boto3 = None
+        self._boto3 = None
+
+    def _download_from_s3(self, dataProduct, localPath, cache=True):
+        # The following is a mishmash of BaseQuery._download_file and s3 access through boto
+
+        bkt_name = 'stpubdata'
+
+        # This is a cheap operation and does not perform any actual work yet
+        s3 = self._boto3.resource('s3')
+        s3_client = self._boto3.client('s3')
+        bkt = s3.Bucket(bkt_name)
+
+        dataUri = dataProduct['dataURI']
+        obs_id = dataProduct['obs_id']
+
+        obs_id = obs_id.lower()
+
+        # magic associations logic per Brian - 0-9/a-e we convert to 0
+        magicValues = "123456789abcde"
+        if obs_id[-1] in magicValues:
+            new_obs_id = obs_id[:-1] + "0"
+            dataUri = dataUri.replace(obs_id, new_obs_id)
+            obs_id = new_obs_id
+            log.warning("This data product's path may not have been properly identified %s" % dataUri)
+
+        bucketPath = "hst/public/" + obs_id[:4] + dataUri.replace("mast:HST/product", "")
+
+        # CAOM LIES!
+        # We can't use the reported file size
+        # length = dataProduct["size"]
+        info_lookup = s3_client.head_object(Bucket=bkt_name, Key=bucketPath, RequestPayer='requester')
+        length = info_lookup["ContentLength"]
+
+        if cache and os.path.exists(localPath):
+            if length is not None:
+                statinfo = os.stat(localPath)
+                if statinfo.st_size != length:
+                    log.warning("Found cached file {0} with size {1} that is "
+                                "different from expected size {2}"
+                                .format(localPath,
+                                        statinfo.st_size,
+                                        length))
+                else:
+                    log.info("Found cached file {0} with expected size {1}."
+                             .format(localPath, statinfo.st_size))
+                    return
+
+        with ProgressBarOrSpinner(length, ('Downloading URL s3://{0}/{1} to {2} ...'.format(
+                bkt_name, bucketPath, localPath))) as pb:
+
+            global bytes_read
+            bytes_read = 0
+
+            progress_lock = threading.Lock()
+
+            def progress_callback(numbytes):
+                global bytes_read
+
+                # This callback can be called in multiple threads
+                # Access to updating the console needs to be locked
+                with progress_lock:
+                    bytes_read += numbytes
+                    pb.update(bytes_read)
+
+            bkt.download_file(bucketPath, localPath, ExtraArgs={"RequestPayer": "requester"},
+                              Callback=progress_callback)
 
     def _download_files(self, products, base_dir, cache=True):
         """
@@ -1335,20 +1399,11 @@ class ObservationsClass(MastClass):
         response : `~astropy.table.Table`
         """
 
-        if boto3 is not None:
-            # This is a cheap operation and does not perform any actual work yet
-            s3 = boto3.resource('s3')
-            s3_client = boto3.client('s3')
-            bkt_name = 'stpubdata'
-            bkt = s3.Bucket(bkt_name)
-
         manifestArray = []
         for dataProduct in products:
 
-            obs_id = dataProduct['obs_id']
-            localPath = base_dir + "/" + dataProduct['obs_collection'] + "/" + obs_id
-            dataUri = dataProduct['dataURI']
-            dataUrl = self._MAST_DOWNLOAD_URL + "?uri=" + dataUri
+            localPath = base_dir + "/" + dataProduct['obs_collection'] + "/" + dataProduct['obs_id']
+            dataUrl = self._MAST_DOWNLOAD_URL + "?uri=" + dataProduct["dataURI"]
 
             if not os.path.exists(localPath):
                 os.makedirs(localPath)
@@ -1360,71 +1415,15 @@ class ObservationsClass(MastClass):
             url = None
 
             try:
-                s3_fetch_ok = False
-                if boto3 is not None and dataUri.startswith("mast:HST/product"):
-                    # The following is a mishmash of BaseQuery._download_file and s3 access through boto
-
+                if self._boto3 is not None and dataProduct["dataURI"].startswith("mast:HST/product"):
                     try:
-                        obs_id = obs_id.lower()
-
-                        # magic associations logic per Brian - 0-9/a-e we convert to 0
-                        magicValues = "123456789abcde"
-                        if obs_id[-1] in magicValues:
-                            print("WARNING: IPPPSSOOT Magic in %s" % dataUri)
-                            new_obs_id = obs_id[:-1] + "0"
-                            dataUri = dataUri.replace(obs_id, new_obs_id)
-                            obs_id = new_obs_id
-                            print("WARNING: New URI %s" % dataUri)
-
-                        bucketPath = "hst/public/" + obs_id[:4] + dataUri.replace("mast:HST/product", "")
-
-                        # CAOM LIES!
-                        # We can't use the reported file size
-                        # length = dataProduct["size"]
-                        info_lookup = s3_client.head_object(Bucket=bkt_name, Key=bucketPath, RequestPayer='requester')
-                        length = info_lookup["ContentLength"]
-
-                        if cache and os.path.exists(localPath):
-                            if length is not None:
-                                statinfo = os.stat(localPath)
-                                if statinfo.st_size != length:
-                                    log.warning("Found cached file {0} with size {1} that is "
-                                                "different from expected size {2}"
-                                                .format(localPath,
-                                                        statinfo.st_size,
-                                                        length))
-                                else:
-                                    log.info("Found cached file {0} with expected size {1}."
-                                             .format(localPath, statinfo.st_size))
-                                    s3_fetch_ok = True
-
-                        if not s3_fetch_ok:
-                            with ProgressBarOrSpinner(length, ('Downloading URL s3://{0}/{1} to {2} ...'.format(
-                                    bkt_name, bucketPath, localPath))) as pb:
-
-                                global bytes_read
-                                bytes_read = 0
-
-                                progress_lock = threading.Lock()
-
-                                def progress_callback(numbytes):
-                                    global bytes_read
-
-                                    # This callback can be called in multiple threads
-                                    # Access to updating the console needs to be locked
-                                    with progress_lock:
-                                        bytes_read += numbytes
-                                        pb.update(bytes_read)
-
-                                bkt.download_file(bucketPath, localPath, ExtraArgs={"RequestPayer": "requester"},
-                                                  Callback=progress_callback)
-
-                            s3_fetch_ok = True
+                        self._download_from_s3(dataProduct, localPath, cache)
+                        s3_fetch_ok = True
                     except Exception as ex:
-                        print("Error pulling from S3 bucket: %s" % ex)
-                        print("Falling back to mast download...")
-
-                if not s3_fetch_ok:
+                        log.exception("Error pulling from S3 bucket: %s" % ex)
+                        log.warn("Falling back to mast download...")
+                        self._download_file(dataUrl, localPath, cache=cache)
+                else:
                     self._download_file(dataUrl, localPath, cache=cache)
 
                 # check if file exists also this is where would perform md5,
