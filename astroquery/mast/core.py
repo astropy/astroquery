@@ -1342,9 +1342,10 @@ class ObservationsClass(MastClass):
 
         bucketPath = "hst/public/" + obs_id[:4] + dataUri.replace("mast:HST/product", "")
 
-        # CAOM LIES!
-        # We can't use the reported file size
+        # Unfortunately, we can't use the reported file size in the reported product.  STScI's backing
+        # archive database (CAOM) is frequently out of date and in many cases omits the required information.
         # length = dataProduct["size"]
+        # Instead we ask the webserver (in this case S3) what the expected content length is and use that.
         info_lookup = s3_client.head_object(Bucket=bkt_name, Key=bucketPath, RequestPayer='requester')
         length = info_lookup["ContentLength"]
 
@@ -1365,12 +1366,15 @@ class ObservationsClass(MastClass):
         with ProgressBarOrSpinner(length, ('Downloading URL s3://{0}/{1} to {2} ...'.format(
                 bkt_name, bucketPath, localPath))) as pb:
 
+            # Bytes read tracks how much data has been received so far
+            # This variable will be updated in multiple threads below
             global bytes_read
             bytes_read = 0
 
             progress_lock = threading.Lock()
 
             def progress_callback(numbytes):
+                # Boto3 calls this from multiple threads pulling the data from S3
                 global bytes_read
 
                 # This callback can be called in multiple threads
