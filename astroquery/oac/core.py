@@ -110,17 +110,21 @@ class OACClass(BaseQuery):
             57793.335     21.10                r
 
         """
+        # Send function arguments off for processing into
+        # payload dictionary
         request_payload = self._args_to_payload(event,
                                                 quantity,
                                                 attribute,
                                                 argument,
                                                 data_format)
 
+        # Output payload and exit if requested
         if get_query_payload:
             return request_payload
 
         print(request_payload)
 
+        # Send GET request with payload.
         response = self._request('GET', self.URL,
                                  data=json.dumps(request_payload),
                                  timeout=self.TIMEOUT,
@@ -200,9 +204,10 @@ class OACClass(BaseQuery):
             All async methods should return the raw HTTP response.
         """
 
-        # No object name is used for coordinate-based queries
+        # Default object name used for coordinate-based queries
         event = 'catalog'
 
+        # Send method arguments off for payload constructions 
         request_payload = self._args_to_payload(event,
                                                 quantity,
                                                 attribute,
@@ -225,11 +230,11 @@ class OACClass(BaseQuery):
                 request_payload['ra'] = coordinates[0]
                 request_payload['dec'] = coordinates[1]
             except Exception:
-                raise ValueError("Please check format of input coordinates")
+                raise ValueError("Please check format of input coordinates.")
 
         # Check that the user entered a radius or width/height.
         if ((not radius) and (not height) and (not width)):
-            raise ValueError("Please enter a radius or width/height pair")
+            raise ValueError("Please enter a radius or width/height pair.")
 
         # Check that user is only requesting cone OR box search.
         if (radius and (height or width)):
@@ -277,9 +282,11 @@ class OACClass(BaseQuery):
             request_payload['width'] = width
             request_payload['height'] = height
 
+        # Return payload and exit if requested
         if get_query_payload:
             return request_payload
 
+        # Send GET request with payload.
         response = self._request('GET', self.URL,
                                  data=json.dumps(request_payload),
                                  timeout=self.TIMEOUT,
@@ -329,6 +336,7 @@ class OACClass(BaseQuery):
         --------
 
         """
+        # Submit a tailored request using the existing query_object framework.
         response = self.query_object_async(event=event,
                                            quantity='photometry',
                                            attribute=['time', 'magnitude',
@@ -361,7 +369,8 @@ class OACClass(BaseQuery):
         event : str, required
             Name of the event to query. Should be a single event.
         time : float, required
-            A single MJD time
+            A single MJD time to query. This time does not need to be
+            exact. The closest spectrum will be returned.
 
         Returns
         -------
@@ -373,6 +382,7 @@ class OACClass(BaseQuery):
         Examples
         --------
         """
+        # Send a tailored query using the query_object framework.
         query_time = 'time=%s' % time
         response = self.query_object_async(event=event,
                                            quantity='spectra',
@@ -393,7 +403,8 @@ class OACClass(BaseQuery):
         at a user-specified time. The time does not have to be
         precise as the method uses the closest option by default.
 
-        The spectra must be returned as a JSON-compliant dictionary
+        The spectra must be returned as a JSON-compliant dictionary.
+        Multiple spectra can not be unwrapped into a csv/Table.
 
         More complicated queries should make use of the
         base query_object methods.
@@ -428,10 +439,11 @@ class OACClass(BaseQuery):
 
     def _args_to_payload(self, event, quantity,
                          attribute, argument, data_format):
+        #Initialize payload dictionary
         request_payload = dict()
 
         # Convert non-list entries to lists
-        if (event) and not isinstance(event, list):
+        if (event) and (not isinstance(event, list)):
             event = [event]
 
         if (quantity) and (not isinstance(quantity, list)):
@@ -443,12 +455,27 @@ class OACClass(BaseQuery):
         if (argument) and (not isinstance(argument, list)):
             argument = [argument]
 
+        # Add base keys to payload dictionary
         request_payload['event'] = event
         request_payload['quantity'] = quantity
         request_payload['attribute'] = attribute
 
         # If special keys are included, append to attribute list
         if argument:
+            # Check argument list for attributes that should not be included.
+            if 'format' in argument:
+                raise KeyError("Please specify the output format using the "
+                               "data_format function argument")
+            if 'radius' in argument:
+                raise KeyError("A search radius should be specified "
+                               "explicitly using the query_region method.")
+            if 'width' in argument:
+                raise KeyError("A search width should be specified "
+                               "explicitly using the query_region method.")
+            if 'width' in argument:
+                raise KeyError("A search width should be specified "
+                               "explicitly using the query_region method.")
+                
             for arg in argument:
                 if '=' in arg:
                     split_arg = arg.split('=')
@@ -456,23 +483,27 @@ class OACClass(BaseQuery):
                 else:
                     request_payload[arg] = True
 
+        # Specify output format in payload dictionary
         if ((data_format.lower() == 'csv') or
                 (data_format.lower() == 'json')):
             request_payload['format'] = data_format.lower()
         else:
-            raise ValueError("The format must be either csv "
-                             "or JSON.")
+            raise ValueError("The format must be either csv or JSON.")
 
+        # Store format for use in other methods
         self.FORMAT = data_format.lower()
 
         return request_payload
 
     def _format_output(self, raw_output):
         if self.FORMAT == 'csv':
+            # Split csv output under assumption 
+            # first line contains column names
             raw_output = raw_output.splitlines()
             columns = raw_output[0].split(',')
             rows = raw_output[1:]
 
+            # Initialize and populate dictionary
             output_dict = {key: [] for key in columns}
 
             for row in rows:
@@ -482,9 +513,12 @@ class OACClass(BaseQuery):
                 for ct, key in enumerate(columns):
                     output_dict[key].append(split_row[ct])
 
+            # Convert dictionary to Astropy Table.
             output = Table(output_dict)
 
         else:
+            # Server response is JSON compliant. Simply
+            # convert from raw text to dictionary.
             output = json.loads(raw_output)
 
         return output
@@ -495,12 +529,15 @@ class OACClass(BaseQuery):
             commons.suppress_vo_warnings()
 
         try:
+            # Check for valid http return
             if response.status_code != 200:
                 raise AttributeError
 
+            # Check for error message from API.
             if 'message' in response:
                 raise KeyError
 
+            # Grab text response and process.
             raw_output = response.text
             output_response = self._format_output(raw_output)
 

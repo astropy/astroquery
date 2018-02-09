@@ -1,5 +1,4 @@
 import astropy.coordinates as coord
-# Test region query
 import astropy.units as u
 from astroquery.oac import OAC
 
@@ -11,9 +10,11 @@ from astroquery.oac import OAC
 
 print(photometry)'''
 
-spectrum = OAC.get_spectra(event="GW170817")
+# Test Spectra
+spectrum = OAC.get_single_spectrum(event="GW170817", time="54773")
 print(spectrum)
 
+# Test Coordinates
 '''ra = 197.45037
 dec = -23.38148
 
