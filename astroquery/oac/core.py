@@ -202,12 +202,12 @@ class OACClass(BaseQuery):
         response : `requests.Response`
             The HTTP response returned from the service.
             All async methods should return the raw HTTP response.
-        """
 
+        """
         # Default object name used for coordinate-based queries
         event = 'catalog'
 
-        # Send method arguments off for payload constructions 
+        # Send method arguments off for payload constructions
         request_payload = self._args_to_payload(event,
                                                 quantity,
                                                 attribute,
@@ -295,9 +295,8 @@ class OACClass(BaseQuery):
 
         return response
 
-    def get_photometry(self, event,
-                       argument=None):
-        """Retrieve object(s) photometry.
+    def get_photometry_async(self, event):
+        """Retrieve all photometry for specified event(s).
 
         This is a version of the query_object method
         that is set up to quickly return the complete set
@@ -327,13 +326,9 @@ class OACClass(BaseQuery):
 
         Returns
         -------
-        output : `Astropy Table`
-            An astropy table of all requested photometry with
-            columns:
-            ['event', 'time', 'magnitude', 'e_magnitude', 'band', 'instrument']
-
-        Examples
-        --------
+        response : `requests.Response`
+            The HTTP response returned from the service.
+            All async methods should return the raw HTTP response.
 
         """
         # Submit a tailored request using the existing query_object framework.
@@ -342,17 +337,12 @@ class OACClass(BaseQuery):
                                            attribute=['time', 'magnitude',
                                                       'e_magnitude', 'band',
                                                       'instrument'],
-                                           argument=argument
                                            )
 
-        output = self._parse_result(response)
+        return response
 
-        return output
-
-    # Get Single Spectrum - Require time (closest by default)
-    def get_single_spectrum(self, event, time):
-        """Retrieve a single spectrum at a specified time for
-        the given event.
+    def get_single_spectrum_async(self, event, time):
+        """Retrieve a single spectrum at a specified time for given event.
 
         This is a version of the query_object method
         that is set up to quickly return a single spectrum
@@ -367,20 +357,17 @@ class OACClass(BaseQuery):
         Parameters
         ----------
         event : str, required
-            Name of the event to query. Should be a single event.
+            Name of the event to query. Must be a single event.
         time : float, required
             A single MJD time to query. This time does not need to be
             exact. The closest spectrum will be returned.
 
         Returns
         -------
-        output : `Astropy Table`
-            An Astropy Table with columns:
-            [wavelength, flux, e_flux (if available)]
+        response : `requests.Response`
+            The HTTP response returned from the service.
+            All async methods should return the raw HTTP response.
 
-
-        Examples
-        --------
         """
         # Send a tailored query using the query_object framework.
         query_time = 'time=%s' % time
@@ -390,13 +377,10 @@ class OACClass(BaseQuery):
                                            argument=[query_time, 'closest']
                                            )
 
-        output = self._parse_result(response)
+        return response
 
-        return output
-
-    # Get spectra - JSON dump all spectra
-    def get_spectra(self, event):
-        """Retrieve all available spectra for the given event.
+    def get_spectra_async(self, event):
+        """ Retrieve all spectra for a specified event.
 
         This is a version of the query_object method
         that is set up to quickly return a single spectrum
@@ -422,9 +406,8 @@ class OACClass(BaseQuery):
         -------
         response : `requests.Response`
             The HTTP response returned from the service.
+            All async methods should return the raw HTTP response.
 
-        Examples
-        --------
         """
 
         response = self.query_object_async(event=event,
@@ -433,13 +416,11 @@ class OACClass(BaseQuery):
                                            data_format='json'
                                            )
 
-        output = self._parse_result(response)
-
-        return output
+        return response
 
     def _args_to_payload(self, event, quantity,
                          attribute, argument, data_format):
-        #Initialize payload dictionary
+        # Initialize payload dictionary
         request_payload = dict()
 
         # Convert non-list entries to lists
@@ -475,7 +456,7 @@ class OACClass(BaseQuery):
             if 'width' in argument:
                 raise KeyError("A search width should be specified "
                                "explicitly using the query_region method.")
-                
+
             for arg in argument:
                 if '=' in arg:
                     split_arg = arg.split('=')
@@ -497,7 +478,7 @@ class OACClass(BaseQuery):
 
     def _format_output(self, raw_output):
         if self.FORMAT == 'csv':
-            # Split csv output under assumption 
+            # Split csv output under assumption
             # first line contains column names
             raw_output = raw_output.splitlines()
             columns = raw_output[0].split(',')

@@ -10,9 +10,12 @@ from astroquery.oac import OAC
 
 print(photometry)'''
 
-# Test Spectra
+'''# Test Spectra
 spectrum = OAC.get_single_spectrum(event="GW170817", time="54773")
-print(spectrum)
+print(spectrum)'''
+
+photometry = OAC.get_single_spectrum(event="GW170817", time=54773)
+print(photometry)
 
 # Test Coordinates
 '''ra = 197.45037
