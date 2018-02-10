@@ -295,7 +295,7 @@ class OACClass(BaseQuery):
 
         return response
 
-    def get_photometry_async(self, event):
+    def get_photometry_async(self, event, argument):
         """Retrieve all photometry for specified event(s).
 
         This is a version of the query_object method
@@ -337,6 +337,7 @@ class OACClass(BaseQuery):
                                            attribute=['time', 'magnitude',
                                                       'e_magnitude', 'band',
                                                       'instrument'],
+                                           argument=argument
                                            )
 
         return response
@@ -397,10 +398,6 @@ class OACClass(BaseQuery):
         ----------
         event : str, required
             Name of the event to query. Should be a single event.
-        get_query_payload : bool, optional
-            When set to `True` the method returns the HTTP request
-            parameters as a dict. The actual HTTP request is not made.
-            The default value is False.
 
         Returns
         -------
@@ -453,8 +450,8 @@ class OACClass(BaseQuery):
             if 'width' in argument:
                 raise KeyError("A search width should be specified "
                                "explicitly using the query_region method.")
-            if 'width' in argument:
-                raise KeyError("A search width should be specified "
+            if 'height' in argument:
+                raise KeyError("A search height should be specified "
                                "explicitly using the query_region method.")
 
             for arg in argument:
@@ -533,7 +530,7 @@ class OACClass(BaseQuery):
             return
 
         except Exception:
-            print("ERROR: An error occured with astropy table construction.")
+            print("ERROR: An error occured processing the HTTP response.")
             return
 
         return output_response
