@@ -25,6 +25,10 @@ class TestOACClass:
     dec = -23.38148
     test_coords = coord.SkyCoord(ra=ra, dec=dec, unit=(u.deg, u.deg))
 
+    test_radius = 10*u.arcsecond
+    test_width = 10*u.arcsecond
+    test_height = 10*u.arcsecond
+
     def test_query_object_csv(self):
         phot = OAC.query_object(event='GW170817')
         assert isinstance(phot, Table)
@@ -34,22 +38,26 @@ class TestOACClass:
         assert isinstance(phot, dict)
 
     def test_query_region_cone_csv(self):
-        phot = OAC.query_region(coordinates=test_coords, radius=10*u.arcsec)
+        phot = OAC.query_region(coordinates=self.test_coords,
+                                radius=self.test_radius)
         assert isinstance(phot, Table)
 
     def test_query_region_cone_json(self):
-        phot = OAC.query_region(coordinates=test_coords, radius=10*u.arcsec,
+        phot = OAC.query_region(coordinates=self.test_coords,
+                                radius=self.test_radius,
                                 data_format='json')
         assert isinstance(phot, dict)
 
     def test_query_region_box_csv(self):
-        phot = OAC.query_region(coordinates=test_coords,
-                                width=10*u.arcsec, height=10*u.arcsec)
+        phot = OAC.query_region(coordinates=self.test_coords,
+                                width=self.test_width,
+                                height=self.test_height)
         assert isinstance(phot, Table)
 
     def test_query_region_box_json(self):
-        phot = OAC.query_region(coordinates=test_coords,
-                                width=10*u.arcsec, height=10*u.arcsec,
+        phot = OAC.query_region(coordinates=self.test_coords,
+                                width=self.test_width,
+                                height=self.test_height,
                                 data_format='json')
         assert isinstance(phot, dict)
 

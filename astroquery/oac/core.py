@@ -110,21 +110,15 @@ class OACClass(BaseQuery):
             57793.335     21.10                r
 
         """
-        # Send function arguments off for processing into
-        # payload dictionary
         request_payload = self._args_to_payload(event,
                                                 quantity,
                                                 attribute,
                                                 argument,
                                                 data_format)
 
-        # Output payload and exit if requested
         if get_query_payload:
             return request_payload
 
-        print(request_payload)
-
-        # Send GET request with payload.
         response = self._request('GET', self.URL,
                                  data=json.dumps(request_payload),
                                  timeout=self.TIMEOUT,
@@ -207,14 +201,12 @@ class OACClass(BaseQuery):
         # Default object name used for coordinate-based queries
         event = 'catalog'
 
-        # Send method arguments off for payload constructions
         request_payload = self._args_to_payload(event,
                                                 quantity,
                                                 attribute,
                                                 argument,
                                                 data_format)
 
-        # Add coordinate information to payload.
         # Check that coordinate object is a valid astropy coordinate object
         # Criteria/Code from ../sdss/core.py
         if (not isinstance(coordinates, list) and
@@ -232,16 +224,13 @@ class OACClass(BaseQuery):
             except Exception:
                 raise ValueError("Please check format of input coordinates.")
 
-        # Check that the user entered a radius or width/height.
         if ((not radius) and (not height) and (not width)):
             raise ValueError("Please enter a radius or width/height pair.")
 
-        # Check that user is only requesting cone OR box search.
         if (radius and (height or width)):
             raise ValueError(
                 "Please specify ONLY a radius or height/width pair.")
 
-        # Check that a box search has both width and height.
         if ((not radius) and ((not height) or (not width))):
             raise ValueError("Please enter both a width and height "
                              "for a box search.")
@@ -282,11 +271,9 @@ class OACClass(BaseQuery):
             request_payload['width'] = width
             request_payload['height'] = height
 
-        # Return payload and exit if requested
         if get_query_payload:
             return request_payload
 
-        # Send GET request with payload.
         response = self._request('GET', self.URL,
                                  data=json.dumps(request_payload),
                                  timeout=self.TIMEOUT,
@@ -295,7 +282,7 @@ class OACClass(BaseQuery):
 
         return response
 
-    def get_photometry_async(self, event, argument):
+    def get_photometry_async(self, event, argument=None):
         """Retrieve all photometry for specified event(s).
 
         This is a version of the query_object method
@@ -331,7 +318,6 @@ class OACClass(BaseQuery):
             All async methods should return the raw HTTP response.
 
         """
-        # Submit a tailored request using the existing query_object framework.
         response = self.query_object_async(event=event,
                                            quantity='photometry',
                                            attribute=['time', 'magnitude',
@@ -370,7 +356,6 @@ class OACClass(BaseQuery):
             All async methods should return the raw HTTP response.
 
         """
-        # Send a tailored query using the query_object framework.
         query_time = 'time=%s' % time
         response = self.query_object_async(event=event,
                                            quantity='spectra',
@@ -417,10 +402,8 @@ class OACClass(BaseQuery):
 
     def _args_to_payload(self, event, quantity,
                          attribute, argument, data_format):
-        # Initialize payload dictionary
         request_payload = dict()
 
-        # Convert non-list entries to lists
         if (event) and (not isinstance(event, list)):
             event = [event]
 
@@ -433,14 +416,11 @@ class OACClass(BaseQuery):
         if (argument) and (not isinstance(argument, list)):
             argument = [argument]
 
-        # Add base keys to payload dictionary
         request_payload['event'] = event
         request_payload['quantity'] = quantity
         request_payload['attribute'] = attribute
 
-        # If special keys are included, append to attribute list
         if argument:
-            # Check argument list for attributes that should not be included.
             if 'format' in argument:
                 raise KeyError("Please specify the output format using the "
                                "data_format function argument")
@@ -461,22 +441,18 @@ class OACClass(BaseQuery):
                 else:
                     request_payload[arg] = True
 
-        # Specify output format in payload dictionary
         if ((data_format.lower() == 'csv') or
                 (data_format.lower() == 'json')):
             request_payload['format'] = data_format.lower()
         else:
             raise ValueError("The format must be either csv or JSON.")
 
-        # Store format for use in other methods
         self.FORMAT = data_format.lower()
 
         return request_payload
 
     def _format_output(self, raw_output):
         if self.FORMAT == 'csv':
-            # Split csv output under assumption
-            # first line contains column names
             raw_output = raw_output.splitlines()
             columns = raw_output[0].split(',')
             rows = raw_output[1:]
@@ -502,20 +478,16 @@ class OACClass(BaseQuery):
         return output
 
     def _parse_result(self, response, verbose=False):
-        # if verbose is False then suppress any VOTable related warnings
         if not verbose:
             commons.suppress_vo_warnings()
 
         try:
-            # Check for valid http return
             if response.status_code != 200:
                 raise AttributeError
 
-            # Check for error message from API.
             if 'message' in response:
                 raise KeyError
 
-            # Grab text response and process.
             raw_output = response.text
             output_response = self._format_output(raw_output)
 
