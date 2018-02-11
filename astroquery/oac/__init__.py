@@ -33,6 +33,6 @@ conf = Conf()
 from .core import OAC, OACClass
 
 
-__all__ = ('OAC', 'OACClass',
+__all__ = ['OAC', 'OACClass',
            'Conf', 'conf',
-           )
+           ]

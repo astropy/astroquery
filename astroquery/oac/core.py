@@ -20,7 +20,7 @@ from . import conf
 from ..query import BaseQuery
 from ..utils import async_to_sync, commons
 
-__all__ = ('OAC', 'OACClass')
+__all__ = ['OAC', 'OACClass']
 
 
 @async_to_sync

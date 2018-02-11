@@ -6,15 +6,12 @@ from __future__ import print_function
 # should be disabled or enabled at will - use the
 # remote_data decorator from astropy:
 
-import pytest
-import numpy as np
-
 from astropy import coordinates as coord
 from astropy.table import Table
 import astropy.units as u
 from astropy.tests.helper import remote_data
 
-from ...oac import OAC
+from .. import OAC
 
 
 @remote_data
