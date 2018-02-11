@@ -4,6 +4,7 @@ from __future__ import absolute_import
 import os
 
 def get_package_data():
-    paths = [os.path.join('data', '*.json')]
+    # All data as text files to test http response processing
+    paths = [os.path.join('data', '*.txt')]
 
     return {'astroquery.oac.tests': paths}
