@@ -24,11 +24,11 @@ from ..utils import async_to_sync
 # import configurable items declared in __init__.py
 from . import conf
 
-__all__ = ['JPL', 'JPLClass']
+__all__ = ['Horizons', 'HorizonsClass']
 
 
 @async_to_sync
-class JPLClass(BaseQuery):
+class HorizonsClass(BaseQuery):
 
     TIMEOUT = conf.timeout
 
@@ -63,16 +63,17 @@ class JPLClass(BaseQuery):
 
         Examples
         --------
-            >>> from astroquery.solarsystem import JPL
-            >>> eros = JPL(id='433', location='568',
-            ...            epochs={'start':'2017-01-01',
-            ...                    'stop':'2017-02-01',
-            ...                    'step':'1d'})
+            >>> from astroquery.jplhorizons import Horizons
+            >>> eros = Horizons(id='433', location='568',
+            ...              epochs={'start':'2017-01-01',
+            ...                      'stop':'2017-02-01',
+            ...                      'step':'1d'})
             >>> print(eros)
-            JPL instance "433"; location=568, epochs={'start': '2017-01-01',
+            JPLHorizons instance "433"; location=568,
+            epochs={'start': '2017-01-01',
             'stop': '2017-02-01', 'step': '1d'}, id_type=smallbody
         """
-        super(JPLClass, self).__init__()
+        super(HorizonsClass, self).__init__()
         self.id = id
         self.location = location
 
@@ -105,22 +106,23 @@ class JPLClass(BaseQuery):
 
     def __str__(self):
         """
-        String representation of JPL object instance'
+        String representation of HorizonsClass object instance'
 
 
         Examples
         --------
-            >>> from astroquery.solarsystem import JPL
-            >>> eros = JPL(id='433', location='568',
-            ...            epochs={'start':'2017-01-01',
-            ...                    'stop':'2017-02-01',
-            ...                    'step':'1d'})
+            >>> from astroquery.jplhorizons import Horizons
+            >>> eros = Horizons(id='433', location='568',
+            ...                 epochs={'start':'2017-01-01',
+            ...                         'stop':'2017-02-01',
+            ...                         'step':'1d'})
             >>> print(eros)
-            JPL instance "433"; location=568, epochs={'start': '2017-01-01',
+            JPLHorizons instance "433"; location=568,
+            epochs={'start': '2017-01-01',
             'stop': '2017-02-01', 'step': '1d'}, id_type=smallbody
         """
-        return ('JPL instance \"{:s}\"; location={:s}, epochs={:s}, '
-                'id_type={:s}').format(
+        return ('JPLHorizons instance \"{:s}\"; location={:s}, '
+                'epochs={:s}, id_type={:s}').format(
                     str(self.id),
                     str(self.location),
                     str(self.epochs),
@@ -137,7 +139,7 @@ class JPLClass(BaseQuery):
 
         """
         Query JPL Horizons for ephemerides. The ``location`` parameter in
-        ``JPLClass`` refers in this case to the location of the observer.
+        ``HorizonsClass`` refers in this case to the location of the observer.
 
         Parameters
         ----------
@@ -271,10 +273,11 @@ class JPLClass(BaseQuery):
 
         Examples
         --------
-            >>> from astroquery.solarsystem import JPL
-            >>> obj = JPL(id='Ceres', location='568',
-            ...          epochs={'start':'2010-01-01', 'stop':'2010-03-01',
-            ...                   'step':'10d'})
+            >>> from astroquery.jplhorizons import Horizons
+            >>> obj = Horizons(id='Ceres', location='568',
+            ...             epochs={'start':'2010-01-01',
+            ...                     'stop':'2010-03-01',
+            ...                     'step':'10d'})
             >>> eph = obj.ephemerides() # doctest: +SKIP
             >>> print(eph) # doctest: +SKIP
             targetname    datetime_str   datetime_jd ...   GlxLat  RA_3sigma
@@ -389,7 +392,7 @@ class JPLClass(BaseQuery):
 
         """
         Query JPL Horizons for osculating orbital elements. The ``location``
-        parameter in ``JPLClass`` refers in this case to the  center
+        parameter in ``HorizonsClass`` refers in this case to the  center
         body relative to which the elements are provided.
 
 
@@ -473,9 +476,9 @@ class JPLClass(BaseQuery):
 
         Examples
         --------
-            >>> from astroquery.solarsystem import JPL
-            >>> obj = JPL(id='433', location='500@10',
-            ...          epochs=2458133.33546)
+            >>> from astroquery.jplhorizons import Horizons
+            >>> obj = Horizons(id='433', location='500@10',
+            ...                epochs=2458133.33546)
             >>> el = obj.elements() # doctest: +SKIP
             >>> print(el) # doctest: +SKIP
                 targetname      datetime_jd  ...       Q            P
@@ -570,7 +573,7 @@ class JPLClass(BaseQuery):
 
         """
         Query JPL Horizons for state vectors. The ``location``
-        parameter in ``JPLClass`` refers in this case to the center
+        parameter in ``HorizonsClass`` refers in this case to the center
         body relative to which the vectors are provided.
 
 
@@ -648,10 +651,11 @@ class JPLClass(BaseQuery):
 
         Examples
         --------
-            >>> from astroquery.solarsystem import JPL
-            >>> obj = JPL(id='2012 TC4', location='257',
-            ...           epochs={'start':'2017-10-01', 'stop':'2017-10-02',
-            ...                   'step':'10m'})
+            >>> from astroquery.jplhorizons import Horizons
+            >>> obj = Horizons(id='2012 TC4', location='257',
+            ...             epochs={'start':'2017-10-01',
+            ...                     'stop':'2017-10-02',
+            ...                     'step':'10m'})
             >>> vec = obj.vectors() # doctest: +SKIP
             >>> print(vec) # doctest: +SKIP
             targetname  datetime_jd  ...      range          range_rate
@@ -764,7 +768,7 @@ class JPLClass(BaseQuery):
 
         Parameters
         ----------
-        self : JPL instance
+        self : HorizonsClass instance
         src : list
             raw response from server
 
@@ -943,7 +947,7 @@ class JPLClass(BaseQuery):
 
         Parameters
         ----------
-        self : JPL instance
+        self : Horizonsclass instance
         response : string
             raw response from server
 
@@ -962,4 +966,4 @@ class JPLClass(BaseQuery):
 
 
 # the default tool for users to interact with is an instance of the Class
-JPL = JPLClass()
+Horizons = HorizonsClass()

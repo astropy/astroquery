@@ -1,17 +1,18 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
 """
-Solar System
-------------
+JPLHorizons
+-----------
 
 :author: Michael Mommert (mommermiscience@gmail.com)
 """
 
 from astropy import config as _config
 
+
 class Conf(_config.ConfigNamespace):
     """
-    Configuration parameters for `astroquery.solarsystem`.
+    Configuration parameters for `astroquery.jplhorizons`.
     """
 
     # server settings
@@ -128,8 +129,8 @@ class Conf(_config.ConfigNamespace):
 
 conf = Conf()
 
-from .core import JPL, JPLClass
+from .core import Horizons, HorizonsClass
 
-__all__ = ['JPL', 'JPLClass',
+__all__ = ['Horizons', 'HorizonsClass',
            'Conf', 'conf',
            ]

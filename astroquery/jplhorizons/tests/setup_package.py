@@ -7,4 +7,4 @@ import os
 def get_package_data():
     paths = [os.path.join('data', '*.txt')]  # etc, add other extensions
 
-    return {'astroquery.solarsystem.tests': paths}
+    return {'astroquery.jplhorizons.tests': paths}

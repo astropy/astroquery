@@ -1,43 +1,28 @@
 .. doctest-skip-all
 
-.. _astroquery.solarsystem:
+.. _astroquery.jplhorizons:
 
 ***********************************************
-Solar System Queries (`astroquery.solarsystem`)
+JPL Horizons Queries (`astroquery.jplhorizons`)
 ***********************************************
 
 Overview
 ========
 
-This submodule provides a python interface for queries related to
-Solar System objects, including ephemerides, orbital elements, and
-state vectors. In its current state, only queries of the `JPL
-Horizons`_ system are implemented. Future versions will provide
-interfaces to a wide range of different services relevant to Solar
-System science with a focus on small bodies, e.g., the JPL Small-Body
-Database Browser, the Minor Planet Center, IMCCE, etc.
 
-All functions in this submodule provide the query results in the form
-of `astropy table`_, enabling comfortable data access and the use of
-`astropy units`_.
-
-
-JPL (`~astroquery.solarsystem.JPLClass`)
-========================================
-
-The :class:`~astroquery.solarsystem.JPLClass` class provides an interface
-to services provided by the `Solar System Dynamics group at the Jet
-Propulation Laboratory`_.
+The :class:`~astroquery.jplhorizons.HorizonsClass` class provides an
+interface to services provided by the `Solar System Dynamics group at
+the Jet Propulation Laboratory`_.
 
 In order to query information for a specific Solar System body, a
-``JPL`` object has to be instantiated:
+``Horizons`` object has to be instantiated:
 
 .. code-block:: python
 
-   >>> from astroquery.solarsystem import JPL
-   >>> obj = JPL(id='Ceres', location='568', epochs=2458133.33546)
+   >>> from astroquery.jplhorizons import Horizons
+   >>> obj = Horizons(id='Ceres', location='568', epochs=2458133.33546)
    >>> print(obj)
-   JPL instance "Ceres"; location=568, epochs=[2458133.33546], id_type=smallbody
+   JPLHorizons instance "Ceres"; location=568, epochs=[2458133.33546], id_type=smallbody
    
 ``id`` refers to the target identifier and is mandatory; the exact
 string will be used in the query to the Horizons system.
@@ -72,8 +57,8 @@ respective id number or record number as ``id`` and use ``id_type=id``:
 
 .. code-block:: python
 
-   >>> from astroquery.solarsystem import JPL
-   >>> print(JPL(id='Encke').ephemerides())
+   >>> from astroquery.jplhorizons import Horizons
+   >>> print(Horizons(id='Encke').ephemerides())
    ...
    ValueError: Ambiguous target name; provide unique id:
        Record #  Epoch-yr  Primary Desig  >MATCH NAME<
@@ -83,7 +68,7 @@ respective id number or record number as ``id`` and use ``id_type=id``:
          900035     1796    2P              Encke
          900036     1805    2P              Encke
 	    ...      ...    ...               ...
-   >>> print(JPL(id='900034', id_type='id').ephemerides())
+   >>> print(Horizons(id='900034', id_type='id').ephemerides())
    targetname       datetime_str          datetime_jd    ... RA_3sigma DEC_3sigma
       ---               ---                    d         ...   arcsec    arcsec  
    ---------- ------------------------ ----------------- ... --------- ----------
@@ -97,7 +82,7 @@ The `JPL Horizons`_ system provides ephemerides, orbital elements, and
 state vectors for almost all known Solar System bodies. These queries
 are provided through three functions:
 
-:meth:`~astroquery.solarsystem.JPLClass.ephemerides` returns
+:meth:`~astroquery.jplhorizons.HorizonsClass.ephemerides` returns
 ephemerides for a given observer location (``location``) and epoch or
 range of epochs (``epochs``) in the form of an astropy table. The
 following example queries the ephemerides of asteroid (1) Ceres for
@@ -105,10 +90,10 @@ a range of dates as seen from Maunakea:
 
 .. code-block:: python
 
-   >>> from astroquery.solarsystem import JPL
-   >>> obj = JPL(id='Ceres', location='568',
-   ...		 epochs={'start':'2010-01-01', 'stop':'2010-03-01',
-   ...                   'step':'10d'})
+   >>> from astroquery.jplhorizons import Horizons
+   >>> obj = Horizons(id='Ceres', location='568',
+   ...		      epochs={'start':'2010-01-01', 'stop':'2010-03-01',
+   ...                        'step':'10d'})
    >>> eph = obj.ephemerides()
    >>> print(eph)
    targetname    datetime_str   datetime_jd ...   GlxLat  RA_3sigma DEC_3sigma
@@ -137,7 +122,7 @@ respectively. In the case of comets, ``H`` and ``G`` are replaced by ``M1``,
 ``M2``, ``k1``, ``k2``, and ``phasecoeff``; please refer to the `Horizons
 documentation`_ for definitions.
 
-Optional parameters of :meth:`~astroquery.solarsystem.JPLClass.ephemerides`
+Optional parameters of :meth:`~astroquery.jplhorizons.HorizonsClass.ephemerides`
 are corresponding to optional features of the Horizons system:
 ``airmass_lessthan`` sets an upper limit to airmass, ``solar_elongation``
 enables the definition of a solar elongation range, ``hour_angle`` sets
@@ -151,7 +136,7 @@ and only returns the query payload, whereas ``get_raw_response=True``
 the raw query response instead of the astropy table returns.
       
 
-:meth:`~astroquery.solarsystem.JPLClass.elements` returns orbital
+:meth:`~astroquery.jplhorizons.HorizonsClass.elements` returns orbital
 elements relative to some Solar System body (``location``, referred to as 
 "CENTER" in Horizons) and for a given epoch or a range of epochs
 (``epochs``) in the form of an astropy table. The following example
@@ -160,9 +145,9 @@ data relative to the Sun:
 
 .. code-block:: python
 
-   >>> from astroquery.solarsystem import JPL
-   >>> obj = JPL(id='433', location='500@10',
-   ...		 epochs=2458133.33546)
+   >>> from astroquery.jplhorizons import Horizons
+   >>> obj = Horizons(id='433', location='500@10',
+   ...		      epochs=2458133.33546)
    >>> el = obj.elements()
    >>> print(el)
        targetname      datetime_jd  ...       Q            P      
@@ -178,7 +163,7 @@ The following fields are queried:
    >>> print(el.columns)
    <TableColumns names=('targetname','datetime_jd','datetime_str','H','G','e','q','incl','Omega','w','Tp_jd','n','M','nu','a','Q','P')>
 
-Optional parameters of :meth:`~astroquery.solarsystem.JPLClass.elements`
+Optional parameters of :meth:`~astroquery.jplhorizons.HorizonsClass.elements`
 are ``get_query_payload=True``, which skips the query and only returns
 the query payload, and ``get_raw_response=True``, which returns the raw
 query response instead of the astropy table. For comets, the options
@@ -187,7 +172,7 @@ the closest apparition in time and reject fragments,
 respectively. Note that these options should only be used for comets
 and will crash the query for other object types.
 
-:meth:`~astroquery.solarsystem.JPLClass.vectors` returns the state
+:meth:`~astroquery.jplhorizons.HorizonsClass.vectors` returns the state
 vector of the target body relative to some Solar System body
 (``location``, referred to as "CENTER" in Horizons) and for a given
 epoch or a range of epochs (``epochs``) in the form of an astropy
@@ -196,10 +181,10 @@ TC4 as seen from Goldstone for a range of epochs:
 
 .. code-block:: python
 
-   >>> from astroquery.solarsystem import JPL
-   >>> obj = JPL(id='2012 TC4', location='257',
-   ...           epochs={'start':'2017-10-01', 'stop':'2017-10-02',
-   ...                   'step':'10m'})
+   >>> from astroquery.jplhorizons import Horizons
+   >>> obj = Horizons(id='2012 TC4', location='257',
+   ...                epochs={'start':'2017-10-01', 'stop':'2017-10-02',
+   ...                        'step':'10m'})
    >>> vec = obj.vectors()
    >>> print(vec)
    targetname  datetime_jd  ...      range          range_rate   
@@ -227,8 +212,8 @@ The following fields are queried:
    <TableColumns names=('targetname','datetime_jd','datetime_str','H','G','x','y','z','vx','vy','vz','lighttime','range','range_rate')>
 
 
-Similar to the other :class:`~astroquery.solarsystem.JPLClass` functions,
-optional parameters of :meth:`~astroquery.solarsystem.JPLClass.vectors` are
+Similar to the other :class:`~astroquery.jplhorizons.HorizonsClass` functions,
+optional parameters of :meth:`~astroquery.jplhorizons.HorizonsClass.vectors` are
 ``get_query_payload=True``, which skips the query and only returns the
 query payload, and ``get_raw_response=True``, which returns the raw
 query response instead of the astropy table. For comets, the options
@@ -252,10 +237,10 @@ Don Quixote since its year of Discovery:
 
 .. code-block:: python
 
-   >>> from astroquery.solarsystem import JPL
-   >>> obj = JPL(id='3552', location='568',
-   ...		 epochs={'start':'2010-01-01', 'stop':'2019-12-31',
-   ...                   'step':'1y'})
+   >>> from astroquery.jplhorizons import Horizons
+   >>> obj = Horizons(id='3552', location='568',
+   ...		      epochs={'start':'2010-01-01', 'stop':'2019-12-31',
+   ...                        'step':'1y'})
    >>> eph = obj.ephemerides()
 
 As we have seen before, we can display a truncated version of table
@@ -454,14 +439,14 @@ Acknowledgements
 
 This submodule makes use of the `JPL Horizons`_ system. 
 
-The development of this submodule is in part funded through NASA PDART
-Grant No. XXX, provided to the sbpy project.
+The development of this submodule is in part funded through a NASA
+PDART Grant, provided to the sbpy project.
 
      
 Reference/API
 =============
 
-.. automodapi:: astroquery.solarsystem
+.. automodapi:: astroquery.jplhorizons
     :no-inheritance-diagram:
 
 .. _JPL Horizons: http://ssd.jpl.nasa.gov/horizons.cgi

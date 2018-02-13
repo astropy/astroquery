@@ -8,7 +8,7 @@ from numpy import testing as npt
 from numpy.ma import is_masked
 from ...utils.testing_tools import MockResponse
 
-from ... import solarsystem
+from ... import jplhorizons
 
 # files in data/ for different query types
 DATA_FILES = {'ephemerides': 'ceres_ephemerides.txt',
@@ -42,7 +42,7 @@ def patch_request(request):
         mp = request.getfixturevalue("monkeypatch")
     except AttributeError:  # pytest < 3
         mp = request.getfuncargvalue("monkeypatch")
-    mp.setattr(solarsystem.core.JPLClass, '_request',
+    mp.setattr(jplhorizons.core.HorizonsClass, '_request',
                nonremote_request)
     return mp
 
@@ -53,8 +53,8 @@ def patch_request(request):
 def test_ephemerides_query(patch_request):
     # check values of Ceres for a given epoch
     # orbital uncertainty of Ceres is basically zero
-    res = solarsystem.JPL(id='Ceres', location='500',
-                          epochs=2451545.5).ephemerides()[0]
+    res = jplhorizons.Horizons(id='Ceres', location='500',
+                               epochs=2451545.5).ephemerides()[0]
 
     assert res['targetname'] == "1 Ceres"
     assert res['datetime_str'] == "2000-Jan-01 00:00:00.000"
@@ -89,31 +89,38 @@ def test_ephemerides_query(patch_request):
 def test_elements_query(patch_request):
     # check values of Ceres for a given epoch
     # orbital uncertainty of Ceres is basically zero
-    res = solarsystem.JPL(id='Ceres', location='500@10',
-                          epochs=2451545.5).elements()[0]
+    res = jplhorizons.Horizons(id='Ceres', location='500@10',
+                               epochs=2451545.5).elements()[0]
 
     assert res['targetname'] == "1 Ceres"
     assert res['datetime_str'] == "A.D. 2000-Jan-01 00:00:00.0000"
 
     npt.assert_allclose(
         [2451544.5,
-         7.837505767652506E-02,  2.549670133211852E+00,  1.058336086929457E+01,
-         8.049436516467529E+01,  7.392278852641589E+01,  2.451516163117752E+06,
-         2.141950393098222E-01,  6.069619607052192E+00,  7.121190541431409E+00,
+         7.837505767652506E-02,  2.549670133211852E+00,
+         1.058336086929457E+01,
+         8.049436516467529E+01,  7.392278852641589E+01,
+         2.451516163117752E+06,
+         2.141950393098222E-01,  6.069619607052192E+00,
+         7.121190541431409E+00,
          2.766494282136041E+00,  2.983318431060230E+00,
          1.680711192752127E+03],
         [res['datetime_jd'],
-         res['e'], res['q'], res['incl'],
-         res['Omega'], res['w'], res['Tp_jd'],
-         res['n'], res['M'], res['nu'],
-         res['a'], res['Q'], res['P']])
+         res['e'], res['q'],
+         res['incl'],
+         res['Omega'], res['w'],
+         res['Tp_jd'],
+         res['n'], res['M'],
+         res['nu'],
+         res['a'], res['Q'],
+         res['P']])
 
 
 def test_elements_vectors(patch_request):
     # check values of Ceres for a given epoch
     # orbital uncertainty of Ceres is basically zero
-    res = solarsystem.JPL(id='Ceres', location='500@10',
-                          epochs=2451545.5).vectors()[0]
+    res = jplhorizons.Horizons(id='Ceres', location='500@10',
+                               epochs=2451545.5).vectors()[0]
 
     assert res['targetname'] == "1 Ceres"
     assert res['datetime_str'] == "A.D. 2000-Jan-01 00:00:00.0000"
