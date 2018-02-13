@@ -1,5 +1,7 @@
 .. doctest-skip-all
 
+.. _astroquery.hitran:
+
 ************************************
 HITRAN Queries (`astroquery.hitran`)
 ************************************
@@ -10,7 +12,7 @@ Getting started
 This module provides an interface to the high-resolution transmission molecular
 absorption database API (`HITRAN`_).  The current version of the database
 contains a compilation of spectroscopic parameters for 49 molecular species
-along with their most significant isotopologues.  Using the `hitran` module you
+along with their most significant isotopologues.  Using the ``hitran`` module you
 can search transitions for a particular molecule in a given wavenumber range.
 
 Examples
