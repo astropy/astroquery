@@ -131,6 +131,8 @@ class HeasarcClass(BaseQuery):
         equinox : int, optional
             Epoch by which to interpret supplied equatorial coordinates (ignored
             if coordsys is galactic)
+        resultmax: int, optional
+            Set maximum query results to be returned
 
         displaymode : str, optional
             Return format from server. Since the user does not interact with 
@@ -149,19 +151,7 @@ class HeasarcClass(BaseQuery):
 
         # Fill in optional information
 
-        fields = kwargs.get('fields', None)
-        if fields is not None:
-            if fields.lower() == 'standard':
-                request_payload['Fields'] = 'Standard'
-            elif fields.lower() == 'all':
-                request_payload['Fields'] = 'All'
-            else:
-                request_payload['varon'] = fields.lower().split(',')
-
-        radius = kwargs.get('radius', None)
-        if radius is not None:
-            request_payload['Radius'] = radius
-            
+        # Handle queries involving coordinates
         coordinates = kwargs.get('coordsys', 'equatorial')
         if coordinates.lower() == 'equatorial':
             request_payload['Coordinates'] = 'Equatorial: R.A. Dec'
@@ -172,6 +162,26 @@ class HeasarcClass(BaseQuery):
 
         elif coordinates.lower() == 'galactic':
             request_payload['Coordinates'] = 'Galactic: LII BII'
+
+        # Specify which columns are to be returned
+        fields = kwargs.get('fields', None)
+        if fields is not None:
+            if fields.lower() == 'standard':
+                request_payload['Fields'] = 'Standard'
+            elif fields.lower() == 'all':
+                request_payload['Fields'] = 'All'
+            else:
+                request_payload['varon'] = fields.lower().split(',')
+
+        # Maximum number of results to be returned
+        resultmax = kwargs.get('resultmax', None)
+        if resultmax is not None:
+            request_payload['ResultMax'] = int(resultmax)
+
+        # Set search radius (arcmin)
+        radius = kwargs.get('radius', None)
+        if radius is not None:
+            request_payload['Radius'] = radius
               
         return request_payload
 
