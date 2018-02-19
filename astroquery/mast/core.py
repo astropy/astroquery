@@ -1335,8 +1335,10 @@ class ObservationsClass(MastClass):
         # magic associations logic per Brian - 0-9/a-e we convert to 0
         magicValues = "123456789abcde"
         if obs_id[-1] in magicValues:
+            # We only replace the first occurrence in the folder
+            # The filename remains with the original obs_id as part of the name
             new_obs_id = obs_id[:-1] + "0"
-            dataUri = dataUri.replace(obs_id, new_obs_id)
+            dataUri = dataUri.replace(obs_id, new_obs_id, 1)
             obs_id = new_obs_id
             log.warning("This data product's path may not have been properly identified %s" % dataUri)
 
