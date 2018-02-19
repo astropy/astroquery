@@ -182,6 +182,9 @@ class HeasarcClass(BaseQuery):
             to 2000, ignored if `coordsys` is not 'equatorial')
         resultmax: int, optional
             Set maximum query results to be returned
+        sortvar : str, optional
+            Set the name of the column by which to sort the results. By default
+            the results are sorted by distance from queried object/position
 
         displaymode : str, optional
             Return format from server. Since the user does not interact with 
@@ -229,15 +232,20 @@ class HeasarcClass(BaseQuery):
             else:
                 request_payload['varon'] = fields.lower().split(',')
 
+        # Set search radius (arcmin)
+        radius = kwargs.get('radius', None)
+        if radius is not None:
+            request_payload['Radius'] = radius
+
         # Maximum number of results to be returned
         resultmax = kwargs.get('resultmax', None)
         if resultmax is not None:
             request_payload['ResultMax'] = int(resultmax)
 
-        # Set search radius (arcmin)
-        radius = kwargs.get('radius', None)
-        if radius is not None:
-            request_payload['Radius'] = radius
+        # Set variable for sorting results
+        sortvar = kwargs.get('sortvar', None)
+        if sortvar is not None:
+            request_payload['sortvar'] = sortvar.lower()
               
         return request_payload
 
