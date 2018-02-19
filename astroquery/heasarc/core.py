@@ -33,10 +33,48 @@ class HeasarcClass(BaseQuery):
                                  timeout=self.TIMEOUT, cache=cache)
         return response
 
+    def query_mission_cols(self, mission, 
+                           cache=True, get_query_payload=False,
+                           **kwargs):
+        """
+        Returns a list containing the names of columns that will be returned for
+        a given mission table. By default, all column names are returned. A list
+        of the default columns can be obtained by setting `fields='Standard'`
+
+        Parameters
+        ----------
+        mission : str
+            Mission table (short name) to search from
+        fields : str, optional
+            Return format for columns from the server available options:
+            * Standard      : Return default table columns
+            * All (default) : Return all table columns
+            * <custom>      : User defined csv list of columns to be returned
+        All other parameters have no effect
+        """
+        # Query fails if nothing is found, so set search radius very large and
+        # only take a single value (all we care about is the column names)
+        kwargs['radius'] = 100000
+        kwargs['resultmax'] = 1
+
+        # By default, return all column names
+        fields = kwargs.get('fields', None)
+        if fields is None:
+            kwargs['fields'] = 'All'
+
+        table = self.query_position(position='0.0 0.0', mission=mission,
+                                cache=cache, get_query_payload=get_query_payload,
+                                **kwargs)
+
+        # Return payload if requested
+        if get_query_payload:
+            return table
+
+        return table.colnames
 
     def query_object_async(self, object_name, mission,
                            cache=True, get_query_payload=False,
-                           display_mode='FitsDisplay', **kwargs):
+                           **kwargs):
         """ Query around a specific object within a given mission catalog
 
         Parameters
@@ -62,10 +100,9 @@ class HeasarcClass(BaseQuery):
 
         return self.query_async(request_payload, cache)
 
-
     def query_position_async(self, position, mission,
                              cache=True, get_query_payload=False,
-                             display_mode='FitsDisplay', **kwargs):
+                             **kwargs):
         """
         Query around a specific set of coordinates within a given mission catalog.
         This method first converts the supplied coordinates into the FK5 
@@ -104,7 +141,6 @@ class HeasarcClass(BaseQuery):
 
         # Submit the request
         return self.query_async(request_payload, cache)
-
 
     def _fallback(self, content):
         """
@@ -146,7 +182,6 @@ class HeasarcClass(BaseQuery):
         except ValueError:
             return self._fallback(response.content)
 
-
     def _args_to_payload(self, **kwargs):
         """
         Generates the payload based on user supplied arguments
@@ -180,7 +215,7 @@ class HeasarcClass(BaseQuery):
         equinox : int, optional
             Epoch by which to interpret supplied equatorial coordinates (defaults
             to 2000, ignored if `coordsys` is not 'equatorial')
-        resultmax: int, optional
+        resultmax : int, optional
             Set maximum query results to be returned
         sortvar : str, optional
             Set the name of the column by which to sort the results. By default
