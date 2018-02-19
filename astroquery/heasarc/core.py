@@ -24,14 +24,37 @@ class HeasarcClass(BaseQuery):
     URL = conf.server
     TIMEOUT = conf.timeout
 
-    def query_async(self, request_payload, cache=True):
+    def query_async(self, request_payload, cache=True, url=conf.server):
         """
         Submit a query based on a given request_payload. This allows detailed
         control of the query to be submitted.
         """
-        response = self._request('GET', self.URL, params=request_payload,
+        response = self._request('GET', url, params=request_payload,
                                  timeout=self.TIMEOUT, cache=cache)
         return response
+
+    def query_mission_list(self, 
+                           cache=True, get_query_payload=False):
+        """
+        Returns a list of all available mission tables with descriptions
+        """
+        request_payload = self._args_to_payload(
+            Entry   = 'none',
+            mission = 'xxx',
+            displaymode = 'BatchDisplay'
+        )
+
+        if get_query_payload:
+            return request_payload
+
+        # Parse the results specially (it's ascii format, not fits)
+        response = self.query_async(request_payload,
+                   url='https://heasarc.gsfc.nasa.gov/db-perl/W3Browse/w3query.pl',
+                   cache=cache)
+        data = BytesIO(response.content)
+        table = Table.read(data, format='ascii.fixed_width_two_line',delimiter='+',
+                           header_start=1, position_line=2, data_start=3, data_end=-1)
+        return table
 
     def query_mission_cols(self, mission, 
                            cache=True, get_query_payload=False,
@@ -98,7 +121,7 @@ class HeasarcClass(BaseQuery):
         if get_query_payload:
             return request_payload
 
-        return self.query_async(request_payload, cache)
+        return self.query_async(request_payload, cache=cache)
 
     def query_position_async(self, position, mission,
                              cache=True, get_query_payload=False,
@@ -140,7 +163,7 @@ class HeasarcClass(BaseQuery):
             return request_payload
 
         # Submit the request
-        return self.query_async(request_payload, cache)
+        return self.query_async(request_payload, cache=cache)
 
     def _fallback(self, content):
         """
