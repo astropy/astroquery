@@ -98,6 +98,10 @@ class HeasarcClass(BaseQuery):
             **kwargs
         )
 
+        # Return payload if requested
+        if get_query_payload:
+            return request_payload
+
         # Submit the request
         return self.query_async(request_payload, cache)
 
