@@ -3,6 +3,7 @@ from __future__ import print_function
 from astropy.extern.six import BytesIO
 from astropy.table import Table
 from astropy.io import fits
+from astropy import coordinates
 from ..query import BaseQuery
 from ..utils import commons
 from ..utils import async_to_sync
@@ -62,6 +63,45 @@ class HeasarcClass(BaseQuery):
         return self.query_async(request_payload, cache)
 
 
+    def query_position_async(self, position, mission,
+                             cache=True, get_query_payload=False,
+                             display_mode='FitsDisplay', **kwargs):
+        """
+        Query around a specific set of coordinates within a given mission catalog.
+        This method first converts the supplied coordinates into the FK5 
+        reference frame and searches for sources from there. Because of this,
+        the returned offset coordinates may look different than the ones supplied.
+
+        Parameters
+        ----------
+        position : `astropy.coordinates` or str
+            The position around which to search. It may be specified as a
+            string in which case it is resolved using online services or as
+            the appropriate `astropy.coordinates` object. ICRS coordinates
+            may also be entered as a string.
+            (adapted from nrao module)
+        mission : str
+            Mission table to search from
+        **kwargs : 
+            see :func:`_args_to_payload` for list of additional parameters that
+            can be used to refine search query
+        """
+        # Convert the coordinates to FK5
+        c = commons.parse_coordinates(position).transform_to(coordinates.FK5)
+        kwargs['coordsys'] = 'fk5'
+        kwargs['equinox'] = 2000
+
+        # Generate the request
+        request_payload = self._args_to_payload(
+            mission = mission,
+            entry   = "{},{}".format(c.ra.degree, c.dec.degree),
+            **kwargs
+        )
+
+        # Submit the request
+        return self.query_async(request_payload, cache)
+
+
     def _fallback(self, content):
         """
         Blank columns which have to be converted to float or in fail so
@@ -115,7 +155,8 @@ class HeasarcClass(BaseQuery):
             Object or position for center of query. A blank value will return
             all entries in the mission table. Acceptable formats:
             * Object name : Name of object, e.g. 'Crab'
-            * Coordinates : CSV list of coordinates, either as 'degrees,degrees' or 'hh mm ss,hh mm ss'
+            * Coordinates : X,Y coordinates, either as 'degrees,degrees' or 
+              'hh mm ss,dd mm ss'
         fields : str, optional
             Return format for columns from the server available options:
             * Standard (default) : Return default table columns
@@ -124,13 +165,17 @@ class HeasarcClass(BaseQuery):
         radius : float (arcmin), optional
             Return all mission entries within a given distance of search query.
             If not supplied, the server default will be used (~ 60 arcmin)
-        coordsys: str ('equatorial' or 'galactic'), optional
+        coordsys: str, optional
             If 'entry' is a set of coordinates, this specifies the coordinate 
             system used to interpret them. By default, equatorial coordinates
-            are assumed.
+            are assumed. Possible values:
+            * 'fk5' <default> (FK5 J2000 equatorial coordinates)
+            * 'fk4'           (FK4 B1950 equatorial coordinates)
+            * 'equatorial'    (equatorial coordinates, `equinox` param determines epoch)
+            * 'galactic'      (Galactic coordinates)
         equinox : int, optional
-            Epoch by which to interpret supplied equatorial coordinates (ignored
-            if coordsys is galactic)
+            Epoch by which to interpret supplied equatorial coordinates (defaults
+            to 2000, ignored if `coordsys` is not 'equatorial')
         resultmax: int, optional
             Set maximum query results to be returned
 
@@ -149,21 +194,28 @@ class HeasarcClass(BaseQuery):
             displaymode = kwargs.get('displaymode','FitsDisplay')
         )
 
-        # Fill in optional information
+        # Fill in optional information for refined queries
 
         # Handle queries involving coordinates
-        coordinates = kwargs.get('coordsys', 'equatorial')
-        if coordinates.lower() == 'equatorial':
+        coordsys = kwargs.get('coordsys', 'fk5')
+        if coordsys.lower() == 'fk5':
+            request_payload['Coordinates'] = 'Equatorial: R.A. Dec'
+
+        elif coordsys.lower() == 'fk4':
+            request_payload['Coordinates'] = 'Equatorial: R.A. Dec'
+            request_payload['equinox']     = 1950
+
+        elif coordsys.lower() == 'equatorial':
             request_payload['Coordinates'] = 'Equatorial: R.A. Dec'
 
             equinox = kwargs.get('equinox', None)
             if equinox is not None:
                 request_payload['Equinox'] = str(equinox) 
 
-        elif coordinates.lower() == 'galactic':
+        elif coordsys.lower() == 'galactic':
             request_payload['Coordinates'] = 'Galactic: LII BII'
 
-        # Specify which columns are to be returned
+        # Specify which table columns are to be returned
         fields = kwargs.get('fields', None)
         if fields is not None:
             if fields.lower() == 'standard':
