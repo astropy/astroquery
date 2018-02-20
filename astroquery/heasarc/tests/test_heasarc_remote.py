@@ -25,12 +25,25 @@ class TestHeasarc:
         # Number of tables could change, but should be > 900 (currently 956)
         assert len(missions) > 900
 
-    def test_query_position(self):
+    def test_mission_cols(self):
+        heasarc = Heasarc()
+        mission = 'rospublic'
+        cols = heasarc.query_mission_cols(mission=mission)
+
+        assert len(cols) == 28
+
+        # Test that the cols list contains known names
+        assert 'EXPOSURE' in cols
+        assert 'RA' in cols
+        assert 'DEC' in cols
+        assert 'SEARCH_OFFSET_' in cols
+
+    def test_query_region(self):
         heasarc = Heasarc()
         mission = 'rospublic'
 
         # Define coordinates for '3c273' object
         c = commons.coord.SkyCoord('12h29m06.70s +02d03m08.7s', frame='icrs')
-        table = heasarc.query_position(position=c, mission=mission)
+        table = heasarc.query_region(c, mission=mission, radius='1 degree')
 
         assert len(table) == 63

@@ -40,7 +40,7 @@ coordinates:
     >>> heasarc = Heasarc()
     >>> mission = 'rospublic'
     >>> coords = SkyCoord('12h29m06.70s +02d03m08.7s', frame='icrs')
-    >>> table = heasarc.query_position(coords, mission=mission)
+    >>> table = heasarc.query_position(coords, mission=mission, radius='1 degree')
     >>> table[:3].pprint()
 
 Note that the `query_position` converts the passed coordinates to the FK5
@@ -63,10 +63,12 @@ specify which columns will be returned:
 
 .. code-block:: python
 
-    >>> table = heasarc.query_object(object_name='3c273', mission='rospublic', fields='SEQ_ID,RA,BII')
+    >>> table = heasarc.query_object(object_name='3c273', mission='rospublic', fields='EXPOSURE,RA,DEC')
 
-To obtain a list of available columns for a given mission table, do the 
-following:
+Note that the ``SEARCH_OFFSET_`` column will always be included in the results.
+If a column name is passed to the ``fields`` parameter which does not exist in
+the requested mission table, the query will fail. To obtain a list of available 
+columns for a given mission table, do the following:
 
 .. code-block:: python
 
@@ -76,16 +78,31 @@ following:
 Additional query parameters
 ---------------------------
 
-By default, the search for objects from a queried table returns all objects within
-approximately 60 arcmin of the object/position. This can be modified by supplying
-the ``radius`` parameter. This parameter takes a distance (in arcmin) to look for
-objects. The following extends the search radius to 120 arcmin:
+By default, the ``query_object()`` method returns all entries within approximately 
+one degree of the specified object. This can be modified by supplying the 
+``radius`` parameter. This parameter takes a distance to look for objects. The 
+following modifies the search radius to 120 arcmin:
 
 .. code-block:: python
 
     >>> from astroquery.heasarc import Heasarc
     >>> heasarc = Heasarc()
-    >>> table = heasarc.query_object(object_name='3c273', mission='rospublic', radius=120)
+    >>> table = heasarc.query_object(object_name='3c273', mission='rospublic', radius='120 arcmin')
+
+``radius`` takes an angular distance specified as an astropy Quantity object, 
+or a string that can be parsed into one (e.g., '1 degree' or 1*u.degree). The
+following are equivalent:
+
+.. code-block:: python
+
+    >>> table = heasarc.query_object(object_name='3c273', mission='rospublic', radius='120 arcmin')
+    >>> table = heasarc.query_object(object_name='3c273', mission='rospublic', radius='2 degree')
+    >>> from astropy import units as u
+    >>> table = heasarc.query_object(object_name='3c273', mission='rospublic', radius=120*u.arcmin)
+    >>> table = heasarc.query_object(object_name='3c273', mission='rospublic', radius=2*u.degree)
+
+As per the astroquery specifications, the ``query_region()`` method requires the 
+user to supply a radius parameter.
 
 The results can also be sorted by the value in a given column using the ``sortvar``
 parameter. The following sorts the results by the value in the 'EXPOSURE' column.

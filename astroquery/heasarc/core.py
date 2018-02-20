@@ -4,6 +4,7 @@ from astropy.extern.six import BytesIO
 from astropy.table import Table
 from astropy.io import fits
 from astropy import coordinates
+from astropy import units as u
 from ..query import BaseQuery
 from ..utils import commons
 from ..utils import async_to_sync
@@ -77,7 +78,6 @@ class HeasarcClass(BaseQuery):
         """
         # Query fails if nothing is found, so set search radius very large and
         # only take a single value (all we care about is the column names)
-        kwargs['radius'] = 100000
         kwargs['resultmax'] = 1
 
         # By default, return all column names
@@ -85,15 +85,16 @@ class HeasarcClass(BaseQuery):
         if fields is None:
             kwargs['fields'] = 'All'
 
-        table = self.query_position(position='0.0 0.0', mission=mission,
-                                cache=cache, get_query_payload=get_query_payload,
-                                **kwargs)
+        response = self.query_region_async(position='0.0 0.0', mission=mission,
+                                           radius='361 degree', cache=cache, 
+                                           get_query_payload=get_query_payload,
+                                           **kwargs)
 
         # Return payload if requested
         if get_query_payload:
-            return table
+            return response
 
-        return table.colnames
+        return self._parse_result(response).colnames
 
     def query_object_async(self, object_name, mission,
                            cache=True, get_query_payload=False,
@@ -123,9 +124,9 @@ class HeasarcClass(BaseQuery):
 
         return self.query_async(request_payload, cache=cache)
 
-    def query_position_async(self, position, mission,
-                             cache=True, get_query_payload=False,
-                             **kwargs):
+    def query_region_async(self, position, mission, radius,
+                           cache=True, get_query_payload=False,
+                           **kwargs):
         """
         Query around a specific set of coordinates within a given mission catalog.
         This method first converts the supplied coordinates into the FK5 
@@ -142,6 +143,9 @@ class HeasarcClass(BaseQuery):
             (adapted from nrao module)
         mission : str
             Mission table to search from
+        radius : 
+            An astropy Quantity object, or a string that can be parsed into one.
+            e.g., '1 degree' or 1*u.degree.
         **kwargs : 
             see :func:`_args_to_payload` for list of additional parameters that
             can be used to refine search query
@@ -155,6 +159,7 @@ class HeasarcClass(BaseQuery):
         request_payload = self._args_to_payload(
             mission = mission,
             entry   = "{},{}".format(c.ra.degree, c.dec.degree),
+            radius  = u.Quantity(radius),
             **kwargs
         )
 
@@ -225,8 +230,8 @@ class HeasarcClass(BaseQuery):
             * All                : Return all table columns
             * <custom>           : User defined csv list of columns to be returned
         radius : float (arcmin), optional
-            Return all mission entries within a given distance of search query.
-            If not supplied, the server default will be used (~ 60 arcmin)
+            An astropy Quantity object, or a string that can be parsed into one.
+            e.g., '1 degree' or 1*u.degree.
         coordsys: str, optional
             If 'entry' is a set of coordinates, this specifies the coordinate 
             system used to interpret them. By default, equatorial coordinates
@@ -293,7 +298,7 @@ class HeasarcClass(BaseQuery):
         # Set search radius (arcmin)
         radius = kwargs.get('radius', None)
         if radius is not None:
-            request_payload['Radius'] = radius
+            request_payload['Radius'] = "{}".format(radius.to(u.arcmin))
 
         # Maximum number of results to be returned
         resultmax = kwargs.get('resultmax', None)
