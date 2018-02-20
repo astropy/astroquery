@@ -314,10 +314,11 @@ class HorizonsClass(BaseQuery):
         commandline = str(self.id)
         if self.id_type in ['designation', 'name',
                             'asteroid_name', 'comet_name']:
-            commandline = {'designation': 'DES=',
-                           'name': 'NAME=',
-                           'asteroid_name': 'ASTNAM=',
-                           'comet_name': 'COMNAM='}[self.id_type]+commandline
+            commandline = ({'designation': 'DES=',
+                            'name': 'NAME=',
+                            'asteroid_name': 'ASTNAM=',
+                            'comet_name': 'COMNAM='}[self.id_type] +
+                           commandline)
         if self.id_type in ['smallbody', 'asteroid_name',
                             'comet_name', 'designation']:
             commandline += ';'
@@ -330,11 +331,11 @@ class HorizonsClass(BaseQuery):
                 commandline += ' NOFRAG;'
 
         request_payload = OrderedDict([
-            ('batch',      1),
+            ('batch', 1),
             ('TABLE_TYPE', 'OBSERVER'),
             ('QUANTITIES', conf.eph_quantities),
-            ('COMMAND',    '"' + commandline + '"'),
-            ('CENTER',     ("'" + str(self.location) + "'")),
+            ('COMMAND', '"' + commandline + '"'),
+            ('CENTER', ("'" + str(self.location) + "'")),
             ('SOLAR_ELONG', ('"' + str(solar_elongation[0]) + "," +
                              str(solar_elongation[1]) + '"')),
             ('LHA_CUTOFF', (str(hour_angle))),
@@ -349,7 +350,8 @@ class HorizonsClass(BaseQuery):
                 self.epochs = self.epochs[:15]
                 warnings.warn("Only the first 15 elements of 'epochs' will " +
                               "be queried")
-            request_payload['TLIST'] = "".join(['"'+str(epoch)+'"' for epoch
+            request_payload['TLIST'] = "".join(['"' + str(epoch) + '"'
+                                                for epoch
                                                 in self.epochs])
         elif type(self.epochs) is dict:
             if ('start' not in self.epochs or 'stop' not in self.epochs or
@@ -501,10 +503,11 @@ class HorizonsClass(BaseQuery):
         commandline = str(self.id)
         if self.id_type in ['designation', 'name',
                             'asteroid_name', 'comet_name']:
-            commandline = {'designation': 'DES=',
-                           'name': 'NAME=',
-                           'asteroid_name': 'ASTNAM=',
-                           'comet_name': 'COMNAM='}[self.id_type]+commandline
+            commandline = ({'designation': 'DES=',
+                            'name': 'NAME=',
+                            'asteroid_name': 'ASTNAM=',
+                            'comet_name': 'COMNAM='}[self.id_type] +
+                           commandline)
         if self.id_type in ['smallbody', 'asteroid_name',
                             'comet_name', 'designation']:
             commandline += ';'
@@ -518,17 +521,17 @@ class HorizonsClass(BaseQuery):
 
         # configure request_payload for ephemerides query
         request_payload = OrderedDict([
-            ('batch',      1),
+            ('batch', 1),
             ('TABLE_TYPE', 'ELEMENTS'),
-            ('OUT_UNITS',  'AU-D'),
-            ('COMMAND',    '"' + commandline + '"'),
-            ('CENTER',     ("'"+str(self.location)+"'")),
+            ('OUT_UNITS', 'AU-D'),
+            ('COMMAND', '"' + commandline + '"'),
+            ('CENTER', ("'" + str(self.location) + "'")),
             ('CSV_FORMAT', ('"YES"')),
-            ('REF_PLANE',  'ECLIPTIC'),
+            ('REF_PLANE', 'ECLIPTIC'),
             ('REF_SYSTEM', 'J2000'),
-            ('TP_TYPE',    'ABSOLUTE'),
+            ('TP_TYPE', 'ABSOLUTE'),
             ('ELEM_LABELS', 'YES'),
-            ('OBJ_DATA',   'YES')]
+            ('OBJ_DATA', 'YES')]
         )
 
         # parse self.epochs
@@ -537,7 +540,8 @@ class HorizonsClass(BaseQuery):
                 self.epochs = self.epochs[:15]
                 warnings.warn("Only the first 15 elements of 'epochs' will " +
                               "be queried")
-            request_payload['TLIST'] = "".join(['"'+str(epoch)+'"' for epoch
+            request_payload['TLIST'] = "".join(['"' + str(epoch) + '"'
+                                                for epoch
                                                 in self.epochs])
         elif type(self.epochs) is dict:
             if ('start' not in self.epochs or 'stop' not in self.epochs or
@@ -693,10 +697,11 @@ class HorizonsClass(BaseQuery):
 
         if self.id_type in ['designation', 'name',
                             'asteroid_name', 'comet_name']:
-            commandline = {'designation': 'DES=',
-                           'name': 'NAME=',
-                           'asteroid_name': 'ASTNAM=',
-                           'comet_name': 'COMNAM='}[self.id_type]+commandline
+            commandline = ({'designation': 'DES=',
+                            'name': 'NAME=',
+                            'asteroid_name': 'ASTNAM=',
+                            'comet_name': 'COMNAM='}[self.id_type] +
+                           commandline)
         if self.id_type in ['smallbody', 'asteroid_name',
                             'comet_name', 'designation']:
             commandline += ';'
@@ -710,17 +715,17 @@ class HorizonsClass(BaseQuery):
 
         # configure request_payload for ephemerides query
         request_payload = OrderedDict([
-            ('batch',      1),
+            ('batch', 1),
             ('TABLE_TYPE', 'VECTORS'),
-            ('OUT_UNITS',  'AU-D'),
-            ('COMMAND',    '"' + commandline + '"'),
-            ('CENTER',     ("'"+str(self.location)+"'")),
+            ('OUT_UNITS', 'AU-D'),
+            ('COMMAND', '"' + commandline + '"'),
+            ('CENTER', ("'" + str(self.location) + "'")),
             ('CSV_FORMAT', ('"YES"')),
-            ('REF_PLANE',  'ECLIPTIC'),
+            ('REF_PLANE', 'ECLIPTIC'),
             ('REF_SYSTEM', 'J2000'),
-            ('TP_TYPE',    'ABSOLUTE'),
-            ('LABELS',     'YES'),
-            ('OBJ_DATA',   'YES')]
+            ('TP_TYPE', 'ABSOLUTE'),
+            ('LABELS', 'YES'),
+            ('OBJ_DATA', 'YES')]
         )
 
         # parse self.epochs
@@ -729,7 +734,8 @@ class HorizonsClass(BaseQuery):
                 self.epochs = self.epochs[:15]
                 warnings.warn("Only the first 15 elements of 'epochs' will " +
                               "be queried")
-            request_payload['TLIST'] = "".join(['"'+str(epoch)+'"' for epoch
+            request_payload['TLIST'] = "".join(['"' + str(epoch) + '"'
+                                                for epoch
                                                 in self.epochs])
         elif type(self.epochs) is dict:
             if ('start' not in self.epochs or 'stop' not in self.epochs or
@@ -815,19 +821,19 @@ class HorizonsClass(BaseQuery):
                 data_end_idx = idx
             # identify start of data block
             if "$$SOE" in line:
-                data_start_idx = idx+1
+                data_start_idx = idx + 1
             # read in targetname
             if "Target body name" in line:
                 targetname = line[18:50].strip()
             # read in H and G (if available)
             if "rotational period in hours)" in line:
-                HGline = src[idx+2].split('=')
+                HGline = src[idx + 2].split('=')
                 if 'B-V' in HGline[2] and 'G' in HGline[1]:
                     H = float(HGline[1].rstrip('G'))
                     G = float(HGline[2].rstrip('B-V'))
             # read in M1, M2, k1, k2, and phcof (if available)
             if "Comet physical" in line:
-                HGline = src[idx+2].split('=')
+                HGline = src[idx + 2].split('=')
                 M1 = float(HGline[1].rstrip('M2'))
                 k1 = float(HGline[3].rstrip('k2'))
                 try:
@@ -841,18 +847,18 @@ class HorizonsClass(BaseQuery):
             # catch unambiguous names
             if (("Multiple major-bodies match string" in line or
                  "Matching small-bodies:" in line) and
-                ("No matches found" not in src[idx+1])):
-                for i in range(idx+2, len(src), 1):
+                ("No matches found" not in src[idx + 1])):
+                for i in range(idx + 2, len(src), 1):
                     if (('To SELECT, enter record' in src[i]) or
                         ('make unique selection.' in src[i])):
                         end_idx = i
                         break
                 raise ValueError('Ambiguous target name; provide ' +
                                  'unique id:\n%s' %
-                                 '\n'.join(src[idx+2:end_idx]))
+                                 '\n'.join(src[idx + 2:end_idx]))
             # catch unknown target
             if ("Matching small-bodies" in line and
-                "No matches found" in src[idx+1]):
+                "No matches found" in src[idx + 1]):
                 raise ValueError('Unknown target. Try different id_type.')
             # catch any unavailability of ephemeris data
             if "No ephemeris for target" in line:
@@ -889,28 +895,28 @@ class HorizonsClass(BaseQuery):
         data.remove_column('_dump')
 
         # add targetname and physical properties as columns
-        data.add_column(Column([targetname]*len(data),
+        data.add_column(Column([targetname] * len(data),
                                name='targetname'), index=0)
         if not isnan(H):
-            data.add_column(Column([H]*len(data),
+            data.add_column(Column([H] * len(data),
                                    name='H'), index=3)
         if not isnan(G):
-            data.add_column(Column([G]*len(data),
+            data.add_column(Column([G] * len(data),
                                    name='G'), index=4)
         if not isnan(M1):
-            data.add_column(Column([M1]*len(data),
+            data.add_column(Column([M1] * len(data),
                                    name='M1'), index=3)
         if not isnan(M2):
-            data.add_column(Column([M2]*len(data),
+            data.add_column(Column([M2] * len(data),
                                    name='M2'), index=4)
         if not isnan(k1):
-            data.add_column(Column([k1]*len(data),
+            data.add_column(Column([k1] * len(data),
                                    name='k1'), index=5)
         if not isnan(k2):
-            data.add_column(Column([k2]*len(data),
+            data.add_column(Column([k2] * len(data),
                                    name='k2'), index=6)
         if not isnan(phcof):
-            data.add_column(Column([phcof]*len(data),
+            data.add_column(Column([phcof] * len(data),
                                    name='phasecoeff'), index=7)
 
         # set column definition dictionary
