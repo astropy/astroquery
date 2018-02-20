@@ -39,7 +39,7 @@ def patch_get(request):
 
 
 def get_mockreturn(method="GET", url=None, data=None,
-                   timeout=60, file=None, **kwargs):
+                   timeout=60, cache=True, **kwargs):
     if ((("GW170817" in data) or ("catalog" in data))
        and ("csv" in data)):
         file_key = 'phot_csv'
