@@ -48,6 +48,21 @@ class VizierClass(BaseQuery):
     def __init__(self, columns=["*"], column_filters={}, catalog=None,
                  keywords=None, ucd="", timeout=conf.timeout,
                  vizier_server=conf.server, row_limit=conf.row_limit):
+        """
+        Parameters
+        ----------
+        columns : list
+            List of strings
+        column_filters : dict
+        catalog : str or None
+        keywords : str or None
+        ucd : string
+            "Unified Content Description" column descriptions.  Specifying
+            these will select only catalogs that have columns matching the
+            column descriptions defined on the Vizier web pages.
+            See http://vizier.u-strasbg.fr/vizier/vizHelp/1.htx#ucd and
+            http://cds.u-strasbg.fr/w/doc/UCD/
+        """
 
         super(VizierClass, self).__init__()
         self.columns = columns
@@ -194,6 +209,9 @@ class VizierClass(BaseQuery):
             keywords = " ".join(keywords)
 
         data_payload = {'-words': keywords, '-meta.all': 1}
+
+        data_payload['-ucd'] = self.ucd
+
         if max_catalogs is not None:
             data_payload['-meta.max'] = max_catalogs
         response = self._request(
