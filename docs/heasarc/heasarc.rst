@@ -43,6 +43,36 @@ coordinates:
     >>> table = heasarc.query_position(coords, mission=mission)
     >>> table[:3].pprint()
 
+Note that the `query_position` converts the passed coordinates to FK5 internally
+before making submitting the query.
+
+Modifying returned table columns
+--------------------------------
+
+Each table has a set of default columns that are returned when submitting to the
+database. You can return all available columns for a given query by specifying
+the `fields` parameter in either of the above queries. For exampe:
+
+.. code-block:: python
+
+    >>> table = heasarc.query_object(object_name='3c273', mission='rospublic', fields='All')
+
+will return all available columns from the 'rospublic' mission table.
+Alternatively, a comma-separated list of column names can also be provided to
+specify which columns will be returned:
+
+.. code-block:: python
+
+    >>> table = heasarc.query_object(object_name='3c273', mission='rospublic', fields='SEQ_ID,RA,BII')
+
+To obtain a list of all available columns for a given mission table, do the 
+following:
+
+.. code-block:: python
+
+    >>> cols = heasarc.query_mission_cols(mission='rospublic')
+    >>> print(cols)
+
 Getting list of available missions
 ----------------------------------
 
