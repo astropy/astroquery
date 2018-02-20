@@ -65,13 +65,47 @@ specify which columns will be returned:
 
     >>> table = heasarc.query_object(object_name='3c273', mission='rospublic', fields='SEQ_ID,RA,BII')
 
-To obtain a list of all available columns for a given mission table, do the 
+To obtain a list of available columns for a given mission table, do the 
 following:
 
 .. code-block:: python
 
     >>> cols = heasarc.query_mission_cols(mission='rospublic')
     >>> print(cols)
+    
+Additional query parameters
+---------------------------
+
+By default, the search for objects from a queried table returns all objects within
+approximately 60 arcmin of the object/position. This can be modified by supplying
+the `radius` parameter. This parameter takes a distance (in arcmin) to look For
+objects. The following extends the search radius to 120 arcmin:
+
+.. code-block:: python
+
+    >>> from astroquery.heasarc import Heasarc
+    >>> heasarc = Heasarc()
+    >>> table = heasarc.query_object(object_name='3c273', mission='rospublic', radius=120)
+
+The results can also be sorted by the value in a given column using the `sortvar`
+parameter. The following sorts the results by the value in the 'EXPOSURE' column.
+
+.. code-block:: python
+
+    >>> from astroquery.heasarc import Heasarc
+    >>> heasarc = Heasarc()
+    >>> table = heasarc.query_object(object_name='3c273', mission='rospublic', sortvar='EXPOSURE')
+
+Setting the `resultmax` parameter controls the maximum number of results to be
+returned. The following will store only the first 10 results:
+
+.. code-block:: python
+
+    >>> from astroquery.heasarc import Heasarc
+    >>> heasarc = Heasarc()
+    >>> table = heasarc.query_object(object_name='3c273', mission='rospublic', resultmax=10)
+
+All of the above parameters can be mixed and matched to refine the query results.
 
 Getting list of available missions
 ----------------------------------
