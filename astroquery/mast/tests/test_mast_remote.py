@@ -13,9 +13,9 @@ from ... import mast
 @remote_data
 class TestMast(object):
 
-    #####################
-    ## MastClass tests ##
-    #####################
+    ###################
+    # MastClass tests #
+    ###################
 
     def test_mast_service_request_async(self):
         service = 'Mast.Caom.Cone'
@@ -48,9 +48,9 @@ class TestMast(object):
         assert sessionInfo['Username'] == 'anonymous'
         assert sessionInfo['Session Expiration'] is None
 
-    #############################
-    ## ObservationsClass tests ##
-    #############################
+    ###########################
+    # ObservationsClass tests #
+    ###########################
 
     def test_observastions_list_missions(self):
         missions = mast.Observations.list_missions()
@@ -203,9 +203,9 @@ class TestMast(object):
         assert isinstance(result, Table)
         assert os.path.isfile(result['Local Path'][0])
 
-    ########################
-    ## CatalogClass tests ##
-    ########################
+    ######################
+    # CatalogClass tests #
+    ######################
 
         # query functions
     def test_catalogs_query_region_async(self):

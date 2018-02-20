@@ -296,14 +296,14 @@ def test_catalogs_query_criteria_async(patch_post):
 def test_catalogs_query_criteria(patch_post):
     # without position
     result = mast.Catalogs.query_criteria(catalog="Tic",
-                                                   Bmag=[30, 50], objType="STAR")
+                                          Bmag=[30, 50], objType="STAR")
 
     assert isinstance(result, Table)
 
     # with position
     result = mast.Catalogs.query_criteria(catalog="DiskDetective",
-                                                   objectname="M10", radius=2,
-                                                   state="complete")
+                                          objectname="M10", radius=2,
+                                          state="complete")
     assert isinstance(result, Table)
 
 
