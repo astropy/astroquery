@@ -34,35 +34,36 @@ class HeasarcClass(BaseQuery):
                                  timeout=self.TIMEOUT, cache=cache)
         return response
 
-    def query_mission_list(self, 
-                           cache=True, get_query_payload=False):
+    def query_mission_list(self, cache=True, get_query_payload=False):
         """
         Returns a list of all available mission tables with descriptions
         """
         request_payload = self._args_to_payload(
-            Entry   = 'none',
-            mission = 'xxx',
-            displaymode = 'BatchDisplay'
+            Entry='none',
+            mission='xxx',
+            displaymode='BatchDisplay'
         )
 
         if get_query_payload:
             return request_payload
 
         # Parse the results specially (it's ascii format, not fits)
-        response = self.query_async(request_payload,
-                   url='https://heasarc.gsfc.nasa.gov/db-perl/W3Browse/w3query.pl',
-                   cache=cache)
+        response = self.query_async(
+            request_payload,
+            url='https://heasarc.gsfc.nasa.gov/db-perl/W3Browse/w3query.pl',
+            cache=cache
+        )
         data = BytesIO(response.content)
-        table = Table.read(data, format='ascii.fixed_width_two_line',delimiter='+',
-                           header_start=1, position_line=2, data_start=3, data_end=-1)
+        table = Table.read(data, format='ascii.fixed_width_two_line',
+                           delimiter='+', header_start=1, position_line=2,
+                           data_start=3, data_end=-1)
         return table
 
-    def query_mission_cols(self, mission, 
-                           cache=True, get_query_payload=False,
+    def query_mission_cols(self, mission, cache=True, get_query_payload=False,
                            **kwargs):
         """
-        Returns a list containing the names of columns that will be returned for
-        a given mission table. By default, all column names are returned. A list
+        Returns a list containing the names of columns that can be returned for
+        a given mission table. By default all column names are returned. A list
         of the default columns can be obtained by setting `fields='Standard'`
 
         Parameters
@@ -86,7 +87,7 @@ class HeasarcClass(BaseQuery):
             kwargs['fields'] = 'All'
 
         response = self.query_region_async(position='0.0 0.0', mission=mission,
-                                           radius='361 degree', cache=cache, 
+                                           radius='361 degree', cache=cache,
                                            get_query_payload=get_query_payload,
                                            **kwargs)
 
@@ -104,17 +105,17 @@ class HeasarcClass(BaseQuery):
         Parameters
         ----------
         object_name : str
-            Object to query around. To set search radius use the hidden 'radius'
+            Object to query around. To set search radius use the 'radius'
             parameter.
         mission : str
             Mission table to search from
-        **kwargs : 
+        **kwargs :
             see :func:`_args_to_payload` for list of additional parameters that
             can be used to refine search query
         """
         request_payload = self._args_to_payload(
-            mission = mission,
-            entry   = object_name,
+            mission=mission,
+            entry=object_name,
             **kwargs
         )
 
@@ -128,10 +129,10 @@ class HeasarcClass(BaseQuery):
                            cache=True, get_query_payload=False,
                            **kwargs):
         """
-        Query around a specific set of coordinates within a given mission catalog.
-        This method first converts the supplied coordinates into the FK5 
+        Query around specific set of coordinates within a given mission
+        catalog. Method first converts the supplied coordinates into the FK5
         reference frame and searches for sources from there. Because of this,
-        the returned offset coordinates may look different than the ones supplied.
+        returned offset coordinates may look different than the ones supplied.
 
         Parameters
         ----------
@@ -143,10 +144,10 @@ class HeasarcClass(BaseQuery):
             (adapted from nrao module)
         mission : str
             Mission table to search from
-        radius : 
-            An astropy Quantity object, or a string that can be parsed into one.
+        radius :
+            Astropy Quantity object, or a string that can be parsed into one.
             e.g., '1 degree' or 1*u.degree.
-        **kwargs : 
+        **kwargs :
             see :func:`_args_to_payload` for list of additional parameters that
             can be used to refine search query
         """
@@ -157,9 +158,9 @@ class HeasarcClass(BaseQuery):
 
         # Generate the request
         request_payload = self._args_to_payload(
-            mission = mission,
-            entry   = "{},{}".format(c.ra.degree, c.dec.degree),
-            radius  = u.Quantity(radius),
+            mission=mission,
+            entry="{},{}".format(c.ra.degree, c.dec.degree),
+            radius=u.Quantity(radius),
             **kwargs
         )
 
@@ -222,27 +223,29 @@ class HeasarcClass(BaseQuery):
             Object or position for center of query. A blank value will return
             all entries in the mission table. Acceptable formats:
             * Object name : Name of object, e.g. 'Crab'
-            * Coordinates : X,Y coordinates, either as 'degrees,degrees' or 
+            * Coordinates : X,Y coordinates, either as 'degrees,degrees' or
               'hh mm ss,dd mm ss'
         fields : str, optional
             Return format for columns from the server available options:
             * Standard (default) : Return default table columns
             * All                : Return all table columns
-            * <custom>           : User defined csv list of columns to be returned
+            * <custom>           : User defined csv list of columns to be
+              returned
         radius : float (arcmin), optional
-            An astropy Quantity object, or a string that can be parsed into one.
+            Astropy Quantity object, or a string that can be parsed into one.
             e.g., '1 degree' or 1*u.degree.
         coordsys: str, optional
-            If 'entry' is a set of coordinates, this specifies the coordinate 
+            If 'entry' is a set of coordinates, this specifies the coordinate
             system used to interpret them. By default, equatorial coordinates
             are assumed. Possible values:
             * 'fk5' <default> (FK5 J2000 equatorial coordinates)
             * 'fk4'           (FK4 B1950 equatorial coordinates)
-            * 'equatorial'    (equatorial coordinates, `equinox` param determines epoch)
+            * 'equatorial'    (equatorial coordinates, `equinox` param
+              determines epoch)
             * 'galactic'      (Galactic coordinates)
         equinox : int, optional
-            Epoch by which to interpret supplied equatorial coordinates (defaults
-            to 2000, ignored if `coordsys` is not 'equatorial')
+            Epoch by which to interpret supplied equatorial coordinates
+            (defaults to 2000, ignored if `coordsys` is not 'equatorial')
         resultmax : int, optional
             Set maximum query results to be returned
         sortvar : str, optional
@@ -250,18 +253,18 @@ class HeasarcClass(BaseQuery):
             the results are sorted by distance from queried object/position
 
         displaymode : str, optional
-            Return format from server. Since the user does not interact with 
+            Return format from server. Since the user does not interact with
             this directly, it's best to leave this alone
         action : str, optional
             Type of action to be taken (defaults to 'Query')
         """
         # Define the basic query for this object
         request_payload = dict(
-            tablehead   = ('name=BATCHRETRIEVALCATALOG_2.0 {}'
-                          .format(kwargs.get('mission'))),
-            Entry       = kwargs.get('entry', 'none'),
-            Action      = kwargs.get('action', 'Query'),
-            displaymode = kwargs.get('displaymode','FitsDisplay')
+            tablehead=('name=BATCHRETRIEVALCATALOG_2.0 {}'
+                       .format(kwargs.get('mission'))),
+            Entry=kwargs.get('entry', 'none'),
+            Action=kwargs.get('action', 'Query'),
+            displaymode=kwargs.get('displaymode', 'FitsDisplay')
         )
 
         # Fill in optional information for refined queries
@@ -273,14 +276,14 @@ class HeasarcClass(BaseQuery):
 
         elif coordsys.lower() == 'fk4':
             request_payload['Coordinates'] = 'Equatorial: R.A. Dec'
-            request_payload['equinox']     = 1950
+            request_payload['equinox'] = 1950
 
         elif coordsys.lower() == 'equatorial':
             request_payload['Coordinates'] = 'Equatorial: R.A. Dec'
 
             equinox = kwargs.get('equinox', None)
             if equinox is not None:
-                request_payload['Equinox'] = str(equinox) 
+                request_payload['Equinox'] = str(equinox)
 
         elif coordsys.lower() == 'galactic':
             request_payload['Coordinates'] = 'Galactic: LII BII'
@@ -309,7 +312,7 @@ class HeasarcClass(BaseQuery):
         sortvar = kwargs.get('sortvar', None)
         if sortvar is not None:
             request_payload['sortvar'] = sortvar.lower()
-              
+
         return request_payload
 
 

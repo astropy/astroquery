@@ -5,6 +5,7 @@ from astropy.tests.helper import remote_data
 from ...heasarc import Heasarc
 from ...utils import commons
 
+
 @remote_data
 class TestHeasarc:
 
