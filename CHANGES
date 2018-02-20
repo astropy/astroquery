@@ -3,6 +3,9 @@
 
 - New tool: JPL Horizons service to obtain ephemerides, orbital elements, and
   state vectors for Solar System objects. [#1023]
+- ATOMIC: Fixed remote tests that were broken. [#1038]
+- vo_conesearch: URL for validated services have changed. Old URL should still
+  redirect but it is deprecated. [#1033]
 
 0.3.7 (2018-01-25)
 ------------------
