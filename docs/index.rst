@@ -276,6 +276,7 @@ above categories.
   vamdc/vamdc.rst
   hitran/hitran.rst
   utils/tap.rst
+  jplhorizons/jplhorizons.rst
 
 
 Developer documentation

@@ -2,6 +2,8 @@
 ------------------
 
 - heasarc: Add additional functionality and expand query capabilities [#1047]
+- New tool: JPL Horizons service to obtain ephemerides, orbital elements, and
+  state vectors for Solar System objects. [#1023]
 - ATOMIC: Fixed remote tests that were broken. [#1038]
 - vo_conesearch: URL for validated services have changed. Old URL should still
   redirect but it is deprecated. [#1033]
@@ -44,7 +46,6 @@
   line database. [#1006]
 - ESASKY: Added Windows support, various bugfixes. [#1001, #977]
 - GAMA: Updated to use the newer DR3 release. [#1005]
-
 
 0.3.6 (2017-07-03)
 ------------------
