@@ -276,7 +276,7 @@ above categories.
   vamdc/vamdc.rst
   hitran/hitran.rst
   utils/tap.rst
-  solarsystem/solarsystem.rst
+  jplhorizons/jplhorizons.rst
 
 
 Developer documentation
