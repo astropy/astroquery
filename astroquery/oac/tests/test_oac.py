@@ -39,7 +39,7 @@ def patch_get(request):
     return mp
 
 
-def get_mockreturn(method, url, data, timeout, file=None, **kwargs):
+def get_mockreturn(method="GET", url=None, data=None, timeout=60, file=None, **kwargs):
     content = open(data_path(DATA_FILES[file]), 'r').read()
     response = MockResponse(content, **kwargs)
     return response
@@ -64,27 +64,27 @@ def test_query_object_json(patch_get):
     assert isinstance(result, dict)
 
 
-def test_query_rgion_cone_csv(patch_get):
+def test_query_region_cone_csv(patch_get):
     result = OAC_CLASS.query_region(coordinates=test_coords,
                                     radius=test_radius)
     assert isinstance(result, Table)
 
 
-def test_query_rgion_cone_json(patch_get):
+def test_query_region_cone_json(patch_get):
     result = OAC_CLASS.query_region(coordinates=test_coords,
                                     radius=test_radius,
                                     data_format='json')
     assert isinstance(result, dict)
 
 
-def test_query_rgion_box_csv(patch_get):
+def test_query_region_box_csv(patch_get):
     result = OAC_CLASS.query_region(coordinates=test_coords,
                                     width=test_width,
                                     height=test_height)
     assert isinstance(result, Table)
 
 
-def test_query_rgion_box_json(patch_get):
+def test_query_region_box_json(patch_get):
     result = OAC_CLASS.query_region(coordinates=test_coords,
                                     width=test_width,
                                     height=test_height,
@@ -106,3 +106,14 @@ def test_get_single_spectrum(patch_get):
 def test_get_spectra(patch_get):
     result = OAC_CLASS.get_spectra("SN1998bw")
     assert isinstance(result, dict)
+
+if __name__ == '__main__':
+    test_query_object_csv()
+    test_query_object_json()
+    test_query_region_box_csv()
+    test_query_region_box_json()
+    test_query_region_cone_csv()
+    test_query_region_cone_json()
+    test_get_photometry()
+    test_get_single_spectrum()
+    test_get_spectra()
