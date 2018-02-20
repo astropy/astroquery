@@ -43,14 +43,14 @@ coordinates:
     >>> table = heasarc.query_position(coords, mission=mission)
     >>> table[:3].pprint()
 
-Note that the `query_position` converts the passed coordinates to FK5 internally
-before making submitting the query.
+Note that the `query_position` converts the passed coordinates to the FK5
+reference frame before submitting the query.
 
 Modifying returned table columns
 --------------------------------
 
 Each table has a set of default columns that are returned when querying the
-database. You can return all available columns for a given query by specifying
+database. You can return all available columns for a given mission by specifying
 the ``fields`` parameter in either of the above queries. For exampe:
 
 .. code-block:: python
@@ -78,7 +78,7 @@ Additional query parameters
 
 By default, the search for objects from a queried table returns all objects within
 approximately 60 arcmin of the object/position. This can be modified by supplying
-the ``radius`` parameter. This parameter takes a distance (in arcmin) to look For
+the ``radius`` parameter. This parameter takes a distance (in arcmin) to look for
 objects. The following extends the search radius to 120 arcmin:
 
 .. code-block:: python
@@ -107,8 +107,7 @@ Getting list of available missions
 ----------------------------------
 
 The ``query_mission_list()`` method will return a list of available missions 
-that can be queried in the. This includes a list of both the names and a short
-descriptions of each mission table.
+that can be queried.
 
 .. code-block:: python
     
@@ -116,6 +115,9 @@ descriptions of each mission table.
     >>> heasarc = Heasarc()
     >>> missions = heasarc.query_mission_list()
     >>> missions.pprint()
+
+The returned table includes both the names and a short description of each 
+mission table.
 
 Downloading identified datasets
 -------------------------------
