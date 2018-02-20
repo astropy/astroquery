@@ -1,6 +1,7 @@
 0.3.8 (unreleased)
 ------------------
 
+- heasarc: Add additional functionality and expand query capabilities [#1047]
 - ATOMIC: Fixed remote tests that were broken. [#1038]
 - vo_conesearch: URL for validated services have changed. Old URL should still
   redirect but it is deprecated. [#1033]
