@@ -63,8 +63,7 @@ class HeasarcClass(BaseQuery):
                            **kwargs):
         """
         Returns a list containing the names of columns that can be returned for
-        a given mission table. By default all column names are returned. A list
-        of the default columns can be obtained by setting `fields='Standard'`
+        a given mission table. By default all column names are returned.
 
         Parameters
         ----------
@@ -110,8 +109,8 @@ class HeasarcClass(BaseQuery):
         mission : str
             Mission table to search from
         **kwargs :
-            see :func:`_args_to_payload` for list of additional parameters that
-            can be used to refine search query
+            see `~astroquery.heasarc.HeasarcClass._args_to_payload` for list
+            of additional parameters that can be used to refine search query
         """
         request_payload = self._args_to_payload(
             mission=mission,
@@ -148,8 +147,8 @@ class HeasarcClass(BaseQuery):
             Astropy Quantity object, or a string that can be parsed into one.
             e.g., '1 degree' or 1*u.degree.
         **kwargs :
-            see :func:`_args_to_payload` for list of additional parameters that
-            can be used to refine search query
+            see `~astroquery.heasarc.HeasarcClass._args_to_payload` for list
+            of additional parameters that can be used to refine search query
         """
         # Convert the coordinates to FK5
         c = commons.parse_coordinates(position).transform_to(coordinates.FK5)
