@@ -149,7 +149,7 @@ class MastClass(QueryWithLogin):
         self.TIMEOUT = conf.timeout
         self.PAGESIZE = conf.pagesize
 
-        self._column_configs = {}
+        self._column_configs = dict()
         self._current_service = None
 
         if username or session_token:
@@ -388,7 +388,7 @@ class MastClass(QueryWithLogin):
 
         return allResponses
 
-    def _get_col_config(self, service):
+    def _get_col_config(self, service, fetch_name=None):
         """
         Gets the columnsConfig entry for given service and stores it in `self._column_configs`.
 
@@ -396,14 +396,20 @@ class MastClass(QueryWithLogin):
         ----------
         service : string
             The service for which the columns config will be fetched.
+        fetch_name : string, optional
+            If the columns config asociated with the service has a different name,
+            use this argument. The default sets it to the same as service.
         """
+
+        if not fetch_name:
+            fetch_name = service
 
         headers = {"User-Agent": self._session.headers["User-Agent"],
                    "Content-type": "application/x-www-form-urlencoded",
                    "Accept": "text/plain"}
 
         response = self._request("POST", self._COLUMNS_CONFIG_URL,
-                                 data=("colConfigId="+service), headers=headers)
+                                 data=("colConfigId="+fetch_name), headers=headers)
 
         self._column_configs[service] = response[0].json()
 
@@ -702,46 +708,16 @@ class MastClass(QueryWithLogin):
 
         return coordinates
 
-
-@async_to_sync
-class ObservationsClass(MastClass):
-    """
-    MAST Observations query class.
-
-    Class for querying MAST observational data.
-    """
-
-    def list_missions(self):
-        """
-        Lists data missions archived by MAST and avaiable through `astroquery.mast`.
-
-        Returns
-        --------
-        response : list
-            List of available missions.
-        """
-
-        # getting all the hitogram information
-        service = "Mast.Caom.All"
-        params = {}
-        response = Mast.service_request_async(service, params, format='extjs')
-        jsonResponse = response[0].json()
-
-        # getting the list of missions
-        histData = jsonResponse['data']['Tables'][0]['Columns']
-        for facet in histData:
-            if facet['text'] == "obs_collection":
-                missionInfo = facet['ExtendedProperties']['histObj']
-                missions = list(missionInfo.keys())
-                missions.remove('hist')
-                return missions
-
-    def _build_filter_set(self, **filters):
+    def _build_filter_set(self, column_config_name, service_name=None, **filters):
         """
         Takes user input dictionary of filters and returns a filterlist that the Mashup can understand.
 
         Parameters
         ----------
+        column_config_name : string
+            The service for which the columns config will be fetched.
+        service_name : string, optional
+            The service that will use the columns config, default is to be the same as column_config_name.
         **filters :
             Filters to apply. At least one filter must be supplied.
             Valid criteria are coordinates, objectname, radius (as in `query_region` and `query_object`),
@@ -756,10 +732,13 @@ class ObservationsClass(MastClass):
             The mashup json filter object.
         """
 
-        if not self._column_configs.get("Mast.Caom.Cone"):
-            self._get_col_config("Mast.Caom.Cone")
+        if not service_name:
+            service_name = column_config_name
 
-        caomColConfig = self._column_configs["Mast.Caom.Cone"]
+        if not self._column_configs.get(service_name):
+            self._get_col_config(service_name, fetch_name=column_config_name)
+
+        caomColConfig = self._column_configs[service_name]
 
         mashupFilters = []
         for colname, value in filters.items():
@@ -776,6 +755,8 @@ class ObservationsClass(MastClass):
 
             colType = "discrete"
             if colInfo.get("vot.datatype", colInfo.get("type")) in ("double", "float"):
+                colType = "continuous"
+            elif colInfo.get("treatNumeric"):
                 colType = "continuous"
 
             separator = colInfo.get("separator")
@@ -826,6 +807,40 @@ class ObservationsClass(MastClass):
             mashupFilters.append(entry)
 
         return mashupFilters
+
+
+@async_to_sync
+class ObservationsClass(MastClass):
+    """
+    MAST Observations query class.
+
+    Class for querying MAST observational data.
+    """
+
+    def list_missions(self):
+        """
+        Lists data missions archived by MAST and avaiable through `astroquery.mast`.
+
+        Returns
+        --------
+        response : list
+            List of available missions.
+        """
+
+        # getting all the hitogram information
+        service = "Mast.Caom.All"
+        params = {}
+        response = Mast.service_request_async(service, params, format='extjs')
+        jsonResponse = response[0].json()
+
+        # getting the list of missions
+        histData = jsonResponse['data']['Tables'][0]['Columns']
+        for facet in histData:
+            if facet['text'] == "obs_collection":
+                missionInfo = facet['ExtendedProperties']['histObj']
+                missions = list(missionInfo.keys())
+                missions.remove('hist')
+                return missions
 
     @class_or_instance
     def query_region_async(self, coordinates, radius=0.2*u.deg, pagesize=None, page=None):
@@ -944,8 +959,11 @@ class ObservationsClass(MastClass):
         # grabbing the observation type (science vs calibration)
         obstype = criteria.pop('obstype', 'science')
 
-        # Build the mashup filter object
-        mashupFilters = self._build_filter_set(**criteria)
+        # Build the mashup filter object and store it in the correct service_name entry
+        if coordinates or objectname:
+            mashupFilters = self._build_filter_set("Mast.Caom.Cone", "Mast.Caom.Filtered.Position", **criteria)
+        else:
+            mashupFilters = self._build_filter_set("Mast.Caom.Cone", "Mast.Caom.Filtered", **criteria)
 
         if not mashupFilters:
             raise InvalidQueryError("At least one non-positional criterion must be supplied.")
@@ -1094,8 +1112,11 @@ class ObservationsClass(MastClass):
         # grabbing the observation type (science vs calibration)
         obstype = criteria.pop('obstype', 'science')
 
-        # Build the mashup filter object
-        mashupFilters = self._build_filter_set(**criteria)
+        # Build the mashup filter object and store it in the correct service_name entry
+        if coordinates or objectname:
+            mashupFilters = self._build_filter_set("Mast.Caom.Cone", "Mast.Caom.Filtered.Position", **criteria)
+        else:
+            mashupFilters = self._build_filter_set("Mast.Caom.Cone", "Mast.Caom.Filtered", **criteria)
 
         # handle position info (if any)
         position = None
@@ -1422,7 +1443,8 @@ class CatalogsClass(MastClass):
     def query_region_async(self, coordinates, radius=0.2*u.deg, catalog="Hsc",
                            pagesize=None, page=None, **kwargs):
         """
-        Given a sky position and radius, returns a `~astropy.table.Table` of catalog entries.
+        Given a sky position and radius, returns a list of catalog entries.
+        See column documentation for specific catalogs `here <https://mast.stsci.edu/api/v0/pages.htmll>`__.
 
         Parameters
         ----------
@@ -1447,7 +1469,8 @@ class CatalogsClass(MastClass):
             obtain a specific page of results.
         **kwargs
             Catalog-specific keyword args.
-            TODO: Add actual explanation of options.
+            These can be found in the (service documentation)[https://mast.stsci.edu/api/v0/_services.html]
+            for specific catalogs. For example one can specify the magtype for an HSC search.
 
         Returns
         -------
@@ -1496,8 +1519,8 @@ class CatalogsClass(MastClass):
     def query_object_async(self, objectname, radius=0.2*u.deg, catalog="Hsc",
                            pagesize=None, page=None, **kwargs):
         """
-        Given an object name, returns a list of MAST observations.
-        See column documentation `here <https://mast.stsci.edu/api/v0/_c_a_o_mfields.html>`__.
+        Given an object name, returns a list of catalog entries.
+        See column documentation for specific catalogs `here <https://mast.stsci.edu/api/v0/pages.html>`__.
 
         Parameters
         ----------
@@ -1508,6 +1531,9 @@ class CatalogsClass(MastClass):
             The string must be parsable by `astropy.coordinates.Angle`.
             The appropriate `~astropy.units.Quantity` object from
             `astropy.units` may also be used. Defaults to 0.2 deg.
+        catalog : str, optional
+            Default HSC.
+            The catalog to be queried.
         pagesize : int, optional
             Default None.
             Can be used to override the default pagesize for (set in configs) this query only.
@@ -1516,7 +1542,10 @@ class CatalogsClass(MastClass):
             Defaulte None.
             Can be used to override the default behavior of all results being returned
             to obtain a specific page of results.
-        TODO: changs documentation to be about catalogs
+        **kwargs
+            Catalog-specific keyword args.
+            These can be found in the `service documentation <https://mast.stsci.edu/api/v0/_services.html>`__.
+            for specific catalogs. For example one can specify the magtype for an HSC search.
 
         Returns
         -------
@@ -1528,15 +1557,114 @@ class CatalogsClass(MastClass):
         return self.query_region_async(coordinates, radius, catalog, pagesize, page, **kwargs)
 
     @class_or_instance
+    def query_criteria_async(self, catalog, pagesize=None, page=None, **criteria):
+        """
+        Given an set of filters, returns a list of catalog entries.
+        See column documentation for specific catalogs `here <https://mast.stsci.edu/api/v0/pages.htmll>`__.
+
+        Parameters
+        ----------
+        pagesize : int, optional
+            Can be used to override the default pagesize.
+            E.g. when using a slow internet connection.
+        page : int, optional
+            Can be used to override the default behavior of all results being returned to obtain
+            one sepcific page of results.
+        **criteria
+            Criteria to apply. At least one non-positional criteria must be supplied.
+            Valid criteria are coordinates, objectname, radius (as in `query_region` and `query_object`),
+            and all observation fields listed `here <https://mast.stsci.edu/api/v0/_c_a_o_mfields.html>`__.
+            The Column Name is the keyword, with the argument being one or more acceptable values for that parameter,
+            except for fields with a float datatype where the argument should be in the form [minVal, maxVal].
+            For non-float type criteria wildcards maybe used (both * and % are considered wildcards), however
+            only one wildcarded value can be processed per criterion.
+            RA and Dec must be given in decimal degrees, and datetimes in MJD.
+            For example: filters=["FUV","NUV"],proposal_pi="Ost*",t_max=[52264.4586,54452.8914]
+
+
+        Returns
+        -------
+        response : list(`requests.Response`)
+        """
+
+        # Seperating any position info from the rest of the filters
+        coordinates = criteria.pop('coordinates', None)
+        objectname = criteria.pop('objectname', None)
+        radius = criteria.pop('radius', 0.2*u.deg)
+
+        # Build the mashup filter object
+        if catalog == "Tic":
+            service = "Mast.Catalogs.Filtered.Tic"
+            if coordinates or objectname:
+                service += ".Position"
+            mashupFilters = self._build_filter_set("Mast.Catalogs.Tess.Cone", service, **criteria)
+
+        elif catalog == "DiskDetective":
+            service = "Mast.Catalogs.Filtered.DiskDetective"
+            if coordinates or objectname:
+                service += ".Position"
+            mashupFilters = self._build_filter_set("Mast.Catalogs.Dd.Cone", service, **criteria)
+
+        else:
+            raise InvalidQueryError("Criteria query not availible for {}".format(catalog))
+
+        if not mashupFilters:
+            raise InvalidQueryError("At least one non-positional criterion must be supplied.")
+
+        if objectname and coordinates:
+            raise InvalidQueryError("Only one of objectname and coordinates may be specified.")
+
+        if objectname:
+            coordinates = self._resolve_object(objectname)
+
+        if coordinates:
+            # Put coordinates and radius into consitant format
+            coordinates = commons.parse_coordinates(coordinates)
+
+            # if radius is just a number we assume degrees
+            if isinstance(radius, (int, float)):
+                radius = radius * u.deg
+            radius = coord.Angle(radius)
+
+        # build query
+        if coordinates:
+            params = {"filters": mashupFilters,
+                      "ra": coordinates.ra.deg,
+                      "dec": coordinates.dec.deg,
+                      "radius": radius.deg}
+        else:
+            params = {"filters": mashupFilters}
+
+        # TIC needs columns specified
+        if catalog == "Tic":
+            params["columns"] = "c.*"
+
+        return self.service_request_async(service, params)
+
+    @class_or_instance
     def query_hsc_matchid_async(self, match, pagesize=None, page=None):
         """
-        TODO: Document
+        Returns all the matches for a given Hubble Source Catalog MatchID.
 
-        Note: Do I need to check for someone passing in a table? (currently it throws a json serializer error....
+        Parameters
+        ----------
+        match : int or `~astropy.table.Row`
+            The matchID or HSC entry to return matches for.
+        pagesize : int, optional
+            Can be used to override the default pagesize.
+            E.g. when using a slow internet connection.
+        page : int, optional
+            Can be used to override the default behavior of all results being returned to obtain
+            one sepcific page of results.
+
+        Response
+        --------
+        response : list(`requests.Response`)
         """
 
         if isinstance(match, Row):
-            match = str(match["MatchID"])  # 'int64' is not JSON serializable, so make str
+            match = match["MatchID"]
+        match = str(match)  # np.int64 gives json serializer problems, so strigify right here
 
         service = "Mast.HscMatches.Db"
         params = {"input": match}
@@ -1546,7 +1674,20 @@ class CatalogsClass(MastClass):
     @class_or_instance
     def get_hsc_spectra_async(self, pagesize=None, page=None):
         """
-        TODO: Document
+        Returns all Hubble Source Catalog spectra.
+
+        Parameters
+        ----------
+        pagesize : int, optional
+            Can be used to override the default pagesize.
+            E.g. when using a slow internet connection.
+        page : int, optional
+            Can be used to override the default behavior of all results being returned to obtain
+            one sepcific page of results.
+
+        Response
+        --------
+        response : list(`requests.Response`)
         """
 
         service = "Mast.HscSpectra.Db.All"
@@ -1556,7 +1697,26 @@ class CatalogsClass(MastClass):
 
     def download_hsc_spectra(self, spectra, download_dir=None, cache=True, curl_flag=False):
         """
-        TODO: Document
+        Download one or more Hubble Source Catalog spectra.
+
+        Parameters
+        ----------
+        specrtra : `~astropy.table.Table` or `astropy.table.Row`
+            One or more HSC spectra to be downloaded.
+        download_dir : str, optional
+           Specify the base directory to download spectra into.
+           Spectra will be saved in the subdirectory download_dir/mastDownload/HSC.
+           If download_dir is not specified the base directory will be '.'.
+        cache : bool, optional
+            Default is True. If file is found on disc it will not be downloaded again.
+            Note: has no affect when downloading curl script.
+        curl_flag : bool, optional
+            Default is False.  If true instead of downloading files directly, a curl script
+            will be downloaded that can be used to download the data files at a later time.
+
+        Response
+        --------
+        response : list(`requests.Response`)
         """
 
         # if spectra is not a Table, put it in a list
@@ -1665,7 +1825,7 @@ class CatalogsClass(MastClass):
 
         return manifest
 
-    
+
 Observations = ObservationsClass()
 Catalogs = CatalogsClass()
 Mast = MastClass()
