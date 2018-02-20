@@ -530,7 +530,12 @@ class OACClass(BaseQuery):
         >>> ['5976.1440', '1.17293e-14']
 
         Note that the query must return a JSON-compliant dictionary which will
-        have nested lists of [MJD, [wavelength,flux]].
+        have nested lists of MJD and [wavelength, flux] pairs.
+
+        The basic dictionary structure is:
+        {"event_name" : {"spectra" : [mjd_0, [[wavelength_0, flux_0], ... ,
+        [wavelength_n, flux_n]]], ... , [mjd_m, [[wavelength_0, flux_0], ... ,
+        [wavelength_n, flux_n]]]}}
 
         """
         response = self.query_object_async(event=event,
