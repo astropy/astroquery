@@ -99,7 +99,8 @@ class HeasarcClass(BaseQuery):
     def query_object_async(self, object_name, mission,
                            cache=True, get_query_payload=False,
                            **kwargs):
-        """ Query around a specific object within a given mission catalog
+        """
+        Query around a specific object within a given mission catalog
 
         Parameters
         ----------
