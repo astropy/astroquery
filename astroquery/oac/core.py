@@ -1,4 +1,5 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst.
+
 """
 OPEN ASTRONOMY CATALOG (OAC) API TOOL
 -------------------------
@@ -282,7 +283,7 @@ class OACClass(BaseQuery):
 
         return response
 
-    def get_photometry_async(self, event, argument=None):
+    def get_photometry_async(self, event, argument=None, cache=True):
         """Retrieve all photometry for specified event(s).
 
         This is a version of the query_object method
@@ -323,12 +324,13 @@ class OACClass(BaseQuery):
                                            attribute=['time', 'magnitude',
                                                       'e_magnitude', 'band',
                                                       'instrument'],
-                                           argument=argument
+                                           argument=argument,
+                                           cache=cache
                                            )
 
         return response
 
-    def get_single_spectrum_async(self, event, time):
+    def get_single_spectrum_async(self, event, time, cache=True):
         """Retrieve a single spectrum at a specified time for given event.
 
         This is a version of the query_object method
@@ -360,13 +362,14 @@ class OACClass(BaseQuery):
         response = self.query_object_async(event=event,
                                            quantity='spectra',
                                            attribute=['data'],
-                                           argument=[query_time, 'closest']
+                                           argument=[query_time, 'closest'],
+                                           cache=cache
                                            )
 
         return response
 
-    def get_spectra_async(self, event):
-        """ Retrieve all spectra for a specified event.
+    def get_spectra_async(self, event, cache=True):
+        """Retrieve all spectra for a specified event.
 
         This is a version of the query_object method
         that is set up to quickly return a single spectrum
@@ -391,13 +394,12 @@ class OACClass(BaseQuery):
             All async methods should return the raw HTTP response.
 
         """
-
         response = self.query_object_async(event=event,
                                            quantity='spectra',
                                            attribute=['time', 'data'],
-                                           data_format='json'
+                                           data_format='json',
+                                           cache=cache
                                            )
-
         return response
 
     def _args_to_payload(self, event, quantity,
