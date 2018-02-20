@@ -33,12 +33,18 @@ def _validate_params(func):
         telescope_config = kwargs.get('telescope_config', 'all')
         obs_band = kwargs.get('obs_band', 'all')
         sub_array = kwargs.get('sub_array', 'all')
-        if telescope not in Nrao.telescope_code:
-            raise ValueError("'telescope must be one of {!s}"
-                             .format(Nrao.telescope_code.keys()))
-        if telescope_config.upper() not in Nrao.telescope_config:
-            raise ValueError("'telescope_config' must be one of {!s}"
-                             .format(Nrao.telescope_config))
+        if not isinstance(telescope, (list, tuple)):
+            telescope = [telescope]
+        for tel in telescope:
+            if tel not in Nrao.telescope_code:
+                raise ValueError("'telescope must be one of {!s}"
+                                 .format(Nrao.telescope_code.keys()))
+        if not isinstance(telescope_config, (list, tuple)):
+            telescope_config = [telescope_config]
+        for tconf in telescope_config:
+            if tconf.upper() not in Nrao.telescope_config:
+                raise ValueError("'telescope_config' must be one of {!s}"
+                                 .format(Nrao.telescope_config))
         if isinstance(obs_band, (list, tuple)):
             for ob in obs_band:
                 if ob not in Nrao.obs_bands:
@@ -177,6 +183,18 @@ class NraoClass(QueryWithLogin):
         elif isinstance(obs_bands, (list, tuple)):
             obs_bands = [x.upper() for x in obs_bands]
 
+        telescope_config = kwargs.get('telescope_config', 'all')
+        if isinstance(telescope_config, six.string_types):
+            telescope_config = telescope_config.upper()
+        elif isinstance(telescope_config, (list, tuple)):
+            telescope_config = [x.upper() for x in telescope_config]
+
+        telescope_ = kwargs.get('telescope', 'all')
+        if isinstance(telescope_, six.string_types):
+            telescope = Nrao.telescope_code[telescope_]
+        elif isinstance(telescope, (list, tuple)):
+            telescope = [Nrao.telescope_code[telescope_] for x in telescope_]
+
         request_payload = dict(
             QUERYTYPE=kwargs.get('querytype', "OBSSUMMARY"),
             PROTOCOL=kwargs.get('protocol', "VOTable-XML"),
@@ -191,7 +209,7 @@ class NraoClass(QueryWithLogin):
             SITE_CODE="AOC",
             DBHOST="CHEWBACCA",
             WRITELOG=0,
-            TELESCOPE=Nrao.telescope_code[kwargs.get('telescope', 'all')],
+            TELESCOPE=telescope,
             PROJECT_CODE=kwargs.get('project_code', ''),
             SEGMENT="",
             MIN_EXPOSURE='',
@@ -204,7 +222,7 @@ class NraoClass(QueryWithLogin):
             CENTER_DEC='',
             SRAD=str(
                 coordinates.Angle(kwargs.get('radius', "1.0m")).deg) + 'd',
-            TELESCOPE_CONFIG=kwargs.get('telescope_config', 'all').upper(),
+            TELESCOPE_CONFIG=telescope_config,
             OBS_BANDS=obs_bands,
             SUBARRAY=kwargs.get('subarray', 'all').upper(),
             SOURCE_ID=kwargs.get('source_id', ''),

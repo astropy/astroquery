@@ -138,7 +138,7 @@ class MastClass(QueryWithLogin):
         super(MastClass, self).__init__()
 
         self._MAST_REQUEST_URL = conf.server + "/api/v0/invoke"
-        self._MAST_DOWNLOAD_URL = conf.server + "/api/v0/download/file/"
+        self._MAST_DOWNLOAD_URL = conf.server + "/api/v0/download/file"
         self._COLUMNS_CONFIG_URL = conf.server + "/portal/Mashup/Mashup.asmx/columnsconfig"
 
         # shibbolith urls
@@ -443,7 +443,12 @@ class MastClass(QueryWithLogin):
             resTable = _mashup_json_to_table(result, colConfig)
             resultList.append(resTable)
 
-        return vstack(resultList)
+        allResults = vstack(resultList)
+
+        # Check for no results
+        if not allResults:
+            warnings.warn("Query returned no results.", NoResultsWarning)
+        return allResults
 
     def _login(self, username=None, password=None, session_token=None,
                store_password=False, reenter_password=False):  # pragma: no cover
@@ -1287,16 +1292,7 @@ class ObservationsClass(MastClass):
         for dataProduct in products:
 
             localPath = base_dir + "/" + dataProduct['obs_collection'] + "/" + dataProduct['obs_id']
-
-            dataUrl = dataProduct['dataURI']
-            if "http" not in dataUrl:  # url is actually a uri
-                dataUrl = self._MAST_DOWNLOAD_URL + dataUrl.lstrip("mast:")
-
-                # HACK: user identity info not passed properly to downloader
-                # using /api/v0 url, so if user is logged in go through portal url
-                # (will be fixed server side in next, this is a temporary workaround)
-                if self.session_info(True)["Username"] != "anonymous":
-                    dataUrl = dataUrl.replace("api/v0", "portal")
+            dataUrl = self._MAST_DOWNLOAD_URL + "?uri=" + dataProduct['dataURI']
 
             if not os.path.exists(localPath):
                 os.makedirs(localPath)

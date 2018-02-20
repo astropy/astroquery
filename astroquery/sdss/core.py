@@ -84,10 +84,10 @@ class SDSSClass(BaseQuery):
         timeout : float, optional
             Time limit (in seconds) for establishing successful connection with
             remote server.  Defaults to `SDSSClass.TIMEOUT`.
-        photoobj_fields : float, optional
+        photoobj_fields : list, optional
             PhotoObj quantities to return. If photoobj_fields is None and
             specobj_fields is None then the value of fields is used
-        specobj_fields : float, optional
+        specobj_fields : list, optional
             SpecObj quantities to return. If photoobj_fields is None and
             specobj_fields is None then the value of fields is used
         obj_names : str, or list or `~astropy.table.Column`, optional
@@ -207,10 +207,10 @@ class SDSSClass(BaseQuery):
         timeout : float, optional
             Time limit (in seconds) for establishing successful connection with
             remote server.  Defaults to `SDSSClass.TIMEOUT`.
-        photoobj_fields : float, optional
+        photoobj_fields : list, optional
             PhotoObj quantities to return. If photoobj_fields is None and
             specobj_fields is None then the value of fields is used
-        specobj_fields : float, optional
+        specobj_fields : list, optional
             SpecObj quantities to return. If photoobj_fields is None and
             specobj_fields is None then the value of fields is used
         field_help: str or bool, optional
@@ -910,10 +910,10 @@ class SDSSClass(BaseQuery):
             Output of one camera column of CCDs.
         field : integer, optional
             Part of a camcol of size 2048 by 1489 pixels.
-        photoobj_fields: float, optional
+        photoobj_fields: list, optional
             PhotoObj quantities to return. If photoobj_fields is None and
             specobj_fields is None then the value of fields is used
-        specobj_fields: float, optional
+        specobj_fields: list, optional
             SpecObj quantities to return. If photoobj_fields is None and
             specobj_fields is None then the value of fields is used
         field_help: str or bool, optional

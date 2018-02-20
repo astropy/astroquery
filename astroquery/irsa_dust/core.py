@@ -212,6 +212,10 @@ class IrsaDustClass(BaseQuery):
         # guess=False to suppress error messages related to bad guesses
         table = Table.read(readable_obj.get_string(), format='ipac',
                            guess=False)
+        # Fix up units: 'micron' and 'mag', not 'microns' and 'mags'
+        for column in table.columns.values():
+            if str(column.unit) in {'microns', 'mags'}:
+                column.unit = str(column.unit)[:-1]
         return table
 
     def get_extinction_table_async(self, coordinate, radius=None,

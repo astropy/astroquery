@@ -1,6 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import imp
 import os
+import astropy.units as u
 import pytest
 import requests
 
@@ -131,11 +132,15 @@ class TestDust(DustTestCase):
         table = irsa_dust.core.IrsaDust.get_extinction_table("m51")
         expected_table = Table.read(self.data(M51_EXT_TBL), format='ipac')
         assert table.meta == expected_table.meta
+        assert table['LamEff'].unit == u.micron
+        assert table['A_SandF'].unit == table['A_SFD'].unit == u.mag
 
     def test_get_extinction_table_instance(self):
         table = irsa_dust.core.IrsaDust().get_extinction_table("m51")
         expected_table = Table.read(self.data(M51_EXT_TBL), format='ipac')
         assert table.meta == expected_table.meta
+        assert table['LamEff'].unit == u.micron
+        assert table['A_SandF'].unit == table['A_SFD'].unit == u.mag
 
     @pytest.mark.parametrize(('image_type', 'expected_tails'),
                              [(None, M31_URL_ALL),
