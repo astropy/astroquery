@@ -87,7 +87,7 @@ following modifies the search radius to 120 arcmin:
 
     >>> from astroquery.heasarc import Heasarc
     >>> heasarc = Heasarc()
-    >>> table = heasarc.query_object(object_name='3c273', mission='rospublic', radius='120 arcmin')
+    >>> table = heasarc.query_object(object_name, mission='rospublic', radius='120 arcmin')
 
 ``radius`` takes an angular distance specified as an astropy Quantity object, 
 or a string that can be parsed into one (e.g., '1 degree' or 1*u.degree). The
@@ -95,28 +95,28 @@ following are equivalent:
 
 .. code-block:: python
 
-    >>> table = heasarc.query_object(object_name='3c273', mission='rospublic', radius='120 arcmin')
-    >>> table = heasarc.query_object(object_name='3c273', mission='rospublic', radius='2 degree')
+    >>> table = heasarc.query_object(object_name, mission='rospublic', radius='120 arcmin')
+    >>> table = heasarc.query_object(object_name, mission='rospublic', radius='2 degree')
     >>> from astropy import units as u
-    >>> table = heasarc.query_object(object_name='3c273', mission='rospublic', radius=120*u.arcmin)
-    >>> table = heasarc.query_object(object_name='3c273', mission='rospublic', radius=2*u.degree)
+    >>> table = heasarc.query_object(object_name, mission='rospublic', radius=120*u.arcmin)
+    >>> table = heasarc.query_object(object_name, mission='rospublic', radius=2*u.degree)
 
 As per the astroquery specifications, the ``query_region()`` method requires the 
-user to supply a radius parameter.
+user to supply the radius parameter.
 
 The results can also be sorted by the value in a given column using the ``sortvar``
 parameter. The following sorts the results by the value in the 'EXPOSURE' column.
 
 .. code-block:: python
 
-    >>> table = heasarc.query_object(object_name='3c273', mission='rospublic', sortvar='EXPOSURE')
+    >>> table = heasarc.query_object(object_name, mission='rospublic', sortvar='EXPOSURE')
 
 Setting the ``resultmax`` parameter controls the maximum number of results to be
 returned. The following will store only the first 10 results:
 
 .. code-block:: python
 
-    >>> table = heasarc.query_object(object_name='3c273', mission='rospublic', resultmax=10)
+    >>> table = heasarc.query_object(object_name, mission='rospublic', resultmax=10)
 
 All of the above parameters can be mixed and matched to refine the query results.
 
@@ -130,8 +130,8 @@ that can be queried.
     
     >>> from astroquery.heasarc import Heasarc
     >>> heasarc = Heasarc()
-    >>> missions = heasarc.query_mission_list()
-    >>> missions.pprint()
+    >>> table = heasarc.query_mission_list()
+    >>> table.pprint()
 
 The returned table includes both the names and a short description of each 
 mission table.
