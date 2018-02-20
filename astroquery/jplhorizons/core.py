@@ -69,7 +69,7 @@ class HorizonsClass(BaseQuery):
             ...                      'stop':'2017-02-01',
             ...                      'step':'1d'})
             >>> print(eros)
-            JPLHorizons instance "433"; location=568, epochs={'start': '2017-01-01', 'stop': '2017-02-01', 'step': '1d'}, id_type=smallbody
+            JPLHorizons instance "433"; location=568, epochs={'start': '2017-01-01', 'step': '1d', 'stop': '2017-02-01'}, id_type=smallbody
         """
         super(HorizonsClass, self).__init__()
         self.id = id
@@ -115,7 +115,7 @@ class HorizonsClass(BaseQuery):
             ...                         'stop':'2017-02-01',
             ...                         'step':'1d'})
             >>> print(eros)
-            JPLHorizons instance "433"; location=568, epochs={'start': '2017-01-01', 'stop': '2017-02-01', 'step': '1d'}, id_type=smallbody
+            JPLHorizons instance "433"; location=568, epochs={'start': '2017-01-01', 'step': '1d', 'stop': '2017-02-01'}, id_type=smallbody
         """
         return ('JPLHorizons instance \"{:s}\"; location={:s}, '
                 'epochs={:s}, id_type={:s}').format(
