@@ -3,7 +3,7 @@ from __future__ import print_function
 
 from astropy.tests.helper import remote_data
 from ...heasarc import Heasarc
-
+from ...utils import commons
 
 @remote_data
 class TestHeasarc:
@@ -14,5 +14,23 @@ class TestHeasarc:
 
         heasarc = Heasarc()
         table = heasarc.query_object(object_name, mission=mission)
+
+        assert len(table) == 63
+
+    def test_mission_list(self):
+        heasarc = Heasarc()
+        missions = heasarc.query_mission_list()
+
+        # Assert that there are indeed a large number of tables
+        # Number of tables could change, but should be > 900 (currently 956)
+        assert len(missions) > 900
+
+    def test_query_position(self):
+        heasarc = Heasarc()
+        mission = 'rospublic'
+
+        # Define coordinates for '3c273' object
+        c = commons.coord.SkyCoord('12h29m06.70s +02d03m08.7s', frame='icrs')
+        table = heasarc.query_position(position=c, mission=mission)
 
         assert len(table) == 63
