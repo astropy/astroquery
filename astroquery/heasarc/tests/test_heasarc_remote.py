@@ -4,6 +4,7 @@ from __future__ import print_function
 from astropy.tests.helper import remote_data
 from ...heasarc import Heasarc
 from ...utils import commons
+import requests
 
 
 @remote_data
@@ -38,6 +39,24 @@ class TestHeasarc:
         assert 'RA' in cols
         assert 'DEC' in cols
         assert 'SEARCH_OFFSET_' in cols
+
+    def test_query_object_async(self):
+        mission = 'rospublic'
+        object_name = '3c273'
+
+        heasarc = Heasarc()
+        response = heasarc.query_object_async(object_name, mission=mission)
+        assert response is not None
+        assert type(response) is requests.models.Response
+
+    def test_query_region_async(self):
+        heasarc = Heasarc()
+        mission = 'rospublic'
+        c = commons.coord.SkyCoord('12h29m06.70s +02d03m08.7s', frame='icrs')
+        response = heasarc.query_region_async(c, mission=mission,
+                                              radius='1 degree')
+        assert response is not None
+        assert type(response) is requests.models.Response
 
     def test_query_region(self):
         heasarc = Heasarc()
