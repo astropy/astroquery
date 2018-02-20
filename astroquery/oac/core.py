@@ -1,5 +1,4 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst.
-
 """
 OPEN ASTRONOMY CATALOG (OAC) API TOOL
 -------------------------
@@ -9,7 +8,6 @@ see: api.astrocats.space.
 :authors: Philip S. Cowperthwaite (pcowpert@cfa.harvard.edu)
 and James Guillochon (jguillochon@cfa.harvard.edu)
 """
-
 from __future__ import print_function
 
 import json
@@ -58,13 +56,11 @@ class OACClass(BaseQuery):
             Name of the event to query. Can be a list
             of event names.
         quantity : str or list, optional
-            Name of quantity to retrieve. Can be a
-            a list of quantities. If no quantity is specified,
-            then photometry is returned by default.
+            Name of quantity to retrieve. Can be
+            a list of quantities. The default is None.
         attribute : str or list, optional
             Name of specific attributes to retrieve. Can be a list
-            of attributes. If no attributes are specified,
-            then a time vs. magnitude light curve is returned.
+            of attributes. The default is None.
         argument : str or list, optional
             These are special conditional arguments that can be applied
             to a query to refine.
@@ -73,15 +69,13 @@ class OACClass(BaseQuery):
             a table sorted by the given attribute, and 'complete' returns
             only those table rows with all of the requested attributes.
             A complete list of commands and their usage can be found at:
-            https://github.com/astrocatalogs/OACAPI
+            https://github.com/astrocatalogs/OACAPI. The default is None.
         data_format: str, optional
             Specify the format for the returned data. The default is
             `CSV` for easy conversion to Astropy Tables. The user can
-            also specify `JSON` which will return the raw JSON output
-            from the API.
-            Note 1: Not all queries can support CSV output.
-            Note 2: Setting the format to JSON will return the JSON
-            dictionary instead of an Astropy Table.
+            also specify `JSON` which will return a JSON-compliant
+            dictionary.
+            Note: Not all queries can support CSV output.
         get_query_payload : bool, optional
             When set to `True` the method returns the HTTP request
             parameters as a dict. The actual HTTP request is not made.
@@ -108,7 +102,7 @@ class OACClass(BaseQuery):
              'photolink']
 
         Specific data can be requested using quantity and attribute
-        entries:
+        entries. For example, to request a light curve for an event:
 
         >>> photometry = OAC.query_object("GW170817", quantity="photometry",
                                           attribute=["time", "magnitude",
@@ -172,8 +166,8 @@ class OACClass(BaseQuery):
         The search can be either a cone search (using the radius
         parameter) or a box search (using the width/height parameters).
 
-        IMPORTANT: The API can only query a single set of coordinates at a
-        time.
+        IMPORTANT: The API can only query a single set of coordinates
+        at a time.
 
         The complete list of available quantities and attributes
         can be found at https://github.com/astrocatalogs/schema.
@@ -188,25 +182,21 @@ class OACClass(BaseQuery):
         radius : str, float or `astropy.units.Quantity`, optional
             The radius, in arcseconds, of the cone search centered
             on coordinates. Should be a single, float-convertable value
-            or an astropy quantity. The default value is 10 arcsecons.
+            or an astropy quantity. The default value is None.
         width : str, float or `astropy.units.Quantity`, optional
             The width, in arcseconds, of the box search centered
             on coordinates. Should be a single, float-convertable value
-            or an astropy quantity. The default value is None (e.g.,
-            a cone search is performed by default).
+            or an astropy quantity. The default value is None.
         height : str, float or `astropy.units.Quantity`, optional
             The height, in arcseconds, of the box search centered
             on coordinates. Should be a single, float-convertable value
-            or an astropy quantity. The default value is None (e.g.,
-            a cone search is performed by default).
+            or an astropy quantity. The default value is None.
         quantity: str or list, optional
             Name of quantity to retrieve. Can be a
-            a list of quantities. If no quantity is specified,
-            then photometry is returned by default.
+            a list of quantities. The default is None.
         attribute: str or list, optional
             Name of specific attributes to retrieve. Can be a list
-            of attributes. If no attributes are specified,
-            then a time vs. magnitude light curve is returned.
+            of attributes. The default is None.
         argument : str or list, optional
             These are special conditional arguments that can be applied
             to a query to refine.
@@ -215,7 +205,7 @@ class OACClass(BaseQuery):
             a table sorted by the given attribute, and 'complete' returns
             only those table rows with all of the requested attributes.
             A complete list of commands and their usage can be found at:
-            https://github.com/astrocatalogs/OACAPI
+            https://github.com/astrocatalogs/OACAPI. The default is None.
         get_query_payload : bool, optional
             When set to `True` the method returns the HTTP request
             parameters as a dict. The actual HTTP request is not made.
@@ -311,8 +301,8 @@ class OACClass(BaseQuery):
             raise ValueError("Please enter a radius or width/height pair.")
 
         if (radius and (height or width)):
-            raise ValueError(
-                "Please specify ONLY a radius or height/width pair.")
+            raise ValueError("Please specify ONLY a radius or "
+                             "height/width pair.")
 
         if ((not radius) and ((not height) or (not width))):
             raise ValueError("Please enter both a width and height "
@@ -392,7 +382,7 @@ class OACClass(BaseQuery):
             a table sorted by the given attribute, and 'complete' returns
             only those table rows with all of the requested attributes.
             A complete list of commands and their usage can be found at:
-            https://github.com/astrocatalogs/OACAPI
+            https://github.com/astrocatalogs/OACAPI. The default is None.
 
         Returns
         -------
@@ -504,9 +494,8 @@ class OACClass(BaseQuery):
         """Retrieve all spectra for a specified event.
 
         This is a version of the query_object method
-        that is set up to quickly return a single spectrum
-        at a user-specified time. The time does not have to be
-        precise as the method uses the closest option by default.
+        that is set up to quickly return all available spectra
+        for a single event.
 
         The spectra must be returned as a JSON-compliant dictionary.
         Multiple spectra can not be unwrapped into a csv/Table.
@@ -542,7 +531,7 @@ class OACClass(BaseQuery):
 
         Note that the query must return a JSON-compliant dictionary which will
         have nested lists of [MJD, [wavelength,flux]].
-        
+
         """
         response = self.query_object_async(event=event,
                                            quantity='spectra',
