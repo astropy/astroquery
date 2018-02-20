@@ -9,6 +9,7 @@
 - MAST: bugfix, removing filesize checking due to unreliable filesize reporting in the database [#1050]
 - MAST: Added Catalogs class.
 
+
 0.3.7 (2018-01-25)
 ------------------
 
