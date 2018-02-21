@@ -4,10 +4,7 @@ from __future__ import print_function
 import pytest
 
 import os
-import requests
-import json
 
-from numpy import testing as npt
 from astropy.table import Table
 import astropy.coordinates as coord
 import astropy.units as u
@@ -15,7 +12,6 @@ import astropy.units as u
 from ...utils.testing_tools import MockResponse
 
 from .. import OAC
-from ...oac import conf
 
 DATA_FILES = {'phot_csv': 'photometry_csv.txt',
               'phot_json': 'photometry_json.txt',
