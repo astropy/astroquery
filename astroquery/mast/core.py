@@ -104,6 +104,7 @@ def _mashup_json_to_table(json_obj, col_config=None):
         if atype == "boolean":
             atype = "bool"
         if atype == "int":  # int arrays do not admit Non/nan vals
+            atype = np.int64
             ignoreValue = -999 if (ignoreValue is None) else ignoreValue
 
         # Make the column list (don't assign final type yet or there will be errors)
