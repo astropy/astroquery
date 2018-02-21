@@ -24,6 +24,7 @@ The default behavior returns a top-level list of all available metadata for the
 queries event(s).
 
 .. code-block:: python
+
     >>> from astroquery.oac import OAC
     >>> metadata = OAC.query_object("GW170817")
     >>> print(metadata.keys())
@@ -38,6 +39,7 @@ The query can be further refined by using the available `QUANTIY` and `ATTRIBUTE
 options. For example, to retrieve the light curve for an object:
 
 .. code-block:: python
+
     >>> photometry = OAC.query_object("GW170817", quantity="photometry",
                                       attribute=["time", "magnitude",
                                                  "e_magnitude", "band",
@@ -54,6 +56,7 @@ options. For example, to retrieve the light curve for an object:
 The results of a query can be further refined by using the `ARGUMENT` option
 
 .. code-block:: python
+
     >>> photometry = OAC.query_object("GW170817", quantity="photometry",
                                       attribute=["time", "magnitude",
                                                  "e_magnitude", "band",
@@ -77,6 +80,7 @@ a single set of coordinates.
 For this example, we first establish coordinates and search parameters:
 
 .. code-block:: python
+
     >>> import astropy.coordinates as coord
     >>> import astropy.units as u
     >>> from astroquery.oac import OAC
@@ -93,6 +97,7 @@ For this example, we first establish coordinates and search parameters:
 An example cone search:
 
 .. code-block:: python
+
     >>> photometry = OAC.query_region(coordinates=test_coords,
                                       radius=test_radius,
                                       quantity="photometry",
@@ -111,6 +116,7 @@ An example cone search:
 An example box search:
 
 .. code-block:: python
+
     >>> photometry = OAC.query_region(coordinates=test_coords,
                                       width=test_width, height=test_height,
                                       quantity="photometry",
@@ -143,6 +149,7 @@ The method `get_photometry` is designed to quickly return the photometry for a
 given event or list of events.
 
 .. code-block:: python
+
     >>> from astroquery.oac import OAC
     >>> photometry = OAC.get_photometry("SN2014J")
     >>> print(photometry[0:5])
@@ -161,6 +168,7 @@ The search can be refined using only the argument features of
 For example, to retrieve only R-band photometry:
 
 .. code-block:: python
+
     >>> photometry = OAC.get_photometry("SN2014J", argument="band=R")
     >>> print(photometry[0:5])
 
@@ -179,6 +187,7 @@ single object at a specified time. The time should be given in `MJD,` but does
 not have to be exact. The query will return the spectrum that is closest in time.
 
 .. code-block:: python
+
     >>> from astroquery.oac import OAC
     >>> test_time = 57740
     >>> spectrum = OAC.get_single_spectrum("GW170817", time=test_time)
@@ -197,6 +206,7 @@ The method `get_spectra`is designed to return all available spectra for an event
 or list of events.
 
 .. code-block:: python
+
     >>> from astroquery.oac import OAC
     >>> spectra = OAC.get_spectra("SN2014J")
     >>> print (spectra.keys())
@@ -213,6 +223,7 @@ have nested lists of MJD and [wavelength, flux] pairs. Multiple spectra
 can not be unwrapped into an `Astropy` table.
 
 The basic dictionary structure is:
+
 ```{"event_name" : {"spectra" : [mjd_0, [[wavelength_0, flux_0], ... ,
 [wavelength_n, flux_n]]], ... , [mjd_m, [[wavelength_0, flux_0], ... ,
 [wavelength_n, flux_n]]]}}```
