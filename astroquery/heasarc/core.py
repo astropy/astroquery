@@ -16,7 +16,8 @@ __all__ = ['Heasarc', 'HeasarcClass']
 @async_to_sync
 class HeasarcClass(BaseQuery):
 
-    """HEASARC query class.
+    """
+    HEASARC query class.
 
     For a list of available HEASARC mission tables, visit:
         https://heasarc.gsfc.nasa.gov/cgi-bin/W3Browse/w3catindex.pl
@@ -24,6 +25,7 @@ class HeasarcClass(BaseQuery):
 
     URL = conf.server
     TIMEOUT = conf.timeout
+    coord_systems = ['fk5', 'fk4', 'equatorial', 'galactic']
 
     def query_async(self, request_payload, cache=True, url=conf.server):
         """
@@ -50,7 +52,7 @@ class HeasarcClass(BaseQuery):
         # Parse the results specially (it's ascii format, not fits)
         response = self.query_async(
             request_payload,
-            url='https://heasarc.gsfc.nasa.gov/db-perl/W3Browse/w3query.pl',
+            url=conf.mission_server,
             cache=cache
         )
         data = BytesIO(response.content)
@@ -287,6 +289,10 @@ class HeasarcClass(BaseQuery):
 
         elif coordsys.lower() == 'galactic':
             request_payload['Coordinates'] = 'Galactic: LII BII'
+
+        else:
+            raise ValueError("'coordsys' parameter must be one of {!s}"
+                             .format(self.coord_systems))
 
         # Specify which table columns are to be returned
         fields = kwargs.get('fields', None)
