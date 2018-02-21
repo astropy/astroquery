@@ -506,7 +506,8 @@ class OACClass(BaseQuery):
         Parameters
         ----------
         event : str, required
-            Name of the event to query. Should be a single event.
+            Name of the event to query. Can be a single event or a
+            list of events.
 
         Returns
         -------
@@ -516,7 +517,8 @@ class OACClass(BaseQuery):
 
         Examples
         --------
-        This method returns all available spectra for a single event.
+        This method returns all available spectra for a single event or
+        list of events.
 
         >>> from astroquery.oac import OAC
         >>> spectra = OAC.get_spectra("SN2014J")
