@@ -107,7 +107,7 @@ List of Modules
   * `GAMA database <http://astroquery.readthedocs.io/en/latest/gama/gama.html>`_
   * `NVAS archive <http://astroquery.readthedocs.io/en/latest/nvas/nvas.html>`_
   * `Open Expolanet Catalog (OEC) <http://astroquery.readthedocs.io/en/latest/open_exoplanet_catalogue/open_exoplanet_catalogue.html>`_
-  * `Solar System Resources <http://astroquery.readthedocs.io/en/latest/solarsystem/solarsystem.html>`_: JPL Solar System Dynamics Horizons Service
+  * `JPL Horizons <http://astroquery.readthedocs.io/en/latest/jplhorizons/jplhorizons.html>`_: JPL Solar System Dynamics Horizons Service
     
 Additional Links
 ----------------
