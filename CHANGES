@@ -7,7 +7,7 @@
 - vo_conesearch: URL for validated services have changed. Old URL should still
   redirect but it is deprecated. [#1033]
 - MAST: bugfix, removing filesize checking due to unreliable filesize reporting in the database [#1050]
-- MAST: Added Catalogs class.
+- MAST: Added Catalogs class. [#1049]
 
 
 0.3.7 (2018-01-25)
