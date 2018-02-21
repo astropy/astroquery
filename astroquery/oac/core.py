@@ -219,7 +219,7 @@ class OACClass(BaseQuery):
         >>> import astropy.coordinates as coord
         >>> import astropy.units as u
         >>> from astroquery.oac import OAC
-        >>> #Sample coordinates. We are using GW170817.
+        >>> # Sample coordinates. We are using GW170817.
         >>> ra = 197.45037
         >>> dec = -23.38148
         >>> test_coords = coord.SkyCoord(ra=ra, dec=dec, unit=(u.deg, u.deg))
@@ -512,14 +512,6 @@ class OACClass(BaseQuery):
 
         >>> from astroquery.oac import OAC
         >>> spectra = OAC.get_spectra("SN2014J")
-        >>> print (spectra.keys())
-        dict_keys(['SN2014J'])
-        >>> print (spectra["SN2014J"].keys())
-        dict_keys(['spectra'])
-        >>> print (spectra["SN2014J"]["spectra"][0][0])
-        56680.0
-        >>> print (spectra["SN2014J"]["spectra"][0][1][0])
-        ['5976.1440', '1.17293e-14']
 
         Note that the query must return a JSON-compliant dictionary which will
         have nested lists of MJD and [wavelength, flux] pairs.
