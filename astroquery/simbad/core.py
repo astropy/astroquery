@@ -565,7 +565,7 @@ class SimbadClass(BaseQuery):
             Query results table
         """
         result = self.query_object('\n'.join(object_names), wildcard=wildcard,
-                                 get_query_payload=get_query_payload)
+                                   get_query_payload=get_query_payload)
 
         if keep_input:
             return self.add_input_column_to_simbad_result(object_names)
@@ -599,7 +599,6 @@ class SimbadClass(BaseQuery):
         self.last_parsed_result.table["INPUT"] = successes
 
         return self.last_parsed_result.table
-
 
     def query_objects_async(self, object_names, wildcard=False, cache=True,
                             get_query_payload=False):
