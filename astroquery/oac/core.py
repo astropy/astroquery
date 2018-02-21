@@ -94,12 +94,6 @@ class OACClass(BaseQuery):
         >>> from astroquery.oac import OAC
         >>> metadata = OAC.query_object("GW170817")
         >>> print(metadata.keys())
-        ['event', 'hostoffsetdist', 'masses', 'ra', 'instruments',
-         'lumdist', 'hostdec', 'host', 'velocity', 'ebv', 'hostra',
-         'claimedtype', 'redshift', 'maxabsmag', 'alias', 'hostoffsetang',
-         'download', 'maxdate', 'discoverdate', 'xraylink', 'dec',
-         'maxappmag', 'radiolink', 'spectralink', 'references', 'name',
-         'photolink']
 
         Specific data can be requested using quantity and attribute
         entries. For example, to request a light curve for an event:
@@ -295,20 +289,20 @@ class OACClass(BaseQuery):
             except Exception:
                 raise ValueError("Please check format of input coordinates.")
 
-        if ((not radius) and (not height) and (not width)):
+        if ((radius is None) and (height is None) and (width is None)):
             raise ValueError("Please enter a radius or width/height pair.")
 
-        if (radius and (height or width)):
+        if (radius is not None and (height is not None or width is not None)):
             raise ValueError("Please specify ONLY a radius or "
                              "height/width pair.")
 
-        if ((not radius) and ((not height) or (not width))):
+        if ((radius is None) and ((height is None) or (width is None))):
             raise ValueError("Please enter both a width and height "
                              "for a box search.")
 
         # Check that any values are in the proper format.
         # Criteria/Code from ../sdss/core.py
-        if radius:
+        if radius is not None:
             if isinstance(radius, u.Quantity):
                 radius = radius.to(u.arcsec).value
             else:
@@ -320,7 +314,7 @@ class OACClass(BaseQuery):
 
             request_payload['radius'] = radius
 
-        if (width and height):
+        if (width is not None and height is not None):
             if isinstance(width, u.Quantity):
                 width = width.to(u.arcsec).value
             else:
