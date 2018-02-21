@@ -134,36 +134,9 @@ class HorizonsClass(BaseQuery):
                           get_raw_response=False, cache=True):
 
         """
-        Query JPL Horizons for ephemerides. The ``location`` parameter in
-        ``HorizonsClass`` refers in this case to the location of the observer.
-
-        Parameters
-        ----------
-        airmass_lessthan : float, optional
-            Defines a maximum airmass for the query, default: 99
-        solar_elongation : tuple, optional
-            Permissible solar elongation range: (minimum, maximum); default:
-            (0,180)
-        hour_angle : float, optional
-            Defines a maximum hour angle for the query, default: 0
-        skip_daylight : boolean, optional
-            Crop daylight epochs in query, default: False
-        closest_apparition : boolean, optional
-            Only applies to comets. This option will choose the
-            closest apparition available in time to the selected
-            epoch; default: False. Do not use this option for
-            non-cometary objects.
-        no_fragments : boolean, optional
-            Only applies to comets. Reject all comet fragments from
-            selection; default: False. Do not use this option for
-            non-cometary objects.
-        get_query_payload : boolean, optional
-            When set to `True` the method returns the HTTP request parameters
-            as a dict, default: False
-        get_raw_response : boolean, optional
-            Return raw data as obtained by JPL Horizons without parsing the
-            data into a table, default: False
-
+        Query JPL Horizons for ephemerides. The ``location`` parameter
+        in ``HorizonsClass`` refers in this case to the location of
+        the observer.
 
         The following table lists the values queried, their
         definitions, data types, units, and original Horizons
@@ -260,11 +233,38 @@ class HorizonsClass(BaseQuery):
         +------------------+-----------------------------------------------+
 
 
+        Parameters
+        ----------
+        airmass_lessthan : float, optional
+            Defines a maximum airmass for the query, default: 99
+        solar_elongation : tuple, optional
+            Permissible solar elongation range: (minimum, maximum); default:
+            (0,180)
+        hour_angle : float, optional
+            Defines a maximum hour angle for the query, default: 0
+        skip_daylight : boolean, optional
+            Crop daylight epochs in query, default: False
+        closest_apparition : boolean, optional
+            Only applies to comets. This option will choose the
+            closest apparition available in time to the selected
+            epoch; default: False. Do not use this option for
+            non-cometary objects.
+        no_fragments : boolean, optional
+            Only applies to comets. Reject all comet fragments from
+            selection; default: False. Do not use this option for
+            non-cometary objects.
+        get_query_payload : boolean, optional
+            When set to `True` the method returns the HTTP request parameters
+            as a dict, default: False
+        get_raw_response : boolean, optional
+            Return raw data as obtained by JPL Horizons without parsing the
+            data into a table, default: False
+
+
         Returns
         -------
         response : `requests.Response`
             The response of the HTTP request.
-
 
 
         Examples
@@ -294,6 +294,7 @@ class HorizonsClass(BaseQuery):
             0.0
                1 Ceres 2010-Feb-20 00:00   2455247.5 ...  7.976737       0.0
             0.0
+
         """
 
         URL = conf.horizons_server
@@ -393,26 +394,6 @@ class HorizonsClass(BaseQuery):
         parameter in ``HorizonsClass`` refers in this case to the  center
         body relative to which the elements are provided.
 
-
-        Parameters
-        ----------
-        closest_apparition : boolean, optional
-            Only applies to comets. This option will choose the
-            closest apparition available in time to the selected
-            epoch; default: False. Do not use this option for
-            non-cometary objects.
-        no_fragments : boolean, optional
-            Only applies to comets. Reject all comet fragments from
-            selection; default: False. Do not use this option for
-            non-cometary objects.
-        get_query_payload : boolean, optional
-            When set to `True` the method returns the HTTP request parameters
-            as a dict, default: False
-        get_raw_response: boolean, optional
-            Return raw data as obtained by JPL Horizons without parsing the
-            data into a table, default: False
-
-
         The following table lists the values queried, their
         definitions, data types, units, and original Horizons
         designations (in quotation marks; where available).
@@ -464,6 +445,25 @@ class HorizonsClass(BaseQuery):
         +------------------+-----------------------------------------------+
         | Q                | apoapsis distance (float, au, "AD")           |
         +------------------+-----------------------------------------------+
+
+
+        Parameters
+        ----------
+        closest_apparition : boolean, optional
+            Only applies to comets. This option will choose the
+            closest apparition available in time to the selected
+            epoch; default: False. Do not use this option for
+            non-cometary objects.
+        no_fragments : boolean, optional
+            Only applies to comets. Reject all comet fragments from
+            selection; default: False. Do not use this option for
+            non-cometary objects.
+        get_query_payload : boolean, optional
+            When set to `True` the method returns the HTTP request parameters
+            as a dict, default: False
+        get_raw_response: boolean, optional
+            Return raw data as obtained by JPL Horizons without parsing the
+            data into a table, default: False
 
 
         Returns
@@ -576,26 +576,6 @@ class HorizonsClass(BaseQuery):
         parameter in ``HorizonsClass`` refers in this case to the center
         body relative to which the vectors are provided.
 
-
-        Parameters
-        ----------
-        closest_apparition : boolean, optional
-            Only applies to comets. This option will choose the
-            closest apparition available in time to the selected
-            epoch; default: False. Do not use this option for
-            non-cometary objects.
-        no_fragments : boolean, optional
-            Only applies to comets. Reject all comet fragments from
-            selection; default: False. Do not use this option for
-            non-cometary objects.
-        get_query_payload : boolean, optional
-            When set to `True` the method returns the HTTP request parameters
-            as a dict, default: False
-        get_raw_response: boolean, optional
-            Return raw data as obtained by JPL Horizons without parsing the
-            data into a table, default: False
-
-
         The following table lists the values queried, their
         definitions, data types, units, and original Horizons
         designations (in quotation marks; where available).
@@ -641,6 +621,25 @@ class HorizonsClass(BaseQuery):
         +------------------+-----------------------------------------------+
         | range_rate       | range rate (float, au/d, "RR")                |
         +------------------+-----------------------------------------------+
+
+
+        Parameters
+        ----------
+        closest_apparition : boolean, optional
+            Only applies to comets. This option will choose the
+            closest apparition available in time to the selected
+            epoch; default: False. Do not use this option for
+            non-cometary objects.
+        no_fragments : boolean, optional
+            Only applies to comets. Reject all comet fragments from
+            selection; default: False. Do not use this option for
+            non-cometary objects.
+        get_query_payload : boolean, optional
+            When set to `True` the method returns the HTTP request parameters
+            as a dict, default: False
+        get_raw_response: boolean, optional
+            Return raw data as obtained by JPL Horizons without parsing the
+            data into a table, default: False
 
 
         Returns
