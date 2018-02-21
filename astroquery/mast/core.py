@@ -1306,18 +1306,13 @@ class ObservationsClass(MastClass):
             try:
                 self._download_file(dataUrl, localPath, cache=cache)
 
-                # check file size also this is where would perform md5
+                # check if file exists also this is where would perform md5,
+                # and also check the filesize if the database reliably reported file sizes
                 if not os.path.isfile(localPath):
                     status = "ERROR"
                     msg = "File was not downloaded"
                     url = dataUrl
-                else:
-                    fileSize = os.stat(localPath).st_size
-                    if fileSize != dataProduct["size"]:
-                        status = "ERROR"
-                        msg = "Downloaded filesize is {},".format(dataProduct['size']) + \
-                              "but should be {}, file may be partial or corrupt.".format(fileSize)
-                        url = dataUrl
+
             except HTTPError as err:
                 status = "ERROR"
                 msg = "HTTPError: {0}".format(err)
