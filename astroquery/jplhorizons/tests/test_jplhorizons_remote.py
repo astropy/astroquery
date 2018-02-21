@@ -12,7 +12,7 @@ from ... import jplhorizons
 @remote_data
 class TestHorizonsClass:
 
-    def test_ephemerides_query(patch_request):
+    def test_ephemerides_query(self):
         # check values of Ceres for a given epoch
         # orbital uncertainty of Ceres is basically zero
         res = jplhorizons.Horizons(id='Ceres', location='500',
@@ -49,7 +49,7 @@ class TestHorizonsClass:
              res['GlxLat'],
              res['RA_3sigma'], res['DEC_3sigma']])
 
-    def test_ephemerides_query_two(patch_request):
+    def test_ephemerides_query_two(self):
         # check comet ephemerides using solarsystem.ephemerides options
         obj = jplhorizons.Horizons(id='Halley', id_type='comet_name',
                                    location='290',
@@ -73,7 +73,7 @@ class TestHorizonsClass:
         assert 'H' not in res
         assert 'G' not in res
 
-    def test_ephemerides_query_three(patch_request):
+    def test_ephemerides_query_three(self):
         # checks no_fragments option for comets
         obj = jplhorizons.Horizons(id='73P', id_type='designation',
                                    location='290',
@@ -97,14 +97,14 @@ class TestHorizonsClass:
         assert 'H' not in res
         assert 'G' not in res
 
-    def test_ephemerides_query_raw(patch_request):
+    def test_ephemerides_query_raw(self):
         res = (jplhorizons.Horizons(id='Ceres', location='500',
                                     epochs=2451544.5).
                ephemerides(get_raw_response=True))
 
         assert len(res) == 15335
 
-    def test_ephemerides_query_payload(patch_request):
+    def test_ephemerides_query_payload(self):
         obj = jplhorizons.Horizons(id='Halley', id_type='comet_name',
                                    location='290',
                                    epochs={'start': '2080-01-01',
@@ -133,7 +133,7 @@ class TestHorizonsClass:
             ('AIRMASS', '1.2'),
             ('SKIP_DAYLT', 'YES')])
 
-    def test_elements_query(patch_request):
+    def test_elements_query(self):
         res = jplhorizons.Horizons(id='Ceres', location='500@10',
                                    epochs=2451544.5).elements()[0]
 
@@ -160,14 +160,14 @@ class TestHorizonsClass:
              res['a'], res['Q'],
              res['P']])
 
-    def test_elements_query_raw(patch_request):
+    def test_elements_query_raw(self):
         res = jplhorizons.Horizons(id='Ceres', location='500@10',
                                    epochs=2451544.5).elements(
                                        get_raw_response=True)
 
         assert len(res) == 7576
 
-    def test_elements_query_payload(patch_request):
+    def test_elements_query_payload(self):
         res = (jplhorizons.Horizons(id='Ceres', location='500@10',
                                     epochs=2451544.5).elements(
                                         get_query_payload=True))
@@ -186,7 +186,7 @@ class TestHorizonsClass:
             ('OBJ_DATA', 'YES'),
             ('TLIST', '"2451544.5"')])
 
-    def test_vectors_query(patch_request):
+    def test_vectors_query(self):
         # check values of Ceres for a given epoch
         # orbital uncertainty of Ceres is basically zero
         res = jplhorizons.Horizons(id='Ceres', location='500@10',
@@ -211,14 +211,14 @@ class TestHorizonsClass:
              res['lighttime'], res['range'],
              res['range_rate']])
 
-    def test_vectors_query_raw(patch_request):
+    def test_vectors_query_raw(self):
         res = jplhorizons.Horizons(id='Ceres', location='500@10',
                                    epochs=2451544.5).vectors(
                                        get_raw_response=True)
 
         assert len(res) == 7032
 
-    def test_vectors_query_payload(patch_request):
+    def test_vectors_query_payload(self):
         res = jplhorizons.Horizons(id='Ceres', location='500@10',
                                    epochs=2451544.5).vectors(
                                        get_query_payload=True)
@@ -237,14 +237,14 @@ class TestHorizonsClass:
             ('OBJ_DATA', 'YES'),
             ('TLIST', '"2451544.5"')])
 
-    def test_unknownobject(patch_request):
+    def test_unknownobject(self):
         try:
             jplhorizons.Horizons(id='spamspamspameggsspam', location='500',
                                  epochs=2451544.5).ephemerides()
         except ValueError:
             pass
 
-    def test_multipleobjects(patch_request):
+    def test_multipleobjects(self):
         try:
             jplhorizons.Horizons(id='73P', location='500',
                                  epochs=2451544.5).ephemerides()
