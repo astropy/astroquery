@@ -3,6 +3,7 @@ from __future__ import absolute_import
 
 import os
 
+
 def get_package_data():
     # All data as text files to test http response processing
     paths = [os.path.join('data', '*.txt')]
