@@ -410,7 +410,7 @@ class OACClass(BaseQuery):
         query_object. For example:
 
         >>> from astroquery.oac import OAC
-        >>> photometry = OAC.get_photometry("SN2014J")
+        >>> photometry = OAC.get_photometry("SN2014J", argument="band=R")
         >>> print(photometry[0:5])
 
         >>>  event       time         magnitude     e_magnitude band instrument
