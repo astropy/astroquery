@@ -253,8 +253,8 @@ class OACClass(BaseQuery):
             try:
                 request_payload['ra'] = coordinates[0]
                 request_payload['dec'] = coordinates[1]
-            except Exception:
-                raise ValueError("Please check format of input coordinates.")
+            except IndexError:
+                raise IndexError("Please check format of input coordinates.")
 
         if ((radius is None) and (height is None) and (width is None)):
             raise ValueError("Please enter a radius or width/height pair.")
@@ -540,12 +540,8 @@ class OACClass(BaseQuery):
                 print("The API did not return a valid CSV output! \n"
                       "Outputing JSON-compliant dictionary instead.")
 
-                try:
-                    output = json.loads(raw_output)
-                    return output
-                except Exception:
-                    print("The API response could not be processed.")
-                    raise Exception
+                output = json.loads(raw_output)
+                return output
 
             # Initialize and populate dictionary
             output_dict = {key: [] for key in columns}
@@ -590,10 +586,6 @@ class OACClass(BaseQuery):
         except KeyError:
             print("ERROR: API Server returned the following error:")
             print(response['message'])
-            return
-
-        except Exception:
-            print("ERROR: An error occured processing the HTTP response.")
             return
 
         return output_response
