@@ -93,7 +93,6 @@ class OACClass(BaseQuery):
 
         >>> from astroquery.oac import OAC
         >>> metadata = OAC.query_object("GW170817")
-        >>> print(metadata.keys())
 
         Specific data can be requested using quantity and attribute
         entries. For example, to request a light curve for an event:
