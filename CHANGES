@@ -1,6 +1,7 @@
 0.3.8 (unreleased)
 ------------------
 
+- heasarc: Add additional functionality and expand query capabilities [#1047]
 - New tool: JPL Horizons service to obtain ephemerides, orbital elements, and
   state vectors for Solar System objects. [#1023]
 - ATOMIC: Fixed remote tests that were broken. [#1038]
