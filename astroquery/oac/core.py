@@ -1,7 +1,5 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst.
 """
-OPEN ASTRONOMY CATALOG (OAC) API TOOL
--------------------------
 This module allows access to the OAC API and
 all available functionality. For more information
 see: api.astrocats.space.
@@ -80,11 +78,6 @@ class OACClass(BaseQuery):
             When set to `True` the method returns the HTTP request
             parameters as a dict. The actual HTTP request is not made.
             The default value is False.
-
-        Returns
-        -------
-        response : `requests.Response`
-            The HTTP response returned from the service.
 
         Examples
         --------
@@ -187,12 +180,6 @@ class OACClass(BaseQuery):
             When set to `True` the method returns the HTTP request
             parameters as a dict. The actual HTTP request is not made.
             The default value is False.
-
-        Returns
-        -------
-        response : `requests.Response`
-            The HTTP response returned from the service.
-            All async methods should return the raw HTTP response.
 
         Examples
         --------
@@ -343,12 +330,6 @@ class OACClass(BaseQuery):
             A complete list of commands and their usage can be found at:
             https://github.com/astrocatalogs/OACAPI. The default is None.
 
-        Returns
-        -------
-        response : `requests.Response`
-            The HTTP response returned from the service.
-            All async methods should return the raw HTTP response.
-
         Examples
         --------
         The method is used to grab a default light curve for an object:
@@ -395,12 +376,6 @@ class OACClass(BaseQuery):
             A single MJD time to query. This time does not need to be
             exact. The closest spectrum will be returned.
 
-        Returns
-        -------
-        response : `requests.Response`
-            The HTTP response returned from the service.
-            All async methods should return the raw HTTP response.
-
         Examples
         --------
         This method returns a single spectrum for an object at a selected
@@ -441,12 +416,6 @@ class OACClass(BaseQuery):
         event : str, required
             Name of the event to query. Can be a single event or a
             list of events.
-
-        Returns
-        -------
-        response : `requests.Response`
-            The HTTP response returned from the service.
-            All async methods should return the raw HTTP response.
 
         Examples
         --------
