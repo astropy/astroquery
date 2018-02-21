@@ -542,7 +542,7 @@ class SimbadClass(BaseQuery):
         return response
 
     def query_objects(self, object_names, wildcard=False, verbose=False,
-                      get_query_payload=False):
+                      get_query_payload=False, keep_input=False):
         """
         Queries Simbad for the specified list of objects and returns the
         results as a `~astropy.table.Table`. Object names may be specified
@@ -564,8 +564,42 @@ class SimbadClass(BaseQuery):
         table : `~astropy.table.Table`
             Query results table
         """
-        return self.query_object('\n'.join(object_names), wildcard=wildcard,
+        result = self.query_object('\n'.join(object_names), wildcard=wildcard,
                                  get_query_payload=get_query_payload)
+
+        if keep_input:
+            return self.add_input_column_to_simbad_result(object_names)
+        else:
+            return result
+
+    def add_input_column_to_simbad_result(self, input_list):
+        """
+        Adds 'INPUT' column to the result of a Simbad query
+
+        Parameters
+        ----------
+        object_names : sequence of strs
+                names of objects input to most recent query
+
+        Returns
+        -------
+        table : `~astropy.table.Table`
+            Query results table
+        """
+        error_string = self.last_parsed_result.error_raw
+        fails = []
+
+        for error in error_string.split("\n"):
+            start_loc = error.rfind(":") + 2
+            fail = error[start_loc:]
+            fails.append(fail)
+
+        successes = [s for s in input_list if s not in fails]
+
+        self.last_parsed_result.table["INPUT"] = successes
+
+        return self.last_parsed_result.table
+
 
     def query_objects_async(self, object_names, wildcard=False, cache=True,
                             get_query_payload=False):
