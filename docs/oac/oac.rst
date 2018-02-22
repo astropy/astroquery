@@ -2,9 +2,9 @@
 
 .. _astroquery.oac:
 
-********************************
+**********************************
 OAC API Queries (`astroquery.oac`)
-********************************
+**********************************
 
 Getting started
 ===============
@@ -15,7 +15,7 @@ and kilonovae. Examples of API usage and available data products can be found
 at the `OAC API Github Repository <https://github.com/astrocatalogs/OACAPI>`_
 
 Primary Methods
-================
+===============
 There are two primary methods for submitting API queries. The first is query_object
 which can be used to search the OAC based on an event name. Multiple events can
 be retrieved by submitting a list of event names.
@@ -100,7 +100,7 @@ Queries can also be returned as a JSON compliant dictionary using the
 data_format option.
 
 Tailored Methods
-=================
+================
 There are three tailed search methods available to users to facilitate quick
 retrieval of common data products.
 

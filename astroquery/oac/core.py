@@ -70,8 +70,8 @@ class OACClass(BaseQuery):
             https://github.com/astrocatalogs/OACAPI. The default is None.
         data_format: str, optional
             Specify the format for the returned data. The default is
-            `CSV` for easy conversion to Astropy Tables. The user can
-            also specify `JSON` which will return a JSON-compliant
+            CSV for easy conversion to Astropy Tables. The user can
+            also specify JSON which will return a JSON-compliant
             dictionary.
             Note: Not all queries can support CSV output.
         get_query_payload : bool, optional
@@ -102,6 +102,12 @@ class OACClass(BaseQuery):
         ...                                          "e_magnitude", "band",
         ...                                          "instrument"],
         ...                               argument=["band=i"])
+
+        Returns
+        -------
+        result : `~astropy.table.Table`
+            The default result is an `~astropy.table.Table` object. The
+            user can also request a JSON dictionary.
 
         """
         request_payload = self._args_to_payload(event,
@@ -176,6 +182,12 @@ class OACClass(BaseQuery):
             only those table rows with all of the requested attributes.
             A complete list of commands and their usage can be found at:
             https://github.com/astrocatalogs/OACAPI. The default is None.
+        data_format: str, optional
+            Specify the format for the returned data. The default is
+            CSV for easy conversion to Astropy Tables. The user can
+            also specify JSON which will return a JSON-compliant
+            dictionary.
+            Note: Not all queries can support CSV output.
         get_query_payload : bool, optional
             When set to `True` the method returns the HTTP request
             parameters as a dict. The actual HTTP request is not made.
@@ -215,6 +227,12 @@ class OACClass(BaseQuery):
 
         These searches can be refined using the quantities, attributes, and
         arguments, as with query_object.
+
+        Returns
+        -------
+        result : `~astropy.table.Table`
+            The default result is an `~astropy.table.Table` object. The
+            user can also request a JSON dictionary.
 
         """
         # Default object name used for coordinate-based queries
@@ -343,6 +361,12 @@ class OACClass(BaseQuery):
         >>> from astroquery.oac import OAC
         >>> photometry = OAC.get_photometry("SN2014J", argument="band=R")
 
+        Returns
+        -------
+        result : `~astropy.table.Table`
+            The default result is an `~astropy.table.Table` object. The
+            user can also request a JSON dictionary.
+
         """
         response = self.query_object_async(event=event,
                                            quantity='photometry',
@@ -386,6 +410,12 @@ class OACClass(BaseQuery):
         >>> spectrum = OAC.get_single_spectrum("GW170817", time=test_time)
 
         This method does not allow further customization of searches.
+
+        Returns
+        -------
+        result : `~astropy.table.Table`
+            The default result is an `~astropy.table.Table` object. The
+            user can also request a JSON dictionary.
 
         """
         query_time = 'time=%s' % time
@@ -432,6 +462,12 @@ class OACClass(BaseQuery):
         {"event_name" : {"spectra" : [mjd_0, [[wavelength_0, flux_0], ... ,
         [wavelength_n, flux_n]]], ... , [mjd_m, [[wavelength_0, flux_0], ... ,
         [wavelength_n, flux_n]]]}}
+
+        Returns
+        -------
+        result : dict
+            The default result is a JSON dictionary. An `~astropy.table.Table`
+            can not be returned.
 
         """
         response = self.query_object_async(event=event,
