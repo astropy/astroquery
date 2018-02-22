@@ -1,5 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst.
 """
+OPEN ASTRONOMY CATALOG (OAC) API TOOL
+-------------------------------------
 This module allows access to the OAC API and
 all available functionality. For more information
 see: api.astrocats.space.
@@ -37,7 +39,8 @@ class OACClass(BaseQuery):
                            argument=None,
                            data_format='csv',
                            get_query_payload=False, cache=True):
-        """Retrieve object(s) asynchronously.
+        """
+        Retrieve object(s) asynchronously.
 
         Query method to retrieve the desired quantities and
         attributes for an object specified by a transient name.
@@ -108,7 +111,6 @@ class OACClass(BaseQuery):
         result : `~astropy.table.Table`
             The default result is an `~astropy.table.Table` object. The
             user can also request a JSON dictionary.
-
         """
         request_payload = self._args_to_payload(event,
                                                 quantity,
@@ -135,7 +137,8 @@ class OACClass(BaseQuery):
                            argument=None,
                            data_format='csv',
                            get_query_payload=False, cache=True):
-        """Query a region asynchronously.
+        """
+        Query a region asynchronously.
 
         Query method to retrieve the desired quantities and
         attributes for an object specified by a region on the sky.
@@ -233,7 +236,6 @@ class OACClass(BaseQuery):
         result : `~astropy.table.Table`
             The default result is an `~astropy.table.Table` object. The
             user can also request a JSON dictionary.
-
         """
         # Default object name used for coordinate-based queries
         event = 'catalog'
@@ -320,7 +322,8 @@ class OACClass(BaseQuery):
         return response
 
     def get_photometry_async(self, event, argument=None, cache=True):
-        """Retrieve all photometry for specified event(s).
+        """
+        Retrieve all photometry for specified event(s).
 
         This is a version of the query_object method
         that is set up to quickly return the complete set
@@ -366,7 +369,6 @@ class OACClass(BaseQuery):
         result : `~astropy.table.Table`
             The default result is an `~astropy.table.Table` object. The
             user can also request a JSON dictionary.
-
         """
         response = self.query_object_async(event=event,
                                            quantity='photometry',
@@ -380,7 +382,8 @@ class OACClass(BaseQuery):
         return response
 
     def get_single_spectrum_async(self, event, time, cache=True):
-        """Retrieve a single spectrum at a specified time for given event.
+        """
+        Retrieve a single spectrum at a specified time for given event.
 
         This is a version of the query_object method
         that is set up to quickly return a single spectrum
@@ -416,7 +419,6 @@ class OACClass(BaseQuery):
         result : `~astropy.table.Table`
             The default result is an `~astropy.table.Table` object. The
             user can also request a JSON dictionary.
-
         """
         query_time = 'time=%s' % time
         response = self.query_object_async(event=event,
@@ -429,7 +431,8 @@ class OACClass(BaseQuery):
         return response
 
     def get_spectra_async(self, event, cache=True):
-        """Retrieve all spectra for a specified event.
+        """
+        Retrieve all spectra for a specified event.
 
         This is a version of the query_object method
         that is set up to quickly return all available spectra
@@ -468,7 +471,6 @@ class OACClass(BaseQuery):
         result : dict
             The default result is a JSON dictionary. An `~astropy.table.Table`
             can not be returned.
-
         """
         response = self.query_object_async(event=event,
                                            quantity='spectra',
