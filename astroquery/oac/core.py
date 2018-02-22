@@ -82,30 +82,6 @@ class OACClass(BaseQuery):
             parameters as a dict. The actual HTTP request is not made.
             The default value is False.
 
-        Examples
-        --------
-        The default behavior returns a list of all available
-        metadata for a given event.
-
-        >>> from astroquery.oac import OAC
-        >>> metadata = OAC.query_object("GW170817")
-
-        Specific data can be requested using quantity and attribute
-        entries. For example, to request a light curve for an event:
-
-        >>> photometry = OAC.query_object("GW170817", quantity="photometry",
-        ...                               attribute=["time", "magnitude",
-        ...                                          "e_magnitude", "band",
-        ...                                          "instrument"])
-
-        The results can be further refined using the argument entry:
-
-        >>> photometry = OAC.query_object("GW170817", quantity="photometry",
-        ...                               attribute=["time", "magnitude",
-        ...                                          "e_magnitude", "band",
-        ...                                          "instrument"],
-        ...                               argument=["band=i"])
-
         Returns
         -------
         result : `~astropy.table.Table`
@@ -195,41 +171,6 @@ class OACClass(BaseQuery):
             When set to `True` the method returns the HTTP request
             parameters as a dict. The actual HTTP request is not made.
             The default value is False.
-
-        Examples
-        --------
-        Searches can be done as a cone or a box. We first establish coordinates
-        and search parameters:
-
-        >>> import astropy.coordinates as coord
-        >>> import astropy.units as u
-        >>> from astroquery.oac import OAC
-        >>> # Sample coordinates. We are using GW170817.
-        >>> ra = 197.45037
-        >>> dec = -23.38148
-        >>> test_coords = coord.SkyCoord(ra=ra, dec=dec, unit=(u.deg, u.deg))
-        >>> test_radius = 10*u.arcsec
-        >>> test_height = 10*u.arcsec
-        >>> test_width = 10*u.arcsec
-
-        An example cone search:
-        >>> photometry = OAC.query_region(coordinates=test_coords,
-        ...                               radius=test_radius,
-        ...                               quantity="photometry",
-        ...                               attribute=["time", "magnitude",
-        ...                                          "e_magnitude", "band",
-        ...                                          "instrument"])
-
-        An example box search:
-        >>> photometry = OAC.query_region(coordinates=test_coords,
-        ...                               width=test_width, height=test_height,
-        ...                               quantity="photometry",
-        ...                               attribute=["time", "magnitude",
-        ...                                          "e_magnitude", "band",
-        ...                                          "instrument"])
-
-        These searches can be refined using the quantities, attributes, and
-        arguments, as with query_object.
 
         Returns
         -------
@@ -351,19 +292,6 @@ class OACClass(BaseQuery):
             A complete list of commands and their usage can be found at:
             https://github.com/astrocatalogs/OACAPI. The default is None.
 
-        Examples
-        --------
-        The method is used to grab a default light curve for an object:
-
-        >>> from astroquery.oac import OAC
-        >>> photometry = OAC.get_photometry("SN2014J")
-
-        The search can be refined using only the argument features of
-        query_object. For example:
-
-        >>> from astroquery.oac import OAC
-        >>> photometry = OAC.get_photometry("SN2014J", argument="band=R")
-
         Returns
         -------
         result : `~astropy.table.Table`
@@ -403,17 +331,6 @@ class OACClass(BaseQuery):
             A single MJD time to query. This time does not need to be
             exact. The closest spectrum will be returned.
 
-        Examples
-        --------
-        This method returns a single spectrum for an object at a selected
-        time in MJD. The given time does not have to be exact.
-
-        >>> from astroquery.oac import OAC
-        >>> test_time = 57740
-        >>> spectrum = OAC.get_single_spectrum("GW170817", time=test_time)
-
-        This method does not allow further customization of searches.
-
         Returns
         -------
         result : `~astropy.table.Table`
@@ -449,22 +366,6 @@ class OACClass(BaseQuery):
         event : str, required
             Name of the event to query. Can be a single event or a
             list of events.
-
-        Examples
-        --------
-        This method returns all available spectra for a single event or
-        list of events.
-
-        >>> from astroquery.oac import OAC
-        >>> spectra = OAC.get_spectra("SN2014J")
-
-        Note that the query must return a JSON-compliant dictionary which will
-        have nested lists of MJD and [wavelength, flux] pairs.
-
-        The basic dictionary structure is:
-        {"event_name" : {"spectra" : [mjd_0, [[wavelength_0, flux_0], ... ,
-        [wavelength_n, flux_n]]], ... , [mjd_m, [[wavelength_0, flux_0], ... ,
-        [wavelength_n, flux_n]]]}}
 
         Returns
         -------
