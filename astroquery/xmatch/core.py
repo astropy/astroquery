@@ -16,7 +16,8 @@ class XMatchClass(BaseQuery):
     TIMEOUT = conf.timeout
 
     def query(self, cat1, cat2, max_distance, colRA1=None, colDec1=None,
-              colRA2=None, colDec2=None, cache=True, get_query_payload=False):
+              colRA2=None, colDec2=None, cache=True, get_query_payload=False,
+              responseformat='csv', selection='all'):
         """
         Query the `CDS cross-match service
         <http://cdsxmatch.u-strasbg.fr/xmatch>`_ by finding matches between
@@ -57,15 +58,21 @@ class XMatchClass(BaseQuery):
         """
         response = self.query_async(cat1, cat2, max_distance, colRA1, colDec1,
                                     colRA2, colDec2, cache=cache,
-                                    get_query_payload=get_query_payload)
+                                    get_query_payload=get_query_payload,
+                                    responseformat=responseformat,
+                                    selection=selection)
         if get_query_payload:
             return response
-        return ascii.read(response.text, format='csv')
+        fp = six.BytesIO()
+        fp.write(response.text.encode('ascii'))
+        fp.seek(0)
+        return Table.read(fp, format=responseformat)
 
     @prepend_docstr_nosections("\n" + query.__doc__)
     def query_async(self, cat1, cat2, max_distance, colRA1=None, colDec1=None,
                     colRA2=None, colDec2=None, cache=True,
-                    get_query_payload=False):
+                    get_query_payload=False,
+                    responseformat='csv', selection='all'):
         """
         Returns
         -------
@@ -78,7 +85,8 @@ class XMatchClass(BaseQuery):
         payload = {
             'request': 'xmatch',
             'distMaxArcsec': max_distance.to(arcsec).value,
-            'RESPONSEFORMAT': 'csv',
+            'RESPONSEFORMAT': responseformat,
+            'selection': selection
         }
         kwargs = {}
 
@@ -108,11 +116,12 @@ class XMatchClass(BaseQuery):
             fp = six.StringIO()
             cat.write(fp, format='ascii.csv')
             fp.seek(0)
-            kwargs['files'] = {catstr: ('cat1.csv', fp.read())}
+            kwargs['files'] = {catstr: ('%s.csv' % catstr, fp.read())}
         else:
             # assume it's a file-like object, support duck-typing
-            kwargs['files'] = {catstr: ('cat1.csv', cat.read())}
-        if not self.is_table_available(cat):
+            kwargs['files'] = {catstr: ('%s.csv' % catstr, cat.read())}
+        if (not isinstance(cat, six.string_types) or
+            not self.is_table_available(cat)):
             if ((colRA is None) or (colDec is None)):
                 raise ValueError('Specify the name of the RA/Dec columns in' +
                                  ' the input table.')
