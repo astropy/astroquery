@@ -342,7 +342,7 @@ class HorizonsClass(BaseQuery):
         )
 
         # parse self.epochs
-        if type(self.epochs) is list:
+        if isinstance(self.epochs, (list, tuple, ndarray)):
             request_payload['TLIST'] = "".join(['"' + str(epoch) + '"'
                                                 for epoch
                                                 in self.epochs])
@@ -527,7 +527,7 @@ class HorizonsClass(BaseQuery):
         )
 
         # parse self.epochs
-        if type(self.epochs) is list:
+        if isinstance(self.epochs, (list, tuple, ndarray)):
             request_payload['TLIST'] = "".join(['"' + str(epoch) + '"'
                                                 for epoch
                                                 in self.epochs])
@@ -716,7 +716,7 @@ class HorizonsClass(BaseQuery):
         )
 
         # parse self.epochs
-        if type(self.epochs) is list:
+        if isinstance(self.epochs, (list, tuple, ndarray)):
             request_payload['TLIST'] = "".join(['"' + str(epoch) + '"'
                                                 for epoch
                                                 in self.epochs])
