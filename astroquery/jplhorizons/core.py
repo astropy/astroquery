@@ -343,10 +343,6 @@ class HorizonsClass(BaseQuery):
 
         # parse self.epochs
         if type(self.epochs) is list:
-            if len(self.epochs) > 15:
-                self.epochs = self.epochs[:15]
-                warnings.warn("Only the first 15 elements of 'epochs' will " +
-                              "be queried")
             request_payload['TLIST'] = "".join(['"' + str(epoch) + '"'
                                                 for epoch
                                                 in self.epochs])
@@ -532,10 +528,6 @@ class HorizonsClass(BaseQuery):
 
         # parse self.epochs
         if type(self.epochs) is list:
-            if len(self.epochs) > 15:
-                self.epochs = self.epochs[:15]
-                warnings.warn("Only the first 15 elements of 'epochs' will " +
-                              "be queried")
             request_payload['TLIST'] = "".join(['"' + str(epoch) + '"'
                                                 for epoch
                                                 in self.epochs])
@@ -725,10 +717,6 @@ class HorizonsClass(BaseQuery):
 
         # parse self.epochs
         if type(self.epochs) is list:
-            if len(self.epochs) > 15:
-                self.epochs = self.epochs[:15]
-                warnings.warn("Only the first 15 elements of 'epochs' will " +
-                              "be queried")
             request_payload['TLIST'] = "".join(['"' + str(epoch) + '"'
                                                 for epoch
                                                 in self.epochs])
