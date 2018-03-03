@@ -6,7 +6,6 @@ from numpy import nan as nan
 from numpy import isnan
 from numpy import ndarray
 from collections import OrderedDict
-import warnings
 
 # 2. third party imports
 from astropy.table import Column
@@ -17,8 +16,6 @@ from astropy.time import Time
 # commonly required local imports shown below as example
 # all Query classes should inherit from BaseQuery.
 from ..query import BaseQuery
-# prepend_docstr is a way to copy docstrings between methods
-from ..utils import prepend_docstr_nosections
 # async_to_sync generates the relevant query tools from _async methods
 from ..utils import async_to_sync
 # import configurable items declared in __init__.py
