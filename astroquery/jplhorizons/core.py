@@ -37,19 +37,19 @@ class HorizonsClass(BaseQuery):
         ----------
         id : str, required
             Name, number, or designation of the object to be queried
-        location: str, optional
+        location : str, optional
             Observer's location for ephemerides queries or center body
             name for orbital element or vector queries. Uses the same
             codes as JPL Horizons. If no location is provided, Earth's
             center is used for ephemerides queries and the Sun's
             center for elements and vectors queries.
-        epochs: scalar, list, or dictionary, optional
-            Either a list of epochs in JD format or a dictionary
+        epochs : scalar, list-like, or dictionary, optional
+            Either a list of epochs in JD or MJD format or a dictionary
             defining a range of times and dates; the range dictionary has to
             be of the form {``'start'``:'YYYY-MM-DD [HH:MM:SS]',
             ``'stop'``:'YYYY-MM-DD [HH:MM:SS]', ``'step'``:'n[y|d|m|s]'}. If no
             epochs are provided, the current time is used.
-        id_type: str, optional
+        id_type : str, optional
             Identifier type, options:
             ``'smallbody'``, ``'majorbody'`` (planets but also
             anything that is not a small body), ``'designation'``,
