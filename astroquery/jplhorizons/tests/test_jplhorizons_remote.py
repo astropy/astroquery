@@ -102,7 +102,7 @@ class TestHorizonsClass:
                                     epochs=2451544.5).
                ephemerides(get_raw_response=True))
 
-        assert len(res) == 15335
+        assert len(res) == 15347
 
     def test_ephemerides_query_payload(self):
         obj = jplhorizons.Horizons(id='Halley', id_type='comet_name',
@@ -165,7 +165,7 @@ class TestHorizonsClass:
                                    epochs=2451544.5).elements(
                                        get_raw_response=True)
 
-        assert len(res) == 7576
+        assert len(res) == 7574
 
     def test_elements_query_payload(self):
         res = (jplhorizons.Horizons(id='Ceres', location='500@10',
@@ -184,7 +184,7 @@ class TestHorizonsClass:
             ('TP_TYPE', 'ABSOLUTE'),
             ('ELEM_LABELS', 'YES'),
             ('OBJ_DATA', 'YES'),
-            ('TLIST', '"2451544.5"')])
+            ('TLIST', '2451544.5')])
 
     def test_vectors_query(self):
         # check values of Ceres for a given epoch
@@ -216,7 +216,7 @@ class TestHorizonsClass:
                                    epochs=2451544.5).vectors(
                                        get_raw_response=True)
 
-        assert len(res) == 7032
+        assert len(res) == 7030
 
     def test_vectors_query_payload(self):
         res = jplhorizons.Horizons(id='Ceres', location='500@10',
@@ -235,7 +235,7 @@ class TestHorizonsClass:
             ('TP_TYPE', 'ABSOLUTE'),
             ('LABELS', 'YES'),
             ('OBJ_DATA', 'YES'),
-            ('TLIST', '"2451544.5"')])
+            ('TLIST', '2451544.5')])
 
     def test_unknownobject(self):
         try:
