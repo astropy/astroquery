@@ -22,11 +22,10 @@ def read_data_file(filename):
             query_args[curr_line[0]] = curr_line[1]
     return query_args
 
-def test_args_to_payload():
-    test_args = mpc.MPC._args_to_payload(name="eros", number=433)
-    assert test_args == {"name": "eros", "number": 433}
+def test_query_object_get_query_payload():
+    request_payload = mpc.core.MPC.query_object_async(name='ceres', get_query_payload=True)
+    assert request_payload == {"name": "ceres", "json": 1, "limit": 1}
 
-def test_all_args_to_payload():
-    data_from_file = read_data_file("complete_query_by_name.data")
-    test_args = mpc.MPC._args_to_payload(data_from_file)
-    assert test_args == {"name": "eros", "number": 433}
+def test_args_to_payload():
+    test_args = mpc.core.MPC._args_to_payload(name="eros", number=433)
+    assert test_args == {"name": "eros", "number": 433, "json": 1}

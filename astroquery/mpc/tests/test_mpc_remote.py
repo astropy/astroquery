@@ -3,6 +3,7 @@ import os
 import re
 import pytest
 import requests
+import xml.etree.ElementTree as ET
 
 from astropy.tests.helper import remote_data
 from ... import mpc
@@ -18,22 +19,23 @@ class TestMPC(object):
                 query_args[curr_line[0]] = curr_line[1]
         return query_args
 
-    def test_query_object_valid_object_by_name_json_response(self):
-        response = mpc.core.MPC.query_object_async(name="ceres", json=1)
+    def test_query_object_valid_object_by_name(self):
+        response = mpc.core.MPC.query_object_async(name="ceres")
         assert response.status_code == requests.codes.ok
         assert len(response.json()) == 1
         assert response.json()[0]['name'].lower() == 'ceres'
 
-    def test_quest_object_valid_object_by_name_xml_response(self):
-        response = mpc.core.MPC.query_object_async(name="ceres", json=0)
+    def test_query_multiple_objects(self):
+        response = mpc.core.MPC.query_objects_async(epoch_jd=2458200.5, limit=5)
         assert response.status_code == requests.codes.ok
+        assert len(response.json()) == 5
 
     def test_query_object_by_nonexistent_name(self):
-        response = mpc.core.MPC.query_object_async(name="invalid object", json=1)
+        response = mpc.core.MPC.query_object_async(name="invalid object")
         assert response.status_code == requests.codes.ok
         assert len(response.json()) == 0
 
-    #queries by all parameters save for designation
-    def test_query_object_valid_object_all_parameters(self):
-        query_args = self.read_data_file('complete_query_by_name.data')
-        response = mpc.core.MPC.query_object_async(query_args)
+    def test_query_object_invalid_parameter(self):
+        response = mpc.core.MPC.query_object_async(blah="blah")
+        assert response.status_code == requests.codes.ok
+        assert "Unrecognized parameter" in str(response.content)
