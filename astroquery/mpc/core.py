@@ -10,6 +10,8 @@ class InvalidArgumentException(Exception):
 @async_to_sync
 class MPCClass(BaseQuery):
     MPC_URL = 'http://' + conf.server + '/web_service/search_orbits'
+    # The authentication credentials for the MPC web service are publicly available and 
+    # can be openly viewed on the documentation page at https://minorplanetcenter.net/web_service/
     MPC_USERNAME = 'mpc_ws'
     MPC_PASSWORD = 'mpc!!ws'
 
