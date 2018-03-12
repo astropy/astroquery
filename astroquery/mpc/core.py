@@ -138,8 +138,7 @@ class MPCClass(BaseQuery):
         """
 
         get_query_payload = kwargs.get('get_query_payload', False)
-        if get_query_payload:
-            del kwargs['get_query_payload']
+        kwargs.pop('get_query_payload', None)
         kwargs['limit'] = 1
         request_args = self._args_to_payload(**kwargs)
 
@@ -272,8 +271,7 @@ class MPCClass(BaseQuery):
         """
 
         get_query_payload = kwargs.get('get_query_payload', False)
-        if get_query_payload:
-            del kwargs['get_query_payload']
+        kwargs.pop('get_query_payload', None)
         request_args = self._args_to_payload(**kwargs)
 
         #Return payload if requested
