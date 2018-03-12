@@ -20,7 +20,7 @@ class TestMPC(object):
         return query_args
 
     def test_query_object_valid_object_by_name(self):
-        response = mpc.core.MPC.query_object_async(name="ceres")
+        response = mpc.core.MPC.query_object_async(name="ceres", get_query_payload=False)
         assert response.status_code == requests.codes.ok
         assert len(response.json()) == 1
         assert response.json()[0]['name'].lower() == 'ceres'
