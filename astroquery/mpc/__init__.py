@@ -2,8 +2,8 @@
 MPC Query Tool
 =================
 
-The International Astronomical Union Minor Planet Center is "the single worldwide location for 
-receipt and distribution of positional measurements of minor planets, comets, and outer irregular 
+The International Astronomical Union Minor Planet Center is "the single worldwide location for
+receipt and distribution of positional measurements of minor planets, comets, and outer irregular
 natural satellites of the major planets".
 """
 from astropy import config as _config

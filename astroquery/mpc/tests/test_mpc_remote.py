@@ -8,6 +8,7 @@ import xml.etree.ElementTree as ET
 from astropy.tests.helper import remote_data
 from ... import mpc
 
+
 @remote_data
 class TestMPC(object):
 
