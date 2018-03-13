@@ -1,12 +1,10 @@
+# -*- coding: utf-8 -*-
+
 from ..query import BaseQuery
 from . import conf
 from ..utils import async_to_sync
 
 __all__ = ['MPCClass']
-
-
-class InvalidArgumentException(ValueError):
-    pass
 
 
 @async_to_sync
@@ -121,7 +119,7 @@ class MPCClass(BaseQuery):
             km_neo :
                 value = 1 flags NEOs larger than ~1 km in diameter.
             pha :
-                value = 1 flags Potentially Hazardous Asteroids (PHAs). <
+                value = 1 flags Potentially Hazardous Asteroids (PHAs).
             mercury_moid :
                 Minimum Orbit Intersection Distance with respect to Mercury. (AU)
             venus_moid :
@@ -253,7 +251,7 @@ class MPCClass(BaseQuery):
             km_neo :
                 value = 1 flags NEOs larger than ~1 km in diameter.
             pha :
-                value = 1 flags Potentially Hazardous Asteroids (PHAs). <
+                value = 1 flags Potentially Hazardous Asteroids (PHAs).
             mercury_moid :
                 Minimum Orbit Intersection Distance with respect to Mercury. (AU)
             venus_moid :
@@ -288,6 +286,9 @@ class MPCClass(BaseQuery):
     def _args_to_payload(self, **kwargs):
         request_args = kwargs
         kwargs['json'] = 1
+        return_fields = kwargs.pop('return_fields', None)
+        if return_fields:
+            kwargs['return'] = return_fields
         return request_args
 
 

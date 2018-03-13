@@ -1,9 +1,5 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-import os
-import re
-import pytest
 import requests
-import xml.etree.ElementTree as ET
 
 from astropy.tests.helper import remote_data
 from ... import mpc
