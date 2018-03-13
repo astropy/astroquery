@@ -19,7 +19,8 @@ class MockResponseMPC(MockResponse):
 
 def test_query_object_get_query_payload():
     with patch('astroquery.query.BaseQuery._request') as base_query_mock:
-        # This test shouldn't make a remote call, but patching the BaseQuery class is done to ensure that a remote call isn't made for any reason
+        # This test shouldn't make a remote call, but patching the BaseQuery class
+        # is done to ensure that a remote call isn't made for any reason
         base_query_mock.return_value = MockResponseMPC()
         request_payload = mpc.core.MPC.query_object_async(name='ceres', get_query_payload=True)
         assert request_payload == {"name": "ceres", "json": 1, "limit": 1}
