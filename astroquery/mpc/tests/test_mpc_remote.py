@@ -11,14 +11,6 @@ from ... import mpc
 @remote_data
 class TestMPC(object):
 
-    def read_data_file(self, filename):
-        query_args = dict()
-        with open(os.path.join(os.getcwd(), 'tests/data', filename), 'r') as data:
-            for line in data:
-                curr_line = line.split(',')
-                query_args[curr_line[0]] = curr_line[1]
-        return query_args
-
     def test_query_object_valid_object_by_name(self):
         response = mpc.core.MPC.query_object_async(name="ceres", get_query_payload=False)
         assert response.status_code == requests.codes.ok
