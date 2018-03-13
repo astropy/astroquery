@@ -1,13 +1,9 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-import os
-import re
-
 import pytest
 
 from ... import mpc
 from ...utils.testing_tools import MockResponse
 from ...utils import commons
-from ...exceptions import TableParseError
 
 
 @pytest.fixture
