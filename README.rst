@@ -108,7 +108,8 @@ List of Modules
   * `NVAS archive <http://astroquery.readthedocs.io/en/latest/nvas/nvas.html>`_
   * `Open Expolanet Catalog (OEC) <http://astroquery.readthedocs.io/en/latest/open_exoplanet_catalogue/open_exoplanet_catalogue.html>`_
   * `JPL Horizons <http://astroquery.readthedocs.io/en/latest/jplhorizons/jplhorizons.html>`_: JPL Solar System Dynamics Horizons Service
-    
+  * `OAC API <http://astroquery.readthedocs.io/en/latest/oac/oac.html>`_: Open Astronomy Catalog REST API Service
+
 Additional Links
 ----------------
 

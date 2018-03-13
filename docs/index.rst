@@ -187,6 +187,7 @@ These others are functional, but do not follow a common & consistent API:
   hitran/hitran.rst
   nasa_exoplanet_archive/nasa_exoplanet_archive.rst
   exoplanet_orbit_database/exoplanet_orbit_database.rst
+  oac/oac.rst
 
 Catalog, Archive, and Other
 ===========================

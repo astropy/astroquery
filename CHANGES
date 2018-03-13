@@ -8,6 +8,7 @@
 - vo_conesearch: URL for validated services have changed. Old URL should still
   redirect but it is deprecated. [#1033]
 - MAST: bugfix, removing filesize checking due to unreliable filesize reporting in the database [#1050]
+- New tool: Open Astronomy Catalog API to obtain data products on supernovae, TDEs, and kilonovae. [#1053]
 
 0.3.7 (2018-01-25)
 ------------------
