@@ -214,6 +214,8 @@ def write_lamda_datafile(filename, tables):
     tables: tuple
         Tuple of Tables ({rateid: coll_table}, rad_table, mol_table)
     """
+    import platform
+    import sys
 
     collrates, radtransitions, enlevels = tables
 
@@ -247,7 +249,15 @@ def write_lamda_datafile(filename, tables):
                      """)
     coll_part_hdr = re.sub('^ +', '', coll_part_hdr, flags=re.MULTILINE)
 
-    with open(filename, 'w') as f:
+    if platform.system() == 'Windows':
+        if sys.version_info[0] >= 3:
+            stream = open(filename, 'w', newline='')
+        else:
+            stream = open(filename, 'wb')
+    else:
+        stream = open(filename, 'w')
+
+    with stream as f:
         f.write(levels_hdr.format(enlevels.meta['molecule'],
                                   enlevels.meta['molwt'],
                                   enlevels.meta['nenergylevels']))
