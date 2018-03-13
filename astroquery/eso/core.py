@@ -356,7 +356,7 @@ class EsoClass(QueryWithLogin):
                 surveys = surveys.split(",")
             query_dict['collection_name'] = surveys
             if self.ROW_LIMIT >= 0:
-                query_dict["max_rows_returned"] = self.ROW_LIMIT
+                query_dict["max_rows_returned"] = int(self.ROW_LIMIT)
             else:
                 query_dict["max_rows_returned"] = 10000
 
@@ -470,7 +470,7 @@ class EsoClass(QueryWithLogin):
             for k in columns:
                 query_dict["tab_" + k] = True
             if self.ROW_LIMIT >= 0:
-                query_dict["max_rows_returned"] = self.ROW_LIMIT
+                query_dict["max_rows_returned"] = int(self.ROW_LIMIT)
             else:
                 query_dict["max_rows_returned"] = 10000
             # used to be form 0, but now there's a new 'logout' form at the top
