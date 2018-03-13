@@ -3,7 +3,6 @@ import os
 import re
 
 import pytest
-from unittest.mock import patch
 
 from ... import mpc
 from ...utils.testing_tools import MockResponse
@@ -11,19 +10,23 @@ from ...utils import commons
 from ...exceptions import TableParseError
 
 
-class MockResponseMPC(MockResponse):
+@pytest.fixture
+def patch_post(request):
+    try:
+        mp = request.getfixturevalue("monkeypatch")
+    except AttributeError:  # pytest < 3
+        mp = request.getfuncargvalue("monkeypatch")
+    mp.setattr(mpc.MPCClass, '_request', post_mockreturn)
+    return mp
 
-    def __init__(self, **kwargs):
-        super(MockResponseMPC, self).__init__(**kwargs)
+
+def post_mockreturn(self, httpverb, url, params, auth):
+    return MockResponse()
 
 
-def test_query_object_get_query_payload():
-    with patch('astroquery.query.BaseQuery._request') as base_query_mock:
-        # This test shouldn't make a remote call, but patching the BaseQuery class
-        # is done to ensure that a remote call isn't made for any reason
-        base_query_mock.return_value = MockResponseMPC()
-        request_payload = mpc.core.MPC.query_object_async(name='ceres', get_query_payload=True)
-        assert request_payload == {"name": "ceres", "json": 1, "limit": 1}
+def test_query_object_get_query_payload(patch_post):
+    request_payload = mpc.core.MPC.query_object_async(name='ceres', get_query_payload=True)
+    assert request_payload == {"name": "ceres", "json": 1, "limit": 1}
 
 
 def test_args_to_payload():
