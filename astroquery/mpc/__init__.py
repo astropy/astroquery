@@ -31,4 +31,4 @@ conf = Conf()
 
 from .core import MPC, MPCClass
 
-__all__ = ['MPCCLass', 'conf']
+__all__ = ['MPCClass', 'conf']
