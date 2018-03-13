@@ -16,9 +16,10 @@ This amounts to about 1 per cent of the Galactic stellar population.
 If you use public Gaia DR1 data in your paper, please take note of our guide_ on
 how to acknowledge and cite Gaia DR1.
 
-.. _guide: http://gaia.esac.esa.int/documentation/GDR1/Miscellaneous/sec_credit_and_citation_instructions.html
+.. _guide: https://gaia.esac.esa.int/documentation/GDR1/Miscellaneous/sec_credit_and_citation_instructions.html
 
-This package allows the access to the European Space Agency Gaia Archive (http://archives.esac.esa.int/gaia)
+This package allows the access to the European Space Agency Gaia Archive
+(http://gea.esac.esa.int/archive/)
 
 Gaia Archive access is based on a TAP+ REST service. TAP+ is an extension of
 Table Access Protocol (TAP: http://www.ivoa.net/documents/TAP/) specified by the
