@@ -8,6 +8,7 @@
 - vo_conesearch: URL for validated services have changed. Old URL should still
   redirect but it is deprecated. [#1033]
 - MAST: bugfix, removing filesize checking due to unreliable filesize reporting in the database [#1050]
+- MPC: Added module to query the Minor Planet Center web service [#1064]
 
 0.3.7 (2018-01-25)
 ------------------
