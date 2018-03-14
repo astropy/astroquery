@@ -24,7 +24,7 @@ class MPCClass(BaseQuery):
 
         The following are valid query parameters for the MPC API search. The params list and
         description are from https://minorplanetcenter.net/web_service/ and are accurate
-        as of 3/6/2018:
+        as of 3/6/2018
 
         Parameters
         ----------
@@ -96,17 +96,17 @@ class MPCClass(BaseQuery):
             orbit_type :
                 Asteroids are classified from a dynamics perspective by the area of the Solar
                 System in which they orbit. A number identifies each orbit type:
-                    0: Unclassified (mostly Main Belters)
-                    1: Atiras
-                    2: Atens
-                    3: Apollos
-                    4: Amors
-                    5: Mars Crossers
-                    6: Hungarias
-                    7: Phocaeas
-                    8: Hildas
-                    9: Jupiter Trojans
-                    10: Distant Objects
+                0: Unclassified (mostly Main Belters)
+                1: Atiras
+                2: Atens
+                3: Apollos
+                4: Amors
+                5: Mars Crossers
+                6: Hungarias
+                7: Phocaeas
+                8: Hildas
+                9: Jupiter Trojans
+                10: Distant Objects
             delta_v (km/sec) :
                 Δv, an estimate of the amount of energy necessary to jump from LEO (Low Earth
                 Orbit) to the asteroid's orbit.
@@ -228,18 +228,18 @@ class MPCClass(BaseQuery):
                 decreases. When not known, a value of G = 0.15 is assumed.
             orbit_type :
                 Asteroids are classified from a dynamics perspective by the area of the Solar
-                System in which they orbit. A number identifies each orbit type:
-                    0: Unclassified (mostly Main Belters)
-                    1: Atiras
-                    2: Atens
-                    3: Apollos
-                    4: Amors
-                    5: Mars Crossers
-                    6: Hungarias
-                    7: Phocaeas
-                    8: Hildas
-                    9: Jupiter Trojans
-                    10: Distant Objects
+                System in which they orbit. A number identifies each orbit type.
+                0: Unclassified (mostly Main Belters)
+                1: Atiras
+                2: Atens
+                3: Apollos
+                4: Amors
+                5: Mars Crossers
+                6: Hungarias
+                7: Phocaeas
+                8: Hildas
+                9: Jupiter Trojans
+                10: Distant Objects
             delta_v (km/sec) :
                 Δv, an estimate of the amount of energy necessary to jump from LEO (Low Earth
                 Orbit) to the asteroid's orbit.
