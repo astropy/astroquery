@@ -398,7 +398,7 @@ class MastClass(QueryWithLogin):
         service : string
             The service for which the columns config will be fetched.
         fetch_name : string, optional
-            If the columns config asociated with the service has a different name,
+            If the columns-config associated with the service has a different name,
             use this argument. The default sets it to the same as service.
         """
 
@@ -755,9 +755,7 @@ class MastClass(QueryWithLogin):
                 continue
 
             colType = "discrete"
-            if colInfo.get("vot.datatype", colInfo.get("type")) in ("double", "float"):
-                colType = "continuous"
-            elif colInfo.get("treatNumeric"):
+            if (colInfo.get("vot.datatype", colInfo.get("type")) in ("double", "float")) or colInfo.get("treatNumeric"):
                 colType = "continuous"
 
             separator = colInfo.get("separator")
@@ -1570,7 +1568,7 @@ class CatalogsClass(MastClass):
             E.g. when using a slow internet connection.
         page : int, optional
             Can be used to override the default behavior of all results being returned to obtain
-            one sepcific page of results.
+            one specific page of results.
         **criteria
             Criteria to apply. At least one non-positional criteria must be supplied.
             Valid criteria are coordinates, objectname, radius (as in `query_region` and `query_object`),
