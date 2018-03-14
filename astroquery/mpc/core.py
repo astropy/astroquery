@@ -68,7 +68,7 @@ class MPCClass(BaseQuery):
                 ω, defines the orientation of the ellipse in the orbital plane and is the
                 angle from the asteroid's ascending node to its perihelion, measured in the
                 direction of motion. Range: 0–360°.
-            ascending_node (°) :99008912
+            ascending_node (°) :
                 Ω, the longitude of the ascending node, it defines the horizontal orientation
                 of the ellipse with respect to the ecliptic, and is the angle measured
                 counterclockwise (as seen from North of the ecliptic) from the First Point of
@@ -136,6 +136,7 @@ class MPCClass(BaseQuery):
                 Minimum Orbit Intersection Distance with respect to Uranus. (AU)
             neptune_moid :
                 Minimum Orbit Intersection Distance with respect to Neptune. (AU)
+
         """
 
         get_query_payload = kwargs.get('get_query_payload', False)
