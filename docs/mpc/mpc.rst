@@ -92,6 +92,7 @@ they're interested in.
 
     >>> result = mpc.query_object_async(name="ceres", return_fields="name,number")
     >>> print(result.content)
+
     [{"name":"Ceres","number":1}]
 
 

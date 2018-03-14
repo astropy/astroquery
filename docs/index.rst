@@ -153,6 +153,7 @@ The following modules have been completed using a common API:
   irsa/irsa.rst
   ukidss/ukidss.rst
   magpis/magpis.rst
+  mpc/mpc.rst
   nrao/nrao.rst
   besancon/besancon.rst
   nist/nist.rst
