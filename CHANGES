@@ -4,6 +4,7 @@
 - heasarc: Add additional functionality and expand query capabilities [#1047]
 - New tool: JPL Horizons service to obtain ephemerides, orbital elements, and
   state vectors for Solar System objects. [#1023]
+- New tool: MPC to query the Minor Planet Center web service [#1064]
 - ATOMIC: Fixed remote tests that were broken. [#1038]
 - vo_conesearch: URL for validated services have changed. Old URL should still
   redirect but it is deprecated. [#1033]
@@ -11,6 +12,7 @@
 - MAST: Added Catalogs class. [#1049]
 - New tool: Open Astronomy Catalog API to obtain data products on supernovae, TDEs, and kilonovae. [#1053]
 - IRSA Dust: call over https. [#1069]
+
 
 0.3.7 (2018-01-25)
 ------------------
