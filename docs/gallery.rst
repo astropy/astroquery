@@ -166,9 +166,9 @@ Example 7
 +++++++++
 Find ALMA pointings that have been observed toward M83, then overplot the
 various fields-of view on a 2MASS image retrieved from SkyView.  See
-http://nbviewer.ipython.org/gist/keflavich/19175791176e8d1fb204 for the
+http://nbviewer.jupyter.org/gist/keflavich/19175791176e8d1fb204 for the
 notebook.  There is an even more sophisticated version at
-http://nbviewer.ipython.org/gist/keflavich/bb12b772d6668cf9181a, which shows
+http://nbviewer.jupyter.org/gist/keflavich/bb12b772d6668cf9181a, which shows
 Orion KL in all observed bands.
 
 .. code-block:: python

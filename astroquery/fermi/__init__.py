@@ -2,8 +2,8 @@
 """
 Access to Fermi Gamma-ray Space Telescope data.
 
-http://fermi.gsfc.nasa.gov
-http://fermi.gsfc.nasa.gov/ssc/data/
+https://fermi.gsfc.nasa.gov
+https://fermi.gsfc.nasa.gov/ssc/data/
 """
 from astropy import config as _config
 
@@ -14,7 +14,7 @@ class Conf(_config.ConfigNamespace):
     """
 
     url = _config.ConfigItem(
-        'http://fermi.gsfc.nasa.gov/cgi-bin/ssc/LAT/LATDataQuery.cgi',
+        'https://fermi.gsfc.nasa.gov/cgi-bin/ssc/LAT/LATDataQuery.cgi',
         'Fermi query URL.')
     timeout = _config.ConfigItem(
         60,
