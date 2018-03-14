@@ -41,6 +41,7 @@ def test_simple(patch_get):
                                         chemical_name=' CO ')
 
 
+@remote_data
 def test_init(patch_get):
     x = splatalogue.Splatalogue.query_lines(114 * u.GHz, 116 * u.GHz,
                                             chemical_name=' CO ')
