@@ -9,7 +9,7 @@ Skyview Queries (`astroquery.skyview`)
 Getting started
 ===============
 
-The `SkyView <skyview.gsfc.nasa.gov>`_ service offers a cutout service for a
+The `SkyView <https://skyview.gsfc.nasa.gov/>`_ service offers a cutout service for a
 number of imaging surveys.
 
 To see the list of surveys, use the `~astroquery.skyview.SkyViewClass.list_surveys` method:

@@ -114,6 +114,7 @@ class SplatalogueClass(BaseQuery):
         {'03023 H2CO - Formaldehyde': '194',
          '03109 H2COH+ - Hydroxymethylium ion': '224',
          '04406 c-H2COCH2 - Ethylene Oxide': '21',
+         '06029 NH2CONH2 - Urea': '21166',
          '07510 H2NCH2COOH - I v=0 - Glycine': '389',
          '07511 H2NCH2COOH - I v=1 - Glycine': '1312',
          '07512 H2NCH2COOH - I v=2 - Glycine': '1313',

@@ -6,7 +6,6 @@ from numpy import nan as nan
 from numpy import isnan
 from numpy import ndarray
 from collections import OrderedDict
-import warnings
 
 # 2. third party imports
 from astropy.table import Column
@@ -17,8 +16,6 @@ from astropy.time import Time
 # commonly required local imports shown below as example
 # all Query classes should inherit from BaseQuery.
 from ..query import BaseQuery
-# prepend_docstr is a way to copy docstrings between methods
-from ..utils import prepend_docstr_nosections
 # async_to_sync generates the relevant query tools from _async methods
 from ..utils import async_to_sync
 # import configurable items declared in __init__.py
@@ -40,19 +37,19 @@ class HorizonsClass(BaseQuery):
         ----------
         id : str, required
             Name, number, or designation of the object to be queried
-        location: str, optional
+        location : str, optional
             Observer's location for ephemerides queries or center body
             name for orbital element or vector queries. Uses the same
             codes as JPL Horizons. If no location is provided, Earth's
             center is used for ephemerides queries and the Sun's
             center for elements and vectors queries.
-        epochs: scalar, list, or dictionary, optional
-            Either a list of epochs in JD format or a dictionary
+        epochs : scalar, list-like, or dictionary, optional
+            Either a list of epochs in JD or MJD format or a dictionary
             defining a range of times and dates; the range dictionary has to
             be of the form {``'start'``:'YYYY-MM-DD [HH:MM:SS]',
             ``'stop'``:'YYYY-MM-DD [HH:MM:SS]', ``'step'``:'n[y|d|m|s]'}. If no
             epochs are provided, the current time is used.
-        id_type: str, optional
+        id_type : str, optional
             Identifier type, options:
             ``'smallbody'``, ``'majorbody'`` (planets but also
             anything that is not a small body), ``'designation'``,
@@ -134,36 +131,9 @@ class HorizonsClass(BaseQuery):
                           get_raw_response=False, cache=True):
 
         """
-        Query JPL Horizons for ephemerides. The ``location`` parameter in
-        ``HorizonsClass`` refers in this case to the location of the observer.
-
-        Parameters
-        ----------
-        airmass_lessthan : float, optional
-            Defines a maximum airmass for the query, default: 99
-        solar_elongation : tuple, optional
-            Permissible solar elongation range: (minimum, maximum); default:
-            (0,180)
-        hour_angle : float, optional
-            Defines a maximum hour angle for the query, default: 0
-        skip_daylight : boolean, optional
-            Crop daylight epochs in query, default: False
-        closest_apparition : boolean, optional
-            Only applies to comets. This option will choose the
-            closest apparition available in time to the selected
-            epoch; default: False. Do not use this option for
-            non-cometary objects.
-        no_fragments : boolean, optional
-            Only applies to comets. Reject all comet fragments from
-            selection; default: False. Do not use this option for
-            non-cometary objects.
-        get_query_payload : boolean, optional
-            When set to `True` the method returns the HTTP request parameters
-            as a dict, default: False
-        get_raw_response : boolean, optional
-            Return raw data as obtained by JPL Horizons without parsing the
-            data into a table, default: False
-
+        Query JPL Horizons for ephemerides. The ``location`` parameter
+        in ``HorizonsClass`` refers in this case to the location of
+        the observer.
 
         The following table lists the values queried, their
         definitions, data types, units, and original Horizons
@@ -260,11 +230,38 @@ class HorizonsClass(BaseQuery):
         +------------------+-----------------------------------------------+
 
 
+        Parameters
+        ----------
+        airmass_lessthan : float, optional
+            Defines a maximum airmass for the query, default: 99
+        solar_elongation : tuple, optional
+            Permissible solar elongation range: (minimum, maximum); default:
+            (0,180)
+        hour_angle : float, optional
+            Defines a maximum hour angle for the query, default: 0
+        skip_daylight : boolean, optional
+            Crop daylight epochs in query, default: False
+        closest_apparition : boolean, optional
+            Only applies to comets. This option will choose the
+            closest apparition available in time to the selected
+            epoch; default: False. Do not use this option for
+            non-cometary objects.
+        no_fragments : boolean, optional
+            Only applies to comets. Reject all comet fragments from
+            selection; default: False. Do not use this option for
+            non-cometary objects.
+        get_query_payload : boolean, optional
+            When set to `True` the method returns the HTTP request parameters
+            as a dict, default: False
+        get_raw_response : boolean, optional
+            Return raw data as obtained by JPL Horizons without parsing the
+            data into a table, default: False
+
+
         Returns
         -------
         response : `requests.Response`
             The response of the HTTP request.
-
 
 
         Examples
@@ -294,6 +291,7 @@ class HorizonsClass(BaseQuery):
             0.0
                1 Ceres 2010-Feb-20 00:00   2455247.5 ...  7.976737       0.0
             0.0
+
         """
 
         URL = conf.horizons_server
@@ -341,14 +339,9 @@ class HorizonsClass(BaseQuery):
         )
 
         # parse self.epochs
-        if type(self.epochs) is list:
-            if len(self.epochs) > 15:
-                self.epochs = self.epochs[:15]
-                warnings.warn("Only the first 15 elements of 'epochs' will " +
-                              "be queried")
-            request_payload['TLIST'] = "".join(['"' + str(epoch) + '"'
-                                                for epoch
-                                                in self.epochs])
+        if isinstance(self.epochs, (list, tuple, ndarray)):
+            request_payload['TLIST'] = "\n".join([str(epoch) for epoch in
+                                                 self.epochs])
         elif type(self.epochs) is dict:
             if ('start' not in self.epochs or 'stop' not in self.epochs or
                 'step' not in self.epochs):
@@ -392,26 +385,6 @@ class HorizonsClass(BaseQuery):
         Query JPL Horizons for osculating orbital elements. The ``location``
         parameter in ``HorizonsClass`` refers in this case to the  center
         body relative to which the elements are provided.
-
-
-        Parameters
-        ----------
-        closest_apparition : boolean, optional
-            Only applies to comets. This option will choose the
-            closest apparition available in time to the selected
-            epoch; default: False. Do not use this option for
-            non-cometary objects.
-        no_fragments : boolean, optional
-            Only applies to comets. Reject all comet fragments from
-            selection; default: False. Do not use this option for
-            non-cometary objects.
-        get_query_payload : boolean, optional
-            When set to `True` the method returns the HTTP request parameters
-            as a dict, default: False
-        get_raw_response: boolean, optional
-            Return raw data as obtained by JPL Horizons without parsing the
-            data into a table, default: False
-
 
         The following table lists the values queried, their
         definitions, data types, units, and original Horizons
@@ -464,6 +437,25 @@ class HorizonsClass(BaseQuery):
         +------------------+-----------------------------------------------+
         | Q                | apoapsis distance (float, au, "AD")           |
         +------------------+-----------------------------------------------+
+
+
+        Parameters
+        ----------
+        closest_apparition : boolean, optional
+            Only applies to comets. This option will choose the
+            closest apparition available in time to the selected
+            epoch; default: False. Do not use this option for
+            non-cometary objects.
+        no_fragments : boolean, optional
+            Only applies to comets. Reject all comet fragments from
+            selection; default: False. Do not use this option for
+            non-cometary objects.
+        get_query_payload : boolean, optional
+            When set to `True` the method returns the HTTP request parameters
+            as a dict, default: False
+        get_raw_response: boolean, optional
+            Return raw data as obtained by JPL Horizons without parsing the
+            data into a table, default: False
 
 
         Returns
@@ -531,14 +523,9 @@ class HorizonsClass(BaseQuery):
         )
 
         # parse self.epochs
-        if type(self.epochs) is list:
-            if len(self.epochs) > 15:
-                self.epochs = self.epochs[:15]
-                warnings.warn("Only the first 15 elements of 'epochs' will " +
-                              "be queried")
-            request_payload['TLIST'] = "".join(['"' + str(epoch) + '"'
-                                                for epoch
-                                                in self.epochs])
+        if isinstance(self.epochs, (list, tuple, ndarray)):
+            request_payload['TLIST'] = "\n".join([str(epoch) for epoch in
+                                                 self.epochs])
         elif type(self.epochs) is dict:
             if ('start' not in self.epochs or 'stop' not in self.epochs or
                 'step' not in self.epochs):
@@ -575,26 +562,6 @@ class HorizonsClass(BaseQuery):
         Query JPL Horizons for state vectors. The ``location``
         parameter in ``HorizonsClass`` refers in this case to the center
         body relative to which the vectors are provided.
-
-
-        Parameters
-        ----------
-        closest_apparition : boolean, optional
-            Only applies to comets. This option will choose the
-            closest apparition available in time to the selected
-            epoch; default: False. Do not use this option for
-            non-cometary objects.
-        no_fragments : boolean, optional
-            Only applies to comets. Reject all comet fragments from
-            selection; default: False. Do not use this option for
-            non-cometary objects.
-        get_query_payload : boolean, optional
-            When set to `True` the method returns the HTTP request parameters
-            as a dict, default: False
-        get_raw_response: boolean, optional
-            Return raw data as obtained by JPL Horizons without parsing the
-            data into a table, default: False
-
 
         The following table lists the values queried, their
         definitions, data types, units, and original Horizons
@@ -641,6 +608,25 @@ class HorizonsClass(BaseQuery):
         +------------------+-----------------------------------------------+
         | range_rate       | range rate (float, au/d, "RR")                |
         +------------------+-----------------------------------------------+
+
+
+        Parameters
+        ----------
+        closest_apparition : boolean, optional
+            Only applies to comets. This option will choose the
+            closest apparition available in time to the selected
+            epoch; default: False. Do not use this option for
+            non-cometary objects.
+        no_fragments : boolean, optional
+            Only applies to comets. Reject all comet fragments from
+            selection; default: False. Do not use this option for
+            non-cometary objects.
+        get_query_payload : boolean, optional
+            When set to `True` the method returns the HTTP request parameters
+            as a dict, default: False
+        get_raw_response: boolean, optional
+            Return raw data as obtained by JPL Horizons without parsing the
+            data into a table, default: False
 
 
         Returns
@@ -725,14 +711,9 @@ class HorizonsClass(BaseQuery):
         )
 
         # parse self.epochs
-        if type(self.epochs) is list:
-            if len(self.epochs) > 15:
-                self.epochs = self.epochs[:15]
-                warnings.warn("Only the first 15 elements of 'epochs' will " +
-                              "be queried")
-            request_payload['TLIST'] = "".join(['"' + str(epoch) + '"'
-                                                for epoch
-                                                in self.epochs])
+        if isinstance(self.epochs, (list, tuple, ndarray)):
+            request_payload['TLIST'] = "\n".join([str(epoch) for epoch in
+                                                 self.epochs])
         elif type(self.epochs) is dict:
             if ('start' not in self.epochs or 'stop' not in self.epochs or
                 'step' not in self.epochs):

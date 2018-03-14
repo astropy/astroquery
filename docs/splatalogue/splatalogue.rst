@@ -23,7 +23,7 @@ Searching for Lines
 -------------------
 
 In the Splatalogue web interface, you select "species" of interest using the left side menu
-seen in the `query interface`_  You can access the line list:
+seen in the `query interface`_.  You can access the line list:
 
 .. code-block:: python
 
@@ -89,8 +89,9 @@ online interface.  In principle, we can make a higher level wrapper, but it is
 not obvious what other parameters one might want to query on (whereas with
 catalogs, you almost always need a sky-position based query tool).
 
-Any feature you can change on the `Splatalogue web form <splat_b>`_ can be
-modified in the :meth:`~astroquery.splatalogue.SplatalogueClass.query_lines` tool.
+Any feature you can change on the `Splatalogue web form <query interface_>`_
+can be modified in the
+:meth:`~astroquery.splatalogue.SplatalogueClass.query_lines` tool.
 
 For any Splatalogue query, you *must* specify a minimum/maximum frequency.
 However, you can do it with astropy units, so wavelengths are OK too.
@@ -238,5 +239,5 @@ Reference/API
 .. _Splatalogue: http://www.splatalogue.net
 .. _Splatalogue web service: http://www.splatalogue.net
 .. _query interface: http://www.cv.nrao.edu/php/splat/b.php
-.. _An example ipynb from an interactive tutorial session at NRAO in April 2014: http://nbviewer.ipython.org/gist/keflavich/10477775
+.. _An example ipynb from an interactive tutorial session at NRAO in April 2014: http://nbviewer.jupyter.org/gist/keflavich/10477775
 

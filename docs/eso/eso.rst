@@ -104,7 +104,7 @@ Identifying available instrument-specific queries
 
 The direct retrieval of datasets is better explained with a running example, continuing from the
 authentication example above. The first thing to do is to identify the instrument to query. The
-list of available instrument-specific queries can be obtiained with the
+list of available instrument-specific queries can be obtained with the
 :meth:`~astroquery.eso.EsoClass.list_instruments` method.
 
 .. code-block:: python

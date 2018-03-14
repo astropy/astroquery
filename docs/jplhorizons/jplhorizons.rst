@@ -75,8 +75,8 @@ respective id number or record number as ``id`` and use ``id_type=id``:
      2P/Encke 2018-Jan-17 05:06:07.709 2458135.712589224 ...        --         --
 
 
-JPL Horizons
-------------
+Querying JPL Horizons
+---------------------
 
 The `JPL Horizons`_ system provides ephemerides, orbital elements, and
 state vectors for almost all known Solar System bodies. These queries
