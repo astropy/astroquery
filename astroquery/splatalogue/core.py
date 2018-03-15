@@ -448,9 +448,9 @@ class SplatalogueClass(BaseQuery):
         if get_query_payload:
             return data_payload
 
-        response = self._request(method='POST',
+        response = self._request(method='GET',
                                  url=self.QUERY_URL,
-                                 data=data_payload,
+                                 params=data_payload,
                                  timeout=self.TIMEOUT,
                                  cache=cache)
 
