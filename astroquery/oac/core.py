@@ -66,7 +66,7 @@ class OACClass(BaseQuery):
             These are special conditional arguments that can be applied
             to a query to refine.
             Examples include: 'band=i' returns only i-band photometry,
-            'first' returns the first result, 'sorby=attribute' returns
+            'first' returns the first result, 'sortby=attribute' returns
             a table sorted by the given attribute, and 'complete' returns
             only those table rows with all of the requested attributes.
             A complete list of commands and their usage can be found at:
@@ -156,7 +156,7 @@ class OACClass(BaseQuery):
             These are special conditional arguments that can be applied
             to a query to refine.
             Examples include: 'band=i' returns only i-band photometry,
-            'first' returns the first result, 'sorby=attribute' returns
+            'first' returns the first result, 'sortby=attribute' returns
             a table sorted by the given attribute, and 'complete' returns
             only those table rows with all of the requested attributes.
             A complete list of commands and their usage can be found at:
@@ -263,7 +263,7 @@ class OACClass(BaseQuery):
         return response
 
     def get_photometry_async(self, event, argument=None, cache=True):
-        """
+       """
         Retrieve all photometry for specified event(s).
 
         This is a version of the query_object method
@@ -286,7 +286,7 @@ class OACClass(BaseQuery):
             These are special conditional arguments that can be applied
             to a query to refine.
             Examples include: 'band=i' returns only i-band photometry,
-            'first' returns the first result, 'sorby=attribute' returns
+            'first' returns the first result, 'sortby=attribute' returns
             a table sorted by the given attribute, and 'complete' returns
             only those table rows with all of the requested attributes.
             A complete list of commands and their usage can be found at:
