@@ -480,7 +480,7 @@ class OACClass(BaseQuery):
             if response.status_code != 200:
                 raise AttributeError
 
-            if 'message' in response:
+            if 'message' in response.text:
                 raise KeyError
 
             raw_output = response.text
@@ -493,7 +493,7 @@ class OACClass(BaseQuery):
 
         except KeyError:
             print("ERROR: API Server returned the following error:")
-            print(response['message'])
+            print(response.text)
             return
 
         return output_response
