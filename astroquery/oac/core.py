@@ -263,7 +263,7 @@ class OACClass(BaseQuery):
         return response
 
     def get_photometry_async(self, event, argument=None, cache=True):
-       """
+        """
         Retrieve all photometry for specified event(s).
 
         This is a version of the query_object method
