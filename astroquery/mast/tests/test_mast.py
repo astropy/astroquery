@@ -17,12 +17,19 @@ from ... import mast
 DATA_FILES = {'Mast.Caom.Cone': 'caom.json',
               'Mast.Name.Lookup': 'resolver.json',
               'columnsconfig': 'columnsconfig.json',
+              'ticcolumns': 'ticcolumns.json',
+              'ddcolumns': 'ddcolumns.json',
               'Mast.Caom.Filtered': 'advSearch.json',
               'Mast.Caom.Filtered.Position': 'advSearchPos.json',
               'Counts': 'countsResp.json',
               'Mast.Caom.Products': 'products.json',
               'Mast.Bundle.Request': 'bundleResponse.json',
-              'Mast.Caom.All': 'missions.extjs'}
+              'Mast.Caom.All': 'missions.extjs',
+              'Mast.Hsc.Db': 'hsc.json',
+              'Mast.Catalogs.Filtered.Tic': 'tic.json',
+              'Mast.Catalogs.Filtered.DiskDetective.Position': 'dd.json',
+              'Mast.HscMatches.Db': 'matchid.json',
+              'Mast.HscSpectra.Db.All': 'spectra.json'}
 
 
 def data_path(filename):
@@ -38,8 +45,10 @@ def patch_post(request):
         mp = request.getfuncargvalue("monkeypatch")
     mp.setattr(mast.Mast, '_request', post_mockreturn)
     mp.setattr(mast.Observations, '_request', post_mockreturn)
+    mp.setattr(mast.Catalogs, '_request', post_mockreturn)
     mp.setattr(mast.Mast, '_download_file', download_mockreturn)
     mp.setattr(mast.Observations, '_download_file', download_mockreturn)
+    mp.setattr(mast.Catalogs, '_download_file', download_mockreturn)
     mp.setattr(mast.Mast, 'session_info', session_info_mockreturn)
     mp.setattr(mast.Observations, 'session_info', session_info_mockreturn)
     return mp
@@ -48,7 +57,13 @@ def patch_post(request):
 def post_mockreturn(method="POST", url=None, data=None, timeout=10, **kwargs):
 
     if "columnsconfig" in url:
-        service = "columnsconfig"
+        if "Mast.Catalogs.Tess.Cone" in data:
+            service = "ticcolumns"
+        elif "Mast.Catalogs.Dd.Cone" in data:
+            service = "ddcolumns"
+        else:
+            service = 'columnsconfig'
+
     else:
         service = re.search(r"service%22%3A%20%22([\w\.]*)%22", data).group(1)
 
@@ -76,7 +91,9 @@ def session_info_mockreturn(silent=False):
     return anonSession
 
 
-# Mast MastClass tests ##
+###################
+# MastClass tests #
+###################
 
 def test_list_missions(patch_post):
     missions = mast.Observations.list_missions()
@@ -107,7 +124,10 @@ def test_mast_service_request(patch_post):
     assert isinstance(result, Table)
 
 
-# ObservationsClass tests ##
+###########################
+# ObservationsClass tests #
+###########################
+
 
 regionCoords = coord.SkyCoord(23.34086, 60.658, unit=('deg', 'deg'))
 
@@ -134,7 +154,7 @@ def test_observations_query_object(patch_post):
     assert isinstance(result, Table)
 
 
-def test_query_criteria_async(patch_post):
+def test_query_observations_criteria_async(patch_post):
     # without position
     responses = mast.Observations.query_criteria_async(dataproduct_type=["image"],
                                                        proposal_pi="Ost*",
@@ -147,7 +167,7 @@ def test_query_criteria_async(patch_post):
     assert isinstance(responses, list)
 
 
-def test_query_criteria(patch_post):
+def test_observations_query_criteria(patch_post):
     # without position
     result = mast.Observations.query_criteria(dataproduct_type=["image"],
                                               proposal_pi="Ost*",
@@ -171,7 +191,7 @@ def test_observations_query_object_count(patch_post):
     assert result == 599
 
 
-def test_query_criteria_count(patch_post):
+def test_observations_query_criteria_count(patch_post):
     result = mast.Observations.query_criteria_count(dataproduct_type=["image"],
                                                     proposal_pi="Ost*",
                                                     s_dec=[43.5, 45.5])
@@ -179,7 +199,7 @@ def test_query_criteria_count(patch_post):
 
 
 # product functions
-def test_get_product_list_async(patch_post):
+def test_observations_get_product_list_async(patch_post):
     responses = mast.Observations.get_product_list_async('2003738726')
     assert isinstance(responses, list)
 
@@ -194,7 +214,7 @@ def test_get_product_list_async(patch_post):
     assert isinstance(responses, list)
 
 
-def test_get_product_list(patch_post):
+def test_observations_get_product_list(patch_post):
     result = mast.Observations.get_product_list('2003738726')
     assert isinstance(result, Table)
 
@@ -209,7 +229,7 @@ def test_get_product_list(patch_post):
     assert isinstance(result, Table)
 
 
-def test_filter_products(patch_post):
+def test_observations_filter_products(patch_post):
     products = mast.Observations.get_product_list('2003738726')
     result = mast.Observations.filter_products(products,
                                                productType=["SCIENCE"],
@@ -218,7 +238,7 @@ def test_filter_products(patch_post):
     assert len(result) == 7
 
 
-def test_download_products(patch_post, tmpdir):
+def test_observations_download_products(patch_post, tmpdir):
     # actually download the products
     result = mast.Observations.download_products('2003738726',
                                                  download_dir=str(tmpdir),
@@ -232,4 +252,89 @@ def test_download_products(patch_post, tmpdir):
                                                  curl_flag=True,
                                                  productType=["SCIENCE"],
                                                  mrp_only=False)
+    assert isinstance(result, Table)
+
+
+######################
+# CatalogClass tests #
+######################
+
+
+def test_catalogs_query_region_async(patch_post):
+    responses = mast.Catalogs.query_region_async(regionCoords, radius=0.002)
+    assert isinstance(responses, list)
+
+
+def test_catalogs_query_region(patch_post):
+    result = mast.Catalogs.query_region(regionCoords, radius=0.002 * u.deg)
+    assert isinstance(result, Table)
+
+
+def test_catalogs_query_object_async(patch_post):
+    responses = mast.Catalogs.query_object_async("M101", radius="0.002 deg")
+    assert isinstance(responses, list)
+
+
+def test_catalogs_query_object(patch_post):
+    result = mast.Catalogs.query_object("M101", radius=".002 deg")
+    assert isinstance(result, Table)
+
+
+def test_catalogs_query_criteria_async(patch_post):
+    # without position
+    responses = mast.Catalogs.query_criteria_async(catalog="Tic",
+                                                   Bmag=[30, 50], objType="STAR")
+    assert isinstance(responses, list)
+
+    # with position
+    responses = mast.Catalogs.query_criteria_async(catalog="DiskDetective",
+                                                   objectname="M10", radius=2,
+                                                   state="complete")
+    assert isinstance(responses, list)
+
+
+def test_catalogs_query_criteria(patch_post):
+    # without position
+    result = mast.Catalogs.query_criteria(catalog="Tic",
+                                          Bmag=[30, 50], objType="STAR")
+
+    assert isinstance(result, Table)
+
+    # with position
+    result = mast.Catalogs.query_criteria(catalog="DiskDetective",
+                                          objectname="M10", radius=2,
+                                          state="complete")
+    assert isinstance(result, Table)
+
+
+def test_catalogs_query_hsc_matchid_async(patch_post):
+    responses = mast.Catalogs.query_hsc_matchid_async(82371983)
+    assert isinstance(responses, list)
+
+
+def test_catalogs_query_hsc_matchid(patch_post):
+    result = mast.Catalogs.query_hsc_matchid(82371983)
+    assert isinstance(result, Table)
+
+
+def test_catalogs_get_hsc_spectra_async(patch_post):
+    responses = mast.Catalogs.get_hsc_spectra_async()
+    assert isinstance(responses, list)
+
+
+def test_catalogs_get_hsc_spectra(patch_post):
+    result = mast.Catalogs.get_hsc_spectra()
+    assert isinstance(result, Table)
+
+
+def test_catalogs_download_hsc_spectra(patch_post, tmpdir):
+    allSpectra = mast.Catalogs.get_hsc_spectra()
+
+    # actually download the products
+    result = mast.Catalogs.download_hsc_spectra(allSpectra[10], download_dir=str(tmpdir))
+    assert isinstance(result, Table)
+
+    # just get the curl script
+    result = mast.Catalogs.download_hsc_spectra(allSpectra[20:24],
+                                                download_dir=str(tmpdir), curl_flag=True)
     assert isinstance(result, Table)
