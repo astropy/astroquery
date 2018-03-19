@@ -10,7 +10,7 @@ Getting Started
 ===============
 
 The astroquery vamdc interface requires vamdclib_.  The documentation is sparse
-to nonexistant, but installation is straightforward::
+to nonexistent, but installation is straightforward::
 
     pip install https://github.com/keflavich/vamdclib/archive/master.zip
 

@@ -10,7 +10,7 @@ Getting started
 ===============
 
 This is a python interface for querying the
-`HEASARC <http://heasarc.gsfc.nasa.gov/>`__
+`HEASARC <https://heasarc.gsfc.nasa.gov/>`__
 archive web service.
 
 The capabilities are currently very limited ... feature requests and contributions welcome!

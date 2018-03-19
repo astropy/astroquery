@@ -14,8 +14,10 @@ Introduction
 Astroquery is a set of tools for querying astronomical web forms and databases.
 
 There are two other packages with complimentary functionality as Astroquery:
-`astropy.vo <http://docs.astropy.org/en/latest/vo/index.html>`_ is in the Astropy core and
-`pyvo <https://pyvo.readthedocs.io/en/latest/>`_ is an Astropy affiliated package.
+`pyvo <https://pyvo.readthedocs.io/en/latest/>`_ is an Astropy affiliated package, and
+`Simple-Cone-Search-Creator <https://github.com/tboch/Simple-Cone-Search-Creator/>`_ to
+generate a cone search service complying with the
+`IVOA standard <http://www.ivoa.net/documents/latest/ConeSearch.html>`_.
 They are more oriented to general `virtual observatory <http://www.virtualobservatory.org>`_
 discovery and queries, whereas Astroquery has web service specific interfaces.
 
@@ -42,7 +44,7 @@ Using conda
 ^^^^^^^^^^^
 
 It is also possible to install the latest astroquery with `anaconda
-<http://continuum.io/>`_ from the astropy channel:
+<https://anaconda.com/>`_ from the astropy channel:
 
 .. code-block:: bash
 
@@ -75,7 +77,7 @@ The following packages are required for astroquery installation & use:
 * `astropy <http://www.astropy.org>`__ (>=1.0)
 * `requests <http://docs.python-requests.org/en/latest/>`_
 * `keyring <https://pypi.python.org/pypi/keyring>`_
-* `Beautiful Soup <http://www.crummy.com/software/BeautifulSoup/>`_
+* `Beautiful Soup <https://www.crummy.com/software/BeautifulSoup/>`_
 * `html5lib <https://pypi.python.org/pypi/html5lib>`_
 
 and for running the tests:
@@ -186,6 +188,7 @@ These others are functional, but do not follow a common & consistent API:
   hitran/hitran.rst
   nasa_exoplanet_archive/nasa_exoplanet_archive.rst
   exoplanet_orbit_database/exoplanet_orbit_database.rst
+  oac/oac.rst
 
 Catalog, Archive, and Other
 ===========================

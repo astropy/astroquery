@@ -253,7 +253,7 @@ Filtering
 ^^^^^^^^^
 
 Filter keyword arguments can be applied to download only data products that meet the given criteria.
-Available filters are "mrp_only" (Minium Recommended Products), "extension" (file extension),
+Available filters are "mrp_only" (Minimum Recommended Products), "extension" (file extension),
 and all products fields listed `here <https://mast.stsci.edu/api/v0/_productsfields.html>`_.
 
 **Important: mrp_only defaults to True.**
@@ -274,7 +274,7 @@ The below example illustrates downloading all product files with the extension "
                 Downloading URL https://mast.stsci.edu/api/v0/download/file/HST/product/ib3p11q9q_raw.fits to ./mastDownload/HST/IB3P11Q9Q/ib3p11q9q_raw.fits ... [Done]
 
 
-Product filtering can also be appllied directly to a table of products without proceeding to the download step. 
+Product filtering can also be applied directly to a table of products without proceeding to the download step.
 
 .. code-block:: python
 
