@@ -44,8 +44,8 @@ Radius is an optional parameter and the default is 0.2 degrees.
 .. code-block:: python
 
                 >>> from astroquery.mast import Observations
-                >>> observations = Observations.query_object("M8",radius=".02 deg")
-                >>> print(observations[:10])
+                >>> obsTable = Observations.query_object("M8",radius=".02 deg")
+                >>> print(obsTable[:10])
                 
                 dataproduct_type obs_collection instrument_name ...    distance   
                 ---------------- -------------- --------------- ... ------------- 
@@ -250,7 +250,7 @@ with a `~astropy.table.Table` of data products, or a list (or single) obsid as t
 
                 
 Filtering
-^^^^^^^^^
+---------
 
 Filter keyword arguments can be applied to download only data products that meet the given criteria.
 Available filters are "mrp_only" (Minimum Recommended Products), "extension" (file extension),
@@ -291,7 +291,202 @@ Product filtering can also be applied directly to a table of products without pr
                 4
 
 
-               
+Catalog Queries
+===============
+
+The Catalogs class provides access to a subset of the astronomical catalogs stored at MAST.  The catalogs currently available through this interface are:
+
+- The Hubble Source Catalog (HSC)
+- The GALEX Catalog
+- The Gaia and TGAS Catalogs
+- The TESS Input Catalog (TIC)
+- The Disk Detective Catalog
+
+Positional Queries
+------------------
+
+Positional queries can be based on a sky position or a target name.
+The returned fields vary by catalog, find the field documentation for specific catalogs `here <https://mast.stsci.edu/api/v0/pages.html>`__. If no catalog is specified, the Hubble Source Catalog will be queried.
+
+.. code-block:: python
+
+                >>> from astroquery.mast import Catalogs
+                >>> catalogData = Catalogs.query_object("158.47924 -7.30962", catalog="Galex")
+                >>> print(catalogData[:10])
+
+                distance_arcmin        objID        survey ... fuv_flux_aper_7 fuv_artifact
+                --------------- ------------------- ------ ... --------------- ------------
+                 0.349380250633 6382034098673685038    AIS ...     0.047751952            0
+                  0.76154224886 6382034098672634783    AIS ...              --            0
+                 0.924332936617 6382034098672634656    AIS ...              --            0
+                  1.16261573926 6382034098672634662    AIS ...              --            0
+                  1.26708912875 6382034098672634735    AIS ...              --            0
+                   1.4921733955 6382034098674731780    AIS ...    0.0611195639            0
+                  1.60512357572 6382034098672634645    AIS ...              --            0
+                  1.70541854139 6382034098672634716    AIS ...              --            0
+                  1.74637211002 6382034098672634619    AIS ...              --            0
+                  1.75244231529 6382034098672634846    AIS ...              --            0
+
+
+Some catalogs have a maximum number of results they will return.
+If a query results in this maximum number of results a warning will be displayed to alert the user that they might be getting a subset of the true result set.
+                  
+.. code-block:: python
+
+                >>> from astroquery.mast import Catalogs
+                >>> catTable = Catalogs.query_region("322.49324 12.16683", catalog="HSC", magtype=2)
+
+                WARNING: MaxResultsWarning: Maximum catalog results returned, may not include all
+                sources within radius. [astroquery.mast.core]
+
+                >>> print(catTable[:10])
+
+                MatchID      Distance        MatchRA    ... W3_F160W W3_F160W_Sigma W3_F160W_N
+                -------- ---------------- ------------- ... -------- -------------- ----------
+                82371983 0.00445549943203 322.493181974 ...       --             --          0
+                82603024   0.006890683763 322.493352058 ...       --             --          0
+                82374767 0.00838818765315  322.49337203 ...       --             --          0
+                82368728  0.0088064912074 322.493272691 ...       --             --          0
+                82371509  0.0104348577531 322.493354352 ...       --             --          0
+                82372543  0.0106808683543 322.493397455 ...       --             --          0
+                82371076  0.0126535758873 322.493089416 ...       --             --          0
+                82367288  0.0130150558411 322.493247548 ...       --             --          0
+                82371086  0.0135993945732 322.493248703 ...       --             --          0
+                82368622  0.0140289292301 322.493101406 ...       --             --          0
+
+
+Radius is an optional parameter and the default is 0.2 degrees.
+
+.. code-block:: python
+
+                >>> from astroquery.mast import Catalogs
+                >>> catalogData = Catalogs.query_object("M10", radius=.02, catalog="TIC")
+                >>> print(catalogData[:10])
+
+                    ID          ra           dec       ... duplicate_id priority   dstArcSec  
+                --------- ------------- -------------- ... ------------ -------- -------------
+                189844423    254.287989      -4.099644 ...           --       -- 2.21043178558
+                189844434 254.286301884 -4.09872352783 ...           --       -- 4.69684511346
+                189844449    254.288157      -4.097959 ...           --       -- 5.53390173242
+                189844403    254.286864      -4.101237 ...           --       -- 7.19103845641
+                189844459 254.286798163  -4.0973143956 ...           --       -- 7.63543964382
+                189844400    254.285379      -4.100856 ...           --       -- 9.27452417927
+                189844461 254.285647884 -4.09722647575 ...           --       -- 9.98427869106
+                189844385 254.289725042 -4.10156744653 ...           --       -- 11.4468393777
+                189844419    254.290767      -4.099757 ...           --       -- 11.9738216615
+                189844454 254.290349435 -4.09754191392 ...           --       -- 12.2100186781
+
+
+Catalog Criteria Queries
+------------------------
+
+The TESS Input Catalog (TIC, and Disk Detective Catalog can also be queried based on non-positional criteria.
+
+.. code-block:: python
+
+                >>> from astroquery.mast import Catalogs
+                >>> catalogData = Catalogs.query_criteria(catalog="Tic",Bmag=[30,50],objType="STAR")
+                >>> print(catalogData)
+
+                    ID    version  HIP TYC ... disposition duplicate_id priority   objID  
+                --------- -------- --- --- ... ----------- ------------ -------- ---------
+                 81609218 20171221  --  -- ...          --           --       -- 217917514
+                 23868624 20171221  --  -- ...          --           --       -- 296973171
+                406300991 20171221  --  -- ...          --           --       -- 400575018
+
+
+.. code-block:: python
+
+                >>> from astroquery.mast import Catalogs
+                >>> catalogTable = Catalogs.query_criteria(catalog="DiskDetective",
+                                                           objectname="M10",radius=2,state="complete")
+                >>> print(catalogTable)
+
+                    designation     ...                    ZooniverseURL                    
+                ------------------- ... ----------------------------------------------------
+                J165628.40-054630.8 ... https://talk.diskdetective.org/#/subjects/AWI0005cka
+                J165748.96-054915.4 ... https://talk.diskdetective.org/#/subjects/AWI0005ckd
+                J165427.11-022700.4 ... https://talk.diskdetective.org/#/subjects/AWI0005ck5
+                J165749.79-040315.1 ... https://talk.diskdetective.org/#/subjects/AWI0005cke
+                J165327.01-042546.2 ... https://talk.diskdetective.org/#/subjects/AWI0005ck3
+                J165949.90-054300.7 ... https://talk.diskdetective.org/#/subjects/AWI0005ckk
+                J170314.11-035210.4 ... https://talk.diskdetective.org/#/subjects/AWI0005ckv
+
+                
+Hubble Source Catalog (HSC) specific queries
+--------------------------------------------
+
+Given an HSC Match ID, return all catalog results.
+
+.. code-block:: python
+
+                >>> from astroquery.mast import Catalogs
+                >>> catalogData = Catalogs.query_object("M10", radius=.02, catalog="HSC")
+                >>> matchId = catalogData[0]["MatchID"]
+                >>> print(matchId)
+
+                17554326
+
+                >>> matches = Catalogs.query_hsc_matchid(matchId)
+                >>> print(matches)
+
+                  CatID   MatchID  ...                       cd_matrix                       
+                --------- -------- ... ------------------------------------------------------
+                303940283 17554326 ...   -1.10059e-005 6.90694e-010 6.90694e-010 1.10059e-005
+                303936256 17554326 ...   -1.10059e-005 6.90694e-010 6.90694e-010 1.10059e-005
+                303938261 17554326 ...   -1.10059e-005 6.90694e-010 6.90694e-010 1.10059e-005
+                301986299 17554326 ...   -1.10049e-005 -1.6278e-010 -1.6278e-010 1.10049e-005
+                301988274 17554326 ...   -1.10049e-005 -1.6278e-010 -1.6278e-010 1.10049e-005
+                301990418 17554326 ...   -1.10049e-005 -1.6278e-010 -1.6278e-010 1.10049e-005
+                206511399 17554326 ... -1.38889e-005 -1.36001e-009 -1.36001e-009 1.38889e-005
+                206507082 17554326 ... -1.38889e-005 -1.36001e-009 -1.36001e-009 1.38889e-005
+
+
+HSC spectra accessed through this class as well. `~astroquery.mast.CatalogsClass.get_hsc_spectra` does not take any arguments, and simply loads all HSC spectra. 
+
+.. code-block:: python
+
+                >>> from astroquery.mast import Catalogs
+                >>> allSpectra = Catalogs.get_hsc_spectra()
+                >>> print(allSpectra[:10])
+
+                ObjID                 DatasetName                  MatchID  ... PropID HSCMatch
+                ----- -------------------------------------------- -------- ... ------ --------
+                20010 HAG_J072655.67+691648.9_J8HPAXAEQ_V01.SPEC1D 19657846 ...   9482        Y
+                20011 HAG_J072655.69+691648.9_J8HPAOZMQ_V01.SPEC1D 19657846 ...   9482        Y
+                20012 HAG_J072655.76+691729.7_J8HPAOZMQ_V01.SPEC1D 19659745 ...   9482        Y
+                20013 HAG_J072655.82+691620.0_J8HPAOZMQ_V01.SPEC1D 19659417 ...   9482        Y
+                20014 HAG_J072656.34+691704.7_J8HPAXAEQ_V01.SPEC1D 19660230 ...   9482        Y
+                20015 HAG_J072656.36+691704.7_J8HPAOZMQ_V01.SPEC1D 19660230 ...   9482        Y
+                20016 HAG_J072656.36+691744.9_J8HPAOZMQ_V01.SPEC1D 19658847 ...   9482        Y
+                20017 HAG_J072656.37+691630.2_J8HPAXAEQ_V01.SPEC1D 19660827 ...   9482        Y
+                20018 HAG_J072656.39+691630.2_J8HPAOZMQ_V01.SPEC1D 19660827 ...   9482        Y
+                20019 HAG_J072656.41+691734.9_J8HPAOZMQ_V01.SPEC1D 19656620 ...   9482        Y
+
+
+Individual or ranges of spectra can be downloaded using the `~astroquery.mast.CatalogsClass.download_hsc_spectra` function.
+
+.. code-block:: python
+
+                >>> from astroquery.mast import Catalogs
+                >>> allSpectra = Catalogs.get_hsc_spectra()
+                >>> manifest = Catalogs.download_hsc_spectra(allSpectra[100:104])
+
+                Downloading URL https://hla.stsci.edu/cgi-bin/ecfproxy?file_id=HAG_J072704.61+691530.3_J8HPAOZMQ_V01.SPEC1D.fits to ./mastDownload/HSC/HAG_J072704.61+691530.3_J8HPAOZMQ_V01.SPEC1D.fits ... [Done]
+                Downloading URL https://hla.stsci.edu/cgi-bin/ecfproxy?file_id=HAG_J072704.68+691535.9_J8HPAOZMQ_V01.SPEC1D.fits to ./mastDownload/HSC/HAG_J072704.68+691535.9_J8HPAOZMQ_V01.SPEC1D.fits ... [Done]
+                Downloading URL https://hla.stsci.edu/cgi-bin/ecfproxy?file_id=HAG_J072704.70+691530.2_J8HPAOZMQ_V01.SPEC1D.fits to ./mastDownload/HSC/HAG_J072704.70+691530.2_J8HPAOZMQ_V01.SPEC1D.fits ... [Done]
+                Downloading URL https://hla.stsci.edu/cgi-bin/ecfproxy?file_id=HAG_J072704.73+691808.0_J8HPAOZMQ_V01.SPEC1D.fits to ./mastDownload/HSC/HAG_J072704.73+691808.0_J8HPAOZMQ_V01.SPEC1D.fits ... [Done]
+
+                >>> print(manifest)
+
+                                             Local Path                              ... URL 
+                -------------------------------------------------------------------- ... ----
+                ./mastDownload/HSC/HAG_J072704.61+691530.3_J8HPAOZMQ_V01.SPEC1D.fits ... None
+                ./mastDownload/HSC/HAG_J072704.68+691535.9_J8HPAOZMQ_V01.SPEC1D.fits ... None
+                ./mastDownload/HSC/HAG_J072704.70+691530.2_J8HPAOZMQ_V01.SPEC1D.fits ... None
+                ./mastDownload/HSC/HAG_J072704.73+691808.0_J8HPAOZMQ_V01.SPEC1D.fits ... None
+                
+
 
 Accessing Proprietary Data
 ==========================

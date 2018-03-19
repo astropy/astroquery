@@ -66,7 +66,7 @@ class OACClass(BaseQuery):
             These are special conditional arguments that can be applied
             to a query to refine.
             Examples include: 'band=i' returns only i-band photometry,
-            'first' returns the first result, 'sorby=attribute' returns
+            'first' returns the first result, 'sortby=attribute' returns
             a table sorted by the given attribute, and 'complete' returns
             only those table rows with all of the requested attributes.
             A complete list of commands and their usage can be found at:
@@ -156,7 +156,7 @@ class OACClass(BaseQuery):
             These are special conditional arguments that can be applied
             to a query to refine.
             Examples include: 'band=i' returns only i-band photometry,
-            'first' returns the first result, 'sorby=attribute' returns
+            'first' returns the first result, 'sortby=attribute' returns
             a table sorted by the given attribute, and 'complete' returns
             only those table rows with all of the requested attributes.
             A complete list of commands and their usage can be found at:
@@ -286,7 +286,7 @@ class OACClass(BaseQuery):
             These are special conditional arguments that can be applied
             to a query to refine.
             Examples include: 'band=i' returns only i-band photometry,
-            'first' returns the first result, 'sorby=attribute' returns
+            'first' returns the first result, 'sortby=attribute' returns
             a table sorted by the given attribute, and 'complete' returns
             only those table rows with all of the requested attributes.
             A complete list of commands and their usage can be found at:
@@ -480,7 +480,7 @@ class OACClass(BaseQuery):
             if response.status_code != 200:
                 raise AttributeError
 
-            if 'message' in response:
+            if 'message' in response.text:
                 raise KeyError
 
             raw_output = response.text
@@ -493,7 +493,7 @@ class OACClass(BaseQuery):
 
         except KeyError:
             print("ERROR: API Server returned the following error:")
-            print(response['message'])
+            print(response.text)
             return
 
         return output_response

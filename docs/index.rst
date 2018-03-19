@@ -211,6 +211,7 @@ for each source)
   ibe/ibe.rst
   irsa/irsa.rst
   irsa/irsa_dust.rst
+  mast/mast.rst
   ned/ned.rst
   ogle/ogle.rst
   open_exoplanet_catalogue/open_exoplanet_catalogue.rst
