@@ -10,6 +10,7 @@
 - MAST: bugfix, removing filesize checking due to unreliable filesize reporting in the database [#1050]
 - MAST: Added Catalogs class. [#1049]
 - New tool: Open Astronomy Catalog API to obtain data products on supernovae, TDEs, and kilonovae. [#1053]
+- IRSA Dust: call over https. [#1069]
 
 0.3.7 (2018-01-25)
 ------------------

@@ -80,6 +80,10 @@ class DustTestCase(object):
         data_dir = os.path.join(os.path.dirname(__file__), 'data')
         return os.path.join(data_dir, filename)
 
+    def read_data(self, filename):
+        with open(self.data(filename), "r") as f:
+            return f.read()
+
 
 class TestDust(DustTestCase):
 
@@ -102,12 +106,12 @@ class TestDust(DustTestCase):
         assert expected_units == actual_units
 
     def test_xml_ok(self):
-        data = open(self.data(M31_XML), "r").read()
+        data = self.read_data(M31_XML)
         xml_tree = irsa_dust.utils.xml(data)
         assert xml_tree is not None
 
     def test_xml_err(self):
-        data = open(self.data(ERR_XML), "r").read()
+        data = self.read_data(ERR_XML)
         with pytest.raises(Exception):
             irsa_dust.utils.xml(data)
 
@@ -182,13 +186,13 @@ class TestDust(DustTestCase):
                               ('temperature', M31_URL_T),
                               ])
     def test_extract_image_urls_instance(self, image_type, expected_urls):
-        raw_xml = open(self.data(M31_XML), "r").read()
+        raw_xml = self.read_data(M31_XML)
         url_list = IrsaDust().extract_image_urls(
             raw_xml, image_type=image_type)
         assert url_list == expected_urls
 
     def test_extract_image_urls_instance__err(self):
-        raw_xml = open(self.data(M31_XML), "r").read()
+        raw_xml = self.read_data(M31_XML)
         with pytest.raises(ValueError):
             IrsaDust().extract_image_urls(
                 raw_xml, image_type="l")
@@ -200,13 +204,13 @@ class TestDust(DustTestCase):
                               ('temperature', M31_URL_T),
                               ])
     def test_extract_image_urls_class(self, image_type, expected_urls):
-        raw_xml = open(self.data(M31_XML), "r").read()
+        raw_xml = self.read_data(M31_XML)
         url_list = IrsaDust.extract_image_urls(
             raw_xml, image_type=image_type)
         assert url_list == expected_urls
 
     def test_extract_image_urls_class__err(self):
-        raw_xml = open(self.data(M31_XML), "r").read()
+        raw_xml = self.read_data(M31_XML)
         with pytest.raises(ValueError):
             IrsaDust.extract_image_urls(raw_xml, image_type="l")
 
@@ -330,7 +334,7 @@ class TestDust(DustTestCase):
 
     def send_request_mockreturn(self, method, url, data, timeout):
         class MockResponse:
-            text = open(self.data(M31_XML), "r").read()
+            text = self.read_data(M31_XML)
         return MockResponse
 
     def get_ext_table_async_mockreturn(self, coordinate, radius=None,
