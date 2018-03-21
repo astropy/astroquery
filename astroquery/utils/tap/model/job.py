@@ -141,13 +141,27 @@ class Job(object):
         """
         self.__phase = phase
 
-    def get_phase(self):
-        """Returns the job phase
+    def get_phase(self, update=False):
+        """Returns the job phase. May optionally update the job's phase.
+
+        Parameters
+        ----------
+        update : bool
+            if True, the phase will by updated by querying the server before
+            returning.
 
         Returns
         -------
         The job phase
         """
+        if update:
+            phase_request = "async/"+str(self.get_jobid())+"/phase"
+            response = self.__connHandler.execute_get(phase_request)
+            if response.status != 200:
+                raise Exception(response.reason)
+
+            self.set_phase(str(response.read().decode('utf-8')))
+
         return self.__phase
 
     def set_output_file(self, output_file):
