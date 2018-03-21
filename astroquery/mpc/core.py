@@ -122,7 +122,7 @@ class MPCClass(BaseQuery):
         km_neo : bool
             value = 1 flags NEOs larger than ~1 km in diameter.
         pha : bool
-            value = 1 flags Potentially Hazardous objects (PHAs).
+            value = 1 flags Potentially Hazardous Asteroids (PHAs).
         mercury_moid : float
             Minimum Orbit Intersection Distance with respect to Mercury. (AU)
         venus_moid : float
@@ -261,7 +261,7 @@ class MPCClass(BaseQuery):
         km_neo : bool
             value = 1 flags NEOs larger than ~1 km in diameter.
         pha : bool
-            value = 1 flags Potentially Hazardous objects (PHAs).
+            value = 1 flags Potentially Hazardous Asteroids (PHAs).
         mercury_moid : float
             Minimum Orbit Intersection Distance with respect to Mercury. (AU)
         venus_moid : float
@@ -278,9 +278,9 @@ class MPCClass(BaseQuery):
             Minimum Orbit Intersection Distance with respect to Uranus. (AU)
         neptune_moid : float
             Minimum Orbit Intersection Distance with respect to Neptune. (AU)
-        limit :
+        limit : integer
             Limit the number of results to the given value
-
+            
         """
         mpc_endpoint = self.get_mpc_endpoint(target_type)
 

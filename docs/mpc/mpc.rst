@@ -13,15 +13,8 @@ This is an Astroquery wrapper for querying the
 `Minor Planet Center <https://minorplanetcenter.net/web_service//>`__
 web service, which returns the pure JSON response from the service.
 
-The MPC web service allows for querying by any of the parameters listed in the function headers in
-mpc/core.py, and also allows for querying for a range of values.
-
-Available methods
------------------
-
-The MPC module has two methods:
-    - query_object_async, which returns a single object
-    - query_objects_async, which returns multiple objects
+The MPC web service allows for querying by any of the parameters listed in the function headers,
+and also allows for querying for a range of values.
 
 Querying with varying forms of selection parameters
 ---------------------------------------------------
@@ -55,7 +48,7 @@ A maximum value:
 .. code-block:: python
 
     >>> result = mpc.query_objects_async(inclination_max=1.0)
-
+    
 Which will get all objects with an inclination of less than or equal to 1.
 
 Sorting results, setting limits, and ```is_not_null```
