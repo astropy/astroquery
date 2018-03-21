@@ -79,7 +79,7 @@ Examples
 .. code-block:: python
 
   >>> import astropy.units as u
-  >>> from astropy.coordinates.sky_coordinate import SkyCoord
+  >>> from astropy.coordinates import SkyCoord
   >>> from astropy.units import Quantity
   >>> from astroquery.gaia import Gaia
   >>>
@@ -122,7 +122,7 @@ Examples
 .. code-block:: python
 
   >>> import astropy.units as u
-  >>> from astropy.coordinates.sky_coordinate import SkyCoord
+  >>> from astropy.coordinates import SkyCoord
   >>> from astropy.units import Quantity
   >>> from astroquery.gaia import Gaia
   >>>
