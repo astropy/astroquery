@@ -80,12 +80,11 @@ Examples
 
   >>> import astropy.units as u
   >>> from astropy.coordinates import SkyCoord
-  >>> from astropy.units import Quantity
   >>> from astroquery.gaia import Gaia
   >>>
   >>> coord = SkyCoord(ra=280, dec=-60, unit=(u.degree, u.degree), frame='icrs')
-  >>> width = Quantity(0.1, u.deg)
-  >>> height = Quantity(0.1, u.deg)
+  >>> width = u.Quantity(0.1, u.deg)
+  >>> height = u.Quantity(0.1, u.deg)
   >>> r = Gaia.query_object_async(coordinate=coord, width=width, height=height)
   >>> r.pprint()
 
@@ -123,11 +122,10 @@ Examples
 
   >>> import astropy.units as u
   >>> from astropy.coordinates import SkyCoord
-  >>> from astropy.units import Quantity
   >>> from astroquery.gaia import Gaia
   >>>
   >>> coord = SkyCoord(ra=280, dec=-60, unit=(u.degree, u.degree), frame='icrs')
-  >>> radius = Quantity(1.0, u.deg)
+  >>> radius = u.Quantity(1.0, u.deg)
   >>> j = Gaia.cone_search_async(coord, radius)
   >>> r = j.get_results()
   >>> r.pprint()
