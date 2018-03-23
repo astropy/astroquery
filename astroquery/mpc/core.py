@@ -29,6 +29,7 @@ class MPCClass(BaseQuery):
 
         Parameters
         ----------
+        
         target_type : str
             Search for either a comet or an asteroid, with the two valid values being,
             naturally, "comet" and "asteroid"
@@ -141,22 +142,11 @@ class MPCClass(BaseQuery):
             Minimum Orbit Intersection Distance with respect to Neptune. (AU)
 
         """
+
         mpc_endpoint = self.get_mpc_endpoint(target_type)
 
-        # get_query_payload = kwargs.get('get_query_payload', False)
-        # kwargs.pop('get_query_payload', None)
         kwargs['limit'] = 1
         return self.query_objects_async(target_type, get_query_payload, *args, **kwargs)
-        # if (target_type == 'comet'):
-        #     kwargs['order_by_desc'] = "epoch_jd"
-        # request_args = self._args_to_payload(**kwargs)
-
-        # # Return payload if requested
-        # if get_query_payload:
-        #     return request_args
-
-        # auth = (self.MPC_USERNAME, self.MPC_PASSWORD)
-        # return self._request('GET', mpc_endpoint, params=request_args, auth=auth)
 
     def query_objects_async(self, target_type, get_query_payload=False, *args, **kwargs):
         """
@@ -284,8 +274,6 @@ class MPCClass(BaseQuery):
         """
         mpc_endpoint = self.get_mpc_endpoint(target_type)
 
-        # get_query_payload = kwargs.get('get_query_payload', False)
-        # kwargs.pop('get_query_payload', None)
         if (target_type == 'comet'):
             kwargs['order_by_desc'] = "epoch"
         request_args = self._args_to_payload(**kwargs)
@@ -312,6 +300,5 @@ class MPCClass(BaseQuery):
         elif target_type == 'comet':
             mpc_endpoint = mpc_endpoint + '/search_comet_orbits'
         return mpc_endpoint
-
 
 MPC = MPCClass()
