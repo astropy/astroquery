@@ -529,7 +529,7 @@ except with a different background.::
 
 
     # overplot the data in the image
-    ax.plot(tbl_crds.ra, tbl_crds.dec, 'o', transform=ax.get_transform('fk5'),
+    ax.plot(tbl_crds.ra, tbl_crds.dec, '*', transform=ax.get_transform('fk5'),
             mec='b', mfc='none')
     ax.plot(tbl_crds2.ra, tbl_crds2.dec, 'o', transform=ax.get_transform('fk5'),
             mec='r', mfc='none')
