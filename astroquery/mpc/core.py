@@ -10,8 +10,9 @@ __all__ = ['MPCClass']
 @async_to_sync
 class MPCClass(BaseQuery):
     MPC_URL = 'http://' + conf.server + '/web_service'
-    # The authentication credentials for the MPC web service are publicly available and
-    # can be openly viewed on the documentation page at https://minorplanetcenter.net/web_service/
+    # The authentication credentials for the MPC web service are publicly
+    # available and can be openly viewed on the documentation page at
+    # https://minorplanetcenter.net/web_service/
     MPC_USERNAME = 'mpc_ws'
     MPC_PASSWORD = 'mpc!!ws'
 
@@ -20,16 +21,17 @@ class MPCClass(BaseQuery):
 
     def query_object_async(self, target_type, get_query_payload=False, *args, **kwargs):
         """
-        Query around a specific object within a given mission catalog. When searching for
-        a comet, it will return the entry with the latest epoch. 
+        Query around a specific object within a given mission catalog. When
+        searching for a comet, it will return the entry with the latest epoch.
 
-        The following are valid query parameters for the MPC API search. The params list and
-        description are from https://minorplanetcenter.net/web_service/ and are accurate
-        as of 3/6/2018
+        The following are valid query parameters for the MPC API search. The
+        params list and description are from
+        https://minorplanetcenter.net/web_service/ and are accurate as of
+        3/6/2018.
 
         Parameters
         ----------
-        
+
         target_type : str
             Search for either a comet or an asteroid, with the two valid values being,
             naturally, "comet" and "asteroid"
@@ -270,7 +272,7 @@ class MPCClass(BaseQuery):
             Minimum Orbit Intersection Distance with respect to Neptune. (AU)
         limit : integer
             Limit the number of results to the given value
-            
+
         """
         mpc_endpoint = self.get_mpc_endpoint(target_type)
 
