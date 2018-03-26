@@ -2,11 +2,11 @@
 from ... import splatalogue
 from astropy import units as u
 import numpy as np
-from .test_splatalogue import patch_get
+from .test_splatalogue import patch_post
 from .. import utils
 
 
-def test_clean(patch_get):
+def test_clean(patch_post):
     x = splatalogue.Splatalogue.query_lines(114 * u.GHz, 116 * u.GHz,
                                             chemical_name=' CO ')
     c = utils.clean_column_headings(x)
@@ -14,7 +14,7 @@ def test_clean(patch_get):
     assert 'QNs' in c.colnames
 
 
-def test_merge(patch_get):
+def test_merge(patch_post):
     x = splatalogue.Splatalogue.query_lines(114 * u.GHz, 116 * u.GHz,
                                             chemical_name=' CO ')
     c = utils.merge_frequencies(x)
@@ -22,7 +22,7 @@ def test_merge(patch_get):
     assert np.all(c['Freq'] > 0)
 
 
-def test_minimize(patch_get):
+def test_minimize(patch_post):
     x = splatalogue.Splatalogue.query_lines(114 * u.GHz, 116 * u.GHz,
                                             chemical_name=' CO ')
     c = utils.minimize_table(x)

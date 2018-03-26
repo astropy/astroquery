@@ -19,30 +19,30 @@ def data_path(filename):
 
 
 @pytest.fixture
-def patch_get(request):
+def patch_post(request):
     try:
         mp = request.getfixturevalue("monkeypatch")
     except AttributeError:  # pytest < 3
         mp = request.getfuncargvalue("monkeypatch")
-    mp.setattr(splatalogue.core.Splatalogue, '_request', get_mockreturn)
+    mp.setattr(requests.Session, 'request', post_mockreturn)
     return mp
 
-
-def get_mockreturn(method, url, params=None, timeout=10, cache=True, **kwargs):
-    if method != 'GET':
-        raise ValueError("A 'GET request' was made with method != GET")
+def post_mockreturn(self, method, url, data=None, timeout=10, files=None,
+                    params=None, headers=None, **kwargs):
+    if method != 'POST':
+        raise ValueError("A 'post request' was made with method != POST")
     filename = data_path(SPLAT_DATA)
     content = open(filename, "rb").read()
     return MockResponse(content, **kwargs)
 
 
-def test_simple(patch_get):
+def test_simple(patch_post):
     splatalogue.Splatalogue.query_lines(114 * u.GHz, 116 * u.GHz,
                                         chemical_name=' CO ')
 
 
 @remote_data
-def test_init(patch_get):
+def test_init(patch_post):
     x = splatalogue.Splatalogue.query_lines(114 * u.GHz, 116 * u.GHz,
                                             chemical_name=' CO ')
     S = splatalogue.Splatalogue(chemical_name=' CO ')
@@ -127,7 +127,7 @@ def test_band_crashorno():
 # 			    )
 #     assert len(results)==1
 
-def test_exclude(patch_get):
+def test_exclude(patch_post):
     # regression test for issue 616
     d = splatalogue.Splatalogue.query_lines_async(114 * u.GHz, 116 * u.GHz,
                                                   chemical_name=' CO ',
