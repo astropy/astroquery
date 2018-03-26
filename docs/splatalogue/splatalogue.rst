@@ -238,6 +238,6 @@ Reference/API
 
 .. _Splatalogue: http://www.splatalogue.net
 .. _Splatalogue web service: http://www.splatalogue.net
-.. _query interface: http://www.cv.nrao.edu/php/splat/b.php
+.. _query interface: https://www.cv.nrao.edu/php/splat/b.php
 .. _An example ipynb from an interactive tutorial session at NRAO in April 2014: http://nbviewer.jupyter.org/gist/keflavich/10477775
 
