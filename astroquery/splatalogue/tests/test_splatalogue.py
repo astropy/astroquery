@@ -27,6 +27,7 @@ def patch_post(request):
     mp.setattr(requests.Session, 'request', post_mockreturn)
     return mp
 
+
 def post_mockreturn(self, method, url, data=None, timeout=10, files=None,
                     params=None, headers=None, **kwargs):
     if method != 'POST':
