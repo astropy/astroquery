@@ -29,6 +29,7 @@ def test_args_to_payload():
     test_args = mpc.core.MPC._args_to_payload(name="eros", number=433)
     assert test_args == {"name": "eros", "number": 433, "json": 1}
 
+
 @pytest.mark.parametrize('type, url', [
     ('comet',
         'http://minorplanetcenter.net/web_service/search_comet_orbits'),

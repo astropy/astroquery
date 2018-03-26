@@ -303,4 +303,5 @@ class MPCClass(BaseQuery):
             mpc_endpoint = mpc_endpoint + '/search_comet_orbits'
         return mpc_endpoint
 
+
 MPC = MPCClass()
