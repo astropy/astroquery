@@ -22,26 +22,6 @@ from ..exceptions import TableParseError
 __all__ = ['Ukidss', 'UkidssClass', 'clean_catalog']
 
 
-def validate_frame(func):
-    def wrapper(*args, **kwargs):
-        frame_type = kwargs.get('frame_type')
-        if frame_type not in UkidssClass.frame_types:
-            raise ValueError("Invalid frame type. Valid frame types are: {!s}"
-                             .format(UkidssClass.frame_types))
-        return func(*args, **kwargs)
-    return wrapper
-
-
-def validate_filter(func):
-    def wrapper(*args, **kwargs):
-        waveband = kwargs.get('waveband')
-        if waveband not in UkidssClass.filters:
-            raise ValueError("Invalid waveband. Valid wavebands are: {!s}"
-                             .format(UkidssClass.filters.keys()))
-        return func(*args, **kwargs)
-    return wrapper
-
-
 class UkidssClass(QueryWithLogin):
 
     """
@@ -76,17 +56,72 @@ class UkidssClass(QueryWithLogin):
                               'Deep Extragalactic Survey': 104,
                               'Ultra Deep Survey': 105}
 
-    all_databases = ("UKIDSSDR9PLUS", "UKIDSSDR8PLUS", "UKIDSSDR7PLUS",
+    all_databases = ("UKIDSSDR10PLUS", "UKIDSSDR9PLUS",
+                     "UKIDSSDR8PLUS", "UKIDSSDR7PLUS",
                      "UKIDSSDR6PLUS", "UKIDSSDR5PLUS", "UKIDSSDR4PLUS",
                      "UKIDSSDR3PLUS", "UKIDSSDR2PLUS", "UKIDSSDR1PLUS",
                      "UKIDSSDR1", "UKIDSSEDRPLUS", "UKIDSSEDR", "UKIDSSSV",
                      "WFCAMCAL08B", "U09B8v20120403", "U09B8v20100414")
 
     def __init__(self, username=None, password=None, community=None,
-                 database='UKIDSSDR7PLUS', programme_id='all'):
+                 database='UKIDSSDR10PLUS', programme_id='all'):
         super(UkidssClass, self).__init__()
         self.database = database
         self.programme_id = programme_id  # 102 = GPS
+        self.session = None
+        if username is None or password is None or community is None:
+            pass
+        else:
+            self.login(username, password, community)
+        self.vista = False
+
+    def setup_vista(self, username=None, password=None, community=None,
+                 database='VVVDR4', programme_id='VVV'):
+        """
+        Configure parameters to query the VISTA surveys
+        (structure of the website is identical to UKIDSS)
+        """
+
+        self.vista = True
+        self.BASE_URL = 'http://horus.roe.ac.uk:8080/vdfs/'
+        self.LOGIN_URL = self.BASE_URL + "DBLogin"
+        self.IMAGE_URL = self.BASE_URL + "GetImage"
+        self.ARCHIVE_URL = self.BASE_URL + "ImageList"
+        self.REGION_URL = self.BASE_URL + "WSASQL"
+
+        self.filters = {'all': 'all', 'Z': 1, 'Y': 2, 'J': 3,
+                        'H': 4, 'Ks': 5, 'NB118': 9, 'NB980': 10}
+
+        self.frame_types = {'tilestack': 'tilestack', 'stack': 'stack',
+                            'normal': 'normal', 'deep_stack': 'deep%stack',
+                            'confidence': 'conf', 'difference': 'diff',
+                            'all': 'all'}
+
+        self.ukidss_programmes_short = {'VHS': 110,
+                                        'VVV': 120,
+                                        'VMC': 130,
+                                        'VIKING': 140,
+                                        'VIDEO': 150,
+                                        'UltraVISTA': 160,
+                                        'Calibration': 200}
+
+        self.ukidss_programmes_long = {'VISTA Hemisphere Survey': 110,
+                                       'VISTA Variables in the Via Lactea': 120,
+                                       'VISTA Magellanic Clouds Survey': 130,
+                                       'VISTA Kilo-degree Infrared Galaxy Survey': 140,
+                                       'VISTA Deep Extragalactic Observations': 150,
+                                       'An ultra-deep survey with VISTA': 160,
+                                       'Calibration data': 200}
+
+        self.all_databases = ('VHSDR4', 'VHSDR3', 'VHSDR2', 'VHSDR1',
+                              'VVVDR4', 'VVVDR2', 'VVVDR1',
+                              'VMCDR4', 'VMCDR3', 'VMCDR2', 'VMCDR1',
+                              'VIKINGDR4', 'VIKINGDR3', 'VIKINGDR2',
+                              'VIDEODR5', 'VIDEODR4', 'VIDEODR3', 'VIDEODR2',
+                              'VISTAOPENTIME')
+
+        self.database = database
+        self.programme_id = programme_id
         self.session = None
         if username is None or password is None or community is None:
             pass
@@ -137,8 +172,8 @@ class UkidssClass(QueryWithLogin):
 
         programme_id = kwargs.get('programme_id', self.programme_id)
 
-        request_payload['programmeID'] = verify_programme_id(
-            programme_id, query_type=kwargs['query_type'])
+        request_payload['programmeID'] = self._verify_programme_id(
+                                         programme_id, query_type=kwargs['query_type'])
         sys = self._parse_system(kwargs.get('system'))
         request_payload['sys'] = sys
         if sys == 'J':
@@ -151,6 +186,41 @@ class UkidssClass(QueryWithLogin):
             request_payload['dec'] = C.b.degree
         return request_payload
 
+    def _verify_programme_id(self, pid, query_type='catalog'):
+        """
+        Verify the programme ID is valid for the query being executed.
+
+        Parameters
+        ----------
+        pid : int or str
+            The programme ID, either an integer (i.e., the # that will get passed
+            to the URL) or a string using the three-letter acronym for the
+            programme or its long name
+
+        Returns
+        -------
+        pid : int
+            Returns the integer version of the programme ID
+
+        Raises
+        ------
+        ValueError if the pid is 'all' and the query type is a catalog.
+        You can query all surveys for images, but not all catalogs.
+        """
+        if pid == 'all' and query_type == 'image':
+            return 'all'
+        elif pid == 'all' and query_type == 'catalog':
+            raise ValueError(
+                "Cannot query all catalogs at once. Valid catalogs are: {0}.\n"
+                "Change programmeID to one of these."
+                .format(",".join(self.ukidss_programmes_short.keys())))
+        elif pid in self.ukidss_programmes_long:
+            return self.ukidss_programmes_long[pid]
+        elif pid in self.ukidss_programmes_short:
+            return self.ukidss_programmes_short[pid]
+        elif query_type != 'image':
+            raise ValueError("programme_id {0} not recognized".format(pid))
+
     def _parse_system(self, system):
         if system is None:
             return 'J'
@@ -161,7 +231,7 @@ class UkidssClass(QueryWithLogin):
 
     def get_images(self, coordinates, waveband='all', frame_type='stack',
                    image_width=1 * u.arcmin, image_height=None, radius=None,
-                   database='UKIDSSDR7PLUS', programme_id='all',
+                   database=None, programme_id=None,
                    verbose=True, get_query_payload=False,
                    show_progress=True):
         """
@@ -207,6 +277,13 @@ class UkidssClass(QueryWithLogin):
         -------
         list : A list of `~astropy.io.fits.HDUList` objects.
         """
+
+        if database is None:
+            database = self.database
+
+        if programme_id is None:
+            programme_id = self.programme_id
+
         readable_objs = self.get_images_async(
             coordinates, waveband=waveband, frame_type=frame_type,
             image_width=image_width, image_height=image_height,
@@ -220,8 +297,8 @@ class UkidssClass(QueryWithLogin):
 
     def get_images_async(self, coordinates, waveband='all', frame_type='stack',
                          image_width=1 * u.arcmin, image_height=None,
-                         radius=None, database='UKIDSSDR7PLUS',
-                         programme_id='all', verbose=True,
+                         radius=None, database=None,
+                         programme_id=None, verbose=True,
                          get_query_payload=False,
                          show_progress=True):
         """
@@ -272,6 +349,12 @@ class UkidssClass(QueryWithLogin):
             A list of context-managers that yield readable file-like objects.
         """
 
+        if database is None:
+            database = self.database
+
+        if programme_id is None:
+            programme_id = self.programme_id
+
         image_urls = self.get_image_list(coordinates, waveband=waveband,
                                          frame_type=frame_type,
                                          image_width=image_width,
@@ -290,12 +373,10 @@ class UkidssClass(QueryWithLogin):
                                       show_progress=show_progress)
                 for U in image_urls]
 
-    @validate_frame
-    @validate_filter
     def get_image_list(self, coordinates, waveband='all', frame_type='stack',
                        image_width=1 * u.arcmin, image_height=None,
-                       radius=None, database='UKIDSSDR7PLUS',
-                       programme_id='all', get_query_payload=False):
+                       radius=None, database=None,
+                       programme_id=None, get_query_payload=False):
         """
         Function that returns a list of urls from which to download the FITS
         images.
@@ -342,6 +423,20 @@ class UkidssClass(QueryWithLogin):
         url_list : list of image urls
 
         """
+
+        if frame_type not in self.frame_types:
+            raise ValueError("Invalid frame type. Valid frame types are: {!s}"
+                             .format(self.frame_types))
+
+        if waveband not in self.filters:
+            raise ValueError("Invalid waveband. Valid wavebands are: {!s}"
+                             .format(self.filters.keys()))
+
+        if database is None:
+            database = self.database
+
+        if programme_id is None:
+            programme_id = self.programme_id
 
         request_payload = self._args_to_payload(coordinates, database=database,
                                                 programme_id=programme_id,
@@ -422,7 +517,7 @@ class UkidssClass(QueryWithLogin):
         return links
 
     def query_region(self, coordinates, radius=1 * u.arcmin,
-                     programme_id='GPS', database='UKIDSSDR7PLUS',
+                     programme_id=None, database=None,
                      verbose=False, get_query_payload=False, system='J2000'):
         """
         Used to query a region around a known identifier or given
@@ -462,6 +557,15 @@ class UkidssClass(QueryWithLogin):
             Query result table.
         """
 
+        if database is None:
+            database = self.database
+
+        if programme_id is None:
+            if self.programme_id != 'all':
+                programme_id = self.programme_id
+            else:
+                programme_id = 'VVV' if self.vista else 'GPS'
+
         response = self.query_region_async(coordinates, radius=radius,
                                            programme_id=programme_id,
                                            database=database,
@@ -474,8 +578,8 @@ class UkidssClass(QueryWithLogin):
         return result
 
     def query_region_async(self, coordinates, radius=1 * u.arcmin,
-                           programme_id='GPS',
-                           database='UKIDSSDR7PLUS', get_query_payload=False,
+                           programme_id=None,
+                           database=None, get_query_payload=False,
                            system='J2000'):
         """
         Serves the same purpose as `query_region`. But
@@ -509,6 +613,15 @@ class UkidssClass(QueryWithLogin):
             The HTTP response returned from the service.
         """
 
+        if database is None:
+            database = self.database
+
+        if programme_id is None:
+            if self.programme_id != 'all':
+                programme_id = self.programme_id
+            else:
+                programme_id = 'VVV' if self.vista else 'GPS'
+
         request_payload = self._args_to_payload(coordinates,
                                                 programme_id=programme_id,
                                                 database=database,
@@ -526,6 +639,10 @@ class UkidssClass(QueryWithLogin):
         request_payload['rows'] = 1
         request_payload['select'] = 'default'
         request_payload['where'] = ''
+
+        # for some reason, this is required on the VISTA website
+        if self.vista:
+            request_payload['archive'] = 'VSA'
 
         if get_query_payload:
             return request_payload
@@ -713,42 +830,6 @@ def clean_catalog(ukidss_catalog, clean_band='K_1', badclass=-9999,
         mask *= (ukidss_catalog['mergedClass'] != badclass)
 
     return ukidss_catalog.data[mask]
-
-
-def verify_programme_id(pid, query_type='catalog'):
-    """
-    Verify the programme ID is valid for the query being executed.
-
-    Parameters
-    ----------
-    pid : int or str
-        The programme ID, either an integer (i.e., the # that will get passed
-        to the URL) or a string using the three-letter acronym for the
-        programme or its long name
-
-    Returns
-    -------
-    pid : int
-        Returns the integer version of the programme ID
-
-    Raises
-    ------
-    ValueError if the pid is 'all' and the query type is a catalog.
-    You can query all surveys for images, but not all catalogs.
-    """
-    if pid == 'all' and query_type == 'image':
-        return 'all'
-    elif pid == 'all' and query_type == 'catalog':
-        raise ValueError(
-            "Cannot query all catalogs at once. Valid catalogs are: {0}.\n"
-            "Change programmeID to one of these."
-            .format(",".join(UkidssClass.ukidss_programmes_short.keys())))
-    elif pid in UkidssClass.ukidss_programmes_long:
-        return UkidssClass.ukidss_programmes_long[pid]
-    elif pid in UkidssClass.ukidss_programmes_short:
-        return UkidssClass.ukidss_programmes_short[pid]
-    elif query_type != 'image':
-        raise ValueError("programme_id {0} not recognized".format(pid))
 
 
 def _parse_dimension(dim):
