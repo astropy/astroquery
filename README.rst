@@ -135,8 +135,8 @@ Badges
 .. image:: https://badges.gitter.im/astropy/astroquery.png
    :target: https://gitter.im/astropy/astroquery
 
-.. image:: https://zenodo.org/badge/doi/10.5281/zenodo.44961.svg
-   :target: http://dx.doi.org/10.5281/zenodo.44961
+.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.1160627.svg
+   :target: https://doi.org/10.5281/zenodo.1160627
 
 
 .. .. image:: https://d2weczhvl823v0.cloudfront.net/astropy/astroquery/trend.png
