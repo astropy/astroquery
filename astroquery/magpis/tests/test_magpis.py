@@ -2,12 +2,10 @@
 from __future__ import print_function
 
 import os
-import requests
 
 import numpy.testing as npt
-from astropy.tests.helper import pytest
+import pytest
 import astropy.units as u
-import astropy.coordinates as coord
 
 from ...utils import commons
 from ...utils.testing_tools import MockResponse
@@ -25,19 +23,25 @@ def data_path(filename):
 def patch_parse_coordinates(request):
     def parse_coordinates_mock_return(c):
         return c
-    mp = request.getfuncargvalue("monkeypatch")
+    try:
+        mp = request.getfixturevalue("monkeypatch")
+    except AttributeError:  # pytest < 3
+        mp = request.getfuncargvalue("monkeypatch")
     mp.setattr(commons, 'parse_coordinates', parse_coordinates_mock_return)
     return mp
 
 
 @pytest.fixture
 def patch_post(request):
-    mp = request.getfuncargvalue("monkeypatch")
-    mp.setattr(requests, 'post', post_mockreturn)
+    try:
+        mp = request.getfixturevalue("monkeypatch")
+    except AttributeError:  # pytest < 3
+        mp = request.getfuncargvalue("monkeypatch")
+    mp.setattr(magpis.Magpis, '_request', post_mockreturn)
     return mp
 
 
-def post_mockreturn(url, data, timeout, **kwargs):
+def post_mockreturn(method, url, data, timeout, **kwargs):
     filename = data_path(DATA_FILES['image'])
     content = open(filename, 'rb').read()
     return MockResponse(content, **kwargs)
@@ -49,21 +53,24 @@ def test_list_surveys():
 
 
 def test_get_images_async(patch_post, patch_parse_coordinates):
-    response = magpis.core.Magpis.get_images_async(coord.GalacticCoordinates(10.5, 0.0, unit=(u.deg, u.deg)),
-                                                   image_size=2 * u.deg, survey="gps6epoch3",
-                                                   get_query_payload=True)
+    response = magpis.core.Magpis.get_images_async(
+        commons.GalacticCoordGenerator(10.5, 0.0, unit=(u.deg, u.deg)),
+        image_size=2 * u.deg, survey="gps6epoch3", get_query_payload=True)
     npt.assert_approx_equal(response['ImageSize'], 120, significant=3)
     assert response['Survey'] == 'gps6epoch3'
-    response = magpis.core.Magpis.get_images_async(coord.GalacticCoordinates(10.5, 0.0, unit=(u.deg, u.deg)))
+    response = magpis.core.Magpis.get_images_async(
+        commons.GalacticCoordGenerator(10.5, 0.0, unit=(u.deg, u.deg)))
     assert response is not None
 
 
 def test_get_images(patch_post, patch_parse_coordinates):
-    image = magpis.core.Magpis.get_images(coord.GalacticCoordinates(10.5, 0.0, unit=(u.deg, u.deg)))
+    image = magpis.core.Magpis.get_images(
+        commons.GalacticCoordGenerator(10.5, 0.0, unit=(u.deg, u.deg)))
     assert image is not None
+
 
 @pytest.mark.xfail
 def test_get_images_fail(patch_post, patch_parse_coordinates):
-    image = magpis.core.Magpis.get_images(coord.GalacticCoordinates(10.5, 0.0, unit=(u.deg, u.deg)),
-                                          survey='Not a survey')
-
+    magpis.core.Magpis.get_images(
+        commons.GalacticCoordGenerator(10.5, 0.0, unit=(u.deg, u.deg)),
+        survey='Not a survey')

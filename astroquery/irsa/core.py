@@ -1,14 +1,15 @@
-'''
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
+"""
 IRSA
 ====
 
 API from
 
- http://irsa.ipac.caltech.edu/applications/Gator/GatorAid/irsa/catsearch.html
+ https://irsa.ipac.caltech.edu/applications/Gator/GatorAid/irsa/catsearch.html
 
 The URL of the IRSA catalog query service, CatQuery, is
 
- http://irsa.ipac.caltech.edu/cgi-bin/Gator/nph-query
+ https://irsa.ipac.caltech.edu/cgi-bin/Gator/nph-query
 
 The service accepts the following keywords, which are analogous to the search
 fields on the Gator search form:
@@ -86,40 +87,38 @@ If onlist=0, the following parameters are required:
                         The retrieved row number outrows is always less than or
                         equal to available to be retrieved rows under the same
                         constraints.
-'''
-# Licensed under a 3-clause BSD style license - see LICENSE.rst
+"""
 from __future__ import print_function, division
 
 import warnings
-import tempfile
 import xml.etree.ElementTree as tree
 
+from astropy.extern import six
 import astropy.units as u
 import astropy.coordinates as coord
 import astropy.io.votable as votable
 
 from ..query import BaseQuery
 from ..utils import commons
-from . import (IRSA_SERVER,
-               GATOR_LIST_CATALOGS,
-               ROW_LIMIT,
-               TIMEOUT)
-from ..exceptions import TableParseError
+from . import conf
+from ..exceptions import TableParseError, NoResultsWarning
 
-__all__ = ['Irsa','IrsaClass']
+__all__ = ['Irsa', 'IrsaClass']
 
 
 class IrsaClass(BaseQuery):
-    IRSA_URL = IRSA_SERVER()
-    GATOR_LIST_URL = GATOR_LIST_CATALOGS()
-    TIMEOUT = TIMEOUT()
-    ROW_LIMIT = ROW_LIMIT()
+    IRSA_URL = conf.server
+    GATOR_LIST_URL = conf.gator_list_catalogs
+    TIMEOUT = conf.timeout
+    ROW_LIMIT = conf.row_limit
 
-    def query_region(self, coordinates=None, catalog=None, spatial='Cone', radius=10 * u.arcsec,
-                     width=None, polygon=None, get_query_payload=False, verbose=False):
+    def query_region(self, coordinates=None, catalog=None, spatial='Cone',
+                     radius=10 * u.arcsec, width=None, polygon=None,
+                     get_query_payload=False, verbose=False):
         """
-        This function can be used to perform either cone, box, polygon or all-sky
-        search in the catalogs hosted by the NASA/IPAC Infrared Science Archive (IRSA).
+        This function can be used to perform either cone, box, polygon or
+        all-sky search in the catalogs hosted by the NASA/IPAC Infrared
+        Science Archive (IRSA).
 
         Parameters
         ----------
@@ -128,30 +127,34 @@ class IrsaClass(BaseQuery):
             performing a cone or box search. The string can give coordinates
             in various coordinate systems, or the name of a source that will
             be resolved on the server (see `here
-            <http://irsa.ipac.caltech.edu/search_help.html>`_ for more
-            details). Required if spatial is 'Cone' or 'Box'. Optional if
-            spatial is 'Polygon'.
+            <https://irsa.ipac.caltech.edu/search_help.html>`_ for more
+            details). Required if spatial is ``'Cone'`` or ``'Box'``. Optional
+            if spatial is ``'Polygon'``.
         catalog : str
-            The catalog to be used (see the *Notes* section below).
+            The catalog to be used. To list the available catalogs, use
+            :meth:`~astroquery.irsa.IrsaClass.print_catalogs`.
         spatial : str
-            Type of spatial query: 'Cone', 'Box', 'Polygon', and 'All-Sky'.
-            If missing then defaults to 'Cone'.
-        radius : str or `astropy.units.Quantity` object, [optional for spatial is 'Cone']
-            The string must be parsable by `astropy.coordinates.Angle`. The appropriate
-            `Quantity` object from `astropy.units` may also be used. Defaults to 10 arcsec.
-        width : str, `astropy.units.Quantity` object [Required for spatial is 'Polygon'.]
-            The string must be parsable by `astropy.coordinates.Angle`. The appropriate
-            `Quantity` object from `astropy.units` may also be used.
-        polygon : list, [Required for spatial is 'Polygon']
+            Type of spatial query: ``'Cone'``, ``'Box'``, ``'Polygon'``, and
+            ``'All-Sky'``. If missing then defaults to ``'Cone'``.
+        radius : str or `~astropy.units.Quantity` object, [optional for spatial is ``'Cone'``]
+            The string must be parsable by `~astropy.coordinates.Angle`. The
+            appropriate `~astropy.units.Quantity` object from
+            `astropy.units` may also be used. Defaults to 10 arcsec.
+        width : str, `~astropy.units.Quantity` object [Required for spatial is ``'Polygon'``.]
+
+            The string must be parsable by `~astropy.coordinates.Angle`. The
+            appropriate `~astropy.units.Quantity` object from `astropy.units`
+            may also be used.
+        polygon : list, [Required for spatial is ``'Polygon'``]
             A list of ``(ra, dec)`` pairs (as tuples), in decimal degrees,
-            outlinining the polygon to search in. It can also be a list of
+            outlining the polygon to search in. It can also be a list of
             `astropy.coordinates` object or strings that can be parsed by
-            `astropy.coordinates.ICRSCoordinates`.
+            `astropy.coordinates.ICRS`.
         get_query_payload : bool, optional
-            if set to `True` then returns the dictionary sent as the HTTP request.
+            If `True` then returns the dictionary sent as the HTTP request.
             Defaults to `False`.
         verbose : bool, optional.
-            When set to `True` displays warnings if the returned VOTable does not
+            If `True` then displays warnings when the returned VOTable does not
             conform to the standard. Defaults to `False`.
 
         Returns
@@ -159,8 +162,9 @@ class IrsaClass(BaseQuery):
         table : `~astropy.table.Table`
             A table containing the results of the query
         """
-        response = self.query_region_async(coordinates, catalog=catalog, spatial=spatial,
-                                           radius=radius, width=width, polygon=polygon,
+        response = self.query_region_async(coordinates, catalog=catalog,
+                                           spatial=spatial, radius=radius,
+                                           width=width, polygon=polygon,
                                            get_query_payload=get_query_payload)
         if get_query_payload:
             return response
@@ -168,10 +172,11 @@ class IrsaClass(BaseQuery):
 
     def query_region_async(self, coordinates=None, catalog=None,
                            spatial='Cone', radius=10 * u.arcsec, width=None,
-                           polygon=None,get_query_payload=False):
+                           polygon=None, get_query_payload=False):
         """
-        This function serves the same purpose as :meth:`~astroquery.irsa.Irsa.query_region`,
-        but returns the raw HTTP response rather than the results in an `astropy.table.Table`.
+        This function serves the same purpose as
+        :meth:`~astroquery.irsa.IrsaClass.query_region`, but returns the raw
+        HTTP response rather than the results in a `~astropy.table.Table`.
 
         Parameters
         ----------
@@ -180,30 +185,33 @@ class IrsaClass(BaseQuery):
             performing a cone or box search. The string can give coordinates
             in various coordinate systems, or the name of a source that will
             be resolved on the server (see `here
-            <http://irsa.ipac.caltech.edu/search_help.html>`_ for more
-            details). Required if spatial is 'Cone' or 'Box'. Optional if
-            spatial is 'Polygon'.
+            <https://irsa.ipac.caltech.edu/search_help.html>`_ for more
+            details). Required if spatial is ``'Cone'`` or ``'Box'``. Optional
+            if spatial is ``'Polygon'``.
         catalog : str
-            The catalog to be used (see the *Notes* section below).
+            The catalog to be used. To list the available catalogs, use
+            :meth:`~astroquery.irsa.IrsaClass.print_catalogs`.
         spatial : str
-            Type of spatial query: 'Cone', 'Box', 'Polygon', and 'All-Sky'.
-            If missing then defaults to 'Cone'.
-        radius : str or `astropy.units.Quantity` object, [optional for spatial is 'Cone']
-            The string must be parsable by `astropy.coordinates.Angle`. The appropriate
-            `Quantity` object from `astropy.units` may also be used. Defaults to 10 arcsec.
-        width : str, `astropy.units.Quantity` object [Required for spatial is 'Polygon'.]
-            The string must be parsable by `astropy.coordinates.Angle`. The appropriate
-            `Quantity` object from `astropy.units` may also be used.
-        polygon : list, [Required for spatial is 'Polygon']
+            Type of spatial query: ``'Cone'``, ``'Box'``, ``'Polygon'``, and
+            ``'All-Sky'``. If missing then defaults to ``'Cone'``.
+        radius : str or `~astropy.units.Quantity` object, [optional for spatial is ``'Cone'``]
+            The string must be parsable by `~astropy.coordinates.Angle`. The
+            appropriate `~astropy.units.Quantity` object from
+            `astropy.units` may also be used. Defaults to 10 arcsec.
+        width : str, `~astropy.units.Quantity` object [Required for spatial is ``'Polygon'``.]
+            The string must be parsable by `~astropy.coordinates.Angle`. The
+            appropriate `~astropy.units.Quantity` object from `astropy.units`
+            may also be used.
+        polygon : list, [Required for spatial is ``'Polygon'``]
             A list of ``(ra, dec)`` pairs (as tuples), in decimal degrees,
-            outlinining the polygon to search in. It can also be a list of
+            outlining the polygon to search in. It can also be a list of
             `astropy.coordinates` object or strings that can be parsed by
-            `astropy.coordinates.ICRSCoordinates`.
+            `astropy.coordinates.ICRS`.
         get_query_payload : bool, optional
-            if set to `True` then returns the dictionary sent as the HTTP request.
+            If `True` then returns the dictionary sent as the HTTP request.
             Defaults to `False`.
 
-         Returns
+        Returns
         -------
         response : `requests.Response`
             The HTTP response returned from the service
@@ -219,8 +227,8 @@ class IrsaClass(BaseQuery):
 
         if get_query_payload:
             return request_payload
-        response = commons.send_request(Irsa.IRSA_URL, request_payload,
-                                        Irsa.TIMEOUT, request_type='GET')
+        response = self._request("GET", url=Irsa.IRSA_URL,
+                                 params=request_payload, timeout=Irsa.TIMEOUT)
         return response
 
     def _parse_spatial(self, spatial, coordinates, radius=None, width=None,
@@ -231,30 +239,33 @@ class IrsaClass(BaseQuery):
         Parameters
         ----------
         spatial : str
-            The type of spatial query. Must be one of: 'Cone', 'Box', 'Polygon', and 'All-Sky'.
+            The type of spatial query. Must be one of: ``'Cone'``, ``'Box'``,
+            ``'Polygon'``, and ``'All-Sky'``.
         coordinates : str, `astropy.coordinates` object
             Gives the position of the center of the cone or box if
             performing a cone or box search. The string can give coordinates
             in various coordinate systems, or the name of a source that will
             be resolved on the server (see `here
-            <http://irsa.ipac.caltech.edu/search_help.html>`_ for more
-            details). Required if spatial is 'Cone' or 'Box'. Optional if
-            spatial is 'Polygon'.
-        radius : str or `astropy.units.Quantity` object, [optional for spatial is 'Cone']
-            The string must be parsable by `astropy.coordinates.Angle`. The appropriate
-            `Quantity` object from `astropy.units` may also be used. Defaults to 10 arcsec.
-        width : str, `astropy.units.Quantity` object [Required for spatial is 'Polygon'.]
-            The string must be parsable by `astropy.coordinates.Angle`. The appropriate
-            `Quantity` object from `astropy.units` may also be used.
-        polygon : list, [Required for spatial is 'Polygon']
+            <https://irsa.ipac.caltech.edu/search_help.html>`_ for more
+            details). Required if spatial is ``'Cone'`` or ``'Box'``. Optional
+            if spatial is ``'Polygon'``.
+        radius : str or `~astropy.units.Quantity` object, [optional for spatial is ``'Cone'``]
+            The string must be parsable by `~astropy.coordinates.Angle`. The
+            appropriate `~astropy.units.Quantity` object from `astropy.units`
+            may also be used. Defaults to 10 arcsec.
+        width : str, `~astropy.units.Quantity` object [Required for spatial is ``'Polygon'``.]
+            The string must be parsable by `~astropy.coordinates.Angle`. The
+            appropriate `~astropy.units.Quantity` object from `astropy.units`
+            may also be used.
+        polygon : list, [Required for spatial is ``'Polygon'``]
             A list of ``(ra, dec)`` pairs as tuples of
-            `astropy.coordinates.Angle`s outlinining the polygon to search in.
+            `astropy.coordinates.Angle`s outlining the polygon to search in.
             It can also be a list of `astropy.coordinates` object or strings
-            that can be parsed by `astropy.coordinates.ICRSCoordinates`.
+            that can be parsed by `astropy.coordinates.ICRS`.
 
         Returns
         -------
-        Payload dictionary
+        payload_dict : dict
         """
 
         request_payload = {}
@@ -275,15 +286,19 @@ class IrsaClass(BaseQuery):
                 request_payload['size'] = width.to(u.arcsec).value
         elif spatial == 'Polygon':
             if coordinates is not None:
-                request_payload['objstr'] = coordinates if not commons._is_coordinate(coordinates) else _parse_coordinates(coordinates)
+                if commons._is_coordinate(coordinates):
+                    request_payload['objstr'] = _parse_coordinates(coordinates)
+                else:
+                    request_payload['objstr'] = coordinates
             try:
                 coordinates_list = [_parse_coordinates(c) for c in polygon]
-            except (ValueError,TypeError):
-                    coordinates_list = [_format_decimal_coords(*_pair_to_deg(pair)) for pair in polygon]
+            except (ValueError, TypeError):
+                coordinates_list = [_format_decimal_coords(*_pair_to_deg(pair))
+                                    for pair in polygon]
             request_payload['polygon'] = ','.join(coordinates_list)
         else:
-            raise ValueError("Unrecognized spatial query type. " +
-                             "Must be one of 'Cone', 'Box', 'Polygon', or 'All-Sky'.")
+            raise ValueError("Unrecognized spatial query type. Must be one of "
+                             "'Cone', 'Box', 'Polygon', or 'All-Sky'.")
 
         request_payload['spatial'] = spatial
 
@@ -309,54 +324,65 @@ class IrsaClass(BaseQuery):
 
     def _parse_result(self, response, verbose=False):
         """
-        Parses the results form the HTTP response to `astropy.table.Table`.
+        Parses the results form the HTTP response to `~astropy.table.Table`.
 
         Parameters
         ----------
         response : `requests.Response`
             The HTTP response object
         verbose : bool, optional
-            Defaults to false. When true it will display warnings whenever the VOtable
-            returned from the Service doesn't conform to the standard.
+            Defaults to `False`. When true it will display warnings whenever
+            the VOtable returned from the Service doesn't conform to the
+            standard.
 
         Returns
         -------
-        table : `astropy.table.Table`
+        table : `~astropy.table.Table`
         """
         if not verbose:
             commons.suppress_vo_warnings()
+
+        content = response.text
+
         # Check if results were returned
-        if 'The catalog is not on the list' in response.content:
+        if 'The catalog is not on the list' in content:
             raise Exception("Catalog not found")
 
         # Check that object name was not malformed
-        if 'Either wrong or missing coordinate/object name' in response.content:
+        if 'Either wrong or missing coordinate/object name' in content:
             raise Exception("Malformed coordinate/object name")
 
-        # Check that the results are not of length zero
-        if len(response.content) == 0:
-            raise Exception("The IRSA server sent back an empty reply")
+        # Check to see that output table size limit hasn't been exceeded
+        if 'Exceeding output table size limit' in content:
+            raise Exception("Exceeded output table size - reduce number "
+                            "of output columns and/or limit search area")
 
-        # Write table to temporary file
-        output = tempfile.NamedTemporaryFile()
-        output.write(response.content)
-        output.flush()
+        # Check to see that the query engine is working
+        if 'SQLConnect failed' in content:
+            raise Exception("The IRSA server is currently down")
+
+        # Check that the results are not of length zero
+        if len(content) == 0:
+            raise Exception("The IRSA server sent back an empty reply")
 
         # Read it in using the astropy VO table reader
         try:
-            first_table = votable.parse(output.name, pedantic=False).get_first_table()
+            first_table = votable.parse(six.BytesIO(response.content),
+                                        pedantic=False).get_first_table()
         except Exception as ex:
             self.response = response
             self.table_parse_error = ex
-            raise TableParseError("Failed to parse IRSA votable! The raw response can be found "
-                                  "in self.response, and the error in self.table_parse_error.")
+            raise TableParseError("Failed to parse IRSA votable! The raw "
+                                  "response can be found in self.response, "
+                                  "and the error in self.table_parse_error.")
 
         # Convert to astropy.table.Table instance
         table = first_table.to_table()
 
         # Check if table is empty
         if len(table) == 0:
-            warnings.warn("Query returned no results, so the table will be empty")
+            warnings.warn("Query returned no results, so the table will "
+                          "be empty", NoResultsWarning)
 
         return table
 
@@ -367,12 +393,14 @@ class IrsaClass(BaseQuery):
         Returns
         -------
         catalogs : dict
-            A dictionary of catalogs where the key indicates the catalog name to
-            be used in query functions, and the value is the verbose description
-            of the catalog.
+            A dictionary of catalogs where the key indicates the catalog
+            name to be used in query functions, and the value is the verbose
+            description of the catalog.
         """
-        response = commons.send_request(Irsa.GATOR_LIST_URL, dict(mode='xml'), Irsa.TIMEOUT, request_type="GET")
-        root =tree.fromstring(response.content)
+        response = self._request("GET", url=Irsa.GATOR_LIST_URL,
+                                 params=dict(mode='xml'), timeout=Irsa.TIMEOUT)
+
+        root = tree.fromstring(response.content)
         catalogs = {}
         for catalog in root.findall('catalog'):
             catname = catalog.find('catname').text
@@ -388,46 +416,52 @@ class IrsaClass(BaseQuery):
         for catname in catalogs:
             print("{:30s}  {:s}".format(catname, catalogs[catname]))
 
+
 Irsa = IrsaClass()
 
 
 def _parse_coordinates(coordinates):
-# borrowed from commons.parse_coordinates as from_name wasn't required in this case
-    if isinstance(coordinates, basestring):
+    # borrowed from commons.parse_coordinates as from_name wasn't required in
+    # this case
+    if isinstance(coordinates, six.string_types):
         try:
-            c = coord.ICRSCoordinates(coordinates)
-            warnings.warn("Coordinate string is being interpreted as an ICRS coordinate.")
-        except u.UnitsException as ex:
+            c = coord.SkyCoord(coordinates, frame='icrs')
+            warnings.warn("Coordinate string is being interpreted as an "
+                          "ICRS coordinate.")
+        except u.UnitsError as ex:
             warnings.warn("Only ICRS coordinates can be entered as strings\n"
                           "For other systems please use the appropriate "
                           "astropy.coordinates object")
             raise ex
-    elif isinstance(coordinates, coord.SphericalCoordinatesBase):
+    elif isinstance(coordinates, commons.CoordClasses):
         c = coordinates
     else:
         raise TypeError("Argument cannot be parsed as a coordinate")
-    formatted_coords = _format_decimal_coords(c.icrs.ra.degree, c.icrs.dec.degree)
+    c_icrs = c.transform_to(coord.ICRS)
+    formatted_coords = _format_decimal_coords(c_icrs.ra.degree,
+                                              c_icrs.dec.degree)
     return formatted_coords
 
+
 def _pair_to_deg(pair):
-    """ Turn a pair of floats, Angles, or Quantities into pairs of float degrees """
+    """
+    Turn a pair of floats, Angles, or Quantities into pairs of float
+    degrees
+    """
 
     # unpack
-    lon,lat = pair
+    lon, lat = pair
 
-    if hasattr(lon,'degree') and hasattr(lat,'degree'):
+    if hasattr(lon, 'degree') and hasattr(lat, 'degree'):
         pair = (lon.degree, lat.degree)
-    elif hasattr(lon,'to') and hasattr(lat,'to'):
-        pair = [lon,lat]
-        for ii,ang in enumerate((lon,lat)):
+    elif hasattr(lon, 'to') and hasattr(lat, 'to'):
+        pair = [lon, lat]
+        for ii, ang in enumerate((lon, lat)):
             if ang.unit.is_equivalent(u.degree):
                 pair[ii] = ang.to(u.degree).value
-            elif ang.unit.is_equivalent(u.hour):
-                warnings.warn("Assuming angle specified with 'hour' units means 'hourangle'.  "
-                              "This is an astropy < 0.3 warning.")
-                pair[ii] = (ang.value * u.hourangle).to(u.degree)
     else:
-        warnings.warn("Polygon endpoints are being interpreted as RA/Dec pairs specified in decimal degree units.")
+        warnings.warn("Polygon endpoints are being interpreted as "
+                      "RA/Dec pairs specified in decimal degree units.")
     return tuple(pair)
 
 
@@ -439,14 +473,15 @@ def _format_decimal_coords(ra, dec):
 
 
 def _parse_dimension(dim):
-    if isinstance(dim, u.Quantity) and dim.unit in u.deg.find_equivalent_units():
+    if (isinstance(dim, u.Quantity) and
+            dim.unit in u.deg.find_equivalent_units()):
         if dim.unit not in ['arcsec', 'arcmin', 'deg']:
             dim = dim.to(u.degree)
     # otherwise must be an Angle or be specified in hours...
     else:
         try:
-            new_dim = commons.parse_radius(dim)
+            new_dim = coord.Angle(dim)
             dim = u.Quantity(new_dim.degree, u.Unit('degree'))
-        except (u.UnitsException, coord.errors.UnitsError, AttributeError):
-            raise u.UnitsException("Dimension not in proper units")
+        except (u.UnitsError, coord.errors.UnitsError, AttributeError):
+            raise u.UnitsError("Dimension not in proper units")
     return dim

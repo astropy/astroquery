@@ -6,89 +6,93 @@ import copy
 import sys
 import re
 import os
-import astropy.utils.data as aud
+import warnings
 from astropy.io import ascii
-from . import BESANCON_DOWNLOAD_URL, BESANCON_MODEL_FORM, BESANCON_PING_DELAY, BESANCON_TIMEOUT
-import urllib2  # only needed for urllib2.URLError
-
+from astropy.extern.six.moves.urllib_error import URLError
+from collections import OrderedDict
 from ..query import BaseQuery
-from ..utils import commons
-from ..utils import prepend_docstr_noreturns
-from ..utils import async_to_sync
+from ..utils import commons, prepend_docstr_nosections, async_to_sync
+from . import conf
 
-__all__ = ['Besancon','BesanconClass','parse_besancon_model_string']
+__all__ = ['Besancon', 'BesanconClass', 'parse_besancon_model_string']
 
 keyword_defaults = {
-    'rinf':0.000000,
-    'rsup':50.000000,
-    'dist_step_mode':0,
+    'rinf': 0.000000,
+    'rsup': 50.000000,
+    'dist_step_mode': 0,
     'dlr': 0.000,
-    'kleg':1,
+    'kleg': 1,
     'longit': 10.62,
-    'latit':-0.38,
-    'soli':0.0003,  # degrees.  0.00027777 = 1 arcsec
-    'kleh':1,
+    'latit': -0.38,
+    'soli': 0.0003,  # degrees.  0.00027777 = 1 arcsec
+    'kleh': 1,
     'eq1': 2000.0,
     'al0': 200.00,
     'alm': 200.00,
-    'dl': 1.00,
+    'dl': 0,
     'ab0': 59.00,
     'abm': 59.00,
-    'db': 1.00,
+    'db': 0,
     'adif': 0.700,
-    'ev':[""]*24,
-    'di':[""]*24,
-    'oo':[-7]+[-99]*12,
-    'ff':[15]+[99]*12,
-    'spectyp_min':1,
+    'ev': [""] * 25,
+    'AV': [""] * 25,
+    'di': [""] * 25,
+    'oo': [-7] + [-99] * 12,
+    'ff': [15] + [99] * 12,
+    'spectyp_min': 1,
     'subspectyp_min': 0,
-    'spectyp_max':9,
+    'spectyp_max': 9,
     'subspectyp_max': 5,
-    'lumi':range(1,8),
-    'sous_pop':range(1,11),
-    'iband':8,
-    'band0':[8]*9,
-    'bandf':[25]*9,
-    'colind':["J-H","H-K","J-K","V-K",],
+    'lumi': list(range(1, 8)),
+    'sous_pop': list(range(1, 11)),
+    'iband': 1,
+    'band0': [8] * 9,
+    'bandf': [25] * 9,
+    'colind': ["B-V", "U-B", "V-I", "V-K", ],
     'nic': 4,
-    'klea':1,
-    'sc':[[0,0,0]]*9,
-    'klee':0,
-    'throughform':'ok',
-    'kleb':3,  # 3 = Catalogue Simulation, 1 = tables and differential counts
-    'klec':1,  # 1 = ubv, 15= cfhtls (photometric system)
-    'cinem':0,  # 0: no kinematics, 1: kinematics
-    'outmod':"",
+    'klea': 1,
+    'sc': [[0, 0, 0]] * 9,
+    'klee': 0,
+    'throughform': 'ok',
+    'kleb': 3,  # 3 = Catalogue Simulation, 1 = tables and differential counts
+    'klec': 1,  # 1 = ubv, 15= cfhtls (photometric system)
+    'cinem': 0,  # 0: no kinematics, 1: kinematics
+    'outmod': "",
 }
 keyword_defaults['ff[15]'] = 500
 keyword_defaults['oo[15]'] = -500
 
-colors_limits = {"J-H":(-99,99),"H-K":(-99,99),"J-K":(-99,99),"V-K":(-99,99)}
-mag_limits = {'U':(-99,99), 'B':(-99,99), 'V':(-5,20), 'R':(-99,99),
-              'I':(-99,99), 'J':(-99,99), 'H':(-99,99), 'K':(-99,99), 'L':(-99,99)}
-mag_order = "U","B","V","R","I","J","H","K","L"
+colors_limits = OrderedDict((ci, (-99, 99))
+                            for ci in keyword_defaults['colind'])
+mag_limits = {'U': (-99, 99), 'B': (-99, 99), 'V': (10, 18), 'R': (-99, 99),
+              'I': (-99, 99), 'J': (-99, 99), 'H': (-99, 99), 'K': (-99, 99),
+              'L': (-99, 99)}
+
+mag_order = "VBURIJHKL"
 
 
 @async_to_sync
 class BesanconClass(BaseQuery):
 
-    # Since these are configuration options, they should probably be used directly
-    # rather than re-stored as local variables.  Then again, we need to refactor
-    # this whole project to be class-based, so they should be set for class
-    # instances.
-    url_download = BESANCON_DOWNLOAD_URL()
-    QUERY_URL = BESANCON_MODEL_FORM()
-    ping_delay = BESANCON_PING_DELAY()
-    TIMEOUT = BESANCON_TIMEOUT()
+    # Since these are configuration options, they should probably be used
+    # directly rather than re-stored as local variables. Then again, we need
+    # to refactor this whole project to be class-based, so they should be
+    # set for class instances.
+
+    url_download = conf.download_url
+    QUERY_URL = conf.model_form
+    ping_delay = conf.ping_delay
+    TIMEOUT = conf.timeout
     # sample file name:  1340900648.230224.resu
-    result_re = re.compile("[0-9]{10}\.[0-9]{6}\.resu")
+    result_re = re.compile(r"[0-9]{10}\.[0-9]{6}\.resu")
 
     def __init__(self, email=None):
+        super(BesanconClass, self).__init__()
         self.email = email
 
     def get_besancon_model_file(self, filename, verbose=True, timeout=5.0):
         """
-        Download a Besancon model from the website
+        Download a Besancon model from the website.
 
         Parameters
         ----------
@@ -101,8 +105,7 @@ class BesanconClass(BaseQuery):
             present.  Default 5s, which is probably reasonable.
         """
 
-        url = os.path.join(self.url_download,filename)
-
+        url = os.path.join(self.url_download, filename)
         elapsed_time = 0
         t0 = time.time()
 
@@ -113,21 +116,28 @@ class BesanconClass(BaseQuery):
                 sys.stdout.write(u"\r")
                 sys.stdout.flush()
             try:
-                # U = requests.get(url,timeout=timeout,stream=True)
-                # TODO: add timeout= keyword to get_readable_fileobj (when PR https://github.com/astropy/astropy/pull/1258 is merged)
-                with aud.get_readable_fileobj(url, cache=True) as f:
+                with commons.get_readable_fileobj(url, remote_timeout=timeout,
+                                                  cache=True) as f:
                     results = f.read()
                 break
-            except urllib2.URLError:
+            except URLError:
                 if verbose:
-                    sys.stdout.write(u"Waiting %0.1fs for model to finish (elapsed wait time %0.1fs, total wait time %0.1f)\r" % (self.ping_delay,elapsed_time,time.time()-t0))
+                    sys.stdout.write(u"Waiting %0.1fs for model to finish"
+                                     " (elapsed wait time %0.1fs, total "
+                                     "wait time %0.1f)\r" % (self.ping_delay,
+                                                             elapsed_time,
+                                                             time.time() - t0))
                     sys.stdout.flush()
                 time.sleep(self.ping_delay)
                 elapsed_time += self.ping_delay
                 continue
             except socket.timeout:
                 if verbose:
-                    sys.stdout.write(u"Waiting %0.1fs for model to finish (elapsed wait time %0.1fs, total wait time %0.1f)\r" % (self.ping_delay,elapsed_time,time.time()-t0))
+                    sys.stdout.write(u"Waiting %0.1fs for model to finish "
+                                     "(elapsed wait time %0.1fs, total wait "
+                                     "time %0.1f)\r" % (self.ping_delay,
+                                                        elapsed_time,
+                                                        time.time() - t0))
                     sys.stdout.flush()
                 time.sleep(self.ping_delay)
                 elapsed_time += self.ping_delay
@@ -147,38 +157,40 @@ class BesanconClass(BaseQuery):
             print("Loading request from Besancon server ...")
 
         # keep the text stored for possible later use
-        with aud.get_readable_fileobj(response.raw) as f:
-            text = f.read()
+        text = response.text
+
         try:
             filename = self.result_re.search(text).group()
         except AttributeError:  # if there are no matches
             errors = parse_errors(text)
-            raise ValueError("Errors: "+"\n".join(errors))
+            raise ValueError("Errors: " + "\n".join(errors))
 
         if verbose:
-            print("File is %s and can be aquired from %s" % (filename, self.url_download+'/'+filename))
+            print("File is {0} and can be acquired from {1}"
+                  .format(filename, self.url_download + '/' + filename))
 
         if retrieve_file:
             return self.get_besancon_model_file(filename)
         else:
             return filename
 
-    def _parse_args(self, glon, glat, email=None, smallfield=True, extinction=0.7,
+    def _parse_args(self, glon, glat, email, smallfield=True, extinction=0.7,
                     area=0.0001, verbose=True, clouds=None,
-                    absmag_limits=(-7,15), mag_limits=copy.copy(mag_limits),
+                    absmag_limits=(-7, 20), mag_limits=copy.copy(mag_limits),
                     colors_limits=copy.copy(colors_limits),
                     **kwargs):
         """
-        Perform a query on the Besancon model of the galaxy
+        Perform a query on the Besancon model of the galaxy.
+
         http://model.obs-besancon.fr/
 
         Parameters
         ----------
-        email : string
-            A valid e-mail address to send the report of completion to
         glon : float
         glat : float
             Galactic latitude and longitude at the center
+        email : str
+            A valid e-mail address to send the report of completion to
         smallfield : bool
             Small field (True) or Large Field (False)
             LARGE FIELD NOT SUPPORTED YET
@@ -189,7 +201,8 @@ class BesanconClass(BaseQuery):
         absmag_limits : (float,float)
             Absolute magnitude lower,upper limits
         colors_limits : dict of (float,float)
-            Should contain 4 elements listing color differences in the valid bands, e.g.:
+            Should contain 4 elements listing color differences in the valid
+                bands, e.g.:
                 {"J-H":(99,-99),"H-K":(99,-99),"J-K":(99,-99),"V-K":(99,-99)}
         mag_limits = dict of (float,float)
             Lower and Upper magnitude difference limits for each magnitude band
@@ -200,25 +213,26 @@ class BesanconClass(BaseQuery):
         verbose : bool
             Print out extra error messages?
         kwargs : dict
-            Can override any argument in the request if you know the name of the
-            POST keyword.
+            Can override any argument in the request if you know the name of
+            the POST keyword.
 
         Returns
         -------
-        Either the filename or the table depending on whether 'retrieve file' is
-        specified
+        Either the filename or the table depending on whether 'retrieve
+        file' is specified
         """
-        if email is None and hasattr(self,'email'):
+        if email is None and hasattr(self, 'email'):
             email = self.email
-        if email is None or not isinstance(email,str) or not commons.validate_email(email):
+        if (email is None or not isinstance(email, str) or
+                not commons.validate_email(email)):
             raise ValueError("Must specify a valid e-mail address.")
 
         # create a new keyword dict based on inputs + defaults
         kwd = copy.copy(keyword_defaults)
-        for key,val in kwargs.iteritems():
+        for key, val in kwargs.items():
             if key in keyword_defaults:
                 kwd[key] = val
-            elif verbose and not key in ('retrieve_file',):
+            elif verbose and key not in ('retrieve_file',):
                 print("Skipped invalid key %s" % key)
 
         kwd['kleg'] = 1 if smallfield else 2
@@ -233,15 +247,15 @@ class BesanconClass(BaseQuery):
         kwd['oo'][0] = absmag_limits[0]
         kwd['ff'][0] = absmag_limits[1]
 
-        for ii,(key,val) in enumerate(colors_limits.items()):
+        for ii, (key, val) in enumerate(colors_limits.items()):
             if key[0] in mag_order and key[1] == '-' and key[2] in mag_order:
                 kwd['colind'][ii] = key
-                kwd['oo'][ii+9] = val[0]
-                kwd['ff'][ii+9] = val[1]
+                kwd['oo'][ii + 9] = val[0]
+                kwd['ff'][ii + 9] = val[1]
             else:
                 raise ValueError('Invalid color %s' % key)
 
-        for (key,val) in mag_limits.iteritems():
+        for (key, val) in mag_limits.items():
             if key in mag_order:
                 kwd['band0'][mag_order.index(key)] = val[0]
                 kwd['bandf'][mag_order.index(key)] = val[1]
@@ -249,29 +263,31 @@ class BesanconClass(BaseQuery):
                 raise ValueError('Invalid band %s' % key)
 
         if clouds is not None:
-            for ii,(AV,di) in enumerate(clouds):
-                kwd[AV][ii] = AV
-                kwd[di][ii] = di
+            for ii, (AV, di) in enumerate(clouds):
+                kwd['AV'][ii] = AV
+                kwd['di'][ii] = di
 
         # parse the default dictionary
         # request_data = parse_besancon_dict(keyword_defaults)
         request_data = kwd.copy()
 
         # convert all array elements to arrays
-        for dummy in xrange(2):  # deal with nested lists
-            for k,v in request_data.items():
-                if isinstance(v,list) or (isinstance(v,tuple) and len(v) > 1):
+        for dummy in range(2):  # deal with nested lists
+            for k, v in list(request_data.items()):
+                if (isinstance(v, list) or
+                        (isinstance(v, tuple) and len(v) > 1)):
                     if k in request_data:
                         del request_data[k]
-                    for ii,x in enumerate(v):
-                        request_data['%s[%i]' % (k,ii)] = x
+                    for ii, x in enumerate(v):
+                        request_data['%s[%i]' % (k, ii)] = x
 
         # an e-mail address is required
         request_data['email'] = email
 
         return request_data
 
-    @prepend_docstr_noreturns("\n"+_parse_args.__doc__+_parse_result.__doc__)
+    @prepend_docstr_nosections("\n" + _parse_args.__doc__ +
+                              _parse_result.__doc__)
     def query_async(self, *args, **kwargs):
         """
         Returns
@@ -283,39 +299,39 @@ class BesanconClass(BaseQuery):
         if kwargs.get('get_query_payload'):
             return data_payload
 
-        response = commons.send_request(
-            self.QUERY_URL,
-            data_payload,
-            self.TIMEOUT,
-            stream=True)
+        response = self._request("POST", url=self.QUERY_URL, data=data_payload,
+                                 timeout=self.TIMEOUT, stream=True)
         return response
+
 
 Besancon = BesanconClass()
 
+
 def parse_besancon_dict(bd):
     """
-    Turn a dict like default_keys into a list of tuples (must be a list of
-    tuples because there are some repeated entries, which dictionaries do not
-    support)
+    Turn a dict like default_keys into a list of tuples.
+
+    Must be a list of tuples because there are some repeated entries,
+    which dictionaries do not support.
 
     .. todo::
-        In the future, a better way to do this is to make each dict entry a list;
-        requests knows how to deal with this properly
+        In the future, a better way to do this is to make each dict entry a
+        list; requests knows how to deal with this properly
     """
 
     http_dict = []
-    for key,val in bd.iteritems():
+    for key, val in bd.items():
         if isinstance(val, list):
             if "[]" in key:
                 for listval in val:
-                    http_dict.append((key,listval))
+                    http_dict.append((key, listval))
             else:
-                for ii,listval in enumerate(val):
+                for ii, listval in enumerate(val):
                     if isinstance(listval, list):
-                        for jj,lv in enumerate(listval):
-                            http_dict.append((key+"[%i][%i]" % (ii,jj),lv))
+                        for jj, lv in enumerate(listval):
+                            http_dict.append((key + "[%i][%i]" % (ii, jj), lv))
                     else:
-                        http_dict.append((key+"[%i]" % (ii), listval))
+                        http_dict.append((key + "[%i]" % (ii), listval))
         else:
             http_dict.append((key, val))
 
@@ -324,7 +340,8 @@ def parse_besancon_dict(bd):
 
 def parse_errors(text):
     """
-    Attempt to extract the errors from a Besancon web page with error messages in it
+    Attempt to extract the errors from a Besancon web page with error
+    messages in it.
     """
     try:
         errors = re.compile(r"""<div\ class="?errorpar"?>\s*
@@ -334,17 +351,27 @@ def parse_errors(text):
                         </div>""", re.X)
         text = errors.search(text).group()
     except AttributeError:
-        raise ValueError("Regular expression matching to error message failed.")
-    text_items = re.split("<li>|</li>|\n",errors.search(text).group())
+        raise ValueError("Regular expression matching to error "
+                         "message failed.")
+    text_items = re.split(r"<li>|</li>|\n", errors.search(text).group())
     text_items = [t for t in text_items if t != ""]
     error_list = text_items[2:-2]
     return error_list
 
 
+def parse_besancon_model_file(filename):
+    """
+    Parse a besancon model from a file on disk
+    """
+    with open(filename, 'r') as f:
+        contents = f.read()
+    return parse_besancon_model_string(contents)
+
+
 def parse_besancon_model_string(bms,):
     """
     Given an entire Besancon model result in *string* form, parse it into an
-    astropy table
+    `~astropy.table.Table`.
     """
 
     header_start = "Dist    Mv  CL".split()
@@ -352,7 +379,7 @@ def parse_besancon_model_string(bms,):
     # locate index of data start
     lines = bms.split('\n')
     nblanks1 = 0
-    for ii,line in enumerate(lines):
+    for ii, line in enumerate(lines):
         if line.strip() == '':
             nblanks1 += 1
         if all([h in line for h in header_start]):
@@ -362,7 +389,7 @@ def parse_besancon_model_string(bms,):
     ncols = len(names)
     header_line = ii
     # data starts 1 line after header
-    first_data_line = lines[header_line+1]
+    first_data_line = lines[header_line + 1]
     # apparently ascii wants you to start 1 early though
     data_start = header_line
     # ascii.read ignores blank lines
@@ -370,7 +397,7 @@ def parse_besancon_model_string(bms,):
 
     # locate index of data end
     nblanks2 = 0
-    for jj,line in enumerate(lines[::-1]):
+    for jj, line in enumerate(lines[::-1]):
         if "TOTAL NUMBER OF STARS :" in line:
             nstars = int(line.split()[-1])
         if line.strip() == '':
@@ -378,18 +405,23 @@ def parse_besancon_model_string(bms,):
         if all([h in line for h in header_start]):
             break
     # most likely = -7
-    data_end = -(jj-nblanks2+1)
+    data_end = -(jj - nblanks2 + 1)
 
     # note: old col_starts/col_ends were:
     # (0,7,13,16,21,27,33,36,41,49,56,62,69,76,82,92,102,109)
     # (6,12,15,20,26,32,35,39,48,55,61,68,75,81,91,101,108,115)
-    col_ends = [(first_data_line+" ").find(" "+x+" ")+len(x)+1 for x in first_data_line.split()]
-    if not all(x<y for x,y in zip(col_ends[:-1],col_ends[1:])):
+    space_indices = [first_data_line.find(" ", ii)
+                     for ii in range(len(first_data_line))]
+    col_ends = [y for x, y in zip(space_indices[:-1], space_indices[1:])
+                if y - x > 1] + [len(space_indices)]
+
+    if not all(x < y for x, y in zip(col_ends[:-1], col_ends[1:])):
         raise ValueError("Failed to parse Besancon table header.")
     col_starts = [0] + [c for c in col_ends[:-1]]
 
     if len(col_starts) != ncols or len(col_ends) != ncols:
-        raise ValueError("Table parsing error: mismatch between # of columns & header")
+        raise ValueError("Table parsing error: mismatch between # of "
+                         "columns & header")
 
     besancon_table = ascii.read(bms, Reader=ascii.FixedWidthNoHeader,
                                 header_start=None,
@@ -403,8 +435,11 @@ def parse_besancon_model_string(bms,):
         raise ValueError("Besancon table did not match reported size")
 
     for cn in besancon_table.columns:
-        if besancon_table[cn].dtype.kind in ('s','S'):
-            print("WARNING: The Besancon table did not parse properly.  Some columns are likely to have invalid values and others incorrect values.  Please report this error.")
+        if besancon_table[cn].dtype.kind in ('s', 'S'):
+            warnings.warn("The Besancon table did not parse properly.  "
+                          "Some columns are likely to have invalid "
+                          "values and others incorrect values.  "
+                          "Please report this error.")
             break
 
     return besancon_table

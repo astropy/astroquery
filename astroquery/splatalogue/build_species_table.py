@@ -5,10 +5,9 @@ for users / not part of the core package.
 
 :author: Adam Ginsburg <adam.g.ginsburg@gmail.com>
 """
-
 import json
-import requests
 import os
+import requests
 
 
 def data_path(filename):
@@ -23,21 +22,25 @@ def get_json_species_ids(outfile='species.json'):
     import bs4
 
     result = requests.get('http://www.cv.nrao.edu/php/splat/b.php')
-    page = bs4.BeautifulSoup(result.content)
-    sid = page.findAll('select',attrs={'id':'sid'})[0]
+    page = bs4.BeautifulSoup(result.content, 'html5lib')
+    sid = page.findAll('select', attrs={'id': 'sid'})[0]
 
     species_types = set()
     for kid in sid.children:
-        if hasattr(kid,'attrs') and 'class' in kid.attrs:
+        if hasattr(kid, 'attrs') and 'class' in kid.attrs:
             species_types.add(kid['class'][0])
 
-    species = dict((k,{}) for k in species_types)
+    species = dict((k, {}) for k in species_types)
 
     for kid in sid.children:
-        if hasattr(kid,'attrs') and 'class' in kid.attrs:
+        if hasattr(kid, 'attrs') and 'class' in kid.attrs:
             species[kid['class'][0]][kid['value']] = kid.text
 
-    with open(data_path(outfile),'w') as f:
-        json.dump(species,f)
+    with open(data_path(outfile), 'w') as f:
+        json.dump(species, f)
 
     return json.dumps(species)
+
+
+if __name__ == "__main__":
+    get_json_species_ids()

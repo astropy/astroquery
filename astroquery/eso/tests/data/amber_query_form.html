@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<TITLE>ESO Science Archive - AMBER Data Products</TITLE>
+<link rel="stylesheet" type="text/css" href="/wdb/css/wdb.css">
+<link href="http://www.eso.org/public/archives/favicon.ico" rel="shortcut icon">
+<script src="/wdb/jslib/jquery/1.8.3/jquery.min.js"></script>
+<script type="text/javascript"><!--
+$(document).ready( function() {
+changeLabels();
+$("#myreset").click(function(){
+$("#coord_sys").val('eq');
+changeLabels();
+$("#dp_type").attr("disabled", false);
+$("#dp_tech").attr("disabled", false);
+$("#dp_cat").attr("disabled", false);
+});
+$("[name=dp_type_user]").change(function(){
+$("#dp_type").attr("disabled", true);
+}).blur(function() {
+if($("[name=dp_type_user]").val().length == 0) {
+$("#dp_type").attr("disabled", false);
+} else {
+$("#dp_type option:first").attr('selected','selected');
+}
+});
+$("[name=dp_tech_user]").change(function(){
+$("#dp_tech").attr("disabled", true);
+}).blur(function() {
+if($("[name=dp_tech_user]").val().length == 0) {
+$("#dp_tech").attr("disabled", false);
+} else {
+$("#dp_tech option:first").attr('selected','selected');
+}
+});
+$("[name=dp_cat_user]").change(function(){
+$("#dp_cat").attr("disabled", true);
+}).blur(function() {
+if($("[name=dp_cat_user]").val().length == 0) {
+$("#dp_cat").attr("disabled", false);
+} else {
+$("#dp_cat option:first").attr('selected','selected');
+}
+});
+// Function to truncate text (Read More, Read Less) is applied to any element of the class textContainer_Truncate
+// line height in 'px' is set to 44, height which is currently hardcoded for all elements.
+var maxheightText=12;
+var showText = "[+] Read more ...";
+var hideText = "[-] Read less";
+jQuery('.textContainer_Truncate').each(function () {
+truncate_text( this, maxheightText, showText, hideText, "" );
+});
+});
+function changeLabels()
+{
+var coordsys=$("#coord_sys").val();
+var label1="RA";
+var label2="DEC";
+var unitlabel_coord1="RA: sexagesimal/hours, decimal/degrees";
+if (coordsys == "gal")
+{
+label1="l ";
+label2="b ";
+unitlabel_coord1="both degrees whether sexagesimal or decimal";
+}
+$('#coord1_label').html(label1);
+$('#coord2_label').html(label2);
+$('#unitlabel_coord1').html(unitlabel_coord1);
+//document.getElementById("coord1_label").innerHTML = label1;
+//document.getElementById("coord2_label").innerHTML = label2;
+//document.getElementById("unitlabel_coord1").innerHTML = unitlabel_coord1;
+}
+function resetLabels()
+{
+var label1="RA";
+var label2="DEC";
+var unitlabel_coord1="RA: sexagesimal/hours, decimal/degrees";
+$('#coord1_label').html(label1);
+$('#coord2_label').html(label2);
+$('#unitlabel_coord1').html(unitlabel_coord1);
+}
+function truncate_text( obj, maxheight, more_label, less_label, urltarget)
+{
+var text = jQuery(obj);
+if (text.height() > maxheight){
+text.css({ 'overflow': 'hidden','height': maxheight + 'px' });
+var link = jQuery('<a style="color:rgb(150,0,96); text-decoration:none; font-size: 75%; font-weight: bold;" href="#' + urltarget + '">' + more_label + '</a>');
+var linkDiv = jQuery('<div></div>');
+linkDiv.append(link);
+jQuery(obj).after(linkDiv);
+link.click(function (event) {
+event.preventDefault();
+if (text.height() > maxheight) {
+jQuery(this).html(more_label);
+text.css('height', maxheight + 'px');
+} else {
+jQuery(this).html(less_label);
+text.css('height', 'auto');
+}
+});
+}
+}
+//-->
+</SCRIPT>
+<script type="text/javascript" src="/wdb/jslib/wdb_query_functions.js"></script>
+</HEAD>
+<BODY onunload="" id="public">
+<div id='raw_div_headingtable'>
+<style>
+.urgent_note_warning {
+color: red;
+font-style: italic;
+font-weight:bold;
+}
+.urgent_note_text {
+color: black;
+font-style: italic;
+}
+</style>
+<table id='raw_headingtable' align="center" width="100%" border="0">
+<tr valign="middle">
+<td colspan="1" rowspan="2" class="partners" align="left" style="white-space: nowrap;"><a href="http://www.eso.org"><img src="/wdb/images/eso-logo.gif" height="100" alt="ESO" title="ESO Homepage"></a>&nbsp;<a href="http://www.eso.org/sci/facilities/paranal/instruments/amber/"><img src="/wdb/images/amber_instrument.jpg" height="100" alt="ESO" title="AMBER instrument Home Page"></a></td>
+<td colspan="7" align="center"><span class="raw_hide_public_show_cas saf_raw_watermark">SPECIAL ACCESS<br></span><span class="saf_raw_watermark">SCIENCE ARCHIVE FACILITY</span></td>
+<td colspan="3" align="right"><span style="font-weight: bold; font-size: 200%; white-space: nowrap;">AMBER Raw Data<br>Query Form</span></td>
+</tr>
+<tr>
+<td colspan="9" align="right">
+<table cellpadding="2" cellspacing="2" border="0" class="raw_header">
+<tr align="right" valign="middle" style="white-space: nowrap;">
+<td align="middle"><a href="/eso/eso_archive_help.html">How to use?</a></td>
+<td align="middle">
+<span style="margin: 3px; color: black; text-decoration: none" class="raw_show_public_hide_cas"><A href="http://archive.eso.org/cms/eso-data/instrument-specific-query-forms.html">Other Instruments</a></span>
+<span style="margin: 3px; color: white; text-decoration: none" class="raw_hide_public_show_cas"><A href="http://archive.eso.org/cms/eso-data/instrument-specific-query-forms-special-access.html">Other Instruments</a></span>
+</td>
+<td align="middle"><A href="/faq.html">Archive FAQ</a></td>
+<td align="middle"><A href="/">Archive Facility HOME</a></td>
+<td align="middle"><A href="http://www.eso.org/">ESO HOME</a></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+</div>
+<span class="raw_show_public_hide_cas">
+<table width="100%">
+<tr><td align="center" bgcolor="aaaaaa">
+<font color="ffffff" size="+1"><b>Description</b></font>
+</td></tr></table><div style="text-align: justify; font-size:110%; padding:20px;">
+ This form provides access to observations (raw data) performed with
+<a href="http://www.eso.org/sci/facilities/paranal/instruments/amber/">AMBER</a>
+since 2004 that are stored on-line in the <a href="/">
+Science Archive Facility</a> in Garching.
+Find more information about AMBER data on the
+<a href="http://www.eso.org/observing/dfo/quality/index_amber.html">Quality Control web pages</a>.
+Paranal ambient conditions can be queried separately from <a href="http://archive.eso.org/cms/eso-data/ambient-conditions/paranal-ambient-query-forms.html">here.</a><br></div>
+</span>
+<div class="raw_hide_public_show_cas" id="special_access_info">
+<!-- BEGIN Special Access Box -->
+<div class="access_info_container" style="position:relative;">
+<script type="text/javascript">
+function toggling_access_info()
+{
+$('.access_info').toggle();
+if ( $('.access_info').css('display') == 'none' )
+{
+$('.btn_access_info').html('<span style="letter-spacing: 12px; font-family: verdana; display:inline-block; vertical-align:middle" title="click to expand">Special Access Info</span><span style="font-family:verdana; vertical-align:middle; float: right; font-size:10px;" title="click to expand"> [open]</span>');
+}
+else
+{
+$('.btn_access_info').html('<span style="letter-spacing: 12px; font-family:verdana; display:inline-block; vertical-align:middle" title="click to hide">Special Access Info</span><span style="font-family:verdana; vertical-align:middle; float:right; font-size:10px" title="click to hide"> [close]</span>');
+}
+}
+</script>
+<table style="width: 100%">
+<tr>
+<td>
+<div class="btn_access_info" style="width:440px; padding-left: 10px; padding-right: 10px; text-align: center; font-size:15px;position:relative;left:40px;top:11px;background-color:rgb(139,0,0);color:white;border-radius:5px; display:inline-block; vertical-align:middle" onclick="toggling_access_info();"><span style="letter-spacing: 12px; font-family: verdana; display:inline-block; vertical-align:middle" title="click to expand">Special Access Info</span><span style="font-family:verdana; vertical-align:middle; float:right; font-size:10px;" title="click to expand"> [open]</span></div>
+<div class="access_info" style="min-width: 900px !important; text-align: justify; font-size:110%; padding:20px;border-radius:15px;border:5px solid rgb(139,0,0); display: none">
+<table cellpadding="15">
+<tr>
+<td widht="70%" valign="top"><h3>Special access interface</h3>
+<em>This query form allows logged-on users to browse AMBER raw data beyond what possible with the <a href="/wdb/wdb/eso/amber/form">public AMBER interface</a>.
+A query will return any matching public (raw) asset, plus any other (raw) asset for which the user has been granted special permissions,
+as it is the case for instrument teams, PIs of special programmes, etc.<br>
+</em>
+<p>
+<h3>Other public interfaces</h3>
+<em>
+Using the query forms listed below, you can only browse public assets (no credentials requested):
+<ul>
+<li> <b><a href="http://archive.eso.org/eso/eso_archive_main.html">ESO raw data query form</a></b>
+<li> <b><a href="http://archive.eso.org/cms/eso-data/instrument-specific-query-forms.html">Instrument-dedicated query forms</a></b> (raw data)
+<li> <b><a href="/wdb/wdb/adp/phase3_main/form">Phase 3 query form</a></b> (science reduced or fully calibrated data)
+</ul>
+</em>
+</td>
+<td width="30%" align="right" valign="top">
+<table><tr><td align="left">
+<h3>How to change user</h3>
+<em>To change user, please:
+<ol>
+<li>Copy <a id='copy_link' title="Use the Copy Link Location option (right click), then sign out, then paste the copied link into your browser again." href="">this link</a> (right click).
+<li>Logout pressing the Special Access Sign Out button
+<li>Paste the copied link into the browser location again.
+</ol>
+</em>
+</td></tr></table>
+</td>
+</tr>
+</table>
+</div> <!-- end of alsoavailable div -->
+</td><td align="right">
+<form id='logout' title="You can use this button to sign off and then sign in again as a different user." action="https://www.eso.org/sso/logout?http://safwebdev01.hq.eso.org/wdb/wdb/cas/amber/form" style="margin-top: 21px;">
+<input type="submit" value="ESO Special Access Sign Out">
+</form>
+</td></tr></table>
+</div> <!-- end of alsoavailable_container div -->
+<br>
+<!-- END Special Access Box -->
+</div> <!-- closing special_access_info div -->
+<FORM id="queryform" ACTION="/wdb/wdb/eso/amber/query" METHOD="POST" ENCTYPE="multipart/form-data">
+<div id="wdb_top_menu" class="wdb_top_menu"><fieldset class="fs_top_menu"> <table id="wdb_top_menu_table" width="100%" cellpadding=5 cellspacing=0 border=0><tr valign="middle"> <td align="left" valign="middle" style="width: 25%; white-space: nowrap;">
+        <input id="search" type="submit" class="ibsearch" value="Search">
+        <input id="myreset" type="reset" style="width: 7em;" value="Reset" onClick="wdb_showall_toggler($('#wdb_tabbit'),'All Fields','Default Fields','reset')"></td><td style="width: 50%; white-space: nowrap;">
+<div id="wdb_preferences_container" class="wdb_preferences_container">
+<div id="wdb_preferences" class="wdb_preferences">Output preferences: <SELECT name="wdbo"><OPTION VALUE="html/display" selected="selected">html table</OPTION><OPTION VALUE="ascii/display">ascii fixed length/display</OPTION><OPTION VALUE="ascii/download">ascii fixed length/download</OPTION><OPTION VALUE="csv/download">ascii csv/download</OPTION><OPTION VALUE="tsv/display">ascii tsv/display</OPTION><OPTION VALUE="tsv/download">ascii tsv/download</OPTION></SELECT>
+</div>
+<div id="wdb_max_records" class="wdb_max_records"> Return max <INPUT VALUE="1000" SIZE="5" NAME="max_rows_returned"> rows.</div><input type="button" id="wdb_tabbit" class="wdb_tabbit" style="margin-left: 2em;" onClick="wdb_showall_toggler(this,'All Fields','Default Fields');" value="All Fields"></div><!-- closing div wdb_preferences_container ***************************************************************** --></td><td align="right" style="width: 25%; white-space: nowrap;"><input type="button" id="ib_query_syntax" value="Syntax Help" onClick="wdb_query_syntax(this,'/wdb/html/wdb_query_syntax_quick.html')"></td></tr></table><p id="wdb_query_syntax" class="wdb_query_syntax"></p></fieldset></div><!-- closing div wdb_top_menu ***************************************************************** --><p>
+<pre><table class="html_attr" width="100%"><tr><th>Target Information</th></tr></table><small>&nbsp;&nbsp;&nbsp;</small><small>&nbsp;</small><b><a href="/eso/eso_archive_help.html#Target"><abbr title="target: ">Target name</abbr></a>.......................:</b>&nbsp; <INPUT name="target" size="21"  placeholder=""> <select name=resolver>
+<option value=simbad>SIMBAD name
+<option value=ned>NED name
+<option value=none>OBJECT as specified by the observer
+</select>
+<small>&nbsp;&nbsp;&nbsp;</small><small>&nbsp;</small><b><a href="/eso/eso_archive_help.html#RA"><abbr title="coord_sys: ">Coordinate System</abbr></a>.................:</b>&nbsp; <SELECT id="coord_sys" name="coord_sys" style="vertical-align: middle"  onChange='changeLabels();' ><OPTION value="eq"> Equatorial (FK5)</OPTION>
+<OPTION value="gal"> Galactic</OPTION>
+</SELECT><small>&nbsp;&nbsp;&nbsp;</small><small>&nbsp;</small><b><a href="/eso/eso_archive_help.html#RA"><abbr title="coord1: "><I id="coord1_label">RA</I></abbr></a>:</b>&nbsp; <INPUT name="coord1" size="12"  placeholder=""><small>&nbsp;&nbsp;&nbsp;</small><small>&nbsp;</small><b><a href="/eso/eso_archive_help.html#DEC"><abbr title="coord2: "><I id="coord2_label">DEC</I></abbr></a>:</b>&nbsp; <INPUT name="coord2" size="12"  placeholder=""> <I id="unitlabel_coord1">RA: sexagesimal=hours,decimal=degrees</I>
+<small>&nbsp;&nbsp;&nbsp;</small><small>&nbsp;</small><b><a href="/eso/eso_archive_help.html#Search_Box"><abbr title="box: ">Search Box</abbr></a>........................:</b>&nbsp; <INPUT name="box" size="12" value="00 10 00" onblur="if(this.value == '') { this.value='00 10 00'}" onfocus="if(this.value == '00 10 00') { this.value = ''; }"><small>&nbsp;&nbsp;&nbsp;</small><small>&nbsp;</small><b><a href="/eso/eso_archive_help.html#Output"><abbr title="format: ">Equatorial Output Format</abbr></a>:</b>&nbsp; <SELECT id="format" name="format" style="vertical-align: middle" ><OPTION value="sexagesimal"> Sexagesimal</OPTION>
+<OPTION value="decimal"> Decimal</OPTION>
+</SELECT>
+<INPUT type=checkbox checked name="tab_wdb_input_file"><small>&nbsp;</small><b><a href="/eso/eso_archive_help.html#Upload"><abbr title="wdb_input_file: ">Input Target List</abbr></a>.................:</b>&nbsp; <INPUT name="wdb_input_file" type="file" value="" >
+<table class="html_attr" width="100%"><tr><th>Observation and proposal parameters</th></tr></table><INPUT type=checkbox  name="tab_night"><small>&nbsp;</small><b><a href="/eso/eso_archive_help.html#Night"><abbr title="night: Night">DATE OBS</abbr></a>..........................:</b>&nbsp; <INPUT name="night" size="20"  placeholder=""> <i>(YYYY MM(M) DD of night begin [12:00 UT], DD MM(M) YYYY also acceptable)</i>
+&nbsp;&nbsp;<i>OR give a query range using the following two fields (start/end dates)</i><br><small>&nbsp;&nbsp;&nbsp;</small><small>&nbsp;</small><b><a href="/eso/eso_archive_help.html#Start"><abbr title="stime: ">Start</abbr></a>.............................:</b>&nbsp; <INPUT name="stime" size="10"  placeholder=""> <select name=starttime>
+<option value=00>00 hrs [UT]
+<option value=01>01 hrs [UT]
+<option value=02>02 hrs [UT]
+<option value=03>03 hrs [UT]
+<option value=04>04 hrs [UT]
+<option value=05>05 hrs [UT]
+<option value=06>06 hrs [UT]
+<option value=07>07 hrs [UT]
+<option value=08>08 hrs [UT]
+<option value=09>09 hrs [UT]
+<option value=10>10 hrs [UT]
+<option value=11>11 hrs [UT]
+<option value=12 selected>12 hrs [UT]
+<option value=13>13 hrs [UT]
+<option value=14>14 hrs [UT]
+<option value=15>15 hrs [UT]
+<option value=16>16 hrs [UT]
+<option value=17>17 hrs [UT]
+<option value=18>18 hrs [UT]
+<option value=19>19 hrs [UT]
+<option value=20>20 hrs [UT]
+<option value=21>21 hrs [UT]
+<option value=22>22 hrs [UT]
+<option value=23>23 hrs [UT]
+<option value=24>24 hrs [UT]
+</select><small>&nbsp;&nbsp;&nbsp;</small><small>&nbsp;</small><b><a href="/eso/eso_archive_help.html#End"><abbr title="etime: ">End</abbr></a>:</b>&nbsp; <INPUT name="etime" size="10"  placeholder=""> <select name=endtime>
+<option value=00>00 hrs [UT]
+<option value=01>01 hrs [UT]
+<option value=02>02 hrs [UT]
+<option value=03>03 hrs [UT]
+<option value=04>04 hrs [UT]
+<option value=05>05 hrs [UT]
+<option value=06>06 hrs [UT]
+<option value=07>07 hrs [UT]
+<option value=08>08 hrs [UT]
+<option value=09>09 hrs [UT]
+<option value=10>10 hrs [UT]
+<option value=11>11 hrs [UT]
+<option value=12 selected>12 hrs [UT]
+<option value=13>13 hrs [UT]
+<option value=14>14 hrs [UT]
+<option value=15>15 hrs [UT]
+<option value=16>16 hrs [UT]
+<option value=17>17 hrs [UT]
+<option value=18>18 hrs [UT]
+<option value=19>19 hrs [UT]
+<option value=20>20 hrs [UT]
+<option value=21>21 hrs [UT]
+<option value=22>22 hrs [UT]
+<option value=23>23 hrs [UT]
+<option value=24>24 hrs [UT]
+</select>
+<INPUT type=checkbox checked name="tab_prog_id"><small>&nbsp;</small><b><a href="/eso/eso_archive_help.html#Prog_ID"><abbr title="prog_id: ESO program identification code">ProgId</abbr></a>............................:</b>&nbsp; <INPUT name="prog_id" size="15"  placeholder=""> <i>PPP.C-NNNN &nbsp; (e.g. 080.A-0123*)</i>
+<INPUT type=checkbox  name="tab_prog_type"><small>&nbsp;</small><b><a href="/eso/eso_archive_help.html#Program_Type"><abbr title="prog_type: ">Program Type</abbr></a>......................:</b>&nbsp; <SELECT id="prog_type" name="prog_type" style="vertical-align: middle" ><OPTION value="%"> Any</OPTION>
+<OPTION value="0"> Normal</OPTION>
+<OPTION value="1"> GTO</OPTION>
+<OPTION value="2"> DDT</OPTION>
+<OPTION value="3"> ToO</OPTION>
+<OPTION value="4"> Large</OPTION>
+<OPTION value="5"> Short</OPTION>
+<OPTION value="6"> Calibration</OPTION>
+</SELECT>&nbsp;&nbsp;&nbsp;&nbsp;<INPUT type=checkbox  name="tab_obs_mode"><small>&nbsp;</small><b><a href="/eso/eso_archive_help.html#SV"><abbr title="obs_mode: ">SV Mode</abbr></a>:</b>&nbsp; <SELECT id="obs_mode" name="obs_mode" style="vertical-align: middle" ><OPTION value="%"> All modes</OPTION>
+<OPTION value="s"> Service</OPTION>
+<OPTION value="v"> Visitor</OPTION>
+</SELECT>
+<INPUT type=checkbox  name="tab_pi_coi"><small>&nbsp;</small><b><a href="/eso/eso_archive_help.html#PI_CoI"><abbr title="pi_coi: ">PI/CoI</abbr></a>............................:</b>&nbsp; <INPUT name="pi_coi" size="21"  placeholder=""> <select name=pi_coi_name>
+<option value=PI_only>as PI only
+<option value=none>as PI or CoI
+</select>
+<INPUT type=checkbox  name="tab_prog_title"><small>&nbsp;</small><b><a href="/eso/eso_archive_help.html#Title"><abbr title="prog_title: ">Proposal Title</abbr></a>....................:</b>&nbsp; <INPUT name="prog_title" size="21"  placeholder="">
+<table class="html_attr" width="100%"><tr><th>Generic File Information</th></tr></table><INPUT type=checkbox checked name="tab_dp_id"><small>&nbsp;</small><b><a href="/eso/eso_archive_help.html#DP_ID"><abbr title="dp_id: Dataset ID">DP.ID</abbr></a>.............................:</b>&nbsp; <INPUT name="dp_id" size="21"  placeholder=""> <i>archive filename of FITS file (e.g. AMBER.2010-09-04T09:40:45.174)</i>
+<INPUT type=checkbox checked name="tab_ob_id"><small>&nbsp;</small><b><a href="/eso/eso_archive_help.html#OB_ID"><abbr title="ob_id: The OB identifier, a unique numeric ID assigned to the Observation Block by the Observation Handling System">OB.ID</abbr></a>.............................:</b>&nbsp; <INPUT name="ob_id" size="10"  placeholder=""> <i>identification number of OB within ESO system</i>
+<INPUT type=checkbox  name="tab_obs_targ_name"><small>&nbsp;</small><b><abbr title="obs_targ_name: Observation block target name">OBS.TARG.NAME</abbr>.....................:</b>&nbsp; <INPUT name="obs_targ_name" size="21"  placeholder=""> <i>Observation block target name</i>
+<p><INPUT type=checkbox checked name="tab_dp_cat"><small>&nbsp;</small><b><a href="/eso/eso_archive_help.html#DPR_category"><abbr title="dp_cat: Observation category">DPR.CATG</abbr></a>..........................:</b>&nbsp; <SELECT id="dp_cat" name="dp_cat" style="vertical-align: middle" ><OPTION value="%"> Any</OPTION>
+<OPTION value="CALIB"> CALIB</OPTION>
+<OPTION value="SCIENCE"> SCIENCE</OPTION>
+</SELECT> <i>Data category (e.g. SCIENCE)</i>
+<INPUT type=checkbox checked name="tab_dp_type"><small>&nbsp;</small><b><a href="/eso/eso_archive_help.html#DPR_Type"><abbr title="dp_type: Type of observation/exposure">DPR.TYPE</abbr></a>..........................:</b>&nbsp; <SELECT id="dp_type" name="dp_type" style="vertical-align: middle" ><OPTION value="%"> Any</OPTION>
+<OPTION value="DETDARK% or DETFLAT% or FLAT% "> ---------Calibration files:---------</OPTION>
+<OPTION value="DETDARK"> DETDARK</OPTION>
+<OPTION value="DETFLAT"> DETFLAT</OPTION>
+<OPTION value="FLAT"> FLAT</OPTION>
+<OPTION value="BEAMPOS% or AMBER_BEAMPOS% or IMAGE% "> --------Technical files:--------</OPTION>
+<OPTION value="BEAMPOS"> BEAMPOS</OPTION>
+<OPTION value="AMBER_BEAMPOS"> AMBER_BEAMPOS</OPTION>
+<OPTION value="IMAGE"> IMAGE</OPTION>
+<OPTION value="WAVE,2TEL% or 2P2V% "> --------P2VM two telescopes files:--------</OPTION>
+<OPTION value="WAVE,2TEL"> WAVE,2TEL</OPTION>
+<OPTION value="2P2V"> 2P2V</OPTION>
+<OPTION value="WAVE,3TEL% or 3P2V% "> --------P2VM three telescopes files:--------</OPTION>
+<OPTION value="WAVE,3TEL"> WAVE,3TEL</OPTION>
+<OPTION value="3P2V"> 3P2V</OPTION>
+<OPTION value="OBJECT% or STD% or DARK% or SKY% "> --------Interferometry files:--------</OPTION>
+<OPTION value="OBJECT"> OBJECT</OPTION>
+<OPTION value="STD"> STD</OPTION>
+<OPTION value="DARK"> DARK</OPTION>
+<OPTION value="SKY"> SKY</OPTION>
+<OPTION value="FRNSRC% or FLUX% or CPTPIST% or COHERENC% or COLPOS% or ZOFF% or SPECPOS%"> --------Acquisition files:--------</OPTION>
+<OPTION value="COHERENC%"> COHERENC*</OPTION>
+<OPTION value="COLPOS%"> COLPOS*</OPTION>
+<OPTION value="CPTPIST%"> CPTPIST*</OPTION>
+<OPTION value="FLUX%"> FLUX*</OPTION>
+<OPTION value="FRNSRC%"> FRNSRC*</OPTION>
+<OPTION value="SPECPOS%"> SPECPOS*</OPTION>
+<OPTION value="ZOFF%"> ZOFF*</OPTION>
+</SELECT> <i>Observation type</i><small>&nbsp;&nbsp;&nbsp;</small><small>&nbsp;</small><b><a href="/eso/eso_archive_help.html#DPR_Type"><abbr title="dp_type_user: You can write your own input in the &quot;User defined input&quot; field, where you can specify logical expressions like &quot;2P2V or 3P2V&quot; so to search for multiple observation types at the same time.">User defined input</abbr></a>:</b>&nbsp; <INPUT name="dp_type_user" size="21"  placeholder=""> <i>(e.g. 2P2V or 3P2V)</i>
+<INPUT type=checkbox checked name="tab_dp_tech"><small>&nbsp;</small><b><a href="/eso/eso_archive_help.html#DPR_Tech"><abbr title="dp_tech: Mode/technique used for the observation">DPR.TECH</abbr></a>..........................:</b>&nbsp; <SELECT id="dp_tech" name="dp_tech" style="vertical-align: middle" ><OPTION value="%"> Any</OPTION>
+<OPTION value="IMAGE"> IMAGE</OPTION>
+<OPTION value="INTERFEROMETRY"> INTERFEROMETRY</OPTION>
+</SELECT> <i>Observation technique</i>&nbsp;&nbsp;&nbsp;<INPUT type=checkbox  name="tab_interferometry"><small>&nbsp;</small><b><abbr title="interferometry: Tick this field to get all associated interferometry files">Request all interferometry files</abbr></b>&nbsp;
+<p><INPUT type=checkbox  name="tab_tpl_name"><small>&nbsp;</small><b><abbr title="tpl_name: Template name">TPL.NAME</abbr>..........................:</b>&nbsp; <INPUT name="tpl_name" size="21"  placeholder=""> <i>AMBER template name</i>
+<INPUT type=checkbox  name="tab_tpl_nexp"><small>&nbsp;</small><b><a href="/eso/eso_archive_help.html#TPL_NEXP"><abbr title="tpl_nexp: Total number of exposures within template">TPL.NEXP</abbr></a>..........................:</b>&nbsp; <INPUT name="tpl_nexp" size="10"  placeholder=""> <i>total number of exposures within the template</i>
+<INPUT type=checkbox  name="tab_tpl_start"><small>&nbsp;</small><b><a href="/eso/eso_archive_help.html#TPL_START"><abbr title="tpl_start: starting time of template (UT)">TPL.START</abbr></a>.........................:</b>&nbsp; <INPUT name="tpl_start" size="20"  placeholder=""> <i>starting time of template (UT)</i>
+<table class="html_attr" width="100%"><tr><th>Instrument Specific Information</th></tr></table><INPUT type=checkbox  name="tab_del_ft_sensor"><small>&nbsp;</small><b><a href="http://www.eso.org/sci/facilities/paranal/telescopes/vlti/subsystems/finito/"><abbr title="del_ft_sensor: Fringe Tracker Sensor Name">DEL.FT.SENSOR</abbr></a>.....................:</b>&nbsp; <SELECT id="del_ft_sensor" name="del_ft_sensor" style="vertical-align: middle" ><OPTION value="%"> Any</OPTION>
+<OPTION value="FINITO"> FINITO</OPTION>
+<OPTION value="NONE"> NONE</OPTION>
+</SELECT> <i> Fringe Tracker Sensor Name</i>
+<INPUT type=checkbox  name="tab_del_ft_status"><small>&nbsp;</small><b><abbr title="del_ft_status: Fringe Tracker Status">DEL.FT.STATUS</abbr>.....................:</b>&nbsp; <SELECT id="del_ft_status" name="del_ft_status" style="vertical-align: middle" ><OPTION value="%"> Any</OPTION>
+<OPTION value="ON"> ON</OPTION>
+<OPTION value="OFF"> OFF</OPTION>
+</SELECT> <i> Fringe Tracker Status (could be ON or OFF)</i>
+<INPUT type=checkbox  name="tab_det_ntel"><small>&nbsp;</small><b><abbr title="det_ntel: number of telescopes">DET.NTEL</abbr>..........................:</b>&nbsp; <INPUT name="det_ntel" size="10"  placeholder=""> <i>Number of telescopes</i>
+<INPUT type=checkbox checked name="tab_iss_conf_station1"><small>&nbsp;</small><b><a href="http://www.eso.org/sci/facilities/paranal/telescopes/vlti/configuration/"><abbr title="iss_conf_station1: Station of telescope 1">ISS.CONF.STATION1</abbr></a>.................:</b>&nbsp; <SELECT id="iss_conf_station1" name="iss_conf_station1" style="vertical-align: middle" ><OPTION value="%"> Any</OPTION>
+<optgroup label="-----"></optgroup>
+<OPTION value="U1"> UT1</OPTION>
+<OPTION value="U2"> UT2</OPTION>
+<OPTION value="U3"> UT3</OPTION>
+<OPTION value="U4"> UT4</OPTION>
+<optgroup label="-----"></optgroup>
+<OPTION value="A0"> A0</OPTION>
+<OPTION value="A1"> A1</OPTION>
+<OPTION value="B0"> B0</OPTION>
+<OPTION value="B1"> B1</OPTION>
+<OPTION value="B2"> B2</OPTION>
+<OPTION value="B3"> B3</OPTION>
+<OPTION value="B4"> B4</OPTION>
+<OPTION value="B5"> B5</OPTION>
+<OPTION value="C0"> C0</OPTION>
+<OPTION value="C1"> C1</OPTION>
+<OPTION value="C2"> C2</OPTION>
+<OPTION value="C3"> C3</OPTION>
+<OPTION value="D0"> D0</OPTION>
+<OPTION value="D1"> D1</OPTION>
+<OPTION value="D2"> D2</OPTION>
+<OPTION value="E0"> E0</OPTION>
+<OPTION value="G0"> G0</OPTION>
+<OPTION value="G1"> G1</OPTION>
+<OPTION value="G2"> G2</OPTION>
+<OPTION value="H0"> H0</OPTION>
+<OPTION value="I1"> I1</OPTION>
+<OPTION value="J1"> J1</OPTION>
+<OPTION value="J2"> J2</OPTION>
+<OPTION value="J3"> J3</OPTION>
+<OPTION value="J4"> J4</OPTION>
+<OPTION value="J5"> J5</OPTION>
+<OPTION value="J6"> J6</OPTION>
+<OPTION value="K0"> K0</OPTION>
+<OPTION value="L0"> L0</OPTION>
+<OPTION value="M0"> M0</OPTION>
+</SELECT> <i>Station of telescope 1</i>
+<INPUT type=checkbox checked name="tab_iss_conf_station2"><small>&nbsp;</small><b><a href="http://www.eso.org/sci/facilities/paranal/telescopes/vlti/configuration/"><abbr title="iss_conf_station2: Station of telescope 2">ISS.CONF.STATION2</abbr></a>.................:</b>&nbsp; <SELECT id="iss_conf_station2" name="iss_conf_station2" style="vertical-align: middle" ><OPTION value="%"> Any</OPTION>
+<optgroup label="-----"></optgroup>
+<OPTION value="U1"> UT1</OPTION>
+<OPTION value="U2"> UT2</OPTION>
+<OPTION value="U3"> UT3</OPTION>
+<OPTION value="U4"> UT4</OPTION>
+<optgroup label="-----"></optgroup>
+<OPTION value="A0"> A0</OPTION>
+<OPTION value="A1"> A1</OPTION>
+<OPTION value="B0"> B0</OPTION>
+<OPTION value="B1"> B1</OPTION>
+<OPTION value="B2"> B2</OPTION>
+<OPTION value="B3"> B3</OPTION>
+<OPTION value="B4"> B4</OPTION>
+<OPTION value="B5"> B5</OPTION>
+<OPTION value="C0"> C0</OPTION>
+<OPTION value="C1"> C1</OPTION>
+<OPTION value="C2"> C2</OPTION>
+<OPTION value="C3"> C3</OPTION>
+<OPTION value="D0"> D0</OPTION>
+<OPTION value="D1"> D1</OPTION>
+<OPTION value="D2"> D2</OPTION>
+<OPTION value="E0"> E0</OPTION>
+<OPTION value="G0"> G0</OPTION>
+<OPTION value="G1"> G1</OPTION>
+<OPTION value="G2"> G2</OPTION>
+<OPTION value="H0"> H0</OPTION>
+<OPTION value="I1"> I1</OPTION>
+<OPTION value="J1"> J1</OPTION>
+<OPTION value="J2"> J2</OPTION>
+<OPTION value="J3"> J3</OPTION>
+<OPTION value="J4"> J4</OPTION>
+<OPTION value="J5"> J5</OPTION>
+<OPTION value="J6"> J6</OPTION>
+<OPTION value="K0"> K0</OPTION>
+<OPTION value="L0"> L0</OPTION>
+<OPTION value="M0"> M0</OPTION>
+</SELECT> <i>Station of telescope 2</i>
+<INPUT type=checkbox checked name="tab_iss_conf_station3"><small>&nbsp;</small><b><a href="http://www.eso.org/sci/facilities/paranal/telescopes/vlti/configuration/"><abbr title="iss_conf_station3: Station of telescope 3">ISS.CONF.STATION3</abbr></a>.................:</b>&nbsp; <SELECT id="iss_conf_station3" name="iss_conf_station3" style="vertical-align: middle" ><OPTION value="%"> Any</OPTION>
+<optgroup label="-----"></optgroup>
+<OPTION value="U1"> UT1</OPTION>
+<OPTION value="U2"> UT2</OPTION>
+<OPTION value="U3"> UT3</OPTION>
+<OPTION value="U4"> UT4</OPTION>
+<optgroup label="-----"></optgroup>
+<OPTION value="A0"> A0</OPTION>
+<OPTION value="A1"> A1</OPTION>
+<OPTION value="B0"> B0</OPTION>
+<OPTION value="B1"> B1</OPTION>
+<OPTION value="B2"> B2</OPTION>
+<OPTION value="B3"> B3</OPTION>
+<OPTION value="B4"> B4</OPTION>
+<OPTION value="B5"> B5</OPTION>
+<OPTION value="C0"> C0</OPTION>
+<OPTION value="C1"> C1</OPTION>
+<OPTION value="C2"> C2</OPTION>
+<OPTION value="C3"> C3</OPTION>
+<OPTION value="D0"> D0</OPTION>
+<OPTION value="D1"> D1</OPTION>
+<OPTION value="D2"> D2</OPTION>
+<OPTION value="E0"> E0</OPTION>
+<OPTION value="G0"> G0</OPTION>
+<OPTION value="G1"> G1</OPTION>
+<OPTION value="G2"> G2</OPTION>
+<OPTION value="H0"> H0</OPTION>
+<OPTION value="I1"> I1</OPTION>
+<OPTION value="J1"> J1</OPTION>
+<OPTION value="J2"> J2</OPTION>
+<OPTION value="J3"> J3</OPTION>
+<OPTION value="J4"> J4</OPTION>
+<OPTION value="J5"> J5</OPTION>
+<OPTION value="J6"> J6</OPTION>
+<OPTION value="K0"> K0</OPTION>
+<OPTION value="L0"> L0</OPTION>
+<OPTION value="M0"> M0</OPTION>
+</SELECT> <i>Station of telescope 3</i>
+<INPUT type=checkbox  name="tab_ocs_obs_mode"><small>&nbsp;</small><b><abbr title="ocs_obs_mode: Observation mode">OCS.OBS.MODE</abbr>......................:</b>&nbsp; <SELECT id="ocs_obs_mode" name="ocs_obs_mode" style="vertical-align: middle" ><OPTION value="%"> Any</OPTION>
+<OPTION value="2T"> 2 telescopes</OPTION>
+<OPTION value="3T"> 3 telescopes</OPTION>
+</SELECT> <i>Observation mode</i>
+<INPUT type=checkbox  name="tab_ocs_obs_specconf"><small>&nbsp;</small><b><a href="http://www.eso.org/sci/facilities/paranal/instruments/amber/inst/"><abbr title="ocs_obs_specconf: Spectral configuration">OCS.OBS.SPECCONF</abbr></a>..................:</b>&nbsp; <SELECT id="ocs_obs_specconf" name="ocs_obs_specconf" style="vertical-align: middle" ><OPTION value="%"> Any</OPTION>
+<OPTION value="Low%"> Low</OPTION>
+<OPTION value="Medium%"> Medium</OPTION>
+<OPTION value="High%"> High</OPTION>
+</SELECT> <i>Spectral Configuration</i>
+<INPUT type=checkbox  name="tab_ocs_obs_type"><small>&nbsp;</small><b><abbr title="ocs_obs_type: Observation type">OCS.OBS.TYPE</abbr>......................:</b>&nbsp; <INPUT name="ocs_obs_type" size="20"  placeholder=""> <i>Observation type</i>
+<INPUT type=checkbox checked name="tab_ins_grat1_wlen"><small>&nbsp;</small><b><a href="http://www.eso.org/sci/facilities/paranal/instruments/amber/inst/"><abbr title="ins_grat1_wlen: Grating central wavelength [nm]">INS.GRAT1.WLEN</abbr></a>....................:</b>&nbsp; <INPUT name="ins_grat1_wlen" size="20"  placeholder=""> <i>Grating central wavelength [nm]</i>
+<table class="html_attr" width="100%"><tr><th>Ambient Parameters</th></tr></table><INPUT type=checkbox checked name="tab_fwhm_avg"><small>&nbsp;</small><b><a href="/eso/eso_archive_help.html#DIMM-Savg"><abbr title="fwhm_avg: ">DIMM S-avg</abbr></a>........................:</b>&nbsp; <INPUT name="fwhm_avg" size="12"  placeholder=""> <i>[arcsec] DIMM Seeing average over the exposure (FWHM at 0.5mue)</i>
+<INPUT type=checkbox  name="tab_airmass_range"><small>&nbsp;</small><b><a href="/eso/eso_archive_help.html#Airmass"><abbr title="airmass_range: ">Airmass</abbr></a>...........................:</b>&nbsp; <INPUT name="airmass_range" size="10"  placeholder=""> <i>+/- 0.1</i>
+<INPUT type=checkbox  name="tab_night_flag"><small>&nbsp;</small><b><a href="/eso/eso_archive_help.html#Airmass"><abbr title="night_flag: ">Night?</abbr></a>............................:</b>&nbsp; <SELECT id="night_flag" name="night_flag" style="vertical-align: middle" ><OPTION value="%"> Any</OPTION>
+<OPTION value="0"> Night</OPTION>
+<OPTION value="1"> Twilight</OPTION>
+<OPTION value="2"> Daytime</OPTION>
+</SELECT> <i>Night Exposure ?</i>
+<INPUT type=checkbox  name="tab_moon_illu"><small>&nbsp;</small><b><abbr title="moon_illu: ">Moon Illumination</abbr>.................:</b>&nbsp; <INPUT name="moon_illu" size="20"  placeholder=""> <i>Moon illumination during the exposure (percentage, negative when moon below the horizon)</i>
+<table class="html_attr" width="100%"><tr><th>Result set</th></tr></table><small>&nbsp;&nbsp;&nbsp;</small><small>&nbsp;</small><b><abbr title="order: ">Sort by</abbr>...........................:</b>&nbsp; <SELECT id="order" name="order" style="vertical-align: middle" ><OPTION value=""""> nothing (faster)</OPTION>
+<OPTION value="dp_id"> Observation Time</OPTION>
+<OPTION value="dp_cat"> DPR.CATG</OPTION>
+<OPTION value="dp_tech"> DPR.TECH</OPTION>
+<OPTION value="tpl_start"> TPL.START</OPTION>
+<OPTION value="ob_id asc"> OB.ID (ascending)</OPTION>
+<OPTION value="ob_id desc"> OB.ID (descending)</OPTION>
+<OPTION value="period asc,prog_id asc"> Period and Run ID (earliest first)</OPTION>
+<OPTION value="period desc,prog_id desc"> Period and Run ID (latest first)</OPTION>
+</SELECT></pre> <table width="100%"><tr><td align="center" bgcolor="#aaaaaa"><font color="#ffffff" size="+1"> <b><a href="/wdb/html/wdb_query_help.html#ctrl">Extra Columns on Tabular Output</a></b></font></td></tr></table><SELECT id="extra_columns" name="extra_columns" size="2" multiple>
+<option value="uploaded_target">Uploaded target</option>
+</SELECT>
+	<hr>
+        <div id="wdb_optional_output_modes">
+        <INPUT type=checkbox name="force_tabular_mode" >
+        Use tabular output even if only one row is returned.<br>
+	<INPUT type=checkbox name="full_screen_mode" >
+	Use full-screen output even if more than one row is returned.<br>
+        </div><!-- closing wdb_optional_output_modes ***************************** -->
+
+</FORM><div id="wdb_conf_tail">
+<center>      
+<!-- bottom navigator: home, help etc. put on a table so that they
+           fill out the full column -->
+ <table border="0" cellpadding="2" cellspacing="5">
+ <tr>
+  <td width="33%" align="center" bgcolor="#006699">
+         <a href="http://www.eso.org/"><font color="white" size="1">
+         <strong>ESO HOME</strong></font></a></td>
+        <td width="33%" align="center" bgcolor="#006699">
+         <a href="http://archive.eso.org/"><font color="white" size="1">
+         <strong>ARCHIVE HOME</strong></font></a></td>
+        <td width="33%" align="center" bgcolor="#006699">
+         <a href="http://archive.eso.org/cms/faq.html"><font color="white" size="1">
+         <strong>ARCHIVE FAQ</strong></font></a></td>
+ </tr>
+ <tr>
+   <td colspan="3" align="center">
+         <a href="/wdb/wdb.html">wdb 3.0h</a> - 21-JUL-2017 ......
+         <a href="mailto:archive@eso.org?subject=wdb_form:amber">
+         <font size="1"><strong>Send comments to archive@eso.org
+         </strong></font></a></td>
+ </tr>
+ </table><!-- END bottom navigator -->
+</center>
+</div><!-- end of wdb_conf_tail -->
+</BODY>
+</html>

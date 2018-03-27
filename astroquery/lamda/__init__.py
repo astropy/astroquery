@@ -5,7 +5,7 @@ LAMDA Query Tool
 
 :Author: Brian Svoboda (svobodb@email.arizona.edu)
 
-This packaged is for querying the Leiden Atomic and Molecular Database (LAMDA)
+This package is for querying the Leiden Atomic and Molecular Database (LAMDA)
 hosted at: http://home.strw.leidenuniv.nl/~moldata/.
 
 Note:
@@ -15,7 +15,4 @@ Note:
   references to the original papers providing the spectroscopic and collisional
   data are encouraged.
 """
-from .core import *
-
-import warnings
-warnings.warn("Experimental: LAMDA has not yet been refactored to have its API match the rest of astroquery.")
+from .core import Lamda, parse_lamda_datafile, write_lamda_datafile

@@ -1,8 +1,5 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-from __future__ import print_function
-from .utils import turn_off_internet,turn_on_internet
-
-from astropy.tests.helper import pytest, remote_data
+import os
 
 # this contains imports plugins that configure py.test for astropy tests.
 # by importing them here in conftest.py they are discoverable by py.test
@@ -10,20 +7,39 @@ from astropy.tests.helper import pytest, remote_data
 
 from astropy.tests.pytest_plugins import *
 
-# pytest magic:
-# http://pytest.org/latest/plugins.html#_pytest.hookspec.pytest_configure
-# use pytest.set_trace() to interactively inspect config's features
-def pytest_configure(config):
-    if config.getoption('remote_data'):
-        pass
-        #turn_on_internet(verbose=config.option.verbose)
-    else:
-        turn_off_internet(verbose=config.option.verbose)
+try:
+    packagename = os.path.basename(os.path.dirname(__file__))
+    TESTED_VERSIONS[packagename] = version.version
+except NameError:
+    pass
 
-    try:
-        from astropy.tests.pytest_plugins import pytest_configure
+# Add astropy to test header information and remove unused packages.
+# Pytest header customisation was introduced in astropy 1.0.
 
-        pytest_configure(config)
-    except ImportError:
-        # assume astropy v<0.3
-        pass
+try:
+    PYTEST_HEADER_MODULES['Astropy'] = 'astropy'
+    PYTEST_HEADER_MODULES['APLpy'] = 'aplpy'
+    PYTEST_HEADER_MODULES['pyregion'] = 'pyregion'
+    del PYTEST_HEADER_MODULES['h5py']
+    del PYTEST_HEADER_MODULES['Scipy']
+except (NameError, KeyError):
+    pass
+
+# Uncomment the following line to treat all DeprecationWarnings as
+# exceptions
+#
+# The workaround can be removed once pyopenssl 1.7.20+ is out.
+import astropy
+if int(astropy.__version__[0]) > 1:
+    # The warnings_to_ignore_by_pyver parameter was added in astropy 2.0
+    enable_deprecations_as_exceptions(modules_to_ignore_on_import=['requests'])
+
+# This is to figure out the affiliated package version, rather than
+# using Astropy's
+try:
+    from .version import version
+except ImportError:
+    version = 'dev'
+
+packagename = os.path.basename(os.path.dirname(__file__))
+TESTED_VERSIONS[packagename] = version

@@ -7,14 +7,14 @@ import numpy as np
 from astropy.table import Table
 
 from ..query import BaseQuery
-from ..utils import commons, async_to_sync
-from ..utils.docstr_chompers import prepend_docstr_noreturns
+from ..utils import commons, async_to_sync, prepend_docstr_nosections
 
-from . import OGLE_SERVER, OGLE_TIMEOUT
+from . import conf
 
-__all__ = ['Ogle','OgleClass']
+__all__ = ['Ogle', 'OgleClass']
 
 __doctest_skip__ = ['OgleClass.*']
+
 
 def _validate_params(func):
     @functools.wraps(func)
@@ -45,14 +45,14 @@ class CoordParseError(ValueError):
 @async_to_sync
 class OgleClass(BaseQuery):
 
-    DATA_URL = OGLE_SERVER()
-    TIMEOUT = OGLE_TIMEOUT()
+    DATA_URL = conf.server
+    TIMEOUT = conf.timeout
 
     algorithms = ['NG', 'NN']
     quality_codes = ['GOOD', 'ALL']
     coord_systems = ['RD', 'LB']
-    result_dtypes = ['f8', 'f8', 'f8', 'f8', 'f8', 'f8', 'f8', 'f8', 'i8', 'a2',
-                     'f8']
+    result_dtypes = ['f8', 'f8', 'f8', 'f8', 'f8', 'f8', 'f8', 'f8', 'i8',
+                     'a2', 'f8']
 
     @_validate_params
     def _args_to_payload(self, coord=None, algorithm='NG', quality='GOOD',
@@ -64,27 +64,36 @@ class OgleClass(BaseQuery):
         ----------
         coord : list-like
             Pointings to evaluate interstellar extinction. Three forms of
-            coordinates may be passed:
+            coordinates may be passed::
+
                 * single astropy coordinate instance
                 * list-like object (1 x N) of astropy coordinate instances
-                * list-like object (2 x N) of RA/Decs or Glon/Glat as strings or
-                  floats. (May not be supported in future versions.)
+                * list-like object (2 x N) of RA/Decs or Glon/Glat as strings
+                or  floats. (May not be supported in future versions.)
+
         algorithm : string
-            Algorithm to interpolate data for desired coordinate. Valid options:
+            Algorithm to interpolate data for desired coordinate.
+            Valid options::
+
                 * 'NG': nearest grid point
                 * 'NN': natural neighbor interpolation
+
         quality : string
-            Quality factor for data. Valid options:
+            Quality factor for data. Valid options::
+
                 * 'All': all points
                 * 'GOOD': QF=0 as described in Nataf et al. (2012).
+
         coord_sys : string
-            Coordinate system if using lists of RA/Decs in `coord`. Valid options:
+            Coordinate system if using lists of RA/Decs in ``coord``.
+            Valid options::
+
                 * 'RD': equatorial coordinates
                 * 'LB': Galactic coordinates.
 
         Returns
         -------
-        astropy.table.Table
+        table : `~astropy.table.Table`
 
         Raises
         ------
@@ -94,13 +103,15 @@ class OgleClass(BaseQuery):
         Examples
         --------
         Using astropy coordinates:
-        >>> from astropy import coordinates as coord
+
+        >>> from astropy.coordinates import SkyCoord
         >>> from astropy import units as u
-        >>> co = coord.GalacticCoordinates(0.0, 3.0, unit=(u.degree, u.degree))
+        >>> co = SkyCoord(0.0, 3.0, unit=(u.degree, u.degree),
+        ...               frame='galactic')
         >>> from astroquery.ogle import Ogle
         >>> t = Ogle.query_region(coord=co)
         >>> t.pprint()
-          RA/LON   Dec/Lat    A_I  E(V-I) S_E(V-I) R_JKVI   mu    S_mu
+        RA/LON   Dec/Lat    A_I  E(V-I) S_E(V-I) R_JKVI   mu    S_mu
         --------- ---------- ----- ------ -------- ------ ------ ----- ...
         17.568157 -27.342475 3.126  2.597    0.126 0.3337 14.581 0.212
         """
@@ -108,13 +119,13 @@ class OgleClass(BaseQuery):
         lon, lat = self._parse_coords(coord, coord_sys)
         # Generate payload
         query_header = '# {0} {1} {2}\n'.format(coord_sys, algorithm, quality)
-        sources = '\n'.join(['{0} {1}'.format(lon, lat) for lon, lat in
-                            zip(lon, lat)])
+        sources = '\n'.join(['{0} {1}'.format(lo, la) for lo, la in
+                             zip(lon, lat)])
         file_data = query_header + sources
         files = {'file1': file_data}
         return files
 
-    @prepend_docstr_noreturns(_args_to_payload.__doc__)
+    @prepend_docstr_nosections(_args_to_payload.__doc__)
     def query_region_async(self, *args, **kwargs):
         """
         Returns
@@ -124,22 +135,21 @@ class OgleClass(BaseQuery):
         """
         files = self._args_to_payload(*args, **kwargs)
         # Make request
-        params = {'dnfile':'submit'}
-        response = commons.send_request(url=self.DATA_URL,
-                                        data=params,
-                                        timeout=self.TIMEOUT,
-                                        files=files,
-                                        request_type='POST')
+        params = {'dnfile': 'submit'}
+        response = self._request("POST", url=self.DATA_URL, data=params,
+                                 timeout=self.TIMEOUT, files=files)
+
         response.raise_for_status()
         return response
 
     def _parse_result(self, response, verbose=False):
         # Parse table, ignore last two (blank) lines
         raw_data = response.text.split('\n')[:-2]
-        # Select first row and skip first character ('#') to find column headers
-        header = raw_data[0][1:].encode('ascii').split()
+        # Select first row and skip first character ('#') to find column
+        # headers
+        header = raw_data[0][1:].split()
         data = self._parse_raw(raw_data)
-        t = Table(data, names=header, dtypes=self.result_dtypes)
+        t = Table(data, names=header, dtype=self.result_dtypes)
         return t
 
     def _parse_coords(self, coord, coord_sys):
@@ -162,11 +172,11 @@ class OgleClass(BaseQuery):
         if not isinstance(coord, list):
             # single astropy coordinate
             try:
-                ra,dec = commons.coord_to_radec(coord)
+                ra, dec = commons.coord_to_radec(coord)
                 lon = [ra]
                 lat = [dec]
                 return lon, lat
-            except:
+            except ValueError:
                 raise CoordParseError()
         elif isinstance(coord, list):
             shape = np.shape(coord)
@@ -174,9 +184,9 @@ class OgleClass(BaseQuery):
             if len(shape) == 1:
                 try:
                     radec = [commons.coord_to_radec(co) for co in coord]
-                    lon,lat = zip(*radec)
+                    lon, lat = list(zip(*radec))
                     return lon, lat
-                except:
+                except ValueError:
                     raise CoordParseError()
             # list-like of values
             elif (len(shape) == 2) & (shape[0] == 2):
@@ -205,9 +215,10 @@ class OgleClass(BaseQuery):
             List of lists for each column as strings
         """
         # Requests returns unicode encoding, return to ascii
-        data = [line.encode('ascii').split() for line in raw_data[1:]]
+        data = [line.split() for line in raw_data[1:]]
         # Transpose while keeping as list of lists
-        data = map(list, zip(*data))
+        data = list(map(list, zip(*data)))
         return data
+
 
 Ogle = OgleClass()

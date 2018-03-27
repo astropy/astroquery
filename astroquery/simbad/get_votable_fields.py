@@ -1,18 +1,21 @@
 # -*- coding: utf-8 -*-
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
 from __future__ import print_function
+import re
+import json
+import astropy.utils.data as aud
+
 
 def reload_votable_fields_json():
-    import astropy.utils.data as aud
     content = aud.get_file_contents("http://simbad.u-strasbg.fr/simbad/sim-help?Page=sim-fscript#VotableFields")
 
-    import re
     import bs4
     htmldoc = bs4.BeautifulSoup(content)
     search_text = re.compile(r'Field names for VOTable output', re.IGNORECASE)
     foundtext = htmldoc.find('h2', text=search_text)
 
-
-    table = foundtext.findNext('table')# Find the first <table> tag that follows it
+    # Find the first <table> tag that follows it
+    table = foundtext.findNext('table')
     outd = {}
     for row in table.findAll('tr'):
         cols = row.findChildren('td')
@@ -35,6 +38,5 @@ def reload_votable_fields_json():
                  smallest_child.attrs['size'] == '+2')):
                 outd[text1.strip()] = text2.strip()
 
-    import json
-    with open('data/votable_fields_dict.json','w') as f:
-        json.dump(outd,f,indent=2,sort_keys=True)
+    with open('data/votable_fields_dict.json', 'w') as f:
+        json.dump(outd, f, indent=2, sort_keys=True)

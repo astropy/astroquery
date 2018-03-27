@@ -1,30 +1,24 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-
 import gzip
 import sys
-PY3 = sys.version_info[0] >= 3
-if PY3:
-    import urllib as urllib2
-    from io import StringIO
-else:
-    import urllib2
-    import StringIO
-
+from astropy.extern.six import StringIO
+from astropy.extern.six.moves import urllib
 from astropy.io import fits
 
 
-__all__ = ['chunk_report','chunk_read']
+__all__ = ['chunk_report', 'chunk_read']
 
 
 def chunk_report(bytes_so_far, chunk_size, total_size):
     if total_size > 0:
         percent = float(bytes_so_far) / total_size
-        percent = round(percent*100, 2)
-        sys.stdout.write(u"Downloaded %12.2g of %12.2g Mb (%6.2f%%)\r" %
-            (bytes_so_far / 1024.**2, total_size / 1024.**2, percent))
+        percent = round(percent * 100, 2)
+        sys.stdout.write("Downloaded %12.2g of %12.2g Mb (%6.2f%%)\r" %
+                         (bytes_so_far / 1024. ** 2, total_size / 1024. ** 2,
+                          percent))
     else:
-        sys.stdout.write(u"Downloaded %10.2g Mb\r" %
-            (bytes_so_far / 1024.**2))
+        sys.stdout.write("Downloaded %10.2g Mb\r" %
+                         (bytes_so_far / 1024. ** 2))
 
 
 def chunk_read(response, chunk_size=1024, report_hook=None):
@@ -63,18 +57,18 @@ def retrieve(url, outfile, opener=None, overwrite=False):
     """
 
     if opener is None:
-        opener = urllib2.build_opener()
+        opener = urllib.build_opener()
 
     page = opener.open(url)
 
     results = chunk_read(page, report_hook=chunk_report)
 
-    S = StringIO.StringIO(results)
+    S = StringIO(results)
     try:
-        fitsfile = fits.open(S,ignore_missing_end=True)
+        fitsfile = fits.open(S, ignore_missing_end=True)
     except IOError:
         S.seek(0)
         G = gzip.GzipFile(fileobj=S)
-        fitsfile = fits.open(G,ignore_missing_end=True)
+        fitsfile = fits.open(G, ignore_missing_end=True)
 
     fitsfile.writeto(outfile, clobber=overwrite)

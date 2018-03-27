@@ -1,16 +1,15 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
+import imp
 import os
-import xml.etree.ElementTree as tree
-import requests
 import astropy.units as u
-import astropy.utils.data as aud
-# import this since the user may not have pytest installed
-from astropy.tests.helper import pytest, remote_data
-from astropy.io import fits
+import pytest
+import requests
+
+from astropy.tests.helper import remote_data
 from astropy.table import Table
 from ... import irsa_dust
-import requests
-reload(requests)
+
+imp.reload(requests)
 
 M31_XML = "dustm31.xml"
 M81_XML = "dustm81.xml"
@@ -60,8 +59,8 @@ class TestDust(DustTestCase):
             irsa_dust.core.IrsaDust.DUST_SERVICE_URL +
             "?locstr=100")
         data = response.text
-        with pytest.raises(Exception) as ex:
-            xml_tree = irsa_dust.utils.xml(data)
+        with pytest.raises(Exception):
+            irsa_dust.utils.xml(data)
 
     @pytest.mark.parametrize(('image_type', 'expected_tails'),
                              [(None, M31_URL_ALL),
@@ -133,11 +132,15 @@ class TestDust(DustTestCase):
         table = irsa_dust.core.IrsaDust.get_extinction_table("m51")
         expected_table = Table.read(self.data(M51_EXT_TBL), format='ipac')
         assert table.meta == expected_table.meta
+        assert table['LamEff'].unit == u.micron
+        assert table['A_SandF'].unit == table['A_SFD'].unit == u.mag
 
     def test_get_extinction_table_instance(self):
         table = irsa_dust.core.IrsaDust().get_extinction_table("m51")
         expected_table = Table.read(self.data(M51_EXT_TBL), format='ipac')
         assert table.meta == expected_table.meta
+        assert table['LamEff'].unit == u.micron
+        assert table['A_SandF'].unit == table['A_SFD'].unit == u.mag
 
     @pytest.mark.parametrize(('image_type', 'expected_tails'),
                              [(None, M31_URL_ALL),
@@ -170,8 +173,9 @@ class TestDust(DustTestCase):
                               ('temperature'),
                               ])
     def test_get_images_async_class(self, image_type):
-        readable_objs = irsa_dust.core.IrsaDust.get_images_async("m81",
-                                                                 image_type=image_type)
+        readable_objs = irsa_dust.core.IrsaDust.get_images_async(
+            "m81", image_type=image_type)
+
         assert readable_objs is not None
 
     @pytest.mark.parametrize(('image_type'),
@@ -181,8 +185,8 @@ class TestDust(DustTestCase):
                               ('temperature'),
                               ])
     def test_get_images_async_instance(self, image_type):
-        readable_objs = irsa_dust.core.IrsaDust().get_images_async("m81",
-                                                                   image_type=image_type)
+        readable_objs = irsa_dust.core.IrsaDust().get_images_async(
+            "m81", image_type=image_type)
         assert readable_objs is not None
 
     def test_get_images_class(self):

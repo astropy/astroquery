@@ -1,7 +1,225 @@
-0.2 (unreleased)
+0.3.8 (unreleased)
+------------------
+
+- heasarc: Add additional functionality and expand query capabilities [#1047]
+- New tool: JPL Horizons service to obtain ephemerides, orbital elements, and
+  state vectors for Solar System objects. [#1023]
+- New tool: MPC to query the Minor Planet Center web service [#1064]
+- ATOMIC: Fixed remote tests that were broken. [#1038]
+- vo_conesearch: URL for validated services have changed. Old URL should still
+  redirect but it is deprecated. [#1033]
+- MAST: bugfix, removing filesize checking due to unreliable filesize reporting in the database [#1050]
+- MAST: Added Catalogs class. [#1049]
+- New tool: Open Astronomy Catalog API to obtain data products on supernovae, TDEs, and kilonovae. [#1053]
+- IRSA Dust: call over https. [#1069]
+
+
+0.3.7 (2018-01-25)
+------------------
+
+- New tool: Exoplanet Orbit Catalog, NASA Exoplanet Archive [#771]
+- ESO: The upstream API changed.  We have adapted.  [#970]
+- ESO: Added 'destination' keyword to Eso.retrieve_data(), to download files
+  to a specific location (other than the cache). [#976]
+- ESO: Fixed Eso.query_instrument() to use instrument specific query forms
+  (it was using the main form before). [#976]
+- ESO: Implemented Eso.query_main() to query all instruments with the main form
+  (even the ones without a specific form). [#976]
+- ESO: Disabled caching for all Eso.retrieve_data() operations. [#976]
+- ESO: Removed deprecated Eso.data_retrieval() and Eso.query_survey().
+  Please use Eso.retrieve_data() and Eso.query_surveys() instead. [#1019]
+- ESO: Added configurable URL. [#1017]
+- ESO: Fixed string related bugs. [#981]
+- MAST: Added convenience function to list available missions. [#947]
+- MAST: Added login capabilities [#982]
+- MAST: Updated download functionality [#1004]
+- MAST: Fixed no results bug [#1003]
+- utils.tap: Made tkinter optional dependency. [#983]
+- utils.tap: Fixed a bug in load_tables. [#990]
+- vo_conesearch: Fixed bad query for service that cannot accept '&&'
+  in URL. [#993]
+- vo_conesearch: Removed broken services from default list. [#997, #1002]
+- IRSA Dust: fix units in extinction by band table. [#1016]
+- IRSA: Updated links that switched to use https. [#1010]
+- NRAO: Allow multiple configurations, telescopes in queries [#1020]
+- SIMBAD: adding 'get_query_payload' kwarg to all public methods to return
+  the request parameters. [#962]
+- CosmoSim: Fixed login service. [#999]
+- utils: upgrade ``prepend_docstr_noreturns`` to work with multiple
+  sections, and thus rename it to ``prepend_docstr_nosections``. [#988]
+- Vizier: find_catalogs will now respect UCD specifications [#1000]
+- ATOMIC: Added ability to select which rows are returned from the atomic
+  line database. [#1006]
+- ESASKY: Added Windows support, various bugfixes. [#1001, #977]
+- GAMA: Updated to use the newer DR3 release. [#1005]
+
+0.3.6 (2017-07-03)
+------------------
+
+- New tool: MAST - added module to access the Barbara A. Mikulski Archive
+  for Space Telescopes. [#920, #937]
+- LAMDA: Add function to write LAMDA-formatted Tables to a datafile. [#887]
+- ALMA: Fix to queries and tests that were broken by changes in the archive.
+  Note that as of April 2017, the archive is significantly broken and missing
+  many data sets. [#888]
+- SIMBAD: "dist" is now available as a valid votable field. [#849]
+  Additional minor fixes. [#932,#892]
+- SHA: fix bug with the coordinate handling. [#885]
+- ``turn_off_internet`` and ``turn_on_internet`` is not available any more
+  from the main ``utils`` namespace, use them directly from
+  ``utils.testing_tools``. [#940]
+- Added the 'verify' kwarg to ``Astroquery.request`` to provide a workaround
+  for services that have HTTPS URLs but missing certificates. [#928]
+
+0.3.5 (2017-03-29)
+------------------
+
+- New tool: Gaia - added module to access the European Space Agency Gaia
+  Archive. (#836)
+- New tool: VO Cone Search - added module to access Virtual Observatory's
+  Simple Cone Search. This is ported from ``astropy.vo``. (#859)
+- New utility: TAP/TAP+ - added Table Access Protocol utility and the ESAC
+  Science Data Centre (ESDC) extension. (#836)
+- Fix VizieR to respect specification to return default columns only (#792)
+- SIMBAD queries allow multiple configurable parameters (#820)
+- Add a capability to resume partially-completed downloads for services that
+  support the http 'range' keyword.  Currently applied to ESO and ALMA
+  (#812,#876)
+- SIMBAD now supports vectorized region queries.  A list of coordinates can be
+  sent to SIMBAD simultaneously.  Users will also be warned if they submit
+  queries with >10000 entries, which is the SIMBAD-recommended upper limit.
+  Also, SIMBAD support has noted that any IP submitting >6 queries/second
+  will be soft-banned, so we have added a warning to this effect in the
+  documentation (#833)
+- ALMA: Fix to always use https as the archive now requires it. (#814, #828)
+- ESASky: Fix various issues related to remote API changes. (#805, #817)
+- ESASky: Corrected Herschel filter indexing. (#844)
+- ESO: Fix picking issue with simple ``query_survey()`` queries. (#801)
+- ESO: Fix FEROS and HARPS instrument queries. (#840)
+- NRAO: Change default radius from 1 degree to 1 arcmin. (#813)
+
+0.3.4 (2016-11-21)
+------------------
+
+- New tool: basic HITRAN queries support (#617)
+- Fix #737, an issue with broken ALMA archive tables, via a hack (#775)
+- Correct HEASARC tool, which was sending incorrect data to the server (#774)
+- Fix NIST issue #714 which led to badly-parsed tables (#773)
+- NRAO archive tool allows user logins and HTML-based queries (#767, #780)
+- ALMA allows kwargs as input, and various small fixes (#785, #790, #782)
+- XMatch caching bug fixed (#789)
+- Various fixes to ESASky (#779, #772, #770)
+- New tool: VAMDC-cdms interface (#658)
+- Fix issue with exclude keyword in Splatalogue queries (#616)
+
+0.3.3 (2016-10-11)
+------------------
+
+- Option to toggle the display of the download bar (#734)
+- ESASKY - added new module for querying the ESASKY archive (#758, #763, #765)
+- Refactor Splatalogue and XMatch to use the caching (#747, #751)
+- Minor data updates to Splatalogue (#746, #754, #760)
+- Fix parsing bug for ``_parse_radius`` in Simbad (#753)
+- Multiple fixes to ensure Windows compatibility (#709, #726)
+- Minor fixes to ESO to match upstream form changes (#729)
+
+0.3.2 (2016-06-10)
+------------------
+
+- Update ESO tool to work with new web API (#696)
+- Added new instruments for ESO: ``ambient_paranal`` and ``meteo_paranal``
+  (#657)
+- Fix problem with listed votable fields being truncated in SIMBAD (#654)
+- SDSS remote API fixes (#690)
+- ALMA file downloader will skip over, rather than crashing on, access denied
+  (HTTP 401) errors (#687)
+- Continued minor ALMA fixes (#655,#672,#687,#688)
+- Splatalogue export limit bugfix (#673)
+- SIMBAD flux_quality flag corrected to flux_qual (#680)
+- VIZIER add a flag to return the query payload for debugging (#668)
+
+0.3.1 (2016-01-19)
+------------------
+
+- Fix bug in xmatch service that required astropy tables to have exactly 2
+  columns on input (#641)
+- Fix NASA ADS, which had an internal syntax error (#602)
+- Bugfix in NRAO queries: telescope config was parsed incorrectly (#629)
+- IBE - added new module for locating data from PTF, WISE, and 2MASS from IRSA.
+  See <http://irsa.ipac.caltech.edu/ibe/> for more information about IBE and
+  <http://www.ptf.caltech.edu/page/ibe> for more information about PTF survey
+  data in particular. (#450)
+
+0.3.0 (2015-10-26)
+------------------
+
+- Fix ESO APEX project ID keyword (#591)
+- Fix ALMA queries when accessing private data (#601)
+- Allow data downloads to use the cache (#601)
+
+0.2.6 (2015-07-23)
+------------------
+
+- ESO bugfixes for handling radio buttons (#560)
+- ESO: added SPHERE to list (#551)
+- ESO/ALMA test cleanup (#553)
+- Allow ALMA project view (#554)
+- Fix Splatalogue version keyword (#557)
+
+0.2.4 (2015-03-27)
+------------------
+
+- Bugfix for ``utils.commons.send_request()``: Raise exception if error status
+  is returned in the response. (#491)
+- Update for ALMA Cycle 3 API change (#500)
+- Added LCOGT Archive support (#537)
+- Refactored LAMDA to match the standard API and added a critical density
+  calculation utility (#546)
+
+0.2.3 (2014-09-30)
+------------------
+
+
+- AstroResponse has been removed, which means that all cached objects will have
+  new hashes.  You should clear your cache: for most users, that means
+  ``rm -r ~/.astropy/cache/astroquery/`` (#418)
+- In ESO and ALMA, default to *not* storing your password.  New keyword
+  ``store_password=False``.  (#415)
+- In ESO, fixed a form activation issue triggered in ESO ``retrieve_data()``,
+  updated file download link triggered by server side change.
+  More interesting, made ``username`` optional in ``login()``:
+  instead, you can now configure your preferred ``username``.
+  Finally, automatic login is now used by ``retrieve_data()``, if configured. (#420, #427)
+- Bugfix for UKIDSS: Login now uses the correct session to retrieve the data
+  (#425)
+- ALMA - many new features, including selective file retrieval.  Fixes many errors that
+  were unnoticed in the previous version (#433)
+- ALMA - add ``help`` method and pass payload keywords on correctly.  Validate
+  the payload before querying. (#438)
+
+0.2.2 (2014-09-10)
+------------------
+
+- Support direct transmission of SQL queries to the SDSS server (#410)
+- Added email/text job completion alert (#407) to the CosmoSim tool (#267).
+- ESO archive now supports HARPS/FEROS reprocessed data queries (#412)
+- IPython notebook checker in the ESO tool is now compatible with regular
+  python (#413)
+- Added new tool: ALMA archive query tool
+  http://astroquery.readthedocs.io/en/latest/alma/alma.html
+  (#411)
+- setup script and installation fixes
+
+0.2 (2014-08-17)
 ----------------
 
-- Nothing changed yet.
+- New tools: ESO, GAMA, xmatch, skyview, OEC
+- Consistent with astropy 0.4 API for coordinates
+- Now uses the astropy affiliated template
+- Python 3 compatibility dramatically improved
+- Caching added and enhanced: the default cache directory is
+  ``~/.astropy/cache/astroquery/[service_name]``
+- Services with separate login pages can be accessed
 
 
 0.1 (2013-09-19)

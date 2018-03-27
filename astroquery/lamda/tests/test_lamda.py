@@ -1,40 +1,40 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-from ... import lamda
-from ...utils.testing_tools import MockResponse
-import requests
-from astropy.tests.helper import pytest
 import os
+import tempfile
+import numpy as np
+from ...lamda import core
 
-DATA_FILES = {'co':'co.txt'}
+DATA_FILES = {'co': 'co.txt'}
+
 
 def data_path(filename):
     data_dir = os.path.join(os.path.dirname(__file__), 'data')
     return os.path.join(data_dir, filename)
 
-def get_mockreturn(url, params=None, timeout=10, **kwargs):
-    filename = data_path(DATA_FILES['co'])
-    content = open(filename, 'r').read()
-    return MockResponse(content, **kwargs)
 
-@pytest.fixture
-def patch_get(request):
-    mp = request.getfuncargvalue("monkeypatch")
-    mp.setattr(requests, 'get', get_mockreturn)
-    return mp
+def test_parser():
+    collrates, radtransitions, enlevels = core.parse_lamda_datafile(
+        data_path('co.txt'))
+
+    assert set(collrates.keys()) == set(['PH2', 'OH2'])
+    assert len(enlevels) == 41
+    assert len(radtransitions) == 40
 
 
-def test_print_query():
-    lamda.print_mols()
+def test_writer():
+    tables = core.parse_lamda_datafile(data_path('co.txt'))
+    coll, radtrans, enlevels = tables
 
+    tmpfd, tmpname = tempfile.mkstemp()
+    core.write_lamda_datafile(tmpname, tables)
 
-def test_query_levels(patch_get):
-    lamda.query(mol='co', query_type='erg_levels')
+    coll2, radtrans2, enlevels2 = core.parse_lamda_datafile(tmpname)
 
-
-def test_query_radtrans(patch_get):
-    lamda.query(mol='co', query_type='rad_trans')
-
-
-def test_query_collrates(patch_get):
-    lamda.query(mol='co', query_type='coll_rates', coll_partner_index=1)
-
+    np.testing.assert_almost_equal(enlevels['Energy'], enlevels2['Energy'])
+    np.testing.assert_almost_equal(radtrans['EinsteinA'],
+                                   radtrans2['EinsteinA'])
+    np.testing.assert_almost_equal(radtrans['Frequency'],
+                                   radtrans2['Frequency'])
+    for k in coll:
+        np.testing.assert_almost_equal(coll[k]['C_ij(T=5)'],
+                                       coll2[k]['C_ij(T=5)'])

@@ -1,0 +1,1717 @@
+[
+  {
+    "TableName": "Table1",
+    "Rows": [
+      {
+        "enum": "",
+        "name": "specObjID",
+        "type": "bigint",
+        "length": 8,
+        "unit": "",
+        "ucd": "ID_CATALOG",
+        "description": "Unique database ID based on PLATE, MJD, FIBERID, RUN2D"
+      },
+      {
+        "enum": "",
+        "name": "bestObjID",
+        "type": "bigint",
+        "length": 8,
+        "unit": "",
+        "ucd": "ID_MAIN",
+        "description": "Object ID of photoObj match (position-based)"
+      },
+      {
+        "enum": "",
+        "name": "fluxObjID",
+        "type": "bigint",
+        "length": 8,
+        "unit": "",
+        "ucd": "ID_MAIN",
+        "description": "Object ID of photoObj match (flux-based)"
+      },
+      {
+        "enum": "",
+        "name": "targetObjID",
+        "type": "bigint",
+        "length": 8,
+        "unit": "",
+        "ucd": "ID_CATALOG",
+        "description": "Object ID of original target"
+      },
+      {
+        "enum": "",
+        "name": "plateID",
+        "type": "bigint",
+        "length": 8,
+        "unit": "",
+        "ucd": "",
+        "description": "Database ID of Plate"
+      },
+      {
+        "enum": "",
+        "name": "sciencePrimary",
+        "type": "smallint",
+        "length": 2,
+        "unit": "",
+        "ucd": "",
+        "description": "Best version of spectrum at this location (defines default view SpecObj)"
+      },
+      {
+        "enum": "",
+        "name": "legacyPrimary",
+        "type": "smallint",
+        "length": 2,
+        "unit": "",
+        "ucd": "",
+        "description": "Best version of spectrum at this location, among Legacy plates"
+      },
+      {
+        "enum": "",
+        "name": "seguePrimary",
+        "type": "smallint",
+        "length": 2,
+        "unit": "",
+        "ucd": "",
+        "description": "Best version of spectrum at this location, among SEGUE plates"
+      },
+      {
+        "enum": "",
+        "name": "segue1Primary",
+        "type": "smallint",
+        "length": 2,
+        "unit": "",
+        "ucd": "",
+        "description": "Best version of spectrum at this location, among SEGUE-1 plates"
+      },
+      {
+        "enum": "",
+        "name": "segue2Primary",
+        "type": "smallint",
+        "length": 2,
+        "unit": "",
+        "ucd": "",
+        "description": "Best version of spectrum at this location, among SEGUE-2 plates"
+      },
+      {
+        "enum": "",
+        "name": "bossPrimary",
+        "type": "smallint",
+        "length": 2,
+        "unit": "",
+        "ucd": "",
+        "description": "Best version of spectrum at this location, among BOSS plates"
+      },
+      {
+        "enum": "",
+        "name": "sdssPrimary",
+        "type": "smallint",
+        "length": 2,
+        "unit": "",
+        "ucd": "",
+        "description": "Best version of spectrum at this location among SDSS plates (defines default view SpecObj)"
+      },
+      {
+        "enum": "",
+        "name": "bossSpecObjID",
+        "type": "int",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Index of BOSS observation in spAll flat file"
+      },
+      {
+        "enum": "",
+        "name": "firstRelease",
+        "type": "varchar",
+        "length": 32,
+        "unit": "",
+        "ucd": "",
+        "description": "Name of first release this object was associated with"
+      },
+      {
+        "enum": "",
+        "name": "survey",
+        "type": "varchar",
+        "length": 32,
+        "unit": "",
+        "ucd": "",
+        "description": "Survey name"
+      },
+      {
+        "enum": "",
+        "name": "instrument",
+        "type": "varchar",
+        "length": 32,
+        "unit": "",
+        "ucd": "",
+        "description": "Instrument used (SDSS or BOSS spectrograph)"
+      },
+      {
+        "enum": "",
+        "name": "programname",
+        "type": "varchar",
+        "length": 32,
+        "unit": "",
+        "ucd": "",
+        "description": "Program name"
+      },
+      {
+        "enum": "",
+        "name": "chunk",
+        "type": "varchar",
+        "length": 32,
+        "unit": "",
+        "ucd": "",
+        "description": "Chunk name"
+      },
+      {
+        "enum": "",
+        "name": "platerun",
+        "type": "varchar",
+        "length": 32,
+        "unit": "",
+        "ucd": "",
+        "description": "Plate drill run name"
+      },
+      {
+        "enum": "",
+        "name": "mjd",
+        "type": "int",
+        "length": 4,
+        "unit": "days",
+        "ucd": "",
+        "description": "MJD of observation"
+      },
+      {
+        "enum": "",
+        "name": "plate",
+        "type": "smallint",
+        "length": 2,
+        "unit": "",
+        "ucd": "",
+        "description": "Plate number"
+      },
+      {
+        "enum": "",
+        "name": "fiberID",
+        "type": "smallint",
+        "length": 2,
+        "unit": "",
+        "ucd": "",
+        "description": "Fiber ID"
+      },
+      {
+        "enum": "",
+        "name": "run1d",
+        "type": "varchar",
+        "length": 32,
+        "unit": "",
+        "ucd": "",
+        "description": "1D Reduction version of spectrum"
+      },
+      {
+        "enum": "",
+        "name": "run2d",
+        "type": "varchar",
+        "length": 32,
+        "unit": "",
+        "ucd": "",
+        "description": "2D Reduction version of spectrum"
+      },
+      {
+        "enum": "",
+        "name": "tile",
+        "type": "int",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Tile number"
+      },
+      {
+        "enum": "",
+        "name": "designID",
+        "type": "int",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Design ID number"
+      },
+      {
+        "enum": "PrimTarget",
+        "name": "legacy_target1",
+        "type": "bigint",
+        "length": 8,
+        "unit": "",
+        "ucd": "",
+        "description": "for Legacy program, target selection information at plate design"
+      },
+      {
+        "enum": "SecTarget",
+        "name": "legacy_target2",
+        "type": "bigint",
+        "length": 8,
+        "unit": "",
+        "ucd": "",
+        "description": "for Legacy program target selection information at plate design, secondary/qa/calibration"
+      },
+      {
+        "enum": "SpecialTarget1",
+        "name": "special_target1",
+        "type": "bigint",
+        "length": 8,
+        "unit": "",
+        "ucd": "",
+        "description": "for Special program target selection information at plate design"
+      },
+      {
+        "enum": "SpecialTarget2",
+        "name": "special_target2",
+        "type": "bigint",
+        "length": 8,
+        "unit": "",
+        "ucd": "",
+        "description": "for Special program target selection information at plate design, secondary/qa/calibration"
+      },
+      {
+        "enum": "Segue1Target1",
+        "name": "segue1_target1",
+        "type": "bigint",
+        "length": 8,
+        "unit": "",
+        "ucd": "",
+        "description": "SEGUE-1 target selection information at plate design, primary science selection"
+      },
+      {
+        "enum": "Segue1Target2",
+        "name": "segue1_target2",
+        "type": "bigint",
+        "length": 8,
+        "unit": "",
+        "ucd": "",
+        "description": "SEGUE-1 target selection information at plate design, secondary/qa/calib selection"
+      },
+      {
+        "enum": "Segue2Target1",
+        "name": "segue2_target1",
+        "type": "bigint",
+        "length": 8,
+        "unit": "",
+        "ucd": "",
+        "description": "SEGUE-2 target selection information at plate design, primary science selection"
+      },
+      {
+        "enum": "Segue2Target2",
+        "name": "segue2_target2",
+        "type": "bigint",
+        "length": 8,
+        "unit": "",
+        "ucd": "",
+        "description": "SEGUE-2 target selection information at plate design, secondary/qa/calib selection"
+      },
+      {
+        "enum": "BossTarget1",
+        "name": "boss_target1",
+        "type": "bigint",
+        "length": 8,
+        "unit": "",
+        "ucd": "",
+        "description": "BOSS target selection information at plate"
+      },
+      {
+        "enum": "EbossTarget0",
+        "name": "eboss_target0",
+        "type": "bigint",
+        "length": 8,
+        "unit": "",
+        "ucd": "",
+        "description": "EBOSS target selection information at plate"
+      },
+      {
+        "enum": "AncillaryTarget1",
+        "name": "ancillary_target1",
+        "type": "bigint",
+        "length": 8,
+        "unit": "",
+        "ucd": "",
+        "description": "BOSS ancillary science target selection information at plate design"
+      },
+      {
+        "enum": "AncillaryTarget2",
+        "name": "ancillary_target2",
+        "type": "bigint",
+        "length": 8,
+        "unit": "",
+        "ucd": "",
+        "description": "BOSS ancillary target selection information at plate design"
+      },
+      {
+        "enum": "PrimTarget",
+        "name": "primTarget",
+        "type": "bigint",
+        "length": 8,
+        "unit": "",
+        "ucd": "",
+        "description": "target selection information at plate design, primary science selection (for backwards compatibility)"
+      },
+      {
+        "enum": "SecTarget",
+        "name": "secTarget",
+        "type": "bigint",
+        "length": 8,
+        "unit": "",
+        "ucd": "",
+        "description": "target selection information at plate design, secondary/qa/calib selection  (for backwards compatibility)"
+      },
+      {
+        "enum": "",
+        "name": "spectrographID",
+        "type": "smallint",
+        "length": 2,
+        "unit": "",
+        "ucd": "",
+        "description": "which spectrograph (1,2)"
+      },
+      {
+        "enum": "SourceType",
+        "name": "sourceType",
+        "type": "varchar",
+        "length": 128,
+        "unit": "",
+        "ucd": "",
+        "description": "For Legacy, SEGUE-2 and BOSS science targets, type of object targeted as (target bits contain full information and are recommended)"
+      },
+      {
+        "enum": "",
+        "name": "targetType",
+        "type": "varchar",
+        "length": 128,
+        "unit": "",
+        "ucd": "",
+        "description": "Nature of target: SCIENCE, STANDARD, or SKY"
+      },
+      {
+        "enum": "",
+        "name": "ra",
+        "type": "float",
+        "length": 8,
+        "unit": "deg",
+        "ucd": "",
+        "description": "DR8 Right ascension of fiber, J2000"
+      },
+      {
+        "enum": "",
+        "name": "dec",
+        "type": "float",
+        "length": 8,
+        "unit": "deg",
+        "ucd": "",
+        "description": "DR8 Declination of fiber, J2000"
+      },
+      {
+        "enum": "",
+        "name": "cx",
+        "type": "float",
+        "length": 8,
+        "unit": "",
+        "ucd": "POS_EQ_CART_X",
+        "description": "x of Normal unit vector in J2000"
+      },
+      {
+        "enum": "",
+        "name": "cy",
+        "type": "float",
+        "length": 8,
+        "unit": "",
+        "ucd": "POS_EQ_CART_Y",
+        "description": "y of Normal unit vector in J2000"
+      },
+      {
+        "enum": "",
+        "name": "cz",
+        "type": "float",
+        "length": 8,
+        "unit": "",
+        "ucd": "POS_EQ_CART_Z",
+        "description": "z of Normal unit vector in J2000"
+      },
+      {
+        "enum": "",
+        "name": "xFocal",
+        "type": "real",
+        "length": 4,
+        "unit": "mm",
+        "ucd": "",
+        "description": "X focal plane position (+RA direction)"
+      },
+      {
+        "enum": "",
+        "name": "yFocal",
+        "type": "real",
+        "length": 4,
+        "unit": "mm",
+        "ucd": "",
+        "description": "Y focal plane position (+Dec direction)"
+      },
+      {
+        "enum": "",
+        "name": "lambdaEff",
+        "type": "real",
+        "length": 4,
+        "unit": "Angstroms",
+        "ucd": "",
+        "description": "Effective wavelength that hole was drilled for (accounting for atmopheric refraction)"
+      },
+      {
+        "enum": "",
+        "name": "blueFiber",
+        "type": "int",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Set to 1 if this hole was designated a \"blue fiber\", 0 if designated a \"red fiber\" (high redshift LRGs are preferentially in \"red fibers\")"
+      },
+      {
+        "enum": "",
+        "name": "zOffset",
+        "type": "real",
+        "length": 4,
+        "unit": "microns",
+        "ucd": "",
+        "description": "Washer thickness used (for backstopping BOSS quasar targets, so they are closer to 4000 Angstrom focal plan)"
+      },
+      {
+        "enum": "",
+        "name": "z",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Final Redshift"
+      },
+      {
+        "enum": "",
+        "name": "zErr",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Redshift error"
+      },
+      {
+        "enum": "SpeczWarning",
+        "name": "zWarning",
+        "type": "int",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Bitmask of warning values; 0 means all is well"
+      },
+      {
+        "enum": "",
+        "name": "class",
+        "type": "varchar",
+        "length": 32,
+        "unit": "",
+        "ucd": "",
+        "description": "Spectroscopic class (GALAXY, QSO, or STAR)"
+      },
+      {
+        "enum": "",
+        "name": "subClass",
+        "type": "varchar",
+        "length": 32,
+        "unit": "",
+        "ucd": "",
+        "description": "Spectroscopic subclass"
+      },
+      {
+        "enum": "",
+        "name": "rChi2",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Reduced chi-squared of best fit"
+      },
+      {
+        "enum": "",
+        "name": "DOF",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Degrees of freedom in best fit"
+      },
+      {
+        "enum": "",
+        "name": "rChi2Diff",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Difference in reduced chi-squared between best and second best fit"
+      },
+      {
+        "enum": "",
+        "name": "z_noqso",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Best redshift when excluding QSO fit in BOSS spectra (right redshift to use for galaxy targets)"
+      },
+      {
+        "enum": "",
+        "name": "zErr_noqso",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Error in \"z_noqso\" redshift (BOSS spectra only)"
+      },
+      {
+        "enum": "SpeczWarning",
+        "name": "zWarning_noqso",
+        "type": "int",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Warnings in \"z_noqso\" redshift (BOSS spectra only)"
+      },
+      {
+        "enum": "",
+        "name": "class_noqso",
+        "type": "varchar",
+        "length": 32,
+        "unit": "",
+        "ucd": "",
+        "description": "Classification in \"z_noqso\" redshift"
+      },
+      {
+        "enum": "",
+        "name": "subClass_noqso",
+        "type": "varchar",
+        "length": 32,
+        "unit": "",
+        "ucd": "",
+        "description": "Sub-classification in \"z_noqso\" redshift"
+      },
+      {
+        "enum": "",
+        "name": "rChi2Diff_noqso",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Reduced chi-squared difference from next best redshift, for \"z_noqso\" redshift"
+      },
+      {
+        "enum": "",
+        "name": "z_person",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Person-assigned redshift, if this object has been inspected"
+      },
+      {
+        "enum": "",
+        "name": "class_person",
+        "type": "varchar",
+        "length": 32,
+        "unit": "",
+        "ucd": "",
+        "description": "Person-assigned classification, if this object has been inspected"
+      },
+      {
+        "enum": "",
+        "name": "comments_person",
+        "type": "varchar",
+        "length": 200,
+        "unit": "",
+        "ucd": "",
+        "description": "Comments from person for inspected objects"
+      },
+      {
+        "enum": "",
+        "name": "tFile",
+        "type": "varchar",
+        "length": 32,
+        "unit": "",
+        "ucd": "",
+        "description": "File name of best fit template source"
+      },
+      {
+        "enum": "",
+        "name": "tColumn_0",
+        "type": "smallint",
+        "length": 2,
+        "unit": "",
+        "ucd": "",
+        "description": "Which column of the template file corresponds to template #0"
+      },
+      {
+        "enum": "",
+        "name": "tColumn_1",
+        "type": "smallint",
+        "length": 2,
+        "unit": "",
+        "ucd": "",
+        "description": "Which column of the template file corresponds to template #1"
+      },
+      {
+        "enum": "",
+        "name": "tColumn_2",
+        "type": "smallint",
+        "length": 2,
+        "unit": "",
+        "ucd": "",
+        "description": "Which column of the template file corresponds to template #2"
+      },
+      {
+        "enum": "",
+        "name": "tColumn_3",
+        "type": "smallint",
+        "length": 2,
+        "unit": "",
+        "ucd": "",
+        "description": "Which column of the template file corresponds to template #3"
+      },
+      {
+        "enum": "",
+        "name": "tColumn_4",
+        "type": "smallint",
+        "length": 2,
+        "unit": "",
+        "ucd": "",
+        "description": "Which column of the template file corresponds to template #4"
+      },
+      {
+        "enum": "",
+        "name": "tColumn_5",
+        "type": "smallint",
+        "length": 2,
+        "unit": "",
+        "ucd": "",
+        "description": "Which column of the template file corresponds to template #5"
+      },
+      {
+        "enum": "",
+        "name": "tColumn_6",
+        "type": "smallint",
+        "length": 2,
+        "unit": "",
+        "ucd": "",
+        "description": "Which column of the template file corresponds to template #6"
+      },
+      {
+        "enum": "",
+        "name": "tColumn_7",
+        "type": "smallint",
+        "length": 2,
+        "unit": "",
+        "ucd": "",
+        "description": "Which column of the template file corresponds to template #7"
+      },
+      {
+        "enum": "",
+        "name": "tColumn_8",
+        "type": "smallint",
+        "length": 2,
+        "unit": "",
+        "ucd": "",
+        "description": "Which column of the template file corresponds to template #8"
+      },
+      {
+        "enum": "",
+        "name": "tColumn_9",
+        "type": "smallint",
+        "length": 2,
+        "unit": "",
+        "ucd": "",
+        "description": "Which column of the template file corresponds to template #9"
+      },
+      {
+        "enum": "",
+        "name": "nPoly",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Number of polynomial terms used in the fit"
+      },
+      {
+        "enum": "",
+        "name": "theta_0",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Coefficient for template #0 of fit"
+      },
+      {
+        "enum": "",
+        "name": "theta_1",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Coefficient for template #1 of fit"
+      },
+      {
+        "enum": "",
+        "name": "theta_2",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Coefficient for template #2 of fit"
+      },
+      {
+        "enum": "",
+        "name": "theta_3",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Coefficient for template #3 of fit"
+      },
+      {
+        "enum": "",
+        "name": "theta_4",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Coefficient for template #4 of fit"
+      },
+      {
+        "enum": "",
+        "name": "theta_5",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Coefficient for template #5 of fit"
+      },
+      {
+        "enum": "",
+        "name": "theta_6",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Coefficient for template #6 of fit"
+      },
+      {
+        "enum": "",
+        "name": "theta_7",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Coefficient for template #7 of fit"
+      },
+      {
+        "enum": "",
+        "name": "theta_8",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Coefficient for template #8 of fit"
+      },
+      {
+        "enum": "",
+        "name": "theta_9",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Coefficient for template #9 of fit"
+      },
+      {
+        "enum": "",
+        "name": "velDisp",
+        "type": "real",
+        "length": 4,
+        "unit": "km/s",
+        "ucd": "",
+        "description": "Velocity dispersion"
+      },
+      {
+        "enum": "",
+        "name": "velDispErr",
+        "type": "real",
+        "length": 4,
+        "unit": "km/s",
+        "ucd": "",
+        "description": "Error in velocity dispersion"
+      },
+      {
+        "enum": "",
+        "name": "velDispZ",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Redshift associated with best fit velocity dispersion"
+      },
+      {
+        "enum": "",
+        "name": "velDispZErr",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Error in redshift associated with best fit velocity dispersion"
+      },
+      {
+        "enum": "",
+        "name": "velDispChi2",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Chi-squared associated with velocity dispersion fit"
+      },
+      {
+        "enum": "",
+        "name": "velDispNPix",
+        "type": "int",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Number of pixels overlapping best template in velocity dispersion fit"
+      },
+      {
+        "enum": "",
+        "name": "velDispDOF",
+        "type": "int",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Number of degrees of freedom in velocity dispersion fit"
+      },
+      {
+        "enum": "",
+        "name": "waveMin",
+        "type": "real",
+        "length": 4,
+        "unit": "Angstroms",
+        "ucd": "",
+        "description": "Minimum observed (vacuum) wavelength"
+      },
+      {
+        "enum": "",
+        "name": "waveMax",
+        "type": "real",
+        "length": 4,
+        "unit": "Angstroms",
+        "ucd": "",
+        "description": "Maximum observed (vacuum) wavelength"
+      },
+      {
+        "enum": "",
+        "name": "wCoverage",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Coverage in wavelength, in units of log10 wavelength"
+      },
+      {
+        "enum": "",
+        "name": "snMedian_u",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Median signal-to-noise over all good pixels in u-band"
+      },
+      {
+        "enum": "",
+        "name": "snMedian_g",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Median signal-to-noise over all good pixels in g-band"
+      },
+      {
+        "enum": "",
+        "name": "snMedian_r",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Median signal-to-noise over all good pixels in r-band"
+      },
+      {
+        "enum": "",
+        "name": "snMedian_i",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Median signal-to-noise over all good pixels in i-band"
+      },
+      {
+        "enum": "",
+        "name": "snMedian_z",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Median signal-to-noise over all good pixels in z-band"
+      },
+      {
+        "enum": "",
+        "name": "snMedian",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Median signal-to-noise over all good pixels"
+      },
+      {
+        "enum": "",
+        "name": "chi68p",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "68-th percentile value of abs(chi) of the best-fit synthetic spectrum to the actual spectrum (around 1.0 for a good fit)"
+      },
+      {
+        "enum": "",
+        "name": "fracNSigma_1",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Fraction of pixels deviant by more than 1 sigma relative to best-fit"
+      },
+      {
+        "enum": "",
+        "name": "fracNSigma_2",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Fraction of pixels deviant by more than 2 sigma relative to best-fit"
+      },
+      {
+        "enum": "",
+        "name": "fracNSigma_3",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Fraction of pixels deviant by more than 3 sigma relative to best-fit"
+      },
+      {
+        "enum": "",
+        "name": "fracNSigma_4",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Fraction of pixels deviant by more than 4 sigma relative to best-fit"
+      },
+      {
+        "enum": "",
+        "name": "fracNSigma_5",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Fraction of pixels deviant by more than 5 sigma relative to best-fit"
+      },
+      {
+        "enum": "",
+        "name": "fracNSigma_6",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Fraction of pixels deviant by more than 6 sigma relative to best-fit"
+      },
+      {
+        "enum": "",
+        "name": "fracNSigma_7",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Fraction of pixels deviant by more than 7 sigma relative to best-fit"
+      },
+      {
+        "enum": "",
+        "name": "fracNSigma_8",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Fraction of pixels deviant by more than 8 sigma relative to best-fit"
+      },
+      {
+        "enum": "",
+        "name": "fracNSigma_9",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Fraction of pixels deviant by more than 9 sigma relative to best-fit"
+      },
+      {
+        "enum": "",
+        "name": "fracNSigma_10",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Fraction of pixels deviant by more than 10 sigma relative to best-fit"
+      },
+      {
+        "enum": "",
+        "name": "fracNSigHi_1",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Fraction of pixels high by more than 1 sigma relative to best-fit"
+      },
+      {
+        "enum": "",
+        "name": "fracNSigHi_2",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Fraction of pixels high by more than 2 sigma relative to best-fit"
+      },
+      {
+        "enum": "",
+        "name": "fracNSigHi_3",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Fraction of pixels high by more than 3 sigma relative to best-fit"
+      },
+      {
+        "enum": "",
+        "name": "fracNSigHi_4",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Fraction of pixels high by more than 4 sigma relative to best-fit"
+      },
+      {
+        "enum": "",
+        "name": "fracNSigHi_5",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Fraction of pixels high by more than 5 sigma relative to best-fit"
+      },
+      {
+        "enum": "",
+        "name": "fracNSigHi_6",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Fraction of pixels high by more than 6 sigma relative to best-fit"
+      },
+      {
+        "enum": "",
+        "name": "fracNSigHi_7",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Fraction of pixels high by more than 7 sigma relative to best-fit"
+      },
+      {
+        "enum": "",
+        "name": "fracNSigHi_8",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Fraction of pixels high by more than 8 sigma relative to best-fit"
+      },
+      {
+        "enum": "",
+        "name": "fracNSigHi_9",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Fraction of pixels high by more than 9 sigma relative to best-fit"
+      },
+      {
+        "enum": "",
+        "name": "fracNSigHi_10",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Fraction of pixels high by more than 10 sigma relative to best-fit"
+      },
+      {
+        "enum": "",
+        "name": "fracNSigLo_1",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Fraction of pixels low by more than 1 sigma relative to best-fit"
+      },
+      {
+        "enum": "",
+        "name": "fracNSigLo_2",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Fraction of pixels low by more than 2 sigma relative to best-fit"
+      },
+      {
+        "enum": "",
+        "name": "fracNSigLo_3",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Fraction of pixels low by more than 3 sigma relative to best-fit"
+      },
+      {
+        "enum": "",
+        "name": "fracNSigLo_4",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Fraction of pixels low by more than 4 sigma relative to best-fit"
+      },
+      {
+        "enum": "",
+        "name": "fracNSigLo_5",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Fraction of pixels low by more than 5 sigma relative to best-fit"
+      },
+      {
+        "enum": "",
+        "name": "fracNSigLo_6",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Fraction of pixels low by more than 6 sigma relative to best-fit"
+      },
+      {
+        "enum": "",
+        "name": "fracNSigLo_7",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Fraction of pixels low by more than 7 sigma relative to best-fit"
+      },
+      {
+        "enum": "",
+        "name": "fracNSigLo_8",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Fraction of pixels low by more than 8 sigma relative to best-fit"
+      },
+      {
+        "enum": "",
+        "name": "fracNSigLo_9",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Fraction of pixels low by more than 9 sigma relative to best-fit"
+      },
+      {
+        "enum": "",
+        "name": "fracNSigLo_10",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Fraction of pixels low by more than 10 sigma relative to best-fit"
+      },
+      {
+        "enum": "",
+        "name": "spectroFlux_u",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies",
+        "ucd": "",
+        "description": "Spectrum projected onto u filter"
+      },
+      {
+        "enum": "",
+        "name": "spectroFlux_g",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies",
+        "ucd": "",
+        "description": "Spectrum projected onto g filter"
+      },
+      {
+        "enum": "",
+        "name": "spectroFlux_r",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies",
+        "ucd": "",
+        "description": "Spectrum projected onto r filter"
+      },
+      {
+        "enum": "",
+        "name": "spectroFlux_i",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies",
+        "ucd": "",
+        "description": "Spectrum projected onto i filter"
+      },
+      {
+        "enum": "",
+        "name": "spectroFlux_z",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies",
+        "ucd": "",
+        "description": "Spectrum projected onto z filter"
+      },
+      {
+        "enum": "",
+        "name": "spectroSynFlux_u",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies",
+        "ucd": "",
+        "description": "Best-fit template spectrum projected onto u filter"
+      },
+      {
+        "enum": "",
+        "name": "spectroSynFlux_g",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies",
+        "ucd": "",
+        "description": "Best-fit template spectrum projected onto g filter"
+      },
+      {
+        "enum": "",
+        "name": "spectroSynFlux_r",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies",
+        "ucd": "",
+        "description": "Best-fit template spectrum projected onto r filter"
+      },
+      {
+        "enum": "",
+        "name": "spectroSynFlux_i",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies",
+        "ucd": "",
+        "description": "Best-fit template spectrum projected onto i filter"
+      },
+      {
+        "enum": "",
+        "name": "spectroSynFlux_z",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies",
+        "ucd": "",
+        "description": "Best-fit template spectrum projected onto z filter"
+      },
+      {
+        "enum": "",
+        "name": "spectroFluxIvar_u",
+        "type": "real",
+        "length": 4,
+        "unit": "1/nanomaggies^2",
+        "ucd": "",
+        "description": "Inverse variance of spectrum projected onto u filter"
+      },
+      {
+        "enum": "",
+        "name": "spectroFluxIvar_g",
+        "type": "real",
+        "length": 4,
+        "unit": "1/nanomaggies^2",
+        "ucd": "",
+        "description": "Inverse variance of spectrum projected onto g filter"
+      },
+      {
+        "enum": "",
+        "name": "spectroFluxIvar_r",
+        "type": "real",
+        "length": 4,
+        "unit": "1/nanomaggies^2",
+        "ucd": "",
+        "description": "Inverse variance of spectrum projected onto r filter"
+      },
+      {
+        "enum": "",
+        "name": "spectroFluxIvar_i",
+        "type": "real",
+        "length": 4,
+        "unit": "1/nanomaggies^2",
+        "ucd": "",
+        "description": "Inverse variance of spectrum projected onto i filter"
+      },
+      {
+        "enum": "",
+        "name": "spectroFluxIvar_z",
+        "type": "real",
+        "length": 4,
+        "unit": "1/nanomaggies^2",
+        "ucd": "",
+        "description": "Inverse variance of spectrum projected onto z filter"
+      },
+      {
+        "enum": "",
+        "name": "spectroSynFluxIvar_u",
+        "type": "real",
+        "length": 4,
+        "unit": "1/nanomaggies^2",
+        "ucd": "",
+        "description": "Inverse variance of best-fit template spectrum projected onto u filter"
+      },
+      {
+        "enum": "",
+        "name": "spectroSynFluxIvar_g",
+        "type": "real",
+        "length": 4,
+        "unit": "1/nanomaggies^2",
+        "ucd": "",
+        "description": "Inverse variance of best-fit template spectrum projected onto g filter"
+      },
+      {
+        "enum": "",
+        "name": "spectroSynFluxIvar_r",
+        "type": "real",
+        "length": 4,
+        "unit": "1/nanomaggies^2",
+        "ucd": "",
+        "description": "Inverse variance of best-fit template spectrum projected onto r filter"
+      },
+      {
+        "enum": "",
+        "name": "spectroSynFluxIvar_i",
+        "type": "real",
+        "length": 4,
+        "unit": "1/nanomaggies^2",
+        "ucd": "",
+        "description": "Inverse variance of best-fit template spectrum projected onto i filter"
+      },
+      {
+        "enum": "",
+        "name": "spectroSynFluxIvar_z",
+        "type": "real",
+        "length": 4,
+        "unit": "1/nanomaggies^2",
+        "ucd": "",
+        "description": "Inverse variance of best-fit template spectrum projected onto z filter"
+      },
+      {
+        "enum": "",
+        "name": "spectroSkyFlux_u",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies",
+        "ucd": "",
+        "description": "Sky spectrum projected onto u filter"
+      },
+      {
+        "enum": "",
+        "name": "spectroSkyFlux_g",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies",
+        "ucd": "",
+        "description": "Sky spectrum projected onto g filter"
+      },
+      {
+        "enum": "",
+        "name": "spectroSkyFlux_r",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies",
+        "ucd": "",
+        "description": "Sky spectrum projected onto r filter"
+      },
+      {
+        "enum": "",
+        "name": "spectroSkyFlux_i",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies",
+        "ucd": "",
+        "description": "Sky spectrum projected onto i filter"
+      },
+      {
+        "enum": "",
+        "name": "spectroSkyFlux_z",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies",
+        "ucd": "",
+        "description": "Sky spectrum projected onto z filter"
+      },
+      {
+        "enum": "SpecPixMask",
+        "name": "anyAndMask",
+        "type": "int",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "For each bit, records whether any pixel in the spectrum has that bit set in its ANDMASK"
+      },
+      {
+        "enum": "SpecPixMask",
+        "name": "anyOrMask",
+        "type": "int",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "For each bit, records whether any pixel in the spectrum has that bit set in its ORMASK"
+      },
+      {
+        "enum": "",
+        "name": "plateSN2",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Overall signal-to-noise-squared measure for plate (only set for SDSS spectrograph)"
+      },
+      {
+        "enum": "",
+        "name": "deredSN2",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Dereddened signal-to-noise-squared measure for plate (only set for BOSS spectrograph)"
+      },
+      {
+        "enum": "",
+        "name": "snTurnoff",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Signal to noise measure for MS turnoff stars on plate (-9999 if not appropriate)"
+      },
+      {
+        "enum": "",
+        "name": "sn1_g",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "(S/N)^2 at g=20.20 for spectrograph #1"
+      },
+      {
+        "enum": "",
+        "name": "sn1_r",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "(S/N)^2 at r=20.25 for spectrograph #1"
+      },
+      {
+        "enum": "",
+        "name": "sn1_i",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "(S/N)^2 at i=19.90 for spectrograph #1"
+      },
+      {
+        "enum": "",
+        "name": "sn2_g",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "(S/N)^2 at g=20.20 for spectrograph #2"
+      },
+      {
+        "enum": "",
+        "name": "sn2_r",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "(S/N)^2 at r=20.25 for spectrograph #2"
+      },
+      {
+        "enum": "",
+        "name": "sn2_i",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "(S/N)^2 at i=19.90 for spectrograph #2"
+      },
+      {
+        "enum": "",
+        "name": "elodieFileName",
+        "type": "varchar",
+        "length": 32,
+        "unit": "",
+        "ucd": "",
+        "description": "File name for best-fit Elodie star"
+      },
+      {
+        "enum": "",
+        "name": "elodieObject",
+        "type": "varchar",
+        "length": 32,
+        "unit": "",
+        "ucd": "",
+        "description": "Star name (mostly Henry Draper names)"
+      },
+      {
+        "enum": "",
+        "name": "elodieSpType",
+        "type": "varchar",
+        "length": 32,
+        "unit": "",
+        "ucd": "",
+        "description": "Spectral type"
+      },
+      {
+        "enum": "",
+        "name": "elodieBV",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "(B-V) color"
+      },
+      {
+        "enum": "",
+        "name": "elodieTEff",
+        "type": "real",
+        "length": 4,
+        "unit": "Kelvin",
+        "ucd": "",
+        "description": "Effective temperature"
+      },
+      {
+        "enum": "",
+        "name": "elodieLogG",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "log10(gravity)"
+      },
+      {
+        "enum": "",
+        "name": "elodieFeH",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Metallicity ([Fe/H])"
+      },
+      {
+        "enum": "",
+        "name": "elodieZ",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Redshift"
+      },
+      {
+        "enum": "",
+        "name": "elodieZErr",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Redshift error (negative for invalid fit)"
+      },
+      {
+        "enum": "",
+        "name": "elodieZModelErr",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Standard deviation in redshift among the 12 best-fit stars"
+      },
+      {
+        "enum": "",
+        "name": "elodieRChi2",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Reduced chi^2"
+      },
+      {
+        "enum": "",
+        "name": "elodieDOF",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Degrees of freedom for fit"
+      },
+      {
+        "enum": "",
+        "name": "htmID",
+        "type": "bigint",
+        "length": 8,
+        "unit": "",
+        "ucd": "CODE_HTM",
+        "description": "20 deep Hierarchical Triangular Mesh ID"
+      },
+      {
+        "enum": "",
+        "name": "loadVersion",
+        "type": "int",
+        "length": 4,
+        "unit": "",
+        "ucd": "ID_TRACER",
+        "description": "Load Version"
+      },
+      {
+        "enum": "",
+        "name": "img",
+        "type": "varbinary",
+        "length": -1,
+        "unit": "",
+        "ucd": "IMAGE?",
+        "description": "Spectrum Image"
+      }
+    ]
+  }
+]

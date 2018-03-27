@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<TITLE>ESO Science Archive - Data Products</TITLE>
+<link rel="stylesheet" type="text/css" href="/wdb/css/wdb.css">
+<link rel="stylesheet" type="text/css" href="/wdb/css/jquery.multiselect.css">
+<link href="http://www.eso.org/public/archives/favicon.ico" rel="shortcut icon">
+<script src="/wdb/jslib/jquery/1.8.3/jquery.min.js"></script>
+<script src="/wdb/jslib/jqueryui/1.10.2/jquery-ui.min.js" type="text/javascript"></script>
+<link href="/wdb/jslib/jqueryui/1.10.2/themes/ui-lightness/jquery-ui.css" type="text/css" rel="stylesheet"/>
+<script src="/wdb/jslib/jquery.multiselect.min.js" type="text/javascript"></script>
+<link href="/wdb/css/jquery.multiselect.css" type="text/css" rel="stylesheet"/>
+<style>
+.ui-widget {
+font-family: Verdana,Arial,sans-serif !important;
+font-size: 0.8em !important;
+}
+.ui-state-default, .ui-widget-content .ui-state-default, .ui-widget-header .ui-state-default {
+color: black !important;
+}
+</style>
+<script type="text/javascript"><!--
+$(document).ready( function() {
+// *** TODO: STOP_TIME -> rename to DATE_END? -> All Fields button does not select this; Back button does not repserve this!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! ***
+// Check this: http://www.geekchamp.com/html5-tutorials/17-html5-local-storage to store arrays in localStorage
+//
+jQuery("#collection_name_option").multiselect({
+// AM20160707: Next 8 lines come from: https://github.com/ehynds/jquery-ui-multiselect-widget/issues/427
+beforeopen: function(){
+jQuery(".ui-multiselect-all").hide();
+//jQuery(".ui-multiselect-none").hide();
+},
+open: function(){
+jQuery(".ui-multiselect-all").hide();
+//jQuery(".ui-multiselect-none").hide();
+},
+selectedList: 4, // 0-based index
+click: function(e){
+data_collection_name_click_function(e);
+return true;
+},
+checkAll: function(e){
+data_collection_name_click_function(e);
+return true;
+},
+uncheckAll: function(e){
+data_collection_name_click_function(e);
+return true;
+},
+});
+// Function to truncate text (Read More, Read Less) is applied to any element of the class textContainer_Truncate
+// line height in 'px' is set to 36, height which is currently hardcoded for all elements.
+var maxheight=36;
+var showText = "Read more...";
+var hideText = "Read less...";
+jQuery('.textContainer_Truncate').each(function () {
+var text = jQuery(this);
+if (text.height() > maxheight){
+text.css({ 'overflow': 'hidden','height': maxheight + 'px' });
+var link = jQuery('<a style="color:orange; text-decoration:none; font-family: Arial,sans-serif,Helvetica; font-size: 75%;" href="#">' + showText + '</a>');
+var linkDiv = jQuery('<div></div>');
+linkDiv.append(link);
+jQuery(this).after(linkDiv);
+link.click(function (event) {
+event.preventDefault();
+if (text.height() > maxheight) {
+jQuery(this).html(showText);
+text.css('height', maxheight + 'px');
+} else {
+jQuery(this).html(hideText);
+text.css('height', 'auto');
+}
+});
+}
+});
+$(":reset").click(function(e){
+this.form.reset(); // reset is a DOM function, also possible: jQuery('#queryform').get(0).reset();
+// Remember: http://stackoverflow.com/questions/20285970/form-resetting-is-not-working reset button id must not be="reset" for this to work!
+$("#coord_sys option[value=eq]").attr('selected','selected');
+changeLabels();
+wdb_showall_toggler($('#wdb_tabbit'),'All Fields','Default Fields','reset');
+jQuery('#iframe_explore_collections').hide();
+jQuery('#button_explore_collections').html('Explore collections (open)');
+jQuery("#collection_name_option").multiselect("uncheckAll");
+return false;
+});
+// ************ If a user clicks on any dataproduct_type checkbox **************
+jQuery('#any_dataproduct_type_id').click(function(){
+set_Any_dataproduct_type();
+});
+// ************ If a user clicks on any dataproduct_type checkbox **************
+jQuery('input[name=dataproduct_type]').click(function(){
+if ( this.id != 'any_dataproduct_type_id' ) { unset_Any_dataproduct_type(); };
+var num_dataproducttype_selected = jQuery('input[name=dataproduct_type]:checkbox:checked').length;
+if ( ! num_dataproducttype_selected )
+{
+// When the user deselect the last dataproduct_type, the Any checkbox must be activated.
+set_Any_dataproduct_type();
+} else {
+if ( $('#dpt_spectrum').prop('checked') && jQuery('#dpt_cube').prop('checked') )
+{
+enable_1dspectra();
+enable_cubes();
+}
+else if ( $('#dpt_spectrum').prop('checked') )
+{
+enable_1dspectra();
+disable_cubes();
+}
+else if ( $('#dpt_cube').prop('checked') )
+{
+disable_1dspectra();
+enable_cubes();
+}
+else
+{
+enable_1dspectra();
+enable_cubes();
+}
+}
+});
+// ************ If a user clicks on any collection_name checkbox (public surveys here) **************
+jQuery('input[name=collection_name]').click(function(){
+data_collection_name_click_function(this);
+});
+// ************ SAME if the user clicks on any "Others" collection in the <select><option> section **************
+jQuery('#collection_name_option option').unbind('click').click(function(){
+data_collection_name_click_function(this);
+});
+// ************ if the user changes the product_status pulldown menu **************
+jQuery('[name=product_status]').on("change", function(){
+if ( jQuery('[name=product_status] option:selected').val() == "all" )
+{
+jQuery('[name=release_name] option').prop('disabled',false);
+jQuery('[name=release_name]')
+.find('optgroup')
+.remove()
+.end();
+if ( count_collection_name_options() == 1 && jQuery('[name=release_name] option').length == 0 )
+{
+// Stream collections (e.g. GIRAFFE IDPs) do not have release_names.
+jQuery('[name=release_name]').append('<optgroup label="This collection"></optgroup><optgroup label="has no release name"></optgroup>');
+}
+} else {
+jQuery('[name=release_name] option').removeAttr("selected");
+jQuery('[name=release_name] option').prop('disabled',true);
+var howmany_selected = jQuery('input[name=collection_name]:checkbox:checked').length + count_collection_name_options() - jQuery('#any_collection_id:checkbox:checked').length;
+if ( howmany_selected == 1 )
+{
+if ( count_collection_name_options() == 1 && jQuery('[name=release_name] option').length == 0 )
+{
+// Stream collections (e.g. GIRAFFE IDPs) do not have release_names.
+jQuery('[name=release_name]').append('<optgroup label="This collection"></optgroup><optgroup label="has no release name"></optgroup>');
+} else {
+jQuery('[name=release_name]').append('<optgroup label="Set Status=all product versions"></optgroup><optgroup label="to make a specific release selectable"></optgroup>');
+}
+} else {
+jQuery('[name=release_name]').append('<optgroup label="Set a single collection"></optgroup><optgroup label="to see its releases"></optgroup>');
+}
+}
+localStorage.removeItem("release_name_option_index");
+localStorage.product_status_option_index = jQuery('[name=product_status]')[0].selectedIndex;
+//console.log('on change set localStorage.product_status_option_index: '+localStorage.product_status_option_index);
+return false;
+});
+jQuery('#button_explore_collections').click(function () {
+jQuery('#iframe_explore_collections').toggleClass("selected");
+if ( jQuery('#iframe_explore_collections').hasClass("selected") )
+{
+jQuery('#iframe_explore_collections').show();
+jQuery('#button_explore_collections').html('Explore collections (close)');
+} else {
+jQuery('#iframe_explore_collections').hide();
+jQuery('#button_explore_collections').html('Explore collections (open)');
+}
+});
+});
+function set_collection_from_iframe( collection_names )
+{
+jQuery("#collection_name_option option").each(function () {
+if (jQuery.inArray(jQuery(this).val(), collection_names) != -1) {
+jQuery(this).prop('selected', true);
+};
+});
+//jQuery("#collection_name_option option[value='" + collection_name + "']", window.parent.document).attr("selected", "selected");
+jQuery("#collection_name_option", window.parent.document).multiselect("refresh");
+}
+function disable_1dspectra()
+{
+// Uncheck fields specific to 1d spectra, and make them disabled:
+jQuery('.spec_part').closest('table').find('td').filter(':nth-child(1)').find(':input').prop("checked", false);
+jQuery('.spec_part').closest('table').find('td').filter(':nth-child(1)').find(':input').prop("disabled", true);
+jQuery('.spec_part').closest('table').find('td').filter(':nth-child(3)').find(':input').prop("disabled", true);
+}
+function enable_1dspectra()
+{
+// check fields specific to 1d spectra, and make them enabled:
+jQuery('.spec_part').closest('table').find('td').filter(':nth-child(1)').find(':input').prop("disabled", false);
+jQuery('.spec_part').closest('table').find('td').filter(':nth-child(3)').find(':input').prop("disabled", false);
+jQuery('.spec_part').closest('table').find('td').filter(':nth-child(1)').find(':input').prop("checked", true);
+}
+function disable_cubes()
+{
+// Uncheck fields specific to cubes, and make them disabled:
+jQuery('.spec_part').closest('table').find('td').filter(':nth-child(4)').find(':input').prop("checked", false);
+jQuery('.spec_part').closest('table').find('td').filter(':nth-child(4)').find(':input').prop("disabled", true);
+jQuery('.spec_part').closest('table').find('td').filter(':nth-child(6)').find(':input').prop("disabled", true);
+}
+function enable_cubes()
+{
+// check fields specific to cubes, and make them enabled:
+jQuery('.spec_part').closest('table').find('td').filter(':nth-child(4)').find(':input').prop("disabled", false);
+jQuery('.spec_part').closest('table').find('td').filter(':nth-child(6)').find(':input').prop("disabled", false);
+jQuery('.spec_part').closest('table').find('td').filter(':nth-child(4)').find(':input').prop("checked", true);
+}
+function reestablish_All_Fields()
+{
+// After the user has clicked on the back function to return to the query form
+// we need to re set the All Fields button to the value it had when pressing the search button.
+// This must be done in javascript, because the All Fields and Default Fields button is dinamically-populated by javascript.
+// (Dynamically-populated elements are not remembered by the browser, because they are not in the DOM).
+if ( localStorage.All_Fields_class == "true" )
+{
+jQuery("#wdb_tabbit").addClass("allshown");
+// console.log("reestablish_All_Fields: running setter with allshown enabled");
+wdb_showall_setter($('#wdb_tabbit'), 'All Fields','Default Fields',''); // function in /var/www/html/wdb/jslib/wdb_query_functions.js
+} else {
+//NO // If it is the first time this page is loaded, then we simply need to set the release_Version from the userdefault (if given).
+//NO // The userdefault is passed to WDB using the URL template: .../form?collection_name=VMC&release_name=DR2
+//NO set_release_name_from_userdefault();
+;
+}
+if ( localStorage.product_status_option_index )
+{
+// console.log('retrieving localStorage.product_status_option_index: '+localStorage.product_status_option_index);
+var nthchild = Number(localStorage.product_status_option_index);
+nthchild = nthchild+1;
+// console.log('setting product_status nth-child: ' + nthchild);
+jQuery("[name=product_status] :nth-child("+ nthchild +")").prop('selected', true);
+}
+return false;
+}
+function product_status_click_function(element)
+{
+jQuery('input[name=release_name]:selected').prop("selected",false);
+localStorage.removeItem("release_name_option_index");
+}
+function data_collection_name_click_function(element)
+{
+if ( element.id == 'any_collection_id' )
+{
+set_Any_Collection(true);
+}
+var num_collections_selected = jQuery('input[name=collection_name]:checkbox:checked').length + count_collection_name_options() - jQuery('#any_collection_id:checkbox:checked').length;
+if ( num_collections_selected )
+{
+// A user's selection of one or more collection_names triggers the unckecking of the 'Any Collection' checkbox:
+unset_Any_Collection();
+}
+else
+{
+// 'Any Collection' checkbox is selected, therefore remove any collection previously selected
+set_Any_Collection();
+}
+set_release_version_options(false);
+}
+function changeLabels()
+{
+var coordsys=$("#coord_sys").val();
+var label1="RA";
+var label2="DEC";
+var unitlabel_coord1="RA: sexagesimal/hours, decimal/degrees";
+if (coordsys == "gal")
+{
+label1="l ";
+label2="b ";
+unitlabel_coord1="both degrees whether sexagesimal or decimal";
+}
+$('#coord1_label').html(label1);
+$('#coord2_label').html(label2);
+$('#unitlabel_coord1').html(unitlabel_coord1);
+}
+function resetLabels()
+{
+var label1="RA";
+var label2="DEC";
+var unitlabel_coord1="RA: sexagesimal/hours, decimal/degrees";
+$('#coord1_label').html(label1);
+$('#coord2_label').html(label2);
+$('#unitlabel_coord1').html(unitlabel_coord1);
+}
+function set_Any_dataproduct_type()
+{
+// If the user clicks on Any dataproduct_type, then any other dataproduct_type previously selected must get unchecked:
+jQuery('input[name=dataproduct_type]').prop('checked', false);
+// and obviously we want to see Any dataproduct_type checked:
+jQuery('#any_dataproduct_type_id').prop('checked', true);
+// If 1d spectra and/or cubes parameters were disabled, ensure they are re-enabled:
+enable_1dspectra();
+enable_cubes();
+}
+function unset_Any_dataproduct_type()
+{
+// If the user clicks on some (one or more) dataproduct_type, then Any dataproduct_type must get unchecked:
+jQuery('#any_dataproduct_type_id').prop('checked', false);
+}
+//****** Functions to do with the activation of the Release pulldown menu:
+function set_Any_Collection(uncheckAll)
+{
+// If the user clicks on Any Collection, then any other collection previously selected must get unchecked:
+// this means clearing any selection in both: collection_name checkboxes for Public Surveys...
+jQuery('input[name=collection_name]').prop('checked', false);
+//Without multiselect it would be: jQuery('#collection_name_option option').prop('selected', false);
+// Setting Any_Colleciton must clear the multiselect selections and reset the button title:
+// ... and the multiselect collection_name_option:
+if ( uncheckAll ) { jQuery("#collection_name_option").multiselect("uncheckAll"); }
+// Obviously we want to see the Any Collection checkbox checked:
+jQuery('#any_collection_id').prop('checked', true);
+}
+function unset_Any_Collection()
+{
+// If the user clicks on some (one or more) collections, then Any Collection must get unchecked:
+jQuery('#any_collection_id').prop('checked', false);
+}
+function set_collection_from_userdefault()
+{
+if ( userdefault_collection_name != "" )
+{
+unset_Any_Collection();
+if ( jQuery('[name=collection_name][value="'+userdefault_collection_name+'"]').length )
+{
+// This collection_name is in a checkbox
+jQuery('[name=collection_name][value="'+userdefault_collection_name+'"]').prop('checked',true);
+}
+if ( jQuery('[name=collection_name] option[value="'+userdefault_collection_name+'"]').length )
+{
+// This collection_name is in a dropdown menu
+jQuery('[name=collection_name] option[value="'+userdefault_collection_name+'"]').attr('selected','selected');
+}
+}
+}
+function count_collection_name_options()
+{
+return jQuery('input[name=multiselect_collection_name_option]:checkbox:checked').length;
+}
+function single_collection_name()
+{
+// without multiselect it would be: var num_collections_selected = jQuery('input[name=collection_name]:checkbox:checked').length + jQuery('#collection_name_option option:selected').length - jQuery('#any_collection_id:checkbox:checked').length;
+var num_collections_selected = jQuery('input[name=collection_name]:checkbox:checked').length + count_collection_name_options() - jQuery('#any_collection_id:checkbox:checked').length;
+if ( num_collections_selected != 1 ) { return false; }
+// The collection_name is set either as a checkbox or as a select option:
+var collection_name = jQuery('input[name=collection_name]:checkbox:checked').val();
+if ( ! collection_name )
+{
+// collection_name = jQuery('#collection_name_option option:selected').val();
+//collection_name = jQuery('button.ui-multiselect > span:eq(1)').html();
+//var o_collection_name = jQuery('input[id^=ui-multiselect-collection_name_option-option]:checkbox:checked').val();
+collection_name = jQuery('input[name=multiselect_collection_name_option]:checkbox:checked').val();
+}
+return collection_name;
+}
+function set_release_version_options(reset)
+{
+if ( jQuery('[name=product_status] option:selected').val() != "all" )
+{
+jQuery('[name=release_name] option').prop('disabled',true);
+} else
+{
+jQuery('[name=release_name] option').prop('disabled',false);
+jQuery('[name=release_name]')
+.find('optgroup')
+.remove()
+.end();
+}
+return false;
+}
+//****** END OF Functions to do with the activation of the Release pulldown menu.
+//-->
+</SCRIPT>
+<script type="text/javascript" src="/wdb/jslib/wdb_query_functions.js"></script>
+</HEAD>
+<BODY onunload="" bgcolor="#ffffff">
+<em></em>
+<style>
+.buttonlike {
+width: 76px;
+padding: 10px;
+margin: 10px;
+background:rgb(148,202,236);
+text-align: center;
+font-family:Arial,sans-serif,Helvetica;
+border-radius:4px;
+-moz-border-radius:4px;-webkit-border-radius:4px;border-radius:4px;
+}
+.fonts{ font-family:Arial,sans-serif,Helvetica; }
+/*  html * { font-family:Arial,sans-serif,Helvetica !important; } */
+.no_underline{ text-decoration:none; }
+/*  .phase3_main{ background:rgb(80,170,204); } */
+/*  .phase3_spectral{ background:rgb(68,170,170); } */
+/*  .phase3_imaging{ background:rgb(204,116,116); } */
+/*  .phase3_vircam{ background:rgb(176,172,105); } */
+.phase3_main{ background:rgb(148,202,236); }
+.phase3_spectral{ background:rgb(152,210,210); }
+.phase3_imaging{ background:rgb(244,146,146); }
+.phase3_vircam{ background:rgb(215,214,140); }
+.phase3_main_light{ background:rgb(148,202,236); }
+.ORIphase3_spectral_light{ background:rgb(132,234,180); }
+.phase3_spectral_light{ background:rgb(152,210,210); }
+/*  .phase3_imaging_light{ background:rgb(255,180,180); } */
+.phase3_imaging_light{ background:rgb(244,146,146); }
+.phase3_vircam_light{ background:rgb(215,214,140); }
+/*  .phase3_vircam_light{ background:rgb(176,172,105); } */
+/* MAINP IS A TEST (P for Provenance, query by provenance) */
+.phase3_mainp{ background:rgb(148,202,236); }
+.phase3_mainp_light{ background:rgb(148,202,236); }
+a.ui{color:rgb(244,244,244);font-weight:bold;text-decoration:none;}
+a:hover.ui{background:rgb(92,192,192);background-color:rgba(0, 0, 0, 0.1);text-decoration:underline; border-bottom: 1px;}
+a.this{color:rgb(0,0,0);font-weight:bold;text-decoration:none; pointer-events: none; cursor: default;}
+a.nolink{color:rgb(255,255,255);font-weight:bold;text-decoration:none; pointer-events: none; cursor: default;}
+a.link{color:rgb(127,127,127);font-weight:bold;text-decoration:none; cursor: default;}
+th a {text-decoration:none;}
+td a {text-decoration:none;}
+.legendBorder { margin: 0; padding: 3px 0 5px 5px; }
+</style>
+<table border="0" align="center" width="100%" style="height: 100px; line-height: 0pt">
+<tr valign="top">
+<!-- logo left -->
+<td width="80" style="line-height: 0px"><a href="http://www.eso.org/"><img src="/wdb/images/eso-logo.gif" alt="ESO" title="ESO Homepage"></a></td>
+<!-- Central cell with links to other interfaces, help, and related pages -->
+<td width="60%" align="center" style="line-height: 12pt; height: 100px">
+<table height="100" style="height:100px;">
+<tr>
+<td class="buttonlike phase3_main">
+<a class="ui" title="Query &amp; download interace for all available products. It is possible to search for and download: images, spectra, catalogs, source tables, data cubes, fluxmaps, etc." href="/wdb/wdb/adp/phase3_main/form?">&nbsp;GENERIC&nbsp;</a>
+</td>
+<td class="buttonlike phase3_spectral">
+<a class="ui" title="Query &amp; download interface specific to spectral data products. It is possible to query for 1d spectra and data cubes, using parameters like spectral resolving power, SNR (1d spectra), limiting magnitude (data cube), wavelength coverage etc." href="/wdb/wdb/adp/phase3_spectral/form?">&nbsp;SPECTRAL&nbsp;</a>
+</td>
+<td class="buttonlike phase3_imaging">
+<a class="ui" title="Query &amp; download interface specific to imaging/source table data products. It is possible to query by limiting magnitude and other imaging-specific parameters." href="/wdb/wdb/adp/phase3_imaging/form?">&nbsp;IMAGING&nbsp;</a>
+</td>
+<td class="buttonlike phase3_vircam">
+<a class="ui" title="Query &amp; download interface specific to VISTA/VIRCAM data products. It is possible to query by ellipticity and other VIRCAM-specific parameters." href="/wdb/wdb/adp/phase3_vircam/form?">&nbsp;VISTA&nbsp;</a>
+</td>
+</tr>
+<tr><td align="center" colspan="4" style="color: rgb(232,232,232); letter-spacing: 5px; ">PHASE3 ARCHIVE INTERFACES</td></tr>
+<tr><td colspan="4" align="center">
+<table cellpadding="7" cellspacing="1" border="0" width="100%">
+<tr align="right" valign="middle">
+<td align="middle" bgcolor="bbbbbb" class="fonts"><a class="no_underline" href="/wdb/help/adp/phase3_help.html">
+<font color="ffffff" size="1">HELP</font></a></td>
+<td align="middle" bgcolor="bbbbbb" class="fonts"><a class="no_underline" href="/cms/eso-data/phase3/ESO_reduced_data_products_description.pdf">
+<font color="ffffff" size="1">REDUCED DATA TYPES DESCRIPTION</font></a></td>
+<td align="middle" bgcolor="bbbbbb" class="fonts"><a class="no_underline" href="/faq.html">
+<font color="ffffff" size="1">FAQ</font></a></td>
+<td align="middle" bgcolor="bbbbbb" class="fonts"><a class="no_underline" href="http://www.eso.org/sci/observing/phase3/data_releases.html">
+<font color="ffffff" size="1">DATA RELEASES</font></a></td>
+</tr>
+</table>
+</td>
+</tr></table>
+</td>
+<!-- Title on the right -->
+<td align="center" class="phase3_main" style="padding: 21px;"><span class="phase3_main fonts" style="line-height: 20pt; font-weight: bold; font-size: 16pt; white-space: nowrap">Generic Data Products<br>Query Form</span></td>
+</tr>
+</table>
+<hr><div class="textContainer_Truncate" style="text-align: justify;text-justify:inter-word; font-style: italic; font-family: Arial,sans-serif,Helvetica; font-size: 85%;">
+<span>Please be aware of an <b><a href="http://archive.eso.org/cms/eso-archive-news/Flux-calibration-issue-for-the-XSHOOTER-UVB-data-products.html">important announcement about the flux calibration of XSHOOTER UVB data products</a></b>.<br>
+This form provides access to <b>reduced or fully calibrated data sets</b>, and <b>derived catalogs</b>,
+that were contributed by PIs of ESO programmes or produced by ESO (using ESO calibration pipelines with the best available calibration data), and then
+integrated into the ESO <a href="/">Science Archive Facility</a> starting April 2011, through the <a href="http://www.eso.org/sci/observing/phase3.html">
+Phase 3 process</a>. Included are optical, infrared, and APEX (millimetre, submillimetre) data products.
+Each available data set is fully described; please see the <a href="http://www.eso.org/sci/observing/phase3/data_releases.html">list of contributed data releases</a> and <a href="http://www.eso.org/sci/observing/phase3/data_streams.html">pipeline-processed data streams</a> including their corresponding descriptions.
+This form allows generic query constraints for all types of data products.
+More specific forms, customised for each particular data type, are available for <a href ="/wdb/wdb/adp/phase3_imaging/form">optical and infrared imaging</a>,
+for <a href ="/wdb/wdb/adp/phase3_spectral/form">spectra</a>,
+and for <a href ="/wdb/wdb/adp/phase3_vircam/form">VISTA</a> data products.
+Other data not yet migrated to the Phase 3 infrastructure are available via different user interfaces; please check the <a href="http://archive.eso.org/">archive home page</a>.
+<p><b>Note:</b> The FITS format of the spectra retrievable via this query form complies to the <a href="http://www.eso.org/sci/observing/phase3/p3sdpstd.pdf">ESO Science Data Product standard</a> [PDF]. The <a href="http://archive.eso.org/cms/eso-data/help/1dspectra.html">1d spectra help page</a> provides a list of tools that support this format and a quick guide to read and display these spectra in IDL and IRAF.</p>
+</div>
+<noscript><P style='color: red'>WARNING: You need to activate JavaScript to properly use this form.<P></noscript>
+
+<FORM id="queryform" ACTION="/wdb/wdb/adp/phase3_main/query" METHOD="POST" ENCTYPE="multipart/form-data">
+<div id="wdb_top_menu" class="wdb_top_menu"><fieldset class="fs_top_menu"> <table id="wdb_top_menu_table" width="100%" cellpadding=5 cellspacing=0 border=0><tr valign="middle"> <td align="left" valign="middle" style="width: 25%; white-space: nowrap;">
+        <input id="search" type="submit" class="ibsearch" value="Search">
+        <input id="myreset" type="reset" style="width: 7em;" value="Reset" onClick="wdb_showall_toggler($('#wdb_tabbit'),'All Fields','Default Fields','reset')"></td><td style="width: 50%; white-space: nowrap;">
+<div id="wdb_preferences_container" class="wdb_preferences_container">
+<div id="wdb_preferences" class="wdb_preferences">Output preferences: <SELECT name="wdbo"><OPTION VALUE="html/display" selected="selected">html table</OPTION><OPTION VALUE="ascii/display">ascii fixed length/display</OPTION><OPTION VALUE="ascii/download">ascii fixed length/download</OPTION><OPTION VALUE="csv/download">ascii csv/download</OPTION></SELECT>
+</div>
+<div id="wdb_max_records" class="wdb_max_records"> Return max <INPUT VALUE="200" SIZE="5" NAME="max_rows_returned"> rows.</div><input type="button" id="wdb_tabbit" class="wdb_tabbit" style="margin-left: 2em;" onClick="wdb_showall_toggler(this,'All Fields','Default Fields');" value="All Fields"></div><!-- closing div wdb_preferences_container ***************************************************************** --></td><td align="right" style="width: 25%; white-space: nowrap;"><input type="button" id="ib_query_syntax" value="Syntax Help" onClick="wdb_query_syntax(this,'/wdb/html/wdb_query_syntax_quick.html')"></td></tr></table><p id="wdb_query_syntax" class="wdb_query_syntax"></p></fieldset></div><!-- closing div wdb_top_menu ***************************************************************** --><p></fieldset>
+<fieldset class="legendBorder" style="background:#EEEEEE">
+<legend class="legendTitle">&nbsp;<font style="font-family:'Arial',serif" color="006699" size="+1"><b>Target/Position Information</b></font>&nbsp;</legend>
+
+<TABLE class="wdb_query_form_input_table"><TR><TD></TD><TD><b><a href="/wdb/help/adp/phase3_help.html#Target_name"><abbr title="target: The input value can be either a valid astronomical target name recognised by the SIMBAD or the NED resolvers, or the original target designation as defined by the Principal Investigator.
+By default the name will be resolved into its coordinates by the SIMBAD name resolver (you could use the NED resolver if you prefer), and the search will be conducted against the resolved coordinates within a box of defined size (see Search Box). Otherwise, you can select &ldquo;Phase 3 target name&rdquo; to perform a string match (case insensitive) against the OBJECT keyword as defined by the PI.">Target name</abbr></a></b>&nbsp;</TD>
+<TD> <INPUT name="target" size="22"  placeholder=""> </td><td><select name=resolver>
+<option value=simbad>SIMBAD name</option>
+<option value=ned>NED name</option>
+<option value=none>Phase 3 target name</option>
+</select></TD>
+<TD>&nbsp;</TD><TD><b><a href="/wdb/help/adp/phase3_help.html#UploadTargets"><abbr title="wdb_input_file: Input file containing a list (one per line) of either target names or J2000 coordinate pairs (either TAB or sign (+/-) separated). If target names are provided, the user can decide whether the SIMBAD or NED name resolver should be used, or if instead the provided values should be matched against the Phase 3 target names (see pulldown menu on the left).">Query by Target List:</abbr></a></b>&nbsp;</TD>
+<TD> <INPUT name="wdb_input_file" type="file" value="" ></TD>
+
+</TR>
+<TR><TD></TD><TD><b><a href="/wdb/help/adp/phase3_help.html#Coord_system"><abbr title="coord_sys: The coordinate system of the input coordinates can be either Equatorial(FK5) or Galactic. This is useful when, instead of using a name resolver, you want to provide your own coordinates to perform a query by position within the given Search Box.">Input Coord. Sys.</abbr></a></b>&nbsp;</TD>
+<TD colspan="5"> <SELECT id="coord_sys" name="coord_sys" style="vertical-align: middle"  onChange='changeLabels();' ><OPTION value="eq"> Equatorial (FK5)</OPTION>
+<OPTION value="gal"> Galactic</OPTION>
+</SELECT></TD>
+</TR>
+<TR><TD></TD><TD><b><a href="/wdb/help/adp/phase3_help.html#RA"><abbr title="coord1: "><span style="float:left">Position</span><span style="float: right"><I id="coord1_label">RA</I>&nbsp;</span></abbr></a></b>&nbsp;</TD>
+<TD colspan="2"> <INPUT name="coord1" size="12"  placeholder=""><small>&nbsp;&nbsp;&nbsp;</small><small>&nbsp;</small><b><a href="/wdb/help/adp/phase3_help.html#DEC"><abbr title="coord2: "><I id="coord2_label">DEC</I></abbr></a></b>&nbsp; <INPUT name="coord2" size="12"  placeholder=""> </td><td></td><td colspan="3"><I id="unitlabel_coord1">RA: sexagesimal hours, decimal degrees</I>
+</TR>
+<TR><TD></TD><TD><b><a href="/wdb/help/adp/phase3_help.html#Search_Box"><abbr title="box: The size (deg) of the box within which the search by position will be performed. It could be expressed either in decimal or in sexagesimal format.
+Example: (Input Coord. Sys.=Equatorial, dec=20, box=2.2) results in the query: (dec between 18.9 and 21.1) {note that no constraint was provided on right ascension,
+hence the query is for a stripe around dec=20 large 2.2 degrees}.">Search Box</abbr></a></b>&nbsp;</TD>
+<TD colspan="3"> <INPUT name="box" size="12" value="02 09 00" onblur="if(this.value == '') { this.value='02 09 00'}" onfocus="if(this.value == '02 09 00') { this.value = ''; }"></TD>
+<TD colspan="1">Output Display:&nbsp;</TD>
+<TD colspan="4">
+  <TABLE class="wdb_query_form_input_table" border="1"><tbody><TR><TD><INPUT type=checkbox checked name="tab_ra"><TD><b><a href="/wdb/help/adp/phase3_help.html#RA"><abbr title="ra: Right Ascension (J2000)">RA</abbr></a></b>&nbsp;</TD>
+<TD><INPUT type=checkbox checked name="tab_dec"></TD><TD><b><a href="/wdb/help/adp/phase3_help.html#DEC"><abbr title="dec: Declination (J2000)">DEC</abbr></a></b>&nbsp;</TD>
+<TD><INPUT type=checkbox  name="tab_gal_lon"></TD><TD><b><a href="/wdb/help/adp/phase3_help.html#RA"><abbr title="gal_lon: ">Gal long</abbr></a></b>&nbsp;</TD>
+<TD><INPUT type=checkbox  name="tab_gal_lat"></TD><TD><b><a href="/wdb/help/adp/phase3_help.html#DEC"><abbr title="gal_lat: ">Gal lat</abbr></a></b>&nbsp;</TD>
+</TR></TABLE>
+</TD>
+</TR></TABLE>
+
+</fieldset><fieldset class="legendBorder phase3_main_light"><legend class="legendTitle">&nbsp;<font style="font-family:'Arial',serif" color="006699" size="+1"><b>Bandpass/Wavelength and Product Category</b></font>&nbsp;</legend>
+<TABLE class="wdb_query_form_input_table"><TR><TD><INPUT type=checkbox checked name="tab_filter"></TD><TD><b><a href="/wdb/help/adp/phase3_help.html#Filter"><abbr title="filter: The name of the filter used. Applicable only to imaging products, including images and source tables.">Filter</abbr></a></b>&nbsp;</TD>
+<TD><td><B><SELECT NAME="filter" MULTIPLE SIZE="5"><OPTION selected>Any</OPTION>
+<OPTION>u_SDSS</OPTION>
+<OPTION>U</OPTION>
+<OPTION>G</OPTION>
+<OPTION>g_SDSS</OPTION>
+<OPTION>r_SDSS</OPTION>
+<OPTION>R</OPTION>
+<OPTION>NB_659</OPTION>
+<OPTION>i_SDSS</OPTION>
+<OPTION>I</OPTION>
+<OPTION>Z</OPTION>
+<OPTION>z_SDSS</OPTION>
+<OPTION>Y</OPTION>
+<OPTION>NB118</OPTION>
+<OPTION>J</OPTION>
+<OPTION>H</OPTION>
+<OPTION>Ks</OPTION>
+<OPTION>870u</OPTION>
+<OPTION>H2</OPTION>
+<OPTION>CH4</OPTION>
+<OPTION>NB1190</OPTION>
+<OPTION>BrG</OPTION>
+<OPTION>NB0984</OPTION>
+<OPTION>NB1060</OPTION>
+<OPTION>NB2090</OPTION>
+</SELECT>  </B></td><td>&nbsp;&nbsp;&nbsp;OR&nbsp;<img style="vertical-align: top; width: 14px" src="/wdb/images/info20.png" title="If a filter constraint is specified, only imaging products matching the filter constraint are returned; if a wavelength constraint is provided, only spectral products matching such constraint are returned; if both the filter and the wavelength constraints are provided (!= Any) then the constraints on Filter and Wavelength are logically OR-ed together, so that imaging related products (matching the filter constraint) and spectral products (matching the wavelength constraint) are both returned, unless the product category is specified.">&nbsp;&nbsp;</td>
+<TD><INPUT type=checkbox checked name="tab_wavelength"></TD><TD><b><a href="/wdb/help/adp/phase3_help.html#wavelength"><abbr title="wavelength: spectral coverage in nanometers. Applicable to 1d spectra and cubes.
+Query examples:
+1) 656 - The product (e.g. a spectrum) must contain the 656 nm point;:
+2) 393 AND 656 - entire range must be covered:
+3) 393..656 partial range must be covered.:
+Output example: the output string 298.920..555.980 shows the min and max wavelengths covered by the product in nanometers.">Wavelength</abbr></a></b>&nbsp;</TD>
+<TD> <INPUT name="wavelength" size="21" value="Any" onblur="if(this.value == '') { this.value='Any'}" onfocus="if(this.value == 'Any') { this.value = ''; }"> [nm]
+E.g.: <span style="text-decoration: underline;" title="656 must be contained">656</span>, <span style="text-decoration: underline;" title="full range must be covered">393 AND 656</span>, <span style="text-decoration: underline;" title="partial overlap is enough">393..656</span>
+<!-- <img style="vertical-align: top; width: 20px" src="/wdb/images/info20.png" title="If a filter constraint is specified, only imaging products matching the filter constraint are returned; if a wavelength constraint is provided, only spectral products matching such constraint are returned; if both the filter and the wavelength constraint are provided (!= Any) then the constraints on Filter and Wavelength are logically OR-ed together, so that imaging related products (matching the filter) and spectral products (matching the wavelength) are both returned, unless the product category is specified."> -->
+<SCRIPT type="text/javascript">
+// This javascript/jQuery does two things:
+// 1) when the wavelength field receives focus, the Any default value is removed;
+// 2) the Any default value is added if the user leaves the field empty.
+// It is within the 'ehm' special attribute that the value 'Any' is replaced with the correct SQL.
+$(document).ready(function() {
+var Input = $('input[name=wavelength]');
+var default_value= "Any";
+Input.focus(function() {
+if(Input.val() == default_value) { Input.val(""); }
+}).blur(function(){
+if(Input.val().length == 0) Input.val(default_value);
+});
+});
+</SCRIPT></TD>
+</TR></TABLE>
+
+
+<TABLE class="wdb_query_form_input_table"><TR><TD><INPUT type=checkbox checked name="tab_dataproduct_type"></TD><TD><b><a href="/wdb/help/adp/phase3_help.html#PRODCATG"><abbr title="dataproduct_type: It allows to select products of a certain type; allowed input values are: image, source_table, spectrum, catalog.
+The dataproduct_type field is used ONLY in the phase3_main interface.">Product category</abbr></a></b>&nbsp;</TD>
+<TD><Table border="1"><tR><td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+<td><input id="any_dataproduct_type_id" type="checkbox" name="dataproduct_type" value="Any" checked>&nbsp;Any&nbsp;</td>
+<td><input id="dpt_catalog" type="checkbox" name="dataproduct_type" value="catalog">&nbsp;catalog&nbsp;</td>
+<td><input id="dpt_cube" type="checkbox" name="dataproduct_type" value="cube">&nbsp;cube&nbsp;</td>
+<td><input id="dpt_image" type="checkbox" name="dataproduct_type" value="image">&nbsp;image&nbsp;</td>
+<td><input id="dpt_source_table" type="checkbox" name="dataproduct_type" value="source_table">&nbsp;source_table&nbsp;</td>
+<td><input id="dpt_spectrum" type="checkbox" name="dataproduct_type" value="spectrum">&nbsp;spectrum&nbsp;</td>
+
+</tR></Table></TR></TABLE>
+
+</fieldset><fieldset class="legendBorder" style="background:#EEEEEE"><legend class="legendTitle">&nbsp;<font style="font-family:'Arial',serif" color="006699" size="+1"><b>Observation/Temporal Parameters</b></font>&nbsp;</legend>
+<TABLE class="wdb_query_form_input_table"><TR><TD><INPUT type=checkbox  name="tab_tel_id"></TD><TD><b><a href="/wdb/help/adp/phase3_help.html#Telescope"><abbr title="tel_id: Telescope name">Telescope</abbr></a></b>&nbsp;</TD>
+<TD><td><SELECT NAME="tel_id" MULTIPLE SIZE="5"><OPTION selected>Any</OPTION>
+<OPTION> APEX-12m </OPTION>
+<OPTION> ESO-3.6 </OPTION>
+<OPTION> ESO-NTT </OPTION>
+<OPTION> ESO-VISTA </OPTION>
+<OPTION> ESO-VLT-U1 </OPTION>
+<OPTION> ESO-VLT-U2 </OPTION>
+<OPTION> ESO-VLT-U2,ESO-VLT-U3 </OPTION>
+<OPTION> ESO-VLT-U3 </OPTION>
+<OPTION> ESO-VLT-U4 </OPTION>
+<OPTION> ESO-VST </OPTION>
+<OPTION> MPG/ESO-2.2 </OPTION>
+</SELECT> </td><TD><INPUT type=checkbox checked name="tab_ins_id"></TD><TD><b><a href="/wdb/help/adp/phase3_help.html#Instrument"><abbr title="ins_id: Instrument name">Instrument</abbr></a></b>&nbsp;</TD>
+<TD><td><B><SELECT NAME="ins_id" MULTIPLE SIZE="5"><OPTION selected>Any</OPTION>
+<OPTION> APEXBOL </OPTION>
+<OPTION> EFOSC </OPTION>
+<OPTION> FEROS </OPTION>
+<OPTION> FORS1 </OPTION>
+<OPTION> FORS2 </OPTION>
+<OPTION> GIRAFFE </OPTION>
+<OPTION> GIRAFFE,UVES </OPTION>
+<OPTION> HARPS </OPTION>
+<OPTION> HAWKI </OPTION>
+<OPTION> ISAAC </OPTION>
+<OPTION> MULTI </OPTION>
+<OPTION> MUSE </OPTION>
+<OPTION> OMEGACAM </OPTION>
+<OPTION> SOFI </OPTION>
+<OPTION> UVES </OPTION>
+<OPTION> VIMOS </OPTION>
+<OPTION> VIRCAM </OPTION>
+<OPTION> XSHOOTER </OPTION>
+</SELECT>  </B></td><TD><INPUT type=checkbox  name="tab_obstech"></TD><TD><b><a href="/wdb/help/adp/phase3_help.html#OBSTECH"><abbr title="obstech: General mode/technique used for the observation">OBSTECH</abbr></a></b>&nbsp;</TD>
+<TD><B><SELECT NAME="obstech" MULTIPLE SIZE="5"><OPTION selected>Any</OPTION>
+<OPTION> CONTINUUM </OPTION>
+<OPTION> ECHELLE </OPTION>
+<OPTION> ECHELLE,ABSORPTION-CELL </OPTION>
+<OPTION> ECHELLE,SLIC#1 </OPTION>
+<OPTION> ECHELLE,SLIC#2 </OPTION>
+<OPTION> ECHELLE,SLIC#3 </OPTION>
+<OPTION> ECHELLE,SLIT,MAPPING </OPTION>
+<OPTION> ECHELLE,SLIT,NODDING </OPTION>
+<OPTION> ECHELLE,SLIT,OFFSET </OPTION>
+<OPTION> ECHELLE,SLIT,STARE </OPTION>
+<OPTION> IFU </OPTION>
+<OPTION> IMAGE </OPTION>
+<OPTION> IMAGE,DIRECT </OPTION>
+<OPTION> IMAGE,DITHER </OPTION>
+<OPTION> IMAGE,JITTER </OPTION>
+<OPTION> IMAGE,OFFSET </OPTION>
+<OPTION> MOS </OPTION>
+<OPTION> MOS,NODDING </OPTION>
+<OPTION> MXU </OPTION>
+<OPTION> SPECTRUM </OPTION>
+</SELECT>  </B></TR></TABLE>
+
+
+<TABLE class="wdb_query_form_input_table"><TR><TD><INPUT type=checkbox checked name="tab_date_obs"></TD><TD><b><a href="/wdb/help/adp/phase3_help.html#DATE_OBS"><abbr title="date_obs: The start datetime of an observation (UTC).
+A user can specify a datetime range (e.g.: 2013-01-31..2013-02-01),
+use an operator (e.g.: > 2013-01-31T07:00:00),
+or a single value.
+- when a single day is provided (e.g. 2013-02-01)
+then all observations taken that day are returned.
+- when a single instant in time value is provided (e.g.: 2013-01-31T08:34:30)
+then all observations that potentially cover that moment in time are returned.">Date Obs</abbr></a></b>&nbsp;</TD>
+<TD> <INPUT name="date_obs" size="45"  placeholder=""><TD><i>UT time</i> <span title="The start datetime of an observation (UTC).
+A user can specify a datetime range (e.g.: 2013-01-31..2013-02-01),
+use an operator (e.g.: > 2013-01-31T07:00:00),
+or a single value.
+- when a single day is provided (e.g. 2013-02-01)
+then all observations taken that day are returned.
+- when a single instant in time value is provided (e.g.: 2013-01-31T08:34:30)
+then all observations that potentially cover that moment in time are returned." style="font-size: small;">(Place the mouse here to see examples)</span></TD>
+
+</TR>
+<TR><TD><INPUT type=checkbox  name="tab_mjd_obs"></TD><TD><b><a href="/wdb/help/adp/phase3_help.html#MJD_OBS"><abbr title="mjd_obs: The start datetime of an observation in modified julian date (MJD). A user can specify a datetime range (e.g.: 53386..53389), use an operator (e.g.: &gt; 53386.09735), or a single value. When a single value is provided then all observations that potentially cover that moment in time are returned.">MJD Obs</abbr></a></b>&nbsp;</TD>
+<TD> <INPUT name="mjd_obs" size="10"  placeholder=""> <i>Modified Julian Date</i></TD>
+
+</TR>
+<TR><TD><INPUT type=checkbox checked name="tab_exptime"></TD><TD><b><a href="/wdb/help/adp/phase3_help.html#EXPTIME"><abbr title="exptime: Exposure time">Exptime</abbr></a></b>&nbsp;</TD>
+<TD> <INPUT name="exptime" size="10"  placeholder=""> Total integration time per pixel [s]</TD>
+
+</TR>
+<TR><TD><INPUT type=checkbox  name="tab_multi_ob"></TD><TD><b><a href="/wdb/help/adp/phase3_help.html#MULTI_OB"><abbr title="multi_ob: It allows the user to query for products resulting either from a single ESO Observing Block, or from a combination of several Observing Blocks.">Multi OB</abbr></a></b>&nbsp;</TD>
+<TD> <SELECT id="multi_ob" name="multi_ob" style="vertical-align: middle" ><OPTION value="%"> Any</OPTION>
+<OPTION value="M%"> Request multi-OB products</OPTION>
+<OPTION value="S%"> Exclude multi-OB products</OPTION>
+</SELECT></TD>
+</TR></TABLE>
+</fieldset><fieldset class="legendBorder" style="background:#DDDDDD"><legend class="legendTitle">&nbsp;<font style="font-family:'Arial',serif" color="006699" size="+1"><b>Collections and Observing Programmes</b></font>&nbsp;</legend>
+<TABLE class="wdb_query_form_input_table"><TR><TD><INPUT type=checkbox checked name="tab_collection_name"></TD><TD><b><a href="/wdb/help/adp/phase3_help.html#collection_name"><abbr title="collection_name: Title of the observing programme (Null for pipeline-generated internal data products)">Collection</abbr></a></b>&nbsp;</TD>
+<TD><div id="collections"> <select id='collection_name_option' name="collection_name" multiple style="display: none; width: 400px"><OPTION value="092.A-0472"> 092.A-0472</OPTION>
+<OPTION value="189.A-0424"> 189.A-0424</OPTION>
+<OPTION value="60.A-9284H"> 60.A-9284H</OPTION>
+<OPTION value="AMBRE"> AMBRE</OPTION>
+<OPTION value="ATLASGAL"> ATLASGAL</OPTION>
+<OPTION value="ESSENCE"> ESSENCE</OPTION>
+<OPTION value="FEROS"> FEROS</OPTION>
+<OPTION value="GAIAESO"> GAIAESO</OPTION>
+<OPTION value="GIRAFFE"> GIRAFFE</OPTION>
+<OPTION value="GOODS_FORS2"> GOODS_FORS2</OPTION>
+<OPTION value="GOODS_ISAAC"> GOODS_ISAAC</OPTION>
+<OPTION value="GOODS_VIMOS_IMAG"> GOODS_VIMOS_IMAG</OPTION>
+<OPTION value="GOODS_VIMOS_SPEC"> GOODS_VIMOS_SPEC</OPTION>
+<OPTION value="HARPS"> HARPS</OPTION>
+<OPTION value="HAWKI"> HAWKI</OPTION>
+<OPTION value="HUGS"> HUGS</OPTION>
+<OPTION value="KIDS"> KIDS</OPTION>
+<OPTION value="LEGA-C"> LEGA-C</OPTION>
+<OPTION value="LESS"> LESS</OPTION>
+<OPTION value="MUSE"> MUSE</OPTION>
+<OPTION value="PESSTO"> PESSTO</OPTION>
+<OPTION value="UVES"> UVES</OPTION>
+<OPTION value="UltraVISTA"> UltraVISTA</OPTION>
+<OPTION value="VHS"> VHS</OPTION>
+<OPTION value="VIDEO"> VIDEO</OPTION>
+<OPTION value="VIKING"> VIKING</OPTION>
+<OPTION value="VMC"> VMC</OPTION>
+<OPTION value="VPHASplus"> VPHASplus</OPTION>
+<OPTION value="VST-ATLAS"> VST-ATLAS</OPTION>
+<OPTION value="VVV"> VVV</OPTION>
+<OPTION value="XSHOOTER"> XSHOOTER</OPTION>
+<OPTION value="ZCOSMOS"> ZCOSMOS</OPTION>
+  </select></div>
+ <script type="text/javascript">jQuery(document).ready(function() {
+  userdefault_active = 0;
+userdefault_release_name = '';
+userdefault_collection_name = '';
+
+jQuery('td.phase3_main a.ui').addClass('this');
+
+ });</script> <!-- done append_js -->
+ <!-- end of save_collection_selection --></TR></TABLE>
+
+
+<TABLE class="wdb_query_form_input_table"><TR><TD><INPUT type=checkbox checked name="tab_prog_id"></TD><TD><b><a href="/wdb/help/adp/phase3_help.html#Prog_ID"><abbr title="prog_id: ESO program identification code. In HTML output, it provides a link to the scheduling information, and from there to the related publications.">Run/Program ID</abbr></a></b>&nbsp;</TD>
+<TD> <INPUT name="prog_id" size="29"  placeholder=""> <i>eg 179.B-2003(B)</i>&nbsp;&nbsp;</TD>
+<TD><INPUT type=checkbox  name="tab_username"></TD><TD><b><a href="/wdb/help/adp/phase3_help.html#PI_NAME"><abbr title="username: The name of the Phase 3 user that delivered the data to ESO.">PI Name</abbr></a></b>&nbsp;</TD>
+<TD> <INPUT name="username" size="12"  placeholder=""> &nbsp;&nbsp;</TD>
+<TD><INPUT type=checkbox  name="tab_p3orig"></TD><TD><b><a href="/wdb/help/adp/phase3_help.html#p3orig"><abbr title="p3orig: The origin of a reduced or fully calibrated data product can either be:
+- User: data were processed by an ESO user, typically the P.I. of the ESO observing programme, then contributed to the ESO archive via the Phase 3 process. The user's name is recorded in the field &quot;Phase 3 user&quot;.
+- ESO: data were processed by ESO as part of the data operation flow.">Certified by</abbr></a></b>&nbsp;</TD>
+<TD> <SELECT id="p3orig" name="p3orig" style="vertical-align: middle" ><OPTION value="%"> Any</OPTION>
+<OPTION value="EDP"> User</OPTION>
+<OPTION value="IDP"> ESO</OPTION>
+</SELECT></TD>
+</TR></TABLE>
+
+</fieldset><fieldset class="legendBorder" style="background:#EEEEEE"><legend class="legendTitle">&nbsp;<font style="font-family:'Arial',serif" color="006699" size="+1"><b>Submission, Proprietary Period &amp; Bibliographic Information</b></font>&nbsp;</legend><p>
+<TABLE class="wdb_query_form_input_table"><TR><TD><INPUT type=checkbox checked name="tab_origfile"></TD><TD><b><a href="/wdb/help/adp/phase3_help.html#ORIGFILE"><abbr title="origfile: The original file name as given by the PI. It is guaranteed to be unique only within a given version of a Phase 3 programme release.">ORIGFILE</abbr></a></b>&nbsp;</TD>
+<TD> <INPUT name="origfile" size="29"  placeholder=""> &nbsp;&nbsp;&nbsp;</TD>
+
+<TD><INPUT type=checkbox checked name="tab_dp_id"></TD><TD><b><a href="/wdb/help/adp/phase3_help.html#ARCFILE"><abbr title="dp_id: Archive File ID. It is guaranteed to be unique within the entire ESO Science Archive Facility.">ARCFILE</abbr></a></b>&nbsp;</TD>
+<TD> <INPUT name="dp_id" size="29"  placeholder=""></TD>
+
+</TR>
+<TR><TD><INPUT type=checkbox  name="tab_rel_date"></TD><TD><b><a href="/wdb/help/adp/phase3_help.html#rel_date"><abbr title="rel_date: Date by which the product is, or will be, publically available. Until then, access is available only to the observing team.">Release Date</abbr></a></b>&nbsp;</TD>
+<TD> <INPUT name="rel_date" size="12"  placeholder=""></TD>
+
+<TD><INPUT type=checkbox checked name="tab_referenc"></TD><TD><b><a href="/wdb/help/adp/phase3_help.html#REFERENC"><abbr title="referenc: Bibliographic reference to the primary scientific publication associated to the data product describing content, coverage, process of creation and scientific quality, when defined (in the REFERENC FITS keyword of the product).">REFERENC</abbr></a></b>&nbsp;</TD>
+<TD> <INPUT name="referenc" size="29"  placeholder=""> <a href="https://en.wikipedia.org/wiki/Bibcode">bibcode</a></TD>
+
+</TR>
+<TR><TD><INPUT type=checkbox  name="tab_batch_id"></TD><TD><b><a href="/wdb/help/adp/phase3_help.html#batch_id"><abbr title="batch_id: The identification number of the submission batch this product belongs to. A batch is a technical term used to indicate a group of files that were submitted together to the ESO Phase 3 process.">Batch Id</abbr></a></b>&nbsp;</TD>
+<TD> <INPUT name="batch_id" size="12"  placeholder=""> &nbsp;</TD>
+
+<TD><INPUT type=checkbox  name="tab_publication_date"></TD><TD><b><a href="/wdb/help/adp/phase3_help.html#publication_date"><abbr title="publication_date: Date by which the product was made available to the community">Publication Date</abbr></a></b>&nbsp;</TD>
+<TD> <INPUT name="publication_date" size="29"  placeholder=""></TD>
+</TR></TABLE>
+</fieldset><fieldset class="legendBorder" style="background:#EEEEEE"><legend class="legendTitle">&nbsp;<font style="font-family:'Arial',serif" color="006699" size="+1"><b>Query by raw data</b></font>&nbsp;</legend><p>
+<TABLE class="wdb_query_form_input_table"><TR><TD>&nbsp;</TD><TD><b><a href="/wdb/help/adp/phase3_help.html#UploadRawData"><abbr title="wdb_input_file_raw: Input file containing a list (one per line) of names of the files that originated the products you want to retrieve">Raw Data File List&nbsp;</abbr></a></b>&nbsp;</TD>
+<TD> <INPUT name="wdb_input_file_raw" type="file" value="" ></TD>
+</TR></TABLE>
+
+</fieldset><fieldset class="legendBorder" style="background:#DDDDDD"><legend class="legendTitle">&nbsp;<font style="font-family:'Arial',serif" color="006699" size="+1"><b>Sorting</b></font>&nbsp;</legend>
+<TABLE class="wdb_query_form_input_table"><TR><TD></TD><TD><b><abbr title="order_main: ">Sort results by</abbr></b>&nbsp;</TD>
+<TD> <SELECT id="order_main" name="order_main" style="vertical-align: middle" ><OPTION value="dummy"> None (Faster)</OPTION>
+<OPTION value="object"> Object</OPTION>
+<OPTION value="dec,ra"> DEC and RA</OPTION>
+<OPTION value="mjd_obs"> MJD_OBS</OPTION>
+<OPTION value="exptime desc"> Exposure_Time (descending)</OPTION>
+<OPTION value="prodcatg"> Data Product Category</OPTION>
+<OPTION value="wavelmin,filter,exp_start,prodcatg"> Wavelength(spectra) and Filter Name(imaging)</OPTION>
+<OPTION value="publication_date desc"> Publication date (descending)</OPTION>
+</SELECT></TD>
+</TR></TABLE>
+<table width="100%"><tr><td align="center" bgcolor="#aaaaaa"><font color="#ffffff" size="+1"> <b><a href="/wdb/html/wdb_query_help.html#ctrl">Extra Columns on Tabular Output</a></b></font></td></tr></table><SELECT id="extra_columns" name="extra_columns" size="2" multiple>
+<option value="exp_end">Stop Time</option>
+</SELECT>
+	<hr>
+        <div id="wdb_optional_output_modes">
+        <INPUT type=checkbox name="force_tabular_mode" >
+        Use tabular output even if only one row is returned.<br>
+	<INPUT type=checkbox name="full_screen_mode" >
+	Use full-screen output even if more than one row is returned.<br>
+        </div><!-- closing wdb_optional_output_modes ***************************** -->
+
+</fieldset>
+</FORM><div id="wdb_conf_tail">
+<center>      
+<!-- bottom navigator: home, help etc. put on a table so that they
+           fill out the full column -->
+ <table border="0" cellpadding="2" cellspacing="5">
+ <tr>
+  <td width="33%" align="center" bgcolor="#006699">
+         <a href="http://www.eso.org/"><font color="white" size="1">
+         <strong>ESO HOME</strong></font></a></td>
+        <td width="33%" align="center" bgcolor="#006699">
+         <a href="http://archive.eso.org/"><font color="white" size="1">
+         <strong>ARCHIVE HOME</strong></font></a></td>
+        <td width="33%" align="center" bgcolor="#006699">
+         <a href="http://archive.eso.org/cms/faq.html"><font color="white" size="1">
+         <strong>ARCHIVE FAQ</strong></font></a></td>
+ </tr>
+ <tr>
+   <td colspan="3" align="center">
+         <a href="/wdb/wdb.html">wdb 3.0g</a> - 21-SEP-2016 ......
+         <a href="mailto:archive@eso.org?subject=wdb_form:phase3_main">
+         <font size="1"><strong>Send comments to archive@eso.org
+         </strong></font></a></td>
+ </tr>
+ </table><!-- END bottom navigator -->
+</center>
+</div><!-- end of wdb_conf_tail -->
+</BODY>
+</html>

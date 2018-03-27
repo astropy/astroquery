@@ -1,51 +1,131 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from __future__ import print_function
 
-import sys
 import os
 import warnings
 import json
-from collections import defaultdict
-import traceback
-import tempfile
+import copy
+import re
 
+from astropy.extern import six
+from astropy.extern.six import BytesIO
 import astropy.units as u
 import astropy.coordinates as coord
+import astropy.table as tbl
 import astropy.utils.data as aud
-# maintain compat with PY<2.7
-from astropy.utils import OrderedDict
+from collections import OrderedDict
 import astropy.io.votable as votable
+from astropy.io import ascii, fits
 
 from ..query import BaseQuery
 from ..utils import commons
 from ..utils import async_to_sync
-from . import VIZIER_SERVER, VIZIER_TIMEOUT, ROW_LIMIT
+from ..utils import schema
+from . import conf
+from ..exceptions import TableParseError
 
-PY3 = sys.version_info[0] >= 3
 
-if PY3:
-    basestring = (str, bytes)
-
-__all__ = ['Vizier','VizierClass']
+__all__ = ['Vizier', 'VizierClass']
 
 __doctest_skip__ = ['VizierClass.*']
 
+
 @async_to_sync
 class VizierClass(BaseQuery):
-    TIMEOUT = VIZIER_TIMEOUT()
-    VIZIER_SERVER = VIZIER_SERVER()
-    ROW_LIMIT = ROW_LIMIT()
 
-    def __init__(self, columns=None, column_filters=None, keywords=None):
-        self._columns = None
-        self._column_filters = None
+    _str_schema = schema.Or(*six.string_types)
+    _schema_columns = schema.Schema([_str_schema],
+                                    error="columns must be a list of strings")
+    _schema_ucd = schema.Schema(_str_schema, error="ucd must be string")
+    _schema_column_filters = schema.Schema(
+        {schema.Optional(_str_schema): _str_schema},
+        error=("column_filters must be a dictionary where both keys "
+               "and values are strings"))
+    _schema_catalog = schema.Schema(
+        schema.Or([_str_schema], _str_schema, None),
+        error="catalog must be a list of strings or a single string")
+
+    def __init__(self, columns=["*"], column_filters={}, catalog=None,
+                 keywords=None, ucd="", timeout=conf.timeout,
+                 vizier_server=conf.server, row_limit=conf.row_limit):
+        """
+        Parameters
+        ----------
+        columns : list
+            List of strings
+        column_filters : dict
+        catalog : str or None
+        keywords : str or None
+        ucd : string
+            "Unified Content Description" column descriptions.  Specifying
+            these will select only catalogs that have columns matching the
+            column descriptions defined on the Vizier web pages.
+            See http://vizier.u-strasbg.fr/vizier/vizHelp/1.htx#ucd and
+            http://cds.u-strasbg.fr/w/doc/UCD/
+        """
+
+        super(VizierClass, self).__init__()
+        self.columns = columns
+        self.column_filters = column_filters
+        self.catalog = catalog
         self._keywords = None
+        self.ucd = ucd
         if keywords:
             self.keywords = keywords
-        if columns:
-            self.columns = columns
-        if column_filters:
-            self.column_filters = column_filters
+        self.TIMEOUT = timeout
+        self.VIZIER_SERVER = vizier_server
+        self.ROW_LIMIT = row_limit
+
+    @property
+    def columns(self):
+        """ Columns to include.  The special keyword 'all' will return ALL
+        columns from ALL retrieved tables. """
+        # columns need to be immutable but still need to be a list
+        return list(tuple(self._columns))
+
+    @columns.setter
+    def columns(self, values):
+        self._columns = VizierClass._schema_columns.validate(values)
+
+    @property
+    def column_filters(self):
+        """
+        Filters to run on the individual columns. See the Vizier website
+        for details.
+        """
+        return self._column_filters
+
+    @column_filters.setter
+    def column_filters(self, values):
+        self._column_filters = (
+            VizierClass._schema_column_filters.validate(values))
+
+    @property
+    def catalog(self):
+        """
+        The default catalog to search.  If left empty, will search all
+        catalogs.
+        """
+        return self._catalog
+
+    @catalog.setter
+    def catalog(self, values):
+        self._catalog = VizierClass._schema_catalog.validate(values)
+
+    @property
+    def ucd(self):
+        """
+        UCD criteria: see http://vizier.u-strasbg.fr/vizier/vizHelp/1.htx#ucd
+
+        Examples
+        --------
+        >>> Vizier.ucd = '(spect.dopplerVeloc*|phys.veloc*)'
+        """
+        return self._ucd
+
+    @ucd.setter
+    def ucd(self, values):
+        self._ucd = VizierClass._schema_ucd.validate(values)
 
     def _server_to_url(self, return_type='votable'):
         """
@@ -60,7 +140,20 @@ class VizierClass(BaseQuery):
         FITS binary table: asu-binfits
         plain text: asu-txt
         """
-        return "http://" + Vizier.VIZIER_SERVER + "/viz-bin/" + return_type
+
+        # Only votable is supported now, but in case we try to support
+        # something in the future we should disallow invalid ones.
+        assert return_type in ('votable', 'asu-tsv', 'asu-fits',
+                               'asu-binfits', 'asu-txt')
+        if return_type in ('asu-txt',):
+            # I had a look at the format of these "tables" and... they just
+            # aren't.  They're quasi-fixed-width without schema.  I think they
+            # follow the general philosophy of "consistency is overrated"
+            # The CDS reader chokes on it.
+            raise TypeError("asu-txt is not and cannot be supported: the "
+                            "returned tables are not and cannot be made "
+                            "parseable.")
+        return "http://" + self.VIZIER_SERVER + "/viz-bin/" + return_type
 
     @property
     def keywords(self):
@@ -75,53 +168,8 @@ class VizierClass(BaseQuery):
     def keywords(self):
         self._keywords = None
 
-    @property
-    def columns(self):
-        """The columns that must be returned in the output"""
-        return self._columns
-
-    @columns.setter
-    def columns(self, value):
-        if isinstance(value, basestring):
-            value = list(value)
-        if not isinstance(value, list):
-            raise TypeError(
-                "Column(s) should be specified as a list or string")
-        self._columns = value
-
-    @columns.deleter
-    def columns(self):
-        if self.column_filters is not None:
-            raise Exception(
-                "One or more column_filter(s) exist. Aborting delete.")
-        self._columns = None
-
-    @property
-    def column_filters(self):
-        """Set constraints on one or more columns of the output"""
-        return self._column_filters
-
-    @column_filters.setter
-    def column_filters(self, value_dict):
-        # give warning if filtered column not in self.columns
-        # Vizer will return these columns in the output even if are not set in
-        # self.columns
-        if self.columns is None:
-            raise Exception(
-                "Columns must be set before specifiying column_filters.")
-        elif 'all' not in self.columns:
-            for val in set(value_dict.keys()) - set(self.columns):
-                warnings.warn(
-                    "{val}: to be filtered but not set as an output column".format(val=val))
-                raise Exception(
-                    "Column-Filters not a subset of the output columns")
-        self._column_filters = value_dict
-
-    @column_filters.deleter
-    def column_filters(self):
-        self._column_filters = None
-
-    def find_catalogs(self, keywords, verbose=False):
+    def find_catalogs(self, keywords, include_obsolete=False, verbose=False,
+                      max_catalogs=None, return_type='votable'):
         """
         Search Vizier for catalogs based on a set of keywords, e.g. author name
 
@@ -132,21 +180,27 @@ class VizierClass(BaseQuery):
             From `Vizier <http://vizier.u-strasbg.fr/doc/asu-summary.htx>`_:
             "names or words of title of catalog. The words are and'ed, i.e.
             only the catalogues characterized by all the words are selected."
+        include_obsolete : bool, optional
+            If set to True, catalogs marked obsolete will also be returned.
+        max_catalogs : int or None
+            The maximum number of catalogs to return.  If ``None``, all
+            catalogs will be returned.
 
         Returns
         -------
-        Dictionary of the "Resource" name and the VOTable resource object.
-        "Resources" are generally publications; one publication may contain
-        many tables.
+        resource_dict : dict
+            Dictionary of the "Resource" name and the VOTable resource object.
+            "Resources" are generally publications; one publication may contain
+            many tables.
 
-        Example
-        -------
+        Examples
+        --------
         >>> from astroquery.vizier import Vizier
         >>> catalog_list = Vizier.find_catalogs('Kang W51')
         >>> print(catalog_list)
         {u'J/ApJ/706/83': <astropy.io.votable.tree.Resource at 0x108d4d490>,
          u'J/ApJS/191/232': <astropy.io.votable.tree.Resource at 0x108d50490>}
-        >>> print({k:v.description for k,v in catalog_list.iteritems()})
+        >>> print({k:v.description for k,v in catalog_list.items()})
         {u'J/ApJ/706/83': u'Embedded YSO candidates in W51 (Kang+, 2009)',
          u'J/ApJS/191/232': u'CO survey of W51 molecular cloud (Bieging+, 2010)'}
         """
@@ -154,16 +208,34 @@ class VizierClass(BaseQuery):
         if isinstance(keywords, list):
             keywords = " ".join(keywords)
 
-        data_payload = {'-words':keywords, '-meta.all':1}
-        response = commons.send_request(
-            self._server_to_url(),
-            data_payload,
-            Vizier.TIMEOUT)
-        result = self._parse_result(response, verbose=verbose, get_catalog_names=True)
+        data_payload = {'-words': keywords, '-meta.all': 1}
+
+        data_payload['-ucd'] = self.ucd
+
+        if max_catalogs is not None:
+            data_payload['-meta.max'] = max_catalogs
+        response = self._request(
+            method='POST', url=self._server_to_url(return_type=return_type),
+            data=data_payload, timeout=self.TIMEOUT)
+
+        if 'STOP, Max. number of RESOURCE reached' in response.text:
+            raise ValueError("Maximum number of catalogs exceeded.  Try "
+                             "setting max_catalogs to a large number and"
+                             " try again")
+        result = self._parse_result(response, verbose=verbose,
+                                    get_catalog_names=True)
+
+        # Filter out the obsolete catalogs, unless requested
+        if include_obsolete is False:
+            for key in list(result):
+                for info in result[key].infos:
+                    if (info.name == 'status') and (info.value == 'obsolete'):
+                        del result[key]
 
         return result
 
-    def get_catalogs_async(self, catalog, verbose=False):
+    def get_catalogs_async(self, catalog, verbose=False, return_type='votable',
+                           get_query_payload=False):
         """
         Query the Vizier service for a specific catalog
 
@@ -174,21 +246,27 @@ class VizierClass(BaseQuery):
 
         Returns
         -------
-        response : `~request.response`
+        response : `~requests.Response`
             Returned if asynchronous method used
         """
 
-        data_payload = self._args_to_payload(catalog=catalog,
-                                             caller='get_catalog_async')
-        response = commons.send_request(
-            self._server_to_url(),
-            data_payload,
-            Vizier.TIMEOUT)
+        if not isinstance(catalog, six.string_types):
+            catalog = list(catalog)
+        data_payload = self._args_to_payload(catalog=catalog)
+        if get_query_payload:
+            return data_payload
+
+        response = self._request(
+            method='POST', url=self._server_to_url(return_type=return_type),
+            data=data_payload, timeout=self.TIMEOUT)
+
         return response
 
-    def query_object_async(self, object_name, catalog=None):
+    def query_object_async(self, object_name, catalog=None, radius=None,
+                           coordinate_frame=None, get_query_payload=False,
+                           return_type='votable', cache=True):
         """
-        Serves the same purpose as `astroquery.vizier.Vizier.query_object` but only
+        Serves the same purpose as `query_object` but only
         returns the HTTP response rather than the parsed result.
 
         Parameters
@@ -198,68 +276,180 @@ class VizierClass(BaseQuery):
         catalog : str or list, optional
             The catalog(s) which must be searched for this identifier.
             If not specified, all matching catalogs will be searched.
+        radius : `~astropy.units.Quantity` or None
+            A degree-equivalent radius (optional).
+        coordinate_system : str or None
+            If the object name is given as a coordinate, you *should* use
+            `~astroquery.vizier.VizierClass.query_region`, but you can
+            specify a coordinate frame here instead (today, J2000, B1975,
+            B1950, B1900, B1875, B1855, Galactic, Supergal., Ecl.J2000, )
 
         Returns
         -------
-        response : `requests.Response` object
+        response : `~requests.Response`
             The response of the HTTP request.
 
         """
+        catalog = VizierClass._schema_catalog.validate(catalog)
+        if radius is None:
+            center = {'-c': object_name}
+        else:
+            radius_arcmin = radius.to(u.arcmin).value
+            cframe = (coordinate_frame if coordinate_frame in
+                      ["today", "J2000", "B1975", "B1950", "B1900", "B1875",
+                       "B1855", "Galactic", "Supergal.", "Ecl.J2000"]
+                      else 'J2000')
+
+            center = {'-c': object_name, '-c.u': 'arcmin', '-c.geom': 'r',
+                      '-c.r': radius_arcmin, '-c.eq': cframe}
+
         data_payload = self._args_to_payload(
-            object_name,
-            catalog=catalog,
-            caller='query_object_async')
-        response = commons.send_request(
-            self._server_to_url(),
-            data_payload,
-            Vizier.TIMEOUT)
+            center=center,
+            catalog=catalog)
+        if get_query_payload:
+            return data_payload
+        response = self._request(
+            method='POST', url=self._server_to_url(return_type=return_type),
+            data=data_payload, timeout=self.TIMEOUT, cache=cache)
         return response
 
-    def query_region_async(
-            self, coordinates, radius=None, height=None, width=None, catalog=None):
+    def query_region_async(self, coordinates, radius=None, inner_radius=None,
+                           width=None, height=None, catalog=None,
+                           get_query_payload=False, cache=True,
+                           return_type='votable'):
         """
-        Serves the same purpose as `astroquery.vizier.Vizier.query_region` but only
+        Serves the same purpose as `query_region` but only
         returns the HTTP response rather than the parsed result.
 
         Parameters
         ----------
-        coordinates : str or `astropy.coordinates` object
-            The target around which to search. It may be specified as a string
-            in which case it is resolved using online services or as the appropriate
-            `astropy.coordinates` object. ICRS coordinates may also be entered as
-            a string.
-        radius : str or `astropy.units.Quantity` object
-            The string must be parsable by `astropy.coordinates.Angle`. The appropriate
-            `Quantity` object from `astropy.units` may also be used.
-        width : str or `astropy.units.Quantity` object.
-            Must be specified for a box region. Has the same format
-            as radius above.
-        height : str or `astropy.units.Quantity` object.
-            Must be specified with the width for a box region that is a rectangle.
-            Has the same format as radius above.
+        coordinates : str, `astropy.coordinates` object, or `~astropy.table.Table`
+            The target around which to search. It may be specified as a
+            string in which case it is resolved using online services or as
+            the appropriate `astropy.coordinates` object. ICRS coordinates
+            may also be entered as a string.  If a table is used, each of
+            its rows will be queried, as long as it contains two columns
+            named ``_RAJ2000`` and ``_DEJ2000`` with proper angular units.
+        radius : convertible to `~astropy.coordinates.Angle`
+            The radius of the circular region to query.
+        inner_radius : convertible to `~astropy.coordinates.Angle`
+            When set in addition to ``radius``, the queried region becomes
+            annular, with outer radius ``radius`` and inner radius
+            ``inner_radius``.
+        width : convertible to `~astropy.coordinates.Angle`
+            The width of the square region to query.
+        height : convertible to `~astropy.coordinates.Angle`
+            When set in addition to ``width``, the queried region becomes
+            rectangular, with the specified ``width`` and ``height``.
         catalog : str or list, optional
             The catalog(s) which must be searched for this identifier.
             If not specified, all matching catalogs will be searched.
 
         Returns
         -------
-        response : `requests.Response` object
+        response : `requests.Response`
             The response of the HTTP request.
 
         """
-        data_payload = self._args_to_payload(
-            coordinates, radius=radius, height=height,
-            width=width, catalog=catalog, caller='query_region_async')
-        response = commons.send_request(
-            self._server_to_url(),
-            data_payload,
-            Vizier.TIMEOUT)
+        catalog = VizierClass._schema_catalog.validate(catalog)
+        center = {}
+        columns = []
+        if isinstance(coordinates, (commons.CoordClasses,) + six.string_types):
+            c = commons.parse_coordinates(coordinates).transform_to('fk5')
+
+            if not c.isscalar:
+                pos_list = []
+                for pos in c:
+                    ra_deg = pos.ra.to_string(unit="deg", decimal=True,
+                                              precision=8)
+                    dec_deg = pos.dec.to_string(unit="deg", decimal=True,
+                                                precision=8, alwayssign=True)
+                    pos_list += ["{}{}".format(ra_deg, dec_deg)]
+                center["-c"] = "<<;" + ";".join(pos_list)
+                columns += ["_q"]  # request a reference to the input table
+            else:
+                ra = c.ra.to_string(unit='deg', decimal=True, precision=8)
+                dec = c.dec.to_string(unit="deg", decimal=True, precision=8,
+                                      alwayssign=True)
+                center["-c"] = "{ra}{dec}".format(ra=ra, dec=dec)
+        elif isinstance(coordinates, tbl.Table):
+            if (("_RAJ2000" in coordinates.keys()) and ("_DEJ2000" in
+                                                        coordinates.keys())):
+                pos_list = []
+                sky_coord = coord.SkyCoord(coordinates["_RAJ2000"],
+                                           coordinates["_DEJ2000"],
+                                           unit=(coordinates["_RAJ2000"].unit,
+                                                 coordinates["_DEJ2000"].unit))
+                for (ra, dec) in zip(sky_coord.ra, sky_coord.dec):
+                    ra_deg = ra.to_string(unit="deg", decimal=True,
+                                          precision=8)
+                    dec_deg = dec.to_string(unit="deg", decimal=True,
+                                            precision=8, alwayssign=True)
+                    pos_list += ["{}{}".format(ra_deg, dec_deg)]
+                center["-c"] = "<<;" + ";".join(pos_list)
+                columns += ["_q"]  # request a reference to the input table
+            else:
+                raise ValueError("Table must contain '_RAJ2000' and "
+                                 "'_DEJ2000' columns!")
+        else:
+            raise TypeError("Coordinates must be one of: string, astropy "
+                            "coordinates, or table containing coordinates!")
+        # decide whether box or radius
+        if radius is not None:
+            # is radius a disk or an annulus?
+            if inner_radius is None:
+                radius = coord.Angle(radius)
+                unit, value = _parse_angle(radius)
+                key = "-c.r" + unit
+                center[key] = value
+            else:
+                i_radius = coord.Angle(inner_radius)
+                o_radius = coord.Angle(radius)
+                if i_radius.unit != o_radius.unit:
+                    o_radius = o_radius.to(i_radius.unit)
+                i_unit, i_value = _parse_angle(i_radius)
+                o_unit, o_value = _parse_angle(o_radius)
+                key = "-c.r" + i_unit
+                center[key] = ",".join([str(i_value), str(o_value)])
+        elif width is not None:
+            # is box a rectangle or square?
+            if height is None:
+                width = coord.Angle(width)
+                unit, value = _parse_angle(width)
+                key = "-c.b" + unit
+                center[key] = "x".join([str(value)] * 2)
+            else:
+                w_box = coord.Angle(width)
+                h_box = coord.Angle(height)
+                if w_box.unit != h_box.unit:
+                    h_box = h_box.to(w_box.unit)
+                w_unit, w_value = _parse_angle(h_box)
+                h_unit, h_value = _parse_angle(w_box)
+                key = "-c.b" + w_unit
+                center[key] = "x".join([str(w_value), str(h_value)])
+        else:
+            raise Exception(
+                "At least one of radius, width/height must be specified")
+
+        data_payload = self._args_to_payload(center=center, columns=columns,
+                                             catalog=catalog)
+
+        if get_query_payload:
+            return data_payload
+
+        response = self._request(
+            method='POST', url=self._server_to_url(return_type=return_type),
+            data=data_payload, timeout=self.TIMEOUT, cache=cache)
         return response
 
-    def query_constraints_async(self, catalog=None, keywords={}, **kwargs):
+    def query_constraints_async(self, catalog=None, return_type='votable',
+                                cache=True,
+                                **kwargs):
         """
-        Send a query to Vizier in which you specify constraints with keyword/value
-        pairs.  See `the vizier constraints page
+        Send a query to Vizier in which you specify constraints with
+        keyword/value pairs.
+
+        See `the vizier constraints page
         <http://vizier.cfa.harvard.edu/vizier/vizHelp/cst.htx>`_ for details.
 
         Parameters
@@ -267,23 +457,21 @@ class VizierClass(BaseQuery):
         catalog : str or list, optional
             The catalog(s) which must be searched for this identifier.
             If not specified, all matching catalogs will be searched.
-        keywords : dict
-            A dictionary of keywords to query on.
         kwargs : dict
-            Any key/value pairs besides "catalog" and "keywords" will be parsed
-            as additional keywords.  kwargs overrides anything specified in
-            keywords.
+            Any key/value pairs besides "catalog" will be parsed
+            as additional column filters.
 
         Returns
         -------
-        response : `requests.Response` object
+        response : `requests.Response`
             The response of the HTTP request.
 
         Examples
         --------
         >>> from astroquery.vizier import Vizier
         >>> # note that glon/glat constraints here *must* be floats
-        >>> result = Vizier.query_constraints(catalog='J/ApJ/723/492/table1',GLON='>49.0 & < 51.0', GLAT='<0.0')
+        >>> result = Vizier.query_constraints(catalog='J/ApJ/723/492/table1',
+        ...                                   GLON='>49.0 & <51.0', GLAT='<0')
         >>> result[result.keys()[0]].pprint()
             GRSMC      GLON   GLAT   VLSR  ... RD09 _RA.icrs _DE.icrs
         ------------- ------ ------ ------ ... ---- -------- --------
@@ -309,15 +497,14 @@ class VizierClass(BaseQuery):
         G050.29-00.46  50.29  -0.46  14.81 ... RD09   291.39    15.18
         """
 
-        data_payload = keywords
-        data_payload.update(kwargs)
-
-        data_payload['-source'] = catalog
-
-        response = commons.send_request(
-            self._server_to_url(),
-            data_payload,
-            Vizier.TIMEOUT)
+        catalog = VizierClass._schema_catalog.validate(catalog)
+        data_payload = self._args_to_payload(
+            catalog=catalog,
+            column_filters=kwargs,
+            center={'-c.rd': 180})
+        response = self._request(
+            method='POST', url=self._server_to_url(return_type=return_type),
+            data=data_payload, timeout=self.TIMEOUT, cache=cache)
         return response
 
     def _args_to_payload(self, *args, **kwargs):
@@ -326,89 +513,101 @@ class VizierClass(BaseQuery):
         builds a script suitable for the Vizier votable CGI.
         """
         body = OrderedDict()
-        caller = kwargs['caller']
-        del kwargs['caller']
-        catalog = kwargs.get('catalog')
+        center = kwargs.get('center')
+        # process: catalog
+        catalog = kwargs.get('catalog', self.catalog)
+
         if catalog is not None:
-            if isinstance(catalog, basestring):
+            if isinstance(catalog, six.string_types):
                 body['-source'] = catalog
             elif isinstance(catalog, list):
                 body['-source'] = ",".join(catalog)
             else:
                 raise TypeError("Catalog must be specified as list or string")
-        if caller == 'query_object_async':
-            body["-c"] = args[0]
-        elif caller == 'query_region_async':
-            c = commons.parse_coordinates(args[0])
-            ra = str(c.icrs.ra.degree)
-            dec = str(c.icrs.dec.degree)
-            if dec[0] not in ['+', '-']:
-                dec = '+' + dec
-            body["-c"] = "".join([ra, dec])
-            # decide whether box or radius
-            if kwargs.get('radius') is not None:
-                radius = kwargs['radius']
-                unit, value = _parse_dimension(radius)
-                switch = "-c.r" + unit
-                body[switch] = value
-            elif kwargs.get('width') is not None:
-                width = kwargs['width']
-                w_unit, w_value = _parse_dimension(width)
-                switch = "-c.b" + w_unit
-                height = kwargs.get('height')
-                # is box a rectangle or square?
-                if height is not None:
-                    h_unit, h_value = _parse_dimension(height)
-                    if h_unit != w_unit:
-                        warnings.warn(
-                            "Converting height to same unit as width")
-                        h_value = u.Quantity(h_value, u.Unit
-                                             (_str_to_unit(h_unit))).to(u.Unit(_str_to_unit(w_unit)))
-                    body[switch] = "x".join([str(w_value), str(h_value)])
-                else:
-                    body[switch] = "x".join([str(w_value)] * 2)
-            elif kwargs.get('height'):
-                warnings.warn(
-                    "No width given - shape interpreted as square (height x height)")
-                height = kwargs['height']
-                h_unit, h_value = _parse_dimension(height)
-                switch = "-c.b" + h_unit
-                body[switch] = h_value
-            else:
-                raise Exception(
-                    "At least one of radius, width/height must be specified")
-        # set output parameters
-        if not isinstance(self.columns, property) and self.columns is not None:
-            if "all" in self.columns:
-                body["-out"] = "**"
-            else:
-                out_cols = ",".join([col for col in self.columns])
-                # if default then return default cols and listed cols
-                if "default" in self.columns:
-                    body["-out.add"] = out_cols
-                # else return only the listed cols
-                else:
-                    body["-out"] = out_cols
-        # otherwise ask to return default columns
+        # process: columns
+        columns = kwargs.get('columns', copy.copy(self.columns))
+
+        if columns is not None:
+            columns = self.columns + columns
+
+        # special keywords need to be treated separately
+        # keyword names that can mean 'all'
+        alls = ['all', '**']
+        if any(x in columns for x in alls):
+            for x in alls:
+                if x in columns:
+                    columns.remove(x)
+            body['-out.all'] = 2
+        # keyword name that means default columns
+        if '*' in columns:
+            columns.remove('*')
+            columns_default = True
         else:
-            body["-out"] = "*"
-        # set the maximum rows returned
-        body["-out.max"] = Vizier.ROW_LIMIT
+            columns_default = False
+
+        # process: columns - identify sorting requests
+        columns_out = []
+        sorts_out = []
+        for column in columns:
+            if column[0] == '+':
+                columns_out += [column[1:]]
+                sorts_out += [column[1:]]
+            elif column[0] == '-':
+                columns_out += [column[1:]]
+                sorts_out += [column]
+            else:
+                columns_out += [column]
+
+        if columns_default:
+            body['-out'] = '*'
+        else:
+            body['-out'] = columns_out
+
+        if columns_out:
+            body['-out.add'] = ','.join(columns_out)
+
+        if len(sorts_out) > 0:
+            body['-sort'] = ','.join(sorts_out)
+        # process: maximum rows returned
+        row_limit = kwargs.get('row_limit') or self.ROW_LIMIT
+        if row_limit < 0:
+            body["-out.max"] = 'unlimited'
+        else:
+            body["-out.max"] = row_limit
+        # process: column filters
+        column_filters = self.column_filters.copy()
+        column_filters.update(kwargs.get('column_filters', {}))
+        for (key, value) in column_filters.items():
+            body[key] = value
+        # process: center
+        if center is not None:
+            for (key, value) in center.items():
+                body[key] = value
+        # add column metadata: name, unit, UCD1+, and description
+        body["-out.meta"] = "huUD"
+        # merge tables when a list is queried against a single catalog
+        body["-out.form"] = "mini"
+        # computed position should always be in decimal degrees
+        body["-oc.form"] = "d"
+
+        ucd = kwargs.get('ucd', "") + self.ucd
+        if ucd:
+            body['-ucd'] = ucd
+
+        # create final script
         script = "\n".join(["{key}={val}".format(key=key, val=val)
-                           for key, val in body.items()])
+                            for key, val in body.items()])
         # add keywords
-        if not isinstance(self.keywords, property) and self.keywords is not None:
+        if (not isinstance(self.keywords, property) and
+                self.keywords is not None):
             script += "\n" + str(self.keywords)
-        # add column filters
-        if not isinstance(self.column_filters, property) and self.column_filters is not None:
-            filter_str = "\n".join(["{key}={constraint}".format(key=key, constraint=constraint) for key, constraint in
-                                    self.column_filters.items()])
-            script += "\n" + filter_str
         return script
 
-    def _parse_result(self, response, get_catalog_names=False, verbose=False):
+    def _parse_result(self, response, get_catalog_names=False, verbose=False,
+                      invalid='warn'):
         """
-        Parses the HTTP response to create an `astropy.table.Table`.
+        Parses the HTTP response to create a `~astropy.table.Table`.
+
         Returns the raw result as a string in case of parse errors.
 
         Parameters
@@ -416,98 +615,149 @@ class VizierClass(BaseQuery):
         response : `requests.Response`
             The response of the HTTP POST request
         get_catalog_names : bool
+            (only for VOTABLE queries)
             If specified, return only the table names (useful for table
-            discovery)
+            discovery).
+        invalid : 'warn', 'mask' or 'exception'
+            (only for VOTABLE queries)
+            The behavior if a VOTABLE cannot be parsed. The default is
+            'warn', which will try to parse the table, but if an
+            exception is raised during parsing, the exception will be
+            issued as a warning instead and a masked table will be
+            returned. A value of 'exception' will not catch the
+            exception, while a value of 'mask' will simply always mask
+            invalid values.
 
         Returns
         -------
-        `astroquery.utils.commons.TableList`
-            An OrderedDict of `astropy.table.Table` objects.
-            If there are errors in the parsing, then returns the raw results as a string.
+        table_list : `astroquery.utils.TableList` or str
+            If there are errors in the parsing, then returns the raw results
+            as a string.
+
         """
-        if not verbose:
-            commons.suppress_vo_warnings()
-        try:
-            tf = tempfile.NamedTemporaryFile()
-            if PY3:
-                tf.write(response.content)
-            else:
-                tf.write(response.content.encode('utf-8'))
-            tf.file.flush()
-            vo_tree = votable.parse(tf.name, pedantic=False)
-            if get_catalog_names:
-                return dict([(R.name,R) for R in vo_tree.resources])
-            else:
-                table_list = [(t.name, t.to_table())
-                              for t in vo_tree.iter_tables() if len(t.array) > 0]
-                return commons.TableList(table_list)
+        if response.content[:5] == b'<?xml':
+            try:
+                return parse_vizier_votable(
+                    response.content, verbose=verbose, invalid=invalid,
+                    get_catalog_names=get_catalog_names)
+            except Exception as ex:
+                self.response = response
+                self.table_parse_error = ex
+                raise TableParseError("Failed to parse VIZIER result! The "
+                                      "raw response can be found in "
+                                      "self.response, and the error in "
+                                      "self.table_parse_error. The attempted "
+                                      "parsed result is in "
+                                      "self.parsed_result.\n Exception: " +
+                                      str(self.table_parse_error))
+        elif response.content[:5] == b'#\n#  ':
+            return parse_vizier_tsvfile(response.content, verbose=verbose)
+        elif response.content[:6] == b'SIMPLE':
+            return fits.open(BytesIO(response.content),
+                             ignore_missing_end=True)
 
-        except:
-            traceback.print_exc()  # temporary for debugging
-            warnings.warn(
-                "Error in parsing result, returning raw result instead")
-            return response.content
+    @property
+    def valid_keywords(self):
+        if not hasattr(self, '_valid_keyword_dict'):
+            file_name = aud.get_pkg_data_filename(
+                os.path.join("data", "inverse_dict.json"))
+            with open(file_name, 'r') as f:
+                kwd = json.load(f)
+                self._valid_keyword_types = sorted(kwd.values())
+                self._valid_keyword_dict = OrderedDict([(k, kwd[k])
+                                                        for k in sorted(kwd)])
 
-def _is_single_catalog(catalog):
-    if isinstance(catalog, basestring):
-        return True
-    if isinstance(catalog, list):
-        if len(catalog) == 1:
-            return True
-    return False
+        return self._valid_keyword_dict
 
-def _parse_dimension(dim):
+
+def parse_vizier_tsvfile(data, verbose=False):
     """
-    Retuns the Vizier-formatted units and values for box/radius
+    Parse a Vizier-generated list of tsv data tables into a list of astropy
+    Tables.
+
+    Parameters
+    ----------
+    data : ascii str
+        An ascii string containing the vizier-formatted list of tables
+    """
+
+    # http://stackoverflow.com/questions/4664850/find-all-occurrences-of-a-substring-in-python
+    split_indices = [m.start() for m in re.finditer('\n\n#', data)]
+    # we want to slice out chunks of the file each time
+    split_limits = zip(split_indices[:-1], split_indices[1:])
+    tables = [ascii.read(BytesIO(data[a:b]), format='fast_tab', delimiter='\t',
+                         header_start=0, comment="#") for
+              a, b in split_limits]
+    return tables
+
+
+def parse_vizier_votable(data, verbose=False, invalid='warn',
+                         get_catalog_names=False):
+    """
+    Given a votable as string, parse it into dict or tables
+    """
+    if not verbose:
+        commons.suppress_vo_warnings()
+
+    tf = BytesIO(data)
+
+    if invalid == 'mask':
+        vo_tree = votable.parse(tf, pedantic=False, invalid='mask')
+    elif invalid == 'warn':
+        try:
+            vo_tree = votable.parse(tf, pedantic=False, invalid='exception')
+        except Exception as ex:
+            warnings.warn("VOTABLE parsing raised exception: {0}".format(ex))
+            vo_tree = votable.parse(tf, pedantic=False, invalid='mask')
+    elif invalid == 'exception':
+        vo_tree = votable.parse(tf, pedantic=False, invalid='exception')
+    else:
+        raise ValueError("Invalid keyword for 'invalid'. "
+                         "Must be exception, mask, or warn")
+
+    if get_catalog_names:
+        return OrderedDict([(R.name, R) for R in vo_tree.resources])
+    else:
+        table_dict = OrderedDict()
+        for t in vo_tree.iter_tables():
+            if len(t.array) > 0:
+                if t.ref is not None:
+                    name = vo_tree.get_table_by_id(t.ref).name
+                else:
+                    name = t.name
+                if name not in table_dict.keys():
+                    table_dict[name] = []
+                table_dict[name] += [t.to_table()]
+        for name in table_dict.keys():
+            if len(table_dict[name]) > 1:
+                table_dict[name] = tbl.vstack(table_dict[name])
+            else:
+                table_dict[name] = table_dict[name][0]
+        return commons.TableList(table_dict)
+
+
+def _parse_angle(angle):
+    """
+    Returns the Vizier-formatted units and values for box/radius
     dimensions in case of region queries.
 
     Parameters
     ----------
-    dim : `astropy.units.Quantity` or `astropy.coordinates.Angle`
+    angle : convertible to `astropy.coordinates.Angle`
 
     Returns
     -------
     (unit, value) : tuple
         formatted for Vizier.
     """
-    if isinstance(dim, u.Quantity) and dim.unit in u.deg.find_equivalent_units():
-        if dim.unit == u.arcsec:
-            unit, value = 's', dim.value
-        elif dim.unit == u.arcmin:
-            unit, value = 'm', dim.value
-        else:
-            unit, value = 'd', dim.to(u.deg).value
-    # otherwise must be an Angle or be specified in hours...
+    angle = coord.Angle(angle)
+    if angle.unit == u.arcsec:
+        unit, value = 's', angle.value
+    elif angle.unit == u.arcmin:
+        unit, value = 'm', angle.value
     else:
-        try:
-            new_dim = commons.radius_to_unit(dim,'degree')
-            unit, value = 'd', new_dim
-        except (u.UnitsException, coord.errors.UnitsError, AttributeError):
-            raise u.UnitsException("Dimension not in proper units")
-
+        unit, value = 'd', angle.to(u.deg).value
     return unit, value
-
-
-def _str_to_unit(string):
-    """
-    translates to the string representation of the `astropy.units`
-    quantity from the Vizier format for the unit.
-
-    Parameters
-    ----------
-    string : str
-        `s`, `m` or `d`
-
-    Returns
-    -------
-    string equivalent of the corresponding `astropy` unit.
-    """
-    str_to_unit = {
-        's': 'arcsec',
-        'm': 'arcmin',
-        'd': 'degree'
-    }
-    return str_to_unit[string]
 
 
 class VizierKeyword(list):
@@ -518,18 +768,23 @@ class VizierKeyword(list):
         file_name = aud.get_pkg_data_filename(
             os.path.join("data", "inverse_dict.json"))
         with open(file_name, 'r') as f:
-            self.keyword_dict = json.load(f)
+            kwd = json.load(f)
+            self.keyword_types = sorted(kwd.values())
+            self.keyword_dict = OrderedDict([(k, kwd[k]) for k in sorted(kwd)])
         self._keywords = None
         self.keywords = keywords
 
     @property
     def keywords(self):
-        """ list or string for keyword(s) that must be set for the Vizier object."""
+        """
+        List or string for keyword(s) that must be set for the Vizier
+        object.
+        """
         return self._keywords
 
     @keywords.setter
     def keywords(self, values):
-        if isinstance(values, basestring):
+        if isinstance(values, six.string_types):
             values = list(values)
         keys = [key.lower() for key in self.keyword_dict]
         values = [val.lower() for val in values]
@@ -537,27 +792,37 @@ class VizierKeyword(list):
         for val in set(values) - set(keys):
             warnings.warn("{val} : No such keyword".format(val=val))
         valid_keys = [
-            key for key in self.keyword_dict if key.lower() in values]
+            key for key in self.keyword_dict.keys()
+            if key.lower() in list(map(str.lower, values))]
         # create a dict for each type of keyword
-        set_keywords = defaultdict(list)
-        for key in valid_keys:
-            set_keywords[self.keyword_dict[key]].append(key)
-        self._keywords = set_keywords
+        set_keywords = OrderedDict()
+        for key in self.keyword_dict:
+            if key in valid_keys:
+                if self.keyword_dict[key] in set_keywords:
+                    set_keywords[self.keyword_dict[key]].append(key)
+                else:
+                    set_keywords[self.keyword_dict[key]] = [key]
+        self._keywords = OrderedDict(
+            [(k, sorted(set_keywords[k]))
+             for k in set_keywords])
 
     @keywords.deleter
     def keywords(self):
         del self._keywords
 
     def __repr__(self):
-        return "\n".join([self.get_keyword_str(key) for key in self.keywords])
+        return "\n".join([x for key in self.keywords
+                          for x in self.get_keyword_str(key)])
 
     def get_keyword_str(self, key):
         """
         Helper function that returns the keywords, grouped into appropriate
         categories and suitable for the Vizier votable CGI.
+
+        Comma-separated is not valid!!!
         """
-        s = ",".join([val for val in self.keywords[key]])
         keyword_name = "-kw." + key
-        return keyword_name + "=" + s
+        return [keyword_name + "=" + s for s in self.keywords[key]]
+
 
 Vizier = VizierClass()

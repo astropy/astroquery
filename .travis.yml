@@ -1,69 +1,160 @@
-language: python
+# We set the language to c because python isn't supported on the MacOS X nodes
+# on Travis. However, the language ends up being irrelevant anyway, since we
+# install Python ourselves using conda.
+language: c
 
-python:
-    - 2.6
-    - 2.7
-#    - 3.2
-#    - 3.3
+os:
+    - linux
+
+# Setting sudo to false opts in to Travis-CI container-based builds.
+sudo: false
+
+# The apt packages below are needed for sphinx builds, which can no longer
+# be installed with sudo apt-get.
+addons:
+    apt:
+        packages:
+            - graphviz
+            - texlive-latex-extra
+            - dvipng
+
+stage: Initial tests
+
+stages:
+   - name: Initial tests
+   - name: Test docs, astropy dev, and without optional dependencies
+   - name: Cron tests
+     if: type = cron
+   - name: Tests with other Python/Numpy versions, remote data
+
 
 env:
-    # try all python versions with the latest stable numpy and astropy
-     - ASTROPY_VERSION=development NUMPY_VERSION=1.7.1 SETUP_CMD='test'
+    global:
+        # The following versions are the 'default' for tests, unless
+        # overridden underneath. They are defined here in order to save having
+        # to repeat them for all configurations.
+        - PYTHON_VERSION=3.6
+        - MAIN_CMD='python setup.py'
+        - NUMPY_VERSION=stable
+        - ASTROPY_VERSION=stable
+        - CONDA_DEPENDENCIES='requests beautifulsoup4 html5lib keyring aplpy matplotlib pyregion jinja2 flask'
+        # pandas is used as a workaround of an astropy issue, sometimes it's required for the remote tests
+        - CONDA_DEPENDENCIES_REMOTE='requests beautifulsoup4 html5lib keyring aplpy matplotlib pyregion jinja2 flask pandas'
+        - PIP_DEPENDENCIES='https://github.com/keflavich/httpbin/archive/master.zip'
+        - HTTP_BIN_CMD="import httpbin; httpbin.app.run()"
+        - RUN_HTTPBIN='python -c "$HTTP_BIN_CMD" & ACTIVE_HTTPBIN=True'
+        - SETUP_CMD='test'
+        - CONDA_CHANNELS='astropy-ci-extras astropy'
+        - EVENT_TYPE='pull_request push'
+        - ASTROPY_USE_SYSTEM_PYTEST=1
+        - SPHINX_VERSION='>=1.6'
+
+    matrix:
+        - PYTHON_VERSION=2.7 SETUP_CMD='egg_info'
+        - PYTHON_VERSION=3.4 SETUP_CMD='egg_info'
+        - PYTHON_VERSION=3.5 SETUP_CMD='egg_info'
+        - PYTHON_VERSION=3.6 SETUP_CMD='egg_info'
 
 matrix:
+
+    # Don't wait for allowed failures
+    fast_finish: true
+
     include:
-        - python: 2.7
-          # opdeps needed because the matplotlib sphinx extension requires them
-          # env: ASTROPY_VERSION=development NUMPY_VERSION=1.7.1 SETUP_CMD='build_sphinx -w -n'
-          env: ASTROPY_VERSION=development NUMPY_VERSION=1.7.1 SETUP_CMD='build_sphinx'
+        # Testing remote-data when running builds on master or with
+        # cron. Starting these early as they take much longer to run. Using
+        # both short and long versions for remote-data to help test the
+        # astropy test command.
+        - os: linux
+          stage: Tests with other Python/Numpy versions, remote data
+          env: EVENT_TYPE='push cron' DEBUG=True ASTROPY_VERSION=dev
+               SETUP_CMD='test -R -V' CONDA_DEPENDENCIES=$CONDA_DEPENDENCIES_REMOTE
+        - os: linux
+          stage: Tests with other Python/Numpy versions, remote data
+          env: EVENT_TYPE='push cron' PYTHON_VERSION=2.7
+               SETUP_CMD='test --remote-data -V' CONDA_DEPENDENCIES=$CONDA_DEPENDENCIES_REMOTE
 
-        # try alternate numpy versions with the latest development astropy
-        - python: 2.7
-          env: ASTROPY_VERSION=development NUMPY_VERSION=1.6.2 SETUP_CMD='test'
-        - python: 2.7
-          env: ASTROPY_VERSION=development NUMPY_VERSION=1.5.1 SETUP_CMD='test'
-#        - python: 3.2
-#          env: ASTROPY_VERSION=stable NUMPY_VERSION=1.6.2 SETUP_CMD='test'
-        # numpy < 1.6 does not work on py 3.x
+        # No need to run it from cron
+        # Try MacOS X
+        - os: osx
+          stage: Cron tests
+          env: SETUP_CMD='test' CONDA_CHANNELS='conda-forge astropy-ci-extras astropy'
+               EVENT_TYPE='cron'
 
-        # try latest developer version of astropy
-        - python: 2.7
-          env: ASTROPY_VERSION=development NUMPY_VERSION=1.7.1 SETUP_CMD='test'
-#        - python: 3.3
-#          env: ASTROPY_VERSION=development NUMPY_VERSION=1.7.1 SETUP_CMD='test'
+        - os: linux
+          env: SETUP_CMD='test --coverage' PIP_DEPENDENCIES="`echo $PIP_DEPENDENCIES codecov`"
 
-        # try a stable version of astropy, which requires monkeypatching
-        - python: 2.7
-          env: ASTROPY_VERSION=stable NUMPY_VERSION=1.7.1 SETUP_CMD='test'
+        # Check for sphinx doc build warnings - we do this first because it
+        # may run for a long time
+        - os: linux
+          stage: Test docs, astropy dev, and without optional dependencies
+          env: SETUP_CMD='build_docs -w'
 
-before_install:
-   # We do this to make sure we get the dependencies so pip works below
-   - sudo apt-get update -qq
-   - sudo apt-get install -qq python-numpy 
-   - sudo apt-get install -qq python-sphinx 
-   - sudo apt-get install -qq cython 
-   - sudo apt-get install -qq libatlas-dev 
-   - sudo apt-get install -qq liblapack-dev 
-   - sudo apt-get install -qq gfortran
-   - if [[ $SETUP_CMD == build_sphinx* ]]; then sudo apt-get install -qq python-sphinx; fi
-   - if [[ $SETUP_CMD == build_sphinx* ]]; then sudo apt-get install -qq graphviz; fi
-   - if [[ $SETUP_CMD == build_sphinx* ]]; then sudo apt-get install -qq texlive-latex-extra; fi
-   - if [[ $SETUP_CMD == build_sphinx* ]]; then sudo apt-get install -qq dvipng; fi
-   - if [[ $SETUP_CMD == build_sphinx* ]]; then sudo apt-get install -qq python-matplotlib; fi
+        # Try all python versions and Numpy versions. Since we can assume that
+        # the Numpy developers have taken care of testing Numpy with different
+        # versions of Python, we can vary Python and Numpy versions at the same
+        # time. We don't expect any of these to fail in master for cron jobs.
+        - os: linux
+          stage: Tests with other Python/Numpy versions, remote data
+          env: PYTHON_VERSION=2.7 NUMPY_VERSION=1.9
+        - os: linux
+          stage: Tests with other Python/Numpy versions, remote data
+          env: PYTHON_VERSION=3.4 NUMPY_VERSION=1.10
+        - os: linux
+          stage: Tests with other Python/Numpy versions, remote data
+          env: PYTHON_VERSION=3.5 NUMPY_VERSION=1.11
+        - os: linux
+          stage: Tests with other Python/Numpy versions, remote data
+          env: NUMPY_VERSION=1.12 ASTROPY_VERSION=1.3 PYTEST_VERSION='<3.2'
+
+        # Now try Astropy dev and LTS vesions with the latest Python.
+        # The dev version only need to be tested on PRs as there are pull
+        # and cron builds above already.
+        - os: linux
+          stage: Test docs, astropy dev, and without optional dependencies
+          env: ASTROPY_VERSION=development EVENT_TYPE='pull_request'
+
+        # Astropy stable and LTS currently the same, enable these back when 3.0 is out
+        # - os: linux
+        #   stage: Test docs, astropy dev, and without optional dependencies
+        #   env: PYTHON_VERSION=2.7 ASTROPY_VERSION=lts
+        #        EVENT_TYPE='push pull_request' PYTEST_VERSION=2.7
+        ## Need to test with python3.5 for now as py3.6 requires pytest3 (due
+        ## to the usage of unittest) that is incompatible with LTS
+        # - os: linux
+        #   stage: Test docs, astropy dev, and without optional dependencies
+        #   env: PYTHON_VERSION=3.5 ASTROPY_VERSION=lts
+        #        EVENT_TYPE='push pull_request' PYTEST_VERSION=2.7
+
+        # Try with optional dependencies disabled
+        - os: linux
+          stage: Test docs, astropy dev, and without optional dependencies
+          env: PYTHON_VERSION=2.7
+               CONDA_DEPENDENCIES='requests beautifulsoup4 html5lib keyring'
+        - os: linux
+          stage: Test docs, astropy dev, and without optional dependencies
+          env: CONDA_DEPENDENCIES='requests beautifulsoup4 html5lib keyring'
+
+        # Try numpy pre-release version, this runs only when a pre-release
+        # is available on pypi.
+        - os: linux
+          stage: Tests with other Python/Numpy versions, remote data
+          env: NUMPY_VERSION=prerelease DEBUG=True EVENT_TYPE='push pull_request cron'
+
+        # Do a PEP8 test with pycodestyle
+        - os: linux
+          env: MAIN_CMD='pycodestyle astroquery --count'
+               SETUP_CMD='' EVENT_TYPE='push pull_request'
 
 install:
-   - export PYTHONIOENCODING=UTF8 # just in case
-   - pip -q install --upgrade "numpy==$NUMPY_VERSION" --use-mirrors
-   - pip -q install --upgrade Cython --use-mirrors
-   - pip -q install --upgrade requests # needed for multipart queries (fermilat)
-   #- if [[ $SETUP_CMD == build_sphinx* ]]; then pip -q install sphinx==1.1.3 --use-mirrors; fi
-   #- if [[ $SETUP_CMD == build_sphinx* ]]; then pip -q install matplotlib --use-mirrors; fi
-   - if [[ $SETUP_CMD == build_sphinx* ]]; then bash .travis.pip.wheel $TRAVIS_PYTHON_VERSION Sphinx 1.1.3 -q -p; fi
-   - if [[ $SETUP_CMD == build_sphinx* ]]; then bash .travis.pip.wheel $TRAVIS_PYTHON_VERSION matplotlib 1.2.1 -q; fi
-
-   - if [[ $ASTROPY_VERSION == stable ]]; then pip -q install astropy --use-mirrors; fi
-   - if [[ $ASTROPY_VERSION == development ]]; then pip -q install git+http://github.com/astropy/astropy.git#egg=astropy --use-mirrors; fi
+    - git clone git://github.com/astropy/ci-helpers.git
+    - source ci-helpers/travis/setup_conda.sh
 
 script:
-   - python setup.py $SETUP_CMD
+   - $RUN_HTTPBIN
+   - $MAIN_CMD $SETUP_CMD
 
+after_success:
+    - if [[ $SETUP_CMD == 'test --coverage' ]]; then
+          codecov;
+      fi

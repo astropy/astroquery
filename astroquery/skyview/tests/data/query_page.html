@@ -1,0 +1,989 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+            "http://www.w3.org/TR/html4/loose.dtd">
+
+<html> 
+<head>
+<title> SkyView Query Form (no JavaScript)</title>
+
+<link rel="stylesheet" href="../includes/skyviewall.css">
+<link rel="stylesheet" href="../includes/skyviewquery_950.css">
+
+<!-- Do not include google analytics since this is the non-JavaScript page -->
+
+</head>
+
+<body>
+<div id='content'> <!--- content -->
+<div id='alignelements'>  <!-- alignelements -->
+<p><p>
+<MAP NAME="buttonbar" id="buttonbar">
+<AREA alt="SkyView Home Page" SHAPE="RECT" COORDS="1,75,85,117" 
+	HREF="../cgi/titlepage.pl">
+<AREA alt="SkyView Query Form" SHAPE="RECT" COORDS="86,75,176,117" 
+	HREF="../cgi/query.pl">
+<AREA alt="SkyView Help Page" SHAPE="RECT" COORDS="177,75,320,117" 
+	HREF="../help/help.html">
+<AREA alt="SkyView Home Page" SHAPE="RECT" COORDS="0,0,320,70" 
+	HREF="../cgi/titlepage.pl">
+</MAP>
+<img id='buttonimg' alt = 'SkyView name and links to interfaces and help' 
+	src='../images/skyview_logo_trans_0407.gif' border=0  ISMAP USEMAP='#buttonbar'>
+
+<span id='headbig'><i>SkyView</i> Query Form </span> (no JavaScript)
+</div>
+<div id='required'>
+<form name="query" action="runquery.pl" method="GET" target="skyview_out">
+<br> Use <a href="query.pl"><b>Standard JavaScript-enabled Form</b></a>
+<br><i>(A few additional options available)</i>.
+
+<P>
+<a href="../help/fields.html#submit"> Initiate request: </a>
+<INPUT TYPE="submit" Value="Submit">
+
+&nbsp;&nbsp;<a href="../help/fields.html#reset"> Reset forms: </a>
+<INPUT TYPE="reset" Value="Reset">&nbsp;&nbsp;&nbsp;&nbsp;
+</p>
+<h2> Required Parameters: </h2>
+
+<br>
+<span class='head1'><label for="object"><a href="../help/fields.html#position">Coordinates or Source</a></label>:</span>
+<INPUT name="Position" size=30 id="object">
+<br>
+
+(<i>e.g.</i> <tt>"Eta Carinae", "10 45 3.6, -59 41 4.2",
+        or "161.265, -59.685"</tt> [omit the quotes])
+<br>
+<p>
+<a href="../help/fields.html#survey"><span class='head1'>Surveys:</span></a> Select at least one survey 
+<p>
+<table><tr><td><div class='float'><p><label for='GammaRay'><b>Gamma Ray</b>:</label><br>
+ <select class='selectbox' multiple size=7 NAME='survey' id='GammaRay'>
+<option>Fermi 5</option><option>Fermi 4</option><option>Fermi 3</option><option>Fermi 2</option><option>Fermi 1</option><option>EGRET (3D)</option><option>EGRET &lt;100 MeV</option><option>EGRET &gt;100 MeV</option><option>COMPTEL</option></select></div></td>
+<td><div class='float'><p><label for='HardX-ray'><b>Hard X-ray</b>:</label><br>
+ <select class='selectbox' multiple size=7 NAME='survey' id='HardX-ray'>
+<option>INT GAL 17-35 Flux</option><option>INT GAL 17-60 Flux</option><option>INT GAL 35-80 Flux</option><option>INTEGRAL/SPI GC</option><option>GRANAT/SIGMA</option><option>RXTE Allsky 3-8keV Flux</option><option>RXTE Allsky 3-20keV Flux</option><option>RXTE Allsky 8-20keV Flux</option></select></div></td>
+<td><div class='float'><p><label for='SwiftBAT'><b>Swift BAT</b>:</label><br>
+ <select class='selectbox' multiple size=7 NAME='survey' id='SwiftBAT'>
+<option>BAT SNR 14-195</option><option>BAT SNR 14-20</option><option>BAT SNR 20-24</option><option>BAT SNR 24-35</option><option>BAT SNR 35-50</option><option>BAT SNR 50-75</option><option>BAT SNR 75-100</option><option>BAT SNR 100-150</option><option>BAT SNR 150-195</option></select></div></td>
+<td><div class='float'><p><label for='SoftX-ray'><b>Soft X-ray</b>:</label><br>
+ <select class='selectbox' multiple size=7 NAME='survey' id='SoftX-ray'>
+<option>RASS-Cnt Soft</option><option>RASS-Cnt Hard</option><option>RASS-Cnt Broad</option><option>PSPC 2.0 Deg-Int</option><option>PSPC 1.0 Deg-Int</option><option>PSPC 0.6 Deg-Int</option><option>HRI</option><option>HEAO 1 A-2</option></select></div></td>
+<td><div class='float'><p><label for='DiffuseX-ray'><b>Diffuse X-ray</b>:</label><br>
+ <select class='selectbox' multiple size=7 NAME='survey' id='DiffuseX-ray'>
+<option>RASS Background 1</option><option>RASS Background 2</option><option>RASS Background 3</option><option>RASS Background 4</option><option>RASS Background 5</option><option>RASS Background 6</option><option>RASS Background 7</option></select></div></td>
+</tr><tr>
+<td><div class='float'><p><label for='UV'><b>UV</b>:</label><br>
+ <select class='selectbox' multiple size=7 NAME='survey' id='UV'>
+<option>GALEX Near UV</option><option>GALEX Far UV</option><option>ROSAT WFC F1</option><option>ROSAT WFC F2</option><option>EUVE 83 A</option><option>EUVE 171 A</option><option>EUVE 405 A</option><option>EUVE 555 A</option></select></div></td>
+<td><div class='float'><p><label for='Optical:DSS'><b>Optical:DSS</b>:</label><br>
+ <select class='selectbox' multiple size=7 NAME='survey' id='Optical:DSS'>
+<option>DSS</option><option>DSS1 Blue</option><option>DSS1 Red</option><option>DSS2 Red</option><option>DSS2 Blue</option><option>DSS2 IR</option></select></div></td>
+<td><div class='float'><p><label for='Optical:SDSS'><b>Optical:SDSS</b>:</label><br>
+ <select class='selectbox' multiple size=7 NAME='survey' id='Optical:SDSS'>
+<option>SDSSg</option><option>SDSSi</option><option>SDSSr</option><option>SDSSu</option><option>SDSSz</option><option>SDSSdr7g</option><option>SDSSdr7i</option><option>SDSSdr7r</option><option>SDSSdr7u</option><option>SDSSdr7z</option></select></div></td>
+<td><div class='float'><p><label for='OtherOptical'><b>Other Optical</b>:</label><br>
+ <select class='selectbox' multiple size=7 NAME='survey' id='OtherOptical'>
+<option>Mellinger Red</option><option>Mellinger Green</option><option>Mellinger Blue</option><option>NEAT</option><option>H-Alpha Comp</option><option>SHASSA H</option><option>SHASSA CC</option><option>SHASSA C</option><option>SHASSA Sm</option></select></div></td>
+</tr><tr>
+<td><div class='float'><p><label for='InfraredHighRes'><b>Infrared High Res</b>:</label><br>
+ <select class='selectbox' multiple size=7 NAME='survey' id='InfraredHighRes'>
+<option>2MASS-J</option><option>2MASS-H</option><option>2MASS-K</option><option>UKIDSS-Y</option><option>UKIDSS-J</option><option>UKIDSS-H</option><option>UKIDSS-K</option><option>WISE 3.4</option><option>WISE 4.6</option><option>WISE 12</option><option>WISE 22</option></select></div></td>
+<td><div class='float'><p><label for='IRAS'><b>IRAS</b>:</label><br>
+ <select class='selectbox' multiple size=7 NAME='survey' id='IRAS'>
+<option>IRIS  12</option><option>IRIS  25</option><option>IRIS  60</option><option>IRIS 100</option><option>SFD100m</option><option>SFD Dust Map</option><option>IRAS  12 micron</option><option>IRAS  25 micron</option><option>IRAS  60 micron</option><option>IRAS 100 micron</option></select></div></td>
+<td><div class='float'><p><label for='Planck'><b>Planck</b>:</label><br>
+ <select class='selectbox' multiple size=7 NAME='survey' id='Planck'>
+<option>Planck 857</option><option>Planck 545</option><option>Planck 353</option><option>Planck 217</option><option>Planck 143</option><option>Planck 100</option><option>Planck 070</option><option>Planck 044</option><option>Planck 030</option></select></div></td>
+<td><div class='float'><p><label for='WMAP/COBE'><b>WMAP/COBE</b>:</label><br>
+ <select class='selectbox' multiple size=7 NAME='survey' id='WMAP/COBE'>
+<option>WMAP ILC</option><option>WMAP Ka</option><option>WMAP K</option><option>WMAP Q</option><option>WMAP V</option><option>WMAP W</option><option>COBE DIRBE/AAM</option><option>COBE DIRBE/ZSMA</option></select></div></td>
+<td><div class='float'><p><label for='Radio'><b>Radio</b>:</label><br>
+ <select class='selectbox' multiple size=7 NAME='survey' id='Radio'>
+<option>GB6 (4850MHz)</option><option>VLA FIRST (1.4 GHz)</option><option>NVSS</option><option>Stripe82VLA</option><option>1420MHz (Bonn)</option><option>nH</option><option>SUMSS 843 MHz</option><option>0408MHz</option><option>WENSS</option><option>CO</option><option>VLSSr</option><option>0035MHz</option></select></div></td>
+</tr><tr>
+<td><div class='float'><p><label for='GOODS/HDF/CDF(Allwavebands)'><b>GOODS/HDF/CDF(All wavebands)</b>:</label><br>
+ <select class='selectbox' multiple size=7 NAME='survey' id='GOODS/HDF/CDF(Allwavebands)'>
+<option>GOODS: Chandra ACIS HB</option><option>GOODS: Chandra ACIS FB</option><option>GOODS: Chandra ACIS SB</option><option>GOODS: VLT VIMOS U</option><option>GOODS: VLT VIMOS R</option><option>GOODS: HST ACS B</option><option>GOODS: HST ACS V</option><option>GOODS: HST ACS I</option><option>GOODS: HST ACS Z</option><option>Hawaii HDF U</option><option>Hawaii HDF B</option><option>Hawaii HDF V0201</option><option>Hawaii HDF V0401</option><option>Hawaii HDF R</option><option>Hawaii HDF I</option><option>Hawaii HDF z</option><option>Hawaii HDF HK</option><option>GOODS: HST NICMOS</option><option>GOODS: VLT ISAAC J</option><option>GOODS: VLT ISAAC H</option><option>GOODS: VLT ISAAC Ks</option><option>HUDF: VLT ISAAC Ks</option><option>GOODS: Spitzer IRAC 3.6</option><option>GOODS: Spitzer IRAC 4.5</option><option>GOODS: Spitzer IRAC 5.8</option><option>GOODS: Spitzer IRAC 8.0</option><option>GOODS: Spitzer MIPS 24</option><option>GOODS: Herschel 100</option><option>GOODS: Herschel 160</option><option>GOODS: Herschel 250</option><option>GOODS: Herschel 350</option><option>GOODS: Herschel 500</option><option>CDFS: LESS</option><option>GOODS: VLA North</option></select></div></td>
+</tr></table><p><div class='spacer'>&nbsp;</div>
+
+<P><hr width='90%' align='left'>
+<span class='bluebg'><a name="commonopts" class="expandable"> <span class='head2'> Common Options </span> (coordinate system, projection, image size)</a></span>
+<P>
+<div id='comparams'>
+<TABLE cellpadding='2' ><tr><td align='right'><label for='csys'><a href='../help/fields.html#Coordinate'>Coordinates</a></label>:</td><td colspan='3'><span id='sborder'>
+<span class='spacer'><select name='coordinates' id='csys'> <option value='_skip_'>Special coordinates<option selected>J2000</option><option>B1950</option><option>Galactic</option><option>E2000</option><option>ICRS</option> </select></span>
+<label for='specialcoords'> Special Coordinates</label> <input type='text' name='coordinates' value='' SIZE=6 id='specialcoords'>(<i>e.g.</i> <tt>J2100, B1975</tt>)</td>
+</tr><tr>
+<td align='right'><label for='proj'><a href='../help/fields.html#Projection'>Projection</a></label>: </td><td colspan='3'><select name='projection' id='proj'> <option selected value='Tan'>Gnomonic (Tan)</option><option value='Car'>Rectangular (Car)</option><option value='Ait'>Hammer-Aitoff (Ait) </option><option value='Sin'>Orthographic (Sin)</option><option value='Zea'>Zenith Equal Area (Zea)</option><option value='Csc'>Csc</option><option value='Arc'>Arc</option></select></td>
+</tr><tr>
+ <td Align=right><label for='size_pix'><a href='../help/fields.html#pixels'> Image size (pixels)</a></label>: </td> <td> <input type='text' class='formtext' name='pixels' Value='300' SIZE=11 id='size_pix' ></td>
+ <td Align=right><label for='size_deg'><a href='../help/fields.html#size'>Image Size (degrees)</a></label>: </td><td Colspan=2><input type='text' class='formtext' name='size' SIZE=10 id='size_deg'>
+</td></tr></table>
+<p><input type=checkbox name='float' id='float' checked><label for='float'><a href='../help/fields.html#4byte'>Use 4-byte floating point values for FITS file</a></label><p><a href='../help/fields.html#submit'>Initiate request</a>:  <input TYPE='submit' Value='Submit Request'></div><P><hr width='90%' align='left'>
+<span class='bluebg'><a name="otheropts" class="expandable"><span class='head2'> Other Options</span> (resampling, scaling, color tables, etc)</a></span>
+<P>
+<div id='optparams'>
+ <table cellspacing='2' cellpadding='3'><tr>
+ <td Align=right><label for='bscale'><a href='../help/fields.html#scaling'>Brightness scaling</a></label>:  </td> <td Colspan=2><select name='scaling' id='bscale' ><OPTION selected> Log <OPTION>Sqrt <OPTION>Linear <OPTION>HistEq <OPTION>LogLog </select></td> 
+ <td Align=right><label for='resolver'><a href='../help/fields.html#resolver'>Name Resolver</a></label>:  </td> <td Colspan=2> <select name='resolver' id='resolver'> <OPTION> NED only <OPTION> SIMBAD only <OPTION> NED-SIMBAD <OPTION selected> SIMBAD-NED </select> </td>
+ </tr><tr>
+ <td Align=right><label for='sampler'><a href='../help/fields.html#resample'>Pixel Resampling</a></label>: </td> <td Colspan=2><select name='Sampler' id='sampler' > <OPTION value='_skip_' selected>Default (usually NN)<OPTION value='_skip_'> Nearest Neighbor (NN)<OPTION value='LI'>Bi-linear (LI) <OPTION value='Lanczos3'>Lanczos3<OPTION value='Spline'>Spline3 <OPTION value='Clip'>Clip</select></td>
+ <td align=right><label for='edge'><a href='../help/fields.html#edge'>Edge Reduction</a></label>: </td> <td> <select name='Deedger' id='edge'> <OPTION value='_skip_' selected> Survey default <OPTION value='skyview.process.Deedger'>Yes <OPTION value='null'>No </select></td>
+ </tr>
+<tr><td align=right colspan=2><input name=ClipIntensive value=1 type=checkbox>Clip sampler assumes intensive data</td></tr>
+<tr><td></td></tr> <tr>
+ <td Align=right><label for='rotation'><a href='../help/fields.html#rotation'>Rotation (degrees)</a></label>:  </td> <td colspan=2><input type='text' class='formtext' name='rotation'' SIZE=11 id='rotation' ></td>
+ <td Align=right><label for='Smooth'><a href='../help/fields.html#smoothing'>Smoothing</a></label>: </td> <td colspan=2><input type='text' class='formtext' name='Smooth' SIZE=11 id='Smooth' ></td>
+</tr>
+</TABLE><p>
+<label for='coltab'><a href='../help/fields.html#lut'>Color Table</a></label>:<table class='d1' border='1'>
+<tr> <td>
+<table class='small' border='0' cellpadding='1' cellspacing='0'><tr class='d0'> <td ><input type='radio' name='lut' value='colortables/b-w-linear.bin'  checked></td> <td>Black &amp; White</td> <td><img border='1' src='../images/colorbars/bwlinear.gif' width='150' height='10' alt='B-W Linear'> </td><td><input type='radio' name='lut' value='colortables/rainbow.bin' id='coltab'> </td> <td>Rainbow</td> <td><img border='1' width='150' height='10' src='../images/colorbars/rainbow.gif'></td> </tr>
+<tr class='d1'><td><input type='radio' name='lut' value='colortables/stern-special.bin' id='coltab'></td> <td>Stern Special</td> <td><img border='1'  width='150' height='10' src='../images/colorbars/sternspecial.gif' alt='stern special'> </td> <td><input type='radio' name='lut' value='colortables/blue-white.bin' id='coltab' ></td> <td>Blue &amp; White</td> <td><img border='1'  width='150' height='10' src='../images/colorbars/bluewhite.gif'></td></tr>
+<tr class='d0'><td><input type='radio' name='lut' value='colortables/grn-red-blu-wht.bin' id='coltab' ></td> <td>Green Red Blue White</td> <td><img border='1' width='150' height='10' src='../images/colorbars/grnredbluwht.gif'></td> <td><input type='radio' name='lut' value='colortables/red-temperature.bin' id='coltab' > </td> <td>Red Temperature</td> <td><img border='1' width='150' height='10' src='../images/colorbars/redtemperature.gif'></td></tr>
+<tr class='d1'><td><input type='radio' name='lut' value='colortables/blu-grn-red-yel.bin' id='coltab' > </td> <td>Blue Green Red Yellow</td> <td><img border='1' width='150' height='10' src='../images/colorbars/blugrnredyel.gif'></td> <td><input type='radio' name='lut' value='colortables/std-gamma-ii.bin' id='coltab' > </td> <td>Std Gamma-II</td> <td><img border='1' width='150' height='10' src='../images/colorbars/stdgammaii.gif'></td></tr>
+<tr class='d0'><td><input type='radio' name='lut' value='colortables/prism.bin' id='coltab' > </td> <td>Prism</td> <td><img border='1' width='150' height='10' src='../images/colorbars/prism.gif'></td> <td><input type='radio' name='lut' value='colortables/red-purple.bin' id='coltab' > </td> <td>Red-Purple</td> <td><img border='1' width='150' height='10' src='../images/colorbars/redpurple.gif'></td></tr>
+<tr class='d1'><td><input type='radio' name='lut' value='colortables/green-white-linear.bin' id='coltab' > </td> <td>Green/White Linear</td> <td><img border='1' width='150' height='10' src='../images/colorbars/greenwhitelinear.gif'></td> <td><input type='radio' name='lut' value='colortables/grn-wht-exponential.bin' id='coltab' > </td> <td>Green/White Exponential</td> <td><img border='1' width='150' height='10' src='../images/colorbars/grnwhtexponential.gif'></td></tr>
+<tr class='d0'><td><input type='radio' name='lut' value='colortables/green-pink.bin' id='coltab' > </td> <td>Green-Pink</td> <td><img border='1' width='150' height='10' src='../images/colorbars/greenpink.gif'></td> <td><input type='radio' name='lut' value='colortables/blue-red.bin' id='coltab' > </td> <td>Blue-Red</td> <td><img border='1' width='150' height='10' src='../images/colorbars/bluered.gif'></td></tr>
+<tr class='d1'><td><input type='radio' name='lut' value='colortables/16-level.bin' id='coltab' > </td> <td>16 Level</td> <td><img border='1' width='150' height='10' src='../images/colorbars/16level.gif'></td><td><input type='radio' name='lut' value='colortables/steps.bin' id='coltab' > </td> <td>Steps</td> <td><img border='1' width='150' height='10' src='../images/colorbars/steps.gif'></td> </tr>
+<tr class='d0'> <td><input type='radio' name='lut' value='Fire' id='coltab' > </td> <td>Fire</td> <td><img border='1' width='150' height='10' src='../images/colorbars/fire.gif'>  </td><td><input type='radio' name='lut' value='Ice' id='coltab' > </td> <td>Ice</td> <td><img border='1' width='150' height='10' src='../images/colorbars/ice.gif'> </td> </tr><tr class='d1'> <td><input type='radio' name='lut' value='Red' id='coltab' > </td> <td>Red</td> <td> <img border='1' width='150' height='10' src='../images/colorbars/red.gif'></td><td><input type='radio' name='lut' value='Yellow' id='coltab' > </td> <td>Yellow</td> <td><img border='1' width='150' height='10' src='../images/colorbars/yellow.gif'></td> </tr>
+<tr class='d0'> <td><input type='radio' name='lut' value='Green' id='coltab' > </td> <td>Green</td> <td><img border='1' width='150' height='10' src='../images/colorbars/green.gif'> </td><td><input type='radio' name='lut' value='Cyan' id='coltab' > </td> <td>Cyan</td> <td><img border='1' width='150' height='10' src='../images/colorbars/cyan.gif'> </td> </tr>
+<tr class='d1'> <td><input type='radio' name='lut' value='Magenta' id='coltab' > </td> <td>Magenta</td> <td><img border='1' width='150' height='10' src='../images/colorbars/magenta.gif'> </td><td><input type='radio' name='lut' value='Grays' id='coltab' > </td> <td>Grays</td> <td><img border='1' width='150' height='10' src='../images/colorbars/grays.gif'> </td> </tr>
+<tr class='d0'> <td><input type='radio' name='lut' value='Spectrum' id='coltab' > </td> <td>Spectrum</td> <td><img border='1' width='150' height='10' src='../images/colorbars/spectrum.gif'> </td><td><input type='radio' name='lut' value='3-3-2 RGB' id='coltab' > </td> <td>3-3-2 RGB</td> <td><img border='1' width='150' height='10' src='../images/colorbars/332rgb.gif'></td> </tr>
+<tr class='d1'> <td></td><td></td><td></td></tr><tr><td colspan=4><input type=checkbox name='invert' id='invert' ><label for='invert'><a href='../help/fields.html#lut'><b>Use Inverse of Selected Table</b></a></label></td></tr>
+</table>
+ </td></tr>
+ </table><p>
+ <a href='../help/fields.html#submit'>Initiate request:</a> <input TYPE='submit' Value='Submit Request'>
+</div><P><hr width='90%' align='left'>
+<span class='bluebg'><a name='overlays' class='expandable' > <span class='head2'> Overlays</span> (grid, catalogs, RGB image, contours)</a></span>
+<P>
+<div id='catalogsO'>
+<div class='optioncontainer'><span class='head2'>Overlay Preferences</span><span class='spacer'><label for='plotcolor'><a href='../help/fields.html#plotcolor'>Plot Color</a></label>: <input type='text'  name='PlotColor'  SIZE=10 id='plotcolor' > e.g. green, black, white</span>
+<input type='checkbox' name='min' id='over_noimage' value='1.e20' > <label for='over_noimage'><a href='../help/fields.html#noimage'>Plot Overlays Only (no image)</a></label><p></div><p>
+<div class='optioncontainer'><span class='head2'><a href='../help/fields.html#grid'>Grid Overlay</a>&nbsp;&nbsp; </span>
+<label for='grid'>Grid Options: </label><span class='spacer'><select name='grid' id='grid' ><option value='_skip_' selected>No Grid</option> <option value='1'>Coordinates Same As Image </option><option value='J2000'> J2000 </option><option value='B1950'> B1950</option> <option value='G'> Galactic</option> <option value='E'> E2000 </option><option value='ICRS'> ICRS </option></select></span><span class='spacer'>
+  <input type=checkbox name='gridlabels' id='gridlabels'  value='1' checked ><label for='gridlabels'>Display Labels</label></span>
+</div><div class='optioncontainer'><div class='hr' ></div><span class='head2'><a href='../help/fields.html#catalogs'>Catalog Overlays</a> </span></div><div class='moreindent' ><label for='catalogurl'><a href='../help/fields.html#catalogs'><b>Vizier Catalog or Catalog URL</b></a></label>: <input type='text' name='catalogurl' SIZE=30 id='catalogurl'>
+<p><label for='cataloglist'><b>HEASARC Catalogs:</b></label><p>
+<select name='Catalog' Multiple SIZE=15 id='cataloglist'>
+<option value='a1'><pre>[a1] HEAO 1 A1 X-Ray Source Catalog </pre></option>
+ <option value='a1point'><pre>[a1point] HEAO 1 A1 Lightcurves </pre></option>
+ <option value='a2lcpoint'><pre>[a2lcpoint] HEAO 1 A2 Pointed Lightcurves </pre></option>
+ <option value='a2lcscan'><pre>[a2lcscan] HEAO 1 A2 Scanned Lightcurves </pre></option>
+ <option value='a2led'><pre>[a2led] HEAO 1 A2 LED Catalog </pre></option>
+ <option value='a2pic'><pre>[a2pic] HEAO 1 A2 Piccinotti Catalog </pre></option>
+ <option value='a2point'><pre>[a2point] HEAO 1 A2 Pointing Catalog </pre></option>
+ <option value='a2specback'><pre>[a2specback] HEAO 1 A2 Spectra Background </pre></option>
+ <option value='a2spectra'><pre>[a2spectra] HEAO 1 A2 Spectra </pre></option>
+ <option value='a3'><pre>[a3] HEAO 1 A3 MC LASS Catalog </pre></option>
+ <option value='a4'><pre>[a4] HEAO 1 A4 Catalog of High-Energy X-Ray Sources </pre></option>
+ <option value='a4spectra'><pre>[a4spectra] HEAO 1 A4 Spectra </pre></option>
+ <option value='aavsovsx'><pre>[aavsovsx] AAVSO International Variable Star Index </pre></option>
+ <option value='abell'><pre>[abell] Abell Clusters </pre></option>
+ <option value='abellzcat'><pre>[abellzcat] Abell Clusters Measured Redshifts Catalog </pre></option>
+ <option value='acceptcat'><pre>[acceptcat] Archive of Chandra Cluster Entropy Profile Tables (ACCEPT) Catalog </pre></option>
+ <option value='acrs'><pre>[acrs] Astrographic Catalog of Reference Stars </pre></option>
+ <option value='actegsrcat'><pre>[actegsrcat] Atacama Cosmology Telescope 2008 Survey 148-GHz Extragalactic Source Catalog </pre></option>
+ <option value='aegis20'><pre>[aegis20] All-Wavelength Extended Groth Strip Int. Survey (AEGIS) VLA 20-cm Source Catalog </pre></option>
+ <option value='aegis20id'><pre>[aegis20id] All-Wavelength Extended Groth Strip Int. Survey (AEGIS) 20-cm Fully Id-ed Sample </pre></option>
+ <option value='aegisx'><pre>[aegisx] AEGIS-X Chandra Extended Groth Strip X-Ray Point Source Catalog </pre></option>
+ <option value='agilecat'><pre>[agilecat] First AGILE Catalog of High-Confidence Gamma-Ray Sources </pre></option>
+ <option value='agnsdssxm2'><pre>[agnsdssxm2] Sloan Digital Sky Survey/XMM-Newton Type1 AGN X-Ray and Radio Properties Catalog </pre></option>
+ <option value='agnsdssxmm'><pre>[agnsdssxmm] Sloan Digital Sky Survey/XMM-Newton AGN Spectral Properties Catalog </pre></option>
+ <option value='akaribsc'><pre>[akaribsc] AKARI/FIS All-Sky Survey Bright Source Catalog, Version 1 </pre></option>
+ <option value='akaripsc'><pre>[akaripsc] AKARI/IRC All-Sky Survey Point Source Catalog, Version 1 </pre></option>
+ <option value='ami10c15gz'><pre>[ami10c15gz] 10C Survey at 15.7 GHz Radio Source Catalog </pre></option>
+ <option value='amigps16gh'><pre>[amigps16gh] AMI Galactic Plane Survey 16-GHz Source Catalog </pre></option>
+ <option value='ansuvpscat'><pre>[ansuvpscat] ANS Ultraviolet Photometry Catalog of Point Sources </pre></option>
+ <option value='arcquincxo'><pre>[arcquincxo] Arches and Quintuplet Clusters Chandra X-Ray Point Source Catalog </pre></option>
+ <option value='ariel3a'><pre>[ariel3a] 3rd Ariel-V SSI Catalog </pre></option>
+ <option value='ariel5'><pre>[ariel5] Ariel V All-Sky Monitor </pre></option>
+ <option value='arxa'><pre>[arxa] Atlas of Radio/X-Ray Associations (ARXA) </pre></option>
+ <option value='ascaegclus'><pre>[ascaegclus] ASCA Elliptical Galaxies and Galaxy Clusters Catalog </pre></option>
+ <option value='ascagis'><pre>[ascagis] ASCA GIS Source Catalog (AMSS-I + AMSS-II) </pre></option>
+ <option value='ascagps'><pre>[ascagps] ASCA Galactic Plane Survey of Faint X-Ray Sources </pre></option>
+ <option value='ascalss'><pre>[ascalss] ASCA Large Sky Survey </pre></option>
+ <option value='ascamaster'><pre>[ascamaster] ASCA Master Catalog </pre></option>
+ <option value='ascao'><pre>[ascao] ASCA Proposals </pre></option>
+ <option value='ascasis'><pre>[ascasis] ASCA SIS Source Catalog </pre></option>
+ <option value='asiagosn'><pre>[asiagosn] Asiago Supernova Catalog (Dynamic Version) </pre></option>
+ <option value='at20g'><pre>[at20g] Australia Telescope 20-GHz (AT20G) Survey Catalog </pre></option>
+ <option value='at20g1fgl'><pre>[at20g1fgl] AT20G/Fermi 1FGL Source Catalog </pre></option>
+ <option value='at20gbss'><pre>[at20gbss] Australia Telescope 20-GHz Survey Bright Source Sample </pre></option>
+ <option value='at2fglus'><pre>[at2fglus] Australia Telescope 2FGL Unassociated Sources Radio Source Catalog </pre></option>
+ <option value='atats'><pre>[atats] Allen Telescope Array Twenty-cm Survey (ATATS) Source Catalog </pre></option>
+ <option value='atcaadfs20'><pre>[atcaadfs20] Australia Telescope Compact Array AKARI Deep Field South 20-cm Source Catalog </pre></option>
+ <option value='atesp1p4gh'><pre>[atesp1p4gh] Australia Telescope ESO Slice Project 1.4-GHz Source Catalog </pre></option>
+ <option value='athdfs1p4g'><pre>[athdfs1p4g] Australia Telescope Hubble Deep Field-South 1.4-GHz Source Catalog </pre></option>
+ <option value='athdfs3frq'><pre>[athdfs3frq] Australia Telescope Hubble Deep Field-South 2.5, 5.2 and 8.7-GHz Source Catalog </pre></option>
+ <option value='athdfsccat'><pre>[athdfsccat] Australia Telescope Hubble Deep Field-South Combined Source Catalog </pre></option>
+ <option value='athdfsoid'><pre>[athdfsoid] Australia Telescope Hubble Deep Field-South Optical Identifications Catalog </pre></option>
+ <option value='atlas2p3gh'><pre>[atlas2p3gh] AT Large Area Survey (ATLAS) ELAIS-S1 & CDF-S 2.3-GHz Source Catalog </pre></option>
+ <option value='atlas5p5gh'><pre>[atlas5p5gh] AT Large Area Survey (ATLAS) E-CDF-S 5.5-GHz Components Catalog </pre></option>
+ <option value='atlascscpt'><pre>[atlascscpt] AT Large Area Survey (ATLAS) CDF-S/SWIRE 1.4-GHz Components Catalog </pre></option>
+ <option value='atlascsid'><pre>[atlascsid] AT Large Area Survey (ATLAS) CDF-S/SWIRE ID and Classification Catalog </pre></option>
+ <option value='atlasescpt'><pre>[atlasescpt] AT Large Area Survey (ATLAS) ELAIS-S1/SWIRE 1.4-GHz Components Catalog </pre></option>
+ <option value='atlasesid'><pre>[atlasesid] AT Large Area Survey (ATLAS) ELAIS-S1/SWIRE ID and Classification Catalog </pre></option>
+ <option value='atlasspecz'><pre>[atlasspecz] AT Large Area Survey (ATLAS) Spectroscopic Classes & Redshifts Catalog </pre></option>
+ <option value='atlbs1p4gh'><pre>[atlbs1p4gh] Australia Telescope Low-Brightness Survey Source Catalog </pre></option>
+ <option value='atnfpulsar'><pre>[atnfpulsar] ATNF Pulsar Catalog </pre></option>
+ <option value='atpmncat'><pre>[atpmncat] Australia Telescope-PMN Catalog of Southern Radio Sources </pre></option>
+ <option value='axis'><pre>[axis] AXIS XMM-Newton Source Catalog </pre></option>
+ <option value='bat5bgrbsp'><pre>[bat5bgrbsp] CGRO/BATSE 5B Gamma-Ray Burst Spectral Catalog </pre></option>
+ <option value='batse4b'><pre>[batse4b] CGRO/BATSE 4B Catalog </pre></option>
+ <option value='batseeocat'><pre>[batseeocat] CGRO/BATSE Earth Occultation Catalog of Low-Energy Gamma-Ray Sources </pre></option>
+ <option value='batsegrb'><pre>[batsegrb] CGRO/BATSE Gamma-Ray Burst Catalog </pre></option>
+ <option value='batsegrbsp'><pre>[batsegrbsp] CGRO/BATSE Complete Spectral Catalog of Bright GRBs </pre></option>
+ <option value='batsepulsr'><pre>[batsepulsr] CGRO/BATSE Pulsar Observations </pre></option>
+ <option value='batsetrigs'><pre>[batsetrigs] CGRO/BATSE Trigger Data </pre></option>
+ <option value='baxgalclus'><pre>[baxgalclus] BAX X-Ray Galaxy Clusters and Groups Catalog </pre></option>
+ <option value='bbxrt'><pre>[bbxrt] BBXRT Archive </pre></option>
+ <option value='bestars'><pre>[bestars] Be Stars Catalog </pre></option>
+ <option value='bhrfscid'><pre>[bhrfscid] Byurakan/Hamburg/ROSAT Catalog of Optical IDs </pre></option>
+ <option value='bmwchancat'><pre>[bmwchancat] Brera Multi-scale Wavelet Chandra Source Catalog </pre></option>
+ <option value='bmwhricat'><pre>[bmwhricat] Brera Multi-scale Wavelet ROSAT HRI Source Catalog </pre></option>
+ <option value='bnmdspecat'><pre>[bnmdspecat] Brightest M Dwarfs in the Northern Sky Spectroscopic Catalog </pre></option>
+ <option value='boof153mhz'><pre>[boof153mhz] Bootes Field GMRT 153-MHz Source Catalog </pre></option>
+ <option value='bootesdf'><pre>[bootesdf] Bootes Deep Field WSRT 1.4-GHz Source Catalog </pre></option>
+ <option value='bsc5p'><pre>[bsc5p] Bright Star Catalog </pre></option>
+ <option value='caixa'><pre>[caixa] Catalog of AGN in the XMM-Newton Archive </pre></option>
+ <option value='carinaclas'><pre>[carinaclas] Carina Nebula Chandra X-Ray Point Source Classes </pre></option>
+ <option value='carinacxo'><pre>[carinacxo] Carina Nebula Chandra X-Ray Point Source Catalog </pre></option>
+ <option value='carinaxmm'><pre>[carinaxmm] Carina OB1 Association XMM-Newton X-Ray Point Source Catalog </pre></option>
+ <option value='cbatpicagn'><pre>[cbatpicagn] CGRO BATSE-Observed Piccinotti Sample of Active Galactic Nuclei </pre></option>
+ <option value='ccosmoscat'><pre>[ccosmoscat] Chandra COSMOS (C-COSMOS) Survey X-Ray Point Source Catalog </pre></option>
+ <option value='ccosmosoid'><pre>[ccosmosoid] Chandra COSMOS (C-COSMOS) Survey Optical/IR Counterparts Catalog </pre></option>
+ <option value='ccosmphotz'><pre>[ccosmphotz] Chandra COSMOS (C-COSMOS) Survey Photometric Redshift Catalog </pre></option>
+ <option value='ccosrssfag'><pre>[ccosrssfag] Chandra COSMOS Radio-Selected Star-Forming Galaxies and AGN Catalog </pre></option>
+ <option value='cdfn2msoi2'><pre>[cdfn2msoi2] Chandra Deep Field North Updated Optical & IR Catalog </pre></option>
+ <option value='cdfn2msoid'><pre>[cdfn2msoid] Chandra Deep Field North 2-Megasecond Optical & IR Catalog </pre></option>
+ <option value='cdfsagncxo'><pre>[cdfsagncxo] Chandra Deep Field South AGN Spectral Properties Catalog </pre></option>
+ <option value='cenacxo'><pre>[cenacxo] Centaurus A Galaxy Chandra X-Ray Point Source Catalog </pre></option>
+ <option value='cepaxmm'><pre>[cepaxmm] Cepheus A SFR XMM-Newton X-Ray Point Source Catalog </pre></option>
+ <option value='cepbob3cxo'><pre>[cepbob3cxo] Cep B/OB3 Star-Forming Region Chandra X-Ray Point Source Catalog </pre></option>
+ <option value='cepbob3oid'><pre>[cepbob3oid] Cep B/OB3 Star-Forming Region Chandra Point Source Optical/IR IDs Catalog </pre></option>
+ <option value='cfa2s'><pre>[cfa2s] CfA Redshift Survey: South Galactic Cap Data </pre></option>
+ <option value='cg12cxo'><pre>[cg12cxo] CG 12 Chandra X-Ray Point Source Catalog </pre></option>
+ <option value='cgmw'><pre>[cgmw] Candidate Galaxies Behind the Milky Way </pre></option>
+ <option value='cgrabs'><pre>[cgrabs] Candidate Gamma-Ray Blazar Survey Source Catalog </pre></option>
+ <option value='cgrotl'><pre>[cgrotl] CGRO Timeline </pre></option>
+ <option value='chainthcxo'><pre>[chainthcxo] Chamaeleon I North Cloud Chandra X-Ray Point Source Catalog </pre></option>
+ <option value='champhxagn'><pre>[champhxagn] CHAMP (Chandra Multiwavelength Project) Hard X-Ray Emitting AGN </pre></option>
+ <option value='champlane'><pre>[champlane] Chandra Multiwavelength Plane Survey Optical ID Catalog </pre></option>
+ <option value='champlanex'><pre>[champlanex] ChaMPlane Galactic Bulge and Center X-Ray Source Catalog </pre></option>
+ <option value='champpsc'><pre>[champpsc] Chandra Multiwavelength Project (ChaMP) Point Source Catalog </pre></option>
+ <option value='champsdssa'><pre>[champsdssa] CHAMP/SDSS Nearby Low-Luminosity AGN Catalog </pre></option>
+ <option value='chandfn1ms'><pre>[chandfn1ms] Chandra Deep Field North 1-Megasecond Catalog </pre></option>
+ <option value='chandfn2ms'><pre>[chandfn2ms] Chandra Deep Field North 2-Megasecond Catalog </pre></option>
+ <option value='chandfs1ms'><pre>[chandfs1ms] Chandra Deep Field South 1-Megasecond Catalog </pre></option>
+ <option value='chandfs2ms'><pre>[chandfs2ms] Chandra Deep Field South 2-Megasecond Catalog </pre></option>
+ <option value='chandfs4ms'><pre>[chandfs4ms] Chandra Deep Field South 4-Megasecond Catalog </pre></option>
+ <option value='chanextdfs'><pre>[chanextdfs] Chandra Extended Deep Field South Survey Point Source Catalog </pre></option>
+ <option value='changbscat'><pre>[changbscat] Chandra Galactic Bulge Survey X-Ray Point Source Catalog </pre></option>
+ <option value='chanmaster'><pre>[chanmaster] Chandra Observations </pre></option>
+ <option value='channsgpsc'><pre>[channsgpsc] Chandra Nearby Spiral Galaxies Point Source Catalog </pre></option>
+ <option value='chansexagn'><pre>[chansexagn] Chandra Serendipitous Extragalactic X-Ray Source ID (SEXSI)/Spitzer AGN Catalog </pre></option>
+ <option value='chansexoid'><pre>[chansexoid] Chandra Serendipitous Extragalactic X-Ray Source ID (SEXSI) Optical Follow-Up </pre></option>
+ <option value='chansexsi'><pre>[chansexsi] Chandra Serendipitous Extragalactic X-Ray Source ID (SEXSI) Catalog </pre></option>
+ <option value='chantypgpr'><pre>[chantypgpr] Chandra Typical Galactic Plane Region Point Source Catalog </pre></option>
+ <option value='chanulxcat'><pre>[chanulxcat] Chandra Archive Of Galaxies Ultraluminous X-Ray Source Catalog </pre></option>
+ <option value='chanvguide'><pre>[chanvguide] Chandra Variable Guide Star Catalog </pre></option>
+ <option value='chasfrxray'><pre>[chasfrxray] ROSAT All-Sky Survey: Chamaeleon Star Forming Region Study </pre></option>
+ <option value='chesscat'><pre>[chesscat] ChaMP Extended Stellar Survey (ChESS) X-Ray Catalog </pre></option>
+ <option value='chngpscliu'><pre>[chngpscliu] Chandra ACIS Survey of Nearby Galaxies X-Ray Point Source Catalog </pre></option>
+ <option value='chpngptsrc'><pre>[chpngptsrc] Chandra Nearby Galaxies Point Source Catalog </pre></option>
+ <option value='clans'><pre>[clans] Chandra Lockman Area North Survey (CLANS) X-Ray Source Catalog </pre></option>
+ <option value='clansoid'><pre>[clansoid] Chandra Lockman Area North Survey (CLANS) Optical & IR Catalog </pre></option>
+ <option value='clasxs'><pre>[clasxs] Chandra Large-Area Synoptic X-Ray Survey of Lockman Hole-NW </pre></option>
+ <option value='clasxsoid'><pre>[clasxsoid] Chandra Large-Area Synoptic X-Ray Survey Optical & IR Catalog </pre></option>
+ <option value='cmaimage'><pre>[cmaimage] EXOSAT CMA Images for Each Pointing </pre></option>
+ <option value='cmar1xray'><pre>[cmar1xray] ROSAT PSPC Catalog of Canis Major R1 X-Ray Sources </pre></option>
+ <option value='cns3'><pre>[cns3] Gliese Catalog of Nearby Stars, 3rd Edition </pre></option>
+ <option value='cocd'><pre>[cocd] COCD: Catalog of Open Cluster Data </pre></option>
+ <option value='cocdext1'><pre>[cocdext1] COCD: Catalog of Open Cluster Data First Extension </pre></option>
+ <option value='coll69oid'><pre>[coll69oid] Collinder 69 Cluster Optical/IR Counterparts to XMM-Newton X-Ray Point Sources </pre></option>
+ <option value='coll69xmm'><pre>[coll69xmm] Collinder 69 Cluster XMM-Newton X-Ray Point Source Catalog </pre></option>
+ <option value='comptel'><pre>[comptel] CGRO/COMPTEL Low-Level Data and Maps </pre></option>
+ <option value='corotexlog'><pre>[corotexlog] CoRoT Stellar Targets for Exoplanet Detection Observation Log </pre></option>
+ <option value='cosbmaps'><pre>[cosbmaps] COS-B Map Product Catalog </pre></option>
+ <option value='cosbraw'><pre>[cosbraw] COS-B Photon Events Catalog </pre></option>
+ <option value='coup'><pre>[coup] Chandra Orion Ultradeep Point Source Catalog </pre></option>
+ <option value='cpstars'><pre>[cpstars] Catalog of Ap, HgMn and Am Stars </pre></option>
+ <option value='crabtime'><pre>[crabtime] Crab Pulsar Timing </pre></option>
+ <option value='crates'><pre>[crates] CRATES Flat-Spectrum Radio Source Catalog </pre></option>
+ <option value='cratesocrap'><pre>[cratesocrap] OCRA-p Survey of a Subset of CRATES Sources </pre></option>
+ <option value='cvcat'><pre>[cvcat] Cataclysmic Variables Catalog (2006 Final Edition) </pre></option>
+ <option value='cxoxassist'><pre>[cxoxassist] Chandra XAssist Source List </pre></option>
+ <option value='cyder'><pre>[cyder] Calan-Yale Deep Extragalactic Research Survey X-Ray Source Catalog </pre></option>
+ <option value='cygob2cxo'><pre>[cygob2cxo] Cygnus OB2 Association Chandra X-Ray Point Source Catalog </pre></option>
+ <option value='cygob2cxo2'><pre>[cygob2cxo2] Cygnus OB2 Association Chandra X-Ray Point Source Catalog 2 </pre></option>
+ <option value='cygob2xmm'><pre>[cygob2xmm] Cygnus OB2 Association XMM-Newton X-Ray Point Source Catalog </pre></option>
+ <option value='cygtevcxo'><pre>[cygtevcxo] Cygnus TeV Source Chandra X-Ray Point Source Catalog </pre></option>
+ <option value='denisigal'><pre>[denisigal] First DENIS I-band Extragalactic Catalog </pre></option>
+ <option value='dirbepsc'><pre>[dirbepsc] COBE DIRBE Point Source Catalog </pre></option>
+ <option value='dixon'><pre>[dixon] Dixon Master List of Radio Sources (Version 43) </pre></option>
+ <option value='duerbeck'><pre>[duerbeck] Galactic Novae References Catalog </pre></option>
+ <option value='dxrbs'><pre>[dxrbs] ROSAT Deep X-Ray Radio Blazar Survey Catalog </pre></option>
+ <option value='ecdfscxo'><pre>[ecdfscxo] Extended Chandra Deep Field-South X-Ray Point Source Catalog </pre></option>
+ <option value='ecdfsoid'><pre>[ecdfsoid] Extended Chandra Deep Field-South Survey Optical Identifications Catalog </pre></option>
+ <option value='ecdfsoid2'><pre>[ecdfsoid2] Extended Chandra Deep Field-South Optical and Near-IR Counterparts </pre></option>
+ <option value='ecdfsrssam'><pre>[ecdfsrssam] Radio-Selected Extended Chandra Deep Field South Source Catalog </pre></option>
+ <option value='egrcat'><pre>[egrcat] CGRO/EGRET Revised Catalog of Gamma-Ray Sources </pre></option>
+ <option value='egret3'><pre>[egret3] CGRO/EGRET Third Source Catalog </pre></option>
+ <option value='egretdata'><pre>[egretdata] CGRO/EGRET Photon Lists and Maps </pre></option>
+ <option value='eingalcat'><pre>[eingalcat] Catalog of Galaxies Observed by the Einstein Observatory IPC & HRI </pre></option>
+ <option value='eingalclus'><pre>[eingalclus] Einstein Observatory Clusters of Galaxies Catalog </pre></option>
+ <option value='einopslgal'><pre>[einopslgal] Einstein Survey of Optically Selected Galaxies </pre></option>
+ <option value='einstein2e'><pre>[einstein2e] Einstein Observatory 2E Catalog of IPC X-Ray Sources </pre></option>
+ <option value='elaiscxo'><pre>[elaiscxo] ELAIS N1 and N2 Fields Chandra X-Ray Point Source Catalog </pre></option>
+ <option value='elaisfbmc'><pre>[elaisfbmc] European Large-Area ISO Survey (ELAIS) Final Band-Merged Catalog </pre></option>
+ <option value='elaiss1oid'><pre>[elaiss1oid] ELAIS S1 Field X-Ray Source Optical/IR Identifications Catalog </pre></option>
+ <option value='elaiss1xmm'><pre>[elaiss1xmm] ELAIS S1 Field XMM-Newton X-Ray Source Catalog </pre></option>
+ <option value='emss'><pre>[emss] Einstein Catalog IPC EMSS Survey </pre></option>
+ <option value='erosxmm'><pre>[erosxmm] Extremely Red Objects XMM-Newton Survey Catalog </pre></option>
+ <option value='esouppsala'><pre>[esouppsala] ESO-Uppsala ESO(B) Survey </pre></option>
+ <option value='etgalcxo'><pre>[etgalcxo] Early-Type Galaxies Chandra X-Ray Point Source Catalog </pre></option>
+ <option value='etgalxray'><pre>[etgalxray] Early-Type Galaxies X-Ray Luminosities Catalog </pre></option>
+ <option value='euv'><pre>[euv] Master EUV Catalog </pre></option>
+ <option value='euvebsl'><pre>[euvebsl] EUVE Bright Sources </pre></option>
+ <option value='euvecat2'><pre>[euvecat2] EUVE Second Source Catalog </pre></option>
+ <option value='euvemaster'><pre>[euvemaster] EUVE Archive and Observation Log </pre></option>
+ <option value='euverap1'><pre>[euverap1] EUVE Right Angle Program, 1st Catalog </pre></option>
+ <option value='euverap2'><pre>[euverap2] EUVE Right Angle Program, 2nd Catalog </pre></option>
+ <option value='euverap3'><pre>[euverap3] EUVE Right Angle Program, 3rd Catalog </pre></option>
+ <option value='euvexrtcat'><pre>[euvexrtcat] All-Sky Catalog of Faint EUV Sources </pre></option>
+ <option value='exgalemobj'><pre>[exgalemobj] Hewitt & Burbidge (1991) Catalog of Extragalactic Emission-Line Objects </pre></option>
+ <option value='exms'><pre>[exms] EXOSAT ME Slew Catalog </pre></option>
+ <option value='exogps'><pre>[exogps] EXOSAT/ME Galactic Plane Survey </pre></option>
+ <option value='exohgls'><pre>[exohgls] EXOSAT/CMA High Galactic Latitude Survey </pre></option>
+ <option value='exolog'><pre>[exolog] EXOSAT Observation Log </pre></option>
+ <option value='exomaster'><pre>[exomaster] EXOSAT Master Observation List </pre></option>
+ <option value='exoplanets'><pre>[exoplanets] Extrasolar Planets Encyclopedia </pre></option>
+ <option value='exoplanodb'><pre>[exoplanodb] Exoplanet Orbit Database </pre></option>
+ <option value='exopubs'><pre>[exopubs] EXOSAT Bibliography </pre></option>
+ <option value='exss'><pre>[exss] Einstein Extended Source Survey </pre></option>
+ <option value='faust'><pre>[faust] Faust Far-UV Point Source Catalog </pre></option>
+ <option value='fbsbsocat'><pre>[fbsbsocat] First Byurakan Survey Blue Stellar Objects Catalog </pre></option>
+ <option value='fermigbrst'><pre>[fermigbrst] Fermi GBM Burst Catalog </pre></option>
+ <option value='fermigtrig'><pre>[fermigtrig] Fermi GBM Trigger Catalog </pre></option>
+ <option value='fermilac'><pre>[fermilac] Fermi LAT Second AGN Catalog </pre></option>
+ <option value='fermilasp'><pre>[fermilasp] Fermi LAT Monitored Source List </pre></option>
+ <option value='fermilbsl'><pre>[fermilbsl] Fermi LAT Bright Source List </pre></option>
+ <option value='fermille'><pre>[fermille] Fermi LAT Low-Energy Events Catalog </pre></option>
+ <option value='fermilpsc'><pre>[fermilpsc] Fermi LAT Second Source Catalog </pre></option>
+ <option value='first'><pre>[first] Faint Images of the Radio Sky at Twenty cm (FIRST) </pre></option>
+ <option value='flarestars'><pre>[flarestars] UV Cet-type Flare Stars & Related Objects Catalog </pre></option>
+ <option value='fornaxxmm'><pre>[fornaxxmm] Fornax Dwarf Galaxy XMM-Newton X-Ray Point Source Catalog </pre></option>
+ <option value='fpcsfits'><pre>[fpcsfits] Einstein FPCS Events Files </pre></option>
+ <option value='fsvsclustr'><pre>[fsvsclustr] Faint Sky Variability Survey Catalog of Galaxy Clusters and Rich Groups </pre></option>
+ <option value='fuselog'><pre>[fuselog] Far Ultraviolet Explorer (FUSE) Observation Log </pre></option>
+ <option value='galccxonid'><pre>[galccxonid] Galactic Center Chandra X-Ray Source Near-IR Counterparts </pre></option>
+ <option value='galcencxo'><pre>[galcencxo] Galactic Center Chandra X-Ray Point Source Catalog </pre></option>
+ <option value='galcenpspc'><pre>[galcenpspc] ROSAT PSPC Galactic Center Soft X-Ray Source Catalog </pre></option>
+ <option value='galexlog'><pre>[galexlog] Galaxy Evolution Explorer (GALEX) Observation Log </pre></option>
+ <option value='galextdsc'><pre>[galextdsc] GALEX Time Domain Survey Catalog </pre></option>
+ <option value='gb6'><pre>[gb6] Green Bank 6-cm (GB6) Radio Source Catalog </pre></option>
+ <option value='gbt31ghz'><pre>[gbt31ghz] Green Bank Telescope 100-m 31-GHZ Radio Source Catalog </pre></option>
+ <option value='gc47tuccxo'><pre>[gc47tuccxo] 47 Tuc Globular Cluster Chandra X-Ray Point Source Catalog </pre></option>
+ <option value='gcps'><pre>[gcps] Galactic Center P-Band (330 MHz) Survey </pre></option>
+ <option value='gcptsrccxo'><pre>[gcptsrccxo] Chandra Point Sources in 18 Distant Galaxy Clusters </pre></option>
+ <option value='gcvs'><pre>[gcvs] General Catalog of Variable Stars, March 2012 Version </pre></option>
+ <option value='gcvsegvars'><pre>[gcvsegvars] General Catalog of Variable Stars (GCVS4.2): Extragalactic Variables </pre></option>
+ <option value='gcvsnsvars'><pre>[gcvsnsvars] General Catalog of Variable Stars, March 2012 Version: Suspected Variable Stars </pre></option>
+ <option value='gingabgd'><pre>[gingabgd] Ginga Background Lightcurves & Spectra </pre></option>
+ <option value='gingalac'><pre>[gingalac] Ginga Source Lightcurves & Spectra </pre></option>
+ <option value='gingalog'><pre>[gingalog] Ginga LAC Log </pre></option>
+ <option value='gingamode'><pre>[gingamode] Ginga LAC Mode Catalog </pre></option>
+ <option value='gingaraw'><pre>[gingaraw] Ginga LAC Raw Data </pre></option>
+ <option value='gliese2mas'><pre>[gliese2mas] Gliese Catalog Stars with Accurate Coordinates and 2MASS Cross-Identifications </pre></option>
+ <option value='globclust'><pre>[globclust] Milky Way Globular Clusters Catalog (February 2003 Version) </pre></option>
+ <option value='glxsdssqs2'><pre>[glxsdssqs2] GALEX/SDSS z=0.5-1.5 QSO Candidates Catalog </pre></option>
+ <option value='glxsdssqso'><pre>[glxsdssqso] GALEX/SDSS Quasar Catalog </pre></option>
+ <option value='gmrt1hxcsf'><pre>[gmrt1hxcsf] Giant Metrewave Radio Telescope 1h XMM/Chandra Survey Fld 610-MHz Source Catalog </pre></option>
+ <option value='gmrt4f150m'><pre>[gmrt4f150m] Giant Metrewave Radio Telescope Field I 150-MHz Radio Source Catalog </pre></option>
+ <option value='gmrtelain1'><pre>[gmrtelain1] Giant Metrewave Radio Telescope ELAIS-N1 Field 610-MHz Radio Source Catalog </pre></option>
+ <option value='gmrtelain2'><pre>[gmrtelain2] Giant Metrewave Radio Telescope ELAIS-N2 Field 610-MHz Radio Source Catalog </pre></option>
+ <option value='gmrtj0916'><pre>[gmrtj0916] Giant Metrewave Radio Telescope J0916+6348 Field Radio Source Catalog </pre></option>
+ <option value='gmrtlbdsly'><pre>[gmrtlbdsly] Giant Metrewave Radio Telescope LBDS-Lynx Region 150-MHz Radio Source Catalog </pre></option>
+ <option value='gmrtlhcat'><pre>[gmrtlhcat] Giant Metrewave Radio Telescope Lockman Hole 610-MHz Radio Source Catalog </pre></option>
+ <option value='gmrtlhcat2'><pre>[gmrtlhcat2] Giant Metrewave Radio Telescope Lockman Hole 610-MHz Radio Source Catalog 2 </pre></option>
+ <option value='gmrtlhcat3'><pre>[gmrtlhcat3] Giant Metrewave Radio Telescope Lockman Hole 610-MHz Radio Source Catalog 3 </pre></option>
+ <option value='gmrtspxfls'><pre>[gmrtspxfls] Giant Metrewave Radio Telescope Spitzer xFLS Field 610-MHz Radio Source Catalog </pre></option>
+ <option value='gmrtvvdsvl'><pre>[gmrtvvdsvl] Giant Metrewave Radio Telescope VVDS-VLA Deep Field 610-MHz Radio Source Catalog </pre></option>
+ <option value='gmrtxl240m'><pre>[gmrtxl240m] Giant Metrewave Radio Telescope XMM Large Scale Structure 240-MHz Source Catalog </pre></option>
+ <option value='gmrtxl610m'><pre>[gmrtxl610m] Giant Metrewave Radio Telescope XMM Large Scale Structure 610-MHz Source Catalog </pre></option>
+ <option value='goscat'><pre>[goscat] Galactic O Stars with Accurate Spectral Classes Catalog </pre></option>
+ <option value='gp7c151mhz'><pre>[gp7c151mhz] 7C(G) 151-MHz Northern Galactic Plane Survey Catalog </pre></option>
+ <option value='gpa'><pre>[gpa] First Galactic Plane Survey at 8.35 and 14.35 GHz </pre></option>
+ <option value='grbcat'><pre>[grbcat] Catalog of Gamma-Ray Bursts </pre></option>
+ <option value='gs'><pre>[gs] EXOSAT GSPC Spectra and Lightcurves </pre></option>
+ <option value='gusbad'><pre>[gusbad] GRBs Uniformly Selected from BATSE Archival Data (Version 2.1) </pre></option>
+ <option value='gwsstrpcxo'><pre>[gwsstrpcxo] Groth-Westphal Strip Chandra X-Ray Point Source Catalog </pre></option>
+ <option value='hbc'><pre>[hbc] Herbig & Bell Catalog of Orion Pop. Emission-Line Stars </pre></option>
+ <option value='hcg'><pre>[hcg] Hickson Compact Groups of Galaxies (HCG) Catalog </pre></option>
+ <option value='hcggalaxy'><pre>[hcggalaxy] Hickson Compact Groups of Galaxies (HCG) Individual Galaxies Data </pre></option>
+ <option value='hdec'><pre>[hdec] Henry Draper Extension Charts Catalog </pre></option>
+ <option value='herschllog'><pre>[herschllog] Herschel Space Observatory Log of Observations </pre></option>
+ <option value='hesscat'><pre>[hesscat] HESS (High Energy Stereoscopic System) Source Catalog </pre></option>
+ <option value='hete2gcn'><pre>[hete2gcn] HETE-2 GCN Triggers Catalog </pre></option>
+ <option value='hete2tl'><pre>[hete2tl] HETE-2 Timeline </pre></option>
+ <option value='hic'><pre>[hic] Hipparcos Input Catalog </pre></option>
+ <option value='hiiregion'><pre>[hiiregion] Sharpless H II Regions </pre></option>
+ <option value='hipnewcat'><pre>[hipnewcat] Hipparcos New Astrometric Catalog </pre></option>
+ <option value='hipparcos'><pre>[hipparcos] Hipparcos Main Catalog </pre></option>
+ <option value='hmxbcat'><pre>[hmxbcat] Catalog of High-Mass X-Ray Binaries in the Galaxy (4th Ed.) </pre></option>
+ <option value='hperseicxo'><pre>[hperseicxo] H Persei Chandra X-Ray Point Source Catalog </pre></option>
+ <option value='hrasscat'><pre>[hrasscat] Hamburg/RASS Catalog: X-Ray Sources </pre></option>
+ <option value='hrassoptid'><pre>[hrassoptid] Hamburg/RASS Catalog: Optical Identifications </pre></option>
+ <option value='hricfa'><pre>[hricfa] Einstein Catalog HRI CFA Sources </pre></option>
+ <option value='hrideep'><pre>[hrideep] Einstein Catalog HRI Deep Survey </pre></option>
+ <option value='hriexo'><pre>[hriexo] Einstein Catalog HRI ESTEC Sources </pre></option>
+ <option value='hriimage'><pre>[hriimage] Einstein HRI Images </pre></option>
+ <option value='hriphot'><pre>[hriphot] Einstein HRI Photon Event Data </pre></option>
+ <option value='hstaec'><pre>[hstaec] HST Archived Exposures Catalog </pre></option>
+ <option value='hstpaec'><pre>[hstpaec] HST Planned and Archived Observations </pre></option>
+ <option value='hubbleudf'><pre>[hubbleudf] Hubble Ultra Deep Field Catalog </pre></option>
+ <option value='hyadesxray'><pre>[hyadesxray] ROSAT All-Sky Survey: Hyades Cluster Region </pre></option>
+ <option value='ibiscat4'><pre>[ibiscat4] Fourth IBIS/ISGRI Soft Gamma-Ray Survey Catalog </pre></option>
+ <option value='ic10xmmcxo'><pre>[ic10xmmcxo] IC 10 XMM-Newton and Chandra X-Ray Point Source Catalog </pre></option>
+ <option value='ic1396ncxo'><pre>[ic1396ncxo] IC 1396N Chandra X-Ray Point Source Catalog </pre></option>
+ <option value='ic2944xmm'><pre>[ic2944xmm] IC 2944/2948 XMM-Newton X-Ray Source Catalog </pre></option>
+ <option value='ic348cxo'><pre>[ic348cxo] IC 348 Chandra X-Ray Point Source Catalog </pre></option>
+ <option value='ic348cxo2'><pre>[ic348cxo2] IC 348 Chandra X-Ray Point Source Catalog 2 </pre></option>
+ <option value='infrared'><pre>[infrared] Catalog of Infrared Observations (CIO), Edition 5 </pre></option>
+ <option value='intagncat'><pre>[intagncat] Second INTEGRAL AGN Catalog </pre></option>
+ <option value='intbsc'><pre>[intbsc] INTEGRAL Bright Source Catalog </pre></option>
+ <option value='integralao'><pre>[integralao] INTEGRAL Observing Program </pre></option>
+ <option value='intgccat'><pre>[intgccat] INTEGRAL IBIS Hard X-Ray Survey of Galactic Center </pre></option>
+ <option value='intibisass'><pre>[intibisass] INTEGRAL IBIS All-Sky Survey of Hard X-Ray Sources </pre></option>
+ <option value='intibisgal'><pre>[intibisgal] INTEGRAL IBIS 9-Year Galactic Hard X-Ray Survey Catalog </pre></option>
+ <option value='intomcvs'><pre>[intomcvs] INTEGRAL OMC First Catalog of Optically Variable Sources </pre></option>
+ <option value='intpublic'><pre>[intpublic] INTEGRAL Public Data Results Catalog </pre></option>
+ <option value='intrefcat'><pre>[intrefcat] INTEGRAL Reference Catalog </pre></option>
+ <option value='intscw'><pre>[intscw] INTEGRAL Science Window Data </pre></option>
+ <option value='intscwpub'><pre>[intscwpub] INTEGRAL Public Pointed Science Window Data </pre></option>
+ <option value='intvarcat'><pre>[intvarcat] INTEGRAL/ISGRI Catalog of Variable X-Ray Sources </pre></option>
+ <option value='ipc'><pre>[ipc] Einstein IPC Sources Catalog </pre></option>
+ <option value='ipcdeep'><pre>[ipcdeep] Einstein Catalog IPC Deep Survey </pre></option>
+ <option value='ipcimage'><pre>[ipcimage] Einstein IPC Images </pre></option>
+ <option value='ipclxlbol'><pre>[ipclxlbol] Einstein LX & LBL Values for IPC O Stars </pre></option>
+ <option value='ipcostars'><pre>[ipcostars] Einstein Count Rates for IPC O Stars </pre></option>
+ <option value='ipcphot'><pre>[ipcphot] Einstein IPC Photon Event Data </pre></option>
+ <option value='ipcslew'><pre>[ipcslew] Einstein Catalog IPC Slew Survey </pre></option>
+ <option value='ipcultsoft'><pre>[ipcultsoft] Einstein IPC Ultrasoft Sources Catalog </pre></option>
+ <option value='ipcunscrnd'><pre>[ipcunscrnd] Einstein IPC Unscreened Photon Event List </pre></option>
+ <option value='iram30mlog'><pre>[iram30mlog] IRAM 30-m Single-Dish Telescope Observation Log </pre></option>
+ <option value='irampdblog'><pre>[irampdblog] IRAM Plateau de Bure Interferometer Observation Log </pre></option>
+ <option value='irasfsc'><pre>[irasfsc] IRAS Faint Source Catalog, Version 2.0 </pre></option>
+ <option value='iraspsc'><pre>[iraspsc] IRAS Point Source Catalog, Version 2.0 </pre></option>
+ <option value='irasssc'><pre>[irasssc] IRAS Serendipitous Survey Catalog </pre></option>
+ <option value='iraszsurv'><pre>[iraszsurv] IRAS 1.2-Jy Redshift Survey </pre></option>
+ <option value='isgri4yrct'><pre>[isgri4yrct] INTEGRAL ISGRI 4-Year Source Catalog </pre></option>
+ <option value='isolog'><pre>[isolog] ISO (Infrared Space Observatory) Observation Log </pre></option>
+ <option value='iuelog'><pre>[iuelog] IUE (International Ultraviolet Explorer) Final Merged Observation Log </pre></option>
+ <option value='kommersgrb'><pre>[kommersgrb] Kommers et al. (2001) BATSE Non-Triggered Gamma-Ray Burst Catalog </pre></option>
+ <option value='kuehr'><pre>[kuehr] Extragalactic Radio Sources </pre></option>
+ <option value='kvttmcomis'><pre>[kvttmcomis] Kvant TTM/COMIS X-Ray Source Catalog </pre></option>
+ <option value='l1641ioxmm'><pre>[l1641ioxmm] Lynds 1641 and iota Ori Region XMM-Newton X-Ray Point Source Catalog </pre></option>
+ <option value='lalaboocxo'><pre>[lalaboocxo] LALA Bootes Field Chandra X-Ray Point Source Catalog </pre></option>
+ <option value='lalacetcxo'><pre>[lalacetcxo] LALA Cetus Field Chandra X-Ray Point Source Catalog </pre></option>
+ <option value='lamorixmm'><pre>[lamorixmm] Lambda Orionis Cluster XMM-Newton X-Ray Point Source Catalog </pre></option>
+ <option value='lbn'><pre>[lbn] Lynds Catalog of Bright Nebulae </pre></option>
+ <option value='lbqs'><pre>[lbqs] Large Bright Quasar Survey </pre></option>
+ <option value='lcrscat'><pre>[lcrscat] Las Campanas Redshift Survey Catalog </pre></option>
+ <option value='ld7c151mhz'><pre>[ld7c151mhz] 7C 151-MHz Low-Declination Survey Catalog </pre></option>
+ <option value='ldn'><pre>[ldn] Lynds Catalog of Dark Nebulae </pre></option>
+ <option value='le'><pre>[le] CMA Catalog Central 6 Arcmin </pre></option>
+ <option value='lkha101cxo'><pre>[lkha101cxo] LkH-alpha 101 Star Formation Region Chandra X-Ray Point Source Catalog </pre></option>
+ <option value='lmc30drcxo'><pre>[lmc30drcxo] LMC 30 Doradus Complex Chandra X-Ray Point Source Catalog </pre></option>
+ <option value='lmcclustrs'><pre>[lmcclustrs] LMC Clusters Catalog </pre></option>
+ <option value='lmcextobj'><pre>[lmcextobj] Large Magellanic Cloud Extended Objects Catalog </pre></option>
+ <option value='lmchrixray'><pre>[lmchrixray] ROSAT HRI Catalog of LMC X-Ray Sources (Sasaki et al.) </pre></option>
+ <option value='lmcrosxray'><pre>[lmcrosxray] ROSAT PSPC Catalog of LMC X-Ray Sources (Haberl & Pietsch) </pre></option>
+ <option value='lmcxray'><pre>[lmcxray] LMC X-Ray Discrete Sources </pre></option>
+ <option value='lmxbcat'><pre>[lmxbcat] Low-Mass X-Ray Binary Catalog (4th Edition, 2007) </pre></option>
+ <option value='lockmanoir'><pre>[lockmanoir] Lockman Hole AGN Optical and Infrared Properties Catalog </pre></option>
+ <option value='lockmanxm2'><pre>[lockmanxm2] Lockman Hole XMM-Newton X-Ray Point Source Catalog </pre></option>
+ <option value='lockmanxmm'><pre>[lockmanxmm] Lockman Hole Field XMM-Newton X-Ray Point Source Catalog </pre></option>
+ <option value='lqac'><pre>[lqac] Large Quasar Astrometric Catalog, 2nd Release </pre></option>
+ <option value='lspmnorth'><pre>[lspmnorth] Lepine and Shara Northern Stars Proper Motion (LSPM-North) Catalog </pre></option>
+ <option value='lupus3xmm'><pre>[lupus3xmm] Lupus 3 SFR XMM-Newton X-Ray Point Source Catalog </pre></option>
+ <option value='lyngaclust'><pre>[lyngaclust] Lynga Open Clusters Catalog </pre></option>
+ <option value='m101cxo'><pre>[m101cxo] M 101 Chandra X-Ray Point Source Catalog </pre></option>
+ <option value='m101xmm'><pre>[m101xmm] M 101 XMM-Newton X-Ray Point Source Catalog </pre></option>
+ <option value='m16cxo'><pre>[m16cxo] M 16 (Eagle Nebula) Chandra X-Ray Point Source Catalog </pre></option>
+ <option value='m17cxo'><pre>[m17cxo] M 17 Chandra X-Ray Point Source Catalog </pre></option>
+ <option value='m31cfcxo'><pre>[m31cfcxo] M 31 Central Field Chandra HRI X-Ray Point Source Catalog </pre></option>
+ <option value='m31clustrs'><pre>[m31clustrs] M31 Globular Cluster Candidates Catalog </pre></option>
+ <option value='m31cxo2'><pre>[m31cxo2] M 31 Bulge Chandra X-Ray Point Source Catalog </pre></option>
+ <option value='m31cxoxray'><pre>[m31cxoxray] M 31 Central Region Chandra X-Ray Point Source Catalog </pre></option>
+ <option value='m31deepxmm'><pre>[m31deepxmm] M 31 Deep XMM-Newton Survey X-Ray Source Catalog </pre></option>
+ <option value='m31rosxray'><pre>[m31rosxray] ROSAT PSPC M31 Source Catalog </pre></option>
+ <option value='m31stars'><pre>[m31stars] M31 Field Brightest Stars Catalog </pre></option>
+ <option value='m31stars2'><pre>[m31stars2] MIT/Amsterdam M31 Survey </pre></option>
+ <option value='m31xmm2'><pre>[m31xmm2] M31 XMM-Newton Spectral Survey X-Ray Point Source Catalog </pre></option>
+ <option value='m31xmmxray'><pre>[m31xmmxray] XMM-Newton M31 Survey Source Catalog </pre></option>
+ <option value='m33chase'><pre>[m33chase] M 33 Chandra ACIS Survey (ChASeM33) Final Source Catalog </pre></option>
+ <option value='m33cxoxray'><pre>[m33cxoxray] M 33 Chandra X-Ray Point Source Catalog </pre></option>
+ <option value='m33xmm2'><pre>[m33xmm2] M33 XMM-Newton X-Ray Variability Source Catalog </pre></option>
+ <option value='m33xmmxray'><pre>[m33xmmxray] XMM-Newton M33 Survey Catalog </pre></option>
+ <option value='m51cxo'><pre>[m51cxo] M 51 Chandra X-Ray Discrete Source Catalog </pre></option>
+ <option value='m67cxo'><pre>[m67cxo] M 67 Chandra X-Ray Point Source Catalog </pre></option>
+ <option value='m71cxo'><pre>[m71cxo] M 71 Chandra X-Ray Point Source and Optical/Infrared Counterparts Catalog </pre></option>
+ <option value='m81cxo'><pre>[m81cxo] M 81 Chandra X-Ray Discrete Source Catalog </pre></option>
+ <option value='m81cxo2'><pre>[m81cxo2] M 81 Chandra X-Ray Point Source Catalog </pre></option>
+ <option value='m83xmm'><pre>[m83xmm] M 83 XMM-Newton X-Ray Point Source Catalog </pre></option>
+ <option value='m87cxo'><pre>[m87cxo] M 87 Chandra X-Ray Point Source Catalog </pre></option>
+ <option value='macs'><pre>[macs] Magellanic Catalog of Stars </pre></option>
+ <option value='maghmxbcat'><pre>[maghmxbcat] Magellanic Clouds High-Mass X-Ray Binaries Catalog </pre></option>
+ <option value='magpis'><pre>[magpis] Multi-Array Galactic Plane Imaging Survey </pre></option>
+ <option value='maranoxmm'><pre>[maranoxmm] Marano Field XMM-Newton X-Ray Source Optical Counterparts </pre></option>
+ <option value='markarian'><pre>[markarian] First Byurakan Survey (Markarian) Catalog of UV-Excess Galaxies </pre></option>
+ <option value='markarian2'><pre>[markarian2] Markarian Galaxies Optical Database </pre></option>
+ <option value='mashpncat'><pre>[mashpncat] MASH Catalogs of MASH Planetary Nebulae </pre></option>
+ <option value='maxigschgl'><pre>[maxigschgl] 37-Month MAXI/GSC High Galactic-Latitude Source Catalog </pre></option>
+ <option value='mcg'><pre>[mcg] Morphological Galaxy Catalog </pre></option>
+ <option value='mcksion'><pre>[mcksion] McCook-Sion White Dwarf Catalog (Web Version) </pre></option>
+ <option value='mcxc'><pre>[mcxc] MCXC Meta-Catalog of X-Ray Detected Clusters of Galaxies </pre></option>
+ <option value='mdwarfasc'><pre>[mdwarfasc] Bright M Dwarf All-Sky Catalog </pre></option>
+ <option value='me'><pre>[me] EXOSAT ME Spectra and Lightcurves </pre></option>
+ <option value='messier'><pre>[messier] Messier Nebulae </pre></option>
+ <option value='mggammacat'><pre>[mggammacat] Gamma-Ray Source Summary Catalog (Macomb & Gehrels 1999 & 2001) </pre></option>
+ <option value='mggammadet'><pre>[mggammadet] Gamma-Ray Source Detailed Catalog (Macomb & Gehrels 1999) </pre></option>
+ <option value='mgps2'><pre>[mgps2] Molonglo Galactic Plane Survey 2nd Epoch Compact Source Catalog </pre></option>
+ <option value='milliquas'><pre>[milliquas] Million Quasars Catalog (MILLIQUAS), Version 3.7 (26 November 2013) </pre></option>
+ <option value='mitgb6cm'><pre>[mitgb6cm] MIT-Green Bank 5-GHz Survey Catalog </pre></option>
+ <option value='monr2cxo'><pre>[monr2cxo] Monoceros R2 Cloud Chandra X-Ray Point Source Catalog </pre></option>
+ <option value='mostatlas'><pre>[mostatlas] Molonglo Observatory Synthesis Telescope ATLAS 843-MHz Source Catalog </pre></option>
+ <option value='mostsnrcat'><pre>[mostsnrcat] Molonglo Observatory Synthesis Telescope Supernova Remnant Catalog </pre></option>
+ <option value='mpcraw'><pre>[mpcraw] Einstein MPC Raw Data </pre></option>
+ <option value='mrc'><pre>[mrc] Molonglo Reference Catalog of Radio Sources </pre></option>
+ <option value='msxpsc'><pre>[msxpsc] Midcourse Space Experiment (MSX) Point Source Catalog, V2.3 </pre></option>
+ <option value='msxuvpsc'><pre>[msxuvpsc] Midcourse Space Experiment (MSX) Ultraviolet Point Source Catalog </pre></option>
+ <option value='mwa32thgl'><pre>[mwa32thgl] Murchison Widefield Array 32-T Low-Frequency Source Catalog </pre></option>
+ <option value='mwp1bubble'><pre>[mwp1bubble] Milky Way Project First Data Release IR Bubble Catalog </pre></option>
+ <option value='neargalcat'><pre>[neargalcat] Updated Nearby Galaxy Catalog </pre></option>
+ <option value='newmdwarfs'><pre>[newmdwarfs] New M Dwarfs in the Solar Neighborhood </pre></option>
+ <option value='ngc1291cxo'><pre>[ngc1291cxo] NGC 1291 Chandra X-Ray Point Source Catalog </pre></option>
+ <option value='ngc1333cxo'><pre>[ngc1333cxo] NGC 1333 Chandra X-Ray Point Source Catalog </pre></option>
+ <option value='ngc1399cxo'><pre>[ngc1399cxo] NGC 1399 Chandra X-Ray Source Catalog </pre></option>
+ <option value='ngc1893cxo'><pre>[ngc1893cxo] NGC 1893 Chandra X-Ray Point Source Catalog </pre></option>
+ <option value='ngc2000'><pre>[ngc2000] NGC2000.0: Complete New General Catalog and Index Catalog </pre></option>
+ <option value='ngc2024cxo'><pre>[ngc2024cxo] NGC 2024 Chandra X-Ray Point Source Catalog </pre></option>
+ <option value='ngc2237cxo'><pre>[ngc2237cxo] NGC 2237 Chandra X-Ray Point Source Catalog </pre></option>
+ <option value='ngc2244cxo'><pre>[ngc2244cxo] NGC 2244/Rosette Nebula Chandra X-Ray Point Source Catalog </pre></option>
+ <option value='ngc2264cx2'><pre>[ngc2264cx2] NGC 2264 Chandra X-Ray Point Source Catalog 2 </pre></option>
+ <option value='ngc2264cxo'><pre>[ngc2264cxo] NGC 2264 Chandra X-Ray Point Source Catalog </pre></option>
+ <option value='ngc2264xmm'><pre>[ngc2264xmm] NGC 2264 XMM-Newton X-Ray Point Source Catalog </pre></option>
+ <option value='ngc2362cxo'><pre>[ngc2362cxo] NGC 2362 Chandra X-Ray Point Source Catalog </pre></option>
+ <option value='ngc2403cxo'><pre>[ngc2403cxo] NGC 2403 Central 3-kpc Region Chandra Source Catalog </pre></option>
+ <option value='ngc2516cxo'><pre>[ngc2516cxo] NGC 2516 Chandra X-Ray Point Source Catalog </pre></option>
+ <option value='ngc2516xmm'><pre>[ngc2516xmm] NGC 2516 Cluster XMM-Newton X-Ray Point Source Catalog </pre></option>
+ <option value='ngc253xmm'><pre>[ngc253xmm] NGC 253 XMM-Newton X-Ray Point Source Catalog </pre></option>
+ <option value='ngc2547xmm'><pre>[ngc2547xmm] NGC 2547 XMM-Newton X-Ray Point Source Catalog </pre></option>
+ <option value='ngc2808cxo'><pre>[ngc2808cxo] NGC 2808 Chandra X-Ray Point Source Catalog </pre></option>
+ <option value='ngc2808xmm'><pre>[ngc2808xmm] NGC 2808 XMM-Newton X-Ray Point Source Catalog </pre></option>
+ <option value='ngc4278cxo'><pre>[ngc4278cxo] NGC 4278 Chandra X-Ray Point Source Catalog </pre></option>
+ <option value='ngc4472cxo'><pre>[ngc4472cxo] NGC 4472 Chandra X-Ray Point Source Catalog </pre></option>
+ <option value='ngc4636cxo'><pre>[ngc4636cxo] NGC 4636 Chandra X-Ray Point Source Catalog </pre></option>
+ <option value='ngc4649cx2'><pre>[ngc4649cx2] NGC 4649 Chandra X-Ray Point Source Catalog 2 </pre></option>
+ <option value='ngc4649cxo'><pre>[ngc4649cxo] NGC 4649 Chandra X-Ray Discrete Source Catalog </pre></option>
+ <option value='ngc6231xmm'><pre>[ngc6231xmm] NGC 6231 XMM-Newton X-Ray Source Catalog </pre></option>
+ <option value='ngc6334cxo'><pre>[ngc6334cxo] NGC 6334 Chandra X-Ray Point Source Catalog </pre></option>
+ <option value='ngc6357cxo'><pre>[ngc6357cxo] NGC 6357 Chandra X-Ray Point Source Catalog </pre></option>
+ <option value='ngc6357oid'><pre>[ngc6357oid] NGC 6357/Pismis 24 Chandra Point Source Optical/IR Identifications Catalog </pre></option>
+ <option value='ngc6530cxo'><pre>[ngc6530cxo] NGC 6530 Chandra X-Ray Point Source Catalog </pre></option>
+ <option value='ngc6530oid'><pre>[ngc6530oid] NGC 6530 Chandra Point Source Optical/IR Identifications Catalog </pre></option>
+ <option value='ngc6530xmm'><pre>[ngc6530xmm] NGC 6530 XMM-Newton X-Ray Point Source Catalog </pre></option>
+ <option value='ngc752cxo'><pre>[ngc752cxo] NGC 752 Chandra X-Ray Point Source Catalog </pre></option>
+ <option value='ngc752xmm'><pre>[ngc752xmm] NGC 752 XMM-Newton X-Ray Point Source Catalog </pre></option>
+ <option value='nltt'><pre>[nltt] NLTT Catalog & First Supplement </pre></option>
+ <option value='noras'><pre>[noras] Northern ROSAT All-Sky (NORAS) Galaxy Cluster Survey Catalog </pre></option>
+ <option value='north20cm'><pre>[north20cm] 20cm Radio Catalog </pre></option>
+ <option value='north6cm'><pre>[north6cm] 6cm Radio Catalog </pre></option>
+ <option value='nuaftl'><pre>[nuaftl] NuSTAR As-Flown Timeline </pre></option>
+ <option value='numaster'><pre>[numaster] NuSTAR Master Catalog </pre></option>
+ <option value='nvss'><pre>[nvss] NRAO VLA Sky Survey Catalog </pre></option>
+ <option value='omc2p3cxo'><pre>[omc2p3cxo] OMC-2 and OMC-3 Chandra X-Ray Point Source Catalog </pre></option>
+ <option value='omegcencxo'><pre>[omegcencxo] Omega Centauri Globular Cluster Chandra X-Ray Point Source Catalog </pre></option>
+ <option value='omegcenxmm'><pre>[omegcenxmm] Omega Centauri XMM-Newton X-Ray Point Source Catalog </pre></option>
+ <option value='onccxoopt'><pre>[onccxoopt] Orion Nebula Cluster Chandra HRC Optical Sample </pre></option>
+ <option value='onccxoxray'><pre>[onccxoxray] Orion Nebula Cluster Chandra HRC X-Ray Point Source Catalog </pre></option>
+ <option value='openclust'><pre>[openclust] New Optically Visible Open Clusters and Candidates Catalog </pre></option>
+ <option value='orionffcxo'><pre>[orionffcxo] Orion Flanking Fields Chandra X-Ray Point Source Catalog </pre></option>
+ <option value='orionxray'><pre>[orionxray] ROSAT Survey of the Orion Nebula </pre></option>
+ <option value='orionxstar'><pre>[orionxstar] ROSAT HRI Orion Group 1 Stars </pre></option>
+ <option value='oriysoir'><pre>[oriysoir] Orion Nebula YSO IR Properties </pre></option>
+ <option value='oso8alc'><pre>[oso8alc] OSO8 A Detector Lightcurves </pre></option>
+ <option value='oso8bclc'><pre>[oso8bclc] OSO8 B&C Detector Lightcurves </pre></option>
+ <option value='oso8rtraw'><pre>[oso8rtraw] OSO8 GCXSE Raw Rates </pre></option>
+ <option value='osrilqxray'><pre>[osrilqxray] Optically Selected Radio-Intermediate and Loud Quasars X-ray Emission Catalog </pre></option>
+ <option value='osse'><pre>[osse] CGRO/OSSE Observations </pre></option>
+ <option value='ostars'><pre>[ostars] Galactic O Stars Catalog </pre></option>
+ <option value='ovro31ghz'><pre>[ovro31ghz] Owens Valley Radio Observatory 40-m 31-GHZ Radio Source Catalog </pre></option>
+ <option value='pccs030ghz'><pre>[pccs030ghz] Planck Catalog of 30-GHz Compact Sources Release 1 </pre></option>
+ <option value='pccs044ghz'><pre>[pccs044ghz] Planck Catalog of 44-GHz Compact Sources Release 1 </pre></option>
+ <option value='pccs070ghz'><pre>[pccs070ghz] Planck Catalog of 70-GHz Compact Sources Release 1 </pre></option>
+ <option value='pccs100ghz'><pre>[pccs100ghz] Planck Catalog of 100-GHz Compact Sources Release 1 </pre></option>
+ <option value='pccs143ghz'><pre>[pccs143ghz] Planck Catalog of 143-GHz Compact Sources Release 1 </pre></option>
+ <option value='pccs217ghz'><pre>[pccs217ghz] Planck Catalog of 217-GHz Compact Sources Release 1 </pre></option>
+ <option value='pccs353ghz'><pre>[pccs353ghz] Planck Catalog of 353-GHz Compact Sources Release 1 </pre></option>
+ <option value='pccs545ghz'><pre>[pccs545ghz] Planck Catalog of 545-GHz Compact Sources Release 1 </pre></option>
+ <option value='pccs857ghz'><pre>[pccs857ghz] Planck Catalog of 857-GHz Compact Sources Release 1 </pre></option>
+ <option value='pds1p4ghz'><pre>[pds1p4ghz] Phoenix Deep Survey 1.4-GHz Catalog </pre></option>
+ <option value='pdsoid'><pre>[pdsoid] Phoenix Deep Survey Optical and Near-Infrared Counterparts Catalog </pre></option>
+ <option value='pdsoid2'><pre>[pdsoid2] Phoenix Deep Survey Optical and Near-Infrared Counterparts Catalog 2 </pre></option>
+ <option value='pg'><pre>[pg] PG Catalog of UV-excess Objects </pre></option>
+ <option value='pgc2003'><pre>[pgc2003] Principal Galaxy Catalog (PGC) 2003 </pre></option>
+ <option value='pigssboofd'><pre>[pigssboofd] Allen Telescope Array Pi GHz Sky Survey (PiGSS) Boo Field Source Catalog </pre></option>
+ <option value='pigsselcnf'><pre>[pigsselcnf] Allen Telescope Array Pi GHz Sky Survey (PiGSS) Deep Fields Source Catalog </pre></option>
+ <option value='pkscat90'><pre>[pkscat90] Parkes Southern Radio Sources </pre></option>
+ <option value='planckeszc'><pre>[planckeszc] Planck Early Sunyaev-Zeldovich Detected Cluster Candidates Catalog </pre></option>
+ <option value='plancksz'><pre>[plancksz] Planck Catalog of Sunyaez-Zeldovich Sources Release 1 </pre></option>
+ <option value='pleiadxray'><pre>[pleiadxray] ROSAT PSPC Catalog of the Pleiades (Micela et al. 1996) </pre></option>
+ <option value='plnebulae'><pre>[plnebulae] Galactic Planetary Nebulae Catalog </pre></option>
+ <option value='pmn'><pre>[pmn] Parkes-MIT-NRAO (PMN) Surveys </pre></option>
+ <option value='pmpulsar'><pre>[pmpulsar] Parkes Multibeam Survey New Pulsar Catalog </pre></option>
+ <option value='pmsucat'><pre>[pmsucat] Palomar/MSU Nearby Star Survey </pre></option>
+ <option value='ppm'><pre>[ppm] Positions and Proper Motions Catalog </pre></option>
+ <option value='pulsar'><pre>[pulsar] Pulsar Catalog </pre></option>
+ <option value='qorgcat'><pre>[qorgcat] All-Sky Optical Catalog of Radio/X-Ray Sources </pre></option>
+ <option value='qso'><pre>[qso] Hewitt & Burbidge (1993) QSO Catalog </pre></option>
+ <option value='radio'><pre>[radio] Master Radio Catalog </pre></option>
+ <option value='rass2mass'><pre>[rass2mass] ROSAT All-Sky Survey BSC/2MASS PSC Cross-Associations XID II Catalog </pre></option>
+ <option value='rass6dfgs'><pre>[rass6dfgs] ROSAT All-Sky Survey/6dF Galaxy Survey Catalog of X-Ray Selected AGN </pre></option>
+ <option value='rassaeqso'><pre>[rassaeqso] ROSAT All-Sky Survey/ASIAGO-ESO QSO Survey Catalog </pre></option>
+ <option value='rassasaseb'><pre>[rassasaseb] RASS/All-Sky Automated Survey Eclipsing Binaries Catalog </pre></option>
+ <option value='rassbsc'><pre>[rassbsc] ROSAT All-Sky Survey: Bright Sources </pre></option>
+ <option value='rassbscpgc'><pre>[rassbscpgc] ROSAT All-Sky Survey Bright Source Catalog/Catalog of Principal Galaxies Matches </pre></option>
+ <option value='rasscals'><pre>[rasscals] ROSAT All-Sky Survey CALS Galaxy Groups Catalog </pre></option>
+ <option value='rasscndins'><pre>[rasscndins] ROSAT All-Sky Survey Candidate Isolated Neutron Stars </pre></option>
+ <option value='rasscns3'><pre>[rasscns3] ROSAT All-Sky Survey: Nearby Stars </pre></option>
+ <option value='rassdssagn'><pre>[rassdssagn] ROSAT All-Sky Survey and SDSS DR5 Sample of X-Ray Emitting AGN </pre></option>
+ <option value='rassdsstar'><pre>[rassdsstar] ROSAT All-Sky Survey and SDSS Sample of X-Ray Emitting Stars </pre></option>
+ <option value='rassdwarf'><pre>[rassdwarf] ROSAT All-Sky Survey: A-K Dwarfs/Subgiants </pre></option>
+ <option value='rassebcs'><pre>[rassebcs] ROSAT All-Sky Survey Extended Brightest Cluster Sample </pre></option>
+ <option value='rassfirst'><pre>[rassfirst] ROSAT All-Sky Survey Single FIRST Matches Catalog </pre></option>
+ <option value='rassfsc'><pre>[rassfsc] ROSAT All-Sky Survey: Faint Sources </pre></option>
+ <option value='rassgb'><pre>[rassgb] RASS/Green Bank Catalog </pre></option>
+ <option value='rassgiant'><pre>[rassgiant] ROSAT All-Sky Survey: Giants & Supergiants </pre></option>
+ <option value='rasshgsft2'><pre>[rasshgsft2] ROSAT All-Sky Survey: Soft High Galactic-Latitude X-Ray Sources 2 </pre></option>
+ <option value='rasshgsoft'><pre>[rasshgsoft] ROSAT All-Sky Survey: Soft High Galactic-Latitude X-Ray Sources </pre></option>
+ <option value='rassmaster'><pre>[rassmaster] ROSAT All-Sky Survey Archival Data </pre></option>
+ <option value='rassnorsam'><pre>[rassnorsam] ROSAT All-Sky Survey Completely Identified Northern Sample </pre></option>
+ <option value='rassob'><pre>[rassob] ROSAT All-Sky Survey: OB Stars </pre></option>
+ <option value='rassusnoid'><pre>[rassusnoid] ROSAT All-Sky Survey Bright Source Catalog USNO A2 Cross-Associations </pre></option>
+ <option value='rassvars'><pre>[rassvars] RASS X-Ray Variable Sources Catalog </pre></option>
+ <option value='rasswd'><pre>[rasswd] ROSAT All-Sky Survey: White Dwarfs </pre></option>
+ <option value='rbs'><pre>[rbs] ROSAT Bright Survey (Schwope et al. 2000) </pre></option>
+ <option value='rbscnvss'><pre>[rbscnvss] ROSAT All-Sky Survey/NVSS Bright X-Ray Source Sample </pre></option>
+ <option value='rc3'><pre>[rc3] Third Reference Catalog of Bright Galaxies </pre></option>
+ <option value='rcw108cxo'><pre>[rcw108cxo] RCW 108 Star Formation Region Chandra X-Ray Point Source Catalog </pre></option>
+ <option value='rcw38cxo'><pre>[rcw38cxo] RCW 38 Chandra X-Ray Point Source Catalog </pre></option>
+ <option value='rcw38cxo2'><pre>[rcw38cxo2] RCW 38 Chandra X-Ray Point Source Catalog 2 </pre></option>
+ <option value='rcw38yso'><pre>[rcw38yso] RCW 38 Young Stellar Objects Catalog </pre></option>
+ <option value='rcw49cxo'><pre>[rcw49cxo] RCW 49 Chandra X-Ray Point Source Catalog </pre></option>
+ <option value='reflex'><pre>[reflex] ROSAT-ESO Flux-Limited X-Ray (REFLEX) Galaxy Cluster Survey </pre></option>
+ <option value='refnebulae'><pre>[refnebulae] Merged Catalog of Reflection Nebulae </pre></option>
+ <option value='revisedlhs'><pre>[revisedlhs] Revised Luyten Half-Second (LHS) Catalog </pre></option>
+ <option value='rhoophcxo'><pre>[rhoophcxo] Rho Ophiuchi SFR Chandra X-Ray Point Source Catalog </pre></option>
+ <option value='rittercv'><pre>[rittercv] Ritter Cataclysmic Binaries Catalog (7.19 Edition) </pre></option>
+ <option value='ritterlmxb'><pre>[ritterlmxb] Ritter Low-Mass X-Ray Binaries Catalog (7.19 Edition) </pre></option>
+ <option value='ritterrbin'><pre>[ritterrbin] Ritter Binaries Related to CVs Catalog (7.19 Edition) </pre></option>
+ <option value='rixos'><pre>[rixos] ROSAT International X-Ray/Optical Survey Source Catalog </pre></option>
+ <option value='romabzcat'><pre>[romabzcat] Roma-BZCAT Multi-Frequency Catalog of Blazars </pre></option>
+ <option value='ros13hrcxo'><pre>[ros13hrcxo] ROSAT/XMM-Newton 13-hour Field Chandra X-Ray Source Catalog </pre></option>
+ <option value='ros13hrvla'><pre>[ros13hrvla] ROSAT/XMM-Newton 13-hr Deep Field VLA 20-cm Source Catalog </pre></option>
+ <option value='ros13hrxmm'><pre>[ros13hrxmm] ROSAT 13-hour Field XMM-Newton X-Ray Source Catalog </pre></option>
+ <option value='ros400gcls'><pre>[ros400gcls] ROSAT PSPC 400 Square Degree Galaxy Cluster Catalog </pre></option>
+ <option value='rosathard'><pre>[rosathard] ROSAT Hard-Spectrum X-Ray Source Catalog </pre></option>
+ <option value='rosatlog'><pre>[rosatlog] ROSAT Observation Log </pre></option>
+ <option value='rosatrlq'><pre>[rosatrlq] ROSAT Radio-Loud Quasars Catalog </pre></option>
+ <option value='rosatrqq'><pre>[rosatrqq] ROSAT Radio-Quiet Quasars Catalog </pre></option>
+ <option value='rosatxuv'><pre>[rosatxuv] ROSAT XUV Pointed Phase </pre></option>
+ <option value='rosettecxo'><pre>[rosettecxo] Rosette Molecular Cloud Chandra X-Ray Point Source Catalog </pre></option>
+ <option value='rosgalclus'><pre>[rosgalclus] ROSAT PSPC Catalog of Clusters of Galaxies </pre></option>
+ <option value='roshri'><pre>[roshri] ROSAT Results Archive Sources for the HRI </pre></option>
+ <option value='roshritotal'><pre>[roshritotal] ROSAT Complete Results Archive Sources for the HRI </pre></option>
+ <option value='rosmaster'><pre>[rosmaster] ROSAT Archival Data </pre></option>
+ <option value='rosnepagn'><pre>[rosnepagn] ROSAT North Ecliptic Pole Survey Active Galactic Nuclei Catalog </pre></option>
+ <option value='rosnepoid'><pre>[rosnepoid] ROSAT North Ecliptic Pole Survey Optical Identifications </pre></option>
+ <option value='rosnepxray'><pre>[rosnepxray] ROSAT North Ecliptic Pole Survey X-Ray Source Catalog </pre></option>
+ <option value='rospspc'><pre>[rospspc] ROSAT Results Archive Sources for the PSPC </pre></option>
+ <option value='rospspcf'><pre>[rospspcf] ROSAT Results Archive Sources for the PSPC with Filter </pre></option>
+ <option value='rospspcftot'><pre>[rospspcftot] ROSAT Complete Results Archive Sources for the PSPC with Filter </pre></option>
+ <option value='rospspctotal'><pre>[rospspctotal] ROSAT Complete Results Archive Sources for the PSPC </pre></option>
+ <option value='roswfc2re'><pre>[roswfc2re] ROSAT Catalog WFC 2RE Sources </pre></option>
+ <option value='rotxraycat'><pre>[rotxraycat] Stars with Rotation Periods & X-Ray Luminosities Catalog </pre></option>
+ <option value='roxa'><pre>[roxa] ROXA (Radio-Optical-X-ray at ASDC) Blazars Catalog </pre></option>
+ <option value='rrs8c38mhz'><pre>[rrs8c38mhz] 8C Revised Rees Survey 38-MHz Source Catalog </pre></option>
+ <option value='rssgrbag'><pre>[rssgrbag] Radio-Selected Gamma-Ray Burst Afterglow Catalog </pre></option>
+ <option value='rt9cc15ghz'><pre>[rt9cc15ghz] 9C Continued 15-GHz Ryle Telescope Survey of VSA Fields Source Catalog </pre></option>
+ <option value='rtv9c15ghz'><pre>[rtv9c15ghz] 9C 15-GHz Ryle Telescope Survey of VSA Fields Source Catalog </pre></option>
+ <option value='s254258cxo'><pre>[s254258cxo] S254-S258 Star-Forming Region Chandra X-Ray Point Source Catalog </pre></option>
+ <option value='sa57xmm'><pre>[sa57xmm] Selected Area 57 XMM-Newton X-Ray Source Catalog </pre></option>
+ <option value='sacy'><pre>[sacy] SACY (Search for Associations Containing Young Stars) Catalog </pre></option>
+ <option value='saisncat'><pre>[saisncat] Sternberg Astronomical Institute Catalog of Supernovae </pre></option>
+ <option value='sao'><pre>[sao] Smithsonian Astrophysical Observatory Star Catalog </pre></option>
+ <option value='sas2maps'><pre>[sas2maps] SAS-2 Map Product Catalog </pre></option>
+ <option value='sas2raw'><pre>[sas2raw] SAS-2 Photon Events Catalog </pre></option>
+ <option value='sas3ylog'><pre>[sas3ylog] SAS-3 Y-Axis Pointed Obs Log </pre></option>
+ <option value='sax2to10'><pre>[sax2to10] BeppoSAX 2-10 keV Survey </pre></option>
+ <option value='saxao'><pre>[saxao] BeppoSAX Approved Pointings </pre></option>
+ <option value='saxgrbmgrb'><pre>[saxgrbmgrb] BeppoSAX/GRBM Gamma-Ray Burst Catalog </pre></option>
+ <option value='saxnfilog'><pre>[saxnfilog] BeppoSAX NFI Archive and Observation Log </pre></option>
+ <option value='saxwfccat'><pre>[saxwfccat] BeppoSAX Wide Field Camera X-Ray Source Catalog </pre></option>
+ <option value='saxwfccat2'><pre>[saxwfccat2] BeppoSAX Wide Field Camera Unbiased X-Ray Source Catalog </pre></option>
+ <option value='saxwfclog'><pre>[saxwfclog] BeppoSAX WFC Observation Log </pre></option>
+ <option value='sborbitcat'><pre>[sborbitcat] Spectroscopic Binary Orbits Ninth Catalog (Dynamic Version) </pre></option>
+ <option value='sbsggencat'><pre>[sbsggencat] Second Byurakan Survey General Catalog Galaxies Optical Database </pre></option>
+ <option value='scubafemoc'><pre>[scubafemoc] SCUBA Legacy Fundamental and Extended Map Object Catalogs </pre></option>
+ <option value='sdssbalqs2'><pre>[sdssbalqs2] Sloan Digital Sky Survey Broad Absorption Line Quasars Catalog: 5th Data Release </pre></option>
+ <option value='sdssbalqso'><pre>[sdssbalqso] Sloan Digital Sky Survey Broad Absorption Line Quasars Catalog: 3rd Data Release </pre></option>
+ <option value='sdsscvcat'><pre>[sdsscvcat] Sloan Digital Sky Survey I/II Cataclysmic Variables Catalog </pre></option>
+ <option value='sdsscxoqso'><pre>[sdsscxoqso] Sloan Digital Sky Survey Quasars Detected by Chandra </pre></option>
+ <option value='sdssdr7wd'><pre>[sdssdr7wd] Sloan Digital Sky Survey DR7 White Dwarf Catalog </pre></option>
+ <option value='sdsslasqso'><pre>[sdsslasqso] Sloan Digital Sky Survey/UKIRT DSS Large Area Survey Matched Quasars Catalog </pre></option>
+ <option value='sdssnbckde'><pre>[sdssnbckde] SDSS NBCKDE Catalog of Photometrically Selected Quasar Candidates </pre></option>
+ <option value='sdssnbcqsc'><pre>[sdssnbcqsc] Sloan Digital Sky Survey NBC Quasar Candidate Catalog </pre></option>
+ <option value='sdssquasar'><pre>[sdssquasar] Sloan Digital Sky Survey Quasar Catalog (7th Data Release) </pre></option>
+ <option value='sdssunuqsr'><pre>[sdssunuqsr] Sloan Digital Sky Survey Unusual Quasars Catalog </pre></option>
+ <option value='sdsswdsd'><pre>[sdsswdsd] Sloan Digital Sky Survey DR4 White Dwarf & Hot Subdwarf Catalog </pre></option>
+ <option value='sdsswhlgc'><pre>[sdsswhlgc] Sloan Digital Sky Survey DR6 Galaxy Clusters Catalog </pre></option>
+ <option value='sdssxmmqso'><pre>[sdssxmmqso] Sloan Digital Sky Survey (DR5)/XMM-Newton Quasar Survey Catalog </pre></option>
+ <option value='sfgalhmxb'><pre>[sfgalhmxb] Star-Forming Galaxies High-Mass X-Ray Binaries Catalog </pre></option>
+ <option value='shk'><pre>[shk] Shakbazian Compact Groups of Galaxies </pre></option>
+ <option value='shkgalaxy'><pre>[shkgalaxy] Shakhabazian (Shk) Compact Groups of Galaxies: Individual Galaxies Data </pre></option>
+ <option value='sigorixmm'><pre>[sigorixmm] Sigma Orionis Cluster XMM-Newton X-Ray Point Source Catalog </pre></option>
+ <option value='sixdfgs'><pre>[sixdfgs] 6dFGS Galaxy Survey Final Redshift Release Catalog </pre></option>
+ <option value='sixsrvycat'><pre>[sixsrvycat] Swift-INTEGRAL X-Ray (SIX) Survey Catalog </pre></option>
+ <option value='smcclustrs'><pre>[smcclustrs] SMC & Bridge Clusters Catalog </pre></option>
+ <option value='smcdfscxo'><pre>[smcdfscxo] Small Magellanic Cloud Deep Fields X-Ray Point Source Catalog </pre></option>
+ <option value='smcpscxmm'><pre>[smcpscxmm] Small Magellanic Cloud XMM-Newton Point Source Catalog </pre></option>
+ <option value='smcradio'><pre>[smcradio] Small Magellanic Cloud ATCA Radio Continuum Sources </pre></option>
+ <option value='smcrosxray'><pre>[smcrosxray] ROSAT PSPC Survey of the Small Magellanic Cloud </pre></option>
+ <option value='smcrosxry2'><pre>[smcrosxry2] ROSAT PSPC Catalog of SMC X-Ray Sources (Haberl et al) </pre></option>
+ <option value='smcstars'><pre>[smcstars] SMC Probable Member Stars Catalog </pre></option>
+ <option value='smcstars2'><pre>[smcstars2] SMC H-Alpha Emission Stars/Nebulae </pre></option>
+ <option value='smcwingcxo'><pre>[smcwingcxo] Small Magellanic Cloud Wing Survey Chandra X-Ray Point Source Catalog </pre></option>
+ <option value='smcxray'><pre>[smcxray] SMC X-Ray Discrete Sources </pre></option>
+ <option value='snrgreen'><pre>[snrgreen] Green Catalog of Galactic SNRs (March 2009 Version) </pre></option>
+ <option value='spicescxo'><pre>[spicescxo] SPICES Lynx Field Chandra X-Ray Source Catalog </pre></option>
+ <option value='spitzmastr'><pre>[spitzmastr] Spitzer Space Telescope Observation Log </pre></option>
+ <option value='sporiabyso'><pre>[sporiabyso] Spitzer Survey of Orion A and B Molecular Clouds YSOs Catalog </pre></option>
+ <option value='ssa22cxo'><pre>[ssa22cxo] SSA22 Field Chandra X-Ray Point Source Catalog </pre></option>
+ <option value='sss'><pre>[sss] Einstein SSS Spectra and Lightcurves </pre></option>
+ <option value='sssraw'><pre>[sssraw] Einstein SSS and MPC Raw Data </pre></option>
+ <option value='sterngrb'><pre>[sterngrb] Stern et al. (2001) BATSE Gamma-Ray Burst Catalog </pre></option>
+ <option value='subpfclog'><pre>[subpfclog] Subaru Prime Focus Camera (Suprime-Cam) Exposures Log </pre></option>
+ <option value='sumss'><pre>[sumss] Sydney University Molonglo Sky Survey (SUMSS) Source Catalog </pre></option>
+ <option value='suzamaster'><pre>[suzamaster] Suzaku Master Catalog </pre></option>
+ <option value='suzaxislog'><pre>[suzaxislog] Suzaku XIS Configuration Log </pre></option>
+ <option value='swbatagn60'><pre>[swbatagn60] Swift BAT 60-Month Survey of Active Galactic Nuclei Catalog </pre></option>
+ <option value='swiftbalog'><pre>[swiftbalog] Swift BAT Instrument Log </pre></option>
+ <option value='swiftmastr'><pre>[swiftmastr] Swift Master Catalog </pre></option>
+ <option value='swifttdrss'><pre>[swifttdrss] Swift TDRSS Messages </pre></option>
+ <option value='swiftuvlog'><pre>[swiftuvlog] Swift UVOT Instrument Log </pre></option>
+ <option value='swiftxrlog'><pre>[swiftxrlog] Swift XRT Instrument Log </pre></option>
+ <option value='swirecxo'><pre>[swirecxo] Spitzer Wide-Area IR Extra-Galactic Survey Chandra X-Ray Sources </pre></option>
+ <option value='swirelhcxo'><pre>[swirelhcxo] SWIRE/Chandra Lockman Hole Field X-Ray Source Catalog </pre></option>
+ <option value='swsdssqso'><pre>[swsdssqso] Swift Simultaneous UV, Optical, and X-Ray Observed Quasar Catalog </pre></option>
+ <option value='sxdscat'><pre>[sxdscat] Subaru/XMM-Newton Deep Survey X-Ray Source List </pre></option>
+ <option value='symbiotics'><pre>[symbiotics] Symbiotic Stars Catalog </pre></option>
+ <option value='sza31ghz'><pre>[sza31ghz] Sunyaev-Zeldovich Array 31-GHZ Radio Source Catalog </pre></option>
+ <option value='tartarus'><pre>[tartarus] Tartarus: Reduced ASCA AGN Data (Version 3.1) </pre></option>
+ <option value='taurusxmm'><pre>[taurusxmm] Taurus Molecular Cloud XMM-Newton X-Ray Source Catalog </pre></option>
+ <option value='td1'><pre>[td1] TD1 Stellar Ultraviolet Fluxes Catalog </pre></option>
+ <option value='texas'><pre>[texas] Texas Survey of Radio Sources at 365 MHz </pre></option>
+ <option value='tgs'><pre>[tgs] EXOSAT TGS L and R Orders </pre></option>
+ <option value='tgs2'><pre>[tgs2] EXOSAT TGS Spectra and Lightcurves </pre></option>
+ <option value='tramisuboo'><pre>[tramisuboo] Two-Meter Radio Mini Survey (T-RaMiSu) of the Bootes Field </pre></option>
+ <option value='trifidcxo'><pre>[trifidcxo] Trifid Nebula (M 20) Chandra X-Ray Point Source Catalog </pre></option>
+ <option value='twodfqsoz'><pre>[twodfqsoz] 2dF QSO Redshift (2QZ) Survey </pre></option>
+ <option value='twomassrsc'><pre>[twomassrsc] 2MASS Redshift Survey (2MRS) Catalog </pre></option>
+ <option value='twosigma'><pre>[twosigma] Einstein Two-Sigma Catalog </pre></option>
+ <option value='tycho2'><pre>[tycho2] Tycho-2 Catalog of the 2.5 Million Brightest Stars </pre></option>
+ <option value='uc7c151mhz'><pre>[uc7c151mhz] 7C Catalog 151-MHz Survey Final Unified Source Catalog </pre></option>
+ <option value='ugc'><pre>[ugc] Uppsala General Catalog of Galaxies </pre></option>
+ <option value='uhuru4'><pre>[uhuru4] Uhuru Fourth (4U) Catalog </pre></option>
+ <option value='uit'><pre>[uit] Ultraviolet Imaging Telescope Near-UV Bright Objects Catalog </pre></option>
+ <option value='uitmaster'><pre>[uitmaster] Ultraviolet Imaging Telescope Master Catalog </pre></option>
+ <option value='ulxngcat'><pre>[ulxngcat] Ultraluminous X-Ray Sources in Nearby Galaxies Catalog </pre></option>
+ <option value='ulxrbcat'><pre>[ulxrbcat] Ultraluminous X-Ray Sources in External Galaxies Catalog </pre></option>
+ <option value='upprscoxmm'><pre>[upprscoxmm] Upper Sco XMM-Newton X-Ray Point Source Catalog </pre></option>
+ <option value='uvotbscat'><pre>[uvotbscat] UVOT Bright Star Catalog </pre></option>
+ <option value='uzc'><pre>[uzc] Updated Zwicky Catalog </pre></option>
+ <option value='vela5b'><pre>[vela5b] Vela 5B All-Sky Monitor Lightcurves </pre></option>
+ <option value='veroncat'><pre>[veroncat] Veron Catalog of Quasars & AGN, 13th Edition </pre></option>
+ <option value='vla74mhzdp'><pre>[vla74mhzdp] VLA 74-MHz Deep High-Resolution Survey Source Catalog </pre></option>
+ <option value='vlacdfscat'><pre>[vlacdfscat] VLA Survey of Chandra Deep Field South </pre></option>
+ <option value='vlacomacat'><pre>[vlacomacat] VLA Coma Cluster of Galaxies 1.4-GHz Source Catalog </pre></option>
+ <option value='vlacosmjsc'><pre>[vlacosmjsc] VLA-COSMOS Project 1.4-GHz Joint Source Catalog </pre></option>
+ <option value='vlacosmos'><pre>[vlacosmos] VLA-COSMOS Large Project 1.4-GHz Source Catalog </pre></option>
+ <option value='vlaecdfs1p4'><pre>[vlaecdfs1p4] VLA Extended-Chandra Deep Field-South 1.4-GHz Source Catalog </pre></option>
+ <option value='vlaecdfsoi'><pre>[vlaecdfsoi] VLA Extended-Chandra Deep Field-South 1.4-GHz Sources Opt/IR Counterparts </pre></option>
+ <option value='vlaen20cm'><pre>[vlaen20cm] VLA ELAIS N1, N2, N3 Fields 20-cm Source Catalog </pre></option>
+ <option value='vlagoodsn'><pre>[vlagoodsn] VLA GOODS-North Field 1.4-GHz Source Catalog </pre></option>
+ <option value='vlahdf20cm'><pre>[vlahdf20cm] VLA Hubble Deep Field 20-cm Source Catalog </pre></option>
+ <option value='vlalh1400m'><pre>[vlalh1400m] VLA Lockman Hole 1400-MHz Radio Source Catalog </pre></option>
+ <option value='vlanep'><pre>[vlanep] VLA 1.5-GHz North Ecliptic Pole Survey </pre></option>
+ <option value='vlasdf20cm'><pre>[vlasdf20cm] VLA SWIRE Deep Field 20-cm Source Catalog </pre></option>
+ <option value='vlasdf90cm'><pre>[vlasdf90cm] VLA SWIRE Deep Field 90-cm Source Catalog </pre></option>
+ <option value='vlass821p4'><pre>[vlass821p4] VLA SDSS Stripe 82 Survey 1.4-GHz Source Catalog </pre></option>
+ <option value='vlasxdf1p4'><pre>[vlasxdf1p4] VLA Subaru/XMM-Newton Deep Field 1.4-GHz Source Catalog </pre></option>
+ <option value='vlaxl325mh'><pre>[vlaxl325mh] VLA XMM Large Scale Structure Field 325-MHz Source Catalog </pre></option>
+ <option value='vlaxl74mhz'><pre>[vlaxl74mhz] VLA XMM Large Scale Structure Field 74-MHz Source Catalog </pre></option>
+ <option value='vlss'><pre>[vlss] VLA Low-Frequency Sky Survey Discrete Source Catalog </pre></option>
+ <option value='vlssr'><pre>[vlssr] VLA Low-Frequency Sky Survey Redux Source Catalog </pre></option>
+ <option value='vvds20cm'><pre>[vvds20cm] VLA-VIRMOS Deep Field 20-cm Source Catalog </pre></option>
+ <option value='w2ragncat'><pre>[w2ragncat] WISE/2MASS/RASS (W2R) AGN Sample Catalog </pre></option>
+ <option value='w40sfrcxo'><pre>[w40sfrcxo] W 40 Star-Forming Region Chandra X-Ray Point Source Catalog </pre></option>
+ <option value='wackerling'><pre>[wackerling] Wackerling Catalog of Early-Type Emission-Line Stars </pre></option>
+ <option value='warps'><pre>[warps] Wide Angle ROSAT Pointed Survey, First Phase (WARPS-I) </pre></option>
+ <option value='warps2'><pre>[warps2] Wide Angle ROSAT Pointed Survey, Second Phase (WARPS-II) Clusters Catalog </pre></option>
+ <option value='wbhgp20cm'><pre>[wbhgp20cm] New Catalog of Compact 20cm Sources in the Galactic Plane </pre></option>
+ <option value='wbhgp6cm'><pre>[wbhgp6cm] New Catalog of Compact 6cm Sources in the Galactic Plane </pre></option>
+ <option value='wbl'><pre>[wbl] WBL Poor Galaxy Clusters Catalog (White et al. 1999) </pre></option>
+ <option value='wblgalaxy'><pre>[wblgalaxy] WBL Individual Galaxies Data Catalog (White et al. 1999) </pre></option>
+ <option value='wd1cxo'><pre>[wd1cxo] Westerlund 1 Chandra X-Ray Point Source Catalog </pre></option>
+ <option value='wds'><pre>[wds] Washington Double Star Catalog </pre></option>
+ <option value='wenss'><pre>[wenss] Westerbork Northern Sky Survey </pre></option>
+ <option value='wfcpoint'><pre>[wfcpoint] ROSAT Archival WFC EUV Data </pre></option>
+ <option value='wgacat'><pre>[wgacat] ROSAT Catalog PSPC WGA Sources </pre></option>
+ <option value='wish'><pre>[wish] Westerbork in the Southern Hemisphere (WISH) Source Catalog </pre></option>
+ <option value='wmapcmbfps'><pre>[wmapcmbfps] WMAP Nine-Year CMB-Free QVW Point Source Catalog </pre></option>
+ <option value='wmapitnpts'><pre>[wmapitnpts] WMAP 7-Year Internal Templates and Needlets New Source Catalog </pre></option>
+ <option value='wmapptsrc'><pre>[wmapptsrc] WMAP Nine-Year Five-Band Point Source Catalog </pre></option>
+ <option value='woodebcat'><pre>[woodebcat] Wood Interacting Binaries Catalog </pre></option>
+ <option value='woolley'><pre>[woolley] Woolley Catalog of Stars within 25 Parsecs </pre></option>
+ <option value='wrcat'><pre>[wrcat] The VIIth Catalog of Galactic Wolf-Rayet Stars </pre></option>
+ <option value='wsrt20anep'><pre>[wsrt20anep] AKARI NEP WSRT 20-cm Source Catalog </pre></option>
+ <option value='wsrtgp'><pre>[wsrtgp] WSRT Galactic Plane Compact 327-MHz Source Catalog </pre></option>
+ <option value='xbootes'><pre>[xbootes] XBOOTES: NDWFS Bootes Field X-Ray Point Source Catalog </pre></option>
+ <option value='xbootesoid'><pre>[xbootesoid] XBOOTES: NDWFS Bootes Field Optical & Near IR Counterparts </pre></option>
+ <option value='xcopraw'><pre>[xcopraw] Copernicus X-Ray Observations </pre></option>
+ <option value='xcs'><pre>[xcs] XMM-Newton Cluster Survey Catalog, DR1 Version </pre></option>
+ <option value='xdeep2'><pre>[xdeep2] DEEP2 Galaxy Redshift Survey Fields Chandra Point Source Catalog </pre></option>
+ <option value='xmdsvvds4s'><pre>[xmdsvvds4s] XMM-Newton Medium Deep Survey/VIRMOS VLT Deep Survey 4-Sigma Catalog </pre></option>
+ <option value='xmmao'><pre>[xmmao] XMM-Newton Accepted Targets </pre></option>
+ <option value='xmmbss'><pre>[xmmbss] XMM-Newton Bright Serendipitous Survey </pre></option>
+ <option value='xmmbssagn'><pre>[xmmbssagn] XMM-Newton Bright Serendipitous Survey: AGN X-Ray Spectral Properties </pre></option>
+ <option value='xmmcdfs210'><pre>[xmmcdfs210] XMM-Newton Deep Survey in the CDF-S 2-10 keV Source Catalog </pre></option>
+ <option value='xmmcdfs510'><pre>[xmmcdfs510] XMM-Newton Deep Survey in the CDF-S 5-10 keV Source Catalog </pre></option>
+ <option value='xmmcfrscat'><pre>[xmmcfrscat] XMM-Newton/Canada-France Redshift Survey Fields X-Ray Sources </pre></option>
+ <option value='xmmcfrsoid'><pre>[xmmcfrsoid] XMM-Newton/Canada-France Redshift Survey Fields Optical Identifications </pre></option>
+ <option value='xmmcosmagn'><pre>[xmmcosmagn] XMM-COSMOS Catalog of X-Ray Selected Type 1 AGN </pre></option>
+ <option value='xmmcosmoid'><pre>[xmmcosmoid] XMM-COSMOS Catalog of Optical/IR Counterparts </pre></option>
+ <option value='xmmcosmos'><pre>[xmmcosmos] XMM-Newton COSMOS X-Ray Point Source Catalog </pre></option>
+ <option value='xmmcphotz'><pre>[xmmcphotz] XMM-Newton COSMOS (XMM-COSMOS) Survey Photometric Redshift Catalog </pre></option>
+ <option value='xmmcty2agn'><pre>[xmmcty2agn] XMM-COSMOS X-Ray Selected Type-2 AGN </pre></option>
+ <option value='xmmgps'><pre>[xmmgps] XMM-Newton Galactic Plane Survey - XGPS </pre></option>
+ <option value='xmmlss'><pre>[xmmlss] XMM-Newton Large-Scale Structure X-Ray Source Catalog </pre></option>
+ <option value='xmmlss10ks'><pre>[xmmlss10ks] XMM-Newton Large-Scale Structure Uniform 10-ksec Exposure X-Ray Source Catalog </pre></option>
+ <option value='xmmlssclas'><pre>[xmmlssclas] XMM-Newton Large-Scale Structure Optical Counterparts and Redshifts </pre></option>
+ <option value='xmmlssdeep'><pre>[xmmlssdeep] XMM-Newton Large-Scale Structure Deep Full-Exposure X-Ray Source Catalog </pre></option>
+ <option value='xmmlssoid'><pre>[xmmlssoid] XMM-Newton Large-Scale Structure Optical Identifications Catalog </pre></option>
+ <option value='xmmmaster'><pre>[xmmmaster] XMM-Newton Master Log & Public Archive </pre></option>
+ <option value='xmmobstars'><pre>[xmmobstars] XMM-Newton OB Stars Catalog </pre></option>
+ <option value='xmmomobj'><pre>[xmmomobj] XMM-Newton OM Objects </pre></option>
+ <option value='xmmomsuss'><pre>[xmmomsuss] XMM-Newton Optical Monitor Serendipitous UV Source Survey Catalog </pre></option>
+ <option value='xmmsdssgcs'><pre>[xmmsdssgcs] 2XMMi/SDSS Galaxy Cluster Survey </pre></option>
+ <option value='xmmslewcln'><pre>[xmmslewcln] XMM-Newton Slew Survey Clean Source Catalog, v1.5 </pre></option>
+ <option value='xmmslewegs'><pre>[xmmslewegs] XMM-Newton Slew Survey Extragalactic Sample </pre></option>
+ <option value='xmmslewful'><pre>[xmmslewful] XMM-Newton Slew Survey Full Source Catalog, v1.5 </pre></option>
+ <option value='xmmssc'><pre>[xmmssc] XMM-Newton Serendipitous Source Catalog (3XMM DR4 Version) </pre></option>
+ <option value='xmmsscgps'><pre>[xmmsscgps] XMM-Newton Survey Science Center Survey of the Galactic Plane </pre></option>
+ <option value='xmmssclwbd'><pre>[xmmssclwbd] XMM-Newton 2XMMi-DR3 Selected Source Detections Catalog </pre></option>
+ <option value='xmmssclwbs'><pre>[xmmssclwbs] XMM-Newton 2XMMi-DR3 Selected Source Classifications Catalog </pre></option>
+ <option value='xmmvaragn'><pre>[xmmvaragn] Ensemble X-Ray Variability of AGN in 2XMMi-DR3 </pre></option>
+ <option value='xmmxassist'><pre>[xmmxassist] XMM-Newton XAssist Source List </pre></option>
+ <option value='xms'><pre>[xms] XMM-Newton Medium Sensitivity Survey (XMS) Source Catalog </pre></option>
+ <option value='xray'><pre>[xray] Master X-Ray Catalog </pre></option>
+ <option value='xrayselbll'><pre>[xrayselbll] X-Ray Selected BL Lac Objects Catalog </pre></option>
+ <option value='xrbcat'><pre>[xrbcat] X-Ray Binaries Catalog </pre></option>
+ <option value='xteao'><pre>[xteao] XTE Proposal Info & Abstracts </pre></option>
+ <option value='xteasmlong'><pre>[xteasmlong] XTE All-Sky Monitor Long-Term Observed Sources </pre></option>
+ <option value='xteassagn'><pre>[xteassagn] XTE All-Sky Slew Survey AGN Catalog </pre></option>
+ <option value='xteasscat'><pre>[xteasscat] XTE All-Sky Slew Survey Catalog </pre></option>
+ <option value='xteindex'><pre>[xteindex] XTE Target Index Catalog </pre></option>
+ <option value='xtemaster'><pre>[xtemaster] XTE Master Catalog </pre></option>
+ <option value='xtemlcat'><pre>[xtemlcat] XTE Mission-Long Source Catalog </pre></option>
+ <option value='xteslew'><pre>[xteslew] XTE Archived Public Slew Data </pre></option>
+ <option value='zcat'><pre>[zcat] CfA Redshift Catalog (June 1995 Version) </pre></option>
+ <option value='zwclusters'><pre>[zwclusters] Zwicky Clusters </pre></option>
+
+</select><p><span class='spacer'> <input type=checkbox name='CatalogIDs' id='CatalogIds' checked ><label for='CatalogIds'><a href='../help/fields.html#catalogs'>Display ID strings</a></label></span>
+</div>
+ <p><div class='optioncontainer'>
+<div class='hr'></div>
+<span class='head2'><a href='../help/fields.html#rgb'> RGB Image Overlays</a> </span>
+<span class='spacer'>Selecting surveys above may confuse results. All three colors required.</span></div>
+<div class='moreindent'>
+
+<table Border=0> <TR> <TH></TH><TH scope='row' rowspan='2' valign='bottom'><b> with color planes:</b> </TH> <TH scope='col' align='center'><label for='overlay_red'>Red</label></TH> <TH scope='col' align='center'><label for='overlay_green'>Green</label></TH> <TH scope='col' align='center'><label for='overlay_blue'>Blue</label></TH>
+</TR> <TR>
+ <TD><b>Create RGB:</b> <input type=checkbox name=RGB value=1></td>
+ <TD align='center'> 
+ <select NAME='survey' id='overlay_red'>   <OPTION selected value='_skip_'>None 
+ <option>Fermi 5</option><option>Fermi 4</option><option>Fermi 3</option><option>Fermi 2</option><option>Fermi 1</option><option>EGRET (3D)</option><option>EGRET &lt;100 MeV</option><option>EGRET &gt;100 MeV</option><option>COMPTEL</option><option>INT GAL 17-35 Flux</option><option>INT GAL 17-60 Flux</option><option>INT GAL 35-80 Flux</option><option>INTEGRAL/SPI GC</option><option>GRANAT/SIGMA</option><option>RXTE Allsky 3-8keV Flux</option><option>RXTE Allsky 3-20keV Flux</option><option>RXTE Allsky 8-20keV Flux</option><option>BAT SNR 14-195</option><option>BAT SNR 14-20</option><option>BAT SNR 20-24</option><option>BAT SNR 24-35</option><option>BAT SNR 35-50</option><option>BAT SNR 50-75</option><option>BAT SNR 75-100</option><option>BAT SNR 100-150</option><option>BAT SNR 150-195</option><option>RASS-Cnt Soft</option><option>RASS-Cnt Hard</option><option>RASS-Cnt Broad</option><option>PSPC 2.0 Deg-Int</option><option>PSPC 1.0 Deg-Int</option><option>PSPC 0.6 Deg-Int</option><option>HRI</option><option>HEAO 1 A-2</option><option>RASS Background 1</option><option>RASS Background 2</option><option>RASS Background 3</option><option>RASS Background 4</option><option>RASS Background 5</option><option>RASS Background 6</option><option>RASS Background 7</option><option>GALEX Near UV</option><option>GALEX Far UV</option><option>ROSAT WFC F1</option><option>ROSAT WFC F2</option><option>EUVE 83 A</option><option>EUVE 171 A</option><option>EUVE 405 A</option><option>EUVE 555 A</option><option>DSS</option><option>DSS1 Blue</option><option>DSS1 Red</option><option>DSS2 Red</option><option>DSS2 Blue</option><option>DSS2 IR</option><option>SDSSg</option><option>SDSSi</option><option>SDSSr</option><option>SDSSu</option><option>SDSSz</option><option>SDSSdr7g</option><option>SDSSdr7i</option><option>SDSSdr7r</option><option>SDSSdr7u</option><option>SDSSdr7z</option><option>Mellinger Red</option><option>Mellinger Green</option><option>Mellinger Blue</option><option>NEAT</option><option>H-Alpha Comp</option><option>SHASSA H</option><option>SHASSA CC</option><option>SHASSA C</option><option>SHASSA Sm</option><option>2MASS-J</option><option>2MASS-H</option><option>2MASS-K</option><option>UKIDSS-Y</option><option>UKIDSS-J</option><option>UKIDSS-H</option><option>UKIDSS-K</option><option>WISE 3.4</option><option>WISE 4.6</option><option>WISE 12</option><option>WISE 22</option><option>IRIS  12</option><option>IRIS  25</option><option>IRIS  60</option><option>IRIS 100</option><option>SFD100m</option><option>SFD Dust Map</option><option>IRAS  12 micron</option><option>IRAS  25 micron</option><option>IRAS  60 micron</option><option>IRAS 100 micron</option><option>Planck 857</option><option>Planck 545</option><option>Planck 353</option><option>Planck 217</option><option>Planck 143</option><option>Planck 100</option><option>Planck 070</option><option>Planck 044</option><option>Planck 030</option><option>WMAP ILC</option><option>WMAP Ka</option><option>WMAP K</option><option>WMAP Q</option><option>WMAP V</option><option>WMAP W</option><option>COBE DIRBE/AAM</option><option>COBE DIRBE/ZSMA</option><option>GB6 (4850MHz)</option><option>VLA FIRST (1.4 GHz)</option><option>NVSS</option><option>Stripe82VLA</option><option>1420MHz (Bonn)</option><option>nH</option><option>SUMSS 843 MHz</option><option>0408MHz</option><option>WENSS</option><option>CO</option><option>VLSSr</option><option>0035MHz</option><option>GOODS: Chandra ACIS HB</option><option>GOODS: Chandra ACIS FB</option><option>GOODS: Chandra ACIS SB</option><option>GOODS: VLT VIMOS U</option><option>GOODS: VLT VIMOS R</option><option>GOODS: HST ACS B</option><option>GOODS: HST ACS V</option><option>GOODS: HST ACS I</option><option>GOODS: HST ACS Z</option><option>Hawaii HDF U</option><option>Hawaii HDF B</option><option>Hawaii HDF V0201</option><option>Hawaii HDF V0401</option><option>Hawaii HDF R</option><option>Hawaii HDF I</option><option>Hawaii HDF z</option><option>Hawaii HDF HK</option><option>GOODS: HST NICMOS</option><option>GOODS: VLT ISAAC J</option><option>GOODS: VLT ISAAC H</option><option>GOODS: VLT ISAAC Ks</option><option>HUDF: VLT ISAAC Ks</option><option>GOODS: Spitzer IRAC 3.6</option><option>GOODS: Spitzer IRAC 4.5</option><option>GOODS: Spitzer IRAC 5.8</option><option>GOODS: Spitzer IRAC 8.0</option><option>GOODS: Spitzer MIPS 24</option><option>GOODS: Herschel 100</option><option>GOODS: Herschel 160</option><option>GOODS: Herschel 250</option><option>GOODS: Herschel 350</option><option>GOODS: Herschel 500</option><option>CDFS: LESS</option><option>GOODS: VLA North</option>
+ </select></TD>
+ <TD Align=Center>
+ <select NAME='survey' id='overlay_green' > <OPTION selected value='_skip_'>None 
+ <option>Fermi 5</option><option>Fermi 4</option><option>Fermi 3</option><option>Fermi 2</option><option>Fermi 1</option><option>EGRET (3D)</option><option>EGRET &lt;100 MeV</option><option>EGRET &gt;100 MeV</option><option>COMPTEL</option><option>INT GAL 17-35 Flux</option><option>INT GAL 17-60 Flux</option><option>INT GAL 35-80 Flux</option><option>INTEGRAL/SPI GC</option><option>GRANAT/SIGMA</option><option>RXTE Allsky 3-8keV Flux</option><option>RXTE Allsky 3-20keV Flux</option><option>RXTE Allsky 8-20keV Flux</option><option>BAT SNR 14-195</option><option>BAT SNR 14-20</option><option>BAT SNR 20-24</option><option>BAT SNR 24-35</option><option>BAT SNR 35-50</option><option>BAT SNR 50-75</option><option>BAT SNR 75-100</option><option>BAT SNR 100-150</option><option>BAT SNR 150-195</option><option>RASS-Cnt Soft</option><option>RASS-Cnt Hard</option><option>RASS-Cnt Broad</option><option>PSPC 2.0 Deg-Int</option><option>PSPC 1.0 Deg-Int</option><option>PSPC 0.6 Deg-Int</option><option>HRI</option><option>HEAO 1 A-2</option><option>RASS Background 1</option><option>RASS Background 2</option><option>RASS Background 3</option><option>RASS Background 4</option><option>RASS Background 5</option><option>RASS Background 6</option><option>RASS Background 7</option><option>GALEX Near UV</option><option>GALEX Far UV</option><option>ROSAT WFC F1</option><option>ROSAT WFC F2</option><option>EUVE 83 A</option><option>EUVE 171 A</option><option>EUVE 405 A</option><option>EUVE 555 A</option><option>DSS</option><option>DSS1 Blue</option><option>DSS1 Red</option><option>DSS2 Red</option><option>DSS2 Blue</option><option>DSS2 IR</option><option>SDSSg</option><option>SDSSi</option><option>SDSSr</option><option>SDSSu</option><option>SDSSz</option><option>SDSSdr7g</option><option>SDSSdr7i</option><option>SDSSdr7r</option><option>SDSSdr7u</option><option>SDSSdr7z</option><option>Mellinger Red</option><option>Mellinger Green</option><option>Mellinger Blue</option><option>NEAT</option><option>H-Alpha Comp</option><option>SHASSA H</option><option>SHASSA CC</option><option>SHASSA C</option><option>SHASSA Sm</option><option>2MASS-J</option><option>2MASS-H</option><option>2MASS-K</option><option>UKIDSS-Y</option><option>UKIDSS-J</option><option>UKIDSS-H</option><option>UKIDSS-K</option><option>WISE 3.4</option><option>WISE 4.6</option><option>WISE 12</option><option>WISE 22</option><option>IRIS  12</option><option>IRIS  25</option><option>IRIS  60</option><option>IRIS 100</option><option>SFD100m</option><option>SFD Dust Map</option><option>IRAS  12 micron</option><option>IRAS  25 micron</option><option>IRAS  60 micron</option><option>IRAS 100 micron</option><option>Planck 857</option><option>Planck 545</option><option>Planck 353</option><option>Planck 217</option><option>Planck 143</option><option>Planck 100</option><option>Planck 070</option><option>Planck 044</option><option>Planck 030</option><option>WMAP ILC</option><option>WMAP Ka</option><option>WMAP K</option><option>WMAP Q</option><option>WMAP V</option><option>WMAP W</option><option>COBE DIRBE/AAM</option><option>COBE DIRBE/ZSMA</option><option>GB6 (4850MHz)</option><option>VLA FIRST (1.4 GHz)</option><option>NVSS</option><option>Stripe82VLA</option><option>1420MHz (Bonn)</option><option>nH</option><option>SUMSS 843 MHz</option><option>0408MHz</option><option>WENSS</option><option>CO</option><option>VLSSr</option><option>0035MHz</option><option>GOODS: Chandra ACIS HB</option><option>GOODS: Chandra ACIS FB</option><option>GOODS: Chandra ACIS SB</option><option>GOODS: VLT VIMOS U</option><option>GOODS: VLT VIMOS R</option><option>GOODS: HST ACS B</option><option>GOODS: HST ACS V</option><option>GOODS: HST ACS I</option><option>GOODS: HST ACS Z</option><option>Hawaii HDF U</option><option>Hawaii HDF B</option><option>Hawaii HDF V0201</option><option>Hawaii HDF V0401</option><option>Hawaii HDF R</option><option>Hawaii HDF I</option><option>Hawaii HDF z</option><option>Hawaii HDF HK</option><option>GOODS: HST NICMOS</option><option>GOODS: VLT ISAAC J</option><option>GOODS: VLT ISAAC H</option><option>GOODS: VLT ISAAC Ks</option><option>HUDF: VLT ISAAC Ks</option><option>GOODS: Spitzer IRAC 3.6</option><option>GOODS: Spitzer IRAC 4.5</option><option>GOODS: Spitzer IRAC 5.8</option><option>GOODS: Spitzer IRAC 8.0</option><option>GOODS: Spitzer MIPS 24</option><option>GOODS: Herschel 100</option><option>GOODS: Herschel 160</option><option>GOODS: Herschel 250</option><option>GOODS: Herschel 350</option><option>GOODS: Herschel 500</option><option>CDFS: LESS</option><option>GOODS: VLA North</option>
+ </select> </TD> <TD Align=Center>
+ <select NAME='survey' id='overlay_blue'>  
+ <option>Fermi 5</option><option>Fermi 4</option><option>Fermi 3</option><option>Fermi 2</option><option>Fermi 1</option><option>EGRET (3D)</option><option>EGRET &lt;100 MeV</option><option>EGRET &gt;100 MeV</option><option>COMPTEL</option><option>INT GAL 17-35 Flux</option><option>INT GAL 17-60 Flux</option><option>INT GAL 35-80 Flux</option><option>INTEGRAL/SPI GC</option><option>GRANAT/SIGMA</option><option>RXTE Allsky 3-8keV Flux</option><option>RXTE Allsky 3-20keV Flux</option><option>RXTE Allsky 8-20keV Flux</option><option>BAT SNR 14-195</option><option>BAT SNR 14-20</option><option>BAT SNR 20-24</option><option>BAT SNR 24-35</option><option>BAT SNR 35-50</option><option>BAT SNR 50-75</option><option>BAT SNR 75-100</option><option>BAT SNR 100-150</option><option>BAT SNR 150-195</option><option>RASS-Cnt Soft</option><option>RASS-Cnt Hard</option><option>RASS-Cnt Broad</option><option>PSPC 2.0 Deg-Int</option><option>PSPC 1.0 Deg-Int</option><option>PSPC 0.6 Deg-Int</option><option>HRI</option><option>HEAO 1 A-2</option><option>RASS Background 1</option><option>RASS Background 2</option><option>RASS Background 3</option><option>RASS Background 4</option><option>RASS Background 5</option><option>RASS Background 6</option><option>RASS Background 7</option><option>GALEX Near UV</option><option>GALEX Far UV</option><option>ROSAT WFC F1</option><option>ROSAT WFC F2</option><option>EUVE 83 A</option><option>EUVE 171 A</option><option>EUVE 405 A</option><option>EUVE 555 A</option><option>DSS</option><option>DSS1 Blue</option><option>DSS1 Red</option><option>DSS2 Red</option><option>DSS2 Blue</option><option>DSS2 IR</option><option>SDSSg</option><option>SDSSi</option><option>SDSSr</option><option>SDSSu</option><option>SDSSz</option><option>SDSSdr7g</option><option>SDSSdr7i</option><option>SDSSdr7r</option><option>SDSSdr7u</option><option>SDSSdr7z</option><option>Mellinger Red</option><option>Mellinger Green</option><option>Mellinger Blue</option><option>NEAT</option><option>H-Alpha Comp</option><option>SHASSA H</option><option>SHASSA CC</option><option>SHASSA C</option><option>SHASSA Sm</option><option>2MASS-J</option><option>2MASS-H</option><option>2MASS-K</option><option>UKIDSS-Y</option><option>UKIDSS-J</option><option>UKIDSS-H</option><option>UKIDSS-K</option><option>WISE 3.4</option><option>WISE 4.6</option><option>WISE 12</option><option>WISE 22</option><option>IRIS  12</option><option>IRIS  25</option><option>IRIS  60</option><option>IRIS 100</option><option>SFD100m</option><option>SFD Dust Map</option><option>IRAS  12 micron</option><option>IRAS  25 micron</option><option>IRAS  60 micron</option><option>IRAS 100 micron</option><option>Planck 857</option><option>Planck 545</option><option>Planck 353</option><option>Planck 217</option><option>Planck 143</option><option>Planck 100</option><option>Planck 070</option><option>Planck 044</option><option>Planck 030</option><option>WMAP ILC</option><option>WMAP Ka</option><option>WMAP K</option><option>WMAP Q</option><option>WMAP V</option><option>WMAP W</option><option>COBE DIRBE/AAM</option><option>COBE DIRBE/ZSMA</option><option>GB6 (4850MHz)</option><option>VLA FIRST (1.4 GHz)</option><option>NVSS</option><option>Stripe82VLA</option><option>1420MHz (Bonn)</option><option>nH</option><option>SUMSS 843 MHz</option><option>0408MHz</option><option>WENSS</option><option>CO</option><option>VLSSr</option><option>0035MHz</option><option>GOODS: Chandra ACIS HB</option><option>GOODS: Chandra ACIS FB</option><option>GOODS: Chandra ACIS SB</option><option>GOODS: VLT VIMOS U</option><option>GOODS: VLT VIMOS R</option><option>GOODS: HST ACS B</option><option>GOODS: HST ACS V</option><option>GOODS: HST ACS I</option><option>GOODS: HST ACS Z</option><option>Hawaii HDF U</option><option>Hawaii HDF B</option><option>Hawaii HDF V0201</option><option>Hawaii HDF V0401</option><option>Hawaii HDF R</option><option>Hawaii HDF I</option><option>Hawaii HDF z</option><option>Hawaii HDF HK</option><option>GOODS: HST NICMOS</option><option>GOODS: VLT ISAAC J</option><option>GOODS: VLT ISAAC H</option><option>GOODS: VLT ISAAC Ks</option><option>HUDF: VLT ISAAC Ks</option><option>GOODS: Spitzer IRAC 3.6</option><option>GOODS: Spitzer IRAC 4.5</option><option>GOODS: Spitzer IRAC 5.8</option><option>GOODS: Spitzer IRAC 8.0</option><option>GOODS: Spitzer MIPS 24</option><option>GOODS: Herschel 100</option><option>GOODS: Herschel 160</option><option>GOODS: Herschel 250</option><option>GOODS: Herschel 350</option><option>GOODS: Herschel 500</option><option>CDFS: LESS</option><option>GOODS: VLA North</option> <OPTION selected value='_skip_'>None </select></TD>
+ <TD> </TD>
+ </TR> </table><p>
+<label for='Smooth'> <a href='../help/fields.html#rgb'>Image Overlay Smoothing</a></label>: 
+<input class='formtext' name='IOSmooth' SIZE=4 id='IOSmooth'>
+</div> <p> <div class='optioncontainer'><div class='hr'></div><span class='head2'> <a href='../help/fields.html#contour'>Contour Overlays</a></span></div><p><div class='moreindent'><table width='85%' border=0><tr><td valign='top'><label for='contours'><b>Surveys for contour</b></label>:<p>
+ <select name='contour' id='contours'>
+<option value='' selected>None</option>
+ <option>Fermi 5</option><option>Fermi 4</option><option>Fermi 3</option><option>Fermi 2</option><option>Fermi 1</option><option>EGRET (3D)</option><option>EGRET &lt;100 MeV</option><option>EGRET &gt;100 MeV</option><option>COMPTEL</option><option>INT GAL 17-35 Flux</option><option>INT GAL 17-60 Flux</option><option>INT GAL 35-80 Flux</option><option>INTEGRAL/SPI GC</option><option>GRANAT/SIGMA</option><option>RXTE Allsky 3-8keV Flux</option><option>RXTE Allsky 3-20keV Flux</option><option>RXTE Allsky 8-20keV Flux</option><option>BAT SNR 14-195</option><option>BAT SNR 14-20</option><option>BAT SNR 20-24</option><option>BAT SNR 24-35</option><option>BAT SNR 35-50</option><option>BAT SNR 50-75</option><option>BAT SNR 75-100</option><option>BAT SNR 100-150</option><option>BAT SNR 150-195</option><option>RASS-Cnt Soft</option><option>RASS-Cnt Hard</option><option>RASS-Cnt Broad</option><option>PSPC 2.0 Deg-Int</option><option>PSPC 1.0 Deg-Int</option><option>PSPC 0.6 Deg-Int</option><option>HRI</option><option>HEAO 1 A-2</option><option>RASS Background 1</option><option>RASS Background 2</option><option>RASS Background 3</option><option>RASS Background 4</option><option>RASS Background 5</option><option>RASS Background 6</option><option>RASS Background 7</option><option>GALEX Near UV</option><option>GALEX Far UV</option><option>ROSAT WFC F1</option><option>ROSAT WFC F2</option><option>EUVE 83 A</option><option>EUVE 171 A</option><option>EUVE 405 A</option><option>EUVE 555 A</option><option>DSS</option><option>DSS1 Blue</option><option>DSS1 Red</option><option>DSS2 Red</option><option>DSS2 Blue</option><option>DSS2 IR</option><option>SDSSg</option><option>SDSSi</option><option>SDSSr</option><option>SDSSu</option><option>SDSSz</option><option>SDSSdr7g</option><option>SDSSdr7i</option><option>SDSSdr7r</option><option>SDSSdr7u</option><option>SDSSdr7z</option><option>Mellinger Red</option><option>Mellinger Green</option><option>Mellinger Blue</option><option>NEAT</option><option>H-Alpha Comp</option><option>SHASSA H</option><option>SHASSA CC</option><option>SHASSA C</option><option>SHASSA Sm</option><option>2MASS-J</option><option>2MASS-H</option><option>2MASS-K</option><option>UKIDSS-Y</option><option>UKIDSS-J</option><option>UKIDSS-H</option><option>UKIDSS-K</option><option>WISE 3.4</option><option>WISE 4.6</option><option>WISE 12</option><option>WISE 22</option><option>IRIS  12</option><option>IRIS  25</option><option>IRIS  60</option><option>IRIS 100</option><option>SFD100m</option><option>SFD Dust Map</option><option>IRAS  12 micron</option><option>IRAS  25 micron</option><option>IRAS  60 micron</option><option>IRAS 100 micron</option><option>Planck 857</option><option>Planck 545</option><option>Planck 353</option><option>Planck 217</option><option>Planck 143</option><option>Planck 100</option><option>Planck 070</option><option>Planck 044</option><option>Planck 030</option><option>WMAP ILC</option><option>WMAP Ka</option><option>WMAP K</option><option>WMAP Q</option><option>WMAP V</option><option>WMAP W</option><option>COBE DIRBE/AAM</option><option>COBE DIRBE/ZSMA</option><option>GB6 (4850MHz)</option><option>VLA FIRST (1.4 GHz)</option><option>NVSS</option><option>Stripe82VLA</option><option>1420MHz (Bonn)</option><option>nH</option><option>SUMSS 843 MHz</option><option>0408MHz</option><option>WENSS</option><option>CO</option><option>VLSSr</option><option>0035MHz</option><option>GOODS: Chandra ACIS HB</option><option>GOODS: Chandra ACIS FB</option><option>GOODS: Chandra ACIS SB</option><option>GOODS: VLT VIMOS U</option><option>GOODS: VLT VIMOS R</option><option>GOODS: HST ACS B</option><option>GOODS: HST ACS V</option><option>GOODS: HST ACS I</option><option>GOODS: HST ACS Z</option><option>Hawaii HDF U</option><option>Hawaii HDF B</option><option>Hawaii HDF V0201</option><option>Hawaii HDF V0401</option><option>Hawaii HDF R</option><option>Hawaii HDF I</option><option>Hawaii HDF z</option><option>Hawaii HDF HK</option><option>GOODS: HST NICMOS</option><option>GOODS: VLT ISAAC J</option><option>GOODS: VLT ISAAC H</option><option>GOODS: VLT ISAAC Ks</option><option>HUDF: VLT ISAAC Ks</option><option>GOODS: Spitzer IRAC 3.6</option><option>GOODS: Spitzer IRAC 4.5</option><option>GOODS: Spitzer IRAC 5.8</option><option>GOODS: Spitzer IRAC 8.0</option><option>GOODS: Spitzer MIPS 24</option><option>GOODS: Herschel 100</option><option>GOODS: Herschel 160</option><option>GOODS: Herschel 250</option><option>GOODS: Herschel 350</option><option>GOODS: Herschel 500</option><option>CDFS: LESS</option><option>GOODS: VLA North</option>
+</select>
+</td></tr><tr><td>
+<label for='contsmooth'><a href='../help/fields.html#contour'>Contour Smoothing</a></label>: <input type='text' class='formtext' name='contourSmooth' SIZE=4 id='contsmooth' >
+</td></tr></table></div><P><a href='../help/fields.html#submit'>Initiate request</a>: <input TYPE='submit' Value='Submit Request'></div><P><hr width='90%' align='left'>
+
+<span class='bluebg'><a name="threeDopts" class="expandable" > <span class='head2'> 3-D Image Surveys </span></a></span>
+<P>
+<div id='s3d'>
+<span class='head2'><a href='../help/fields.html#3-D'>3-D Surveys</a></span> (Currently only one 3D survey is allowed per query.)<p>
+  <TABLE BORDER style='backgroundColor:#ffffff'> <TR> <TH scope=col><b>Survey</b></TH> <TH scope=col Align=center><b>Units</b></TH><TH scope=col Align=center><b>Description</b></TH></TR>
+  <TR>   <TH scope=row>
+  <input type=radio name=SURVEY value="EGRET (3D)"> 
+  EGRET          </TH>   <TD Align=center> Channels      </TD><TD Align=center>1-10 Channels in 1 Channel Bins</TD></TR>
+  <TR>   <TH scope=row>
+  <input type=radio name=SURVEY value="Comptel"> 
+  CompTel</TH><TD Align=center> Channels</TD><TD Align=center>1-3  Channels in 1 Channel Bins</TD></TR>
+  <TR>   <TH scope=row>
+  <input type=radio name=SURVEY value="COBE AAM"> 
+  COBE AAM</TH><TD Align=center> Band </TD><TD Align=center>1-10 Bands in 1 Band Bins</TD></TR>
+  <TR>   <TH scope=row>
+  <input type=radio name=SURVEY value="COBE ZSMA"> 
+  COBE ZSMA</TH> <TD Align=center> Bands </TD> <TD Align=center>1-10 Bands in 1 Band Bins</TD></TR>
+  <tr><td> Enter energy binning:</td><td><input type=text value='null' name=ebins size=15></td><td>Start (0-offset), binSize, nBin e.g., <tt>1.5,1.5,3</tt></td></tr>
+  </TABLE><p>
+  </div><a href='../help/fields.html#submit'>Initiate request</a>: <input TYPE='submit' Value='Submit Request'></div>
+  
+</FORM>
+<p><p>
+
+<p><center>
+<hr>
+<a href="../cgi/titlepage.pl"><i>SkyView</i> Home</a> 
+	&nbsp;&nbsp;|&nbsp;&nbsp;
+<a href="../help/help.html">Help</a> &nbsp;&nbsp;|&nbsp;&nbsp;
+<a href="../cgi/survey.pl">Survey Information</a> 
+	&nbsp;&nbsp;|&nbsp;&nbsp;
+<a href="../docs/easy.html">Non-Astronomers Interface </a> 
+&nbsp;&nbsp;|&nbsp;&nbsp;
+<a href="../cgi/query.pl">Query Form </a>
+</center><br>
+<p>
+
+</div>
+</BODY>
+</HTML>

@@ -1,6 +1,5 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import textwrap
-import functools
 
 
 def append_docstr(doc):
@@ -11,18 +10,22 @@ def append_docstr(doc):
     return dec
 
 
-def prepend_docstr_noreturns(doc):
-    """ Decorator to prepend to the function's docstr after stripping out the "Returns" """
+def prepend_docstr_nosections(doc, sections=['Returns', ]):
+    """
+    Decorator to prepend to the function's docstr after stripping out the
+    list of sections provided (by default "Returns" only).
+    """
     def dec(fn):
-        fn.__doc__ = "\n".join(remove_returns(doc)) + textwrap.dedent(fn.__doc__)
+        fn.__doc__ = ("\n".join(remove_sections(doc, sections)) +
+                      textwrap.dedent(fn.__doc__))
         return fn
     return dec
 
 
-def remove_returns(doc):
+def remove_sections(doc, sections):
     """
-    Given a numpy-formatted docstring, remove the "Returns" block
-    and dedent the whole thing
+    Given a numpy-formatted docstring, remove the section blocks provided in
+    ``sections`` and dedent the whole thing.
 
     Returns
     -------
@@ -34,7 +37,7 @@ def remove_returns(doc):
     rblock = False
     for line in lines:
         lstrip = line.rstrip()
-        if lstrip == "Returns":
+        if lstrip in sections:
             rblock = True
             continue
         elif rblock:

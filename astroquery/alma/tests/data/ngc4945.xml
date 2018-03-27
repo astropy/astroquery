@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VOTABLE xmlns="http://www.ivoa.net/xml/VOTable/v1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.2">
+  <RESOURCE type="results">
+    <INFO name="QUERY_STATUS" value="OK" />
+    <INFO name="QUERY" value="SELECT&#xA; distinct asa_science.project_code AS &quot;Project code&quot;,&#xA;asa_science.source_name AS &quot;Source name&quot;,&#xA;asa_science.ra AS &quot;RA&quot;,&#xA;asa_science.dec AS &quot;Dec&quot;,&#xA;asa_science.band AS &quot;Band&quot;,&#xA;asa_science.frequency_resolution AS &quot;Frequency resolution&quot;,&#xA;asa_science.int_time AS &quot;Integration&quot;,&#xA;to_char(dp_delivery_status.release_date, 'YYYY-MM-DD') AS &quot;Release date&quot;,&#xA;asa_science.frequency_support AS &quot;Frequency support&quot;,&#xA;asa_science.velocity_resolution AS &quot;Velocity resolution&quot;,&#xA;asa_science.pol_products AS &quot;Pol products&quot;,&#xA;to_char(asa_science.start_date, 'YYYY-MM-DD HH24:MI:SS') AS &quot;Observation date&quot;,&#xA;asa_project.pi_name AS &quot;PI name&quot;,&#xA;asa_science.pwv AS &quot;PWV&quot;,&#xA;asa_science.member_ouss_id as &quot;Member ous id&quot;,&#xA;asa_science.asdm_uid AS &quot;Asdm uid&quot;,&#xA;asa_project.title AS &quot;Project title&quot;,&#xA;asa_project.type AS &quot;Project type&quot;,&#xA;asa_science.scan_intent AS &quot;Scan intent&quot;&#xA; FROM ALMA.asa_science &#xA;  inner join ALMA.aqua_execblock on asa_science.asdm_uid = aqua_execblock.execblockuid&#xA;  inner join ALMA.asa_project on asa_science.project_code = asa_project.code&#xA;  left outer join ALMA.dp_delivery_asdm_ous on asa_science.asdm_uid = dp_delivery_asdm_ous.asdm_uid&#xA;  left outer join ALMA.dp_delivery_status on dp_delivery_asdm_ous.deliverable_name = dp_delivery_status.delivery_id&#xA;WHERE (1=1)&#xA; AND (aqua_execblock.qa0status = 'Pass' OR aqua_execblock.qa0status = 'SemiPass')&#xA; AND (dp_delivery_status.qa2_passed is null or dp_delivery_status.qa2_passed = 'Y')&#xA; AND lower(project_code) not like '%.csv'&#xA; AND  ( DEC BETWEEN -50.4679 AND -48.4679&#xA; AND  RA BETWEEN 194.82487587885976 AND 197.90244912114025&#xA; AND (asin(sqrt((-0.623549 - cx) * (-0.623549 - cx) + (-0.183091 - cy) * (-0.183091 - cy) + (-0.760042 - cz) * (-0.760042 - cz)) / 2.0) &lt; 0.008727))&#xA; AND  (lower(ASA_SCIENCE.scan_intent) LIKE '%target%')&#xA; AND  (dp_delivery_status.release_date &lt; to_date('2015-03-25', 'YYYY-mm-dd'))&#xA; AND  (lower(ASA_SCIENCE.project_code) LIKE '2011.0.00121.s')&#xA; ORDER BY &quot;Release date&quot; asc" />
+    <TABLE>
+      <FIELD name="Project code" datatype="char" ID="1251" ucd="meta.code" xtype="adql:VARCHAR" arraysize="16*">
+        <DESCRIPTION>Project code, in the form YYYY.NNNNN.C.AAA, where:</DESCRIPTION>
+      </FIELD>
+      <FIELD name="Source name" datatype="char" ID="1206" ucd="meta.id;pos" utype="Observation.Target.name" xtype="adql:VARCHAR" arraysize="256*">
+        <DESCRIPTION>Name of the source as registered in the ASDM. Partial matches through wildcards (?, *), and boolean OR expressions ("|"), can be used.</DESCRIPTION>
+      </FIELD>
+      <FIELD name="RA" datatype="double" ID="1186" ucd="pos.eq.ra;meta.main" unit="deg" utype="Characterisation.SpatialAxis.Coverage.Location.coord.Position2D.Value2.C1" xtype="adql:DOUBLE">
+        <DESCRIPTION>Right Ascension of the field pointing.</DESCRIPTION>
+      </FIELD>
+      <FIELD name="Dec" datatype="double" ID="1187" ucd="pos.eq.dec;meta.main" unit="deg" utype="Characterisation.SpatialAxis.Coverage.Location.coord.Position2D.Value2.C2" xtype="adql:DOUBLE">
+        <DESCRIPTION>Declination of the field pointing.</DESCRIPTION>
+      </FIELD>
+      <FIELD name="Band" datatype="int" ID="1223" ucd="meta.code;instr.bandpass" xtype="adql:INTEGER">
+        <DESCRIPTION>ALMA receiver band.</DESCRIPTION>
+      </FIELD>
+      <FIELD name="Frequency resolution" datatype="double" ID="1217" ucd="spect.resolution" unit="kHz" utype="Char.SpectralAxis.Resolution.refval" xtype="adql:DOUBLE">
+        <DESCRIPTION>Estimated frequency resolution from all the spectral windows, using median values of channel widths.</DESCRIPTION>
+      </FIELD>
+      <FIELD name="Integration" datatype="double" ID="1213" ucd="time.duration;obs.exposure" unit="s" utype="Char.TimeAxis.Coverage.Support.Extent" xtype="adql:DOUBLE">
+        <DESCRIPTION>Aggregated integration time for the field in the ASDM.</DESCRIPTION>
+      </FIELD>
+      <FIELD name="Release date" datatype="char" unit="" xtype="adql:VARCHAR" arraysize="*" />
+      <FIELD name="Frequency support" datatype="char" ID="1216" ucd="em.freq;obs;meta.main" unit="GHz" utype="Char.SpectralAxis.Coverage.Location.support" xtype="adql:VARCHAR" arraysize="2700*">
+        <DESCRIPTION>All frequency ranges used by the field</DESCRIPTION>
+      </FIELD>
+      <FIELD name="Velocity resolution" datatype="double" ID="1225" ucd="phys.veloc;spect.resolution" unit="m/s" utype="Char.VelocityAxis.Resolution.refval" xtype="adql:DOUBLE">
+        <DESCRIPTION>Estimated velocity resolution from all the spectral windows, from frequency resolution.</DESCRIPTION>
+      </FIELD>
+      <FIELD name="Pol products" datatype="char" ID="1238" ucd="phys.polarization;meta.code" xtype="adql:VARCHAR" arraysize="64*">
+        <DESCRIPTION>Polarisation products provided.</DESCRIPTION>
+      </FIELD>
+      <FIELD name="Observation date" datatype="char" unit="" xtype="adql:VARCHAR" arraysize="*" />
+      <FIELD name="PI name" datatype="char" ID="1260" ucd="meta.id.PI" xtype="adql:VARCHAR" arraysize="256*">
+        <DESCRIPTION>case-insensitive partial match over the full PI name. Wildcards can be used</DESCRIPTION>
+      </FIELD>
+      <FIELD name="PWV" datatype="float" ID="1240" ucd="obs.atmos.extinction" unit="mm" xtype="adql:FLOAT">
+        <DESCRIPTION>Estimated precipitable water vapour from the XML_CALWVR_ENTITIES table.</DESCRIPTION>
+      </FIELD>
+      <FIELD name="Member ous id" datatype="char" ID="1234" ucd="meta.id;obs" xtype="adql:VARCHAR" arraysize="32*">
+        <DESCRIPTION>MEMBER_OUSS_ID generating this ASDM.</DESCRIPTION>
+      </FIELD>
+      <FIELD name="Asdm uid" datatype="char" ID="1182" ucd="meta.id" xtype="adql:VARCHAR" arraysize="32*">
+        <DESCRIPTION>UID of the ASDM containing this Field.</DESCRIPTION>
+      </FIELD>
+      <FIELD name="Project title" datatype="char" ID="1263" ucd="meta.title;obs.proposal" xtype="adql:VARCHAR" arraysize="256*">
+        <DESCRIPTION>Case-insensitive search over the project title</DESCRIPTION>
+      </FIELD>
+      <FIELD name="Project type" datatype="char" ID="1264" ucd="meta.code.class;obs.proposal" xtype="adql:VARCHAR" arraysize="16*">
+        <DESCRIPTION>Project type.</DESCRIPTION>
+      </FIELD>
+      <FIELD name="Scan intent" datatype="char" ID="1254" ucd="meta.code.class;obs" xtype="adql:VARCHAR" arraysize="256*">
+        <DESCRIPTION>Scan intent list for the observed field.</DESCRIPTION>
+      </FIELD>
+      <DATA>
+        <TABLEDATA>
+          <TR>
+            <TD>2011.0.00121.S</TD>
+            <TD>NGC4945</TD>
+            <TD>196.36366250000003</TD>
+            <TD>-49.4679</TD>
+            <TD>7</TD>
+            <TD>976.5625</TD>
+            <TD>245.89</TD>
+            <TD>2013-08-21</TD>
+            <TD>[319.69..321.56GHz,976.56kHz, XX YY]</TD>
+            <TD>913.1147716968562</TD>
+            <TD>XX YY</TD>
+            <TD>2012-06-03 22:31:16</TD>
+            <TD>Hagiwara, Yoshiaki</TD>
+            <TD>0.75131315</TD>
+            <TD>uid://A002/X327408/X248</TD>
+            <TD>uid://A002/X41e287/Xd1</TD>
+            <TD>Search for Submillimeter H2O Maser Towards Active Galactic Nuclei</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+        </TABLEDATA>
+      </DATA>
+    </TABLE>
+    <INFO name="QUERY_STATUS" value="OK" />
+  </RESOURCE>
+</VOTABLE>

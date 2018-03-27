@@ -1,4 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
+from __future__ import absolute_import
+
 import os
 
 
@@ -10,14 +12,14 @@ def get_package_data():
                   os.path.join('data', 'query_id.data'),
                   os.path.join('data', 'query_error.data'),
                   os.path.join('data', 'query_*.data'),
+                  os.path.join('data', 'm1.data'),
                   ]
 
     paths_core = [os.path.join('data', 'votable_fields_notes.json'),
                   os.path.join('data', 'votable_fields_table.txt'),
-                  os.path.join('data', 'votable_fields_dict.json')
+                  os.path.join('data', 'votable_fields_dict.json'),
                   ]
 
-    return {
-        'astroquery.simbad.tests': paths_test,
-        'astroquery.simbad': paths_core
-    }
+    return {'astroquery.simbad.tests': paths_test,
+            'astroquery.simbad': paths_core,
+            }

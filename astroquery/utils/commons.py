@@ -4,29 +4,49 @@ Common functions and classes that are required by all query classes.
 """
 
 import re
-import sys
-import requests
 import warnings
-import io
 import os
 import shutil
+import socket
 
+import requests
+
+from astropy.extern.six.moves.urllib_error import URLError
+from astropy.extern import six
 import astropy.units as u
 from astropy import coordinates as coord
-from astropy.utils import OrderedDict
+from collections import OrderedDict
 import astropy.utils.data as aud
-from astropy.io import fits,votable
+from astropy.io import fits, votable
+
+from astropy.coordinates import BaseCoordinateFrame
 
 from ..exceptions import TimeoutError
 from .. import version
 
-PY3 = sys.version_info[0] >= 3
 
-if PY3:
-    basestring = (str, bytes)
+def ICRSCoordGenerator(*args, **kwargs):
+    return coord.SkyCoord(*args, frame='icrs', **kwargs)
+
+
+def GalacticCoordGenerator(*args, **kwargs):
+    return coord.SkyCoord(*args, frame='galactic', **kwargs)
+
+
+def FK5CoordGenerator(*args, **kwargs):
+    return coord.SkyCoord(*args, frame='fk5', **kwargs)
+
+
+def FK4CoordGenerator(*args, **kwargs):
+    return coord.SkyCoord(*args, frame='fk4', **kwargs)
+
+
+ICRSCoord = coord.SkyCoord
+CoordClasses = (coord.SkyCoord, BaseCoordinateFrame)
+
+
 __all__ = ['send_request',
            'parse_coordinates',
-           'parse_radius',
            'TableList',
            'suppress_vo_warnings',
            'validate_email']
@@ -44,7 +64,7 @@ def send_request(url, data, timeout, request_type='POST', headers={},
         The URL of the remote server
     data : dict
         A dictionary representing the payload to be posted via the HTTP request
-    timeout : int
+    timeout : int, quantity_like
         Time limit for establishing successful connection with remote server
     request_type : str
         options are 'POST' (default) and 'GET'. Determines whether to perform
@@ -58,51 +78,33 @@ def send_request(url, data, timeout, request_type='POST', headers={},
     response : `requests.Response`
         Response object returned by the remote server
     """
-    headers['User-Agent'] = 'astropy:astroquery.{vers}'.format(vers=version.version)
+    headers['User-Agent'] = ('astropy:astroquery.{vers}'
+                             .format(vers=version.version))
+
+    if hasattr(timeout, "unit"):
+        warnings.warn("Converting timeout to seconds and truncating "
+                      "to integer.")
+        timeout = int(timeout.to(u.s).value)
+
     try:
         if request_type == 'GET':
             response = requests.get(url, params=data, timeout=timeout,
                                     headers=headers, **kwargs)
-            return response
         elif request_type == 'POST':
             response = requests.post(url, data=data, timeout=timeout,
                                      headers=headers, **kwargs)
-            return response
         else:
             raise ValueError("request_type must be either 'GET' or 'POST'.")
+
+        response.raise_for_status()
+
+        return response
+
     except requests.exceptions.Timeout:
-            raise TimeoutError("Query timed out, time elapsed {time}s".
-                               format(time=timeout))
-    except requests.exceptions.RequestException:
-            raise Exception("Query failed\n")
-
-
-def parse_radius(radius):
-    """
-    Given a radius checks that it is either parsable as an
-    `astropy.coordinates.angle` or an `astropy.units.Quantity`
-    and returns an `astropy.coordinates.Angle` object
-
-    Parameters
-    ----------
-    radius : str/astropy.units.Quantity
-        The radius of a region
-
-    Returns
-    -------
-    `astropy.coordinates.Angle` object
-
-    Raises
-    ------
-    astropy.units.UnitsException
-    astropy.coordinates.errors.UnitsError
-    AttributeError
-    """
-    try:
-        return coord.Angle(radius)
-    except coord.errors.UnitsError:
-        # astropy <0.3 compatibility: Angle can't be instantiated with a unit object
-        return coord.Angle(radius.to(u.degree), unit=u.degree)
+        raise TimeoutError("Query timed out, time elapsed {time}s".
+                           format(time=timeout))
+    except requests.exceptions.RequestException as ex:
+        raise Exception("Query failed: {0}\n".format(ex))
 
 
 def radius_to_unit(radius, unit='degree'):
@@ -111,82 +113,90 @@ def radius_to_unit(radius, unit='degree'):
 
     Parameters
     ----------
-    radius : str/astropy.units.Quantity
+    radius : str or `~astropy.units.Quantity`
         The radius of a region
 
     Returns
     -------
     Floating point scalar value of radius in degrees
     """
-    rad = parse_radius(radius)
-    # This is a hack to deal with astropy pre/post PR#1006
-    if hasattr(rad,str(unit)):
-        return getattr(rad,str(unit))
-    elif hasattr(rad,str(unit)+'s'):
-        return getattr(rad,str(unit)+'s')
-    # major hack to deal with <0.3 Angle's not having deg/arcmin/etc equivs.
-    elif hasattr(rad,'degree'):
-        return (rad.degree * u.degree).to(unit).value
-    elif hasattr(rad,'to'):
-        return rad.to(unit).value
-    else:
-        raise TypeError("Radius is an invalid type.")
+    rad = coord.Angle(radius)
+
+    if isinstance(unit, six.string_types):
+        if hasattr(rad, unit):
+            return getattr(rad, unit)
+        elif hasattr(rad, unit + 's'):
+            return getattr(rad, unit + 's')
+
+    return rad.to(unit).value
 
 
 def parse_coordinates(coordinates):
     """
     Takes a string or astropy.coordinates object. Checks if the
-    string is parsable as an astropy.coordinates.ICRSCoordinates
+    string is parsable as an `astropy.coordinates`
     object or is a name that is resolvable. Otherwise asserts
     that the argument is an astropy.coordinates object.
 
     Parameters
     ----------
-    coordinates : str/astropy.coordinates object
+    coordinates : str or `astropy.coordinates` object
         Astronomical coordinate
 
     Returns
     -------
-    a subclass of `astropy.coordinates.SphericalCoordinatesBase`
+    coordinates : a subclass of `astropy.coordinates.BaseCoordinateFrame`
+
 
     Raises
     ------
-    astropy.units.UnitsException
+    astropy.units.UnitsError
     TypeError
     """
-    if isinstance(coordinates, basestring):
+    if isinstance(coordinates, six.string_types):
         try:
-            c = coord.ICRSCoordinates.from_name(coordinates)
+            c = ICRSCoord.from_name(coordinates)
         except coord.name_resolve.NameResolveError:
             try:
-                c = coord.ICRSCoordinates(coordinates)
-                warnings.warn("Coordinate string is being interpreted as an ICRS coordinate.")
-            except u.UnitsException:
-                warnings.warn("Only ICRS coordinates can be entered as strings\n"
-                              "For other systems please use the appropriate "
-                              "astropy.coordinates object")
-                raise u.UnitsException
-    elif isinstance(coordinates, coord.SphericalCoordinatesBase):
-        c = coordinates
+                c = ICRSCoordGenerator(coordinates)
+                warnings.warn("Coordinate string is being interpreted as an "
+                              "ICRS coordinate.")
+            except u.UnitsError:
+                warnings.warn("Only ICRS coordinates can be entered as "
+                              "strings.\n For other systems please use the "
+                              "appropriate astropy.coordinates object.")
+                raise u.UnitsError
+    elif isinstance(coordinates, CoordClasses):
+        if hasattr(coordinates, 'frame'):
+            c = coordinates
+        else:
+            # Convert the "frame" object into a SkyCoord
+            c = coord.SkyCoord(coordinates)
     else:
         raise TypeError("Argument cannot be parsed as a coordinate")
     return c
+
 
 def coord_to_radec(coordinate):
     """
     Wrapper to turn any astropy coordinate into FK5 RA in Hours and FK5 Dec in
     degrees
-    
+
     This is a hack / temporary wrapper to deal with the unstable astropy API
+    (it may be wise to remove this hack since it's not clear that the old
+    coordinate API can even do transforms)
     """
-    if hasattr(coordinate.fk5.ra,'hour'):
-        ra = coordinate.fk5.ra.hour
-    elif hasattr(coordinate.fk5.ra,'hourangle'):
-        ra = coordinate.fk5.ra.hourangle
+    C = coordinate.transform_to('fk5')
+    if hasattr(C.ra, 'hour'):
+        ra = C.ra.hour
+    elif hasattr(C.ra, 'hourangle'):
+        ra = C.ra.hourangle
     else:
-        raise Exception("API Error: RA cannot be converted to hour or hourangle.")
-    dec = coordinate.fk5.dec.degree
-    return ra,dec
+        raise ValueError("API Error: RA cannot be converted to hour "
+                         "or hourangle.")
+    dec = C.dec.degree
+    return ra, dec
+
 
 class TableList(list):
 
@@ -201,36 +211,39 @@ class TableList(list):
     >>> t['b']
     2
     """
+
     def __init__(self, inp):
         if not isinstance(inp, OrderedDict):
             try:
                 inp = OrderedDict(inp)
-            except (TypeError,ValueError):
-                raise ValueError("Input to TableList must be an OrderedDict or list of (k,v) pairs")
-        
+            except (TypeError, ValueError):
+                raise ValueError("Input to TableList must be an OrderedDict "
+                                 "or list of (k,v) pairs")
+
         self._dict = inp
-        super(TableList,self).__init__(inp.values())
+        super(TableList, self).__init__(inp.values())
 
     def __getitem__(self, key):
         if isinstance(key, int):
             # get the value in the (key,value) pair
-            return super(TableList,self).__getitem__(key)
+            return super(TableList, self).__getitem__(key)
         elif key in self._dict:
             return self._dict[key]
         else:
-            raise TypeError("TableLists can only be indexed with the named keys and integers.")
+            raise TypeError("TableLists can only be indexed with the "
+                            "named keys and integers.")
 
     def __setitem__(self, value):
         raise TypeError("TableList is immutable.")
 
     def __getslice__(self, slice):
-        return self.values()[slice]
+        return list(self.values())[slice]
 
     def keys(self):
-        return self._dict.keys()
+        return list(self._dict.keys())
 
     def values(self):
-        return self._dict.values()
+        return list(self._dict.values())
 
     def __repr__(self):
         """
@@ -239,13 +252,6 @@ class TableList(list):
         """
 
         return self.format_table_list()
-
-        # This information is often unhelpful
-        # total_rows = sum(len(self.__getitem__(t)) for t in self.keys())
-        # info_str = "<TableList with {keylen} table(s) and {total_rows} total row(s)>".format(keylen=len(list(self.keys())),
-        #                                                                                    total_rows=total_rows)
-
-        # return info_str
 
     def format_table_list(self):
         """
@@ -258,12 +264,12 @@ class TableList(list):
             return "Empty TableList"
 
         header_str = "TableList with {keylen} tables:".format(keylen=ntables)
-        body_str = "\n".join(["\t'{t_number}:{t_name}' with {ncol} column(s) and {nrow} row(s) ".
-                              format(t_number=t_number,
-                                     t_name=t_name,
-                                     nrow=len(self[t_number]),
-                                     ncol=len(self[t_number].colnames))
-                              for t_number,t_name in enumerate(self.keys())])
+        body_str = "\n".join(["\t'{t_number}:{t_name}' with {ncol} column(s) "
+                              "and {nrow} row(s) "
+                              .format(t_number=t_number, t_name=t_name,
+                                      nrow=len(self[t_number]),
+                                      ncol=len(self[t_number].colnames))
+                              for t_number, t_name in enumerate(self.keys())])
         return "\n".join([header_str, body_str])
 
     def print_table_list(self):
@@ -284,26 +290,31 @@ def _is_coordinate(coordinates):
     Parameters
     ----------
     coordinates : str or `astropy.coordinates` object
-            The target around which to search. It may be specified as a string
-            in which case it is resolved using online services or as the appropriate
-            `astropy.coordinates` object. ICRS coordinates may also be entered as strings
-            as specified in the `astropy.coordinates` module.
+            The target around which to search. It may be specified as a
+            string in which case it is resolved using online services or as
+            the appropriate `astropy.coordinates` object. ICRS coordinates
+            may also be entered as strings as specified in the
+            `astropy.coordinates` module.
 
     Returns
     -------
     bool
     """
-    if hasattr(coordinates,'fk5'):
+    if hasattr(coordinates, 'fk5'):
         # its coordinate-like enough
         return True
     try:
-        coord.ICRSCoordinates(coordinates)
+        ICRSCoordGenerator(coordinates)
         return True
     except ValueError:
         return False
 
+
 def suppress_vo_warnings():
-    """ Suppresses all warnings of the class `astropy.io.votable.exceptions.VOWarning."""
+    """
+    Suppresses all warnings of the class
+    `astropy.io.votable.exceptions.VOWarning`.
+    """
     warnings.filterwarnings("ignore", category=votable.exceptions.VOWarning)
 
 
@@ -317,7 +328,8 @@ def validate_email(email):
         import validate_email
         return validate_email.validate_email(email)
     except ImportError:
-        return bool(re.compile('^\S+@\S+\.\S+$').match(email))
+        return bool(re.compile(r'^\S+@\S+\.\S+$').match(email))
+
 
 class FileContainer(object):
     """
@@ -325,10 +337,15 @@ class FileContainer(object):
     files.
     """
 
-    def __init__(self, target, cache=True):
-
+    def __init__(self, target, **kwargs):
+        kwargs.setdefault('cache', True)
         self._target = target
-        self._readable_object = aud.get_readable_fileobj(target, cache=cache)
+        self._timeout = kwargs.get('remote_timeout', aud.conf.remote_timeout)
+        if (os.path.splitext(target)[1] == '.fits' and not
+                ('encoding' in kwargs and kwargs['encoding'] == 'binary')):
+            warnings.warn("FITS files must be read as binaries; error is "
+                          "likely.")
+        self._readable_object = get_readable_fileobj(target, **kwargs)
 
     def get_fits(self):
         """
@@ -366,7 +383,7 @@ class FileContainer(object):
             estr = '' if len(e.args) < 1 else (': ' + str(e))
             warn(aud.CacheMissingWarning(msg + e.__class__.__name__ + estr))
 
-        with aud._open_shelve(urlmapfn, True) as url2hash:
+        with _open_shelve(urlmapfn, True) as url2hash:
             if str(self._target) in url2hash:
                 target = url2hash[str(self._target)]
             else:
@@ -375,10 +392,13 @@ class FileContainer(object):
         if link_cache == 'hard':
             try:
                 os.link(target, savepath)
-            except (IOError,OSError) as e:
+            except (IOError, OSError, AttributeError) as e:
                 shutil.copy(target, savepath)
         elif link_cache == 'sym':
-            os.symlink(target, savepath)
+            try:
+                os.symlink(target, savepath)
+            except AttributeError:
+                raise OSError('Creating symlinks is not possible on this OS.')
         else:
             shutil.copy(target, savepath)
 
@@ -386,9 +406,17 @@ class FileContainer(object):
         """
         Download the file as a string
         """
-        if not hasattr(self,'_string'):
-            with self._readable_object as f:
-                self._string = f.read()
+        if not hasattr(self, '_string'):
+            try:
+                with self._readable_object as f:
+                    data = f.read()
+                    self._string = data
+            except URLError as e:
+                if isinstance(e.reason, socket.timeout):
+                    raise TimeoutError("Query timed out, time elapsed {t}s".
+                                       format(t=self._timeout))
+                else:
+                    raise e
 
         return self._string
 
@@ -399,12 +427,48 @@ class FileContainer(object):
         s = self.get_string()
         # TODO: replace with six.BytesIO
         try:
-            return io.BytesIO(s)
+            return six.BytesIO(s)
         except TypeError:
-            return io.StringIO(s)
+            return six.StringIO(s)
 
     def __repr__(self):
-        if hasattr(self,'_fits'):
-            return "Downloaded FITS file: "+self._fits.__repr__()
+        if hasattr(self, '_fits'):
+            return "Downloaded FITS file: " + self._fits.__repr__()
         else:
-            return "Downloaded object from URL {} with ID {}".format(self._target, id(self._readable_object))
+            return ("Downloaded object from URL {} with ID {}"
+                    .format(self._target, id(self._readable_object)))
+
+
+def get_readable_fileobj(*args, **kwargs):
+    """
+    Overload astropy's get_readable_fileobj so that we can safely monkeypatch
+    it in astroquery without affecting astropy core functionality
+    """
+    return aud.get_readable_fileobj(*args, **kwargs)
+
+
+def parse_votable(content):
+    """
+    Parse a votable in string format
+    """
+    tables = votable.parse(six.BytesIO(content), pedantic=False)
+    return tables
+
+
+def _open_shelve(shelffn, withclosing=False):
+    """
+    Opens a shelf file.  If ``withclosing`` is True, it will be opened with
+    closing, allowing use like:
+
+        with _open_shelve('somefile',True) as s:
+            ...
+    """
+    import shelve
+    import contextlib
+
+    shelf = shelve.open(shelffn, protocol=2)
+
+    if withclosing:
+        return contextlib.closing(shelf)
+    else:
+        return shelf

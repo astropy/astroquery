@@ -1,0 +1,872 @@
+
+
+<!DOCTYPE HTML>
+<!--
+/*
+* ALMA - Atacama Large Millimeter Array
+* (c) European Southern Observatory, 2002
+* Copyright by ESO (in the framework of the ALMA collaboration),
+* All rights reserved
+*
+* This library is free software; you can redistribute it and/or
+* modify it under the terms of the GNU Lesser General Public
+* License as published by the Free Software Foundation; either
+* version 2.1 of the License, or (at your option) any later version.
+*
+* This library is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+* Lesser General Public License for more details.
+*
+* You should have received a copy of the GNU Lesser General Public
+* License along with this library; if not, write to the Free Software
+* Foundation, Inc., 59 Temple Place, Suite 330, Boston,
+* MA 02111-1307 USA
+*/
+
+-->
+
+
+
+
+
+
+
+
+
+
+
+
+
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <link rel="shortcut icon" type="image/x-icon"
+          href='/aq/static/favicon.ico;jsessionid=57936B97F0A84C6CFD203EAE936A8C64'/>
+
+    <!-- jQuery -->
+    <script src='/aq/static/js/jquery-1.7.2.min.js;jsessionid=57936B97F0A84C6CFD203EAE936A8C64?version=2015.1.0'
+            type="text/javascript"></script>
+
+
+    <!-- jQuery UI: tabs -->
+    <script src='/aq/static/js/jquery-ui-1.10.4.min.js;jsessionid=57936B97F0A84C6CFD203EAE936A8C64?version=2015.1.0'
+            type="text/javascript"></script>
+
+    <script type="text/javascript"
+            src='/aq/static/cadc/votv/javascript/jquery.event.drag-2.2.min.js;jsessionid=57936B97F0A84C6CFD203EAE936A8C64?version=2015.1.0'></script>
+    <link rel="stylesheet"
+          href='/aq/static/css/jquery-ui-1.10.4.min.css;jsessionid=57936B97F0A84C6CFD203EAE936A8C64?version=2015.1.0'>
+
+    <!-- jQuery form handling -->
+    <script type="text/javascript"
+            src='/aq/static/js/jquery.form.js;jsessionid=57936B97F0A84C6CFD203EAE936A8C64?version=2015.1.0'></script>
+
+    <!-- jQuery multi selection box -->
+    <script src='/aq/static/js/jquery.multiselect.js;jsessionid=57936B97F0A84C6CFD203EAE936A8C64?version=2015.1.0'
+            type="text/javascript"></script>
+    <link rel="stylesheet"
+          href='/aq/static/css/jquery.multiselect.css;jsessionid=57936B97F0A84C6CFD203EAE936A8C64?version=2015.1.0'>
+    <!-- Flowplayer: tooltips, expose, overlay, dynamic -->
+    <script src='/aq/static/js/jquery.tools.min.js;jsessionid=57936B97F0A84C6CFD203EAE936A8C64?version=2015.1.0'
+            type="text/javascript"></script>
+    <link rel="stylesheet" type="text/css"
+          href='/aq/static/css/tooltip-generic.css;jsessionid=57936B97F0A84C6CFD203EAE936A8C64?version=2015.1.0'>
+
+    <!-- jQuery calendar event handling -->
+    <script type="text/javascript"
+            src='/aq/static/js/jquery.addtocal.js;jsessionid=57936B97F0A84C6CFD203EAE936A8C64?version=2015.1.0'></script>
+    <script type="text/javascript"
+            src='/aq/static/js/rfc3339date.js;jsessionid=57936B97F0A84C6CFD203EAE936A8C64?version=2015.1.0'></script>
+    <script type="text/javascript"
+            src='/aq/static/js/FileSaver.js;jsessionid=57936B97F0A84C6CFD203EAE936A8C64?version=2015.1.0'></script>
+
+    
+    <link rel="stylesheet" type="text/css"
+          href='/aq/static/cadc/votv/css/slick.grid.css;jsessionid=57936B97F0A84C6CFD203EAE936A8C64?version=2015.1.0'/>
+    <link rel="stylesheet" type="text/css"
+          href='/aq/static/cadc/votv/css/slick.pager.css;jsessionid=57936B97F0A84C6CFD203EAE936A8C64?version=2015.1.0'/>
+    <link rel="stylesheet" type="text/css"
+          href='/aq/static/cadc/votv/css/cadc.columnpicker.panel.css;jsessionid=57936B97F0A84C6CFD203EAE936A8C64?version=2015.1.0'/>
+    <link rel="stylesheet" type="text/css"
+          href='/aq/static/cadc/votv/css/cadc.votv.css;jsessionid=57936B97F0A84C6CFD203EAE936A8C64?version=2015.1.0'/>
+
+    
+    <link rel="stylesheet" type="text/css"
+          href='/aq/static/css/cadc.votv.css;jsessionid=57936B97F0A84C6CFD203EAE936A8C64?version=2015.1.0'/>
+
+    
+    <script type="text/javascript"
+            src='/aq/static/js/unitconversion.js;jsessionid=57936B97F0A84C6CFD203EAE936A8C64?version=2015.1.0'></script>
+    <script type="text/javascript"
+            src='/aq/static/cadc/votv/javascript/slick.core.js;jsessionid=57936B97F0A84C6CFD203EAE936A8C64?version=2015.1.0'></script>
+    <script type="text/javascript"
+            src='/aq/static/cadc/votv/javascript/cadc.uri.js;jsessionid=57936B97F0A84C6CFD203EAE936A8C64?version=2015.1.0'></script>
+    <script type="text/javascript"
+            src='/aq/static/cadc/votv/javascript/cadc.rowselectionmodel.js;jsessionid=57936B97F0A84C6CFD203EAE936A8C64?version=2015.1.0'></script>
+    <script type="text/javascript"
+            src='/aq/static/cadc/votv/javascript/slick.checkboxselectcolumn.js;jsessionid=57936B97F0A84C6CFD203EAE936A8C64?version=2015.1.0'></script>
+    <script type="text/javascript"
+            src='/aq/static/cadc/votv/javascript/slick.grid.js;jsessionid=57936B97F0A84C6CFD203EAE936A8C64?version=2015.1.0'></script>
+    <script type="text/javascript"
+            src='/aq/static/cadc/votv/javascript/slick.dataview.js;jsessionid=57936B97F0A84C6CFD203EAE936A8C64?version=2015.1.0'></script>
+    <script type="text/javascript"
+            src='/aq/static/cadc/votv/javascript/slick.pager.js;jsessionid=57936B97F0A84C6CFD203EAE936A8C64?version=2015.1.0'></script>
+    <script type="text/javascript"
+            src='/aq/static/cadc/votv/javascript/jquery.csv-0.71.min.js;jsessionid=57936B97F0A84C6CFD203EAE936A8C64?version=2015.1.0'></script>
+    <script type="text/javascript"
+            src='/aq/static/cadc/votv/javascript/cadc.columnpicker.panel.js;jsessionid=57936B97F0A84C6CFD203EAE936A8C64?version=2015.1.0'></script>
+    <script type="text/javascript"
+            src='/aq/static/cadc/votv/javascript/cadc.checkboxselectcolumn.js;jsessionid=57936B97F0A84C6CFD203EAE936A8C64?version=2015.1.0'></script>
+    <script type="text/javascript"
+            src='/aq/static/cadc/votv/javascript/cadc.plugin.unitselection.js;jsessionid=57936B97F0A84C6CFD203EAE936A8C64?version=2015.1.0'></script>
+    <script type="text/javascript"
+            src='/aq/static/cadc/votv/javascript/cadc.votable.js;jsessionid=57936B97F0A84C6CFD203EAE936A8C64?version=2015.1.0'></script>
+    <script type="text/javascript"
+            src='/aq/static/cadc/votv/javascript/cadc.votable-reader.js;jsessionid=57936B97F0A84C6CFD203EAE936A8C64?version=2015.1.0'></script>
+    <script type="text/javascript"
+            src='/aq/static/cadc/votv/javascript/cadc.votv.comparer.js;jsessionid=57936B97F0A84C6CFD203EAE936A8C64?version=2015.1.0'></script>
+    <script type="text/javascript"
+            src='/aq/static/cadc/votv/javascript/cadc.votv.js;jsessionid=57936B97F0A84C6CFD203EAE936A8C64?version=2015.1.0'></script>
+    <script type="text/javascript"
+            src='/aq/static/cadc/votv/javascript/cadc.resultstate.js;jsessionid=57936B97F0A84C6CFD203EAE936A8C64?version=2015.1.0'></script>
+
+
+    <!-- jsamp -->
+    <!-- <script type="text/javascript" src="js/samp.js"></script> -->
+    <!-- query form -->
+    <link rel="stylesheet" type="text/css"
+          href="/aq/static/css/queryform.css;jsessionid=57936B97F0A84C6CFD203EAE936A8C64?version=2015.1.0"/>
+    <script type="text/javascript"
+            src="/aq/static/js/validator.js;jsessionid=57936B97F0A84C6CFD203EAE936A8C64?version=2015.1.0"></script>
+    <script type="text/javascript"
+            src="/aq/static/js/alma/queryform.js;jsessionid=57936B97F0A84C6CFD203EAE936A8C64?version=2015.1.0"></script>
+    <script type="text/javascript"
+            src="/aq/static/js/alma/parser.js;jsessionid=57936B97F0A84C6CFD203EAE936A8C64?version=2015.1.0"></script>
+    <script type="text/javascript"
+            src="/aq/static/js/alma/format.frequency-support.js;jsessionid=57936B97F0A84C6CFD203EAE936A8C64?version=2015.1.0"></script>
+    <script type="text/javascript"
+            src="/aq/static/js/alma/format.project-code.js;jsessionid=57936B97F0A84C6CFD203EAE936A8C64?version=2015.1.0"></script>
+
+    <!-- science query interface -->
+    <script type="text/javascript"
+            src='/aq/static/js/alma/asaquery.js;jsessionid=57936B97F0A84C6CFD203EAE936A8C64?version=2015.1.0'></script>
+    <script type="text/javascript"
+            src='/aq/static/js/sesame.js;jsessionid=57936B97F0A84C6CFD203EAE936A8C64?version=2015.1.0'></script>
+    <script type="text/javascript">
+      $(document).ready(function ()
+                        {
+                          // grab the URL directly from the spring bean "propertiesConfigurer" set in asaquery.xml
+                          var requestHandlerUrl = "https://almascience.eso.org/rh/submission";
+                          var contextPath = "/aq";
+
+                          try
+                          {
+                            var aq = new AsaQuery(requestHandlerUrl, contextPath);
+                            aq.init();
+
+                            var currentURI = new cadc.web.util.URI(window.location.href);
+                            var queryObject = currentURI.getQuery();
+                            var hashString = currentURI.getHash();
+                            var queryParameterObject;
+
+                            if (!$.isEmptyObject(queryObject))
+                            {
+                              queryParameterObject = queryObject;
+
+                              // Set public_data checkbox at page loading time.
+                              // Note: There is a trivial limitation resulting from encoding value of public_data
+                              //       with absence/presence of it in the url. We cannot differentiate between
+                              //       initial page loading with default value of public_data and page loading
+                              //       with public_data unchecked only.
+                              $("#public_data").prop("checked", currentURI.getQueryValue("public_data") ? true : false);
+                            }
+                            else if (hashString && ($.trim(hashString) != ""))
+                            {
+                              queryParameterObject = {};
+                            }
+                            else
+                            {
+                              queryParameterObject = null;
+                            }
+
+                            if (queryParameterObject != null)
+                            {
+                              aq.execute(queryParameterObject);
+                            }
+                          }
+                          catch (err)
+                          {
+                            // only here for the development phase
+                            alert(err.message);
+                          }
+                        });
+
+    </script>
+    <title>Alma Science Archive Query</title>
+  </head>
+
+  <body class="section-front-page template-document_view background-color"
+        dir="ltr">
+    <div class="headerclass">
+      <span class="headertitle">ALMA Science Archive Query</span>
+    </div>
+    <div class="bodydiv">
+      <div class="mainframe">
+        <div id="tabs">
+          <ul>
+            <li><a href="#queryFormTab">Query Form</a></li>
+            <li><a href="#resultTableTab">Results Table</a></li>
+          </ul>
+
+          <div id="queryFormTab">
+            <div class="help_link_container query_help">
+              <a href="" id="query_help_link" class="action_link hover_link"
+                 data-role="query_help_content_container">Query Help</a>
+            </div>
+            <div id="query_help_content_container" data-link="query_help_link"
+                 class="pulldown_content hover_content">
+              <h3>Query Help</h3>
+
+              <p>
+                The tooltips that appear when you hover over the search boxes
+                will give examples of searches, and show the unit in which to
+                enter numerical quantities. The name resolver (SESAME) will
+                resolve names of non-solar system objects using the SIMBAD, NED,
+                and Vizier databases.
+              </p>
+
+              <p>
+                By default, the results of a search will be a list of publically
+                available, raw observations of science targets. To see a
+                project-level view, and/or prorietary data, choose the
+                appropriate
+                options in the lower-right box. In order to see also data from
+                calibrator observations, select the appropriate entries from the
+                "Scan Intent" field.
+              </p>
+
+              <p>
+                Below are a list of operators and wildcards that may be used in
+                the search fields (apart from the name resolver field, which
+                accepts no operators).
+              </p>
+              <table class="help_content_table">
+  <thead>
+    <tr>
+      <th>Numerical Operators</th>
+      <th>String Operators</th>
+      <th>String Wildcards</th>
+      <th>Logical Operators</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <p class="align-left">Equal</p>
+        <p class="align-right">=</p>
+      </td>
+      <td>
+        <p class="align-left">Equal</p>
+        <p class="align-right">~</p>
+      </td>
+      <td>
+        <p class="align-left">Any text</p>
+        <p class="align-right">*</p>
+      </td>
+      <td>
+        <p class="align-left">Or</p>
+        <p class="align-right">|</p>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <p class="align-left">Not Equal</p>
+        <p class="align-right">!=</p>
+      </td>
+      <td>
+        <p class="align-left">Exactly equal (case sensitive)</p>
+        <p class="align-right">=</p>
+      </td>
+      <td>
+        <p class="align-left">Any single character</p>
+        <p class="align-right">?</p>
+      </td>
+      <td>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <p class="align-left">Less than</p>
+        <p class="align-right">&lt;</p>
+      </td>
+      <td>
+        <p class="align-left">Exactly equal (no wild cards)</p>
+        <p class="align-right">==</p>
+      </td>
+      <td>
+      </td>
+      <td>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <p class="align-left">Less than or equal</p>
+        <p class="align-right">&le;</p>
+      </td>
+      <td>
+        <p class="align-left">Not equal</p>
+        <p class="align-right">!~</p>
+      </td>
+      <td>
+      </td>
+      <td>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <p class="align-left">Greater than</p>
+        <p class="align-right">&gt;</p>
+      </td>
+      <td>
+        <p class="align-left">Not exactly equal (no wildcards)</p>
+        <p class="align-right">!=</p>
+      </td>
+      <td>
+      </td>
+      <td>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <p class="align-left">Greater than or equal</p>
+        <p class="align-right">&ge;</p>
+      </td>
+      <td>
+      </td>
+      <td>
+      </td>
+      <td>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <p class="align-left">Range</p>
+        <p class="align-right">..</p>
+      </td>
+      <td>
+      </td>
+      <td>
+      </td>
+      <td>
+      </td>
+    </tr>
+  </tbody>
+</table>
+            </div>
+            <form id="queryForm" name="queryForm" action="#"
+                  enctype="multipart/form-data">
+
+              <input type="hidden" name="format" value="CSV" />
+
+              <div id="controls">
+                <div class='buttonclass'>
+                  <input id="queryFormSubmit" class="context" type="submit"
+                         value="Search"/>
+                  <input type="reset" value="Reset"
+                         action="aq.resetFiels(); return false;"/>
+                </div>
+              </div>
+
+              <div class="maintable">
+                <table>
+                  <tr>
+                    <td class="category">
+                      <div class="categorytitle"> Position</div>
+                      <div class="inputdiv">
+                        <div class="elementdiv">
+                          <span class="source_name_resolver">Source name (Resolver)</span><br>
+                          <div id="sourcenameresolver" class="inputfielddiv">
+                            <table>
+                              <tr>
+                                <td>
+                                  <!-- Label here for compliance. -->
+                                  <label for="source_name_resolver"
+                                         style="display: none;">Source name (Resolver)</label>
+                                  <input type="text" id="source_name_resolver"
+                                         name="source_name_resolver" />
+                                <td>
+                                  <img id="source_name_ok_img" class="ok"
+                                       src='/aq/static/img/ok_small.png;jsessionid=57936B97F0A84C6CFD203EAE936A8C64'
+                                       alt="">
+                                </td>
+                                <td>
+                                  <img id="source_name_bad_img" class="bad"
+                                       src='/aq/static/img/bad_small.png;jsessionid=57936B97F0A84C6CFD203EAE936A8C64'
+                                       alt="">
+                                </td>
+                                <td>
+                                  <img id="source_name_work_img" class="work"
+                                       src='/aq/static/img/queryoverlay_small.gif;jsessionid=57936B97F0A84C6CFD203EAE936A8C64'
+                                       alt="">
+                                </td>
+                              </tr>
+                            </table>
+                          </div>
+                        </div>
+                        <div class="tooltip">
+                          <div class="floatleft">
+                            <strong>Source name (Resolver)</strong>
+                            <br/>Case-insensitive search for source name, to be
+                                 resolved with Sesame.
+                            <br/>Wildcard matching is disabled.
+                            <br /><br />
+                            <strong>Usage.</strong><br />
+                            <p>
+                              Use Sesame (via. NED, Simbad and VizieR) to parse
+                              names commonly found throughout literature.  A
+                              green tick indicates a successful search,
+                              otherwise, a red cross is returned.
+                            </p>
+                            <br />
+                            <strong>Example</strong>
+                            <br />
+                            <span class="examples">
+                              <p>Cen A</p>
+                              <p>NGC3375</p>
+                              <p>ARP220</p>
+                            </span>
+                          </div>
+                          <div id="tooltipresolverdiv"
+                               class="ui-validation-error">
+                            <div class="messages">
+                              <img width="16" height="16"
+                                   src='/aq/static/img/attention.png;jsessionid=57936B97F0A84C6CFD203EAE936A8C64'/>
+
+                              <div class="message-container"></div>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="tooltip">
+<div class="floatleft">
+<br/>No tooltip information is available</div></div>
+                      </div>
+
+                      <div class="inputdiv"><div class="elementdiv">
+                        <span class="source_name_alma">Source name (ALMA)</span><div class="inputfielddiv"><input id="source_name_alma"name="source_name_alma"class="ui-autocomplete-input" type="text"/></div>
+                      </div><div class="tooltip">
+<div class="floatleft">
+<b>Source name (ALMA)</b><br>ALMA source name.<br> <br> <b>Description</b><br>Name of the source as registered in the ASDM. Partial matches through wildcards (?, *), and boolean OR expressions ("|"), can be used.<br> <br> <b>Example</b><br><span class="examples"><p>GRB021004</p><p>&quot;R Scl&quot;</p></span></div></div></div>
+
+                      <div class="inputdiv"><div class="elementdiv">
+                        <span class="ra_dec">RA Dec</span><div class="inputfielddiv"><input id="ra_dec"name="ra_dec"class="ui-form-input-validate" type="text"/></div>
+                      </div><div class="tooltip">
+<div class="floatleft">
+<b>RA Dec</b><br>Right Ascension, Declination<br> <br> <b>Description</b><br>RA and Dec may be expressed in sexagesimal, with colon-separated hours:minutes:seconds degrees:minutes:seconds, or in decimal degrees. A range may also be specified using the operators listed under "Query Help". A search radius in degrees can be added to the end separated by a comma.<br> <br> <b>Unit</b><br>Hours:Minutes:Seconds and Degrees:Minutes:Seconds<br> <br> <b>Example</b><br><span class="examples"><p>12:13:14.0 -00:01:02.1</p><p>12:13:14.0 -00:01:02.1, 20</p><p>181.0192 -0.01928</p><p>181.0192 -0.01928, 30</p><p>181..185 >-0.1928</p><p>>12:13:14.0 0..40</p></span></div><div class="ui-validation-error"><div class="messages"><img width="16" height="16" src="/aq/static/img/attention.png" /><div class="message-container"></div></div></div></div></div>
+
+                    </td>
+
+                    <td class="category">
+                      <div class="categorytitle"> Energy</div>
+
+                      <div class="inputdiv"><div class="elementdiv">
+                        <span class="frequency">Frequency</span><div class="inputfielddiv"><input id="frequency"name="frequency"class="ui-form-input-validate" type="text"/></div>
+                      </div><div class="tooltip">
+<div class="floatleft">
+<b>Frequency</b><br>Reference sky frequency.<br> <br> <b>Description</b><br>Observed (tuned) reference frequency on the sky.<br> <br> <b>Unit</b><br>GHz<br> <br> <b>Example</b><br><span class="examples"><p>&gt;100</p> <p>&lt;300</p><p>100 .. 300</p> <p>!(100 .. 300)</p> <p>100 .. 300 | 600 .. 900</p></span></div><div class="ui-validation-error"><div class="messages"><img width="16" height="16" src="/aq/static/img/attention.png" /><div class="message-container"></div></div></div></div></div>
+
+                      <div class="inputdiv"><div class="elementdiv">
+                        <span class="bandwidth">Bandwidth</span><div class="inputfielddiv"><input id="bandwidth"name="bandwidth"class="ui-form-input-validate" type="text"/></div>
+                      </div><div class="tooltip">
+<div class="floatleft">
+<b>Bandwidth</b><br>Total bandwidth.<br> <br> <b>Description</b><br>Total Bandwidth<br> <br> <b>Unit</b><br>GHz<br> <br> <b>Example</b><br><span class="examples"><p>1.2 .. 2.5</p> <p>&gt;2.5</p> <p>&lt;1.2</p><p>&lt;1.2 | &gt;4.0</p></span></div><div class="ui-validation-error"><div class="messages"><img width="16" height="16" src="/aq/static/img/attention.png" /><div class="message-container"></div></div></div></div></div>
+
+                      <div class="inputdiv"><div class="elementdiv">
+                        <span class="spectral_resolution">Spectral resolution</span><div class="inputfielddiv"><input id="spectral_resolution"name="spectral_resolution"class="ui-form-input-validate" type="text"/></div>
+                      </div><div class="tooltip">
+<div class="floatleft">
+<b>Spectral resolution</b><br>Estimated frequency resolution (in kHz).<br> <br> <b>Description</b><br>Estimated frequency resolution from all the spectral windows, using median values of channel widths.<br> <br> <b>Unit</b><br>kHz<br> <br> <b>Example</b><br><span class="examples"><p>&lt;70</p>       <p>&gt;1e6</p>     <p>2e6 .. 3e6</p></span></div><div class="ui-validation-error"><div class="messages"><img width="16" height="16" src="/aq/static/img/attention.png" /><div class="message-container"></div></div></div></div></div>
+
+                      <div class="inputdiv"><div class="elementdiv">
+                          <span class="band">Band</span>
+
+                          <div class="inputfielddiv">
+                            <select id="band" name="band" multiple="multiple">
+                              <option value="3">3&nbsp;&nbsp;&nbsp;(84-116 GHz)</option>
+                              <option value="4">4&nbsp;&nbsp;&nbsp;(125-163 GHz)</option>
+                              <option value="6">6&nbsp;&nbsp;&nbsp;(211-275 GHz)</option>
+                              <option value="7">7&nbsp;&nbsp;&nbsp;(275-373 GHz)</option>
+                              <option value="8">8&nbsp;&nbsp;&nbsp;(385-500 GHz)</option>
+                              <option value="9">9&nbsp;&nbsp;&nbsp;(602-720 GHz)</option>
+                              <option value="10">10&nbsp;&nbsp;&nbsp;(787-950 GHz)</option>
+                            </select>
+                          </div>
+                      </div><div class="tooltip">
+<div class="floatleft">
+<b>Band</b><br>ALMA receiver band.<br> <br> <b>Description</b><br>ALMA receiver band.</div></div></div>
+
+                    </td>
+                    <td class="category">
+                      <div class="categorytitle"> Time</div>
+
+                      <div class="inputdiv"><div class="elementdiv">
+                        <span class="start_date">Observation date</span><div class="inputfielddiv"><input id="start_date"name="start_date"class="ui-form-input-validate" type="text"/></div>
+                      </div><div class="tooltip">
+<div class="floatleft">
+<b>Observation date</b><br>Field integration start timestamp.<br> <br> <b>Description</b><br>Start time of the first integration on the field.<br> <br> <b>Example</b><br><span class="examples"><p>&gt;01-01-2011</p>   <p>&lt;31-12-2011</p>     <p>01-01-2011 .. 01-02-2011</p></span></div><div class="ui-validation-error"><div class="messages"><img width="16" height="16" src="/aq/static/img/attention.png" /><div class="message-container"></div></div></div></div></div>
+
+                      <div class="inputdiv"><div class="elementdiv">
+                        <span class="integration_time">Integration time</span><div class="inputfielddiv"><input id="integration_time"name="integration_time"class="ui-form-input-validate" type="text"/></div>
+                      </div><div class="tooltip">
+<div class="floatleft">
+<b>Integration time</b><br>Total field integration time.<br> <br> <b>Description</b><br>Aggregated integration time for the field in the ASDM.<br> <br> <b>Unit</b><br>s<br> <br> <b>Example</b><br><span class="examples"><p>&gt;12.5</p>     <p>&lt;30</p>     <p>30 .. 60</p>      <p>!(1 .. 300)</p></span></div><div class="ui-validation-error"><div class="messages"><img width="16" height="16" src="/aq/static/img/attention.png" /><div class="message-container"></div></div></div></div></div>
+
+                    </td>
+
+                    <td class="category">
+                      <div class="categorytitle"> Polarisation</div>
+                      <div class="inputdiv"><div class="elementdiv">
+                          <span class="polarisation_type">Polarisation type</span>
+
+                          <div class="inputfielddiv">
+                            <select id="polarisation_type"
+                                    name="polarisation_type"
+                                    multiple="multiple">
+                              <option value="0">Stokes I</option>
+                              <option value="1">Single</option>
+                              <option value="2">Dual</option>
+                              <option value="=3|4">Full</option>
+                            </select>
+                          </div>
+                      </div><div class="tooltip">
+<div class="floatleft">
+<b>Polarisation type</b><br>Polarisation products.<br> <br> <b>Description</b><br>Polarisation products provided.</div></div></div>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td class="category">
+                      <div class="categorytitle"> Observation</div>
+
+                      <div class="inputdiv"><div class="elementdiv">
+                        <span class="water_vapour">Water vapour</span><div class="inputfielddiv"><input id="water_vapour"name="water_vapour"class="ui-form-input-validate" type="text"/></div>
+                      </div><div class="tooltip">
+<div class="floatleft">
+<b>Water vapour</b><br>Estimated precipitable water vapour (in mm).<br> <br> <b>Description</b><br>Estimated precipitable water vapour from the XML_CALWVR_ENTITIES table.<br> <br> <b>Unit</b><br>mm<br> <br> <b>Example</b><br><span class="examples"><p>!null</p>         <p>&lt;0.5|null</p>   <p>&lt; 0.49 | &gt;55.5</p></span></div><div class="ui-validation-error"><div class="messages"><img width="16" height="16" src="/aq/static/img/attention.png" /><div class="message-container"></div></div></div></div></div>
+
+                    </td>
+
+                    <td class="category">
+                      <div class="categorytitle">Project</div>
+
+                      <div class="inputdiv"><div class="elementdiv">
+                        <span class="project_code">Project code</span><div class="inputfielddiv"><input id="project_code"name="project_code"class="ui-autocomplete-input" type="text"/></div>
+                      </div><div class="tooltip">
+<div class="floatleft">
+<b>Project code</b><br>Project code.<br> <br> <b>Description</b><br>Project code, in the form YYYY.NNNNN.C.AAA, where:<br> <br> <b>Example</b><br><span class="examples"><p>2010.2.00010.N</p>      <p>2010.*</p>      <p>2010.?.*.CSV</p>        <p>*.CSV</p>        <p>!(*.CSV | *.SIM)</p></span></div></div></div>
+
+                      <div class="inputdiv"><div class="elementdiv">
+                        <span class="project_title">Project title</span><div class="inputfielddiv"><input id="project_title"name="project_title"class="ui-autocomplete-input" type="text"/></div>
+                      </div><div class="tooltip">
+<div class="floatleft">
+<b>Project Title</b><br>ALMA Project Title<br> <br> <b>Description</b><br>Case-insensitive search over the project title<br> <br> <b>Example</b><br><span class="examples"><p>*GALAXY*</p><p>*?ebula*</p></span></div></div></div>
+
+                      <div class="inputdiv"><div class="elementdiv">
+                        <span class="pi_name">PI name</span><div class="inputfielddiv"><input id="pi_name"name="pi_name"class="ui-autocomplete-input" type="text"/></div>
+                      </div><div class="tooltip">
+<div class="floatleft">
+<b>PI Full Name</b><br>ALMA PI name<br> <br> <b>Description</b><br>case-insensitive partial match over the full PI name. Wildcards can be used<br> <br> <b>Example</b><br><span class="examples"><p>Smith, Fred</p><p>SMI*</p><p>fr?d</p></span></div></div></div>
+
+                    </td>
+
+                    <td class="placeholder"></td>
+                    <td class="category">
+                      <div class="categorytitle">Options</div>
+                      <div class="inputdiv"><div class="elementdiv">
+                          <div class="inputfielddiv">
+                            <div class="radiobuttons">
+                              <span class="rawView">View:</span>
+                              <input type="radio" id="rawView"
+                                     name="result_view"
+                                     value="raw"
+                                     checked="checked"/><label for="rawView">raw
+                                                                             data</label>
+                              <input type="radio" id="projectView"
+                                     name="result_view"
+                                     value="project"/><label for="projectView">project</label>
+                            </div>
+                          </div>
+                      </div><div class="tooltip">
+<div class="floatleft">
+<b>Results View</b><br>Select if the results should be displayed per observation or per project.<br> <br> <b>Description</b><br>Per default the search results are displayed so that one row of the results table corresponds to one observation in the raw data. If you are only interested in a list of projects that match the search criteria, select here the project option.</div></div></div>
+                      <div class="inputdiv"><div class="elementdiv">
+                          <div class="inputfielddiv">
+                            <div class="radiobuttons">
+                              <input type="checkbox" id="public_data"
+                                     name="public_data"
+                                     value="public"
+                                     checked="checked"/>
+                              <label for="public_data">public data only</label>
+                            </div>
+                          </div>
+                      </div><div class="tooltip">
+<div class="floatleft">
+<b>Data type</b><br>Per default only publicly available data is shown. If you also want to see proprietary data, uncheck this checkbox.<br> <br> <b>Description</b><br>ALMA data is protected by a proprietary period of usually 12 months. Per default only those data that have gone out of their proprietary period are shown in the Results Table. If you are a PI and are looking for your own data, if the PI has delegated the access of their data to you, if you want to see which data has been observed or if you want to see which data is becoming public when, please uncheck this checkbox.</div></div></div>
+                      <div class="inputdiv"><div class="elementdiv">
+                          <div class="inputfielddiv">
+                            <div class="radiobuttons">
+                              <input type="checkbox" id="science_observations"
+                                     name="science_observations"
+                                     value="=%TARGET%" checked="checked"/>
+                              <label for="science_observations">science
+                                                                observations
+                                                                only</label>
+                            </div>
+                          </div>
+                      </div><div class="tooltip">
+<div class="floatleft">
+<b>Observation type</b><br>Per default only science sources are shown. If you also want to see the calibration sources, uncheck this checkbox.<br> <br> <b>Description</b><br>Scan intent list for the observed field.</div></div></div>
+                    </td>
+                  </tr>
+                </table>
+              </div>
+            </form>
+          </div>
+
+          
+
+          <div id="resultTableTab">
+            <div class="help_link_container results_help">
+              <a href="" id="results_bookmark_link"
+                 class="action_link hover_link"
+                 data-role="results_bookmark_content_container">Results
+                                                                Bookmark</a>
+              <a href="" id="export_table_link" class="action_link hover_link"
+                 data-role="export_table_content_container">Export Table</a>
+              <a href="" id="results_help_link" class="action_link hover_link"
+                 data-role="results_help_content_container">Results Help</a>
+            </div>
+            <div id="export_table_content_container"
+                 data-link="export_table_link"
+                 class="pulldown_content hover_content">
+              <h3>Export Table</h3>
+
+              <p>To download the results table, click on one of the links
+                 below:</p>
+              <ul class="export_options">
+                <li class="example">
+                  <a href="?format=VOTABLE" class="export_link" data-role="VOTABLE">VOTable (XML Format)</a>
+                </li>
+                <li class="example">
+                  <a href="?format=CSV" class="export_link" data-role="CSV">CSV (Comma Separated Values)</a>
+                </li>
+                <li class="example">
+                  <a href="?format=TSV" class="export_link" data-role="TSV">TSV (Tab Separated Values)</a>
+                </li>
+              </ul>
+            </div>
+            <div id="results_help_content_container"
+                 data-link="results_help_link"
+                 class="pulldown_content hover_content">
+              <h3>Results Help</h3>
+
+              <p>
+                Query results appear on this page. If the "raw" view was
+                selected, there is one entry per observation of each source.
+                This means that for a given project several rows are typically
+                displayed for the same source, as are individual mosaic
+                pointings.
+                The "project" view will contain one row per project data
+                delivery.
+              </p>
+
+              <p>
+                Columns in the results table may be sorted by clicking on the
+                column header cell and filtered by entering a filter value in
+                the
+                box below each column heading. The "More columns" link at the
+                top-right of the results table allows the display of further
+                metadata columns. Select the rows you are interested in and
+                click
+                the "Submit download request" button. This will identify the
+                data deliveries that contain the selected data and offer them
+                for
+                download through the ALMA Request Handler.
+              </p>
+
+              <p>
+                Below are a list of operators that may be used in the filter
+                boxes.
+              </p>
+              <table class="help_content_table">
+  <thead>
+    <tr>
+      <th>Numerical Operators</th>
+      <th>String Operators</th>
+      <th>String Wildcards</th>
+      <th>Logical Operators</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <p class="align-left">Equal</p>
+        <p class="align-right">(Default)</p>
+      </td>
+      <td>
+        <p class="align-left">Equal</p>
+        <p class="align-right">(Default)</p>
+      </td>
+      <td>
+        <p class="align-left">Any text</p>
+        <p class="align-right">*</p>
+      </td>
+      <td>
+        <p class="align-left">Or</p>
+        <p class="align-right">|</p>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <p class="align-left">Not Equal</p>
+        <p class="align-right">!</p>
+      </td>
+      <td>
+      </td>
+      <td>
+      </td>
+      <td>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <p class="align-left">Less than</p>
+        <p class="align-right">&lt;</p>
+      </td>
+      <td>
+      </td>
+      <td>
+      </td>
+      <td>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <p class="align-left">Less than or equal</p>
+        <p class="align-right">&le;</p>
+      </td>
+      <td>
+      </td>
+      <td>
+      </td>
+      <td>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <p class="align-left">Greater than</p>
+        <p class="align-right">&gt;</p>
+      </td>
+      <td>
+      </td>
+      <td>
+      </td>
+      <td>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <p class="align-left">Range</p>
+        <p class="align-right">..</p>
+      </td>
+      <td>
+      </td>
+      <td>
+      </td>
+      <td>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+            </div>
+            <div id="results_bookmark_content_container"
+                 data-link="results_bookmark_link"
+                 class="pulldown_content hover_content">
+              <h3>Results Bookmark</h3>
+
+              <p>
+                The current search including all search constraints, the visible
+                columns, their order, sorting state can be accessed through the
+                following link.
+              </p>
+
+              <ul class="bookmark">
+                <li class="example">
+                  <a href="/aq" class="bookmark_link"
+                     style="word-wrap: break-word"></a>
+                </li>
+              </ul>
+            </div>
+            <form id="resultForm" action="#">
+              <!--  store the state of the voview for both view types -->
+              <input type="hidden" name="projectVovState" id="projectVovState"/>
+              <input type="hidden" name="rawVovState" id="rawVovState"/>
+
+              <div class="buttonclass results">
+                <div class="submit_button_container">
+                  <input type="submit" value="Submit download request"/>
+                </div>
+              </div>
+            </form>
+            <div class="grid-container">
+              <div id="cadcvotv-empty-results-message"
+                   class="cadcvotv-empty-results-message">
+                <p>Your search did not return any results.</p>
+                <br />
+                <div class="subtext">
+                  <p>Note that:</p>
+                  <p>If you are looking for data that is still in its proprietary period, make sure to uncheck the <strong>&quot;public data only&quot;</strong> checkbox.</p>
+                  <p>If you are looking for data from calibrator observations, make sure to uncheck the <strong>&quot;science observations only&quot;</strong> checkbox.</p>
+                </div>
+              </div>
+              <div id="results-grid-header" class="grid-header">
+                <span class="grid-header-label"></span>
+              </div>
+              <div id="resultTable"></div>
+            </div>
+            <div id="tooltipColumnPickerHolder">
+              <div class="tooltip columnpicker">
+                <h3>Add/remove displayed columns</h3>
+                <span class="tooltipColumnPickerHelpText">
+                  Drag & drop columns above or below the red bar, move the red bar
+                  itself or click on the checkboxes.
+                </span>
+                <br/>
+                <br/>
+                <h3>Reorder columns</h3>
+                <span class="tooltipColumnPickerHelpText">
+                  Drag & drop the columns or drag & drop the column headers
+                  directly in the results table.
+                </span>
+                <div class="tooltip_content"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    
+    <div>
+      <div id="lengthFinder"></div>
+    </div>
+
+    <div id="queryOverlay">
+      <img src='/aq/static/img/queryoverlay.gif;jsessionid=57936B97F0A84C6CFD203EAE936A8C64' alt=""/><br>
+      Searching
+    </div>
+
+    <div id="form_submission_container" style="display: none;"></div>
+  </body>
+</html>

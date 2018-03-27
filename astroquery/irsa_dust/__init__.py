@@ -1,21 +1,35 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 """
 IRSA Galactic Dust Reddening and Extinction Query Tool
-------------------------------------------------------
+======================================================
+
 .. topic:: Revision History
 
     Refactored using common API as a part of Google Summer of Code 2013.
 
     :Originally contributed by: David Shiga (dshiga.dev@gmail.com)
 """
-from astropy.config import ConfigurationItem
-# maintain a list of URLs in case the user wants to append a mirror
-IRSA_DUST_SERVER = ConfigurationItem('irsa_dust_server',[
-                                    'http://irsa.ipac.caltech.edu/cgi-bin/DUST/nph-dust'],
-    'Name of the irsa_dust server to use')
+from astropy import config as _config
 
-IRSA_DUST_TIMEOUT = ConfigurationItem('timeout', 30, 'default timeout for connecting to server')
 
-from .core import IrsaDust
+class Conf(_config.ConfigNamespace):
+    """
+    Configuration parameters for `astroquery.irsa_dust`.
+    """
+    # maintain a list of URLs in case the user wants to append a mirror
+    server = _config.ConfigItem(
+        ['https://irsa.ipac.caltech.edu/cgi-bin/DUST/nph-dust'],
+        'Name of the irsa_dust server to use.')
+    timeout = _config.ConfigItem(
+        30,
+        'Default timeout for connecting to server.')
 
-__all__ = ['IrsaDust']
+
+conf = Conf()
+
+
+from .core import IrsaDust, IrsaDustClass
+
+__all__ = ['IrsaDust', 'IrsaDustClass',
+           'Conf', 'conf',
+           ]

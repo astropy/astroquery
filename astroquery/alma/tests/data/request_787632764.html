@@ -1,0 +1,1173 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>Alma Request Handler - Request Details</title>
+<link href="/rh/css/ngrh.css" rel="stylesheet" type="text/css" />
+<link href="/rh/css/Almangrh.css" rel="stylesheet" type="text/css" />
+<link href="/rh/css/jquery-ui.css" rel="stylesheet" type="text/css" />
+
+<link rel="shortcut icon" href="/rh/images/AlmaFavicon.ico" />
+<script type="text/javascript" language="JavaScript" src="/rh/javascript/jquery.min.js"></script>
+<script type="text/javascript" src="/rh/javascript/jquery-ui-1.11.1.js"></script>
+<script type="text/javascript" language="JavaScript" src="/rh/javascript/jquery.jeditable.mini.js"></script>
+<script type="text/javascript" language="JavaScript" src="/rh/javascript/requestHandler.js"></script>
+
+<script type="text/javascript" language="JavaScript">
+/*
+ * initialize
+ */
+ 
+ 
+ 
+$(document).ready(function() {
+    
+    // get initial state of request as delivered from view
+    var requestState = $('#requestState').text()
+    if ((requestState == 'READYTOWRITE') || (requestState == 'WRITINGMEDIA')) {        
+       $('#ajaxState')
+       $('#ajaxInfo').html('Your request is being handled by our Operations team')
+    }   
+    else if ( (requestState != 'COMPLETE') && (requestState != 'ERROR') && (requestState != 'CANCELLED') 
+         && (requestState != 'ERRORONNOTIFY') && (requestState != 'READYFORDELIVERY') && (requestState != 'WRITINGERROR') ) {
+        // only if initial state is not terminal, refresh state
+        var message=''       
+        $('#ajaxInfo').html(message + 'page refreshes automatically when request is completed')
+   	    $('#ajaxState').html('<img src="/rh/images/smallheart.png" />')
+        // wait a little then refresh state using AJAX call    
+        setTimeout( "getRequestState('/rh','anonymous','787632764')", 2000)
+    }
+        
+
+    // initialize edit-in-place for request description
+    $('.inPlaceEdit').editable('/rh/requests/anonymous/787632764', {
+        indicator : 'Saving ...',
+        tooltip   : 'Click to edit ...',
+        submit    : 'OK',
+        cssclass  : 'editable'
+    });
+          
+});
+</script>
+</head>
+
+<body>
+<div id="wrapper">
+  <!-- header -->    
+  
+  <div id="portal-header-row"> 
+    <a id="portal-header-logo" href="/rh" class="main-background-color">
+      <img alt="ALMA" title="ASA HOME" src="/rh/images/almalogo.png" width="500" height="115" />
+    </a>
+     
+    <ul class="portal-siteactions left" >        
+            <li><a href="/rh/requests" class="current">Request Handler</a></li> 
+    </ul> 
+    <ul class="portal-siteactions right"> 
+         <li>
+           
+              
+                 <a href="/rh/login?redirectUrl=/requests/anonymous/787632764">
+              
+              Login</a>              
+          
+         </li>
+    </ul> 
+</div>
+
+
+
+  <!-- menu -->
+   
+  <!-- breadcrump -->
+<div id="portal-submenu">
+    <ul class="sub">
+      <li>
+	    <a onfocus="this.blur()" href="/rh/requests/anonymous/recentRequests">Archive Requests</a>
+	  </li>
+
+ 
+      <li><a onfocus="this.blur()" href="/rh/requests/anonymous/787632764">Req #787,632,764</a>
+        
+      </li>
+ 
+    </ul> 
+</div>
+   
+
+
+
+<!-- END - #menu -->   
+
+  
+  <!-- content  -->
+  <div id="content">
+    <!-- requests details -->
+    <h1>Request #787632764 by Anonymous User 
+      
+        <img src="/rh/images/state_complete.png" alt="COMPLETE" title="Completed"></img>
+      
+    </h1>
+    <div id="requestDescription" class="inPlaceEdit"></div>
+    
+    <!-- ajax request state update info -->
+    <span style="height:30px;width:30px;" id="ajaxState"></span>
+    <span style="height:30px;" id="ajaxInfo"></span>
+    <!-- hidden span to support ajax refresh -->
+    <span id="requestState" style="display:none;">COMPLETE</span>
+       
+    <!-- pagination -->
+    <div id="pagination">
+      
+      
+    </div>
+    <!-- END #pagination -->
+    
+    
+    <form action="https://almascience.eso.org/rh/requests/anonymous/787632764/downloadFile" method="post" name="fileSelectForm">
+      <!--  buttons -->
+      <div class="buttons">        
+        
+          <input type="checkbox" id="asdmCheckbox" onClick="checkUncheckAsdms();" /><b><i>Include raw</i></b>
+          <input class="button" type="button" value="Select All" onfocus="this.blur()" onClick="check($('.product'));check(this.form.dataEntityId);if ($('#asdmCheckbox').is(':checked')){check($('.asdm'))};" />
+          <input class="button" type="button" value="Unselect All" onfocus="this.blur()" onClick="uncheck($('.product'));uncheck(this.form.dataEntityId);uncheck($('.asdm'));" />
+          <input id="downloadButton" class="button" type="submit" name="downloadType" value="Download Selected" onfocus="this.blur()" onclick="return popup(this.form);" />
+          <script>
+             if ((navigator.userAgent != null) && navigator.userAgent.match(/mac/i) && navigator.userAgent.match(/safari/i)){
+               var  domainName = ("https://almascience.eso.org".indexOf('//') != -1 ? "https://almascience.eso.org".split('//')[1] : "https://almascience.eso.org");
+               $('#downloadButton').tooltip({items: 'input', content: "Due to security restrictions Apple has built into Safari, downloading files to your disk using the ALMA download manager requires some extra action. You have the options to:<br><br> 1) modify the Safari security settings for this webpage. To do this, go to Safari -> Preferences -> Security tab -> Java Manage Website Settings -> " + domainName + " -> \"Run in unsafe mode\" <br><br> 2) use the download script offered on this page (downloadRequest787632764script.sh) or, alternatively <br><br> 3) use Firefox", position: { my: "right top", at: "right bottom" }, show: false});
+             }
+          </script>                      
+        
+        
+                
+        
+      </div>
+      
+      <!--  data entities & aux files -->
+      <table class="list" id="report" >
+        <thead>
+          <tr>
+            <th colspan="5"><h2>Requested Projects / OUSets / Executionblocks</h2></th>
+          </tr>
+          <tr>
+            <td colspan="5" class="left" style="color:#005BA0">
+              
+            	  UNIX/Linux Shell script if you prefer command line download of complete request: 
+            	  
+                     <a href="/rh/requests/anonymous/787632764/script">
+                                 downloadRequest787632764script.sh</a>
+                  
+                          	
+            </td>
+          </tr>
+          
+            <tr>
+              <td class="caption" colspan="3">Data entities 1-7 of 7</td>
+              <td class="caption" colspan="3"></td>
+            </tr>            
+                               
+          <tr class="header">
+            <th class="left">Project / OUSet / Executionblock</th>
+            <th class="left">File</th>
+            <th class="right">Size</th>
+            <th>Access</th>
+          </tr>
+        </thead>             
+        
+        
+        <!-- list of data entities -->
+        <tbody>
+           
+           
+           
+                                           
+           <!-- data entity hierarchy recursive display macro-->
+            <!-- recursive_display -->
+           
+           <!-- display start -->
+                                        
+             
+               <!-- the first line contains the data entity name and the following ones file names -->
+               <tr id="row_787633971" class="Level_0">
+                 <td width="43%"  style="padding-left:0em;text-align:left" > 
+                              
+                                                
+                     <input type="checkbox" id="CB_row_787633971" name="dataEntityId" onClick="checkUncheckDE(787633971);" value="787633971" />
+                                                                                    
+                   <!-- data entity type if available + name without namespace -->
+                                           
+                     Project
+                   
+                   2011.0.00121.S                                         
+                 </td>
+                 <td width="36%"></td>
+                 <td width="12%"></td>
+                 <td width="9%">                         
+                 </td>
+               </tr>                                  
+                <!-- files -->
+                                            
+             
+               <!-- the first line contains the data entity name and the following ones file names -->
+               <tr id="row_787666174" class="Level_1">
+                 <td width="43%"  style="padding-left:2em;text-align:left" > 
+                     
+                      <img src="/rh/images/plus.gif" style="cursor:pointer;" onClick="expandCollapseAlma(787666174, '/rh');" />
+                              
+                                                
+                     <input type="checkbox" id="CB_row_787666174" name="dataEntityId" onClick="checkUncheckDE(787666174);" value="787666174" />
+                                                                                    
+                   <!-- data entity type if available + name without namespace -->
+                                           
+                     Member OUS
+                   
+                   uid://A002/X327408/X246                                         
+                 </td>
+                 <td width="36%"></td>
+                 <td width="12%"></td>
+                 <td width="9%">                         
+                 </td>
+               </tr>                                  
+               
+                                                          
+                 <tr class="fileRow" style="display: none" >                      
+                   
+                     <td width="43%"><input type="checkbox" id="CB_row_787666174_fileId_787668971" name="fileId" style="float:right"
+                     
+                        class="product"
+                      
+                       value="2011.0.00121.S_2012-08-16_001_of_002.tar /requests/anonymous/787632764/ALMA/2011.0.00121.S_2012-08-16_001_of_002.tar/2011.0.00121.S_2012-08-16_001_of_002.tar 6333706240 ALMA" />
+                     </td>
+                                                                                                                                                    
+                     <td width="36%" class="left">                      
+                       
+                         <a id="linkId_2011.0.00121.S_2012-08-16_001_of_002.tar" href="https://almascience.eso.org/dataPortal/requests/anonymous/787632764/ALMA/2011.0.00121.S_2012-08-16_001_of_002.tar/2011.0.00121.S_2012-08-16_001_of_002.tar">2011.0.00121.S_2012-08-16_001_of_002.tar</a>
+                                           
+                     </td>
+                     <td width="12%" class="right">5.9GB</td>
+                     <td width="9%" >
+                       
+                         <img src="/rh/images/access_authorized.png" alt="Authorized" title="Authorized"></img>
+                       
+                     </td>
+                 </tr>
+                  <!-- HIDDEN condition -->                 
+               
+                                                          
+                 <tr class="fileRow" style="display: none" >                      
+                   
+                     <td width="43%"><input type="checkbox" id="CB_row_787666174_fileId_787667778" name="fileId" style="float:right"
+                     
+                        class="product"
+                      
+                       value="2011.0.00121.S_2012-08-16_002_of_002.tar /requests/anonymous/787632764/ALMA/2011.0.00121.S_2012-08-16_002_of_002.tar/2011.0.00121.S_2012-08-16_002_of_002.tar 139745280 ALMA" />
+                     </td>
+                                                                                                                                                    
+                     <td width="36%" class="left">                      
+                       
+                         <a id="linkId_2011.0.00121.S_2012-08-16_002_of_002.tar" href="https://almascience.eso.org/dataPortal/requests/anonymous/787632764/ALMA/2011.0.00121.S_2012-08-16_002_of_002.tar/2011.0.00121.S_2012-08-16_002_of_002.tar">2011.0.00121.S_2012-08-16_002_of_002.tar</a>
+                                           
+                     </td>
+                     <td width="12%" class="right">133.3MB</td>
+                     <td width="9%" >
+                       
+                         <img src="/rh/images/access_authorized.png" alt="Authorized" title="Authorized"></img>
+                       
+                     </td>
+                 </tr>
+                  <!-- HIDDEN condition -->                 
+                <!-- files -->
+                                            
+              <!-- data entities -->
+               
+             
+               <!-- the first line contains the data entity name and the following ones file names -->
+               <tr id="row_787669452" class="Level_1">
+                 <td width="43%"  style="padding-left:2em;text-align:left" > 
+                     
+                      <img src="/rh/images/plus.gif" style="cursor:pointer;" onClick="expandCollapseAlma(787669452, '/rh');" />
+                              
+                                                
+                     <input type="checkbox" id="CB_row_787669452" name="dataEntityId" onClick="checkUncheckDE(787669452);" value="787669452" />
+                                                                                    
+                   <!-- data entity type if available + name without namespace -->
+                                           
+                     Member OUS
+                   
+                   uid://A002/X327408/X248                                         
+                 </td>
+                 <td width="36%"></td>
+                 <td width="12%"></td>
+                 <td width="9%">                         
+                 </td>
+               </tr>                                  
+               
+                                                          
+                 <tr class="fileRow" style="display: none" >                      
+                   
+                     <td width="43%"><input type="checkbox" id="CB_row_787669452_fileId_787670598" name="fileId" style="float:right"
+                     
+                        class="product"
+                      
+                       value="2011.0.00121.S_2012-07-30_001_of_002.tar /requests/anonymous/787632764/ALMA/2011.0.00121.S_2012-07-30_001_of_002.tar/2011.0.00121.S_2012-07-30_001_of_002.tar 5246064640 ALMA" />
+                     </td>
+                                                                                                                                                    
+                     <td width="36%" class="left">                      
+                       
+                         <a id="linkId_2011.0.00121.S_2012-07-30_001_of_002.tar" href="https://almascience.eso.org/dataPortal/requests/anonymous/787632764/ALMA/2011.0.00121.S_2012-07-30_001_of_002.tar/2011.0.00121.S_2012-07-30_001_of_002.tar">2011.0.00121.S_2012-07-30_001_of_002.tar</a>
+                                           
+                     </td>
+                     <td width="12%" class="right">4.9GB</td>
+                     <td width="9%" >
+                       
+                         <img src="/rh/images/access_authorized.png" alt="Authorized" title="Authorized"></img>
+                       
+                     </td>
+                 </tr>
+                  <!-- HIDDEN condition -->                 
+               
+                                                          
+                 <tr class="fileRow" style="display: none" >                      
+                   
+                     <td width="43%"><input type="checkbox" id="CB_row_787669452_fileId_787671220" name="fileId" style="float:right"
+                     
+                        class="product"
+                      
+                       value="2011.0.00121.S_2012-07-30_002_of_002.tar /requests/anonymous/787632764/ALMA/2011.0.00121.S_2012-07-30_002_of_002.tar/2011.0.00121.S_2012-07-30_002_of_002.tar 17428480 ALMA" />
+                     </td>
+                                                                                                                                                    
+                     <td width="36%" class="left">                      
+                       
+                         <a id="linkId_2011.0.00121.S_2012-07-30_002_of_002.tar" href="https://almascience.eso.org/dataPortal/requests/anonymous/787632764/ALMA/2011.0.00121.S_2012-07-30_002_of_002.tar/2011.0.00121.S_2012-07-30_002_of_002.tar">2011.0.00121.S_2012-07-30_002_of_002.tar</a>
+                                           
+                     </td>
+                     <td width="12%" class="right">16.6MB</td>
+                     <td width="9%" >
+                       
+                         <img src="/rh/images/access_authorized.png" alt="Authorized" title="Authorized"></img>
+                       
+                     </td>
+                 </tr>
+                  <!-- HIDDEN condition -->                 
+                <!-- files -->
+                                            
+              <!-- data entities -->
+               
+             
+               <!-- the first line contains the data entity name and the following ones file names -->
+               <tr id="row_787657144" class="Level_1">
+                 <td width="43%"  style="padding-left:2em;text-align:left" > 
+                     
+                      <img src="/rh/images/plus.gif" style="cursor:pointer;" onClick="expandCollapseAlma(787657144, '/rh');" />
+                              
+                                                
+                     <input type="checkbox" id="CB_row_787657144" name="dataEntityId" onClick="checkUncheckDE(787657144);" value="787657144" />
+                                                                                    
+                   <!-- data entity type if available + name without namespace -->
+                                           
+                     Member OUS
+                   
+                   uid://A002/X327408/X24a                                         
+                 </td>
+                 <td width="36%"></td>
+                 <td width="12%"></td>
+                 <td width="9%">                         
+                 </td>
+               </tr>                                  
+               
+                                                          
+                 <tr class="fileRow" style="display: none" >                      
+                   
+                     <td width="43%"><input type="checkbox" id="CB_row_787657144_fileId_787661781" name="fileId" style="float:right"
+                     
+                        class="product"
+                      
+                       value="2011.0.00121.S_2012-11-02_001_of_008.tar /requests/anonymous/787632764/ALMA/2011.0.00121.S_2012-11-02_001_of_008.tar/2011.0.00121.S_2012-11-02_001_of_008.tar 4625295360 ALMA" />
+                     </td>
+                                                                                                                                                    
+                     <td width="36%" class="left">                      
+                       
+                         <a id="linkId_2011.0.00121.S_2012-11-02_001_of_008.tar" href="https://almascience.eso.org/dataPortal/requests/anonymous/787632764/ALMA/2011.0.00121.S_2012-11-02_001_of_008.tar/2011.0.00121.S_2012-11-02_001_of_008.tar">2011.0.00121.S_2012-11-02_001_of_008.tar</a>
+                                           
+                     </td>
+                     <td width="12%" class="right">4.3GB</td>
+                     <td width="9%" >
+                       
+                         <img src="/rh/images/access_authorized.png" alt="Authorized" title="Authorized"></img>
+                       
+                     </td>
+                 </tr>
+                  <!-- HIDDEN condition -->                 
+               
+                                                          
+                 <tr class="fileRow" style="display: none" >                      
+                   
+                     <td width="43%"><input type="checkbox" id="CB_row_787657144_fileId_787660120" name="fileId" style="float:right"
+                     
+                        class="product"
+                      
+                       value="2011.0.00121.S_2012-11-02_002_of_008.tar /requests/anonymous/787632764/ALMA/2011.0.00121.S_2012-11-02_002_of_008.tar/2011.0.00121.S_2012-11-02_002_of_008.tar 2869411840 ALMA" />
+                     </td>
+                                                                                                                                                    
+                     <td width="36%" class="left">                      
+                       
+                         <a id="linkId_2011.0.00121.S_2012-11-02_002_of_008.tar" href="https://almascience.eso.org/dataPortal/requests/anonymous/787632764/ALMA/2011.0.00121.S_2012-11-02_002_of_008.tar/2011.0.00121.S_2012-11-02_002_of_008.tar">2011.0.00121.S_2012-11-02_002_of_008.tar</a>
+                                           
+                     </td>
+                     <td width="12%" class="right">2.7GB</td>
+                     <td width="9%" >
+                       
+                         <img src="/rh/images/access_authorized.png" alt="Authorized" title="Authorized"></img>
+                       
+                     </td>
+                 </tr>
+                  <!-- HIDDEN condition -->                 
+               
+                                                          
+                 <tr class="fileRow" style="display: none" >                      
+                   
+                     <td width="43%"><input type="checkbox" id="CB_row_787657144_fileId_787664241" name="fileId" style="float:right"
+                     
+                        class="product"
+                      
+                       value="2011.0.00121.S_2012-11-02_003_of_008.tar /requests/anonymous/787632764/ALMA/2011.0.00121.S_2012-11-02_003_of_008.tar/2011.0.00121.S_2012-11-02_003_of_008.tar 962508800 ALMA" />
+                     </td>
+                                                                                                                                                    
+                     <td width="36%" class="left">                      
+                       
+                         <a id="linkId_2011.0.00121.S_2012-11-02_003_of_008.tar" href="https://almascience.eso.org/dataPortal/requests/anonymous/787632764/ALMA/2011.0.00121.S_2012-11-02_003_of_008.tar/2011.0.00121.S_2012-11-02_003_of_008.tar">2011.0.00121.S_2012-11-02_003_of_008.tar</a>
+                                           
+                     </td>
+                     <td width="12%" class="right">917.9MB</td>
+                     <td width="9%" >
+                       
+                         <img src="/rh/images/access_authorized.png" alt="Authorized" title="Authorized"></img>
+                       
+                     </td>
+                 </tr>
+                  <!-- HIDDEN condition -->                 
+               
+                                                          
+                 <tr class="fileRow" style="display: none" >                      
+                   
+                     <td width="43%"><input type="checkbox" id="CB_row_787657144_fileId_787658649" name="fileId" style="float:right"
+                     
+                        class="product"
+                      
+                       value="2011.0.00121.S_2012-11-02_004_of_008.tar /requests/anonymous/787632764/ALMA/2011.0.00121.S_2012-11-02_004_of_008.tar/2011.0.00121.S_2012-11-02_004_of_008.tar 684523520 ALMA" />
+                     </td>
+                                                                                                                                                    
+                     <td width="36%" class="left">                      
+                       
+                         <a id="linkId_2011.0.00121.S_2012-11-02_004_of_008.tar" href="https://almascience.eso.org/dataPortal/requests/anonymous/787632764/ALMA/2011.0.00121.S_2012-11-02_004_of_008.tar/2011.0.00121.S_2012-11-02_004_of_008.tar">2011.0.00121.S_2012-11-02_004_of_008.tar</a>
+                                           
+                     </td>
+                     <td width="12%" class="right">652.8MB</td>
+                     <td width="9%" >
+                       
+                         <img src="/rh/images/access_authorized.png" alt="Authorized" title="Authorized"></img>
+                       
+                     </td>
+                 </tr>
+                  <!-- HIDDEN condition -->                 
+               
+                                                          
+                 <tr class="fileRow" style="display: none" >                      
+                   
+                     <td width="43%"><input type="checkbox" id="CB_row_787657144_fileId_787662709" name="fileId" style="float:right"
+                     
+                        class="product"
+                      
+                       value="2011.0.00121.S_2012-11-02_005_of_008.tar /requests/anonymous/787632764/ALMA/2011.0.00121.S_2012-11-02_005_of_008.tar/2011.0.00121.S_2012-11-02_005_of_008.tar 5204408320 ALMA" />
+                     </td>
+                                                                                                                                                    
+                     <td width="36%" class="left">                      
+                       
+                         <a id="linkId_2011.0.00121.S_2012-11-02_005_of_008.tar" href="https://almascience.eso.org/dataPortal/requests/anonymous/787632764/ALMA/2011.0.00121.S_2012-11-02_005_of_008.tar/2011.0.00121.S_2012-11-02_005_of_008.tar">2011.0.00121.S_2012-11-02_005_of_008.tar</a>
+                                           
+                     </td>
+                     <td width="12%" class="right">4.8GB</td>
+                     <td width="9%" >
+                       
+                         <img src="/rh/images/access_authorized.png" alt="Authorized" title="Authorized"></img>
+                       
+                     </td>
+                 </tr>
+                  <!-- HIDDEN condition -->                 
+               
+                                                          
+                 <tr class="fileRow" style="display: none" >                      
+                   
+                     <td width="43%"><input type="checkbox" id="CB_row_787657144_fileId_787659699" name="fileId" style="float:right"
+                     
+                        class="product"
+                      
+                       value="2011.0.00121.S_2012-11-02_006_of_008.tar /requests/anonymous/787632764/ALMA/2011.0.00121.S_2012-11-02_006_of_008.tar/2011.0.00121.S_2012-11-02_006_of_008.tar 5869322240 ALMA" />
+                     </td>
+                                                                                                                                                    
+                     <td width="36%" class="left">                      
+                       
+                         <a id="linkId_2011.0.00121.S_2012-11-02_006_of_008.tar" href="https://almascience.eso.org/dataPortal/requests/anonymous/787632764/ALMA/2011.0.00121.S_2012-11-02_006_of_008.tar/2011.0.00121.S_2012-11-02_006_of_008.tar">2011.0.00121.S_2012-11-02_006_of_008.tar</a>
+                                           
+                     </td>
+                     <td width="12%" class="right">5.5GB</td>
+                     <td width="9%" >
+                       
+                         <img src="/rh/images/access_authorized.png" alt="Authorized" title="Authorized"></img>
+                       
+                     </td>
+                 </tr>
+                  <!-- HIDDEN condition -->                 
+               
+                                                          
+                 <tr class="fileRow" style="display: none" >                      
+                   
+                     <td width="43%"><input type="checkbox" id="CB_row_787657144_fileId_787665342" name="fileId" style="float:right"
+                     
+                        class="product"
+                      
+                       value="2011.0.00121.S_2012-11-02_007_of_008.tar /requests/anonymous/787632764/ALMA/2011.0.00121.S_2012-11-02_007_of_008.tar/2011.0.00121.S_2012-11-02_007_of_008.tar 6429480960 ALMA" />
+                     </td>
+                                                                                                                                                    
+                     <td width="36%" class="left">                      
+                       
+                         <a id="linkId_2011.0.00121.S_2012-11-02_007_of_008.tar" href="https://almascience.eso.org/dataPortal/requests/anonymous/787632764/ALMA/2011.0.00121.S_2012-11-02_007_of_008.tar/2011.0.00121.S_2012-11-02_007_of_008.tar">2011.0.00121.S_2012-11-02_007_of_008.tar</a>
+                                           
+                     </td>
+                     <td width="12%" class="right">6.0GB</td>
+                     <td width="9%" >
+                       
+                         <img src="/rh/images/access_authorized.png" alt="Authorized" title="Authorized"></img>
+                       
+                     </td>
+                 </tr>
+                  <!-- HIDDEN condition -->                 
+               
+                                                          
+                 <tr class="fileRow" style="display: none" >                      
+                   
+                     <td width="43%"><input type="checkbox" id="CB_row_787657144_fileId_787663511" name="fileId" style="float:right"
+                     
+                        class="product"
+                      
+                       value="2011.0.00121.S_2012-11-02_008_of_008.tar /requests/anonymous/787632764/ALMA/2011.0.00121.S_2012-11-02_008_of_008.tar/2011.0.00121.S_2012-11-02_008_of_008.tar 2084608000 ALMA" />
+                     </td>
+                                                                                                                                                    
+                     <td width="36%" class="left">                      
+                       
+                         <a id="linkId_2011.0.00121.S_2012-11-02_008_of_008.tar" href="https://almascience.eso.org/dataPortal/requests/anonymous/787632764/ALMA/2011.0.00121.S_2012-11-02_008_of_008.tar/2011.0.00121.S_2012-11-02_008_of_008.tar">2011.0.00121.S_2012-11-02_008_of_008.tar</a>
+                                           
+                     </td>
+                     <td width="12%" class="right">1.9GB</td>
+                     <td width="9%" >
+                       
+                         <img src="/rh/images/access_authorized.png" alt="Authorized" title="Authorized"></img>
+                       
+                     </td>
+                 </tr>
+                  <!-- HIDDEN condition -->                 
+                <!-- files -->
+                                            
+              <!-- data entities -->
+               
+             
+               <!-- the first line contains the data entity name and the following ones file names -->
+               <tr id="row_787634811" class="Level_1">
+                 <td width="43%"  style="padding-left:2em;text-align:left" > 
+                     
+                      <img src="/rh/images/plus.gif" style="cursor:pointer;" onClick="expandCollapseAlma(787634811, '/rh');" />
+                              
+                                                
+                     <input type="checkbox" id="CB_row_787634811" name="dataEntityId" onClick="checkUncheckDE(787634811);" value="787634811" />
+                                                                                    
+                   <!-- data entity type if available + name without namespace -->
+                                           
+                     Member OUS
+                   
+                   uid://A002/X327408/X24c                                         
+                 </td>
+                 <td width="36%"></td>
+                 <td width="12%"></td>
+                 <td width="9%">                         
+                 </td>
+               </tr>                                  
+               
+                                                          
+                 <tr class="fileRow" style="display: none" >                      
+                   
+                     <td width="43%"><input type="checkbox" id="CB_row_787634811_fileId_787637523" name="fileId" style="float:right"
+                     
+                        class="product"
+                      
+                       value="2011.0.00121.S_2012-11-06_001_of_004.tar /requests/anonymous/787632764/ALMA/2011.0.00121.S_2012-11-06_001_of_004.tar/2011.0.00121.S_2012-11-06_001_of_004.tar 6425292800 ALMA" />
+                     </td>
+                                                                                                                                                    
+                     <td width="36%" class="left">                      
+                       
+                         <a id="linkId_2011.0.00121.S_2012-11-06_001_of_004.tar" href="https://almascience.eso.org/dataPortal/requests/anonymous/787632764/ALMA/2011.0.00121.S_2012-11-06_001_of_004.tar/2011.0.00121.S_2012-11-06_001_of_004.tar">2011.0.00121.S_2012-11-06_001_of_004.tar</a>
+                                           
+                     </td>
+                     <td width="12%" class="right">6.0GB</td>
+                     <td width="9%" >
+                       
+                         <img src="/rh/images/access_authorized.png" alt="Authorized" title="Authorized"></img>
+                       
+                     </td>
+                 </tr>
+                  <!-- HIDDEN condition -->                 
+               
+                                                          
+                 <tr class="fileRow" style="display: none" >                      
+                   
+                     <td width="43%"><input type="checkbox" id="CB_row_787634811_fileId_787638813" name="fileId" style="float:right"
+                     
+                        class="product"
+                      
+                       value="2011.0.00121.S_2012-11-06_002_of_004.tar /requests/anonymous/787632764/ALMA/2011.0.00121.S_2012-11-06_002_of_004.tar/2011.0.00121.S_2012-11-06_002_of_004.tar 3599134720 ALMA" />
+                     </td>
+                                                                                                                                                    
+                     <td width="36%" class="left">                      
+                       
+                         <a id="linkId_2011.0.00121.S_2012-11-06_002_of_004.tar" href="https://almascience.eso.org/dataPortal/requests/anonymous/787632764/ALMA/2011.0.00121.S_2012-11-06_002_of_004.tar/2011.0.00121.S_2012-11-06_002_of_004.tar">2011.0.00121.S_2012-11-06_002_of_004.tar</a>
+                                           
+                     </td>
+                     <td width="12%" class="right">3.4GB</td>
+                     <td width="9%" >
+                       
+                         <img src="/rh/images/access_authorized.png" alt="Authorized" title="Authorized"></img>
+                       
+                     </td>
+                 </tr>
+                  <!-- HIDDEN condition -->                 
+               
+                                                          
+                 <tr class="fileRow" style="display: none" >                      
+                   
+                     <td width="43%"><input type="checkbox" id="CB_row_787634811_fileId_787636720" name="fileId" style="float:right"
+                     
+                        class="product"
+                      
+                       value="2011.0.00121.S_2012-11-06_003_of_004.tar /requests/anonymous/787632764/ALMA/2011.0.00121.S_2012-11-06_003_of_004.tar/2011.0.00121.S_2012-11-06_003_of_004.tar 642078720 ALMA" />
+                     </td>
+                                                                                                                                                    
+                     <td width="36%" class="left">                      
+                       
+                         <a id="linkId_2011.0.00121.S_2012-11-06_003_of_004.tar" href="https://almascience.eso.org/dataPortal/requests/anonymous/787632764/ALMA/2011.0.00121.S_2012-11-06_003_of_004.tar/2011.0.00121.S_2012-11-06_003_of_004.tar">2011.0.00121.S_2012-11-06_003_of_004.tar</a>
+                                           
+                     </td>
+                     <td width="12%" class="right">612.3MB</td>
+                     <td width="9%" >
+                       
+                         <img src="/rh/images/access_authorized.png" alt="Authorized" title="Authorized"></img>
+                       
+                     </td>
+                 </tr>
+                  <!-- HIDDEN condition -->                 
+               
+                                                          
+                 <tr class="fileRow" style="display: none" >                      
+                   
+                     <td width="43%"><input type="checkbox" id="CB_row_787634811_fileId_787635889" name="fileId" style="float:right"
+                     
+                        class="product"
+                      
+                       value="2011.0.00121.S_2012-11-06_004_of_004.tar /requests/anonymous/787632764/ALMA/2011.0.00121.S_2012-11-06_004_of_004.tar/2011.0.00121.S_2012-11-06_004_of_004.tar 272455680 ALMA" />
+                     </td>
+                                                                                                                                                    
+                     <td width="36%" class="left">                      
+                       
+                         <a id="linkId_2011.0.00121.S_2012-11-06_004_of_004.tar" href="https://almascience.eso.org/dataPortal/requests/anonymous/787632764/ALMA/2011.0.00121.S_2012-11-06_004_of_004.tar/2011.0.00121.S_2012-11-06_004_of_004.tar">2011.0.00121.S_2012-11-06_004_of_004.tar</a>
+                                           
+                     </td>
+                     <td width="12%" class="right">259.8MB</td>
+                     <td width="9%" >
+                       
+                         <img src="/rh/images/access_authorized.png" alt="Authorized" title="Authorized"></img>
+                       
+                     </td>
+                 </tr>
+                  <!-- HIDDEN condition -->                 
+                <!-- files -->
+                                            
+              <!-- data entities -->
+               
+             
+               <!-- the first line contains the data entity name and the following ones file names -->
+               <tr id="row_787648266" class="Level_1">
+                 <td width="43%"  style="padding-left:2em;text-align:left" > 
+                     
+                      <img src="/rh/images/plus.gif" style="cursor:pointer;" onClick="expandCollapseAlma(787648266, '/rh');" />
+                              
+                                                
+                     <input type="checkbox" id="CB_row_787648266" name="dataEntityId" onClick="checkUncheckDE(787648266);" value="787648266" />
+                                                                                    
+                   <!-- data entity type if available + name without namespace -->
+                                           
+                     Member OUS
+                   
+                   uid://A002/X327408/X24e                                         
+                 </td>
+                 <td width="36%"></td>
+                 <td width="12%"></td>
+                 <td width="9%">                         
+                 </td>
+               </tr>                                  
+               
+                                                          
+                 <tr class="fileRow" style="display: none" >                      
+                   
+                     <td width="43%"><input type="checkbox" id="CB_row_787648266_fileId_787652738" name="fileId" style="float:right"
+                     
+                        class="product"
+                      
+                       value="2011.0.00121.S_2012-11-02_001_of_008.tar /requests/anonymous/787632764/ALMA/2011.0.00121.S_2012-11-02_001_of_008.tar/2011.0.00121.S_2012-11-02_001_of_008.tar 4625295360 ALMA" />
+                     </td>
+                                                                                                                                                    
+                     <td width="36%" class="left">                      
+                       
+                         <a id="linkId_2011.0.00121.S_2012-11-02_001_of_008.tar" href="https://almascience.eso.org/dataPortal/requests/anonymous/787632764/ALMA/2011.0.00121.S_2012-11-02_001_of_008.tar/2011.0.00121.S_2012-11-02_001_of_008.tar">2011.0.00121.S_2012-11-02_001_of_008.tar</a>
+                                           
+                     </td>
+                     <td width="12%" class="right">4.3GB</td>
+                     <td width="9%" >
+                       
+                         <img src="/rh/images/access_authorized.png" alt="Authorized" title="Authorized"></img>
+                       
+                     </td>
+                 </tr>
+                  <!-- HIDDEN condition -->                 
+               
+                                                          
+                 <tr class="fileRow" style="display: none" >                      
+                   
+                     <td width="43%"><input type="checkbox" id="CB_row_787648266_fileId_787651279" name="fileId" style="float:right"
+                     
+                        class="product"
+                      
+                       value="2011.0.00121.S_2012-11-02_002_of_008.tar /requests/anonymous/787632764/ALMA/2011.0.00121.S_2012-11-02_002_of_008.tar/2011.0.00121.S_2012-11-02_002_of_008.tar 2869411840 ALMA" />
+                     </td>
+                                                                                                                                                    
+                     <td width="36%" class="left">                      
+                       
+                         <a id="linkId_2011.0.00121.S_2012-11-02_002_of_008.tar" href="https://almascience.eso.org/dataPortal/requests/anonymous/787632764/ALMA/2011.0.00121.S_2012-11-02_002_of_008.tar/2011.0.00121.S_2012-11-02_002_of_008.tar">2011.0.00121.S_2012-11-02_002_of_008.tar</a>
+                                           
+                     </td>
+                     <td width="12%" class="right">2.7GB</td>
+                     <td width="9%" >
+                       
+                         <img src="/rh/images/access_authorized.png" alt="Authorized" title="Authorized"></img>
+                       
+                     </td>
+                 </tr>
+                  <!-- HIDDEN condition -->                 
+               
+                                                          
+                 <tr class="fileRow" style="display: none" >                      
+                   
+                     <td width="43%"><input type="checkbox" id="CB_row_787648266_fileId_787655695" name="fileId" style="float:right"
+                     
+                        class="product"
+                      
+                       value="2011.0.00121.S_2012-11-02_003_of_008.tar /requests/anonymous/787632764/ALMA/2011.0.00121.S_2012-11-02_003_of_008.tar/2011.0.00121.S_2012-11-02_003_of_008.tar 962508800 ALMA" />
+                     </td>
+                                                                                                                                                    
+                     <td width="36%" class="left">                      
+                       
+                         <a id="linkId_2011.0.00121.S_2012-11-02_003_of_008.tar" href="https://almascience.eso.org/dataPortal/requests/anonymous/787632764/ALMA/2011.0.00121.S_2012-11-02_003_of_008.tar/2011.0.00121.S_2012-11-02_003_of_008.tar">2011.0.00121.S_2012-11-02_003_of_008.tar</a>
+                                           
+                     </td>
+                     <td width="12%" class="right">917.9MB</td>
+                     <td width="9%" >
+                       
+                         <img src="/rh/images/access_authorized.png" alt="Authorized" title="Authorized"></img>
+                       
+                     </td>
+                 </tr>
+                  <!-- HIDDEN condition -->                 
+               
+                                                          
+                 <tr class="fileRow" style="display: none" >                      
+                   
+                     <td width="43%"><input type="checkbox" id="CB_row_787648266_fileId_787649497" name="fileId" style="float:right"
+                     
+                        class="product"
+                      
+                       value="2011.0.00121.S_2012-11-02_004_of_008.tar /requests/anonymous/787632764/ALMA/2011.0.00121.S_2012-11-02_004_of_008.tar/2011.0.00121.S_2012-11-02_004_of_008.tar 684523520 ALMA" />
+                     </td>
+                                                                                                                                                    
+                     <td width="36%" class="left">                      
+                       
+                         <a id="linkId_2011.0.00121.S_2012-11-02_004_of_008.tar" href="https://almascience.eso.org/dataPortal/requests/anonymous/787632764/ALMA/2011.0.00121.S_2012-11-02_004_of_008.tar/2011.0.00121.S_2012-11-02_004_of_008.tar">2011.0.00121.S_2012-11-02_004_of_008.tar</a>
+                                           
+                     </td>
+                     <td width="12%" class="right">652.8MB</td>
+                     <td width="9%" >
+                       
+                         <img src="/rh/images/access_authorized.png" alt="Authorized" title="Authorized"></img>
+                       
+                     </td>
+                 </tr>
+                  <!-- HIDDEN condition -->                 
+               
+                                                          
+                 <tr class="fileRow" style="display: none" >                      
+                   
+                     <td width="43%"><input type="checkbox" id="CB_row_787648266_fileId_787653200" name="fileId" style="float:right"
+                     
+                        class="product"
+                      
+                       value="2011.0.00121.S_2012-11-02_005_of_008.tar /requests/anonymous/787632764/ALMA/2011.0.00121.S_2012-11-02_005_of_008.tar/2011.0.00121.S_2012-11-02_005_of_008.tar 5204408320 ALMA" />
+                     </td>
+                                                                                                                                                    
+                     <td width="36%" class="left">                      
+                       
+                         <a id="linkId_2011.0.00121.S_2012-11-02_005_of_008.tar" href="https://almascience.eso.org/dataPortal/requests/anonymous/787632764/ALMA/2011.0.00121.S_2012-11-02_005_of_008.tar/2011.0.00121.S_2012-11-02_005_of_008.tar">2011.0.00121.S_2012-11-02_005_of_008.tar</a>
+                                           
+                     </td>
+                     <td width="12%" class="right">4.8GB</td>
+                     <td width="9%" >
+                       
+                         <img src="/rh/images/access_authorized.png" alt="Authorized" title="Authorized"></img>
+                       
+                     </td>
+                 </tr>
+                  <!-- HIDDEN condition -->                 
+               
+                                                          
+                 <tr class="fileRow" style="display: none" >                      
+                   
+                     <td width="43%"><input type="checkbox" id="CB_row_787648266_fileId_787650402" name="fileId" style="float:right"
+                     
+                        class="product"
+                      
+                       value="2011.0.00121.S_2012-11-02_006_of_008.tar /requests/anonymous/787632764/ALMA/2011.0.00121.S_2012-11-02_006_of_008.tar/2011.0.00121.S_2012-11-02_006_of_008.tar 5869322240 ALMA" />
+                     </td>
+                                                                                                                                                    
+                     <td width="36%" class="left">                      
+                       
+                         <a id="linkId_2011.0.00121.S_2012-11-02_006_of_008.tar" href="https://almascience.eso.org/dataPortal/requests/anonymous/787632764/ALMA/2011.0.00121.S_2012-11-02_006_of_008.tar/2011.0.00121.S_2012-11-02_006_of_008.tar">2011.0.00121.S_2012-11-02_006_of_008.tar</a>
+                                           
+                     </td>
+                     <td width="12%" class="right">5.5GB</td>
+                     <td width="9%" >
+                       
+                         <img src="/rh/images/access_authorized.png" alt="Authorized" title="Authorized"></img>
+                       
+                     </td>
+                 </tr>
+                  <!-- HIDDEN condition -->                 
+               
+                                                          
+                 <tr class="fileRow" style="display: none" >                      
+                   
+                     <td width="43%"><input type="checkbox" id="CB_row_787648266_fileId_787656476" name="fileId" style="float:right"
+                     
+                        class="product"
+                      
+                       value="2011.0.00121.S_2012-11-02_007_of_008.tar /requests/anonymous/787632764/ALMA/2011.0.00121.S_2012-11-02_007_of_008.tar/2011.0.00121.S_2012-11-02_007_of_008.tar 6429480960 ALMA" />
+                     </td>
+                                                                                                                                                    
+                     <td width="36%" class="left">                      
+                       
+                         <a id="linkId_2011.0.00121.S_2012-11-02_007_of_008.tar" href="https://almascience.eso.org/dataPortal/requests/anonymous/787632764/ALMA/2011.0.00121.S_2012-11-02_007_of_008.tar/2011.0.00121.S_2012-11-02_007_of_008.tar">2011.0.00121.S_2012-11-02_007_of_008.tar</a>
+                                           
+                     </td>
+                     <td width="12%" class="right">6.0GB</td>
+                     <td width="9%" >
+                       
+                         <img src="/rh/images/access_authorized.png" alt="Authorized" title="Authorized"></img>
+                       
+                     </td>
+                 </tr>
+                  <!-- HIDDEN condition -->                 
+               
+                                                          
+                 <tr class="fileRow" style="display: none" >                      
+                   
+                     <td width="43%"><input type="checkbox" id="CB_row_787648266_fileId_787654129" name="fileId" style="float:right"
+                     
+                        class="product"
+                      
+                       value="2011.0.00121.S_2012-11-02_008_of_008.tar /requests/anonymous/787632764/ALMA/2011.0.00121.S_2012-11-02_008_of_008.tar/2011.0.00121.S_2012-11-02_008_of_008.tar 2084608000 ALMA" />
+                     </td>
+                                                                                                                                                    
+                     <td width="36%" class="left">                      
+                       
+                         <a id="linkId_2011.0.00121.S_2012-11-02_008_of_008.tar" href="https://almascience.eso.org/dataPortal/requests/anonymous/787632764/ALMA/2011.0.00121.S_2012-11-02_008_of_008.tar/2011.0.00121.S_2012-11-02_008_of_008.tar">2011.0.00121.S_2012-11-02_008_of_008.tar</a>
+                                           
+                     </td>
+                     <td width="12%" class="right">1.9GB</td>
+                     <td width="9%" >
+                       
+                         <img src="/rh/images/access_authorized.png" alt="Authorized" title="Authorized"></img>
+                       
+                     </td>
+                 </tr>
+                  <!-- HIDDEN condition -->                 
+                <!-- files -->
+                                            
+              <!-- data entities -->
+               
+             
+               <!-- the first line contains the data entity name and the following ones file names -->
+               <tr id="row_787639156" class="Level_1">
+                 <td width="43%"  style="padding-left:2em;text-align:left" > 
+                     
+                      <img src="/rh/images/plus.gif" style="cursor:pointer;" onClick="expandCollapseAlma(787639156, '/rh');" />
+                              
+                                                
+                     <input type="checkbox" id="CB_row_787639156" name="dataEntityId" onClick="checkUncheckDE(787639156);" value="787639156" />
+                                                                                    
+                   <!-- data entity type if available + name without namespace -->
+                                           
+                     Member OUS
+                   
+                   uid://A002/X327408/X250                                         
+                 </td>
+                 <td width="36%"></td>
+                 <td width="12%"></td>
+                 <td width="9%">                         
+                 </td>
+               </tr>                                  
+               
+                                                          
+                 <tr class="fileRow" style="display: none" >                      
+                   
+                     <td width="43%"><input type="checkbox" id="CB_row_787639156_fileId_787643121" name="fileId" style="float:right"
+                     
+                        class="product"
+                      
+                       value="2011.0.00121.S_2012-11-02_001_of_008.tar /requests/anonymous/787632764/ALMA/2011.0.00121.S_2012-11-02_001_of_008.tar/2011.0.00121.S_2012-11-02_001_of_008.tar 4625295360 ALMA" />
+                     </td>
+                                                                                                                                                    
+                     <td width="36%" class="left">                      
+                       
+                         <a id="linkId_2011.0.00121.S_2012-11-02_001_of_008.tar" href="https://almascience.eso.org/dataPortal/requests/anonymous/787632764/ALMA/2011.0.00121.S_2012-11-02_001_of_008.tar/2011.0.00121.S_2012-11-02_001_of_008.tar">2011.0.00121.S_2012-11-02_001_of_008.tar</a>
+                                           
+                     </td>
+                     <td width="12%" class="right">4.3GB</td>
+                     <td width="9%" >
+                       
+                         <img src="/rh/images/access_authorized.png" alt="Authorized" title="Authorized"></img>
+                       
+                     </td>
+                 </tr>
+                  <!-- HIDDEN condition -->                 
+               
+                                                          
+                 <tr class="fileRow" style="display: none" >                      
+                   
+                     <td width="43%"><input type="checkbox" id="CB_row_787639156_fileId_787642288" name="fileId" style="float:right"
+                     
+                        class="product"
+                      
+                       value="2011.0.00121.S_2012-11-02_002_of_008.tar /requests/anonymous/787632764/ALMA/2011.0.00121.S_2012-11-02_002_of_008.tar/2011.0.00121.S_2012-11-02_002_of_008.tar 2869411840 ALMA" />
+                     </td>
+                                                                                                                                                    
+                     <td width="36%" class="left">                      
+                       
+                         <a id="linkId_2011.0.00121.S_2012-11-02_002_of_008.tar" href="https://almascience.eso.org/dataPortal/requests/anonymous/787632764/ALMA/2011.0.00121.S_2012-11-02_002_of_008.tar/2011.0.00121.S_2012-11-02_002_of_008.tar">2011.0.00121.S_2012-11-02_002_of_008.tar</a>
+                                           
+                     </td>
+                     <td width="12%" class="right">2.7GB</td>
+                     <td width="9%" >
+                       
+                         <img src="/rh/images/access_authorized.png" alt="Authorized" title="Authorized"></img>
+                       
+                     </td>
+                 </tr>
+                  <!-- HIDDEN condition -->                 
+               
+                                                          
+                 <tr class="fileRow" style="display: none" >                      
+                   
+                     <td width="43%"><input type="checkbox" id="CB_row_787639156_fileId_787646406" name="fileId" style="float:right"
+                     
+                        class="product"
+                      
+                       value="2011.0.00121.S_2012-11-02_003_of_008.tar /requests/anonymous/787632764/ALMA/2011.0.00121.S_2012-11-02_003_of_008.tar/2011.0.00121.S_2012-11-02_003_of_008.tar 962508800 ALMA" />
+                     </td>
+                                                                                                                                                    
+                     <td width="36%" class="left">                      
+                       
+                         <a id="linkId_2011.0.00121.S_2012-11-02_003_of_008.tar" href="https://almascience.eso.org/dataPortal/requests/anonymous/787632764/ALMA/2011.0.00121.S_2012-11-02_003_of_008.tar/2011.0.00121.S_2012-11-02_003_of_008.tar">2011.0.00121.S_2012-11-02_003_of_008.tar</a>
+                                           
+                     </td>
+                     <td width="12%" class="right">917.9MB</td>
+                     <td width="9%" >
+                       
+                         <img src="/rh/images/access_authorized.png" alt="Authorized" title="Authorized"></img>
+                       
+                     </td>
+                 </tr>
+                  <!-- HIDDEN condition -->                 
+               
+                                                          
+                 <tr class="fileRow" style="display: none" >                      
+                   
+                     <td width="43%"><input type="checkbox" id="CB_row_787639156_fileId_787640474" name="fileId" style="float:right"
+                     
+                        class="product"
+                      
+                       value="2011.0.00121.S_2012-11-02_004_of_008.tar /requests/anonymous/787632764/ALMA/2011.0.00121.S_2012-11-02_004_of_008.tar/2011.0.00121.S_2012-11-02_004_of_008.tar 684523520 ALMA" />
+                     </td>
+                                                                                                                                                    
+                     <td width="36%" class="left">                      
+                       
+                         <a id="linkId_2011.0.00121.S_2012-11-02_004_of_008.tar" href="https://almascience.eso.org/dataPortal/requests/anonymous/787632764/ALMA/2011.0.00121.S_2012-11-02_004_of_008.tar/2011.0.00121.S_2012-11-02_004_of_008.tar">2011.0.00121.S_2012-11-02_004_of_008.tar</a>
+                                           
+                     </td>
+                     <td width="12%" class="right">652.8MB</td>
+                     <td width="9%" >
+                       
+                         <img src="/rh/images/access_authorized.png" alt="Authorized" title="Authorized"></img>
+                       
+                     </td>
+                 </tr>
+                  <!-- HIDDEN condition -->                 
+               
+                                                          
+                 <tr class="fileRow" style="display: none" >                      
+                   
+                     <td width="43%"><input type="checkbox" id="CB_row_787639156_fileId_787644207" name="fileId" style="float:right"
+                     
+                        class="product"
+                      
+                       value="2011.0.00121.S_2012-11-02_005_of_008.tar /requests/anonymous/787632764/ALMA/2011.0.00121.S_2012-11-02_005_of_008.tar/2011.0.00121.S_2012-11-02_005_of_008.tar 5204408320 ALMA" />
+                     </td>
+                                                                                                                                                    
+                     <td width="36%" class="left">                      
+                       
+                         <a id="linkId_2011.0.00121.S_2012-11-02_005_of_008.tar" href="https://almascience.eso.org/dataPortal/requests/anonymous/787632764/ALMA/2011.0.00121.S_2012-11-02_005_of_008.tar/2011.0.00121.S_2012-11-02_005_of_008.tar">2011.0.00121.S_2012-11-02_005_of_008.tar</a>
+                                           
+                     </td>
+                     <td width="12%" class="right">4.8GB</td>
+                     <td width="9%" >
+                       
+                         <img src="/rh/images/access_authorized.png" alt="Authorized" title="Authorized"></img>
+                       
+                     </td>
+                 </tr>
+                  <!-- HIDDEN condition -->                 
+               
+                                                          
+                 <tr class="fileRow" style="display: none" >                      
+                   
+                     <td width="43%"><input type="checkbox" id="CB_row_787639156_fileId_787641142" name="fileId" style="float:right"
+                     
+                        class="product"
+                      
+                       value="2011.0.00121.S_2012-11-02_006_of_008.tar /requests/anonymous/787632764/ALMA/2011.0.00121.S_2012-11-02_006_of_008.tar/2011.0.00121.S_2012-11-02_006_of_008.tar 5869322240 ALMA" />
+                     </td>
+                                                                                                                                                    
+                     <td width="36%" class="left">                      
+                       
+                         <a id="linkId_2011.0.00121.S_2012-11-02_006_of_008.tar" href="https://almascience.eso.org/dataPortal/requests/anonymous/787632764/ALMA/2011.0.00121.S_2012-11-02_006_of_008.tar/2011.0.00121.S_2012-11-02_006_of_008.tar">2011.0.00121.S_2012-11-02_006_of_008.tar</a>
+                                           
+                     </td>
+                     <td width="12%" class="right">5.5GB</td>
+                     <td width="9%" >
+                       
+                         <img src="/rh/images/access_authorized.png" alt="Authorized" title="Authorized"></img>
+                       
+                     </td>
+                 </tr>
+                  <!-- HIDDEN condition -->                 
+               
+                                                          
+                 <tr class="fileRow" style="display: none" >                      
+                   
+                     <td width="43%"><input type="checkbox" id="CB_row_787639156_fileId_787647725" name="fileId" style="float:right"
+                     
+                        class="product"
+                      
+                       value="2011.0.00121.S_2012-11-02_007_of_008.tar /requests/anonymous/787632764/ALMA/2011.0.00121.S_2012-11-02_007_of_008.tar/2011.0.00121.S_2012-11-02_007_of_008.tar 6429480960 ALMA" />
+                     </td>
+                                                                                                                                                    
+                     <td width="36%" class="left">                      
+                       
+                         <a id="linkId_2011.0.00121.S_2012-11-02_007_of_008.tar" href="https://almascience.eso.org/dataPortal/requests/anonymous/787632764/ALMA/2011.0.00121.S_2012-11-02_007_of_008.tar/2011.0.00121.S_2012-11-02_007_of_008.tar">2011.0.00121.S_2012-11-02_007_of_008.tar</a>
+                                           
+                     </td>
+                     <td width="12%" class="right">6.0GB</td>
+                     <td width="9%" >
+                       
+                         <img src="/rh/images/access_authorized.png" alt="Authorized" title="Authorized"></img>
+                       
+                     </td>
+                 </tr>
+                  <!-- HIDDEN condition -->                 
+               
+                                                          
+                 <tr class="fileRow" style="display: none" >                      
+                   
+                     <td width="43%"><input type="checkbox" id="CB_row_787639156_fileId_787645537" name="fileId" style="float:right"
+                     
+                        class="product"
+                      
+                       value="2011.0.00121.S_2012-11-02_008_of_008.tar /requests/anonymous/787632764/ALMA/2011.0.00121.S_2012-11-02_008_of_008.tar/2011.0.00121.S_2012-11-02_008_of_008.tar 2084608000 ALMA" />
+                     </td>
+                                                                                                                                                    
+                     <td width="36%" class="left">                      
+                       
+                         <a id="linkId_2011.0.00121.S_2012-11-02_008_of_008.tar" href="https://almascience.eso.org/dataPortal/requests/anonymous/787632764/ALMA/2011.0.00121.S_2012-11-02_008_of_008.tar/2011.0.00121.S_2012-11-02_008_of_008.tar">2011.0.00121.S_2012-11-02_008_of_008.tar</a>
+                                           
+                     </td>
+                     <td width="12%" class="right">1.9GB</td>
+                     <td width="9%" >
+                       
+                         <img src="/rh/images/access_authorized.png" alt="Authorized" title="Authorized"></img>
+                       
+                     </td>
+                 </tr>
+                  <!-- HIDDEN condition -->                 
+                <!-- files -->
+                                            
+              <!-- data entities -->
+               
+              <!-- data entities -->
+               
+              <!-- data entities -->
+           
+                           
+           <tr>
+             
+               <!-- information on data entities range is indicated only if there are some data entities to be displayed. It may happen that  
+                        the page only contain auxiliary files -->
+               <td class="caption" colspan="3">Data entities 1-7 of 7</td>
+               <td class="caption right">101.4GB</td>
+               <td class="caption"></td>               
+                                                
+           </tr>
+        </tbody>
+        <!-- list aux files, if any -->
+        
+        </table>
+      </form>
+    </div>
+    <!-- footer -->
+     <!-- footer -->
+ 
+  <div id="portal-footer"> 
+  <table id="portal-footer-links"> 
+    <tr><td>&nbsp;</td></tr> 
+    <tr><td>Copyright &copy; 2011 ALMA</td></tr> 
+  </table> 
+  <div id="portal-footer-logos"> 
+    <div>ALMA, a worldwide collaboration</div> 
+    <a href="http://www.eso.org"><img src="/rh/images/alma_eso.png" alt="ESO" title="ESO" width="43" height="57" /></a> 
+    <a href="http://alma.mtk.nao.ac.jp/e/"><img src="/rh/images/alma_naoj.png" alt="NAOJ" title="NAOJ" width="85" height="57" /></a> 
+    <a href="http://www.nrao.edu"><img src="/rh/images/alma_nrao.png" alt="NRAO" title="NRAO" width="44" height="57" /></a> 
+  </div> 
+</div>
+
+
+
+<!-- END #footer -->
+
+
+</div>
+</body>
+</html>

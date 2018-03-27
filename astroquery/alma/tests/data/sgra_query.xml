@@ -1,0 +1,1999 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VOTABLE xmlns="http://www.ivoa.net/xml/VOTable/v1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.2">
+  <RESOURCE type="results">
+    <INFO name="QUERY_STATUS" value="OK" />
+    <INFO name="QUERY" value="SELECT&#xA; distinct asa_science.project_code AS &quot;Project code&quot;,&#xA;asa_science.source_name AS &quot;Source name&quot;,&#xA;asa_science.ra AS &quot;RA&quot;,&#xA;asa_science.dec AS &quot;Dec&quot;,&#xA;asa_science.band AS &quot;Band&quot;,&#xA;asa_science.frequency_resolution AS &quot;Frequency resolution&quot;,&#xA;asa_science.int_time AS &quot;Integration&quot;,&#xA;to_char(dp_delivery_status.release_date, 'YYYY-MM-DD') AS &quot;Release date&quot;,&#xA;asa_science.frequency_support AS &quot;Frequency support&quot;,&#xA;asa_science.velocity_resolution AS &quot;Velocity resolution&quot;,&#xA;asa_science.pol_products AS &quot;Pol products&quot;,&#xA;to_char(asa_science.start_date, 'YYYY-MM-DD HH24:MI:SS') AS &quot;Observation date&quot;,&#xA;asa_project.pi_name AS &quot;PI name&quot;,&#xA;asa_science.pwv AS &quot;PWV&quot;,&#xA;asa_science.member_ouss_id as &quot;Member ous id&quot;,&#xA;asa_science.asdm_uid AS &quot;Asdm uid&quot;,&#xA;asa_project.title AS &quot;Project title&quot;,&#xA;asa_project.type AS &quot;Project type&quot;,&#xA;asa_science.scan_intent AS &quot;Scan intent&quot;&#xA; FROM ALMA.asa_science &#xA;  inner join ALMA.aqua_execblock on asa_science.asdm_uid = aqua_execblock.execblockuid&#xA;  inner join ALMA.asa_project on asa_science.project_code = asa_project.code&#xA;  left outer join ALMA.dp_delivery_asdm_ous on asa_science.asdm_uid = dp_delivery_asdm_ous.asdm_uid&#xA;  left outer join ALMA.dp_delivery_status on dp_delivery_asdm_ous.deliverable_name = dp_delivery_status.delivery_id&#xA;WHERE (1=1)&#xA; AND (aqua_execblock.qa0status = 'Pass' OR aqua_execblock.qa0status = 'SemiPass')&#xA; AND (dp_delivery_status.qa2_passed is null or dp_delivery_status.qa2_passed = 'Y')&#xA; AND lower(project_code) not like '%.csv'&#xA; AND  ( DEC BETWEEN -30.007825 AND -28.007825&#xA; AND  RA BETWEEN 265.27337156382646 AND 267.56026176950684&#xA; AND (asin(sqrt((-0.054657 - cx) * (-0.054657 - cx) + (-0.872844 - cy) * (-0.872844 - cy) + (-0.484929 - cz) * (-0.484929 - cz)) / 2.0) &lt; 0.008727))&#xA; AND  (lower(ASA_SCIENCE.scan_intent) LIKE '%target%')&#xA; AND  (dp_delivery_status.release_date &lt; to_date('2015-03-25', 'YYYY-mm-dd'))&#xA; ORDER BY &quot;Release date&quot; asc" />
+    <TABLE>
+      <FIELD name="Project code" datatype="char" ID="1251" ucd="meta.code" xtype="adql:VARCHAR" arraysize="16*">
+        <DESCRIPTION>Project code, in the form YYYY.NNNNN.C.AAA, where:</DESCRIPTION>
+      </FIELD>
+      <FIELD name="Source name" datatype="char" ID="1206" ucd="meta.id;pos" utype="Observation.Target.name" xtype="adql:VARCHAR" arraysize="256*">
+        <DESCRIPTION>Name of the source as registered in the ASDM. Partial matches through wildcards (?, *), and boolean OR expressions ("|"), can be used.</DESCRIPTION>
+      </FIELD>
+      <FIELD name="RA" datatype="double" ID="1186" ucd="pos.eq.ra;meta.main" unit="deg" utype="Characterisation.SpatialAxis.Coverage.Location.coord.Position2D.Value2.C1" xtype="adql:DOUBLE">
+        <DESCRIPTION>Right Ascension of the field pointing.</DESCRIPTION>
+      </FIELD>
+      <FIELD name="Dec" datatype="double" ID="1187" ucd="pos.eq.dec;meta.main" unit="deg" utype="Characterisation.SpatialAxis.Coverage.Location.coord.Position2D.Value2.C2" xtype="adql:DOUBLE">
+        <DESCRIPTION>Declination of the field pointing.</DESCRIPTION>
+      </FIELD>
+      <FIELD name="Band" datatype="int" ID="1223" ucd="meta.code;instr.bandpass" xtype="adql:INTEGER">
+        <DESCRIPTION>ALMA receiver band.</DESCRIPTION>
+      </FIELD>
+      <FIELD name="Frequency resolution" datatype="double" ID="1217" ucd="spect.resolution" unit="kHz" utype="Char.SpectralAxis.Resolution.refval" xtype="adql:DOUBLE">
+        <DESCRIPTION>Estimated frequency resolution from all the spectral windows, using median values of channel widths.</DESCRIPTION>
+      </FIELD>
+      <FIELD name="Integration" datatype="double" ID="1213" ucd="time.duration;obs.exposure" unit="s" utype="Char.TimeAxis.Coverage.Support.Extent" xtype="adql:DOUBLE">
+        <DESCRIPTION>Aggregated integration time for the field in the ASDM.</DESCRIPTION>
+      </FIELD>
+      <FIELD name="Release date" datatype="char" unit="" xtype="adql:VARCHAR" arraysize="*" />
+      <FIELD name="Frequency support" datatype="char" ID="1216" ucd="em.freq;obs;meta.main" unit="GHz" utype="Char.SpectralAxis.Coverage.Location.support" xtype="adql:VARCHAR" arraysize="2700*">
+        <DESCRIPTION>All frequency ranges used by the field</DESCRIPTION>
+      </FIELD>
+      <FIELD name="Velocity resolution" datatype="double" ID="1225" ucd="phys.veloc;spect.resolution" unit="m/s" utype="Char.VelocityAxis.Resolution.refval" xtype="adql:DOUBLE">
+        <DESCRIPTION>Estimated velocity resolution from all the spectral windows, from frequency resolution.</DESCRIPTION>
+      </FIELD>
+      <FIELD name="Pol products" datatype="char" ID="1238" ucd="phys.polarization;meta.code" xtype="adql:VARCHAR" arraysize="64*">
+        <DESCRIPTION>Polarisation products provided.</DESCRIPTION>
+      </FIELD>
+      <FIELD name="Observation date" datatype="char" unit="" xtype="adql:VARCHAR" arraysize="*" />
+      <FIELD name="PI name" datatype="char" ID="1260" ucd="meta.id.PI" xtype="adql:VARCHAR" arraysize="256*">
+        <DESCRIPTION>case-insensitive partial match over the full PI name. Wildcards can be used</DESCRIPTION>
+      </FIELD>
+      <FIELD name="PWV" datatype="float" ID="1240" ucd="obs.atmos.extinction" unit="mm" xtype="adql:FLOAT">
+        <DESCRIPTION>Estimated precipitable water vapour from the XML_CALWVR_ENTITIES table.</DESCRIPTION>
+      </FIELD>
+      <FIELD name="Member ous id" datatype="char" ID="1234" ucd="meta.id;obs" xtype="adql:VARCHAR" arraysize="32*">
+        <DESCRIPTION>MEMBER_OUSS_ID generating this ASDM.</DESCRIPTION>
+      </FIELD>
+      <FIELD name="Asdm uid" datatype="char" ID="1182" ucd="meta.id" xtype="adql:VARCHAR" arraysize="32*">
+        <DESCRIPTION>UID of the ASDM containing this Field.</DESCRIPTION>
+      </FIELD>
+      <FIELD name="Project title" datatype="char" ID="1263" ucd="meta.title;obs.proposal" xtype="adql:VARCHAR" arraysize="256*">
+        <DESCRIPTION>Case-insensitive search over the project title</DESCRIPTION>
+      </FIELD>
+      <FIELD name="Project type" datatype="char" ID="1264" ucd="meta.code.class;obs.proposal" xtype="adql:VARCHAR" arraysize="16*">
+        <DESCRIPTION>Project type.</DESCRIPTION>
+      </FIELD>
+      <FIELD name="Scan intent" datatype="char" ID="1254" ucd="meta.code.class;obs" xtype="adql:VARCHAR" arraysize="256*">
+        <DESCRIPTION>Scan intent list for the observed field.</DESCRIPTION>
+      </FIELD>
+      <DATA>
+        <TABLEDATA>
+          <TR>
+            <TD>2011.0.00217.S</TD>
+            <TD>G0.25+0.02</TD>
+            <TD>266.53035850120983</TD>
+            <TD>-28.724083333333247</TD>
+            <TD>3</TD>
+            <TD>976.5625</TD>
+            <TD>188.781</TD>
+            <TD>2013-09-07</TD>
+            <TD>[86.26..88.14GHz,976.56kHz, XX YY] U [88.15..90.03GHz,976.56kHz, XX YY] U [98.19..100.07GHz,976.56kHz, XX YY] U [100.15..102.03GHz,976.56kHz, XX YY]</TD>
+            <TD>3110.9112850878114</TD>
+            <TD>XX YY</TD>
+            <TD>2012-07-30 02:22:03</TD>
+            <TD>Rathborne, Jill</TD>
+            <TD>1.8548079</TD>
+            <TD>uid://A002/X391d0b/X7b</TD>
+            <TD>uid://A002/X47bd4d/X4c7</TD>
+            <TD>Globular cluster formation: caught in the act</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00217.S</TD>
+            <TD>G0.25+0.02</TD>
+            <TD>266.53035850120983</TD>
+            <TD>-28.724083333333247</TD>
+            <TD>3</TD>
+            <TD>976.5625</TD>
+            <TD>188.852</TD>
+            <TD>2013-09-07</TD>
+            <TD>[86.26..88.14GHz,976.56kHz, XX YY] U [88.15..90.03GHz,976.56kHz, XX YY] U [98.19..100.07GHz,976.56kHz, XX YY] U [100.15..102.03GHz,976.56kHz, XX YY]</TD>
+            <TD>3110.9112850878114</TD>
+            <TD>XX YY</TD>
+            <TD>2012-08-01 04:23:35</TD>
+            <TD>Rathborne, Jill</TD>
+            <TD>1.241152</TD>
+            <TD>uid://A002/X391d0b/X7b</TD>
+            <TD>uid://A002/X47ed8e/X533</TD>
+            <TD>Globular cluster formation: caught in the act</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00217.S</TD>
+            <TD>G0.25+0.02</TD>
+            <TD>266.53035850120983</TD>
+            <TD>-28.724083333333247</TD>
+            <TD>3</TD>
+            <TD>976.5625</TD>
+            <TD>189.274</TD>
+            <TD>2013-09-07</TD>
+            <TD>[86.26..88.14GHz,976.56kHz, XX YY] U [88.15..90.03GHz,976.56kHz, XX YY] U [98.19..100.07GHz,976.56kHz, XX YY] U [100.15..102.03GHz,976.56kHz, XX YY]</TD>
+            <TD>3110.9112850878114</TD>
+            <TD>XX YY</TD>
+            <TD>2012-07-29 02:01:54</TD>
+            <TD>Rathborne, Jill</TD>
+            <TD>2.156294</TD>
+            <TD>uid://A002/X391d0b/X7b</TD>
+            <TD>uid://A002/X47aefc/X369</TD>
+            <TD>Globular cluster formation: caught in the act</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00217.S</TD>
+            <TD>G0.25+0.02</TD>
+            <TD>266.53035850120983</TD>
+            <TD>-28.724083333333247</TD>
+            <TD>3</TD>
+            <TD>976.5625</TD>
+            <TD>201.381</TD>
+            <TD>2013-09-07</TD>
+            <TD>[86.26..88.14GHz,976.56kHz, XX YY] U [88.15..90.03GHz,976.56kHz, XX YY] U [98.19..100.07GHz,976.56kHz, XX YY] U [100.15..102.03GHz,976.56kHz, XX YY]</TD>
+            <TD>3110.9112850878114</TD>
+            <TD>XX YY</TD>
+            <TD>2012-07-30 23:10:32</TD>
+            <TD>Rathborne, Jill</TD>
+            <TD>1.6638252</TD>
+            <TD>uid://A002/X391d0b/X7b</TD>
+            <TD>uid://A002/X47d651/X15d</TD>
+            <TD>Globular cluster formation: caught in the act</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00217.S</TD>
+            <TD>G0.25+0.02</TD>
+            <TD>266.53035850120983</TD>
+            <TD>-28.724083333333247</TD>
+            <TD>3</TD>
+            <TD>976.5625</TD>
+            <TD>201.476</TD>
+            <TD>2013-09-07</TD>
+            <TD>[86.26..88.14GHz,976.56kHz, XX YY] U [88.15..90.03GHz,976.56kHz, XX YY] U [98.19..100.07GHz,976.56kHz, XX YY] U [100.15..102.03GHz,976.56kHz, XX YY]</TD>
+            <TD>3110.9112850878114</TD>
+            <TD>XX YY</TD>
+            <TD>2012-07-31 00:50:13</TD>
+            <TD>Rathborne, Jill</TD>
+            <TD>1.4304892</TD>
+            <TD>uid://A002/X391d0b/X7b</TD>
+            <TD>uid://A002/X47d651/X2fc</TD>
+            <TD>Globular cluster formation: caught in the act</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00217.S</TD>
+            <TD>G0.25+0.02</TD>
+            <TD>266.53035850120983</TD>
+            <TD>-28.724083333333247</TD>
+            <TD>3</TD>
+            <TD>976.5625</TD>
+            <TD>201.495</TD>
+            <TD>2013-09-07</TD>
+            <TD>[86.26..88.14GHz,976.56kHz, XX YY] U [88.15..90.03GHz,976.56kHz, XX YY] U [98.19..100.07GHz,976.56kHz, XX YY] U [100.15..102.03GHz,976.56kHz, XX YY]</TD>
+            <TD>3110.9112850878114</TD>
+            <TD>XX YY</TD>
+            <TD>2012-07-31 22:42:03</TD>
+            <TD>Rathborne, Jill</TD>
+            <TD>1.9266884</TD>
+            <TD>uid://A002/X391d0b/X7b</TD>
+            <TD>uid://A002/X47ed8e/X6c</TD>
+            <TD>Globular cluster formation: caught in the act</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00217.S</TD>
+            <TD>G0.25+0.02</TD>
+            <TD>266.53035850120995</TD>
+            <TD>-28.714361111111025</TD>
+            <TD>3</TD>
+            <TD>976.5625</TD>
+            <TD>188.781</TD>
+            <TD>2013-09-07</TD>
+            <TD>[86.26..88.14GHz,976.56kHz, XX YY] U [88.15..90.03GHz,976.56kHz, XX YY] U [98.19..100.07GHz,976.56kHz, XX YY] U [100.15..102.03GHz,976.56kHz, XX YY]</TD>
+            <TD>3110.9112850878114</TD>
+            <TD>XX YY</TD>
+            <TD>2012-07-30 02:22:03</TD>
+            <TD>Rathborne, Jill</TD>
+            <TD>1.8548079</TD>
+            <TD>uid://A002/X391d0b/X7b</TD>
+            <TD>uid://A002/X47bd4d/X4c7</TD>
+            <TD>Globular cluster formation: caught in the act</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00217.S</TD>
+            <TD>G0.25+0.02</TD>
+            <TD>266.53035850120995</TD>
+            <TD>-28.714361111111025</TD>
+            <TD>3</TD>
+            <TD>976.5625</TD>
+            <TD>188.852</TD>
+            <TD>2013-09-07</TD>
+            <TD>[86.26..88.14GHz,976.56kHz, XX YY] U [88.15..90.03GHz,976.56kHz, XX YY] U [98.19..100.07GHz,976.56kHz, XX YY] U [100.15..102.03GHz,976.56kHz, XX YY]</TD>
+            <TD>3110.9112850878114</TD>
+            <TD>XX YY</TD>
+            <TD>2012-08-01 04:23:35</TD>
+            <TD>Rathborne, Jill</TD>
+            <TD>1.241152</TD>
+            <TD>uid://A002/X391d0b/X7b</TD>
+            <TD>uid://A002/X47ed8e/X533</TD>
+            <TD>Globular cluster formation: caught in the act</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00217.S</TD>
+            <TD>G0.25+0.02</TD>
+            <TD>266.53035850120995</TD>
+            <TD>-28.714361111111025</TD>
+            <TD>3</TD>
+            <TD>976.5625</TD>
+            <TD>189.274</TD>
+            <TD>2013-09-07</TD>
+            <TD>[86.26..88.14GHz,976.56kHz, XX YY] U [88.15..90.03GHz,976.56kHz, XX YY] U [98.19..100.07GHz,976.56kHz, XX YY] U [100.15..102.03GHz,976.56kHz, XX YY]</TD>
+            <TD>3110.9112850878114</TD>
+            <TD>XX YY</TD>
+            <TD>2012-07-29 02:01:54</TD>
+            <TD>Rathborne, Jill</TD>
+            <TD>2.156294</TD>
+            <TD>uid://A002/X391d0b/X7b</TD>
+            <TD>uid://A002/X47aefc/X369</TD>
+            <TD>Globular cluster formation: caught in the act</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00217.S</TD>
+            <TD>G0.25+0.02</TD>
+            <TD>266.53035850120995</TD>
+            <TD>-28.714361111111025</TD>
+            <TD>3</TD>
+            <TD>976.5625</TD>
+            <TD>201.381</TD>
+            <TD>2013-09-07</TD>
+            <TD>[86.26..88.14GHz,976.56kHz, XX YY] U [88.15..90.03GHz,976.56kHz, XX YY] U [98.19..100.07GHz,976.56kHz, XX YY] U [100.15..102.03GHz,976.56kHz, XX YY]</TD>
+            <TD>3110.9112850878114</TD>
+            <TD>XX YY</TD>
+            <TD>2012-07-30 23:10:32</TD>
+            <TD>Rathborne, Jill</TD>
+            <TD>1.6638252</TD>
+            <TD>uid://A002/X391d0b/X7b</TD>
+            <TD>uid://A002/X47d651/X15d</TD>
+            <TD>Globular cluster formation: caught in the act</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00217.S</TD>
+            <TD>G0.25+0.02</TD>
+            <TD>266.53035850120995</TD>
+            <TD>-28.714361111111025</TD>
+            <TD>3</TD>
+            <TD>976.5625</TD>
+            <TD>201.476</TD>
+            <TD>2013-09-07</TD>
+            <TD>[86.26..88.14GHz,976.56kHz, XX YY] U [88.15..90.03GHz,976.56kHz, XX YY] U [98.19..100.07GHz,976.56kHz, XX YY] U [100.15..102.03GHz,976.56kHz, XX YY]</TD>
+            <TD>3110.9112850878114</TD>
+            <TD>XX YY</TD>
+            <TD>2012-07-31 00:50:13</TD>
+            <TD>Rathborne, Jill</TD>
+            <TD>1.4304892</TD>
+            <TD>uid://A002/X391d0b/X7b</TD>
+            <TD>uid://A002/X47d651/X2fc</TD>
+            <TD>Globular cluster formation: caught in the act</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00217.S</TD>
+            <TD>G0.25+0.02</TD>
+            <TD>266.53035850120995</TD>
+            <TD>-28.714361111111025</TD>
+            <TD>3</TD>
+            <TD>976.5625</TD>
+            <TD>201.495</TD>
+            <TD>2013-09-07</TD>
+            <TD>[86.26..88.14GHz,976.56kHz, XX YY] U [88.15..90.03GHz,976.56kHz, XX YY] U [98.19..100.07GHz,976.56kHz, XX YY] U [100.15..102.03GHz,976.56kHz, XX YY]</TD>
+            <TD>3110.9112850878114</TD>
+            <TD>XX YY</TD>
+            <TD>2012-07-31 22:42:03</TD>
+            <TD>Rathborne, Jill</TD>
+            <TD>1.9266884</TD>
+            <TD>uid://A002/X391d0b/X7b</TD>
+            <TD>uid://A002/X47ed8e/X6c</TD>
+            <TD>Globular cluster formation: caught in the act</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00217.S</TD>
+            <TD>G0.25+0.02</TD>
+            <TD>266.5303585012102</TD>
+            <TD>-28.7046388888888</TD>
+            <TD>3</TD>
+            <TD>976.5625</TD>
+            <TD>188.781</TD>
+            <TD>2013-09-07</TD>
+            <TD>[86.26..88.14GHz,976.56kHz, XX YY] U [88.15..90.03GHz,976.56kHz, XX YY] U [98.19..100.07GHz,976.56kHz, XX YY] U [100.15..102.03GHz,976.56kHz, XX YY]</TD>
+            <TD>3110.9112850878114</TD>
+            <TD>XX YY</TD>
+            <TD>2012-07-30 02:22:03</TD>
+            <TD>Rathborne, Jill</TD>
+            <TD>1.8548079</TD>
+            <TD>uid://A002/X391d0b/X7b</TD>
+            <TD>uid://A002/X47bd4d/X4c7</TD>
+            <TD>Globular cluster formation: caught in the act</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00217.S</TD>
+            <TD>G0.25+0.02</TD>
+            <TD>266.5303585012102</TD>
+            <TD>-28.7046388888888</TD>
+            <TD>3</TD>
+            <TD>976.5625</TD>
+            <TD>188.852</TD>
+            <TD>2013-09-07</TD>
+            <TD>[86.26..88.14GHz,976.56kHz, XX YY] U [88.15..90.03GHz,976.56kHz, XX YY] U [98.19..100.07GHz,976.56kHz, XX YY] U [100.15..102.03GHz,976.56kHz, XX YY]</TD>
+            <TD>3110.9112850878114</TD>
+            <TD>XX YY</TD>
+            <TD>2012-08-01 04:23:35</TD>
+            <TD>Rathborne, Jill</TD>
+            <TD>1.241152</TD>
+            <TD>uid://A002/X391d0b/X7b</TD>
+            <TD>uid://A002/X47ed8e/X533</TD>
+            <TD>Globular cluster formation: caught in the act</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00217.S</TD>
+            <TD>G0.25+0.02</TD>
+            <TD>266.5303585012102</TD>
+            <TD>-28.7046388888888</TD>
+            <TD>3</TD>
+            <TD>976.5625</TD>
+            <TD>189.274</TD>
+            <TD>2013-09-07</TD>
+            <TD>[86.26..88.14GHz,976.56kHz, XX YY] U [88.15..90.03GHz,976.56kHz, XX YY] U [98.19..100.07GHz,976.56kHz, XX YY] U [100.15..102.03GHz,976.56kHz, XX YY]</TD>
+            <TD>3110.9112850878114</TD>
+            <TD>XX YY</TD>
+            <TD>2012-07-29 02:01:54</TD>
+            <TD>Rathborne, Jill</TD>
+            <TD>2.156294</TD>
+            <TD>uid://A002/X391d0b/X7b</TD>
+            <TD>uid://A002/X47aefc/X369</TD>
+            <TD>Globular cluster formation: caught in the act</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00217.S</TD>
+            <TD>G0.25+0.02</TD>
+            <TD>266.5303585012102</TD>
+            <TD>-28.7046388888888</TD>
+            <TD>3</TD>
+            <TD>976.5625</TD>
+            <TD>201.381</TD>
+            <TD>2013-09-07</TD>
+            <TD>[86.26..88.14GHz,976.56kHz, XX YY] U [88.15..90.03GHz,976.56kHz, XX YY] U [98.19..100.07GHz,976.56kHz, XX YY] U [100.15..102.03GHz,976.56kHz, XX YY]</TD>
+            <TD>3110.9112850878114</TD>
+            <TD>XX YY</TD>
+            <TD>2012-07-30 23:10:32</TD>
+            <TD>Rathborne, Jill</TD>
+            <TD>1.6638252</TD>
+            <TD>uid://A002/X391d0b/X7b</TD>
+            <TD>uid://A002/X47d651/X15d</TD>
+            <TD>Globular cluster formation: caught in the act</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00217.S</TD>
+            <TD>G0.25+0.02</TD>
+            <TD>266.5303585012102</TD>
+            <TD>-28.7046388888888</TD>
+            <TD>3</TD>
+            <TD>976.5625</TD>
+            <TD>201.476</TD>
+            <TD>2013-09-07</TD>
+            <TD>[86.26..88.14GHz,976.56kHz, XX YY] U [88.15..90.03GHz,976.56kHz, XX YY] U [98.19..100.07GHz,976.56kHz, XX YY] U [100.15..102.03GHz,976.56kHz, XX YY]</TD>
+            <TD>3110.9112850878114</TD>
+            <TD>XX YY</TD>
+            <TD>2012-07-31 00:50:13</TD>
+            <TD>Rathborne, Jill</TD>
+            <TD>1.4304892</TD>
+            <TD>uid://A002/X391d0b/X7b</TD>
+            <TD>uid://A002/X47d651/X2fc</TD>
+            <TD>Globular cluster formation: caught in the act</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00217.S</TD>
+            <TD>G0.25+0.02</TD>
+            <TD>266.5303585012102</TD>
+            <TD>-28.7046388888888</TD>
+            <TD>3</TD>
+            <TD>976.5625</TD>
+            <TD>201.495</TD>
+            <TD>2013-09-07</TD>
+            <TD>[86.26..88.14GHz,976.56kHz, XX YY] U [88.15..90.03GHz,976.56kHz, XX YY] U [98.19..100.07GHz,976.56kHz, XX YY] U [100.15..102.03GHz,976.56kHz, XX YY]</TD>
+            <TD>3110.9112850878114</TD>
+            <TD>XX YY</TD>
+            <TD>2012-07-31 22:42:03</TD>
+            <TD>Rathborne, Jill</TD>
+            <TD>1.9266884</TD>
+            <TD>uid://A002/X391d0b/X7b</TD>
+            <TD>uid://A002/X47ed8e/X6c</TD>
+            <TD>Globular cluster formation: caught in the act</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00217.S</TD>
+            <TD>G0.25+0.02</TD>
+            <TD>266.53035850121034</TD>
+            <TD>-28.69491666666658</TD>
+            <TD>3</TD>
+            <TD>976.5625</TD>
+            <TD>207.284</TD>
+            <TD>2013-09-07</TD>
+            <TD>[86.26..88.14GHz,976.56kHz, XX YY] U [88.15..90.03GHz,976.56kHz, XX YY] U [98.19..100.07GHz,976.56kHz, XX YY] U [100.15..102.03GHz,976.56kHz, XX YY]</TD>
+            <TD>3110.9112850878114</TD>
+            <TD>XX YY</TD>
+            <TD>2012-07-30 02:22:03</TD>
+            <TD>Rathborne, Jill</TD>
+            <TD>1.8548079</TD>
+            <TD>uid://A002/X391d0b/X7b</TD>
+            <TD>uid://A002/X47bd4d/X4c7</TD>
+            <TD>Globular cluster formation: caught in the act</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00217.S</TD>
+            <TD>G0.25+0.02</TD>
+            <TD>266.53035850121034</TD>
+            <TD>-28.69491666666658</TD>
+            <TD>3</TD>
+            <TD>976.5625</TD>
+            <TD>207.357</TD>
+            <TD>2013-09-07</TD>
+            <TD>[86.26..88.14GHz,976.56kHz, XX YY] U [88.15..90.03GHz,976.56kHz, XX YY] U [98.19..100.07GHz,976.56kHz, XX YY] U [100.15..102.03GHz,976.56kHz, XX YY]</TD>
+            <TD>3110.9112850878114</TD>
+            <TD>XX YY</TD>
+            <TD>2012-08-01 04:23:35</TD>
+            <TD>Rathborne, Jill</TD>
+            <TD>1.241152</TD>
+            <TD>uid://A002/X391d0b/X7b</TD>
+            <TD>uid://A002/X47ed8e/X533</TD>
+            <TD>Globular cluster formation: caught in the act</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00217.S</TD>
+            <TD>G0.25+0.02</TD>
+            <TD>266.53035850121034</TD>
+            <TD>-28.69491666666658</TD>
+            <TD>3</TD>
+            <TD>976.5625</TD>
+            <TD>207.909</TD>
+            <TD>2013-09-07</TD>
+            <TD>[86.26..88.14GHz,976.56kHz, XX YY] U [88.15..90.03GHz,976.56kHz, XX YY] U [98.19..100.07GHz,976.56kHz, XX YY] U [100.15..102.03GHz,976.56kHz, XX YY]</TD>
+            <TD>3110.9112850878114</TD>
+            <TD>XX YY</TD>
+            <TD>2012-07-29 02:01:54</TD>
+            <TD>Rathborne, Jill</TD>
+            <TD>2.156294</TD>
+            <TD>uid://A002/X391d0b/X7b</TD>
+            <TD>uid://A002/X47aefc/X369</TD>
+            <TD>Globular cluster formation: caught in the act</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00217.S</TD>
+            <TD>G0.25+0.02</TD>
+            <TD>266.53035850121034</TD>
+            <TD>-28.69491666666658</TD>
+            <TD>3</TD>
+            <TD>976.5625</TD>
+            <TD>221.141</TD>
+            <TD>2013-09-07</TD>
+            <TD>[86.26..88.14GHz,976.56kHz, XX YY] U [88.15..90.03GHz,976.56kHz, XX YY] U [98.19..100.07GHz,976.56kHz, XX YY] U [100.15..102.03GHz,976.56kHz, XX YY]</TD>
+            <TD>3110.9112850878114</TD>
+            <TD>XX YY</TD>
+            <TD>2012-07-30 23:10:32</TD>
+            <TD>Rathborne, Jill</TD>
+            <TD>1.6638252</TD>
+            <TD>uid://A002/X391d0b/X7b</TD>
+            <TD>uid://A002/X47d651/X15d</TD>
+            <TD>Globular cluster formation: caught in the act</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00217.S</TD>
+            <TD>G0.25+0.02</TD>
+            <TD>266.53035850121034</TD>
+            <TD>-28.69491666666658</TD>
+            <TD>3</TD>
+            <TD>976.5625</TD>
+            <TD>221.235</TD>
+            <TD>2013-09-07</TD>
+            <TD>[86.26..88.14GHz,976.56kHz, XX YY] U [88.15..90.03GHz,976.56kHz, XX YY] U [98.19..100.07GHz,976.56kHz, XX YY] U [100.15..102.03GHz,976.56kHz, XX YY]</TD>
+            <TD>3110.9112850878114</TD>
+            <TD>XX YY</TD>
+            <TD>2012-07-31 00:50:13</TD>
+            <TD>Rathborne, Jill</TD>
+            <TD>1.4304892</TD>
+            <TD>uid://A002/X391d0b/X7b</TD>
+            <TD>uid://A002/X47d651/X2fc</TD>
+            <TD>Globular cluster formation: caught in the act</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00217.S</TD>
+            <TD>G0.25+0.02</TD>
+            <TD>266.53035850121034</TD>
+            <TD>-28.69491666666658</TD>
+            <TD>3</TD>
+            <TD>976.5625</TD>
+            <TD>221.251</TD>
+            <TD>2013-09-07</TD>
+            <TD>[86.26..88.14GHz,976.56kHz, XX YY] U [88.15..90.03GHz,976.56kHz, XX YY] U [98.19..100.07GHz,976.56kHz, XX YY] U [100.15..102.03GHz,976.56kHz, XX YY]</TD>
+            <TD>3110.9112850878114</TD>
+            <TD>XX YY</TD>
+            <TD>2012-07-31 22:42:03</TD>
+            <TD>Rathborne, Jill</TD>
+            <TD>1.9266884</TD>
+            <TD>uid://A002/X391d0b/X7b</TD>
+            <TD>uid://A002/X47ed8e/X6c</TD>
+            <TD>Globular cluster formation: caught in the act</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00217.S</TD>
+            <TD>G0.25+0.02</TD>
+            <TD>266.53995833333306</TD>
+            <TD>-28.728944444444444</TD>
+            <TD>3</TD>
+            <TD>976.5625</TD>
+            <TD>207.284</TD>
+            <TD>2013-09-07</TD>
+            <TD>[86.26..88.14GHz,976.56kHz, XX YY] U [88.15..90.03GHz,976.56kHz, XX YY] U [98.19..100.07GHz,976.56kHz, XX YY] U [100.15..102.03GHz,976.56kHz, XX YY]</TD>
+            <TD>3110.9112850878114</TD>
+            <TD>XX YY</TD>
+            <TD>2012-07-30 02:22:03</TD>
+            <TD>Rathborne, Jill</TD>
+            <TD>1.8548079</TD>
+            <TD>uid://A002/X391d0b/X7b</TD>
+            <TD>uid://A002/X47bd4d/X4c7</TD>
+            <TD>Globular cluster formation: caught in the act</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00217.S</TD>
+            <TD>G0.25+0.02</TD>
+            <TD>266.53995833333306</TD>
+            <TD>-28.728944444444444</TD>
+            <TD>3</TD>
+            <TD>976.5625</TD>
+            <TD>207.357</TD>
+            <TD>2013-09-07</TD>
+            <TD>[86.26..88.14GHz,976.56kHz, XX YY] U [88.15..90.03GHz,976.56kHz, XX YY] U [98.19..100.07GHz,976.56kHz, XX YY] U [100.15..102.03GHz,976.56kHz, XX YY]</TD>
+            <TD>3110.9112850878114</TD>
+            <TD>XX YY</TD>
+            <TD>2012-08-01 04:23:35</TD>
+            <TD>Rathborne, Jill</TD>
+            <TD>1.241152</TD>
+            <TD>uid://A002/X391d0b/X7b</TD>
+            <TD>uid://A002/X47ed8e/X533</TD>
+            <TD>Globular cluster formation: caught in the act</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00217.S</TD>
+            <TD>G0.25+0.02</TD>
+            <TD>266.53995833333306</TD>
+            <TD>-28.728944444444444</TD>
+            <TD>3</TD>
+            <TD>976.5625</TD>
+            <TD>207.909</TD>
+            <TD>2013-09-07</TD>
+            <TD>[86.26..88.14GHz,976.56kHz, XX YY] U [88.15..90.03GHz,976.56kHz, XX YY] U [98.19..100.07GHz,976.56kHz, XX YY] U [100.15..102.03GHz,976.56kHz, XX YY]</TD>
+            <TD>3110.9112850878114</TD>
+            <TD>XX YY</TD>
+            <TD>2012-07-29 02:01:54</TD>
+            <TD>Rathborne, Jill</TD>
+            <TD>2.156294</TD>
+            <TD>uid://A002/X391d0b/X7b</TD>
+            <TD>uid://A002/X47aefc/X369</TD>
+            <TD>Globular cluster formation: caught in the act</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00217.S</TD>
+            <TD>G0.25+0.02</TD>
+            <TD>266.53995833333306</TD>
+            <TD>-28.728944444444444</TD>
+            <TD>3</TD>
+            <TD>976.5625</TD>
+            <TD>221.141</TD>
+            <TD>2013-09-07</TD>
+            <TD>[86.26..88.14GHz,976.56kHz, XX YY] U [88.15..90.03GHz,976.56kHz, XX YY] U [98.19..100.07GHz,976.56kHz, XX YY] U [100.15..102.03GHz,976.56kHz, XX YY]</TD>
+            <TD>3110.9112850878114</TD>
+            <TD>XX YY</TD>
+            <TD>2012-07-30 23:10:32</TD>
+            <TD>Rathborne, Jill</TD>
+            <TD>1.6638252</TD>
+            <TD>uid://A002/X391d0b/X7b</TD>
+            <TD>uid://A002/X47d651/X15d</TD>
+            <TD>Globular cluster formation: caught in the act</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00217.S</TD>
+            <TD>G0.25+0.02</TD>
+            <TD>266.53995833333306</TD>
+            <TD>-28.728944444444444</TD>
+            <TD>3</TD>
+            <TD>976.5625</TD>
+            <TD>221.235</TD>
+            <TD>2013-09-07</TD>
+            <TD>[86.26..88.14GHz,976.56kHz, XX YY] U [88.15..90.03GHz,976.56kHz, XX YY] U [98.19..100.07GHz,976.56kHz, XX YY] U [100.15..102.03GHz,976.56kHz, XX YY]</TD>
+            <TD>3110.9112850878114</TD>
+            <TD>XX YY</TD>
+            <TD>2012-07-31 00:50:13</TD>
+            <TD>Rathborne, Jill</TD>
+            <TD>1.4304892</TD>
+            <TD>uid://A002/X391d0b/X7b</TD>
+            <TD>uid://A002/X47d651/X2fc</TD>
+            <TD>Globular cluster formation: caught in the act</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00217.S</TD>
+            <TD>G0.25+0.02</TD>
+            <TD>266.53995833333306</TD>
+            <TD>-28.728944444444444</TD>
+            <TD>3</TD>
+            <TD>976.5625</TD>
+            <TD>221.251</TD>
+            <TD>2013-09-07</TD>
+            <TD>[86.26..88.14GHz,976.56kHz, XX YY] U [88.15..90.03GHz,976.56kHz, XX YY] U [98.19..100.07GHz,976.56kHz, XX YY] U [100.15..102.03GHz,976.56kHz, XX YY]</TD>
+            <TD>3110.9112850878114</TD>
+            <TD>XX YY</TD>
+            <TD>2012-07-31 22:42:03</TD>
+            <TD>Rathborne, Jill</TD>
+            <TD>1.9266884</TD>
+            <TD>uid://A002/X391d0b/X7b</TD>
+            <TD>uid://A002/X47ed8e/X6c</TD>
+            <TD>Globular cluster formation: caught in the act</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00217.S</TD>
+            <TD>G0.25+0.02</TD>
+            <TD>266.53995833333323</TD>
+            <TD>-28.719222222222218</TD>
+            <TD>3</TD>
+            <TD>976.5625</TD>
+            <TD>207.284</TD>
+            <TD>2013-09-07</TD>
+            <TD>[86.26..88.14GHz,976.56kHz, XX YY] U [88.15..90.03GHz,976.56kHz, XX YY] U [98.19..100.07GHz,976.56kHz, XX YY] U [100.15..102.03GHz,976.56kHz, XX YY]</TD>
+            <TD>3110.9112850878114</TD>
+            <TD>XX YY</TD>
+            <TD>2012-07-30 02:22:03</TD>
+            <TD>Rathborne, Jill</TD>
+            <TD>1.8548079</TD>
+            <TD>uid://A002/X391d0b/X7b</TD>
+            <TD>uid://A002/X47bd4d/X4c7</TD>
+            <TD>Globular cluster formation: caught in the act</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00217.S</TD>
+            <TD>G0.25+0.02</TD>
+            <TD>266.53995833333323</TD>
+            <TD>-28.719222222222218</TD>
+            <TD>3</TD>
+            <TD>976.5625</TD>
+            <TD>207.357</TD>
+            <TD>2013-09-07</TD>
+            <TD>[86.26..88.14GHz,976.56kHz, XX YY] U [88.15..90.03GHz,976.56kHz, XX YY] U [98.19..100.07GHz,976.56kHz, XX YY] U [100.15..102.03GHz,976.56kHz, XX YY]</TD>
+            <TD>3110.9112850878114</TD>
+            <TD>XX YY</TD>
+            <TD>2012-08-01 04:23:35</TD>
+            <TD>Rathborne, Jill</TD>
+            <TD>1.241152</TD>
+            <TD>uid://A002/X391d0b/X7b</TD>
+            <TD>uid://A002/X47ed8e/X533</TD>
+            <TD>Globular cluster formation: caught in the act</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00217.S</TD>
+            <TD>G0.25+0.02</TD>
+            <TD>266.53995833333323</TD>
+            <TD>-28.719222222222218</TD>
+            <TD>3</TD>
+            <TD>976.5625</TD>
+            <TD>207.909</TD>
+            <TD>2013-09-07</TD>
+            <TD>[86.26..88.14GHz,976.56kHz, XX YY] U [88.15..90.03GHz,976.56kHz, XX YY] U [98.19..100.07GHz,976.56kHz, XX YY] U [100.15..102.03GHz,976.56kHz, XX YY]</TD>
+            <TD>3110.9112850878114</TD>
+            <TD>XX YY</TD>
+            <TD>2012-07-29 02:01:54</TD>
+            <TD>Rathborne, Jill</TD>
+            <TD>2.156294</TD>
+            <TD>uid://A002/X391d0b/X7b</TD>
+            <TD>uid://A002/X47aefc/X369</TD>
+            <TD>Globular cluster formation: caught in the act</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00217.S</TD>
+            <TD>G0.25+0.02</TD>
+            <TD>266.53995833333323</TD>
+            <TD>-28.719222222222218</TD>
+            <TD>3</TD>
+            <TD>976.5625</TD>
+            <TD>221.141</TD>
+            <TD>2013-09-07</TD>
+            <TD>[86.26..88.14GHz,976.56kHz, XX YY] U [88.15..90.03GHz,976.56kHz, XX YY] U [98.19..100.07GHz,976.56kHz, XX YY] U [100.15..102.03GHz,976.56kHz, XX YY]</TD>
+            <TD>3110.9112850878114</TD>
+            <TD>XX YY</TD>
+            <TD>2012-07-30 23:10:32</TD>
+            <TD>Rathborne, Jill</TD>
+            <TD>1.6638252</TD>
+            <TD>uid://A002/X391d0b/X7b</TD>
+            <TD>uid://A002/X47d651/X15d</TD>
+            <TD>Globular cluster formation: caught in the act</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00217.S</TD>
+            <TD>G0.25+0.02</TD>
+            <TD>266.53995833333323</TD>
+            <TD>-28.719222222222218</TD>
+            <TD>3</TD>
+            <TD>976.5625</TD>
+            <TD>221.235</TD>
+            <TD>2013-09-07</TD>
+            <TD>[86.26..88.14GHz,976.56kHz, XX YY] U [88.15..90.03GHz,976.56kHz, XX YY] U [98.19..100.07GHz,976.56kHz, XX YY] U [100.15..102.03GHz,976.56kHz, XX YY]</TD>
+            <TD>3110.9112850878114</TD>
+            <TD>XX YY</TD>
+            <TD>2012-07-31 00:50:13</TD>
+            <TD>Rathborne, Jill</TD>
+            <TD>1.4304892</TD>
+            <TD>uid://A002/X391d0b/X7b</TD>
+            <TD>uid://A002/X47d651/X2fc</TD>
+            <TD>Globular cluster formation: caught in the act</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00217.S</TD>
+            <TD>G0.25+0.02</TD>
+            <TD>266.53995833333323</TD>
+            <TD>-28.719222222222218</TD>
+            <TD>3</TD>
+            <TD>976.5625</TD>
+            <TD>221.251</TD>
+            <TD>2013-09-07</TD>
+            <TD>[86.26..88.14GHz,976.56kHz, XX YY] U [88.15..90.03GHz,976.56kHz, XX YY] U [98.19..100.07GHz,976.56kHz, XX YY] U [100.15..102.03GHz,976.56kHz, XX YY]</TD>
+            <TD>3110.9112850878114</TD>
+            <TD>XX YY</TD>
+            <TD>2012-07-31 22:42:03</TD>
+            <TD>Rathborne, Jill</TD>
+            <TD>1.9266884</TD>
+            <TD>uid://A002/X391d0b/X7b</TD>
+            <TD>uid://A002/X47ed8e/X6c</TD>
+            <TD>Globular cluster formation: caught in the act</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00217.S</TD>
+            <TD>G0.25+0.02</TD>
+            <TD>266.5399583333334</TD>
+            <TD>-28.7095</TD>
+            <TD>3</TD>
+            <TD>976.5625</TD>
+            <TD>188.781</TD>
+            <TD>2013-09-07</TD>
+            <TD>[86.26..88.14GHz,976.56kHz, XX YY] U [88.15..90.03GHz,976.56kHz, XX YY] U [98.19..100.07GHz,976.56kHz, XX YY] U [100.15..102.03GHz,976.56kHz, XX YY]</TD>
+            <TD>3110.9112850878114</TD>
+            <TD>XX YY</TD>
+            <TD>2012-07-30 02:22:03</TD>
+            <TD>Rathborne, Jill</TD>
+            <TD>1.8548079</TD>
+            <TD>uid://A002/X391d0b/X7b</TD>
+            <TD>uid://A002/X47bd4d/X4c7</TD>
+            <TD>Globular cluster formation: caught in the act</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00217.S</TD>
+            <TD>G0.25+0.02</TD>
+            <TD>266.5399583333334</TD>
+            <TD>-28.7095</TD>
+            <TD>3</TD>
+            <TD>976.5625</TD>
+            <TD>188.852</TD>
+            <TD>2013-09-07</TD>
+            <TD>[86.26..88.14GHz,976.56kHz, XX YY] U [88.15..90.03GHz,976.56kHz, XX YY] U [98.19..100.07GHz,976.56kHz, XX YY] U [100.15..102.03GHz,976.56kHz, XX YY]</TD>
+            <TD>3110.9112850878114</TD>
+            <TD>XX YY</TD>
+            <TD>2012-08-01 04:23:35</TD>
+            <TD>Rathborne, Jill</TD>
+            <TD>1.241152</TD>
+            <TD>uid://A002/X391d0b/X7b</TD>
+            <TD>uid://A002/X47ed8e/X533</TD>
+            <TD>Globular cluster formation: caught in the act</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00217.S</TD>
+            <TD>G0.25+0.02</TD>
+            <TD>266.5399583333334</TD>
+            <TD>-28.7095</TD>
+            <TD>3</TD>
+            <TD>976.5625</TD>
+            <TD>189.274</TD>
+            <TD>2013-09-07</TD>
+            <TD>[86.26..88.14GHz,976.56kHz, XX YY] U [88.15..90.03GHz,976.56kHz, XX YY] U [98.19..100.07GHz,976.56kHz, XX YY] U [100.15..102.03GHz,976.56kHz, XX YY]</TD>
+            <TD>3110.9112850878114</TD>
+            <TD>XX YY</TD>
+            <TD>2012-07-29 02:01:54</TD>
+            <TD>Rathborne, Jill</TD>
+            <TD>2.156294</TD>
+            <TD>uid://A002/X391d0b/X7b</TD>
+            <TD>uid://A002/X47aefc/X369</TD>
+            <TD>Globular cluster formation: caught in the act</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00217.S</TD>
+            <TD>G0.25+0.02</TD>
+            <TD>266.5399583333334</TD>
+            <TD>-28.7095</TD>
+            <TD>3</TD>
+            <TD>976.5625</TD>
+            <TD>201.381</TD>
+            <TD>2013-09-07</TD>
+            <TD>[86.26..88.14GHz,976.56kHz, XX YY] U [88.15..90.03GHz,976.56kHz, XX YY] U [98.19..100.07GHz,976.56kHz, XX YY] U [100.15..102.03GHz,976.56kHz, XX YY]</TD>
+            <TD>3110.9112850878114</TD>
+            <TD>XX YY</TD>
+            <TD>2012-07-30 23:10:32</TD>
+            <TD>Rathborne, Jill</TD>
+            <TD>1.6638252</TD>
+            <TD>uid://A002/X391d0b/X7b</TD>
+            <TD>uid://A002/X47d651/X15d</TD>
+            <TD>Globular cluster formation: caught in the act</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00217.S</TD>
+            <TD>G0.25+0.02</TD>
+            <TD>266.5399583333334</TD>
+            <TD>-28.7095</TD>
+            <TD>3</TD>
+            <TD>976.5625</TD>
+            <TD>201.476</TD>
+            <TD>2013-09-07</TD>
+            <TD>[86.26..88.14GHz,976.56kHz, XX YY] U [88.15..90.03GHz,976.56kHz, XX YY] U [98.19..100.07GHz,976.56kHz, XX YY] U [100.15..102.03GHz,976.56kHz, XX YY]</TD>
+            <TD>3110.9112850878114</TD>
+            <TD>XX YY</TD>
+            <TD>2012-07-31 00:50:13</TD>
+            <TD>Rathborne, Jill</TD>
+            <TD>1.4304892</TD>
+            <TD>uid://A002/X391d0b/X7b</TD>
+            <TD>uid://A002/X47d651/X2fc</TD>
+            <TD>Globular cluster formation: caught in the act</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00217.S</TD>
+            <TD>G0.25+0.02</TD>
+            <TD>266.5399583333334</TD>
+            <TD>-28.7095</TD>
+            <TD>3</TD>
+            <TD>976.5625</TD>
+            <TD>201.495</TD>
+            <TD>2013-09-07</TD>
+            <TD>[86.26..88.14GHz,976.56kHz, XX YY] U [88.15..90.03GHz,976.56kHz, XX YY] U [98.19..100.07GHz,976.56kHz, XX YY] U [100.15..102.03GHz,976.56kHz, XX YY]</TD>
+            <TD>3110.9112850878114</TD>
+            <TD>XX YY</TD>
+            <TD>2012-07-31 22:42:03</TD>
+            <TD>Rathborne, Jill</TD>
+            <TD>1.9266884</TD>
+            <TD>uid://A002/X391d0b/X7b</TD>
+            <TD>uid://A002/X47ed8e/X6c</TD>
+            <TD>Globular cluster formation: caught in the act</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00217.S</TD>
+            <TD>G0.25+0.02</TD>
+            <TD>266.53995833333346</TD>
+            <TD>-28.699777777777776</TD>
+            <TD>3</TD>
+            <TD>976.5625</TD>
+            <TD>188.781</TD>
+            <TD>2013-09-07</TD>
+            <TD>[86.26..88.14GHz,976.56kHz, XX YY] U [88.15..90.03GHz,976.56kHz, XX YY] U [98.19..100.07GHz,976.56kHz, XX YY] U [100.15..102.03GHz,976.56kHz, XX YY]</TD>
+            <TD>3110.9112850878114</TD>
+            <TD>XX YY</TD>
+            <TD>2012-07-30 02:22:03</TD>
+            <TD>Rathborne, Jill</TD>
+            <TD>1.8548079</TD>
+            <TD>uid://A002/X391d0b/X7b</TD>
+            <TD>uid://A002/X47bd4d/X4c7</TD>
+            <TD>Globular cluster formation: caught in the act</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00217.S</TD>
+            <TD>G0.25+0.02</TD>
+            <TD>266.53995833333346</TD>
+            <TD>-28.699777777777776</TD>
+            <TD>3</TD>
+            <TD>976.5625</TD>
+            <TD>188.852</TD>
+            <TD>2013-09-07</TD>
+            <TD>[86.26..88.14GHz,976.56kHz, XX YY] U [88.15..90.03GHz,976.56kHz, XX YY] U [98.19..100.07GHz,976.56kHz, XX YY] U [100.15..102.03GHz,976.56kHz, XX YY]</TD>
+            <TD>3110.9112850878114</TD>
+            <TD>XX YY</TD>
+            <TD>2012-08-01 04:23:35</TD>
+            <TD>Rathborne, Jill</TD>
+            <TD>1.241152</TD>
+            <TD>uid://A002/X391d0b/X7b</TD>
+            <TD>uid://A002/X47ed8e/X533</TD>
+            <TD>Globular cluster formation: caught in the act</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00217.S</TD>
+            <TD>G0.25+0.02</TD>
+            <TD>266.53995833333346</TD>
+            <TD>-28.699777777777776</TD>
+            <TD>3</TD>
+            <TD>976.5625</TD>
+            <TD>189.274</TD>
+            <TD>2013-09-07</TD>
+            <TD>[86.26..88.14GHz,976.56kHz, XX YY] U [88.15..90.03GHz,976.56kHz, XX YY] U [98.19..100.07GHz,976.56kHz, XX YY] U [100.15..102.03GHz,976.56kHz, XX YY]</TD>
+            <TD>3110.9112850878114</TD>
+            <TD>XX YY</TD>
+            <TD>2012-07-29 02:01:54</TD>
+            <TD>Rathborne, Jill</TD>
+            <TD>2.156294</TD>
+            <TD>uid://A002/X391d0b/X7b</TD>
+            <TD>uid://A002/X47aefc/X369</TD>
+            <TD>Globular cluster formation: caught in the act</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00217.S</TD>
+            <TD>G0.25+0.02</TD>
+            <TD>266.53995833333346</TD>
+            <TD>-28.699777777777776</TD>
+            <TD>3</TD>
+            <TD>976.5625</TD>
+            <TD>201.381</TD>
+            <TD>2013-09-07</TD>
+            <TD>[86.26..88.14GHz,976.56kHz, XX YY] U [88.15..90.03GHz,976.56kHz, XX YY] U [98.19..100.07GHz,976.56kHz, XX YY] U [100.15..102.03GHz,976.56kHz, XX YY]</TD>
+            <TD>3110.9112850878114</TD>
+            <TD>XX YY</TD>
+            <TD>2012-07-30 23:10:32</TD>
+            <TD>Rathborne, Jill</TD>
+            <TD>1.6638252</TD>
+            <TD>uid://A002/X391d0b/X7b</TD>
+            <TD>uid://A002/X47d651/X15d</TD>
+            <TD>Globular cluster formation: caught in the act</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00217.S</TD>
+            <TD>G0.25+0.02</TD>
+            <TD>266.53995833333346</TD>
+            <TD>-28.699777777777776</TD>
+            <TD>3</TD>
+            <TD>976.5625</TD>
+            <TD>201.476</TD>
+            <TD>2013-09-07</TD>
+            <TD>[86.26..88.14GHz,976.56kHz, XX YY] U [88.15..90.03GHz,976.56kHz, XX YY] U [98.19..100.07GHz,976.56kHz, XX YY] U [100.15..102.03GHz,976.56kHz, XX YY]</TD>
+            <TD>3110.9112850878114</TD>
+            <TD>XX YY</TD>
+            <TD>2012-07-31 00:50:13</TD>
+            <TD>Rathborne, Jill</TD>
+            <TD>1.4304892</TD>
+            <TD>uid://A002/X391d0b/X7b</TD>
+            <TD>uid://A002/X47d651/X2fc</TD>
+            <TD>Globular cluster formation: caught in the act</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00217.S</TD>
+            <TD>G0.25+0.02</TD>
+            <TD>266.53995833333346</TD>
+            <TD>-28.699777777777776</TD>
+            <TD>3</TD>
+            <TD>976.5625</TD>
+            <TD>201.495</TD>
+            <TD>2013-09-07</TD>
+            <TD>[86.26..88.14GHz,976.56kHz, XX YY] U [88.15..90.03GHz,976.56kHz, XX YY] U [98.19..100.07GHz,976.56kHz, XX YY] U [100.15..102.03GHz,976.56kHz, XX YY]</TD>
+            <TD>3110.9112850878114</TD>
+            <TD>XX YY</TD>
+            <TD>2012-07-31 22:42:03</TD>
+            <TD>Rathborne, Jill</TD>
+            <TD>1.9266884</TD>
+            <TD>uid://A002/X391d0b/X7b</TD>
+            <TD>uid://A002/X47ed8e/X6c</TD>
+            <TD>Globular cluster formation: caught in the act</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00217.S</TD>
+            <TD>G0.25+0.02</TD>
+            <TD>266.5399583333336</TD>
+            <TD>-28.69005555555555</TD>
+            <TD>3</TD>
+            <TD>976.5625</TD>
+            <TD>188.781</TD>
+            <TD>2013-09-07</TD>
+            <TD>[86.26..88.14GHz,976.56kHz, XX YY] U [88.15..90.03GHz,976.56kHz, XX YY] U [98.19..100.07GHz,976.56kHz, XX YY] U [100.15..102.03GHz,976.56kHz, XX YY]</TD>
+            <TD>3110.9112850878114</TD>
+            <TD>XX YY</TD>
+            <TD>2012-07-30 02:22:03</TD>
+            <TD>Rathborne, Jill</TD>
+            <TD>1.8548079</TD>
+            <TD>uid://A002/X391d0b/X7b</TD>
+            <TD>uid://A002/X47bd4d/X4c7</TD>
+            <TD>Globular cluster formation: caught in the act</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00217.S</TD>
+            <TD>G0.25+0.02</TD>
+            <TD>266.5399583333336</TD>
+            <TD>-28.69005555555555</TD>
+            <TD>3</TD>
+            <TD>976.5625</TD>
+            <TD>188.852</TD>
+            <TD>2013-09-07</TD>
+            <TD>[86.26..88.14GHz,976.56kHz, XX YY] U [88.15..90.03GHz,976.56kHz, XX YY] U [98.19..100.07GHz,976.56kHz, XX YY] U [100.15..102.03GHz,976.56kHz, XX YY]</TD>
+            <TD>3110.9112850878114</TD>
+            <TD>XX YY</TD>
+            <TD>2012-08-01 04:23:35</TD>
+            <TD>Rathborne, Jill</TD>
+            <TD>1.241152</TD>
+            <TD>uid://A002/X391d0b/X7b</TD>
+            <TD>uid://A002/X47ed8e/X533</TD>
+            <TD>Globular cluster formation: caught in the act</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00217.S</TD>
+            <TD>G0.25+0.02</TD>
+            <TD>266.5399583333336</TD>
+            <TD>-28.69005555555555</TD>
+            <TD>3</TD>
+            <TD>976.5625</TD>
+            <TD>189.274</TD>
+            <TD>2013-09-07</TD>
+            <TD>[86.26..88.14GHz,976.56kHz, XX YY] U [88.15..90.03GHz,976.56kHz, XX YY] U [98.19..100.07GHz,976.56kHz, XX YY] U [100.15..102.03GHz,976.56kHz, XX YY]</TD>
+            <TD>3110.9112850878114</TD>
+            <TD>XX YY</TD>
+            <TD>2012-07-29 02:01:54</TD>
+            <TD>Rathborne, Jill</TD>
+            <TD>2.156294</TD>
+            <TD>uid://A002/X391d0b/X7b</TD>
+            <TD>uid://A002/X47aefc/X369</TD>
+            <TD>Globular cluster formation: caught in the act</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00217.S</TD>
+            <TD>G0.25+0.02</TD>
+            <TD>266.5399583333336</TD>
+            <TD>-28.69005555555555</TD>
+            <TD>3</TD>
+            <TD>976.5625</TD>
+            <TD>201.381</TD>
+            <TD>2013-09-07</TD>
+            <TD>[86.26..88.14GHz,976.56kHz, XX YY] U [88.15..90.03GHz,976.56kHz, XX YY] U [98.19..100.07GHz,976.56kHz, XX YY] U [100.15..102.03GHz,976.56kHz, XX YY]</TD>
+            <TD>3110.9112850878114</TD>
+            <TD>XX YY</TD>
+            <TD>2012-07-30 23:10:32</TD>
+            <TD>Rathborne, Jill</TD>
+            <TD>1.6638252</TD>
+            <TD>uid://A002/X391d0b/X7b</TD>
+            <TD>uid://A002/X47d651/X15d</TD>
+            <TD>Globular cluster formation: caught in the act</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00217.S</TD>
+            <TD>G0.25+0.02</TD>
+            <TD>266.5399583333336</TD>
+            <TD>-28.69005555555555</TD>
+            <TD>3</TD>
+            <TD>976.5625</TD>
+            <TD>201.476</TD>
+            <TD>2013-09-07</TD>
+            <TD>[86.26..88.14GHz,976.56kHz, XX YY] U [88.15..90.03GHz,976.56kHz, XX YY] U [98.19..100.07GHz,976.56kHz, XX YY] U [100.15..102.03GHz,976.56kHz, XX YY]</TD>
+            <TD>3110.9112850878114</TD>
+            <TD>XX YY</TD>
+            <TD>2012-07-31 00:50:13</TD>
+            <TD>Rathborne, Jill</TD>
+            <TD>1.4304892</TD>
+            <TD>uid://A002/X391d0b/X7b</TD>
+            <TD>uid://A002/X47d651/X2fc</TD>
+            <TD>Globular cluster formation: caught in the act</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00217.S</TD>
+            <TD>G0.25+0.02</TD>
+            <TD>266.5399583333336</TD>
+            <TD>-28.69005555555555</TD>
+            <TD>3</TD>
+            <TD>976.5625</TD>
+            <TD>201.495</TD>
+            <TD>2013-09-07</TD>
+            <TD>[86.26..88.14GHz,976.56kHz, XX YY] U [88.15..90.03GHz,976.56kHz, XX YY] U [98.19..100.07GHz,976.56kHz, XX YY] U [100.15..102.03GHz,976.56kHz, XX YY]</TD>
+            <TD>3110.9112850878114</TD>
+            <TD>XX YY</TD>
+            <TD>2012-07-31 22:42:03</TD>
+            <TD>Rathborne, Jill</TD>
+            <TD>1.9266884</TD>
+            <TD>uid://A002/X391d0b/X7b</TD>
+            <TD>uid://A002/X47ed8e/X6c</TD>
+            <TD>Globular cluster formation: caught in the act</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00217.S</TD>
+            <TD>G0.25+0.02</TD>
+            <TD>266.5495581654564</TD>
+            <TD>-28.72408333333344</TD>
+            <TD>3</TD>
+            <TD>976.5625</TD>
+            <TD>207.284</TD>
+            <TD>2013-09-07</TD>
+            <TD>[86.26..88.14GHz,976.56kHz, XX YY] U [88.15..90.03GHz,976.56kHz, XX YY] U [98.19..100.07GHz,976.56kHz, XX YY] U [100.15..102.03GHz,976.56kHz, XX YY]</TD>
+            <TD>3110.9112850878114</TD>
+            <TD>XX YY</TD>
+            <TD>2012-07-30 02:22:03</TD>
+            <TD>Rathborne, Jill</TD>
+            <TD>1.8548079</TD>
+            <TD>uid://A002/X391d0b/X7b</TD>
+            <TD>uid://A002/X47bd4d/X4c7</TD>
+            <TD>Globular cluster formation: caught in the act</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00217.S</TD>
+            <TD>G0.25+0.02</TD>
+            <TD>266.5495581654564</TD>
+            <TD>-28.72408333333344</TD>
+            <TD>3</TD>
+            <TD>976.5625</TD>
+            <TD>207.357</TD>
+            <TD>2013-09-07</TD>
+            <TD>[86.26..88.14GHz,976.56kHz, XX YY] U [88.15..90.03GHz,976.56kHz, XX YY] U [98.19..100.07GHz,976.56kHz, XX YY] U [100.15..102.03GHz,976.56kHz, XX YY]</TD>
+            <TD>3110.9112850878114</TD>
+            <TD>XX YY</TD>
+            <TD>2012-08-01 04:23:35</TD>
+            <TD>Rathborne, Jill</TD>
+            <TD>1.241152</TD>
+            <TD>uid://A002/X391d0b/X7b</TD>
+            <TD>uid://A002/X47ed8e/X533</TD>
+            <TD>Globular cluster formation: caught in the act</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00217.S</TD>
+            <TD>G0.25+0.02</TD>
+            <TD>266.5495581654564</TD>
+            <TD>-28.72408333333344</TD>
+            <TD>3</TD>
+            <TD>976.5625</TD>
+            <TD>207.909</TD>
+            <TD>2013-09-07</TD>
+            <TD>[86.26..88.14GHz,976.56kHz, XX YY] U [88.15..90.03GHz,976.56kHz, XX YY] U [98.19..100.07GHz,976.56kHz, XX YY] U [100.15..102.03GHz,976.56kHz, XX YY]</TD>
+            <TD>3110.9112850878114</TD>
+            <TD>XX YY</TD>
+            <TD>2012-07-29 02:01:54</TD>
+            <TD>Rathborne, Jill</TD>
+            <TD>2.156294</TD>
+            <TD>uid://A002/X391d0b/X7b</TD>
+            <TD>uid://A002/X47aefc/X369</TD>
+            <TD>Globular cluster formation: caught in the act</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00217.S</TD>
+            <TD>G0.25+0.02</TD>
+            <TD>266.5495581654564</TD>
+            <TD>-28.72408333333344</TD>
+            <TD>3</TD>
+            <TD>976.5625</TD>
+            <TD>221.141</TD>
+            <TD>2013-09-07</TD>
+            <TD>[86.26..88.14GHz,976.56kHz, XX YY] U [88.15..90.03GHz,976.56kHz, XX YY] U [98.19..100.07GHz,976.56kHz, XX YY] U [100.15..102.03GHz,976.56kHz, XX YY]</TD>
+            <TD>3110.9112850878114</TD>
+            <TD>XX YY</TD>
+            <TD>2012-07-30 23:10:32</TD>
+            <TD>Rathborne, Jill</TD>
+            <TD>1.6638252</TD>
+            <TD>uid://A002/X391d0b/X7b</TD>
+            <TD>uid://A002/X47d651/X15d</TD>
+            <TD>Globular cluster formation: caught in the act</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00217.S</TD>
+            <TD>G0.25+0.02</TD>
+            <TD>266.5495581654564</TD>
+            <TD>-28.72408333333344</TD>
+            <TD>3</TD>
+            <TD>976.5625</TD>
+            <TD>221.235</TD>
+            <TD>2013-09-07</TD>
+            <TD>[86.26..88.14GHz,976.56kHz, XX YY] U [88.15..90.03GHz,976.56kHz, XX YY] U [98.19..100.07GHz,976.56kHz, XX YY] U [100.15..102.03GHz,976.56kHz, XX YY]</TD>
+            <TD>3110.9112850878114</TD>
+            <TD>XX YY</TD>
+            <TD>2012-07-31 00:50:13</TD>
+            <TD>Rathborne, Jill</TD>
+            <TD>1.4304892</TD>
+            <TD>uid://A002/X391d0b/X7b</TD>
+            <TD>uid://A002/X47d651/X2fc</TD>
+            <TD>Globular cluster formation: caught in the act</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00217.S</TD>
+            <TD>G0.25+0.02</TD>
+            <TD>266.5495581654564</TD>
+            <TD>-28.72408333333344</TD>
+            <TD>3</TD>
+            <TD>976.5625</TD>
+            <TD>221.251</TD>
+            <TD>2013-09-07</TD>
+            <TD>[86.26..88.14GHz,976.56kHz, XX YY] U [88.15..90.03GHz,976.56kHz, XX YY] U [98.19..100.07GHz,976.56kHz, XX YY] U [100.15..102.03GHz,976.56kHz, XX YY]</TD>
+            <TD>3110.9112850878114</TD>
+            <TD>XX YY</TD>
+            <TD>2012-07-31 22:42:03</TD>
+            <TD>Rathborne, Jill</TD>
+            <TD>1.9266884</TD>
+            <TD>uid://A002/X391d0b/X7b</TD>
+            <TD>uid://A002/X47ed8e/X6c</TD>
+            <TD>Globular cluster formation: caught in the act</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00217.S</TD>
+            <TD>G0.25+0.02</TD>
+            <TD>266.5495581654565</TD>
+            <TD>-28.714361111111188</TD>
+            <TD>3</TD>
+            <TD>976.5625</TD>
+            <TD>207.284</TD>
+            <TD>2013-09-07</TD>
+            <TD>[86.26..88.14GHz,976.56kHz, XX YY] U [88.15..90.03GHz,976.56kHz, XX YY] U [98.19..100.07GHz,976.56kHz, XX YY] U [100.15..102.03GHz,976.56kHz, XX YY]</TD>
+            <TD>3110.9112850878114</TD>
+            <TD>XX YY</TD>
+            <TD>2012-07-30 02:22:03</TD>
+            <TD>Rathborne, Jill</TD>
+            <TD>1.8548079</TD>
+            <TD>uid://A002/X391d0b/X7b</TD>
+            <TD>uid://A002/X47bd4d/X4c7</TD>
+            <TD>Globular cluster formation: caught in the act</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00217.S</TD>
+            <TD>G0.25+0.02</TD>
+            <TD>266.5495581654565</TD>
+            <TD>-28.714361111111188</TD>
+            <TD>3</TD>
+            <TD>976.5625</TD>
+            <TD>207.357</TD>
+            <TD>2013-09-07</TD>
+            <TD>[86.26..88.14GHz,976.56kHz, XX YY] U [88.15..90.03GHz,976.56kHz, XX YY] U [98.19..100.07GHz,976.56kHz, XX YY] U [100.15..102.03GHz,976.56kHz, XX YY]</TD>
+            <TD>3110.9112850878114</TD>
+            <TD>XX YY</TD>
+            <TD>2012-08-01 04:23:35</TD>
+            <TD>Rathborne, Jill</TD>
+            <TD>1.241152</TD>
+            <TD>uid://A002/X391d0b/X7b</TD>
+            <TD>uid://A002/X47ed8e/X533</TD>
+            <TD>Globular cluster formation: caught in the act</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00217.S</TD>
+            <TD>G0.25+0.02</TD>
+            <TD>266.5495581654565</TD>
+            <TD>-28.714361111111188</TD>
+            <TD>3</TD>
+            <TD>976.5625</TD>
+            <TD>207.909</TD>
+            <TD>2013-09-07</TD>
+            <TD>[86.26..88.14GHz,976.56kHz, XX YY] U [88.15..90.03GHz,976.56kHz, XX YY] U [98.19..100.07GHz,976.56kHz, XX YY] U [100.15..102.03GHz,976.56kHz, XX YY]</TD>
+            <TD>3110.9112850878114</TD>
+            <TD>XX YY</TD>
+            <TD>2012-07-29 02:01:54</TD>
+            <TD>Rathborne, Jill</TD>
+            <TD>2.156294</TD>
+            <TD>uid://A002/X391d0b/X7b</TD>
+            <TD>uid://A002/X47aefc/X369</TD>
+            <TD>Globular cluster formation: caught in the act</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00217.S</TD>
+            <TD>G0.25+0.02</TD>
+            <TD>266.5495581654565</TD>
+            <TD>-28.714361111111188</TD>
+            <TD>3</TD>
+            <TD>976.5625</TD>
+            <TD>221.141</TD>
+            <TD>2013-09-07</TD>
+            <TD>[86.26..88.14GHz,976.56kHz, XX YY] U [88.15..90.03GHz,976.56kHz, XX YY] U [98.19..100.07GHz,976.56kHz, XX YY] U [100.15..102.03GHz,976.56kHz, XX YY]</TD>
+            <TD>3110.9112850878114</TD>
+            <TD>XX YY</TD>
+            <TD>2012-07-30 23:10:32</TD>
+            <TD>Rathborne, Jill</TD>
+            <TD>1.6638252</TD>
+            <TD>uid://A002/X391d0b/X7b</TD>
+            <TD>uid://A002/X47d651/X15d</TD>
+            <TD>Globular cluster formation: caught in the act</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00217.S</TD>
+            <TD>G0.25+0.02</TD>
+            <TD>266.5495581654565</TD>
+            <TD>-28.714361111111188</TD>
+            <TD>3</TD>
+            <TD>976.5625</TD>
+            <TD>221.235</TD>
+            <TD>2013-09-07</TD>
+            <TD>[86.26..88.14GHz,976.56kHz, XX YY] U [88.15..90.03GHz,976.56kHz, XX YY] U [98.19..100.07GHz,976.56kHz, XX YY] U [100.15..102.03GHz,976.56kHz, XX YY]</TD>
+            <TD>3110.9112850878114</TD>
+            <TD>XX YY</TD>
+            <TD>2012-07-31 00:50:13</TD>
+            <TD>Rathborne, Jill</TD>
+            <TD>1.4304892</TD>
+            <TD>uid://A002/X391d0b/X7b</TD>
+            <TD>uid://A002/X47d651/X2fc</TD>
+            <TD>Globular cluster formation: caught in the act</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00217.S</TD>
+            <TD>G0.25+0.02</TD>
+            <TD>266.5495581654565</TD>
+            <TD>-28.714361111111188</TD>
+            <TD>3</TD>
+            <TD>976.5625</TD>
+            <TD>221.251</TD>
+            <TD>2013-09-07</TD>
+            <TD>[86.26..88.14GHz,976.56kHz, XX YY] U [88.15..90.03GHz,976.56kHz, XX YY] U [98.19..100.07GHz,976.56kHz, XX YY] U [100.15..102.03GHz,976.56kHz, XX YY]</TD>
+            <TD>3110.9112850878114</TD>
+            <TD>XX YY</TD>
+            <TD>2012-07-31 22:42:03</TD>
+            <TD>Rathborne, Jill</TD>
+            <TD>1.9266884</TD>
+            <TD>uid://A002/X391d0b/X7b</TD>
+            <TD>uid://A002/X47ed8e/X6c</TD>
+            <TD>Globular cluster formation: caught in the act</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00217.S</TD>
+            <TD>G0.25+0.02</TD>
+            <TD>266.5495581654566</TD>
+            <TD>-28.704638888888994</TD>
+            <TD>3</TD>
+            <TD>976.5625</TD>
+            <TD>207.284</TD>
+            <TD>2013-09-07</TD>
+            <TD>[86.26..88.14GHz,976.56kHz, XX YY] U [88.15..90.03GHz,976.56kHz, XX YY] U [98.19..100.07GHz,976.56kHz, XX YY] U [100.15..102.03GHz,976.56kHz, XX YY]</TD>
+            <TD>3110.9112850878114</TD>
+            <TD>XX YY</TD>
+            <TD>2012-07-30 02:22:03</TD>
+            <TD>Rathborne, Jill</TD>
+            <TD>1.8548079</TD>
+            <TD>uid://A002/X391d0b/X7b</TD>
+            <TD>uid://A002/X47bd4d/X4c7</TD>
+            <TD>Globular cluster formation: caught in the act</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00217.S</TD>
+            <TD>G0.25+0.02</TD>
+            <TD>266.5495581654566</TD>
+            <TD>-28.704638888888994</TD>
+            <TD>3</TD>
+            <TD>976.5625</TD>
+            <TD>207.357</TD>
+            <TD>2013-09-07</TD>
+            <TD>[86.26..88.14GHz,976.56kHz, XX YY] U [88.15..90.03GHz,976.56kHz, XX YY] U [98.19..100.07GHz,976.56kHz, XX YY] U [100.15..102.03GHz,976.56kHz, XX YY]</TD>
+            <TD>3110.9112850878114</TD>
+            <TD>XX YY</TD>
+            <TD>2012-08-01 04:23:35</TD>
+            <TD>Rathborne, Jill</TD>
+            <TD>1.241152</TD>
+            <TD>uid://A002/X391d0b/X7b</TD>
+            <TD>uid://A002/X47ed8e/X533</TD>
+            <TD>Globular cluster formation: caught in the act</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00217.S</TD>
+            <TD>G0.25+0.02</TD>
+            <TD>266.5495581654566</TD>
+            <TD>-28.704638888888994</TD>
+            <TD>3</TD>
+            <TD>976.5625</TD>
+            <TD>207.909</TD>
+            <TD>2013-09-07</TD>
+            <TD>[86.26..88.14GHz,976.56kHz, XX YY] U [88.15..90.03GHz,976.56kHz, XX YY] U [98.19..100.07GHz,976.56kHz, XX YY] U [100.15..102.03GHz,976.56kHz, XX YY]</TD>
+            <TD>3110.9112850878114</TD>
+            <TD>XX YY</TD>
+            <TD>2012-07-29 02:01:54</TD>
+            <TD>Rathborne, Jill</TD>
+            <TD>2.156294</TD>
+            <TD>uid://A002/X391d0b/X7b</TD>
+            <TD>uid://A002/X47aefc/X369</TD>
+            <TD>Globular cluster formation: caught in the act</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00217.S</TD>
+            <TD>G0.25+0.02</TD>
+            <TD>266.5495581654566</TD>
+            <TD>-28.704638888888994</TD>
+            <TD>3</TD>
+            <TD>976.5625</TD>
+            <TD>221.141</TD>
+            <TD>2013-09-07</TD>
+            <TD>[86.26..88.14GHz,976.56kHz, XX YY] U [88.15..90.03GHz,976.56kHz, XX YY] U [98.19..100.07GHz,976.56kHz, XX YY] U [100.15..102.03GHz,976.56kHz, XX YY]</TD>
+            <TD>3110.9112850878114</TD>
+            <TD>XX YY</TD>
+            <TD>2012-07-30 23:10:32</TD>
+            <TD>Rathborne, Jill</TD>
+            <TD>1.6638252</TD>
+            <TD>uid://A002/X391d0b/X7b</TD>
+            <TD>uid://A002/X47d651/X15d</TD>
+            <TD>Globular cluster formation: caught in the act</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00217.S</TD>
+            <TD>G0.25+0.02</TD>
+            <TD>266.5495581654566</TD>
+            <TD>-28.704638888888994</TD>
+            <TD>3</TD>
+            <TD>976.5625</TD>
+            <TD>221.235</TD>
+            <TD>2013-09-07</TD>
+            <TD>[86.26..88.14GHz,976.56kHz, XX YY] U [88.15..90.03GHz,976.56kHz, XX YY] U [98.19..100.07GHz,976.56kHz, XX YY] U [100.15..102.03GHz,976.56kHz, XX YY]</TD>
+            <TD>3110.9112850878114</TD>
+            <TD>XX YY</TD>
+            <TD>2012-07-31 00:50:13</TD>
+            <TD>Rathborne, Jill</TD>
+            <TD>1.4304892</TD>
+            <TD>uid://A002/X391d0b/X7b</TD>
+            <TD>uid://A002/X47d651/X2fc</TD>
+            <TD>Globular cluster formation: caught in the act</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00217.S</TD>
+            <TD>G0.25+0.02</TD>
+            <TD>266.5495581654566</TD>
+            <TD>-28.704638888888994</TD>
+            <TD>3</TD>
+            <TD>976.5625</TD>
+            <TD>221.251</TD>
+            <TD>2013-09-07</TD>
+            <TD>[86.26..88.14GHz,976.56kHz, XX YY] U [88.15..90.03GHz,976.56kHz, XX YY] U [98.19..100.07GHz,976.56kHz, XX YY] U [100.15..102.03GHz,976.56kHz, XX YY]</TD>
+            <TD>3110.9112850878114</TD>
+            <TD>XX YY</TD>
+            <TD>2012-07-31 22:42:03</TD>
+            <TD>Rathborne, Jill</TD>
+            <TD>1.9266884</TD>
+            <TD>uid://A002/X391d0b/X7b</TD>
+            <TD>uid://A002/X47ed8e/X6c</TD>
+            <TD>Globular cluster formation: caught in the act</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00217.S</TD>
+            <TD>G0.25+0.02</TD>
+            <TD>266.5495581654567</TD>
+            <TD>-28.694916666666778</TD>
+            <TD>3</TD>
+            <TD>976.5625</TD>
+            <TD>207.284</TD>
+            <TD>2013-09-07</TD>
+            <TD>[86.26..88.14GHz,976.56kHz, XX YY] U [88.15..90.03GHz,976.56kHz, XX YY] U [98.19..100.07GHz,976.56kHz, XX YY] U [100.15..102.03GHz,976.56kHz, XX YY]</TD>
+            <TD>3110.9112850878114</TD>
+            <TD>XX YY</TD>
+            <TD>2012-07-30 02:22:03</TD>
+            <TD>Rathborne, Jill</TD>
+            <TD>1.8548079</TD>
+            <TD>uid://A002/X391d0b/X7b</TD>
+            <TD>uid://A002/X47bd4d/X4c7</TD>
+            <TD>Globular cluster formation: caught in the act</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00217.S</TD>
+            <TD>G0.25+0.02</TD>
+            <TD>266.5495581654567</TD>
+            <TD>-28.694916666666778</TD>
+            <TD>3</TD>
+            <TD>976.5625</TD>
+            <TD>207.357</TD>
+            <TD>2013-09-07</TD>
+            <TD>[86.26..88.14GHz,976.56kHz, XX YY] U [88.15..90.03GHz,976.56kHz, XX YY] U [98.19..100.07GHz,976.56kHz, XX YY] U [100.15..102.03GHz,976.56kHz, XX YY]</TD>
+            <TD>3110.9112850878114</TD>
+            <TD>XX YY</TD>
+            <TD>2012-08-01 04:23:35</TD>
+            <TD>Rathborne, Jill</TD>
+            <TD>1.241152</TD>
+            <TD>uid://A002/X391d0b/X7b</TD>
+            <TD>uid://A002/X47ed8e/X533</TD>
+            <TD>Globular cluster formation: caught in the act</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00217.S</TD>
+            <TD>G0.25+0.02</TD>
+            <TD>266.5495581654567</TD>
+            <TD>-28.694916666666778</TD>
+            <TD>3</TD>
+            <TD>976.5625</TD>
+            <TD>207.909</TD>
+            <TD>2013-09-07</TD>
+            <TD>[86.26..88.14GHz,976.56kHz, XX YY] U [88.15..90.03GHz,976.56kHz, XX YY] U [98.19..100.07GHz,976.56kHz, XX YY] U [100.15..102.03GHz,976.56kHz, XX YY]</TD>
+            <TD>3110.9112850878114</TD>
+            <TD>XX YY</TD>
+            <TD>2012-07-29 02:01:54</TD>
+            <TD>Rathborne, Jill</TD>
+            <TD>2.156294</TD>
+            <TD>uid://A002/X391d0b/X7b</TD>
+            <TD>uid://A002/X47aefc/X369</TD>
+            <TD>Globular cluster formation: caught in the act</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00217.S</TD>
+            <TD>G0.25+0.02</TD>
+            <TD>266.5495581654567</TD>
+            <TD>-28.694916666666778</TD>
+            <TD>3</TD>
+            <TD>976.5625</TD>
+            <TD>221.141</TD>
+            <TD>2013-09-07</TD>
+            <TD>[86.26..88.14GHz,976.56kHz, XX YY] U [88.15..90.03GHz,976.56kHz, XX YY] U [98.19..100.07GHz,976.56kHz, XX YY] U [100.15..102.03GHz,976.56kHz, XX YY]</TD>
+            <TD>3110.9112850878114</TD>
+            <TD>XX YY</TD>
+            <TD>2012-07-30 23:10:32</TD>
+            <TD>Rathborne, Jill</TD>
+            <TD>1.6638252</TD>
+            <TD>uid://A002/X391d0b/X7b</TD>
+            <TD>uid://A002/X47d651/X15d</TD>
+            <TD>Globular cluster formation: caught in the act</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00217.S</TD>
+            <TD>G0.25+0.02</TD>
+            <TD>266.5495581654567</TD>
+            <TD>-28.694916666666778</TD>
+            <TD>3</TD>
+            <TD>976.5625</TD>
+            <TD>221.235</TD>
+            <TD>2013-09-07</TD>
+            <TD>[86.26..88.14GHz,976.56kHz, XX YY] U [88.15..90.03GHz,976.56kHz, XX YY] U [98.19..100.07GHz,976.56kHz, XX YY] U [100.15..102.03GHz,976.56kHz, XX YY]</TD>
+            <TD>3110.9112850878114</TD>
+            <TD>XX YY</TD>
+            <TD>2012-07-31 00:50:13</TD>
+            <TD>Rathborne, Jill</TD>
+            <TD>1.4304892</TD>
+            <TD>uid://A002/X391d0b/X7b</TD>
+            <TD>uid://A002/X47d651/X2fc</TD>
+            <TD>Globular cluster formation: caught in the act</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00217.S</TD>
+            <TD>G0.25+0.02</TD>
+            <TD>266.5495581654567</TD>
+            <TD>-28.694916666666778</TD>
+            <TD>3</TD>
+            <TD>976.5625</TD>
+            <TD>221.251</TD>
+            <TD>2013-09-07</TD>
+            <TD>[86.26..88.14GHz,976.56kHz, XX YY] U [88.15..90.03GHz,976.56kHz, XX YY] U [98.19..100.07GHz,976.56kHz, XX YY] U [100.15..102.03GHz,976.56kHz, XX YY]</TD>
+            <TD>3110.9112850878114</TD>
+            <TD>XX YY</TD>
+            <TD>2012-07-31 22:42:03</TD>
+            <TD>Rathborne, Jill</TD>
+            <TD>1.9266884</TD>
+            <TD>uid://A002/X391d0b/X7b</TD>
+            <TD>uid://A002/X47ed8e/X6c</TD>
+            <TD>Globular cluster formation: caught in the act</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00887.S</TD>
+            <TD>Sagittarius A*</TD>
+            <TD>266.41683333333333</TD>
+            <TD>-29.00781055555555</TD>
+            <TD>7</TD>
+            <TD>31250.0</TD>
+            <TD>122.914</TD>
+            <TD>2013-10-01</TD>
+            <TD>[92.00..93.99GHz,31250.00kHz, XX YY] U [93.94..95.92GHz,31250.00kHz, XX YY] U [104.00..105.99GHz,31250.00kHz, XX YY] U [106.00..107.99GHz,31250.00kHz, XX YY] U [244.01..245.99GHz,31250.00kHz, XX YY] U [246.01..247.99GHz,31250.00kHz, XX YY] U [259.51..261.49GHz,31250.00kHz, XX YY] U [261.51..263.49GHz,31250.00kHz, XX YY] U [335.00..336.99GHz,31250.00kHz, XX YY] U [336.94..338.92GHz,31250.00kHz, XX YY] U [347.00..348.99GHz,31250.00kHz, XX YY] U [349.00..350.99GHz,31250.00kHz, XX YY]</TD>
+            <TD>31306.931437092593</TD>
+            <TD>XX YY</TD>
+            <TD>2012-05-18 05:27:42</TD>
+            <TD>Falcke, Heino</TD>
+            <TD>0.5292331</TD>
+            <TD>uid://A002/X391d0b/X23d</TD>
+            <TD>uid://A002/X40d164/X1b3</TD>
+            <TD>Monitoring fast variations of event-horizon scale gas in Sgr A* with frequency switching</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00887.S</TD>
+            <TD>Sagittarius A*</TD>
+            <TD>266.41683333333333</TD>
+            <TD>-29.00781055555555</TD>
+            <TD>7</TD>
+            <TD>31250.0</TD>
+            <TD>122.993</TD>
+            <TD>2013-10-01</TD>
+            <TD>[92.00..93.99GHz,31250.00kHz, XX YY] U [93.94..95.92GHz,31250.00kHz, XX YY] U [104.00..105.99GHz,31250.00kHz, XX YY] U [106.00..107.99GHz,31250.00kHz, XX YY] U [244.01..245.99GHz,31250.00kHz, XX YY] U [246.01..247.99GHz,31250.00kHz, XX YY] U [259.51..261.49GHz,31250.00kHz, XX YY] U [261.51..263.49GHz,31250.00kHz, XX YY] U [335.00..336.99GHz,31250.00kHz, XX YY] U [336.94..338.92GHz,31250.00kHz, XX YY] U [347.00..348.99GHz,31250.00kHz, XX YY] U [349.00..350.99GHz,31250.00kHz, XX YY]</TD>
+            <TD>31306.931437092593</TD>
+            <TD>XX YY</TD>
+            <TD>2012-05-18 03:36:32</TD>
+            <TD>Falcke, Heino</TD>
+            <TD>0.55237585</TD>
+            <TD>uid://A002/X391d0b/X23d</TD>
+            <TD>uid://A002/X40d164/X32</TD>
+            <TD>Monitoring fast variations of event-horizon scale gas in Sgr A* with frequency switching</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00887.S</TD>
+            <TD>Sagittarius A*</TD>
+            <TD>266.41683333333333</TD>
+            <TD>-29.00781055555555</TD>
+            <TD>7</TD>
+            <TD>31250.0</TD>
+            <TD>171.995</TD>
+            <TD>2013-10-01</TD>
+            <TD>[92.00..93.99GHz,31250.00kHz, XX YY] U [93.94..95.92GHz,31250.00kHz, XX YY] U [104.00..105.99GHz,31250.00kHz, XX YY] U [106.00..107.99GHz,31250.00kHz, XX YY] U [244.01..245.99GHz,31250.00kHz, XX YY] U [246.01..247.99GHz,31250.00kHz, XX YY] U [259.51..261.49GHz,31250.00kHz, XX YY] U [261.51..263.49GHz,31250.00kHz, XX YY] U [335.00..336.99GHz,31250.00kHz, XX YY] U [336.94..338.92GHz,31250.00kHz, XX YY] U [347.00..348.99GHz,31250.00kHz, XX YY] U [349.00..350.99GHz,31250.00kHz, XX YY]</TD>
+            <TD>31306.931437092593</TD>
+            <TD>XX YY</TD>
+            <TD>2012-05-18 07:23:38</TD>
+            <TD>Falcke, Heino</TD>
+            <TD>0.4664141</TD>
+            <TD>uid://A002/X391d0b/X23d</TD>
+            <TD>uid://A002/X40d164/X334</TD>
+            <TD>Monitoring fast variations of event-horizon scale gas in Sgr A* with frequency switching</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00887.S</TD>
+            <TD>Sagittarius A*</TD>
+            <TD>266.41683333333333</TD>
+            <TD>-29.00781055555555</TD>
+            <TD>7</TD>
+            <TD>31250.0</TD>
+            <TD>172.029</TD>
+            <TD>2013-10-01</TD>
+            <TD>[92.00..93.99GHz,31250.00kHz, XX YY] U [93.94..95.92GHz,31250.00kHz, XX YY] U [104.00..105.99GHz,31250.00kHz, XX YY] U [106.00..107.99GHz,31250.00kHz, XX YY] U [244.01..245.99GHz,31250.00kHz, XX YY] U [246.01..247.99GHz,31250.00kHz, XX YY] U [259.51..261.49GHz,31250.00kHz, XX YY] U [261.51..263.49GHz,31250.00kHz, XX YY] U [335.00..336.99GHz,31250.00kHz, XX YY] U [336.94..338.92GHz,31250.00kHz, XX YY] U [347.00..348.99GHz,31250.00kHz, XX YY] U [349.00..350.99GHz,31250.00kHz, XX YY]</TD>
+            <TD>31306.931437092593</TD>
+            <TD>XX YY</TD>
+            <TD>2012-05-18 09:13:44</TD>
+            <TD>Falcke, Heino</TD>
+            <TD>0.47862568</TD>
+            <TD>uid://A002/X391d0b/X23d</TD>
+            <TD>uid://A002/X40d164/X4b5</TD>
+            <TD>Monitoring fast variations of event-horizon scale gas in Sgr A* with frequency switching</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00017.S</TD>
+            <TD>SgrB2-N</TD>
+            <TD>266.8327916666667</TD>
+            <TD>-28.371111111111112</TD>
+            <TD>3</TD>
+            <TD>488.28125</TD>
+            <TD>304.884</TD>
+            <TD>2014-09-12</TD>
+            <TD>[95.02..96.90GHz,488.28kHz, XX] U [96.85..98.72GHz,488.28kHz, XX] U [107.02..108.89GHz,488.28kHz, XX] U [108.84..110.72GHz,488.28kHz, XX]</TD>
+            <TD>1422.9831324665756</TD>
+            <TD>XX</TD>
+            <TD>2012-07-04 05:37:48</TD>
+            <TD>Belloche, Arnaud</TD>
+            <TD>2.033288</TD>
+            <TD>uid://A002/X327408/X14</TD>
+            <TD>uid://A002/X44ddb2/X64a</TD>
+            <TD>Expanding the frontiers of chemical complexity with ALMA</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00017.S</TD>
+            <TD>SgrB2-N</TD>
+            <TD>266.8327916666667</TD>
+            <TD>-28.371111111111112</TD>
+            <TD>3</TD>
+            <TD>488.28125</TD>
+            <TD>376.071</TD>
+            <TD>2014-09-12</TD>
+            <TD>[87.72..89.60GHz,488.28kHz, XX] U [89.55..91.42GHz,488.28kHz, XX] U [99.72..101.60GHz,488.28kHz, XX] U [101.55..103.42GHz,488.28kHz, XX]</TD>
+            <TD>1531.6503853223319</TD>
+            <TD>XX</TD>
+            <TD>2012-06-05 09:03:02</TD>
+            <TD>Belloche, Arnaud</TD>
+            <TD>0.66231287</TD>
+            <TD>uid://A002/X327408/X10</TD>
+            <TD>uid://A002/X41f8d2/X8e0</TD>
+            <TD>Expanding the frontiers of chemical complexity with ALMA</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00017.S</TD>
+            <TD>SgrB2-N</TD>
+            <TD>266.8327916666667</TD>
+            <TD>-28.371111111111112</TD>
+            <TD>3</TD>
+            <TD>488.28125</TD>
+            <TD>547.711</TD>
+            <TD>2014-09-12</TD>
+            <TD>[95.02..96.90GHz,488.28kHz, XX] U [96.85..98.72GHz,488.28kHz, XX] U [107.02..108.89GHz,488.28kHz, XX] U [108.84..110.72GHz,488.28kHz, XX]</TD>
+            <TD>1422.9831324665756</TD>
+            <TD>XX</TD>
+            <TD>2012-08-01 02:31:53</TD>
+            <TD>Belloche, Arnaud</TD>
+            <TD>1.3851253</TD>
+            <TD>uid://A002/X327408/X14</TD>
+            <TD>uid://A002/X47ed8e/X3cd</TD>
+            <TD>Expanding the frontiers of chemical complexity with ALMA</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00017.S</TD>
+            <TD>SgrB2-N</TD>
+            <TD>266.8327916666667</TD>
+            <TD>-28.371111111111112</TD>
+            <TD>3</TD>
+            <TD>488.28125</TD>
+            <TD>550.179</TD>
+            <TD>2014-09-12</TD>
+            <TD>[95.02..96.90GHz,488.28kHz, XX] U [96.85..98.72GHz,488.28kHz, XX] U [107.02..108.89GHz,488.28kHz, XX] U [108.84..110.72GHz,488.28kHz, XX]</TD>
+            <TD>1422.9831324665756</TD>
+            <TD>XX</TD>
+            <TD>2012-08-10 00:45:31</TD>
+            <TD>Belloche, Arnaud</TD>
+            <TD>1.7215753</TD>
+            <TD>uid://A002/X327408/X14</TD>
+            <TD>uid://A002/X494155/X23a</TD>
+            <TD>Expanding the frontiers of chemical complexity with ALMA</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00017.S</TD>
+            <TD>SgrB2-N</TD>
+            <TD>266.8327916666667</TD>
+            <TD>-28.371111111111112</TD>
+            <TD>3</TD>
+            <TD>488.28125</TD>
+            <TD>619.888</TD>
+            <TD>2014-09-12</TD>
+            <TD>[87.72..89.60GHz,488.28kHz, XX] U [89.55..91.42GHz,488.28kHz, XX] U [99.72..101.60GHz,488.28kHz, XX] U [101.55..103.42GHz,488.28kHz, XX]</TD>
+            <TD>1531.6503853223319</TD>
+            <TD>XX</TD>
+            <TD>2012-07-01 07:03:55</TD>
+            <TD>Belloche, Arnaud</TD>
+            <TD>0.47709116</TD>
+            <TD>uid://A002/X327408/X10</TD>
+            <TD>uid://A002/X449249/Xde</TD>
+            <TD>Expanding the frontiers of chemical complexity with ALMA</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00017.S</TD>
+            <TD>SgrB2-N</TD>
+            <TD>266.8327916666667</TD>
+            <TD>-28.371111111111112</TD>
+            <TD>3</TD>
+            <TD>488.28125</TD>
+            <TD>624.856</TD>
+            <TD>2014-09-12</TD>
+            <TD>[91.37..93.25GHz,488.28kHz, XX] U [93.20..95.07GHz,488.28kHz, XX] U [103.37..105.25GHz,488.28kHz, XX] U [105.19..107.07GHz,488.28kHz, XX]</TD>
+            <TD>1475.318444759702</TD>
+            <TD>XX</TD>
+            <TD>2012-06-06 08:20:02</TD>
+            <TD>Belloche, Arnaud</TD>
+            <TD>0.5246304</TD>
+            <TD>uid://A002/X327408/X12</TD>
+            <TD>uid://A002/X4210d0/X815</TD>
+            <TD>Expanding the frontiers of chemical complexity with ALMA</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00017.S</TD>
+            <TD>SgrB2-N</TD>
+            <TD>266.8327916666667</TD>
+            <TD>-28.371111111111112</TD>
+            <TD>3</TD>
+            <TD>488.28125</TD>
+            <TD>629.652</TD>
+            <TD>2014-09-12</TD>
+            <TD>[91.37..93.25GHz,488.28kHz, XX] U [93.20..95.07GHz,488.28kHz, XX] U [103.37..105.25GHz,488.28kHz, XX] U [105.19..107.07GHz,488.28kHz, XX]</TD>
+            <TD>1475.318444759702</TD>
+            <TD>XX</TD>
+            <TD>2012-06-18 07:29:08</TD>
+            <TD>Belloche, Arnaud</TD>
+            <TD>1.1841874</TD>
+            <TD>uid://A002/X327408/X12</TD>
+            <TD>uid://A002/X436934/X28</TD>
+            <TD>Expanding the frontiers of chemical complexity with ALMA</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00017.S</TD>
+            <TD>SgrB2-N</TD>
+            <TD>266.8327916666667</TD>
+            <TD>-28.371111111111112</TD>
+            <TD>3</TD>
+            <TD>488.28125</TD>
+            <TD>753.61</TD>
+            <TD>2014-09-12</TD>
+            <TD>[87.72..89.60GHz,488.28kHz, XX] U [89.55..91.42GHz,488.28kHz, XX] U [99.72..101.60GHz,488.28kHz, XX] U [101.55..103.42GHz,488.28kHz, XX]</TD>
+            <TD>1531.6503853223319</TD>
+            <TD>XX</TD>
+            <TD>2012-07-03 06:36:37</TD>
+            <TD>Belloche, Arnaud</TD>
+            <TD>1.5690569</TD>
+            <TD>uid://A002/X327408/X10</TD>
+            <TD>uid://A002/X44c3c1/X6cc</TD>
+            <TD>Expanding the frontiers of chemical complexity with ALMA</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2011.0.00017.S</TD>
+            <TD>SgrB2-N</TD>
+            <TD>266.8327916666667</TD>
+            <TD>-28.371111111111112</TD>
+            <TD>3</TD>
+            <TD>488.28125</TD>
+            <TD>855.724</TD>
+            <TD>2014-09-12</TD>
+            <TD>[84.09..85.96GHz,488.28kHz, XX] U [85.90..87.77GHz,488.28kHz, XX] U [96.15..98.02GHz,488.28kHz, XX] U [97.90..99.77GHz,488.28kHz, XX]</TD>
+            <TD>1591.7887038699191</TD>
+            <TD>XX</TD>
+            <TD>2012-08-27 01:05:09</TD>
+            <TD>Belloche, Arnaud</TD>
+            <TD>2.884989</TD>
+            <TD>uid://A002/X327408/Xe</TD>
+            <TD>uid://A002/X4b29af/X403</TD>
+            <TD>Expanding the frontiers of chemical complexity with ALMA</TD>
+            <TD>S</TD>
+            <TD>TARGET</TD>
+          </TR>
+          <TR>
+            <TD>2012.1.00635.S</TD>
+            <TD>SgrA_star</TD>
+            <TD>266.41683708333335</TD>
+            <TD>-29.00781055555555</TD>
+            <TD>7</TD>
+            <TD>31250.0</TD>
+            <TD>163.413</TD>
+            <TD>2015-03-17</TD>
+            <TD>[215.04..217.02GHz,31250.00kHz, XX YY] U [217.04..219.02GHz,31250.00kHz, XX YY] U [230.99..232.86GHz,976.56kHz, XX YY] U [232.81..234.79GHz,31250.00kHz, XX YY] U [338.67..340.65GHz,31250.00kHz, XX YY] U [340.65..342.64GHz,31250.00kHz, XX YY] U [350.78..352.76GHz,31250.00kHz, XX YY] U [352.71..354.58GHz,976.56kHz, XX YY]</TD>
+            <TD>1258.2550228901337</TD>
+            <TD>XX YY</TD>
+            <TD>2014-02-22 08:59:36</TD>
+            <TD>Bower, Geoffrey</TD>
+            <TD>0.6818975</TD>
+            <TD>uid://A002/X79f8ed/X3f</TD>
+            <TD>uid://A002/X7b13df/Xf8a</TD>
+            <TD>The G2 Gas Cloud Encounter with Sagittarius A*: Accretion Structure on Scales of 3000 to 1 Schwarzschild Radii</TD>
+            <TD>S</TD>
+            <TD>TARGET WVR</TD>
+          </TR>
+        </TABLEDATA>
+      </DATA>
+    </TABLE>
+    <INFO name="QUERY_STATUS" value="OK" />
+  </RESOURCE>
+</VOTABLE>

@@ -1,31 +1,24 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 """
-
-core.py
-
 Author: Jordan Mirocha
 Affiliation: University of Colorado at Boulder
 Created on: Fri May  3 09:45:13 2013
-
-Description:
-
 """
 
 from __future__ import print_function
 import requests
 import numpy as np
 import numpy.ma as ma
-from ..utils import commons
-
 from astropy import units as u
+from astropy import coordinates as coord
+from ..utils import commons, prepend_docstr_nosections
 from ..query import BaseQuery
 
-from ..utils.docstr_chompers import prepend_docstr_noreturns
-
-__all__ = ['Alfalfa','AlfalfaClass']
+__all__ = ['Alfalfa', 'AlfalfaClass']
 
 # have to skip because it tries to use the internet, which is not allowed
-__doctest_skip__ = ['AlfalfaClass.query_region','Alfalfa.query_region']
+__doctest_skip__ = ['AlfalfaClass.query_region', 'Alfalfa.query_region']
+
 
 class AlfalfaClass(BaseQuery):
 
@@ -45,10 +38,10 @@ class AlfalfaClass(BaseQuery):
 
         Returns
         -------
-        Dictionary of results, each element is a masked array.
+        result : Dictionary of results, each element is a masked array.
         """
 
-        if hasattr(self,'ALFALFACAT'):
+        if hasattr(self, 'ALFALFACAT'):
             return self.ALFALFACAT
 
         result = requests.get(self.CATALOG_PREFIX)
@@ -82,8 +75,12 @@ class AlfalfaClass(BaseQuery):
 
         # Mask out blank elements
         for col in cols:
-            mask = np.zeros(len(catalog[col]))
-            mask[np.array(catalog[col]) == self.PLACEHOLDER] = 1
+            mask = np.zeros(len(catalog[col]), dtype='bool')
+            # need to turn list -> array for boolean comparison
+            colArr = np.array(catalog[col])
+            # placeholder must share Type with the array
+            ph = np.array(self.PLACEHOLDER, dtype=colArr.dtype)
+            mask[colArr == ph] = True
             catalog[col] = ma.array(catalog[col], mask=mask)
 
         # Make this globally available so we don't have to re-download it
@@ -102,17 +99,19 @@ class AlfalfaClass(BaseQuery):
         Parameters
         ----------
         coordinates : str or `astropy.coordinates` object
-            The target around which to search. It may be specified as a string
-            in which case it is resolved using online services or as the appropriate
-            `astropy.coordinates` object. ICRS coordinates may also be entered as strings
-            as specified in the `astropy.coordinates` module.
-        radius : str or `astropy.units.Quantity` object, optional
-            The string must be parsable by `astropy.coordinates.Angle`. The appropriate
-            `Quantity` object from `astropy.units` may also be used. Defaults to 3 arcmin.
+            The target around which to search. It may be specified as a
+            string in which case it is resolved using online services or as
+            the appropriate `astropy.coordinates` object. ICRS coordinates
+            may also be entered as strings as specified in the
+            `astropy.coordinates` module.
+        radius : str or `~astropy.units.Quantity` object, optional
+            The string must be parsable by `astropy.coordinates.Angle`. The
+            appropriate `~astropy.units.Quantity` object from
+            `astropy.units` may also be used. Defaults to 3 arcmin.
         optical_counterpart : bool
             Search for position match using radio positions or position of
-            any optical counterpart identified by ALFALFA team? Keep in mind that
-            the ALFA beam size is about 3x3 arcminutes.
+            any optical counterpart identified by ALFALFA team? Keep in mind
+            that the ALFA beam size is about 3x3 arcminutes.
 
         See documentation for astropy.coordinates.angles for more information
         about ('ra', 'dec', 'unit') parameters.
@@ -121,12 +120,12 @@ class AlfalfaClass(BaseQuery):
         --------
         >>> from astroquery.alfalfa import Alfalfa
         >>> from astropy import coordinates as coords
-        >>> C = coords.ICRSCoordinates('0h8m05.63s +14d50m23.3s')
+        >>> C = coords.SkyCoord('0h8m05.63s +14d50m23.3s')
         >>> agc = Alfalfa.query_region(C,'3 arcmin')
 
         Returns
         -------
-        AGC number for object nearest supplied position.
+        result : AGC number for object nearest supplied position.
 
         """
 
@@ -134,7 +133,7 @@ class AlfalfaClass(BaseQuery):
 
         ra = coordinates.ra.degree
         dec = coordinates.dec.degree
-        dr = commons.radius_to_unit(radius,'degree')
+        dr = coord.Angle(radius).deg
 
         cat = self.get_catalog()
 
@@ -149,7 +148,7 @@ class AlfalfaClass(BaseQuery):
         dra = np.abs(ra_ref - ra) \
             * np.cos(dec * np.pi / 180.)
         ddec = np.abs(dec_ref - dec)
-        sep = np.sqrt(dra**2 + ddec**2)
+        sep = np.sqrt(dra ** 2 + ddec ** 2)
 
         i_minsep = np.argmin(sep)
         minsep = sep[i_minsep]
@@ -160,7 +159,7 @@ class AlfalfaClass(BaseQuery):
         else:
             return None
 
-    def get_spectrum_async(self, agc):
+    def get_spectrum_async(self, agc, show_progress=True):
         """
         Download spectrum from ALFALFA catalogue.
 
@@ -173,32 +172,35 @@ class AlfalfaClass(BaseQuery):
 
         Returns
         -------
-        A file context manager
+        result : A file context manager
 
         See Also
         --------
         get_catalog : method that downloads ALFALFA catalog
-        crossID : find object in catalog closest to supplied position (use this
-            to determine AGC number first)
+        query_region : find object in catalog closest to supplied
+            position (use this to determine AGC number first)
 
         """
 
         agc = str(agc).zfill(6)
 
         link = "%s/A%s.fits" % (self.FITS_PREFIX, agc)
-        result = commons.FileContainer(link)
+        result = commons.FileContainer(link, show_progress=show_progress)
         return result
 
-    @prepend_docstr_noreturns(get_spectrum_async.__doc__)
-    def get_spectrum(self, agc):
+    @prepend_docstr_nosections(get_spectrum_async.__doc__)
+    def get_spectrum(self, agc, show_progress=True):
         """
         Returns
         -------
-        PyFITS HDUList. Spectrum is in hdulist[0].data[0][2]
+        spectrum : `~astropy.io.fits.HDUList`
+            Spectrum is in ``hdulist[0].data[0][2]``
+
         """
 
-        result = self.get_spectrum_async(agc)
+        result = self.get_spectrum_async(agc, show_progress=show_progress)
         hdulist = result.get_fits()
         return hdulist
+
 
 Alfalfa = AlfalfaClass()

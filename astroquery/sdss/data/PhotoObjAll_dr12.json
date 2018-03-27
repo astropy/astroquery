@@ -1,0 +1,4588 @@
+[
+  {
+    "TableName": "Table1",
+    "Rows": [
+      {
+        "enum": "",
+        "name": "objID",
+        "type": "bigint",
+        "length": 8,
+        "unit": "",
+        "ucd": "",
+        "description": "Unique SDSS identifier composed from [skyVersion,rerun,run,camcol,field,obj]."
+      },
+      {
+        "enum": "",
+        "name": "skyVersion",
+        "type": "tinyint",
+        "length": 1,
+        "unit": "",
+        "ucd": "",
+        "description": "Layer of catalog (currently only one layer, 0; 0-15 available)"
+      },
+      {
+        "enum": "",
+        "name": "run",
+        "type": "smallint",
+        "length": 2,
+        "unit": "",
+        "ucd": "",
+        "description": "Run number"
+      },
+      {
+        "enum": "",
+        "name": "rerun",
+        "type": "smallint",
+        "length": 2,
+        "unit": "",
+        "ucd": "",
+        "description": "Rerun number"
+      },
+      {
+        "enum": "",
+        "name": "camcol",
+        "type": "tinyint",
+        "length": 1,
+        "unit": "",
+        "ucd": "",
+        "description": "Camera column"
+      },
+      {
+        "enum": "",
+        "name": "field",
+        "type": "smallint",
+        "length": 2,
+        "unit": "",
+        "ucd": "",
+        "description": "Field number"
+      },
+      {
+        "enum": "",
+        "name": "obj",
+        "type": "smallint",
+        "length": 2,
+        "unit": "",
+        "ucd": "",
+        "description": "The object id within a field. Usually changes between reruns of the same field"
+      },
+      {
+        "enum": "PhotoMode",
+        "name": "mode",
+        "type": "tinyint",
+        "length": 1,
+        "unit": "",
+        "ucd": "",
+        "description": "1: primary, 2: secondary, 3: other"
+      },
+      {
+        "enum": "",
+        "name": "nChild",
+        "type": "smallint",
+        "length": 2,
+        "unit": "",
+        "ucd": "",
+        "description": "Number of children if this is a composite object that has been deblended. BRIGHT (in a flags sense) objects also have nchild == 1, the non-BRIGHT sibling."
+      },
+      {
+        "enum": "PhotoType",
+        "name": "type",
+        "type": "smallint",
+        "length": 2,
+        "unit": "",
+        "ucd": "",
+        "description": "Type classification of the object (star, galaxy, cosmic ray, etc.)"
+      },
+      {
+        "enum": "",
+        "name": "clean",
+        "type": "int",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Clean photometry flag (1=clean, 0=unclean)."
+      },
+      {
+        "enum": "",
+        "name": "probPSF",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Probability that the object is a star. Currently 0 if type == 3 (galaxy), 1 if type == 6 (star)."
+      },
+      {
+        "enum": "InsideMask",
+        "name": "insideMask",
+        "type": "tinyint",
+        "length": 1,
+        "unit": "",
+        "ucd": "",
+        "description": "Flag to indicate whether object is inside a mask and why"
+      },
+      {
+        "enum": "PhotoFlags",
+        "name": "flags",
+        "type": "bigint",
+        "length": 8,
+        "unit": "",
+        "ucd": "",
+        "description": "Photo Object Attribute Flags"
+      },
+      {
+        "enum": "",
+        "name": "rowc",
+        "type": "real",
+        "length": 4,
+        "unit": "pix",
+        "ucd": "",
+        "description": "Row center position (r-band coordinates)"
+      },
+      {
+        "enum": "",
+        "name": "rowcErr",
+        "type": "real",
+        "length": 4,
+        "unit": "pix",
+        "ucd": "",
+        "description": "Row center position error (r-band coordinates)"
+      },
+      {
+        "enum": "",
+        "name": "colc",
+        "type": "real",
+        "length": 4,
+        "unit": "pix",
+        "ucd": "",
+        "description": "Column center position (r-band coordinates)"
+      },
+      {
+        "enum": "",
+        "name": "colcErr",
+        "type": "real",
+        "length": 4,
+        "unit": "pix",
+        "ucd": "",
+        "description": "Column center position error (r-band coordinates)"
+      },
+      {
+        "enum": "",
+        "name": "rowv",
+        "type": "real",
+        "length": 4,
+        "unit": "deg/day",
+        "ucd": "",
+        "description": "Row-component of object's velocity"
+      },
+      {
+        "enum": "",
+        "name": "rowvErr",
+        "type": "real",
+        "length": 4,
+        "unit": "deg/day",
+        "ucd": "",
+        "description": "Row-component of object's velocity error"
+      },
+      {
+        "enum": "",
+        "name": "colv",
+        "type": "real",
+        "length": 4,
+        "unit": "deg/day",
+        "ucd": "",
+        "description": "Column-component of object's velocity"
+      },
+      {
+        "enum": "",
+        "name": "colvErr",
+        "type": "real",
+        "length": 4,
+        "unit": "deg/day",
+        "ucd": "",
+        "description": "Column-component of object's velocity error"
+      },
+      {
+        "enum": "",
+        "name": "rowc_u",
+        "type": "real",
+        "length": 4,
+        "unit": "pix",
+        "ucd": "",
+        "description": "Row center, u-band"
+      },
+      {
+        "enum": "",
+        "name": "rowc_g",
+        "type": "real",
+        "length": 4,
+        "unit": "pix",
+        "ucd": "",
+        "description": "Row center, g-band"
+      },
+      {
+        "enum": "",
+        "name": "rowc_r",
+        "type": "real",
+        "length": 4,
+        "unit": "pix",
+        "ucd": "",
+        "description": "Row center, r-band"
+      },
+      {
+        "enum": "",
+        "name": "rowc_i",
+        "type": "real",
+        "length": 4,
+        "unit": "pix",
+        "ucd": "",
+        "description": "Row center, i-band"
+      },
+      {
+        "enum": "",
+        "name": "rowc_z",
+        "type": "real",
+        "length": 4,
+        "unit": "pix",
+        "ucd": "",
+        "description": "Row center, z-band"
+      },
+      {
+        "enum": "",
+        "name": "rowcErr_u",
+        "type": "real",
+        "length": 4,
+        "unit": "pix",
+        "ucd": "",
+        "description": "ERROR Row center error, u-band"
+      },
+      {
+        "enum": "",
+        "name": "rowcErr_g",
+        "type": "real",
+        "length": 4,
+        "unit": "pix",
+        "ucd": "",
+        "description": "ERROR Row center error, g-band"
+      },
+      {
+        "enum": "",
+        "name": "rowcErr_r",
+        "type": "real",
+        "length": 4,
+        "unit": "pix",
+        "ucd": "",
+        "description": "ERROR Row center error, r-band"
+      },
+      {
+        "enum": "",
+        "name": "rowcErr_i",
+        "type": "real",
+        "length": 4,
+        "unit": "pix",
+        "ucd": "",
+        "description": "ERROR Row center error, i-band"
+      },
+      {
+        "enum": "",
+        "name": "rowcErr_z",
+        "type": "real",
+        "length": 4,
+        "unit": "pix",
+        "ucd": "",
+        "description": "ERROR Row center error, z-band"
+      },
+      {
+        "enum": "",
+        "name": "colc_u",
+        "type": "real",
+        "length": 4,
+        "unit": "pix",
+        "ucd": "",
+        "description": "Column center, u-band"
+      },
+      {
+        "enum": "",
+        "name": "colc_g",
+        "type": "real",
+        "length": 4,
+        "unit": "pix",
+        "ucd": "",
+        "description": "Column center, g-band"
+      },
+      {
+        "enum": "",
+        "name": "colc_r",
+        "type": "real",
+        "length": 4,
+        "unit": "pix",
+        "ucd": "",
+        "description": "Column center, r-band"
+      },
+      {
+        "enum": "",
+        "name": "colc_i",
+        "type": "real",
+        "length": 4,
+        "unit": "pix",
+        "ucd": "",
+        "description": "Column center, i-band"
+      },
+      {
+        "enum": "",
+        "name": "colc_z",
+        "type": "real",
+        "length": 4,
+        "unit": "pix",
+        "ucd": "",
+        "description": "Column center, z-band"
+      },
+      {
+        "enum": "",
+        "name": "colcErr_u",
+        "type": "real",
+        "length": 4,
+        "unit": "pix",
+        "ucd": "",
+        "description": "Column center error, u-band"
+      },
+      {
+        "enum": "",
+        "name": "colcErr_g",
+        "type": "real",
+        "length": 4,
+        "unit": "pix",
+        "ucd": "",
+        "description": "Column center error, g-band"
+      },
+      {
+        "enum": "",
+        "name": "colcErr_r",
+        "type": "real",
+        "length": 4,
+        "unit": "pix",
+        "ucd": "",
+        "description": "Column center error, r-band"
+      },
+      {
+        "enum": "",
+        "name": "colcErr_i",
+        "type": "real",
+        "length": 4,
+        "unit": "pix",
+        "ucd": "",
+        "description": "Column center error, i-band"
+      },
+      {
+        "enum": "",
+        "name": "colcErr_z",
+        "type": "real",
+        "length": 4,
+        "unit": "pix",
+        "ucd": "",
+        "description": "Column center error, z-band"
+      },
+      {
+        "enum": "",
+        "name": "sky_u",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies/arcsec^2",
+        "ucd": "",
+        "description": "Sky flux at the center of object (allowing for siblings if blended)."
+      },
+      {
+        "enum": "",
+        "name": "sky_g",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies/arcsec^2",
+        "ucd": "",
+        "description": "Sky flux at the center of object (allowing for siblings if blended)."
+      },
+      {
+        "enum": "",
+        "name": "sky_r",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies/arcsec^2",
+        "ucd": "",
+        "description": "Sky flux at the center of object (allowing for siblings if blended)."
+      },
+      {
+        "enum": "",
+        "name": "sky_i",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies/arcsec^2",
+        "ucd": "",
+        "description": "Sky flux at the center of object (allowing for siblings if blended)."
+      },
+      {
+        "enum": "",
+        "name": "sky_z",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies/arcsec^2",
+        "ucd": "",
+        "description": "Sky flux at the center of object (allowing for siblings if blended)."
+      },
+      {
+        "enum": "",
+        "name": "skyIvar_u",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies/arcsec^2",
+        "ucd": "",
+        "description": "Sky flux inverse variance"
+      },
+      {
+        "enum": "",
+        "name": "skyIvar_g",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies/arcsec^2",
+        "ucd": "",
+        "description": "Sky flux inverse variance"
+      },
+      {
+        "enum": "",
+        "name": "skyIvar_r",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies/arcsec^2",
+        "ucd": "",
+        "description": "Sky flux inverse variance"
+      },
+      {
+        "enum": "",
+        "name": "skyIvar_i",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies/arcsec^2",
+        "ucd": "",
+        "description": "Sky flux inverse variance"
+      },
+      {
+        "enum": "",
+        "name": "skyIvar_z",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies/arcsec^2",
+        "ucd": "",
+        "description": "Sky flux inverse variance"
+      },
+      {
+        "enum": "",
+        "name": "psfMag_u",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "PSF magnitude"
+      },
+      {
+        "enum": "",
+        "name": "psfMag_g",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "PSF magnitude"
+      },
+      {
+        "enum": "",
+        "name": "psfMag_r",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "PSF magnitude"
+      },
+      {
+        "enum": "",
+        "name": "psfMag_i",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "PSF magnitude"
+      },
+      {
+        "enum": "",
+        "name": "psfMag_z",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "PSF magnitude"
+      },
+      {
+        "enum": "",
+        "name": "psfMagErr_u",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "PSF magnitude error"
+      },
+      {
+        "enum": "",
+        "name": "psfMagErr_g",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "PSF magnitude error"
+      },
+      {
+        "enum": "",
+        "name": "psfMagErr_r",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "PSF magnitude error"
+      },
+      {
+        "enum": "",
+        "name": "psfMagErr_i",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "PSF magnitude error"
+      },
+      {
+        "enum": "",
+        "name": "psfMagErr_z",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "PSF magnitude error"
+      },
+      {
+        "enum": "",
+        "name": "fiberMag_u",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "Magnitude in 3 arcsec diameter fiber radius"
+      },
+      {
+        "enum": "",
+        "name": "fiberMag_g",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "Magnitude in 3 arcsec diameter fiber radius"
+      },
+      {
+        "enum": "",
+        "name": "fiberMag_r",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "Magnitude in 3 arcsec diameter fiber radius"
+      },
+      {
+        "enum": "",
+        "name": "fiberMag_i",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "Magnitude in 3 arcsec diameter fiber radius"
+      },
+      {
+        "enum": "",
+        "name": "fiberMag_z",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "Magnitude in 3 arcsec diameter fiber radius"
+      },
+      {
+        "enum": "",
+        "name": "fiberMagErr_u",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "Error in magnitude in 3 arcsec diameter fiber radius"
+      },
+      {
+        "enum": "",
+        "name": "fiberMagErr_g",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "Error in magnitude in 3 arcsec diameter fiber radius"
+      },
+      {
+        "enum": "",
+        "name": "fiberMagErr_r",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "Error in magnitude in 3 arcsec diameter fiber radius"
+      },
+      {
+        "enum": "",
+        "name": "fiberMagErr_i",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "Error in magnitude in 3 arcsec diameter fiber radius"
+      },
+      {
+        "enum": "",
+        "name": "fiberMagErr_z",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "Error in magnitude in 3 arcsec diameter fiber radius"
+      },
+      {
+        "enum": "",
+        "name": "fiber2Mag_u",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "Magnitude in 2 arcsec diameter fiber radius"
+      },
+      {
+        "enum": "",
+        "name": "fiber2Mag_g",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "Magnitude in 2 arcsec diameter fiber radius"
+      },
+      {
+        "enum": "",
+        "name": "fiber2Mag_r",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "Magnitude in 2 arcsec diameter fiber radius"
+      },
+      {
+        "enum": "",
+        "name": "fiber2Mag_i",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "Magnitude in 2 arcsec diameter fiber radius"
+      },
+      {
+        "enum": "",
+        "name": "fiber2Mag_z",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "Magnitude in 2 arcsec diameter fiber radius"
+      },
+      {
+        "enum": "",
+        "name": "fiber2MagErr_u",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "Error in magnitude in 2 arcsec diameter fiber radius"
+      },
+      {
+        "enum": "",
+        "name": "fiber2MagErr_g",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "Error in magnitude in 2 arcsec diameter fiber radius"
+      },
+      {
+        "enum": "",
+        "name": "fiber2MagErr_r",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "Error in magnitude in 2 arcsec diameter fiber radius"
+      },
+      {
+        "enum": "",
+        "name": "fiber2MagErr_i",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "Error in magnitude in 2 arcsec diameter fiber radius"
+      },
+      {
+        "enum": "",
+        "name": "fiber2MagErr_z",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "Error in magnitude in 2 arcsec diameter fiber radius"
+      },
+      {
+        "enum": "",
+        "name": "petroMag_u",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "Petrosian magnitude"
+      },
+      {
+        "enum": "",
+        "name": "petroMag_g",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "Petrosian magnitude"
+      },
+      {
+        "enum": "",
+        "name": "petroMag_r",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "Petrosian magnitude"
+      },
+      {
+        "enum": "",
+        "name": "petroMag_i",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "Petrosian magnitude"
+      },
+      {
+        "enum": "",
+        "name": "petroMag_z",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "Petrosian magnitude"
+      },
+      {
+        "enum": "",
+        "name": "petroMagErr_u",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "Petrosian magnitude error"
+      },
+      {
+        "enum": "",
+        "name": "petroMagErr_g",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "Petrosian magnitude error"
+      },
+      {
+        "enum": "",
+        "name": "petroMagErr_r",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "Petrosian magnitude error"
+      },
+      {
+        "enum": "",
+        "name": "petroMagErr_i",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "Petrosian magnitude error"
+      },
+      {
+        "enum": "",
+        "name": "petroMagErr_z",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "Petrosian magnitude error"
+      },
+      {
+        "enum": "",
+        "name": "psfFlux_u",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies",
+        "ucd": "",
+        "description": "PSF flux"
+      },
+      {
+        "enum": "",
+        "name": "psfFlux_g",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies",
+        "ucd": "",
+        "description": "PSF flux"
+      },
+      {
+        "enum": "",
+        "name": "psfFlux_r",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies",
+        "ucd": "",
+        "description": "PSF flux"
+      },
+      {
+        "enum": "",
+        "name": "psfFlux_i",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies",
+        "ucd": "",
+        "description": "PSF flux"
+      },
+      {
+        "enum": "",
+        "name": "psfFlux_z",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies",
+        "ucd": "",
+        "description": "PSF flux"
+      },
+      {
+        "enum": "",
+        "name": "psfFluxIvar_u",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies^{-2}",
+        "ucd": "",
+        "description": "PSF flux inverse variance"
+      },
+      {
+        "enum": "",
+        "name": "psfFluxIvar_g",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies^{-2}",
+        "ucd": "",
+        "description": "PSF flux inverse variance"
+      },
+      {
+        "enum": "",
+        "name": "psfFluxIvar_r",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies^{-2}",
+        "ucd": "",
+        "description": "PSF flux inverse variance"
+      },
+      {
+        "enum": "",
+        "name": "psfFluxIvar_i",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies^{-2}",
+        "ucd": "",
+        "description": "PSF flux inverse variance"
+      },
+      {
+        "enum": "",
+        "name": "psfFluxIvar_z",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies^{-2}",
+        "ucd": "",
+        "description": "PSF flux inverse variance"
+      },
+      {
+        "enum": "",
+        "name": "fiberFlux_u",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies",
+        "ucd": "",
+        "description": "Flux in 3 arcsec diameter fiber radius"
+      },
+      {
+        "enum": "",
+        "name": "fiberFlux_g",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies",
+        "ucd": "",
+        "description": "Flux in 3 arcsec diameter fiber radius"
+      },
+      {
+        "enum": "",
+        "name": "fiberFlux_r",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies",
+        "ucd": "",
+        "description": "Flux in 3 arcsec diameter fiber radius"
+      },
+      {
+        "enum": "",
+        "name": "fiberFlux_i",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies",
+        "ucd": "",
+        "description": "Flux in 3 arcsec diameter fiber radius"
+      },
+      {
+        "enum": "",
+        "name": "fiberFlux_z",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies",
+        "ucd": "",
+        "description": "Flux in 3 arcsec diameter fiber radius"
+      },
+      {
+        "enum": "",
+        "name": "fiberFluxIvar_u",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies^{-2}",
+        "ucd": "",
+        "description": "Inverse variance in flux in 3 arcsec diameter fiber radius"
+      },
+      {
+        "enum": "",
+        "name": "fiberFluxIvar_g",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies^{-2}",
+        "ucd": "",
+        "description": "Inverse variance in flux in 3 arcsec diameter fiber radius"
+      },
+      {
+        "enum": "",
+        "name": "fiberFluxIvar_r",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies^{-2}",
+        "ucd": "",
+        "description": "Inverse variance in flux in 3 arcsec diameter fiber radius"
+      },
+      {
+        "enum": "",
+        "name": "fiberFluxIvar_i",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies^{-2}",
+        "ucd": "",
+        "description": "Inverse variance in flux in 3 arcsec diameter fiber radius"
+      },
+      {
+        "enum": "",
+        "name": "fiberFluxIvar_z",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies^{-2}",
+        "ucd": "",
+        "description": "Inverse variance in flux in 3 arcsec diameter fiber radius"
+      },
+      {
+        "enum": "",
+        "name": "fiber2Flux_u",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies",
+        "ucd": "",
+        "description": "Flux in 2 arcsec diameter fiber radius"
+      },
+      {
+        "enum": "",
+        "name": "fiber2Flux_g",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies",
+        "ucd": "",
+        "description": "Flux in 2 arcsec diameter fiber radius"
+      },
+      {
+        "enum": "",
+        "name": "fiber2Flux_r",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies",
+        "ucd": "",
+        "description": "Flux in 2 arcsec diameter fiber radius"
+      },
+      {
+        "enum": "",
+        "name": "fiber2Flux_i",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies",
+        "ucd": "",
+        "description": "Flux in 2 arcsec diameter fiber radius"
+      },
+      {
+        "enum": "",
+        "name": "fiber2Flux_z",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies",
+        "ucd": "",
+        "description": "Flux in 2 arcsec diameter fiber radius"
+      },
+      {
+        "enum": "",
+        "name": "fiber2FluxIvar_u",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies^{-2}",
+        "ucd": "",
+        "description": "Inverse variance in flux in 2 arcsec diameter fiber radius"
+      },
+      {
+        "enum": "",
+        "name": "fiber2FluxIvar_g",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies^{-2}",
+        "ucd": "",
+        "description": "Inverse variance in flux in 2 arcsec diameter fiber radius"
+      },
+      {
+        "enum": "",
+        "name": "fiber2FluxIvar_r",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies^{-2}",
+        "ucd": "",
+        "description": "Inverse variance in flux in 2 arcsec diameter fiber radius"
+      },
+      {
+        "enum": "",
+        "name": "fiber2FluxIvar_i",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies^{-2}",
+        "ucd": "",
+        "description": "Inverse variance in flux in 2 arcsec diameter fiber radius"
+      },
+      {
+        "enum": "",
+        "name": "fiber2FluxIvar_z",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies^{-2}",
+        "ucd": "",
+        "description": "Inverse variance in flux in 2 arcsec diameter fiber radius"
+      },
+      {
+        "enum": "",
+        "name": "petroFlux_u",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies",
+        "ucd": "",
+        "description": "Petrosian flux"
+      },
+      {
+        "enum": "",
+        "name": "petroFlux_g",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies",
+        "ucd": "",
+        "description": "Petrosian flux"
+      },
+      {
+        "enum": "",
+        "name": "petroFlux_r",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies",
+        "ucd": "",
+        "description": "Petrosian flux"
+      },
+      {
+        "enum": "",
+        "name": "petroFlux_i",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies",
+        "ucd": "",
+        "description": "Petrosian flux"
+      },
+      {
+        "enum": "",
+        "name": "petroFlux_z",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies",
+        "ucd": "",
+        "description": "Petrosian flux"
+      },
+      {
+        "enum": "",
+        "name": "petroFluxIvar_u",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies^{-2}",
+        "ucd": "",
+        "description": "Petrosian flux inverse variance"
+      },
+      {
+        "enum": "",
+        "name": "petroFluxIvar_g",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies^{-2}",
+        "ucd": "",
+        "description": "Petrosian flux inverse variance"
+      },
+      {
+        "enum": "",
+        "name": "petroFluxIvar_r",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies^{-2}",
+        "ucd": "",
+        "description": "Petrosian flux inverse variance"
+      },
+      {
+        "enum": "",
+        "name": "petroFluxIvar_i",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies^{-2}",
+        "ucd": "",
+        "description": "Petrosian flux inverse variance"
+      },
+      {
+        "enum": "",
+        "name": "petroFluxIvar_z",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies^{-2}",
+        "ucd": "",
+        "description": "Petrosian flux inverse variance"
+      },
+      {
+        "enum": "",
+        "name": "petroRad_u",
+        "type": "real",
+        "length": 4,
+        "unit": "arcsec",
+        "ucd": "",
+        "description": "Petrosian radius"
+      },
+      {
+        "enum": "",
+        "name": "petroRad_g",
+        "type": "real",
+        "length": 4,
+        "unit": "arcsec",
+        "ucd": "",
+        "description": "Petrosian radius"
+      },
+      {
+        "enum": "",
+        "name": "petroRad_r",
+        "type": "real",
+        "length": 4,
+        "unit": "arcsec",
+        "ucd": "",
+        "description": "Petrosian radius"
+      },
+      {
+        "enum": "",
+        "name": "petroRad_i",
+        "type": "real",
+        "length": 4,
+        "unit": "arcsec",
+        "ucd": "",
+        "description": "Petrosian radius"
+      },
+      {
+        "enum": "",
+        "name": "petroRad_z",
+        "type": "real",
+        "length": 4,
+        "unit": "arcsec",
+        "ucd": "",
+        "description": "Petrosian radius"
+      },
+      {
+        "enum": "",
+        "name": "petroRadErr_u",
+        "type": "real",
+        "length": 4,
+        "unit": "arcsec",
+        "ucd": "",
+        "description": "Petrosian radius error"
+      },
+      {
+        "enum": "",
+        "name": "petroRadErr_g",
+        "type": "real",
+        "length": 4,
+        "unit": "arcsec",
+        "ucd": "",
+        "description": "Petrosian radius error"
+      },
+      {
+        "enum": "",
+        "name": "petroRadErr_r",
+        "type": "real",
+        "length": 4,
+        "unit": "arcsec",
+        "ucd": "",
+        "description": "Petrosian radius error"
+      },
+      {
+        "enum": "",
+        "name": "petroRadErr_i",
+        "type": "real",
+        "length": 4,
+        "unit": "arcsec",
+        "ucd": "",
+        "description": "Petrosian radius error"
+      },
+      {
+        "enum": "",
+        "name": "petroRadErr_z",
+        "type": "real",
+        "length": 4,
+        "unit": "arcsec",
+        "ucd": "",
+        "description": "Petrosian radius error"
+      },
+      {
+        "enum": "",
+        "name": "petroR50_u",
+        "type": "real",
+        "length": 4,
+        "unit": "arcsec",
+        "ucd": "",
+        "description": "Radius containing 50% of Petrosian flux"
+      },
+      {
+        "enum": "",
+        "name": "petroR50_g",
+        "type": "real",
+        "length": 4,
+        "unit": "arcsec",
+        "ucd": "",
+        "description": "Radius containing 50% of Petrosian flux"
+      },
+      {
+        "enum": "",
+        "name": "petroR50_r",
+        "type": "real",
+        "length": 4,
+        "unit": "arcsec",
+        "ucd": "",
+        "description": "Radius containing 50% of Petrosian flux"
+      },
+      {
+        "enum": "",
+        "name": "petroR50_i",
+        "type": "real",
+        "length": 4,
+        "unit": "arcsec",
+        "ucd": "",
+        "description": "Radius containing 50% of Petrosian flux"
+      },
+      {
+        "enum": "",
+        "name": "petroR50_z",
+        "type": "real",
+        "length": 4,
+        "unit": "arcsec",
+        "ucd": "",
+        "description": "Radius containing 50% of Petrosian flux"
+      },
+      {
+        "enum": "",
+        "name": "petroR50Err_u",
+        "type": "real",
+        "length": 4,
+        "unit": "arcsec",
+        "ucd": "",
+        "description": "Error in radius with 50% of Petrosian flux error"
+      },
+      {
+        "enum": "",
+        "name": "petroR50Err_g",
+        "type": "real",
+        "length": 4,
+        "unit": "arcsec",
+        "ucd": "",
+        "description": "Error in radius with 50% of Petrosian flux error"
+      },
+      {
+        "enum": "",
+        "name": "petroR50Err_r",
+        "type": "real",
+        "length": 4,
+        "unit": "arcsec",
+        "ucd": "",
+        "description": "Error in radius with 50% of Petrosian flux error"
+      },
+      {
+        "enum": "",
+        "name": "petroR50Err_i",
+        "type": "real",
+        "length": 4,
+        "unit": "arcsec",
+        "ucd": "",
+        "description": "Error in radius with 50% of Petrosian flux error"
+      },
+      {
+        "enum": "",
+        "name": "petroR50Err_z",
+        "type": "real",
+        "length": 4,
+        "unit": "arcsec",
+        "ucd": "",
+        "description": "Error in radius with 50% of Petrosian flux error"
+      },
+      {
+        "enum": "",
+        "name": "petroR90_u",
+        "type": "real",
+        "length": 4,
+        "unit": "arcsec",
+        "ucd": "",
+        "description": "Radius containing 90% of Petrosian flux"
+      },
+      {
+        "enum": "",
+        "name": "petroR90_g",
+        "type": "real",
+        "length": 4,
+        "unit": "arcsec",
+        "ucd": "",
+        "description": "Radius containing 90% of Petrosian flux"
+      },
+      {
+        "enum": "",
+        "name": "petroR90_r",
+        "type": "real",
+        "length": 4,
+        "unit": "arcsec",
+        "ucd": "",
+        "description": "Radius containing 90% of Petrosian flux"
+      },
+      {
+        "enum": "",
+        "name": "petroR90_i",
+        "type": "real",
+        "length": 4,
+        "unit": "arcsec",
+        "ucd": "",
+        "description": "Radius containing 90% of Petrosian flux"
+      },
+      {
+        "enum": "",
+        "name": "petroR90_z",
+        "type": "real",
+        "length": 4,
+        "unit": "arcsec",
+        "ucd": "",
+        "description": "Radius containing 90% of Petrosian flux"
+      },
+      {
+        "enum": "",
+        "name": "petroR90Err_u",
+        "type": "real",
+        "length": 4,
+        "unit": "arcsec",
+        "ucd": "",
+        "description": "Error in radius with 90% of Petrosian flux error"
+      },
+      {
+        "enum": "",
+        "name": "petroR90Err_g",
+        "type": "real",
+        "length": 4,
+        "unit": "arcsec",
+        "ucd": "",
+        "description": "Error in radius with 90% of Petrosian flux error"
+      },
+      {
+        "enum": "",
+        "name": "petroR90Err_r",
+        "type": "real",
+        "length": 4,
+        "unit": "arcsec",
+        "ucd": "",
+        "description": "Error in radius with 90% of Petrosian flux error"
+      },
+      {
+        "enum": "",
+        "name": "petroR90Err_i",
+        "type": "real",
+        "length": 4,
+        "unit": "arcsec",
+        "ucd": "",
+        "description": "Error in radius with 90% of Petrosian flux error"
+      },
+      {
+        "enum": "",
+        "name": "petroR90Err_z",
+        "type": "real",
+        "length": 4,
+        "unit": "arcsec",
+        "ucd": "",
+        "description": "Error in radius with 90% of Petrosian flux error"
+      },
+      {
+        "enum": "",
+        "name": "q_u",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Stokes Q parameter"
+      },
+      {
+        "enum": "",
+        "name": "q_g",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Stokes Q parameter"
+      },
+      {
+        "enum": "",
+        "name": "q_r",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Stokes Q parameter"
+      },
+      {
+        "enum": "",
+        "name": "q_i",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Stokes Q parameter"
+      },
+      {
+        "enum": "",
+        "name": "q_z",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Stokes Q parameter"
+      },
+      {
+        "enum": "",
+        "name": "qErr_u",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Stokes Q parameter error"
+      },
+      {
+        "enum": "",
+        "name": "qErr_g",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Stokes Q parameter error"
+      },
+      {
+        "enum": "",
+        "name": "qErr_r",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Stokes Q parameter error"
+      },
+      {
+        "enum": "",
+        "name": "qErr_i",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Stokes Q parameter error"
+      },
+      {
+        "enum": "",
+        "name": "qErr_z",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Stokes Q parameter error"
+      },
+      {
+        "enum": "",
+        "name": "u_u",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Stokes U parameter"
+      },
+      {
+        "enum": "",
+        "name": "u_g",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Stokes U parameter"
+      },
+      {
+        "enum": "",
+        "name": "u_r",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Stokes U parameter"
+      },
+      {
+        "enum": "",
+        "name": "u_i",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Stokes U parameter"
+      },
+      {
+        "enum": "",
+        "name": "u_z",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Stokes U parameter"
+      },
+      {
+        "enum": "",
+        "name": "uErr_u",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Stokes U parameter error"
+      },
+      {
+        "enum": "",
+        "name": "uErr_g",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Stokes U parameter error"
+      },
+      {
+        "enum": "",
+        "name": "uErr_r",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Stokes U parameter error"
+      },
+      {
+        "enum": "",
+        "name": "uErr_i",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Stokes U parameter error"
+      },
+      {
+        "enum": "",
+        "name": "uErr_z",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Stokes U parameter error"
+      },
+      {
+        "enum": "",
+        "name": "mE1_u",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Adaptive E1 shape measure (pixel coordinates)"
+      },
+      {
+        "enum": "",
+        "name": "mE1_g",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Adaptive E1 shape measure (pixel coordinates)"
+      },
+      {
+        "enum": "",
+        "name": "mE1_r",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Adaptive E1 shape measure (pixel coordinates)"
+      },
+      {
+        "enum": "",
+        "name": "mE1_i",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Adaptive E1 shape measure (pixel coordinates)"
+      },
+      {
+        "enum": "",
+        "name": "mE1_z",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Adaptive E1 shape measure (pixel coordinates)"
+      },
+      {
+        "enum": "",
+        "name": "mE2_u",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Adaptive E2 shape measure (pixel coordinates)"
+      },
+      {
+        "enum": "",
+        "name": "mE2_g",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Adaptive E2 shape measure (pixel coordinates)"
+      },
+      {
+        "enum": "",
+        "name": "mE2_r",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Adaptive E2 shape measure (pixel coordinates)"
+      },
+      {
+        "enum": "",
+        "name": "mE2_i",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Adaptive E2 shape measure (pixel coordinates)"
+      },
+      {
+        "enum": "",
+        "name": "mE2_z",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Adaptive E2 shape measure (pixel coordinates)"
+      },
+      {
+        "enum": "",
+        "name": "mE1E1Err_u",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Covariance in E1/E1 shape measure (pixel coordinates)"
+      },
+      {
+        "enum": "",
+        "name": "mE1E1Err_g",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Covariance in E1/E1 shape measure (pixel coordinates)"
+      },
+      {
+        "enum": "",
+        "name": "mE1E1Err_r",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Covariance in E1/E1 shape measure (pixel coordinates)"
+      },
+      {
+        "enum": "",
+        "name": "mE1E1Err_i",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Covariance in E1/E1 shape measure (pixel coordinates)"
+      },
+      {
+        "enum": "",
+        "name": "mE1E1Err_z",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Covariance in E1/E1 shape measure (pixel coordinates)"
+      },
+      {
+        "enum": "",
+        "name": "mE1E2Err_u",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Covariance in E1/E2 shape measure (pixel coordinates)"
+      },
+      {
+        "enum": "",
+        "name": "mE1E2Err_g",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Covariance in E1/E2 shape measure (pixel coordinates)"
+      },
+      {
+        "enum": "",
+        "name": "mE1E2Err_r",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Covariance in E1/E2 shape measure (pixel coordinates)"
+      },
+      {
+        "enum": "",
+        "name": "mE1E2Err_i",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Covariance in E1/E2 shape measure (pixel coordinates)"
+      },
+      {
+        "enum": "",
+        "name": "mE1E2Err_z",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Covariance in E1/E2 shape measure (pixel coordinates)"
+      },
+      {
+        "enum": "",
+        "name": "mE2E2Err_u",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Covariance in E2/E2 shape measure (pixel coordinates)"
+      },
+      {
+        "enum": "",
+        "name": "mE2E2Err_g",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Covariance in E2/E2 shape measure (pixel coordinates)"
+      },
+      {
+        "enum": "",
+        "name": "mE2E2Err_r",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Covariance in E2/E2 shape measure (pixel coordinates)"
+      },
+      {
+        "enum": "",
+        "name": "mE2E2Err_i",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Covariance in E2/E2 shape measure (pixel coordinates)"
+      },
+      {
+        "enum": "",
+        "name": "mE2E2Err_z",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Covariance in E2/E2 shape measure (pixel coordinates)"
+      },
+      {
+        "enum": "",
+        "name": "mRrCc_u",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Adaptive ( + ) (pixel coordinates)"
+      },
+      {
+        "enum": "",
+        "name": "mRrCc_g",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Adaptive ( + ) (pixel coordinates)"
+      },
+      {
+        "enum": "",
+        "name": "mRrCc_r",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Adaptive ( + ) (pixel coordinates)"
+      },
+      {
+        "enum": "",
+        "name": "mRrCc_i",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Adaptive ( + ) (pixel coordinates)"
+      },
+      {
+        "enum": "",
+        "name": "mRrCc_z",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Adaptive ( + ) (pixel coordinates)"
+      },
+      {
+        "enum": "",
+        "name": "mRrCcErr_u",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Error in adaptive ( + ) (pixel coordinates)"
+      },
+      {
+        "enum": "",
+        "name": "mRrCcErr_g",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Error in adaptive ( + ) (pixel coordinates)"
+      },
+      {
+        "enum": "",
+        "name": "mRrCcErr_r",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Error in adaptive ( + ) (pixel coordinates)"
+      },
+      {
+        "enum": "",
+        "name": "mRrCcErr_i",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Error in adaptive ( + ) (pixel coordinates)"
+      },
+      {
+        "enum": "",
+        "name": "mRrCcErr_z",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Error in adaptive ( + ) (pixel coordinates)"
+      },
+      {
+        "enum": "",
+        "name": "mCr4_u",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Adaptive fourth moment of object (pixel coordinates)"
+      },
+      {
+        "enum": "",
+        "name": "mCr4_g",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Adaptive fourth moment of object (pixel coordinates)"
+      },
+      {
+        "enum": "",
+        "name": "mCr4_r",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Adaptive fourth moment of object (pixel coordinates)"
+      },
+      {
+        "enum": "",
+        "name": "mCr4_i",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Adaptive fourth moment of object (pixel coordinates)"
+      },
+      {
+        "enum": "",
+        "name": "mCr4_z",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Adaptive fourth moment of object (pixel coordinates)"
+      },
+      {
+        "enum": "",
+        "name": "mE1PSF_u",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Adaptive E1 for PSF (pixel coordinates)"
+      },
+      {
+        "enum": "",
+        "name": "mE1PSF_g",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Adaptive E1 for PSF (pixel coordinates)"
+      },
+      {
+        "enum": "",
+        "name": "mE1PSF_r",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Adaptive E1 for PSF (pixel coordinates)"
+      },
+      {
+        "enum": "",
+        "name": "mE1PSF_i",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Adaptive E1 for PSF (pixel coordinates)"
+      },
+      {
+        "enum": "",
+        "name": "mE1PSF_z",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Adaptive E1 for PSF (pixel coordinates)"
+      },
+      {
+        "enum": "",
+        "name": "mE2PSF_u",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Adaptive E2 for PSF (pixel coordinates)"
+      },
+      {
+        "enum": "",
+        "name": "mE2PSF_g",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Adaptive E2 for PSF (pixel coordinates)"
+      },
+      {
+        "enum": "",
+        "name": "mE2PSF_r",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Adaptive E2 for PSF (pixel coordinates)"
+      },
+      {
+        "enum": "",
+        "name": "mE2PSF_i",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Adaptive E2 for PSF (pixel coordinates)"
+      },
+      {
+        "enum": "",
+        "name": "mE2PSF_z",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Adaptive E2 for PSF (pixel coordinates)"
+      },
+      {
+        "enum": "",
+        "name": "mRrCcPSF_u",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Adaptive ( + ) for PSF (pixel coordinates)"
+      },
+      {
+        "enum": "",
+        "name": "mRrCcPSF_g",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Adaptive ( + ) for PSF (pixel coordinates)"
+      },
+      {
+        "enum": "",
+        "name": "mRrCcPSF_r",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Adaptive ( + ) for PSF (pixel coordinates)"
+      },
+      {
+        "enum": "",
+        "name": "mRrCcPSF_i",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Adaptive ( + ) for PSF (pixel coordinates)"
+      },
+      {
+        "enum": "",
+        "name": "mRrCcPSF_z",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Adaptive ( + ) for PSF (pixel coordinates)"
+      },
+      {
+        "enum": "",
+        "name": "mCr4PSF_u",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Adaptive fourth moment for PSF (pixel coordinates)"
+      },
+      {
+        "enum": "",
+        "name": "mCr4PSF_g",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Adaptive fourth moment for PSF (pixel coordinates)"
+      },
+      {
+        "enum": "",
+        "name": "mCr4PSF_r",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Adaptive fourth moment for PSF (pixel coordinates)"
+      },
+      {
+        "enum": "",
+        "name": "mCr4PSF_i",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Adaptive fourth moment for PSF (pixel coordinates)"
+      },
+      {
+        "enum": "",
+        "name": "mCr4PSF_z",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Adaptive fourth moment for PSF (pixel coordinates)"
+      },
+      {
+        "enum": "",
+        "name": "deVRad_u",
+        "type": "real",
+        "length": 4,
+        "unit": "arcsec",
+        "ucd": "",
+        "description": "de Vaucouleurs fit scale radius, here defined to be the same as the half-light radius, also called the effective radius."
+      },
+      {
+        "enum": "",
+        "name": "deVRad_g",
+        "type": "real",
+        "length": 4,
+        "unit": "arcsec",
+        "ucd": "",
+        "description": "de Vaucouleurs fit scale radius, here defined to be the same as the half-light radius, also called the effective radius."
+      },
+      {
+        "enum": "",
+        "name": "deVRad_r",
+        "type": "real",
+        "length": 4,
+        "unit": "arcsec",
+        "ucd": "",
+        "description": "de Vaucouleurs fit scale radius, here defined to be the same as the half-light radius, also called the effective radius."
+      },
+      {
+        "enum": "",
+        "name": "deVRad_i",
+        "type": "real",
+        "length": 4,
+        "unit": "arcsec",
+        "ucd": "",
+        "description": "de Vaucouleurs fit scale radius, here defined to be the same as the half-light radius, also called the effective radius."
+      },
+      {
+        "enum": "",
+        "name": "deVRad_z",
+        "type": "real",
+        "length": 4,
+        "unit": "arcsec",
+        "ucd": "",
+        "description": "de Vaucouleurs fit scale radius, here defined to be the same as the half-light radius, also called the effective radius."
+      },
+      {
+        "enum": "",
+        "name": "deVRadErr_u",
+        "type": "real",
+        "length": 4,
+        "unit": "arcsec",
+        "ucd": "",
+        "description": "Error in de Vaucouleurs fit scale radius error"
+      },
+      {
+        "enum": "",
+        "name": "deVRadErr_g",
+        "type": "real",
+        "length": 4,
+        "unit": "arcsec",
+        "ucd": "",
+        "description": "Error in de Vaucouleurs fit scale radius error"
+      },
+      {
+        "enum": "",
+        "name": "deVRadErr_r",
+        "type": "real",
+        "length": 4,
+        "unit": "arcsec",
+        "ucd": "",
+        "description": "Error in de Vaucouleurs fit scale radius error"
+      },
+      {
+        "enum": "",
+        "name": "deVRadErr_i",
+        "type": "real",
+        "length": 4,
+        "unit": "arcsec",
+        "ucd": "",
+        "description": "Error in de Vaucouleurs fit scale radius error"
+      },
+      {
+        "enum": "",
+        "name": "deVRadErr_z",
+        "type": "real",
+        "length": 4,
+        "unit": "arcsec",
+        "ucd": "",
+        "description": "Error in de Vaucouleurs fit scale radius error"
+      },
+      {
+        "enum": "",
+        "name": "deVAB_u",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "de Vaucouleurs fit b/a"
+      },
+      {
+        "enum": "",
+        "name": "deVAB_g",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "de Vaucouleurs fit b/a"
+      },
+      {
+        "enum": "",
+        "name": "deVAB_r",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "de Vaucouleurs fit b/a"
+      },
+      {
+        "enum": "",
+        "name": "deVAB_i",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "de Vaucouleurs fit b/a"
+      },
+      {
+        "enum": "",
+        "name": "deVAB_z",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "de Vaucouleurs fit b/a"
+      },
+      {
+        "enum": "",
+        "name": "deVABErr_u",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "de Vaucouleurs fit b/a error"
+      },
+      {
+        "enum": "",
+        "name": "deVABErr_g",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "de Vaucouleurs fit b/a error"
+      },
+      {
+        "enum": "",
+        "name": "deVABErr_r",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "de Vaucouleurs fit b/a error"
+      },
+      {
+        "enum": "",
+        "name": "deVABErr_i",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "de Vaucouleurs fit b/a error"
+      },
+      {
+        "enum": "",
+        "name": "deVABErr_z",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "de Vaucouleurs fit b/a error"
+      },
+      {
+        "enum": "",
+        "name": "deVPhi_u",
+        "type": "real",
+        "length": 4,
+        "unit": "deg",
+        "ucd": "",
+        "description": "de Vaucouleurs fit position angle (+N thru E)"
+      },
+      {
+        "enum": "",
+        "name": "deVPhi_g",
+        "type": "real",
+        "length": 4,
+        "unit": "deg",
+        "ucd": "",
+        "description": "de Vaucouleurs fit position angle (+N thru E)"
+      },
+      {
+        "enum": "",
+        "name": "deVPhi_r",
+        "type": "real",
+        "length": 4,
+        "unit": "deg",
+        "ucd": "",
+        "description": "de Vaucouleurs fit position angle (+N thru E)"
+      },
+      {
+        "enum": "",
+        "name": "deVPhi_i",
+        "type": "real",
+        "length": 4,
+        "unit": "deg",
+        "ucd": "",
+        "description": "de Vaucouleurs fit position angle (+N thru E)"
+      },
+      {
+        "enum": "",
+        "name": "deVPhi_z",
+        "type": "real",
+        "length": 4,
+        "unit": "deg",
+        "ucd": "",
+        "description": "de Vaucouleurs fit position angle (+N thru E)"
+      },
+      {
+        "enum": "",
+        "name": "deVMag_u",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "de Vaucouleurs magnitude fit"
+      },
+      {
+        "enum": "",
+        "name": "deVMag_g",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "de Vaucouleurs magnitude fit"
+      },
+      {
+        "enum": "",
+        "name": "deVMag_r",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "de Vaucouleurs magnitude fit"
+      },
+      {
+        "enum": "",
+        "name": "deVMag_i",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "de Vaucouleurs magnitude fit"
+      },
+      {
+        "enum": "",
+        "name": "deVMag_z",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "de Vaucouleurs magnitude fit"
+      },
+      {
+        "enum": "",
+        "name": "deVMagErr_u",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "de Vaucouleurs magnitude fit error"
+      },
+      {
+        "enum": "",
+        "name": "deVMagErr_g",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "de Vaucouleurs magnitude fit error"
+      },
+      {
+        "enum": "",
+        "name": "deVMagErr_r",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "de Vaucouleurs magnitude fit error"
+      },
+      {
+        "enum": "",
+        "name": "deVMagErr_i",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "de Vaucouleurs magnitude fit error"
+      },
+      {
+        "enum": "",
+        "name": "deVMagErr_z",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "de Vaucouleurs magnitude fit error"
+      },
+      {
+        "enum": "",
+        "name": "deVFlux_u",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies",
+        "ucd": "",
+        "description": "de Vaucouleurs magnitude fit"
+      },
+      {
+        "enum": "",
+        "name": "deVFlux_g",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies",
+        "ucd": "",
+        "description": "de Vaucouleurs magnitude fit"
+      },
+      {
+        "enum": "",
+        "name": "deVFlux_r",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies",
+        "ucd": "",
+        "description": "de Vaucouleurs magnitude fit"
+      },
+      {
+        "enum": "",
+        "name": "deVFlux_i",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies",
+        "ucd": "",
+        "description": "de Vaucouleurs magnitude fit"
+      },
+      {
+        "enum": "",
+        "name": "deVFlux_z",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies",
+        "ucd": "",
+        "description": "de Vaucouleurs magnitude fit"
+      },
+      {
+        "enum": "",
+        "name": "deVFluxIvar_u",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies^{-2}",
+        "ucd": "",
+        "description": "de Vaucouleurs magnitude fit inverse variance"
+      },
+      {
+        "enum": "",
+        "name": "deVFluxIvar_g",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies^{-2}",
+        "ucd": "",
+        "description": "de Vaucouleurs magnitude fit inverse variance"
+      },
+      {
+        "enum": "",
+        "name": "deVFluxIvar_r",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies^{-2}",
+        "ucd": "",
+        "description": "de Vaucouleurs magnitude fit inverse variance"
+      },
+      {
+        "enum": "",
+        "name": "deVFluxIvar_i",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies^{-2}",
+        "ucd": "",
+        "description": "de Vaucouleurs magnitude fit inverse variance"
+      },
+      {
+        "enum": "",
+        "name": "deVFluxIvar_z",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies^{-2}",
+        "ucd": "",
+        "description": "de Vaucouleurs magnitude fit inverse variance"
+      },
+      {
+        "enum": "",
+        "name": "expRad_u",
+        "type": "real",
+        "length": 4,
+        "unit": "arcsec",
+        "ucd": "",
+        "description": "Exponential fit scale radius, here defined to be the same as the half-light radius, also called the effective radius."
+      },
+      {
+        "enum": "",
+        "name": "expRad_g",
+        "type": "real",
+        "length": 4,
+        "unit": "arcsec",
+        "ucd": "",
+        "description": "Exponential fit scale radius, here defined to be the same as the half-light radius, also called the effective radius."
+      },
+      {
+        "enum": "",
+        "name": "expRad_r",
+        "type": "real",
+        "length": 4,
+        "unit": "arcsec",
+        "ucd": "",
+        "description": "Exponential fit scale radius, here defined to be the same as the half-light radius, also called the effective radius."
+      },
+      {
+        "enum": "",
+        "name": "expRad_i",
+        "type": "real",
+        "length": 4,
+        "unit": "arcsec",
+        "ucd": "",
+        "description": "Exponential fit scale radius, here defined to be the same as the half-light radius, also called the effective radius."
+      },
+      {
+        "enum": "",
+        "name": "expRad_z",
+        "type": "real",
+        "length": 4,
+        "unit": "arcsec",
+        "ucd": "",
+        "description": "Exponential fit scale radius, here defined to be the same as the half-light radius, also called the effective radius."
+      },
+      {
+        "enum": "",
+        "name": "expRadErr_u",
+        "type": "real",
+        "length": 4,
+        "unit": "arcsec",
+        "ucd": "",
+        "description": "Exponential fit scale radius error"
+      },
+      {
+        "enum": "",
+        "name": "expRadErr_g",
+        "type": "real",
+        "length": 4,
+        "unit": "arcsec",
+        "ucd": "",
+        "description": "Exponential fit scale radius error"
+      },
+      {
+        "enum": "",
+        "name": "expRadErr_r",
+        "type": "real",
+        "length": 4,
+        "unit": "arcsec",
+        "ucd": "",
+        "description": "Exponential fit scale radius error"
+      },
+      {
+        "enum": "",
+        "name": "expRadErr_i",
+        "type": "real",
+        "length": 4,
+        "unit": "arcsec",
+        "ucd": "",
+        "description": "Exponential fit scale radius error"
+      },
+      {
+        "enum": "",
+        "name": "expRadErr_z",
+        "type": "real",
+        "length": 4,
+        "unit": "arcsec",
+        "ucd": "",
+        "description": "Exponential fit scale radius error"
+      },
+      {
+        "enum": "",
+        "name": "expAB_u",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Exponential fit b/a"
+      },
+      {
+        "enum": "",
+        "name": "expAB_g",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Exponential fit b/a"
+      },
+      {
+        "enum": "",
+        "name": "expAB_r",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Exponential fit b/a"
+      },
+      {
+        "enum": "",
+        "name": "expAB_i",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Exponential fit b/a"
+      },
+      {
+        "enum": "",
+        "name": "expAB_z",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Exponential fit b/a"
+      },
+      {
+        "enum": "",
+        "name": "expABErr_u",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Exponential fit b/a"
+      },
+      {
+        "enum": "",
+        "name": "expABErr_g",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Exponential fit b/a"
+      },
+      {
+        "enum": "",
+        "name": "expABErr_r",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Exponential fit b/a"
+      },
+      {
+        "enum": "",
+        "name": "expABErr_i",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Exponential fit b/a"
+      },
+      {
+        "enum": "",
+        "name": "expABErr_z",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Exponential fit b/a"
+      },
+      {
+        "enum": "",
+        "name": "expPhi_u",
+        "type": "real",
+        "length": 4,
+        "unit": "deg",
+        "ucd": "",
+        "description": "Exponential fit position angle (+N thru E)"
+      },
+      {
+        "enum": "",
+        "name": "expPhi_g",
+        "type": "real",
+        "length": 4,
+        "unit": "deg",
+        "ucd": "",
+        "description": "Exponential fit position angle (+N thru E)"
+      },
+      {
+        "enum": "",
+        "name": "expPhi_r",
+        "type": "real",
+        "length": 4,
+        "unit": "deg",
+        "ucd": "",
+        "description": "Exponential fit position angle (+N thru E)"
+      },
+      {
+        "enum": "",
+        "name": "expPhi_i",
+        "type": "real",
+        "length": 4,
+        "unit": "deg",
+        "ucd": "",
+        "description": "Exponential fit position angle (+N thru E)"
+      },
+      {
+        "enum": "",
+        "name": "expPhi_z",
+        "type": "real",
+        "length": 4,
+        "unit": "deg",
+        "ucd": "",
+        "description": "Exponential fit position angle (+N thru E)"
+      },
+      {
+        "enum": "",
+        "name": "expMag_u",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "Exponential fit magnitude"
+      },
+      {
+        "enum": "",
+        "name": "expMag_g",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "Exponential fit magnitude"
+      },
+      {
+        "enum": "",
+        "name": "expMag_r",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "Exponential fit magnitude"
+      },
+      {
+        "enum": "",
+        "name": "expMag_i",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "Exponential fit magnitude"
+      },
+      {
+        "enum": "",
+        "name": "expMag_z",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "Exponential fit magnitude"
+      },
+      {
+        "enum": "",
+        "name": "expMagErr_u",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "Exponential fit magnitude error"
+      },
+      {
+        "enum": "",
+        "name": "expMagErr_g",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "Exponential fit magnitude error"
+      },
+      {
+        "enum": "",
+        "name": "expMagErr_r",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "Exponential fit magnitude error"
+      },
+      {
+        "enum": "",
+        "name": "expMagErr_i",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "Exponential fit magnitude error"
+      },
+      {
+        "enum": "",
+        "name": "expMagErr_z",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "Exponential fit magnitude error"
+      },
+      {
+        "enum": "",
+        "name": "modelMag_u",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "better of DeV/Exp magnitude fit"
+      },
+      {
+        "enum": "",
+        "name": "modelMag_g",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "better of DeV/Exp magnitude fit"
+      },
+      {
+        "enum": "",
+        "name": "modelMag_r",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "better of DeV/Exp magnitude fit"
+      },
+      {
+        "enum": "",
+        "name": "modelMag_i",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "better of DeV/Exp magnitude fit"
+      },
+      {
+        "enum": "",
+        "name": "modelMag_z",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "better of DeV/Exp magnitude fit"
+      },
+      {
+        "enum": "",
+        "name": "modelMagErr_u",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "Error in better of DeV/Exp magnitude fit"
+      },
+      {
+        "enum": "",
+        "name": "modelMagErr_g",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "Error in better of DeV/Exp magnitude fit"
+      },
+      {
+        "enum": "",
+        "name": "modelMagErr_r",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "Error in better of DeV/Exp magnitude fit"
+      },
+      {
+        "enum": "",
+        "name": "modelMagErr_i",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "Error in better of DeV/Exp magnitude fit"
+      },
+      {
+        "enum": "",
+        "name": "modelMagErr_z",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "Error in better of DeV/Exp magnitude fit"
+      },
+      {
+        "enum": "",
+        "name": "cModelMag_u",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "DeV+Exp magnitude"
+      },
+      {
+        "enum": "",
+        "name": "cModelMag_g",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "DeV+Exp magnitude"
+      },
+      {
+        "enum": "",
+        "name": "cModelMag_r",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "DeV+Exp magnitude"
+      },
+      {
+        "enum": "",
+        "name": "cModelMag_i",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "DeV+Exp magnitude"
+      },
+      {
+        "enum": "",
+        "name": "cModelMag_z",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "DeV+Exp magnitude"
+      },
+      {
+        "enum": "",
+        "name": "cModelMagErr_u",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "DeV+Exp magnitude error"
+      },
+      {
+        "enum": "",
+        "name": "cModelMagErr_g",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "DeV+Exp magnitude error"
+      },
+      {
+        "enum": "",
+        "name": "cModelMagErr_r",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "DeV+Exp magnitude error"
+      },
+      {
+        "enum": "",
+        "name": "cModelMagErr_i",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "DeV+Exp magnitude error"
+      },
+      {
+        "enum": "",
+        "name": "cModelMagErr_z",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "DeV+Exp magnitude error"
+      },
+      {
+        "enum": "",
+        "name": "expFlux_u",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies",
+        "ucd": "",
+        "description": "Exponential fit flux"
+      },
+      {
+        "enum": "",
+        "name": "expFlux_g",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies",
+        "ucd": "",
+        "description": "Exponential fit flux"
+      },
+      {
+        "enum": "",
+        "name": "expFlux_r",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies",
+        "ucd": "",
+        "description": "Exponential fit flux"
+      },
+      {
+        "enum": "",
+        "name": "expFlux_i",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies",
+        "ucd": "",
+        "description": "Exponential fit flux"
+      },
+      {
+        "enum": "",
+        "name": "expFlux_z",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies",
+        "ucd": "",
+        "description": "Exponential fit flux"
+      },
+      {
+        "enum": "",
+        "name": "expFluxIvar_u",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies^{-2}",
+        "ucd": "",
+        "description": "Exponential fit flux inverse variance"
+      },
+      {
+        "enum": "",
+        "name": "expFluxIvar_g",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies^{-2}",
+        "ucd": "",
+        "description": "Exponential fit flux inverse variance"
+      },
+      {
+        "enum": "",
+        "name": "expFluxIvar_r",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies^{-2}",
+        "ucd": "",
+        "description": "Exponential fit flux inverse variance"
+      },
+      {
+        "enum": "",
+        "name": "expFluxIvar_i",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies^{-2}",
+        "ucd": "",
+        "description": "Exponential fit flux inverse variance"
+      },
+      {
+        "enum": "",
+        "name": "expFluxIvar_z",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies^{-2}",
+        "ucd": "",
+        "description": "Exponential fit flux inverse variance"
+      },
+      {
+        "enum": "",
+        "name": "modelFlux_u",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies",
+        "ucd": "",
+        "description": "better of DeV/Exp flux fit"
+      },
+      {
+        "enum": "",
+        "name": "modelFlux_g",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies",
+        "ucd": "",
+        "description": "better of DeV/Exp flux fit"
+      },
+      {
+        "enum": "",
+        "name": "modelFlux_r",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies",
+        "ucd": "",
+        "description": "better of DeV/Exp flux fit"
+      },
+      {
+        "enum": "",
+        "name": "modelFlux_i",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies",
+        "ucd": "",
+        "description": "better of DeV/Exp flux fit"
+      },
+      {
+        "enum": "",
+        "name": "modelFlux_z",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies",
+        "ucd": "",
+        "description": "better of DeV/Exp flux fit"
+      },
+      {
+        "enum": "",
+        "name": "modelFluxIvar_u",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies^{-2}",
+        "ucd": "",
+        "description": "Inverse variance in better of DeV/Exp flux fit"
+      },
+      {
+        "enum": "",
+        "name": "modelFluxIvar_g",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies^{-2}",
+        "ucd": "",
+        "description": "Inverse variance in better of DeV/Exp flux fit"
+      },
+      {
+        "enum": "",
+        "name": "modelFluxIvar_r",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies^{-2}",
+        "ucd": "",
+        "description": "Inverse variance in better of DeV/Exp flux fit"
+      },
+      {
+        "enum": "",
+        "name": "modelFluxIvar_i",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies^{-2}",
+        "ucd": "",
+        "description": "Inverse variance in better of DeV/Exp flux fit"
+      },
+      {
+        "enum": "",
+        "name": "modelFluxIvar_z",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies^{-2}",
+        "ucd": "",
+        "description": "Inverse variance in better of DeV/Exp flux fit"
+      },
+      {
+        "enum": "",
+        "name": "cModelFlux_u",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies",
+        "ucd": "",
+        "description": "better of DeV+Exp flux"
+      },
+      {
+        "enum": "",
+        "name": "cModelFlux_g",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies",
+        "ucd": "",
+        "description": "better of DeV+Exp flux"
+      },
+      {
+        "enum": "",
+        "name": "cModelFlux_r",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies",
+        "ucd": "",
+        "description": "better of DeV+Exp flux"
+      },
+      {
+        "enum": "",
+        "name": "cModelFlux_i",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies",
+        "ucd": "",
+        "description": "better of DeV+Exp flux"
+      },
+      {
+        "enum": "",
+        "name": "cModelFlux_z",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies",
+        "ucd": "",
+        "description": "better of DeV+Exp flux"
+      },
+      {
+        "enum": "",
+        "name": "cModelFluxIvar_u",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies^{-2}",
+        "ucd": "",
+        "description": "Inverse variance in DeV+Exp flux fit"
+      },
+      {
+        "enum": "",
+        "name": "cModelFluxIvar_g",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies^{-2}",
+        "ucd": "",
+        "description": "Inverse variance in DeV+Exp flux fit"
+      },
+      {
+        "enum": "",
+        "name": "cModelFluxIvar_r",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies^{-2}",
+        "ucd": "",
+        "description": "Inverse variance in DeV+Exp flux fit"
+      },
+      {
+        "enum": "",
+        "name": "cModelFluxIvar_i",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies^{-2}",
+        "ucd": "",
+        "description": "Inverse variance in DeV+Exp flux fit"
+      },
+      {
+        "enum": "",
+        "name": "cModelFluxIvar_z",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies^{-2}",
+        "ucd": "",
+        "description": "Inverse variance in DeV+Exp flux fit"
+      },
+      {
+        "enum": "",
+        "name": "aperFlux7_u",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies",
+        "ucd": "",
+        "description": "Aperture flux within 7.3 arcsec"
+      },
+      {
+        "enum": "",
+        "name": "aperFlux7_g",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies",
+        "ucd": "",
+        "description": "Aperture flux within 7.3 arcsec"
+      },
+      {
+        "enum": "",
+        "name": "aperFlux7_r",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies",
+        "ucd": "",
+        "description": "Aperture flux within 7.3 arcsec"
+      },
+      {
+        "enum": "",
+        "name": "aperFlux7_i",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies",
+        "ucd": "",
+        "description": "Aperture flux within 7.3 arcsec"
+      },
+      {
+        "enum": "",
+        "name": "aperFlux7_z",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies",
+        "ucd": "",
+        "description": "Aperture flux within 7.3 arcsec"
+      },
+      {
+        "enum": "",
+        "name": "aperFlux7Ivar_u",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies^{-2}",
+        "ucd": "",
+        "description": "Inverse variance of aperture flux within 7.3 arcsec"
+      },
+      {
+        "enum": "",
+        "name": "aperFlux7Ivar_g",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies^{-2}",
+        "ucd": "",
+        "description": "Inverse variance of aperture flux within 7.3 arcsec"
+      },
+      {
+        "enum": "",
+        "name": "aperFlux7Ivar_r",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies^{-2}",
+        "ucd": "",
+        "description": "Inverse variance of aperture flux within 7.3 arcsec"
+      },
+      {
+        "enum": "",
+        "name": "aperFlux7Ivar_i",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies^{-2}",
+        "ucd": "",
+        "description": "Inverse variance of aperture flux within 7.3 arcsec"
+      },
+      {
+        "enum": "",
+        "name": "aperFlux7Ivar_z",
+        "type": "real",
+        "length": 4,
+        "unit": "nanomaggies^{-2}",
+        "ucd": "",
+        "description": "Inverse variance of aperture flux within 7.3 arcsec"
+      },
+      {
+        "enum": "",
+        "name": "lnLStar_u",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Star ln(likelihood)"
+      },
+      {
+        "enum": "",
+        "name": "lnLStar_g",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Star ln(likelihood)"
+      },
+      {
+        "enum": "",
+        "name": "lnLStar_r",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Star ln(likelihood)"
+      },
+      {
+        "enum": "",
+        "name": "lnLStar_i",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Star ln(likelihood)"
+      },
+      {
+        "enum": "",
+        "name": "lnLStar_z",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Star ln(likelihood)"
+      },
+      {
+        "enum": "",
+        "name": "lnLExp_u",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Exponential disk fit ln(likelihood)"
+      },
+      {
+        "enum": "",
+        "name": "lnLExp_g",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Exponential disk fit ln(likelihood)"
+      },
+      {
+        "enum": "",
+        "name": "lnLExp_r",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Exponential disk fit ln(likelihood)"
+      },
+      {
+        "enum": "",
+        "name": "lnLExp_i",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Exponential disk fit ln(likelihood)"
+      },
+      {
+        "enum": "",
+        "name": "lnLExp_z",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Exponential disk fit ln(likelihood)"
+      },
+      {
+        "enum": "",
+        "name": "lnLDeV_u",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "de Vaucouleurs fit ln(likelihood)"
+      },
+      {
+        "enum": "",
+        "name": "lnLDeV_g",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "de Vaucouleurs fit ln(likelihood)"
+      },
+      {
+        "enum": "",
+        "name": "lnLDeV_r",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "de Vaucouleurs fit ln(likelihood)"
+      },
+      {
+        "enum": "",
+        "name": "lnLDeV_i",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "de Vaucouleurs fit ln(likelihood)"
+      },
+      {
+        "enum": "",
+        "name": "lnLDeV_z",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "de Vaucouleurs fit ln(likelihood)"
+      },
+      {
+        "enum": "",
+        "name": "fracDeV_u",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Weight of deV component in deV+Exp model"
+      },
+      {
+        "enum": "",
+        "name": "fracDeV_g",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Weight of deV component in deV+Exp model"
+      },
+      {
+        "enum": "",
+        "name": "fracDeV_r",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Weight of deV component in deV+Exp model"
+      },
+      {
+        "enum": "",
+        "name": "fracDeV_i",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Weight of deV component in deV+Exp model"
+      },
+      {
+        "enum": "",
+        "name": "fracDeV_z",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Weight of deV component in deV+Exp model"
+      },
+      {
+        "enum": "",
+        "name": "flags_u",
+        "type": "bigint",
+        "length": 8,
+        "unit": "",
+        "ucd": "",
+        "description": "Object detection flags per band"
+      },
+      {
+        "enum": "",
+        "name": "flags_g",
+        "type": "bigint",
+        "length": 8,
+        "unit": "",
+        "ucd": "",
+        "description": "Object detection flags per band"
+      },
+      {
+        "enum": "",
+        "name": "flags_r",
+        "type": "bigint",
+        "length": 8,
+        "unit": "",
+        "ucd": "",
+        "description": "Object detection flags per band"
+      },
+      {
+        "enum": "",
+        "name": "flags_i",
+        "type": "bigint",
+        "length": 8,
+        "unit": "",
+        "ucd": "",
+        "description": "Object detection flags per band"
+      },
+      {
+        "enum": "",
+        "name": "flags_z",
+        "type": "bigint",
+        "length": 8,
+        "unit": "",
+        "ucd": "",
+        "description": "Object detection flags per band"
+      },
+      {
+        "enum": "",
+        "name": "type_u",
+        "type": "int",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Object type classification per band"
+      },
+      {
+        "enum": "",
+        "name": "type_g",
+        "type": "int",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Object type classification per band"
+      },
+      {
+        "enum": "",
+        "name": "type_r",
+        "type": "int",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Object type classification per band"
+      },
+      {
+        "enum": "",
+        "name": "type_i",
+        "type": "int",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Object type classification per band"
+      },
+      {
+        "enum": "",
+        "name": "type_z",
+        "type": "int",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Object type classification per band"
+      },
+      {
+        "enum": "",
+        "name": "probPSF_u",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Probablity object is a star in each filter."
+      },
+      {
+        "enum": "",
+        "name": "probPSF_g",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Probablity object is a star in each filter."
+      },
+      {
+        "enum": "",
+        "name": "probPSF_r",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Probablity object is a star in each filter."
+      },
+      {
+        "enum": "",
+        "name": "probPSF_i",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Probablity object is a star in each filter."
+      },
+      {
+        "enum": "",
+        "name": "probPSF_z",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Probablity object is a star in each filter."
+      },
+      {
+        "enum": "",
+        "name": "ra",
+        "type": "float",
+        "length": 8,
+        "unit": "deg",
+        "ucd": "",
+        "description": "J2000 Right Ascension (r-band)"
+      },
+      {
+        "enum": "",
+        "name": "dec",
+        "type": "float",
+        "length": 8,
+        "unit": "deg",
+        "ucd": "",
+        "description": "J2000 Declination (r-band)"
+      },
+      {
+        "enum": "",
+        "name": "cx",
+        "type": "float",
+        "length": 8,
+        "unit": "",
+        "ucd": "",
+        "description": "unit vector for ra+dec"
+      },
+      {
+        "enum": "",
+        "name": "cy",
+        "type": "float",
+        "length": 8,
+        "unit": "",
+        "ucd": "",
+        "description": "unit vector for ra+dec"
+      },
+      {
+        "enum": "",
+        "name": "cz",
+        "type": "float",
+        "length": 8,
+        "unit": "",
+        "ucd": "",
+        "description": "unit vector for ra+dec"
+      },
+      {
+        "enum": "",
+        "name": "raErr",
+        "type": "float",
+        "length": 8,
+        "unit": "arcsec",
+        "ucd": "",
+        "description": "Error in RA (* cos(Dec), that is, proper units)"
+      },
+      {
+        "enum": "",
+        "name": "decErr",
+        "type": "float",
+        "length": 8,
+        "unit": "arcsec",
+        "ucd": "",
+        "description": "Error in Dec"
+      },
+      {
+        "enum": "",
+        "name": "b",
+        "type": "float",
+        "length": 8,
+        "unit": "deg",
+        "ucd": "",
+        "description": "Galactic latitude"
+      },
+      {
+        "enum": "",
+        "name": "l",
+        "type": "float",
+        "length": 8,
+        "unit": "deg",
+        "ucd": "",
+        "description": "Galactic longitude"
+      },
+      {
+        "enum": "",
+        "name": "offsetRa_u",
+        "type": "real",
+        "length": 4,
+        "unit": "arcsec",
+        "ucd": "",
+        "description": "filter position RA minus final RA (* cos(Dec), that is, proper units)"
+      },
+      {
+        "enum": "",
+        "name": "offsetRa_g",
+        "type": "real",
+        "length": 4,
+        "unit": "arcsec",
+        "ucd": "",
+        "description": "filter position RA minus final RA (* cos(Dec), that is, proper units)"
+      },
+      {
+        "enum": "",
+        "name": "offsetRa_r",
+        "type": "real",
+        "length": 4,
+        "unit": "arcsec",
+        "ucd": "",
+        "description": "filter position RA minus final RA (* cos(Dec), that is, proper units)"
+      },
+      {
+        "enum": "",
+        "name": "offsetRa_i",
+        "type": "real",
+        "length": 4,
+        "unit": "arcsec",
+        "ucd": "",
+        "description": "filter position RA minus final RA (* cos(Dec), that is, proper units)"
+      },
+      {
+        "enum": "",
+        "name": "offsetRa_z",
+        "type": "real",
+        "length": 4,
+        "unit": "arcsec",
+        "ucd": "",
+        "description": "filter position RA minus final RA (* cos(Dec), that is, proper units)"
+      },
+      {
+        "enum": "",
+        "name": "offsetDec_u",
+        "type": "real",
+        "length": 4,
+        "unit": "arcsec",
+        "ucd": "",
+        "description": "filter position Dec minus final Dec"
+      },
+      {
+        "enum": "",
+        "name": "offsetDec_g",
+        "type": "real",
+        "length": 4,
+        "unit": "arcsec",
+        "ucd": "",
+        "description": "filter position Dec minus final Dec"
+      },
+      {
+        "enum": "",
+        "name": "offsetDec_r",
+        "type": "real",
+        "length": 4,
+        "unit": "arcsec",
+        "ucd": "",
+        "description": "filter position Dec minus final Dec"
+      },
+      {
+        "enum": "",
+        "name": "offsetDec_i",
+        "type": "real",
+        "length": 4,
+        "unit": "arcsec",
+        "ucd": "",
+        "description": "filter position Dec minus final Dec"
+      },
+      {
+        "enum": "",
+        "name": "offsetDec_z",
+        "type": "real",
+        "length": 4,
+        "unit": "arcsec",
+        "ucd": "",
+        "description": "filter position Dec minus final Dec"
+      },
+      {
+        "enum": "",
+        "name": "extinction_u",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "Extinction in u-band"
+      },
+      {
+        "enum": "",
+        "name": "extinction_g",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "Extinction in g-band"
+      },
+      {
+        "enum": "",
+        "name": "extinction_r",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "Extinction in r-band"
+      },
+      {
+        "enum": "",
+        "name": "extinction_i",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "Extinction in i-band"
+      },
+      {
+        "enum": "",
+        "name": "extinction_z",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "Extinction in z-band"
+      },
+      {
+        "enum": "",
+        "name": "psffwhm_u",
+        "type": "real",
+        "length": 4,
+        "unit": "arcsec",
+        "ucd": "",
+        "description": "FWHM in u-band"
+      },
+      {
+        "enum": "",
+        "name": "psffwhm_g",
+        "type": "real",
+        "length": 4,
+        "unit": "arcsec",
+        "ucd": "",
+        "description": "FWHM in g-band"
+      },
+      {
+        "enum": "",
+        "name": "psffwhm_r",
+        "type": "real",
+        "length": 4,
+        "unit": "arcsec",
+        "ucd": "",
+        "description": "FWHM in r-band"
+      },
+      {
+        "enum": "",
+        "name": "psffwhm_i",
+        "type": "real",
+        "length": 4,
+        "unit": "arcsec",
+        "ucd": "",
+        "description": "FWHM in i-band"
+      },
+      {
+        "enum": "",
+        "name": "psffwhm_z",
+        "type": "real",
+        "length": 4,
+        "unit": "arcsec",
+        "ucd": "",
+        "description": "FWHM in z-band"
+      },
+      {
+        "enum": "",
+        "name": "mjd",
+        "type": "int",
+        "length": 4,
+        "unit": "days",
+        "ucd": "",
+        "description": "Date of observation"
+      },
+      {
+        "enum": "",
+        "name": "airmass_u",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Airmass at time of observation in u-band"
+      },
+      {
+        "enum": "",
+        "name": "airmass_g",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Airmass at time of observation in g-band"
+      },
+      {
+        "enum": "",
+        "name": "airmass_r",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Airmass at time of observation in r-band"
+      },
+      {
+        "enum": "",
+        "name": "airmass_i",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Airmass at time of observation in i-band"
+      },
+      {
+        "enum": "",
+        "name": "airmass_z",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Airmass at time of observation in z-band"
+      },
+      {
+        "enum": "",
+        "name": "phioffset_u",
+        "type": "real",
+        "length": 4,
+        "unit": "deg",
+        "ucd": "",
+        "description": "Degrees to add to CCD-aligned angle to convert to E of N"
+      },
+      {
+        "enum": "",
+        "name": "phioffset_g",
+        "type": "real",
+        "length": 4,
+        "unit": "deg",
+        "ucd": "",
+        "description": "Degrees to add to CCD-aligned angle to convert to E of N"
+      },
+      {
+        "enum": "",
+        "name": "phioffset_r",
+        "type": "real",
+        "length": 4,
+        "unit": "deg",
+        "ucd": "",
+        "description": "Degrees to add to CCD-aligned angle to convert to E of N"
+      },
+      {
+        "enum": "",
+        "name": "phioffset_i",
+        "type": "real",
+        "length": 4,
+        "unit": "deg",
+        "ucd": "",
+        "description": "Degrees to add to CCD-aligned angle to convert to E of N"
+      },
+      {
+        "enum": "",
+        "name": "phioffset_z",
+        "type": "real",
+        "length": 4,
+        "unit": "deg",
+        "ucd": "",
+        "description": "Degrees to add to CCD-aligned angle to convert to E of N"
+      },
+      {
+        "enum": "",
+        "name": "nProf_u",
+        "type": "int",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Number of Profile Bins"
+      },
+      {
+        "enum": "",
+        "name": "nProf_g",
+        "type": "int",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Number of Profile Bins"
+      },
+      {
+        "enum": "",
+        "name": "nProf_r",
+        "type": "int",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Number of Profile Bins"
+      },
+      {
+        "enum": "",
+        "name": "nProf_i",
+        "type": "int",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Number of Profile Bins"
+      },
+      {
+        "enum": "",
+        "name": "nProf_z",
+        "type": "int",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Number of Profile Bins"
+      },
+      {
+        "enum": "",
+        "name": "loadVersion",
+        "type": "int",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Load Version"
+      },
+      {
+        "enum": "",
+        "name": "htmID",
+        "type": "bigint",
+        "length": 8,
+        "unit": "",
+        "ucd": "",
+        "description": "20-deep hierarchical trangular mesh ID of this object"
+      },
+      {
+        "enum": "",
+        "name": "fieldID",
+        "type": "bigint",
+        "length": 8,
+        "unit": "",
+        "ucd": "",
+        "description": "Link to the field this object is in"
+      },
+      {
+        "enum": "",
+        "name": "parentID",
+        "type": "bigint",
+        "length": 8,
+        "unit": "",
+        "ucd": "",
+        "description": "Pointer to parent (if object deblended) or BRIGHT detection (if object has one), else 0"
+      },
+      {
+        "enum": "",
+        "name": "specObjID",
+        "type": "bigint",
+        "length": 8,
+        "unit": "",
+        "ucd": "",
+        "description": "Pointer to the spectrum of object, if exists, else 0"
+      },
+      {
+        "enum": "",
+        "name": "u",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "Shorthand alias for modelMag"
+      },
+      {
+        "enum": "",
+        "name": "g",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "Shorthand alias for modelMag"
+      },
+      {
+        "enum": "",
+        "name": "r",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "Shorthand alias for modelMag"
+      },
+      {
+        "enum": "",
+        "name": "i",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "Shorthand alias for modelMag"
+      },
+      {
+        "enum": "",
+        "name": "z",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "Shorthand alias for modelMag"
+      },
+      {
+        "enum": "",
+        "name": "err_u",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "Error in modelMag alias"
+      },
+      {
+        "enum": "",
+        "name": "err_g",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "Error in modelMag alias"
+      },
+      {
+        "enum": "",
+        "name": "err_r",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "Error in modelMag alias"
+      },
+      {
+        "enum": "",
+        "name": "err_i",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "Error in modelMag alias"
+      },
+      {
+        "enum": "",
+        "name": "err_z",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "Error in modelMag alias"
+      },
+      {
+        "enum": "",
+        "name": "dered_u",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "Simplified mag, corrected for extinction: modelMag-extinction"
+      },
+      {
+        "enum": "",
+        "name": "dered_g",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "Simplified mag, corrected for extinction: modelMag-extinction"
+      },
+      {
+        "enum": "",
+        "name": "dered_r",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "Simplified mag, corrected for extinction: modelMag-extinction"
+      },
+      {
+        "enum": "",
+        "name": "dered_i",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "Simplified mag, corrected for extinction: modelMag-extinction"
+      },
+      {
+        "enum": "",
+        "name": "dered_z",
+        "type": "real",
+        "length": 4,
+        "unit": "mag",
+        "ucd": "",
+        "description": "Simplified mag, corrected for extinction: modelMag-extinction"
+      },
+      {
+        "enum": "",
+        "name": "cloudCam_u",
+        "type": "int",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Cloud camera status for observation in u-band"
+      },
+      {
+        "enum": "",
+        "name": "cloudCam_g",
+        "type": "int",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Cloud camera status for observation in g-band"
+      },
+      {
+        "enum": "",
+        "name": "cloudCam_r",
+        "type": "int",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Cloud camera status for observation in r-band"
+      },
+      {
+        "enum": "",
+        "name": "cloudCam_i",
+        "type": "int",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Cloud camera status for observation in i-band"
+      },
+      {
+        "enum": "",
+        "name": "cloudCam_z",
+        "type": "int",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Cloud camera status for observation in z-band"
+      },
+      {
+        "enum": "ResolveStatus",
+        "name": "resolveStatus",
+        "type": "int",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Resolve status of object"
+      },
+      {
+        "enum": "",
+        "name": "thingId",
+        "type": "int",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Unique identifier from global resolve"
+      },
+      {
+        "enum": "",
+        "name": "balkanId",
+        "type": "int",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "What balkan object is in from window"
+      },
+      {
+        "enum": "",
+        "name": "nObserve",
+        "type": "int",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Number of observations of this object"
+      },
+      {
+        "enum": "",
+        "name": "nDetect",
+        "type": "int",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Number of detections of this object"
+      },
+      {
+        "enum": "",
+        "name": "nEdge",
+        "type": "int",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Number of observations of this object near an edge"
+      },
+      {
+        "enum": "",
+        "name": "score",
+        "type": "real",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Quality of field (0-1)"
+      },
+      {
+        "enum": "CalibStatus",
+        "name": "calibStatus_u",
+        "type": "int",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Calibration status in u-band"
+      },
+      {
+        "enum": "CalibStatus",
+        "name": "calibStatus_g",
+        "type": "int",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Calibration status in g-band"
+      },
+      {
+        "enum": "CalibStatus",
+        "name": "calibStatus_r",
+        "type": "int",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Calibration status in r-band"
+      },
+      {
+        "enum": "CalibStatus",
+        "name": "calibStatus_i",
+        "type": "int",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Calibration status in i-band"
+      },
+      {
+        "enum": "CalibStatus",
+        "name": "calibStatus_z",
+        "type": "int",
+        "length": 4,
+        "unit": "",
+        "ucd": "",
+        "description": "Calibration status in z-band"
+      },
+      {
+        "enum": "",
+        "name": "nMgyPerCount_u",
+        "type": "real",
+        "length": 4,
+        "unit": "nmgy/count",
+        "ucd": "",
+        "description": "nanomaggies per count in u-band"
+      },
+      {
+        "enum": "",
+        "name": "nMgyPerCount_g",
+        "type": "real",
+        "length": 4,
+        "unit": "nmgy/count",
+        "ucd": "",
+        "description": "nanomaggies per count in g-band"
+      },
+      {
+        "enum": "",
+        "name": "nMgyPerCount_r",
+        "type": "real",
+        "length": 4,
+        "unit": "nmgy/count",
+        "ucd": "",
+        "description": "nanomaggies per count in r-band"
+      },
+      {
+        "enum": "",
+        "name": "nMgyPerCount_i",
+        "type": "real",
+        "length": 4,
+        "unit": "nmgy/count",
+        "ucd": "",
+        "description": "nanomaggies per count in i-band"
+      },
+      {
+        "enum": "",
+        "name": "nMgyPerCount_z",
+        "type": "real",
+        "length": 4,
+        "unit": "nmgy/count",
+        "ucd": "",
+        "description": "nanomaggies per count in z-band"
+      },
+      {
+        "enum": "",
+        "name": "TAI_u",
+        "type": "float",
+        "length": 8,
+        "unit": "sec",
+        "ucd": "",
+        "description": "time of observation (TAI) in each filter"
+      },
+      {
+        "enum": "",
+        "name": "TAI_g",
+        "type": "float",
+        "length": 8,
+        "unit": "sec",
+        "ucd": "",
+        "description": "time of observation (TAI) in each filter"
+      },
+      {
+        "enum": "",
+        "name": "TAI_r",
+        "type": "float",
+        "length": 8,
+        "unit": "sec",
+        "ucd": "",
+        "description": "time of observation (TAI) in each filter"
+      },
+      {
+        "enum": "",
+        "name": "TAI_i",
+        "type": "float",
+        "length": 8,
+        "unit": "sec",
+        "ucd": "",
+        "description": "time of observation (TAI) in each filter"
+      },
+      {
+        "enum": "",
+        "name": "TAI_z",
+        "type": "float",
+        "length": 8,
+        "unit": "sec",
+        "ucd": "",
+        "description": "time of observation (TAI) in each filter"
+      }
+    ]
+  }
+]

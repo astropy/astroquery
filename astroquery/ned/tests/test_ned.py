@@ -2,25 +2,18 @@
 from __future__ import print_function
 
 import os
-import requests
-
 
 from numpy import testing as npt
-from astropy.tests.helper import pytest
+import pytest
 from astropy.table import Table
-import astropy.utils.data as aud
 import astropy.coordinates as coord
 import astropy.units as u
 from ...exceptions import RemoteServiceError
 from ...utils.testing_tools import MockResponse
 
 from ... import ned
-from ...ned import (HUBBLE_CONSTANT,
-               CORRECT_REDSHIFT,
-               OUTPUT_COORDINATE_FRAME,
-               OUTPUT_EQUINOX,
-               SORT_OUTPUT_BY)
-
+from ...utils import commons
+from ...ned import conf
 
 DATA_FILES = {
     'object': 'query_object.xml',
@@ -47,21 +40,32 @@ def data_path(filename):
 
 @pytest.fixture
 def patch_get(request):
-    mp = request.getfuncargvalue("monkeypatch")
-    mp.setattr(requests, 'get', get_mockreturn)
+    try:
+        mp = request.getfixturevalue("monkeypatch")
+    except AttributeError:  # pytest < 3
+        mp = request.getfuncargvalue("monkeypatch")
+    mp.setattr(ned.Ned, '_request', get_mockreturn)
     return mp
 
 
 @pytest.fixture
 def patch_get_readable_fileobj(request):
-    def get_readable_fileobj_mockreturn(filename, cache=True):
+    def get_readable_fileobj_mockreturn(filename, cache=True, encoding=None,
+                                        show_progress=True):
+        # Need to read FITS files with binary encoding: should raise error
+        # otherwise
+        assert encoding == 'binary'
         return open(data_path(DATA_FILES['image']), 'rb')
-    mp = request.getfuncargvalue("monkeypatch")
-    mp.setattr(aud, 'get_readable_fileobj', get_readable_fileobj_mockreturn)
+    try:
+        mp = request.getfixturevalue("monkeypatch")
+    except AttributeError:  # pytest < 3
+        mp = request.getfuncargvalue("monkeypatch")
+    mp.setattr(commons, 'get_readable_fileobj',
+               get_readable_fileobj_mockreturn)
     return mp
 
 
-def get_mockreturn(url, params=None, timeout=10, **kwargs):
+def get_mockreturn(method, url, params=None, timeout=10, **kwargs):
     search_type = params.get('search_type')
     if search_type is not None:
         filename = data_path(DATA_FILES[search_type])
@@ -69,20 +73,8 @@ def get_mockreturn(url, params=None, timeout=10, **kwargs):
         filename = data_path(DATA_FILES['extract_urls'])
     else:
         filename = data_path(DATA_FILES['object'])
-    print(filename)
-    content = open(filename, "r").read()
+    content = open(filename, "rb").read()
     return MockResponse(content, **kwargs)
-
-
-@pytest.mark.parametrize(('radius', 'expected'),
-                         [(5 * u.deg, 300),
-                          ('0d5m0s', 5),
-                          (5 * u.arcsec, 0.0833)
-                          ])
-def test_parse_radius(radius, expected):
-    # radius in any equivalent unit must be converted to minutes
-    actual_radius = ned.core._parse_radius(radius)
-    npt.assert_approx_equal(actual_radius, expected, significant=3)
 
 
 def test_get_references_async(patch_get):
@@ -97,16 +89,18 @@ def test_get_references_async(patch_get):
     assert response['search_type'] == 'Reference'
 
 
-@pytest.mark.xfail(reason="astropy issue #1266")
 def test_get_references(patch_get):
-    response = ned.core.Ned.get_table_async("m1",table='references', from_year=2010)
+    response = ned.core.Ned.get_table_async(
+        "m1", table='references', from_year=2010)
     assert response is not None
-    result = ned.core.Ned.get_table("m1", table='references', to_year=2012, extended_search=True)
+    result = ned.core.Ned.get_table(
+        "m1", table='references', to_year=2012, extended_search=True)
     assert isinstance(result, Table)
 
 
 def test_get_positions_async(patch_get):
-    response = ned.core.Ned.get_table_async("m1", table='positions', get_query_payload=True)
+    response = ned.core.Ned.get_table_async(
+        "m1", table='positions', get_query_payload=True)
     assert response['objname'] == 'm1'
     response = ned.core.Ned.get_table_async("m1", table='positions')
     assert response is not None
@@ -118,7 +112,8 @@ def test_get_positions(patch_get):
 
 
 def test_get_redshifts_async(patch_get):
-    response = ned.core.Ned.get_table_async("3c 273", table='redshifts', get_query_payload=True)
+    response = ned.core.Ned.get_table_async(
+        "3c 273", table='redshifts', get_query_payload=True)
     assert response['objname'] == '3c 273'
     assert response['search_type'] == 'Redshifts'
     response = ned.core.Ned.get_table_async("3c 273", table='redshifts')
@@ -131,7 +126,8 @@ def test_get_redshifts(patch_get):
 
 
 def test_get_photometry_async(patch_get):
-    response = ned.core.Ned.get_table_async("3c 273", table='photometry', get_query_payload=True)
+    response = ned.core.Ned.get_table_async(
+        "3c 273", table='photometry', get_query_payload=True)
     assert response['objname'] == '3c 273'
     assert response['meas_type'] == 'bot'
     assert response['search_type'] == 'Photometry'
@@ -146,7 +142,7 @@ def test_photometry(patch_get):
 
 def test_extract_image_urls():
     html_in = open(data_path(DATA_FILES['extract_urls']), 'r').read()
-    url_list =ned.core.Ned.extract_image_urls(html_in)
+    url_list = ned.core.Ned.extract_image_urls(html_in)
     assert len(url_list) == 5
     for url in url_list:
         assert url.endswith('fits.gz')
@@ -173,13 +169,13 @@ def test_query_refcode_async(patch_get):
     response = ned.core.Ned.query_refcode_async('1997A&A...323...31K', True)
     assert response == {'search_type': 'Search',
                         'refcode': '1997A&A...323...31K',
-                        'hconst': HUBBLE_CONSTANT(),
+                        'hconst': conf.hubble_constant,
                         'omegam': 0.27,
                         'omegav': 0.73,
-                        'corr_z': CORRECT_REDSHIFT(),
-                        'out_csys': OUTPUT_COORDINATE_FRAME(),
-                        'out_equinox': OUTPUT_EQUINOX(),
-                        'obj_sort': SORT_OUTPUT_BY(),
+                        'corr_z': conf.correct_redshift,
+                        'out_csys': conf.output_coordinate_frame,
+                        'out_equinox': conf.output_equinox,
+                        'obj_sort': conf.sort_output_by,
                         'extend': 'no',
                         'img_stamp': 'NO',
                         'list_limit': 0,
@@ -195,7 +191,8 @@ def test_query_refcode(patch_get):
 
 
 def test_query_region_iau_async(patch_get):
-    response = ned.core.Ned.query_region_iau_async('1234-423', get_query_payload=True)
+    response = ned.core.Ned.query_region_iau_async(
+        '1234-423', get_query_payload=True)
     assert response['search_type'] == 'IAU Search'
     assert response['iau_name'] == '1234-423'
     assert response['in_csys'] == 'Equatorial'
@@ -210,28 +207,33 @@ def test_query_region_iau(patch_get):
 
 
 def mock_check_resolvable(name):
-        if name != 'm1':
-            raise coord.name_resolve.NameResolveError
+    if name != 'm1':
+        raise coord.name_resolve.NameResolveError
 
 
 def test_query_region_async(monkeypatch, patch_get):
     # check with the name
-    monkeypatch.setattr(coord.name_resolve, 'get_icrs_coordinates', mock_check_resolvable)
+    monkeypatch.setattr(
+        coord.name_resolve, 'get_icrs_coordinates', mock_check_resolvable)
     response = ned.core.Ned.query_region_async("m1", get_query_payload=True)
     assert response['objname'] == "m1"
     assert response['search_type'] == "Near Name Search"
     # check with Galactic coordinates
-    response = ned.core.Ned.query_region_async(coord.GalacticCoordinates(l=-67.02084, b=-29.75447, unit=(u.deg, u.deg)),
-                                               get_query_payload=True)
+    response = ned.core.Ned.query_region_async(
+        commons.GalacticCoordGenerator(l=-67.02084, b=-29.75447,
+                                       unit=(u.deg, u.deg)),
+        get_query_payload=True)
     assert response['search_type'] == 'Near Position Search'
-    npt.assert_approx_equal(response['lon'] % 360, -67.02084 % 360, significant=5)
+    npt.assert_approx_equal(
+        response['lon'] % 360, -67.02084 % 360, significant=5)
     npt.assert_approx_equal(response['lat'], -29.75447, significant=5)
     response = ned.core.Ned.query_region_async("05h35m17.3s +22d00m52.2s")
     assert response is not None
 
 
 def test_query_region(monkeypatch, patch_get):
-    monkeypatch.setattr(coord.name_resolve, 'get_icrs_coordinates', mock_check_resolvable)
+    monkeypatch.setattr(
+        coord.name_resolve, 'get_icrs_coordinates', mock_check_resolvable)
     result = ned.core.Ned.query_region("m1")
     assert isinstance(result, Table)
 
@@ -249,7 +251,8 @@ def test_query_object(patch_get):
 
 
 def test_get_object_notes_async(patch_get):
-    response = ned.core.Ned.get_table_async('m1', table='object_notes', get_query_payload=True)
+    response = ned.core.Ned.get_table_async(
+        'm1', table='object_notes', get_query_payload=True)
     assert response['objname'] == 'm1'
     assert response['search_type'] == 'Notes'
     response = ned.core.Ned.get_table_async('m1', table='object_notes')
@@ -262,8 +265,15 @@ def test_get_object_notes(patch_get):
 
 
 def test_parse_result(capsys):
-    content = open(data_path(DATA_FILES['error']), 'r').read()
+    content = open(data_path(DATA_FILES['error']), 'rb').read()
     response = MockResponse(content)
     with pytest.raises(RemoteServiceError) as exinfo:
         ned.core.Ned._parse_result(response)
-    assert exinfo.value.message == "The remote service returned the following error message.\nERROR:  No note found."
+    if hasattr(exinfo.value, 'message'):
+        assert exinfo.value.message == ("The remote service returned the "
+                                        "following error message.\nERROR:  "
+                                        "No note found.")
+    else:
+        assert exinfo.value.args == ("The remote service returned the "
+                                     "following error message.\nERROR:  "
+                                     "No note found.",)

@@ -1,0 +1,177 @@
+|         name|                                                             description|            ucd|      datatype|      size|ascii_type|    unit|  nullable| principal|   indexed|       std|
+|         char|                                                                    char|           char|          char|       int|      char|    char|       int|       int|       int|       int|
+|             |                                                                        |               |              |          |          |        |          |          |          |          |
+|         null|                                                                    null|           null|          null|      null|      null|    null|      null|      null|      null|      null|
+         expid                                                     Exopsure database ID                           long       null       long     null          1          1          0          0 
+       obsdate                         Observation UT date/time YYYY-MM-DD HH:MM:SS.SSS      time.epoch           char         26       char     null          1          1          0          0 
+        crval1                       Reference position RA (FK5 J2000) at crpix1,crpix2       pos.eq.ra         double       null     double      deg          1          1          0          0 
+        crval2                      Reference position Dec (FK5 J2000) at crpix1,crpix2      pos.eq.dec         double       null     double      deg          1          1          0          0 
+        filter                                                              Filter name                           char          7       char     null          1          1          0          0 
+         ccdid                                                       CCD number (0..11)                           long       null       long     null          1          1          0          0 
+      ptffield                                                         PTF field number                           long       null       long     null          1          1          1          0 
+        seeing                                                              Seeing FWHM                         double       null     double   arcsec          1          1          0          0 
+       airmass                                                        Telescope airmass                         double       null     double     null          1          1          0          0 
+      moonillf                                                Moon illuminated fraction                         double       null     double     null          1          1          0          0 
+       moonesb                                  Moon excess in sky brightness in V-band                         double       null     double     null          1          1          0          0 
+   photcalflag Flag for whether image has been photometrically calibrated (0=NO, 1=YES)                           long       null       long     null          1          1          0          0 
+      infobits                                                           Info bit flags                           long       null       long     null          1          1          0          0 
+           nid                                                        Night database ID                           long       null       long     null          1          1          1          0 
+       fieldid                                                        Field database ID                           long       null       long     null          1          1          0          0 
+        ptfpid                                                             Project name                           char          7       char     null          1          1          0          0 
+     pfilename                                                 Processed-image filename                           char        255       char     null          1          1          0          0 
+    afilename1                                                       Ancillary filename                           char        255       char     null          1          1          0          0 
+    afilename2                                                       Ancillary filename                           char        255       char     null          1          1          0          0 
+    afilename3                                                       Ancillary filename                           char        255       char     null          1          1          0          0 
+    afilename4                                                      PSF-fitting catalog                           char        255       char     null          1          1          0          0 
+     rfilename                                                       Raw-image filename                           char        255       char     null          1          1          0          0 
+         obsjd                             Observation UT Julian date UTC-OBS (obsdate)      time.epoch         double       null     double        d          1          0          0          0 
+        obsmjd                            Observation UT modified Julian date (obsdate)      time.epoch         double       null     double        d          1          1          0          0 
+        obslst                                        Mean local sidereal time HH:MM:SS      time.epoch           char         15       char     null          1          0          0          0 
+       exptime                                                  Requested exposure time   time.duration         double       null     double        s          1          0          0          0 
+      aexptime                                                     Actual exposure time   time.duration         double       null     double        s          1          0          0          0 
+          piid                                       Principal investigator database ID                           long       null       long     null          1          0          0          0 
+       ptfprpi                                                   Principal investigator                           char          9       char     null          1          1          0          0 
+           fid                                                       Filter database ID                           long       null       long     null          1          0          0          0 
+          prid                                                      Project database ID                           long       null       long     null          1          0          0          0 
+          itid                                                   Image-type database ID                           long       null       long     null          1          0          0          0 
+      domestat                 Dome status at beginning of exposure ('open' or 'close')                           char          9       char     null          1          0          0          0 
+        domeaz                                                             Dome azimuth                         double       null     double      deg          1          0          0          0 
+      filtersl                                               Filter changer slot number                           long       null       long     null          1          1          0          0 
+       softver                      Observatory-software version (TCS.Camera.OCS.Sched)                           char          8       char     null          1          0          0          0 
+       hdr_ver                                                           Header version                           char          8       char     null          1          0          0          0 
+         telra                         Telescope apparent equinox of date R.A. from TCS                         double       null     double      deg          1          0          0          0 
+        teldec                         Telescope apparent equinox of date Dec. from TCS                         double       null     double      deg          1          0          0          0 
+         telha                            Telescope apparent equinox of date hour angle                         double       null     double      deg          1          0          0          0 
+       hourang                                Mean hour angle of observation (HH:MM:SS)                           char         12       char     null          1          0          0          0 
+       azimuth                                                        Telescope azimuth                         double       null     double      deg          1          0          0          0 
+      altitude                                                       Telescope altitude                         double       null     double      deg          1          0          0          0 
+      peakdist                 Mean distance between brightest pixel and centroid pixel                         double       null     double      pix          1          0          0          0 
+         ellip                                               Mean image ellipticity A/B                         double       null     double     null          1          0          0          0 
+       ellippa                                                Mean image ellipticity PA                         double       null     double      deg          1          0          0          0 
+       defocus                                                   Nominal focus position                         double       null     double       mm          1          0          0          0 
+      focuspos                                               Observation focus position                         double       null     double       mm          1          0          0          0 
+       winddir                                                Azimuth of wind direction                         double       null     double      deg          1          0          0          0 
+     windspeed                                                               Wind speed                         double       null     double     km/h          1          0          0          0 
+      windscal                                                     Wind screen altitude                         double       null     double      deg          1          0          0          0 
+       outtemp                                                      Outside temperature                         double       null     double        C          1          0          0          0 
+      outrelhu                                                Outside relative humidity                         double       null     double     null          1          0          0          0 
+      outdewpt                                                        Outside dew point                         double       null     double        C          1          0          0          0 
+      pressure                                                     Atmospheric pressure                         double       null     double     mbar          1          0          0          0 
+        intemp                                                       Inside temperature                         double       null     double        C          1          0          0          0 
+       inrelhu                                                 Inside relative humidity                         double       null     double     null          1          0          0          0 
+       indewpt                                                         Inside dew point                         double       null     double        C          1          0          0          0 
+       mirtemp                                               Primary mirror temperature                         double       null     double        C          1          0          0          0 
+      ccd9temp                                        Servo-temperature sensor on CCD09                         double       null     double        K          1          0          0          0 
+        hstemp                                                 Heat-spreader temperture                         double       null     double        K          1          0          0          0 
+      dhe0temp                       Controller-0 detector head electronics temperature                         double       null     double        K          1          0          0          0 
+      dhe1temp                       Controller-1 detector head electronics temperature                         double       null     double        K          1          0          0          0 
+      dewwtemp                                                   Dewar-wall temperature                         double       null     double        K          1          0          0          0 
+      headtemp                                        Cryo-cooler cold head temperature                         double       null     double        K          1          0          0          0 
+      ccd5temp                                              Temperature sensor on CCD05                         double       null     double        K          1          0          0          0 
+     ccd11temp                                              Temperature sensor on CCD11                         double       null     double        K          1          0          0          0 
+      ccd0temp                                              Temperature sensor on CCD00                         double       null     double        K          1          0          0          0 
+        rstemp                                   Temperature sensor on radiation shield                         double       null     double        K          1          0          0          0 
+      dewpress                                                           Dewar pressure                         double       null     double    mtorr          1          0          0          0 
+        moonra                                                        Moon J2000.0 R.A.       pos.eq.ra         double       null     double      deg          1          1          0          0 
+       moondec                                                        Moon J2000.0 Dec.      pos.eq.dec         double       null     double      deg          1          1          0          0 
+      moonphas                                                         Moon phase angle                         double       null     double      deg          1          1          0          0 
+       moonalt                                                            Moon altitude                         double       null     double     null          1          1          0          0 
+       trackra                                      Track speed RA relative to sidereal                         double       null     double arcsec/h          1          0          0          0 
+      trackdec                                     Track speed Dec relative to sidereal                         double       null     double arcsec/h          1          0          0          0 
+           pid                                              Processed-image database ID                           long       null       long     null          1          0          1          0 
+           rid                                                    Raw-image database ID                           long       null       long     null          1          0          0          0 
+          ppid                                                     Pipeline database ID                           long       null       long     null          1          0          0          0 
+       version                                         Processed-image database version                           long       null       long     null          1          0          0          0 
+         vbest                    Best processed version at any given time (always > 0)                           long       null       long     null          1          0          0          0 
+ sdqa_statusid                                              Science-data-quality-status                           long       null       long     null          1          0          0          0 
+     pchecksum                                           Processed-image checksum (MD5)                           char         33       char     null          1          0          0          0 
+   createddate                                       Processed-image creation date/time      time.epoch           char         26       char     null          1          0          0          0 
+          svid                                    Pipeline-software-version database ID                           long       null       long     null          1          0          0          0 
+          cvid          Pipeline-controlled-configuration-data-file-version database ID                           long       null       long     null          1          0          0          0 
+          avid                                              Archive-version database ID                           long       null       long     null          1          0          0          0 
+        crpix1                                     reference pixel value for axis 1 (x)                         double       null     double      pix          1          0          0          0 
+        crpix2                                     reference pixel value for axis 2 (y)                         double       null     double      pix          1          0          0          0 
+         cd1_1                                                    CD matrix element 1,1                         double       null     double  deg/pix          1          0          0          0 
+         cd1_2                                                    CD matrix element 1,2                         double       null     double  deg/pix          1          0          0          0 
+         cd2_1                                                    CD matrix element 2,1                         double       null     double  deg/pix          1          0          0          0 
+         cd2_2                                                    CD matrix element 2,2                         double       null     double  deg/pix          1          0          0          0 
+        cdelt1                            deg/pix scale at crpix1,crpix2 for axis 1 (x)                         double       null     double  deg/pix          1          0          0          0 
+        cdelt2                            deg/pix scale at crpix1,crpix2 for axis 2 (y)                         double       null     double  deg/pix          1          0          0          0 
+        crota2                                       image twist angle of +axis2 W of N                         double       null     double      deg          1          0          0          0 
+         pv1_0                                    SCAMP projection distortion parameter                         double       null     double     null          1          0          0          0 
+         pv1_1                                    SCAMP projection distortion parameter                         double       null     double     null          1          0          0          0 
+         pv1_2                                    SCAMP projection distortion parameter                         double       null     double     null          1          0          0          0 
+         pv1_3                                    SCAMP projection distortion parameter                         double       null     double     null          1          0          0          0 
+         pv1_4                                    SCAMP projection distortion parameter                         double       null     double     null          1          0          0          0 
+         pv1_5                                    SCAMP projection distortion parameter                         double       null     double     null          1          0          0          0 
+         pv1_6                                    SCAMP projection distortion parameter                         double       null     double     null          1          0          0          0 
+         pv1_7                                    SCAMP projection distortion parameter                         double       null     double     null          1          0          0          0 
+         pv1_8                                    SCAMP projection distortion parameter                         double       null     double     null          1          0          0          0 
+         pv1_9                                    SCAMP projection distortion parameter                         double       null     double     null          1          0          0          0 
+        pv1_10                                    SCAMP projection distortion parameter                         double       null     double     null          1          0          0          0 
+         pv2_0                                    SCAMP projection distortion parameter                         double       null     double     null          1          0          0          0 
+         pv2_1                                    SCAMP projection distortion parameter                         double       null     double     null          1          0          0          0 
+         pv2_2                                    SCAMP projection distortion parameter                         double       null     double     null          1          0          0          0 
+         pv2_3                                    SCAMP projection distortion parameter                         double       null     double     null          1          0          0          0 
+         pv2_4                                    SCAMP projection distortion parameter                         double       null     double     null          1          0          0          0 
+         pv2_5                                    SCAMP projection distortion parameter                         double       null     double     null          1          0          0          0 
+         pv2_6                                    SCAMP projection distortion parameter                         double       null     double     null          1          0          0          0 
+         pv2_7                                    SCAMP projection distortion parameter                         double       null     double     null          1          0          0          0 
+         pv2_8                                    SCAMP projection distortion parameter                         double       null     double     null          1          0          0          0 
+         pv2_9                                    SCAMP projection distortion parameter                         double       null     double     null          1          0          0          0 
+        pv2_10                                    SCAMP projection distortion parameter                         double       null     double     null          1          0          0          0 
+           cra                          Sexigesimal representation of image CRVAL1 (ra)       pos.eq.ra           char         13       char     null          1          0          0          0 
+          cdec                         Sexigesimal representation of image CRVAL2 (dec)      pos.eq.dec           char         13       char     null          1          0          0          0 
+           ra1                                                  R.A. of image corner #1       pos.eq.ra         double       null     double      deg          1          1          0          0 
+          dec1                                                  Dec. of image corner #1      pos.eq.dec         double       null     double      deg          1          1          0          0 
+           ra2                                                  R.A. of image corner #2       pos.eq.ra         double       null     double      deg          1          1          0          0 
+          dec2                                                  Dec. of image corner #2      pos.eq.dec         double       null     double      deg          1          1          0          0 
+           ra3                                                  R.A. of image corner #3       pos.eq.ra         double       null     double      deg          1          1          0          0 
+          dec3                                                  Dec. of image corner #3      pos.eq.dec         double       null     double      deg          1          1          0          0 
+           ra4                                                  R.A. of image corner #4       pos.eq.ra         double       null     double      deg          1          1          0          0 
+          dec4                                                  Dec. of image corner #4      pos.eq.dec         double       null     double      deg          1          1          0          0 
+          xval                                unit sphere position x = cos(ra)*cos(dec) pos.cartesian.x         double       null     double     null          1          0          0          0 
+          yval                                unit sphere position y = sin(ra)*cos(dec) pos.cartesian.y         double       null     double     null          1          0          0          0 
+          zval                                        unit sphere position z = sin(dec) pos.cartesian.z         double       null     double     null          1          0          0          0 
+    receivedat                   When raw image was split from camera image (date/time)                           char         26       char     null          1          0          0          0 
+     rchecksum                                                       Raw-image checksum                           char         33       char     null          1          0          0          0 
+   publicrelsd                                                 Public release date/time                           char         26       char     null          1          0          0          0 
+          gain                                                         Gain of detector                         double       null     double    e-/DN          1          1          0          0 
+       readnoi                                                   Read noise of detector                         double       null     double       e-          1          1          0          0 
+       darkcur                                         Dark current of detector at 150K                         double       null     double     e-/s          1          1          0          0 
+          aid1                                               Ancillary-file database ID                           long       null       long     null          1          0          0          0 
+    anciltype1                                                      Ancillary-file type                           char         10       char     null          1          0          0          0 
+    achecksum1                                            Ancillary-file checksum (MD5)                           char         33       char     null          1          0          0          0 
+          aid2                                               Ancillary-file database ID                           long       null       long     null          1          0          0          0 
+    anciltype2                                                      Ancillary-file type                           char         10       char     null          1          0          0          0 
+    achecksum2                                            Ancillary-file checksum (MD5)                           char         33       char     null          1          0          0          0 
+          aid3                                               Ancillary-file database ID                           long       null       long     null          1          0          0          0 
+    anciltype3                                                      Ancillary-file type                           char         10       char     null          1          0          0          0 
+    achecksum3                                            Ancillary-file checksum (MD5)                           char         33       char     null          1          0          0          0 
+          aid4                                               Ancillary-file database ID                           long       null       long     null          1          0          0          0 
+    anciltype4                                                      Ancillary-file type                           char         10       char     null          1          0          0          0 
+    achecksum4                                            Ancillary-file checksum (MD5)                           char         33       char     null          1          0          0          0 
+          cid1                                             Calibration-file database ID                           long       null       long     null          1          0          0          0 
+      caltype1                                                    Calibration-file type                           char         10       char     null          1          0          0          0 
+    cfilename1                                                     Calibration filename                           char        255       char     null          1          0          0          0 
+    cchecksum1                                          Calibration-file checksum (MD5)                           char         33       char     null          1          0          0          0 
+          cid2                                             Calibration-file database ID                           long       null       long     null          1          0          0          0 
+      caltype2                                                    Calibration-file type                           char         12       char     null          1          0          0          0 
+    cfilename2                                                     Calibration filename                           char        255       char     null          1          0          0          0 
+    cchecksum2                                          Calibration-file checksum (MD5)                           char         33       char     null          1          0          0          0 
+          cid3                                             Calibration-file database ID                           long       null       long     null          1          0          0          0 
+      caltype3                                                    Calibration-file type                           char         10       char     null          1          0          0          0 
+    cfilename3                                                     Calibration filename                           char        255       char     null          1          0          0          0 
+    cchecksum3                                          Calibration-file checksum (MD5)                           char         33       char     null          1          0          0          0 
+          cid4                                             Calibration-file database ID                           long       null       long     null          1          0          0          0 
+      caltype4                                                    Calibration-file type                           char          9       char     null          1          0          0          0 
+    cfilename4                                                     Calibration filename                           char        255       char     null          1          0          0          0 
+    cchecksum4                                          Calibration-file checksum (MD5)                           char         11       char     null          1          0          0          0 
+       replace     Flag to replace image-metadata record in IRSA database [0=NO, 1=YES]                           long       null       long     null          1          0          0          0 
+      ipac_gid                                                            IPAC Group ID                            int       null        int     null          1          1          0          0 
+ ipac_pub_date                                         UTC date exposure becomes public    time.release           char         26       char     null          1          1          0          0 
+             x                                unit sphere position x = cos(ra)*cos(dec) pos.cartesian.x         double       null     double     null          1          0          0          0 
+             y                                unit sphere position y = sin(ra)*cos(dec) pos.cartesian.y         double       null     double     null          1          0          0          0 
+             z                                        unit sphere position z = sin(dec) pos.cartesian.z         double       null     double     null          1          0          0          0 
+       spt_ind                         Level 7 HTM index of (ra, dec), decimal encoding                           long       null       long     null          1          0          1          0 
+          cntr                                                         unique record ID     meta.record           long       null       long     null          1          0          1          0 

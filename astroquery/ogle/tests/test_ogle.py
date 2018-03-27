@@ -2,14 +2,14 @@
 from ... import ogle
 
 import os
-import requests
-from astropy.tests.helper import pytest
-from astropy import coordinates as coord
+import pytest
+from astropy.coordinates import SkyCoord
 from astropy import units as u
 from ...utils.testing_tools import MockResponse
 
-DATA_FILES = {'gal_0_3':'gal_0_3.txt',
+DATA_FILES = {'gal_0_3': 'gal_0_3.txt',
               }
+
 
 def data_path(filename):
     data_dir = os.path.join(os.path.dirname(__file__), 'data')
@@ -18,13 +18,17 @@ def data_path(filename):
 
 @pytest.fixture
 def patch_post(request):
-    mp = request.getfuncargvalue("monkeypatch")
-    mp.setattr(requests, 'post', post_mockreturn)
+    try:
+        mp = request.getfixturevalue("monkeypatch")
+    except AttributeError:  # pytest < 3
+        mp = request.getfuncargvalue("monkeypatch")
+    mp.setattr(ogle.Ogle, '_request', post_mockreturn)
     return mp
 
-def post_mockreturn(url, data, timeout, files=None, **kwargs):
+
+def post_mockreturn(method, url, data, timeout, files=None, **kwargs):
     if files is not None:
-        content = open(data_path(DATA_FILES['gal_0_3']),'r').read()
+        content = open(data_path(DATA_FILES['gal_0_3']), 'rb').read()
         response = MockResponse(content, **kwargs)
     else:
         raise ValueError("Unsupported post request.")
@@ -35,7 +39,7 @@ def test_ogle_single(patch_post):
     """
     Test a single pointing using an astropy coordinate instance
     """
-    co = coord.GalacticCoordinates(0, 3, unit=(u.degree, u.degree))
+    co = SkyCoord(0, 3, unit=(u.degree, u.degree), frame='galactic')
     ogle.core.Ogle.query_region(coord=co)
 
 
@@ -43,7 +47,7 @@ def test_ogle_list(patch_post):
     """
     Test multiple pointings using a list of astropy coordinate instances
     """
-    co = coord.GalacticCoordinates(0, 3, unit=(u.degree, u.degree))
+    co = SkyCoord(0, 3, unit=(u.degree, u.degree), frame='galactic')
     co_list = [co, co, co]
     ogle.core.Ogle.query_region(coord=co_list)
 

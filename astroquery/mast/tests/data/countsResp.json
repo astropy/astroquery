@@ -1,0 +1,1 @@
+{"status": "COMPLETE", "msg": "", "data": [{"Column1": 599}], "fields": [{"name": "Column1", "type": "string"}], "paging": {"page": 1, "pageSize": 50000, "pagesFiltered": 1, "rows": 1, "rowsFiltered": 1, "rowsTotal": 1}}

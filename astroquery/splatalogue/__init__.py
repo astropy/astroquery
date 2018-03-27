@@ -7,15 +7,35 @@ Splatalogue Catalog Query Tool
 
 :Originally contributed by:
 
-     Magnus Vilehlm Persson (magnusp@vilhelm.nu)
+     Magnus Vilhelm Persson (magnusp@vilhelm.nu)
 """
-from astropy.config import ConfigurationItem
-SLAP_URL = ConfigurationItem("Splatalogue SLAP interface URL (not used).",'http://find.nrao.edu/splata-slap/slap')
-QUERY_URL = ConfigurationItem("Splatalogue web interface URL.",'http://www.cv.nrao.edu/php/splat/c_export.php')
-SPLATALOGUE_TIMEOUT = ConfigurationItem('timeout', 60, 'default timeout for connecting to server')
+from astropy import config as _config
 
-import load_species_table
 
-from .core import Splatalogue
+class Conf(_config.ConfigNamespace):
+    """
+    Configuration parameters for `astroquery.splatalogue`.
+    """
+    slap_url = _config.ConfigItem(
+        'http://find.nrao.edu/splata-slap/slap',
+        'Splatalogue SLAP interface URL (not used).')
+    query_url = _config.ConfigItem(
+        'http://www.cv.nrao.edu/php/splat/c_export.php',
+        'Splatalogue web interface URL.')
+    timeout = _config.ConfigItem(
+        60,
+        'Time limit for connecting to Splatalogue server.')
+    lines_limit = _config.ConfigItem(
+        1000,
+        'Limit to number of lines exported.')
 
-__all__ = ['Splatalogue']
+
+conf = Conf()
+
+from . import load_species_table
+from . import utils
+from .core import Splatalogue, SplatalogueClass
+
+__all__ = ['Splatalogue', 'SplatalogueClass',
+           'Conf', 'conf',
+           ]
