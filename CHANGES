@@ -1,6 +1,7 @@
 0.3.8 (unreleased)
 ------------------
 
+- splatalogue: Move to https.  Old HTTP post requests were broken [#1066,#1076]
 - heasarc: Add additional functionality and expand query capabilities [#1047]
 - New tool: JPL Horizons service to obtain ephemerides, orbital elements, and
   state vectors for Solar System objects. [#1023]
