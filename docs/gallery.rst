@@ -481,7 +481,8 @@ Example 9
 +++++++++
 
 Retrieve an image from skyview and overlay a Vizier catalog on it.
-This example approximately reproduces Figure 1 of 2016ApJ...826...16E,
+This example approximately reproduces Figure 1 of 
+`2016ApJ...826...16E <http://adsabs.harvard.edu/abs/2016ApJ...826...16E>`_,
 except with a different background.::
 
 
