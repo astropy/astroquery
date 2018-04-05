@@ -5,7 +5,7 @@ OPEN ASTRONOMY CATALOG (OAC) API TOOL
 -------------------------------------
 This module allows access to the OAC API and
 all available functionality. For more information
-see: api.astrocats.space.
+see: https://api.astrocats.space.
 :authors: Philip S. Cowperthwaite (pcowpert@cfa.harvard.edu)
 and James Guillochon (jguillochon@cfa.harvard.edu)
 """
