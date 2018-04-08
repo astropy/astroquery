@@ -126,7 +126,9 @@ class XMatchClass(BaseQuery):
         available VizieR tables, otherwise False.
 
         """
-        if isinstance(table_id, six.string_types) and (table_id[:7] == 'vizier:'):
+        if not isinstance(table_id, six.string_types):
+            return False
+        if table_id.startswith('vizier:'):
             table_id = table_id[7:]
         return table_id in self.get_available_tables()
 
