@@ -102,13 +102,13 @@ class XMatchClass(BaseQuery):
         if isinstance(cat, six.string_types):
             payload[catstr] = cat
         elif isinstance(cat, Table):
-            # write the Table's content into a new, temporary CSV-file
+            # write the Table's content into a new, temporary VOT-file
             # so that it can be pointed to via the `files` option
             # file will be closed when garbage-collected
-            fp = six.StringIO()
-            cat.write(fp, format='ascii.csv')
+            fp = six.BytesIO()
+            cat.write(fp, format='votable')
             fp.seek(0)
-            kwargs['files'] = {catstr: ('cat1.csv', fp.read())}
+            kwargs['files'] = {catstr: ('cat1.vot', fp.read())}
         else:
             # assume it's a file-like object, support duck-typing
             kwargs['files'] = {catstr: ('cat1.csv', cat.read())}
