@@ -71,4 +71,5 @@ class VsaClass(BaseWFAUClass):
         self.ARCHIVE_URL = self.BASE_URL + "ImageList"
         self.REGION_URL = self.BASE_URL + "WSASQL"
 
+
 Vsa = VsaClass()

@@ -89,7 +89,6 @@ def get_mockreturn(method='GET', url='default_url',
     return MockResponse(content=content, url=url, **kwargs)
 
 
-
 def test_get_images(patch_get, patch_get_readable_fileobj):
     image = ukidss.core.Ukidss.get_images(
         commons.ICRSCoordGenerator(ra=83.633083, dec=22.0145,
