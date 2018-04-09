@@ -189,7 +189,8 @@ class Tap(object):
         A Job object
         """
         query = taputils.set_top_in_query(query, 2000)
-        print("Launched query: '"+str(query)+"'")
+        if verbose:
+            print("Launched query: '"+str(query)+"'")
         if upload_resource is not None:
             if upload_table_name is None:
                 raise ValueError("Table name is required when a resource is uploaded")
@@ -224,13 +225,15 @@ class Tap(object):
                 self.__connHandler.dump_to_file(suitableOutputFile, response)
             raise Exception(response.reason)
         else:
-            print("Retrieving sync. results...")
+            if verbose:
+                print("Retrieving sync. results...")
             if dump_to_file:
                 self.__connHandler.dump_to_file(suitableOutputFile, response)
             else:
                 results = utils.read_http_response(response, output_format)
                 job.set_results(results)
-            print("Query finished.")
+            if verbose:
+                print("Query finished.")
             job.set_phase('COMPLETED')
         return job
 
@@ -265,7 +268,8 @@ class Tap(object):
         -------
         A Job object
         """
-        print("Launched query: '"+str(query)+"'")
+        if verbose:
+            print("Launched query: '"+str(query)+"'")
         if upload_resource is not None:
             if upload_table_name is None:
                 raise ValueError(
@@ -310,7 +314,8 @@ class Tap(object):
             job.set_jobid(jobid)
             job.set_remote_location(location)
             if not background:
-                print("Retrieving async. results...")
+                if verbose:
+                    print("Retrieving async. results...")
                 # saveResults or getResults will block (not background)
                 if dump_to_file:
                     job.save_results(verbose)
