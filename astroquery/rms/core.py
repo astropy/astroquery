@@ -79,7 +79,7 @@ class RMS_by_name(BaseQuery):
     base_response = S.get('http://rms.leeds.ac.uk/cgi-bin/public/RMS_CONE_SEARCH.cgi')
     
     result_send_query = session.post('http://rms.leeds.ac.uk/cgi-bin/public/RMS_SEARCH_RESULTS.cgi',data=request_payload)
-    resut_soup = BeautifulSoup(result_send_query.text,'html.parser')
+    result_soup = BeautifulSoup(result_send_query.text,'html.parser')
     
     
     # ======== ========= ============
@@ -113,7 +113,7 @@ class RMS_by_name(BaseQuery):
        h3_title: str
         h3 name referring to the table of records
       """
-        caption = self.soup.find("caption",string=h3_title)
+        caption = result_soup.find("caption",string=h3_title)
         table_info  = caption.find_previous('table')
         return table_info
       
@@ -211,8 +211,8 @@ class RMS_by_name(BaseQuery):
         pd.DataFrame if exist table of records to 2MASS Point Source(s) 
         str          if not exist table
         """
-        columns = [td.text for td in self.soup.find("h3",string=" Near-Infrared Spectra  ").find_previous("table").find('tr').find_all('th')]
-        ems = self.soup.find_all("em")
+        columns = [td.text for td in result_soup.find("h3",string=" Near-Infrared Spectra  ").find_previous("table").find('tr').find_all('th')]
+        ems = result_soup.find_all("em")
         if len(ems) != 0:
           info_2MASS = {i:[td.text for td in em.find_previous('tr').find_all('td')] for i,em in enumerate(ems)}
           _2MASS_info = pd.DataFrame.from_dict(info_2MASS,orient='index')
