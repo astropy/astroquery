@@ -482,7 +482,7 @@ class BaseWFAUClass(QueryWithLogin):
             if self.programme_id != 'all':
                 programme_id = self.programme_id
             else:
-                raise ValueError("Must specify a programme_id")
+                raise ValueError("Must specify a programme_id for region queries")
 
         response = self.query_region_async(coordinates, radius=radius,
                                            programme_id=programme_id,
@@ -538,7 +538,7 @@ class BaseWFAUClass(QueryWithLogin):
             if self.programme_id != 'all':
                 programme_id = self.programme_id
             else:
-                raise ValueError("Must specify a programme_id")
+                raise ValueError("Must specify a programme_id for region queries")
 
         request_payload = self._args_to_payload(coordinates,
                                                 programme_id=programme_id,
