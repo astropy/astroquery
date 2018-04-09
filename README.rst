@@ -110,6 +110,18 @@ List of Modules
   * `JPL Horizons <http://astroquery.readthedocs.io/en/latest/jplhorizons/jplhorizons.html>`_: JPL Solar System Dynamics Horizons Service
   * `OAC API <http://astroquery.readthedocs.io/en/latest/oac/oac.html>`_: Open Astronomy Catalog REST API Service
   * `Gaia <http://astroquery.readthedocs.io/en/latest/gaia/gaia.html>`_: European Space Agency Gaia Archive
+  * `Vamdc <http://astroquery.readthedocs.io/en/latest/vamdc/vamdc.html>`_: VAMDC molecular line database.
+  * `Minor Planet Center <http://astroquery.readthedocs.io/en/latest/mpc/mpc.html>`_:
+  * `xMatch <http://astroquery.readthedocs.io/en/latest/xmatch/xmatch.html>`_:  Cross-identify sources between very large data sets or between a user-uploaded list and a large catalogue.
+  * `Atomic Line List <http://astroquery.readthedocs.io/en/latest/atomic/atomic.html>`_: A collection of more than 900,000 atomic transitions.
+  * `Skyview <http://astroquery.readthedocs.io/en/latest/skyview/skyview.html>`_: NASA SkyView service for imaging surveys.
+  * `NASA ADS <http://astroquery.readthedocs.io/en/latest/nasa_ads/nasa_ads.html>`_: SAO/NASA Astrophysics Data System.
+  * `HEASARC <http://astroquery.readthedocs.io/en/latest/heasarc/heasarc.html>`_: NASA's High Energy Astrophysics Science Archive Research Center.
+  * `VO Simple Cone Search <http://astroquery.readthedocs.io/en/latest/vo_conesearch/vo_conesearch.html>`_:
+  * `MAST <http://astroquery.readthedocs.io/en/latest/mast/mast.html>`_: Barbara A. Mikulski Archive for Space Telescopes.
+  * `HITRAN <http://astroquery.readthedocs.io/en/latest/hitran/hitran.html>`_: Access to the high-resolution transmission molecular absorption database.
+  * `NASA Exoplanet Archive  <http://astroquery.readthedocs.io/en/latest/nasa_exoplanet_archive/nasa_exoplanet_archive.html>`_:
+  * `Exoplanet Orbit Database  <http://astroquery.readthedocs.io/en/latest/exoplanet_orbit_database/exoplanet_orbit_database.html>`_:
 
 Additional Links
 ----------------
