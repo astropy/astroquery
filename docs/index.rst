@@ -175,51 +175,52 @@ The following modules have been completed using a common API:
 .. toctree::
   :maxdepth: 1
 
-  simbad/simbad.rst
-  vizier/vizier.rst
+  alma/alma.rst
+  atomic/atomic.rst
+  besancon/besancon.rst
   esasky/esasky.rst
-  irsa/irsa_dust.rst
-  ned/ned.rst
-  splatalogue/splatalogue.rst
-  vamdc/vamdc.rst
+  eso/eso.rst
+  gaia/gaia.rst
+  gama/gama.rst
+  heasarc/heasarc.rst
   ibe/ibe.rst
   irsa/irsa.rst
-  ukidss/ukidss.rst
+  irsa/irsa_dust.rst
   magpis/magpis.rst
-  mpc/mpc.rst
-  nrao/nrao.rst
-  besancon/besancon.rst
-  nist/nist.rst
-  nvas/nvas.rst
-  gama/gama.rst
-  eso/eso.rst
-  xmatch/xmatch.rst
-  atomic/atomic.rst
-  alma/alma.rst
-  skyview/skyview.rst
-  nasa_ads/nasa_ads.rst
-  heasarc/heasarc.rst
-  gaia/gaia.rst
-  vo_conesearch/vo_conesearch.rst
   mast/mast.rst
+  mpc/mpc.rst
+  nasa_ads/nasa_ads.rst
+  ned/ned.rst
+  nist/nist.rst
+  nrao/nrao.rst
+  nvas/nvas.rst
+  simbad/simbad.rst
+  skyview/skyview.rst
+  splatalogue/splatalogue.rst
+  ukidss/ukidss.rst
+  vamdc/vamdc.rst
+  vizier/vizier.rst
+  vo_conesearch/vo_conesearch.rst
+  xmatch/xmatch.rst
 
 These others are functional, but do not follow a common & consistent API:
 
 .. toctree::
   :maxdepth: 1
 
-  fermi/fermi.rst
-  sdss/sdss.rst
   alfalfa/alfalfa.rst
-  sha/sha.rst
+  cosmosim/cosmosim.rst
+  exoplanet_orbit_database/exoplanet_orbit_database.rst
+  fermi/fermi.rst
+  hitran/hitran.rst
+  jplhorizons/jplhorizons.rst
   lamda/lamda.rst
+  nasa_exoplanet_archive/nasa_exoplanet_archive.rst
+  oac/oac.rst
   ogle/ogle.rst
   open_exoplanet_catalogue/open_exoplanet_catalogue.rst
-  cosmosim/cosmosim.rst
-  hitran/hitran.rst
-  nasa_exoplanet_archive/nasa_exoplanet_archive.rst
-  exoplanet_orbit_database/exoplanet_orbit_database.rst
-  oac/oac.rst
+  sdss/sdss.rst
+  sha/sha.rst
 
 Catalog, Archive, and Other
 ===========================
