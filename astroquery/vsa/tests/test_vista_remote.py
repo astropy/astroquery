@@ -40,11 +40,11 @@ class TestVista:
 
     def test_query_region_async(self):
         crd = SkyCoord(l=350.488, b=0.949, unit=(u.deg, u.deg), frame='galactic')
-        response = vista.query_region_async(crd, radius=6 * u.arcsec)
+        response = vista.query_region_async(crd, radius=6 * u.arcsec, programme_id='VVV')
         assert response is not None
 
     def test_query_region(self):
         crd = SkyCoord(l=350.488, b=0.949, unit=(u.deg, u.deg), frame='galactic')
-        table = vista.query_region(crd, radius=6 * u.arcsec)
+        table = vista.query_region(crd, radius=6 * u.arcsec, programme_id='VVV')
         assert isinstance(table, Table)
         assert len(table) > 0
