@@ -492,3 +492,13 @@ except with a different background.::
     # zoom in on the relevant region
     ax.axis([100,200,100,200])
 
+
+
+Example 10
++++++++++
+Retrieve Hubble archival data of M83 and make a figure
+
+
+.. include:: gallery-examples/example10_mast.py
+   :code: python
+
