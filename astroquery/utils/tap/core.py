@@ -207,6 +207,20 @@ class Tap(object):
                                         "sync",
                                         verbose,
                                         name)
+        # handle redirection
+        if response.status == 303:
+            # redirection
+            if verbose:
+                print("Redirection found")
+            location = self.__connHandler.find_header(
+                response.getheaders(),
+                "location")
+            if location is None:
+                raise Exception("No location found after redirection was received (303)")
+            if verbose:
+                print("Redirect to %s", location)
+            subcontext = self.__extract_sync_subcontext(location)
+            response = self.__connHandler.execute_get(subcontext)
         job = Job(async_job=False, query=query, connhandler=self.__connHandler)
         isError = self.__connHandler.check_launch_response_status(response,
                                                                   verbose,
@@ -490,6 +504,12 @@ class Tap(object):
         if isError:
             fileName += ".error"
         return fileName
+
+    def __extract_sync_subcontext(self, location):
+        pos = location.find('sync')
+        if pos < 0:
+            return location
+        return location[pos:]
 
     def __findCookieInHeader(self, headers, verbose=False):
         cookies = self.__connHandler.find_header(headers, 'Set-Cookie')
