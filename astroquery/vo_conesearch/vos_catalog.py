@@ -573,7 +573,7 @@ class VOSDatabase(VOSBase):
                 tab_all = parse_single_table(fd, pedantic=False)
 
         # Registry must have these fields
-        compulsory_fields = ['title', 'accessURL']
+        compulsory_fields = ['res_title', 'access_url']
         cat_fields = tab_all.array.dtype.names
         for field in compulsory_fields:
             if field not in cat_fields:  # pragma: no cover
@@ -597,8 +597,8 @@ class VOSDatabase(VOSBase):
                 # For primary key, a number needs to be appended to the title
                 # because registry can have multiple entries with the same
                 # title but different URLs.
-                if field == 'title':
-                    cur_title = arr['title']
+                if field == 'res_title':
+                    cur_title = arr['res_title']
                     title_counter[cur_title] += 1  # Starts with 1
 
                     if isinstance(cur_title, bytes):  # pragma: py3
@@ -608,12 +608,15 @@ class VOSDatabase(VOSBase):
                         cur_key = title_fmt.format(cur_title,
                                                    title_counter[cur_title])
 
-                # Special handling of access URL, otherwise no change.
-                if field == 'accessURL':
-                    s = unescape_all(arr['accessURL'])
+                # Special handling of title and access URL,
+                # otherwise no change.
+                if field == 'access_url':
+                    s = unescape_all(arr['access_url'])
                     if isinstance(s, six.binary_type):
                         s = s.decode('utf-8')
                     cur_cat['url'] = s
+                elif field == 'res_title':
+                    cur_cat['title'] = arr[field]
                 else:
                     cur_cat[field] = arr[field]
 
