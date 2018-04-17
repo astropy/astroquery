@@ -249,7 +249,7 @@ class TestTap(unittest.TestCase):
         resultsReq = 'sync/' + jobid
         resultsLocation = 'http://test:1111/tap/' + resultsReq
         launchResponseHeaders = [
-            ['location', resultsLocation]
+                'location', resultsLocation]
             ]
         responseLaunchJob.set_data(method='POST',
                                    context=None,
@@ -285,16 +285,16 @@ class TestTap(unittest.TestCase):
         with pytest.raises(Exception):
             tap.launch_job(query)
 
-        #response is redirect (303)
-        #No location available
+        # Response is redirect (303)
+        # No location available
         responseLaunchJob.set_status_code(303)
         responseLaunchJob.set_message("OK")
         with pytest.raises(Exception):
             tap.launch_job(query)
 
-        #response is redirect (303)
-        #location available
-        #results raises error (500)
+        # Response is redirect (303)
+        # Location available
+        # Results raises error (500)
         responseResultsJob.set_status_code(200)
         responseResultsJob.set_message("OK")
         responseLaunchJob.set_data(method='POST',
@@ -306,9 +306,9 @@ class TestTap(unittest.TestCase):
         with pytest.raises(Exception):
             tap.launch_job(query)
 
-        #response is redirect (303)
-        #results is 200
-        #location available
+        # Response is redirect (303)
+        # Results is 200
+        # Location available
         responseResultsJob.set_status_code(200)
         responseResultsJob.set_message("OK")
         job = tap.launch_job(query)
@@ -318,7 +318,7 @@ class TestTap(unittest.TestCase):
             "Wrong job phase. Expected: %s, found %s" % \
             ('COMPLETED', job.get_phase())
         assert job.is_failed() is False, "Wrong job status (set Failed = True)"
-        # results
+        # Results
         results = job.get_results()
         assert len(results) == 3, \
             "Wrong job results (num rows). Expected: %d, found %d" % \
@@ -354,7 +354,7 @@ class TestTap(unittest.TestCase):
         responseLaunchJob.set_message("ERROR")
         # list of list (httplib implementation for headers in response)
         launchResponseHeaders = [
-            ['location', 'http://test:1111/tap/async/' + jobid]
+                ['location', 'http://test:1111/tap/async/' + jobid]
             ]
         responseLaunchJob.set_data(method='POST',
                                    context=None,
