@@ -249,7 +249,7 @@ class TestTap(unittest.TestCase):
         resultsReq = 'sync/' + jobid
         resultsLocation = 'http://test:1111/tap/' + resultsReq
         launchResponseHeaders = [
-                'location', resultsLocation]
+                ['location', resultsLocation]
             ]
         responseLaunchJob.set_data(method='POST',
                                    context=None,
