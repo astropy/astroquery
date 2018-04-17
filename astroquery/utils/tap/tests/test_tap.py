@@ -239,6 +239,111 @@ class TestTap(unittest.TestCase):
                                     None,
                                     np.int32)
 
+    def test_launch_sync_job_redirect(self):
+        connHandler = DummyConnHandler()
+        tap = TapPlus("http://test:1111/tap", connhandler=connHandler)
+        responseLaunchJob = DummyResponse()
+        responseLaunchJob.set_status_code(500)
+        responseLaunchJob.set_message("ERROR")
+        jobid = '12345'
+        resultsReq = 'sync/' + jobid
+        resultsLocation = 'http://test:1111/tap/' + resultsReq
+        launchResponseHeaders = [
+                ['location', resultsLocation]
+            ]
+        responseLaunchJob.set_data(method='POST',
+                                   context=None,
+                                   body=None,
+                                   headers=None)
+        query = 'select top 5 * from table'
+        dTmp = {"q": query}
+        dTmpEncoded = connHandler.url_encode(dTmp)
+        p = dTmpEncoded.find("=")
+        q = dTmpEncoded[p+1:]
+        dictTmp = {
+            "REQUEST": "doQuery",
+            "LANG": "ADQL",
+            "FORMAT": "votable",
+            "tapclient": str(TAP_CLIENT_ID),
+            "PHASE": "RUN",
+            "QUERY": str(q)}
+        sortedKey = taputils.taputil_create_sorted_dict_key(dictTmp)
+        jobRequest = "sync?" + sortedKey
+        connHandler.set_response(jobRequest, responseLaunchJob)
+        # Results response
+        responseResultsJob = DummyResponse()
+        responseResultsJob.set_status_code(500)
+        responseResultsJob.set_message("ERROR")
+        jobDataFile = data_path('job_1.vot')
+        jobData = utils.read_file_content(jobDataFile)
+        responseResultsJob.set_data(method='GET',
+                                    context=None,
+                                    body=jobData,
+                                    headers=None)
+        connHandler.set_response(resultsReq, responseResultsJob)
+
+        with pytest.raises(Exception):
+            tap.launch_job(query)
+
+        # Response is redirect (303)
+        # No location available
+        responseLaunchJob.set_status_code(303)
+        responseLaunchJob.set_message("OK")
+        with pytest.raises(Exception):
+            tap.launch_job(query)
+
+        # Response is redirect (303)
+        # Location available
+        # Results raises error (500)
+        responseResultsJob.set_status_code(200)
+        responseResultsJob.set_message("OK")
+        responseLaunchJob.set_data(method='POST',
+                                   context=None,
+                                   body=None,
+                                   headers=launchResponseHeaders)
+        responseResultsJob.set_status_code(500)
+        responseResultsJob.set_message("ERROR")
+        with pytest.raises(Exception):
+            tap.launch_job(query)
+
+        # Response is redirect (303)
+        # Results is 200
+        # Location available
+        responseResultsJob.set_status_code(200)
+        responseResultsJob.set_message("OK")
+        job = tap.launch_job(query)
+        assert job is not None, "Expected a valid job"
+        assert job.is_sync(), "Expected a synchronous job"
+        assert job.get_phase() == 'COMPLETED', \
+            "Wrong job phase. Expected: %s, found %s" % \
+            ('COMPLETED', job.get_phase())
+        assert job.is_failed() is False, "Wrong job status (set Failed = True)"
+        # Results
+        results = job.get_results()
+        assert len(results) == 3, \
+            "Wrong job results (num rows). Expected: %d, found %d" % \
+            (3, len(results))
+        self.__check_results_column(results,
+                                    'alpha',
+                                    'alpha',
+                                    None,
+                                    np.float64)
+        self.__check_results_column(results,
+                                    'delta',
+                                    'delta',
+                                    None,
+                                    np.float64)
+        self.__check_results_column(results,
+                                    'source_id',
+                                    'source_id',
+                                    None,
+                                    np.object)
+        self.__check_results_column(results,
+                                    'table1_oid',
+                                    'table1_oid',
+                                    None,
+                                    np.int32)
+
     def test_launc_async_job(self):
         connHandler = DummyConnHandler()
         tap = TapPlus("http://test:1111/tap", connhandler=connHandler)
@@ -249,7 +354,7 @@ class TestTap(unittest.TestCase):
         responseLaunchJob.set_message("ERROR")
         # list of list (httplib implementation for headers in response)
         launchResponseHeaders = [
-            ['location', 'http://test:1111/tap/async/' + jobid]
+                ['location', 'http://test:1111/tap/async/' + jobid]
             ]
         responseLaunchJob.set_data(method='POST',
                                    context=None,

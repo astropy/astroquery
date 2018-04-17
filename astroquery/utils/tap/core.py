@@ -24,6 +24,7 @@ from astroquery.utils.tap.xmlparser.jobSaxParser import JobSaxParser
 from astroquery.utils.tap.xmlparser.jobListSaxParser import JobListSaxParser
 from astroquery.utils.tap.xmlparser import utils
 from astroquery.utils.tap.model.filter import Filter
+import requests
 
 __all__ = ['Tap', 'TapPlus']
 
@@ -152,7 +153,7 @@ class Tap(object):
                                                                   200)
         if isError:
             print(response.status, response.reason)
-            raise Exception(response.reason)
+            raise requests.exceptions.HTTPError(response.reason)
             return None
         print("Parsing tables...")
         tsp = TableSaxParser()
@@ -207,6 +208,20 @@ class Tap(object):
                                         "sync",
                                         verbose,
                                         name)
+        # handle redirection
+        if response.status == 303:
+            # redirection
+            if verbose:
+                print("Redirection found")
+            location = self.__connHandler.find_header(
+                response.getheaders(),
+                "location")
+            if location is None:
+                raise requests.exceptions.HTTPError("No location found after redirection was received (303)")
+            if verbose:
+                print("Redirect to %s", location)
+            subcontext = self.__extract_sync_subcontext(location)
+            response = self.__connHandler.execute_get(subcontext)
         job = Job(async_job=False, query=query, connhandler=self.__connHandler)
         isError = self.__connHandler.check_launch_response_status(response,
                                                                   verbose,
@@ -223,7 +238,7 @@ class Tap(object):
             job.set_failed(True)
             if dump_to_file:
                 self.__connHandler.dump_to_file(suitableOutputFile, response)
-            raise Exception(response.reason)
+            raise requests.exceptions.HTTPError(response.reason)
         else:
             if verbose:
                 print("Retrieving sync. results...")
@@ -303,7 +318,7 @@ class Tap(object):
             job.set_failed(True)
             if dump_to_file:
                 self.__connHandler.dump_to_file(suitableOutputFile, response)
-            raise Exception(response.reason)
+            raise requests.exceptions.HTTPError(response.reason)
         else:
             location = self.__connHandler.find_header(
                 response.getheaders(),
@@ -361,7 +376,7 @@ class Tap(object):
                                                                   200)
         if isError:
             print(response.reason)
-            raise Exception(response.reason)
+            raise requests.exceptions.HTTPError(response.reason)
             return None
         # parse job
         jsp = JobSaxParser(async_job=True)
@@ -393,7 +408,7 @@ class Tap(object):
                                                                   200)
         if isError:
             print(response.reason)
-            raise Exception(response.reason)
+            raise requests.exceptions.HTTPError(response.reason)
             return None
         # parse jobs
         jsp = JobListSaxParser(async_job=True)
@@ -490,6 +505,12 @@ class Tap(object):
         if isError:
             fileName += ".error"
         return fileName
+
+    def __extract_sync_subcontext(self, location):
+        pos = location.find('sync')
+        if pos < 0:
+            return location
+        return location[pos:]
 
     def __findCookieInHeader(self, headers, verbose=False):
         cookies = self.__connHandler.find_header(headers, 'Set-Cookie')
@@ -659,7 +680,7 @@ class TapPlus(Tap):
         isError = connHandler.check_launch_response_status(response, verbose, 200)
         if isError:
             print(response.status, response.reason)
-            raise Exception(response.reason)
+            raise requests.exceptions.HTTPError(response.reason)
             return None
         print("Parsing table '"+str(table)+"'...")
         tsp = TableSaxParser()
@@ -697,7 +718,7 @@ class TapPlus(Tap):
                                                            200)
         if isError:
             print(response.reason)
-            raise Exception(response.reason)
+            raise requests.exceptions.HTTPError(response.reason)
             return None
         # parse jobs
         jsp = JobSaxParser(async_job=True)
@@ -739,7 +760,7 @@ class TapPlus(Tap):
         isError = connHandler.check_launch_response_status(response, verbose, 200)
         if isError:
             print(response.reason)
-            raise Exception(response.reason)
+            raise requests.exceptions.HTTPError(response.reason)
 
     def login(self, user=None, password=None, credentials_file=None,
               verbose=False):
@@ -804,7 +825,7 @@ class TapPlus(Tap):
                                                            200)
         if isError:
             print("Login error: " + str(response.reason))
-            raise Exception("Login error: " + str(response.reason))
+            raise requests.exceptions.HTTPError("Login error: " + str(response.reason))
         else:
             # extract cookie
             cookie = self._Tap__findCookieInHeader(response.getheaders())
