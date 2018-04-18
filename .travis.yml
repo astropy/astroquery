@@ -72,7 +72,7 @@ matrix:
         - os: linux
           stage: Tests with other Python/Numpy versions, remote data
           env: EVENT_TYPE='push cron' PYTHON_VERSION=2.7
-               SETUP_CMD='test --remote-data -V' CONDA_DEPENDENCIES=$CONDA_DEPENDENCIES_REMOTE
+               SETUP_CMD='test --remote-data -V' CONDA_DEPENDENCIES=$CONDA_DEPENDENCIES_REMOTE KEYRING_VERSION='<12.0'
 
         # No need to run it from cron
         # Try MacOS X
@@ -96,7 +96,7 @@ matrix:
         # time. We don't expect any of these to fail in master for cron jobs.
         - os: linux
           stage: Tests with other Python/Numpy versions, remote data
-          env: PYTHON_VERSION=2.7 NUMPY_VERSION=1.9
+          env: PYTHON_VERSION=2.7 NUMPY_VERSION=1.9  KEYRING_VERSION='<12.0'
         - os: linux
           stage: Tests with other Python/Numpy versions, remote data
           env: PYTHON_VERSION=3.4 NUMPY_VERSION=1.10
@@ -129,7 +129,7 @@ matrix:
         # Try with optional dependencies disabled
         - os: linux
           stage: Test docs, astropy dev, and without optional dependencies
-          env: PYTHON_VERSION=2.7
+          env: PYTHON_VERSION=2.7  KEYRING_VERSION='<12.0'
                CONDA_DEPENDENCIES='requests beautifulsoup4 html5lib keyring'
         - os: linux
           stage: Test docs, astropy dev, and without optional dependencies
