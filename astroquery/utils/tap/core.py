@@ -743,7 +743,7 @@ class TapPlus(Tap):
             return
         jobsIds = None
         if isinstance(jobs_list, str):
-            jobsIds = str
+            jobsIds = jobs_list
         elif isinstance(jobs_list, list):
             jobsIds = ','.join(jobs_list)
         else:
