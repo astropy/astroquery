@@ -12,7 +12,7 @@ environment:
                         # to the matrix section.
       CONDA_DEPENDENCIES: "requests beautifulsoup4 matplotlib html5lib keyring aplpy"
       PIP_DEPENDENCIES: "pyregion"
-      CONDA_CHANNELS: "astropy conda-forge"
+      CONDA_CHANNELS: "astropy"
       ASTROPY_USE_SYSTEM_PYTEST: 1
 
   matrix:
