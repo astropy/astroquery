@@ -13,61 +13,61 @@ from unicodedata import normalize
 import astropy.units as u
 from astropy.table import Table
 
-# class RMS_by_coordinates():
-#   """
-#   Class to The RMS Cone Search by COORDINATE
-#   Required:
+class RMS_by_coordinates():
+  """
+  Class to The RMS Cone Search by COORDINATE
+  Required:
   
-#   coordinates (19:27:42.1 16:37:25.0) ; [string] ; coordinates
+  coordinates (19:27:42.1 16:37:25.0) ; [string] ; coordinates
   
-#   Inputs with default value:
+  Inputs with default value:
   
-#   Search radius (arcsec) ;  [float]  ; por defecto 60 ; radius
-#   Radio button           ;  [integer in range[1,4] ]: ; list_id
-#     - Final RMS   ; value = 1 selected 
-#     - Near/Mid-IR ; value = 2
-#     - Rejected    ; value = 3
-#     - MSX Colour  ; value = 4 
-#   """
+  Search radius (arcsec) ;  [float]  ; por defecto 60 ; radius
+  Radio button           ;  [integer in range[1,4] ]: ; list_id
+    - Final RMS   ; value = 1 selected 
+    - Near/Mid-IR ; value = 2
+    - Rejected    ; value = 3
+    - MSX Colour  ; value = 4 
+  """
 
-#   def __init__(self,coordinates,radius,list_id):
-#     self.dd_query   = {'text_field_1':coordinates,'radius_field':radius,'list_id':list_id}
-#     self.result_soup = self.__get_soup()
+  def __init__(self,coordinates,radius,list_id):
+    self.dd_query   = {'text_field_1':coordinates,'radius_field':radius,'list_id':list_id}
+    self.result_soup = self.__get_soup()
 
-#   def __open_session(self):
-#     session       = requests.Session()
-#     base_response = session.get('http://rms.leeds.ac.uk/cgi-bin/public/RMS_CONE_SEARCH.cgi')
-#     if not base_response.status_code == 200:
-#       print 'HTTP 404 Not Found, the url may have changed'
-#       return 0 
-#       pass
-#     else:
-#       print 'Successful connection'
-#       return session
+  def __open_session(self):
+    session       = requests.Session()
+    base_response = session.get('http://rms.leeds.ac.uk/cgi-bin/public/RMS_CONE_SEARCH.cgi')
+    if not base_response.status_code == 200:
+      print 'HTTP 404 Not Found, the url may have changed'
+      return 0 
+      pass
+    else:
+      print 'Successful connection'
+      return session
 
-#   def __get_soup(self):
-#     session = self.__open_session()
-#     if session == 0:
-#       return 0 
-#     else:
-#       result_send_query = session.post('http://rms.leeds.ac.uk/cgi-bin/public/RMS_SEARCH_RESULTS.cgi',data=self.dd_query)
-#       result_soup       = BeautifulSoup(result_send_query.text,'html.parser')
-#       return result_soup
+  def __get_soup(self):
+    session = self.__open_session()
+    if session == 0:
+      return 0 
+    else:
+      result_send_query = session.post('http://rms.leeds.ac.uk/cgi-bin/public/RMS_SEARCH_RESULTS.cgi',data=self.dd_query)
+      result_soup       = BeautifulSoup(result_send_query.text,'html.parser')
+      return result_soup
 
-#   def __scrape_forms(self,form):
-#     for tr in form.find_all('tr'):
-#       return [td.text for td in tr.find_all('td')]
+  def __scrape_forms(self,form):
+    for tr in form.find_all('tr'):
+      return [td.text for td in tr.find_all('td')]
 
-#   def get_RMS_by_coordinates(self):
-#     if self.result_soup == 0:
-#       print 'Sorry'
-#       return 0 
-#     else:
-#       columns      = [th.text.strip() for th in self.result_soup.find_all('th')][:-1]
-#       result_query = self.result_soup.find("div",{"id":"content"}).find_all_next('form')
-#       d_results    = {i:self.__scrape_forms(form) for i,form in enumerate(result_query)}
-#       res_table    = Table(rows=d_results.values(),names=columns,dtype=('S','S','S','S','f'))
-#       return res_table
+  def get_RMS_by_coordinates(self):
+    if self.result_soup == 0:
+      print 'Sorry'
+      return 0 
+    else:
+      columns      = [th.text.strip() for th in self.result_soup.find_all('th')][:-1]
+      result_query = self.result_soup.find("div",{"id":"content"}).find_all_next('form')
+      d_results    = {i:self.__scrape_forms(form) for i,form in enumerate(result_query)}
+      res_table    = Table(rows=d_results.values(),names=columns,dtype=('S','S','S','S','f'))
+      return res_table
 
 
 class RMS_by_name():
