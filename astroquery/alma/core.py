@@ -778,7 +778,7 @@ class AlmaClass(QueryWithLogin):
 
         print("Valid ALMA keywords.  Left column is the description, right "
               "column is the name of the keyword to pass to astroquery.alma"
-              " queries.  In some cases, no valid keyword is available:")
+              " queries:")
 
         for title, section in help_list:
             print()
