@@ -421,7 +421,7 @@ class AlmaClass(QueryWithLogin):
             except requests.HTTPError as ex:
                 if ex.response.status_code == 401:
                     log.info("Access denied to {url}.  Skipping to"
-                             " next file".format(url=filelink))
+                             " next file".format(url=fileLink))
                     continue
                 else:
                     raise ex
