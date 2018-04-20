@@ -412,11 +412,19 @@ class AlmaClass(QueryWithLogin):
         if savedir is None:
             savedir = self.cache_location
         for fileLink in unique(files):
-            filename = self._request("GET", fileLink, save=True,
-                                     savedir=savedir,
-                                     timeout=self.TIMEOUT, cache=cache,
-                                     continuation=continuation)
-            downloaded_files.append(filename)
+            try:
+                filename = self._request("GET", fileLink, save=True,
+                                         savedir=savedir,
+                                         timeout=self.TIMEOUT, cache=cache,
+                                         continuation=continuation)
+                downloaded_files.append(filename)
+            except requests.HTTPError as ex:
+                if ex.response.status_code == 401:
+                    log.info("Access denied to {url}.  Skipping to"
+                             " next file".format(url=filelink))
+                    continue
+                else:
+                    raise ex
         return downloaded_files
 
     def retrieve_data_from_uid(self, uids, cache=True):
