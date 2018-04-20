@@ -803,8 +803,8 @@ class AlmaClass(QueryWithLogin):
                 elif len(row) == 4:  # radio button or checkbox
                     name, payload_keyword, checkbox, value = row
                     if isinstance(checkbox, list):
-                        checkbox_str = ", ".join(["{0}={1}".format(x,y)
-                                                  for x,y in zip(checkbox, value)])
+                        checkbox_str = ", ".join(["{0}={1}".format(x, y)
+                                                  for x, y in zip(checkbox, value)])
                         print("  {0:33s}: {1:20s} -> {2}"
                               .format(name, payload_keyword, checkbox_str))
                     else:
