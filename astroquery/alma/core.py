@@ -412,11 +412,19 @@ class AlmaClass(QueryWithLogin):
         if savedir is None:
             savedir = self.cache_location
         for fileLink in unique(files):
-            filename = self._request("GET", fileLink, save=True,
-                                     savedir=savedir,
-                                     timeout=self.TIMEOUT, cache=cache,
-                                     continuation=continuation)
-            downloaded_files.append(filename)
+            try:
+                filename = self._request("GET", fileLink, save=True,
+                                         savedir=savedir,
+                                         timeout=self.TIMEOUT, cache=cache,
+                                         continuation=continuation)
+                downloaded_files.append(filename)
+            except requests.HTTPError as ex:
+                if ex.response.status_code == 401:
+                    log.info("Access denied to {url}.  Skipping to"
+                             " next file".format(url=fileLink))
+                    continue
+                else:
+                    raise ex
         return downloaded_files
 
     def retrieve_data_from_uid(self, uids, cache=True):
@@ -776,7 +784,9 @@ class AlmaClass(QueryWithLogin):
 
         help_list = self._get_help_page(cache=cache)
 
-        print("Valid ALMA keywords:")
+        print("Valid ALMA keywords.  Left column is the description, right "
+              "column is the name of the keyword to pass to astroquery.alma"
+              " queries:")
 
         for title, section in help_list:
             print()
@@ -792,8 +802,14 @@ class AlmaClass(QueryWithLogin):
                 #                                                    value))
                 elif len(row) == 4:  # radio button or checkbox
                     name, payload_keyword, checkbox, value = row
-                    print("  {2} {0:29s}: {1:20s} = {3:15s}"
-                          .format(name, payload_keyword, checkbox, value))
+                    if isinstance(checkbox, list):
+                        checkbox_str = ", ".join(["{0}={1}".format(x, y)
+                                                  for x, y in zip(checkbox, value)])
+                        print("  {0:33s}: {1:20s} -> {2}"
+                              .format(name, payload_keyword, checkbox_str))
+                    else:
+                        print("  {2} {0:29s}: {1:20s} = {3:15s}"
+                              .format(name, payload_keyword, checkbox, value))
                 else:
                     raise ValueError("Wrong number of rows - ALMA query page"
                                      " did not parse properly.")
@@ -851,16 +867,17 @@ class AlmaClass(QueryWithLogin):
                                                     checkbox, value))
                     select = inp.find('select')
                     if select is not None:
-                        options = [(filter_printable(option.text),
+                        options = [("".join(filter_printable(option.text)),
                                     option.attrs['value'])
                                    for option in select.findAll('option')]
                         if sp is not None:
                             name = whitespace.sub(" ", sp.text)
                         else:
                             name = select.attrs['name']
-                        option_str = " , ".join(["{0} = {1}".format(o[0], o[1])
-                                                 for o in options])
-                        help_section[1].append((name, option_str))
+                        checkbox = [o[0] for o in options]
+                        value = [o[1] for o in options]
+                        option_str = select.attrs['name']
+                        help_section[1].append((name, option_str, checkbox, value))
 
                 help_list.append(help_section)
             self._help_list = help_list
