@@ -1,0 +1,11 @@
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - pip:
+    - astropy
+    - astroquery
+    - mocpy
+    - regions
+    - pyvo
+    - pytest
