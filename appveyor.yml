@@ -19,6 +19,7 @@ environment:
       - PYTHON_VERSION: "2.7"
         ASTROPY_VERSION: "LTS"
         NUMPY_VERSION: "1.13"
+        KEYRING_VERSION: "<12"
 
       - PYTHON_VERSION: "3.6"
         ASTROPY_VERSION: "stable"
