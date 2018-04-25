@@ -25,7 +25,6 @@ from . import conf
 __all__ = ['Gaia', 'GaiaClass']
 
 
-
 class GaiaClass(object):
 
     """
@@ -81,9 +80,8 @@ class GaiaClass(object):
         return self.__gaiatap.load_table(table, verbose)
 
     def launch_job(self, query, name=None, output_file=None,
-                        output_format="votable", verbose=False,
-                        dump_to_file=False, upload_resource=None,
-                        upload_table_name=None):
+                   output_format="votable", verbose=False, dump_to_file=False,
+                   upload_resource=None, upload_table_name=None):
         """Launches a synchronous job
         TAP & TAP+
 
