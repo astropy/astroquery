@@ -20,11 +20,10 @@ from astroquery.utils import commons
 from astropy import units
 from astropy.units import Quantity
 
+from . import conf
+
 __all__ = ['Gaia', 'GaiaClass']
 
-MAIN_GAIA_TABLE = "gaiadr1.gaia_source"
-MAIN_GAIA_TABLE_RA = "ra"
-MAIN_GAIA_TABLE_DEC = "dec"
 
 
 class GaiaClass(object):
@@ -32,6 +31,9 @@ class GaiaClass(object):
     """
     Proxy class to default TapPlus object (pointing to Gaia Archive)
     """
+    MAIN_GAIA_TABLE = conf.MAIN_GAIA_TABLE
+    MAIN_GAIA_TABLE_RA = conf.MAIN_GAIA_TABLE_RA
+    MAIN_GAIA_TABLE_DEC = conf.MAIN_GAIA_TABLE_DEC
 
     def __init__(self, tap_plus_handler=None):
         if tap_plus_handler is None:
