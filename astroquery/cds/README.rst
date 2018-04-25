@@ -18,8 +18,6 @@ Requirements
 
 ``astroquery``, ``astropy``, ``pytest``, ``mocpy``, ``regions``, ``pyvo`` are required.
 
-See the environment.yml file.
-
 ===========
 Examples
 ===========
