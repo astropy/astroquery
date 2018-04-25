@@ -3,8 +3,8 @@ from enum import Enum
 from copy import copy
 from random import shuffle
 
-class Dataset:
 
+class Dataset:
     # The timeout for a tap service before the request is aborted
     tap_service_timeout = 10
 
@@ -53,7 +53,6 @@ class Dataset:
         if service_type in self.__services.keys():
             shuffle(self.__services[service_type])
 
-
     @property
     def properties(self):
         return copy(self.__properties)
@@ -99,8 +98,11 @@ class Dataset:
 
         services_l = self.__services[service_type]
 
-        """ Mirrors services are queried in a random way (services_l shuffled) until 
-        DALErrors are not raised and we get a votable"""
+        """
+        Mirrors services are queried in a random way (services_l shuffled) until
+        DALErrors are not raised and we get a votable
+
+        """
         result = None
         index_service = 0
         while not result:
@@ -113,4 +115,3 @@ class Dataset:
             index_service += 1
 
         return result
-

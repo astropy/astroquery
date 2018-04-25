@@ -144,7 +144,7 @@ class Polygon(SpatialConstraint):
             print("A polygon must have at least 3 vertices")
             raise AttributeError
 
-        self.request_payload.update({'stc' : self.__to_stc(polygon_region)})
+        self.request_payload.update({'stc': self.__to_stc(polygon_region)})
 
     @staticmethod
     def __to_stc(polygon_region):
