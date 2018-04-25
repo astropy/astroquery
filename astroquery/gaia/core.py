@@ -417,8 +417,8 @@ class GaiaClass(object):
                                   dump_to_file=dump_to_file)
 
     def cone_search_async(self, coordinate, radius=None, background=False,
-                    output_file=None, output_format="votable", verbose=False,
-                    dump_to_file=False):
+                          output_file=None, output_format="votable",
+                          verbose=False, dump_to_file=False):
         """Cone search sorted by distance (async)
         TAP & TAP+
 
