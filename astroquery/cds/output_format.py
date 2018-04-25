@@ -15,22 +15,16 @@ class OutputFormat(object):
         i_moc = 5
 
     def __init__(self, format=Type.id, field_l=[], moc_order=maxsize, case_sensitive=True, max_rec=None):
-        if not isinstance(format, OutputFormat.Type):
-            print("The response format must have value in the ResponseFormat enum")
-            raise TypeError
+        assert isinstance(format, OutputFormat.Type), TypeError('`format` must be of type OutputFormat.Type')
+        assert isinstance(field_l, list), TypeError('`field_l` must be a list type object')
+        assert isinstance(case_sensitive, bool), TypeError('`case_sensitive` must be a bool type object')
+        assert not max_rec or isinstance(max_rec, int), TypeError('`max_rec` must be an int type object')
 
         self.format = format
-
-        if not isinstance(field_l, list) or not isinstance(case_sensitive, bool):
-            raise TypeError
-
         self.request_payload = {
             "fmt": "json",
             "casesensitive": str(case_sensitive).lower()
         }
-
-        if max_rec and not isinstance(max_rec, int):
-            raise TypeError
 
         if format is OutputFormat.Type.id:
             self.request_payload.update({'get': 'id'})

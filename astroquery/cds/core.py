@@ -5,10 +5,7 @@
 
 # put all imports organized as shown below
 # 1. standard library imports
-
 # 2. third party imports
-from pprint import pprint
-
 # 3. local imports - use relative imports
 # commonly required local imports shown below as example
 # all Query classes should inherit from BaseQuery.
@@ -27,7 +24,6 @@ from . import conf
 from .constraints import Constraints
 from .output_format import OutputFormat
 from .dataset import Dataset
-
 
 # export all the public classes and methods
 __all__ = ['cds', 'CdsClass']
@@ -49,20 +45,6 @@ class CdsClass(BaseQuery):
     URL = conf.server
     TIMEOUT = conf.timeout
 
-    # all query methods are implemented with an "async" method that handles
-    # making the actual HTTP request and returns the raw HTTP response, which
-    # should be parsed by a separate _parse_result method.   The query_object
-    # method is created by async_to_sync automatically.  It would look like
-    # this:
-    """
-    def query_object(object_name, get_query_payload=False)
-    response = self.query_object_async(object_name, get_query_payload=get_query_payload)
-    if get_query_payload:
-        return response
-    result = self._parse_result(response, verbose=verbose)
-    return result
-    """
-
     # For services that can query coordinates, use the query_region method.
     # The pattern is similar to the query_object method. The query_region
     # method also has a 'radius' keyword for specifying the radius around
@@ -74,17 +56,29 @@ class CdsClass(BaseQuery):
     # similarly we write a query_region_async method that makes the
     # actual HTTP request and returns the HTTP response
     def query_region(self, constraints, output_format=OutputFormat(), get_query_payload=False):
+        """
+        Query the cds mocserver which gives us all the datasets matching the constraints.
+        The output format of the query response is expressed by the param output_format
+
+        :param constraints: The constraints (spatial and algebraic) needed by the mocserver for
+        getting us all the matching datasets
+        :param output_format: The output format we want the matching datasets (full record, just IDs, mocpy object)
+        :param get_query_payload: specify if we only want the cds service to return the payload
+        :return: matching datasets in a format output_format dependant. (e.g. a list of dataset IDs if we want
+        just the IDs, a massive union moc resulting from the union of all the matching dataset mocs or a
+        dictionary of datasets indexed by their IDs if the user wants the records of the matching datasets).
+        """
         response = self.query_region_async(constraints, output_format, get_query_payload)
 
         if get_query_payload:
             return response
 
-        result = CdsClass.__parse_result_region(response, output_format)
+        result = CdsClass._parse_result_region(response, output_format)
 
         return result
 
     @staticmethod
-    def __remove_duplicate(value_l):
+    def _remove_duplicate(value_l):
         if isinstance(value_l, list):
             value_l = list(set(value_l))
             if len(value_l) == 1:
@@ -94,61 +88,57 @@ class CdsClass(BaseQuery):
 
     def query_region_async(self, constraints, output_format, get_query_payload, cache=True):
         """
-        Queries a region around the specified coordinates.
+        Query the cds mocserver which gives us all the datasets matching the constraints.
+        The output format of the query response is expressed by the param output_format
 
-        Parameters
-        ----------
-        constraints : Constraints
-            Contains all the spatial and properties constraints for the query
-        output_format : OutputFormat
-            Contains the format of return. By default the request will return python compatible
-            objects such as lists and dicts describing the dataset found with respect to the constraints
-            mentioned before
-        get_query_payload : bool, optional
-            Just return the dict of HTTP request parameters.
-        cache : bool
-
-        Returns
-        -------
-        response : `requests.Response`
-        The HTTP response returned from the service.
-        All async methods should return the raw HTTP response.
+        :param constraints: The constraints (spatial and algebraic) needed by the mocserver for
+        getting us all the matching datasets
+        :param output_format: The output format we want the matching datasets (full record, just IDs, mocpy object)
+        :param get_query_payload: specify if we only want the cds service to return the payload
+        :param cache: boolean
+        :return: The HTTP response returned from the service. All async methods should return the raw HTTP response.
         """
         request_payload = dict()
         if not isinstance(constraints, Constraints):
             print("Invalid constraints. Must be of MOCServerConstraints type")
             raise TypeError
-        else:
-            request_payload.update(constraints.payload)
 
         if not isinstance(output_format, OutputFormat):
             print("Invalid response format. Must be of MOCServerResponseFormat type")
             raise TypeError
-        else:
-            request_payload.update(output_format.request_payload)
+
+        request_payload.update(constraints.payload)
+        request_payload.update(output_format.request_payload)
 
         if get_query_payload:
             return request_payload
 
-        print('Final Request payload before requesting to alasky')
-        pprint(request_payload)
+        payload_d = {
+            'method': 'GET',
+            'url': self.URL,
+            'timeout': self.TIMEOUT
+        }
 
-        if 'moc' in request_payload:
-            filename = request_payload['moc']
-            with open(filename, 'rb') as f:
-                request_payload.pop('moc')
+        if 'moc' not in request_payload:
+            payload_d.update({'params': request_payload,
+                              'cache': cache})
+            return self._request(**payload_d)
 
-                response = self._request('GET', url=self.URL, params=request_payload, timeout=self.TIMEOUT, cache=False, files={'moc': f})
-        else:
-            response = self._request('GET', url=self.URL, params=request_payload, timeout=self.TIMEOUT, cache=cache)
+        filename = request_payload['moc']
+        with open(filename, 'rb') as f:
+            request_payload.pop('moc')
 
-        return response
+            payload_d.update({'params': request_payload,
+                              'cache': False,
+                              'files': {'moc': f}})
+
+            return self._request(**payload_d)
 
     @staticmethod
-    def __parse_to_float(value):
+    def _parse_to_float(value):
         try:
             return float(value)
-        except Exception:
+        except (ValueError, TypeError):
             return value
 
     @staticmethod
@@ -169,20 +159,26 @@ class CdsClass(BaseQuery):
         return moc
 
     @staticmethod
-    def __parse_result_region(response, output_format, verbose=False):
-        # if verbose is False then suppress any VOTable related warnings
+    def _parse_result_region(response, output_format, verbose=False):
+        """
+        Parse the cds mocserver HTTP response to a more convenient format for python users
+
+        :param response: the HTTP response
+        :param output_format: the output format that the user has specified
+        :param verbose: boolean. if verbose is False then suppress any VOTable related warnings
+        :return: the final parsed response that will be given to the user
+        """
         if not verbose:
             commons.suppress_vo_warnings()
-        # try to parse the result into an astropy.Table, else
-        # return the raw result with an informative error message.
 
         r = response.json()
-        parsed_r = None
         if output_format.format is OutputFormat.Type.record:
-            parsed_r = [dict([k, CdsClass.__parse_to_float(v)] for k, v in di.items()) for di in r]
+            parsed_r = [dict([k, CdsClass._parse_to_float(v)] for k, v in di.items()) for di in r]
             # Once the properties have been parsed to float we can create the final
             # dictionary of Dataset objects indexed by their IDs
-            parsed_r = dict([d['ID'], Dataset(**dict([k, CdsClass.__remove_duplicate(d.get(k))] for k in (d.keys() - set('ID'))))] for d in parsed_r)
+            parsed_r = dict([d['ID'], Dataset(
+                **dict([k, CdsClass._remove_duplicate(d.get(k))] for k in (d.keys() - set('ID')))
+            )] for d in parsed_r)
         elif output_format.format is OutputFormat.Type.number:
             parsed_r = dict(number=int(r['number']))
         elif output_format.format is OutputFormat.Type.moc or\

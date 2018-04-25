@@ -12,6 +12,12 @@ MocServer
 # Below is a common use case
 from astropy import config as _config
 
+from .output_format import OutputFormat
+from .dataset import Dataset
+from .constraints import Constraints
+from .spatial_constraints import Cone, Polygon, Moc
+from .property_constraint import PropertyConstraint
+
 
 class Conf(_config.ConfigNamespace):
     """
@@ -29,10 +35,14 @@ class Conf(_config.ConfigNamespace):
 
 conf = Conf()
 
-# Now import your public class
-# Should probably have the same name as your module
 from .core import cds, CdsClass
 
+# Now import your public class
+# Should probably have the same name as your module
 __all__ = ['cds', 'CdsClass',
-           'Conf', 'conf',
-]
+           'OutputFormat',
+           'Dataset',
+           'Constraints',
+           'Cone', 'Polygon', 'Moc',
+           'PropertyConstraint',
+           'Conf', 'conf']

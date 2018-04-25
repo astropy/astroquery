@@ -84,7 +84,6 @@ def get_true_request_results():
 
     def load_true_result_query(data_file_id):
         filename = data_path(DATA_FILES[data_file_id])
-        content = None
         with open(filename, 'r') as f_in:
             content = f_in.read()
         return json.loads(content)
@@ -200,8 +199,8 @@ def test_cone_search_spatial_request(RA, DEC, RADIUS):
     moc_server_constraints = Constraints(sc=Cone(circle_sky_region, intersect="overlaps"))
 
     request_payload = cds.query_region(moc_server_constraints,
-                                             OutputFormat(),
-                                             get_query_payload=True)
+                                       OutputFormat(),
+                                       get_query_payload=True)
 
     assert (request_payload['DEC'] == str(DEC)) and \
            (request_payload['RA'] == str(RA)) and \
@@ -217,8 +216,8 @@ def test_polygon_spatial_request(poly, poly_payload, init_request):
     moc_server_constraints.spatial_constraint = spatial_constraint
 
     request_payload = cds.query_region(moc_server_constraints,
-                                             moc_server_format,
-                                             get_query_payload=True)
+                                       moc_server_format,
+                                       get_query_payload=True)
 
     assert request_payload['stc'] == poly_payload
 
@@ -230,8 +229,8 @@ def test_intersect_param(intersect, cone_spatial_constraint):
     moc_server_constraints = Constraints(sc=cone_spatial_constraint)
 
     request_payload = cds.query_region(moc_server_constraints,
-                                             OutputFormat(),
-                                             get_query_payload=True)
+                                       OutputFormat(),
+                                       get_query_payload=True)
 
     assert request_payload['intersect'] == intersect
 
@@ -247,8 +246,8 @@ def test_get_attribute(get_attr, get_attr_str, cone_spatial_constraint):
     moc_server_constraints = Constraints(sc=cone_spatial_constraint)
 
     result = cds.query_region(moc_server_constraints,
-                                    moc_server_format,
-                                    get_query_payload=True)
+                              moc_server_format,
+                              get_query_payload=True)
 
     assert result['get'] == get_attr_str
 
