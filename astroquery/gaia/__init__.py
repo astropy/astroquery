@@ -23,7 +23,13 @@ class Conf(_config.ConfigNamespace):
     """
     Configuration parameters for `astroquery.gaia`.
     """
-    pass
+
+    MAIN_GAIA_TABLE = _config.ConfigItem("gaiadr2.gaia_source",
+                                         "GAIA source data table")
+    MAIN_GAIA_TABLE_RA = _config.ConfigItem("ra",
+                                            "Name of RA parameter in table")
+    MAIN_GAIA_TABLE_DEC = _config.ConfigItem("dec",
+                                             "Name of Dec parameter in table")
 
 
 conf = Conf()
