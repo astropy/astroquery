@@ -43,7 +43,7 @@ class CdsClass(BaseQuery):
         if get_query_payload:
             return response
 
-        result = CdsClass.__parse_result_region(response, output_format)
+        result = CdsClass.__output_format(response, output_format)
 
         return result
 
@@ -73,33 +73,33 @@ class CdsClass(BaseQuery):
         if get_query_payload:
             return request_payload
 
-        payload_d = {
+        params_d = {
             'method': 'GET',
             'url': self.URL,
             'timeout': self.TIMEOUT
         }
 
         if 'moc' not in request_payload:
-            payload_d.update({'params': request_payload,
+            params_d.update({'params': request_payload,
                               'cache': cache})
-            return self._request(**payload_d)
+            return self._request(**params_d)
 
         filename = request_payload['moc']
         with open(filename, 'rb') as f:
             request_payload.pop('moc')
 
-            payload_d.update({'params': request_payload,
+            params_d.update({'params': request_payload,
                               'cache': False,
                               'files': {'moc': f}})
 
-            return self._request(**payload_d)
+            return self._request(**params_d)
 
     @staticmethod
-    def __parse_result_region(result, output_format, verbose=False):
+    def __output_format(response, output_format, verbose=False):
         """
         Parse the CDS HTTP response to a more convenient format for python users
 
-        :param result: the HTTP response
+        :param response: the HTTP response
         :param output_format: the output format that the user has specified
         :param verbose: boolean. if verbose is False then suppress any VOTable related warnings
         :return: the final parsed response that will be given to the user
@@ -107,7 +107,7 @@ class CdsClass(BaseQuery):
         if not verbose:
             commons.suppress_vo_warnings()
 
-        json_result = result.json()
+        json_result = response.json()
         if output_format.format is OutputFormat.Type.record:
             # The user will get a dictionary of Dataset objects indexed by their ID names.
             # The http response is a list of dict. Each dict represents one data set. Each dict is a list
@@ -129,14 +129,14 @@ class CdsClass(BaseQuery):
             result = result_tmp
         elif output_format.format is OutputFormat.Type.number:
             # The user will get the number of matching data sets
-            result = dict(number=int(r['number']))
+            result = dict(number=int(json_result['number']))
         elif output_format.format is OutputFormat.Type.moc or\
                 output_format.format is OutputFormat.Type.i_moc:
             # The user will get a mocpy.MOC object that he can manipulate (i.o in fits file,
             # MOC operations, plot the MOC using matplotlib, etc...)
             # TODO : just call the MOC.from_json classmethod to get the corresponding mocpy object.
             # TODO : this method will be available in a new mocpy version
-            result = __class__.create_mocpy_object_from_json(json_result)
+            result = __class__.__create_mocpy_object_from_json(json_result)
         else:
             # The user will get a list of the matched data sets ID names
             result = json_result
@@ -160,7 +160,7 @@ class CdsClass(BaseQuery):
         return value_l
 
     @staticmethod
-    def create_mocpy_object_from_json(json_moc):
+    def __create_mocpy_object_from_json(json_moc):
         """
         Create a mocpy.MOC object from a moc expressed in json format
 

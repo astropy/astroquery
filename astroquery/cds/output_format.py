@@ -15,6 +15,29 @@ class OutputFormat(object):
         i_moc = 5
 
     def __init__(self, format=Type.id, field_l=[], moc_order=maxsize, case_sensitive=True, max_rec=None):
+        """
+        OutputFormat object initializer. Specifies what will be returned to the user
+
+        :param format: OutputFormat.Type, optional
+            specifies the output format type.
+            id : ID list (default)
+            record : dictionary containing multiple set of meta data. Each of these sets is indexed by
+             the ID of the data set it is referring to.
+            moc : mocpy.MOC object resulting from the union of all the MOCs of the data sets
+            i_moc : mocpy.MOC object resulting from the intersection of all the MOCs of the data sets
+            number : int value giving the number of selected data sets.
+        :param field_l: list[str], optional
+            the list of meta data the user wants to get (only if format=OutputFormat.Type.record). The default
+            is [] implying that all the meta data fields are returned.
+        :param moc_order: int, optional
+            the order of the MOC returned (only if format=OutputFormat.Type.moc/imoc)
+        :param case_sensitive: bool, optional
+        :param max_rec: int, optional
+            the max number of data sets that the CDS MOC service is allowed to return. (the default is None which
+            implies the CDS MOC service to return all the matching data sets).
+
+        """
+
         assert isinstance(format, OutputFormat.Type), TypeError('`format` must be of type OutputFormat.Type')
         assert isinstance(field_l, list), TypeError('`field_l` must be a list type object')
         assert isinstance(case_sensitive, bool), TypeError('`case_sensitive` must be a bool type object')
