@@ -2,7 +2,7 @@
 astroquery.cds
 *****
 
-The ``cds`` query package allows you to query the CDS to retrieve data sets (i.e. catalogs, images, cubes) satisfying specific constraints. Constraints can be spatial (i.e. you can ask for all data sets having entries in a user defined cone, moc or polygon) or acting on specific data sets properties/meta-data (e.g. you can ask only for catalog data sets which are coming from the CDS).
+The ``cds`` query package allows you to query the CDS MOC service to retrieve data sets (i.e. catalogs, images, cubes) satisfying specific constraints on their MOCs (see http://alasky.unistra.fr/MocServer/query for more explanations about the tool). These constraints can be spatial (i.e. you can ask for all data sets having sources in a cone, MOC or polygon) or can act on specific data set properties/meta-datas (e.g. you can ask only for catalog data sets that are coming from the CDS).
 
 The ``cds`` query package follows the astroquery template for adding new query services.
 
