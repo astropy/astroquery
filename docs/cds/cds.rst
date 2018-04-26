@@ -3,29 +3,41 @@
 .. _astroquery.cds:
 
 ********************************
-CDS Queries (`astroquery.cds`)
+Querying the CDS MOC Service (`astroquery.cds`)
 ********************************
 
 Getting started
 ===============
 
-This module can be used to query the MocServer from the ``Centre de Données de Strasbourg`` (CDS).
-This server aims to return a list of data sets (i.e. catalog, image, HiPS) matching specific constraints.
-These constraints can be of two types :
+This module provides a python interface for querying the MOC service from the `Centre de Données de Strasbourg` (CDS).
+The CDS MOC service is available at : http://alasky.unistra.fr/MocServer/query
 
-- a spatial constraint referring for instance to a cone region, a polygon or a moc (i.e. a mocpy object. See https://github.com/cds-astro/mocpy)
-- a constraint acting on the properties (or meta properties) of the data sets. This type of constraints allows the user to retrieve data sets satisfying a specific algebraic expression involving the data sets properties.
+The CDS MOC Server tool aims at retrieving as fast as possible the list of astronomical data sets (catalogs, surveys, ...) having at least one observation in a specifical sky region. The default result is an ID list but one can ask for different output formats :
 
+* The number of the data sets.
+* A dictionary containing the lists of meta-data for all the resulting data sets. These lists of meta-data are each indexed by the ID of the data set they are referring to.
+* A MOC resulting from the union/intersection of all the MOC of the resulting data sets.
+* An ID list (default result).
+
+MOC Server is based on Multi-Order Coverage maps (MOC) described in the IVOA REC standard.
+
+The CDS MOC Server tool contains a list of meta-data and a MOC for approx ~20000 data sets (catalogs, surveys, ...).
+When requesting for the data sets having at least one observation in a sky region, the CDS MOC Server does the following :
+    1. The sky region (cone, polygon, MOC) is converted into a MOC at the order 29 (max order)
+    2. For each of the 20000 data sets, the MOC server performs the intersection of the MOC from the data set with the one defined at the past step.
+    3. The data sets matching the query are those giving a non-empty MOC intersection.
+   
+In addition to filtering astronomical data sets with a specifical sky region, it is also possible to search for data sets having a specifical set of meta-data. For instance, one can ask for the data sets covering at least 50% of the sky (moc_sky_fraction meta-data >= 50%). Examples of meta-data (or data set properties) are listed here : http://alasky.unistra.fr/MocServer/query?get=example&fmt=ascii
 
 Requirements
 ----------------------------------------------------
-The following packages are required for the use of this module:
+The following packages are required for the use of the ``cds``:
 
-* mocpy
-* pyvo
-* regions
+* mocpy : https://github.com/cds-astro/mocpy
+* pyvo : https://pyvo.readthedocs.io/en/latest/
+* regions : https://astropy-regions.readthedocs.io/en/latest/installation.html
 
-Performing a cds query on a simple cone region
+Performing a ``cds`` query on a simple cone region
 ====================================================
 
 .. code:: python3
@@ -37,9 +49,9 @@ Performing a cds query on a simple cone region
     from astroquery.cds import Constraints, Cone
     from astroquery.cds import OutputFormat
 
-A cone search region is defined using the CircleSkyRegion module from
+A cone region is defined using the CircleSkyRegion module from
 the regions package. Here, a cone is defined by a location (dec, ra)
-expressed in degrees and a radius.
+expressed in degrees plus a radius.
 
 .. code:: python3
 
@@ -47,38 +59,41 @@ expressed in degrees and a radius.
     radius = coordinates.Angle(1.5, 'deg')
     circle_sky_region = CircleSkyRegion(center, radius)
 
-This cone region can be seen as a spatial constraint. The aim of the cds relies on returning all the data sets
-which contain at least one source (i.e. a spatial object) lying in the cone region. This internal CDS service involves a
-server named MocServer which performs all the queries and returns
-the list of matched data sets.
+This cone region can be seen as a spatial constraint. The aim of the ``cds`` relies on returning all the data sets containing at least one observation (i.e. a spatial object) lying in the cone region.
 
 A Constraints object allows us to specify the constraints that will be
-sent to the cds so that it returns all the matched data sets. For
-the purpose of this tutorial, we will only bind a Cone spatial
-constraint to our query but keep in mind that it is also possible to
-associate to the Constraints object a constraint on the data sets
-properties. It is even possible to associate both of them (i.e. a
-spatial constraint and a properties constraint) as we will see in the next section.
+sent to the CDS MOC service before the MOC server performs the query (see the MOC server heuristic explained above for selecting data sets). For the purpose of this tutorial, we will only bind a Cone spatial
+constraint to our Constraints object but keep in mind that it is also possible to bind to it a meta-data constraint. It is even possible to instanciate a Constraints object linked to both of them (i.e. a
+spatial constraint and a property/meta-data constraint) as we will see in the next section.
 
 .. code:: python3
 
     cds_constraints = Constraints(sc=Cone(circle_sky_region, intersect='overlaps'))
 
 Here we have created a Constraints object and we have bound a Cone
-spatial constraint to it. The argument ``intersect`` specifies that data sets have to intersect the cone region to be selected by the mocserver and returned to the user.
-Other possible ``intersect`` argument values are ``covers`` and ``enclosed``.
+spatial constraint to it. The argument `intersect` specifies the rule for the CDS MOC service to select or not a data set. Three values for this parameter are possible : ``overlaps``, ``covers`` or ``enclosed``. For intersect=``overlaps``, a data set is returned when its MOC overlaps the spatial constraint defined MOC.
 
 Now it is time to perform the query. We call the query\_region method
-from the cds object that we imported and pass it the cds\_constraints object with an OutputFormat object which specifies what we
-want to retrieve. In the code below, we have chosen to retrieve all the
-``ID``, ``dataproduct_type`` and ``moc_sky_fraction`` properties from
+from the ``cds`` by passing to it the cds\_constraints object and an OutputFormat object which specifies what we
+want to retrieve. 
+
+As explained in the introduction, one can ask for different output formats. The OutputFormat object presents different optional parameters:
+
+* format : specify if the user wants a list of data sets ID (default), the number of data sets, a MOC, etc...
+* field_l : the list of meta data fields to return if the user asks for the meta datas of the matching data sets.
+* moc_order : the order of the MOC to return if the user asks for a MOC
+* max_rec : the max number of data sets that the CDS MOC service is allowed to return
+
+In the code below, we have chosen to retrieve the
+``ID``, ``dataproduct_type``, ``moc_sky_fraction`` meta data fields from
 the matching data sets.
 
 .. code:: python3
 
+    # We are asking for a dictionary of data sets. Each data sets is indexed by its ID
     datasets_d = cds.query_region(cds_constraints,
-                                      OutputFormat(format=OutputFormat.Type.record,
-                                                   field_l=['ID', 'dataproduct_type', 'moc_sky_fraction', 'cs_service_url']))
+                                  OutputFormat(format=OutputFormat.Type.record,
+                                               field_l=['ID', 'dataproduct_type', 'moc_sky_fraction']))
     import pprint;
     pprint.pprint(datasets_d)
 
@@ -99,9 +114,8 @@ the matching data sets.
       ...}
 
 
-We get a dictionary of cds.dataset.Dataset objects indexed by
-their IDs. To get the properties of one data set, say
-``CDS/B/eso/eso_arc``, just do the following :
+To get the meta-data/properties of one data set, say
+``CDS/B/eso/eso_arc``, just do the following:
 
 .. code:: python3
 
@@ -113,20 +127,79 @@ their IDs. To get the properties of one data set, say
     {'ID': 'CDS/B/eso/eso_arc', 'dataproduct_type': 'catalog', 'moc_sky_fraction': 0.008365}
 
 
-It is also possible to get only the data sets ``IDs``, the ``number``
-of matching data sets or just the ``moc`` resulting from the union of all
-the mocs of the matching data sets. (See the OutputFormat definition class and its ``format`` type).
+If I would just have wanted the ID list of the matching data sets, I would have written:
 
-The result of a cds query depends on the OutputFormat object we have passed to the query_region method.
-If we query for the ``IDs`` of the data sets then we get a python list of all the matched data sets ``IDs``.
-If a user query for the ``number`` of data sets, he gets an int.
-If you want all the records of the matched data sets (the ``IDs`` plus its properties/fields) you get
-as we have seen above, a dictionary of cds.dataset.Dataset objects indexed by their ``IDs``.
+.. code:: python3
 
-This cds.dataset.Dataset object allows you to query a specific service (if available for this data set) such as a tap service, a cone search service...
-The service then returns a VOTable containing all the matching sources of the data set you have submitted the query.
-We can see that the data set CDS/B/cb/lmxbdata contains the field cs_service_url referring the url of the cone search service for this data set.
-To query this service, we call the following command, specifying that we want to query the Simple Cone Search service with a cone of center `pos` and of radius `radius`.
+    # We are asking for the ID list of the matching data sets.
+    id_l = cds.query_region(cds_constraints,
+                            OutputFormat(format=OutputFormat.Type.id))
+                            
+                 
+Or for a mocpy.MOC object resulting from the union of all the MOCs of the matching data sets:
+ 
+.. code:: python3
+
+    # We are asking for a mocpy.MOC object of order 15
+    moc = cds.query_region(cds_constraints,
+                           OutputFormat(format=OutputFormat.Type.moc), moc_order=15)
+
+
+When requesting for data set records (i.e. a dictionary of cds.dataset.Dataset objects each indexed by the data set ID it is referring to), it is possible to query specific services on these data sets (tap, simple cone search, ...). Let is performing a new CDS MOC service query in which we want to retrieve all the meta-data fields of the matching data sets. After that, we will print the list of meta-data of ``CDS/B/cb/lmxbdata``:
+
+.. code:: python3
+
+    # We are asking for all data set records
+    datasets_d = cds.query_region(cds_constraints,
+                                  OutputFormat(format=OutputFormat.Type.record))
+    import pprint;
+    pprint.pprint(datasets_d['CDS/B/cb/lmxbdata'].properties)
+    
+
+.. parsed-literal::
+
+    {'ID': 'CDS/B/cb/lmxbdata',
+ 'TIMESTAMP': 1524657845000.0,
+ 'bib_reference': '2003A&A...404..301R',
+ 'cs_service_url': 'http://vizier.u-strasbg.fr/viz-bin/votable/-A?-source=B%2Fcb%2Flmxbdata&',
+ 'data_ucd': ['src.spType',
+              'pos.eq.ra',
+              'meta.id',
+              'src.class',
+              'phys.mass;arith.ratio',
+              'phys.mass',
+              'pos.eq.dec',
+              'time.period',
+              'phys.luminosity;arith.ratio',
+              'phot.mag;em.opt.V',
+              'src.orbital.inclination'],
+ 'dataproduct_type': 'catalog',
+ 'moc_access_url': 'http://alasky.unistra.fr/footprints/tables/vizier/B_cb_lmxbdata/MOC?nside=2048',
+ 'moc_order': 11.0,
+ 'moc_sky_fraction': 2.066e-06,
+ 'nb_rows': 108.0,
+ 'obs_astronomy_kw': ['Binaries:cataclysmic', 'Novae'],
+ 'obs_collection': 'CV',
+ 'obs_collection_label': ['CB', 'CV'],
+ 'obs_copyright_url': 'http://cdsarc.u-strasbg.fr/viz-bin/Cat?B%2Fcb',
+ 'obs_description': 'Catalogue of Low-Mass X-Ray Binaries',
+ 'obs_description_url': 'http://cdsarc.u-strasbg.fr/viz-bin/Cat?B%2Fcb',
+ 'obs_id': 'B/cb/lmxbdata',
+ 'obs_initial_dec': 32.90817697165526,
+ 'obs_initial_fov': 0.028629053431811713,
+ 'obs_initial_ra': 65.4345703125,
+ 'obs_label': 'lmxbdata',
+ 'obs_release_date': '2010-03-21T13:03:47Z',
+ 'obs_title': 'Cataclysmic Binaries, LMXBs, and related objects (Ritter+, '
+              '2004) (lmxbdata)',
+ 'publisher_id': 'ivo://CDS',
+ 'tap_tablename': 'viz7.B/cb/lmxbdata',
+ 'vizier_popularity': 3.0,
+ 'web_access_url': 'http://vizier.u-strasbg.fr/viz-bin/VizieR-2?-source=B%2Fcb%2Flmxbdata&'}
+ 
+ 
+We can see that the data set ``CDS/B/cb/lmxbdata`` contains a field called ``cs_service_url`` and refers to the url of the cone search service for this data set.
+Querying this cone search service on this data set is pretty simple. If we want to get the observations from ``CDS/B/cb/lmxbdata`` belonging in the cone of center ``pos`` and of radius ``radius`` we do:
 
 .. code:: python3
 
@@ -143,17 +216,17 @@ To query this service, we call the following command, specifying that we want to
     -------- -------- ------- --------- ... ------- --------- ------- ------
      11.2033  33.0092 0.87761 0042+3244 ...    18.8 11.600000           Refs
 
-The returned VOTable shows us why the data set has been returned by the mocserver from the cds:
 
-There is a source from the data set 'CDS/B/cb/lmxbdata' that lies into the cone constraint defined for the past mocserver query.
+The returned VOTable shows us why the data set has been returned by the CDS MOC service.
+Indeed, one can see that there is one source from the data set 'CDS/B/cb/lmxbdata' that is located in the same cone that we used for the the past ``cds`` query.
 
 
-Mixing a spatial constraint with a constraint on properties
+Mixing a spatial constraint with a meta-data constraint
 ===========================================================
 
-We now want to bind a spatial and a properties constraints to the
-Constraints object so that our cds query returns all the data sets
-matching those two constraints.
+We now want to bind a spatial and a meta-data constraint to the
+Constraints object so that our ``cds`` query returns all the data sets
+matching those two different constraints.
 
 .. code:: python3
 
@@ -165,19 +238,16 @@ matching those two constraints.
 As for the spatial constraint, let is define a moc from an url
 
 .. code:: python3
-
+    
+    # moc is a cds.Moc object created an url to a FITS file
     moc = Moc.from_url(url='http://alasky.u-strasbg.fr/SDSS/DR9/color/Moc.fits', intersect='overlaps')
 
-Let is define a properties constraint. Here we want to retrieve all
-data sets satisfying the following expression : (ID = \*CDS\* &&
-moc\_sky\_fraction <= 0.01)
+Let is define the meta-data/properties constraint. Here we want to retrieve the
+data sets having the word CDS in their IDs and
+having a moc\_sky\_fraction of at least 1%. This corresponds to the following algebraic expression:
+(ID = \*CDS\* && moc\_sky\_fraction <= 0.01)
 
-In other words, we want to retrieve all the data sets having the word CDS in their IDs and
-having a moc\_sky\_fraction of at least 1%.
-
-A properties constraint is written like an algebraic tree of
-equalities/inequalities. For instance, the above algebraic expression
-will be defined such as :
+This constraint is then defined like the following:
 
 .. code:: python3
 
@@ -186,18 +256,16 @@ will be defined such as :
         ChildNode("moc_sky_fraction <= 0.01"),
         ChildNode("ID = *CDS*")
     ))
-    # or simply write the algebraical expression as a string
+    # or simply pass the algebraical expression as a string
     properties_constraint = PropertyConstraint('ID = *CDS* && moc_sky_fraction <= 0.01')
 
-Once we defined our two constraints (i.e. a spatial one and a properties
-one), we can bind them to a Constraints object
+Let is bind those constraints to a Constraints object.
 
 .. code:: python3
 
-    # moc is a cds.Moc object created from a mocpy object, a json moc, a local path or an url to a FITS file
     cds_constraints = Constraints(sc=moc, pc=properties_constraint)
 
-And simply call the cds object to run the query as usual
+And do a ``cds`` query on this Constraints object:
 
 .. code:: python3
 
@@ -219,10 +287,9 @@ And simply call the cds object to run the query as usual
      ...]
 
 
-We have obtained from the cds the data sets which intersect the moc
+We have obtained the data sets having at least one observation in the MOC
 found at the url http://alasky.u-strasbg.fr/SDSS/DR9/color/Moc.fits,
-have the CDS word in their `ID` and finally, have a `moc_sky_fraction`
-with at least 1%.
+having the CDS word in their IDs and finally, covering at least 1% of the sky.
 
 Reference/API
 =============
