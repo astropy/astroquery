@@ -7,9 +7,17 @@ from os import remove
 
 from abc import abstractmethod, ABC
 
-from regions import CircleSkyRegion
-from regions import PolygonSkyRegion
-from mocpy import MOC
+try:
+    from mocpy import MOC
+except ImportError:
+    raise ImportError("Could not import mocpy, which is a requirement for the CDS service."
+                      "Please see https://github.com/cds-astro/mocpy to install it.")
+
+try:
+    from regions import CircleSkyRegion, PolygonSkyRegion
+except ImportError:
+    raise ImportError("Could not import regions, which is a requirement for the CDS service."
+                      "Please see http://astropy-regions.readthedocs.io/en/latest/installation.html to install it.")
 
 
 class SpatialConstraint(ABC):
@@ -51,12 +59,10 @@ class SpatialConstraint(ABC):
     @intersect.setter
     def intersect(self, value):
         if value not in ('overlaps', 'enclosed', 'covers'):
-            print("intersect parameters must have a value in ('overlaps', 'enclosed', 'covers')")
-            raise ValueError
+            raise ValueError("`intersect` parameter must have a value in ('overlaps', 'enclosed', 'covers')")
         self.__intersect = value
         self.request_payload.update({'intersect': self.__intersect})
 
-    # real signature unknown
     def __repr__(self, *args, **kwargs):
         result = "Spatial constraint having request payload :\n{0}".format(self.request_payload)
         return result
@@ -89,8 +95,8 @@ class Cone(SpatialConstraint):
 
         """
 
-        if not isinstance(circle_region, CircleSkyRegion):
-            raise TypeError
+        assert isinstance(circle_region, CircleSkyRegion), TypeError('`circle_region` must be of type'
+                                                                     ' regions.CircleSkyRegion')
 
         super(Cone, self).__init__(intersect)
         self.circle_region = circle_region
@@ -133,16 +139,14 @@ class Polygon(SpatialConstraint):
             not a polygon but a line or a single vertex
 
         """
-
-        if not isinstance(polygon_region, PolygonSkyRegion):
-            raise TypeError
+        assert isinstance(polygon_region, PolygonSkyRegion), TypeError("`polygon_region` must be"
+                                                                       " of type PolygonSkyRegion")
 
         super(Polygon, self).__init__(intersect)
 
         # test if the polygon has at least 3 vertices
         if len(polygon_region.vertices.ra) < 3:
-            print("A polygon must have at least 3 vertices")
-            raise AttributeError
+            raise AttributeError('`polygon_region` must have at least 3 vertices')
 
         self.request_payload.update({'stc': self.__to_stc(polygon_region)})
 
@@ -173,24 +177,23 @@ class Moc(SpatialConstraint):
 
     @classmethod
     def from_file(cls, filename, intersect='overlaps'):
-        if not isinstance(filename, str):
-            raise TypeError
+        assert isinstance(filename, str), TypeError("`filename` must be of type str")
+
         moc_constraint = cls(intersect=intersect)
         moc_constraint.request_payload.update({'moc': filename})
         return moc_constraint
 
     @classmethod
     def from_url(cls, url, intersect='overlaps'):
-        if not isinstance(url, str):
-            raise TypeError
+        assert isinstance(url, str), TypeError("`url` must be of type str")
+
         moc_constraint = cls(intersect=intersect)
         moc_constraint.request_payload.update({'url': url})
         return moc_constraint
 
     @classmethod
     def from_mocpy_object(cls, mocpy_obj, intersect='overlaps'):
-        if not isinstance(mocpy_obj, MOC):
-            raise TypeError
+        assert isinstance(mocpy_obj, MOC), TypeError("`mocpy_obj` must be of type mocpy.MOC")
 
         import tempfile
         tmp_moc_file = tempfile.NamedTemporaryFile(delete=False)

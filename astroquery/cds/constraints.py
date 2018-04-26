@@ -29,7 +29,7 @@ class Constraints(object):
     @spatial_constraint.setter
     def spatial_constraint(self, sc):
         if sc and not isinstance(sc, SpatialConstraint):
-            raise TypeError
+            raise TypeError('`sc` param is not of SpatialConstraint type')
 
         self.__spatial_constraint = sc
         self.__build_new_payload()
@@ -39,11 +39,11 @@ class Constraints(object):
         return self.__properties_constraint
 
     @properties_constraint.setter
-    def properties_constraint(self, sp):
-        if sp and not isinstance(sp, PropertyConstraint):
-            raise TypeError
+    def properties_constraint(self, pc):
+        if pc and not isinstance(pc, PropertyConstraint):
+            raise TypeError('`pc` param is not of PropertyConstraint type')
 
-        self.__properties_constraint = sp
+        self.__properties_constraint = pc
         self.__build_new_payload()
 
     def __build_new_payload(self):

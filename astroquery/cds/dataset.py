@@ -1,13 +1,20 @@
-import pyvo as vo
+#!/usr/bin/env python
+# -*- coding: utf-8 -*
+
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
+
+try:
+    import pyvo as vo
+except ImportError:
+    raise ImportError("Could not import pyvo, which is a requirement for calling services on Dataset objects through"
+                      "the CDS service. Please see https://pyvo.readthedocs.io/en/latest/ to install it.")
+
 from enum import Enum
 from copy import copy
 from random import shuffle
 
 
 class Dataset:
-    # The timeout for a tap service before the request is aborted
-    tap_service_timeout = 10
-
     class ServiceType(Enum):
         cs = 1,
         tap = 2,

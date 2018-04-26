@@ -31,9 +31,9 @@ class OutputFormat(object):
         elif format is OutputFormat.Type.record:
             self.request_payload.update({'get': 'record'})
 
-        # parse fields
+            # set up the payload str from the list of fields `field_l` param
             if field_l:
-                # The MocServer responds badly to record queries which do not ask
+                # The CDS MOC service responds badly to record queries which do not ask
                 # for the ID field. To prevent that, we add it to the list of requested fields
                 field_l.append('ID')
                 field_l = list(set(field_l))

@@ -22,23 +22,27 @@ class PropertyConstraint(object):
 
     """
 
-    def __init__(self, expression):
+    def __init__(self, expr):
         """
         PropertyConstraint's constructor
 
-        :param expression:
+        :param expr:
             can be a PropertiesExpr or a string
+
         """
 
-        if not isinstance(expression, PropertiesExpr) and not isinstance(expression, str):
-            raise TypeError
+        if not isinstance(expr, PropertiesExpr) and not isinstance(expr, str):
+            raise TypeError('`expr` is not of type str nor PropertiesExpr')
 
-        self.expr = expression
+        self.expr = expr
         self.request_payload = dict()
         self.compute_payload()
 
     def compute_payload(self):
-        """Update the property constraints payload"""
+        """
+        Update the property constraints payload
+
+        """
         if isinstance(self.expr, str):
             self.request_payload = {'expr': self.expr}
         else:
@@ -50,7 +54,10 @@ class PropertyConstraint(object):
 
 
 class OperandExpr(Enum):
-    """Operand Enum which allow the user to define relationship between expr"""
+    """
+    Operand Enum which allow the user to define relationship between expr
+
+    """
     Inter = 1,
     Union = 2,
     Subtr = 3
@@ -73,13 +80,17 @@ class PropertiesExpr(ABC):
         Evaluate recursively the whole expression
 
         Returns a str understandable by the MOCServer
+
         """
 
         pass
 
 
 class ChildNode(PropertiesExpr):
-    """Leaf expression node of the binary tree expression"""
+    """
+    Leaf expression node of the binary tree expression
+
+    """
 
     def __init__(self, condition):
         assert condition is not None
@@ -90,14 +101,17 @@ class ChildNode(PropertiesExpr):
 
 
 class ParentNode(PropertiesExpr):
-    """Parent expression node of the binary tree expression"""
+    """
+    Parent expression node of the binary tree expression
+
+    """
 
     def __init__(self, operand, left_expr, right_expr):
-        if not isinstance(right_expr, PropertiesExpr) or not isinstance(left_expr, PropertiesExpr):
-            raise TypeError
+        assert isinstance(right_expr, PropertiesExpr), TypeError('`right_expr` is not of type PropertiesExpr')
+        assert isinstance(left_expr, PropertiesExpr), TypeError('`left_expr` is not of type PropertiesExpr')
 
         if operand not in (OperandExpr.Inter, OperandExpr.Union, OperandExpr.Subtr):
-            raise TypeError
+            raise TypeError('`operand` is not of type OperandExpr')
 
         self.left_expr = left_expr
         self.right_expr = right_expr
