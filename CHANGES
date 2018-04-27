@@ -1,4 +1,4 @@
-0.3.8 (unreleased)
+0.3.8 (2018-04-27)
 ------------------
 
 - New tool ``jplhorizons``: JPL Horizons service to obtain ephemerides,
