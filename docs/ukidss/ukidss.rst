@@ -13,18 +13,14 @@ This module allows searching catalogs and retrieving images from the UKIDSS web
 service. Some data can on UKIDSS can be accessed only after a valid login. For
 accessing such data a UKIDSS object must first be instantiated with valid
 credentials. On the other hand, to access the public data, the various query
-functions may just be called as class methods - i.e. no instantiation is
-required. Below are examples that illustrate both the means for accessing the
-data.
+functions may just be called without logging in. Below are examples that
+illustrate both the means for accessing the data.
 
 **Case 1 : Access only public data - No login**
 
 .. code-block:: python
 
     >>> from astroquery.ukidss import Ukidss
-
-    # perform any query as a class method - no instantiation required
-
     >>> images = Ukidss.get_images("m1")
 
     Found 1 targets
@@ -38,7 +34,7 @@ data.
 
     >>> from astroquery.ukidss import Ukidss
 
-    # Now first instantiate a Ukidss object with login credentials
+    # Now first instantiate a new Ukidss object with login credentials
 
     >>> u_obj = Ukidss(username='xyz', password='secret', # doctest: +SKIP
     ...                community='your_community')        # doctest: +SKIP
@@ -48,8 +44,8 @@ data.
 
 Note that at login time you may also optionally set the database and the survey
 that you would like to query. By default the database is set to 'UKIDSSDR7PLUS'
-and the ``programme_id`` is set to 'all' - which includes all the surveys. A word
-of warning - for region queries you should explicitly set the
+and the ``programme_id`` is set to 'all' - which includes all the surveys. A
+word of warning - for region queries you should explicitly set the
 ``programme_id`` to the survey you wish to query. Querying all surveys is
 permitted only for image queries.
 
@@ -254,3 +250,4 @@ Reference/API
 
 .. automodapi:: astroquery.ukidss
     :no-inheritance-diagram:
+    :inherited-members:

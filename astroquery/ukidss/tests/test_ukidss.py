@@ -89,17 +89,6 @@ def get_mockreturn(method='GET', url='default_url',
     return MockResponse(content=content, url=url, **kwargs)
 
 
-@pytest.mark.parametrize(('dim', 'expected'),
-                         [(5 * u.arcmin, 5),
-                          (5 * u.degree, 300),
-                          ('0d0m30s', 0.5),
-                          ]
-                         )
-def test_parse_dimension(dim, expected):
-    out = ukidss.core._parse_dimension(dim)
-    npt.assert_approx_equal(out, expected, significant=3)
-
-
 def test_get_images(patch_get, patch_get_readable_fileobj):
     image = ukidss.core.Ukidss.get_images(
         commons.ICRSCoordGenerator(ra=83.633083, dec=22.0145,
@@ -113,7 +102,8 @@ def test_get_images_async_1():
     payload = ukidss.core.Ukidss.get_images_async(
         commons.ICRSCoordGenerator(ra=83.633083, dec=22.0145,
                                    unit=(u.deg, u.deg)),
-        radius=20 * u.arcmin, get_query_payload=True)
+        radius=20 * u.arcmin, get_query_payload=True,
+        programme_id='GPS')
 
     assert 'xsize' not in payload
     assert 'ysize' not in payload
@@ -121,7 +111,8 @@ def test_get_images_async_1():
     payload = ukidss.core.Ukidss.get_images_async(
         commons.ICRSCoordGenerator(ra=83.633083, dec=22.0145,
                                    unit=(u.deg, u.deg)),
-        get_query_payload=True)
+        get_query_payload=True,
+        programme_id='GPS')
     assert payload['xsize'] == payload['ysize']
     assert payload['xsize'] == 1
 
@@ -132,7 +123,8 @@ def test_get_images_async_2(patch_get, patch_get_readable_fileobj):
 
     image_urls = ukidss.core.Ukidss.get_images_async(
         commons.ICRSCoordGenerator(ra=83.633083, dec=22.0145,
-                                   unit=(u.deg, u.deg)))
+                                   unit=(u.deg, u.deg)),
+        programme_id='GPS')
 
     assert len(image_urls) == 1
 
@@ -141,7 +133,8 @@ def test_get_image_list(patch_get, patch_get_readable_fileobj):
     urls = ukidss.core.Ukidss.get_image_list(
         commons.ICRSCoordGenerator(ra=83.633083, dec=22.0145,
                                    unit=(u.deg, u.deg)),
-        frame_type='all', waveband='all')
+        frame_type='all', waveband='all',
+        programme_id='GPS')
     print(urls)
     assert len(urls) == 1
 
@@ -156,7 +149,8 @@ def test_query_region(patch_get, patch_get_readable_fileobj):
     table = ukidss.core.Ukidss.query_region(
         commons.GalacticCoordGenerator(l=10.625, b=-0.38,
                                        unit=(u.deg, u.deg)),
-        radius=6 * u.arcsec)
+        radius=6 * u.arcsec,
+        programme_id='GPS')
     assert isinstance(table, Table)
     assert len(table) > 0
 
@@ -165,13 +159,15 @@ def test_query_region_async(patch_get):
     response = ukidss.core.Ukidss.query_region_async(
         commons.GalacticCoordGenerator(l=10.625, b=-0.38,
                                        unit=(u.deg, u.deg)),
-        radius=6 * u.arcsec, get_query_payload=True)
+        radius=6 * u.arcsec, get_query_payload=True,
+        programme_id='GPS')
 
     assert response['radius'] == 0.1
     response = ukidss.core.Ukidss.query_region_async(
         commons.GalacticCoordGenerator(l=10.625, b=-0.38,
                                        unit=(u.deg, u.deg)),
-        radius=6 * u.arcsec)
+        radius=6 * u.arcsec,
+        programme_id='GPS')
     assert response is not None
 
 
