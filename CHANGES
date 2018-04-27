@@ -1,21 +1,28 @@
 0.3.8 (unreleased)
 ------------------
 
-- GAIA: Default URL switched to DR2 and made configurable [#1112]
-- TAP: Add tool to check for phase of background job [#1073]
-- splatalogue: Move to https.  Old HTTP post requests were broken [#1066,#1076]
-- heasarc: Add additional functionality and expand query capabilities [#1047]
-- New tool: JPL Horizons service to obtain ephemerides, orbital elements, and
-  state vectors for Solar System objects. [#1023]
-- New tool: MPC to query the Minor Planet Center web service [#1064]
-- ATOMIC: Fixed remote tests that were broken. [#1038]
-- vo_conesearch: URL for validated services have changed. Old URL should still
-  redirect but it is deprecated. [#1033]
-- MAST: bugfix, removing filesize checking due to unreliable filesize reporting in the database [#1050]
+- New tool ``jplhorizons``: JPL Horizons service to obtain ephemerides,
+  orbital elements, and state vectors for Solar System objects. [#1023]
+- New tool ``mpc``: MPC Module to query the Minor Planet Center web service.
+  [#1064, #1077]
+- New tool ``oac``: Open Astronomy Catalog API to obtain data products on
+  supernovae, TDEs, and kilonovae. [#1053]
+- ALMA: Adding support for band and polarization selection. [#1108]
+- HEASARC: Add additional functionality and expand query capabilities. [#1047]
+- GAIA: Default URL switched to DR2 and made configurable. [#1112]
+- IRSA: Raise exceptions for exceeding output table size limit. [#1032]
+- IRSA_DUST: Call over https. [#1069]
+- LAMDA: Fix writer for Windows on Python 3. [#1059]
+- MAST: Removing filesize checking due to unreliable filesize reporting in
+  the database. [#1050]
 - MAST: Added Catalogs class. [#1049]
-- New tool: Open Astronomy Catalog API to obtain data products on supernovae, TDEs, and kilonovae. [#1053]
-- MPC: Added module to query the Minor Planet Center web service [#1064]
-- IRSA Dust: call over https. [#1069]
+- MAST: Enable downloading MAST HST data from S3. [#1040]
+- SPLATALOGUE: Move to https as old HTTP post requests were broken. [#1076]
+- utils.TAP: Add tool to check for phase of background job. [#1073]
+- utils.TAP: Added redirect handling to sync jobs. [#1099]
+- utils.TAP: Fix jobsIDs assignment. [#1105]
+- VO_CONESEARCH: URL for validated services have changed. Old URL should still
+  redirect but it is deprecated. [#1033]
 
 
 0.3.7 (2018-01-25)
