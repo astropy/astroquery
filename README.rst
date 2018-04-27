@@ -135,7 +135,11 @@ Additional Links
 
 Maintained by `Adam Ginsburg`_ and `Brigitta Sipocz <github.com/bsipocz>`_ (`astropy.astroquery@gmail.com`_)
 
-If you use ``astroquery``, please cite our `Zenodo DOI <https://doi.org/10.5281/zenodo.1160627>`_.
+If you use ``astroquery``, please cite our `Zenodo DOI
+<https://doi.org/10.5281/zenodo.1160627>`_.
+
+(Before using Zenodo, ``astroquery`` v0.1 had a `figshare`_ DOI:
+http://dx.doi.org/10.6084/m9.figshare.805208 )
 
 
 Badges
