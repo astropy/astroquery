@@ -783,8 +783,8 @@ class TapPlus(Tap):
         if credentials_file is not None:
             # read file: get user & password
             with open(credentials_file, "r") as ins:
-                user = ins.readline()
-                password = ins.readline()
+                user = ins.readline().strip()
+                password = ins.readline().strip()
         if user is None:
             print("Invalid user name")
             return
