@@ -12,9 +12,11 @@ from __future__ import print_function, division
 import warnings
 import json
 import time
+import string
 import os
 import re
 import keyring
+import threading
 
 import numpy as np
 
@@ -28,6 +30,7 @@ import astropy.coordinates as coord
 from astropy.table import Table, Row, vstack, MaskedColumn
 from astropy.extern.six.moves.urllib.parse import quote as urlencode
 from astropy.extern.six.moves.http_cookiejar import Cookie
+from astropy.utils.console import ProgressBarOrSpinner
 from astropy.utils.exceptions import AstropyWarning
 from astropy.logger import log
 
@@ -38,7 +41,6 @@ from ..exceptions import (TimeoutError, InvalidQueryError, RemoteServiceError,
                           LoginError, ResolverError, MaxResultsWarning,
                           NoResultsWarning, InputWarning, AuthenticationWarning)
 from . import conf
-
 
 __all__ = ['Observations', 'ObservationsClass',
            'Mast', 'MastClass']
@@ -816,6 +818,13 @@ class ObservationsClass(MastClass):
     Class for querying MAST observational data.
     """
 
+    def __init__(self, *args, **kwargs):
+
+        super(ObservationsClass, self).__init__(*args, **kwargs)
+
+        self._boto3 = None
+        self._botocore = None
+
     def list_missions(self):
         """
         Lists data missions archived by MAST and avaiable through `astroquery.mast`.
@@ -1290,6 +1299,132 @@ class ObservationsClass(MastClass):
                           "URL": [url]})
         return manifest
 
+    def enable_s3_hst_dataset(self):
+        """
+        Attempts to enable downloading HST public files from S3 instead of MAST.
+        Requires the boto3 library to function.
+        """
+        import boto3
+        import botocore
+        self._boto3 = boto3
+        self._botocore = botocore
+
+        log.info("Using the S3 HST public dataset")
+        log.warning("Your AWS account will be charged for access to the S3 bucket")
+        log.info("See Request Pricing in https://aws.amazon.com/s3/pricing/ for details")
+        log.info("If you have not configured boto3, follow the instructions here: " +
+                 "https://boto3.readthedocs.io/en/latest/guide/configuration.html")
+
+    def disable_s3_hst_dataset(self):
+        """
+        Disables downloading HST public files from S3 instead of MAST
+        """
+        self._boto3 = None
+        self._botocore = None
+
+    def _download_from_s3(self, dataProduct, localPath, cache=True):
+        # The following is a mishmash of BaseQuery._download_file and s3 access through boto
+
+        bkt_name = 'stpubdata'
+
+        # This is a cheap operation and does not perform any actual work yet
+        s3 = self._boto3.resource('s3')
+        s3_client = self._boto3.client('s3')
+        bkt = s3.Bucket(bkt_name)
+
+        dataUri = dataProduct['dataURI']
+        filename = dataUri.split("/")[-1]
+        obs_id = dataProduct['obs_id']
+
+        obs_id = obs_id.lower()
+
+        # This next part is a bit funky.  Let me explain why:
+        # We have 2 different possible URI schemes for HST:
+        #   mast:HST/product/obs_id_filename.type (old style)
+        #   mast:HST/product/obs_id/obs_id_filename.type (new style)
+        # The first scheme was developed thinking that the obs_id in the filename
+        # would *always* match the actual obs_id folder the file was placed in.
+        # Unfortunately this assumption was false.
+        # We have been trying to switch to the new uri scheme as it specifies the
+        # obs_id used in the folder path correctly.
+        # The cherry on top is that the obs_id in the new style URI is not always correct either!
+        # When we are looking up files we have some code which iterates through all of
+        # the possible permutations of the obs_id's last char which can be *ANYTHING*
+        #
+        # So in conclusion we can't trust the last char obs_id from the file or from the database
+        # So with that in mind, hold your nose when reading the following:
+
+        info_lookup = None
+        sane_path = os.path.join("hst", "public", obs_id[:4], obs_id, filename)
+        try:
+            info_lookup = s3_client.head_object(Bucket=bkt_name, Key=sane_path, RequestPayer='requester')
+            bucketPath = sane_path
+        except self._botocore.exceptions.ClientError as e:
+            if e.response['Error']['Code'] != "404":
+                raise
+
+        if info_lookup is None:
+            # Unfortunately our file placement logic is anything but sane
+            # We put files in folders that don't make sense
+            for ch in (string.digits + string.ascii_lowercase):
+                # The last char of the obs_folder (observation id) can be any lowercase or numeric char
+                insane_obs = obs_id[:-1] + ch
+                insane_path = os.path.join("hst", "public", insane_obs[:4], insane_obs, filename)
+
+                try:
+                    info_lookup = s3_client.head_object(Bucket=bkt_name, Key=insane_path, RequestPayer='requester')
+                    bucketPath = insane_path
+                    break
+                except self._botocore.exceptions.ClientError as e:
+                    if e.response['Error']['Code'] != "404":
+                        raise
+
+        if info_lookup is None:
+            raise Exception("Unable to locate file!")
+
+        # Unfortunately, we can't use the reported file size in the reported product.  STScI's backing
+        # archive database (CAOM) is frequently out of date and in many cases omits the required information.
+        # length = dataProduct["size"]
+        # Instead we ask the webserver (in this case S3) what the expected content length is and use that.
+        length = info_lookup["ContentLength"]
+
+        if cache and os.path.exists(localPath):
+            if length is not None:
+                statinfo = os.stat(localPath)
+                if statinfo.st_size != length:
+                    log.warning("Found cached file {0} with size {1} that is "
+                                "different from expected size {2}"
+                                .format(localPath,
+                                        statinfo.st_size,
+                                        length))
+                else:
+                    log.info("Found cached file {0} with expected size {1}."
+                             .format(localPath, statinfo.st_size))
+                    return
+
+        with ProgressBarOrSpinner(length, ('Downloading URL s3://{0}/{1} to {2} ...'.format(
+                bkt_name, bucketPath, localPath))) as pb:
+
+            # Bytes read tracks how much data has been received so far
+            # This variable will be updated in multiple threads below
+            global bytes_read
+            bytes_read = 0
+
+            progress_lock = threading.Lock()
+
+            def progress_callback(numbytes):
+                # Boto3 calls this from multiple threads pulling the data from S3
+                global bytes_read
+
+                # This callback can be called in multiple threads
+                # Access to updating the console needs to be locked
+                with progress_lock:
+                    bytes_read += numbytes
+                    pb.update(bytes_read)
+
+            bkt.download_file(bucketPath, localPath, ExtraArgs={"RequestPayer": "requester"},
+                              Callback=progress_callback)
+
     def _download_files(self, products, base_dir, cache=True):
         """
         Takes an `astropy.table.Table` of data products and downloads them into the dirctor given by base_dir.
@@ -1312,7 +1447,7 @@ class ObservationsClass(MastClass):
         for dataProduct in products:
 
             localPath = base_dir + "/" + dataProduct['obs_collection'] + "/" + dataProduct['obs_id']
-            dataUrl = self._MAST_DOWNLOAD_URL + "?uri=" + dataProduct['dataURI']
+            dataUrl = self._MAST_DOWNLOAD_URL + "?uri=" + dataProduct["dataURI"]
 
             if not os.path.exists(localPath):
                 os.makedirs(localPath)
@@ -1324,7 +1459,15 @@ class ObservationsClass(MastClass):
             url = None
 
             try:
-                self._download_file(dataUrl, localPath, cache=cache)
+                if self._boto3 is not None and dataProduct["dataURI"].startswith("mast:HST/product"):
+                    try:
+                        self._download_from_s3(dataProduct, localPath, cache)
+                    except Exception as ex:
+                        log.exception("Error pulling from S3 bucket: %s" % ex)
+                        log.warn("Falling back to mast download...")
+                        self._download_file(dataUrl, localPath, cache=cache)
+                else:
+                    self._download_file(dataUrl, localPath, cache=cache)
 
                 # check if file exists also this is where would perform md5,
                 # and also check the filesize if the database reliably reported file sizes
