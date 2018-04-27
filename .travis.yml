@@ -103,7 +103,7 @@ matrix:
           env: PYTHON_VERSION=3.4 NUMPY_VERSION=1.10
         - os: linux
           stage: Tests with other Python/Numpy versions, remote data
-          env: PYTHON_VERSION=3.5 NUMPY_VERSION=1.11 KEYRING_VERSION='<12.0'
+          env: PYTHON_VERSION=3.5.5 NUMPY_VERSION=1.11 KEYRING_VERSION='<12.0'
 
         - os: linux
           stage: Tests with other Python/Numpy versions, remote data
