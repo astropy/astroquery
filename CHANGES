@@ -7,6 +7,8 @@
   [#1064, #1077]
 - New tool ``oac``: Open Astronomy Catalog API to obtain data products on
   supernovae, TDEs, and kilonovae. [#1053]
+- New tool ``wfau`` and ``vsa``: Refactor of the UKIDSS query tool add full
+  WFAU support.  [#984]
 - ALMA: Adding support for band and polarization selection. [#1108]
 - HEASARC: Add additional functionality and expand query capabilities. [#1047]
 - GAIA: Default URL switched to DR2 and made configurable. [#1112]
@@ -18,6 +20,7 @@
 - MAST: Added Catalogs class. [#1049]
 - MAST: Enable downloading MAST HST data from S3. [#1040]
 - SPLATALOGUE: Move to https as old HTTP post requests were broken. [#1076]
+- UKIDSS: Update to DR10 as default database. [#984]
 - utils.TAP: Add tool to check for phase of background job. [#1073]
 - utils.TAP: Added redirect handling to sync jobs. [#1099]
 - utils.TAP: Fix jobsIDs assignment. [#1105]
@@ -28,8 +31,6 @@
 0.3.7 (2018-01-25)
 ------------------
 
-- WFAU: New tool / refactor of the UKIDSS query tool [#984].
-- UKIDSS: Update to DR10 as default database [#984].
 - New tool: Exoplanet Orbit Catalog, NASA Exoplanet Archive [#771]
 - ESO: The upstream API changed.  We have adapted.  [#970]
 - ESO: Added 'destination' keyword to Eso.retrieve_data(), to download files
