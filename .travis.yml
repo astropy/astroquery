@@ -26,6 +26,8 @@ stages:
    - name: Cron tests
      if: type = cron
    - name: Tests with other Python/Numpy versions, remote data
+   - name: deploy
+     if: branch = master
 
 
 env:
@@ -147,6 +149,13 @@ matrix:
         - os: linux
           env: MAIN_CMD='pycodestyle astroquery --count'
                SETUP_CMD='' EVENT_TYPE='push pull_request'
+
+deploy:
+  provider: pypi
+  user: "keflavich"
+  password:
+  secure: NvwZewQEwW+JadyF1ChzaKvQHLtFQ32BRSpw1Jx/IuE3aZS2QMp3Zdm9AjFJEyoI5BTe2WCdd8UIXusceAN+uCjgdv5s4nSHNjdIo9c+rwRh1mzD62kDVkNZzyTHQ9tBRydOUrQhllraP2AmFfNpMDWOnGeJDZL7NdF+F1pg7Is=
+
 
 install:
     - git clone git://github.com/astropy/ci-helpers.git
