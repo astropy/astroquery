@@ -3,9 +3,9 @@
 
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
-from astroquery.query import BaseQuery
-from astroquery.utils import commons
-from astroquery.utils import async_to_sync
+from ..query import BaseQuery
+from ..utils import commons
+from ..utils import async_to_sync
 
 try:
     from mocpy import MOC
@@ -43,7 +43,7 @@ class CdsClass(BaseQuery):
         if get_query_payload:
             return response
 
-        result = CdsClass.__output_format(response, output_format)
+        result = CdsClass._output_format(response, output_format)
 
         return result
 
@@ -81,7 +81,7 @@ class CdsClass(BaseQuery):
 
         if 'moc' not in request_payload:
             params_d.update({'params': request_payload,
-                              'cache': cache})
+                             'cache': cache})
             return self._request(**params_d)
 
         filename = request_payload['moc']
@@ -89,13 +89,13 @@ class CdsClass(BaseQuery):
             request_payload.pop('moc')
 
             params_d.update({'params': request_payload,
-                              'cache': False,
-                              'files': {'moc': f}})
+                             'cache': False,
+                             'files': {'moc': f}})
 
             return self._request(**params_d)
 
     @staticmethod
-    def __output_format(response, output_format, verbose=False):
+    def _output_format(response, output_format, verbose=False):
         """
         Parse the CDS HTTP response to a more convenient format for python users
 
@@ -114,7 +114,7 @@ class CdsClass(BaseQuery):
             # of (meta-data name, value in str)
 
             # 1 : all the meta-data values from the data sets returned by the CDS are cast to floats if possible
-            result = [dict([md_name, CdsClass.__cast_to_float(md_val)]
+            result = [dict([md_name, CdsClass._cast_to_float(md_val)]
                            for md_name, md_val in data_set.items())
                       for data_set in json_result]
             # 2 : a final dictionary of Dataset objects indexed by their ID names is created
@@ -122,7 +122,7 @@ class CdsClass(BaseQuery):
             for data_set in result:
                 data_set_id = data_set['ID']
                 result_tmp[data_set_id] = Dataset(
-                    **dict([md_name, CdsClass.__remove_duplicate(data_set.get(md_name))]
+                    **dict([md_name, CdsClass._remove_duplicate(data_set.get(md_name))]
                            for md_name in (data_set.keys() - set('ID')))
                 )
 
@@ -136,7 +136,7 @@ class CdsClass(BaseQuery):
             # MOC operations, plot the MOC using matplotlib, etc...)
             # TODO : just call the MOC.from_json classmethod to get the corresponding mocpy object.
             # TODO : this method will be available in a new mocpy version
-            result = __class__.__create_mocpy_object_from_json(json_result)
+            result = __class__._create_mocpy_object_from_json(json_result)
         else:
             # The user will get a list of the matched data sets ID names
             result = json_result
@@ -144,14 +144,14 @@ class CdsClass(BaseQuery):
         return result
 
     @staticmethod
-    def __cast_to_float(value):
+    def _cast_to_float(value):
         try:
             return float(value)
         except (ValueError, TypeError):
             return value
 
     @staticmethod
-    def __remove_duplicate(value_l):
+    def _remove_duplicate(value_l):
         if isinstance(value_l, list):
             value_l = list(set(value_l))
             if len(value_l) == 1:
@@ -160,14 +160,14 @@ class CdsClass(BaseQuery):
         return value_l
 
     @staticmethod
-    def __create_mocpy_object_from_json(json_moc):
+    def _create_mocpy_object_from_json(json_moc):
         """
         Create a mocpy.MOC object from a moc expressed in json format
 
         :param json_moc:
         :return: a mocpy.MOC object
         """
-        def __orderipix2uniq(n_order, n_pix):
+        def orderipix2uniq(n_order, n_pix):
             return ((4 ** n_order) << 2) + n_pix
 
         from mocpy.interval_set import IntervalSet
@@ -176,7 +176,7 @@ class CdsClass(BaseQuery):
             n_order = int(n_order)
 
             for n_pix in n_pix_l:
-                uniq_interval.add(__orderipix2uniq(n_order, n_pix))
+                uniq_interval.add(orderipix2uniq(n_order, n_pix))
 
         moc = MOC.from_uniq_interval_set(uniq_interval)
         return moc

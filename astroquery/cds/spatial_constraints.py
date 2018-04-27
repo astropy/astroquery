@@ -49,19 +49,20 @@ class SpatialConstraint(ABC):
             - intersect must have its value in (overlaps, enclosed, covers)
 
         """
-        self.__intersect = intersect
-        self.request_payload = {'intersect': self.__intersect}
+        self._intersect = intersect
+        self.request_payload = {'intersect': self._intersect}
 
     @property
     def intersect(self):
-        return self.__intersect
+        return self._intersect
 
     @intersect.setter
     def intersect(self, value):
         if value not in ('overlaps', 'enclosed', 'covers'):
             raise ValueError("`intersect` parameter must have a value in ('overlaps', 'enclosed', 'covers')")
-        self.__intersect = value
-        self.request_payload.update({'intersect': self.__intersect})
+
+        self._intersect = value
+        self.request_payload.update({'intersect': self._intersect})
 
     def __repr__(self, *args, **kwargs):
         result = "Spatial constraint having request payload :\n{0}".format(self.request_payload)
@@ -148,10 +149,10 @@ class Polygon(SpatialConstraint):
         if len(polygon_region.vertices.ra) < 3:
             raise AttributeError('`polygon_region` must have at least 3 vertices')
 
-        self.request_payload.update({'stc': self.__to_stc(polygon_region)})
+        self.request_payload.update({'stc': self._to_stc(polygon_region)})
 
     @staticmethod
-    def __to_stc(polygon_region):
+    def _to_stc(polygon_region):
         """
         Convert a regions.PolygonSkyRegion instance to a string
 

@@ -23,30 +23,30 @@ class Dataset:
 
     def __init__(self, **kwargs):
         assert len(kwargs.keys()) >= 1
-        self.__properties = kwargs
-        self.__services = {}
+        self._properties = kwargs
+        self._services = {}
 
         # These services are available from the properties of
         # a dataset
-        self.__init_service(__class__.ServiceType.tap, vo.dal.TAPService)
-        self.__init_service(__class__.ServiceType.cs, vo.dal.SCSService)
-        self.__init_service(__class__.ServiceType.ssa, vo.dal.SSAService)
-        self.__init_service(__class__.ServiceType.sia, vo.dal.SIAService)
+        self._init_service(__class__.ServiceType.tap, vo.dal.TAPService)
+        self._init_service(__class__.ServiceType.cs, vo.dal.SCSService)
+        self._init_service(__class__.ServiceType.ssa, vo.dal.SSAService)
+        self._init_service(__class__.ServiceType.sia, vo.dal.SIAService)
 
-    def __init_service(self, service_type, service_class):
+    def _init_service(self, service_type, service_class):
         name_srv_property = service_type.name + '_service_url'
 
         id_mirror_server = 1
         while True:
-            if name_srv_property not in self.__properties.keys():
+            if name_srv_property not in self._properties.keys():
                 break
 
-            new_service = service_class(self.__properties[name_srv_property])
+            new_service = service_class(self._properties[name_srv_property])
 
-            if service_type not in self.__services.keys():
-                self.__services[service_type] = [new_service]
+            if service_type not in self._services.keys():
+                self._services[service_type] = [new_service]
             else:
-                self.__services[service_type].append(new_service)
+                self._services[service_type].append(new_service)
 
             pos_url = name_srv_property.find('_url')
             name_srv_property = name_srv_property[:(pos_url+4)]
@@ -57,16 +57,16 @@ class Dataset:
         # The mirrors for a same service are shuffled allowing each
         # of the mirror to be queried at the same rate if a lot of
         # people proceeds to query a specific service
-        if service_type in self.__services.keys():
-            shuffle(self.__services[service_type])
+        if service_type in self._services.keys():
+            shuffle(self._services[service_type])
 
     @property
     def properties(self):
-        return copy(self.__properties)
+        return copy(self._properties)
 
     @property
     def services(self):
-        return [service_type.name for service_type in self.__services.keys()]
+        return [service_type.name for service_type in self._services.keys()]
 
     def search(self, service_type, **kwargs):
         """
@@ -91,19 +91,17 @@ class Dataset:
             For more explanation about what params to use with a service, see the pyvo
             doc available at : http://pyvo.readthedocs.io/en/latest/dal/index.html
         :return:
-            a votable containing all the sources from the dataset that match the query
+            an astropy.table.Table containing the sources from the dataset that match the query
 
         """
         if not isinstance(service_type, Dataset.ServiceType):
-            print("Service {0} not found".format(service_type))
-            raise ValueError
+            raise ValueError('Service {0} not found'.format(service_type))
 
-        if service_type not in self.__services.keys():
-            print('The service {0:s} is not available for this dataset'.format(service_type.name))
-            print('Available services are the following :\n{0}'.format(self.services))
-            raise KeyError
+        if service_type not in self._services.keys():
+            raise KeyError('The service {0:s} is not available for this dataset\n'
+                           'Available services are the following :\n{1}'.format(service_type.name, self.services))
 
-        services_l = self.__services[service_type]
+        services_l = self._services[service_type]
 
         """
         Mirrors services are queried in a random way (services_l shuffled) until
