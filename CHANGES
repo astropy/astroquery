@@ -16,6 +16,7 @@
 - MAST: Removing filesize checking due to unreliable filesize reporting in
   the database. [#1050]
 - MAST: Added Catalogs class. [#1049]
+- MAST: Enable downloading MAST HST data from S3. [#1040]
 - SPLATALOGUE: Move to https as old HTTP post requests were broken. [#1076]
 - utils.TAP: Add tool to check for phase of background job. [#1073]
 - utils.TAP: Added redirect handling to sync jobs. [#1099]
